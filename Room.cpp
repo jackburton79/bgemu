@@ -219,14 +219,10 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 					animImage->w, animImage->h
 			};
 
-			//if (!rects_intersect(area, rect))
-				//continue;
-			/*SDL_Rect rect = {
-					0, 0, animImage->w, animImage->h
-			};*/
-			//printf("%d %d %d %d\n", rect.x, rect.y,
-				//	rect.w, rect.h);
-			//rect = offset_rect(rect, -frame.rect.x, 0);
+			if (!rects_intersect(area, rect))
+				continue;
+
+			rect = offset_rect(rect, -frame.rect.x, 0);
 			rect = offset_rect(rect, -area.x, -area.y);
 			SDL_BlitSurface(animImage, NULL, surface, &rect);
 			SDL_FreeSurface(animImage);
@@ -278,10 +274,11 @@ Animation::~Animation()
 Frame
 Animation::Image()
 {
-	//printf("center: %d %d\n", fCenter.x, fCenter.y);
 
 	Frame frame = fBAM->FrameForCycle(fCurrentFrame, fCycle);
-	//printf("frame center: %d %d\n", frame.rect.x, frame.rect.y);
+	/*printf("center: %d %d\n", fCenter.x, fCenter.y);
+	printf("frame center: %d %d\n", frame.rect.x, frame.rect.y);
+*/
 	if (!fHold) {
 		fCurrentFrame++;
 		if (fCurrentFrame >= fCycle->numFrames)

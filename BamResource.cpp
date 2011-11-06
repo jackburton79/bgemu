@@ -170,8 +170,8 @@ BAMResource::_FrameAt(uint16 index)
 	SDL_Rect rect;
 	rect.w = surface->w;
 	rect.h = surface->h;
-	rect.x = entry.xpos;
-	rect.y = entry.ypos;
+	rect.x = entry.xpos - rect.w / 2;
+	rect.y = entry.ypos - rect.h / 2;
 	
 	Frame frame;
 	frame.surface = surface;
