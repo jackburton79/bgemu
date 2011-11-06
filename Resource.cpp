@@ -6,11 +6,11 @@
 #include "KeyFile.h"
 #include "MemoryStream.h"
 #include "Resource.h"
+#include "SupportDefs.h"
 #include "Types.h"
 #include "TisResource.h"
 #include "WedResource.h"
 
-#include <SupportDefs.h>
 #include <cstdio>
 
 

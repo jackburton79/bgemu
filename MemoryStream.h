@@ -1,9 +1,8 @@
 #ifndef __MEMORY_H
 #define __MEMORY_H
 
-#include <SupportDefs.h>
-
 #include "Stream.h"
+#include "SupportDefs.h"
 
 class TMemoryStream : public TStream {
 public:

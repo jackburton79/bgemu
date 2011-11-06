@@ -1,7 +1,7 @@
 #ifndef __BIFARCHIVE_H
 #define __BIFARCHIVE_H
 
-#include <Archive.h>
+#include "Archive.h"
 
 struct resource_info;
 struct tileset_info;

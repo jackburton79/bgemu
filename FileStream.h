@@ -8,10 +8,8 @@ using namespace std;
 
 #include <string>
 
-#include <SupportDefs.h>
-
 #include "Stream.h"
-
+#include "SupportDefs.h"
 
 
 class TFileStream : public TStream {

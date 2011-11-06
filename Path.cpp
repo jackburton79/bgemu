@@ -12,7 +12,7 @@
 	BPath implementation.
 */
 
-#include <Path.h>
+#include "Path.h"
 
 #include <errno.h>
 #include <limits.h>

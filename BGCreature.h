@@ -1,9 +1,8 @@
 #ifndef __BGCREATURE_H
 #define __BGCREATURE_H
 
-#include <SupportDefs.h>
-
 #include "Resource.h"
+#include "SupportDefs.h"
 
 #define CRE_SIGNATURE "CRE V1.0"
 

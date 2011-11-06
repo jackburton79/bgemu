@@ -184,7 +184,7 @@ AREAResource *
 ResourceManager::GetAREA(const res_ref &name)
 {
 	Resource *resource = GetResource(name, RES_AREA);
-	assert(dynamic_cast<AREAResource *>(resource));
+	//assert(dynamic_cast<AREAResource *>(resource));
 
 	return static_cast<AREAResource *>(resource);
 }
@@ -194,7 +194,7 @@ BAMResource *
 ResourceManager::GetBAM(const res_ref &name)
 {
 	Resource *resource = GetResource(name, RES_BAM);
-	assert(dynamic_cast<BAMResource *>(resource));
+	//assert(dynamic_cast<BAMResource *>(resource));
 	
 	return static_cast<BAMResource *>(resource);
 }
@@ -204,7 +204,7 @@ BMPResource *
 ResourceManager::GetBMP(const res_ref &name)
 {
 	Resource *resource = GetResource(name, RES_BMP);
-	assert(dynamic_cast<BMPResource *>(resource));
+	//assert(dynamic_cast<BMPResource *>(resource));
 
 	return static_cast<BMPResource *>(resource);
 }
@@ -214,7 +214,7 @@ TISResource *
 ResourceManager::GetTIS(const res_ref &name)
 {
 	Resource *resource = GetResource(name, RES_TIS);
-	assert(dynamic_cast<TISResource *>(resource));
+	//assert(dynamic_cast<TISResource *>(resource));
 	
 	return static_cast<TISResource *>(resource);
 }
@@ -224,7 +224,7 @@ WEDResource *
 ResourceManager::GetWED(const res_ref &name)
 {
 	Resource *resource = GetResource(name, RES_WED);
-	assert(dynamic_cast<WEDResource *>(resource));
+	//assert(dynamic_cast<WEDResource *>(resource));
 
 	return static_cast<WEDResource *>(resource);
 }

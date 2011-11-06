@@ -2,7 +2,8 @@
 #define __GRAPHICS_H
 
 #include <SDL.h>
-#include <SupportDefs.h>
+
+#include "SupportDefs.h"
 
 class Polygon;
 class Graphics {

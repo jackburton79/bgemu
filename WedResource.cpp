@@ -111,9 +111,15 @@ WEDResource::Load(TArchive *archive, uint32 key)
 
 
 void
-WEDResource::_DrawOverlay(SDL_Rect rect, SDL_Surface *surface,
-		SDL_Surface *cell)
+WEDResource::_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
+		SDL_Rect rect, bool transparent)
 {
+	// Green is the colorkey
+	// TODO: only for BG, it seems
+	if (transparent) {
+		uint32 color = SDL_MapRGB(cell->format, 0, 0, 255);
+		SDL_SetColorKey(cell, SDL_SRCCOLORKEY, color);
+	}
 	SDL_BlitSurface(cell, NULL, surface, &rect);
 }
 
@@ -137,7 +143,7 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
    		if (nextOverlay == NULL)
    			break;
 
-   		if (i != 0) {
+   		/*if (i != 0) {
    			printf("overlay %d mask: ", i);
    			int mask = nextOverlay->TileMapFor(tileNum).mask;
    			for (int z = 0; z < 7; z++) {
@@ -145,22 +151,11 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
    					printf("%d", z);
    			}
    			printf("\n");
-   		}
+   		}*/
    		const int32 index = nextOverlay->TileIndexAt(tileNum);
    		TISResource *tis = gResManager->GetTIS(nextOverlay->TileSet());
-
    		SDL_Surface *cell = tis->TileCellAt(index);
-   		if (i == 0) {
-   			// Green is the colorkey
-   			// TODO: only for BG, it seems
-   			if (tileMap.mask != 0) {
-   				uint32 color = SDL_MapRGB(cell->format, 0, 0, 255);
-   				SDL_SetColorKey(cell, SDL_SRCCOLORKEY, color);
-   			}
-   			SDL_BlitSurface(cell, NULL, surface, &tileRect);
-   		} else
-   			_DrawOverlay(tileRect, surface, cell);
-
+   		_DrawOverlay(surface, cell, tileRect, i == 0);
    		SDL_FreeSurface(cell);
 
    		gResManager->ReleaseResource(tis);
