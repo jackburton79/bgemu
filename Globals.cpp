@@ -3,54 +3,6 @@
 
 #include <cstdio>
 
-static char sTemp[256];
-
-// This function is not thread safe
-const char *
-strresource(int type)
-{
-	switch (type) {
-		case RES_BMP:
-			return "Bitmap (BMP) format";
-		case RES_ARA:
-			return "AREA format";
-		case RES_MVE:
-			return "Movie (MVE) format";
-		case RES_WAV:
-			return "WAV format";
-		case RES_PLT:
-			return "Paper Dolls (PLT) format";
-		case RES_ITM:
-			return "Item";
-		case RES_BAM:
-	 		return "BAM format";
-	 	case RES_WED:
-	 		return "WED format";
-	 	case RES_TIS:
-	 		return "TIS format";
-	 	case RES_MOS:
-	 		return "MOS format";
-	 	case RES_SPL:
-			return "SPL format";
-	 	case RES_IDS:
-	 		return "IDS format";
-		case RES_BCS:
-			return "Compiled script (BCS format)";
-		case RES_CRE:
-		 	return "Creature";
-		case RES_DLG:
-		 	return "Dialog";
-		case RES_EFF:
-		 	return "EFF Effect";
-		case RES_VVC:
-		 	return "VVC Effect";
-		case RES_WFX:
-		default:
-		 	sprintf(sTemp, "unknown (0x%x)", type);
-			return sTemp;
-	}
-}
-
 
 res_ref::res_ref()
 {

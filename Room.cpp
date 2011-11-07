@@ -255,10 +255,14 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 {
+	if (fActors == NULL)
+		return;
+
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
 		uint16 id = fActors[a]->CRE()->AnimationID();
 		uint32 longNameID = fActors[a]->CRE()->LongNameID();
-		//const char *string = fIDSAnimate->ValueFor(id);
+		const char *string = fIDSAnimate->ValueFor(id);
+		printf("string: %s\n", string);
 		TLKEntry *entry = Dialogs()->EntryAt(longNameID);
 		if (entry == NULL)
 			continue;

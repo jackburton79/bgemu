@@ -75,7 +75,7 @@ BAMResource::_FindTransparentIndex()
 	for (uint16 i = 0; i < 256; i++) {
 		const SDL_Color *color = &fPalette[i];
 		if (color->r == 0 and color->g == 255 and color->b == 0) {
-			printf("transparent index: %d\n", i);
+			//printf("transparent index: %d\n", i);
 			return i;
 		}
 	}
@@ -216,12 +216,9 @@ BAMResource::_Load()
 	char version[5];
 	version[4] = '\0';
 	fData->ReadAt(0, signature, 4);
-	if (!strcmp(signature, BAMC_SIGNATURE)) {
-		fData->ReadAt(4, version, 4);
-		if (strcmp(version, BAM_VERSION_1)) {
-			printf("invalid version: %s\n", version);
+	if (CheckSignature(BAMC_SIGNATURE)) {
+		if (!CheckVersion(BAM_VERSION_1))
 			throw -1;
-		}
 
 		uint32 len;
 		fData->ReadAt(8, len);
@@ -235,15 +232,12 @@ BAMResource::_Load()
 		ReplaceData(new MemoryStream(decompressedData, len, true));
 	}
 
-	fData->ReadAt(0, signature, 4);
-	if (!strcmp(signature, BAM_SIGNATURE)) {
-		fData->ReadAt(4, version, 4);
-		if (strcmp(version, BAM_VERSION_1)) {
-			printf("invalid version: %s\n", version);
+	if (CheckSignature(BAM_SIGNATURE)) {
+		if (!CheckVersion(BAM_VERSION_1))
 			throw -1;
-		}
+
 		fData->ReadAt(8, fNumFrames);
-		std::cout << fNumFrames << " frames found." << std::endl;
+		//std::cout << fNumFrames << " frames found." << std::endl;
 		fData->ReadAt(10, fNumCycles);
 		//std::cout << (int)fNumCycles << " cycles found." << std::endl;
 		fData->ReadAt(11, fCompressedIndex);
@@ -263,10 +257,8 @@ BAMResource::_Load()
 			fPalette[i].r = fData->ReadByte();
 			fPalette[i].unused = fData->ReadByte();
 		}
-	} else {
-		printf("invalid signature: %s\n", signature);
+	} else
 		throw -1;
-	}
 
 	fTransparentIndex = _FindTransparentIndex();
 }

@@ -79,14 +79,12 @@ ResourceManager::Initialize(const char *path)
 	fResourcesPath.SetTo(path);
 
 	KEYResource *key = GetKEY();
-
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
 		KeyFileEntry *bif = new KeyFileEntry;
 		if (key->GetFileEntryAt(b, *bif))
 			fBifs.push_back(bif);
 	}
-
 
 	const uint32 numResources = key->CountResourceEntries();
 	for (uint32 c = 0; c < numResources; c++) {
@@ -313,7 +311,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 	resource->_Acquire();
 	fCachedResources.push_back(resource);
-		
+
 	return resource;
 }
 

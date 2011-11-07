@@ -9,14 +9,6 @@
 
 const static int kTileDataSize = 1024 + 4096;
 
-/*
-TISResource::TISResource(uint8 *data, uint32 size, uint32 key)
-	:
-	Resource(data, size, key)
-{
-	fType = RES_TIS;
-}
-*/
 
 TISResource::TISResource(const res_ref &name)
 	:
