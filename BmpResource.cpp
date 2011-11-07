@@ -3,9 +3,8 @@
 
 BMPResource::BMPResource(const res_ref &name)
 	:
-	Resource()
+	Resource(name, RES_BMP)
 {
-
 }
 
 
@@ -27,7 +26,7 @@ BMPResource::Image()
 
 
 bool
-BMPResource::Load(TArchive *archive, uint32 key)
+BMPResource::Load(Archive *archive, uint32 key)
 {
 	return Resource::Load(archive, key);
 }

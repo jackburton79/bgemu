@@ -12,12 +12,11 @@ struct cycle {
 
 class BAMResource : public Resource {
 public:
-	BAMResource(uint8 *data, uint32 size, uint32 key);
 	BAMResource(const res_ref& name);
 
 	~BAMResource();
 	
-	bool Load(TArchive *archive, uint32 key);
+	bool Load(Archive *archive, uint32 key);
 
 	Frame FrameForCycle(int frameIndex, ::cycle *cycle);
 	

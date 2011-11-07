@@ -14,12 +14,12 @@
 
 using namespace std;
 
-TBIFArchive::TBIFArchive(const char *fileName)
+BIFArchive::BIFArchive(const char *fileName)
 	:
 	fStream(NULL)
 {
-	fStream = new TFileStream(fileName, TFileStream::READ_ONLY,
-					TFileStream::CASE_INSENSITIVE);
+	fStream = new FileStream(fileName, FileStream::READ_ONLY,
+					FileStream::CASE_INSENSITIVE);
 	
 	char signature[9];
 	signature[8] = '\0';
@@ -27,12 +27,12 @@ TBIFArchive::TBIFArchive(const char *fileName)
 		
 	if (!strcmp(signature, BIFC_SIGNATURE)) {
 		//cout << "BIFC archive, decompressing... ";
-		TFileStream *tmpStream = dynamic_cast<TFileStream*>(fStream);
+		FileStream *tmpStream = dynamic_cast<FileStream*>(fStream);
 
 		uint32 uncompressedSize;
 		tmpStream->Read(&uncompressedSize, sizeof(uncompressedSize));
 		
-		fStream = new TMemoryStream(uncompressedSize);
+		fStream = new MemoryStream(uncompressedSize);
 		uint32 done = 0;
 		do {
 			ssize_t blockSize = _ExtractFileBlock(*tmpStream, *fStream);
@@ -68,14 +68,14 @@ TBIFArchive::TBIFArchive(const char *fileName)
 }
 
 
-TBIFArchive::~TBIFArchive()
+BIFArchive::~BIFArchive()
 {
 	delete fStream;
 }
 
 
 void
-TBIFArchive::EnumEntries()
+BIFArchive::EnumEntries()
 {
 	fStream->Seek(fCatalogOffset, SEEK_SET);
 	
@@ -116,7 +116,7 @@ TBIFArchive::EnumEntries()
 
 
 bool
-TBIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
+BIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
 {
 	fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
 			&info, sizeof(resource_info));
@@ -125,7 +125,7 @@ TBIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
 
 
 bool
-TBIFArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
+BIFArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
 {
 	fStream->ReadAt(fTileEntriesOffset + index * sizeof(tileset_info),
 			&info, sizeof(tileset_info));
@@ -134,7 +134,7 @@ TBIFArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
 
 
 ssize_t
-TBIFArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
+BIFArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
 {
 	fStream->ReadAt(offset, buffer, size);
 	return size;
@@ -142,7 +142,7 @@ TBIFArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
 
 
 ssize_t
-TBIFArchive::_ExtractFileBlock(TStream &source, TStream &dest)
+BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 {
 	uint32 decomp;
 	uint32 comp;

@@ -12,7 +12,7 @@ using namespace std;
 #include "SupportDefs.h"
 
 
-class TFileStream : public TStream {
+class FileStream : public Stream {
 public:
 	enum openmode {
 		READ_ONLY = 0,
@@ -25,12 +25,12 @@ public:
 		CASE_INSENSITIVE = 1
 	};
 
-	TFileStream(const char *filename,
+	FileStream(const char *filename,
 				openmode mode = READ_ONLY,
 				casemode caseMode = CASE_SENSITIVE);
-	TFileStream();
+	FileStream();
 
-	virtual ~TFileStream();
+	virtual ~FileStream();
 	
 	bool SetTo(const char *filename,
 				openmode mode = READ_ONLY,

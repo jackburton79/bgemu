@@ -1,92 +1,121 @@
 #include "AreaResource.h"
-
+#include "MemoryStream.h"
 
 #define AREA_SIGNATURE "AREA"
 #define AREA_VERSION_1 "V1.0"
 
-
-AREAResource::AREAResource(const res_ref& name)
-	:
-	Resource(),
-	fWedName(NULL),
-	fAnimationsOffset(0),
-	fNumAnimations(0),
-	fAnimations(NULL)
+static void
+PrintActor(const ::actor &actor)
 {
-	fType = RES_AREA;
+	printf("Actor %s:\n", actor.name);
+	printf("\tCRE: %s\n", (const char *)actor.cre);
+	printf("\tposition: (%d, %d)\n", actor.position.x, actor.position.y);
 }
 
 
-AREAResource::~AREAResource()
+ARAResource::ARAResource(const res_ref& name)
+	:
+	Resource(name, RES_ARA),
+	fWedName(NULL),
+	fAnimationsOffset(0),
+	fNumAnimations(0),
+	fActorsOffset(0),
+	fNumActors(0),
+	fAnimations(NULL),
+	fActors(NULL)
+{
+}
+
+
+ARAResource::~ARAResource()
 {
 	delete[] fAnimations;
+	delete[] fActors;
 }
 
 
 bool
-AREAResource::Load(TArchive *archive, uint32 key)
+ARAResource::Load(Archive *archive, uint32 key)
 {
 	Resource::Load(archive, key);
 
-	char signature[5];
-	signature[4] = '\0';
-	ReadAt(0, signature, 4);
-
-	if (strcmp(signature, AREA_SIGNATURE)) {
-		printf("AREAResource::Load(): invalid signature %s\n", signature);
+	if (!CheckSignature(AREA_SIGNATURE))
 		return false;
-	}
 
-	char version[5];
-	version[4] = '\0';
-	ReadAt(4, version, 4);
-
-	if (strcmp(version, AREA_VERSION_1)) {
-		printf("AREAResource::Load(): version %s not supported\n", version);
+	if (!CheckVersion(AREA_VERSION_1))
 		return false;
-	}
 
-	printf("AREAResource::Load(): signature %s, version %s: OK\n",
-			signature, version);
+	fData->ReadAt(8, fWedName);
 
-	ReadAt(8, fWedName);
+	fData->ReadAt(84, fActorsOffset);
+	fData->ReadAt(88, fNumActors);
 
-	ReadAt(172, fNumAnimations);
-	ReadAt(176, fAnimationsOffset);
+	fData->ReadAt(172, fNumAnimations);
+	fData->ReadAt(176, fAnimationsOffset);
 
 	_LoadAnimations();
+	_LoadActors();
+
+	DropData();
 
 	return true;
 }
 
 
 const char *
-AREAResource::WedName() const
+ARAResource::WedName() const
 {
 	return fWedName;
 }
 
 
 int32
-AREAResource::CountAnimations() const
+ARAResource::CountAnimations() const
 {
 	return fNumAnimations;
 }
 
 
 animation *
-AREAResource::AnimationAt(int32 i)
+ARAResource::AnimationAt(int32 index)
 {
-	return &fAnimations[i];
+	return &fAnimations[index];
+}
+
+
+actor *
+ARAResource::ActorAt(int16 index)
+{
+	return &fActors[index];
+}
+
+
+int16
+ARAResource::CountActors() const
+{
+	return fNumActors;
 }
 
 
 void
-AREAResource::_LoadAnimations()
+ARAResource::_LoadAnimations()
 {
 	fAnimations = new animation[fNumAnimations];
 
-	Seek(fAnimationsOffset, SEEK_SET);
+	fData->Seek(fAnimationsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumAnimations; i++)
-		Read(fAnimations[i]);
+		fData->Read(fAnimations[i]);
+}
+
+
+void
+ARAResource::_LoadActors()
+{
+	fActors = new actor[fNumActors];
+
+	fData->Seek(fActorsOffset, SEEK_SET);
+	for (uint32 i = 0; i < fNumActors; i++) {
+		fData->Read(fActors[i]);
+		//PrintActor(fActors[i]);
+	}
 }

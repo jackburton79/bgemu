@@ -1,9 +1,10 @@
 #include "MemoryStream.h"
 
+
 #include <iostream>
 #include <string.h>
 
-TMemoryStream::TMemoryStream(const uint8 *data, int size, bool owns)
+MemoryStream::MemoryStream(const uint8 *data, int size, bool owns)
 	:
 	fData(const_cast<uint8*>(data)),
 	fSize((uint32)size),
@@ -13,7 +14,7 @@ TMemoryStream::TMemoryStream(const uint8 *data, int size, bool owns)
 }
 
 
-TMemoryStream::TMemoryStream(int size)
+MemoryStream::MemoryStream(int size)
 	:
 	fData(NULL),
 	fSize((uint32)size),
@@ -29,7 +30,7 @@ TMemoryStream::TMemoryStream(int size)
 }
 
 
-TMemoryStream::~TMemoryStream()
+MemoryStream::~MemoryStream()
 {
 	if (fOwnsBuffer)
 		delete[] fData;
@@ -37,7 +38,7 @@ TMemoryStream::~TMemoryStream()
 
 
 ssize_t
-TMemoryStream::ReadAt(int pos, void *dst, int size)
+MemoryStream::ReadAt(int pos, void *dst, int size)
 {
 	ssize_t readable = fSize - pos;
 	if (size > readable)
@@ -49,7 +50,7 @@ TMemoryStream::ReadAt(int pos, void *dst, int size)
 
 
 ssize_t
-TMemoryStream::WriteAt(int pos, void *src, int size)
+MemoryStream::WriteAt(int pos, void *src, int size)
 {
 	ssize_t writable = fSize - pos;
 	if (size > writable)
@@ -61,7 +62,7 @@ TMemoryStream::WriteAt(int pos, void *src, int size)
 
 
 int32
-TMemoryStream::Seek(int32 where, int whence)
+MemoryStream::Seek(int32 where, int whence)
 {
 	switch (whence) {
 		case SEEK_SET:
@@ -82,21 +83,21 @@ TMemoryStream::Seek(int32 where, int whence)
 
 
 int32
-TMemoryStream::Position() const
+MemoryStream::Position() const
 {
 	return fPosition;
 }
 
 
 uint32
-TMemoryStream::Size() const
+MemoryStream::Size() const
 {
 	return fSize;
 }
 
 
 void *
-TMemoryStream::Data() const
+MemoryStream::Data() const
 {
 	return fData;
 }

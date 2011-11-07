@@ -6,17 +6,15 @@
 
 
 struct res_ref;
-class TArchive;
-class TMemoryStream;
+class Archive;
+class MemoryStream;
 class ResourceManager;
-class Resource : public TStream {
+class Resource {
 public:
-	Resource(uint8 *data, uint32 size, uint32 key);
-	Resource();
-
+	Resource(const res_ref &name, const uint16 &type);
 	virtual ~Resource();
 	
-	virtual bool Load(TArchive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 	void Write(const char *fileName);
 
 	const uint32 Key() const;
@@ -27,24 +25,18 @@ public:
 protected:
 	friend class ResourceManager;
 
-	virtual ssize_t ReadAt(int pos, void *dst, int count);
+	bool CheckSignature(const char *signature);
+	bool CheckVersion(const char *version);
 	
-	virtual int32 Seek(int32 where, int whence = SEEK_CUR);
-	virtual int32 Position() const;
-	
-	template<typename T>
-	ssize_t ReadAt(int pos, T &dst) {
-		return ReadAt(pos, &dst, sizeof(dst));
-	};
-	
-	bool ReplaceData(TMemoryStream *stream);
+	bool ReplaceData(MemoryStream *stream);
+	void DropData();
 
 private:
 	void _Acquire();
 	bool _Release();
 
 protected:
-	TMemoryStream *fData;
+	MemoryStream *fData;
 	uint32 fKey;
 	uint16 fType;
 	res_ref fName;

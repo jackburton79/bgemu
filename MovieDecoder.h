@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include "Types.h"
 
-class TStream;
+class Stream;
 class MovieDecoder {
 public:
 	MovieDecoder();
@@ -14,7 +14,7 @@ public:
 	
 	void SetDecodingMap(uint8 *map, uint32 size);
 	void SetPalette(uint16 start, uint16 count, uint8 palette[]);
-	void DecodeDataBlock(TStream *stream, uint32 length);
+	void DecodeDataBlock(Stream *stream, uint32 length);
 	
 	SDL_Surface *CurrentFrame() const;
 	

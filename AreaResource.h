@@ -3,29 +3,37 @@
 
 #include "Resource.h"
 
-class AREAResource : public Resource {
+class ARAResource : public Resource {
 public:
 	//AREAResource(uint8 *data, uint32 size, uint32 key);
-	AREAResource(const res_ref& name);
-	~AREAResource();
+	ARAResource(const res_ref& name);
+	~ARAResource();
 
-	bool Load(TArchive *archive, uint32 key);
+	bool Load(Archive *archive, uint32 key);
 
 	const char *WedName() const;
 
 	int32 CountAnimations() const;
-	animation *AnimationAt(int32 i);
+	animation *AnimationAt(int32 index);
+
+	int16 CountActors() const;
+	actor *ActorAt(int16 index);
 
 private:
 
 	void _LoadAnimations();
+	void _LoadActors();
 
 	res_ref fWedName;
 
 	uint32 fAnimationsOffset;
 	uint32 fNumAnimations;
 
+	uint32 fActorsOffset;
+	uint16 fNumActors;
+
 	animation *fAnimations;
+	actor *fActors;
 };
 
 #endif /* __AREARESOURCE_H_ */

@@ -2,11 +2,14 @@
 #include "AreaResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
-#include "BGCreature.h"
+#include "CreResource.h"
+#include "IDSResource.h"
+#include "KEYResource.h"
 #include "ResManager.h"
 #include "Resource.h"
 #include "FileStream.h"
 #include "TisResource.h"
+#include "TLKResource.h"
 #include "Types.h"
 #include "Utils.h"
 #include "WedResource.h"
@@ -71,106 +74,47 @@ ResourceManager::~ResourceManager()
 
 
 void
-ResourceManager::SetResourcesPath(const char *path)
+ResourceManager::Initialize(const char *path)
 {
 	fResourcesPath.SetTo(path);
-}
 
+	KEYResource *key = GetKEY();
 
-void
-ResourceManager::ParseKeyFile(const char *fileName)
-{
-	TPath filePath(fResourcesPath.Path(), fileName);
-	TFileStream file(filePath.Path(),
-			TFileStream::READ_ONLY,
-			TFileStream::CASE_INSENSITIVE);
-
-	char array[5];
-	array[4] = '\0';
-	
-	file.Read(array, 4);
-	if (strcmp(array, KEY_SIGNATURE)) {
-		printf("bad signature\n");
-		return;
-	}
-	
-	file.Read(array, 4); // version
-	if (strcmp(array, KEY_VERSION)) {
-		printf("bad version\n");
-		return;
-	}
-	
-	int32 numBifs;
-	file >> numBifs;
-	
-	int32 numResources;
-	file >> numResources;
-	
-	int32 bifOffset;
-	file >> bifOffset;
-	
-	int32 resOffset;
-	file >> resOffset;
-	
-	// Retrieve BIF entries
-	file.Seek(bifOffset, SEEK_SET);
-	for (int i = 0; i < numBifs; i++) {
+	const uint32 numBifs = key->CountFileEntries();
+	for (uint32 b = 0; b < numBifs; b++) {
 		KeyFileEntry *bif = new KeyFileEntry;
-		
-		int32 offset;
-		int16 nameLen;
-		
-		file >> bif->length;		
-		file >> offset;
-		file >> nameLen;
-		file >> bif->location;
-		
-		char *name = new char[nameLen];
-		file.ReadAt(offset, name, nameLen);
-		
-		path_dos_to_unix(name);
-		
-		bif->name = name;
-		delete[] name;
-		
-		fBifs.push_back(bif);
-		
+		if (key->GetFileEntryAt(b, *bif))
+			fBifs.push_back(bif);
 	}
-	
-	// Retrieve resource entries	
-	file.Seek(resOffset, SEEK_SET);	
-	for (int32 c = 0; c < numResources; c++) {
-		KeyResEntry *res = new KeyResEntry;
-		
-		file.Read((void*)&res->name, 8);
-		file >> res->type >> res->key;
 
-		ref_type refType = { res->name, res->type };
-		fResourceMap[refType] = res;
+
+	const uint32 numResources = key->CountResourceEntries();
+	for (uint32 c = 0; c < numResources; c++) {
+		KeyResEntry *res = new KeyResEntry;
+		if (key->GetResEntryAt(c, *res)) {
+			ref_type refType = { res->name, res->type };
+			fResourceMap[refType] = res;
+		}
 	}
-/*
-	TPath path = fResourcesPath;
-	path.Append("override/");
-	TArchive *archive = TArchive::Create(path.Path());
-	if (archive != NULL)
-		archive->EnumEntries();*/
+
+	ReleaseResource(key);
 }
 
 
 Resource *
-ResourceManager::GetResource(const res_ref &name, uint16 type)
+ResourceManager::_GetResource(const res_ref &name, uint16 type)
 {
-	KeyResEntry *entry = GetKeyRes(name, type);
+	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
 		printf("ResourceManager::GetResource(%s, %s): Resource does not exist!\n",
 				(const char *)name, strresource(type));
 		return NULL;
 	}
 
-	Resource *result = FindResource(*entry);
+	Resource *result = _FindResource(*entry);
 	if (result == NULL) {
 		//printf("\tnot found in cache. Loading...\n");
-		result = LoadResource(*entry);
+		result = _LoadResource(*entry);
 	}
 
 	if (result != NULL)
@@ -180,21 +124,65 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 }
 
 
-AREAResource *
-ResourceManager::GetAREA(const res_ref &name)
+KEYResource *
+ResourceManager::GetKEY()
 {
-	Resource *resource = GetResource(name, RES_AREA);
-	//assert(dynamic_cast<AREAResource *>(resource));
+	KEYResource *key = NULL;
+	try {
+		key = new KEYResource("KEY");
+		TPath path = fResourcesPath;
+		path.Append("Chitin.key");
 
-	return static_cast<AREAResource *>(resource);
+		Archive *archive = Archive::Create(path.Path());
+		if (!key->Load(archive, 0)) {
+			delete archive;
+			delete key;
+			return NULL;
+		}
+		key->_Acquire();
+		delete archive;
+	} catch (...) {
+		return NULL;
+	}
+	return key;
+}
+
+
+TLKResource *
+ResourceManager::GetTLK()
+{
+	TLKResource *tlk = NULL;
+	try {
+		tlk = new TLKResource("TLK");
+		TPath path(fResourcesPath);
+		path.Append("dialog.tlk");
+
+		Archive *archive = Archive::Create(path.Path());
+		tlk->Load(archive, 0);
+		tlk->_Acquire();
+		delete archive;
+	} catch (...) {
+		return NULL;
+	}
+	return tlk;
+}
+
+
+ARAResource *
+ResourceManager::GetARA(const res_ref &name)
+{
+	Resource *resource = _GetResource(name, RES_ARA);
+	assert(dynamic_cast<ARAResource *>(resource));
+
+	return static_cast<ARAResource *>(resource);
 }
 
 
 BAMResource *
 ResourceManager::GetBAM(const res_ref &name)
 {
-	Resource *resource = GetResource(name, RES_BAM);
-	//assert(dynamic_cast<BAMResource *>(resource));
+	Resource *resource = _GetResource(name, RES_BAM);
+	assert(dynamic_cast<BAMResource *>(resource));
 	
 	return static_cast<BAMResource *>(resource);
 }
@@ -203,18 +191,38 @@ ResourceManager::GetBAM(const res_ref &name)
 BMPResource *
 ResourceManager::GetBMP(const res_ref &name)
 {
-	Resource *resource = GetResource(name, RES_BMP);
-	//assert(dynamic_cast<BMPResource *>(resource));
+	Resource *resource = _GetResource(name, RES_BMP);
+	assert(dynamic_cast<BMPResource *>(resource));
 
 	return static_cast<BMPResource *>(resource);
+}
+
+
+CREResource *
+ResourceManager::GetCRE(const res_ref &name)
+{
+	Resource *resource = _GetResource(name, RES_CRE);
+	assert(dynamic_cast<CREResource *>(resource));
+
+	return static_cast<CREResource *>(resource);
+}
+
+
+IDSResource *
+ResourceManager::GetIDS(const res_ref &name)
+{
+	Resource *resource = _GetResource(name, RES_IDS);
+	assert(dynamic_cast<IDSResource *>(resource));
+
+	return static_cast<IDSResource *>(resource);
 }
 
 
 TISResource *
 ResourceManager::GetTIS(const res_ref &name)
 {
-	Resource *resource = GetResource(name, RES_TIS);
-	//assert(dynamic_cast<TISResource *>(resource));
+	Resource *resource = _GetResource(name, RES_TIS);
+	assert(dynamic_cast<TISResource *>(resource));
 	
 	return static_cast<TISResource *>(resource);
 }
@@ -223,8 +231,8 @@ ResourceManager::GetTIS(const res_ref &name)
 WEDResource *
 ResourceManager::GetWED(const res_ref &name)
 {
-	Resource *resource = GetResource(name, RES_WED);
-	//assert(dynamic_cast<WEDResource *>(resource));
+	Resource *resource = _GetResource(name, RES_WED);
+	assert(dynamic_cast<WEDResource *>(resource));
 
 	return static_cast<WEDResource *>(resource);
 }
@@ -271,7 +279,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 
 
 Resource *
-ResourceManager::LoadResource(KeyResEntry &entry)
+ResourceManager::_LoadResource(KeyResEntry &entry)
 {
 	printf("ResourceManager::LoadResource(%s, %s)...",
 		(const char *)entry.name, strresource(entry.type));
@@ -282,11 +290,11 @@ ResourceManager::LoadResource(KeyResEntry &entry)
 
 	printf("LOCATED!\n\t(in %s (0x%x))\n", archiveName, location);
 
-	TArchive *archive = fArchives[archiveName];
+	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
 		printf("\tArchive wasn't opened. Opening...\n");
 		std::string fullPath = GetFullPath(archiveName, location);
-		archive = TArchive::Create(fullPath.c_str());
+		archive = Archive::Create(fullPath.c_str());
 		if (archive == NULL) {
 			printf("FAILED!\n");
 			return NULL;
@@ -364,7 +372,7 @@ ResourceManager::SearchMapName(const char *name)
 
 
 Resource *
-ResourceManager::FindResource(KeyResEntry &entry)
+ResourceManager::_FindResource(KeyResEntry &entry)
 {
 	std::vector<Resource *>::iterator iter;
 	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
@@ -376,7 +384,7 @@ ResourceManager::FindResource(KeyResEntry &entry)
 
 
 KeyResEntry *
-ResourceManager::GetKeyRes(const res_ref &name, uint16 type)
+ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
 {
 	ref_type nameType = {name, type};
 	return fResourceMap[nameType];

@@ -1,7 +1,7 @@
 #ifndef __RESOURCE_MANAGER_H
 #define __RESOURCE_MANAGER_H
 
-#include "KeyFile.h"
+#include "KEYResource.h"
 #include "Path.h"
 #include "Resource.h"
 #include "Types.h"
@@ -10,26 +10,33 @@
 #include <string>
 #include <vector>
 
-class TArchive;
-class AREAResource;
+class Archive;
+class ARAResource;
 class BAMResource;
 class BMPResource;
+class CREResource;
+class IDSResource;
+class KEYResource;
 class TISResource;
+class TLKResource;
 class WEDResource;
 class ResourceManager {
 public:
 	ResourceManager();
 	~ResourceManager();
 	
-	void SetResourcesPath(const char *path);
-	void ParseKeyFile(const char *fileName);	
-	
+	void Initialize(const char *path);
+
+	KEYResource *GetKEY();
+	TLKResource *GetTLK();
 	BAMResource *GetBAM(const res_ref &name);
 	BMPResource *GetBMP(const res_ref &name);
+	CREResource *GetCRE(const res_ref &name);
+	IDSResource *GetIDS(const res_ref &name);
 	TISResource *GetTIS(const res_ref &name);
 	WEDResource *GetWED(const res_ref &name);
-	AREAResource *GetAREA(const res_ref &name);
-	Resource *GetResource(const res_ref &name, uint16 type);
+	ARAResource *GetARA(const res_ref &name);
+
 	void ReleaseResource(Resource *resource);
 	
 	void PrintResources();
@@ -41,9 +48,11 @@ public:
 
 private:
 	const char *ResourcesPath() const;
-	KeyResEntry *GetKeyRes(const res_ref &name, uint16 type);
-	Resource *FindResource(KeyResEntry &entry);
-	Resource *LoadResource(KeyResEntry &entry);
+	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type);
+
+	Resource *_GetResource(const res_ref &name, uint16 type);
+	Resource *_FindResource(KeyResEntry &entry);
+	Resource *_LoadResource(KeyResEntry &entry);
 
 	std::string GetFullPath(std::string name, uint16 location);
 
@@ -51,7 +60,7 @@ private:
 
 	typedef std::map<ref_type, KeyResEntry *> resource_map;
 	typedef std::vector<KeyFileEntry *> bif_vector;
-	typedef std::map<std::string, TArchive *> archive_map;
+	typedef std::map<std::string, Archive *> archive_map;
 
 	TPath fResourcesPath;
 

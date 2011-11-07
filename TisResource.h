@@ -7,19 +7,16 @@
 
 class TISResource : public Resource {
 public:
-	TISResource(uint8 *data, uint32 size, uint32 key);
 	TISResource(const res_ref &name);
 
 	~TISResource();
 	
-	bool Load(TArchive *archive, uint32 key);
+	bool Load(Archive *archive, uint32 key);
 
 	SDL_Surface *TileCellAt(int index);
 
 private:
 	void _Init();
-
-	SDL_Color *fPalette;
 };
 
 

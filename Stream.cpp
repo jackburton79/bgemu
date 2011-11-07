@@ -1,17 +1,17 @@
 #include "Stream.h"
 
-TStream::TStream()
+Stream::Stream()
 {
 }
 
 
-TStream::~TStream()
+Stream::~Stream()
 {
 }
 
 	
 ssize_t
-TStream::Read(void *dst, int size)
+Stream::Read(void *dst, int size)
 {
 	int32 curPos = Position();
 	ssize_t read = ReadAt(curPos, dst, size);
@@ -21,8 +21,44 @@ TStream::Read(void *dst, int size)
 }
 
 
+char *
+Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
+{
+	char *ptr = buffer;
+	while ((Read(ptr, sizeof(char)) == sizeof(char))
+			&& ptr - buffer < maxSize) {
+		if (*ptr++ == endLine)
+			break;
+	}
+
+	if (ptr > buffer) {
+		*(ptr - 1) = '\0';
+		return buffer;
+	}
+
+	return NULL;
+}
+
+
 ssize_t
-TStream::Write(void *src, int size)
+Stream::ReadString(char *string, size_t size)
+{
+	char *ptr = string;
+	char c;
+	for (;;) {
+		c = ReadByte();
+		if (c == ' ' || c == '\n' || c == '\r')
+			break;
+		*ptr++ = c;
+	}
+	*ptr = '\0';
+
+	return ptr - string;
+}
+
+
+ssize_t
+Stream::Write(void *src, int size)
 {
 	int32 curPos = Position();
 	ssize_t wrote = WriteAt(curPos, src, size);
@@ -33,7 +69,7 @@ TStream::Write(void *src, int size)
 
 
 uint8
-TStream::ReadByte()
+Stream::ReadByte()
 {
 	uint8 byte;
 	Read(&byte, sizeof(byte));
@@ -42,7 +78,7 @@ TStream::ReadByte()
 
 	
 void
-TStream::DumpToFile(const char *fileName)
+Stream::DumpToFile(const char *fileName)
 {
 	FILE *file = fopen(fileName, "wb");
 	if (file) {

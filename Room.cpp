@@ -1,12 +1,17 @@
+#include "Actor.h"
 #include "AreaResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
+#include "CreResource.h"
 #include "Graphics.h"
+#include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "TisResource.h"
+#include "TLKResource.h"
 #include "WedResource.h"
+#include "World.h"
 
 #include <iostream>
 
@@ -18,6 +23,8 @@ Room::Room()
 	fSearchMap(NULL),
 	fHeightMap(NULL),
 	fAnimations(NULL),
+	fActors(NULL),
+	fIDSAnimate(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
 	fDrawLightMap(false),
@@ -35,6 +42,8 @@ Room::~Room()
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
 	delete[] fAnimations;
+	delete[] fActors;
+	gResManager->ReleaseResource(fIDSAnimate);
 	gResManager->ReleaseResource(fArea);
 }
 
@@ -52,8 +61,9 @@ Room::Load(const char *resName)
 {
 	std::cout << "RegionMap::Load(" << resName << ")" << std::endl;
 
-	fArea = gResManager->GetAREA(resName);
+	fArea = gResManager->GetARA(resName);
 	fName = fArea->WedName();
+	fIDSAnimate = gResManager->GetIDS("ANIMATE");
 
 	WEDResource *wed = gResManager->GetWED(fName);
 	fSurface = wed->GetAreaMap();
@@ -76,6 +86,7 @@ Room::Load(const char *resName)
 	gResManager->ReleaseResource(bmp);
 
 	_InitAnimations();
+	_InitActors();
 
 	return true;
 }
@@ -88,6 +99,9 @@ Room::Draw(SDL_Surface *surface, SDL_Rect area)
 
 	if (fDrawAnimations)
 		_DrawAnimations(surface, area);
+
+	if (true)
+		_DrawActors(surface, area);
 
 	if (fDrawLightMap)
 		_DrawLightMap(surface);
@@ -111,7 +125,7 @@ Room::ToggleOverlays()
 	SDL_FreeSurface(fSurface);
 
 	WEDResource *wed = gResManager->GetWED(fName);
-	fSurface = wed->GetAreaMap(fDrawOverlays);
+	fSurface = wed->GetAreaMap(fDrawOverlays, fDrawPolygons);
 	gResManager->ReleaseResource(wed);
 }
 
@@ -120,6 +134,11 @@ void
 Room::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
+	SDL_FreeSurface(fSurface);
+
+	WEDResource *wed = gResManager->GetWED(fName);
+	fSurface = wed->GetAreaMap(fDrawOverlays, fDrawPolygons);
+	gResManager->ReleaseResource(wed);
 }
 
 
@@ -208,25 +227,44 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 
 	for (int32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL) {
-			point center = fAnimations[i]->fCenter;
 			Frame frame = fAnimations[i]->Image();
+			point center = fAnimations[i]->fCenter;
+			center = offset_point(center, -frame.rect.w / 2,
+					-frame.rect.h / 2);
 			SDL_Surface *animImage = frame.surface;
 			if (animImage == NULL)
 				continue;
-			SDL_Rect rect = {
-					center.x - frame.rect.w / 2,
-					center.y - frame.rect.h,
-					animImage->w, animImage->h
-			};
+
+			SDL_Rect rect = { center.x, center.y,
+					animImage->w, animImage->h };
+
+			rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 
 			if (!rects_intersect(area, rect))
 				continue;
 
-			rect = offset_rect(rect, -frame.rect.x, 0);
 			rect = offset_rect(rect, -area.x, -area.y);
+
 			SDL_BlitSurface(animImage, NULL, surface, &rect);
 			SDL_FreeSurface(animImage);
 		}
+	}
+}
+
+
+void
+Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
+{
+	for (uint16 a = 0; a < fArea->CountActors(); a++) {
+		uint16 id = fActors[a]->CRE()->AnimationID();
+		uint32 longNameID = fActors[a]->CRE()->LongNameID();
+		//const char *string = fIDSAnimate->ValueFor(id);
+		TLKEntry *entry = Dialogs()->EntryAt(longNameID);
+		if (entry == NULL)
+			continue;
+		//printf("actor %s (%d): %s\n", fActors[a]->Name(),
+			//	id, entry->string);
+		delete entry;
 	}
 }
 
@@ -237,6 +275,16 @@ Room::_InitAnimations()
 	fAnimations = new Animation*[fArea->CountAnimations()];
 	for (int32 i = 0; i < fArea->CountAnimations(); i++) {
 		fAnimations[i] = new Animation(fArea->AnimationAt(i));
+	}
+}
+
+
+void
+Room::_InitActors()
+{
+	fActors = new Actor*[fArea->CountActors()];
+	for (uint16 i = 0; i < fArea->CountActors(); i++) {
+		fActors[i] = new Actor(*fArea->ActorAt(i));
 	}
 }
 
@@ -256,11 +304,11 @@ Animation::Animation(animation *animDesc)
 	fCurrentFrame = animDesc->frame;
 	fHold = animDesc->flags & ANIM_HOLD;
 
-	printf("animation %s\n", (const char*)animDesc->bam_name);
+	/*printf("animation %s\n", (const char*)animDesc->bam_name);
 	printf("\tsequence %d%s\n", fNumber,
 			fHold ? ", still frame": "");
 	printf("\t%d frames\n", fCycle->numFrames);
-	printf("\tcenter: %d %d\n", fCenter.x, fCenter.y);
+	printf("\tcenter: %d %d\n", fCenter.x, fCenter.y);*/
 }
 
 
@@ -274,7 +322,6 @@ Animation::~Animation()
 Frame
 Animation::Image()
 {
-
 	Frame frame = fBAM->FrameForCycle(fCurrentFrame, fCycle);
 	/*printf("center: %d %d\n", fCenter.x, fCenter.y);
 	printf("frame center: %d %d\n", frame.rect.x, frame.rect.y);

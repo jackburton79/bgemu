@@ -12,7 +12,7 @@ public:
 
 	~BMPResource();
 
-	bool Load(TArchive *archive, uint32 key);
+	bool Load(Archive *archive, uint32 key);
 
 	SDL_Surface *Image();
 

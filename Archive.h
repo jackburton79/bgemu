@@ -23,9 +23,9 @@ struct tileset_info : public base_info
 	uint32 type;
 };
 
-class TArchive {
+class Archive {
 public:
-	virtual ~TArchive() {};
+	virtual ~Archive() {};
 
 	virtual void EnumEntries() = 0;
 	
@@ -36,7 +36,7 @@ public:
 	virtual ssize_t ReadAt(uint32 offset,
 			void *buffer, uint32 size) const = 0;
 
-	static TArchive *Create(const char *filename);
+	static Archive *Create(const char *filename);
 };
 
 

@@ -41,20 +41,10 @@ uint32 data_offset(uint32 x)
 }
 
 
-BAMResource::BAMResource(uint8 *ptr, uint32 size, uint32 key)
-	:
-	Resource(ptr, size, key)
-{
-	fType = RES_BAM;
-	_Load();
-}
-
-
 BAMResource::BAMResource(const res_ref& name)
 	:
-	Resource()
+	Resource(name, RES_BAM)
 {
-	fType = RES_BAM;
 }
 
 
@@ -65,7 +55,7 @@ BAMResource::~BAMResource()
 
 
 bool
-BAMResource::Load(TArchive *archive, uint32 key)
+BAMResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
@@ -82,7 +72,7 @@ BAMResource::Load(TArchive *archive, uint32 key)
 uint8
 BAMResource::_FindTransparentIndex()
 {
-	for (uint8 i = 0; i < 256; i++) {
+	for (uint16 i = 0; i < 256; i++) {
 		const SDL_Color *color = &fPalette[i];
 		if (color->r == 0 and color->g == 255 and color->b == 0) {
 			printf("transparent index: %d\n", i);
@@ -132,7 +122,7 @@ Frame
 BAMResource::_FrameAt(uint16 index)
 {
 	BamFrameEntry entry;
-	ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
+	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	//std::cout << "frame " << (int)index << std::endl;
 	//std::cout << "width: " << entry.width << ", height: " << entry.height << std::endl;
 	//std::cout << entry.xpos << " " << entry.ypos << std::endl;
@@ -164,8 +154,13 @@ BAMResource::_FrameAt(uint16 index)
 		throw -1;
 	
 	SDL_SetColors(surface, fPalette, 0, 256);
+	uint32 color = 0;
+	/*if (fTransparentIndex != 0) {
+		const SDL_Color *trans = &fPalette[fTransparentIndex];
+		color  = SDL_MapRGB(surface->format, trans->r, trans->g, trans->b);
+	}*/
 	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL,
-			fTransparentIndex);
+			color);
 
 	SDL_Rect rect;
 	rect.w = surface->w;
@@ -185,7 +180,7 @@ Frame
 BAMResource::FrameForCycle(int frameIndex, ::cycle *cycle)
 {
 	uint16 index;
-	ReadAt(fFrameLookupOffset + (cycle->index + frameIndex) * sizeof(int16), index);
+	fData->ReadAt(fFrameLookupOffset + (cycle->index + frameIndex) * sizeof(int16), index);
 	return _FrameAt(index);
 }
 
@@ -194,7 +189,7 @@ cycle *
 BAMResource::CycleAt(int index)
 {
 	cycle *newCycle = new cycle;
-	ReadAt(fCyclesOffset + index * sizeof(cycle), *newCycle);
+	fData->ReadAt(fCyclesOffset + index * sizeof(cycle), *newCycle);
 	return newCycle;
 }
 
@@ -220,16 +215,16 @@ BAMResource::_Load()
 	signature[4] = '\0';
 	char version[5];
 	version[4] = '\0';
-	ReadAt(0, signature, 4);
+	fData->ReadAt(0, signature, 4);
 	if (!strcmp(signature, BAMC_SIGNATURE)) {
-		ReadAt(4, version, 4);
+		fData->ReadAt(4, version, 4);
 		if (strcmp(version, BAM_VERSION_1)) {
 			printf("invalid version: %s\n", version);
 			throw -1;
 		}
 
 		uint32 len;
-		ReadAt(8, len);
+		fData->ReadAt(8, len);
 		uint8 *decompressedData = new uint8[len];
 		int status = uncompress((Bytef*)decompressedData,
 			(uLongf*)&len, (const Bytef*)(fData->Data()) + 12, fData->Size() - 12);
@@ -237,36 +232,36 @@ BAMResource::_Load()
 		if (status != Z_OK)
 			throw -1;
 
-		ReplaceData(new TMemoryStream(decompressedData, len, true));
+		ReplaceData(new MemoryStream(decompressedData, len, true));
 	}
 
-	ReadAt(0, signature, 4);
+	fData->ReadAt(0, signature, 4);
 	if (!strcmp(signature, BAM_SIGNATURE)) {
-		ReadAt(4, version, 4);
+		fData->ReadAt(4, version, 4);
 		if (strcmp(version, BAM_VERSION_1)) {
 			printf("invalid version: %s\n", version);
 			throw -1;
 		}
-		ReadAt(8, fNumFrames);
+		fData->ReadAt(8, fNumFrames);
 		std::cout << fNumFrames << " frames found." << std::endl;
-		ReadAt(10, fNumCycles);
+		fData->ReadAt(10, fNumCycles);
 		//std::cout << (int)fNumCycles << " cycles found." << std::endl;
-		ReadAt(11, fCompressedIndex);
+		fData->ReadAt(11, fCompressedIndex);
 		//std::cout << "Compressed index: " << (int)fCompressedIndex << std::endl;
-		ReadAt(12, fFramesOffset);
+		fData->ReadAt(12, fFramesOffset);
 		fCyclesOffset = fFramesOffset + fNumFrames * sizeof(BamFrameEntry);
 
 		uint32 paletteOffset;
-		ReadAt(16, paletteOffset);
-		ReadAt(20, fFrameLookupOffset);
+		fData->ReadAt(16, paletteOffset);
+		fData->ReadAt(20, fFrameLookupOffset);
 
-		Seek(paletteOffset, SEEK_SET);
+		fData->Seek(paletteOffset, SEEK_SET);
 		fPalette = new SDL_Color[256];
 		for (int32 i = 0; i < 256; i++) {
-			fPalette[i].b = ReadByte();
-			fPalette[i].g = ReadByte();
-			fPalette[i].r = ReadByte();
-			fPalette[i].unused = ReadByte();
+			fPalette[i].b = fData->ReadByte();
+			fPalette[i].g = fData->ReadByte();
+			fPalette[i].r = fData->ReadByte();
+			fPalette[i].unused = fData->ReadByte();
 		}
 	} else {
 		printf("invalid signature: %s\n", signature);

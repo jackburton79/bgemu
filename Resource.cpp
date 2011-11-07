@@ -2,13 +2,16 @@
 #include "AreaResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
+#include "CreResource.h"
 #include "FileStream.h"
-#include "KeyFile.h"
+#include "IDSResource.h"
+#include "KEYResource.h"
 #include "MemoryStream.h"
 #include "Resource.h"
 #include "SupportDefs.h"
 #include "Types.h"
 #include "TisResource.h"
+#include "TLKResource.h"
 #include "WedResource.h"
 
 #include <cstdio>
@@ -21,20 +24,12 @@ is_tileset(int16 type)
 }
 
 
-Resource::Resource(uint8 *data, uint32 size, uint32 key)
-	:
-	fData(NULL),
-	fKey(key),
-	fRefCount(0)
-{
-	fData = new TMemoryStream(data, size, true);
-}
-
-
-Resource::Resource()
+Resource::Resource(const res_ref &name, const uint16 &type)
 	:
 	fData(NULL),
 	fKey(0),
+	fType(type),
+	fName(name),
 	fRefCount(0)
 {
 
@@ -48,7 +43,7 @@ Resource::~Resource()
 
 
 bool
-Resource::Load(TArchive *archive, uint32 key)
+Resource::Load(Archive *archive, uint32 key)
 {
 	delete fData;
 	fData = NULL;
@@ -75,7 +70,7 @@ Resource::Load(TArchive *archive, uint32 key)
 		offset = info.offset;
 	}
 
-	fData = new TMemoryStream(size);
+	fData = new MemoryStream(size);
 	ssize_t sizeRead = archive->ReadAt(offset, fData->Data(), size);
 	if (sizeRead < 0 || (size_t)sizeRead != size) {
 		delete fData;
@@ -113,79 +108,62 @@ Resource::Type() const
 }
 
 
-ssize_t
-Resource::ReadAt(int pos, void *dst, int size)
-{
-	return fData->ReadAt(pos, dst, size);
-}
-
-
-int32
-Resource::Seek(int32 where, int whence)
-{
-	return fData->Seek(where, whence);
-}
-
-
-int32
-Resource::Position() const
-{
-	return fData->Position();
-}
-
-
-/* static */
-Resource *
-Resource::Create(const res_ref &name, uint16 type)
-{
-	Resource *res = NULL;
-	try {
-		switch (type) {
-			/*case RES_CRE:
-				res = new BGCreature(resPtr, chunk.size, chunk.key);
-				break;*/
-			case RES_BAM:
-			case RES_MOS:
-				res = new BAMResource(name);
-				break;
-			case RES_BMP:
-				res = new BMPResource(name);
-				break;
-			case RES_TIS:
-				res = new TISResource(name);
-				break;
-			case RES_WED:
-				res = new WEDResource(name);
-				break;
-			case RES_AREA:
-				res = new AREAResource(name);
-				break;
-			default:
-				throw "Unknown resource!";
-				break;
-		}
-	} catch (...) {
-		printf("Resource::Create(): exception thrown!\n");
-	}
-
-	if (res != NULL)
-		res->fName = name;
-
-	return res;
-}
-
-
 bool
-Resource::ReplaceData(TMemoryStream *stream)
+Resource::CheckSignature(const char *signature)
 {
-	delete fData;
-	fData = stream;
-	//fData = (uint8*)stream->Raw();
+	char array[5];
+	array[4] = '\0';
+
+	if (fData->ReadAt(0, array, 4) != 4)
+		return false;
+
+	if (strcmp(array, signature) != 0) {
+		printf("invalid signature %s (expected %s)\n",
+				array, signature);
+		return false;
+	}
 
 	return true;
 }
 
 
+bool
+Resource::CheckVersion(const char *version)
+{
+	char array[5];
+	array[4] = '\0';
+
+	if (fData->ReadAt(4, array, 4) != 4)
+		return false;
+
+	if (strcmp(array, version) != 0) {
+		printf("invalid version %s (expected %s)\n",
+				array, version);
+		return false;
+	}
+
+	return true;
+}
+
+
+bool
+Resource::ReplaceData(MemoryStream *stream)
+{
+	delete fData;
+	fData = stream;
+
+	return true;
+}
+
+
+void
+Resource::DropData()
+{
+	ReplaceData(NULL);
+}
+
+
+// Private
 void
 Resource::_Acquire()
 {
@@ -200,4 +178,45 @@ Resource::_Release()
 		return true;
 
 	return false;
+}
+
+
+/* static */
+Resource *
+Resource::Create(const res_ref &name, uint16 type)
+{
+	Resource *res = NULL;
+	try {
+		switch (type) {
+			case RES_CRE:
+				res = new CREResource(name);
+				break;
+			case RES_BAM:
+			case RES_MOS:
+				res = new BAMResource(name);
+				break;
+			case RES_BMP:
+				res = new BMPResource(name);
+				break;
+			case RES_IDS:
+				res = new IDSResource(name);
+				break;
+			case RES_TIS:
+				res = new TISResource(name);
+				break;
+			case RES_WED:
+				res = new WEDResource(name);
+				break;
+			case RES_ARA:
+				res = new ARAResource(name);
+				break;
+			default:
+				throw "Unknown resource!";
+				break;
+		}
+	} catch (...) {
+		printf("Resource::Create(): exception thrown!\n");
+	}
+
+	return res;
 }

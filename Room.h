@@ -6,7 +6,9 @@
 #include "Types.h"
 
 struct cycle;
+class Actor;
 class BAMResource;
+class IDSResource;
 class Animation {
 public:
 	Animation(animation *animDesc);
@@ -24,7 +26,7 @@ public:
 };
 
 
-class AREAResource;
+class ARAResource;
 class Room {
 public:
 	Room();
@@ -47,19 +49,23 @@ private:
 	void _DrawSearchMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawHeightMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawAnimations(SDL_Surface *surface, SDL_Rect area);
+	void _DrawActors(SDL_Surface *surface, SDL_Rect area);
 
 	void _InitAnimations();
+	void _InitActors();
 
 	res_ref fName;
 	SDL_Surface *fSurface;
 
-	AREAResource *fArea;
+	ARAResource *fArea;
 
 	SDL_Surface *fLightMap;
 	SDL_Surface *fSearchMap;
 	SDL_Surface *fHeightMap;
 
 	Animation **fAnimations;
+	Actor **fActors;
+	IDSResource *fIDSAnimate;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

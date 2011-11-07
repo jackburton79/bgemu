@@ -2,7 +2,7 @@
 #include "Utils.h"
 
 
-TFileStream::TFileStream(const char *filename, openmode mode,
+FileStream::FileStream(const char *filename, openmode mode,
 		casemode caseMode)
 {		
 	if (!SetTo(filename, mode, caseMode))
@@ -10,14 +10,14 @@ TFileStream::TFileStream(const char *filename, openmode mode,
 }
 
 
-TFileStream::TFileStream()
+FileStream::FileStream()
 	:
 	fFileHandle(NULL)
 {
 }
 
 
-TFileStream::~TFileStream()
+FileStream::~FileStream()
 {
 	if (fFileHandle != NULL)
 		fclose(fFileHandle);
@@ -25,7 +25,7 @@ TFileStream::~TFileStream()
 
 
 bool
-TFileStream::SetTo(const char *filename, openmode mode, casemode caseMode)
+FileStream::SetTo(const char *filename, openmode mode, casemode caseMode)
 {
 	const char *flags = NULL;
 	
@@ -52,14 +52,14 @@ TFileStream::SetTo(const char *filename, openmode mode, casemode caseMode)
 
 
 bool
-TFileStream::IsValid() const
+FileStream::IsValid() const
 {
 	return fFileHandle != NULL;
 }
 
 
 int32
-TFileStream::Seek(int32 where, int whence)
+FileStream::Seek(int32 where, int whence)
 {
 	fseek(fFileHandle, where, whence);
 	return ftell(fFileHandle);
@@ -67,21 +67,21 @@ TFileStream::Seek(int32 where, int whence)
 
 
 int32
-TFileStream::Position() const
+FileStream::Position() const
 {
 	return ftell(fFileHandle);
 }
 
 
 bool
-TFileStream::EoF()
+FileStream::EoF()
 {
 	return feof(fFileHandle) != 0;
 }
 
 
 ssize_t
-TFileStream::ReadAt(int pos, void *dst, int size)
+FileStream::ReadAt(int pos, void *dst, int size)
 {
 	int oldPos = ftell(fFileHandle);
 	fseek(fFileHandle, pos, SEEK_SET);
@@ -93,21 +93,21 @@ TFileStream::ReadAt(int pos, void *dst, int size)
 
 
 ssize_t
-TFileStream::Read(void *dst, int count)
+FileStream::Read(void *dst, int count)
 {
 	return fread(dst, 1, count, fFileHandle);
 }
 
 
 ssize_t
-TFileStream::Write(void *src, int count)
+FileStream::Write(void *src, int count)
 {
 	return fwrite(src, 1, count, fFileHandle);
 }
 	
 
 uint8
-TFileStream::ReadByte()
+FileStream::ReadByte()
 {
 	uint8 result;
 	
@@ -119,7 +119,7 @@ TFileStream::ReadByte()
 
 
 uint16
-TFileStream::ReadWordBE(void)
+FileStream::ReadWordBE(void)
 {
 	uint8 result1 = ReadByte();
 	uint8 result2 = ReadByte();
@@ -129,7 +129,7 @@ TFileStream::ReadWordBE(void)
 
 
 uint16
-TFileStream::ReadWordLE(void)
+FileStream::ReadWordLE(void)
 {
 	uint16 result;
 	if (fread(&result, sizeof(result), 1, fFileHandle) != sizeof(result))
@@ -139,7 +139,7 @@ TFileStream::ReadWordLE(void)
 
 
 uint32
-TFileStream::ReadDWordBE(void)
+FileStream::ReadDWordBE(void)
 {	
 	uint16 result1 = ReadWordBE();
 	uint16 result2 = ReadWordBE();
@@ -149,7 +149,7 @@ TFileStream::ReadDWordBE(void)
 
 
 uint32
-TFileStream::ReadDWordLE(void)
+FileStream::ReadDWordLE(void)
 {
 	uint32 result;
 	if (fread(&result, sizeof(result), 1, fFileHandle) != sizeof(result))
@@ -159,7 +159,7 @@ TFileStream::ReadDWordLE(void)
 
 
 uint32
-TFileStream::Size()
+FileStream::Size()
 {
 	int32 oldpos = Position();
 	int32 fileSize;

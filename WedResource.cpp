@@ -1,8 +1,8 @@
 #include "BmpResource.h"
+#include "MemoryStream.h"
 #include "Graphics.h"
 #include "Polygon.h"
 #include "ResManager.h"
-#include "Stream.h"
 #include "TileCell.h"
 #include "TisResource.h"
 #include "WedResource.h"
@@ -37,28 +37,13 @@ struct tilemap {
 };
 
 
-WEDResource::WEDResource(uint8 *data, uint32 size, uint32 key)
-	:
-	Resource(data, size, key),
-	fNumPolygons(0),
-	fPolygons(NULL),
-	fSearchMap(NULL),
-	fHeightMap(NULL),
-	fOverlays(NULL)
-{
-	fType = RES_WED;
-	_Load();
-}
-
-
 WEDResource::WEDResource(const res_ref &name)
 	:
-	Resource(),
+	Resource(name, RES_WED),
 	fNumPolygons(0),
 	fPolygons(NULL),
 	fOverlays(NULL)
 {
-	fType = RES_WED;
 }
 
 
@@ -72,27 +57,16 @@ WEDResource::~WEDResource()
 void
 WEDResource::_Load()
 {
-	char signature[5];
-	ReadAt(0, signature, 4);
-	signature[4] = '\0';
-	if (strcmp(signature, "WED ")) {
-		printf("WEDResource::_Load(): invalid signature %s\n",
-				signature);
+	if (!CheckSignature("WED "))
 		throw -1;
-	}
-	char version[5];
-	ReadAt(4, version, 4);
-	version[4] = '\0';
-	if (strcmp(version, "V1.3")) {
-		printf("WEDResource::_Load(): invalid version %s\n",
-				version);
+
+	if (!CheckVersion("V1.3"))
 		throw -1;
-	}
 	
-	ReadAt(8, fNumOverlays);
-	ReadAt(12, fNumDoors);
-	ReadAt(16, fOverlaysOffset);
-	ReadAt(20, f2ndHeaderOffset);
+	fData->ReadAt(8, fNumOverlays);
+	fData->ReadAt(12, fNumDoors);
+	fData->ReadAt(16, fOverlaysOffset);
+	fData->ReadAt(20, f2ndHeaderOffset);
 
 	_LoadPolygons();
 	_LoadOverlays();
@@ -100,7 +74,7 @@ WEDResource::_Load()
 
 
 bool
-WEDResource::Load(TArchive *archive, uint32 key)
+WEDResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
@@ -112,13 +86,12 @@ WEDResource::Load(TArchive *archive, uint32 key)
 
 void
 WEDResource::_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
-		SDL_Rect rect, bool transparent)
+		SDL_Rect rect, SDL_Color *color)
 {
-	// Green is the colorkey
-	// TODO: only for BG, it seems
-	if (transparent) {
-		uint32 color = SDL_MapRGB(cell->format, 0, 0, 255);
-		SDL_SetColorKey(cell, SDL_SRCCOLORKEY, color);
+
+	if (color) {
+		SDL_SetColorKey(cell, SDL_SRCCOLORKEY,
+				SDL_MapRGB(cell->format, color->r, color->g, color->b));
 	}
 	SDL_BlitSurface(cell, NULL, surface, &rect);
 }
@@ -130,6 +103,11 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
 {
     tilemap tileMap = OverlayAt(0)->TileMapFor(tileNum);
     int maxOverlay = withOverlays ? fNumOverlays : 1;
+
+    // Green is the colorkey
+    // TODO: only for BG, it seems
+    SDL_Color trans = { 0, 255, 0 };
+
     // Draw the overlays from top to bottom:
     // this way we can draw the base overlay using
     // the correct colorkey, and the overlays (water, lava, etc)
@@ -143,19 +121,13 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
    		if (nextOverlay == NULL)
    			break;
 
-   		/*if (i != 0) {
-   			printf("overlay %d mask: ", i);
-   			int mask = nextOverlay->TileMapFor(tileNum).mask;
-   			for (int z = 0; z < 7; z++) {
-   				if ((mask & (1 << z)) != 0)
-   					printf("%d", z);
-   			}
-   			printf("\n");
-   		}*/
    		const int32 index = nextOverlay->TileIndexAt(tileNum);
    		TISResource *tis = gResManager->GetTIS(nextOverlay->TileSet());
    		SDL_Surface *cell = tis->TileCellAt(index);
-   		_DrawOverlay(surface, cell, tileRect, i == 0);
+   		SDL_Color *color = NULL;
+   		if (i == 0 && tileMap.mask != 0)
+   			color = &trans;
+   		_DrawOverlay(surface, cell, tileRect, color);
    		SDL_FreeSurface(cell);
 
    		gResManager->ReleaseResource(tis);
@@ -164,7 +136,7 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
 
 
 SDL_Surface *
-WEDResource::GetAreaMap(bool withOverlays)
+WEDResource::GetAreaMap(bool withOverlays, bool withPolygons)
 {
 	// TODO: Change this, and create a function which
 	// only draw the requested tile. Then the caller
@@ -193,9 +165,11 @@ WEDResource::GetAreaMap(bool withOverlays)
 		}
 	}
 
-	/*for (int32 p = 0; p < CountPolygons(); p++) {
-		Graphics::DrawPolygon(*PolygonAt(p), surface);
-	}*/
+	if (withPolygons) {
+		for (int32 p = 0; p < CountPolygons(); p++) {
+			Graphics::DrawPolygon(*PolygonAt(p), surface);
+		}
+	}
 
 	return surface;
 }
@@ -239,10 +213,11 @@ WEDResource::_LoadOverlays()
 
 	fOverlays = new MapOverlay[fNumOverlays];
 	for (int index = 0; index < fNumOverlays; index++) {
-		Seek(fOverlaysOffset + index * sizeof(overlay), SEEK_SET);
+		fData->Seek(fOverlaysOffset + index * sizeof(overlay), SEEK_SET);
 
 		::overlay overlay;
-		Read(overlay);
+		fData->Read(overlay);
+
 		MapOverlay &current = fOverlays[index];
 		current.fTileSet = overlay.resource_ref;
 		current.fWidth = overlay.width;
@@ -252,8 +227,10 @@ WEDResource::_LoadOverlays()
 		int32 overlaySize = overlay.height * overlay.width;
 		for (int32 x = 0; x < overlaySize; x++) {
 			int32 offset = overlay.tilemap_offset + x * sizeof(tilemap);
-			ReadAt(offset, current.fTileMaps[x]);
+			fData->ReadAt(offset, current.fTileMaps[x]);
 		}
+
+		//current.PrintTileMaps();
 
 		for (int32 x = 0; x < overlaySize; x++) {
 			const int32 indexCount = current.fTileMaps[x].primary_tile_count;
@@ -261,7 +238,7 @@ WEDResource::_LoadOverlays()
 					+ (current.fTileMaps[x].primary_tile_index) * sizeof(int16);
 
 			int16 tisIndex;
-			ReadAt(offset, tisIndex);
+			fData->ReadAt(offset, tisIndex);
 			for (int c = 0; c < indexCount; c++)
 				current.fTilesIndexes[x + c] = tisIndex;
 			x += indexCount - 1;
@@ -275,33 +252,33 @@ WEDResource::_LoadPolygons()
 {
 	assert(fPolygons == NULL);
 
-	Seek(f2ndHeaderOffset, SEEK_SET);
+	fData->Seek(f2ndHeaderOffset, SEEK_SET);
 
-	Read(fNumPolygons);
+	fData->Read(fNumPolygons);
 
 	fPolygons = new Polygon[fNumPolygons];
 
 	int32 polygonsOffset;
-	Read(polygonsOffset);
+	fData->Read(polygonsOffset);
 
 	int32 verticesOffset;
 	int32 wallGroups;
 	int32 indexTableOffset;
 
-	Read(verticesOffset);
-	Read(wallGroups);
-	Read(indexTableOffset);
+	fData->Read(verticesOffset);
+	fData->Read(wallGroups);
+	fData->Read(indexTableOffset);
 
 	for (int32 p = 0; p < fNumPolygons; p++) {
-		Seek(polygonsOffset + p * sizeof(polygon), SEEK_SET);
+		fData->Seek(polygonsOffset + p * sizeof(polygon), SEEK_SET);
 		::polygon polygon;
-		Read(polygon);
+		fData->Read(polygon);
 		fPolygons[p].SetFrame(polygon.x_min, polygon.x_max,
 				polygon.y_min, polygon.y_max);
-		Seek(polygon.vertex_index * sizeof(point) + verticesOffset, SEEK_SET);
+		fData->Seek(polygon.vertex_index * sizeof(point) + verticesOffset, SEEK_SET);
 		for (int i = 0; i < polygon.vertices_count; i++) {
 			point vertex;
-			Read(vertex);
+			fData->Read(vertex);
 			fPolygons[p].AddPoints(&vertex, 1);
 		}
 	}

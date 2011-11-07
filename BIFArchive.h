@@ -5,11 +5,11 @@
 
 struct resource_info;
 struct tileset_info;
-class TStream;
-class TBIFArchive : public TArchive {
+class Stream;
+class BIFArchive : public Archive {
 public:
-	TBIFArchive(const char *fileName);
-	virtual ~TBIFArchive();
+	BIFArchive(const char *fileName);
+	virtual ~BIFArchive();
 
 	virtual void EnumEntries();
 	virtual bool GetResourceInfo(resource_info &info,
@@ -21,9 +21,9 @@ public:
 
 private:
 
-	ssize_t _ExtractFileBlock(TStream &source, TStream &dest);
+	ssize_t _ExtractFileBlock(Stream &source, Stream &dest);
 
-	TStream *fStream;
+	Stream *fStream;
 
 	uint32 fNumEntries;
 	uint32 fNumTilesetEntries;

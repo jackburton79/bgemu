@@ -4,9 +4,9 @@
 #include "Room.h"
 #include "MveResource.h"
 #include "Stream.h"
+#include "World.h"
 
 #include <getopt.h>
-#include <iostream>
 #include <SDL.h>
 
 static int sList = 0;
@@ -19,29 +19,40 @@ struct option sLongOptions[] = {
 };
 
 
-int
-main(int argc, char **argv)
-{	
+static const char *sPath = "../BG";
+static const char *sRoom = NULL;
+
+
+void
+ParseArgs(int argc, char **argv)
+{
 	int optIndex = 0;
 	int c = 0;
-	char *path = (char*)"../BG";
 	while ((c = getopt_long(argc, argv, "p:l",
 				sLongOptions, &optIndex)) != -1) {
-
 		switch (c) {
 			case 'l':
 				break;
 			case 'p':
-				path = optarg;
+				sPath = optarg;
 				break;
 			default:
 				break;
 		}
 	}
 
-	gResManager->SetResourcesPath(path);
+	if (optIndex < argc)
+		sRoom = argv[optIndex + 1];
+}
+
+
+int
+main(int argc, char **argv)
+{
+	ParseArgs(argc, argv);
+
 	try {
-		gResManager->ParseKeyFile("Chitin.key");
+		gResManager->Initialize(sPath);
 	} catch (...) {
 		return -1;
 	}
@@ -51,27 +62,20 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	const char *roomName = NULL;
-	if (optIndex < argc)
-		roomName = argv[optIndex + 1];
-
-	if (roomName == NULL) {
+	if (sRoom == NULL) {
 		printf("No room name specified. Exiting...\n");
 		return 0;
 	}
-#if 0
-	BAMResource *bam = gResManager->GetBAM(roomName);
-	bam->DumpFrames("/home/stefano/Scaricati/test/");
-	gResManager->ReleaseResource(bam);
-#else
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Surface *screen = SDL_SetVideoMode(1100, 700, 16, 0);
-	SDL_WM_SetCaption(roomName, NULL);
+	SDL_WM_SetCaption(sRoom, NULL);
 
-	Room map;
-	if (map.Load(roomName)) {
-		const SDL_Rect mapRect = map.Rect();
+	World world;
+	world.EnterArea(sRoom);
+	Room *map = world.CurrentArea();
+	if (map != NULL) {
+		const SDL_Rect mapRect = map->Rect();
 		SDL_Rect rect;
 		rect.w = screen->w;
 		rect.h = screen->h;
@@ -107,22 +111,22 @@ main(int argc, char **argv)
 					case SDL_KEYDOWN: {
 						switch (event.key.keysym.sym) {
 							case SDLK_a:
-								map.ToggleAnimations();
+								map->ToggleAnimations();
 								break;
 							case SDLK_l:
-								map.ToggleLightMap();
+								map->ToggleLightMap();
 								break;
 							case SDLK_h:
-								map.ToggleHeightMap();
+								map->ToggleHeightMap();
 								break;
 							case SDLK_s:
-								map.ToggleSearchMap();
+								map->ToggleSearchMap();
 								break;
 							case SDLK_o:
-								map.ToggleOverlays();
+								map->ToggleOverlays();
 								break;
 							case SDLK_p:
-								map.TogglePolygons();
+								map->TogglePolygons();
 								break;
 							case SDLK_q:
 								quitting = true;
@@ -139,13 +143,12 @@ main(int argc, char **argv)
 						break;
 				}
 			}
-			map.Draw(screen, rect);
+			map->Draw(screen, rect);
 			SDL_Delay(100);
 		}
 
 		SDL_FreeSurface(screen);
 	}
 	SDL_Quit();
-#endif
 	return 0;
 }

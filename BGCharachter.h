@@ -6,7 +6,7 @@
 #define CHR_SIGNATURE "CHR "
 #define CHR_NAME_LENGTH 32
 
-class BGCharachter : public BGCreature {
+class BGCharachter : public CREResource {
 public:
 	BGCharachter();
 	virtual void Load(const char *file);

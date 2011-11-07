@@ -1,14 +1,13 @@
-#ifndef __DIRECTORYARCHIVE_H
-#define __DIRECTORYARCHIVE_H
+#ifndef __PLAINFILEARCHIVE_H
+#define __PLAINFILEARCHIVE_H
 
 #include "Archive.h"
 
-#include <dirent.h>
-
-class DirectoryArchive : public Archive {
+class FileStream;
+class PlainFileArchive : public Archive {
 public:
-	DirectoryArchive(const char *path);
-	virtual ~DirectoryArchive();
+	PlainFileArchive(const char *path);
+	virtual ~PlainFileArchive();
 
 	virtual void EnumEntries();
 
@@ -18,8 +17,9 @@ public:
 			uint16 index) const;
 	virtual ssize_t ReadAt(uint32 offset,
 			void *buffer, uint32 size) const;
+
 private:
-	DIR *fDir;
+	FileStream *fFile;
 };
 
-#endif // __DIRECTORYARCHIVE_H
+#endif // __PLAINFILEARCHIVE_H

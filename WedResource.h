@@ -45,9 +45,10 @@ public:
 	WEDResource(const res_ref& name);
 	~WEDResource();
 	
-	bool Load(TArchive *archive, uint32 key);
+	bool Load(Archive *archive, uint32 key);
 
-	SDL_Surface *GetAreaMap(bool withOverlays = false);
+	SDL_Surface *GetAreaMap(bool withOverlays = false,
+							bool withPolygons = false);
 
 	int32 CountOverlays() const;
 	MapOverlay *OverlayAt(int32 index);
@@ -63,7 +64,7 @@ private:
 	void _DrawTile(const int16 tileNum, SDL_Surface *surface,
 			SDL_Rect tileRect, bool withOverlays);
 	void _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
-			SDL_Rect rect, bool transparent);
+			SDL_Rect rect, SDL_Color *transparent);
 	static bool _IsOverlayColor(const SDL_Color &color);
 
 	int16 _PointHeight(int16 x, int16 y);

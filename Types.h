@@ -21,9 +21,10 @@ enum resource_type {
 	RES_MOS = 0x3ec,
 	RES_ITM = 0x3ed,
 	RES_SPL = 0x3ee,
-	RES_COMPILED_SCRIPT = 0x3ef,
+	RES_BCS = 0x3ef,
+	RES_IDS = 0x3f0,
 	RES_CRE = 0x3f1,
-	RES_AREA = 0x3f2,
+	RES_ARA = 0x3f2,
 	RES_DLG = 0x3f3,
 	RES_EFF = 0x3f8,
 	RES_VVC = 0x3fb
@@ -83,6 +84,33 @@ struct animation {
 	int32 unk4;
 	int8 bytes[16];
 } __attribute__((packed));
+
+
+struct actor {
+	char name[32];
+	point position;
+	point destination;
+	uint32 unk1;
+	uint32 unk2;
+	uint32 unk3;
+	uint32 orientation;
+	uint32 unk4;
+	uint32 unk5;
+	uint32 time_intervals;
+	uint32 unk6;
+	res_ref dialog;
+	res_ref script_override;
+	res_ref script_class;
+	res_ref script_race;
+	res_ref script_general;
+	res_ref script_default;
+	res_ref script_specific;
+	res_ref cre;
+	uint32 cre_offset;
+	uint32 cre_size;
+	uint8 bytes[128];
+} __attribute__((packed));
+
 
 bool operator<(const res_ref &, const res_ref &);
 bool operator==(const res_ref &, const res_ref &);

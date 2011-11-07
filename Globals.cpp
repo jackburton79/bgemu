@@ -12,7 +12,7 @@ strresource(int type)
 	switch (type) {
 		case RES_BMP:
 			return "Bitmap (BMP) format";
-		case RES_AREA:
+		case RES_ARA:
 			return "AREA format";
 		case RES_MVE:
 			return "Movie (MVE) format";
@@ -32,7 +32,9 @@ strresource(int type)
 	 		return "MOS format";
 	 	case RES_SPL:
 			return "SPL format";
-		case RES_COMPILED_SCRIPT:
+	 	case RES_IDS:
+	 		return "IDS format";
+		case RES_BCS:
 			return "Compiled script (BCS format)";
 		case RES_CRE:
 		 	return "Creature";

@@ -1,6 +1,8 @@
 #ifndef __RECTUTILS_H
 #define __RECTUTILS_H
 
+#include "Types.h"
+
 static inline SDL_Rect
 offset_rect(const SDL_Rect &rect, int32 x, int32 y)
 {
@@ -8,6 +10,16 @@ offset_rect(const SDL_Rect &rect, int32 x, int32 y)
 	newRect.x += x;
 	newRect.y += y;
 	return newRect;
+}
+
+
+static inline point
+offset_point(const ::point &point, int32 x, int32 y)
+{
+	::point newPoint = point;
+	newPoint.x += x;
+	newPoint.y += y;
+	return newPoint;
 }
 
 

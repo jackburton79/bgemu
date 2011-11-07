@@ -118,11 +118,11 @@ get_case_names(const char *name, char ***_names)
 	names[3] = strdup(names[2]);
 	extension_toupper(names[3]);
 
-	// data/AREA0001.BIF
+	// DATA/AREA0001.BIF
 	names[4] = strdup(names[0]);
 	name_toupper(names[4]);
 
-	// data/AREA0001.BIF
+	// DATA/AREA0001.BIF
 	names[5] = strdup(names[2]);
 	name_toupper(names[5]);
 

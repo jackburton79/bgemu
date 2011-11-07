@@ -16,7 +16,7 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 	while (size++ < outSize) {
 		uint8 byte = *srcBits++;
 		if (byte == compIndex) {
-			uint16 howMany = (uint16)*srcBits++;
+			uint16 howMany = (uint8)*srcBits++;
 			size += howMany;
 			howMany++;
 			memset(bits, byte, howMany);
