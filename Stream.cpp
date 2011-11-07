@@ -24,6 +24,8 @@ Stream::Read(void *dst, int size)
 char *
 Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 {
+	maxSize--;
+
 	char *ptr = buffer;
 	while ((Read(ptr, sizeof(char)) == sizeof(char))
 			&& ptr - buffer < maxSize) {
