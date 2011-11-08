@@ -65,7 +65,6 @@ private:
 
 	Animation **fAnimations;
 	Actor **fActors;
-	IDSResource *fIDSAnimate;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

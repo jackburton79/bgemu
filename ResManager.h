@@ -10,6 +10,9 @@
 #include <string>
 #include <vector>
 
+extern const char *kKeyResource;
+extern const char *kDialogResource;
+
 class Archive;
 class ARAResource;
 class BAMResource;
@@ -25,10 +28,10 @@ public:
 	ResourceManager();
 	~ResourceManager();
 	
-	void Initialize(const char *path);
+	bool Initialize(const char *path);
 
-	KEYResource *GetKEY();
-	TLKResource *GetTLK();
+	KEYResource *GetKEY(const char *name);
+	TLKResource *GetTLK(const char *name);
 	BAMResource *GetBAM(const res_ref &name);
 	BMPResource *GetBMP(const res_ref &name);
 	CREResource *GetCRE(const res_ref &name);

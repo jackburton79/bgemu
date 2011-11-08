@@ -2,6 +2,7 @@
 #define __WORLD_H
 
 class Room;
+class IDSResource;
 class TLKResource;
 class World {
 public:
@@ -17,6 +18,11 @@ private:
 
 
 TLKResource *Dialogs();
+IDSResource *GeneralIDS();
+IDSResource *AnimateIDS();
+IDSResource *GendersIDS();
+IDSResource *RacesIDS();
+IDSResource *ClassesIDS();
 
 
 #endif // __WORLD_H

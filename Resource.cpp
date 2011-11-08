@@ -135,12 +135,13 @@ Resource::Load(Archive *archive, uint32 key)
 void
 Resource::Write(const char *fileName)
 {
-	/*BFile file(fileName, B_WRITE_ONLY|B_CREATE_FILE);
+	FileStream file(fileName, FileStream::WRITE_ONLY);
 	
 	char buf[1024];
 	size_t read;
-	while ((read = fMemReader->Read(buf, sizeof(buf))) > 0)
-		file.Write(buf, read);*/
+	fData->Seek(0, SEEK_SET);
+	while ((read = fData->Read(buf, sizeof(buf))) > 0)
+		file.Write(buf, read);
 }
 
 

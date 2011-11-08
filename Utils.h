@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+char *trim(char *string);
 void path_dos_to_unix(char *path);
 FILE *fopen_case(const char *name, const char *flags);
 int get_case_names(const char *name, char ***names);

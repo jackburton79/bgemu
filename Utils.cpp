@@ -9,6 +9,23 @@
 #include <algorithm>
 #include <limits.h>
 
+char *
+trim(char *string)
+{
+	char *returnString = string;
+	while (isspace(*returnString))
+		returnString++;
+
+	char *ptr = returnString;
+	while (!isspace(*ptr) && *ptr != '\0')
+		ptr++;
+
+	*ptr = '\0';
+
+	return returnString;
+}
+
+
 void
 path_dos_to_unix(char *path)
 {
@@ -18,16 +35,18 @@ path_dos_to_unix(char *path)
 }
 
 
-FILE*
+FILE *
 fopen_case(const char *filename, const char *flags)
 {
 	// TODO: Fix this mess
 	TPath path(filename);
 	std::string leaf = path.Leaf();
+	std::string resName = filename;
 	TPath parent;
-	path.GetParent(&parent);
-	std::string resName = parent.Leaf();
-	resName.append("/").append(leaf);
+	if (path.GetParent(&parent) == 0) {
+		resName = parent.Leaf();
+		resName.append("/").append(leaf);
+	}
 
 	printf("Requested file %s:\n", filename);
 	FILE *handle = NULL;
@@ -35,8 +54,11 @@ fopen_case(const char *filename, const char *flags)
 	int num = get_case_names(resName.c_str(), &names);
 	for (int i = 0; i < num; i++) {
 		TPath fullName;
-		parent.GetParent(&fullName);
-		fullName.Append(names[i]);
+		if (parent.GetParent(&fullName) == 0)
+			fullName.Append(names[i]);
+		else
+			fullName = names[i];
+
 		printf("\ttrying %s...", fullName.Path());
 		handle = fopen(fullName.Path(), flags);
 		if (handle == NULL)

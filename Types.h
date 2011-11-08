@@ -31,12 +31,39 @@ enum resource_type {
 };
 
 const char *strresource(int type);
+/*
+enum race {
+	RACE_HUMAN = 50,
+	RACE_ELF = 51,
+	RACE_HALFELF = 56,
+	RACE_DWARF = 49,
+	RACE_GNOME = 57,
+	RACE_HALFLING = 53
+};
 
+
+enum gender {
+	GENDER_MALE = 0,
+	GENDER_FEMALE
+};
+
+
+enum cclass {
+	CLASS_MAGE,
+	CLASS_CLERIC,
+	CLASS_FIGHTER,
+	CLASS_RANGER,
+	CLASS_PALADIN,
+	CLASS_THIEF,
+	CLASS_BARD
+};
+*/
 struct res_ref {
 	res_ref();
 	res_ref(const char *string);
 	res_ref(const res_ref &);
 	operator const char*() const;
+	char& operator [](int index);
 	char name[8];
 } __attribute__((packed));
 

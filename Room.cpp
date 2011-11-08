@@ -24,7 +24,6 @@ Room::Room()
 	fHeightMap(NULL),
 	fAnimations(NULL),
 	fActors(NULL),
-	fIDSAnimate(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
 	fDrawLightMap(false),
@@ -43,7 +42,6 @@ Room::~Room()
 	SDL_FreeSurface(fHeightMap);
 	delete[] fAnimations;
 	delete[] fActors;
-	gResManager->ReleaseResource(fIDSAnimate);
 	gResManager->ReleaseResource(fArea);
 }
 
@@ -63,7 +61,6 @@ Room::Load(const char *resName)
 
 	fArea = gResManager->GetARA(resName);
 	fName = fArea->WedName();
-	fIDSAnimate = gResManager->GetIDS("ANIMATE");
 
 	WEDResource *wed = gResManager->GetWED(fName);
 	fSurface = wed->GetAreaMap();
@@ -258,18 +255,54 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 	if (fActors == NULL)
 		return;
 
+	// TODO: Get the correct bam for actor
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
-		uint16 id = fActors[a]->CRE()->AnimationID();
-		uint32 longNameID = fActors[a]->CRE()->LongNameID();
-		const char *string = fIDSAnimate->ValueFor(id);
-		printf("string: %s\n", string);
-		TLKEntry *entry = Dialogs()->EntryAt(longNameID);
+		//CREResource *cre = fActors[a]->CRE();
+
+		//uint16 id = cre->AnimationID();
+		//uint32 nameID = cre->ShortNameID();
+		//printf("race %d, class %d, gender %d\n",
+			//	cre->Race(), cre->Class(), cre->Gender());
+
+		res_ref resRef = Actor::AnimationFor(*fActors[a]);
+
+		BAMResource *bam = gResManager->GetBAM(resRef);
+		::cycle *cycle = bam->CycleAt(1);
+		Frame frame = bam->FrameForCycle(0, cycle);
+		delete cycle;
+		SDL_Surface *image = frame.surface;
+		point center = fActors[a]->Position();
+		gResManager->ReleaseResource(bam);
+
+		if (image == NULL)
+			continue;
+
+		center = offset_point(center, -frame.rect.w / 2,
+						-frame.rect.h / 2);
+
+		SDL_Rect rect = { center.x, center.y,
+				image->w, image->h };
+
+		rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
+
+		if (!rects_intersect(area, rect))
+				continue;
+
+		rect = offset_rect(rect, -area.x, -area.y);
+		SDL_BlitSurface(image, NULL, surface, &rect);
+		SDL_FreeSurface(image);
+
+		//const char *string = fIDSAnimate->ValueFor(id);
+		//printf("string: %s\n", string);
+		/*TLKEntry *entry = Dialogs()->EntryAt(nameID);
 		if (entry == NULL)
 			continue;
-		//printf("actor %s (%d): %s\n", fActors[a]->Name(),
-			//	id, entry->string);
-		delete entry;
+		printf("actor %s (%d): %s\n", fActors[a]->Name(),
+				id, entry->string);*/
+		//delete entry;
 	}
+
+
 }
 
 

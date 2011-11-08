@@ -9,9 +9,11 @@ public:
 	Actor(::actor &actor);
 	~Actor();
 
+	point Position() const;
 	const char *Name() const;
 	CREResource *CRE();
 
+	static res_ref AnimationFor(Actor &actor);
 private:
 	actor *fActor;
 	CREResource *fCRE;

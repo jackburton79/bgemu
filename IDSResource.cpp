@@ -1,5 +1,6 @@
 #include "IDSResource.h"
 #include "MemoryStream.h"
+#include "Utils.h"
 
 #include <stdlib.h>
 
@@ -22,14 +23,18 @@ IDSResource::Load(Archive *archive, uint32 key)
 	if (fData->ReadLine(string, sizeof(string)) != NULL)
 		numEntries = atoi(string);
 
-	for (uint32 e = 0; e < numEntries; e++) {
-		if (fData->ReadLine(string, sizeof(string)) != NULL) {
-			char *stringID = strtok(string, " ");
-			char *stringValue = strtok(NULL, " ");
-			char *rest = NULL;
-			int32 id = strtol(stringID, &rest, 16);
-			fMap[id] = stringValue;
-		}
+	//printf("%s, %d entries\n", (const char*)fName, numEntries);
+
+	// PFFFT! just ignore the number of entries,
+	// since most IDS files contain an empty first line
+	while (fData->ReadLine(string, sizeof(string)) != NULL) {
+		//printf("line: *%s*\n", string);
+		char *stringID = strtok(string, " ");
+		char *stringValue = strtok(NULL, "\n\r");
+		char *finalValue = trim(stringValue);
+		char *rest = NULL;
+		int32 id = strtol(stringID, &rest, 0);
+		fMap[id] = finalValue;
 	}
 
 	DropData();
@@ -39,7 +44,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 
 
 const char *
-IDSResource::ValueFor(int32 id)
+IDSResource::ValueFor(uint32 id)
 {
 	return fMap[id].c_str();
 }

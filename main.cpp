@@ -51,6 +51,7 @@ main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
+	//chdir(sPath);
 	try {
 		gResManager->Initialize(sPath);
 	} catch (...) {

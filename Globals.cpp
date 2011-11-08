@@ -14,9 +14,8 @@ res_ref::res_ref(const char *string)
 	int32 len = string ? strlen(string) : 0;
 	len = std::min(len, 8);
 	memcpy(name, string, len);
-	if (len < 8) {
-		memset(name + len, '\0', 8 - len);
-	}
+	if (len < 8)
+		name[len] = '\0';
 }
 
 
@@ -32,6 +31,13 @@ res_ref::operator const char*() const
 	str[8] = '\0';
 	memcpy(str, name, 8);
 	return (const char *)str;
+};
+
+
+char&
+res_ref::operator [](int index)
+{
+	return name[index];
 };
 
 

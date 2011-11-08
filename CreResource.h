@@ -118,6 +118,11 @@ public:
 	const uint32 Kit();
 	const char *KitStr();
 
+	uint8 General();
+	uint8 Race();
+	uint8 Class();
+	uint8 Gender();
+
 	uint32 Experience();
 	uint32 ExperienceValue();
 	uint32 Gold();

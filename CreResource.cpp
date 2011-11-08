@@ -77,6 +77,42 @@ CREResource::KitStr()
 }
 
 
+uint8
+CREResource::General()
+{
+	uint8 gen;
+	fData->ReadAt(0x270, gen);
+	return gen;
+}
+
+
+uint8
+CREResource::Race()
+{
+	uint8 rac;
+	fData->ReadAt(0x272, rac);
+	return rac;
+}
+
+
+uint8
+CREResource::Class()
+{
+	uint8 c;
+	fData->ReadAt(0x273, c);
+	return c;
+}
+
+
+uint8
+CREResource::Gender()
+{
+	uint8 gend;
+	fData->ReadAt(0x275, gend);
+	return gend;
+}
+
+
 uint32
 CREResource::Experience()
 {

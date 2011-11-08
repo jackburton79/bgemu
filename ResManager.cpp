@@ -13,6 +13,7 @@
 #include "Types.h"
 #include "Utils.h"
 #include "WedResource.h"
+#include "World.h"
 
 #include <assert.h>
 #include <iostream>
@@ -38,6 +39,9 @@ using namespace std;
 
 ResourceManager *gResManager = NULL;
 static ResourceManager sManager;
+
+const char *kKeyResource = "Chitin.key";
+const char *kDialogResource = "dialog.tlk";
 
 
 ResourceManager::ResourceManager()
@@ -73,12 +77,15 @@ ResourceManager::~ResourceManager()
 }
 
 
-void
+bool
 ResourceManager::Initialize(const char *path)
 {
 	fResourcesPath.SetTo(path);
 
-	KEYResource *key = GetKEY();
+	KEYResource *key = GetKEY(kKeyResource);
+	if (key == NULL)
+		return false;
+
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
 		KeyFileEntry *bif = new KeyFileEntry;
@@ -96,6 +103,8 @@ ResourceManager::Initialize(const char *path)
 	}
 
 	ReleaseResource(key);
+
+	return true;
 }
 
 
@@ -123,15 +132,13 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 
 
 KEYResource *
-ResourceManager::GetKEY()
+ResourceManager::GetKEY(const char *name)
 {
 	KEYResource *key = NULL;
 	try {
 		key = new KEYResource("KEY");
-		TPath path = fResourcesPath;
-		path.Append("Chitin.key");
-
-		Archive *archive = Archive::Create(path.Path());
+		std::string path = GetFullPath(name, LOC_ROOT);
+		Archive *archive = Archive::Create(path.c_str());
 		if (!key->Load(archive, 0)) {
 			delete archive;
 			delete key;
@@ -147,15 +154,13 @@ ResourceManager::GetKEY()
 
 
 TLKResource *
-ResourceManager::GetTLK()
+ResourceManager::GetTLK(const char *name)
 {
 	TLKResource *tlk = NULL;
 	try {
 		tlk = new TLKResource("TLK");
-		TPath path(fResourcesPath);
-		path.Append("dialog.tlk");
-
-		Archive *archive = Archive::Create(path.Path());
+		std::string path = GetFullPath(name, LOC_ROOT);
+		Archive *archive = Archive::Create(path.c_str());
 		tlk->Load(archive, 0);
 		tlk->_Acquire();
 		delete archive;
@@ -342,6 +347,7 @@ ResourceManager::PrintBIFs()
 }
 
 
+/* static */
 std::string
 ResourceManager::HeightMapName(const char *name)
 {
@@ -351,6 +357,7 @@ ResourceManager::HeightMapName(const char *name)
 }
 
 
+/* static */
 std::string
 ResourceManager::LightMapName(const char *name)
 {
@@ -360,6 +367,7 @@ ResourceManager::LightMapName(const char *name)
 }
 
 
+/* static */
 std::string
 ResourceManager::SearchMapName(const char *name)
 {
@@ -400,3 +408,4 @@ ResourceManager::_TryEmptyResourceCache()
 		it = fCachedResources.erase(it);
 	}
 }
+
