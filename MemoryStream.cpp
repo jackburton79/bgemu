@@ -43,6 +43,7 @@ MemoryStream::ReadAt(int pos, void *dst, int size)
 	ssize_t readable = fSize - pos;
 	if (size > readable)
 		size = readable;
+
 	memcpy(dst, fData + pos, size);
 
 	return size;

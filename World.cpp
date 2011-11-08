@@ -11,6 +11,7 @@ static IDSResource *sAnimate;
 static IDSResource *sRaces;
 static IDSResource *sGenders;
 static IDSResource *sClasses;
+static IDSResource *sSpecifics;
 
 
 World::World()
@@ -23,12 +24,14 @@ World::World()
 	sRaces = gResManager->GetIDS("RACE");
 	sGenders = gResManager->GetIDS("GENDER");
 	sClasses = gResManager->GetIDS("CLASS");
+	sSpecifics = gResManager->GetIDS("SPECIFIC");
 }
 
 
 World::~World()
 {
 	gResManager->ReleaseResource(sDialogs);
+	gResManager->ReleaseResource(sSpecifics);
 	gResManager->ReleaseResource(sGenders);
 	gResManager->ReleaseResource(sRaces);
 	gResManager->ReleaseResource(sClasses);
@@ -94,4 +97,11 @@ IDSResource *
 ClassesIDS()
 {
 	return sClasses;
+}
+
+
+IDSResource *
+SpecificIDS()
+{
+	return sSpecifics;
 }

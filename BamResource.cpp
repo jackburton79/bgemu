@@ -87,7 +87,6 @@ BAMResource::_FindTransparentIndex()
 void
 BAMResource::DumpFrames(const char *filePath)
 {
-#if 1
 	for (int32 c = 0; c < fNumCycles; c++) {
 		::cycle *cycle = CycleAt(c);
 		for (int f = 0; f < fNumFrames; f++) {
@@ -103,18 +102,6 @@ BAMResource::DumpFrames(const char *filePath)
 		}
 		delete cycle;
 	}
-#else
-	for (int f = 0; f < fNumFrames; f++) {
-		SDL_Surface *surface = _FrameAt(f).surface;
-		TPath path(filePath);
-		char fileName[PATH_MAX];
-		snprintf(fileName, PATH_MAX, "%s%d.bmp", (const char *)fName, f);
-		path.Append(fileName);
-		printf("save to %s\n", path.Path());
-		SDL_SaveBMP(surface, path.Path());
-		SDL_FreeSurface(surface);
-	}
-#endif
 }
 
 

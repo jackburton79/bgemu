@@ -267,7 +267,7 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 		res_ref resRef = Actor::AnimationFor(*fActors[a]);
 
 		BAMResource *bam = gResManager->GetBAM(resRef);
-		::cycle *cycle = bam->CycleAt(1);
+		::cycle *cycle = bam->CycleAt(0);
 		Frame frame = bam->FrameForCycle(0, cycle);
 		delete cycle;
 		SDL_Surface *image = frame.surface;
@@ -340,12 +340,6 @@ Animation::Animation(animation *animDesc)
 	fCenter = animDesc->center;
 	fCurrentFrame = animDesc->frame;
 	fHold = animDesc->flags & ANIM_HOLD;
-
-	/*printf("animation %s\n", (const char*)animDesc->bam_name);
-	printf("\tsequence %d%s\n", fNumber,
-			fHold ? ", still frame": "");
-	printf("\t%d frames\n", fCycle->numFrames);
-	printf("\tcenter: %d %d\n", fCenter.x, fCenter.y);*/
 }
 
 
@@ -360,9 +354,6 @@ Frame
 Animation::Image()
 {
 	Frame frame = fBAM->FrameForCycle(fCurrentFrame, fCycle);
-	/*printf("center: %d %d\n", fCenter.x, fCenter.y);
-	printf("frame center: %d %d\n", frame.rect.x, frame.rect.y);
-*/
 	if (!fHold) {
 		fCurrentFrame++;
 		if (fCurrentFrame >= fCycle->numFrames)

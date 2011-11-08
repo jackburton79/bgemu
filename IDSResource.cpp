@@ -4,6 +4,49 @@
 
 #include <stdlib.h>
 
+static const uint8 kEncryptionKey[64] = {
+	0x88, 0xa8, 0x8f, 0xba, 0x8a, 0xd3, 0xb9, 0xf5,
+	0xed, 0xb1, 0xcf, 0xea, 0xaa, 0xe4, 0xb5, 0xfb,
+	0xeb, 0x82, 0xf9, 0x90, 0xca, 0xc9, 0xb5, 0xe7,
+	0xdc, 0x8e, 0xb7, 0xac, 0xee, 0xf7, 0xe0, 0xca,
+	0x8e, 0xea, 0xca, 0x80, 0xce, 0xc5, 0xad, 0xb7,
+	0xc4, 0xd0, 0x84, 0x93, 0xd5, 0xf0, 0xeb, 0xc8,
+	0xb4, 0x9d, 0xcc, 0xaf, 0xa5, 0x95, 0xba, 0x99,
+	0x87, 0xd2, 0x9d, 0xe3, 0x91, 0xba, 0x90, 0xca
+};
+
+
+class EncryptedStream : public MemoryStream {
+public:
+	EncryptedStream(MemoryStream *stream);
+	//virtual ~EncryptedStream();
+	virtual uint8 ReadByte();
+
+private:
+	int fKeySize;
+};
+
+
+EncryptedStream::EncryptedStream(MemoryStream *stream)
+	:
+	MemoryStream(stream->Size() - 2),
+	fKeySize(64)
+{
+	stream->ReadAt(2, Data(), Size());
+}
+
+
+/* virtual */
+uint8
+EncryptedStream::ReadByte()
+{
+	int pos = Position();
+	uint8 byteRead = MemoryStream::ReadByte();
+	byteRead ^= kEncryptionKey[pos % fKeySize];
+	return byteRead;
+}
+
+
 IDSResource::IDSResource(const res_ref &name)
 	:
 	Resource(name, RES_IDS)
@@ -18,22 +61,35 @@ IDSResource::Load(Archive *archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
+	if (_IsEncrypted()) {
+		EncryptedStream *newStream =
+				new EncryptedStream(fData);
+		ReplaceData(newStream);
+	}
+
 	uint32 numEntries = 0;
-	char string[128];
+	char string[256];
 	if (fData->ReadLine(string, sizeof(string)) != NULL)
 		numEntries = atoi(string);
 
 	//printf("%s, %d entries\n", (const char*)fName, numEntries);
+	//if (!strcmp(fName, "SPECIFIC"))
+	//	Write("specific.txt");
 
 	// PFFFT! just ignore the number of entries,
 	// since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
-		//printf("line: *%s*\n", string);
+		//printf("line: * %s *\n", string);
 		char *stringID = strtok(string, " ");
+		if (stringID == NULL)
+			continue;
 		char *stringValue = strtok(NULL, "\n\r");
+		if (stringValue == NULL)
+			continue;
 		char *finalValue = trim(stringValue);
 		char *rest = NULL;
-		int32 id = strtol(stringID, &rest, 0);
+		uint32 id = strtoul(stringID, &rest, 0);
+		//printf("id %s %d : %s\n", stringID, id, finalValue);
 		fMap[id] = finalValue;
 	}
 
@@ -47,4 +103,19 @@ const char *
 IDSResource::ValueFor(uint32 id)
 {
 	return fMap[id].c_str();
+}
+
+
+bool
+IDSResource::_IsEncrypted()
+{
+	int32 pos = fData->Position();
+	fData->Seek(0, SEEK_SET);
+
+	bool encrypted = (fData->ReadByte() == 0xFF)
+		&& (fData->ReadByte() == 0xFF);
+
+	fData->Seek(pos, SEEK_SET);
+
+	return encrypted;
 }

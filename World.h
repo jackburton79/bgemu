@@ -23,6 +23,7 @@ IDSResource *AnimateIDS();
 IDSResource *GendersIDS();
 IDSResource *RacesIDS();
 IDSResource *ClassesIDS();
+IDSResource *SpecificIDS();
 
 
 #endif // __WORLD_H

@@ -48,7 +48,7 @@ enum Kits {
 };
 
 
-struct CreatureColors {
+struct CREColors {
 	uint8 metal;
 	uint8 minor;
 	uint8 major;
@@ -121,7 +121,9 @@ public:
 	uint8 General();
 	uint8 Race();
 	uint8 Class();
+	uint8 Specific();
 	uint8 Gender();
+	void GetColors(CREColors &colors);
 
 	uint32 Experience();
 	uint32 ExperienceValue();
@@ -131,7 +133,7 @@ public:
 	
 	const char *DialogFile();
 		
-protected:
+/*protected:
 	uint32 fLongNameID;
 	uint32 fShortNameID;
 	
@@ -183,7 +185,7 @@ protected:
 	
 	uint32 fKit;
 	
-	char fDialogFile[9];
+	char fDialogFile[9];*/
 };
 
 const char *KitToStr(uint32 kit);

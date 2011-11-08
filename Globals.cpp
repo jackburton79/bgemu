@@ -33,13 +33,13 @@ res_ref::operator const char*() const
 	return (const char *)str;
 };
 
-
+/*
 char&
 res_ref::operator [](int index)
 {
 	return name[index];
 };
-
+*/
 
 bool
 operator<(const res_ref &ref1, const res_ref &ref2)

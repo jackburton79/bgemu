@@ -63,7 +63,7 @@ struct res_ref {
 	res_ref(const char *string);
 	res_ref(const res_ref &);
 	operator const char*() const;
-	char& operator [](int index);
+	/*char& operator [](int index);*/
 	char name[8];
 } __attribute__((packed));
 

@@ -16,8 +16,9 @@ public:
 	typedef std::map<uint32, std::string> string_map;
 
 private:
-	string_map fMap;
+	bool _IsEncrypted();
 
+	string_map fMap;
 };
 
 #endif // __IDSRESOURCE_H

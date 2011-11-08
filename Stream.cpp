@@ -27,10 +27,13 @@ Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 	maxSize--;
 
 	char *ptr = buffer;
-	while ((Read(ptr, sizeof(char)) == sizeof(char))
-			&& ptr - buffer < maxSize) {
-		if (*ptr++ == endLine)
-			break;
+	try {
+		while ((*ptr = ReadByte()) != endLine
+				&& ptr - buffer < maxSize) {
+			ptr++;
+		}
+	} catch (...) {
+		// eof
 	}
 
 	if (ptr > buffer) {
@@ -74,7 +77,8 @@ uint8
 Stream::ReadByte()
 {
 	uint8 byte;
-	Read(&byte, sizeof(byte));
+	if (Read(&byte, sizeof(byte)) != sizeof(byte))
+		throw -1;
 	return byte;
 }
 

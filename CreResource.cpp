@@ -105,11 +105,33 @@ CREResource::Class()
 
 
 uint8
+CREResource::Specific()
+{
+	uint8 spec;
+	fData->ReadAt(0x0274, spec);
+	return spec;
+}
+
+
+uint8
 CREResource::Gender()
 {
 	uint8 gend;
 	fData->ReadAt(0x275, gend);
 	return gend;
+}
+
+
+void
+CREResource::GetColors(CREColors &colors)
+{
+	fData->ReadAt(0x2c, colors.metal);
+	fData->ReadAt(0x2d, colors.minor);
+	fData->ReadAt(0x2e, colors.major);
+	fData->ReadAt(0x2f, colors.skin);
+	fData->ReadAt(0x30, colors.leather);
+	fData->ReadAt(0x31, colors.armor);
+	fData->ReadAt(0x32, colors.hair);
 }
 
 

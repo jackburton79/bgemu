@@ -68,6 +68,11 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+	/*BAMResource *bam = gResManager->GetBAM("CHMF4G11");
+	bam->DumpFrames("/home/stefano/Scaricati/test");
+	gResManager->ReleaseResource(bam);
+	return 0;
+*/
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Surface *screen = SDL_SetVideoMode(1100, 700, 16, 0);
 	SDL_WM_SetCaption(sRoom, NULL);
