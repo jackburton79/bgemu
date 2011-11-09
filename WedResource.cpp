@@ -99,10 +99,10 @@ WEDResource::_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 
 
 void
-WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
+WEDResource::DrawTile(const int16 tileNum, SDL_Surface *surface,
 		SDL_Rect tileRect, bool withOverlays)
 {
-    tilemap tileMap = OverlayAt(0)->TileMapFor(tileNum);
+	tilemap tileMap = OverlayAt(0)->TileMapFor(tileNum);
     int maxOverlay = withOverlays ? fNumOverlays : 1;
 
     // Green is the colorkey
@@ -142,7 +142,7 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
    	}
 }
 
-
+/*
 SDL_Surface *
 WEDResource::GetAreaMap(bool withOverlays, bool withPolygons)
 {
@@ -169,7 +169,7 @@ WEDResource::GetAreaMap(bool withOverlays, bool withPolygons)
 		for (int16 x = 0; x < width; x++) {
 			tileRect.x = x * TILE_WIDTH;
 			const int16 tileNum = y * width + x;
-			_DrawTile(tileNum, surface, tileRect, withOverlays);
+			DrawTile(tileNum, surface, tileRect, withOverlays);
 		}
 	}
 
@@ -181,7 +181,7 @@ WEDResource::GetAreaMap(bool withOverlays, bool withPolygons)
 
 	return surface;
 }
-
+*/
 
 int32
 WEDResource::CountOverlays() const

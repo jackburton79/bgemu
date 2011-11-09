@@ -45,6 +45,7 @@ public:
 	void ToggleHeightMap();
 
 private:
+	void _DrawBaseMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawLightMap(SDL_Surface *surface);
 	void _DrawSearchMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawHeightMap(SDL_Surface *surface, SDL_Rect area);

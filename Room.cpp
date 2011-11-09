@@ -36,7 +36,7 @@ Room::Room()
 
 Room::~Room()
 {
-	SDL_FreeSurface(fSurface);
+	//SDL_FreeSurface(fSurface);
 	SDL_FreeSurface(fLightMap);
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
@@ -49,7 +49,11 @@ Room::~Room()
 SDL_Rect
 Room::Rect() const
 {
-	SDL_Rect rect = { 0, 0, fSurface->w, fSurface->h };
+	WEDResource *wed = gResManager->GetWED(fName);
+	MapOverlay *overlay = wed->OverlayAt(0);
+	SDL_Rect rect = { 0, 0, overlay->Width() * TILE_WIDTH,
+			overlay->Height() * TILE_HEIGHT };
+	gResManager->ReleaseResource(wed);
 	return rect;
 }
 
@@ -62,11 +66,7 @@ Room::Load(const char *resName)
 	fArea = gResManager->GetARA(resName);
 	fName = fArea->WedName();
 
-	WEDResource *wed = gResManager->GetWED(fName);
-	fSurface = wed->GetAreaMap();
-	gResManager->ReleaseResource(wed);
-
-	BMPResource *bmp = gResManager->GetBMP(
+	/*BMPResource *bmp = gResManager->GetBMP(
 			ResourceManager::HeightMapName(fName).c_str());
 	fHeightMap = bmp->Image();
 	gResManager->ReleaseResource(bmp);
@@ -81,7 +81,7 @@ Room::Load(const char *resName)
 			ResourceManager::SearchMapName(fName).c_str());
 	fSearchMap = bmp->Image();
 	gResManager->ReleaseResource(bmp);
-
+*/
 	_InitAnimations();
 	_InitActors();
 
@@ -92,14 +92,14 @@ Room::Load(const char *resName)
 void
 Room::Draw(SDL_Surface *surface, SDL_Rect area)
 {
-	SDL_BlitSurface(fSurface, &area, surface, NULL);
+	_DrawBaseMap(surface, area);
 
 	if (fDrawAnimations)
 		_DrawAnimations(surface, area);
 
 	if (true)
 		_DrawActors(surface, area);
-
+/*
 	if (fDrawLightMap)
 		_DrawLightMap(surface);
 	if (fDrawHeightMap)
@@ -110,7 +110,7 @@ Room::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (fDrawPolygons) {
 		// TODO:
 	}
-
+*/
 	SDL_Flip(surface);
 }
 
@@ -119,11 +119,6 @@ void
 Room::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
-	SDL_FreeSurface(fSurface);
-
-	WEDResource *wed = gResManager->GetWED(fName);
-	fSurface = wed->GetAreaMap(fDrawOverlays, fDrawPolygons);
-	gResManager->ReleaseResource(wed);
 }
 
 
@@ -131,11 +126,6 @@ void
 Room::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
-	SDL_FreeSurface(fSurface);
-
-	WEDResource *wed = gResManager->GetWED(fName);
-	fSurface = wed->GetAreaMap(fDrawOverlays, fDrawPolygons);
-	gResManager->ReleaseResource(wed);
 }
 
 
@@ -164,6 +154,34 @@ void
 Room::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
+}
+
+
+void
+Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
+{
+	WEDResource *wed = gResManager->GetWED(fName);
+	MapOverlay *overlay = wed->OverlayAt(0);
+	const int16 overlayWidth = overlay->Width();
+	int16 firstTileX = area.x / TILE_WIDTH;
+	int16 firstTileY = area.y / TILE_HEIGHT;
+	int16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
+	int16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
+
+	lastTileX = std::min(lastTileX, overlayWidth);
+	lastTileY = std::min(lastTileY, overlay->Height());
+
+	SDL_Rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
+	for (int16 y = firstTileY; y < lastTileY; y++) {
+		tileRect.y = y * TILE_HEIGHT;
+		for (int16 x = firstTileX; x < lastTileX; x++) {
+			tileRect.x = x * TILE_WIDTH;
+			const int16 tileNum = y * overlayWidth + x;
+			SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
+			wed->DrawTile(tileNum, surface, rect, fDrawOverlays);
+		}
+	}
+	gResManager->ReleaseResource(wed);
 }
 
 
@@ -258,11 +276,6 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 	// TODO: Get the correct bam for actor
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
 		try {
-			//CREResource *cre = fActors[a]->CRE();
-			//uint32 nameID = cre->ShortNameID();
-			//printf("race %d, class %d, gender %d\n",
-				//	cre->Race(), cre->Class(), cre->Gender());
-
 			fActors[a]->Draw(surface, area);
 			/*TLKEntry *entry = Dialogs()->EntryAt(nameID);
 			if (entry == NULL)
@@ -292,8 +305,6 @@ Room::_InitAnimations()
 void
 Room::_InitActors()
 {
-	return;
-
 	fActors = new Actor*[fArea->CountActors()];
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors[i] = new Actor(*fArea->ActorAt(i));

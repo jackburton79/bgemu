@@ -20,11 +20,11 @@ World::World()
 {
 	sDialogs = gResManager->GetTLK(kDialogResource);
 	sAnimate = gResManager->GetIDS("ANIMATE");
-	sGeneral = gResManager->GetIDS("GENERAL");
+	/*sGeneral = gResManager->GetIDS("GENERAL");
 	sRaces = gResManager->GetIDS("RACE");
 	sGenders = gResManager->GetIDS("GENDER");
 	sClasses = gResManager->GetIDS("CLASS");
-	sSpecifics = gResManager->GetIDS("SPECIFIC");
+	sSpecifics = gResManager->GetIDS("SPECIFIC");*/
 }
 
 
