@@ -106,7 +106,7 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
 		const point &pt = polygon.PointAt(c);
 		const point &nextPt = polygon.PointAt(c + 1);
 		DrawLine(surface, pt.x, pt.y, nextPt.x, nextPt.y, color);
-		if (c == polygon.CountPoints() - 2)
+		if (c == numPoints - 2)
 			DrawLine(surface, nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
 	}
 }

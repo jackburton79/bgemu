@@ -93,6 +93,7 @@ WEDResource::_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 		SDL_SetColorKey(cell, SDL_SRCCOLORKEY,
 				SDL_MapRGB(cell->format, color->r, color->g, color->b));
 	}
+
 	SDL_BlitSurface(cell, NULL, surface, &rect);
 }
 
@@ -125,8 +126,15 @@ WEDResource::_DrawTile(const int16 tileNum, SDL_Surface *surface,
    		TISResource *tis = gResManager->GetTIS(nextOverlay->TileSet());
    		SDL_Surface *cell = tis->TileCellAt(index);
    		SDL_Color *color = NULL;
-   		if (i == 0 && tileMap.mask != 0)
+   		if (i == 0 && tileMap.mask != 0) {
+   			/*for (int32 i = 0; i < 256; i++) {
+   				SDL_Color *c = &cell->format->palette->colors[i];
+   				printf("color[%d]: %d %d %d %d\n", i,
+   						c->r, c->g, c->b, c->unused);
+   			}*/
    			color = &trans;
+   			//color = &cell->format->palette->colors[255];
+   		}
    		_DrawOverlay(surface, cell, tileRect, color);
    		SDL_FreeSurface(cell);
 

@@ -257,49 +257,22 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 
 	// TODO: Get the correct bam for actor
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
-		//CREResource *cre = fActors[a]->CRE();
+		try {
+			//CREResource *cre = fActors[a]->CRE();
+			//uint32 nameID = cre->ShortNameID();
+			//printf("race %d, class %d, gender %d\n",
+				//	cre->Race(), cre->Class(), cre->Gender());
 
-		//uint16 id = cre->AnimationID();
-		//uint32 nameID = cre->ShortNameID();
-		//printf("race %d, class %d, gender %d\n",
-			//	cre->Race(), cre->Class(), cre->Gender());
-
-		res_ref resRef = Actor::AnimationFor(*fActors[a]);
-
-		BAMResource *bam = gResManager->GetBAM(resRef);
-		::cycle *cycle = bam->CycleAt(0);
-		Frame frame = bam->FrameForCycle(0, cycle);
-		delete cycle;
-		SDL_Surface *image = frame.surface;
-		point center = fActors[a]->Position();
-		gResManager->ReleaseResource(bam);
-
-		if (image == NULL)
-			continue;
-
-		center = offset_point(center, -frame.rect.w / 2,
-						-frame.rect.h / 2);
-
-		SDL_Rect rect = { center.x, center.y,
-				image->w, image->h };
-
-		rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
-
-		if (!rects_intersect(area, rect))
+			fActors[a]->Draw(surface, area);
+			/*TLKEntry *entry = Dialogs()->EntryAt(nameID);
+			if (entry == NULL)
 				continue;
-
-		rect = offset_rect(rect, -area.x, -area.y);
-		SDL_BlitSurface(image, NULL, surface, &rect);
-		SDL_FreeSurface(image);
-
-		//const char *string = fIDSAnimate->ValueFor(id);
-		//printf("string: %s\n", string);
-		/*TLKEntry *entry = Dialogs()->EntryAt(nameID);
-		if (entry == NULL)
+			printf("actor %s (%d): %s\n", fActors[a]->Name(),
+					id, entry->string);*/
+			//delete entry;
+		} catch (...) {
 			continue;
-		printf("actor %s (%d): %s\n", fActors[a]->Name(),
-				id, entry->string);*/
-		//delete entry;
+		}
 	}
 
 
@@ -319,6 +292,8 @@ Room::_InitAnimations()
 void
 Room::_InitActors()
 {
+	return;
+
 	fActors = new Actor*[fArea->CountActors()];
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors[i] = new Actor(*fArea->ActorAt(i));
