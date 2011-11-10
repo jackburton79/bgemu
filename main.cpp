@@ -75,6 +75,8 @@ main(int argc, char **argv)
 	World world;
 	world.EnterArea(sRoom);
 	Room *map = world.CurrentArea();
+	uint16 lastMouseX = 0;
+	uint16 lastMouseY = 0;
 	if (map != NULL) {
 		const SDL_Rect mapRect = map->Rect();
 		SDL_Rect rect;
@@ -90,10 +92,15 @@ main(int argc, char **argv)
 			while (SDL_PollEvent(&event) != 0) {
 				switch (event.type) {
 					case SDL_MOUSEBUTTONDOWN:
+						lastMouseX = event.button.x;
+						lastMouseY = event.button.y;
 						dragging = true;
 						break;
 					case SDL_MOUSEBUTTONUP:
 						dragging = false;
+						if (lastMouseX == event.button.x
+							&& lastMouseY == event.button.y)
+							map->Clicked(event.button.x, event.button.y);
 						break;
 					case SDL_MOUSEMOTION:
 						if (dragging) {
@@ -145,7 +152,7 @@ main(int argc, char **argv)
 				}
 			}
 			map->Draw(screen, rect);
-			SDL_Delay(10);
+			SDL_Delay(50);
 		}
 
 		SDL_FreeSurface(screen);

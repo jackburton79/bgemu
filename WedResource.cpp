@@ -36,11 +36,25 @@ struct tilemap {
 	int8 unk3;
 };
 
+
 class TileMap {
 public:
 	TileMap();
 
-	std::map<int16, int16> fTilesIndexes;
+	void AddTileIndex(uint16 index);
+	uint16 TileIndex();
+
+	void SetSecondaryTileIndex(uint16 index);
+	uint16 SecondaryTileIndex() const;
+
+	uint8 Mask() const;
+	void SetMask(uint8 mask);
+
+private:
+	std::vector<int16> fIndices;
+	int16 fSecondaryIndex;
+	uint16 fCurrentIndex;
+	uint8 fMask;
 };
 
 
@@ -108,7 +122,7 @@ void
 WEDResource::DrawTile(const int16 tileNum, SDL_Surface *surface,
 		SDL_Rect tileRect, bool withOverlays)
 {
-	tilemap tileMap = OverlayAt(0)->TileMapFor(tileNum);
+	TileMap *tileMap = OverlayAt(0)->TileMapForTile(tileNum);
     int maxOverlay = withOverlays ? fNumOverlays : 1;
 
     // Green is the colorkey
@@ -121,18 +135,20 @@ WEDResource::DrawTile(const int16 tileNum, SDL_Surface *surface,
     // are rendered correctly
     for (int i = maxOverlay - 1; i >= 0; i--) {
     	// Check if this overlay needs to be drawn
-    	if (i != 0 && (tileMap.mask & (1 << i)) == 0)
+    	if (i != 0 && (tileMap->Mask() & (1 << i)) == 0)
     		continue;
 
     	MapOverlay *nextOverlay = OverlayAt(i);
    		if (nextOverlay == NULL)
    			break;
 
-   		const int32 index = nextOverlay->TileIndexAt(tileNum);
+   		TileMap *map = nextOverlay->TileMapForTile(tileNum);
+   		const uint16 index = map->TileIndex();
+   		//const uint16 index = map->SecondaryTileIndex();
    		TISResource *tis = gResManager->GetTIS(nextOverlay->TileSet());
    		SDL_Surface *cell = tis->TileCellAt(index);
    		SDL_Color *color = NULL;
-   		if (i == 0 && tileMap.mask != 0) {
+   		if (i == 0 && tileMap->Mask() != 0) {
    			/*for (int32 i = 0; i < 256; i++) {
    				SDL_Color *c = &cell->format->palette->colors[i];
    				printf("color[%d]: %d %d %d %d\n", i,
@@ -199,7 +215,7 @@ WEDResource::_LoadOverlays()
 	assert(fOverlays == NULL);
 
 	fOverlays = new MapOverlay[fNumOverlays];
-	for (int index = 0; index < fNumOverlays; index++) {
+	for (int32 index = 0; index < fNumOverlays; index++) {
 		fData->Seek(fOverlaysOffset + index * sizeof(overlay), SEEK_SET);
 
 		::overlay overlay;
@@ -209,26 +225,31 @@ WEDResource::_LoadOverlays()
 		current.fTileSet = overlay.resource_ref;
 		current.fWidth = overlay.width;
 		current.fHeight = overlay.height;
-		current.fTileMaps = new tilemap[overlay.width * overlay.height];
+		current.fTileMaps = new TileMap[overlay.width * overlay.height];
 
-		int32 overlaySize = overlay.height * overlay.width;
-		for (int32 x = 0; x < overlaySize; x++) {
-			int32 offset = overlay.tilemap_offset + x * sizeof(tilemap);
-			fData->ReadAt(offset, current.fTileMaps[x]);
-		}
+		const uint32 overlaySize = overlay.height * overlay.width;
+		for (uint32 x = 0; x < overlaySize; x++) {
+			uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
+			tilemap tileMap;
+			fData->ReadAt(mapOffset, tileMap);
 
-		//current.PrintTileMaps();
+			current.fTileMaps[x].SetMask(tileMap.mask);
 
-		for (int32 x = 0; x < overlaySize; x++) {
-			const int32 indexCount = current.fTileMaps[x].primary_tile_count;
+			const int32 indexCount = tileMap.primary_tile_count;
 			const int32 offset = overlay.tile_lookup_offset
-					+ (current.fTileMaps[x].primary_tile_index) * sizeof(int16);
+					+ (tileMap.primary_tile_index * sizeof(int16));
 
 			int16 tisIndex;
-			fData->ReadAt(offset, tisIndex);
-			for (int c = 0; c < indexCount; c++)
-				current.fTilesIndexes[x + c] = tisIndex;
-			x += indexCount - 1;
+			for (int32 c = 0; c < indexCount; c++) {
+				fData->ReadAt(offset + c * sizeof(int16), tisIndex);
+				current.fTileMaps[x].AddTileIndex(tisIndex);
+			}
+
+			const int32 secondaryOffset = overlay.tile_lookup_offset
+					+ (tileMap.secondary_tile_index * sizeof(int16));
+
+			fData->ReadAt(secondaryOffset, tisIndex);
+			current.fTileMaps[x].SetSecondaryTileIndex(tisIndex);
 		}
 	}
 }
@@ -343,44 +364,92 @@ MapOverlay::TileSet() const
 }
 
 
-int16
+uint16
 MapOverlay::Width() const
 {
 	return fWidth;
 }
 
 
-int16
+uint16
 MapOverlay::Height() const
 {
 	return fHeight;
 }
 
 
-tilemap
-MapOverlay::TileMapFor(int32 i)
+TileMap *
+MapOverlay::TileMapForTile(int32 i)
 {
-	return fTileMaps[i];
+	// TODO: handle this more correctly
+	if (i >= fWidth * fHeight)
+		i = (fWidth * fHeight) - 1;
+
+	return &fTileMaps[i];
 }
 
-
-int16
-MapOverlay::TileIndexAt(int16 i)
-{
-	return fTilesIndexes[i];
-}
 
 
 void
 MapOverlay::PrintTileMaps()
 {
-	for (int32 x = 0; x < fHeight * fWidth; x++) {
+	/*for (int32 x = 0; x < fHeight * fWidth; x++) {
 		printf("tilemap[%d]:\n", x);
 		printf("\tp_index: %d\n", fTileMaps[x].primary_tile_index);
 		printf("\tp_count: %d\n", fTileMaps[x].primary_tile_count);
 		printf("\ts_index: %d\n", fTileMaps[x].secondary_tile_index);
 		printf("\tmask: %d\n", fTileMaps[x].mask);
-	}
+	}*/
 }
 
 
+TileMap::TileMap()
+	:
+	fSecondaryIndex(0)
+{
+}
+
+
+void
+TileMap::AddTileIndex(uint16 index)
+{
+	fIndices.push_back(index);
+}
+
+
+uint16
+TileMap::TileIndex()
+{
+	uint16 index = fIndices[fCurrentIndex];
+	if (++fCurrentIndex >= fIndices.size())
+		fCurrentIndex = 0;
+	return index;
+}
+
+
+void
+TileMap::SetSecondaryTileIndex(uint16 index)
+{
+	fSecondaryIndex = index;
+}
+
+
+uint16
+TileMap::SecondaryTileIndex() const
+{
+	return fSecondaryIndex;
+}
+
+
+void
+TileMap::SetMask(uint8 mask)
+{
+	fMask = mask;
+}
+
+
+uint8
+TileMap::Mask() const
+{
+	return fMask;
+}

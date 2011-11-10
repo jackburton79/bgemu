@@ -31,33 +31,7 @@ enum resource_type {
 };
 
 const char *strresource(int type);
-/*
-enum race {
-	RACE_HUMAN = 50,
-	RACE_ELF = 51,
-	RACE_HALFELF = 56,
-	RACE_DWARF = 49,
-	RACE_GNOME = 57,
-	RACE_HALFLING = 53
-};
 
-
-enum gender {
-	GENDER_MALE = 0,
-	GENDER_FEMALE
-};
-
-
-enum cclass {
-	CLASS_MAGE,
-	CLASS_CLERIC,
-	CLASS_FIGHTER,
-	CLASS_RANGER,
-	CLASS_PALADIN,
-	CLASS_THIEF,
-	CLASS_BARD
-};
-*/
 struct res_ref {
 	res_ref();
 	res_ref(const char *string);
@@ -77,6 +51,14 @@ struct ref_type {
 struct point {
 	int16 x;
 	int16 y;
+};
+
+
+struct rect {
+	int16 x_min;
+	int16 y_min;
+	int16 x_max;
+	int16 y_max;
 };
 
 
@@ -137,6 +119,50 @@ struct actor {
 	uint32 cre_size;
 	uint8 bytes[128];
 } __attribute__((packed));
+
+
+enum door_flags {
+	DOOR_OPEN	= 0,
+	DOOR_LOCKED = 1,
+	DOOR_SECRET = 1 << 7
+};
+
+
+struct door {
+	char name[32];
+	char id[8];
+	uint32 flags;
+	uint32 open_vertex_index;
+	uint16 open_vertices_count;
+	uint16 closed_vertices_count;
+	uint32 closed_vertex_index;
+	rect open_box;
+	rect closed_box;
+	uint32 open_cell_index;
+	uint16 open_cell_count;
+	uint16 closed_cell_count;
+	uint32 closed_cell_index;
+	uint16 unk1;
+	uint16 unk2;
+	res_ref open_sound;
+	res_ref closed_sound;
+	uint32 cursor_index;
+	uint16 trap_detection;
+	uint16 trap_removal;
+	uint16 trapped;
+	uint16 trap_detected;
+	point trap_point;
+	res_ref key_item;
+	res_ref script;
+	uint32 unk3;
+	uint32 lock_difficulty;
+	rect player_box;
+	uint32 text_id;
+	uint8 unk4[28];
+	uint32 name_ref;
+	res_ref dialog;
+	uint8 unk5[8];
+};
 
 
 bool operator<(const res_ref &, const res_ref &);

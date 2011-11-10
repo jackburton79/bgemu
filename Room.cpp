@@ -4,6 +4,7 @@
 #include "BamResource.h"
 #include "BmpResource.h"
 #include "CreResource.h"
+#include "Door.h"
 #include "Graphics.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
@@ -84,6 +85,7 @@ Room::Load(const char *resName)
 
 	_InitAnimations();
 	_InitActors();
+	_InitDoors();
 
 	return true;
 }
@@ -92,6 +94,8 @@ Room::Load(const char *resName)
 void
 Room::Draw(SDL_Surface *surface, SDL_Rect area)
 {
+	fVisibleArea = area;
+
 	_DrawBaseMap(surface, area);
 
 	if (fDrawAnimations)
@@ -112,6 +116,29 @@ Room::Draw(SDL_Surface *surface, SDL_Rect area)
 	}
 
 	SDL_Flip(surface);
+}
+
+
+void
+Room::Clicked(uint16 x, uint16 y)
+{
+	x += fVisibleArea.x;
+	y += fVisibleArea.y;
+
+	uint16 tileNum = TileNumberForPoint(x, y);
+	printf("clicked on tile %d\n", tileNum);
+}
+
+
+uint16
+Room::TileNumberForPoint(uint16 x, uint16 y)
+{
+	MapOverlay *overlay = fWed->OverlayAt(0);
+	const uint16 overlayWidth = overlay->Width();
+	const uint16 tileX = x / TILE_WIDTH;
+	const uint16 tileY = y / TILE_HEIGHT;
+
+	return tileY * overlayWidth + tileX;
 }
 
 
@@ -161,28 +188,26 @@ Room::ToggleAnimations()
 void
 Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
 {
-	WEDResource *wed = gResManager->GetWED(fName);
-	MapOverlay *overlay = wed->OverlayAt(0);
-	const int16 overlayWidth = overlay->Width();
-	int16 firstTileX = area.x / TILE_WIDTH;
-	int16 firstTileY = area.y / TILE_HEIGHT;
-	int16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
-	int16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
+	MapOverlay *overlay = fWed->OverlayAt(0);
+	const uint16 overlayWidth = overlay->Width();
+	const uint16 firstTileX = area.x / TILE_WIDTH;
+	const uint16 firstTileY = area.y / TILE_HEIGHT;
+	uint16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
+	uint16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
 
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
 	SDL_Rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
-	for (int16 y = firstTileY; y < lastTileY; y++) {
+	for (uint16 y = firstTileY; y < lastTileY; y++) {
 		tileRect.y = y * TILE_HEIGHT;
-		for (int16 x = firstTileX; x < lastTileX; x++) {
+		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH;
-			const int16 tileNum = y * overlayWidth + x;
+			const uint32 tileNum = y * overlayWidth + x;
 			SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
-			wed->DrawTile(tileNum, surface, rect, fDrawOverlays);
+			fWed->DrawTile(tileNum, surface, rect, fDrawOverlays);
 		}
 	}
-	gResManager->ReleaseResource(wed);
 }
 
 
@@ -234,7 +259,7 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 	if (fAnimations == NULL)
 		return;
 
-	for (int32 i = 0; i < fArea->CountAnimations(); i++) {
+	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL) {
 			Frame frame = fAnimations[i]->NextFrame();
 			point center = fAnimations[i]->fCenter;
@@ -281,7 +306,7 @@ void
 Room::_InitAnimations()
 {
 	fAnimations = new Animation*[fArea->CountAnimations()];
-	for (int32 i = 0; i < fArea->CountAnimations(); i++) {
+	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		fAnimations[i] = new Animation(fArea->AnimationAt(i));
 	}
 }
@@ -294,4 +319,13 @@ Room::_InitActors()
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors[i] = new Actor(*fArea->ActorAt(i));
 	}
+}
+
+
+void
+Room::_InitDoors()
+{
+	fDoors = new Door*[fArea->CountDoors()];
+	for (uint32 c = 0; c < fArea->CountDoors(); c++)
+		fDoors[c] = new Door(fArea->DoorAt(c));
 }

@@ -5,7 +5,6 @@
 
 class ARAResource : public Resource {
 public:
-	//AREAResource(uint8 *data, uint32 size, uint32 key);
 	ARAResource(const res_ref& name);
 	~ARAResource();
 
@@ -13,27 +12,35 @@ public:
 
 	const char *WedName() const;
 
-	int32 CountAnimations() const;
-	animation *AnimationAt(int32 index);
+	uint32 CountDoors() const;
+	door *DoorAt(uint32 index);
 
-	int16 CountActors() const;
-	actor *ActorAt(int16 index);
+	uint32 CountAnimations() const;
+	animation *AnimationAt(uint32 index);
+
+	uint16 CountActors() const;
+	actor *ActorAt(uint16 index);
 
 private:
 
 	void _LoadAnimations();
 	void _LoadActors();
+	void _LoadDoors();
 
 	res_ref fWedName;
-
-	uint32 fAnimationsOffset;
-	uint32 fNumAnimations;
 
 	uint32 fActorsOffset;
 	uint16 fNumActors;
 
+	uint32 fAnimationsOffset;
+	uint32 fNumAnimations;
+
+	uint32 fNumDoors;
+	uint32 fDoorsOffset;
+
 	animation *fAnimations;
 	actor *fActors;
+	door *fDoors;
 };
 
 #endif /* __AREARESOURCE_H_ */

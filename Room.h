@@ -6,9 +6,9 @@
 #include "Types.h"
 
 class Actor;
-class IDSResource;
 class Animation;
 class ARAResource;
+class Door;
 class Room {
 public:
 	Room();
@@ -18,6 +18,9 @@ public:
 
 	bool Load(const char *name);
 	void Draw(SDL_Surface *surface, SDL_Rect area);
+	void Clicked(uint16 x, uint16 y);
+
+	uint16 TileNumberForPoint(uint16 x, uint16 y);
 
 	void ToggleOverlays();
 	void TogglePolygons();
@@ -36,8 +39,10 @@ private:
 
 	void _InitAnimations();
 	void _InitActors();
+	void _InitDoors();
 
 	res_ref fName;
+	SDL_Rect fVisibleArea;
 
 	WEDResource *fWed;
 	ARAResource *fArea;
@@ -48,6 +53,7 @@ private:
 
 	Animation **fAnimations;
 	Actor **fActors;
+	Door **fDoors;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

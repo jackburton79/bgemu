@@ -8,7 +8,13 @@
 
 #include <map>
 
+struct wed_door {
+
+};
+
+
 struct tilemap;
+class TileMap;
 class WEDResource;
 class MapOverlay {
 public:
@@ -16,23 +22,20 @@ public:
 	~MapOverlay();
 	
 	res_ref TileSet() const;
-	int16 Width() const;
-	int16 Height() const;
+	uint16 Width() const;
+	uint16 Height() const;
 	
-	tilemap TileMapFor(int32 i);
-	int16 TileIndexAt(int16 i);
+	TileMap *TileMapForTile(int32 i);
 
 	void PrintTileMaps();
 
 private:
 	res_ref fTileSet;
 	
-	int16 fWidth;
-	int16 fHeight;
+	uint16 fWidth;
+	uint16 fHeight;
 
-	std::map<int16, int16> fTilesIndexes;
-
-	tilemap *fTileMaps;
+	TileMap *fTileMaps;
 
 	friend class WEDResource;
 };
@@ -71,9 +74,6 @@ private:
 	int32 fNumDoors;
 	int32 fNumPolygons;
 	Polygon *fPolygons;
-
-	int16 fHAspect;
-	int16 fVAspect;
 	
 	MapOverlay *fOverlays;
 
@@ -81,8 +81,6 @@ private:
 	int32 f2ndHeaderOffset;
 	int32 fDoorsOffset;
 	int32 fDoorTileCellsOffset;
-
-
 };
 
 

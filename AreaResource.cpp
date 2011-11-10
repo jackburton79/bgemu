@@ -17,12 +17,15 @@ ARAResource::ARAResource(const res_ref& name)
 	:
 	Resource(name, RES_ARA),
 	fWedName(NULL),
-	fAnimationsOffset(0),
-	fNumAnimations(0),
 	fActorsOffset(0),
 	fNumActors(0),
+	fAnimationsOffset(0),
+	fNumAnimations(0),
+	fNumDoors(0),
+	fDoorsOffset(0),
 	fAnimations(NULL),
-	fActors(NULL)
+	fActors(NULL),
+	fDoors(NULL)
 {
 }
 
@@ -31,6 +34,7 @@ ARAResource::~ARAResource()
 {
 	delete[] fAnimations;
 	delete[] fActors;
+	delete[] fDoors;
 }
 
 
@@ -50,11 +54,15 @@ ARAResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(84, fActorsOffset);
 	fData->ReadAt(88, fNumActors);
 
+	fData->ReadAt(164, fNumDoors);
+	fData->ReadAt(168, fDoorsOffset);
+
 	fData->ReadAt(172, fNumAnimations);
 	fData->ReadAt(176, fAnimationsOffset);
 
 	_LoadAnimations();
 	_LoadActors();
+	_LoadDoors();
 
 	DropData();
 
@@ -69,7 +77,21 @@ ARAResource::WedName() const
 }
 
 
-int32
+uint32
+ARAResource::CountDoors() const
+{
+	return fNumAnimations;
+}
+
+
+door *
+ARAResource::DoorAt(uint32 index)
+{
+	return &fDoors[index];
+}
+
+
+uint32
 ARAResource::CountAnimations() const
 {
 	return fNumAnimations;
@@ -77,20 +99,20 @@ ARAResource::CountAnimations() const
 
 
 animation *
-ARAResource::AnimationAt(int32 index)
+ARAResource::AnimationAt(uint32 index)
 {
 	return &fAnimations[index];
 }
 
 
 actor *
-ARAResource::ActorAt(int16 index)
+ARAResource::ActorAt(uint16 index)
 {
 	return &fActors[index];
 }
 
 
-int16
+uint16
 ARAResource::CountActors() const
 {
 	return fNumActors;
@@ -117,5 +139,16 @@ ARAResource::_LoadActors()
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
 		//PrintActor(fActors[i]);
+	}
+}
+
+
+void
+ARAResource::_LoadDoors()
+{
+	fDoors = new door[fNumDoors];
+	fData->Seek(fDoorsOffset, SEEK_SET);
+	for (uint32 i = 0; i < fNumDoors; i++) {
+		fData->Read(fDoors[i]);
 	}
 }
