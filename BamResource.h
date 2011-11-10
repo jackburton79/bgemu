@@ -18,11 +18,10 @@ public:
 	
 	bool Load(Archive *archive, uint32 key);
 
-	Frame FrameForCycle(int frameIndex, ::cycle *cycle);
-	
-	cycle *CycleAt(int index);
+	Frame FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;
+	uint16 CountFrames(uint8 cycleIndex);
 	uint8 CountCycles() const;
 	
 	void DumpFrames(const char *path);

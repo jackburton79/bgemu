@@ -59,7 +59,7 @@ fopen_case(const char *filename, const char *flags)
 		else
 			fullName = names[i];
 
-		printf("\ttrying %s...", fullName.Path());
+		printf("\t%d: trying %s...", i, fullName.Path());
 		handle = fopen(fullName.Path(), flags);
 		if (handle == NULL)
 			printf("NOT FOUND!\n");
@@ -76,38 +76,22 @@ fopen_case(const char *filename, const char *flags)
 
 
 const char *
+leaf(const char *path)
+{
+	if (path == NULL)
+		return NULL;
+
+	return strrchr(path, '/');
+}
+
+
+const char *
 extension(const char *path)
 {
 	if (path == NULL)
 		return NULL;
 
 	return strrchr(path, '.');
-}
-
-
-static void
-extension_toupper(char *name)
-{
-	char *ptr = (char *)extension(name);
-	if (ptr == NULL)
-		return;
-	ptr++;
-	char c;
-	while ((c = *ptr) != '\0')
-		*ptr++ = (char)toupper(c);
-}
-
-
-static void
-name_toupper(char *name)
-{
-	char *ptr = name;
-	if (ptr == NULL)
-		return;
-
-	char c;
-	while ((c = *ptr) != '\0')
-		*ptr++ = (char)toupper(c);
 }
 
 
@@ -123,32 +107,51 @@ free_case_names(char **names, int num)
 int
 get_case_names(const char *name, char ***_names)
 {
-	char **names = *_names = (char**)malloc(6 * sizeof(char**));
+	const int num = 13;
+	char **names = *_names = (char**)malloc(num * sizeof(char**));
 
-	// data/area0001.bif
+	int length = strlen(name);
+
+	// Change names
+	// data/AREA0001E.bif
 	names[0] = strdup(name);
 
-	// data/area0001.BIF
-	names[1] = strdup(names[0]);
-	extension_toupper(names[1]);
+	// data/AREA0001e.bif
+	names[1] = strdup(name);
+	char *ext = (char *)::extension(names[1]) - 1;
+	std::transform(ext, &names[1][length], ext, ::tolower);
 
-	// Data/area0001.bif
-	names[2] = strdup(names[0]);
-	names[2][0] = (char)toupper(name[0]);
+	// data/AREA0001E.BIF
+	names[2] = strdup(name);
+	std::transform((char*)extension(names[2]), &names[2][length],
+			(char*)extension(names[2]), ::toupper);
 
-	// Data/area0001.BIF
-	names[3] = strdup(names[2]);
-	extension_toupper(names[3]);
+	// data/AREA0001e.BIF
+	names[3] = strdup(names[1]);
+	std::transform((char*)extension(names[3]), &names[3][length],
+				(char*)extension(names[3]), ::toupper);
 
-	// DATA/AREA0001.BIF
 	names[4] = strdup(names[0]);
-	name_toupper(names[4]);
+	std::transform((char*)extension(names[4]), &names[4][length],
+					(char*)extension(names[4]), ::toupper);
 
-	// DATA/AREA0001.BIF
-	names[5] = strdup(names[2]);
-	name_toupper(names[5]);
+	//char *leaf = ::leaf(names[0]);
 
-	return 6;
+
+	for (int32 i = 0; i < 4; i++) {
+		names[4 + i] = strdup(names[i]);
+		names[4 + i][0] = (char)toupper(names[4 + i][0]);
+		names[8 + i] = strdup(names[i]);
+		std::transform((char*)extension(names[8 + i]), &names[8 + i][length],
+						(char*)extension(names[8 + i]), ::toupper);
+
+	}
+
+	names[num - 1] = strdup(name);
+	std::transform((char*)names[num - 1], &names[num - 1][length],
+			(char*)names[num - 1], ::toupper);
+
+	return num;
 }
 
 

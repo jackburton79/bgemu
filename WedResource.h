@@ -41,7 +41,6 @@ private:
 class Polygon;
 class WEDResource : public Resource {
 public:
-	WEDResource(uint8 *data, uint32 size, uint32 key);
 	WEDResource(const res_ref& name);
 	~WEDResource();
 	
@@ -72,8 +71,6 @@ private:
 	int32 fNumDoors;
 	int32 fNumPolygons;
 	Polygon *fPolygons;
-	SDL_Surface *fSearchMap;
-	SDL_Surface *fHeightMap;
 
 	int16 fHAspect;
 	int16 fVAspect;

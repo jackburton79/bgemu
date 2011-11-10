@@ -51,7 +51,8 @@ TISResource::TileCellAt(int index)
 
 	fData->Seek(index * kTileDataSize, SEEK_SET);
 	
-	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
+	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+			TILE_WIDTH, TILE_HEIGHT, 8, 0, 0, 0, 0);
 	
 	SDL_Color palette[256];
 	for (int32 i = 0; i < 256; i++) {

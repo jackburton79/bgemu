@@ -6,6 +6,7 @@
 #define SGN(x) ((x) > 0 ? 1 : ((x) == 0 ? 0 : (-1)))
 #define ABS(x) ((x) > 0 ? (x) : (-x))
 
+/* static */
 int
 Graphics::DecodeRLE(const void *source, uint32 outSize,
 		void *dest, uint8 compIndex)
@@ -93,6 +94,7 @@ Graphics::DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1, uint32 x2,
 }
 
 
+/* static */
 void
 Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
 {
@@ -112,6 +114,7 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
 }
 
 
+/* static */
 int
 Graphics::DataToSDLSurface(const void *data, int32 width, int32 height, SDL_Surface *surface)
 {
@@ -127,3 +130,21 @@ Graphics::DataToSDLSurface(const void *data, int32 width, int32 height, SDL_Surf
 }
 
 
+/* static */
+SDL_Surface *
+Graphics::MirrorSDLSurface(SDL_Surface *surface)
+{
+	SDL_LockSurface(surface);
+
+	uint8 *sourcePixels;
+	uint8 *destPixels;
+	for (int32 y = 0; y < surface->h; y++) {
+		sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		destPixels = (uint8*)sourcePixels + surface->pitch - 1;
+		for (int32 x = 0; x < surface->pitch / 2; x++)
+			std::swap(*sourcePixels++, *destPixels--);
+	}
+	SDL_UnlockSurface(surface);
+
+	return surface;
+}

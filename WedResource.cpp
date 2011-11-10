@@ -36,6 +36,13 @@ struct tilemap {
 	int8 unk3;
 };
 
+class TileMap {
+public:
+	TileMap();
+
+	std::map<int16, int16> fTilesIndexes;
+};
+
 
 WEDResource::WEDResource(const res_ref &name)
 	:
@@ -88,7 +95,6 @@ void
 WEDResource::_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 		SDL_Rect rect, SDL_Color *color)
 {
-
 	if (color) {
 		SDL_SetColorKey(cell, SDL_SRCCOLORKEY,
 				SDL_MapRGB(cell->format, color->r, color->g, color->b));
@@ -146,33 +152,6 @@ WEDResource::DrawTile(const int16 tileNum, SDL_Surface *surface,
 SDL_Surface *
 WEDResource::GetAreaMap(bool withOverlays, bool withPolygons)
 {
-	// TODO: Change this, and create a function which
-	// only draw the requested tile. Then the caller
-	// needs to request the tiles it wants to draw.
-	int32 numOverlays = CountOverlays();
-	if (numOverlays <= 0)
-		return NULL;
-
-	MapOverlay *baseOverlay = OverlayAt(0);
-	if (baseOverlay == NULL)
-		return NULL;
-
-	SDL_Surface *surface = SDL_CreateRGBSurface(
-			SDL_SWSURFACE, baseOverlay->Width() * TILE_WIDTH,
-			baseOverlay->Height() * TILE_HEIGHT, 16, 0, 0, 0, 0);
-
-	SDL_Rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
-	const int16 width = baseOverlay->Width();
-	const int16 height = baseOverlay->Height();
-	for (int16 y = 0; y < height; y++) {
-		tileRect.y = y * TILE_HEIGHT;
-		for (int16 x = 0; x < width; x++) {
-			tileRect.x = x * TILE_WIDTH;
-			const int16 tileNum = y * width + x;
-			DrawTile(tileNum, surface, tileRect, withOverlays);
-		}
-	}
-
 	if (withPolygons) {
 		for (int32 p = 0; p < CountPolygons(); p++) {
 			Graphics::DrawPolygon(*PolygonAt(p), surface);

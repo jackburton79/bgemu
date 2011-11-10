@@ -12,10 +12,14 @@ public:
 	static int Decode(const void *source, uint32 outSize, void *dest);
 	static int DataToSDLSurface(const void *data, int32 width, int32 height,
 			SDL_Surface *surface);
+
+	static SDL_Surface *MirrorSDLSurface(SDL_Surface *surface);
+
 	static void DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color);
 	static void DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1,
 				uint32 x2, uint32 y2, uint32 color);
 	static void DrawPolygon(Polygon &polygon, SDL_Surface *surface);
+
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "Animation.h"
 #include "AreaResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
@@ -17,7 +18,7 @@
 
 Room::Room()
 	:
-	fSurface(NULL),
+	fWed(NULL),
 	fArea(NULL),
 	fLightMap(NULL),
 	fSearchMap(NULL),
@@ -36,12 +37,12 @@ Room::Room()
 
 Room::~Room()
 {
-	//SDL_FreeSurface(fSurface);
 	SDL_FreeSurface(fLightMap);
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
 	delete[] fAnimations;
 	delete[] fActors;
+	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fArea);
 }
 
@@ -49,11 +50,9 @@ Room::~Room()
 SDL_Rect
 Room::Rect() const
 {
-	WEDResource *wed = gResManager->GetWED(fName);
-	MapOverlay *overlay = wed->OverlayAt(0);
+	MapOverlay *overlay = fWed->OverlayAt(0);
 	SDL_Rect rect = { 0, 0, overlay->Width() * TILE_WIDTH,
 			overlay->Height() * TILE_HEIGHT };
-	gResManager->ReleaseResource(wed);
 	return rect;
 }
 
@@ -61,12 +60,13 @@ Room::Rect() const
 bool
 Room::Load(const char *resName)
 {
-	std::cout << "RegionMap::Load(" << resName << ")" << std::endl;
+	std::cout << "Room::Load(" << resName << ")" << std::endl;
 
 	fArea = gResManager->GetARA(resName);
 	fName = fArea->WedName();
+	fWed = gResManager->GetWED(fName);
 
-	/*BMPResource *bmp = gResManager->GetBMP(
+	BMPResource *bmp = gResManager->GetBMP(
 			ResourceManager::HeightMapName(fName).c_str());
 	fHeightMap = bmp->Image();
 	gResManager->ReleaseResource(bmp);
@@ -81,7 +81,7 @@ Room::Load(const char *resName)
 			ResourceManager::SearchMapName(fName).c_str());
 	fSearchMap = bmp->Image();
 	gResManager->ReleaseResource(bmp);
-*/
+
 	_InitAnimations();
 	_InitActors();
 
@@ -99,7 +99,7 @@ Room::Draw(SDL_Surface *surface, SDL_Rect area)
 
 	if (true)
 		_DrawActors(surface, area);
-/*
+
 	if (fDrawLightMap)
 		_DrawLightMap(surface);
 	if (fDrawHeightMap)
@@ -110,7 +110,7 @@ Room::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (fDrawPolygons) {
 		// TODO:
 	}
-*/
+
 	SDL_Flip(surface);
 }
 
@@ -119,6 +119,7 @@ void
 Room::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
+	SDL_Flip(SDL_GetVideoSurface());
 }
 
 
@@ -204,14 +205,6 @@ Room::_DrawSearchMap(SDL_Surface *surface, SDL_Rect area)
 		fSearchMap->w + fLightMap->w, fSearchMap->h
 	};
 	SDL_BlitSurface(fSearchMap, NULL, surface, &destRect);
-
-	SDL_Rect fill = {
-			destRect.x + (area.x / (fSurface->w / fSearchMap->w)),
-			destRect.y + (area.y / (fSurface->h / fSearchMap->h)),
-			(area.w / (fSurface->w / fSearchMap->w)),
-			(area.h / (fSurface->h / fSearchMap->h))
-	};
-	SDL_FillRect(surface, &fill, 45);
 }
 
 
@@ -224,13 +217,14 @@ Room::_DrawHeightMap(SDL_Surface *surface, SDL_Rect area)
 	};
 	SDL_BlitSurface(fHeightMap, NULL, surface, &destRect);
 
+	/*MapOverlay *overlay = fWed->OverlayAt(0);
 	SDL_Rect fill = {
-		destRect.x + (area.x / (fSurface->w / fHeightMap->w)),
-		destRect.y + (area.y / (fSurface->h / fHeightMap->h)),
-		(area.w / (fSurface->w / fHeightMap->w)),
-		(area.h / (fSurface->h / fHeightMap->h))
+		destRect.x + (area.x / (overlay->Width() / fHeightMap->w)),
+		destRect.y + (area.y / (overlay->Height() / fHeightMap->h)),
+		(area.w / (overlay->Width() / fHeightMap->w)),
+		(area.h / (overlay->Height() / fHeightMap->h))
 	};
-	SDL_FillRect(surface, &fill, 45);
+	SDL_FillRect(surface, &fill, 45);*/
 }
 
 
@@ -242,7 +236,7 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 
 	for (int32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL) {
-			Frame frame = fAnimations[i]->Image();
+			Frame frame = fAnimations[i]->NextFrame();
 			point center = fAnimations[i]->fCenter;
 			center = offset_point(center, -frame.rect.w / 2,
 					-frame.rect.h / 2);
@@ -273,22 +267,13 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 	if (fActors == NULL)
 		return;
 
-	// TODO: Get the correct bam for actor
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
 		try {
 			fActors[a]->Draw(surface, area);
-			/*TLKEntry *entry = Dialogs()->EntryAt(nameID);
-			if (entry == NULL)
-				continue;
-			printf("actor %s (%d): %s\n", fActors[a]->Name(),
-					id, entry->string);*/
-			//delete entry;
 		} catch (...) {
 			continue;
 		}
 	}
-
-
 }
 
 
@@ -309,41 +294,4 @@ Room::_InitActors()
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors[i] = new Actor(*fArea->ActorAt(i));
 	}
-}
-
-
-// Animation
-Animation::Animation(animation *animDesc)
-	:
-	fBAM(NULL),
-	fCycle(NULL),
-	fNumber(0),
-	fCurrentFrame(0)
-{
-	fBAM = gResManager->GetBAM(animDesc->bam_name);
-	fNumber = animDesc->sequence;
-	fCycle = fBAM->CycleAt(fNumber);
-	fCenter = animDesc->center;
-	fCurrentFrame = animDesc->frame;
-	fHold = animDesc->flags & ANIM_HOLD;
-}
-
-
-Animation::~Animation()
-{
-	gResManager->ReleaseResource(fBAM);
-	delete fCycle;
-}
-
-
-Frame
-Animation::Image()
-{
-	Frame frame = fBAM->FrameForCycle(fCurrentFrame, fCycle);
-	if (!fHold) {
-		fCurrentFrame++;
-		if (fCurrentFrame >= fCycle->numFrames)
-			fCurrentFrame = 0;
-	}
-	return frame;
 }

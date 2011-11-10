@@ -5,27 +5,9 @@
 #include "TileCell.h"
 #include "Types.h"
 
-struct cycle;
 class Actor;
-class BAMResource;
 class IDSResource;
-class Animation {
-public:
-	Animation(animation *animDesc);
-	~Animation();
-
-	Frame Image();
-
-//private:
-	BAMResource *fBAM;
-	cycle *fCycle;
-	point fCenter;
-	int16 fNumber;
-	int16 fCurrentFrame;
-	bool fHold;
-};
-
-
+class Animation;
 class ARAResource;
 class Room {
 public:
@@ -56,8 +38,8 @@ private:
 	void _InitActors();
 
 	res_ref fName;
-	SDL_Surface *fSurface;
 
+	WEDResource *fWed;
 	ARAResource *fArea;
 
 	SDL_Surface *fLightMap;

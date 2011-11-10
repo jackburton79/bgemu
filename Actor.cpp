@@ -1,6 +1,8 @@
 #include "Actor.h"
+#include "Animation.h"
 #include "BamResource.h"
 #include "CreResource.h"
+#include "Graphics.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
@@ -10,28 +12,41 @@
 
 Actor::Actor(::actor &actor)
 	:
-	fActor(&actor)
+	fActor(&actor),
+	fAnimation(NULL)
 {
 	fCRE = gResManager->GetCRE(fActor->cre);
+	try {
+		fAnimation = new Animation(this);
+	} catch (...) {
+		delete fAnimation;
+		fAnimation = NULL;
+	}
 }
 
 
 Actor::~Actor()
 {
 	gResManager->ReleaseResource(fCRE);
+	delete fAnimation;
+}
+
+
+const char *
+Actor::Name() const
+{
+	return (const char *)fActor->name;
 }
 
 
 void
 Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 {
-	res_ref resRef = AnimationFor(*this);
+	if (fAnimation == NULL)
+		return;
 
-	BAMResource *bam = gResManager->GetBAM(resRef);
-	::cycle *cycle = bam->CycleAt(0);
-	Frame frame = bam->FrameForCycle(0, cycle);
-	delete cycle;
-	gResManager->ReleaseResource(bam);
+	Frame frame = fAnimation->NextFrame();
+
 	SDL_Surface *image = frame.surface;
 	if (image == NULL)
 		return;
@@ -58,10 +73,17 @@ Actor::Position() const
 }
 
 
-const char *
-Actor::Name() const
+orientation
+Actor::Orientation() const
 {
-	return (const char *)fActor->name;
+	return (orientation)fActor->orientation;
+}
+
+
+point
+Actor::Destination() const
+{
+	return fActor->destination;
 }
 
 
@@ -195,6 +217,8 @@ WeirdMonsterCode(uint8 code)
 			return "MDRO";
 		case 0x28:
 			return "MKUL";
+		//case 0x2c:
+		//	return ""
 		default:
 			printf("unknown code 0x%x\n", code);
 			return "";
@@ -208,7 +232,8 @@ Actor::AnimationFor(Actor &actor)
 {
 	CREResource *creature = actor.CRE();
 	const uint16 animationID = creature->AnimationID();
-	//printf("animation: 0x%x %s\n", id, AnimateIDS()->ValueFor(id));
+	printf("animation: 0x%x %s\n", animationID,
+			AnimateIDS()->ValueFor(animationID));
 
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;
@@ -272,7 +297,14 @@ Actor::AnimationFor(Actor &actor)
 					baseName = "NFAMH";
 				break;
 			}
-
+			/*case 0xc9:
+			{
+				if (low == 0x10)
+					baseName = "NFAWH";
+				else
+					baseName = "NFAMH";
+				break;
+			}*/
 			// Birds
 			case 0xd0:
 				baseName = "AEAG";

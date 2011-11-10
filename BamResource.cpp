@@ -88,9 +88,8 @@ void
 BAMResource::DumpFrames(const char *filePath)
 {
 	for (int32 c = 0; c < fNumCycles; c++) {
-		::cycle *cycle = CycleAt(c);
 		for (int f = 0; f < fNumFrames; f++) {
-			SDL_Surface *surface = FrameForCycle(f, cycle).surface;
+			SDL_Surface *surface = FrameForCycle(f, c).surface;
 			TPath path(filePath);
 			char fileName[PATH_MAX];
 			snprintf(fileName, PATH_MAX, "%sC%d_F%d.bmp",
@@ -100,7 +99,6 @@ BAMResource::DumpFrames(const char *filePath)
 			SDL_SaveBMP(surface, path.Path());
 			SDL_FreeSurface(surface);
 		}
-		delete cycle;
 	}
 }
 
@@ -164,20 +162,19 @@ BAMResource::_FrameAt(uint16 index)
 
 
 Frame
-BAMResource::FrameForCycle(int frameIndex, ::cycle *cycle)
+BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
+	if (cycleIndex >= fNumCycles) {
+		printf("BAMResource::FrameForCycle(): too big!\n");
+		throw cycleIndex;
+	}
+
+	::cycle newCycle;
+	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);
+
 	uint16 index;
-	fData->ReadAt(fFrameLookupOffset + (cycle->index + frameIndex) * sizeof(int16), index);
+	fData->ReadAt(fFrameLookupOffset + (newCycle.index + frameIndex) * sizeof(int16), index);
 	return _FrameAt(index);
-}
-
-
-cycle *
-BAMResource::CycleAt(int index)
-{
-	cycle *newCycle = new cycle;
-	fData->ReadAt(fCyclesOffset + index * sizeof(cycle), *newCycle);
-	return newCycle;
 }
 
 
@@ -185,6 +182,15 @@ uint16
 BAMResource::CountFrames() const
 {
 	return fNumFrames;
+}
+
+
+uint16
+BAMResource::CountFrames(uint8 cycleIndex)
+{
+	::cycle newCycle;
+	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);
+	return newCycle.numFrames;
 }
 
 
@@ -243,6 +249,8 @@ BAMResource::_Load()
 			fPalette[i].g = fData->ReadByte();
 			fPalette[i].r = fData->ReadByte();
 			fPalette[i].unused = fData->ReadByte();
+			//printf("%d: %d %d %d\n", i, fPalette[i].r,
+				//	fPalette[i].g, fPalette[i].b);
 		}
 	} else
 		throw -1;
