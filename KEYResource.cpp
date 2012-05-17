@@ -46,7 +46,7 @@ KEYResource::Load(Archive *archive, uint32 key)
 }
 
 
-int32
+uint32
 KEYResource::CountFileEntries() const
 {
 	return fNumBifs;
@@ -54,7 +54,7 @@ KEYResource::CountFileEntries() const
 
 
 bool
-KEYResource::GetFileEntryAt(int32 index, KeyFileEntry &entry)
+KEYResource::GetFileEntryAt(uint32 index, KeyFileEntry &entry)
 {
 	fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
 
@@ -67,19 +67,18 @@ KEYResource::GetFileEntryAt(int32 index, KeyFileEntry &entry)
 	fData->Read(nameLen);
 	fData->Read(bif->location);
 
-	char *name = new char[nameLen];
+	char name[nameLen];
 	fData->ReadAt(offset, name, nameLen);
 
 	path_dos_to_unix(name);
 
 	bif->name = name;
-	delete[] name;
 
 	return true;
 }
 
 
-int32
+uint32
 KEYResource::CountResourceEntries() const
 {
 	return fNumResources;
@@ -87,14 +86,13 @@ KEYResource::CountResourceEntries() const
 
 
 bool
-KEYResource::GetResEntryAt(int32 index, KeyResEntry &entry)
+KEYResource::GetResEntryAt(uint32 index, KeyResEntry &entry)
 {
 	fData->Seek(fResOffset + index * kKeyResEntrySize, SEEK_SET);
 
-	KeyResEntry *res = &entry;
-	fData->Read(&res->name, 8);
-	fData->Read(res->type);
-	fData->Read(res->key);
+	fData->Read(&entry.name, 8);
+	fData->Read(entry.type);
+	fData->Read(entry.key);
 
 	return true;
 }

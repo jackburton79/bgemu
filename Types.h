@@ -26,6 +26,7 @@ enum resource_type {
 	RES_CRE = 0x3f1,
 	RES_ARA = 0x3f2,
 	RES_DLG = 0x3f3,
+	RES_UNK = 0x3f4,
 	RES_EFF = 0x3f8,
 	RES_VVC = 0x3fb
 };
@@ -36,7 +37,10 @@ struct res_ref {
 	res_ref();
 	res_ref(const char *string);
 	res_ref(const res_ref &);
+
 	operator const char*() const;
+	res_ref& operator=(const res_ref& other);
+
 	/*char& operator [](int index);*/
 	char name[8];
 } __attribute__((packed));
@@ -122,15 +126,15 @@ struct actor {
 
 
 enum door_flags {
-	DOOR_OPEN	= 0,
-	DOOR_LOCKED = 1,
+	DOOR_OPEN	= 1 << 0,
+	DOOR_LOCKED = 1 << 1,
 	DOOR_SECRET = 1 << 7
 };
 
 
 struct door {
 	char name[32];
-	char id[8];
+	res_ref id;
 	uint32 flags;
 	uint32 open_vertex_index;
 	uint16 open_vertices_count;
@@ -154,7 +158,7 @@ struct door {
 	point trap_point;
 	res_ref key_item;
 	res_ref script;
-	uint32 unk3;
+	//uint32 unk3; //TODO ??
 	uint32 lock_difficulty;
 	rect player_box;
 	uint32 text_id;
@@ -162,7 +166,19 @@ struct door {
 	uint32 name_ref;
 	res_ref dialog;
 	uint8 unk5[8];
-};
+} __attribute__((packed));
+
+
+struct door_wed {
+	char name[8];
+	uint16 flags;
+	uint16 cell_index;
+	uint16 cell_count;
+	uint16 open_polygon_count;
+	uint16 closed_polygon_count;
+	uint32 open_polygons_offset;
+	uint32 closed_polygons_offset;
+} __attribute__((packed));
 
 
 bool operator<(const res_ref &, const res_ref &);

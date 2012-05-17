@@ -2,6 +2,7 @@
 #include "Animation.h"
 #include "AreaResource.h"
 #include "BamResource.h"
+#include "BCSResource.h"
 #include "BmpResource.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -10,11 +11,13 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "Tile.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "WedResource.h"
 #include "World.h"
 
+#include <assert.h>
 #include <iostream>
 
 Room::Room()
@@ -24,6 +27,9 @@ Room::Room()
 	fLightMap(NULL),
 	fSearchMap(NULL),
 	fHeightMap(NULL),
+	fNumOverlays(0),
+	fOverlays(NULL),
+	fTiles(NULL),
 	fAnimations(NULL),
 	fActors(NULL),
 	fDrawOverlays(false),
@@ -41,6 +47,8 @@ Room::~Room()
 	SDL_FreeSurface(fLightMap);
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
+	delete[] fOverlays;
+	delete[] fTiles;
 	delete[] fAnimations;
 	delete[] fActors;
 	gResManager->ReleaseResource(fWed);
@@ -49,12 +57,9 @@ Room::~Room()
 
 
 SDL_Rect
-Room::Rect() const
+Room::ViewPort() const
 {
-	MapOverlay *overlay = fWed->OverlayAt(0);
-	SDL_Rect rect = { 0, 0, overlay->Width() * TILE_WIDTH,
-			overlay->Height() * TILE_HEIGHT };
-	return rect;
+	return fVisibleArea;
 }
 
 
@@ -66,6 +71,13 @@ Room::Load(const char *resName)
 	fArea = gResManager->GetARA(resName);
 	fName = fArea->WedName();
 	fWed = gResManager->GetWED(fName);
+
+	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
+	//bcs->DumpToFile("testbcs.txt");
+	gResManager->ReleaseResource(bcs);
+/*
+	_LoadOverlays();
+	_LoadTiles();
 
 	BMPResource *bmp = gResManager->GetBMP(
 			ResourceManager::HeightMapName(fName).c_str());
@@ -86,30 +98,52 @@ Room::Load(const char *resName)
 	_InitAnimations();
 	_InitActors();
 	_InitDoors();
-
-	return true;
+*/
+	return false;
 }
 
 
 void
-Room::Draw(SDL_Surface *surface, SDL_Rect area)
+Room::SetViewPort(SDL_Rect rect)
 {
-	fVisibleArea = area;
+	const uint16 areaWidth = fOverlays[0]->Width() * TILE_WIDTH;
+	const uint16 areaHeigth = fOverlays[0]->Height() * TILE_HEIGHT;
 
-	_DrawBaseMap(surface, area);
+	if (rect.x < 0)
+		rect.x = 0;
+	if (rect.y < 0)
+		rect.y = 0;
+	if (rect.x + rect.w > areaWidth)
+		rect.x = areaWidth - rect.w;
+	if (rect.y + rect.h > areaHeigth)
+		rect.y = areaHeigth - rect.h;
+
+	rect.x = std::max(rect.x, (Sint16)0);
+	rect.y = std::max(rect.y, (Sint16)0);
+
+	fVisibleArea = rect;
+}
+
+
+void
+Room::Draw(SDL_Surface *surface)
+{
+	//fVisibleArea = area;
+
+	_DrawBaseMap(surface, fVisibleArea);
 
 	if (fDrawAnimations)
-		_DrawAnimations(surface, area);
+		_DrawAnimations(surface, fVisibleArea);
 
 	if (true)
-		_DrawActors(surface, area);
+		_DrawActors(surface, fVisibleArea);
 
 	if (fDrawLightMap)
 		_DrawLightMap(surface);
 	if (fDrawHeightMap)
-		_DrawHeightMap(surface, area);
+		_DrawHeightMap(surface, fVisibleArea);
 	if (fDrawSearchMap)
-		_DrawSearchMap(surface, area);
+		_DrawSearchMap(surface, fVisibleArea);
 
 	if (fDrawPolygons) {
 		// TODO:
@@ -125,16 +159,26 @@ Room::Clicked(uint16 x, uint16 y)
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
 
-	uint16 tileNum = TileNumberForPoint(x, y);
-	printf("clicked on tile %d\n", tileNum);
+	const uint16 tileNum = TileNumberForPoint(x, y);
+	printf("tileNum: %d\n", tileNum);
+	fTiles[tileNum]->Clicked();
+}
+
+
+void
+Room::MouseOver(uint16 x, uint16 y)
+{
+	x += fVisibleArea.x;
+	y += fVisibleArea.y;
+	const uint16 tileNum = TileNumberForPoint(x, y);
+	fTiles[tileNum]->MouseOver();
 }
 
 
 uint16
 Room::TileNumberForPoint(uint16 x, uint16 y)
 {
-	MapOverlay *overlay = fWed->OverlayAt(0);
-	const uint16 overlayWidth = overlay->Width();
+	const uint16 overlayWidth = fOverlays[0]->Width();
 	const uint16 tileX = x / TILE_WIDTH;
 	const uint16 tileY = y / TILE_HEIGHT;
 
@@ -188,7 +232,7 @@ Room::ToggleAnimations()
 void
 Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
 {
-	MapOverlay *overlay = fWed->OverlayAt(0);
+	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = area.x / TILE_WIDTH;
 	const uint16 firstTileY = area.y / TILE_HEIGHT;
@@ -205,7 +249,7 @@ Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
 			tileRect.x = x * TILE_WIDTH;
 			const uint32 tileNum = y * overlayWidth + x;
 			SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
-			fWed->DrawTile(tileNum, surface, rect, fDrawOverlays);
+			fTiles[tileNum]->Draw(surface, &rect, fDrawOverlays);
 		}
 	}
 }
@@ -303,6 +347,30 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 
 
 void
+Room::_LoadOverlays()
+{
+	fNumOverlays = fWed->CountOverlays();
+	fOverlays = new MapOverlay*[fNumOverlays];
+	for (uint32 i = 0; i < fNumOverlays; i++)
+		fOverlays[i] = fWed->GetOverlay(i);
+
+}
+
+
+void
+Room::_LoadTiles()
+{
+	uint32 numTiles = fOverlays[0]->Size();
+	fTiles = new Tile*[numTiles];
+	for (uint16 i = 0; i < numTiles; i++) {
+		fTiles[i] = new Tile(i);
+		for (uint32 o = 0; o < fNumOverlays; o++)
+			fTiles[i]->AddTileMap(fOverlays[o]->TileMapForTile(i));
+	}
+}
+
+
+void
 Room::_InitAnimations()
 {
 	fAnimations = new Animation*[fArea->CountAnimations()];
@@ -325,7 +393,15 @@ Room::_InitActors()
 void
 Room::_InitDoors()
 {
-	fDoors = new Door*[fArea->CountDoors()];
-	for (uint32 c = 0; c < fArea->CountDoors(); c++)
-		fDoors[c] = new Door(fArea->DoorAt(c));
+	assert(fTiles != NULL);
+
+	uint32 numDoors = fWed->CountDoors();
+	fDoors = new Door*[numDoors];
+	for (uint32 c = 0; c < numDoors; c++) {
+		Door *door = fWed->GetDoor(c);
+		fDoors[c] = door;
+		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
+			fTiles[door->fTilesOpen[i]]->SetDoor(door);
+		}
+	}
 }

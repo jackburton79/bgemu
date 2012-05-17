@@ -144,8 +144,7 @@ BAMResource::_FrameAt(uint16 index)
 		const SDL_Color *trans = &fPalette[fTransparentIndex];
 		color  = SDL_MapRGB(surface->format, trans->r, trans->g, trans->b);
 	}*/
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL,
-			color);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, color);
 
 	SDL_Rect rect;
 	rect.w = surface->w;
@@ -165,7 +164,7 @@ Frame
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
 	if (cycleIndex >= fNumCycles) {
-		printf("BAMResource::FrameForCycle(): too big!\n");
+		printf("BAMResource::FrameForCycle(): out of bounds!\n");
 		throw cycleIndex;
 	}
 
@@ -204,11 +203,6 @@ BAMResource::CountCycles() const
 void
 BAMResource::_Load()
 {
-	char signature[5];
-	signature[4] = '\0';
-	char version[5];
-	version[4] = '\0';
-	fData->ReadAt(0, signature, 4);
 	if (CheckSignature(BAMC_SIGNATURE)) {
 		if (!CheckVersion(BAM_VERSION_1))
 			throw -1;
@@ -224,6 +218,9 @@ BAMResource::_Load()
 
 		ReplaceData(new MemoryStream(decompressedData, len, true));
 	}
+
+	// Fall through, since in the previous code block we
+	// extracted a BAM file
 
 	if (CheckSignature(BAM_SIGNATURE)) {
 		if (!CheckVersion(BAM_VERSION_1))

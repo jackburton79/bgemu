@@ -3,6 +3,7 @@
 
 #include "Resource.h"
 
+class Door;
 class ARAResource : public Resource {
 public:
 	ARAResource(const res_ref& name);
@@ -21,6 +22,8 @@ public:
 	uint16 CountActors() const;
 	actor *ActorAt(uint16 index);
 
+	res_ref Script();
+
 private:
 
 	void _LoadAnimations();
@@ -37,6 +40,8 @@ private:
 
 	uint32 fNumDoors;
 	uint32 fDoorsOffset;
+
+	uint32 fVerticesOffset;
 
 	animation *fAnimations;
 	actor *fActors;

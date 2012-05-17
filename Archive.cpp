@@ -24,6 +24,6 @@ Archive::Create(const char *path)
 		}
 	} catch (...) {
 		printf("TArchive::Create(): Exception thrown!\n");
-		return NULL;
 	}
+	return NULL;
 }

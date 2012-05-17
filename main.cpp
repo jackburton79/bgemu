@@ -51,14 +51,17 @@ main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
-	//chdir(sPath);
 	try {
-		gResManager->Initialize(sPath);
+		if (!gResManager->Initialize(sPath)) {
+			printf("Failed to initialize Resource Manager!\n");
+			return -1;
+		}
 	} catch (...) {
 		return -1;
 	}
 
 	if (sList) {
+		//gResManager->PrintBIFs();
 		gResManager->PrintResources();
 		return 0;
 	}
@@ -75,16 +78,11 @@ main(int argc, char **argv)
 	World world;
 	world.EnterArea(sRoom);
 	Room *map = world.CurrentArea();
+	SDL_Rect rect = { 0, 0, screen->w, screen->h };
+	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 	if (map != NULL) {
-		const SDL_Rect mapRect = map->Rect();
-		SDL_Rect rect;
-		rect.w = screen->w;
-		rect.h = screen->h;
-		rect.x = 0;
-		rect.y = 0;
-
 		SDL_Event event;
 		bool quitting = false;
 		bool dragging = false;
@@ -104,17 +102,13 @@ main(int argc, char **argv)
 						break;
 					case SDL_MOUSEMOTION:
 						if (dragging) {
+							SDL_Rect rect = map->ViewPort();
 							rect.x -= event.motion.xrel;
 							rect.y -= event.motion.yrel;
-							if (rect.x < 0)
-								rect.x = 0;
-							if (rect.y < 0)
-								rect.y = 0;
-							if (rect.x + rect.w > mapRect.w)
-								rect.x = mapRect.w - rect.w;
-							if (rect.y + rect.h > mapRect.h)
-								rect.y = mapRect.h - rect.h;
-						}
+							map->SetViewPort(rect);
+						} else
+							map->MouseOver(event.motion.x, event.motion.y);
+
 						break;
 					case SDL_KEYDOWN: {
 						switch (event.key.keysym.sym) {
@@ -144,6 +138,7 @@ main(int argc, char **argv)
 						}
 					}
 					break;
+
 					case SDL_QUIT:
 						quitting = true;
 						break;
@@ -151,7 +146,7 @@ main(int argc, char **argv)
 						break;
 				}
 			}
-			map->Draw(screen, rect);
+			map->Draw(screen);
 			SDL_Delay(50);
 		}
 

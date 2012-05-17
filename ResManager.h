@@ -16,6 +16,7 @@ extern const char *kDialogResource;
 class Archive;
 class ARAResource;
 class BAMResource;
+class BCSResource;
 class BMPResource;
 class CREResource;
 class IDSResource;
@@ -33,6 +34,7 @@ public:
 	KEYResource *GetKEY(const char *name);
 	TLKResource *GetTLK(const char *name);
 	BAMResource *GetBAM(const res_ref &name);
+	BCSResource *GetBCS(const res_ref &name);
 	BMPResource *GetBMP(const res_ref &name);
 	CREResource *GetCRE(const res_ref &name);
 	IDSResource *GetIDS(const res_ref &name);
@@ -71,8 +73,6 @@ private:
 	resource_map fResourceMap;
 	std::vector<Resource *> fCachedResources;
 	archive_map fArchives;
-	
-
 };
 
 extern ResourceManager *gResManager;

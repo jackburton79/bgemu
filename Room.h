@@ -9,17 +9,21 @@ class Actor;
 class Animation;
 class ARAResource;
 class Door;
+class MapOverlay;
+class Tile;
 class Room {
 public:
 	Room();
 	~Room();
 	
-	SDL_Rect Rect() const;
-
 	bool Load(const char *name);
-	void Draw(SDL_Surface *surface, SDL_Rect area);
-	void Clicked(uint16 x, uint16 y);
 
+	SDL_Rect ViewPort() const;
+	void SetViewPort(SDL_Rect rect);
+
+	void Draw(SDL_Surface *surface);
+	void Clicked(uint16 x, uint16 y);
+	void MouseOver(uint16 x, uint16 y);
 	uint16 TileNumberForPoint(uint16 x, uint16 y);
 
 	void ToggleOverlays();
@@ -29,14 +33,22 @@ public:
 	void ToggleSearchMap();
 	void ToggleHeightMap();
 
+	void DrawTile(const int16 tileNum, SDL_Surface *surface,
+						SDL_Rect tileRect, bool withOverlays);
+
 private:
 	void _DrawBaseMap(SDL_Surface *surface, SDL_Rect area);
+	void _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
+				SDL_Rect rect, SDL_Color *transparent);
+
 	void _DrawLightMap(SDL_Surface *surface);
 	void _DrawSearchMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawHeightMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawAnimations(SDL_Surface *surface, SDL_Rect area);
 	void _DrawActors(SDL_Surface *surface, SDL_Rect area);
 
+	void _LoadOverlays();
+	void _LoadTiles();
 	void _InitAnimations();
 	void _InitActors();
 	void _InitDoors();
@@ -50,6 +62,11 @@ private:
 	SDL_Surface *fLightMap;
 	SDL_Surface *fSearchMap;
 	SDL_Surface *fHeightMap;
+
+	uint32 fNumOverlays;
+	MapOverlay **fOverlays;
+
+	Tile **fTiles;
 
 	Animation **fAnimations;
 	Actor **fActors;

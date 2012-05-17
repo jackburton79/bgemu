@@ -1,7 +1,7 @@
 #ifndef __BGCHARACHTER_H
 #define __BGCHARACHTER_H
 
-#include "BGCreature.h"
+#include "CreResource.h"
 
 #define CHR_SIGNATURE "CHR "
 #define CHR_NAME_LENGTH 32

@@ -1,4 +1,5 @@
 #include "AreaResource.h"
+#include "Door.h"
 #include "MemoryStream.h"
 
 #define AREA_SIGNATURE "AREA"
@@ -60,11 +61,11 @@ ARAResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(172, fNumAnimations);
 	fData->ReadAt(176, fAnimationsOffset);
 
+	fData->ReadAt(0x7c, fVerticesOffset);
+
 	_LoadAnimations();
 	_LoadActors();
 	_LoadDoors();
-
-	DropData();
 
 	return true;
 }
@@ -80,7 +81,7 @@ ARAResource::WedName() const
 uint32
 ARAResource::CountDoors() const
 {
-	return fNumAnimations;
+	return fNumDoors;
 }
 
 
@@ -89,6 +90,28 @@ ARAResource::DoorAt(uint32 index)
 {
 	return &fDoors[index];
 }
+
+/*
+Door *
+ARAResource::GetDoor(uint32 index)
+{
+	Door *d = new Door();
+
+	uint16 tileIndex = fDoors[index].open_cell_index;
+	for (uint32 i = 0; i < fDoors[index].open_cell_count; i++) {
+		d->fTilesOpen.push_back(tileIndex++);
+	}
+
+	printf("index: %d count: %d\n", fDoors[index].open_cell_index,
+			fDoors[index].open_cell_count);
+
+	tileIndex = fDoors[index].closed_cell_index;
+	for (uint32 i = 0; i < fDoors[index].closed_cell_count; i++) {
+		d->fTilesClosed.push_back(tileIndex++);
+	}
+
+	return d;
+}*/
 
 
 uint32
@@ -119,6 +142,15 @@ ARAResource::CountActors() const
 }
 
 
+res_ref
+ARAResource::Script()
+{
+	res_ref script;
+	fData->ReadAt(0x94, script);
+	return script;
+}
+
+
 void
 ARAResource::_LoadAnimations()
 {
@@ -138,7 +170,6 @@ ARAResource::_LoadActors()
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
-		//PrintActor(fActors[i]);
 	}
 }
 
@@ -150,5 +181,6 @@ ARAResource::_LoadDoors()
 	fData->Seek(fDoorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
+		printf("door name: %s\n", fDoors[i].name);
 	}
 }

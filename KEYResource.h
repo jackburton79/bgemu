@@ -30,17 +30,17 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 
-	int32 CountFileEntries() const;
-	bool GetFileEntryAt(int32 index, KeyFileEntry &entry);
+	uint32 CountFileEntries() const;
+	bool GetFileEntryAt(uint32 index, KeyFileEntry &entry);
 
-	int32 CountResourceEntries() const;
-	bool GetResEntryAt(int32 index, KeyResEntry &entry);
+	uint32 CountResourceEntries() const;
+	bool GetResEntryAt(uint32 index, KeyResEntry &entry);
 
 private:
-	int32 fNumBifs;
-	int32 fNumResources;
-	int32 fBifOffset;
-	int32 fResOffset;
+	uint32 fNumBifs;
+	uint32 fNumResources;
+	uint32 fBifOffset;
+	uint32 fResOffset;
 };
 
 #endif // __KEYRESOURCE_H

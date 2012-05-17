@@ -24,9 +24,9 @@ public:
 	res_ref TileSet() const;
 	uint16 Width() const;
 	uint16 Height() const;
+	uint16 Size() const;
 	
 	TileMap *TileMapForTile(int32 i);
-
 	void PrintTileMaps();
 
 private:
@@ -41,6 +41,7 @@ private:
 };
 
 
+struct overlay;
 class Polygon;
 class WEDResource : public Resource {
 public:
@@ -49,38 +50,36 @@ public:
 	
 	bool Load(Archive *archive, uint32 key);
 
-	int32 CountOverlays() const;
-	MapOverlay *OverlayAt(int32 index);
+	uint32 CountOverlays() const;
+	MapOverlay *GetOverlay(uint32 index);
 
-	int32 CountPolygons() const;
-	Polygon *PolygonAt(int32 index);
+	uint32 CountPolygons() const;
+	Polygon *PolygonAt(uint32 index);
 
-	void DrawTile(const int16 tileNum, SDL_Surface *surface,
-					SDL_Rect tileRect, bool withOverlays);
+	uint32 CountDoors() const;
+	Door *GetDoor(uint32 index);
 
 private:
 	void _Load();
-	void _LoadOverlays();
 	void _LoadPolygons();
 
-	void _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
-			SDL_Rect rect, SDL_Color *transparent);
 	static bool _IsOverlayColor(const SDL_Color &color);
 
 	int16 _PointHeight(int16 x, int16 y);
 	SDL_Color _PixelSearchColor(int16 x, int16 y);
+    void _ReadTileMap(overlay overlay, uint32 &x, MapOverlay *mapOverlay);
 
-	int32 fNumOverlays;
-	int32 fNumDoors;
-	int32 fNumPolygons;
+	uint32 fNumOverlays;
+	uint32 fNumDoors;
+	uint32 fNumPolygons;
 	Polygon *fPolygons;
 	
 	MapOverlay *fOverlays;
 
-	int32 fOverlaysOffset;
-	int32 f2ndHeaderOffset;
-	int32 fDoorsOffset;
-	int32 fDoorTileCellsOffset;
+	uint32 fOverlaysOffset;
+	uint32 f2ndHeaderOffset;
+	uint32 fDoorsOffset;
+	uint32 fDoorTileCellsOffset;
 };
 
 

@@ -1,5 +1,6 @@
 #include "Archive.h"
 #include "AreaResource.h"
+#include "BCSResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
 #include "CreResource.h"
@@ -133,11 +134,11 @@ Resource::Load(Archive *archive, uint32 key)
 
 
 void
-Resource::Write(const char *fileName)
+Resource::DumpToFile(const char *fileName)
 {
 	FileStream file(fileName, FileStream::WRITE_ONLY);
 	
-	char buf[1024];
+	char buf[4096];
 	size_t read;
 	fData->Seek(0, SEEK_SET);
 	while ((read = fData->Read(buf, sizeof(buf))) > 0)
@@ -160,7 +161,7 @@ Resource::Type() const
 
 
 bool
-Resource::CheckSignature(const char *signature)
+Resource::CheckSignature(const char *signature, bool dontWorry)
 {
 	char array[5];
 	array[4] = '\0';
@@ -169,8 +170,10 @@ Resource::CheckSignature(const char *signature)
 		return false;
 
 	if (strcmp(array, signature) != 0) {
-		printf("invalid signature %s (expected %s)\n",
-				array, signature);
+		if (!dontWorry) {
+			printf("invalid signature %s (expected %s)\n",
+					array, signature);
+		}
 		return false;
 	}
 
@@ -179,7 +182,7 @@ Resource::CheckSignature(const char *signature)
 
 
 bool
-Resource::CheckVersion(const char *version)
+Resource::CheckVersion(const char *version, bool dontWorry)
 {
 	char array[5];
 	array[4] = '\0';
@@ -188,8 +191,10 @@ Resource::CheckVersion(const char *version)
 		return false;
 
 	if (strcmp(array, version) != 0) {
-		printf("invalid version %s (expected %s)\n",
+		if (!dontWorry) {
+			printf("invalid version %s (expected %s)\n",
 				array, version);
+		}
 		return false;
 	}
 
@@ -239,12 +244,18 @@ Resource::Create(const res_ref &name, uint16 type)
 	Resource *res = NULL;
 	try {
 		switch (type) {
-			case RES_CRE:
-				res = new CREResource(name);
+			case RES_ARA:
+				res = new ARAResource(name);
 				break;
 			case RES_BAM:
 			case RES_MOS:
 				res = new BAMResource(name);
+				break;
+			case RES_BCS:
+				res = new BCSResource(name);
+				break;
+			case RES_CRE:
+				res = new CREResource(name);
 				break;
 			case RES_BMP:
 				res = new BMPResource(name);
@@ -257,9 +268,6 @@ Resource::Create(const res_ref &name, uint16 type)
 				break;
 			case RES_WED:
 				res = new WEDResource(name);
-				break;
-			case RES_ARA:
-				res = new ARAResource(name);
 				break;
 			default:
 				throw "Unknown resource!";

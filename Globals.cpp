@@ -6,6 +6,7 @@
 
 res_ref::res_ref()
 {
+	name[0] = '\0';
 }
 
 
@@ -32,6 +33,14 @@ res_ref::operator const char*() const
 	memcpy(str, name, 8);
 	return (const char *)str;
 };
+
+res_ref&
+res_ref::operator=(const res_ref& other)
+{
+	memcpy(name, other.name, 8);
+	return *this;
+}
+
 
 /*
 char&

@@ -15,7 +15,8 @@ public:
 	virtual ~Resource();
 	
 	virtual bool Load(Archive *archive, uint32 key);
-	void Write(const char *fileName);
+
+	void DumpToFile(const char *fileName);
 
 	const uint32 Key() const;
 	const uint16 Type() const;
@@ -25,8 +26,8 @@ public:
 protected:
 	friend class ResourceManager;
 
-	bool CheckSignature(const char *signature);
-	bool CheckVersion(const char *version);
+	bool CheckSignature(const char *signature, bool dontWorry = false);
+	bool CheckVersion(const char *version, bool dontWorry = false);
 	
 	bool ReplaceData(MemoryStream *stream);
 	void DropData();

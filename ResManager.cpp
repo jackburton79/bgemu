@@ -1,6 +1,7 @@
 #include "Archive.h"
 #include "AreaResource.h"
 #include "BamResource.h"
+#include "BCSResource.h"
 #include "BmpResource.h"
 #include "CreResource.h"
 #include "IDSResource.h"
@@ -91,18 +92,27 @@ ResourceManager::Initialize(const char *path)
 		KeyFileEntry *bif = new KeyFileEntry;
 		if (key->GetFileEntryAt(b, *bif))
 			fBifs.push_back(bif);
+		else
+			delete bif;
 	}
 
-	const uint32 numResources = key->CountResourceEntries();
-	for (uint32 c = 0; c < numResources; c++) {
-		KeyResEntry *res = new KeyResEntry;
-		if (key->GetResEntryAt(c, *res)) {
-			ref_type refType = { res->name, res->type };
-			fResourceMap[refType] = res;
+	try {
+		const uint32 numResources = std::min(uint32(39601), key->CountResourceEntries());
+		for (uint32 c = 0; c < numResources; c++) {
+			KeyResEntry *res = new KeyResEntry;
+			if (key->GetResEntryAt(c, *res)) {
+				ref_type refType;
+				refType.name = res->name;
+				refType.type = res->type;
+				fResourceMap[refType] = res;
+			} else
+				delete res;
 		}
+	} catch (...) {
+		printf("Error!!!\n");
 	}
 
-	ReleaseResource(key);
+	delete key;
 
 	return true;
 }
@@ -201,6 +211,16 @@ ResourceManager::GetBMP(const res_ref &name)
 }
 
 
+BCSResource *
+ResourceManager::GetBCS(const res_ref &name)
+{
+	Resource *resource = _GetResource(name, RES_BCS);
+	assert(dynamic_cast<BCSResource *>(resource));
+
+	return static_cast<BCSResource *>(resource);
+}
+
+
 CREResource *
 ResourceManager::GetCRE(const res_ref &name)
 {
@@ -254,7 +274,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 {
 	TPath pathName(fResourcesPath);
 
-	printf("0x%x\n", GET_CD(location));
+	printf("(0x%x)", GET_CD(location));
 
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
@@ -297,11 +317,11 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	const uint16 location = fBifs[bifIndex]->location;
 	const char *archiveName = fBifs[bifIndex]->name.data();
 
-	printf("LOCATED!\n\t(in %s (0x%x))\n", archiveName, location);
+	printf("(in %s (0x%x))\n", archiveName, location);
 
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
-		printf("\tArchive wasn't opened. Opening...\n");
+		printf("\tArchive wasn't opened. Opening...");
 		std::string fullPath = GetFullPath(archiveName, location);
 		archive = Archive::Create(fullPath.c_str());
 		if (archive == NULL) {
@@ -312,10 +332,9 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
         fArchives[archiveName] = archive;
 	}
 
-	printf("\tloading resource...\n");
 	Resource *resource = Resource::Create(entry.name, entry.type);
 	if (resource == NULL || !resource->Load(archive, entry.key)) {
-		printf("FAILED!\n");
+		printf("FAILED Loading resource!\n");
 		delete resource;
 		return NULL;
 	}
@@ -323,6 +342,8 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	resource->_Acquire();
 	fCachedResources.push_back(resource);
 
+	printf("Resource %s (%s) loaded correctly!\n",
+			(const char *)entry.name, strresource(entry.type));
 	return resource;
 }
 
@@ -330,6 +351,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 void
 ResourceManager::PrintResources()
 {
+	printf("Listing %d entries...\n", fResourceMap.size());
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;

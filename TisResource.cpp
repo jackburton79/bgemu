@@ -5,14 +5,14 @@
 #include <iostream>
 
 #define TIS_SIGNATURE "TIS "
-#define V1 ""
+#define TIS_VERSION_1 "V1.0"
 
 const static int kTileDataSize = 1024 + 4096;
 
-
 TISResource::TISResource(const res_ref &name)
 	:
-	Resource(name, RES_TIS)
+	Resource(name, RES_TIS),
+	fDataOffset(0)
 {
 }
 
@@ -28,17 +28,10 @@ TISResource::Load(Archive *archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
-	// TODO: No signature ? It seems these resources
-	// start directly with data
-	/*char signature[5];
-	signature[4] = '\0';
-	fData->ReadAt(0, signature, 4);
-
-	if (strcmp(signature, TIS_SIGNATURE)) {
-		printf("invalid signature %s\n", signature);
-		return false;
-	}*/
-
+	if (CheckSignature(TIS_SIGNATURE, true)) {
+		if (CheckVersion(TIS_VERSION_1, true))
+			fDataOffset = strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
+	}
 	return true;
 }
 
@@ -49,7 +42,7 @@ TISResource::TileCellAt(int index)
 	if (index < 0)
 		throw -1;
 
-	fData->Seek(index * kTileDataSize, SEEK_SET);
+	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
 	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 			TILE_WIDTH, TILE_HEIGHT, 8, 0, 0, 0, 0);
