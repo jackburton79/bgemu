@@ -207,30 +207,8 @@ Parser::_FindEndOfBlock(token blockHead, const uint32 &maxEnd, uint32 &position)
 
 
 void
-Parser::_SkipUselessTokens()
-{
-	std::string skipped;
-	token tok;
-	for (;;) {
-		tok = fTokenizer->ReadNextToken();
-		if (tok.type != TOKEN_SPACE
-			&& tok.type != TOKEN_END_OF_LINE
-			&& tok.type != TOKEN_UNKNOWN) {
-			break;
-		}
-		skipped.append(tok.u.string);
-	}
-
-	fTokenizer->RewindToken(&tok);
-}
-
-
-
-
-void
 Parser::_ReadElementGuard(node* n)
 {
-	_SkipUselessTokens();
 	token tok = fTokenizer->ReadNextToken();
 	if (tok.type == TOKEN_BLOCK_GUARD) {
 		int blockType = Parser::_BlockTypeFromToken(tok);
@@ -250,7 +228,6 @@ Parser::_ReadElementValue(node* n)
 {
 	_ReadElementGuard(n);
 	for (;;) {
-		_SkipUselessTokens();
 		token tok = fTokenizer->ReadNextToken();
 		if (tok.type == TOKEN_BLOCK_GUARD) {
 			fTokenizer->RewindToken(&tok);
@@ -345,13 +322,15 @@ Tokenizer::ReadToken()
 token
 Tokenizer::ReadNextToken()
 {
-	int32 startToken = fStream->Position();
+	_SkipSeparators();
 
+	int32 startToken = fStream->Position();
 	for (;;) {
 		char c = fStream->ReadByte();
-		if (IsSeparator(c))
+		if (Tokenizer::IsSeparator(c))
 			break;
 	}
+
 	int32 endToken = fStream->Position() - 1;
 	if (endToken == startToken)
 		endToken++;
@@ -422,7 +401,7 @@ Tokenizer::ReadNextToken()
 			}
 			break;
 		}
-		case '\n':
+		/*case '\n':
 		case '\r':
 			aToken.type = TOKEN_END_OF_LINE;
 			strcpy(aToken.u.string, "\\ENDL\\");
@@ -433,7 +412,7 @@ Tokenizer::ReadNextToken()
 			aToken.u.string[0] = ' ';
 			aToken.u.string[1] = '\0';
 			aToken.size = 1;
-			break;
+			break;*/
 		case '"':
 		{
 			aToken.type = TOKEN_STRING;
@@ -468,6 +447,19 @@ Tokenizer::RewindToken(token *tok)
 {
 	if (tok->size != 0)
 		fStream->Seek(-tok->size, SEEK_CUR);
+}
+
+
+void
+Tokenizer::_SkipSeparators()
+{
+	for (;;) {
+		char c = fStream->ReadByte();
+		if (!Tokenizer::IsSeparator(c))
+			break;
+	}
+
+	fStream->Seek(-1, SEEK_CUR);
 }
 
 

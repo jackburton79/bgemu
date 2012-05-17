@@ -73,9 +73,14 @@ public:
 	void RewindToken(token *tok);
 
 	static bool IsSeparator(char const &c);
+
 private:
+	void _SkipSeparators();
+
 	Stream *fStream;
 	int32 fPosition;
+
+
 };
 
 struct node;
