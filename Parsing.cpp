@@ -325,19 +325,10 @@ Tokenizer::ReadNextToken()
 	_SkipSeparators();
 
 	int32 startToken = fStream->Position();
-	for (;;) {
-		char c = fStream->ReadByte();
-		if (Tokenizer::IsSeparator(c))
-			break;
-	}
-
-	int32 endToken = fStream->Position() - 1;
-	if (endToken == startToken)
-		endToken++;
-	int32 supposedSize = endToken - startToken;
-	char array[supposedSize + 1];
-	fStream->ReadAt(startToken, array, supposedSize);
+	char array[128];
+	int32 supposedSize = _ReadFullToken(array, startToken);
 	array[supposedSize] = '\0';
+
 	token aToken;
 	switch (array[0]) {
 		case 'S':
@@ -401,18 +392,6 @@ Tokenizer::ReadNextToken()
 			}
 			break;
 		}
-		/*case '\n':
-		case '\r':
-			aToken.type = TOKEN_END_OF_LINE;
-			strcpy(aToken.u.string, "\\ENDL\\");
-			aToken.size = 1;
-			break;
-		case ' ':
-			aToken.type = TOKEN_SPACE;
-			aToken.u.string[0] = ' ';
-			aToken.u.string[1] = '\0';
-			aToken.size = 1;
-			break;*/
 		case '"':
 		{
 			aToken.type = TOKEN_STRING;
@@ -460,6 +439,21 @@ Tokenizer::_SkipSeparators()
 	}
 
 	fStream->Seek(-1, SEEK_CUR);
+}
+
+
+int32
+Tokenizer::_ReadFullToken(char *dest, int32 start)
+{
+	char *ptr = dest;
+	for (;;) {
+		char c = fStream->ReadByte();
+		if (Tokenizer::IsSeparator(c))
+			break;
+		*ptr++ = c;
+	}
+
+	return fStream->Position() - 1 - start;
 }
 
 

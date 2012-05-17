@@ -76,6 +76,7 @@ public:
 
 private:
 	void _SkipSeparators();
+	int32 _ReadFullToken(char *dest, int32 start);
 
 	Stream *fStream;
 	int32 fPosition;
