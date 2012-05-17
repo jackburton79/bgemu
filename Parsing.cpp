@@ -334,7 +334,6 @@ Parser::_SkipUselessTokens()
 void
 Parser::_ReadElementGuard(node* n)
 {
-
 	_SkipUselessTokens();
 	token tok = fTokenizer->ReadNextToken();
 	if (tok.type == TOKEN_BLOCK_GUARD) {
@@ -357,9 +356,7 @@ Parser::_ReadElementValue(node* n)
 	for (;;) {
 		_SkipUselessTokens();
 		token tok = fTokenizer->ReadNextToken();
-		//printf("ReadValue: token %s\n", tok.u.string);
 		if (tok.type == TOKEN_BLOCK_GUARD) {
-			//printf("block guard\n");
 			fTokenizer->RewindToken(&tok);
 			if (Parser::_BlockTypeFromToken(tok) == n->type) {
 				// Means the block is open, and this is the closure.
@@ -367,12 +364,9 @@ Parser::_ReadElementValue(node* n)
 				break;
 			} else {
 				// We found a nested block,
-				// Read the new header and
 				node *newNode = new node;
 				try {
-
 					_ReadElementValue(newNode);
-
 				} catch (...) {
 
 				}
@@ -384,7 +378,6 @@ Parser::_ReadElementValue(node* n)
 				strcat(n->value, " ");
 				strcat(n->value, tok.u.string);
 			}
-
 		}
 	}
 
@@ -556,23 +549,17 @@ Tokenizer::ReadNextToken()
 			aToken.size = supposedSize;
 			char* rest = NULL;
 			aToken.u.number = strtol(array, &rest, 0);
-			//printf("number: %ld, array: %s, rest: %s\n", aToken.u.number,
-				//	array, rest);
 			if (rest != NULL)
 				aToken.size = std::min(rest - array, aToken.size);
 			memcpy(aToken.u.string, array, aToken.size);
 			aToken.u.string[aToken.size] = '\0';
-			//printf("token size: %d \n", aToken.size);
+
 			break;
 		}
 	}
 
 	// We could have read too much, rewind a bit if needed
-
-	//if (aToken.size != tokenSize)
 	fStream->Seek(startToken + aToken.size, SEEK_SET);
-	//printf("read token \"%s\" (type %d, size %d)\n",
-		//aToken.u.string, aToken.type, aToken.size);
 	return aToken;
 }
 
@@ -580,13 +567,8 @@ Tokenizer::ReadNextToken()
 void
 Tokenizer::RewindToken(token *tok)
 {
-	if (tok->size != 0) {
-		/*if (tok->type == TOKEN_NUMBER)
-			printf("rewind %d (%ld)\n", tok->u.number, -tok->size);
-		else
-			printf("rewind %s (%ld)\n", tok->u.string, -tok->size);*/
+	if (tok->size != 0)
 		fStream->Seek(-tok->size, SEEK_CUR);
-	}
 }
 
 

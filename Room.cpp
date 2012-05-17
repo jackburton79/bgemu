@@ -75,7 +75,7 @@ Room::Load(const char *resName)
 	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
 	//bcs->DumpToFile("testbcs.txt");
 	gResManager->ReleaseResource(bcs);
-/*
+
 	_LoadOverlays();
 	_LoadTiles();
 
@@ -98,8 +98,8 @@ Room::Load(const char *resName)
 	_InitAnimations();
 	_InitActors();
 	_InitDoors();
-*/
-	return false;
+
+	return true;
 }
 
 
