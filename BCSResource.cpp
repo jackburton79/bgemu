@@ -49,8 +49,6 @@ BCSResource::_LoadScript()
 		parser.SetTo(fData);
 
 		parser.Read();
-
-
 	} catch (const char *message) {
 		printf("exception thrown: %s\n", message);
 	} catch (...) {

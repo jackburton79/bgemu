@@ -196,9 +196,9 @@ Parser::Read()
 	try {
 		for (;;) {
 			node* newNode = new node;
-			_ReadElementGuard(newNode);
+
 			_ReadElementValue(newNode);
-			_ReadElementGuard(newNode);
+
 			fNodes.push_back(newNode);
 		}
 	} catch (const char *str) {
@@ -334,19 +334,14 @@ Parser::_SkipUselessTokens()
 void
 Parser::_ReadElementGuard(node* n)
 {
+
 	_SkipUselessTokens();
 	token tok = fTokenizer->ReadNextToken();
 	if (tok.type == TOKEN_BLOCK_GUARD) {
 		int blockType = Parser::_BlockTypeFromToken(tok);
 		if (!n->closed && blockType == n->type) {
 			n->closed = true;
-			//PrintIndentation();
-			//IndentLess();
-			//printf("* %s\\ *\n", tok.u.string);
 		} else {
-			//IndentMore();
-			//PrintIndentation();
-			//printf("* %s *\n", tok.u.string);
 			n->type = blockType;
 			strcpy(n->header, tok.u.string);
 		}
@@ -358,8 +353,7 @@ Parser::_ReadElementGuard(node* n)
 void
 Parser::_ReadElementValue(node* n)
 {
-	//printf("_ReadElementValue for node %p (%d)\n",
-		//	n, n->type);
+	_ReadElementGuard(n);
 	for (;;) {
 		_SkipUselessTokens();
 		token tok = fTokenizer->ReadNextToken();
@@ -376,9 +370,9 @@ Parser::_ReadElementValue(node* n)
 				// Read the new header and
 				node *newNode = new node;
 				try {
-					_ReadElementGuard(newNode);
+
 					_ReadElementValue(newNode);
-					_ReadElementGuard(newNode);
+
 				} catch (...) {
 
 				}
@@ -390,18 +384,11 @@ Parser::_ReadElementValue(node* n)
 				strcat(n->value, " ");
 				strcat(n->value, tok.u.string);
 			}
-			/*else if (tok.type == TOKEN_NUMBER) {
-				char numb[16];
-				snprintf(numb, 16, "%d", tok.u.number);
-				strcat(n->text, numb);
-			}*/
+
 		}
 	}
 
-	/*if (n->value[0] != '\0') {
-		PrintIndentation();
-		printf("Value: * %s *\n", n->value);
-	}*/
+	_ReadElementGuard(n);
 }
 
 
