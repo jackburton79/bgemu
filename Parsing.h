@@ -60,22 +60,6 @@ enum element_type {
 };
 
 
-struct node;
-typedef std::vector<node *> node_list;
-
-struct node {
-	node();
-	void AddChild(node *child);
-	int type;
-	char header[3];
-	char value[128];
-
-	node_list children;
-	bool closed;
-};
-
-
-
 
 class Stream;
 class Tokenizer {
@@ -94,7 +78,7 @@ private:
 	int32 fPosition;
 };
 
-
+struct node;
 class Parser {
 public:
 	Parser();
@@ -102,7 +86,7 @@ public:
 	void SetTo(::block *block);
 	token ReadToken();
 	void PrintNode(node* n) const;
-	void Read();
+	void Read(node *root);
 	block ReadBlock(const block *parentBlock = NULL);
 	block ReadBlock(const int offset);
 
@@ -117,8 +101,8 @@ private:
 	void _ReadElementChildren(node* n);
 	static int _BlockTypeFromToken(const token &tok);
 
-	node_list fNodes;
-	//node_list::iterator fCurrentElement;
+	//node_list fNodes;
+
 	Stream *fStream;
 	Tokenizer *fTokenizer;
 };

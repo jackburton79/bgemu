@@ -47,8 +47,10 @@ BCSResource::_LoadScript()
 	try {
 		Parser parser;
 		parser.SetTo(fData);
+		node *rootNode = new node;
+		parser.Read(rootNode);
+		delete rootNode;
 
-		parser.Read();
 	} catch (const char *message) {
 		printf("exception thrown: %s\n", message);
 	} catch (...) {

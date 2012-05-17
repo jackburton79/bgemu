@@ -1,12 +1,21 @@
 #ifndef __SCRIPT_H
 #define __SCRIPT_H
 
-#include <list>
+#include <vector>
 
+struct node;
+typedef std::vector<node *> node_list;
 
-struct script {
-	//std::list<trigger*> conditions;
-	//std::list<response*> responses;
+struct node {
+	node();
+	~node();
+	void AddChild(node *child);
+	int type;
+	char header[3];
+	char value[128];
+
+	node_list children;
+	bool closed;
 };
 
 #endif

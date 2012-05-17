@@ -1,4 +1,5 @@
 #include "Parsing.h"
+#include "Script.h"
 #include "Stream.h"
 
 #include <assert.h>
@@ -6,20 +7,6 @@
 #include <string.h>
 #include <string>
 
-// node
-node::node()
-{
-	closed = false;
-	type = BLOCK_UNKNOWN;
-	value[0] = '\0';
-}
-
-
-void
-node::AddChild(node* child)
-{
-	children.push_back(child);
-}
 
 
 // token
@@ -190,17 +177,17 @@ Parser::PrintNode(node* n) const
 
 
 void
-Parser::Read()
+Parser::Read(node *rootNode)
 {
 	//fCurrentElement = fNodes.begin();
 	try {
-		for (;;) {
+		/*for (;;) {
 			node* newNode = new node;
+*/
+			_ReadElementValue(rootNode);
 
-			_ReadElementValue(newNode);
-
-			fNodes.push_back(newNode);
-		}
+			//fNodes.push_back(newNode);
+		//}
 	} catch (const char *str) {
 		printf("caught string %s\n", str);
 	} catch (...) {
@@ -208,9 +195,10 @@ Parser::Read()
 	}
 
 	node_list::iterator i;
-	for (i = fNodes.begin(); i != fNodes.end(); i++) {
+	/*for (i = fNodes.begin(); i != fNodes.end(); i++) {
 		PrintNode(*i);
-	}
+	}*/
+	PrintNode(rootNode);
 }
 
 
