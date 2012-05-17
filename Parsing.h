@@ -87,8 +87,7 @@ public:
 	token ReadToken();
 	void PrintNode(node* n) const;
 	void Read(node *root);
-	block ReadBlock(const block *parentBlock = NULL);
-	block ReadBlock(const int offset);
+
 
 private:
 	void _ReadTriggerBlock(int start, int end);
@@ -100,8 +99,6 @@ private:
 	void _ReadElementValue(node* n);
 	void _ReadElementChildren(node* n);
 	static int _BlockTypeFromToken(const token &tok);
-
-	//node_list fNodes;
 
 	Stream *fStream;
 	Tokenizer *fTokenizer;

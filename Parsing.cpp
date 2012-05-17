@@ -108,58 +108,6 @@ Parser::SetTo(::block *block)
 }
 
 
-block
-Parser::ReadBlock(const block *parentBlock)
-{
-	int32 position = 0;
-	if (parentBlock != NULL)
-		position = parentBlock->offset;
-
-	return ReadBlock(position);
-}
-
-
-block
-Parser::ReadBlock(const int offset)
-{
-	fTokenizer->SetTo(fStream, offset);
-
-	token startToken;
-	for (;;) {
-		startToken = fTokenizer->ReadNextToken();
-		if (startToken.type == TOKEN_BLOCK_GUARD)
-			break;
-	}
-
-	::block block;
-	block.offset = fStream->Position();
-
-	uint32 end = fStream->Size();
-	if (!_FindEndOfBlock(startToken, end, block.end))
-		throw "Malformed block!";
-
-	if (startToken == token("SC"))
-		block.type = BLOCK_SCRIPT;
-	else if (startToken == token("CR")) {
-		block.type = BLOCK_CONDITION_RESPONSE;
-		//_ReadCRBlock(block.offset, block.end);
-	}
-	else if (startToken == token("CO"))
-		block.type = BLOCK_CONDITION;
-	else if (startToken == token("TR")) {
-		block.type = BLOCK_TRIGGER;
-		_ReadTriggerBlock(block.offset, block.end);
-	} else if (startToken == token("OB")) {
-		block.type = BLOCK_OBJECT;
-	}
-	else
-		throw "Unknown block type!";
-
-
-	return block;
-}
-
-
 void
 Parser::PrintNode(node* n) const
 {
@@ -179,58 +127,18 @@ Parser::PrintNode(node* n) const
 void
 Parser::Read(node *rootNode)
 {
-	//fCurrentElement = fNodes.begin();
 	try {
-		/*for (;;) {
-			node* newNode = new node;
-*/
-			_ReadElementValue(rootNode);
-
-			//fNodes.push_back(newNode);
-		//}
+		_ReadElementValue(rootNode);
 	} catch (const char *str) {
 		printf("caught string %s\n", str);
 	} catch (...) {
 		printf("end of file!\n");
 	}
 
-	node_list::iterator i;
-	/*for (i = fNodes.begin(); i != fNodes.end(); i++) {
-		PrintNode(*i);
-	}*/
 	PrintNode(rootNode);
 }
 
 
-/*
-void
-Parser::_ReadCRBlock(int start, int end)
-{
-	fTokenizer->SetTo(fStream, start);
-	::block block;
-
-	ReadBlock(&block);
-
-	switch (block1.type) {
-		case BLOCK_CONDITION:
-		{
-			printf("got condition block\n");
-			block1 = parser.ReadBlock(&block1);
-			break;
-		}
-
-		case BLOCK_TRIGGER:
-		{
-			printf("got trigger block\n");
-			block1 = parser.ReadBlock(&block1);
-			break;
-		}
-
-		default:
-			break;
-	}
-}
-*/
 void
 Parser::_ReadTriggerBlock(int start, int end)
 {
@@ -361,6 +269,9 @@ Parser::_ReadElementValue(node* n)
 				n->AddChild(newNode);
 			}
 		} else {
+			if (n->type == BLOCK_TRIGGER) {
+				// TODO:
+			}
 			// TODO: Should read the value and store it correctly
 			if (tok.type == TOKEN_STRING || tok.type == TOKEN_NUMBER) {
 				strcat(n->value, " ");
