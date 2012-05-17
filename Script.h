@@ -5,8 +5,8 @@
 
 
 struct script {
-	std::list<trigger*> conditions;
-	std::list<response*> responses;
+	//std::list<trigger*> conditions;
+	//std::list<response*> responses;
 };
 
 #endif

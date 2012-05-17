@@ -24,8 +24,8 @@ BCSResource::Load(Archive *archive, uint32 key)
 		return false;
 
 	//DumpToFile("bcs_script.txt");
-	::script script;
-	_LoadScript(script);
+
+	_LoadScript();
 
 	return true;
 }
@@ -41,7 +41,7 @@ BCSResource::RunScript()
 
 
 void
-BCSResource::_LoadScript(::script &script)
+BCSResource::_LoadScript()
 {
 	printf("loadscript\n");
 	try {

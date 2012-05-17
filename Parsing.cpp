@@ -177,13 +177,15 @@ void
 Parser::PrintNode(node* n) const
 {
 	PrintIndentation();
-	printf("<%s> %s </%s>\n", n->header, n->value, n->header);
+	printf("<%s> %s\n", n->header, n->value);
 	node_list::iterator c;
 	IndentMore();
 	for (c = n->children.begin(); c != n->children.end(); c++) {
 		PrintNode(*c);
 	}
 	IndentLess();
+	PrintIndentation();
+	printf("<%s/>\n", n->header);
 }
 
 

@@ -13,7 +13,7 @@ public:
 	void RunScript();
 
 private:
-	void _LoadScript(::script &script);
+	void _LoadScript();
 };
 
 #endif // __BCSRESOURCE_H
