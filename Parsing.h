@@ -70,7 +70,7 @@ public:
 	token ReadToken();
 	token ReadNextToken();
 
-	void RewindToken(token *tok);
+	void RewindToken(const token &tok);
 
 	static bool IsSeparator(char const &c);
 
@@ -90,23 +90,25 @@ class Parser {
 public:
 	Parser();
 	void SetTo(Stream *stream);
-	void SetTo(::block *block);
-	token ReadToken();
-	void PrintNode(node* n) const;
-	void Read(node*& root);
 
-	static node* CreateNode(int type);
+	token ReadToken();
+	void Read(node*& root);
+	void PrintNode(node* n) const;
+
+	static node* CreateNode(int type, const char* string);
 
 private:
-	void _ReadTriggerBlock(int start, int end);
-	void _ReadObjectBlock(int start, int end);
-	bool _FindEndOfBlock(token blockHead, const uint32 &maxEnd, uint32 &position);
 	void _SkipUselessTokens();
 
 	void _ReadElementGuard(node*& n);
 	void _ReadElement(node*& n);
-	//void _ReadElementChildren(node* n);
+	void _ReadElementValue(node* n, const token& tok);
+
+	void _ReadTriggerBlock(::node *node);
+	void _ReadObjectBlock(int start, int end);
+
 	static int _BlockTypeFromToken(const token &tok);
+
 
 	Stream *fStream;
 	Tokenizer *fTokenizer;

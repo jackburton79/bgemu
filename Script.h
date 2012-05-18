@@ -26,8 +26,8 @@ struct trigger : public node {
 	int flags;
 	int parameter2;
 	int unknown;
-	char string1[16];
-	char string2[16];
+	char string1[32];
+	char string2[32];
 };
 
 struct object : public node {

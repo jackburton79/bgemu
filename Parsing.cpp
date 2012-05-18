@@ -101,21 +101,14 @@ Parser::SetTo(Stream *stream)
 
 
 void
-Parser::SetTo(::block *block)
-{
-	fStream->Seek(block->offset, SEEK_SET);
-	fTokenizer->SetTo(fStream, block->offset);
-}
-
-
-void
 Parser::PrintNode(node* n) const
 {
 	PrintIndentation();
 	printf("<%s>", n->header);
 	if (n->type == BLOCK_TRIGGER) {
 		trigger* tr = dynamic_cast<trigger*>(n);
-		//printf(" id:%d, flags: %d\n", tr->id, tr->flags);
+		printf(" id:%d, flags: %d, %s %s\n",
+			tr->id, tr->flags, tr->string1, tr->string2);
 	} else
 		printf(" %s\n", n->value);
 	node_list::iterator c;
@@ -146,53 +139,46 @@ Parser::Read(node*& rootNode)
 
 /* static */
 node*
-Parser::CreateNode(int type)
+Parser::CreateNode(int type, const char *string)
 {
+	node* newNode = NULL;
 	switch (type) {
 		case BLOCK_TRIGGER:
-			return new trigger;
-		case BLOCK_OBJECT:
-			return new object;
+			newNode = new trigger;
+			break;
+		/*case BLOCK_OBJECT:
+			newNode = new object;
+			break;*/
 		default:
-			return new node;
+			newNode = new node;
+			break;
 	}
+	if (newNode != NULL) {
+		newNode->type = type;
+		strcpy(newNode->header, string);
+	}
+	return newNode;
 }
 
 
 void
-Parser::_ReadTriggerBlock(int start, int end)
+Parser::_ReadTriggerBlock(::node* node)
 {
-	Tokenizer t(fStream, start);
-	token tok = t.ReadToken();
-	assert(tok.type == TOKEN_NUMBER);
-
-	printf("trigger id: %d\n", tok.u.number);
-
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_NUMBER);
-
-	printf("parameter 1: %d\n", tok.u.number);
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_NUMBER);
-	printf("flags: %d\n", tok.u.number);
-
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_NUMBER);
-	printf("parameter 2: %d\n", tok.u.number);
-
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_NUMBER);
-	printf("unknown: %d\n", tok.u.number);
-
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_STRING);
-	printf("string: %s\n", tok.u.string);
-
-	tok = t.ReadNextToken();
-	assert(tok.type == TOKEN_STRING);
-	printf("string: %s\n", tok.u.string);
-
-	_ReadObjectBlock(fStream->Position() + 1, fStream->Position() + 10);
+	trigger* trig = dynamic_cast<trigger*>(node);
+	trig->id = fTokenizer->ReadToken().u.number;
+	printf("id: %d\n", trig->id);
+	trig->parameter1 = fTokenizer->ReadToken().u.number;
+	printf("parameter1: %d\n", trig->parameter1);
+	trig->flags = fTokenizer->ReadToken().u.number;
+	printf("flags: %d\n", trig->flags);
+	trig->parameter2 = fTokenizer->ReadToken().u.number;
+	printf("parameter2: %d\n", trig->parameter2);
+	trig->unknown = fTokenizer->ReadToken().u.number;
+	printf("unknown: %d\n", trig->unknown);
+	strcpy(trig->string1, fTokenizer->ReadToken().u.string);
+	printf("string1: %s\n", trig->string1);
+	strcpy(trig->string2, fTokenizer->ReadToken().u.string);
+	printf("string1: %s\n", trig->string2);
 }
 
 
@@ -210,90 +196,74 @@ Parser::_ReadObjectBlock(int start, int end)
 }
 
 
-bool
-Parser::_FindEndOfBlock(token blockHead, const uint32 &maxEnd, uint32 &position)
-{
-	bool endBlock = false;
-	while ((uint32)fStream->Position() < maxEnd) {
-		if (fTokenizer->ReadNextToken() == blockHead) {
-			endBlock = true;
-			break;
-		}
-	}
-
-	position = fStream->Position() - 2;
-	return endBlock;
-}
-
-
 void
 Parser::_ReadElementGuard(node*& n)
 {
 	token tok = fTokenizer->ReadNextToken();
 	if (tok.type == TOKEN_BLOCK_GUARD) {
 		int blockType = Parser::_BlockTypeFromToken(tok);
-		if (n == NULL) {
-			n = Parser::CreateNode(blockType);
-			n->type = blockType;
-			strcpy(n->header, tok.u.string);
-		} else if (!n->closed && blockType == n->type) {
+		if (n == NULL)
+			n = Parser::CreateNode(blockType, tok.u.string);
+		else if (!n->closed && blockType == n->type) {
 			n->closed = true;
 		}
 	} else
-		fTokenizer->RewindToken(&tok);
+		fTokenizer->RewindToken(tok);
 }
 
 
 void
-Parser::_ReadElement(node*& n)
+Parser::_ReadElement(::node*& node)
 {
-	_ReadElementGuard(n);
+	_ReadElementGuard(node);
 	for (;;) {
 		token tok = fTokenizer->ReadNextToken();
 		if (tok.type == TOKEN_BLOCK_GUARD) {
-			fTokenizer->RewindToken(&tok);
-			if (Parser::_BlockTypeFromToken(tok) == n->type) {
+			fTokenizer->RewindToken(tok);
+			if (Parser::_BlockTypeFromToken(tok) == node->type) {
 				// Means the block is open, and this is the closure.
 				// Bail out and let _ReadElementGuard to the rest.
 				break;
 			} else {
 				// We found a nested block,
-				node *newNode = NULL;
+				::node *newNode = NULL;
 				try {
 					_ReadElement(newNode);
 				} catch (...) {
 
 				}
-				n->AddChild(newNode);
+				node->AddChild(newNode);
 			}
 		} else {
-			/*if (n->type == BLOCK_TRIGGER) {
-				trigger* trig = dynamic_cast<trigger*>(n);
-				trig->id = fTokenizer->ReadToken().u.number;
-				printf("id: %d\n", trig->id);
-				trig->parameter1 = fTokenizer->ReadToken().u.number;
-				printf("parameter1: %d\n", trig->parameter1);
-				trig->flags = fTokenizer->ReadToken().u.number;
-				printf("flags: %d\n", trig->flags);
-				trig->parameter2 = fTokenizer->ReadToken().u.number;
-				printf("parameter2: %d\n", trig->parameter2);
-				trig->unknown = fTokenizer->ReadToken().u.number;
-				printf("unknown: %d\n", trig->unknown);
-
-				strcpy(trig->string1, (fTokenizer->ReadToken().u.string);
-				strcpy(trig->string2, (fTokenizer->ReadToken().u.string);
-				break;
-			} else */{
-				// TODO: Should read the value and store it correctly
-				if (tok.type == TOKEN_STRING || tok.type == TOKEN_NUMBER) {
-					strcat(n->value, " ");
-					strcat(n->value, tok.u.string);
-				}
-			}
+			_ReadElementValue(node, tok);
 		}
 	}
 
-	_ReadElementGuard(n);
+	_ReadElementGuard(node);
+}
+
+
+void
+Parser::_ReadElementValue(::node* node, const token& tok)
+{
+	if (node->type == BLOCK_TRIGGER) {
+		// TODO: For now, since _ReadTriggerBlock()
+		// wants to read the whole block
+		fTokenizer->RewindToken(tok);
+		_ReadTriggerBlock(node);
+
+	} else {
+		// TODO: Should read the value and store it correctly
+		if (tok.type == TOKEN_STRING) {
+			strcat(node->value, " ");
+			strcat(node->value, tok.u.string);
+		} else if (tok.type == TOKEN_NUMBER) {
+			char numb[16];
+			snprintf(numb, sizeof(numb), "%d", tok.u.number);
+			strcat(node->value, " ");
+			strcat(node->value, numb);
+		}
+	}
 }
 
 
@@ -444,9 +414,6 @@ Tokenizer::ReadNextToken()
 			aToken.u.number = strtol(array, &rest, 0);
 			if (rest != NULL)
 				aToken.size = std::min(rest - array, aToken.size);
-			memcpy(aToken.u.string, array, aToken.size);
-			aToken.u.string[aToken.size] = '\0';
-
 			break;
 		}
 	}
@@ -458,10 +425,10 @@ Tokenizer::ReadNextToken()
 
 
 void
-Tokenizer::RewindToken(token *tok)
+Tokenizer::RewindToken(const token &tok)
 {
-	if (tok->size != 0)
-		fStream->Seek(-tok->size, SEEK_CUR);
+	if (tok.size != 0)
+		fStream->Seek(-tok.size, SEEK_CUR);
 }
 
 
