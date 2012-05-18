@@ -40,30 +40,17 @@ path_dos_to_unix(char *path)
 FILE *
 fopen_case(const char *filename, const char *flags)
 {
-	TPath path(filename);
-
-	bool first = true;
+	TPath path(filename, NULL);
 	size_t where = 0;
-	TPath newPath("");
-	char base[256];
+	TPath newPath("/");
+
 	char leaf[256];
-	char *start = (char*)path.Path();
+	char *start = (char*)path.Path() + 1;
 	while ((where = strcspn(start, "/")) > 0) {
-		strncpy(base, start, where);
-		base[where] = 0;
-		if (first) {
-			newPath.Append(base);
-			first = false;
-		}
-		char* newStart = start + where + 1;
-		size_t w = strcspn(newStart, "/");
-		if (w == 0)
-			break;
+		char* newStart = start;
+		strncpy(leaf, newStart, where);
+		leaf[where] = 0;
 
-		strncpy(leaf, newStart, w);
-		leaf[w] = 0;
-
-		printf("newPath: %s\n", newPath.Path());
 		DIR *dir = opendir(newPath.Path());
 		if (dir != NULL) {
 			dirent *entry = NULL;
@@ -75,7 +62,7 @@ fopen_case(const char *filename, const char *flags)
 			}
 			closedir(dir);
 		}
-		start = newStart;
+		start = newStart + where + 1;
 	}
 
 	printf("%s...", newPath.Path());
