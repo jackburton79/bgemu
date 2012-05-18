@@ -65,7 +65,7 @@ fopen_case(const char *filename, const char *flags)
 		start = newStart + where + 1;
 	}
 
-	printf("%s...", newPath.Path());
+	//printf("%s...", newPath.Path());
 	FILE *handle = fopen(newPath.Path(), flags);
 	if (handle != NULL)
 		printf("FOUND!\n");
