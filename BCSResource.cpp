@@ -47,7 +47,7 @@ BCSResource::_LoadScript()
 	try {
 		Parser parser;
 		parser.SetTo(fData);
-		node *rootNode = new node;
+		node *rootNode = NULL;
 		parser.Read(rootNode);
 		delete rootNode;
 

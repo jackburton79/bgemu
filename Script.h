@@ -8,7 +8,7 @@ typedef std::vector<node *> node_list;
 
 struct node {
 	node();
-	~node();
+	virtual ~node();
 	void AddChild(node *child);
 	int type;
 	char header[3];
@@ -16,6 +16,22 @@ struct node {
 
 	node_list children;
 	bool closed;
+};
+
+
+struct trigger : public node {
+	trigger();
+	int id;
+	int parameter1;
+	int flags;
+	int parameter2;
+	int unknown;
+	char string1[16];
+	char string2[16];
+};
+
+struct object : public node {
+
 };
 
 #endif

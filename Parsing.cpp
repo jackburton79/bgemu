@@ -112,7 +112,12 @@ void
 Parser::PrintNode(node* n) const
 {
 	PrintIndentation();
-	printf("<%s> %s\n", n->header, n->value);
+	printf("<%s>", n->header);
+	if (n->type == BLOCK_TRIGGER) {
+		trigger* tr = dynamic_cast<trigger*>(n);
+		//printf(" id:%d, flags: %d\n", tr->id, tr->flags);
+	} else
+		printf(" %s\n", n->value);
 	node_list::iterator c;
 	IndentMore();
 	for (c = n->children.begin(); c != n->children.end(); c++) {
@@ -125,10 +130,10 @@ Parser::PrintNode(node* n) const
 
 
 void
-Parser::Read(node *rootNode)
+Parser::Read(node*& rootNode)
 {
 	try {
-		_ReadElementValue(rootNode);
+		_ReadElement(rootNode);
 	} catch (const char *str) {
 		printf("caught string %s\n", str);
 	} catch (...) {
@@ -136,6 +141,21 @@ Parser::Read(node *rootNode)
 	}
 
 	PrintNode(rootNode);
+}
+
+
+/* static */
+node*
+Parser::CreateNode(int type)
+{
+	switch (type) {
+		case BLOCK_TRIGGER:
+			return new trigger;
+		case BLOCK_OBJECT:
+			return new object;
+		default:
+			return new node;
+	}
 }
 
 
@@ -207,16 +227,17 @@ Parser::_FindEndOfBlock(token blockHead, const uint32 &maxEnd, uint32 &position)
 
 
 void
-Parser::_ReadElementGuard(node* n)
+Parser::_ReadElementGuard(node*& n)
 {
 	token tok = fTokenizer->ReadNextToken();
 	if (tok.type == TOKEN_BLOCK_GUARD) {
 		int blockType = Parser::_BlockTypeFromToken(tok);
-		if (!n->closed && blockType == n->type) {
-			n->closed = true;
-		} else {
+		if (n == NULL) {
+			n = Parser::CreateNode(blockType);
 			n->type = blockType;
 			strcpy(n->header, tok.u.string);
+		} else if (!n->closed && blockType == n->type) {
+			n->closed = true;
 		}
 	} else
 		fTokenizer->RewindToken(&tok);
@@ -224,7 +245,7 @@ Parser::_ReadElementGuard(node* n)
 
 
 void
-Parser::_ReadElementValue(node* n)
+Parser::_ReadElement(node*& n)
 {
 	_ReadElementGuard(n);
 	for (;;) {
@@ -237,22 +258,37 @@ Parser::_ReadElementValue(node* n)
 				break;
 			} else {
 				// We found a nested block,
-				node *newNode = new node;
+				node *newNode = NULL;
 				try {
-					_ReadElementValue(newNode);
+					_ReadElement(newNode);
 				} catch (...) {
 
 				}
 				n->AddChild(newNode);
 			}
 		} else {
-			if (n->type == BLOCK_TRIGGER) {
-				// TODO:
-			}
-			// TODO: Should read the value and store it correctly
-			if (tok.type == TOKEN_STRING || tok.type == TOKEN_NUMBER) {
-				strcat(n->value, " ");
-				strcat(n->value, tok.u.string);
+			/*if (n->type == BLOCK_TRIGGER) {
+				trigger* trig = dynamic_cast<trigger*>(n);
+				trig->id = fTokenizer->ReadToken().u.number;
+				printf("id: %d\n", trig->id);
+				trig->parameter1 = fTokenizer->ReadToken().u.number;
+				printf("parameter1: %d\n", trig->parameter1);
+				trig->flags = fTokenizer->ReadToken().u.number;
+				printf("flags: %d\n", trig->flags);
+				trig->parameter2 = fTokenizer->ReadToken().u.number;
+				printf("parameter2: %d\n", trig->parameter2);
+				trig->unknown = fTokenizer->ReadToken().u.number;
+				printf("unknown: %d\n", trig->unknown);
+
+				strcpy(trig->string1, (fTokenizer->ReadToken().u.string);
+				strcpy(trig->string2, (fTokenizer->ReadToken().u.string);
+				break;
+			} else */{
+				// TODO: Should read the value and store it correctly
+				if (tok.type == TOKEN_STRING || tok.type == TOKEN_NUMBER) {
+					strcat(n->value, " ");
+					strcat(n->value, tok.u.string);
+				}
 			}
 		}
 	}
@@ -324,8 +360,8 @@ Tokenizer::ReadNextToken()
 {
 	_SkipSeparators();
 
-	int32 startToken = fStream->Position();
 	char array[128];
+	int32 startToken = fStream->Position();
 	int32 supposedSize = _ReadFullToken(array, startToken);
 	array[supposedSize] = '\0';
 

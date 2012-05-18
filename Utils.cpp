@@ -48,7 +48,7 @@ fopen_case(const char *filename, const char *flags)
 	char base[256];
 	char leaf[256];
 	char *start = (char*)path.Path();
-	while ((where = strcspn(start, "/\0")) > 0) {
+	while ((where = strcspn(start, "/")) > 0) {
 		strncpy(base, start, where);
 		base[where] = 0;
 		if (first) {
@@ -56,13 +56,14 @@ fopen_case(const char *filename, const char *flags)
 			first = false;
 		}
 		char* newStart = start + where + 1;
-		size_t w = strcspn(newStart, "/\0");
+		size_t w = strcspn(newStart, "/");
 		if (w == 0)
 			break;
 
 		strncpy(leaf, newStart, w);
 		leaf[w] = 0;
 
+		printf("newPath: %s\n", newPath.Path());
 		DIR *dir = opendir(newPath.Path());
 		if (dir != NULL) {
 			dirent *entry = NULL;

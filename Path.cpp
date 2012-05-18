@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <new>
+#include <stdlib.h>
 #include <string.h>
 
 using namespace std;
@@ -142,14 +143,12 @@ TPath::SetTo(const char* path, const char* leaf, bool normalize)
 
 		// normalize the path, if necessary, otherwise just set it
 		if (error == 0) {
-			/*if (normalize) {
+			if (normalize) {
 				printf("WARNING!!!\n");
-				// create a BEntry and initialize us with this entry
-				TPath entryPath;
-				error = entryPath._SetPath(newPath);
-				if (error == 0)
-					return SetTo(entryPath.Path());
-			} else*/
+				char realPath[PATH_MAX];
+				if (realpath(newPath, realPath) != NULL)
+					return SetTo(realPath);
+			} else
 				error = _SetPath(newPath);
 		}
 	}

@@ -23,3 +23,9 @@ node::AddChild(node* child)
 {
 	children.push_back(child);
 }
+
+
+trigger::trigger()
+{
+
+}

@@ -85,6 +85,7 @@ private:
 };
 
 struct node;
+struct specific;
 class Parser {
 public:
 	Parser();
@@ -92,8 +93,9 @@ public:
 	void SetTo(::block *block);
 	token ReadToken();
 	void PrintNode(node* n) const;
-	void Read(node *root);
+	void Read(node*& root);
 
+	static node* CreateNode(int type);
 
 private:
 	void _ReadTriggerBlock(int start, int end);
@@ -101,9 +103,9 @@ private:
 	bool _FindEndOfBlock(token blockHead, const uint32 &maxEnd, uint32 &position);
 	void _SkipUselessTokens();
 
-	void _ReadElementGuard(node* n);
-	void _ReadElementValue(node* n);
-	void _ReadElementChildren(node* n);
+	void _ReadElementGuard(node*& n);
+	void _ReadElement(node*& n);
+	//void _ReadElementChildren(node* n);
 	static int _BlockTypeFromToken(const token &tok);
 
 	Stream *fStream;
