@@ -6,14 +6,15 @@
 
 BCSResource::BCSResource(const res_ref &name)
 	:
-	Resource(name, RES_BCS)
+	Resource(name, RES_BCS),
+	fRootNode(NULL)
 {
 }
 
 
 BCSResource::~BCSResource()
 {
-
+	delete fRootNode;
 }
 
 
@@ -31,12 +32,10 @@ BCSResource::Load(Archive *archive, uint32 key)
 }
 
 
-void
-BCSResource::RunScript()
+Script*
+BCSResource::GetScript()
 {
-
-
-
+	return new Script(fRootNode);
 }
 
 
@@ -47,14 +46,14 @@ BCSResource::_LoadScript()
 	try {
 		Parser parser;
 		parser.SetTo(fData);
-		node *rootNode = NULL;
-		parser.Read(rootNode);
-		delete rootNode;
 
+		parser.Read(fRootNode);
 	} catch (const char *message) {
 		printf("exception thrown: %s\n", message);
 	} catch (...) {
 		printf("other exception thrown\n");
 		throw "SUCKERPUNCH!!";
 	}
+
+	DropData();
 }

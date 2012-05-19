@@ -11,6 +11,7 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "Script.h"
 #include "Tile.h"
 #include "TisResource.h"
 #include "TLKResource.h"
@@ -73,9 +74,9 @@ Room::Load(const char *resName)
 	fWed = gResManager->GetWED(fName);
 
 	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
-	//bcs->DumpToFile("testbcs.txt");
-	gResManager->ReleaseResource(bcs);
-/*
+	fScript = bcs->GetScript();
+	//gResManager->ReleaseResource(bcs);
+
 	_LoadOverlays();
 	_LoadTiles();
 
@@ -98,8 +99,13 @@ Room::Load(const char *resName)
 	_InitAnimations();
 	_InitActors();
 	_InitDoors();
-*/
-	return false;
+
+	// Execute room script
+	// TODO: Move away from here.
+	// TODO: Is it correct here ?
+	_ExecuteScript(fScript);
+
+	return true;
 }
 
 
@@ -404,4 +410,11 @@ Room::_InitDoors()
 			fTiles[door->fTilesOpen[i]]->SetDoor(door);
 		}
 	}
+}
+
+
+void
+Room::_ExecuteScript(Script *script)
+{
+	fScript->Print();
 }

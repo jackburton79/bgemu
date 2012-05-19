@@ -1,6 +1,6 @@
 #include "Parsing.h"
 #include "Script.h"
-#include "Stream.h"
+#include "StringStream.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -60,25 +60,6 @@ operator==(const struct token &t1, const struct token &t2)
 	}
 }
 
-static int sIndent = 0;
-static void IndentMore()
-{
-	sIndent++;
-}
-
-
-static void IndentLess()
-{
-	if (--sIndent < 0)
-		sIndent = 0;
-}
-
-
-static void PrintIndentation()
-{
-	for (int i = 0; i < sIndent; i++)
-		printf(" ");
-}
 
 // Parser
 Parser::Parser()
@@ -101,28 +82,6 @@ Parser::SetTo(Stream *stream)
 
 
 void
-Parser::PrintNode(node* n) const
-{
-	PrintIndentation();
-	printf("<%s>", n->header);
-	if (n->type == BLOCK_TRIGGER) {
-		trigger* tr = dynamic_cast<trigger*>(n);
-		printf(" id:%d, flags: %d, %s %s\n",
-			tr->id, tr->flags, tr->string1, tr->string2);
-	} else
-		printf(" %s\n", n->value);
-	node_list::iterator c;
-	IndentMore();
-	for (c = n->children.begin(); c != n->children.end(); c++) {
-		PrintNode(*c);
-	}
-	IndentLess();
-	PrintIndentation();
-	printf("<%s/>\n", n->header);
-}
-
-
-void
 Parser::Read(node*& rootNode)
 {
 	try {
@@ -133,66 +92,79 @@ Parser::Read(node*& rootNode)
 		printf("end of file!\n");
 	}
 
-	PrintNode(rootNode);
+	// TODO: We do a second pass to copy the values into
+	// the node specific values.
+	// Not very nice, try harder for a better solution
+	_FixNodeTree(rootNode);
 }
 
 
 /* static */
-node*
-Parser::CreateNode(int type, const char *string)
-{
-	node* newNode = NULL;
-	switch (type) {
-		case BLOCK_TRIGGER:
-			newNode = new trigger;
-			break;
-		/*case BLOCK_OBJECT:
-			newNode = new object;
-			break;*/
-		default:
-			newNode = new node;
-			break;
-	}
-	if (newNode != NULL) {
-		newNode->type = type;
-		strcpy(newNode->header, string);
-	}
-	return newNode;
-}
-
-
 void
-Parser::_ReadTriggerBlock(::node* node)
+Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 {
 	trigger* trig = dynamic_cast<trigger*>(node);
-	trig->id = fTokenizer->ReadToken().u.number;
-	printf("id: %d\n", trig->id);
-	trig->parameter1 = fTokenizer->ReadToken().u.number;
-	printf("parameter1: %d\n", trig->parameter1);
-	trig->flags = fTokenizer->ReadToken().u.number;
-	printf("flags: %d\n", trig->flags);
-	trig->parameter2 = fTokenizer->ReadToken().u.number;
-	printf("parameter2: %d\n", trig->parameter2);
-	trig->unknown = fTokenizer->ReadToken().u.number;
-	printf("unknown: %d\n", trig->unknown);
-	strcpy(trig->string1, fTokenizer->ReadToken().u.string);
-	printf("string1: %s\n", trig->string1);
-	strcpy(trig->string2, fTokenizer->ReadToken().u.string);
-	printf("string1: %s\n", trig->string2);
+	if (!trig)
+		return;
+	trig->id = tokenizer->ReadToken().u.number;
+	trig->parameter1 = tokenizer->ReadToken().u.number;
+	trig->flags = tokenizer->ReadToken().u.number;
+	trig->parameter2 = tokenizer->ReadToken().u.number;
+	trig->unknown = tokenizer->ReadToken().u.number;
+	strcpy(trig->string1, tokenizer->ReadToken().u.string);
+	strcpy(trig->string2, tokenizer->ReadToken().u.string);
 }
 
 
+/* static */
 void
-Parser::_ReadObjectBlock(int start, int end)
+Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 {
-	Tokenizer t(fStream, start);
-	token tok;
-	for (int i = 0; i < 12; i++) {
-		tok = t.ReadNextToken();
-		printf("%d ", tok.u.number);
-	}
-	tok = t.ReadNextToken();
-	printf("%s\n", tok.u.string);
+	object* obj = dynamic_cast<object*>(node);
+	if (!obj)
+		return;
+	obj->team = tokenizer->ReadNextToken().u.number;
+	obj->faction = tokenizer->ReadNextToken().u.number;
+	obj->ea = tokenizer->ReadNextToken().u.number;
+	obj->general = tokenizer->ReadNextToken().u.number;
+	obj->team = tokenizer->ReadNextToken().u.number;
+	obj->classs = tokenizer->ReadNextToken().u.number;
+	obj->specific = tokenizer->ReadNextToken().u.number;
+	obj->gender = tokenizer->ReadNextToken().u.number;
+	obj->alignment = tokenizer->ReadNextToken().u.number;
+	obj->specifiers = tokenizer->ReadNextToken().u.number;
+	tokenizer->ReadNextToken(); //skip
+	tokenizer->ReadNextToken(); //skip
+	strcpy(obj->name, tokenizer->ReadNextToken().u.string);
+}
+
+
+/* static */
+void
+Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
+{
+	action* act = dynamic_cast<action*>(node);
+	if (!act)
+		return;
+	act->id = tokenizer->ReadNextToken().u.number;
+	act->parameter = tokenizer->ReadNextToken().u.number;
+	act->where.x = tokenizer->ReadNextToken().u.number;
+	act->where.y = tokenizer->ReadNextToken().u.number;
+	act->e = tokenizer->ReadNextToken().u.number;
+	act->f = tokenizer->ReadNextToken().u.number;
+	strcpy(act->str1, tokenizer->ReadNextToken().u.string);
+	strcpy(act->str2, tokenizer->ReadNextToken().u.string);
+}
+
+
+/* static */
+void
+Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
+{
+	response* resp = dynamic_cast<response*>(node);
+	if (!resp)
+		return;
+	resp->probability = tokenizer->ReadNextToken().u.number;
 }
 
 
@@ -203,7 +175,7 @@ Parser::_ReadElementGuard(node*& n)
 	if (tok.type == TOKEN_BLOCK_GUARD) {
 		int blockType = Parser::_BlockTypeFromToken(tok);
 		if (n == NULL)
-			n = Parser::CreateNode(blockType, tok.u.string);
+			n = node::Create(blockType, tok.u.string);
 		else if (!n->closed && blockType == n->type) {
 			n->closed = true;
 		}
@@ -221,7 +193,7 @@ Parser::_ReadElement(::node*& node)
 		if (tok.type == TOKEN_BLOCK_GUARD) {
 			fTokenizer->RewindToken(tok);
 			if (Parser::_BlockTypeFromToken(tok) == node->type) {
-				// Means the block is open, and this is the closure.
+				// Means the block is open, and this is the closing tag.
 				// Bail out and let _ReadElementGuard to the rest.
 				break;
 			} else {
@@ -246,24 +218,45 @@ Parser::_ReadElement(::node*& node)
 void
 Parser::_ReadElementValue(::node* node, const token& tok)
 {
-	if (node->type == BLOCK_TRIGGER) {
-		// TODO: For now, since _ReadTriggerBlock()
-		// wants to read the whole block
-		fTokenizer->RewindToken(tok);
-		_ReadTriggerBlock(node);
+	if (strlen(node->value) > 0)
+		strcat(node->value, " ");
 
-	} else {
-		// TODO: Should read the value and store it correctly
-		if (tok.type == TOKEN_STRING) {
-			strcat(node->value, " ");
-			strcat(node->value, tok.u.string);
-		} else if (tok.type == TOKEN_NUMBER) {
-			char numb[16];
-			snprintf(numb, sizeof(numb), "%d", tok.u.number);
-			strcat(node->value, " ");
-			strcat(node->value, numb);
-		}
+	if (tok.type == TOKEN_STRING) {
+		strcat(node->value, tok.u.string);
+	} else if (tok.type == TOKEN_NUMBER) {
+		char numb[16];
+		snprintf(numb, sizeof(numb), "%d", tok.u.number);
+		strcat(node->value, numb);
 	}
+}
+
+
+void
+Parser::_FixNodeTree(::node* node)
+{
+	StringStream stream(node->value);
+	Tokenizer tokenizer(&stream, 0);
+	//tokenizer.SetDebug(true);
+	switch (node->type) {
+		case BLOCK_TRIGGER:
+			_ReadTriggerBlock(&tokenizer, node);
+			break;
+		case BLOCK_ACTION:
+			_ReadActionBlock(&tokenizer, node);
+			break;
+		case BLOCK_OBJECT:
+			_ReadObjectBlock(&tokenizer, node);
+			break;
+		case BLOCK_RESPONSE:
+			_ReadResponseBlock(&tokenizer, node);
+			break;
+		default:
+			break;
+	}
+
+	node_list::iterator i;
+	for (i = node->children.begin(); i != node->children.end(); i++)
+		_FixNodeTree(*i);
 }
 
 
@@ -281,9 +274,9 @@ Parser::_BlockTypeFromToken(const token& tok)
 	else if (tok == token("OB"))
 		return BLOCK_OBJECT;
 	else if (tok == token("RE"))
-		return BLOCK_REEESPONSE;
-	else if (tok == token("RS"))
 		return BLOCK_RESPONSE;
+	else if (tok == token("RS"))
+		return BLOCK_RESPONSESET;
 	else if (tok == token("AC"))
 		return BLOCK_ACTION;
 
@@ -298,12 +291,15 @@ Parser::_BlockTypeFromToken(const token& tok)
 Tokenizer::Tokenizer()
 	:
 	fStream(NULL),
-	fPosition(0)
+	fPosition(0),
+	fDebug(false)
 {
 }
 
 
 Tokenizer::Tokenizer(Stream *stream, int32 position)
+	:
+	fDebug(false)
 {
 	SetTo(stream, position);
 }
@@ -418,6 +414,14 @@ Tokenizer::ReadNextToken()
 		}
 	}
 
+	if (fDebug) {
+		printf("token: type %d, value ", aToken.type);
+		if (aToken.type == TOKEN_NUMBER)
+			printf("%d", aToken.u.number);
+		else
+			printf("%s", aToken.u.string);
+		printf("\n");
+	}
 	// We could have read too much, rewind a bit if needed
 	fStream->Seek(startToken + aToken.size, SEEK_SET);
 	return aToken;
@@ -429,6 +433,13 @@ Tokenizer::RewindToken(const token &tok)
 {
 	if (tok.size != 0)
 		fStream->Seek(-tok.size, SEEK_CUR);
+}
+
+
+void
+Tokenizer::SetDebug(bool state)
+{
+	fDebug = state;
 }
 
 
@@ -448,14 +459,17 @@ Tokenizer::_SkipSeparators()
 int32
 Tokenizer::_ReadFullToken(char *dest, int32 start)
 {
-	char *ptr = dest;
-	for (;;) {
-		char c = fStream->ReadByte();
-		if (Tokenizer::IsSeparator(c))
-			break;
-		*ptr++ = c;
+	try {
+		char *ptr = dest;
+		for (;;) {
+			char c = fStream->ReadByte();
+			if (Tokenizer::IsSeparator(c))
+				break;
+			*ptr++ = c;
+		}
+	} catch (...) {
+		//printf("end of stream exception\n");
 	}
-
 	return fStream->Position() - 1 - start;
 }
 

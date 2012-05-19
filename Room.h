@@ -10,6 +10,7 @@ class Animation;
 class ARAResource;
 class Door;
 class MapOverlay;
+class Script;
 class Tile;
 class Room {
 public:
@@ -52,6 +53,7 @@ private:
 	void _InitAnimations();
 	void _InitActors();
 	void _InitDoors();
+	void _ExecuteScript(Script* script);
 
 	res_ref fName;
 	SDL_Rect fVisibleArea;
@@ -71,6 +73,7 @@ private:
 	Animation **fAnimations;
 	Actor **fActors;
 	Door **fDoors;
+	Script *fScript;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

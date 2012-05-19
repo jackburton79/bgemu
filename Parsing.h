@@ -39,7 +39,7 @@ enum block_type {
 	BLOCK_TRIGGER,
 	BLOCK_ACTION,
 	BLOCK_OBJECT,
-	BLOCK_REEESPONSE,
+	BLOCK_RESPONSESET,
 	BLOCK_RESPONSE,
 	BLOCK_UNKNOWN
 };
@@ -67,21 +67,21 @@ public:
 	Tokenizer();
 	Tokenizer(Stream *stream, int32 position);
 	void SetTo(Stream *stream, int32 position);
+
 	token ReadToken();
 	token ReadNextToken();
-
 	void RewindToken(const token &tok);
 
-	static bool IsSeparator(char const &c);
+	void SetDebug(bool state);
 
+	static bool IsSeparator(char const &c);
 private:
 	void _SkipSeparators();
 	int32 _ReadFullToken(char *dest, int32 start);
 
 	Stream *fStream;
 	int32 fPosition;
-
-
+	bool fDebug;
 };
 
 struct node;
@@ -95,8 +95,6 @@ public:
 	void Read(node*& root);
 	void PrintNode(node* n) const;
 
-	static node* CreateNode(int type, const char* string);
-
 private:
 	void _SkipUselessTokens();
 
@@ -104,11 +102,14 @@ private:
 	void _ReadElement(node*& n);
 	void _ReadElementValue(node* n, const token& tok);
 
-	void _ReadTriggerBlock(::node *node);
-	void _ReadObjectBlock(int start, int end);
+	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
+
+	void _FixNodeTree(::node *node);
 
 	static int _BlockTypeFromToken(const token &tok);
-
 
 	Stream *fStream;
 	Tokenizer *fTokenizer;
