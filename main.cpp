@@ -61,7 +61,6 @@ main(int argc, char **argv)
 	}
 
 	if (sList) {
-		//gResManager->PrintBIFs();
 		gResManager->PrintResources();
 		return 0;
 	}
