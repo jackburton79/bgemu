@@ -181,6 +181,6 @@ ARAResource::_LoadDoors()
 	fData->Seek(fDoorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
-		printf("door name: %s\n", fDoors[i].name);
+		//printf("door name: %s\n", fDoors[i].name);
 	}
 }

@@ -32,10 +32,35 @@ Script::Script(node* rootNode)
 }
 
 
+node*
+Script::RootNode()
+{
+	return fRootNode;
+}
+
+
 void
 Script::Print() const
 {
 	_PrintNode(fRootNode);
+}
+
+
+node*
+Script::FindNode(block_type type, node* start)
+{
+	// TODO: The start node does not count
+	/*if (start->type == type)
+		return start;
+*/
+	node_list::iterator i;
+	for (i = start->children.begin(); i != start->children.end(); i++) {
+		node *n = _FindNode(type, *i);
+		if (n != NULL)
+			return n;
+	}
+
+	return NULL;
 }
 
 
@@ -55,6 +80,22 @@ Script::_PrintNode(node* n) const
 	printf("<%s/>\n", n->header);
 }
 
+
+node*
+Script::_FindNode(block_type type, node* start)
+{
+	if (start->type == type)
+		return start;
+
+	node_list::iterator i;
+	for (i = start->children.begin(); i != start->children.end(); i++) {
+		node *n = _FindNode(type, *i);
+		if (n != NULL)
+			return n;
+	}
+
+	return NULL;
+}
 
 // node
 /* static */
@@ -90,6 +131,7 @@ node::Create(int type, const char *string)
 // node
 node::node()
 {
+	parent = NULL;
 	closed = false;
 	type = BLOCK_UNKNOWN;
 	value[0] = '\0';
@@ -107,14 +149,35 @@ node::~node()
 void
 node::AddChild(node* child)
 {
+	child->parent = this;
 	children.push_back(child);
+}
+
+
+node*
+node::Next() const
+{
+	if (parent == NULL)
+		return NULL;
+
+	node_list::iterator i;
+	for (i = parent->children.begin(); i != parent->children.end(); i++) {
+		if ((*i) == this) {
+			if (++i == parent->children.end())
+				return NULL;
+			return *i;
+		}
+	}
+
+	return NULL;
 }
 
 
 void
 node::Print() const
 {
-	printf("%s\n", value);
+	printf("header: %s\n", header);
+	//printf("value: %s\n", value);
 }
 
 
@@ -127,6 +190,7 @@ trigger::trigger()
 void
 trigger::Print() const
 {
+	node::Print();
 	printf("id:%d, flags: %d, parameter1: %d, parameter2: %d, %s %s\n",
 		id, flags, parameter1, parameter2, string1, string2);
 }
@@ -142,6 +206,7 @@ object::object()
 void
 object::Print() const
 {
+	node::Print();
 	printf("team: %d, faction: %d, ea: %d, general: %d, race: %d\n",
 			team, faction, ea, general, race);
 	printf("class: %d, specific: %d, gender: %d, alignment: %d, specifiers: %d\n",
@@ -173,5 +238,6 @@ response::response()
 void
 response::Print() const
 {
+	node::Print();
 	printf("probability: %d\n", probability);
 }

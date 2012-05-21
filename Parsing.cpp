@@ -280,8 +280,7 @@ Parser::_BlockTypeFromToken(const token& tok)
 	else if (tok == token("AC"))
 		return BLOCK_ACTION;
 
-
-	throw "Block Error!";
+	throw "Unknown block!";
 
 	return -1;
 }

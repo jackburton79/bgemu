@@ -32,35 +32,6 @@ struct token {
 bool operator==(const struct token &t1, const struct token &t2);
 
 
-enum block_type {
-	BLOCK_SCRIPT,
-	BLOCK_CONDITION_RESPONSE,
-	BLOCK_CONDITION,
-	BLOCK_TRIGGER,
-	BLOCK_ACTION,
-	BLOCK_OBJECT,
-	BLOCK_RESPONSESET,
-	BLOCK_RESPONSE,
-	BLOCK_UNKNOWN
-};
-
-
-struct block {
-	int type;
-	uint32 offset;
-	uint32 end;
-};
-
-
-enum element_type {
-	ELEMENT_START,
-	ELEMENT_TEXT,
-	ELEMENT_END,
-	ELEMENT_UNKNOWN
-};
-
-
-
 class Stream;
 class Tokenizer {
 public:

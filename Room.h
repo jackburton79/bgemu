@@ -5,6 +5,9 @@
 #include "TileCell.h"
 #include "Types.h"
 
+struct action;
+struct trigger;
+
 class Actor;
 class Animation;
 class ARAResource;
@@ -54,6 +57,8 @@ private:
 	void _InitActors();
 	void _InitDoors();
 	void _ExecuteScript(Script* script);
+	bool _EvaluateTrigger(trigger* trig);
+	void _ExecuteAction(action* act);
 
 	res_ref fName;
 	SDL_Rect fVisibleArea;

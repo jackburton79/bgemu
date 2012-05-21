@@ -8,13 +8,30 @@
 struct node;
 typedef std::vector<node *> node_list;
 
+enum block_type {
+	BLOCK_SCRIPT,
+	BLOCK_CONDITION_RESPONSE,
+	BLOCK_CONDITION,
+	BLOCK_TRIGGER,
+	BLOCK_ACTION,
+	BLOCK_OBJECT,
+	BLOCK_RESPONSESET,
+	BLOCK_RESPONSE,
+	BLOCK_UNKNOWN
+};
+
 
 class Script {
 public:
 	Script(node *rootNode);
 	void Print() const;
+
+	node* RootNode();
+	node* FindNode(block_type type, node* start);
+
 private:
 	void _PrintNode(node* n) const;
+	node* _FindNode(block_type type, node* start);
 
 	node *fRootNode;
 	node *fCurrentNode;
@@ -26,12 +43,16 @@ struct node {
 
 	virtual ~node();
 	void AddChild(node *child);
+	node* Next() const;
+	node* Previous() const;
+
 	virtual void Print() const;
 
 	int type;
 	char header[3];
 	char value[128];
 
+	node* parent;
 	node_list children;
 	bool closed;
 

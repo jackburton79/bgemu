@@ -40,10 +40,10 @@ Tile::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 
 		::TileMap *map = fTileMap[i];
 		uint16 index;
-		if (fDoor != NULL && !fDoor->Opened())
+		//if (fDoor != NULL && !fDoor->Opened())
 			index = map->SecondaryTileIndex();
-		else
-			index = map->TileIndex();
+		//else
+			//index = map->TileIndex();
 
 		TISResource *tis = gResManager->GetTIS(map->Overlay()->TileSet());
 		SDL_Surface *cell = tis->TileCellAt(index);

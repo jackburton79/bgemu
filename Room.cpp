@@ -103,7 +103,7 @@ Room::Load(const char *resName)
 	// Execute room script
 	// TODO: Move away from here.
 	// TODO: Is it correct here ?
-	_ExecuteScript(fScript);
+	//_ExecuteScript(fScript);
 
 	return true;
 }
@@ -416,5 +416,71 @@ Room::_InitDoors()
 void
 Room::_ExecuteScript(Script *script)
 {
-	fScript->Print();
+	// for each CR block
+	// for each CO block
+	// check triggers
+	// if any trigger
+	// find response_set block
+	// choose response
+	// execute actions
+
+	::node* root = script->RootNode();
+	bool evaluation = true;
+	::node* condRes = fScript->FindNode(BLOCK_CONDITION_RESPONSE, root);
+	do {
+		::node* cond = fScript->FindNode(BLOCK_CONDITION, condRes);
+		::node* responseSet = cond->Next();
+		for (;;) {
+			if (cond == NULL)
+				break;
+
+			node* trig = fScript->FindNode(BLOCK_TRIGGER, cond);
+			for (;;) {
+				if (trig == NULL)
+					break;
+				evaluation = _EvaluateTrigger(static_cast<trigger*>(trig)) && evaluation;
+				if (!evaluation)
+					break;
+				trig = trig->Next();
+			}
+			// If no trigger were true, don't consider responses
+			if (!evaluation)
+				break;
+
+			responseSet = cond->Next();
+			if (responseSet == NULL)
+				break;
+			node* act = fScript->FindNode(BLOCK_ACTION, responseSet);
+			for (;;) {
+				if (act == NULL)
+					break;
+
+				_ExecuteAction(static_cast<action*>(act));
+
+				act = act->Next();
+			}
+
+			cond = responseSet->Next();
+		}
+	} while ((condRes = condRes->Next()) != NULL);
+
+
+
+}
+
+
+bool
+Room::_EvaluateTrigger(trigger* trig)
+{
+	trig->Print();
+	printf("%s\n", TriggerIDS()->ValueFor(trig->id));
+	return true;
+}
+
+
+void
+Room::_ExecuteAction(action* act)
+{
+	act->Print();
+	printf("%s\n", ActionIDS()->ValueFor(act->id));
 }
