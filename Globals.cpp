@@ -34,6 +34,7 @@ res_ref::operator const char*() const
 	return (const char *)str;
 };
 
+
 res_ref&
 res_ref::operator=(const res_ref& other)
 {
