@@ -17,13 +17,15 @@ private:
 };
 
 
-TLKResource *Dialogs();
-IDSResource *GeneralIDS();
-IDSResource *AnimateIDS();
-IDSResource *GendersIDS();
-IDSResource *RacesIDS();
-IDSResource *ClassesIDS();
-IDSResource *SpecificIDS();
+TLKResource* Dialogs();
+IDSResource* GeneralIDS();
+IDSResource* AnimateIDS();
+IDSResource* GendersIDS();
+IDSResource* RacesIDS();
+IDSResource* ClassesIDS();
+IDSResource* SpecificIDS();
+IDSResource* TriggerIDS();
+IDSResource* ActionIDS();
 
 
 #endif // __WORLD_H

@@ -12,6 +12,8 @@ static IDSResource *sRaces;
 static IDSResource *sGenders;
 static IDSResource *sClasses;
 static IDSResource *sSpecifics;
+static IDSResource *sTriggers;
+static IDSResource *sActions;
 
 
 World::World()
@@ -25,6 +27,8 @@ World::World()
 	sGenders = gResManager->GetIDS("GENDER");
 	sClasses = gResManager->GetIDS("CLASS");
 	sSpecifics = gResManager->GetIDS("SPECIFIC");*/
+	sTriggers = gResManager->GetIDS("TRIGGER");
+	sActions = gResManager->GetIDS("ACTION");
 }
 
 
@@ -58,50 +62,64 @@ World::CurrentArea() const
 
 
 // global functions
-TLKResource *
+TLKResource*
 Dialogs()
 {
 	return sDialogs;
 }
 
 
-IDSResource *
+IDSResource*
 GeneralIDS()
 {
 	return sGeneral;
 }
 
 
-IDSResource *
+IDSResource*
 AnimateIDS()
 {
 	return sAnimate;
 }
 
 
-IDSResource *
+IDSResource*
 RacesIDS()
 {
 	return sRaces;
 }
 
 
-IDSResource *
+IDSResource*
 GendersIDS()
 {
 	return sGenders;
 }
 
 
-IDSResource *
+IDSResource*
 ClassesIDS()
 {
 	return sClasses;
 }
 
 
-IDSResource *
+IDSResource*
 SpecificIDS()
 {
 	return sSpecifics;
+}
+
+
+IDSResource*
+TriggerIDS()
+{
+	return sTriggers;
+}
+
+
+IDSResource*
+ActionIDS()
+{
+	return sActions;
 }
