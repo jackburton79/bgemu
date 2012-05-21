@@ -9,7 +9,7 @@
 
 /*!
 	\file Path.cpp
-	BPath implementation.
+	TPath implementation.
 */
 
 #include "Path.h"
@@ -144,7 +144,6 @@ TPath::SetTo(const char* path, const char* leaf, bool normalize)
 		// normalize the path, if necessary, otherwise just set it
 		if (error == 0) {
 			if (normalize) {
-				printf("WARNING!!!\n");
 				char realPath[PATH_MAX];
 				if (realpath(newPath, realPath) != NULL)
 					return SetTo(realPath);
