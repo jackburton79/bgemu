@@ -65,7 +65,20 @@ strresource(int type)
 		 	return "EFF Effect";
 		case RES_VVC:
 		 	return "VVC Effect";
+		case RES_2DA:
+			return "2DA format";
+		case RES_STO:
+			return "STORE format";
+		case RES_WMP:
+			return "World map format";
+		case RES_CHU:
+			return "CHU format";
+		case RES_GAM:
+			return "GAM format";
+		case RES_PRO:
+			return "PRO format (projectile)";
 		case RES_WFX:
+			return "WFX format";
 		default:
 		 	sprintf(sTemp, "unknown (0x%x)", type);
 			return sTemp;
