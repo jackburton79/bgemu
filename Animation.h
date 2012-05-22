@@ -1,8 +1,8 @@
 #ifndef __ANIMATION_H
 #define __ANIMATION_H
 
+#include "Frame.h"
 #include "Types.h"
-#include "TileCell.h"
 
 
 class BAMResource;

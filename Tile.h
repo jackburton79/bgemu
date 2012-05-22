@@ -34,9 +34,9 @@ private:
 };
 
 
-class Tile {
+class TileCell {
 public:
-	Tile(uint32 index);
+	TileCell(uint32 index);
 	void Draw(SDL_Surface *surface, SDL_Rect *rect, bool full = false);
 
 	void AddTileMap(TileMap *map);

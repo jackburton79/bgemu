@@ -2,7 +2,6 @@
 #define __REGION_MAP_H
 
 #include "SDL.h"
-#include "TileCell.h"
 #include "Types.h"
 
 struct action;
@@ -14,7 +13,7 @@ class ARAResource;
 class Door;
 class MapOverlay;
 class Script;
-class Tile;
+class TileCell;
 class Room {
 public:
 	Room();
@@ -72,7 +71,7 @@ private:
 
 	uint32 fNumOverlays;
 	MapOverlay **fOverlays;
-	Tile **fTiles;
+	TileCell **fTiles;
 
 	Animation **fAnimations;
 	Actor **fActors;

@@ -3,11 +3,9 @@
 
 #include "SDL.h"
 
-struct TileCell {
+struct Frame {
 	SDL_Surface *surface;
 	SDL_Rect rect;
 };
 
-typedef TileCell Frame;
-
-#endif
+#endif // __FRAME_H

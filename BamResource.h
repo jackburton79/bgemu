@@ -1,9 +1,9 @@
 #ifndef __BAMRESOURCE_H
 #define __BAMRESOURCE_H
 
+#include "Frame.h"
 #include "Resource.h"
 #include "SDL.h"
-#include "TileCell.h"
 
 struct cycle {
 	uint16 numFrames;

@@ -368,9 +368,9 @@ void
 Room::_LoadTiles()
 {
 	uint32 numTiles = fOverlays[0]->Size();
-	fTiles = new Tile*[numTiles];
+	fTiles = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTiles[i] = new Tile(i);
+		fTiles[i] = new TileCell(i);
 		for (uint32 o = 0; o < fNumOverlays; o++)
 			fTiles[i]->AddTileMap(fOverlays[o]->TileMapForTile(i));
 	}

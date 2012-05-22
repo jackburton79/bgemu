@@ -6,7 +6,7 @@
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
 
-Tile::Tile(uint32 number)
+TileCell::TileCell(uint32 number)
 	:
 	fDoor(NULL)
 {
@@ -28,7 +28,7 @@ _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 
 
 void
-Tile::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
+TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 {
 	int maxOverlay = full ? fTileMap.size() : 1;
 
@@ -40,11 +40,11 @@ Tile::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 	    bool closed = false;
 		::TileMap *map = fTileMap[i];
 		uint16 index;
-		//if (fDoor != NULL && !fDoor->Opened()) {
-		//	closed = true;
+		if (fDoor != NULL/* && !fDoor->Opened()*/) {
+			closed = true;
 			index = map->SecondaryTileIndex();
-		//} else
-		//	index = map->TileIndex();
+		} else
+			index = map->TileIndex();
 
 		MapOverlay *overlay = map->Overlay();
 		if (overlay == NULL)
@@ -79,28 +79,28 @@ Tile::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 
 
 void
-Tile::AddTileMap(TileMap *map)
+TileCell::AddTileMap(TileMap *map)
 {
 	fTileMap.push_back(map);
 }
 
 
 Door *
-Tile::Door() const
+TileCell::Door() const
 {
 	return fDoor;
 }
 
 
 void
-Tile::SetDoor(::Door *d)
+TileCell::SetDoor(::Door *d)
 {
 	fDoor = d;
 }
 
 
 void
-Tile::Clicked()
+TileCell::Clicked()
 {
 	if (fDoor != NULL)
 		fDoor->Toggle();
@@ -108,7 +108,7 @@ Tile::Clicked()
 
 
 void
-Tile::MouseOver()
+TileCell::MouseOver()
 {
 
 }

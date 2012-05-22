@@ -5,7 +5,6 @@
 #include "Polygon.h"
 #include "ResManager.h"
 #include "Tile.h"
-#include "TileCell.h"
 #include "TisResource.h"
 #include "WedResource.h"
 #include "Utils.h"
@@ -324,8 +323,10 @@ TileMap *
 MapOverlay::TileMapForTile(int32 i)
 {
 	// TODO: handle this more correctly
-	if (i >= fWidth * fHeight)
+	if (i >= fWidth * fHeight) {
+		printf("requested tile %d, max %d\n", i, Size());
 		i = (fWidth * fHeight) - 1;
+	}
 
 	return &fTileMaps[i];
 }
