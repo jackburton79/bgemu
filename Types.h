@@ -17,6 +17,7 @@ enum resource_type {
 	RES_PLT = 0x006,
 	RES_BAM = 0x3e8,
 	RES_WED = 0x3e9,
+	RES_CHU = 0x3ea,
 	RES_TIS = 0x3eb,
 	RES_MOS = 0x3ec,
 	RES_ITM = 0x3ed,
@@ -26,9 +27,13 @@ enum resource_type {
 	RES_CRE = 0x3f1,
 	RES_ARA = 0x3f2,
 	RES_DLG = 0x3f3,
-	RES_UNK = 0x3f4,
+	RES_2DA = 0x3f4,
+	RES_GAM = 0x3f5,
+	RES_STO = 0x3f6,
+	RES_WMP = 0x3f7,
 	RES_EFF = 0x3f8,
-	RES_VVC = 0x3fb
+	RES_VVC = 0x3fb,
+	RES_PRO = 0x3fd
 };
 
 const char *strresource(int type);
@@ -178,6 +183,8 @@ struct door_wed {
 	uint16 closed_polygon_count;
 	uint32 open_polygons_offset;
 	uint32 closed_polygons_offset;
+
+	void Print() const;
 } __attribute__((packed));
 
 

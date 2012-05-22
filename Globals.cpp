@@ -90,3 +90,12 @@ operator<<(std::ostream &os, res_ref ref)
 	return os;
 };
 
+
+void
+door_wed::Print() const
+{
+	printf("name: %s\n", name);
+	printf("flags: 0x%x\n", flags);
+	printf("cell_index: %d\n", cell_index);
+	printf("cell_count: %d\n", cell_count);
+}
