@@ -47,23 +47,30 @@ TISResource::TileCellAt(int index)
 	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 			TILE_WIDTH, TILE_HEIGHT, 8, 0, 0, 0, 0);
 	
-	SDL_Color palette[256];
-	for (int32 i = 0; i < 256; i++) {
-		palette[i].b = fData->ReadByte();
-		palette[i].g = fData->ReadByte();
-		palette[i].r = fData->ReadByte();
-		palette[i].unused = fData->ReadByte();
+	try {
+		SDL_Color palette[256];
+		for (int32 i = 0; i < 256; i++) {
+			palette[i].b = fData->ReadByte();
+			palette[i].g = fData->ReadByte();
+			palette[i].r = fData->ReadByte();
+			palette[i].unused = fData->ReadByte();
+		}
+
+		SDL_LockSurface(surface);
+		uint8 *pixels = (uint8 *)surface->pixels;
+		for (int i = 0; i < 4096; i++) {
+			uint8 pixel = fData->ReadByte();
+			*pixels++ = pixel;
+		}
+
+		SDL_UnlockSurface(surface);
+		SDL_SetColors(surface, palette, 0, 256);
+
+	} catch (...) {
+		SDL_FreeSurface(surface);
+		return NULL;
 	}
 	
-	SDL_LockSurface(surface);
-	uint8 *pixels = (uint8 *)surface->pixels;
-	for (int i = 0; i < 4096; i++) {
-		uint8 pixel = fData->ReadByte();
-		*pixels++ = pixel;	
-	}
-	
-	SDL_UnlockSurface(surface);
-	SDL_SetColors(surface, palette, 0, 256);
 
 	return surface;
 }
