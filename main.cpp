@@ -146,7 +146,7 @@ main(int argc, char **argv)
 				}
 			}
 			map->Draw(screen);
-			SDL_Delay(50);
+			SDL_Delay(200);
 		}
 
 		SDL_FreeSurface(screen);
