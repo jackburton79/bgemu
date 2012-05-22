@@ -1,6 +1,6 @@
 #include "Door.h"
 #include "ResManager.h"
-#include "Tile.h"
+#include "TileCell.h"
 #include "TisResource.h"
 
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved

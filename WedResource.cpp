@@ -4,7 +4,7 @@
 #include "Graphics.h"
 #include "Polygon.h"
 #include "ResManager.h"
-#include "Tile.h"
+#include "TileCell.h"
 #include "TisResource.h"
 #include "WedResource.h"
 #include "Utils.h"

@@ -12,7 +12,7 @@
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
-#include "Tile.h"
+#include "TileCell.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "WedResource.h"
