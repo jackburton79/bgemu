@@ -1,7 +1,7 @@
 #ifndef __TILE_H
 #define __TILE_H
 
-#include "Types.h"
+#include "IETypes.h"
 
 #include <vector>
 

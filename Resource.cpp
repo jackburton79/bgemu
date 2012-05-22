@@ -10,7 +10,7 @@
 #include "MemoryStream.h"
 #include "Resource.h"
 #include "SupportDefs.h"
-#include "Types.h"
+#include "IETypes.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "WedResource.h"

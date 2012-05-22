@@ -2,7 +2,7 @@
 #define __REGION_MAP_H
 
 #include "SDL.h"
-#include "Types.h"
+#include "IETypes.h"
 
 struct action;
 struct trigger;

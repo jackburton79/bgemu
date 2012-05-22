@@ -2,7 +2,7 @@
 #define __ANIMATION_H
 
 #include "Frame.h"
-#include "Types.h"
+#include "IETypes.h"
 
 
 class BAMResource;

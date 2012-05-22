@@ -2,7 +2,7 @@
 #define __POLYGON_H
 
 #include "SDL.h"
-#include "Types.h"
+#include "IETypes.h"
 
 
 class Polygon {

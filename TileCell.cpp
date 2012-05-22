@@ -53,7 +53,6 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		SDL_Surface *cell = tis->TileCellAt(index);
 		if (cell == NULL) {
 			// TODO: Fix this. Shouldn't request an invalid cell
-			printf("NULL cell %d\n", index);
 			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
 			SDL_FillRect(cell, NULL, 3000);
 		}

@@ -4,7 +4,7 @@
 #include "KEYResource.h"
 #include "Path.h"
 #include "Resource.h"
-#include "Types.h"
+#include "IETypes.h"
 
 #include <map>
 #include <string>

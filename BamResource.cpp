@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include "MemoryStream.h"
 #include "Path.h"
-#include "Types.h"
+#include "IETypes.h"
 #include "Utils.h"
 
 #include <assert.h>

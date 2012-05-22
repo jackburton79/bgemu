@@ -37,7 +37,7 @@ public:
 				casemode caseMode = CASE_SENSITIVE);
 	bool IsValid() const;
 
-	virtual int32 Seek(int32 where, int whence = SEEK_CUR);
+	virtual int32 Seek(int32 where, int whence);
 	virtual int32 Position() const;
 	
 	uint32 Size();	

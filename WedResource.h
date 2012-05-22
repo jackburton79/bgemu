@@ -2,16 +2,11 @@
 #define __WEDRESOURCE_H
 
 #include "Resource.h"
-#include "Types.h"
+#include "IETypes.h"
 
 #include <SDL.h>
 
 #include <map>
-
-struct wed_door {
-
-};
-
 
 struct tilemap;
 class TileMap;

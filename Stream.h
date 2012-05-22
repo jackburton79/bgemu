@@ -22,7 +22,7 @@ public:
 		throw "Stream is not writable!";
 	};
 	
-	virtual int32 Seek(int32 where, int whence = SEEK_CUR)
+	virtual int32 Seek(int32 where, int whence)
 	{
 		throw "Seek() not supported for this stream!";
 	};

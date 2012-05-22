@@ -1,5 +1,5 @@
 #include "Resource.h"
-#include "Types.h"
+#include "IETypes.h"
 
 #include <cstdio>
 

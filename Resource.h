@@ -2,7 +2,7 @@
 #define __RESOURCE_H
 
 #include "Stream.h"
-#include "Types.h"
+#include "IETypes.h"
 
 
 struct res_ref;

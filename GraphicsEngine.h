@@ -2,7 +2,7 @@
 #define __GRAPHICS_ENGINE_H
 
 #include "SDL.h"
-#include "Types.h"
+#include "IETypes.h"
 
 class GraphicsEngine {
 public:

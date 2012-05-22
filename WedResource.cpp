@@ -175,8 +175,7 @@ WEDResource::GetDoor(uint32 index)
 	wedDoor.Print();
 
 	Door *newDoor = new Door(&wedDoor);
-
-	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16));
+	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
 	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
 		uint16 tileIndex;
 		fData->Read(tileIndex);

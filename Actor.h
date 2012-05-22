@@ -1,7 +1,7 @@
 #ifndef __ACTOR_H
 #define __ACTOR_H
 
-#include "Types.h"
+#include "IETypes.h"
 
 #include <SDL.h>
 

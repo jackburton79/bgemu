@@ -1,7 +1,7 @@
 #ifndef __RECTUTILS_H
 #define __RECTUTILS_H
 
-#include "Types.h"
+#include "IETypes.h"
 
 static inline SDL_Rect
 offset_rect(const SDL_Rect &rect, int32 x, int32 y)

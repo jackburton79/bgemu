@@ -11,7 +11,7 @@
 #include "FileStream.h"
 #include "TisResource.h"
 #include "TLKResource.h"
-#include "Types.h"
+#include "IETypes.h"
 #include "Utils.h"
 #include "WedResource.h"
 #include "World.h"
