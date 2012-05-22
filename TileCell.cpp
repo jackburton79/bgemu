@@ -30,7 +30,7 @@ _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 void
 TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 {
-	int maxOverlay = full ? fTileMap.size() : 1;
+	int maxOverlay = full ? kNumOverlays : 1;
 
 	SDL_Color trans = { 0, 255, 0 };
 	for (int i = maxOverlay - 1; i >= 0; i--) {
@@ -39,6 +39,7 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 	    	continue;
 	    bool closed = false;
 		::TileMap *map = fTileMap[i];
+
 		uint16 index;
 		if (fDoor != NULL && !fDoor->Opened()) {
 			closed = true;
@@ -51,16 +52,16 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			throw "NULL Overlay";
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
 		SDL_Surface *cell = tis->TileCellAt(index);
-		if (cell == NULL) {
+		/*if (cell == NULL) {
 			// TODO: Fix this. Shouldn't request an invalid cell
 			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
 			SDL_FillRect(cell, NULL, 3000);
-		}
+		}*/
 		SDL_Color *color = NULL;
-		/*if (i == 0 && fTileMap[0]->Mask() != 0) {
+		if (i == 0 && fTileMap[0]->Mask() != 0) {
 			color = &trans;
 			//color = &cell->format->palette->colors[255];
-		}*/
+		}
 		/*if (closed)
 			SDL_FillRect(cell, NULL, 3000);*/
 		_DrawOverlay(surface, cell, *rect, color);

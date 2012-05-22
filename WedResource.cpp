@@ -94,7 +94,7 @@ WEDResource::CountOverlays() const
 
 
 void
-WEDResource::_ReadTileMap(overlay overlay, uint32 &x, MapOverlay *mapOverlay)
+WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay)
 {
     uint32 mapOffset = overlay.tilemap_offset + x * sizeof (tilemap);
     tilemap tileMap;
@@ -319,8 +319,10 @@ MapOverlay::Size() const
 TileMap *
 MapOverlay::TileMapForTileCell(int32 i)
 {
-	if (i >= fWidth * fHeight)
-		return NULL;
+	if (i >= fWidth * fHeight) {
+		i = Size() - 1;
+		//return NULL;
+	}
 
 	return &fTileMaps[i];
 }

@@ -8,6 +8,8 @@
 
 #include <map>
 
+const static int kNumOverlays = 7;
+
 struct tilemap;
 class TileMap;
 class WEDResource;
@@ -62,7 +64,7 @@ private:
 
 	int16 _PointHeight(int16 x, int16 y);
 	SDL_Color _PixelSearchColor(int16 x, int16 y);
-    void _ReadTileMap(overlay overlay, uint32 &x, MapOverlay *mapOverlay);
+    void _ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay);
 
 	uint32 fNumOverlays;
 	uint32 fNumDoors;
