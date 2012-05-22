@@ -107,7 +107,7 @@ WEDResource::_ReadTileMap(overlay overlay, uint32 &x, MapOverlay *mapOverlay)
     const int32 offset = overlay.tile_lookup_offset + (tileMap.primary_tile_index * sizeof(uint16));
     int16 tisIndex;
     for (int32 c = 0;c < indexCount;c++) {
-        fData->ReadAt(offset + c * sizeof (int16), tisIndex);
+        fData->ReadAt(offset + c * sizeof(int16), tisIndex);
         mapOverlay->fTileMaps[x].AddTileIndex(tisIndex);
     }
 
@@ -174,16 +174,14 @@ WEDResource::GetDoor(uint32 index)
 
 	door_wed wedDoor;
 	fData->Read(wedDoor);
+	wedDoor.Print();
 
 	Door *newDoor = new Door(&wedDoor);
 
-	printf("door %s\n", wedDoor.name);
-
 	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16));
-	for (uint32 i = 0; i < wedDoor.cell_count; i++) {
+	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
 		uint16 tileIndex;
 		fData->Read(tileIndex);
-		printf("\t%d ", tileIndex);
 		newDoor->fTilesOpen.push_back(tileIndex);
 	}
 	printf("\n");
