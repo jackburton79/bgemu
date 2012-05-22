@@ -40,6 +40,9 @@ MemoryStream::~MemoryStream()
 ssize_t
 MemoryStream::ReadAt(int pos, void *dst, int size)
 {
+	if (pos >= fSize)
+		return -1;
+
 	ssize_t readable = fSize - pos;
 	if (size > readable)
 		size = readable;
@@ -53,6 +56,9 @@ MemoryStream::ReadAt(int pos, void *dst, int size)
 ssize_t
 MemoryStream::WriteAt(int pos, void *src, int size)
 {
+	if (pos >= fSize)
+		return -1;
+
 	ssize_t writable = fSize - pos;
 	if (size > writable)
 		size = writable;
