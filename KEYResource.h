@@ -13,7 +13,7 @@
 struct KeyFileEntry {
 	uint32 length;
 	uint16 location;
-	std::string name;
+	char name[32];
 };
 
 

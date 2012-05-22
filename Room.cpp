@@ -73,8 +73,8 @@ Room::Load(const char *resName)
 	fName = fArea->WedName();
 	fWed = gResManager->GetWED(fName);
 
-	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
-	fScript = bcs->GetScript();
+	//BCSResource *bcs = gResManager->GetBCS(fArea->Script());
+	//fScript = bcs->GetScript();
 	//gResManager->ReleaseResource(bcs);
 
 	_LoadOverlays();
@@ -177,6 +177,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
 	const uint16 tileNum = TileNumberForPoint(x, y);
+	//printf("%d %d (%d)\n", x, y, tileNum);
 	fTiles[tileNum]->MouseOver();
 }
 
@@ -389,10 +390,10 @@ Room::_InitAnimations()
 void
 Room::_InitActors()
 {
-	fActors = new Actor*[fArea->CountActors()];
+	/*fActors = new Actor*[fArea->CountActors()];
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors[i] = new Actor(*fArea->ActorAt(i));
-	}
+	}*/
 }
 
 

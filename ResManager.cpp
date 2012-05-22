@@ -23,10 +23,11 @@
 
 #define OVERRIDE_MASK	0x00
 #define CACHE_MASK		0x01
-#define CD_MASK			0x70
+#define CD_MASK			0xFC
 
 #define LOC_ROOT		0x01
-#define LOC_CD2			0x00
+#define LOC_CD1			0x04
+#define LOC_CD2			0x08
 #define LOC_CD3			0x10
 #define LOC_CD4			0x20
 #define LOC_CD5			0x40
@@ -96,13 +97,20 @@ ResourceManager::Initialize(const char *path)
 			delete bif;
 	}
 
+	bool resourcesOk = true;
 	try {
-		const uint32 numResources = std::min(uint32(39601), key->CountResourceEntries());
+		const uint32 numResources = key->CountResourceEntries();
 		for (uint32 c = 0; c < numResources; c++) {
 			KeyResEntry *res = new KeyResEntry;
 			if (key->GetResEntryAt(c, *res)) {
 				ref_type refType;
 				refType.name = res->name;
+				if (!strncmp(res->name, "", 8)) {
+					// TODO: looks like we get some unnamed resources
+					// and this causes all kinds of problems. Investigate
+					delete res;
+					continue;
+				}
 				refType.type = res->type;
 				fResourceMap[refType] = res;
 			} else
@@ -110,11 +118,12 @@ ResourceManager::Initialize(const char *path)
 		}
 	} catch (...) {
 		printf("Error!!!\n");
+		resourcesOk = false;
 	}
 
 	delete key;
 
-	return true;
+	return resourcesOk;
 }
 
 
@@ -154,7 +163,7 @@ ResourceManager::GetKEY(const char *name)
 			delete key;
 			return NULL;
 		}
-		key->_Acquire();
+		//key->_Acquire();
 		delete archive;
 	} catch (...) {
 		return NULL;
@@ -280,6 +289,10 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 		if (IS_OVERRIDE(location))
 			printf("\tshould check in override\n");
 		switch (GET_CD(location)) {
+			case LOC_CD1:
+				printf("CD1\n");
+				pathName.Append("CD1/");
+				break;
 			case LOC_CD2:
 				printf("CD2\n");
 				pathName.Append("CD2/");
@@ -315,7 +328,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 	const int bifIndex = RES_BIF_INDEX(entry.key);
 	const uint16 location = fBifs[bifIndex]->location;
-	const char *archiveName = fBifs[bifIndex]->name.data();
+	const char *archiveName = fBifs[bifIndex]->name;
 
 	printf("(in %s (0x%x))\n", archiveName, location);
 

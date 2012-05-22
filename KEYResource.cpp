@@ -36,7 +36,6 @@ KEYResource::Load(Archive *archive, uint32 key)
 		return false;
 
 	fData->Seek(8, SEEK_SET);
-
 	fData->Read(fNumBifs);
 	fData->Read(fNumResources);
 	fData->Read(fBifOffset);
@@ -56,23 +55,20 @@ KEYResource::CountFileEntries() const
 bool
 KEYResource::GetFileEntryAt(uint32 index, KeyFileEntry &entry)
 {
-	fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
+	try {
+		fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
+		int32 offset;
+		int16 nameLen;
 
-	KeyFileEntry *bif = &entry;
-	int32 offset;
-	int16 nameLen;
-
-	fData->Read(bif->length);
-	fData->Read(offset);
-	fData->Read(nameLen);
-	fData->Read(bif->location);
-
-	char name[nameLen];
-	fData->ReadAt(offset, name, nameLen);
-
-	path_dos_to_unix(name);
-
-	bif->name = name;
+		fData->Read(entry.length);
+		fData->Read(offset);
+		fData->Read(nameLen);
+		fData->Read(entry.location);
+		fData->ReadAt(offset, entry.name, nameLen);
+		path_dos_to_unix(entry.name);
+	} catch (...) {
+		return false;
+	}
 
 	return true;
 }
@@ -88,11 +84,13 @@ KEYResource::CountResourceEntries() const
 bool
 KEYResource::GetResEntryAt(uint32 index, KeyResEntry &entry)
 {
-	fData->Seek(fResOffset + index * kKeyResEntrySize, SEEK_SET);
-
-	fData->Read(&entry.name, 8);
-	fData->Read(entry.type);
-	fData->Read(entry.key);
-
+	try {
+		fData->Seek(fResOffset + index * kKeyResEntrySize, SEEK_SET);
+		fData->Read(&entry.name, 8);
+		fData->Read(entry.type);
+		fData->Read(entry.key);
+	} catch (...) {
+		return false;
+	}
 	return true;
 }

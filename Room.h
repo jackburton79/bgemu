@@ -72,7 +72,6 @@ private:
 
 	uint32 fNumOverlays;
 	MapOverlay **fOverlays;
-
 	Tile **fTiles;
 
 	Animation **fAnimations;
