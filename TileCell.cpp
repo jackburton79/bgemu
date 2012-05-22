@@ -10,7 +10,7 @@ TileCell::TileCell(uint32 number)
 	:
 	fDoor(NULL)
 {
-
+	fTileMap.reserve(8);
 }
 
 
@@ -40,7 +40,7 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 	    bool closed = false;
 		::TileMap *map = fTileMap[i];
 		uint16 index;
-		if (fDoor != NULL/* && !fDoor->Opened()*/) {
+		if (fDoor != NULL && !fDoor->Opened()) {
 			closed = true;
 			index = map->SecondaryTileIndex();
 		} else
@@ -58,15 +58,10 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			SDL_FillRect(cell, NULL, 3000);
 		}
 		SDL_Color *color = NULL;
-		if (i == 0 && fTileMap[0]->Mask() != 0) {
-			/*for (int32 i = 0; i < 256; i++) {
-				SDL_Color *c = &cell->format->palette->colors[i];
-				printf("color[%d]: %d %d %d %d\n", i,
-						c->r, c->g, c->b, c->unused);
-			}*/
+		/*if (i == 0 && fTileMap[0]->Mask() != 0) {
 			color = &trans;
 			//color = &cell->format->palette->colors[255];
-		}
+		}*/
 		/*if (closed)
 			SDL_FillRect(cell, NULL, 3000);*/
 		_DrawOverlay(surface, cell, *rect, color);
@@ -79,9 +74,9 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 
 
 void
-TileCell::AddTileMap(TileMap *map)
+TileCell::SetTileMap(TileMap *map, int overlayNum)
 {
-	fTileMap.push_back(map);
+	fTileMap[overlayNum] = map;
 }
 
 

@@ -26,7 +26,7 @@ public:
 	uint16 Height() const;
 	uint16 Size() const;
 	
-	TileMap *TileMapForTile(int32 i);
+	TileMap *TileMapForTileCell(int32 i);
 	void PrintTileMaps();
 
 private:

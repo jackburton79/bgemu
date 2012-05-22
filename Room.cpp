@@ -30,7 +30,7 @@ Room::Room()
 	fHeightMap(NULL),
 	fNumOverlays(0),
 	fOverlays(NULL),
-	fTiles(NULL),
+	fTileCells(NULL),
 	fAnimations(NULL),
 	fActors(NULL),
 	fDrawOverlays(false),
@@ -49,7 +49,7 @@ Room::~Room()
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
 	delete[] fOverlays;
-	delete[] fTiles;
+	delete[] fTileCells;
 	delete[] fAnimations;
 	delete[] fActors;
 	gResManager->ReleaseResource(fWed);
@@ -78,7 +78,7 @@ Room::Load(const char *resName)
 	//gResManager->ReleaseResource(bcs);
 
 	_LoadOverlays();
-	_LoadTiles();
+	_InitTileCells();
 
 	BMPResource *bmp = gResManager->GetBMP(
 			ResourceManager::HeightMapName(fName).c_str());
@@ -167,7 +167,7 @@ Room::Clicked(uint16 x, uint16 y)
 
 	const uint16 tileNum = TileNumberForPoint(x, y);
 	printf("tileNum: %d\n", tileNum);
-	fTiles[tileNum]->Clicked();
+	fTileCells[tileNum]->Clicked();
 }
 
 
@@ -178,7 +178,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	y += fVisibleArea.y;
 	const uint16 tileNum = TileNumberForPoint(x, y);
 	//printf("%d %d (%d)\n", x, y, tileNum);
-	fTiles[tileNum]->MouseOver();
+	fTileCells[tileNum]->MouseOver();
 }
 
 
@@ -256,7 +256,7 @@ Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
 			tileRect.x = x * TILE_WIDTH;
 			const uint32 tileNum = y * overlayWidth + x;
 			SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
-			fTiles[tileNum]->Draw(surface, &rect, fDrawOverlays);
+			fTileCells[tileNum]->Draw(surface, &rect, fDrawOverlays);
 		}
 	}
 }
@@ -365,14 +365,14 @@ Room::_LoadOverlays()
 
 
 void
-Room::_LoadTiles()
+Room::_InitTileCells()
 {
 	uint32 numTiles = fOverlays[0]->Size();
-	fTiles = new TileCell*[numTiles];
+	fTileCells = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTiles[i] = new TileCell(i);
+		fTileCells[i] = new TileCell(i);
 		for (uint32 o = 0; o < fNumOverlays; o++)
-			fTiles[i]->AddTileMap(fOverlays[o]->TileMapForTile(i));
+			fTileCells[i]->SetTileMap(fOverlays[o]->TileMapForTileCell(i), o);
 	}
 }
 
@@ -400,7 +400,7 @@ Room::_InitActors()
 void
 Room::_InitDoors()
 {
-	assert(fTiles != NULL);
+	assert(fTileCells != NULL);
 
 	uint32 numDoors = fWed->CountDoors();
 	fDoors = new Door*[numDoors];
@@ -408,7 +408,7 @@ Room::_InitDoors()
 		Door *door = fWed->GetDoor(c);
 		fDoors[c] = door;
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
-			fTiles[door->fTilesOpen[i]]->SetDoor(door);
+			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
 	}
 }
@@ -464,9 +464,6 @@ Room::_ExecuteScript(Script *script)
 			cond = responseSet->Next();
 		}
 	} while ((condRes = condRes->Next()) != NULL);
-
-
-
 }
 
 

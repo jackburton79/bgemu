@@ -51,7 +51,7 @@ private:
 	void _DrawActors(SDL_Surface *surface, SDL_Rect area);
 
 	void _LoadOverlays();
-	void _LoadTiles();
+	void _InitTileCells();
 	void _InitAnimations();
 	void _InitActors();
 	void _InitDoors();
@@ -71,7 +71,7 @@ private:
 
 	uint32 fNumOverlays;
 	MapOverlay **fOverlays;
-	TileCell **fTiles;
+	TileCell **fTileCells;
 
 	Animation **fAnimations;
 	Actor **fActors;

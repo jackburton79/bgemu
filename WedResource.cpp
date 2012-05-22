@@ -39,7 +39,6 @@ struct tilemap {
 
 
 
-
 WEDResource::WEDResource(const res_ref &name)
 	:
 	Resource(name, RES_WED),
@@ -183,7 +182,6 @@ WEDResource::GetDoor(uint32 index)
 		fData->Read(tileIndex);
 		newDoor->fTilesOpen.push_back(tileIndex);
 	}
-	printf("\n");
 
 	return newDoor;
 }
@@ -320,13 +318,10 @@ MapOverlay::Size() const
 
 
 TileMap *
-MapOverlay::TileMapForTile(int32 i)
+MapOverlay::TileMapForTileCell(int32 i)
 {
-	// TODO: handle this more correctly
-	if (i >= fWidth * fHeight) {
-		printf("requested tile %d, max %d\n", i, Size());
-		i = (fWidth * fHeight) - 1;
-	}
+	if (i >= fWidth * fHeight)
+		return NULL;
 
 	return &fTileMaps[i];
 }

@@ -39,7 +39,7 @@ public:
 	TileCell(uint32 index);
 	void Draw(SDL_Surface *surface, SDL_Rect *rect, bool full = false);
 
-	void AddTileMap(TileMap *map);
+	void SetTileMap(TileMap *map, int overlayNum);
 	void SetDoor(Door *d);
 
 	::Door *Door() const;
