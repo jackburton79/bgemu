@@ -12,7 +12,7 @@ public:
 	
 	bool Load(Archive *archive, uint32 key);
 
-	SDL_Surface *TileCellAt(int index);
+	SDL_Surface *TileAt(int index);
 
 private:
 	void _Init();

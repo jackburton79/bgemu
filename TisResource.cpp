@@ -37,10 +37,10 @@ TISResource::Load(Archive *archive, uint32 key)
 
 
 SDL_Surface *
-TISResource::TileCellAt(int index)
+TISResource::TileAt(int index)
 {
 	if (index < 0)
-		throw -1;
+		return NULL;
 
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
@@ -62,7 +62,6 @@ TISResource::TileCellAt(int index)
 			uint8 pixel = fData->ReadByte();
 			*pixels++ = pixel;
 		}
-
 		SDL_UnlockSurface(surface);
 		SDL_SetColors(surface, palette, 0, 256);
 

@@ -111,16 +111,7 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverl
         mapOverlay->fTileMaps[x].AddTileIndex(tisIndex);
     }
 
-    if (tileMap.secondary_tile_index == -1) {
-    	mapOverlay->fTileMaps[x].SetSecondaryTileIndex(-1);
-    	return;
-    }
-
-    const int32 secondaryOffset = overlay.tile_lookup_offset
-    		+ (tileMap.secondary_tile_index * sizeof(int16));
-    int16 tisIndex;
-    fData->ReadAt(secondaryOffset, tisIndex);
-    mapOverlay->fTileMaps[x].SetSecondaryTileIndex(tisIndex);
+    mapOverlay->fTileMaps[x].SetSecondaryTileIndex(tileMap.secondary_tile_index);
 }
 
 

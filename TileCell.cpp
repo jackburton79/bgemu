@@ -59,7 +59,7 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			index = map->TileIndex();
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
-		SDL_Surface *cell = tis->TileCellAt(index);
+		SDL_Surface *cell = tis->TileAt(index);
 		if (cell == NULL) {
 			// TODO: Fix this. Shouldn't request an invalid cell
 			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
@@ -75,8 +75,6 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		_DrawOverlay(surface, cell, *rect, color);
 
 		SDL_FreeSurface(cell);
-
-
 	}
 }
 
