@@ -4,6 +4,8 @@
 #include "SDL.h"
 #include "IETypes.h"
 
+#include <vector>
+
 struct action;
 struct trigger;
 
@@ -39,6 +41,8 @@ public:
 	void DrawTile(const int16 tileNum, SDL_Surface *surface,
 						SDL_Rect tileRect, bool withOverlays);
 
+	void DumpOverlays(const char *path);
+
 private:
 	void _DrawBaseMap(SDL_Surface *surface, SDL_Rect area);
 	void _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
@@ -70,7 +74,7 @@ private:
 	SDL_Surface *fHeightMap;
 
 	uint32 fNumOverlays;
-	MapOverlay **fOverlays;
+	MapOverlay** fOverlays;
 	TileCell **fTileCells;
 
 	Animation **fAnimations;
@@ -86,5 +90,6 @@ private:
 	bool fDrawAnimations;
 
 };
+
 
 #endif

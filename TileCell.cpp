@@ -6,11 +6,14 @@
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
 
-TileCell::TileCell(uint32 number)
+static SDL_Color sTransparentColor = { 0, 255, 0 };
+
+TileCell::TileCell(uint32 number, MapOverlay** overlays)
 	:
-	fDoor(NULL)
+	fNumber(number),
+	fDoor(NULL),
+	fOverlays(overlays)
 {
-	fTileMap.reserve(8);
 }
 
 
@@ -30,29 +33,29 @@ _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 void
 TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 {
-	int maxOverlay = full ? kNumOverlays : 1;
-
-	SDL_Color trans = { 0, 255, 0 };
+	int maxOverlay = full ? fOverlays.size() : 1;
+	//int maxOverlay = 1;
 	for (int i = maxOverlay - 1; i >= 0; i--) {
-	    // Check if this overlay needs to be drawn
-	    if (i != 0 && (fTileMap[0]->Mask() & (1 << i)) == 0)
+		// Check if this overlay needs to be drawn
+	    if (i != 0 && (fOverlays[0]->TileMapForTileCell(fNumber)->Mask() & (1 << i)) == 0)
 	    	continue;
-	    bool closed = false;
-		::TileMap *map = fTileMap[i];
+	    MapOverlay *overlay = fOverlays[i];
+		TileMap *map = overlay->TileMapForTileCell(fNumber);
 		if (map == NULL)
 			continue;
+
+		bool closed = false;
 		int16 index;
 		if (fDoor != NULL && !fDoor->Opened()) {
 			closed = true;
+			//index = map->SecondaryTileIndex();
 			index = map->SecondaryTileIndex();
 			if (index == -1)
 				throw "suckerpunch index -1";
+			printf("index: %d\n", index);
 		} else
 			index = map->TileIndex();
 
-		MapOverlay *overlay = map->Overlay();
-		if (overlay == NULL)
-			throw "NULL Overlay";
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
 		SDL_Surface *cell = tis->TileCellAt(index);
 		if (cell == NULL) {
@@ -62,8 +65,8 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		}
 		gResManager->ReleaseResource(tis);
 		SDL_Color *color = NULL;
-		if (i == 0 && fTileMap[0]->Mask() != 0) {
-			color = &trans;
+		if (i == 0 && fOverlays[0]->TileMapForTileCell(fNumber)->Mask() != 0) {
+			color = &sTransparentColor;
 			//color = &cell->format->palette->colors[255];
 		}
 
@@ -75,12 +78,12 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 	}
 }
 
-
+/*
 void
 TileCell::SetTileMap(TileMap *map, int overlayNum)
 {
 	fTileMap[overlayNum] = map;
-}
+}*/
 
 
 Door *
@@ -111,14 +114,6 @@ TileCell::MouseOver()
 
 }
 
-
-/*
-TileMap *
-Tile::TileMap() const
-{
-	return fTileMap;
-}
-*/
 
 // TileMap
 TileMap::TileMap()
@@ -170,18 +165,4 @@ uint8
 TileMap::Mask() const
 {
 	return fMask;
-}
-
-
-void
-TileMap::SetOverlay(MapOverlay *overlay)
-{
-	fOverlay = overlay;
-}
-
-
-MapOverlay *
-TileMap::Overlay() const
-{
-	return fOverlay;
 }

@@ -21,6 +21,8 @@
 #include <assert.h>
 #include <iostream>
 
+std::vector<MapOverlay*> *gOverlays = NULL;
+
 Room::Room()
 	:
 	fWed(NULL),
@@ -48,7 +50,6 @@ Room::~Room()
 	SDL_FreeSurface(fLightMap);
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
-	delete[] fOverlays;
 	delete[] fTileCells;
 	delete[] fAnimations;
 	delete[] fActors;
@@ -237,6 +238,57 @@ Room::ToggleAnimations()
 
 
 void
+Room::DumpOverlays(const char* path)
+{
+	// TODO: Code duplication with _DrawBaseMap().
+	// Make it safe to be called from here.
+	const bool wasDrawingOverlays = fDrawOverlays;
+
+	for (int overlayNum = 0; overlayNum < fNumOverlays; overlayNum++) {
+		MapOverlay *overlay = fOverlays[overlayNum];
+		if (overlay->Width() == 0 || overlay->Height() == 0)
+			continue;
+
+		MapOverlay** overlays = &overlay;
+
+		char fileName[32];
+		snprintf(fileName, 32, "overlay%d.bmp", overlayNum);
+		TPath destPath(path, fileName);
+		SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
+				overlay->Width() * TILE_WIDTH, overlay->Height() * TILE_HEIGHT, 24, 0, 0, 0, 0);
+
+		SDL_Rect area;
+		area.x = area.y = 0;
+		area.w = surface->w;
+		area.h = surface->h;
+
+		const uint16 firstTileX = area.x / TILE_WIDTH;
+		const uint16 firstTileY = area.y / TILE_HEIGHT;
+		uint16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
+		uint16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
+
+		lastTileX = std::min(lastTileX, overlay->Width());
+		lastTileY = std::min(lastTileY, overlay->Height());
+
+		SDL_Rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
+		for (uint16 y = firstTileY; y < lastTileY; y++) {
+			tileRect.y = y * TILE_HEIGHT;
+			for (uint16 x = firstTileX; x < lastTileX; x++) {
+				tileRect.x = x * TILE_WIDTH;
+				const uint32 tileNum = y * overlay->Width() + x;
+				SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
+				TileCell cell(tileNum, overlays);
+				cell.Draw(surface, &rect, false);
+			}
+		}
+		SDL_SaveBMP(surface, destPath.Path());
+		SDL_FreeSurface(surface);
+	}
+	fDrawOverlays = wasDrawingOverlays;
+}
+
+
+void
 Room::_DrawBaseMap(SDL_Surface *surface, SDL_Rect area)
 {
 	MapOverlay *overlay = fOverlays[0];
@@ -360,7 +412,6 @@ Room::_LoadOverlays()
 	fOverlays = new MapOverlay*[fNumOverlays];
 	for (uint32 i = 0; i < fNumOverlays; i++)
 		fOverlays[i] = fWed->GetOverlay(i);
-
 }
 
 
@@ -370,9 +421,7 @@ Room::_InitTileCells()
 	uint32 numTiles = fOverlays[0]->Size();
 	fTileCells = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells[i] = new TileCell(i);
-		for (uint32 o = 0; o < fNumOverlays; o++)
-			fTileCells[i]->SetTileMap(fOverlays[o]->TileMapForTileCell(i), o);
+		fTileCells[i] = new TileCell(i, fOverlays);
 	}
 }
 

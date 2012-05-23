@@ -8,8 +8,6 @@
 
 #include <map>
 
-const static int kNumOverlays = 7;
-
 struct tilemap;
 class TileMap;
 class WEDResource;

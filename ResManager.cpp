@@ -283,30 +283,30 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 {
 	TPath pathName(fResourcesPath);
 
-	printf("(0x%x)", GET_CD(location));
+	//printf("(0x%x)", GET_CD(location));
 
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
 			printf("\tshould check in override\n");
 		switch (GET_CD(location)) {
 			case LOC_CD1:
-				printf("CD1\n");
+				//printf("CD1\n");
 				pathName.Append("CD1/");
 				break;
 			case LOC_CD2:
-				printf("CD2\n");
+				//printf("CD2\n");
 				pathName.Append("CD2/");
 				break;
 			case LOC_CD3:
-				printf("CD3\n");
+				//printf("CD3\n");
 				pathName.Append("CD3/");
 				break;
 			case LOC_CD4:
-				printf("CD4\n");
+				//printf("CD4\n");
 				pathName.Append("CD4/");
 				break;
 			case LOC_CD5:
-				printf("CD5\n");
+				//printf("CD5\n");
 				pathName.Append("CD5/");
 				break;
 			default:

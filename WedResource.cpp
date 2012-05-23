@@ -100,7 +100,7 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverl
     tilemap tileMap;
     fData->ReadAt(mapOffset, tileMap);
     mapOverlay->fTileMaps[x].SetMask(tileMap.mask);
-    mapOverlay->fTileMaps[x].SetOverlay(mapOverlay);
+
     const int32 indexCount = tileMap.primary_tile_count;
     const int32 offset = overlay.tile_lookup_offset
     		+ (tileMap.primary_tile_index * sizeof(uint16));

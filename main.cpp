@@ -10,17 +10,17 @@
 #include <SDL.h>
 
 static int sList = 0;
+static const char *sPath = "../BG";
+static const char *sRoomName = NULL;
+static int sDumpOverlays = 0;
 
 static
 struct option sLongOptions[] = {
 		{ "list", no_argument, &sList, 1 },
+		{ "dump_overlays", no_argument, &sDumpOverlays, 0 },
 		{ "path", required_argument, 0, 'p'},
 		{ 0, 0, 0, 0 }
 };
-
-
-static const char *sPath = "../BG";
-static const char *sRoomName = NULL;
 
 
 void
@@ -28,7 +28,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "p:l",
+	while ((c = getopt_long(argc, argv, "dp:l",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'l':
@@ -36,13 +36,16 @@ ParseArgs(int argc, char **argv)
 			case 'p':
 				sPath = optarg;
 				break;
+			case 'd':
+				sDumpOverlays = 1;
+				break;
 			default:
 				break;
 		}
 	}
 
 	if (optIndex < argc)
-		sRoomName = argv[optIndex + 1];
+		sRoomName = argv[argc - 1];
 }
 
 
@@ -77,6 +80,8 @@ main(int argc, char **argv)
 	World world;
 	world.EnterArea(sRoomName);
 	Room *map = world.CurrentArea();
+	if (sDumpOverlays)
+		map->DumpOverlays("/home/stefano/dumps");
 	SDL_Rect rect = { 0, 0, screen->w, screen->h };
 	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
@@ -146,7 +151,7 @@ main(int argc, char **argv)
 				}
 			}
 			map->Draw(screen);
-			SDL_Delay(200);
+			SDL_Delay(100);
 		}
 
 		SDL_FreeSurface(screen);
