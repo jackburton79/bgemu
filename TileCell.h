@@ -32,7 +32,7 @@ private:
 
 class TileCell {
 public:
-	TileCell(uint32 index, MapOverlay** overlays);
+	TileCell(uint32 index, MapOverlay** overlays, int numOverlays);
 	void Draw(SDL_Surface *surface, SDL_Rect *rect, bool full = false);
 
 	void SetDoor(Door *d);
@@ -45,6 +45,7 @@ private:
 	uint32 fNumber;
 	::Door *fDoor;
 	MapOverlay** fOverlays;
+	int fNumOverlays;
 };
 
 

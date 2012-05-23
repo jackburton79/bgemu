@@ -33,8 +33,6 @@ Room::Room()
 	fNumOverlays(0),
 	fOverlays(NULL),
 	fTileCells(NULL),
-	fAnimations(NULL),
-	fActors(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
 	fDrawLightMap(false),
@@ -51,8 +49,7 @@ Room::~Room()
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
 	delete[] fTileCells;
-	delete[] fAnimations;
-	delete[] fActors;
+	delete[] fOverlays;
 	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fArea);
 }
@@ -277,7 +274,7 @@ Room::DumpOverlays(const char* path)
 				tileRect.x = x * TILE_WIDTH;
 				const uint32 tileNum = y * overlay->Width() + x;
 				SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
-				TileCell cell(tileNum, overlays);
+				TileCell cell(tileNum, overlays, 1);
 				cell.Draw(surface, &rect, false);
 			}
 		}
@@ -359,7 +356,7 @@ Room::_DrawHeightMap(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 {
-	if (fAnimations == NULL)
+	if (fAnimations.size() == 0)
 		return;
 
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
@@ -392,9 +389,6 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 {
-	if (fActors == NULL)
-		return;
-
 	for (uint16 a = 0; a < fArea->CountActors(); a++) {
 		try {
 			fActors[a]->Draw(surface, area);
@@ -421,7 +415,7 @@ Room::_InitTileCells()
 	uint32 numTiles = fOverlays[0]->Size();
 	fTileCells = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells[i] = new TileCell(i, fOverlays);
+		fTileCells[i] = new TileCell(i, fOverlays, fNumOverlays);
 	}
 }
 
@@ -429,20 +423,18 @@ Room::_InitTileCells()
 void
 Room::_InitAnimations()
 {
-	fAnimations = new Animation*[fArea->CountAnimations()];
-	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
-		fAnimations[i] = new Animation(fArea->AnimationAt(i));
-	}
+	for (uint32 i = 0; i < fArea->CountAnimations(); i++)
+		fAnimations.push_back(new Animation(fArea->AnimationAt(i)));
 }
 
 
 void
 Room::_InitActors()
 {
-	/*fActors = new Actor*[fArea->CountActors()];
+	///*fActors = new Actor*[fArea->CountActors()];
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		fActors[i] = new Actor(*fArea->ActorAt(i));
-	}*/
+		fActors.push_back(new Actor(*fArea->ActorAt(i)));
+	}
 }
 
 
@@ -452,10 +444,9 @@ Room::_InitDoors()
 	assert(fTileCells != NULL);
 
 	uint32 numDoors = fWed->CountDoors();
-	fDoors = new Door*[numDoors];
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = fWed->GetDoor(c);
-		fDoors[c] = door;
+		fDoors.push_back(door);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}

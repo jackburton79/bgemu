@@ -8,11 +8,12 @@
 
 static SDL_Color sTransparentColor = { 0, 255, 0 };
 
-TileCell::TileCell(uint32 number, MapOverlay** overlays)
+TileCell::TileCell(uint32 number, MapOverlay** overlays, int numOverlays)
 	:
 	fNumber(number),
 	fDoor(NULL),
-	fOverlays(overlays)
+	fOverlays(overlays),
+	fNumOverlays(numOverlays)
 {
 }
 
@@ -33,8 +34,8 @@ _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
 void
 TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 {
-	int maxOverlay = full ? fOverlays.size() : 1;
-	//int maxOverlay = 1;
+	int maxOverlay = full ? fNumOverlays : 1;
+
 	for (int i = maxOverlay - 1; i >= 0; i--) {
 		// Check if this overlay needs to be drawn
 	    if (i != 0 && (fOverlays[0]->TileMapForTileCell(fNumber)->Mask() & (1 << i)) == 0)
@@ -48,6 +49,7 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		int16 index;
 		if (fDoor != NULL && !fDoor->Opened()) {
 			closed = true;
+
 			//index = map->SecondaryTileIndex();
 			index = map->SecondaryTileIndex();
 			if (index == -1)

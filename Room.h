@@ -77,9 +77,9 @@ private:
 	MapOverlay** fOverlays;
 	TileCell **fTileCells;
 
-	Animation **fAnimations;
-	Actor **fActors;
-	Door **fDoors;
+	std::vector<Animation*> fAnimations;
+	std::vector<Actor*> fActors;
+	std::vector<Door*> fDoors;
 	Script *fScript;
 
 	bool fDrawOverlays;
