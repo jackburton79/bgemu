@@ -31,7 +31,7 @@ Room::Room()
 	fSearchMap(NULL),
 	fHeightMap(NULL),
 	fNumOverlays(0),
-	fOverlays(NULL),
+	//fOverlays(NULL),
 	fTileCells(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
@@ -49,7 +49,7 @@ Room::~Room()
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
 	delete[] fTileCells;
-	delete[] fOverlays;
+	//delete[] fOverlays;
 	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fArea);
 }
@@ -403,9 +403,11 @@ void
 Room::_LoadOverlays()
 {
 	fNumOverlays = fWed->CountOverlays();
-	fOverlays = new MapOverlay*[fNumOverlays];
-	for (uint32 i = 0; i < fNumOverlays; i++)
-		fOverlays[i] = fWed->GetOverlay(i);
+	//fOverlays = new MapOverlay*[fNumOverlays];
+	for (uint32 i = 0; i < fNumOverlays; i++) {
+		MapOverlay *overlay = fWed->GetOverlay(i);
+		fOverlays.push_back(overlay);
+	}
 }
 
 
@@ -415,7 +417,7 @@ Room::_InitTileCells()
 	uint32 numTiles = fOverlays[0]->Size();
 	fTileCells = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells[i] = new TileCell(i, fOverlays, fNumOverlays);
+		fTileCells[i] = new TileCell(i, fOverlays.data(), fNumOverlays);
 	}
 }
 

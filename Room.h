@@ -74,7 +74,7 @@ private:
 	SDL_Surface *fHeightMap;
 
 	uint32 fNumOverlays;
-	MapOverlay** fOverlays;
+	std::vector<MapOverlay*> fOverlays;
 	TileCell **fTileCells;
 
 	std::vector<Animation*> fAnimations;
