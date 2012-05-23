@@ -20,7 +20,7 @@ struct option sLongOptions[] = {
 
 
 static const char *sPath = "../BG";
-static const char *sRoom = NULL;
+static const char *sRoomName = NULL;
 
 
 void
@@ -42,7 +42,7 @@ ParseArgs(int argc, char **argv)
 	}
 
 	if (optIndex < argc)
-		sRoom = argv[optIndex + 1];
+		sRoomName = argv[optIndex + 1];
 }
 
 
@@ -65,17 +65,17 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	if (sRoom == NULL) {
+	if (sRoomName == NULL) {
 		printf("No room name specified. Exiting...\n");
 		return 0;
 	}
 
 	SDL_Init(SDL_INIT_VIDEO);
 	SDL_Surface *screen = SDL_SetVideoMode(1100, 700, 16, 0);
-	SDL_WM_SetCaption(sRoom, NULL);
+	SDL_WM_SetCaption(sRoomName, NULL);
 
 	World world;
-	world.EnterArea(sRoom);
+	world.EnterArea(sRoomName);
 	Room *map = world.CurrentArea();
 	SDL_Rect rect = { 0, 0, screen->w, screen->h };
 	map->SetViewPort(rect);

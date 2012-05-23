@@ -13,11 +13,11 @@ class TileMap {
 public:
 	TileMap();
 
-	void AddTileIndex(uint16 index);
-	uint16 TileIndex();
+	void AddTileIndex(int16 index);
+	int16 TileIndex();
 
-	void SetSecondaryTileIndex(uint16 index);
-	uint16 SecondaryTileIndex() const;
+	void SetSecondaryTileIndex(int16 index);
+	int16 SecondaryTileIndex() const;
 
 	uint8 Mask() const;
 	void SetMask(uint8 mask);
@@ -36,7 +36,7 @@ private:
 
 class TileCell {
 public:
-	TileCell(uint32 index);
+	TileCell(uint32 index, );
 	void Draw(SDL_Surface *surface, SDL_Rect *rect, bool full = false);
 
 	void SetTileMap(TileMap *map, int overlayNum);

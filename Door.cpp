@@ -11,7 +11,7 @@ Door::Door(door_wed *door)
 void
 Door::Toggle()
 {
-	printf("door %s toggled\n", fDoor.name);
+	//printf("door %s toggled\n", fDoor.name);
 
 /*	bool wasOpen = fDoor->flags & DOOR_OPEN;
 

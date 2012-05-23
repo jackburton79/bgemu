@@ -39,11 +39,14 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 	    	continue;
 	    bool closed = false;
 		::TileMap *map = fTileMap[i];
-
-		uint16 index;
+		if (map == NULL)
+			continue;
+		int16 index;
 		if (fDoor != NULL && !fDoor->Opened()) {
 			closed = true;
 			index = map->SecondaryTileIndex();
+			if (index == -1)
+				throw "suckerpunch index -1";
 		} else
 			index = map->TileIndex();
 
@@ -52,23 +55,23 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			throw "NULL Overlay";
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
 		SDL_Surface *cell = tis->TileCellAt(index);
-		/*if (cell == NULL) {
+		if (cell == NULL) {
 			// TODO: Fix this. Shouldn't request an invalid cell
 			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
 			SDL_FillRect(cell, NULL, 3000);
-		}*/
+		}
+		gResManager->ReleaseResource(tis);
 		SDL_Color *color = NULL;
 		if (i == 0 && fTileMap[0]->Mask() != 0) {
 			color = &trans;
 			//color = &cell->format->palette->colors[255];
 		}
-		/*if (closed)
-			SDL_FillRect(cell, NULL, 3000);*/
+
 		_DrawOverlay(surface, cell, *rect, color);
 
 		SDL_FreeSurface(cell);
 
-		gResManager->ReleaseResource(tis);
+
 	}
 }
 
@@ -120,22 +123,22 @@ Tile::TileMap() const
 // TileMap
 TileMap::TileMap()
 	:
-	fSecondaryIndex(0)
+	fSecondaryIndex(-1)
 {
 }
 
 
 void
-TileMap::AddTileIndex(uint16 index)
+TileMap::AddTileIndex(int16 index)
 {
 	fIndices.push_back(index);
 }
 
 
-uint16
+int16
 TileMap::TileIndex()
 {
-	uint16 index = fIndices[fCurrentIndex];
+	int16 index = fIndices[fCurrentIndex];
 	if (++fCurrentIndex >= fIndices.size())
 		fCurrentIndex = 0;
 	return index;
@@ -143,13 +146,13 @@ TileMap::TileIndex()
 
 
 void
-TileMap::SetSecondaryTileIndex(uint16 index)
+TileMap::SetSecondaryTileIndex(int16 index)
 {
 	fSecondaryIndex = index;
 }
 
 
-uint16
+int16
 TileMap::SecondaryTileIndex() const
 {
 	return fSecondaryIndex;

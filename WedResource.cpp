@@ -102,14 +102,23 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverl
     mapOverlay->fTileMaps[x].SetMask(tileMap.mask);
     mapOverlay->fTileMaps[x].SetOverlay(mapOverlay);
     const int32 indexCount = tileMap.primary_tile_count;
-    const int32 offset = overlay.tile_lookup_offset + (tileMap.primary_tile_index * sizeof(uint16));
-    int16 tisIndex;
-    for (int32 c = 0;c < indexCount;c++) {
-        fData->ReadAt(offset + c * sizeof(int16), tisIndex);
+    const int32 offset = overlay.tile_lookup_offset
+    		+ (tileMap.primary_tile_index * sizeof(uint16));
+
+    for (int32 c = 0; c < indexCount; c++) {
+    	int16 tisIndex;
+    	fData->ReadAt(offset + c * sizeof(int16), tisIndex);
         mapOverlay->fTileMaps[x].AddTileIndex(tisIndex);
     }
 
-    const int32 secondaryOffset = overlay.tile_lookup_offset + (tileMap.secondary_tile_index * sizeof(uint16));
+    if (tileMap.secondary_tile_index == -1) {
+    	mapOverlay->fTileMaps[x].SetSecondaryTileIndex(-1);
+    	return;
+    }
+
+    const int32 secondaryOffset = overlay.tile_lookup_offset
+    		+ (tileMap.secondary_tile_index * sizeof(int16));
+    int16 tisIndex;
     fData->ReadAt(secondaryOffset, tisIndex);
     mapOverlay->fTileMaps[x].SetSecondaryTileIndex(tisIndex);
 }
@@ -172,7 +181,7 @@ WEDResource::GetDoor(uint32 index)
 
 	door_wed wedDoor;
 	fData->Read(wedDoor);
-	wedDoor.Print();
+	//wedDoor.Print();
 
 	Door *newDoor = new Door(&wedDoor);
 	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
@@ -320,6 +329,8 @@ TileMap *
 MapOverlay::TileMapForTileCell(int32 i)
 {
 	if (i >= fWidth * fHeight) {
+		// TODO: We should return NULL here. Why it only works
+		// if we do this ?!?!
 		i = Size() - 1;
 		//return NULL;
 	}
