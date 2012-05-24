@@ -194,7 +194,7 @@ ARAResource *
 ResourceManager::GetARA(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_ARA);
-	assert(dynamic_cast<ARAResource *>(resource));
+	//assert(dynamic_cast<ARAResource *>(resource));
 
 	return static_cast<ARAResource *>(resource);
 }
@@ -204,7 +204,7 @@ BAMResource *
 ResourceManager::GetBAM(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BAM);
-	assert(dynamic_cast<BAMResource *>(resource));
+	//assert(dynamic_cast<BAMResource *>(resource));
 	
 	return static_cast<BAMResource *>(resource);
 }
@@ -214,7 +214,7 @@ BMPResource *
 ResourceManager::GetBMP(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BMP);
-	assert(dynamic_cast<BMPResource *>(resource));
+	//assert(dynamic_cast<BMPResource *>(resource));
 
 	return static_cast<BMPResource *>(resource);
 }
@@ -224,7 +224,7 @@ BCSResource *
 ResourceManager::GetBCS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BCS);
-	assert(dynamic_cast<BCSResource *>(resource));
+	//assert(dynamic_cast<BCSResource *>(resource));
 
 	return static_cast<BCSResource *>(resource);
 }
@@ -234,7 +234,7 @@ CREResource *
 ResourceManager::GetCRE(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_CRE);
-	assert(dynamic_cast<CREResource *>(resource));
+	//assert(dynamic_cast<CREResource *>(resource));
 
 	return static_cast<CREResource *>(resource);
 }
@@ -244,7 +244,7 @@ IDSResource *
 ResourceManager::GetIDS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_IDS);
-	assert(dynamic_cast<IDSResource *>(resource));
+	//assert(dynamic_cast<IDSResource *>(resource));
 
 	return static_cast<IDSResource *>(resource);
 }
@@ -254,7 +254,7 @@ TISResource *
 ResourceManager::GetTIS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_TIS);
-	assert(dynamic_cast<TISResource *>(resource));
+	//assert(dynamic_cast<TISResource *>(resource));
 	
 	return static_cast<TISResource *>(resource);
 }
@@ -264,7 +264,7 @@ WEDResource *
 ResourceManager::GetWED(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_WED);
-	assert(dynamic_cast<WEDResource *>(resource));
+	//assert(dynamic_cast<WEDResource *>(resource));
 
 	return static_cast<WEDResource *>(resource);
 }
@@ -288,32 +288,22 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
 			printf("\tshould check in override\n");
-		switch (GET_CD(location)) {
-			case LOC_CD1:
-				//printf("CD1\n");
-				pathName.Append("CD1/");
-				break;
-			case LOC_CD2:
-				//printf("CD2\n");
-				pathName.Append("CD2/");
-				break;
-			case LOC_CD3:
-				//printf("CD3\n");
-				pathName.Append("CD3/");
-				break;
-			case LOC_CD4:
-				//printf("CD4\n");
-				pathName.Append("CD4/");
-				break;
-			case LOC_CD5:
-				//printf("CD5\n");
-				pathName.Append("CD5/");
-				break;
-			default:
-				break;
-		}
+		// TODO: this represents the LIST of cd where we can find the resource.
+		// some resources exist on many cds.
+		uint32 cd = GET_CD(location);
+		if (cd & LOC_CD1)
+			pathName.Append("CD1/");
+		else if (cd & LOC_CD2)
+			pathName.Append("CD2/");
+		else if (cd & LOC_CD3)
+			pathName.Append("CD3/");
+		else if (cd & LOC_CD4)
+			pathName.Append("CD4/");
+		else if (cd & LOC_CD5)
+			pathName.Append("CD5/");
 	}
 
+	printf("CD: 0x%x\n", GET_CD(location));
 	pathName.Append(name.c_str());
 
 	return pathName.Path();
@@ -325,6 +315,8 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 {
 	printf("ResourceManager::LoadResource(%s, %s)...",
 		(const char *)entry.name, strresource(entry.type));
+
+	// TODO: Try the override directory
 
 	const int bifIndex = RES_BIF_INDEX(entry.key);
 	const uint16 location = fBifs[bifIndex]->location;
