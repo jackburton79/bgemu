@@ -19,9 +19,9 @@ Animation::Animation(animation *animDesc)
 	fHold = animDesc->flags & ANIM_HOLD;
 	fBlackAsTransparent = animDesc->flags & ANIM_SHADED;
 	fMirrored = animDesc->flags & ANIM_MIRRORED;
-	printf("%s: %s\n", (const char*)animDesc->bam_name, fBlackAsTransparent ? "transparent": "black");
+	//printf("%s: %s\n", (const char*)animDesc->bam_name, fBlackAsTransparent ? "transparent": "black");
 	//printf("palette: %s\n", (const char *)animDesc->palette);
-	printf("transparency: %d\n", animDesc->transparency);
+	//printf("transparency: %d\n", animDesc->transparency);
 }
 
 
@@ -35,9 +35,7 @@ Animation::Animation(Actor *actor)
 	fMirrored(false)
 {
 	fBAM = gResManager->GetBAM(Actor::AnimationFor(*actor));
-	fCycleNumber = actor->Orientation();
-	if (fCycleNumber > 4)
-		fCycleNumber = 4;
+	fCycleNumber = actor->Orientation() % 4;
 
 	fCenter = actor->Position();
 	fCurrentFrame = 0;

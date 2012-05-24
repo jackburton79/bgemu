@@ -6,9 +6,6 @@
 
 #include <vector>
 
-struct action;
-struct trigger;
-
 class Actor;
 class Animation;
 class ARAResource;
@@ -60,29 +57,24 @@ private:
 	void _InitAnimations();
 	void _InitActors();
 	void _InitDoors();
-	void _ExecuteScript(Script* script);
-	bool _EvaluateTrigger(trigger* trig);
-	void _ExecuteAction(action* act);
 
 	res_ref fName;
 	SDL_Rect fVisibleArea;
 
 	WEDResource *fWed;
 	ARAResource *fArea;
+	BCSResource *fBcs;
 
 	SDL_Surface *fLightMap;
 	SDL_Surface *fSearchMap;
 	SDL_Surface *fHeightMap;
 
-	uint32 fNumOverlays;
 	std::vector<MapOverlay*> fOverlays;
-	TileCell **fTileCells;
+	std::vector<TileCell*> fTileCells;
 
-	//std::vector<variable> fVariables;
 	std::vector<Animation*> fAnimations;
 	std::vector<Actor*> fActors;
 	std::vector<Door*> fDoors;
-	Script *fScript;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

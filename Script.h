@@ -29,12 +29,15 @@ public:
 	node* RootNode();
 	node* FindNode(block_type type, node* start);
 
+	void SetProcessed();
+	bool Processed() const;
 private:
 	void _PrintNode(node* n) const;
 	node* _FindNode(block_type type, node* start);
 
 	node *fRootNode;
 	node *fCurrentNode;
+	bool fProcessed;
 };
 
 

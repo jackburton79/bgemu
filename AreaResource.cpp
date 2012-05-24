@@ -5,13 +5,6 @@
 #define AREA_SIGNATURE "AREA"
 #define AREA_VERSION_1 "V1.0"
 
-static void
-PrintActor(const ::actor &actor)
-{
-	printf("Actor %s:\n", actor.name);
-	printf("\tCRE: %s\n", (const char *)actor.cre);
-	printf("\tposition: (%d, %d)\n", actor.position.x, actor.position.y);
-}
 
 
 ARAResource::ARAResource(const res_ref& name)
@@ -88,6 +81,11 @@ ARAResource::CountDoors() const
 door *
 ARAResource::DoorAt(uint32 index)
 {
+	if (index > fNumDoors) {
+		printf("Requested wrong door.\n");
+		return NULL;
+	}
+
 	return &fDoors[index];
 }
 
@@ -147,6 +145,7 @@ ARAResource::CountVariables() const
 {
 	uint32 numVars = 0;
 	fData->ReadAt(0x8c, numVars);
+	printf("num vars: %d\n", numVars);
 	return numVars;
 }
 

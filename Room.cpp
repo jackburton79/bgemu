@@ -27,11 +27,10 @@ Room::Room()
 	:
 	fWed(NULL),
 	fArea(NULL),
+	fBcs(NULL),
 	fLightMap(NULL),
 	fSearchMap(NULL),
 	fHeightMap(NULL),
-	fNumOverlays(0),
-	fTileCells(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
 	fDrawLightMap(false),
@@ -47,10 +46,11 @@ Room::~Room()
 	SDL_FreeSurface(fLightMap);
 	SDL_FreeSurface(fSearchMap);
 	SDL_FreeSurface(fHeightMap);
-	delete[] fTileCells;
-	//delete[] fOverlays;
+
+	// TODO: Delete various tilecells, overlays, etc.
 	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fArea);
+	gResManager->ReleaseResource(fBcs);
 }
 
 
@@ -70,9 +70,9 @@ Room::Load(const char *resName)
 	fName = fArea->WedName();
 	fWed = gResManager->GetWED(fName);
 
-	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
-	fScript = bcs->GetScript();
-	//gResManager->ReleaseResource(bcs);
+	fBcs = gResManager->GetBCS(fArea->Script());
+	if (fBcs != NULL)
+		GetWorld()->AddScript(fBcs->GetScript());
 
 	_LoadOverlays();
 	_InitTileCells();
@@ -93,14 +93,10 @@ Room::Load(const char *resName)
 	fSearchMap = bmp->Image();
 	gResManager->ReleaseResource(bmp);
 
+	_InitVariables();
 	_InitAnimations();
 	_InitActors();
 	_InitDoors();
-
-	// Execute room script
-	// TODO: Move away from here.
-	// TODO: Is it correct here ?
-	//_ExecuteScript(fScript);
 
 	return true;
 }
@@ -239,7 +235,7 @@ Room::DumpOverlays(const char* path)
 	// Make it safe to be called from here.
 	const bool wasDrawingOverlays = fDrawOverlays;
 
-	for (int overlayNum = 0; overlayNum < fNumOverlays; overlayNum++) {
+	for (uint32 overlayNum = 0; overlayNum < fOverlays.size(); overlayNum++) {
 		MapOverlay *overlay = fOverlays[overlayNum];
 		if (overlay->Width() == 0 || overlay->Height() == 0)
 			continue;
@@ -400,8 +396,8 @@ Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_LoadOverlays()
 {
-	fNumOverlays = fWed->CountOverlays();
-	for (uint32 i = 0; i < fNumOverlays; i++) {
+	uint32 numOverlays = fWed->CountOverlays();
+	for (uint32 i = 0; i < numOverlays; i++) {
 		MapOverlay *overlay = fWed->GetOverlay(i);
 		fOverlays.push_back(overlay);
 	}
@@ -412,9 +408,8 @@ void
 Room::_InitTileCells()
 {
 	uint32 numTiles = fOverlays[0]->Size();
-	fTileCells = new TileCell*[numTiles];
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells[i] = new TileCell(i, fOverlays.data(), fNumOverlays);
+		fTileCells.push_back(new TileCell(i, fOverlays.data(), fOverlays.size()));
 	}
 }
 
@@ -422,11 +417,13 @@ Room::_InitTileCells()
 void
 Room::_InitVariables()
 {
-	//uint32 numVars = fArea->CountVariables();
-	//for (uint32 n = 0; n < numVars; n++) {
-		//variable var = fArea->VariableAt(n);
-		//fVariables.push_back(var);
-	//}
+	uint32 numVars = fArea->CountVariables();
+	World *world = GetWorld();
+	for (uint32 n = 0; n < numVars; n++) {
+		variable var = fArea->VariableAt(n);
+		world->SetVariable(var.name, var.value);
+		//var.Print();
+	}
 }
 
 
@@ -450,7 +447,7 @@ Room::_InitActors()
 void
 Room::_InitDoors()
 {
-	assert(fTileCells != NULL);
+	assert(fTileCells.size() > 0);
 
 	uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
@@ -462,74 +459,4 @@ Room::_InitDoors()
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
 	}
-}
-
-
-void
-Room::_ExecuteScript(Script *script)
-{
-	// for each CR block
-	// for each CO block
-	// check triggers
-	// if any trigger
-	// find response_set block
-	// choose response
-	// execute actions
-
-	::node* root = script->RootNode();
-	bool evaluation = true;
-	::node* condRes = fScript->FindNode(BLOCK_CONDITION_RESPONSE, root);
-	do {
-		::node* cond = fScript->FindNode(BLOCK_CONDITION, condRes);
-		::node* responseSet = cond->Next();
-		for (;;) {
-			if (cond == NULL)
-				break;
-
-			node* trig = fScript->FindNode(BLOCK_TRIGGER, cond);
-			for (;;) {
-				if (trig == NULL)
-					break;
-				evaluation = _EvaluateTrigger(static_cast<trigger*>(trig)) && evaluation;
-				if (!evaluation)
-					break;
-				trig = trig->Next();
-			}
-			// If no trigger were true, don't consider responses
-			if (!evaluation)
-				break;
-
-			responseSet = cond->Next();
-			if (responseSet == NULL)
-				break;
-			node* act = fScript->FindNode(BLOCK_ACTION, responseSet);
-			for (;;) {
-				if (act == NULL)
-					break;
-
-				_ExecuteAction(static_cast<action*>(act));
-
-				act = act->Next();
-			}
-
-			cond = responseSet->Next();
-		}
-	} while ((condRes = condRes->Next()) != NULL);
-}
-
-
-bool
-Room::_EvaluateTrigger(trigger* trig)
-{
-	trig->Print();
-	printf("%s\n", TriggerIDS()->ValueFor(trig->id));
-	return true;
-}
-
-
-void
-Room::_ExecuteAction(action* act)
-{
-	act->Print();
-	printf("%s\n", ActionIDS()->ValueFor(act->id));
 }

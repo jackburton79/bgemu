@@ -150,6 +150,7 @@ main(int argc, char **argv)
 						break;
 				}
 			}
+			world.CheckScripts();
 			map->Draw(screen);
 			SDL_Delay(100);
 		}

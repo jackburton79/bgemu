@@ -26,9 +26,9 @@ static void PrintIndentation()
 Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
-	fCurrentNode(NULL)
+	fCurrentNode(NULL),
+	fProcessed(false)
 {
-
 }
 
 
@@ -61,6 +61,20 @@ Script::FindNode(block_type type, node* start)
 	}
 
 	return NULL;
+}
+
+
+void
+Script::SetProcessed()
+{
+	fProcessed = true;
+}
+
+
+bool
+Script::Processed() const
+{
+	return fProcessed;
 }
 
 
