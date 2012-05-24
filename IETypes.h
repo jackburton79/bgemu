@@ -88,6 +88,11 @@ enum animation_flags {
 	ANIM_SHADED = 1 << 1,
 	ANIM_SHADED_NIGHT = 1 << 2,
 	ANIM_HOLD = 1 << 3,
+	ANIM_SYNCHRONIZED = 1 << 4,
+	ANIM_INVISIBLE_IN_DARK = 1 << 7,
+	ANIM_PLAY_ALL_FRAMES = 1 << 9,
+	ANIM_USE_PALETTE = 1 << 10,
+	ANIM_MIRRORED = 1 << 11
 };
 
 
@@ -99,8 +104,13 @@ struct animation {
 	int16 sequence;
 	int16 frame;
 	int32 flags;
-	int32 unk4;
-	int8 bytes[16];
+	int16 height;
+	int16 transparency;
+	int16 start_frame;
+	int8 looping_chance;
+	int8 skip_cycles;
+	res_ref palette;
+	int32 unknown;
 } __attribute__((packed));
 
 
@@ -185,6 +195,14 @@ struct door_wed {
 	uint32 closed_polygons_offset;
 
 	void Print() const;
+} __attribute__((packed));
+
+
+struct variable {
+	char name[32];
+	int8 bytes[8];
+	uint32 value;
+	int8 bytes2[8];
 } __attribute__((packed));
 
 
