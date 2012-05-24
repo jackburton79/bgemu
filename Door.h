@@ -7,15 +7,15 @@
 
 class Door {
 public:
-	Door(door_wed *);
+	Door(door* areaDoor);
 	void Toggle();
 
 	std::vector<uint16> fTilesOpen;
 
 	bool Opened() const;
+	void Print() const;
 private:
-	door_wed fDoor;
-	bool fOpen;
+	door* fAreaDoor;
 };
 
 #endif // __DOOR_H

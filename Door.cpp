@@ -1,10 +1,9 @@
 #include "Door.h"
 
-Door::Door(door_wed *door)
+Door::Door(door* areaDoor)
 	:
-	fOpen(true)
+	fAreaDoor(areaDoor)
 {
-	fDoor = *door;
 }
 
 
@@ -13,19 +12,24 @@ Door::Toggle()
 {
 	//printf("door %s toggled\n", fDoor.name);
 
-/*	bool wasOpen = fDoor->flags & DOOR_OPEN;
+	bool wasOpen = fAreaDoor->flags & DOOR_OPEN;
 
 	if (wasOpen)
-		fDoor->flags &= ~DOOR_OPEN;
+		fAreaDoor->flags &= ~DOOR_OPEN;
 	else
-		fDoor->flags |= DOOR_OPEN;*/
-	fOpen = !fOpen;
+		fAreaDoor->flags |= DOOR_OPEN;
 }
 
 
 bool
 Door::Opened() const
 {
-	return fOpen;
-	//return fDoor->flags & DOOR_OPEN;
+	return fAreaDoor->flags & DOOR_OPEN;
+}
+
+
+void
+Door::Print() const
+{
+	printf("%s\n", (const char*)fAreaDoor->id);
 }

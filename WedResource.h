@@ -52,7 +52,7 @@ public:
 	Polygon *PolygonAt(uint32 index);
 
 	uint32 CountDoors() const;
-	Door *GetDoor(uint32 index);
+	bool GetDoorTiles(Door* door, uint32 index);
 
 private:
 	void _Load();

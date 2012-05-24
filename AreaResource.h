@@ -24,6 +24,9 @@ public:
 
 	res_ref Script();
 
+	uint32 CountVariables() const;
+	variable VariableAt(uint32 index);
+
 private:
 
 	void _LoadAnimations();

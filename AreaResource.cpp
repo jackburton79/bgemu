@@ -142,6 +142,26 @@ ARAResource::CountActors() const
 }
 
 
+uint32
+ARAResource::CountVariables() const
+{
+	uint32 numVars = 0;
+	fData->ReadAt(0x8c, numVars);
+	return numVars;
+}
+
+
+variable
+ARAResource::VariableAt(uint32 index)
+{
+	variable var;
+	uint32 offset;
+	fData->ReadAt(0x88, offset);
+	fData->ReadAt(offset + index * sizeof(variable), var);
+	return var;
+}
+
+
 res_ref
 ARAResource::Script()
 {
@@ -181,6 +201,5 @@ ARAResource::_LoadDoors()
 	fData->Seek(fDoorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
-		//printf("door name: %s\n", fDoors[i].name);
 	}
 }

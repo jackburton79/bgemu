@@ -162,27 +162,24 @@ WEDResource::CountDoors() const
 }
 
 
-Door *
-WEDResource::GetDoor(uint32 index)
+bool
+WEDResource::GetDoorTiles(Door* door, uint32 index)
 {
 	if (index < 0 || index >= fNumDoors)
-		return NULL;
+		return false;
 
 	fData->Seek(fDoorsOffset + index * sizeof(door_wed), SEEK_SET);
 
 	door_wed wedDoor;
 	fData->Read(wedDoor);
-	//wedDoor.Print();
-
-	Door *newDoor = new Door(&wedDoor);
 	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
 	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
 		uint16 tileIndex;
 		fData->Read(tileIndex);
-		newDoor->fTilesOpen.push_back(tileIndex);
+		door->fTilesOpen.push_back(tileIndex);
 	}
 
-	return newDoor;
+	return true;
 }
 
 

@@ -31,7 +31,6 @@ Room::Room()
 	fSearchMap(NULL),
 	fHeightMap(NULL),
 	fNumOverlays(0),
-	//fOverlays(NULL),
 	fTileCells(NULL),
 	fDrawOverlays(false),
 	fDrawPolygons(false),
@@ -71,8 +70,8 @@ Room::Load(const char *resName)
 	fName = fArea->WedName();
 	fWed = gResManager->GetWED(fName);
 
-	//BCSResource *bcs = gResManager->GetBCS(fArea->Script());
-	//fScript = bcs->GetScript();
+	BCSResource *bcs = gResManager->GetBCS(fArea->Script());
+	fScript = bcs->GetScript();
 	//gResManager->ReleaseResource(bcs);
 
 	_LoadOverlays();
@@ -132,7 +131,7 @@ Room::SetViewPort(SDL_Rect rect)
 void
 Room::Draw(SDL_Surface *surface)
 {
-	//fVisibleArea = area;
+	// TODO: Check scripts
 
 	_DrawBaseMap(surface, fVisibleArea);
 
@@ -164,7 +163,6 @@ Room::Clicked(uint16 x, uint16 y)
 	y += fVisibleArea.y;
 
 	const uint16 tileNum = TileNumberForPoint(x, y);
-	printf("tileNum: %d\n", tileNum);
 	fTileCells[tileNum]->Clicked();
 }
 
@@ -175,7 +173,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
 	const uint16 tileNum = TileNumberForPoint(x, y);
-	//printf("%d %d (%d)\n", x, y, tileNum);
+
 	fTileCells[tileNum]->MouseOver();
 }
 
@@ -403,7 +401,6 @@ void
 Room::_LoadOverlays()
 {
 	fNumOverlays = fWed->CountOverlays();
-	//fOverlays = new MapOverlay*[fNumOverlays];
 	for (uint32 i = 0; i < fNumOverlays; i++) {
 		MapOverlay *overlay = fWed->GetOverlay(i);
 		fOverlays.push_back(overlay);
@@ -423,6 +420,17 @@ Room::_InitTileCells()
 
 
 void
+Room::_InitVariables()
+{
+	//uint32 numVars = fArea->CountVariables();
+	//for (uint32 n = 0; n < numVars; n++) {
+		//variable var = fArea->VariableAt(n);
+		//fVariables.push_back(var);
+	//}
+}
+
+
+void
 Room::_InitAnimations()
 {
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++)
@@ -433,7 +441,6 @@ Room::_InitAnimations()
 void
 Room::_InitActors()
 {
-	///*fActors = new Actor*[fArea->CountActors()];
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors.push_back(new Actor(*fArea->ActorAt(i)));
 	}
@@ -447,8 +454,10 @@ Room::_InitDoors()
 
 	uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
-		Door *door = fWed->GetDoor(c);
+		Door *door = new Door(fArea->DoorAt(c));
+		fWed->GetDoorTiles(door, c);
 		fDoors.push_back(door);
+		//door->Print();
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}

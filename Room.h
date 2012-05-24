@@ -55,6 +55,7 @@ private:
 	void _DrawActors(SDL_Surface *surface, SDL_Rect area);
 
 	void _LoadOverlays();
+	void _InitVariables();
 	void _InitTileCells();
 	void _InitAnimations();
 	void _InitActors();
@@ -77,6 +78,7 @@ private:
 	std::vector<MapOverlay*> fOverlays;
 	TileCell **fTileCells;
 
+	//std::vector<variable> fVariables;
 	std::vector<Animation*> fAnimations;
 	std::vector<Actor*> fActors;
 	std::vector<Door*> fDoors;
