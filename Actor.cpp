@@ -232,8 +232,6 @@ Actor::AnimationFor(Actor &actor)
 {
 	CREResource *creature = actor.CRE();
 	const uint16 animationID = creature->AnimationID();
-	printf("animation: 0x%x %s\n", animationID,
-			AnimateIDS()->ValueFor(animationID));
 
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;
@@ -243,6 +241,9 @@ Actor::AnimationFor(Actor &actor)
 	if (AnimationType(high) == 1) {
 		std::string baseName = "";
 		switch (high) {
+			case 0x72:
+				baseName = "BEAR";
+				break;
 			case 0x74:
 				baseName = "MDOG";
 				break;
@@ -250,8 +251,11 @@ Actor::AnimationFor(Actor &actor)
 				baseName = "MSPI";
 				break;
 			case 0x7f:
-					baseName = WeirdMonsterCode(low);
+				baseName = WeirdMonsterCode(low);
 				break;
+			/*case 0x80:
+				baseName = "";
+				break;*/
 			case 0xca:
 			{
 				if (low == 0x10)
@@ -323,11 +327,17 @@ Actor::AnimationFor(Actor &actor)
 		}
 
 		if (baseName.empty()) {
-			printf("unknown code 0x%x\n", animationID);
+			printf("unknown code 0x%x (%s)\n", animationID,
+						AnimateIDS()->ValueFor(animationID));
 			throw -1;
 		}
 
 		baseName.append("G1");
+		if (baseName[0] == 'N') {
+			if (actor.Orientation() >= ORIENTATION_NE
+				&& actor.Orientation() <= ORIENTATION_SE)
+			baseName.append("E");
+		}
 		strcpy(nameRef.name, baseName.c_str());
 	} else {
 		char name[8];
