@@ -21,6 +21,8 @@ public:
 	int16 fCurrentFrame;
 	uint16 fMaxFrame;
 	bool fHold;
+	bool fBlackAsTransparent;
+	bool fMirrored;
 };
 
 #endif // __ANIMATION_H
