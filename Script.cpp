@@ -176,7 +176,7 @@ node::Next() const
 void
 node::Print() const
 {
-	printf("header: %s\n", header);
+	//printf("header: %s\n", header);
 	//printf("value: %s\n", value);
 }
 
@@ -190,7 +190,6 @@ trigger::trigger()
 void
 trigger::Print() const
 {
-	node::Print();
 	printf("id:%d, flags: %d, parameter1: %d, parameter2: %d, %s %s\n",
 		id, flags, parameter1, parameter2, string1, string2);
 }
@@ -206,7 +205,6 @@ object::object()
 void
 object::Print() const
 {
-	node::Print();
 	printf("team: %d, faction: %d, ea: %d, general: %d, race: %d\n",
 			team, faction, ea, general, race);
 	printf("class: %d, specific: %d, gender: %d, alignment: %d, specifiers: %d\n",
@@ -238,6 +236,5 @@ response::response()
 void
 response::Print() const
 {
-	node::Print();
 	printf("probability: %d\n", probability);
 }
