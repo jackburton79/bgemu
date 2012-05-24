@@ -103,8 +103,8 @@ struct action : public node {
 	point where;
 	int e;
 	int f;
-	char str1[32];
-	char str2[32];
+	char string1[32];
+	char string2[32];
 
 	action();
 };

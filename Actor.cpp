@@ -13,7 +13,8 @@
 Actor::Actor(::actor &actor)
 	:
 	fActor(&actor),
-	fAnimation(NULL)
+	fAnimation(NULL),
+	fOwnsActor(false)
 {
 	fCRE = gResManager->GetCRE(fActor->cre);
 	try {
@@ -25,8 +26,34 @@ Actor::Actor(::actor &actor)
 }
 
 
+Actor::Actor(const char* creName, point position, int face)
+	:
+	fActor(NULL),
+	fAnimation(NULL),
+	fOwnsActor(true)
+{
+	fActor = new actor;
+	fActor->cre = creName;
+	fActor->orientation = face;
+	fActor->position = position;
+
+	fCRE = gResManager->GetCRE(creName);
+
+	strcpy(fActor->name, fCRE->KitStr());
+
+	try {
+		fAnimation = new Animation(this);
+	} catch (...) {
+		delete fAnimation;
+		fAnimation = NULL;
+	}
+}
+
+
 Actor::~Actor()
 {
+	if (fOwnsActor)
+		delete fActor;
 	gResManager->ReleaseResource(fCRE);
 	delete fAnimation;
 }
@@ -241,9 +268,6 @@ Actor::AnimationFor(Actor &actor)
 	if (AnimationType(high) == 1) {
 		std::string baseName = "";
 		switch (high) {
-			case 0x72:
-				baseName = "BEAR";
-				break;
 			case 0x74:
 				baseName = "MDOG";
 				break;

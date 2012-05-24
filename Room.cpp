@@ -229,6 +229,14 @@ Room::ToggleAnimations()
 
 
 void
+Room::CreateCreature(const char* name, point where, int face)
+{
+	Actor* actor = new Actor(name, where, face);
+	fActors.push_back(actor);
+}
+
+
+void
 Room::DumpOverlays(const char* path)
 {
 	// TODO: Code duplication with _DrawBaseMap().

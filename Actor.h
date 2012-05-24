@@ -22,6 +22,7 @@ class CREResource;
 class Actor {
 public:
 	Actor(::actor &actor);
+	Actor(const char* creName, point position, int face);
 	~Actor();
 
 	const char *Name() const;
@@ -39,6 +40,7 @@ private:
 	actor *fActor;
 	CREResource *fCRE;
 	Animation *fAnimation;
+	bool fOwnsActor;
 };
 
 #endif //__ACTOR_H

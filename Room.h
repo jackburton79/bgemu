@@ -35,6 +35,8 @@ public:
 	void ToggleSearchMap();
 	void ToggleHeightMap();
 
+	void CreateCreature(const char* name, point where, int face);
+
 	void DrawTile(const int16 tileNum, SDL_Surface *surface,
 						SDL_Rect tileRect, bool withOverlays);
 

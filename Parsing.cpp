@@ -111,8 +111,10 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 	trig->flags = tokenizer->ReadToken().u.number;
 	trig->parameter2 = tokenizer->ReadToken().u.number;
 	trig->unknown = tokenizer->ReadToken().u.number;
-	strcpy(trig->string1, tokenizer->ReadToken().u.string);
-	strcpy(trig->string2, tokenizer->ReadToken().u.string);
+	strcpy(trig->string1, tokenizer->ReadToken().u.string + 1);
+	trig->string1[strlen(trig->string1) - 1] = '\0';
+	strcpy(trig->string2, tokenizer->ReadToken().u.string + 1);
+	trig->string2[strlen(trig->string2) - 1] = '\0';
 }
 
 
@@ -152,8 +154,12 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 	act->where.y = tokenizer->ReadNextToken().u.number;
 	act->e = tokenizer->ReadNextToken().u.number;
 	act->f = tokenizer->ReadNextToken().u.number;
-	strcpy(act->str1, tokenizer->ReadNextToken().u.string);
-	strcpy(act->str2, tokenizer->ReadNextToken().u.string);
+	// TODO: This removes "" from strings. Broken. Should do this from
+	// the beginning!!!
+	strcpy(act->string1, tokenizer->ReadToken().u.string + 1);
+	act->string1[strlen(act->string1) - 1] = '\0';
+	strcpy(act->string2, tokenizer->ReadToken().u.string + 1);
+	act->string2[strlen(act->string2) - 1] = '\0';
 }
 
 

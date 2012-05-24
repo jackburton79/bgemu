@@ -237,7 +237,7 @@ void
 action::Print() const
 {
 	printf("id: %d, parameter: %d, point: (%d, %d), %d, %d, %s, %s\n",
-			id, parameter, where.x, where.y, e, f, str1, str2);
+			id, parameter, where.x, where.y, e, f, string1, string2);
 }
 
 

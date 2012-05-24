@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "Actor.h"
 #include "IDSResource.h"
 #include "ResManager.h"
 #include "Room.h"
@@ -76,7 +77,7 @@ World::SetVariable(const char* name, int32 value)
 int32
 World::GetVariable(const char* name)
 {
-	printf("%s %d\n", name, fVariables[name]);
+	//printf("%s %d\n", name, fVariables[name]);
 	return fVariables[name];
 }
 
@@ -85,6 +86,7 @@ void
 World::AddScript(Script* script)
 {
 	fScript = script;
+	//fScript->Print();
 }
 
 
@@ -113,7 +115,7 @@ World::_ExecuteScript(Script *script)
 		::node* cond = fScript->FindNode(BLOCK_CONDITION, condRes);
 		while (cond != NULL) {
 			// If a trigger was false, don't consider responses
-			if (!_CheckTriggers(cond))
+			if (_CheckTriggers(cond))
 				break;
 
 			::node* responseSet = cond->Next();
@@ -225,9 +227,43 @@ World::_ExecuteAction(action* act)
 	printf("%s (0x%x)\n", ActionIDS()->ValueFor(act->id), act->id);
 
 	switch (act->id) {
-		case 0x1E:
-			SetVariable(act->str1, act->parameter);
+		case 0x07:
+		{
+			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
+
+			fCurrentRoom->CreateCreature(act->string1, act->where, act->parameter);
 			break;
+		}
+		case 0x24:
+		{
+			/*
+			 * 36 Continue()
+			 * This action instructs the script parser to continue looking
+			 * for actions in the active creatures action list.
+			 * This is mainly included in scripts for efficiency.
+			 * Continue should also be appended to any script blocks added
+			 * to the top of existing scripts, to ensure correct functioning
+			 * of any blocks which include the OnCreation trigger.
+			 * Continue may prevent actions being completed until the script
+			 * parser has finished its execution cycle. Continue() must be
+			 * the last command in an action list to function correctly.
+			 * Use of continue in a script block will cause the parser
+			 * to treater subsequent empty response blocks as though they
+			 * contained a Continue() command - this parsing can be stopped
+			 * by including a NoAction() in the empty response block.
+			 */
+			// TODO: Implement
+			break;
+		}
+		case 0x1E:
+			SetVariable(act->string1, act->parameter);
+			break;
+		case 0x53:
+		{
+			/* 83 SmallWait(I:Time*) */
+			// TODO: Implement
+			break;
+		}
 		default:
 			break;
 	}
