@@ -45,22 +45,19 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		if (map == NULL)
 			continue;
 
-		bool closed = false;
-		int16 index;
+		int16 index = map->TileIndex();
 		if (fDoor != NULL && !fDoor->Opened()) {
-			closed = true;
-
-			//index = map->SecondaryTileIndex();
-			index = map->SecondaryTileIndex();
-			if (index == -1)
-				throw "suckerpunch index -1";
-			printf("index: %d\n", index);
-		} else
-			index = map->TileIndex();
+			int16 secondaryIndex = map->SecondaryTileIndex();
+			if (secondaryIndex != -1)
+				index = secondaryIndex;
+			else
+				printf("TileCell::Draw(): secondary index is -1. BUG?.\n");
+		}
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
 		SDL_Surface *cell = tis->TileAt(index);
 		if (cell == NULL) {
+			printf("NULL cell. BAD.\n");
 			// TODO: Fix this. Shouldn't request an invalid cell
 			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
 			SDL_FillRect(cell, NULL, 3000);
