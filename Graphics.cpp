@@ -2,6 +2,7 @@
 #include "Polygon.h"
 
 #include <assert.h>
+#include <string.h>
 
 #define SGN(x) ((x) > 0 ? 1 : ((x) == 0 ? 0 : (-1)))
 #define ABS(x) ((x) > 0 ? (x) : (-x))
@@ -136,11 +137,9 @@ Graphics::MirrorSDLSurface(SDL_Surface *surface)
 {
 	SDL_LockSurface(surface);
 
-	uint8 *sourcePixels;
-	uint8 *destPixels;
 	for (int32 y = 0; y < surface->h; y++) {
-		sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
-		destPixels = (uint8*)sourcePixels + surface->pitch - 1;
+		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
 		for (int32 x = 0; x < surface->pitch / 2; x++)
 			std::swap(*sourcePixels++, *destPixels--);
 	}
@@ -148,3 +147,20 @@ Graphics::MirrorSDLSurface(SDL_Surface *surface)
 
 	return surface;
 }
+
+
+static int
+IndexOfColor(const SDL_Color *color, const SDL_Palette *palette)
+{
+	for (int32 i = 0; i < palette->ncolors; i++) {
+		if (color->r == palette->colors[i].r
+			&& color->g == palette->colors[i].g
+			&& color->b == palette->colors[i].b) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+
