@@ -108,12 +108,7 @@ BAMResource::_FrameAt(uint16 index)
 {
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
-	//std::cout << "frame " << (int)index << std::endl;
-	//std::cout << "width: " << entry.width << ", height: " << entry.height << std::endl;
-	//std::cout << entry.xpos << " " << entry.ypos << std::endl;
-	//std::cout << "data offset: " << data_offset(entry.data) << std::endl;
 	bool frameCompressed = is_frame_compressed(entry.data);
-	//std::cout << "frame is " << (frameCompressed ? "compressed" : "not compressed") << std::endl;
 	
 	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
 								entry.width, entry.height,
@@ -138,13 +133,8 @@ BAMResource::_FrameAt(uint16 index)
 	if (decoded != entry.width * entry.height)
 		throw -1;
 	
-	SDL_SetColors(surface, fPalette, 0, 256);
-	uint32 color = 0;
-	/*if (fTransparentIndex != 0) {
-		const SDL_Color *trans = &fPalette[fTransparentIndex];
-		color  = SDL_MapRGB(surface->format, trans->r, trans->g, trans->b);
-	}*/
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, color);
+	SDL_SetColors(surface, fPalette, 0, surface->format->palette->ncolors);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, fCompressedIndex);
 
 	SDL_Rect rect;
 	rect.w = surface->w;
