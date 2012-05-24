@@ -92,10 +92,26 @@ operator<<(std::ostream &os, res_ref ref)
 
 
 void
+actor::Print() const
+{
+	printf("Actor %s:\n", name);
+	printf("\tCRE: %s\n", (const char *)cre);
+	printf("\tposition: (%d, %d)\n", position.x, position.y);
+}
+
+
+void
 door_wed::Print() const
 {
 	printf("name: %s\n", name);
 	printf("flags: 0x%x\n", flags);
 	printf("cell_index: %d\n", cell_index);
 	printf("cell_count: %d\n", cell_count);
+}
+
+
+void
+variable::Print() const
+{
+	printf("name: %s, value: %d\n", name, value);
 }

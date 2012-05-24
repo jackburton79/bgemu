@@ -137,6 +137,8 @@ struct actor {
 	uint32 cre_offset;
 	uint32 cre_size;
 	uint8 bytes[128];
+
+	void Print() const;
 } __attribute__((packed));
 
 
@@ -161,8 +163,7 @@ struct door {
 	uint16 open_cell_count;
 	uint16 closed_cell_count;
 	uint32 closed_cell_index;
-	uint16 unk1;
-	uint16 unk2;
+	uint32 unused;
 	res_ref open_sound;
 	res_ref closed_sound;
 	uint32 cursor_index;
@@ -173,11 +174,11 @@ struct door {
 	point trap_point;
 	res_ref key_item;
 	res_ref script;
-	//uint32 unk3; //TODO ??
+	uint32 detection_difficulty;
 	uint32 lock_difficulty;
 	rect player_box;
-	uint32 text_id;
-	uint8 unk4[28];
+	uint32 lockpick_string;
+	uint8 travel_trigger_name[24];
 	uint32 name_ref;
 	res_ref dialog;
 	uint8 unk5[8];
@@ -203,6 +204,8 @@ struct variable {
 	int8 bytes[8];
 	uint32 value;
 	int8 bytes2[8];
+
+	void Print() const;
 } __attribute__((packed));
 
 
