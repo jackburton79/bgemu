@@ -57,7 +57,7 @@ private:
 	void _InitVariables();
 	void _InitTileCells();
 	void _InitAnimations();
-	void _InitActors();
+	void _LoadActors();
 	void _InitDoors();
 
 	res_ref fName;

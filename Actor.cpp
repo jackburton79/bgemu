@@ -34,12 +34,13 @@ Actor::Actor(const char* creName, point position, int face)
 {
 	fActor = new actor;
 	fActor->cre = creName;
-	fActor->orientation = face;
+	//fActor->orientation = std::min(face, 7);
+	fActor->orientation = 0;
 	fActor->position = position;
 
 	fCRE = gResManager->GetCRE(creName);
 
-	strcpy(fActor->name, fCRE->KitStr());
+	strcpy(fActor->name, AnimateIDS()->ValueFor(fCRE->AnimationID()));
 
 	try {
 		fAnimation = new Animation(this);
@@ -47,6 +48,9 @@ Actor::Actor(const char* creName, point position, int face)
 		delete fAnimation;
 		fAnimation = NULL;
 	}
+
+	//if (fAnimation != NULL)
+		//fAnimation->fBAM->DumpFrames("/home/stefano/dumps");
 }
 
 
@@ -78,9 +82,13 @@ Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (image == NULL)
 		return;
 
+	//char name[256];
+	//snprintf(name, 256, "/home/stefano/dumps/%s%d.bmp", Name(), fAnimation->fCurrentFrame);
+	//SDL_SaveBMP(image, name);
 	point center = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 
+	//printf("center: %d %d\n", center.x, center.y);
 	SDL_Rect rect = { center.x, center.y, image->w, image->h };
 
 	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
@@ -201,12 +209,11 @@ static
 int
 AnimationType(int value)
 {
-	//if (value > 0x70 && value < 0xd5)
-		return 1;
-
-	//return 2;
+	int masked = (value & 0xFF00) >> 8;
+	if (masked >= 0x61 && masked <= 0x63)
+		return 2;
+	return 1;
 }
-
 
 
 static
@@ -265,7 +272,7 @@ Actor::AnimationFor(Actor &actor)
 	uint8 low = (animationID & 0x00FF);
 	// TODO: Seems like animation type could be told by
 	// a mask here: monsters, characters, "objects", etc.
-	if (AnimationType(high) == 1) {
+	if (AnimationType(animationID) == 1) {
 		std::string baseName = "";
 		switch (high) {
 			case 0x74:
@@ -364,7 +371,8 @@ Actor::AnimationFor(Actor &actor)
 		}
 		strcpy(nameRef.name, baseName.c_str());
 	} else {
-		char name[8];
+		// TODO: Implement
+		/*char name[8];
 		// These fields are required
 		name[0] = GeneralToLetter(creature->General());
 		name[1] = RaceToLetter(creature->Race());
@@ -382,8 +390,11 @@ Actor::AnimationFor(Actor &actor)
 		*namePtr++ = '1'; // weapon or nothing
 		if (namePtr != &name[7])
 			*namePtr = '\0';
-
-		memcpy(nameRef.name, name, sizeof(name));
+*/
+		strcpy(nameRef.name, "NBOYLG1");
+		//memcpy(nameRef.name, "NBOYLG1E", sizeof(nameRef.name));
+		//memcpy(nameRef.name, name, sizeof(name));
+		printf("nameRef: %s\n", (const char *)nameRef);
 	}
 
 

@@ -36,12 +36,13 @@ Animation::Animation(Actor *actor)
 {
 	fBAM = gResManager->GetBAM(Actor::AnimationFor(*actor));
 	fCycleNumber = actor->Orientation() % 4;
-
+	if (fCycleNumber > fBAM->CountCycles())
+		fCycleNumber = fBAM->CountCycles() - 1;
 	fCenter = actor->Position();
 	fCurrentFrame = 0;
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
+
 	fHold = false;
-	//printf("palette: %s\n", (const char *)animDesc->palette);
 }
 
 
@@ -55,10 +56,10 @@ Frame
 Animation::NextFrame()
 {
 	Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
-	if (fMirrored) {
+	/*if (fMirrored) {
 		frame.surface = Graphics::MirrorSDLSurface(frame.surface);
 		frame.rect.x = frame.rect.x - frame.rect.w;
-	}
+	}*/
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
 		//SDL_SetColorKey(frame.surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);

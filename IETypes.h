@@ -118,16 +118,14 @@ struct actor {
 	char name[32];
 	point position;
 	point destination;
-	uint32 flags;
-	uint16 spawned;
-	uint8 cre_first;
-	uint8 unk1;
+	uint32 unk1;
+	uint32 unk2;
+	uint32 animation;
 	uint32 orientation;
-	uint32 removal_timer;
-	uint16 mov_restrict;
-	uint16 mov_restrict_object;
+	uint32 unk4;
+	uint32 unk5;
 	uint32 time_intervals;
-	uint32 num_times_talked_to;
+	uint32 unk6;
 	res_ref dialog;
 	res_ref script_override;
 	res_ref script_class;
@@ -210,7 +208,7 @@ struct variable {
 	void Print() const;
 } __attribute__((packed));
 
-
+void check_objects_size();
 bool operator<(const res_ref &, const res_ref &);
 bool operator==(const res_ref &, const res_ref &);
 bool operator<(const ref_type &, const ref_type &);

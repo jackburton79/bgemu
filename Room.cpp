@@ -95,7 +95,7 @@ Room::Load(const char *resName)
 
 	_InitVariables();
 	_InitAnimations();
-	_InitActors();
+	_LoadActors();
 	_InitDoors();
 
 	return true;
@@ -168,8 +168,8 @@ Room::MouseOver(uint16 x, uint16 y)
 {
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
-	const uint16 tileNum = TileNumberForPoint(x, y);
 
+	const uint16 tileNum = TileNumberForPoint(x, y);
 	fTileCells[tileNum]->MouseOver();
 }
 
@@ -391,7 +391,7 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 {
-	for (uint16 a = 0; a < fArea->CountActors(); a++) {
+	for (uint32 a = 0; a < fActors.size(); a++) {
 		try {
 			fActors[a]->Draw(surface, area);
 		} catch (...) {
@@ -444,7 +444,7 @@ Room::_InitAnimations()
 
 
 void
-Room::_InitActors()
+Room::_LoadActors()
 {
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		fActors.push_back(new Actor(*fArea->ActorAt(i)));

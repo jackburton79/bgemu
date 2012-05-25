@@ -1,7 +1,17 @@
 #include "Resource.h"
 #include "IETypes.h"
 
+#include <assert.h>
 #include <cstdio>
+
+void
+check_objects_size()
+{
+	assert(sizeof(polygon) == 18);
+	assert(sizeof(animation) == 76);
+	assert(sizeof(actor) == 0x110);
+
+}
 
 
 res_ref::res_ref()
@@ -97,6 +107,7 @@ actor::Print() const
 	printf("Actor %s:\n", name);
 	printf("\tCRE: %s\n", (const char *)cre);
 	printf("\tposition: (%d, %d)\n", position.x, position.y);
+	printf("\tanimation: %d\n", animation);
 }
 
 

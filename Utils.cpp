@@ -95,11 +95,3 @@ extension(const char *path)
 	return strrchr(path, '.');
 }
 
-
-void
-check_objects_size()
-{
-	assert(sizeof(polygon) == 18);
-	assert(sizeof(animation) == 76);
-}
-
