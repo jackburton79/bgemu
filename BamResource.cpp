@@ -87,13 +87,13 @@ BAMResource::_FindTransparentIndex()
 void
 BAMResource::DumpFrames(const char *filePath)
 {
-	for (int32 c = 0; c < fNumCycles; c++) {
-		for (int f = 0; f < fNumFrames; f++) {
-			SDL_Surface *surface = FrameForCycle(f, c).surface;
+	for (int32 cycle = 0; cycle < fNumCycles; cycle++) {
+		for (int numFrame = 0; numFrame < fNumFrames; numFrame++) {
+			SDL_Surface *surface = FrameForCycle(cycle, numFrame).surface;
 			TPath path(filePath);
 			char fileName[PATH_MAX];
-			snprintf(fileName, PATH_MAX, "%sC%d_F%d.bmp",
-					(const char *)fName, c, f);
+			snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
+					(const char *)fName, cycle, numFrame);
 			path.Append(fileName);
 			printf("save to %s\n", path.Path());
 			SDL_SaveBMP(surface, path.Path());
@@ -159,10 +159,11 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	}
 
 	::cycle newCycle;
-	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);
+	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
 
 	uint16 index;
-	fData->ReadAt(fFrameLookupOffset + (newCycle.index + frameIndex) * sizeof(int16), index);
+	fData->ReadAt(fFrameLookupOffset
+			+ (newCycle.index + frameIndex) * sizeof(int16), index);
 	return _FrameAt(index);
 }
 
