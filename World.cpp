@@ -28,11 +28,11 @@ World::World()
 
 	sDialogs = gResManager->GetTLK(kDialogResource);
 	sAnimate = gResManager->GetIDS("ANIMATE");
-	/*sGeneral = gResManager->GetIDS("GENERAL");
+	sGeneral = gResManager->GetIDS("GENERAL");
 	sRaces = gResManager->GetIDS("RACE");
 	sGenders = gResManager->GetIDS("GENDER");
 	sClasses = gResManager->GetIDS("CLASS");
-	sSpecifics = gResManager->GetIDS("SPECIFIC");*/
+	sSpecifics = gResManager->GetIDS("SPECIFIC");
 	sTriggers = gResManager->GetIDS("TRIGGER");
 	sActions = gResManager->GetIDS("ACTION");
 }
@@ -57,6 +57,10 @@ World::EnterArea(const char *name)
 	fCurrentRoom = new Room();
 	if (!fCurrentRoom->Load(name))
 		throw false;
+
+	// The area script
+	if (fScript != NULL)
+		_ExecuteScript(fScript);
 }
 
 
@@ -93,8 +97,8 @@ World::AddScript(Script* script)
 void
 World::CheckScripts()
 {
-	if (fScript != NULL)
-		_ExecuteScript(fScript);
+	//if (fScript != NULL)
+		//_ExecuteScript(fScript);
 }
 
 
