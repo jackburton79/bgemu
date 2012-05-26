@@ -162,6 +162,15 @@ CREResource::Gold()
 }
 
 
+res_ref
+CREResource::DefaultScriptName()
+{
+	res_ref name;
+	fData->ReadAt(0x268, name);
+	return name;
+}
+
+
 void
 CREResource::GetAttributes(BaseAttributes &attributes)
 {
@@ -178,6 +187,13 @@ CREResource::DialogFile()
 }
 
 
+const char*
+CREResource::DeathVariable()
+{
+	static char temp[32];
+	fData->ReadAt(0x280, temp, 32);
+	return temp;
+}
 /*
 void
 BGCreature::GetCreatureInfo(TStream &file)

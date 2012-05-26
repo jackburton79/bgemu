@@ -1,6 +1,7 @@
 #include "World.h"
 
 #include "Actor.h"
+#include "CreResource.h"
 #include "IDSResource.h"
 #include "ResManager.h"
 #include "Room.h"
@@ -95,6 +96,20 @@ World::AddScript(Script* script)
 
 
 void
+World::AddActorScript(const char* name, Script* script)
+{
+	//fScripts[name] = script;
+}
+
+
+void
+World::RemoveActorScript(const char* name)
+{
+	//fScripts.erase(name);
+}
+
+
+void
 World::CheckScripts()
 {
 	//if (fScript != NULL)
@@ -118,8 +133,7 @@ World::_ExecuteScript(Script *script)
 	do {
 		::node* cond = fScript->FindNode(BLOCK_CONDITION, condRes);
 		while (cond != NULL) {
-			// If a trigger was false, don't consider responses
-			if (_CheckTriggers(cond))
+			if (!_CheckTriggers(cond))
 				break;
 
 			::node* responseSet = cond->Next();
@@ -149,6 +163,7 @@ World::_CheckTriggers(node* conditionNode)
 			break;
 		trig = static_cast<trigger*>(trig->Next());
 	}
+	//printf("CheckTriggers: %s\n", evaluation ? "true" : "false");
 	return evaluation;
 }
 
@@ -157,7 +172,6 @@ bool
 World::_EvaluateTrigger(trigger* trig)
 {
 	// TODO: Move this method to Script ?
-	trig->Print();
 	printf("%s (0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id);
 
 	try {
@@ -192,6 +206,25 @@ World::_EvaluateTrigger(trigger* trig)
 				return GetVariable(trig->string1) < trig->parameter1;
 			}
 #if 0
+			case 0x4051:
+			{
+				/*
+				 * 0x4051 Dead(S:Name*)
+				 * Returns only true if the creature with the specified script name
+				 * has its death variable set to 1. Not every form of death sets this,
+				 * but most do. So it's an almost complete test for death.
+				 * The creature must have existed for this to be true.
+				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
+				 * killed by a neutral creature.
+				 */
+				Script* actorScript = fScripts[trig->string1];
+				if (actorScript == NULL)
+					return false;
+				const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
+				return fVariables[deathVariable] == 1;
+			}
+
+			//TODO: Change the implementation of CheckTriggers
 			case 0x4089:
 			{
 				/*0x4089 OR(I:OrCount*)
@@ -202,6 +235,7 @@ World::_EvaluateTrigger(trigger* trig)
 			default:
 			{
 				printf("UNIMPLEMENTED TRIGGER!!!\n");
+				trig->Print();
 				break;
 			}
 		}
@@ -234,8 +268,8 @@ World::_ExecuteAction(action* act)
 		case 0x07:
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
-
-			fCurrentRoom->CreateCreature(act->string1, act->where, act->parameter);
+			//Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			//fCurrentRoom->AddActor(actor);
 			break;
 		}
 		case 0x24:

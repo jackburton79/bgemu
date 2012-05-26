@@ -162,7 +162,7 @@ ARAResource::VariableAt(uint32 index)
 
 
 res_ref
-ARAResource::Script()
+ARAResource::ScriptName()
 {
 	res_ref script;
 	fData->ReadAt(0x94, script);

@@ -7,14 +7,14 @@
 BCSResource::BCSResource(const res_ref &name)
 	:
 	Resource(name, RES_BCS),
-	fRootNode(NULL)
+	fScript(NULL)
 {
 }
 
 
 BCSResource::~BCSResource()
 {
-	delete fRootNode;
+	delete fScript;
 }
 
 
@@ -23,37 +23,33 @@ BCSResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
-
-	//DumpToFile("bcs_script.txt");
-
-	_LoadScript();
-
+	try {
+		_LoadScript();
+	} catch (...) {
+		return false;
+	}
 	return true;
 }
 
 
 Script*
-BCSResource::GetScript()
+BCSResource::GetScript() const
 {
-	return new Script(fRootNode);
+	return fScript;
 }
 
 
 void
 BCSResource::_LoadScript()
 {
-	printf("loadscript\n");
-	try {
-		Parser parser;
-		parser.SetTo(fData);
+	node *rootNode = NULL;
 
-		parser.Read(fRootNode);
-	} catch (const char *message) {
-		printf("exception thrown: %s\n", message);
-	} catch (...) {
-		printf("other exception thrown\n");
-		throw "SUCKERPUNCH!!";
-	}
+	Parser parser;
+	parser.SetTo(fData);
+	parser.Read(rootNode);
+
+	// Takes ownership of the node tree.
+	fScript = new Script(rootNode);
 
 	DropData();
 }

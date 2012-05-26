@@ -25,14 +25,18 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
-	void AddScript(Script *script);
+	void AddScript(Script* script);
+	void AddActorScript(const char* name, Script* script);
+	void RemoveActorScript(const char* name);
 
 	void CheckScripts();
+
 private:
 	Room *fCurrentRoom;
 
 	std::map<std::string, uint32> fVariables;
 	Script *fScript;
+	std::map<std::string, Script*> fScripts;
 
 	void _ExecuteScript(Script* script);
 	bool _CheckTriggers(node* conditionNode);

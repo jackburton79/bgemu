@@ -131,7 +131,10 @@ public:
 	
 	void GetAttributes(BaseAttributes &attributes);
 	
+	res_ref DefaultScriptName();
+
 	const char *DialogFile();
+	const char *DeathVariable();
 		
 /*protected:
 	uint32 fLongNameID;

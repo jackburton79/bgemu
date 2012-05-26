@@ -27,8 +27,15 @@ Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
 	fCurrentNode(NULL),
+	fActor(NULL),
 	fProcessed(false)
 {
+}
+
+
+Script::~Script()
+{
+	delete fRootNode;
 }
 
 
@@ -75,6 +82,13 @@ bool
 Script::Processed() const
 {
 	return fProcessed;
+}
+
+
+Actor*
+Script::Target() const
+{
+	return fActor;
 }
 
 

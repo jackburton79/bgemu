@@ -3,8 +3,6 @@
 
 #include "Resource.h"
 
-struct node;
-
 class Script;
 class BCSResource : public Resource {
 public:
@@ -13,12 +11,11 @@ public:
 
 	bool Load(Archive *archive, uint32 key);
 
-	Script *GetScript();
+	Script *GetScript() const;
 
 private:
 	void _LoadScript();
-
-	node *fRootNode;
+	Script* fScript;
 };
 
 #endif // __BCSRESOURCE_H

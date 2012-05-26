@@ -1,5 +1,7 @@
 #include "Resource.h"
+#include "IDSResource.h"
 #include "IETypes.h"
+#include "World.h"
 
 #include <assert.h>
 #include <cstdio>
@@ -107,7 +109,7 @@ actor::Print() const
 	printf("Actor %s:\n", name);
 	printf("\tCRE: %s\n", (const char *)cre);
 	printf("\tposition: (%d, %d)\n", position.x, position.y);
-	printf("\tanimation: %d\n", animation);
+	printf("\tanimation: %s\n", AnimateIDS()->ValueFor(animation));
 }
 
 

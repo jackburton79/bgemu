@@ -22,7 +22,7 @@ public:
 	uint16 CountActors() const;
 	actor *ActorAt(uint16 index);
 
-	res_ref Script();
+	res_ref ScriptName();
 
 	uint32 CountVariables() const;
 	variable VariableAt(uint32 index);

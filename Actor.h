@@ -18,7 +18,9 @@ enum orientation {
 
 
 class Animation;
+class BCSResource;
 class CREResource;
+class Script;
 class Actor {
 public:
 	Actor(::actor &actor);
@@ -34,13 +36,17 @@ public:
 	CREResource *CRE();
 
 	void Draw(SDL_Surface *surface, SDL_Rect area);
-
+	void SetScript(Script *script);
+	::Script* Script();
 	static res_ref AnimationFor(Actor &actor);
+
 private:
 	actor *fActor;
-	CREResource *fCRE;
 	Animation *fAnimation;
+	CREResource *fCRE;
+	BCSResource* fBCSResource;
 	bool fOwnsActor;
+
 };
 
 #endif //__ACTOR_H

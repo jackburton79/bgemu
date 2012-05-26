@@ -70,7 +70,7 @@ Room::Load(const char *resName)
 	fName = fArea->WedName();
 	fWed = gResManager->GetWED(fName);
 
-	fBcs = gResManager->GetBCS(fArea->Script());
+	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	if (fBcs != NULL)
 		GetWorld()->AddScript(fBcs->GetScript());
 
@@ -229,10 +229,20 @@ Room::ToggleAnimations()
 
 
 void
-Room::CreateCreature(const char* name, point where, int face)
+Room::AddActor(Actor* actor)
 {
-	Actor* actor = new Actor(name, where, face);
 	fActors.push_back(actor);
+	//GetWorld()->AddActorScript(actor->Name(), actor->Script());
+}
+
+
+void
+Room::RemoveActor(Actor* actor)
+{
+	// TODO: Can't do that with a std::vector.
+	// switch to a map ?
+	//fActors.
+	GetWorld()->RemoveActorScript(actor->Name());
 }
 
 
@@ -391,9 +401,10 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 void
 Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 {
-	for (uint32 a = 0; a < fActors.size(); a++) {
+	std::vector<Actor*>::iterator a;
+	for (a = fActors.begin(); a != fActors.end(); a++) {
 		try {
-			fActors[a]->Draw(surface, area);
+			(*a)->Draw(surface, area);
 		} catch (...) {
 			continue;
 		}
@@ -447,7 +458,7 @@ void
 Room::_LoadActors()
 {
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		fActors.push_back(new Actor(*fArea->ActorAt(i)));
+		AddActor(new Actor(*fArea->ActorAt(i)));
 	}
 }
 

@@ -1,28 +1,37 @@
 #include "Actor.h"
 #include "Animation.h"
 #include "BamResource.h"
+#include "BCSResource.h"
 #include "CreResource.h"
 #include "Graphics.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
+#include "Script.h"
 #include "World.h"
 
+#include <assert.h>
 #include <string>
 
 Actor::Actor(::actor &actor)
 	:
 	fActor(&actor),
 	fAnimation(NULL),
+	fCRE(NULL),
+	fBCSResource(NULL),
 	fOwnsActor(false)
 {
 	fCRE = gResManager->GetCRE(fActor->cre);
+	// TODO: Get all scripts ? or just the specific one ?
+	//fBCSResource = gResManager->GetBCS(fActor->script_class);
 	try {
 		fAnimation = new Animation(this);
 	} catch (...) {
 		delete fAnimation;
 		fAnimation = NULL;
 	}
+
+	actor.Print();
 }
 
 
@@ -30,6 +39,8 @@ Actor::Actor(const char* creName, point position, int face)
 	:
 	fActor(NULL),
 	fAnimation(NULL),
+	fCRE(NULL),
+	fBCSResource(NULL),
 	fOwnsActor(true)
 {
 	fActor = new actor;
@@ -39,6 +50,7 @@ Actor::Actor(const char* creName, point position, int face)
 	fActor->position = position;
 
 	fCRE = gResManager->GetCRE(creName);
+	//fBCSResource = gResManager->GetBCS(fCRE->DefaultScriptName());
 
 	strcpy(fActor->name, AnimateIDS()->ValueFor(fCRE->AnimationID()));
 
@@ -59,6 +71,7 @@ Actor::~Actor()
 	if (fOwnsActor)
 		delete fActor;
 	gResManager->ReleaseResource(fCRE);
+	gResManager->ReleaseResource(fBCSResource);
 	delete fAnimation;
 }
 
@@ -129,6 +142,14 @@ Actor::CRE()
 }
 
 
+::Script *
+Actor::Script()
+{
+	assert (fBCSResource != NULL);
+	return fBCSResource->GetScript();
+}
+
+
 static char
 GeneralToLetter(uint8 general)
 {
@@ -161,13 +182,8 @@ RaceToLetter(uint8 race)
 		c = 'D';
 	else if (!strcmp(stringRace, "HALFLING"))
 		c = 'I';
-	/*else if (!strcmp(stringRace, "LYCANTHROPE"))
-		c = 'L';
-	else if (!strcmp(stringRace, "BASILISK"))
-		c = 'B';
-	else if (!strcmp(stringRace, "ELEMENTAL"))
-		c = 'E';
-*/
+	else if (!strcmp(stringRace, "ORC"))
+		c = 'O';
 	return c;
 }
 
@@ -191,16 +207,9 @@ ClassToLetter(uint8 cclass)
 		c = 'W';
 	else if (!strcmp(stringClass, "MONK"))
 		c = 'M';
-	/*else if (!strcmp(stringClass, "INNOCENT"))
+	else if (!strcmp(stringClass, "INNOCENT"))
 		c = 'B';
-	else if (!strcmp(stringClass, "WEREWOLF"))
-		c = 'Z';
-	else if (!strncmp(stringClass, "BASILISK_GREATER",
-			strlen("BASILISK_GREATER")))
-		c = 'G';
-	else if (!strncmp(stringClass, "ELEMENTAL", strlen("ELEMENTAL")))
-		c = 'T';
-*/
+
 	return c;
 }
 
@@ -266,7 +275,7 @@ Actor::AnimationFor(Actor &actor)
 {
 	CREResource *creature = actor.CRE();
 	const uint16 animationID = creature->AnimationID();
-
+	printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;
 	uint8 low = (animationID & 0x00FF);
@@ -274,64 +283,58 @@ Actor::AnimationFor(Actor &actor)
 	// a mask here: monsters, characters, "objects", etc.
 	if (AnimationType(animationID) == 1) {
 		std::string baseName = "";
-		switch (high) {
-			case 0x74:
+		switch (animationID) {
+			case 0x7400:
 				baseName = "MDOG";
 				break;
-			case 0x7a:
+			case 0x7a00:
 				baseName = "MSPI";
 				break;
-			case 0x7f:
+			case 0x7f00:
 				baseName = WeirdMonsterCode(low);
 				break;
-			/*case 0x80:
+			/*case 0x8000:
 				baseName = "";
 				break;*/
-			case 0xca:
-			{
-				if (low == 0x10)
-					baseName = "NNOWL";
-				else
-					baseName = "NNOML";
+			case 0xca00:
+				baseName = "NNOML";
 				break;
-			}
-			case 0xb0:
+			case 0xca10:
+				baseName = "NNOWL";
+				break;
+			case 0xb000:
 				baseName = "ACOW";
 				break;
-			case 0xc1:
+			case 0xc100:
 				baseName = "ACAT";
 				break;
-			case 0xc2:
+			case 0xc200:
 				baseName = "ACHK";
 				break;
-			case 0xc3:
+			case 0xc300:
 				baseName = "ARAT";
 				break;
-			case 0xc4:
+			case 0xc400:
 				baseName = "ASQU";
 				break;
-			case 0xc5:
+			case 0xc500:
 				baseName = "ABAT";
 				break;
-			case 0xc6:
+			case 0xc600:
 				baseName = "NBEGH";
 				break;
-			case 0xc7:
-			{
-				if (low == 0x10)
-					baseName = "NGRLL";
-				else
-					baseName = "NBOYL";
+			case 0xc700:
+				baseName = "NBOYL";
 				break;
-			}
-			case 0xc8:
-			{
-				if (low == 0x10)
-					baseName = "NFAWH";
-				else
-					baseName = "NFAMH";
+			case 0xc710:
+				baseName = "NGRLL";
 				break;
-			}
+			case 0xc800:
+				baseName = "NFAMH";
+				break;
+			case 0xc810:
+				baseName = "NFAWH";
+				break;
 			/*case 0xc9:
 			{
 				if (low == 0x10)
@@ -341,16 +344,16 @@ Actor::AnimationFor(Actor &actor)
 				break;
 			}*/
 			// Birds
-			case 0xd0:
+			case 0xd000:
 				baseName = "AEAG";
 				break;
-			case 0xd1:
+			case 0xd100:
 				baseName = "AGUL";
 				break;
-			case 0xd2:
+			case 0xd200:
 				baseName = "AVUL";
 				break;
-			case 0xd3:
+			case 0xd300:
 				baseName = "ABIR";
 				break;
 			default:
@@ -371,29 +374,22 @@ Actor::AnimationFor(Actor &actor)
 		}
 		strcpy(nameRef.name, baseName.c_str());
 	} else {
-		// TODO: Implement
-		/*char name[8];
+		// TODO: Implement for real
+		char name[8];
 		// These fields are required
 		name[0] = GeneralToLetter(creature->General());
 		name[1] = RaceToLetter(creature->Race());
 		name[2] = low == 0x10 ? 'F' : 'M';
 		name[3] = ClassToLetter(creature->Class());
+		if (name[3] != 'F' && name[3] != 'C')
+			name[4] = '2';
+		else
+			name[4] = '4'; //ArmorToLetter();
+		name[5] = 'A'; // Action
+		if (name[5] == 'A' || name[5] == 'G')
+			name[6] = '1'; // Detail
 
-		// these could be optional
-		char *namePtr = &name[4];
-		if (name[3] == 'F' || name[3] == 'C')
-			*namePtr++ = '4';
-		else if (name[0] != 'M')
-			*namePtr++ = '2';
-
-		*namePtr++ = 'G'; // action
-		*namePtr++ = '1'; // weapon or nothing
-		if (namePtr != &name[7])
-			*namePtr = '\0';
-*/
-		strcpy(nameRef.name, "NBOYLG1");
-		//memcpy(nameRef.name, "NBOYLG1E", sizeof(nameRef.name));
-		//memcpy(nameRef.name, name, sizeof(name));
+		strcpy(nameRef.name, name);
 		printf("nameRef: %s\n", (const char *)nameRef);
 	}
 

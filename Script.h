@@ -20,10 +20,12 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
-
+class Actor;
 class Script {
 public:
 	Script(node *rootNode);
+	~Script();
+
 	void Print() const;
 
 	node* RootNode();
@@ -31,13 +33,20 @@ public:
 
 	void SetProcessed();
 	bool Processed() const;
+
+	Actor* Target() const;
 private:
+	friend class Actor;
+
 	void _PrintNode(node* n) const;
 	node* _FindNode(block_type type, node* start);
 
 	node *fRootNode;
 	node *fCurrentNode;
+
+	Actor* fActor;
 	bool fProcessed;
+
 };
 
 

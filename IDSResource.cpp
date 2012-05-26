@@ -72,10 +72,6 @@ IDSResource::Load(Archive *archive, uint32 key)
 	if (fData->ReadLine(string, sizeof(string)) != NULL)
 		numEntries = atoi(string);
 
-	//printf("%s, %d entries\n", (const char*)fName, numEntries);
-	//if (!strcmp(fName, "SPECIFIC"))
-	//	Write("specific.txt");
-
 	// PFFFT! just ignore the number of entries,
 	// since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
