@@ -4,6 +4,7 @@
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "BmpResource.h"
+#include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "Graphics.h"
@@ -16,7 +17,6 @@
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "WedResource.h"
-#include "World.h"
 
 #include <assert.h>
 #include <iostream>
@@ -72,7 +72,7 @@ Room::Load(const char *resName)
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	if (fBcs != NULL)
-		GetWorld()->AddScript(fBcs->GetScript());
+		Core::Get()->AddScript(fBcs->GetScript());
 
 	_LoadOverlays();
 	_InitTileCells();
@@ -242,7 +242,7 @@ Room::RemoveActor(Actor* actor)
 	// TODO: Can't do that with a std::vector.
 	// switch to a map ?
 	//fActors.
-	GetWorld()->RemoveActorScript(actor->Name());
+	Core::Get()->RemoveActorScript(actor->Name());
 }
 
 
@@ -437,11 +437,9 @@ void
 Room::_InitVariables()
 {
 	uint32 numVars = fArea->CountVariables();
-	World *world = GetWorld();
 	for (uint32 n = 0; n < numVars; n++) {
 		variable var = fArea->VariableAt(n);
-		world->SetVariable(var.name, var.value);
-		//var.Print();
+		Core::Get()->SetVariable(var.name, var.value);
 	}
 }
 

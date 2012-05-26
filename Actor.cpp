@@ -2,13 +2,14 @@
 #include "Animation.h"
 #include "BamResource.h"
 #include "BCSResource.h"
+#include "Core.h"
 #include "CreResource.h"
 #include "Graphics.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Script.h"
-#include "World.h"
+
 
 #include <assert.h>
 #include <string>
@@ -31,7 +32,7 @@ Actor::Actor(::actor &actor)
 		fAnimation = NULL;
 	}
 
-	actor.Print();
+	//actor.Print();
 }
 
 
@@ -95,9 +96,6 @@ Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (image == NULL)
 		return;
 
-	//char name[256];
-	//snprintf(name, 256, "/home/stefano/dumps/%s%d.bmp", Name(), fAnimation->fCurrentFrame);
-	//SDL_SaveBMP(image, name);
 	point center = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 

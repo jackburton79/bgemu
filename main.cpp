@@ -1,10 +1,10 @@
 #include "BamResource.h"
+#include "Core.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "MveResource.h"
 #include "Stream.h"
-#include "World.h"
 
 #include <getopt.h>
 #include <SDL.h>
@@ -77,9 +77,8 @@ main(int argc, char **argv)
 	SDL_Surface *screen = SDL_SetVideoMode(1100, 700, 16, 0);
 	SDL_WM_SetCaption(sRoomName, NULL);
 
-	World world;
-	world.EnterArea(sRoomName);
-	Room *map = world.CurrentArea();
+	Core::Get()->EnterArea(sRoomName);
+	Room *map = Core::Get()->CurrentArea();
 	if (sDumpOverlays)
 		map->DumpOverlays("/home/stefano/dumps");
 	SDL_Rect rect = { 0, 0, screen->w, screen->h };
@@ -150,7 +149,7 @@ main(int argc, char **argv)
 						break;
 				}
 			}
-			//world.CheckScripts();
+			//Core::Get()-.CheckScripts();
 			map->Draw(screen);
 			SDL_Delay(100);
 		}

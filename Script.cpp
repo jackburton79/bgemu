@@ -56,18 +56,7 @@ Script::Print() const
 node*
 Script::FindNode(block_type type, node* start)
 {
-	// TODO: The start node does not count
-	/*if (start->type == type)
-		return start;
-*/
-	node_list::iterator i;
-	for (i = start->children.begin(); i != start->children.end(); i++) {
-		node *n = _FindNode(type, *i);
-		if (n != NULL)
-			return n;
-	}
-
-	return NULL;
+	return start->FindNode(type);
 }
 
 
@@ -108,22 +97,6 @@ Script::_PrintNode(node* n) const
 	printf("<%s/>\n", n->header);
 }
 
-
-node*
-Script::_FindNode(block_type type, node* start)
-{
-	if (start->type == type)
-		return start;
-
-	node_list::iterator i;
-	for (i = start->children.begin(); i != start->children.end(); i++) {
-		node *n = _FindNode(type, *i);
-		if (n != NULL)
-			return n;
-	}
-
-	return NULL;
-}
 
 // node
 /* static */
@@ -195,6 +168,23 @@ node::Next() const
 				return NULL;
 			return *i;
 		}
+	}
+
+	return NULL;
+}
+
+
+node*
+node::FindNode(block_type nodeType) const
+{
+	if (type == nodeType)
+		return const_cast<node*>(this);
+
+	node_list::const_iterator i;
+	for (i = children.begin(); i != children.end(); i++) {
+		node *n = (*i)->FindNode(nodeType);
+		if (n != NULL)
+			return n;
 	}
 
 	return NULL;

@@ -39,7 +39,6 @@ private:
 	friend class Actor;
 
 	void _PrintNode(node* n) const;
-	node* _FindNode(block_type type, node* start);
 
 	node *fRootNode;
 	node *fCurrentNode;
@@ -57,6 +56,7 @@ struct node {
 	void AddChild(node *child);
 	node* Next() const;
 	node* Previous() const;
+	node* FindNode(block_type nodeType) const;
 
 	virtual void Print() const;
 
