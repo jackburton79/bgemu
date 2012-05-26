@@ -47,8 +47,9 @@ public:
 	static void Add(Actor *a);
 	static void Remove(const char* name);
 	static Actor* At(uint32 i);
-	static Actor* Get(const char* name);
+	static Actor* GetByName(const char* name);
 	static std::vector<Actor*>& List();
+
 private:
 	actor *fActor;
 	Animation *fAnimation;

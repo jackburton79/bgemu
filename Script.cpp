@@ -54,7 +54,7 @@ Script::Print() const
 
 
 node*
-Script::FindNode(block_type type, node* start)
+Script::FindNode(block_type type, node* start) const
 {
 	return start->FindNode(type);
 }

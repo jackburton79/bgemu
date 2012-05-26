@@ -106,7 +106,7 @@ Actor::At(uint32 i)
 
 /* static */
 Actor*
-Actor::Get(const char* name)
+Actor::GetByName(const char* name)
 {
 	return NULL;
 }

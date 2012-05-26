@@ -29,7 +29,7 @@ public:
 	void Print() const;
 
 	node* RootNode();
-	node* FindNode(block_type type, node* start);
+	node* FindNode(block_type type, node* start) const;
 
 	void SetProcessed();
 	bool Processed() const;

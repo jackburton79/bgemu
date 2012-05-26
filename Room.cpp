@@ -453,7 +453,7 @@ Room::_InitDoors()
 		Door *door = new Door(fArea->DoorAt(c));
 		fWed->GetDoorTiles(door, c);
 		Door::Add(door);
-		//door->Print();
+
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
