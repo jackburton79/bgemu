@@ -5,6 +5,8 @@
 
 #include <SDL.h>
 
+#include <vector>
+
 enum orientation {
 	ORIENTATION_S	= 0,
 	ORIENTATION_SW	= 1,
@@ -38,8 +40,15 @@ public:
 	void Draw(SDL_Surface *surface, SDL_Rect area);
 	void SetScript(Script *script);
 	::Script* Script();
+
 	static res_ref AnimationFor(Actor &actor);
 
+	// Global list of actors
+	static void Add(Actor *a);
+	static void Remove(const char* name);
+	static Actor* At(uint32 i);
+	static Actor* Get(const char* name);
+	static std::vector<Actor*>& List();
 private:
 	actor *fActor;
 	Animation *fAnimation;
@@ -47,6 +56,7 @@ private:
 	BCSResource* fBCSResource;
 	bool fOwnsActor;
 
+	static std::vector<Actor*> sActors;
 };
 
 #endif //__ACTOR_H

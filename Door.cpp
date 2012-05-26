@@ -1,5 +1,8 @@
 #include "Door.h"
 
+
+std::map<std::string, Door*> Door::sDoors;
+
 Door::Door(door* areaDoor)
 	:
 	fAreaDoor(areaDoor)
@@ -32,4 +35,20 @@ void
 Door::Print() const
 {
 	printf("%s\n", (const char*)fAreaDoor->id);
+}
+
+
+/* static */
+void
+Door::Add(Door* door)
+{
+	sDoors[door->fAreaDoor->name] = door;
+}
+
+
+/* static */
+Door*
+Door::GetByName(const char* name)
+{
+	return sDoors[name];
 }

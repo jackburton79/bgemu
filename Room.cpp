@@ -229,24 +229,6 @@ Room::ToggleAnimations()
 
 
 void
-Room::AddActor(Actor* actor)
-{
-	fActors.push_back(actor);
-	//GetWorld()->AddActorScript(actor->Name(), actor->Script());
-}
-
-
-void
-Room::RemoveActor(Actor* actor)
-{
-	// TODO: Can't do that with a std::vector.
-	// switch to a map ?
-	//fActors.
-	Core::Get()->RemoveActorScript(actor->Name());
-}
-
-
-void
 Room::DumpOverlays(const char* path)
 {
 	// TODO: Code duplication with _DrawBaseMap().
@@ -402,7 +384,7 @@ void
 Room::_DrawActors(SDL_Surface *surface, SDL_Rect area)
 {
 	std::vector<Actor*>::iterator a;
-	for (a = fActors.begin(); a != fActors.end(); a++) {
+	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
 			(*a)->Draw(surface, area);
 		} catch (...) {
@@ -456,7 +438,7 @@ void
 Room::_LoadActors()
 {
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		AddActor(new Actor(*fArea->ActorAt(i)));
+		Actor::Add(new Actor(*fArea->ActorAt(i)));
 	}
 }
 
@@ -470,7 +452,7 @@ Room::_InitDoors()
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
 		fWed->GetDoorTiles(door, c);
-		fDoors.push_back(door);
+		Door::Add(door);
 		//door->Print();
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);

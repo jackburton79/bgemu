@@ -3,6 +3,7 @@
 
 #include "IETypes.h"
 
+#include <map>
 #include <vector>
 
 class Door {
@@ -14,8 +15,14 @@ public:
 
 	bool Opened() const;
 	void Print() const;
+
+	static void Add(Door* door);
+	static Door* GetByName(const char* name);
+
 private:
 	door* fAreaDoor;
+
+	static std::map<std::string, Door*> sDoors;
 };
 
 #endif // __DOOR_H

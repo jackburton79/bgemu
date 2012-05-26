@@ -2,6 +2,7 @@
 
 #include "Actor.h"
 #include "CreResource.h"
+#include "Door.h"
 #include "IDSResource.h"
 #include "ResManager.h"
 #include "Room.h"
@@ -239,9 +240,13 @@ Core::_EvaluateTrigger(trigger* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object* obj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
-				obj->Print();
-				break;
+				object* doorObj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
+				Door *door = Door::GetByName(doorObj->name);
+				if (door == NULL)
+					break;
+
+				bool paramOpen = trig->parameter1 == 1;
+				return door->Opened() == paramOpen;
 			}
 #if 0
 			//TODO: Change the implementation of CheckTriggers, otherwise we cannot
@@ -289,7 +294,7 @@ Core::_ExecuteAction(action* act)
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			Actor* actor = new Actor(act->string1, act->where, act->parameter);
-			fCurrentRoom->AddActor(actor);
+			Actor::Add(actor);
 			break;
 		}
 		case 0x24:

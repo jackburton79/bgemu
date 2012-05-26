@@ -14,6 +14,9 @@
 #include <assert.h>
 #include <string>
 
+
+std::vector<Actor*> Actor::sActors;
+
 Actor::Actor(::actor &actor)
 	:
 	fActor(&actor),
@@ -74,6 +77,46 @@ Actor::~Actor()
 	gResManager->ReleaseResource(fCRE);
 	gResManager->ReleaseResource(fBCSResource);
 	delete fAnimation;
+}
+
+
+/* static */
+void
+Actor::Add(Actor* actor)
+{
+	sActors.push_back(actor);
+}
+
+
+/* static */
+void
+Actor::Remove(const char* name)
+{
+
+}
+
+
+/* static */
+Actor*
+Actor::At(uint32 i)
+{
+	return sActors[i];
+}
+
+
+/* static */
+Actor*
+Actor::Get(const char* name)
+{
+	return NULL;
+}
+
+
+/* static */
+std::vector<Actor*>&
+Actor::List()
+{
+	return sActors;
 }
 
 
