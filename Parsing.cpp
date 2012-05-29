@@ -104,17 +104,17 @@ void
 Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 {
 	trigger* trig = dynamic_cast<trigger*>(node);
-	if (!trig)
-		return;
-	trig->id = tokenizer->ReadToken().u.number;
-	trig->parameter1 = tokenizer->ReadToken().u.number;
-	trig->flags = tokenizer->ReadToken().u.number;
-	trig->parameter2 = tokenizer->ReadToken().u.number;
-	trig->unknown = tokenizer->ReadToken().u.number;
-	strcpy(trig->string1, tokenizer->ReadToken().u.string + 1);
-	trig->string1[strlen(trig->string1) - 1] = '\0';
-	strcpy(trig->string2, tokenizer->ReadToken().u.string + 1);
-	trig->string2[strlen(trig->string2) - 1] = '\0';
+	if (trig) {
+		trig->id = tokenizer->ReadToken().u.number;
+		trig->parameter1 = tokenizer->ReadToken().u.number;
+		trig->flags = tokenizer->ReadToken().u.number;
+		trig->parameter2 = tokenizer->ReadToken().u.number;
+		trig->unknown = tokenizer->ReadToken().u.number;
+		strcpy(trig->string1, tokenizer->ReadToken().u.string + 1);
+		trig->string1[strlen(trig->string1) - 1] = '\0';
+		strcpy(trig->string2, tokenizer->ReadToken().u.string + 1);
+		trig->string2[strlen(trig->string2) - 1] = '\0';
+	}
 }
 
 
@@ -123,21 +123,21 @@ void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 {
 	object* obj = dynamic_cast<object*>(node);
-	if (!obj)
-		return;
-	obj->team = tokenizer->ReadNextToken().u.number;
-	obj->faction = tokenizer->ReadNextToken().u.number;
-	obj->ea = tokenizer->ReadNextToken().u.number;
-	obj->general = tokenizer->ReadNextToken().u.number;
-	obj->team = tokenizer->ReadNextToken().u.number;
-	obj->classs = tokenizer->ReadNextToken().u.number;
-	obj->specific = tokenizer->ReadNextToken().u.number;
-	obj->gender = tokenizer->ReadNextToken().u.number;
-	obj->alignment = tokenizer->ReadNextToken().u.number;
-	obj->specifiers = tokenizer->ReadNextToken().u.number;
-	tokenizer->ReadNextToken(); //skip
-	tokenizer->ReadNextToken(); //skip
-	strcpy(obj->name, tokenizer->ReadNextToken().u.string);
+	if (obj) {
+		obj->team = tokenizer->ReadNextToken().u.number;
+		obj->faction = tokenizer->ReadNextToken().u.number;
+		obj->ea = tokenizer->ReadNextToken().u.number;
+		obj->general = tokenizer->ReadNextToken().u.number;
+		obj->team = tokenizer->ReadNextToken().u.number;
+		obj->classs = tokenizer->ReadNextToken().u.number;
+		obj->specific = tokenizer->ReadNextToken().u.number;
+		obj->gender = tokenizer->ReadNextToken().u.number;
+		obj->alignment = tokenizer->ReadNextToken().u.number;
+		obj->specifiers = tokenizer->ReadNextToken().u.number;
+		tokenizer->ReadNextToken(); //skip
+		tokenizer->ReadNextToken(); //skip
+		strcpy(obj->name, tokenizer->ReadNextToken().u.string);
+	}
 }
 
 
@@ -146,20 +146,20 @@ void
 Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 {
 	action* act = dynamic_cast<action*>(node);
-	if (!act)
-		return;
-	act->id = tokenizer->ReadNextToken().u.number;
-	act->parameter = tokenizer->ReadNextToken().u.number;
-	act->where.x = tokenizer->ReadNextToken().u.number;
-	act->where.y = tokenizer->ReadNextToken().u.number;
-	act->e = tokenizer->ReadNextToken().u.number;
-	act->f = tokenizer->ReadNextToken().u.number;
-	// TODO: This removes "" from strings. Broken. Should do this from
-	// the beginning!!!
-	strcpy(act->string1, tokenizer->ReadToken().u.string + 1);
-	act->string1[strlen(act->string1) - 1] = '\0';
-	strcpy(act->string2, tokenizer->ReadToken().u.string + 1);
-	act->string2[strlen(act->string2) - 1] = '\0';
+	if (act) {
+		act->id = tokenizer->ReadNextToken().u.number;
+		act->parameter = tokenizer->ReadNextToken().u.number;
+		act->where.x = tokenizer->ReadNextToken().u.number;
+		act->where.y = tokenizer->ReadNextToken().u.number;
+		act->e = tokenizer->ReadNextToken().u.number;
+		act->f = tokenizer->ReadNextToken().u.number;
+		// TODO: This removes "" from strings. Broken. Should do this from
+		// the beginning!!!
+		strcpy(act->string1, tokenizer->ReadToken().u.string + 1);
+		act->string1[strlen(act->string1) - 1] = '\0';
+		strcpy(act->string2, tokenizer->ReadToken().u.string + 1);
+		act->string2[strlen(act->string2) - 1] = '\0';
+	}
 }
 
 
@@ -168,9 +168,8 @@ void
 Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 {
 	response* resp = dynamic_cast<response*>(node);
-	if (!resp)
-		return;
-	resp->probability = tokenizer->ReadNextToken().u.number;
+	if (resp)
+		resp->probability = tokenizer->ReadNextToken().u.number;
 }
 
 

@@ -17,10 +17,10 @@ struct op_stream_header {
 
 
 class MovieDecoder;
-class MveResource : public Resource {
+class MVEResource : public Resource {
 public:
-	MveResource();
-	virtual ~MveResource();
+	MVEResource(const res_ref &name);
+	virtual ~MVEResource();
 	
 	void Play();
 

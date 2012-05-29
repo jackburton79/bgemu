@@ -75,7 +75,6 @@ BAMResource::_FindTransparentIndex()
 	for (uint16 i = 0; i < 256; i++) {
 		const SDL_Color *color = &fPalette[i];
 		if (color->r == 0 and color->g == 255 and color->b == 0) {
-			//printf("transparent index: %d\n", i);
 			return i;
 		}
 	}

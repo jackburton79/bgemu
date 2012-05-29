@@ -45,7 +45,6 @@ private:
 
 	Actor* fActor;
 	bool fProcessed;
-
 };
 
 

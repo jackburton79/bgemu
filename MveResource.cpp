@@ -5,17 +5,17 @@
 
 #include <iostream>
 
-enum {
+enum chunk_type {
 	CHUNK_AUDIO_INIT 	= 0,
 	CHUNK_AUDIO			= 1,
 	CHUNK_VIDEO_INIT 	= 2,
 	CHUNK_VIDEO			= 3,
 	CHUNK_SHUTDOWN		= 4,
 	CHUNK_END			= 5
-} chunk_type ;
+} ;
 
 
-enum {
+enum movie_opcodes {
 	OP_END_OF_STREAM		= 0x00,
 	OP_END_OF_CHUNK			= 0x01,
 	OP_CREATE_TIMER			= 0x02,
@@ -30,13 +30,13 @@ enum {
 	OP_VIDEO_DATA			= 0x11,
 	OP_UNKNOWN_13			= 0x13,
 	OP_UNKNOWN_15			= 0x15,
-} movie_opcodes;
+};
 
 
-MveResource::MveResource(res_chunk chunk)
+MVEResource::MVEResource(const res_ref &name)
 	:
-	Resource(chunk)
-{
+	Resource(name, RES_MVE)
+{/*
 	char signature[19];
 	Read(signature, 20);
 	cout << signature << endl;
@@ -44,19 +44,19 @@ MveResource::MveResource(res_chunk chunk)
 	
 	(*this) >> magic;
 	cout << magic[0] << " " << magic[1] << " " << magic[2] << endl;
-	
-	fDecoder = new MovieDecoder();
+	*/
+	//fDecoder = new MovieDecoder();
 }
 
 
-MveResource::~MveResource()
+MVEResource::~MVEResource()
 {
-	delete fDecoder;
+	//delete fDecoder;
 }
 
 
 void
-MveResource::Play()
+MVEResource::Play()
 {
 	while (GetNextChunk())
 		;
@@ -64,8 +64,8 @@ MveResource::Play()
 
 
 bool
-MveResource::GetNextChunk()
-{
+MVEResource::GetNextChunk()
+{/*
 	try {
 		if ((uint32)Position() >= Size())
 			return false;
@@ -81,30 +81,30 @@ MveResource::GetNextChunk()
 	} catch (const char *str) {
 		cout << str << endl;
 		return false;
-	}
+	}*/
 	return true;
 }
 
 
 void
-MveResource::DecodeChunk(chunk_header header)
+MVEResource::DecodeChunk(chunk_header header)
 {
-	cout << "CHUNK: " << chunktostr(header) << endl;
+	//cout << "CHUNK: " << chunktostr(header) << endl;
 	op_stream_header opHeader;
-	do {	
+	/*do {
 		(*this) >> opHeader;
-	} while (ExecuteOpcode(opHeader));
+	} while (ExecuteOpcode(opHeader));*/
 }
 
 
 bool
-MveResource::ExecuteOpcode(op_stream_header opcode)
+MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	cout << opcodetostr(opcode.type) << " (" << hex << (int)opcode.type << ") ";
+	/*cout << opcodetostr(opcode.type) << " (" << hex << (int)opcode.type << ") ";
 	cout << " length: " << opcode.length << endl;
 	
 	//cout << "version: " << (int)opcode.version << endl;
-	
+
 	switch (opcode.type) {
 		case OP_END_OF_STREAM:
 		case OP_END_OF_CHUNK:
@@ -158,7 +158,7 @@ MveResource::ExecuteOpcode(op_stream_header opcode)
 			//cout << "\tunimplemented" << endl;
 			Seek(opcode.length, SEEK_CUR);
 			break;
-	}
+	}*/
 	return true;
 }
 

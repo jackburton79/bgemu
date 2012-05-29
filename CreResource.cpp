@@ -122,9 +122,10 @@ CREResource::Gender()
 }
 
 
-void
-CREResource::GetColors(CREColors &colors)
+CREColors
+CREResource::Colors()
 {
+	CREColors colors;
 	fData->ReadAt(0x2c, colors.metal);
 	fData->ReadAt(0x2d, colors.minor);
 	fData->ReadAt(0x2e, colors.major);
@@ -132,6 +133,7 @@ CREResource::GetColors(CREColors &colors)
 	fData->ReadAt(0x30, colors.leather);
 	fData->ReadAt(0x31, colors.armor);
 	fData->ReadAt(0x32, colors.hair);
+	return colors;
 }
 
 
@@ -161,6 +163,41 @@ CREResource::Gold()
 	return gold;
 }
 
+
+res_ref
+CREResource::OverrideScriptName()
+{
+	res_ref name;
+	fData->ReadAt(0x248, name);
+	return name;
+}
+
+
+res_ref
+CREResource::ClassScriptName()
+{
+	res_ref name;
+	fData->ReadAt(0x250, name);
+	return name;
+}
+
+
+res_ref
+CREResource::RaceScriptName()
+{
+	res_ref name;
+	fData->ReadAt(0x258, name);
+	return name;
+}
+
+
+res_ref
+CREResource::GeneralScriptName()
+{
+	res_ref name;
+	fData->ReadAt(0x260, name);
+	return name;
+}
 
 res_ref
 CREResource::DefaultScriptName()

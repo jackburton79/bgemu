@@ -2,7 +2,7 @@
 #define __MOVIEDECODER_H
 
 #include "SDL.h"
-#include "Types.h"
+#include "IETypes.h"
 
 class Stream;
 class MovieDecoder {

@@ -20,6 +20,7 @@ class BCSResource;
 class BMPResource;
 class CREResource;
 class IDSResource;
+class MVEResource;
 class KEYResource;
 class TISResource;
 class TLKResource;
@@ -41,6 +42,7 @@ public:
 	TISResource *GetTIS(const res_ref &name);
 	WEDResource *GetWED(const res_ref &name);
 	ARAResource *GetARA(const res_ref &name);
+	MVEResource *GetMVE(const res_ref &name);
 
 	void ReleaseResource(Resource *resource);
 	

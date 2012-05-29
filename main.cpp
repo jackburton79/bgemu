@@ -150,6 +150,7 @@ main(int argc, char **argv)
 				}
 			}
 			//Core::Get()-.CheckScripts();
+			Core::Get()->UpdateLogic();
 			map->Draw(screen);
 			SDL_Delay(100);
 		}

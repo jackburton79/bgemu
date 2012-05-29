@@ -123,7 +123,7 @@ public:
 	uint8 Class();
 	uint8 Specific();
 	uint8 Gender();
-	void GetColors(CREColors &colors);
+	CREColors Colors();
 
 	uint32 Experience();
 	uint32 ExperienceValue();
@@ -131,6 +131,10 @@ public:
 	
 	void GetAttributes(BaseAttributes &attributes);
 	
+	res_ref OverrideScriptName();
+	res_ref ClassScriptName();
+	res_ref RaceScriptName();
+	res_ref GeneralScriptName();
 	res_ref DefaultScriptName();
 
 	const char *DialogFile();

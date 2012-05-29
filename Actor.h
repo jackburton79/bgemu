@@ -34,19 +34,24 @@ public:
 	point Position() const;
 	orientation Orientation() const;
 	point Destination() const;
+	void SetDestination(const point &dest);
 
 	CREResource *CRE();
 
 	void Draw(SDL_Surface *surface, SDL_Rect area);
+
 	void SetScript(Script *script);
 	::Script* Script();
+
+
+	void UpdateMove();
 
 	static res_ref AnimationFor(Actor &actor);
 
 	// Global list of actors
 	static void Add(Actor *a);
 	static void Remove(const char* name);
-	static Actor* At(uint32 i);
+	static Actor* GetByIndex(uint32 i);
 	static Actor* GetByName(const char* name);
 	static std::vector<Actor*>& List();
 
@@ -58,6 +63,8 @@ private:
 	bool fOwnsActor;
 
 	static std::vector<Actor*> sActors;
+
+	void _Init();
 };
 
 #endif //__ACTOR_H

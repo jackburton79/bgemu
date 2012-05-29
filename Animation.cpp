@@ -12,6 +12,8 @@ Animation::Animation(animation *animDesc)
 	fMaxFrame(0)
 {
 	fBAM = gResManager->GetBAM(animDesc->bam_name);
+	if (fBAM == NULL)
+		throw -1;
 	fCycleNumber = animDesc->sequence;
 	fCenter = animDesc->center;
 	fCurrentFrame = animDesc->frame;
@@ -35,6 +37,9 @@ Animation::Animation(Actor *actor)
 	fMirrored(false)
 {
 	fBAM = gResManager->GetBAM(Actor::AnimationFor(*actor));
+	if (fBAM == NULL)
+		throw -1;
+
 	fCycleNumber = actor->Orientation() % 4;
 	if (fCycleNumber > fBAM->CountCycles())
 		fCycleNumber = fBAM->CountCycles() - 1;
@@ -55,11 +60,13 @@ Animation::~Animation()
 Frame
 Animation::NextFrame()
 {
+	if (fBAM == NULL)
+		printf("BAM is NULL!!!!\n");
 	Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
-	/*if (fMirrored) {
+	if (fMirrored) {
 		frame.surface = Graphics::MirrorSDLSurface(frame.surface);
 		frame.rect.x = frame.rect.x - frame.rect.w;
-	}*/
+	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
 		//SDL_SetColorKey(frame.surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);

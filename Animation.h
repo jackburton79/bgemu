@@ -20,6 +20,7 @@ public:
 	int16 fCycleNumber;
 	int16 fCurrentFrame;
 	uint16 fMaxFrame;
+	//int fType;
 	bool fHold;
 	bool fBlackAsTransparent;
 	bool fMirrored;

@@ -6,6 +6,7 @@
 #include "CreResource.h"
 #include "IDSResource.h"
 #include "KEYResource.h"
+#include "MveResource.h"
 #include "ResManager.h"
 #include "Resource.h"
 #include "FileStream.h"
@@ -14,7 +15,6 @@
 #include "IETypes.h"
 #include "Utils.h"
 #include "WedResource.h"
-#include "World.h"
 
 #include <assert.h>
 #include <iostream>
@@ -130,6 +130,9 @@ ResourceManager::Initialize(const char *path)
 Resource *
 ResourceManager::_GetResource(const res_ref &name, uint16 type)
 {
+	if (!strcmp(name.name, ""))
+		return NULL;
+
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
 		printf("ResourceManager::GetResource(%s, %s): Resource does not exist!\n",
@@ -204,7 +207,7 @@ BAMResource *
 ResourceManager::GetBAM(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BAM);
-	//assert(dynamic_cast<BAMResource *>(resource));
+	assert(dynamic_cast<BAMResource *>(resource));
 	
 	return static_cast<BAMResource *>(resource);
 }
@@ -247,6 +250,16 @@ ResourceManager::GetIDS(const res_ref &name)
 	//assert(dynamic_cast<IDSResource *>(resource));
 
 	return static_cast<IDSResource *>(resource);
+}
+
+
+MVEResource *
+ResourceManager::GetMVE(const res_ref &name)
+{
+	Resource *resource = _GetResource(name, RES_MVE);
+	//assert(dynamic_cast<ARAResource *>(resource));
+
+	return static_cast<MVEResource *>(resource);
 }
 
 

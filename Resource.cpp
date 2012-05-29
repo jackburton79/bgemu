@@ -7,6 +7,7 @@
 #include "FileStream.h"
 #include "IDSResource.h"
 #include "KEYResource.h"
+#include "MveResource.h"
 #include "MemoryStream.h"
 #include "Resource.h"
 #include "SupportDefs.h"
@@ -281,6 +282,9 @@ Resource::Create(const res_ref &name, uint16 type)
 				break;
 			case RES_WED:
 				res = new WEDResource(name);
+				break;
+			case RES_MVE:
+				res = new MVEResource(name);
 				break;
 			default:
 				throw "Unknown resource!";

@@ -25,17 +25,7 @@ Actor::Actor(::actor &actor)
 	fBCSResource(NULL),
 	fOwnsActor(false)
 {
-	fCRE = gResManager->GetCRE(fActor->cre);
-	// TODO: Get all scripts ? or just the specific one ?
-	//fBCSResource = gResManager->GetBCS(fActor->script_class);
-	try {
-		fAnimation = new Animation(this);
-	} catch (...) {
-		delete fAnimation;
-		fAnimation = NULL;
-	}
-
-	//actor.Print();
+	_Init();
 }
 
 
@@ -49,19 +39,43 @@ Actor::Actor(const char* creName, point position, int face)
 {
 	fActor = new actor;
 	fActor->cre = creName;
+	strcpy(fActor->name, fActor->cre);
 	//fActor->orientation = std::min(face, 7);
 	fActor->orientation = 0;
 	fActor->position = position;
 
-	fCRE = gResManager->GetCRE(creName);
-	//fBCSResource = gResManager->GetBCS(fCRE->DefaultScriptName());
+	_Init();
+}
 
-	strcpy(fActor->name, AnimateIDS()->ValueFor(fCRE->AnimationID()));
+
+void
+Actor::_Init()
+{
+	fCRE = gResManager->GetCRE(fActor->cre);
+
+	fActor->Print();
+
+	printf("%d\n", fCRE->Colors().major);
+	// TODO: Get all scripts ? or just the specific one ?
+
+	if (fCRE == NULL)
+		throw "error!!!";
+	//fBCSResource = gResManager->GetBCS(fCRE->DefaultScriptName());
+	//gResManager->GetBCS(fCRE->OverrideScriptName());
+	//gResManager->GetBCS(fCRE->RaceScriptName());
+	//printf("ScriptName: %s\n", (const char*)fCRE->GeneralScriptName());
+	gResManager->GetBCS(fCRE->GeneralScriptName());
+	//gResManager->GetBCS(fCRE->ClassScriptName());
+
+
+	if (fBCSResource != NULL)
+		fBCSResource->GetScript()->fActor = this;
 
 	try {
 		fAnimation = new Animation(this);
 	} catch (...) {
-		delete fAnimation;
+		printf("Actor::Actor(): cannot instantiate Animation\n");
+		//delete fAnimation;
 		fAnimation = NULL;
 	}
 
@@ -98,7 +112,7 @@ Actor::Remove(const char* name)
 
 /* static */
 Actor*
-Actor::At(uint32 i)
+Actor::GetByIndex(uint32 i)
 {
 	return sActors[i];
 }
@@ -139,6 +153,7 @@ Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (image == NULL)
 		return;
 
+
 	point center = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 
@@ -173,6 +188,13 @@ point
 Actor::Destination() const
 {
 	return fActor->destination;
+}
+
+
+void
+Actor::SetDestination(const point& point)
+{
+	fActor->destination = point;
 }
 
 
@@ -255,58 +277,33 @@ ClassToLetter(uint8 cclass)
 }
 
 
+void
+Actor::UpdateMove()
+{
+	if (fActor->position.x != fActor->destination.x)
+		printf("MOVING!!!!\n");
+
+	if (fActor->position.x < fActor->destination.x)
+		fActor->position.x++;
+	else if (fActor->position.x > fActor->destination.x)
+		fActor->position.x--;
+
+	if (fActor->position.y < fActor->destination.y)
+		fActor->position.y++;
+	else if (fActor->position.y > fActor->destination.y)
+		fActor->position.y--;
+}
+
+
 static
 int
 AnimationType(int value)
 {
 	int masked = (value & 0xFF00) >> 8;
-	if (masked >= 0x61 && masked <= 0x63)
+	if ((masked >= 0x61 && masked <= 0x63)
+		|| masked == 0x50)
 		return 2;
 	return 1;
-}
-
-
-static
-const char *
-WeirdMonsterCode(uint8 code)
-{
-	switch (code) {
-		case 0x01:
-			return "MMIN";
-		case 0x02:
-			return "MBEH";
-		case 0x03:
-			return "MIMP";
-		case 0x09:
-			return "MSAH";
-		case 0x0c:
-			return "MKUO";
-		case 0x11:
-			return "MUMB";
-		case 0x14:
-			return "MGIT";
-		case 0x15:
-			return "MBES";
-		case 0x16:
-			return "AMOO";
-		case 0x17:
-			return "ARAB";
-		case 0x18:
-			return "ADER";
-		case 0x20:
-			return "AGRO";
-		case 0x21:
-			return "APHE";
-		case 0x27:
-			return "MDRO";
-		case 0x28:
-			return "MKUL";
-		//case 0x2c:
-		//	return ""
-		default:
-			printf("unknown code 0x%x\n", code);
-			return "";
-	}
 }
 
 
@@ -331,8 +328,53 @@ Actor::AnimationFor(Actor &actor)
 			case 0x7a00:
 				baseName = "MSPI";
 				break;
-			case 0x7f00:
-				baseName = WeirdMonsterCode(low);
+			case 0x7e00:
+				baseName = "MWER";
+				break;
+			case 0x7f01:
+				baseName = "MMIN";
+				break;
+			case 0x7f02:
+				baseName = "MBEH";
+				break;
+			case 0x7f03:
+				baseName = "MIMP";
+				break;
+			case 0x7f09:
+				baseName = "MSAH";
+				break;
+			case 0x7f0c:
+				baseName = "MKUO";
+				break;
+			case 0x7f11:
+				baseName = "MUMB";
+				break;
+			case 0x7f14:
+				baseName = "MGIT";
+				break;
+			case 0x7f15:
+				baseName = "MBES";
+				break;
+			case 0x7f16:
+				baseName = "AMOO";
+				break;
+			case 0x7f17:
+				baseName = "ARAB";
+				break;
+			case 0x7f18:
+				baseName = "ADER";
+				break;
+			case 0x7f20:
+				baseName = "AGRO";
+				break;
+			case 0x7f21:
+				baseName = "APHE";
+				break;
+			case 0x7f27:
+				baseName = "MDRO";
+				break;
+			case 0x7f28:
+				baseName = "MKUL";
 				break;
 			/*case 0x8000:
 				baseName = "";

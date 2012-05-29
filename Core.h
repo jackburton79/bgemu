@@ -29,6 +29,7 @@ public:
 	void RemoveActorScript(const char* name);
 
 	void CheckScripts();
+	void UpdateLogic();
 
 private:
 	Room *fCurrentRoom;

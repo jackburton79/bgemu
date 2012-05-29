@@ -4,10 +4,13 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "IDSResource.h"
+#include "MveResource.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
 #include "TLKResource.h"
+
+#include <vector>
 
 static TLKResource *sDialogs;
 static IDSResource *sGeneral;
@@ -123,6 +126,20 @@ Core::CheckScripts()
 {
 	//if (fScript != NULL)
 		//_ExecuteScript(fScript);
+
+}
+
+
+void
+Core::UpdateLogic()
+{
+	std::vector<Actor*>::iterator i;
+	for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
+		//Script* script = (*i)->Script();
+		//if (script != NULL)
+			//_ExecuteScript(script);
+		(*i)->UpdateMove();
+	}
 }
 
 
@@ -138,9 +155,9 @@ Core::_ExecuteScript(Script *script)
 	// execute actions
 	printf("*** SCRIPT START ***\n");
 	::node* root = script->RootNode();
-	::node* condRes = fScript->FindNode(BLOCK_CONDITION_RESPONSE, root);
+	::node* condRes = script->FindNode(BLOCK_CONDITION_RESPONSE, root);
 	do {
-		::node* cond = fScript->FindNode(BLOCK_CONDITION, condRes);
+		::node* cond = script->FindNode(BLOCK_CONDITION, condRes);
 		while (cond != NULL) {
 			if (!_CheckTriggers(cond))
 				break;
@@ -155,6 +172,8 @@ Core::_ExecuteScript(Script *script)
 		}
 		condRes = condRes->Next();
 	} while (condRes != NULL);
+
+	printf("*** SCRIPT END ***\n");
 
 	script->SetProcessed();
 }
@@ -182,7 +201,9 @@ Core::_EvaluateTrigger(trigger* trig)
 {
 	// TODO: Move this method to Script ?
 	printf("%s (0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id);
+	trig->Print();
 
+	bool returnValue = false;
 	try {
 		switch (trig->id) {
 			case 0x0036:
@@ -191,14 +212,16 @@ Core::_EvaluateTrigger(trigger* trig)
 				Returns true if the script is processed for the first time this session,
 				e.g. when a creature is created (for CRE scripts) or when the player
 				enters an area (for ARE scripts).*/
-				return !fScript->Processed();
+				returnValue = !fScript->Processed();
+				break;
 			}
 			case 0x400F:
 			{
 				/*0x400F Global(S:Name*,S:Area*,I:Value*)
 				Returns true only if the variable with name 1st parameter
 				of type 2nd parameter has value 3rd parameter.*/
-				return GetVariable(trig->string1) == trig->parameter1;
+				returnValue = GetVariable(trig->string1) == trig->parameter1;
+				break;
 			}
 			case 0x4034:
 			{
@@ -206,13 +229,15 @@ Core::_EvaluateTrigger(trigger* trig)
 				See Global(S:Name*,S:Area*,I:Value*) except the variable
 				must be greater than the value specified to be true.
 				*/
-				return GetVariable(trig->string1) > trig->parameter1;
+				returnValue = GetVariable(trig->string1) > trig->parameter1;
+				break;
 			}
 			case 0x4035:
 			{	/*
 				0x4035 GlobalLT(S:Name*,S:Area*,I:Value*)
 				As above except for less than. */
-				return GetVariable(trig->string1) < trig->parameter1;
+				returnValue = GetVariable(trig->string1) < trig->parameter1;
+				break;
 			}
 
 			case 0x4051:
@@ -227,11 +252,17 @@ Core::_EvaluateTrigger(trigger* trig)
 				 * killed by a neutral creature.
 				 */
 				Script* actorScript = fScripts[trig->string1];
-				if (actorScript == NULL)
-					break;
-				// TODO: More NULL checking
-				const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
-				return fVariables[deathVariable] == 1;
+				if (actorScript != NULL) {
+					// TODO: More NULL checking
+					const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
+					returnValue = fVariables[deathVariable] == 1;
+				}
+				break;
+			}
+			case 0x4072:
+			{
+				/* NumDeadGT(S:Name*,I:Num*) (0x4072)*/
+				break;
 			}
 			case 0x4076:
 			{
@@ -242,11 +273,11 @@ Core::_EvaluateTrigger(trigger* trig)
 				 */
 				object* doorObj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
 				Door *door = Door::GetByName(doorObj->name);
-				if (door == NULL)
-					break;
-
-				bool paramOpen = trig->parameter1 == 1;
-				return door->Opened() == paramOpen;
+				if (door != NULL) {
+					bool paramOpen = trig->parameter1 == 1;
+					returnValue = door->Opened() == paramOpen;
+				}
+				break;
 			}
 #if 0
 			//TODO: Change the implementation of CheckTriggers, otherwise we cannot
@@ -261,14 +292,14 @@ Core::_EvaluateTrigger(trigger* trig)
 			default:
 			{
 				printf("UNIMPLEMENTED TRIGGER!!!\n");
-				trig->Print();
+
 				break;
 			}
 		}
 	} catch (...) {
 		printf("EvaluateTrigger() caught exception");
 	}
-	return false;
+	return returnValue;
 }
 
 
@@ -288,7 +319,7 @@ void
 Core::_ExecuteAction(action* act)
 {
 	printf("%s (0x%x)\n", ActionIDS()->ValueFor(act->id), act->id);
-
+	act->Print();
 	switch (act->id) {
 		case 0x07:
 		{
@@ -327,9 +358,30 @@ Core::_ExecuteAction(action* act)
 			// TODO: Implement
 			break;
 		}
+		case 0xA7:
+		{
+			printf("STARTMOVIE: %s\n", act->string1);
+			// TODO: Just playmovie, let the graphics engine do the rest
+			Resource* resource = gResManager->GetMVE(act->string1);
+			gResManager->ReleaseResource(resource);
+
+			break;
+		}
+
+		case 207:
+		{
+			/* 207 MoveToPointNoInterrupt(P:Point*)
+			 * This action causes the active creature to move to the specified coordinates.
+			 * The action will update the position of creatures as stored in ARE files
+			 * (first by setting the coordinates of the destination point, then by setting
+			 * the coordinates of the current point once the destination is reached).
+			 * Conditions are not checked until the destination point is reached.*/
+			// TODO: For the Active creature ?!?
+			break;
+		}
 		default:
 			printf("UNIMPLEMENTED ACTION!!!\n");
-			act->Print();
+
 			break;
 	}
 }
