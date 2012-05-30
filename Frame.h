@@ -3,8 +3,9 @@
 
 #include "SDL.h"
 
+class Bitmap;
 struct Frame {
-	SDL_Surface *surface;
+	Bitmap *bitmap;
 	SDL_Rect rect;
 };
 

@@ -2,9 +2,10 @@
 #include "Animation.h"
 #include "BamResource.h"
 #include "BCSResource.h"
+#include "Bitmap.h"
 #include "Core.h"
 #include "CreResource.h"
-#include "Graphics.h"
+#include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
@@ -149,24 +150,23 @@ Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 
 	Frame frame = fAnimation->NextFrame();
 
-	SDL_Surface *image = frame.surface;
+	Bitmap *image = frame.bitmap;
 	if (image == NULL)
 		return;
-
 
 	point center = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 
 	//printf("center: %d %d\n", center.x, center.y);
-	SDL_Rect rect = { center.x, center.y, image->w, image->h };
+	SDL_Rect rect = { center.x, center.y, image->Width(), image->Height() };
 
 	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 
 	if (rects_intersect(area, rect)) {
 		rect = offset_rect(rect, -area.x, -area.y);
-		SDL_BlitSurface(image, NULL, surface, &rect);
+		SDL_BlitSurface(image->Surface(), NULL, surface, &rect);
 	}
-	SDL_FreeSurface(image);
+	GraphicsEngine::DeleteBitmap(image);
 }
 
 

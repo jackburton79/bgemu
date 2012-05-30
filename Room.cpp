@@ -4,10 +4,11 @@
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "BmpResource.h"
+#include "Bitmap.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
-#include "Graphics.h"
+#include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "RectUtils.h"
 #include "ResManager.h"
@@ -359,7 +360,7 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 			point center = fAnimations[i]->fCenter;
 			center = offset_point(center, -frame.rect.w / 2,
 					-frame.rect.h / 2);
-			SDL_Surface *animImage = frame.surface;
+			SDL_Surface *animImage = frame.bitmap->Surface();
 			if (animImage == NULL)
 				continue;
 
@@ -374,7 +375,8 @@ Room::_DrawAnimations(SDL_Surface *surface, SDL_Rect area)
 			rect = offset_rect(rect, -area.x, -area.y);
 
 			SDL_BlitSurface(animImage, NULL, surface, &rect);
-			SDL_FreeSurface(animImage);
+
+			GraphicsEngine::DeleteBitmap(frame.bitmap);
 		}
 	}
 }

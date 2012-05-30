@@ -3,13 +3,13 @@
 
 #include "Frame.h"
 #include "Resource.h"
-#include "SDL.h"
 
 struct cycle {
 	uint16 numFrames;
 	uint16 index;
 };
 
+struct Palette;
 class BAMResource : public Resource {
 public:
 	BAMResource(const res_ref& name);
@@ -32,7 +32,7 @@ private:
 
 	Frame _FrameAt(uint16 index);
 
-	SDL_Color *fPalette;
+	Palette *fPalette;
 	uint32 fFramesOffset;
 	uint32 fCyclesOffset;
 	uint32 fFrameLookupOffset;

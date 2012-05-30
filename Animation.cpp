@@ -2,6 +2,7 @@
 #include "Animation.h"
 #include "BamResource.h"
 #include "Graphics.h"
+#include "GraphicsEngine.h"
 #include "ResManager.h"
 
 Animation::Animation(animation *animDesc)
@@ -64,7 +65,7 @@ Animation::NextFrame()
 		printf("BAM is NULL!!!!\n");
 	Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
-		frame.surface = Graphics::MirrorSDLSurface(frame.surface);
+		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
 		frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {

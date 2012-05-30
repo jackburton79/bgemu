@@ -1,5 +1,7 @@
 #include "BamResource.h"
+#include "Bitmap.h"
 #include "Graphics.h"
+#include "GraphicsEngine.h"
 #include "MemoryStream.h"
 #include "Path.h"
 #include "IETypes.h"
@@ -10,8 +12,6 @@
 #include <limits.h>
 
 #include <zlib.h>
-
-#include <SDL.h>
 
 #define BAM_SIGNATURE "BAM "
 #define BAMC_SIGNATURE "BAMC"
@@ -43,14 +43,15 @@ uint32 data_offset(uint32 x)
 
 BAMResource::BAMResource(const res_ref& name)
 	:
-	Resource(name, RES_BAM)
+	Resource(name, RES_BAM),
+	fPalette(NULL)
 {
 }
 
 
 BAMResource::~BAMResource()
 {
-	delete[] fPalette;
+	delete fPalette;
 }
 
 
@@ -73,7 +74,7 @@ uint8
 BAMResource::_FindTransparentIndex()
 {
 	for (uint16 i = 0; i < 256; i++) {
-		const SDL_Color *color = &fPalette[i];
+		const Color *color = &fPalette->colors[i];
 		if (color->r == 0 and color->g == 255 and color->b == 0) {
 			return i;
 		}
@@ -88,7 +89,7 @@ BAMResource::DumpFrames(const char *filePath)
 {
 	for (int32 cycle = 0; cycle < fNumCycles; cycle++) {
 		for (int numFrame = 0; numFrame < fNumFrames; numFrame++) {
-			SDL_Surface *surface = FrameForCycle(cycle, numFrame).surface;
+			/*SDL_Surface *surface = FrameForCycle(cycle, numFrame).sprite;
 			TPath path(filePath);
 			char fileName[PATH_MAX];
 			snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
@@ -96,7 +97,7 @@ BAMResource::DumpFrames(const char *filePath)
 			path.Append(fileName);
 			printf("save to %s\n", path.Path());
 			SDL_SaveBMP(surface, path.Path());
-			SDL_FreeSurface(surface);
+			SDL_FreeSurface(surface);*/
 		}
 	}
 }
@@ -109,9 +110,8 @@ BAMResource::_FrameAt(uint16 index)
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	bool frameCompressed = is_frame_compressed(entry.data);
 	
-	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-								entry.width, entry.height,
-								8, 0, 0, 0, 0);
+	Bitmap* surface = GraphicsEngine::CreateBitmap(
+			entry.width, entry.height, 8);
 	
 	const uint32 offset = data_offset(entry.data);
 	int decoded = 0;
@@ -125,24 +125,24 @@ BAMResource::_FrameAt(uint16 index)
 				entry.width * entry.height, destData);
 	}
 
-	Graphics::DataToSDLSurface(destData, entry.width, entry.height, surface);
+	Graphics::DataToSDLSurface(destData, entry.width, entry.height, surface->Surface());
 
 	delete[] destData;
 	
 	if (decoded != entry.width * entry.height)
 		throw -1;
 	
-	SDL_SetColors(surface, fPalette, 0, surface->format->palette->ncolors);
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, fCompressedIndex);
+	surface->SetPalette(*fPalette);
+	surface->SetColorKey(fCompressedIndex);
 
 	SDL_Rect rect;
-	rect.w = surface->w;
-	rect.h = surface->h;
+	rect.w = surface->Width();
+	rect.h = surface->Height();
 	rect.x = entry.xpos - rect.w / 2;
 	rect.y = entry.ypos - rect.h / 2;
 	
 	Frame frame;
-	frame.surface = surface;
+	frame.bitmap = surface;
 	frame.rect = rect;
 	
 	return frame;
@@ -230,14 +230,12 @@ BAMResource::_Load()
 		fData->ReadAt(20, fFrameLookupOffset);
 
 		fData->Seek(paletteOffset, SEEK_SET);
-		fPalette = new SDL_Color[256];
+		fPalette = new Palette;
 		for (int32 i = 0; i < 256; i++) {
-			fPalette[i].b = fData->ReadByte();
-			fPalette[i].g = fData->ReadByte();
-			fPalette[i].r = fData->ReadByte();
-			fPalette[i].unused = fData->ReadByte();
-			//printf("%d: %d %d %d\n", i, fPalette[i].r,
-				//	fPalette[i].g, fPalette[i].b);
+			fPalette->colors[i].b = fData->ReadByte();
+			fPalette->colors[i].g = fData->ReadByte();
+			fPalette->colors[i].r = fData->ReadByte();
+			fPalette->colors[i].a = fData->ReadByte();
 		}
 	} else
 		throw -1;

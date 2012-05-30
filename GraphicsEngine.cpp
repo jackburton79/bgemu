@@ -1,17 +1,19 @@
 #include <assert.h>
 #include <iostream>
 
+#include "Bitmap.h"
+#include "Graphics.h"
 #include "GraphicsEngine.h"
-#include "Stream.h"
 
-GraphicsEngine *gGraphicsEngine = NULL;
+
+
+
+static GraphicsEngine *sGraphicsEngine = NULL;
 
 GraphicsEngine::GraphicsEngine()
 	:
 	fCurrentFrame(NULL)
 {
-	assert(gGraphicsEngine == NULL);
-	gGraphicsEngine = this;
 	SDL_Init(SDL_INIT_VIDEO);	
 }
 
@@ -23,27 +25,80 @@ GraphicsEngine::~GraphicsEngine()
 }
 
 
-void
-GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 flags)
+/* static */
+GraphicsEngine*
+GraphicsEngine::Get()
 {
-	std::cout << "Set video mode:" << std::endl;
-	std::cout << std::dec << x << " " << y << " " << flags << std::endl;
-	SDL_SetVideoMode(x, y, 16, 0);
+	if (sGraphicsEngine == NULL)
+		sGraphicsEngine = new GraphicsEngine();
+	return sGraphicsEngine;
+}
+
+
+/* static */
+void
+GraphicsEngine::Destroy()
+{
+	delete sGraphicsEngine;
+	SDL_Quit();
+}
+
+
+/* static */
+Bitmap*
+GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
+{
+	Bitmap* bitmap = new Bitmap(width, height, depth);
+	// TODO: keep track of it ?
+	return bitmap;
+}
+
+
+/* static */
+void
+GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
+{
+	delete bitmap;
+}
+
+
+/* static */
+void
+GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
+{
+	if (flags & MIRROR_VERTICALLY)
+		printf("MIRROR_VERTICALLY NOT IMPLEMENTED!!\n");
+
+	if (flags & MIRROR_HORIZONTALLY)
+		Graphics::MirrorSDLSurface(bitmap->Surface());
 }
 
 
 void
-GraphicsEngine::SetPalette(uint16 start, uint16 count, uint8 palette[])
+GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags)
 {
-//	cout << "Set palette:" << endl;
-//	cout << "start: " << start << " count: " << count << endl;
+	fScreen = SDL_SetVideoMode(x, y, depth, 0);
+}
+
+
+void
+GraphicsEngine::SetWindowCaption(const char* caption)
+{
+	SDL_WM_SetCaption(caption, NULL);
+}
+
+
+SDL_Surface*
+GraphicsEngine::ScreenSurface()
+{
+	return fScreen;
 }
 
 
 void
 GraphicsEngine::Flip()
 {
-	std::cout << "Flip()" << std::endl;
+	SDL_Flip(fScreen);
 }
 
 
@@ -51,7 +106,7 @@ void
 GraphicsEngine::Blit(SDL_Surface *_surface)
 {
 	SDL_Surface *surface = SDL_DisplayFormat(_surface);
-	SDL_BlitSurface(surface, NULL, SDL_GetVideoSurface(), NULL);
-	SDL_Flip(SDL_GetVideoSurface());
+	SDL_BlitSurface(surface, NULL, fScreen, NULL);
+	Flip();
 	SDL_FreeSurface(surface);
 }

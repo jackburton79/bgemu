@@ -73,14 +73,15 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_Surface *screen = SDL_SetVideoMode(1100, 700, 16, 0);
-	SDL_WM_SetCaption(sRoomName, NULL);
+	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
+	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
+	graphicsEngine->SetWindowCaption(sRoomName);
 
 	Core::Get()->EnterArea(sRoomName);
 	Room *map = Core::Get()->CurrentArea();
 	if (sDumpOverlays)
 		map->DumpOverlays("/home/stefano/dumps");
+	SDL_Surface* screen = graphicsEngine->ScreenSurface();
 	SDL_Rect rect = { 0, 0, screen->w, screen->h };
 	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
@@ -151,12 +152,12 @@ main(int argc, char **argv)
 			}
 			//Core::Get()-.CheckScripts();
 			Core::Get()->UpdateLogic();
-			map->Draw(screen);
+			map->Draw(graphicsEngine->ScreenSurface());
 			SDL_Delay(100);
 		}
-
-		SDL_FreeSurface(screen);
 	}
-	SDL_Quit();
+
+	GraphicsEngine::Destroy();
+
 	return 0;
 }

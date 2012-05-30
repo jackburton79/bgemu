@@ -1,4 +1,6 @@
+#include "Bitmap.h"
 #include "Door.h"
+#include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "TileCell.h"
 #include "TisResource.h"
@@ -55,12 +57,12 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 		}
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
-		SDL_Surface *cell = tis->TileAt(index);
+		Bitmap *cell = tis->TileAt(index);
 		if (cell == NULL) {
 			printf("NULL cell. BAD.\n");
 			// TODO: Fix this. Shouldn't request an invalid cell
-			cell = SDL_CreateRGBSurface(SDL_SWSURFACE, 64, 64, 8, 0, 0, 0, 0);
-			SDL_FillRect(cell, NULL, 3000);
+			cell = GraphicsEngine::CreateBitmap(64, 64, 8);
+			//SDL_FillRect(cell, NULL, 3000);
 		}
 		gResManager->ReleaseResource(tis);
 		SDL_Color *color = NULL;
@@ -69,9 +71,9 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			//color = &cell->format->palette->colors[255];
 		}
 
-		_DrawOverlay(surface, cell, *rect, color);
+		_DrawOverlay(surface, cell->Surface(), *rect, color);
 
-		SDL_FreeSurface(cell);
+		GraphicsEngine::DeleteBitmap(cell);
 	}
 }
 

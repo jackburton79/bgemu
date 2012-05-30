@@ -3,8 +3,7 @@
 
 #include "Resource.h"
 
-#include <SDL.h>
-
+class Bitmap;
 class TISResource : public Resource {
 public:
 	TISResource(const res_ref &name);
@@ -12,7 +11,7 @@ public:
 	
 	bool Load(Archive *archive, uint32 key);
 
-	SDL_Surface *TileAt(int index);
+	Bitmap *TileAt(int index);
 
 private:
 	void _Init();

@@ -1,4 +1,6 @@
+#include "Bitmap.h"
 #include "TisResource.h"
+#include "GraphicsEngine.h"
 #include "MemoryStream.h"
 #include "Stream.h"
 
@@ -36,7 +38,7 @@ TISResource::Load(Archive *archive, uint32 key)
 }
 
 
-SDL_Surface *
+Bitmap*
 TISResource::TileAt(int index)
 {
 	if (index < 0)
@@ -44,29 +46,28 @@ TISResource::TileAt(int index)
 
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
-	SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-			TILE_WIDTH, TILE_HEIGHT, 8, 0, 0, 0, 0);
+	Bitmap* surface = GraphicsEngine::CreateBitmap(
+			TILE_WIDTH, TILE_HEIGHT, 8);
 	
 	try {
-		SDL_Color palette[256];
+		Palette palette;
 		for (int32 i = 0; i < 256; i++) {
-			palette[i].b = fData->ReadByte();
-			palette[i].g = fData->ReadByte();
-			palette[i].r = fData->ReadByte();
-			palette[i].unused = fData->ReadByte();
+			palette.colors[i].b = fData->ReadByte();
+			palette.colors[i].g = fData->ReadByte();
+			palette.colors[i].r = fData->ReadByte();
+			palette.colors[i].a = fData->ReadByte();
 		}
 
-		SDL_LockSurface(surface);
-		uint8 *pixels = (uint8 *)surface->pixels;
+		uint8 *pixels = (uint8 *)surface->Pixels();
 		for (int i = 0; i < 4096; i++) {
 			uint8 pixel = fData->ReadByte();
 			*pixels++ = pixel;
 		}
-		SDL_UnlockSurface(surface);
-		SDL_SetColors(surface, palette, 0, 256);
+
+		surface->SetPalette(palette);
 
 	} catch (...) {
-		SDL_FreeSurface(surface);
+		GraphicsEngine::DeleteBitmap(surface);
 		return NULL;
 	}
 	
