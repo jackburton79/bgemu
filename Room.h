@@ -9,6 +9,7 @@
 class Actor;
 class Animation;
 class ARAResource;
+class Bitmap;
 class Door;
 class MapOverlay;
 class Script;
@@ -20,10 +21,10 @@ public:
 	
 	bool Load(const char *name);
 
-	SDL_Rect ViewPort() const;
-	void SetViewPort(SDL_Rect rect);
+	GFX::rect ViewPort() const;
+	void SetViewPort(GFX::rect rect);
 
-	void Draw(SDL_Surface *surface);
+	void Draw(Bitmap *surface);
 	void Clicked(uint16 x, uint16 y);
 	void MouseOver(uint16 x, uint16 y);
 	uint16 TileNumberForPoint(uint16 x, uint16 y);
@@ -35,23 +36,21 @@ public:
 	void ToggleSearchMap();
 	void ToggleHeightMap();
 
-	void CreateCreature(const char* name, point where, int face);
+	void CreateCreature(const char* name, IE::point where, int face);
 
-	void DrawTile(const int16 tileNum, SDL_Surface *surface,
-						SDL_Rect tileRect, bool withOverlays);
+	void DrawTile(const int16 tileNum, Bitmap *surface,
+						GFX::rect tileRect, bool withOverlays);
 
 	void DumpOverlays(const char *path);
 
 private:
-	void _DrawBaseMap(SDL_Surface *surface, SDL_Rect area);
-	void _DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
-				SDL_Rect rect, SDL_Color *transparent);
+	void _DrawBaseMap(Bitmap *surface, GFX::rect area);
 
-	void _DrawLightMap(SDL_Surface *surface);
-	void _DrawSearchMap(SDL_Surface *surface, SDL_Rect area);
-	void _DrawHeightMap(SDL_Surface *surface, SDL_Rect area);
-	void _DrawAnimations(SDL_Surface *surface, SDL_Rect area);
-	void _DrawActors(SDL_Surface *surface, SDL_Rect area);
+	void _DrawLightMap(Bitmap *surface);
+	void _DrawSearchMap(Bitmap *surface, GFX::rect area);
+	void _DrawHeightMap(Bitmap *surface, GFX::rect area);
+	void _DrawAnimations(Bitmap *surface, GFX::rect area);
+	void _DrawActors(Bitmap *surface, GFX::rect area);
 
 	void _LoadOverlays();
 	void _InitVariables();
@@ -61,15 +60,15 @@ private:
 	void _InitDoors();
 
 	res_ref fName;
-	SDL_Rect fVisibleArea;
+	GFX::rect fVisibleArea;
 
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;
 
-	SDL_Surface *fLightMap;
-	SDL_Surface *fSearchMap;
-	SDL_Surface *fHeightMap;
+	Bitmap *fLightMap;
+	Bitmap *fSearchMap;
+	Bitmap *fHeightMap;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;

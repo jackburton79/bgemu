@@ -14,9 +14,22 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 
 }
 
+Bitmap::Bitmap(SDL_Surface* surface)
+{
+	fSurface = surface;
+}
+
+
 Bitmap::~Bitmap()
 {
 	SDL_FreeSurface(fSurface);
+}
+
+
+void
+Bitmap::SetColors(Color* colors, int start, int num)
+{
+	SDL_SetColors(fSurface, (SDL_Color*)colors, start, num);
 }
 
 
@@ -41,6 +54,14 @@ Bitmap::SetColorKey(uint8 index)
 }
 
 
+void
+Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b)
+{
+	SDL_SetColorKey(fSurface, SDL_SRCCOLORKEY|SDL_RLEACCEL,
+			SDL_MapRGB(fSurface->format, r, g, b));
+}
+
+
 void*
 Bitmap::Pixels() const
 {
@@ -59,6 +80,13 @@ uint16
 Bitmap::Height() const
 {
 	return fSurface->h;
+}
+
+
+uint16
+Bitmap::Pitch() const
+{
+	return fSurface->pitch;
 }
 
 

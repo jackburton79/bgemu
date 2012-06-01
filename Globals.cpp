@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <cstdio>
 
+using namespace IE;
+
 void
 check_objects_size()
 {
@@ -109,6 +111,7 @@ actor::Print() const
 	printf("Actor %s:\n", name);
 	printf("\tCRE: %s\n", (const char *)cre);
 	printf("\tposition: (%d, %d)\n", position.x, position.y);
+	printf("\tdestination: (%d, %d)\n", destination.x, destination.y);
 	printf("\tanimation: %s (0x%x)\n", AnimateIDS()->ValueFor(animation), animation);
 	printf("\tscript_override: %s\n", (const char*)script_override);
 	printf("\tscript_class: %s\n", (const char*)script_class);

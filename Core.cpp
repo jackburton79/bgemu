@@ -362,7 +362,8 @@ Core::_ExecuteAction(action* act)
 		{
 			printf("STARTMOVIE: %s\n", act->string1);
 			// TODO: Just playmovie, let the graphics engine do the rest
-			Resource* resource = gResManager->GetMVE(act->string1);
+			MVEResource* resource = gResManager->GetMVE(act->string1);
+			resource->Play();
 			gResManager->ReleaseResource(resource);
 
 			break;

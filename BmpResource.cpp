@@ -1,3 +1,4 @@
+#include "Bitmap.h"
 #include "BmpResource.h"
 #include "MemoryStream.h"
 
@@ -14,14 +15,18 @@ BMPResource::~BMPResource()
 }
 
 
-SDL_Surface *
+Bitmap*
 BMPResource::Image()
 {
 	SDL_RWops *rw = SDL_RWFromMem(fData->Data(), fData->Size());
 	if (rw == NULL)
 		return NULL;
 
-	return SDL_LoadBMP_RW(rw, 1);
+	SDL_Surface *surface = SDL_LoadBMP_RW(rw, 1);
+	if (surface != NULL)
+		return new Bitmap(surface);
+
+	return NULL;
 }
 
 

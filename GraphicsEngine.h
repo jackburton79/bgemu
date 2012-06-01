@@ -2,10 +2,8 @@
 #define __GRAPHICS_ENGINE_H
 
 #include "SDL.h"
+#include "Bitmap.h"
 #include "IETypes.h"
-
-
-
 
 class Bitmap;
 class GraphicsEngine {
@@ -26,12 +24,17 @@ public:
 
 	static void MirrorBitmap(Bitmap* bitmap, int flags);
 
+	void BlitBitmap(Bitmap* bitmap, GFX::rect *source, Bitmap *surface, GFX::rect *dest);
+	void BlitToScreen(Bitmap* bitmap, GFX::rect *source, GFX::rect *dest);
+
 	void SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags);
+	GFX::rect VideoArea() const;
+
 	void SetWindowCaption(const char* caption);
 
 	SDL_Surface* ScreenSurface();
 
-	void Blit(SDL_Surface *);
+	//void Blit(SDL_Surface *);
 	void Flip();
 		
 private:

@@ -1,6 +1,8 @@
+#include "Bitmap.h"
 #include "Polygon.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 Polygon::Polygon()
 	:
@@ -16,7 +18,7 @@ Polygon::~Polygon()
 }
 
 
-SDL_Rect
+GFX::rect
 Polygon::Frame() const
 {
 	return fFrame;
@@ -49,14 +51,14 @@ Polygon::SetIsHole(const bool hole)
 
 
 bool
-Polygon::AddPoints(point *points, int32 num)
+Polygon::AddPoints(IE::point *points, int32 num)
 {
-	void *newPoints = realloc(fPoints, (fCount + num) * sizeof(point));
+	void *newPoints = realloc(fPoints, (fCount + num) * sizeof(IE::point));
 	if (newPoints == NULL)
 		return false;
 
-	fPoints = (point*)newPoints;
-	memcpy(fPoints + fCount, points, num * sizeof(point));
+	fPoints = (IE::point*)newPoints;
+	memcpy(fPoints + fCount, points, num * sizeof(IE::point));
 	fCount += num;
 
 	return true;
@@ -70,14 +72,14 @@ Polygon::CountPoints() const
 }
 
 
-point *
+IE::point*
 Polygon::Points() const
 {
 	return fPoints;
 }
 
 
-point
+IE::point
 Polygon::PointAt(int32 i) const
 {
 	return fPoints[i];

@@ -57,6 +57,9 @@ struct ref_type {
 };
 
 
+// TODO: Include the above stuff into the namespace
+namespace IE {
+
 struct point {
 	int16 x;
 	int16 y;
@@ -112,6 +115,18 @@ struct animation {
 	res_ref palette;
 	int32 unknown;
 } __attribute__((packed));
+
+
+enum orientation {
+	ORIENTATION_S	= 0,
+	ORIENTATION_SW	= 1,
+	ORIENTATION_W 	= 2,
+	ORIENTATION_NW	= 3,
+	ORIENTATION_N	= 4,
+	ORIENTATION_NE	= 5,
+	ORIENTATION_E	= 6,
+	ORIENTATION_SE	= 7
+};
 
 
 struct actor {
@@ -214,5 +229,7 @@ bool operator==(const res_ref &, const res_ref &);
 bool operator<(const ref_type &, const ref_type &);
 
 std::ostream &operator<<(std::ostream &os, res_ref ref);
+
+}
 
 #endif

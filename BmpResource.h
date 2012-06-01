@@ -3,8 +3,8 @@
 
 #include "Resource.h"
 
-#include <SDL.h>
 
+class Bitmap;
 class BMPResource : public Resource {
 public:
 	BMPResource(uint8 *data, uint32 size, uint32 key);
@@ -14,7 +14,7 @@ public:
 
 	bool Load(Archive *archive, uint32 key);
 
-	SDL_Surface *Image();
+	Bitmap *Image();
 
 private:
 	void _Init();

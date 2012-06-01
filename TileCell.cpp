@@ -8,7 +8,7 @@
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
 
-static SDL_Color sTransparentColor = { 0, 255, 0 };
+static Color sTransparentColor = { 0, 255, 0 };
 
 TileCell::TileCell(uint32 number, MapOverlay** overlays, int numOverlays)
 	:
@@ -21,20 +21,18 @@ TileCell::TileCell(uint32 number, MapOverlay** overlays, int numOverlays)
 
 
 void
-_DrawOverlay(SDL_Surface *surface, SDL_Surface *cell,
-		SDL_Rect rect, SDL_Color *color)
+_DrawOverlay(Bitmap *surface, Bitmap *cell,
+		GFX::rect rect, Color *color)
 {
-	if (color) {
-		SDL_SetColorKey(cell, SDL_SRCCOLORKEY,
-				SDL_MapRGB(cell->format, color->r, color->g, color->b));
-	}
+	if (color)
+		cell->SetColorKey(color->r, color->g, color->b);
 
-	SDL_BlitSurface(cell, NULL, surface, &rect);
+	GraphicsEngine::Get()->BlitToScreen(cell, NULL, &rect);
 }
 
 
 void
-TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
+TileCell::Draw(Bitmap *surface, GFX::rect *rect, bool full)
 {
 	int maxOverlay = full ? fNumOverlays : 1;
 
@@ -65,13 +63,13 @@ TileCell::Draw(SDL_Surface *surface, SDL_Rect *rect, bool full)
 			//SDL_FillRect(cell, NULL, 3000);
 		}
 		gResManager->ReleaseResource(tis);
-		SDL_Color *color = NULL;
+		Color *color = NULL;
 		if (i == 0 && fOverlays[0]->TileMapForTileCell(fNumber)->Mask() != 0) {
 			color = &sTransparentColor;
 			//color = &cell->format->palette->colors[255];
 		}
 
-		_DrawOverlay(surface, cell->Surface(), *rect, color);
+		_DrawOverlay(surface, cell, *rect, color);
 
 		GraphicsEngine::DeleteBitmap(cell);
 	}

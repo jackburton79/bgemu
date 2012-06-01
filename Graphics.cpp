@@ -104,10 +104,10 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
 		return;
 
 	uint32 color = SDL_MapRGB(surface->format, 128, 0, 30);
-	const point &firstPt = polygon.PointAt(0);
+	const IE::point &firstPt = polygon.PointAt(0);
 	for (int32 c = 0; c < numPoints - 1; c++) {
-		const point &pt = polygon.PointAt(c);
-		const point &nextPt = polygon.PointAt(c + 1);
+		const IE::point &pt = polygon.PointAt(c);
+		const IE::point &nextPt = polygon.PointAt(c + 1);
 		DrawLine(surface, pt.x, pt.y, nextPt.x, nextPt.y, color);
 		if (c == numPoints - 2)
 			DrawLine(surface, nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
@@ -117,8 +117,9 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
 
 /* static */
 int
-Graphics::DataToSDLSurface(const void *data, int32 width, int32 height, SDL_Surface *surface)
+Graphics::DataToBitmap(const void *data, int32 width, int32 height, Bitmap *bitmap)
 {
+	SDL_Surface* surface = bitmap->Surface();
 	SDL_LockSurface(surface);
 	uint8 *ptr = (uint8*)data;
 	uint8 *surfacePixels = (uint8*)surface->pixels;

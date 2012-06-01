@@ -11,14 +11,13 @@
 #include "ResManager.h"
 #include "Script.h"
 
-
 #include <assert.h>
 #include <string>
 
 
 std::vector<Actor*> Actor::sActors;
 
-Actor::Actor(::actor &actor)
+Actor::Actor(IE::actor &actor)
 	:
 	fActor(&actor),
 	fAnimation(NULL),
@@ -30,7 +29,7 @@ Actor::Actor(::actor &actor)
 }
 
 
-Actor::Actor(const char* creName, point position, int face)
+Actor::Actor(const char* creName, IE::point position, int face)
 	:
 	fActor(NULL),
 	fAnimation(NULL),
@@ -38,7 +37,7 @@ Actor::Actor(const char* creName, point position, int face)
 	fBCSResource(NULL),
 	fOwnsActor(true)
 {
-	fActor = new actor;
+	fActor = new IE::actor;
 	fActor->cre = creName;
 	strcpy(fActor->name, fActor->cre);
 	//fActor->orientation = std::min(face, 7);
@@ -61,6 +60,7 @@ Actor::_Init()
 
 	if (fCRE == NULL)
 		throw "error!!!";
+
 	//fBCSResource = gResManager->GetBCS(fCRE->DefaultScriptName());
 	//gResManager->GetBCS(fCRE->OverrideScriptName());
 	//gResManager->GetBCS(fCRE->RaceScriptName());
@@ -143,7 +143,7 @@ Actor::Name() const
 
 
 void
-Actor::Draw(SDL_Surface *surface, SDL_Rect area)
+Actor::Draw(Bitmap *surface, GFX::rect area)
 {
 	if (fAnimation == NULL)
 		return;
@@ -154,37 +154,37 @@ Actor::Draw(SDL_Surface *surface, SDL_Rect area)
 	if (image == NULL)
 		return;
 
-	point center = offset_point(Position(), -frame.rect.w / 2,
+	IE::point center = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 
-	//printf("center: %d %d\n", center.x, center.y);
-	SDL_Rect rect = { center.x, center.y, image->Width(), image->Height() };
+
+	GFX::rect rect = { center.x, center.y, image->Width(), image->Height() };
 
 	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 
 	if (rects_intersect(area, rect)) {
 		rect = offset_rect(rect, -area.x, -area.y);
-		SDL_BlitSurface(image->Surface(), NULL, surface, &rect);
+		GraphicsEngine::Get()->BlitToScreen(image, NULL, &rect);
 	}
 	GraphicsEngine::DeleteBitmap(image);
 }
 
 
-point
+IE::point
 Actor::Position() const
 {
 	return fActor->position;
 }
 
 
-orientation
+IE::orientation
 Actor::Orientation() const
 {
-	return (orientation)fActor->orientation;
+	return (IE::orientation)fActor->orientation;
 }
 
 
-point
+IE::point
 Actor::Destination() const
 {
 	return fActor->destination;
@@ -192,7 +192,7 @@ Actor::Destination() const
 
 
 void
-Actor::SetDestination(const point& point)
+Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = point;
 }
@@ -307,6 +307,65 @@ AnimationType(int value)
 }
 
 
+static
+const char*
+IDToBaseName(const uint16 &id)
+{
+	switch (id) {
+		case 0x2000: return "MSIR";
+		case 0x7001: return "MOGR";
+		case 0x7400: return "MDOG";
+		case 0x7a00: return "MSPI";
+		case 0x7e00: return "MWER";
+		case 0x7f01: return "MMIN";
+		case 0x7f02: return "MBEH";
+		case 0x7f03: return "MIMP";
+		case 0x7f09: return "MSAH";
+		case 0x7f0c: return "MKUO";
+		case 0x7f11: return "MUMB";
+		case 0x7f14: return "MGIT";
+		case 0x7f15: return "MBES";
+		case 0x7f16: return "AMOO";
+		case 0x7f17: return "ARAB";
+		case 0x7f18: return "ADER";
+		case 0x7f20: return "AGRO";
+		case 0x7f21: return "APHE";
+		case 0x7f27: return "MDRO";
+		case 0x7f28: return "MKUL";
+		case 0x8000: return "MGNL";
+		case 0x8100: return "MHOB";
+		case 0xb000: return "ACOW";
+		case 0xca00: return "NNOML";
+		case 0xca10: return "NNOWL";
+		case 0xc100: return "ACAT";
+		case 0xc200: return "ACHK";
+		case 0xc300: return "ARAT";
+		case 0xc400: return "ASQU";
+		case 0xc500: return "ABAT";
+		case 0xc600: return "NBEGH";
+		case 0xc700: return "NBOYL";
+		case 0xc710: return "NGRLL";
+		case 0xc800: return "NFAMH";
+		case 0xc810: return "NFAWH";
+		/*case 0xc9:
+		{
+			if (low == 0x10)
+				baseName = "NFAWH";
+			else
+				baseName = "NFAMH";
+			break;
+		}*/
+
+		// Birds
+		case 0xd000: return "AEAG";
+		case 0xd100: return "AGUL";
+		case 0xd200: return "AVUL";
+		case 0xd300: return "ABIR";
+		default: return "";
+	}
+}
+
+
 /* static */
 res_ref
 Actor::AnimationFor(Actor &actor)
@@ -320,128 +379,7 @@ Actor::AnimationFor(Actor &actor)
 	// TODO: Seems like animation type could be told by
 	// a mask here: monsters, characters, "objects", etc.
 	if (AnimationType(animationID) == 1) {
-		std::string baseName = "";
-		switch (animationID) {
-			case 0x7400:
-				baseName = "MDOG";
-				break;
-			case 0x7a00:
-				baseName = "MSPI";
-				break;
-			case 0x7e00:
-				baseName = "MWER";
-				break;
-			case 0x7f01:
-				baseName = "MMIN";
-				break;
-			case 0x7f02:
-				baseName = "MBEH";
-				break;
-			case 0x7f03:
-				baseName = "MIMP";
-				break;
-			case 0x7f09:
-				baseName = "MSAH";
-				break;
-			case 0x7f0c:
-				baseName = "MKUO";
-				break;
-			case 0x7f11:
-				baseName = "MUMB";
-				break;
-			case 0x7f14:
-				baseName = "MGIT";
-				break;
-			case 0x7f15:
-				baseName = "MBES";
-				break;
-			case 0x7f16:
-				baseName = "AMOO";
-				break;
-			case 0x7f17:
-				baseName = "ARAB";
-				break;
-			case 0x7f18:
-				baseName = "ADER";
-				break;
-			case 0x7f20:
-				baseName = "AGRO";
-				break;
-			case 0x7f21:
-				baseName = "APHE";
-				break;
-			case 0x7f27:
-				baseName = "MDRO";
-				break;
-			case 0x7f28:
-				baseName = "MKUL";
-				break;
-			/*case 0x8000:
-				baseName = "";
-				break;*/
-			case 0xca00:
-				baseName = "NNOML";
-				break;
-			case 0xca10:
-				baseName = "NNOWL";
-				break;
-			case 0xb000:
-				baseName = "ACOW";
-				break;
-			case 0xc100:
-				baseName = "ACAT";
-				break;
-			case 0xc200:
-				baseName = "ACHK";
-				break;
-			case 0xc300:
-				baseName = "ARAT";
-				break;
-			case 0xc400:
-				baseName = "ASQU";
-				break;
-			case 0xc500:
-				baseName = "ABAT";
-				break;
-			case 0xc600:
-				baseName = "NBEGH";
-				break;
-			case 0xc700:
-				baseName = "NBOYL";
-				break;
-			case 0xc710:
-				baseName = "NGRLL";
-				break;
-			case 0xc800:
-				baseName = "NFAMH";
-				break;
-			case 0xc810:
-				baseName = "NFAWH";
-				break;
-			/*case 0xc9:
-			{
-				if (low == 0x10)
-					baseName = "NFAWH";
-				else
-					baseName = "NFAMH";
-				break;
-			}*/
-			// Birds
-			case 0xd000:
-				baseName = "AEAG";
-				break;
-			case 0xd100:
-				baseName = "AGUL";
-				break;
-			case 0xd200:
-				baseName = "AVUL";
-				break;
-			case 0xd300:
-				baseName = "ABIR";
-				break;
-			default:
-				break;
-		}
+		std::string baseName = IDToBaseName(animationID);
 
 		if (baseName.empty()) {
 			printf("unknown code 0x%x (%s)\n", animationID,
@@ -451,8 +389,8 @@ Actor::AnimationFor(Actor &actor)
 
 		baseName.append("G1");
 		if (baseName[0] == 'N') {
-			if (actor.Orientation() >= ORIENTATION_NE
-				&& actor.Orientation() <= ORIENTATION_SE)
+			if (actor.Orientation() >= IE::ORIENTATION_NE
+				&& actor.Orientation() <= IE::ORIENTATION_SE)
 			baseName.append("E");
 		}
 		strcpy(nameRef.name, baseName.c_str());

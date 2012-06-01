@@ -1,8 +1,10 @@
 #ifndef __MOVIEDECODER_H
 #define __MOVIEDECODER_H
 
-#include "SDL.h"
+#include "Bitmap.h"
 #include "IETypes.h"
+
+#include <vector>
 
 class Stream;
 class MovieDecoder {
@@ -10,23 +12,26 @@ public:
 	MovieDecoder();
 	~MovieDecoder();
 	
-	void AllocateSurface(uint16 width, uint16 height);
+	bool AllocateBuffer(uint16 width, uint16 height);
+	bool InitVideoMode(uint16 width, uint16 height, uint16 flags);
+	void BlitBackBuffer();
 	
 	void SetDecodingMap(uint8 *map, uint32 size);
 	void SetPalette(uint16 start, uint16 count, uint8 palette[]);
 	void DecodeDataBlock(Stream *stream, uint32 length);
 	
-	SDL_Surface *CurrentFrame() const;
-	
+	Bitmap *CurrentFrame();
+
 private:
 	uint8 *fDecodingMap;
 	uint8 *fDecodingPointer;
 	uint32 fMapSize;
 	
-	SDL_Surface *fCurrentFrame;
-	SDL_Surface *fPreviousFrame;
+	Bitmap *fNewFrame;
+	Bitmap *fCurrentFrame;
+	Bitmap *fPreviousFrame;
 	
-	SDL_Rect fActiveRect;
+	GFX::rect fActiveRect;
 };
 
 #endif // __MOVIEDECODER_H

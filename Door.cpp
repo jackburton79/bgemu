@@ -3,7 +3,7 @@
 
 std::map<std::string, Door*> Door::sDoors;
 
-Door::Door(door* areaDoor)
+Door::Door(IE::door* areaDoor)
 	:
 	fAreaDoor(areaDoor)
 {
@@ -15,19 +15,19 @@ Door::Toggle()
 {
 	//printf("door %s toggled\n", fDoor.name);
 
-	bool wasOpen = fAreaDoor->flags & DOOR_OPEN;
+	bool wasOpen = fAreaDoor->flags & IE::DOOR_OPEN;
 
 	if (wasOpen)
-		fAreaDoor->flags &= ~DOOR_OPEN;
+		fAreaDoor->flags &= ~IE::DOOR_OPEN;
 	else
-		fAreaDoor->flags |= DOOR_OPEN;
+		fAreaDoor->flags |= IE::DOOR_OPEN;
 }
 
 
 bool
 Door::Opened() const
 {
-	return fAreaDoor->flags & DOOR_OPEN;
+	return fAreaDoor->flags & IE::DOOR_OPEN;
 }
 
 

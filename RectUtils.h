@@ -3,20 +3,20 @@
 
 #include "IETypes.h"
 
-static inline SDL_Rect
-offset_rect(const SDL_Rect &rect, int32 x, int32 y)
+static inline GFX::rect
+offset_rect(const GFX::rect &rect, sint16 x, sint16 y)
 {
-	SDL_Rect newRect = rect;
+	GFX::rect newRect = rect;
 	newRect.x += x;
 	newRect.y += y;
 	return newRect;
 }
 
 
-static inline point
-offset_point(const ::point &point, int32 x, int32 y)
+static inline IE::point
+offset_point(const IE::point &point, sint16 x, sint16 y)
 {
-	::point newPoint = point;
+	IE::point newPoint = point;
 	newPoint.x += x;
 	newPoint.y += y;
 	return newPoint;
@@ -24,7 +24,7 @@ offset_point(const ::point &point, int32 x, int32 y)
 
 
 static inline bool
-rects_intersect(const SDL_Rect &rectA, const SDL_Rect &rectB)
+rects_intersect(const GFX::rect &rectA, const GFX::rect &rectB)
 {
 	return !(rectA.x > rectB.x + rectB.w
 			|| rectA.y > rectB.y + rectB.h

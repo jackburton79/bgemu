@@ -1,12 +1,11 @@
 #ifndef __FRAME_H
 #define __FRAME_H
 
-#include "SDL.h"
+#include "Bitmap.h"
 
-class Bitmap;
 struct Frame {
 	Bitmap *bitmap;
-	SDL_Rect rect;
+	GFX::rect rect;
 };
 
 #endif // __FRAME_H

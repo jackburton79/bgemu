@@ -8,7 +8,7 @@
 class BAMResource;
 class Animation {
 public:
-	Animation(animation *animDesc);
+	Animation(IE::animation *animDesc);
 	Animation(Actor *actor);
 	~Animation();
 
@@ -16,7 +16,7 @@ public:
 
 //private:
 	BAMResource *fBAM;
-	point fCenter;
+	IE::point fCenter;
 	int16 fCycleNumber;
 	int16 fCurrentFrame;
 	uint16 fMaxFrame;

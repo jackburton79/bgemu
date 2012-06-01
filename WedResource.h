@@ -58,10 +58,10 @@ private:
 	void _Load();
 	void _LoadPolygons();
 
-	static bool _IsOverlayColor(const SDL_Color &color);
+	static bool _IsOverlayColor(const Color &color);
 
 	int16 _PointHeight(int16 x, int16 y);
-	SDL_Color _PixelSearchColor(int16 x, int16 y);
+	Color _PixelSearchColor(int16 x, int16 y);
     void _ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay);
 
 	uint32 fNumOverlays;

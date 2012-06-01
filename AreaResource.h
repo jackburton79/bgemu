@@ -14,18 +14,18 @@ public:
 	const char *WedName() const;
 
 	uint32 CountDoors() const;
-	door *DoorAt(uint32 index);
+	IE::door *DoorAt(uint32 index);
 
 	uint32 CountAnimations() const;
-	animation *AnimationAt(uint32 index);
+	IE::animation *AnimationAt(uint32 index);
 
 	uint16 CountActors() const;
-	actor *ActorAt(uint16 index);
+	IE::actor *ActorAt(uint16 index);
 
 	res_ref ScriptName();
 
 	uint32 CountVariables() const;
-	variable VariableAt(uint32 index);
+	IE::variable VariableAt(uint32 index);
 
 private:
 
@@ -46,9 +46,9 @@ private:
 
 	uint32 fVerticesOffset;
 
-	animation *fAnimations;
-	actor *fActors;
-	door *fDoors;
+	IE::animation *fAnimations;
+	IE::actor *fActors;
+	IE::door *fDoors;
 };
 
 #endif /* __AREARESOURCE_H_ */

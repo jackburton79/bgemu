@@ -75,9 +75,31 @@ GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
 
 
 void
+GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source, Bitmap *surface, GFX::rect *dest)
+{
+	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source, surface->Surface(), (SDL_Rect*)dest);
+}
+
+
+void
+GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source, GFX::rect *dest)
+{
+	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source, fScreen, (SDL_Rect*)dest);
+}
+
+
+void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags)
 {
 	fScreen = SDL_SetVideoMode(x, y, depth, 0);
+}
+
+
+GFX::rect
+GraphicsEngine::VideoArea() const
+{
+	GFX::rect rect = { 0, 0, fScreen->w, fScreen->h };
+	return rect;
 }
 
 

@@ -73,6 +73,12 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+#if 1
+	MVEResource* resource = gResManager->GetMVE("GNOLL");
+	resource->Play();
+	gResManager->ReleaseResource(resource);
+
+#else
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
 	graphicsEngine->SetWindowCaption(sRoomName);
@@ -81,8 +87,7 @@ main(int argc, char **argv)
 	Room *map = Core::Get()->CurrentArea();
 	if (sDumpOverlays)
 		map->DumpOverlays("/home/stefano/dumps");
-	SDL_Surface* screen = graphicsEngine->ScreenSurface();
-	SDL_Rect rect = { 0, 0, screen->w, screen->h };
+	GFX::rect rect = graphicsEngine->VideoArea();
 	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
@@ -106,7 +111,7 @@ main(int argc, char **argv)
 						break;
 					case SDL_MOUSEMOTION:
 						if (dragging) {
-							SDL_Rect rect = map->ViewPort();
+							GFX::rect rect = map->ViewPort();
 							rect.x -= event.motion.xrel;
 							rect.y -= event.motion.yrel;
 							map->SetViewPort(rect);
@@ -152,11 +157,12 @@ main(int argc, char **argv)
 			}
 			//Core::Get()-.CheckScripts();
 			Core::Get()->UpdateLogic();
-			map->Draw(graphicsEngine->ScreenSurface());
+			map->Draw(NULL);
+			graphicsEngine->Flip();
 			SDL_Delay(100);
 		}
 	}
-
+#endif
 	GraphicsEngine::Destroy();
 
 	return 0;

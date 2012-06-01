@@ -1,4 +1,5 @@
 #include "GraphicsEngine.h"
+#include "MemoryStream.h"
 #include "MovieDecoder.h"
 #include "MveResource.h"
 #include "Stream.h"
@@ -36,42 +37,65 @@ enum movie_opcodes {
 MVEResource::MVEResource(const res_ref &name)
 	:
 	Resource(name, RES_MVE)
-{/*
-	char signature[19];
-	Read(signature, 20);
-	cout << signature << endl;
-	int16 magic[3];
-	
-	(*this) >> magic;
-	cout << magic[0] << " " << magic[1] << " " << magic[2] << endl;
-	*/
-	//fDecoder = new MovieDecoder();
+{
 }
 
 
 MVEResource::~MVEResource()
 {
-	//delete fDecoder;
+	delete fDecoder;
 }
 
 
 void
 MVEResource::Play()
 {
-	while (GetNextChunk())
-		;
+	char signature[19];
+	fData->Read(signature, 20);
+	std::cout << signature << std::endl;
+	int16 magic[3];
+
+	fData->Read(magic);
+	//std::cout << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
+
+	fDecoder = new MovieDecoder();
+
+	bool quitting = false;
+	SDL_Event event;
+	while (GetNextChunk() && !quitting) {
+		while (SDL_PollEvent(&event) != 0) {
+			switch (event.type) {
+				case SDL_KEYDOWN: {
+					switch (event.key.keysym.sym) {
+						case SDLK_q:
+							quitting = true;
+							break;
+						default:
+							break;
+					}
+				}
+				break;
+
+				case SDL_QUIT:
+					quitting = true;
+					break;
+				default:
+					break;
+			}
+		}
+	}
 }
 
 
 bool
 MVEResource::GetNextChunk()
-{/*
+{
 	try {
-		if ((uint32)Position() >= Size())
+		if ((uint32)fData->Position() >= fData->Size())
 			return false;
 	
 		chunk_header header;
-		(*this) >> header;
+		fData->Read(header);
 		//cout << "length: " << header.length << " type: " << header.type;
 		//cout << endl;	
 		if (header.type == CHUNK_SHUTDOWN || header.type == CHUNK_END)
@@ -79,9 +103,9 @@ MVEResource::GetNextChunk()
 		else
 			DecodeChunk(header);
 	} catch (const char *str) {
-		cout << str << endl;
+		std::cout << str << std::endl;
 		return false;
-	}*/
+	}
 	return true;
 }
 
@@ -89,19 +113,19 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	//cout << "CHUNK: " << chunktostr(header) << endl;
+	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
-	/*do {
-		(*this) >> opHeader;
-	} while (ExecuteOpcode(opHeader));*/
+	do {
+		fData->Read(opHeader);
+	} while (ExecuteOpcode(opHeader));
 }
 
 
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	/*cout << opcodetostr(opcode.type) << " (" << hex << (int)opcode.type << ") ";
-	cout << " length: " << opcode.length << endl;
+	std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
+	std::cout << " length: " << opcode.length << std::endl;
 	
 	//cout << "version: " << (int)opcode.version << endl;
 
@@ -112,53 +136,68 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		case OP_INIT_VIDEO_MODE:
 		{
 			uint16 xRes, yRes, flags;
-			(*this) >> xRes >> yRes >> flags;
-			gGraphicsEngine->SetVideoMode(xRes, yRes, flags);			
+			fData->Read(xRes);
+			fData->Read(yRes);
+			fData->Read(flags);
+			printf("OP_INIT_VIDEO_MODE: w: %d, h: %d, flags: 0x%x\n",
+					xRes, yRes, flags);
+			fDecoder->InitVideoMode(xRes, yRes, flags);
 			break;
 		}
 		case OP_INIT_VIDEO_BUFFERS:
 		{
 			uint16 width, height, count = 0, trueColor = 0;
-			(*this) >> width >> height;
+			fData->Read(width);
+			fData->Read(height);
 			if (opcode.version > 0) {
-				(*this) >> count;
+				fData->Read(count);
 				if (opcode.version > 1)
-					(*this) >> trueColor;
+					fData->Read(trueColor);
 			}
-			fDecoder->AllocateSurface(width, height);
+			width *= 8;
+			height *= 8;
+			printf("OP_INIT_VIDEO_BUFFERS: w: %d, h: %d, count: %d\n",
+					width, height, count);
+			fDecoder->AllocateBuffer(width, height);
 			break;
 		}
 		case OP_SET_PALETTE:
 		{
+			printf("OP_SET_PALETTE\n");
 			uint16 start, count;
-			(*this) >> start >> count;
-			gGraphicsEngine->SetPalette(start, count, (uint8 *)(Raw()) + Position());
-			fDecoder->SetPalette(start, count, (uint8 *)(Raw()) + Position());
-			Seek(count * 3, SEEK_CUR);
+			fData->Read(start);
+			fData->Read(count);
+
+			fDecoder->SetPalette(start, count, (uint8 *)(fData->Data()) + fData->Position());
+			fData->Seek(count * 3, SEEK_CUR);
 			break;
 		}
 		case OP_BLIT_BACKBUFFER:
-			gGraphicsEngine->Blit(fDecoder->CurrentFrame());
-			Seek(opcode.length, SEEK_CUR);
+			printf("OP_BLIT_BACKBUFFER\n");
+			fDecoder->BlitBackBuffer();
+			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 		case OP_SET_DECODING_MAP:
 		{	
+			printf("OP_SET_DECODING_MAP\n");
 			uint8 *map = new uint8[opcode.length];
-			Read(map, opcode.length);
+			fData->Read(map, opcode.length);
 			fDecoder->SetDecodingMap(map, opcode.length);
 			break;
 		}
 		case OP_VIDEO_DATA:
-			fDecoder->DecodeDataBlock(this, opcode.length);
+			printf("OP_VIDEO_DATA\n");
+			fDecoder->DecodeDataBlock(fData, opcode.length);
 			break;
 		case OP_AUDIO_FRAME_DATA:
 		case OP_AUDIO_FRAME_SILENCE:
 		case OP_CREATE_TIMER:
 		default:
 			//cout << "\tunimplemented" << endl;
-			Seek(opcode.length, SEEK_CUR);
+			fData->Seek(opcode.length, SEEK_CUR);
 			break;
-	}*/
+	}
+	SDL_Delay(100);
 	return true;
 }
 

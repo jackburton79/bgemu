@@ -13,8 +13,6 @@
 #include <math.h>
 #include <stdio.h>
 
-#include <SDL.h>
-
 using namespace std;
 
 struct overlay {
@@ -168,9 +166,9 @@ WEDResource::GetDoorTiles(Door* door, uint32 index)
 	if (index < 0 || index >= fNumDoors)
 		return false;
 
-	fData->Seek(fDoorsOffset + index * sizeof(door_wed), SEEK_SET);
+	fData->Seek(fDoorsOffset + index * sizeof(IE::door_wed), SEEK_SET);
 
-	door_wed wedDoor;
+	IE::door_wed wedDoor;
 	fData->Read(wedDoor);
 	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
 	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
@@ -206,14 +204,14 @@ WEDResource::_LoadPolygons()
 	fData->Read(indexTableOffset);
 
 	for (uint32 p = 0; p < fNumPolygons; p++) {
-		fData->Seek(polygonsOffset + p * sizeof(polygon), SEEK_SET);
-		::polygon polygon;
+		fData->Seek(polygonsOffset + p * sizeof(IE::polygon), SEEK_SET);
+		IE::polygon polygon;
 		fData->Read(polygon);
 		fPolygons[p].SetFrame(polygon.x_min, polygon.x_max,
 				polygon.y_min, polygon.y_max);
-		fData->Seek(polygon.vertex_index * sizeof(point) + verticesOffset, SEEK_SET);
+		fData->Seek(polygon.vertex_index * sizeof(IE::point) + verticesOffset, SEEK_SET);
 		for (int i = 0; i < polygon.vertices_count; i++) {
-			point vertex;
+			IE::point vertex;
 			fData->Read(vertex);
 			fPolygons[p].AddPoints(&vertex, 1);
 		}
@@ -223,13 +221,13 @@ WEDResource::_LoadPolygons()
 
 /* static */
 bool
-WEDResource::_IsOverlayColor(const SDL_Color &color)
+WEDResource::_IsOverlayColor(const Color &color)
 {
 	return color.r == 0 and color.g == 0 and color.b == 255;
 }
 
 
-SDL_Color
+Color
 WEDResource::_PixelSearchColor(int16 x, int16 y)
 {
 	/*const int32 searchMapX = x / fHAspect;
@@ -245,7 +243,7 @@ WEDResource::_PixelSearchColor(int16 x, int16 y)
 	//printf("pixel: %d\n", pixels[pixelIndex]);
 
 	return color;*/
-	SDL_Color color;
+	Color color;
 	return color;
 }
 

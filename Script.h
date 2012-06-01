@@ -108,7 +108,7 @@ struct action : public node {
 	virtual void Print() const;
 	int id;
 	int parameter;
-	point where;
+	IE::point where;
 	int e;
 	int f;
 	char string1[32];

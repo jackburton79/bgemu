@@ -5,7 +5,7 @@
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 
-Animation::Animation(animation *animDesc)
+Animation::Animation(IE::animation *animDesc)
 	:
 	fBAM(NULL),
 	fCycleNumber(0),
@@ -19,9 +19,9 @@ Animation::Animation(animation *animDesc)
 	fCenter = animDesc->center;
 	fCurrentFrame = animDesc->frame;
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
-	fHold = animDesc->flags & ANIM_HOLD;
-	fBlackAsTransparent = animDesc->flags & ANIM_SHADED;
-	fMirrored = animDesc->flags & ANIM_MIRRORED;
+	fHold = animDesc->flags & IE::ANIM_HOLD;
+	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
+	fMirrored = animDesc->flags & IE::ANIM_MIRRORED;
 	//printf("%s: %s\n", (const char*)animDesc->bam_name, fBlackAsTransparent ? "transparent": "black");
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
@@ -63,6 +63,7 @@ Animation::NextFrame()
 {
 	if (fBAM == NULL)
 		printf("BAM is NULL!!!!\n");
+
 	Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
 		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);

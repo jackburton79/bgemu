@@ -125,7 +125,7 @@ BAMResource::_FrameAt(uint16 index)
 				entry.width * entry.height, destData);
 	}
 
-	Graphics::DataToSDLSurface(destData, entry.width, entry.height, surface->Surface());
+	Graphics::DataToBitmap(destData, entry.width, entry.height, surface);
 
 	delete[] destData;
 	
@@ -135,7 +135,7 @@ BAMResource::_FrameAt(uint16 index)
 	surface->SetPalette(*fPalette);
 	surface->SetColorKey(fCompressedIndex);
 
-	SDL_Rect rect;
+	GFX::rect rect;
 	rect.w = surface->Width();
 	rect.h = surface->Height();
 	rect.x = entry.xpos - rect.w / 2;

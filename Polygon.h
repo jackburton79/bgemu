@@ -1,7 +1,7 @@
 #ifndef __POLYGON_H
 #define __POLYGON_H
 
-#include "SDL.h"
+#include "Bitmap.h" // TODO: Move GFX::Rect away from here
 #include "IETypes.h"
 
 
@@ -9,25 +9,25 @@ class Polygon {
 public:
 	Polygon();
 	~Polygon();
-	SDL_Rect Frame() const;
+	GFX::rect Frame() const;
 	void SetFrame(const int16 x_min, const int16 x_max,
 			const int16 y_min, const int16 y_max);
 
 	bool IsHole() const;
 	void SetIsHole(const bool hole);
 
-	bool AddPoints(point *points, int32 count);
-	point *Points() const;
-	point PointAt(int32 i) const;
+	bool AddPoints(IE::point *points, int32 count);
+	IE::point *Points() const;
+	IE::point PointAt(int32 i) const;
 	int32 CountPoints() const;
 
 
 	void Print() const;
 
 private:
-	point *fPoints;
+	IE::point *fPoints;
 	int32 fCount;
-	SDL_Rect fFrame;
+	GFX::rect fFrame;
 	bool fIsHole;
 };
 

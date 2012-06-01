@@ -8,7 +8,7 @@
 
 class Door {
 public:
-	Door(door* areaDoor);
+	Door(IE::door* areaDoor);
 	void Toggle();
 
 	std::vector<uint16> fTilesOpen;
@@ -20,7 +20,7 @@ public:
 	static Door* GetByName(const char* name);
 
 private:
-	door* fAreaDoor;
+	IE::door* fAreaDoor;
 
 	static std::map<std::string, Door*> sDoors;
 };
