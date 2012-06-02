@@ -6,6 +6,8 @@
 
 #include <vector>
 
+#define DEBUG 1
+
 class Stream;
 class MovieDecoder {
 public:
@@ -35,6 +37,18 @@ private:
 	
 	Color fColors[256];
 	GFX::rect fActiveRect;
+
+#if DEBUG
+	void TestInit(uint8 opcode, const uint8 data[], uint32 size);
+	void TestFinish(const uint8 expectedResult[], uint32 dataSize);
+	void TestOpcode7A();
+	void TestOpcode7B();
+	void TestOpcode8A();
+	void TestOpcode8B();
+	void TestOpcode8C();
+	void TestOpcodeB();
+	void TestOpcodeC();
+#endif
 };
 
 #endif // __MOVIEDECODER_H

@@ -76,12 +76,14 @@ main(int argc, char **argv)
 
 
 #if 1
+
+
+	MovieDecoder decoder;
+	decoder.Test();
+
 	MVEResource* resource = gResManager->GetMVE(sRoomName);
 	resource->Play();
 	gResManager->ReleaseResource(resource);
-
-//	MovieDecoder decoder;
-	//decoder.Test();
 #else
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
