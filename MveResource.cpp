@@ -113,7 +113,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
+	//std::cout << "CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -124,8 +124,8 @@ MVEResource::DecodeChunk(chunk_header header)
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
-	std::cout << " length: " << opcode.length << std::endl;
+	//std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
+	//std::cout << " length: " << opcode.length << std::endl;
 	
 	//cout << "version: " << (int)opcode.version << endl;
 
@@ -139,8 +139,8 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(xRes);
 			fData->Read(yRes);
 			fData->Read(flags);
-			printf("OP_INIT_VIDEO_MODE: w: %d, h: %d, flags: 0x%x\n",
-					xRes, yRes, flags);
+			//printf("OP_INIT_VIDEO_MODE: w: %d, h: %d, flags: 0x%x\n",
+				//	xRes, yRes, flags);
 			fDecoder->InitVideoMode(xRes, yRes, flags);
 			break;
 		}
@@ -156,14 +156,12 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			}
 			width *= 8;
 			height *= 8;
-			printf("OP_INIT_VIDEO_BUFFERS: w: %d, h: %d, count: %d\n",
-					width, height, count);
 			fDecoder->AllocateBuffer(width, height);
 			break;
 		}
 		case OP_SET_PALETTE:
 		{
-			printf("OP_SET_PALETTE\n");
+			//printf("OP_SET_PALETTE\n");
 			uint16 start, count;
 			fData->Read(start);
 			fData->Read(count);
@@ -173,21 +171,20 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		}
 		case OP_BLIT_BACKBUFFER:
-			printf("OP_BLIT_BACKBUFFER\n");
+			//printf("OP_BLIT_BACKBUFFER\n");
 			// TODO: Install palette first. ??
 			fDecoder->BlitBackBuffer();
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 		case OP_SET_DECODING_MAP:
 		{	
-			printf("OP_SET_DECODING_MAP\n");
 			uint8 *map = new uint8[opcode.length];
 			fData->Read(map, opcode.length);
 			fDecoder->SetDecodingMap(map, opcode.length);
 			break;
 		}
 		case OP_VIDEO_DATA:
-			printf("OP_VIDEO_DATA\n");
+			//printf("OP_VIDEO_DATA\n");
 			fDecoder->DecodeDataBlock(fData, opcode.length);
 			break;
 		case OP_AUDIO_FRAME_DATA:

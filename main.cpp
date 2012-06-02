@@ -3,6 +3,7 @@
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "MovieDecoder.h"
 #include "MveResource.h"
 #include "Stream.h"
 
@@ -73,11 +74,14 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+
 #if 1
 	MVEResource* resource = gResManager->GetMVE(sRoomName);
 	resource->Play();
 	gResManager->ReleaseResource(resource);
 
+//	MovieDecoder decoder;
+	//decoder.Test();
 #else
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
