@@ -74,7 +74,7 @@ main(int argc, char **argv)
 	}
 
 #if 1
-	MVEResource* resource = gResManager->GetMVE("GNOLL");
+	MVEResource* resource = gResManager->GetMVE(sRoomName);
 	resource->Play();
 	gResManager->ReleaseResource(resource);
 

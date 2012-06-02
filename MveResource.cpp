@@ -174,6 +174,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		}
 		case OP_BLIT_BACKBUFFER:
 			printf("OP_BLIT_BACKBUFFER\n");
+			// TODO: Install palette first. ??
 			fDecoder->BlitBackBuffer();
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
@@ -197,7 +198,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
-	SDL_Delay(100);
+	SDL_Delay(20);
 	return true;
 }
 

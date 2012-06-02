@@ -30,7 +30,9 @@ private:
 	Bitmap *fNewFrame;
 	Bitmap *fCurrentFrame;
 	Bitmap *fPreviousFrame;
+	Bitmap *fScratchBuffer;
 	
+	Color fColors[256];
 	GFX::rect fActiveRect;
 };
 
