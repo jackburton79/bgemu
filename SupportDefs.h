@@ -17,6 +17,7 @@ typedef unsigned short uint16;
 typedef signed short sint16;
 typedef char int8;
 typedef unsigned char uint8;
+typedef signed int sint8;
 
 #include <stdio.h>
 

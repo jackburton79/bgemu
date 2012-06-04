@@ -1,3 +1,4 @@
+#include "Archive.h"
 #include "BamResource.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
@@ -76,12 +77,15 @@ main(int argc, char **argv)
 
 
 #if 1
-
-
-	MovieDecoder decoder;
-	decoder.Test();
-
 	MVEResource* resource = gResManager->GetMVE(sRoomName);
+	/*MVEResource* resource = new MVEResource("KEY");
+	Archive *archive = Archive::Create(sRoomName);
+	if (!resource->Load(archive, 0)) {
+		delete archive;
+		delete resource;
+		return NULL;
+	}*/
+
 	resource->Play();
 	gResManager->ReleaseResource(resource);
 #else

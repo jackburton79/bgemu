@@ -154,9 +154,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 				if (opcode.version > 1)
 					fData->Read(trueColor);
 			}
-			width *= 8;
-			height *= 8;
-			fDecoder->AllocateBuffer(width, height);
+			fDecoder->AllocateBuffer(width * 8, height * 8);
 			break;
 		}
 		case OP_SET_PALETTE:
@@ -191,7 +189,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		case OP_AUDIO_FRAME_SILENCE:
 		case OP_CREATE_TIMER:
 		default:
-			//cout << "\tunimplemented" << endl;
+			//std::cout << "\tunimplemented: " << std::hex << (int)opcode.type  << std::endl;
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
