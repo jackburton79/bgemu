@@ -219,10 +219,8 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 			uint8 *pixels = (uint8 *)fScratchBuffer->Pixels();
 			switch (opcode) {
 				case 0x0:
-					gfx->BlitBitmap(fCurrentFrame, &fActiveRect,
-							fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fCurrentFrame, &fActiveRect, fNewFrame, &fActiveRect);
 					break;
-
 				case 0x1:
 					break;
 				case 0x2:
@@ -252,8 +250,8 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				case 0x5:
 				{
 					GFX::rect rect = fActiveRect;
-					rect.x += (sint8)stream->ReadByte();
-					rect.y += (sint8)stream->ReadByte();
+					rect.x += stream->ReadByte();
+					rect.y += stream->ReadByte();
 					gfx->BlitBitmap(fCurrentFrame, &rect, fNewFrame, &fActiveRect);
 					break;
 				}
@@ -472,8 +470,10 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				{
 					uint8 p0 = stream->ReadByte();
 					uint8 p1 = stream->ReadByte();
-					for (int32 i = 0; i < 64; i++)
-						*pixels++ = i % 2 ? p1 : p0;
+					for (int32 r = 0; r < 8; r++) {
+						for (int32 c = 0; c < 8; c++)
+							*pixels++ = (r + c) % 2 ? p1 : p0;
+					}
 					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
 					break;
 				}
@@ -529,6 +529,7 @@ MovieDecoder::Test()
 	TestOpcodeC();
 	TestOpcodeD();
 	TestOpcodeE();
+	TestOpcodeF();
 	//throw -1;
 #endif
 }
@@ -848,6 +849,28 @@ MovieDecoder::TestOpcodeE()
 }
 
 
+void
+MovieDecoder::TestOpcodeF()
+{
+	const uint8 data[] = {
+		0x01, 0x10
+	};
+
+	TestInit(0xF, data, sizeof(data));
+
+	const uint8 result[] = {
+		0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10,
+		0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01,
+		0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10,
+		0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01,
+		0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10,
+		0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01,
+		0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10,
+		0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01
+	};
+
+	TestFinish(result, sizeof(result));
+}
 #endif
 
 
@@ -864,12 +887,9 @@ BitStreamAdapter::BitStreamAdapter(Stream* stream)
 uint8
 BitStreamAdapter::ReadBit()
 {
-	//printf("bitpos: %d\n", fBitPos);
-	if (fBitPos == 7) {
+	if (fBitPos == 7)
 		fByte = fStream->ReadByte();
-		//printf("byte: 0x%x\n", fByte);
-	}
-	uint8 bit = (fByte & (1 << fBitPos)) >> fBitPos;
+	uint8 bit = (fByte >> fBitPos) & 1 ;
 	if (--fBitPos < 0)
 		fBitPos = 7;
 	return bit;
@@ -891,7 +911,7 @@ TwoBitsStreamAdapter::ReadBits()
 {
 	if (fBitPos == 6)
 		fByte = fStream->ReadByte();
-	uint8 bits = (fByte & (3 << fBitPos)) >> fBitPos;
+	uint8 bits = (fByte  >> fBitPos) & 3;
 	fBitPos -= 2;
 	if (fBitPos < 0)
 		fBitPos = 6;
