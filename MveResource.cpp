@@ -38,6 +38,7 @@ MVEResource::MVEResource(const res_ref &name)
 	:
 	Resource(name, RES_MVE)
 {
+	fDecoder = new MovieDecoder();
 }
 
 
@@ -57,8 +58,6 @@ MVEResource::Play()
 
 	fData->Read(magic);
 	//std::cout << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
-
-	fDecoder = new MovieDecoder();
 
 	bool quitting = false;
 	SDL_Event event;
@@ -139,8 +138,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(xRes);
 			fData->Read(yRes);
 			fData->Read(flags);
-			//printf("OP_INIT_VIDEO_MODE: w: %d, h: %d, flags: 0x%x\n",
-				//	xRes, yRes, flags);
 			fDecoder->InitVideoMode(xRes, yRes, flags);
 			break;
 		}
@@ -182,7 +179,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		}
 		case OP_VIDEO_DATA:
-			//printf("OP_VIDEO_DATA\n");
 			fDecoder->DecodeDataBlock(fData, opcode.length);
 			break;
 		case OP_AUDIO_FRAME_DATA:

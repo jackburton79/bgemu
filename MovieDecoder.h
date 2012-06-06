@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#define DEBUG 1
+#define DEBUG 0
 
 class Stream;
 class MovieDecoder {
@@ -48,6 +48,7 @@ private:
 	void TestOpcode8C();
 	void TestOpcode9A();
 	void TestOpcode9B();
+	void TestOpcodeA2();
 	void TestOpcodeB();
 	void TestOpcodeC();
 	void TestOpcodeD();

@@ -73,7 +73,7 @@ private:
 
 class Opcode2 {
 public:
-	Opcode2(const GFX::rect& rect, uint8 byte)
+	Opcode2(const GFX::rect rect, uint8 byte)
 		:
 		fRect(rect),
 		fByte(byte)
@@ -82,8 +82,8 @@ public:
 	inline GFX::rect Rect(bool opcode3) const
 	{
 		GFX::rect rect = fRect;
-		int16 xValue;
-		int16 yValue;
+		int8 xValue;
+		int8 yValue;
 		if (fByte < 56) {
 			xValue = 8 + (fByte % 7);
 			yValue = fByte / 7;
@@ -98,10 +98,18 @@ public:
 			rect.x += xValue;
 			rect.y += yValue;
 		}
+		if (rect.y < 0) {
+			rect.h = rect.h + rect.y;
+			rect.y = 0;
+		}
+		if (rect.x < 0) {
+			rect.w = rect.w + rect.x;
+			rect.x = 0;
+		}
 		return rect;
 	}
 private:
-	const GFX::rect& fRect;
+	const GFX::rect fRect;
 	const uint8& fByte;
 };
 
@@ -188,16 +196,17 @@ MovieDecoder::SetDecodingMap(uint8 *map, uint32 size)
 void
 MovieDecoder::SetPalette(uint16 start, uint16 count, uint8 palette[])
 {
-	for (int32 i = 0; i < count; i++) {
+	printf("SetPalette(%d, %d)\n", start, count);
+	for (int32 i = start; i < start + count; i++) {
 		fColors[i].r = *palette++ << 2;
 		fColors[i].g = *palette++ << 2;
 		fColors[i].b = *palette++ << 2;
-		fColors[i].a = 0;
+		//fColors[i].a = 0;
 	}
 
-	fNewFrame->SetColors(fColors, start, count);
-	fCurrentFrame->SetColors(fColors, start, count);
-	fScratchBuffer->SetColors(fColors, start, count);
+	fNewFrame->SetColors(&fColors[start], start, count);
+	fCurrentFrame->SetColors(&fColors[start], start, count);
+	fScratchBuffer->SetColors(&fColors[start], start, count);
 }
 
 
@@ -206,6 +215,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 {
 	fActiveRect.x = fActiveRect.y = 0;
 
+	//printf("*** DecodeDataBlock ***\n");
 	GraphicsEngine *gfx = GraphicsEngine::Get();
 	uint32 pos = stream->Position();
 	for (uint32 i = 0; i < fMapSize; i++) {
@@ -216,10 +226,11 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 			else
 				opcode = fDecodingMap[i] >> 4;
 
-			uint8 *pixels = (uint8 *)fScratchBuffer->Pixels();
+			uint8 *pixels = (uint8*)fScratchBuffer->Pixels();
+			GFX::rect blitRect = fActiveRect;
 			switch (opcode) {
 				case 0x0:
-					gfx->BlitBitmap(fCurrentFrame, &fActiveRect, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fCurrentFrame, &fActiveRect, fNewFrame, &blitRect);
 					break;
 				case 0x1:
 					break;
@@ -227,7 +238,11 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				{
 					uint8 byte = stream->ReadByte();
 					GFX::rect rect = Opcode2(fActiveRect, byte).Rect(false);
-					gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &blitRect);
+					/*printf("2active rect: %d %d %d %d, copy from %d %d %d %d\n",
+						fActiveRect.x, fActiveRect.y, fActiveRect.w, fActiveRect.h,
+						rect.x, rect.y, rect.w, rect.h);
+					throw -1;*/
 					break;
 				}
 				case 0x3:
@@ -235,16 +250,22 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 					// Same as above but negated
 					uint8 byte = stream->ReadByte();
 					GFX::rect rect = Opcode2(fActiveRect, byte).Rect(true);
-					gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &blitRect);
+					/*printf("3active rect: %d %d %d %d, copy from %d %d %d %d\n",
+							fActiveRect.x, fActiveRect.y, fActiveRect.w, fActiveRect.h,
+							rect.x, rect.y, rect.w, rect.h);*/
+
 					break;
 				}
 				case 0x4:
 				{
 					uint8 byte = stream->ReadByte();
 					GFX::rect rect = fActiveRect;
-					rect.x += (byte & 0x0F) - 8;
-					rect.y += (byte >> 4) - 8;
-					gfx->BlitBitmap(fCurrentFrame, &rect, fNewFrame, &fActiveRect);
+					rect.x += -8 + (byte & 0x0F);
+					rect.y += -8 + (byte >> 4);
+					gfx->BlitBitmap(fCurrentFrame, &rect, fNewFrame, &blitRect);
+
+					//throw -1;
 					break;
 				}
 				case 0x5:
@@ -252,7 +273,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 					GFX::rect rect = fActiveRect;
 					rect.x += stream->ReadByte();
 					rect.y += stream->ReadByte();
-					gfx->BlitBitmap(fCurrentFrame, &rect, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fCurrentFrame, &rect, fNewFrame, &blitRect);
+
+						//throw -1;
 					break;
 				}
 				case 0x6:
@@ -270,7 +293,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 						for (int i = 0; i < 16; i++)
 							fill_pixels(pixels, i, bs.ReadBit() ? p0 : p1, 2);
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 
@@ -287,10 +310,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 								uint8 p0 = stream->ReadByte();
 								uint8 p1 = stream->ReadByte();
 								BitStreamAdapter bs(stream);
-								for (int c = 0; c < 16; c++) { // 4x4
-									uint8 value = bs.ReadBit() ? p1 : p0;
-									p[c + 4 * (c / 4)] = value;
-								} // 4x4
+								for (int c = 0; c < 16; c++) // 4x4
+									p[c + 4 * (c / 4)] = bs.ReadBit() ? p1 : p0;
+
 							} // 4x8
 						} // 8x8
 					} else {
@@ -360,7 +382,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							pixels[ind + 8] = value;
 						}
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				case 0xa:
@@ -381,9 +403,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 								uint8 p3 = stream->ReadByte();
 								TwoBitsStreamAdapter bs(stream);
 								Pattern4 op(p0, p1, p2, p3);
-								for (int c = 0; c < 16; c++) { // 4x4
+								for (int c = 0; c < 16; c++) // 4x4
 									p[c + 4 * (c / 4)] = op.PixelValue(bs.ReadBits());
-								} // 4x4
+								// 4x4
 							} // 4x8
 						} // 8x8
 					} else {
@@ -427,16 +449,14 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							}
 						}
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				case 0xB:
 				{
-					for (int y = 0; y < 64; y++) {
-						uint8 data = stream->ReadByte();
-						*pixels++ = data;
-					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					for (int y = 0; y < 64; y++)
+						*pixels++ = stream->ReadByte();
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				case 0xC:
@@ -445,7 +465,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 						uint8 data = stream->ReadByte();
 						fill_pixels(pixels, i, data, 2);
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				case 0xD:
@@ -454,13 +474,13 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 						uint8 data = stream->ReadByte();
 						fill_pixels(pixels, i, data, 4);
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				case 0xE:
 				{
 					uint8 pixel = stream->Read(pixel);
-					SDL_FillRect(fNewFrame->Surface(), (SDL_Rect*)&fActiveRect, pixel);
+					SDL_FillRect(fNewFrame->Surface(), (SDL_Rect*)&blitRect, pixel);
 #if DEBUG
 					gfx->BlitBitmap(fNewFrame, &fActiveRect, fScratchBuffer, NULL);
 #endif
@@ -474,20 +494,21 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 						for (int32 c = 0; c < 8; c++)
 							*pixels++ = (r + c) % 2 ? p1 : p0;
 					}
-					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &fActiveRect);
+					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
 				}
 				default:
 					break;
 			}
+
 			fActiveRect.x += 8;
 			if (fActiveRect.x >= fNewFrame->Width()) {
 				fActiveRect.x = 0;
 				fActiveRect.y += 8;
 			}
+
 		}
 	}
-
 
 	stream->Seek(pos + length, SEEK_SET);
 }
@@ -496,21 +517,10 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 void
 MovieDecoder::BlitBackBuffer()
 {
-	//fNewFrame->SetColors(fColors, 0, 256);
-	/*	fCurrentFrame->SetColors(colors, start, count);
-		fScratchBuffer->SetColors(colors, start, count);
-		*/
 	GraphicsEngine::Get()->BlitToScreen(fNewFrame, NULL, NULL);
 	GraphicsEngine::Get()->Flip();
 
 	std::swap(fNewFrame, fCurrentFrame);
-}
-
-
-Bitmap*
-MovieDecoder::CurrentFrame()
-{
-	return fNewFrame;
 }
 
 
@@ -525,6 +535,7 @@ MovieDecoder::Test()
 	TestOpcode8C();
 	TestOpcode9A();
 	//TestOpcode9B();
+	//TestOpcodeA2();
 	TestOpcodeB();
 	TestOpcodeC();
 	TestOpcodeD();
@@ -567,7 +578,6 @@ MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 	fNewFrame = NULL;
 	fCurrentFrame = NULL;
 }
-
 
 
 void
@@ -727,6 +737,31 @@ MovieDecoder::TestOpcode9B()
 	};
 
 	TestInit(0x9, data, sizeof(data));
+
+	const uint8 result[] = {
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x22, 0x00, 0x22,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xcc, 0x00,
+		0xdd, 0xdd, 0x00, 0x00, 0x00, 0x00, 0xdd, 0xdd,
+		0xdd, 0xdd, 0x00, 0x00, 0x00, 0x00, 0xdd, 0xdd,
+		0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd,
+		0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd, 0xdd
+	};
+
+	TestFinish(result, sizeof(result));
+}
+
+
+void
+MovieDecoder::TestOpcodeA2()
+{
+	const uint8 data[] = {
+			0x22, 0x00, 0xdd, 0xcc, 0x11, 0x11, 0x00, 0xFF, 0x11, 0xFF, 0x0F, 0x0F,
+			0x33, 0x11, 0xFF, 0x11, 0x12, 0x14, 0x25, 0xFF, 0x11, 0xFF, 0x0F, 0x0F
+	};
+
+	TestInit(0xA, data, sizeof(data));
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -911,7 +946,7 @@ TwoBitsStreamAdapter::ReadBits()
 {
 	if (fBitPos == 6)
 		fByte = fStream->ReadByte();
-	uint8 bits = (fByte  >> fBitPos) & 3;
+	uint8 bits = (fByte >> fBitPos) & 3;
 	fBitPos -= 2;
 	if (fBitPos < 0)
 		fBitPos = 6;
