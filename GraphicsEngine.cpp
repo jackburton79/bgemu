@@ -123,7 +123,7 @@ GraphicsEngine::Flip()
 	SDL_Flip(fScreen);
 }
 
-
+/*
 void
 GraphicsEngine::Blit(SDL_Surface *_surface)
 {
@@ -131,4 +131,4 @@ GraphicsEngine::Blit(SDL_Surface *_surface)
 	SDL_BlitSurface(surface, NULL, fScreen, NULL);
 	Flip();
 	SDL_FreeSurface(surface);
-}
+}*/

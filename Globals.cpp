@@ -9,7 +9,7 @@
 using namespace IE;
 
 void
-check_objects_size()
+IE::check_objects_size()
 {
 	assert(sizeof(polygon) == 18);
 	assert(sizeof(animation) == 76);

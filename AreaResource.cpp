@@ -78,7 +78,7 @@ ARAResource::CountDoors() const
 }
 
 
-door *
+IE::door *
 ARAResource::DoorAt(uint32 index)
 {
 	if (index > fNumDoors) {
@@ -119,14 +119,14 @@ ARAResource::CountAnimations() const
 }
 
 
-animation *
+IE::animation *
 ARAResource::AnimationAt(uint32 index)
 {
 	return &fAnimations[index];
 }
 
 
-actor *
+IE::actor *
 ARAResource::ActorAt(uint16 index)
 {
 	return &fActors[index];
@@ -150,13 +150,13 @@ ARAResource::CountVariables() const
 }
 
 
-variable
+IE::variable
 ARAResource::VariableAt(uint32 index)
 {
-	variable var;
+	IE::variable var;
 	uint32 offset;
 	fData->ReadAt(0x88, offset);
-	fData->ReadAt(offset + index * sizeof(variable), var);
+	fData->ReadAt(offset + index * sizeof(IE::variable), var);
 	return var;
 }
 
@@ -173,7 +173,7 @@ ARAResource::ScriptName()
 void
 ARAResource::_LoadAnimations()
 {
-	fAnimations = new animation[fNumAnimations];
+	fAnimations = new IE::animation[fNumAnimations];
 
 	fData->Seek(fAnimationsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumAnimations; i++)
@@ -184,7 +184,7 @@ ARAResource::_LoadAnimations()
 void
 ARAResource::_LoadActors()
 {
-	fActors = new actor[fNumActors];
+	fActors = new IE::actor[fNumActors];
 
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
@@ -196,7 +196,7 @@ ARAResource::_LoadActors()
 void
 ARAResource::_LoadDoors()
 {
-	fDoors = new door[fNumDoors];
+	fDoors = new IE::door[fNumDoors];
 	fData->Seek(fDoorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);

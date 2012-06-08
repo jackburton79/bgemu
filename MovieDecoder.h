@@ -28,7 +28,6 @@ public:
 
 private:
 	uint8 *fDecodingMap;
-	uint8 *fDecodingPointer;
 	uint32 fMapSize;
 	
 	Bitmap *fNewFrame;

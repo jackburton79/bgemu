@@ -224,12 +224,14 @@ struct variable {
 } __attribute__((packed));
 
 void check_objects_size();
+
+
+}
+
 bool operator<(const res_ref &, const res_ref &);
 bool operator==(const res_ref &, const res_ref &);
 bool operator<(const ref_type &, const ref_type &);
 
 std::ostream &operator<<(std::ostream &os, res_ref ref);
-
-}
 
 #endif

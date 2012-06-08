@@ -49,7 +49,7 @@ const char *kDialogResource = "dialog.tlk";
 ResourceManager::ResourceManager()
 {
 	// TODO: Move this elsewhere!
-	check_objects_size();
+	IE::check_objects_size();
 	gResManager = &sManager;
 }
 
