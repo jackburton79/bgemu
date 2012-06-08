@@ -9,7 +9,6 @@
 #include <iostream>
 
 
-
 const static int kOffsets[2][16] = {
 		{0, 2, 4, 6, 16, 18, 20, 22, 32, 34, 36, 38, 48, 50, 52, 54 },
 		{0, 4, 32, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
@@ -87,6 +86,9 @@ public:
 			rect.y += yValue;
 		}
 
+		if (rect.x < 0 || rect.y < 0) {
+			throw -1;
+		}
 		return rect;
 	}
 private:
@@ -197,6 +199,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 
 	GraphicsEngine *gfx = GraphicsEngine::Get();
 	uint32 pos = stream->Position();
+
 	// TODO: WHY ??? FIND OUT
 	stream->Seek(14, SEEK_CUR);
 
@@ -449,7 +452,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				}
 				case 0xE:
 				{
-					uint8 pixel = stream->Read(pixel);
+					uint8 pixel = stream->ReadByte();
 					SDL_FillRect(fNewFrame->Surface(), (SDL_Rect*)&blitRect, pixel);
 #if DEBUG
 					gfx->BlitBitmap(fNewFrame, &fActiveRect, fScratchBuffer, NULL);
