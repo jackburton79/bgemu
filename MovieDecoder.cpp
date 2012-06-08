@@ -43,28 +43,18 @@ DumpData(uint8 *data, int size)
 class Pattern4 {
 public:
 	Pattern4(const uint8& p0, const uint8& p1, const uint8& p2, const uint8& p3)
-		:
-		fP0(p0),
-		fP1(p1),
-		fP2(p2),
-		fP3(p3)
 	{
+		fP[0] = p0;
+		fP[1] = p1;
+		fP[2] = p2;
+		fP[3] = p3;
 	}
 	inline uint8 PixelValue(const uint8 &bits)
 	{
-		switch (bits) {
-			default:
-			case 0: return fP0;
-			case 1: return fP1;
-			case 2: return fP2;
-			case 3: return fP3;
-		}
+		return fP[bits];
 	}
 private:
-	const uint8& fP0;
-	const uint8& fP1;
-	const uint8& fP2;
-	const uint8& fP3;
+	uint8 fP[4];
 };
 
 
@@ -96,14 +86,7 @@ public:
 			rect.x += xValue;
 			rect.y += yValue;
 		}
-		/*if (rect.y < 0) {
-			rect.h = rect.h + rect.y;
-			rect.y = 0;
-		}
-		if (rect.x < 0) {
-			rect.w = rect.w + rect.x;
-			rect.x = 0;
-		}*/
+
 		return rect;
 	}
 private:
@@ -214,6 +197,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 
 	GraphicsEngine *gfx = GraphicsEngine::Get();
 	uint32 pos = stream->Position();
+	// TODO: WHY ??? FIND OUT
+	stream->Seek(14, SEEK_CUR);
+
 	for (uint32 i = 0; i < fMapSize; i++) {
 		for (int b = 0; b < 2; b++) {
 			uint8 opcode;
@@ -242,8 +228,6 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 					// Same as above but negated
 					uint8 byte = stream->ReadByte();
 					GFX::rect rect = Opcode2(fActiveRect, byte).Rect(true);
-					//if (rect.x < 0 || rect.y < 0)
-						//break;
 					gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &blitRect);
 					break;
 				}
@@ -302,12 +286,13 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							} // 4x8
 						} // 8x8
 					} else {
+						uint8 *p = pixels;
+
 						stream->Seek(4, SEEK_CUR);
 						uint8 p2 = stream->ReadByte();
 						uint8 p3 = stream->ReadByte();
 						stream->Seek(-6, SEEK_CUR);
 						if (p2 <= p3) { // LEFT-RIGHT
-							uint8 *p = pixels;
 							{
 								BitStreamAdapter bs(stream);
 								for (int32 c = 0; c < 32; c++) {
@@ -322,7 +307,6 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 									p[c + 4 * (c / 4)] = bs.ReadBit() ? p3 : p2;
 							}
 						} else { // TOP-BOTTOM
-							uint8 *p = pixels;
 							{
 								BitStreamAdapter bs(stream);
 								for (int32 x = 0; x < 32; x++)
@@ -908,7 +892,7 @@ BitStreamAdapter::ReadBit()
 {
 	if (fBitPos == 7)
 		fByte = fStream->ReadByte();
-	uint8 bit = (fByte >> fBitPos) & 1 ;
+	uint8 bit = (fByte >> fBitPos) & 1;
 	if (--fBitPos < 0)
 		fBitPos = 7;
 	return bit;
@@ -930,7 +914,7 @@ TwoBitsStreamAdapter::ReadBits()
 {
 	if (fBitPos == 6)
 		fByte = fStream->ReadByte();
-	uint8 bits = (fByte >> fBitPos) & 3;
+	uint8 bits = (fByte >> fBitPos) & 0x3;
 	fBitPos -= 2;
 	if (fBitPos < 0)
 		fBitPos = 6;

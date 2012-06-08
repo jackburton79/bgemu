@@ -270,19 +270,20 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		case OP_AUDIO_FRAME_DATA:
 		case OP_AUDIO_FRAME_SILENCE:
-			/*{
+		{
 			uint16 seqIndex;
 			fData->Read(seqIndex);
 			uint16 streamMask;
 			fData->Read(streamMask);
 			uint16 streamLen;
 			fData->Read(streamLen);
+			//printf("seq: %d, mask: 0x%x\n", seqIndex, streamMask);
 			if (opcode.type == OP_AUDIO_FRAME_DATA) {
 				ReadAudioData(fData, streamLen);
-			}*/
-			fData->Seek(opcode.length, SEEK_CUR);
+			}
+			fData->Seek(opcode.length - (3 * sizeof(uint16)), SEEK_CUR);
 			break;
-
+		}
 		case OP_CREATE_TIMER:
 		{
 			uint32 rate;
@@ -304,9 +305,10 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 void
 MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 {
-	uint16 predictor;
-	stream->Read(predictor);
-
+	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
+	sint16 predictors[numChannels];
+	//for (int c = 0; c < numChannels; c++)
+		//stream->Read(predictors[c]);
 }
 
 

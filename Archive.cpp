@@ -19,7 +19,6 @@ Archive::Create(const char *path)
 			printf("Archive::Create(): DirectoryArchive\n");
 			return new DirectoryArchive(path);
 		} else {
-			//printf("Archive::Create(): PlainFileArchive\n");
 			return new PlainFileArchive(path);
 		}
 	} catch (...) {

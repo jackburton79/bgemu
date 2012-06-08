@@ -26,11 +26,11 @@
 #define CD_MASK			0xFC
 
 #define LOC_ROOT		0x01
-#define LOC_CD1			0x04
-#define LOC_CD2			0x08
-#define LOC_CD3			0x10
-#define LOC_CD4			0x20
-#define LOC_CD5			0x40
+#define LOC_CD1			0x1 << 2
+#define LOC_CD2			0x1 << 3
+#define LOC_CD3			0x1 << 4
+#define LOC_CD4			0x1 << 5
+#define LOC_CD5			0x1 << 6
 
 #define GET_CD(loc)			((loc) & CD_MASK)
 #define IS_IN_CACHE(loc)	((loc) & CACHE_MASK)
@@ -66,11 +66,11 @@ ResourceManager::~ResourceManager()
 		delete *i;	
 	}
 
-	/*std::vector<Resource *>::iterator it;
+	std::vector<Resource *>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++)
 		delete *it;
-*/
-	_TryEmptyResourceCache();
+
+	//_TryEmptyResourceCache();
 
 	archive_map::iterator aIter;
 	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
@@ -141,10 +141,8 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 	}
 
 	Resource *result = _FindResource(*entry);
-	if (result == NULL) {
-		//printf("\tnot found in cache. Loading...\n");
+	if (result == NULL)
 		result = _LoadResource(*entry);
-	}
 
 	if (result != NULL)
 		result->_Acquire();
@@ -153,7 +151,7 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 }
 
 
-KEYResource *
+KEYResource*
 ResourceManager::GetKEY(const char *name)
 {
 	KEYResource *key = NULL;
@@ -197,7 +195,6 @@ ARAResource *
 ResourceManager::GetARA(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_ARA);
-	//assert(dynamic_cast<ARAResource *>(resource));
 
 	return static_cast<ARAResource *>(resource);
 }
@@ -207,7 +204,7 @@ BAMResource *
 ResourceManager::GetBAM(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BAM);
-	assert(dynamic_cast<BAMResource *>(resource));
+	//assert(dynamic_cast<BAMResource *>(resource));
 	
 	return static_cast<BAMResource *>(resource);
 }
@@ -227,7 +224,6 @@ BCSResource *
 ResourceManager::GetBCS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_BCS);
-	//assert(dynamic_cast<BCSResource *>(resource));
 
 	return static_cast<BCSResource *>(resource);
 }
@@ -237,7 +233,6 @@ CREResource *
 ResourceManager::GetCRE(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_CRE);
-	//assert(dynamic_cast<CREResource *>(resource));
 
 	return static_cast<CREResource *>(resource);
 }
@@ -247,7 +242,6 @@ IDSResource *
 ResourceManager::GetIDS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_IDS);
-	//assert(dynamic_cast<IDSResource *>(resource));
 
 	return static_cast<IDSResource *>(resource);
 }
@@ -257,7 +251,6 @@ MVEResource *
 ResourceManager::GetMVE(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_MVE);
-	//assert(dynamic_cast<ARAResource *>(resource));
 
 	return static_cast<MVEResource *>(resource);
 }
@@ -267,7 +260,6 @@ TISResource *
 ResourceManager::GetTIS(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_TIS);
-	//assert(dynamic_cast<TISResource *>(resource));
 	
 	return static_cast<TISResource *>(resource);
 }
@@ -277,7 +269,6 @@ WEDResource *
 ResourceManager::GetWED(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_WED);
-	//assert(dynamic_cast<WEDResource *>(resource));
 
 	return static_cast<WEDResource *>(resource);
 }
@@ -296,7 +287,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 {
 	TPath pathName(fResourcesPath);
 
-	//printf("(0x%x)", GET_CD(location));
+	printf("location: (0x%x)\n", location);
 
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
@@ -326,16 +317,15 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 Resource *
 ResourceManager::_LoadResource(KeyResEntry &entry)
 {
-	printf("ResourceManager::LoadResource(%s, %s)...",
-		(const char *)entry.name, strresource(entry.type));
-
-	// TODO: Try the override directory
-
 	const int bifIndex = RES_BIF_INDEX(entry.key);
 	const uint16 location = fBifs[bifIndex]->location;
 	const char *archiveName = fBifs[bifIndex]->name;
 
+	printf("ResourceManager::LoadResource(%s, %s)...",
+		(const char *)entry.name, strresource(entry.type));
 	printf("(in %s (0x%x))\n", archiveName, location);
+
+	// TODO: Try the override directory
 
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
