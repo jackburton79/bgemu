@@ -289,8 +289,6 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							} // 4x8
 						} // 8x8
 					} else {
-						uint8 *p = pixels;
-
 						stream->Seek(4, SEEK_CUR);
 						uint8 p2 = stream->ReadByte();
 						uint8 p3 = stream->ReadByte();
@@ -299,27 +297,27 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							{
 								BitStreamAdapter bs(stream);
 								for (int32 c = 0; c < 32; c++) {
-									p[c + 4 * (c / 4)] = bs.ReadBit() ? t1 : t0;
+									pixels[c + 4 * (c / 4)] = bs.ReadBit() ? t1 : t0;
 								}
 								stream->Seek(2, SEEK_CUR);
 							}
 							{
-								p = pixels + 4;
+								pixels += 4;
 								BitStreamAdapter bs(stream);
 								for (int32 c = 0; c < 32; c++)
-									p[c + 4 * (c / 4)] = bs.ReadBit() ? p3 : p2;
+									pixels[c + 4 * (c / 4)] = bs.ReadBit() ? p3 : p2;
 							}
 						} else { // TOP-BOTTOM
 							{
 								BitStreamAdapter bs(stream);
 								for (int32 x = 0; x < 32; x++)
-									*p++ = bs.ReadBit() ? t1 : t0;
+									*pixels++ = bs.ReadBit() ? t1 : t0;
 								stream->Seek(2, SEEK_CUR);
 							}
 							{
 								BitStreamAdapter bs(stream);
 								for (int32 x = 0; x < 32; x++)
-									*p++ = bs.ReadBit() ? p3 : p2;
+									*pixels++ = bs.ReadBit() ? p3 : p2;
 							}
 						}
 					}
@@ -338,12 +336,12 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 							*pixels++ = op.PixelValue(bs.ReadBits());
 					} else if (p0 <= p1 && p2 > p3) {
 						for (int i = 0; i < 16; i++) {
-							uint8 value = op.PixelValue(bs.ReadBits());
+							const uint8 value = op.PixelValue(bs.ReadBits());
 							fill_pixels(pixels, i, value, 2);
 						}
 					} else if (p0 > p1 && p2 <= p3 ) {
 						for (int i = 0; i < 32; i++) {
-							uint8 value = op.PixelValue(bs.ReadBits());
+							const uint8 value = op.PixelValue(bs.ReadBits());
 							*pixels++ = value;
 							*pixels++ = value;
 						}
@@ -370,12 +368,12 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 						for (int qh = 0; qh < 2; qh++) { // 8x8
 							for (int q = 0; q < 2; q++) { // 4x8
 								uint8 *p = pixels + (q * 4) + qh * 32;
-								uint8 p0 = stream->ReadByte();
-								uint8 p1 = stream->ReadByte();
-								uint8 p2 = stream->ReadByte();
-								uint8 p3 = stream->ReadByte();
+								uint8 p00 = stream->ReadByte();
+								uint8 p01 = stream->ReadByte();
+								uint8 p02 = stream->ReadByte();
+								uint8 p03 = stream->ReadByte();
 								TwoBitsStreamAdapter bs(stream);
-								Pattern4 op(p0, p1, p2, p3);
+								Pattern4 op(p00, p01, p02, p03);
 								for (int c = 0; c < 16; c++) // 4x4
 									p[c + 4 * (c / 4)] = op.PixelValue(bs.ReadBits());
 								// 4x4
@@ -463,9 +461,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				{
 					uint8 p0 = stream->ReadByte();
 					uint8 p1 = stream->ReadByte();
-					for (int32 r = 0; r < 8; r++) {
-						for (int32 c = 0; c < 8; c++)
-							*pixels++ = (r + c) % 2 ? p1 : p0;
+					for (int32 r = 0; r < 32; r++) {
+						*pixels++ = p0;
+						*pixels++ = p1;
 					}
 					gfx->BlitBitmap(fScratchBuffer, NULL, fNewFrame, &blitRect);
 					break;
@@ -651,7 +649,7 @@ void
 MovieDecoder::TestOpcode8C()
 {
 	const uint8 data[] = {
-			0x22, 0x00, 0xcc, 0x66, 0x33, 0x19, 0x66, 0x11, 0x18, 0x24, 0x42, 0x81
+		0x22, 0x00, 0xcc, 0x66, 0x33, 0x19, 0x66, 0x11, 0x18, 0x24, 0x42, 0x81
 	};
 
 	TestInit(0x8, data, sizeof(data));

@@ -12,7 +12,8 @@ static SoundEngine* sSoundEngine = NULL;
 
 SoundEngine::SoundEngine()
 	:
-	fBuffer(NULL)
+	fBuffer(NULL),
+	fPlaying(false)
 {
 	SDL_InitSubSystem(SDL_INIT_AUDIO);
 
@@ -20,6 +21,7 @@ SoundEngine::SoundEngine()
 
 SoundEngine::~SoundEngine()
 {
+	SDL_CloseAudio();
 	delete fBuffer;
 }
 
@@ -39,7 +41,23 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint16 buff
 {
 	printf("InitBuffers(%s, %s, %d, %d)\n",
 			stereo ? "STEREO" : "MONO", bit16 ? "16BIT" : "8BIT", sampleRate, bufferLen);
+
 	fBuffer = new SoundBuffer(stereo, bit16, sampleRate, bufferLen);
+
+	SDL_AudioSpec fmt;
+	fmt.freq = sampleRate;
+	fmt.format = AUDIO_S16;
+	fmt.channels = stereo ? 2 : 1;
+	fmt.samples = 512;        /* A good value for games */
+	fmt.callback = SoundEngine::MixAudio;
+	fmt.userdata = this;
+
+	/*
+	if (SDL_OpenAudio(&fmt, NULL) < 0 ) {
+		fprintf(stderr, "Unable to open audio: %s\n", SDL_GetError());
+		exit(1);
+	}*/
+
 	return true;
 }
 
@@ -52,23 +70,26 @@ SoundEngine::Buffer()
 
 
 void
-SoundEngine::StartAudio()
+SoundEngine::StartStopAudio()
 {
-
-}
-
-
-void
-SoundEngine::StopAudio()
-{
-
+	printf("StartAudio(%d)\n", fPlaying ? 1 : 0);
+	SDL_PauseAudio(fPlaying ? 1 : 0);
+	fPlaying = !fPlaying;
 }
 
 
 bool
 SoundEngine::IsPlaying()
 {
-	return false;
+	return fPlaying;
+}
+
+
+/* static */
+void
+SoundEngine::MixAudio(void *unused, Uint8 *stream, int len)
+{
+
 }
 
 
@@ -81,7 +102,7 @@ SoundBuffer::SoundBuffer(bool stereo, bool bit16, uint16 sampleRate, uint16 buff
 	fData(NULL),
 	fBufferLength(bufferLen)
 {
-	fData = (uint8*)malloc(bufferLen);
+	fData = (uint16*)malloc(bufferLen);
 }
 
 
@@ -109,4 +130,11 @@ uint16
 SoundBuffer::SampleRate() const
 {
 	return fSampleRate;
+}
+
+
+uint16*
+SoundBuffer::Data()
+{
+	return fData;
 }

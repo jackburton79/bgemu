@@ -18,12 +18,13 @@ public:
 	bool IsStereo() const;
 	bool Is16Bit() const;
 	uint16 SampleRate() const;
+	uint16* Data();
 
 private:
 	bool fStereo;
 	bool f16Bit;
 	uint16 fSampleRate;
-	uint8* fData;
+	uint16* fData;
 	uint16 fBufferLength;
 };
 
@@ -37,12 +38,14 @@ public:
 	bool InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint16 bufferLen);
 	SoundBuffer* Buffer();
 
-	void StartAudio();
-	void StopAudio();
+	void StartStopAudio();
 	bool IsPlaying();
 
 private:
 	SoundBuffer* fBuffer;
+	bool fPlaying;
+
+	static void MixAudio(void *unused, uint8 *stream, int len);
 };
 
 #endif /* SOUNDENGINE_H_ */

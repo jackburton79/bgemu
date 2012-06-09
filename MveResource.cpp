@@ -7,6 +7,7 @@
 #include "Stream.h"
 
 #include <iostream>
+#include <limits.h>
 
 enum chunk_type {
 	CHUNK_AUDIO_INIT 	= 0,
@@ -78,6 +79,38 @@ const int kDpcmDeltaTable[] = {
    -16, -15, -14, -13, -12, -11, -10, -9,
    -8, -7, -6, -5, -4, -3, -2, -1
  };
+
+
+static sint16
+clamp_to_sint16(int data)
+{
+	if (data < SHRT_MIN)
+		return SHRT_MIN;
+	else if (data > SHRT_MAX)
+		return SHRT_MAX;
+
+	return (sint16)data;
+}
+
+
+class IEAudioDecoder {
+public:
+	IEAudioDecoder(int predictor)
+	{
+		fPredictors[0] = predictor;
+	}
+	IEAudioDecoder(int predictorLeft, int predictorRight)
+	{
+		fPredictors[0] = predictorLeft;
+		fPredictors[1] = predictorRight;
+	}
+	sint16 Decode(uint8 byte, int channel = 0)
+	{
+		return clamp_to_sint16(fPredictors[channel] + kDpcmDeltaTable[byte]);
+	}
+private:
+	int fPredictors[2];
+};
 
 
 MVEResource::MVEResource(const res_ref &name)
@@ -157,12 +190,16 @@ MVEResource::GetNextChunk()
 	
 		chunk_header header;
 		fData->Read(header);
-		if (header.type == CHUNK_SHUTDOWN || header.type == CHUNK_END)
+		// TODO: Should decode these too
+		if (header.type == CHUNK_END)
 			return false;
-		else
-			DecodeChunk(header);
+
+		DecodeChunk(header);
 	} catch (const char *str) {
 		std::cout << str << std::endl;
+		return false;
+	} catch (movie_opcodes op) {
+		printf("OP_END_OF_STREAM\n");
 		return false;
 	}
 	return true;
@@ -172,7 +209,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	//std::cout << "CHUNK: " << chunktostr(header) << std::endl;
+	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -188,6 +225,8 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 	
 	switch (opcode.type) {
 		case OP_END_OF_STREAM:
+			throw (movie_opcodes)OP_END_OF_STREAM;
+			return false;
 		case OP_END_OF_CHUNK:
 			return false;
 		case OP_INIT_AUDIO_BUFFERS:
@@ -210,16 +249,14 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 				SoundEngine::Get()->InitBuffers(flags & AUDIO_STEREO,
 						flags & AUDIO_16BIT,
 						sampleRate, minBufferLength);
+				//if (flags & AUDIO_COMPRESSED)
+					//printf("compressed\n");
 			}
 			break;
 		}
-		/*case OP_START_STOP_AUDIO:
-			if (SoundEngine::Get()->IsPlaying()) {
-				SoundEngine::Get()->StopAudio();
-			} else {
-				SoundEngine::Get()->StartAudio();
-			}
-			break;*/
+		case OP_START_STOP_AUDIO:
+			//SoundEngine::Get()->StartStopAudio();
+			break;
 		case OP_INIT_VIDEO_MODE:
 		{
 			uint16 xRes, yRes, flags;
@@ -275,12 +312,13 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(seqIndex);
 			uint16 streamMask;
 			fData->Read(streamMask);
-			uint16 streamLen;
-			fData->Read(streamLen);
-			//printf("seq: %d, mask: 0x%x\n", seqIndex, streamMask);
+			uint16 numSamples;
+			fData->Read(numSamples);
+			//printf("seq: %d, mask: 0x%x, len: %d\n", seqIndex, streamMask, numSamples);
 			if (opcode.type == OP_AUDIO_FRAME_DATA) {
-				ReadAudioData(fData, streamLen);
+				ReadAudioData(fData, numSamples);
 			}
+			//printf("%d\n", opcode.length - (3 * sizeof(uint16)));
 			fData->Seek(opcode.length - (3 * sizeof(uint16)), SEEK_CUR);
 			break;
 		}
@@ -306,9 +344,26 @@ void
 MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 {
 	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
-	sint16 predictors[numChannels];
-	//for (int c = 0; c < numChannels; c++)
-		//stream->Read(predictors[c]);
+	IEAudioDecoder* decoder = NULL;
+	/*if (numChannels == 1) {
+		sint16 predictor;
+		stream->Read(predictor);
+		decoder = new IEAudioDecoder(predictor);
+	} else {
+		sint16 predictors[numChannels];
+		for (int c = 0; c < numChannels; c++)
+			stream->Read(predictors[c]);
+		decoder = new IEAudioDecoder(predictors[0], predictors[1]);
+	}*/
+
+	SoundBuffer* buffer = SoundEngine::Get()->Buffer();
+	uint16* data = buffer->Data();
+	for (uint16 i = 0; i < numSamples; i++) {
+		//*data++ = decoder->Decode(stream->ReadByte(), i % 2);
+	}
+	delete decoder;
+
+	//stream->Seek(numSamples, SEEK_CUR);
 }
 
 
