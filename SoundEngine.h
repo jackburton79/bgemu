@@ -12,20 +12,27 @@
 
 class SoundBuffer {
 public:
-	SoundBuffer(bool stereo, bool bit16, uint16 sampleRate, uint16 bufferLen);
+	SoundBuffer(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen);
 	~SoundBuffer();
 
 	bool IsStereo() const;
 	bool Is16Bit() const;
 	uint16 SampleRate() const;
-	uint16* Data();
+	uint8* Data();
+
+	uint8* ConsumeSamples(uint16 *numSamples);
+	void AddSample(sint16 sample);
+
+	uint32 AvailableData() const;
 
 private:
 	bool fStereo;
 	bool f16Bit;
 	uint16 fSampleRate;
-	uint16* fData;
-	uint16 fBufferLength;
+	uint8* fData;
+	uint32 fBufferLength;
+	uint32 fBufferPos;
+	uint32 fConsumedPos;
 };
 
 
@@ -35,7 +42,7 @@ public:
 	~SoundEngine();
 
 	static SoundEngine* Get();
-	bool InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint16 bufferLen);
+	bool InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen);
 	SoundBuffer* Buffer();
 
 	void StartStopAudio();

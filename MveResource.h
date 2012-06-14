@@ -29,7 +29,7 @@ private:
 	void DecodeChunk(chunk_header);
 	bool ExecuteOpcode(op_stream_header opcode);
 	void ReadAudioData(Stream* stream, uint16 numSamples);
-	
+	void AddSilence(uint16 numSamples);
 	MovieDecoder *fDecoder;
 	uint32 fTimer;
 	uint32 fLastFrameTime;

@@ -16,7 +16,7 @@ enum chunk_type {
 	CHUNK_VIDEO			= 3,
 	CHUNK_SHUTDOWN		= 4,
 	CHUNK_END			= 5
-} ;
+};
 
 
 enum movie_opcodes {
@@ -81,6 +81,8 @@ const int kDpcmDeltaTable[] = {
  };
 
 
+static int sNumSamples = 0;
+
 static sint16
 clamp_to_sint16(int data)
 {
@@ -132,8 +134,9 @@ MVEResource::~MVEResource()
 void
 MVEResource::Play()
 {
-	char signature[19];
+	char signature[20];
 	fData->Read(signature, 20);
+	signature[18] = '\0';
 	std::cout << signature << std::endl;
 	int16 magic[3];
 
@@ -190,7 +193,6 @@ MVEResource::GetNextChunk()
 	
 		chunk_header header;
 		fData->Read(header);
-		// TODO: Should decode these too
 		if (header.type == CHUNK_END)
 			return false;
 
@@ -209,7 +211,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
+	//std::cout << "CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -255,7 +257,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		}
 		case OP_START_STOP_AUDIO:
-			//SoundEngine::Get()->StartStopAudio();
+			SoundEngine::Get()->StartStopAudio();
 			break;
 		case OP_INIT_VIDEO_MODE:
 		{
@@ -315,11 +317,9 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			uint16 numSamples;
 			fData->Read(numSamples);
 			//printf("seq: %d, mask: 0x%x, len: %d\n", seqIndex, streamMask, numSamples);
-			if (opcode.type == OP_AUDIO_FRAME_DATA) {
+			if (opcode.type == OP_AUDIO_FRAME_DATA)
 				ReadAudioData(fData, numSamples);
-			}
-			//printf("%d\n", opcode.length - (3 * sizeof(uint16)));
-			fData->Seek(opcode.length - (3 * sizeof(uint16)), SEEK_CUR);
+
 			break;
 		}
 		case OP_CREATE_TIMER:
@@ -345,7 +345,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 {
 	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
 	IEAudioDecoder* decoder = NULL;
-	/*if (numChannels == 1) {
+	if (numChannels == 1) {
 		sint16 predictor;
 		stream->Read(predictor);
 		decoder = new IEAudioDecoder(predictor);
@@ -354,16 +354,15 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		for (int c = 0; c < numChannels; c++)
 			stream->Read(predictors[c]);
 		decoder = new IEAudioDecoder(predictors[0], predictors[1]);
-	}*/
+	}
 
 	SoundBuffer* buffer = SoundEngine::Get()->Buffer();
-	uint16* data = buffer->Data();
-	for (uint16 i = 0; i < numSamples; i++) {
-		//*data++ = decoder->Decode(stream->ReadByte(), i % 2);
+	numSamples -= numChannels * sizeof(sint16);
+	for (uint16 i = 0; i < numSamples / 2; i++) {
+		buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
 	}
-	delete decoder;
 
-	//stream->Seek(numSamples, SEEK_CUR);
+	delete decoder;
 }
 
 
