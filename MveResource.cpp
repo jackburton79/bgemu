@@ -81,9 +81,7 @@ const int kDpcmDeltaTable[] = {
  };
 
 
-static int sNumSamples = 0;
-
-static sint16
+static inline sint16
 clamp_to_sint16(int data)
 {
 	if (data < SHRT_MIN)
@@ -106,7 +104,7 @@ public:
 		fPredictors[0] = predictorLeft;
 		fPredictors[1] = predictorRight;
 	}
-	sint16 Decode(uint8 byte, int channel = 0)
+	inline sint16 Decode(uint8 byte, int channel = 0)
 	{
 		return clamp_to_sint16(fPredictors[channel] + kDpcmDeltaTable[byte]);
 	}
@@ -141,7 +139,7 @@ MVEResource::Play()
 	int16 magic[3];
 
 	fData->Read(magic);
-	//std::cout << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
+	std::cout << "magic: " << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
 
 	fLastFrameTime = SDL_GetTicks();
 	bool quitting = false;
@@ -278,7 +276,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 				if (opcode.version > 1)
 					fData->Read(trueColor);
 			}
-			fDecoder->AllocateBuffer(width * 8, height * 8);
+			fDecoder->AllocateBuffer(width * 8, height * 8, opcode.version);
 			break;
 		}
 		case OP_SET_PALETTE:
@@ -316,7 +314,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(streamMask);
 			uint16 numSamples;
 			fData->Read(numSamples);
-			//printf("seq: %d, mask: 0x%x, len: %d\n", seqIndex, streamMask, numSamples);
 			if (opcode.type == OP_AUDIO_FRAME_DATA)
 				ReadAudioData(fData, numSamples);
 
@@ -356,12 +353,13 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		decoder = new IEAudioDecoder(predictors[0], predictors[1]);
 	}
 
+	SDL_LockAudio();
 	SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 	numSamples -= numChannels * sizeof(sint16);
 	for (uint16 i = 0; i < numSamples / 2; i++) {
 		buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
 	}
-
+	SDL_UnlockAudio();
 	delete decoder;
 }
 

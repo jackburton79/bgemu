@@ -66,7 +66,7 @@ public:
 	{
 	}
 
-	inline GFX::rect Rect(bool opcode3) const
+	GFX::rect Rect(bool opcode3) const
 	{
 		GFX::rect rect = fRect;
 		sint8 xValue;
@@ -148,10 +148,12 @@ MovieDecoder::~MovieDecoder()
 
 
 bool
-MovieDecoder::AllocateBuffer(uint16 width, uint16 height)
+MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version)
 {
+	printf("AllocateBuffer(%d, %d, %d)\n", width, height, version);
 	fNewFrame = GraphicsEngine::CreateBitmap(width, height, 8);
 	fCurrentFrame = GraphicsEngine::CreateBitmap(width, height, 8);
+	fVersion = version;
 
 	return true;
 }
@@ -200,8 +202,11 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 	GraphicsEngine *gfx = GraphicsEngine::Get();
 	uint32 pos = stream->Position();
 
+	int dataOffset = 14;
+	//if (fVersion == 2)
+		//dataOffset = 16;
 	// TODO: WHY ??? FIND OUT
-	stream->Seek(14, SEEK_CUR);
+	stream->Seek(dataOffset, SEEK_CUR);
 
 	for (uint32 i = 0; i < fMapSize; i++) {
 		for (int b = 0; b < 2; b++) {
@@ -252,7 +257,14 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 					break;
 				}
 				case 0x6:
-					throw "opcode 0x6 unimplemented!";
+					/*if (fVersion == 2) {
+						GFX::rect rect = fActiveRect;
+						rect.x += (sint8)stream->ReadByte();
+						rect.y += (sint8)stream->ReadByte();
+						gfx->BlitBitmap(fNewFrame, &rect, fNewFrame, &blitRect);
+					} else*/
+						throw "opcode 0x6 unimplemented!";
+
 					break;
 				case 0x7:
 				{
@@ -459,6 +471,8 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				}
 				case 0xF:
 				{
+					//if	(fVersion == 2)
+						//break;
 					uint8 p0 = stream->ReadByte();
 					uint8 p1 = stream->ReadByte();
 					for (int32 r = 0; r < 32; r++) {
@@ -879,6 +893,7 @@ MovieDecoder::TestOpcodeF()
 
 
 // BitStreamAdapter
+inline
 BitStreamAdapter::BitStreamAdapter(Stream* stream)
 	:
 	fStream(stream),
@@ -888,6 +903,7 @@ BitStreamAdapter::BitStreamAdapter(Stream* stream)
 }
 
 
+inline
 uint8
 BitStreamAdapter::ReadBit()
 {
@@ -901,6 +917,7 @@ BitStreamAdapter::ReadBit()
 
 
 // TwoBitsStreamAdapter
+inline
 TwoBitsStreamAdapter::TwoBitsStreamAdapter(Stream* stream)
 	:
 	fStream(stream),
@@ -910,7 +927,7 @@ TwoBitsStreamAdapter::TwoBitsStreamAdapter(Stream* stream)
 }
 
 
-uint8
+inline uint8
 TwoBitsStreamAdapter::ReadBits()
 {
 	if (fBitPos == 6)

@@ -42,11 +42,10 @@ SoundEngine::Get()
 bool
 SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen)
 {
-	uint32 length = 160000;
 	printf("InitBuffers(%s, %s, %d, %d)\n",
-			stereo ? "STEREO" : "MONO", bit16 ? "16BIT" : "8BIT", sampleRate, length);
+			stereo ? "STEREO" : "MONO", bit16 ? "16BIT" : "8BIT", sampleRate, bufferLen);
 
-	fBuffer = new SoundBuffer(stereo, bit16, sampleRate, length); // bufferLen);
+	fBuffer = new SoundBuffer(stereo, bit16, sampleRate, bufferLen);
 
 	SDL_AudioSpec fmt;
 	fmt.freq = sampleRate;
@@ -61,7 +60,6 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 		exit(1);
 	}
 
-	SDL_PauseAudio(0);
 	return true;
 }
 
@@ -76,13 +74,16 @@ SoundEngine::Buffer()
 void
 SoundEngine::StartStopAudio()
 {
-	//printf("StartStopAudio(%d)\n", fPlaying ? 1 : 0);
 	// TODO: Means "lock audio", actually
-	if (fPlaying)
+	/*if (fPlaying) {
 		SDL_LockAudio();
-	else
-		SDL_UnlockAudio();
-	fPlaying = !fPlaying;
+		printf("Lock audio()\n");
+	} else {
+		printf("Unlock audio()\n");
+
+	}
+	fPlaying = !fPlaying;*/
+	SDL_PauseAudio(0);
 }
 
 
@@ -95,14 +96,10 @@ SoundEngine::IsPlaying()
 
 /* static */
 void
-SoundEngine::MixAudio(void *castToThis, Uint8 *stream, int len)
+SoundEngine::MixAudio(void *castToThis, Uint8 *stream, int numBytes)
 {
 	SoundEngine* engine = (SoundEngine*)castToThis;
-	SoundBuffer* buffer = engine->Buffer();
-
-	uint8* data = buffer->ConsumeSamples((uint16*)&len);
-	if (len > 0)
-		SDL_MixAudio(stream, data, len, SDL_MIX_MAXVOLUME);
+	engine->Buffer()->ConsumeSamples((uint8*)stream, (uint16)numBytes);
 }
 
 
@@ -161,7 +158,7 @@ SoundBuffer::AddSample(sint16 sample)
 	memcpy(fData + fBufferPos, &sample, sizeof(sample));
 	fBufferPos += sizeof(sample);
 
-	if (fBufferPos == fBufferLength)
+	if (fBufferPos >= fBufferLength)
 		fBufferPos = 0;
 
 	if (fBufferPos == fConsumedPos)
@@ -169,23 +166,36 @@ SoundBuffer::AddSample(sint16 sample)
 }
 
 
-uint8*
-SoundBuffer::ConsumeSamples(uint16 *numSamples)
+uint16
+SoundBuffer::ConsumeSamples(uint8* destBuffer, uint16 numSamples)
 {
-	uint32 numRequested = (uint32)*numSamples;
+	uint32 numRequested = (uint32)numSamples;
 	uint32 numAvailable = std::min(numRequested, AvailableData());
+	if (numAvailable == 0)
+		return 0;
 
-	uint8* data = &fData[fConsumedPos];
+	if (fConsumedPos > fBufferPos) {
+		uint16 firstSize = std::min(numRequested, fBufferLength - fConsumedPos);
+		memcpy(destBuffer, &fData[fConsumedPos], firstSize);
+		if (numRequested > firstSize) {
+			numRequested -= firstSize;
+			memcpy(destBuffer + firstSize, fData, std::min(numRequested, fBufferPos));
+		}
+	} else
+		memcpy(destBuffer, &fData[fConsumedPos], numAvailable);
+
 	fConsumedPos += numAvailable;
 	if (fConsumedPos >= fBufferLength)
 		fConsumedPos = (fConsumedPos - fBufferLength);
 
-	*numSamples = numAvailable;
+	//if (numRequested >= numAvailable)
+		//SDL_PauseAudio(1);
 
-	return data;
+	return (uint16)numAvailable;
 }
 
 
+// return the number of bytes available
 uint32
 SoundBuffer::AvailableData() const
 {

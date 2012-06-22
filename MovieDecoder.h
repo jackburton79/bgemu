@@ -14,7 +14,7 @@ public:
 	MovieDecoder();
 	~MovieDecoder();
 	
-	bool AllocateBuffer(uint16 width, uint16 height);
+	bool AllocateBuffer(uint16 width, uint16 height, uint16 flags);
 	bool InitVideoMode(uint16 width, uint16 height, uint16 flags);
 	void BlitBackBuffer();
 	
@@ -36,6 +36,7 @@ private:
 	
 	Color fColors[256];
 	GFX::rect fActiveRect;
+	uint16 fVersion;
 
 #if DEBUG
 	void TestInit(uint8 opcode, const uint8 data[], uint32 size);
