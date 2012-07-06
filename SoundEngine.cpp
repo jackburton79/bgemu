@@ -74,7 +74,6 @@ SoundEngine::Buffer()
 void
 SoundEngine::StartStopAudio()
 {
-	// TODO: Means "lock audio", actually
 	/*if (fPlaying) {
 		SDL_LockAudio();
 		printf("Lock audio()\n");
@@ -187,9 +186,6 @@ SoundBuffer::ConsumeSamples(uint8* destBuffer, uint16 numSamples)
 	fConsumedPos += numAvailable;
 	if (fConsumedPos >= fBufferLength)
 		fConsumedPos = (fConsumedPos - fBufferLength);
-
-	//if (numRequested >= numAvailable)
-		//SDL_PauseAudio(1);
 
 	return (uint16)numAvailable;
 }

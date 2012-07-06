@@ -268,15 +268,17 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		}
 		case OP_INIT_VIDEO_BUFFERS:
 		{
-			uint16 width, height, count = 0, trueColor = 0;
+			uint16 width, height, count = 1, trueColor = 0;
 			fData->Read(width);
 			fData->Read(height);
 			if (opcode.version > 0) {
 				fData->Read(count);
+				printf("count: %d\n", count);
 				if (opcode.version > 1)
 					fData->Read(trueColor);
 			}
-			fDecoder->AllocateBuffer(width * 8, height * 8, opcode.version);
+			fDecoder->AllocateBuffer(width * 8, height * 8,
+					opcode.version, trueColor == 1);
 			break;
 		}
 		case OP_SET_PALETTE:
@@ -291,8 +293,8 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		}
 		case OP_BLIT_BACKBUFFER:
 			// TODO: Install palette first. ??
-			fDecoder->BlitBackBuffer();
 			fLastFrameTime = SDL_GetTicks();
+			fDecoder->BlitBackBuffer();
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 		case OP_SET_DECODING_MAP:
