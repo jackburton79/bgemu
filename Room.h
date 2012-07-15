@@ -3,7 +3,7 @@
 
 #include "SDL.h"
 #include "IETypes.h"
-#include "Scriptable.h"
+#include "Object.h"
 
 #include <vector>
 
@@ -16,7 +16,7 @@ class MapOverlay;
 class Script;
 class TileCell;
 
-class Room : public Scriptable {
+class Room : public Object {
 public:
 	Room();
 	~Room();

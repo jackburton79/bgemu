@@ -5,11 +5,11 @@
  *      Author: stefano
  */
 
-#include "Scriptable.h"
+#include "Object.h"
 
 #include <algorithm>
 
-Scriptable::Scriptable()
+Object::Object()
 	:
 	fCurrentScriptRoundResults(NULL),
 	fLastScriptRoundResults(NULL)
@@ -17,7 +17,7 @@ Scriptable::Scriptable()
 }
 
 
-Scriptable::~Scriptable()
+Object::~Object()
 {
 	delete fCurrentScriptRoundResults;
 	delete fLastScriptRoundResults;
@@ -25,21 +25,21 @@ Scriptable::~Scriptable()
 
 
 ScriptRoundResults*
-Scriptable::CurrentScriptRoundResults()
+Object::CurrentScriptRoundResults()
 {
 	return fCurrentScriptRoundResults;
 }
 
 
 ScriptRoundResults*
-Scriptable::LastScriptRoundResults()
+Object::LastScriptRoundResults()
 {
 	return fLastScriptRoundResults;
 }
 
 
 void
-Scriptable::NewScriptRound()
+Object::NewScriptRound()
 {
 	delete fLastScriptRoundResults;
 	std::swap(fCurrentScriptRoundResults, fLastScriptRoundResults);

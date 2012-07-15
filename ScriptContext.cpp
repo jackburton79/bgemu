@@ -9,13 +9,13 @@
 #include "Core.h"
 #include "Door.h"
 #include "IDSResource.h"
+#include "Object.h"
 #include "Script.h"
-#include "Scriptable.h"
 #include "ScriptContext.h"
 
 #include <stdlib.h>
 
-ScriptContext::ScriptContext(Scriptable* target, Script* script)
+ScriptContext::ScriptContext(Object* target, Script* script)
 	:
 	fTarget(target),
 	fScript(script),

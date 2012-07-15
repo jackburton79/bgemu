@@ -10,16 +10,16 @@
 
 #include "Script.h"
 
-class Scriptable;
+class Object;
 class ScriptContext {
 public:
-	ScriptContext(Scriptable* target, Script* script);
+	ScriptContext(Object* target, Script* script);
 	~ScriptContext();
 
 	void ExecuteScript();
 
 private:
-	Scriptable* fTarget;
+	Object* fTarget;
 	Script* fScript;
 	int fOrTriggers;
 

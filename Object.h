@@ -8,19 +8,17 @@
 #ifndef __SCRIPTABLE_H
 #define __SCRIPTABLE_H
 
-class Scriptable;
+class Object;
 class ScriptRoundResults {
 public:
 	ScriptRoundResults();
-
-
 };
 
 
-class Scriptable {
+class Object {
 public:
-	Scriptable();
-	virtual ~Scriptable();
+	Object();
+	virtual ~Object();
 
 	void NewScriptRound();
 

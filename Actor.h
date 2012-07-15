@@ -4,7 +4,7 @@
 #include "IETypes.h"
 
 #include "Bitmap.h"
-#include "Scriptable.h"
+#include "Object.h"
 
 #include <list>
 #include <vector>
@@ -16,7 +16,7 @@ class BCSResource;
 class CREResource;
 class PathFinder;
 class Script;
-class Actor : public Scriptable {
+class Actor : public Object {
 public:
 	Actor(IE::actor &actor);
 	Actor(const char* creName, IE::point position, int face);

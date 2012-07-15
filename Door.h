@@ -2,12 +2,12 @@
 #define __DOOR_H
 
 #include "IETypes.h"
-#include "Scriptable.h"
+#include "Object.h"
 
 #include <map>
 #include <vector>
 
-class Door : public Scriptable {
+class Door : public Object {
 public:
 	Door(IE::door* areaDoor);
 	void Toggle();
