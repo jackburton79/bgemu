@@ -179,6 +179,8 @@ MVEResource::Play()
 				SDL_Delay((fLastFrameTime + fTimer) - currentTime);
 		}
 	}
+
+	GraphicsEngine::Get()->RestorePreviousMode();
 }
 
 
@@ -273,7 +275,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(height);
 			if (opcode.version > 0) {
 				fData->Read(count);
-				printf("count: %d\n", count);
 				if (opcode.version > 1)
 					fData->Read(trueColor);
 			}
@@ -286,8 +287,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			uint16 start, count;
 			fData->Read(start);
 			fData->Read(count);
-
-			fDecoder->SetPalette(start, count, (uint8 *)(fData->Data()) + fData->Position());
+			fDecoder->SetPalette(start, count, (uint8*)(fData->Data()) + fData->Position());
 			fData->Seek(count * 3, SEEK_CUR);
 			break;
 		}

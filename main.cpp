@@ -76,7 +76,7 @@ main(int argc, char **argv)
 	}
 
 
-#if 1
+#if 0
 	MVEResource* resource = gResManager->GetMVE(sRoomName);
 	resource->Play();
 	gResManager->ReleaseResource(resource);
@@ -157,11 +157,10 @@ main(int argc, char **argv)
 						break;
 				}
 			}
-			//Core::Get()-.CheckScripts();
 			Core::Get()->UpdateLogic();
 			map->Draw(NULL);
 			graphicsEngine->Flip();
-			SDL_Delay(100);
+			SDL_Delay(10);
 		}
 	}
 #endif

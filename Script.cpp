@@ -1,6 +1,9 @@
+#include "Core.h"
+#include "IDSResource.h"
 #include "Script.h"
 #include "Parsing.h"
 
+#include <algorithm>
 
 static int sIndent = 0;
 static void IndentMore()
@@ -26,8 +29,6 @@ static void PrintIndentation()
 Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
-	fCurrentNode(NULL),
-	fActor(NULL),
 	fProcessed(false)
 {
 }
@@ -71,13 +72,6 @@ bool
 Script::Processed() const
 {
 	return fProcessed;
-}
-
-
-Actor*
-Script::Target() const
-{
-	return fActor;
 }
 
 
@@ -161,16 +155,11 @@ node::Next() const
 	if (parent == NULL)
 		return NULL;
 
-	node_list::iterator i;
-	for (i = parent->children.begin(); i != parent->children.end(); i++) {
-		if ((*i) == this) {
-			if (++i == parent->children.end())
-				return NULL;
-			return *i;
-		}
-	}
-
-	return NULL;
+	node_list::iterator i = std::find(parent->children.begin(),
+			parent->children.end(), this);
+	if (++i == parent->children.end())
+		return NULL;
+	return *i;
 }
 
 
@@ -199,6 +188,13 @@ node::Print() const
 }
 
 
+bool
+operator==(const node &a, const node &b)
+{
+	return false;
+}
+
+
 // trigger
 trigger::trigger()
 {
@@ -223,10 +219,21 @@ object::object()
 void
 object::Print() const
 {
-	printf("team: %d, faction: %d, ea: %d, general: %d, race: %d\n",
-			team, faction, ea, general, race);
-	printf("class: %d, specific: %d, gender: %d, alignment: %d, specifiers: %d\n",
-			classs, specific, gender, alignment, specifiers);
+	printf("Object:\n");
+	if (Core::Get()->Game() == GAME_TORMENT) {
+		printf("team: %d ", team);
+		printf("faction: %d ", faction);
+	}
+	printf("ea: %s ", EAIDS()->ValueFor(ea));
+	printf("general: %s ", GeneralIDS()->ValueFor(general));
+	printf("race: %s ", RacesIDS()->ValueFor(race));
+	printf("class: %s\n", ClassesIDS()->ValueFor(classs));
+	printf("specific: %s ", SpecificIDS()->ValueFor(specific));
+	printf("gender: %s ", GendersIDS()->ValueFor(gender));
+	printf("alignment: %d ", alignment);
+	printf("identifiers: %d \n", identifiers);
+	//if (Core::Get()->Game() != GAME_BALDURSGATE)
+		//printf("point: %d %d ", point.x, point.y);
 	printf("name: %s\n", name);
 }
 

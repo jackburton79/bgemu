@@ -33,7 +33,7 @@ private:
 class TileCell {
 public:
 	TileCell(uint32 index, MapOverlay** overlays, int numOverlays);
-	void Draw(Bitmap *surface, GFX::rect *rect, bool full = false);
+	void Draw(GFX::rect *rect, bool full = false);
 
 	void SetDoor(Door *d);
 	::Door *Door() const;

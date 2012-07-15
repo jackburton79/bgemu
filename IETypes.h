@@ -129,23 +129,32 @@ enum orientation {
 };
 
 
+enum actor_flags {
+	ACTOR_CRE_ATTACHED = 1 << 0,
+	ACTOR_OVERRIDE_SCRIPT = 1 << 3
+};
+
+
 struct actor {
 	char name[32];
 	point position;
 	point destination;
-	uint32 unk1;
-	uint32 unk2;
+	uint32 flags;
+	uint16 spawned;
+	uint8 cre_resref_first_letter;
+	uint8 unk2;
 	uint32 animation;
 	uint32 orientation;
-	uint32 unk4;
-	uint32 unk5;
+	uint32 removal_timer;
+	uint16 movement_restriction_distance;
+	uint16 movement_restriction_distance_object;
 	uint32 time_intervals;
-	uint32 unk6;
+	uint32 num_times_talked_to;
 	res_ref dialog;
 	res_ref script_override;
+	res_ref script_general;
 	res_ref script_class;
 	res_ref script_race;
-	res_ref script_general;
 	res_ref script_default;
 	res_ref script_specific;
 	res_ref cre;
@@ -231,7 +240,9 @@ void check_objects_size();
 bool operator<(const res_ref &, const res_ref &);
 bool operator==(const res_ref &, const res_ref &);
 bool operator<(const ref_type &, const ref_type &);
-
 std::ostream &operator<<(std::ostream &os, res_ref ref);
+
+bool operator==(const IE::point&, const IE::point&);
+bool operator!=(const IE::point&, const IE::point&);
 
 #endif

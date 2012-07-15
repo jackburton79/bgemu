@@ -4,18 +4,23 @@
 #include "IETypes.h"
 
 #include "Bitmap.h"
+#include "Scriptable.h"
 
+#include <list>
 #include <vector>
+
+const static uint32 kNumAnimations = 9;
 
 class Animation;
 class BCSResource;
 class CREResource;
+class PathFinder;
 class Script;
-class Actor {
+class Actor : public Scriptable {
 public:
 	Actor(IE::actor &actor);
 	Actor(const char* creName, IE::point position, int face);
-	~Actor();
+	virtual ~Actor();
 
 	const char *Name() const;
 
@@ -26,15 +31,15 @@ public:
 
 	CREResource *CRE();
 
-	void Draw(Bitmap *surface, GFX::rect area);
+	void Draw(GFX::rect area, Bitmap* heightMap);
 
+	void ChooseScript();
 	void SetScript(Script *script);
 	::Script* Script();
 
-
+	bool SkipConditions() const;
+	void StopCheckingConditions();
 	void UpdateMove();
-
-	static res_ref AnimationFor(Actor &actor);
 
 	// Global list of actors
 	static void Add(Actor *a);
@@ -45,14 +50,17 @@ public:
 
 private:
 	IE::actor *fActor;
-	Animation *fAnimation;
+	Animation *fAnimations[kNumAnimations];
 	CREResource *fCRE;
 	BCSResource* fBCSResource;
 	bool fOwnsActor;
+	bool fDontCheckConditions;
+	PathFinder* fPath;
 
 	static std::vector<Actor*> sActors;
 
 	void _Init();
+	void _SetOrientation(const IE::point& nextPoint);
 };
 
 #endif //__ACTOR_H

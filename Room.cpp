@@ -8,8 +8,10 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
+#include "Polygon.h"
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
@@ -48,7 +50,7 @@ Room::~Room()
 	GraphicsEngine::DeleteBitmap(fSearchMap);
 	GraphicsEngine::DeleteBitmap(fHeightMap);
 
-	// TODO: Delete various tilecells, overlays, etc.
+	// TODO: Delete various tilecells, overlays, animations
 	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fArea);
 	gResManager->ReleaseResource(fBcs);
@@ -72,8 +74,9 @@ Room::Load(const char *resName)
 	fWed = gResManager->GetWED(fName);
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
-	if (fBcs != NULL)
+	if (fBcs != NULL) {
 		Core::Get()->AddScript(fBcs->GetScript());
+	}
 
 	_LoadOverlays();
 	_InitTileCells();
@@ -125,28 +128,47 @@ Room::SetViewPort(GFX::rect rect)
 }
 
 
+GFX::rect
+Room::AreaRect() const
+{
+	GFX::rect rect;
+	rect.x = rect.y = 0;
+	rect.w = fOverlays[0]->Width() * TILE_WIDTH;
+	rect.h = fOverlays[0]->Height() * TILE_HEIGHT;
+
+	return rect;
+}
+
+
 void
 Room::Draw(Bitmap *surface)
 {
-	// TODO: Check scripts
-
-	_DrawBaseMap(surface, fVisibleArea);
+	_DrawBaseMap(fVisibleArea);
 
 	if (fDrawAnimations)
-		_DrawAnimations(surface, fVisibleArea);
+		_DrawAnimations(fVisibleArea);
 
 	if (true)
-		_DrawActors(surface, fVisibleArea);
+		_DrawActors(fVisibleArea);
 
 	if (fDrawLightMap)
-		_DrawLightMap(surface);
+		_DrawLightMap();
 	if (fDrawHeightMap)
-		_DrawHeightMap(surface, fVisibleArea);
+		_DrawHeightMap(fVisibleArea);
 	if (fDrawSearchMap)
-		_DrawSearchMap(surface, fVisibleArea);
+		_DrawSearchMap(fVisibleArea);
 
 	if (fDrawPolygons) {
-		// TODO:
+		for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
+			Polygon* poly = fWed->PolygonAt(p);
+			if (poly != NULL) {
+				if (rects_intersect(offset_rect(poly->Frame(),
+						-fVisibleArea.x, -fVisibleArea.y), fVisibleArea)) {
+					Graphics::DrawPolygon(*poly, SDL_GetVideoSurface(),
+							-fVisibleArea.x, -fVisibleArea.y);
+				}
+			}
+		}
 	}
 
 	//SDL_Flip(surface);
@@ -281,7 +303,7 @@ Room::DumpOverlays(const char* path)
 
 
 void
-Room::_DrawBaseMap(Bitmap *surface, GFX::rect area)
+Room::_DrawBaseMap(GFX::rect area)
 {
 	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
@@ -300,42 +322,42 @@ Room::_DrawBaseMap(Bitmap *surface, GFX::rect area)
 			tileRect.x = x * TILE_WIDTH;
 			const uint32 tileNum = y * overlayWidth + x;
 			GFX::rect rect = offset_rect(tileRect, -area.x, -area.y);
-			fTileCells[tileNum]->Draw(surface, &rect, fDrawOverlays);
+			fTileCells[tileNum]->Draw(&rect, fDrawOverlays);
 		}
 	}
 }
 
 
 void
-Room::_DrawLightMap(Bitmap *surface)
+Room::_DrawLightMap()
 {
-	GFX::rect destRect = {
+	/*GFX::rect destRect = {
 		0, surface->Height() - fLightMap->Height(),
 		fLightMap->Width(), fLightMap->Height()
 	};
-	GraphicsEngine::Get()->BlitBitmap(fLightMap, NULL, surface, &destRect);
+	GraphicsEngine::Get()->BlitBitmap(fLightMap, NULL, surface, &destRect);*/
 }
 
 
 void
-Room::_DrawSearchMap(Bitmap *surface, GFX::rect area)
+Room::_DrawSearchMap(GFX::rect area)
 {
-	GFX::rect destRect = {
+	/*GFX::rect destRect = {
 		fLightMap->Width(), surface->Height() - fSearchMap->Height(),
 		fSearchMap->Width() + fLightMap->Width(), fSearchMap->Height()
 	};
-	GraphicsEngine::Get()->BlitBitmap(fSearchMap, NULL, surface, &destRect);
+	GraphicsEngine::Get()->BlitBitmap(fSearchMap, NULL, surface, &destRect);*/
 }
 
 
 void
-Room::_DrawHeightMap(Bitmap *surface, GFX::rect area)
+Room::_DrawHeightMap(GFX::rect area)
 {
-	GFX::rect destRect = {
+	/*GFX::rect destRect = {
 		fLightMap->Width() + fSearchMap->Width(), surface->Height() - fHeightMap->Height(),
 		fSearchMap->Width() + fLightMap->Width() + fHeightMap->Width(), fHeightMap->Height()
 	};
-	GraphicsEngine::Get()->BlitBitmap(fHeightMap, NULL, surface, &destRect);
+	GraphicsEngine::Get()->BlitBitmap(fHeightMap, NULL, surface, &destRect);*/
 	//SDL_BlitSurface(fHeightMap, NULL, surface, &destRect);
 
 	/*MapOverlay *overlay = fWed->OverlayAt(0);
@@ -350,7 +372,7 @@ Room::_DrawHeightMap(Bitmap *surface, GFX::rect area)
 
 
 void
-Room::_DrawAnimations(Bitmap *surface, GFX::rect area)
+Room::_DrawAnimations(GFX::rect area)
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -358,7 +380,7 @@ Room::_DrawAnimations(Bitmap *surface, GFX::rect area)
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL) {
 			Frame frame = fAnimations[i]->NextFrame();
-			IE::point center = fAnimations[i]->fCenter;
+			IE::point center = fAnimations[i]->Position();
 			center = offset_point(center, -frame.rect.w / 2,
 					-frame.rect.h / 2);
 			Bitmap *animImage = frame.bitmap;
@@ -369,13 +391,12 @@ Room::_DrawAnimations(Bitmap *surface, GFX::rect area)
 					animImage->Width(), animImage->Height() };
 
 			rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
-
 			if (!rects_intersect(area, rect))
 				continue;
 
 			rect = offset_rect(rect, -area.x, -area.y);
 
-			GraphicsEngine::Get()->BlitBitmap(animImage, NULL, surface, &rect);
+			GraphicsEngine::Get()->BlitToScreen(animImage, NULL, &rect);
 			GraphicsEngine::DeleteBitmap(frame.bitmap);
 		}
 	}
@@ -383,12 +404,12 @@ Room::_DrawAnimations(Bitmap *surface, GFX::rect area)
 
 
 void
-Room::_DrawActors(Bitmap *surface, GFX::rect area)
+Room::_DrawActors(GFX::rect area)
 {
 	std::vector<Actor*>::iterator a;
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
-			(*a)->Draw(surface, area);
+			(*a)->Draw(area, fHeightMap);
 		} catch (...) {
 			continue;
 		}

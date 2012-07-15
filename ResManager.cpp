@@ -4,6 +4,7 @@
 #include "BCSResource.h"
 #include "BmpResource.h"
 #include "CreResource.h"
+#include "Core.h"
 #include "IDSResource.h"
 #include "KEYResource.h"
 #include "MveResource.h"
@@ -84,6 +85,9 @@ ResourceManager::Initialize(const char *path)
 {
 	fResourcesPath.SetTo(path);
 
+	//Core::Get();
+
+
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
 		return false;
@@ -145,7 +149,7 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 		result = _LoadResource(*entry);
 
 	if (result != NULL)
-		result->_Acquire();
+		result->Acquire();
 
 	return result;
 }
@@ -164,7 +168,7 @@ ResourceManager::GetKEY(const char *name)
 			delete key;
 			return NULL;
 		}
-		//key->_Acquire();
+		//key->Acquire();
 		delete archive;
 	} catch (...) {
 		return NULL;
@@ -182,7 +186,7 @@ ResourceManager::GetTLK(const char *name)
 		std::string path = GetFullPath(name, LOC_ROOT);
 		Archive *archive = Archive::Create(path.c_str());
 		tlk->Load(archive, 0);
-		tlk->_Acquire();
+		tlk->Acquire();
 		delete archive;
 	} catch (...) {
 		return NULL;
@@ -233,7 +237,6 @@ CREResource *
 ResourceManager::GetCRE(const res_ref &name)
 {
 	Resource *resource = _GetResource(name, RES_CRE);
-
 	return static_cast<CREResource *>(resource);
 }
 
@@ -278,7 +281,7 @@ void
 ResourceManager::ReleaseResource(Resource *resource)
 {
 	if (resource != NULL)
-		resource->_Release();
+		resource->Release();
 }
 
 
@@ -347,7 +350,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 		return NULL;
 	}
 
-	resource->_Acquire();
+	resource->Acquire();
 	fCachedResources.push_back(resource);
 
 	printf("Resource %s (%s) loaded correctly!\n",
@@ -439,7 +442,7 @@ ResourceManager::_TryEmptyResourceCache()
 	std::vector<Resource *>::iterator it;
 	it = fCachedResources.begin();
 	while (fCachedResources.size() > 0) {
-		if ((*it)->_Release())
+		if ((*it)->Release())
 			delete *it;
 		it = fCachedResources.erase(it);
 	}

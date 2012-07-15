@@ -1,3 +1,4 @@
+#include "Core.h"
 #include "Parsing.h"
 #include "Script.h"
 #include "StringStream.h"
@@ -124,18 +125,22 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 {
 	object* obj = dynamic_cast<object*>(node);
 	if (obj) {
-		obj->team = tokenizer->ReadNextToken().u.number;
-		obj->faction = tokenizer->ReadNextToken().u.number;
 		obj->ea = tokenizer->ReadNextToken().u.number;
+		if (Core::Get()->Game() == GAME_TORMENT) {
+			obj->faction = tokenizer->ReadNextToken().u.number;
+			obj->team = tokenizer->ReadNextToken().u.number;
+		}
 		obj->general = tokenizer->ReadNextToken().u.number;
-		obj->team = tokenizer->ReadNextToken().u.number;
+		obj->race = tokenizer->ReadNextToken().u.number;
 		obj->classs = tokenizer->ReadNextToken().u.number;
 		obj->specific = tokenizer->ReadNextToken().u.number;
 		obj->gender = tokenizer->ReadNextToken().u.number;
 		obj->alignment = tokenizer->ReadNextToken().u.number;
-		obj->specifiers = tokenizer->ReadNextToken().u.number;
-		tokenizer->ReadNextToken(); //skip
-		tokenizer->ReadNextToken(); //skip
+		obj->identifiers = tokenizer->ReadNextToken().u.number;
+		if (Core::Get()->Game() != GAME_BALDURSGATE) {
+			obj->point.x = tokenizer->ReadNextToken().u.number;
+			obj->point.y = tokenizer->ReadNextToken().u.number;
+		}
 		strcpy(obj->name, tokenizer->ReadNextToken().u.string);
 	}
 }

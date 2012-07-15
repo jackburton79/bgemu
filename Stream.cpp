@@ -37,7 +37,7 @@ Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 	char *ptr = buffer;
 	try {
 		while ((*ptr = ReadByte()) != endLine
-				&& ptr - buffer < maxSize) {
+				&& (size_t)(ptr - buffer) < maxSize) {
 			ptr++;
 		}
 	} catch (...) {

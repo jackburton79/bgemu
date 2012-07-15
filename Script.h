@@ -6,7 +6,7 @@
 #include "IETypes.h"
 
 struct node;
-typedef std::vector<node *> node_list;
+typedef std::vector<node*> node_list;
 
 enum block_type {
 	BLOCK_SCRIPT,
@@ -20,7 +20,7 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
-class Actor;
+//class Actor;
 class Script {
 public:
 	Script(node *rootNode);
@@ -34,16 +34,13 @@ public:
 	void SetProcessed();
 	bool Processed() const;
 
-	Actor* Target() const;
 private:
 	friend class Actor;
 
 	void _PrintNode(node* n) const;
 
 	node *fRootNode;
-	node *fCurrentNode;
 
-	Actor* fActor;
 	bool fProcessed;
 };
 
@@ -71,6 +68,7 @@ protected:
 	node();
 };
 
+bool operator==(const node &, const node &);
 
 struct trigger : public node {
 	virtual void Print() const;
@@ -97,7 +95,8 @@ struct object : public node {
 	int specific;
 	int gender;
 	int alignment;
-	int specifiers;
+	int identifiers;
+	IE::point point;
 	char name[32];
 
 	object();

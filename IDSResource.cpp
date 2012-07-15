@@ -72,6 +72,8 @@ IDSResource::Load(Archive *archive, uint32 key)
 	if (fData->ReadLine(string, sizeof(string)) != NULL)
 		numEntries = atoi(string);
 
+	(void)(numEntries);
+
 	// PFFFT! just ignore the number of entries,
 	// since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
@@ -114,4 +116,20 @@ IDSResource::_IsEncrypted()
 	fData->Seek(pos, SEEK_SET);
 
 	return encrypted;
+}
+
+
+// WriteIDSResource
+WriteIDSResource::WriteIDSResource(const res_ref& name)
+	:
+	IDSResource(name)
+{
+}
+
+
+bool
+WriteIDSResource::AddValue(uint32 id, std::string value)
+{
+	fMap[id] = value;
+	return true;
 }

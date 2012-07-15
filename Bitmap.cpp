@@ -41,6 +41,7 @@ Bitmap::SetPalette(const Palette& palette)
 		sdlPalette[c].r = palette.colors[c].r;
 		sdlPalette[c].g = palette.colors[c].g;
 		sdlPalette[c].b = palette.colors[c].b;
+		sdlPalette[c].unused = 0;
 	}
 
 	SDL_SetColors(fSurface, sdlPalette, 0, 256);

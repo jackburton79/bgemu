@@ -230,19 +230,6 @@ WEDResource::_IsOverlayColor(const Color &color)
 Color
 WEDResource::_PixelSearchColor(int16 x, int16 y)
 {
-	/*const int32 searchMapX = x / fHAspect;
-	const int32 searchMapY = y / fVAspect;
-	const int32 pitch = fSearchMap->pitch;
-	SDL_LockSurface(fSearchMap);
-	const SDL_Color *colors = fSearchMap->format->palette->colors;
-	uint8 *pixels = (Uint8*)(fSearchMap->pixels);
-	const int32 pixelIndex = searchMapY * pitch + searchMapX;
-	const SDL_Color color = colors[pixels[pixelIndex]];
-	SDL_UnlockSurface(fSearchMap);
-
-	//printf("pixel: %d\n", pixels[pixelIndex]);
-
-	return color;*/
 	Color color;
 	return color;
 }
@@ -251,20 +238,6 @@ WEDResource::_PixelSearchColor(int16 x, int16 y)
 int16
 WEDResource::_PointHeight(int16 x, int16 y)
 {
-	/*const int32 mapX = x / fHAspect;
-	const int32 mapY = y / fVAspect;
-	const int32 pitch = fHeightMap->pitch;
-	SDL_LockSurface(fHeightMap);
-	const SDL_Color *colors = fHeightMap->format->palette->colors;
-	uint8 *pixels = (Uint8*)(fHeightMap->pixels);
-	const int32 pixelIndex = mapY * pitch + mapX;
-	const SDL_Color color = colors[pixels[pixelIndex]];
-	SDL_UnlockSurface(fHeightMap);
-
-	//uint32 pix = SDL_MapRGB(color.r, color.g, color.b);
-	if (color.r == 128 and color.g == 128 and color.b == 128)
-		return 0;
-*/
 	return 1;
 }
 

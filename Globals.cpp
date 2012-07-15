@@ -105,6 +105,20 @@ operator<<(std::ostream &os, res_ref ref)
 };
 
 
+bool
+operator==(const IE::point& ptA, const IE::point& ptB)
+{
+	return ptA.x == ptB.x && ptA.y == ptB.y;
+}
+
+
+bool
+operator!=(const IE::point& ptA, const IE::point& ptB)
+{
+	return ptA.x != ptB.x || ptA.y != ptB.y;
+}
+
+
 void
 actor::Print() const
 {
@@ -112,14 +126,17 @@ actor::Print() const
 	printf("\tCRE: %s\n", (const char *)cre);
 	printf("\tposition: (%d, %d)\n", position.x, position.y);
 	printf("\tdestination: (%d, %d)\n", destination.x, destination.y);
+	printf("\tflags: 0x%x\n", flags);
 	printf("\tanimation: %s (0x%x)\n", AnimateIDS()->ValueFor(animation), animation);
+	printf("\tdialog: %s\n", (const char*)dialog);
 	printf("\tscript_override: %s\n", (const char*)script_override);
-	printf("\tscript_class: %s\n", (const char*)script_class);
-	printf("\tscript_override: %s\n", (const char*)script_override);
-	printf("\tscript_race: %s\n", (const char*)script_race);
 	printf("\tscript_general: %s\n", (const char*)script_general);
+	printf("\tscript_class: %s\n", (const char*)script_class);
+	printf("\tscript_race: %s\n", (const char*)script_race);
 	printf("\tscript_default: %s\n", (const char*)script_default);
 	printf("\tscript_specific: %s\n", (const char*)script_specific);
+	printf("\tcre_offset: %u\n", cre_offset);
+	printf("\tcre_size: %u\n", cre_size);
 }
 
 

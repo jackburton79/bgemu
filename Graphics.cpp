@@ -1,11 +1,10 @@
 #include "Graphics.h"
 #include "Polygon.h"
+#include "RectUtils.h"
+#include "Utils.h"
 
 #include <assert.h>
 #include <string.h>
-
-#define SGN(x) ((x) > 0 ? 1 : ((x) == 0 ? 0 : (-1)))
-#define ABS(x) ((x) > 0 ? (x) : (-x))
 
 /* static */
 int
@@ -97,17 +96,17 @@ Graphics::DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1, uint32 x2,
 
 /* static */
 void
-Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface)
+Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y)
 {
 	const int32 numPoints = polygon.CountPoints();
 	if (numPoints <= 0)
 		return;
 
 	uint32 color = SDL_MapRGB(surface->format, 128, 0, 30);
-	const IE::point &firstPt = polygon.PointAt(0);
+	const IE::point &firstPt = offset_point(polygon.PointAt(0), x, y);
 	for (int32 c = 0; c < numPoints - 1; c++) {
-		const IE::point &pt = polygon.PointAt(c);
-		const IE::point &nextPt = polygon.PointAt(c + 1);
+		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
+		const IE::point &nextPt = offset_point(polygon.PointAt(c + 1), x, y);
 		DrawLine(surface, pt.x, pt.y, nextPt.x, nextPt.y, color);
 		if (c == numPoints - 2)
 			DrawLine(surface, nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
@@ -147,6 +146,25 @@ Graphics::MirrorSDLSurface(SDL_Surface *surface)
 	SDL_UnlockSurface(surface);
 
 	return surface;
+}
+
+
+/* static */
+Bitmap*
+Graphics::ApplyMask(Bitmap* bitmap, Bitmap* mask, uint16 x, uint16 y)
+{
+	SDL_Surface* surface = bitmap->Surface();
+	SDL_LockSurface(surface);
+
+	for (int32 y = 0; y < surface->h; y++) {
+		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
+		for (int32 x = 0; x < surface->pitch / 2; x++)
+			std::swap(*sourcePixels++, *destPixels--);
+	}
+	SDL_UnlockSurface(surface);
+
+	return bitmap;
 }
 
 

@@ -92,8 +92,7 @@ Resource::Resource(const res_ref &name, const uint16 &type)
 	fData(NULL),
 	fKey(0),
 	fType(type),
-	fName(name),
-	fRefCount(0)
+	fName(name)
 {
 
 }
@@ -150,13 +149,14 @@ Resource::Load(Archive *archive, uint32 key)
 void
 Resource::DumpToFile(const char *fileName)
 {
-	FileStream file(fileName, FileStream::WRITE_ONLY);
+	/*FileStream file(fileName, FileStream::WRITE_ONLY);
 	
 	char buf[4096];
 	size_t read;
 	fData->Seek(0, SEEK_SET);
 	while ((read = fData->Read(buf, sizeof(buf))) > 0)
-		file.Write(buf, read);
+		;//file.Write(buf, read);*/
+	fData->DumpToFile(fileName);
 }
 
 
@@ -230,24 +230,6 @@ void
 Resource::DropData()
 {
 	ReplaceData(NULL);
-}
-
-
-// Private
-void
-Resource::_Acquire()
-{
-	fRefCount++;
-}
-
-
-bool
-Resource::_Release()
-{
-	if (--fRefCount <= 0)
-		return true;
-
-	return false;
 }
 
 

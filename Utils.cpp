@@ -37,9 +37,12 @@ path_dos_to_unix(char *path)
 }
 
 
-FILE *
+FILE*
 fopen_case(const char *filename, const char *flags)
 {
+	assert(filename != NULL);
+	assert(strlen(filename) > 1);
+
 	TPath path(filename, NULL);
 	size_t where = 0;
 	TPath newPath("/");

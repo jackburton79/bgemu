@@ -1,8 +1,11 @@
 #include "Actor.h"
 #include "Animation.h"
+#include "Core.h"
+#include "CreResource.h"
 #include "BamResource.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "IDSResource.h"
 #include "ResManager.h"
 
 Animation::Animation(IE::animation *animDesc)
@@ -10,11 +13,16 @@ Animation::Animation(IE::animation *animDesc)
 	fBAM(NULL),
 	fCycleNumber(0),
 	fCurrentFrame(0),
-	fMaxFrame(0)
+	fMaxFrame(0),
+	fType(0)
 {
-	fBAM = gResManager->GetBAM(animDesc->bam_name);
-	if (fBAM == NULL)
+	strcpy(fName, animDesc->bam_name);
+
+	fBAM = gResManager->GetBAM(fName);
+	if (fBAM == NULL) {
+		printf("NULL BAM!!!\n");
 		throw -1;
+	}
 	fCycleNumber = animDesc->sequence;
 	fCenter = animDesc->center;
 	fCurrentFrame = animDesc->frame;
@@ -28,23 +36,28 @@ Animation::Animation(IE::animation *animDesc)
 }
 
 
-Animation::Animation(Actor *actor)
+Animation::Animation(CREResource *cre, int action, int sequence, IE::point position)
 :
 	fBAM(NULL),
 	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0),
+	fType(0),
 	fBlackAsTransparent(false),
 	fMirrored(false)
 {
-	fBAM = gResManager->GetBAM(Actor::AnimationFor(*actor));
+	res_ref name = _SelectAnimation(cre, action, sequence);
+
+	strcpy(fName, name);
+
+	fBAM = gResManager->GetBAM(fName);
 	if (fBAM == NULL)
 		throw -1;
 
-	fCycleNumber = actor->Orientation() % 4;
-	if (fCycleNumber > fBAM->CountCycles())
+	fCycleNumber = sequence;
+	if (fCycleNumber >= fBAM->CountCycles())
 		fCycleNumber = fBAM->CountCycles() - 1;
-	fCenter = actor->Position();
+	fCenter = position;
 	fCurrentFrame = 0;
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
 
@@ -58,13 +71,20 @@ Animation::~Animation()
 }
 
 
-Frame
-Animation::NextFrame()
+const char*
+Animation::Name() const
+{
+	return fName;
+}
+
+
+::Frame
+Animation::Frame()
 {
 	if (fBAM == NULL)
 		printf("BAM is NULL!!!!\n");
 
-	Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
+	::Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
 		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
 		frame.rect.x = frame.rect.x - frame.rect.w;
@@ -74,10 +94,115 @@ Animation::NextFrame()
 		//SDL_SetColorKey(frame.surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
 
 	}
+
+	return frame;
+}
+
+
+void
+Animation::Next()
+{
 	if (!fHold) {
 		fCurrentFrame++;
 		if (fCurrentFrame >= fMaxFrame)
 			fCurrentFrame = 0;
 	}
-	return frame;
+}
+
+
+::Frame
+Animation::NextFrame()
+{
+	Next();
+	return Frame();
+}
+
+
+IE::point
+Animation::Position() const
+{
+	return fCenter;
+}
+
+
+static
+int
+AnimationType(uint16 value)
+{
+	int masked = (value & 0xFF00) >> 8;
+	if (masked >= 0x50 && masked <= 0x63)
+		return ANIMATION_CHARACTER;
+	return ANIMATION_MONSTER;
+}
+
+
+res_ref
+Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
+{
+
+	const uint16 animationID = cre->AnimationID();
+	printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
+
+	res_ref nameRef;
+	uint8 high = (animationID & 0xFF00) >> 8;
+	uint8 low = (animationID & 0x00FF);
+	// TODO: Seems like animation type could be told by
+	// a mask here: monsters, characters, "objects", etc.
+
+	//fType = AnimationType(animationID);
+	//if (fType != ANIMATION_CHARACTER) {
+	std::string baseName = AniSndIDS()->ValueFor(animationID);
+	if (baseName.empty()) {
+		printf("unknown code 0x%x (%s)\n", animationID,
+					AnimateIDS()->ValueFor(animationID));
+		throw -1;
+	}
+
+	if ((high >= 0xb2 && high <= 0xb4)
+			|| (high >= 0xc6 && high <= 0xc9)) {
+		// TODO: Low/High ?
+		if (true)
+			baseName.append("L");
+		else
+			baseName.append("H");
+	}
+	if (baseName[0] == 'M') {
+		switch (action) {
+			//case ACT_WALKING: baseName.append("G11"); break;
+			case ACT_STANDING:
+			default: baseName.append("G1"); break;
+		}
+		if (orientation >= IE::ORIENTATION_NE
+			&& orientation <= IE::ORIENTATION_SE) {
+			fMirrored = true;
+		}
+	} else if (baseName[0] == 'C') {
+		// TODO: Can not work like this. Find out how to implement
+		if (baseName[3] != 'F' && baseName[3] != 'C')
+			baseName[4] = '2';
+		else
+			baseName[4] = '4'; //ArmorToLetter();
+		baseName[5] = 'W'; // Action
+		if (baseName[5] == 'A' || baseName[5] == 'G')
+			baseName[6] = '1'; // Detail
+		else if (baseName[5] == 'W')
+			baseName[6] = '2'; // Detail
+		else
+			baseName[6] = '\0';
+
+		baseName[7] = '\0';
+
+	} else {
+		baseName.append("G1");
+		if (baseName[0] == 'N') {
+			if (orientation >= IE::ORIENTATION_NE
+					&& orientation <= IE::ORIENTATION_SE)
+				baseName.append("E");
+		}
+	}
+
+	strcpy(nameRef.name, baseName.c_str());
+
+	//printf("nameRef: %s\n", (const char *)nameRef);
+	return nameRef;
 }

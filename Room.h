@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include "IETypes.h"
+#include "Scriptable.h"
 
 #include <vector>
 
@@ -14,7 +15,8 @@ class Door;
 class MapOverlay;
 class Script;
 class TileCell;
-class Room {
+
+class Room : public Scriptable {
 public:
 	Room();
 	~Room();
@@ -23,6 +25,8 @@ public:
 
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
+
+	GFX::rect AreaRect() const;
 
 	void Draw(Bitmap *surface);
 	void Clicked(uint16 x, uint16 y);
@@ -44,13 +48,13 @@ public:
 	void DumpOverlays(const char *path);
 
 private:
-	void _DrawBaseMap(Bitmap *surface, GFX::rect area);
+	void _DrawBaseMap(GFX::rect area);
 
-	void _DrawLightMap(Bitmap *surface);
-	void _DrawSearchMap(Bitmap *surface, GFX::rect area);
-	void _DrawHeightMap(Bitmap *surface, GFX::rect area);
-	void _DrawAnimations(Bitmap *surface, GFX::rect area);
-	void _DrawActors(Bitmap *surface, GFX::rect area);
+	void _DrawLightMap();
+	void _DrawSearchMap(GFX::rect area);
+	void _DrawHeightMap(GFX::rect area);
+	void _DrawAnimations(GFX::rect area);
+	void _DrawActors(GFX::rect area);
 
 	void _LoadOverlays();
 	void _InitVariables();

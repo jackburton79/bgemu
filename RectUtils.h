@@ -32,4 +32,15 @@ rects_intersect(const GFX::rect &rectA, const GFX::rect &rectB)
 			|| rectA.y + rectA.h < rectB.y);
 }
 
+
+static inline bool
+rect_contains(const GFX::rect& rect, const IE::point point)
+{
+	if (point.x >= rect.x && point.x <= rect.x + rect.w
+		&& point.y >= rect.y && point.y <= rect.y + rect.h)
+		return true;
+	return false;
+}
+
+
 #endif // __RECTUTILS_H

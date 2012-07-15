@@ -30,6 +30,11 @@ CREResource::Load(Archive *archive, uint32 key)
 	if (!CheckVersion(CRE_VERSION_1))
 		return false;
 
+	/*printf("\tCRE Script Override: %s\n", (const char*)OverrideScriptName());
+	printf("\tCRE Script Class: %s\n", (const char*)ClassScriptName());
+	printf("\tCRE Script Race: %s\n", (const char*)RaceScriptName());
+	printf("\tCRE Script General: %s\n", (const char*)GeneralScriptName());
+	printf("\tCRE Script Default: %s\n", (const char*)DefaultScriptName());*/
 	return true;
 }
 
