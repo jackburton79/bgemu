@@ -73,7 +73,7 @@ ScriptContext::_CheckTriggers(node* conditionNode)
 {
 	fOrTriggers = 0;
 
-	trigger* trig = static_cast<trigger*>(
+	trigger_node* trig = static_cast<trigger_node*>(
 			fScript->FindNode(BLOCK_TRIGGER, conditionNode));
 	bool evaluation = true;
 	while (trig != NULL) {
@@ -90,14 +90,14 @@ ScriptContext::_CheckTriggers(node* conditionNode)
 			if (!evaluation)
 				break;
 		}
-		trig = static_cast<trigger*>(trig->Next());
+		trig = static_cast<trigger_node*>(trig->Next());
 	}
 	return evaluation;
 }
 
 
 bool
-ScriptContext::_EvaluateTrigger(trigger* trig)
+ScriptContext::_EvaluateTrigger(trigger_node* trig)
 {
 	// TODO: Move this method to Script ?
 	printf("%s (0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id);
@@ -119,7 +119,7 @@ ScriptContext::_EvaluateTrigger(trigger* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object* obj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
 				obj->Print();
 				returnValue = false;
 				break;
@@ -145,16 +145,28 @@ ScriptContext::_EvaluateTrigger(trigger* trig)
 				returnValue = Core::Get()->GetVariable(trig->string1) == trig->parameter1;
 				break;
 			}
+			case 0x4017:
+			{
+				// Race() // TODO:
+				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				//returnValue = (obj->race == trig->parameter1);
+				obj->Print();
+				returnValue = false;
+				break;
+			}
+
 			case 0x401C:
 			{
 				/* See(O:Object*)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				object* obj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				Object *object = NULL;
 				obj->Print();
-				printf("See %s ?\n", obj->name);
-				returnValue = false;
+				if (obj->identifiers == 1) // Myself
+					object = fTarget;
+				returnValue = fTarget->See(object);
 				break;
 			}
 			case 0x4023:
@@ -210,7 +222,7 @@ ScriptContext::_EvaluateTrigger(trigger* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object* doorObj = static_cast<object*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
 				Door *door = Door::GetByName(doorObj->name);
 				if (door != NULL) {
 					bool paramOpen = trig->parameter1 == 1;
@@ -242,31 +254,31 @@ ScriptContext::_EvaluateTrigger(trigger* trig)
 void
 ScriptContext::_ExecuteActions(node* responseSet)
 {
-	response* responses[5];
-	response* resp = static_cast<response*>(
+	response_node* responses[5];
+	response_node* resp = static_cast<response_node*>(
 			fScript->FindNode(BLOCK_RESPONSE, responseSet));
 	int i = 0;
 	int totalChance = 0;
 	while (resp != NULL) {
 		responses[i] = resp;
 		totalChance += responses[i]->probability;
-		resp = static_cast<response*>(resp->Next());
+		resp = static_cast<response_node*>(resp->Next());
 		i++;
 	}
 
 	// TODO: Fix this and take the probability into account
 	int randomResponse = rand() % i;
-	action* act = static_cast<action*>(
+	action_node* act = static_cast<action_node*>(
 		fScript->FindNode(BLOCK_ACTION, responses[randomResponse]));
 	while (act != NULL) {
 		_ExecuteAction(act);
-		act = static_cast<action*>(act->Next());
+		act = static_cast<action_node*>(act->Next());
 	}
 }
 
 
 void
-ScriptContext::_ExecuteAction(action* act)
+ScriptContext::_ExecuteAction(action_node* act)
 {
 	printf("%s (0x%x)\n", ActionIDS()->ValueFor(act->id), act->id);
 	act->Print();

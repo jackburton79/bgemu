@@ -100,16 +100,16 @@ node::Create(int type, const char *string)
 	node* newNode = NULL;
 	switch (type) {
 		case BLOCK_TRIGGER:
-			newNode = new trigger;
+			newNode = new trigger_node;
 			break;
 		case BLOCK_OBJECT:
-			newNode = new object;
+			newNode = new object_node;
 			break;
 		case BLOCK_ACTION:
-			newNode = new action;
+			newNode = new action_node;
 			break;
 		case BLOCK_RESPONSE:
-			newNode = new response;
+			newNode = new response_node;
 			break;
 		default:
 			newNode = new node;
@@ -196,13 +196,13 @@ operator==(const node &a, const node &b)
 
 
 // trigger
-trigger::trigger()
+trigger_node::trigger_node()
 {
 }
 
 
 void
-trigger::Print() const
+trigger_node::Print() const
 {
 	printf("id:%d, flags: %d, parameter1: %d, parameter2: %d, %s %s\n",
 		id, flags, parameter1, parameter2, string1, string2);
@@ -210,14 +210,14 @@ trigger::Print() const
 
 
 // object
-object::object()
+object_node::object_node()
 {
 
 }
 
 
 void
-object::Print() const
+object_node::Print() const
 {
 	printf("Object:\n");
 	if (Core::Get()->Game() == GAME_TORMENT) {
@@ -231,7 +231,8 @@ object::Print() const
 	printf("specific: %s ", SpecificIDS()->ValueFor(specific));
 	printf("gender: %s ", GendersIDS()->ValueFor(gender));
 	printf("alignment: %d ", alignment);
-	printf("identifiers: %d \n", identifiers);
+	//if (identifiers != 0)
+	printf("identifiers: %s \n", ObjectsIDS()->ValueFor(identifiers));
 	//if (Core::Get()->Game() != GAME_BALDURSGATE)
 		//printf("point: %d %d ", point.x, point.y);
 	printf("name: %s\n", name);
@@ -239,13 +240,13 @@ object::Print() const
 
 
 // action
-action::action()
+action_node::action_node()
 {
 }
 
 
 void
-action::Print() const
+action_node::Print() const
 {
 	printf("id: %d, parameter: %d, point: (%d, %d), %d, %d, %s, %s\n",
 			id, parameter, where.x, where.y, e, f, string1, string2);
@@ -253,13 +254,13 @@ action::Print() const
 
 
 //response
-response::response()
+response_node::response_node()
 {
 }
 
 
 void
-response::Print() const
+response_node::Print() const
 {
 	printf("probability: %d\n", probability);
 }

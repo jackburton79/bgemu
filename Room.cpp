@@ -26,8 +26,10 @@
 
 std::vector<MapOverlay*> *gOverlays = NULL;
 
-Room::Room()
+Room::Room(const char *resName)
 	:
+	Object(resName),
+	fName(resName),
 	fWed(NULL),
 	fArea(NULL),
 	fBcs(NULL),
@@ -65,12 +67,11 @@ Room::ViewPort() const
 
 
 bool
-Room::Load(const char *resName)
+Room::Load()
 {
-	std::cout << "Room::Load(" << resName << ")" << std::endl;
+	std::cout << "Room::Load(" << fName << ")" << std::endl;
 
-	fArea = gResManager->GetARA(resName);
-	fName = fArea->WedName();
+	fArea = gResManager->GetARA(fName);
 	fWed = gResManager->GetWED(fName);
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());

@@ -70,7 +70,7 @@ protected:
 
 bool operator==(const node &, const node &);
 
-struct trigger : public node {
+struct trigger_node : public node {
 	virtual void Print() const;
 	int id;
 	int parameter1;
@@ -80,11 +80,11 @@ struct trigger : public node {
 	char string1[32];
 	char string2[32];
 
-	trigger();
+	trigger_node();
 };
 
 
-struct object : public node {
+struct object_node : public node {
 	virtual void Print() const;
 	int team;
 	int faction;
@@ -99,11 +99,11 @@ struct object : public node {
 	IE::point point;
 	char name[32];
 
-	object();
+	object_node();
 };
 
 
-struct action : public node {
+struct action_node : public node {
 	virtual void Print() const;
 	int id;
 	int parameter;
@@ -113,15 +113,15 @@ struct action : public node {
 	char string1[32];
 	char string2[32];
 
-	action();
+	action_node();
 };
 
 
-struct response : public node {
+struct response_node : public node {
 	virtual void Print() const;
 	int probability;
 
-	response();
+	response_node();
 };
 
 

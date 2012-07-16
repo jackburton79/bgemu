@@ -9,6 +9,9 @@
 #include <string>
 
 
+struct dummy_node : public node {
+
+};
 
 // token
 token::token()
@@ -104,7 +107,7 @@ Parser::Read(node*& rootNode)
 void
 Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 {
-	trigger* trig = dynamic_cast<trigger*>(node);
+	trigger_node* trig = dynamic_cast<trigger_node*>(node);
 	if (trig) {
 		trig->id = tokenizer->ReadToken().u.number;
 		trig->parameter1 = tokenizer->ReadToken().u.number;
@@ -123,7 +126,7 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 {
-	object* obj = dynamic_cast<object*>(node);
+	object_node* obj = dynamic_cast<object_node*>(node);
 	if (obj) {
 		obj->ea = tokenizer->ReadNextToken().u.number;
 		if (Core::Get()->Game() == GAME_TORMENT) {
@@ -150,7 +153,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 void
 Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 {
-	action* act = dynamic_cast<action*>(node);
+	action_node* act = dynamic_cast<action_node*>(node);
 	if (act) {
 		act->id = tokenizer->ReadNextToken().u.number;
 		act->parameter = tokenizer->ReadNextToken().u.number;
@@ -172,7 +175,7 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 void
 Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 {
-	response* resp = dynamic_cast<response*>(node);
+	response_node* resp = dynamic_cast<response_node*>(node);
 	if (resp)
 		resp->probability = tokenizer->ReadNextToken().u.number;
 }

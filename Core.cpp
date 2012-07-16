@@ -211,7 +211,7 @@ Core::Core()
 	sSpecifics = gResManager->GetIDS("SPECIFIC");
 	sTriggers = gResManager->GetIDS("TRIGGER");
 	sActions = gResManager->GetIDS("ACTION");
-	sObjects = gResManager->GetIDS("OBJECTS");
+	sObjects = gResManager->GetIDS("OBJECT");
 	sEA = gResManager->GetIDS("EA");
 }
 
@@ -257,8 +257,8 @@ Core::EnterArea(const char *name)
 {
 	// TODO: Move this elsewhere
 
-	fCurrentRoom = new Room();
-	if (!fCurrentRoom->Load(name))
+	fCurrentRoom = new Room(name);
+	if (!fCurrentRoom->Load())
 		throw false;
 
 	// The area script

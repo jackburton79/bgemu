@@ -18,10 +18,10 @@ class TileCell;
 
 class Room : public Object {
 public:
-	Room();
+	Room(const char *resName);
 	~Room();
 	
-	bool Load(const char *name);
+	bool Load();
 
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);

@@ -21,6 +21,7 @@ std::vector<Actor*> Actor::sActors;
 
 Actor::Actor(IE::actor &actor)
 	:
+	Object(actor.name),
 	fActor(&actor),
 	fCRE(NULL),
 	fBCSResource(NULL),
@@ -34,6 +35,7 @@ Actor::Actor(IE::actor &actor)
 
 Actor::Actor(const char* creName, IE::point position, int face)
 	:
+	Object(creName),
 	fActor(NULL),
 	fCRE(NULL),
 	fBCSResource(NULL),

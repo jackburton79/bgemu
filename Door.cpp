@@ -5,6 +5,7 @@ std::map<std::string, Door*> Door::sDoors;
 
 Door::Door(IE::door* areaDoor)
 	:
+	Object(areaDoor->name),
 	fAreaDoor(areaDoor)
 {
 }

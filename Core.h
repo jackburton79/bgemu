@@ -6,9 +6,9 @@
 #include <map>
 #include <string>
 
-struct action;
+struct action_node;
 struct node;
-struct trigger;
+struct trigger_node;
 
 enum game {
 	GAME_BALDURSGATE,
