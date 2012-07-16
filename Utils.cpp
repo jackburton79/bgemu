@@ -68,7 +68,9 @@ fopen_case(const char *filename, const char *flags)
 		start = newStart + where + 1;
 	}
 
-	//printf("%s...", newPath.Path());
+	if (strcasecmp(filename, newPath.Path()))
+		return NULL;
+
 	FILE *handle = fopen(newPath.Path(), flags);
 	if (handle != NULL)
 		printf("FOUND!\n");
@@ -95,6 +97,9 @@ extension(const char *path)
 	if (path == NULL)
 		return NULL;
 
-	return strrchr(path, '.');
+	const char *point = path + strlen(path) - 4;
+	if (*point != '.')
+		return NULL;
+	return point;
 }
 
