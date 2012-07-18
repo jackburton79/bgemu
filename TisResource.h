@@ -7,7 +7,7 @@ class Bitmap;
 class TISResource : public Resource {
 public:
 	TISResource(const res_ref &name);
-	~TISResource();
+	virtual ~TISResource();
 	
 	bool Load(Archive *archive, uint32 key);
 
@@ -17,6 +17,5 @@ private:
 	void _Init();
 	uint32 fDataOffset;
 };
-
 
 #endif

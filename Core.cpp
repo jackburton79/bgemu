@@ -119,6 +119,7 @@ fill_anisnd_ids(WriteIDSResource* res)
 	//res->AddValue(0x6314, "CIFB");
 	//res->AddValue(0x6315 "CHFB");
 
+	// rest
 	res->AddValue(0x6404, "USAR1");
 	res->AddValue(0x7001, "MOGR");
 	res->AddValue(0x7400, "MDOG");
@@ -178,8 +179,6 @@ fill_anisnd_ids(WriteIDSResource* res)
 	res->AddValue(0xd300, "ABIR");
 
 	res->AddValue(0xe010, "METT");
-
-
 }
 
 
@@ -252,21 +251,21 @@ Core::Game() const
 }
 
 
-void
+bool
 Core::EnterArea(const char *name)
 {
 	// TODO: Move this elsewhere
 
 	fCurrentRoom = new Room(name);
 	if (!fCurrentRoom->Load())
-		throw false;
+		return false;
 
 	// The area script
 	if (fRoomScript != NULL) {
-		ScriptContext* context = new ScriptContext(fCurrentRoom, fRoomScript);
-		context->ExecuteScript();
-		delete context;
+		fRoomScript->Execute();
 	}
+
+	return true;
 }
 
 
@@ -293,6 +292,24 @@ Core::GetVariable(const char* name)
 }
 
 
+Object*
+Core::GetObject(Object* source, object_node* node)
+{
+	const char* identifier = ObjectsIDS()->ValueFor(node->identifiers);
+	if (identifier != NULL && !strcasecmp(identifier, "MYSELF"))
+		return source;
+
+	node->Print();
+	std::vector<Actor*> actorList = Actor::List();
+	std::vector<Actor*>::iterator i;
+	for (i = actorList.begin(); i != actorList.end(); i++) {
+		if ((*i)->MatchNode(node))
+			return *i;
+	}
+	return NULL;
+}
+
+
 void
 Core::PlayMovie(const char* name)
 {
@@ -303,7 +320,7 @@ Core::PlayMovie(const char* name)
 
 
 void
-Core::AddScript(Script* script)
+Core::SetRoomScript(Script* script)
 {
 	fRoomScript = script;
 }
@@ -328,35 +345,34 @@ Core::RemoveActorScript(const char* name)
 void
 Core::CheckScripts()
 {
-	//if (fScript != NULL)
-		//_ExecuteScript(fScript);
 }
 
 
 void
 Core::UpdateLogic()
 {
-	//return;
+	return;
 	// TODO: Fix/Improve
 	std::vector<Actor*>::iterator i;
-	if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
-		fLastScriptRoundTime = SDL_GetTicks();
+	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
+		//fLastScriptRoundTime = SDL_GetTicks();
 		for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
 			Actor *actor  = *i;
-			printf("ACTOR: %s\n", actor->Name());
-			Script* script = actor->Script();
-			if (script != NULL) {
-				ScriptContext* context = new ScriptContext(actor, script);
-				context->ExecuteScript();
-				delete context;
-			}
+			actor->Update();
 		}
-	}
+	//}
 
-	for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
-		(*i)->UpdateMove();
-	}
 	fActiveActor = NULL;
+}
+
+
+bool
+Core::See(Object* source, Object* object)
+{
+	// TODO: improve
+	if (object == NULL)
+		return false;
+	return object->IsVisible();
 }
 
 

@@ -23,6 +23,7 @@ public:
 	const uint16 Type() const;
 	
 	static Resource *Create(const res_ref &name, uint16 type);
+	static const char* Extension(uint16 type);
 	
 protected:
 	bool CheckSignature(const char *signature, bool dontWorry = false);

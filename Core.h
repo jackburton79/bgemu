@@ -17,7 +17,9 @@ enum game {
 };
 
 
+struct object_node;
 class Actor;
+class Object;
 class Room;
 class IDSResource;
 class Script;
@@ -29,20 +31,24 @@ public:
 
 	game Game() const;
 
-	void EnterArea(const char *name);
+	bool EnterArea(const char *name);
 	Room *CurrentArea() const;
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
+	Object* GetObject(Object* source, object_node* node);
+
 	void PlayMovie(const char* name);
 
-	void AddScript(Script* script);
+	void SetRoomScript(Script* script);
 	//void AddActorScript(const char* name, Script* script);
 	//void RemoveActorScript(const char* name);
 
 	void CheckScripts();
 	void UpdateLogic();
+
+	bool See(Object* source, Object* target);
 
 	void RandomFly(Actor* actor);
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);

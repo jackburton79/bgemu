@@ -11,11 +11,13 @@
 #include "ResManager.h"
 #include "Resource.h"
 #include "FileStream.h"
+#include "MOSResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "IETypes.h"
 #include "Utils.h"
 #include "WedResource.h"
+#include "WMAPResource.h"
 
 #include <assert.h>
 #include <iostream>
@@ -85,9 +87,6 @@ ResourceManager::Initialize(const char *path)
 {
 	fResourcesPath.SetTo(path);
 
-	//Core::Get();
-
-
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
 		return false;
@@ -146,6 +145,8 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 
 	Resource *result = _FindResource(*entry);
 	if (result == NULL)
+		result = _LoadResourceFromOverride(*entry);
+	if (result == NULL)
 		result = _LoadResource(*entry);
 
 	if (result != NULL)
@@ -195,90 +196,96 @@ ResourceManager::GetTLK(const char *name)
 }
 
 
-ARAResource *
-ResourceManager::GetARA(const res_ref &name)
+ARAResource*
+ResourceManager::GetARA(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_ARA);
-
-	return static_cast<ARAResource *>(resource);
+	Resource* resource = _GetResource(name, RES_ARA);
+	return static_cast<ARAResource*>(resource);
 }
 
 
-BAMResource *
-ResourceManager::GetBAM(const res_ref &name)
+BAMResource*
+ResourceManager::GetBAM(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_BAM);
-	//assert(dynamic_cast<BAMResource *>(resource));
-	
-	return static_cast<BAMResource *>(resource);
+	Resource* resource = _GetResource(name, RES_BAM);
+	return static_cast<BAMResource*>(resource);
 }
 
 
-BMPResource *
-ResourceManager::GetBMP(const res_ref &name)
+BMPResource*
+ResourceManager::GetBMP(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_BMP);
-	//assert(dynamic_cast<BMPResource *>(resource));
-
-	return static_cast<BMPResource *>(resource);
+	Resource* resource = _GetResource(name, RES_BMP);
+	return static_cast<BMPResource*>(resource);
 }
 
 
-BCSResource *
-ResourceManager::GetBCS(const res_ref &name)
+BCSResource*
+ResourceManager::GetBCS(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_BCS);
-
-	return static_cast<BCSResource *>(resource);
+	Resource* resource = _GetResource(name, RES_BCS);
+	return static_cast<BCSResource*>(resource);
 }
 
 
-CREResource *
-ResourceManager::GetCRE(const res_ref &name)
+CREResource*
+ResourceManager::GetCRE(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_CRE);
-	return static_cast<CREResource *>(resource);
+	Resource* resource = _GetResource(name, RES_CRE);
+	return static_cast<CREResource*>(resource);
 }
 
 
-IDSResource *
-ResourceManager::GetIDS(const res_ref &name)
+IDSResource*
+ResourceManager::GetIDS(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_IDS);
-
-	return static_cast<IDSResource *>(resource);
+	Resource* resource = _GetResource(name, RES_IDS);
+	return static_cast<IDSResource*>(resource);
 }
 
 
-MVEResource *
-ResourceManager::GetMVE(const res_ref &name)
+MOSResource*
+ResourceManager::GetMOS(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_MVE);
-
-	return static_cast<MVEResource *>(resource);
+	Resource* resource = _GetResource(name, RES_MOS);
+	return static_cast<MOSResource*>(resource);
 }
 
 
-TISResource *
-ResourceManager::GetTIS(const res_ref &name)
+MVEResource*
+ResourceManager::GetMVE(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_TIS);
-	
-	return static_cast<TISResource *>(resource);
+	Resource* resource = _GetResource(name, RES_MVE);
+	return static_cast<MVEResource*>(resource);
 }
 
 
-WEDResource *
-ResourceManager::GetWED(const res_ref &name)
+TISResource*
+ResourceManager::GetTIS(const res_ref& name)
 {
-	Resource *resource = _GetResource(name, RES_WED);
+	Resource* resource = _GetResource(name, RES_TIS);
+	return static_cast<TISResource*>(resource);
+}
 
-	return static_cast<WEDResource *>(resource);
+
+WEDResource*
+ResourceManager::GetWED(const res_ref& name)
+{
+	Resource* resource = _GetResource(name, RES_WED);
+	return static_cast<WEDResource*>(resource);
+}
+
+
+WMAPResource*
+ResourceManager::GetWMAP(const res_ref& name)
+{
+	Resource* resource = _GetResource(name, RES_WMP);
+	return static_cast<WMAPResource*>(resource);
 }
 
 
 void
-ResourceManager::ReleaseResource(Resource *resource)
+ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL)
 		resource->Release();
@@ -288,9 +295,8 @@ ResourceManager::ReleaseResource(Resource *resource)
 std::string
 ResourceManager::GetFullPath(std::string name, uint16 location)
 {
-	TPath pathName(fResourcesPath);
-
 	printf("location: (0x%x)\n", location);
+	TPath pathName(fResourcesPath);
 
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
@@ -311,13 +317,16 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	}
 
 	printf("CD: 0x%x\n", GET_CD(location));
-	pathName.Append(name.c_str());
+	printf("pathName: %s, name: %s\n", pathName.Path(), name.c_str());
+
+	pathName.Append(name.c_str(), false);
+	printf("pathName: %s\n", pathName.Path());
 
 	return pathName.Path();
 }
 
 
-Resource *
+Resource*
 ResourceManager::_LoadResource(KeyResEntry &entry)
 {
 	const int bifIndex = RES_BIF_INDEX(entry.key);
@@ -328,7 +337,6 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 		(const char *)entry.name, strresource(entry.type));
 	printf("(in %s (0x%x))\n", archiveName, location);
 
-	// TODO: Try the override directory
 
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
@@ -355,6 +363,37 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 	printf("Resource %s (%s) loaded correctly!\n",
 			(const char *)entry.name, strresource(entry.type));
+	return resource;
+}
+
+
+Resource*
+ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
+{
+	// TODO: Try the other override directories (dialogs, characters, etc.... override)
+	std::string path = "override/";
+	path.append(entry.name);
+	path.append(Resource::Extension(entry.type));
+	std::string fullPath = GetFullPath(path, LOC_ROOT);
+
+	Archive* dirArchive = Archive::Create(fullPath.c_str());
+	// TODO: Merge the code with the rest ?
+	if (dirArchive == NULL)
+		return NULL;
+
+	Resource *resource = Resource::Create(entry.name, entry.type);
+	if (resource == NULL || !resource->Load(dirArchive, entry.key)) {
+		delete dirArchive;
+		delete resource;
+		return NULL;
+	}
+
+	resource->Acquire();
+	fCachedResources.push_back(resource);
+
+	printf("Resource %s (%s) loaded correctly from override!\n",
+			(const char *)entry.name, strresource(entry.type));
+	delete dirArchive;
 	return resource;
 }
 

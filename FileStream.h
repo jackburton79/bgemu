@@ -17,7 +17,8 @@ public:
 	enum openmode {
 		READ_ONLY = 0,
 		WRITE_ONLY = 1,
-		READ_WRITE = 2
+		READ_WRITE = 2,
+		CREATE = 4
 	};
 
 	enum casemode {

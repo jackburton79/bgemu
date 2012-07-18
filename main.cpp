@@ -1,11 +1,13 @@
 #include "Archive.h"
+#include "Bitmap.h"
 #include "BamResource.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
+#include "MOSResource.h"
 #include "ResManager.h"
 #include "Room.h"
-#include "MovieDecoder.h"
-#include "MveResource.h"
+#include "TisResource.h"
+#include "WMAPResource.h"
 #include "Stream.h"
 
 #include <getopt.h>
@@ -14,12 +16,10 @@
 static int sList = 0;
 static const char *sPath = "../BG";
 static const char *sRoomName = NULL;
-static int sDumpOverlays = 0;
 
 static
 struct option sLongOptions[] = {
 		{ "list", no_argument, &sList, 1 },
-		{ "dump_overlays", no_argument, &sDumpOverlays, 0 },
 		{ "path", required_argument, 0, 'p'},
 		{ 0, 0, 0, 0 }
 };
@@ -30,16 +30,13 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "dp:l",
+	while ((c = getopt_long(argc, argv, "p:l",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'l':
 				break;
 			case 'p':
 				sPath = optarg;
-				break;
-			case 'd':
-				sDumpOverlays = 1;
 				break;
 			default:
 				break;
@@ -75,51 +72,89 @@ main(int argc, char **argv)
 		return 0;
 	}
 
+	if (!GraphicsEngine::Initialize()) {
+		printf("Failed to initialize Graphics Engine\n");
+		return -1;
+	}
 
-#if 0
-	MVEResource* resource = gResManager->GetMVE(sRoomName);
-	resource->Play();
-	gResManager->ReleaseResource(resource);
-#else
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
+
+	WMAPResource* worldMap = gResManager->GetWMAP("WORLDMAP");
+
+	worldmap_entry entry;
+	if (!worldMap->GetWorldMap(entry))
+		return -1;
+
+	MOSResource* background = gResManager->GetMOS(entry.background_mos);
+	Bitmap *bitmap = background->Image();
+	//SDL_SaveBMP(bitmap->Surface(), "test.bmp");
+	graphicsEngine->SetVideoMode(bitmap->Width(), bitmap->Height(), 16, 0);
+	SDL_Event event;
+	bool quitting = false;
+	while (!quitting) {
+		while (SDL_PollEvent(&event) != 0) {
+			switch (event.type) {
+				case SDL_KEYDOWN: {
+					switch (event.key.keysym.sym) {
+						case SDLK_q:
+							quitting = true;
+							break;
+						default:
+							break;
+					}
+				}
+				break;
+
+				case SDL_QUIT:
+					quitting = true;
+					break;
+				default:
+					break;
+			}
+		}
+		graphicsEngine->BlitToScreen(bitmap, NULL, NULL);
+		graphicsEngine->Flip();
+		SDL_Delay(100);
+	}
+
+	gResManager->ReleaseResource(background);
+	gResManager->ReleaseResource(worldMap);
+	/*
+
 	graphicsEngine->SetWindowCaption(sRoomName);
 
-	Core::Get()->EnterArea(sRoomName);
+	if (!Core::Get()->EnterArea(sRoomName)) {;
+		printf("EnterArea failed\n");
+		GraphicsEngine::Destroy();
+		return -1;
+	}
+
 	Room *map = Core::Get()->CurrentArea();
-	if (sDumpOverlays)
-		map->DumpOverlays("/home/stefano/dumps");
+
 	GFX::rect rect = graphicsEngine->VideoArea();
 	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
+	uint16 downMouseX = 0;
+	uint16 downMouseY = 0;
 	if (map != NULL) {
 		SDL_Event event;
 		bool quitting = false;
-		bool dragging = false;
 		while (!quitting) {
 			while (SDL_PollEvent(&event) != 0) {
 				switch (event.type) {
 					case SDL_MOUSEBUTTONDOWN:
-						lastMouseX = event.button.x;
-						lastMouseY = event.button.y;
-						dragging = true;
+						downMouseX = event.button.x;
+						downMouseY = event.button.y;
 						break;
 					case SDL_MOUSEBUTTONUP:
-						dragging = false;
-						if (lastMouseX == event.button.x
-							&& lastMouseY == event.button.y)
+						if (downMouseX == event.button.x
+							&& downMouseY == event.button.y)
 							map->Clicked(event.button.x, event.button.y);
 						break;
 					case SDL_MOUSEMOTION:
-						if (dragging) {
-							GFX::rect rect = map->ViewPort();
-							rect.x -= event.motion.xrel;
-							rect.y -= event.motion.yrel;
-							map->SetViewPort(rect);
-						} else
-							map->MouseOver(event.motion.x, event.motion.y);
-
+						lastMouseX = event.motion.x;
+						lastMouseY = event.motion.y;
 						break;
 					case SDL_KEYDOWN: {
 						switch (event.key.keysym.sym) {
@@ -157,14 +192,15 @@ main(int argc, char **argv)
 						break;
 				}
 			}
+			map->MouseOver(lastMouseX, lastMouseY);
 			Core::Get()->UpdateLogic();
 			map->Draw(NULL);
 			graphicsEngine->Flip();
 			SDL_Delay(10);
 		}
 	}
-#endif
-	GraphicsEngine::Destroy();
+*/
+	//GraphicsEngine::Destroy();
 
 	return 0;
 }

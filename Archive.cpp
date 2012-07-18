@@ -12,17 +12,19 @@
 Archive *
 Archive::Create(const char *path)
 {
+	Archive* archive = NULL;
 	try {
-		if (!strcasecmp(extension(path), ".bif"))
-			return new BIFArchive(path);
-		else if (path[strlen(path) - 1] == '/') {
+		/*if (extension(path) == NULL) { // TODO: Not so nice
 			printf("Archive::Create(): DirectoryArchive\n");
 			return new DirectoryArchive(path);
-		} else {
-			return new PlainFileArchive(path);
+		} else */if (!strcasecmp(extension(path), ".bif"))
+			archive = new BIFArchive(path);
+		else {
+			archive = new PlainFileArchive(path);
 		}
 	} catch (...) {
 		printf("TArchive::Create(): Exception thrown!\n");
+		delete archive; // TODO: We leak the archive ?
 	}
-	return NULL;
+	return archive;
 }

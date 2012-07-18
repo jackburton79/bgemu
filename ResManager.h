@@ -20,11 +20,13 @@ class BCSResource;
 class BMPResource;
 class CREResource;
 class IDSResource;
+class MOSResource;
 class MVEResource;
 class KEYResource;
 class TISResource;
 class TLKResource;
 class WEDResource;
+class WMAPResource;
 class ResourceManager {
 public:
 	ResourceManager();
@@ -34,15 +36,17 @@ public:
 
 	KEYResource *GetKEY(const char *name);
 	TLKResource *GetTLK(const char *name);
-	BAMResource *GetBAM(const res_ref &name);
-	BCSResource *GetBCS(const res_ref &name);
-	BMPResource *GetBMP(const res_ref &name);
-	CREResource *GetCRE(const res_ref &name);
-	IDSResource *GetIDS(const res_ref &name);
-	TISResource *GetTIS(const res_ref &name);
-	WEDResource *GetWED(const res_ref &name);
-	ARAResource *GetARA(const res_ref &name);
-	MVEResource *GetMVE(const res_ref &name);
+	BAMResource *GetBAM(const res_ref& name);
+	BCSResource *GetBCS(const res_ref& name);
+	BMPResource *GetBMP(const res_ref& name);
+	CREResource *GetCRE(const res_ref& name);
+	IDSResource *GetIDS(const res_ref& name);
+	TISResource *GetTIS(const res_ref& name);
+	WEDResource *GetWED(const res_ref& name);
+	ARAResource *GetARA(const res_ref& name);
+	MOSResource* GetMOS(const res_ref& name);
+	MVEResource *GetMVE(const res_ref& name);
+	WMAPResource* GetWMAP(const res_ref& name);
 
 	void ReleaseResource(Resource *resource);
 	
@@ -60,6 +64,7 @@ private:
 	Resource *_GetResource(const res_ref &name, uint16 type);
 	Resource *_FindResource(KeyResEntry &entry);
 	Resource *_LoadResource(KeyResEntry &entry);
+	Resource* _LoadResourceFromOverride(KeyResEntry& entry);
 
 	std::string GetFullPath(std::string name, uint16 location);
 

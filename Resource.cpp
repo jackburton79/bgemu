@@ -7,6 +7,7 @@
 #include "FileStream.h"
 #include "IDSResource.h"
 #include "KEYResource.h"
+#include "MOSResource.h"
 #include "MveResource.h"
 #include "MemoryStream.h"
 #include "Resource.h"
@@ -15,6 +16,7 @@
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "WedResource.h"
+#include "WMAPResource.h"
 
 #include <cstdio>
 
@@ -244,7 +246,6 @@ Resource::Create(const res_ref &name, uint16 type)
 				res = new ARAResource(name);
 				break;
 			case RES_BAM:
-			case RES_MOS:
 				res = new BAMResource(name);
 				break;
 			case RES_BCS:
@@ -268,6 +269,12 @@ Resource::Create(const res_ref &name, uint16 type)
 			case RES_MVE:
 				res = new MVEResource(name);
 				break;
+			case RES_WMP:
+				res = new WMAPResource(name);
+				break;
+			case RES_MOS:
+				res = new MOSResource(name);
+				break;
 			default:
 				throw "Unknown resource!";
 				break;
@@ -277,4 +284,44 @@ Resource::Create(const res_ref &name, uint16 type)
 	}
 
 	return res;
+}
+
+
+/* static */
+const char*
+Resource::Extension(uint16 type)
+{
+	try {
+		switch (type) {
+			case RES_ARA:
+				return ".ARE";
+			case RES_BAM:
+				return ".BAM";
+			case RES_MOS:
+				return ".MOS";
+			case RES_BCS:
+				return ".BCS";
+			case RES_CRE:
+				return ".CRE";
+			case RES_BMP:
+				return ".BMP";
+			case RES_IDS:
+				return ".IDS";
+			case RES_TIS:
+				return ".TIS";
+			case RES_WED:
+				return ".WED";
+			case RES_MVE:
+				return ".MVE";
+			case RES_WMP:
+				return ".WMP";
+			default:
+				throw "Unknown resource!";
+				break;
+		}
+	} catch (...) {
+		printf("Resource::Create(): exception thrown!\n");
+	}
+
+	return NULL;
 }

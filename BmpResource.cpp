@@ -23,10 +23,12 @@ BMPResource::Image()
 		return NULL;
 
 	SDL_Surface *surface = SDL_LoadBMP_RW(rw, 1);
-	if (surface != NULL)
-		return new Bitmap(surface);
+	if (surface == NULL) {
+		// TODO: Close RWOps ?
+		return NULL;
+	}
 
-	return NULL;
+	return new Bitmap(surface);
 }
 
 

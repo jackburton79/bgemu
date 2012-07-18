@@ -13,6 +13,11 @@ public:
 
 	const char *WedName() const;
 
+	res_ref NorthAreaName();
+	res_ref EastAreaName();
+	res_ref SouthAreaName();
+	res_ref WestAreaName();
+
 	uint32 CountDoors() const;
 	IE::door *DoorAt(uint32 index);
 

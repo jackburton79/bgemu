@@ -6,6 +6,8 @@
 #include "IETypes.h"
 
 struct node;
+struct action_node;
+struct trigger_node;
 typedef std::vector<node*> node_list;
 
 enum block_type {
@@ -20,7 +22,7 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
-//class Actor;
+class Object;
 class Script {
 public:
 	Script(node *rootNode);
@@ -29,19 +31,27 @@ public:
 	void Print() const;
 
 	node* RootNode();
-	node* FindNode(block_type type, node* start) const;
+	node* FindNode(block_type type, node* start = NULL) const;
+
+	bool Execute();
+	void SetTarget(Object* object);
 
 	void SetProcessed();
 	bool Processed() const;
 
 private:
-	friend class Actor;
+	bool _CheckTriggers(node* conditionNode);
+	bool _EvaluateTrigger(trigger_node* trig);
 
+	void _ExecuteActions(node* node);
+	void _ExecuteAction(action_node* act);
 	void _PrintNode(node* n) const;
 
 	node *fRootNode;
 
 	bool fProcessed;
+
+	Object* fTarget;
 };
 
 

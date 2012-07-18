@@ -12,6 +12,7 @@ public:
 	~GraphicsEngine();
 	
 	static GraphicsEngine* Get();
+	static bool Initialize();
 	static void Destroy();
 
 	static Bitmap* CreateBitmap(uint16 width, uint16 height, uint16 depth);

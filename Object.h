@@ -10,14 +10,11 @@
 
 #include "SupportDefs.h"
 
-class Object;
-class ScriptRoundResults {
-public:
-	ScriptRoundResults();
+#include <list>
 
-};
-
-
+struct action_node;
+struct object_node;
+class Script;
 class Object {
 public:
 	Object(const char* name);
@@ -25,22 +22,32 @@ public:
 
 	const char* Name() const;
 
+	bool AddAction(action_node* act);
+	bool IsActionListEmpty() const;
+
 	bool See(Object* object);
 	bool IsVisible() const;
 
-	uint16 EnemyAlly();
+	Object* LastAttacker() const;
 
-	void NewScriptRound();
+	uint16 EnemyAlly() const;
 
-	ScriptRoundResults* LastScriptRoundResults();
-	ScriptRoundResults* CurrentScriptRoundResults();
+	void Update();
 
-private:
+	void SetScript(Script* script);
+
+	bool MatchNode(object_node* node);
+	static bool Match(Object* a, Object* b);
+
+protected:
 	const char* fName;
 	bool fVisible;
-	ScriptRoundResults* fCurrentScriptRoundResults;
-	ScriptRoundResults* fLastScriptRoundResults;
-	//std::list<Object*> fAttackers;
+
+	Script* fScript;
+
+	std::list<action_node*> fActions;
+
+	uint16 fTicks;
 };
 
 #endif // __SCRIPTABLE_H

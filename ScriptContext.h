@@ -23,11 +23,6 @@ private:
 	Script* fScript;
 	int fOrTriggers;
 
-	bool _CheckTriggers(node* conditionNode);
-	bool _EvaluateTrigger(trigger_node* trig);
-
-	void _ExecuteActions(node* node);
-	void _ExecuteAction(action_node* act);
 };
 
 #endif // __SCRIPTCONTEXT_H

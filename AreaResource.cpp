@@ -193,6 +193,42 @@ ARAResource::_LoadActors()
 }
 
 
+res_ref
+ARAResource::NorthAreaName()
+{
+	res_ref name;
+	fData->ReadAt(0x18, name);
+	return name;
+}
+
+
+res_ref
+ARAResource::EastAreaName()
+{
+	res_ref name;
+	fData->ReadAt(0x24, name);
+	return name;
+}
+
+
+res_ref
+ARAResource::SouthAreaName()
+{
+	res_ref name;
+	fData->ReadAt(0x30, name);
+	return name;
+}
+
+
+res_ref
+ARAResource::WestAreaName()
+{
+	res_ref name;
+	fData->ReadAt(0x3c, name);
+	return name;
+}
+
+
 void
 ARAResource::_LoadDoors()
 {

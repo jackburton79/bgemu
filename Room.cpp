@@ -72,11 +72,16 @@ Room::Load()
 	std::cout << "Room::Load(" << fName << ")" << std::endl;
 
 	fArea = gResManager->GetARA(fName);
+	if (fArea == NULL)
+		return false;
+
 	fWed = gResManager->GetWED(fName);
+	if (fWed == NULL)
+		return false;
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	if (fBcs != NULL) {
-		Core::Get()->AddScript(fBcs->GetScript());
+		Core::Get()->SetRoomScript(fBcs->GetScript());
 	}
 
 	_LoadOverlays();
@@ -179,6 +184,27 @@ Room::Draw(Bitmap *surface)
 void
 Room::Clicked(uint16 x, uint16 y)
 {
+	res_ref newRoomName;
+	const uint16 kBorderSize = 15;
+
+	if (y > (fVisibleArea.h - 100) / 2
+		&& y < (fVisibleArea.h - 100) / 2 + 100) {
+			if (x < kBorderSize)
+				newRoomName = fArea->WestAreaName();
+			else if (x > fVisibleArea.w - kBorderSize)
+				newRoomName = fArea->EastAreaName();
+	} else if (x > (fVisibleArea.w - 100) / 2
+		&& x < (fVisibleArea.w - 100) / 2 + 100){
+			if (y < kBorderSize)
+				newRoomName = fArea->NorthAreaName();
+			else if (y > fVisibleArea.h - kBorderSize)
+				newRoomName = fArea->SouthAreaName();
+	}
+
+	printf("newRoomName: %s\n", (const char*)newRoomName);
+	if (newRoomName != "") {
+		Core::Get()->EnterArea(newRoomName);
+	}
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
 
@@ -190,11 +216,32 @@ Room::Clicked(uint16 x, uint16 y)
 void
 Room::MouseOver(uint16 x, uint16 y)
 {
+	const uint16 kBorderSize = 15;
+	const uint16 kScrollingStep = 30;
+
+	uint16 scrollByX = 0;
+	uint16 scrollByY = 0;
+	if (x < kBorderSize)
+		scrollByX = -kScrollingStep;
+	else if (x > fVisibleArea.w - kBorderSize)
+		scrollByX = kScrollingStep;
+
+	if (y < kBorderSize)
+		scrollByY = -kScrollingStep;
+	else if (y > fVisibleArea.h - kBorderSize)
+		scrollByY = kScrollingStep;
+
 	x += fVisibleArea.x;
 	y += fVisibleArea.y;
 
 	const uint16 tileNum = TileNumberForPoint(x, y);
 	fTileCells[tileNum]->MouseOver();
+
+	GFX::rect rect = { fVisibleArea.x + scrollByX,
+					fVisibleArea.y + scrollByY,
+					fVisibleArea.w,
+					fVisibleArea.h };
+	SetViewPort(rect);
 }
 
 

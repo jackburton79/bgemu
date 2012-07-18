@@ -34,7 +34,6 @@ PlainFileArchive::GetResourceInfo(resource_info &info, uint16 index) const
 	info.size = fFile->Size();
 	info.type = 0;
 	info.unk = 0;
-
 	return true;
 }
 
@@ -43,6 +42,10 @@ PlainFileArchive::GetResourceInfo(resource_info &info, uint16 index) const
 bool
 PlainFileArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
 {
+	printf("Suuuca!\n");
+	throw "sucaerror";
+	/*info.offset = 0;
+	info.tileSize = fFile->Size();*/
 	return false;
 }
 

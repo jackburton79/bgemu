@@ -356,10 +356,15 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 	}
 
 	SDL_LockAudio();
-	SoundBuffer* buffer = SoundEngine::Get()->Buffer();
-	numSamples -= numChannels * sizeof(sint16);
-	for (uint16 i = 0; i < numSamples / 2; i++) {
-		buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
+	try {
+		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
+		numSamples -= numChannels * sizeof(sint16);
+		for (uint16 i = 0; i < numSamples / 2; i++) {
+			buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
+		}
+	} catch (...) {
+		printf("Buffer overflow. That's bad, okay.");
+		// TODO: Do something
 	}
 	SDL_UnlockAudio();
 	delete decoder;

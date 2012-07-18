@@ -78,10 +78,10 @@ Actor::_Init()
 
 	fBCSResource = gResManager->GetBCS(fActor->script_specific);
 
-	fActor->Print();
+	if (fBCSResource != NULL)
+		Object::SetScript(fBCSResource->GetScript());
 
-	//if (fBCSResource != NULL)
-		//fBCSResource->GetScript()->fActor = this;
+	fActor->Print();
 
 	//TODO: some orientations are bad!!!
 	if (fActor->orientation > IE::ORIENTATION_SE)

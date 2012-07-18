@@ -27,9 +27,21 @@ GraphicsEngine::~GraphicsEngine()
 GraphicsEngine*
 GraphicsEngine::Get()
 {
-	if (sGraphicsEngine == NULL)
-		sGraphicsEngine = new GraphicsEngine();
 	return sGraphicsEngine;
+}
+
+
+/* static */
+bool
+GraphicsEngine::Initialize()
+{
+	try {
+		sGraphicsEngine = new GraphicsEngine();
+	} catch (...) {
+		return false;
+	}
+
+	return true;
 }
 
 

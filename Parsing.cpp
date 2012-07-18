@@ -10,7 +10,7 @@
 
 
 struct dummy_node : public node {
-
+	char value[128];
 };
 
 // token
