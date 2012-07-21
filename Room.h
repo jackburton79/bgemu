@@ -13,15 +13,18 @@ class ARAResource;
 class Bitmap;
 class Door;
 class MapOverlay;
+class MOSResource;
 class Script;
 class TileCell;
+class WMAPResource;
 
 class Room : public Object {
 public:
-	Room(const char *resName);
+	Room();
 	~Room();
 	
-	bool Load();
+	bool Load(const char* areaName);
+	bool LoadWorldMap();
 
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
@@ -69,14 +72,13 @@ private:
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;
-
-	Bitmap *fLightMap;
-	Bitmap *fSearchMap;
-	Bitmap *fHeightMap;
+	WMAPResource* fWorldMap;
+	BAMResource* fWorldMapIcons;
+	MOSResource* fWorldMapBackground;
+	Bitmap*	fWorldMapBitmap;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
-
 	std::vector<Animation*> fAnimations;
 
 	bool fDrawOverlays;

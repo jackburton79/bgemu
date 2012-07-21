@@ -57,7 +57,6 @@ MOSResource::Load(Archive* archive, uint32 key)
 		ReplaceData(new MemoryStream(decompressedData, len, true));
 	}
 
-
 	if (!CheckSignature(MOS_SIGNATURE))
 		return false;
 
@@ -74,8 +73,6 @@ MOSResource::Load(Archive* archive, uint32 key)
 	fTileOffsets = fPaletteOffset + kPaletteDataSize * fColumns * fRows;
 	fPixelDataOffset = fTileOffsets + fColumns * fRows * sizeof(uint32);
 
-	printf("width: %d, height: %d, columns: %d, rows: %d, block: %d\n",
-			fWidth, fHeight, fColumns, fRows, fBlockSize);
 	return true;
 }
 
@@ -121,10 +118,8 @@ MOSResource::TileAt(int index)
 			palette.colors[i].a = fData->ReadByte();
 		}
 
-		fData->Seek(fTileOffsets + index * sizeof(uint32), SEEK_SET);
-
 		uint32 tileOffset;
-		fData->Read(tileOffset);
+		fData->ReadAt(fTileOffsets + index * sizeof(uint32), tileOffset);
 		fData->Seek(fPixelDataOffset + tileOffset, SEEK_SET);
 
 		int tileDataSize = fBlockSize * fBlockSize;
@@ -137,7 +132,6 @@ MOSResource::TileAt(int index)
 		surface->SetPalette(palette);
 
 	} catch (...) {
-		printf("Caught exception\n");
 		GraphicsEngine::DeleteBitmap(surface);
 		return NULL;
 	}

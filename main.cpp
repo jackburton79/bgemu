@@ -6,9 +6,11 @@
 #include "MOSResource.h"
 #include "ResManager.h"
 #include "Room.h"
-#include "TisResource.h"
-#include "WMAPResource.h"
 #include "Stream.h"
+#include "TisResource.h"
+#include "WorldMap.h"
+#include "WMAPResource.h"
+
 
 #include <getopt.h>
 #include <SDL.h>
@@ -77,60 +79,26 @@ main(int argc, char **argv)
 		return -1;
 	}
 
+	Core::Get();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-
-	WMAPResource* worldMap = gResManager->GetWMAP("WORLDMAP");
-
-	worldmap_entry entry;
-	if (!worldMap->GetWorldMap(entry))
-		return -1;
-
-	MOSResource* background = gResManager->GetMOS(entry.background_mos);
-	Bitmap *bitmap = background->Image();
-	//SDL_SaveBMP(bitmap->Surface(), "test.bmp");
-	graphicsEngine->SetVideoMode(bitmap->Width(), bitmap->Height(), 16, 0);
-	SDL_Event event;
-	bool quitting = false;
-	while (!quitting) {
-		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-				case SDL_KEYDOWN: {
-					switch (event.key.keysym.sym) {
-						case SDLK_q:
-							quitting = true;
-							break;
-						default:
-							break;
-					}
-				}
-				break;
-
-				case SDL_QUIT:
-					quitting = true;
-					break;
-				default:
-					break;
-			}
-		}
-		graphicsEngine->BlitToScreen(bitmap, NULL, NULL);
-		graphicsEngine->Flip();
-		SDL_Delay(100);
-	}
-
-	gResManager->ReleaseResource(background);
-	gResManager->ReleaseResource(worldMap);
-	/*
-
+	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
 	graphicsEngine->SetWindowCaption(sRoomName);
 
-	if (!Core::Get()->EnterArea(sRoomName)) {;
+	/*if (!Core::Get()->EnterArea(sRoomName)) {;
 		printf("EnterArea failed\n");
 		GraphicsEngine::Destroy();
 		return -1;
 	}
 
-	Room *map = Core::Get()->CurrentArea();
+	Room *map = Core::Get()->CurrentArea();*/
+	Room *map = new Room();
+	if (!map->LoadWorldMap()) {
+		printf("LoadWorldMap failed\n");
+		GraphicsEngine::Destroy();
+		return -1;
+	}
 
+	printf("Okay here\n");
 	GFX::rect rect = graphicsEngine->VideoArea();
 	map->SetViewPort(rect);
 	uint16 lastMouseX = 0;
@@ -158,23 +126,17 @@ main(int argc, char **argv)
 						break;
 					case SDL_KEYDOWN: {
 						switch (event.key.keysym.sym) {
-							case SDLK_a:
+							/*case SDLK_a:
 								map->ToggleAnimations();
-								break;
-							case SDLK_l:
-								map->ToggleLightMap();
-								break;
-							case SDLK_h:
-								map->ToggleHeightMap();
-								break;
-							case SDLK_s:
-								map->ToggleSearchMap();
 								break;
 							case SDLK_o:
 								map->ToggleOverlays();
 								break;
 							case SDLK_p:
 								map->TogglePolygons();
+								break;*/
+							case SDLK_w:
+								map->LoadWorldMap();
 								break;
 							case SDLK_q:
 								quitting = true;
@@ -193,14 +155,14 @@ main(int argc, char **argv)
 				}
 			}
 			map->MouseOver(lastMouseX, lastMouseY);
-			Core::Get()->UpdateLogic();
+			//Core::Get()->UpdateLogic();
 			map->Draw(NULL);
 			graphicsEngine->Flip();
 			SDL_Delay(10);
 		}
 	}
-*/
-	//GraphicsEngine::Destroy();
+
+	GraphicsEngine::Destroy();
 
 	return 0;
 }

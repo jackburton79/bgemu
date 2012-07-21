@@ -125,17 +125,6 @@ Animation::Position() const
 }
 
 
-static
-int
-AnimationType(uint16 value)
-{
-	int masked = (value & 0xFF00) >> 8;
-	if (masked >= 0x50 && masked <= 0x63)
-		return ANIMATION_CHARACTER;
-	return ANIMATION_MONSTER;
-}
-
-
 res_ref
 Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 {
@@ -145,7 +134,7 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;
-	uint8 low = (animationID & 0x00FF);
+	//uint8 low = (animationID & 0x00FF);
 	// TODO: Seems like animation type could be told by
 	// a mask here: monsters, characters, "objects", etc.
 

@@ -278,7 +278,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				//object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
 				/*Door *door = Door::GetByName(doorObj->name);
 				if (door != NULL) {
 					bool paramOpen = trig->parameter1 == 1;

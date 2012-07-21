@@ -200,7 +200,7 @@ MVEResource::GetNextChunk()
 	} catch (const char *str) {
 		std::cout << str << std::endl;
 		return false;
-	} catch (movie_opcodes op) {
+	} catch (movie_opcodes& op) {
 		printf("OP_END_OF_STREAM\n");
 		return false;
 	}

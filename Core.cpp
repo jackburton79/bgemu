@@ -255,9 +255,11 @@ bool
 Core::EnterArea(const char *name)
 {
 	// TODO: Move this elsewhere
+	delete fCurrentRoom;
+	fCurrentRoom = NULL;
 
-	fCurrentRoom = new Room(name);
-	if (!fCurrentRoom->Load())
+	fCurrentRoom = new Room();
+	if (!fCurrentRoom->Load(name))
 		return false;
 
 	// The area script

@@ -16,13 +16,12 @@ WMAPResource::WMAPResource(const res_ref &name)
 	:
 	Resource(name, RES_WMP)
 {
-	// TODO Auto-generated constructor stub
 
 }
 
+
 WMAPResource::~WMAPResource()
 {
-	// TODO Auto-generated destructor stub
 }
 
 
@@ -42,13 +41,31 @@ WMAPResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(8, fCount);
 	fData->ReadAt(12, fOffset);
 
+	// TODO: Handle the case where there are more than one.
+	fData->ReadAt(fOffset, fWorldMapEntry);
 	return true;
 }
 
 
-bool
-WMAPResource::GetWorldMap(worldmap_entry& entry)
+worldmap_entry
+WMAPResource::WorldMapEntry()
 {
-	fData->ReadAt(fOffset, entry);
+	return fWorldMapEntry;
+}
+
+
+uint32
+WMAPResource::CountAreaEntries() const
+{
+	return fWorldMapEntry.areaentries_count;
+}
+
+
+bool
+WMAPResource::GetAreaEntry(uint32 index, area_entry& area)
+{
+	if (index >= fWorldMapEntry.areaentries_count)
+		return false;
+	fData->ReadAt(fWorldMapEntry.areaentries_offset + index * sizeof(area_entry), area);
 	return true;
 }

@@ -44,7 +44,14 @@ uint32 data_offset(uint32 x)
 BAMResource::BAMResource(const res_ref& name)
 	:
 	Resource(name, RES_BAM),
-	fPalette(NULL)
+	fPalette(NULL),
+	fFramesOffset(0),
+	fCyclesOffset(0),
+	fFrameLookupOffset(0),
+	fNumFrames(0),
+	fNumCycles(0),
+	fCompressedIndex(0),
+	fTransparentIndex(0)
 {
 }
 
