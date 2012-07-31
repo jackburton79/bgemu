@@ -55,12 +55,8 @@ main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
-	try {
-		if (!gResManager->Initialize(sPath)) {
-			printf("Failed to initialize Resource Manager!\n");
-			return -1;
-		}
-	} catch (...) {
+	if (!gResManager->Initialize(sPath)) {
+		printf("Failed to initialize Resource Manager!\n");
 		return -1;
 	}
 
@@ -81,26 +77,19 @@ main(int argc, char **argv)
 
 	Core::Get();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
-	graphicsEngine->SetWindowCaption(sRoomName);
 
-	/*if (!Core::Get()->EnterArea(sRoomName)) {;
-		printf("EnterArea failed\n");
-		GraphicsEngine::Destroy();
-		return -1;
-	}
-
-	Room *map = Core::Get()->CurrentArea();*/
 	Room *map = new Room();
+	graphicsEngine->AddListener(map);
+
 	if (!map->LoadWorldMap()) {
 		printf("LoadWorldMap failed\n");
 		GraphicsEngine::Destroy();
 		return -1;
 	}
 
-	printf("Okay here\n");
-	GFX::rect rect = graphicsEngine->VideoArea();
-	map->SetViewPort(rect);
+	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
+	graphicsEngine->SetWindowCaption(map->AreaName());
+
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 	uint16 downMouseX = 0;

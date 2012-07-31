@@ -5,7 +5,10 @@
 #include "Bitmap.h"
 #include "IETypes.h"
 
+#include <vector>
+
 class Bitmap;
+class Listener;
 class GraphicsEngine {
 public:
 	GraphicsEngine();
@@ -40,11 +43,17 @@ public:
 	SDL_Surface* ScreenSurface();
 
 	void Flip();
-		
+
+	// Observer/Listener
+	void AddListener(Listener* listener);
+	void RemoveListener(Listener* listener);
+
 private:
 	SDL_Surface* fScreen;
 	SDL_Rect fOldRect;
 	uint16 fOldDepth;
+
+	std::vector<Listener*> fListeners;
 };
 
 #endif

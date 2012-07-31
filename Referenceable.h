@@ -18,6 +18,8 @@ public:
 	void Acquire();
 	bool Release();
 
+	int32 RefCount() const;
+
 private:
 	int32 fRefCount;
 };

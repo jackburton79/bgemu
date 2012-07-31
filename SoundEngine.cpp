@@ -57,10 +57,21 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 
 	if (SDL_OpenAudio(&fmt, NULL) < 0 ) {
 		fprintf(stderr, "Unable to open audio: %s\n", SDL_GetError());
-		exit(1);
+		delete fBuffer;
+		fBuffer = NULL;
+		return false;
 	}
 
 	return true;
+}
+
+
+void
+SoundEngine::DestroyBuffers()
+{
+	SDL_CloseAudio();
+	delete fBuffer;
+	fBuffer = NULL;
 }
 
 
@@ -74,14 +85,6 @@ SoundEngine::Buffer()
 void
 SoundEngine::StartStopAudio()
 {
-	/*if (fPlaying) {
-		SDL_LockAudio();
-		printf("Lock audio()\n");
-	} else {
-		printf("Unlock audio()\n");
-
-	}
-	fPlaying = !fPlaying;*/
 	SDL_PauseAudio(0);
 }
 

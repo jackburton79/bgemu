@@ -145,7 +145,6 @@ ARAResource::CountVariables() const
 {
 	uint32 numVars = 0;
 	fData->ReadAt(0x8c, numVars);
-	printf("num vars: %d\n", numVars);
 	return numVars;
 }
 

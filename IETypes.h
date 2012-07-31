@@ -237,9 +237,10 @@ void check_objects_size();
 
 }
 
-bool operator<(const res_ref &, const res_ref &);
-bool operator==(const res_ref &, const res_ref &);
-bool operator<(const ref_type &, const ref_type &);
+bool operator<(const res_ref&, const res_ref&);
+bool operator==(const res_ref&, const res_ref&);
+bool operator!=(const res_ref&, const res_ref&);
+bool operator<(const ref_type&, const ref_type&);
 std::ostream &operator<<(std::ostream &os, res_ref ref);
 
 bool operator==(const IE::point&, const IE::point&);

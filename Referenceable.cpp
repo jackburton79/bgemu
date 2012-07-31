@@ -34,3 +34,9 @@ Referenceable::Release()
 	return false;
 }
 
+
+int32
+Referenceable::RefCount() const
+{
+	return fRefCount;
+}

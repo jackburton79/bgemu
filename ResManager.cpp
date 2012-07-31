@@ -19,6 +19,7 @@
 #include "WedResource.h"
 #include "WMAPResource.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <limits.h>
@@ -69,11 +70,11 @@ ResourceManager::~ResourceManager()
 		delete *i;	
 	}
 
-	std::vector<Resource *>::iterator it;
+	std::list<Resource *>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++)
 		delete *it;
 
-	//_TryEmptyResourceCache();
+	TryEmptyResourceCache();
 
 	archive_map::iterator aIter;
 	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
@@ -317,10 +318,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	}
 
 	printf("CD: 0x%x\n", GET_CD(location));
-	printf("pathName: %s, name: %s\n", pathName.Path(), name.c_str());
-
 	pathName.Append(name.c_str(), false);
-	printf("pathName: %s\n", pathName.Path());
 
 	return pathName.Path();
 }
@@ -336,7 +334,6 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	printf("ResourceManager::LoadResource(%s, %s)...",
 		(const char *)entry.name, strresource(entry.type));
 	printf("(in %s (0x%x))\n", archiveName, location);
-
 
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
@@ -458,7 +455,7 @@ ResourceManager::SearchMapName(const char *name)
 Resource *
 ResourceManager::_FindResource(KeyResEntry &entry)
 {
-	std::vector<Resource *>::iterator iter;
+	std::list<Resource *>::iterator iter;
 	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
 		if ((*iter)->Key() == entry.key)
 			return *iter;
@@ -476,14 +473,12 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
 
 
 void
-ResourceManager::_TryEmptyResourceCache()
+ResourceManager::TryEmptyResourceCache()
 {
-	std::vector<Resource *>::iterator it;
-	it = fCachedResources.begin();
-	while (fCachedResources.size() > 0) {
-		if ((*it)->Release())
-			delete *it;
-		it = fCachedResources.erase(it);
+	std::list<Resource *>::iterator it;
+	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+		if ((*it)->RefCount() == 1)
+			it = fCachedResources.erase(it);
 	}
 }
 

@@ -39,11 +39,8 @@ Room::Room()
 	fWorldMapIcons(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
-	fDrawOverlays(false),
+	fDrawOverlays(true),
 	fDrawPolygons(false),
-	fDrawLightMap(false),
-	fDrawSearchMap(false),
-	fDrawHeightMap(false),
 	fDrawAnimations(false)
 {
 }
@@ -52,13 +49,15 @@ Room::Room()
 Room::~Room()
 {
 	// TODO: Delete various tilecells, overlays, animations
-	gResManager->ReleaseResource(fWed);
-	gResManager->ReleaseResource(fArea);
-	gResManager->ReleaseResource(fBcs);
-	gResManager->ReleaseResource(fWorldMap);
-	gResManager->ReleaseResource(fWorldMapIcons);
-	gResManager->ReleaseResource(fWorldMapBackground);
-	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);
+	_UnloadArea();
+	_UnloadWorldMap();
+}
+
+
+const char*
+Room::AreaName() const
+{
+	return fName;
 }
 
 
@@ -70,20 +69,13 @@ Room::ViewPort() const
 
 
 bool
-Room::Load(const char* areaName)
+Room::LoadArea(const char* areaName)
 {
+	_UnloadWorldMap();
+
 	fName = areaName;
 
-	gResManager->ReleaseResource(fWorldMap);
-	fWorldMap = NULL;
-	gResManager->ReleaseResource(fWorldMapIcons);
-	fWorldMapIcons = NULL;
-	gResManager->ReleaseResource(fWorldMapBackground);
-	fWorldMapBackground = NULL;
-	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);
-	fWorldMapBitmap = NULL;
-
-	std::cout << "Room::Load(" << fName << ")" << std::endl;
+	std::cout << "Room::Load(" << areaName << ")" << std::endl;
 
 	fArea = gResManager->GetARA(fName);
 	if (fArea == NULL)
@@ -94,16 +86,18 @@ Room::Load(const char* areaName)
 		return false;
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
-	if (fBcs != NULL) {
-		Core::Get()->SetRoomScript(fBcs->GetScript());
-	}
+	Script* roomScript = NULL;
+	if (fBcs != NULL)
+		roomScript = fBcs->GetScript();
 
 	_LoadOverlays();
 	_InitTileCells();
 	_InitVariables();
-	_InitAnimations();
-	_LoadActors();
-	_InitDoors();
+	//_InitAnimations();
+	//_LoadActors();
+	//_InitDoors();
+
+	Core::Get()->EnteredArea(this, roomScript);
 
 	return true;
 }
@@ -112,32 +106,18 @@ Room::Load(const char* areaName)
 bool
 Room::LoadWorldMap()
 {
-	// TODO: _UnloadStuff() (if needed)
+	// TODO: _UnloadActors/Doors() (if needed)
 	if (fWorldMap != NULL)
 		return true;
 
-	// TODO: Move to UnloadArea
-	for (uint32 c = 0; c < fAnimations.size(); c++)
-		delete fAnimations[c];
-	fAnimations.clear();
+	_UnloadArea();
 
-	for (uint32 c = 0; c < fTileCells.size(); c++)
-		delete fTileCells[c];
-	fTileCells.clear();
-
-	for (uint32 c = 0; c < fOverlays.size(); c++)
-		delete fOverlays[c];
-	fOverlays.clear();
-
-	gResManager->ReleaseResource(fWed);
-	fWed = NULL;
-	gResManager->ReleaseResource(fArea);
-	fArea = NULL;
-	gResManager->ReleaseResource(fBcs);
-	fBcs = NULL;
+	Core::Get()->EnteredArea(this, NULL);
 
 	fVisibleArea.x = fVisibleArea.y = 0;
-	fWorldMap = gResManager->GetWMAP("WORLDMAP");
+	fName = "WORLDMAP";
+	fWorldMap = gResManager->GetWMAP(fName);
+
 	worldmap_entry entry = fWorldMap->WorldMapEntry();
 	fWorldMapIcons = gResManager->GetBAM(entry.map_icons_bam);
 	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
@@ -160,13 +140,13 @@ Room::LoadWorldMap()
 void
 Room::SetViewPort(GFX::rect rect)
 {
-	uint16 areaWidth;
-	uint16 areaHeight;
+	uint16 areaWidth = 0;
+	uint16 areaHeight = 0;
 
 	if (fWed != NULL) {
 		areaWidth = fOverlays[0]->Width() * TILE_WIDTH;
 		areaHeight = fOverlays[0]->Height() * TILE_HEIGHT;
-	} else {
+	} else if (fWorldMapBitmap != NULL ){
 		areaWidth = fWorldMapBitmap->Width();
 		areaHeight = fWorldMapBitmap->Height();
 	}
@@ -215,13 +195,6 @@ Room::Draw(Bitmap *surface)
 	if (true)
 		_DrawActors(fVisibleArea);
 
-	if (fDrawLightMap)
-		_DrawLightMap();
-	if (fDrawHeightMap)
-		_DrawHeightMap(fVisibleArea);
-	if (fDrawSearchMap)
-		_DrawSearchMap(fVisibleArea);
-
 	/*if (fDrawPolygons) {
 		for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 			Polygon* poly = fWed->PolygonAt(p);
@@ -240,6 +213,9 @@ Room::Draw(Bitmap *surface)
 void
 Room::Clicked(uint16 x, uint16 y)
 {
+	x += fVisibleArea.x;
+	y += fVisibleArea.y;
+
 	if (fWorldMap != NULL) {
 		res_ref newRoomName;
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
@@ -255,14 +231,12 @@ Room::Clicked(uint16 x, uint16 y)
 				}
 			}
 		}
-		if (newRoomName != "") {
+		if (strcmp(newRoomName, "")) {
 			printf("Should load room %s\n", (const char*)newRoomName);
-			Load(newRoomName);
+			LoadArea(newRoomName);
 		}
 
 	} else {
-		x += fVisibleArea.x;
-		y += fVisibleArea.y;
 		const uint16 tileNum = TileNumberForPoint(x, y);
 		fTileCells[tileNum]->Clicked();
 	}
@@ -272,12 +246,6 @@ Room::Clicked(uint16 x, uint16 y)
 void
 Room::MouseOver(uint16 x, uint16 y)
 {
-	// TODO: Support the worldmap
-	if (fWed == NULL) {
-
-		return;
-	}
-
 	const uint16 kBorderSize = 15;
 	const uint16 kScrollingStep = 30;
 
@@ -293,11 +261,13 @@ Room::MouseOver(uint16 x, uint16 y)
 	else if (y > fVisibleArea.h - kBorderSize)
 		scrollByY = kScrollingStep;
 
-	x += fVisibleArea.x;
-	y += fVisibleArea.y;
+	if (fWed != NULL) {
+		x += fVisibleArea.x;
+		y += fVisibleArea.y;
 
-	const uint16 tileNum = TileNumberForPoint(x, y);
-	fTileCells[tileNum]->MouseOver();
+		const uint16 tileNum = TileNumberForPoint(x, y);
+		fTileCells[tileNum]->MouseOver();
+	}
 
 	GFX::rect rect = { fVisibleArea.x + scrollByX,
 					fVisibleArea.y + scrollByY,
@@ -330,27 +300,6 @@ void
 Room::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
-}
-
-
-void
-Room::ToggleLightMap()
-{
-	fDrawLightMap = !fDrawLightMap;
-}
-
-
-void
-Room::ToggleSearchMap()
-{
-	fDrawSearchMap = !fDrawSearchMap;
-}
-
-
-void
-Room::ToggleHeightMap()
-{
-	fDrawHeightMap = !fDrawHeightMap;
 }
 
 
@@ -411,6 +360,14 @@ Room::DumpOverlays(const char* path)
 	fDrawOverlays = wasDrawingOverlays;*/
 }
 
+/* virtual */
+void
+Room::VideoAreaChanged(uint16 width, uint16 height)
+{
+	GFX::rect rect = {0, 0, width, height};
+	SetViewPort(rect);
+}
+
 
 void
 Room::_DrawBaseMap(GFX::rect area)
@@ -435,49 +392,6 @@ Room::_DrawBaseMap(GFX::rect area)
 			fTileCells[tileNum]->Draw(&rect, fDrawOverlays);
 		}
 	}
-}
-
-
-void
-Room::_DrawLightMap()
-{
-	/*GFX::rect destRect = {
-		0, surface->Height() - fLightMap->Height(),
-		fLightMap->Width(), fLightMap->Height()
-	};
-	GraphicsEngine::Get()->BlitBitmap(fLightMap, NULL, surface, &destRect);*/
-}
-
-
-void
-Room::_DrawSearchMap(GFX::rect area)
-{
-	/*GFX::rect destRect = {
-		fLightMap->Width(), surface->Height() - fSearchMap->Height(),
-		fSearchMap->Width() + fLightMap->Width(), fSearchMap->Height()
-	};
-	GraphicsEngine::Get()->BlitBitmap(fSearchMap, NULL, surface, &destRect);*/
-}
-
-
-void
-Room::_DrawHeightMap(GFX::rect area)
-{
-	/*GFX::rect destRect = {
-		fLightMap->Width() + fSearchMap->Width(), surface->Height() - fHeightMap->Height(),
-		fSearchMap->Width() + fLightMap->Width() + fHeightMap->Width(), fHeightMap->Height()
-	};
-	GraphicsEngine::Get()->BlitBitmap(fHeightMap, NULL, surface, &destRect);*/
-	//SDL_BlitSurface(fHeightMap, NULL, surface, &destRect);
-
-	/*MapOverlay *overlay = fWed->OverlayAt(0);
-	SDL_Rect fill = {
-		destRect.x + (area.x / (overlay->Width() / fHeightMap->w)),
-		destRect.y + (area.y / (overlay->Height() / fHeightMap->h)),
-		(area.w / (overlay->Width() / fHeightMap->w)),
-		(area.h / (overlay->Height() / fHeightMap->h))
-	};
-	SDL_FillRect(surface, &fill, 45);*/
 }
 
 
@@ -591,4 +505,52 @@ Room::_InitDoors()
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
 	}
+}
+
+
+void
+Room::_UnloadArea()
+{
+	if (fWed == NULL)
+		return;
+
+	for (uint32 c = 0; c < fAnimations.size(); c++)
+		delete fAnimations[c];
+	fAnimations.clear();
+
+	for (uint32 c = 0; c < fTileCells.size(); c++)
+		delete fTileCells[c];
+	fTileCells.clear();
+
+	for (uint32 c = 0; c < fOverlays.size(); c++)
+		delete fOverlays[c];
+	fOverlays.clear();
+
+	gResManager->ReleaseResource(fWed);
+	fWed = NULL;
+	gResManager->ReleaseResource(fArea);
+	fArea = NULL;
+	gResManager->ReleaseResource(fBcs);
+	fBcs = NULL;
+
+	gResManager->TryEmptyResourceCache();
+}
+
+
+void
+Room::_UnloadWorldMap()
+{
+	if (fWorldMap == NULL)
+		return;
+
+	gResManager->ReleaseResource(fWorldMap);
+	fWorldMap = NULL;
+	gResManager->ReleaseResource(fWorldMapIcons);
+	fWorldMapIcons = NULL;
+	gResManager->ReleaseResource(fWorldMapBackground);
+	fWorldMapBackground = NULL;
+	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);
+	fWorldMapBitmap = NULL;
+
+	gResManager->TryEmptyResourceCache();
 }

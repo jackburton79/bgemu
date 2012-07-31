@@ -6,6 +6,7 @@
 #include "Resource.h"
 #include "IETypes.h"
 
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -49,6 +50,7 @@ public:
 	WMAPResource* GetWMAP(const res_ref& name);
 
 	void ReleaseResource(Resource *resource);
+	void TryEmptyResourceCache();
 	
 	void PrintResources();
 	void PrintBIFs();
@@ -78,7 +80,7 @@ private:
 
 	bif_vector fBifs;
 	resource_map fResourceMap;
-	std::vector<Resource *> fCachedResources;
+	std::list<Resource*> fCachedResources;
 	archive_map fArchives;
 };
 

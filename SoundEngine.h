@@ -43,6 +43,7 @@ public:
 
 	static SoundEngine* Get();
 	bool InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen);
+	void DestroyBuffers();
 	SoundBuffer* Buffer();
 
 	void StartStopAudio();

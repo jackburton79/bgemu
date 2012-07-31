@@ -31,18 +31,6 @@ fill_pixels(uint8 *pixels, uint16 offset, uint8 value, uint16 blockSize)
 }
 
 
-static void
-DumpData(uint8 *data, int size)
-{
-	for (int i = 0; i < size; i++) {
-		printf("0x%x ", *(data + i));
-		if ((i % 8) == 7)
-			printf("\n");
-	}
-	printf("\n");
-}
-
-
 class Pattern4 {
 public:
 	Pattern4(const uint8& p0, const uint8& p1, const uint8& p2, const uint8& p3)
@@ -186,9 +174,8 @@ MovieDecoder::InitVideoMode(uint16 width, uint16 height, uint16 flags)
 {
 	printf("InitVideoMode(width: %d, height: %d, flags: %d)\n",
 			width, height, flags);
-	GraphicsEngine* gfxEngine = GraphicsEngine::Get();
-	gfxEngine->SaveCurrentMode();
-	gfxEngine->SetVideoMode(width, height, 16, 0);
+
+	GraphicsEngine::Get()->SetVideoMode(width, height, 16, 0);
 
 	return true;
 }
@@ -228,6 +215,8 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 	uint32 pos = stream->Position();
 
 	int dataOffset = 14;
+	if (fVersion == 99)
+		dataOffset = 0;
 	//if (fVersion == 2)
 		//dataOffset = 16;
 	// TODO: WHY ??? FIND OUT
@@ -552,9 +541,14 @@ MovieDecoder::OpcodeF_8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
-	for (int32 r = 0; r < 32; r++) {
-		*pixels++ = p0;
-		*pixels++ = p1;
+	uint8 pattern[8] = { p0, p1, p0, p1, p0, p1, p0, p1 };
+	uint8 pattern1[8] = { p1, p0, p1, p0, p1, p0, p1, p0 };
+	for (int32 r = 0; r < 8; r++) {
+		if (r % 2)
+			memcpy(pixels, pattern1, 8);
+		else
+			memcpy(pixels, pattern, 8);
+		pixels += 8;
 	}
 	GraphicsEngine::Get()->BlitBitmap(fScratchBuffer, NULL, fNewFrame, blitRect);
 }

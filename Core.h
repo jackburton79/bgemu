@@ -31,7 +31,7 @@ public:
 
 	game Game() const;
 
-	bool EnterArea(const char *name);
+	void EnteredArea(Room* area, Script* script);
 	Room *CurrentArea() const;
 
 	void SetVariable(const char* name, int32 value);

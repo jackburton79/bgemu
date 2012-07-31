@@ -139,7 +139,9 @@ MVEResource::Play()
 	int16 magic[3];
 
 	fData->Read(magic);
-	std::cout << "magic: " << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
+	//std::cout << "magic: " << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
+
+	GraphicsEngine::Get()->SaveCurrentMode();
 
 	fLastFrameTime = SDL_GetTicks();
 	bool quitting = false;
@@ -174,12 +176,14 @@ MVEResource::Play()
 			}
 		}
 		uint32 currentTime = SDL_GetTicks();
-		if (fTimer != 0) {
+		if (fTimer != 0 && !quitting) {
 			if (currentTime < fLastFrameTime + fTimer)
 				SDL_Delay((fLastFrameTime + fTimer) - currentTime);
 		}
 	}
 
+
+	SoundEngine::Get()->DestroyBuffers();
 	GraphicsEngine::Get()->RestorePreviousMode();
 }
 
@@ -211,7 +215,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	//std::cout << "CHUNK: " << chunktostr(header) << std::endl;
+	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -222,8 +226,8 @@ MVEResource::DecodeChunk(chunk_header header)
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	//std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
-	//std::cout << " length: " << opcode.length << std::endl;
+	std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
+	std::cout << " length: " << std::dec << opcode.length << std::endl;
 	
 	switch (opcode.type) {
 		case OP_END_OF_STREAM:
@@ -318,7 +322,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(numSamples);
 			if (opcode.type == OP_AUDIO_FRAME_DATA)
 				ReadAudioData(fData, numSamples);
-
 			break;
 		}
 		case OP_CREATE_TIMER:
@@ -331,6 +334,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		}
 		default:
+			printf("MVEResource: Opcode not implemented\n");
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
@@ -359,11 +363,16 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 	try {
 		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		numSamples -= numChannels * sizeof(sint16);
-		for (uint16 i = 0; i < numSamples / 2; i++) {
-			buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
+		if (numChannels == 1) {
+			for (uint16 i = 0; i < numSamples / 2; i++)
+				buffer->AddSample(decoder->Decode(stream->ReadByte()));
+		}
+		else {
+			for (uint16 i = 0; i < numSamples / 2; i++)
+				buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
 		}
 	} catch (...) {
-		printf("Buffer overflow. That's bad, okay.");
+		printf("TODO: Buffer overflow. That's bad, okay. Will fix someday.");
 		// TODO: Do something
 	}
 	SDL_UnlockAudio();
@@ -386,7 +395,7 @@ chunktostr(chunk_header header)
 		case CHUNK_AUDIO_INIT:
 			return "init audio";
 		case CHUNK_AUDIO:
-			return "audio data";
+			return "audio";
 		default:
 			return "unknown";
 	}

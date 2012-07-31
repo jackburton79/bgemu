@@ -80,6 +80,13 @@ operator==(const res_ref &ref1, const res_ref &ref2)
 
 
 bool
+operator!=(const res_ref &ref1, const res_ref &ref2)
+{
+	return strncasecmp(ref1.name, ref2.name, 8) != 0;
+}
+
+
+bool
 operator<(const ref_type &ref1, const ref_type &ref2)
 {
 	int nameDiff = strncasecmp(ref1.name.name, ref2.name.name, 8);

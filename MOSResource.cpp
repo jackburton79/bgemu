@@ -70,6 +70,7 @@ MOSResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(16, fBlockSize);
 	fData->ReadAt(20, fPaletteOffset);
 
+	printf("width: %d, height: %d, columns: %d, rows: %d\n", fWidth, fHeight, fColumns, fRows);
 	fTileOffsets = fPaletteOffset + kPaletteDataSize * fColumns * fRows;
 	fPixelDataOffset = fTileOffsets + fColumns * fRows * sizeof(uint32);
 
@@ -82,9 +83,9 @@ MOSResource::Image()
 {
 	GFX::rect tileRect = { 0, 0, fBlockSize, fBlockSize };
 	Bitmap* bitmap = GraphicsEngine::CreateBitmap(fWidth, fHeight, 16);
-	for (uint16 y = 0; y < fRows - 1; y++) {
+	for (uint16 y = 0; y < fRows; y++) {
 		tileRect.y = y * fBlockSize;
-		for (uint16 x = 0; x < fColumns - 1; x++) {
+		for (uint16 x = 0; x < fColumns; x++) {
 			tileRect.x = x * fBlockSize;
 			const uint32 tileNum = y * fColumns + x;
 			Bitmap* tile = TileAt(tileNum);
@@ -107,8 +108,19 @@ MOSResource::TileAt(int index)
 
 	fData->Seek(fPaletteOffset + index * kPaletteDataSize, SEEK_SET);
 
+	uint16 xBlockSize = fBlockSize;
+	uint16 yBlockSize = fBlockSize;
+
+	// The last row and column tiles could be smaller
+	uint16 y = index / (fColumns);
+	uint16 x = index - y * fColumns;
+	if (x == fColumns - 1)
+		xBlockSize = fWidth - (fColumns - 1) * fBlockSize;
+	if (y == fRows - 1)
+		yBlockSize = fHeight - (fRows - 1) * fBlockSize;
+
 	Bitmap* surface = GraphicsEngine::CreateBitmap(
-			fBlockSize, fBlockSize, 8);
+			xBlockSize, yBlockSize, 8);
 	try {
 		Palette palette;
 		for (int32 i = 0; i < 256; i++) {
@@ -122,13 +134,13 @@ MOSResource::TileAt(int index)
 		fData->ReadAt(fTileOffsets + index * sizeof(uint32), tileOffset);
 		fData->Seek(fPixelDataOffset + tileOffset, SEEK_SET);
 
-		int tileDataSize = fBlockSize * fBlockSize;
-		uint8 *pixels = (uint8 *)surface->Pixels();
-		for (int i = 0; i < tileDataSize; i++) {
-			uint8 pixel = fData->ReadByte();
-			*pixels++ = pixel;
+		for (int y = 0; y < yBlockSize; y++) {
+			uint8 *pixels = (uint8 *)surface->Pixels() + y * surface->Pitch();
+			for (int x = 0; x < xBlockSize; x++) {
+				uint8 pixel = fData->ReadByte();
+				pixels[x] = pixel;
+			}
 		}
-
 		surface->SetPalette(palette);
 
 	} catch (...) {

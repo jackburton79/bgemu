@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include "IETypes.h"
+#include "Listener.h"
 #include "Object.h"
 
 #include <vector>
@@ -18,12 +19,14 @@ class Script;
 class TileCell;
 class WMAPResource;
 
-class Room : public Object {
+class Room : public Object, public Listener {
 public:
 	Room();
 	~Room();
 	
-	bool Load(const char* areaName);
+	const char* AreaName() const;
+
+	bool LoadArea(const char* areaName);
 	bool LoadWorldMap();
 
 	GFX::rect ViewPort() const;
@@ -39,9 +42,6 @@ public:
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();
-	void ToggleLightMap();
-	void ToggleSearchMap();
-	void ToggleHeightMap();
 
 	void CreateCreature(const char* name, IE::point where, int face);
 
@@ -49,6 +49,8 @@ public:
 						GFX::rect tileRect, bool withOverlays);
 
 	void DumpOverlays(const char *path);
+
+	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
 	void _DrawBaseMap(GFX::rect area);
@@ -65,6 +67,9 @@ private:
 	void _InitAnimations();
 	void _LoadActors();
 	void _InitDoors();
+
+	void _UnloadArea();
+	void _UnloadWorldMap();
 
 	res_ref fName;
 	GFX::rect fVisibleArea;
@@ -83,9 +88,6 @@ private:
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;
-	bool fDrawLightMap;
-	bool fDrawSearchMap;
-	bool fDrawHeightMap;
 	bool fDrawAnimations;
 
 };

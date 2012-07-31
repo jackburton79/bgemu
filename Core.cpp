@@ -9,7 +9,6 @@
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
-#include "ScriptContext.h"
 #include "TLKResource.h"
 
 #include <stdlib.h>
@@ -251,23 +250,17 @@ Core::Game() const
 }
 
 
-bool
-Core::EnterArea(const char *name)
+void
+Core::EnteredArea(Room* area, Script* script)
 {
 	// TODO: Move this elsewhere
-	delete fCurrentRoom;
-	fCurrentRoom = NULL;
-
-	fCurrentRoom = new Room();
-	if (!fCurrentRoom->Load(name))
-		return false;
+	fCurrentRoom = area;
+	SetRoomScript(script);
 
 	// The area script
 	if (fRoomScript != NULL) {
 		fRoomScript->Execute();
 	}
-
-	return true;
 }
 
 
@@ -281,7 +274,7 @@ Core::CurrentArea() const
 void
 Core::SetVariable(const char* name, int32 value)
 {
-	printf("SetVariable(%s, %d)\n", name, fVariables[name]);
+	printf("SetVariable(%s, %d) (old value %d)\n", name, value, fVariables[name]);
 	fVariables[name] = value;
 }
 
@@ -289,7 +282,7 @@ Core::SetVariable(const char* name, int32 value)
 int32
 Core::GetVariable(const char* name)
 {
-	//printf("%s %d\n", name, fVariables[name]);
+	printf("%s %d\n", name, fVariables[name]);
 	return fVariables[name];
 }
 

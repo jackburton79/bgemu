@@ -1,15 +1,19 @@
 #include <assert.h>
+#include <algorithm>
 #include <iostream>
 
 #include "Bitmap.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "Listener.h"
 
+#include <SDL.h>
 
 static GraphicsEngine *sGraphicsEngine = NULL;
 
 GraphicsEngine::GraphicsEngine()
 	:
+	fScreen(NULL),
 	fOldDepth(0)
 {
 	fOldRect.w = fOldRect.h = fOldRect.x = fOldRect.y = 0;
@@ -95,7 +99,8 @@ GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source, GFX::rect *dest)
 void
 GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source, Bitmap *surface, GFX::rect *dest)
 {
-	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source, surface->Surface(), (SDL_Rect*)dest);
+	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)(source),
+			surface->Surface(), (SDL_Rect*)(dest));
 }
 
 
@@ -111,6 +116,10 @@ void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags)
 {
 	fScreen = SDL_SetVideoMode(x, y, depth, 0);
+	std::vector<Listener*>::iterator i;
+	for (i = fListeners.begin(); i != fListeners.end(); i++) {
+		(*i)->VideoAreaChanged(x, y);
+	}
 }
 
 
@@ -130,7 +139,7 @@ void
 GraphicsEngine::RestorePreviousMode()
 {
 	if (fOldDepth != 0) {
-		fScreen = SDL_SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, 0);
+		SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, 0);
 		fOldDepth = 0;
 	}
 }
@@ -164,12 +173,16 @@ GraphicsEngine::Flip()
 	SDL_Flip(fScreen);
 }
 
-/*
+
 void
-GraphicsEngine::Blit(SDL_Surface *_surface)
+GraphicsEngine::AddListener(Listener* listener)
 {
-	SDL_Surface *surface = SDL_DisplayFormat(_surface);
-	SDL_BlitSurface(surface, NULL, fScreen, NULL);
-	Flip();
-	SDL_FreeSurface(surface);
-}*/
+	fListeners.push_back(listener);
+}
+
+
+void
+GraphicsEngine::RemoveListener(Listener* listener)
+{
+	fListeners.erase(std::find(fListeners.begin(), fListeners.end(), listener));
+}
