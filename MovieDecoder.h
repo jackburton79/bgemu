@@ -39,22 +39,22 @@ private:
 	GFX::rect fActiveRect;
 	uint16 fVersion;
 
-	void Opcode0_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode1_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode2_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode3_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode4_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode5_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode6_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode7_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode8_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void Opcode9_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeA_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeB_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeC_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeD_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeE_8(Stream* stream, uint8* pixels, GFX::rect* rect);
-	void OpcodeF_8(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode0(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode1(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode2(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode3(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode4(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode5(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode6(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode7(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode8(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void Opcode9(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeA(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeB(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeC(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeD(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeE(Stream* stream, uint8* pixels, GFX::rect* rect);
+	void OpcodeF(Stream* stream, uint8* pixels, GFX::rect* rect);
 
 #if DEBUG
 	void TestInit(uint8 opcode, const uint8 data[], uint32 size);
@@ -72,7 +72,6 @@ private:
 	void TestOpcodeD();
 	void TestOpcodeE();
 	void TestOpcodeF();
-
 #endif
 };
 

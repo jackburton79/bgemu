@@ -48,6 +48,7 @@ public:
 
 	void* Pixels() const;
 
+	GFX::rect Frame() const;
 	uint16 Width() const;
 	uint16 Height() const;
 	uint16 Pitch() const;

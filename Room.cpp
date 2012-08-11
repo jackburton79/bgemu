@@ -36,7 +36,6 @@ Room::Room()
 	fArea(NULL),
 	fBcs(NULL),
 	fWorldMap(NULL),
-	fWorldMapIcons(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fDrawOverlays(true),
@@ -93,9 +92,9 @@ Room::LoadArea(const char* areaName)
 	_LoadOverlays();
 	_InitTileCells();
 	_InitVariables();
-	//_InitAnimations();
-	//_LoadActors();
-	//_InitDoors();
+	_InitAnimations();
+	_LoadActors();
+	_InitDoors();
 
 	Core::Get()->EnteredArea(this, roomScript);
 
@@ -119,19 +118,17 @@ Room::LoadWorldMap()
 	fWorldMap = gResManager->GetWMAP(fName);
 
 	worldmap_entry entry = fWorldMap->WorldMapEntry();
-	fWorldMapIcons = gResManager->GetBAM(entry.map_icons_bam);
 	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
 	fWorldMapBitmap = fWorldMapBackground->Image();
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-		area_entry areaEntry;
-		if (fWorldMap->GetAreaEntry(i, areaEntry)) {
-			Frame iconFrame = fWorldMapIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
-			GFX::rect iconRect = { areaEntry.x - iconFrame.rect.w / 2,
-					areaEntry.y - iconFrame.rect.h / 2,
+		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
+		const Frame& iconFrame = areaEntry.Icon();
+		IE::point position = areaEntry.Position();
+		GFX::rect iconRect = { position.x - iconFrame.rect.w / 2,
+					position.y - iconFrame.rect.h / 2,
 					iconFrame.rect.w, iconFrame.rect.h };
-			GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL, fWorldMapBitmap, &iconRect);
-			GraphicsEngine::DeleteBitmap(iconFrame.bitmap);
-		}
+		GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL, fWorldMapBitmap, &iconRect);
+
 	}
 	return true;
 }
@@ -218,17 +215,16 @@ Room::Clicked(uint16 x, uint16 y)
 
 	if (fWorldMap != NULL) {
 		res_ref newRoomName;
+		printf("clicked on %d %d\n", x, y);
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-			area_entry areaEntry;
-			if (fWorldMap->GetAreaEntry(i, areaEntry)) {
-				GFX::rect iconRect = { areaEntry.x - 25 / 2,
-						areaEntry.y - 25 / 2,
-						25, 25 };
-				IE::point point = {x, y};
-				if (rect_contains(iconRect, point)) {
-					newRoomName = areaEntry.area;
-					break;
-				}
+			AreaEntry& area = fWorldMap->AreaEntryAt(i);
+			IE::point point = {x, y};
+			printf("area %s, rect %d %d %d %d\n",
+					area.Name(), area.Rect().x,
+					area.Rect().y, area.Rect().w, area.Rect().h);
+			if (rect_contains(area.Rect(), point)) {
+				newRoomName = area.Name();
+				break;
 			}
 		}
 		if (strcmp(newRoomName, "")) {
@@ -261,12 +257,20 @@ Room::MouseOver(uint16 x, uint16 y)
 	else if (y > fVisibleArea.h - kBorderSize)
 		scrollByY = kScrollingStep;
 
+	x += fVisibleArea.x;
+	y += fVisibleArea.y;
 	if (fWed != NULL) {
-		x += fVisibleArea.x;
-		y += fVisibleArea.y;
-
 		const uint16 tileNum = TileNumberForPoint(x, y);
 		fTileCells[tileNum]->MouseOver();
+	} else if (fWorldMap != NULL) {
+		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
+			AreaEntry& area = fWorldMap->AreaEntryAt(i);
+			IE::point point = {x, y};
+			if (rect_contains(area.Rect(), point)) {
+				GraphicsEngine::Get()->StrokeRect(area.Rect(), 600);
+				break;
+			}
+		}
 	}
 
 	GFX::rect rect = { fVisibleArea.x + scrollByX,
@@ -526,6 +530,10 @@ Room::_UnloadArea()
 		delete fOverlays[c];
 	fOverlays.clear();
 
+	std::vector<Actor*>::iterator i;
+
+	Actor::List().erase(Actor::List().begin(), Actor::List().end());
+
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
 	gResManager->ReleaseResource(fArea);
@@ -545,8 +553,8 @@ Room::_UnloadWorldMap()
 
 	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
-	gResManager->ReleaseResource(fWorldMapIcons);
-	fWorldMapIcons = NULL;
+	//gResManager->ReleaseResource(fWorldMapIcons);
+	//fWorldMapIcons = NULL;
 	gResManager->ReleaseResource(fWorldMapBackground);
 	fWorldMapBackground = NULL;
 	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);

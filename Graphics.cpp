@@ -115,6 +115,17 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y
 
 
 /* static */
+void
+Graphics::DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color)
+{
+	DrawLine(surface, rect.x, rect.y, rect.x + rect.w, rect.y, color);
+	DrawLine(surface, rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + rect.h, color);
+	DrawLine(surface, rect.x, rect.y, rect.x, rect.y + rect.h, color);
+	DrawLine(surface, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y + rect.h, color);
+}
+
+
+/* static */
 int
 Graphics::DataToBitmap(const void *data, int32 width, int32 height, Bitmap *bitmap)
 {

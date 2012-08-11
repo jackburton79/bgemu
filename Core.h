@@ -1,5 +1,5 @@
-#ifndef __WORLD_H
-#define __WORLD_H
+#ifndef __CORE_H
+#define __CORE_H
 
 #include "IETypes.h"
 
@@ -31,6 +31,9 @@ public:
 
 	game Game() const;
 
+	uint32 Time() const;
+	uint32 GameTime() const;
+
 	void EnteredArea(Room* area, Script* script);
 	Room *CurrentArea() const;
 
@@ -42,8 +45,6 @@ public:
 	void PlayMovie(const char* name);
 
 	void SetRoomScript(Script* script);
-	//void AddActorScript(const char* name, Script* script);
-	//void RemoveActorScript(const char* name);
 
 	void CheckScripts();
 	void UpdateLogic();
@@ -74,19 +75,4 @@ private:
 
 
 
-
-TLKResource* Dialogs();
-IDSResource* GeneralIDS();
-IDSResource* AnimateIDS();
-IDSResource* AniSndIDS();
-IDSResource* GendersIDS();
-IDSResource* RacesIDS();
-IDSResource* ClassesIDS();
-IDSResource* SpecificIDS();
-IDSResource* TriggerIDS();
-IDSResource* ActionIDS();
-IDSResource* ObjectsIDS();
-IDSResource* EAIDS();
-
-
-#endif // __WORLD_H
+#endif // __CORE_H

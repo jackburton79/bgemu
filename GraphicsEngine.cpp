@@ -95,6 +95,15 @@ GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source, GFX::rect *dest)
 }
 
 
+void
+GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
+{
+	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
+	Graphics::DrawRect(fScreen, sdlRect, color);
+	SDL_UpdateRect(fScreen, sdlRect.x, sdlRect.y, sdlRect.w + 1, sdlRect.h + 1);
+}
+
+
 /*static*/
 void
 GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source, Bitmap *surface, GFX::rect *dest)

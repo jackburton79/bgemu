@@ -5,6 +5,8 @@
  *      Author: stefano
  */
 
+#include "Bitmap.h"
+#include "Frame.h"
 #include "ResManager.h"
 #include "WMAPResource.h"
 #include "WorldMap.h"

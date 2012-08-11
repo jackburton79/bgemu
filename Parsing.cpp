@@ -9,10 +9,6 @@
 #include <string>
 
 
-struct dummy_node : public node {
-	char value[128];
-};
-
 // token
 token::token()
 	:
@@ -72,6 +68,12 @@ Parser::Parser()
 	fTokenizer(NULL)
 {
 	fTokenizer = new Tokenizer();
+}
+
+
+Parser::~Parser()
+{
+	delete fTokenizer;
 }
 
 

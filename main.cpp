@@ -115,10 +115,10 @@ main(int argc, char **argv)
 						break;
 					case SDL_KEYDOWN: {
 						switch (event.key.keysym.sym) {
-							/*case SDLK_a:
+							case SDLK_a:
 								map->ToggleAnimations();
 								break;
-							case SDLK_o:
+							/*case SDLK_o:
 								map->ToggleOverlays();
 								break;
 							case SDLK_p:
@@ -144,7 +144,7 @@ main(int argc, char **argv)
 				}
 			}
 			map->MouseOver(lastMouseX, lastMouseY);
-			//Core::Get()->UpdateLogic();
+			Core::Get()->UpdateLogic();
 			map->Draw(NULL);
 			graphicsEngine->Flip();
 			SDL_Delay(10);

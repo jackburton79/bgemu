@@ -60,6 +60,7 @@ struct specific;
 class Parser {
 public:
 	Parser();
+	~Parser();
 	void SetTo(Stream *stream);
 
 	token ReadToken();

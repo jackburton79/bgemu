@@ -70,6 +70,14 @@ Bitmap::Pixels() const
 }
 
 
+GFX::rect
+Bitmap::Frame() const
+{
+	GFX::rect frame = { 0, 0, fSurface->w, fSurface->h };
+	return frame;
+}
+
+
 uint16
 Bitmap::Width() const
 {

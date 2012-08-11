@@ -5,8 +5,8 @@
  *      Author: stefano
  */
 
-#ifndef SUPPORTDEFS_H_
-#define SUPPORTDEFS_H_
+#ifndef __SUPPORTDEFS_H
+#define __SUPPORTDEFS_H
 
 typedef int status_t;
 typedef unsigned long long uint64;
@@ -21,4 +21,4 @@ typedef signed int sint8;
 
 #include <stdio.h>
 
-#endif /* SUPPORTDEFS_H_ */
+#endif /* __SUPPORTDEFS_H */

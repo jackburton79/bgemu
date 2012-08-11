@@ -78,7 +78,6 @@ private:
 	ARAResource *fArea;
 	BCSResource *fBcs;
 	WMAPResource* fWorldMap;
-	BAMResource* fWorldMapIcons;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
 

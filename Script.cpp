@@ -1,8 +1,10 @@
 #include "Actor.h"
 #include "Core.h"
 #include "IDSResource.h"
-#include "Script.h"
 #include "Parsing.h"
+#include "ResManager.h"
+#include "Script.h"
+
 
 #include <algorithm>
 
@@ -155,7 +157,7 @@ bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
 	// TODO: Move this method to Script ?
-	printf("%s (0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id);
+	printf("%s (%d 0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id, trig->id);
 	trig->Print();
 
 	Actor* actor = dynamic_cast<Actor*>(fTarget);
@@ -225,6 +227,17 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = core->See(fTarget, object);
 				break;
 			}
+			case 0x401E:
+			{
+				/* Time(I:Time*Time)
+				 * Returns true only if the period of day matches the period
+				 * in the 2nd parameter (taken from Time.ids).
+				 * Hours are offset by 30 minutes, e.g. Time(1) is true
+				 * between 00:30 and 01:29.
+				 */
+				break;
+			}
+
 			case 0x4023:
 				/* 0x4023 True() */
 				returnValue = true;
@@ -266,6 +279,16 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				}*/
 				break;
 			}
+			case 0x4068:
+			{
+				/* TimeGT(I:Time*Time)
+				 * Returns true only if the current time is greater than
+				 * that specified. Hours are offset by 30 minutes,
+				 * e.g. TimeGT(1) is true between 01:30 and 02:29.
+				 */
+				break;
+			}
+
 			case 0x4072:
 			{
 				/* NumDeadGT(S:Name*,I:Num*) (0x4072)*/

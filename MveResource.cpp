@@ -300,6 +300,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fLastFrameTime = SDL_GetTicks();
 			fDecoder->BlitBackBuffer();
 			fData->Seek(opcode.length, SEEK_CUR);
+
 			break;
 		case OP_SET_DECODING_MAP:
 		{	
@@ -333,6 +334,15 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fTimer = (rate * subDivision) / 1000;
 			break;
 		}
+		case OP_UNKNOWN_13:
+			/*printf("opcode 13:\n");
+			for (int32 c = 0; c < opcode.length; c++) {
+				printf("%d ", fData->ReadByte());
+				if (c != 0 && (c + 1) % 8 == 0) {
+					printf("\n");
+				}
+			}
+			break;*/
 		default:
 			printf("MVEResource: Opcode not implemented\n");
 			fData->Seek(opcode.length, SEEK_CUR);
@@ -361,15 +371,19 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 
 	SDL_LockAudio();
 	try {
-		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		numSamples -= numChannels * sizeof(sint16);
+
+		uint8 encodedData[numSamples / 2];
+		stream->Read(encodedData, numSamples / 2);
+
+		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		if (numChannels == 1) {
 			for (uint16 i = 0; i < numSamples / 2; i++)
-				buffer->AddSample(decoder->Decode(stream->ReadByte()));
+				buffer->AddSample(decoder->Decode(encodedData[i]));
 		}
 		else {
 			for (uint16 i = 0; i < numSamples / 2; i++)
-				buffer->AddSample(decoder->Decode(stream->ReadByte(), i % 2));
+				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
 		}
 	} catch (...) {
 		printf("TODO: Buffer overflow. That's bad, okay. Will fix someday.");

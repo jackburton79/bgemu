@@ -61,6 +61,8 @@ public:
 
 private:
 	const char *ResourcesPath() const;
+	void _LoadIDSResources();
+
 	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type);
 
 	Resource *_GetResource(const res_ref &name, uint16 type);
@@ -85,5 +87,20 @@ private:
 };
 
 extern ResourceManager *gResManager;
+
+
+TLKResource* Dialogs();
+IDSResource* GeneralIDS();
+IDSResource* AnimateIDS();
+IDSResource* AniSndIDS();
+IDSResource* GendersIDS();
+IDSResource* RacesIDS();
+IDSResource* ClassesIDS();
+IDSResource* SpecificIDS();
+IDSResource* TriggerIDS();
+IDSResource* ActionIDS();
+IDSResource* ObjectsIDS();
+IDSResource* EAIDS();
+
 
 #endif

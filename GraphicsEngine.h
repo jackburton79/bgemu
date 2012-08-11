@@ -31,6 +31,7 @@ public:
 	static void FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor);
 
 	void BlitToScreen(Bitmap* bitmap, GFX::rect* source, GFX::rect* dest);
+	void StrokeRect(const GFX::rect& rect, uint32 color);
 
 	void SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags);
 	void SaveCurrentMode();

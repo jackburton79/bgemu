@@ -8,7 +8,10 @@
 #ifndef __WMAPRESOURCE_H
 #define __WMAPRESOURCE_H
 
+#include "IETypes.h"
 #include "Resource.h"
+
+#include <vector>
 
 struct worldmap_entry {
 	res_ref background_mos;
@@ -80,6 +83,9 @@ struct arealink_entry {
 };
 
 
+class AreaEntry;
+class BAMResource;
+class Frame;
 class WMAPResource : public Resource {
 public:
 	WMAPResource(const res_ref &name);
@@ -89,12 +95,34 @@ public:
 	worldmap_entry WorldMapEntry();
 	uint32 CountAreaEntries() const;
 	bool GetAreaEntry(uint32 index, area_entry& area);
+	AreaEntry& AreaEntryAt(uint32 index);
 
 private:
 	uint32 fCount;
 	uint32 fOffset;
 
 	worldmap_entry fWorldMapEntry;
+	BAMResource* fIcons;
+	std::vector<AreaEntry*> fAreaEntries;
 };
 
-#endif /* WMAPRESOURCE_H_ */
+
+class AreaEntry {
+public:
+	AreaEntry(WMAPResource* worldMap);
+	~AreaEntry();
+
+	IE::point Position() const;
+	GFX::rect Rect() const;
+	Frame Icon() const;
+	const char* Name() const;
+private:
+	friend class WMAPResource;
+
+	WMAPResource* fWorldMap;
+	IE::point fPosition;
+	Frame fIcon;
+	char fName[32];
+};
+
+#endif /* __WMAPRESOURCE_H */

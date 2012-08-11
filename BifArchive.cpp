@@ -63,8 +63,6 @@ BIFArchive::BIFArchive(const char *fileName)
 	
 	(*fStream) >> fNumEntries >> fNumTilesetEntries >> fCatalogOffset;
 	fTileEntriesOffset = fCatalogOffset + fNumEntries * sizeof(resource_info);
-
-	//EnumEntries();
 }
 
 

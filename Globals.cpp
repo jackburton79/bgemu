@@ -1,7 +1,7 @@
-#include "Core.h"
 #include "Resource.h"
 #include "IDSResource.h"
 #include "IETypes.h"
+#include "ResManager.h"
 
 #include <assert.h>
 #include <cstdio>
@@ -14,7 +14,6 @@ IE::check_objects_size()
 	assert(sizeof(polygon) == 18);
 	assert(sizeof(animation) == 76);
 	assert(sizeof(actor) == 0x110);
-
 }
 
 
