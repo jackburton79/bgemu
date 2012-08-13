@@ -117,11 +117,28 @@ Core::GetObject(Object* source, object_node* node)
 	if (identifier != NULL && !strcasecmp(identifier, "MYSELF"))
 		return source;
 
+	if (node->name[0] != '\0')
+		return GetObject(node->name);
+
 	node->Print();
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
 		if ((*i)->MatchNode(node))
+			return *i;
+	}
+	return NULL;
+}
+
+
+Object*
+Core::GetObject(const char* name)
+{
+	// TODO: Check also doors, triggers, etc ?!?
+	std::vector<Actor*> actorList = Actor::List();
+	std::vector<Actor*>::iterator i;
+	for (i = actorList.begin(); i != actorList.end(); i++) {
+		if (!strcmp(name, (*i)->Name()))
 			return *i;
 	}
 	return NULL;

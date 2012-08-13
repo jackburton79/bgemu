@@ -121,6 +121,7 @@ Object::MatchNode(object_node* node)
 bool
 Object::Match(Object* a, Object* b)
 {
+
 	return false;
 		/*
 				&& node->classs == Class()

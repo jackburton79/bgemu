@@ -1,9 +1,11 @@
 #include "Actor.h"
 #include "Core.h"
+#include "Door.h"
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "Timer.h"
 
 
 #include <algorithm>
@@ -55,6 +57,13 @@ void
 Script::Print() const
 {
 	_PrintNode(fRootNode);
+}
+
+
+void
+Script::Add(Script* script)
+{
+
 }
 
 
@@ -183,6 +192,27 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = Object::Match(fTarget->LastAttacker(), object);
 				break;
 			}
+			case 0x0020:
+			{
+				// HitBy
+				if (!Processed()) {
+					returnValue = true;
+					break;
+				}
+				//object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				//Object* object = core->GetObject(fTarget, obj);
+				/*if (object != NULL)
+					returnValue = Object::Match(fTarget->LastHitter(), object);*/ //??
+				break;
+			}
+			case 0x0022:
+			{
+				/* TimerExpired(I:ID*) */
+				Timer* timer = Timer::Get(trig->parameter1);
+				if (timer != NULL && timer->Expired())
+					returnValue = true;
+				break;
+			}
 			case 0x0027:
 			{
 				break;
@@ -301,12 +331,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				//object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
-				/*Door *door = Door::GetByName(doorObj->name);
+				object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				Door *door = Door::GetByName(doorObj->name);
 				if (door != NULL) {
 					bool paramOpen = trig->parameter1 == 1;
 					returnValue = door->Opened() == paramOpen;
-				}*/
+				}
 				break;
 			}
 
@@ -326,6 +356,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	} catch (...) {
 		printf("EvaluateTrigger() caught exception");
 	}
+	if (trig->flags != 0)
+		returnValue = !returnValue;
 	return returnValue;
 }
 
@@ -389,6 +421,12 @@ Script::_ExecuteAction(action_node* act)
 			 * by including a NoAction() in the empty response block.
 			 */
 			// TODO: Implement
+			break;
+		}
+		case 61:
+		{
+			Timer::Add(act->parameter);
+
 			break;
 		}
 		case 85:

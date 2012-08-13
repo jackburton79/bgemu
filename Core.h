@@ -41,6 +41,7 @@ public:
 	int32 GetVariable(const char* name);
 
 	Object* GetObject(Object* source, object_node* node);
+	Object* GetObject(const char* name);
 
 	void PlayMovie(const char* name);
 

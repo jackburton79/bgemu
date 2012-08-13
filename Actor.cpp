@@ -76,8 +76,6 @@ Actor::_Init()
 
 	ChooseScript();
 
-	fBCSResource = gResManager->GetBCS(fActor->script_specific);
-
 	if (fBCSResource != NULL)
 		Object::SetScript(fBCSResource->GetScript());
 
@@ -239,15 +237,18 @@ Actor::ChooseScript()
 {
 	// TODO: I think we should merge the scripts ??
 	if (IsValid(fActor->script_override))
-		fActor->script_specific = fActor->script_override;
+		_AddScript(fActor->script_override);
 	else if (IsValid(fActor->script_race))
-		fActor->script_specific = fActor->script_race;
+		_AddScript(fActor->script_race);
 	else if (IsValid(fActor->script_class))
-		fActor->script_specific = fActor->script_class;
+		_AddScript(fActor->script_class);
 	else if (IsValid(fActor->script_general))
-		fActor->script_specific = fActor->script_general;
+		_AddScript(fActor->script_general);
 	else if (IsValid(fActor->script_default))
-		fActor->script_specific = fActor->script_default;
+		_AddScript(fActor->script_default);
+	else
+		_AddScript(fActor->script_specific);
+
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
 }
@@ -291,6 +292,13 @@ Actor::UpdateMove()
 
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
 		fDontCheckConditions = false;
+}
+
+
+void
+Actor::_AddScript(const res_ref& scriptName)
+{
+	fBCSResource = gResManager->GetBCS(scriptName);
 }
 
 

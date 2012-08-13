@@ -60,6 +60,7 @@ private:
 	static std::vector<Actor*> sActors;
 
 	void _Init();
+	void _AddScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 };
 

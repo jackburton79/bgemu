@@ -30,6 +30,8 @@ public:
 
 	void Print() const;
 
+	void Add(Script* script);
+
 	node* RootNode();
 	node* FindNode(block_type type, node* start = NULL) const;
 
