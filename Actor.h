@@ -52,7 +52,7 @@ private:
 	IE::actor *fActor;
 	Animation *fAnimations[kNumAnimations];
 	CREResource *fCRE;
-	BCSResource* fBCSResource;
+	::Script* fScript;
 	bool fOwnsActor;
 	bool fDontCheckConditions;
 	PathFinder* fPath;

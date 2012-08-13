@@ -11,7 +11,7 @@ public:
 
 	bool Load(Archive *archive, uint32 key);
 
-	Script *GetScript() const;
+	Script *GetScript();
 
 private:
 	void _LoadScript();

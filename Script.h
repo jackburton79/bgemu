@@ -73,6 +73,7 @@ struct node {
 	char value[128];
 
 	node* parent;
+	node* next;
 	node_list children;
 	bool closed;
 

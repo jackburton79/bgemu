@@ -37,33 +37,41 @@ Script::Script(node* rootNode)
 	fProcessed(false),
 	fTarget(NULL)
 {
+	fRootNode->next = NULL;
 }
 
 
 Script::~Script()
 {
 	delete fRootNode;
+
+	// TODO: Delete 'next' nodes
 }
 
 
-node*
+/*node*
 Script::RootNode()
 {
 	return fRootNode;
-}
+}*/
 
 
 void
 Script::Print() const
 {
-	_PrintNode(fRootNode);
+	node *nextNode = fRootNode;
+	while (nextNode != NULL) {
+		_PrintNode(nextNode);
+		nextNode = nextNode->next;
+	}
 }
 
 
 void
 Script::Add(Script* script)
 {
-
+	fRootNode->next = script->fRootNode;
+	script->fRootNode = NULL;
 }
 
 
@@ -87,24 +95,28 @@ Script::Execute()
 	// choose response
 	// execute actions
 	//printf("*** SCRIPT START ***\n");
-	::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, fRootNode);
-	do {
-		::node* condition = FindNode(BLOCK_CONDITION, condRes);
-		while (condition != NULL) {
-			if (!_CheckTriggers(condition))
-				break;
+	::node* nextScript = fRootNode;
+	while (nextScript != NULL) {
+		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
+		do {
+			::node* condition = FindNode(BLOCK_CONDITION, condRes);
+			while (condition != NULL) {
+				if (!_CheckTriggers(condition))
+					break;
 
-			::node* responseSet = condition->Next();
-			if (responseSet == NULL)
-				break;
+				::node* responseSet = condition->Next();
+				if (responseSet == NULL)
+					break;
 
-			_ExecuteActions(responseSet);
+				_ExecuteActions(responseSet);
 
-			condition = responseSet->Next();
-		}
-		condRes = condRes->Next();
-	} while (condRes != NULL);
+				condition = responseSet->Next();
+			}
+			condRes = condRes->Next();
+		} while (condRes != NULL);
 
+		nextScript = nextScript->next;
+	}
 	//printf("*** SCRIPT END ***\n");
 
 	SetProcessed();
@@ -565,6 +577,11 @@ void
 node::AddChild(node* child)
 {
 	child->parent = this;
+	child->next = NULL;
+	if (children.size() > 0) {
+		std::vector<node*>::reverse_iterator i = children.rbegin();
+		(*i)->next = child;
+	}
 	children.push_back(child);
 }
 
@@ -572,14 +589,7 @@ node::AddChild(node* child)
 node*
 node::Next() const
 {
-	if (parent == NULL)
-		return NULL;
-
-	node_list::iterator i = std::find(parent->children.begin(),
-			parent->children.end(), this);
-	if (++i == parent->children.end())
-		return NULL;
-	return *i;
+	return next;
 }
 
 
@@ -595,6 +605,9 @@ node::FindNode(block_type nodeType) const
 		if (n != NULL)
 			return n;
 	}
+
+	if (next != NULL)
+		return next->FindNode(nodeType);
 
 	return NULL;
 }

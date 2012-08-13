@@ -24,7 +24,7 @@ Actor::Actor(IE::actor &actor)
 	Object(actor.name),
 	fActor(&actor),
 	fCRE(NULL),
-	fBCSResource(NULL),
+	fScript(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
 	fPath(NULL)
@@ -38,7 +38,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	Object(creName),
 	fActor(NULL),
 	fCRE(NULL),
-	fBCSResource(NULL),
+	fScript(NULL),
 	fOwnsActor(true),
 	fDontCheckConditions(false),
 	fPath(NULL)
@@ -76,8 +76,8 @@ Actor::_Init()
 
 	ChooseScript();
 
-	if (fBCSResource != NULL)
-		Object::SetScript(fBCSResource->GetScript());
+	if (fScript != NULL)
+		Object::SetScript(fScript);
 
 	fActor->Print();
 
@@ -108,7 +108,6 @@ Actor::~Actor()
 	if (fOwnsActor)
 		delete fActor;
 	gResManager->ReleaseResource(fCRE);
-	gResManager->ReleaseResource(fBCSResource);
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		delete fAnimations[i];
 }
@@ -257,9 +256,7 @@ Actor::ChooseScript()
 ::Script *
 Actor::Script()
 {
-	if (fBCSResource == NULL)
-		return NULL;
-	return fBCSResource->GetScript();
+	return fScript;
 }
 
 
@@ -298,7 +295,13 @@ Actor::UpdateMove()
 void
 Actor::_AddScript(const res_ref& scriptName)
 {
-	fBCSResource = gResManager->GetBCS(scriptName);
+	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
+	if (fScript == NULL)
+		fScript = scriptResource->GetScript();
+	else
+		fScript->Add(scriptResource->GetScript());
+
+	gResManager->ReleaseResource(scriptResource);
 }
 
 

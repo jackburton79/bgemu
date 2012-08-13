@@ -98,6 +98,7 @@ Room::LoadArea(const char* areaName)
 
 	Core::Get()->EnteredArea(this, roomScript);
 
+	delete roomScript;
 	return true;
 }
 
