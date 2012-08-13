@@ -237,15 +237,15 @@ Actor::ChooseScript()
 	// TODO: I think we should merge the scripts ??
 	if (IsValid(fActor->script_override))
 		_AddScript(fActor->script_override);
-	else if (IsValid(fActor->script_race))
+	if (IsValid(fActor->script_race))
 		_AddScript(fActor->script_race);
-	else if (IsValid(fActor->script_class))
+	if (IsValid(fActor->script_class))
 		_AddScript(fActor->script_class);
-	else if (IsValid(fActor->script_general))
+	if (IsValid(fActor->script_general))
 		_AddScript(fActor->script_general);
-	else if (IsValid(fActor->script_default))
+	if (IsValid(fActor->script_default))
 		_AddScript(fActor->script_default);
-	else
+	if (IsValid(fActor->script_specific))
 		_AddScript(fActor->script_specific);
 
 
@@ -295,6 +295,7 @@ Actor::UpdateMove()
 void
 Actor::_AddScript(const res_ref& scriptName)
 {
+	printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
 	if (fScript == NULL)
 		fScript = scriptResource->GetScript();
