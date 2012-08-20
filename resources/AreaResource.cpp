@@ -17,6 +17,7 @@ ARAResource::ARAResource(const res_ref& name)
 	fNumAnimations(0),
 	fNumDoors(0),
 	fDoorsOffset(0),
+	fVerticesOffset(0),
 	fAnimations(NULL),
 	fActors(NULL),
 	fDoors(NULL)

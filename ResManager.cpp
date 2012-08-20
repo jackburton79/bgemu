@@ -43,21 +43,21 @@
 
 using namespace std;
 
-ResourceManager *gResManager = NULL;
+ResourceManager* gResManager = NULL;
 static ResourceManager sManager;
 
-static TLKResource *sDialogs;
-static IDSResource *sGeneral;
-static IDSResource *sAnimate;
-static IDSResource *sAniSnd;
-static IDSResource *sRaces;
-static IDSResource *sGenders;
-static IDSResource *sClasses;
-static IDSResource *sSpecifics;
-static IDSResource *sTriggers;
-static IDSResource *sActions;
-static IDSResource *sObjects;
-static IDSResource *sEA;
+static TLKResource* sDialogs;
+static IDSResource* sGeneral;
+static IDSResource* sAnimate;
+static IDSResource* sAniSnd;
+static IDSResource* sRaces;
+static IDSResource* sGenders;
+static IDSResource* sClasses;
+static IDSResource* sSpecifics;
+static IDSResource* sTriggers;
+static IDSResource* sActions;
+static IDSResource* sObjects;
+static IDSResource* sEA;
 
 const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
@@ -619,7 +619,6 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
-	// TODO:
 	printf("Resource %s (%s) loaded correctly from override!\n",
 			entry.name.CString(), strresource(entry.type));
 	delete dirArchive;

@@ -11,14 +11,14 @@
 #include <algorithm>
 #include <limits.h>
 
-char *
-trim(char *string)
+char*
+trim(char* string)
 {
-	char *returnString = string;
+	char* returnString = string;
 	while (isspace(*returnString))
 		returnString++;
 
-	char *ptr = returnString;
+	char* ptr = returnString;
 	while (!isspace(*ptr) && *ptr != '\0')
 		ptr++;
 
@@ -29,16 +29,16 @@ trim(char *string)
 
 
 void
-path_dos_to_unix(char *path)
+path_dos_to_unix(char* path)
 {
-	char *c;
+	char* c;
 	while ((c = strchr(path, '\\')) != NULL)
 		*c = '/';
 }
 
 
 FILE*
-fopen_case(const char *filename, const char *flags)
+fopen_case(const char* filename, const char* flags)
 {
 	assert(filename != NULL);
 	assert(strlen(filename) > 1);
@@ -48,13 +48,13 @@ fopen_case(const char *filename, const char *flags)
 	TPath newPath("/");
 
 	char leaf[256];
-	char *start = (char*)path.Path() + 1;
+	char* start = (char*)path.Path() + 1;
 	while ((where = strcspn(start, "/")) > 0) {
 		char* newStart = start;
 		strncpy(leaf, newStart, where);
 		leaf[where] = 0;
 
-		DIR *dir = opendir(newPath.Path());
+		DIR* dir = opendir(newPath.Path());
 		if (dir != NULL) {
 			dirent *entry = NULL;
 			while ((entry = readdir(dir)) != NULL) {
@@ -71,7 +71,7 @@ fopen_case(const char *filename, const char *flags)
 	if (strcasecmp(filename, newPath.Path()))
 		return NULL;
 
-	FILE *handle = fopen(newPath.Path(), flags);
+	FILE* handle = fopen(newPath.Path(), flags);
 	if (handle != NULL)
 		printf("FOUND!\n");
 	else
@@ -81,7 +81,7 @@ fopen_case(const char *filename, const char *flags)
 }
 
 
-const char *
+const char*
 leaf(const char *path)
 {
 	if (path == NULL)
@@ -91,13 +91,13 @@ leaf(const char *path)
 }
 
 
-const char *
-extension(const char *path)
+const char*
+extension(const char* path)
 {
 	if (path == NULL)
 		return NULL;
 
-	const char *point = path + strlen(path) - 4;
+	const char* point = path + strlen(path) - 4;
 	if (*point != '.')
 		return NULL;
 	return point;

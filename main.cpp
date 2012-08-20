@@ -142,9 +142,12 @@ main(int argc, char **argv)
 						break;
 				}
 			}
+			// TODO: When MouseOver() doesn't draw anymore, reorder
+			// these three calls. Draw() should be the last.
+			map->Draw(NULL);
 			map->MouseOver(lastMouseX, lastMouseY);
 			Core::Get()->UpdateLogic();
-			map->Draw(NULL);
+
 			graphicsEngine->Flip();
 			SDL_Delay(10);
 		}

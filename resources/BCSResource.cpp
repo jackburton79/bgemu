@@ -30,15 +30,18 @@ BCSResource::Load(Archive *archive, uint32 key)
 Script*
 BCSResource::GetScript()
 {
-	node *rootNode = NULL;
+	node* rootNode = NULL;
+	Script* script = NULL;
 	try {
 		Parser parser;
 		parser.SetTo(fData);
 		parser.Read(rootNode);
 
 		// Takes ownership of the node tree.
-		return new Script(rootNode);
+		script = new Script(rootNode);
 	} catch (...) {
-		return NULL;
+
 	}
+
+	return script;
 }

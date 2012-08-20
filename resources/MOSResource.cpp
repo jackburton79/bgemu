@@ -21,7 +21,15 @@ const static int kPaletteDataSize = 1024;
 
 MOSResource::MOSResource(const res_ref &name)
 	:
-	Resource(name, RES_MOS)
+	Resource(name, RES_MOS),
+	fWidth(0),
+	fHeight(0),
+	fColumns(0),
+	fRows(0),
+	fBlockSize(0),
+	fPaletteOffset(0),
+	fTileOffsets(0),
+	fPixelDataOffset(0)
 {
 }
 

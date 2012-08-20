@@ -236,7 +236,6 @@ Room::Clicked(uint16 x, uint16 y)
 	y += fVisibleArea.y;
 
 	if (fWorldMap != NULL) {
-		res_ref newRoomName;
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			IE::point point = {x, y};

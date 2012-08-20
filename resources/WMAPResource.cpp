@@ -18,6 +18,8 @@
 WMAPResource::WMAPResource(const res_ref &name)
 	:
 	Resource(name, RES_WMP),
+	fCount(0),
+	fOffset(0),
 	fIcons(NULL)
 {
 
@@ -63,7 +65,6 @@ WMAPResource::Load(Archive* archive, uint32 key)
 			entry->fPosition.x = (int16)areaEntry.x;
 			entry->fPosition.y = (int16)areaEntry.y;
 			fAreaEntries.push_back(entry);
-
 		}
 	}
 

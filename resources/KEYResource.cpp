@@ -10,7 +10,11 @@ const static int32 kKeyResEntrySize = 14;
 
 KEYResource::KEYResource(const res_ref &name)
 	:
-	Resource(name, 0)
+	Resource(name, 0),
+	fNumBifs(0),
+	fNumResources(0),
+	fBifOffset(0),
+	fResOffset(0)
 {
 }
 
