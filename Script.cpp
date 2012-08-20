@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "Door.h"
 #include "IDSResource.h"
 #include "Parsing.h"
@@ -43,17 +44,8 @@ Script::Script(node* rootNode)
 
 Script::~Script()
 {
-	delete fRootNode;
-
-	// TODO: Delete 'next' nodes
+	_DeleteNode(fRootNode);
 }
-
-
-/*node*
-Script::RootNode()
-{
-	return fRootNode;
-}*/
 
 
 void
@@ -75,12 +67,47 @@ Script::Add(Script* script)
 }
 
 
+trigger_node*
+Script::FindTriggerNode(node* start) const
+{
+	return static_cast<trigger_node*>(FindNode(BLOCK_TRIGGER, start));
+}
+
+
+action_node*
+Script::FindActionNode(node* start) const
+{
+	return static_cast<action_node*>(FindNode(BLOCK_ACTION, start));
+}
+
+
+object_node*
+Script::FindObjectNode(node* start) const
+{
+	return static_cast<object_node*>(FindNode(BLOCK_OBJECT, start));
+}
+
+
 node*
-Script::FindNode(block_type type, node* start) const
+Script::FindNode(block_type nodeType, node* start) const
 {
 	if (start == NULL)
 		start = fRootNode;
-	return start->FindNode(type);
+
+	if (start->type == nodeType)
+		return const_cast<node*>(start);
+
+	node_list::const_iterator i;
+	for (i = start->children.begin(); i != start->children.end(); i++) {
+		node *n = FindNode(nodeType, *i);
+		if (n != NULL)
+			return n;
+	}
+
+	if (start->next != NULL)
+		return FindNode(nodeType, start->next);
+
+	return NULL;
 }
 
 
@@ -94,9 +121,10 @@ Script::Execute()
 	// find response_set block
 	// choose response
 	// execute actions
-	//printf("*** SCRIPT START ***\n");
+
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
+		printf("*** SCRIPT START ***\n");
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		do {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
@@ -115,9 +143,10 @@ Script::Execute()
 			condRes = condRes->Next();
 		} while (condRes != NULL);
 
+		printf("*** SCRIPT END ***\n");
 		nextScript = nextScript->next;
 	}
-	//printf("*** SCRIPT END ***\n");
+
 
 	SetProcessed();
 
@@ -151,8 +180,7 @@ Script::_CheckTriggers(node* conditionNode)
 {
 	//fOrTriggers = 0;
 
-	trigger_node* trig = static_cast<trigger_node*>(
-			FindNode(BLOCK_TRIGGER, conditionNode));
+	trigger_node* trig = FindTriggerNode(conditionNode);
 	bool evaluation = true;
 	while (trig != NULL) {
 		/*if (trig->id == 0x4089) { // OR
@@ -177,7 +205,6 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	// TODO: Move this method to Script ?
 	printf("%s (%d 0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id, trig->id);
 	trig->Print();
 
@@ -198,7 +225,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* obj = FindObjectNode(trig);
 				Object* object = core->GetObject(fTarget, obj);
 				if (object != NULL)
 					returnValue = Object::Match(fTarget->LastAttacker(), object);
@@ -211,7 +238,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 					break;
 				}
-				//object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				//object_node* obj = FindObjectNode(trig);
 				//Object* object = core->GetObject(fTarget, obj);
 				/*if (object != NULL)
 					returnValue = Object::Match(fTarget->LastHitter(), object);*/ //??
@@ -243,17 +270,33 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/*0x400F Global(S:Name*,S:Area*,I:Value*)
 				Returns true only if the variable with name 1st parameter
 				of type 2nd parameter has value 3rd parameter.*/
-				returnValue = core->GetVariable(trig->string1) == trig->parameter1;
+				std::string variableScope;
+				variableScope.append(trig->string1, 6);
+				std::string variableName;
+				variableName.append(&trig->string1[6]);
+
+				int32 variableValue = 0;
+				if (variableScope.compare("LOCALS") == 0) {
+					Actor* actor = dynamic_cast<Actor*>(fTarget);
+					if (actor != NULL)
+						variableValue = actor->GetVariable(variableName.c_str());
+				} else {
+					// TODO: Check for AREA variables
+					variableValue = Core::Get()->GetVariable(variableName.c_str());
+				}
+				returnValue = variableValue == trig->parameter1;
 				break;
 			}
 			case 0x4017:
 			{
-				// Race() // TODO:
-				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				// Race()
+				object_node* obj = FindObjectNode(trig);
 				Object *object = core->GetObject(fTarget, obj);
-				if (object != NULL)
-					obj->Print();
-				returnValue = false;
+				if (object != NULL) {
+					Actor* actor = dynamic_cast<Actor*>(object);
+					if (actor != NULL)
+						returnValue = actor->CRE()->Race() == trig->parameter1;
+				}
 				break;
 			}
 
@@ -263,7 +306,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				object_node* obj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* obj = FindObjectNode(trig);
 				Object *object = core->GetObject(fTarget, obj);
 				if (object != NULL)
 					returnValue = core->See(fTarget, object);
@@ -343,7 +386,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object_node* doorObj = static_cast<object_node*>(trig->FindNode(BLOCK_OBJECT));
+				object_node* doorObj = FindObjectNode(trig);
 				Door *door = Door::GetByName(doorObj->name);
 				if (door != NULL) {
 					bool paramOpen = trig->parameter1 == 1;
@@ -391,8 +434,7 @@ Script::_ExecuteActions(node* responseSet)
 
 	// TODO: Fix this and take the probability into account
 	int randomResponse = rand() % i;
-	action_node* action = static_cast<action_node*>(
-		FindNode(BLOCK_ACTION, responses[randomResponse]));
+	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
 		_ExecuteAction(action);
@@ -451,7 +493,19 @@ Script::_ExecuteAction(action_node* act)
 		}
 		case 0x1E:
 		{
-			Core::Get()->SetVariable(act->string1, act->parameter);
+			std::string variableScope;
+			variableScope.append(act->string1, 6);
+			std::string variableName;
+			variableName.append(&act->string1[6]);
+
+			if (variableScope.compare("LOCALS") == 0) {
+				Actor* actor = dynamic_cast<Actor*>(fTarget);
+				if (actor != NULL)
+					actor->SetVariable(variableName.c_str(), act->parameter);
+			} else {
+				// TODO: Check for AREA variables
+				Core::Get()->SetVariable(variableName.c_str(), act->parameter);
+			}
 			break;
 		}
 		case 0x53:
@@ -524,6 +578,17 @@ Script::_PrintNode(node* n) const
 }
 
 
+void
+Script::_DeleteNode(::node* node)
+{
+	if (node != NULL) {
+		if (node->next != NULL)
+			_DeleteNode(node->next);
+		delete node;
+	}
+}
+
+
 // node
 /* static */
 node*
@@ -593,24 +658,6 @@ node::Next() const
 }
 
 
-node*
-node::FindNode(block_type nodeType) const
-{
-	if (type == nodeType)
-		return const_cast<node*>(this);
-
-	node_list::const_iterator i;
-	for (i = children.begin(); i != children.end(); i++) {
-		node *n = (*i)->FindNode(nodeType);
-		if (n != NULL)
-			return n;
-	}
-
-	if (next != NULL)
-		return next->FindNode(nodeType);
-
-	return NULL;
-}
 
 
 void

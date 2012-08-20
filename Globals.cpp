@@ -39,13 +39,14 @@ res_ref::res_ref(const res_ref &ref)
 }
 
 
-res_ref::operator const char*() const
+const char*
+res_ref::CString() const
 {
 	static char str[9];
+	strncpy(str, name, 8);
 	str[8] = '\0';
-	memcpy(str, name, 8);
 	return (const char *)str;
-};
+}
 
 
 res_ref&
@@ -129,7 +130,7 @@ void
 actor::Print() const
 {
 	printf("Actor %s:\n", name);
-	printf("\tCRE: %s\n", (const char *)cre);
+	/*printf("\tCRE: %s\n", (const char *)cre);
 	printf("\tposition: (%d, %d)\n", position.x, position.y);
 	printf("\tdestination: (%d, %d)\n", destination.x, destination.y);
 	printf("\tflags: 0x%x\n", flags);
@@ -142,7 +143,7 @@ actor::Print() const
 	printf("\tscript_default: %s\n", (const char*)script_default);
 	printf("\tscript_specific: %s\n", (const char*)script_specific);
 	printf("\tcre_offset: %u\n", cre_offset);
-	printf("\tcre_size: %u\n", cre_size);
+	printf("\tcre_size: %u\n", cre_size);*/
 }
 
 

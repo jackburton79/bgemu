@@ -11,6 +11,7 @@
 class Actor;
 class Animation;
 class ARAResource;
+class AreaEntry;
 class Bitmap;
 class Door;
 class MapOverlay;
@@ -24,9 +25,10 @@ public:
 	Room();
 	~Room();
 	
-	const char* AreaName() const;
+	res_ref AreaName() const;
 
-	bool LoadArea(const char* areaName);
+	bool LoadArea(const res_ref& areaName);
+	bool LoadArea(AreaEntry& area);
 	bool LoadWorldMap();
 
 	GFX::rect ViewPort() const;
@@ -51,6 +53,8 @@ public:
 	void DumpOverlays(const char *path);
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
+
+	static Room* CurrentArea();
 
 private:
 	void _DrawBaseMap(GFX::rect area);
@@ -88,7 +92,6 @@ private:
 	bool fDrawOverlays;
 	bool fDrawPolygons;
 	bool fDrawAnimations;
-
 };
 
 

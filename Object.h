@@ -30,8 +30,6 @@ public:
 
 	Object* LastAttacker() const;
 
-	uint16 EnemyAlly() const;
-
 	void Update();
 
 	void SetScript(Script* script);

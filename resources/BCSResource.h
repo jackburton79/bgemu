@@ -14,7 +14,6 @@ public:
 	Script *GetScript();
 
 private:
-	void _LoadScript();
 	Script* fScript;
 };
 

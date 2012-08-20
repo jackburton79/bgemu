@@ -69,6 +69,7 @@ private:
 	Resource *_FindResource(KeyResEntry &entry);
 	Resource *_LoadResource(KeyResEntry &entry);
 	Resource* _LoadResourceFromOverride(KeyResEntry& entry);
+	Resource* _LoadResourceFromOverride(KeyResEntry& entry, const char* overridePath);
 
 	std::string GetFullPath(std::string name, uint16 location);
 

@@ -11,7 +11,6 @@
 #include "WorldMap.h"
 #include "WMAPResource.h"
 
-
 #include <getopt.h>
 #include <SDL.h>
 
@@ -88,7 +87,7 @@ main(int argc, char **argv)
 	}
 
 	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
-	graphicsEngine->SetWindowCaption(map->AreaName());
+	graphicsEngine->SetWindowCaption(map->AreaName().CString());
 
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;

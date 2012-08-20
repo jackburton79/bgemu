@@ -28,6 +28,8 @@
 
 std::vector<MapOverlay*> *gOverlays = NULL;
 
+static Room* sCurrentRoom = NULL;
+
 Room::Room()
 	:
 	Object(""),
@@ -42,6 +44,7 @@ Room::Room()
 	fDrawPolygons(false),
 	fDrawAnimations(false)
 {
+	sCurrentRoom = this;
 }
 
 
@@ -53,7 +56,7 @@ Room::~Room()
 }
 
 
-const char*
+res_ref
 Room::AreaName() const
 {
 	return fName;
@@ -68,13 +71,13 @@ Room::ViewPort() const
 
 
 bool
-Room::LoadArea(const char* areaName)
+Room::LoadArea(const res_ref& areaName)
 {
 	_UnloadWorldMap();
 
 	fName = areaName;
 
-	std::cout << "Room::Load(" << areaName << ")" << std::endl;
+	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
 
 	fArea = gResManager->GetARA(fName);
 	if (fArea == NULL)
@@ -100,6 +103,24 @@ Room::LoadArea(const char* areaName)
 
 	delete roomScript;
 	return true;
+}
+
+
+bool
+Room::LoadArea(AreaEntry& area)
+{
+	MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
+	//Bitmap* loadingScreen = mos->Image();
+
+	//GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
+	//SDL_Delay(2000);
+	//GraphicsEngine::DeleteBitmap(loadingScreen);
+
+	bool result = LoadArea(area.Name());
+
+	gResManager->ReleaseResource(mos);
+
+	return result;
 }
 
 
@@ -216,23 +237,14 @@ Room::Clicked(uint16 x, uint16 y)
 
 	if (fWorldMap != NULL) {
 		res_ref newRoomName;
-		printf("clicked on %d %d\n", x, y);
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			IE::point point = {x, y};
-			printf("area %s, rect %d %d %d %d\n",
-					area.Name(), area.Rect().x,
-					area.Rect().y, area.Rect().w, area.Rect().h);
 			if (rect_contains(area.Rect(), point)) {
-				newRoomName = area.Name();
+				LoadArea(area);
 				break;
 			}
 		}
-		if (strcmp(newRoomName, "")) {
-			printf("Should load room %s\n", (const char*)newRoomName);
-			LoadArea(newRoomName);
-		}
-
 	} else {
 		const uint16 tileNum = TileNumberForPoint(x, y);
 		fTileCells[tileNum]->Clicked();
@@ -371,6 +383,14 @@ Room::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect = {0, 0, width, height};
 	SetViewPort(rect);
+}
+
+
+/* static */
+Room*
+Room::CurrentArea()
+{
+	return sCurrentRoom;
 }
 
 
@@ -554,8 +574,6 @@ Room::_UnloadWorldMap()
 
 	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
-	//gResManager->ReleaseResource(fWorldMapIcons);
-	//fWorldMapIcons = NULL;
 	gResManager->ReleaseResource(fWorldMapBackground);
 	fWorldMapBackground = NULL;
 	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);

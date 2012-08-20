@@ -11,7 +11,7 @@ public:
 
 	bool Load(Archive *archive, uint32 key);
 
-	const char *WedName() const;
+	const res_ref& WedName() const;
 
 	res_ref NorthAreaName();
 	res_ref EastAreaName();

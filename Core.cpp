@@ -19,7 +19,7 @@
 
 static Core* sCore = NULL;
 
-const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
+//const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
 
 Core::Core()

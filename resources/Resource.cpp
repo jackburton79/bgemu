@@ -236,12 +236,15 @@ Resource::DropData()
 
 
 /* static */
-Resource *
+Resource*
 Resource::Create(const res_ref &name, uint16 type)
 {
 	Resource *res = NULL;
 	try {
 		switch (type) {
+			case RES_KEY:
+				res = new KEYResource(name);
+				break;
 			case RES_ARA:
 				res = new ARAResource(name);
 				break;
@@ -284,6 +287,22 @@ Resource::Create(const res_ref &name, uint16 type)
 	}
 
 	return res;
+}
+
+/* static */
+Resource*
+Resource::Create(const res_ref& name, const uint16& type,
+		const uint32& key, Archive* archive)
+{
+	Resource* resource = Create(name, type);
+	if (resource != NULL) {
+		if (!resource->Load(archive, key)) {
+			delete resource;
+			return NULL;
+		}
+	}
+
+	return resource;
 }
 
 

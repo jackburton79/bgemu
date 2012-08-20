@@ -7,6 +7,8 @@
 #include "Object.h"
 
 #include <list>
+#include <map>
+#include <string>
 #include <vector>
 
 const static uint32 kNumAnimations = 9;
@@ -24,8 +26,9 @@ public:
 
 	const char *Name() const;
 
-	IE::point Position() const;
 	IE::orientation Orientation() const;
+	IE::point Position() const;
+
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
@@ -36,6 +39,9 @@ public:
 	void ChooseScript();
 	void SetScript(Script *script);
 	::Script* Script();
+
+	void SetVariable(const char* name, int32 value);
+	int32 GetVariable(const char* name);
 
 	bool SkipConditions() const;
 	void StopCheckingConditions();
@@ -56,6 +62,8 @@ private:
 	bool fOwnsActor;
 	bool fDontCheckConditions;
 	PathFinder* fPath;
+
+	std::map<std::string, uint32> fVariables;
 
 	static std::vector<Actor*> sActors;
 

@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-#include "SupportDefs.h"
+#include <SupportDefs.h>
 
 class Stream {
 public:

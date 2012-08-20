@@ -109,20 +109,21 @@ private:
 
 class AreaEntry {
 public:
-	AreaEntry(WMAPResource* worldMap);
+	AreaEntry(const area_entry& entry);
 	~AreaEntry();
 
 	IE::point Position() const;
 	GFX::rect Rect() const;
 	Frame Icon() const;
-	const char* Name() const;
+	res_ref Name() const;
+	res_ref LoadingScreenName() const;
+
 private:
 	friend class WMAPResource;
 
-	WMAPResource* fWorldMap;
+	area_entry fEntry;
 	IE::point fPosition;
 	Frame fIcon;
-	char fName[32];
 };
 
 #endif /* __WMAPRESOURCE_H */

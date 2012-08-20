@@ -45,7 +45,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 {
 	fActor = new IE::actor;
 	fActor->cre = creName;
-	strcpy(fActor->name, fActor->cre);
+	memcpy(fActor->name, fActor->cre.name, 8);
+	fActor->name[8] = 0;
 	//fActor->orientation = std::min(face, 7);
 	fActor->orientation = 0;
 	fActor->position = position;
@@ -225,9 +226,11 @@ Actor::CRE()
 static bool
 IsValid(const res_ref& scriptName)
 {
-	if (strlen(scriptName) == 0 || !strcasecmp(scriptName, "None"))
-		return false;
-	return true;
+	res_ref noneRef = "None";
+	if (scriptName.name[0] != '\0'
+			&& scriptName != noneRef)
+		return true;
+	return false;
 }
 
 
@@ -260,6 +263,20 @@ Actor::Script()
 }
 
 
+void
+Actor::SetVariable(const char* name, int32 value)
+{
+	fVariables[name] = value;
+}
+
+
+int32
+Actor::GetVariable(const char* name)
+{
+	return fVariables[name];
+}
+
+
 bool
 Actor::SkipConditions() const
 {
@@ -278,14 +295,18 @@ Actor::StopCheckingConditions()
 void
 Actor::UpdateMove()
 {
-	if (fActor->position != fActor->destination) {
-		IE::point nextPoint = fPath->NextWayPoint();
-		_SetOrientation(nextPoint);
-		fActor->position = nextPoint;
-	}
+	try {
+		if (fActor->position != fActor->destination) {
+			IE::point nextPoint = fPath->NextWayPoint();
+			_SetOrientation(nextPoint);
+			fActor->position = nextPoint;
+		}
 
-	if (fAnimations[fActor->orientation] != NULL)
-		fAnimations[fActor->orientation]->Next();
+		if (fAnimations[fActor->orientation] != NULL)
+			fAnimations[fActor->orientation]->Next();
+	} catch (...) {
+		// No more waypoints
+	}
 
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
 		fDontCheckConditions = false;
@@ -295,7 +316,7 @@ Actor::UpdateMove()
 void
 Actor::_AddScript(const res_ref& scriptName)
 {
-	printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
+	//printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
 	if (fScript == NULL)
 		fScript = scriptResource->GetScript();

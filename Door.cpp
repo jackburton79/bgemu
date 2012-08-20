@@ -35,7 +35,7 @@ Door::Opened() const
 void
 Door::Print() const
 {
-	printf("%s\n", (const char*)fAreaDoor->id);
+	//printf("%s\n", (const char*)fAreaDoor->id);
 }
 
 

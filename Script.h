@@ -7,6 +7,7 @@
 
 struct node;
 struct action_node;
+struct object_node;
 struct trigger_node;
 typedef std::vector<node*> node_list;
 
@@ -32,8 +33,10 @@ public:
 
 	void Add(Script* script);
 
-	node* RootNode();
-	node* FindNode(block_type type, node* start = NULL) const;
+	trigger_node*	FindTriggerNode(node* start = NULL) const;
+	action_node*	FindActionNode(node* start = NULL) const;
+	object_node*	FindObjectNode(node* start = NULL) const;
+	node*			FindNode(block_type type, node* start = NULL) const;
 
 	bool Execute();
 	void SetTarget(Object* object);
@@ -48,6 +51,7 @@ private:
 	void _ExecuteActions(node* node);
 	void _ExecuteAction(action_node* act);
 	void _PrintNode(node* n) const;
+	void _DeleteNode(node* n);
 
 	node *fRootNode;
 
@@ -64,7 +68,6 @@ struct node {
 	void AddChild(node *child);
 	node* Next() const;
 	node* Previous() const;
-	node* FindNode(block_type nodeType) const;
 
 	virtual void Print() const;
 

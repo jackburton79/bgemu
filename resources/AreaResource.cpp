@@ -33,7 +33,7 @@ ARAResource::~ARAResource()
 
 
 bool
-ARAResource::Load(Archive *archive, uint32 key)
+ARAResource::Load(Archive* archive, uint32 key)
 {
 	Resource::Load(archive, key);
 
@@ -64,7 +64,7 @@ ARAResource::Load(Archive *archive, uint32 key)
 }
 
 
-const char *
+const res_ref&
 ARAResource::WedName() const
 {
 	return fWedName;
@@ -119,14 +119,14 @@ ARAResource::CountAnimations() const
 }
 
 
-IE::animation *
+IE::animation*
 ARAResource::AnimationAt(uint32 index)
 {
 	return &fAnimations[index];
 }
 
 
-IE::actor *
+IE::actor*
 ARAResource::ActorAt(uint16 index)
 {
 	return &fActors[index];

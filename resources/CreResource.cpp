@@ -83,10 +83,19 @@ CREResource::KitStr()
 
 
 uint8
+CREResource::EnemyAlly()
+{
+	uint8 ea;
+	fData->ReadAt(0x270, ea);
+	return ea;
+}
+
+
+uint8
 CREResource::General()
 {
 	uint8 gen;
-	fData->ReadAt(0x270, gen);
+	fData->ReadAt(0x271, gen);
 	return gen;
 }
 

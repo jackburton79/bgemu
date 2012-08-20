@@ -14,7 +14,6 @@ BCSResource::BCSResource(const res_ref &name)
 
 BCSResource::~BCSResource()
 {
-	//delete fScript;
 }
 
 
@@ -23,11 +22,7 @@ BCSResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
-	try {
-		_LoadScript();
-	} catch (...) {
-		return false;
-	}
+
 	return true;
 }
 
@@ -46,13 +41,4 @@ BCSResource::GetScript()
 	} catch (...) {
 		return NULL;
 	}
-}
-
-
-void
-BCSResource::_LoadScript()
-{
-
-
-	//DropData();
 }

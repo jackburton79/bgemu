@@ -49,46 +49,6 @@ private:
 };
 
 
-class MotionVector {
-public:
-	MotionVector(const GFX::rect& rect, uint8& byte)
-		:
-		fRect(rect),
-		fByte(byte)
-	{
-	}
-
-	GFX::rect Rect(bool opcode3) const
-	{
-		GFX::rect rect = fRect;
-		sint8 xValue;
-		sint8 yValue;
-		if (fByte < 56) {
-			xValue = 8 + (fByte % 7);
-			yValue = fByte / 7;
-		} else {
-			xValue = -14 + ((fByte - 56) % 29);
-			yValue =  8 + ((fByte - 56) / 29);
-		}
-		if (opcode3) {
-			rect.x -= xValue;
-			rect.y -= yValue;
-		} else {
-			rect.x += xValue;
-			rect.y += yValue;
-		}
-
-		if (rect.x < 0 || rect.y < 0) {
-			throw -1;
-		}
-		return rect;
-	}
-private:
-	const GFX::rect &fRect;
-	const uint8& fByte;
-};
-
-
 class BitStreamAdapter {
 public:
 	BitStreamAdapter(Stream* stream);
@@ -165,8 +125,10 @@ MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version, bool t
 			width, height, version, trueColor ? "yes" : "no");
 	fNewFrame = GraphicsEngine::CreateBitmap(width, height, 8);
 	fCurrentFrame = GraphicsEngine::CreateBitmap(width, height, 8);
+
 	fVersion = version;
 
+	fMapSize = ((width * height) / (8 * 8)) / 2;
 	return true;
 }
 
@@ -187,9 +149,7 @@ void
 MovieDecoder::SetDecodingMap(uint8 *map, uint32 size)
 {
 	delete[] fDecodingMap;
-		
 	fDecodingMap = map;
-	fMapSize = size;
 }
 
 
@@ -228,23 +188,25 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 
 	stream->Seek(dataOffset, SEEK_CUR);
 
-	for (uint32 i = 0; i < fMapSize; i++) {
-		for (int b = 0; b < 2; b++) {
-			uint8 opcode = b == 0 ?
-					(fDecodingMap[i] & 0x0F) : (fDecodingMap[i] >> 4);
 
-			GFX::rect blitRect = fActiveRect;
+	const uint32 loopMax = fMapSize * 2;
+	for (uint32 i = 0; i < loopMax; i++) {
+		const uint32 index = i >> 1;
+		uint8 opcode = i & 1 ?
+				((fDecodingMap[index] >> 4) & 0x0F) :
+				(fDecodingMap[index] & 0x0F);
 
-			if (sOpcodes[opcode] != NULL) {
-				CALL_MEMBER_FUNCTION(*this, sOpcodes[opcode])(stream,
-					(uint8*)fScratchBuffer->Pixels(), &blitRect);
-			}
+		GFX::rect blitRect = fActiveRect;
 
-			fActiveRect.x += 8;
-			if (fActiveRect.x >= fNewFrame->Width()) {
-				fActiveRect.x = 0;
-				fActiveRect.y += 8;
-			}
+		if (sOpcodes[opcode] != NULL) {
+			CALL_MEMBER_FUNCTION(*this, sOpcodes[opcode])(stream,
+				(uint8*)fScratchBuffer->Pixels(), &blitRect);
+		}
+
+		fActiveRect.x += 8;
+		if (fActiveRect.x >= fNewFrame->Width()) {
+			fActiveRect.x = 0;
+			fActiveRect.y += 8;
 		}
 	}
 
@@ -279,8 +241,15 @@ MovieDecoder::Opcode1(Stream* stream, uint8* pixels, GFX::rect* rect)
 void
 MovieDecoder::Opcode2(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	GFX::rect rect = fActiveRect;
 	uint8 byte = stream->ReadByte();
-	GFX::rect rect = MotionVector(fActiveRect, byte).Rect(false);
+	if (byte < 56) {
+		rect.x += 8 + (byte % 7);
+		rect.y += byte / 7;
+	} else {
+		rect.x += -14 + ((byte - 56) % 29);
+		rect.y +=  8 + ((byte - 56) / 29);
+	}
 	GraphicsEngine::Get()->BlitBitmap(fNewFrame, &rect, fNewFrame, blitRect);
 }
 
@@ -290,7 +259,14 @@ MovieDecoder::Opcode3(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
 	// Same as above but negated
 	uint8 byte = stream->ReadByte();
-	GFX::rect rect = MotionVector(fActiveRect, byte).Rect(true);
+	GFX::rect rect = fActiveRect;
+	if (byte < 56) {
+		rect.x += - (8 + (byte % 7));
+		rect.y += - (byte / 7);
+	} else {
+		rect.x += - (-14 + ((byte - 56) % 29));
+		rect.y += - (8 + ((byte - 56) / 29));
+	}
 	GraphicsEngine::Get()->BlitBitmap(fNewFrame, &rect, fNewFrame, blitRect);
 }
 
@@ -301,7 +277,7 @@ MovieDecoder::Opcode4(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 byte = stream->ReadByte();
 	GFX::rect rect = fActiveRect;
 	rect.x += -8 + (byte & 0x0F);
-	rect.y += -8 + (byte >> 4);
+	rect.y += -8 + ((byte >> 4) & 0x0F);
 	GraphicsEngine::Get()->BlitBitmap(fCurrentFrame, &rect, fNewFrame, blitRect);
 }
 
@@ -552,7 +528,7 @@ MovieDecoder::OpcodeE(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 pixel = stream->ReadByte();
 	GraphicsEngine::FillRect(fNewFrame, blitRect, pixel);
 #if DEBUG
-	GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
+	//GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
 #endif
 }
 

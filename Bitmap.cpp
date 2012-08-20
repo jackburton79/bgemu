@@ -49,7 +49,7 @@ Bitmap::SetPalette(const Palette& palette)
 
 
 void
-Bitmap::SetColorKey(uint8 index)
+Bitmap::SetColorKey(uint32 index)
 {
 	SDL_SetColorKey(fSurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, index);
 }

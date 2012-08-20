@@ -56,9 +56,10 @@ WMAPResource::Load(Archive* archive, uint32 key)
 		area_entry areaEntry;
 		if (GetAreaEntry(c, areaEntry)) {
 			fData->ReadAt(fWorldMapEntry.areaentries_offset + c * sizeof(area_entry), areaEntry);
-			AreaEntry* entry = new AreaEntry(this);
+			AreaEntry* entry = new AreaEntry(areaEntry);
+			printf("Area %s, loading %s\n", areaEntry.area.CString(),
+					areaEntry.loading_mos.CString());
 			entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
-			strcpy(entry->fName, areaEntry.area);
 			entry->fPosition.x = (int16)areaEntry.x;
 			entry->fPosition.y = (int16)areaEntry.y;
 			fAreaEntries.push_back(entry);
@@ -106,9 +107,11 @@ WMAPResource::AreaEntryAt(uint32 index)
 
 
 // AreaEntry
-AreaEntry::AreaEntry(WMAPResource*)
+AreaEntry::AreaEntry(const area_entry& entry)
+	:
+	fEntry(entry)
 {
-
+	fIcon.bitmap = NULL;
 }
 
 
@@ -118,10 +121,18 @@ AreaEntry::~AreaEntry()
 }
 
 
-const char*
+res_ref
 AreaEntry::Name() const
 {
-	return fName;
+	return fEntry.area;
+}
+
+
+res_ref
+AreaEntry::LoadingScreenName() const
+{
+	printf("loading screen %s\n", fEntry.loading_mos.CString());
+	return fEntry.loading_mos;
 }
 
 
@@ -136,8 +147,8 @@ GFX::rect
 AreaEntry::Rect() const
 {
 	GFX::rect rect = {
-			fPosition.x - fIcon.rect.w / 2,
-			fPosition.y - fIcon.rect.h / 2,
+			(int16)fEntry.x - fIcon.rect.w / 2,
+			(int16)fEntry.y - fIcon.rect.h / 2,
 			fIcon.rect.w, fIcon.rect.h
 	};
 	return rect;

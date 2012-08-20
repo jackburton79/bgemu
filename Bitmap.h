@@ -29,8 +29,8 @@ namespace GFX {
 struct rect {
 	sint16 x;
 	sint16 y;
-	sint16 w;
-	sint16 h;
+	uint16 w;
+	uint16 h;
 };
 
 }
@@ -42,7 +42,7 @@ public:
 
 	void SetColors(Color* colors, int start, int num);
 	void SetPalette(const Palette& palette);
-	void SetColorKey(uint8 index);
+	void SetColorKey(uint32 key);
 	void SetColorKey(uint8 r, uint8 g, uint8 b);
 	void ClearColorKey();
 

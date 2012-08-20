@@ -118,6 +118,7 @@ public:
 	const uint32 Kit();
 	const char *KitStr();
 
+	uint8 EnemyAlly();
 	uint8 General();
 	uint8 Race();
 	uint8 Class();

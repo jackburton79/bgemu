@@ -10,6 +10,7 @@
 #define TILE_WIDTH 64
 
 enum resource_type {
+	RES_KEY = 0x000,
 	RES_BMP = 0x001,
 	RES_MVE = 0x002,
 	RES_WAV = 0x004,
@@ -43,7 +44,8 @@ struct res_ref {
 	res_ref(const char *string);
 	res_ref(const res_ref &);
 
-	operator const char*() const;
+	const char* CString() const;
+
 	res_ref& operator=(const res_ref& other);
 
 	/*char& operator [](int index);*/

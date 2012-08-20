@@ -162,10 +162,8 @@ uint32
 FileStream::Size()
 {
 	int32 oldpos = Position();
-	int32 fileSize;
+	int32 fileSize = Seek(0L, SEEK_END);
 	
-	Seek(0L, SEEK_END);
-	fileSize = Position();
 	Seek(oldpos, SEEK_SET);
 
 	return fileSize;

@@ -471,10 +471,10 @@ Tokenizer::_SkipSeparators()
 
 
 int32
-Tokenizer::_ReadFullToken(char *dest, int32 start)
+Tokenizer::_ReadFullToken(char* dest, int32 start)
 {
 	try {
-		char *ptr = dest;
+		char* ptr = dest;
 		for (;;) {
 			char c = fStream->ReadByte();
 			if (Tokenizer::IsSeparator(c))

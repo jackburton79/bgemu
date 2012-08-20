@@ -300,7 +300,6 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fLastFrameTime = SDL_GetTicks();
 			fDecoder->BlitBackBuffer();
 			fData->Seek(opcode.length, SEEK_CUR);
-
 			break;
 		case OP_SET_DECODING_MAP:
 		{	
@@ -376,7 +375,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		uint8 encodedData[numSamples / 2];
 		stream->Read(encodedData, numSamples / 2);
 
-		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
+		/*SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		if (numChannels == 1) {
 			for (uint16 i = 0; i < numSamples / 2; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i]));
@@ -384,7 +383,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		else {
 			for (uint16 i = 0; i < numSamples / 2; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
-		}
+		}*/
 	} catch (...) {
 		printf("TODO: Buffer overflow. That's bad, okay. Will fix someday.");
 		// TODO: Do something

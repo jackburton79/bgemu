@@ -3,7 +3,8 @@
 
 #include "IETypes.h"
 #include "Referenceable.h"
-#include "Stream.h"
+
+#include <Stream.h>
 
 
 struct res_ref;
@@ -23,6 +24,8 @@ public:
 	const uint16 Type() const;
 	
 	static Resource *Create(const res_ref &name, uint16 type);
+	static Resource* Create(const res_ref &name, 	const uint16& type,
+			const uint32& key, Archive* archive);
 	static const char* Extension(uint16 type);
 	
 protected:

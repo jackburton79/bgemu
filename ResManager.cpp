@@ -1,20 +1,20 @@
 #include "Archive.h"
 #include "AreaResource.h"
 #include "BamResource.h"
-#include "BCSResource.h"
 #include "BmpResource.h"
+#include "BCSResource.h"
 #include "CreResource.h"
 #include "Core.h"
+#include "FileStream.h"
 #include "IDSResource.h"
+#include "IETypes.h"
 #include "KEYResource.h"
+#include "MOSResource.h"
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Resource.h"
-#include "FileStream.h"
-#include "MOSResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
-#include "IETypes.h"
 #include "Utils.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
@@ -282,7 +282,7 @@ ResourceManager::Initialize(const char *path)
 			if (key->GetResEntryAt(c, *res)) {
 				ref_type refType;
 				refType.name = res->name;
-				if (!strncmp(res->name, "", 8)) {
+				if (!strncmp(res->name.name, "", 8)) {
 					// TODO: looks like we get some unnamed resources
 					// and this causes all kinds of problems. Investigate
 					delete res;
@@ -341,7 +341,7 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
 		printf("ResourceManager::GetResource(%s, %s): Resource does not exist!\n",
-				(const char *)name, strresource(type));
+				name.CString(), strresource(type));
 		return NULL;
 	}
 
@@ -500,12 +500,12 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	printf("location: (0x%x)\n", location);
 	TPath pathName(fResourcesPath);
 
+	uint32 cd = GET_CD(location);
 	if ((location & LOC_ROOT) == 0) {
 		if (IS_OVERRIDE(location))
 			printf("\tshould check in override\n");
 		// TODO: this represents the LIST of cd where we can find the resource.
 		// some resources exist on many cds.
-		uint32 cd = GET_CD(location);
 		if (cd & LOC_CD1)
 			pathName.Append("CD1/");
 		else if (cd & LOC_CD2)
@@ -518,7 +518,20 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 			pathName.Append("CD5/");
 	}
 
-	printf("CD: 0x%x\n", GET_CD(location));
+	printf("CD: 0x%x ", GET_CD(location));
+	if (cd & LOC_CD1)
+		printf("1 ");
+	if (cd & LOC_CD2)
+		printf("2 ");
+	if (cd & LOC_CD3)
+		printf("3 ");
+	if (cd & LOC_CD4)
+		printf("4 ");
+	if (cd & LOC_CD5)
+		printf("5");
+
+	printf("\n");
+
 	pathName.Append(name.c_str(), false);
 
 	return pathName.Path();
@@ -533,7 +546,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	const char *archiveName = fBifs[bifIndex]->name;
 
 	printf("ResourceManager::LoadResource(%s, %s)...",
-		(const char *)entry.name, strresource(entry.type));
+		entry.name.CString(), strresource(entry.type));
 	printf("(in %s (0x%x))\n", archiveName, location);
 
 	Archive *archive = fArchives[archiveName];
@@ -549,8 +562,9 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
         fArchives[archiveName] = archive;
 	}
 
-	Resource *resource = Resource::Create(entry.name, entry.type);
-	if (resource == NULL || !resource->Load(archive, entry.key)) {
+	Resource *resource = Resource::Create(entry.name, entry.type,
+										entry.key, archive);
+	if (resource == NULL) {
 		printf("FAILED Loading resource!\n");
 		delete resource;
 		return NULL;
@@ -560,7 +574,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	fCachedResources.push_back(resource);
 
 	printf("Resource %s (%s) loaded correctly!\n",
-			(const char *)entry.name, strresource(entry.type));
+			entry.name.CString(), strresource(entry.type));
 	return resource;
 }
 
@@ -569,8 +583,23 @@ Resource*
 ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
 {
 	// TODO: Try the other override directories (dialogs, characters, etc.... override)
-	std::string path = "override/";
-	path.append(entry.name);
+
+	Resource *resource = NULL;
+	if (entry.type == RES_BCS)
+		resource = _LoadResourceFromOverride(entry, "scripts");
+	if (resource == NULL)
+		resource = _LoadResourceFromOverride(entry, "override");
+	return resource;
+}
+
+
+Resource*
+ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
+		const char* overridePath)
+{
+	std::string path = overridePath;
+	path.append("/");
+	path.append(entry.name.CString());
 	path.append(Resource::Extension(entry.type));
 	std::string fullPath = GetFullPath(path, LOC_ROOT);
 
@@ -579,8 +608,9 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
 	if (dirArchive == NULL)
 		return NULL;
 
-	Resource *resource = Resource::Create(entry.name, entry.type);
-	if (resource == NULL || !resource->Load(dirArchive, entry.key)) {
+	Resource *resource = Resource::Create(entry.name, entry.type,
+										entry.key, dirArchive);
+	if (resource == NULL) {
 		delete dirArchive;
 		delete resource;
 		return NULL;
@@ -589,8 +619,9 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
+	// TODO:
 	printf("Resource %s (%s) loaded correctly from override!\n",
-			(const char *)entry.name, strresource(entry.type));
+			entry.name.CString(), strresource(entry.type));
 	delete dirArchive;
 	return resource;
 }
@@ -653,10 +684,10 @@ ResourceManager::SearchMapName(const char *name)
 }
 
 
-Resource *
+Resource*
 ResourceManager::_FindResource(KeyResEntry &entry)
 {
-	std::list<Resource *>::iterator iter;
+	std::list<Resource*>::iterator iter;
 	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
 		if ((*iter)->Key() == entry.key)
 			return *iter;
@@ -665,7 +696,7 @@ ResourceManager::_FindResource(KeyResEntry &entry)
 }
 
 
-KeyResEntry *
+KeyResEntry*
 ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
 {
 	ref_type nameType = {name, type};
@@ -676,7 +707,7 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
 void
 ResourceManager::TryEmptyResourceCache()
 {
-	std::list<Resource *>::iterator it;
+	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
 		if ((*it)->RefCount() == 1)
 			it = fCachedResources.erase(it);
