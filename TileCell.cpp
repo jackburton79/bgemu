@@ -37,7 +37,8 @@ TileCell::Draw(GFX::rect *rect, bool full)
 
 	for (int i = maxOverlay - 1; i >= 0; i--) {
 		// Check if this overlay needs to be drawn
-	    if (i != 0 && (fOverlays[0]->TileMapForTileCell(fNumber)->Mask() & (1 << i)) == 0)
+		int8 mask = fOverlays[0]->TileMapForTileCell(fNumber)->Mask();
+	    if (i != 0 && (mask & (1 << i)) == 0)
 	    	continue;
 	    MapOverlay *overlay = fOverlays[i];
 		TileMap *map = overlay->TileMapForTileCell(fNumber);
@@ -63,7 +64,7 @@ TileCell::Draw(GFX::rect *rect, bool full)
 		}
 		gResManager->ReleaseResource(tis);
 		Color *color = NULL;
-		if (i == 0 && fOverlays[0]->TileMapForTileCell(fNumber)->Mask() != 0) {
+		if (i == 0 && mask != 0) {
 			color = &sTransparentColor;
 			//color = &cell->format->palette->colors[255];
 		}
@@ -115,7 +116,8 @@ TileCell::MouseOver()
 TileMap::TileMap()
 	:
 	fSecondaryIndex(-1),
-	fCurrentIndex(0)
+	fCurrentIndex(0),
+	fMask(0)
 {
 }
 

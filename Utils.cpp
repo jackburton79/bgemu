@@ -47,7 +47,7 @@ fopen_case(const char* filename, const char* flags)
 	size_t where = 0;
 	TPath newPath("/");
 
-	char leaf[256];
+	char leaf[PATH_MAX];
 	char* start = (char*)path.Path() + 1;
 	while ((where = strcspn(start, "/")) > 0) {
 		char* newStart = start;

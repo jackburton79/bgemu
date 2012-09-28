@@ -26,6 +26,7 @@ public:
 	~Room();
 	
 	res_ref AreaName() const;
+	WEDResource* WED();
 
 	bool LoadArea(const res_ref& areaName);
 	bool LoadArea(AreaEntry& area);

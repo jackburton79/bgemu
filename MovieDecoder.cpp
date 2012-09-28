@@ -188,7 +188,6 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 
 	stream->Seek(dataOffset, SEEK_CUR);
 
-
 	const uint32 loopMax = fMapSize * 2;
 	for (uint32 i = 0; i < loopMax; i++) {
 		const uint32 index = i >> 1;
@@ -437,9 +436,9 @@ MovieDecoder::OpcodeA(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 				uint8 p02 = stream->ReadByte();
 				uint8 p03 = stream->ReadByte();
 				TwoBitsStreamAdapter bs(stream);
-				Pattern4 op(p00, p01, p02, p03);
+				Pattern4 opX(p00, p01, p02, p03);
 				for (int c = 0; c < 16; c++) // 4x4
-					p[c + 4 * (c / 4)] = op.PixelValue(bs.ReadBits());
+					p[c + 4 * (c / 4)] = opX.PixelValue(bs.ReadBits());
 				// 4x4
 			} // 4x8
 		} // 8x8
@@ -477,10 +476,10 @@ MovieDecoder::OpcodeA(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 				uint8 p01 = stream->ReadByte();
 				uint8 p02 = stream->ReadByte();
 				uint8 p03 = stream->ReadByte();
-				Pattern4 op1(p00, p01, p02, p03);
+				Pattern4 op2(p00, p01, p02, p03);
 				TwoBitsStreamAdapter bs(stream);
 				for (int32 x = 0; x < 32; x++)
-					*pixels++ = op1.PixelValue(bs.ReadBits());
+					*pixels++ = op2.PixelValue(bs.ReadBits());
 			}
 		}
 	}
@@ -502,8 +501,10 @@ MovieDecoder::OpcodeC(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
 	for (int32 r = 0; r < 8; r+=2) {
 		for (int32 c = 0; c < 8; c+=2) {
-			pixels[c] = pixels[c + 1] = pixels[c + 8]
-					  = pixels[c + 9] = stream->ReadByte();
+			pixels[c] =
+					pixels[c + 1] =
+					pixels[c + 8] =
+					pixels[c + 9] = stream->ReadByte();
 		}
 		pixels += 16;
 	}
@@ -541,7 +542,7 @@ MovieDecoder::OpcodeF(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 pattern1[8] = { p0, p1, p0, p1, p0, p1, p0, p1 };
 	uint8 pattern2[8] = { p1, p0, p1, p0, p1, p0, p1, p0 };
 	for (int32 r = 0; r < 8; r++) {
-		if (r % 2 == 0)
+		if ((r & 1) == 0)
 			memcpy(pixels, pattern1, 8);
 		else
 			memcpy(pixels, pattern2, 8);

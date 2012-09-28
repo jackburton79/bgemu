@@ -542,8 +542,8 @@ Resource*
 ResourceManager::_LoadResource(KeyResEntry &entry)
 {
 	const int bifIndex = RES_BIF_INDEX(entry.key);
-	const uint16 location = fBifs[bifIndex]->location;
-	const char *archiveName = fBifs[bifIndex]->name;
+	const uint16& location = fBifs[bifIndex]->location;
+	const char* archiveName = fBifs[bifIndex]->name;
 
 	printf("ResourceManager::LoadResource(%s, %s)...",
 		entry.name.CString(), strresource(entry.type));
@@ -597,13 +597,10 @@ Resource*
 ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 		const char* overridePath)
 {
-	std::string path = overridePath;
-	path.append("/");
-	path.append(entry.name.CString());
-	path.append(Resource::Extension(entry.type));
-	std::string fullPath = GetFullPath(path, LOC_ROOT);
+	std::string fullPath = GetFullPath(overridePath, LOC_ROOT);
 
 	Archive* dirArchive = Archive::Create(fullPath.c_str());
+
 	// TODO: Merge the code with the rest ?
 	if (dirArchive == NULL)
 		return NULL;

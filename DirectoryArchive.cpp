@@ -1,10 +1,17 @@
 #include "DirectoryArchive.h"
+#include "Path.h"
+#include "PlainFileArchive.h"
+
 
 
 DirectoryArchive::DirectoryArchive(const char *path)
+	:
+	fPath(path)
 {
 	fDir = opendir(path);
-	if (fDir != NULL) {
+	if (fDir == NULL) {
+		printf("Failed to open directory");
+		throw -1;
 	}
 }
 
@@ -32,26 +39,25 @@ DirectoryArchive::EnumEntries()
 
 
 /* virtual */
-bool
-DirectoryArchive::GetResourceInfo(resource_info &info,
-			uint16 index) const
+MemoryStream*
+DirectoryArchive::ReadResource(res_ref& ref,
+		const uint32& key, 	const uint16& type)
 {
-	return false;
+	if (fDir == NULL)
+		return NULL;
+
+	MemoryStream* stream = NULL;
+	dirent *entry = NULL;
+	while ((entry = readdir(fDir)) != NULL) {
+		if (!strncasecmp(ref.name, entry->d_name, 8)) {
+			TPath filePath = fPath.Path();
+			filePath.Append(entry->d_name);
+			PlainFileArchive archive(filePath.Path());
+			stream = archive.ReadResource(ref, key, type);
+			break;
+		}
+	}
+	rewinddir(fDir);
+	return stream;
 }
 
-
-/* virtual */
-bool
-DirectoryArchive::GetTilesetInfo(tileset_info &info,
-			uint16 index) const
-{
-	return false;
-}
-
-
-/* virtual */
-ssize_t
-DirectoryArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
-{
-	return -1;
-}

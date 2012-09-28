@@ -622,10 +622,13 @@ node::Create(int type, const char *string)
 
 // node
 node::node()
+	:
+	type(BLOCK_UNKNOWN),
+	parent(NULL),
+	next(NULL),
+	closed(false)
+
 {
-	parent = NULL;
-	closed = false;
-	type = BLOCK_UNKNOWN;
 	value[0] = '\0';
 }
 

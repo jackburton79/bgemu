@@ -63,6 +63,13 @@ Room::AreaName() const
 }
 
 
+WEDResource*
+Room::WED()
+{
+	return fWed;
+}
+
+
 GFX::rect
 Room::ViewPort() const
 {
@@ -406,15 +413,21 @@ Room::_DrawBaseMap(GFX::rect area)
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
-	GFX::rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
+	GFX::rect tileRect = {
+			firstTileX * TILE_WIDTH,
+			firstTileY * TILE_HEIGHT,
+			TILE_WIDTH,
+			TILE_HEIGHT
+	};
 	for (uint16 y = firstTileY; y < lastTileY; y++) {
-		tileRect.y = y * TILE_HEIGHT;
+		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH;
-			const uint32 tileNum = y * overlayWidth + x;
+			const uint32 tileNum = tileNumY + x;
 			GFX::rect rect = offset_rect(tileRect, -area.x, -area.y);
 			fTileCells[tileNum]->Draw(&rect, fDrawOverlays);
 		}
+		tileRect.y += TILE_HEIGHT;
 	}
 }
 

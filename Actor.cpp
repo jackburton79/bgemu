@@ -75,7 +75,7 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
-	ChooseScript();
+	MergeScripts();
 
 	if (fScript != NULL)
 		Object::SetScript(fScript);
@@ -235,9 +235,10 @@ IsValid(const res_ref& scriptName)
 
 
 void
-Actor::ChooseScript()
+Actor::MergeScripts()
 {
-	// TODO: I think we should merge the scripts ??
+	// TODO: order ??
+	// Is it correct we merge the scripts ?
 	if (IsValid(fActor->script_override))
 		_AddScript(fActor->script_override);
 	if (IsValid(fActor->script_race))
@@ -248,9 +249,8 @@ Actor::ChooseScript()
 		_AddScript(fActor->script_general);
 	if (IsValid(fActor->script_default))
 		_AddScript(fActor->script_default);
-	if (IsValid(fActor->script_specific))
-		_AddScript(fActor->script_specific);
-
+	//if (IsValid(fActor->script_specific))
+		//_AddScript(fActor->script_specific);
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
 }
@@ -318,6 +318,8 @@ Actor::_AddScript(const res_ref& scriptName)
 {
 	//printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
+	if (scriptResource == NULL)
+		return;
 	if (fScript == NULL)
 		fScript = scriptResource->GetScript();
 	else

@@ -1,4 +1,5 @@
 #include "FileStream.h"
+#include "MemoryStream.h"
 #include "PlainFileArchive.h"
 
 PlainFileArchive::PlainFileArchive(const char *path)
@@ -26,34 +27,20 @@ PlainFileArchive::EnumEntries()
 
 
 /* virtual */
-bool
-PlainFileArchive::GetResourceInfo(resource_info &info, uint16 index) const
+MemoryStream*
+PlainFileArchive::ReadResource(res_ref& name, const uint32& key,
+		const uint16& type)
 {
-	info.key = 0;
-	info.offset = 0;
-	info.size = fFile->Size();
-	info.type = 0;
-	info.unk = 0;
-	return true;
-}
+	// Ignore name, key and type, since the file
+	// contains only one resource
+	uint32 size = fFile->Size();
+	MemoryStream *stream = new MemoryStream(size);
+	ssize_t sizeRead = fFile->ReadAt(0, stream->Data(), size);
+	if (sizeRead < 0 || (size_t)sizeRead != size) {
+		delete stream;
+		return NULL;
+	}
 
-
-/* virtual */
-bool
-PlainFileArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
-{
-	printf("Suuuca!\n");
-	throw "sucaerror";
-	/*info.offset = 0;
-	info.tileSize = fFile->Size();*/
-	return false;
-}
-
-
-/* virtual */
-ssize_t
-PlainFileArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
-{
-	return fFile->ReadAt(offset, buffer, size);
+	return stream;
 }
 

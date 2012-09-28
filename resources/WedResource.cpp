@@ -290,6 +290,7 @@ MapOverlay::TileMapForTileCell(int32 i)
 	if (i >= fWidth * fHeight) {
 		// TODO: We should return NULL here. Why it only works
 		// if we do this ?!?!
+		// The problem seems to be with water/lava overlays...
 		i = Size() - 1;
 		//return NULL;
 	}

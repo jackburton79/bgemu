@@ -36,7 +36,7 @@ public:
 
 	void Draw(GFX::rect area, Bitmap* heightMap);
 
-	void ChooseScript();
+	void MergeScripts();
 	void SetScript(Script *script);
 	::Script* Script();
 

@@ -36,7 +36,8 @@ ARAResource::~ARAResource()
 bool
 ARAResource::Load(Archive* archive, uint32 key)
 {
-	Resource::Load(archive, key);
+	if (!Resource::Load(archive, key))
+		return false;
 
 	if (!CheckSignature(AREA_SIGNATURE))
 		return false;

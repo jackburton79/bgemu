@@ -3,13 +3,6 @@
 
 #include "Resource.h"
 
-#define RES_BIF_FILE_INDEX_MASK 0x00003FFF
-#define RES_TILESET_INDEX_MASK 0x000FC000
-
-#define RES_BIF_INDEX(x) ((x) >> 20)
-#define RES_BIF_FILE_INDEX(x) ((x) & RES_BIF_FILE_INDEX_MASK)
-#define RES_TILESET_INDEX(x) ((((x) & RES_TILESET_INDEX_MASK) >> 14) - 1)
-
 struct KeyFileEntry {
 	uint32 length;
 	uint16 location;

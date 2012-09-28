@@ -149,6 +149,8 @@ void
 Core::PlayMovie(const char* name)
 {
 	MVEResource* resource = gResManager->GetMVE(name);
+	if (resource == NULL)
+		return;
 	resource->Play();
 	gResManager->ReleaseResource(resource);
 }

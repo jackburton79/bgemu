@@ -113,6 +113,42 @@ BIFArchive::EnumEntries()
 }
 
 
+/* virtual */
+MemoryStream*
+BIFArchive::ReadResource(res_ref& name, const uint32& key,
+		const uint16& type)
+{
+	uint32 index;
+	uint32 size;
+	uint32 offset;
+	bool isTileset = is_tileset(type);
+	if (!isTileset) {
+		index = RES_BIF_FILE_INDEX(key);
+		resource_info info;
+		if (!GetResourceInfo(info, index))
+			return false;
+		size = info.size;
+		offset = info.offset;
+	} else {
+		index = RES_TILESET_INDEX(key);
+		tileset_info info;
+		if (!GetTilesetInfo(info, index))
+			return false;
+		size = info.numTiles * info.tileSize;
+		offset = info.offset;
+	}
+
+	MemoryStream *stream = new MemoryStream(size);
+	ssize_t sizeRead = ReadAt(offset, stream->Data(), size);
+	if (sizeRead < 0 || (size_t)sizeRead != size) {
+		delete stream;
+		return NULL;
+	}
+
+	return stream;
+}
+
+
 bool
 BIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
 {

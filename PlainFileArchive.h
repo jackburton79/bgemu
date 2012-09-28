@@ -2,7 +2,9 @@
 #define __PLAINFILEARCHIVE_H
 
 #include "Archive.h"
+#include "IETypes.h"
 
+class MemoryStream;
 class FileStream;
 class PlainFileArchive : public Archive {
 public:
@@ -11,13 +13,9 @@ public:
 
 	virtual void EnumEntries();
 
-	virtual bool GetResourceInfo(resource_info &info,
-			uint16 index) const;
-	virtual bool GetTilesetInfo(tileset_info &info,
-			uint16 index) const;
-	virtual ssize_t ReadAt(uint32 offset,
-			void *buffer, uint32 size) const;
-
+	virtual MemoryStream* ReadResource(res_ref& name,
+			const uint32& key,
+			const uint16& type);
 private:
 	FileStream *fFile;
 };

@@ -1,6 +1,8 @@
 #include "Archive.h"
 #include "BIFArchive.h"
 #include "DirectoryArchive.h"
+#include "IETypes.h"
+#include "MemoryStream.h"
 #include "PlainFileArchive.h"
 #include "Utils.h"
 
@@ -13,18 +15,20 @@ Archive *
 Archive::Create(const char *path)
 {
 	Archive* archive = NULL;
+	const char *ext = extension(path);
 	try {
-		/*if (extension(path) == NULL) { // TODO: Not so nice
-			printf("Archive::Create(): DirectoryArchive\n");
-			return new DirectoryArchive(path);
-		} else */if (!strcasecmp(extension(path), ".bif"))
+		if (ext == NULL) { // TODO: Not so nice
+			archive = new DirectoryArchive(path);
+		} else if (!strcasecmp(ext, ".bif"))
 			archive = new BIFArchive(path);
 		else {
 			archive = new PlainFileArchive(path);
 		}
 	} catch (...) {
-		printf("TArchive::Create(): Exception thrown!\n");
 		delete archive; // TODO: We leak the archive ?
+		archive = NULL;
 	}
 	return archive;
 }
+
+

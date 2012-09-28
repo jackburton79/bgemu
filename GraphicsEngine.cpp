@@ -123,7 +123,7 @@ GraphicsEngine::FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor)
 void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags)
 {
-	fScreen = SDL_SetVideoMode(x, y, depth, 0);
+	fScreen = SDL_SetVideoMode(x, y, depth, SDL_FULLSCREEN);
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
 		(*i)->VideoAreaChanged(x, y);

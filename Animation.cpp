@@ -38,7 +38,8 @@ Animation::Animation(IE::animation *animDesc)
 }
 
 
-Animation::Animation(CREResource *cre, int action, int sequence, IE::point position)
+Animation::Animation(CREResource* cre, int action,
+		int sequence, IE::point position)
 :
 	fBAM(NULL),
 	fCycleNumber(0),
@@ -50,8 +51,7 @@ Animation::Animation(CREResource *cre, int action, int sequence, IE::point posit
 {
 	res_ref name = _SelectAnimation(cre, action, sequence);
 
-	memcpy(fName, name.name, sizeof(name.name));
-	fName[8] = '\0';
+	strncpy(fName, name.CString(), sizeof(name.name));
 
 	fBAM = gResManager->GetBAM(fName);
 	if (fBAM == NULL)
@@ -131,7 +131,6 @@ Animation::Position() const
 res_ref
 Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 {
-
 	const uint16 animationID = cre->AnimationID();
 	printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
 

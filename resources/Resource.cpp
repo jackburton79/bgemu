@@ -21,7 +21,7 @@
 #include <cstdio>
 
 
-static bool
+bool
 is_tileset(int16 type)
 {
 	return type == RES_TIS;
@@ -109,40 +109,12 @@ Resource::~Resource()
 bool
 Resource::Load(Archive *archive, uint32 key)
 {
-	delete fData;
-	fData = NULL;
-
 	fKey = key;
 
-	uint32 index;
-	uint32 size;
-	uint32 offset;
-	bool isTileset = is_tileset(fType);
-	if (!isTileset) {
-		index = RES_BIF_FILE_INDEX(fKey);
-		resource_info info;
-		if (!archive->GetResourceInfo(info, index))
-			return false;
-		size = info.size;
-		offset = info.offset;
-	} else {
-		index = RES_TILESET_INDEX(fKey);
-		tileset_info info;
-		if (!archive->GetTilesetInfo(info, index))
-			return false;
-		size = info.numTiles * info.tileSize;
-		offset = info.offset;
-	}
-
-	//printf("%s: size: %d\n", (const char *)fName, size);
-
-	fData = new MemoryStream(size);
-	ssize_t sizeRead = archive->ReadAt(offset, fData->Data(), size);
-	if (sizeRead < 0 || (size_t)sizeRead != size) {
-		delete fData;
-		fData = NULL;
+	delete fData;
+	fData = archive->ReadResource(fName, key, fType);
+	if (fData == NULL)
 		return false;
-	}
 
 	return true;
 }
