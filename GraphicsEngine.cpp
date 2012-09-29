@@ -72,7 +72,8 @@ GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
 void
 GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
 {
-	delete bitmap;
+	if (bitmap->Release())
+		delete bitmap;
 }
 
 

@@ -255,6 +255,7 @@ Resource::Create(const res_ref &name, uint16 type)
 	return res;
 }
 
+
 /* static */
 Resource*
 Resource::Create(const res_ref& name, const uint16& type,

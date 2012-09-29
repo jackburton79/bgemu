@@ -30,22 +30,19 @@ BCSResource::Load(Archive *archive, uint32 key)
 Script*
 BCSResource::GetScript()
 {
-	node* rootNode = NULL;
 	Script* script = NULL;
 	try {
 		Parser parser;
-		if (fName == "ICFUNGUS") {
-			parser.SetDebug(true);
-			DumpToFile("icfungus-bcs.dump");
-		}
 		parser.SetTo(fData);
+
+		node* rootNode = NULL;
 		parser.Read(rootNode);
 
 		// Takes ownership of the node tree.
 		script = new Script(rootNode);
 
 	} catch (...) {
-
+		script = NULL;
 	}
 
 	return script;

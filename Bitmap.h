@@ -8,6 +8,7 @@
 #ifndef SPRITE_H_
 #define SPRITE_H_
 
+#include "Referenceable.h"
 #include "SupportDefs.h"
 
 #include "SDL.h"
@@ -34,7 +35,7 @@ struct rect {
 };
 
 }
-class Bitmap {
+class Bitmap : public Referenceable {
 public:
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	Bitmap(SDL_Surface* surface);
