@@ -45,6 +45,8 @@ enum resource_type {
 };
 
 const char *strresource(int type);
+const char *res_extension(int type);
+
 bool is_tileset(int16 type);
 
 struct res_ref {

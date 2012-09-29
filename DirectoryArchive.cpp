@@ -2,7 +2,7 @@
 #include "Path.h"
 #include "PlainFileArchive.h"
 
-
+#include <string>
 
 DirectoryArchive::DirectoryArchive(const char *path)
 	:
@@ -49,7 +49,9 @@ DirectoryArchive::ReadResource(res_ref& ref,
 	MemoryStream* stream = NULL;
 	dirent *entry = NULL;
 	while ((entry = readdir(fDir)) != NULL) {
-		if (!strncasecmp(ref.name, entry->d_name, 8)) {
+		std::string resourceName = ref.CString();
+		resourceName.append(res_extension(type));
+		if (!strcasecmp(resourceName.c_str(), entry->d_name)) {
 			TPath filePath = fPath.Path();
 			filePath.Append(entry->d_name);
 			PlainFileArchive archive(filePath.Path());

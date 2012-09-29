@@ -8,6 +8,57 @@
 
 using namespace IE;
 
+const static int kMaxBuffers = 10;
+static char sBuffers[kMaxBuffers][16];
+static int sBufferIndex = 0;
+
+static char*
+get_buffer()
+{
+	// TODO: Not thread safe
+	char* buffer = sBuffers[sBufferIndex];
+
+	if (++sBufferIndex >= kMaxBuffers)
+		sBufferIndex = 0;
+
+	return buffer;
+}
+
+
+const char*
+res_extension(int type)
+{
+	switch (type) {
+		case RES_ARA:
+			return ".ARE";
+		case RES_BAM:
+			return ".BAM";
+		case RES_MOS:
+			return ".MOS";
+		case RES_BCS:
+			return ".BCS";
+		case RES_CRE:
+			return ".CRE";
+		case RES_BMP:
+			return ".BMP";
+		case RES_IDS:
+			return ".IDS";
+		case RES_TIS:
+			return ".TIS";
+		case RES_WED:
+			return ".WED";
+		case RES_MVE:
+			return ".MVE";
+		case RES_WMP:
+			return ".WMP";
+		default:
+			throw "Unknown resource!";
+			break;
+	}
+
+	return NULL;
+}
+
 void
 IE::check_objects_size()
 {
@@ -42,7 +93,7 @@ res_ref::res_ref(const res_ref &ref)
 const char*
 res_ref::CString() const
 {
-	static char str[9];
+	char* str = get_buffer();
 	strncpy(str, name, 8);
 	str[8] = '\0';
 	return (const char *)str;
@@ -89,14 +140,10 @@ operator!=(const res_ref &ref1, const res_ref &ref2)
 bool
 operator<(const ref_type &ref1, const ref_type &ref2)
 {
-	int nameDiff = strncasecmp(ref1.name.name, ref2.name.name, 8);
-	if (nameDiff < 0)
-		return true;
+	if (ref1.type != ref2.type)
+		return ref1.type < ref2.type;
 
-	if (nameDiff > 0)
-		return false;
-
-	return ref1.type < ref2.type;
+	return ref1.name < ref2.name;
 }
 
 
