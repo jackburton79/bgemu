@@ -57,9 +57,14 @@ WMAPResource::Load(Archive* archive, uint32 key)
 	for (uint32 c = 0; c < fWorldMapEntry.areaentries_count; c++) {
 		area_entry areaEntry;
 		if (GetAreaEntry(c, areaEntry)) {
-			fData->ReadAt(fWorldMapEntry.areaentries_offset + c * sizeof(area_entry), areaEntry);
+			fData->ReadAt(
+					fWorldMapEntry.areaentries_offset
+					+ c * sizeof(area_entry),
+					areaEntry);
 			AreaEntry* entry = new AreaEntry(areaEntry);
-			printf("Area %s, loading %s\n", areaEntry.area.CString(),
+			printf("Area %s, short: %s, loading %s\n",
+					areaEntry.area.CString(),
+					areaEntry.shortname.CString(),
 					areaEntry.loading_mos.CString());
 			entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
 			entry->fPosition.x = (int16)areaEntry.x;
@@ -92,7 +97,8 @@ WMAPResource::GetAreaEntry(uint32 index, area_entry& area)
 	if (index >= fWorldMapEntry.areaentries_count)
 		return false;
 
-	fData->ReadAt(fWorldMapEntry.areaentries_offset + index * sizeof(area_entry), area);
+	fData->ReadAt(fWorldMapEntry.areaentries_offset
+			+ index * sizeof(area_entry), area);
 	return true;
 }
 
@@ -126,6 +132,13 @@ res_ref
 AreaEntry::Name() const
 {
 	return fEntry.area;
+}
+
+
+const char*
+AreaEntry::LongName() const
+{
+	return fEntry.name;
 }
 
 

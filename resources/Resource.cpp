@@ -123,14 +123,8 @@ Resource::Load(Archive *archive, uint32 key)
 void
 Resource::DumpToFile(const char *fileName)
 {
-	/*FileStream file(fileName, FileStream::WRITE_ONLY);
-	
-	char buf[4096];
-	size_t read;
-	fData->Seek(0, SEEK_SET);
-	while ((read = fData->Read(buf, sizeof(buf))) > 0)
-		;//file.Write(buf, read);*/
-	fData->DumpToFile(fileName);
+	if (fData != NULL)
+		fData->DumpToFile(fileName);
 }
 
 
@@ -275,44 +269,4 @@ Resource::Create(const res_ref& name, const uint16& type,
 	}
 
 	return resource;
-}
-
-
-/* static */
-const char*
-Resource::Extension(uint16 type)
-{
-	try {
-		switch (type) {
-			case RES_ARA:
-				return ".ARE";
-			case RES_BAM:
-				return ".BAM";
-			case RES_MOS:
-				return ".MOS";
-			case RES_BCS:
-				return ".BCS";
-			case RES_CRE:
-				return ".CRE";
-			case RES_BMP:
-				return ".BMP";
-			case RES_IDS:
-				return ".IDS";
-			case RES_TIS:
-				return ".TIS";
-			case RES_WED:
-				return ".WED";
-			case RES_MVE:
-				return ".MVE";
-			case RES_WMP:
-				return ".WMP";
-			default:
-				throw "Unknown resource!";
-				break;
-		}
-	} catch (...) {
-		printf("Resource::Create(): exception thrown!\n");
-	}
-
-	return NULL;
 }

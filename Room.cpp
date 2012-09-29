@@ -42,7 +42,7 @@ Room::Room()
 	fWorldMapBitmap(NULL),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
-	fDrawAnimations(false)
+	fDrawAnimations(true)
 {
 	sCurrentRoom = this;
 }
@@ -117,15 +117,17 @@ bool
 Room::LoadArea(AreaEntry& area)
 {
 	MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
-	//Bitmap* loadingScreen = mos->Image();
-
-	//GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
-	//SDL_Delay(2000);
-	//GraphicsEngine::DeleteBitmap(loadingScreen);
+	if (mos != NULL) {
+		Bitmap* loadingScreen = mos->Image();
+		if (loadingScreen != NULL) {
+			GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
+			SDL_Delay(2000);
+			GraphicsEngine::DeleteBitmap(loadingScreen);
+		}
+		gResManager->ReleaseResource(mos);
+	}
 
 	bool result = LoadArea(area.Name());
-
-	gResManager->ReleaseResource(mos);
 
 	return result;
 }
@@ -247,6 +249,7 @@ Room::Clicked(uint16 x, uint16 y)
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			IE::point point = {x, y};
 			if (rect_contains(area.Rect(), point)) {
+				printf("Area long name: %s\n", area.LongName());
 				LoadArea(area);
 				break;
 			}

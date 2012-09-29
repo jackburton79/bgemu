@@ -84,20 +84,23 @@ Animation::Name() const
 ::Frame
 Animation::Frame()
 {
-	if (fBAM == NULL)
-		printf("BAM is NULL!!!!\n");
-
 	::Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
+		// TODO: Since BAM can cache the frames,
+		// what we are doing here is wrong, we could end up
+		// mirroring the frame once again.
+		// We can't move the frame caching to Animation,
+		// since we would end up caching the same BAM frames
+		// for every animation.
+		// Find a better way
 		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
 		frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
 		//SDL_SetColorKey(frame.surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
-
+		//Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
 	}
-
 	return frame;
 }
 
@@ -132,7 +135,7 @@ res_ref
 Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 {
 	const uint16 animationID = cre->AnimationID();
-	printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
+	//printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
 
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;

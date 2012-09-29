@@ -116,6 +116,7 @@ public:
 	GFX::rect Rect() const;
 	Frame Icon() const;
 	res_ref Name() const;
+	const char* LongName() const;
 	res_ref LoadingScreenName() const;
 
 private:

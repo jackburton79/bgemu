@@ -61,11 +61,12 @@ operator==(const struct token &t1, const struct token &t2)
 }
 
 
-// Parser
+// Parserthis->
 Parser::Parser()
 	:
 	fStream(NULL),
-	fTokenizer(NULL)
+	fTokenizer(NULL),
+	fDebug(false)
 {
 	fTokenizer = new Tokenizer();
 }
@@ -84,6 +85,13 @@ Parser::SetTo(Stream *stream)
 	fStream->Seek(0, SEEK_SET);
 
 	fTokenizer->SetTo(stream, 0);
+}
+
+
+void
+Parser::SetDebug(bool debug)
+{
+	fDebug = debug;
 }
 
 
@@ -227,6 +235,9 @@ Parser::_ReadElement(::node*& node)
 	}
 
 	_ReadElementGuard(node);
+
+	if (fDebug)
+		node->Print();
 }
 
 

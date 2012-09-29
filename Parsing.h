@@ -67,6 +67,8 @@ public:
 	void Read(node*& root);
 	void PrintNode(node* n) const;
 
+	void SetDebug(bool debug);
+
 private:
 	void _SkipUselessTokens();
 
@@ -85,6 +87,7 @@ private:
 
 	Stream *fStream;
 	Tokenizer *fTokenizer;
+	bool fDebug;
 };
 
 

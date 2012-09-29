@@ -24,6 +24,7 @@
 #include <iostream>
 #include <limits.h>
 
+#define USE_OVERRIDE 1
 
 #define OVERRIDE_MASK	0x00
 #define CACHE_MASK		0x01
@@ -280,14 +281,16 @@ ResourceManager::Initialize(const char *path)
 		for (uint32 c = 0; c < numResources; c++) {
 			KeyResEntry *res = new KeyResEntry;
 			if (key->GetResEntryAt(c, *res)) {
-				ref_type refType;
-				refType.name = res->name;
-				if (!strncmp(res->name.name, "", 8)) {
+				if (!strcmp(res->name.name, "")) {
+					//printf("unnamed resource type %s, %d\n",
+						//	strresource(res->type), res->key);
 					// TODO: looks like we get some unnamed resources
 					// and this causes all kinds of problems. Investigate
 					delete res;
 					continue;
 				}
+				ref_type refType;
+				refType.name = res->name;
 				refType.type = res->type;
 				fResourceMap[refType] = res;
 			} else
@@ -346,8 +349,10 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 	}
 
 	Resource *result = _FindResource(*entry);
+#if USE_OVERRIDE
 	if (result == NULL)
 		result = _LoadResourceFromOverride(*entry);
+#endif
 	if (result == NULL)
 		result = _LoadResource(*entry);
 

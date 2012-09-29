@@ -179,7 +179,6 @@ Actor::Draw(GFX::rect area, Bitmap* heightMap)
 	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 
 	if (rects_intersect(area, rect)) {
-
 		rect = offset_rect(rect, -area.x, -area.y);
 		GraphicsEngine::Get()->BlitToScreen(image, NULL, &rect);
 	}

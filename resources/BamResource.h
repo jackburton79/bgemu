@@ -4,6 +4,8 @@
 #include "Frame.h"
 #include "Resource.h"
 
+#include <map>
+
 struct cycle {
 	uint16 numFrames;
 	uint16 index;
@@ -41,6 +43,8 @@ private:
 	uint8 fNumCycles;
 	uint8 fCompressedIndex;
 	uint8 fTransparentIndex;
+
+	std::map<uint16, Frame> fFrames;
 };
 
 

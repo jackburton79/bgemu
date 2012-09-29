@@ -169,9 +169,10 @@ Graphics::ApplyMask(Bitmap* bitmap, Bitmap* mask, uint16 x, uint16 y)
 
 	for (int32 y = 0; y < surface->h; y++) {
 		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
-		for (int32 x = 0; x < surface->pitch / 2; x++)
-			std::swap(*sourcePixels++, *destPixels--);
+		for (int32 x = 0; x < surface->pitch; x++) {
+			if (*sourcePixels == SDL_MapRGB(surface->format, 0, 0, 0))
+				*sourcePixels = SDL_MapRGB(surface->format, 255, 0, 255);
+		}
 	}
 	SDL_UnlockSurface(surface);
 
