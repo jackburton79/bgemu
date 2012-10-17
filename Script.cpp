@@ -5,6 +5,7 @@
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "ResManager.h"
+#include "Room.h"
 #include "Script.h"
 #include "Timer.h"
 
@@ -39,6 +40,8 @@ Script::Script(node* rootNode)
 	fTarget(NULL)
 {
 	fRootNode->next = NULL;
+
+	//Print();
 }
 
 
@@ -147,7 +150,6 @@ Script::Execute()
 		nextScript = nextScript->next;
 	}
 
-
 	SetProcessed();
 
 	return true;
@@ -225,10 +227,10 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object_node* obj = FindObjectNode(trig);
+				/*object_node* obj = FindObjectNode(trig);
 				Object* object = core->GetObject(fTarget, obj);
 				if (object != NULL)
-					returnValue = Object::Match(fTarget->LastAttacker(), object);
+					returnValue = Object::Match(fTarget->LastAttacker(), object);*/
 				break;
 			}
 			case 0x0020:
@@ -379,6 +381,26 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* NumDeadGT(S:Name*,I:Num*) (0x4072)*/
 				break;
 			}
+			case 0x4074:
+			{
+				/*
+				 * 0x4074 Detect(O:Object*)
+				 * Returns true if the the specified object
+				 * is detected by the active CRE in any way
+				 * (hearing or sight). Neither Move Silently
+				 * and Hide in Shadows prevent creatures
+				 * being detected via Detect().
+				 * Detect ignores Protection from Creature
+				 * type effects for static objects.
+				 */
+				object_node* obj = FindObjectNode(trig);
+				Object *object = core->GetObject(fTarget, obj);
+				if (object != NULL)
+					returnValue = core->See(fTarget, object);
+					// || core->Hear(fTarget, object);
+				break;
+			}
+
 			case 0x4076:
 			{
 				/*
@@ -395,6 +417,16 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
+			case 0x407E:
+			{
+				/* 0x407E AreaCheck(S:ResRef*)
+				 * Returns true only if the active CRE
+				 * is in the area specified.
+				 */
+				returnValue = !strcmp(Room::CurrentArea()->Name(),
+						trig->string1);
+				break;
+			}
 			case 0x4089:
 			{
 				/*0x4089 OR(I:OrCount*)*/
@@ -413,6 +445,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
+	printf("\t*** %s ***\n", returnValue ? "TRUE" : "FALSE");
 	return returnValue;
 }
 
@@ -446,8 +479,11 @@ Script::_ExecuteActions(node* responseSet)
 void
 Script::_ExecuteAction(action_node* act)
 {
-	printf("%s (0x%x)\n", ActionIDS()->ValueFor(act->id), act->id);
+	printf("%s (%d 0x%x)\n", ActionIDS()->ValueFor(act->id), act->id, act->id);
 	act->Print();
+	Core* core = Core::Get();
+	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
+
 	switch (act->id) {
 		case 0x07:
 		{
@@ -477,6 +513,19 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: Implement
 			break;
 		}
+		case 29:
+		{
+			/* RunAwayFrom(O:Creature*,I:Time*) */
+			object_node* objBlock = FindObjectNode(act);
+			for (;;) {
+				objBlock = dynamic_cast<object_node*>(objBlock->Next());
+				if (objBlock == NULL)
+					break;
+				objBlock->Print();
+				Object* targetObject = core->GetObject(fTarget, objBlock);
+			}
+			break;
+		}
 		case 61:
 		{
 			Timer::Add(act->parameter);
@@ -485,10 +534,15 @@ Script::_ExecuteAction(action_node* act)
 		}
 		case 85:
 		{
-			/* 100 RandomWalk */
-			Actor* actor = dynamic_cast<Actor*>(fTarget);
-			if (actor != NULL)
-				Core::Get()->RandomWalk(actor);
+			/* 85 RandomWalk */
+			if (thisActor != NULL && thisActor->IsInterruptable())
+				core->RandomWalk(thisActor);
+			break;
+		}
+		case 86:
+		{
+			if (thisActor != NULL)
+				thisActor->SetInterruptable(act->parameter == 1);
 			break;
 		}
 		case 0x1E:
@@ -499,12 +553,13 @@ Script::_ExecuteAction(action_node* act)
 			variableName.append(&act->string1[6]);
 
 			if (variableScope.compare("LOCALS") == 0) {
-				Actor* actor = dynamic_cast<Actor*>(fTarget);
-				if (actor != NULL)
-					actor->SetVariable(variableName.c_str(), act->parameter);
+				if (thisActor != NULL)
+					thisActor->SetVariable(variableName.c_str(),
+							act->parameter);
 			} else {
 				// TODO: Check for AREA variables
-				Core::Get()->SetVariable(variableName.c_str(), act->parameter);
+				core->SetVariable(variableName.c_str(),
+						act->parameter);
 			}
 			break;
 		}
@@ -518,26 +573,37 @@ Script::_ExecuteAction(action_node* act)
 		case 0x64:
 		{
 			/* 100 RandomFly */
-			Actor* actor = dynamic_cast<Actor*>(fTarget);
-			if (actor != NULL)
-				Core::Get()->RandomFly(actor);
-
+			if (thisActor != NULL && thisActor->IsInterruptable())
+				core->RandomFly(thisActor);
 			break;
 		}
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			Actor* actor = dynamic_cast<Actor*>(fTarget);
-			if (actor != NULL)
-				Core::Get()->FlyToPoint(actor, act->where, act->parameter);
+			if (thisActor != NULL && thisActor->IsInterruptable())
+				core->FlyToPoint(thisActor, act->where, act->parameter);
 			break;
 		}
 		case 0xA7:
 		{
-			Core::Get()->PlayMovie(act->string1);
+			core->PlayMovie(act->string1);
 			break;
 		}
 
+		case 134:
+		{
+			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
+			 *  (134 0x86)
+			 */
+			object_node* objBlock = FindObjectNode(act);
+			Object* targetObject = core->GetObject(fTarget, objBlock);
+			if (targetObject != NULL) {
+				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
+				if (thisActor != NULL && targetActor != NULL)
+					thisActor->Attack(targetActor);
+			}
+			break;
+		}
 		case 207:
 		{
 			/* 207 MoveToPointNoInterrupt(P:Point*)

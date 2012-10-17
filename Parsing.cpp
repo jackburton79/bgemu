@@ -171,8 +171,8 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		act->where.y = tokenizer->ReadNextToken().u.number;
 		act->e = tokenizer->ReadNextToken().u.number;
 		act->f = tokenizer->ReadNextToken().u.number;
-		// TODO: This removes "" from strings. Broken. Should do this from
-		// the beginning!!!
+		// TODO: This removes "" from strings. Broken.
+		// Should do this from the beginning!!!
 		strcpy(act->string1, tokenizer->ReadToken().u.string + 1);
 		act->string1[strlen(act->string1) - 1] = '\0';
 		strcpy(act->string2, tokenizer->ReadToken().u.string + 1);
@@ -216,8 +216,9 @@ Parser::_ReadElement(::node*& node)
 		if (tok.type == TOKEN_BLOCK_GUARD) {
 			fTokenizer->RewindToken(tok);
 			if (Parser::_BlockTypeFromToken(tok) == node->type) {
-				// Means the block is open, and this is the closing tag.
-				// Bail out and let _ReadElementGuard to the rest.
+				// Means the block is open, and this is
+				// the closing tag. Bail out and let
+				// _ReadElementGuard do the rest.
 				break;
 			} else {
 				// We found a nested block,

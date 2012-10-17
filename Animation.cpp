@@ -11,6 +11,7 @@
 Animation::Animation(IE::animation *animDesc)
 	:
 	fBAM(NULL),
+	fAnimation(animDesc),
 	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0),
@@ -31,8 +32,12 @@ Animation::Animation(IE::animation *animDesc)
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
 	fHold = animDesc->flags & IE::ANIM_HOLD;
 	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
+	//if (fBlackAsTransparent)
+		//fBAM->DumpFrames("/home/stefano/dumps");
 	fMirrored = animDesc->flags & IE::ANIM_MIRRORED;
-	//printf("%s: %s\n", (const char*)animDesc->bam_name, fBlackAsTransparent ? "transparent": "black");
+	printf("%s\n\t: SHADED: %s\n\t, MIRRORED: %s\n", (const char*)Name(),
+			fBlackAsTransparent ? "YES": "NO",
+			fMirrored ? "YES": "NO");
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
 }
@@ -42,6 +47,7 @@ Animation::Animation(CREResource* cre, int action,
 		int sequence, IE::point position)
 :
 	fBAM(NULL),
+	fAnimation(NULL),
 	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0),
@@ -74,6 +80,21 @@ Animation::~Animation()
 }
 
 
+bool
+Animation::IsShown() const
+{
+	return fAnimation != NULL ? fAnimation->flags & IE::ANIM_SHOWN : true;
+}
+
+
+void
+Animation::SetShown(const bool show)
+{
+	if (fAnimation != NULL)
+		fAnimation->flags |= IE::ANIM_SHOWN;
+}
+
+
 const char*
 Animation::Name() const
 {
@@ -93,13 +114,13 @@ Animation::Frame()
 		// since we would end up caching the same BAM frames
 		// for every animation.
 		// Find a better way
-		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
-		frame.rect.x = frame.rect.x - frame.rect.w;
+		//GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
+		//frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
-		//SDL_SetColorKey(frame.surface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 255);
-		//Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
+		Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
+
 	}
 	return frame;
 }
@@ -153,7 +174,10 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 	}
 
 	if ((high >= 0xb2 && high <= 0xb4)
-			|| (high >= 0xc6 && high <= 0xc9)) {
+			|| (high >= 0xc6 && high <= 0xc9)
+			|| (baseName[0] == 'N'
+					&& (baseName[1] == 'N'
+						|| baseName[1] == 'S'))) {
 		// TODO: Low/High ?
 		if (true)
 			baseName.append("L");
@@ -176,7 +200,7 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 			baseName[4] = '2';
 		else
 			baseName[4] = '4'; //ArmorToLetter();
-		baseName[5] = 'W'; // Action
+		baseName[5] = 'G'; // Action
 		if (baseName[5] == 'A' || baseName[5] == 'G')
 			baseName[6] = '1'; // Detail
 		else if (baseName[5] == 'W')
@@ -186,6 +210,8 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 
 		baseName[7] = '\0';
 
+	} else if (baseName[0] == 'S') {
+		baseName.append("C");
 	} else {
 		baseName.append("G1");
 		if (baseName[0] == 'N') {

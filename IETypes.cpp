@@ -2,6 +2,7 @@
 #include "IDSResource.h"
 #include "IETypes.h"
 #include "ResManager.h"
+#include "Utils.h"
 
 #include <assert.h>
 #include <cstdio>
@@ -9,12 +10,13 @@
 using namespace IE;
 
 const static int kMaxBuffers = 10;
-static char sBuffers[kMaxBuffers][16];
-static int sBufferIndex = 0;
 
 static char*
 get_buffer()
 {
+	static char sBuffers[kMaxBuffers][10];
+	static int sBufferIndex = 0;
+
 	// TODO: Not thread safe
 	char* buffer = sBuffers[sBufferIndex];
 
@@ -29,28 +31,33 @@ const char*
 res_extension(int type)
 {
 	switch (type) {
+		case RES_2DA:
+			return ".2DA";
 		case RES_ARA:
 			return ".ARE";
 		case RES_BAM:
 			return ".BAM";
-		case RES_MOS:
-			return ".MOS";
 		case RES_BCS:
 			return ".BCS";
-		case RES_CRE:
-			return ".CRE";
 		case RES_BMP:
 			return ".BMP";
+		case RES_CHU:
+			return ".CHU";
+		case RES_CRE:
+			return ".CRE";
 		case RES_IDS:
 			return ".IDS";
+		case RES_MOS:
+			return ".MOS";
+		case RES_MVE:
+			return ".MVE";
 		case RES_TIS:
 			return ".TIS";
 		case RES_WED:
 			return ".WED";
-		case RES_MVE:
-			return ".MVE";
 		case RES_WMP:
 			return ".WMP";
+
 		default:
 			throw "Unknown resource!";
 			break;
@@ -59,12 +66,62 @@ res_extension(int type)
 	return NULL;
 }
 
+
+int
+res_string_to_type(const char* string)
+{
+	const char* ext = extension(string);
+	if (ext == NULL)
+		return -1;
+	if (!strcasecmp(ext, ".WED"))
+		return RES_WED;
+	else if (!strcasecmp(ext, ".WMP"))
+		return RES_WMP;
+	else if (!strcasecmp(ext, ".TIS"))
+		return RES_TIS;
+	else if (!strcasecmp(ext, ".BAM"))
+		return RES_BAM;
+	else if (!strcasecmp(ext, ".MOS"))
+		return RES_MOS;
+	else if (!strcasecmp(ext, ".ARE"))
+		return RES_ARA;
+	else if (!strcasecmp(ext, ".CRE"))
+		return RES_CRE;
+	else if (!strcasecmp(ext, ".BCS"))
+		return RES_BCS;
+	else if (!strcasecmp(ext, ".BMP"))
+		return RES_BMP;
+	else if (!strcasecmp(ext, ".IDS"))
+		return RES_IDS;
+	return -1;
+}
+
+
+bool
+is_tileset(int16 type)
+{
+	return type == RES_TIS;
+}
+
+
+static void
+assert_size(size_t size, size_t controlValue)
+{
+	if (size != controlValue) {
+		printf("size is %d\n", size);
+		assert(size == controlValue);
+	}
+}
+
+
 void
 IE::check_objects_size()
 {
-	assert(sizeof(polygon) == 18);
-	assert(sizeof(animation) == 76);
-	assert(sizeof(actor) == 0x110);
+	assert_size(sizeof(polygon), 18);
+	assert_size(sizeof(animation), 76);
+	assert_size(sizeof(actor), 0x110);
+	assert_size(sizeof(control), 14);
+	assert_size(sizeof(button), 32);
 }
 
 
@@ -153,7 +210,7 @@ operator<<(std::ostream &os, res_ref ref)
 	for (int32 i = 0; i < 8; i++) {
 		if (ref.name[i] == '\0')
 			break;
-		std::cout << ref.name[i];
+		os << ref.name[i];
 	}
 	return os;
 };
@@ -174,16 +231,49 @@ operator!=(const IE::point& ptA, const IE::point& ptB)
 
 
 void
+animation::Print() const
+{
+	printf("name: %s\n", name);
+	printf("center: %d %d\n", center.x, center.y);
+	printf("play_time: %d\n", play_time);
+	printf("bam_name: %s\n", bam_name.CString());
+	printf("sequence: %d\n", sequence);
+	printf("frame: %d\n", frame);
+	printf("flags: (%d)\n", flags);
+	printf("\t%s %s %s %s %s %s %s %s %s\n",
+			flags & ANIM_SHOWN ? "SHOWN" : "",
+			flags & ANIM_SHADED ? "SHADED" : "",
+			flags & ANIM_SHADED_NIGHT ? "SHADED_NIGHT" : "",
+			flags & ANIM_HOLD ? "HOLD" : "",
+			flags & ANIM_SYNCHRONIZED ? "SYNCHRONIZED" : "",
+			flags & ANIM_INVISIBLE_IN_DARK ? "INVISIBLE_IN_DARK" : "",
+			flags & ANIM_PLAY_ALL_FRAMES ? "PLAY_ALL_FRAMES" : "",
+			flags & ANIM_USE_PALETTE ? "USE_PALETTE" : "",
+			flags & ANIM_MIRRORED ? "MIRRORED" : "");
+	printf("height: %d\n", height);
+	printf("transparency: %d\n", transparency);
+	printf("start_frame: %d\n", start_frame);
+	printf("looping_chance: %d\n", looping_chance);
+	printf("skip_cycles: %d\n", skip_cycles);
+	printf("palette: %s\n", palette.CString());
+	printf("unknown: %d\n", unknown);
+}
+
+
+void
 actor::Print() const
 {
-	printf("Actor %s:\n", name);
-	/*printf("\tCRE: %s\n", (const char *)cre);
-	printf("\tposition: (%d, %d)\n", position.x, position.y);
-	printf("\tdestination: (%d, %d)\n", destination.x, destination.y);
-	printf("\tflags: 0x%x\n", flags);
-	printf("\tanimation: %s (0x%x)\n", AnimateIDS()->ValueFor(animation), animation);
-	printf("\tdialog: %s\n", (const char*)dialog);
-	printf("\tscript_override: %s\n", (const char*)script_override);
+	std::cout << "Actor " << name << ": " << std::endl;
+	std::cout << "\tCRE: " << cre << std::endl;
+	std::cout << "\tposition: (" << position.x;
+	std::cout << ", " << position.y << ")" << std::endl;
+	std::cout << "\tdestination: (" << destination.x;
+	std::cout << ", " << destination.y << ")" << std::endl;
+	std::cout << "\tflags: " << std::hex << flags << std::endl;
+	std::cout << "\tanimation: " << AnimateIDS()->ValueFor(animation);
+	std::cout << "(" << animation << ")" << std::endl;
+	std::cout << "\tdialog: " << dialog << std::endl;
+	/*printf("\tscript_override: %s\n", (const char*)script_override);
 	printf("\tscript_general: %s\n", (const char*)script_general);
 	printf("\tscript_class: %s\n", (const char*)script_class);
 	printf("\tscript_race: %s\n", (const char*)script_race);
@@ -208,4 +298,18 @@ void
 variable::Print() const
 {
 	printf("name: %s, value: %d\n", name, value);
+}
+
+
+void
+window::Print() const
+{
+	std::cout << std::dec;
+	std::cout << "id: " << id << std::endl;
+	std::cout << "position: " << x << ", " << y << std::endl;
+	std::cout << "size: " << w << ", " << h << std::endl;
+	std::cout << "has background ? " << (background ? "YES" : "NO") << std::endl;
+	std::cout << "control offset: " << control_offset << std::endl;
+	if (background)
+		std::cout << "background: " << background_mos << std::endl;
 }

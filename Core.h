@@ -28,6 +28,8 @@ class TLKResource;
 class Core {
 public:
 	static Core* Get();
+	static bool Initialize();
+	static void Destroy();
 
 	game Game() const;
 
@@ -55,7 +57,6 @@ public:
 	void RandomFly(Actor* actor);
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);
 	void RandomWalk(Actor* actor);
-
 
 private:
 	Room* fCurrentRoom;

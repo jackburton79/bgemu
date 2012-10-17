@@ -1,5 +1,5 @@
 /*
- * Sprite.cpp
+ * Bitmap.cpp
  *
  *  Created on: 29/mag/2012
  *      Author: stefano
@@ -49,17 +49,25 @@ Bitmap::SetPalette(const Palette& palette)
 
 
 void
-Bitmap::SetColorKey(uint32 index)
+Bitmap::SetColorKey(uint32 index, bool on)
 {
-	SDL_SetColorKey(fSurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, index);
+	SDL_SetColorKey(fSurface, on ? SDL_SRCCOLORKEY|SDL_RLEACCEL : 0, index);
 }
 
 
 void
-Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b)
+Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b, bool on)
 {
-	SDL_SetColorKey(fSurface, SDL_SRCCOLORKEY|SDL_RLEACCEL,
+	SDL_SetColorKey(fSurface,
+			on ? SDL_SRCCOLORKEY|SDL_RLEACCEL : 0,
 			SDL_MapRGB(fSurface->format, r, g, b));
+}
+
+
+void
+Bitmap::SetAlpha(uint8 value, bool on)
+{
+	SDL_SetAlpha(fSurface, on ? SDL_SRCALPHA|SDL_RLEACCEL : 0, value);
 }
 
 

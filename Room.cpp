@@ -42,7 +42,8 @@ Room::Room()
 	fWorldMapBitmap(NULL),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
-	fDrawAnimations(true)
+	fDrawAnimations(true),
+	fShowingConsole(false)
 {
 	sCurrentRoom = this;
 }
@@ -116,16 +117,18 @@ Room::LoadArea(const res_ref& areaName)
 bool
 Room::LoadArea(AreaEntry& area)
 {
-	MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
+	//MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
+	/*MOSResource* mos = gResManager->GetMOS("BACK");
 	if (mos != NULL) {
 		Bitmap* loadingScreen = mos->Image();
 		if (loadingScreen != NULL) {
 			GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
+			GraphicsEngine::Get()->Flip();
 			SDL_Delay(2000);
 			GraphicsEngine::DeleteBitmap(loadingScreen);
 		}
 		gResManager->ReleaseResource(mos);
-	}
+	}*/
 
 	bool result = LoadArea(area.Name());
 
@@ -210,31 +213,33 @@ Room::AreaRect() const
 void
 Room::Draw(Bitmap *surface)
 {
+	GraphicsEngine* gfx = GraphicsEngine::Get();
+
 	if (fWorldMap != NULL) {
-		GraphicsEngine::Get()->BlitToScreen(fWorldMapBitmap,
+		gfx->BlitToScreen(fWorldMapBitmap,
 				&fVisibleArea, NULL);
-		return;
-	}
-	_DrawBaseMap(fVisibleArea);
+	} else {
+		_DrawBaseMap(fVisibleArea);
 
-	if (fDrawAnimations)
-		_DrawAnimations(fVisibleArea);
+		if (fDrawAnimations)
+			_DrawAnimations(fVisibleArea);
 
-	if (true)
-		_DrawActors(fVisibleArea);
+		if (true)
+			_DrawActors(fVisibleArea);
 
-	/*if (fDrawPolygons) {
-		for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
-			Polygon* poly = fWed->PolygonAt(p);
-			if (poly != NULL) {
-				if (rects_intersect(offset_rect(poly->Frame(),
-						-fVisibleArea.x, -fVisibleArea.y), fVisibleArea)) {
-					Graphics::DrawPolygon(*poly, SDL_GetVideoSurface(),
-							-fVisibleArea.x, -fVisibleArea.y);
+		if (fDrawPolygons) {
+			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
+				Polygon* poly = fWed->PolygonAt(p);
+				if (poly != NULL && poly->CountPoints() > 0) {
+					if (rects_intersect(offset_rect(poly->Frame(),
+							-fVisibleArea.x, -fVisibleArea.y), fVisibleArea)) {
+						Graphics::DrawPolygon(*poly, SDL_GetVideoSurface(),
+								-fVisibleArea.x, -fVisibleArea.y);
+					}
 				}
 			}
 		}
-	}*/
+	}
 }
 
 
@@ -295,10 +300,12 @@ Room::MouseOver(uint16 x, uint16 y)
 		}
 	}
 
-	GFX::rect rect = { fVisibleArea.x + scrollByX,
-					fVisibleArea.y + scrollByY,
-					fVisibleArea.w,
-					fVisibleArea.h };
+	GFX::rect rect = {
+			fVisibleArea.x + scrollByX,
+			fVisibleArea.y + scrollByY,
+			fVisibleArea.w,
+			fVisibleArea.h
+	};
 	SetViewPort(rect);
 }
 
@@ -442,7 +449,7 @@ Room::_DrawAnimations(GFX::rect area)
 		return;
 
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
-		if (fAnimations[i] != NULL) {
+		if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
 			Frame frame = fAnimations[i]->NextFrame();
 			IE::point center = fAnimations[i]->Position();
 			center = offset_point(center, -frame.rect.w / 2,

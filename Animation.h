@@ -28,6 +28,9 @@ public:
 
 	const char* Name() const;
 
+	bool IsShown() const;
+	void SetShown(const bool show);
+
 	::Frame Frame();
 	void Next();
 	::Frame NextFrame();
@@ -36,6 +39,7 @@ public:
 
 private:
 	BAMResource *fBAM;
+	IE::animation *fAnimation;
 	IE::point fCenter;
 	int16 fCycleNumber;
 	int16 fCurrentFrame;

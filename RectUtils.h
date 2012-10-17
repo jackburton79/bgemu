@@ -34,7 +34,7 @@ rects_intersect(const GFX::rect &rectA, const GFX::rect &rectB)
 
 
 static inline bool
-rect_contains(const GFX::rect& rect, const IE::point point)
+rect_contains(const GFX::rect& rect, const IE::point& point)
 {
 	if (point.x >= rect.x && point.x <= rect.x + rect.w
 		&& point.y >= rect.y && point.y <= rect.y + rect.h)
@@ -42,5 +42,14 @@ rect_contains(const GFX::rect& rect, const IE::point point)
 	return false;
 }
 
+
+static inline bool
+polygon_contains(const IE::polygon& poly, const IE::point& point)
+{
+	if (point.x >= poly.x_min && point.x <= poly.x_max
+			&& point.y >= poly.y_min && point.y <= poly.y_max)
+		return true;
+	return false;
+}
 
 #endif // __RECTUTILS_H

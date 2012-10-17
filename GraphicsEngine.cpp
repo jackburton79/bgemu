@@ -63,7 +63,8 @@ Bitmap*
 GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
 {
 	Bitmap* bitmap = new Bitmap(width, height, depth);
-	// TODO: keep track of it ?
+	bitmap->Acquire();
+
 	return bitmap;
 }
 
@@ -72,8 +73,9 @@ GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
 void
 GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
 {
-	if (bitmap->Release())
+	if (bitmap != NULL && bitmap->Release()) {
 		delete bitmap;
+	}
 }
 
 
@@ -86,6 +88,13 @@ GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
 
 	if (flags & MIRROR_HORIZONTALLY)
 		Graphics::MirrorSDLSurface(bitmap->Surface());
+}
+
+
+void
+GraphicsEngine::SetClipping(const GFX::rect* rect)
+{
+	SDL_SetClipRect(fScreen, (const SDL_Rect*)rect);
 }
 
 
@@ -118,6 +127,14 @@ void
 GraphicsEngine::FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor)
 {
 	SDL_FillRect(bitmap->Surface(), (SDL_Rect*)rect, (Uint8)pixelColor);
+}
+
+
+void
+GraphicsEngine::FillRect(const GFX::rect& rect, uint32 color)
+{
+	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
+	SDL_FillRect(fScreen, &sdlRect, color);
 }
 
 

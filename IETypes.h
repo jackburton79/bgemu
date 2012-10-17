@@ -46,6 +46,7 @@ enum resource_type {
 
 const char *strresource(int type);
 const char *res_extension(int type);
+int res_string_to_type(const char* string);
 
 bool is_tileset(int16 type);
 
@@ -83,6 +84,12 @@ struct rect {
 	int16 y_min;
 	int16 x_max;
 	int16 y_max;
+};
+
+
+struct wall_group {
+	uint16 polygon_index;
+	uint16 polygon_count;
 };
 
 
@@ -126,6 +133,8 @@ struct animation {
 	int8 skip_cycles;
 	res_ref palette;
 	int32 unknown;
+
+	void Print() const;
 } __attribute__((packed));
 
 
@@ -243,6 +252,50 @@ struct variable {
 
 	void Print() const;
 } __attribute__((packed));
+
+
+struct window {
+	uint16 id;
+	uint16 unk;
+	uint16 x;
+	uint16 y;
+	uint16 w;
+	uint16 h;
+	uint16 background;
+	uint16 num_controls;
+	res_ref background_mos;
+	uint16 control_offset;
+	uint16 unk2;
+
+	void Print() const;
+};
+
+
+struct control {
+	uint32 id;
+	uint16 x;
+	uint16 y;
+	uint16 w;
+	uint16 h;
+	uint8 type;
+	uint8 unk;
+} __attribute__((packed));
+
+
+struct button : public control {
+	res_ref image;
+	uint8 cycle;
+	uint8 just_flags;
+	uint8 frame_unpressed;
+	uint8 anchor_x1;
+	uint8 frame_pressed;
+	uint8 anchor_x2;
+	uint8 frame_selected;
+	uint8 anchor_y1;
+	uint8 frame_disabled;
+	uint8 anchor_y2;
+} __attribute__((packed));
+
 
 void check_objects_size();
 

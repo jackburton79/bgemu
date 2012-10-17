@@ -13,6 +13,7 @@
 
 const static uint32 kNumAnimations = 9;
 
+class ActionList;
 class Animation;
 class BCSResource;
 class CREResource;
@@ -25,6 +26,9 @@ public:
 	virtual ~Actor();
 
 	const char *Name() const;
+	CREResource *CRE();
+
+	void Draw(GFX::rect area, Bitmap* heightMap);
 
 	IE::orientation Orientation() const;
 	IE::point Position() const;
@@ -32,9 +36,14 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
-	CREResource *CRE();
+	void SetFlying(bool fly);
+	bool IsFlying() const;
 
-	void Draw(GFX::rect area, Bitmap* heightMap);
+	void SetInterruptable(const bool interrupt);
+	bool IsInterruptable() const;
+
+	Actor* LastAttacker() const;
+	void Attack(Actor* target);
 
 	void MergeScripts();
 	void SetScript(Script *script);
@@ -43,9 +52,12 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
+	::ActionList* ActionList();
+	bool IsActionListEmpty() const;
+
 	bool SkipConditions() const;
 	void StopCheckingConditions();
-	void UpdateMove();
+	void UpdateMove(bool ignoreBlocks);
 
 	// Global list of actors
 	static void Add(Actor *a);
@@ -60,8 +72,14 @@ private:
 	CREResource *fCRE;
 	::Script* fScript;
 	bool fOwnsActor;
+
 	bool fDontCheckConditions;
+	bool fIsInterruptable;
+
+	bool fFlying;
+
 	PathFinder* fPath;
+	Actor* fLastAttacker;
 
 	std::map<std::string, uint32> fVariables;
 
@@ -70,6 +88,11 @@ private:
 	void _Init();
 	void _AddScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
+	bool _IsReachable(const IE::point& pt);
+
+	static void BlitWithMask(Bitmap* source, Bitmap* dest,
+			GFX::rect& rect, IE::polygon& polygonMask);
+
 };
 
 #endif //__ACTOR_H

@@ -22,10 +22,11 @@ struct tileset_info : public base_info
 	uint32 type;
 };
 
+
 class Stream;
 class BIFArchive : public Archive {
 public:
-	BIFArchive(const char *fileName);
+	BIFArchive(const char* fileName);
 	virtual ~BIFArchive();
 
 	virtual void EnumEntries();
@@ -35,15 +36,15 @@ public:
 			const uint16& type);
 
 private:
-	bool GetResourceInfo(resource_info &info,
+	bool _GetResourceInfo(resource_info& info,
 						uint16 index) const;
-	bool GetTilesetInfo(tileset_info &info,
+	bool _GetTilesetInfo(tileset_info& info,
 							uint16 index) const;
 	ssize_t ReadAt(uint32 offset,
-					void *buffer, uint32 size) const;
-	ssize_t _ExtractFileBlock(Stream &source, Stream &dest);
+					void* buffer, uint32 size) const;
+	ssize_t _ExtractFileBlock(Stream& source, Stream& dest);
 
-	Stream *fStream;
+	Stream* fStream;
 
 	uint32 fNumEntries;
 	uint32 fNumTilesetEntries;

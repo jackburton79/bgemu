@@ -9,9 +9,12 @@
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "PathFind.h"
+#include "Polygon.h"
 #include "RectUtils.h"
 #include "ResManager.h"
+#include "Room.h"
 #include "Script.h"
+#include "WedResource.h"
 
 #include <assert.h>
 #include <string>
@@ -27,7 +30,10 @@ Actor::Actor(IE::actor &actor)
 	fScript(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
-	fPath(NULL)
+	fIsInterruptable(true),
+	fFlying(false),
+	fPath(NULL),
+	fLastAttacker(NULL)
 {
 	_Init();
 }
@@ -41,7 +47,9 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fScript(NULL),
 	fOwnsActor(true),
 	fDontCheckConditions(false),
-	fPath(NULL)
+	fFlying(false),
+	fPath(NULL),
+	fLastAttacker(NULL)
 {
 	fActor = new IE::actor;
 	fActor->cre = creName;
@@ -68,6 +76,10 @@ Actor::_Init()
 
 	if (fCRE == NULL)
 		throw "error!!!";
+
+	//printf("%s enum: local %d, global: %d\n", Name(),
+		//	fCRE->LocalActorValue(),
+			//fCRE->GlobalActorValue());
 
 	fActor->script_override = fCRE->OverrideScriptName();
 	fActor->script_class = fCRE->ClassScriptName();
@@ -96,10 +108,6 @@ Actor::_Init()
 		}
 	}
 
-
-	//if (fAnimation != NULL)
-		//fAnimation->fBAM->DumpFrames("/home/stefano/dumps");
-
 	fPath = new PathFinder();
 }
 
@@ -108,9 +116,12 @@ Actor::~Actor()
 {
 	if (fOwnsActor)
 		delete fActor;
+
 	gResManager->ReleaseResource(fCRE);
+
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		delete fAnimations[i];
+	delete fPath;
 }
 
 
@@ -180,6 +191,9 @@ Actor::Draw(GFX::rect area, Bitmap* heightMap)
 
 	if (rects_intersect(area, rect)) {
 		rect = offset_rect(rect, -area.x, -area.y);
+		// TODO: Mask the actor with the polygons
+		//Room::CurrentArea()->GetClipping(rect, )
+
 		GraphicsEngine::Get()->BlitToScreen(image, NULL, &rect);
 	}
 	GraphicsEngine::DeleteBitmap(image);
@@ -212,6 +226,48 @@ Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = point;
 	fPath->SetPoints(fActor->position, point);
+}
+
+
+void
+Actor::SetFlying(bool fly)
+{
+	fFlying = fly;
+}
+
+
+bool
+Actor::IsFlying() const
+{
+	return fFlying;
+}
+
+
+void
+Actor::SetInterruptable(bool interrupt)
+{
+	fIsInterruptable = interrupt;
+}
+
+
+bool
+Actor::IsInterruptable() const
+{
+	return fIsInterruptable;
+}
+
+
+Actor*
+Actor::LastAttacker() const
+{
+	return fLastAttacker;
+}
+
+
+void
+Actor::Attack(Actor* target)
+{
+	target->fLastAttacker = this;
 }
 
 
@@ -292,13 +348,14 @@ Actor::StopCheckingConditions()
 
 
 void
-Actor::UpdateMove()
+Actor::UpdateMove(bool ignoreBlocks)
 {
 	try {
 		if (fActor->position != fActor->destination) {
 			IE::point nextPoint = fPath->NextWayPoint();
 			_SetOrientation(nextPoint);
-			fActor->position = nextPoint;
+			if (ignoreBlocks || _IsReachable(nextPoint))
+				fActor->position = nextPoint;
 		}
 
 		if (fAnimations[fActor->orientation] != NULL)
@@ -339,4 +396,27 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 		newOrientation = IE::ORIENTATION_W;
 
 	fActor->orientation = newOrientation;
+}
+
+
+bool
+Actor::_IsReachable(const IE::point& pt)
+{
+	Room* room = Room::CurrentArea();
+	const uint32 numPol = room->WED()->CountPolygons();
+	for (uint32 i = 0; i < numPol; i++) {
+		Polygon* poly = room->WED()->PolygonAt(i);
+		if (!poly->IsHole() && rect_contains(poly->Frame(), pt))
+			return false;
+	}
+	return true;
+}
+
+
+/* static */
+void
+Actor::BlitWithMask(Bitmap* source,
+		Bitmap* dest, GFX::rect& rect, IE::polygon& polygonMask)
+{
+
 }

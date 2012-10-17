@@ -78,7 +78,8 @@ MovieDecoder::MovieDecoder()
 	fDecodingMap(NULL),
 	fMapSize(0),
 	fNewFrame(NULL),
-	fCurrentFrame(NULL)
+	fCurrentFrame(NULL),
+	fVersion(0)
 {
 	fActiveRect.x = fActiveRect.y = 0;
 	fActiveRect.w = fActiveRect.h = 8;

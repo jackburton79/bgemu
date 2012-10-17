@@ -10,7 +10,6 @@ DirectoryArchive::DirectoryArchive(const char *path)
 {
 	fDir = opendir(path);
 	if (fDir == NULL) {
-		printf("Failed to open directory");
 		throw -1;
 	}
 }

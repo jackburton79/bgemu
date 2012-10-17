@@ -51,7 +51,7 @@ TileCell::Draw(GFX::rect *rect, bool full)
 			if (secondaryIndex != -1)
 				index = secondaryIndex;
 			else
-				printf("TileCell::Draw(): secondary index is -1. BUG?.\n");
+				; //printf("TileCell::Draw(): secondary index is -1. BUG?.\n");
 		}
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
@@ -62,6 +62,7 @@ TileCell::Draw(GFX::rect *rect, bool full)
 			cell = GraphicsEngine::CreateBitmap(64, 64, 8);
 			//SDL_FillRect(cell, NULL, 3000);
 		}
+
 		gResManager->ReleaseResource(tis);
 		Color *color = NULL;
 		if (i == 0 && mask != 0) {

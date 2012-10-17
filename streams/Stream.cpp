@@ -29,7 +29,7 @@ Stream::ReadAt(int pos, void* dst, int size)
 }
 
 
-char *
+char*
 Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 {
 	maxSize--;
@@ -101,7 +101,7 @@ Stream::DumpToFile(const char *fileName)
 		ssize_t read;
 		char buffer[1024];
 		while ((read = Read(buffer, 1024)) > 0)
-			fwrite(buffer, 1024, 1, file);
+			fwrite(buffer, read, 1, file);
 		fclose(file);
 		Seek(oldPos, SEEK_SET);
 	}

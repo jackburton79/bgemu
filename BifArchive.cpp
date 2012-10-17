@@ -52,10 +52,7 @@ BIFArchive::BIFArchive(const char *fileName)
 		fStream->Read(signature, 8);
 	}
 
-	if (!strcmp(signature, BIF_SIGNATURE)) {
-		//cout << "BIFF archive" << endl;
-
-	} else {
+	if (strcmp(signature, BIF_SIGNATURE)) {
 		cout << "Unknown archive" << endl;
 		throw -1;
 	}
@@ -125,21 +122,21 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 	if (!isTileset) {
 		index = RES_BIF_FILE_INDEX(key);
 		resource_info info;
-		if (!GetResourceInfo(info, index))
+		if (!_GetResourceInfo(info, index))
 			return false;
 		size = info.size;
 		offset = info.offset;
 	} else {
 		index = RES_TILESET_INDEX(key);
 		tileset_info info;
-		if (!GetTilesetInfo(info, index))
+		if (!_GetTilesetInfo(info, index))
 			return false;
 		size = info.numTiles * info.tileSize;
 		offset = info.offset;
 	}
 
 	MemoryStream *stream = new MemoryStream(size);
-	ssize_t sizeRead = ReadAt(offset, stream->Data(), size);
+	ssize_t sizeRead = fStream->ReadAt(offset, stream->Data(), size);
 	if (sizeRead < 0 || (size_t)sizeRead != size) {
 		delete stream;
 		return NULL;
@@ -150,7 +147,7 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 
 
 bool
-BIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
+BIFArchive::_GetResourceInfo(resource_info &info, uint16 index) const
 {
 	fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
 			&info, sizeof(resource_info));
@@ -159,19 +156,11 @@ BIFArchive::GetResourceInfo(resource_info &info, uint16 index) const
 
 
 bool
-BIFArchive::GetTilesetInfo(tileset_info &info, uint16 index) const
+BIFArchive::_GetTilesetInfo(tileset_info &info, uint16 index) const
 {
 	fStream->ReadAt(fTileEntriesOffset + index * sizeof(tileset_info),
 			&info, sizeof(tileset_info));
 	return true;
-}
-
-
-ssize_t
-BIFArchive::ReadAt(uint32 offset, void *buffer, uint32 size) const
-{
-	fStream->ReadAt(offset, buffer, size);
-	return size;
 }
 
 

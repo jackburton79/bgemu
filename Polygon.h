@@ -21,7 +21,6 @@ public:
 	IE::point PointAt(int32 i) const;
 	int32 CountPoints() const;
 
-
 	void Print() const;
 
 private:

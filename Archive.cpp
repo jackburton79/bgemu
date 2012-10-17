@@ -11,11 +11,11 @@
 #include <new>
 
 /* static */
-Archive *
+Archive*
 Archive::Create(const char *path)
 {
 	Archive* archive = NULL;
-	const char *ext = extension(path);
+	const char* ext = extension(path);
 	try {
 		if (ext == NULL) { // TODO: Not so nice
 			archive = new DirectoryArchive(path);

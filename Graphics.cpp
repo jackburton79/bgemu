@@ -99,7 +99,7 @@ void
 Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y)
 {
 	const int32 numPoints = polygon.CountPoints();
-	if (numPoints <= 0)
+	if (numPoints <= 2)
 		return;
 
 	uint32 color = SDL_MapRGB(surface->format, 128, 0, 30);
@@ -165,16 +165,22 @@ Bitmap*
 Graphics::ApplyMask(Bitmap* bitmap, Bitmap* mask, uint16 x, uint16 y)
 {
 	SDL_Surface* surface = bitmap->Surface();
-	SDL_LockSurface(surface);
+	uint32 color = SDL_MapRGB(surface->format, 0, 0, 0);
+	uint32 colorKey = SDL_MapRGB(surface->format, 0, 255, 0);
 
+	SDL_SetColorKey(surface, 0, 0);
+	SDL_LockSurface(surface);
 	for (int32 y = 0; y < surface->h; y++) {
-		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		uint8 *pixels = (uint8*)surface->pixels + y * surface->pitch;
 		for (int32 x = 0; x < surface->pitch; x++) {
-			if (*sourcePixels == SDL_MapRGB(surface->format, 0, 0, 0))
-				*sourcePixels = SDL_MapRGB(surface->format, 255, 0, 255);
+			if (*pixels == color)
+				*pixels = colorKey;
+			pixels++;
 		}
 	}
 	SDL_UnlockSurface(surface);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorKey);
+
 
 	return bitmap;
 }

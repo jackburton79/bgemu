@@ -19,6 +19,7 @@ class ARAResource;
 class BAMResource;
 class BCSResource;
 class BMPResource;
+class CHUIResource;
 class CREResource;
 class IDSResource;
 class MOSResource;
@@ -40,6 +41,7 @@ public:
 	BAMResource *GetBAM(const res_ref& name);
 	BCSResource *GetBCS(const res_ref& name);
 	BMPResource *GetBMP(const res_ref& name);
+	CHUIResource* GetCHUI(const res_ref& name);
 	CREResource *GetCRE(const res_ref& name);
 	IDSResource *GetIDS(const res_ref& name);
 	TISResource *GetTIS(const res_ref& name);
@@ -50,14 +52,16 @@ public:
 	WMAPResource* GetWMAP(const res_ref& name);
 
 	void ReleaseResource(Resource *resource);
-	void TryEmptyResourceCache();
+	void TryEmptyResourceCache(bool force = false);
 	
-	void PrintResources();
+	void PrintResources(int32 type = -1);
 	void PrintBIFs();
 	
 	static std::string HeightMapName(const char *name);
 	static std::string LightMapName(const char *name);
 	static std::string SearchMapName(const char *name);
+
+	Resource *_GetResource(const res_ref &name, uint16 type);
 
 private:
 	const char *ResourcesPath() const;
@@ -65,7 +69,6 @@ private:
 
 	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type);
 
-	Resource *_GetResource(const res_ref &name, uint16 type);
 	Resource *_FindResource(KeyResEntry &entry);
 	Resource *_LoadResource(KeyResEntry &entry);
 	Resource* _LoadResourceFromOverride(KeyResEntry& entry);

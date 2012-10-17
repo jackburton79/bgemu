@@ -38,36 +38,9 @@ Object::Name() const
 
 
 bool
-Object::IsActionListEmpty() const
-{
-	return fActions.size() == 0;
-}
-
-
-bool
-Object::AddAction(action_node* act)
-{
-	try {
-		fActions.push_back(act);
-	} catch (...) {
-		return false;
-	}
-
-	return true;
-}
-
-
-bool
 Object::IsVisible() const
 {
 	return fVisible;
-}
-
-
-Object*
-Object::LastAttacker() const
-{
-	return NULL;
 }
 
 
@@ -81,7 +54,7 @@ Object::Update()
 	}
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {
-		actor->UpdateMove();
+		actor->UpdateMove(actor->IsFlying());
 	}
 }
 
@@ -94,18 +67,22 @@ Object::SetScript(Script* script)
 }
 
 
-bool
+static bool
 MatchEA(uint8 toCheck, uint8 target)
 {
 	if (target == 0)
 		return true;
 
+	if (toCheck == target)
+		return true;
+
 	const char* eaString = EAIDS()->ValueFor(target);
+
 	if (strcasecmp(eaString, "GOODCUTOFF") == 0) {
-		if (strncasecmp(EAIDS()->ValueFor(toCheck), "GOOD", 4) == 0)
+		if (toCheck <= target)
 			return true;
 	} else if (strcasecmp(eaString, "EVILCUTOFF") == 0) {
-		if (strncasecmp(EAIDS()->ValueFor(toCheck), "EVIL", 4) == 0)
+		if (toCheck >= target)
 			return true;
 	}
 	return false;
@@ -115,20 +92,19 @@ MatchEA(uint8 toCheck, uint8 target)
 bool
 Object::MatchNode(object_node* node)
 {
-	// TODO:
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor == NULL)
 		return false;
 
 	CREResource* cre = actor->CRE();
-	if ((node->name[0] == '\0' || !strcmp(node->name, actor->Name()))
+	if ((node->name[0] == '\0' || !strcasecmp(node->name, actor->Name()))
 		&& (node->classs == 0 || node->classs == cre->Class())
 		&& (node->race == 0 || node->race == cre->Race())
-		//&& (node->alignment == 0 || node->alignment == cre->)
+		&& (node->alignment == 0 || node->alignment == cre->Alignment())
 		&& (node->gender == 0 || node->gender == cre->Gender())
 		&& (node->general == 0 || node->general == cre->General())
 		&& (node->specific == 0 || node->specific == cre->Specific())
-		&& MatchEA(cre->EnemyAlly(), node->ea))
+		&& MatchEA(node->ea, cre->EnemyAlly()))
 		return true;
 	return false;
 }
@@ -148,7 +124,7 @@ Object::Match(Object* objectA, Object* objectB)
 	if (strcmp(actorA->Name(), actorB->Name()) == 0
 		&& (creA->Class() == creB->Class())
 		&& (creA->Race() == creB->Race())
-		//&& (creA->alignment == creB->)
+		&& (creA->Alignment() == creB->Alignment())
 		&& (creA->Gender() == creB->Gender())
 		&& (creA->General() == creB->General())
 		&& (creA->Specific() == creB->Specific())

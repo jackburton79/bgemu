@@ -45,19 +45,24 @@ public:
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();
+	void ToggleConsole();
 
 	void CreateCreature(const char* name, IE::point where, int face);
 
 	void DrawTile(const int16 tileNum, Bitmap *surface,
 						GFX::rect tileRect, bool withOverlays);
 
-	void DumpOverlays(const char *path);
-
+	//void GetPolygons(GFX::rect, IE::polygon *poly);
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 	static Room* CurrentArea();
 
+	void DumpOverlays(const char *path);
+
 private:
+	void _DrawConsole();
+	GFX::rect _ConsoleRect() const;
+
 	void _DrawBaseMap(GFX::rect area);
 
 	void _DrawLightMap();
@@ -93,6 +98,7 @@ private:
 	bool fDrawOverlays;
 	bool fDrawPolygons;
 	bool fDrawAnimations;
+	bool fShowingConsole;
 };
 
 

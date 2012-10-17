@@ -44,9 +44,30 @@ Core::~Core()
 Core*
 Core::Get()
 {
-	if (sCore == NULL)
-		sCore = new Core();
 	return sCore;
+}
+
+
+bool
+Core::Initialize()
+{
+	if (sCore != NULL)
+		return true;
+
+	try {
+		sCore = new Core();
+	} catch (...) {
+		return false;
+	}
+
+	return true;
+}
+
+
+void
+Core::Destroy()
+{
+	delete sCore;
 }
 
 
@@ -105,7 +126,6 @@ Core::SetVariable(const char* name, int32 value)
 int32
 Core::GetVariable(const char* name)
 {
-	printf("%s %d\n", name, fVariables[name]);
 	return fVariables[name];
 }
 
@@ -113,19 +133,26 @@ Core::GetVariable(const char* name)
 Object*
 Core::GetObject(Object* source, object_node* node)
 {
+	node->Print();
+
 	const char* identifier = ObjectsIDS()->ValueFor(node->identifiers);
-	if (identifier != NULL && !strcasecmp(identifier, "MYSELF"))
+	if (identifier != NULL && !strcasecmp(identifier, "MYSELF")) {
+		std::cout << "Found object (" << source->Name() << ")";
+		std::cout << "(source))!!!" << std::endl;
 		return source;
+	}
 
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
 
-	node->Print();
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
-		if ((*i)->MatchNode(node))
+		if ((*i)->MatchNode(node)) {
+			std::cout << "object matched (" << (*i)->Name();
+			std::cout << ")!!!" << std::endl;
 			return *i;
+		}
 	}
 	return NULL;
 }
@@ -138,8 +165,11 @@ Core::GetObject(const char* name)
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
-		if (!strcmp(name, (*i)->Name()))
+		if (!strcmp(name, (*i)->Name())) {
+			std::cout << "object matched (" << name;
+			std::cout << ")!!!" << std::endl;
 			return *i;
+		}
 	}
 	return NULL;
 }
@@ -149,10 +179,10 @@ void
 Core::PlayMovie(const char* name)
 {
 	MVEResource* resource = gResManager->GetMVE(name);
-	if (resource == NULL)
-		return;
-	resource->Play();
-	gResManager->ReleaseResource(resource);
+	if (resource != NULL) {
+		resource->Play();
+		gResManager->ReleaseResource(resource);
+	}
 }
 
 
@@ -193,6 +223,10 @@ Core::See(Object* source, Object* object)
 	// TODO: improve
 	if (object == NULL)
 		return false;
+
+	std::cout << source->Name() << " SEE ";
+	std::cout << object->Name() << " ?" << std::endl;
+
 	return object->IsVisible();
 }
 
@@ -213,7 +247,9 @@ void
 Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 {
 	// TODO:
-	actor->SetDestination(point);
+	actor->SetFlying(true);
+	if (rect_contains(fCurrentRoom->AreaRect(), point))
+		actor->SetDestination(point);
 }
 
 
@@ -226,6 +262,7 @@ Core::RandomWalk(Actor* actor)
 	IE::point destination = actor->Position();
 	destination.x += randomX;
 	destination.y += randomY;
+	actor->SetFlying(false);
 	if (rect_contains(fCurrentRoom->AreaRect(), destination))
 		actor->SetDestination(destination);
 }

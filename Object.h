@@ -12,7 +12,6 @@
 
 #include <list>
 
-struct action_node;
 struct object_node;
 class Script;
 class Object {
@@ -22,13 +21,8 @@ public:
 
 	const char* Name() const;
 
-	bool AddAction(action_node* act);
-	bool IsActionListEmpty() const;
-
 	bool See(Object* object);
 	bool IsVisible() const;
-
-	Object* LastAttacker() const;
 
 	void Update();
 
@@ -42,8 +36,6 @@ protected:
 	bool fVisible;
 
 	Script* fScript;
-
-	std::list<action_node*> fActions;
 
 	uint16 fTicks;
 };

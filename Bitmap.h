@@ -35,17 +35,18 @@ struct rect {
 };
 
 }
+
+class GraphicsEngine;
 class Bitmap : public Referenceable {
 public:
-	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	Bitmap(SDL_Surface* surface);
-	~Bitmap();
 
 	void SetColors(Color* colors, int start, int num);
 	void SetPalette(const Palette& palette);
-	void SetColorKey(uint32 key);
-	void SetColorKey(uint8 r, uint8 g, uint8 b);
+	void SetColorKey(uint32 key, bool on = true);
+	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
 	void ClearColorKey();
+	void SetAlpha(uint8 alphaValue, bool on = true);
 
 	void* Pixels() const;
 
@@ -56,7 +57,12 @@ public:
 
 	SDL_Surface* Surface();
 private:
+	friend class GraphicsEngine;
+
 	SDL_Surface* fSurface;
+
+	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
+	~Bitmap();
 };
 
 #endif /* SPRITE_H_ */

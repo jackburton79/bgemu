@@ -1,8 +1,10 @@
+#include "2DAResource.h"
 #include "Archive.h"
 #include "AreaResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
 #include "BCSResource.h"
+#include "CHUIResource.h"
 #include "CreResource.h"
 #include "Core.h"
 #include "FileStream.h"
@@ -40,9 +42,6 @@
 #define GET_CD(loc)			((loc) & CD_MASK)
 #define IS_IN_CACHE(loc)	((loc) & CACHE_MASK)
 #define IS_OVERRIDE(loc)	((loc) & OVERRIDE_MASK)
-
-
-using namespace std;
 
 ResourceManager* gResManager = NULL;
 static ResourceManager sManager;
@@ -248,7 +247,7 @@ ResourceManager::~ResourceManager()
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++)
 		delete *it;
 
-	TryEmptyResourceCache();
+	//TryEmptyResourceCache(true);
 
 	archive_map::iterator aIter;
 	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
@@ -297,7 +296,7 @@ ResourceManager::Initialize(const char *path)
 				delete res;
 		}
 	} catch (...) {
-		printf("Error!!!\n");
+		std::cerr << "Error!!!" << std::endl;
 		resourcesOk = false;
 	}
 
@@ -321,8 +320,10 @@ ResourceManager::_LoadIDSResources()
 		//fGame = GAME_BALDURSGATE;
 		sAniSnd = new WriteIDSResource("ANISND");
 		fill_anisnd_ids((WriteIDSResource*)sAniSnd);
-	} else
-		;//fGame = GAME_BALDURSGATE2;
+	} else {
+		//fGame = GAME_BALDURSGATE2;
+		//sAniSnd->DumpToFile("/home/stefano/anisnd.ids");
+	}
 	sGeneral = gResManager->GetIDS("GENERAL");
 	sRaces = gResManager->GetIDS("RACE");
 	sGenders = gResManager->GetIDS("GENDER");
@@ -343,8 +344,9 @@ ResourceManager::_GetResource(const res_ref &name, uint16 type)
 
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
-		printf("ResourceManager::GetResource(%s, %s): Resource does not exist!\n",
-				name.CString(), strresource(type));
+		std::cerr << "ResourceManager::GetResource(";
+		std::cerr << name.CString() << ", " << strresource(type);
+		std::cerr << "): Resource does not exist!" << std::endl;
 		return NULL;
 	}
 
@@ -385,10 +387,10 @@ ResourceManager::GetKEY(const char *name)
 }
 
 
-TLKResource *
-ResourceManager::GetTLK(const char *name)
+TLKResource*
+ResourceManager::GetTLK(const char* name)
 {
-	TLKResource *tlk = NULL;
+	TLKResource* tlk = NULL;
 	try {
 		tlk = new TLKResource("TLK");
 		std::string path = GetFullPath(name, LOC_ROOT);
@@ -432,6 +434,14 @@ ResourceManager::GetBCS(const res_ref& name)
 {
 	Resource* resource = _GetResource(name, RES_BCS);
 	return static_cast<BCSResource*>(resource);
+}
+
+
+CHUIResource*
+ResourceManager::GetCHUI(const res_ref& name)
+{
+	Resource* resource = _GetResource(name, RES_CHU);
+	return static_cast<CHUIResource*>(resource);
 }
 
 
@@ -502,14 +512,15 @@ ResourceManager::ReleaseResource(Resource* resource)
 std::string
 ResourceManager::GetFullPath(std::string name, uint16 location)
 {
-	printf("location: (0x%x)\n", location);
+	std::cout << "location: (" << std::hex << location << ")" << std::endl;
 	TPath pathName(fResourcesPath);
 
 	uint32 cd = GET_CD(location);
 	if ((location & LOC_ROOT) == 0) {
-		if (IS_OVERRIDE(location))
-			printf("\tshould check in override\n");
-		// TODO: this represents the LIST of cd where we can find the resource.
+		//if (IS_OVERRIDE(location))
+		//	printf("\tshould check in override\n");
+		// TODO: this represents the LIST of cd where
+		// we can find the resource.
 		// some resources exist on many cds.
 		if (cd & LOC_CD1)
 			pathName.Append("CD1/");
@@ -523,19 +534,19 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 			pathName.Append("CD5/");
 	}
 
-	printf("CD: 0x%x ", GET_CD(location));
+	//printf("CD: 0x%x ", GET_CD(location));
 	if (cd & LOC_CD1)
-		printf("1 ");
+		std::cout << "1 ";
 	if (cd & LOC_CD2)
-		printf("2 ");
+		std::cout << "2 ";
 	if (cd & LOC_CD3)
-		printf("3 ");
+		std::cout << "3 ";
 	if (cd & LOC_CD4)
-		printf("4 ");
+		std::cout << "4 ";
 	if (cd & LOC_CD5)
-		printf("5");
+		std::cout << "5";
 
-	printf("\n");
+	std::cout << std::endl;
 
 	pathName.Append(name.c_str(), false);
 
@@ -550,27 +561,27 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	const uint16& location = fBifs[bifIndex]->location;
 	const char* archiveName = fBifs[bifIndex]->name;
 
-	printf("ResourceManager::LoadResource(%s, %s)...",
-		entry.name.CString(), strresource(entry.type));
-	printf("(in %s (0x%x))\n", archiveName, location);
+	std::cout << "ResourceManager::LoadResource(";
+	std::cout << entry.name.CString() << ", " << strresource(entry.type);
+	std::cout << ")" << std::endl;
 
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
-		printf("\tArchive wasn't opened. Opening...");
 		std::string fullPath = GetFullPath(archiveName, location);
 		archive = Archive::Create(fullPath.c_str());
+		std::cout << "Opening archive " << fullPath << "...";
 		if (archive == NULL) {
-			printf("FAILED!\n");
+			std::cout << "FAILED!" << std::endl;
 			return NULL;
 		}
-
-        fArchives[archiveName] = archive;
+		std::cout << "OK!" << std::endl;
+		fArchives[archiveName] = archive;
 	}
 
 	Resource *resource = Resource::Create(entry.name, entry.type,
 										entry.key, archive);
 	if (resource == NULL) {
-		printf("FAILED Loading resource!\n");
+		std::cout << "FAILED Loading resource!" << std::endl;
 		delete resource;
 		return NULL;
 	}
@@ -578,8 +589,10 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
-	printf("Resource %s (%s) loaded correctly!\n",
-			entry.name.CString(), strresource(entry.type));
+	std::cout << "Resource " << entry.name.CString();
+	std::cout << " (" << strresource(entry.type) << ") ";
+	std::cout << "loaded correctly!" << std::endl;
+
 	return resource;
 }
 
@@ -606,6 +619,7 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 
 	Archive* dirArchive = Archive::Create(fullPath.c_str());
 
+	std::cout << "Archive created" << std::endl;
 	// TODO: Merge the code with the rest ?
 	if (dirArchive == NULL)
 		return NULL;
@@ -621,24 +635,29 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
-	printf("Resource %s (%s) loaded correctly from override!\n",
-			entry.name.CString(), strresource(entry.type));
+	std::cout << "Resource " << entry.name << "(";
+	std::cout << strresource(entry.type) << ")";
+	std::cout << "loaded correctly from override!" << std::endl;
+
 	delete dirArchive;
 	return resource;
 }
 
 
 void
-ResourceManager::PrintResources()
+ResourceManager::PrintResources(int32 type)
 {
-	printf("Listing %d entries...\n", fResourceMap.size());
+	std::cout << "Listing " << fResourceMap.size();
+	std::cout << " entries..." << std::endl;
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;
-		cout << res->name << " " << strresource(res->type);
-		cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
-		cout << ", index " << RES_BIF_FILE_INDEX(res->key);
-		cout << endl;	
+		if (type == -1 || type == res->type) {
+			std::cout << res->name << " " << strresource(res->type);
+			std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
+			std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
+			std::cout << std::endl;
+		}
 	}
 }
 
@@ -649,8 +668,8 @@ ResourceManager::PrintBIFs()
 	bif_vector::iterator iter;
 	for (iter = fBifs.begin(); iter != fBifs.end(); iter++) {
 		KeyFileEntry *entry = *iter;
-		cout << iter - fBifs.begin() << "\t" << entry->name;
-		cout << "\t" << hex << entry->location << endl;
+		std::cout << iter - fBifs.begin() << "\t" << entry->name;
+		std::cout << "\t" << std::hex << entry->location << endl;
 	}
 }
 
@@ -706,11 +725,11 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
 
 
 void
-ResourceManager::TryEmptyResourceCache()
+ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
-		if ((*it)->RefCount() == 1)
+		if (force || (*it)->RefCount() == 1)
 			it = fCachedResources.erase(it);
 	}
 }
