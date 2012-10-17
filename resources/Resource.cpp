@@ -1,8 +1,10 @@
+#include "2DAResource.h"
 #include "Archive.h"
 #include "AreaResource.h"
 #include "BCSResource.h"
 #include "BamResource.h"
 #include "BmpResource.h"
+#include "CHUIResource.h"
 #include "CreResource.h"
 #include "FileStream.h"
 #include "IDSResource.h"
@@ -21,18 +23,11 @@
 #include <cstdio>
 
 
-bool
-is_tileset(int16 type)
-{
-	return type == RES_TIS;
-}
-
-
 // This function is not thread safe
 const char *
 strresource(int type)
 {
-	static char sTemp[256];
+	static char sTemp[64];
 	switch (type) {
 		case RES_BMP:
 			return "Bitmap (BMP) format";
@@ -96,7 +91,6 @@ Resource::Resource(const res_ref &name, const uint16 &type)
 	fType(type),
 	fName(name)
 {
-
 }
 
 
@@ -142,6 +136,13 @@ Resource::Type() const
 }
 
 
+const char*
+Resource::Name() const
+{
+	return fName.CString();
+}
+
+
 bool
 Resource::CheckSignature(const char *signature, bool dontWorry)
 {
@@ -150,6 +151,8 @@ Resource::CheckSignature(const char *signature, bool dontWorry)
 
 	if (fData->ReadAt(0, array, 4) != 4)
 		return false;
+
+	//printf("Signature: %s\n", array);
 
 	if (strcmp(array, signature) != 0) {
 		if (!dontWorry) {
@@ -171,6 +174,8 @@ Resource::CheckVersion(const char *version, bool dontWorry)
 
 	if (fData->ReadAt(4, array, 4) != 4)
 		return false;
+
+	//printf("version: %s\n", array);
 
 	if (strcmp(array, version) != 0) {
 		if (!dontWorry) {
@@ -220,6 +225,9 @@ Resource::Create(const res_ref &name, uint16 type)
 			case RES_BCS:
 				res = new BCSResource(name);
 				break;
+			case RES_CHU:
+				res = new CHUIResource(name);
+				break;
 			case RES_CRE:
 				res = new CREResource(name);
 				break;
@@ -244,12 +252,16 @@ Resource::Create(const res_ref &name, uint16 type)
 			case RES_MOS:
 				res = new MOSResource(name);
 				break;
+			case RES_2DA:
+				res = new TWODAResource(name);
+				break;
 			default:
-				throw "Unknown resource!";
+				//throw "Unknown resource!";
 				break;
 		}
 	} catch (...) {
 		printf("Resource::Create(): exception thrown!\n");
+		res = NULL;
 	}
 
 	return res;

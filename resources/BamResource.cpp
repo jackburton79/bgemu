@@ -82,7 +82,7 @@ BAMResource::_FindTransparentIndex()
 {
 	for (uint16 i = 0; i < 256; i++) {
 		const Color *color = &fPalette->colors[i];
-		if (color->r == 0 and color->g == 255 and color->b == 0) {
+		if (color->r == 0 && color->g == 255 && color->b == 0) {
 			return i;
 		}
 	}
@@ -92,19 +92,38 @@ BAMResource::_FindTransparentIndex()
 
 
 void
+BAMResource::PrintFrames(uint8 cycleIndex) const
+{
+	::cycle newCycle;
+	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);
+	std::cout << "Cycle " << cycleIndex << ": ";
+	std::cout << newCycle.numFrames << " frames" << std::endl;
+	for (uint16 numFrame = 0; numFrame < newCycle.numFrames; numFrame++) {
+		uint16 index;
+		fData->ReadAt(fFrameLookupOffset
+				+ (newCycle.index + numFrame) * sizeof(int16), index);
+		std::cout << "frame " << numFrame << ": " << index << std::endl;
+	}
+}
+
+
+void
 BAMResource::DumpFrames(const char *filePath)
 {
+	printf("DumpFrames: cycles: %d\n", fNumCycles);
 	for (int32 cycle = 0; cycle < fNumCycles; cycle++) {
+		printf("cycle %d\n", cycle);
+		printf("\tframes: %d\n", fNumFrames);
 		for (int numFrame = 0; numFrame < fNumFrames; numFrame++) {
-			/*SDL_Surface *surface = FrameForCycle(cycle, numFrame).sprite;
+			SDL_Surface *surface = FrameForCycle(cycle, numFrame).bitmap->Surface();
 			TPath path(filePath);
 			char fileName[PATH_MAX];
 			snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
-					(const char *)fName, cycle, numFrame);
+					fName.CString(), cycle, numFrame);
 			path.Append(fileName);
 			printf("save to %s\n", path.Path());
 			SDL_SaveBMP(surface, path.Path());
-			SDL_FreeSurface(surface);*/
+			SDL_FreeSurface(surface);
 		}
 	}
 }
@@ -113,22 +132,27 @@ BAMResource::DumpFrames(const char *filePath)
 Frame
 BAMResource::_FrameAt(uint16 index)
 {
-	//if (fFrames.find(index) != fFrames.end()) {
-	//	return fFrames[index];
-	//}
+	/*if (fFrames.find(index) != fFrames.end()) {
+		fFrames[index].bitmap->Acquire();
+		printf("%s frame %d refcount %d\n", fName.CString(),
+				index, fFrames[index].bitmap->RefCount());
+		return fFrames[index];
+	}*/
 
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	bool frameCompressed = is_frame_compressed(entry.data);
 	
-	Bitmap* surface = GraphicsEngine::CreateBitmap(
+	Bitmap* bitmap = GraphicsEngine::CreateBitmap(
 			entry.width, entry.height, 8);
+	if (bitmap == NULL)
+		throw -1;
 	
 	const uint32 offset = data_offset(entry.data);
 	int decoded = 0;
 	uint8 *destData = new uint8[entry.width * entry.height];
 	if (frameCompressed) {
-		decoded = Graphics::DecodeRLE((uint8 *)(fData->Data()) + offset,
+		decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
 				entry.width * entry.height, destData,
 				fCompressedIndex);
 	} else {
@@ -136,26 +160,28 @@ BAMResource::_FrameAt(uint16 index)
 				entry.width * entry.height, destData);
 	}
 
-	Graphics::DataToBitmap(destData, entry.width, entry.height, surface);
+	Graphics::DataToBitmap(destData, entry.width, entry.height, bitmap);
 
 	delete[] destData;
 	
 	if (decoded != entry.width * entry.height)
 		throw -1;
 	
-	surface->SetPalette(*fPalette);
-	surface->SetColorKey(fCompressedIndex);
+	bitmap->SetPalette(*fPalette);
+	bitmap->SetColorKey(fCompressedIndex, true);
 
 	GFX::rect rect;
-	rect.w = surface->Width();
-	rect.h = surface->Height();
+	rect.w = bitmap->Width();
+	rect.h = bitmap->Height();
 	rect.x = entry.xpos - rect.w / 2;
 	rect.y = entry.ypos - rect.h / 2;
 	
 	Frame frame;
-	frame.bitmap = surface;
+	frame.bitmap = bitmap;
 	frame.rect = rect;
 	
+	//printf("%s putting frame %d into map\n", fName.CString(), index);
+
 	//fFrames[index] = frame;
 
 	return frame;
@@ -166,7 +192,7 @@ Frame
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
 	if (cycleIndex >= fNumCycles) {
-		printf("BAMResource::FrameForCycle(): out of bounds!\n");
+		std::cerr << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
 		throw cycleIndex;
 	}
 

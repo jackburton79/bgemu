@@ -124,6 +124,8 @@ public:
 	uint8 Class();
 	uint8 Specific();
 	uint8 Gender();
+	uint8 Alignment();
+
 	CREColors Colors();
 
 	uint32 Experience();
@@ -137,6 +139,9 @@ public:
 	res_ref RaceScriptName();
 	res_ref GeneralScriptName();
 	res_ref DefaultScriptName();
+
+	uint16 GlobalActorValue();
+	uint16 LocalActorValue();
 
 	const char *DialogFile();
 	const char *DeathVariable();

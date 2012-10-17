@@ -8,6 +8,7 @@
 #ifndef __WMAPRESOURCE_H
 #define __WMAPRESOURCE_H
 
+#include "Frame.h"
 #include "IETypes.h"
 #include "Resource.h"
 
@@ -85,7 +86,6 @@ struct arealink_entry {
 
 class AreaEntry;
 class BAMResource;
-class Frame;
 class WMAPResource : public Resource {
 public:
 	WMAPResource(const res_ref &name);

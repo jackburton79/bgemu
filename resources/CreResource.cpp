@@ -136,6 +136,15 @@ CREResource::Gender()
 }
 
 
+uint8
+CREResource::Alignment()
+{
+	uint8 align;
+	fData->ReadAt(0x27b, align);
+	return align;
+}
+
+
 CREColors
 CREResource::Colors()
 {
@@ -229,7 +238,7 @@ CREResource::GetAttributes(BaseAttributes &attributes)
 }
 
 
-const char *
+const char*
 CREResource::DialogFile()
 {
 	static char temp[10];
@@ -238,9 +247,28 @@ CREResource::DialogFile()
 }
 
 
+uint16
+CREResource::GlobalActorValue()
+{
+	uint16 value;
+	fData->ReadAt(0x27c, &value, sizeof(value));
+	return value;
+}
+
+
+uint16
+CREResource::LocalActorValue()
+{
+	uint16 value;
+	fData->ReadAt(0x27e, &value, sizeof(value));
+	return value;
+}
+
+
 const char*
 CREResource::DeathVariable()
 {
+	// TODO: Fix this, use a std::string ?
 	static char temp[32];
 	fData->ReadAt(0x280, temp, 32);
 	return temp;

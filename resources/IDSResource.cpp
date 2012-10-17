@@ -19,7 +19,6 @@ static const uint8 kEncryptionKey[64] = {
 class EncryptedStream : public MemoryStream {
 public:
 	EncryptedStream(MemoryStream *stream);
-	//virtual ~EncryptedStream();
 	virtual uint8 ReadByte();
 
 private:
@@ -91,7 +90,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 		fMap[id] = finalValue;
 	}
 
-	DropData();
+	//DropData();
 
 	return true;
 }

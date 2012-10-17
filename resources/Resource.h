@@ -6,7 +6,9 @@
 
 #include <Stream.h>
 
+#include <map>
 
+struct res_desc;
 struct res_ref;
 class Archive;
 class MemoryStream;
@@ -22,8 +24,9 @@ public:
 
 	const uint32 Key() const;
 	const uint16 Type() const;
+	const char* Name() const;
 	
-	static Resource *Create(const res_ref &name, uint16 type);
+	static Resource* Create(const res_ref &name, uint16 type);
 	static Resource* Create(const res_ref &name, 	const uint16& type,
 			const uint32& key, Archive* archive);
 	
@@ -33,6 +36,9 @@ protected:
 	
 	bool ReplaceData(MemoryStream *stream);
 	void DropData();
+
+	//static bool InitResourcesDescription();
+	//static std::map<uint16, res_desc> *sResourcesDescription;
 
 	MemoryStream *fData;
 	uint32 fKey;

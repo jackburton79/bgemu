@@ -35,8 +35,9 @@ private:
 	friend class WEDResource;
 };
 
-
+struct Color;
 struct overlay;
+class Door;
 class Polygon;
 class WEDResource : public Resource {
 public:

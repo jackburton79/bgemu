@@ -15,7 +15,6 @@ struct Palette;
 class BAMResource : public Resource {
 public:
 	BAMResource(const res_ref& name);
-
 	~BAMResource();
 	
 	bool Load(Archive *archive, uint32 key);
@@ -25,7 +24,8 @@ public:
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex);
 	uint8 CountCycles() const;
-	
+
+	void PrintFrames(uint8 cycleIndex) const;
 	void DumpFrames(const char *path);
 
 private:
@@ -44,7 +44,7 @@ private:
 	uint8 fCompressedIndex;
 	uint8 fTransparentIndex;
 
-	std::map<uint16, Frame> fFrames;
+	//std::map<uint16, Frame> fFrames;
 };
 
 
