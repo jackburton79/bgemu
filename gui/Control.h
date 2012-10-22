@@ -12,6 +12,7 @@
 
 #include <map>
 
+class Room;
 class Window;
 class Control {
 public:
@@ -35,12 +36,17 @@ public:
 	uint16 Width() const;
 	uint16 Height() const;
 
+	void ConvertFromScreen(IE::point& point);
+
+	void AssociateRoom(Room* room);
+
 	static Control* CreateControl(IE::control* control);
 	static Control* GetByID(uint32 id);
 
 protected:
 	Window* fWindow;
 	IE::control* fControl;
+	Room* fRoom;
 
 	static std::map<uint32, Control*> sControlsMap;
 };

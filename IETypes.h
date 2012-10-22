@@ -271,6 +271,16 @@ struct window {
 };
 
 
+enum control_type {
+	CONTROL_BUTTON = 0,
+	CONTROL_SLIDER = 2,
+	CONTROL_TEXTEDIT = 3,
+	CONTROL_TEXTAREA = 5,
+	CONTROL_LABEL = 6,
+	CONTROL_SCROLLBAR = 7
+};
+
+
 struct control {
 	uint32 id;
 	uint16 x;
@@ -279,6 +289,7 @@ struct control {
 	uint16 h;
 	uint8 type;
 	uint8 unk;
+	void Print() const;
 } __attribute__((packed));
 
 
@@ -294,6 +305,85 @@ struct button : public control {
 	uint8 anchor_y1;
 	uint8 frame_disabled;
 	uint8 anchor_y2;
+
+	void Print() const;
+} __attribute__((packed));
+
+
+struct slider : public control {
+	res_ref background;
+	res_ref knob;
+	int16 cycle;
+	uint8 frame_ungrabbed;
+	uint8 frame_grabbed;
+	uint16 knob_offset_x;
+	uint16 knob_offset_y;
+	uint16 knob_jump_width;
+	uint16 knob_jump_count;
+	uint16 unk1;
+	uint16 unk2;
+	uint16 unk3;
+	uint16 unk4;
+} __attribute__((packed));
+
+
+enum label_flags {
+	LABEL_USE_RGB_COLORS	= 1 << 0,
+	LABEL_JUSTIFY_CENTER	= 1 << 2,
+	LABEL_JUSTIFY_LEFT		= 1 << 3,
+	LABEL_JUSTIFY_RIGHT		= 1 << 4,
+	LABEL_JUSTIFY_TOP		= 1 << 5,
+	LABEL_JUSTIFY_BOTTOM	= 1 << 7
+};
+
+
+struct text_area : public control {
+	uint32 text_ref;
+	res_ref font_bam;
+	res_ref font_initials_bam;
+	uint8 color1_r;
+	uint8 color1_g;
+	uint8 color1_b;
+	uint8 color1_a;
+	uint8 color2_r;
+	uint8 color2_g;
+	uint8 color2_b;
+	uint8 color2_a;
+	uint8 color3_r;
+	uint8 color3_g;
+	uint8 color3_b;
+	uint8 color3_a;
+	uint32 parent_control_id;
+};
+
+
+struct label : public control {
+	uint32 text_ref;
+	res_ref font_bam;
+	uint8 color1_r;
+	uint8 color1_g;
+	uint8 color1_b;
+	uint8 color1_a;
+	uint8 color2_r;
+	uint8 color2_g;
+	uint8 color2_b;
+	uint8 color2_a;
+	uint16 flags;
+	void Print() const;
+} __attribute__((packed));
+
+
+struct scrollbar : public control {
+	res_ref bam;
+	uint16 cycle;
+	uint16 arrow_up_unpressed;
+	uint16 arrow_up_pressed;
+	uint16 arrow_down_unpressed;
+	uint16 arrow_down_pressed;
+	uint16 trough;
+	uint16 slider;
+	uint32 text_area_id;
+	void Print() const;
 } __attribute__((packed));
 
 

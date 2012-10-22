@@ -1,5 +1,7 @@
+#include "BamResource.h"
+#include "GraphicsEngine.h"
 #include "Path.h"
-#include "IETypes.h"
+#include "ResManager.h"
 #include "Utils.h"
 
 #include <assert.h>
@@ -72,11 +74,11 @@ fopen_case(const char* filename, const char* flags)
 		return NULL;
 
 	FILE* handle = fopen(newPath.Path(), flags);
-	if (handle != NULL)
+	/*if (handle != NULL)
 		printf("FOUND!\n");
 	else
 		printf("NOT FOUND!\n");
-
+*/
 	return handle;
 }
 
@@ -103,3 +105,64 @@ extension(const char* path)
 	return point;
 }
 
+
+// TODO: Move RenderString to its own file, or a different file
+static uint32
+cycle_num_for_char(char c)
+{
+	return (int)c - 1;
+}
+
+
+void
+RenderString(std::string string, const res_ref& fontRes,
+		uint32 flags, Bitmap* bitmap)
+{
+	BAMResource* fontResource = gResManager->GetBAM(fontRes);
+	RenderString(string, fontResource, flags, bitmap);
+	gResManager->ReleaseResource(fontResource);
+}
+
+
+void
+RenderString(std::string string, BAMResource* fontResource,
+		uint32 flags, Bitmap* bitmap)
+{
+	Frame* frames = new Frame[string.length()];
+	std::string::iterator i = string.begin();
+	uint32 totalWidth = 0;
+	uint16 maxHeight = 0;
+	int numFrames = 0;
+	while (i != string.end()) {
+		uint32 cycleNum = cycle_num_for_char(*i);
+		frames[numFrames] = fontResource->FrameForCycle(cycleNum, 0);
+		totalWidth += frames[numFrames].rect.w;
+		maxHeight = std::max(frames[numFrames].rect.h, maxHeight);
+		numFrames++;
+		i++;
+	}
+
+	GFX::rect rect = { 0, 0, 0, 0 };
+	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+		rect.y = bitmap->Height() - maxHeight;
+	else if (flags & IE::LABEL_JUSTIFY_TOP)
+		rect.y = 0;
+	else
+		rect.y = (bitmap->Height() - maxHeight) / 2;
+
+	if (flags & IE::LABEL_JUSTIFY_CENTER)
+		rect.x = (bitmap->Width() - totalWidth) / 2;
+	else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+		rect.x = bitmap->Width() - totalWidth;
+
+	for (int f = 0; f < numFrames; f++) {
+		rect.w = frames[f].rect.w;
+		rect.h = frames[f].rect.h;
+
+		GraphicsEngine::BlitBitmap(frames[f].bitmap,
+				NULL, bitmap, &rect);
+		rect.x += frames[f].rect.w;
+		GraphicsEngine::DeleteBitmap(frames[f].bitmap);
+	}
+	delete[] frames;
+}

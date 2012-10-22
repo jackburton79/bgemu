@@ -1,7 +1,8 @@
 #ifndef __REGION_MAP_H
 #define __REGION_MAP_H
 
-#include "SDL.h"
+//#include "SDL.h"
+#include "Bitmap.h"
 #include "IETypes.h"
 #include "Listener.h"
 #include "Object.h"
@@ -12,14 +13,15 @@ class Actor;
 class Animation;
 class ARAResource;
 class AreaEntry;
+class BCSResource;
 class Bitmap;
 class Door;
 class MapOverlay;
 class MOSResource;
 class Script;
 class TileCell;
+class WEDResource;
 class WMAPResource;
-
 class Room : public Object, public Listener {
 public:
 	Room();
@@ -36,11 +38,20 @@ public:
 	void SetViewPort(GFX::rect rect);
 
 	GFX::rect AreaRect() const;
+	void SetAreaOffset(IE::point point);
+
+	void ConvertToArea(GFX::rect& rect);
+	void ConvertToArea(IE::point& point);
+	void ConvertFromArea(GFX::rect& rect);
+	void ConvertFromArea(IE::point& point);
+
+	void ConvertToScreen(IE::point& point);
+	void ConvertToScreen(GFX::rect& rect);
 
 	void Draw(Bitmap *surface);
 	void Clicked(uint16 x, uint16 y);
 	void MouseOver(uint16 x, uint16 y);
-	uint16 TileNumberForPoint(uint16 x, uint16 y);
+	uint16 TileNumberForPoint(const IE::point& point);
 
 	void ToggleOverlays();
 	void TogglePolygons();
@@ -82,7 +93,8 @@ private:
 	void _UnloadWorldMap();
 
 	res_ref fName;
-	GFX::rect fVisibleArea;
+	GFX::rect fViewPort;
+	IE::point fAreaOffset;
 
 	WEDResource *fWed;
 	ARAResource *fArea;

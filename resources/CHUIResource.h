@@ -10,19 +10,11 @@
 
 #include "Resource.h"
 
+struct control;
+struct control_table;
 class Bitmap;
 class CHUIResource;
-class Window {
-public:
-	Window();
-	Bitmap* Background();
-
-private:
-	friend class CHUIResource;
-	Bitmap* fBackground;
-};
-
-
+class Window;
 class CHUIResource: public Resource {
 public:
 	CHUIResource(const res_ref &name);
@@ -35,6 +27,7 @@ public:
 private:
 	virtual bool Load(Archive *archive, uint32 key);
 
+	IE::control* _ReadControl(control_table& table);
 	uint32 fNumWindows;
 	uint32 fControlTableOffset;
 	uint32 fWindowsOffset;

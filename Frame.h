@@ -4,8 +4,10 @@
 #include "Bitmap.h"
 
 struct Frame {
+	Frame();
 	Bitmap *bitmap;
 	GFX::rect rect;
 };
+
 
 #endif // __FRAME_H

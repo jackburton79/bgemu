@@ -313,3 +313,53 @@ window::Print() const
 	if (background)
 		std::cout << "background: " << background_mos << std::endl;
 }
+
+
+void
+control::Print() const
+{
+	std::cout << std::dec;
+	std::cout << "\tid: " << id << std::endl;
+	std::cout << "\tposition: " << x << ", " << y << std::endl;
+	std::cout << "\tsize: " << w << ", " << h << std::endl;
+	std::cout << "\ttype: " << std::dec << (int)type << std::endl;
+	std::cout << "\tunk: " << (int)unk << std::endl;
+}
+
+
+void
+button::Print() const
+{
+	std::cout << "button:" << std::endl;
+	control::Print();
+	std::cout << "\timage: " << image << std::endl;
+	std::cout << "\tcycle: " << (int)cycle << std::endl;
+	std::cout << "\tflags: 0x" << std::hex << (int)just_flags << std::endl;
+	std::cout << std::dec;
+	std::cout << "\tunpressed: " << (int)frame_unpressed << std::endl;
+	std::cout << "\tpressed: " << (int)frame_pressed << std::endl;
+	std::cout << "\tselected: " << (int)frame_selected << std::endl;
+	std::cout << "\tdisabled: " << (int)frame_disabled << std::endl;
+	std::cout << "\tanchors: " << (int)anchor_x1 << ", " << (int)anchor_x2;
+	std::cout << ", " << (int)anchor_y1 << ", " << (int)anchor_y2 << std::endl;
+}
+
+
+void
+label::Print() const
+{
+	std::cout << "label:" << std::endl;
+	control::Print();
+	std::cout << "\tflags: " << std::endl;
+	std::cout << "\tcolor 1: " << (int)color1_r << ", " << (int)color1_g;
+	std::cout << ", " << (int)color1_b << ", " << (int)color1_a << std::endl;
+	std::cout << "\tcolor 2: " << (int)color2_r << ", " << (int)color2_g;
+	std::cout << ", " << (int)color2_b << ", " << (int)color2_a << std::endl;
+	if (flags & LABEL_USE_RGB_COLORS)
+		std::cout << "\tuse_rgb_colos" << std::endl;
+	if (flags & LABEL_JUSTIFY_CENTER)
+		std::cout << "\tcenter" << std::endl;
+	if (flags & LABEL_JUSTIFY_RIGHT)
+		std::cout << "\tright" << std::endl;
+
+}

@@ -1,13 +1,13 @@
 #include "Archive.h"
 #include "Bitmap.h"
-#include "CHUIResource.h"
+#include "Control.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
+#include "GUI.h"
 #include "InputConsole.h"
 #include "OutputConsole.h"
 #include "ResManager.h"
 #include "Room.h"
-#include "Stream.h"
 #include "WorldMap.h"
 #include "WMAPResource.h"
 
@@ -65,17 +65,29 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-
 	if (!GraphicsEngine::Initialize()) {
 		GraphicsEngine::Destroy();
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
 
-
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
+	GUI* gui = new GUI("GUIWMAP");
 	Room *map = new Room();
-	graphicsEngine->AddListener(map);
+
+	Control* control = Control::GetByID(4);
+	if (control == NULL)
+		std::cerr << "NULL control" << std::endl;
+	GFX::rect viewPortRect = {
+			control->Position().x,
+			control->Position().y,
+			control->Width(),
+			control->Height()
+	};
+	map->SetViewPort(viewPortRect);
+
+	control->AssociateRoom(map);
+	//graphicsEngine->AddListener(map);
 
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
@@ -84,12 +96,10 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	graphicsEngine->SetVideoMode(1100, 700, 16, 0);
 	graphicsEngine->SetWindowCaption(map->AreaName().CString());
+	graphicsEngine->SetVideoMode(640, 480, 16, 0);
 
-	CHUIResource* chu = gResManager->GetCHUI("GUIWMAP");
-	Window* window = chu->GetWindow(0);
-	window->Background()->SetColorKey(0);
+	//window->Print();
 
 	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
 	OutputConsole* console = new OutputConsole(consoleRect);
@@ -102,7 +112,7 @@ main(int argc, char **argv)
 	uint16 lastMouseY = 0;
 	uint16 downMouseX = 0;
 	uint16 downMouseY = 0;
-	if (map != NULL) {
+	if (true /*map != NULL*/) {
 		SDL_Event event;
 		bool quitting = false;
 		while (!quitting) {
@@ -111,15 +121,19 @@ main(int argc, char **argv)
 					case SDL_MOUSEBUTTONDOWN:
 						downMouseX = event.button.x;
 						downMouseY = event.button.y;
+						gui->MouseDown(event.button.x, event.button.y);
 						break;
 					case SDL_MOUSEBUTTONUP:
-						if (downMouseX == event.button.x
+						/*if (downMouseX == event.button.x
 							&& downMouseY == event.button.y)
-							map->Clicked(event.button.x, event.button.y);
+							map->Clicked(event.button.x, event.button.y);*/
+						gui->MouseUp(event.button.x, event.button.y);
+
 						break;
 					case SDL_MOUSEMOTION:
 						lastMouseX = event.motion.x;
 						lastMouseY = event.motion.y;
+
 						break;
 					case SDL_KEYDOWN: {
 						/*if (event.key.keysym.sym == SDLK_ESCAPE) {
@@ -133,7 +147,7 @@ main(int argc, char **argv)
 									map->ToggleOverlays();
 									break;
 								*/
-								case SDLK_a:
+								/*case SDLK_a:
 									map->ToggleAnimations();
 									break;
 								case SDLK_p:
@@ -141,7 +155,7 @@ main(int argc, char **argv)
 									break;
 								case SDLK_w:
 									map->LoadWorldMap();
-									break;
+									break;*/
 								case SDLK_q:
 									quitting = true;
 									break;
@@ -162,9 +176,12 @@ main(int argc, char **argv)
 
 			// TODO: When MouseOver() doesn't draw anymore, reorder
 			// these three calls. Draw() should be the last.
+			gui->Draw();
 			map->Draw(NULL);
-			graphicsEngine->BlitToScreen(window->Background(), NULL, NULL);
-			map->MouseOver(lastMouseX, lastMouseY);
+
+			gui->MouseMoved(lastMouseX, lastMouseY);
+
+			//map->MouseOver(lastMouseX, lastMouseY);
 
 			/*console->Draw();
 			inputConsole->Draw();*/
@@ -176,8 +193,8 @@ main(int argc, char **argv)
 		}
 	}
 
-	delete window;
-	gResManager->ReleaseResource(chu);
+	delete gui;
+
 	//delete console;
 	// delete inputConsole;
 	GraphicsEngine::Destroy();

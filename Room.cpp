@@ -74,7 +74,7 @@ Room::WED()
 GFX::rect
 Room::ViewPort() const
 {
-	return fVisibleArea;
+	return fViewPort;
 }
 
 
@@ -83,6 +83,7 @@ Room::LoadArea(const res_ref& areaName)
 {
 	_UnloadWorldMap();
 
+	fAreaOffset.x = fAreaOffset.y = 0;
 	fName = areaName;
 
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
@@ -145,9 +146,10 @@ Room::LoadWorldMap()
 
 	_UnloadArea();
 
+	fAreaOffset.x = fAreaOffset.y = 0;
+
 	Core::Get()->EnteredArea(this, NULL);
 
-	fVisibleArea.x = fVisibleArea.y = 0;
 	fName = "WORLDMAP";
 	fWorldMap = gResManager->GetWMAP(fName);
 
@@ -161,7 +163,9 @@ Room::LoadWorldMap()
 		GFX::rect iconRect = { position.x - iconFrame.rect.w / 2,
 					position.y - iconFrame.rect.h / 2,
 					iconFrame.rect.w, iconFrame.rect.h };
-		GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL, fWorldMapBitmap, &iconRect);
+
+		GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL,
+				fWorldMapBitmap, &iconRect);
 
 	}
 	return true;
@@ -170,6 +174,13 @@ Room::LoadWorldMap()
 
 void
 Room::SetViewPort(GFX::rect rect)
+{
+	fViewPort = rect;
+}
+
+/*
+void
+Room::
 {
 	uint16 areaWidth = 0;
 	uint16 areaHeight = 0;
@@ -186,27 +197,95 @@ Room::SetViewPort(GFX::rect rect)
 		rect.x = 0;
 	if (rect.y < 0)
 		rect.y = 0;
-	if (rect.x + rect.w > areaWidth)
-		rect.x = areaWidth - rect.w;
-	if (rect.y + rect.h > areaHeight)
-		rect.y = areaHeight - rect.h;
+	//if (rect.x + rect.w > areaWidth)
+	//	rect.x = areaWidth - rect.w;
+	//if (rect.y + rect.h > areaHeight)
+	//	rect.y = areaHeight - rect.h;
 
 	rect.x = std::max(rect.x, (sint16)0);
 	rect.y = std::max(rect.y, (sint16)0);
 
-	fVisibleArea = rect;
-}
 
+}
+*/
 
 GFX::rect
 Room::AreaRect() const
 {
 	GFX::rect rect;
 	rect.x = rect.y = 0;
-	rect.w = fOverlays[0]->Width() * TILE_WIDTH;
-	rect.h = fOverlays[0]->Height() * TILE_HEIGHT;
-
+	if (fWorldMap != NULL) {
+		rect.w = fWorldMapBitmap->Width();
+		rect.h = fWorldMapBitmap->Height();
+	} else {
+		rect.w = fOverlays[0]->Width() * TILE_WIDTH;
+		rect.h = fOverlays[0]->Height() * TILE_HEIGHT;
+	}
 	return rect;
+}
+
+
+void
+Room::SetAreaOffset(IE::point point)
+{
+	GFX::rect areaRect = AreaRect();
+	fAreaOffset = point;
+	if (fAreaOffset.x < 0)
+		fAreaOffset.x = 0;
+	else if (fAreaOffset.x + fViewPort.w > areaRect.w)
+		fAreaOffset.x = areaRect.w - fViewPort.w;
+	if (fAreaOffset.y < 0)
+		fAreaOffset.y = 0;
+	else if (fAreaOffset.y + fViewPort.h > areaRect.h)
+		fAreaOffset.y = areaRect.h - fViewPort.h;
+}
+
+
+void
+Room::ConvertToArea(GFX::rect& rect)
+{
+	rect.x += fAreaOffset.x;
+	rect.y += fAreaOffset.y;
+}
+
+
+void
+Room::ConvertToArea(IE::point& point)
+{
+	point.x += fAreaOffset.x;
+	point.y += fAreaOffset.y;
+}
+
+
+void
+Room::ConvertFromArea(GFX::rect& rect)
+{
+	rect.x -= fAreaOffset.x;
+	rect.y -= fAreaOffset.y;
+}
+
+
+void
+Room::ConvertFromArea(IE::point& point)
+{
+	point.x -= fAreaOffset.x;
+	point.y -= fAreaOffset.y;
+}
+
+
+void
+Room::ConvertToScreen(GFX::rect& rect)
+{
+	rect.x += fViewPort.x;
+	rect.y += fViewPort.y;
+}
+
+
+void
+Room::ConvertToScreen(IE::point& point)
+{
+	point.x += fViewPort.x;
+	point.y += fViewPort.y;
 }
 
 
@@ -215,52 +294,58 @@ Room::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
+	gfx->SetClipping(&fViewPort);
+
 	if (fWorldMap != NULL) {
-		gfx->BlitToScreen(fWorldMapBitmap,
-				&fVisibleArea, NULL);
+		GFX::rect sourceRect = offset_rect(fViewPort,
+				-fViewPort.x, -fViewPort.y);
+		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
+		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
 	} else {
-		_DrawBaseMap(fVisibleArea);
+		GFX::rect mapRect = offset_rect(fViewPort, fAreaOffset.x, fAreaOffset.y);
+
+		_DrawBaseMap(mapRect);
 
 		if (fDrawAnimations)
-			_DrawAnimations(fVisibleArea);
+			_DrawAnimations(mapRect);
 
 		if (true)
-			_DrawActors(fVisibleArea);
+			_DrawActors(mapRect);
 
 		if (fDrawPolygons) {
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(offset_rect(poly->Frame(),
-							-fVisibleArea.x, -fVisibleArea.y), fVisibleArea)) {
+							-mapRect.x, -mapRect.y), mapRect)) {
 						Graphics::DrawPolygon(*poly, SDL_GetVideoSurface(),
-								-fVisibleArea.x, -fVisibleArea.y);
+								-mapRect.x, -mapRect.y);
 					}
 				}
 			}
 		}
 	}
+	gfx->SetClipping(NULL);
 }
 
 
 void
 Room::Clicked(uint16 x, uint16 y)
 {
-	x += fVisibleArea.x;
-	y += fVisibleArea.y;
+	IE::point point = {x, y};
+	ConvertToArea(point);
 
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
-			IE::point point = {x, y};
 			if (rect_contains(area.Rect(), point)) {
-				printf("Area long name: %s\n", area.LongName());
+				//printf("Area long name: %s\n", area.LongName());
 				LoadArea(area);
 				break;
 			}
 		}
 	} else {
-		const uint16 tileNum = TileNumberForPoint(x, y);
+		const uint16 tileNum = TileNumberForPoint(point);
 		fTileCells[tileNum]->Clicked();
 	}
 }
@@ -276,46 +361,47 @@ Room::MouseOver(uint16 x, uint16 y)
 	uint16 scrollByY = 0;
 	if (x < kBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x > fVisibleArea.w - kBorderSize)
+	else if (x > fViewPort.w - kBorderSize)
 		scrollByX = kScrollingStep;
 
 	if (y < kBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y > fVisibleArea.h - kBorderSize)
+	else if (y > fViewPort.h - kBorderSize)
 		scrollByY = kScrollingStep;
 
-	x += fVisibleArea.x;
-	y += fVisibleArea.y;
+	IE::point point = { x, y };
+	ConvertToArea(point);
+
 	if (fWed != NULL) {
-		const uint16 tileNum = TileNumberForPoint(x, y);
+		const uint16 tileNum = TileNumberForPoint(point);
 		fTileCells[tileNum]->MouseOver();
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
-			IE::point point = {x, y};
-			if (rect_contains(area.Rect(), point)) {
-				GraphicsEngine::Get()->StrokeRect(area.Rect(), 600);
+			GFX::rect areaRect = area.Rect();
+			if (rect_contains(areaRect, point)) {
+				ConvertFromArea(areaRect);
+				ConvertToScreen(areaRect);
+				GraphicsEngine::Get()->StrokeRect(areaRect, 600);
 				break;
 			}
 		}
 	}
 
-	GFX::rect rect = {
-			fVisibleArea.x + scrollByX,
-			fVisibleArea.y + scrollByY,
-			fVisibleArea.w,
-			fVisibleArea.h
-	};
-	SetViewPort(rect);
+	IE::point newAreaOffset = fAreaOffset;
+	newAreaOffset.x += scrollByX;
+	newAreaOffset.y += scrollByY;
+
+	SetAreaOffset(newAreaOffset);
 }
 
 
 uint16
-Room::TileNumberForPoint(uint16 x, uint16 y)
+Room::TileNumberForPoint(const IE::point& point)
 {
 	const uint16 overlayWidth = fOverlays[0]->Width();
-	const uint16 tileX = x / TILE_WIDTH;
-	const uint16 tileY = y / TILE_HEIGHT;
+	const uint16 tileX = point.x / TILE_WIDTH;
+	const uint16 tileY = point.y / TILE_HEIGHT;
 
 	return tileY * overlayWidth + tileX;
 }
@@ -325,7 +411,6 @@ void
 Room::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
-	// SDL_Flip(SDL_GetVideoSurface());
 }
 
 
@@ -393,6 +478,7 @@ Room::DumpOverlays(const char* path)
 	fDrawOverlays = wasDrawingOverlays;*/
 }
 
+
 /* virtual */
 void
 Room::VideoAreaChanged(uint16 width, uint16 height)
@@ -411,8 +497,10 @@ Room::CurrentArea()
 
 
 void
-Room::_DrawBaseMap(GFX::rect area)
+Room::_DrawBaseMap(GFX::rect _area)
 {
+	GFX::rect area = offset_rect(fViewPort, fAreaOffset.x, fAreaOffset.y);
+
 	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = area.x / TILE_WIDTH;
@@ -434,7 +522,7 @@ Room::_DrawBaseMap(GFX::rect area)
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH;
 			const uint32 tileNum = tileNumY + x;
-			GFX::rect rect = offset_rect(tileRect, -area.x, -area.y);
+			GFX::rect rect = offset_rect(tileRect, -fAreaOffset.x, -fAreaOffset.y);
 			fTileCells[tileNum]->Draw(&rect, fDrawOverlays);
 		}
 		tileRect.y += TILE_HEIGHT;
@@ -465,7 +553,7 @@ Room::_DrawAnimations(GFX::rect area)
 			if (!rects_intersect(area, rect))
 				continue;
 
-			rect = offset_rect(rect, -area.x, -area.y);
+			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
 
 			GraphicsEngine::Get()->BlitToScreen(animImage, NULL, &rect);
 			GraphicsEngine::DeleteBitmap(frame.bitmap);

@@ -36,7 +36,6 @@ MOSResource::MOSResource(const res_ref &name)
 
 MOSResource::~MOSResource()
 {
-	// TODO Auto-generated destructor stub
 }
 
 
@@ -78,7 +77,7 @@ MOSResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(16, fBlockSize);
 	fData->ReadAt(20, fPaletteOffset);
 
-	printf("width: %d, height: %d, columns: %d, rows: %d\n", fWidth, fHeight, fColumns, fRows);
+	//printf("width: %d, height: %d, columns: %d, rows: %d\n", fWidth, fHeight, fColumns, fRows);
 	fTileOffsets = fPaletteOffset + kPaletteDataSize * fColumns * fRows;
 	fPixelDataOffset = fTileOffsets + fColumns * fRows * sizeof(uint32);
 

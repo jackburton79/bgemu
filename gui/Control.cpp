@@ -8,6 +8,7 @@
 #include "Button.h"
 #include "Control.h"
 #include "Label.h"
+#include "Room.h"
 #include "Scrollbar.h"
 #include "Slider.h"
 #include "TextArea.h"
@@ -20,7 +21,8 @@ std::map<uint32, Control*> Control::sControlsMap;
 Control::Control(IE::control* control)
 	:
 	fWindow(NULL),
-	fControl(control)
+	fControl(control),
+	fRoom(NULL)
 {
 	sControlsMap[control->id] = this;
 }
@@ -52,6 +54,11 @@ Control::AttachedToWindow(Window* window)
 void
 Control::MouseMoved(IE::point point, uint32 transit)
 {
+	if (fRoom != NULL) {
+		ConvertFromScreen(point);
+		if (point.x >= 0 && point.y >= 0)
+			fRoom->MouseOver(point.x, point.y);
+	}
 }
 
 
@@ -59,6 +66,11 @@ Control::MouseMoved(IE::point point, uint32 transit)
 void
 Control::MouseDown(IE::point point)
 {
+	if (fRoom != NULL) {
+		ConvertFromScreen(point);
+		if (point.x >= 0 && point.y >= 0)
+			fRoom->Clicked(point.x, point.y);
+	}
 }
 
 
@@ -97,6 +109,21 @@ uint16
 Control::Height() const
 {
 	return fControl->h;
+}
+
+
+void
+Control::ConvertFromScreen(IE::point& point)
+{
+	point.x -= Position().x;
+	point.y -= Position().y;
+}
+
+
+void
+Control::AssociateRoom(Room* room)
+{
+	fRoom = room;
 }
 
 

@@ -58,7 +58,7 @@ TLKResource::CountEntries()
 }
 
 
-TLKEntry *
+TLKEntry*
 TLKResource::EntryAt(int32 index)
 {
 	if (index < 0 || index >= fNumEntries)

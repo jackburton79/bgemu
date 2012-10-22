@@ -61,6 +61,8 @@ Button::Draw()
 void
 Button::MouseMoved(IE::point point, uint32 transit)
 {
+	Control::MouseMoved(point, transit);
+
 	if (transit == Control::MOUSE_ENTER)
 		fSelected = true;
 	else if (transit == Control::MOUSE_EXIT) {
@@ -74,6 +76,7 @@ Button::MouseMoved(IE::point point, uint32 transit)
 void
 Button::MouseDown(IE::point point)
 {
+	Control::MouseDown(point);
 	fPressed = true;
 }
 
@@ -82,5 +85,6 @@ Button::MouseDown(IE::point point)
 void
 Button::MouseUp(IE::point point)
 {
+	Control::MouseUp(point);
 	fPressed = false;
 }

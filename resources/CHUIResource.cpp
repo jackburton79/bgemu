@@ -5,10 +5,15 @@
  *      Author: stefano
  */
 
+#include "Bitmap.h"
 #include "CHUIResource.h"
+#include "Control.h"
 #include "MemoryStream.h"
 #include "MOSResource.h"
 #include "ResManager.h"
+#include "Window.h"
+
+#include "SDL.h"
 
 #define CHU_SIGNATURE "CHUI"
 #define CHU_VERSION_1 "V1  "
@@ -68,12 +73,30 @@ CHUIResource::GetWindow(uint32 num)
 
 	IE::window window;
 	fData->ReadAt(fWindowsOffset + num * sizeof(window), window);
-	Window* newWindow = new Window();
 
+	window.Print();
+
+	Bitmap* background = NULL;
 	if (window.background) {
 		MOSResource* mos = gResManager->GetMOS(window.background_mos);
-		newWindow->fBackground = mos->Image();
+		background = mos->Image();
 		gResManager->ReleaseResource(mos);
+	}
+
+	Window* newWindow = new Window(window.x, window.y,
+				window.w, window.h, background);
+
+	for (uint16 controlIndex = 0;
+			controlIndex < window.num_controls; controlIndex++) {
+		control_table controlTable;
+		fData->ReadAt(fControlTableOffset
+				+ (window.control_offset + controlIndex)
+				* sizeof(controlTable), controlTable);
+
+		IE::control* control = _ReadControl(controlTable);
+		if (control != NULL)
+			newWindow->Add(Control::CreateControl(control));
+
 	}
 	return newWindow;
 }
@@ -85,21 +108,54 @@ CHUIResource::Dump()
 	IE::window window;
 	for (uint32 n = 0; n < fNumWindows; n++) {
 		fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
-		printf("window %d:\n", n);
-		window.Print();
 	}
 }
 
 
-// Window
-Window::Window()
+IE::control*
+CHUIResource::_ReadControl(control_table& controlTable)
 {
+	IE::control baseControl;
+	fData->ReadAt(controlTable.offset, baseControl);
+	switch (baseControl.type) {
+		case IE::CONTROL_BUTTON:
+		{
+			IE::button* newButton = new IE::button;
+			fData->ReadAt(controlTable.offset, *newButton);
+			return newButton;
+		}
+		case IE::CONTROL_LABEL:
+		{
+			IE::label* newLabel = new IE::label;
+			fData->ReadAt(controlTable.offset, *newLabel);
+			return newLabel;
+		}
+		case IE::CONTROL_TEXTAREA:
+		{
+			IE::text_area* textArea = new IE::text_area;
+			fData->ReadAt(controlTable.offset, *textArea);
+			return textArea;
+		}
+		case IE::CONTROL_SLIDER:
+		{
+			IE::slider* slider = new IE::slider;
+			fData->ReadAt(controlTable.offset, *slider);
+			return slider;
+		}
+		case IE::CONTROL_SCROLLBAR:
+		{
+			IE::scrollbar* scrollbar = new IE::scrollbar;
+			fData->ReadAt(controlTable.offset, *scrollbar);
+			return scrollbar;
+		}
+		case IE::CONTROL_TEXTEDIT:
+		default:
+		{
+			/*IE::control* newControl = new IE::control;
+			fData->ReadAt(controlTable.offset, *newControl);
+			return newControl;*/
+			return NULL;
+		}
+	}
 
-}
-
-
-Bitmap*
-Window::Background()
-{
-	return fBackground;
 }
