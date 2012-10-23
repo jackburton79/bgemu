@@ -71,10 +71,12 @@ main(int argc, char **argv)
 		return -1;
 	}
 
+	GUI* gui = GUI::Default();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-	GUI* gui = new GUI("GUIWMAP");
+	gui->Load("GUIWMAP");
 	Room *map = new Room();
 
+	gui->GetWindow(0);
 	Control* control = Control::GetByID(4);
 	if (control == NULL)
 		std::cerr << "NULL control" << std::endl;
@@ -177,11 +179,8 @@ main(int argc, char **argv)
 			// TODO: When MouseOver() doesn't draw anymore, reorder
 			// these three calls. Draw() should be the last.
 			gui->Draw();
-			map->Draw(NULL);
-
 			gui->MouseMoved(lastMouseX, lastMouseY);
 
-			//map->MouseOver(lastMouseX, lastMouseY);
 
 			/*console->Draw();
 			inputConsole->Draw();*/
@@ -192,8 +191,6 @@ main(int argc, char **argv)
 			SDL_Delay(10);
 		}
 	}
-
-	delete gui;
 
 	//delete console;
 	// delete inputConsole;

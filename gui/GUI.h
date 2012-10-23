@@ -16,18 +16,24 @@
 class CHUIResource;
 class GUI {
 public:
-	GUI(const res_ref& name);
+	GUI();
 	~GUI();
 
+	void Load(const res_ref& name);
 	void Draw();
 
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
 	void MouseMoved(int16 x, int16 y);
 
+	void Clear();
+	Window* GetWindow(uint32 id);
+
+	static GUI* Default();
+
 private:
 	CHUIResource* fResource;
-	std::vector<Window*> fWindows;
+	std::vector<Window*> fActiveWindows;
 
 	Window* _GetWindow(IE::point point);
 };

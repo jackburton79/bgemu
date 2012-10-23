@@ -18,12 +18,13 @@ namespace GFX {
 }
 class Window {
 public:
-	Window(int16 xPos, int16 yPos, int16 width, int16 height,
+	Window(uint16 id, int16 xPos, int16 yPos, int16 width, int16 height,
 			Bitmap* background);
 	~Window();
 	void Draw();
 	void Add(Control* control);
 
+	uint16 ID() const;
 	IE::point Position() const;
 	uint16 Width() const;
 	uint16 Height() const;
@@ -40,6 +41,7 @@ public:
 private:
 	Control* _GetControl(IE::point point);
 
+	uint32 fID;
 	Bitmap* fBackground;
 	std::vector<Control*> fControls;
 	IE::point fPosition;

@@ -9,32 +9,36 @@
 #include "GUI.h"
 #include "ResManager.h"
 
+GUI gGUI;
+static GUI* sGUI = NULL;
 
-GUI::GUI(const res_ref& name)
+GUI::GUI()
 {
-	// TODO: There are some cases where there are overlapping windows.
-	// How to handle those cases ?
-	fResource = gResManager->GetCHUI(name);
-	fWindows.push_back(fResource->GetWindow(0));
-	/*for (uint32 i = 0; i < fResource->CountWindows(); i++) {
-		Window* window = fResource->GetWindow(i);
-		fWindows.push_back(window);
-	}*/
+	sGUI = &gGUI;
 }
 
 
 GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
-	fWindows.erase(fWindows.begin(), fWindows.end());
+	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
+}
+
+
+void
+GUI::Load(const res_ref& name)
+{
+	gResManager->ReleaseResource(fResource);
+	Clear();
+	fResource = gResManager->GetCHUI(name);
 }
 
 
 void
 GUI::Draw()
 {
-	std::vector<Window*>::const_iterator i;
-	for (i = fWindows.begin(); i < fWindows.end(); i++) {
+	std::vector<Window*>::const_reverse_iterator i;
+	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		(*i)->Draw();
 	}
 }
@@ -70,11 +74,40 @@ GUI::MouseMoved(int16 x, int16 y)
 }
 
 
+void
+GUI::Clear()
+{
+	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
+}
+
+
+Window*
+GUI::GetWindow(uint32 id)
+{
+	std::vector<Window*>::const_iterator i;
+	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
+		if ((*i)->ID() == id)
+			return *i;
+	}
+	Window* window = fResource->GetWindow(id);
+	fActiveWindows.push_back(window);
+	return window;
+}
+
+
+/* static */
+GUI*
+GUI::Default()
+{
+	return sGUI;
+}
+
+
 Window*
 GUI::_GetWindow(IE::point pt)
 {
 	std::vector<Window*>::const_reverse_iterator i;
-	for (i = fWindows.rbegin(); i < fWindows.rend(); i++) {
+	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		Window* window = (*i);
 		if (pt.x >= window->Position().x
 				&& pt.x <= window->Position().x + window->Width()

@@ -68,8 +68,6 @@ public:
 
 	static Room* CurrentArea();
 
-	void DumpOverlays(const char *path);
-
 private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;

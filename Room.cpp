@@ -5,11 +5,13 @@
 #include "BCSResource.h"
 #include "BmpResource.h"
 #include "Bitmap.h"
+#include "Control.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "GUI.h"
 #include "IDSResource.h"
 #include "MOSResource.h"
 #include "Polygon.h"
@@ -108,6 +110,13 @@ Room::LoadArea(const res_ref& areaName)
 	_LoadActors();
 	_InitDoors();
 
+	GUI::Default()->Clear();
+	GUI::Default()->Load("GUIBASE");
+	GUI::Default()->GetWindow(0);
+	GUI::Default()->GetWindow(1);
+
+	Control::GetByID(4)->AssociateRoom(this);
+
 	Core::Get()->EnteredArea(this, roomScript);
 
 	delete roomScript;
@@ -178,36 +187,6 @@ Room::SetViewPort(GFX::rect rect)
 	fViewPort = rect;
 }
 
-/*
-void
-Room::
-{
-	uint16 areaWidth = 0;
-	uint16 areaHeight = 0;
-
-	if (fWed != NULL) {
-		areaWidth = fOverlays[0]->Width() * TILE_WIDTH;
-		areaHeight = fOverlays[0]->Height() * TILE_HEIGHT;
-	} else if (fWorldMapBitmap != NULL ){
-		areaWidth = fWorldMapBitmap->Width();
-		areaHeight = fWorldMapBitmap->Height();
-	}
-
-	if (rect.x < 0)
-		rect.x = 0;
-	if (rect.y < 0)
-		rect.y = 0;
-	//if (rect.x + rect.w > areaWidth)
-	//	rect.x = areaWidth - rect.w;
-	//if (rect.y + rect.h > areaHeight)
-	//	rect.y = areaHeight - rect.h;
-
-	rect.x = std::max(rect.x, (sint16)0);
-	rect.y = std::max(rect.y, (sint16)0);
-
-
-}
-*/
 
 GFX::rect
 Room::AreaRect() const
@@ -428,57 +407,6 @@ Room::ToggleAnimations()
 }
 
 
-void
-Room::DumpOverlays(const char* path)
-{
-	// TODO: Code duplication with _DrawBaseMap().
-	// Make it safe to be called from here.
-	/*const bool wasDrawingOverlays = fDrawOverlays;
-
-	for (uint32 overlayNum = 0; overlayNum < fOverlays.size(); overlayNum++) {
-		MapOverlay *overlay = fOverlays[overlayNum];
-		if (overlay->Width() == 0 || overlay->Height() == 0)
-			continue;
-
-		MapOverlay** overlays = &overlay;
-
-		char fileName[32];
-		snprintf(fileName, 32, "overlay%d.bmp", overlayNum);
-		TPath destPath(path, fileName);
-		SDL_Surface *surface = SDL_CreateRGBSurface(SDL_SWSURFACE,
-				overlay->Width() * TILE_WIDTH, overlay->Height() * TILE_HEIGHT, 24, 0, 0, 0, 0);
-
-		SDL_Rect area;
-		area.x = area.y = 0;
-		area.w = surface->w;
-		area.h = surface->h;
-
-		const uint16 firstTileX = area.x / TILE_WIDTH;
-		const uint16 firstTileY = area.y / TILE_HEIGHT;
-		uint16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
-		uint16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
-
-		lastTileX = std::min(lastTileX, overlay->Width());
-		lastTileY = std::min(lastTileY, overlay->Height());
-
-		SDL_Rect tileRect = { 0, 0, TILE_WIDTH, TILE_HEIGHT };
-		for (uint16 y = firstTileY; y < lastTileY; y++) {
-			tileRect.y = y * TILE_HEIGHT;
-			for (uint16 x = firstTileX; x < lastTileX; x++) {
-				tileRect.x = x * TILE_WIDTH;
-				const uint32 tileNum = y * overlay->Width() + x;
-				SDL_Rect rect = offset_rect(tileRect, -area.x, -area.y);
-				TileCell cell(tileNum, overlays, 1);
-				cell.Draw(surface, &rect, false);
-			}
-		}
-		SDL_SaveBMP(surface, destPath.Path());
-		SDL_FreeSurface(surface);
-	}
-	fDrawOverlays = wasDrawingOverlays;*/
-}
-
-
 /* virtual */
 void
 Room::VideoAreaChanged(uint16 width, uint16 height)
@@ -497,10 +425,10 @@ Room::CurrentArea()
 
 
 void
-Room::_DrawBaseMap(GFX::rect _area)
+Room::_DrawBaseMap(GFX::rect unused)
 {
 	GFX::rect area = offset_rect(fViewPort, fAreaOffset.x, fAreaOffset.y);
-
+	//area = offset_rect(fViewPort, -fViewPort.x, -fViewPort.y);
 	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = area.x / TILE_WIDTH;

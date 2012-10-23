@@ -12,9 +12,11 @@
 
 
 // Window
-Window::Window(int16 xPos, int16 yPos, int16 width, int16 height,
+Window::Window(uint16 id, int16 xPos, int16 yPos,
+		int16 width, int16 height,
 		Bitmap* background)
 	:
+	fID(id),
 	fBackground(background),
 	fWidth(width),
 	fHeight(height),
@@ -39,6 +41,13 @@ Window::Add(Control* control)
 		fControls.push_back(control);
 		control->AttachedToWindow(this);
 	}
+}
+
+
+uint16
+Window::ID() const
+{
+	return fID;
 }
 
 

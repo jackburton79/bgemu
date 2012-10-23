@@ -83,7 +83,7 @@ CHUIResource::GetWindow(uint32 num)
 		gResManager->ReleaseResource(mos);
 	}
 
-	Window* newWindow = new Window(window.x, window.y,
+	Window* newWindow = new Window(window.id, window.x, window.y,
 				window.w, window.h, background);
 
 	for (uint16 controlIndex = 0;

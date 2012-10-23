@@ -54,6 +54,8 @@ Button::Draw()
 		GraphicsEngine::Get()->BlitToScreen(frame.bitmap, NULL, &destRect);
 		GraphicsEngine::DeleteBitmap(frame.bitmap);
 	}
+
+	Control::Draw();
 }
 
 
