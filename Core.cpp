@@ -217,6 +217,67 @@ Core::UpdateLogic()
 }
 
 
+void
+Core::ControlInvoked(uint32 controlID, uint16 windowID)
+{
+	Room* room = Room::CurrentArea();
+	switch (windowID) {
+		case 0:
+			switch (controlID) {
+				case 1:
+				{
+					IE::point point;
+					room->GetAreaOffset(point);
+					point.y -= 20;
+					room->SetAreaOffset(point);
+					break;
+				}
+				case 2:
+				{
+					IE::point point;
+					room->GetAreaOffset(point);
+					point.y += 20;
+					room->SetAreaOffset(point);
+					break;
+				}
+				case 10:
+				{
+					IE::point point;
+					room->GetAreaOffset(point);
+					point.x -= 20;
+					room->SetAreaOffset(point);
+					break;
+				}
+				case 12:
+				{
+					IE::point point;
+					room->GetAreaOffset(point);
+					point.x += 20;
+					room->SetAreaOffset(point);
+					break;
+				}
+				default:
+					break;
+			}
+		case 2:
+			switch (controlID) {
+				case 1:
+					room->LoadWorldMap();
+					break;
+				default:
+					std::cout << "window " << std::dec << windowID << ",";
+					std::cout << "control " << controlID << std::endl;
+					break;
+			}
+			break;
+		default:
+			std::cout << "window " << std::dec << windowID << ",";
+			std::cout << "control " << controlID << std::endl;
+			break;
+	}
+}
+
+
 bool
 Core::See(Object* source, Object* object)
 {

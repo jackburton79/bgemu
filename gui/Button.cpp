@@ -20,7 +20,6 @@ Button::Button(IE::button* button)
 	fSelected(false),
 	fPressed(false)
 {
-	button->Print();
 	fResource = gResManager->GetBAM(button->image);
 }
 
@@ -88,5 +87,6 @@ void
 Button::MouseUp(IE::point point)
 {
 	Control::MouseUp(point);
+	Invoke();
 	fPressed = false;
 }

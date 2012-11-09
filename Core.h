@@ -52,6 +52,9 @@ public:
 	void CheckScripts();
 	void UpdateLogic();
 
+	void ControlInvoked(uint32 controlID, uint16 windowID);
+
+	// Actions/Triggers
 	bool See(Object* source, Object* target);
 
 	void RandomFly(Actor* actor);

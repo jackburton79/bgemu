@@ -40,3 +40,11 @@ TextArea::Draw()
 	destRect.y = fWindow->Position().y + fControl->y;
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
 }
+
+
+/* virtual */
+void
+TextArea::MouseDown(IE::point point)
+{
+	Invoke();
+}

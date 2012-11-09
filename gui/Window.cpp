@@ -72,6 +72,19 @@ Window::Height() const
 }
 
 
+Control*
+Window::GetControlByID(uint32 id) const
+{
+	std::vector<Control*>::const_iterator i;
+	for (i = fControls.begin(); i != fControls.end(); i++) {
+		Control* control = (*i);
+		if (id == control->ID())
+			return control;
+	}
+	return NULL;
+}
+
+
 void
 Window::MouseDown(IE::point point)
 {
@@ -161,7 +174,7 @@ Window::Print() const
 	std::cout << "Window controls:" << std::endl;
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
-		//(*i)->Print();
+		(*i)->Print();
 	}
 }
 

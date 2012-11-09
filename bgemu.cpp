@@ -73,23 +73,8 @@ main(int argc, char **argv)
 
 	GUI* gui = GUI::Default();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-	gui->Load("GUIWMAP");
+
 	Room *map = new Room();
-
-	gui->GetWindow(0);
-	Control* control = Control::GetByID(4);
-	if (control == NULL)
-		std::cerr << "NULL control" << std::endl;
-	GFX::rect viewPortRect = {
-			control->Position().x,
-			control->Position().y,
-			control->Width(),
-			control->Height()
-	};
-	map->SetViewPort(viewPortRect);
-
-	control->AssociateRoom(map);
-	//graphicsEngine->AddListener(map);
 
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
@@ -100,8 +85,6 @@ main(int argc, char **argv)
 
 	graphicsEngine->SetWindowCaption(map->AreaName().CString());
 	graphicsEngine->SetVideoMode(640, 480, 16, 0);
-
-	//window->Print();
 
 	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
 	OutputConsole* console = new OutputConsole(consoleRect);
@@ -114,7 +97,7 @@ main(int argc, char **argv)
 	uint16 lastMouseY = 0;
 	uint16 downMouseX = 0;
 	uint16 downMouseY = 0;
-	if (true /*map != NULL*/) {
+	if (map != NULL) {
 		SDL_Event event;
 		bool quitting = false;
 		while (!quitting) {
@@ -149,7 +132,7 @@ main(int argc, char **argv)
 									map->ToggleOverlays();
 									break;
 								*/
-								/*case SDLK_a:
+								case SDLK_a:
 									map->ToggleAnimations();
 									break;
 								case SDLK_p:
@@ -157,7 +140,7 @@ main(int argc, char **argv)
 									break;
 								case SDLK_w:
 									map->LoadWorldMap();
-									break;*/
+									break;
 								case SDLK_q:
 									quitting = true;
 									break;
@@ -179,6 +162,9 @@ main(int argc, char **argv)
 			// TODO: When MouseOver() doesn't draw anymore, reorder
 			// these three calls. Draw() should be the last.
 			gui->Draw();
+
+			// TODO: needs to be called at every loop, not only when the mouse
+			// is moved
 			gui->MouseMoved(lastMouseX, lastMouseY);
 
 

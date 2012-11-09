@@ -29,6 +29,8 @@ public:
 	uint16 Width() const;
 	uint16 Height() const;
 
+	Control* GetControlByID(uint32 id) const;
+
 	void MouseDown(IE::point point);
 	void MouseUp(IE::point point);
 	void MouseMoved(IE::point point);

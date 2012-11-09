@@ -8,11 +8,15 @@
 #include "CHUIResource.h"
 #include "GUI.h"
 #include "ResManager.h"
+#include "Room.h"
 
 GUI gGUI;
 static GUI* sGUI = NULL;
 
+
 GUI::GUI()
+	:
+	fResource(NULL)
 {
 	sGUI = &gGUI;
 }
@@ -37,6 +41,8 @@ GUI::Load(const res_ref& name)
 void
 GUI::Draw()
 {
+	//Room::CurrentArea()->Draw(NULL);
+
 	std::vector<Window*>::const_reverse_iterator i;
 	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		(*i)->Draw();
@@ -51,6 +57,8 @@ GUI::MouseDown(int16 x, int16 y)
 	Window* window = _GetWindow(point);
 	if (window != NULL)
 		window->MouseDown(point);
+	/*else
+		Room::CurrentArea()->Clicked(x, y);*/
 }
 
 
@@ -71,6 +79,8 @@ GUI::MouseMoved(int16 x, int16 y)
 	Window* window = _GetWindow(point);
 	if (window != NULL)
 		window->MouseMoved(point);
+	/*else
+		Room::CurrentArea()->MouseOver(x, y);*/
 }
 
 
@@ -90,7 +100,9 @@ GUI::GetWindow(uint32 id)
 			return *i;
 	}
 	Window* window = fResource->GetWindow(id);
-	fActiveWindows.push_back(window);
+	if (window != NULL)
+		fActiveWindows.push_back(window);
+	window->Print();
 	return window;
 }
 

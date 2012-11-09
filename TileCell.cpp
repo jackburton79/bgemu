@@ -21,17 +21,17 @@ TileCell::TileCell(uint32 number, MapOverlay** overlays, int numOverlays)
 
 
 void
-_DrawOverlay(Bitmap *cell, GFX::rect rect, Color *color)
+_DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, Color *color)
 {
 	if (color)
 		cell->SetColorKey(color->r, color->g, color->b);
 
-	GraphicsEngine::Get()->BlitToScreen(cell, NULL, &rect);
+	GraphicsEngine::Get()->BlitBitmap(cell, NULL, dest, &rect);
 }
 
 
 void
-TileCell::Draw(GFX::rect *rect, bool full)
+TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 {
 	int maxOverlay = full ? fNumOverlays : 1;
 
@@ -70,7 +70,7 @@ TileCell::Draw(GFX::rect *rect, bool full)
 			//color = &cell->format->palette->colors[255];
 		}
 
-		_DrawOverlay(cell, *rect, color);
+		_DrawOverlay(bitmap, cell, *rect, color);
 
 		GraphicsEngine::DeleteBitmap(cell);
 	}

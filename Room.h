@@ -1,7 +1,6 @@
 #ifndef __REGION_MAP_H
 #define __REGION_MAP_H
 
-//#include "SDL.h"
 #include "Bitmap.h"
 #include "IETypes.h"
 #include "Listener.h"
@@ -38,6 +37,7 @@ public:
 	void SetViewPort(GFX::rect rect);
 
 	GFX::rect AreaRect() const;
+	void GetAreaOffset(IE::point& point);
 	void SetAreaOffset(IE::point point);
 
 	void ConvertToArea(GFX::rect& rect);
@@ -72,6 +72,7 @@ private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
+	void _InitBitmap(GFX::rect area);
 	void _DrawBaseMap(GFX::rect area);
 
 	void _DrawLightMap();
@@ -100,6 +101,7 @@ private:
 	WMAPResource* fWorldMap;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
+	Bitmap* fBackBitmap;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;

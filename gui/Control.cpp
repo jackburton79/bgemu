@@ -7,15 +7,13 @@
 
 #include "Button.h"
 #include "Control.h"
+#include "Core.h"
 #include "Label.h"
 #include "Room.h"
 #include "Scrollbar.h"
 #include "Slider.h"
 #include "TextArea.h"
 #include "Window.h"
-
-std::map<uint32, Control*> Control::sControlsMap;
-
 
 
 Control::Control(IE::control* control)
@@ -24,14 +22,19 @@ Control::Control(IE::control* control)
 	fControl(control),
 	fRoom(NULL)
 {
-	sControlsMap[control->id] = this;
 }
 
 
 Control::~Control()
 {
-	sControlsMap[fControl->id] = NULL;
 	delete fControl;
+}
+
+
+uint32
+Control::ID() const
+{
+	return fControl->id;
 }
 
 
@@ -83,6 +86,13 @@ Control::MouseUp(IE::point point)
 }
 
 
+void
+Control::Invoke()
+{
+	Core::Get()->ControlInvoked(ID(), fWindow->ID());
+}
+
+
 IE::point
 Control::Position() const
 {
@@ -117,8 +127,8 @@ Control::Height() const
 void
 Control::ConvertFromScreen(IE::point& point)
 {
-	point.x -= Position().x;
-	point.y -= Position().y;
+	point.x -= Position().x ;
+	point.y -= Position().y ;
 }
 
 
@@ -126,6 +136,22 @@ void
 Control::AssociateRoom(Room* room)
 {
 	fRoom = room;
+
+	GFX::rect viewPortRect = {
+		Position().x + fWindow->Position().x,
+		Position().y + fWindow->Position().y,
+		Width(),
+		Height()
+	};
+
+	room->SetViewPort(viewPortRect);
+}
+
+
+void
+Control::Print() const
+{
+	fControl->Print();
 }
 
 
@@ -151,8 +177,8 @@ Control::CreateControl(IE::control* control)
 
 
 /* static */
-Control*
+/*Control*
 Control::GetByID(uint32 id)
 {
 	return sControlsMap[id];
-}
+}*/

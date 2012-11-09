@@ -25,11 +25,15 @@ public:
 	Control(IE::control* control);
 	virtual ~Control();
 
+	uint32 ID() const;
+
 	virtual void Draw();
 	virtual void AttachedToWindow(Window* window);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);
+
+	void Invoke();
 
 	IE::point Position() const;
 	IE::point ScreenPosition() const;
@@ -39,16 +43,14 @@ public:
 	void ConvertFromScreen(IE::point& point);
 
 	void AssociateRoom(Room* room);
+	void Print() const;
 
 	static Control* CreateControl(IE::control* control);
-	static Control* GetByID(uint32 id);
 
 protected:
 	Window* fWindow;
 	IE::control* fControl;
 	Room* fRoom;
-
-	static std::map<uint32, Control*> sControlsMap;
 };
 
 #endif /* CONTROL_H_ */

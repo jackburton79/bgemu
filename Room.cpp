@@ -42,6 +42,7 @@ Room::Room()
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
+	fBackBitmap(NULL),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
 	fDrawAnimations(true),
@@ -56,6 +57,7 @@ Room::~Room()
 	// TODO: Delete various tilecells, overlays, animations
 	_UnloadArea();
 	_UnloadWorldMap();
+	GraphicsEngine::DeleteBitmap(fBackBitmap);
 }
 
 
@@ -103,6 +105,16 @@ Room::LoadArea(const res_ref& areaName)
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
+	GUI::Default()->Clear();
+	GUI::Default()->Load("GUIMAP");
+	GUI::Default()->GetWindow(0);
+	GUI::Default()->GetWindow(1);
+	Window* window = GUI::Default()->GetWindow(2);
+	//GUI::Default()->GetWindow(3);
+	//GUI::Default()->GetWindow(4);
+
+	window->GetControlByID(2)->AssociateRoom(this);
+
 	_LoadOverlays();
 	_InitTileCells();
 	_InitVariables();
@@ -110,12 +122,7 @@ Room::LoadArea(const res_ref& areaName)
 	_LoadActors();
 	_InitDoors();
 
-	GUI::Default()->Clear();
-	GUI::Default()->Load("GUIBASE");
-	GUI::Default()->GetWindow(0);
-	GUI::Default()->GetWindow(1);
-
-	Control::GetByID(4)->AssociateRoom(this);
+	_InitBitmap(fViewPort);
 
 	Core::Get()->EnteredArea(this, roomScript);
 
@@ -149,6 +156,16 @@ Room::LoadArea(AreaEntry& area)
 bool
 Room::LoadWorldMap()
 {
+	GUI* gui = GUI::Default();
+
+	gui->Clear();
+	gui->Load("GUIWMAP");
+
+	Window* window = gui->GetWindow(0);
+
+	Control* control = window->GetControlByID(4);
+	control->AssociateRoom(this);
+
 	// TODO: _UnloadActors/Doors() (if needed)
 	if (fWorldMap != NULL)
 		return true;
@@ -201,6 +218,13 @@ Room::AreaRect() const
 		rect.h = fOverlays[0]->Height() * TILE_HEIGHT;
 	}
 	return rect;
+}
+
+
+void
+Room::GetAreaOffset(IE::point& point)
+{
+	point = fAreaOffset;
 }
 
 
@@ -273,7 +297,7 @@ Room::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
-	gfx->SetClipping(&fViewPort);
+	//gfx->SetClipping(&fViewPort);
 
 	if (fWorldMap != NULL) {
 		GFX::rect sourceRect = offset_rect(fViewPort,
@@ -281,15 +305,15 @@ Room::Draw(Bitmap *surface)
 		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
 		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
 	} else {
-		GFX::rect mapRect = offset_rect(fViewPort, fAreaOffset.x, fAreaOffset.y);
+		GFX::rect mapRect = fViewPort;
 
 		_DrawBaseMap(mapRect);
 
-		if (fDrawAnimations)
-			_DrawAnimations(mapRect);
+		//if (fDrawAnimations)
+			//_DrawAnimations(mapRect);
 
-		if (true)
-			_DrawActors(mapRect);
+		//if (true)
+			//_DrawActors(mapRect);
 
 		if (fDrawPolygons) {
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
@@ -303,8 +327,10 @@ Room::Draw(Bitmap *surface)
 				}
 			}
 		}
+
+		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 	}
-	gfx->SetClipping(NULL);
+	//gfx->SetClipping(NULL);
 }
 
 
@@ -318,7 +344,6 @@ Room::Clicked(uint16 x, uint16 y)
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			if (rect_contains(area.Rect(), point)) {
-				//printf("Area long name: %s\n", area.LongName());
 				LoadArea(area);
 				break;
 			}
@@ -333,19 +358,19 @@ Room::Clicked(uint16 x, uint16 y)
 void
 Room::MouseOver(uint16 x, uint16 y)
 {
-	const uint16 kBorderSize = 15;
+	const uint16 kBorderSize = 20;
 	const uint16 kScrollingStep = 30;
 
 	uint16 scrollByX = 0;
 	uint16 scrollByY = 0;
-	if (x < kBorderSize)
+	if (x <= kBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x > fViewPort.w - kBorderSize)
+	else if (x >= fViewPort.w - kBorderSize)
 		scrollByX = kScrollingStep;
 
-	if (y < kBorderSize)
+	if (y <= kBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y > fViewPort.h - kBorderSize)
+	else if (y >= fViewPort.h - kBorderSize)
 		scrollByY = kScrollingStep;
 
 	IE::point point = { x, y };
@@ -353,6 +378,7 @@ Room::MouseOver(uint16 x, uint16 y)
 
 	if (fWed != NULL) {
 		const uint16 tileNum = TileNumberForPoint(point);
+
 		fTileCells[tileNum]->MouseOver();
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
@@ -425,23 +451,31 @@ Room::CurrentArea()
 
 
 void
+Room::_InitBitmap(GFX::rect area)
+{
+	GraphicsEngine::DeleteBitmap(fBackBitmap);
+	fBackBitmap = GraphicsEngine::CreateBitmap(area.w, area.h, 16);
+}
+
+
+void
 Room::_DrawBaseMap(GFX::rect unused)
 {
-	GFX::rect area = offset_rect(fViewPort, fAreaOffset.x, fAreaOffset.y);
-	//area = offset_rect(fViewPort, -fViewPort.x, -fViewPort.y);
+	GFX::rect area = fViewPort;
+	area.x = area.y = 0;
+
 	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
-	const uint16 firstTileX = area.x / TILE_WIDTH;
-	const uint16 firstTileY = area.y / TILE_HEIGHT;
-	uint16 lastTileX = 1 + (area.x + area.w) / TILE_WIDTH;
-	uint16 lastTileY = 1 + (area.y + area.h) / TILE_HEIGHT;
+	const uint16 firstTileX = fAreaOffset.x / TILE_WIDTH;
+	const uint16 firstTileY = fAreaOffset.y / TILE_HEIGHT;
+	uint16 lastTileX = firstTileX + (area.w / TILE_WIDTH) + 1;
+	uint16 lastTileY = firstTileY + (area.h / TILE_HEIGHT) + 1;
 
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
 	GFX::rect tileRect = {
-			firstTileX * TILE_WIDTH,
-			firstTileY * TILE_HEIGHT,
+			0, 0,
 			TILE_WIDTH,
 			TILE_HEIGHT
 	};
@@ -450,8 +484,9 @@ Room::_DrawBaseMap(GFX::rect unused)
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH;
 			const uint32 tileNum = tileNumY + x;
-			GFX::rect rect = offset_rect(tileRect, -fAreaOffset.x, -fAreaOffset.y);
-			fTileCells[tileNum]->Draw(&rect, fDrawOverlays);
+			// TODO: Why only x offset ?!?
+			GFX::rect destRect = offset_rect(tileRect, 0, 0);
+			fTileCells[tileNum]->Draw(fBackBitmap, &destRect, fDrawOverlays);
 		}
 		tileRect.y += TILE_HEIGHT;
 	}
