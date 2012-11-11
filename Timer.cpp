@@ -12,6 +12,8 @@
 std::map<int32, Timer*> Timer::sTimers;
 
 Timer::Timer()
+	:
+	fExpiration(-1)
 {
 }
 

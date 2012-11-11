@@ -21,16 +21,17 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class Room : public Object, public Listener {
+class GameMap : public Object, public Listener {
 public:
-	Room();
-	~Room();
+	GameMap();
+	~GameMap();
 	
 	res_ref AreaName() const;
 	WEDResource* WED();
 
-	bool LoadArea(const res_ref& areaName);
+	bool LoadArea(const res_ref& areaName, const char* longName);
 	bool LoadArea(AreaEntry& area);
+
 	bool LoadWorldMap();
 
 	GFX::rect ViewPort() const;
@@ -39,6 +40,7 @@ public:
 	GFX::rect AreaRect() const;
 	void GetAreaOffset(IE::point& point);
 	void SetAreaOffset(IE::point point);
+	void SetRelativeAreaOffset(IE::point point);
 
 	void ConvertToArea(GFX::rect& rect);
 	void ConvertToArea(IE::point& point);
@@ -63,17 +65,16 @@ public:
 	void DrawTile(const int16 tileNum, Bitmap *surface,
 						GFX::rect tileRect, bool withOverlays);
 
-	//void GetPolygons(GFX::rect, IE::polygon *poly);
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-	static Room* CurrentArea();
+	static GameMap* Get();
 
 private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
 	void _InitBitmap(GFX::rect area);
-	void _DrawBaseMap(GFX::rect area);
+	void _DrawBaseMap();
 
 	void _DrawLightMap();
 	void _DrawSearchMap(GFX::rect area);
@@ -98,9 +99,12 @@ private:
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;
+
+	// WorldMap
 	WMAPResource* fWorldMap;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
+
 	Bitmap* fBackBitmap;
 
 	std::vector<MapOverlay*> fOverlays;

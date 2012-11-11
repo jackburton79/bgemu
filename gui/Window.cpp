@@ -89,7 +89,7 @@ void
 Window::MouseDown(IE::point point)
 {
 	point.x -= fPosition.x;
-	point.x -= fPosition.y;
+	point.y -= fPosition.y;
 
 	if (Control* control = _GetControl(point)) {
 		control->MouseDown(point);
@@ -101,7 +101,7 @@ void
 Window::MouseUp(IE::point point)
 {
 	point.x -= fPosition.x;
-	point.x -= fPosition.y;
+	point.y -= fPosition.y;
 
 	if (Control* control = _GetControl(point)) {
 		control->MouseUp(point);
@@ -113,7 +113,7 @@ void
 Window::MouseMoved(IE::point point)
 {
 	point.x -= fPosition.x;
-	point.x -= fPosition.y;
+	point.y -= fPosition.y;
 
 	Control* oldActiveControl = fActiveControl;
 	Control* control = NULL;
@@ -165,6 +165,18 @@ Window::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fPosition.x;
 	rect.y += fPosition.y;
+}
+
+
+void
+Window::ResizeMove(GFX::rect newRect)
+{
+	fPosition.x = newRect.x;
+	fPosition.y = newRect.y;
+	fWidth = newRect.w;
+	fHeight = newRect.h;
+
+	//_ResizeControls(newWidth, newHeight);
 }
 
 

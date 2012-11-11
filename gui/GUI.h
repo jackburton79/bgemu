@@ -29,6 +29,8 @@ public:
 	void Clear();
 	Window* GetWindow(uint32 id);
 
+	void ControlInvoked(uint32 controlID, uint16 windowID);
+
 	static GUI* Default();
 
 private:

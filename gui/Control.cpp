@@ -7,7 +7,7 @@
 
 #include "Button.h"
 #include "Control.h"
-#include "Core.h"
+#include "GUI.h"
 #include "Label.h"
 #include "Room.h"
 #include "Scrollbar.h"
@@ -71,6 +71,7 @@ Control::MouseMoved(IE::point point, uint32 transit)
 void
 Control::MouseDown(IE::point point)
 {
+	std::cout << "control: " << std::dec << ID() << std::endl;
 	if (fRoom != NULL) {
 		ConvertFromScreen(point);
 		if (point.x >= 0 && point.y >= 0)
@@ -89,7 +90,7 @@ Control::MouseUp(IE::point point)
 void
 Control::Invoke()
 {
-	Core::Get()->ControlInvoked(ID(), fWindow->ID());
+	GUI::Default()->ControlInvoked(ID(), fWindow->ID());
 }
 
 
@@ -133,7 +134,7 @@ Control::ConvertFromScreen(IE::point& point)
 
 
 void
-Control::AssociateRoom(Room* room)
+Control::AssociateRoom(GameMap* room)
 {
 	fRoom = room;
 

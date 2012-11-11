@@ -1,5 +1,6 @@
 #include "Bitmap.h"
 #include "Door.h"
+#include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "TileCell.h"
@@ -33,6 +34,8 @@ _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, Color *color)
 void
 TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 {
+	//Graphics::DrawRect(bitmap->Surface(), (SDL_Rect&)*rect, 255);
+	//return;
 	int maxOverlay = full ? fNumOverlays : 1;
 
 	for (int i = maxOverlay - 1; i >= 0; i--) {

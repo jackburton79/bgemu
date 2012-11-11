@@ -74,7 +74,7 @@ main(int argc, char **argv)
 	GUI* gui = GUI::Default();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 
-	Room *map = new Room();
+	GameMap *map = new GameMap();
 
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
@@ -174,7 +174,7 @@ main(int argc, char **argv)
 				//Core::Get()->UpdateLogic();
 
 			graphicsEngine->Flip();
-			SDL_Delay(10);
+			SDL_Delay(30);
 		}
 	}
 

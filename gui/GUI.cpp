@@ -41,8 +41,6 @@ GUI::Load(const res_ref& name)
 void
 GUI::Draw()
 {
-	//Room::CurrentArea()->Draw(NULL);
-
 	std::vector<Window*>::const_reverse_iterator i;
 	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		(*i)->Draw();
@@ -104,6 +102,113 @@ GUI::GetWindow(uint32 id)
 		fActiveWindows.push_back(window);
 	window->Print();
 	return window;
+}
+
+
+
+void
+GUI::ControlInvoked(uint32 controlID, uint16 windowID)
+{
+	GameMap* room = GameMap::Get();
+	if (!strcmp(fResource->Name(), "GUIWMAP")) {
+		switch (windowID) {
+			case 0:
+				switch (controlID) {
+					case 1:
+					{
+						IE::point point;
+						point.x = 0;
+						point.y = -20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 2:
+					{
+						IE::point point;
+						point.x = 0;
+						point.y = 20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 8:
+					{
+						IE::point point;
+						point.x = -20;
+						point.y = -20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 9:
+					{
+						IE::point point;
+						point.x = 20;
+						point.y = -20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 10:
+					{
+						IE::point point;
+						point.x = -20;
+						point.y = 0;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 12:
+					{
+						IE::point point;
+						point.x = 20;
+						point.y = 0;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 13:
+					{
+						IE::point point;
+						point.x = -20;
+						point.y = 20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					case 14:
+					{
+						IE::point point;
+						point.x = 20;
+						point.y = 20;
+						room->SetRelativeAreaOffset(point);
+						break;
+					}
+					default:
+						std::cout << "window " << std::dec << windowID << ",";
+						std::cout << "control " << controlID << std::endl;
+						break;
+
+				}
+				break;
+			default:
+				std::cout << "window " << std::dec << windowID << ",";
+				std::cout << "control " << controlID << std::endl;
+				break;
+			}
+	} else if (!strcmp(fResource->Name(), "GUIMAP")) {
+		switch (windowID) {
+			case 2:
+				switch (controlID) {
+					case 1:
+						room->LoadWorldMap();
+						break;
+					default:
+						std::cout << "window " << std::dec << windowID << ",";
+						std::cout << "control " << controlID << std::endl;
+						break;
+				}
+				break;
+			default:
+				std::cout << "window " << std::dec << windowID << ",";
+				std::cout << "control " << controlID << std::endl;
+				break;
+		}
+	}
 }
 
 

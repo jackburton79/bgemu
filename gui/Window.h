@@ -21,6 +21,7 @@ public:
 	Window(uint16 id, int16 xPos, int16 yPos, int16 width, int16 height,
 			Bitmap* background);
 	~Window();
+
 	void Draw();
 	void Add(Control* control);
 
@@ -36,8 +37,9 @@ public:
 	void MouseMoved(IE::point point);
 
 	void ConvertToScreen(IE::point& point);
-	//IE::point ConvertToScreen(const IE::point point);
 	void ConvertToScreen(GFX::rect& rect);
+
+	void ResizeMove(GFX::rect newRect);
 
 	void Print() const;
 private:

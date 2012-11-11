@@ -13,6 +13,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "IDSResource.h"
+#include "Label.h"
 #include "MOSResource.h"
 #include "Polygon.h"
 #include "RectUtils.h"
@@ -30,9 +31,9 @@
 
 std::vector<MapOverlay*> *gOverlays = NULL;
 
-static Room* sCurrentRoom = NULL;
+static GameMap* sCurrentRoom = NULL;
 
-Room::Room()
+GameMap::GameMap()
 	:
 	Object(""),
 	fName(""),
@@ -52,7 +53,7 @@ Room::Room()
 }
 
 
-Room::~Room()
+GameMap::~GameMap()
 {
 	// TODO: Delete various tilecells, overlays, animations
 	_UnloadArea();
@@ -62,28 +63,28 @@ Room::~Room()
 
 
 res_ref
-Room::AreaName() const
+GameMap::AreaName() const
 {
 	return fName;
 }
 
 
 WEDResource*
-Room::WED()
+GameMap::WED()
 {
 	return fWed;
 }
 
 
 GFX::rect
-Room::ViewPort() const
+GameMap::ViewPort() const
 {
 	return fViewPort;
 }
 
 
 bool
-Room::LoadArea(const res_ref& areaName)
+GameMap::LoadArea(const res_ref& areaName, const char* longName)
 {
 	_UnloadWorldMap();
 
@@ -114,6 +115,9 @@ Room::LoadArea(const res_ref& areaName)
 	//GUI::Default()->GetWindow(4);
 
 	window->GetControlByID(2)->AssociateRoom(this);
+	Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
+	if (label != NULL)
+		label->SetText(longName);
 
 	_LoadOverlays();
 	_InitTileCells();
@@ -132,7 +136,7 @@ Room::LoadArea(const res_ref& areaName)
 
 
 bool
-Room::LoadArea(AreaEntry& area)
+GameMap::LoadArea(AreaEntry& area)
 {
 	//MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
 	/*MOSResource* mos = gResManager->GetMOS("BACK");
@@ -147,14 +151,14 @@ Room::LoadArea(AreaEntry& area)
 		gResManager->ReleaseResource(mos);
 	}*/
 
-	bool result = LoadArea(area.Name());
+	bool result = LoadArea(area.Name(), area.LongName());
 
 	return result;
 }
 
 
 bool
-Room::LoadWorldMap()
+GameMap::LoadWorldMap()
 {
 	GUI* gui = GUI::Default();
 
@@ -199,14 +203,14 @@ Room::LoadWorldMap()
 
 
 void
-Room::SetViewPort(GFX::rect rect)
+GameMap::SetViewPort(GFX::rect rect)
 {
 	fViewPort = rect;
 }
 
 
 GFX::rect
-Room::AreaRect() const
+GameMap::AreaRect() const
 {
 	GFX::rect rect;
 	rect.x = rect.y = 0;
@@ -222,14 +226,14 @@ Room::AreaRect() const
 
 
 void
-Room::GetAreaOffset(IE::point& point)
+GameMap::GetAreaOffset(IE::point& point)
 {
 	point = fAreaOffset;
 }
 
 
 void
-Room::SetAreaOffset(IE::point point)
+GameMap::SetAreaOffset(IE::point point)
 {
 	GFX::rect areaRect = AreaRect();
 	fAreaOffset = point;
@@ -245,7 +249,17 @@ Room::SetAreaOffset(IE::point point)
 
 
 void
-Room::ConvertToArea(GFX::rect& rect)
+GameMap::SetRelativeAreaOffset(IE::point relativePoint)
+{
+	IE::point newOffset = fAreaOffset;
+	newOffset.x += relativePoint.x;
+	newOffset.y += relativePoint.y;
+	SetAreaOffset(newOffset);
+}
+
+
+void
+GameMap::ConvertToArea(GFX::rect& rect)
 {
 	rect.x += fAreaOffset.x;
 	rect.y += fAreaOffset.y;
@@ -253,7 +267,7 @@ Room::ConvertToArea(GFX::rect& rect)
 
 
 void
-Room::ConvertToArea(IE::point& point)
+GameMap::ConvertToArea(IE::point& point)
 {
 	point.x += fAreaOffset.x;
 	point.y += fAreaOffset.y;
@@ -261,7 +275,7 @@ Room::ConvertToArea(IE::point& point)
 
 
 void
-Room::ConvertFromArea(GFX::rect& rect)
+GameMap::ConvertFromArea(GFX::rect& rect)
 {
 	rect.x -= fAreaOffset.x;
 	rect.y -= fAreaOffset.y;
@@ -269,7 +283,7 @@ Room::ConvertFromArea(GFX::rect& rect)
 
 
 void
-Room::ConvertFromArea(IE::point& point)
+GameMap::ConvertFromArea(IE::point& point)
 {
 	point.x -= fAreaOffset.x;
 	point.y -= fAreaOffset.y;
@@ -277,7 +291,7 @@ Room::ConvertFromArea(IE::point& point)
 
 
 void
-Room::ConvertToScreen(GFX::rect& rect)
+GameMap::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fViewPort.x;
 	rect.y += fViewPort.y;
@@ -285,7 +299,7 @@ Room::ConvertToScreen(GFX::rect& rect)
 
 
 void
-Room::ConvertToScreen(IE::point& point)
+GameMap::ConvertToScreen(IE::point& point)
 {
 	point.x += fViewPort.x;
 	point.y += fViewPort.y;
@@ -293,7 +307,7 @@ Room::ConvertToScreen(IE::point& point)
 
 
 void
-Room::Draw(Bitmap *surface)
+GameMap::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
@@ -305,17 +319,21 @@ Room::Draw(Bitmap *surface)
 		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
 		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
 	} else {
-		GFX::rect mapRect = fViewPort;
+		fBackBitmap->ClearColorKey();
+		fBackBitmap->Clear(0);
 
-		_DrawBaseMap(mapRect);
+		_DrawBaseMap();
 
-		//if (fDrawAnimations)
-			//_DrawAnimations(mapRect);
+		GFX::rect mapRect = offset_rect_to(fViewPort,
+				fAreaOffset.x, fAreaOffset.y);
 
-		//if (true)
-			//_DrawActors(mapRect);
+		if (fDrawAnimations)
+			_DrawAnimations(mapRect);
 
-		if (fDrawPolygons) {
+		if (true)
+			_DrawActors(mapRect);
+
+		/*if (fDrawPolygons) {
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
@@ -326,8 +344,9 @@ Room::Draw(Bitmap *surface)
 					}
 				}
 			}
-		}
+		}*/
 
+		fBackBitmap->Update();
 		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 	}
 	//gfx->SetClipping(NULL);
@@ -335,7 +354,7 @@ Room::Draw(Bitmap *surface)
 
 
 void
-Room::Clicked(uint16 x, uint16 y)
+GameMap::Clicked(uint16 x, uint16 y)
 {
 	IE::point point = {x, y};
 	ConvertToArea(point);
@@ -356,10 +375,10 @@ Room::Clicked(uint16 x, uint16 y)
 
 
 void
-Room::MouseOver(uint16 x, uint16 y)
+GameMap::MouseOver(uint16 x, uint16 y)
 {
-	const uint16 kBorderSize = 20;
-	const uint16 kScrollingStep = 30;
+	const uint16 kBorderSize = 25;
+	const uint16 kScrollingStep = 20;
 
 	uint16 scrollByX = 0;
 	uint16 scrollByY = 0;
@@ -387,6 +406,10 @@ Room::MouseOver(uint16 x, uint16 y)
 			if (rect_contains(areaRect, point)) {
 				ConvertFromArea(areaRect);
 				ConvertToScreen(areaRect);
+				//GUI::Default()->GetWindow(0)->;
+				char* toolTip = area.TooltipName();
+				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
+				free(toolTip);
 				GraphicsEngine::Get()->StrokeRect(areaRect, 600);
 				break;
 			}
@@ -402,7 +425,7 @@ Room::MouseOver(uint16 x, uint16 y)
 
 
 uint16
-Room::TileNumberForPoint(const IE::point& point)
+GameMap::TileNumberForPoint(const IE::point& point)
 {
 	const uint16 overlayWidth = fOverlays[0]->Width();
 	const uint16 tileX = point.x / TILE_WIDTH;
@@ -413,21 +436,21 @@ Room::TileNumberForPoint(const IE::point& point)
 
 
 void
-Room::ToggleOverlays()
+GameMap::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
 }
 
 
 void
-Room::TogglePolygons()
+GameMap::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
 }
 
 
 void
-Room::ToggleAnimations()
+GameMap::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
 }
@@ -435,7 +458,7 @@ Room::ToggleAnimations()
 
 /* virtual */
 void
-Room::VideoAreaChanged(uint16 width, uint16 height)
+GameMap::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect = {0, 0, width, height};
 	SetViewPort(rect);
@@ -443,15 +466,15 @@ Room::VideoAreaChanged(uint16 width, uint16 height)
 
 
 /* static */
-Room*
-Room::CurrentArea()
+GameMap*
+GameMap::Get()
 {
 	return sCurrentRoom;
 }
 
 
 void
-Room::_InitBitmap(GFX::rect area)
+GameMap::_InitBitmap(GFX::rect area)
 {
 	GraphicsEngine::DeleteBitmap(fBackBitmap);
 	fBackBitmap = GraphicsEngine::CreateBitmap(area.w, area.h, 16);
@@ -459,17 +482,14 @@ Room::_InitBitmap(GFX::rect area)
 
 
 void
-Room::_DrawBaseMap(GFX::rect unused)
+GameMap::_DrawBaseMap()
 {
-	GFX::rect area = fViewPort;
-	area.x = area.y = 0;
-
 	MapOverlay *overlay = fOverlays[0];
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = fAreaOffset.x / TILE_WIDTH;
 	const uint16 firstTileY = fAreaOffset.y / TILE_HEIGHT;
-	uint16 lastTileX = firstTileX + (area.w / TILE_WIDTH) + 1;
-	uint16 lastTileY = firstTileY + (area.h / TILE_HEIGHT) + 1;
+	uint16 lastTileX = firstTileX + (fBackBitmap->Width() / TILE_WIDTH) + 2;
+	uint16 lastTileY = firstTileY + (fBackBitmap->Height() / TILE_HEIGHT) + 2;
 
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
@@ -480,21 +500,20 @@ Room::_DrawBaseMap(GFX::rect unused)
 			TILE_HEIGHT
 	};
 	for (uint16 y = firstTileY; y < lastTileY; y++) {
+		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
 		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
-			tileRect.x = x * TILE_WIDTH;
+			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
 			const uint32 tileNum = tileNumY + x;
-			// TODO: Why only x offset ?!?
-			GFX::rect destRect = offset_rect(tileRect, 0, 0);
-			fTileCells[tileNum]->Draw(fBackBitmap, &destRect, fDrawOverlays);
+			fTileCells[tileNum]->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 		}
-		tileRect.y += TILE_HEIGHT;
+
 	}
 }
 
 
 void
-Room::_DrawAnimations(GFX::rect area)
+GameMap::_DrawAnimations(GFX::rect mapArea)
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -513,12 +532,10 @@ Room::_DrawAnimations(GFX::rect area)
 					animImage->Width(), animImage->Height() };
 
 			rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
-			if (!rects_intersect(area, rect))
-				continue;
-
-			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-
-			GraphicsEngine::Get()->BlitToScreen(animImage, NULL, &rect);
+			if (rects_intersect(mapArea, rect)) {
+				rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+				GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
+			}
 			GraphicsEngine::DeleteBitmap(frame.bitmap);
 		}
 	}
@@ -526,12 +543,12 @@ Room::_DrawAnimations(GFX::rect area)
 
 
 void
-Room::_DrawActors(GFX::rect area)
+GameMap::_DrawActors(GFX::rect area)
 {
 	std::vector<Actor*>::iterator a;
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
-			(*a)->Draw(area, NULL);
+			(*a)->Draw(area, fBackBitmap);
 		} catch (...) {
 			continue;
 		}
@@ -540,7 +557,7 @@ Room::_DrawActors(GFX::rect area)
 
 
 void
-Room::_LoadOverlays()
+GameMap::_LoadOverlays()
 {
 	uint32 numOverlays = fWed->CountOverlays();
 	for (uint32 i = 0; i < numOverlays; i++) {
@@ -551,7 +568,7 @@ Room::_LoadOverlays()
 
 
 void
-Room::_InitTileCells()
+GameMap::_InitTileCells()
 {
 	uint32 numTiles = fOverlays[0]->Size();
 	for (uint16 i = 0; i < numTiles; i++) {
@@ -561,7 +578,7 @@ Room::_InitTileCells()
 
 
 void
-Room::_InitVariables()
+GameMap::_InitVariables()
 {
 	uint32 numVars = fArea->CountVariables();
 	for (uint32 n = 0; n < numVars; n++) {
@@ -572,7 +589,7 @@ Room::_InitVariables()
 
 
 void
-Room::_InitAnimations()
+GameMap::_InitAnimations()
 {
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++)
 		fAnimations.push_back(new Animation(fArea->AnimationAt(i)));
@@ -580,7 +597,7 @@ Room::_InitAnimations()
 
 
 void
-Room::_LoadActors()
+GameMap::_LoadActors()
 {
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor::Add(new Actor(*fArea->ActorAt(i)));
@@ -589,7 +606,7 @@ Room::_LoadActors()
 
 
 void
-Room::_InitDoors()
+GameMap::_InitDoors()
 {
 	assert(fTileCells.size() > 0);
 
@@ -607,7 +624,7 @@ Room::_InitDoors()
 
 
 void
-Room::_UnloadArea()
+GameMap::_UnloadArea()
 {
 	if (fWed == NULL)
 		return;
@@ -640,7 +657,7 @@ Room::_UnloadArea()
 
 
 void
-Room::_UnloadWorldMap()
+GameMap::_UnloadWorldMap()
 {
 	if (fWorldMap == NULL)
 		return;

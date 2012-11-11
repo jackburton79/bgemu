@@ -46,6 +46,9 @@ Graphics::Decode(const void *source, uint32 outSize, void *dest)
 void
 Graphics::DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color)
 {
+	if (x < 0 || y < 0 || x >= surface->w || y >= surface->h)
+		return;
+
 	uint32 bpp = surface->format->BytesPerPixel;
 	uint32 offset = surface->pitch * y + x * bpp;
 

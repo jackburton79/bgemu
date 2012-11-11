@@ -27,6 +27,14 @@ Bitmap::~Bitmap()
 
 
 void
+Bitmap::Clear(int color)
+{
+	SDL_Rect rect = { 0, 0, fSurface->w, fSurface->h };
+	SDL_FillRect(fSurface, &rect, color);
+}
+
+
+void
 Bitmap::SetColors(Color* colors, int start, int num)
 {
 	SDL_SetColors(fSurface, (SDL_Color*)colors, start, num);
@@ -104,6 +112,13 @@ uint16
 Bitmap::Pitch() const
 {
 	return fSurface->pitch;
+}
+
+
+void
+Bitmap::Update()
+{
+	SDL_Flip(fSurface);
 }
 
 

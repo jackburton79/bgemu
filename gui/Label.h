@@ -18,6 +18,7 @@ public:
 	Label(IE::label* label);
 	virtual ~Label();
 
+	void SetText(const char* text);
 	virtual void Draw();
 
 private:

@@ -20,7 +20,7 @@ enum game {
 struct object_node;
 class Actor;
 class Object;
-class Room;
+class GameMap;
 class IDSResource;
 class Script;
 class ScriptContext;
@@ -36,8 +36,8 @@ public:
 	uint32 Time() const;
 	uint32 GameTime() const;
 
-	void EnteredArea(Room* area, Script* script);
-	Room *CurrentArea() const;
+	void EnteredArea(GameMap* area, Script* script);
+	GameMap *CurrentArea() const;
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
@@ -52,8 +52,6 @@ public:
 	void CheckScripts();
 	void UpdateLogic();
 
-	void ControlInvoked(uint32 controlID, uint16 windowID);
-
 	// Actions/Triggers
 	bool See(Object* source, Object* target);
 
@@ -62,7 +60,7 @@ public:
 	void RandomWalk(Actor* actor);
 
 private:
-	Room* fCurrentRoom;
+	GameMap* fCurrentRoom;
 	Actor* fActiveActor;
 
 	std::map<std::string, uint32> fVariables;

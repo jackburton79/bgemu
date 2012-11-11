@@ -41,11 +41,12 @@ class Bitmap : public Referenceable {
 public:
 	Bitmap(SDL_Surface* surface);
 
+	void Clear(int color = 0);
 	void SetColors(Color* colors, int start, int num);
 	void SetPalette(const Palette& palette);
 	void SetColorKey(uint32 key, bool on = true);
 	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
-	void ClearColorKey();
+	void ClearColorKey() { SetColorKey(0, false); };
 	void SetAlpha(uint8 alphaValue, bool on = true);
 
 	void* Pixels() const;
@@ -54,6 +55,8 @@ public:
 	uint16 Width() const;
 	uint16 Height() const;
 	uint16 Pitch() const;
+
+	void Update();
 
 	SDL_Surface* Surface();
 private:

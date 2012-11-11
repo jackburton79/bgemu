@@ -149,6 +149,11 @@ CHUIResource::_ReadControl(control_table& controlTable)
 			return scrollbar;
 		}
 		case IE::CONTROL_TEXTEDIT:
+		{
+			IE::text_edit* textEdit = new IE::text_edit;
+			fData->ReadAt(controlTable.offset, *textEdit);
+			return textEdit;
+		}
 		default:
 		{
 			/*IE::control* newControl = new IE::control;

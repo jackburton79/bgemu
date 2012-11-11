@@ -173,7 +173,7 @@ Actor::Name() const
 
 
 void
-Actor::Draw(GFX::rect area, Bitmap* heightMap)
+Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 {
 	Animation* animation = fAnimations[fActor->orientation];
 	if (animation == NULL)
@@ -184,17 +184,16 @@ Actor::Draw(GFX::rect area, Bitmap* heightMap)
 	if (image == NULL)
 		return;
 
-	IE::point center = offset_point(Position(), -frame.rect.w / 2,
+	IE::point leftTop = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
-	GFX::rect rect = { center.x, center.y, image->Width(), image->Height() };
-	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
-
+	GFX::rect rect = { leftTop.x, leftTop.y, image->Width(), image->Height() };
+	//rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 	if (rects_intersect(area, rect)) {
 		rect = offset_rect(rect, -area.x, -area.y);
 		// TODO: Mask the actor with the polygons
 		//Room::CurrentArea()->GetClipping(rect, )
 
-		GraphicsEngine::Get()->BlitToScreen(image, NULL, &rect);
+		GraphicsEngine::BlitBitmap(image, NULL, destBitmap, &rect);
 	}
 	GraphicsEngine::DeleteBitmap(image);
 }
@@ -402,7 +401,7 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 bool
 Actor::_IsReachable(const IE::point& pt)
 {
-	Room* room = Room::CurrentArea();
+	GameMap* room = GameMap::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
 		Polygon* poly = room->WED()->PolygonAt(i);

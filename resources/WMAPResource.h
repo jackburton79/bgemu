@@ -117,6 +117,7 @@ public:
 	Frame Icon() const;
 	res_ref Name() const;
 	const char* LongName() const;
+	char* TooltipName() const;
 	res_ref LoadingScreenName() const;
 
 private:

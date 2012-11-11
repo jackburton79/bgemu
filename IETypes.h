@@ -387,6 +387,25 @@ struct scrollbar : public control {
 } __attribute__((packed));
 
 
+struct text_edit : public control {
+	res_ref background1;
+	res_ref background2;
+	res_ref background3;
+	res_ref background4;
+	res_ref cursor_bam;
+	uint16 carot_cycle;
+	uint16 carot_frame;
+	uint16 text_edit_x;
+	uint16 text_edit_y;
+	uint32 parent_control_id;
+	res_ref font_bam;
+	uint16 unk;
+	char initial_text[32];
+	uint16 max_length;
+	uint32 case_flags;
+} __attribute__((packed));
+
+
 void check_objects_size();
 
 

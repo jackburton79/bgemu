@@ -10,7 +10,10 @@
 #include "GraphicsEngine.h"
 #include "MemoryStream.h"
 #include "ResManager.h"
+#include "TLKResource.h"
 #include "WMAPResource.h"
+
+#include <memory>
 
 #define WMAP_SIGNATURE "WMAP"
 #define WMAP_VERSION_1 "V1.0"
@@ -62,10 +65,14 @@ WMAPResource::Load(Archive* archive, uint32 key)
 					+ c * sizeof(area_entry),
 					areaEntry);
 			AreaEntry* entry = new AreaEntry(areaEntry);
-			printf("Area %s, short: %s, loading %s\n",
-					areaEntry.area.CString(),
-					areaEntry.shortname.CString(),
-					areaEntry.loading_mos.CString());
+			std::cout << "Area " << areaEntry.area;
+			std::cout << ", short: " << areaEntry.shortname;
+			std::cout << ", long: " <<  areaEntry.name;
+			std::cout << ", tooltip: " << areaEntry.tooltip_ref;
+			std::cout << ", loading " << areaEntry.loading_mos;
+			std::cout << std::endl;
+
+
 			entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
 			entry->fPosition.x = (int16)areaEntry.x;
 			entry->fPosition.y = (int16)areaEntry.y;
@@ -173,4 +180,18 @@ Frame
 AreaEntry::Icon() const
 {
 	return fIcon;
+}
+
+
+char*
+AreaEntry::TooltipName() const
+{
+	TLKEntry* entry = Dialogs()->EntryAt(fEntry.tooltip_ref);
+	if (entry == NULL)
+		return NULL;
+
+	std::cout << "tooltip: " << entry->string << std::endl;
+	std::auto_ptr<TLKEntry> _(entry);
+
+	return strdup(entry->string);
 }

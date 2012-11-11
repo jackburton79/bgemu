@@ -423,7 +423,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE
 				 * is in the area specified.
 				 */
-				returnValue = !strcmp(Room::CurrentArea()->Name(),
+				returnValue = !strcmp(GameMap::Get()->Name(),
 						trig->string1);
 				break;
 			}

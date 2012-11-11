@@ -61,6 +61,15 @@ Label::~Label()
 }
 
 
+void
+Label::SetText(const char* text)
+{
+	fBitmap->Clear(0);
+	IE::label* label = static_cast<IE::label*>(fControl);
+	RenderString(text, fFontResource, label->flags, fBitmap);
+}
+
+
 /* virtual */
 void
 Label::Draw()

@@ -129,6 +129,9 @@ RenderString(std::string string, BAMResource* fontResource,
 		uint32 flags, Bitmap* bitmap)
 {
 	Frame* frames = new Frame[string.length()];
+	if (frames == NULL)
+		return;
+
 	std::string::iterator i = string.begin();
 	uint32 totalWidth = 0;
 	uint16 maxHeight = 0;

@@ -13,6 +13,16 @@ offset_rect(const GFX::rect &rect, sint16 x, sint16 y)
 }
 
 
+static inline GFX::rect
+offset_rect_to(const GFX::rect &rect, sint16 x, sint16 y)
+{
+	GFX::rect newRect = rect;
+	newRect.x = x;
+	newRect.y = y;
+	return newRect;
+}
+
+
 static inline IE::point
 offset_point(const IE::point &point, sint16 x, sint16 y)
 {
