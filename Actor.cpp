@@ -401,7 +401,7 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 bool
 Actor::_IsReachable(const IE::point& pt)
 {
-	GameMap* room = GameMap::Get();
+	Room* room = Room::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
 		Polygon* poly = room->WED()->PolygonAt(i);

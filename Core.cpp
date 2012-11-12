@@ -95,7 +95,7 @@ Core::GameTime() const
 
 
 void
-Core::EnteredArea(GameMap* area, Script* script)
+Core::EnteredArea(Room* area, Script* script)
 {
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
@@ -108,7 +108,7 @@ Core::EnteredArea(GameMap* area, Script* script)
 }
 
 
-GameMap*
+Room*
 Core::CurrentArea() const
 {
 	return fCurrentRoom;

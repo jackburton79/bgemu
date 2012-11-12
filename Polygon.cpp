@@ -7,7 +7,8 @@
 Polygon::Polygon()
 	:
 	fPoints(NULL),
-	fCount(0)
+	fCount(0),
+	fIsHole(false)
 {
 }
 

@@ -71,10 +71,10 @@ main(int argc, char **argv)
 		return -1;
 	}
 
+	Room *map = new Room();
+
 	GUI* gui = GUI::Default();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-
-	GameMap *map = new GameMap();
 
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;

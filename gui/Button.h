@@ -12,10 +12,12 @@
 #include "IETypes.h"
 
 class BAMResource;
+class Window;
 class Button: public Control {
 public:
 	Button(IE::button* button);
 	virtual ~Button();
+	virtual void AttachedToWindow(Window* window);
 	virtual void Draw();
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);

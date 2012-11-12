@@ -9,17 +9,22 @@
 #include "Button.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
+#include "Room.h"
 #include "Window.h"
 
 #include <assert.h>
 
+const static char* kGuiCTRL = "GUICTRL";
+
 Button::Button(IE::button* button)
 	:
 	Control(button),
+	fResource(NULL),
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false)
 {
+	button->Print();
 	fResource = gResManager->GetBAM(button->image);
 }
 
@@ -32,8 +37,19 @@ Button::~Button()
 
 /* virtual */
 void
+Button::AttachedToWindow(Window* window)
+{
+	Control::AttachedToWindow(window);
+}
+
+
+/* virtual */
+void
 Button::Draw()
 {
+	if (fResource == NULL)
+		return;
+
 	IE::button* button = (IE::button*)fControl;
 	Frame frame;
 	// TODO: Seems enabled and selected aren't used

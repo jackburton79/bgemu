@@ -109,7 +109,7 @@ GUI::GetWindow(uint32 id)
 void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 {
-	GameMap* room = GameMap::Get();
+	Room* room = Room::Get();
 	if (!strcmp(fResource->Name(), "GUIWMAP")) {
 		switch (windowID) {
 			case 0:

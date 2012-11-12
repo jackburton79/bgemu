@@ -21,10 +21,10 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class GameMap : public Object, public Listener {
+class Room : public Object, public Listener {
 public:
-	GameMap();
-	~GameMap();
+	Room();
+	~Room();
 	
 	res_ref AreaName() const;
 	WEDResource* WED();
@@ -67,7 +67,7 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-	static GameMap* Get();
+	static Room* Get();
 
 private:
 	void _DrawConsole();

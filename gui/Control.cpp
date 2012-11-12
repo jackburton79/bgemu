@@ -134,7 +134,7 @@ Control::ConvertFromScreen(IE::point& point)
 
 
 void
-Control::AssociateRoom(GameMap* room)
+Control::AssociateRoom(Room* room)
 {
 	fRoom = room;
 
@@ -145,7 +145,8 @@ Control::AssociateRoom(GameMap* room)
 		Height()
 	};
 
-	room->SetViewPort(viewPortRect);
+	if (room != NULL)
+		room->SetViewPort(viewPortRect);
 }
 
 
