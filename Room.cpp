@@ -107,18 +107,24 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 		roomScript = fBcs->GetScript();
 
 	GUI::Default()->Clear();
-	GUI::Default()->Load("GUIMAP");
-	GUI::Default()->GetWindow(0);
-	GUI::Default()->GetWindow(1);
-	Window* window = GUI::Default()->GetWindow(2);
-	//GUI::Default()->GetWindow(3);
-	//GUI::Default()->GetWindow(4);
+	GUI::Default()->Load("GUIW");
+	GUI::Default()->ShowWindow(uint16(-1));
+	Window* window = GUI::Default()->GetWindow(uint16(-1));
 
-	window->GetControlByID(2)->AssociateRoom(this);
-	Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
-	if (label != NULL)
-		label->SetText(longName);
+	GUI::Default()->ShowWindow(0);
+	GUI::Default()->ShowWindow(1);
+	//GUI::Default()->ShowWindow(3);
+	//GUI::Default()->GetWindow(15);
 
+
+	if (window != NULL) {
+		Control* control = window->GetControlByID(uint32(-1));
+		if (control != NULL)
+			control->AssociateRoom(this);
+		Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
+		if (label != NULL)
+			label->SetText(longName);
+	}
 	_LoadOverlays();
 	_InitTileCells();
 	_InitVariables();
@@ -165,10 +171,13 @@ Room::LoadWorldMap()
 	gui->Clear();
 	gui->Load("GUIWMAP");
 
+	gui->ShowWindow(0);
 	Window* window = gui->GetWindow(0);
-
-	Control* control = window->GetControlByID(4);
-	control->AssociateRoom(this);
+	if (window != NULL) {
+		Control* control = window->GetControlByID(4);
+		if (control != NULL)
+			control->AssociateRoom(this);
+	}
 
 	// TODO: _UnloadActors/Doors() (if needed)
 	if (fWorldMap != NULL)
@@ -333,18 +342,18 @@ Room::Draw(Bitmap *surface)
 		if (true)
 			_DrawActors(mapRect);
 
-		/*if (fDrawPolygons) {
+		if (fDrawPolygons) {
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(offset_rect(poly->Frame(),
 							-mapRect.x, -mapRect.y), mapRect)) {
-						Graphics::DrawPolygon(*poly, SDL_GetVideoSurface(),
+						Graphics::DrawPolygon(*poly, fBackBitmap->Surface(),
 								-mapRect.x, -mapRect.y);
 					}
 				}
 			}
-		}*/
+		}
 
 		fBackBitmap->Update();
 		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
@@ -377,19 +386,27 @@ Room::Clicked(uint16 x, uint16 y)
 void
 Room::MouseOver(uint16 x, uint16 y)
 {
-	const uint16 kBorderSize = 25;
-	const uint16 kScrollingStep = 20;
+	const uint16 kScrollingStep = 45;
+
+	uint16 horizBorderSize = 25;
+	uint32 vertBorderSize = 25;
+
+	// TODO: Less hardcoding of the window number
+	Window* window = GUI::Default()->GetWindow(1);
+	if (window != NULL) {
+		horizBorderSize += window->Width();
+	}
 
 	uint16 scrollByX = 0;
 	uint16 scrollByY = 0;
-	if (x <= kBorderSize)
+	if (x <= horizBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x >= fViewPort.w - kBorderSize)
+	else if (x >= fViewPort.w - horizBorderSize)
 		scrollByX = kScrollingStep;
 
-	if (y <= kBorderSize)
+	if (y <= vertBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y >= fViewPort.h - kBorderSize)
+	else if (y >= fViewPort.h - vertBorderSize)
 		scrollByY = kScrollingStep;
 
 	IE::point point = { x, y };
@@ -406,10 +423,9 @@ Room::MouseOver(uint16 x, uint16 y)
 			if (rect_contains(areaRect, point)) {
 				ConvertFromArea(areaRect);
 				ConvertToScreen(areaRect);
-				//GUI::Default()->GetWindow(0)->;
-				char* toolTip = area.TooltipName();
+				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
-				free(toolTip);
+				//free(toolTip);
 				GraphicsEngine::Get()->StrokeRect(areaRect, 600);
 				break;
 			}
@@ -453,6 +469,27 @@ void
 Room::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
+}
+
+
+void
+Room::ToggleGUI()
+{
+	GUI* gui = GUI::Default();
+	if (gui->IsWindowShown(0))
+		gui->HideWindow(0);
+	else
+		gui->ShowWindow(0);
+
+	if (gui->IsWindowShown(1))
+		gui->HideWindow(1);
+	else
+		gui->ShowWindow(1);
+
+	/*if (gui->IsWindowShown(3))
+		gui->HideWindow(3);
+	else
+		gui->ShowWindow(3);*/
 }
 
 
@@ -507,7 +544,6 @@ Room::_DrawBaseMap()
 			const uint32 tileNum = tileNumY + x;
 			fTileCells[tileNum]->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 		}
-
 	}
 }
 
@@ -521,17 +557,17 @@ Room::_DrawAnimations(GFX::rect mapArea)
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
 			Frame frame = fAnimations[i]->NextFrame();
-			IE::point center = fAnimations[i]->Position();
-			center = offset_point(center, -frame.rect.w / 2,
-					-frame.rect.h / 2);
 			Bitmap *animImage = frame.bitmap;
 			if (animImage == NULL)
 				continue;
 
-			GFX::rect rect = { center.x, center.y,
+			IE::point leftTop = offset_point(fAnimations[i]->Position(),
+									-(frame.rect.x + frame.rect.w / 2),
+									-(frame.rect.y + frame.rect.h / 2));
+
+			GFX::rect rect = { leftTop.x, leftTop.y,
 					animImage->Width(), animImage->Height() };
 
-			rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 			if (rects_intersect(mapArea, rect)) {
 				rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
 				GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
@@ -600,7 +636,7 @@ void
 Room::_LoadActors()
 {
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		Actor::Add(new Actor(*fArea->ActorAt(i)));
+		Actor::Add(fArea->GetActorAt(i));
 	}
 }
 

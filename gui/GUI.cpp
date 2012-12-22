@@ -5,10 +5,16 @@
  *      Author: stefano
  */
 
+#include "BackWindow.h"
 #include "CHUIResource.h"
+#include "Control.h"
+#include "GraphicsEngine.h"
 #include "GUI.h"
 #include "ResManager.h"
 #include "Room.h"
+
+
+#include <algorithm>
 
 GUI gGUI;
 static GUI* sGUI = NULL;
@@ -26,6 +32,7 @@ GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
 	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
+	//fActiveWindows.clear();
 }
 
 
@@ -35,14 +42,20 @@ GUI::Load(const res_ref& name)
 	gResManager->ReleaseResource(fResource);
 	Clear();
 	fResource = gResManager->GetCHUI(name);
+
+	/*for (uint16 c = 0; c < fResource->CountWindows(); c++) {
+		Window* window = fResource->GetWindow(c);
+		if (window != NULL)
+			fWindows.push_back(window);
+	}*/
 }
 
 
 void
 GUI::Draw()
 {
-	std::vector<Window*>::const_reverse_iterator i;
-	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
+	std::vector<Window*>::const_iterator i;
+	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
 		(*i)->Draw();
 	}
 }
@@ -83,25 +96,60 @@ GUI::MouseMoved(int16 x, int16 y)
 
 
 void
+GUI::ShowWindow(uint16 id)
+{
+	Window* window = fResource->GetWindow(id);
+	if (window != NULL) {
+		fActiveWindows.push_back(window);
+	}
+}
+
+
+void
+GUI::HideWindow(uint16 id)
+{
+	std::vector<Window*>::iterator i;
+	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
+		if ((*i)->ID() == id) {
+			fActiveWindows.erase(i);
+			break;
+		}
+	}
+}
+
+
+bool
+GUI::IsWindowShown(uint16 id) const
+{
+	std::vector<Window*>::const_iterator i;
+	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
+		if ((*i)->ID() == id)
+			return true;
+	}
+	return false;
+}
+
+
+void
 GUI::Clear()
 {
+	fActiveWindows.clear();
 	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
+
+	_AddBackgroundWindow();
 }
 
 
 Window*
-GUI::GetWindow(uint32 id)
+GUI::GetWindow(uint16 id)
 {
 	std::vector<Window*>::const_iterator i;
-	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
+	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
 		if ((*i)->ID() == id)
 			return *i;
 	}
-	Window* window = fResource->GetWindow(id);
-	if (window != NULL)
-		fActiveWindows.push_back(window);
-	window->Print();
-	return window;
+
+	return NULL;
 }
 
 
@@ -235,4 +283,13 @@ GUI::_GetWindow(IE::point pt)
 	}
 
 	return NULL;
+}
+
+
+void
+GUI::_AddBackgroundWindow()
+{
+	BackWindow* backWindow = new BackWindow();
+	//fWindows.push_back(backWindow);
+	fActiveWindows.push_back(backWindow);
 }

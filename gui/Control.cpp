@@ -105,7 +105,7 @@ Control::Position() const
 IE::point
 Control::ScreenPosition() const
 {
-	IE::point point = { fControl->x, fControl->y };
+	IE::point point = Position();
 	fWindow->ConvertToScreen(point);
 	return point;
 }
@@ -122,6 +122,16 @@ uint16
 Control::Height() const
 {
 	return fControl->h;
+}
+
+
+void
+Control::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
+{
+	fControl->x = x;
+	fControl->y = y;
+	fControl->w = width;
+	fControl->h = height;
 }
 
 

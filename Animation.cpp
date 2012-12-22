@@ -63,6 +63,9 @@ Animation::Animation(CREResource* cre, int action,
 	if (fBAM == NULL)
 		throw -1;
 
+	//if (fName[0] == 'N')
+		//fBAM->DumpFrames("/home/stefano/dumps");
+
 	fCycleNumber = sequence;
 	if (fCycleNumber >= fBAM->CountCycles())
 		fCycleNumber = fBAM->CountCycles() - 1;
@@ -119,7 +122,7 @@ Animation::Frame()
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
-		Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
+		frame.bitmap = Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
 
 	}
 	return frame;
@@ -153,7 +156,7 @@ Animation::Position() const
 
 
 res_ref
-Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
+Animation::_SelectAnimation(CREResource* cre, int action, int& orientation)
 {
 	const uint16 animationID = cre->AnimationID();
 	//printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
@@ -161,8 +164,6 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 	res_ref nameRef;
 	uint8 high = (animationID & 0xFF00) >> 8;
 	//uint8 low = (animationID & 0x00FF);
-	// TODO: Seems like animation type could be told by
-	// a mask here: monsters, characters, "objects", etc.
 
 	//fType = AnimationType(animationID);
 	//if (fType != ANIMATION_CHARACTER) {
@@ -184,6 +185,11 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 		else
 			baseName.append("H");
 	}
+	std::cout << "orientation: " << std::dec << (int)orientation << std::endl;
+	if (baseName[0] == 'A') {
+		//orientation /= 2;
+	}
+
 	if (baseName[0] == 'M') {
 		switch (action) {
 			//case ACT_WALKING: baseName.append("G11"); break;
@@ -216,8 +222,10 @@ Animation::_SelectAnimation(CREResource* cre, int action, int orientation)
 		baseName.append("G1");
 		if (baseName[0] == 'N') {
 			if (orientation >= IE::ORIENTATION_NE
-					&& orientation <= IE::ORIENTATION_SE)
+					&& orientation <= IE::ORIENTATION_SE) {
 				baseName.append("E");
+				//orientation -= 6;
+			}
 		}
 	}
 

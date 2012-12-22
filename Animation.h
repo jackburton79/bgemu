@@ -51,7 +51,7 @@ private:
 	char fName[16];
 
 	res_ref _ClassifyAnimation(uint16 id, uint16& type);
-	res_ref _SelectAnimation(CREResource *cre, int action, int face);
+	res_ref _SelectAnimation(CREResource *cre, int action, int& face);
 };
 
 #endif // __ANIMATION_H

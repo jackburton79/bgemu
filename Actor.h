@@ -21,7 +21,8 @@ class PathFinder;
 class Script;
 class Actor : public Object {
 public:
-	Actor(IE::actor &actor);
+	Actor(IE::actor& actor);
+	Actor(IE::actor& actor, CREResource* cre);
 	Actor(const char* creName, IE::point position, int face);
 	virtual ~Actor();
 

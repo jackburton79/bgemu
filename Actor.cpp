@@ -39,6 +39,23 @@ Actor::Actor(IE::actor &actor)
 }
 
 
+Actor::Actor(IE::actor &actor, CREResource* cre)
+	:
+	Object(actor.name),
+	fActor(&actor),
+	fCRE(cre),
+	fScript(NULL),
+	fOwnsActor(false),
+	fDontCheckConditions(false),
+	fIsInterruptable(true),
+	fFlying(false),
+	fPath(NULL),
+	fLastAttacker(NULL)
+{
+	_Init();
+}
+
+
 Actor::Actor(const char* creName, IE::point position, int face)
 	:
 	Object(creName),
@@ -55,8 +72,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor->cre = creName;
 	memcpy(fActor->name, fActor->cre.name, 8);
 	fActor->name[8] = 0;
-	//fActor->orientation = std::min(face, 7);
-	fActor->orientation = 0;
+	fActor->orientation = face;
+	//fActor->orientation = 0;
 	fActor->position = position;
 
 	_Init();
@@ -69,9 +86,15 @@ Actor::_Init()
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		fAnimations[i] = NULL;
 
-	fCRE = gResManager->GetCRE(fActor->cre);
+	if (fCRE == NULL)
+		fCRE = gResManager->GetCRE(fActor->cre);
 
-	//printf("%d\n", fCRE->Colors().major);
+	std::cout << "colors:" << std::endl << std::dec;
+	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
+	std::cout << "\tminor:" << (int)fCRE->Colors().minor << std::endl;
+	std::cout << "\tarmor:" << (int)fCRE->Colors().armor << std::endl;
+	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;
+	//printf("%d\n", );
 	// TODO: Get all scripts ? or just the specific one ?
 
 	if (fCRE == NULL)
@@ -102,7 +125,7 @@ Actor::_Init()
 		try {
 			fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
 		} catch (...) {
-			printf("Actor::Actor(): cannot instantiate Animation\n");
+			std::cerr << "Actor::Actor(): cannot instantiate Animation" << std::endl;
 			delete fAnimations[c];
 			fAnimations[c] = NULL;
 		}
@@ -184,10 +207,13 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 	if (image == NULL)
 		return;
 
+	//image->Dump();
+
+
 	IE::point leftTop = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 	GFX::rect rect = { leftTop.x, leftTop.y, image->Width(), image->Height() };
-	//rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
+	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
 	if (rects_intersect(area, rect)) {
 		rect = offset_rect(rect, -area.x, -area.y);
 		// TODO: Mask the actor with the polygons
@@ -224,7 +250,7 @@ void
 Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = point;
-	fPath->SetPoints(fActor->position, point);
+	fPath->SetPoints(fActor->position, fActor->destination);
 }
 
 
@@ -388,11 +414,21 @@ void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
 	// TODO: Implement correctly
-	IE::orientation newOrientation;
+	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
 	if (nextPoint.x > fActor->position.x)
 		newOrientation = IE::ORIENTATION_E;
-	else
+	else if (nextPoint.x < fActor->position.x)
 		newOrientation = IE::ORIENTATION_W;
+
+	if (nextPoint.y > fActor->position.y)
+		newOrientation = (IE::orientation)((int)newOrientation + 1);
+	else if (nextPoint.y < fActor->position.y)
+		newOrientation = (IE::orientation)((int)newOrientation - 1);
+
+	if (newOrientation < IE::ORIENTATION_S)
+		newOrientation = IE::ORIENTATION_S;
+	else if (newOrientation > IE::ORIENTATION_SE)
+		newOrientation = IE::ORIENTATION_SE;
 
 	fActor->orientation = newOrientation;
 }
@@ -404,9 +440,10 @@ Actor::_IsReachable(const IE::point& pt)
 	Room* room = Room::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
-		Polygon* poly = room->WED()->PolygonAt(i);
-		if (!poly->IsHole() && rect_contains(poly->Frame(), pt))
+		const Polygon* poly = room->WED()->PolygonAt(i);
+		if (!poly->IsHole() && rect_contains(poly->Frame(), pt)) {
 			return false;
+		}
 	}
 	return true;
 }

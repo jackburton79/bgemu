@@ -209,6 +209,7 @@ WEDResource::_LoadPolygons()
 		fData->Read(polygon);
 		fPolygons[p].SetFrame(polygon.x_min, polygon.x_max,
 				polygon.y_min, polygon.y_max);
+		fPolygons[p].SetIsHole(polygon.is_hole != 0);
 		fData->Seek(polygon.vertex_index * sizeof(IE::point) + verticesOffset, SEEK_SET);
 		for (int i = 0; i < polygon.vertices_count; i++) {
 			IE::point vertex;

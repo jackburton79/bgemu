@@ -1,6 +1,11 @@
 #include "AreaResource.h"
+
+#include "Actor.h"
+#include "CreResource.h"
 #include "Door.h"
 #include "MemoryStream.h"
+//#include "MemoryArchive.h"
+#include "ResManager.h"
 
 #define AREA_SIGNATURE "AREA"
 #define AREA_VERSION_1 "V1.0"
@@ -128,10 +133,28 @@ ARAResource::AnimationAt(uint32 index)
 }
 
 
-IE::actor*
-ARAResource::ActorAt(uint16 index)
+Actor*
+ARAResource::GetActorAt(uint16 index)
 {
-	return &fActors[index];
+	IE::actor& ieActor = fActors[index];
+	Actor* newActor = NULL;
+	if (ieActor.flags & IE::ACTOR_CRE_EXTERNAL) {
+
+	} else {
+		//CREResource* cre = new CREResource(ieActor.cre);
+		fData->Seek(fActorsOffset + ieActor.cre_offset
+						+ sizeof(IE::actor) * index, SEEK_SET);
+		char array[64];
+		std::cout << "Embedded CRE (" << ieActor.cre_size << ")" << std::endl;
+		fData->Read(array);
+		for (int32 i = 0; i < 64; i++)
+			std::cout << array[i] << std::endl;
+
+		//newActor = new Actor(ieActor, cre);
+	}
+
+	newActor = new Actor(ieActor);
+	return newActor;
 }
 
 
@@ -190,6 +213,12 @@ ARAResource::_LoadActors()
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
+		if (fActors[i].flags & IE::ACTOR_CRE_EXTERNAL) {
+			char c;
+			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);
+			std::cout << "attached data: " << c << std::endl;
+		}
+
 	}
 }
 

@@ -72,10 +72,14 @@ main(int argc, char **argv)
 	}
 
 	Room *map = new Room();
-
 	GUI* gui = GUI::Default();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 
+	// TODO: Gui::Load() calls GraphicsEngine::VideoArea() which crashes
+	// if the video mode is not set
+	graphicsEngine->SetVideoMode(640, 480, 16, 0);
+
+	// TODO: Move this to Core::Initialize() (or Core::Start())
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		GraphicsEngine::Destroy();
@@ -84,7 +88,7 @@ main(int argc, char **argv)
 	}
 
 	graphicsEngine->SetWindowCaption(map->AreaName().CString());
-	graphicsEngine->SetVideoMode(640, 480, 16, 0);
+
 
 	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
 	OutputConsole* console = new OutputConsole(consoleRect);
@@ -132,6 +136,10 @@ main(int argc, char **argv)
 									map->ToggleOverlays();
 									break;
 								*/
+								// TODO: Move to GUI class
+								case SDLK_h:
+									map->ToggleGUI();
+									break;
 								case SDLK_a:
 									map->ToggleAnimations();
 									break;
@@ -170,11 +178,11 @@ main(int argc, char **argv)
 
 			/*console->Draw();
 			inputConsole->Draw();*/
-			//if (!sNoScripts)
-				//Core::Get()->UpdateLogic();
+			if (!sNoScripts)
+				Core::Get()->UpdateLogic();
 
 			graphicsEngine->Flip();
-			SDL_Delay(30);
+			SDL_Delay(50);
 		}
 	}
 

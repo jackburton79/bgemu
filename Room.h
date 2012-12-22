@@ -59,6 +59,7 @@ public:
 	void TogglePolygons();
 	void ToggleAnimations();
 	void ToggleConsole();
+	void ToggleGUI();
 
 	void CreateCreature(const char* name, IE::point where, int face);
 

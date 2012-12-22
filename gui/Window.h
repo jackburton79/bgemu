@@ -10,6 +10,9 @@
 
 #include <vector>
 
+#include "IETypes.h"
+#include "SupportDefs.h"
+
 class Bitmap;
 class CHUIResource;
 class Control;
@@ -26,9 +29,11 @@ public:
 	void Add(Control* control);
 
 	uint16 ID() const;
+
 	IE::point Position() const;
 	uint16 Width() const;
 	uint16 Height() const;
+	void SetFrame(uint16 x, uint16 y, uint16 width, uint16 height);
 
 	Control* GetControlByID(uint32 id) const;
 
@@ -39,13 +44,11 @@ public:
 	void ConvertToScreen(IE::point& point);
 	void ConvertToScreen(GFX::rect& rect);
 
-	void ResizeMove(GFX::rect newRect);
-
 	void Print() const;
 private:
 	Control* _GetControl(IE::point point);
 
-	uint32 fID;
+	uint16 fID;
 	Bitmap* fBackground;
 	std::vector<Control*> fControls;
 	IE::point fPosition;

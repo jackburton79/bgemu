@@ -273,6 +273,7 @@ actor::Print() const
 	std::cout << "\tanimation: " << AnimateIDS()->ValueFor(animation);
 	std::cout << "(" << animation << ")" << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
+	std::cout << "\tcre attached: " << ((flags & IE::ACTOR_CRE_EXTERNAL) ? "NO" : "YES") << std::endl;
 	/*printf("\tscript_override: %s\n", (const char*)script_override);
 	printf("\tscript_general: %s\n", (const char*)script_general);
 	printf("\tscript_class: %s\n", (const char*)script_class);
@@ -305,7 +306,7 @@ void
 window::Print() const
 {
 	std::cout << std::dec;
-	std::cout << "id: " << id << std::endl;
+	std::cout << "WINDOW id: " << id << std::endl;
 	std::cout << "position: " << x << ", " << y << std::endl;
 	std::cout << "size: " << w << ", " << h << std::endl;
 	std::cout << "has background ? " << (background ? "YES" : "NO") << std::endl;

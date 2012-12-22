@@ -72,6 +72,21 @@ Window::Height() const
 }
 
 
+void
+Window::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
+{
+	fWidth = width;
+	fHeight = height;
+	fPosition.x = x;
+	fPosition.y = y;
+
+	//TODO: Don't hardcode here. Move to BackWindow ?
+	Control* control = GetControlByID(uint32(-1));
+	if (control != NULL)
+		control->SetFrame(0, 0, width, height);
+}
+
+
 Control*
 Window::GetControlByID(uint32 id) const
 {
@@ -165,18 +180,6 @@ Window::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fPosition.x;
 	rect.y += fPosition.y;
-}
-
-
-void
-Window::ResizeMove(GFX::rect newRect)
-{
-	fPosition.x = newRect.x;
-	fPosition.y = newRect.y;
-	fWidth = newRect.w;
-	fHeight = newRect.h;
-
-	//_ResizeControls(newWidth, newHeight);
 }
 
 

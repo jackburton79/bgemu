@@ -151,7 +151,7 @@ enum orientation {
 
 
 enum actor_flags {
-	ACTOR_CRE_ATTACHED = 1 << 0,
+	ACTOR_CRE_EXTERNAL = 1 << 0,
 	ACTOR_OVERRIDE_SCRIPT = 1 << 3
 };
 

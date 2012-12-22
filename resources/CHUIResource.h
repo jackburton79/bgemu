@@ -20,8 +20,8 @@ public:
 	CHUIResource(const res_ref &name);
 	virtual ~CHUIResource();
 
-	uint32 CountWindows() const;
-	Window* GetWindow(uint32 num);
+	uint16 CountWindows() const;
+	Window* GetWindow(uint16 num);
 
 	void Dump();
 private:

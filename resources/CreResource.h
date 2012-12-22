@@ -107,9 +107,11 @@ class Archive;
 class CREResource : public Resource {
 public:
 	CREResource(const res_ref& name);
+
 	virtual ~CREResource();
 	
 	virtual bool Load(Archive *archive, uint32 key);
+	bool Load(Stream* stream, uint32 position, uint32 size);
 
 	uint32 LongNameID();
 	uint32 ShortNameID();

@@ -59,6 +59,10 @@ public:
 	void Update();
 
 	SDL_Surface* Surface();
+
+	void Dump();
+	void Save(const char* fileName);
+
 private:
 	friend class GraphicsEngine;
 

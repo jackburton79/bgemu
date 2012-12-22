@@ -11,6 +11,7 @@
 #include "IETypes.h"
 #include "Window.h"
 
+#include <map>
 #include <vector>
 
 class CHUIResource;
@@ -20,14 +21,19 @@ public:
 	~GUI();
 
 	void Load(const res_ref& name);
+	void Clear();
+
 	void Draw();
 
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
 	void MouseMoved(int16 x, int16 y);
 
-	void Clear();
-	Window* GetWindow(uint32 id);
+	void ShowWindow(uint16 id);
+	void HideWindow(uint16 id);
+	bool IsWindowShown(uint16 id) const;
+
+	Window* GetWindow(uint16 id);
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
@@ -38,6 +44,7 @@ private:
 	std::vector<Window*> fActiveWindows;
 
 	Window* _GetWindow(IE::point point);
+	void _AddBackgroundWindow();
 };
 
 #endif /* __GUI_H_ */

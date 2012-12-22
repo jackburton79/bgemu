@@ -304,9 +304,9 @@ AREAResourceContext::HandleCommand(std::string line)
 		cmdString >> stringParam;
 		if (!stringParam.compare("actors")) {
 			for (uint32 i = 0; i < area->CountActors(); i++) {
-				std::cout << "Actor " << i
+				/*std::cout << "Actor " << i
 					<< " " << area->ActorAt(i)->name
-					<< std::endl;
+					<< std::endl;*/
 			}
 		} else if (!stringParam.compare("animations")) {
 			for (uint32 i = 0; i < area->CountAnimations(); i++) {
@@ -319,8 +319,8 @@ AREAResourceContext::HandleCommand(std::string line)
 		cmdString >> stringParam;
 		if (!stringParam.compare("actor")) {
 			cmdString >> intParam;
-			if (intParam < area->CountActors())
-				area->ActorAt(intParam)->Print();
+			//if (intParam < area->CountActors())
+				//area->ActorAt(intParam)->Print();
 		} else if (!stringParam.compare("animation")) {
 			cmdString >> intParam;
 			if (intParam < area->CountAnimations()) {

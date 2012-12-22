@@ -111,19 +111,28 @@ void
 BAMResource::DumpFrames(const char *filePath)
 {
 	printf("DumpFrames: cycles: %d\n", fNumCycles);
-	for (int32 cycle = 0; cycle < fNumCycles; cycle++) {
+	for (uint8 cycle = 0; cycle < fNumCycles; cycle++) {
 		printf("cycle %d\n", cycle);
-		printf("\tframes: %d\n", fNumFrames);
-		for (int numFrame = 0; numFrame < fNumFrames; numFrame++) {
-			SDL_Surface *surface = FrameForCycle(cycle, numFrame).bitmap->Surface();
-			TPath path(filePath);
-			char fileName[PATH_MAX];
-			snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
-					fName.CString(), cycle, numFrame);
-			path.Append(fileName);
-			printf("save to %s\n", path.Path());
-			SDL_SaveBMP(surface, path.Path());
-			SDL_FreeSurface(surface);
+		int numFrames = CountFrames(cycle);
+		printf("\tframes: %d\n", numFrames);
+		for (int numFrame = 0; numFrame < numFrames; numFrame++) {
+			try {
+				Frame frame = FrameForCycle(cycle, numFrame);
+				std::cout << "frame retrieved" << std::endl;
+				SDL_Surface *surface = frame.bitmap->Surface();
+				if (surface == NULL)
+					continue;
+				TPath path(filePath);
+				char fileName[PATH_MAX];
+				snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
+						fName.CString(), cycle, numFrame);
+				path.Append(fileName);
+				printf("save to %s\n", path.Path());
+				SDL_SaveBMP(surface, path.Path());
+				SDL_FreeSurface(surface);
+			} catch (...) {
+				continue;
+			}
 		}
 	}
 }
@@ -141,32 +150,29 @@ BAMResource::_FrameAt(uint16 index)
 
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
-	bool frameCompressed = is_frame_compressed(entry.data);
+	const bool frameCompressed = is_frame_compressed(entry.data);
 	
 	Bitmap* bitmap = GraphicsEngine::CreateBitmap(
 			entry.width, entry.height, 8);
+
 	if (bitmap == NULL)
 		throw -1;
 	
 	const uint32 offset = data_offset(entry.data);
-	int decoded = 0;
-	uint8 *destData = new uint8[entry.width * entry.height];
 	if (frameCompressed) {
-		decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
+		uint8 destData[entry.width * entry.height];
+		int decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
 				entry.width * entry.height, destData,
 				fCompressedIndex);
+		if (decoded != entry.width * entry.height)
+			throw -1;
+
+		Graphics::DataToBitmap(destData, entry.width, entry.height, bitmap);
 	} else {
-		decoded = Graphics::Decode((uint8 *)(fData->Data()) + offset,
-				entry.width * entry.height, destData);
+		Graphics::DataToBitmap(((uint32*)fData->Data() + offset),
+				entry.width, entry.height, bitmap);
 	}
 
-	Graphics::DataToBitmap(destData, entry.width, entry.height, bitmap);
-
-	delete[] destData;
-	
-	if (decoded != entry.width * entry.height)
-		throw -1;
-	
 	bitmap->SetPalette(*fPalette);
 	bitmap->SetColorKey(fCompressedIndex, true);
 
@@ -191,6 +197,8 @@ BAMResource::_FrameAt(uint16 index)
 Frame
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
+	//std::cout << "FrameForCycle(" << (int)cycleIndex << ", ";
+	//std::cout << (int)frameIndex << ")" << std::endl;
 	if (cycleIndex >= fNumCycles) {
 		std::cerr << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
 		throw cycleIndex;
@@ -242,8 +250,10 @@ BAMResource::_Load()
 		int status = uncompress((Bytef*)decompressedData,
 			(uLongf*)&len, (const Bytef*)(fData->Data()) + 12, fData->Size() - 12);
 
-		if (status != Z_OK)
+		if (status != Z_OK) {
+			delete decompressedData;
 			throw -1;
+		}
 
 		ReplaceData(new MemoryStream(decompressedData, len, true));
 	}

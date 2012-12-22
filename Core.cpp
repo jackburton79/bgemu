@@ -250,8 +250,8 @@ Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 {
 	// TODO:
 	actor->SetFlying(true);
-	if (rect_contains(fCurrentRoom->AreaRect(), point))
-		actor->SetDestination(point);
+	//if (rect_contains(fCurrentRoom->AreaRect(), point))
+	actor->SetDestination(point);
 }
 
 
@@ -265,7 +265,7 @@ Core::RandomWalk(Actor* actor)
 	destination.x += randomX;
 	destination.y += randomY;
 	actor->SetFlying(false);
-	if (rect_contains(fCurrentRoom->AreaRect(), destination))
-		actor->SetDestination(destination);
+	//if (rect_contains(fCurrentRoom->AreaRect(), destination))
+	actor->SetDestination(destination);
 }
 

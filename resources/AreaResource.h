@@ -3,6 +3,7 @@
 
 #include "Resource.h"
 
+class Actor;
 class Door;
 class ARAResource : public Resource {
 public:
@@ -25,7 +26,7 @@ public:
 	IE::animation *AnimationAt(uint32 index);
 
 	uint16 CountActors() const;
-	IE::actor *ActorAt(uint16 index);
+	Actor* GetActorAt(uint16 index);
 
 	res_ref ScriptName();
 

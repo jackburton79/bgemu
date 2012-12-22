@@ -54,11 +54,12 @@ CHUIResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(12, fControlTableOffset);
 	fData->ReadAt(16, fWindowsOffset);
 
+	Dump();
 	return true;
 }
 
 
-uint32
+uint16
 CHUIResource::CountWindows() const
 {
 	return fNumWindows;
@@ -66,15 +67,13 @@ CHUIResource::CountWindows() const
 
 
 Window*
-CHUIResource::GetWindow(uint32 num)
+CHUIResource::GetWindow(uint16 num)
 {
 	if (num >= fNumWindows)
 		return NULL;
 
 	IE::window window;
 	fData->ReadAt(fWindowsOffset + num * sizeof(window), window);
-
-	window.Print();
 
 	Bitmap* background = NULL;
 	if (window.background) {
@@ -106,8 +105,9 @@ void
 CHUIResource::Dump()
 {
 	IE::window window;
-	for (uint32 n = 0; n < fNumWindows; n++) {
+	for (uint16 n = 0; n < fNumWindows; n++) {
 		fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
+		window.Print();
 	}
 }
 
@@ -156,9 +156,6 @@ CHUIResource::_ReadControl(control_table& controlTable)
 		}
 		default:
 		{
-			/*IE::control* newControl = new IE::control;
-			fData->ReadAt(controlTable.offset, *newControl);
-			return newControl;*/
 			return NULL;
 		}
 	}

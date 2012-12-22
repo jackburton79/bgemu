@@ -39,6 +39,18 @@ CREResource::Load(Archive *archive, uint32 key)
 }
 
 
+bool
+CREResource::Load(Stream* stream, uint32 position, uint32 size)
+{
+	delete fData;
+
+	fData = new MemoryStream(size);
+	stream->ReadAt(position, fData->Data(), size);
+
+
+}
+
+
 uint32
 CREResource::LongNameID()
 {

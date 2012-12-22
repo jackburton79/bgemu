@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include "GraphicsEngine.h"
 #include "Polygon.h"
 #include "RectUtils.h"
 #include "Utils.h"
@@ -34,19 +35,10 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 
 
 /* static */
-int
-Graphics::Decode(const void *source, uint32 outSize, void *dest)
-{
-	memcpy(dest, source, outSize);
-	return outSize;
-}
-
-
-/* static */
 void
 Graphics::DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color)
 {
-	if (x < 0 || y < 0 || x >= surface->w || y >= surface->h)
+	if (x >= (uint32)surface->w || y >= (uint32)surface->h)
 		return;
 
 	uint32 bpp = surface->format->BytesPerPixel;
@@ -130,7 +122,8 @@ Graphics::DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color)
 
 /* static */
 int
-Graphics::DataToBitmap(const void *data, int32 width, int32 height, Bitmap *bitmap)
+Graphics::DataToBitmap(const void *data, int32 width,
+		int32 height, Bitmap *bitmap)
 {
 	SDL_Surface* surface = bitmap->Surface();
 	SDL_LockSurface(surface);
@@ -164,27 +157,37 @@ Graphics::MirrorSDLSurface(SDL_Surface *surface)
 
 
 /* static */
+static
+bool
+match_color(const SDL_Color& color, const uint8& r, const uint8& g,
+		const uint8& b, const uint8& a)
+{
+	return color.r == r && color.g == g && color.b == b;
+}
+
+
+/* static */
 Bitmap*
-Graphics::ApplyMask(Bitmap* bitmap, Bitmap* mask, uint16 x, uint16 y)
+Graphics::ApplyMask(Bitmap* bitmap, Bitmap*, uint16 x, uint16 y)
 {
 	SDL_Surface* surface = bitmap->Surface();
-	uint32 color = SDL_MapRGB(surface->format, 0, 0, 0);
-	uint32 colorKey = SDL_MapRGB(surface->format, 0, 255, 0);
+	//uint32 colorKey = surface->format->colorkey;
+	//std::cout << "colorkey: " << colorKey << std::endl;
+	//SDL_Color* colors = surface->format->palette->colors;
 
-	SDL_SetColorKey(surface, 0, 0);
 	SDL_LockSurface(surface);
 	for (int32 y = 0; y < surface->h; y++) {
-		uint8 *pixels = (uint8*)surface->pixels + y * surface->pitch;
-		for (int32 x = 0; x < surface->pitch; x++) {
-			if (*pixels == color)
-				*pixels = colorKey;
-			pixels++;
+		for (int32 x = 0; x < surface->w; x++) {
+			uint8* pixel = (uint8*)surface->pixels + y * surface->pitch + x;
+			if (*pixel > 200) {
+				*pixel = 0;
+			}
 		}
 	}
 	SDL_UnlockSurface(surface);
-	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, colorKey);
+	//SDL_SaveBMP(surface, "test.bmp");
 
-
+	//throw -1;
 	return bitmap;
 }
 

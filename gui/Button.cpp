@@ -14,7 +14,6 @@
 
 #include <assert.h>
 
-const static char* kGuiCTRL = "GUICTRL";
 
 Button::Button(IE::button* button)
 	:
@@ -24,7 +23,6 @@ Button::Button(IE::button* button)
 	fSelected(false),
 	fPressed(false)
 {
-	button->Print();
 	fResource = gResManager->GetBAM(button->image);
 }
 
