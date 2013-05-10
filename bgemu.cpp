@@ -66,7 +66,7 @@ main(int argc, char **argv)
 	}
 
 	if (!GraphicsEngine::Initialize()) {
-		GraphicsEngine::Destroy();
+		Core::Destroy();
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
