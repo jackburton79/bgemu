@@ -97,7 +97,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (fArea == NULL)
 		return false;
 
-	fWed = gResManager->GetWED(fName);
+	fWed = gResManager->GetWED(fArea->WedName());
 	if (fWed == NULL)
 		return false;
 
