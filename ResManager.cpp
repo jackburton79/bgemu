@@ -174,12 +174,11 @@ ResourceManager::_LoadIDSResources()
 	sAnimate = gResManager->GetIDS("ANIMATE");
 	//std::cerr << "GetIDS(\"ANISND\")" << std::endl;
 	sAniSnd = gResManager->GetIDS("ANISND");
-	//std::cerr << "GetIDS(\"ANISND\") returned" << std::endl;
+
 	// TODO: Improve
 	if (sAniSnd == NULL) {
 		// No AniSnd.ids file, let's use our own.
 		//fGame = GAME_BALDURSGATE;
-		std::cerr << "sAniSnd is NULL. Creating our own" << std::endl;
 		sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
 	} else {
 		//fGame = GAME_BALDURSGATE2;
@@ -318,8 +317,6 @@ IDSResource*
 ResourceManager::GetIDS(const res_ref& name)
 {
 	Resource* resource = _GetResource(name, RES_IDS);
-	if (resource == NULL)
-		std::cerr << "IDS is NULL" << std::endl;
 	return static_cast<IDSResource*>(resource);
 }
 
