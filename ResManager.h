@@ -67,7 +67,7 @@ private:
 	const char *ResourcesPath() const;
 	void _LoadIDSResources();
 
-	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type);
+	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;
 
 	Resource *_FindResource(KeyResEntry &entry);
 	Resource *_LoadResource(KeyResEntry &entry);

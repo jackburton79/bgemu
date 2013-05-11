@@ -26,7 +26,7 @@
 #include <iostream>
 #include <limits.h>
 
-#define USE_OVERRIDE 1
+#define USE_OVERRIDE 0
 
 #define OVERRIDE_MASK	0x00
 #define CACHE_MASK		0x01
@@ -281,19 +281,23 @@ ResourceManager::Initialize(const char *path)
 			KeyResEntry *res = new KeyResEntry;
 			if (key->GetResEntryAt(c, *res)) {
 				if (!strcmp(res->name.name, "")) {
-					//printf("unnamed resource type %s, %d\n",
-						//	strresource(res->type), res->key);
-					// TODO: looks like we get some unnamed resources
+					printf("unnamed resource type %s, %d\n",
+							strresource(res->type), res->key);
+					// TODO: looks like in BG2 there is an unnamed resource
 					// and this causes all kinds of problems. Investigate
 					delete res;
 					continue;
 				}
+
 				ref_type refType;
 				refType.name = res->name;
 				refType.type = res->type;
 				fResourceMap[refType] = res;
-			} else
+
+			} else {
+				std::cerr << "GetResEntryAt() failed" << std::endl;
 				delete res;
+			}
 		}
 	} catch (...) {
 		std::cerr << "Error!!!" << std::endl;
@@ -313,13 +317,17 @@ ResourceManager::_LoadIDSResources()
 {
 	sDialogs = gResManager->GetTLK(kDialogResource);
 	sAnimate = gResManager->GetIDS("ANIMATE");
+	//std::cerr << "GetIDS(\"ANISND\")" << std::endl;
 	sAniSnd = gResManager->GetIDS("ANISND");
+	//std::cerr << "GetIDS(\"ANISND\") returned" << std::endl;
 	// TODO: Improve
 	if (sAniSnd == NULL) {
 		// No AniSnd.ids file, let's use our own.
 		//fGame = GAME_BALDURSGATE;
-		sAniSnd = new WriteIDSResource("ANISND");
-		fill_anisnd_ids((WriteIDSResource*)sAniSnd);
+		std::cerr << "sAniSnd is NULL. Creating our own" << std::endl;
+		WriteIDSResource* aniSnd = new WriteIDSResource("ANISND");
+		fill_anisnd_ids((WriteIDSResource*)aniSnd);
+		sAniSnd = aniSnd;
 	} else {
 		//fGame = GAME_BALDURSGATE2;
 		//sAniSnd->DumpToFile("/home/stefano/anisnd.ids");
@@ -457,6 +465,8 @@ IDSResource*
 ResourceManager::GetIDS(const res_ref& name)
 {
 	Resource* resource = _GetResource(name, RES_IDS);
+	if (resource == NULL)
+		std::cerr << "IDS is NULL" << std::endl;
 	return static_cast<IDSResource*>(resource);
 }
 
@@ -652,6 +662,13 @@ ResourceManager::PrintResources(int32 type)
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;
+		if (res == NULL) {
+			std::cerr << "KeyResEntry is NULL. SHOULD NOT HAPPEN! ";
+			std::cerr << iter->first.name << " (";
+			std::cerr << iter->first.type << " )" << std::endl;
+			abort();
+			continue;
+		}
 		if (type == -1 || type == res->type) {
 			std::cout << res->name << " " << strresource(res->type);
 			std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
@@ -717,10 +734,14 @@ ResourceManager::_FindResource(KeyResEntry &entry)
 
 
 KeyResEntry*
-ResourceManager::_GetKeyRes(const res_ref &name, uint16 type)
+ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 {
 	ref_type nameType = {name, type};
-	return fResourceMap[nameType];
+	resource_map::const_iterator iter = fResourceMap.find(nameType);
+	if (iter == fResourceMap.end())
+		return NULL;
+
+	return iter->second;
 }
 
 
