@@ -154,6 +154,8 @@ Core::GetObject(Object* source, object_node* node)
 			return *i;
 		}
 	}
+
+	std::cout << "No object found" << std::endl;
 	return NULL;
 }
 

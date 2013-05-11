@@ -267,6 +267,18 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = !Processed();
 				break;
 			}
+			case 0x400C:
+			{
+				/*0x400C Class(O:Object*,I:Class*Class)*/
+				object_node* obj = FindObjectNode(trig);
+				Object *object = core->GetObject(fTarget, obj);
+				if (object != NULL) {
+					Actor* actor = dynamic_cast<Actor*>(object);
+					if (actor != NULL)
+						returnValue = actor->CRE()->Class() == trig->parameter1;
+				}
+				break;
+			}
 			case 0x400F:
 			{
 				/*0x400F Global(S:Name*,S:Area*,I:Value*)
@@ -283,7 +295,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					if (actor != NULL)
 						variableValue = actor->GetVariable(variableName.c_str());
 				} else {
-					// TODO: Check for AREA variables
+					// TODO: Check for AREA variables, currently we
+					// treat AREA variables as global variables
 					variableValue = Core::Get()->GetVariable(variableName.c_str());
 				}
 				returnValue = variableValue == trig->parameter1;
@@ -445,7 +458,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
-	printf("\t*** %s ***\n", returnValue ? "TRUE" : "FALSE");
+
+	printf("\t*** %s (flags: %d) ***\n", returnValue ? "TRUE" : "FALSE", trig->flags);
 	return returnValue;
 }
 
@@ -599,8 +613,11 @@ Script::_ExecuteAction(action_node* act)
 			Object* targetObject = core->GetObject(fTarget, objBlock);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
-				if (thisActor != NULL && targetActor != NULL)
+				if (thisActor != NULL && targetActor != NULL) {
+					std::cout << thisActor->Name() << " attacked ";
+					std::cout << targetActor->Name() << std::endl;
 					thisActor->Attack(targetActor);
+				}
 			}
 			break;
 		}

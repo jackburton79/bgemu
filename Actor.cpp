@@ -125,7 +125,9 @@ Actor::_Init()
 		try {
 			fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
 		} catch (...) {
-			std::cerr << "Actor::Actor(): cannot instantiate Animation" << std::endl;
+			std::cerr << "Actor::Actor(" << fActor->name << ")";
+			std::cerr << ": cannot instantiate Animation ";
+			std::cerr << std::hex << fCRE->AnimationID() << std::endl;
 			delete fAnimations[c];
 			fAnimations[c] = NULL;
 		}

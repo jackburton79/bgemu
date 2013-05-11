@@ -29,7 +29,18 @@ public:
 	void SetScript(Script* script);
 
 	bool MatchNode(object_node* node);
+
 	static bool Match(Object* a, Object* b);
+
+	bool IsName(const char* name);
+	bool IsClass(int c);
+	bool IsRace(int race);
+	bool IsGender(int gender);
+	bool IsGeneral(int general);
+	bool IsSpecific(int specific);
+	bool IsAlignment(int alignment);
+	bool IsEnemyAlly(int ea);
+
 
 protected:
 	const char* fName;
