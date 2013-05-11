@@ -116,7 +116,7 @@ SoundBuffer::SoundBuffer(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 	fBufferPos(0),
 	fConsumedPos(0)
 {
-	fData = (uint8*)malloc(bufferLen);
+	fData = (uint8*)calloc(1, bufferLen);
 }
 
 
