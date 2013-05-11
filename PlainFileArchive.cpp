@@ -33,7 +33,7 @@ PlainFileArchive::ReadResource(res_ref& name, const uint32& key,
 {
 	// Ignore name, key and type, since the file
 	// contains only one resource
-	uint32 size = fFile->Size();
+	const uint32 size = fFile->Size();
 	MemoryStream *stream = new MemoryStream(size);
 	ssize_t sizeRead = fFile->ReadAt(0, stream->Data(), size);
 	if (sizeRead < 0 || (size_t)sizeRead != size) {
