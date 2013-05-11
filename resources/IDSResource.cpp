@@ -116,19 +116,3 @@ IDSResource::_IsEncrypted()
 
 	return encrypted;
 }
-
-
-// WriteIDSResource
-WriteIDSResource::WriteIDSResource(const res_ref& name)
-	:
-	IDSResource(name)
-{
-}
-
-
-bool
-WriteIDSResource::AddValue(uint32 id, std::string value)
-{
-	fMap[id] = value;
-	return true;
-}
