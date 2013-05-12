@@ -239,7 +239,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
 				if (object != NULL) {
-					std::cout << "results: " << fTarget->LastScriptRoundResults() << std::endl;
 					returnValue = object->MatchWithOneInList(
 							fTarget->LastScriptRoundResults()->Attackers());
 				}
