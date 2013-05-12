@@ -12,6 +12,8 @@
 
 #include <sys/time.h>
 #include <stdlib.h>
+#include <algorithm>
+#include <ctype.h>
 #include <vector>
 
 #include <SDL.h>
@@ -99,6 +101,7 @@ Core::EnteredArea(Room* area, Script* script)
 {
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
+
 	SetRoomScript(script);
 
 	// The area script
@@ -135,10 +138,13 @@ Core::GetObject(Object* source, object_node* node)
 {
 	node->Print();
 
-	const char* identifier = ObjectsIDS()->ValueFor(node->identifiers);
-	if (identifier != NULL && !strcasecmp(identifier, "MYSELF")) {
-		std::cout << "Found object (" << source->Name() << ")";
-		std::cout << "(source))!!!" << std::endl;
+	std::string identifier = IDTable::ObjectAt(node->identifiers);
+	// TODO: create a method to do this
+	std::transform(identifier.begin(), identifier.end(),
+			identifier.begin(), ::toupper);
+	if (identifier == "MYSELF") {
+		std::cout << "GetObject() returned " << source->Name() << " ";
+		std::cout << "(source)!!!" << std::endl;
 		return source;
 	}
 
@@ -147,15 +153,16 @@ Core::GetObject(Object* source, object_node* node)
 
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
+	std::cout << "Matching..." << std::endl;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
 		if ((*i)->MatchNode(node)) {
-			std::cout << "object matched (" << (*i)->Name();
-			std::cout << ")!!!" << std::endl;
+			std::cout << "GetObject() returned " << (*i)->Name();
+			std::cout << std::endl;
 			return *i;
 		}
 	}
 
-	std::cout << "No object found" << std::endl;
+	std::cout << "GetObject() returned NONE" << std::endl;
 	return NULL;
 }
 
@@ -168,11 +175,13 @@ Core::GetObject(const char* name)
 	std::vector<Actor*>::iterator i;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
-			std::cout << "object matched (" << name;
-			std::cout << ")!!!" << std::endl;
+			std::cout << "GetObject() returned " << name;
+			std::cout << std::endl;
 			return *i;
 		}
 	}
+
+	std::cout << "GetObject() returned NONE" << std::endl;
 	return NULL;
 }
 
@@ -196,6 +205,13 @@ Core::SetRoomScript(Script* script)
 
 
 void
+Core::NewScriptRound()
+{
+
+}
+
+
+void
 Core::CheckScripts()
 {
 }
@@ -204,6 +220,9 @@ Core::CheckScripts()
 void
 Core::UpdateLogic()
 {
+	// TODO: Should do that based on timer.
+	//NewScriptRound();
+
 	//return;
 	// TODO: Fix/Improve
 	std::vector<Actor*>::iterator i;
@@ -219,10 +238,8 @@ Core::UpdateLogic()
 }
 
 
-
-
 bool
-Core::See(Object* source, Object* object)
+Core::See(const Object* source, const Object* object) const
 {
 	// TODO: improve
 	if (object == NULL)
@@ -232,6 +249,19 @@ Core::See(Object* source, Object* object)
 	std::cout << object->Name() << " ?" << std::endl;
 
 	return object->IsVisible();
+}
+
+
+int
+Core::Distance(const Object* a, const Object* b) const
+{
+	const Actor* actorA = dynamic_cast<const Actor*>(a);
+	const Actor* actorB = dynamic_cast<const Actor*>(b);
+
+	if (actorA == NULL || actorB == NULL)
+		return 100; // TODO: ???
+
+	return actorA->Position() - actorB->Position();
 }
 
 

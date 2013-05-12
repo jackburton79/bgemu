@@ -11,7 +11,7 @@ public:
 	IDSResource(const res_ref &name);
 	virtual bool Load(Archive *archive, uint32 key);
 
-	const char *ValueFor(uint32 id);
+	std::string ValueFor(uint32 id);
 
 	typedef std::map<uint32, std::string> string_map;
 

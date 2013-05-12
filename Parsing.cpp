@@ -91,6 +91,7 @@ Parser::SetTo(Stream *stream)
 void
 Parser::SetDebug(bool debug)
 {
+	std::cout << "Set Debug true" << std::endl;
 	fDebug = debug;
 }
 
@@ -106,10 +107,15 @@ Parser::Read(node*& rootNode)
 		printf("end of file!\n");
 	}
 
-	// TODO: We do a second pass to copy the values into
-	// the node specific values.
-	// Not very nice, try harder for a better solution
-	_FixNodeTree(rootNode);
+	try {
+		// TODO: We do a second pass to copy the values into
+		// the node specific values.
+		// Not very nice, try harder for a better solution
+		if (rootNode != NULL)
+			_FixNodeTree(rootNode);
+	} catch (...) {
+		printf("FixNodeTree failed!\n");
+	}
 }
 
 

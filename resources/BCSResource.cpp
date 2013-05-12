@@ -33,6 +33,8 @@ BCSResource::GetScript()
 	Script* script = NULL;
 	try {
 		Parser parser;
+		if (strcasecmp(Name(), "AR2100") == 0)
+			parser.SetDebug(true);
 		parser.SetTo(fData);
 
 		node* rootNode = NULL;
@@ -45,5 +47,7 @@ BCSResource::GetScript()
 		script = NULL;
 	}
 
+	if (script == NULL)
+		std::cout << "SCRIPT " << Name() << "is NULL" << std::endl;
 	return script;
 }

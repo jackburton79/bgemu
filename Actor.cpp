@@ -32,8 +32,7 @@ Actor::Actor(IE::actor &actor)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
-	fPath(NULL),
-	fLastAttacker(NULL)
+	fPath(NULL)
 {
 	_Init();
 }
@@ -49,8 +48,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
-	fPath(NULL),
-	fLastAttacker(NULL)
+	fPath(NULL)
 {
 	_Init();
 }
@@ -65,8 +63,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fOwnsActor(true),
 	fDontCheckConditions(false),
 	fFlying(false),
-	fPath(NULL),
-	fLastAttacker(NULL)
+	fPath(NULL)
 {
 	fActor = new IE::actor;
 	fActor->cre = creName;
@@ -146,6 +143,7 @@ Actor::~Actor()
 
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		delete fAnimations[i];
+
 	delete fPath;
 }
 
@@ -284,22 +282,8 @@ Actor::IsInterruptable() const
 }
 
 
-Actor*
-Actor::LastAttacker() const
-{
-	return fLastAttacker;
-}
-
-
-void
-Actor::Attack(Actor* target)
-{
-	target->fLastAttacker = this;
-}
-
-
 CREResource *
-Actor::CRE()
+Actor::CRE() const
 {
 	return fCRE;
 }

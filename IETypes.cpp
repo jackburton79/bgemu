@@ -5,6 +5,7 @@
 #include "Utils.h"
 
 #include <assert.h>
+#include <cmath>
 #include <cstdio>
 
 using namespace IE;
@@ -230,6 +231,13 @@ operator!=(const IE::point& ptA, const IE::point& ptB)
 }
 
 
+int
+operator-(const IE::point& ptA, const IE::point& ptB)
+{
+	return std::abs(ptA.x - ptB.x) + std::abs(ptA.y - ptB.y);
+}
+
+
 void
 animation::Print() const
 {
@@ -270,7 +278,7 @@ actor::Print() const
 	std::cout << "\tdestination: (" << destination.x;
 	std::cout << ", " << destination.y << ")" << std::endl;
 	std::cout << "\tflags: " << std::hex << flags << std::endl;
-	std::cout << "\tanimation: " << AnimateIDS()->ValueFor(animation);
+	std::cout << "\tanimation: " << IDTable::AnimationAt(animation);
 	std::cout << "(" << animation << ")" << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
 	std::cout << "\tcre attached: " << ((flags & IE::ACTOR_CRE_EXTERNAL) ? "NO" : "YES") << std::endl;

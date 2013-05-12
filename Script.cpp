@@ -39,6 +39,9 @@ Script::Script(node* rootNode)
 	fProcessed(false),
 	fTarget(NULL)
 {
+	if (rootNode == NULL)
+		throw "Script::Script(): root node is NULL";
+
 	fRootNode->next = NULL;
 
 	//Print();
@@ -65,8 +68,10 @@ Script::Print() const
 void
 Script::Add(Script* script)
 {
-	fRootNode->next = script->fRootNode;
-	script->fRootNode = NULL;
+	if (script != NULL) {
+		fRootNode->next = script->fRootNode;
+		script->fRootNode = NULL;
+	}
 }
 
 
@@ -117,6 +122,10 @@ Script::FindNode(block_type nodeType, node* start) const
 bool
 Script::Execute()
 {
+	//TODO: Move this to a better place
+	if (fTarget != NULL)
+		fTarget->NewScriptRound();
+
 	// for each CR block
 	// for each CO block
 	// check triggers
@@ -207,7 +216,8 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	printf("%s (%d 0x%x)\n", TriggerIDS()->ValueFor(trig->id), trig->id, trig->id);
+	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
+			trig->id, trig->id);
 	trig->Print();
 
 	Actor* actor = dynamic_cast<Actor*>(fTarget);
@@ -227,23 +237,27 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				/*object_node* obj = FindObjectNode(trig);
-				Object* object = core->GetObject(fTarget, obj);
-				if (object != NULL)
-					returnValue = Object::Match(fTarget->LastAttacker(), object);*/
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL) {
+					std::cout << "results: " << fTarget->LastScriptRoundResults() << std::endl;
+					returnValue = object->MatchWithOneInList(
+							fTarget->LastScriptRoundResults()->Attackers());
+				}
 				break;
 			}
 			case 0x0020:
 			{
 				// HitBy
+				// Returns true on first Script launch, IOW initial area load
 				if (!Processed()) {
 					returnValue = true;
 					break;
 				}
-				//object_node* obj = FindObjectNode(trig);
-				//Object* object = core->GetObject(fTarget, obj);
-				/*if (object != NULL)
-					returnValue = Object::Match(fTarget->LastHitter(), object);*/ //??
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL) {
+					returnValue = object->MatchWithOneInList(
+							fTarget->LastScriptRoundResults()->Hitters());
+				}
 				break;
 			}
 			case 0x0022:
@@ -270,13 +284,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				object_node* obj = FindObjectNode(trig);
-				Object *object = core->GetObject(fTarget, obj);
-				if (object != NULL) {
-					Actor* actor = dynamic_cast<Actor*>(object);
-					if (actor != NULL)
-						returnValue = actor->CRE()->Class() == trig->parameter1;
-				}
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL)
+					returnValue = object->IsClass(trig->parameter1);
 				break;
 			}
 			case 0x400F:
@@ -305,13 +315,22 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4017:
 			{
 				// Race()
-				object_node* obj = FindObjectNode(trig);
-				Object *object = core->GetObject(fTarget, obj);
-				if (object != NULL) {
-					Actor* actor = dynamic_cast<Actor*>(object);
-					if (actor != NULL)
-						returnValue = actor->CRE()->Race() == trig->parameter1;
-				}
+				Object* object = core->GetObject(
+						fTarget, FindObjectNode(trig));
+				if (object != NULL)
+					returnValue = object->IsRace(trig->parameter1);
+
+				break;
+			}
+
+			case 0x4018:
+			{
+				/* 0x4018 Range(O:Object*,I:Range*)
+				Returns true only if the specified object
+				is within distance given (in feet) of the active CRE. */
+				Object* object = core->GetObject(
+						fTarget, FindObjectNode(trig));
+				returnValue = core->Distance(object, fTarget) <= trig->parameter1;
 				break;
 			}
 
@@ -321,8 +340,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				object_node* obj = FindObjectNode(trig);
-				Object *object = core->GetObject(fTarget, obj);
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(fTarget, object);
 				break;
@@ -406,8 +424,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Detect ignores Protection from Creature
 				 * type effects for static objects.
 				 */
-				object_node* obj = FindObjectNode(trig);
-				Object *object = core->GetObject(fTarget, obj);
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(fTarget, object);
 					// || core->Hear(fTarget, object);
@@ -493,7 +510,7 @@ Script::_ExecuteActions(node* responseSet)
 void
 Script::_ExecuteAction(action_node* act)
 {
-	printf("%s (%d 0x%x)\n", ActionIDS()->ValueFor(act->id), act->id, act->id);
+	printf("%s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
 	act->Print();
 	Core* core = Core::Get();
 	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
@@ -531,13 +548,13 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
 			object_node* objBlock = FindObjectNode(act);
-			for (;;) {
-				objBlock = dynamic_cast<object_node*>(objBlock->Next());
-				if (objBlock == NULL)
-					break;
-				objBlock->Print();
-				Object* targetObject = core->GetObject(fTarget, objBlock);
-			}
+			objBlock = dynamic_cast<object_node*>(objBlock->Next());
+			if (objBlock == NULL)
+				break;
+			Object* targetObject = core->GetObject(fTarget, objBlock);
+
+			std::cout << thisActor->Name();
+			std::cout << " run away from " << targetObject->Name() << std::endl;
 			break;
 		}
 		case 61:
@@ -614,7 +631,7 @@ Script::_ExecuteAction(action_node* act)
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
-					std::cout << thisActor->Name() << " attacked ";
+					std::cout << thisActor->Name() << " attacks ";
 					std::cout << targetActor->Name() << std::endl;
 					thisActor->Attack(targetActor);
 				}
@@ -785,23 +802,25 @@ object_node::object_node()
 void
 object_node::Print() const
 {
-	printf("Object:\n");
+	std::cout << "Object:" << std::endl;
 	if (Core::Get()->Game() == GAME_TORMENT) {
-		printf("team: %d ", team);
-		printf("faction: %d ", faction);
+		std::cout << "team: " << team << ", ";
+		std::cout << "faction: " << faction << ", ";
 	}
-	printf("ea: %s ", EAIDS()->ValueFor(ea));
-	printf("general: %s ", GeneralIDS()->ValueFor(general));
-	printf("race: %s ", RacesIDS()->ValueFor(race));
-	printf("class: %s\n", ClassesIDS()->ValueFor(classs));
-	printf("specific: %s ", SpecificIDS()->ValueFor(specific));
-	printf("gender: %s ", GendersIDS()->ValueFor(gender));
-	printf("alignment: %d ", alignment);
+	std::cout << "ea: " << IDTable::EnemyAllyAt(ea) << ", ";
+	std::cout << "general: " << IDTable::GeneralAt(general) << ", ";
+	std::cout << "race: " << IDTable::RaceAt(race)  << ", ";
+	std::cout << "class: " << IDTable::ClassAt(classs);
+	std::cout << std::endl;
+	std::cout << "specific: " << IDTable::SpecificAt(specific) << ", ";
+	std::cout << "gender: " << IDTable::GenderAt(gender) << ", ";
+	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << ", ";
 	//if (identifiers != 0)
-	printf("identifiers: %s \n", ObjectsIDS()->ValueFor(identifiers));
+	std::cout << "identifiers: " << IDTable::ObjectAt(identifiers) << ", ";
+
 	//if (Core::Get()->Game() != GAME_BALDURSGATE)
 		//printf("point: %d %d ", point.x, point.y);
-	printf("name: %s\n", name);
+	std::cout << "name: " << name << std::endl;
 }
 
 

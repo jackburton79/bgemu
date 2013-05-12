@@ -48,6 +48,7 @@ ResourceManager* gResManager = NULL;
 static ResourceManager sManager;
 
 static TLKResource* sDialogs;
+static IDSResource* sAlignment;
 static IDSResource* sGeneral;
 static IDSResource* sAnimate;
 static IDSResource* sAniSnd;
@@ -86,7 +87,9 @@ ResourceManager::~ResourceManager()
 	gResManager->ReleaseResource(sGeneral);
 	gResManager->ReleaseResource(sAniSnd);
 	gResManager->ReleaseResource(sAnimate);
+	gResManager->ReleaseResource(sAlignment);
 	gResManager->ReleaseResource(sDialogs);
+
 
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
@@ -193,6 +196,7 @@ ResourceManager::_LoadIDSResources()
 	sActions = gResManager->GetIDS("ACTION");
 	sObjects = gResManager->GetIDS("OBJECT");
 	sEA = gResManager->GetIDS("EA");
+	sAlignment = gResManager->GetIDS("ALIGNMENT");
 }
 
 
@@ -606,7 +610,7 @@ ResourceManager::TryEmptyResourceCache(bool force)
 }
 
 
-// global functions
+// IDTable
 
 TLKResource*
 Dialogs()
@@ -615,78 +619,85 @@ Dialogs()
 }
 
 
-IDSResource*
-GeneralIDS()
+std::string
+IDTable::AlignmentAt(uint32 i)
 {
-	return sGeneral;
+	return sAlignment->ValueFor(i);
 }
 
 
-IDSResource*
-AnimateIDS()
+std::string
+IDTable::GeneralAt(uint32 i)
 {
-	return sAnimate;
+	return sGeneral->ValueFor(i);
 }
 
 
-IDSResource*
-AniSndIDS()
+std::string
+IDTable::AnimationAt(uint32 i)
 {
-	return sAniSnd;
+	return sAnimate->ValueFor(i);
 }
 
 
-IDSResource*
-RacesIDS()
+std::string
+IDTable::AniSndAt(uint32 i)
 {
-	return sRaces;
+	return sAniSnd->ValueFor(i);
 }
 
 
-IDSResource*
-GendersIDS()
+std::string
+IDTable::RaceAt(uint32 i)
 {
-	return sGenders;
+	return sRaces->ValueFor(i);
 }
 
 
-IDSResource*
-ClassesIDS()
+std::string
+IDTable::GenderAt(uint32 i)
 {
-	return sClasses;
+	return sGenders->ValueFor(i);
 }
 
 
-IDSResource*
-SpecificIDS()
+std::string
+IDTable::ClassAt(uint32 i)
 {
-	return sSpecifics;
+	return sClasses->ValueFor(i);
 }
 
 
-IDSResource*
-TriggerIDS()
+std::string
+IDTable::SpecificAt(uint32 i)
 {
-	return sTriggers;
+	return sSpecifics->ValueFor(i);
 }
 
 
-IDSResource*
-ActionIDS()
+std::string
+IDTable::TriggerAt(uint32 i)
 {
-	return sActions;
+	return sTriggers->ValueFor(i);
 }
 
 
-IDSResource*
-ObjectsIDS()
+std::string
+IDTable::ActionAt(uint32 i)
 {
-	return sObjects;
+	return sActions->ValueFor(i);
 }
 
 
-IDSResource*
-EAIDS()
+std::string
+IDTable::ObjectAt(uint32 i)
 {
-	return sEA;
+	return sObjects->ValueFor(i);
+}
+
+
+std::string
+IDTable::EnemyAllyAt(uint32 i)
+{
+	return sEA->ValueFor(i);
 }

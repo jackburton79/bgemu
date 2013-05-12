@@ -167,10 +167,10 @@ Animation::_SelectAnimation(CREResource* cre, int action, int& orientation)
 
 	//fType = AnimationType(animationID);
 	//if (fType != ANIMATION_CHARACTER) {
-	std::string baseName = AniSndIDS()->ValueFor(animationID);
+	std::string baseName = IDTable::AniSndAt(animationID);
 	if (baseName.empty()) {
 		printf("unknown code 0x%x (%s)\n", animationID,
-					AnimateIDS()->ValueFor(animationID));
+					IDTable::AnimationAt(animationID).c_str());
 		throw -1;
 	}
 

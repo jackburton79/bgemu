@@ -419,5 +419,6 @@ std::ostream &operator<<(std::ostream &os, res_ref ref);
 
 bool operator==(const IE::point&, const IE::point&);
 bool operator!=(const IE::point&, const IE::point&);
+int operator-(const IE::point&, const IE::point&);
 
 #endif

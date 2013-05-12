@@ -87,6 +87,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 		char *rest = NULL;
 		uint32 id = strtoul(stringID, &rest, 0);
 		//printf("id %s %d : %s\n", stringID, id, finalValue);
+
 		fMap[id] = finalValue;
 	}
 
@@ -96,10 +97,10 @@ IDSResource::Load(Archive *archive, uint32 key)
 }
 
 
-const char *
+std::string
 IDSResource::ValueFor(uint32 id)
 {
-	return fMap[id].c_str();
+	return fMap[id];
 }
 
 

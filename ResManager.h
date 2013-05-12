@@ -92,19 +92,24 @@ private:
 
 extern ResourceManager *gResManager;
 
-
 TLKResource* Dialogs();
-IDSResource* GeneralIDS();
-IDSResource* AnimateIDS();
-IDSResource* AniSndIDS();
-IDSResource* GendersIDS();
-IDSResource* RacesIDS();
-IDSResource* ClassesIDS();
-IDSResource* SpecificIDS();
-IDSResource* TriggerIDS();
-IDSResource* ActionIDS();
-IDSResource* ObjectsIDS();
-IDSResource* EAIDS();
+
+class IDTable {
+public:
+	static std::string DialogAt(uint32 i);
+	static std::string AlignmentAt(uint32 i);
+	static std::string GeneralAt(uint32 i);
+	static std::string AnimationAt(uint32 i);
+	static std::string AniSndAt(uint32 i);
+	static std::string GenderAt(uint32 i);
+	static std::string RaceAt(uint32 i);
+	static std::string ClassAt(uint32 i);
+	static std::string SpecificAt(uint32 i);
+	static std::string TriggerAt(uint32 i);
+	static std::string ActionAt(uint32 i);
+	static std::string ObjectAt(uint32 i);
+	static std::string EnemyAllyAt(uint32 i);
+};
 
 
 #endif

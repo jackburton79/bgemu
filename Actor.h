@@ -19,6 +19,8 @@ class BCSResource;
 class CREResource;
 class PathFinder;
 class Script;
+
+
 class Actor : public Object {
 public:
 	Actor(IE::actor& actor);
@@ -27,7 +29,7 @@ public:
 	virtual ~Actor();
 
 	const char *Name() const;
-	CREResource *CRE();
+	CREResource *CRE() const;
 
 	void Draw(GFX::rect area, Bitmap* heightMap);
 
@@ -42,9 +44,6 @@ public:
 
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
-
-	Actor* LastAttacker() const;
-	void Attack(Actor* target);
 
 	void MergeScripts();
 	void SetScript(Script *script);
@@ -80,7 +79,6 @@ private:
 	bool fFlying;
 
 	PathFinder* fPath;
-	Actor* fLastAttacker;
 
 	std::map<std::string, uint32> fVariables;
 

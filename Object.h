@@ -11,13 +11,37 @@
 #include "SupportDefs.h"
 
 #include <list>
+#include <vector>
 
+// TODO: Actor and Object aren't well separated.
+// Either merge in one class or improve the separation
 struct object_node;
+class Actor;
+class Object;
 class Script;
+class ScriptResults {
+public:
+	ScriptResults();
+	const std::vector<Object*>& Attackers() const;
+	const std::vector<Object*>& Hitters() const;
+
+	int32 CountAttackers() const;
+	Object* AttackerAt(int32 i) const;
+	Object* LastAttacker() const;
+
+private:
+	friend class Object;
+	std::vector<Object*> fAttackers;
+	std::vector<Object*> fHitters;
+};
+
+
 class Object {
 public:
 	Object(const char* name);
 	virtual ~Object();
+
+	void Print() const;
 
 	const char* Name() const;
 
@@ -28,27 +52,37 @@ public:
 
 	void SetScript(Script* script);
 
-	bool MatchNode(object_node* node);
+	bool IsEqual(const Object*) const;
+	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
+	bool MatchNode(object_node* node) const;
 
-	static bool Match(Object* a, Object* b);
+	//static bool Match(Object* a, Object* b);
 
-	bool IsName(const char* name);
-	bool IsClass(int c);
-	bool IsRace(int race);
-	bool IsGender(int gender);
-	bool IsGeneral(int general);
-	bool IsSpecific(int specific);
-	bool IsAlignment(int alignment);
-	bool IsEnemyAlly(int ea);
+	bool IsName(const char* name) const;
+	bool IsClass(int c) const;
+	bool IsRace(int race) const;
+	bool IsGender(int gender) const;
+	bool IsGeneral(int general) const;
+	bool IsSpecific(int specific) const;
+	bool IsAlignment(int alignment) const;
+	bool IsEnemyAlly(int ea) const;
 
+	void Attack(Object* object);
+
+	void NewScriptRound();
+
+	ScriptResults* CurrentScriptRoundResults() const;
+	ScriptResults* LastScriptRoundResults() const;
 
 protected:
 	const char* fName;
 	bool fVisible;
 
 	Script* fScript;
-
 	uint16 fTicks;
+
+	ScriptResults* fCurrentScriptRoundResults;
+	ScriptResults* fLastScriptRoundResults;
 };
 
 #endif // __SCRIPTABLE_H

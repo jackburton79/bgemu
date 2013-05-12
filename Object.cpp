@@ -19,14 +19,33 @@ Object::Object(const char* name)
 	fName(name),
 	fVisible(true),
 	fScript(NULL),
-	fTicks(0)
+	fTicks(0),
+	fCurrentScriptRoundResults(NULL),
+	fLastScriptRoundResults(NULL)
 {
+	fCurrentScriptRoundResults = new ScriptResults;
 }
 
 
 Object::~Object()
 {
+	delete fLastScriptRoundResults;
+	delete fCurrentScriptRoundResults;
+}
 
+
+void
+Object::Print() const
+{
+	const Actor* thisActor = dynamic_cast<const Actor*>(this);
+	CREResource* cre = thisActor->CRE();
+	std::cout << "*** " << thisActor->Name() << " ***" << std::endl;
+	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender()) << std::endl;
+	std::cout << "Class: " << IDTable::ClassAt(cre->Class()) << std::endl;
+	std::cout << "Race: " << IDTable::RaceAt(cre->Race()) << std::endl;
+	std::cout << "EA: " << IDTable::EnemyAllyAt(cre->EnemyAlly()) << std::endl;
+	std::cout << "General: " << IDTable::GeneralAt(cre->General()) << std::endl;
+	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific()) << std::endl;
 }
 
 
@@ -67,58 +86,42 @@ Object::SetScript(Script* script)
 }
 
 
-static bool
-MatchEA(uint8 toCheck, uint8 target)
-{
-	if (target == 0)
-		return true;
-
-	if (toCheck == target)
-		return true;
-
-	const char* eaString = EAIDS()->ValueFor(target);
-
-	if (strcasecmp(eaString, "GOODCUTOFF") == 0) {
-		if (toCheck <= target)
-			return true;
-	} else if (strcasecmp(eaString, "EVILCUTOFF") == 0) {
-		if (toCheck >= target)
-			return true;
-	}
-	return false;
-}
-
-
 bool
-Object::MatchNode(object_node* node)
+Object::MatchNode(object_node* node) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor == NULL)
-		return false;
-
-	// TODO: Write code to be able to check if an item is inside
-	// a given group: I.E: is an item a "GENERAL_ITEM"
-	CREResource* cre = actor->CRE();
-	//printf("tested actor general: %d\n", cre->General());
 	if (IsName(node->name)
-		&& (IsClass(node->classs))
-		&& (IsRace(node->race))
-		&& (IsAlignment(node->alignment))
-		&& (IsGender(node->gender))
-		&& (IsGeneral(node->general))
-		&& (IsSpecific(node->specific))
+		&& IsClass(node->classs)
+		&& IsRace(node->race)
+		&& IsAlignment(node->alignment)
+		&& IsGender(node->gender)
+		&& IsGeneral(node->general)
+		&& IsSpecific(node->specific)
 		&& IsEnemyAlly(node->ea))
 		return true;
+
 	return false;
 }
 
 
-/* static */
 bool
-Object::Match(Object* objectA, Object* objectB)
+Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 {
-	Actor* actorA = dynamic_cast<Actor*>(objectA);
-	Actor* actorB = dynamic_cast<Actor*>(objectB);
+	std::vector<Object*>::const_iterator iter;
+	for (iter = vec.begin(); iter != vec.end(); iter++) {
+		(*iter)->Print();
+		if ((*iter)->IsEqual(this))
+			return true;
+	}
+
+	return false;
+}
+
+
+bool
+Object::IsEqual(const Object* objectB) const
+{
+	const Actor* actorA = dynamic_cast<const Actor*>(this);
+	const Actor* actorB = dynamic_cast<const Actor*>(objectB);
 	if (actorA == NULL || actorB == NULL)
 		return false;
 
@@ -132,16 +135,16 @@ Object::Match(Object* objectA, Object* objectB)
 		&& (creA->Gender() == creB->Gender())
 		&& (creA->General() == creB->General())
 		&& (creA->Specific() == creB->Specific())
-		&& MatchEA(creA->EnemyAlly(), creB->EnemyAlly()))
+		&& (creA->EnemyAlly(), creB->EnemyAlly()))
 		return true;
 	return false;
 }
 
 
 bool
-Object::IsName(const char* name)
+Object::IsName(const char* name) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 	if (name[0] == '\0' || !strcasecmp(name, actor->Name()))
@@ -151,9 +154,9 @@ Object::IsName(const char* name)
 
 
 bool
-Object::IsClass(int c)
+Object::IsClass(int c) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
@@ -166,9 +169,9 @@ Object::IsClass(int c)
 
 
 bool
-Object::IsRace(int race)
+Object::IsRace(int race) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
@@ -181,9 +184,9 @@ Object::IsRace(int race)
 
 
 bool
-Object::IsGender(int gender)
+Object::IsGender(int gender) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
@@ -196,15 +199,17 @@ Object::IsGender(int gender)
 
 
 bool
-Object::IsGeneral(int general)
+Object::IsGeneral(int general) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
 	// TODO: No idea if it's correct or not
-	const char* stringValue = GeneralIDS()->ValueFor(general);
-	//if (!stringValue)
+	std::string stringValue = IDTable::GeneralAt(general);
+	if (stringValue.compare("GENERAL_ITEM") == 0)
+		return true;
+
 	CREResource* cre = actor->CRE();
 	if (general == 0 || general == cre->General())
 		return true;
@@ -214,9 +219,9 @@ Object::IsGeneral(int general)
 
 
 bool
-Object::IsSpecific(int specific)
+Object::IsSpecific(int specific) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
@@ -229,9 +234,9 @@ Object::IsSpecific(int specific)
 
 
 bool
-Object::IsAlignment(int alignment)
+Object::IsAlignment(int alignment) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
@@ -244,15 +249,106 @@ Object::IsAlignment(int alignment)
 
 
 bool
-Object::IsEnemyAlly(int ea)
+Object::IsEnemyAlly(int ea) const
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
+	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
 
-	CREResource* cre = actor->CRE();
-	if (MatchEA(ea, cre->EnemyAlly()))
+	if (ea == 0)
 		return true;
 
+	CREResource* cre = actor->CRE();
+	if (ea == cre->EnemyAlly())
+		return true;
+
+	std::string eaString = IDTable::EnemyAllyAt(ea);
+
+	if (eaString.compare("PC") == 0) {
+		// TODO: Should check if Actor is in party
+		if (false)
+			return true;
+	} else if (eaString.compare("GOODCUTOFF") == 0) {
+		if (ea <= cre->EnemyAlly())
+			return true;
+	} else if (eaString.compare("EVILCUTOFF") == 0) {
+		if (ea >= cre->EnemyAlly())
+			return true;
+	}
+
 	return false;
+}
+
+
+void
+Object::NewScriptRound()
+{
+	delete fLastScriptRoundResults;
+	fLastScriptRoundResults = fCurrentScriptRoundResults;
+	fCurrentScriptRoundResults = new ScriptResults;
+}
+
+
+ScriptResults*
+Object::CurrentScriptRoundResults() const
+{
+	return fCurrentScriptRoundResults;
+}
+
+
+ScriptResults*
+Object::LastScriptRoundResults() const
+{
+	return fLastScriptRoundResults;
+}
+
+
+void
+Object::Attack(Object* target)
+{
+	target->fCurrentScriptRoundResults->fAttackers.push_back(this);
+}
+
+
+// ScriptResults
+ScriptResults::ScriptResults()
+{
+}
+
+
+const std::vector<Object*>&
+ScriptResults::Attackers() const
+{
+	return fAttackers;
+}
+
+
+const std::vector<Object*>&
+ScriptResults::Hitters() const
+{
+	return fHitters;
+}
+
+
+Object*
+ScriptResults::LastAttacker() const
+{
+	const int32 numAttackers = fAttackers.size();
+	if (numAttackers == 0)
+		return NULL;
+	return fAttackers[fAttackers.size() - 1];
+}
+
+
+int32
+ScriptResults::CountAttackers() const
+{
+	return fAttackers.size();
+}
+
+
+Object*
+ScriptResults::AttackerAt(int32 i) const
+{
+	return fAttackers[i];
 }

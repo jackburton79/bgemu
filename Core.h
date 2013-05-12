@@ -49,11 +49,13 @@ public:
 
 	void SetRoomScript(Script* script);
 
+	void NewScriptRound();
 	void CheckScripts();
 	void UpdateLogic();
 
 	// Actions/Triggers
-	bool See(Object* source, Object* target);
+	bool See(const Object* source, const Object* target) const;
+	int Distance(const Object* source, const Object* target) const;
 
 	void RandomFly(Actor* actor);
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);
