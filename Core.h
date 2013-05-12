@@ -31,7 +31,10 @@ public:
 	static bool Initialize();
 	static void Destroy();
 
-	game Game() const;
+	// TODO: These are static for now, since currently ResourceManager
+	// has to be instantiated before Core, but needs these two methods
+	static game Game();
+	static void SetGame(game g);
 
 	uint32 Time() const;
 	uint32 GameTime() const;
@@ -72,7 +75,7 @@ private:
 
 	uint32 fLastScriptRoundTime;
 
-	game fGame;
+	static game sGame;
 
 	Core();
 	~Core();

@@ -255,6 +255,13 @@ Actor::SetDestination(const IE::point& point)
 
 
 void
+Actor::Shout(int number)
+{
+	CurrentScriptRoundResults()->fShouted = number;
+}
+
+
+void
 Actor::SetFlying(bool fly)
 {
 	fFlying = fly;

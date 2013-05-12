@@ -23,14 +23,15 @@ static Core* sCore = NULL;
 
 //const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
+game Core::sGame = GAME_BALDURSGATE;
 
 Core::Core()
 	:
 	fCurrentRoom(NULL),
 	fActiveActor(NULL),
 	fRoomScript(NULL),
-	fLastScriptRoundTime(0),
-	fGame(GAME_BALDURSGATE)
+	fLastScriptRoundTime(0)
+	//sGame(GAME_BALDURSGATE)
 {
 	srand(time(NULL));
 }
@@ -74,9 +75,16 @@ Core::Destroy()
 
 
 game
-Core::Game() const
+Core::Game()
 {
-	return fGame;
+	return sGame;
+}
+
+
+void
+Core::SetGame(game g)
+{
+	sGame = g;
 }
 
 
@@ -143,8 +151,8 @@ Core::GetObject(Object* source, object_node* node)
 	std::transform(identifier.begin(), identifier.end(),
 			identifier.begin(), ::toupper);
 	if (identifier == "MYSELF") {
-		std::cout << "GetObject() returned " << source->Name() << " ";
-		std::cout << "(source)!!!" << std::endl;
+		std::cout << "GetObject() returned " << std::endl;
+		source->Print();
 		return source;
 	}
 
@@ -156,8 +164,8 @@ Core::GetObject(Object* source, object_node* node)
 	std::cout << "Matching..." << std::endl;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
 		if ((*i)->MatchNode(node)) {
-			std::cout << "GetObject() returned " << (*i)->Name();
-			std::cout << std::endl;
+			std::cout << "GetObject() returned " << std::endl;
+			(*i)->Print();
 			return *i;
 		}
 	}

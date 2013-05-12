@@ -181,10 +181,10 @@ ResourceManager::_LoadIDSResources()
 	// TODO: Improve
 	if (sAniSnd == NULL) {
 		// No AniSnd.ids file, let's use our own.
-		//fGame = GAME_BALDURSGATE;
+		Core::SetGame(GAME_BALDURSGATE);
 		sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
 	} else {
-		//fGame = GAME_BALDURSGATE2;
+		Core::SetGame(GAME_BALDURSGATE2);
 		//sAniSnd->DumpToFile("/home/stefano/anisnd.ids");
 	}
 	sGeneral = gResManager->GetIDS("GENERAL");

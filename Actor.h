@@ -39,6 +39,8 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
+	void Shout(int number);
+
 	void SetFlying(bool fly);
 	bool IsFlying() const;
 

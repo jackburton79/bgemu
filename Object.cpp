@@ -40,12 +40,18 @@ Object::Print() const
 	const Actor* thisActor = dynamic_cast<const Actor*>(this);
 	CREResource* cre = thisActor->CRE();
 	std::cout << "*** " << thisActor->Name() << " ***" << std::endl;
-	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender()) << std::endl;
-	std::cout << "Class: " << IDTable::ClassAt(cre->Class()) << std::endl;
-	std::cout << "Race: " << IDTable::RaceAt(cre->Race()) << std::endl;
-	std::cout << "EA: " << IDTable::EnemyAllyAt(cre->EnemyAlly()) << std::endl;
-	std::cout << "General: " << IDTable::GeneralAt(cre->General()) << std::endl;
-	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific()) << std::endl;
+	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
+	std::cout << " (" << (int)cre->Gender() << ")" << std::endl;
+	std::cout << "Class: " << IDTable::ClassAt(cre->Class());
+	std::cout << " (" << (int)cre->Class() << ")" << std::endl;
+	std::cout << "Race: " << IDTable::RaceAt(cre->Race());
+	std::cout << " (" << (int)cre->Race() << ")" << std::endl;
+	std::cout << "EA: " << IDTable::EnemyAllyAt(cre->EnemyAlly());
+	std::cout << " (" << (int)cre->EnemyAlly() << ")" << std::endl;
+	std::cout << "General: " << IDTable::GeneralAt(cre->General());
+	std::cout << " (" << (int)cre->General() << ")" << std::endl;
+	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific());
+	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
 	std::cout << "*********" << std::endl;
 }
 
@@ -313,6 +319,8 @@ Object::Attack(Object* target)
 
 // ScriptResults
 ScriptResults::ScriptResults()
+	:
+	fShouted(-1)
 {
 }
 
@@ -352,4 +360,11 @@ Object*
 ScriptResults::AttackerAt(int32 i) const
 {
 	return fAttackers[i];
+}
+
+
+int
+ScriptResults::Shouted() const
+{
+	return fShouted;
 }

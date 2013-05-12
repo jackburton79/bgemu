@@ -216,13 +216,16 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
-			trig->id, trig->id);
-	trig->Print();
-
 	Actor* actor = dynamic_cast<Actor*>(fTarget);
 	if (actor != NULL && actor->SkipConditions())
 		return false;
+
+	if (actor != NULL)
+		std::cout << "*** " << actor->Name() << " ***" << std::endl;
+
+	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
+				trig->id, trig->id);
+	trig->Print();
 
 	Core* core = Core::Get();
 	bool returnValue = false;
@@ -271,6 +274,25 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				break;
 			}
+			case 0x002F:
+			{
+				/* 0x002F Heard(O:Object*,I:ID*SHOUTIDS)
+				Returns true only if the active CRE was within 30 feet
+				of the specified object and the specified object shouted
+				the specified number (which does not have to be in
+				SHOUTIDS.ids) in the last script round.
+				NB. If the object is specified as a death variable,
+				the trigger will only return true if the corresponding
+				object shouting also has an Enemy-Ally flag of NEUTRAL. */
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL && core->Distance(fTarget, object) <= 30
+						&& object->LastScriptRoundResults()->Shouted()
+						== trig->parameter1) {
+					returnValue = true;
+				}
+				break;
+			}
+
 			case 0x0036:
 			{
 				/*0x0036 OnCreation()
@@ -600,6 +622,13 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 
+		case 106:
+		{
+			/* Shout */
+			// Check if target is silenced
+			thisActor->Shout(act->parameter);
+			break;
+		}
 		case 0x64:
 		{
 			/* 100 RandomFly */
@@ -816,9 +845,8 @@ object_node::Print() const
 	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << ", ";
 	//if (identifiers != 0)
 	std::cout << "identifiers: " << IDTable::ObjectAt(identifiers) << ", ";
-
-	//if (Core::Get()->Game() != GAME_BALDURSGATE)
-		//printf("point: %d %d ", point.x, point.y);
+	if (Core::Get()->Game() != GAME_BALDURSGATE)
+		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	std::cout << "name: " << name << std::endl;
 }
 

@@ -28,11 +28,14 @@ public:
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
 	Object* LastAttacker() const;
+	int Shouted() const;
 
 private:
 	friend class Object;
+	friend class Actor;
 	std::vector<Object*> fAttackers;
 	std::vector<Object*> fHitters;
+	int fShouted;
 };
 
 
