@@ -46,6 +46,7 @@ Object::Print() const
 	std::cout << "EA: " << IDTable::EnemyAllyAt(cre->EnemyAlly()) << std::endl;
 	std::cout << "General: " << IDTable::GeneralAt(cre->General()) << std::endl;
 	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific()) << std::endl;
+	std::cout << "*********" << std::endl;
 }
 
 
@@ -128,7 +129,7 @@ Object::IsEqual(const Object* objectB) const
 	CREResource* creA = actorA->CRE();
 	CREResource* creB = actorB->CRE();
 
-	if (strcmp(actorA->Name(), actorB->Name()) == 0
+	if (::strcasecmp(actorA->Name(), actorB->Name()) == 0
 		&& (creA->Class() == creB->Class())
 		&& (creA->Race() == creB->Race())
 		&& (creA->Alignment() == creB->Alignment())
@@ -264,15 +265,15 @@ Object::IsEnemyAlly(int ea) const
 
 	std::string eaString = IDTable::EnemyAllyAt(ea);
 
-	if (eaString.compare("PC") == 0) {
+	if (eaString == "PC") {
 		// TODO: Should check if Actor is in party
 		if (false)
 			return true;
-	} else if (eaString.compare("GOODCUTOFF") == 0) {
-		if (ea <= cre->EnemyAlly())
+	} else if (eaString == "GOODCUTOFF") {
+		if (cre->EnemyAlly() <= ea)
 			return true;
-	} else if (eaString.compare("EVILCUTOFF") == 0) {
-		if (ea >= cre->EnemyAlly())
+	} else if (eaString == "EVILCUTOFF") {
+		if (cre->EnemyAlly() >= ea)
 			return true;
 	}
 
