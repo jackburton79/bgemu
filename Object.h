@@ -59,7 +59,7 @@ public:
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
 	bool MatchNode(object_node* node) const;
 
-	//static bool Match(Object* a, Object* b);
+	static bool CheckIfNodeInList(object_node* node, const std::vector<Object*>& vector);
 
 	bool IsName(const char* name) const;
 	bool IsClass(int c) const;

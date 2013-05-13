@@ -124,6 +124,20 @@ Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 }
 
 
+/* static */
+bool
+Object::CheckIfNodeInList(object_node* node,
+		const std::vector<Object*>& vector)
+{
+	std::vector<Object*>::const_iterator iter;
+	for (iter = vector.begin(); iter != vector.end(); iter++) {
+		if ((*iter)->MatchNode(node))
+			return true;
+	}
+	return false;
+}
+
+
 bool
 Object::IsEqual(const Object* objectB) const
 {

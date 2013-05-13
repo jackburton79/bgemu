@@ -240,11 +240,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
-				if (object != NULL) {
-					returnValue = object->MatchWithOneInList(
-							fTarget->LastScriptRoundResults()->Attackers());
-				}
+				object_node* object = FindObjectNode(trig);
+				returnValue = Object::CheckIfNodeInList(object,
+						fTarget->LastScriptRoundResults()->Attackers());
 				break;
 			}
 			case 0x0020:
@@ -255,11 +253,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 					break;
 				}
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
-				if (object != NULL) {
-					returnValue = object->MatchWithOneInList(
-							fTarget->LastScriptRoundResults()->Hitters());
-				}
+				object_node* object = FindObjectNode(trig);
+				returnValue = Object::CheckIfNodeInList(object,
+						fTarget->LastScriptRoundResults()->Hitters());
 				break;
 			}
 			case 0x0022:
@@ -843,8 +839,8 @@ object_node::Print() const
 	std::cout << "specific: " << IDTable::SpecificAt(specific) << ", ";
 	std::cout << "gender: " << IDTable::GenderAt(gender) << ", ";
 	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << ", ";
-	//if (identifiers != 0)
-	std::cout << "identifiers: " << IDTable::ObjectAt(identifiers) << ", ";
+	if (identifiers != 0)
+		std::cout << "identifiers: " << IDTable::ObjectAt(identifiers) << ", ";
 	if (Core::Get()->Game() != GAME_BALDURSGATE)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	std::cout << "name: " << name << std::endl;
