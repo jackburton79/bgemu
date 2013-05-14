@@ -19,6 +19,7 @@
 
 #include <stdlib.h>
 #include <sstream>
+#include <unistd.h>
 
 class WEDResourceContext : public ResourceContext {
 public:
