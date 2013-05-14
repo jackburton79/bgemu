@@ -151,6 +151,8 @@ MovieDecoder::SetDecodingMap(uint8 *map, uint32 size)
 {
 	delete[] fDecodingMap;
 	fDecodingMap = map;
+
+	fMapSize = size;
 }
 
 
