@@ -261,9 +261,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0022:
 			{
 				/* TimerExpired(I:ID*) */
-				Timer* timer = Timer::Get(trig->parameter1);
+				/*Timer* timer = Timer::Get(trig->parameter1);
 				if (timer != NULL && timer->Expired())
-					returnValue = true;
+					returnValue = true;*/
 				break;
 			}
 			case 0x0027:
@@ -395,6 +395,20 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
+			case 0x4040:
+			{
+				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */
+				Timer* timer = Timer::Get(trig->string1);
+				returnValue = timer != NULL && timer->Expired();
+				break;
+			}
+			case 0x4041:
+			{
+				/* GlobalTimerNotExpired(S:Name*,S:Area*) */
+				Timer* timer = Timer::Get(trig->string1);
+				returnValue = timer == NULL || !timer->Expired();
+				break;
+			}
 			case 0x4051:
 			{
 				/*
@@ -576,8 +590,12 @@ Script::_ExecuteAction(action_node* act)
 		}
 		case 61:
 		{
-			Timer::Add(act->parameter);
-
+			//Timer::Add(act->parameter);
+			/* 61 StartTimer(I:ID*,I:Time*)
+			This action starts a timer local to the active creature.
+			The timer is measured in seconds, and the timer value is
+			not saved in save games. The timer is checked with the
+			TimerExpired trigger.*/
 			break;
 		}
 		case 85:
@@ -675,6 +693,19 @@ Script::_ExecuteAction(action_node* act)
 				actor->SetDestination(act->where);
 				actor->StopCheckingConditions();
 			}
+			break;
+		}
+		case 228: // 0xe4
+		{
+			/* CreateCreatureImpassable(S:NewObject*,P:Location*,I:Face*) (228 0xe4) */
+			/* This action creates the specified creature
+			 * on a normally impassable surface (e.g. on a wall,
+			 * on water, on a roof). */
+			Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			std::cout << "Created actor " << act->string1 << " on ";
+			std::cout << act->where.x << ", " << act->where.y << std::endl;
+			actor->SetDestination(act->where);
+			Actor::Add(actor);
 			break;
 		}
 		default:

@@ -19,6 +19,7 @@ public:
 
 	static void Add(Door* door);
 	static Door* GetByName(const char* name);
+	static std::map<std::string, Door*>& List();
 
 private:
 	IE::door* fAreaDoor;

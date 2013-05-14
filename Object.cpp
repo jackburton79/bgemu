@@ -78,6 +78,7 @@ Object::Update()
 		if (fScript != NULL)
 			fScript->Execute();
 	}
+
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {
 		actor->UpdateMove(actor->IsFlying());
@@ -129,6 +130,8 @@ bool
 Object::CheckIfNodeInList(object_node* node,
 		const std::vector<Object*>& vector)
 {
+	node->Print();
+
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vector.begin(); iter != vector.end(); iter++) {
 		if ((*iter)->MatchNode(node))

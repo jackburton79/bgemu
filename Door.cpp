@@ -53,3 +53,11 @@ Door::GetByName(const char* name)
 {
 	return sDoors[name];
 }
+
+
+/* static */
+std::map<std::string, Door*>&
+Door::List()
+{
+	return sDoors;
+}

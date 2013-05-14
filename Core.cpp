@@ -231,6 +231,12 @@ Core::UpdateLogic()
 	// TODO: Should do that based on timer.
 	//NewScriptRound();
 
+	/*std::map<std::string, Door*>::iterator doorIterator;
+	for (doorIterator = Door::List().begin();
+			doorIterator != Door::List().end();
+			doorIterator++) {
+		(*doorIterator).second->Update();
+	}*/
 	//return;
 	// TODO: Fix/Improve
 	std::vector<Actor*>::iterator i;

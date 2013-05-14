@@ -27,7 +27,7 @@
 #include <iostream>
 #include <limits.h>
 
-#define USE_OVERRIDE 0
+#define USE_OVERRIDE 1
 
 #define OVERRIDE_MASK	0x00
 #define CACHE_MASK		0x01

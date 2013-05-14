@@ -11,6 +11,12 @@
 #include "SupportDefs.h"
 
 #include <map>
+#include <string>
+
+enum timer_type {
+	TIMER_GLOBAL = 0
+};
+
 
 class Timer {
 public:
@@ -20,14 +26,14 @@ public:
 	void SetExpiration(uint32 timer);
 	bool Expired() const;
 
-	static void Add(int32 id);
-	static void Remove(int32 id);
-	static Timer* Get(int32 id);
+	static void Add(const char* name);
+	static void Remove(const char* name);
+	static Timer* Get(const char* string);
 
 private:
 	uint32 fExpiration;
 
-	typedef std::map<int32, Timer*> timer_map;
+	typedef std::map<std::string, Timer*> timer_map;
 	static timer_map sTimers;
 };
 

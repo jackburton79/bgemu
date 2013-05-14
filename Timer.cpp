@@ -9,7 +9,7 @@
 
 #include <sys/time.h>
 
-std::map<int32, Timer*> Timer::sTimers;
+Timer::timer_map Timer::sTimers;
 
 Timer::Timer()
 	:
@@ -43,24 +43,27 @@ Timer::Expired() const
 
 /* static */
 void
-Timer::Add(int32 id)
+Timer::Add(const char* name)
 {
-	sTimers[id] = new Timer();
+	sTimers[name] = new Timer();
 }
 
 
 /* static */
 void
-Timer::Remove(int32 id)
+Timer::Remove(const char* name)
 {
-	delete sTimers[id];
-	sTimers[id] = NULL;
+	sTimers.erase(name);
 }
 
 
 /* static */
 Timer*
-Timer::Get(int32 id)
+Timer::Get(const char* name)
 {
-	return sTimers[id];
+	std::map<std::string, Timer*>::const_iterator i = sTimers.find(name);
+	if (i == sTimers.end())
+		return NULL;
+
+	return i->second;
 }
