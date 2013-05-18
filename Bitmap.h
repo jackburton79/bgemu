@@ -49,6 +49,8 @@ public:
 	void ClearColorKey() { SetColorKey(0, false); };
 	void SetAlpha(uint8 alphaValue, bool on = true);
 
+	bool Lock();
+	void Unlock();
 	void* Pixels() const;
 
 	GFX::rect Frame() const;

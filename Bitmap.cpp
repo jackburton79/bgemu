@@ -81,6 +81,21 @@ Bitmap::SetAlpha(uint8 value, bool on)
 }
 
 
+bool
+Bitmap::Lock()
+{
+	SDL_LockSurface(fSurface);
+	return true;
+}
+
+
+void
+Bitmap::Unlock()
+{
+	SDL_UnlockSurface(fSurface);
+}
+
+
 void*
 Bitmap::Pixels() const
 {
