@@ -68,7 +68,9 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x5311, "CEFB");
 	res->AddValue(0x5312, "CDMB");
 	res->AddValue(0x5313, "CIFB");
-	res->AddValue(0x6000, "CHMB");
+
+	res->AddValue(0x6000, "CHMC"); // Cleric Male Human
+
 	res->AddValue(0x6001, "CEMB");
 	res->AddValue(0x6002, "CDMB");
 	res->AddValue(0x6003, "CIMB");
@@ -80,7 +82,7 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x6013, "CIFB");
 	res->AddValue(0x6014, "CIFB");
 	//res->AddValue(0x6015, "CHFB");
-	res->AddValue(0x6100, "CHMB");
+	res->AddValue(0x6100, "CHMF"); // Fighter Male Human
 	res->AddValue(0x6101, "CEMB");
 	res->AddValue(0x6102, "CDMB");
 	res->AddValue(0x6103, "CIMB");
@@ -92,17 +94,17 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x6113, "CIFB");
 	res->AddValue(0x6114, "CDFB");
 	// res->AddValue(0x6115, "CHFB"); // ?
-	res->AddValue(0x6200, "CHMW");
+	res->AddValue(0x6200, "CHMW"); // Mage Male Human
 	res->AddValue(0x6201, "CEMW");
 	res->AddValue(0x6202, "CDMW");
 	res->AddValue(0x6204, "CDMW");
 	//res->AddValue(0x6205, "CHMW");
-	res->AddValue(0x6210, "CHFW");
+	res->AddValue(0x6210, "CHFW"); // Mage Female Human
 	res->AddValue(0x6211, "CEFW");
 	res->AddValue(0x6212, "CDMW");
 	res->AddValue(0x6214, "CDMW");
 	//res->AddValue(0x6215, "CHFW");
-	res->AddValue(0x6300, "CHMB");
+	res->AddValue(0x6300, "CHMT"); // Thief Human Male
 	res->AddValue(0x6301, "CEMB");
 	res->AddValue(0x6302, "CDMB");
 	res->AddValue(0x6303, "CIMB");
@@ -116,10 +118,14 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	//res->AddValue(0x6315 "CHFB");
 
 	// rest
+	res->AddValue(0x6402, "USAR1");
+
 	res->AddValue(0x6404, "USAR1");
 	res->AddValue(0x7001, "MOGR");
 	res->AddValue(0x7400, "MDOG");
 	res->AddValue(0x7a00, "MSPI");
+	res->AddValue(0x7b01, "MWER"); // WORG ?
+
 	res->AddValue(0x7c01, "MTAS");
 	res->AddValue(0x7e00, "MWER");
 	res->AddValue(0x7f01, "MMIN");
@@ -138,11 +144,11 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x7f27, "MDRO");
 	res->AddValue(0x7f28, "MKUL");
 
-	res->AddValue(0x8000, "MGNL");
+	res->AddValue(0x8000, "MGNL"); // Gnoll
 	res->AddValue(0x8100, "MHOB");
 	res->AddValue(0x9000, "MOGR");
-	res->AddValue(0xb000, "ACOW");
-	res->AddValue(0xb100, "AHRS");
+	res->AddValue(0xb000, "ACOW"); // Cow
+	res->AddValue(0xb100, "AHRS"); // Horse
 
 	res->AddValue(0xb200, "NBEG");
 	res->AddValue(0xb210, "NPRO");
@@ -154,11 +160,11 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0xca00, "NNOM");
 	res->AddValue(0xca10, "NNOW");
 
-	res->AddValue(0xc100, "ACAT");
-	res->AddValue(0xc200, "ACHK");
-	res->AddValue(0xc300, "ARAT");
-	res->AddValue(0xc400, "ASQU");
-	res->AddValue(0xc500, "ABAT");
+	res->AddValue(0xc100, "ACAT"); // Cat
+	res->AddValue(0xc200, "ACHK"); // Chicken
+	res->AddValue(0xc300, "ARAT"); // Rat
+	res->AddValue(0xc400, "ASQU"); // Squirrel
+	res->AddValue(0xc500, "ABAT"); // Bat
 
 	res->AddValue(0xc600, "NBEG");
 	res->AddValue(0xc700, "NBOY");
@@ -169,10 +175,10 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0xc910, "NFAW"); // TODO
 
 	// Birds
-	res->AddValue(0xd000, "AEAG");
-	res->AddValue(0xd100, "AGUL");
+	res->AddValue(0xd000, "AEAG"); // Eagle
+	res->AddValue(0xd100, "AGUL"); // Seagul
 	res->AddValue(0xd200, "AVUL");
-	res->AddValue(0xd300, "ABIR");
+	res->AddValue(0xd300, "ABIR"); // Bird
 
 	res->AddValue(0xe010, "METT");
 }
