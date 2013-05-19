@@ -157,11 +157,22 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		obj->alignment = tokenizer->ReadNextToken().u.number;
 		for (int32 i = 0; i < 5; i++)
 			obj->identifiers[i] = tokenizer->ReadNextToken().u.number;
-		if (Core::Game() != GAME_BALDURSGATE) {
+		// TODO: Not sure which games supports that
+		if (Core::Game() == GAME_TORMENT) {
 			obj->point.x = tokenizer->ReadNextToken().u.number;
 			obj->point.y = tokenizer->ReadNextToken().u.number;
 		}
-		strcpy(obj->name, tokenizer->ReadNextToken().u.string);
+
+		// Remove the quotation marks
+		char* name = tokenizer->ReadNextToken().u.string;
+		char* nameEnd = name + strlen(name);
+		while (*name == '"')
+			name++;
+		while (*nameEnd != '"')
+			nameEnd--;
+		*nameEnd = '\0';
+		strcpy(obj->name, name);
+
 	}
 
 	//obj->Print();
