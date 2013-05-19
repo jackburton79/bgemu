@@ -122,13 +122,14 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 
 	res->AddValue(0x6404, "USAR1");
 	res->AddValue(0x7001, "MOGR");
-	res->AddValue(0x7200, "MZOM"); // ZOMBIE
+
 	res->AddValue(0x7400, "MDOG");
 	res->AddValue(0x7a00, "MSPI");
 	res->AddValue(0x7b01, "MWLF"); // WOLF_WORG ?
 	res->AddValue(0x7b05, "MWLF"); // WOLF_DREAD ?
 
 	res->AddValue(0x7c01, "MTAS");
+	res->AddValue(0x7d00, "MZOM"); // ZOMBIE
 	res->AddValue(0x7e00, "MWER");
 	res->AddValue(0x7f01, "MMIN");
 	res->AddValue(0x7f02, "MBEH");
