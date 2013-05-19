@@ -88,17 +88,18 @@ Actor::_Init()
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
-	std::cout << "colors:" << std::endl << std::dec;
-	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
-	std::cout << "\tminor:" << (int)fCRE->Colors().minor << std::endl;
-	std::cout << "\tarmor:" << (int)fCRE->Colors().armor << std::endl;
-	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;
+
 	//printf("%d\n", );
 	// TODO: Get all scripts ? or just the specific one ?
 
 	if (fCRE == NULL)
 		throw "error!!!";
 
+	std::cout << "colors:" << std::endl << std::dec;
+	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
+	std::cout << "\tminor:" << (int)fCRE->Colors().minor << std::endl;
+	std::cout << "\tarmor:" << (int)fCRE->Colors().armor << std::endl;
+	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;
 	//printf("%s enum: local %d, global: %d\n", Name(),
 		//	fCRE->LocalActorValue(),
 			//fCRE->GlobalActorValue());
