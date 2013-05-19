@@ -2,6 +2,7 @@
 #include "MemoryStream.h"
 #include "Utils.h"
 
+#include <algorithm>
 #include <stdlib.h>
 
 static const uint8 kEncryptionKey[64] = {
@@ -76,7 +77,6 @@ IDSResource::Load(Archive *archive, uint32 key)
 	// PFFFT! just ignore the number of entries,
 	// since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
-		//printf("line: * %s *\n", string);
 		char *stringID = strtok(string, " ");
 		if (stringID == NULL)
 			continue;
@@ -86,12 +86,11 @@ IDSResource::Load(Archive *archive, uint32 key)
 		char *finalValue = trim(stringValue);
 		char *rest = NULL;
 		uint32 id = strtoul(stringID, &rest, 0);
-		//printf("id %s %d : %s\n", stringID, id, finalValue);
 
+		std::transform(finalValue, finalValue + strlen(finalValue),
+					finalValue, ::toupper);
 		fMap[id] = finalValue;
 	}
-
-	//DropData();
 
 	return true;
 }
