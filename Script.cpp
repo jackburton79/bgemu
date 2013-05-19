@@ -923,7 +923,7 @@ object_node::Print() const
 		 std::cout << IDTable::ObjectAt(identifiers[i]) << " ";
 	}
 	std::cout << std::endl;
-	if (Core::Game() != GAME_BALDURSGATE)
+	if (Core::Game() == GAME_TORMENT)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	if (name[0] != '\0')
 		 std::cout << "name: " << name << std::endl;
