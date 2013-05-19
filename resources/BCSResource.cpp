@@ -22,7 +22,10 @@ BCSResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
-
+/*
+	std::string fileName;
+	fileName.append(Name()).append(".bcs");
+	this->DumpToFile(fileName.c_str());*/
 	return true;
 }
 
