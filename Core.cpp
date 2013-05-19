@@ -146,7 +146,7 @@ Core::GetObject(Object* source, object_node* node)
 {
 	node->Print();
 
-	if (node->name[0] != '\0' && strcmp(node->name, "\"\""))
+	if (node->name[0] != '\0')
 		return GetObject(node->name);
 
 	// If there are any identifiers, use those to get the object
@@ -293,6 +293,12 @@ Core::See(const Object* source, const Object* object) const
 	std::cout << source->Name() << " SEE ";
 	std::cout << object->Name() << " ?" << std::endl;
 
+	// TODO: Just a hack to make things go on
+	if (object->IsVisible()) {
+		Object* wObject = const_cast<Object*>(source);
+		const_cast<std::vector<Object*>&>(source->CurrentScriptRoundResults()
+			->SeenList()).push_back(const_cast<Object*>(object));
+	}
 	return object->IsVisible();
 }
 
