@@ -139,11 +139,15 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	Core::Get()->EnteredArea(this, roomScript);
 
 #if ADD_FAKE_PLAYER
-	IE::point playerPoint = { 40, 40 };
-	Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
-	Actor::Add(actor);
-	actor->SetIsEnemyOfEveryone(true);
-	actor->SetDestination(playerPoint);
+	IE::point playerPoint = { 100, 50 };
+	try {
+		Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
+		Actor::Add(actor);
+		actor->SetIsEnemyOfEveryone(true);
+		actor->SetDestination(playerPoint);
+	} catch (...) {
+
+	}
 #endif
 
 	delete roomScript;
