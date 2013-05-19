@@ -71,7 +71,7 @@ Control::MouseMoved(IE::point point, uint32 transit)
 void
 Control::MouseDown(IE::point point)
 {
-	std::cout << "control: " << std::dec << ID() << std::endl;
+	//std::cout << "control: " << std::dec << ID() << std::endl;
 	if (fRoom != NULL) {
 		ConvertFromScreen(point);
 		if (point.x >= 0 && point.y >= 0)
