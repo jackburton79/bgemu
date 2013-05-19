@@ -28,7 +28,7 @@ public:
 	Actor(const char* creName, IE::point position, int face);
 	virtual ~Actor();
 
-	const char *Name() const;
+	virtual const char *Name() const;
 	CREResource *CRE() const;
 
 	void Draw(GFX::rect area, Bitmap* heightMap);
@@ -40,6 +40,9 @@ public:
 	void SetDestination(const IE::point &dest);
 
 	void Shout(int number);
+
+	void SetIsEnemyOfEveryone(bool enemy);
+	bool IsEnemyOfEveryone() const;
 
 	void SetFlying(bool fly);
 	bool IsFlying() const;
@@ -79,6 +82,7 @@ private:
 	bool fIsInterruptable;
 
 	bool fFlying;
+	bool fEnemyOfEveryone;
 
 	PathFinder* fPath;
 

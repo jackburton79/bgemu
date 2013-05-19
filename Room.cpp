@@ -29,6 +29,8 @@
 #include <assert.h>
 #include <iostream>
 
+#define ADD_FAKE_PLAYER 1
+
 std::vector<MapOverlay*> *gOverlays = NULL;
 
 static Room* sCurrentRoom = NULL;
@@ -135,6 +137,14 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitBitmap(fViewPort);
 
 	Core::Get()->EnteredArea(this, roomScript);
+
+#if ADD_FAKE_PLAYER
+	IE::point playerPoint = { 40, 40 };
+	Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
+	Actor::Add(actor);
+	actor->SetIsEnemyOfEveryone(true);
+	actor->SetDestination(playerPoint);
+#endif
 
 	delete roomScript;
 	return true;
@@ -377,6 +387,23 @@ Room::Clicked(uint16 x, uint16 y)
 			}
 		}
 	} else {
+		// TODO: Move to own methods
+		std::vector<Actor*>& actorList = Actor::List();
+		std::vector<Actor*>::const_iterator iter;
+		GFX::rect rect = {0, 0, 10, 10};
+		for (iter = actorList.begin(); iter != actorList.end(); iter++) {
+			//std::cout << "point: " << point.x << " " << point.y << std::endl;
+			rect.x = (*iter)->Position().x - 5;
+			rect.y = (*iter)->Position().y - 5;
+			/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
+			std::cout << ", " << rect.y << "-" << rect.y + rect.h << std::endl;
+			std::cout << " " << (*iter)->Position().x << std::endl;
+*/
+			if (rect_contains(rect, point)) {
+				(*iter)->Print();
+				return;
+			}
+		}
 		const uint16 tileNum = TileNumberForPoint(point);
 		fTileCells[tileNum]->Clicked();
 	}

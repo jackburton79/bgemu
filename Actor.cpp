@@ -80,6 +80,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 void
 Actor::_Init()
 {
+	fEnemyOfEveryone = false;
+
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		fAnimations[i] = NULL;
 
@@ -262,6 +264,20 @@ Actor::Shout(int number)
 
 
 void
+Actor::SetIsEnemyOfEveryone(bool enemy)
+{
+	fEnemyOfEveryone = true;
+}
+
+
+bool
+Actor::IsEnemyOfEveryone() const
+{
+	return fEnemyOfEveryone;
+}
+
+
+void
 Actor::SetFlying(bool fly)
 {
 	fFlying = fly;
@@ -322,8 +338,8 @@ Actor::MergeScripts()
 		_AddScript(fActor->script_general);
 	if (IsValid(fActor->script_default))
 		_AddScript(fActor->script_default);
-	//if (IsValid(fActor->script_specific))
-		//_AddScript(fActor->script_specific);
+	if (IsValid(fActor->script_specific))
+		_AddScript(fActor->script_specific);
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
 }

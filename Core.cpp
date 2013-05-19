@@ -23,7 +23,7 @@ static Core* sCore = NULL;
 
 //const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
-game Core::sGame = GAME_BALDURSGATE;
+game Core::sGame = GAME_BALDURSGATE2;
 
 Core::Core()
 	:
@@ -146,19 +146,26 @@ Core::GetObject(Object* source, object_node* node)
 {
 	node->Print();
 
-	std::string identifier = IDTable::ObjectAt(node->identifiers);
-	// TODO: create a method to do this
-	std::transform(identifier.begin(), identifier.end(),
-			identifier.begin(), ::toupper);
-	if (identifier == "MYSELF") {
-		std::cout << "GetObject() returned " << std::endl;
-		source->Print();
-		return source;
-	}
-
-	if (node->name[0] != '\0')
+	if (node->name[0] != '\0' && strcmp(node->name, "\"\""))
 		return GetObject(node->name);
 
+	// If there are any identifiers, use those to get the object
+	if (node->identifiers[0] != 0) {
+		Object* target = NULL;
+		for (int32 id = 0; id < 5; id++) {
+			const int identifier = node->identifiers[id];
+			if (identifier == 0)
+				break;
+			target = source->ResolveIdentifier(identifier);
+			source = target;
+		}
+		// TODO: Filter using wildcards in node
+		return target;
+	}
+
+
+	// Otherwise use the other parameters
+	// TODO: Simplify, merge code.
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
 	std::cout << "Matching..." << std::endl;
@@ -191,6 +198,30 @@ Core::GetObject(const char* name)
 
 	std::cout << "GetObject() returned NONE" << std::endl;
 	return NULL;
+}
+
+
+Object*
+Core::GetNearestEnemyOf(const Object* object) const
+{
+	std::vector<Actor*> actorList = Actor::List();
+	std::vector<Actor*>::iterator i;
+	int minDistance = 500000;
+	Actor* nearest = NULL;
+	for (i = actorList.begin(); i != actorList.end(); i++) {
+		if ((*i) != object && (*i)->IsEnemyOf(object)) {
+			int distance = Distance(object, *i);
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearest = *i;
+			}
+		}
+	}
+	if (nearest != NULL) {
+		std::cout << "Nearest Enemy of " << object->Name();
+		std::cout << " is " << nearest->Name() << std::endl;
+	}
+	return nearest;
 }
 
 

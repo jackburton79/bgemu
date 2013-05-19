@@ -96,6 +96,20 @@ Script::FindObjectNode(node* start) const
 }
 
 
+int32
+Script::FindMultipleObjectNodes(std::vector<object_node*>& list,
+						node* start) const
+{
+	object_node* node = FindObjectNode(start);
+	while (node != NULL) {
+		list.push_back(node);
+		node = static_cast<object_node*>(node->Next());
+	}
+
+	return list.size();
+}
+
+
 node*
 Script::FindNode(block_type nodeType, node* start) const
 {
@@ -116,6 +130,22 @@ Script::FindNode(block_type nodeType, node* start) const
 		return FindNode(nodeType, start->next);
 
 	return NULL;
+}
+
+
+Object*
+Script::FindObject(node* start) const
+{
+	object_node* objectNode = FindObjectNode(start);
+	while (objectNode != NULL && Object::IsDummy(objectNode)) {
+		objectNode = static_cast<object_node*>(objectNode->Next());
+	}
+
+	if (objectNode == NULL)
+		return NULL;
+
+	//objectNode->Print();
+	return Core::Get()->GetObject(fTarget, objectNode);
 }
 
 
@@ -547,6 +577,20 @@ Script::_ExecuteAction(action_node* act)
 	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
 
 	switch (act->id) {
+		case 0x03:
+		{
+			/* Attack(O:Target*) */
+			Object* targetObject = FindObject(act);
+			if (targetObject != NULL) {
+				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
+				if (thisActor != NULL && targetActor != NULL) {
+					std::cout << thisActor->Name() << " attacks ";
+					std::cout << targetActor->Name() << std::endl;
+					thisActor->Attack(targetActor);
+				}
+			}
+			break;
+		}
 		case 0x07:
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
@@ -554,7 +598,24 @@ Script::_ExecuteAction(action_node* act)
 			Actor::Add(actor);
 			break;
 		}
-		case 0x24:
+
+		case 29:
+		{
+			/* RunAwayFrom(O:Creature*,I:Time*) */
+			/*object_node* objBlock = FindObjectNode(act);
+
+			if (objBlock == NULL)
+				break;
+*/
+			Object* targetObject = FindObject(act);
+			//Object* targetObject = core->GetObject(fTarget, objBlock);
+			if (targetObject != NULL) {
+				std::cout << thisActor->Name();
+				std::cout << " run away from " << targetObject->Name() << std::endl;
+			}
+			break;
+		}
+		case 36:
 		{
 			/*
 			 * 36 Continue()
@@ -573,19 +634,6 @@ Script::_ExecuteAction(action_node* act)
 			 * by including a NoAction() in the empty response block.
 			 */
 			// TODO: Implement
-			break;
-		}
-		case 29:
-		{
-			/* RunAwayFrom(O:Creature*,I:Time*) */
-			object_node* objBlock = FindObjectNode(act);
-			objBlock = dynamic_cast<object_node*>(objBlock->Next());
-			if (objBlock == NULL)
-				break;
-			Object* targetObject = core->GetObject(fTarget, objBlock);
-
-			std::cout << thisActor->Name();
-			std::cout << " run away from " << targetObject->Name() << std::endl;
 			break;
 		}
 		case 61:
@@ -668,8 +716,7 @@ Script::_ExecuteAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			object_node* objBlock = FindObjectNode(act);
-			Object* targetObject = core->GetObject(fTarget, objBlock);
+			Object* targetObject = FindObject(act);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
@@ -858,23 +905,28 @@ void
 object_node::Print() const
 {
 	std::cout << "Object:" << std::endl;
-	if (Core::Get()->Game() == GAME_TORMENT) {
+	if (Core::Game() == GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
 	}
-	std::cout << "ea: " << IDTable::EnemyAllyAt(ea) << ", ";
-	std::cout << "general: " << IDTable::GeneralAt(general) << ", ";
-	std::cout << "race: " << IDTable::RaceAt(race)  << ", ";
-	std::cout << "class: " << IDTable::ClassAt(classs);
 	std::cout << std::endl;
-	std::cout << "specific: " << IDTable::SpecificAt(specific) << ", ";
-	std::cout << "gender: " << IDTable::GenderAt(gender) << ", ";
-	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << ", ";
-	if (identifiers != 0)
-		std::cout << "identifiers: " << IDTable::ObjectAt(identifiers) << ", ";
-	if (Core::Get()->Game() != GAME_BALDURSGATE)
+	std::cout << "ea: " << IDTable::EnemyAllyAt(ea) << " (" << ea << "), ";
+	std::cout << "general: " << IDTable::GeneralAt(general) << " (" << general << "), ";
+	std::cout << "race: " << IDTable::RaceAt(race) << " (" << race << "), ";
+	std::cout << "class: " << IDTable::ClassAt(classs) << " (" << classs << "), ";
+	std::cout << std::endl;
+	std::cout << "specific: " << IDTable::SpecificAt(specific) << " (" << specific << "), ";
+	std::cout << "gender: " << IDTable::GenderAt(gender) << " (" << gender << "), ";
+	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), " << std::endl;
+	std::cout << "identifiers: ";
+	for (int32 i = 0; i < 5; i++) {
+		 std::cout << IDTable::ObjectAt(identifiers[i]) << " ";
+	}
+	std::cout << std::endl;
+	if (Core::Game() != GAME_BALDURSGATE)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
-	std::cout << "name: " << name << std::endl;
+	if (name[0] != '\0')
+		 std::cout << "name: " << name << std::endl;
 }
 
 

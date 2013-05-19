@@ -145,7 +145,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 	object_node* obj = dynamic_cast<object_node*>(node);
 	if (obj) {
 		obj->ea = tokenizer->ReadNextToken().u.number;
-		if (Core::Get()->Game() == GAME_TORMENT) {
+		if (Core::Game() == GAME_TORMENT) {
 			obj->faction = tokenizer->ReadNextToken().u.number;
 			obj->team = tokenizer->ReadNextToken().u.number;
 		}
@@ -155,13 +155,16 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		obj->specific = tokenizer->ReadNextToken().u.number;
 		obj->gender = tokenizer->ReadNextToken().u.number;
 		obj->alignment = tokenizer->ReadNextToken().u.number;
-		obj->identifiers = tokenizer->ReadNextToken().u.number;
-		if (Core::Get()->Game() != GAME_BALDURSGATE) {
+		for (int32 i = 0; i < 5; i++)
+			obj->identifiers[i] = tokenizer->ReadNextToken().u.number;
+		if (Core::Game() != GAME_BALDURSGATE) {
 			obj->point.x = tokenizer->ReadNextToken().u.number;
 			obj->point.y = tokenizer->ReadNextToken().u.number;
 		}
 		strcpy(obj->name, tokenizer->ReadNextToken().u.string);
 	}
+
+	//obj->Print();
 }
 
 
@@ -510,5 +513,5 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 bool
 Tokenizer::IsSeparator(char const &c)
 {
-	return (c == ' ' || c == '\n' || c == '\r');
+	return (c == ' ' || c == '\n' || c == '\r' || c == '\t');
 }

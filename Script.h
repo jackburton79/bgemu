@@ -36,7 +36,12 @@ public:
 	trigger_node*	FindTriggerNode(node* start = NULL) const;
 	action_node*	FindActionNode(node* start = NULL) const;
 	object_node*	FindObjectNode(node* start = NULL) const;
+	int32			FindMultipleObjectNodes(std::vector<object_node*>& list,
+						node* start = NULL) const;
 	node*			FindNode(block_type type, node* start = NULL) const;
+
+	// convenience call
+	Object*			FindObject(node* start = NULL) const;
 
 	bool Execute();
 	void SetTarget(Object* object);
@@ -111,7 +116,7 @@ struct object_node : public node {
 	int specific;
 	int gender;
 	int alignment;
-	int identifiers;
+	int identifiers[5];
 	IE::point point;
 	char name[32];
 

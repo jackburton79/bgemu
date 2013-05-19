@@ -6,6 +6,7 @@
  */
 
 #include "Actor.h"
+#include "Core.h"
 #include "CreResource.h"
 #include "IDSResource.h"
 #include "Object.h"
@@ -94,6 +95,8 @@ Object::SetScript(Script* script)
 }
 
 
+// Checks if this object matches with the specified object_node.
+// Also keeps wildcards in consideration. Used for triggers.
 bool
 Object::MatchNode(object_node* node) const
 {
@@ -141,6 +144,25 @@ Object::CheckIfNodeInList(object_node* node,
 }
 
 
+/* static */
+bool
+Object::CheckIfNodesInList(const std::vector<object_node*>& nodeList,
+		const std::vector<Object*>& vector)
+{
+	//node->Print();
+
+	std::vector<Object*>::const_iterator iter;
+	std::vector<object_node*>::const_iterator nodeIter;
+	for (iter = vector.begin(); iter != vector.end(); iter++) {
+		for (nodeIter = nodeList.begin(); nodeIter != nodeList.end(); nodeIter++) {
+			if ((*iter)->MatchNode(*nodeIter))
+				return true;
+		}
+	}
+	return false;
+}
+
+
 bool
 Object::IsEqual(const Object* objectB) const
 {
@@ -162,6 +184,57 @@ Object::IsEqual(const Object* objectB) const
 		&& (creA->EnemyAlly(), creB->EnemyAlly()))
 		return true;
 	return false;
+}
+
+
+/* static */
+bool
+Object::IsDummy(const object_node* node)
+{
+	if (node->alignment == 0
+			&& node->classs == 0
+			&& node->ea == 0
+			//&& node->faction == 0
+			//&& node->team == 0
+			&& node->general == 0
+			&& node->race == 0
+			&& node->gender == 0
+			&& node->specific == 0
+			&& node->identifiers == 0
+			&& node->name[0] == '\0')
+		return true;
+
+	return false;
+}
+
+
+Object*
+Object::ResolveIdentifier(const int id) const
+{
+	std::cout << "ResolveIdentifier(" << id << ") = ";
+	std::string identifier = IDTable::ObjectAt(id);
+	std::cout << identifier << std::endl;
+	if (identifier == "MYSELF")
+		return const_cast<Object*>(this);
+	// TODO: Implement more identifiers
+	if (identifier == "NEARESTENEMYOF") {
+		return Core::Get()->GetNearestEnemyOf(this);
+	}
+	return NULL;
+}
+
+
+bool
+Object::IsEnemyOf(const Object* object) const
+{
+	// TODO: Implement correctly
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	if (actor == NULL) {
+		std::cout << "Not an actor" << std::endl;
+		return false;
+	}
+
+	return actor->IsEnemyOfEveryone();
 }
 
 
@@ -228,11 +301,6 @@ Object::IsGeneral(int general) const
 	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return false;
-
-	// TODO: No idea if it's correct or not
-	std::string stringValue = IDTable::GeneralAt(general);
-	if (stringValue.compare("GENERAL_ITEM") == 0)
-		return true;
 
 	CREResource* cre = actor->CRE();
 	if (general == 0 || general == cre->General())
@@ -353,6 +421,14 @@ const std::vector<Object*>&
 ScriptResults::Hitters() const
 {
 	return fHitters;
+}
+
+
+const
+std::vector<Object*>&
+ScriptResults::SeenList() const
+{
+	return fSeen;
 }
 
 

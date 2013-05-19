@@ -47,6 +47,7 @@ public:
 
 	Object* GetObject(Object* source, object_node* node);
 	Object* GetObject(const char* name);
+	Object* GetNearestEnemyOf(const Object* object) const;
 
 	void PlayMovie(const char* name);
 

@@ -24,10 +24,12 @@ public:
 	ScriptResults();
 	const std::vector<Object*>& Attackers() const;
 	const std::vector<Object*>& Hitters() const;
+	const std::vector<Object*>& SeenList() const;
 
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
 	Object* LastAttacker() const;
+
 	int Shouted() const;
 
 private:
@@ -35,6 +37,8 @@ private:
 	friend class Actor;
 	std::vector<Object*> fAttackers;
 	std::vector<Object*> fHitters;
+	std::vector<Object*> fSeen;
+
 	int fShouted;
 };
 
@@ -46,7 +50,7 @@ public:
 
 	void Print() const;
 
-	const char* Name() const;
+	virtual const char* Name() const;
 
 	bool See(Object* object);
 	bool IsVisible() const;
@@ -55,11 +59,20 @@ public:
 
 	void SetScript(Script* script);
 
-	bool IsEqual(const Object*) const;
+	Object* ResolveIdentifier(const int identifier) const;
+
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
+	//static bool MatchListWithList(const std::vector)
 	bool MatchNode(object_node* node) const;
 
 	static bool CheckIfNodeInList(object_node* node, const std::vector<Object*>& vector);
+	static bool CheckIfNodesInList(const std::vector<object_node*>& nodeList,
+						const std::vector<Object*>& objectList);
+
+	static bool IsDummy(const object_node* node);
+
+	bool IsEqual(const Object* object) const;
+	bool IsEnemyOf(const Object* object) const;
 
 	bool IsName(const char* name) const;
 	bool IsClass(int c) const;
