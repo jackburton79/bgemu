@@ -118,6 +118,11 @@ Actor::_Init()
 	if (fActor->orientation > IE::ORIENTATION_SE)
 		fActor->orientation = 0;
 
+	// TODO: Guess the animation type
+	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
+	std::vector<std::string> resourceList;
+		gResManager->GetResourceList(resourceList, baseName.c_str(), RES_BAM);
+
 	for (uint32 c = 0; c < kNumAnimations; c++) {
 		try {
 			fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
@@ -176,6 +181,11 @@ Actor::GetByIndex(uint32 i)
 Actor*
 Actor::GetByName(const char* name)
 {
+	std::vector<Actor*>::const_iterator i;
+	for (i = sActors.begin(); i != sActors.end(); i++) {
+		if (!strcmp((*i)->Name(), name))
+				return *i;
+	}
 	return NULL;
 }
 
@@ -236,6 +246,15 @@ IE::orientation
 Actor::Orientation() const
 {
 	return (IE::orientation)fActor->orientation;
+}
+
+
+void
+Actor::SetOrientation(IE::orientation o)
+{
+	if (o < 0 || o > 7)
+		o = IE::orientation(0);
+	fActor->orientation = o;
 }
 
 

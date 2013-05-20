@@ -34,6 +34,8 @@ public:
 	void Draw(GFX::rect area, Bitmap* heightMap);
 
 	IE::orientation Orientation() const;
+	void SetOrientation(IE::orientation o);
+
 	IE::point Position() const;
 
 	IE::point Destination() const;
