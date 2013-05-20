@@ -62,6 +62,8 @@ public:
 	static std::string SearchMapName(const char *name);
 
 	Resource *_GetResource(const res_ref &name, uint16 type);
+	int32 GetResourceList(std::vector<std::string>& list,
+			const char* query, uint16 type)  const;
 
 private:
 	const char *ResourcesPath() const;
