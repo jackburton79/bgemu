@@ -27,7 +27,6 @@ Actor::Actor(IE::actor &actor)
 	Object(actor.name),
 	fActor(&actor),
 	fCRE(NULL),
-	fScript(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
@@ -43,7 +42,6 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	Object(actor.name),
 	fActor(&actor),
 	fCRE(cre),
-	fScript(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
@@ -59,7 +57,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	Object(creName),
 	fActor(NULL),
 	fCRE(NULL),
-	fScript(NULL),
 	fOwnsActor(true),
 	fDontCheckConditions(false),
 	fFlying(false),
@@ -343,13 +340,6 @@ Actor::MergeScripts()
 		_AddScript(fActor->script_specific);
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
-}
-
-
-::Script *
-Actor::Script()
-{
-	return fScript;
 }
 
 

@@ -51,8 +51,6 @@ public:
 	bool IsInterruptable() const;
 
 	void MergeScripts();
-	void SetScript(Script *script);
-	::Script* Script();
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
@@ -75,7 +73,7 @@ private:
 	IE::actor *fActor;
 	Animation *fAnimations[kNumAnimations];
 	CREResource *fCRE;
-	::Script* fScript;
+//	::Script* fScript;
 	bool fOwnsActor;
 
 	bool fDontCheckConditions;
