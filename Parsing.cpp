@@ -174,8 +174,6 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		strcpy(obj->name, name);
 
 	}
-
-	//obj->Print();
 }
 
 
