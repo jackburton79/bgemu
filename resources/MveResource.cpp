@@ -177,6 +177,7 @@ MVEResource::Play()
 		}
 		uint32 currentTime = SDL_GetTicks();
 		if (fTimer != 0 && !quitting) {
+			//SDL_Delay(1000);
 			if (currentTime < fLastFrameTime + fTimer)
 				SDL_Delay((fLastFrameTime + fTimer) - currentTime);
 		}
@@ -297,9 +298,16 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 		}
 		case OP_BLIT_BACKBUFFER:
 			// TODO: Install palette first. ??
+			uint16 start;
+			uint16 count;
+			fData->Read(start);
+			fData->Read(count);
+			if (opcode.version == 1) {
+				uint16 unk;
+				fData->Read(unk);
+			}
 			fLastFrameTime = SDL_GetTicks();
 			fDecoder->BlitBackBuffer();
-			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 		case OP_SET_DECODING_MAP:
 		{	
