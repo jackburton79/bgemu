@@ -6,6 +6,7 @@
 #include "IDSResource.h"
 #include "MveResource.h"
 #include "RectUtils.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
@@ -269,6 +270,14 @@ Core::UpdateLogic()
 		(*doorIterator).second->Update();
 	}*/
 	//return;
+
+	std::vector<Region*>::iterator regionIter;
+	for (regionIter = Region::List().begin();
+			regionIter != Region::List().end(); regionIter++) {
+		(*regionIter)->Update();
+	}
+
+	return;
 	// TODO: Fix/Improve
 	std::vector<Actor*>::iterator i;
 	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
