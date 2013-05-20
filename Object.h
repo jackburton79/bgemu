@@ -62,7 +62,6 @@ public:
 	Object* ResolveIdentifier(const int identifier) const;
 
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
-	//static bool MatchListWithList(const std::vector)
 	bool MatchNode(object_node* node) const;
 
 	static bool CheckIfNodeInList(object_node* node, const std::vector<Object*>& vector);
