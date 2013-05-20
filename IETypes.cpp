@@ -294,6 +294,38 @@ actor::Print() const
 
 
 void
+region::Print() const
+{
+	std::cout << "name: " << name << std::endl;
+	std::cout << "type: " << type << std::endl;
+	/*IE::rect rect;
+	uint16 vertex_count;
+	uint32 vertex_index;
+	uint32 unk;
+	uint32 cursor_index;
+	res_ref destination;
+	char entrance_name[32];
+	uint32 flags;
+	uint32 info_text;
+	uint16 trap_detection_difficulty;
+	uint16 trap_removal_difficulty;
+	uint16 trapped;
+	uint16 trap_detected;
+	IE::point trap_launch_location;
+	res_ref key_item;
+	res_ref script;
+	uint16 use_point_x;
+	uint16 use_point_y;
+	uint32 unk2;
+	char unk3[32];
+	res_ref sound;
+	uint32 talk_location;
+	uint32 str_name;
+	res_ref dialog_file;*/
+}
+
+
+void
 door_wed::Print() const
 {
 	printf("name: %s\n", name);

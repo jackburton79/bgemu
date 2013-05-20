@@ -187,6 +187,50 @@ struct actor {
 } __attribute__((packed));
 
 
+enum region_flags {
+	REGION_TRAP_INVISIBLE = 0,
+	REGION_TRAP_RESET = 1,
+	REGION_PARTY_REQUIRED = 2,
+	REGION_DETECTABLE = 3,
+	REGION_TUTORIAL_ONLY = 5,
+	REGION_NPC_CAN_TRIGGER = 6,
+	REGION_DEACTIVATED = 8,
+	REGION_NPC_CANT_PASS = 9,
+	REGION_ALTERNATIVE_POINT = 10
+};
+
+
+struct region {
+	char name[32];
+	uint16 type;
+	IE::rect rect;
+	uint16 vertex_count;
+	uint32 vertex_index;
+	uint32 unk;
+	uint32 cursor_index;
+	res_ref destination;
+	char entrance_name[32];
+	uint32 flags;
+	uint32 info_text;
+	uint16 trap_detection_difficulty;
+	uint16 trap_removal_difficulty;
+	uint16 trapped;
+	uint16 trap_detected;
+	IE::point trap_launch_location;
+	res_ref key_item;
+	res_ref script;
+	uint16 use_point_x;
+	uint16 use_point_y;
+	uint32 unk2;
+	char unk3[32];
+	res_ref sound;
+	uint32 talk_location;
+	uint32 str_name;
+	res_ref dialog_file;
+	void Print() const;
+} __attribute__((packed));
+
+
 enum door_flags {
 	DOOR_OPEN	= 1 << 0,
 	DOOR_LOCKED = 1 << 1,
