@@ -15,6 +15,7 @@ const static uint32 kNumAnimations = 9;
 
 class ActionList;
 class Animation;
+class AnimationFactory;
 class BCSResource;
 class CREResource;
 class PathFinder;
@@ -73,6 +74,7 @@ public:
 
 private:
 	IE::actor *fActor;
+	AnimationFactory* fAnimationFactory;
 	Animation *fAnimations[kNumAnimations];
 	CREResource *fCRE;
 //	::Script* fScript;

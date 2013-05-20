@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include "Animation.h"
+#include "AnimationFactory.h"
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "Bitmap.h"
@@ -26,6 +27,7 @@ Actor::Actor(IE::actor &actor)
 	:
 	Object(actor.name),
 	fActor(&actor),
+	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
@@ -41,6 +43,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	:
 	Object(actor.name),
 	fActor(&actor),
+	fAnimationFactory(NULL),
 	fCRE(cre),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
@@ -56,6 +59,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	:
 	Object(creName),
 	fActor(NULL),
+	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(true),
 	fDontCheckConditions(false),
@@ -85,12 +89,14 @@ Actor::_Init()
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
-
 	//printf("%d\n", );
 	// TODO: Get all scripts ? or just the specific one ?
 
 	if (fCRE == NULL)
 		throw "error!!!";
+
+	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
+	fAnimationFactory = new AnimationFactory(baseName.c_str());
 
 	std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
@@ -110,7 +116,7 @@ Actor::_Init()
 	MergeScripts();
 
 	if (fScript != NULL)
-		Object::SetScript(fScript);
+		SetScript(fScript);
 
 	fActor->Print();
 
@@ -118,14 +124,12 @@ Actor::_Init()
 	if (fActor->orientation > IE::ORIENTATION_SE)
 		fActor->orientation = 0;
 
-	// TODO: Guess the animation type
-	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
-	std::vector<std::string> resourceList;
-		gResManager->GetResourceList(resourceList, baseName.c_str(), RES_BAM);
-
+	// TODO: Move to its own method
 	for (uint32 c = 0; c < kNumAnimations; c++) {
 		try {
-			fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
+			fAnimations[c] = fAnimationFactory->AnimationFor(ACT_WALKING,
+					IE::orientation(c));
+			//fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
 		} catch (...) {
 			std::cerr << "Actor::Actor(" << fActor->name << ")";
 			std::cerr << ": cannot instantiate Animation ";
@@ -145,6 +149,8 @@ Actor::~Actor()
 		delete fActor;
 
 	gResManager->ReleaseResource(fCRE);
+
+	delete fAnimationFactory;
 
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		delete fAnimations[i];

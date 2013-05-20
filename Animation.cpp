@@ -77,6 +77,39 @@ Animation::Animation(CREResource* cre, int action,
 }
 
 
+Animation::Animation(const char* bamName,
+		int sequence, IE::point position)
+:
+	fBAM(NULL),
+	fAnimation(NULL),
+	fCycleNumber(0),
+	fCurrentFrame(0),
+	fMaxFrame(0),
+	fType(0),
+	fBlackAsTransparent(false),
+	fMirrored(false)
+{
+	strcpy(fName, bamName);
+
+	std::cout << "Animation bam: " << fName << std::endl;
+	fBAM = gResManager->GetBAM(fName);
+	if (fBAM == NULL)
+		throw -1;
+
+	//if (fName[0] == 'N')
+		//fBAM->DumpFrames("/home/stefano/dumps");
+
+	fCycleNumber = sequence;
+	if (fCycleNumber >= fBAM->CountCycles())
+		fCycleNumber = fBAM->CountCycles() - 1;
+	fCenter = position;
+	fCurrentFrame = 0;
+	fMaxFrame = fBAM->CountFrames(fCycleNumber);
+
+	fHold = false;
+}
+
+
 Animation::~Animation()
 {
 	gResManager->ReleaseResource(fBAM);
@@ -95,6 +128,13 @@ Animation::SetShown(const bool show)
 {
 	if (fAnimation != NULL)
 		fAnimation->flags |= IE::ANIM_SHOWN;
+}
+
+
+void
+Animation::SetMirrored(const bool mirror)
+{
+	fMirrored = mirror;
 }
 
 
@@ -117,8 +157,8 @@ Animation::Frame()
 		// since we would end up caching the same BAM frames
 		// for every animation.
 		// Find a better way
-		//GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
-		//frame.rect.x = frame.rect.x - frame.rect.w;
+		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
+		frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
@@ -174,11 +214,13 @@ Animation::_SelectAnimation(CREResource* cre, int action, int& orientation)
 		throw -1;
 	}
 
+	// TODO: Fix this mess
 	if ((high >= 0xb2 && high <= 0xb4)
 			|| (high >= 0xc6 && high <= 0xc9)
 			|| (baseName[0] == 'N'
 					&& (baseName[1] == 'N'
-						|| baseName[1] == 'S'))) {
+						|| baseName[1] == 'S'))
+			&& (high != 0x7f)) {
 		// TODO: Low/High ?
 		if (true)
 			baseName.append("L");

@@ -7,7 +7,7 @@
 #include "Referenceable.h"
 
 enum animation_action {
-	ACT_WALKING,
+	ACT_WALKING = 10,
 	ACT_STANDING
 };
 
@@ -20,16 +20,20 @@ enum animation_type {
 
 class Actor;
 class BAMResource;
+class CREResource;
 class Animation : public Referenceable {
 public:
 	Animation(IE::animation *animDesc);
 	Animation(CREResource *cre, int action, int sequence, IE::point position);
+	Animation(const char* bamName, int sequence, IE::point position);
 	~Animation();
 
 	const char* Name() const;
 
 	bool IsShown() const;
 	void SetShown(const bool show);
+
+	void SetMirrored(const bool mirror);
 
 	::Frame Frame();
 	void Next();
