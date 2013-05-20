@@ -4,7 +4,7 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "MemoryStream.h"
-//#include "MemoryArchive.h"
+#include "Region.h"
 #include "ResManager.h"
 
 #define AREA_SIGNATURE "AREA"
@@ -18,6 +18,8 @@ ARAResource::ARAResource(const res_ref& name)
 	fWedName(NULL),
 	fActorsOffset(0),
 	fNumActors(0),
+	fRegionsOffset(0),
+	fNumRegions(0),
 	fAnimationsOffset(0),
 	fNumAnimations(0),
 	fNumDoors(0),
@@ -25,6 +27,7 @@ ARAResource::ARAResource(const res_ref& name)
 	fVerticesOffset(0),
 	fAnimations(NULL),
 	fActors(NULL),
+	fRegions(NULL),
 	fDoors(NULL)
 {
 }
@@ -35,6 +38,7 @@ ARAResource::~ARAResource()
 	delete[] fAnimations;
 	delete[] fActors;
 	delete[] fDoors;
+	delete[] fRegions;
 }
 
 
@@ -55,17 +59,22 @@ ARAResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(84, fActorsOffset);
 	fData->ReadAt(88, fNumActors);
 
+	fData->ReadAt(132, fNumRegions);
+	fData->ReadAt(134, fRegionsOffset);
+
 	fData->ReadAt(164, fNumDoors);
 	fData->ReadAt(168, fDoorsOffset);
 
 	fData->ReadAt(172, fNumAnimations);
 	fData->ReadAt(176, fAnimationsOffset);
 
+
 	fData->ReadAt(0x7c, fVerticesOffset);
 
 	_LoadAnimations();
 	_LoadActors();
 	_LoadDoors();
+	_LoadRegions();
 
 	return true;
 }
@@ -136,6 +145,8 @@ ARAResource::AnimationAt(uint32 index)
 Actor*
 ARAResource::GetActorAt(uint16 index)
 {
+	// TODO: No need to preload the fActor array.
+	// We can load actor by actor from here.
 	IE::actor& ieActor = fActors[index];
 	Actor* newActor = NULL;
 	if (ieActor.flags & IE::ACTOR_CRE_EXTERNAL) {
@@ -162,6 +173,22 @@ uint16
 ARAResource::CountActors() const
 {
 	return fNumActors;
+}
+
+
+uint16
+ARAResource::CountRegions() const
+{
+	return fNumRegions;
+}
+
+
+Region*
+ARAResource::GetRegionAt(uint16 index)
+{
+	Region* region = new Region(&fRegions[index]);
+
+	return region;
 }
 
 
@@ -208,6 +235,8 @@ ARAResource::_LoadAnimations()
 void
 ARAResource::_LoadActors()
 {
+	// TODO: No need to preload the fActors array.
+	// also check the TODO in GetActorAt()
 	fActors = new IE::actor[fNumActors];
 
 	fData->Seek(fActorsOffset, SEEK_SET);
@@ -219,6 +248,30 @@ ARAResource::_LoadActors()
 			std::cout << "attached data: " << c << std::endl;
 		}
 
+	}
+}
+
+
+void
+ARAResource::_LoadDoors()
+{
+	fDoors = new IE::door[fNumDoors];
+	fData->Seek(fDoorsOffset, SEEK_SET);
+	for (uint32 i = 0; i < fNumDoors; i++) {
+		fData->Read(fDoors[i]);
+	}
+}
+
+
+void
+ARAResource::_LoadRegions()
+{
+	fRegions = new IE::region[fNumRegions];
+	fData->Seek(fRegionsOffset, SEEK_SET);
+	IE::region region;
+	for (uint32 i = 0; i < fNumRegions; i++) {
+		fData->Read(region);
+		region.Print();
 	}
 }
 
@@ -256,15 +309,4 @@ ARAResource::WestAreaName()
 	res_ref name;
 	fData->ReadAt(0x3c, name);
 	return name;
-}
-
-
-void
-ARAResource::_LoadDoors()
-{
-	fDoors = new IE::door[fNumDoors];
-	fData->Seek(fDoorsOffset, SEEK_SET);
-	for (uint32 i = 0; i < fNumDoors; i++) {
-		fData->Read(fDoors[i]);
-	}
 }

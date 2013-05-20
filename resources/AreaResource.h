@@ -5,6 +5,7 @@
 
 class Actor;
 class Door;
+class Region;
 class ARAResource : public Resource {
 public:
 	ARAResource(const res_ref& name);
@@ -28,6 +29,9 @@ public:
 	uint16 CountActors() const;
 	Actor* GetActorAt(uint16 index);
 
+	uint16 CountRegions() const;
+	Region* GetRegionAt(uint16 index);
+
 	res_ref ScriptName();
 
 	uint32 CountVariables() const;
@@ -35,14 +39,18 @@ public:
 
 private:
 
-	void _LoadAnimations();
 	void _LoadActors();
+	void _LoadAnimations();
 	void _LoadDoors();
+	void _LoadRegions();
 
 	res_ref fWedName;
 
 	uint32 fActorsOffset;
 	uint16 fNumActors;
+
+	uint32 fRegionsOffset;
+	uint16 fNumRegions;
 
 	uint32 fAnimationsOffset;
 	uint32 fNumAnimations;
@@ -52,9 +60,10 @@ private:
 
 	uint32 fVerticesOffset;
 
-	IE::animation *fAnimations;
-	IE::actor *fActors;
-	IE::door *fDoors;
+	IE::animation* fAnimations;
+	IE::actor* fActors;
+	IE::region* fRegions;
+	IE::door* fDoors;
 };
 
 #endif /* __AREARESOURCE_H_ */
