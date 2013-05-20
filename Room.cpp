@@ -17,6 +17,7 @@
 #include "MOSResource.h"
 #include "Polygon.h"
 #include "RectUtils.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
@@ -131,6 +132,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitTileCells();
 	_InitVariables();
 	_InitAnimations();
+	_InitRegions();
 	_LoadActors();
 	_InitDoors();
 
@@ -660,6 +662,15 @@ Room::_InitAnimations()
 {
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++)
 		fAnimations.push_back(new Animation(fArea->AnimationAt(i)));
+}
+
+
+void
+Room::_InitRegions()
+{
+	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
+		Region::Add(fArea->GetRegionAt(i));
+	}
 }
 
 

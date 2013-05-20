@@ -87,6 +87,7 @@ private:
 	void _InitVariables();
 	void _InitTileCells();
 	void _InitAnimations();
+	void _InitRegions();
 	void _LoadActors();
 	void _InitDoors();
 
