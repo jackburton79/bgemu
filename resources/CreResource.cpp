@@ -47,7 +47,7 @@ CREResource::Load(Stream* stream, uint32 position, uint32 size)
 	fData = new MemoryStream(size);
 	stream->ReadAt(position, fData->Data(), size);
 
-
+	return true;
 }
 
 
