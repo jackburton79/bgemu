@@ -48,7 +48,7 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x5013, "CIFB");
 	res->AddValue(0x5100, "CHMB");
 	res->AddValue(0x5101, "CEMB");
-	res->AddValue(0x5102, "CDMB");
+	res->AddValue(0x5102, "CDMF"); // Fighter Male Dwarf
 	res->AddValue(0x5103, "CIMB");
 	//res->AddValue(0x5110, "CHFB");
 	res->AddValue(0x5111, "CEFB");
@@ -70,7 +70,6 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x5313, "CIFB");
 
 	res->AddValue(0x6000, "CHMC"); // Cleric Male Human
-
 	res->AddValue(0x6001, "CEMB");
 	res->AddValue(0x6002, "CDMB");
 	res->AddValue(0x6003, "CIMB");
@@ -84,7 +83,7 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	//res->AddValue(0x6015, "CHFB");
 	res->AddValue(0x6100, "CHMF"); // Fighter Male Human
 	res->AddValue(0x6101, "CEMB");
-	res->AddValue(0x6102, "CDMB");
+	res->AddValue(0x6102, "CDMF"); // Fighter Male Dwarf
 	res->AddValue(0x6103, "CIMB");
 	res->AddValue(0x6104, "CDMB");
 	res->AddValue(0x6105, "CHMB");
