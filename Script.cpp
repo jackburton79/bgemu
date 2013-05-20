@@ -524,6 +524,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				//fOrTriggers = trig->parameter1;
 				break;
 			}
+			case 0x4c:
+			{
+				// Entered(O:Object)
+				object_node* obj = FindObjectNode(trig);
+				obj->Print();
+				break;
+			}
 			default:
 			{
 				printf("UNIMPLEMENTED TRIGGER!!!\n");
