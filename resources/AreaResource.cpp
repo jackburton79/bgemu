@@ -59,8 +59,8 @@ ARAResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(84, fActorsOffset);
 	fData->ReadAt(88, fNumActors);
 
-	fData->ReadAt(132, fNumRegions);
-	fData->ReadAt(134, fRegionsOffset);
+	fData->ReadAt(90, fNumRegions);
+	fData->ReadAt(92, fRegionsOffset);
 
 	fData->ReadAt(164, fNumDoors);
 	fData->ReadAt(168, fDoorsOffset);
@@ -245,7 +245,7 @@ ARAResource::_LoadActors()
 		if (fActors[i].flags & IE::ACTOR_CRE_EXTERNAL) {
 			char c;
 			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);
-			std::cout << "attached data: " << c << std::endl;
+			//std::cout << "attached data: " << c << std::endl;
 		}
 
 	}
@@ -268,10 +268,9 @@ ARAResource::_LoadRegions()
 {
 	fRegions = new IE::region[fNumRegions];
 	fData->Seek(fRegionsOffset, SEEK_SET);
-	IE::region region;
 	for (uint32 i = 0; i < fNumRegions; i++) {
-		fData->Read(region);
-		region.Print();
+		fData->Read(fRegions[i]);
+		fRegions[i].Print();
 	}
 }
 
