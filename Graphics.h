@@ -7,6 +7,9 @@
 
 class Bitmap;
 class Polygon;
+namespace GFX {
+	struct rect;
+}
 class Graphics {
 public:
 	static int DecodeRLE(const void *src, uint32 size, void *dst, uint8 cmpIndex);
@@ -21,6 +24,7 @@ public:
 				uint32 x2, uint32 y2, uint32 color);
 	static void DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y);
 	static void DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color);
+	static void DrawRect(Bitmap* bitmap, GFX::rect& rect, uint32 color);
 };
 
 #endif

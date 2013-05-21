@@ -121,6 +121,15 @@ Graphics::DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color)
 
 
 /* static */
+void
+Graphics::DrawRect(Bitmap* bitmap, GFX::rect& gfxRect, uint32 color)
+{
+	SDL_Surface* surface = bitmap->Surface();
+	DrawRect(surface, (SDL_Rect&)gfxRect, color);
+}
+
+
+/* static */
 int
 Graphics::DataToBitmap(const void *data, int32 width,
 		int32 height, Bitmap *bitmap)
