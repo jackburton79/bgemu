@@ -7,9 +7,9 @@
 #include "Referenceable.h"
 
 enum animation_action {
-	ACT_WALKING = 10,
-	ACT_STANDING,
-	ACT_ATTACKING
+	ACT_WALKING = 0,
+	ACT_STANDING = 1,
+	ACT_ATTACKING = 2
 };
 
 

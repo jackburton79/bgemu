@@ -83,9 +83,10 @@ Actor::_Init()
 {
 	fEnemyOfEveryone = false;
 
-	for (uint32 i = 0; i < kNumAnimations; i++)
-		fAnimations[i] = NULL;
-
+	for (uint32 a = 0; a < kNumActions; a++) {
+		for (uint32 i = 0; i < kNumAnimations; i++)
+			fAnimations[a][i] = NULL;
+	}
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
@@ -124,22 +125,30 @@ Actor::_Init()
 	if (fActor->orientation > IE::ORIENTATION_SE)
 		fActor->orientation = 0;
 
-	// TODO: Move to its own method
-	for (uint32 c = 0; c < kNumAnimations; c++) {
-		try {
-			fAnimations[c] = fAnimationFactory->AnimationFor(ACT_WALKING,
-					IE::orientation(c));
-			//fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
-		} catch (...) {
-			std::cerr << "Actor::Actor(" << fActor->name << ")";
-			std::cerr << ": cannot instantiate Animation ";
-			std::cerr << std::hex << fCRE->AnimationID() << std::endl;
-			delete fAnimations[c];
-			fAnimations[c] = NULL;
-		}
-	}
+	_LoadAnimations(ACT_WALKING);
 
 	fPath = new PathFinder();
+}
+
+
+void
+Actor::_LoadAnimations(int action)
+{
+	for (uint32 a = 0; a < kNumActions; a++) {
+		for (uint32 c = 0; c < kNumAnimations; c++) {
+			try {
+				fAnimations[a][c] = fAnimationFactory->AnimationFor(a,
+						IE::orientation(c));
+				//fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
+			} catch (...) {
+				std::cerr << "Actor::Actor(" << fActor->name << ")";
+				std::cerr << ": cannot instantiate Animation ";
+				std::cerr << std::hex << fCRE->AnimationID() << std::endl;
+				delete fAnimations[a][c];
+				fAnimations[a][c] = NULL;
+			}
+		}
+	}
 }
 
 
@@ -153,9 +162,10 @@ Actor::~Actor()
 	// TODO: Release
 	//delete fAnimationFactory;
 
-	for (uint32 i = 0; i < kNumAnimations; i++)
-		delete fAnimations[i];
-
+	for (uint32 a = 0; a < kNumActions; a++) {
+		for (uint32 i = 0; i < kNumAnimations; i++)
+			delete fAnimations[a][i];
+	}
 	delete fPath;
 }
 
@@ -215,11 +225,14 @@ Actor::Name() const
 void
 Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 {
-	Animation* animation = fAnimations[fActor->orientation];
-	if (animation == NULL)
+	int action = ACT_STANDING;
+	if (fActor->position != fActor->destination)
+		action = ACT_WALKING;
+	fCurrentAnimation = fAnimations[action][fActor->orientation];
+	if (fCurrentAnimation == NULL)
 		return;
 
-	Frame frame = animation->Frame();
+	Frame frame = fCurrentAnimation->Frame();
 	Bitmap *image = frame.bitmap;
 	if (image == NULL)
 		return;
@@ -409,8 +422,8 @@ Actor::UpdateMove(bool ignoreBlocks)
 				fActor->position = nextPoint;
 		}
 
-		if (fAnimations[fActor->orientation] != NULL)
-			fAnimations[fActor->orientation]->Next();
+		if (fCurrentAnimation != NULL)
+			fCurrentAnimation->Next();
 	} catch (...) {
 		// No more waypoints
 	}
@@ -439,7 +452,6 @@ Actor::_AddScript(const res_ref& scriptName)
 void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
-	// TODO: Implement correctly
 	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)

@@ -12,6 +12,7 @@
 #include <vector>
 
 const static uint32 kNumAnimations = 9;
+const static uint32 kNumActions = 3;
 
 class ActionList;
 class Animation;
@@ -75,7 +76,9 @@ public:
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
-	Animation *fAnimations[kNumAnimations];
+	Animation *fAnimations[kNumActions][kNumAnimations];
+	Animation* fCurrentAnimation;
+
 	CREResource *fCRE;
 //	::Script* fScript;
 	bool fOwnsActor;
@@ -93,6 +96,7 @@ private:
 	static std::vector<Actor*> sActors;
 
 	void _Init();
+	void _LoadAnimations(int action);
 	void _AddScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	bool _IsReachable(const IE::point& pt);

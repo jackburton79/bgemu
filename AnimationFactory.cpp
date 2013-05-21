@@ -79,6 +79,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 					sequenceNumber += uint32(o);
 				case ACT_ATTACKING:
 					break;
+				case ACT_STANDING:
+					bamName.append("G1");
+					sequenceNumber += uint32(o) + 10;
 				default:
 					break;
 			}
