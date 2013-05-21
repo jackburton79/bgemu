@@ -14,8 +14,7 @@ Animation::Animation(IE::animation *animDesc)
 	fAnimation(animDesc),
 	fCycleNumber(0),
 	fCurrentFrame(0),
-	fMaxFrame(0),
-	fType(0)
+	fMaxFrame(0)
 {
 	memcpy(fName, animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
 	fName[8] = '\0';
@@ -43,40 +42,6 @@ Animation::Animation(IE::animation *animDesc)
 }
 
 
-Animation::Animation(CREResource* cre, int action,
-		int sequence, IE::point position)
-:
-	fBAM(NULL),
-	fAnimation(NULL),
-	fCycleNumber(0),
-	fCurrentFrame(0),
-	fMaxFrame(0),
-	fType(0),
-	fBlackAsTransparent(false),
-	fMirrored(false)
-{
-	res_ref name = _SelectAnimation(cre, action, sequence);
-
-	strncpy(fName, name.CString(), sizeof(name.name));
-
-	fBAM = gResManager->GetBAM(fName);
-	if (fBAM == NULL)
-		throw -1;
-
-	//if (fName[0] == 'N')
-		//fBAM->DumpFrames("/home/stefano/dumps");
-
-	fCycleNumber = sequence;
-	if (fCycleNumber >= fBAM->CountCycles())
-		fCycleNumber = fBAM->CountCycles() - 1;
-	fCenter = position;
-	fCurrentFrame = 0;
-	fMaxFrame = fBAM->CountFrames(fCycleNumber);
-
-	fHold = false;
-}
-
-
 Animation::Animation(const char* bamName,
 		int sequence, IE::point position)
 :
@@ -85,7 +50,6 @@ Animation::Animation(const char* bamName,
 	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0),
-	fType(0),
 	fBlackAsTransparent(false),
 	fMirrored(false)
 {
@@ -192,87 +156,4 @@ IE::point
 Animation::Position() const
 {
 	return fCenter;
-}
-
-
-res_ref
-Animation::_SelectAnimation(CREResource* cre, int action, int& orientation)
-{
-	const uint16 animationID = cre->AnimationID();
-	//printf("%s\n", 	AnimateIDS()->ValueFor(animationID));
-
-	res_ref nameRef;
-	uint8 high = (animationID & 0xFF00) >> 8;
-	//uint8 low = (animationID & 0x00FF);
-
-	//fType = AnimationType(animationID);
-	//if (fType != ANIMATION_CHARACTER) {
-	std::string baseName = IDTable::AniSndAt(animationID);
-	if (baseName.empty()) {
-		printf("unknown code 0x%x (%s)\n", animationID,
-					IDTable::AnimationAt(animationID).c_str());
-		throw -1;
-	}
-
-	// TODO: Fix this mess
-	if ((high >= 0xb2 && high <= 0xb4)
-			|| (high >= 0xc6 && high <= 0xc9)
-			|| (baseName[0] == 'N'
-					&& (baseName[1] == 'N'
-						|| baseName[1] == 'S'))
-			&& (high != 0x7f)) {
-		// TODO: Low/High ?
-		if (true)
-			baseName.append("L");
-		else
-			baseName.append("H");
-	}
-	std::cout << "orientation: " << std::dec << (int)orientation << std::endl;
-	if (baseName[0] == 'A') {
-		//orientation /= 2;
-	}
-
-	if (baseName[0] == 'M') {
-		switch (action) {
-			//case ACT_WALKING: baseName.append("G11"); break;
-			case ACT_STANDING:
-			default: baseName.append("G1"); break;
-		}
-		if (orientation >= IE::ORIENTATION_NE
-			&& orientation <= IE::ORIENTATION_SE) {
-			fMirrored = true;
-		}
-	} else if (baseName[0] == 'C') {
-		// TODO: Can not work like this. Find out how to implement
-		if (baseName[3] != 'F' && baseName[3] != 'C')
-			baseName[4] = '2';
-		else
-			baseName[4] = '4'; //ArmorToLetter();
-		baseName[5] = 'G'; // Action
-		if (baseName[5] == 'A' || baseName[5] == 'G')
-			baseName[6] = '1'; // Detail
-		else if (baseName[5] == 'W')
-			baseName[6] = '2'; // Detail
-		else
-			baseName[6] = '\0';
-
-		baseName[7] = '\0';
-
-	} else if (baseName[0] == 'S') {
-		baseName.append("C");
-	} else {
-		baseName.append("G1");
-		if (baseName[0] == 'N') {
-			if (orientation >= IE::ORIENTATION_NE
-					&& orientation <= IE::ORIENTATION_SE) {
-				baseName.append("E");
-				//orientation -= 6;
-			}
-		}
-	}
-
-	strcpy(nameRef.name, baseName.c_str());
-
-	//printf("nameRef: %s\n", (const char *)nameRef);
-	return nameRef;
 }

@@ -96,7 +96,7 @@ Actor::_Init()
 		throw "error!!!";
 
 	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
-	fAnimationFactory = new AnimationFactory(baseName.c_str());
+	fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
 
 	std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
@@ -150,7 +150,8 @@ Actor::~Actor()
 
 	gResManager->ReleaseResource(fCRE);
 
-	delete fAnimationFactory;
+	// TODO: Release
+	//delete fAnimationFactory;
 
 	for (uint32 i = 0; i < kNumAnimations; i++)
 		delete fAnimations[i];
@@ -440,20 +441,27 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 {
 	// TODO: Implement correctly
 	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
-	if (nextPoint.x > fActor->position.x)
-		newOrientation = IE::ORIENTATION_E;
-	else if (nextPoint.x < fActor->position.x)
-		newOrientation = IE::ORIENTATION_W;
+	if (nextPoint.x > fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_SE;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_NE;
+		else
+			newOrientation = IE::ORIENTATION_E;
+	} else if (nextPoint.x < fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_SW;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_NW;
+		else
+			newOrientation = IE::ORIENTATION_W;
+	} else {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_E;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_W;
+	}
 
-	if (nextPoint.y > fActor->position.y)
-		newOrientation = (IE::orientation)((int)newOrientation + 1);
-	else if (nextPoint.y < fActor->position.y)
-		newOrientation = (IE::orientation)((int)newOrientation - 1);
-
-	if (newOrientation < IE::ORIENTATION_S)
-		newOrientation = IE::ORIENTATION_S;
-	else if (newOrientation > IE::ORIENTATION_SE)
-		newOrientation = IE::ORIENTATION_SE;
 
 	fActor->orientation = newOrientation;
 }
