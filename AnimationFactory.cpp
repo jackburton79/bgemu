@@ -15,7 +15,8 @@
 
 enum animation_type {
 	ANIMATION_TYPE_CHARACHTER,
-	ANIMATION_TYPE_OTHER
+	ANIMATION_TYPE_BG1_MONSTER,
+	ANIMATION_TYPE_BOH
 };
 
 
@@ -25,6 +26,7 @@ std::map<std::string, AnimationFactory*> AnimationFactory::sAnimationFactory;
 AnimationFactory*
 AnimationFactory::GetFactory(const char* baseName)
 {
+	// TODO: No reference counting
 	AnimationFactory* factory = NULL;
 	std::map<std::string, AnimationFactory*>::const_iterator i
 		= sAnimationFactory.find(baseName);
@@ -60,7 +62,6 @@ AnimationFactory::~AnimationFactory()
 Animation*
 AnimationFactory::AnimationFor(int action, IE::orientation o)
 {
-
 	// TODO: Only valid for G1/G11/E files
 	std::string bamName;
 	int sequenceNumber = 0;
@@ -68,8 +69,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	bamName.append(fBaseName);
 
 	switch (fAnimationType) {
-		case ANIMATION_TYPE_OTHER:
+		case ANIMATION_TYPE_BG1_MONSTER:
 		{
+			// G1/G11-G15, G2/G21/26
 			if (_AreHighLowSplitted()) {
 				bamName.append("H");
 			}
@@ -141,12 +143,12 @@ AnimationFactory::_AreHighLowSplitted() const
 void
 AnimationFactory::_ClassifyAnimation()
 {
-	if (fList.size() > 6)
+	if (fList.size() > 13)
 		fAnimationType = ANIMATION_TYPE_CHARACHTER;
 	else
-		fAnimationType = ANIMATION_TYPE_OTHER;
+		fAnimationType = ANIMATION_TYPE_BG1_MONSTER;
 
-	// TODO: Guess the animation type
+
 	std::vector<std::string>::const_iterator i;
 	for (i = fList.begin(); i != fList.end(); i++) {
 		if (i->at(i->size() - 1) == 'E') {
