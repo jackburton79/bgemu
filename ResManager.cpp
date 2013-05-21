@@ -385,7 +385,6 @@ ResourceManager::GetResourceList(std::vector<std::string>& strings,
 		if (resType.type == type
 				&& !strncmp(resType.name.CString(), query, queryLen)) {
 			strings.push_back(resType.name.CString());
-			std::cout << resType.name << std::endl;
 		}
 	}
 
