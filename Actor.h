@@ -51,6 +51,9 @@ public:
 	void SetFlying(bool fly);
 	bool IsFlying() const;
 
+	void Select(bool select);
+	bool IsSelected() const;
+
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
@@ -88,6 +91,7 @@ private:
 
 	bool fFlying;
 	bool fEnemyOfEveryone;
+	bool fSelected;
 
 	PathFinder* fPath;
 

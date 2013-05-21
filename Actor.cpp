@@ -81,6 +81,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 void
 Actor::_Init()
 {
+	fSelected = false;
 	fEnemyOfEveryone = false;
 
 	for (uint32 a = 0; a < kNumActions; a++) {
@@ -137,9 +138,9 @@ Actor::_LoadAnimations(int action)
 	for (uint32 a = 0; a < kNumActions; a++) {
 		for (uint32 c = 0; c < kNumAnimations; c++) {
 			try {
+				// TODO: Load the animations only when needed
 				fAnimations[a][c] = fAnimationFactory->AnimationFor(a,
 						IE::orientation(c));
-				//fAnimations[c] = new Animation(fCRE, ACT_WALKING, c, fActor->position);
 			} catch (...) {
 				std::cerr << "Actor::Actor(" << fActor->name << ")";
 				std::cerr << ": cannot instantiate Animation ";
@@ -225,6 +226,7 @@ Actor::Name() const
 void
 Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 {
+	// TODO: Action shouldn't be set here
 	int action = ACT_STANDING;
 	if (fActor->position != fActor->destination)
 		action = ACT_WALKING;
@@ -237,9 +239,6 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 	if (image == NULL)
 		return;
 
-	//image->Dump();
-
-
 	IE::point leftTop = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
 	GFX::rect rect = { leftTop.x, leftTop.y, image->Width(), image->Height() };
@@ -250,6 +249,8 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 		//Room::CurrentArea()->GetClipping(rect, )
 
 		GraphicsEngine::BlitBitmap(image, NULL, destBitmap, &rect);
+		if (IsSelected())
+			Graphics::DrawRect(destBitmap, rect, 45);
 	}
 	GraphicsEngine::DeleteBitmap(image);
 }
@@ -339,6 +340,20 @@ bool
 Actor::IsInterruptable() const
 {
 	return fIsInterruptable;
+}
+
+
+void
+Actor::Select(bool select)
+{
+	fSelected = select;
+}
+
+
+bool
+Actor::IsSelected() const
+{
+	return fSelected;
 }
 
 

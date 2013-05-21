@@ -409,13 +409,17 @@ Room::Clicked(uint16 x, uint16 y)
 			std::cout << " " << (*iter)->Position().x << std::endl;
 */
 			if (rect_contains(rect, point)) {
+				if (fSelectedActor != NULL)
+					fSelectedActor->Select(false);
 				fSelectedActor = *iter;
+				fSelectedActor->Select(true);
 				return;
 			}
 		}
 
 
-		fSelectedActor->SetDestination(point);
+		if (fSelectedActor != NULL)
+			fSelectedActor->SetDestination(point);
 		/*
 		const uint16 tileNum = TileNumberForPoint(point);
 		fTileCells[tileNum]->Clicked();*/
@@ -714,7 +718,10 @@ Room::_UnloadArea()
 	if (fWed == NULL)
 		return;
 
-	fSelectedActor = NULL;
+	if (fSelectedActor != NULL) {
+		fSelectedActor->Select(false);
+		fSelectedActor = NULL;
+	}
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
