@@ -271,13 +271,13 @@ Core::UpdateLogic()
 	}*/
 	//return;
 
-	std::vector<Region*>::iterator regionIter;
+	/*std::vector<Region*>::iterator regionIter;
 	for (regionIter = Region::List().begin();
 			regionIter != Region::List().end(); regionIter++) {
 		(*regionIter)->Update();
 	}
-
-	return;
+*/
+	//return;
 	// TODO: Fix/Improve
 	std::vector<Actor*>::iterator i;
 	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {

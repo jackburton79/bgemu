@@ -113,6 +113,8 @@ private:
 	std::vector<TileCell*> fTileCells;
 	std::vector<Animation*> fAnimations;
 
+	Actor* fSelectedActor;
+
 	bool fDrawOverlays;
 	bool fDrawPolygons;
 	bool fDrawAnimations;

@@ -47,6 +47,7 @@ Room::Room()
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
+	fSelectedActor(NULL),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
 	fDrawAnimations(true),
@@ -143,7 +144,9 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 #if ADD_FAKE_PLAYER
 	IE::point playerPoint = { 100, 50 };
 	try {
-		Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
+		//Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
+		Actor* actor = new Actor("BINKOS", playerPoint, 0);
+		//Actor* actor = new Actor("HOBELITE", playerPoint, 0);
 		Actor::Add(actor);
 		actor->SetIsEnemyOfEveryone(true);
 		actor->SetDestination(playerPoint);
@@ -406,12 +409,16 @@ Room::Clicked(uint16 x, uint16 y)
 			std::cout << " " << (*iter)->Position().x << std::endl;
 */
 			if (rect_contains(rect, point)) {
-				(*iter)->Print();
+				fSelectedActor = *iter;
 				return;
 			}
 		}
+
+
+		fSelectedActor->SetDestination(point);
+		/*
 		const uint16 tileNum = TileNumberForPoint(point);
-		fTileCells[tileNum]->Clicked();
+		fTileCells[tileNum]->Clicked();*/
 	}
 }
 
@@ -706,6 +713,8 @@ Room::_UnloadArea()
 {
 	if (fWed == NULL)
 		return;
+
+	fSelectedActor = NULL;
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
