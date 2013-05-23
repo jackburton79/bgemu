@@ -64,7 +64,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fOwnsActor(true),
 	fDontCheckConditions(false),
 	fFlying(false),
-	fPath(NULL)
+	fPath(NULL),
+	fSpeed(2)
 {
 	fActor = new IE::actor;
 	fActor->cre = creName;
@@ -431,7 +432,10 @@ Actor::UpdateMove(bool ignoreBlocks)
 {
 	try {
 		if (fActor->position != fActor->destination) {
-			IE::point nextPoint = fPath->NextWayPoint();
+			IE::point nextPoint;
+			//for (int i = 0; i < fSpeed; i++) {
+				nextPoint = fPath->NextWayPoint();
+			//}
 			_SetOrientation(nextPoint);
 			if (ignoreBlocks || _IsReachable(nextPoint))
 				fActor->position = nextPoint;
@@ -484,9 +488,9 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 			newOrientation = IE::ORIENTATION_W;
 	} else {
 		if (nextPoint.y > fActor->position.y)
-			newOrientation = IE::ORIENTATION_E;
+			newOrientation = IE::ORIENTATION_S;
 		else if (nextPoint.y < fActor->position.y)
-			newOrientation = IE::ORIENTATION_W;
+			newOrientation = IE::ORIENTATION_N;
 	}
 
 
@@ -497,6 +501,9 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 bool
 Actor::_IsReachable(const IE::point& pt)
 {
+	// TODO:
+	return true;
+
 	Room* room = Room::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {

@@ -12,7 +12,7 @@
 #include <vector>
 
 const static uint32 kNumAnimations = 9;
-const static uint32 kNumActions = 3;
+const static uint32 kNumActions = 2;
 
 class ActionList;
 class Animation;
@@ -94,6 +94,7 @@ private:
 	bool fSelected;
 
 	PathFinder* fPath;
+	int fSpeed;
 
 	std::map<std::string, uint32> fVariables;
 
