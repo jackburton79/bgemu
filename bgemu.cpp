@@ -1,3 +1,4 @@
+#include "Actor.h"
 #include "Archive.h"
 #include "Bitmap.h"
 #include "Control.h"
@@ -5,6 +6,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "InputConsole.h"
+#include "MovieDecoder.h"
 #include "OutputConsole.h"
 #include "ResManager.h"
 #include "Room.h"
@@ -70,6 +72,10 @@ main(int argc, char **argv)
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
+
+
+	MovieDecoder *decoder = new MovieDecoder;
+	delete decoder;
 
 	Room *map = new Room();
 	GUI* gui = GUI::Default();
@@ -174,7 +180,6 @@ main(int argc, char **argv)
 			// TODO: needs to be called at every loop, not only when the mouse
 			// is moved
 			gui->MouseMoved(lastMouseX, lastMouseY);
-
 
 			/*console->Draw();
 			inputConsole->Draw();*/

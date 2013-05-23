@@ -30,8 +30,6 @@
 #include <assert.h>
 #include <iostream>
 
-#define ADD_FAKE_PLAYER 1
-
 std::vector<MapOverlay*> *gOverlays = NULL;
 
 static Room* sCurrentRoom = NULL;
@@ -140,20 +138,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitBitmap(fViewPort);
 
 	Core::Get()->EnteredArea(this, roomScript);
-
-#if ADD_FAKE_PLAYER
-	IE::point playerPoint = { 100, 50 };
-	try {
-		//Actor* actor = new Actor("ZOMBIE", playerPoint, 0);
-		Actor* actor = new Actor("BINKOS", playerPoint, 0);
-		//Actor* actor = new Actor("HOBELITE", playerPoint, 0);
-		Actor::Add(actor);
-		actor->SetIsEnemyOfEveryone(true);
-		actor->SetDestination(playerPoint);
-	} catch (...) {
-
-	}
-#endif
 
 	delete roomScript;
 	return true;
