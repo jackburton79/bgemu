@@ -18,9 +18,10 @@ PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 IE::point
 PathFinder::NextWayPoint()
 {
-	std::list<IE::point>::iterator i = fIterator;
+	std::list<IE::point>::const_iterator i = fIterator;
 	if (i == fPoints.end())
 		throw -1;
+		//return *(--i);
 
 	return *fIterator++;
 }
