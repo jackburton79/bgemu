@@ -62,4 +62,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		}
 		point.y += sh_step;
 	}
+
+	fPoints.push_back(end);
 }
