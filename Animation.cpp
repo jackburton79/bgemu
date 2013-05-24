@@ -64,8 +64,12 @@ Animation::Animation(const char* bamName,
 		//fBAM->DumpFrames("/home/stefano/dumps");
 
 	fCycleNumber = sequence;
-	if (fCycleNumber >= fBAM->CountCycles())
-		fCycleNumber = fBAM->CountCycles() - 1;
+	if (fCycleNumber >= fBAM->CountCycles()) {
+		std::cout << "CycleNumber exceeds cycles count: cyclenumber ";
+		std::cout << fCycleNumber << ", cycles: " << int(fBAM->CountCycles());
+		std::cout << std::endl;
+		throw -1;
+	}
 	fCenter = position;
 	fCurrentFrame = 0;
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
