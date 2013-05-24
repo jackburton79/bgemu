@@ -67,8 +67,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	int sequenceNumber = 0;
 	const int kStandingOffset = 10;
 
-	bamName.append(fBaseName);
+	bool mirror = false;
 
+	bamName.append(fBaseName);
 	switch (fAnimationType) {
 		case ANIMATION_TYPE_BG1_MONSTER:
 		{
@@ -80,6 +81,7 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 				case ACT_WALKING:
 					bamName.append("G1");
 					sequenceNumber = uint32(o);
+					break;
 				case ACT_ATTACKING:
 					break;
 				case ACT_STANDING:
@@ -89,6 +91,18 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 						sequenceNumber += kStandingOffset;
 				default:
 					break;
+			}
+			if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+				if (_HasEastBams()) {
+					bamName.append("E");
+					// TODO: Doesn't work for some animations (IE: ACOW)
+					//sequenceNumber -= 5;
+				} else {
+					// Orientation 5 uses bitmap from orientation 3 mirrored,
+					// 6 uses 2, and 7 uses 1
+					mirror = true;
+					sequenceNumber -= (uint32(o) - 4) * 2;
+				}
 			}
 			break;
 		}
@@ -104,28 +118,27 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 					break;
 				case ACT_STANDING:
 					bamName.append("G1");
-					sequenceNumber = uint32(o) + kStandingOffset - 1;
+					sequenceNumber = uint32(o) + 8;
+					break;
 				default:
 					break;
+			}
+			if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+				if (_HasEastBams()) {
+					bamName.append("E");
+					// TODO: Doesn't work for some animations (IE: ACOW)
+					//sequenceNumber -= 1;
+				} else {
+					// Orientation 5 uses bitmap from orientation 3 mirrored,
+					// 6 uses 2, and 7 uses 1
+					mirror = true;
+					sequenceNumber -= (uint32(o) - 4) * 2;
+				}
 			}
 			break;
 		}
 		default:
 			break;
-	}
-
-	bool mirror = false;
-	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-		if (_HasEastBams()) {
-			bamName.append("E");
-			// TODO: Doesn't work for some animations (IE: ACOW)
-			//sequenceNumber -= 5;
-		} else {
-			// Orientation 5 uses bitmap from orientation 3 mirrored,
-			// 6 uses 2, and 7 uses 1
-			mirror = true;
-			sequenceNumber -= (uint32(o) - 4) * 2;
-		}
 	}
 
 	std::cout << bamName << std::endl;
@@ -155,7 +168,8 @@ AnimationFactory::_AreHighLowSplitted() const
 bool
 AnimationFactory::_HasStandingSequence() const
 {
-	// TODO: Don't just compare with a fixed list
+	// TODO: Don't just compare with a fixed list,
+	// find out a rule
 	return strcasecmp(fBaseName, "ACOW");
 }
 
