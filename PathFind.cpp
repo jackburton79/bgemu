@@ -20,8 +20,7 @@ PathFinder::NextWayPoint()
 {
 	std::list<IE::point>::const_iterator i = fIterator;
 	if (i == fPoints.end())
-		throw -1;
-		//return *(--i);
+		return *(--i);
 
 	return *fIterator++;
 }
