@@ -141,6 +141,7 @@ BAMResource::DumpFrames(const char *filePath)
 Frame
 BAMResource::_FrameAt(uint16 index)
 {
+	//std::cout << "BAMResource::FrameAt(" << index << ")" << std::endl;
 	/*if (fFrames.find(index) != fFrames.end()) {
 		fFrames[index].bitmap->Acquire();
 		printf("%s frame %d refcount %d\n", fName.CString(),
@@ -197,8 +198,8 @@ BAMResource::_FrameAt(uint16 index)
 Frame
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
-	//std::cout << "FrameForCycle(" << (int)cycleIndex << ", ";
-	//std::cout << (int)frameIndex << ")" << std::endl;
+	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";
+	//std::cout << "Frame " << (int)frameIndex << std::endl;
 	if (cycleIndex >= fNumCycles) {
 		std::cerr << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
 		throw cycleIndex;
@@ -210,6 +211,7 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	uint16 index;
 	fData->ReadAt(fFrameLookupOffset
 			+ (newCycle.index + frameIndex) * sizeof(int16), index);
+
 	return _FrameAt(index);
 }
 
