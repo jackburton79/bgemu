@@ -72,14 +72,15 @@ Object::IsVisible() const
 
 
 void
-Object::Update()
+Object::Update(bool scripts)
 {
-	/*if (++fTicks == 15) {
-		fTicks = 0;
-		if (fScript != NULL)
-			fScript->Execute();
+	if (scripts) {
+		if (++fTicks == 15) {
+			fTicks = 0;
+			if (fScript != NULL)
+				fScript->Execute();
+		}
 	}
-*/
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {
 		actor->UpdateMove(actor->IsFlying());

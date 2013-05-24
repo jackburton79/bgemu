@@ -55,7 +55,7 @@ public:
 
 	void NewScriptRound();
 	void CheckScripts();
-	void UpdateLogic();
+	void UpdateLogic(bool scripts);
 
 	// Actions/Triggers
 	bool See(const Object* source, const Object* target) const;

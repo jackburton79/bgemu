@@ -55,7 +55,7 @@ public:
 	bool See(Object* object);
 	bool IsVisible() const;
 
-	void Update();
+	void Update(bool scripts);
 
 	void SetScript(Script* script);
 

@@ -183,8 +183,7 @@ main(int argc, char **argv)
 
 			/*console->Draw();
 			inputConsole->Draw();*/
-			if (!sNoScripts)
-				Core::Get()->UpdateLogic();
+			Core::Get()->UpdateLogic(!sNoScripts);
 
 			graphicsEngine->Flip();
 			SDL_Delay(50);

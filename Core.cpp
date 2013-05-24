@@ -258,7 +258,7 @@ Core::CheckScripts()
 
 
 void
-Core::UpdateLogic()
+Core::UpdateLogic(bool executeScripts)
 {
 	// TODO: Should do that based on timer.
 	//NewScriptRound();
@@ -284,7 +284,7 @@ Core::UpdateLogic()
 		//fLastScriptRoundTime = SDL_GetTicks();
 		for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
 			Actor *actor  = *i;
-			actor->Update();
+			actor->Update(executeScripts);
 		}
 	//}
 
