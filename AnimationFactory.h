@@ -25,6 +25,7 @@ private:
 
 	bool _HasEastBams() const;
 	bool _AreHighLowSplitted() const;
+	bool _HasStandingSequence() const;
 	void _ClassifyAnimation();
 
 	const char* _GetBamName(const char* attributes) const;

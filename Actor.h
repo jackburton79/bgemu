@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-const static uint32 kNumAnimations = 9;
+const static uint32 kNumAnimations = 8;
 const static uint32 kNumActions = 2;
 
 class ActionList;

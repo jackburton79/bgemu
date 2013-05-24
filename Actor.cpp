@@ -33,7 +33,8 @@ Actor::Actor(IE::actor &actor)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
-	fPath(NULL)
+	fPath(NULL),
+	fSpeed(2)
 {
 	_Init();
 }
@@ -49,7 +50,8 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
-	fPath(NULL)
+	fPath(NULL),
+	fSpeed(2)
 {
 	_Init();
 }
@@ -82,8 +84,10 @@ Actor::Actor(const char* creName, IE::point position, int face)
 void
 Actor::_Init()
 {
+	std::cout << "Actor(" << Name() << ")::_Init()" << std::endl;
 	fSelected = false;
 	fEnemyOfEveryone = false;
+	fCurrentAnimation = NULL;
 
 	for (uint32 a = 0; a < kNumActions; a++) {
 		for (uint32 i = 0; i < kNumAnimations; i++)
@@ -124,8 +128,10 @@ Actor::_Init()
 	fActor->Print();
 
 	//TODO: some orientations are bad!!!
-	if (fActor->orientation > IE::ORIENTATION_SE)
+	if (fActor->orientation > IE::ORIENTATION_SE) {
+		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
 		fActor->orientation = 0;
+	}
 
 	_LoadAnimations(ACT_WALKING);
 
@@ -227,11 +233,20 @@ Actor::Name() const
 void
 Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 {
+	assert(fActor != NULL);
+
 	// TODO: Action shouldn't be set here
 	int action = ACT_STANDING;
 	if (fActor->position != fActor->destination)
 		action = ACT_WALKING;
-	fCurrentAnimation = fAnimations[action][fActor->orientation];
+
+	try {
+		fCurrentAnimation = fAnimations[action][fActor->orientation];
+		//fCurrentAnimation = fAnimationFactory->AnimationFor(action,
+		//		IE::orientation(fActor->orientation));
+	} catch (...) {
+		fCurrentAnimation = NULL;
+	}
 	if (fCurrentAnimation == NULL)
 		return;
 
@@ -274,7 +289,7 @@ Actor::Orientation() const
 void
 Actor::SetOrientation(IE::orientation o)
 {
-	if (o < 0 || o > 7)
+	if (o < 0 || o > IE::ORIENTATION_SE)
 		o = IE::orientation(0);
 	fActor->orientation = o;
 }
@@ -433,10 +448,15 @@ Actor::UpdateMove(bool ignoreBlocks)
 	try {
 		if (fActor->position != fActor->destination) {
 			IE::point nextPoint;
-			//for (int i = 0; i < fSpeed; i++) {
+			for (int32 i = 0; i < fSpeed; i++)
 				nextPoint = fPath->NextWayPoint();
-			//}
-			_SetOrientation(nextPoint);
+
+			_SetOrientation(fActor->destination);
+			// TODO: We should do this, since the path to the destination
+			// could involve facing to a different direction than
+			// the real destination point
+			//_SetOrientation(nextPoint);
+
 			if (ignoreBlocks || _IsReachable(nextPoint))
 				fActor->position = nextPoint;
 		}
@@ -495,7 +515,7 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 
 
 	fActor->orientation = newOrientation;
-}
+}IE::point nextPoint;
 
 
 bool

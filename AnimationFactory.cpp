@@ -65,6 +65,7 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	// TODO: Only valid for G1/G11/E files
 	std::string bamName;
 	int sequenceNumber = 0;
+	const int kStandingOffset = 10;
 
 	bamName.append(fBaseName);
 
@@ -78,12 +79,14 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			switch (action) {
 				case ACT_WALKING:
 					bamName.append("G1");
-					sequenceNumber += uint32(o);
+					sequenceNumber = uint32(o);
 				case ACT_ATTACKING:
 					break;
 				case ACT_STANDING:
 					bamName.append("G1");
-					sequenceNumber += uint32(o) + 10;
+					sequenceNumber = uint32(o);
+					if (_HasStandingSequence())
+						sequenceNumber += kStandingOffset;
 				default:
 					break;
 			}
@@ -97,8 +100,11 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			switch (action) {
 				case ACT_WALKING:
 					bamName.append("W2");
-					sequenceNumber += uint32(o);
+					sequenceNumber = uint32(o);
 					break;
+				case ACT_STANDING:
+					bamName.append("G1");
+					sequenceNumber = uint32(o) + kStandingOffset - 1;
 				default:
 					break;
 			}
@@ -110,18 +116,23 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 
 	bool mirror = false;
 	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-		if (!_HasEastBams()) {
-			mirror = true;
-			sequenceNumber -= 2;
-		} else
+		if (_HasEastBams()) {
 			bamName.append("E");
+			// TODO: Doesn't work for some animations (IE: ACOW)
+			//sequenceNumber -= 5;
+		} else {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			mirror = true;
+			sequenceNumber -= (uint32(o) - 4) * 2;
+		}
 	}
 
 	std::cout << bamName << std::endl;
 	std::cout << "Orientation: " << o << ", sequence " <<  std::dec << (int)sequenceNumber << std::endl;
 	IE::point pos;
 	Animation* animation = new Animation(bamName.c_str(), sequenceNumber, pos);
-	if (mirror)
+	if (mirror && animation != NULL)
 		animation->SetMirrored(true);
 	return animation;
 }
@@ -138,6 +149,14 @@ bool
 AnimationFactory::_AreHighLowSplitted() const
 {
 	return fHighLowSplitted;
+}
+
+
+bool
+AnimationFactory::_HasStandingSequence() const
+{
+	// TODO: Don't just compare with a fixed list
+	return strcasecmp(fBaseName, "ACOW");
 }
 
 
