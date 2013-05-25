@@ -55,7 +55,6 @@ Animation::Animation(const char* bamName,
 {
 	strcpy(fName, bamName);
 
-	std::cout << "Animation bam: " << fName << std::endl;
 	fBAM = gResManager->GetBAM(fName);
 	if (fBAM == NULL)
 		throw -1;
@@ -118,19 +117,14 @@ Animation::Frame()
 {
 	::Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
-		// TODO: Since BAM can cache the frames,
-		// what we are doing here is wrong, we could end up
-		// mirroring the frame once again.
-		// We can't move the frame caching to Animation,
-		// since we would end up caching the same BAM frames
-		// for every animation.
-		// Find a better way
+		// TODO: We are mirroring on the fly. Maybe it's smarter
+		// to cache the mirrored bitmaps.
 		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
 		frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
-		frame.bitmap = Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
+		//frame.bitmap = Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
 
 	}
 	return frame;
