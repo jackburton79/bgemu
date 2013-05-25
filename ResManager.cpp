@@ -10,6 +10,7 @@
 #include "FileStream.h"
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
+#include "ITMResource.h"
 #include "IETypes.h"
 #include "KEYResource.h"
 #include "MOSResource.h"
@@ -322,6 +323,14 @@ ResourceManager::GetIDS(const res_ref& name)
 {
 	Resource* resource = _GetResource(name, RES_IDS);
 	return static_cast<IDSResource*>(resource);
+}
+
+
+ITMResource*
+ResourceManager::GetITM(const res_ref& name)
+{
+	Resource* resource = _GetResource(name, RES_ITM);
+	return static_cast<ITMResource*>(resource);
 }
 
 
