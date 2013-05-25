@@ -48,6 +48,8 @@ res_extension(int type)
 			return ".CRE";
 		case RES_IDS:
 			return ".IDS";
+		case RES_ITM:
+			return ".ITM";
 		case RES_MOS:
 			return ".MOS";
 		case RES_MVE:
@@ -94,6 +96,8 @@ res_string_to_type(const char* string)
 		return RES_BMP;
 	else if (!strcasecmp(ext, ".IDS"))
 		return RES_IDS;
+	else if (!strcasecmp(ext, ".ITM"))
+		return RES_ITM;
 	return -1;
 }
 

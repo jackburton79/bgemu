@@ -8,6 +8,7 @@
 #include "CreResource.h"
 #include "FileStream.h"
 #include "IDSResource.h"
+#include "ITMResource.h"
 #include "KEYResource.h"
 #include "MOSResource.h"
 #include "MveResource.h"
@@ -175,8 +176,6 @@ Resource::CheckVersion(const char *version, bool dontWorry)
 	if (fData->ReadAt(4, array, 4) != 4)
 		return false;
 
-	//printf("version: %s\n", array);
-
 	if (strcmp(array, version) != 0) {
 		if (!dontWorry) {
 			printf("invalid version %s (expected %s)\n",
@@ -254,6 +253,9 @@ Resource::Create(const res_ref &name, uint16 type)
 				break;
 			case RES_2DA:
 				res = new TWODAResource(name);
+				break;
+			case RES_ITM:
+				res = new ITMResource(name);
 				break;
 			default:
 				//throw "Unknown resource!";
