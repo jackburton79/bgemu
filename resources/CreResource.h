@@ -7,6 +7,8 @@
 #define CRE_SIGNATURE "CRE "
 #define CRE_VERSION_1 "V1.0"
 
+const uint32 kNumItemSlots = 40;
+
 enum CreatureFlagBits {
 	CRE_IS_EXPORTABLE = 0x800
 };
@@ -103,6 +105,22 @@ struct BaseAttributes {
 	int8 charisma;
 };
 
+namespace IE {
+
+struct item {
+	res_ref name;
+	uint8 expiration_time;
+	uint8 expiration_time2;
+	uint16 quantity1;
+	uint16 quantity2;
+	uint16 quantity3;
+	uint32 flags;
+
+	void Print() const;
+};
+
+}
+
 class Archive;
 class CREResource : public Resource {
 public:
@@ -145,9 +163,14 @@ public:
 	uint16 GlobalActorValue();
 	uint16 LocalActorValue();
 
+	IE::item* ItemAtSlot(uint32 i);
+
 	const char *DialogFile();
 	const char *DeathVariable();
-		
+
+private:
+	uint32 fItemSlotOffset;
+	uint32 fItemsOffset;
 /*protected:
 	uint32 fLongNameID;
 	uint32 fShortNameID;

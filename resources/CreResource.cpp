@@ -30,6 +30,9 @@ CREResource::Load(Archive *archive, uint32 key)
 	if (!CheckVersion(CRE_VERSION_1))
 		return false;
 
+	fData->ReadAt(0x02b8, fItemSlotOffset);
+	fData->ReadAt(0x02bc, fItemsOffset);
+
 	/*printf("\tCRE Script Override: %s\n", (const char*)OverrideScriptName());
 	printf("\tCRE Script Class: %s\n", (const char*)ClassScriptName());
 	printf("\tCRE Script Race: %s\n", (const char*)RaceScriptName());
@@ -274,6 +277,34 @@ CREResource::LocalActorValue()
 	uint16 value;
 	fData->ReadAt(0x27e, &value, sizeof(value));
 	return value;
+}
+
+
+IE::item*
+CREResource::ItemAtSlot(uint32 i)
+{
+	if (i >= kNumItemSlots)
+		return NULL;
+
+	// TODO: uint32 ? not uint16 ?
+
+	int16 itemSlot;
+	fData->ReadAt(fItemSlotOffset + i * sizeof(itemSlot), itemSlot);
+
+	std::cout << "item at slot " << std::dec << i;
+	std::cout << " :" << std::hex << itemSlot << std::endl;
+
+	// TODO: number 38 is a dword instead. Handle that case
+	if (itemSlot == -1 || itemSlot == 0)
+		return NULL;
+
+	// TODO: We are returning a pointer to a memory block here.
+	// It's useful so the caller can modify the item, but might
+	// not be so correct.
+	const uint32 offset = fItemsOffset + itemSlot * sizeof(IE::item);
+	IE::item* item = (IE::item*)(uint32(fData->Data()) + offset);
+
+	return item;
 }
 
 
@@ -561,3 +592,18 @@ KitToStr(uint32 kit)
 	}
 }
 
+
+namespace IE {
+// IE::item
+void
+item::Print() const
+{
+	std::cout << "item " << name << std::endl;
+	std::cout << "expiration: " << std::dec << (int)expiration_time;
+	std::cout << " " << (int)expiration_time2 << std::endl;
+	std::cout << "quantity: " << quantity1 << " " << quantity2;
+	std::cout << " " << quantity3 << std::endl;
+	std::cout << "flags: " << std::hex << flags << std::endl;
+}
+
+}
