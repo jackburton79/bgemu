@@ -12,7 +12,7 @@ public:
 
 	~BMPResource();
 
-	bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 
 	Bitmap *Image();
 

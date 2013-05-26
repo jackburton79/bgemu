@@ -44,7 +44,7 @@ public:
 	WEDResource(const res_ref& name);
 	~WEDResource();
 	
-	bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 
 	uint32 CountOverlays() const;
 	MapOverlay *GetOverlay(uint32 index);

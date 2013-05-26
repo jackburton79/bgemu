@@ -9,7 +9,7 @@ public:
 	TISResource(const res_ref &name);
 	virtual ~TISResource();
 	
-	bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 
 	Bitmap *TileAt(int index);
 

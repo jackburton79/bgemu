@@ -17,7 +17,7 @@ public:
 	BAMResource(const res_ref& name);
 	~BAMResource();
 	
-	bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 
 	Frame FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	

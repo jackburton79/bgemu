@@ -9,7 +9,7 @@ public:
 	BCSResource(const res_ref &name);
 	~BCSResource();
 
-	bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive *archive, uint32 key);
 
 	Script *GetScript();
 
