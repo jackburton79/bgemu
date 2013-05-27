@@ -6,6 +6,7 @@ LDFLAGS= `sdl-config --libs` -lz
 
 SOURCES=Actor.cpp \
 Animation.cpp \
+AnimationFactory.cpp \
 Archive.cpp \
 bgemu.cpp \
 BifArchive.cpp \
@@ -37,6 +38,7 @@ PathFind.cpp \
 PlainFileArchive.cpp \
 Polygon.cpp \
 Referenceable.cpp \
+Region.cpp \
 ResManager.cpp \
 resources/2DAResource.cpp \
 resources/AreaResource.cpp \
@@ -47,6 +49,7 @@ resources/CHUIResource.cpp \
 resources/CreResource.cpp \
 resources/GeneratedIDS.cpp \
 resources/IDSResource.cpp \
+resources/ITMResource.cpp \
 resources/KEYResource.cpp \
 resources/MOSResource.cpp \
 resources/MveResource.cpp \
