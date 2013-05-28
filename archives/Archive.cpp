@@ -2,8 +2,8 @@
 #include "BIFArchive.h"
 #include "DirectoryArchive.h"
 #include "IETypes.h"
+#include "FileArchive.h"
 #include "MemoryStream.h"
-#include "PlainFileArchive.h"
 #include "Utils.h"
 
 #include <stdio.h>

@@ -1,6 +1,7 @@
+#include "FileArchive.h"
 #include "FileStream.h"
 #include "MemoryStream.h"
-#include "PlainFileArchive.h"
+
 
 PlainFileArchive::PlainFileArchive(const char *path)
 	:
