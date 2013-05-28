@@ -5,6 +5,7 @@
  *      Author: stefano
  */
 
+#include "ResManager.h"
 #include "ITMResource.h"
 #include "MemoryStream.h"
 
@@ -46,6 +47,8 @@ ITMResource::Load(Archive *archive, uint32 key)
 		return false;
 
 	fData->ReadAt(8, fHeader);
+
+	std::cout << "Name: " << IDTable::ObjectAt(fHeader.name_identified) << std::endl;
 
 	return true;
 }
