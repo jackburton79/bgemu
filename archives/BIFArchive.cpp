@@ -184,6 +184,8 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 
 		if (status == Z_OK)
 			dest.Write(destBuffer, decomp);
+		else
+			throw status;
 	} catch (...) {
 		decomp = -1;
 	}
