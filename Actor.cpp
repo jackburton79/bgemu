@@ -9,6 +9,7 @@
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
+#include "ITMResource.h"
 #include "PathFind.h"
 #include "Polygon.h"
 #include "RectUtils.h"
@@ -126,6 +127,18 @@ Actor::_Init()
 		SetScript(fScript);
 
 	fActor->Print();
+	for (uint32 i = 0; i < kNumItemSlots; i++) {
+		IE::item* item = fCRE->ItemAtSlot(i);
+		if (item != NULL) {
+			item->Print();
+			ITMResource* itemRes = gResManager->GetITM(item->name);
+			if (itemRes != NULL) {
+				std::cout << "type: " << std::dec << itemRes->Type() << std::endl;
+			}
+			gResManager->ReleaseResource(itemRes);
+
+		}
+	}
 
 	//TODO: some orientations are bad!!!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
@@ -240,10 +253,11 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 	if (fActor->position != fActor->destination)
 		action = ACT_WALKING;
 
+	//std::cout << "Actor " << Name() << ": drawing action "<< action;
+	//std::cout << ", orientation " << fActor->orientation << std::endl;
+
 	try {
 		fCurrentAnimation = fAnimations[action][fActor->orientation];
-		//fCurrentAnimation = fAnimationFactory->AnimationFor(action,
-		//		IE::orientation(fActor->orientation));
 	} catch (...) {
 		fCurrentAnimation = NULL;
 	}
@@ -515,7 +529,7 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 
 
 	fActor->orientation = newOrientation;
-}IE::point nextPoint;
+}
 
 
 bool
