@@ -256,18 +256,18 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 	//std::cout << "Actor " << Name() << ": drawing action "<< action;
 	//std::cout << ", orientation " << fActor->orientation << std::endl;
 
+	Frame frame;
 	try {
 		fCurrentAnimation = fAnimations[action][fActor->orientation];
+		frame = fCurrentAnimation->Frame();
 	} catch (...) {
 		fCurrentAnimation = NULL;
 	}
+
 	if (fCurrentAnimation == NULL)
 		return;
 
-	Frame frame = fCurrentAnimation->Frame();
 	Bitmap *image = frame.bitmap;
-	if (image == NULL)
-		return;
 
 	IE::point leftTop = offset_point(Position(), -frame.rect.w / 2,
 						-frame.rect.h / 2);
