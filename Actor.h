@@ -79,7 +79,7 @@ public:
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
-	Animation *fAnimations[kNumActions][kNumAnimations];
+	Animation* fAnimations[kNumActions][kNumAnimations];
 	Animation* fCurrentAnimation;
 
 	CREResource *fCRE;
