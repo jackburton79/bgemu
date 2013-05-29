@@ -352,7 +352,7 @@ Room::Draw(Bitmap *surface)
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(offset_rect(poly->Frame(),
 							-mapRect.x, -mapRect.y), mapRect)) {
-						Graphics::DrawPolygon(*poly, fBackBitmap->Surface(),
+						Graphics::DrawPolygon(*poly, fBackBitmap,
 								-mapRect.x, -mapRect.y);
 					}
 				}
