@@ -141,14 +141,6 @@ BAMResource::DumpFrames(const char *filePath)
 Frame
 BAMResource::_FrameAt(uint16 index)
 {
-	//std::cout << "BAMResource::FrameAt(" << index << ")" << std::endl;
-	/*if (fFrames.find(index) != fFrames.end()) {
-		fFrames[index].bitmap->Acquire();
-		printf("%s frame %d refcount %d\n", fName.CString(),
-				index, fFrames[index].bitmap->RefCount());
-		return fFrames[index];
-	}*/
-
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	const bool frameCompressed = is_frame_compressed(entry.data);
@@ -187,10 +179,6 @@ BAMResource::_FrameAt(uint16 index)
 	frame.bitmap = bitmap;
 	frame.rect = rect;
 	
-	//printf("%s putting frame %d into map\n", fName.CString(), index);
-
-	//fFrames[index] = frame;
-
 	return frame;
 }
 
