@@ -25,6 +25,20 @@ Door::Toggle()
 }
 
 
+const Polygon&
+Door::OpenPolygon() const
+{
+	return fOpenPolygon;
+}
+
+
+const Polygon&
+Door::ClosedPolygon() const
+{
+	return fClosedPolygon;
+}
+
+
 bool
 Door::Opened() const
 {

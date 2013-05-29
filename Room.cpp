@@ -443,7 +443,11 @@ Room::MouseOver(uint16 x, uint16 y)
 	if (fWed != NULL) {
 		const uint16 tileNum = TileNumberForPoint(point);
 
-		fTileCells[tileNum]->MouseOver();
+		//fTileCells[tileNum]->MouseOver();
+		Door* door = fTileCells[tileNum]->Door();
+		if (door != NULL) {
+			Graphics::DrawPolygon(door->ClosedPolygon(), fBackBitmap, 0, 0);
+		}
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);

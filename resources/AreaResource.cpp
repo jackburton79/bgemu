@@ -259,6 +259,18 @@ ARAResource::_LoadDoors()
 	fData->Seek(fDoorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
+		Polygon closedPolygon;
+		for (uint16 c = 0; c < fDoors[i].closed_vertices_count; c++) {
+			IE::point vertex;
+			fData->ReadAt(0x007c + fDoors[i].closed_vertex_index, vertex);
+			closedPolygon.AddPoints(&vertex, 1);
+		}
+		Polygon openPolygon;
+		for (uint16 c = 0; c < fDoors[i].open_vertex_index; c++) {
+			IE::point vertex;
+			fData->ReadAt(0x007c + fDoors[i].open_vertex_index, vertex);
+			openPolygon.AddPoints(&vertex, 1);
+		}
 	}
 }
 
