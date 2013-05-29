@@ -22,7 +22,9 @@ public:
 	static void DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color);
 	static void DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1,
 				uint32 x2, uint32 y2, uint32 color);
-	static void DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y);
+	static void DrawPolygon(const Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y);
+	static void DrawPolygon(const Polygon &polygon, Bitmap*, uint16 x, uint16 y);
+
 	static void DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color);
 	static void DrawRect(Bitmap* bitmap, GFX::rect& rect, uint32 color);
 };

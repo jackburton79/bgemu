@@ -91,7 +91,7 @@ Graphics::DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1, uint32 x2,
 
 /* static */
 void
-Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y)
+Graphics::DrawPolygon(const Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y)
 {
 	const int32 numPoints = polygon.CountPoints();
 	if (numPoints <= 2)
@@ -106,6 +106,19 @@ Graphics::DrawPolygon(Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y
 		if (c == numPoints - 2)
 			DrawLine(surface, nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
 	}
+}
+
+
+/* static */
+void
+Graphics::DrawPolygon(const Polygon &polygon, Bitmap* bitmap, uint16 x, uint16 y)
+{
+	const int32 numPoints = polygon.CountPoints();
+	if (numPoints <= 2)
+		return;
+
+	SDL_Surface* surface = bitmap->Surface();
+	DrawPolygon(polygon, surface, x, y);
 }
 
 
