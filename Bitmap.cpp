@@ -31,7 +31,7 @@ Bitmap::~Bitmap()
 void
 Bitmap::Clear(int color)
 {
-	SDL_Rect rect = { 0, 0, fSurface->w, fSurface->h };
+	SDL_Rect rect = { 0, 0, uint16(fSurface->w), uint16(fSurface->h) };
 	SDL_FillRect(fSurface, &rect, color);
 }
 
@@ -106,7 +106,7 @@ Bitmap::Pixels() const
 GFX::rect
 Bitmap::Frame() const
 {
-	GFX::rect frame = { 0, 0, fSurface->w, fSurface->h };
+	GFX::rect frame = { 0, 0, uint16(fSurface->w), uint16(fSurface->h) };
 	return frame;
 }
 
