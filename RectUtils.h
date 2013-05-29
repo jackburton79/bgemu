@@ -54,6 +54,16 @@ rect_contains(const GFX::rect& rect, const IE::point& point)
 
 
 static inline bool
+rect_contains(const IE::rect& rect, const IE::point& point)
+{
+	if (point.x >= rect.x_min && point.x <= rect.x_max
+		&& point.y >= rect.y_min && point.y <= rect.y_max)
+		return true;
+	return false;
+}
+
+
+static inline bool
 polygon_contains(const IE::polygon& poly, const IE::point& point)
 {
 	if (point.x >= poly.x_min && point.x <= poly.x_max
