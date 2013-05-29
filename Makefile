@@ -4,15 +4,17 @@ EXECUTABLE=BGEmu
 LDFLAGS= `sdl-config --libs` -lz
 
 
-SOURCES=Actor.cpp \
+SOURCES=\
+archives/Archive.cpp \
+archives/BIFArchive.cpp \
+archives/DirectoryArchive.cpp \
+archives/FileArchive.cpp \
+Actor.cpp \
 Animation.cpp \
 AnimationFactory.cpp \
-Archive.cpp \
 bgemu.cpp \
-BifArchive.cpp \
 Bitmap.cpp \
 Core.cpp \
-DirectoryArchive.cpp \
 Door.cpp \
 Frame.cpp \
 Graphics.cpp \
@@ -35,7 +37,6 @@ Object.cpp \
 Parsing.cpp \
 Path.cpp \
 PathFind.cpp \
-PlainFileArchive.cpp \
 Polygon.cpp \
 Referenceable.cpp \
 Region.cpp \
