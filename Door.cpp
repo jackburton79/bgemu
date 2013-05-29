@@ -25,6 +25,20 @@ Door::Toggle()
 }
 
 
+IE::rect
+Door::OpenBox() const
+{
+    return fAreaDoor->open_box;
+}  
+
+
+IE::rect
+Door::ClosedBox() const
+{
+    return fAreaDoor->closed_box;
+}
+
+
 const Polygon&
 Door::OpenPolygon() const
 {

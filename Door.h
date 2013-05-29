@@ -16,6 +16,10 @@ public:
 	std::vector<uint16> fTilesOpen;
 
 	bool Opened() const;
+	
+	IE::rect OpenBox() const;
+	IE::rect ClosedBox() const;
+	
 	const Polygon& OpenPolygon() const;
 	const Polygon& ClosedPolygon() const;
 	void Print() const;
