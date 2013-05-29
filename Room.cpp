@@ -202,8 +202,8 @@ Room::LoadWorldMap()
 		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
 		const Frame& iconFrame = areaEntry.Icon();
 		IE::point position = areaEntry.Position();
-		GFX::rect iconRect = { position.x - iconFrame.rect.w / 2,
-					position.y - iconFrame.rect.h / 2,
+		GFX::rect iconRect = { int16(position.x - iconFrame.rect.w / 2),
+					int16(position.y - iconFrame.rect.h / 2),
 					iconFrame.rect.w, iconFrame.rect.h };
 
 		GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL,
@@ -368,7 +368,7 @@ Room::Draw(Bitmap *surface)
 void
 Room::Clicked(uint16 x, uint16 y)
 {
-	IE::point point = {x, y};
+	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
 
 	if (fWorldMap != NULL) {
@@ -437,7 +437,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	else if (y >= fViewPort.h - vertBorderSize)
 		scrollByY = kScrollingStep;
 
-	IE::point point = { x, y };
+	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
 	if (fWed != NULL) {
