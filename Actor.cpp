@@ -506,24 +506,24 @@ void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
 	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
-	if (nextPoint.x > fActor->position.x) {
-		if (nextPoint.y > fActor->position.y)
+	if (nextPoint.x > fActor->position.x + 5) {
+		if (nextPoint.y > fActor->position.y + 5)
 			newOrientation = IE::ORIENTATION_SE;
-		else if (nextPoint.y < fActor->position.y)
+		else if (nextPoint.y < fActor->position.y - 5)
 			newOrientation = IE::ORIENTATION_NE;
 		else
 			newOrientation = IE::ORIENTATION_E;
-	} else if (nextPoint.x < fActor->position.x) {
-		if (nextPoint.y > fActor->position.y)
+	} else if (nextPoint.x < fActor->position.x - 5) {
+		if (nextPoint.y > fActor->position.y + 5)
 			newOrientation = IE::ORIENTATION_SW;
-		else if (nextPoint.y < fActor->position.y)
+		else if (nextPoint.y < fActor->position.y - 5)
 			newOrientation = IE::ORIENTATION_NW;
 		else
 			newOrientation = IE::ORIENTATION_W;
 	} else {
-		if (nextPoint.y > fActor->position.y)
+		if (nextPoint.y > fActor->position.y + 5)
 			newOrientation = IE::ORIENTATION_S;
-		else if (nextPoint.y < fActor->position.y)
+		else if (nextPoint.y < fActor->position.y - 5)
 			newOrientation = IE::ORIENTATION_N;
 	}
 

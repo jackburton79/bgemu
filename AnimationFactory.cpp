@@ -113,9 +113,19 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			bamName.append("1");
 			switch (action) {
 				case ACT_WALKING:
-					bamName.append("W2");
-					sequenceNumber = uint32(o);
+				{
+					std::string tempString = bamName;
+					tempString.append("W2");
+					if (_HasFile(tempString.c_str())) {
+					    bamName.append("W2");
+					    sequenceNumber = uint32(o);
+					} else {
+					    bamName.append("G11");
+					    sequenceNumber = uint32(o) + 8;
+					}
+					
 					break;
+				}
 				case ACT_STANDING:
 					bamName.append("G1");
 					sequenceNumber = uint32(o) + 8;
@@ -208,4 +218,16 @@ AnimationFactory::_ClassifyAnimation()
 
 	}
 	fHighLowSplitted = foundHigh && foundLow;
+}
+
+
+bool
+AnimationFactory::_HasFile(const char* name) const
+{
+    std::vector<std::string>::const_iterator i;
+    for (i = fList.begin(); i != fList.end(); i++) {
+	if (!strcmp((*i).c_str(), name))
+	    return true;
+    }
+    return false;
 }

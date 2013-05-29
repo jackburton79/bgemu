@@ -29,7 +29,9 @@ private:
 	void _ClassifyAnimation();
 
 	const char* _GetBamName(const char* attributes) const;
-
+	
+	bool _HasFile(const char* name) const;
+	
 	std::vector<std::string> fList;
 	char fBaseName[5];
 	int fAnimationType;
