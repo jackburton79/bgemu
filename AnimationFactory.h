@@ -33,7 +33,7 @@ private:
 	bool _HasFile(const char* name) const;
 	
 	std::vector<std::string> fList;
-	char fBaseName[5];
+	char fBaseName[16];
 	int fAnimationType;
 	bool fHighLowSplitted;
 	bool fEastAnimations;
