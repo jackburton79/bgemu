@@ -366,7 +366,9 @@ status_t
 TPath::_SetPath(const char* path)
 {
 	status_t error = 0;
-	const char* oldPath = fName;
+	delete[] fName;
+	fName = NULL;
+	
 	// set the new path
 	if (path) {
 		fName = new(nothrow) char[strlen(path) + 1];
@@ -374,11 +376,8 @@ TPath::_SetPath(const char* path)
 			strcpy(fName, path);
 		else
 			error = ENOMEM;
-	} else
-		fName = NULL;
-
-	// delete the old one
-	delete[] oldPath;
+	}
+	
 	return error;
 }
 
