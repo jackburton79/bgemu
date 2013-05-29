@@ -359,13 +359,15 @@ Room::Draw(Bitmap *surface)
 			}
 		}
 
+		// TODO: handle this better
 		if (fMouseOverObject != NULL) {
 		    Door* door = dynamic_cast<Door*>(fMouseOverObject);
 		    if (door != NULL) {
-			IE::rect closedBox = door->ClosedBox();
-			GFX::rect rect = { closedBox.x_min, closedBox.y_min,
-			    closedBox.x_max - closedBox.x_min, closedBox.y_max - closedBox.y_min };
-			Graphics::DrawRect(fBackBitmap, rect, 70);
+				IE::rect closedBox = door->ClosedBox();
+				GFX::rect rect = { closedBox.x_min, closedBox.y_min,
+					closedBox.x_max - closedBox.x_min, closedBox.y_max - closedBox.y_min };
+				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+				Graphics::DrawRect(fBackBitmap, rect, 70);
 		    }
 		}
 		fBackBitmap->Update();
@@ -450,14 +452,22 @@ Room::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
+	// TODO: This screams for improvements
 	if (fWed != NULL) {
+		Object* newMouseOver = NULL;
+
 		const uint16 tileNum = TileNumberForPoint(point);
 
 		Door* door = fTileCells[tileNum]->Door();
 		if (door != NULL) {
-			std::cout << door->Name() << std::endl;
-			fMouseOverObject = door;
+			IE::rect boundingBox = door->Opened()
+					? door->OpenBox() : door->ClosedBox();
+			if (rect_contains(boundingBox, point))
+				newMouseOver = door;
 		}
+
+		fMouseOverObject = newMouseOver;
+
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
