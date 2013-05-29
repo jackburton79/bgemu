@@ -1,14 +1,11 @@
 #ifndef __TLKRESOURCE_H
 #define __TLKRESOURCE_H
 
-#include "Referenceable.h"
 #include "Resource.h"
 
-struct TLKEntry : public Referenceable {
+struct TLKEntry {
 	TLKEntry();
-	TLKEntry(const TLKEntry&);
 	~TLKEntry();
-	TLKEntry& operator=(const TLKEntry&);
 	char *string;
 };
 
@@ -21,7 +18,7 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 
 	int32 CountEntries();
-	TLKEntry EntryAt(int32 e);
+	TLKEntry *EntryAt(int32 e);
 
 	void DumpEntries();
 
