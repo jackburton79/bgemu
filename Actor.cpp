@@ -85,15 +85,15 @@ Actor::Actor(const char* creName, IE::point position, int face)
 void
 Actor::_Init()
 {
-	std::cout << "Actor(" << Name() << ")::_Init()" << std::endl;
 	fSelected = false;
 	fEnemyOfEveryone = false;
 	fCurrentAnimation = NULL;
 
-	for (uint32 a = 0; a < kNumActions; a++) {
-		for (uint32 i = 0; i < kNumAnimations; i++)
-			fAnimations[a][i] = NULL;
+	for (uint32 act = 0; act < kNumActions; act++) {
+		for (uint32 anim = 0; anim < kNumAnimations; anim++)
+			fAnimations[act][anim] = NULL;
 	}
+
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
@@ -127,18 +127,18 @@ Actor::_Init()
 		SetScript(fScript);
 
 	fActor->Print();
-	for (uint32 i = 0; i < kNumItemSlots; i++) {
+	/*for (uint32 i = 0; i < kNumItemSlots; i++) {
 		IE::item* item = fCRE->ItemAtSlot(i);
 		if (item != NULL) {
-			/*item->Print();
+			item->Print();
 			ITMResource* itemRes = gResManager->GetITM(item->name);
 			if (itemRes != NULL) {
 				std::cout << "type: " << std::dec << itemRes->Type() << std::endl;
 			}
-			gResManager->ReleaseResource(itemRes);*/
+			gResManager->ReleaseResource(itemRes);
 
 		}
-	}
+	}*/
 
 	//TODO: some orientations are bad!!!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
@@ -183,9 +183,9 @@ Actor::~Actor()
 	// TODO: Release
 	//delete fAnimationFactory;
 
-	for (uint32 a = 0; a < kNumActions; a++) {
-		for (uint32 i = 0; i < kNumAnimations; i++)
-			delete fAnimations[a][i];
+	for (uint32 act = 0; act < kNumActions; act++) {
+		for (uint32 anim = 0; anim < kNumAnimations; anim++)
+			delete fAnimations[act][anim];
 	}
 	delete fPath;
 }
@@ -256,16 +256,11 @@ Actor::Draw(GFX::rect area, Bitmap* destBitmap)
 	//std::cout << "Actor " << Name() << ": drawing action "<< action;
 	//std::cout << ", orientation " << fActor->orientation << std::endl;
 
-	Frame frame;
-	try {
-		fCurrentAnimation = fAnimations[action][fActor->orientation];
-		frame = fCurrentAnimation->Frame();
-	} catch (...) {
-		fCurrentAnimation = NULL;
-	}
-
+	fCurrentAnimation = fAnimations[action][fActor->orientation];
 	if (fCurrentAnimation == NULL)
 		return;
+
+	Frame frame = fCurrentAnimation->Frame();
 
 	Bitmap *image = frame.bitmap;
 
