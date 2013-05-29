@@ -114,6 +114,7 @@ private:
 	std::vector<Animation*> fAnimations;
 
 	Actor* fSelectedActor;
+	Object* fMouseOverObject;
 
 	bool fDrawOverlays;
 	bool fDrawPolygons;

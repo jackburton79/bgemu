@@ -46,6 +46,7 @@ Room::Room()
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
 	fSelectedActor(NULL),
+	fMouseOverObject(NULL),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
 	fDrawAnimations(true),
@@ -358,6 +359,15 @@ Room::Draw(Bitmap *surface)
 			}
 		}
 
+		if (fMouseOverObject != NULL) {
+		    Door* door = dynamic_cast<Door*>(fMouseOverObject);
+		    if (door != NULL) {
+			IE::rect closedBox = door->ClosedBox();
+			GFX::rect rect = { closedBox.x_min, closedBox.y_min,
+			    closedBox.x_max - closedBox.x_min, closedBox.y_max - closedBox.y_min };
+			Graphics::DrawRect(fBackBitmap, rect, 70);
+		    }
+		}
 		fBackBitmap->Update();
 		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 	}
@@ -443,10 +453,10 @@ Room::MouseOver(uint16 x, uint16 y)
 	if (fWed != NULL) {
 		const uint16 tileNum = TileNumberForPoint(point);
 
-		//fTileCells[tileNum]->MouseOver();
 		Door* door = fTileCells[tileNum]->Door();
 		if (door != NULL) {
-			Graphics::DrawPolygon(door->ClosedPolygon(), fBackBitmap, 0, 0);
+			std::cout << door->Name() << std::endl;
+			fMouseOverObject = door;
 		}
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
@@ -711,6 +721,9 @@ Room::_UnloadArea()
 		fSelectedActor = NULL;
 	}
 
+	if (fMouseOverObject != NULL)
+	    fMouseOverObject = NULL;
+	
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
 	fAnimations.clear();
