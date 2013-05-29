@@ -130,12 +130,12 @@ Actor::_Init()
 	for (uint32 i = 0; i < kNumItemSlots; i++) {
 		IE::item* item = fCRE->ItemAtSlot(i);
 		if (item != NULL) {
-			item->Print();
+			/*item->Print();
 			ITMResource* itemRes = gResManager->GetITM(item->name);
 			if (itemRes != NULL) {
 				std::cout << "type: " << std::dec << itemRes->Type() << std::endl;
 			}
-			gResManager->ReleaseResource(itemRes);
+			gResManager->ReleaseResource(itemRes);*/
 
 		}
 	}
