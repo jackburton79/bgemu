@@ -260,17 +260,21 @@ ARAResource::_LoadDoors()
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
 		Polygon closedPolygon;
+		std::cout << "Door " << fDoors[i].name << std::endl;
 		for (uint16 c = 0; c < fDoors[i].closed_vertices_count; c++) {
 			IE::point vertex;
-			fData->ReadAt(0x007c + fDoors[i].closed_vertex_index, vertex);
+			fData->ReadAt(0x007c + (c + fDoors[i].closed_vertex_index) * sizeof(IE::point), vertex);
 			closedPolygon.AddPoints(&vertex, 1);
 		}
+		
+		closedPolygon.Print();
 		Polygon openPolygon;
 		for (uint16 c = 0; c < fDoors[i].open_vertex_index; c++) {
 			IE::point vertex;
-			fData->ReadAt(0x007c + fDoors[i].open_vertex_index, vertex);
+			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
 			openPolygon.AddPoints(&vertex, 1);
 		}
+		openPolygon.Print();
 	}
 }
 
