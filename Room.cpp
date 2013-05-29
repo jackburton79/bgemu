@@ -363,9 +363,9 @@ Room::Draw(Bitmap *surface)
 		if (fMouseOverObject != NULL) {
 		    Door* door = dynamic_cast<Door*>(fMouseOverObject);
 		    if (door != NULL) {
-				IE::rect closedBox = door->ClosedBox();
-				GFX::rect rect = { closedBox.x_min, closedBox.y_min,
-					closedBox.x_max - closedBox.x_min, closedBox.y_max - closedBox.y_min };
+				IE::rect doorBox = door->Opened() ? door->OpenBox() : door->ClosedBox();
+				GFX::rect rect = { doorBox.x_min, doorBox.y_min,
+					doorBox.x_max - doorBox.x_min, doorBox.y_max - doorBox.y_min };
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 				Graphics::DrawRect(fBackBitmap, rect, 70);
 		    }
@@ -392,6 +392,12 @@ Room::Clicked(uint16 x, uint16 y)
 			}
 		}
 	} else {
+		// TODO: Temporary, for testing
+		if (fMouseOverObject != NULL) {
+			Door* door = dynamic_cast<Door*>(fMouseOverObject);
+			if (door != NULL)
+				door->Toggle();
+		}
 		// TODO: Move to own methods
 		std::vector<Actor*>& actorList = Actor::List();
 		std::vector<Actor*>::const_iterator iter;
