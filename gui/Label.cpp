@@ -47,9 +47,8 @@ Label::Label(IE::label* label)
 		fBitmap->SetColors(fColors, 0, 256);
 	}
 
-	TLKEntry *textEntry = Dialogs()->EntryAt(label->text_ref);
-	RenderString(textEntry->string, fFontResource, label->flags, fBitmap);
-	delete textEntry;
+	TLKEntry textEntry = Dialogs()->EntryAt(label->text_ref);
+	RenderString(textEntry.string, fFontResource, label->flags, fBitmap);
 }
 
 

@@ -58,17 +58,17 @@ TLKResource::CountEntries()
 }
 
 
-TLKEntry*
+TLKEntry
 TLKResource::EntryAt(int32 index)
 {
 	if (index < 0 || index >= fNumEntries)
-		return NULL;
+		throw -1;
 
-	TLKEntry *newEntry = new TLKEntry;
+	TLKEntry newEntry;
 	tlk_entry entry;
 	fData->ReadAt(18 + sizeof(entry) * index, entry);
 	if (entry.string_length > 0)
-		_ReadString(entry.string_offset, (char **)&newEntry->string, entry.string_length);
+		_ReadString(entry.string_offset, (char **)&newEntry.string, entry.string_length);
 
 	return newEntry;
 }
@@ -88,11 +88,8 @@ void
 TLKResource::DumpEntries()
 {
 	for (int32 i = 0; i < fNumEntries; i++) {
-		TLKEntry *entry = EntryAt(i);
-		if (entry != NULL) {
-			printf("entry %d: %s\n", i, entry->string);
-			delete entry;
-		}
+		TLKEntry entry = EntryAt(i);
+		printf("entry %d: %s\n", i, entry.string);
 	}
 }
 
@@ -102,11 +99,28 @@ TLKEntry::TLKEntry()
 	:
 	string(NULL)
 {
+	Acquire();
+}
+
+
+TLKEntry::TLKEntry(const TLKEntry& entry)
+{
+	const_cast<TLKEntry&>(entry).Acquire();
+	string = entry.string;
 }
 
 
 TLKEntry::~TLKEntry()
 {
-	free((char *)string);
+	if (Release())
+		free((char *)string);
 }
 
+
+TLKEntry&
+TLKEntry::operator=(const TLKEntry& entry)
+{
+	const_cast<TLKEntry&>(entry).Acquire();
+	string = entry.string;
+	return *this;
+}
