@@ -62,14 +62,14 @@ ARAResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(90, fNumRegions);
 	fData->ReadAt(92, fRegionsOffset);
 
+	fData->ReadAt(124, fVerticesOffset);
+	
 	fData->ReadAt(164, fNumDoors);
 	fData->ReadAt(168, fDoorsOffset);
 
 	fData->ReadAt(172, fNumAnimations);
 	fData->ReadAt(176, fAnimationsOffset);
 
-
-	fData->ReadAt(0x7c, fVerticesOffset);
 
 	_LoadAnimations();
 	_LoadActors();
@@ -242,6 +242,7 @@ ARAResource::_LoadActors()
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
+		fActors[i].Print();
 		if (fActors[i].flags & IE::ACTOR_CRE_EXTERNAL) {
 			char c;
 			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);
@@ -267,14 +268,15 @@ ARAResource::_LoadDoors()
 			closedPolygon.AddPoints(&vertex, 1);
 		}
 		
-		closedPolygon.Print();
+		//closedPolygon.Print();
+		
 		Polygon openPolygon;
 		for (uint16 c = 0; c < fDoors[i].open_vertex_index; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
 			openPolygon.AddPoints(&vertex, 1);
 		}
-		openPolygon.Print();
+		//openPolygon.Print();
 	}
 }
 
