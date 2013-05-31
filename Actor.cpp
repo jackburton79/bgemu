@@ -115,6 +115,7 @@ Actor::_Init()
 		//	fCRE->LocalActorValue(),
 			//fCRE->GlobalActorValue());
 
+	// TODO: Are we overwriting the actor specific stuff here ?
 	fActor->script_override = fCRE->OverrideScriptName();
 	fActor->script_class = fCRE->ClassScriptName();
 	fActor->script_race = fCRE->RaceScriptName();
@@ -140,7 +141,7 @@ Actor::_Init()
 		}
 	}*/
 
-	//TODO: some orientations are bad!!!
+	//TODO: some orientations are bad. Why?!?!?!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
 		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
 		fActor->orientation = 0;
