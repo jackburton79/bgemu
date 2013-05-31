@@ -87,3 +87,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	$(RM) -r *.o *~ $(EXECUTABLE)
+
