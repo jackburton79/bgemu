@@ -150,6 +150,19 @@ enum orientation {
 };
 
 
+struct item {
+	res_ref name;
+	uint8 expiration_time;
+	uint8 expiration_time2;
+	uint16 quantity1;
+	uint16 quantity2;
+	uint16 quantity3;
+	uint32 flags;
+
+	void Print() const;
+};
+
+
 enum actor_flags {
 	ACTOR_CRE_EXTERNAL = 1 << 0,
 	ACTOR_OVERRIDE_SCRIPT = 1 << 3
@@ -163,7 +176,7 @@ struct actor {
 	uint32 flags;
 	uint16 spawned;
 	uint8 cre_resref_first_letter;
-	uint8 unk2;
+	uint8 unk;
 	uint32 animation;
 	uint32 orientation;
 	uint32 removal_timer;

@@ -33,11 +33,6 @@ CREResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(0x02b8, fItemSlotOffset);
 	fData->ReadAt(0x02bc, fItemsOffset);
 
-	/*printf("\tCRE Script Override: %s\n", (const char*)OverrideScriptName());
-	printf("\tCRE Script Class: %s\n", (const char*)ClassScriptName());
-	printf("\tCRE Script Race: %s\n", (const char*)RaceScriptName());
-	printf("\tCRE Script General: %s\n", (const char*)GeneralScriptName());
-	printf("\tCRE Script Default: %s\n", (const char*)DefaultScriptName());*/
 	return true;
 }
 
@@ -595,15 +590,5 @@ KitToStr(uint32 kit)
 
 namespace IE {
 // IE::item
-void
-item::Print() const
-{
-	std::cout << "item " << name << std::endl;
-	std::cout << "expiration: " << std::dec << (int)expiration_time;
-	std::cout << " " << (int)expiration_time2 << std::endl;
-	std::cout << "quantity: " << quantity1 << " " << quantity2;
-	std::cout << " " << quantity3 << std::endl;
-	std::cout << "flags: " << std::hex << flags << std::endl;
-}
 
 }

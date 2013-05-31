@@ -105,21 +105,6 @@ struct BaseAttributes {
 	int8 charisma;
 };
 
-namespace IE {
-
-struct item {
-	res_ref name;
-	uint8 expiration_time;
-	uint8 expiration_time2;
-	uint16 quantity1;
-	uint16 quantity2;
-	uint16 quantity3;
-	uint32 flags;
-
-	void Print() const;
-};
-
-}
 
 class Archive;
 class CREResource : public Resource {

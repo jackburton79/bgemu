@@ -273,6 +273,18 @@ animation::Print() const
 
 
 void
+item::Print() const
+{
+	std::cout << "item " << name << std::endl;
+	std::cout << "expiration: " << std::dec << (int)expiration_time;
+	std::cout << " " << (int)expiration_time2 << std::endl;
+	std::cout << "quantity: " << quantity1 << " " << quantity2;
+	std::cout << " " << quantity3 << std::endl;
+	std::cout << "flags: " << std::hex << flags << std::endl;
+}
+
+
+void
 actor::Print() const
 {
 	std::cout << "Actor " << name << ": " << std::endl;
@@ -282,6 +294,7 @@ actor::Print() const
 	std::cout << "\tdestination: (" << destination.x;
 	std::cout << ", " << destination.y << ")" << std::endl;
 	std::cout << "\tflags: " << std::hex << flags << std::endl;
+	std::cout << "\tcre_resref_first_letter: " << std::dec << (int)cre_resref_first_letter << std::endl;
 	std::cout << "\tanimation: " << IDTable::AnimationAt(animation);
 	std::cout << "(" << animation << ")" << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
