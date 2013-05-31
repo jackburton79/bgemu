@@ -79,7 +79,10 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			}
 			switch (action) {
 				case ACT_WALKING:
-					bamName.append("G1");
+					if (_HasAnimation("G11"))
+					    bamName.append("G11");
+					else
+					    bamName.append("G1");
 					sequenceNumber = uint32(o);
 					break;
 				case ACT_ATTACKING:
@@ -108,20 +111,19 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 		}
 		case ANIMATION_TYPE_CHARACHTER:
 		{
+			// TODO: These animations have more orientations. Handle in some way
 			// Armor
 			// TODO: For real
 			bamName.append("1");
 			switch (action) {
 				case ACT_WALKING:
 				{
-					std::string tempString = bamName;
-					tempString.append("W2");
-					if (_HasFile(tempString.c_str())) {
+					if (_HasAnimation("W2")) {
 					    bamName.append("W2");
 					    sequenceNumber = uint32(o);
 					} else {
 					    bamName.append("G11");
-					    sequenceNumber = uint32(o) + 8;
+					    sequenceNumber = uint32(o);
 					}
 					
 					break;
@@ -151,8 +153,8 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			break;
 	}
 
-	//std::cout << bamName << std::endl;
-	//std::cout << "Orientation: " << o << ", sequence " <<  std::dec << (int)sequenceNumber << std::endl;
+	std::cout << bamName << std::endl;
+	std::cout << "Orientation: " << o << ", sequence " <<  std::dec << (int)sequenceNumber << std::endl;
 	IE::point pos;
 	Animation* animation = new Animation(bamName.c_str(), sequenceNumber, pos);
 	if (mirror && animation != NULL)
@@ -187,6 +189,7 @@ AnimationFactory::_HasStandingSequence() const
 void
 AnimationFactory::_ClassifyAnimation()
 {
+	// TODO: How to tell the type ? This doesn't work
 	if (fList.size() > 13)
 		fAnimationType = ANIMATION_TYPE_CHARACHTER;
 	else
@@ -221,13 +224,19 @@ AnimationFactory::_ClassifyAnimation()
 }
 
 
+
 bool
-AnimationFactory::_HasFile(const char* name) const
+AnimationFactory::_HasAnimation(const char* suffix) const
 {
-    std::vector<std::string>::const_iterator i;
-    for (i = fList.begin(); i != fList.end(); i++) {
-	if (!strcmp((*i).c_str(), name))
-	    return true;
-    }
-    return false;
+	std::string testString;
+	testString.append(fBaseName);
+	testString.append(suffix);
+	
+	std::vector<std::string>::const_iterator i;
+	for (i = fList.begin(); i != fList.end(); i++) {
+	    if (!strcmp((*i).c_str(), testString.c_str()))
+		return true;
+	}
+	return false;
+  
 }

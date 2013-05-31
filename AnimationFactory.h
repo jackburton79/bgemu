@@ -30,7 +30,7 @@ private:
 
 	const char* _GetBamName(const char* attributes) const;
 	
-	bool _HasFile(const char* name) const;
+	bool _HasAnimation(const char* suffix) const;
 	
 	std::vector<std::string> fList;
 	char fBaseName[16];
