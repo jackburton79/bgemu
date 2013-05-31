@@ -161,9 +161,10 @@ Graphics::DataToBitmap(const void *data, int32 width,
 
 
 /* static */
-SDL_Surface *
-Graphics::MirrorSDLSurface(SDL_Surface *surface)
+Bitmap*
+Graphics::MirrorBitmap(Bitmap *bitmap)
 {
+	SDL_Surface* surface = bitmap->Surface();
 	SDL_LockSurface(surface);
 
 	for (int32 y = 0; y < surface->h; y++) {
@@ -174,7 +175,7 @@ Graphics::MirrorSDLSurface(SDL_Surface *surface)
 	}
 	SDL_UnlockSurface(surface);
 
-	return surface;
+	return bitmap;
 }
 
 

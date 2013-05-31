@@ -16,7 +16,7 @@ public:
 	static int DataToBitmap(const void *data, int32 width, int32 height,
 			Bitmap *surface);
 
-	static SDL_Surface *MirrorSDLSurface(SDL_Surface *surface);
+	static Bitmap* MirrorBitmap(Bitmap* bitmap);
 	static Bitmap* ApplyMask(Bitmap* surface, Bitmap* mask, uint16 x, uint16 y);
 
 	static void DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color);

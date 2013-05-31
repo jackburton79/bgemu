@@ -87,7 +87,7 @@ GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
 		printf("MIRROR_VERTICALLY NOT IMPLEMENTED!!\n");
 
 	if (flags & MIRROR_HORIZONTALLY)
-		Graphics::MirrorSDLSurface(bitmap->Surface());
+		Graphics::MirrorBitmap(bitmap);
 }
 
 
@@ -99,9 +99,11 @@ GraphicsEngine::SetClipping(const GFX::rect* rect)
 
 
 void
-GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source, GFX::rect *dest)
+GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source,
+		GFX::rect *dest)
 {
-	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source, fScreen, (SDL_Rect*)dest);
+	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source,
+			fScreen, (SDL_Rect*)dest);
 }
 
 
@@ -115,7 +117,8 @@ GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
 
 /*static*/
 void
-GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source, Bitmap *surface, GFX::rect *dest)
+GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source,
+		Bitmap *surface, GFX::rect *dest)
 {
 	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)(source),
 			surface->Surface(), (SDL_Rect*)(dest));
@@ -139,7 +142,8 @@ GraphicsEngine::FillRect(const GFX::rect& rect, uint32 color)
 
 
 void
-GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags)
+GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
+		uint16 flags)
 {
 	fScreen = SDL_SetVideoMode(x, y, depth, 0);
 	std::vector<Listener*>::iterator i;
