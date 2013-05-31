@@ -72,4 +72,16 @@ polygon_contains(const IE::polygon& poly, const IE::point& point)
 	return false;
 }
 
+
+static inline GFX::rect
+center_rect_in_rect(const GFX::rect& toCenter, const GFX::rect& windowRect)
+{
+	GFX::rect rect = toCenter;
+
+	rect.x = (windowRect.w - toCenter.x) / 2;
+	rect.y = (windowRect.h - toCenter.y) / 2;
+
+	return rect;
+}
+
 #endif // __RECTUTILS_H
