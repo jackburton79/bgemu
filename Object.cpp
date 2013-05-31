@@ -39,6 +39,8 @@ void
 Object::Print() const
 {
 	const Actor* thisActor = dynamic_cast<const Actor*>(this);
+	if (thisActor == NULL)
+	    return;
 	CREResource* cre = thisActor->CRE();
 	std::cout << "*** " << thisActor->Name() << " ***" << std::endl;
 	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
