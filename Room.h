@@ -15,6 +15,7 @@ class AreaEntry;
 class BCSResource;
 class Bitmap;
 class Door;
+class Frame;
 class MapOverlay;
 class MOSResource;
 class Script;
@@ -53,6 +54,9 @@ public:
 	void Draw(Bitmap *surface);
 	void Clicked(uint16 x, uint16 y);
 	void MouseOver(uint16 x, uint16 y);
+
+	void DrawObject(Frame& frame, const IE::point& point);
+
 	uint16 TileNumberForPoint(const IE::point& point);
 
 	void ToggleOverlays();

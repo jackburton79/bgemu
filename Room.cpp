@@ -498,6 +498,30 @@ Room::MouseOver(uint16 x, uint16 y)
 }
 
 
+void
+Room::DrawObject(Frame& frame, const IE::point& point)
+{
+	GFX::rect mapArea = offset_rect_to(fViewPort,
+					fAreaOffset.x, fAreaOffset.y);
+
+	Bitmap *animImage = frame.bitmap;
+	if (animImage == NULL)
+		return;
+
+	IE::point leftTop = offset_point(point,
+							-(frame.rect.x + frame.rect.w / 2),
+							-(frame.rect.y + frame.rect.h / 2));
+
+	GFX::rect rect = { leftTop.x, leftTop.y,
+			animImage->Width(), animImage->Height() };
+
+	if (rects_intersect(mapArea, rect)) {
+		rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+		GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
+	}
+}
+
+
 uint16
 Room::TileNumberForPoint(const IE::point& point)
 {
@@ -615,10 +639,9 @@ Room::_DrawAnimations(GFX::rect mapArea)
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
 			Frame frame = fAnimations[i]->NextFrame();
-			Bitmap *animImage = frame.bitmap;
-			if (animImage == NULL)
-				continue;
 
+			DrawObject(frame, fAnimations[i]->Position());
+			/*
 			IE::point leftTop = offset_point(fAnimations[i]->Position(),
 									-(frame.rect.x + frame.rect.w / 2),
 									-(frame.rect.y + frame.rect.h / 2));
@@ -629,7 +652,7 @@ Room::_DrawAnimations(GFX::rect mapArea)
 			if (rects_intersect(mapArea, rect)) {
 				rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
 				GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
-			}
+			}*/
 			GraphicsEngine::DeleteBitmap(frame.bitmap);
 		}
 	}
