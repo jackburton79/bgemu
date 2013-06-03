@@ -24,9 +24,8 @@ public:
 private:
 	BAMResource* fFontResource;
 	Bitmap* fBitmap;
-	Color* fColors;
 
-	void _GeneratePalette(const Color& colorStart,
+	void _SetPalette(const Color& colorStart,
 			const Color& colorEnd);
 };
 

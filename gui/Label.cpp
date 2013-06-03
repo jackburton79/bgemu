@@ -18,8 +18,7 @@
 Label::Label(IE::label* label)
 	:
 	Control(label),
-	fBitmap(NULL),
-	fColors(NULL)
+	fBitmap(NULL)
 {
 	fFontResource = gResManager->GetBAM(label->font_bam);
 
@@ -43,8 +42,7 @@ Label::Label(IE::label* label)
 			label->color2_a
 		};
 
-		_GeneratePalette(colorStart, colorEnd);
-		fBitmap->SetColors(fColors, 0, 256);
+		_SetPalette(colorStart, colorEnd);
 	}
 
 	TLKEntry *textEntry = Dialogs()->EntryAt(label->text_ref);
@@ -55,7 +53,6 @@ Label::Label(IE::label* label)
 
 Label::~Label()
 {
-	delete[] fColors;
 	GraphicsEngine::DeleteBitmap(fBitmap);
 	gResManager->ReleaseResource(fFontResource);
 }
@@ -81,21 +78,21 @@ Label::Draw()
 
 
 void
-Label::_GeneratePalette(const Color& start, const Color& end)
+Label::_SetPalette(const Color& start, const Color& end)
 {
 	uint8 rFactor = (start.r - end.r) / 255;
 	uint8 gFactor = (start.g - end.g) / 255;
 	uint8 bFactor = (start.b - end.b) / 255;
 	uint8 aFactor = (start.a - end.a) / 255;
-	if (fColors == NULL) {
-		fColors = new Color[256];
-		fColors[0] = start;
-		fColors[255] = end;
-		for (uint8 c = 1; c < 255; c++) {
-			fColors[c].r = fColors[c - 1].r + rFactor;
-			fColors[c].g = fColors[c - 1].g + gFactor;
-			fColors[c].b = fColors[c - 1].b + bFactor;
-			fColors[c].a = fColors[c - 1].a + aFactor;
-		}
+	Color* colors = new Color[256];
+	colors[0] = start;
+	colors[255] = end;
+	for (uint8 c = 1; c < 255; c++) {
+		colors[c].r = colors[c - 1].r + rFactor;
+		colors[c].g = colors[c - 1].g + gFactor;
+		colors[c].b = colors[c - 1].b + bFactor;
+		colors[c].a = colors[c - 1].a + aFactor;
 	}
+	fBitmap->SetColors(colors, 0, 256);
+	delete[] colors;
 }
