@@ -100,6 +100,7 @@ private:
 
 	res_ref fName;
 	GFX::rect fViewPort;
+	GFX::rect fMapArea;
 	IE::point fAreaOffset;
 
 	WEDResource *fWed;

@@ -3,7 +3,8 @@
 
 #include "IETypes.h"
 
-#include "Bitmap.h"
+//#include "Bitmap.h"
+#include "Frame.h"
 #include "Object.h"
 
 #include <list>
@@ -22,7 +23,6 @@ class CREResource;
 class PathFinder;
 class Script;
 
-
 class Actor : public Object {
 public:
 	Actor(IE::actor& actor);
@@ -33,7 +33,7 @@ public:
 	virtual const char *Name() const;
 	CREResource *CRE() const;
 
-	void Draw(GFX::rect area, Bitmap* heightMap);
+	::Frame Frame() const;
 
 	IE::orientation Orientation() const;
 	void SetOrientation(IE::orientation o);

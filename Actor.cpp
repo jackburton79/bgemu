@@ -244,41 +244,13 @@ Actor::Name() const
 }
 
 
-void
-Actor::Draw(GFX::rect area, Bitmap* destBitmap)
+::Frame
+ Actor::Frame() const
 {
-	assert(fActor != NULL);
-
-	// TODO: Action shouldn't be set here
-	int action = ACT_STANDING;
-	if (fActor->position != fActor->destination)
-		action = ACT_WALKING;
-
-	//std::cout << "Actor " << Name() << ": drawing action "<< action;
-	//std::cout << ", orientation " << fActor->orientation << std::endl;
-
-	fCurrentAnimation = fAnimations[action][fActor->orientation];
 	if (fCurrentAnimation == NULL)
-		return;
+		throw -1;
 
-	Frame frame = fCurrentAnimation->Frame();
-
-	Bitmap *image = frame.bitmap;
-
-	IE::point leftTop = offset_point(Position(), -frame.rect.w / 2,
-						-frame.rect.h / 2);
-	GFX::rect rect = { leftTop.x, leftTop.y, image->Width(), image->Height() };
-	rect = offset_rect(rect, -frame.rect.x, -frame.rect.y);
-	if (rects_intersect(area, rect)) {
-		rect = offset_rect(rect, -area.x, -area.y);
-		// TODO: Mask the actor with the polygons
-		//Room::CurrentArea()->GetClipping(rect, )
-
-		GraphicsEngine::BlitBitmap(image, NULL, destBitmap, &rect);
-		if (IsSelected())
-			Graphics::DrawRect(destBitmap, rect, 45);
-	}
-	GraphicsEngine::DeleteBitmap(image);
+	return fCurrentAnimation->Frame();
 }
 
 
@@ -470,6 +442,15 @@ Actor::UpdateMove(bool ignoreBlocks)
 			if (ignoreBlocks || _IsReachable(nextPoint))
 				fActor->position = nextPoint;
 		}
+
+		int action = ACT_STANDING;
+		if (fActor->position != fActor->destination)
+			action = ACT_WALKING;
+
+			//std::cout << "Actor " << Name() << ": drawing action "<< action;
+			//std::cout << ", orientation " << fActor->orientation << std::endl;
+
+		fCurrentAnimation = fAnimations[action][fActor->orientation];
 
 		if (fCurrentAnimation != NULL)
 			fCurrentAnimation->Next();

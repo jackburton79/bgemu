@@ -258,6 +258,9 @@ Room::SetAreaOffset(IE::point point)
 		fAreaOffset.y = 0;
 	else if (fAreaOffset.y + fViewPort.h > areaRect.h)
 		fAreaOffset.y = areaRect.h - fViewPort.h;
+
+	fMapArea = offset_rect_to(fViewPort,
+			fAreaOffset.x, fAreaOffset.y);
 }
 
 
@@ -501,11 +504,9 @@ Room::MouseOver(uint16 x, uint16 y)
 void
 Room::DrawObject(Frame& frame, const IE::point& point)
 {
-	GFX::rect mapArea = offset_rect_to(fViewPort,
-					fAreaOffset.x, fAreaOffset.y);
-
-	Bitmap *animImage = frame.bitmap;
-	if (animImage == NULL)
+	// TODO: Clipping
+	Bitmap *bitmap = frame.bitmap;
+	if (bitmap == NULL)
 		return;
 
 	IE::point leftTop = offset_point(point,
@@ -513,11 +514,11 @@ Room::DrawObject(Frame& frame, const IE::point& point)
 							-(frame.rect.y + frame.rect.h / 2));
 
 	GFX::rect rect = { leftTop.x, leftTop.y,
-			animImage->Width(), animImage->Height() };
+			bitmap->Width(), bitmap->Height() };
 
-	if (rects_intersect(mapArea, rect)) {
+	if (rects_intersect(fMapArea, rect)) {
 		rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-		GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
+		GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &rect);
 	}
 }
 
@@ -665,7 +666,9 @@ Room::_DrawActors(GFX::rect area)
 	std::vector<Actor*>::iterator a;
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
-			(*a)->Draw(area, fBackBitmap);
+			Frame actorFrame = (*a)->Frame();
+			DrawObject(actorFrame, (*a)->Position());
+			GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
 		} catch (...) {
 			continue;
 		}
