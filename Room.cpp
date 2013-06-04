@@ -642,18 +642,7 @@ Room::_DrawAnimations(GFX::rect mapArea)
 			Frame frame = fAnimations[i]->NextFrame();
 
 			DrawObject(frame, fAnimations[i]->Position());
-			/*
-			IE::point leftTop = offset_point(fAnimations[i]->Position(),
-									-(frame.rect.x + frame.rect.w / 2),
-									-(frame.rect.y + frame.rect.h / 2));
 
-			GFX::rect rect = { leftTop.x, leftTop.y,
-					animImage->Width(), animImage->Height() };
-
-			if (rects_intersect(mapArea, rect)) {
-				rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-				GraphicsEngine::BlitBitmap(animImage, NULL, fBackBitmap, &rect);
-			}*/
 			GraphicsEngine::DeleteBitmap(frame.bitmap);
 		}
 	}
