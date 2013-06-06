@@ -5,7 +5,9 @@
  *      Author: stefano
  */
 
+#include "Animation.h"
 #include "BackWindow.h"
+#include "Bitmap.h"
 #include "CHUIResource.h"
 #include "Control.h"
 #include "GraphicsEngine.h"
@@ -25,6 +27,7 @@ GUI::GUI()
 	fResource(NULL)
 {
 	sGUI = &gGUI;
+	memset(fCursors, 0, (sizeof(fCursors) / sizeof(fCursors[0])) * sizeof(Bitmap*));
 }
 
 
@@ -33,6 +36,10 @@ GUI::~GUI()
 	gResManager->ReleaseResource(fResource);
 	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
 	//fActiveWindows.clear();
+
+	for (int i = 0; i < (sizeof(fCursors) / sizeof(fCursors[0])); i++) {
+		delete fCursors[i];
+	}
 }
 
 
@@ -152,6 +159,15 @@ GUI::GetWindow(uint16 id)
 	return NULL;
 }
 
+
+Bitmap*
+GUI::GetCursor(int index)
+{
+	if (fCursors[0] == NULL)
+		_InitCursors();
+
+	return fCursors[index]->NextFrame().bitmap;
+}
 
 
 void
@@ -292,4 +308,19 @@ GUI::_AddBackgroundWindow()
 	BackWindow* backWindow = new BackWindow();
 	//fWindows.push_back(backWindow);
 	fActiveWindows.push_back(backWindow);
+}
+
+
+void
+GUI::_InitCursors()
+{
+	IE::point pt;
+	for (int i = 0; i < 8; i++) {
+		fCursors[i] = new Animation("CURSARW", i, pt);
+	}
+
+	for (int i = 0; i < 40; i++) {
+		fCursors[i + 8] = new Animation("CURSORS", i, pt);
+	}
+
 }

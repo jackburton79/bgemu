@@ -180,7 +180,12 @@ main(int argc, char **argv)
 			// TODO: needs to be called at every loop, not only when the mouse
 			// is moved
 			gui->MouseMoved(lastMouseX, lastMouseY);
+			/*Bitmap* cursor = gResManager->GetCursor(2);
+			GFX::rect cursorRect = { lastMouseX, lastMouseY,
+								cursor->Width(), cursor->Height() };
 
+			graphicsEngine->BlitToScreen(cursor, NULL, &cursorRect);
+*/
 			/*console->Draw();
 			inputConsole->Draw();*/
 			Core::Get()->UpdateLogic(!sNoScripts);

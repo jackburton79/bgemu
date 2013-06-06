@@ -87,6 +87,8 @@ private:
 	void _DrawAnimations(GFX::rect area);
 	void _DrawActors(GFX::rect area);
 
+	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
+
 	void _LoadOverlays();
 	void _InitVariables();
 	void _InitTileCells();
@@ -113,6 +115,8 @@ private:
 	Bitmap*	fWorldMapBitmap;
 
 	Bitmap* fBackBitmap;
+	Bitmap* fActiveCursor;
+	IE::point fCursorPosition;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;

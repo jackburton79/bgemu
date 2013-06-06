@@ -45,6 +45,7 @@ Room::Room()
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
+	fActiveCursor(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawOverlays(true),
@@ -375,8 +376,12 @@ Room::Draw(Bitmap *surface)
 		}
 		fBackBitmap->Update();
 		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
+
 	}
-	//gfx->SetClipping(NULL);
+	if (fActiveCursor != NULL) {
+		GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
+		GraphicsEngine::Get()->BlitToScreen(fActiveCursor, NULL, &rect);
+	}
 }
 
 
@@ -425,9 +430,6 @@ Room::Clicked(uint16 x, uint16 y)
 
 		if (fSelectedActor != NULL)
 			fSelectedActor->SetDestination(point);
-		/*
-		const uint16 tileNum = TileNumberForPoint(point);
-		fTileCells[tileNum]->Clicked();*/
 	}
 }
 
@@ -446,8 +448,8 @@ Room::MouseOver(uint16 x, uint16 y)
 		horizBorderSize += window->Width();
 	}
 
-	uint16 scrollByX = 0;
-	uint16 scrollByY = 0;
+	sint16 scrollByX = 0;
+	sint16 scrollByY = 0;
 	if (x <= horizBorderSize)
 		scrollByX = -kScrollingStep;
 	else if (x >= fViewPort.w - horizBorderSize)
@@ -460,6 +462,8 @@ Room::MouseOver(uint16 x, uint16 y)
 
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
+
+	_UpdateCursor(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
@@ -492,6 +496,8 @@ Room::MouseOver(uint16 x, uint16 y)
 			}
 		}
 	}
+
+
 
 	IE::point newAreaOffset = fAreaOffset;
 	newAreaOffset.x += scrollByX;
@@ -662,6 +668,47 @@ Room::_DrawActors(GFX::rect area)
 			continue;
 		}
 	}
+}
+
+
+void
+Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
+{
+	fCursorPosition.x = x;
+	fCursorPosition.y = y;
+
+	if (scrollByX == 0 && scrollByY == 0) {
+		// TODO: Handle other cursors
+		fActiveCursor = GUI::Default()->GetCursor(8);
+		return;
+	}
+
+	int cursorIndex = 0;
+	if (scrollByX > 0) {
+		if (scrollByY > 0)
+			cursorIndex = 7;
+		else if (scrollByY < 0)
+			cursorIndex = 1;
+		else
+			cursorIndex = 0;
+	} else if (scrollByX < 0) {
+		if (scrollByY > 0)
+			cursorIndex = 5;
+		else if (scrollByY < 0)
+			cursorIndex = 3;
+		else
+			cursorIndex = 4;
+	} else {
+		if (scrollByY > 0)
+			cursorIndex = 6;
+		else if (scrollByY < 0)
+			cursorIndex = 2;
+		else
+			cursorIndex = 0;
+	}
+
+
+	fActiveCursor = GUI::Default()->GetCursor(cursorIndex);
 }
 
 

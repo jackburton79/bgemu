@@ -69,6 +69,7 @@ public:
 
 private:
 	const char *ResourcesPath() const;
+
 	void _LoadIDSResources();
 
 	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;

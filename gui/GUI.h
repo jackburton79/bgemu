@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 
+class Animation;
 class CHUIResource;
 class GUI {
 public:
@@ -34,6 +35,7 @@ public:
 	bool IsWindowShown(uint16 id) const;
 
 	Window* GetWindow(uint16 id);
+	Bitmap* GetCursor(int orientation);
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
@@ -42,9 +44,11 @@ public:
 private:
 	CHUIResource* fResource;
 	std::vector<Window*> fActiveWindows;
+	Animation* fCursors[128];
 
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
+	void _InitCursors();
 };
 
 #endif /* __GUI_H_ */

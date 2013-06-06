@@ -59,9 +59,6 @@ Animation::Animation(const char* bamName,
 	if (fBAM == NULL)
 		throw -1;
 
-	//if (fName[0] == 'N')
-		//fBAM->DumpFrames("/home/stefano/dumps");
-
 	fCycleNumber = sequence;
 	if (fCycleNumber >= fBAM->CountCycles()) {
 		std::cout << "CycleNumber exceeds cycles count: cyclenumber ";

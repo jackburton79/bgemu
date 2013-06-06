@@ -9,6 +9,8 @@
 #include "Core.h"
 #include "FileStream.h"
 #include "GeneratedIDS.h"
+// TODO: Big NONO!
+#include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
 #include "IETypes.h"
@@ -72,6 +74,8 @@ ResourceManager::ResourceManager()
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
 	gResManager = &sManager;
+
+
 }
 
 
@@ -112,6 +116,8 @@ ResourceManager::~ResourceManager()
 	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
 		delete aIter->second;
 	}
+
+
 }
 
 
@@ -444,6 +450,9 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 
 	return pathName.Path();
 }
+
+
+
 
 
 Resource*
