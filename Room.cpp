@@ -45,7 +45,6 @@ Room::Room()
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
-	fActiveCursor(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawOverlays(true),
@@ -378,10 +377,6 @@ Room::Draw(Bitmap *surface)
 		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 
 	}
-	if (fActiveCursor != NULL) {
-		GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
-		GraphicsEngine::Get()->BlitToScreen(fActiveCursor, NULL, &rect);
-	}
 }
 
 
@@ -674,12 +669,9 @@ Room::_DrawActors(GFX::rect area)
 void
 Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
-	fCursorPosition.x = x;
-	fCursorPosition.y = y;
-
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
-		fActiveCursor = GUI::Default()->GetCursor(8);
+		GUI::Default()->SetCursor(8);
 		return;
 	}
 
@@ -708,7 +700,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 	}
 
 
-	fActiveCursor = GUI::Default()->GetCursor(cursorIndex);
+	GUI::Default()->SetCursor(cursorIndex);
 }
 
 

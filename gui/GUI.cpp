@@ -24,7 +24,8 @@ static GUI* sGUI = NULL;
 
 GUI::GUI()
 	:
-	fResource(NULL)
+	fResource(NULL),
+	fCurrentCursor(NULL)
 {
 	sGUI = &gGUI;
 	memset(fCursors, 0, (sizeof(fCursors) / sizeof(fCursors[0])) * sizeof(Bitmap*));
@@ -46,6 +47,9 @@ GUI::~GUI()
 void
 GUI::Load(const res_ref& name)
 {
+	if (fCursors[0] == NULL)
+		_InitCursors();
+
 	gResManager->ReleaseResource(fResource);
 	Clear();
 	fResource = gResManager->GetCHUI(name);
@@ -64,6 +68,12 @@ GUI::Draw()
 	std::vector<Window*>::const_iterator i;
 	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
 		(*i)->Draw();
+	}
+
+	if (fCurrentCursor != NULL) {
+		Frame nextFrame = fCurrentCursor->NextFrame();
+		GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
+		GraphicsEngine::Get()->BlitToScreen(nextFrame.bitmap, NULL, &rect);
 	}
 }
 
@@ -94,6 +104,8 @@ void
 GUI::MouseMoved(int16 x, int16 y)
 {
 	IE::point point = { x, y };
+	fCursorPosition = point;
+
 	Window* window = _GetWindow(point);
 	if (window != NULL)
 		window->MouseMoved(point);
@@ -160,13 +172,10 @@ GUI::GetWindow(uint16 id)
 }
 
 
-Bitmap*
-GUI::GetCursor(int index)
+void
+GUI::SetCursor(uint32 index)
 {
-	if (fCursors[0] == NULL)
-		_InitCursors();
-
-	return fCursors[index]->NextFrame().bitmap;
+	fCurrentCursor = fCursors[index];
 }
 
 

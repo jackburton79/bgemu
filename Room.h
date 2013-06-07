@@ -115,8 +115,6 @@ private:
 	Bitmap*	fWorldMapBitmap;
 
 	Bitmap* fBackBitmap;
-	Bitmap* fActiveCursor;
-	IE::point fCursorPosition;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;

@@ -35,7 +35,7 @@ public:
 	bool IsWindowShown(uint16 id) const;
 
 	Window* GetWindow(uint16 id);
-	Bitmap* GetCursor(int orientation);
+	void SetCursor(uint32 index);
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
@@ -45,6 +45,8 @@ private:
 	CHUIResource* fResource;
 	std::vector<Window*> fActiveWindows;
 	Animation* fCursors[128];
+	Animation* fCurrentCursor;
+	IE::point fCursorPosition;
 
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
