@@ -63,6 +63,8 @@ Control::MouseMoved(IE::point point, uint32 transit)
 		ConvertFromScreen(point);
 		if (point.x >= 0 && point.y >= 0)
 			fRoom->MouseOver(point.x, point.y);
+	} else if (transit == MOUSE_ENTER) {
+		GUI::Default()->SetCursor(IE::CURSOR_HAND);
 	}
 }
 

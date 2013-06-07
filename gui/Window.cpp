@@ -131,18 +131,18 @@ Window::MouseMoved(IE::point point)
 	point.y -= fPosition.y;
 
 	Control* oldActiveControl = fActiveControl;
-	Control* control = NULL;
-	if ((control = _GetControl(point)) != NULL) {
-		control->MouseMoved(point, Control::MOUSE_INSIDE);
-	}
+	Control* control = _GetControl(point);
 
 	if (oldActiveControl != control) {
 		if (oldActiveControl != NULL)
 			oldActiveControl->MouseMoved(point, Control::MOUSE_EXIT);
 		if (control != NULL)
 			control->MouseMoved(point, Control::MOUSE_ENTER);
-		fActiveControl = control;
+	} else {
+		if (control != NULL)
+			control->MouseMoved(point, Control::MOUSE_INSIDE);
 	}
+	fActiveControl = control;
 }
 
 

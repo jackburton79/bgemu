@@ -463,6 +463,20 @@ struct text_edit : public control {
 } __attribute__((packed));
 
 
+enum cursors {
+	CURSOR_ARROW_E = 0,
+	CURSOR_ARROW_NE = 1,
+	CURSOR_ARROW_N = 2,
+	CURSOR_ARROW_NW = 3,
+	CURSOR_ARROW_W = 4,
+	CURSOR_ARROW_SW = 5,
+	CURSOR_ARROW_S = 6,
+	CURSOR_ARROW_SE = 7,
+
+	CURSOR_HAND = 8
+};
+
+
 void check_objects_size();
 
 

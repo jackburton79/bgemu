@@ -374,7 +374,7 @@ Room::Draw(Bitmap *surface)
 		    }
 		}
 		fBackBitmap->Update();
-		GraphicsEngine::Get()->BlitToScreen(fBackBitmap, NULL, &fViewPort);
+		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 
 	}
 }
@@ -659,6 +659,8 @@ Room::_DrawActors(GFX::rect area)
 			Frame actorFrame = (*a)->Frame();
 			DrawObject(actorFrame, (*a)->Position());
 			GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
+			if ((*a)->IsSelected())
+				Graphics::DrawRect(fBackBitmap, actorFrame.rect, 45);
 		} catch (...) {
 			continue;
 		}
@@ -671,32 +673,32 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
-		GUI::Default()->SetCursor(8);
+		GUI::Default()->SetCursor(IE::CURSOR_HAND);
 		return;
 	}
 
 	int cursorIndex = 0;
 	if (scrollByX > 0) {
 		if (scrollByY > 0)
-			cursorIndex = 7;
+			cursorIndex = IE::CURSOR_ARROW_SE;
 		else if (scrollByY < 0)
-			cursorIndex = 1;
+			cursorIndex = IE::CURSOR_ARROW_NE;
 		else
-			cursorIndex = 0;
+			cursorIndex = IE::CURSOR_ARROW_E;
 	} else if (scrollByX < 0) {
 		if (scrollByY > 0)
-			cursorIndex = 5;
+			cursorIndex = IE::CURSOR_ARROW_SW;
 		else if (scrollByY < 0)
-			cursorIndex = 3;
+			cursorIndex = IE::CURSOR_ARROW_NW;
 		else
-			cursorIndex = 4;
+			cursorIndex = IE::CURSOR_ARROW_W;
 	} else {
 		if (scrollByY > 0)
-			cursorIndex = 6;
+			cursorIndex = IE::CURSOR_ARROW_S;
 		else if (scrollByY < 0)
-			cursorIndex = 2;
+			cursorIndex = IE::CURSOR_ARROW_N;
 		else
-			cursorIndex = 0;
+			cursorIndex = IE::CURSOR_ARROW_E;
 	}
 
 
