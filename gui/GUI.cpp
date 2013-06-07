@@ -38,7 +38,7 @@ GUI::~GUI()
 	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
 	//fActiveWindows.clear();
 
-	for (int i = 0; i < (sizeof(fCursors) / sizeof(fCursors[0])); i++) {
+	for (size_t i = 0; i < (sizeof(fCursors) / sizeof(fCursors[0])); i++) {
 		delete fCursors[i];
 	}
 }
@@ -85,8 +85,6 @@ GUI::MouseDown(int16 x, int16 y)
 	Window* window = _GetWindow(point);
 	if (window != NULL)
 		window->MouseDown(point);
-	/*else
-		Room::CurrentArea()->Clicked(x, y);*/
 }
 
 
@@ -109,8 +107,6 @@ GUI::MouseMoved(int16 x, int16 y)
 	Window* window = _GetWindow(point);
 	if (window != NULL)
 		window->MouseMoved(point);
-	/*else
-		Room::CurrentArea()->MouseOver(x, y);*/
 }
 
 
