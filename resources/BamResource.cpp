@@ -157,13 +157,15 @@ BAMResource::_FrameAt(uint16 index)
 		int decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
 				entry.width * entry.height, destData,
 				fCompressedIndex);
-		if (decoded != entry.width * entry.height)
+		if (decoded != entry.width * entry.height) {
+			std::cerr << "Failed to decode image" << std::endl;
 			throw -1;
+		}
 
-		Graphics::DataToBitmap(destData, entry.width, entry.height, bitmap);
+		bitmap->SetFromData(destData, entry.width, entry.height);
 	} else {
-		Graphics::DataToBitmap(((uint32*)fData->Data() + offset),
-				entry.width, entry.height, bitmap);
+		bitmap->SetFromData(((uint32*)fData->Data() + offset),
+				entry.width, entry.height);
 	}
 
 	bitmap->SetPalette(*fPalette);

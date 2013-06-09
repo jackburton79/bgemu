@@ -350,16 +350,18 @@ Room::Draw(Bitmap *surface)
 			_DrawActors(mapRect);
 
 		if (fDrawPolygons) {
+			fBackBitmap->Lock();
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(offset_rect(poly->Frame(),
 							-mapRect.x, -mapRect.y), mapRect)) {
-						Graphics::DrawPolygon(*poly, fBackBitmap,
-								-mapRect.x, -mapRect.y);
+						fBackBitmap->StrokePolygon(*poly,
+								-mapRect.x, -mapRect.y, 0);
 					}
 				}
 			}
+			fBackBitmap->Unlock();
 		}
 
 		// TODO: handle this better
@@ -370,7 +372,9 @@ Room::Draw(Bitmap *surface)
 				GFX::rect rect = { doorBox.x_min, doorBox.y_min,
 					doorBox.x_max - doorBox.x_min, doorBox.y_max - doorBox.y_min };
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-				Graphics::DrawRect(fBackBitmap, rect, 70);
+				fBackBitmap->Lock();
+				fBackBitmap->StrokeRect(rect, 70);
+				fBackBitmap->Unlock();
 		    }
 		}
 		fBackBitmap->Update();
@@ -639,12 +643,16 @@ Room::_DrawAnimations(GFX::rect mapArea)
 		return;
 
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
-		if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
-			Frame frame = fAnimations[i]->NextFrame();
+		try {
+			if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
+				Frame frame = fAnimations[i]->NextFrame();
 
-			DrawObject(frame, fAnimations[i]->Position());
+				DrawObject(frame, fAnimations[i]->Position());
 
-			GraphicsEngine::DeleteBitmap(frame.bitmap);
+				GraphicsEngine::DeleteBitmap(frame.bitmap);
+			}
+		} catch (...) {
+
 		}
 	}
 }
@@ -659,8 +667,11 @@ Room::_DrawActors(GFX::rect area)
 			Frame actorFrame = (*a)->Frame();
 			DrawObject(actorFrame, (*a)->Position());
 			GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
-			if ((*a)->IsSelected())
-				Graphics::DrawRect(fBackBitmap, actorFrame.rect, 45);
+			if ((*a)->IsSelected()) {
+				fBackBitmap->Lock();
+				fBackBitmap->StrokeRect(actorFrame.rect, 45);
+				fBackBitmap->Unlock();
+			}
 		} catch (...) {
 			continue;
 		}

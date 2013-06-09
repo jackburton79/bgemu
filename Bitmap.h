@@ -37,6 +37,7 @@ struct rect {
 }
 
 class GraphicsEngine;
+class Polygon;
 class Bitmap : public Referenceable {
 public:
 	Bitmap(SDL_Surface* surface);
@@ -49,9 +50,20 @@ public:
 	void ClearColorKey() { SetColorKey(0, false); };
 	void SetAlpha(uint8 alphaValue, bool on = true);
 
+	void PutPixel(uint16 x, uint16 y, const uint32 color);
+	void StrokeLine(uint16 xStart, uint16 yStart,
+			uint16 xEnd, uint16 yEnd, const uint32 color);
+	void StrokeRect(const GFX::rect& rect, const uint32 color);
+	void StrokePolygon(const Polygon& poly,
+			uint16 x, uint16 y, const uint32 color);
+
+	void Mirror();
+	void Flip();
+
 	bool Lock();
 	void Unlock();
 	void* Pixels() const;
+	void SetFromData(const void *data, uint32 width, uint32 height);
 
 	GFX::rect Frame() const;
 	uint16 Width() const;

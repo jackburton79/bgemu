@@ -16,17 +16,7 @@ public:
 	static int DataToBitmap(const void *data, int32 width, int32 height,
 			Bitmap *surface);
 
-	static Bitmap* MirrorBitmap(Bitmap* bitmap);
 	static Bitmap* ApplyMask(Bitmap* surface, Bitmap* mask, uint16 x, uint16 y);
-
-	static void DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color);
-	static void DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1,
-				uint32 x2, uint32 y2, uint32 color);
-	static void DrawPolygon(const Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y);
-	static void DrawPolygon(const Polygon &polygon, Bitmap*, uint16 x, uint16 y);
-
-	static void DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color);
-	static void DrawRect(Bitmap* bitmap, GFX::rect& rect, uint32 color);
 };
 
 #endif

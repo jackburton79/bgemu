@@ -116,7 +116,7 @@ Animation::Frame()
 	if (fMirrored) {
 		// TODO: We are mirroring on the fly. Maybe it's smarter
 		// to cache the mirrored bitmaps.
-		GraphicsEngine::MirrorBitmap(frame.bitmap, GraphicsEngine::MIRROR_HORIZONTALLY);
+		frame.bitmap->Mirror();
 		frame.rect.x = frame.rect.x - frame.rect.w;
 	}
 	if (fBlackAsTransparent) {

@@ -85,10 +85,10 @@ void
 GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
 {
 	if (flags & MIRROR_VERTICALLY)
-		printf("MIRROR_VERTICALLY NOT IMPLEMENTED!!\n");
+		bitmap->Flip();
 
 	if (flags & MIRROR_HORIZONTALLY)
-		Graphics::MirrorBitmap(bitmap);
+		bitmap->Mirror();
 }
 
 
@@ -112,7 +112,7 @@ void
 GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
 {
 	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
-	Graphics::DrawRect(fScreen, sdlRect, color);
+	//Graphics::DrawRect(fScreen, sdlRect, color);
 }
 
 

@@ -29,116 +29,8 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 	}
 
 	size--;
-	assert (size == outSize);
+
 	return outSize;
-}
-
-
-/* static */
-void
-Graphics::DrawPixel(SDL_Surface *surface, uint32 x, uint32 y, uint32 color)
-{
-	if (x >= (uint32)surface->w || y >= (uint32)surface->h)
-		return;
-
-	uint32 bpp = surface->format->BytesPerPixel;
-	uint32 offset = surface->pitch * y + x * bpp;
-
-	SDL_LockSurface(surface);
-	memcpy((uint8 *)surface->pixels + offset, &color, bpp);
-	SDL_UnlockSurface(surface);
-}
-
-
-/* static */
-void
-Graphics::DrawLine(SDL_Surface *surface, uint32 x1, uint32 y1, uint32 x2,
-		uint32 y2, uint32 color)
-{
-	int cycle;
-	int lg_delta = x2 - x1;
-	int sh_delta = y2 - y1;
-	int lg_step = SGN(lg_delta);
-	lg_delta = ABS(lg_delta);
-	int sh_step = SGN(sh_delta);
-	sh_delta = ABS(sh_delta);
-	if (sh_delta < lg_delta) {
-		cycle = lg_delta >> 1;
-		while (x1 != x2) {
-			DrawPixel(surface, x1, y1, color);
-			cycle += sh_delta;
-			if (cycle > lg_delta) {
-				cycle -= lg_delta;
-				y1 += sh_step;
-			}
-			x1 += lg_step;
-		}
-		DrawPixel(surface, x1, y1, color);
-	}
-	cycle = sh_delta >> 1;
-	while (y1 != y2) {
-		DrawPixel(surface, x1, y1, color);
-		cycle += lg_delta;
-		if (cycle > sh_delta) {
-			cycle -= sh_delta;
-			x1 += lg_step;
-		}
-		y1 += sh_step;
-	}
-	DrawPixel(surface, x1, y1, color);
-}
-
-
-/* static */
-void
-Graphics::DrawPolygon(const Polygon &polygon, SDL_Surface *surface, uint16 x, uint16 y)
-{
-	const int32 numPoints = polygon.CountPoints();
-	if (numPoints <= 2)
-		return;
-
-	uint32 color = SDL_MapRGB(surface->format, 128, 0, 30);
-	const IE::point &firstPt = offset_point(polygon.PointAt(0), x, y);
-	for (int32 c = 0; c < numPoints - 1; c++) {
-		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
-		const IE::point &nextPt = offset_point(polygon.PointAt(c + 1), x, y);
-		DrawLine(surface, pt.x, pt.y, nextPt.x, nextPt.y, color);
-		if (c == numPoints - 2)
-			DrawLine(surface, nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
-	}
-}
-
-
-/* static */
-void
-Graphics::DrawPolygon(const Polygon &polygon, Bitmap* bitmap, uint16 x, uint16 y)
-{
-	const int32 numPoints = polygon.CountPoints();
-	if (numPoints <= 2)
-		return;
-
-	SDL_Surface* surface = bitmap->Surface();
-	DrawPolygon(polygon, surface, x, y);
-}
-
-
-/* static */
-void
-Graphics::DrawRect(SDL_Surface* surface, SDL_Rect& rect, uint32 color)
-{
-	DrawLine(surface, rect.x, rect.y, rect.x + rect.w, rect.y, color);
-	DrawLine(surface, rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + rect.h, color);
-	DrawLine(surface, rect.x, rect.y, rect.x, rect.y + rect.h, color);
-	DrawLine(surface, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y + rect.h, color);
-}
-
-
-/* static */
-void
-Graphics::DrawRect(Bitmap* bitmap, GFX::rect& gfxRect, uint32 color)
-{
-	SDL_Surface* surface = bitmap->Surface();
-	DrawRect(surface, (SDL_Rect&)gfxRect, color);
 }
 
 
@@ -147,35 +39,8 @@ int
 Graphics::DataToBitmap(const void *data, int32 width,
 		int32 height, Bitmap *bitmap)
 {
-	SDL_Surface* surface = bitmap->Surface();
-	SDL_LockSurface(surface);
-	uint8 *ptr = (uint8*)data;
-	uint8 *surfacePixels = (uint8*)surface->pixels;
-	for (int32 y = 0; y < height; y++) {
-		memcpy(surfacePixels, ptr + y * width, width);
-		surfacePixels += surface->pitch;
-	}
-	SDL_UnlockSurface(surface);
+
 	return 0;
-}
-
-
-/* static */
-Bitmap*
-Graphics::MirrorBitmap(Bitmap *bitmap)
-{
-	SDL_Surface* surface = bitmap->Surface();
-	SDL_LockSurface(surface);
-
-	for (int32 y = 0; y < surface->h; y++) {
-		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
-		for (int32 x = 0; x < surface->pitch / 2; x++)
-			std::swap(*sourcePixels++, *destPixels--);
-	}
-	SDL_UnlockSurface(surface);
-
-	return bitmap;
 }
 
 

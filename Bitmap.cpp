@@ -6,6 +6,9 @@
  */
 
 #include "Bitmap.h"
+#include "Polygon.h"
+#include "RectUtils.h"
+#include "Utils.h"
 
 #include <iostream>
 
@@ -81,6 +84,112 @@ Bitmap::SetAlpha(uint8 value, bool on)
 }
 
 
+// The following methods require the bitmap locked
+void
+Bitmap::PutPixel(uint16 x, uint16 y, const uint32 color)
+{
+	if (x >= (uint32)fSurface->w || y >= (uint32)fSurface->h)
+		return;
+
+	uint32 bpp = fSurface->format->BytesPerPixel;
+	uint32 offset = fSurface->pitch * y + x * bpp;
+
+	memcpy((uint8 *)fSurface->pixels + offset, &color, bpp);
+}
+
+
+void
+Bitmap::StrokeLine(uint16 x1, uint16 y1,
+			uint16 x2, uint16 y2, const uint32 color)
+{
+	int cycle;
+	int lg_delta = x2 - x1;
+	int sh_delta = y2 - y1;
+	int lg_step = SGN(lg_delta);
+	lg_delta = ABS(lg_delta);
+	int sh_step = SGN(sh_delta);
+	sh_delta = ABS(sh_delta);
+	if (sh_delta < lg_delta) {
+		cycle = lg_delta >> 1;
+		while (x1 != x2) {
+			PutPixel(x1, y1, color);
+			cycle += sh_delta;
+			if (cycle > lg_delta) {
+				cycle -= lg_delta;
+				y1 += sh_step;
+			}
+			x1 += lg_step;
+		}
+		PutPixel(x1, y1, color);
+	}
+	cycle = sh_delta >> 1;
+	while (y1 != y2) {
+		PutPixel(x1, y1, color);
+		cycle += lg_delta;
+		if (cycle > sh_delta) {
+			cycle -= sh_delta;
+			x1 += lg_step;
+		}
+		y1 += sh_step;
+	}
+	PutPixel(x1, y1, color);
+}
+
+
+void
+Bitmap::StrokeRect(const GFX::rect& rect, const uint32 color)
+{
+	StrokeLine(rect.x, rect.y, rect.x + rect.w, rect.y, color);
+	StrokeLine(rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + rect.h, color);
+	StrokeLine(rect.x, rect.y, rect.x, rect.y + rect.h, color);
+	StrokeLine(rect.x, rect.y + rect.h, rect.x + rect.w, rect.y + rect.h, color);
+}
+
+
+void
+Bitmap::StrokePolygon(const Polygon& polygon,
+		uint16 x, uint16 y, const uint32 newColor)
+{
+	const int32 numPoints = polygon.CountPoints();
+	if (numPoints <= 2)
+		return;
+
+	// TODO: Use newColor
+	uint32 color = SDL_MapRGB(fSurface->format, 128, 0, 30);
+	const IE::point &firstPt = offset_point(polygon.PointAt(0), x, y);
+	for (int32 c = 0; c < numPoints - 1; c++) {
+		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
+		const IE::point &nextPt = offset_point(polygon.PointAt(c + 1), x, y);
+		StrokeLine(pt.x, pt.y, nextPt.x, nextPt.y, color);
+		if (c == numPoints - 2)
+			StrokeLine(nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
+	}
+}
+
+
+void
+Bitmap::Mirror()
+{
+	SDL_Surface* surface = fSurface;
+	SDL_LockSurface(surface);
+
+	for (int32 y = 0; y < surface->h; y++) {
+		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
+		for (int32 x = 0; x < surface->pitch / 2; x++)
+			std::swap(*sourcePixels++, *destPixels--);
+	}
+	SDL_UnlockSurface(surface);
+}
+
+
+void
+Bitmap::Flip()
+{
+	std::cerr << "Bitmap::Flip() not implemented" << std::endl;
+}
+
+
 bool
 Bitmap::Lock()
 {
@@ -100,6 +209,20 @@ void*
 Bitmap::Pixels() const
 {
 	return fSurface->pixels;
+}
+
+
+void
+Bitmap::SetFromData(const void* data, uint32 width, uint32 height)
+{
+	SDL_LockSurface(fSurface);
+	uint8 *ptr = (uint8*)data;
+	uint8 *surfacePixels = (uint8*)fSurface->pixels;
+	for (int32 y = 0; y < height; y++) {
+		memcpy(surfacePixels, ptr + y * width, width);
+		surfacePixels += fSurface->pitch;
+	}
+	SDL_UnlockSurface(fSurface);
 }
 
 
