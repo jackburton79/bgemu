@@ -35,16 +35,6 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 
 
 /* static */
-int
-Graphics::DataToBitmap(const void *data, int32 width,
-		int32 height, Bitmap *bitmap)
-{
-
-	return 0;
-}
-
-
-/* static */
 static
 bool
 match_color(const SDL_Color& color, const uint8& r, const uint8& g,
