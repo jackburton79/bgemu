@@ -40,7 +40,7 @@ class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
 public:
-	Bitmap(SDL_Surface* surface);
+	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
 
 	void Clear(int color = 0);
 	void SetColors(Color* colors, int start, int num);
@@ -81,6 +81,7 @@ private:
 	friend class GraphicsEngine;
 
 	SDL_Surface* fSurface;
+	bool fOwnsSurface;
 
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	~Bitmap();
