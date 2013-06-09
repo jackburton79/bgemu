@@ -344,10 +344,9 @@ Room::Draw(Bitmap *surface)
 				fAreaOffset.x, fAreaOffset.y);
 
 		if (fDrawAnimations)
-			_DrawAnimations(mapRect);
+			_DrawAnimations();
 
-		if (true)
-			_DrawActors(mapRect);
+		_DrawActors();
 
 		if (fDrawPolygons) {
 			fBackBitmap->Lock();
@@ -637,7 +636,7 @@ Room::_DrawBaseMap()
 
 
 void
-Room::_DrawAnimations(GFX::rect mapArea)
+Room::_DrawAnimations()
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -659,7 +658,7 @@ Room::_DrawAnimations(GFX::rect mapArea)
 
 
 void
-Room::_DrawActors(GFX::rect area)
+Room::_DrawActors()
 {
 	std::vector<Actor*>::iterator a;
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
@@ -673,6 +672,7 @@ Room::_DrawActors(GFX::rect area)
 				fBackBitmap->Unlock();
 			}
 		} catch (...) {
+			//std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
 			continue;
 		}
 	}

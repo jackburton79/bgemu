@@ -132,40 +132,44 @@ RenderString(std::string string, BAMResource* fontResource,
 	if (frames == NULL)
 		return;
 
-	std::string::iterator i = string.begin();
-	uint32 totalWidth = 0;
-	uint16 maxHeight = 0;
-	int numFrames = 0;
-	while (i != string.end()) {
-		uint32 cycleNum = cycle_num_for_char(*i);
-		frames[numFrames] = fontResource->FrameForCycle(cycleNum, 0);
-		totalWidth += frames[numFrames].rect.w;
-		maxHeight = std::max(frames[numFrames].rect.h, maxHeight);
-		numFrames++;
-		i++;
-	}
+	try {
+		std::string::iterator i = string.begin();
+		uint32 totalWidth = 0;
+		uint16 maxHeight = 0;
+		int numFrames = 0;
+		while (i != string.end()) {
+			uint32 cycleNum = cycle_num_for_char(*i);
+			frames[numFrames] = fontResource->FrameForCycle(cycleNum, 0);
+			totalWidth += frames[numFrames].rect.w;
+			maxHeight = std::max(frames[numFrames].rect.h, maxHeight);
+			numFrames++;
+			i++;
+		}
 
-	GFX::rect rect = { 0, 0, 0, 0 };
-	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-		rect.y = bitmap->Height() - maxHeight;
-	else if (flags & IE::LABEL_JUSTIFY_TOP)
-		rect.y = 0;
-	else
-		rect.y = (bitmap->Height() - maxHeight) / 2;
+		GFX::rect rect = { 0, 0, 0, 0 };
+		if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+			rect.y = bitmap->Height() - maxHeight;
+		else if (flags & IE::LABEL_JUSTIFY_TOP)
+			rect.y = 0;
+		else
+			rect.y = (bitmap->Height() - maxHeight) / 2;
 
-	if (flags & IE::LABEL_JUSTIFY_CENTER)
-		rect.x = (bitmap->Width() - totalWidth) / 2;
-	else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-		rect.x = bitmap->Width() - totalWidth;
+		if (flags & IE::LABEL_JUSTIFY_CENTER)
+			rect.x = (bitmap->Width() - totalWidth) / 2;
+		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+			rect.x = bitmap->Width() - totalWidth;
 
-	for (int f = 0; f < numFrames; f++) {
-		rect.w = frames[f].rect.w;
-		rect.h = frames[f].rect.h;
+		for (int f = 0; f < numFrames; f++) {
+			rect.w = frames[f].rect.w;
+			rect.h = frames[f].rect.h;
 
-		GraphicsEngine::BlitBitmap(frames[f].bitmap,
-				NULL, bitmap, &rect);
-		rect.x += frames[f].rect.w;
-		GraphicsEngine::DeleteBitmap(frames[f].bitmap);
+			GraphicsEngine::BlitBitmap(frames[f].bitmap,
+					NULL, bitmap, &rect);
+			rect.x += frames[f].rect.w;
+			GraphicsEngine::DeleteBitmap(frames[f].bitmap);
+		}
+	} catch (...) {
+		std::cerr << "RenderString() exception" << std::endl;
 	}
 	delete[] frames;
 }

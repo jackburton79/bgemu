@@ -6,7 +6,6 @@
 #include "Bitmap.h"
 #include "Core.h"
 #include "CreResource.h"
-#include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"

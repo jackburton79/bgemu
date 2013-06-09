@@ -47,27 +47,29 @@ Button::Draw()
 {
 	if (fResource == NULL)
 		return;
+	try {
+		IE::button* button = (IE::button*)fControl;
+		Frame frame;
+		// TODO: Seems enabled and selected aren't used
+		if (!fEnabled)
+			frame = fResource->FrameForCycle(button->cycle, button->frame_disabled);
+		else if (fPressed)
+			frame = fResource->FrameForCycle(button->cycle, button->frame_pressed);
+		/*else if (fSelected)
+			frame = fResource->FrameForCycle(button->cycle, button->frame_selected);
+		*/
+		else
+			frame = fResource->FrameForCycle(button->cycle, button->frame_unpressed);
 
-	IE::button* button = (IE::button*)fControl;
-	Frame frame;
-	// TODO: Seems enabled and selected aren't used
-	if (!fEnabled)
-		frame = fResource->FrameForCycle(button->cycle, button->frame_disabled);
-	else if (fPressed)
-		frame = fResource->FrameForCycle(button->cycle, button->frame_pressed);
-	/*else if (fSelected)
-		frame = fResource->FrameForCycle(button->cycle, button->frame_selected);
-	*/
-	else
-		frame = fResource->FrameForCycle(button->cycle, button->frame_unpressed);
+		if (frame.bitmap != NULL) {
+			GFX::rect destRect = { fControl->x, fControl->y, fControl->w, fControl->h };
+			fWindow->ConvertToScreen(destRect);
+			GraphicsEngine::Get()->BlitToScreen(frame.bitmap, NULL, &destRect);
+			GraphicsEngine::DeleteBitmap(frame.bitmap);
+		}
+	} catch (...) {
 
-	if (frame.bitmap != NULL) {
-		GFX::rect destRect = { fControl->x, fControl->y, fControl->w, fControl->h };
-		fWindow->ConvertToScreen(destRect);
-		GraphicsEngine::Get()->BlitToScreen(frame.bitmap, NULL, &destRect);
-		GraphicsEngine::DeleteBitmap(frame.bitmap);
 	}
-
 	Control::Draw();
 }
 

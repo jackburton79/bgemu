@@ -158,7 +158,7 @@ BAMResource::_FrameAt(uint16 index)
 				entry.width * entry.height, destData,
 				fCompressedIndex);
 		if (decoded != entry.width * entry.height) {
-			std::cerr << "Failed to decode image" << std::endl;
+			std::cerr << Name() << ": Failed to decode image" << std::endl;
 			throw -1;
 		}
 

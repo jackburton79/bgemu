@@ -84,8 +84,8 @@ private:
 	void _DrawLightMap();
 	void _DrawSearchMap(GFX::rect area);
 	void _DrawHeightMap(GFX::rect area);
-	void _DrawAnimations(GFX::rect area);
-	void _DrawActors(GFX::rect area);
+	void _DrawAnimations();
+	void _DrawActors();
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
