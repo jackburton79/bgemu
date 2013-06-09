@@ -111,8 +111,12 @@ GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source,
 void
 GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
 {
-	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
-	//Graphics::DrawRect(fScreen, sdlRect, color);
+	Bitmap* temp = new Bitmap(fScreen, false);
+	if (temp->Lock()) {
+		temp->StrokeRect(rect, color);
+		temp->Unlock();
+	}
+	delete temp;
 }
 
 
