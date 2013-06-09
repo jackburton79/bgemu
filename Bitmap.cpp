@@ -13,21 +13,26 @@
 #include <iostream>
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
+	:
+	fOwnsSurface(true)
 {
 	fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			bytesPerPixel, 0, 0, 0, 0);
 
 }
 
-Bitmap::Bitmap(SDL_Surface* surface)
+Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
+	:
+	fSurface(surface),
+	fOwnsSurface(ownsSurface)
 {
-	fSurface = surface;
 }
 
 
 Bitmap::~Bitmap()
 {
-	SDL_FreeSurface(fSurface);
+	if (fOwnsSurface)
+		SDL_FreeSurface(fSurface);
 }
 
 
