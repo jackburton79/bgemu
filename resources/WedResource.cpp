@@ -77,8 +77,11 @@ WEDResource::Load(Archive *archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
-
-	_Load();
+	try {
+		_Load();
+	} catch (...) {
+		return false;
+	}
 
 	return true;
 }
