@@ -9,8 +9,6 @@
 #include "Core.h"
 #include "FileStream.h"
 #include "GeneratedIDS.h"
-// TODO: Big NONO!
-#include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
 #include "IETypes.h"
@@ -452,9 +450,6 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 }
 
 
-
-
-
 Resource*
 ResourceManager::_LoadResource(KeyResEntry &entry)
 {
@@ -520,7 +515,7 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 
 	Archive* dirArchive = Archive::Create(fullPath.c_str());
 
-	std::cout << "Archive created" << std::endl;
+	//std::cout << "Archive created" << std::endl;
 	// TODO: Merge the code with the rest ?
 	if (dirArchive == NULL)
 		return NULL;
@@ -627,7 +622,7 @@ ResourceManager::_FindResource(KeyResEntry &entry)
 KeyResEntry*
 ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 {
-	ref_type nameType = {name, type};
+	ref_type nameType = { name, type };
 	resource_map::const_iterator iter = fResourceMap.find(nameType);
 	if (iter == fResourceMap.end())
 		return NULL;
