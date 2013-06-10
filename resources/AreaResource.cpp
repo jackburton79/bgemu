@@ -70,7 +70,6 @@ ARAResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(172, fNumAnimations);
 	fData->ReadAt(176, fAnimationsOffset);
 
-
 	_LoadAnimations();
 	_LoadActors();
 	_LoadDoors();
@@ -94,7 +93,7 @@ ARAResource::CountDoors() const
 }
 
 
-IE::door *
+IE::door*
 ARAResource::DoorAt(uint32 index)
 {
 	if (index > fNumDoors) {
@@ -150,7 +149,7 @@ ARAResource::GetActorAt(uint16 index)
 	IE::actor& ieActor = fActors[index];
 	Actor* newActor = NULL;
 	if (ieActor.flags & IE::ACTOR_CRE_EXTERNAL) {
-
+		// TODO: Handle this case
 	} else {
 		//CREResource* cre = new CREResource(ieActor.cre);
 		fData->Seek(fActorsOffset + ieActor.cre_offset
@@ -248,7 +247,6 @@ ARAResource::_LoadActors()
 			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);
 			//std::cout << "attached data: " << c << std::endl;
 		}
-
 	}
 }
 
