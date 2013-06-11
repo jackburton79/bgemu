@@ -123,7 +123,7 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 		index = RES_BIF_FILE_INDEX(key);
 		resource_info info;
 		if (!_GetResourceInfo(info, index))
-			return false;
+			return NULL;
 		size = info.size;
 		offset = info.offset;
 	} else {
