@@ -63,7 +63,7 @@ public:
 	bool Lock();
 	void Unlock();
 	void* Pixels() const;
-	void SetFromData(const void *data, uint32 width, uint32 height);
+	void ImportData(const void *data, uint32 width, uint32 height);
 
 	GFX::rect Frame() const;
 	uint16 Width() const;

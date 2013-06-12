@@ -162,9 +162,9 @@ BAMResource::_FrameAt(uint16 index)
 			throw -1;
 		}
 
-		bitmap->SetFromData(destData, entry.width, entry.height);
+		bitmap->ImportData(destData, entry.width, entry.height);
 	} else {
-		bitmap->SetFromData(((uint32*)fData->Data() + offset),
+		bitmap->ImportData(((uint32*)fData->Data() + offset),
 				entry.width, entry.height);
 	}
 

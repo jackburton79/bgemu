@@ -218,7 +218,7 @@ Bitmap::Pixels() const
 
 
 void
-Bitmap::SetFromData(const void* data, uint32 width, uint32 height)
+Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 {
 	SDL_LockSurface(fSurface);
 	uint8 *ptr = (uint8*)data;
