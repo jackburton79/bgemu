@@ -88,7 +88,7 @@ MOSResource::Load(Archive* archive, uint32 key)
 Bitmap*
 MOSResource::Image()
 {
-	GFX::rect tileRect = { 0, 0, fBlockSize, fBlockSize };
+	GFX::rect tileRect = { 0, 0, uint16(fBlockSize), uint16(fBlockSize) };
 	Bitmap* bitmap = GraphicsEngine::CreateBitmap(fWidth, fHeight, 16);
 	for (uint16 y = 0; y < fRows; y++) {
 		tileRect.y = y * fBlockSize;
