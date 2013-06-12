@@ -89,5 +89,10 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) -r *.o *~ $(EXECUTABLE)
+	$(RM) *.o $(EXECUTABLE)
+	$(RM) streams/*.o
+	$(RM) resources/*.o
+	$(RM) archives/*.o
+	$(RM) gui/*.o
+	$(RM) shell/*.o
 
