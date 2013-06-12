@@ -130,7 +130,7 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 		index = RES_TILESET_INDEX(key);
 		tileset_info info;
 		if (!_GetTilesetInfo(info, index))
-			return false;
+			return NULL;
 		size = info.numTiles * info.tileSize;
 		offset = info.offset;
 	}
