@@ -46,18 +46,24 @@ public:
 		
 	template<typename T>
 	Stream& operator>>(T& data) {
-		Read(&data, sizeof(data));
+		ssize_t read = Read(&data, sizeof(data));
+		if (read < 0 || read != sizeof(data))
+			throw "Read() exception";
 		return *this;
 	};
 
 	template<typename T>
-	ssize_t Read(T& dest) {
-		return Read(&dest, sizeof(dest));
+	void Read(T& dest) {
+		ssize_t read = Read(&dest, sizeof(dest));
+		if (read < 0 || read != sizeof(dest))
+			throw "Read() exception";
 	}
 	
 	template<typename T>
-	ssize_t ReadAt(int pos, T &dst) {
-		return ReadAt(pos, &dst, sizeof(dst));
+	void ReadAt(int pos, T &dst) {
+		ssize_t read = ReadAt(pos, &dst, sizeof(dst));
+		if (read < 0 || read != sizeof(dst))
+			throw "ReadAt() exception";
 	};
 
 	void DumpToFile(const char *fileName);
