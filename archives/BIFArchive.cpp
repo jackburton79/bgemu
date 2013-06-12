@@ -12,8 +12,6 @@
 #define BIFC_SIGNATURE "BIFCV1.0"
 
 
-using namespace std;
-
 BIFArchive::BIFArchive(const char *fileName)
 	:
 	fStream(NULL)
@@ -26,8 +24,7 @@ BIFArchive::BIFArchive(const char *fileName)
 	fStream->Read(signature, 8);
 		
 	if (!strcmp(signature, BIFC_SIGNATURE)) {
-		//cout << "BIFC archive, decompressing... ";
-		FileStream *tmpStream = dynamic_cast<FileStream*>(fStream);
+		Stream *tmpStream = fStream;
 
 		uint32 uncompressedSize;
 		tmpStream->Read(&uncompressedSize, sizeof(uncompressedSize));
@@ -178,13 +175,22 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 		buffer = new uint8[comp];
 		destBuffer = new uint8[decomp];
 
-		source.Read(buffer, comp);
+		ssize_t read = source.Read(buffer, comp);
+		if (read < 0)
+			throw read;
+		else if ((uint32)read != comp)
+			throw -1;
+
 		int status = uncompress((Bytef*)destBuffer, (uLongf*)&decomp,
 				(const Bytef*)buffer, (uLong)comp);
 
-		if (status == Z_OK)
-			dest.Write(destBuffer, decomp);
-		else
+		if (status == Z_OK) {
+			ssize_t write = dest.Write(destBuffer, decomp);
+			if (write < 0)
+				throw write;
+			else if ((uint32)write != decomp)
+				throw -1;
+		} else
 			throw status;
 	} catch (...) {
 		decomp = -1;
