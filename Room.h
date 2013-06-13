@@ -55,7 +55,8 @@ public:
 	void Clicked(uint16 x, uint16 y);
 	void MouseOver(uint16 x, uint16 y);
 
-	void DrawObject(Frame& frame, const IE::point& point);
+	void DrawObject(const Object& object);
+	void DrawObject(const Frame& frame, const IE::point& point);
 
 	uint16 TileNumberForPoint(const IE::point& point);
 

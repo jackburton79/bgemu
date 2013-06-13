@@ -506,7 +506,32 @@ Room::MouseOver(uint16 x, uint16 y)
 
 
 void
-Room::DrawObject(Frame& frame, const IE::point& point)
+Room::DrawObject(const Object& object)
+{
+	const Actor* actor = dynamic_cast<const Actor*>(&object);
+	if (actor != NULL) {
+		Frame actorFrame = actor->Frame();
+		DrawObject(actorFrame, actor->Position());
+		if (actor->IsSelected()) {
+			IE::point leftTop = offset_point(actor->Position(),
+										-(actorFrame.rect.x + actorFrame.rect.w / 2),
+										-(actorFrame.rect.y + actorFrame.rect.h / 2));
+			GFX::rect rect = { leftTop.x, leftTop.y,
+					actorFrame.rect.w, actorFrame.rect.h };
+
+			// TODO: We are duplicating the code in the other DrawObject call
+			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+			fBackBitmap->Lock();
+			fBackBitmap->StrokeRect(rect, 80);
+			fBackBitmap->Unlock();
+		}
+		GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
+	}
+}
+
+
+void
+Room::DrawObject(const Frame& frame, const IE::point& point)
 {
 	// TODO: Clipping
 	Bitmap *bitmap = frame.bitmap;
@@ -663,14 +688,7 @@ Room::_DrawActors()
 	std::vector<Actor*>::iterator a;
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
-			Frame actorFrame = (*a)->Frame();
-			DrawObject(actorFrame, (*a)->Position());
-			GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
-			if ((*a)->IsSelected()) {
-				fBackBitmap->Lock();
-				fBackBitmap->StrokeRect(actorFrame.rect, 45);
-				fBackBitmap->Unlock();
-			}
+			DrawObject(*(*a));
 		} catch (...) {
 			//std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
 			continue;
