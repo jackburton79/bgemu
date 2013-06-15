@@ -148,9 +148,7 @@ ARAResource::GetActorAt(uint16 index)
 	// We can load actor by actor from here.
 	IE::actor& ieActor = fActors[index];
 	Actor* newActor = NULL;
-	if (ieActor.flags & IE::ACTOR_CRE_EXTERNAL) {
-		// TODO: Handle this case
-	} else {
+	if (ieActor.flags & IE::ACTOR_CRE_EXTERNAL == 0) {
 		//CREResource* cre = new CREResource(ieActor.cre);
 		fData->Seek(fActorsOffset + ieActor.cre_offset
 						+ sizeof(IE::actor) * index, SEEK_SET);
