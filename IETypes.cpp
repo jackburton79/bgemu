@@ -294,7 +294,8 @@ actor::Print() const
 	std::cout << "\tdestination: (" << destination.x;
 	std::cout << ", " << destination.y << ")" << std::endl;
 	std::cout << "\tflags: " << std::hex << flags << std::endl;
-	std::cout << "\tcre_resref_first_letter: " << std::dec << (int)cre_resref_first_letter << std::endl;
+	if (cre_resref_first_letter != 0)
+		std::cout << "\tcre_resref_first_letter: " << cre_resref_first_letter << std::endl;
 	std::cout << "\tanimation: " << IDTable::AnimationAt(animation);
 	std::cout << "(" << animation << ")" << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
