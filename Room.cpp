@@ -837,8 +837,6 @@ Room::_UnloadArea()
 		delete fOverlays[c];
 	fOverlays.clear();
 
-	std::vector<Actor*>::iterator i;
-
 	Actor::List().erase(Actor::List().begin(), Actor::List().end());
 
 	gResManager->ReleaseResource(fWed);
