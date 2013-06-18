@@ -72,8 +72,6 @@ ResourceManager::ResourceManager()
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
 	gResManager = &sManager;
-
-
 }
 
 
@@ -169,7 +167,8 @@ ResourceManager::Initialize(const char *path)
 
 	delete key;
 
-	_LoadIDSResources();
+	if (resourcesOk)
+		_LoadIDSResources();
 
 	return resourcesOk;
 }
@@ -180,7 +179,6 @@ ResourceManager::_LoadIDSResources()
 {
 	sDialogs = gResManager->GetTLK(kDialogResource);
 	sAnimate = gResManager->GetIDS("ANIMATE");
-	//std::cerr << "GetIDS(\"ANISND\")" << std::endl;
 	sAniSnd = gResManager->GetIDS("ANISND");
 
 	// TODO: Improve
@@ -238,9 +236,10 @@ KEYResource*
 ResourceManager::GetKEY(const char *name)
 {
 	KEYResource *key = NULL;
+	std::string path;
 	try {
 		key = new KEYResource("KEY");
-		std::string path = GetFullPath(name, LOC_ROOT);
+		path = GetFullPath(name, LOC_ROOT);
 		Archive *archive = Archive::Create(path.c_str());
 		if (!key->Load(archive, 0)) {
 			delete archive;
@@ -250,6 +249,7 @@ ResourceManager::GetKEY(const char *name)
 		//key->Acquire();
 		delete archive;
 	} catch (...) {
+		std::cerr << "Cannot open KEY file " << path << std::endl;
 		return NULL;
 	}
 	return key;
@@ -432,15 +432,15 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 
 	//printf("CD: 0x%x ", GET_CD(location));
 	if (cd & LOC_CD1)
-		std::cout << "1 ";
+		std::cout << "CD 1 ";
 	if (cd & LOC_CD2)
-		std::cout << "2 ";
+		std::cout << "CD 2 ";
 	if (cd & LOC_CD3)
-		std::cout << "3 ";
+		std::cout << "CD 3 ";
 	if (cd & LOC_CD4)
-		std::cout << "4 ";
+		std::cout << "CD 4 ";
 	if (cd & LOC_CD5)
-		std::cout << "5";
+		std::cout << "CD 5";
 
 	std::cout << std::endl;
 
