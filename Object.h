@@ -11,6 +11,8 @@
 #include "SupportDefs.h"
 
 #include <list>
+#include <map>
+#include <string>
 #include <vector>
 
 // TODO: Actor and Object aren't well separated.
@@ -55,6 +57,9 @@ public:
 	bool See(Object* object);
 	bool IsVisible() const;
 
+	void SetVariable(const char* name, int32 value);
+	int32 GetVariable(const char* name);
+
 	void Update(bool scripts);
 
 	void SetScript(Script* script);
@@ -98,6 +103,8 @@ protected:
 
 	ScriptResults* fCurrentScriptRoundResults;
 	ScriptResults* fLastScriptRoundResults;
+
+	std::map<std::string, uint32> fVariables;
 };
 
 #endif // __SCRIPTABLE_H

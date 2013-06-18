@@ -394,20 +394,6 @@ Actor::MergeScripts()
 }
 
 
-void
-Actor::SetVariable(const char* name, int32 value)
-{
-	fVariables[name] = value;
-}
-
-
-int32
-Actor::GetVariable(const char* name)
-{
-	return fVariables[name];
-}
-
-
 bool
 Actor::SkipConditions() const
 {

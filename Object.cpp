@@ -66,6 +66,20 @@ Object::Name() const
 }
 
 
+void
+Object::SetVariable(const char* name, int32 value)
+{
+	fVariables[name] = value;
+}
+
+
+int32
+Object::GetVariable(const char* name)
+{
+	return fVariables[name];
+}
+
+
 bool
 Object::IsVisible() const
 {

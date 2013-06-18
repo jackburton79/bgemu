@@ -8,8 +8,6 @@
 #include "Object.h"
 
 #include <list>
-#include <map>
-#include <string>
 #include <vector>
 
 const static uint32 kNumAnimations = 8;
@@ -59,8 +57,6 @@ public:
 
 	void MergeScripts();
 
-	void SetVariable(const char* name, int32 value);
-	int32 GetVariable(const char* name);
 
 	::ActionList* ActionList();
 	bool IsActionListEmpty() const;
@@ -95,8 +91,6 @@ private:
 
 	PathFinder* fPath;
 	int fSpeed;
-
-	std::map<std::string, uint32> fVariables;
 
 	static std::vector<Actor*> sActors;
 
