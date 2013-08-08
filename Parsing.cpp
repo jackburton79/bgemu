@@ -61,7 +61,7 @@ operator==(const struct token &t1, const struct token &t2)
 }
 
 
-// Parserthis->
+// Parser
 Parser::Parser()
 	:
 	fStream(NULL),
@@ -91,7 +91,6 @@ Parser::SetTo(Stream *stream)
 void
 Parser::SetDebug(bool debug)
 {
-	std::cout << "Set Debug true" << std::endl;
 	fDebug = debug;
 }
 
@@ -157,6 +156,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		obj->alignment = tokenizer->ReadNextToken().u.number;
 		for (int32 i = 0; i < 5; i++)
 			obj->identifiers[i] = tokenizer->ReadNextToken().u.number;
+
 		// TODO: Not sure which games supports that
 		if (Core::Game() == GAME_TORMENT) {
 			obj->point.x = tokenizer->ReadNextToken().u.number;
