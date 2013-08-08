@@ -28,7 +28,8 @@ GUI::GUI()
 	fCurrentCursor(NULL)
 {
 	sGUI = &gGUI;
-	memset(fCursors, 0, (sizeof(fCursors) / sizeof(fCursors[0])) * sizeof(Bitmap*));
+	for (int c = 0; c < NUM_CURSORS; c++)
+		fCursors[c] = NULL;
 }
 
 

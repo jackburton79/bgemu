@@ -44,7 +44,7 @@ public:
 private:
 	CHUIResource* fResource;
 	std::vector<Window*> fActiveWindows;
-	Animation* fCursors[128];
+	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
 

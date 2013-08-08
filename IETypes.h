@@ -463,6 +463,8 @@ struct text_edit : public control {
 } __attribute__((packed));
 
 
+#define NUM_CURSORS 128
+
 enum cursors {
 	CURSOR_ARROW_E = 0,
 	CURSOR_ARROW_NE = 1,
