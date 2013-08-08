@@ -109,15 +109,16 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
-	GUI::Default()->Clear();
-	GUI::Default()->Load("GUIW");
-	GUI::Default()->ShowWindow(uint16(-1));
-	Window* window = GUI::Default()->GetWindow(uint16(-1));
+	GUI* gui = GUI::Default();
+	gui->Clear();
+	gui->Load("GUIW");
+	gui->ShowWindow(uint16(-1));
+	Window* window = gui->GetWindow(uint16(-1));
 
-	GUI::Default()->ShowWindow(0);
-	GUI::Default()->ShowWindow(1);
-	//GUI::Default()->ShowWindow(3);
-	//GUI::Default()->GetWindow(15);
+	gui->ShowWindow(0);
+	gui->ShowWindow(1);
+	//gui->ShowWindow(3);
+	//gui->GetWindow(15);
 
 
 	if (window != NULL) {
@@ -494,8 +495,6 @@ Room::MouseOver(uint16 x, uint16 y)
 			}
 		}
 	}
-
-
 
 	IE::point newAreaOffset = fAreaOffset;
 	newAreaOffset.x += scrollByX;
