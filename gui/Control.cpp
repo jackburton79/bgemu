@@ -53,8 +53,8 @@ Control::AttachedToWindow(Window* window)
 {
 	fWindow = window;
 
-	if (Width() == 640 && Position().x == 0)
-		SetFrame(0, 0, window->Width(), window->Height());
+	//if (Width() == 640 && Position().x == 0)
+		//SetFrame(0, 0, window->Width(), window->Height());
 }
 
 
