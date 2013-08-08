@@ -14,8 +14,6 @@ Door::Door(IE::door* areaDoor)
 void
 Door::Toggle()
 {
-	//printf("door %s toggled\n", fDoor.name);
-
 	bool wasOpen = fAreaDoor->flags & IE::DOOR_OPEN;
 
 	if (wasOpen)
@@ -79,7 +77,11 @@ Door::Add(Door* door)
 Door*
 Door::GetByName(const char* name)
 {
-	return sDoors[name];
+	std::map<std::string, Door*>::const_iterator i;
+	i = sDoors.find(name);
+	if (i == sDoors.end())
+		return NULL;
+	return i->second;
 }
 
 
