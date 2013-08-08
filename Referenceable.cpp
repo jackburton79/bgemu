@@ -31,7 +31,7 @@ bool
 Referenceable::Release()
 {
 	if (--fRefCount <= 0) {
-		if (fManualDelete)
+		if (!fManualDelete)
 			delete this;
 		return true;
 	}
