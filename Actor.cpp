@@ -152,13 +152,11 @@ Actor::~Actor()
 
 	gResManager->ReleaseResource(fCRE);
 
-	fAnimationFactory->Release();
+	if (fAnimationFactory != NULL) {
+		fAnimationFactory->Release();
+		fAnimationFactory = NULL;
+	}
 
-/*
-	for (uint32 act = 0; act < kNumActions; act++) {
-		for (uint32 anim = 0; anim < kNumAnimations; anim++)
-			delete fAnimations[act][anim];
-	}*/
 	delete fPath;
 }
 

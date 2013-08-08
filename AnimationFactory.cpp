@@ -41,6 +41,16 @@ AnimationFactory::GetFactory(const char* baseName)
 }
 
 
+/* static */
+void
+AnimationFactory::ReleaseFactory(AnimationFactory* factory)
+{
+	sAnimationFactory.erase(factory->fBaseName);
+
+	factory->Release();
+}
+
+
 AnimationFactory::AnimationFactory(const char* baseName)
 	:
 	Referenceable(true),

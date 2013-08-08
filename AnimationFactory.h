@@ -19,6 +19,7 @@ class Animation;
 class AnimationFactory : public Referenceable {
 public:
 	static AnimationFactory* GetFactory(const char* baseName);
+	static void ReleaseFactory(AnimationFactory*);
 
 	Animation* AnimationFor(int action, IE::orientation o);
 
