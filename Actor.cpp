@@ -152,8 +152,8 @@ Actor::~Actor()
 
 	gResManager->ReleaseResource(fCRE);
 
-	// TODO: Release
-	//delete fAnimationFactory;
+	fAnimationFactory->Release();
+
 /*
 	for (uint32 act = 0; act < kNumActions; act++) {
 		for (uint32 anim = 0; anim < kNumAnimations; anim++)
