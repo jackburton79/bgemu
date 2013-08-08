@@ -12,7 +12,7 @@
 
 class Referenceable {
 public:
-	Referenceable();
+	Referenceable(bool manualDelete = true);
 	virtual ~Referenceable();
 
 	void Acquire();
@@ -22,6 +22,7 @@ public:
 
 private:
 	int32 fRefCount;
+	bool fManualDelete;
 };
 
 #endif /* REFERENCEABLE_H_ */

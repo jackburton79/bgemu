@@ -7,9 +7,10 @@
 
 #include "Referenceable.h"
 
-Referenceable::Referenceable()
+Referenceable::Referenceable(bool manualDelete)
 	:
-	fRefCount(0)
+	fRefCount(0),
+	fManualDelete(manualDelete)
 {
 }
 
@@ -29,8 +30,11 @@ Referenceable::Acquire()
 bool
 Referenceable::Release()
 {
-	if (--fRefCount <= 0)
+	if (--fRefCount <= 0) {
+		if (!fManualDelete)
+			delete this;
 		return true;
+	}
 
 	return false;
 }

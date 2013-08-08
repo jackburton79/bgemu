@@ -35,12 +35,15 @@ AnimationFactory::GetFactory(const char* baseName)
 	else
 		factory = i->second;
 
+	factory->Acquire();
+
 	return factory;
 }
 
 
 AnimationFactory::AnimationFactory(const char* baseName)
 	:
+	Referenceable(true),
 	fAnimationType(0),
 	fHighLowSplitted(false),
 	fEastAnimations(false)
@@ -55,6 +58,8 @@ AnimationFactory::AnimationFactory(const char* baseName)
 
 AnimationFactory::~AnimationFactory()
 {
+	std::cout << "AnimationFactory::~AnimationFactory(): ";
+	std::cout << fBaseName << std::endl;
 	fAnimations.clear();
 }
 

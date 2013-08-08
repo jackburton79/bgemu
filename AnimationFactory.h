@@ -12,8 +12,10 @@
 #include <string>
 #include <vector>
 
+#include "Referenceable.h"
+
 class Animation;
-class AnimationFactory {
+class AnimationFactory : public Referenceable {
 public:
 	static AnimationFactory* GetFactory(const char* baseName);
 
