@@ -13,7 +13,6 @@
 #include <math.h>
 #include <stdio.h>
 
-using namespace std;
 
 struct overlay {
 	int16 width;
