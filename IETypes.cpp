@@ -371,6 +371,9 @@ window::Print() const
 	std::cout << "control offset: " << control_offset << std::endl;
 	if (background)
 		std::cout << "background: " << background_mos << std::endl;
+
+	std::cout << "unk: " << unk << std::endl;
+	std::cout << "unk2:" << unk2 << std::endl;
 }
 
 
