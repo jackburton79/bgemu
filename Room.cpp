@@ -842,7 +842,7 @@ Room::_UnloadArea()
 			actorIter++) {
 		delete *actorIter;
 	}
-
+	Actor::List().erase(Actor::List().begin(), Actor::List().end());
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
