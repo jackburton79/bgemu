@@ -88,11 +88,6 @@ Actor::_Init()
 	fEnemyOfEveryone = false;
 	fCurrentAnimation = NULL;
 
-	for (uint32 act = 0; act < kNumActions; act++) {
-		for (uint32 anim = 0; anim < kNumAnimations; anim++)
-			fAnimations[act][anim] = NULL;
-	}
-
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
@@ -146,30 +141,7 @@ Actor::_Init()
 		fActor->orientation = 0;
 	}
 
-	_LoadAnimations(ACT_WALKING);
-
 	fPath = new PathFinder();
-}
-
-
-void
-Actor::_LoadAnimations(int action)
-{
-	for (uint32 a = 0; a < kNumActions; a++) {
-		for (uint32 c = 0; c < kNumAnimations; c++) {
-			try {
-				// TODO: Load the animations only when needed
-				fAnimations[a][c] = fAnimationFactory->AnimationFor(a,
-						IE::orientation(c));
-			} catch (...) {
-				std::cerr << "Actor::Actor(" << fActor->name << ")";
-				std::cerr << ": cannot instantiate Animation ";
-				std::cerr << std::hex << fCRE->AnimationID() << std::endl;
-				delete fAnimations[a][c];
-				fAnimations[a][c] = NULL;
-			}
-		}
-	}
 }
 
 
@@ -182,11 +154,11 @@ Actor::~Actor()
 
 	// TODO: Release
 	//delete fAnimationFactory;
-
+/*
 	for (uint32 act = 0; act < kNumActions; act++) {
 		for (uint32 anim = 0; anim < kNumAnimations; anim++)
 			delete fAnimations[act][anim];
-	}
+	}*/
 	delete fPath;
 }
 
@@ -435,7 +407,10 @@ Actor::UpdateMove(bool ignoreBlocks)
 			//std::cout << "Actor " << Name() << ": drawing action "<< action;
 			//std::cout << ", orientation " << fActor->orientation << std::endl;
 
-		fCurrentAnimation = fAnimations[action][fActor->orientation];
+		fCurrentAnimation = fAnimationFactory->AnimationFor(
+											action,
+											IE::orientation(fActor->orientation));
+
 
 		if (fCurrentAnimation != NULL)
 			fCurrentAnimation->Next();

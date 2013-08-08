@@ -55,13 +55,19 @@ AnimationFactory::AnimationFactory(const char* baseName)
 
 AnimationFactory::~AnimationFactory()
 {
-
+	fAnimations.clear();
 }
 
 
 Animation*
 AnimationFactory::AnimationFor(int action, IE::orientation o)
 {
+	std::pair<int, IE::orientation> key = std::make_pair(action, o);
+	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
+	i = fAnimations.find(key);
+	if (i != fAnimations.end())
+		return i->second;
+
 	// TODO: Only valid for G1/G11/E files
 	std::string bamName;
 	int sequenceNumber = 0;
@@ -157,6 +163,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	Animation* animation = new Animation(bamName.c_str(), sequenceNumber, pos);
 	if (mirror && animation != NULL)
 		animation->SetMirrored(true);
+
+	fAnimations[key] = animation;
+
 	return animation;
 }
 

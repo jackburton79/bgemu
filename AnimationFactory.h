@@ -37,7 +37,7 @@ private:
 	int fAnimationType;
 	bool fHighLowSplitted;
 	bool fEastAnimations;
-
+	std::map<std::pair<int, IE::orientation>, Animation*> fAnimations;
 
 	static std::map<std::string, AnimationFactory*> sAnimationFactory;
 };
