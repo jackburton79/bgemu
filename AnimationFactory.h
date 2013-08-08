@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "IETypes.h"
 #include "Referenceable.h"
 
 class Animation;
