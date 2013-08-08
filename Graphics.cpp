@@ -33,8 +33,7 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 	return outSize;
 }
 
-
-/* static */
+/*
 static
 bool
 match_color(const SDL_Color& color, const uint8& r, const uint8& g,
@@ -42,7 +41,7 @@ match_color(const SDL_Color& color, const uint8& r, const uint8& g,
 {
 	return color.r == r && color.g == g && color.b == b;
 }
-
+*/
 
 /* static */
 Bitmap*
@@ -63,13 +62,11 @@ Graphics::ApplyMask(Bitmap* bitmap, Bitmap*, uint16 x, uint16 y)
 		}
 	}
 	SDL_UnlockSurface(surface);
-	//SDL_SaveBMP(surface, "test.bmp");
 
-	//throw -1;
 	return bitmap;
 }
 
-
+/*
 static int
 IndexOfColor(const SDL_Color *color, const SDL_Palette *palette)
 {
@@ -82,6 +79,6 @@ IndexOfColor(const SDL_Color *color, const SDL_Palette *palette)
 	}
 	return -1;
 }
-
+*/
 
 
