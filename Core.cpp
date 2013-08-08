@@ -32,7 +32,6 @@ Core::Core()
 	fActiveActor(NULL),
 	fRoomScript(NULL),
 	fLastScriptRoundTime(0)
-	//sGame(GAME_BALDURSGATE)
 {
 	srand(time(NULL));
 }
