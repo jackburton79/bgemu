@@ -97,9 +97,18 @@ Window::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 	fPosition.y = y;
 
 	//TODO: Don't hardcode here. Move to BackWindow ?
-	Control* control = GetControlByID(uint32(-1));
+	std::vector<Control*>::const_iterator i;
+	for (i = fControls.begin(); i != fControls.end(); i++) {
+		Control* control = (*i);
+		std::cout << "width: " << control->Width() << std::endl;
+		if (control->Width() == 640 && control->Position().x == 0) {
+			control->SetFrame(0, 0, width, height);
+		}
+	}
+
+	/*Control* control = GetControlByID(uint32(-1));
 	if (control != NULL)
-		control->SetFrame(0, 0, width, height);
+		control->SetFrame(0, 0, width, height);*/
 }
 
 
@@ -202,7 +211,7 @@ Window::ConvertToScreen(GFX::rect& rect)
 void
 Window::Print() const
 {
-	std::cout << "Window controls:" << std::endl;
+	//std::cout << "Window controls:" << std::endl;
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
 		//(*i)->Print();
