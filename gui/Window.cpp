@@ -24,6 +24,22 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 {
 	fPosition.x = xPos;
 	fPosition.y = yPos;
+
+	// TODO: Not very nice. Here we check if the window would sit
+	// on the right side on the screen on 640x480, and move it if
+	// the screen is larger than that. We also check if the window would
+	// span into the full width of the screen, and resize it accordingly.
+	GFX::rect screenRect = GraphicsEngine::Get()->VideoArea();
+	if (screenRect.w > 640) {
+		if (xPos + width == 640) {
+			if (xPos == 0) {
+				// Full screen window. Resize
+				SetFrame(xPos, yPos, screenRect.w, screenRect.h);
+			} else {
+				SetFrame(screenRect.w - width, yPos, width, height);
+			}
+		}
+	}
 }
 
 

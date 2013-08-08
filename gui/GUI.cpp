@@ -39,7 +39,7 @@ GUI::~GUI()
 	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
 	//fActiveWindows.clear();
 
-	for (size_t i = 0; i < (sizeof(fCursors) / sizeof(fCursors[0])); i++) {
+	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
 	}
 }
