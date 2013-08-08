@@ -79,7 +79,6 @@ private:
 	Animation* fCurrentAnimation;
 
 	CREResource *fCRE;
-//	::Script* fScript;
 	bool fOwnsActor;
 
 	bool fDontCheckConditions;
