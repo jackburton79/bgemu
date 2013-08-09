@@ -7,7 +7,7 @@
 
 #include "Referenceable.h"
 
-Referenceable::Referenceable(bool manualDelete)
+Referenceable::Referenceable()
 	:
 	fRefCount(0)
 {
