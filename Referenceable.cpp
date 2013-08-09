@@ -9,8 +9,7 @@
 
 Referenceable::Referenceable(bool manualDelete)
 	:
-	fRefCount(0),
-	fManualDelete(manualDelete)
+	fRefCount(0)
 {
 }
 
@@ -30,11 +29,8 @@ Referenceable::Acquire()
 bool
 Referenceable::Release()
 {
-	if (--fRefCount <= 0) {
-		if (!fManualDelete)
-			delete this;
+	if (--fRefCount <= 0)
 		return true;
-	}
 
 	return false;
 }

@@ -45,15 +45,15 @@ AnimationFactory::GetFactory(const char* baseName)
 void
 AnimationFactory::ReleaseFactory(AnimationFactory* factory)
 {
-	sAnimationFactory.erase(factory->fBaseName);
-
-	factory->Release();
+	if (factory->Release()) {
+		sAnimationFactory.erase(factory->fBaseName);
+		delete factory;
+	}
 }
 
 
 AnimationFactory::AnimationFactory(const char* baseName)
 	:
-	Referenceable(true),
 	fAnimationType(0),
 	fHighLowSplitted(false),
 	fEastAnimations(false)
@@ -77,6 +77,7 @@ AnimationFactory::~AnimationFactory()
 Animation*
 AnimationFactory::AnimationFor(int action, IE::orientation o)
 {
+	// Check if animation was already loaded
 	std::pair<int, IE::orientation> key = std::make_pair(action, o);
 	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
 	i = fAnimations.find(key);
@@ -215,7 +216,6 @@ AnimationFactory::_ClassifyAnimation()
 		fAnimationType = ANIMATION_TYPE_CHARACHTER;
 	else
 		fAnimationType = ANIMATION_TYPE_BG1_MONSTER;
-
 
 	std::vector<std::string>::const_iterator i;
 	for (i = fList.begin(); i != fList.end(); i++) {
