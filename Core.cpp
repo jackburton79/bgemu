@@ -119,13 +119,6 @@ Core::EnteredArea(Room* area, Script* script)
 }
 
 
-Room*
-Core::CurrentArea() const
-{
-	return fCurrentRoom;
-}
-
-
 void
 Core::SetVariable(const char* name, int32 value)
 {
@@ -333,6 +326,10 @@ Core::RandomFly(Actor* actor)
 	destination.x += randomX;
 	destination.y += randomY;
 	FlyToPoint(actor, destination, 1);
+
+	//Room* area = Core::CurrentArea();
+	//std::cout << "New destination: " << std::dec << destination.x << " " << destination.y << std::endl;
+	//std::cout << "area: " << area->AreaRect().w << " " << area->AreaRect().h << std::endl;
 }
 
 

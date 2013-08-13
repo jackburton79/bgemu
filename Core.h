@@ -40,7 +40,6 @@ public:
 	uint32 GameTime() const;
 
 	void EnteredArea(Room* area, Script* script);
-	Room *CurrentArea() const;
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
