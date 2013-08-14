@@ -159,12 +159,12 @@ FileStream::ReadDWordLE(void)
 
 
 uint32
-FileStream::Size()
+FileStream::Size() const
 {
-	int32 oldpos = Position();
-	int32 fileSize = Seek(0L, SEEK_END);
+	const int32 oldpos = Position();
+	int32 fileSize = const_cast<FileStream*>(this)->Seek(0L, SEEK_END);
 	
-	Seek(oldpos, SEEK_SET);
+	const_cast<FileStream*>(this)->Seek(oldpos, SEEK_SET);
 
 	return fileSize;
 }
