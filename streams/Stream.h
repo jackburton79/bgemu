@@ -54,7 +54,7 @@ public:
 
 	template<typename T>
 	void Read(T& dest) {
-		ssize_t read = this->Read(&dest, sizeof(dest));
+		ssize_t read = Read(&dest, sizeof(dest));
 		if (read < 0 || read != sizeof(dest))
 			throw "Read() exception";
 	}
