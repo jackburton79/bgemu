@@ -23,9 +23,7 @@ public:
 	
 	template<typename T>
 	void ReadAt(int pos, T &dst) {
-		ssize_t read = ReadAt(pos, &dst, sizeof(dst));
-		if (read < 0 || read != sizeof(dst))
-			throw "ReadAt() exception";
+		Stream::ReadAt(pos, dst);
 	};
 public:
 	uint8 *fData;
