@@ -22,8 +22,10 @@ public:
 	virtual void *Data() const;
 	
 	template<typename T>
-	ssize_t ReadAt(int pos, T &dst) {
-		return ReadAt(pos, &dst, sizeof(dst));
+	void ReadAt(int pos, T &dst) {
+		ssize_t read = ReadAt(pos, &dst, sizeof(dst));
+		if (read < 0 || read != sizeof(dst))
+			throw "ReadAt() exception";
 	};
 public:
 	uint8 *fData;
