@@ -149,7 +149,7 @@ BAMResource::_FrameAt(uint16 index)
 			entry.width, entry.height, 8);
 
 	if (bitmap == NULL)
-		throw -1;
+		throw "BAMResource::_FrameAt(): Bitmap creation failed!";
 	
 	const uint32 offset = data_offset(entry.data);
 	if (frameCompressed) {
@@ -158,8 +158,7 @@ BAMResource::_FrameAt(uint16 index)
 				entry.width * entry.height, destData,
 				fCompressedIndex);
 		if (decoded != entry.width * entry.height) {
-			std::cerr << Name() << ": Failed to decode image" << std::endl;
-			throw -1;
+			throw "BAMResource::_FrameAt(): Failed to decode image!";
 		}
 
 		bitmap->ImportData(destData, entry.width, entry.height);

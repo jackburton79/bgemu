@@ -674,6 +674,9 @@ Room::_DrawAnimations()
 
 				GraphicsEngine::DeleteBitmap(frame.bitmap);
 			}
+		} catch (const char* string) {
+			std::cerr << string << std::endl;
+			continue;
 		} catch (...) {
 			continue;
 		}
@@ -688,8 +691,11 @@ Room::_DrawActors()
 	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
 		try {
 			DrawObject(*(*a));
+		} catch (const char* string) {
+			std::cerr << "_DrawActors: exception: " << string << std::endl;
+			continue;
 		} catch (...) {
-			//std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
+			std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
 			continue;
 		}
 	}

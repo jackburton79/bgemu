@@ -217,7 +217,7 @@ Actor::Name() const
 Actor::Frame() const
 {
 	if (fCurrentAnimation == NULL)
-		throw -1;
+		throw "Actor::Frame(): No current animation!";
 
 	return fCurrentAnimation->Frame();
 }
@@ -395,6 +395,10 @@ Actor::UpdateMove(bool ignoreBlocks)
 
 		if (ignoreBlocks || _IsReachable(nextPoint))
 			fActor->position = nextPoint;
+
+		std::cout << "Actor: " << Name() << ", position: ";
+		std::cout << std::dec << nextPoint.x << ", " << nextPoint.y;
+		std::cout << std::endl;
 	}
 
 	int action = ACT_STANDING;
