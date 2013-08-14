@@ -1,7 +1,6 @@
 #ifndef __BAMRESOURCE_H
 #define __BAMRESOURCE_H
 
-#include "Frame.h"
 #include "Resource.h"
 
 #include <map>
@@ -11,6 +10,7 @@ struct cycle {
 	uint16 index;
 };
 
+class Bitmap;
 struct Palette;
 class BAMResource : public Resource {
 public:
@@ -19,7 +19,7 @@ public:
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
-	Frame FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
+	Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex);
@@ -32,7 +32,7 @@ private:
 	void _Load();
 	uint8 _FindTransparentIndex();
 
-	Frame _FrameAt(uint16 index);
+	Bitmap* _FrameAt(uint16 index);
 
 	Palette *fPalette;
 	uint32 fFramesOffset;

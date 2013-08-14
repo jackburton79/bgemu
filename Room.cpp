@@ -202,13 +202,13 @@ Room::LoadWorldMap()
 	fWorldMapBitmap = fWorldMapBackground->Image();
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
-		const Frame& iconFrame = areaEntry.Icon();
+		Bitmap* iconFrame = areaEntry.Icon();
 		IE::point position = areaEntry.Position();
-		GFX::rect iconRect = { int16(position.x - iconFrame.rect.w / 2),
-					int16(position.y - iconFrame.rect.h / 2),
-					iconFrame.rect.w, iconFrame.rect.h };
+		GFX::rect iconRect = { int16(position.x - iconFrame->Frame().w / 2),
+					int16(position.y - iconFrame->Frame().h / 2),
+					iconFrame->Frame().w, iconFrame->Frame().h };
 
-		GraphicsEngine::Get()->BlitBitmap(iconFrame.bitmap, NULL,
+		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
 				fWorldMapBitmap, &iconRect);
 
 	}
@@ -508,14 +508,14 @@ Room::DrawObject(const Object& object)
 {
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
-		Frame actorFrame = actor->Frame();
+		Bitmap* actorFrame = actor->Bitmap();
 		DrawObject(actorFrame, actor->Position());
 		if (actor->IsSelected()) {
 			IE::point leftTop = offset_point(actor->Position(),
-										-(actorFrame.rect.x + actorFrame.rect.w / 2),
-										-(actorFrame.rect.y + actorFrame.rect.h / 2));
+										-(actorFrame->Frame().x + actorFrame->Frame().w / 2),
+										-(actorFrame->Frame().y + actorFrame->Frame().h / 2));
 			GFX::rect rect = { leftTop.x, leftTop.y,
-					actorFrame.rect.w, actorFrame.rect.h };
+					actorFrame->Frame().w, actorFrame->Frame().h };
 
 			// TODO: We are duplicating the code in the other DrawObject call
 			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
@@ -523,22 +523,21 @@ Room::DrawObject(const Object& object)
 			fBackBitmap->StrokeRect(rect, 80);
 			fBackBitmap->Unlock();
 		}
-		GraphicsEngine::DeleteBitmap(actorFrame.bitmap);
+		GraphicsEngine::DeleteBitmap(actorFrame);
 	}
 }
 
 
 void
-Room::DrawObject(const Frame& frame, const IE::point& point)
+Room::DrawObject(Bitmap* bitmap, const IE::point& point)
 {
 	// TODO: Clipping
-	Bitmap *bitmap = frame.bitmap;
 	if (bitmap == NULL)
 		return;
 
 	IE::point leftTop = offset_point(point,
-							-(frame.rect.x + frame.rect.w / 2),
-							-(frame.rect.y + frame.rect.h / 2));
+							-(bitmap->Frame().x + bitmap->Frame().w / 2),
+							-(bitmap->Frame().y + bitmap->Frame().h / 2));
 
 	GFX::rect rect = { leftTop.x, leftTop.y,
 			bitmap->Width(), bitmap->Height() };
@@ -667,11 +666,11 @@ Room::_DrawAnimations()
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		try {
 			if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
-				Frame frame = fAnimations[i]->NextFrame();
+				Bitmap* frame = fAnimations[i]->NextBitmap();
 
 				DrawObject(frame, fAnimations[i]->Position());
 
-				GraphicsEngine::DeleteBitmap(frame.bitmap);
+				GraphicsEngine::DeleteBitmap(frame);
 			}
 		} catch (const char* string) {
 			std::cerr << string << std::endl;

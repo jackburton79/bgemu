@@ -117,9 +117,9 @@ BAMResource::DumpFrames(const char *filePath)
 		printf("\tframes: %d\n", numFrames);
 		for (int numFrame = 0; numFrame < numFrames; numFrame++) {
 			try {
-				Frame frame = FrameForCycle(cycle, numFrame);
+				Bitmap* frame = FrameForCycle(cycle, numFrame);
 				std::cout << "frame retrieved" << std::endl;
-				SDL_Surface *surface = frame.bitmap->Surface();
+				SDL_Surface *surface = frame->Surface();
 				if (surface == NULL)
 					continue;
 				TPath path(filePath);
@@ -129,7 +129,7 @@ BAMResource::DumpFrames(const char *filePath)
 				path.Append(fileName);
 				printf("save to %s\n", path.Path());
 				SDL_SaveBMP(surface, path.Path());
-				SDL_FreeSurface(surface);
+				GraphicsEngine::DeleteBitmap(frame);
 			} catch (...) {
 				continue;
 			}
@@ -138,7 +138,7 @@ BAMResource::DumpFrames(const char *filePath)
 }
 
 
-Frame
+Bitmap*
 BAMResource::_FrameAt(uint16 index)
 {
 	BamFrameEntry entry;
@@ -169,22 +169,15 @@ BAMResource::_FrameAt(uint16 index)
 
 	bitmap->SetPalette(*fPalette);
 	bitmap->SetColorKey(fCompressedIndex, true);
-
-	GFX::rect rect;
-	rect.w = bitmap->Width();
-	rect.h = bitmap->Height();
-	rect.x = entry.xpos - rect.w / 2;
-	rect.y = entry.ypos - rect.h / 2;
 	
-	Frame frame;
-	frame.bitmap = bitmap;
-	frame.rect = rect;
+	bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
+			entry.ypos - bitmap->Height() / 2);
 	
-	return frame;
+	return bitmap;
 }
 
 
-Frame
+Bitmap*
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
 	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";

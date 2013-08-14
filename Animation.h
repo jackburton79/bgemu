@@ -1,7 +1,6 @@
 #ifndef __ANIMATION_H
 #define __ANIMATION_H
 
-#include "Frame.h"
 #include "IETypes.h"
 
 #include "Referenceable.h"
@@ -15,6 +14,7 @@ enum animation_action {
 
 class Actor;
 class BAMResource;
+class Bitmap;
 class CREResource;
 class Animation : public Referenceable {
 public:
@@ -29,9 +29,9 @@ public:
 
 	void SetMirrored(const bool mirror);
 
-	::Frame Frame();
+	::Bitmap* Bitmap();
 	void Next();
-	::Frame NextFrame();
+	::Bitmap* NextBitmap();
 
 	IE::point Position() const;
 

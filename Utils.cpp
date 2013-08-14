@@ -128,7 +128,7 @@ void
 RenderString(std::string string, BAMResource* fontResource,
 		uint32 flags, Bitmap* bitmap)
 {
-	Frame* frames = new Frame[string.length()];
+	Bitmap** frames = new Bitmap*[string.length()];
 	if (frames == NULL)
 		return;
 
@@ -140,8 +140,8 @@ RenderString(std::string string, BAMResource* fontResource,
 		while (i != string.end()) {
 			uint32 cycleNum = cycle_num_for_char(*i);
 			frames[numFrames] = fontResource->FrameForCycle(cycleNum, 0);
-			totalWidth += frames[numFrames].rect.w;
-			maxHeight = std::max(frames[numFrames].rect.h, maxHeight);
+			totalWidth += frames[numFrames]->Frame().w;
+			maxHeight = std::max(frames[numFrames]->Frame().h, maxHeight);
 			numFrames++;
 			i++;
 		}
@@ -160,13 +160,13 @@ RenderString(std::string string, BAMResource* fontResource,
 			rect.x = bitmap->Width() - totalWidth;
 
 		for (int f = 0; f < numFrames; f++) {
-			rect.w = frames[f].rect.w;
-			rect.h = frames[f].rect.h;
+			rect.w = frames[f]->Frame().w;
+			rect.h = frames[f]->Frame().h;
 
-			GraphicsEngine::BlitBitmap(frames[f].bitmap,
+			GraphicsEngine::BlitBitmap(frames[f],
 					NULL, bitmap, &rect);
-			rect.x += frames[f].rect.w;
-			GraphicsEngine::DeleteBitmap(frames[f].bitmap);
+			rect.x += frames[f]->Frame().w;
+			GraphicsEngine::DeleteBitmap(frames[f]);
 		}
 	} catch (...) {
 		std::cerr << "RenderString() exception" << std::endl;

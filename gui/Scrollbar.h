@@ -9,11 +9,11 @@
 #define SCROLLBAR_H_
 
 #include "Control.h"
-#include "Frame.h"
 
 namespace GFX {
 	struct rect;
 }
+
 class BAMResource;
 class Scrollbar: public Control {
 public:
@@ -28,8 +28,8 @@ public:
 
 private:
 	BAMResource* fResource;
-	Frame fUpArrow;
-	Frame fDownArrow;
+	Bitmap* fUpArrow;
+	Bitmap* fDownArrow;
 	bool fUpArrowPressed;
 	bool fDownArrowPressed;
 

@@ -125,13 +125,13 @@ AreaEntry::AreaEntry(const area_entry& entry)
 	:
 	fEntry(entry)
 {
-	fIcon.bitmap = NULL;
+	fIcon = NULL;
 }
 
 
 AreaEntry::~AreaEntry()
 {
-	GraphicsEngine::DeleteBitmap(fIcon.bitmap);
+	GraphicsEngine::DeleteBitmap(fIcon);
 }
 
 
@@ -168,15 +168,15 @@ GFX::rect
 AreaEntry::Rect() const
 {
 	GFX::rect rect = {
-			(int16)fEntry.x - fIcon.rect.w / 2,
-			(int16)fEntry.y - fIcon.rect.h / 2,
-			fIcon.rect.w, fIcon.rect.h
+			(int16)fEntry.x - fIcon->Width() / 2,
+			(int16)fEntry.y - fIcon->Height() / 2,
+			fIcon->Width(), fIcon->Height()
 	};
 	return rect;
 }
 
 
-Frame
+Bitmap*
 AreaEntry::Icon() const
 {
 	return fIcon;

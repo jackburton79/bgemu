@@ -8,7 +8,6 @@
 #ifndef __WMAPRESOURCE_H
 #define __WMAPRESOURCE_H
 
-#include "Frame.h"
 #include "IETypes.h"
 #include "Resource.h"
 
@@ -84,6 +83,10 @@ struct arealink_entry {
 };
 
 
+namespace GFX {
+	struct rect;
+}
+
 class AreaEntry;
 class BAMResource;
 class WMAPResource : public Resource {
@@ -114,7 +117,7 @@ public:
 
 	IE::point Position() const;
 	GFX::rect Rect() const;
-	Frame Icon() const;
+	Bitmap* Icon() const;
 	res_ref Name() const;
 	const char* LongName() const;
 	char* TooltipName() const;
@@ -125,7 +128,7 @@ private:
 
 	area_entry fEntry;
 	IE::point fPosition;
-	Frame fIcon;
+	Bitmap* fIcon;
 };
 
 #endif /* __WMAPRESOURCE_H */

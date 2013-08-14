@@ -213,13 +213,13 @@ Actor::Name() const
 }
 
 
-::Frame
-Actor::Frame() const
+::Bitmap*
+Actor::Bitmap() const
 {
 	if (fCurrentAnimation == NULL)
 		throw "Actor::Frame(): No current animation!";
 
-	return fCurrentAnimation->Frame();
+	return fCurrentAnimation->Bitmap();
 }
 
 
@@ -482,8 +482,8 @@ Actor::_IsReachable(const IE::point& pt)
 
 /* static */
 void
-Actor::BlitWithMask(Bitmap* source,
-		Bitmap* dest, GFX::rect& rect, IE::polygon& polygonMask)
+Actor::BlitWithMask(::Bitmap* source,
+		::Bitmap* dest, GFX::rect& rect, IE::polygon& polygonMask)
 {
 
 }

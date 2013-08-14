@@ -1,10 +1,8 @@
 #ifndef __ACTOR_H
 #define __ACTOR_H
 
+#include "Bitmap.h"
 #include "IETypes.h"
-
-//#include "Bitmap.h"
-#include "Frame.h"
 #include "Object.h"
 
 #include <list>
@@ -16,6 +14,7 @@ const static uint32 kNumActions = 2;
 class ActionList;
 class Animation;
 class AnimationFactory;
+class Bitmap;
 class BCSResource;
 class CREResource;
 class PathFinder;
@@ -31,7 +30,7 @@ public:
 	virtual const char *Name() const;
 	CREResource *CRE() const;
 
-	::Frame Frame() const;
+	::Bitmap* Bitmap() const;
 
 	IE::orientation Orientation() const;
 	void SetOrientation(IE::orientation o);
@@ -56,7 +55,6 @@ public:
 	bool IsInterruptable() const;
 
 	void MergeScripts();
-
 
 	::ActionList* ActionList();
 	bool IsActionListEmpty() const;
@@ -98,7 +96,7 @@ private:
 	void _SetOrientation(const IE::point& nextPoint);
 	bool _IsReachable(const IE::point& pt);
 
-	static void BlitWithMask(Bitmap* source, Bitmap* dest,
+	static void BlitWithMask(::Bitmap* source, ::Bitmap* dest,
 			GFX::rect& rect, IE::polygon& polygonMask);
 
 };
