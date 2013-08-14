@@ -42,9 +42,16 @@ void
 Scrollbar::AttachedToWindow(Window* window)
 {
 	Control::AttachedToWindow(window);
-	// TODO: Fix this
-	//window->ConvertToScreen(fUpArrow.rect);
-	//window->ConvertToScreen(fDownArrow.rect);
+
+	GFX::rect upRect = fUpArrow->Frame();
+	GFX::rect downRect = fUpArrow->Frame();
+
+	window->ConvertToScreen(upRect);
+	window->ConvertToScreen(downRect);
+
+	fUpArrow->SetPosition(upRect.x, upRect.y);
+	fDownArrow->SetPosition(downRect.x, downRect.y);
+
 }
 
 
