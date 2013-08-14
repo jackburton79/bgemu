@@ -365,18 +365,27 @@ Room::Draw(Bitmap *surface)
 		}
 
 		// TODO: handle this better
-		if (fMouseOverObject != NULL) {
-		    Door* door = dynamic_cast<Door*>(fMouseOverObject);
-		    if (door != NULL) {
-				IE::rect doorBox = door->Opened() ? door->OpenBox() : door->ClosedBox();
-				GFX::rect rect = { doorBox.x_min, doorBox.y_min,
-					doorBox.x_max - doorBox.x_min, doorBox.y_max - doorBox.y_min };
-				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-				fBackBitmap->Lock();
-				fBackBitmap->StrokeRect(rect, 70);
-				fBackBitmap->Unlock();
-		    }
+		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
+			IE::rect doorBox = door->Opened() ? door->OpenBox() : door->ClosedBox();
+			GFX::rect rect = { doorBox.x_min, doorBox.y_min,
+				doorBox.x_max - doorBox.x_min, doorBox.y_max - doorBox.y_min };
+			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+			fBackBitmap->Lock();
+			fBackBitmap->StrokeRect(rect, 70);
+			fBackBitmap->Unlock();
+		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject)) {
+			GFX::rect rect = {
+					actor->Position().x - 20,
+					actor->Position().y - 50,
+					25,
+					60
+			};
+			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+			fBackBitmap->Lock();
+			fBackBitmap->StrokeRect(rect, 70);
+			fBackBitmap->Unlock();
 		}
+
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
 
@@ -405,30 +414,18 @@ Room::Clicked(uint16 x, uint16 y)
 			if (door != NULL)
 				door->Toggle();
 		}
-		// TODO: Move to own methods
-		std::vector<Actor*>& actorList = Actor::List();
-		std::vector<Actor*>::const_iterator iter;
-		GFX::rect rect = {0, 0, 10, 10};
-		for (iter = actorList.begin(); iter != actorList.end(); iter++) {
-			//std::cout << "point: " << point.x << " " << point.y << std::endl;
-			rect.x = (*iter)->Position().x - 5;
-			rect.y = (*iter)->Position().y - 5;
-			/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
-			std::cout << ", " << rect.y << "-" << rect.y + rect.h << std::endl;
-			std::cout << " " << (*iter)->Position().x << std::endl;
-*/
-			if (rect_contains(rect, point)) {
+
+		if (Actor* actor = _ActorForPosition(point)) {
+			if (fSelectedActor != actor) {
 				if (fSelectedActor != NULL)
 					fSelectedActor->Select(false);
-				fSelectedActor = *iter;
-				fSelectedActor->Select(true);
-				return;
+				fSelectedActor = actor;
+				if (fSelectedActor != NULL)
+					fSelectedActor->Select(true);
 			}
-		}
-
-
-		if (fSelectedActor != NULL)
+		} else if (fSelectedActor != NULL) {
 			fSelectedActor->SetDestination(point);
+		}
 	}
 }
 
@@ -476,6 +473,8 @@ Room::MouseOver(uint16 x, uint16 y)
 					? door->OpenBox() : door->ClosedBox();
 			if (rect_contains(boundingBox, point))
 				newMouseOver = door;
+		} else {
+			newMouseOver = _ActorForPosition(point);
 		}
 
 		fMouseOverObject = newMouseOver;
@@ -737,6 +736,28 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 
 
 	GUI::Default()->SetCursor(cursorIndex);
+}
+
+
+Actor*
+Room::_ActorForPosition(const IE::point& point)
+{
+	std::vector<Actor*>& actorList = Actor::List();
+	std::vector<Actor*>::const_iterator iter;
+	GFX::rect rect = {0, 0, 10, 10};
+	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
+		//std::cout << "point: " << point.x << " " << point.y << std::endl;
+		rect.x = (*iter)->Position().x - 5;
+		rect.y = (*iter)->Position().y - 5;
+		/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
+		std::cout << ", " << rect.y << "-" << rect.y + rect.h << std::endl;
+		std::cout << " " << (*iter)->Position().x << std::endl;
+*/
+		if (rect_contains(rect, point))
+			return *iter;
+	}
+
+	return NULL;
 }
 
 

@@ -90,6 +90,8 @@ private:
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
+	Actor* _ActorForPosition(const IE::point& point);
+
 	void _LoadOverlays();
 	void _InitVariables();
 	void _InitTileCells();
