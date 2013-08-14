@@ -19,7 +19,7 @@ static const uint8 kEncryptionKey[64] = {
 
 class EncryptedStream : public MemoryStream {
 public:
-	EncryptedStream(MemoryStream *stream);
+	EncryptedStream(Stream *stream);
 	virtual uint8 ReadByte();
 
 private:
@@ -27,7 +27,7 @@ private:
 };
 
 
-EncryptedStream::EncryptedStream(MemoryStream *stream)
+EncryptedStream::EncryptedStream(Stream *stream)
 	:
 	MemoryStream(stream->Size() - 2),
 	fKeySize(64)

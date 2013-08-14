@@ -40,7 +40,7 @@ protected:
 	//static bool InitResourcesDescription();
 	//static std::map<uint16, res_desc> *sResourcesDescription;
 
-	MemoryStream *fData;
+	Stream *fData;
 	uint32 fKey;
 	uint16 fType;
 	res_ref fName;
