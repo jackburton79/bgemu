@@ -60,6 +60,8 @@ public:
 	void Mirror();
 	void Flip();
 
+	void SetPosition(uint16 x, uint16 y);
+
 	bool Lock();
 	void Unlock();
 	void* Pixels() const;
@@ -81,6 +83,8 @@ private:
 	friend class GraphicsEngine;
 
 	SDL_Surface* fSurface;
+	uint16 fXOffset;
+	uint16 fYOffset;
 	bool fOwnsSurface;
 
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);

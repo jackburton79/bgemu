@@ -14,6 +14,8 @@
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
+	fXOffset(0),
+	fYOffset(0),
 	fOwnsSurface(true)
 {
 	fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -24,6 +26,8 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	:
 	fSurface(surface),
+	fXOffset(0),
+	fYOffset(0),
 	fOwnsSurface(ownsSurface)
 {
 }
@@ -195,6 +199,14 @@ Bitmap::Flip()
 }
 
 
+void
+Bitmap::SetPosition(uint16 x, uint16 y)
+{
+	fXOffset = x;
+	fYOffset = y;
+}
+
+
 bool
 Bitmap::Lock()
 {
@@ -234,7 +246,12 @@ Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 GFX::rect
 Bitmap::Frame() const
 {
-	GFX::rect frame = { 0, 0, uint16(fSurface->w), uint16(fSurface->h) };
+	GFX::rect frame = {
+			fXOffset,
+			fYOffset,
+			uint16(fSurface->w),
+			uint16(fSurface->h)
+	};
 	return frame;
 }
 
