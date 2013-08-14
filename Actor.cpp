@@ -395,10 +395,6 @@ Actor::UpdateMove(bool ignoreBlocks)
 
 		if (ignoreBlocks || _IsReachable(nextPoint))
 			fActor->position = nextPoint;
-
-		std::cout << "Actor: " << Name() << ", position: ";
-		std::cout << std::dec << nextPoint.x << ", " << nextPoint.y;
-		std::cout << std::endl;
 	}
 
 	int action = ACT_STANDING;
