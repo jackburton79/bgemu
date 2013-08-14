@@ -214,7 +214,7 @@ Window::Print() const
 	//std::cout << "Window controls:" << std::endl;
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
-		//(*i)->Print();
+		(*i)->Print();
 	}
 }
 
