@@ -510,6 +510,8 @@ Room::DrawObject(const Object& object)
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
 		Frame actorFrame = actor->Frame();
+		if (actorFrame.bitmap == NULL)
+			return;
 		DrawObject(actorFrame, actor->Position());
 		if (actor->IsSelected()) {
 			IE::point leftTop = offset_point(actor->Position(),
