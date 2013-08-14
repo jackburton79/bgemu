@@ -16,8 +16,8 @@ public:
 	char *ReadLine(char *buffer, size_t maxSize, char endLine = '\n');
 	ssize_t ReadString(char *string, size_t size);
 
-	virtual ssize_t Write(void *src, int size);
-	virtual ssize_t WriteAt(int pos, void *src, int size)
+	virtual ssize_t Write(const void *src, int size);
+	virtual ssize_t WriteAt(int pos, const void *src, int size)
 	{
 		throw "Stream is not writable!";
 	};
@@ -54,7 +54,7 @@ public:
 
 	template<typename T>
 	void Read(T& dest) {
-		ssize_t read = Read(&dest, sizeof(dest));
+		ssize_t read = this->Read(&dest, sizeof(dest));
 		if (read < 0 || read != sizeof(dest))
 			throw "Read() exception";
 	}

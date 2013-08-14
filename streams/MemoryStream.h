@@ -12,7 +12,7 @@ public:
 	virtual ~MemoryStream();
 	
 	virtual ssize_t ReadAt(int pos, void *dst, int size);
-	virtual ssize_t WriteAt(int pos, void *src, int size);
+	virtual ssize_t WriteAt(int pos, const void *src, int size);
 	
 	virtual int32 Seek(int32 where, int whence);
 	virtual int32 Position() const;

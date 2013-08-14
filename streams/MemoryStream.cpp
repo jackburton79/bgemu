@@ -54,7 +54,7 @@ MemoryStream::ReadAt(int pos, void *dst, int size)
 
 
 ssize_t
-MemoryStream::WriteAt(int pos, void *src, int size)
+MemoryStream::WriteAt(int pos, const void *src, int size)
 {
 	if (pos >= fSize)
 		return -1;

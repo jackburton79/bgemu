@@ -47,7 +47,7 @@ public:
 	virtual ssize_t ReadAt(int pos, void *dst, int count);
 	virtual ssize_t Read(void *dst, int count);
 	
-	ssize_t Write(void *src, int count);
+	virtual ssize_t Write(const void *src, int count);
 	
 	// Use these only if you need to swap endianess
 	uint8 ReadByte();

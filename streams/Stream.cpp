@@ -71,7 +71,7 @@ Stream::ReadString(char *string, size_t size)
 
 
 ssize_t
-Stream::Write(void *src, int size)
+Stream::Write(const void *src, int size)
 {
 	int32 curPos = Position();
 	ssize_t wrote = WriteAt(curPos, src, size);

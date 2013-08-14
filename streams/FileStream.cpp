@@ -100,7 +100,7 @@ FileStream::Read(void *dst, int count)
 
 
 ssize_t
-FileStream::Write(void *src, int count)
+FileStream::Write(const void *src, int count)
 {
 	return fwrite(src, 1, count, fFileHandle);
 }
