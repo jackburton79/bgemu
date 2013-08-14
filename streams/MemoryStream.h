@@ -21,10 +21,6 @@ public:
 	
 	virtual void *Data() const;
 	
-	template<typename T>
-	void ReadAt(int pos, T &dst) {
-		Stream::ReadAt(pos, dst);
-	};
 public:
 	uint8 *fData;
 	int fSize;
