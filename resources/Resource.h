@@ -11,7 +11,6 @@
 struct res_desc;
 struct res_ref;
 class Archive;
-class MemoryStream;
 class ResourceManager;
 class Resource : public Referenceable {
 public:
@@ -34,7 +33,7 @@ protected:
 	bool CheckSignature(const char *signature, bool dontWorry = false);
 	bool CheckVersion(const char *version, bool dontWorry = false);
 	
-	bool ReplaceData(MemoryStream *stream);
+	bool ReplaceData(Stream *stream);
 	void DropData();
 
 	//static bool InitResourcesDescription();

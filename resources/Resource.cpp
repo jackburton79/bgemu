@@ -189,7 +189,7 @@ Resource::CheckVersion(const char *version, bool dontWorry)
 
 
 bool
-Resource::ReplaceData(MemoryStream *stream)
+Resource::ReplaceData(Stream *stream)
 {
 	delete fData;
 	fData = stream;
