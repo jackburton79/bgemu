@@ -11,7 +11,7 @@ public:
 	virtual ~Stream();
 	
 	virtual ssize_t Read(void *dst, int size);
-	virtual ssize_t ReadAt(int pos, void *dst, int size);
+	virtual ssize_t ReadAt(int pos, void *dst, int size) = 0;
 
 	char *ReadLine(char *buffer, size_t maxSize, char endLine = '\n');
 	ssize_t ReadString(char *string, size_t size);

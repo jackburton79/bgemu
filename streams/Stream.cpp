@@ -21,14 +21,6 @@ Stream::Read(void *dst, int size)
 }
 
 
-ssize_t
-Stream::ReadAt(int pos, void* dst, int size)
-{
-	throw "Function not implemented";
-	return -1;
-}
-
-
 char*
 Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 {
