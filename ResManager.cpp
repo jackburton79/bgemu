@@ -395,9 +395,10 @@ ResourceManager::GetResourceList(std::vector<std::string>& strings,
 	const int32 queryLen = strlen(query);
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		const ref_type resType = (*iter).first;
+		std::string newString(resType.name.CString());
 		if (resType.type == type
-				&& !strncmp(resType.name.CString(), query, queryLen)) {
-			strings.push_back(resType.name.CString());
+				&& !strncmp(newString.c_str(), query, queryLen)) {
+			strings.push_back(newString);
 		}
 	}
 
