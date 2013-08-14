@@ -4,14 +4,9 @@
 #include "IETypes.h"
 #include "Referenceable.h"
 
-#include <Stream.h>
-
-#include <map>
-
-struct res_desc;
 struct res_ref;
 class Archive;
-class ResourceManager;
+class Stream;
 class Resource : public Referenceable {
 public:
 	Resource(const res_ref &name, const uint16 &type);
@@ -35,9 +30,6 @@ protected:
 	
 	bool ReplaceData(Stream *stream);
 	void DropData();
-
-	//static bool InitResourcesDescription();
-	//static std::map<uint16, res_desc> *sResourcesDescription;
 
 	Stream *fData;
 	uint32 fKey;
