@@ -382,39 +382,34 @@ Actor::StopCheckingConditions()
 void
 Actor::UpdateMove(bool ignoreBlocks)
 {
-	try {
-		if (fActor->position != fActor->destination) {
-			IE::point nextPoint;
-			for (int32 i = 0; i < fSpeed; i++)
-				nextPoint = fPath->NextWayPoint();
+	if (fActor->position != fActor->destination) {
+		IE::point nextPoint;
+		for (int32 i = 0; i < fSpeed; i++)
+			nextPoint = fPath->NextWayPoint();
 
-			_SetOrientation(fActor->destination);
-			// TODO: We should do this, since the path to the destination
-			// could involve facing to a different direction than
-			// the real destination point
-			//_SetOrientation(nextPoint);
+		_SetOrientation(fActor->destination);
+		// TODO: We should do this, since the path to the destination
+		// could involve facing to a different direction than
+		// the real destination point
+		//_SetOrientation(nextPoint);
 
-			if (ignoreBlocks || _IsReachable(nextPoint))
-				fActor->position = nextPoint;
-		}
-
-		int action = ACT_STANDING;
-		if (fActor->position != fActor->destination)
-			action = ACT_WALKING;
-
-			//std::cout << "Actor " << Name() << ": drawing action "<< action;
-			//std::cout << ", orientation " << fActor->orientation << std::endl;
-
-		fCurrentAnimation = fAnimationFactory->AnimationFor(
-											action,
-											IE::orientation(fActor->orientation));
-
-
-		if (fCurrentAnimation != NULL)
-			fCurrentAnimation->Next();
-	} catch (...) {
-		// No more waypoints
+		if (ignoreBlocks || _IsReachable(nextPoint))
+			fActor->position = nextPoint;
 	}
+
+	int action = ACT_STANDING;
+	if (fActor->position != fActor->destination)
+		action = ACT_WALKING;
+
+	//std::cout << "Actor " << Name() << ": drawing action "<< action;
+	//std::cout << ", orientation " << fActor->orientation << std::endl;
+
+	fCurrentAnimation = fAnimationFactory->AnimationFor(
+										action,
+										IE::orientation(fActor->orientation));
+
+	if (fCurrentAnimation != NULL)
+		fCurrentAnimation->Next();
 
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
 		fDontCheckConditions = false;
