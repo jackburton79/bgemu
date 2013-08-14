@@ -72,9 +72,14 @@ GUI::Draw()
 	}
 
 	if (fCurrentCursor != NULL) {
-		Frame nextFrame = fCurrentCursor->NextFrame();
-		GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
-		GraphicsEngine::Get()->BlitToScreen(nextFrame.bitmap, NULL, &rect);
+		try {
+			Frame nextFrame = fCurrentCursor->NextFrame();
+			GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
+			GraphicsEngine::Get()->BlitToScreen(nextFrame.bitmap, NULL, &rect);
+		} catch (...) {
+			// ...
+		}
+
 	}
 }
 
@@ -117,6 +122,7 @@ GUI::ShowWindow(uint16 id)
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
 		fActiveWindows.push_back(window);
+		window->Print();
 	}
 }
 

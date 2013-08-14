@@ -112,14 +112,7 @@ Animation::Name() const
 ::Frame
 Animation::Frame()
 {
-	::Frame frame;
-	try {
-		frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
-	} catch (...) {
-		std::cerr << "Animation::Frame(): will return a NULL bitmap" << std::endl;
-		frame.bitmap = NULL;
-		return frame;
-	}
+	::Frame frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
 		// TODO: We are mirroring on the fly. Maybe it's smarter
 		// to cache the mirrored bitmaps.

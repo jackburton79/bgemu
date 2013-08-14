@@ -214,7 +214,7 @@ Actor::Name() const
 
 
 ::Frame
- Actor::Frame() const
+Actor::Frame() const
 {
 	if (fCurrentAnimation == NULL)
 		throw -1;

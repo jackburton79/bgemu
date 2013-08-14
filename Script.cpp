@@ -37,7 +37,8 @@ Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
 	fProcessed(false),
-	fTarget(NULL)
+	fTarget(NULL),
+	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
 		throw "Script::Script(): root node is NULL";

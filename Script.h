@@ -63,6 +63,8 @@ private:
 	bool fProcessed;
 
 	Object* fTarget;
+
+	node* fCurrentNode;
 };
 
 
