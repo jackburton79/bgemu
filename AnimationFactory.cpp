@@ -176,12 +176,18 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	//std::cout << bamName << std::endl;
 	//std::cout << "Orientation: " << o << ", sequence " <<  std::dec << (int)sequenceNumber << std::endl;
 	IE::point pos;
-	Animation* animation = new Animation(bamName.c_str(), sequenceNumber, pos);
-	if (mirror && animation != NULL)
-		animation->SetMirrored(true);
+	Animation* animation = NULL;
+	try {
+		animation = new Animation(bamName.c_str(), sequenceNumber, pos);
+	} catch (...) {
+		animation = NULL;
+	}
 
-	fAnimations[key] = animation;
-
+	if (animation != NULL) {
+		if (mirror)
+			animation->SetMirrored(true);
+		fAnimations[key] = animation;
+	}
 	return animation;
 }
 
