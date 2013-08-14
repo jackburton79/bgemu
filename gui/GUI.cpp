@@ -76,6 +76,7 @@ GUI::Draw()
 			Frame nextFrame = fCurrentCursor->NextFrame();
 			GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
 			GraphicsEngine::Get()->BlitToScreen(nextFrame.bitmap, NULL, &rect);
+			GraphicsEngine::DeleteBitmap(nextFrame.bitmap);
 		} catch (...) {
 			// ...
 		}
