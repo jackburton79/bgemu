@@ -20,13 +20,13 @@ enum timer_type {
 
 class Timer {
 public:
-	Timer();
+	Timer(uint32 expirationTime);
 	~Timer();
 
 	void SetExpiration(uint32 timer);
 	bool Expired() const;
 
-	static void Add(const char* name);
+	static void Add(const char* name, uint32 expirationTime = -1);
 	static void Remove(const char* name);
 	static Timer* Get(const char* string);
 

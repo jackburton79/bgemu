@@ -292,9 +292,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0022:
 			{
 				/* TimerExpired(I:ID*) */
-				/*Timer* timer = Timer::Get(trig->parameter1);
+				Timer* timer = Timer::Get(trig->string1);
 				if (timer != NULL && timer->Expired())
-					returnValue = true;*/
+					returnValue = true;
 				break;
 			}
 			case 0x0027:
@@ -429,6 +429,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4040:
 			{
 				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */
+				// TODO: Merge Name and Area before passing them to the
+				// Timer::Get() method (also below)
 				Timer* timer = Timer::Get(trig->string1);
 				returnValue = timer != NULL && timer->Expired();
 				break;
@@ -646,12 +648,16 @@ Script::_ExecuteAction(action_node* act)
 		}
 		case 61:
 		{
-			//Timer::Add(act->parameter);
 			/* 61 StartTimer(I:ID*,I:Time*)
 			This action starts a timer local to the active creature.
 			The timer is measured in seconds, and the timer value is
 			not saved in save games. The timer is checked with the
 			TimerExpired trigger.*/
+
+			// TODO: We should add the timer local to the active creature,
+			// whatever that means
+			Timer::Add(act->string1, act->parameter);
+
 			break;
 		}
 		case 85:

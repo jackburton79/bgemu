@@ -11,9 +11,9 @@
 
 Timer::timer_map Timer::sTimers;
 
-Timer::Timer()
+Timer::Timer(uint32 expirationTime)
 	:
-	fExpiration(-1)
+	fExpiration(expirationTime)
 {
 }
 
@@ -43,9 +43,9 @@ Timer::Expired() const
 
 /* static */
 void
-Timer::Add(const char* name)
+Timer::Add(const char* name, uint32 expirationTime)
 {
-	sTimers[name] = new Timer();
+	sTimers[name] = new Timer(expirationTime);
 }
 
 
@@ -53,7 +53,11 @@ Timer::Add(const char* name)
 void
 Timer::Remove(const char* name)
 {
-	sTimers.erase(name);
+	Timer* timer = Get(name);
+	if (timer != NULL) {
+		sTimers.erase(name);
+		delete timer;
+	}
 }
 
 
