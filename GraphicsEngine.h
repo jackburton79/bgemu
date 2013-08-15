@@ -27,7 +27,7 @@ public:
 	};
 
 	static void MirrorBitmap(Bitmap* bitmap, int flags);
-	static void BlitBitmap(Bitmap* bitmap, GFX::rect* source, Bitmap* surface, GFX::rect* dest);
+	static void BlitBitmap(const Bitmap* bitmap, GFX::rect* source, Bitmap* surface, GFX::rect* dest);
 	static void FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor);
 
 	void SetClipping(const GFX::rect* rect);

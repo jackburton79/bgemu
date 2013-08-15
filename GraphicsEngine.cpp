@@ -122,7 +122,7 @@ GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
 
 /*static*/
 void
-GraphicsEngine::BlitBitmap(Bitmap* bitmap, GFX::rect *source,
+GraphicsEngine::BlitBitmap(const Bitmap* bitmap, GFX::rect *source,
 		Bitmap *surface, GFX::rect *dest)
 {
 	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)(source),
