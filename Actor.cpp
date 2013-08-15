@@ -223,6 +223,21 @@ Actor::Bitmap() const
 }
 
 
+// Returns the rect containing the current actor image
+GFX::rect
+Actor::Frame() const
+{
+	const ::Bitmap* bitmap = Bitmap();
+	IE::point leftTop = offset_point(Position(),
+					-(bitmap->Frame().x + bitmap->Frame().w / 2),
+							-(bitmap->Frame().y + bitmap->Frame().h / 2));
+	GFX::rect rect = { leftTop.x, leftTop.y,
+			bitmap->Frame().w, bitmap->Frame().h };
+
+	return rect;
+}
+
+
 IE::point
 Actor::Position() const
 {

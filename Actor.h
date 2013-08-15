@@ -31,6 +31,7 @@ public:
 	CREResource *CRE() const;
 
 	const ::Bitmap* Bitmap() const;
+	GFX::rect Frame() const;
 
 	IE::orientation Orientation() const;
 	void SetOrientation(IE::orientation o);
