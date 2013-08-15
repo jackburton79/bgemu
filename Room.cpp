@@ -374,16 +374,17 @@ Room::Draw(Bitmap *surface)
 			fBackBitmap->StrokeRect(rect, 70);
 			fBackBitmap->Unlock();
 		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject)) {
-			GFX::rect rect = {
-					actor->Position().x - 20,
-					actor->Position().y - 50,
-					25,
-					60
-			};
-			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-			fBackBitmap->Lock();
-			fBackBitmap->StrokeRect(rect, 70);
-			fBackBitmap->Unlock();
+			try {
+				GFX::rect rect = actor->Frame();
+				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+				fBackBitmap->Lock();
+				fBackBitmap->StrokeRect(rect, 70);
+				fBackBitmap->Unlock();
+			} catch (const char* string) {
+				std::cerr << string << std::endl;
+			} catch (...) {
+
+			}
 		}
 
 		fBackBitmap->Update();
@@ -467,8 +468,7 @@ Room::MouseOver(uint16 x, uint16 y)
 
 		const uint16 tileNum = TileNumberForPoint(point);
 
-		Door* door = fTileCells[tileNum]->Door();
-		if (door != NULL) {
+		if (Door* door = fTileCells[tileNum]->Door()) {
 			IE::rect boundingBox = door->Opened()
 					? door->OpenBox() : door->ClosedBox();
 			if (rect_contains(boundingBox, point))
@@ -511,11 +511,7 @@ Room::DrawObject(const Object& object)
 		const Bitmap* actorFrame = actor->Bitmap();
 		DrawObject(actorFrame, actor->Position());
 		if (actor->IsSelected()) {
-			IE::point leftTop = offset_point(actor->Position(),
-										-(actorFrame->Frame().x + actorFrame->Frame().w / 2),
-										-(actorFrame->Frame().y + actorFrame->Frame().h / 2));
-			GFX::rect rect = { leftTop.x, leftTop.y,
-					actorFrame->Frame().w, actorFrame->Frame().h };
+			GFX::rect rect = actor->Frame();
 
 			// TODO: We are duplicating the code in the other DrawObject call
 			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
@@ -740,17 +736,19 @@ Room::_ActorForPosition(const IE::point& point)
 {
 	std::vector<Actor*>& actorList = Actor::List();
 	std::vector<Actor*>::const_iterator iter;
-	GFX::rect rect = {0, 0, 10, 10};
 	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
-		//std::cout << "point: " << point.x << " " << point.y << std::endl;
-		rect.x = (*iter)->Position().x - 5;
-		rect.y = (*iter)->Position().y - 5;
-		/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
+		try {
+			const GFX::rect actorFrame = (*iter)->Frame();
+			if (rect_contains(actorFrame, point))
+				return *iter;
+		} catch (...) {
+			continue;
+		}
+			/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
 		std::cout << ", " << rect.y << "-" << rect.y + rect.h << std::endl;
 		std::cout << " " << (*iter)->Position().x << std::endl;
 */
-		if (rect_contains(rect, point))
-			return *iter;
+
 	}
 
 	return NULL;
