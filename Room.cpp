@@ -184,7 +184,6 @@ Room::LoadWorldMap()
 			control->AssociateRoom(this);
 	}
 
-	// TODO: _UnloadActors/Doors() (if needed)
 	if (fWorldMap != NULL)
 		return true;
 
@@ -328,8 +327,6 @@ Room::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
-	//gfx->SetClipping(&fViewPort);
-
 	if (fWorldMap != NULL) {
 		GFX::rect sourceRect = offset_rect(fViewPort,
 				-fViewPort.x, -fViewPort.y);
@@ -367,8 +364,7 @@ Room::Draw(Bitmap *surface)
 		// TODO: handle this better
 		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
 			IE::rect doorBox = door->Opened() ? door->OpenBox() : door->ClosedBox();
-			GFX::rect rect = { doorBox.x_min, doorBox.y_min,
-				doorBox.x_max - doorBox.x_min, doorBox.y_max - doorBox.y_min };
+			GFX::rect rect = rect_to_gfx_rect(doorBox);
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
 			fBackBitmap->StrokeRect(rect, 70);
