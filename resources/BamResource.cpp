@@ -198,7 +198,6 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	if (iter != fFrames.end())
 		return iter->second;
 
-	std::cout << "NOT IN CACHE!" << std::endl;
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
 
