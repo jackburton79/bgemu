@@ -73,7 +73,7 @@ WMAPResource::Load(Archive* archive, uint32 key)
 			std::cout << std::endl;
 
 
-			entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
+			entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
 			entry->fPosition.x = (int16)areaEntry.x;
 			entry->fPosition.y = (int16)areaEntry.y;
 			fAreaEntries.push_back(entry);

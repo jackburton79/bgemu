@@ -19,7 +19,7 @@ public:
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
-	Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
+	const Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex);
@@ -44,7 +44,7 @@ private:
 	uint8 fCompressedIndex;
 	uint8 fTransparentIndex;
 
-	//std::map<uint16, Frame> fFrames;
+	std::map<std::pair<uint8, uint16>, Bitmap*> fFrames;
 };
 
 

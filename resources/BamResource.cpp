@@ -59,6 +59,11 @@ BAMResource::BAMResource(const res_ref& name)
 BAMResource::~BAMResource()
 {
 	delete fPalette;
+
+	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator i;
+	for (i = fFrames.begin(); i != fFrames.end(); i++) {
+		GraphicsEngine::DeleteBitmap(i->second);
+	}
 }
 
 
@@ -117,7 +122,7 @@ BAMResource::DumpFrames(const char *filePath)
 		printf("\tframes: %d\n", numFrames);
 		for (int numFrame = 0; numFrame < numFrames; numFrame++) {
 			try {
-				Bitmap* frame = FrameForCycle(cycle, numFrame);
+				const Bitmap* frame = FrameForCycle(cycle, numFrame);
 				std::cout << "frame retrieved" << std::endl;
 				SDL_Surface *surface = frame->Surface();
 				if (surface == NULL)
@@ -129,7 +134,7 @@ BAMResource::DumpFrames(const char *filePath)
 				path.Append(fileName);
 				printf("save to %s\n", path.Path());
 				SDL_SaveBMP(surface, path.Path());
-				GraphicsEngine::DeleteBitmap(frame);
+				//GraphicsEngine::DeleteBitmap(frame);
 			} catch (...) {
 				continue;
 			}
@@ -177,7 +182,7 @@ BAMResource::_FrameAt(uint16 index)
 }
 
 
-Bitmap*
+const Bitmap*
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
 	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";
@@ -187,6 +192,13 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 		throw cycleIndex;
 	}
 
+	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator iter;
+	std::pair<uint8, uint16> key = std::make_pair(cycleIndex, frameIndex);
+	iter = fFrames.find(key);
+	if (iter != fFrames.end())
+		return iter->second;
+
+	std::cout << "NOT IN CACHE!" << std::endl;
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
 
@@ -194,7 +206,12 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	fData->ReadAt(fFrameLookupOffset
 			+ (newCycle.index + frameIndex) * sizeof(int16), index);
 
-	return _FrameAt(index);
+	Bitmap* bitmap = _FrameAt(index);
+
+	if (bitmap != NULL)
+		fFrames[key] = bitmap;
+
+	return bitmap;
 }
 
 

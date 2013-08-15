@@ -213,7 +213,7 @@ Actor::Name() const
 }
 
 
-::Bitmap*
+const ::Bitmap*
 Actor::Bitmap() const
 {
 	if (fCurrentAnimation == NULL)

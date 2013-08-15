@@ -109,15 +109,15 @@ Animation::Name() const
 }
 
 
-::Bitmap*
+const ::Bitmap*
 Animation::Bitmap()
 {
-	::Bitmap* frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
+	const ::Bitmap* frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
 	if (fMirrored) {
 		// TODO: We are mirroring on the fly. Maybe it's smarter
 		// to cache the mirrored bitmaps.
-		frame->Mirror();
-		frame->SetPosition(frame->Frame().x - frame->Width(), frame->Frame().y);
+		//frame->Mirror();
+		//frame->SetPosition(frame->Frame().x - frame->Width(), frame->Frame().y);
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
@@ -139,7 +139,7 @@ Animation::Next()
 }
 
 
-::Bitmap*
+const ::Bitmap*
 Animation::NextBitmap()
 {
 	Next();

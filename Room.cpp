@@ -508,7 +508,7 @@ Room::DrawObject(const Object& object)
 {
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
-		Bitmap* actorFrame = actor->Bitmap();
+		const Bitmap* actorFrame = actor->Bitmap();
 		DrawObject(actorFrame, actor->Position());
 		if (actor->IsSelected()) {
 			IE::point leftTop = offset_point(actor->Position(),
@@ -523,13 +523,12 @@ Room::DrawObject(const Object& object)
 			fBackBitmap->StrokeRect(rect, 80);
 			fBackBitmap->Unlock();
 		}
-		GraphicsEngine::DeleteBitmap(actorFrame);
 	}
 }
 
 
 void
-Room::DrawObject(Bitmap* bitmap, const IE::point& point)
+Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 {
 	// TODO: Clipping
 	if (bitmap == NULL)
@@ -666,11 +665,9 @@ Room::_DrawAnimations()
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
 		try {
 			if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
-				Bitmap* frame = fAnimations[i]->NextBitmap();
+				const Bitmap* frame = fAnimations[i]->NextBitmap();
 
 				DrawObject(frame, fAnimations[i]->Position());
-
-				GraphicsEngine::DeleteBitmap(frame);
 			}
 		} catch (const char* string) {
 			std::cerr << string << std::endl;

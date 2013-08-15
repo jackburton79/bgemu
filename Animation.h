@@ -29,9 +29,9 @@ public:
 
 	void SetMirrored(const bool mirror);
 
-	::Bitmap* Bitmap();
+	const ::Bitmap* Bitmap();
 	void Next();
-	::Bitmap* NextBitmap();
+	const ::Bitmap* NextBitmap();
 
 	IE::point Position() const;
 

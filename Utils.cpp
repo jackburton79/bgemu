@@ -129,13 +129,13 @@ RenderString(std::string string, BAMResource* fontResource,
 		uint32 flags, Bitmap* bitmap)
 {
 	try {
-		std::vector<Bitmap*> frames;
+		std::vector<const Bitmap*> frames;
 		uint32 totalWidth = 0;
 		uint16 maxHeight = 0;
 		for (std::string::iterator i = string.begin();
 				i != string.end(); i++) {
 			uint32 cycleNum = cycle_num_for_char(*i);
-			Bitmap* newFrame = fontResource->FrameForCycle(cycleNum, 0);
+			const Bitmap* newFrame = fontResource->FrameForCycle(cycleNum, 0);
 			totalWidth += newFrame->Frame().w;
 			maxHeight = std::max(newFrame->Frame().h, maxHeight);
 			frames.push_back(newFrame);
@@ -154,15 +154,14 @@ RenderString(std::string string, BAMResource* fontResource,
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
 			rect.x = bitmap->Width() - totalWidth;
 
-		for (std::vector<Bitmap*>::const_iterator i = frames.begin();
+		for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 				i != frames.end(); i++) {
-			Bitmap* letter = *i;
+			const Bitmap* letter = *i;
 			rect.w = letter->Frame().w;
 			rect.h = letter->Frame().h;
 
 			GraphicsEngine::BlitBitmap(letter, NULL, bitmap, &rect);
 			rect.x += letter->Frame().w;
-			GraphicsEngine::DeleteBitmap(letter);
 		}
 	} catch (...) {
 		std::cerr << "RenderString() exception" << std::endl;

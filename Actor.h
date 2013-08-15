@@ -30,7 +30,7 @@ public:
 	virtual const char *Name() const;
 	CREResource *CRE() const;
 
-	::Bitmap* Bitmap() const;
+	const ::Bitmap* Bitmap() const;
 
 	IE::orientation Orientation() const;
 	void SetOrientation(IE::orientation o);

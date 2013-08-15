@@ -73,10 +73,9 @@ GUI::Draw()
 
 	if (fCurrentCursor != NULL) {
 		try {
-			Bitmap* nextFrame = fCurrentCursor->NextBitmap();
+			const Bitmap* nextFrame = fCurrentCursor->NextBitmap();
 			GFX::rect rect = { fCursorPosition.x, fCursorPosition.y, 0, 0 };
 			GraphicsEngine::Get()->BlitToScreen(nextFrame, NULL, &rect);
-			GraphicsEngine::DeleteBitmap(nextFrame);
 		} catch (const char* string) {
 			std::cerr << "Room::Draw(): " << string << std::endl;
 		} catch (...) {

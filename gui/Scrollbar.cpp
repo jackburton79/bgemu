@@ -22,10 +22,10 @@ Scrollbar::Scrollbar(IE::scrollbar* scrollbar)
 	fDownArrowPressed(false)
 {
 	fResource = gResManager->GetBAM(scrollbar->bam);
-	fUpArrow = fResource->FrameForCycle(scrollbar->cycle,
-			scrollbar->arrow_up_unpressed);
-	fDownArrow = fResource->FrameForCycle(scrollbar->cycle,
-				scrollbar->arrow_down_unpressed);
+	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+			scrollbar->arrow_up_unpressed));
+	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+				scrollbar->arrow_down_unpressed));
 }
 
 
@@ -51,7 +51,6 @@ Scrollbar::AttachedToWindow(Window* window)
 
 	fUpArrow->SetPosition(upRect.x, upRect.y);
 	fDownArrow->SetPosition(downRect.x, downRect.y);
-
 }
 
 
@@ -102,12 +101,11 @@ Scrollbar::_DrawTrough(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	Bitmap* frame = fResource->FrameForCycle(scrollbar->cycle,
-					scrollbar->trough);
+	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+					scrollbar->trough));
 	GFX::rect destRect = { screenRect.x, screenRect.y + 40,
 			frame->Width(), frame->Height() };
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
-	GraphicsEngine::DeleteBitmap(frame);
 }
 
 
@@ -116,12 +114,11 @@ Scrollbar::_DrawSlider(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	Bitmap* frame = fResource->FrameForCycle(scrollbar->cycle,
-					scrollbar->slider);
+	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+					scrollbar->slider));
 	GFX::rect destRect = { screenRect.x, screenRect.y + 20,
 			frame->Width(), frame->Height() };
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
-	GraphicsEngine::DeleteBitmap(frame);
 }
 
 
@@ -130,9 +127,8 @@ Scrollbar::_DrawUpArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	GraphicsEngine::DeleteBitmap(fUpArrow);
-	fUpArrow = fResource->FrameForCycle(scrollbar->cycle,
-		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed);
+	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed));
 
 	GFX::rect destRect = { screenRect.x, screenRect.y,
 			fUpArrow->Width(), fUpArrow->Height() };
@@ -146,9 +142,9 @@ Scrollbar::_DrawDownArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	GraphicsEngine::DeleteBitmap(fDownArrow);
-	fDownArrow = fResource->FrameForCycle(scrollbar->cycle,
-		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed);
+	//GraphicsEngine::DeleteBitmap(fDownArrow);
+	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
+		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed));
 
 	GFX::rect destRect = { screenRect.x,
 			screenRect.y + fControl->h - fDownArrow->Height(),
