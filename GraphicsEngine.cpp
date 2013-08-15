@@ -100,7 +100,7 @@ GraphicsEngine::SetClipping(const GFX::rect* rect)
 
 
 void
-GraphicsEngine::BlitToScreen(Bitmap* bitmap, GFX::rect *source,
+GraphicsEngine::BlitToScreen(const Bitmap* bitmap, GFX::rect *source,
 		GFX::rect *dest)
 {
 	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source,

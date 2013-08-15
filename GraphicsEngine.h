@@ -31,7 +31,7 @@ public:
 	static void FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor);
 
 	void SetClipping(const GFX::rect* rect);
-	void BlitToScreen(Bitmap* bitmap, GFX::rect* source, GFX::rect* dest);
+	void BlitToScreen(const Bitmap* bitmap, GFX::rect* source, GFX::rect* dest);
 	void StrokeRect(const GFX::rect& rect, uint32 color);
 	void FillRect(const GFX::rect& rect, uint32 color);
 
