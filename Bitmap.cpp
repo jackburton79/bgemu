@@ -284,8 +284,18 @@ Bitmap::Update()
 }
 
 
+Bitmap*
+Bitmap::Clone() const
+{
+	SDL_Surface* surface = SDL_ConvertSurface(fSurface,
+							fSurface->format, SDL_SWSURFACE);
+	Bitmap* newBitmap = new Bitmap(surface, true);
+	return newBitmap;
+}
+
+
 SDL_Surface*
-Bitmap::Surface()
+Bitmap::Surface() const
 {
 	return fSurface;
 }

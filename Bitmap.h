@@ -74,7 +74,8 @@ public:
 
 	void Update();
 
-	SDL_Surface* Surface();
+	Bitmap* Clone() const;
+	SDL_Surface* Surface() const;
 
 	void Dump();
 	void Save(const char* fileName);
