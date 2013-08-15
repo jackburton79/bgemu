@@ -389,7 +389,6 @@ Room::Draw(Bitmap *surface)
 
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
-
 	}
 }
 
@@ -410,13 +409,9 @@ Room::Clicked(uint16 x, uint16 y)
 		}
 	} else {
 		// TODO: Temporary, for testing
-		if (fMouseOverObject != NULL) {
-			Door* door = dynamic_cast<Door*>(fMouseOverObject);
-			if (door != NULL)
-				door->Toggle();
-		}
-
-		if (Actor* actor = _ActorForPosition(point)) {
+		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
+			door->Toggle();
+		} else 	if (Actor* actor = _ActorForPosition(point)) {
 			if (fSelectedActor != actor) {
 				if (fSelectedActor != NULL)
 					fSelectedActor->Select(false);
