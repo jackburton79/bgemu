@@ -16,7 +16,6 @@ bgemu.cpp \
 Bitmap.cpp \
 Core.cpp \
 Door.cpp \
-Frame.cpp \
 Graphics.cpp \
 GraphicsEngine.cpp \
 gui/BackWindow.cpp \
