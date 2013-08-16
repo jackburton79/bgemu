@@ -14,6 +14,19 @@
 #include <iostream>
 #include <vector>
 
+namespace GFX {
+
+
+void
+rect::Print() const
+{
+	std::cout << std::dec;
+	std::cout << "Rect: x: " << x << ", y: " << y;
+	std::cout << ", w: " << w << ", h: " << h << std::endl;
+}
+
+}
+
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
 	fMirrored(NULL),
@@ -108,7 +121,7 @@ Bitmap::PutPixel(uint16 x, uint16 y, const uint32 color)
 	uint32 bpp = fSurface->format->BytesPerPixel;
 	uint32 offset = fSurface->pitch * y + x * bpp;
 
-	memcpy((uint8 *)fSurface->pixels + offset, &color, bpp);
+	memcpy((uint8*)fSurface->pixels + offset, &color, bpp);
 }
 
 
