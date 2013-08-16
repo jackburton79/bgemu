@@ -113,14 +113,8 @@ const ::Bitmap*
 Animation::Bitmap()
 {
 	const ::Bitmap* frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
-	if (fMirrored) {
-		// TODO: We are mirroring on the fly. Maybe it's smarter
-		// to cache the mirrored bitmaps.
+	if (fMirrored)
 		frame = frame->GetMirrored();
-
-		std::cout << "Mirrored BITMAP" << std::endl;
-
-	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
 		//frame.bitmap = Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
