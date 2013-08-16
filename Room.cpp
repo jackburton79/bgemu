@@ -427,8 +427,8 @@ Room::MouseOver(uint16 x, uint16 y)
 {
 	const uint16 kScrollingStep = 45;
 
-	uint16 horizBorderSize = 25;
-	uint32 vertBorderSize = 25;
+	uint16 horizBorderSize = 35;
+	uint32 vertBorderSize = 40;
 
 	// TODO: Less hardcoding of the window number
 	Window* window = GUI::Default()->GetWindow(1);
