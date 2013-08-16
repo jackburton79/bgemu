@@ -196,7 +196,6 @@ Bitmap::FillPolygon(const Polygon& polygon,
 	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
 
 	for (sint16 y = top; y < bottom; y++) {
-		//std::cout << "Y: " << std::dec << (int)y << std::endl;
 		std::vector<sint16> nodeList;
 		for (int32 p = 0; p < polygon.CountPoints() - 1; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
@@ -208,13 +207,14 @@ Bitmap::FillPolygon(const Polygon& polygon,
 						/ (pointB.y - pointA.y) * (pointB.x - pointA.x));
 			}
 		}
+
 		std::sort(nodeList.begin(), nodeList.end());
 
 		if (nodeList.size() > 1) {
 			size_t c = 0;
 			if (polygon.IsHole())
 				c++;
-			for (; c < nodeList.size() - 1; c++) {
+			for (; c < nodeList.size() - 1; c+=2) {
 				sint16 xStart = nodeList[c];
 				sint16 xEnd = nodeList[c + 1];
 				IE::point ptStart = { xStart, y };
@@ -228,7 +228,6 @@ Bitmap::FillPolygon(const Polygon& polygon,
 				if (ptStart.x < 0 || ptStart.y < 0 || ptEnd.x < 0 || ptEnd.y < 0)
 					continue;
 				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
-				c++;
 			}
 			nodeList.clear();
 		}
