@@ -19,14 +19,15 @@ enum animation_type {
 	ANIMATION_TYPE_BOH
 };
 
-
 std::map<std::string, AnimationFactory*> AnimationFactory::sAnimationFactory;
+
+const int kStandingOffset = 10;
+
 
 /* static */
 AnimationFactory*
 AnimationFactory::GetFactory(const char* baseName)
 {
-	// TODO: No reference counting
 	AnimationFactory* factory = NULL;
 	std::map<std::string, AnimationFactory*>::const_iterator i
 		= sAnimationFactory.find(baseName);
@@ -74,6 +75,99 @@ AnimationFactory::~AnimationFactory()
 }
 
 
+animation_description
+AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
+{
+	animation_description description;
+	description.bam_name = fBaseName;
+	description.sequence_number = o;
+	description.mirror = false;
+	// Armor
+	// TODO: For real
+	description.bam_name.append("1");
+	switch (action) {
+		case ACT_WALKING:
+		{
+			std::string tempString = description.bam_name;
+			tempString.append("W2");
+			if (_HasFile(tempString.c_str())) {
+				description.bam_name.append("W2");
+				description.sequence_number = uint32(o);
+			} else {
+				description.bam_name.append("G11");
+				description.sequence_number = uint32(o) + 8;
+			}
+
+			break;
+		}
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o) + 8;
+			break;
+		default:
+			break;
+	}
+	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+		if (_HasEastBams()) {
+			description.bam_name.append("E");
+			// TODO: Doesn't work for some animations (IE: ACOW)
+			//sequenceNumber -= 1;
+		} else {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			description.sequence_number -= (uint32(o) - 4) * 2;
+		}
+	}
+	return description;
+}
+
+
+animation_description
+AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
+{
+	animation_description description;
+	description.bam_name = fBaseName;
+	description.sequence_number = o;
+	description.mirror = false;
+
+	// G1/G11-G15, G2/G21/26
+	if (_AreHighLowSplitted()) {
+		description.bam_name.append("H");
+	}
+	switch (action) {
+		case ACT_WALKING:
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o);
+			break;
+		case ACT_ATTACKING:
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o);
+			if (_HasStandingSequence())
+				description.sequence_number += kStandingOffset;
+			break;
+		default:
+			break;
+	}
+	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+		if (_HasEastBams()) {
+			description.bam_name.append("E");
+			// TODO: Doesn't work for some animations (IE: ACOW)
+			//sequence_number -= 5;
+		} else {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			description.sequence_number -= (uint32(o) - 4) * 2;
+		}
+	}
+
+	return description;
+}
+
+
 Animation*
 AnimationFactory::AnimationFor(int action, IE::orientation o)
 {
@@ -84,92 +178,21 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	if (i != fAnimations.end())
 		return i->second;
 
+	animation_description description;
 	// TODO: Only valid for G1/G11/E files
-	std::string bamName;
-	int sequenceNumber = 0;
-	const int kStandingOffset = 10;
-
-	bool mirror = false;
-
-	bamName.append(fBaseName);
 	switch (fAnimationType) {
 		case ANIMATION_TYPE_BG1_MONSTER:
 		{
-			// G1/G11-G15, G2/G21/26
-			if (_AreHighLowSplitted()) {
-				bamName.append("H");
-			}
-			switch (action) {
-				case ACT_WALKING:
-					bamName.append("G1");
-					sequenceNumber = uint32(o);
-					break;
-				case ACT_ATTACKING:
-					break;
-				case ACT_STANDING:
-					bamName.append("G1");
-					sequenceNumber = uint32(o);
-					if (_HasStandingSequence())
-						sequenceNumber += kStandingOffset;
-				default:
-					break;
-			}
-			if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-				if (_HasEastBams()) {
-					bamName.append("E");
-					// TODO: Doesn't work for some animations (IE: ACOW)
-					//sequenceNumber -= 5;
-				} else {
-					// Orientation 5 uses bitmap from orientation 3 mirrored,
-					// 6 uses 2, and 7 uses 1
-					mirror = true;
-					sequenceNumber -= (uint32(o) - 4) * 2;
-				}
-			}
+			description = MonsterAnimationFor(action, o);
 			break;
 		}
 		case ANIMATION_TYPE_CHARACHTER:
 		{
-			// Armor
-			// TODO: For real
-			bamName.append("1");
-			switch (action) {
-				case ACT_WALKING:
-				{
-					std::string tempString = bamName;
-					tempString.append("W2");
-					if (_HasFile(tempString.c_str())) {
-					    bamName.append("W2");
-					    sequenceNumber = uint32(o);
-					} else {
-					    bamName.append("G11");
-					    sequenceNumber = uint32(o) + 8;
-					}
-					
-					break;
-				}
-				case ACT_STANDING:
-					bamName.append("G1");
-					sequenceNumber = uint32(o) + 8;
-					break;
-				default:
-					break;
-			}
-			if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-				if (_HasEastBams()) {
-					bamName.append("E");
-					// TODO: Doesn't work for some animations (IE: ACOW)
-					//sequenceNumber -= 1;
-				} else {
-					// Orientation 5 uses bitmap from orientation 3 mirrored,
-					// 6 uses 2, and 7 uses 1
-					mirror = true;
-					sequenceNumber -= (uint32(o) - 4) * 2;
-				}
-			}
+			description = CharachterAnimationFor(action, o);
 			break;
 		}
 		default:
+			return NULL;
 			break;
 	}
 
@@ -178,13 +201,14 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	IE::point pos;
 	Animation* animation = NULL;
 	try {
-		animation = new Animation(bamName.c_str(), sequenceNumber, pos);
+		animation = new Animation(description.bam_name.c_str(),
+								description.sequence_number, pos);
 	} catch (...) {
 		animation = NULL;
 	}
 
 	if (animation != NULL) {
-		if (mirror)
+		if (description.mirror)
 			animation->SetMirrored(true);
 		fAnimations[key] = animation;
 	}
