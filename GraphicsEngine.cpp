@@ -80,18 +80,6 @@ GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
 }
 
 
-/* static */
-void
-GraphicsEngine::MirrorBitmap(Bitmap* bitmap, int flags)
-{
-	if (flags & MIRROR_VERTICALLY)
-		bitmap->Flip();
-
-	if (flags & MIRROR_HORIZONTALLY)
-		bitmap->Mirror();
-}
-
-
 void
 GraphicsEngine::SetClipping(const GFX::rect* rect)
 {
