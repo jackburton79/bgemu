@@ -351,10 +351,12 @@ Room::Draw(Bitmap *surface)
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
-					if (rects_intersect(offset_rect(poly->Frame(),
-							-mapRect.x, -mapRect.y), mapRect)) {
-						fBackBitmap->StrokePolygon(*poly,
-								-mapRect.x, -mapRect.y, 0);
+					if (rects_intersect(poly->Frame(), mapRect)) {
+						//fBackBitmap->StrokePolygon(*poly,
+							//	-fAreaOffset.x, -fAreaOffset.y, 0);
+
+						fBackBitmap->FillPolygon(*poly,
+							-fAreaOffset.x, -fAreaOffset.y, 0);
 					}
 				}
 			}
