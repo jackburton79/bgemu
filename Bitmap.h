@@ -67,8 +67,8 @@ public:
 
 	void SetPosition(uint16 x, uint16 y);
 
-	bool Lock();
-	void Unlock();
+	bool Lock() const;
+	void Unlock() const;
 	void* Pixels() const;
 	void ImportData(const void *data, uint32 width, uint32 height);
 

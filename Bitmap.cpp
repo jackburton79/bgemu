@@ -283,7 +283,7 @@ Bitmap::SetPosition(uint16 x, uint16 y)
 
 
 bool
-Bitmap::Lock()
+Bitmap::Lock() const
 {
 	SDL_LockSurface(fSurface);
 	return true;
@@ -291,7 +291,7 @@ Bitmap::Lock()
 
 
 void
-Bitmap::Unlock()
+Bitmap::Unlock() const
 {
 	SDL_UnlockSurface(fSurface);
 }
@@ -391,6 +391,12 @@ Bitmap::Dump()
 	SDL_UnlockSurface(fSurface);
 }
 
+
+void
+Bitmap::Save(const char* fileName)
+{
+	SDL_SaveBMP(Surface(), fileName);
+}
 
 
 void
