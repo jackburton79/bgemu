@@ -10,7 +10,9 @@
 #include "RectUtils.h"
 #include "Utils.h"
 
+#include <algorithm>
 #include <iostream>
+#include <vector>
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
@@ -172,11 +174,67 @@ Bitmap::StrokePolygon(const Polygon& polygon,
 	for (int32 c = 0; c < numPoints - 1; c++) {
 		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
 		const IE::point &nextPt = offset_point(polygon.PointAt(c + 1), x, y);
+
+		// TODO: Why does this happen ?
+		// If we don't do this, the negative points become positive inside
+		// StrokeLine, since it does accept unsigned integers
+		if (pt.x < 0 || pt.y < 0 || nextPt.x < 0 || nextPt.y < 0)
+			continue;
+
 		StrokeLine(pt.x, pt.y, nextPt.x, nextPt.y, color);
 		if (c == numPoints - 2)
 			StrokeLine(nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
 	}
 }
+
+
+void
+Bitmap::FillPolygon(const Polygon& polygon,
+		uint16 xOffset, uint16 yOffset, const uint32 color)
+{
+	const sint16 top = polygon.Frame().y;
+	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
+
+	for (sint16 y = top; y < bottom; y++) {
+		//std::cout << "Y: " << std::dec << (int)y << std::endl;
+		std::vector<sint16> nodeList;
+		for (int32 p = 0; p < polygon.CountPoints() - 1; p++) {
+			const IE::point& pointA = polygon.PointAt(p);
+			const IE::point& pointB = polygon.PointAt(p + 1);
+
+			if ((pointA.y < y && pointB.y >= y)
+					|| (pointA.y >= y && pointB.y < y)) {
+				nodeList.push_back(pointA.x + (y - pointA.y)
+						/ (pointB.y - pointA.y) * (pointB.x - pointA.x));
+			}
+		}
+		std::sort(nodeList.begin(), nodeList.end());
+
+		if (nodeList.size() > 1) {
+			size_t c = 0;
+			if (polygon.IsHole())
+				c++;
+			for (; c < nodeList.size() - 1; c++) {
+				sint16 xStart = nodeList[c];
+				sint16 xEnd = nodeList[c + 1];
+				IE::point ptStart = { xStart, y };
+				IE::point ptEnd = { xEnd, y };
+				ptStart = offset_point(ptStart, xOffset, yOffset);
+				ptEnd = offset_point(ptEnd, xOffset, yOffset);
+
+				// TODO: Why does this happen ?
+				// If we don't do this, the negative points become positive inside
+				// StrokeLine, since it does accept unsigned integers
+				if (ptStart.x < 0 || ptStart.y < 0 || ptEnd.x < 0 || ptEnd.y < 0)
+					continue;
+				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
+				c++;
+			}
+			nodeList.clear();
+		}
+	}
+}
+// end
 
 
 Bitmap*
@@ -234,7 +292,7 @@ Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 	SDL_LockSurface(fSurface);
 	uint8 *ptr = (uint8*)data;
 	uint8 *surfacePixels = (uint8*)fSurface->pixels;
-	for (int32 y = 0; y < height; y++) {
+	for (uint32 y = 0; y < height; y++) {
 		memcpy(surfacePixels, ptr + y * width, width);
 		surfacePixels += fSurface->pitch;
 	}

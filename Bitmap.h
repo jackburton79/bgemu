@@ -57,6 +57,9 @@ public:
 	void StrokePolygon(const Polygon& poly,
 			uint16 x, uint16 y, const uint32 color);
 
+	void FillPolygon(const ::Polygon& polygon,
+			uint16 x, uint16 y, const uint32 color);
+
 	Bitmap* GetMirrored() const;
 	void Flip();
 
