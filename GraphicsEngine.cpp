@@ -120,6 +120,37 @@ GraphicsEngine::BlitBitmap(const Bitmap* bitmap, GFX::rect *source,
 
 /*static*/
 void
+GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
+		Bitmap *destBitmap, GFX::rect *dest, const Bitmap* mask, GFX::rect *maskRect)
+{
+	dest->x = std::max(dest->x, (sint16)0);
+	dest->y = std::max(dest->y, (sint16)0);
+
+	mask->Lock();
+
+	uint8* maskPixels = (uint8*)mask->Pixels();
+	maskPixels += (maskRect->y * mask->Pitch()) + maskRect->x;
+	SDL_Rect sourceRect = {0, 0, 1, 1};
+	SDL_Rect destRect = {0, 0, 1, 1};
+	for (uint32 y = 0; y < bitmap->Height(); y++) {
+		for (uint32 x = 0; x < bitmap->Width(); x++) {
+			if (maskPixels[x] == 0) {
+				sourceRect.x = x;
+				sourceRect.y = y;
+				destRect.x = x + dest->x;
+				destRect.y = y + dest->y;
+				SDL_BlitSurface(bitmap->Surface(), &sourceRect,
+								destBitmap->Surface(), &destRect);
+			}
+		}
+		maskPixels += mask->Pitch();
+	}
+	mask->Unlock();
+}
+
+
+/*static*/
+void
 GraphicsEngine::FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor)
 {
 	SDL_FillRect(bitmap->Surface(), (SDL_Rect*)rect, (Uint8)pixelColor);

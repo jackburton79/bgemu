@@ -45,6 +45,7 @@ Room::Room()
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
+	fBlitMask(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawOverlays(true),
@@ -62,6 +63,7 @@ Room::~Room()
 	_UnloadArea();
 	_UnloadWorldMap();
 	GraphicsEngine::DeleteBitmap(fBackBitmap);
+	GraphicsEngine::DeleteBitmap(fBlitMask);
 }
 
 
@@ -138,6 +140,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitDoors();
 
 	_InitBitmap(fViewPort);
+	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
 
@@ -352,10 +355,9 @@ Room::Draw(Bitmap *surface)
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
-						//fBackBitmap->StrokePolygon(*poly,
-							//	-fAreaOffset.x, -fAreaOffset.y, 0);
-
 						fBackBitmap->FillPolygon(*poly,
+							-fAreaOffset.x, -fAreaOffset.y, 0);
+						fBackBitmap->StrokePolygon(*poly,
 							-fAreaOffset.x, -fAreaOffset.y, 0);
 					}
 				}
@@ -531,8 +533,10 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 			bitmap->Width(), bitmap->Height() };
 
 	if (rects_intersect(fMapArea, rect)) {
-		rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-		GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &rect);
+		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+		//GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &rect);
+		GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
+					fBackBitmap, &offsetRect, fBlitMask, &rect);
 	}
 }
 
@@ -612,6 +616,31 @@ Room::_InitBitmap(GFX::rect area)
 {
 	GraphicsEngine::DeleteBitmap(fBackBitmap);
 	fBackBitmap = GraphicsEngine::CreateBitmap(area.w, area.h, 16);
+	fBlitMask = GraphicsEngine::CreateBitmap(AreaRect().w, AreaRect().h, 8);
+	Palette palette;
+	palette.colors[0].r = 0;
+	palette.colors[0].g = 0;
+	palette.colors[0].b = 0;
+	palette.colors[1].r = 255;
+	palette.colors[1].g = 255;
+	palette.colors[1].b = 255;
+	fBlitMask->SetPalette(palette);
+}
+
+
+void
+Room::_InitBlitMask()
+{
+	fBlitMask->Lock();
+	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
+		Polygon* poly = fWed->PolygonAt(p);
+		if (poly != NULL && poly->CountPoints() > 0) {
+			fBlitMask->FillPolygon(*poly, 0, 0, 1);
+		}
+	}
+	fBlitMask->Unlock();
+	fBlitMask->Update();
+	fBlitMask->Save("blitmask.bmp");
 }
 
 

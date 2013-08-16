@@ -80,6 +80,8 @@ private:
 	GFX::rect _ConsoleRect() const;
 
 	void _InitBitmap(GFX::rect area);
+	void _InitBlitMask();
+
 	void _DrawBaseMap();
 
 	void _DrawLightMap();
@@ -118,6 +120,7 @@ private:
 	Bitmap*	fWorldMapBitmap;
 
 	Bitmap* fBackBitmap;
+	Bitmap* fBlitMask;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
