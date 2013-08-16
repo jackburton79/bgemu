@@ -57,7 +57,7 @@ public:
 	void StrokePolygon(const Polygon& poly,
 			uint16 x, uint16 y, const uint32 color);
 
-	void Mirror();
+	Bitmap* GetMirrored() const;
 	void Flip();
 
 	void SetPosition(uint16 x, uint16 y);
@@ -84,12 +84,16 @@ private:
 	friend class GraphicsEngine;
 
 	SDL_Surface* fSurface;
+	Bitmap* fMirrored;
+
 	uint16 fXOffset;
 	uint16 fYOffset;
 	bool fOwnsSurface;
 
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	~Bitmap();
+
+	void _Mirror();
 };
 
 #endif /* SPRITE_H_ */

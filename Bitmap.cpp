@@ -14,6 +14,7 @@
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
+	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
 	fOwnsSurface(true)
@@ -26,6 +27,7 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	:
 	fSurface(surface),
+	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
 	fOwnsSurface(ownsSurface)
@@ -37,6 +39,7 @@ Bitmap::~Bitmap()
 {
 	if (fOwnsSurface)
 		SDL_FreeSurface(fSurface);
+	delete fMirrored;
 }
 
 
@@ -176,19 +179,15 @@ Bitmap::StrokePolygon(const Polygon& polygon,
 }
 
 
-void
-Bitmap::Mirror()
+Bitmap*
+Bitmap::GetMirrored() const
 {
-	SDL_Surface* surface = fSurface;
-	SDL_LockSurface(surface);
-
-	for (int32 y = 0; y < surface->h; y++) {
-		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
-		for (int32 x = 0; x < surface->pitch / 2; x++)
-			std::swap(*sourcePixels++, *destPixels--);
+	if (fMirrored == NULL) {
+		const_cast<Bitmap*>(this)->fMirrored = Clone();
+		fMirrored->_Mirror();
 	}
-	SDL_UnlockSurface(surface);
+
+	return fMirrored;
 }
 
 
@@ -314,4 +313,23 @@ Bitmap::Dump()
 		std::cout << std::endl;
 	}
 	SDL_UnlockSurface(fSurface);
+}
+
+
+
+void
+Bitmap::_Mirror()
+{
+	SDL_Surface* surface = fSurface;
+	SDL_LockSurface(surface);
+
+	for (int32 y = 0; y < surface->h; y++) {
+		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
+		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
+		for (int32 x = 0; x < surface->pitch / 2; x++)
+			std::swap(*sourcePixels++, *destPixels--);
+	}
+	SDL_UnlockSurface(surface);
+
+	SetPosition(Frame().x - Width(), Frame().y);
 }
