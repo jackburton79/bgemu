@@ -116,8 +116,10 @@ Animation::Bitmap()
 	if (fMirrored) {
 		// TODO: We are mirroring on the fly. Maybe it's smarter
 		// to cache the mirrored bitmaps.
-		//frame->Mirror();
-		//frame->SetPosition(frame->Frame().x - frame->Width(), frame->Frame().y);
+		frame = frame->GetMirrored();
+
+		std::cout << "Mirrored BITMAP" << std::endl;
+
 	}
 	if (fBlackAsTransparent) {
 		// TODO: How to do that ?
