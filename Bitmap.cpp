@@ -192,11 +192,16 @@ void
 Bitmap::FillPolygon(const Polygon& polygon,
 		uint16 xOffset, uint16 yOffset, const uint32 color)
 {
+	if (polygon.IsHole())
+		return;
+
 	const sint16 top = polygon.Frame().y;
 	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
 
 	for (sint16 y = top; y < bottom; y++) {
 		std::vector<sint16> nodeList;
+		if (polygon.IsHole())
+			nodeList.push_back(polygon.Frame().x);
 		for (int32 p = 0; p < polygon.CountPoints() - 1; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = polygon.PointAt(p + 1);
@@ -207,14 +212,13 @@ Bitmap::FillPolygon(const Polygon& polygon,
 						/ (pointB.y - pointA.y) * (pointB.x - pointA.x));
 			}
 		}
+		if (polygon.IsHole())
+			nodeList.push_back(polygon.Frame().x + polygon.Frame().w);
 
 		std::sort(nodeList.begin(), nodeList.end());
 
 		if (nodeList.size() > 1) {
-			size_t c = 0;
-			if (polygon.IsHole())
-				c++;
-			for (; c < nodeList.size() - 1; c+=2) {
+			for (size_t c = 0; c < nodeList.size() - 1; c+=2) {
 				sint16 xStart = nodeList[c];
 				sint16 xEnd = nodeList[c + 1];
 				IE::point ptStart = { xStart, y };
@@ -225,9 +229,11 @@ Bitmap::FillPolygon(const Polygon& polygon,
 				// TODO: Why does this happen ?
 				// If we don't do this, the negative points become positive inside
 				// StrokeLine, since it does accept unsigned integers
-				if (ptStart.x < 0 || ptStart.y < 0 || ptEnd.x < 0 || ptEnd.y < 0)
-					continue;
-				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
+				StrokeLine(std::max(ptStart.x, (sint16)0),
+						std::max(ptStart.y, (sint16)0),
+						std::max(ptEnd.x, (sint16)0),
+						std::max(ptEnd.y, (sint16)0),
+						color);
 			}
 			nodeList.clear();
 		}
