@@ -1,5 +1,6 @@
 #include "Bitmap.h"
 #include "Polygon.h"
+#include "RectUtils.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -10,6 +11,14 @@ Polygon::Polygon()
 	fCount(0),
 	fIsHole(false)
 {
+}
+
+
+Polygon::Polygon(const Polygon& other)
+	:
+	fPoints(NULL)
+{
+	*this = other;
 }
 
 
@@ -84,6 +93,31 @@ IE::point
 Polygon::PointAt(int32 i) const
 {
 	return fPoints[i];
+}
+
+
+void
+Polygon::OffsetBy(int32 x, int32 y)
+{
+	for (int32 v = 0; v < fCount; v++)
+		fPoints[v] = offset_point(fPoints[v], x, y);
+
+	fFrame = offset_rect(fFrame, x, y);
+}
+
+
+Polygon&
+Polygon::operator=(const Polygon& polygon)
+{
+	fPoints = NULL;
+	fCount = polygon.fCount;
+	fIsHole = polygon.fIsHole;
+	if (fCount > 0) {
+		fPoints = (IE::point*)malloc(fCount * sizeof(IE::point));
+		memcpy(fPoints, polygon.fPoints, fCount * sizeof(IE::point));
+	}
+	fFrame = polygon.fFrame;
+	return *this;
 }
 
 

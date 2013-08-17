@@ -8,7 +8,9 @@
 class Polygon {
 public:
 	Polygon();
+	Polygon(const Polygon& polygon);
 	~Polygon();
+
 	GFX::rect Frame() const;
 	void SetFrame(const int16 x_min, const int16 x_max,
 			const int16 y_min, const int16 y_max);
@@ -21,7 +23,10 @@ public:
 	IE::point PointAt(int32 i) const;
 	int32 CountPoints() const;
 
+	void OffsetBy(int32 x, int32 y);
 	void Print() const;
+
+	Polygon& operator=(const Polygon&);
 
 private:
 	IE::point *fPoints;
