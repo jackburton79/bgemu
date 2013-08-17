@@ -355,8 +355,14 @@ Room::Draw(Bitmap *surface)
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
-						uint32 color = poly->IsHole() ? 500 : 0;
+						uint32 color = 0;
 						Polygon offsetPolygon = *poly;
+						if (offsetPolygon.Flags() & IE::POLY_SHADE_WALL)
+							color = 200;
+						else if (offsetPolygon.Flags() & IE::POLY_HOVERING)
+							color = 500;
+						else if (offsetPolygon.Flags() & IE::POLY_COVER_ANIMATIONS)
+							color = 1000;
 						offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
 						fBackBitmap->FillPolygon(offsetPolygon, color);
 						fBackBitmap->StrokePolygon(offsetPolygon, color);
@@ -534,6 +540,8 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 
 	if (rects_intersect(fMapArea, rect)) {
 		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+		//GraphicsEngine::BlitBitmap(bitmap, NULL,
+			//				fBackBitmap, &offsetRect);
 		GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackBitmap, &offsetRect, fBlitMask, &rect);
 	}
@@ -615,15 +623,6 @@ Room::_InitBitmap(GFX::rect area)
 {
 	GraphicsEngine::DeleteBitmap(fBackBitmap);
 	fBackBitmap = GraphicsEngine::CreateBitmap(area.w, area.h, 16);
-	fBlitMask = GraphicsEngine::CreateBitmap(AreaRect().w, AreaRect().h, 8);
-	Palette palette;
-	palette.colors[0].r = 0;
-	palette.colors[0].g = 0;
-	palette.colors[0].b = 0;
-	palette.colors[1].r = 255;
-	palette.colors[1].g = 255;
-	palette.colors[1].b = 255;
-	fBlitMask->SetPalette(palette);
 }
 
 
@@ -633,18 +632,22 @@ Room::_InitBlitMask()
 	std::cout << "Initializing blit mask...";
 	std::flush(std::cout);
 
+	fBlitMask = GraphicsEngine::CreateBitmap(AreaRect().w, AreaRect().h, 8);
+
 	fBlitMask->Lock();
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 		Polygon* poly = fWed->PolygonAt(p);
+		uint32 mask = GraphicsEngine::MASK_COMPLETELY;
+		if (poly->Flags() & IE::POLY_SHADE_WALL)
+			mask = GraphicsEngine::MASK_SHADE;
 		if (poly != NULL && poly->CountPoints() > 0) {
-			fBlitMask->FillPolygon(*poly, 1);
+			fBlitMask->FillPolygon(*poly, mask);
 		}
 	}
 	fBlitMask->Unlock();
 	fBlitMask->Update();
 
 	std::cout << "Done!" << std::endl;
-	//fBlitMask->Save("blitmask.bmp");
 }
 
 

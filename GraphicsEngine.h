@@ -21,9 +21,10 @@ public:
 	static Bitmap* CreateBitmap(uint16 width, uint16 height, uint16 depth);
 	static void DeleteBitmap(Bitmap* sprite);
 
-	enum MIRROR_FLAGS {
-		MIRROR_HORIZONTALLY = 1,
-		MIRROR_VERTICALLY = 2
+	enum MASK_VALUES {
+		MASK_NO_MASK = 0,
+		MASK_SHADE = 1,
+		MASK_COMPLETELY = 255
 	};
 
 	static void BlitBitmap(const Bitmap* bitmap, GFX::rect* source, Bitmap* surface, GFX::rect* dest);
