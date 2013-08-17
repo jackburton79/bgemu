@@ -15,8 +15,8 @@ public:
 	void SetFrame(const int16 x_min, const int16 x_max,
 			const int16 y_min, const int16 y_max);
 
-	bool IsHole() const;
-	void SetIsHole(const bool hole);
+	uint8 Flags() const;
+	void SetFlags(const uint8 flags);
 
 	bool AddPoints(IE::point *points, int32 count);
 	IE::point *Points() const;
@@ -32,7 +32,7 @@ private:
 	IE::point *fPoints;
 	int32 fCount;
 	GFX::rect fFrame;
-	bool fIsHole;
+	uint8 fFlags;
 };
 
 

@@ -59,7 +59,6 @@ struct res_ref {
 
 	res_ref& operator=(const res_ref& other);
 
-	/*char& operator [](int index);*/
 	char name[8];
 } __attribute__((packed));
 
@@ -93,10 +92,19 @@ struct wall_group {
 };
 
 
+enum polygon_flags {
+	POLY_SHADE_WALL = 1 << 0,
+	POLY_HOVERING = 1 << 1,
+	POLY_COVER_ANIMATIONS = 1 << 2,
+	POLY_COVER_ANIMATIONS2 = 1 << 3,
+	POLY_DOOR = 1 << 7
+};
+
+
 struct polygon {
 	int32 vertex_index;
 	int32 vertices_count;
-	uint8 is_hole;
+	uint8 flags;
 	uint8 unk;
 	int16 x_min;
 	int16 x_max;

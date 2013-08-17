@@ -201,8 +201,8 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 void
 Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
-	if (polygon.IsHole())
-		return;
+	//if (polygon.IsHole())
+		//return;
 
 	const int32 numPoints = polygon.CountPoints();
 	const sint16 top = polygon.Frame().y;
@@ -210,8 +210,6 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 
 	for (sint16 y = top; y < bottom; y++) {
 		std::vector<uint32> nodeList;
-		//if (polygon.IsHole())
-			//nodeList.push_back(polygon.Frame().x - 1);
 		for (int32 p = 0; p < numPoints; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = (p == numPoints - 1) ?
@@ -223,10 +221,6 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 						* (pointB.x - pointA.x) / (pointB.y - pointA.y));
 			}
 		}
-
-
-		//if (polygon.IsHole())
-			//nodeList.push_back(polygon.Frame().x + polygon.Frame().w + 1);
 
 		if (nodeList.size() > 1) {
 			std::sort(nodeList.begin(), nodeList.end());

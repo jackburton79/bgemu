@@ -487,9 +487,10 @@ Actor::_IsReachable(const IE::point& pt)
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
 		const Polygon* poly = room->WED()->PolygonAt(i);
-		if (!poly->IsHole() && rect_contains(poly->Frame(), pt)) {
-			return false;
-		}
+		// TODO:
+		//if (!poly->IsHole() && rect_contains(poly->Frame(), pt)) {
+		//	return false;
+		//}
 	}
 	return true;
 }

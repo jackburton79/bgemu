@@ -9,7 +9,7 @@ Polygon::Polygon()
 	:
 	fPoints(NULL),
 	fCount(0),
-	fIsHole(false)
+	fFlags(0)
 {
 }
 
@@ -46,17 +46,17 @@ Polygon::SetFrame(const int16 x_min, const int16 x_max,
 }
 
 
-bool
-Polygon::IsHole() const
+uint8
+Polygon::Flags() const
 {
-	return fIsHole;
+	return fFlags;
 }
 
 
 void
-Polygon::SetIsHole(const bool hole)
+Polygon::SetFlags(const uint8 flags)
 {
-	fIsHole = hole;
+	fFlags = flags;
 }
 
 
@@ -111,7 +111,7 @@ Polygon::operator=(const Polygon& polygon)
 {
 	fPoints = NULL;
 	fCount = polygon.fCount;
-	fIsHole = polygon.fIsHole;
+	fFlags = polygon.fFlags;
 	if (fCount > 0) {
 		fPoints = (IE::point*)malloc(fCount * sizeof(IE::point));
 		memcpy(fPoints, polygon.fPoints, fCount * sizeof(IE::point));
