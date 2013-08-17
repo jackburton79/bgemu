@@ -174,17 +174,16 @@ Bitmap::StrokeRect(const GFX::rect& rect, const uint32 color)
 
 
 void
-Bitmap::StrokePolygon(const Polygon& polygon,
-		uint16 x, uint16 y, const uint32 color)
+Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
 	if (numPoints <= 2)
 		return;
 
-	const IE::point &firstPt = offset_point(polygon.PointAt(0), x, y);
+	const IE::point &firstPt = polygon.PointAt(0);
 	for (int32 c = 0; c < numPoints - 1; c++) {
-		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
-		const IE::point &nextPt = offset_point(polygon.PointAt(c + 1), x, y);
+		const IE::point &pt = polygon.PointAt(c);
+		const IE::point &nextPt = polygon.PointAt(c + 1);
 
 		// TODO: Why does this happen ?
 		// If we don't do this, the negative points become positive inside
@@ -200,19 +199,18 @@ Bitmap::StrokePolygon(const Polygon& polygon,
 
 
 void
-Bitmap::FillPolygon(const Polygon& polygon,
-		uint16 xOffset, uint16 yOffset, const uint32 color)
+Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
 	if (polygon.IsHole())
 		return;
 
 	const sint16 top = polygon.Frame().y;
-	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
+	const sint16 bottom = top + polygon.Frame().h;
 
 	for (sint16 y = top; y < bottom; y++) {
 		std::vector<uint32> nodeList;
-		if (polygon.IsHole())
-			nodeList.push_back(polygon.Frame().x - 1);
+		//if (polygon.IsHole())
+			//nodeList.push_back(polygon.Frame().x - 1);
 		for (int32 p = 0; p < polygon.CountPoints() - 1; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = polygon.PointAt(p + 1);
@@ -223,19 +221,14 @@ Bitmap::FillPolygon(const Polygon& polygon,
 						* (pointB.x - pointA.x) / (pointB.y - pointA.y));
 			}
 		}
-		if (polygon.IsHole())
-			nodeList.push_back(polygon.Frame().x + polygon.Frame().w + 1);
-
-		std::sort(nodeList.begin(), nodeList.end());
+		//if (polygon.IsHole())
+			//nodeList.push_back(polygon.Frame().x + polygon.Frame().w + 1);
 
 		if (nodeList.size() > 1) {
+			std::sort(nodeList.begin(), nodeList.end());
 			for (size_t c = 0; c < nodeList.size() - 1; c+=2) {
-				sint16 xStart = nodeList[c];
-				sint16 xEnd = nodeList[c + 1];
-				IE::point ptStart = { xStart, y };
-				IE::point ptEnd = { xEnd, y };
-				ptStart = offset_point(ptStart, xOffset, yOffset);
-				ptEnd = offset_point(ptEnd, xOffset, yOffset);
+				IE::point ptStart = { nodeList[c], y };
+				IE::point ptEnd = { nodeList[c + 1], y };
 
 				// TODO: Why does this happen ?
 				// If we don't do this, the negative points become positive inside

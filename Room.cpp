@@ -356,10 +356,10 @@ Room::Draw(Bitmap *surface)
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
 						uint32 color = poly->IsHole() ? 500 : 0;
-						fBackBitmap->FillPolygon(*poly,
-							-fAreaOffset.x, -fAreaOffset.y, color);
-						fBackBitmap->StrokePolygon(*poly,
-							-fAreaOffset.x, -fAreaOffset.y, color);
+						Polygon offsetPolygon = *poly;
+						offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
+						fBackBitmap->FillPolygon(offsetPolygon, color);
+						fBackBitmap->StrokePolygon(offsetPolygon, color);
 					}
 				}
 			}
@@ -637,7 +637,7 @@ Room::_InitBlitMask()
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 		Polygon* poly = fWed->PolygonAt(p);
 		if (poly != NULL && poly->CountPoints() > 0) {
-			fBlitMask->FillPolygon(*poly, 0, 0, 1);
+			fBlitMask->FillPolygon(*poly, 1);
 		}
 	}
 	fBlitMask->Unlock();

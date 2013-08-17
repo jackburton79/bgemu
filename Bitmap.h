@@ -56,11 +56,9 @@ public:
 	void StrokeLine(uint16 xStart, uint16 yStart,
 			uint16 xEnd, uint16 yEnd, const uint32 color);
 	void StrokeRect(const GFX::rect& rect, const uint32 color);
-	void StrokePolygon(const Polygon& poly,
-			uint16 x, uint16 y, const uint32 color);
+	void StrokePolygon(const Polygon& polygon, const uint32 color);
 
-	void FillPolygon(const ::Polygon& polygon,
-			uint16 x, uint16 y, const uint32 color);
+	void FillPolygon(const Polygon& polygon, const uint32 color);
 
 	Bitmap* GetMirrored() const;
 	void Flip();
