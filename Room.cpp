@@ -630,6 +630,9 @@ Room::_InitBitmap(GFX::rect area)
 void
 Room::_InitBlitMask()
 {
+	std::cout << "Initializing blit mask...";
+	std::flush(std::cout);
+
 	fBlitMask->Lock();
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 		Polygon* poly = fWed->PolygonAt(p);
@@ -639,7 +642,9 @@ Room::_InitBlitMask()
 	}
 	fBlitMask->Unlock();
 	fBlitMask->Update();
-	fBlitMask->Save("blitmask.bmp");
+
+	std::cout << "Done!" << std::endl;
+	//fBlitMask->Save("blitmask.bmp");
 }
 
 
