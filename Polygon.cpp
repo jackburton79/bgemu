@@ -136,4 +136,5 @@ Polygon::Print() const
 	printf("Bounding box:\n");
 	printf("\t%d - %d\n", fFrame.x, fFrame.w);
 	printf("\t%d - %d\n", fFrame.y, fFrame.h);
+	printf("Flags: 0x%x\n", fFlags);
 }
