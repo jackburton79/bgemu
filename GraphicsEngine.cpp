@@ -109,12 +109,12 @@ GraphicsEngine::BlitBitmap(const Bitmap* bitmap, GFX::rect *source,
 
 /*static*/
 void
-GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
-		Bitmap *destBitmap, GFX::rect *dest, const Bitmap* mask, GFX::rect *maskRect)
+GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
+		GFX::rect *source, Bitmap *destBitmap, GFX::rect *dest,
+		const Bitmap* mask, GFX::rect *maskRect)
 {
 	uint32 xStart = 0;
 	uint32 yStart = 0;
-	std::cout << std::dec;
 	if (dest->x < 0) {
 		xStart -= dest->x;
 		dest->x = 0;
@@ -128,10 +128,11 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
 
 	uint8* maskPixels = (uint8*)mask->Pixels()
 				+ (maskRect->y * mask->Pitch()) + maskRect->x;
-	SDL_Rect sourceRect = {0, 0, 1, 1};
-	SDL_Rect destRect = {0, 0, 1, 1};
+
 	for (uint32 y = yStart; y < bitmap->Height(); y++) {
 		for (uint32 x = xStart; x < bitmap->Width(); x++) {
+			SDL_Rect sourceRect = {0, 0, 1, 1};
+			SDL_Rect destRect = {0, 0, 1, 1};
 			if (maskPixels[x] != MASK_COMPLETELY) {
 				if (maskPixels[x] == MASK_SHADE) {
 					if (y % 2 != 0)
@@ -139,8 +140,9 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
 				}
 				sourceRect.x = x;
 				sourceRect.y = y;
-				destRect.x = x + dest->x;
-				destRect.y = y + dest->y;
+				destRect.x = x - xStart + dest->x;
+				destRect.y = y - yStart + dest->y;
+
 				SDL_BlitSurface(bitmap->Surface(), &sourceRect,
 						destBitmap->Surface(), &destRect);
 			}
