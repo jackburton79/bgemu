@@ -199,9 +199,6 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 void
 Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
-	//if (polygon.IsHole())
-		//return;
-
 	const int32 numPoints = polygon.CountPoints();
 	const sint16 top = polygon.Frame().y;
 	const sint16 bottom = top + polygon.Frame().h;
