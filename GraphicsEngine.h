@@ -45,7 +45,7 @@ public:
 
 	void SetWindowCaption(const char* caption);
 
-	SDL_Surface* ScreenSurface();
+	Bitmap* ScreenBitmap();
 
 	void Flip();
 
@@ -54,7 +54,7 @@ public:
 	void RemoveListener(Listener* listener);
 
 private:
-	SDL_Surface* fScreen;
+	Bitmap* fScreen;
 	SDL_Rect fOldRect;
 	uint16 fOldDepth;
 

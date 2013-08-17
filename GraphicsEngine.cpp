@@ -25,6 +25,7 @@ GraphicsEngine::GraphicsEngine()
 GraphicsEngine::~GraphicsEngine()
 {
 	SDL_Quit();
+	delete fScreen;
 }
 
 
@@ -83,7 +84,7 @@ GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
 void
 GraphicsEngine::SetClipping(const GFX::rect* rect)
 {
-	SDL_SetClipRect(fScreen, (const SDL_Rect*)rect);
+	SDL_SetClipRect(fScreen->Surface(), (const SDL_Rect*)rect);
 }
 
 
@@ -92,19 +93,7 @@ GraphicsEngine::BlitToScreen(const Bitmap* bitmap, GFX::rect *source,
 		GFX::rect *dest)
 {
 	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source,
-			fScreen, (SDL_Rect*)dest);
-}
-
-
-void
-GraphicsEngine::StrokeRect(const GFX::rect& rect, uint32 color)
-{
-	Bitmap* temp = new Bitmap(fScreen, false);
-	if (temp->Lock()) {
-		temp->StrokeRect(rect, color);
-		temp->Unlock();
-	}
-	delete temp;
+			fScreen->Surface(), (SDL_Rect*)dest);
 }
 
 
@@ -128,8 +117,8 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
 
 	mask->Lock();
 
-	uint8* maskPixels = (uint8*)mask->Pixels();
-	maskPixels += (maskRect->y * mask->Pitch()) + maskRect->x;
+	uint8* maskPixels = (uint8*)mask->Pixels()
+				+ (maskRect->y * mask->Pitch()) + maskRect->x;
 	SDL_Rect sourceRect = {0, 0, 1, 1};
 	SDL_Rect destRect = {0, 0, 1, 1};
 	for (uint32 y = 0; y < bitmap->Height(); y++) {
@@ -140,7 +129,7 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect *source,
 				destRect.x = x + dest->x;
 				destRect.y = y + dest->y;
 				SDL_BlitSurface(bitmap->Surface(), &sourceRect,
-								destBitmap->Surface(), &destRect);
+						destBitmap->Surface(), &destRect);
 			}
 		}
 		maskPixels += mask->Pitch();
@@ -161,7 +150,7 @@ void
 GraphicsEngine::FillRect(const GFX::rect& rect, uint32 color)
 {
 	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
-	SDL_FillRect(fScreen, &sdlRect, color);
+	SDL_FillRect(fScreen->Surface(), &sdlRect, color);
 }
 
 
@@ -169,7 +158,8 @@ void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 		uint16 flags)
 {
-	fScreen = SDL_SetVideoMode(x, y, depth, 0);
+	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, 0);
+	fScreen = new Bitmap(surface, false);
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
 		(*i)->VideoAreaChanged(x, y);
@@ -181,10 +171,11 @@ void
 GraphicsEngine::SaveCurrentMode()
 {
 	if (fScreen != NULL) {
+		SDL_Surface* surface = fScreen->Surface();
 		fOldRect.x = fOldRect.y = 0;
-		fOldRect.w = fScreen->w;
-		fOldRect.h = fScreen->h;
-		fOldDepth = fScreen->format->BitsPerPixel;
+		fOldRect.w = surface->w;
+		fOldRect.h = surface->h;
+		fOldDepth = surface->format->BitsPerPixel;
 	}
 }
 
@@ -202,7 +193,9 @@ GraphicsEngine::RestorePreviousMode()
 GFX::rect
 GraphicsEngine::VideoArea() const
 {
-	GFX::rect rect = { 0, 0, uint16(fScreen->w), uint16(fScreen->h) };
+	GFX::rect rect = { 0, 0,
+			uint16(fScreen->Surface()->w),
+			uint16(fScreen->Surface()->h) };
 	return rect;
 }
 
@@ -214,8 +207,8 @@ GraphicsEngine::SetWindowCaption(const char* caption)
 }
 
 
-SDL_Surface*
-GraphicsEngine::ScreenSurface()
+Bitmap*
+GraphicsEngine::ScreenBitmap()
 {
 	return fScreen;
 }
@@ -224,7 +217,7 @@ GraphicsEngine::ScreenSurface()
 void
 GraphicsEngine::Flip()
 {
-	SDL_Flip(fScreen);
+	fScreen->Update();
 }
 
 

@@ -355,10 +355,11 @@ Room::Draw(Bitmap *surface)
 				Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
+						uint32 color = poly->IsHole() ? 500 : 0;
 						fBackBitmap->FillPolygon(*poly,
-							-fAreaOffset.x, -fAreaOffset.y, 0);
+							-fAreaOffset.x, -fAreaOffset.y, color);
 						fBackBitmap->StrokePolygon(*poly,
-							-fAreaOffset.x, -fAreaOffset.y, 0);
+							-fAreaOffset.x, -fAreaOffset.y, color);
 					}
 				}
 			}
@@ -484,7 +485,7 @@ Room::MouseOver(uint16 x, uint16 y)
 				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
 				//free(toolTip);
-				GraphicsEngine::Get()->StrokeRect(areaRect, 600);
+				GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
 				break;
 			}
 		}
@@ -521,7 +522,6 @@ Room::DrawObject(const Object& object)
 void
 Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 {
-	// TODO: Clipping
 	if (bitmap == NULL)
 		return;
 
@@ -534,7 +534,6 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 
 	if (rects_intersect(fMapArea, rect)) {
 		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-		//GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &rect);
 		GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackBitmap, &offsetRect, fBlitMask, &rect);
 	}

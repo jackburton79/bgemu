@@ -175,14 +175,12 @@ Bitmap::StrokeRect(const GFX::rect& rect, const uint32 color)
 
 void
 Bitmap::StrokePolygon(const Polygon& polygon,
-		uint16 x, uint16 y, const uint32 newColor)
+		uint16 x, uint16 y, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
 	if (numPoints <= 2)
 		return;
 
-	// TODO: Use newColor
-	uint32 color = SDL_MapRGB(fSurface->format, 128, 0, 30);
 	const IE::point &firstPt = offset_point(polygon.PointAt(0), x, y);
 	for (int32 c = 0; c < numPoints - 1; c++) {
 		const IE::point &pt = offset_point(polygon.PointAt(c), x, y);
