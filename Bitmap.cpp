@@ -210,9 +210,9 @@ Bitmap::FillPolygon(const Polygon& polygon,
 	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
 
 	for (sint16 y = top; y < bottom; y++) {
-		std::vector<sint16> nodeList;
+		std::vector<uint32> nodeList;
 		if (polygon.IsHole())
-			nodeList.push_back(polygon.Frame().x);
+			nodeList.push_back(polygon.Frame().x - 1);
 		for (int32 p = 0; p < polygon.CountPoints() - 1; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = polygon.PointAt(p + 1);
@@ -220,11 +220,11 @@ Bitmap::FillPolygon(const Polygon& polygon,
 			if ((pointA.y < y && pointB.y >= y)
 					|| (pointA.y >= y && pointB.y < y)) {
 				nodeList.push_back(pointA.x + (y - pointA.y)
-						/ (pointB.y - pointA.y) * (pointB.x - pointA.x));
+						* (pointB.x - pointA.x) / (pointB.y - pointA.y));
 			}
 		}
 		if (polygon.IsHole())
-			nodeList.push_back(polygon.Frame().x + polygon.Frame().w);
+			nodeList.push_back(polygon.Frame().x + polygon.Frame().w + 1);
 
 		std::sort(nodeList.begin(), nodeList.end());
 
