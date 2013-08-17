@@ -287,7 +287,7 @@ MapOverlay::Size() const
 }
 
 
-TileMap *
+TileMap*
 MapOverlay::TileMapForTileCell(int32 i)
 {
 	if (i >= fWidth * fHeight) {
