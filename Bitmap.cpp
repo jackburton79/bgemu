@@ -180,10 +180,10 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 	if (numPoints <= 2)
 		return;
 
-	const IE::point &firstPt = polygon.PointAt(0);
-	for (int32 c = 0; c < numPoints - 1; c++) {
+	for (int32 c = 0; c < numPoints; c++) {
 		const IE::point &pt = polygon.PointAt(c);
-		const IE::point &nextPt = polygon.PointAt(c + 1);
+		const IE::point &nextPt = (c == numPoints - 1) ?
+				polygon.PointAt(0) : polygon.PointAt(c + 1);
 
 		// TODO: Why does this happen ?
 		// If we don't do this, the negative points become positive inside
@@ -192,8 +192,6 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 			continue;
 
 		StrokeLine(pt.x, pt.y, nextPt.x, nextPt.y, color);
-		if (c == numPoints - 2)
-			StrokeLine(nextPt.x, nextPt.y, firstPt.x, firstPt.y, color);
 	}
 }
 
