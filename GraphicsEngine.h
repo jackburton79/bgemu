@@ -1,7 +1,6 @@
 #ifndef __GRAPHICS_ENGINE_H
 #define __GRAPHICS_ENGINE_H
 
-#include "SDL.h"
 #include "Bitmap.h"
 #include "IETypes.h"
 
@@ -56,7 +55,7 @@ public:
 
 private:
 	Bitmap* fScreen;
-	SDL_Rect fOldRect;
+	GFX::rect fOldRect;
 	uint16 fOldDepth;
 
 	std::vector<Listener*> fListeners;
