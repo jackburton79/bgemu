@@ -352,7 +352,7 @@ Room::Draw(Bitmap *surface)
 		if (fDrawPolygons) {
 			fBackBitmap->Lock();
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
-				Polygon* poly = fWed->PolygonAt(p);
+				const Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
 						uint32 color = 0;
@@ -633,7 +633,7 @@ Room::_InitBlitMask()
 
 	fBlitMask->Lock();
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
-		Polygon* poly = fWed->PolygonAt(p);
+		const Polygon* poly = fWed->PolygonAt(p);
 		uint32 mask = GraphicsEngine::MASK_COMPLETELY;
 		if (poly->Flags() & IE::POLY_SHADE_WALL)
 			mask = GraphicsEngine::MASK_SHADE;
