@@ -373,7 +373,7 @@ Bitmap::Surface() const
 
 
 void
-Bitmap::Dump()
+Bitmap::Dump() const
 {
 	std::cout << "Bitmap " << this << std::endl;
 	SDL_LockSurface(fSurface);
@@ -389,7 +389,7 @@ Bitmap::Dump()
 
 
 void
-Bitmap::Save(const char* fileName)
+Bitmap::Save(const char* fileName) const
 {
 	SDL_SaveBMP(Surface(), fileName);
 }

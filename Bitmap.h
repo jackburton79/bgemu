@@ -82,8 +82,8 @@ public:
 	Bitmap* Clone() const;
 	SDL_Surface* Surface() const;
 
-	void Dump();
-	void Save(const char* fileName);
+	void Dump() const;
+	void Save(const char* fileName) const;
 
 private:
 	friend class GraphicsEngine;
