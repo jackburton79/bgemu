@@ -19,7 +19,7 @@ public:
 
 	Bitmap* Image();
 
-	Bitmap* TileAt(int index);
+	Bitmap* TileAt(uint32 index);
 private:
 	uint16 fWidth;
 	uint16 fHeight;

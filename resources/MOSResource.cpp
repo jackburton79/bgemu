@@ -108,18 +108,15 @@ MOSResource::Image()
 
 
 Bitmap*
-MOSResource::TileAt(int index)
+MOSResource::TileAt(uint32 index)
 {
-	if (index < 0)
-		return NULL;
-
 	fData->Seek(fPaletteOffset + index * kPaletteDataSize, SEEK_SET);
 
 	uint16 xBlockSize = fBlockSize;
 	uint16 yBlockSize = fBlockSize;
 
 	// The last row and column tiles could be smaller
-	uint16 y = index / (fColumns);
+	uint16 y = index / fColumns;
 	uint16 x = index - y * fColumns;
 	if (x == fColumns - 1)
 		xBlockSize = fWidth - (fColumns - 1) * fBlockSize;
