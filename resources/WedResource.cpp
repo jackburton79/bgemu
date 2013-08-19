@@ -29,9 +29,8 @@ struct tilemap {
 	int16 primary_tile_count;
 	int16 secondary_tile_index;
 	int8 mask;
-	int8 unk1;
-	int8 unk2;
-	int8 unk3;
+	int8 animation_speed;
+	int16 flags;
 };
 
 
@@ -142,7 +141,7 @@ WEDResource::GetOverlay(uint32 index)
 
 
 Polygon *
-WEDResource::PolygonAt(uint32 index)
+WEDResource::PolygonAt(uint32 index) const
 {
 	return &fPolygons[index];
 }
