@@ -106,8 +106,9 @@ private:
 	void _UnloadWorldMap();
 
 	res_ref fName;
-	GFX::rect fViewPort;
-	GFX::rect fMapArea;
+	GFX::rect fViewPort; // The size of the screen area
+	GFX::rect fMapArea; // the part of map which is visible. It's fViewPort
+						// offsetted to fAreaOffset
 	IE::point fAreaOffset;
 
 	WEDResource *fWed;
