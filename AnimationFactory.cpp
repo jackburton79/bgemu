@@ -199,9 +199,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			break;
 	}
 
-	IE::point pos;
 	Animation* animation = NULL;
 	try {
+		IE::point pos;
 		animation = new Animation(description.bam_name.c_str(),
 								description.sequence_number, pos);
 	} catch (...) {
