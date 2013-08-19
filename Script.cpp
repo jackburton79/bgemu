@@ -153,7 +153,7 @@ Script::FindObject(node* start) const
 bool
 Script::Execute()
 {
-	//TODO: Move this to a better place
+	// TODO: Move this to a better place
 	if (fTarget != NULL)
 		fTarget->NewScriptRound();
 
