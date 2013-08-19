@@ -11,6 +11,7 @@ public:
 	
 	virtual ~MemoryStream();
 	
+	virtual ssize_t Read(void *dst, int size);
 	virtual ssize_t ReadAt(int pos, void *dst, int size);
 	virtual ssize_t WriteAt(int pos, const void *src, int size);
 	

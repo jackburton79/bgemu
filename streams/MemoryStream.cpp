@@ -37,6 +37,25 @@ MemoryStream::~MemoryStream()
 }
 
 
+
+ssize_t
+MemoryStream::Read(void *dst, int size)
+{
+	if (fPosition >= fSize)
+		return -1;
+
+	ssize_t readable = fSize - fPosition;
+	if (size > readable)
+		size = readable;
+
+	memcpy(dst, fData + fPosition, size);
+
+	fPosition += size;
+
+	return size;
+}
+
+
 ssize_t
 MemoryStream::ReadAt(int pos, void *dst, int size)
 {
