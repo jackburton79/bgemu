@@ -105,11 +105,11 @@ struct polygon {
 	int32 vertex_index;
 	int32 vertices_count;
 	uint8 flags;
-	uint8 unk;
-	int16 x_min;
-	int16 x_max;
-	int16 y_min;
-	int16 y_max;
+	uint8 height;
+	int16 left;
+	int16 right;
+	int16 top;
+	int16 bottom;
 } __attribute__((packed));
 
 

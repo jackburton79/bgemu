@@ -208,8 +208,8 @@ WEDResource::_LoadPolygons()
 		fData->Seek(polygonsOffset + p * sizeof(IE::polygon), SEEK_SET);
 		IE::polygon polygon;
 		fData->Read(polygon);
-		fPolygons[p].SetFrame(polygon.x_min, polygon.x_max,
-				polygon.y_min, polygon.y_max);
+		fPolygons[p].SetFrame(polygon.left, polygon.right,
+				polygon.top, polygon.bottom);
 		fPolygons[p].SetFlags(polygon.flags);
 		fData->Seek(polygon.vertex_index * sizeof(IE::point) + verticesOffset, SEEK_SET);
 		for (int i = 0; i < polygon.vertices_count; i++) {

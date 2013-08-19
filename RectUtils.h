@@ -66,8 +66,8 @@ rect_contains(const IE::rect& rect, const IE::point& point)
 static inline bool
 polygon_contains(const IE::polygon& poly, const IE::point& point)
 {
-	if (point.x >= poly.x_min && point.x <= poly.x_max
-			&& point.y >= poly.y_min && point.y <= poly.y_max)
+	if (point.x >= poly.left && point.x <= poly.right
+			&& point.y >= poly.top && point.y <= poly.bottom)
 		return true;
 	return false;
 }
