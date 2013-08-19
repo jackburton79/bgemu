@@ -59,6 +59,7 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 
 }
 
+
 Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	:
 	fSurface(surface),
