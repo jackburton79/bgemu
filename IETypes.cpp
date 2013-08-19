@@ -255,10 +255,10 @@ animation::Print() const
 	printf("\t%s %s %s %s %s %s %s %s %s\n",
 			flags & ANIM_SHOWN ? "SHOWN" : "",
 			flags & ANIM_SHADED ? "SHADED" : "",
-			flags & ANIM_SHADED_NIGHT ? "SHADED_NIGHT" : "",
+			flags & ANIM_ALLOW_TINT ? "SHADED_NIGHT" : "",
 			flags & ANIM_HOLD ? "HOLD" : "",
-			flags & ANIM_SYNCHRONIZED ? "SYNCHRONIZED" : "",
-			flags & ANIM_INVISIBLE_IN_DARK ? "INVISIBLE_IN_DARK" : "",
+			flags & ANIM_START_ON_FIRST_FRAME ? "SYNCHRONIZED" : "",
+			flags & ANIM_DISABLE_ON_SLOW_MACHINES ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
 			flags & ANIM_PLAY_ALL_FRAMES ? "PLAY_ALL_FRAMES" : "",
 			flags & ANIM_USE_PALETTE ? "USE_PALETTE" : "",
 			flags & ANIM_MIRRORED ? "MIRRORED" : "");
