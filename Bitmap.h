@@ -11,7 +11,7 @@
 #include "Referenceable.h"
 #include "SupportDefs.h"
 
-#include "SDL.h"
+struct SDL_Surface;
 
 struct Color {
 	uint8 r;

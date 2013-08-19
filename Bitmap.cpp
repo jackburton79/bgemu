@@ -14,6 +14,8 @@
 #include <iostream>
 #include <vector>
 
+#include "SDL.h"
+
 namespace GFX {
 
 
