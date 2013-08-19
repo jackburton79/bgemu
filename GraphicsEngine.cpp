@@ -135,7 +135,7 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 			SDL_Rect destRect = {0, 0, 1, 1};
 			if (maskPixels[x] != MASK_COMPLETELY) {
 				if (maskPixels[x] == MASK_SHADE) {
-					if (y % 2 != 0)
+					if (y % 2 != 0 || x % 2 != 0)
 						continue;
 				}
 				sourceRect.x = x;
