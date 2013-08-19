@@ -144,7 +144,6 @@ BAMResource::_FrameAt(uint16 index)
 {
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
-	const bool frameCompressed = is_frame_compressed(entry.data);
 	
 	Bitmap* bitmap = GraphicsEngine::CreateBitmap(
 			entry.width, entry.height, 8);
@@ -153,7 +152,7 @@ BAMResource::_FrameAt(uint16 index)
 		throw "BAMResource::_FrameAt(): Bitmap creation failed!";
 	
 	const uint32 offset = data_offset(entry.data);
-	if (frameCompressed) {
+	if (is_frame_compressed(entry.data)) {
 		uint8 destData[entry.width * entry.height];
 		int decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
 				entry.width * entry.height, destData,
@@ -218,7 +217,7 @@ BAMResource::CountFrames() const
 
 
 uint16
-BAMResource::CountFrames(uint8 cycleIndex)
+BAMResource::CountFrames(uint8 cycleIndex) const
 {
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);

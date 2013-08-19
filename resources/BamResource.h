@@ -22,7 +22,7 @@ public:
 	const Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;
-	uint16 CountFrames(uint8 cycleIndex);
+	uint16 CountFrames(uint8 cycleIndex) const;
 	uint8 CountCycles() const;
 
 	void PrintFrames(uint8 cycleIndex) const;
