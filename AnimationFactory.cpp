@@ -88,9 +88,7 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 	switch (action) {
 		case ACT_WALKING:
 		{
-			std::string tempString = description.bam_name;
-			tempString.append("W2");
-			if (_HasFile(tempString.c_str())) {
+			if (_HasAnimation("W2")) {
 				description.bam_name.append("W2");
 				description.sequence_number = uint32(o);
 			} else {
@@ -276,12 +274,14 @@ AnimationFactory::_ClassifyAnimation()
 
 
 bool
-AnimationFactory::_HasFile(const char* name) const
+AnimationFactory::_HasAnimation(const char* name) const
 {
+	std::string fullName = fBaseName;
+	fullName.append(name);
     std::vector<std::string>::const_iterator i;
     for (i = fList.begin(); i != fList.end(); i++) {
-	if (!strcmp((*i).c_str(), name))
-	    return true;
+		if (*i == fullName)
+			return true;
     }
     return false;
 }
