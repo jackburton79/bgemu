@@ -44,6 +44,7 @@ rect::Print() const
 
 }
 
+
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
 	fMirrored(NULL),
@@ -132,13 +133,13 @@ Bitmap::SetAlpha(uint8 value, bool on)
 void
 Bitmap::PutPixel(uint16 x, uint16 y, const uint32 color)
 {
-	if (x >= (uint32)fSurface->w || y >= (uint32)fSurface->h)
+	if (x >= (uint16)fSurface->w || y >= (uint16)fSurface->h)
 		return;
 
-	uint32 bpp = fSurface->format->BytesPerPixel;
-	uint32 offset = fSurface->pitch * y + x * bpp;
+	uint32 bytesPerPixel = fSurface->format->BytesPerPixel;
+	uint32 offset = fSurface->pitch * y + x * bytesPerPixel;
 
-	memcpy((uint8*)fSurface->pixels + offset, &color, bpp);
+	memcpy((uint8*)fSurface->pixels + offset, &color, bytesPerPixel);
 }
 
 
@@ -358,6 +359,7 @@ Bitmap::Update()
 Bitmap*
 Bitmap::Clone() const
 {
+	// Makes a copy of the original surface
 	SDL_Surface* surface = SDL_ConvertSurface(fSurface,
 							fSurface->format, SDL_SWSURFACE);
 	Bitmap* newBitmap = new Bitmap(surface, true);
@@ -391,23 +393,22 @@ Bitmap::Dump() const
 void
 Bitmap::Save(const char* fileName) const
 {
-	SDL_SaveBMP(Surface(), fileName);
+	SDL_SaveBMP(fSurface, fileName);
 }
 
 
 void
 Bitmap::_Mirror()
 {
-	SDL_Surface* surface = fSurface;
-	SDL_LockSurface(surface);
+	SDL_LockSurface(fSurface);
 
-	for (int32 y = 0; y < surface->h; y++) {
-		uint8 *sourcePixels = (uint8*)surface->pixels + y * surface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + surface->pitch - 1;
-		for (int32 x = 0; x < surface->pitch / 2; x++)
+	for (int32 y = 0; y < fSurface->h; y++) {
+		uint8 *sourcePixels = (uint8*)fSurface->pixels + y * fSurface->pitch;
+		uint8 *destPixels = (uint8*)sourcePixels + fSurface->pitch - 1;
+		for (int32 x = 0; x < fSurface->pitch / 2; x++)
 			std::swap(*sourcePixels++, *destPixels--);
 	}
-	SDL_UnlockSurface(surface);
+	SDL_UnlockSurface(fSurface);
 
 	SetPosition(Frame().x - Width(), Frame().y);
 }
