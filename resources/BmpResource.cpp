@@ -18,15 +18,7 @@ BMPResource::~BMPResource()
 Bitmap*
 BMPResource::Image()
 {
-	SDL_RWops *rw = SDL_RWFromMem(fData->Data(), fData->Size());
-	if (rw == NULL)
-		return NULL;
-
-	SDL_Surface *surface = SDL_LoadBMP_RW(rw, 1);
-	if (surface == NULL)
-		return NULL;
-
-	return new Bitmap(surface);
+	return Bitmap::Load(fData->Data(), fData->Size());
 }
 
 

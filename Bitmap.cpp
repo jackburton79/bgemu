@@ -77,7 +77,7 @@ Bitmap::~Bitmap()
 
 
 void
-Bitmap::Clear(int color)
+Bitmap::Clear(uint32 color)
 {
 	SDL_Rect rect = { 0, 0, uint16(fSurface->w), uint16(fSurface->h) };
 	SDL_FillRect(fSurface, &rect, color);
@@ -85,7 +85,7 @@ Bitmap::Clear(int color)
 
 
 void
-Bitmap::SetColors(Color* colors, int start, int num)
+Bitmap::SetColors(Color* colors, uint8 start, int num)
 {
 	SDL_SetColors(fSurface, (SDL_Color*)colors, start, num);
 }
@@ -387,6 +387,34 @@ Bitmap::Dump() const
 		std::cout << std::endl;
 	}
 	SDL_UnlockSurface(fSurface);
+}
+
+
+/* static */
+Bitmap*
+Bitmap::Load(const char* fileName)
+{
+	SDL_Surface *surface = SDL_LoadBMP(fileName);
+	if (surface == NULL)
+		return NULL;
+
+	return new Bitmap(surface);
+}
+
+
+/* static */
+Bitmap*
+Bitmap::Load(const void* data, const size_t size)
+{
+	SDL_RWops *rw = SDL_RWFromMem((void*)data, size);
+	if (rw == NULL)
+		return NULL;
+
+	SDL_Surface *surface = SDL_LoadBMP_RW(rw, 1);
+	if (surface == NULL)
+		return NULL;
+
+	return new Bitmap(surface);
 }
 
 

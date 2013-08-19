@@ -43,29 +43,6 @@ match_color(const SDL_Color& color, const uint8& r, const uint8& g,
 }
 */
 
-/* static */
-Bitmap*
-Graphics::ApplyMask(Bitmap* bitmap, Bitmap*, uint16 x, uint16 y)
-{
-	SDL_Surface* surface = bitmap->Surface();
-	//uint32 colorKey = surface->format->colorkey;
-	//std::cout << "colorkey: " << colorKey << std::endl;
-	//SDL_Color* colors = surface->format->palette->colors;
-
-	SDL_LockSurface(surface);
-	for (int32 y = 0; y < surface->h; y++) {
-		for (int32 x = 0; x < surface->w; x++) {
-			uint8* pixel = (uint8*)surface->pixels + y * surface->pitch + x;
-			if (*pixel > 200) {
-				*pixel = 0;
-			}
-		}
-	}
-	SDL_UnlockSurface(surface);
-
-	return bitmap;
-}
-
 /*
 static int
 IndexOfColor(const SDL_Color *color, const SDL_Palette *palette)

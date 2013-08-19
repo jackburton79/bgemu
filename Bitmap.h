@@ -44,10 +44,19 @@ class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
 public:
-	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
 
-	void Clear(int color = 0);
-	void SetColors(Color* colors, int start, int num);
+	void ImportData(const void *data, uint32 width, uint32 height);
+	void* Pixels() const;
+
+	GFX::rect Frame() const;
+	uint16 Width() const;
+	uint16 Height() const;
+	uint16 Pitch() const;
+
+	void SetPosition(uint16 x, uint16 y);
+
+	void Clear(uint32 color = 0);
+	void SetColors(Color* colors, uint8 start, int num);
 	void SetPalette(const Palette& palette);
 	void SetColorKey(uint32 key, bool on = true);
 	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
@@ -65,25 +74,18 @@ public:
 	Bitmap* GetMirrored() const;
 	void Flip();
 
-	void SetPosition(uint16 x, uint16 y);
-
 	bool Lock() const;
 	void Unlock() const;
-	void* Pixels() const;
-	void ImportData(const void *data, uint32 width, uint32 height);
-
-	GFX::rect Frame() const;
-	uint16 Width() const;
-	uint16 Height() const;
-	uint16 Pitch() const;
 
 	void Update();
 
 	Bitmap* Clone() const;
-	SDL_Surface* Surface() const;
 
-	void Dump() const;
+	static Bitmap* Load(const char* fileName);
+	static Bitmap* Load(const void* data, const size_t size);
+
 	void Save(const char* fileName) const;
+	void Dump() const;
 
 private:
 	friend class GraphicsEngine;
@@ -96,7 +98,11 @@ private:
 	bool fOwnsSurface;
 
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
+	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
+
 	~Bitmap();
+
+	SDL_Surface* Surface() const;
 
 	void _Mirror();
 };
