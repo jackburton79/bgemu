@@ -50,7 +50,7 @@ public:
 	MapOverlay *GetOverlay(uint32 index);
 
 	uint32 CountPolygons() const;
-	Polygon *PolygonAt(uint32 index) const;
+	const Polygon *PolygonAt(uint32 index) const;
 
 	uint32 CountDoors() const;
 	bool GetDoorTiles(Door* door, uint32 index);

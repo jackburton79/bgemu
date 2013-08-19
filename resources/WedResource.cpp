@@ -140,7 +140,7 @@ WEDResource::GetOverlay(uint32 index)
 }
 
 
-Polygon *
+const Polygon *
 WEDResource::PolygonAt(uint32 index) const
 {
 	return &fPolygons[index];
