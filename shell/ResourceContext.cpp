@@ -201,10 +201,10 @@ BAMResourceContext::DisplaySequence(int32 index)
 	BAMResource* bam = dynamic_cast<BAMResource*>(fResource);
 	gfx->SetVideoMode(640, 480, 16, 0);
 	for (int32 numFrame = 0; numFrame < bam->CountFrames(index); numFrame++) {
-		Frame frame = bam->FrameForCycle(index, numFrame);
-		gfx->BlitToScreen(frame.bitmap, &frame.rect, NULL);
+		const Bitmap* bitmap = bam->FrameForCycle(index, numFrame);
+		GFX::rect rect = bitmap->Frame();
+		gfx->BlitToScreen(bitmap, &rect, NULL);
 		gfx->Flip();
-		GraphicsEngine::DeleteBitmap(frame.bitmap);
 		sleep(0.4);
 	}
 
