@@ -105,8 +105,8 @@ main(int argc, char **argv)
 
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
-	uint16 downMouseX = 0;
-	uint16 downMouseY = 0;
+	//uint16 downMouseX = 0;
+	//uint16 downMouseY = 0;
 	if (map != NULL) {
 		SDL_Event event;
 		bool quitting = false;
@@ -114,8 +114,8 @@ main(int argc, char **argv)
 			while (SDL_PollEvent(&event) != 0) {
 				switch (event.type) {
 					case SDL_MOUSEBUTTONDOWN:
-						downMouseX = event.button.x;
-						downMouseY = event.button.y;
+						//downMouseX = event.button.x;
+						//downMouseY = event.button.y;
 						gui->MouseDown(event.button.x, event.button.y);
 						break;
 					case SDL_MOUSEBUTTONUP:

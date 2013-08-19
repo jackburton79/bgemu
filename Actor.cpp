@@ -231,8 +231,8 @@ Actor::Frame() const
 	IE::point leftTop = offset_point(Position(),
 					-(bitmap->Frame().x + bitmap->Frame().w / 2),
 							-(bitmap->Frame().y + bitmap->Frame().h / 2));
-	GFX::rect rect = { leftTop.x, leftTop.y,
-			bitmap->Frame().w, bitmap->Frame().h };
+	GFX::rect rect(leftTop.x, leftTop.y,
+			bitmap->Frame().w, bitmap->Frame().h);
 
 	return rect;
 }
@@ -486,7 +486,7 @@ Actor::_IsReachable(const IE::point& pt)
 	Room* room = Room::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
-		const Polygon* poly = room->WED()->PolygonAt(i);
+		//const Polygon* poly = room->WED()->PolygonAt(i);
 		// TODO:
 		//if (!poly->IsHole() && rect_contains(poly->Frame(), pt)) {
 		//	return false;

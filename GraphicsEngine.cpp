@@ -208,10 +208,8 @@ GraphicsEngine::RestorePreviousMode()
 GFX::rect
 GraphicsEngine::VideoArea() const
 {
-	GFX::rect rect = { 0, 0,
-			uint16(fScreen->Surface()->w),
-			uint16(fScreen->Surface()->h) };
-	return rect;
+	return GFX::rect(0, 0, uint16(fScreen->Surface()->w),
+			uint16(fScreen->Surface()->h));
 }
 
 
