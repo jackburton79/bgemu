@@ -35,7 +35,7 @@ TextArea::~TextArea()
 void
 TextArea::Draw()
 {
-	GFX::rect destRect = { 0, 0, fControl->w, fControl->h};
+	GFX::rect destRect(0, 0, fControl->w, fControl->h);
 	destRect.x = fWindow->Position().x + fControl->x;
 	destRect.y = fWindow->Position().y + fControl->y;
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);

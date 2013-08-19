@@ -88,7 +88,7 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 	switch (action) {
 		case ACT_WALKING:
 		{
-			if (_HasAnimation("W2")) {
+			if (_HasAnimation(description.bam_name + "W2")) {
 				description.bam_name.append("W2");
 				description.sequence_number = uint32(o);
 			} else {
@@ -141,8 +141,13 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 		case ACT_ATTACKING:
 			break;
 		case ACT_STANDING:
-			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			if (_HasAnimation(description.bam_name + "G1")) {
+				description.bam_name.append("G1");
+				description.sequence_number = uint32(o);
+			} else {
+				description.bam_name.append("C");
+				description.sequence_number = uint32(o);
+			}
 			if (_HasStandingSequence())
 				description.sequence_number += kStandingOffset;
 			break;
@@ -194,8 +199,6 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			break;
 	}
 
-	//std::cout << bamName << std::endl;
-	//std::cout << "Orientation: " << o << ", sequence " <<  std::dec << (int)sequenceNumber << std::endl;
 	IE::point pos;
 	Animation* animation = NULL;
 	try {
@@ -274,13 +277,11 @@ AnimationFactory::_ClassifyAnimation()
 
 
 bool
-AnimationFactory::_HasAnimation(const char* name) const
+AnimationFactory::_HasAnimation(const std::string& name) const
 {
-	std::string fullName = fBaseName;
-	fullName.append(name);
     std::vector<std::string>::const_iterator i;
     for (i = fList.begin(); i != fList.end(); i++) {
-		if (*i == fullName)
+		if (*i == name)
 			return true;
     }
     return false;

@@ -17,6 +17,23 @@
 namespace GFX {
 
 
+rect::rect()
+{
+	x = y = w = h = 0;
+}
+
+
+rect::rect(sint16 _x, sint16 _y, uint16 width, uint16 height)
+	:
+	x(_x),
+	y(_y),
+	w(width),
+	h(height)
+{
+
+}
+
+
 void
 rect::Print() const
 {
@@ -220,8 +237,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 		if (nodeList.size() > 1) {
 			std::sort(nodeList.begin(), nodeList.end());
 			for (size_t c = 0; c < nodeList.size() - 1; c+=2) {
-				IE::point ptStart = { nodeList[c], y };
-				IE::point ptEnd = { nodeList[c + 1], y };
+				IE::point ptStart = { int16(nodeList[c]), y };
+				IE::point ptEnd = { int16(nodeList[c + 1]), y };
 
 				// TODO: Why does this happen ?
 				// If we don't do this, the negative points become positive inside
@@ -305,13 +322,8 @@ Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 GFX::rect
 Bitmap::Frame() const
 {
-	GFX::rect frame = {
-			fXOffset,
-			fYOffset,
-			uint16(fSurface->w),
-			uint16(fSurface->h)
-	};
-	return frame;
+	return GFX::rect(fXOffset, fYOffset, uint16(fSurface->w),
+			uint16(fSurface->h));
 }
 
 

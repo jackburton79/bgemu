@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives
+CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives
 EXECUTABLE=BGEmu
 LDFLAGS= `sdl-config --libs` -lz
 

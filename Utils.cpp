@@ -141,7 +141,7 @@ RenderString(std::string string, BAMResource* fontResource,
 			frames.push_back(newFrame);
 		}
 
-		GFX::rect rect = { 0, 0, 0, 0 };
+		GFX::rect rect;
 		if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 			rect.y = bitmap->Height() - maxHeight;
 		else if (flags & IE::LABEL_JUSTIFY_TOP)

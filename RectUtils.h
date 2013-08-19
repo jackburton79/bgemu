@@ -88,12 +88,12 @@ center_rect_in_rect(const GFX::rect& toCenter, const GFX::rect& windowRect)
 static inline GFX::rect
 rect_to_gfx_rect(IE::rect& rect)
 {
-	GFX::rect gfxRect = {
+	GFX::rect gfxRect(
 			rect.x_min,
 			rect.y_min,
-			rect.x_max - rect.x_min,
-			rect.y_max - rect.y_min
-	};
+			uint16(rect.x_max - rect.x_min),
+			uint16(rect.y_max - rect.y_min)
+	);
 	return gfxRect;
 }
 

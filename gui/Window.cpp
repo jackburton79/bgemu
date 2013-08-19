@@ -175,12 +175,8 @@ void
 Window::Draw()
 {
 	if (fBackground != NULL) {
-		GFX::rect destRect = {
-				fPosition.x,
-				fPosition.y,
-				fBackground->Width(),
-				fBackground->Height()
-		};
+		GFX::rect destRect(fPosition.x, fPosition.y,
+						fBackground->Width(), fBackground->Height());
 		GraphicsEngine::Get()->BlitToScreen(fBackground, NULL, &destRect);
 	}
 

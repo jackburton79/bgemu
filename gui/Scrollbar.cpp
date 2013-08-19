@@ -58,7 +58,7 @@ Scrollbar::AttachedToWindow(Window* window)
 void
 Scrollbar::Draw()
 {
-	GFX::rect destRect = { fControl->x, fControl->y, fControl->w, fControl->h };
+	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
 
 	_DrawTrough(destRect);
@@ -103,8 +103,8 @@ Scrollbar::_DrawTrough(const GFX::rect& screenRect)
 
 	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 					scrollbar->trough));
-	GFX::rect destRect = { screenRect.x, screenRect.y + 40,
-			frame->Width(), frame->Height() };
+	GFX::rect destRect(screenRect.x, screenRect.y + 40,
+			frame->Width(), frame->Height());
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 }
 
@@ -116,8 +116,8 @@ Scrollbar::_DrawSlider(const GFX::rect& screenRect)
 
 	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 					scrollbar->slider));
-	GFX::rect destRect = { screenRect.x, screenRect.y + 20,
-			frame->Width(), frame->Height() };
+	GFX::rect destRect(screenRect.x, screenRect.y + 20,
+			frame->Width(), frame->Height());
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 }
 
@@ -130,8 +130,8 @@ Scrollbar::_DrawUpArrow(const GFX::rect& screenRect)
 	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed));
 
-	GFX::rect destRect = { screenRect.x, screenRect.y,
-			fUpArrow->Width(), fUpArrow->Height() };
+	GFX::rect destRect(screenRect.x, screenRect.y,
+			fUpArrow->Width(), fUpArrow->Height());
 	fUpArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fUpArrow, NULL, &destRect);
 }
@@ -146,9 +146,9 @@ Scrollbar::_DrawDownArrow(const GFX::rect& screenRect)
 	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed));
 
-	GFX::rect destRect = { screenRect.x,
+	GFX::rect destRect(screenRect.x,
 			screenRect.y + fControl->h - fDownArrow->Height(),
-			fDownArrow->Width(), fDownArrow->Height() };
+			fDownArrow->Width(), fDownArrow->Height());
 	fDownArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fDownArrow, NULL, &destRect);
 }

@@ -102,7 +102,7 @@ Control::Invoke()
 IE::point
 Control::Position() const
 {
-	IE::point point = { fControl->x, fControl->y };
+	IE::point point = { int16(fControl->x), int16(fControl->y) };
 	return point;
 }
 
@@ -153,12 +153,12 @@ Control::AssociateRoom(Room* room)
 {
 	fRoom = room;
 
-	GFX::rect viewPortRect = {
+	GFX::rect viewPortRect(
 		Position().x + fWindow->Position().x,
 		Position().y + fWindow->Position().y,
 		Width(),
 		Height()
-	};
+	);
 
 	if (room != NULL)
 		room->SetViewPort(viewPortRect);

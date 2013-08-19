@@ -296,7 +296,7 @@ Core::See(const Object* source, const Object* object) const
 
 	// TODO: Just a hack to make things go on
 	if (object->IsVisible()) {
-		Object* wObject = const_cast<Object*>(source);
+		//Object* wObject = const_cast<Object*>(source);
 		const_cast<std::vector<Object*>&>(source->CurrentScriptRoundResults()
 			->SeenList()).push_back(const_cast<Object*>(object));
 	}

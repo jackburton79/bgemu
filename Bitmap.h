@@ -33,6 +33,8 @@ struct rect {
 	uint16 w;
 	uint16 h;
 
+	rect();
+	rect(sint16 x, sint16 y, uint16 width, uint16 height);
 	void Print() const;
 };
 

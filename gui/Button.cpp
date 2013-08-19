@@ -62,7 +62,10 @@ Button::Draw()
 			frame = fResource->FrameForCycle(button->cycle, button->frame_unpressed);
 
 		if (frame != NULL) {
-			GFX::rect destRect = { fControl->x, fControl->y, fControl->w, fControl->h };
+			GFX::rect destRect = {
+					sint16(fControl->x), sint16(fControl->y),
+					uint16(fControl->w), uint16(fControl->h)
+			};
 			fWindow->ConvertToScreen(destRect);
 			GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 			//GraphicsEngine::DeleteBitmap(frame);

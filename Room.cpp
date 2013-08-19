@@ -206,9 +206,9 @@ Room::LoadWorldMap()
 		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
 		Bitmap* iconFrame = areaEntry.Icon();
 		IE::point position = areaEntry.Position();
-		GFX::rect iconRect = { int16(position.x - iconFrame->Frame().w / 2),
+		GFX::rect iconRect(int16(position.x - iconFrame->Frame().w / 2),
 					int16(position.y - iconFrame->Frame().h / 2),
-					iconFrame->Frame().w, iconFrame->Frame().h };
+					iconFrame->Frame().w, iconFrame->Frame().h);
 
 		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
 				fWorldMapBitmap, &iconRect);
@@ -535,13 +535,10 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 							-(bitmap->Frame().x + bitmap->Frame().w / 2),
 							-(bitmap->Frame().y + bitmap->Frame().h / 2));
 
-	GFX::rect rect = { leftTop.x, leftTop.y,
-			bitmap->Width(), bitmap->Height() };
+	GFX::rect rect(leftTop.x, leftTop.y, bitmap->Width(), bitmap->Height());
 
 	if (rects_intersect(fMapArea, rect)) {
 		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-		//GraphicsEngine::BlitBitmap(bitmap, NULL,
-			//				fBackBitmap, &offsetRect);
 		GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackBitmap, &offsetRect, fBlitMask, &rect);
 	}
@@ -605,7 +602,7 @@ Room::ToggleGUI()
 void
 Room::VideoAreaChanged(uint16 width, uint16 height)
 {
-	GFX::rect rect = {0, 0, width, height};
+	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
 }
 
@@ -664,11 +661,7 @@ Room::_DrawBaseMap()
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
-	GFX::rect tileRect = {
-			0, 0,
-			TILE_WIDTH,
-			TILE_HEIGHT
-	};
+	GFX::rect tileRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
 	for (uint16 y = firstTileY; y < lastTileY; y++) {
 		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
 		const uint32 tileNumY = y * overlayWidth;
@@ -773,11 +766,6 @@ Room::_ActorForPosition(const IE::point& point)
 		} catch (...) {
 			continue;
 		}
-			/*std::cout << "actor rect: " << rect.x << "-" << rect.x + rect.w;
-		std::cout << ", " << rect.y << "-" << rect.y + rect.h << std::endl;
-		std::cout << " " << (*iter)->Position().x << std::endl;
-*/
-
 	}
 
 	return NULL;

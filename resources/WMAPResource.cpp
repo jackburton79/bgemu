@@ -167,11 +167,9 @@ AreaEntry::Position() const
 GFX::rect
 AreaEntry::Rect() const
 {
-	GFX::rect rect = {
-			(int16)fEntry.x - fIcon->Width() / 2,
-			(int16)fEntry.y - fIcon->Height() / 2,
-			fIcon->Width(), fIcon->Height()
-	};
+	GFX::rect rect((int16)fEntry.x - fIcon->Width() / 2,
+				(int16)fEntry.y - fIcon->Height() / 2,
+				fIcon->Width(), fIcon->Height());
 	return rect;
 }
 
