@@ -36,15 +36,15 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
 	// Character animations
-	res->AddValue(0x5000, "CHMB");
-	res->AddValue(0x5001, "CEMB");
-	res->AddValue(0x5002, "CDMB");
-	res->AddValue(0x5003, "CIMB");
+	res->AddValue(0x5000, "CHMW");
+	res->AddValue(0x5001, "CEMW");
+	res->AddValue(0x5002, "CDMW");
+	res->AddValue(0x5003, "CIMW");
 
 	//res->AddValue(0x5010, "CHFB");
 
 	res->AddValue(0x5011, "CEFB");
-	res->AddValue(0x5012, "CDMB");
+	res->AddValue(0x5012, "CDMW");
 	res->AddValue(0x5013, "CIFB");
 	res->AddValue(0x5100, "CHMB");
 	res->AddValue(0x5101, "CEMB");
@@ -52,7 +52,7 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x5103, "CIMB");
 	//res->AddValue(0x5110, "CHFB");
 	res->AddValue(0x5111, "CEFB");
-	res->AddValue(0x5112, "CDMB");
+	res->AddValue(0x5112, "CDMW");
 	res->AddValue(0x5113, "CIFB");
 	res->AddValue(0x5200, "CHMW");
 	res->AddValue(0x5201, "CEMW");
@@ -62,22 +62,22 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x5212, "CDMW");
 	res->AddValue(0x5300, "CHMB");
 	res->AddValue(0x5301, "CEMB");
-	res->AddValue(0x5302, "CDMB");
+	res->AddValue(0x5302, "CDMW");
 	res->AddValue(0x5303, "CIMB");
 	//res->AddValue(0x5310, "CHFB");
 	res->AddValue(0x5311, "CEFB");
-	res->AddValue(0x5312, "CDMB");
+	res->AddValue(0x5312, "CDMW");
 	res->AddValue(0x5313, "CIFB");
 
 	res->AddValue(0x6000, "CHMC"); // Cleric Male Human
 	res->AddValue(0x6001, "CEMB");
-	res->AddValue(0x6002, "CDMB");
+	res->AddValue(0x6002, "CDMW");
 	res->AddValue(0x6003, "CIMB");
-	res->AddValue(0x6004, "CDMB");
+	res->AddValue(0x6004, "CDMW");
 	//res->AddValue(0x6005, "CHMB");
 	//res->AddValue(0x6010, "CHFB");
 	res->AddValue(0x6011, "CEFB");
-	res->AddValue(0x6012, "CDMB");
+	res->AddValue(0x6012, "CDMW");
 	res->AddValue(0x6013, "CIFB");
 	res->AddValue(0x6014, "CIFB");
 	//res->AddValue(0x6015, "CHFB");
@@ -85,11 +85,11 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	res->AddValue(0x6101, "CEMB");
 	res->AddValue(0x6102, "CDMF"); // Fighter Male Dwarf
 	res->AddValue(0x6103, "CIMB");
-	res->AddValue(0x6104, "CDMB");
+	res->AddValue(0x6104, "CDMW");
 	res->AddValue(0x6105, "CHMB");
 	res->AddValue(0x6110, "CHFF"); // ?
 	res->AddValue(0x6111, "CEFB");
-	res->AddValue(0x6112, "CDMB");
+	res->AddValue(0x6112, "CDMW");
 	res->AddValue(0x6113, "CIFB");
 	res->AddValue(0x6114, "CDFB");
 	// res->AddValue(0x6115, "CHFB"); // ?
@@ -105,13 +105,13 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 	//res->AddValue(0x6215, "CHFW");
 	res->AddValue(0x6300, "CHMT"); // Thief Human Male
 	res->AddValue(0x6301, "CEMB");
-	res->AddValue(0x6302, "CDMB");
+	res->AddValue(0x6302, "CDMW");
 	res->AddValue(0x6303, "CIMB");
-	res->AddValue(0x6304, "CDMB");
+	res->AddValue(0x6304, "CDMW");
 	//res->AddValue(0x6305, "CHMB");
 	//res->AddValue(0x6310, "CHFB");
 	res->AddValue(0x6311, "CEFB");
-	res->AddValue(0x6312, "CDMB");
+	res->AddValue(0x6312, "CDMW");
 	//res->AddValue(0x6313, "CIFB");
 	//res->AddValue(0x6314, "CIFB");
 	//res->AddValue(0x6315 "CHFB");
