@@ -38,7 +38,7 @@ struct rect {
 	void Print() const;
 };
 
-}
+};
 
 class GraphicsEngine;
 class Polygon;
