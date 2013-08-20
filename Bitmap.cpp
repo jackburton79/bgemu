@@ -222,11 +222,10 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
 	const sint16 top = std::max(polygon.Frame().y, sint16(0));
-	const sint16 bottom = top + polygon.Frame().h;
-
+	const sint16 bottom = std::min(top + polygon.Frame().h, int(Frame().h));
 
 	for (sint16 y = top; y < bottom; y++) {
-		std::vector<uint32> nodeList;
+		std::vector<sint16> nodeList;
 		for (int32 p = 0; p < numPoints; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = (p == numPoints - 1) ?
@@ -234,10 +233,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 
 			if ((pointA.y < y && pointB.y >= y)
 					|| (pointA.y >= y && pointB.y < y)) {
-				const sint32 xCoord = pointA.x + (y - pointA.y)
-								* (pointB.x - pointA.x) / (pointB.y - pointA.y);
-				if (xCoord >= 0)
-					nodeList.push_back((uint32)xCoord);
+				nodeList.push_back(pointA.x + (y - pointA.y)
+						* (pointB.x - pointA.x) / (pointB.y - pointA.y));
 			}
 		}
 
@@ -247,7 +244,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 				IE::point ptStart = { int16(nodeList[c]), y };
 				IE::point ptEnd = { int16(nodeList[c + 1]), y };
 
-				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
+				StrokeLine(std::max(ptStart.x, sint16(0)), ptStart.y,
+						std::max(ptEnd.x, sint16(0)), ptEnd.y, color);
 			}
 			nodeList.clear();
 		}
