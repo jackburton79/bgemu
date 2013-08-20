@@ -137,7 +137,7 @@ GUI::HideWindow(uint16 id)
 	std::vector<Window*>::iterator i;
 	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
 		if ((*i)->ID() == id) {
-			fActiveWindows.erase(i);
+			delete *fActiveWindows.erase(i);
 			break;
 		}
 	}
@@ -159,8 +159,11 @@ GUI::IsWindowShown(uint16 id) const
 void
 GUI::Clear()
 {
+	for (std::vector<Window*>::const_iterator i = fActiveWindows.begin();
+			i != fActiveWindows.end(); i++) {
+		delete *i;
+	}
 	fActiveWindows.clear();
-	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
 
 	_AddBackgroundWindow();
 }
