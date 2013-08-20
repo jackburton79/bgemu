@@ -128,8 +128,7 @@ Window::GetControlByID(uint32 id) const
 void
 Window::MouseDown(IE::point point)
 {
-	point.x -= fPosition.x;
-	point.y -= fPosition.y;
+	ConvertFromScreen(point);
 
 	if (Control* control = _GetControl(point)) {
 		control->MouseDown(point);
@@ -140,8 +139,7 @@ Window::MouseDown(IE::point point)
 void
 Window::MouseUp(IE::point point)
 {
-	point.x -= fPosition.x;
-	point.y -= fPosition.y;
+	ConvertFromScreen(point);
 
 	if (Control* control = _GetControl(point)) {
 		control->MouseUp(point);
@@ -152,8 +150,7 @@ Window::MouseUp(IE::point point)
 void
 Window::MouseMoved(IE::point point)
 {
-	point.x -= fPosition.x;
-	point.y -= fPosition.y;
+	ConvertFromScreen(point);
 
 	Control* oldActiveControl = fActiveControl;
 	Control* control = _GetControl(point);
@@ -189,7 +186,7 @@ Window::Draw()
 
 
 void
-Window::ConvertToScreen(IE::point& point)
+Window::ConvertToScreen(IE::point& point) const
 {
 	point.x += fPosition.x;
 	point.y += fPosition.y;
@@ -197,10 +194,18 @@ Window::ConvertToScreen(IE::point& point)
 
 
 void
-Window::ConvertToScreen(GFX::rect& rect)
+Window::ConvertToScreen(GFX::rect& rect) const
 {
 	rect.x += fPosition.x;
 	rect.y += fPosition.y;
+}
+
+
+void
+Window::ConvertFromScreen(IE::point& point) const
+{
+	point.x -= fPosition.x;
+	point.y -= fPosition.y;
 }
 
 

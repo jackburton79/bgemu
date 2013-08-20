@@ -13,6 +13,7 @@
 #include "Scrollbar.h"
 #include "Slider.h"
 #include "TextArea.h"
+#include "TextEdit.h"
 #include "Window.h"
 
 
@@ -76,7 +77,6 @@ Control::MouseMoved(IE::point point, uint32 transit)
 void
 Control::MouseDown(IE::point point)
 {
-	//std::cout << "control: " << std::dec << ID() << std::endl;
 	if (fRoom != NULL) {
 		ConvertFromScreen(point);
 		if (point.x >= 0 && point.y >= 0)
@@ -141,7 +141,7 @@ Control::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 
 
 void
-Control::ConvertFromScreen(IE::point& point)
+Control::ConvertFromScreen(IE::point& point) const
 {
 	point.x -= Position().x ;
 	point.y -= Position().y ;
@@ -187,6 +187,8 @@ Control::CreateControl(IE::control* control)
 			return new Slider((IE::slider*)control);
 		case IE::CONTROL_SCROLLBAR:
 			return new Scrollbar((IE::scrollbar*)control);
+		case IE::CONTROL_TEXTEDIT:
+			return new TextEdit((IE::text_edit*)control);
 		default:
 			return new Control(control);
 	}

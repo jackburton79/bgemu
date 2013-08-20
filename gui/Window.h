@@ -41,8 +41,10 @@ public:
 	void MouseUp(IE::point point);
 	void MouseMoved(IE::point point);
 
-	void ConvertToScreen(IE::point& point);
-	void ConvertToScreen(GFX::rect& rect);
+	void ConvertToScreen(IE::point& point) const;
+	void ConvertToScreen(GFX::rect& rect) const;
+
+	void ConvertFromScreen(IE::point& point) const;
 
 	void Print() const;
 private:
