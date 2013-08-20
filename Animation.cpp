@@ -139,7 +139,7 @@ const ::Bitmap*
 Animation::NextBitmap()
 {
 	Next();
-	return Bitmap();
+	return Animation::Bitmap();
 }
 
 
