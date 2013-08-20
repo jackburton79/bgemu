@@ -637,8 +637,10 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
-		if (force || (*it)->RefCount() == 1)
+		if (force || (*it)->RefCount() == 1) {
 			it = fCachedResources.erase(it);
+			delete *it;
+		}
 	}
 }
 

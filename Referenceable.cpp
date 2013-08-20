@@ -7,6 +7,8 @@
 
 #include "Referenceable.h"
 
+#include <assert.h>
+
 Referenceable::Referenceable()
 	:
 	fRefCount(0)

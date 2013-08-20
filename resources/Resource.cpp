@@ -92,6 +92,7 @@ Resource::Resource(const res_ref &name, const uint16 &type)
 	fType(type),
 	fName(name)
 {
+	Acquire();
 }
 
 
