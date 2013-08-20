@@ -32,6 +32,10 @@ WMAPResource::WMAPResource(const res_ref &name)
 WMAPResource::~WMAPResource()
 {
 	gResManager->ReleaseResource(fIcons);
+	std::vector<AreaEntry*>::const_iterator i;
+	for (i = fAreaEntries.begin(); i != fAreaEntries.end(); i++) {
+		delete *i;
+	}
 	fAreaEntries.erase(fAreaEntries.begin(), fAreaEntries.end());
 }
 
