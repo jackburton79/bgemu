@@ -649,8 +649,8 @@ ResourceManager::TryEmptyResourceCache(bool force)
 		if (force || (*it)->RefCount() == 1) {
 			std::cout << ": Deleting...";
 			std::flush(std::cout);
-			it = fCachedResources.erase(it);
 			delete *it;
+			it = fCachedResources.erase(it);
 		} else
 			it++;
 		std::cout << std::endl;
