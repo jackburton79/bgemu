@@ -1,8 +1,6 @@
 #ifndef __GRAPHICS_H
 #define __GRAPHICS_H
 
-#include <SDL.h>
-
 #include "SupportDefs.h"
 
 class Bitmap;
