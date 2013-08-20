@@ -12,7 +12,9 @@
 #include "Utils.h"
 #include "TextArea.h"
 #include "TLKResource.h"
+#include "Utils.h"
 #include "Window.h"
+
 
 TextArea::TextArea(IE::text_area* text)
 	:
@@ -21,7 +23,13 @@ TextArea::TextArea(IE::text_area* text)
 {
 	std::cout << "TextArea:" << std::endl;
 	fFontResource = gResManager->GetBAM(text->font_bam);
-	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 16);
+	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 8);
+
+	Palette palette;
+	Color start = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
+	Color end = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
+	CreateGradient(end, start, palette);
+	fBitmap->SetPalette(palette);
 }
 
 
@@ -36,9 +44,8 @@ TextArea::~TextArea()
 void
 TextArea::Draw()
 {
-	GFX::rect destRect(0, 0, fControl->w, fControl->h);
-	destRect.x = fWindow->Position().x + fControl->x;
-	destRect.y = fWindow->Position().y + fControl->y;
+	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
+	fWindow->ConvertToScreen(destRect);
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
 }
 
