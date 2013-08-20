@@ -371,7 +371,7 @@ Room::Draw(Bitmap *surface)
 							color = 500;
 						else if (offsetPolygon.Flags() & IE::POLY_COVER_ANIMATIONS)
 							color = 1000;
-						//offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
+						offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
 						fBackBitmap->FillPolygon(offsetPolygon, color);
 						fBackBitmap->StrokePolygon(offsetPolygon, color);
 					}
