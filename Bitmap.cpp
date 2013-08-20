@@ -102,7 +102,7 @@ Bitmap::SetPalette(const Palette& palette)
 		sdlPalette[c].r = palette.colors[c].r;
 		sdlPalette[c].g = palette.colors[c].g;
 		sdlPalette[c].b = palette.colors[c].b;
-		sdlPalette[c].unused = 0;
+		sdlPalette[c].unused = palette.colors[c].a;
 	}
 
 	SDL_SetColors(fSurface, sdlPalette, 0, 256);
@@ -221,8 +221,9 @@ void
 Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
-	const sint16 top = polygon.Frame().y;
+	const sint16 top = std::max(polygon.Frame().y, sint16(0));
 	const sint16 bottom = top + polygon.Frame().h;
+
 
 	for (sint16 y = top; y < bottom; y++) {
 		std::vector<uint32> nodeList;
@@ -233,8 +234,10 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 
 			if ((pointA.y < y && pointB.y >= y)
 					|| (pointA.y >= y && pointB.y < y)) {
-				nodeList.push_back(pointA.x + (y - pointA.y)
-						* (pointB.x - pointA.x) / (pointB.y - pointA.y));
+				const sint32 xCoord = pointA.x + (y - pointA.y)
+								* (pointB.x - pointA.x) / (pointB.y - pointA.y);
+				if (xCoord >= 0)
+					nodeList.push_back((uint32)xCoord);
 			}
 		}
 
@@ -247,11 +250,7 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 				// TODO: Why does this happen ?
 				// If we don't do this, the negative points become positive inside
 				// StrokeLine, since it does accept unsigned integers
-				StrokeLine(std::max(ptStart.x, (sint16)0),
-						std::max(ptStart.y, (sint16)0),
-						std::max(ptEnd.x, (sint16)0),
-						std::max(ptEnd.y, (sint16)0),
-						color);
+				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
 			}
 			nodeList.clear();
 		}
