@@ -34,8 +34,12 @@ GUI::GUI()
 GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
-	fActiveWindows.erase(fActiveWindows.begin(), fActiveWindows.end());
-	//fActiveWindows.clear();
+	for (std::vector<Window*>::const_iterator iter = fActiveWindows.begin();
+			iter != fActiveWindows.end(); iter++) {
+		delete *iter;
+	}
+
+	fActiveWindows.clear();
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
