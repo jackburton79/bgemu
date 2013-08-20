@@ -137,7 +137,8 @@ GUI::HideWindow(uint16 id)
 	std::vector<Window*>::iterator i;
 	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
 		if ((*i)->ID() == id) {
-			delete *fActiveWindows.erase(i);
+			delete *i;
+			fActiveWindows.erase(i);
 			break;
 		}
 	}
