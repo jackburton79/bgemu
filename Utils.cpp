@@ -119,8 +119,10 @@ RenderString(std::string string, const res_ref& fontRes,
 		uint32 flags, Bitmap* bitmap)
 {
 	BAMResource* fontResource = gResManager->GetBAM(fontRes);
-	RenderString(string, fontResource, flags, bitmap);
-	gResManager->ReleaseResource(fontResource);
+	if (fontResource != NULL) {
+		RenderString(string, fontResource, flags, bitmap);
+		gResManager->ReleaseResource(fontResource);
+	}
 }
 
 
