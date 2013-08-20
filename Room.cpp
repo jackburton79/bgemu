@@ -877,9 +877,6 @@ Room::_UnloadArea()
 		delete fTileCells[c];
 	fTileCells.clear();
 
-	for (uint32 c = 0; c < fOverlays.size(); c++)
-		delete fOverlays[c];
-	fOverlays.clear();
 
 	std::vector<Actor*>::const_iterator actorIter;
 	for (actorIter = Actor::List().begin();
@@ -888,6 +885,10 @@ Room::_UnloadArea()
 		delete *actorIter;
 	}
 	Actor::List().clear();
+
+	for (uint32 c = 0; c < fOverlays.size(); c++)
+		delete fOverlays[c];
+	fOverlays.clear();
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
