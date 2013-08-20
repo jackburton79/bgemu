@@ -18,6 +18,8 @@ public:
 	virtual ~TextArea();
 	virtual void Draw();
 
+	void SetText(const char* text);
+
 private:
 	BAMResource* fFontResource;
 	BAMResource* fInitialsFontResource;

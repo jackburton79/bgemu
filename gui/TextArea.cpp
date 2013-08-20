@@ -19,6 +19,7 @@ TextArea::TextArea(IE::text_area* text)
 	Control(text),
 	fBitmap(NULL)
 {
+	std::cout << "TextArea:" << std::endl;
 	fFontResource = gResManager->GetBAM(text->font_bam);
 	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 16);
 }
@@ -39,4 +40,13 @@ TextArea::Draw()
 	destRect.x = fWindow->Position().x + fControl->x;
 	destRect.y = fWindow->Position().y + fControl->y;
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
+}
+
+
+void
+TextArea::SetText(const char* text)
+{
+	fBitmap->Clear(0);
+	uint32 flags = IE::LABEL_JUSTIFY_CENTER;
+	RenderString(text, fFontResource, flags, fBitmap);
 }
