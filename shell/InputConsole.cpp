@@ -9,6 +9,8 @@
 #include "ResManager.h"
 #include "ShellContext.h"
 
+#include "SDL.h"
+
 InputConsole::InputConsole(const GFX::rect& rect)
 	:
 	Console(rect)
