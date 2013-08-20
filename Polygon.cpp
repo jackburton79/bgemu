@@ -41,8 +41,8 @@ Polygon::SetFrame(const int16 x_min, const int16 x_max,
 {
 	fFrame.x = x_min;
 	fFrame.y = y_min;
-	fFrame.w = x_max;
-	fFrame.h = y_max;
+	fFrame.w = x_max - x_min;
+	fFrame.h = y_max - y_min;
 }
 
 
