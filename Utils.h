@@ -29,4 +29,6 @@ void RenderString(std::string string, const res_ref& fontRes,
 void RenderString(std::string string, BAMResource* fontRes,
 		uint32 flags, Bitmap* bitmap);
 
+void CreateGradient(const Color& start, const Color& end, Palette& palette);
+
 #endif
