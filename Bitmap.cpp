@@ -247,9 +247,6 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 				IE::point ptStart = { int16(nodeList[c]), y };
 				IE::point ptEnd = { int16(nodeList[c + 1]), y };
 
-				// TODO: Why does this happen ?
-				// If we don't do this, the negative points become positive inside
-				// StrokeLine, since it does accept unsigned integers
 				StrokeLine(ptStart.x, ptStart.y, ptEnd.x, ptEnd.y, color);
 			}
 			nodeList.clear();
