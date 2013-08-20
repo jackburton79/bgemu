@@ -135,7 +135,6 @@ AreaEntry::AreaEntry(const area_entry& entry)
 
 AreaEntry::~AreaEntry()
 {
-	GraphicsEngine::DeleteBitmap(fIcon);
 }
 
 
