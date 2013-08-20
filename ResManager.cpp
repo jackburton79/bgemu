@@ -103,11 +103,11 @@ ResourceManager::~ResourceManager()
 	}
 
 	std::list<Resource *>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+	/*for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
 		std::cout << "Deleting " << (*it)->Name();
 		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
-		delete *it;
-	}
+		//delete *it;
+	}*/
 
 	//TryEmptyResourceCache(true);
 
@@ -384,8 +384,12 @@ ResourceManager::GetWMAP(const res_ref& name)
 void
 ResourceManager::ReleaseResource(Resource* resource)
 {
-	if (resource != NULL)
-		resource->Release();
+	if (resource != NULL) {
+		if (resource->Release()) {
+			std::cout << "Released and deleted " << resource->Name() << std::endl;
+			delete resource;
+		}
+	}
 }
 
 
