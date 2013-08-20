@@ -134,9 +134,9 @@ Bitmap::SetAlpha(uint8 value, bool on)
 
 // The following methods require the bitmap locked
 void
-Bitmap::PutPixel(uint16 x, uint16 y, const uint32 color)
+Bitmap::PutPixel(int32 x, int32 y, const uint32 color)
 {
-	if (x >= (uint16)fSurface->w || y >= (uint16)fSurface->h)
+	if (x < 0 || y < 0 || x >= (uint16)fSurface->w || y >= (uint16)fSurface->h)
 		return;
 
 	uint32 bytesPerPixel = fSurface->format->BytesPerPixel;
@@ -147,8 +147,8 @@ Bitmap::PutPixel(uint16 x, uint16 y, const uint32 color)
 
 
 void
-Bitmap::StrokeLine(uint16 x1, uint16 y1,
-			uint16 x2, uint16 y2, const uint32 color)
+Bitmap::StrokeLine(int32 x1, int32 y1,
+			int32 x2, int32 y2, const uint32 color)
 {
 	int cycle;
 	int lg_delta = x2 - x1;
@@ -206,12 +206,6 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 		const IE::point &nextPt = (c == numPoints - 1) ?
 				polygon.PointAt(0) : polygon.PointAt(c + 1);
 
-		// TODO: Why does this happen ?
-		// If we don't do this, the negative points become positive inside
-		// StrokeLine, since it does accept unsigned integers
-		if (pt.x < 0 || pt.y < 0 || nextPt.x < 0 || nextPt.y < 0)
-			continue;
-
 		StrokeLine(pt.x, pt.y, nextPt.x, nextPt.y, color);
 	}
 }
@@ -224,8 +218,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
 	const sint16 top = std::max(polygon.Frame().y, sint16(0));
 
-	for (sint16 y = top; y < bottom; y++) {
-		std::vector<sint16> nodeList;
+	for (uint16 y = top; y < bottom; y++) {
+		std::vector<int32> nodeList;
 		for (int32 p = 0; p < numPoints; p++) {
 			const IE::point& pointA = polygon.PointAt(p);
 			const IE::point& pointB = (p == numPoints - 1) ?
@@ -240,12 +234,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 
 		if (nodeList.size() > 1) {
 			std::sort(nodeList.begin(), nodeList.end());
-			for (size_t c = 0; c < nodeList.size() - 1; c+=2) {
-				IE::point ptStart = { int16(nodeList[c]), y };
-				IE::point ptEnd = { int16(nodeList[c + 1]), y };
-
-				StrokeLine(std::max(ptStart.x, sint16(0)), ptStart.y,
-						std::max(ptEnd.x, sint16(0)), ptEnd.y, color);
+			for (size_t c = 0; c < nodeList.size(); c+=2) {
+				StrokeLine(nodeList[c], y, nodeList[c + 1], y, color);
 			}
 			nodeList.clear();
 		}

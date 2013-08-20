@@ -63,9 +63,9 @@ public:
 	void ClearColorKey() { SetColorKey(0, false); };
 	void SetAlpha(uint8 alphaValue, bool on = true);
 
-	void PutPixel(uint16 x, uint16 y, const uint32 color);
-	void StrokeLine(uint16 xStart, uint16 yStart,
-			uint16 xEnd, uint16 yEnd, const uint32 color);
+	void PutPixel(int32 x, int32 y, const uint32 color);
+	void StrokeLine(int32 xStart, int32 yStart,
+			int32 xEnd, int32 yEnd, const uint32 color);
 	void StrokeRect(const GFX::rect& rect, const uint32 color);
 	void StrokePolygon(const Polygon& polygon, const uint32 color);
 
