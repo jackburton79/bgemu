@@ -36,13 +36,13 @@ Polygon::Frame() const
 
 
 void
-Polygon::SetFrame(const int16 x_min, const int16 x_max,
-			const int16 y_min, const int16 y_max)
+Polygon::SetFrame(const int16 left, const int16 right,
+			const int16 top, const int16 bottom)
 {
-	fFrame.x = x_min;
-	fFrame.y = y_min;
-	fFrame.w = x_max - x_min;
-	fFrame.h = y_max - y_min;
+	fFrame.x = left;
+	fFrame.y = top;
+	fFrame.w = right - left;
+	fFrame.h = bottom - top;
 }
 
 
