@@ -153,8 +153,6 @@ Resource::CheckSignature(const char *signature, bool dontWorry)
 	if (fData->ReadAt(0, array, 4) != 4)
 		return false;
 
-	//printf("Signature: %s\n", array);
-
 	if (strcmp(array, signature) != 0) {
 		if (!dontWorry) {
 			printf("invalid signature %s (expected %s)\n",
@@ -207,13 +205,13 @@ Resource::DropData()
 
 /* static */
 Resource*
-Resource::Create(const res_ref &name, uint16 type)
+Resource::Create(const res_ref &name, const uint16& type)
 {
 	Resource *res = NULL;
 	try {
 		switch (type) {
-			case RES_KEY:
-				res = new KEYResource(name);
+			case RES_2DA:
+				res = new TWODAResource(name);
 				break;
 			case RES_ARA:
 				res = new ARAResource(name);
@@ -224,17 +222,29 @@ Resource::Create(const res_ref &name, uint16 type)
 			case RES_BCS:
 				res = new BCSResource(name);
 				break;
+			case RES_BMP:
+				res = new BMPResource(name);
+				break;
 			case RES_CHU:
 				res = new CHUIResource(name);
 				break;
 			case RES_CRE:
 				res = new CREResource(name);
 				break;
-			case RES_BMP:
-				res = new BMPResource(name);
-				break;
 			case RES_IDS:
 				res = new IDSResource(name);
+				break;
+			case RES_ITM:
+				res = new ITMResource(name);
+				break;
+			case RES_KEY:
+				res = new KEYResource(name);
+				break;
+			case RES_MVE:
+				res = new MVEResource(name);
+				break;
+			case RES_MOS:
+				res = new MOSResource(name);
 				break;
 			case RES_TIS:
 				res = new TISResource(name);
@@ -242,20 +252,8 @@ Resource::Create(const res_ref &name, uint16 type)
 			case RES_WED:
 				res = new WEDResource(name);
 				break;
-			case RES_MVE:
-				res = new MVEResource(name);
-				break;
 			case RES_WMP:
 				res = new WMAPResource(name);
-				break;
-			case RES_MOS:
-				res = new MOSResource(name);
-				break;
-			case RES_2DA:
-				res = new TWODAResource(name);
-				break;
-			case RES_ITM:
-				res = new ITMResource(name);
 				break;
 			default:
 				//throw "Unknown resource!";

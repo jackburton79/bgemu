@@ -20,7 +20,7 @@ public:
 	const uint16 Type() const;
 	const char* Name() const;
 	
-	static Resource* Create(const res_ref &name, uint16 type);
+	static Resource* Create(const res_ref &name, const uint16& type);
 	static Resource* Create(const res_ref &name, const uint16& type,
 			const uint32& key, Archive* archive);
 	
