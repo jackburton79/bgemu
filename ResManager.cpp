@@ -103,8 +103,11 @@ ResourceManager::~ResourceManager()
 	}
 
 	std::list<Resource *>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++)
+	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+		std::cout << "Deleting " << (*it)->Name();
+		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
 		delete *it;
+	}
 
 	//TryEmptyResourceCache(true);
 
@@ -637,7 +640,11 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+		std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
+		std::cout << "refcount is " << (*it)->RefCount() << std::endl;
 		if (force || (*it)->RefCount() == 1) {
+			std::cout << "Deleting " << (*it)->Name();
+			std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
 			it = fCachedResources.erase(it);
 			delete *it;
 		}
