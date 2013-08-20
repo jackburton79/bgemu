@@ -36,7 +36,7 @@ WMAPResource::~WMAPResource()
 	for (i = fAreaEntries.begin(); i != fAreaEntries.end(); i++) {
 		delete *i;
 	}
-	fAreaEntries.erase(fAreaEntries.begin(), fAreaEntries.end());
+	fAreaEntries.clear();
 }
 
 
