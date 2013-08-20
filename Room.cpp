@@ -174,6 +174,11 @@ Room::LoadArea(AreaEntry& area)
 bool
 Room::LoadWorldMap()
 {
+	if (fWorldMap != NULL)
+		return true;
+
+	_UnloadArea();
+
 	GUI* gui = GUI::Default();
 
 	gui->Clear();
@@ -182,15 +187,11 @@ Room::LoadWorldMap()
 	gui->ShowWindow(0);
 	Window* window = gui->GetWindow(0);
 	if (window != NULL) {
+		// TODO: Move this into GUI ?
 		Control* control = window->GetControlByID(4);
 		if (control != NULL)
 			control->AssociateRoom(this);
 	}
-
-	if (fWorldMap != NULL)
-		return true;
-
-	_UnloadArea();
 
 	fAreaOffset.x = fAreaOffset.y = 0;
 
