@@ -28,8 +28,6 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 		}
 	}
 
-	size--;
-
 	return outSize;
 }
 
