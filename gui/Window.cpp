@@ -46,7 +46,11 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 Window::~Window()
 {
 	GraphicsEngine::DeleteBitmap(fBackground);
-	fControls.erase(fControls.begin(), fControls.end());
+	for (std::vector<Control*>::const_iterator i = fControls.begin();
+			i != fControls.end(); i++)
+		delete *i;
+
+	fControls.clear();
 }
 
 
