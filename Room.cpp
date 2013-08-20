@@ -21,6 +21,7 @@
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
+#include "TextArea.h"
 #include "TileCell.h"
 #include "TisResource.h"
 #include "TLKResource.h"
@@ -119,7 +120,13 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 
 	gui->ShowWindow(0);
 	gui->ShowWindow(1);
-	//gui->ShowWindow(3);
+	gui->ShowWindow(2);
+	gui->ShowWindow(4);
+	if (Window* tmp = gui->GetWindow(4)) {
+		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
+		if (textArea != NULL)
+			textArea->SetText("test");
+	}
 	//gui->GetWindow(15);
 
 
@@ -364,7 +371,7 @@ Room::Draw(Bitmap *surface)
 							color = 500;
 						else if (offsetPolygon.Flags() & IE::POLY_COVER_ANIMATIONS)
 							color = 1000;
-						offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
+						//offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
 						fBackBitmap->FillPolygon(offsetPolygon, color);
 						fBackBitmap->StrokePolygon(offsetPolygon, color);
 					}
@@ -668,8 +675,7 @@ Room::_DrawBaseMap()
 		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
-			const uint32 tileNum = tileNumY + x;
-			fTileCells[tileNum]->Draw(fBackBitmap, &tileRect, fDrawOverlays);
+			fTileCells[tileNumY + x]->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 		}
 	}
 }
