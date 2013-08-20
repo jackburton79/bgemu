@@ -125,7 +125,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (Window* tmp = gui->GetWindow(4)) {
 		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
 		if (textArea != NULL)
-			textArea->SetText("test");
+			textArea->SetText("This is a test");
 	}
 	//gui->GetWindow(15);
 
