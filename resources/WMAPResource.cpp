@@ -174,7 +174,7 @@ AreaEntry::Rect() const
 }
 
 
-Bitmap*
+const Bitmap*
 AreaEntry::Icon() const
 {
 	return fIcon;

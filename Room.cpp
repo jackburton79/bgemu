@@ -205,7 +205,7 @@ Room::LoadWorldMap()
 	fWorldMapBitmap = fWorldMapBackground->Image();
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
-		Bitmap* iconFrame = areaEntry.Icon();
+		const Bitmap* iconFrame = areaEntry.Icon();
 		IE::point position = areaEntry.Position();
 		GFX::rect iconRect(int16(position.x - iconFrame->Frame().w / 2),
 					int16(position.y - iconFrame->Frame().h / 2),

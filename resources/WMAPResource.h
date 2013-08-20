@@ -117,7 +117,7 @@ public:
 
 	IE::point Position() const;
 	GFX::rect Rect() const;
-	Bitmap* Icon() const;
+	const Bitmap* Icon() const;
 	res_ref Name() const;
 	const char* LongName() const;
 	char* TooltipName() const;
