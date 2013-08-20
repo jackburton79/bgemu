@@ -197,8 +197,10 @@ main(int argc, char **argv)
 
 	//delete console;
 	// delete inputConsole;
+	GUI::Destroy();
 	GraphicsEngine::Destroy();
 	Core::Destroy();
+
 
 	return 0;
 }

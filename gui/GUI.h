@@ -40,6 +40,7 @@ public:
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
 	static GUI* Default();
+	static void Destroy();
 
 private:
 	CHUIResource* fResource;

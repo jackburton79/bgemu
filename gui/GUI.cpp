@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-GUI gGUI;
 static GUI* sGUI = NULL;
 
 
@@ -27,7 +26,6 @@ GUI::GUI()
 	fResource(NULL),
 	fCurrentCursor(NULL)
 {
-	sGUI = &gGUI;
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
 }
@@ -294,7 +292,18 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 GUI*
 GUI::Default()
 {
+	if (sGUI == NULL)
+		sGUI = new GUI();
 	return sGUI;
+}
+
+
+/* static */
+void
+GUI::Destroy()
+{
+	delete sGUI;
+	sGUI = NULL;
 }
 
 
