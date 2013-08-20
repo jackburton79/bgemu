@@ -642,8 +642,8 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 void
 ResourceManager::TryEmptyResourceCache(bool force)
 {
-	std::list<Resource*>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+	std::list<Resource*>::iterator it = fCachedResources.begin();
+	while (it != fCachedResources.end()) {
 		std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
 		std::cout << "refcount is " << (*it)->RefCount();
 		if (force || (*it)->RefCount() == 1) {
@@ -651,7 +651,8 @@ ResourceManager::TryEmptyResourceCache(bool force)
 			std::flush(std::cout);
 			it = fCachedResources.erase(it);
 			delete *it;
-		}
+		} else
+			it++;
 		std::cout << std::endl;
 	}
 }
