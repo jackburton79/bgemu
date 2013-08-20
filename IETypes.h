@@ -407,7 +407,6 @@ enum label_flags {
 
 
 struct text_area : public control {
-	uint32 text_ref;
 	res_ref font_bam;
 	res_ref font_initials_bam;
 	uint8 color1_r;
@@ -423,7 +422,7 @@ struct text_area : public control {
 	uint8 color3_b;
 	uint8 color3_a;
 	uint32 parent_control_id;
-};
+} __attribute__((packed));
 
 
 struct label : public control {
