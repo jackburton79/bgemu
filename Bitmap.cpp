@@ -221,8 +221,8 @@ void
 Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
+	const sint16 bottom = polygon.Frame().y + polygon.Frame().h;
 	const sint16 top = std::max(polygon.Frame().y, sint16(0));
-	const sint16 bottom = std::min(top + polygon.Frame().h, int(Frame().h));
 
 	for (sint16 y = top; y < bottom; y++) {
 		std::vector<sint16> nodeList;
