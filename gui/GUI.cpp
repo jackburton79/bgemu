@@ -123,10 +123,8 @@ GUI::MouseMoved(int16 x, int16 y)
 void
 GUI::ShowWindow(uint16 id)
 {
-	if (GetWindow(id) != NULL) {
-		// Window is already shown
+	if (IsWindowShown(id))
 		return;
-	}
 
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
