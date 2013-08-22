@@ -144,15 +144,6 @@ ResourceManager::Initialize(const char *path)
 		for (uint32 c = 0; c < numResources; c++) {
 			KeyResEntry *res = new KeyResEntry;
 			if (key->GetResEntryAt(c, *res)) {
-				if (!strcmp(res->name.name, "")) {
-					printf("unnamed resource type %s, %d\n",
-							strresource(res->type), res->key);
-					// TODO: looks like in BG2 there is an unnamed resource
-					// and this causes all kinds of problems. Investigate
-					delete res;
-					continue;
-				}
-
 				ref_type refType;
 				refType.name = res->name;
 				refType.type = res->type;

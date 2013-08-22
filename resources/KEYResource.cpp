@@ -90,9 +90,15 @@ KEYResource::GetResEntryAt(uint32 index, KeyResEntry &entry)
 {
 	try {
 		fData->Seek(fResOffset + index * kKeyResEntrySize, SEEK_SET);
-		fData->Read(&entry.name, 8);
+		fData->Read(entry.name);
 		fData->Read(entry.type);
 		fData->Read(entry.key);
+		if (!strcmp(entry.name.name, "")) {
+			printf("BUG: unnamed resource !!!\n");
+			// TODO: looks like in BG2 there is an unnamed resource
+			// and this causes all kinds of problems. Investigate)
+			throw -1;
+		}
 	} catch (...) {
 		return false;
 	}
