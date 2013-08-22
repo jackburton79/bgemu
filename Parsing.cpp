@@ -105,16 +105,6 @@ Parser::Read(node*& rootNode)
 	} catch (...) {
 		printf("end of file!\n");
 	}
-
-	try {
-		// TODO: We do a second pass to copy the values into
-		// the node specific values.
-		// Not very nice, try harder for a better solution
-		//if (rootNode != NULL)
-			//_FixNodeTree(rootNode);
-	} catch (...) {
-		printf("FixNodeTree failed!\n");
-	}
 }
 
 
