@@ -56,25 +56,29 @@ KEYResource::CountFileEntries() const
 }
 
 
-bool
-KEYResource::GetFileEntryAt(uint32 index, KeyFileEntry &entry)
+KeyFileEntry*
+KEYResource::GetFileEntryAt(uint32 index)
 {
+	KeyFileEntry* entry = NULL;
 	try {
+		entry = new KeyFileEntry;
+
 		fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
 		int32 offset;
 		int16 nameLen;
 
-		fData->Read(entry.length);
+		fData->Read(entry->length);
 		fData->Read(offset);
 		fData->Read(nameLen);
-		fData->Read(entry.location);
-		fData->ReadAt(offset, entry.name, nameLen);
-		path_dos_to_unix(entry.name);
+		fData->Read(entry->location);
+		fData->ReadAt(offset, entry->name, nameLen);
+		path_dos_to_unix(entry->name);
 	} catch (...) {
-		return false;
+		delete entry;
+		entry = NULL;
 	}
 
-	return true;
+	return entry;
 }
 
 
@@ -85,22 +89,26 @@ KEYResource::CountResourceEntries() const
 }
 
 
-bool
-KEYResource::GetResEntryAt(uint32 index, KeyResEntry &entry)
+KeyResEntry*
+KEYResource::GetResEntryAt(uint32 index)
 {
+	KeyResEntry* entry = NULL;
 	try {
+		entry = new KeyResEntry;
 		fData->Seek(fResOffset + index * kKeyResEntrySize, SEEK_SET);
-		fData->Read(entry.name);
-		fData->Read(entry.type);
-		fData->Read(entry.key);
-		if (!strcmp(entry.name.name, "")) {
-			printf("BUG: unnamed resource !!!\n");
+		fData->Read(entry->name);
+		fData->Read(entry->type);
+		fData->Read(entry->key);
+		if (!strcmp(entry->name.name, "")) {
+			std::cerr << "BUG: unnamed resource at index ";
+			std::cerr << index << "!!!" << std::endl;
 			// TODO: looks like in BG2 there is an unnamed resource
-			// and this causes all kinds of problems. Investigate)
+			// and this causes all kinds of problems. Investigate
 			throw -1;
 		}
 	} catch (...) {
-		return false;
+		delete entry;
+		entry = NULL;
 	}
-	return true;
+	return entry;
 }

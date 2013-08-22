@@ -24,10 +24,10 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 
 	uint32 CountFileEntries() const;
-	bool GetFileEntryAt(uint32 index, KeyFileEntry &entry);
+	KeyFileEntry* GetFileEntryAt(uint32 index);
 
 	uint32 CountResourceEntries() const;
-	bool GetResEntryAt(uint32 index, KeyResEntry &entry);
+	KeyResEntry* GetResEntryAt(uint32 index);
 
 private:
 	uint32 fNumBifs;

@@ -131,27 +131,20 @@ ResourceManager::Initialize(const char *path)
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
-		KeyFileEntry *bif = new KeyFileEntry;
-		if (key->GetFileEntryAt(b, *bif))
+		if (KeyFileEntry* bif = key->GetFileEntryAt(b))
 			fBifs.push_back(bif);
-		else
-			delete bif;
+
 	}
 
 	bool resourcesOk = true;
 	try {
 		const uint32 numResources = key->CountResourceEntries();
 		for (uint32 c = 0; c < numResources; c++) {
-			KeyResEntry *res = new KeyResEntry;
-			if (key->GetResEntryAt(c, *res)) {
+			if (KeyResEntry *res = key->GetResEntryAt(c)) {
 				ref_type refType;
 				refType.name = res->name;
 				refType.type = res->type;
 				fResourceMap[refType] = res;
-
-			} else {
-				std::cerr << "GetResEntryAt() failed" << std::endl;
-				delete res;
 			}
 		}
 	} catch (...) {
