@@ -76,7 +76,9 @@ res_string_to_type(const char* string)
 	const char* ext = extension(string);
 	if (ext == NULL)
 		return -1;
-	if (!strcasecmp(ext, ".WED"))
+	if (!strcasecmp(ext, ".2DA"))
+		return RES_2DA;
+	else if (!strcasecmp(ext, ".WED"))
 		return RES_WED;
 	else if (!strcasecmp(ext, ".WMP"))
 		return RES_WMP;
