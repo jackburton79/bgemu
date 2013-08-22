@@ -170,8 +170,6 @@ ResourceManager::Initialize(const char *path)
 
 	delete key;
 
-	if (resourcesOk)
-		_LoadIDSResources();
 
 	return resourcesOk;
 }
@@ -180,27 +178,7 @@ ResourceManager::Initialize(const char *path)
 void
 ResourceManager::_LoadIDSResources()
 {
-	sDialogs = gResManager->GetTLK(kDialogResource);
-	sAnimate = gResManager->GetIDS("ANIMATE");
-	sAniSnd = gResManager->GetIDS("ANISND");
 
-	// TODO: Improve
-	if (sAniSnd == NULL) {
-		// No AniSnd.ids file, let's use our own.
-		sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
-	} else {
-		//sAniSnd->DumpToFile("/home/stefano/anisnd.ids");
-	}
-	sGeneral = gResManager->GetIDS("GENERAL");
-	sRaces = gResManager->GetIDS("RACE");
-	sGenders = gResManager->GetIDS("GENDER");
-	sClasses = gResManager->GetIDS("CLASS");
-	sSpecifics = gResManager->GetIDS("SPECIFIC");
-	sTriggers = gResManager->GetIDS("TRIGGER");
-	sActions = gResManager->GetIDS("ACTION");
-	sObjects = gResManager->GetIDS("OBJECT");
-	sEA = gResManager->GetIDS("EA");
-	sAlignment = gResManager->GetIDS("ALIGNMENT");
 }
 
 
@@ -668,10 +646,12 @@ ResourceManager::TryEmptyResourceCache(bool force)
 
 
 // IDTable
-
 TLKResource*
 Dialogs()
 {
+	if (sDialogs == NULL)
+		sDialogs = gResManager->GetTLK(kDialogResource);
+
 	return sDialogs;
 }
 
@@ -679,6 +659,9 @@ Dialogs()
 std::string
 IDTable::AlignmentAt(uint32 i)
 {
+	if (sAlignment == NULL)
+		sAlignment = gResManager->GetIDS("ALIGNMENT");
+
 	return sAlignment->ValueFor(i);
 }
 
@@ -686,6 +669,9 @@ IDTable::AlignmentAt(uint32 i)
 std::string
 IDTable::GeneralAt(uint32 i)
 {
+	if (sGeneral == NULL)
+		sGeneral = gResManager->GetIDS("GENERAL");
+
 	return sGeneral->ValueFor(i);
 }
 
@@ -693,6 +679,8 @@ IDTable::GeneralAt(uint32 i)
 std::string
 IDTable::AnimationAt(uint32 i)
 {
+	if (sAnimate == NULL)
+		sAnimate = gResManager->GetIDS("ANIMATE");
 	return sAnimate->ValueFor(i);
 }
 
@@ -700,6 +688,13 @@ IDTable::AnimationAt(uint32 i)
 std::string
 IDTable::AniSndAt(uint32 i)
 {
+	if (sAniSnd == NULL) {
+		sAniSnd = gResManager->GetIDS("ANISND");
+		if (sAniSnd == NULL) {
+			// No AniSnd.ids file, let's use our own.
+			sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
+		}
+	}
 	return sAniSnd->ValueFor(i);
 }
 
@@ -707,6 +702,9 @@ IDTable::AniSndAt(uint32 i)
 std::string
 IDTable::RaceAt(uint32 i)
 {
+	if (sRaces == NULL)
+		sRaces = gResManager->GetIDS("RACE");
+
 	return sRaces->ValueFor(i);
 }
 
@@ -714,6 +712,8 @@ IDTable::RaceAt(uint32 i)
 std::string
 IDTable::GenderAt(uint32 i)
 {
+	if (sGenders == NULL)
+		sGenders = gResManager->GetIDS("GENDER");
 	return sGenders->ValueFor(i);
 }
 
@@ -721,6 +721,8 @@ IDTable::GenderAt(uint32 i)
 std::string
 IDTable::ClassAt(uint32 i)
 {
+	if (sClasses == NULL)
+		sClasses = gResManager->GetIDS("CLASS");
 	return sClasses->ValueFor(i);
 }
 
@@ -728,6 +730,9 @@ IDTable::ClassAt(uint32 i)
 std::string
 IDTable::SpecificAt(uint32 i)
 {
+	if (sSpecifics == NULL)
+		sSpecifics = gResManager->GetIDS("SPECIFIC");
+
 	return sSpecifics->ValueFor(i);
 }
 
@@ -735,6 +740,9 @@ IDTable::SpecificAt(uint32 i)
 std::string
 IDTable::TriggerAt(uint32 i)
 {
+	if (sTriggers == NULL)
+		sTriggers = gResManager->GetIDS("TRIGGER");
+
 	return sTriggers->ValueFor(i);
 }
 
@@ -742,6 +750,8 @@ IDTable::TriggerAt(uint32 i)
 std::string
 IDTable::ActionAt(uint32 i)
 {
+	if (sActions == NULL)
+		sActions = gResManager->GetIDS("ACTION");
 	return sActions->ValueFor(i);
 }
 
@@ -749,6 +759,8 @@ IDTable::ActionAt(uint32 i)
 std::string
 IDTable::ObjectAt(uint32 i)
 {
+	if (sObjects == NULL)
+		sObjects = gResManager->GetIDS("OBJECT");
 	return sObjects->ValueFor(i);
 }
 
@@ -756,5 +768,7 @@ IDTable::ObjectAt(uint32 i)
 std::string
 IDTable::EnemyAllyAt(uint32 i)
 {
+	if (sEA == NULL)
+		sEA = gResManager->GetIDS("EA");
 	return sEA->ValueFor(i);
 }
