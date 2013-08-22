@@ -175,13 +175,6 @@ ResourceManager::Initialize(const char *path)
 }
 
 
-void
-ResourceManager::_LoadIDSResources()
-{
-
-}
-
-
 Resource*
 ResourceManager::GetResource(const char* fullName)
 {
