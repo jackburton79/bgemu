@@ -65,9 +65,9 @@ Core::Initialize(const char* path)
 	if (!gResManager->Initialize(path))
 		return false;
 
-	// Identify game
+	// Detect game
 	// TODO: Find a better/safer way
-	std::cout << "Identifying game... ";
+	std::cout << "Detecting game... ";
 	std::vector<std::string> stringList;
 	if (gResManager->GetResourceList(stringList, "CSJON", RES_CRE) == 1) {
 		sCore->fGame = GAME_BALDURSGATE2;
