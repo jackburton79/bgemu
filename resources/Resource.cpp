@@ -116,6 +116,13 @@ Resource::Load(Archive *archive, uint32 key)
 
 
 void
+Resource::Dump()
+{
+	fData->Dump();
+}
+
+
+void
 Resource::DumpToFile(const char *fileName)
 {
 	if (fData != NULL)

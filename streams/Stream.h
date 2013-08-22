@@ -66,6 +66,7 @@ public:
 			throw "ReadAt() exception";
 	};
 
+	void Dump();
 	void DumpToFile(const char *fileName);
 };
 

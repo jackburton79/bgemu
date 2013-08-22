@@ -1,5 +1,8 @@
 #include "Stream.h"
 
+#include <iostream>
+
+
 Stream::Stream()
 {
 }
@@ -82,7 +85,20 @@ Stream::ReadByte()
 	return byte;
 }
 
-	
+
+void
+Stream::Dump()
+{
+	int32 oldPos = Position();
+	Seek(0, SEEK_SET);
+	ssize_t read;
+	char buffer[1024];
+	while ((read = Read(buffer, 1024)) > 0)
+		std::cout << buffer;
+	Seek(oldPos, SEEK_SET);
+}
+
+
 void
 Stream::DumpToFile(const char *fileName)
 {
