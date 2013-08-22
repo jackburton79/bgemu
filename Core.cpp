@@ -24,10 +24,9 @@ static Core* sCore = NULL;
 
 //const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
-game Core::sGame = GAME_BALDURSGATE2;
-
 Core::Core()
 	:
+	fGame(GAME_BALDURSGATE2),
 	fCurrentRoom(NULL),
 	fActiveActor(NULL),
 	fRoomScript(NULL),
@@ -52,7 +51,7 @@ Core::Get()
 
 
 bool
-Core::Initialize()
+Core::Initialize(const char* path)
 {
 	if (sCore != NULL)
 		return true;
@@ -63,6 +62,22 @@ Core::Initialize()
 		return false;
 	}
 
+	if (!gResManager->Initialize(path))
+		return false;
+
+	// Identify game
+	// TODO: Find a better/safer way
+	std::cout << "Identifying game... ";
+	std::vector<std::string> stringList;
+	if (gResManager->GetResourceList(stringList, "CSJON", RES_CRE) == 1) {
+		sCore->fGame = GAME_BALDURSGATE2;
+		std::cout << "GAME_BALDURSGATE2" << std::endl;
+	} else {
+		sCore->fGame = GAME_BALDURSGATE;
+		std::cout << "GAME_BALDURSGATE" << std::endl;
+	}
+
+	std::cout << std::endl;
 	return true;
 }
 
@@ -74,17 +89,10 @@ Core::Destroy()
 }
 
 
-game
-Core::Game()
+uint32
+Core::Game() const
 {
-	return sGame;
-}
-
-
-void
-Core::SetGame(game g)
-{
-	sGame = g;
+	return fGame;
 }
 
 

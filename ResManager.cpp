@@ -187,10 +187,8 @@ ResourceManager::_LoadIDSResources()
 	// TODO: Improve
 	if (sAniSnd == NULL) {
 		// No AniSnd.ids file, let's use our own.
-		Core::SetGame(GAME_BALDURSGATE);
 		sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
 	} else {
-		Core::SetGame(GAME_BALDURSGATE2);
 		//sAniSnd->DumpToFile("/home/stefano/anisnd.ids");
 	}
 	sGeneral = gResManager->GetIDS("GENERAL");
@@ -261,7 +259,6 @@ ResourceManager::GetKEY(const char *name)
 			delete key;
 			return NULL;
 		}
-		//key->Acquire();
 		delete archive;
 	} catch (...) {
 		std::cerr << "Cannot open KEY file " << path << std::endl;

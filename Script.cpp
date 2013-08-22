@@ -919,7 +919,7 @@ void
 object_node::Print() const
 {
 	std::cout << "Object:" << std::endl;
-	if (Core::Game() == GAME_TORMENT) {
+	if (Core::Get()->Game() == GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
 	}
@@ -937,7 +937,7 @@ object_node::Print() const
 		 std::cout << IDTable::ObjectAt(identifiers[i]) << " ";
 	}
 	std::cout << std::endl;
-	if (Core::Game() == GAME_TORMENT)
+	if (Core::Get()->Game() == GAME_TORMENT)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	if (name[0] != '\0')
 		 std::cout << "name: " << name << std::endl;

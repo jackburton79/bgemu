@@ -57,8 +57,8 @@ main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
-	if (!gResManager->Initialize(sPath)) {
-		std::cerr << "Failed to initialize Resource Manager!" << std::endl;
+	if (!Core::Initialize(sPath)) {
+		std::cerr << "Failed to initialize Core!" << std::endl;
 		return -1;
 	}
 
@@ -73,11 +73,6 @@ main(int argc, char **argv)
 			resource->Dump();
 		gResManager->ReleaseResource(resource);
 		return 0;
-	}
-
-	if (!Core::Initialize()) {
-		std::cerr << "Failed to initialize Core!" << std::endl;
-		return -1;
 	}
 
 	if (!GraphicsEngine::Initialize()) {

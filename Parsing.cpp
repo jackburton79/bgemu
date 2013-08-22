@@ -144,7 +144,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 	object_node* obj = dynamic_cast<object_node*>(node);
 	if (obj) {
 		obj->ea = tokenizer->ReadNextToken().u.number;
-		if (Core::Game() == GAME_TORMENT) {
+		if (Core::Get()->Game() == GAME_TORMENT) {
 			obj->faction = tokenizer->ReadNextToken().u.number;
 			obj->team = tokenizer->ReadNextToken().u.number;
 		}
@@ -158,7 +158,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 			obj->identifiers[i] = tokenizer->ReadNextToken().u.number;
 
 		// TODO: Not sure which games supports that
-		if (Core::Game() == GAME_TORMENT) {
+		if (Core::Get()->Game() == GAME_TORMENT) {
 			obj->point.x = tokenizer->ReadNextToken().u.number;
 			obj->point.y = tokenizer->ReadNextToken().u.number;
 		}

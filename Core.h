@@ -28,13 +28,10 @@ class TLKResource;
 class Core {
 public:
 	static Core* Get();
-	static bool Initialize();
+	static bool Initialize(const char* path);
 	static void Destroy();
 
-	// TODO: These are static for now, since currently ResourceManager
-	// has to be instantiated before Core, but needs these two methods
-	static game Game();
-	static void SetGame(game g);
+	uint32 Game() const;
 
 	uint32 Time() const;
 	uint32 GameTime() const;
@@ -65,6 +62,7 @@ public:
 	void RandomWalk(Actor* actor);
 
 private:
+	game fGame;
 	Room* fCurrentRoom;
 	Actor* fActiveActor;
 
@@ -74,8 +72,6 @@ private:
 	std::map<std::string, ScriptContext*> fScriptContextes;
 
 	uint32 fLastScriptRoundTime;
-
-	static game sGame;
 
 	Core();
 	~Core();
