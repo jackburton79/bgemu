@@ -71,6 +71,7 @@ main(int argc, char **argv)
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
 			resource->Dump();
+		gResManager->ReleaseResource(resource);
 		return 0;
 	}
 
