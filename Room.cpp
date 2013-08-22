@@ -112,7 +112,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
-	GUI* gui = GUI::Default();
+	GUI* gui = GUI::Get();
 	gui->Clear();
 	gui->Load("GUIW");
 	gui->ShowWindow(uint16(-1));
@@ -186,7 +186,7 @@ Room::LoadWorldMap()
 
 	_UnloadArea();
 
-	GUI* gui = GUI::Default();
+	GUI* gui = GUI::Get();
 
 	gui->Clear();
 	gui->Load("GUIWMAP");
@@ -450,7 +450,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	uint32 vertBorderSize = 40;
 
 	// TODO: Less hardcoding of the window number
-	Window* window = GUI::Default()->GetWindow(1);
+	Window* window = GUI::Get()->GetWindow(1);
 	if (window != NULL) {
 		horizBorderSize += window->Width();
 	}
@@ -588,7 +588,7 @@ Room::ToggleAnimations()
 void
 Room::ToggleGUI()
 {
-	GUI* gui = GUI::Default();
+	GUI* gui = GUI::Get();
 	if (gui->IsWindowShown(0))
 		gui->HideWindow(0);
 	else
@@ -727,7 +727,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
-		GUI::Default()->SetCursor(IE::CURSOR_HAND);
+		GUI::Get()->SetCursor(IE::CURSOR_HAND);
 		return;
 	}
 
@@ -756,7 +756,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 	}
 
 
-	GUI::Default()->SetCursor(cursorIndex);
+	GUI::Get()->SetCursor(cursorIndex);
 }
 
 

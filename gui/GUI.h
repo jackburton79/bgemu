@@ -39,7 +39,7 @@ public:
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
-	static GUI* Default();
+	static GUI* Get();
 	static void Destroy();
 
 private:

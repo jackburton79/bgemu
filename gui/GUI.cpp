@@ -301,7 +301,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 
 /* static */
 GUI*
-GUI::Default()
+GUI::Get()
 {
 	if (sGUI == NULL)
 		sGUI = new GUI();
