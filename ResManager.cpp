@@ -206,8 +206,20 @@ ResourceManager::_LoadIDSResources()
 }
 
 
-Resource *
-ResourceManager::_GetResource(const res_ref &name, uint16 type)
+Resource*
+ResourceManager::GetResource(const char* fullName)
+{
+	int type = res_string_to_type(fullName);
+	std::string leaf = fullName;
+	leaf = leaf.substr(0, leaf.find("."));
+	res_ref name = leaf.c_str();
+
+	return GetResource(name, type);
+}
+
+
+Resource*
+ResourceManager::GetResource(const res_ref &name, uint16 type)
 {
 	if (!strcmp(name.name, ""))
 		return NULL;
@@ -280,7 +292,7 @@ ResourceManager::GetTLK(const char* name)
 ARAResource*
 ResourceManager::GetARA(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_ARA);
+	Resource* resource = GetResource(name, RES_ARA);
 	return static_cast<ARAResource*>(resource);
 }
 
@@ -288,7 +300,7 @@ ResourceManager::GetARA(const res_ref& name)
 BAMResource*
 ResourceManager::GetBAM(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_BAM);
+	Resource* resource = GetResource(name, RES_BAM);
 	return static_cast<BAMResource*>(resource);
 }
 
@@ -296,7 +308,7 @@ ResourceManager::GetBAM(const res_ref& name)
 BMPResource*
 ResourceManager::GetBMP(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_BMP);
+	Resource* resource = GetResource(name, RES_BMP);
 	return static_cast<BMPResource*>(resource);
 }
 
@@ -304,7 +316,7 @@ ResourceManager::GetBMP(const res_ref& name)
 BCSResource*
 ResourceManager::GetBCS(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_BCS);
+	Resource* resource = GetResource(name, RES_BCS);
 	return static_cast<BCSResource*>(resource);
 }
 
@@ -312,7 +324,7 @@ ResourceManager::GetBCS(const res_ref& name)
 CHUIResource*
 ResourceManager::GetCHUI(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_CHU);
+	Resource* resource = GetResource(name, RES_CHU);
 	return static_cast<CHUIResource*>(resource);
 }
 
@@ -320,7 +332,7 @@ ResourceManager::GetCHUI(const res_ref& name)
 CREResource*
 ResourceManager::GetCRE(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_CRE);
+	Resource* resource = GetResource(name, RES_CRE);
 	return static_cast<CREResource*>(resource);
 }
 
@@ -328,7 +340,7 @@ ResourceManager::GetCRE(const res_ref& name)
 IDSResource*
 ResourceManager::GetIDS(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_IDS);
+	Resource* resource = GetResource(name, RES_IDS);
 	return static_cast<IDSResource*>(resource);
 }
 
@@ -336,7 +348,7 @@ ResourceManager::GetIDS(const res_ref& name)
 ITMResource*
 ResourceManager::GetITM(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_ITM);
+	Resource* resource = GetResource(name, RES_ITM);
 	return static_cast<ITMResource*>(resource);
 }
 
@@ -344,7 +356,7 @@ ResourceManager::GetITM(const res_ref& name)
 MOSResource*
 ResourceManager::GetMOS(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_MOS);
+	Resource* resource = GetResource(name, RES_MOS);
 	return static_cast<MOSResource*>(resource);
 }
 
@@ -352,7 +364,7 @@ ResourceManager::GetMOS(const res_ref& name)
 MVEResource*
 ResourceManager::GetMVE(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_MVE);
+	Resource* resource = GetResource(name, RES_MVE);
 	return static_cast<MVEResource*>(resource);
 }
 
@@ -360,7 +372,7 @@ ResourceManager::GetMVE(const res_ref& name)
 TISResource*
 ResourceManager::GetTIS(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_TIS);
+	Resource* resource = GetResource(name, RES_TIS);
 	return static_cast<TISResource*>(resource);
 }
 
@@ -368,7 +380,7 @@ ResourceManager::GetTIS(const res_ref& name)
 WEDResource*
 ResourceManager::GetWED(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_WED);
+	Resource* resource = GetResource(name, RES_WED);
 	return static_cast<WEDResource*>(resource);
 }
 
@@ -376,7 +388,7 @@ ResourceManager::GetWED(const res_ref& name)
 WMAPResource*
 ResourceManager::GetWMAP(const res_ref& name)
 {
-	Resource* resource = _GetResource(name, RES_WMP);
+	Resource* resource = GetResource(name, RES_WMP);
 	return static_cast<WMAPResource*>(resource);
 }
 

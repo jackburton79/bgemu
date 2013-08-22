@@ -57,7 +57,7 @@ ResourceContext::ResourceContext(ShellContext* context,
 	:
 	ShellContext(context)
 {
-	fResource = gResManager->_GetResource(resource.name, resource.type);
+	fResource = gResManager->GetResource(resource.name, resource.type);
 	if (fResource == NULL)
 		throw "cannot load resource";
 }

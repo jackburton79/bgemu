@@ -49,9 +49,12 @@ public:
 	TISResource *GetTIS(const res_ref& name);
 	WEDResource *GetWED(const res_ref& name);
 	ARAResource *GetARA(const res_ref& name);
-	MOSResource* GetMOS(const res_ref& name);
+	MOSResource * GetMOS(const res_ref& name);
 	MVEResource *GetMVE(const res_ref& name);
 	WMAPResource* GetWMAP(const res_ref& name);
+
+	Resource *GetResource(const char* fullName);
+	Resource *GetResource(const res_ref &name, uint16 type);
 
 	void ReleaseResource(Resource *resource);
 	void TryEmptyResourceCache(bool force = false);
@@ -63,7 +66,6 @@ public:
 	static std::string LightMapName(const char *name);
 	static std::string SearchMapName(const char *name);
 
-	Resource *_GetResource(const res_ref &name, uint16 type);
 	int32 GetResourceList(std::vector<std::string>& list,
 			const char* query, uint16 type)  const;
 
