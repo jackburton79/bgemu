@@ -31,13 +31,15 @@ TWODAResource::Load(Archive* archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
-	if (!CheckSignature(TWODA_SIGNATURE))
-		return false;
+	if (CheckSignature(TWODA_SIGNATURE)) {
+		fData->Seek(4, SEEK_CUR);
+	}
 
-	if (!CheckVersion(TWODA_VERSION_1))
-		return false;
+	if (CheckVersion(TWODA_VERSION_1)) {
+		fData->Seek(4, SEEK_CUR);
+	}
 
-	fData->Seek(8, SEEK_SET);
+	//fData->Seek(8, SEEK_SET);
 
 	char string[256];
 	fData->ReadLine(string, sizeof(string));
