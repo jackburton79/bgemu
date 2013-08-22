@@ -19,12 +19,14 @@
 static int sList = 0;
 static int sNoScripts = 0;
 static const char *sPath = "../BG";
+static const char *sResourceName = NULL;
 
 static
 struct option sLongOptions[] = {
 		{ "list", no_argument, &sList, 1 },
-		{ "path", required_argument, 0, 'p'},
-		{ "noscripts", no_argument, &sNoScripts, 1 },
+		{ "showresource", required_argument, NULL, 's'},
+		{ "path", required_argument, NULL, 'p'},
+		{ "noscripts", no_argument, &sNoScripts, 'n' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -34,11 +36,14 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "p:ln",
+	while ((c = getopt_long(argc, argv, "p:s:ln",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
 				sPath = optarg;
+				break;
+			case 's':
+				sResourceName = optarg;
 				break;
 			default:
 				break;
@@ -59,6 +64,13 @@ main(int argc, char **argv)
 
 	if (sList) {
 		gResManager->PrintResources();
+		return 0;
+	}
+
+	if (sResourceName != NULL) {
+		Resource* resource = gResManager->GetResource(sResourceName);
+		if (resource != NULL)
+			resource->DumpToFile(sResourceName);
 		return 0;
 	}
 
@@ -92,8 +104,6 @@ main(int argc, char **argv)
 		Core::Destroy();
 		return -1;
 	}
-
-	graphicsEngine->SetWindowCaption(map->AreaName().CString());
 
 
 	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
