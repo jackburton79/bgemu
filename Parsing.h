@@ -81,7 +81,7 @@ private:
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
-	void _FixNodeTree(::node *node);
+	void _FixNode(::node *node);
 
 	static int _BlockTypeFromToken(const token &tok);
 

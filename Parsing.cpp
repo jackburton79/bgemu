@@ -110,8 +110,8 @@ Parser::Read(node*& rootNode)
 		// TODO: We do a second pass to copy the values into
 		// the node specific values.
 		// Not very nice, try harder for a better solution
-		if (rootNode != NULL)
-			_FixNodeTree(rootNode);
+		//if (rootNode != NULL)
+			//_FixNodeTree(rootNode);
 	} catch (...) {
 		printf("FixNodeTree failed!\n");
 	}
@@ -235,8 +235,10 @@ Parser::_ReadElement(::node*& node)
 			fTokenizer->RewindToken(tok);
 			if (Parser::_BlockTypeFromToken(tok) == node->type) {
 				// Means the block is open, and this is
-				// the closing tag. Bail out and let
-				// _ReadElementGuard do the rest.
+				// the closing tag. FixNode will copy the node values
+				// to the node specific values.
+				// _ReadElementGuard will do the rest.
+				_FixNode(node);
 				break;
 			} else {
 				// We found a nested block,
@@ -277,7 +279,7 @@ Parser::_ReadElementValue(::node* node, const token& tok)
 
 
 void
-Parser::_FixNodeTree(::node* node)
+Parser::_FixNode(::node* node)
 {
 	StringStream stream(node->value);
 	Tokenizer tokenizer(&stream, 0);
@@ -298,10 +300,6 @@ Parser::_FixNodeTree(::node* node)
 		default:
 			break;
 	}
-
-	node_list::iterator i;
-	for (i = node->children.begin(); i != node->children.end(); i++)
-		_FixNodeTree(*i);
 }
 
 
