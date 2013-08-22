@@ -70,7 +70,7 @@ main(int argc, char **argv)
 	if (sResourceName != NULL) {
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
-			resource->DumpToFile(sResourceName);
+			resource->Dump();
 		return 0;
 	}
 
