@@ -211,6 +211,21 @@ Resource::DropData()
 }
 
 
+bool
+Resource::IsEncrypted()
+{
+	int32 pos = fData->Position();
+	fData->Seek(0, SEEK_SET);
+
+	bool encrypted = (fData->ReadByte() == 0xFF)
+		&& (fData->ReadByte() == 0xFF);
+
+	fData->Seek(pos, SEEK_SET);
+
+	return encrypted;
+}
+
+
 /* static */
 Resource*
 Resource::Create(const res_ref &name, const uint16& type)

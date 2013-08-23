@@ -32,6 +32,8 @@ protected:
 	bool ReplaceData(Stream *stream);
 	void DropData();
 
+	bool IsEncrypted();
+
 	Stream *fData;
 	uint32 fKey;
 	uint16 fType;
