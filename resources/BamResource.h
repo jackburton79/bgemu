@@ -19,6 +19,8 @@ public:
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
+	virtual void Dump();
+
 	const Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;

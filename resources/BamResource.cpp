@@ -82,6 +82,25 @@ BAMResource::Load(Archive *archive, uint32 key)
 }
 
 
+void
+BAMResource::Dump()
+{
+	std::cout << "FrameOffset: " << std::dec << fFramesOffset << std::endl;
+	std::cout << "CyclesOffset: " << fCyclesOffset << std::endl;
+	std::cout << "FrameLookupOffset" << fFrameLookupOffset << std::endl;
+
+	std::cout << "NumFrames" << fNumFrames << std::endl;
+	std::cout << "NumCycles" << fNumCycles << std::endl;
+
+	for (int cycle = 0; cycle < fNumCycles; cycle++)
+		PrintFrames(cycle);
+
+	Resource::Dump();
+
+	std::cout << std::endl;
+}
+
+
 uint8
 BAMResource::_FindTransparentIndex()
 {
@@ -101,14 +120,15 @@ BAMResource::PrintFrames(uint8 cycleIndex) const
 {
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(newCycle)), newCycle);
-	std::cout << "Cycle " << cycleIndex << ": ";
-	std::cout << newCycle.numFrames << " frames" << std::endl;
+	std::cout << "Cycle " << (int)cycleIndex << ": ";
+	std::cout << newCycle.numFrames << " frames:" << std::endl;
 	for (uint16 numFrame = 0; numFrame < newCycle.numFrames; numFrame++) {
 		uint16 index;
 		fData->ReadAt(fFrameLookupOffset
 				+ (newCycle.index + numFrame) * sizeof(int16), index);
-		std::cout << "frame " << numFrame << ": " << index << std::endl;
+		std::cout << numFrame << ": " << index << ", ";
 	}
+	std::cout << std::endl;
 }
 
 
