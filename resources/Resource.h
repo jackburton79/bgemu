@@ -14,7 +14,7 @@ public:
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
-	void Dump();
+	virtual void Dump();
 	void DumpToFile(const char *fileName);
 
 	const uint32 Key() const;
