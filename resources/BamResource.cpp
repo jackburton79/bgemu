@@ -87,15 +87,31 @@ BAMResource::Dump()
 {
 	std::cout << "FrameOffset: " << std::dec << fFramesOffset << std::endl;
 	std::cout << "CyclesOffset: " << fCyclesOffset << std::endl;
-	std::cout << "FrameLookupOffset" << fFrameLookupOffset << std::endl;
+	std::cout << "FrameLookupOffset: " << fFrameLookupOffset << std::endl;
 
-	std::cout << "NumFrames" << fNumFrames << std::endl;
-	std::cout << "NumCycles" << fNumCycles << std::endl;
+	std::cout << "NumFrames: " << fNumFrames << std::endl;
+	std::cout << "NumCycles: " << fNumCycles << std::endl;
 
 	for (int cycle = 0; cycle < fNumCycles; cycle++)
 		PrintFrames(cycle);
 
-	Resource::Dump();
+	int32 oldPos = fData->Position();
+	fData->Seek(0, SEEK_SET);
+	int column = 0;
+	for(;;) {
+		try {
+			uint8 byte = fData->ReadByte();
+			std::cout << std::hex << (int)byte << " ";
+		} catch (...) {
+			break;
+		}
+		if (column++ > 40) {
+			column = 0;
+			std::cout << std::endl;
+		}
+	}
+
+	fData->Seek(oldPos, SEEK_SET);
 
 	std::cout << std::endl;
 }
