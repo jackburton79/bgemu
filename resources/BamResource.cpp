@@ -24,7 +24,18 @@ struct BamFrameEntry {
 	uint16 xpos;
 	uint16 ypos;
 	uint32 data;
+	void Print() const;
 };
+
+
+void
+BamFrameEntry::Print() const
+{
+	std::cout << "width: " << width << std::endl;
+	std::cout << "height: " << height << std::endl;
+	std::cout << "xpos: " << xpos << std::endl;
+	std::cout << "ypos: " << ypos << std::endl;
+}
 
 
 static inline bool
@@ -96,19 +107,26 @@ BAMResource::Dump()
 		PrintFrames(cycle);
 
 	int32 oldPos = fData->Position();
-	fData->Seek(0, SEEK_SET);
-	int column = 0;
-	for(;;) {
-		try {
+	//size_t outputted = 0;
+	for(int f = 0; f < fNumFrames; f++) {
+		std::cout << "BamFrameEntry " << f << std::endl;
+		fData->Seek(fFramesOffset + f * sizeof(BamFrameEntry), SEEK_SET);
+		BamFrameEntry entry;
+		fData->Read(entry);
+		entry.Print();
+		fData->Seek(data_offset(entry.data), SEEK_SET);
+		/*try {
 			uint8 byte = fData->ReadByte();
 			std::cout << std::hex << (int)byte << " ";
 		} catch (...) {
 			break;
 		}
-		if (column++ > 40) {
-			column = 0;
-			std::cout << std::endl;
-		}
+		if (outputted++ >= sizeof(BamFrameEntry)) {
+			outputted = 0;
+			std::cout << std::endl << "**** offset: " << fData->Position();
+			std::cout << " ****" << std::endl ;
+		}*/
+		std::cout << "****" << std::endl ;
 	}
 
 	fData->Seek(oldPos, SEEK_SET);
