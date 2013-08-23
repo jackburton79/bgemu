@@ -3,6 +3,7 @@
 #include "RectUtils.h"
 
 #include <assert.h>
+#include <stdexcept>
 #include <stdlib.h>
 
 Polygon::Polygon()
@@ -71,6 +72,29 @@ Polygon::AddPoints(IE::point *points, int32 num)
 	memcpy(fPoints + fCount, points, num * sizeof(IE::point));
 	fCount += num;
 
+	// Recalculate Bounds
+	// Seems like some polygons in some games have a wrong bounding box.
+	sint16 left = fFrame.x;
+	sint16 top = fFrame.y;
+	sint16 right = fFrame.x + fFrame.w;
+	sint16 bottom = fFrame.y + fFrame.h;
+	for (int32 v = 0; v < fCount; v++) {
+		const IE::point& point = fPoints[v];
+		if (point.x < left)
+			left = point.x;
+		else if (point.x > right)
+			right = point.x;
+		if (point.y < top)
+			top = point.y;
+		else if (point.y > bottom)
+			bottom = point.y;
+	}
+
+	fFrame.x = left;
+	fFrame.y = top;
+	fFrame.w = right - left;
+	fFrame.h = bottom - top;
+
 	return true;
 }
 
@@ -92,6 +116,9 @@ Polygon::Points() const
 IE::point
 Polygon::PointAt(int32 i) const
 {
+	if (i < 0 || i >= fCount)
+		throw std::range_error("Polygon::PointAt()");
+
 	return fPoints[i];
 }
 
@@ -134,7 +161,7 @@ Polygon::Print() const
 	}
 
 	printf("Bounding box:\n");
-	printf("\t%d - %d\n", fFrame.x, fFrame.w);
-	printf("\t%d - %d\n", fFrame.y, fFrame.h);
+	printf("\t%d - %d\n", fFrame.x, fFrame.x + fFrame.w);
+	printf("\t%d - %d\n", fFrame.y, fFrame.y + fFrame.h);
 	printf("Flags: 0x%x\n", fFlags);
 }
