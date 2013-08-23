@@ -69,8 +69,6 @@ AnimationFactory::AnimationFactory(const char* baseName)
 
 AnimationFactory::~AnimationFactory()
 {
-	std::cout << "AnimationFactory::~AnimationFactory(): ";
-	std::cout << fBaseName << std::endl;
 	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
 	for (i = fAnimations.begin(); i != fAnimations.end(); i++)
 		delete i->second;
