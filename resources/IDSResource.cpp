@@ -21,7 +21,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
-	if (_IsEncrypted()) {
+	if (IsEncrypted()) {
 		EncryptedStream *newStream =
 				new EncryptedStream(fData);
 		ReplaceData(newStream);
