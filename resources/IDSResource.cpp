@@ -92,7 +92,18 @@ IDSResource::Load(Archive *archive, uint32 key)
 		fMap[id] = finalValue;
 	}
 
+	DropData();
+
 	return true;
+}
+
+
+void
+IDSResource::Dump()
+{
+	for (string_map::const_iterator i = fMap.begin(); i != fMap.end(); i++) {
+		std::cout << i->first << " = " << i->second << std::endl;
+	}
 }
 
 

@@ -10,6 +10,7 @@ class IDSResource : public Resource {
 public:
 	IDSResource(const res_ref &name);
 	virtual bool Load(Archive *archive, uint32 key);
+	virtual void Dump();
 
 	std::string ValueFor(uint32 id);
 
