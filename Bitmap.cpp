@@ -237,7 +237,6 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 			for (size_t c = 0; c < nodeList.size(); c+=2) {
 				StrokeLine(nodeList[c], y, nodeList[c + 1], y, color);
 			}
-			nodeList.clear();
 		}
 	}
 }
