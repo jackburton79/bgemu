@@ -153,7 +153,7 @@ Actor::~Actor()
 	gResManager->ReleaseResource(fCRE);
 
 	if (fAnimationFactory != NULL) {
-		fAnimationFactory->Release();
+		AnimationFactory::ReleaseFactory(fAnimationFactory);
 		fAnimationFactory = NULL;
 	}
 
