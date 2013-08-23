@@ -109,24 +109,26 @@ BAMResource::Dump()
 	int32 oldPos = fData->Position();
 	//size_t outputted = 0;
 	for(int f = 0; f < fNumFrames; f++) {
-		std::cout << "BamFrameEntry " << f << std::endl;
 		fData->Seek(fFramesOffset + f * sizeof(BamFrameEntry), SEEK_SET);
 		BamFrameEntry entry;
 		fData->Read(entry);
-		entry.Print();
-		fData->Seek(data_offset(entry.data), SEEK_SET);
-		/*try {
+		if (entry.width != 1 && entry.height != 1) {
+			std::cout << "BamFrameEntry " << f << std::endl;
+			entry.Print();
+			fData->Seek(data_offset(entry.data), SEEK_SET);
+			/*try {
 			uint8 byte = fData->ReadByte();
 			std::cout << std::hex << (int)byte << " ";
-		} catch (...) {
-			break;
+			} catch (...) {
+				break;
+			}
+			if (outputted++ >= sizeof(BamFrameEntry)) {
+				outputted = 0;
+				std::cout << std::endl << "**** offset: " << fData->Position();
+				std::cout << " ****" << std::endl ;
+			}*/
+			std::cout << "****" << std::endl ;
 		}
-		if (outputted++ >= sizeof(BamFrameEntry)) {
-			outputted = 0;
-			std::cout << std::endl << "**** offset: " << fData->Position();
-			std::cout << " ****" << std::endl ;
-		}*/
-		std::cout << "****" << std::endl ;
 	}
 
 	fData->Seek(oldPos, SEEK_SET);
