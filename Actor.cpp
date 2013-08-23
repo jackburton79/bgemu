@@ -20,7 +20,6 @@
 #include <assert.h>
 #include <string>
 
-
 std::vector<Actor*> Actor::sActors;
 
 Actor::Actor(IE::actor &actor)
@@ -227,14 +226,12 @@ Actor::Bitmap() const
 GFX::rect
 Actor::Frame() const
 {
-	const ::Bitmap* bitmap = Bitmap();
+	const GFX::rect& frame = Bitmap()->Frame();
 	IE::point leftTop = offset_point(Position(),
-					-(bitmap->Frame().x + bitmap->Frame().w / 2),
-							-(bitmap->Frame().y + bitmap->Frame().h / 2));
-	GFX::rect rect(leftTop.x, leftTop.y,
-			bitmap->Frame().w, bitmap->Frame().h);
+								-(frame.x + frame.w / 2),
+								-(frame.y + frame.h / 2));
 
-	return rect;
+	return GFX::rect(leftTop.x, leftTop.y, frame.w, frame.h);;
 }
 
 
