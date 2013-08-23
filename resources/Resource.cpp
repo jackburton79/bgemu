@@ -118,7 +118,8 @@ Resource::Load(Archive *archive, uint32 key)
 void
 Resource::Dump()
 {
-	fData->Dump();
+	if (fData != NULL)
+		fData->Dump();
 }
 
 
