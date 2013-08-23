@@ -5,8 +5,9 @@
  *      Author: stefano
  */
 
-#include "MemoryStream.h"
 #include "2DAResource.h"
+#include "EncryptedStream.h"
+#include "MemoryStream.h"
 
 #define TWODA_SIGNATURE "2DA "
 #define TWODA_VERSION_1 "V1.0"
@@ -30,6 +31,12 @@ TWODAResource::Load(Archive* archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
+
+	if (IsEncrypted()) {
+		EncryptedStream *newStream =
+				new EncryptedStream(fData);
+		ReplaceData(newStream);
+	}
 
 	if (CheckSignature(TWODA_SIGNATURE)) {
 		fData->Seek(4, SEEK_CUR);
