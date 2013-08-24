@@ -13,7 +13,7 @@
 class EncryptedStream : public MemoryStream {
 public:
 	EncryptedStream(Stream *stream);
-	virtual uint8 ReadByte();
+	virtual ssize_t Read(void* dst, int size);
 
 private:
 	int fKeySize;

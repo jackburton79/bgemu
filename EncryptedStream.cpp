@@ -29,14 +29,20 @@ EncryptedStream::EncryptedStream(Stream *stream)
 
 
 /* virtual */
-uint8
-EncryptedStream::ReadByte()
+ssize_t
+EncryptedStream::Read(void* dst, int size)
 {
-	int pos = Position();
-	uint8 byteRead = MemoryStream::ReadByte();
-	byteRead ^= kEncryptionKey[pos % fKeySize];
-	return byteRead;
+	uint8* pointer = static_cast<uint8*>(dst);
+	ssize_t totalSizeRead = 0;
+	for (int i = 0; i < size; i++) {
+		int32 pos = Position();
+		uint8 byteRead;
+		size_t read = MemoryStream::Read(&byteRead, sizeof(byteRead));
+		totalSizeRead += read;
+		if (read < sizeof(byteRead))
+			break;
+		byteRead ^= kEncryptionKey[pos % fKeySize];
+		*pointer++ = byteRead;
+	}
+	return totalSizeRead;
 }
-
-
-
