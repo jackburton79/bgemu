@@ -51,12 +51,15 @@ TWODAResource::Load(Archive* archive, uint32 key)
 	char string[256];
 	fData->ReadLine(string, sizeof(string));
 		// skip line TODO: Handle
-	printf("*** %s ***\n", string);
+
+	std::cout << "*** " << string << " ***" << std::endl;
 
 	fData->ReadLine(string, sizeof(string)); // skip ??? Why!?
 
+	std::cout << string << std::endl;
 	fData->ReadLine(string, sizeof(string)); // headers
 
+	std::cout << string << std::endl;
 	std::map<int, std::string> headerMap;
 	char *name = strtok(string, " ");
 	if (name != NULL) {
@@ -88,6 +91,18 @@ TWODAResource::Load(Archive* archive, uint32 key)
 	}
 
 	return true;
+}
+
+
+/* virtual */
+void
+TWODAResource::Dump()
+{
+	std::map<std::pair<std::string, std::string>, std::string>::const_iterator i;
+	for (i = fMap.begin(); i != fMap.end(); i++) {
+		std::cout << i->first.first << ", " << i->first.second;
+		std::cout << " = " << i->second << std::endl;
+	}
 }
 
 

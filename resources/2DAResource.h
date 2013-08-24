@@ -19,6 +19,7 @@ public:
 	~TWODAResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
+	virtual void Dump();
 
 	std::string ValueFor(const char*, const char*);
 private:
