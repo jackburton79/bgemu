@@ -81,6 +81,7 @@ MemoryStream::WriteAt(int pos, const void *src, int size)
 	ssize_t writable = fSize - pos;
 	if (size > writable)
 		size = writable;
+
 	memcpy(fData + pos, src, size);
 
 	return size;
