@@ -118,8 +118,14 @@ Resource::Load(Archive *archive, uint32 key)
 void
 Resource::Dump()
 {
-	if (fData != NULL)
-		fData->Dump();
+	try {
+		if (fData != NULL)
+			fData->Dump();
+	} catch (const char* string) {
+		std::cerr << "Resource::Dump() caught exception: " << string << std::endl;
+	} catch (...) {
+		std::cerr << "Resource::Dump() caught exception." << std::endl;
+	}
 }
 
 
