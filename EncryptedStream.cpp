@@ -6,6 +6,9 @@
  */
 
 #include "EncryptedStream.h"
+#include "MemoryStream.h"
+
+#include <iostream>
 
 static const uint8 kEncryptionKey[64] = {
 	0x88, 0xa8, 0x8f, 0xba, 0x8a, 0xd3, 0xb9, 0xf5,
@@ -21,10 +24,28 @@ static const uint8 kEncryptionKey[64] = {
 
 EncryptedStream::EncryptedStream(Stream *stream)
 	:
-	MemoryStream(stream->Size() - 2),
 	fKeySize(64)
 {
-	stream->ReadAt(2, Data(), Size());
+	fEncryptedStream = new MemoryStream(stream->Size() - 2);
+	uint8 buffer[2048];
+	// First 2 bytes are always 0xFF, 0xFF, a sort of header
+	stream->Seek(2, SEEK_SET);
+	ssize_t read;
+	while ((read = stream->Read(buffer, sizeof(buffer))) > 0) {
+		ssize_t written = fEncryptedStream->Write(buffer, read);
+		if (written != read) {
+			std::cerr << "Error writing to Encrypted Stream" << std::endl;
+			break;
+		}
+	}
+
+	fEncryptedStream->Seek(0, SEEK_SET);
+}
+
+
+EncryptedStream::~EncryptedStream()
+{
+	delete fEncryptedStream;
 }
 
 
@@ -37,12 +58,60 @@ EncryptedStream::Read(void* dst, int size)
 	for (int i = 0; i < size; i++) {
 		int32 pos = Position();
 		uint8 byteRead;
-		size_t read = MemoryStream::Read(&byteRead, sizeof(byteRead));
+		ssize_t read = fEncryptedStream->Read(&byteRead, sizeof(byteRead));
+		if (read < 0)
+			return read;
+
 		totalSizeRead += read;
-		if (read < sizeof(byteRead))
+		if (size_t(read) < sizeof(byteRead))
 			break;
 		byteRead ^= kEncryptionKey[pos % fKeySize];
 		*pointer++ = byteRead;
 	}
 	return totalSizeRead;
+}
+
+
+/* virtual */
+ssize_t
+EncryptedStream::ReadAt(int pos, void *dst, int size)
+{
+	uint8* pointer = static_cast<uint8*>(dst);
+	ssize_t totalSizeRead = 0;
+	for (int i = 0; i < size; i++) {
+		uint8 byteRead;
+		ssize_t read = fEncryptedStream->ReadAt(pos, &byteRead, sizeof(byteRead));
+		if (read < 0)
+			return read;
+
+		totalSizeRead += read;
+		if (size_t(read) < sizeof(byteRead))
+			break;
+		byteRead ^= kEncryptionKey[pos % fKeySize];
+		*pointer++ = byteRead;
+		pos++;
+	}
+
+	return totalSizeRead;
+}
+
+
+int32
+EncryptedStream::Seek(int32 where, int whence)
+{
+	return fEncryptedStream->Seek(where, whence);
+}
+
+
+int32
+EncryptedStream::Position() const
+{
+	return fEncryptedStream->Position();
+}
+
+
+uint32
+EncryptedStream::Size() const
+{
+	return fEncryptedStream->Size();
 }
