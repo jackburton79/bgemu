@@ -11,10 +11,7 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 
-	Script *GetScript();
-
-private:
-	Script* fScript;
+	Script *GetScript() const;
 };
 
 #endif // __BCSRESOURCE_H
