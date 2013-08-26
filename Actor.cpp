@@ -231,7 +231,7 @@ Actor::Frame() const
 								-(frame.x + frame.w / 2),
 								-(frame.y + frame.h / 2));
 
-	return GFX::rect(leftTop.x, leftTop.y, frame.w, frame.h);;
+	return GFX::rect(leftTop.x, leftTop.y, frame.w, frame.h);
 }
 
 
@@ -487,13 +487,4 @@ Actor::_IsReachable(const IE::point& pt)
 		}
 	}
 	return true;
-}
-
-
-/* static */
-void
-Actor::BlitWithMask(::Bitmap* source,
-		::Bitmap* dest, GFX::rect& rect, IE::polygon& polygonMask)
-{
-
 }

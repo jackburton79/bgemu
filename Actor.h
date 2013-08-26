@@ -92,13 +92,9 @@ private:
 	static std::vector<Actor*> sActors;
 
 	void _Init();
-	void _LoadAnimations(int action);
 	void _AddScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	bool _IsReachable(const IE::point& pt);
-
-	static void BlitWithMask(::Bitmap* source, ::Bitmap* dest,
-			GFX::rect& rect, IE::polygon& polygonMask);
 
 };
 
