@@ -37,6 +37,8 @@ private:
 													IE::orientation o);
 	animation_description MonsterAnimationFor(int action,
 												IE::orientation o);
+	animation_description BG2AnimationFor(int action,
+												IE::orientation o);
 	bool _HasEastBams() const;
 	bool _AreHighLowSplitted() const;
 	bool _HasStandingSequence() const;
@@ -47,7 +49,7 @@ private:
 	bool _HasAnimation(const std::string& name) const;
 	
 	std::vector<std::string> fList;
-	char fBaseName[16];
+	std::string fBaseName;
 	int fAnimationType;
 	bool fHighLowSplitted;
 	bool fEastAnimations;

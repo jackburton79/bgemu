@@ -16,6 +16,7 @@
 enum animation_type {
 	ANIMATION_TYPE_CHARACHTER,
 	ANIMATION_TYPE_BG1_MONSTER,
+	ANIMATION_TYPE_BG2,
 	ANIMATION_TYPE_BOH
 };
 
@@ -59,7 +60,7 @@ AnimationFactory::AnimationFactory(const char* baseName)
 	fHighLowSplitted(false),
 	fEastAnimations(false)
 {
-	strcpy(fBaseName, baseName);
+	fBaseName = baseName;
 
 	gResManager->GetResourceList(fList, baseName, RES_BAM);
 
@@ -137,7 +138,7 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 	}
 	switch (action) {
 		case ACT_WALKING:
-			description.bam_name.append("G1");
+			description.bam_name.append("G21");
 			description.sequence_number = uint32(o);
 			break;
 		case ACT_ATTACKING:
@@ -173,6 +174,52 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 }
 
 
+animation_description
+AnimationFactory::BG2AnimationFor(int action, IE::orientation o)
+{
+	animation_description description;
+	description.bam_name = fBaseName;
+	description.sequence_number = o;
+	description.mirror = false;
+	// Armor
+	// TODO: For real
+	description.bam_name.append("1");
+	switch (action) {
+		case ACT_WALKING:
+		{
+			if (_HasAnimation(description.bam_name + "W2")) {
+				description.bam_name.append("W2");
+				description.sequence_number = uint32(o);
+			} else {
+				description.bam_name.append("G11");
+				description.sequence_number = uint32(o) + 8;
+			}
+
+			break;
+		}
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o) + 8;
+			break;
+		default:
+			break;
+	}
+	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+		if (_HasEastBams()) {
+			description.bam_name.append("E");
+			// TODO: Doesn't work for some animations (IE: ACOW)
+			//sequenceNumber -= 1;
+		} else {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			description.sequence_number -= (uint32(o) - 4) * 2;
+		}
+	}
+	return description;
+}
+
+
 Animation*
 AnimationFactory::AnimationFor(int action, IE::orientation o)
 {
@@ -196,6 +243,10 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			description = CharachterAnimationFor(action, o);
 			break;
 		}
+		case ANIMATION_TYPE_BG2:
+			description = BG2AnimationFor(action, o);
+			break;
+
 		default:
 			return NULL;
 			break;
@@ -238,14 +289,17 @@ AnimationFactory::_HasStandingSequence() const
 {
 	// TODO: Don't just compare with a fixed list,
 	// find out a rule
-	return strcasecmp(fBaseName, "ACOW");
+	return strcasecmp(fBaseName.c_str(), "ACOW");
 }
 
 
 void
 AnimationFactory::_ClassifyAnimation()
 {
-	if (fList.size() > 13)
+	if (_HasAnimation(fBaseName + "A1")
+			&& _HasAnimation(fBaseName + "G1"))
+		fAnimationType = ANIMATION_TYPE_BG2;
+	else if (fList.size() > 13)
 		fAnimationType = ANIMATION_TYPE_CHARACHTER;
 	else
 		fAnimationType = ANIMATION_TYPE_BG1_MONSTER;
