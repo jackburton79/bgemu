@@ -16,6 +16,7 @@ bgemu.cpp \
 Bitmap.cpp \
 Core.cpp \
 Door.cpp \
+EncryptedStream.cpp \
 Graphics.cpp \
 GraphicsEngine.cpp \
 gui/BackWindow.cpp \
