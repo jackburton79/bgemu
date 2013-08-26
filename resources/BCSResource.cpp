@@ -6,8 +6,7 @@
 
 BCSResource::BCSResource(const res_ref &name)
 	:
-	Resource(name, RES_BCS),
-	fScript(NULL)
+	Resource(name, RES_BCS)
 {
 }
 
@@ -31,7 +30,7 @@ BCSResource::Load(Archive *archive, uint32 key)
 
 
 Script*
-BCSResource::GetScript()
+BCSResource::GetScript() const
 {
 	Script* script = NULL;
 	try {

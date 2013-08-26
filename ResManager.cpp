@@ -115,8 +115,6 @@ ResourceManager::~ResourceManager()
 	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
 		delete aIter->second;
 	}
-
-
 }
 
 

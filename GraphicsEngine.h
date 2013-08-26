@@ -49,10 +49,13 @@ public:
 
 	void Flip();
 
+	static void CreateGradient(const Color& start,
+								const Color& end,
+								Palette& palette);
+
 	// Observer/Listener
 	void AddListener(Listener* listener);
 	void RemoveListener(Listener* listener);
-
 private:
 	Bitmap* fScreen;
 	GFX::rect fOldRect;

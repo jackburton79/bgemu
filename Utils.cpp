@@ -169,22 +169,3 @@ RenderString(std::string string, BAMResource* fontResource,
 		std::cerr << "RenderString() exception" << std::endl;
 	}
 }
-
-
-void
-CreateGradient(const Color& start, const Color& end, Palette& palette)
-{
-	Color* colors = palette.colors;
-	uint8 rFactor = (start.r - end.r) / 255;
-	uint8 gFactor = (start.g - end.g) / 255;
-	uint8 bFactor = (start.b - end.b) / 255;
-	uint8 aFactor = (start.a - end.a) / 255;
-	colors[0] = start;
-	colors[255] = end;
-	for (uint8 c = 1; c < 255; c++) {
-		colors[c].r = colors[c - 1].r + rFactor;
-		colors[c].g = colors[c - 1].g + gFactor;
-		colors[c].b = colors[c - 1].b + bFactor;
-		colors[c].a = colors[c - 1].a + aFactor;
-	}
-}

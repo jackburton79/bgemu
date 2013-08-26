@@ -346,7 +346,7 @@ region::Print() const
 
 
 void
-door_wed::Print() const
+tiled_object::Print() const
 {
 	printf("name: %s\n", name);
 	printf("flags: 0x%x\n", flags);

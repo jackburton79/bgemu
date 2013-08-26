@@ -66,7 +66,7 @@ private:
     void _ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay);
 
 	uint32 fNumOverlays;
-	uint32 fNumDoors;
+	uint32 fNumTiledObjects;
 	uint32 fNumPolygons;
 	Polygon *fPolygons;
 	
@@ -74,8 +74,8 @@ private:
 
 	uint32 fOverlaysOffset;
 	uint32 f2ndHeaderOffset;
-	uint32 fDoorsOffset;
-	uint32 fDoorTileCellsOffset;
+	uint32 fTiledObjectsOffset;
+	uint32 fTiledObjectsTileCellsOffset;
 };
 
 

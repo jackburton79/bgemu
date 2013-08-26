@@ -299,7 +299,7 @@ struct door {
 } __attribute__((packed));
 
 
-struct door_wed {
+struct tiled_object {
 	char name[8];
 	uint16 flags;
 	uint16 cell_index;

@@ -28,7 +28,7 @@ TextArea::TextArea(IE::text_area* text)
 	Palette palette;
 	Color start = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
 	Color end = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
-	CreateGradient(end, start, palette);
+	GraphicsEngine::CreateGradient(end, start, palette);
 	fBitmap->SetPalette(palette);
 }
 

@@ -60,11 +60,11 @@ WEDResource::_Load()
 		throw -1;
 	
 	fData->ReadAt(8, fNumOverlays);
-	fData->ReadAt(12, fNumDoors);
+	fData->ReadAt(12, fNumTiledObjects);
 	fData->ReadAt(16, fOverlaysOffset);
 	fData->ReadAt(20, f2ndHeaderOffset);
-	fData->ReadAt(24, fDoorsOffset);
-	fData->ReadAt(28, fDoorTileCellsOffset);
+	fData->ReadAt(24, fTiledObjectsOffset);
+	fData->ReadAt(28, fTiledObjectsTileCellsOffset);
 
 	_LoadPolygons();
 }
@@ -157,21 +157,21 @@ WEDResource::CountPolygons() const
 uint32
 WEDResource::CountDoors() const
 {
-	return fNumDoors;
+	return fNumTiledObjects;
 }
 
 
 bool
 WEDResource::GetDoorTiles(Door* door, uint32 index)
 {
-	if (index < 0 || index >= fNumDoors)
+	if (index < 0 || index >= fNumTiledObjects)
 		return false;
 
-	fData->Seek(fDoorsOffset + index * sizeof(IE::door_wed), SEEK_SET);
+	fData->Seek(fTiledObjectsOffset + index * sizeof(IE::tiled_object), SEEK_SET);
 
-	IE::door_wed wedDoor;
+	IE::tiled_object wedDoor;
 	fData->Read(wedDoor);
-	fData->Seek(fDoorTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
+	fData->Seek(fTiledObjectsTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
 	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
 		uint16 tileIndex;
 		fData->Read(tileIndex);

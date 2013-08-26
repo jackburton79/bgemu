@@ -477,17 +477,14 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 bool
 Actor::_IsReachable(const IE::point& pt)
 {
-	// TODO:
-	return true;
-
 	Room* room = Room::Get();
 	const uint32 numPol = room->WED()->CountPolygons();
 	for (uint32 i = 0; i < numPol; i++) {
-		//const Polygon* poly = room->WED()->PolygonAt(i);
+		const Polygon* poly = room->WED()->PolygonAt(i);
 		// TODO:
-		//if (!poly->IsHole() && rect_contains(poly->Frame(), pt)) {
-		//	return false;
-		//}
+		if (rect_contains(poly->Frame(), pt)) {
+			return false;
+		}
 	}
 	return true;
 }
