@@ -138,7 +138,7 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 	}
 	switch (action) {
 		case ACT_WALKING:
-			description.bam_name.append("G21");
+			description.bam_name.append("G1");
 			description.sequence_number = uint32(o);
 			break;
 		case ACT_ATTACKING:
