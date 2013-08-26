@@ -81,6 +81,6 @@ void
 Label::_SetPalette(const Color& start, const Color& end)
 {
 	Palette palette;
-	CreateGradient(start, end, palette);
+	GraphicsEngine::CreateGradient(start, end, palette);
 	fBitmap->SetColors(palette.colors, 0, 256);
 }
