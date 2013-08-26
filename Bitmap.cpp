@@ -240,6 +240,15 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 		}
 	}
 }
+
+
+void
+Bitmap::StrokeCircle(const int16& centerX, const int16& centerY, const uint32 radius,
+		const uint32 color)
+{
+}
+
+
 // end
 
 
