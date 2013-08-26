@@ -9,9 +9,9 @@
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
 
-class WriteIDSResource : public IDSResource {
+class WriteableIDSResource : public IDSResource {
 public:
-	WriteIDSResource(const res_ref& name);
+	WriteableIDSResource(const res_ref& name);
 	bool AddValue(uint32 id, std::string value);
 
 };
@@ -19,7 +19,7 @@ public:
 IDSResource*
 GeneratedIDS::CreateIDSResource(const res_ref& name)
 {
-	WriteIDSResource* res = new WriteIDSResource(name);
+	WriteableIDSResource* res = new WriteableIDSResource(name);
 
 	if (name == "ANISND")
 		FillAniSnd(res);
@@ -29,7 +29,7 @@ GeneratedIDS::CreateIDSResource(const res_ref& name)
 
 
 void
-GeneratedIDS::FillAniSnd(WriteIDSResource* res)
+GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 {
 	res->AddValue(0x2000, "MSIR");
 
@@ -190,7 +190,7 @@ GeneratedIDS::FillAniSnd(WriteIDSResource* res)
 
 
 // WriteIDSResource
-WriteIDSResource::WriteIDSResource(const res_ref& name)
+WriteableIDSResource::WriteableIDSResource(const res_ref& name)
 	:
 	IDSResource(name)
 {
@@ -198,7 +198,7 @@ WriteIDSResource::WriteIDSResource(const res_ref& name)
 
 
 bool
-WriteIDSResource::AddValue(uint32 id, std::string value)
+WriteableIDSResource::AddValue(uint32 id, std::string value)
 {
 	fMap[id] = value;
 	return true;

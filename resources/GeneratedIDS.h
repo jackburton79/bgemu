@@ -11,12 +11,12 @@
 #include "IETypes.h"
 
 class IDSResource;
-class WriteIDSResource;
+class WriteableIDSResource;
 class GeneratedIDS {
 public:
 	static IDSResource* CreateIDSResource(const res_ref& name);
 private:
-	static void FillAniSnd(WriteIDSResource* res);
+	static void FillAniSnd(WriteableIDSResource* res);
 };
 
 #endif /* GENERATEDIDS_H_ */
