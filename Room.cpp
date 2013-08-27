@@ -394,7 +394,8 @@ Room::Draw(Bitmap *surface)
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 				fBackBitmap->Lock();
 				IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
-				fBackBitmap->StrokeCircle(position.x, position.y, 20, 5000);
+				uint32 color = fBackBitmap->MapColor(255, 255, 255);
+				fBackBitmap->StrokeCircle(position.x, position.y, 20, color);
 				fBackBitmap->Unlock();
 			} catch (const char* string) {
 				std::cerr << string << std::endl;
@@ -533,7 +534,8 @@ Room::DrawObject(const Object& object)
 			IE::point position = offset_point(actor->Position(),
 										-fAreaOffset.x, -fAreaOffset.y);
 			fBackBitmap->Lock();
-			fBackBitmap->StrokeCircle(position.x, position.y, radius, 500);
+			uint32 color = fBackBitmap->MapColor(0, 255, 0);
+			fBackBitmap->StrokeCircle(position.x, position.y, radius, color);
 			fBackBitmap->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
