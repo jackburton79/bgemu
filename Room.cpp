@@ -393,7 +393,8 @@ Room::Draw(Bitmap *surface)
 				GFX::rect rect = actor->Frame();
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 				fBackBitmap->Lock();
-				fBackBitmap->StrokeRect(rect, 70);
+				IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
+				fBackBitmap->StrokeCircle(position.x, position.y, 20, 5000);
 				fBackBitmap->Unlock();
 			} catch (const char* string) {
 				std::cerr << string << std::endl;
@@ -513,22 +514,34 @@ Room::MouseOver(uint16 x, uint16 y)
 }
 
 
+
 void
 Room::DrawObject(const Object& object)
 {
+	static int32 step = 1;
+	static uint32 radius = 20;
+	if (radius > 22) {
+		step = -1;
+	} else if (radius < 18) {
+		step = 1;
+	}
+	//std::cout << "radius: " << std::dec << radius << ", step: " << step << std::endl;
+
+	radius = radius + step;
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
 		if (actor->IsSelected()) {
 			// TODO: We are duplicating the code in the other DrawObject call
-			IE::point position = actor->Position();
-			position = offset_point(position, -fAreaOffset.x, -fAreaOffset.y);
+			IE::point position = offset_point(actor->Position(),
+										-fAreaOffset.x, -fAreaOffset.y);
 			fBackBitmap->Lock();
-			fBackBitmap->StrokeCircle(position.x, position.y, 20, 500);
+			fBackBitmap->StrokeCircle(position.x, position.y, radius, 500);
 			fBackBitmap->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
 		DrawObject(actorFrame, actor->Position());
 	}
+
 }
 
 
