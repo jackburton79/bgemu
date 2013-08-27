@@ -518,19 +518,16 @@ Room::DrawObject(const Object& object)
 {
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
-		const Bitmap* actorFrame = actor->Bitmap();
-		IE::point position = actor->Position();
-		DrawObject(actorFrame, position);
 		if (actor->IsSelected()) {
-			GFX::rect rect = actor->Frame();
-
 			// TODO: We are duplicating the code in the other DrawObject call
-			rect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+			IE::point position = actor->Position();
 			position = offset_point(position, -fAreaOffset.x, -fAreaOffset.y);
 			fBackBitmap->Lock();
 			fBackBitmap->StrokeCircle(position.x, position.y, 20, 500);
 			fBackBitmap->Unlock();
 		}
+		const Bitmap* actorFrame = actor->Bitmap();
+		DrawObject(actorFrame, actor->Position());
 	}
 }
 
