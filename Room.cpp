@@ -747,7 +747,7 @@ void
 Room::_InitSearchMap()
 {
 	std::string searchMapName = fName.CString();
-	searchMapName += "HT";
+	searchMapName += "SR";
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
 	fSearchMap = resource->Image();
 	gResManager->ReleaseResource(resource);
