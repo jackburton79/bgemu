@@ -177,11 +177,11 @@ SoundBuffer::ConsumeSamples(uint8* destBuffer, uint16 numSamples)
 		return 0;
 
 	if (fConsumedPos > fBufferPos) {
-		uint16 firstSize = std::min(numRequested, fBufferLength - fConsumedPos);
-		memcpy(destBuffer, &fData[fConsumedPos], firstSize);
-		if (numRequested > firstSize) {
-			numRequested -= firstSize;
-			memcpy(destBuffer + firstSize, fData, std::min(numRequested, fBufferPos));
+		uint16 sizeBeforeEnd = std::min(numRequested, fBufferLength - fConsumedPos);
+		memcpy(destBuffer, &fData[fConsumedPos], sizeBeforeEnd);
+		if (numRequested > sizeBeforeEnd) {
+			numRequested -= sizeBeforeEnd;
+			memcpy(destBuffer + sizeBeforeEnd, fData, std::min(numRequested, fBufferPos));
 		}
 	} else
 		memcpy(destBuffer, &fData[fConsumedPos], numAvailable);
