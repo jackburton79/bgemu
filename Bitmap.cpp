@@ -372,6 +372,13 @@ Bitmap::Pitch() const
 }
 
 
+uint16
+Bitmap::BitsPerPixel() const
+{
+	return fSurface->format->BitsPerPixel;
+}
+
+
 uint32
 Bitmap::MapColor(const uint8 r, const uint8 g, const uint8 b)
 {

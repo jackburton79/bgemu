@@ -52,6 +52,7 @@ public:
 	uint16 Width() const;
 	uint16 Height() const;
 	uint16 Pitch() const;
+	uint16 BitsPerPixel() const;
 
 	void SetPosition(uint16 x, uint16 y);
 
