@@ -414,6 +414,8 @@ Room::Draw(Bitmap *surface)
 
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
+
+		_DrawSearchMap(mapRect);
 	}
 }
 
@@ -480,6 +482,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
+	std::cout << "state: " << std::dec << PointSearch(point) << std::endl;
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
@@ -499,6 +502,14 @@ Room::MouseOver(uint16 x, uint16 y)
 
 		fMouseOverObject = newMouseOver;
 
+		/*const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
+		const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
+
+		int32 newY = point.y / yRatio;
+		int32 newX = point.x / xRatio;
+		newY += fBackBitmap->Height() - fSearchMap->Height();
+
+		GraphicsEngine::Get()->ScreenBitmap()->StrokeCircle(newX, newY, 5, 500);*/
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
@@ -620,8 +631,10 @@ Room::PointSearch(const IE::point& point) const
 	if (fSearchMap == NULL)
 		return 1;
 
-	int32 y = point.y / 16;
-	int32 x = point.x / 16;
+	const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
+	const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
+	int32 y = point.y / yRatio;
+	int32 x = point.x / xRatio;
 	uint8* pixels = (uint8*)fSearchMap->Pixels();
 	return pixels[y * fSearchMap->Pitch() + x * fSearchMap->BitsPerPixel() / 8];
 }
@@ -821,6 +834,27 @@ Room::_DrawActors()
 			std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
 			continue;
 		}
+	}
+}
+
+
+void
+Room::_DrawSearchMap(GFX::rect visibleArea)
+{
+	return;
+	if (fSearchMap != NULL) {
+		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
+							fBackBitmap->Width(), fBackBitmap->Height());
+		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
+		const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
+		const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
+
+		visibleArea.x /= xRatio;
+		visibleArea.y /= yRatio;
+		visibleArea.w /= xRatio;
+		visibleArea.h /= yRatio;
+		visibleArea = offset_rect(visibleArea, 0, fBackBitmap->Height() - fSearchMap->Height());
+		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
 	}
 }
 

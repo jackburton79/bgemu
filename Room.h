@@ -91,9 +91,9 @@ private:
 
 	void _DrawBaseMap();
 
+	void _DrawHeightMap(GFX::rect area);
 	void _DrawLightMap();
 	void _DrawSearchMap(GFX::rect area);
-	void _DrawHeightMap(GFX::rect area);
 	void _DrawAnimations();
 	void _DrawActors();
 
