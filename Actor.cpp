@@ -478,13 +478,15 @@ bool
 Actor::_IsReachable(const IE::point& pt)
 {
 	Room* room = Room::Get();
-	const uint32 numPol = room->WED()->CountPolygons();
-	for (uint32 i = 0; i < numPol; i++) {
-		const Polygon* poly = room->WED()->PolygonAt(i);
-		// TODO:
-		if (rect_contains(poly->Frame(), pt)) {
+	int32 state = room->PointSearch(pt);
+	switch (state) {
+		case 0:
+		case 8:
+		case 10:
+		case 12:
+		case 13:
 			return false;
-		}
+		default:
+			return true;
 	}
-	return true;
 }
