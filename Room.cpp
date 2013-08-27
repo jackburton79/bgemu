@@ -47,6 +47,7 @@ Room::Room()
 	fWorldMapBitmap(NULL),
 	fBackBitmap(NULL),
 	fBlitMask(NULL),
+	fHeightMap(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawOverlays(true),
@@ -112,6 +113,13 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
+
+	std::string heightMapName = fName.CString();
+	heightMapName += "HT";
+	BMPResource* heightMapResource = gResManager->GetBMP(heightMapName.c_str());
+	fHeightMap = heightMapResource->Image();
+	gResManager->ReleaseResource(heightMapResource);
+
 	GUI* gui = GUI::Get();
 	gui->Clear();
 	gui->Load("GUIW");
@@ -149,6 +157,9 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitBitmap(fViewPort);
 	_InitBlitMask();
 
+	std::cout << std::dec;
+	std::cout << "area width: " << fOverlays[0]->Width() << std::endl;
+	std::cout << "heightmap width: " << fHeightMap->Width() << std::endl;
 	Core::Get()->EnteredArea(this, roomScript);
 
 	delete roomScript;
@@ -530,18 +541,22 @@ Room::DrawObject(const Object& object)
 	radius = radius + step;
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
+		IE::point actorPosition = actor->Position();
 		if (actor->IsSelected()) {
-			IE::point position = offset_point(actor->Position(),
+			IE::point position = offset_point(actorPosition,
 										-fAreaOffset.x, -fAreaOffset.y);
+
 			fBackBitmap->Lock();
 			uint32 color = fBackBitmap->MapColor(0, 255, 0);
 			fBackBitmap->StrokeCircle(position.x, position.y, radius, color);
 			fBackBitmap->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
-		DrawObject(actorFrame, actor->Position());
-	}
 
+		int32 pointHeight = PointHeight(actorPosition);
+		actorPosition.y += pointHeight - 8;
+		DrawObject(actorFrame, actorPosition);
+	}
 }
 
 
@@ -573,6 +588,16 @@ Room::TileNumberForPoint(const IE::point& point)
 	const uint16 tileY = point.y / TILE_HEIGHT;
 
 	return tileY * overlayWidth + tileX;
+}
+
+
+int32
+Room::PointHeight(const IE::point& point) const
+{
+	int32 y = point.y / 16;
+	int32 x = point.x / 16;
+	uint8* pixels = (uint8*)fHeightMap->Pixels();
+	return pixels[y * fHeightMap->Pitch() + x * fHeightMap->BitsPerPixel() / 8];
 }
 
 
@@ -889,7 +914,6 @@ Room::_UnloadArea()
 		delete fTileCells[c];
 	fTileCells.clear();
 
-
 	std::vector<Actor*>::const_iterator actorIter;
 	for (actorIter = Actor::List().begin();
 			actorIter != Actor::List().end();
@@ -908,6 +932,9 @@ Room::_UnloadArea()
 	fArea = NULL;
 	gResManager->ReleaseResource(fBcs);
 	fBcs = NULL;
+
+	GraphicsEngine::DeleteBitmap(fHeightMap);
+	fHeightMap = NULL;
 
 	gResManager->TryEmptyResourceCache();
 }

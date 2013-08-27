@@ -60,6 +60,8 @@ public:
 
 	uint16 TileNumberForPoint(const IE::point& point);
 
+	int32 PointHeight(const IE::point& point) const;
+
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();
@@ -122,6 +124,8 @@ private:
 
 	Bitmap* fBackBitmap;
 	Bitmap* fBlitMask;
+
+	Bitmap* fHeightMap;
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
