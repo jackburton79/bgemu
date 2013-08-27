@@ -48,6 +48,8 @@ Room::Room()
 	fBackBitmap(NULL),
 	fBlitMask(NULL),
 	fHeightMap(NULL),
+	fLightMap(NULL),
+	fSearchMap(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawOverlays(true),
@@ -114,11 +116,9 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 		roomScript = fBcs->GetScript();
 
 
-	std::string heightMapName = fName.CString();
-	heightMapName += "HT";
-	BMPResource* heightMapResource = gResManager->GetBMP(heightMapName.c_str());
-	fHeightMap = heightMapResource->Image();
-	gResManager->ReleaseResource(heightMapResource);
+	_InitHeightMap();
+	_InitLightMap();
+	_InitSearchMap();
 
 	GUI* gui = GUI::Get();
 	gui->Clear();
@@ -601,6 +601,32 @@ Room::PointHeight(const IE::point& point) const
 }
 
 
+int32
+Room::PointLight(const IE::point& point) const
+{
+	if (fLightMap == NULL)
+		return 8;
+
+	int32 y = point.y / 16;
+	int32 x = point.x / 16;
+	uint8* pixels = (uint8*)fLightMap->Pixels();
+	return pixels[y * fLightMap->Pitch() + x * fLightMap->BitsPerPixel() / 8];
+}
+
+
+int32
+Room::PointSearch(const IE::point& point) const
+{
+	if (fSearchMap == NULL)
+		return 8;
+
+	int32 y = point.y / 16;
+	int32 x = point.x / 16;
+	uint8* pixels = (uint8*)fSearchMap->Pixels();
+	return pixels[y * fSearchMap->Pitch() + x * fSearchMap->BitsPerPixel() / 8];
+}
+
+
 void
 Room::ToggleOverlays()
 {
@@ -690,6 +716,42 @@ Room::_InitBlitMask()
 	fBlitMask->Update();
 
 	std::cout << "Done!" << std::endl;
+}
+
+
+void
+Room::_InitHeightMap()
+{
+	std::string heightMapName = fName.CString();
+	heightMapName += "HT";
+	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
+	fHeightMap = resource->Image();
+	gResManager->ReleaseResource(resource);
+
+}
+
+
+void
+Room::_InitLightMap()
+{
+	std::string lightMapName = fName.CString();
+	lightMapName += "LM";
+	BMPResource* resource = gResManager->GetBMP(lightMapName.c_str());
+	fLightMap = resource->Image();
+	gResManager->ReleaseResource(resource);
+
+}
+
+
+void
+Room::_InitSearchMap()
+{
+	std::string searchMapName = fName.CString();
+	searchMapName += "HT";
+	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
+	fSearchMap = resource->Image();
+	gResManager->ReleaseResource(resource);
+
 }
 
 
@@ -934,6 +996,10 @@ Room::_UnloadArea()
 	fBcs = NULL;
 	GraphicsEngine::DeleteBitmap(fHeightMap);
 	fHeightMap = NULL;
+	GraphicsEngine::DeleteBitmap(fLightMap);
+	fLightMap = NULL;
+	GraphicsEngine::DeleteBitmap(fSearchMap);
+	fSearchMap = NULL;
 
 	gResManager->TryEmptyResourceCache();
 }
