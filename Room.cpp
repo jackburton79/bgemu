@@ -722,7 +722,7 @@ Room::_InitBlitMask()
 void
 Room::_InitHeightMap()
 {
-	std::string heightMapName = fName.CString();
+	std::string heightMapName = fArea->WedName().CString();
 	heightMapName += "HT";
 	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
 	if (resource != NULL) {
@@ -735,7 +735,7 @@ Room::_InitHeightMap()
 void
 Room::_InitLightMap()
 {
-	std::string lightMapName = fName.CString();
+	std::string lightMapName = fArea->WedName().CString();
 	lightMapName += "LM";
 	BMPResource* resource = gResManager->GetBMP(lightMapName.c_str());
 	if (resource != NULL) {
@@ -748,7 +748,7 @@ Room::_InitLightMap()
 void
 Room::_InitSearchMap()
 {
-	std::string searchMapName = fName.CString();
+	std::string searchMapName = fArea->WedName().CString();
 	searchMapName += "SR";
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
 	if (resource != NULL) {
