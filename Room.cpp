@@ -618,7 +618,7 @@ int32
 Room::PointSearch(const IE::point& point) const
 {
 	if (fSearchMap == NULL)
-		return 8;
+		return 1;
 
 	int32 y = point.y / 16;
 	int32 x = point.x / 16;
@@ -725,9 +725,10 @@ Room::_InitHeightMap()
 	std::string heightMapName = fName.CString();
 	heightMapName += "HT";
 	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
-	fHeightMap = resource->Image();
-	gResManager->ReleaseResource(resource);
-
+	if (resource != NULL) {
+		fHeightMap = resource->Image();
+		gResManager->ReleaseResource(resource);
+	}
 }
 
 
@@ -737,9 +738,10 @@ Room::_InitLightMap()
 	std::string lightMapName = fName.CString();
 	lightMapName += "LM";
 	BMPResource* resource = gResManager->GetBMP(lightMapName.c_str());
-	fLightMap = resource->Image();
-	gResManager->ReleaseResource(resource);
-
+	if (resource != NULL) {
+		fLightMap = resource->Image();
+		gResManager->ReleaseResource(resource);
+	}
 }
 
 
@@ -749,8 +751,10 @@ Room::_InitSearchMap()
 	std::string searchMapName = fName.CString();
 	searchMapName += "SR";
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
-	fSearchMap = resource->Image();
-	gResManager->ReleaseResource(resource);
+	if (resource != NULL) {
+		fSearchMap = resource->Image();
+		gResManager->ReleaseResource(resource);
+	}
 
 }
 
