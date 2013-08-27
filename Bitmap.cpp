@@ -261,10 +261,10 @@ void
 Bitmap::StrokeCircle(const int16& centerX, const int16& centerY, const uint32 radius,
 		const uint32 color)
 {
-	int x = 0;
-	int y = radius;
+	uint32 x = 0;
+	uint32 y = radius;
 	int decision = 3 - 2 * radius;
-	while (x != y) {
+	while (x <= y) {
 		PutCirclePixels(this, centerX, centerY, x, y, color);
 		if (decision < 0)
 			decision = decision + (4 * x) + 6;
