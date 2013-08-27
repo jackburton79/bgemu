@@ -134,6 +134,9 @@ private:
 	Bitmap* fLightMap;
 	Bitmap* fSearchMap;
 
+	int32 fMapHorizontalRatio;
+	int32 fMapVerticalRatio;
+
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
 	std::vector<Animation*> fAnimations;

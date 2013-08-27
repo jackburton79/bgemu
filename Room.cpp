@@ -115,11 +115,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
-
-	_InitHeightMap();
-	_InitLightMap();
-	_InitSearchMap();
-
 	GUI* gui = GUI::Get();
 	gui->Clear();
 	gui->Load("GUIW");
@@ -155,6 +150,11 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitDoors();
 
 	_InitBitmap(fViewPort);
+
+	_InitHeightMap();
+	_InitLightMap();
+	_InitSearchMap();
+
 	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
@@ -482,7 +482,7 @@ Room::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
-	std::cout << "state: " << std::dec << PointSearch(point) << std::endl;
+	//std::cout << "state: " << std::dec << PointSearch(point) << std::endl;
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
@@ -605,8 +605,8 @@ Room::PointHeight(const IE::point& point) const
 	if (fHeightMap == NULL)
 		return 8;
 
-	int32 y = point.y / 16;
-	int32 x = point.x / 16;
+	int32 x = point.x / fMapHorizontalRatio;
+	int32 y = point.y / fMapVerticalRatio;
 	uint8* pixels = (uint8*)fHeightMap->Pixels();
 	return pixels[y * fHeightMap->Pitch() + x * fHeightMap->BitsPerPixel() / 8];
 }
@@ -618,8 +618,8 @@ Room::PointLight(const IE::point& point) const
 	if (fLightMap == NULL)
 		return 8;
 
-	int32 y = point.y / 16;
-	int32 x = point.x / 16;
+	int32 x = point.x / fMapHorizontalRatio;
+	int32 y = point.y / fMapVerticalRatio;
 	uint8* pixels = (uint8*)fLightMap->Pixels();
 	return pixels[y * fLightMap->Pitch() + x * fLightMap->BitsPerPixel() / 8];
 }
@@ -631,10 +631,9 @@ Room::PointSearch(const IE::point& point) const
 	if (fSearchMap == NULL)
 		return 1;
 
-	const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
-	const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
-	int32 y = point.y / yRatio;
-	int32 x = point.x / xRatio;
+	int32 x = point.x / fMapHorizontalRatio;
+	int32 y = point.y / fMapVerticalRatio;
+
 	uint8* pixels = (uint8*)fSearchMap->Pixels();
 	return pixels[y * fSearchMap->Pitch() + x * fSearchMap->BitsPerPixel() / 8];
 }
@@ -766,6 +765,8 @@ Room::_InitSearchMap()
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
 	if (resource != NULL) {
 		fSearchMap = resource->Image();
+		fMapHorizontalRatio = AreaRect().w / fSearchMap->Width();
+		fMapVerticalRatio = AreaRect().h / fSearchMap->Height();
 		gResManager->ReleaseResource(resource);
 	}
 
@@ -842,12 +843,10 @@ void
 Room::_DrawSearchMap(GFX::rect visibleArea)
 {
 	return;
-	if (fSearchMap != NULL) {
+	/*if (fSearchMap != NULL) {
 		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
 							fBackBitmap->Width(), fBackBitmap->Height());
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
-		const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
-		const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
 
 		visibleArea.x /= xRatio;
 		visibleArea.y /= yRatio;
@@ -855,7 +854,7 @@ Room::_DrawSearchMap(GFX::rect visibleArea)
 		visibleArea.h /= yRatio;
 		visibleArea = offset_rect(visibleArea, 0, fBackBitmap->Height() - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
-	}
+	}*/
 }
 
 
