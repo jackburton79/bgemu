@@ -157,9 +157,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitBitmap(fViewPort);
 	_InitBlitMask();
 
-	std::cout << std::dec;
-	std::cout << "area width: " << fOverlays[0]->Width() << std::endl;
-	std::cout << "heightmap width: " << fHeightMap->Width() << std::endl;
 	Core::Get()->EnteredArea(this, roomScript);
 
 	delete roomScript;
@@ -594,6 +591,9 @@ Room::TileNumberForPoint(const IE::point& point)
 int32
 Room::PointHeight(const IE::point& point) const
 {
+	if (fHeightMap == NULL)
+		return 8;
+
 	int32 y = point.y / 16;
 	int32 x = point.x / 16;
 	uint8* pixels = (uint8*)fHeightMap->Pixels();
@@ -932,7 +932,6 @@ Room::_UnloadArea()
 	fArea = NULL;
 	gResManager->ReleaseResource(fBcs);
 	fBcs = NULL;
-
 	GraphicsEngine::DeleteBitmap(fHeightMap);
 	fHeightMap = NULL;
 
