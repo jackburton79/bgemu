@@ -525,13 +525,11 @@ Room::DrawObject(const Object& object)
 	} else if (radius < 18) {
 		step = 1;
 	}
-	//std::cout << "radius: " << std::dec << radius << ", step: " << step << std::endl;
 
 	radius = radius + step;
 	const Actor* actor = dynamic_cast<const Actor*>(&object);
 	if (actor != NULL) {
 		if (actor->IsSelected()) {
-			// TODO: We are duplicating the code in the other DrawObject call
 			IE::point position = offset_point(actor->Position(),
 										-fAreaOffset.x, -fAreaOffset.y);
 			fBackBitmap->Lock();
