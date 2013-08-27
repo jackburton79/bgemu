@@ -372,6 +372,13 @@ Bitmap::Pitch() const
 }
 
 
+uint32
+Bitmap::MapColor(const uint8 r, const uint8 g, const uint8 b)
+{
+	return SDL_MapRGB(fSurface->format, r, g, b);
+}
+
+
 void
 Bitmap::Update()
 {

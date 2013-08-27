@@ -72,6 +72,8 @@ public:
 	void StrokeCircle(const int16& centerX, const int16& centerY,
 					const uint32 radius, const uint32 color);
 
+	uint32 MapColor(const uint8 r, const uint8 g, const uint8 b);
+
 	Bitmap* GetMirrored() const;
 	void Flip();
 
