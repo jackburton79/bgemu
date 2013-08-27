@@ -151,34 +151,34 @@ Bitmap::StrokeLine(int32 x1, int32 y1,
 			int32 x2, int32 y2, const uint32 color)
 {
 	int cycle;
-	int lg_delta = x2 - x1;
-	int sh_delta = y2 - y1;
-	int lg_step = SGN(lg_delta);
-	lg_delta = ABS(lg_delta);
-	int sh_step = SGN(sh_delta);
-	sh_delta = ABS(sh_delta);
-	if (sh_delta < lg_delta) {
-		cycle = lg_delta >> 1;
+	int deltaX = x2 - x1;
+	int deltaY = y2 - y1;
+	int stepX = SGN(deltaX);
+	deltaX = ABS(deltaX);
+	int stepY = SGN(deltaY);
+	deltaY = ABS(deltaY);
+	if (deltaY < deltaX) {
+		cycle = deltaX >> 1;
 		while (x1 != x2) {
 			PutPixel(x1, y1, color);
-			cycle += sh_delta;
-			if (cycle > lg_delta) {
-				cycle -= lg_delta;
-				y1 += sh_step;
+			cycle += deltaY;
+			if (cycle > deltaX) {
+				cycle -= deltaX;
+				y1 += stepY;
 			}
-			x1 += lg_step;
+			x1 += stepX;
 		}
 		PutPixel(x1, y1, color);
 	}
-	cycle = sh_delta >> 1;
+	cycle = deltaY >> 1;
 	while (y1 != y2) {
 		PutPixel(x1, y1, color);
-		cycle += lg_delta;
-		if (cycle > sh_delta) {
-			cycle -= sh_delta;
-			x1 += lg_step;
+		cycle += deltaX;
+		if (cycle > deltaY) {
+			cycle -= deltaY;
+			x1 += stepX;
 		}
-		y1 += sh_step;
+		y1 += stepY;
 	}
 	PutPixel(x1, y1, color);
 }
@@ -242,10 +242,38 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 }
 
 
+static void
+PutCirclePixels(Bitmap* bitmap, const int centerX, const int centerY,
+		const int x, const int y, const uint32 color)
+{
+	bitmap->PutPixel(centerX + x, centerY + y, color);
+	bitmap->PutPixel(centerX + x, centerY - y, color);
+	bitmap->PutPixel(centerX - x, centerY + y, color);
+	bitmap->PutPixel(centerX - x, centerY - y, color);
+	bitmap->PutPixel(centerX + y, centerY + x, color);
+	bitmap->PutPixel(centerX + y, centerY - x, color);
+	bitmap->PutPixel(centerX - y, centerY + x, color);
+	bitmap->PutPixel(centerX - y, centerY - x, color);
+}
+
+
 void
 Bitmap::StrokeCircle(const int16& centerX, const int16& centerY, const uint32 radius,
 		const uint32 color)
 {
+	int x = 0;
+	int y = radius;
+	int decision = 3 - 2 * radius;
+	while (x != y) {
+		PutCirclePixels(this, centerX, centerY, x, y, color);
+		if (decision < 0)
+			decision = decision + (4 * x) + 6;
+		else {
+			decision = decision + 4 * (x - y) + 10;
+			y = y - 1;
+		}
+		x++;
+	}
 }
 
 
