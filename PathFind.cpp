@@ -71,6 +71,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	fOpenList.remove(node);
 	fClosedList.push_back(node);
 
+	uint32 tries = 0;
 	for (;;) {
 		point_node* cheapestNode = _ChooseCheapestNode(end);
 		std::cout << "Cheapest Point: (" << cheapestNode->point.x << ", ";
@@ -81,6 +82,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (cheapestNode->point == end || fOpenList.empty())
 			break;
 		_AddPassableAdiacentPoints(*cheapestNode);
+		if (++tries == 1000)
+			break;
 	}
 
 	std::list<point_node*>::const_iterator i;
@@ -163,7 +166,6 @@ PathFinder::_AddIfPassable(const IE::point& point, point_node& parent)
 		std::cout << "already in closed list" << std::endl;
 		return;
 	}
-
 
 	std::list<point_node*>::const_iterator i =
 			std::find_if(fOpenList.begin(), fOpenList.end(),
