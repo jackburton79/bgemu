@@ -8,20 +8,20 @@ struct point_node;
 class PathFinder {
 public:
 	PathFinder();
-	void SetPoints(const IE::point& start, const IE::point& end);
+	IE::point SetPoints(const IE::point& start, const IE::point& end);
 
 	IE::point NextWayPoint();
+	bool IsEmpty() const;
 
 	static bool IsPassable(const IE::point& point);
 
 private:
 	std::list<IE::point> fPoints;
-	std::list<IE::point>::iterator fIterator;
 
 	std::list<point_node*> fOpenList;
 	std::list<point_node*> fClosedList;
 
-	void _GeneratePath(const IE::point& start, const IE::point& end);
+	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 	void _AddPassableAdiacentPoints(point_node& node);
 	void _AddIfPassable(const IE::point& point, point_node& node);
 	point_node* _ChooseCheapestNode(const IE::point& end);

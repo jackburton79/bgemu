@@ -268,8 +268,7 @@ Actor::Destination() const
 void
 Actor::SetDestination(const IE::point& point)
 {
-	fActor->destination = point;
-	fPath->SetPoints(fActor->position, fActor->destination);
+	fActor->destination = fPath->SetPoints(fActor->position, point);
 }
 
 
@@ -394,9 +393,9 @@ Actor::StopCheckingConditions()
 void
 Actor::UpdateMove(bool ignoreBlocks)
 {
-	if (fActor->position != fActor->destination) {
+	if (!fPath->IsEmpty()) {
 		IE::point nextPoint;
-		for (int32 i = 0; i < fSpeed; i++)
+		//for (int32 i = 0; i < fSpeed; i++)
 			nextPoint = fPath->NextWayPoint();
 
 		_SetOrientation(fActor->destination);
