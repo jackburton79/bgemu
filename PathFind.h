@@ -30,5 +30,6 @@ private:
 	uint32 _HeuristicDistance(const IE::point& start, const IE::point& end);
 
 	IE::point _FindNearestReachablePoint(const IE::point&, const IE::point& point);
+	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
 };
 #endif // __PATHFIND_H

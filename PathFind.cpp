@@ -2,6 +2,7 @@
 #include "Room.h"
 #include "RectUtils.h"
 #include "GraphicsEngine.h"
+#include "Utils.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -37,8 +38,8 @@ const static int kStep = 4;
 static bool
 PointNear(const IE::point& pointA, const IE::point& pointB)
 {
-	return (std::abs(pointA.x - pointB.x) <= kStep)
-		&& (std::abs(pointA.y - pointB.y) <= kStep);
+	return (std::abs(pointA.x - pointB.x) <= kStep * 2)
+		&& (std::abs(pointA.y - pointB.y) <= kStep * 2);
 }
 
 
@@ -101,11 +102,15 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	if (!fIgnoreUnpassable && !IsPassable(end))
 		reachableEnd = _FindNearestReachablePoint(start, end);
 
+	IE::point maxReachableDirectly = _CreateDirectPath(start, reachableEnd);
+	if (PointNear(maxReachableDirectly, end))
+		return maxReachableDirectly;
 
-	point_node* currentNode = new point_node(start, NULL, 0);
+	std::list<IE::point>::iterator directRouteEnd = fPoints.end();
+	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	fOpenList.push_back(currentNode);
 
-	uint32 tries = 1000;
+	uint32 tries = 3000;
 	bool notFound = false;
 	for (;;) {
 		_AddPassableAdiacentPoints(*currentNode);
@@ -152,7 +157,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	std::list<point_node*>::reverse_iterator r = fClosedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
-		fPoints.push_front(walkNode->point);
+		//fPoints.push_front(walkNode->point);
+		fPoints.insert(directRouteEnd, walkNode->point);
+		directRouteEnd--;
 		const point_node* parent = walkNode->parent;
 		if (parent == NULL)
 			break;
@@ -168,8 +175,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		delete *i;
 	fOpenList.clear();
 
-
-	std::cout << "Path:" << std::endl;
+	std::cout << "Path from (" << start.x << ", " << start.y << ") to (";
+	std::cout << end.x << ", " << end.y << "): " << std::endl;
 	std::list<IE::point>::const_iterator p;
 	for (p = fPoints.begin(); p != fPoints.end(); p++)
 		std::cout << "\t(" << (*p).x << ", " << (*p).y << ")" << std::endl;
@@ -281,8 +288,8 @@ uint32
 PathFinder::_HeuristicDistance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
-	return 10 * (int32)(((std::abs(end.x - start.x) << 2)
-			+ (std::abs(end.y - start.y)) << 2));
+	return 10 * (int32)((std::abs(end.x - start.x) << 2)
+			+ (std::abs(end.y - start.y) << 2));
 }
 
 
@@ -291,4 +298,53 @@ PathFinder::_FindNearestReachablePoint(const IE::point& start, const IE::point& 
 {
 	// TODO: implement
 	return start;
+}
+
+
+IE::point
+PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
+{
+	IE::point point = start;
+	int cycle;
+	int lg_delta = end.x - point.x;
+	int sh_delta = end.y - point.y;
+	int lg_step = lg_delta > 0 ? 1 : -1;
+	lg_delta = ABS(lg_delta);
+	int sh_step = sh_delta > 0 ? 1 : -1;
+	sh_delta = ABS(sh_delta);
+	if (sh_delta < lg_delta) {
+		cycle = lg_delta >> 1;
+		while (point.x != end.x) {
+			if (!IsPassable(point))
+				return fPoints.back();
+			fPoints.push_back(point);
+			cycle += sh_delta;
+			if (cycle > lg_delta) {
+				cycle -= lg_delta;
+				point.y += sh_step;
+			}
+			point.x += lg_step;
+		}
+		if (!IsPassable(point))
+			return fPoints.back();
+
+		fPoints.push_back(point);
+	}
+	cycle = sh_delta >> 1;
+	while (point.y != end.y) {
+		if (!IsPassable(point))
+			return fPoints.back();
+		fPoints.push_back(point);
+		cycle += lg_delta;
+		if (cycle > sh_delta) {
+			cycle -= sh_delta;
+			point.x += lg_step;
+		}
+		point.y += sh_step;
+	}
+
+	if (IsPassable(point))
+		fPoints.push_back(point);
+
+	return fPoints.back();
 }
