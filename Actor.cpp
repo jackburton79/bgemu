@@ -394,10 +394,7 @@ void
 Actor::UpdateMove(bool ignoreBlocks)
 {
 	if (!fPath->IsEmpty()) {
-		IE::point nextPoint;
-		//for (int32 i = 0; i < fSpeed; i++)
-			nextPoint = fPath->NextWayPoint();
-
+		IE::point nextPoint = fPath->NextWayPoint();
 
 		_SetOrientation(nextPoint);
 
