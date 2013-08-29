@@ -404,7 +404,7 @@ Actor::UpdateMove(bool ignoreBlocks)
 		// the real destination point
 		//_SetOrientation(nextPoint);
 
-		if (ignoreBlocks || _IsReachable(nextPoint))
+		//if (ignoreBlocks || _IsReachable(nextPoint))
 			fActor->position = nextPoint;
 	}
 
