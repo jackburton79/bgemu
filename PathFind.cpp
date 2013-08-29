@@ -95,7 +95,10 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
 
-	fOpenList.push_back(new point_node(start, NULL, 0));
+	point_node* parent = new point_node(start, NULL, 0);
+	fOpenList.push_back(parent);
+	_AddPassableAdiacentPoints(*parent);
+	fClosedList.remove(parent);
 
 	uint32 tries = 3000;
 	bool notFound = false;
@@ -116,6 +119,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 		if (PointNear(cheapestNode->point, end) || fOpenList.empty())
 			break;
+
 		_AddPassableAdiacentPoints(*cheapestNode);
 		if (--tries == 0) {
 			notFound = true;
@@ -275,5 +279,5 @@ uint32
 PathFinder::_HeuristicDistance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
-	return (uint32)((std::abs(end.x - start.x) + std::abs(end.y - start.y)) * 10);
+	return (int32)((std::abs(end.x - start.x) + std::abs(end.y - start.y)) * 10);
 }
