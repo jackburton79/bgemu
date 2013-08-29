@@ -98,12 +98,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
 
-	IE::point reachableEnd = end;
-	if (!fIgnoreUnpassable && !IsPassable(end))
-		reachableEnd = _FindNearestReachablePoint(start, end);
-
-	IE::point maxReachableDirectly = _CreateDirectPath(start, reachableEnd);
-	if (PointSufficientlyClose(maxReachableDirectly, reachableEnd))
+	IE::point maxReachableDirectly = _CreateDirectPath(start, end);
+	if (PointSufficientlyClose(maxReachableDirectly, end)
+			|| !IsPassable(end))
 		return maxReachableDirectly;
 
 	std::list<IE::point>::iterator directRouteEnd = fPoints.end();
@@ -276,17 +273,6 @@ PathFinder::_ChooseCheapestNode(const IE::point& end)
 	}
 
 	return result;
-}
-
-
-
-
-
-IE::point
-PathFinder::_FindNearestReachablePoint(const IE::point& start, const IE::point& point)
-{
-	// TODO: implement
-	return start;
 }
 
 

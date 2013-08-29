@@ -28,7 +28,6 @@ private:
 	void _AddIfPassable(const IE::point& point, const point_node& node);
 	point_node* _ChooseCheapestNode(const IE::point& end);
 
-	IE::point _FindNearestReachablePoint(const IE::point&, const IE::point& point);
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
 
 	void _EmptyLists();
