@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <limits.h>
 
+#define PLOT_PATH 1
+
 struct point_node {
 	point_node(IE::point p, const point_node* parentNode, int nodeCost)
 		:
@@ -96,10 +98,14 @@ PathFinder::IsPassable(const IE::point& point)
 IE::point
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
+#if PLOT_PATH
+	const uint32 color = GraphicsEngine::Get()
+								->ScreenBitmap()->MapColor(255, 128, 100);
+#endif
 	fPoints.clear();
 
 	IE::point maxReachableDirectly = _CreateDirectPath(start, end);
-#if 1
+#if PLOT_PATH
 	std::list<IE::point>::const_iterator d = fPoints.begin();
 	for (; d != fPoints.end(); d++) {
 		IE::point offsettedPoint = offset_point(*d,
@@ -107,7 +113,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 									-Room::Get()->AreaOffset().y);
 
 		GraphicsEngine::Get()->ScreenBitmap()->PutPixel(offsettedPoint.x,
-			offsettedPoint.y, 4000);
+			offsettedPoint.y, color);
 		GraphicsEngine::Get()->Flip();
 	}
 #endif
@@ -129,13 +135,13 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;
 
-#if 1
+#if PLOT_PATH
 		IE::point offsettedPoint = offset_point(currentNode->point,
 										-Room::Get()->AreaOffset().x,
 										-Room::Get()->AreaOffset().y);
 
 		GraphicsEngine::Get()->ScreenBitmap()->PutPixel(offsettedPoint.x,
-				offsettedPoint.y, 4000);
+				offsettedPoint.y, color);
 		GraphicsEngine::Get()->Flip();
 #endif
 
