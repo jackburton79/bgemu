@@ -157,7 +157,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	std::list<point_node*>::reverse_iterator r = fClosedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
-		//fPoints.push_front(walkNode->point);
 		fPoints.insert(directRouteEnd, walkNode->point);
 		directRouteEnd--;
 		const point_node* parent = walkNode->parent;
@@ -308,13 +307,13 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 	int cycle;
 	int lg_delta = end.x - point.x;
 	int sh_delta = end.y - point.y;
-	int lg_step = lg_delta > 0 ? 1 : -1;
+	int lg_step = lg_delta > 0 ? kStep : -kStep;
 	lg_delta = ABS(lg_delta);
-	int sh_step = sh_delta > 0 ? 1 : -1;
+	int sh_step = sh_delta > 0 ? kStep : -kStep;
 	sh_delta = ABS(sh_delta);
 	if (sh_delta < lg_delta) {
 		cycle = lg_delta >> 1;
-		while (point.x != end.x) {
+		while (std::abs(point.x - end.x) > kStep) {
 			if (!IsPassable(point))
 				return fPoints.back();
 			fPoints.push_back(point);
@@ -331,7 +330,7 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		fPoints.push_back(point);
 	}
 	cycle = sh_delta >> 1;
-	while (point.y != end.y) {
+	while (std::abs(point.y - end.y) > kStep) {
 		if (!IsPassable(point))
 			return fPoints.back();
 		fPoints.push_back(point);
