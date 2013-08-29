@@ -398,8 +398,7 @@ Actor::UpdateMove(bool ignoreBlocks)
 
 		_SetOrientation(nextPoint);
 
-		//if (ignoreBlocks || _IsReachable(nextPoint))
-			fActor->position = nextPoint;
+		fActor->position = nextPoint;
 	}
 
 	int action = ACT_STANDING;
