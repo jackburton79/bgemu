@@ -24,6 +24,7 @@ private:
 	bool fIgnoreUnpassable;
 
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
+
 	void _AddPassableAdiacentPoints(const point_node& node);
 	void _AddIfPassable(const IE::point& point, const point_node& node);
 	point_node* _ChooseCheapestNode(const IE::point& end);

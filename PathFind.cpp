@@ -99,6 +99,18 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	fPoints.clear();
 
 	IE::point maxReachableDirectly = _CreateDirectPath(start, end);
+#if 1
+	std::list<IE::point>::const_iterator d = fPoints.begin();
+	for (; d != fPoints.end(); d++) {
+		IE::point offsettedPoint = offset_point(*d,
+									-Room::Get()->AreaOffset().x,
+									-Room::Get()->AreaOffset().y);
+
+		GraphicsEngine::Get()->ScreenBitmap()->PutPixel(offsettedPoint.x,
+			offsettedPoint.y, 4000);
+		GraphicsEngine::Get()->Flip();
+	}
+#endif
 	if (PointSufficientlyClose(maxReachableDirectly, end)
 			|| !IsPassable(end))
 		return maxReachableDirectly;
@@ -117,7 +129,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;
 
-#if 0
+#if 1
 		IE::point offsettedPoint = offset_point(currentNode->point,
 										-Room::Get()->AreaOffset().x,
 										-Room::Get()->AreaOffset().y);
