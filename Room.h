@@ -39,7 +39,7 @@ public:
 	void SetViewPort(GFX::rect rect);
 
 	GFX::rect AreaRect() const;
-	void GetAreaOffset(IE::point& point);
+	IE::point AreaOffset() const;
 	void SetAreaOffset(IE::point point);
 	void SetRelativeAreaOffset(IE::point point);
 

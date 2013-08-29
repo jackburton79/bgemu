@@ -257,10 +257,10 @@ Room::AreaRect() const
 }
 
 
-void
-Room::GetAreaOffset(IE::point& point)
+IE::point
+Room::AreaOffset() const
 {
-	point = fAreaOffset;
+	return fAreaOffset;
 }
 
 
