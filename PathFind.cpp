@@ -95,12 +95,16 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
 
+	IE::point reachableEnd = end;
+	if (!IsPassable(end))
+		reachableEnd = _FindNearestReachablePoint(end);
+
 	point_node* parent = new point_node(start, NULL, 0);
 	fOpenList.push_back(parent);
 	_AddPassableAdiacentPoints(*parent);
 	fClosedList.remove(parent);
 
-	uint32 tries = 3000;
+	uint32 tries = 1000;
 	bool notFound = false;
 	for (;;) {
 		point_node* cheapestNode = _ChooseCheapestNode(end);
@@ -162,11 +166,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 	fOpenList.clear();
 	fClosedList.clear();
-/*
-	std::cout << "real end: " << end.x << ", " << end.y << std::endl;
-	std::cout << "reachable: " << fPoints.back().x << ", " << fPoints.front().y << std::endl;
-	std::flush(std::cout);
-*/
+
 	std::cout << "Path:" << std::endl;
 	std::list<IE::point>::const_iterator p;
 	for (p = fPoints.begin(); p != fPoints.end(); p++)
@@ -280,4 +280,11 @@ PathFinder::_HeuristicDistance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
 	return (int32)((std::abs(end.x - start.x) + std::abs(end.y - start.y)) * 10);
+}
+
+
+IE::point
+PathFinder::_FindNearestReachablePoint(const IE::point& point)
+{
+	return point;
 }

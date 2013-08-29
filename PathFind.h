@@ -27,6 +27,6 @@ private:
 	point_node* _ChooseCheapestNode(const IE::point& end);
 	uint32 _HeuristicDistance(const IE::point& start, const IE::point& end);
 
-	bool _IsPointInOpenList(const IE::point& point);
+	IE::point _FindNearestReachablePoint(const IE::point& point);
 };
 #endif // __PATHFIND_H
