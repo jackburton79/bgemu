@@ -36,7 +36,7 @@ const static int kStep = 4;
 
 
 static bool
-PointNear(const IE::point& pointA, const IE::point& pointB)
+PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 {
 	return (std::abs(pointA.x - pointB.x) <= kStep * 2)
 		&& (std::abs(pointA.y - pointB.y) <= kStep * 2);
@@ -103,7 +103,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		reachableEnd = _FindNearestReachablePoint(start, end);
 
 	IE::point maxReachableDirectly = _CreateDirectPath(start, reachableEnd);
-	if (PointNear(maxReachableDirectly, end))
+	if (PointSufficientlyClose(maxReachableDirectly, reachableEnd))
 		return maxReachableDirectly;
 
 	std::list<IE::point>::iterator directRouteEnd = fPoints.end();
@@ -117,10 +117,10 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		fOpenList.remove(currentNode);
 		fClosedList.push_back(currentNode);
 
-		if (PointNear(currentNode->point, end))
+		if (PointSufficientlyClose(currentNode->point, end))
 			break;
 
-#if 1
+#if 0
 		IE::point offsettedPoint = offset_point(currentNode->point,
 										-Room::Get()->AreaOffset().x,
 										-Room::Get()->AreaOffset().y);
@@ -142,14 +142,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
 		std::cout << "Path not found" << std::endl;
-		std::list<point_node*>::const_iterator i;
-		for (i = fClosedList.begin(); i != fClosedList.end(); i++)
-			delete *i;
-		fClosedList.clear();
 
-		for (i = fOpenList.begin(); i != fOpenList.end(); i++)
-			delete *i;
-		fOpenList.clear();
+		_EmptyLists();
 
 		return start;
 	}
@@ -165,14 +159,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		walkNode = const_cast<point_node*>(parent);
 	}
 
-	std::list<point_node*>::const_iterator i;
-	for (i = fClosedList.begin(); i != fClosedList.end(); i++)
-		delete *i;
-	fClosedList.clear();
-
-	for (i = fOpenList.begin(); i != fOpenList.end(); i++)
-		delete *i;
-	fOpenList.clear();
+	_EmptyLists();
 
 	std::cout << "Path from (" << start.x << ", " << start.y << ") to (";
 	std::cout << end.x << ", " << end.y << "): " << std::endl;
@@ -180,7 +167,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	for (p = fPoints.begin(); p != fPoints.end(); p++)
 		std::cout << "\t(" << (*p).x << ", " << (*p).y << ")" << std::endl;
 
-	assert (PointNear(fPoints.back(), end));
+	assert (PointSufficientlyClose(fPoints.back(), end));
 	return fPoints.back();
 }
 
@@ -264,6 +251,15 @@ PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 }
 
 
+static inline uint32
+HeuristicDistance(const IE::point& start, const IE::point& end)
+{
+	// Manhattan method
+	return 10 * (int32)((std::abs(end.x - start.x) << 2)
+			+ (std::abs(end.y - start.y) << 2));
+}
+
+
 point_node*
 PathFinder::_ChooseCheapestNode(const IE::point& end)
 {
@@ -272,7 +268,7 @@ PathFinder::_ChooseCheapestNode(const IE::point& end)
 	for (std::list<point_node*>::const_iterator i = fOpenList.begin();
 			i != fOpenList.end(); i++) {
 		const point_node* node = *i;
-		uint32 totalCost = _HeuristicDistance(node->point, end) + node->cost;
+		uint32 totalCost = HeuristicDistance(node->point, end) + node->cost;
 		if (totalCost < minCost) {
 			result = *i;
 			minCost = totalCost;
@@ -283,13 +279,7 @@ PathFinder::_ChooseCheapestNode(const IE::point& end)
 }
 
 
-uint32
-PathFinder::_HeuristicDistance(const IE::point& start, const IE::point& end)
-{
-	// Manhattan method
-	return 10 * (int32)((std::abs(end.x - start.x) << 2)
-			+ (std::abs(end.y - start.y) << 2));
-}
+
 
 
 IE::point
@@ -346,4 +336,18 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		fPoints.push_back(point);
 
 	return fPoints.back();
+}
+
+
+void
+PathFinder::_EmptyLists()
+{
+	std::list<point_node*>::const_iterator i;
+	for (i = fClosedList.begin(); i != fClosedList.end(); i++)
+		delete *i;
+	fClosedList.clear();
+
+	for (i = fOpenList.begin(); i != fOpenList.end(); i++)
+		delete *i;
+	fOpenList.clear();
 }
