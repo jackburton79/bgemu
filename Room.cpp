@@ -547,8 +547,7 @@ Room::DrawObject(const Object& object)
 	}
 
 	radius = radius + step;
-	const Actor* actor = dynamic_cast<const Actor*>(&object);
-	if (actor != NULL) {
+	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
 		if (actor->IsSelected()) {
 			IE::point position = offset_point(actorPosition,
