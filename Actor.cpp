@@ -398,11 +398,8 @@ Actor::UpdateMove(bool ignoreBlocks)
 		//for (int32 i = 0; i < fSpeed; i++)
 			nextPoint = fPath->NextWayPoint();
 
-		_SetOrientation(fActor->destination);
-		// TODO: We should do this, since the path to the destination
-		// could involve facing to a different direction than
-		// the real destination point
-		//_SetOrientation(nextPoint);
+
+		_SetOrientation(nextPoint);
 
 		//if (ignoreBlocks || _IsReachable(nextPoint))
 			fActor->position = nextPoint;
@@ -447,24 +444,24 @@ void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
 	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
-	if (nextPoint.x > fActor->position.x + 5) {
-		if (nextPoint.y > fActor->position.y + 5)
+	if (nextPoint.x > fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_SE;
-		else if (nextPoint.y < fActor->position.y - 5)
+		else if (nextPoint.y < fActor->position.y)
 			newOrientation = IE::ORIENTATION_NE;
 		else
 			newOrientation = IE::ORIENTATION_E;
-	} else if (nextPoint.x < fActor->position.x - 5) {
-		if (nextPoint.y > fActor->position.y + 5)
+	} else if (nextPoint.x < fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_SW;
-		else if (nextPoint.y < fActor->position.y - 5)
+		else if (nextPoint.y < fActor->position.y)
 			newOrientation = IE::ORIENTATION_NW;
 		else
 			newOrientation = IE::ORIENTATION_W;
 	} else {
-		if (nextPoint.y > fActor->position.y + 5)
+		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_S;
-		else if (nextPoint.y < fActor->position.y - 5)
+		else if (nextPoint.y < fActor->position.y)
 			newOrientation = IE::ORIENTATION_N;
 	}
 
