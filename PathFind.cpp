@@ -42,7 +42,9 @@ PointNear(const IE::point& pointA, const IE::point& pointB)
 }
 
 
-PathFinder::PathFinder()
+PathFinder::PathFinder(bool ignoreUnpassable)
+	:
+	fIgnoreUnpassable(ignoreUnpassable)
 {
 }
 
@@ -96,8 +98,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	fPoints.clear();
 
 	IE::point reachableEnd = end;
-	if (!IsPassable(end))
-		reachableEnd = _FindNearestReachablePoint(end);
+	if (!fIgnoreUnpassable && !IsPassable(end))
+		reachableEnd = _FindNearestReachablePoint(start, end);
 
 	point_node* parent = new point_node(start, NULL, 0);
 	fOpenList.push_back(parent);
@@ -222,7 +224,7 @@ CalculateCost(const IE::point& pointA, const IE::point& pointB)
 void
 PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 {
-	if (point.x < 0 || point.y < 0 || !IsPassable(point))
+	if (point.x < 0 || point.y < 0 || (!fIgnoreUnpassable && !IsPassable(point)))
 		return;
 
 	// Check if point is in closed list
@@ -284,7 +286,8 @@ PathFinder::_HeuristicDistance(const IE::point& start, const IE::point& end)
 
 
 IE::point
-PathFinder::_FindNearestReachablePoint(const IE::point& point)
+PathFinder::_FindNearestReachablePoint(const IE::point& start, const IE::point& point)
 {
-	return point;
+	// TODO: implement
+	return start;
 }
