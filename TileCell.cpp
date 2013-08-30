@@ -40,7 +40,6 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		std::cerr << "Overlay Zero is NULL!" << std::endl;
 		return;
 	}
-	std::cout << overlayZero->Width() << "x" << overlayZero->Height() << std::endl;
 	TileMap* tileMapZero = overlayZero->TileMapForTileCell(fNumber);
 	if (tileMapZero == NULL) {
 		std::cerr << "Tilemap Zero is NULL!" << std::endl;
