@@ -11,6 +11,7 @@
 
 #include "IETypes.h"
 #include "Object.h"
+#include "Polygon.h"
 
 class Region: public Object {
 public:
@@ -22,8 +23,10 @@ public:
 	res_ref DestinationArea() const;
 	const char* DestinationEntrance() const;
 
+	const ::Polygon& Polygon() const;
 private:
 	IE::region* fRegion;
+	::Polygon fPolygon;
 };
 
 #endif /* REGION_H_ */

@@ -46,3 +46,10 @@ Region::DestinationEntrance() const
 {
 	return fRegion->entrance_name;
 }
+
+
+const ::Polygon&
+Region::Polygon() const
+{
+	return fPolygon;
+}
