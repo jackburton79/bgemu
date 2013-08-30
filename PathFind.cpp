@@ -104,7 +104,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 	fPoints.clear();
 
-	IE::point maxReachableDirectly = _CreateDirectPath(start, end);
+	IE::point maxReachableDirectly = start;//_CreateDirectPath(start, end);
 #if PLOT_PATH
 	std::list<IE::point>::const_iterator d = fPoints.begin();
 	for (; d != fPoints.end(); d++) {
@@ -145,12 +145,11 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		GraphicsEngine::Get()->Flip();
 #endif
 
-		if (--tries == 0) {
+		currentNode = _ChooseCheapestNode(end);
+		if (currentNode == NULL || --tries == 0) {
 			notFound = true;
 			break;
 		}
-		currentNode = _ChooseCheapestNode(end);
-		assert(currentNode != NULL);
 	}
 
 	if (notFound) {
