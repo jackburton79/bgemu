@@ -403,16 +403,16 @@ Room::Draw(Bitmap *surface)
 				if (poly != NULL && poly->CountPoints() > 0) {
 					if (rects_intersect(poly->Frame(), mapRect)) {
 						uint32 color = 0;
-						Polygon offsetPolygon = *poly;
-						if (offsetPolygon.Flags() & IE::POLY_SHADE_WALL)
+						if (poly->Flags() & IE::POLY_SHADE_WALL)
 							color = 200;
-						else if (offsetPolygon.Flags() & IE::POLY_HOVERING)
+						else if (poly->Flags() & IE::POLY_HOVERING)
 							color = 500;
-						else if (offsetPolygon.Flags() & IE::POLY_COVER_ANIMATIONS)
+						else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
 							color = 1000;
-						offsetPolygon.OffsetBy(-fAreaOffset.x, -fAreaOffset.y);
-						fBackBitmap->FillPolygon(offsetPolygon, color);
-						fBackBitmap->StrokePolygon(offsetPolygon, color);
+
+						fBackBitmap->FillPolygon(*poly, color);
+						fBackBitmap->StrokePolygon(*poly, color,
+											-fAreaOffset.x, -fAreaOffset.y);
 					}
 				}
 			}
@@ -446,10 +446,8 @@ Room::Draw(Bitmap *surface)
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
 			uint32 color = fBackBitmap->MapColor(125, 0, 0);
-			Polygon offsettedPolygon = region->Polygon();
-			offsettedPolygon.OffsetBy(-mapRect.x, -mapRect.y);
-			//fBackBitmap->StrokeRect(rect, color);
-			fBackBitmap->StrokePolygon(offsettedPolygon, color);
+			fBackBitmap->StrokePolygon(region->Polygon(), color,
+									-mapRect.x, -mapRect.y);
 			fBackBitmap->Unlock();
 		}
 
