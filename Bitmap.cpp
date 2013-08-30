@@ -258,7 +258,7 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color,
 {
 	Polygon newPolygon = polygon;
 	newPolygon.OffsetBy(xOffset, yOffset);
-	StrokePolygon(newPolygon, color);
+	FillPolygon(newPolygon, color);
 }
 
 
