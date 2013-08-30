@@ -34,7 +34,8 @@ struct FindPoint {
 	const IE::point& toFind;
 };
 
-const static int kStep = 4;
+
+const static int kStep = 5;
 
 
 static bool
@@ -125,7 +126,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	fOpenList.push_back(currentNode);
 
-	uint32 tries = 3000;
+	uint32 tries = 4000;
 	bool notFound = false;
 	for (;;) {
 		_AddPassableAdiacentPoints(*currentNode);
@@ -175,13 +176,13 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	}
 
 	_EmptyLists();
-
+/*
 	std::cout << "Path from (" << start.x << ", " << start.y << ") to (";
 	std::cout << end.x << ", " << end.y << "): " << std::endl;
 	std::list<IE::point>::const_iterator p;
 	for (p = fPoints.begin(); p != fPoints.end(); p++)
 		std::cout << "\t(" << (*p).x << ", " << (*p).y << ")" << std::endl;
-
+*/
 	assert (PointSufficientlyClose(fPoints.back(), end));
 	return fPoints.back();
 }
@@ -199,8 +200,6 @@ PathFinder::_AddPassableAdiacentPoints(const point_node& current)
 	_AddIfPassable(offset_point(current.point, kStep, -kStep), current);
 	_AddIfPassable(offset_point(current.point, 0, -kStep), current);
 }
-
-
 
 
 static inline const uint32
@@ -265,7 +264,8 @@ PathFinder::_ChooseCheapestNode(const IE::point& end)
 	for (std::list<point_node*>::const_iterator i = fOpenList.begin();
 			i != fOpenList.end(); i++) {
 		const point_node* node = *i;
-		uint32 totalCost = HeuristicDistance(node->point, end) + node->cost;
+		const uint32 totalCost = HeuristicDistance(node->point, end)
+										+ node->cost;
 		if (totalCost < minCost) {
 			result = *i;
 			minCost = totalCost;
