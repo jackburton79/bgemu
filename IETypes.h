@@ -329,7 +329,7 @@ struct entrance {
 	uint16 y;
 	uint16 orientation;
 	uint8 unknown[66];
-};
+} __attribute__((packed));;
 
 
 // GUI

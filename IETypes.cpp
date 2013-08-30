@@ -323,8 +323,9 @@ region::Print() const
 	uint32 vertex_index;
 	uint32 unk;
 	uint32 cursor_index;
-	res_ref destination;
-	char entrance_name[32];
+	res_ref destination; */
+	std::cout << entrance_name << std::endl;
+	/*
 	uint32 flags;
 	uint32 info_text;
 	uint16 trap_detection_difficulty;
