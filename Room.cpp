@@ -446,7 +446,10 @@ Room::Draw(Bitmap *surface)
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
 			uint32 color = fBackBitmap->MapColor(125, 0, 0);
-			fBackBitmap->StrokeRect(rect, color);
+			Polygon offsettedPolygon = region->Polygon();
+			offsettedPolygon.OffsetBy(-mapRect.x, -mapRect.y);
+			//fBackBitmap->StrokeRect(rect, color);
+			fBackBitmap->StrokePolygon(offsettedPolygon, color);
 			fBackBitmap->Unlock();
 		}
 
