@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <limits.h>
 
-#define PLOT_PATH 1
+#define PLOT_PATH 0
 
 struct point_node {
 	point_node(IE::point p, const point_node* parentNode, int nodeCost)
@@ -121,7 +121,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 			|| !IsPassable(end))
 		return maxReachableDirectly;
 
-	std::list<IE::point>::iterator directRouteEnd = fPoints.end();
+	//std::list<IE::point>::iterator directRouteEnd = fPoints.end();
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	fOpenList.push_back(currentNode);
 
@@ -165,8 +165,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	std::list<point_node*>::reverse_iterator r = fClosedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
-		fPoints.insert(directRouteEnd, walkNode->point);
-		directRouteEnd--;
+		//fPoints.insert(directRouteEnd, walkNode->point);
+		//directRouteEnd--;
+		fPoints.push_front(walkNode->point);
 		const point_node* parent = walkNode->parent;
 		if (parent == NULL)
 			break;
@@ -189,32 +190,14 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 void
 PathFinder::_AddPassableAdiacentPoints(const point_node& current)
 {
-	IE::point newPoint = current.point;
-	newPoint.x += kStep;
-	_AddIfPassable(newPoint, current);
-	newPoint.y += kStep;
-	_AddIfPassable(newPoint, current);
-
-	newPoint = current.point;
-	newPoint.x -= kStep;
-	_AddIfPassable(newPoint, current);
-	newPoint.y += kStep;
-	_AddIfPassable(newPoint, current);
-
-	newPoint = current.point;
-	newPoint.y += kStep;
-	_AddIfPassable(newPoint, current);
-
-	newPoint = current.point;
-	newPoint.y -= kStep;
-	_AddIfPassable(newPoint, current);
-	newPoint.x -= kStep;
-	_AddIfPassable(newPoint, current);
-
-	newPoint = current.point;
-	newPoint.x += kStep;
-	newPoint.y -= kStep;
-	_AddIfPassable(newPoint, current);
+	_AddIfPassable(offset_point(current.point, kStep, 0), current);
+	_AddIfPassable(offset_point(current.point, kStep, kStep), current);
+	_AddIfPassable(offset_point(current.point, 0, kStep), current);
+	_AddIfPassable(offset_point(current.point, -kStep, kStep), current);
+	_AddIfPassable(offset_point(current.point, -kStep, 0), current);
+	_AddIfPassable(offset_point(current.point, -kStep, -kStep), current);
+	_AddIfPassable(offset_point(current.point, kStep, -kStep), current);
+	_AddIfPassable(offset_point(current.point, 0, -kStep), current);
 }
 
 
@@ -231,7 +214,8 @@ CalculateCost(const IE::point& pointA, const IE::point& pointB)
 void
 PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 {
-	if (point.x < 0 || point.y < 0 || (!fIgnoreUnpassable && !IsPassable(point)))
+	if (point.x < 0 || point.y < 0
+			|| (!fIgnoreUnpassable && !IsPassable(point)))
 		return;
 
 	// Check if point is in closed list
@@ -258,9 +242,8 @@ PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 			(*i)->cost = newCost;
 		}
 	} else {
-		const int cost = CalculateCost(point, current.point);
-		fOpenList.push_back(new point_node(point, &current,
-								current.cost + cost));
+		const int cost = CalculateCost(point, current.point) + current.cost;
+		fOpenList.push_back(new point_node(point, &current, cost));
 	}
 }
 
