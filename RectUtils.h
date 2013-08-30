@@ -86,7 +86,7 @@ center_rect_in_rect(const GFX::rect& toCenter, const GFX::rect& windowRect)
 
 
 static inline GFX::rect
-rect_to_gfx_rect(IE::rect& rect)
+rect_to_gfx_rect(const IE::rect& rect)
 {
 	GFX::rect gfxRect(
 			rect.x_min,
