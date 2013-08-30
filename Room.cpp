@@ -301,11 +301,11 @@ Room::SetAreaOffset(IE::point point)
 	if (fAreaOffset.x < 0)
 		fAreaOffset.x = 0;
 	else if (fAreaOffset.x + fViewPort.w > areaRect.w)
-		fAreaOffset.x = areaRect.w - fViewPort.w;
+		fAreaOffset.x = std::max(areaRect.w - fViewPort.w, 0);
 	if (fAreaOffset.y < 0)
 		fAreaOffset.y = 0;
 	else if (fAreaOffset.y + fViewPort.h > areaRect.h)
-		fAreaOffset.y = areaRect.h - fViewPort.h;
+		fAreaOffset.y = std::max(areaRect.h - fViewPort.h, 0);
 
 	fMapArea = offset_rect_to(fViewPort,
 			fAreaOffset.x, fAreaOffset.y);
@@ -451,12 +451,24 @@ Room::Draw(Bitmap *surface)
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
-			uint32 color = (region->Type() == IE::REGION_TYPE_TRAVEL) ?
-							fBackBitmap->MapColor(0, 125, 0) :
-							fBackBitmap->MapColor(125, 0, 0);
+			uint32 color = 0;
+			switch (region->Type()) {
+				case IE::REGION_TYPE_TRAVEL:
+					color = fBackBitmap->MapColor(0, 125, 0);
+					break;
+				case IE::REGION_TYPE_TRIGGER:
+					color = fBackBitmap->MapColor(125, 0, 0);
+					break;
+				default:
+					color = fBackBitmap->MapColor(255, 255, 255);
+					break;
+			}
 
-			fBackBitmap->StrokePolygon(region->Polygon(), color,
+			if (region->Polygon().CountPoints() > 2) {
+				fBackBitmap->StrokePolygon(region->Polygon(), color,
 									-mapRect.x, -mapRect.y);
+			} else
+				fBackBitmap->StrokeRect(rect, color);
 			fBackBitmap->Unlock();
 		}
 
@@ -543,7 +555,8 @@ Room::MouseOver(uint16 x, uint16 y)
 		Object* newMouseOver = NULL;
 
 		const uint16 tileNum = TileNumberForPoint(point);
-
+		if (tileNum >= fTileCells.size())
+			return;
 		if (Door* door = fTileCells[tileNum]->Door()) {
 			IE::rect boundingBox = door->Opened()
 					? door->OpenBox() : door->ClosedBox();
