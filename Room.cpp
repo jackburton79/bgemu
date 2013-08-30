@@ -108,6 +108,8 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 	fName = areaName;
 
+	GraphicsEngine::Get()->SetWindowCaption(fName.CString());
+
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
 
 	fArea = gResManager->GetARA(fName);
@@ -237,6 +239,9 @@ Room::LoadWorldMap()
 	Core::Get()->EnteredArea(this, NULL);
 
 	fName = "WORLDMAP";
+
+	GraphicsEngine::Get()->SetWindowCaption(fName.CString());
+
 	fWorldMap = gResManager->GetWMAP(fName);
 
 	worldmap_entry entry = fWorldMap->WorldMapEntry();
@@ -410,7 +415,8 @@ Room::Draw(Bitmap *surface)
 						else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
 							color = 1000;
 
-						fBackBitmap->FillPolygon(*poly, color);
+						fBackBitmap->FillPolygon(*poly, color,
+											-fAreaOffset.x, -fAreaOffset.y);
 						fBackBitmap->StrokePolygon(*poly, color,
 											-fAreaOffset.x, -fAreaOffset.y);
 					}
