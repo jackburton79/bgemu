@@ -252,6 +252,16 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 }
 
 
+void
+Bitmap::FillPolygon(const Polygon& polygon, const uint32 color,
+					int32 xOffset, int32 yOffset)
+{
+	Polygon newPolygon = polygon;
+	newPolygon.OffsetBy(xOffset, yOffset);
+	StrokePolygon(newPolygon, color);
+}
+
+
 static void
 PutCirclePixels(Bitmap* bitmap, const int centerX, const int centerY,
 		const int x, const int y, const uint32 color)
