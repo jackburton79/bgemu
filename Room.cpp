@@ -35,6 +35,9 @@ std::vector<MapOverlay*> *gOverlays = NULL;
 
 static Room* sCurrentRoom = NULL;
 
+static int sSelectedActorRadius = 20;
+static int sSelectedActorRadiusStep = 1;
+
 Room::Room()
 	:
 	Object(""),
@@ -352,6 +355,13 @@ Room::Draw(Bitmap *surface)
 		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
 		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
 	} else {
+		if (sSelectedActorRadius > 22) {
+			sSelectedActorRadiusStep = -1;
+		} else if (sSelectedActorRadius < 18) {
+			sSelectedActorRadiusStep = 1;
+		}
+		sSelectedActorRadius += sSelectedActorRadiusStep;
+
 		fBackBitmap->ClearColorKey();
 		fBackBitmap->Clear(0);
 
@@ -538,15 +548,6 @@ Room::MouseOver(uint16 x, uint16 y)
 void
 Room::DrawObject(const Object& object)
 {
-	static int32 step = 1;
-	static uint32 radius = 20;
-	if (radius > 22) {
-		step = -1;
-	} else if (radius < 18) {
-		step = 1;
-	}
-
-	radius = radius + step;
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
 		if (actor->IsSelected()) {
@@ -555,7 +556,15 @@ Room::DrawObject(const Object& object)
 
 			fBackBitmap->Lock();
 			uint32 color = fBackBitmap->MapColor(0, 255, 0);
-			fBackBitmap->StrokeCircle(position.x, position.y, radius, color);
+			fBackBitmap->StrokeCircle(position.x, position.y,
+										sSelectedActorRadius, color);
+			if (actor->Destination() != actor->Position()) {
+				IE::point destination = offset_point(actor->Destination(),
+											-fAreaOffset.x, -fAreaOffset.y);
+				fBackBitmap->StrokeCircle(
+						destination.x, destination.y,
+						sSelectedActorRadius - 10, color);
+			}
 			fBackBitmap->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
