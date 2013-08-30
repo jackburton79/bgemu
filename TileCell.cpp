@@ -51,7 +51,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		if (i != 0 && (mask & (1 << i)) == 0)
 	    	continue;
 	    MapOverlay *overlay = fOverlays[i];
-		TileMap *map = overlay->TileMapForTileCell(fNumber);
+		TileMap *map = overlay->TileMapForTileCell(i == 0 ? fNumber : 0);
 		if (map == NULL)
 			continue;
 
