@@ -27,6 +27,13 @@ Region::~Region()
 }
 
 
+uint16
+Region::Type() const
+{
+	return fRegion->type;
+}
+
+
 IE::rect
 Region::Frame() const
 {
