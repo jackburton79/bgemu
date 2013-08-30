@@ -98,6 +98,7 @@ Room::ViewPort() const
 bool
 Room::LoadArea(const res_ref& areaName, const char* longName)
 {
+	_UnloadArea();
 	_UnloadWorldMap();
 
 	fAreaOffset.x = fAreaOffset.y = 0;
@@ -429,11 +430,8 @@ Room::Draw(Bitmap *surface)
 			fBackBitmap->Unlock();
 		}
 
-
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
-
-		_DrawSearchMap(mapRect);
 	}
 }
 
@@ -798,6 +796,10 @@ void
 Room::_DrawBaseMap()
 {
 	MapOverlay *overlay = fOverlays[0];
+	if (overlay == NULL) {
+		std::cerr << "Overlay 0 is NULL!!" << std::endl;
+		return;
+	}
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = fAreaOffset.x / TILE_WIDTH;
 	const uint16 firstTileY = fAreaOffset.y / TILE_HEIGHT;
@@ -813,7 +815,9 @@ Room::_DrawBaseMap()
 		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
-			fTileCells[tileNumY + x]->Draw(fBackBitmap, &tileRect, fDrawOverlays);
+			TileCell* tile = fTileCells[tileNumY + x];
+			//assert(tile != NULL);
+			tile->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 		}
 	}
 }
@@ -952,67 +956,93 @@ Room::_RegionForPoint(const IE::point& point)
 void
 Room::_LoadOverlays()
 {
+	std::cout << "Loading Overlays...";
+	std::flush(std::cout);
 	uint32 numOverlays = fWed->CountOverlays();
 	for (uint32 i = 0; i < numOverlays; i++) {
 		MapOverlay *overlay = fWed->GetOverlay(i);
 		fOverlays.push_back(overlay);
 	}
+	std::cout << "Done! Loaded " << numOverlays << " overlays. ";
+	std::cout << "Map size: " << fOverlays[0]->Width();
+	std::cout << "x" << fOverlays[0]->Height() << std::endl;
 }
 
 
 void
 Room::_InitTileCells()
 {
+	std::cout << "Initializing Tile Cells...";
+	std::flush(std::cout);
 	uint32 numTiles = fOverlays[0]->Size();
 	for (uint16 i = 0; i < numTiles; i++) {
 		fTileCells.push_back(new TileCell(i, fOverlays.data(), fOverlays.size()));
 	}
+	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
 }
 
 
 void
 Room::_InitVariables()
 {
+	std::cout << "Initializing Variables...";
+	std::flush(std::cout);
+
 	uint32 numVars = fArea->CountVariables();
 	for (uint32 n = 0; n < numVars; n++) {
 		IE::variable var = fArea->VariableAt(n);
 		Core::Get()->SetVariable(var.name, var.value);
 	}
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_InitAnimations()
 {
+	std::cout << "Initializing Animations...";
+	std::flush(std::cout);
 	for (uint32 i = 0; i < fArea->CountAnimations(); i++)
 		fAnimations.push_back(new Animation(fArea->AnimationAt(i)));
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_InitRegions()
 {
+	std::cout << "Initializing Regions...";
+	std::flush(std::cout);
+
 	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
 		fRegions.push_back(fArea->GetRegionAt(i));
 	}
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_LoadActors()
 {
+	std::cout << "Loading Actors...";
+	std::flush(std::cout);
+
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor::Add(fArea->GetActorAt(i));
 	}
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_InitDoors()
 {
+	std::cout << "Initializing Doors...";
+	std::flush(std::cout);
+
 	assert(fTileCells.size() > 0);
 
-	uint32 numDoors = fWed->CountDoors();
+	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
 		fWed->GetDoorTiles(door, c);
@@ -1022,6 +1052,7 @@ Room::_InitDoors()
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
 	}
+	std::cout << "Done!" << std::endl;
 }
 
 
@@ -1039,6 +1070,10 @@ Room::_UnloadArea()
 	if (fMouseOverObject != NULL)
 	    fMouseOverObject = NULL;
 	
+	for (uint32 c = 0; c < fRegions.size(); c++)
+		delete fRegions[c];
+	fRegions.clear();
+
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
 	fAnimations.clear();
