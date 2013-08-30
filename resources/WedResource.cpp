@@ -293,8 +293,8 @@ MapOverlay::TileMapForTileCell(int32 i)
 		// TODO: We should return NULL here. Why it only works
 		// if we do this ?!?!
 		// The problem seems to be with water/lava overlays...
-		i = Size() - 1;
-		//return NULL;
+		//i = Size() - 1;
+		return NULL;
 	}
 
 	return &fTileMaps[i];
