@@ -451,7 +451,10 @@ Room::Draw(Bitmap *surface)
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
-			uint32 color = fBackBitmap->MapColor(125, 0, 0);
+			uint32 color = (region->Type() == IE::REGION_TYPE_TRAVEL) ?
+							fBackBitmap->MapColor(0, 125, 0) :
+							fBackBitmap->MapColor(125, 0, 0);
+
 			fBackBitmap->StrokePolygon(region->Polygon(), color,
 									-mapRect.x, -mapRect.y);
 			fBackBitmap->Unlock();
@@ -491,9 +494,8 @@ Room::Clicked(uint16 x, uint16 y)
 					fSelectedActor->Select(true);
 			}
 		} else if (Region* region = _RegionForPoint(point)) {
-			res_ref destinationArea = region->DestinationArea();
-			if (strcmp(destinationArea.CString(), "") != 0) {
-				LoadArea(destinationArea, "foo",
+			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
+				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
 			}
 		} else if (fSelectedActor != NULL) {
