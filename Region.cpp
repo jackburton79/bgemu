@@ -9,7 +9,6 @@
 #include "Region.h"
 #include "ResManager.h"
 
-std::vector<Region*> Region::sRegions;
 
 Region::Region(IE::region* region)
 	:
@@ -28,17 +27,15 @@ Region::~Region()
 }
 
 
-/* static */
-void
-Region::Add(Region* region)
+IE::rect
+Region::Frame() const
 {
-	sRegions.push_back(region);
+	return fRegion->rect;
 }
 
 
-/* static */
-std::vector<Region*>&
-Region::List()
+res_ref
+Region::DestinationArea() const
 {
-	return sRegions;
+	return fRegion->destination;
 }

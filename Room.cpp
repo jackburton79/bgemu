@@ -420,7 +420,15 @@ Room::Draw(Bitmap *surface)
 			} catch (...) {
 
 			}
+		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject)) {
+			GFX::rect rect = rect_to_gfx_rect(region->Frame());
+			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+			fBackBitmap->Lock();
+			uint32 color = fBackBitmap->MapColor(125, 0, 0);
+			fBackBitmap->StrokeRect(rect, color);
+			fBackBitmap->Unlock();
 		}
+
 
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
@@ -456,7 +464,10 @@ Room::Clicked(uint16 x, uint16 y)
 				if (fSelectedActor != NULL)
 					fSelectedActor->Select(true);
 			}
+		} else if (Region* region = _RegionForPoint(point)) {
+			LoadArea(region->DestinationArea(), "foo");
 		} else if (fSelectedActor != NULL) {
+
 			fSelectedActor->SetDestination(point);
 		}
 	}
@@ -506,6 +517,8 @@ Room::MouseOver(uint16 x, uint16 y)
 					? door->OpenBox() : door->ClosedBox();
 			if (rect_contains(boundingBox, point))
 				newMouseOver = door;
+		} else if (Region* region = _RegionForPoint(point)) {
+			newMouseOver = region;
 		} else {
 			newMouseOver = _ActorForPosition(point);
 		}
@@ -923,6 +936,19 @@ Room::_ActorForPosition(const IE::point& point)
 }
 
 
+Region*
+Room::_RegionForPoint(const IE::point& point)
+{
+	std::vector<Region*>::const_iterator i;
+	for (i = fRegions.begin(); i != fRegions.end(); i++) {
+		IE::rect rect = (*i)->Frame();
+		if (rect_contains(rect_to_gfx_rect(rect), point))
+			return *i;
+	}
+	return NULL;
+}
+
+
 void
 Room::_LoadOverlays()
 {
@@ -967,7 +993,7 @@ void
 Room::_InitRegions()
 {
 	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
-		Region::Add(fArea->GetRegionAt(i));
+		fRegions.push_back(fArea->GetRegionAt(i));
 	}
 }
 

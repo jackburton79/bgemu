@@ -18,6 +18,7 @@ class Door;
 class Frame;
 class MapOverlay;
 class MOSResource;
+class Region;
 class Script;
 class TileCell;
 class WEDResource;
@@ -100,6 +101,7 @@ private:
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
 	Actor* _ActorForPosition(const IE::point& point);
+	Region* _RegionForPoint(const IE::point& point);
 
 	void _LoadOverlays();
 	void _InitVariables();
@@ -140,6 +142,7 @@ private:
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
 	std::vector<Animation*> fAnimations;
+	std::vector<Region*> fRegions;
 
 	Actor* fSelectedActor;
 	Object* fMouseOverObject;

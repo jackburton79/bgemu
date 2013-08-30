@@ -12,21 +12,16 @@
 #include "IETypes.h"
 #include "Object.h"
 
-#include <vector>
-
 class Region: public Object {
 public:
 	Region(IE::region* region);
 	virtual ~Region();
 
-	// Global list of regions
-	static void Add(Region *region);
-	//static void Remove(const char* name);
-	static std::vector<Region*>& List();
+	IE::rect Frame() const;
+	res_ref DestinationArea() const;
+
 private:
 	IE::region* fRegion;
-
-	static std::vector<Region*> sRegions;
 };
 
 #endif /* REGION_H_ */
