@@ -70,6 +70,7 @@ public:
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();
+	void ToggleSearchMap();
 	void ToggleConsole();
 	void ToggleGUI();
 
@@ -149,6 +150,7 @@ private:
 	Actor* fSelectedActor;
 	Object* fMouseOverObject;
 
+	int fDrawSearchMap;
 	bool fDrawOverlays;
 	bool fDrawPolygons;
 	bool fDrawAnimations;

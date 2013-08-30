@@ -160,6 +160,9 @@ main(int argc, char **argv)
 								case SDLK_w:
 									map->LoadWorldMap();
 									break;
+								case SDLK_s:
+									map->ToggleSearchMap();
+									break;
 								case SDLK_q:
 									quitting = true;
 									break;

@@ -55,6 +55,7 @@ Room::Room()
 	fSearchMap(NULL),
 	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
+	fDrawSearchMap(0),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
 	fDrawAnimations(true),
@@ -451,6 +452,7 @@ Room::Draw(Bitmap *surface)
 
 		fBackBitmap->Update();
 		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
+		_DrawSearchMap(mapRect);
 	}
 }
 
@@ -700,6 +702,22 @@ Room::ToggleAnimations()
 
 
 void
+Room::ToggleSearchMap()
+{
+	if (++fDrawSearchMap > 2)
+		fDrawSearchMap = 0;
+
+	if (fSearchMap == NULL)
+		return;
+
+	if (fDrawSearchMap == 2)
+		fSearchMap->SetAlpha(127, true);
+	else
+		fSearchMap->SetAlpha(0, false);
+}
+
+
+void
 Room::ToggleGUI()
 {
 	GUI* gui = GUI::Get();
@@ -887,19 +905,19 @@ Room::_DrawActors()
 void
 Room::_DrawSearchMap(GFX::rect visibleArea)
 {
-	return;
-	/*if (fSearchMap != NULL) {
+	if (fSearchMap != NULL && fDrawSearchMap > 0) {
 		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
 							fBackBitmap->Width(), fBackBitmap->Height());
+
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
 
-		visibleArea.x /= xRatio;
-		visibleArea.y /= yRatio;
-		visibleArea.w /= xRatio;
-		visibleArea.h /= yRatio;
+		visibleArea.x /= fMapHorizontalRatio;
+		visibleArea.y /= fMapVerticalRatio;
+		visibleArea.w /= fMapHorizontalRatio;
+		visibleArea.h /= fMapVerticalRatio;
 		visibleArea = offset_rect(visibleArea, 0, fBackBitmap->Height() - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
-	}*/
+	}
 }
 
 
