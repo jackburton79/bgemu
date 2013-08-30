@@ -186,6 +186,16 @@ Region*
 ARAResource::GetRegionAt(uint16 index)
 {
 	Region* region = new Region(&fRegions[index]);
+	::Polygon& polygon = const_cast<Polygon&>(region->Polygon());
+
+	uint32 verticesOffset;
+	fData->ReadAt(0x007c, verticesOffset);
+	fData->Seek(verticesOffset + fRegions[index].vertex_index * sizeof(IE::point), SEEK_SET);
+	for (uint16 v = 0; v < fRegions[index].vertex_count; v++) {
+		IE::point vertex;
+		fData->Read(vertex);
+		polygon.AddPoints(&vertex, 1);
+	}
 
 	return region;
 }
@@ -309,7 +319,7 @@ ARAResource::_LoadRegions()
 	fData->Seek(fRegionsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumRegions; i++) {
 		fData->Read(fRegions[i]);
-		fRegions[i].Print();
+		//fRegions[i].Print();
 	}
 }
 
