@@ -31,7 +31,9 @@ public:
 	res_ref AreaName() const;
 	WEDResource* WED();
 
-	bool LoadArea(const res_ref& areaName, const char* longName);
+	bool LoadArea(const res_ref& areaName,
+					const char* longName,
+					const char* entranceName = NULL);
 	bool LoadArea(AreaEntry& area);
 
 	bool LoadWorldMap();

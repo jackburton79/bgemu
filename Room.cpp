@@ -96,12 +96,15 @@ Room::ViewPort() const
 
 
 bool
-Room::LoadArea(const res_ref& areaName, const char* longName)
+Room::LoadArea(const res_ref& areaName, const char* longName,
+					const char* entranceName)
 {
+	// Save the entrance name, it will be unloaded in UnloadArea
+	std::string savedEntranceName = entranceName ? entranceName : "";
+
 	_UnloadArea();
 	_UnloadWorldMap();
 
-	fAreaOffset.x = fAreaOffset.y = 0;
 	fName = areaName;
 
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
@@ -162,8 +165,24 @@ Room::LoadArea(const res_ref& areaName, const char* longName)
 	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
-
 	delete roomScript;
+
+	if (!savedEntranceName.empty()) {
+		for (uint32 e = 0; e < fArea->CountEntrances(); e++) {
+			IE::entrance entrance = fArea->EntranceAt(e);
+			std::cout << "current: " << entrance.name;
+			std::cout << ", looking for " << entranceName << std::endl;
+
+			if (savedEntranceName == entrance.name) {
+				IE::point point = { entrance.x, entrance.y };
+				SetAreaOffset(point);
+				break;
+			}
+		}
+	} else {
+		IE::point point = { 0, 0 };
+		SetAreaOffset(point);
+	}
 	return true;
 }
 
@@ -463,7 +482,8 @@ Room::Clicked(uint16 x, uint16 y)
 					fSelectedActor->Select(true);
 			}
 		} else if (Region* region = _RegionForPoint(point)) {
-			LoadArea(region->DestinationArea(), "foo");
+			LoadArea(region->DestinationArea(), "foo",
+						region->DestinationEntrance());
 		} else if (fSelectedActor != NULL) {
 
 			fSelectedActor->SetDestination(point);
