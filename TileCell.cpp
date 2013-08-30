@@ -35,11 +35,21 @@ void
 TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 {
 	int maxOverlay = full ? fNumOverlays : 1;
-
+	MapOverlay* overlayZero = fOverlays[0];
+	if (overlayZero == NULL) {
+		std::cerr << "Overlay Zero is NULL!" << std::endl;
+		return;
+	}
+	std::cout << overlayZero->Width() << "x" << overlayZero->Height() << std::endl;
+	TileMap* tileMapZero = overlayZero->TileMapForTileCell(fNumber);
+	if (tileMapZero == NULL) {
+		std::cerr << "Tilemap Zero is NULL!" << std::endl;
+		return;
+	}
+	int8 mask = tileMapZero->Mask();
 	for (int i = maxOverlay - 1; i >= 0; i--) {
 		// Check if this overlay needs to be drawn
-		int8 mask = fOverlays[0]->TileMapForTileCell(fNumber)->Mask();
-	    if (i != 0 && (mask & (1 << i)) == 0)
+		if (i != 0 && (mask & (1 << i)) == 0)
 	    	continue;
 	    MapOverlay *overlay = fOverlays[i];
 		TileMap *map = overlay->TileMapForTileCell(fNumber);
@@ -61,7 +71,6 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 			printf("NULL cell. BAD.\n");
 			// TODO: Fix this. Shouldn't request an invalid cell
 			cell = GraphicsEngine::CreateBitmap(64, 64, 8);
-			//SDL_FillRect(cell, NULL, 3000);
 		}
 
 		gResManager->ReleaseResource(tis);
