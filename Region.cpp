@@ -39,3 +39,10 @@ Region::DestinationArea() const
 {
 	return fRegion->destination;
 }
+
+
+const char*
+Region::DestinationEntrance() const
+{
+	return fRegion->entrance_name;
+}

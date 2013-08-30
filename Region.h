@@ -18,7 +18,9 @@ public:
 	virtual ~Region();
 
 	IE::rect Frame() const;
+
 	res_ref DestinationArea() const;
+	const char* DestinationEntrance() const;
 
 private:
 	IE::region* fRegion;
