@@ -69,6 +69,9 @@ public:
 			int32 xEnd, int32 yEnd, const uint32 color);
 	void StrokeRect(const GFX::rect& rect, const uint32 color);
 	void StrokePolygon(const Polygon& polygon, const uint32 color);
+	void StrokePolygon(const Polygon& polygon, const uint32 color,
+				int32 xOffset, int32 yOffset);
+
 	void FillPolygon(const Polygon& polygon, const uint32 color);
 	void StrokeCircle(const int16& centerX, const int16& centerY,
 					const uint32 radius, const uint32 color);

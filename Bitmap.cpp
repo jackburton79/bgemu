@@ -212,6 +212,16 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 
 
 void
+Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color,
+						int32 xOffset, int32 yOffset)
+{
+	Polygon newPolygon = polygon;
+	newPolygon.OffsetBy(xOffset, yOffset);
+	StrokePolygon(newPolygon, color);
+}
+
+
+void
 Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
