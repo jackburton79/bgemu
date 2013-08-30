@@ -212,6 +212,13 @@ struct actor {
 } __attribute__((packed));
 
 
+enum region_type {
+	REGION_TYPE_TRIGGER = 0,
+	REGION_TYPE_INFO = 1,
+	REGION_TYPE_TRAVEL = 2
+};
+
+
 enum region_flags {
 	REGION_TRAP_INVISIBLE = 0,
 	REGION_TRAP_RESET = 1,
