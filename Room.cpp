@@ -484,8 +484,11 @@ Room::Clicked(uint16 x, uint16 y)
 					fSelectedActor->Select(true);
 			}
 		} else if (Region* region = _RegionForPoint(point)) {
-			LoadArea(region->DestinationArea(), "foo",
+			res_ref destinationArea = region->DestinationArea();
+			if (strcmp(destinationArea.CString(), "") != 0) {
+				LoadArea(destinationArea, "foo",
 						region->DestinationEntrance());
+			}
 		} else if (fSelectedActor != NULL) {
 
 			fSelectedActor->SetDestination(point);
