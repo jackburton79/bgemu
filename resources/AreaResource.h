@@ -32,6 +32,9 @@ public:
 	uint16 CountRegions() const;
 	Region* GetRegionAt(uint16 index);
 
+	uint32 CountEntrances();
+	IE::entrance EntranceAt(uint32 index);
+
 	res_ref ScriptName();
 
 	uint32 CountVariables() const;

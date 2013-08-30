@@ -7,6 +7,8 @@
 #include "Region.h"
 #include "ResManager.h"
 
+#include <stdexcept>
+
 #define AREA_SIGNATURE "AREA"
 #define AREA_VERSION_1 "V1.0"
 
@@ -186,6 +188,29 @@ ARAResource::GetRegionAt(uint16 index)
 	Region* region = new Region(&fRegions[index]);
 
 	return region;
+}
+
+
+uint32
+ARAResource::CountEntrances()
+{
+	uint32 numEntrances = 0;
+	fData->ReadAt(0x006c, numEntrances);
+	return numEntrances;
+}
+
+
+IE::entrance
+ARAResource::EntranceAt(uint32 index)
+{
+	if (index >= CountEntrances())
+		throw std::out_of_range("ARAResource::EntranceAt()");
+
+	uint32 entranceOffset;
+	fData->ReadAt(0x0068, entranceOffset);
+	IE::entrance entrance;
+	fData->ReadAt(entranceOffset + sizeof(entrance) * index, entrance);
+	return entrance;
 }
 
 
