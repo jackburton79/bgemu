@@ -323,6 +323,16 @@ struct variable {
 } __attribute__((packed));
 
 
+struct entrance {
+	char name[32];
+	uint16 x;
+	uint16 y;
+	uint16 orientation;
+	uint8 unknown[66];
+};
+
+
+// GUI
 struct window {
 	uint16 id;
 	uint16 unk;
