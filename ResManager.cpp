@@ -378,7 +378,7 @@ ResourceManager::GetResourceList(std::vector<std::string>& strings,
 std::string
 ResourceManager::GetFullPath(std::string name, uint16 location)
 {
-	std::cout << "location: (" << std::hex << location << ")" << std::endl;
+	//std::cout << "location: (" << std::hex << location << ")" << std::endl;
 	TPath pathName(fResourcesPath);
 
 	uint32 cd = GET_CD(location);
