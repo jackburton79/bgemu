@@ -291,12 +291,11 @@ Core::UpdateLogic(bool executeScripts)
 */
 	//return;
 	// TODO: Fix/Improve
-	std::vector<Actor*>::iterator i;
+	std::list<Object*>::iterator i;
 	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
 		//fLastScriptRoundTime = SDL_GetTicks();
-		for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
-			Actor *actor  = *i;
-			actor->Update(executeScripts);
+		for (i = fObjects.begin(); i != fObjects.end(); i++) {
+			(*i)->Update(executeScripts);
 		}
 	//}
 
