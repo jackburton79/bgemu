@@ -44,8 +44,6 @@ Script::Script(node* rootNode)
 		throw "Script::Script(): root node is NULL";
 
 	fRootNode->next = NULL;
-
-	//Print();
 }
 
 
@@ -251,8 +249,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	if (actor != NULL && actor->SkipConditions())
 		return false;
 
-	if (actor != NULL)
-		std::cout << "*** " << actor->Name() << " ***" << std::endl;
+	std::cout << "*** " << fTarget->Name() << " ***" << std::endl;
 
 	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
 				trig->id, trig->id);
@@ -632,7 +629,7 @@ Script::_ExecuteAction(action_node* act)
 */
 			Object* targetObject = FindObject(act);
 			//Object* targetObject = core->GetObject(fTarget, objBlock);
-			if (targetObject != NULL) {
+			if (targetObject != NULL && thisActor != NULL) {
 				std::cout << thisActor->Name();
 				std::cout << " run away from " << targetObject->Name() << std::endl;
 			}
@@ -715,7 +712,8 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* Shout */
 			// Check if target is silenced
-			thisActor->Shout(act->parameter);
+			if (thisActor != NULL)
+				thisActor->Shout(act->parameter);
 			break;
 		}
 		case 0x64:
