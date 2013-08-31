@@ -151,6 +151,7 @@ Script::FindObject(node* start) const
 bool
 Script::Execute()
 {
+	std::cout << "this: " << this << ", fTarget:" << fTarget << std::endl;
 	// TODO: Move this to a better place
 	if (fTarget != NULL)
 		fTarget->NewScriptRound();
@@ -245,11 +246,11 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	Actor* actor = dynamic_cast<Actor*>(fTarget);
-	if (actor != NULL && actor->SkipConditions())
-		return false;
+	//Actor* actor = dynamic_cast<Actor*>(fTarget);
+	//if (actor != NULL && actor->SkipConditions())
+		//return false;
 
-	std::cout << "*** " << fTarget->Name() << " ***" << std::endl;
+	//std::cout << "*** " << fTarget->Name() << " ***" << std::endl;
 
 	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
 				trig->id, trig->id);
