@@ -55,7 +55,7 @@ public:
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
-	void MergeScripts();
+	Script* MergeScripts();
 
 	::ActionList* ActionList();
 	bool IsActionListEmpty() const;
@@ -92,7 +92,7 @@ private:
 	static std::vector<Actor*> sActors;
 
 	void _Init();
-	void _AddScript(const res_ref& scriptName);
+	void _AddScript(Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	bool _IsReachable(const IE::point& pt);
 

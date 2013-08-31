@@ -115,10 +115,8 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
-	MergeScripts();
-
-	if (fScript != NULL)
-		SetScript(fScript);
+	Script* script = MergeScripts();
+	SetScript(script);
 
 	fActor->Print();
 	/*for (uint32 i = 0; i < kNumItemSlots; i++) {
@@ -353,25 +351,27 @@ IsValid(const res_ref& scriptName)
 }
 
 
-void
+Script*
 Actor::MergeScripts()
 {
 	// TODO: order ??
 	// Is it correct we merge the scripts ?
+	Script* destination = NULL;
 	if (IsValid(fActor->script_override))
-		_AddScript(fActor->script_override);
+		_AddScript(destination, fActor->script_override);
 	if (IsValid(fActor->script_race))
-		_AddScript(fActor->script_race);
+		_AddScript(destination, fActor->script_race);
 	if (IsValid(fActor->script_class))
-		_AddScript(fActor->script_class);
+		_AddScript(destination, fActor->script_class);
 	if (IsValid(fActor->script_general))
-		_AddScript(fActor->script_general);
+		_AddScript(destination, fActor->script_general);
 	if (IsValid(fActor->script_default))
-		_AddScript(fActor->script_default);
+		_AddScript(destination, fActor->script_default);
 	if (IsValid(fActor->script_specific))
-		_AddScript(fActor->script_specific);
+		_AddScript(destination, fActor->script_specific);
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
+	return destination;
 }
 
 
@@ -421,16 +421,16 @@ Actor::UpdateMove(bool ignoreBlocks)
 
 
 void
-Actor::_AddScript(const res_ref& scriptName)
+Actor::_AddScript(Script*& destination, const res_ref& scriptName)
 {
 	//printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
 	if (scriptResource == NULL)
 		return;
-	if (fScript == NULL)
-		fScript = scriptResource->GetScript();
+	if (destination == NULL)
+		destination = scriptResource->GetScript();
 	else
-		fScript->Add(scriptResource->GetScript());
+		destination->Add(scriptResource->GetScript());
 
 	gResManager->ReleaseResource(scriptResource);
 }
