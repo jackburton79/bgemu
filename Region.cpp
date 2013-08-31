@@ -67,3 +67,10 @@ Region::CursorIndex() const
 {
 	return fRegion->cursor_index;
 }
+
+
+uint32
+Region::InfoTextRef() const
+{
+	return fRegion->info_text;
+}
