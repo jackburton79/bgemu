@@ -100,8 +100,8 @@ struct trigger_node : public node {
 	int flags;
 	int parameter2;
 	int unknown;
-	char string1[32];
-	char string2[32];
+	char string1[48];
+	char string2[48];
 
 	trigger_node();
 };
@@ -120,7 +120,7 @@ struct object_node : public node {
 	int alignment;
 	int identifiers[5];
 	IE::point point;
-	char name[32];
+	char name[48];
 
 	object_node();
 };
@@ -133,8 +133,8 @@ struct action_node : public node {
 	IE::point where;
 	int e;
 	int f;
-	char string1[32];
-	char string2[32];
+	char string1[48];
+	char string2[48];
 
 	action_node();
 };

@@ -21,7 +21,7 @@ struct token {
 	token();
 	token(const char *tok);
 	union {
-		char string[32];
+		char string[48];
 		int number;
 	} u;
 	int type;
