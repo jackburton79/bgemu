@@ -510,12 +510,14 @@ Room::Clicked(uint16 x, uint16 y)
 				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
 			} else if (region->Type() == IE::REGION_TYPE_INFO) {
-				uint32 strRef = region->InfoTextRef();
+				int32 strRef = region->InfoTextRef();
 				std::cout << "STRREF: " << std::dec << strRef << std::endl;
-				TLKEntry* entry = Dialogs()->EntryAt(strRef);
-				if (entry != NULL) {
-					std::cout << entry->string << std::endl;
-					delete entry;
+				if (strRef >= 0) {
+					TLKEntry* entry = Dialogs()->EntryAt(strRef);
+					if (entry != NULL) {
+						std::cout << entry->string << std::endl;
+						delete entry;
+					}
 				}
 			}
 		} else if (fSelectedActor != NULL) {

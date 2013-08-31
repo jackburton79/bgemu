@@ -27,7 +27,7 @@ public:
 	const ::Polygon& Polygon() const;
 
 	uint32 CursorIndex() const;
-	uint32 InfoTextRef() const;
+	int32 InfoTextRef() const;
 
 private:
 	IE::region* fRegion;

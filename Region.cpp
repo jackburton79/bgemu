@@ -69,7 +69,7 @@ Region::CursorIndex() const
 }
 
 
-uint32
+int32
 Region::InfoTextRef() const
 {
 	return fRegion->info_text;
