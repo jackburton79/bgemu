@@ -170,7 +170,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
-	SetScript(NULL);
+
 	delete roomScript;
 
 	if (!savedEntranceName.empty()) {

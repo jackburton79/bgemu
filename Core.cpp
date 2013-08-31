@@ -118,12 +118,15 @@ Core::EnteredArea(Room* area, Script* script)
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
 
+	area->SetScript(script);
 	SetRoomScript(script);
 
 	// The area script
 	if (fRoomScript != NULL) {
 		fRoomScript->Execute();
 	}
+
+	area->SetScript(NULL);
 }
 
 
