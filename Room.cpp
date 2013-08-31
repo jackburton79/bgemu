@@ -427,8 +427,7 @@ Room::Draw(Bitmap *surface)
 
 		// TODO: handle this better
 		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
-			IE::rect doorBox = door->Opened() ? door->OpenBox() : door->ClosedBox();
-			GFX::rect rect = rect_to_gfx_rect(doorBox);
+			GFX::rect rect = rect_to_gfx_rect(door->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
 			fBackBitmap->StrokeRect(rect, 70);
@@ -559,9 +558,7 @@ Room::MouseOver(uint16 x, uint16 y)
 		if (tileNum >= fTileCells.size())
 			return;
 		if (Door* door = fTileCells[tileNum]->Door()) {
-			IE::rect boundingBox = door->Opened()
-					? door->OpenBox() : door->ClosedBox();
-			if (rect_contains(boundingBox, point))
+			if (rect_contains(door->Frame(), point))
 				newMouseOver = door;
 		} else if (Region* region = _RegionForPoint(point)) {
 			newMouseOver = region;
