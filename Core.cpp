@@ -181,10 +181,9 @@ Core::GetObject(Object* source, object_node* node)
 
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
-	std::vector<Actor*> actorList = Actor::List();
-	std::vector<Actor*>::iterator i;
+	std::list<Object*>::iterator i;
 	std::cout << "Matching..." << std::endl;
-	for (i = actorList.begin(); i != actorList.end(); i++) {
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if ((*i)->MatchNode(node)) {
 			std::cout << "GetObject() returned " << std::endl;
 			(*i)->Print();
