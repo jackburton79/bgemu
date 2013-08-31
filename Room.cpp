@@ -497,7 +497,7 @@ Room::Clicked(uint16 x, uint16 y)
 		// TODO: Temporary, for testing
 		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
 			door->Toggle();
-		} else 	if (Actor* actor = _ActorForPosition(point)) {
+		} else 	if (Actor* actor = _ActorAtPoint(point)) {
 			if (fSelectedActor != actor) {
 				if (fSelectedActor != NULL)
 					fSelectedActor->Select(false);
@@ -505,7 +505,7 @@ Room::Clicked(uint16 x, uint16 y)
 				if (fSelectedActor != NULL)
 					fSelectedActor->Select(true);
 			}
-		} else if (Region* region = _RegionForPoint(point)) {
+		} else if (Region* region = _RegionAtPoint(point)) {
 			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
@@ -552,31 +552,9 @@ Room::MouseOver(uint16 x, uint16 y)
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
-		Object* newMouseOver = NULL;
 
-		const uint16 tileNum = TileNumberForPoint(point);
-		if (tileNum >= fTileCells.size())
-			return;
-		if (Door* door = fTileCells[tileNum]->Door()) {
-			if (rect_contains(door->Frame(), point))
-				newMouseOver = door;
-		} else if (Region* region = _RegionForPoint(point)) {
-			newMouseOver = region;
-			GUI::Get()->SetCursor(region->CursorIndex());
-		} else {
-			newMouseOver = _ActorForPosition(point);
-		}
+		fMouseOverObject = _ObjectAtPoint(point);
 
-		fMouseOverObject = newMouseOver;
-
-		/*const int32 yRatio = fOverlays[0]->Height() * 64 / fSearchMap->Height();
-		const int32 xRatio = fOverlays[0]->Width() * 64 / fSearchMap->Width();
-
-		int32 newY = point.y / yRatio;
-		int32 newX = point.x / xRatio;
-		newY += fBackBitmap->Height() - fSearchMap->Height();
-
-		GraphicsEngine::Get()->ScreenBitmap()->StrokeCircle(newX, newY, 5, 500);*/
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
@@ -984,7 +962,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 
 
 Actor*
-Room::_ActorForPosition(const IE::point& point)
+Room::_ActorAtPoint(const IE::point& point)
 {
 	std::vector<Actor*>& actorList = Actor::List();
 	std::vector<Actor*>::const_iterator iter;
@@ -1003,7 +981,7 @@ Room::_ActorForPosition(const IE::point& point)
 
 
 Region*
-Room::_RegionForPoint(const IE::point& point)
+Room::_RegionAtPoint(const IE::point& point)
 {
 	std::vector<Region*>::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
@@ -1012,6 +990,31 @@ Room::_RegionForPoint(const IE::point& point)
 			return *i;
 	}
 	return NULL;
+}
+
+
+Object*
+Room::_ObjectAtPoint(const IE::point& point)
+{
+	Object* object = NULL;
+	const uint16 tileNum = TileNumberForPoint(point);
+	if (tileNum >= fTileCells.size())
+		return object;
+
+	if (Door* door = fTileCells[tileNum]->Door()) {
+		if (rect_contains(door->Frame(), point))
+			object = door;
+	} else if (Region* region = _RegionAtPoint(point)) {
+		object = region;
+		// TODO: This is a side effect of a method
+		// which should just return an object, and in
+		// fact _ObjectAtPoint() should be const.
+		GUI::Get()->SetCursor(region->CursorIndex());
+	} else {
+		object = _ActorAtPoint(point);
+	}
+
+	return object;
 }
 
 

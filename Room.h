@@ -103,8 +103,9 @@ private:
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
-	Actor* _ActorForPosition(const IE::point& point);
-	Region* _RegionForPoint(const IE::point& point);
+	Actor* _ActorAtPoint(const IE::point& point);
+	Region* _RegionAtPoint(const IE::point& point);
+	Object* _ObjectAtPoint(const IE::point& point);
 
 	void _LoadOverlays();
 	void _InitVariables();
