@@ -329,6 +329,19 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = !Processed();
 				break;
 			}
+			case 0x0070:
+			{
+				/* 0x0070 Clicked(O:Object*)
+				 *	Only for trigger regions.
+				 *	Returns true if the specified object
+				 *	clicked on the trigger region running this script.
+				 */
+				// TODO: Implement.
+				object_node* objectNode = FindObjectNode(trig);
+				objectNode->Print();
+				returnValue = false;
+				break;
+			}
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
