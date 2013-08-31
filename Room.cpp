@@ -450,6 +450,7 @@ Room::Draw(Bitmap *surface)
 		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject)) {
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+
 			fBackBitmap->Lock();
 			uint32 color = 0;
 			switch (region->Type()) {
@@ -564,6 +565,7 @@ Room::MouseOver(uint16 x, uint16 y)
 				newMouseOver = door;
 		} else if (Region* region = _RegionForPoint(point)) {
 			newMouseOver = region;
+			GUI::Get()->SetCursor(region->CursorIndex());
 		} else {
 			newMouseOver = _ActorForPosition(point);
 		}
