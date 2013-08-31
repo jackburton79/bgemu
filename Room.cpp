@@ -1001,9 +1001,9 @@ Room::_ObjectAtPoint(const IE::point& point)
 	if (tileNum >= fTileCells.size())
 		return object;
 
-	if (Door* door = fTileCells[tileNum]->Door()) {
-		if (rect_contains(door->Frame(), point))
-			object = door;
+	Door* door = fTileCells[tileNum]->Door();
+	if (door != NULL && rect_contains(door->Frame(), point)) {
+		object = door;
 	} else if (Region* region = _RegionAtPoint(point)) {
 		object = region;
 		// TODO: This is a side effect of a method
