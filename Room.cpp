@@ -125,6 +125,8 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
+	SetScript(roomScript);
+
 	GUI* gui = GUI::Get();
 	gui->Clear();
 	gui->Load("GUIW");
@@ -168,6 +170,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
+	SetScript(NULL);
 	delete roomScript;
 
 	if (!savedEntranceName.empty()) {
@@ -520,16 +523,8 @@ Room::Clicked(uint16 x, uint16 y)
 					}
 				}
 
-				// TODO: Fix this mess
-				res_ref scriptRef = region->ScriptRef();
-				BCSResource* resource = gResManager->GetBCS(scriptRef);
-				if (resource != NULL) {
-					Script* script = resource->GetScript();
-					script->SetTarget(region);
-					script->Execute();
-					delete script;
-					gResManager->ReleaseResource(resource);
-				}
+				// TODO:
+				// region->Clicked();
 
 			}
 		} else if (fSelectedActor != NULL) {
