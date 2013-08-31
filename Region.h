@@ -25,6 +25,9 @@ public:
 	const char* DestinationEntrance() const;
 
 	const ::Polygon& Polygon() const;
+
+	uint32 CursorIndex() const;
+
 private:
 	IE::region* fRegion;
 	::Polygon fPolygon;

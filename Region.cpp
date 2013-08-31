@@ -60,3 +60,10 @@ Region::Polygon() const
 {
 	return fPolygon;
 }
+
+
+uint32
+Region::CursorIndex() const
+{
+	return fRegion->cursor_index;
+}
