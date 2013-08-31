@@ -28,6 +28,7 @@ public:
 
 	uint32 CursorIndex() const;
 	int32 InfoTextRef() const;
+	res_ref ScriptRef() const;
 
 private:
 	IE::region* fRegion;

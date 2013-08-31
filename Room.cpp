@@ -519,6 +519,18 @@ Room::Clicked(uint16 x, uint16 y)
 						delete entry;
 					}
 				}
+
+				// TODO: Fix this mess
+				res_ref scriptRef = region->ScriptRef();
+				BCSResource* resource = gResManager->GetBCS(scriptRef);
+				if (resource != NULL) {
+					Script* script = resource->GetScript();
+					script->SetTarget(region);
+					script->Execute();
+					delete script;
+					gResManager->ReleaseResource(resource);
+				}
+
 			}
 		} else if (fSelectedActor != NULL) {
 

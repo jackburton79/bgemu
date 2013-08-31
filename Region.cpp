@@ -74,3 +74,10 @@ Region::InfoTextRef() const
 {
 	return fRegion->info_text;
 }
+
+
+res_ref
+Region::ScriptRef() const
+{
+	return fRegion->script;
+}
