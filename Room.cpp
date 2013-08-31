@@ -509,6 +509,11 @@ Room::Clicked(uint16 x, uint16 y)
 			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
+			} else if (region->Type() == IE::REGION_TYPE_INFO) {
+				uint32 strRef = region->InfoTextRef();
+				TLKEntry* entry = Dialogs()->EntryAt(strRef);
+				std::cout << entry->string << std::endl;
+				delete entry;
 			}
 		} else if (fSelectedActor != NULL) {
 
