@@ -112,7 +112,8 @@ void
 Object::SetScript(Script* script)
 {
 	fScript = script;
-	fScript->SetTarget(this);
+	if (fScript != NULL)
+		fScript->SetTarget(this);
 }
 
 
