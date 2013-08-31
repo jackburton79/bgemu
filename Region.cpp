@@ -16,8 +16,12 @@ Region::Region(IE::region* region)
 	fRegion(region)
 {
 	BCSResource* scriptResource = gResManager->GetBCS(region->script);
-	if (scriptResource != NULL)
-		SetScript(scriptResource->GetScript());
+	if (scriptResource != NULL) {
+		Script* script = scriptResource->GetScript();
+		if (script != NULL)
+			SetScript(script);
+	}
+
 	gResManager->ReleaseResource(scriptResource);
 }
 
@@ -73,11 +77,4 @@ int32
 Region::InfoTextRef() const
 {
 	return fRegion->info_text;
-}
-
-
-res_ref
-Region::ScriptRef() const
-{
-	return fRegion->script;
 }
