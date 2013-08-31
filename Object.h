@@ -94,7 +94,7 @@ public:
 	ScriptResults* CurrentScriptRoundResults() const;
 	ScriptResults* LastScriptRoundResults() const;
 
-protected:
+private:
 	const char* fName;
 	bool fVisible;
 
