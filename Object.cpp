@@ -25,11 +25,15 @@ Object::Object(const char* name)
 	fLastScriptRoundResults(NULL)
 {
 	fCurrentScriptRoundResults = new ScriptResults;
+
+	Core::Get()->RegisterObject(this);
 }
 
 
 Object::~Object()
 {
+	Core::Get()->UnregisterObject(this);
+
 	delete fLastScriptRoundResults;
 	delete fCurrentScriptRoundResults;
 }

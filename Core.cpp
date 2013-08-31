@@ -142,6 +142,20 @@ Core::GetVariable(const char* name)
 }
 
 
+void
+Core::RegisterObject(Object* object)
+{
+	fObjects.push_back(object);
+}
+
+
+void
+Core::UnregisterObject(Object* object)
+{
+	fObjects.remove(object);
+}
+
+
 Object*
 Core::GetObject(Object* source, object_node* node)
 {
@@ -187,9 +201,8 @@ Object*
 Core::GetObject(const char* name)
 {
 	// TODO: Check also doors, triggers, etc ?!?
-	std::vector<Actor*> actorList = Actor::List();
-	std::vector<Actor*>::iterator i;
-	for (i = actorList.begin(); i != actorList.end(); i++) {
+	std::list<Object*>::iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
 			std::cout << "GetObject() returned " << name;
 			std::cout << std::endl;

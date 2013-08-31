@@ -3,6 +3,7 @@
 
 #include "IETypes.h"
 
+#include <list>
 #include <map>
 #include <string>
 
@@ -23,7 +24,6 @@ class Object;
 class Room;
 class IDSResource;
 class Script;
-class ScriptContext;
 class TLKResource;
 class Core {
 public:
@@ -40,6 +40,9 @@ public:
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
+
+	void RegisterObject(Object* object);
+	void UnregisterObject(Object* object);
 
 	Object* GetObject(Object* source, object_node* node);
 	Object* GetObject(const char* name);
@@ -66,10 +69,11 @@ private:
 	Room* fCurrentRoom;
 	Actor* fActiveActor;
 
+	std::list<Object*> fObjects;
 	std::map<std::string, uint32> fVariables;
 	Script *fRoomScript;
 	std::map<std::string, Script*> fScripts;
-	std::map<std::string, ScriptContext*> fScriptContextes;
+	//std::map<std::string, ScriptContext*> fScriptContextes;
 
 	uint32 fLastScriptRoundTime;
 
