@@ -187,9 +187,16 @@ GUI::GetWindow(uint16 id)
 
 
 void
-GUI::SetCursor(uint32 index)
+GUI::SetArrowCursor(uint32 index)
 {
 	fCurrentCursor = fCursors[index];
+}
+
+
+void
+GUI::SetCursor(uint32 index)
+{
+	fCurrentCursor = fCursors[index + 8];
 }
 
 

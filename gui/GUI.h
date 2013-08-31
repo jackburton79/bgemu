@@ -35,6 +35,7 @@ public:
 	bool IsWindowShown(uint16 id) const;
 
 	Window* GetWindow(uint16 id);
+	void SetArrowCursor(uint32 index);
 	void SetCursor(uint32 index);
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);

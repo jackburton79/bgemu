@@ -950,7 +950,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
-		GUI::Get()->SetCursor(IE::CURSOR_HAND);
+		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 		return;
 	}
 
@@ -979,7 +979,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 	}
 
 
-	GUI::Get()->SetCursor(cursorIndex);
+	GUI::Get()->SetArrowCursor(cursorIndex);
 }
 
 
