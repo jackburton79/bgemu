@@ -24,6 +24,13 @@ Door::Toggle()
 
 
 IE::rect
+Door::Frame() const
+{
+	return Opened() ? OpenBox() : ClosedBox();
+}
+
+
+IE::rect
 Door::OpenBox() const
 {
     return fAreaDoor->open_box;
