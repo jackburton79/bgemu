@@ -94,6 +94,7 @@ Object::IsVisible() const
 void
 Object::Update(bool scripts)
 {
+	//std::cout << "Update " << Name() << std::endl;
 	if (scripts) {
 		if (++fTicks == 15) {
 			fTicks = 0;
