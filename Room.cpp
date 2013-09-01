@@ -1041,7 +1041,10 @@ Room::_ObjectAtPoint(const IE::point& point)
 		return object;
 
 	Door* door = fTileCells[tileNum]->Door();
-	if (door != NULL && rect_contains(door->Frame(), point)) {
+
+	if (Actor* actor = _ActorAtPoint(point)) {
+		object = actor;
+	} else if (door != NULL && rect_contains(door->Frame(), point)) {
 		object = door;
 	} else if (Region* region = _RegionAtPoint(point)) {
 		object = region;
@@ -1049,8 +1052,6 @@ Room::_ObjectAtPoint(const IE::point& point)
 		// which should just return an object, and in
 		// fact _ObjectAtPoint() should be const.
 		GUI::Get()->SetCursor(region->CursorIndex());
-	} else {
-		object = _ActorAtPoint(point);
 	}
 
 	return object;
