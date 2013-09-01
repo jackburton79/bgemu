@@ -1128,7 +1128,7 @@ Room::_LoadActors()
 
 	// TODO: Check if it's okay
 	Party* party = Party::Get();
-	for (uint16 a = 0; a < party->CountActors(); a++){
+	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor::Add(party->ActorAt(a));
 	}
 
@@ -1188,8 +1188,8 @@ Room::_UnloadArea()
 	for (actorIter = Actor::List().begin();
 			actorIter != Actor::List().end();
 			actorIter++) {
-		if (Party::Get()->HasActor(*actorIter))
-				delete *actorIter;
+		if (!Party::Get()->HasActor(*actorIter))
+			delete *actorIter;
 	}
 	Actor::List().clear();
 
