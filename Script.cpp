@@ -38,6 +38,7 @@ Script::Script(node* rootNode)
 	fRootNode(rootNode),
 	fProcessed(false),
 	fTarget(NULL),
+	fLastTrigger(NULL),
 	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
@@ -156,6 +157,7 @@ Script::Execute()
 	if (fTarget != NULL)
 		fTarget->NewScriptRound();
 
+	fLastTrigger = NULL;
 	// for each CR block
 	// for each CO block
 	// check triggers
@@ -199,6 +201,13 @@ void
 Script::SetTarget(Object* object)
 {
 	fTarget = object;
+}
+
+
+Object*
+Script::LastTrigger() const
+{
+	return fLastTrigger;
 }
 
 
@@ -336,8 +345,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				// TODO: Implement.
 				object_node* objectNode = FindObjectNode(trig);
+				returnValue = fTarget->LastScriptRoundResults()->Clicker()
+						->MatchNode(objectNode);
 				objectNode->Print();
-				returnValue = false;
+				fTarget->LastScriptRoundResults()->Clicker()->Print();
+
+				// TODO: When to set this, other than now ?
+				if (returnValue)
+					fLastTrigger = fTarget;
 				break;
 			}
 			case 0x400C:
@@ -387,8 +402,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Object* object = core->GetObject(
-						fTarget, FindObjectNode(trig));
+				Object* object = core->GetObject(fTarget,
+						FindObjectNode(trig));
 				returnValue = core->Distance(object, fTarget) <= trig->parameter1;
 				break;
 			}

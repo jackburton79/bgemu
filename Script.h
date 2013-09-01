@@ -46,6 +46,8 @@ public:
 	bool Execute();
 	void SetTarget(Object* object);
 
+	Object* LastTrigger() const;
+
 	void SetProcessed();
 	bool Processed() const;
 
@@ -63,6 +65,7 @@ private:
 	bool fProcessed;
 
 	Object* fTarget;
+	Object* fLastTrigger;
 
 	node* fCurrentNode;
 };

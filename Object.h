@@ -31,6 +31,7 @@ public:
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
 	Object* LastAttacker() const;
+	Object* Clicker() const;
 
 	int Shouted() const;
 
@@ -40,6 +41,7 @@ private:
 	std::vector<Object*> fAttackers;
 	std::vector<Object*> fHitters;
 	std::vector<Object*> fSeen;
+	Object* fClicker;
 
 	int fShouted;
 };
@@ -53,6 +55,8 @@ public:
 	void Print() const;
 
 	virtual const char* Name() const;
+
+	void Clicked(Object* object);
 
 	bool See(Object* object);
 	bool IsVisible() const;

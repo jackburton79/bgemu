@@ -73,6 +73,13 @@ Object::Name() const
 
 
 void
+Object::Clicked(Object* clicker)
+{
+	fCurrentScriptRoundResults->fClicker = clicker;
+}
+
+
+void
 Object::SetVariable(const char* name, int32 value)
 {
 	fVariables[name] = value;
@@ -97,7 +104,7 @@ void
 Object::Update(bool scripts)
 {
 	if (scripts) {
-		if (++fTicks == 15) {
+		if (++fTicks >= 15) {
 			fTicks = 0;
 			if (fScript != NULL)
 				fScript->Execute();
@@ -241,9 +248,13 @@ Object::ResolveIdentifier(const int id) const
 	if (identifier == "MYSELF")
 		return const_cast<Object*>(this);
 	// TODO: Implement more identifiers
-	if (identifier == "NEARESTENEMYOF") {
+	if (identifier == "NEARESTENEMYOF")
 		return Core::Get()->GetNearestEnemyOf(this);
-	}
+
+	// TODO: Move that one here ?
+	// Move ResolveIdentifier elsewhere ?
+	if (identifier == "LASTTRIGGER")
+		return fScript->LastTrigger();
 	return NULL;
 }
 
@@ -429,6 +440,7 @@ Object::Attack(Object* target)
 // ScriptResults
 ScriptResults::ScriptResults()
 	:
+	fClicker(NULL),
 	fShouted(-1)
 {
 }
@@ -477,6 +489,13 @@ Object*
 ScriptResults::AttackerAt(int32 i) const
 {
 	return fAttackers[i];
+}
+
+
+Object*
+ScriptResults::Clicker() const
+{
+	return fClicker;
 }
 
 
