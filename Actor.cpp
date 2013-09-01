@@ -423,7 +423,6 @@ Actor::UpdateMove(bool ignoreBlocks)
 void
 Actor::_AddScript(Script*& destination, const res_ref& scriptName)
 {
-	//printf("Actor::_AddScript(%s)\n", (const char*)scriptName);
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
 	if (scriptResource == NULL)
 		return;
