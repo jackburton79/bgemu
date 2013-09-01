@@ -197,8 +197,13 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	}
 
 	Actor* player = Party::Get()->ActorAt(0);
-	if (player != NULL)
+	if (player != NULL) {
 		player->SetPosition(point);
+		if (!player->IsSelected())
+			player->Select(true);
+		fSelectedActor = player;
+	}
+
 	return true;
 }
 
@@ -530,7 +535,7 @@ Room::Clicked(uint16 x, uint16 y)
 			}
 		} else if (Region* region = _RegionAtPoint(point)) {
 			// TODO:
-			region->Clicked(*Actor::List().begin());
+			region->Clicked(Party::Get()->ActorAt(0));
 			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
@@ -544,10 +549,6 @@ Room::Clicked(uint16 x, uint16 y)
 						delete entry;
 					}
 				}
-
-				// TODO:
-				// region->Clicked();
-
 			}
 		} else if (fSelectedActor != NULL) {
 
