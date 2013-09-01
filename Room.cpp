@@ -15,6 +15,7 @@
 #include "IDSResource.h"
 #include "Label.h"
 #include "MOSResource.h"
+#include "Party.h"
 #include "Polygon.h"
 #include "RectUtils.h"
 #include "Region.h"
@@ -1114,6 +1115,13 @@ Room::_LoadActors()
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor::Add(fArea->GetActorAt(i));
 	}
+
+	// TODO: Check if it's okay
+	Party* party = Party::Get();
+	for (uint16 a = 0; a < party->CountActors(); a++){
+		Actor::Add(party->ActorAt(a));
+	}
+
 	std::cout << "Done!" << std::endl;
 }
 
@@ -1170,7 +1178,8 @@ Room::_UnloadArea()
 	for (actorIter = Actor::List().begin();
 			actorIter != Actor::List().end();
 			actorIter++) {
-		delete *actorIter;
+		if (Party::Get()->HasActor(*actorIter))
+				delete *actorIter;
 	}
 	Actor::List().clear();
 
