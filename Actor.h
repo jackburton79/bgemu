@@ -27,7 +27,6 @@ public:
 	Actor(const char* creName, IE::point position, int face);
 	virtual ~Actor();
 
-	virtual const char *Name() const;
 	CREResource *CRE() const;
 
 	const ::Bitmap* Bitmap() const;

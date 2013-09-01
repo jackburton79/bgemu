@@ -203,18 +203,11 @@ Actor::List()
 }
 
 
-const char *
-Actor::Name() const
-{
-	return (const char *)fActor->name;
-}
-
-
 const ::Bitmap*
 Actor::Bitmap() const
 {
 	if (fCurrentAnimation == NULL)
-		throw "Actor::Frame(): No current animation!";
+		throw "Actor::Bitmap(): No current animation!";
 
 	return fCurrentAnimation->Bitmap();
 }

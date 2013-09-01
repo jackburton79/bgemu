@@ -54,7 +54,7 @@ public:
 
 	void Print() const;
 
-	virtual const char* Name() const;
+	const char* Name() const;
 
 	void Clicked(Object* object);
 

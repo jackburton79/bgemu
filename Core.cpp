@@ -84,12 +84,16 @@ Core::Initialize(const char* path)
 	// TODO: Move this elsewhere.
 	// This should be filled by the player selection
 
-	IE::point point = { 20, 20 };
-	Party* party = Party::Get();
-	if (sCore->fGame == GAME_BALDURSGATE)
-		party->AddActor(new Actor("AJANTI", point, 0));
-	else
-		party->AddActor(new Actor("BERINVAR", point, 0));
+	try {
+		IE::point point = { 20, 20 };
+		Party* party = Party::Get();
+		if (sCore->fGame == GAME_BALDURSGATE)
+			party->AddActor(new Actor("AJANTI", point, 0));
+		else
+			party->AddActor(new Actor("CERND10", point, 0));
+	} catch (...) {
+
+	}
 	return true;
 }
 
