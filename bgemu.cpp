@@ -166,6 +166,18 @@ main(int argc, char **argv)
 								case SDLK_q:
 									quitting = true;
 									break;
+								case SDLK_1:
+									GUI::Get()->ToggleWindow(1);
+									break;
+								case SDLK_2:
+									GUI::Get()->ToggleWindow(2);
+									break;
+								case SDLK_3:
+									GUI::Get()->ToggleWindow(3);
+									break;
+								case SDLK_4:
+									GUI::Get()->ToggleWindow(4);
+									break;
 								default:
 									break;
 							}
