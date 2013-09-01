@@ -174,6 +174,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 	delete roomScript;
 
+	IE::point point = { 0, 0 };
 	if (!savedEntranceName.empty()) {
 		for (uint32 e = 0; e < fArea->CountEntrances(); e++) {
 			IE::entrance entrance = fArea->EntranceAt(e);
@@ -181,15 +182,23 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 			std::cout << ", looking for " << entranceName << std::endl;
 
 			if (savedEntranceName == entrance.name) {
-				IE::point point = { entrance.x, entrance.y };
+				point.x = entrance.x;
+				point.y = entrance.y;
 				CenterArea(point);
 				break;
 			}
 		}
 	} else {
-		IE::point point = { 0, 0 };
-		SetAreaOffset(point);
+		IE::entrance entrance = fArea->EntranceAt(0);
+		point.x = entrance.x;
+		point.y = entrance.y;
+		CenterArea(point);
+
 	}
+
+	Actor* player = Party::Get()->ActorAt(0);
+	if (player != NULL)
+		player->SetPosition(point);
 	return true;
 }
 
