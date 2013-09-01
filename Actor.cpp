@@ -240,6 +240,13 @@ Actor::Position() const
 }
 
 
+void
+Actor::SetPosition(const IE::point& position)
+{
+	fActor->position = position;
+}
+
+
 IE::orientation
 Actor::Orientation() const
 {
