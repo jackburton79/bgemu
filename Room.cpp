@@ -509,6 +509,8 @@ Room::Clicked(uint16 x, uint16 y)
 					fSelectedActor->Select(true);
 			}
 		} else if (Region* region = _RegionAtPoint(point)) {
+			// TODO:
+			region->Clicked(*Actor::List().begin());
 			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 				LoadArea(region->DestinationArea(), "foo",
 						region->DestinationEntrance());
