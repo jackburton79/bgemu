@@ -18,9 +18,9 @@
 Object::Object(const char* name)
 	:
 	fName(name),
-	fVisible(true),
 	fScript(NULL),
 	fTicks(0),
+	fVisible(true),
 	fCurrentScriptRoundResults(NULL),
 	fLastScriptRoundResults(NULL)
 {
@@ -94,7 +94,6 @@ Object::IsVisible() const
 void
 Object::Update(bool scripts)
 {
-	//std::cout << "Update " << Name() << std::endl;
 	if (scripts) {
 		if (++fTicks == 15) {
 			fTicks = 0;

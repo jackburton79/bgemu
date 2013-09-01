@@ -96,10 +96,9 @@ public:
 
 private:
 	const char* fName;
-	bool fVisible;
-
 	Script* fScript;
 	uint16 fTicks;
+	bool fVisible;
 
 	ScriptResults* fCurrentScriptRoundResults;
 	ScriptResults* fLastScriptRoundResults;
