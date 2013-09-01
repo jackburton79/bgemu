@@ -36,6 +36,7 @@ void
 Party::AddActor(Actor* actor)
 {
 	fActors.push_back(actor);
+	actor->SetInterruptable(false);
 }
 
 
@@ -44,8 +45,10 @@ Party::RemoveActor(Actor* actor)
 {
 	std::vector<Actor*>::iterator i =
 		std::find(fActors.begin(), fActors.end(), actor);
-	if (i != fActors.end())
+	if (i != fActors.end()) {
 		fActors.erase(i);
+		(*i)->SetInterruptable(true);
+	}
 }
 
 
