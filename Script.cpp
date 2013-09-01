@@ -2,12 +2,16 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "GUI.h"
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
+#include "TextArea.h"
 #include "Timer.h"
+#include "TLKResource.h"
+#include "Window.h"
 
 
 #include <algorithm>
@@ -723,7 +727,6 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: Implement
 			break;
 		}
-
 		case 106:
 		{
 			/* Shout */
@@ -745,6 +748,23 @@ Script::_ExecuteAction(action_node* act)
 			if (thisActor != NULL && thisActor->IsInterruptable())
 				core->FlyToPoint(thisActor, act->where, act->parameter);
 			break;
+		}
+		case 0x97:
+		{
+			/* 151 DisplayString(O:Object*,I:StrRef*)
+			 * This action displays the strref specified by the StrRef parameter
+			 * in the message window, attributing the text to
+			 * the specified object.
+			 */
+			// TODO: Move away from Script ? this adds too many
+			// dependencies
+			TLKEntry* entry = Dialogs()->EntryAt(act->parameter);
+			if (Window* tmp = GUI::Get()->GetWindow(4)) {
+				TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
+				if (textArea != NULL)
+					textArea->SetText(entry->string);
+			}
+			delete entry;
 		}
 		case 0xA7:
 		{
