@@ -168,7 +168,7 @@ Script::Execute()
 	while (nextScript != NULL) {
 		printf("*** SCRIPT START ***\n");
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
-		do {
+		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
 			while (condition != NULL) {
 				if (!_CheckTriggers(condition))
@@ -183,7 +183,7 @@ Script::Execute()
 				condition = responseSet->Next();
 			}
 			condRes = condRes->Next();
-		} while (condRes != NULL);
+		};
 
 		printf("*** SCRIPT END ***\n");
 		nextScript = nextScript->next;
@@ -246,9 +246,9 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	//Actor* actor = dynamic_cast<Actor*>(fTarget);
-	//if (actor != NULL && actor->SkipConditions())
-		//return false;
+	Actor* actor = dynamic_cast<Actor*>(fTarget);
+	if (actor != NULL && actor->SkipConditions())
+		return false;
 
 	//std::cout << "*** " << fTarget->Name() << " ***" << std::endl;
 
