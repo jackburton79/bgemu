@@ -182,7 +182,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 			if (savedEntranceName == entrance.name) {
 				IE::point point = { entrance.x, entrance.y };
-				SetAreaOffset(point);
+				CenterArea(point);
 				break;
 			}
 		}
@@ -323,6 +323,16 @@ Room::SetRelativeAreaOffset(IE::point relativePoint)
 	newOffset.x += relativePoint.x;
 	newOffset.y += relativePoint.y;
 	SetAreaOffset(newOffset);
+}
+
+
+void
+Room::CenterArea(const IE::point& point)
+{
+	IE::point destPoint;
+	destPoint.x = point.x - fViewPort.w;
+	destPoint.y = point.y - fViewPort.y;
+	SetAreaOffset(destPoint);
 }
 
 

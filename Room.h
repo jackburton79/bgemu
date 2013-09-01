@@ -45,6 +45,7 @@ public:
 	IE::point AreaOffset() const;
 	void SetAreaOffset(IE::point point);
 	void SetRelativeAreaOffset(IE::point point);
+	void CenterArea(const IE::point& point);
 
 	void ConvertToArea(GFX::rect& rect);
 	void ConvertToArea(IE::point& point);
