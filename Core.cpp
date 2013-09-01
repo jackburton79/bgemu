@@ -290,21 +290,10 @@ Core::UpdateLogic(bool executeScripts)
 	// TODO: Should do that based on timer.
 	//NewScriptRound();
 
-	/*std::map<std::string, Door*>::iterator doorIterator;
-	for (doorIterator = Door::List().begin();
-			doorIterator != Door::List().end();
-			doorIterator++) {
-		(*doorIterator).second->Update();
-	}*/
-	//return;
+	// TODO: Not nice, should be stop the scripts in some other way
+	if (strcmp(Room::Get()->AreaName().CString(), "WORLDMAP") == 0)
+		return;
 
-	/*std::vector<Region*>::iterator regionIter;
-	for (regionIter = Region::List().begin();
-			regionIter != Region::List().end(); regionIter++) {
-		(*regionIter)->Update();
-	}
-*/
-	//return;
 	// TODO: Fix/Improve
 	std::list<Object*>::iterator i;
 	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
