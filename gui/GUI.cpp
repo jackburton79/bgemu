@@ -161,6 +161,16 @@ GUI::IsWindowShown(uint16 id) const
 
 
 void
+GUI::ToggleWindow(uint16 id)
+{
+	if (IsWindowShown(id))
+		HideWindow(id);
+	else
+		ShowWindow(id);
+}
+
+
+void
 GUI::Clear()
 {
 	for (std::vector<Window*>::const_iterator i = fActiveWindows.begin();

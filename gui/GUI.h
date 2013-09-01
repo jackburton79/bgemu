@@ -33,6 +33,7 @@ public:
 	void ShowWindow(uint16 id);
 	void HideWindow(uint16 id);
 	bool IsWindowShown(uint16 id) const;
+	void ToggleWindow(uint16 id);
 
 	Window* GetWindow(uint16 id);
 	void SetArrowCursor(uint32 index);
