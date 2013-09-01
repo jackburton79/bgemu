@@ -32,8 +32,6 @@ Scrollbar::Scrollbar(IE::scrollbar* scrollbar)
 Scrollbar::~Scrollbar()
 {
 	gResManager->ReleaseResource(fResource);
-	GraphicsEngine::DeleteBitmap(fDownArrow);
-	GraphicsEngine::DeleteBitmap(fUpArrow);
 }
 
 
