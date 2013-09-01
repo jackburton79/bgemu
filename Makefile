@@ -35,6 +35,7 @@ MovieDecoder.cpp \
 MovieDecoderTest.cpp \
 Object.cpp \
 Parsing.cpp \
+Party.cpp \
 Path.cpp \
 PathFind.cpp \
 Polygon.cpp \
