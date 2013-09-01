@@ -339,8 +339,8 @@ void
 Room::CenterArea(const IE::point& point)
 {
 	IE::point destPoint;
-	destPoint.x = point.x - fViewPort.w;
-	destPoint.y = point.y - fViewPort.y;
+	destPoint.x = point.x - fViewPort.w / 2;
+	destPoint.y = point.y - fViewPort.y / 2;
 	SetAreaOffset(destPoint);
 }
 
