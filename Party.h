@@ -8,23 +8,27 @@
 #ifndef PARTY_H_
 #define PARTY_H_
 
-#include <list>
+#include <vector>
 
 #include "Actor.h"
 
 class Party {
 public:
-	Party();
-	~Party();
-
 	static Party* Get();
 
 	void AddActor(Actor* actor);
 	void RemoveActor(Actor* actor);
-	bool HasActor(Actor* actor) const;
-private:
 
-	std::list<Actor*> fActors;
+	uint16 CountActors() const;
+	Actor* ActorAt(uint16 index) const;
+
+	bool HasActor(Actor* actor) const;
+
+private:
+	Party();
+	~Party();
+
+	std::vector<Actor*> fActors;
 };
 
 #endif /* PARTY_H_ */
