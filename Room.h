@@ -64,9 +64,9 @@ public:
 
 	uint16 TileNumberForPoint(const IE::point& point);
 
-	int32 PointHeight(const IE::point& point) const;
-	int32 PointLight(const IE::point& point) const;
-	int32 PointSearch(const IE::point& point) const;
+	uint8 PointHeight(const IE::point& point) const;
+	uint8 PointLight(const IE::point& point) const;
+	uint8 PointSearch(const IE::point& point) const;
 
 	void ToggleOverlays();
 	void TogglePolygons();

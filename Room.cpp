@@ -682,7 +682,7 @@ Room::TileNumberForPoint(const IE::point& point)
 }
 
 
-int32
+uint8
 Room::PointHeight(const IE::point& point) const
 {
 	if (fHeightMap == NULL)
@@ -695,7 +695,7 @@ Room::PointHeight(const IE::point& point) const
 }
 
 
-int32
+uint8
 Room::PointLight(const IE::point& point) const
 {
 	if (fLightMap == NULL)
@@ -708,7 +708,7 @@ Room::PointLight(const IE::point& point) const
 }
 
 
-int32
+uint8
 Room::PointSearch(const IE::point& point) const
 {
 	if (fSearchMap == NULL)
