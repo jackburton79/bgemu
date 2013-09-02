@@ -90,7 +90,7 @@ main(int argc, char **argv)
 
 	// TODO: Gui::Load() calls GraphicsEngine::VideoArea() which crashes
 	// if the video mode is not set
-	graphicsEngine->SetVideoMode(800, 600, 16, 0);
+	graphicsEngine->SetVideoMode(640, 480, 16, GraphicsEngine::VIDEOMODE_FULLSCREEN);
 
 	// TODO: Move this to Core::Initialize() (or Core::Start())
 	if (!map->LoadWorldMap()) {
