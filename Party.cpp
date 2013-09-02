@@ -67,7 +67,7 @@ Party::ActorAt(uint16 index) const
 
 
 bool
-Party::HasActor(Actor* actor) const
+Party::HasActor(const Actor* actor) const
 {
 	std::vector<Actor*>::const_iterator i
 		= std::find(fActors.begin(), fActors.end(), actor);

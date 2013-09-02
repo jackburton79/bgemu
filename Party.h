@@ -22,7 +22,7 @@ public:
 	uint16 CountActors() const;
 	Actor* ActorAt(uint16 index) const;
 
-	bool HasActor(Actor* actor) const;
+	bool HasActor(const Actor* actor) const;
 
 private:
 	Party();
