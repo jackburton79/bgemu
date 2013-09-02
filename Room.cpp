@@ -31,6 +31,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <stdexcept>
 
 std::vector<MapOverlay*> *gOverlays = NULL;
 
@@ -189,11 +190,14 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 			}
 		}
 	} else {
-		IE::entrance entrance = fArea->EntranceAt(0);
-		point.x = entrance.x;
-		point.y = entrance.y;
-		CenterArea(point);
+		try {
+			IE::entrance entrance = fArea->EntranceAt(0);
+			point.x = entrance.x;
+			point.y = entrance.y;
+		} catch (std::out_of_range& ex) {
 
+		}
+		CenterArea(point);
 	}
 
 	Actor* player = Party::Get()->ActorAt(0);
