@@ -336,7 +336,37 @@ struct entrance {
 	uint16 y;
 	uint16 orientation;
 	uint8 unknown[66];
-} __attribute__((packed));;
+} __attribute__((packed));
+
+
+struct container {
+	char name[32];
+	uint16 x;
+	uint16 y;
+	uint16 type;
+	uint16 lock_difficulty;
+	uint32 flags;
+	uint16 trap_detection_difficulty;
+	uint16 trap_removal_difficulty;
+	uint16 trapped;
+	uint16 trap_detected;
+	uint16 trap_launch_x;
+	uint16 trap_launch_y;
+	uint16 top_left;
+	uint16 top_right;
+	uint16 bottom_right;
+	uint16 bottom_left;
+	uint32 item_first_index;
+	uint32 item_count;
+	res_ref trap_script;
+	uint32 vertex_first_index;
+	uint16 vertices_count;
+	char unk[34];
+	res_ref key_item;
+	uint32 unknown;
+	uint32 lockpick_string;
+	char unk2[56];
+} __attribute__((packed));
 
 
 // GUI
