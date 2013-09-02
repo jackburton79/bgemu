@@ -48,7 +48,8 @@ Region::Frame() const
 IE::point
 Region::Position() const
 {
-	IE::point point = { fRegion->use_point_x, fRegion->use_point_y };
+	IE::point point = { int16(fRegion->use_point_x),
+						int16(fRegion->use_point_y) };
 	return point;
 }
 
