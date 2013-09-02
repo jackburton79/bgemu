@@ -10,6 +10,7 @@
 #include "CreResource.h"
 #include "IDSResource.h"
 #include "Object.h"
+#include "Party.h"
 #include "ResManager.h"
 #include "Script.h"
 
@@ -400,8 +401,7 @@ Object::IsEnemyAlly(int ea) const
 	std::string eaString = IDTable::EnemyAllyAt(ea);
 
 	if (eaString == "PC") {
-		// TODO: Should check if Actor is in party
-		if (false)
+		if (Party::Get()->HasActor(actor))
 			return true;
 	} else if (eaString == "GOODCUTOFF") {
 		if (cre->EnemyAlly() <= ea)
