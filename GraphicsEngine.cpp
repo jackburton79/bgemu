@@ -173,7 +173,10 @@ void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 		uint16 flags)
 {
-	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, 0);
+	int sdlFlags = 0;
+	if (flags & VIDEOMODE_FULLSCREEN)
+		sdlFlags |= SDL_FULLSCREEN;
+	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
 	fScreen = new Bitmap(surface, false);
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {

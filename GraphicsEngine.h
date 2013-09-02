@@ -37,6 +37,10 @@ public:
 	void StrokeRect(const GFX::rect& rect, uint32 color);
 	void FillRect(const GFX::rect& rect, uint32 color);
 
+	enum VIDEOMODE_FLAGS {
+		VIDEOMODE_WINDOWED = 0,
+		VIDEOMODE_FULLSCREEN = 1
+	};
 	void SetVideoMode(uint16 x, uint16 y, uint16 depth, uint16 flags);
 	void SaveCurrentMode();
 	void RestorePreviousMode();
