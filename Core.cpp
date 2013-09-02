@@ -334,13 +334,14 @@ Core::See(const Object* source, const Object* object) const
 int
 Core::Distance(const Object* a, const Object* b) const
 {
-	const Actor* actorA = dynamic_cast<const Actor*>(a);
-	const Actor* actorB = dynamic_cast<const Actor*>(b);
+	const IE::point positionA = a->Position();
+	const IE::point positionB = b->Position();
 
-	if (actorA == NULL || actorB == NULL)
+	if ((positionA.x == -1 && positionA.y == -1)
+			|| (positionB.x == -1 && positionB.y == -1))
 		return 100; // TODO: ???
 
-	return actorA->Position() - actorB->Position();
+	return positionA - positionB;
 }
 
 

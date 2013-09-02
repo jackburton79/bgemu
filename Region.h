@@ -20,6 +20,7 @@ public:
 
 	uint16 Type() const;
 	IE::rect Frame() const;
+	virtual IE::point Position() const;
 
 	res_ref DestinationArea() const;
 	const char* DestinationEntrance() const;

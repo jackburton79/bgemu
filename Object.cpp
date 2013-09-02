@@ -72,6 +72,14 @@ Object::Name() const
 }
 
 
+IE::point
+Object::Position() const
+{
+	IE::point point = { -1, -1 };
+	return point;
+}
+
+
 void
 Object::Clicked(Object* clicker)
 {

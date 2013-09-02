@@ -45,6 +45,14 @@ Region::Frame() const
 }
 
 
+IE::point
+Region::Position() const
+{
+	IE::point point = { fRegion->use_point_x, fRegion->use_point_y };
+	return point;
+}
+
+
 res_ref
 Region::DestinationArea() const
 {
