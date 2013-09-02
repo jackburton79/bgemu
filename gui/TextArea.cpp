@@ -19,6 +19,8 @@
 TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
+	fFontResource(NULL),
+	fInitialsFontResource(NULL),
 	fBitmap(NULL)
 {
 	std::cout << "TextArea:" << std::endl;
@@ -26,10 +28,18 @@ TextArea::TextArea(IE::text_area* text)
 	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 8);
 
 	Palette palette;
-	Color start = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
-	Color end = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
+	Color start = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
+	Color end = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GraphicsEngine::CreateGradient(end, start, palette);
+	std::cout << std::dec << (int)text->color1_r << ", ";
+	std::cout << (int)text->color1_g << ", " << (int)text->color1_b << std::endl;
+	std::cout << std::dec << (int)text->color2_r << ", ";
+	std::cout << (int)text->color2_g << ", " << (int)text->color2_b << std::endl;
+	std::cout << std::dec << (int)text->color3_r << ", ";
+	std::cout << (int)text->color3_g << ", " << (int)text->color3_b << std::endl;
 	fBitmap->SetPalette(palette);
+	fBitmap->SetColorKey(text->color2_r, text->color2_g, text->color2_b, true);
+	//RenderString("A", fFontResource, 0, fBitmap);
 }
 
 
@@ -54,6 +64,6 @@ void
 TextArea::SetText(const char* text)
 {
 	fBitmap->Clear(0);
-	uint32 flags = IE::LABEL_JUSTIFY_CENTER;
+	uint32 flags = IE::LABEL_JUSTIFY_LEFT;
 	RenderString(text, fFontResource, flags, fBitmap);
 }
