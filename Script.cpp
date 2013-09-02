@@ -711,8 +711,8 @@ Script::_ExecuteAction(action_node* act)
 			variableName.append(&act->string1[6]);
 
 			if (variableScope.compare("LOCALS") == 0) {
-				if (thisActor != NULL)
-					thisActor->SetVariable(variableName.c_str(),
+				if (fTarget != NULL)
+					fTarget->SetVariable(variableName.c_str(),
 							act->parameter);
 			} else {
 				// TODO: Check for AREA variables
@@ -765,6 +765,7 @@ Script::_ExecuteAction(action_node* act)
 					textArea->SetText(entry->string);
 			}
 			delete entry;
+			break;
 		}
 		case 0xA7:
 		{
