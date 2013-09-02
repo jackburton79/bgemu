@@ -337,8 +337,8 @@ Core::Distance(const Object* a, const Object* b) const
 	const IE::point positionA = a->Position();
 	const IE::point positionB = b->Position();
 
-	if ((positionA.x == -1 && positionA.y == -1)
-			|| (positionB.x == -1 && positionB.y == -1))
+	IE::point invalidPoint = { -1, -1 };
+	if (positionA == invalidPoint && positionB == invalidPoint)
 		return 100; // TODO: ???
 
 	return positionA - positionB;
