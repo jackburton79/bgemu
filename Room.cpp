@@ -650,13 +650,13 @@ Room::DrawObject(const Object& object)
 
 		int32 pointHeight = PointHeight(actorPosition);
 		actorPosition.y += pointHeight - 8;
-		DrawObject(actorFrame, actorPosition);
+		DrawObject(actorFrame, actorPosition, true);
 	}
 }
 
 
 void
-Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
+Room::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 {
 	if (bitmap == NULL)
 		return;
@@ -669,8 +669,11 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point)
 
 	if (rects_intersect(fMapArea, rect)) {
 		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
-		GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
+		if (mask)
+			GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackBitmap, &offsetRect, fBlitMask, &rect);
+		else
+			GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &offsetRect);
 	}
 }
 
@@ -918,7 +921,7 @@ Room::_DrawAnimations()
 			if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
 				const Bitmap* frame = fAnimations[i]->NextBitmap();
 
-				DrawObject(frame, fAnimations[i]->Position());
+				DrawObject(frame, fAnimations[i]->Position(), false);
 			}
 		} catch (const char* string) {
 			std::cerr << string << std::endl;
