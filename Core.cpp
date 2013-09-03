@@ -374,14 +374,10 @@ Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 void
 Core::RandomWalk(Actor* actor)
 {
-	int16 randomX = (rand() % 30) - 15;
-	int16 randomY = (rand() % 30) - 15;
+	int16 randomX = (rand() % 100) - 50;
+	int16 randomY = (rand() % 100) - 50;
 
-	IE::point destination = actor->Position();
-	destination.x += randomX;
-	destination.y += randomY;
 	actor->SetFlying(false);
-	//if (rect_contains(fCurrentRoom->AreaRect(), destination))
-	actor->SetDestination(destination);
+	actor->SetDestination(offset_point(actor->Position(), randomX, randomY));
 }
 
