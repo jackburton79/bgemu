@@ -75,6 +75,7 @@ streams/FileStream.cpp \
 streams/MemoryStream.cpp \
 streams/Stream.cpp \
 streams/StringStream.cpp \
+TextSupport.cpp \
 TileCell.cpp \
 Timer.cpp \
 Utils.cpp \
