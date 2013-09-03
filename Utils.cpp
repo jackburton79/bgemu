@@ -144,13 +144,6 @@ RenderString(std::string string, BAMResource* fontResource,
 		}
 
 		GFX::rect rect;
-		if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-			rect.y = bitmap->Height() - maxHeight;
-		else if (flags & IE::LABEL_JUSTIFY_TOP)
-			rect.y = 0;
-		else
-			rect.y = (bitmap->Height() - maxHeight) / 2;
-
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
 			rect.x = (bitmap->Width() - totalWidth) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
@@ -159,6 +152,12 @@ RenderString(std::string string, BAMResource* fontResource,
 		for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 				i != frames.end(); i++) {
 			const Bitmap* letter = *i;
+			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+				rect.y = bitmap->Height() - letter->Height();
+			else if (flags & IE::LABEL_JUSTIFY_TOP)
+				rect.y = 0;
+			else
+				rect.y = (bitmap->Height() - letter->Height()) / 2;
 			rect.w = letter->Frame().w;
 			rect.h = letter->Frame().h;
 
