@@ -1238,6 +1238,10 @@ Room::_UnloadArea()
 		delete fRegions[c];
 	fRegions.clear();
 
+	for (uint32 c = 0; c < fContainers.size(); c++)
+		delete fContainers[c];
+	fContainers.clear();
+
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
 	fAnimations.clear();
