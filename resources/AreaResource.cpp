@@ -220,6 +220,10 @@ ARAResource::GetContainerAt(uint16 index)
 
 	Container* container = new Container(&fContainers[index]);
 	::Polygon& polygon = const_cast<Polygon&>(container->Polygon());
+	polygon.SetFrame(fContainers[index].top_left,
+				fContainers[index].top_right,
+				fContainers[index].bottom_left,
+				fContainers[index].bottom_right);
 
 	uint32 verticesOffset;
 	fData->ReadAt(0x007c, verticesOffset);
