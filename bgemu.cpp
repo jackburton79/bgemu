@@ -18,6 +18,7 @@
 
 static int sList = 0;
 static int sNoScripts = 0;
+static int sFullScreen = 0;
 static const char *sPath = "../BG";
 static const char *sResourceName = NULL;
 
@@ -27,6 +28,7 @@ struct option sLongOptions[] = {
 		{ "showresource", required_argument, NULL, 's'},
 		{ "path", required_argument, NULL, 'p'},
 		{ "noscripts", no_argument, &sNoScripts, 'n' },
+		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -36,7 +38,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "p:s:ln",
+	while ((c = getopt_long(argc, argv, "p:s:lnf",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -44,6 +46,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 's':
 				sResourceName = optarg;
+				break;
+			case 'f':
+				sFullScreen = 1;
 				break;
 			default:
 				break;
@@ -90,8 +95,11 @@ main(int argc, char **argv)
 
 	// TODO: Gui::Load() calls GraphicsEngine::VideoArea() which crashes
 	// if the video mode is not set
-	graphicsEngine->SetVideoMode(640, 480, 16, GraphicsEngine::VIDEOMODE_FULLSCREEN);
-
+	int flags = 0;
+	if (sFullScreen)
+		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
+	graphicsEngine->SetVideoMode(640, 480, 16, flags);
+	//graphicsEngine->SetVideoMode(800, 600, 16, 0);
 	// TODO: Move this to Core::Initialize() (or Core::Start())
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
