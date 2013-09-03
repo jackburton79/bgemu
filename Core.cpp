@@ -3,6 +3,7 @@
 #include "Actor.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "GUI.h"
 #include "IDSResource.h"
 #include "MveResource.h"
 #include "Party.h"
@@ -11,6 +12,9 @@
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
+#include "TextArea.h"
+#include "TLKResource.h"
+#include "Window.h"
 
 #include <sys/time.h>
 #include <stdlib.h>
@@ -269,6 +273,22 @@ Core::PlayMovie(const char* name)
 
 
 void
+Core::DisplayMessage(uint32 strRef)
+{
+	// TODO: Move away from Script ? this adds too many
+	// dependencies
+	TLKEntry* entry = Dialogs()->EntryAt(strRef);
+	if (Window* tmp = GUI::Get()->GetWindow(4)) {
+		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
+		if (textArea != NULL)
+			textArea->SetText(entry->string);
+	}
+	delete entry;
+}
+
+
+
+void
 Core::SetRoomScript(Script* script)
 {
 	fRoomScript = script;
@@ -350,14 +370,9 @@ Core::RandomFly(Actor* actor)
 {
 	int16 randomX = (rand() % 200) - 100;
 	int16 randomY = (rand() % 200) - 100;
-	IE::point destination = actor->Position();
-	destination.x += randomX;
-	destination.y += randomY;
-	FlyToPoint(actor, destination, 1);
 
-	//Room* area = Core::CurrentArea();
-	//std::cout << "New destination: " << std::dec << destination.x << " " << destination.y << std::endl;
-	//std::cout << "area: " << area->AreaRect().w << " " << area->AreaRect().h << std::endl;
+	FlyToPoint(actor, offset_point(actor->Position(), randomX,
+							randomY), 1);
 }
 
 

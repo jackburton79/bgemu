@@ -31,6 +31,10 @@ public:
 	static bool Initialize(const char* path);
 	static void Destroy();
 
+	void RegisterObject(Object* object);
+	void UnregisterObject(Object* object);
+
+
 	uint32 Game() const;
 
 	uint32 Time() const;
@@ -41,14 +45,12 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
-	void RegisterObject(Object* object);
-	void UnregisterObject(Object* object);
-
 	Object* GetObject(Object* source, object_node* node);
 	Object* GetObject(const char* name);
 	Object* GetNearestEnemyOf(const Object* object) const;
 
 	void PlayMovie(const char* name);
+	void DisplayMessage(uint32 strRef);
 
 	void SetRoomScript(Script* script);
 

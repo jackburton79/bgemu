@@ -2,16 +2,12 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
-#include "GUI.h"
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
-#include "TextArea.h"
 #include "Timer.h"
-#include "TLKResource.h"
-#include "Window.h"
 
 
 #include <algorithm>
@@ -262,8 +258,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	if (actor != NULL && actor->SkipConditions())
 		return false;
 
-	//std::cout << "*** " << fTarget->Name() << " ***" << std::endl;
-
 	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
 				trig->id, trig->id);
 	trig->Print();
@@ -346,7 +340,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
-				// TODO: Implement.
 				object_node* objectNode = FindObjectNode(trig);
 				returnValue = fTarget->LastScriptRoundResults()->Clicker()
 						->MatchNode(objectNode);
@@ -756,15 +749,7 @@ Script::_ExecuteAction(action_node* act)
 			 * in the message window, attributing the text to
 			 * the specified object.
 			 */
-			// TODO: Move away from Script ? this adds too many
-			// dependencies
-			TLKEntry* entry = Dialogs()->EntryAt(act->parameter);
-			if (Window* tmp = GUI::Get()->GetWindow(4)) {
-				TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
-				if (textArea != NULL)
-					textArea->SetText(entry->string);
-			}
-			delete entry;
+			core->DisplayMessage(act->parameter);
 			break;
 		}
 		case 0xA7:
