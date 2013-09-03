@@ -10,7 +10,7 @@
 #include "GraphicsEngine.h"
 #include "Label.h"
 #include "ResManager.h"
-#include "Utils.h"
+#include "TextSupport.h"
 #include "TLKResource.h"
 #include "Window.h"
 
@@ -46,7 +46,7 @@ Label::Label(IE::label* label)
 	}
 
 	TLKEntry *textEntry = Dialogs()->EntryAt(label->text_ref);
-	RenderString(textEntry->string, fFontResource, label->flags, fBitmap);
+	TextSupport::RenderString(textEntry->string, fFontResource, label->flags, fBitmap);
 	delete textEntry;
 }
 
@@ -63,7 +63,7 @@ Label::SetText(const char* text)
 {
 	fBitmap->Clear(0);
 	IE::label* label = static_cast<IE::label*>(fControl);
-	RenderString(text, fFontResource, label->flags, fBitmap);
+	TextSupport::RenderString(text, fFontResource, label->flags, fBitmap);
 }
 
 

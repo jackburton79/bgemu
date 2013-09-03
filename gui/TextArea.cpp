@@ -11,6 +11,7 @@
 #include "ResManager.h"
 #include "Utils.h"
 #include "TextArea.h"
+#include "TextSupport.h"
 #include "TLKResource.h"
 #include "Utils.h"
 #include "Window.h"
@@ -23,7 +24,6 @@ TextArea::TextArea(IE::text_area* text)
 	fInitialsFontResource(NULL),
 	fBitmap(NULL)
 {
-	std::cout << "TextArea:" << std::endl;
 	fFontResource = gResManager->GetBAM(text->font_bam);
 	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 8);
 
@@ -39,7 +39,6 @@ TextArea::TextArea(IE::text_area* text)
 	std::cout << (int)text->color3_g << ", " << (int)text->color3_b << std::endl;
 	fBitmap->SetPalette(palette);
 	fBitmap->SetColorKey(text->color2_r, text->color2_g, text->color2_b, true);
-	//RenderString("A", fFontResource, 0, fBitmap);
 }
 
 
@@ -65,5 +64,5 @@ TextArea::SetText(const char* text)
 {
 	fBitmap->Clear(0);
 	uint32 flags = IE::LABEL_JUSTIFY_LEFT;
-	RenderString(text, fFontResource, flags, fBitmap);
+	TextSupport::RenderString(text, fFontResource, flags, fBitmap);
 }

@@ -22,14 +22,5 @@ const char *extension(const char *name);
 }
 #endif
 
-class BAMResource;
-class Bitmap;
-struct Color;
-struct Palette;
-void RenderString(std::string string, const res_ref& fontRes,
-		uint32 flags, Bitmap* bitmap);
-void RenderString(std::string string, BAMResource* fontRes,
-		uint32 flags, Bitmap* bitmap);
-
 
 #endif

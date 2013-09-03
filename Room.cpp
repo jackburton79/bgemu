@@ -559,12 +559,10 @@ Room::Clicked(uint16 x, uint16 y)
 						region->DestinationEntrance());
 			} else if (region->Type() == IE::REGION_TYPE_INFO) {
 				int32 strRef = region->InfoTextRef();
-				if (strRef >= 0) {
+				if (strRef >= 0)
 					Core::Get()->DisplayMessage(strRef);
-				}
 			}
 		} else if (fSelectedActor != NULL) {
-
 			fSelectedActor->SetDestination(point);
 		}
 	}

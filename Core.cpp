@@ -275,11 +275,13 @@ Core::PlayMovie(const char* name)
 void
 Core::DisplayMessage(uint32 strRef)
 {
-	// TODO: Move away from Script ? this adds too many
+	// TODO: Move away from Core ? this adds too many
 	// dependencies
 	TLKEntry* entry = Dialogs()->EntryAt(strRef);
-	if (Window* tmp = GUI::Get()->GetWindow(4)) {
-		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
+	std::cout << entry->string << std::endl;
+	if (Window* window = GUI::Get()->GetWindow(4)) {
+		TextArea *textArea = dynamic_cast<TextArea*>(
+									window->GetControlByID(3));
 		if (textArea != NULL)
 			textArea->SetText(entry->string);
 	}
