@@ -156,7 +156,6 @@ Script::FindObject(node* start) const
 bool
 Script::Execute()
 {
-	std::cout << "this: " << this << ", fTarget:" << fTarget << std::endl;
 	// TODO: Move this to a better place
 	if (fTarget != NULL)
 		fTarget->NewScriptRound();
