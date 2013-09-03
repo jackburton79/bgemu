@@ -22,7 +22,7 @@ Container::~Container()
 
 
 const ::Polygon&
- Container::Polygon() const
+Container::Polygon() const
 {
 	return fPolygon;
 }
