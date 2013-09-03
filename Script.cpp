@@ -408,7 +408,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				is within distance given (in feet) of the active CRE. */
 				Object* object = core->GetObject(fTarget,
 						FindObjectNode(trig));
-				returnValue = core->Distance(object, fTarget) <= trig->parameter1;
+				if (object != NULL)
+					returnValue = core->Distance(object, fTarget) <= trig->parameter1;
 				break;
 			}
 
