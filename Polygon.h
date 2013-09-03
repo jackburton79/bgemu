@@ -24,6 +24,9 @@ public:
 	int32 CountPoints() const;
 
 	void OffsetBy(int32 x, int32 y);
+
+	bool Contains(const IE::point& point) const;
+
 	void Print() const;
 
 	Polygon& operator=(const Polygon&);

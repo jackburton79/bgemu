@@ -133,6 +133,13 @@ Polygon::OffsetBy(int32 x, int32 y)
 }
 
 
+bool
+Polygon::Contains(const IE::point& point) const
+{
+	return rect_contains(fFrame, point);
+}
+
+
 Polygon&
 Polygon::operator=(const Polygon& polygon)
 {
