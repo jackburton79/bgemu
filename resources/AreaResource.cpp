@@ -77,6 +77,7 @@ ARAResource::Load(Archive* archive, uint32 key)
 	_LoadActors();
 	_LoadDoors();
 	_LoadRegions();
+	_LoadContainers();
 
 	return true;
 }
@@ -350,6 +351,8 @@ ARAResource::_LoadContainers()
 	fData->ReadAt(0x74, count);
 	uint32 offset;
 	fData->ReadAt(0x70, offset);
+
+	std::cout << count << " containers at offset " << offset << std::endl;
 	fData->Seek(offset, SEEK_SET);
 	fContainers = new IE::container[count];
 	for (uint16 i = 0; i < count; i++) {
