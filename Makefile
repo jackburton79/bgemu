@@ -14,6 +14,7 @@ Animation.cpp \
 AnimationFactory.cpp \
 bgemu.cpp \
 Bitmap.cpp \
+Container.cpp \
 Core.cpp \
 Door.cpp \
 EncryptedStream.cpp \
