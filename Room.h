@@ -14,6 +14,7 @@ class ARAResource;
 class AreaEntry;
 class BCSResource;
 class Bitmap;
+class Container;
 class Door;
 class Frame;
 class MapOverlay;
@@ -106,6 +107,7 @@ private:
 
 	Actor* _ActorAtPoint(const IE::point& point);
 	Region* _RegionAtPoint(const IE::point& point);
+	Container* _ContainerAtPoint(const IE::point& point);
 	Object* _ObjectAtPoint(const IE::point& point);
 
 	void _LoadOverlays();
@@ -115,6 +117,7 @@ private:
 	void _InitRegions();
 	void _LoadActors();
 	void _InitDoors();
+	void _InitContainers();
 
 	void _UnloadArea();
 	void _UnloadWorldMap();
@@ -148,6 +151,7 @@ private:
 	std::vector<TileCell*> fTileCells;
 	std::vector<Animation*> fAnimations;
 	std::vector<Region*> fRegions;
+	std::vector<Container*> fContainers;
 
 	Actor* fSelectedActor;
 	Object* fMouseOverObject;

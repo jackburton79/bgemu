@@ -5,6 +5,7 @@
 #include "BCSResource.h"
 #include "BmpResource.h"
 #include "Bitmap.h"
+#include "Container.h"
 #include "Control.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -162,6 +163,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	_InitRegions();
 	_LoadActors();
 	_InitDoors();
+	_InitContainers();
 
 	_InitBitmap(fViewPort);
 
@@ -482,7 +484,6 @@ Room::Draw(Bitmap *surface)
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 
-			fBackBitmap->Lock();
 			uint32 color = 0;
 			switch (region->Type()) {
 				case IE::REGION_TYPE_TRAVEL:
@@ -496,11 +497,24 @@ Room::Draw(Bitmap *surface)
 					break;
 			}
 
+			fBackBitmap->Lock();
+
 			if (region->Polygon().CountPoints() > 2) {
 				fBackBitmap->StrokePolygon(region->Polygon(), color,
 									-mapRect.x, -mapRect.y);
 			} else
 				fBackBitmap->StrokeRect(rect, color);
+			fBackBitmap->Unlock();
+		} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject)) {
+			uint32 color = 0;
+			color = fBackBitmap->MapColor(0, 125, 0);
+			// TODO: Different colors for trapped/nontrapped
+			fBackBitmap->Lock();
+
+			if (container->Polygon().CountPoints() > 2) {
+						fBackBitmap->StrokePolygon(container->Polygon(), color,
+											-mapRect.x, -mapRect.y);
+			}
 			fBackBitmap->Unlock();
 		}
 
@@ -1040,6 +1054,19 @@ Room::_RegionAtPoint(const IE::point& point)
 }
 
 
+Container*
+Room::_ContainerAtPoint(const IE::point& point)
+{
+	std::vector<Container*>::const_iterator i;
+	for (i = fContainers.begin(); i != fContainers.end(); i++) {
+		GFX::rect rect = (*i)->Polygon().Frame();
+		if (rect_contains(rect, point))
+			return *i;
+	}
+	return NULL;
+}
+
+
 Object*
 Room::_ObjectAtPoint(const IE::point& point)
 {
@@ -1054,6 +1081,8 @@ Room::_ObjectAtPoint(const IE::point& point)
 		object = actor;
 	} else if (door != NULL && rect_contains(door->Frame(), point)) {
 		object = door;
+	} else if (Container* container = _ContainerAtPoint(point)) {
+		object = container;
 	} else if (Region* region = _RegionAtPoint(point)) {
 		object = region;
 		// TODO: This is a side effect of a method
@@ -1171,6 +1200,21 @@ Room::_InitDoors()
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
 		}
+	}
+	std::cout << "Done!" << std::endl;
+}
+
+
+void
+Room::_InitContainers()
+{
+	std::cout << "Initializing Containers...";
+	std::flush(std::cout);
+
+	const uint32 numContainers = fArea->CountContainers();
+	for (uint32 c = 0; c < numContainers; c++) {
+		Container *container = fArea->GetContainerAt(c);
+		fContainers.push_back(container);
 	}
 	std::cout << "Done!" << std::endl;
 }
