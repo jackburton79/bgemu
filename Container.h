@@ -17,6 +17,7 @@ public:
 	Container(IE::container* container);
 	~Container();
 
+	const IE::rect Frame() const;
 	const ::Polygon& Polygon() const;
 
 private:
