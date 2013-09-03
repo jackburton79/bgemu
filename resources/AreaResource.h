@@ -4,6 +4,7 @@
 #include "Resource.h"
 
 class Actor;
+class Container;
 class Door;
 class Region;
 class ARAResource : public Resource {
@@ -32,6 +33,9 @@ public:
 	uint16 CountRegions() const;
 	Region* GetRegionAt(uint16 index);
 
+	uint16 CountContainers() const;
+	Container* GetContainerAt(uint16 index);
+
 	uint32 CountEntrances();
 	IE::entrance EntranceAt(uint32 index);
 
@@ -45,6 +49,7 @@ private:
 	void _LoadActors();
 	void _LoadAnimations();
 	void _LoadDoors();
+	void _LoadContainers();
 	void _LoadRegions();
 
 	res_ref fWedName;
@@ -67,6 +72,7 @@ private:
 	IE::actor* fActors;
 	IE::region* fRegions;
 	IE::door* fDoors;
+	IE::container* fContainers;
 };
 
 #endif /* __AREARESOURCE_H_ */

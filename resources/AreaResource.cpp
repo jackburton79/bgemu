@@ -1,6 +1,7 @@
 #include "AreaResource.h"
 
 #include "Actor.h"
+#include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "MemoryStream.h"
@@ -201,6 +202,36 @@ ARAResource::GetRegionAt(uint16 index)
 }
 
 
+uint16
+ARAResource::CountContainers() const
+{
+	uint16 count;
+	fData->ReadAt(0x74, count);
+	return count;
+}
+
+
+Container*
+ARAResource::GetContainerAt(uint16 index)
+{
+	if (index >= CountContainers())
+		return NULL;
+
+	Container* container = new Container(&fContainers[index]);
+	::Polygon& polygon = const_cast<Polygon&>(container->Polygon());
+
+	uint32 verticesOffset;
+	fData->ReadAt(0x007c, verticesOffset);
+	fData->Seek(verticesOffset + fContainers[index].vertex_first_index * sizeof(IE::point), SEEK_SET);
+	for (uint16 v = 0; v < fContainers[index].vertices_count; v++) {
+		IE::point vertex;
+		fData->Read(vertex);
+		polygon.AddPoints(&vertex, 1);
+	}
+	return container;
+}
+
+
 uint32
 ARAResource::CountEntrances()
 {
@@ -313,14 +344,28 @@ ARAResource::_LoadDoors()
 
 
 void
+ARAResource::_LoadContainers()
+{
+	uint16 count;
+	fData->ReadAt(0x74, count);
+	uint32 offset;
+	fData->ReadAt(0x70, offset);
+	fData->Seek(offset, SEEK_SET);
+	fContainers = new IE::container[count];
+	for (uint16 i = 0; i < count; i++) {
+		fData->Read(fContainers[i]);
+	}
+}
+
+
+void
 ARAResource::_LoadRegions()
 {
 	fRegions = new IE::region[fNumRegions];
 	fData->Seek(fRegionsOffset, SEEK_SET);
-	for (uint32 i = 0; i < fNumRegions; i++) {
+	for (uint32 i = 0; i < fNumRegions; i++)
 		fData->Read(fRegions[i]);
-		//fRegions[i].Print();
-	}
+
 }
 
 
