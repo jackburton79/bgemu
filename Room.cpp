@@ -610,7 +610,6 @@ Room::MouseOver(uint16 x, uint16 y)
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
-
 		fMouseOverObject = _ObjectAtPoint(point);
 
 	} else if (fWorldMap != NULL) {
@@ -1059,8 +1058,8 @@ Room::_ContainerAtPoint(const IE::point& point)
 {
 	std::vector<Container*>::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		GFX::rect rect = (*i)->Polygon().Frame();
-		if (rect_contains(rect, point))
+		(*i)->Polygon().Print();
+		if ((*i)->Polygon().Contains(point))
 			return *i;
 	}
 	return NULL;
@@ -1216,7 +1215,7 @@ Room::_InitContainers()
 		Container *container = fArea->GetContainerAt(c);
 		fContainers.push_back(container);
 	}
-	std::cout << "Done!" << std::endl;
+	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
 }
 
 
