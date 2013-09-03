@@ -929,12 +929,14 @@ Room::_DrawAnimations()
 	if (fAnimations.size() == 0)
 		return;
 
-	for (uint32 i = 0; i < fArea->CountAnimations(); i++) {
+	std::vector<Animation*>::const_iterator i;
+	for (i = fAnimations.begin(); i != fAnimations.end(); i++) {
 		try {
-			if (fAnimations[i] != NULL && fAnimations[i]->IsShown()) {
-				const Bitmap* frame = fAnimations[i]->NextBitmap();
+			Animation* animation = *i;
+			if (animation->IsShown()) {
+				const Bitmap* frame = animation->NextBitmap();
 
-				DrawObject(frame, fAnimations[i]->Position(), false);
+				DrawObject(frame, animation->Position(), false);
 			}
 		} catch (const char* string) {
 			std::cerr << string << std::endl;
@@ -1058,7 +1060,6 @@ Room::_ContainerAtPoint(const IE::point& point)
 {
 	std::vector<Container*>::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		(*i)->Polygon().Print();
 		if ((*i)->Polygon().Contains(point))
 			return *i;
 	}
