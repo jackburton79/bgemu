@@ -49,7 +49,7 @@ private:
 
 class Object {
 public:
-	Object(const char* name);
+	Object(const char* name, const char* scriptName = NULL);
 	virtual ~Object();
 
 	void Print() const;

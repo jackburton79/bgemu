@@ -5,24 +5,14 @@
  *      Author: stefano
  */
 
-#include "BCSResource.h"
 #include "Region.h"
-#include "ResManager.h"
 
 
 Region::Region(IE::region* region)
 	:
-	Object(region->name),
+	Object(region->name, region->script.CString()),
 	fRegion(region)
 {
-	BCSResource* scriptResource = gResManager->GetBCS(region->script);
-	if (scriptResource != NULL) {
-		Script* script = scriptResource->GetScript();
-		if (script != NULL)
-			SetScript(script);
-	}
-
-	gResManager->ReleaseResource(scriptResource);
 }
 
 

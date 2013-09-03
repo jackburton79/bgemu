@@ -6,6 +6,7 @@
  */
 
 #include "Actor.h"
+#include "BCSResource.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "IDSResource.h"
@@ -16,7 +17,7 @@
 
 #include <algorithm>
 
-Object::Object(const char* name)
+Object::Object(const char* name, const char* scriptName)
 	:
 	fName(name),
 	fScript(NULL),
@@ -25,6 +26,16 @@ Object::Object(const char* name)
 	fCurrentScriptRoundResults(NULL),
 	fLastScriptRoundResults(NULL)
 {
+	if (scriptName != NULL) {
+		BCSResource* scriptResource = gResManager->GetBCS(scriptName);
+		if (scriptResource != NULL) {
+			Script* script = scriptResource->GetScript();
+			if (script != NULL)
+				SetScript(script);
+		}
+		gResManager->ReleaseResource(scriptResource);
+	}
+
 	fCurrentScriptRoundResults = new ScriptResults;
 
 	Core::Get()->RegisterObject(this);

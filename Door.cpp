@@ -1,22 +1,12 @@
-#include "BCSResource.h"
 #include "Door.h"
-#include "ResManager.h"
 
 std::map<std::string, Door*> Door::sDoors;
 
 Door::Door(IE::door* areaDoor)
 	:
-	Object(areaDoor->name),
+	Object(areaDoor->name,areaDoor->script.CString()),
 	fAreaDoor(areaDoor)
 {
-	BCSResource* scriptResource = gResManager->GetBCS(areaDoor->script);
-	if (scriptResource != NULL) {
-		Script* script = scriptResource->GetScript();
-		if (script != NULL)
-			SetScript(script);
-	}
-
-	gResManager->ReleaseResource(scriptResource);
 }
 
 

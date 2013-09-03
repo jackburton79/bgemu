@@ -9,7 +9,7 @@
 
 Container::Container(IE::container* container)
 	:
-	Object(container->name),
+	Object(container->name, container->trap_script.CString()),
 	fContainer(container)
 {
 }
