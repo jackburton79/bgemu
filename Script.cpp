@@ -463,14 +463,18 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */
 				// TODO: Merge Name and Area before passing them to the
 				// Timer::Get() method (also below)
-				Timer* timer = Timer::Get(trig->string1);
+				std::string timerName;
+				timerName.append(trig->string2).append(trig->string1);
+				Timer* timer = Timer::Get(timerName.c_str());
 				returnValue = timer != NULL && timer->Expired();
 				break;
 			}
 			case 0x4041:
 			{
 				/* GlobalTimerNotExpired(S:Name*,S:Area*) */
-				Timer* timer = Timer::Get(trig->string1);
+				std::string timerName;
+				timerName.append(trig->string2).append(trig->string1);
+				Timer* timer = Timer::Get(timerName.c_str());
 				returnValue = timer == NULL || !timer->Expired();
 				break;
 			}
