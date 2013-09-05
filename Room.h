@@ -31,6 +31,7 @@ public:
 	
 	res_ref AreaName() const;
 	WEDResource* WED();
+	ARAResource* AREA() const;
 
 	bool LoadArea(const res_ref& areaName,
 					const char* longName,

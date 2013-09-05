@@ -92,6 +92,13 @@ Room::WED()
 }
 
 
+ARAResource*
+Room::AREA() const
+{
+	return fArea;
+}
+
+
 GFX::rect
 Room::ViewPort() const
 {
