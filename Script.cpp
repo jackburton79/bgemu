@@ -4,13 +4,15 @@
 #include "Door.h"
 #include "IDSResource.h"
 #include "Parsing.h"
+#include "Party.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
 #include "Timer.h"
 
-
 #include <algorithm>
+
+#define DEBUG_SCRIPTS 0
 
 static int sIndent = 0;
 static void IndentMore()
@@ -167,7 +169,9 @@ Script::Execute()
 
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
-		printf("*** SCRIPT START ***\n");
+#if DEBUG_SCRIPTS
+		std::cout << "*** SCRIPT START ***" << std::endl;
+#endif
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
@@ -185,8 +189,9 @@ Script::Execute()
 			}
 			condRes = condRes->Next();
 		};
-
-		printf("*** SCRIPT END ***\n");
+#if DEBUG_SCRIPTS
+		std::cout << "*** SCRIPT END ***" << std::endl;
+#endif
 		nextScript = nextScript->next;
 	}
 
@@ -258,9 +263,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	if (actor != NULL && actor->SkipConditions())
 		return false;
 
+#if DEBUG_SCRIPTS
 	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
 				trig->id, trig->id);
 	trig->Print();
+#endif
 
 	Core* core = Core::Get();
 	bool returnValue = false;
@@ -278,6 +285,24 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* object = FindObjectNode(trig);
 				returnValue = Object::CheckIfNodeInList(object,
 						fTarget->LastScriptRoundResults()->Attackers());
+				break;
+			}
+			case 0x400A:
+			{
+				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
+				Object* object = FindObject(trig);
+				if (object != NULL)
+					returnValue = object->IsAlignment(trig->parameter1);
+
+				break;
+			}
+			case 0x400B:
+			{
+				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
+				Object* object = FindObject(trig);
+				if (object != NULL)
+					returnValue = object->IsEnemyAlly(trig->parameter1);
+
 				break;
 			}
 			case 0x400C:
@@ -447,6 +472,15 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = timer == NULL || !timer->Expired();
 				break;
 			}
+			case 0x4043:
+			{
+				// InParty
+				const Actor* actor = dynamic_cast<const Actor*>(FindObject(trig));
+				if (actor != NULL)
+					returnValue = Party::Get()->HasActor(actor);
+
+				break;
+			}
 			case 0x4051:
 			{
 				/*
@@ -541,6 +575,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
+					// TODO: Implement
 					object->Print();
 				}
 
@@ -572,7 +607,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			default:
 			{
 				printf("UNIMPLEMENTED TRIGGER!!!\n");
-
+				printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
+								trig->id, trig->id);
+				trig->Print();
 				break;
 			}
 		}
@@ -581,8 +618,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
-
+#if DEBUG_SCRIPTS
 	printf("\t*** %s (flags: %d) ***\n", returnValue ? "TRUE" : "FALSE", trig->flags);
+#endif
 	return returnValue;
 }
 
@@ -616,8 +654,10 @@ Script::_ExecuteActions(node* responseSet)
 void
 Script::_ExecuteAction(action_node* act)
 {
+#if DEBUG_SCRIPTS
 	printf("%s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
 	act->Print();
+#endif
 	Core* core = Core::Get();
 	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
 
@@ -816,7 +856,8 @@ Script::_ExecuteAction(action_node* act)
 		}
 		default:
 			printf("UNIMPLEMENTED ACTION!!!\n");
-
+			printf("%s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
+			act->Print();
 			break;
 	}
 }
