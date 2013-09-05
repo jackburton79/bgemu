@@ -119,10 +119,12 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	if (fArea == NULL)
 		return false;
 
-	fWed = gResManager->GetWED(fArea->WedName());
+	_InitWed(fArea->WedName().CString());
+
+	/*fWed = gResManager->GetWED(fArea->WedName());
 	if (fWed == NULL)
 		return false;
-
+*/
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	Script* roomScript = NULL;
 	if (fBcs != NULL)
@@ -156,8 +158,8 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 		if (label != NULL)
 			label->SetText(longName);
 	}
-	_LoadOverlays();
-	_InitTileCells();
+
+
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
@@ -166,10 +168,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	_InitContainers();
 
 	_InitBitmap(fViewPort);
-
-	_InitHeightMap();
-	_InitLightMap();
-	_InitSearchMap();
 
 	_InitBlitMask();
 
@@ -793,6 +791,22 @@ Room::ToggleGUI()
 }
 
 
+void
+Room::ToggleDayNight()
+{
+	std::string wedName = fArea->WedName().CString();
+
+	if (*wedName.rbegin() == 'N')
+		wedName = wedName.substr(0, wedName.length() - 1);
+	else
+		wedName.append("N");
+
+	std::vector<std::string> list;
+	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
+		_InitWed(wedName.c_str());
+}
+
+
 /* virtual */
 void
 Room::VideoAreaChanged(uint16 width, uint16 height)
@@ -819,10 +833,41 @@ Room::_InitBitmap(GFX::rect area)
 
 
 void
+Room::_InitWed(const char* name)
+{
+	// TODO: Assume that the various resources have
+	// already been deleted and remove these lines ?
+	for (uint32 c = 0; c < fTileCells.size(); c++)
+		delete fTileCells[c];
+	fTileCells.clear();
+
+	for (uint32 c = 0; c < fOverlays.size(); c++)
+		delete fOverlays[c];
+	fOverlays.clear();
+
+	gResManager->ReleaseResource(fWed);
+
+	fWed = gResManager->GetWED(name);
+
+	_LoadOverlays();
+	_InitTileCells();
+
+	_InitHeightMap();
+	_InitLightMap();
+	_InitSearchMap();
+}
+
+
+void
 Room::_InitBlitMask()
 {
 	std::cout << "Initializing blit mask...";
 	std::flush(std::cout);
+
+	if (fBlitMask != NULL) {
+		GraphicsEngine::DeleteBitmap(fBlitMask);
+		fBlitMask = NULL;
+	}
 
 	fBlitMask = GraphicsEngine::CreateBitmap(AreaRect().w, AreaRect().h, 8);
 
@@ -846,6 +891,14 @@ Room::_InitBlitMask()
 void
 Room::_InitHeightMap()
 {
+	std::cout << "Initializing height map...";
+	std::flush(std::cout);
+
+	if (fHeightMap != NULL) {
+		GraphicsEngine::DeleteBitmap(fHeightMap);
+		fHeightMap = NULL;
+	}
+
 	std::string heightMapName = fArea->WedName().CString();
 	heightMapName += "HT";
 	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
@@ -853,12 +906,17 @@ Room::_InitHeightMap()
 		fHeightMap = resource->Image();
 		gResManager->ReleaseResource(resource);
 	}
+
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_InitLightMap()
 {
+	std::cout << "Initializing light map...";
+	std::flush(std::cout);
+
 	std::string lightMapName = fArea->WedName().CString();
 	lightMapName += "LM";
 	BMPResource* resource = gResManager->GetBMP(lightMapName.c_str());
@@ -866,12 +924,17 @@ Room::_InitLightMap()
 		fLightMap = resource->Image();
 		gResManager->ReleaseResource(resource);
 	}
+
+	std::cout << "Done!" << std::endl;
 }
 
 
 void
 Room::_InitSearchMap()
 {
+	std::cout << "Initializing search map...";
+	std::flush(std::cout);
+
 	std::string searchMapName = fArea->WedName().CString();
 	searchMapName += "SR";
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
@@ -882,6 +945,7 @@ Room::_InitSearchMap()
 		gResManager->ReleaseResource(resource);
 	}
 
+	std::cout << "Done!" << std::endl;
 }
 
 

@@ -75,6 +75,7 @@ public:
 	void ToggleSearchMap();
 	void ToggleConsole();
 	void ToggleGUI();
+	void ToggleDayNight();
 
 	void CreateCreature(const char* name, IE::point where, int face);
 
@@ -90,6 +91,7 @@ private:
 	GFX::rect _ConsoleRect() const;
 
 	void _InitBitmap(GFX::rect area);
+	void _InitWed(const char* name);
 	void _InitBlitMask();
 	void _InitHeightMap();
 	void _InitLightMap();
