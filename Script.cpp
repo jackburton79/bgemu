@@ -280,6 +280,37 @@ Script::_EvaluateTrigger(trigger_node* trig)
 						fTarget->LastScriptRoundResults()->Attackers());
 				break;
 			}
+			case 0x400C:
+			{
+				/*0x400C Class(O:Object*,I:Class*Class)*/
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL)
+					returnValue = object->IsClass(trig->parameter1);
+				break;
+			}
+			case 0x400F:
+			{
+				/*0x400F Global(S:Name*,S:Area*,I:Value*)
+				Returns true only if the variable with name 1st parameter
+				of type 2nd parameter has value 3rd parameter.*/
+				std::string variableScope;
+				variableScope.append(trig->string1, 6);
+				std::string variableName;
+				variableName.append(&trig->string1[6]);
+
+				int32 variableValue = 0;
+				if (variableScope.compare("LOCALS") == 0) {
+					Actor* actor = dynamic_cast<Actor*>(fTarget);
+					if (actor != NULL)
+						variableValue = actor->GetVariable(variableName.c_str());
+				} else {
+					// TODO: Check for AREA variables, currently we
+					// treat AREA variables as global variables
+					variableValue = Core::Get()->GetVariable(variableName.c_str());
+				}
+				returnValue = variableValue == trig->parameter1;
+				break;
+			}
 			case 0x0020:
 			{
 				// HitBy
@@ -324,64 +355,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
-			case 0x0036:
-			{
-				/*0x0036 OnCreation()
-				Returns true if the script is processed for the first time this session,
-				e.g. when a creature is created (for CRE scripts) or when the player
-				enters an area (for ARE scripts).*/
-				returnValue = !Processed();
-				break;
-			}
-			case 0x0070:
-			{
-				/* 0x0070 Clicked(O:Object*)
-				 *	Only for trigger regions.
-				 *	Returns true if the specified object
-				 *	clicked on the trigger region running this script.
-				 */
-				object_node* objectNode = FindObjectNode(trig);
-				returnValue = fTarget->LastScriptRoundResults()->Clicker()
-						->MatchNode(objectNode);
-				objectNode->Print();
-				fTarget->LastScriptRoundResults()->Clicker()->Print();
 
-				// TODO: When to set this, other than now ?
-				if (returnValue)
-					fLastTrigger = fTarget;
-				break;
-			}
-			case 0x400C:
-			{
-				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
-				if (object != NULL)
-					returnValue = object->IsClass(trig->parameter1);
-				break;
-			}
-			case 0x400F:
-			{
-				/*0x400F Global(S:Name*,S:Area*,I:Value*)
-				Returns true only if the variable with name 1st parameter
-				of type 2nd parameter has value 3rd parameter.*/
-				std::string variableScope;
-				variableScope.append(trig->string1, 6);
-				std::string variableName;
-				variableName.append(&trig->string1[6]);
-
-				int32 variableValue = 0;
-				if (variableScope.compare("LOCALS") == 0) {
-					Actor* actor = dynamic_cast<Actor*>(fTarget);
-					if (actor != NULL)
-						variableValue = actor->GetVariable(variableName.c_str());
-				} else {
-					// TODO: Check for AREA variables, currently we
-					// treat AREA variables as global variables
-					variableValue = Core::Get()->GetVariable(variableName.c_str());
-				}
-				returnValue = variableValue == trig->parameter1;
-				break;
-			}
 			case 0x4017:
 			{
 				// Race()
@@ -448,7 +422,15 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = core->GetVariable(trig->string1) < trig->parameter1;
 				break;
 			}
-
+			case 0x0036:
+			{
+				/*0x0036 OnCreation()
+				Returns true if the script is processed for the first time this session,
+				e.g. when a creature is created (for CRE scripts) or when the player
+				enters an area (for ARE scripts).*/
+				returnValue = !Processed();
+				break;
+			}
 			case 0x4040:
 			{
 				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */
@@ -493,6 +475,24 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				break;
 			}
+			case 0x0070:
+			{
+				/* 0x0070 Clicked(O:Object*)
+				 *	Only for trigger regions.
+				 *	Returns true if the specified object
+				 *	clicked on the trigger region running this script.
+				 */
+				object_node* objectNode = FindObjectNode(trig);
+				returnValue = fTarget->LastScriptRoundResults()->Clicker()
+						->MatchNode(objectNode);
+				objectNode->Print();
+				fTarget->LastScriptRoundResults()->Clicker()->Print();
+
+				// TODO: When to set this, other than now ?
+				if (returnValue)
+					fLastTrigger = fTarget;
+				break;
+			}
 
 			case 0x4072:
 			{
@@ -533,7 +533,19 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				}
 				break;
 			}
+			case 0x407D:
+			{
+				/* ISOVERME(O:Object*)
+				 * Only for trigger regions. Returns true only if the specified
+				 * object is over the trigger running the script
+				 */
+				object_node* object = FindObjectNode(trig);
+				if (object != NULL) {
+					object->Print();
+				}
 
+				break;
+			}
 			case 0x407E:
 			{
 				/* 0x407E AreaCheck(S:ResRef*)
