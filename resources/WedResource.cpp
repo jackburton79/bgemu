@@ -221,29 +221,6 @@ WEDResource::_LoadPolygons()
 }
 
 
-/* static */
-bool
-WEDResource::_IsOverlayColor(const Color &color)
-{
-	return color.r == 0 and color.g == 0 and color.b == 255;
-}
-
-
-Color
-WEDResource::_PixelSearchColor(int16 x, int16 y)
-{
-	Color color;
-	return color;
-}
-
-
-int16
-WEDResource::_PointHeight(int16 x, int16 y)
-{
-	return 1;
-}
-
-
 // MapOverlay
 MapOverlay::MapOverlay()
 	:
