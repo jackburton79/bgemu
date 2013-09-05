@@ -805,6 +805,16 @@ Script::_ExecuteAction(action_node* act)
 				core->FlyToPoint(thisActor, act->where, act->parameter);
 			break;
 		}
+		case 0x73:
+		{
+			/* SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) (115 0x73)*/
+			std::string timerName;
+			// TODO: We append the timer name to the area name,
+			// check if it's okay
+			timerName.append(act->string2).append(act->string1);
+			Timer::Add(timerName.c_str(), act->parameter);
+			break;
+		}
 		case 0x97:
 		{
 			/* 151 DisplayString(O:Object*,I:StrRef*)

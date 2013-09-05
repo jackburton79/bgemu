@@ -33,6 +33,8 @@ Timer::SetExpiration(uint32 expiration)
 bool
 Timer::Expired() const
 {
+	// TODO: These timers are relative to the game time,
+	// reimplement correctly.
 	struct timeval now;
 	gettimeofday(&now, 0);
 	if ((uint32)now.tv_usec >= fExpiration)
