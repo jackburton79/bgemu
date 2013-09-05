@@ -146,8 +146,9 @@ Script::FindObject(node* start) const
 
 	if (objectNode == NULL)
 		return NULL;
-
-	//objectNode->Print();
+#if DEBUG_SCRIPTS
+	objectNode->Print();
+#endif
 	return Core::Get()->GetObject(fTarget, objectNode);
 }
 
@@ -588,8 +589,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE
 				 * is in the area specified.
 				 */
-				returnValue = !strcmp(Room::Get()->Name(),
-						trig->string1);
+				// TODO: We only check the active area
+				returnValue = !strcmp(Room::Get()->Name(), trig->string1);
 				break;
 			}
 			case 0x4086:
