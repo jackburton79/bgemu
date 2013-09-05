@@ -171,6 +171,9 @@ main(int argc, char **argv)
 								case SDLK_s:
 									map->ToggleSearchMap();
 									break;
+								case SDLK_n:
+									map->ToggleDayNight();
+									break;
 								case SDLK_q:
 									quitting = true;
 									break;
