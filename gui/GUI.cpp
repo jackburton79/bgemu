@@ -7,6 +7,7 @@
 
 #include "Animation.h"
 #include "BackWindow.h"
+#include "BamResource.h"
 #include "Bitmap.h"
 #include "CHUIResource.h"
 #include "Control.h"
@@ -14,7 +15,7 @@
 #include "GUI.h"
 #include "ResManager.h"
 #include "Room.h"
-
+#include "TextSupport.h"
 
 #include <algorithm>
 
@@ -28,6 +29,8 @@ GUI::GUI()
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
+
+	fToolTipFontResource = gResManager->GetBAM("TOOLFONT");
 }
 
 
@@ -44,6 +47,8 @@ GUI::~GUI()
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
 	}
+
+	gResManager->ReleaseResource(fToolTipFontResource);
 }
 
 
@@ -72,6 +77,8 @@ GUI::Draw()
 	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
 		(*i)->Draw();
 	}
+
+	_DrawToolTip();
 
 	if (fCurrentCursor != NULL) {
 		try {
@@ -374,4 +381,16 @@ GUI::_InitCursors()
 		fCursors[i + 8] = new Animation("CURSORS", i, pt);
 	}
 
+}
+
+
+void
+GUI::_DrawToolTip()
+{
+	GFX::rect rect(fCursorPosition.x, fCursorPosition.y, 200, 50);
+
+	Bitmap* bitmap = GraphicsEngine::Get()->ScreenBitmap();
+	TextSupport::RenderString("TEST This is a test",
+							fToolTipFontResource,
+							0, bitmap, rect);
 }

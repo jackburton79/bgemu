@@ -15,6 +15,7 @@
 #include <vector>
 
 class Animation;
+class BAMResource;
 class CHUIResource;
 class GUI {
 public:
@@ -50,10 +51,12 @@ private:
 	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
+	BAMResource* fToolTipFontResource;
 
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();
+	void _DrawToolTip();
 };
 
 #endif /* __GUI_H_ */
