@@ -14,7 +14,6 @@
 #define AREA_VERSION_1 "V1.0"
 
 
-
 ARAResource::ARAResource(const res_ref& name)
 	:
 	Resource(name, RES_ARA),
@@ -31,7 +30,8 @@ ARAResource::ARAResource(const res_ref& name)
 	fAnimations(NULL),
 	fActors(NULL),
 	fRegions(NULL),
-	fDoors(NULL)
+	fDoors(NULL),
+	fContainers(NULL)
 {
 }
 
@@ -42,6 +42,7 @@ ARAResource::~ARAResource()
 	delete[] fActors;
 	delete[] fDoors;
 	delete[] fRegions;
+	delete[] fContainers;
 }
 
 
