@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "AreaResource.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -589,6 +590,15 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				returnValue = !strcmp(Room::Get()->Name(),
 						trig->string1);
+				break;
+			}
+			case 0x4086:
+			{
+				// AREATYPE(I:NUMBER*AREATYPE) (16518 0x4086)
+
+				// TODO: We only check the active area
+				const uint16 areaType = Room::Get()->AREA()->Type();
+				returnValue = areaType & trig->parameter1;
 				break;
 			}
 			case 0x4089:
