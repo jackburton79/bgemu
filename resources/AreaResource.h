@@ -15,6 +15,7 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 
 	const res_ref& WedName() const;
+	uint16 Flags() const;
 
 	res_ref NorthAreaName();
 	res_ref EastAreaName();

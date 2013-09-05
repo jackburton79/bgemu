@@ -91,6 +91,15 @@ ARAResource::WedName() const
 }
 
 
+uint16
+ARAResource::Flags() const
+{
+	uint16 type;
+	fData->ReadAt(0x48, type);
+	return type;
+}
+
+
 uint32
 ARAResource::CountDoors() const
 {
