@@ -794,10 +794,9 @@ Room::ToggleGUI()
 void
 Room::ToggleDayNight()
 {
-	std::string wedName = fArea->WedName().CString();
-
+	std::string wedName = fWed->Name();
 	if (*wedName.rbegin() == 'N')
-		wedName = wedName.substr(0, wedName.length() - 1);
+		wedName = fArea->Name();
 	else
 		wedName.append("N");
 
