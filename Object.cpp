@@ -170,7 +170,7 @@ Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 {
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vec.begin(); iter != vec.end(); iter++) {
-		(*iter)->Print();
+		//(*iter)->Print();
 		if ((*iter)->IsEqual(this))
 			return true;
 	}
@@ -184,7 +184,7 @@ bool
 Object::CheckIfNodeInList(object_node* node,
 		const std::vector<Object*>& vector)
 {
-	node->Print();
+	//node->Print();
 
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vector.begin(); iter != vector.end(); iter++) {
@@ -262,9 +262,7 @@ Object::IsDummy(const object_node* node)
 Object*
 Object::ResolveIdentifier(const int id) const
 {
-	std::cout << "ResolveIdentifier(" << id << ") = ";
 	std::string identifier = IDTable::ObjectAt(id);
-	std::cout << identifier << std::endl;
 	if (identifier == "MYSELF")
 		return const_cast<Object*>(this);
 	// TODO: Implement more identifiers
@@ -275,6 +273,9 @@ Object::ResolveIdentifier(const int id) const
 	// Move ResolveIdentifier elsewhere ?
 	if (identifier == "LASTTRIGGER")
 		return fScript->LastTrigger();
+
+	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
+	std::cout << identifier << std::endl;
 	return NULL;
 }
 

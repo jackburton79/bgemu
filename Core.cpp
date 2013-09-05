@@ -182,7 +182,10 @@ Core::UnregisterObject(Object* object)
 Object*
 Core::GetObject(Object* source, object_node* node)
 {
-	node->Print();
+	//node->Print();
+	std::cout << "Core::GetObject(source: " << source->Name() << ", " ;
+	std::cout << "( " << node->name <<  ", " << node->general << ", ";
+	std::cout << node->ea << " ) ";
 
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
@@ -198,6 +201,7 @@ Core::GetObject(Object* source, object_node* node)
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
+		std::cout << "returned " << target->Name() << std::endl;
 		return target;
 	}
 
@@ -205,16 +209,15 @@ Core::GetObject(Object* source, object_node* node)
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
 	std::list<Object*>::iterator i;
-	std::cout << "Matching..." << std::endl;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if ((*i)->MatchNode(node)) {
-			std::cout << "GetObject() returned " << std::endl;
-			(*i)->Print();
+			std::cout << "returned " << (*i)->Name() << std::endl;
+			//(*i)->Print();
 			return *i;
 		}
 	}
 
-	std::cout << "GetObject() returned NONE" << std::endl;
+	std::cout << "returned NONE" << std::endl;
 	return NULL;
 }
 
@@ -226,13 +229,12 @@ Core::GetObject(const char* name)
 	std::list<Object*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
-			std::cout << "GetObject() returned " << name;
-			std::cout << std::endl;
+			std::cout << "returned " << name << std::endl;
 			return *i;
 		}
 	}
 
-	std::cout << "GetObject() returned NONE" << std::endl;
+	std::cout << "returned NONE" << std::endl;
 	return NULL;
 }
 
