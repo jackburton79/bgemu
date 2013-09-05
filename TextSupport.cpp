@@ -41,6 +41,16 @@ void
 TextSupport::RenderString(std::string string, BAMResource* fontResource,
 		uint32 flags, Bitmap* bitmap)
 {
+	RenderString(string, fontResource, flags, bitmap, bitmap->Frame());
+}
+
+
+void
+TextSupport::RenderString(std::string string,
+								BAMResource* fontRes,
+								uint32 flags, Bitmap* bitmap,
+								const GFX::rect& destRect)
+{
 	try {
 		std::vector<const Bitmap*> frames;
 		uint32 totalWidth = 0;
@@ -48,7 +58,7 @@ TextSupport::RenderString(std::string string, BAMResource* fontResource,
 		for (std::string::iterator i = string.begin();
 				i != string.end(); i++) {
 			uint32 cycleNum = cycle_num_for_char(*i);
-			const Bitmap* newFrame = fontResource->FrameForCycle(cycleNum, 0);
+			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
 			totalWidth += newFrame->Frame().w;
 			maxHeight = std::max(newFrame->Frame().h, maxHeight);
 			frames.push_back(newFrame);
@@ -56,19 +66,22 @@ TextSupport::RenderString(std::string string, BAMResource* fontResource,
 
 		GFX::rect rect;
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
-			rect.x = (bitmap->Width() - totalWidth) / 2;
+			rect.x = (destRect.w - totalWidth) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-			rect.x = bitmap->Width() - totalWidth;
+			rect.x = destRect.w - totalWidth;
 
+		rect.x += destRect.x;
 		for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 				i != frames.end(); i++) {
 			const Bitmap* letter = *i;
 			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-				rect.y = bitmap->Height() - letter->Height();
+				rect.y = destRect.h - letter->Height();
 			else if (flags & IE::LABEL_JUSTIFY_TOP)
 				rect.y = 0;
 			else
-				rect.y = (bitmap->Height() - letter->Height()) / 2;
+				rect.y = (destRect.h - letter->Height()) / 2;
+			rect.y += destRect.y;
+
 			rect.w = letter->Frame().w;
 			rect.h = letter->Frame().h;
 
