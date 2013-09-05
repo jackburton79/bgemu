@@ -201,7 +201,11 @@ Core::GetObject(Object* source, object_node* node)
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
-		std::cout << "returned " << target->Name() << std::endl;
+		std::cout << "returned ";
+		if (target != NULL)
+			std::cout << target->Name() << std::endl;
+		else
+			std::cout << "NONE" << std::endl;
 		return target;
 	}
 
