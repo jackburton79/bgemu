@@ -166,7 +166,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 			label->SetText(longName);
 	}
 
-
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
@@ -544,33 +543,46 @@ Room::Clicked(uint16 x, uint16 y)
 				break;
 			}
 		}
-	} else {
-		// TODO: Temporary, for testing
-		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
-			door->Toggle();
-		} else 	if (Actor* actor = _ActorAtPoint(point)) {
-			if (fSelectedActor != actor) {
-				if (fSelectedActor != NULL)
-					fSelectedActor->Select(false);
-				fSelectedActor = actor;
-				if (fSelectedActor != NULL)
-					fSelectedActor->Select(true);
-			}
-		} else if (Region* region = _RegionAtPoint(point)) {
-			// TODO:
-			region->Clicked(Party::Get()->ActorAt(0));
-			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
-				LoadArea(region->DestinationArea(), "foo",
-						region->DestinationEntrance());
-			} else if (region->Type() == IE::REGION_TYPE_INFO) {
-				int32 strRef = region->InfoTextRef();
-				if (strRef >= 0)
-					Core::Get()->DisplayMessage(strRef);
-			}
-		} else if (fSelectedActor != NULL) {
-			fSelectedActor->SetDestination(point);
+		return;
+	}
+
+	// TODO: Temporary, for testing
+	if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
+		door->Toggle();
+		return;
+	}
+
+	if (Actor* actor = _ActorAtPoint(point)) {
+		if (fSelectedActor != actor) {
+			if (fSelectedActor != NULL)
+				fSelectedActor->Select(false);
+			fSelectedActor = actor;
+			if (fSelectedActor != NULL)
+				fSelectedActor->Select(true);
+
+		}
+		return;
+	}
+
+	if (Region* region = _RegionAtPoint(point)) {
+		// TODO:
+		region->Clicked(Party::Get()->ActorAt(0));
+		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
+			LoadArea(region->DestinationArea(), "foo",
+					region->DestinationEntrance());
+			return;
+		} else if (region->Type() == IE::REGION_TYPE_INFO) {
+			int32 strRef = region->InfoTextRef();
+			if (strRef >= 0)
+				Core::Get()->DisplayMessage(strRef);
+			return;
 		}
 	}
+
+	if (fSelectedActor != NULL) {
+		fSelectedActor->SetDestination(point);
+	}
+
 }
 
 
