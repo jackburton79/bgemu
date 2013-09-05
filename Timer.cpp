@@ -5,11 +5,15 @@
  *      Author: stefano
  */
 
+
 #include "Timer.h"
+
+#include "ResManager.h"
 
 #include <sys/time.h>
 
 Timer::timer_map Timer::sTimers;
+uint32 Timer::sGameTime;
 
 Timer::Timer(uint32 expirationTime)
 	:
@@ -26,20 +30,14 @@ Timer::~Timer()
 void
 Timer::SetExpiration(uint32 expiration)
 {
-	fExpiration = expiration;
+	fExpiration = sGameTime + expiration;
 }
 
 
 bool
 Timer::Expired() const
 {
-	// TODO: These timers are relative to the game time,
-	// reimplement correctly.
-	struct timeval now;
-	gettimeofday(&now, 0);
-	if ((uint32)now.tv_usec >= fExpiration)
-		return true;
-	return false;
+	return sGameTime >= fExpiration;
 }
 
 
@@ -47,6 +45,9 @@ Timer::Expired() const
 void
 Timer::Add(const char* name, uint32 expirationTime)
 {
+	std::string expiration = IDTable::GameTimeAt(expirationTime);
+	std::cout << "Added timer " << name << " which expires in ";
+	std::cout << expiration << std::endl;
 	sTimers[name] = new Timer(expirationTime);
 }
 
@@ -72,4 +73,13 @@ Timer::Get(const char* name)
 		return NULL;
 
 	return i->second;
+}
+
+
+/* static */
+void
+Timer::UpdateGameTime()
+{
+	// TODO: This way the time runs too fast
+	sGameTime++;
 }

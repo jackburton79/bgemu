@@ -13,16 +13,14 @@
 #include "Room.h"
 #include "Script.h"
 #include "TextArea.h"
+#include "Timer.h"
 #include "TLKResource.h"
 #include "Window.h"
 
-#include <sys/time.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <ctype.h>
 #include <vector>
-
-#include <SDL.h>
 
 
 static Core* sCore = NULL;
@@ -113,22 +111,6 @@ uint32
 Core::Game() const
 {
 	return fGame;
-}
-
-
-uint32
-Core::Time() const
-{
-	struct timeval now;
-	gettimeofday(&now, 0);
-	return now.tv_usec;
-}
-
-
-uint32
-Core::GameTime() const
-{
-	return SDL_GetTicks();
 }
 
 
@@ -319,6 +301,8 @@ Core::CheckScripts()
 void
 Core::UpdateLogic(bool executeScripts)
 {
+	Timer::UpdateGameTime();
+
 	// TODO: Should do that based on timer.
 	//NewScriptRound();
 

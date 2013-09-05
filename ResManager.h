@@ -114,6 +114,7 @@ public:
 	static std::string ActionAt(uint32 i);
 	static std::string ObjectAt(uint32 i);
 	static std::string EnemyAllyAt(uint32 i);
+	static std::string GameTimeAt(uint32 i);
 };
 
 

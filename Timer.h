@@ -29,12 +29,14 @@ public:
 	static void Add(const char* name, uint32 expirationTime = -1);
 	static void Remove(const char* name);
 	static Timer* Get(const char* string);
+	static void UpdateGameTime();
 
 private:
 	uint32 fExpiration;
 
 	typedef std::map<std::string, Timer*> timer_map;
 	static timer_map sTimers;
+	static uint32 sGameTime;
 };
 
 #endif /* __TIMER_H */

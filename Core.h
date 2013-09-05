@@ -37,9 +37,6 @@ public:
 
 	uint32 Game() const;
 
-	uint32 Time() const;
-	uint32 GameTime() const;
-
 	void EnteredArea(Room* area, Script* script);
 
 	void SetVariable(const char* name, int32 value);
@@ -75,7 +72,6 @@ private:
 	std::map<std::string, uint32> fVariables;
 	Script *fRoomScript;
 	std::map<std::string, Script*> fScripts;
-	//std::map<std::string, ScriptContext*> fScriptContextes;
 
 	uint32 fLastScriptRoundTime;
 

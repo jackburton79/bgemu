@@ -61,6 +61,7 @@ static IDSResource* sTriggers;
 static IDSResource* sActions;
 static IDSResource* sObjects;
 static IDSResource* sEA;
+static IDSResource* sGameTimes;
 
 const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
@@ -77,6 +78,7 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
+	gResManager->ReleaseResource(sGameTimes);
 	gResManager->ReleaseResource(sEA);
 	gResManager->ReleaseResource(sObjects);
 	gResManager->ReleaseResource(sActions);
@@ -746,4 +748,13 @@ IDTable::EnemyAllyAt(uint32 i)
 	if (sEA == NULL)
 		sEA = gResManager->GetIDS("EA");
 	return sEA->ValueFor(i);
+}
+
+
+std::string
+IDTable::GameTimeAt(uint32 i)
+{
+	if (sGameTimes == NULL)
+		sGameTimes = gResManager->GetIDS("GTIMES");
+	return sGameTimes->ValueFor(i);
 }
