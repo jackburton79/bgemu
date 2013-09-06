@@ -64,6 +64,7 @@ private:
 
 	bool fProcessed;
 
+	int fOrTriggers;
 	Object* fTarget;
 	Object* fLastTrigger;
 

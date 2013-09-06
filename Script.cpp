@@ -234,24 +234,21 @@ Script::Processed() const
 bool
 Script::_CheckTriggers(node* conditionNode)
 {
-	//fOrTriggers = 0;
+	fOrTriggers = 0;
 
 	trigger_node* trig = FindTriggerNode(conditionNode);
 	bool evaluation = true;
 	while (trig != NULL) {
-		/*if (trig->id == 0x4089) { // OR
-			_EvaluateTrigger(trig);
-			// we don't care about the return value of this one
-		} else if (fOrTriggers > 0) {
+		if (fOrTriggers > 0) {
 			evaluation = _EvaluateTrigger(trig);
 			if (evaluation)
 				break;
 			fOrTriggers--;
-		} else {*/
+		} else {
 			evaluation = _EvaluateTrigger(trig) && evaluation;
 			if (!evaluation)
 				break;
-		//}
+		}
 		trig = static_cast<trigger_node*>(trig->Next());
 	}
 	return evaluation;
@@ -609,7 +606,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4089:
 			{
 				/*0x4089 OR(I:OrCount*)*/
-				//fOrTriggers = trig->parameter1;
+				fOrTriggers = trig->parameter1;
+				returnValue = true;
 				break;
 			}
 			case 0x4c:
