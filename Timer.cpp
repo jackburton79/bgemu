@@ -77,6 +77,14 @@ Timer::Get(const char* name)
 
 
 /* static */
+uint32
+Timer::GameTime()
+{
+	return sGameTime;
+}
+
+
+/* static */
 void
 Timer::UpdateGameTime()
 {
