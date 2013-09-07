@@ -394,8 +394,10 @@ Actor::StopCheckingConditions()
 void
 Actor::UpdateSee()
 {
-	std::cout << Name() << " UpdateSee()" << std::endl;
-	// TODO: Silly implementation
+	// TODO: Silly implementation: We take a straight line
+	// between source and target, and see if there are any unpassable
+	// point between them, we also check distance and visibility of
+	// the target
 	std::vector<Actor*>::const_iterator i;
 	for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
 		Object* target = *i;
@@ -422,7 +424,7 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	std::cout << object->Name() << " was seen by " << Name() << std::endl;
+	//std::cout << object->Name() << " was seen by " << Name() << std::endl;
 	CurrentScriptRoundResults()->fSeenList.push_back(object->Name());
 }
 
