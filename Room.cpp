@@ -577,6 +577,9 @@ Room::Clicked(uint16 x, uint16 y)
 				Core::Get()->DisplayMessage(strRef);
 			return;
 		}
+	} else if (Container* container = _ContainerAtPoint(point)) {
+		// TODO:
+		container->Clicked(Party::Get()->ActorAt(0));
 	}
 
 	if (fSelectedActor != NULL) {
