@@ -11,7 +11,12 @@
 class Door : public Object {
 public:
 	Door(IE::door* areaDoor);
+
+	// TODO: Remove!
 	void Toggle();
+
+	void Open(Object* actor);
+	void Close(Object* actor);
 
 	std::vector<uint16> fTilesOpen;
 

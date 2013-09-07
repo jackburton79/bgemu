@@ -22,6 +22,26 @@ Door::Toggle()
 }
 
 
+void
+Door::Open(Object* actor)
+{
+	if (!(fAreaDoor->flags & IE::DOOR_OPEN)) {
+		fAreaDoor->flags |= IE::DOOR_OPEN;
+		CurrentScriptRoundResults()->fOpenedBy = actor->Name();
+	}
+}
+
+
+void
+Door::Close(Object* actor)
+{
+	if (fAreaDoor->flags & IE::DOOR_OPEN) {
+		fAreaDoor->flags &= ~IE::DOOR_OPEN;;
+		CurrentScriptRoundResults()->fClosedBy = actor->Name();
+	}
+}
+
+
 IE::rect
 Door::Frame() const
 {
