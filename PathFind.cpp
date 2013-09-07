@@ -100,7 +100,7 @@ PathFinder::IsPassable(const IE::point& point)
 bool
 PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 {
-	PathFinder testPath(true);
+	PathFinder testPath(1, true);
 
 	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
 		return false;
@@ -335,8 +335,8 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		point.y += sh_step;
 	}
 
-	if (IsPassable(point))
-		fPoints.push_back(point);
+	if (IsPassable(end))
+		fPoints.push_back(end);
 
 	return fPoints.back();
 }
