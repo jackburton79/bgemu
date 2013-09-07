@@ -13,7 +13,7 @@
 
 #include <algorithm>
 
-#define DEBUG_SCRIPTS 0
+#define DEBUG_SCRIPTS 1
 
 static int sIndent = 0;
 static void IndentMore()
@@ -453,6 +453,17 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				e.g. when a creature is created (for CRE scripts) or when the player
 				enters an area (for ARE scripts).*/
 				returnValue = !Processed();
+				break;
+			}
+			case 0x4037:
+			{
+				/* StateCheck(O:Object*,I:State*State)
+				 * Returns true only if the specified object
+				 * is in the state specified.
+				 */
+				Object* object = FindObject(trig);
+				if (object != NULL)
+					returnValue = object->IsState(trig->parameter1);
 				break;
 			}
 			case 0x4040:
