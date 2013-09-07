@@ -91,6 +91,7 @@ public:
 	bool IsSpecific(int specific) const;
 	bool IsAlignment(int alignment) const;
 	bool IsEnemyAlly(int ea) const;
+	bool IsState(int state) const;
 
 	void Attack(Object* object);
 

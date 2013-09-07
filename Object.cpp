@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+// TODO: We always cast to Actor.
+// Either move the methods to actor, or merge the classes
 Object::Object(const char* name, const char* scriptName)
 	:
 	fName(name),
@@ -422,6 +424,20 @@ Object::IsEnemyAlly(int ea) const
 		if (cre->EnemyAlly() >= ea)
 			return true;
 	}
+
+	return false;
+}
+
+
+bool
+Object::IsState(int state) const
+{
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	if (actor == NULL)
+		return false;
+
+	if (actor->CRE()->PermanentStatus() & state)
+		return true;
 
 	return false;
 }
