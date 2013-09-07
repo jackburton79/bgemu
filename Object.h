@@ -35,6 +35,10 @@ public:
 
 	int Shouted() const;
 
+	std::string fOpenedBy;
+	std::string fClosedBy;
+	std::string fDetectedBy;
+
 private:
 	friend class Object;
 	friend class Actor;
@@ -42,6 +46,8 @@ private:
 	std::vector<Object*> fHitters;
 	std::vector<Object*> fSeen;
 	Object* fClicker;
+
+
 
 	int fShouted;
 };
