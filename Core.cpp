@@ -169,9 +169,23 @@ Object*
 Core::GetObject(Object* source, object_node* node)
 {
 	//node->Print();
-	std::cout << "Core::GetObject(source: " << source->Name() << ", " ;
-	std::cout << "( " << node->name <<  ", " << node->general << ", ";
-	std::cout << node->ea << " ) ";
+	// TODO: Move into object_node::Print()
+	std::cout << "Core::GetObject(" << std::endl;
+	std::cout << "source: " << source->Name() << std::endl;
+	std::cout << "node: ( " << node->name << std::endl;
+	if (node->general)
+		std::cout << "\t" << IDTable::GeneralAt(node->general) << std::endl;
+	if (node->classs)
+		std::cout << "\t" << IDTable::ClassAt(node->classs) << std::endl;
+	if (node->specific)
+		std::cout << "\t" << IDTable::SpecificAt(node->specific) << std::endl;
+	if (node->ea)
+		std::cout << "\t" << IDTable::EnemyAllyAt(node->ea) << std::endl;
+	if (node->gender)
+		std::cout << "\t" << IDTable::GenderAt(node->gender) << std::endl;
+	if (node->race)
+		std::cout << "\t" << IDTable::RaceAt(node->race) << std::endl;
+	std::cout << ")" << std::endl << ")" << std::endl;;
 
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
