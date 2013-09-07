@@ -7,7 +7,9 @@
 struct point_node;
 class PathFinder {
 public:
-	PathFinder(bool ignoreUnpassable = false);
+	const static int kStep = 5;
+
+	PathFinder(int step = kStep, bool ignoreUnpassable = false);
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
 
 	IE::point NextWayPoint();
@@ -23,6 +25,7 @@ private:
 	std::list<point_node*> fClosedList;
 
 	bool fIgnoreUnpassable;
+	int fStep;
 
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 

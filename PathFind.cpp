@@ -35,20 +35,18 @@ struct FindPoint {
 };
 
 
-const static int kStep = 5;
-
-
 static bool
 PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 {
-	return (std::abs(pointA.x - pointB.x) <= kStep * 2)
-		&& (std::abs(pointA.y - pointB.y) <= kStep * 2);
+	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep * 2)
+		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep * 2);
 }
 
 
-PathFinder::PathFinder(bool ignoreUnpassable)
+PathFinder::PathFinder(int step, bool ignoreUnpassable)
 	:
-	fIgnoreUnpassable(ignoreUnpassable)
+	fIgnoreUnpassable(ignoreUnpassable),
+	fStep(step)
 {
 }
 
@@ -78,7 +76,6 @@ PathFinder::IsEmpty() const
 }
 
 
-/* static */
 bool
 PathFinder::IsPassable(const IE::point& point)
 {
@@ -108,7 +105,11 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
 		return false;
 
-	return testPath._CreateDirectPath(start, end) == end;
+	IE::point pt = testPath._CreateDirectPath(start, end);
+	std::cout << pt.x << ", " << pt.y << " instead of ";
+	std::cout << end.x << ", " << end.y << std::endl;
+
+	return pt == end;
 }
 
 
@@ -207,22 +208,22 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 void
 PathFinder::_AddPassableAdiacentPoints(const point_node& current)
 {
-	_AddIfPassable(offset_point(current.point, kStep, 0), current);
-	_AddIfPassable(offset_point(current.point, kStep, kStep), current);
-	_AddIfPassable(offset_point(current.point, 0, kStep), current);
-	_AddIfPassable(offset_point(current.point, -kStep, kStep), current);
-	_AddIfPassable(offset_point(current.point, -kStep, 0), current);
-	_AddIfPassable(offset_point(current.point, -kStep, -kStep), current);
-	_AddIfPassable(offset_point(current.point, kStep, -kStep), current);
-	_AddIfPassable(offset_point(current.point, 0, -kStep), current);
+	_AddIfPassable(offset_point(current.point, fStep, 0), current);
+	_AddIfPassable(offset_point(current.point, fStep, fStep), current);
+	_AddIfPassable(offset_point(current.point, 0, fStep), current);
+	_AddIfPassable(offset_point(current.point, -fStep, fStep), current);
+	_AddIfPassable(offset_point(current.point, -fStep, 0), current);
+	_AddIfPassable(offset_point(current.point, -fStep, -fStep), current);
+	_AddIfPassable(offset_point(current.point, fStep, -fStep), current);
+	_AddIfPassable(offset_point(current.point, 0, -fStep), current);
 }
 
 
 static inline const uint32
 CalculateCost(const IE::point& pointA, const IE::point& pointB)
 {
-	return (std::abs(pointA.x - pointB.x) < kStep)
-			|| (std::abs(pointA.y - pointB.y) < kStep) ? 10 : 14;
+	return (std::abs(pointA.x - pointB.x) < PathFinder::kStep)
+			|| (std::abs(pointA.y - pointB.y) < PathFinder::kStep) ? 10 : 14;
 }
 
 
@@ -299,13 +300,13 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 	int cycle;
 	int lg_delta = end.x - point.x;
 	int sh_delta = end.y - point.y;
-	int lg_step = lg_delta > 0 ? kStep : -kStep;
+	int lg_step = lg_delta > 0 ? fStep : -fStep;
 	lg_delta = ABS(lg_delta);
-	int sh_step = sh_delta > 0 ? kStep : -kStep;
+	int sh_step = sh_delta > 0 ? fStep : -fStep;
 	sh_delta = ABS(sh_delta);
 	if (sh_delta < lg_delta) {
 		cycle = lg_delta >> 1;
-		while (std::abs(point.x - end.x) > kStep) {
+		while (std::abs(point.x - end.x) > fStep) {
 			if (!IsPassable(point))
 				return fPoints.back();
 			fPoints.push_back(point);
@@ -322,7 +323,7 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		fPoints.push_back(point);
 	}
 	cycle = sh_delta >> 1;
-	while (std::abs(point.y - end.y) > kStep) {
+	while (std::abs(point.y - end.y) > fStep) {
 		if (!IsPassable(point))
 			return fPoints.back();
 		fPoints.push_back(point);
