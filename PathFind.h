@@ -13,7 +13,8 @@ public:
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	static bool IsPassable(const IE::point& point);
+	bool IsPassable(const IE::point& point);
+	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
 private:
 	std::list<IE::point> fPoints;

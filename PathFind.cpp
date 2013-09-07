@@ -82,6 +82,9 @@ PathFinder::IsEmpty() const
 bool
 PathFinder::IsPassable(const IE::point& point)
 {
+	if (fIgnoreUnpassable)
+		return true;
+
 	int32 state = Room::Get()->PointSearch(point);
 	switch (state) {
 		case 0:
@@ -93,6 +96,19 @@ PathFinder::IsPassable(const IE::point& point)
 		default:
 			return true;
 	}
+}
+
+
+/* static */
+bool
+PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
+{
+	PathFinder testPath(true);
+
+	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
+		return false;
+
+	return testPath._CreateDirectPath(start, end) == end;
 }
 
 
@@ -214,7 +230,7 @@ void
 PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 {
 	if (point.x < 0 || point.y < 0
-			|| (!fIgnoreUnpassable && !IsPassable(point)))
+			|| !IsPassable(point))
 		return;
 
 	// Check if point is in closed list
