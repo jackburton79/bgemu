@@ -170,22 +170,26 @@ Core::GetObject(Object* source, object_node* node)
 {
 	//node->Print();
 	// TODO: Move into object_node::Print()
-	std::cout << "Core::GetObject(" << std::endl;
-	std::cout << "source: " << source->Name() << std::endl;
-	std::cout << "node: ( " << node->name << std::endl;
+	std::cout << "Core::GetObject(";
+	std::cout << "source: " << source->Name() << ", ";
+	std::cout << "node: ( ";
+	if (node->name[0])
+		std::cout << node->name;
 	if (node->general)
-		std::cout << "\t" << IDTable::GeneralAt(node->general) << std::endl;
+		std::cout << ", " << IDTable::GeneralAt(node->general);
 	if (node->classs)
-		std::cout << "\t" << IDTable::ClassAt(node->classs) << std::endl;
+		std::cout << ", " << IDTable::ClassAt(node->classs);
 	if (node->specific)
-		std::cout << "\t" << IDTable::SpecificAt(node->specific) << std::endl;
+		std::cout << ", " << IDTable::SpecificAt(node->specific);
 	if (node->ea)
-		std::cout << "\t" << IDTable::EnemyAllyAt(node->ea) << std::endl;
+		std::cout << ", " << IDTable::EnemyAllyAt(node->ea);
 	if (node->gender)
-		std::cout << "\t" << IDTable::GenderAt(node->gender) << std::endl;
+		std::cout << ", " << IDTable::GenderAt(node->gender);
 	if (node->race)
-		std::cout << "\t" << IDTable::RaceAt(node->race) << std::endl;
-	std::cout << ")" << std::endl << ")" << std::endl;;
+		std::cout << ", " << IDTable::RaceAt(node->race);
+	if (node->alignment)
+		std::cout << ", " << IDTable::AlignmentAt(node->alignment);
+	std::cout << ") )" << std::endl;;
 
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
