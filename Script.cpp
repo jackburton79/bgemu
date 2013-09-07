@@ -12,6 +12,7 @@
 #include "Timer.h"
 
 #include <algorithm>
+#include <assert.h>
 
 #define DEBUG_SCRIPTS 1
 
@@ -522,8 +523,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* objectNode = FindObjectNode(trig);
 				if (objectNode == NULL)
 					break;
-				// We assume this is a door
+				// TODO: We assume this is a door, but also
+				// containers can be opened/closed
 				Door* door = dynamic_cast<Door*>(fTarget);
+				if (door == NULL);
+					break;
 				if (!door->Opened())
 					break;
 
