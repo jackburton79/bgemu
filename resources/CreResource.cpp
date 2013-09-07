@@ -180,6 +180,15 @@ CREResource::Experience()
 
 
 uint32
+CREResource::PermanentStatus()
+{
+	uint32 state;
+	fData->ReadAt(0x20, state);
+	return state;
+}
+
+
+uint32
 CREResource::ExperienceValue()
 {
 	uint32 exp;
