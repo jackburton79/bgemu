@@ -20,6 +20,7 @@ enum game {
 
 struct object_node;
 class Actor;
+class Door;
 class Object;
 class Room;
 class IDSResource;
@@ -58,6 +59,9 @@ public:
 	// Actions/Triggers
 	bool See(const Object* source, const Object* target) const;
 	int Distance(const Object* source, const Object* target) const;
+
+	void Open(Object* actor, Door* target);
+	void Close(Object* actor, Door* target);
 
 	void RandomFly(Actor* actor);
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);

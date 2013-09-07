@@ -135,7 +135,9 @@ Core::EnteredArea(Room* area, Script* script)
 void
 Core::SetVariable(const char* name, int32 value)
 {
-	printf("SetVariable(%s, %d) (old value %d)\n", name, value, fVariables[name]);
+	std::cout << "SetVariable(" << name << ", " << value;
+	std::cout << " (old value: " << fVariables[name] << ")";
+	std::cout << std::endl;
 	fVariables[name] = value;
 }
 
@@ -143,6 +145,8 @@ Core::SetVariable(const char* name, int32 value)
 int32
 Core::GetVariable(const char* name)
 {
+	std::cout << "GetVariable(" << name << "): " << fVariables[name];
+	std::cout << std::endl;
 	return fVariables[name];
 }
 
@@ -354,6 +358,22 @@ Core::Distance(const Object* a, const Object* b) const
 		return 100; // TODO: ???
 
 	return positionA - positionB;
+}
+
+
+void
+Core::Open(Object* actor, Door* door)
+{
+	if (!door->Opened())
+		door->Open(actor);
+}
+
+
+void
+Core::Close(Object* actor, Door* door)
+{
+	if (door->Opened())
+		door->Close(actor);
 }
 
 
