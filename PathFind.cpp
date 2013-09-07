@@ -105,11 +105,7 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
 		return false;
 
-	IE::point pt = testPath._CreateDirectPath(start, end);
-	std::cout << pt.x << ", " << pt.y << " instead of ";
-	std::cout << end.x << ", " << end.y << std::endl;
-
-	return pt == end;
+	return testPath._CreateDirectPath(start, end) == end;
 }
 
 
