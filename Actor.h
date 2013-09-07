@@ -62,6 +62,9 @@ public:
 
 	bool SkipConditions() const;
 	void StopCheckingConditions();
+	void UpdateSee();
+	void SetSeen(Object* object);
+	bool HasSeen(const Object* object) const;
 	void UpdateMove(bool ignoreBlocks);
 
 	// Global list of actors

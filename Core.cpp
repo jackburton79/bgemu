@@ -353,16 +353,14 @@ Core::See(const Object* source, const Object* object) const
 	if (object == NULL)
 		return false;
 
+	const Actor* sourceActor = dynamic_cast<const Actor*>(source);
+	if (sourceActor == NULL)
+		return false;
+
 	std::cout << source->Name() << " SEE ";
 	std::cout << object->Name() << " ?" << std::endl;
 
-	// TODO: Just a hack to make things go on
-	if (object->IsVisible()) {
-		//Object* wObject = const_cast<Object*>(source);
-		const_cast<std::vector<Object*>&>(source->CurrentScriptRoundResults()
-			->SeenList()).push_back(const_cast<Object*>(object));
-	}
-	return object->IsVisible();
+	return sourceActor->HasSeen(object);
 }
 
 

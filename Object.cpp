@@ -115,6 +115,13 @@ Object::GetVariable(const char* name)
 }
 
 
+void
+Object::SetSeenBy(Actor* actor)
+{
+	fCurrentScriptRoundResults->fSeenBy.push_back(actor->Name());
+}
+
+
 bool
 Object::IsVisible() const
 {
@@ -134,6 +141,7 @@ Object::Update(bool scripts)
 	}
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {
+		actor->UpdateSee();
 		actor->UpdateMove(actor->IsFlying());
 	}
 }
@@ -495,13 +503,13 @@ ScriptResults::Hitters() const
 	return fHitters;
 }
 
-
+/*
 const
 std::vector<Object*>&
 ScriptResults::SeenList() const
 {
 	return fSeen;
-}
+}*/
 
 
 Object*

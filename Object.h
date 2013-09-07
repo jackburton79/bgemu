@@ -26,7 +26,6 @@ public:
 	ScriptResults();
 	const std::vector<Object*>& Attackers() const;
 	const std::vector<Object*>& Hitters() const;
-	const std::vector<Object*>& SeenList() const;
 
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
@@ -44,7 +43,9 @@ private:
 	friend class Actor;
 	std::vector<Object*> fAttackers;
 	std::vector<Object*> fHitters;
-	std::vector<Object*> fSeen;
+	std::vector<std::string> fSeenBy;
+	std::vector<std::string> fSeenList;
+
 	Object* fClicker;
 
 
@@ -65,7 +66,8 @@ public:
 
 	void Clicked(Object* object);
 
-	bool See(Object* object);
+	void SetSeenBy(Actor* actor);
+
 	bool IsVisible() const;
 
 	void SetVariable(const char* name, int32 value);

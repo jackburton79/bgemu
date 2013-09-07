@@ -17,6 +17,7 @@
 #include "Script.h"
 #include "WedResource.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <string>
 
@@ -99,14 +100,14 @@ Actor::_Init()
 	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
 	fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
 
-	std::cout << "colors:" << std::endl << std::dec;
+	/*std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;
 	std::cout << "\tminor:" << (int)fCRE->Colors().minor << std::endl;
 	std::cout << "\tarmor:" << (int)fCRE->Colors().armor << std::endl;
-	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;
-	//printf("%s enum: local %d, global: %d\n", Name(),
-		//	fCRE->LocalActorValue(),
-			//fCRE->GlobalActorValue());
+	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;*/
+	std::cout << std::dec;
+	std::cout << Name() << " enum: local: " << fCRE->LocalActorValue();
+	std::cout << ", global: " << fCRE->GlobalActorValue() << std::endl;
 
 	// TODO: Are we overwriting the actor specific stuff here ?
 	fActor->script_override = fCRE->OverrideScriptName();
@@ -387,6 +388,47 @@ Actor::StopCheckingConditions()
 {
 	// TODO: Until reaches destination point
 	fDontCheckConditions = true;
+}
+
+
+void
+Actor::UpdateSee()
+{
+	std::cout << Name() << " UpdateSee()" << std::endl;
+	// TODO: Silly implementation
+	std::vector<Actor*>::const_iterator i;
+	for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
+		Object* target = *i;
+		// TODO: Take into account any eventual spell
+		if (target == this || !target->IsVisible())
+			continue;
+		// TODO: This isn't correct: a low obstacle doesn't
+		// inficiate the ability to see an object
+		if (PathFinder::IsStraightlyReachable(Position(),
+												target->Position())) {
+			SetSeen(target);
+			(target)->SetSeenBy(this);
+		}
+	}
+}
+
+
+void
+Actor::SetSeen(Object* object)
+{
+	std::cout << object->Name() << " was seen by " << Name() << std::endl;
+	CurrentScriptRoundResults()->fSeenList.push_back(object->Name());
+}
+
+
+bool
+Actor::HasSeen(const Object* object) const
+{
+	const std::string name = object->Name();
+	std::vector<std::string>::const_iterator i;
+	i = std::find(CurrentScriptRoundResults()->fSeenList.begin(),
+			CurrentScriptRoundResults()->fSeenList.end(), name);
+	return i != CurrentScriptRoundResults()->fSeenList.end();
 }
 
 
