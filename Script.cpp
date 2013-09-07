@@ -172,7 +172,8 @@ Script::Execute()
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
 #if DEBUG_SCRIPTS
-		std::cout << "*** SCRIPT START ***" << std::endl;
+		std::cout << "*** SCRIPT START: " << fTarget->Name();
+		std::cout << " ***" << std::endl;
 #endif
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
@@ -192,7 +193,8 @@ Script::Execute()
 			condRes = condRes->Next();
 		};
 #if DEBUG_SCRIPTS
-		std::cout << "*** SCRIPT END ***" << std::endl;
+		std::cout << "*** SCRIPT END " << fTarget->Name();
+		std::cout << " ***" << std::endl;
 #endif
 		nextScript = nextScript->next;
 	}
@@ -512,6 +514,24 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
 					returnValue = fVariables[deathVariable] == 1;
 				}*/
+				break;
+			}
+			case 0x52:
+			{
+				/* OPENED(O:OBJECT*) (82 0x52) */
+				object_node* objectNode = FindObjectNode(trig);
+				if (objectNode == NULL)
+					break;
+				// We assume this is a door
+				Door* door = dynamic_cast<Door*>(fTarget);
+				if (!door->Opened())
+					break;
+
+				Object* object = core->GetObject(
+						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
+				if (object != NULL)
+					returnValue = object->MatchNode(objectNode);
+
 				break;
 			}
 			case 0x4068:
