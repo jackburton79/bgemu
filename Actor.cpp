@@ -402,10 +402,16 @@ Actor::UpdateSee()
 		// TODO: Take into account any eventual spell
 		if (target == this || !target->IsVisible())
 			continue;
-		// TODO: This isn't correct: a low obstacle doesn't
-		// inficiate the ability to see an object
-		if (PathFinder::IsStraightlyReachable(Position(),
-												target->Position())) {
+
+		const IE::point thisPosition = Position();
+		const IE::point targetPosition = target->Position();
+		// TODO: 200 is an arbitrarily chosen number
+		if (Core::Get()->Distance(this, target) < 200 &&
+			PathFinder::IsStraightlyReachable(thisPosition,
+												targetPosition)) {
+			// TODO: This isn't correct: a low obstacle doesn't
+			// inficiate the ability to see an object
+
 			SetSeen(target);
 			(target)->SetSeenBy(this);
 		}
