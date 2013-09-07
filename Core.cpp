@@ -189,7 +189,7 @@ Core::GetObject(Object* source, object_node* node)
 		std::cout << ", " << IDTable::RaceAt(node->race);
 	if (node->alignment)
 		std::cout << ", " << IDTable::AlignmentAt(node->alignment);
-	std::cout << ") )" << std::endl;;
+	std::cout << ") ) -> " ;
 
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
@@ -201,6 +201,7 @@ Core::GetObject(Object* source, object_node* node)
 			const int identifier = node->identifiers[id];
 			if (identifier == 0)
 				break;
+			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = source->ResolveIdentifier(identifier);
 			source = target;
 		}
