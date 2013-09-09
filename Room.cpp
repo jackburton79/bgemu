@@ -556,7 +556,6 @@ Room::Clicked(uint16 x, uint16 y)
 			Toggle* toggleAction = new Toggle(fSelectedActor, door);
 			fSelectedActor->AddAction(toggleAction);
 		}
-		//door->Toggle();
 		return;
 	}
 
