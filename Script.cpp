@@ -7,6 +7,7 @@
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "Party.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "Script.h"
@@ -632,8 +633,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
-					// TODO: Implement
-					object->Print();
+					Object* objectOverRegion = core->GetObject(
+							dynamic_cast<Region*>(fTarget));
+					if (objectOverRegion != NULL) {
+						objectOverRegion->Print();
+						object->Print();
+					}
 				}
 
 				break;
@@ -668,6 +673,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				// Entered(O:Object)
 				object_node* obj = FindObjectNode(trig);
+				//Region* region = dynamic_cast<Region*>(fTarget);
+				//fTarget->Print();
+
+				//(void)region;
+				//Object* object = core->GetObject(region);
+				//if (object != NULL)
+					//returnValue = object->MatchNode(obj);
 				obj->Print();
 				break;
 			}
