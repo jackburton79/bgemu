@@ -440,7 +440,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4023 True() */
 				returnValue = true;
 				break;
-
+			case 0x402b:
+			{
+				/* ACTIONLISTEMPTY() (16427 0x402b)*/
+				returnValue = fTarget->IsActionListEmpty();
+				break;
+			}
 			case 0x4034:
 			{
 				/*0x4034 GlobalGT(S:Name*,S:Area*,I:Value*)
@@ -553,6 +558,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * that specified. Hours are offset by 30 minutes,
 				 * e.g. TimeGT(1) is true between 01:30 and 02:29.
 				 */
+				break;
+			}
+
+			case 0x4069:
+			{
+				//TIMELT(I:TIME*TIME) (16489 0x4069)
 				break;
 			}
 			case 0x0070:
@@ -740,6 +751,17 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 
+		case 22:
+		{
+			// MoveToObject
+			Object* object = FindObject(act);
+			if (object != NULL) {
+				WalkTo* walkTo = new WalkTo(thisActor, object->Position());
+				fTarget->AddAction(walkTo);
+			}
+
+			break;
+		}
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
