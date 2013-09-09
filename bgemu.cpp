@@ -189,6 +189,9 @@ main(int argc, char **argv)
 								case SDLK_4:
 									GUI::Get()->ToggleWindow(4);
 									break;
+								case SDLK_SPACE:
+									Core::Get()->TogglePause();
+									break;
 								default:
 									break;
 							}

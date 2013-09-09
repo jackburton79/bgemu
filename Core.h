@@ -33,6 +33,8 @@ public:
 	static bool Initialize(const char* path);
 	static void Destroy();
 
+	void TogglePause();
+
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
 
@@ -79,6 +81,8 @@ private:
 	std::map<std::string, Script*> fScripts;
 
 	uint32 fLastScriptRoundTime;
+
+	bool fPaused;
 
 	void _PrintObjects() const;
 

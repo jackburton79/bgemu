@@ -34,7 +34,8 @@ Core::Core()
 	fCurrentRoom(NULL),
 	fActiveActor(NULL),
 	fRoomScript(NULL),
-	fLastScriptRoundTime(0)
+	fLastScriptRoundTime(0),
+	fPaused(false)
 {
 	srand(time(NULL));
 }
@@ -105,6 +106,13 @@ void
 Core::Destroy()
 {
 	delete sCore;
+}
+
+
+void
+Core::TogglePause()
+{
+	fPaused = !fPaused;
 }
 
 
@@ -343,6 +351,9 @@ Core::CheckScripts()
 void
 Core::UpdateLogic(bool executeScripts)
 {
+	if (fPaused)
+		return;
+
 	Timer::UpdateGameTime();
 
 	// TODO: Should do that based on timer.
