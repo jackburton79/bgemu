@@ -4,6 +4,7 @@
 #include "IETypes.h"
 
 class Actor;
+class Door;
 class Action {
 public:
     Action(Actor* actor);
@@ -34,4 +35,13 @@ private:
 	uint32 fStartTime;
 };
 
+
+class Toggle : public Action {
+public:
+	// TODO: For any object ?
+	Toggle(Actor* actor, Door* door);
+	virtual void Run();
+private:
+	Door* fDoor;
+};
 #endif

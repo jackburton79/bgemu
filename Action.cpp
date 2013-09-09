@@ -1,5 +1,6 @@
 #include "Action.h"
 #include "Actor.h"
+#include "Door.h"
 #include "Timer.h"
 
 Action::Action(Actor* actor)
@@ -70,4 +71,23 @@ Wait::Run()
 {
 	if (Timer::GameTime() >= fStartTime + fWaitTime)
 		fCompleted = true;
+}
+
+
+// Toggle
+Toggle::Toggle(Actor* actor, Door* door)
+	:
+	Action(actor),
+	fDoor(door)
+{
+
+}
+
+
+/* virtual */
+void
+Toggle::Run()
+{
+	fDoor->Toggle();
+	fCompleted = true;
 }
