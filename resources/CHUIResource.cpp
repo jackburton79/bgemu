@@ -78,8 +78,11 @@ CHUIResource::GetWindow(uint16 num)
 	Bitmap* background = NULL;
 	if (window.background) {
 		MOSResource* mos = gResManager->GetMOS(window.background_mos);
-		background = mos->Image();
-		gResManager->ReleaseResource(mos);
+		if (mos != NULL) {
+			std::cerr << "Cannot load window background!" << std::endl;
+			background = mos->Image();
+			gResManager->ReleaseResource(mos);
+		}
 	}
 
 	Window* newWindow = new Window(window.id, window.x, window.y,
