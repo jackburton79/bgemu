@@ -35,7 +35,6 @@ public:
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
 
-
 	uint32 Game() const;
 
 	void EnteredArea(Room* area, Script* script);

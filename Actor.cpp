@@ -441,16 +441,8 @@ Actor::HasSeen(const Object* object) const
 
 
 void
-Actor::UpdateMove(bool ignoreBlocks)
+Actor::UpdateAnimation(bool ignoreBlocks)
 {
-	if (!fPath->IsEmpty()) {
-		IE::point nextPoint = fPath->NextWayPoint();
-
-		_SetOrientation(nextPoint);
-
-		fActor->position = nextPoint;
-	}
-
 	int action = ACT_STANDING;
 	if (fActor->position != fActor->destination)
 		action = ACT_WALKING;
@@ -467,6 +459,17 @@ Actor::UpdateMove(bool ignoreBlocks)
 
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
 		fDontCheckConditions = false;
+}
+
+
+void
+Actor::UpdatePath(bool ignoreBlocks)
+{
+	if (!fPath->IsEmpty()) {
+		IE::point nextPoint = fPath->NextWayPoint();
+		_SetOrientation(nextPoint);
+		fActor->position = nextPoint;
+	}
 }
 
 

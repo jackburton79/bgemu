@@ -61,7 +61,8 @@ public:
 	void UpdateSee();
 	void SetSeen(Object* object);
 	bool HasSeen(const Object* object) const;
-	void UpdateMove(bool ignoreBlocks);
+	void UpdateAnimation(bool ignoreBlocks);
+	void UpdatePath(bool ignoreBlocks);
 
 	// Global list of actors
 	static void Add(Actor *a);

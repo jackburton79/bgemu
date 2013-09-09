@@ -51,7 +51,7 @@ WalkTo::Run()
 	}
 
 	// TODO: Replicate/Move the logic in Actor
-	fActor->UpdateMove(fActor->IsFlying());
+	fActor->UpdatePath(fActor->IsFlying());
 }
 
 
