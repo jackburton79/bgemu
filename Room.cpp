@@ -186,8 +186,8 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	if (!savedEntranceName.empty()) {
 		for (uint32 e = 0; e < fArea->CountEntrances(); e++) {
 			IE::entrance entrance = fArea->EntranceAt(e);
-			std::cout << "current: " << entrance.name;
-			std::cout << ", looking for " << entranceName << std::endl;
+			//std::cout << "current: " << entrance.name;
+			//std::cout << ", looking for " << entranceName << std::endl;
 
 			if (savedEntranceName == entrance.name) {
 				point.x = entrance.x;
@@ -1376,3 +1376,4 @@ Room::_UnloadWorldMap()
 
 	gResManager->TryEmptyResourceCache();
 }
+
