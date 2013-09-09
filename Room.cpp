@@ -549,7 +549,14 @@ Room::Clicked(uint16 x, uint16 y)
 
 	// TODO: Temporary, for testing
 	if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
-		door->Toggle();
+		if (fSelectedActor != NULL) {
+			IE::point point = door->NearestPoint(fSelectedActor->Position());
+			WalkTo* walkToAction = new WalkTo(fSelectedActor, point);
+			fSelectedActor->AddAction(walkToAction);
+			Toggle* toggleAction = new Toggle(fSelectedActor, door);
+			fSelectedActor->AddAction(toggleAction);
+		}
+		//door->Toggle();
 		return;
 	}
 
@@ -1251,7 +1258,8 @@ Room::_LoadActors()
 	std::flush(std::cout);
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		Actor::Add(fArea->GetActorAt(i));
+		Actor* actor = fArea->GetActorAt(i);
+		Actor::Add(actor);
 	}
 
 	// TODO: Check if it's okay
