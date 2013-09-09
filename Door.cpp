@@ -85,12 +85,15 @@ Door::NearestPoint(const IE::point& point) const
 			fAreaDoor->player_box.y_min
 	};
 
-	/*IE::point pointB = {
+	IE::point pointB = {
 			fAreaDoor->player_box.x_max,
 			fAreaDoor->player_box.y_max
-	};*/
+	};
 
-	return pointA;
+	if (point - pointA < point - pointB)
+		return pointA;
+
+	return pointB;
 }
 
 
