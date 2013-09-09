@@ -252,6 +252,22 @@ Core::GetObject(const char* name) const
 
 
 Object*
+Core::GetObject(const Region* region) const
+{
+	std::list<Object*>::const_iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		Actor* actor = dynamic_cast<Actor*>(*i);
+		if (actor == NULL)
+			continue;
+		if (region->Contains(actor->Position()))
+			return actor;
+	}
+
+	return NULL;
+}
+
+
+Object*
 Core::GetNearestEnemyOf(const Object* object) const
 {
 	std::vector<Actor*> actorList = Actor::List();
