@@ -91,7 +91,6 @@ Actor::_Init()
 	if (fCRE == NULL)
 		fCRE = gResManager->GetCRE(fActor->cre);
 
-	//printf("%d\n", );
 	// TODO: Get all scripts ? or just the specific one ?
 
 	if (fCRE == NULL)
