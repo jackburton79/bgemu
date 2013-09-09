@@ -93,7 +93,7 @@ Core::Initialize(const char* path)
 		if (sCore->fGame == GAME_BALDURSGATE)
 			party->AddActor(new Actor("AJANTI", point, 0));
 		else
-			party->AddActor(new Actor("CERND10", point, 0));
+			party->AddActor(new Actor("BFTOWN1", point, 0));
 	} catch (...) {
 
 	}
