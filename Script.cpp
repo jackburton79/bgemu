@@ -904,7 +904,6 @@ Script::_ExecuteAction(action_node* act)
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);
-				//actor->SetDestination();
 				actor->StopCheckingConditions();
 			}
 			break;

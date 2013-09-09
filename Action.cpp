@@ -9,6 +9,12 @@ Action::Action(Actor* actor)
 }
 
 
+Action::~Action()
+{
+
+}
+
+
 bool
 Action::Completed() const
 {
@@ -38,7 +44,7 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 void
 WalkTo::Run()
 {
-	if (fActor->Position() == fDestination) {
+	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
 		return;
 	}

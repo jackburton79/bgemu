@@ -158,20 +158,13 @@ Object::Update(bool scripts)
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
-		if (!(*i)->Completed()) {
-			std::cout << "Running action" << std::endl;
+		if (!(*i)->Completed())
 			(*i)->Run();
-		} else {
+		else {
 			std::cout << "Action completed!" << std::endl;
-			i++;
+			delete *i;
+			i = fActions.erase(i);
 		}
-		/*while (i != fActions.end()) {
-			if ((*i)->Completed()) {
-				delete *i;
-				i = fActions.erase(i);
-			} else
-				i++;
-		}*/
 	}
 	/*Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {

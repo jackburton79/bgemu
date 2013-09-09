@@ -426,6 +426,5 @@ Core::RandomWalk(Actor* actor)
 	WalkTo* walkTo = new WalkTo(actor, destination);
 	actor->AddAction(walkTo);
 	//actor->SetFlying(false);
-	//actor->SetDestination();
 }
 

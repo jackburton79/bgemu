@@ -7,6 +7,7 @@ class Actor;
 class Action {
 public:
     Action(Actor* actor);
+    virtual ~Action();
     bool Completed() const;
     virtual void Run();
 protected:
