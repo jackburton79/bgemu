@@ -63,6 +63,8 @@ public:
 	void Print() const;
 
 	const char* Name() const;
+	void SetName(const char* name);
+
 	virtual IE::point Position() const;
 
 	void Clicked(Object* object);

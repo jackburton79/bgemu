@@ -87,6 +87,13 @@ Object::Name() const
 }
 
 
+void
+Object::SetName(const char* name)
+{
+	fName = name;
+}
+
+
 IE::point
 Object::Position() const
 {
