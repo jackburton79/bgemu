@@ -85,6 +85,14 @@ Timer::GameTime()
 
 
 /* static */
+uint32
+Timer::Hour()
+{
+	return 1;
+}
+
+
+/* static */
 void
 Timer::UpdateGameTime()
 {

@@ -27,6 +27,9 @@ public:
 	static void Remove(const char* name);
 	static Timer* Get(const char* string);
 	static uint32 GameTime();
+
+	static uint32 Hour();
+
 	static void UpdateGameTime();
 
 private:
