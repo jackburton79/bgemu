@@ -22,6 +22,7 @@ struct object_node;
 class Actor;
 class Door;
 class Object;
+class Region;
 class Room;
 class IDSResource;
 class Script;
@@ -42,8 +43,9 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
-	Object* GetObject(Object* source, object_node* node);
-	Object* GetObject(const char* name);
+	Object* GetObject(Object* source, object_node* node) const;
+	Object* GetObject(const char* name) const;
+	Object* GetObject(const Region* region) const;
 	Object* GetNearestEnemyOf(const Object* object) const;
 
 	void PlayMovie(const char* name);

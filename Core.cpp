@@ -169,7 +169,7 @@ Core::UnregisterObject(Object* object)
 
 
 Object*
-Core::GetObject(Object* source, object_node* node)
+Core::GetObject(Object* source, object_node* node) const
 {
 	//node->Print();
 	// TODO: Move into object_node::Print()
@@ -220,7 +220,7 @@ Core::GetObject(Object* source, object_node* node)
 
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
-	std::list<Object*>::iterator i;
+	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if ((*i)->MatchNode(node)) {
 			std::cout << "returned " << (*i)->Name() << std::endl;
@@ -235,10 +235,10 @@ Core::GetObject(Object* source, object_node* node)
 
 
 Object*
-Core::GetObject(const char* name)
+Core::GetObject(const char* name) const
 {
 	// TODO: Check also doors, triggers, etc ?!?
-	std::list<Object*>::iterator i;
+	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
 			std::cout << "returned " << name << std::endl;
