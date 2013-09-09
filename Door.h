@@ -28,6 +28,9 @@ public:
 	
 	const Polygon& OpenPolygon() const;
 	const Polygon& ClosedPolygon() const;
+
+	IE::point NearestPoint(const IE::point& point) const;
+
 	void Print() const;
 
 	static void Add(Door* door);

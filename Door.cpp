@@ -77,6 +77,23 @@ Door::ClosedPolygon() const
 }
 
 
+IE::point
+Door::NearestPoint(const IE::point& point) const
+{
+	IE::point pointA = {
+			fAreaDoor->player_box.x_min,
+			fAreaDoor->player_box.y_min
+	};
+
+	/*IE::point pointB = {
+			fAreaDoor->player_box.x_max,
+			fAreaDoor->player_box.y_max
+	};*/
+
+	return pointA;
+}
+
+
 bool
 Door::Opened() const
 {
