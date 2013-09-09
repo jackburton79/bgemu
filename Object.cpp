@@ -156,6 +156,12 @@ Object::Update(bool scripts)
 		}
 	}
 
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL) {
+		actor->UpdateSee();
+			//actor->UpdateMove(actor->IsFlying());
+	}
+
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		if (!(*i)->Completed())
@@ -166,11 +172,6 @@ Object::Update(bool scripts)
 			i = fActions.erase(i);
 		}
 	}
-	/*Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor != NULL) {
-		actor->UpdateSee();
-		actor->UpdateMove(actor->IsFlying());
-	}*/
 }
 
 

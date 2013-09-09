@@ -749,7 +749,6 @@ Script::_ExecuteAction(action_node* act)
 				break;
 */
 			Object* targetObject = FindObject(act);
-			//Object* targetObject = core->GetObject(fTarget, objBlock);
 			if (targetObject != NULL && thisActor != NULL) {
 				std::cout << thisActor->Name();
 				std::cout << " run away from " << targetObject->Name() << std::endl;
@@ -825,7 +824,9 @@ Script::_ExecuteAction(action_node* act)
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			// TODO: Implement
+			// TODO: The time is probably wrong
+			Wait* wait = new Wait(thisActor, act->parameter);
+			fTarget->AddAction(wait);
 			break;
 		}
 		case 106:

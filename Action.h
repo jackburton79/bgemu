@@ -24,4 +24,14 @@ private:
 	IE::point fDestination;
 };
 
+
+class Wait : public Action {
+public:
+	Wait(Actor* actor, uint32 time);
+	virtual void Run();
+private:
+	uint32 fWaitTime;
+	uint32 fStartTime;
+};
+
 #endif

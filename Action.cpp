@@ -1,5 +1,6 @@
 #include "Action.h"
 #include "Actor.h"
+#include "Timer.h"
 
 Action::Action(Actor* actor)
     :
@@ -51,4 +52,22 @@ WalkTo::Run()
 
 	// TODO: Replicate/Move the logic in Actor
 	fActor->UpdateMove(fActor->IsFlying());
+}
+
+
+// Wait
+Wait::Wait(Actor* actor, uint32 time)
+	:
+	Action(actor),
+	fWaitTime(time)
+{
+	fStartTime = Timer::GameTime();
+}
+
+
+void
+Wait::Run()
+{
+	if (Timer::GameTime() >= fStartTime + fWaitTime)
+		fCompleted = true;
 }
