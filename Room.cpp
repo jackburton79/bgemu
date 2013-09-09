@@ -1,3 +1,4 @@
+#include "Action.h"
 #include "Actor.h"
 #include "Animation.h"
 #include "AreaResource.h"
@@ -583,7 +584,9 @@ Room::Clicked(uint16 x, uint16 y)
 	}
 
 	if (fSelectedActor != NULL) {
-		fSelectedActor->SetDestination(point);
+		WalkTo* walkTo = new WalkTo(fSelectedActor, point);
+		fSelectedActor->AddAction(walkTo);
+		//fSelectedActor->SetDestination(point);
 	}
 
 }

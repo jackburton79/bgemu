@@ -1,5 +1,6 @@
 #include "Core.h"
 
+#include "Action.h"
 #include "Actor.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -421,7 +422,10 @@ Core::RandomWalk(Actor* actor)
 	int16 randomX = (rand() % 100) - 50;
 	int16 randomY = (rand() % 100) - 50;
 
-	actor->SetFlying(false);
-	actor->SetDestination(offset_point(actor->Position(), randomX, randomY));
+	IE::point destination = offset_point(actor->Position(), randomX, randomY);
+	WalkTo* walkTo = new WalkTo(actor, destination);
+	actor->AddAction(walkTo);
+	//actor->SetFlying(false);
+	//actor->SetDestination();
 }
 

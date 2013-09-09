@@ -11,7 +11,6 @@
 const static uint32 kNumAnimations = 8;
 const static uint32 kNumActions = 2;
 
-class ActionList;
 class Animation;
 class AnimationFactory;
 class Bitmap;
@@ -56,9 +55,6 @@ public:
 	bool IsInterruptable() const;
 
 	Script* MergeScripts();
-
-	::ActionList* ActionList();
-	bool IsActionListEmpty() const;
 
 	bool SkipConditions() const;
 	void StopCheckingConditions();

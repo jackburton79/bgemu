@@ -5,6 +5,7 @@
  *      Author: stefano
  */
 
+#include "Action.h"
 #include "Actor.h"
 #include "BCSResource.h"
 #include "Core.h"
@@ -130,6 +131,21 @@ Object::IsVisible() const
 
 
 void
+Object::AddAction(Action* action)
+{
+	std::cout << "Added action walkto" << std::endl;
+	fActions.push_back(action);
+}
+
+
+bool
+Object::IsActionListEmpty() const
+{
+	return fActions.size() == 0;
+}
+
+
+void
 Object::Update(bool scripts)
 {
 	if (scripts) {
@@ -139,11 +155,29 @@ Object::Update(bool scripts)
 				fScript->Execute();
 		}
 	}
-	Actor* actor = dynamic_cast<Actor*>(this);
+
+	if (fActions.size() != 0) {
+		std::list<Action*>::iterator i = fActions.begin();
+		if (!(*i)->Completed()) {
+			std::cout << "Running action" << std::endl;
+			(*i)->Run();
+		} else {
+			std::cout << "Action completed!" << std::endl;
+			i++;
+		}
+		/*while (i != fActions.end()) {
+			if ((*i)->Completed()) {
+				delete *i;
+				i = fActions.erase(i);
+			} else
+				i++;
+		}*/
+	}
+	/*Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL) {
 		actor->UpdateSee();
 		actor->UpdateMove(actor->IsFlying());
-	}
+	}*/
 }
 
 

@@ -1,3 +1,4 @@
+#include "Action.h"
 #include "Actor.h"
 #include "AreaResource.h"
 #include "Core.h"
@@ -285,8 +286,15 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * by any attack style.
 				 */
 				object_node* object = FindObjectNode(trig);
-				returnValue = Object::CheckIfNodeInList(object,
-						fTarget->LastScriptRoundResults()->Attackers());
+				if (object != NULL) {
+					object->Print();
+					fTarget->Print();
+					ScriptResults* results = fTarget->LastScriptRoundResults();
+					std::cout << "results: " << results << std::endl;
+					if (results != NULL)
+						returnValue = Object::CheckIfNodeInList(object,
+								results->Attackers());
+				}
 				break;
 			}
 			case 0x400A:
@@ -894,7 +902,9 @@ Script::_ExecuteAction(action_node* act)
 			 * Conditions are not checked until the destination point is reached.*/
 			Actor* actor = dynamic_cast<Actor*>(fTarget);
 			if (actor != NULL) {
-				actor->SetDestination(act->where);
+				WalkTo* walkTo = new WalkTo(actor, act->where);
+				actor->AddAction(walkTo);
+				//actor->SetDestination();
 				actor->StopCheckingConditions();
 			}
 			break;

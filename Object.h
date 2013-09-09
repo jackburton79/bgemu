@@ -54,6 +54,7 @@ private:
 };
 
 
+class Action;
 class Object {
 public:
 	Object(const char* name, const char* scriptName = NULL);
@@ -73,6 +74,8 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
+	void AddAction(Action* action);
+	bool IsActionListEmpty() const;
 	void Update(bool scripts);
 
 	void SetScript(Script* script);
@@ -118,6 +121,7 @@ private:
 	ScriptResults* fLastScriptRoundResults;
 
 	std::map<std::string, uint32> fVariables;
+	std::list<Action*> fActions;
 };
 
 #endif // __SCRIPTABLE_H

@@ -9,6 +9,7 @@ archives/Archive.cpp \
 archives/BIFArchive.cpp \
 archives/DirectoryArchive.cpp \
 archives/FileArchive.cpp \
+Action.cpp \
 Actor.cpp \
 Animation.cpp \
 AnimationFactory.cpp \
