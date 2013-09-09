@@ -825,6 +825,9 @@ Room::ToggleGUI()
 void
 Room::ToggleDayNight()
 {
+	if (fWorldMap != NULL)
+		return;
+
 	std::string wedName = fWed->Name();
 	if (*wedName.rbegin() == 'N')
 		wedName = fArea->Name();
