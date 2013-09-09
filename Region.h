@@ -22,6 +22,8 @@ public:
 	IE::rect Frame() const;
 	virtual IE::point Position() const;
 
+	bool Contains(IE::point) const;
+
 	res_ref DestinationArea() const;
 	const char* DestinationEntrance() const;
 

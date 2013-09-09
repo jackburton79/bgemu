@@ -44,6 +44,13 @@ Region::Position() const
 }
 
 
+bool
+Region::Contains(IE::point point) const
+{
+	return fPolygon.Contains(point);
+}
+
+
 res_ref
 Region::DestinationArea() const
 {
