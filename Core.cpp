@@ -130,6 +130,8 @@ Core::EnteredArea(Room* area, Script* script)
 	}
 
 	area->SetScript(NULL);
+
+	_PrintObjects();
 }
 
 
@@ -428,3 +430,12 @@ Core::RandomWalk(Actor* actor)
 	//actor->SetFlying(false);
 }
 
+
+void
+Core::_PrintObjects() const
+{
+	for (std::list<Object*>::const_iterator i = fObjects.begin();
+											i != fObjects.end(); i++) {
+		(*i)->Print();
+	}
+}

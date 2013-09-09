@@ -78,6 +78,8 @@ private:
 
 	uint32 fLastScriptRoundTime;
 
+	void _PrintObjects() const;
+
 	Core();
 	~Core();
 };
