@@ -1,5 +1,6 @@
 #include "Action.h"
 #include "Actor.h"
+#include "Animation.h"
 #include "Door.h"
 #include "Timer.h"
 
@@ -46,12 +47,15 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 void
 WalkTo::Run()
 {
+
+
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
+		fActor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
 
-	// TODO: Replicate/Move the logic in Actor
+	fActor->SetAnimationAction(ACT_WALKING);
 	fActor->UpdatePath(fActor->IsFlying());
 }
 
@@ -90,4 +94,23 @@ Toggle::Run()
 {
 	fDoor->Toggle();
 	fCompleted = true;
+}
+
+
+// Attack
+Attack::Attack(Actor* actor, Actor* target)
+	:
+	Action(actor),
+	fTarget(target)
+{
+
+}
+
+
+/* virtual */
+void
+Attack::Run()
+{
+	fActor->SetAnimationAction(ACT_ATTACKING);
+	fActor->AttackTarget(fTarget);
 }

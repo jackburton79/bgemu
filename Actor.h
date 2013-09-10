@@ -40,6 +40,8 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
+	virtual void ClickedOn(Object* target);
+
 	void Shout(int number);
 
 	void SetIsEnemyOfEveryone(bool enemy);
@@ -61,6 +63,9 @@ public:
 	void UpdateSee();
 	void SetSeen(Object* object);
 	bool HasSeen(const Object* object) const;
+
+	// TODO: Merge and clean this mess
+	void SetAnimationAction(int action);
 	void UpdateAnimation(bool ignoreBlocks);
 	void UpdatePath(bool ignoreBlocks);
 
@@ -85,6 +90,9 @@ private:
 	bool fFlying;
 	bool fEnemyOfEveryone;
 	bool fSelected;
+
+	bool fAttacking;
+	int fAction;
 
 	PathFinder* fPath;
 	int fSpeed;

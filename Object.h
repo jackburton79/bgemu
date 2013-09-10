@@ -67,7 +67,8 @@ public:
 
 	virtual IE::point Position() const;
 
-	void Clicked(Object* object);
+	virtual void Clicked(Object* clicker);
+	virtual void ClickedOn(Object* target);
 
 	void SetSeenBy(Actor* actor);
 
@@ -108,7 +109,7 @@ public:
 	bool IsEnemyAlly(int ea) const;
 	bool IsState(int state) const;
 
-	void Attack(Object* object);
+	void AttackTarget(Object* object);
 
 	void NewScriptRound();
 

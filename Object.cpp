@@ -110,6 +110,14 @@ Object::Clicked(Object* clicker)
 
 
 void
+Object::ClickedOn(Object* target)
+{
+	if (target)
+		target->Clicked(this);
+}
+
+
+void
 Object::SetVariable(const char* name, int32 value)
 {
 	fVariables[name] = value;
@@ -518,7 +526,7 @@ Object::LastScriptRoundResults() const
 
 
 void
-Object::Attack(Object* target)
+Object::AttackTarget(Object* target)
 {
 	target->fCurrentScriptRoundResults->fAttackers.push_back(this);
 }

@@ -744,7 +744,7 @@ Script::_ExecuteAction(action_node* act)
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
-			Object* targetObject = FindObject(act);
+			/*Object* targetObject = FindObject(act);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
@@ -752,7 +752,7 @@ Script::_ExecuteAction(action_node* act)
 					std::cout << targetActor->Name() << std::endl;
 					thisActor->Attack(targetActor);
 				}
-			}
+			}*/
 			break;
 		}
 		case 0x07:
@@ -916,7 +916,7 @@ Script::_ExecuteAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			Object* targetObject = FindObject(act);
+			/*Object* targetObject = FindObject(act);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
@@ -924,7 +924,7 @@ Script::_ExecuteAction(action_node* act)
 					std::cout << targetActor->Name() << std::endl;
 					thisActor->Attack(targetActor);
 				}
-			}
+			}*/
 			break;
 		}
 		case 207:

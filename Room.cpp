@@ -552,23 +552,21 @@ Room::Clicked(uint16 x, uint16 y)
 
 	// TODO: Temporary, for testing
 	if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
-		if (fSelectedActor != NULL) {
-			IE::point point = door->NearestPoint(fSelectedActor->Position());
-			WalkTo* walkToAction = new WalkTo(fSelectedActor, point);
-			fSelectedActor->AddAction(walkToAction);
-			Toggle* toggleAction = new Toggle(fSelectedActor, door);
-			fSelectedActor->AddAction(toggleAction);
-		}
+		if (fSelectedActor != NULL)
+			fSelectedActor->ClickedOn(door);
 		return;
 	}
 
 	if (Actor* actor = _ActorAtPoint(point)) {
 		if (fSelectedActor != actor) {
-			if (fSelectedActor != NULL)
+			/*if (fSelectedActor != NULL)
 				fSelectedActor->Select(false);
 			fSelectedActor = actor;
 			if (fSelectedActor != NULL)
 				fSelectedActor->Select(true);
+			*/
+			if (fSelectedActor != NULL)
+				fSelectedActor->ClickedOn(actor);
 
 		}
 		return;
@@ -576,7 +574,8 @@ Room::Clicked(uint16 x, uint16 y)
 
 	if (Region* region = _RegionAtPoint(point)) {
 		// TODO:
-		region->Clicked(Party::Get()->ActorAt(0));
+		if (fSelectedActor != NULL)
+			fSelectedActor->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			LoadArea(region->DestinationArea(), "foo",
 					region->DestinationEntrance());
@@ -589,13 +588,13 @@ Room::Clicked(uint16 x, uint16 y)
 		}
 	} else if (Container* container = _ContainerAtPoint(point)) {
 		// TODO:
-		container->Clicked(Party::Get()->ActorAt(0));
+		if (fSelectedActor != NULL)
+			fSelectedActor->ClickedOn(container);
 	}
 
 	if (fSelectedActor != NULL) {
 		WalkTo* walkTo = new WalkTo(fSelectedActor, point);
 		fSelectedActor->AddAction(walkTo);
-		//fSelectedActor->SetDestination(point);
 	}
 
 }

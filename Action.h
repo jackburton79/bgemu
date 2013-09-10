@@ -44,4 +44,14 @@ public:
 private:
 	Door* fDoor;
 };
+
+
+class Attack : public Action {
+public:
+	Attack(Actor* actor, Actor* target);
+	virtual void Run();
+private:
+	Actor* fTarget;
+};
+
 #endif

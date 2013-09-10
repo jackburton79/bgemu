@@ -1,4 +1,6 @@
 #include "Actor.h"
+
+#include "Action.h"
 #include "Animation.h"
 #include "AnimationFactory.h"
 #include "BamResource.h"
@@ -6,6 +8,7 @@
 #include "Bitmap.h"
 #include "Core.h"
 #include "CreResource.h"
+#include "Door.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
@@ -50,6 +53,8 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
+	fSelected(false),
+	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2)
 {
@@ -66,6 +71,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fOwnsActor(true),
 	fDontCheckConditions(false),
 	fFlying(false),
+	fSelected(false),
+	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2)
 {
@@ -270,6 +277,35 @@ Actor::SetDestination(const IE::point& point)
 }
 
 
+/* virtual */
+void
+Actor::ClickedOn(Object* target)
+{
+	if (target == NULL)
+		return;
+
+	Object::ClickedOn(target);
+
+	// TODO: Add a "mode" to the ClickedOn method, to distinguish
+	// an attack from a dialog start, etc
+
+	if (Door* door = dynamic_cast<Door*>(target)) {
+		IE::point point = door->NearestPoint(Position());
+		WalkTo* walkToAction = new WalkTo(this, point);
+		AddAction(walkToAction);
+		Toggle* toggleAction = new Toggle(this, door);
+		AddAction(toggleAction);
+	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
+		IE::point point = actor->Position();
+		WalkTo* walkToAction = new WalkTo(this, point);
+		AddAction(walkToAction);
+
+		Attack* attackAction = new Attack(this, actor);
+		AddAction(attackAction);
+	}
+}
+
+
 void
 Actor::Shout(int number)
 {
@@ -440,17 +476,20 @@ Actor::HasSeen(const Object* object) const
 
 
 void
+Actor::SetAnimationAction(int action)
+{
+	fAction = action;
+}
+
+
+void
 Actor::UpdateAnimation(bool ignoreBlocks)
 {
-	int action = ACT_STANDING;
-	if (fActor->position != fActor->destination)
-		action = ACT_WALKING;
-
 	//std::cout << "Actor " << Name() << ": drawing action "<< action;
 	//std::cout << ", orientation " << fActor->orientation << std::endl;
 
 	fCurrentAnimation = fAnimationFactory->AnimationFor(
-										action,
+										fAction,
 										IE::orientation(fActor->orientation));
 
 	if (fCurrentAnimation != NULL)
