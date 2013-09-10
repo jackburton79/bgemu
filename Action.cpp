@@ -47,8 +47,6 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 void
 WalkTo::Run()
 {
-
-
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
 		fActor->SetAnimationAction(ACT_STANDING);
