@@ -85,7 +85,7 @@ public:
 
 	void SetScript(Script* script);
 
-	virtual IE::point NearestPoint(const IE::point& point) const = 0;
+	virtual IE::point NearestPoint(const IE::point& point) const;
 
 	Object* ResolveIdentifier(const int identifier) const;
 

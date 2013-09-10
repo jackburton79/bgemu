@@ -211,11 +211,12 @@ Object::SetScript(Script* script)
 
 
 /* virtual */
-/*IE::point
-Object::GetNearestPoint(const IE::point& point)
+IE::point
+Object::NearestPoint(const IE::point& point) const
 {
-
-}*/
+	throw "Error Unimplemented GetNearestPoint";
+	return point;
+}
 
 
 // Checks if this object matches with the specified object_node.
