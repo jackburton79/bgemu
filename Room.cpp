@@ -547,6 +547,9 @@ Room::Clicked(uint16 x, uint16 y)
 		return;
 	}
 
+	if (fSelectedActor != NULL)
+		fSelectedActor->ClearActionList();
+
 	// TODO: Temporary, for testing
 	if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
 		if (fSelectedActor != NULL) {
