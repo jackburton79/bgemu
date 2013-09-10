@@ -105,6 +105,10 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 			description.bam_name.append("G1");
 			description.sequence_number = uint32(o) + 8;
 			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("A1");
+			description.sequence_number = uint32(o);
+			break;
 		default:
 			break;
 	}
@@ -142,6 +146,8 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 			description.sequence_number = uint32(o);
 			break;
 		case ACT_ATTACKING:
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o);
 			break;
 		case ACT_STANDING:
 			if (_HasAnimation(description.bam_name + "G1")) {
