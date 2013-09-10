@@ -140,7 +140,6 @@ Object::IsVisible() const
 void
 Object::AddAction(Action* action)
 {
-	std::cout << "Added action walkto" << std::endl;
 	fActions.push_back(action);
 }
 
@@ -149,6 +148,17 @@ bool
 Object::IsActionListEmpty() const
 {
 	return fActions.size() == 0;
+}
+
+
+void
+Object::ClearActionList()
+{
+	for (std::list<Action*>::iterator i = fActions.begin();
+									i != fActions.end(); i++) {
+		delete *i;
+	}
+	fActions.clear();
 }
 
 
@@ -343,10 +353,7 @@ Object::IsEnemyOf(const Object* object) const
 bool
 Object::IsName(const char* name) const
 {
-	const Actor* actor = dynamic_cast<const Actor*>(this);
-	if (actor == NULL)
-		return false;
-	if (name[0] == '\0' || !strcasecmp(name, actor->Name()))
+	if (name[0] == '\0' || !strcasecmp(name, Name()))
 		return true;
 	return false;
 }

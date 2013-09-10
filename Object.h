@@ -78,6 +78,8 @@ public:
 
 	void AddAction(Action* action);
 	bool IsActionListEmpty() const;
+	void ClearActionList();
+
 	void Update(bool scripts);
 
 	void SetScript(Script* script);
