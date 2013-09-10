@@ -85,6 +85,8 @@ public:
 
 	void SetScript(Script* script);
 
+	virtual IE::point NearestPoint(const IE::point& point) const = 0;
+
 	Object* ResolveIdentifier(const int identifier) const;
 
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;

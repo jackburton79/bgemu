@@ -40,6 +40,7 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
+	virtual IE::point NearestPoint(const IE::point& point) const;
 	virtual void ClickedOn(Object* target);
 
 	void Shout(int number);

@@ -278,6 +278,19 @@ Actor::SetDestination(const IE::point& point)
 
 
 /* virtual */
+IE::point
+Actor::NearestPoint(const IE::point& point) const
+{
+	// TODO: For real, check the movement restriction distance,
+	// etc.
+	IE::point newPoint = Position();
+
+	newPoint.x += 5;
+	return newPoint;
+}
+
+
+/* virtual */
 void
 Actor::ClickedOn(Object* target)
 {
@@ -296,7 +309,7 @@ Actor::ClickedOn(Object* target)
 		Toggle* toggleAction = new Toggle(this, door);
 		AddAction(toggleAction);
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
-		IE::point point = actor->Position();
+		IE::point point = actor->NearestPoint(Position());
 		WalkTo* walkToAction = new WalkTo(this, point);
 		AddAction(walkToAction);
 

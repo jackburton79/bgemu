@@ -210,6 +210,14 @@ Object::SetScript(Script* script)
 }
 
 
+/* virtual */
+/*IE::point
+Object::GetNearestPoint(const IE::point& point)
+{
+
+}*/
+
+
 // Checks if this object matches with the specified object_node.
 // Also keeps wildcards in consideration. Used for triggers.
 bool
