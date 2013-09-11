@@ -207,6 +207,10 @@ AnimationFactory::BG2AnimationFor(int action, IE::orientation o)
 			description.bam_name.append("G1");
 			description.sequence_number = uint32(o) + 8;
 			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("A1");
+			description.sequence_number = uint32(o);
+			break;
 		default:
 			break;
 	}
@@ -240,19 +244,14 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	// TODO: Only valid for G1/G11/E files
 	switch (fAnimationType) {
 		case ANIMATION_TYPE_BG1_MONSTER:
-		{
 			description = MonsterAnimationFor(action, o);
 			break;
-		}
 		case ANIMATION_TYPE_CHARACHTER:
-		{
 			description = CharachterAnimationFor(action, o);
 			break;
-		}
 		case ANIMATION_TYPE_BG2:
 			description = BG2AnimationFor(action, o);
 			break;
-
 		default:
 			return NULL;
 			break;
