@@ -124,6 +124,8 @@ public:
 	const char *KitStr();
 
 	uint8 EnemyAlly();
+	void SetEnemyAlly(uint8 ea);
+
 	uint8 General();
 	uint8 Race();
 	uint8 Class();

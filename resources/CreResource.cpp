@@ -101,6 +101,13 @@ CREResource::EnemyAlly()
 }
 
 
+void
+CREResource::SetEnemyAlly(uint8 ea)
+{
+	fData->WriteAt(0x270, &ea, sizeof(ea));
+}
+
+
 uint8
 CREResource::General()
 {
