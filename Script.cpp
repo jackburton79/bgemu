@@ -288,10 +288,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
-					object->Print();
-					fTarget->Print();
 					ScriptResults* results = fTarget->LastScriptRoundResults();
-					std::cout << "results: " << results << std::endl;
 					if (results != NULL)
 						returnValue = Object::CheckIfNodeInList(object,
 								results->Attackers());
@@ -744,15 +741,17 @@ Script::_ExecuteAction(action_node* act)
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
-			/*Object* targetObject = FindObject(act);
+			Object* targetObject = FindObject(act);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
-					std::cout << thisActor->Name() << " attacks ";
-					std::cout << targetActor->Name() << std::endl;
-					thisActor->Attack(targetActor);
+					IE::point point = targetActor->NearestPoint(thisActor->Position());
+					WalkTo* walkToAction = new WalkTo(thisActor, point);
+					thisActor->AddAction(walkToAction);
+					Attack* attackAction = new Attack(thisActor, targetActor);
+					thisActor->AddAction(attackAction);
 				}
-			}*/
+			}
 			break;
 		}
 		case 0x07:
@@ -916,15 +915,17 @@ Script::_ExecuteAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			/*Object* targetObject = FindObject(act);
+			Object* targetObject = FindObject(act);
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
-					std::cout << thisActor->Name() << " attacks ";
-					std::cout << targetActor->Name() << std::endl;
-					thisActor->Attack(targetActor);
+					IE::point point = targetActor->NearestPoint(thisActor->Position());
+					WalkTo* walkToAction = new WalkTo(thisActor, point);
+					thisActor->AddAction(walkToAction);
+					Attack* attackAction = new Attack(thisActor, targetActor);
+					thisActor->AddAction(attackAction);
 				}
-			}*/
+			}
 			break;
 		}
 		case 207:

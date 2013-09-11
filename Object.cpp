@@ -214,8 +214,7 @@ Object::SetScript(Script* script)
 IE::point
 Object::NearestPoint(const IE::point& point) const
 {
-	throw "Error Unimplemented GetNearestPoint";
-	return point;
+	return Position();
 }
 
 
@@ -257,8 +256,6 @@ bool
 Object::CheckIfNodeInList(object_node* node,
 		const std::vector<Object*>& vector)
 {
-	//node->Print();
-
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vector.begin(); iter != vector.end(); iter++) {
 		if ((*iter)->MatchNode(node))
