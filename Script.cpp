@@ -321,6 +321,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = object->IsClass(trig->parameter1);
 				break;
 			}
+			case 0x400E:
+			{
+				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
+				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				if (object != NULL)
+					returnValue = object->IsGeneral(trig->parameter1);
+				break;
+			}
 			case 0x400F:
 			{
 				/*0x400F Global(S:Name*,S:Area*,I:Value*)
@@ -549,6 +557,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				break;
 			}
+#if 0
 			case 0x4068:
 			{
 				/* TimeGT(I:Time*Time)
@@ -564,6 +573,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				//TIMELT(I:TIME*TIME) (16489 0x4069)
 				break;
 			}
+#endif
 			case 0x0070:
 			{
 				/* 0x0070 Clicked(O:Object*)
@@ -635,6 +645,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					if (objectOverRegion != NULL) {
 						objectOverRegion->Print();
 						object->Print();
+						returnValue = objectOverRegion->MatchNode(object);
 					}
 				}
 
