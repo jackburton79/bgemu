@@ -190,7 +190,6 @@ Object::Update(bool scripts)
 		if (!(*i)->Completed())
 			(*i)->Run();
 		else {
-			std::cout << "Action completed!" << std::endl;
 			delete *i;
 			i = fActions.erase(i);
 		}
@@ -494,6 +493,17 @@ Object::IsEnemyAlly(int ea) const
 }
 
 
+void
+Object::SetEnemyAlly(int ea)
+{
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	if (actor == NULL)
+		return;
+
+	actor->CRE()->SetEnemyAlly(ea);
+}
+
+
 bool
 Object::IsState(int state) const
 {
@@ -575,7 +585,7 @@ ScriptResults::LastAttacker() const
 	const int32 numAttackers = fAttackers.size();
 	if (numAttackers == 0)
 		return NULL;
-	return fAttackers[fAttackers.size() - 1];
+	return fAttackers[numAttackers - 1];
 }
 
 
