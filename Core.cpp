@@ -94,7 +94,7 @@ Core::Initialize(const char* path)
 		if (sCore->fGame == GAME_BALDURSGATE)
 			party->AddActor(new Actor("AJANTI", point, 0));
 		else
-			party->AddActor(new Actor("BFTOWN1", point, 0));
+			party->AddActor(new Actor("AESOLD", point, 0));
 	} catch (...) {
 
 	}
@@ -179,9 +179,8 @@ Core::UnregisterObject(Object* object)
 Object*
 Core::GetObject(Object* source, object_node* node) const
 {
-	//node->Print();
 	// TODO: Move into object_node::Print()
-	std::cout << "Core::GetObject(";
+	/*std::cout << "Core::GetObject(";
 	std::cout << "source: " << source->Name() << ", ";
 	std::cout << "node: ( ";
 	if (node->name[0])
@@ -201,7 +200,7 @@ Core::GetObject(Object* source, object_node* node) const
 	if (node->alignment)
 		std::cout << ", " << IDTable::AlignmentAt(node->alignment);
 	std::cout << ") ) -> " ;
-
+*/
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
 
@@ -212,16 +211,16 @@ Core::GetObject(Object* source, object_node* node) const
 			const int identifier = node->identifiers[id];
 			if (identifier == 0)
 				break;
-			std::cout << IDTable::ObjectAt(identifier) << ", ";
+			//std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = source->ResolveIdentifier(identifier);
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
-		std::cout << "returned ";
+	/*	std::cout << "returned ";
 		if (target != NULL)
 			std::cout << target->Name() << std::endl;
 		else
-			std::cout << "NONE" << std::endl;
+			std::cout << "NONE" << std::endl;*/
 		return target;
 	}
 
@@ -231,13 +230,13 @@ Core::GetObject(Object* source, object_node* node) const
 	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if ((*i)->MatchNode(node)) {
-			std::cout << "returned " << (*i)->Name() << std::endl;
+			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
 			return *i;
 		}
 	}
 
-	std::cout << "returned NONE" << std::endl;
+	//std::cout << "returned NONE" << std::endl;
 	return NULL;
 }
 
@@ -249,7 +248,7 @@ Core::GetObject(const char* name) const
 	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
-			std::cout << "returned " << name << std::endl;
+		//	std::cout << "returned " << name << std::endl;
 			return *i;
 		}
 	}
