@@ -1152,6 +1152,8 @@ Room::_ContainerAtPoint(const IE::point& point)
 {
 	std::vector<Container*>::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
+		//if (rect_contains((*i)->Frame(), point))
+			//return *i;
 		if ((*i)->Polygon().Contains(point))
 			return *i;
 	}

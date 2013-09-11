@@ -32,9 +32,9 @@ const IE::rect
 Container::Frame() const
 {
 	IE::rect rect;
-	rect.x_min = fContainer->top_left;
-	rect.x_max = fContainer->top_right;
-	rect.y_min = fContainer->bottom_left;
-	rect.y_max = fContainer->bottom_right;
+	rect.x_min = fContainer->x_min;
+	rect.x_max = fContainer->x_max;
+	rect.y_min = fContainer->y_min;
+	rect.y_max = fContainer->y_max;
 	return rect;
 }

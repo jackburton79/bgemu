@@ -352,10 +352,10 @@ struct container {
 	uint16 trap_detected;
 	uint16 trap_launch_x;
 	uint16 trap_launch_y;
-	uint16 top_left;
-	uint16 top_right;
-	uint16 bottom_right;
-	uint16 bottom_left;
+	uint16 x_min;
+	uint16 y_min;
+	uint16 x_max;
+	uint16 y_max;
 	uint32 item_first_index;
 	uint32 item_count;
 	res_ref trap_script;
