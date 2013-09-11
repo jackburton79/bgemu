@@ -316,7 +316,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsClass(trig->parameter1);
 				break;
@@ -324,7 +324,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400E:
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsGeneral(trig->parameter1);
 				break;
@@ -341,9 +341,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					Actor* actor = dynamic_cast<Actor*>(fTarget);
-					if (actor != NULL)
-						variableValue = actor->GetVariable(variableName.c_str());
+					variableValue = fTarget->GetVariable(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
@@ -373,10 +371,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 				break;
 			}
-			case 0x0027:
-			{
-				break;
-			}
 			case 0x002F:
 			{
 				/* 0x002F Heard(O:Object*,I:ID*SHOUTIDS)
@@ -387,7 +381,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				NB. If the object is specified as a death variable,
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL && core->Distance(fTarget, object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
@@ -400,8 +394,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4017:
 			{
 				// Race()
-				Object* object = core->GetObject(
-						fTarget, FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsRace(trig->parameter1);
 
@@ -413,8 +406,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Object* object = core->GetObject(fTarget,
-						FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->Distance(object, fTarget) <= trig->parameter1;
 				break;
@@ -426,7 +418,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				Object* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->See(fTarget, object);
 				break;
@@ -584,7 +576,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* objectNode = FindObjectNode(trig);
 				returnValue = fTarget->LastScriptRoundResults()->Clicker()
 						->MatchNode(objectNode);
-				objectNode->Print();
+				//objectNode->Print();
 				fTarget->LastScriptRoundResults()->Clicker()->Print();
 
 				// TODO: When to set this, other than now ?
@@ -593,11 +585,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
-			case 0x4072:
-			{
-				/* NumDeadGT(S:Name*,I:Num*) (0x4072)*/
-				break;
-			}
 			case 0x4074:
 			{
 				/*
