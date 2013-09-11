@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <stdlib.h>
+#include <stdexcept>
 
 
 IDSResource::IDSResource(const res_ref &name)
@@ -68,7 +69,23 @@ IDSResource::Dump()
 
 
 std::string
-IDSResource::ValueFor(uint32 id)
+IDSResource::ValueFor(uint32 id) const
 {
-	return fMap[id];
+	string_map::const_iterator i = fMap.find(id);
+	if (i == fMap.end())
+		throw std::runtime_error("IDSResource::ValueFor(): no such id");
+	return i->second;
+}
+
+
+uint32
+IDSResource::ValueFor(std::string string) const
+{
+	string_map::const_iterator i;
+	for (i = fMap.begin(); i != fMap.end(); i++) {
+		if (i->second == string)
+			return i->first;
+	}
+
+	throw std::runtime_error("IDSResource::ValueFor(): no such value");
 }
