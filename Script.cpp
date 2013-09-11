@@ -762,6 +762,14 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 
+		case 0xA:
+		{
+			/* ENEMY() (10 0xa) */
+			// TODO: This is "Enemy", defined in EA.IDS. See how to pass "ENEMY"
+			// to the function. Add a reverse mapping to IDSResource ?
+			thisActor->SetEnemyAlly(255);
+			break;
+		}
 		case 22:
 		{
 			// MoveToObject
