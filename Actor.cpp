@@ -6,6 +6,7 @@
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "Bitmap.h"
+#include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -314,9 +315,11 @@ Actor::ClickedOn(Object* target)
 		IE::point point = actor->NearestPoint(Position());
 		WalkTo* walkToAction = new WalkTo(this, point);
 		AddAction(walkToAction);
-
 		Attack* attackAction = new Attack(this, actor);
 		AddAction(attackAction);
+	} else if (Container* container = dynamic_cast<Container*>(target)) {
+		WalkTo* walkTo = new WalkTo(this, container->NearestPoint(Position()));
+		AddAction(walkTo);
 	}
 }
 
