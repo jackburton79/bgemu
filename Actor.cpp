@@ -36,6 +36,8 @@ Actor::Actor(IE::actor &actor)
 	fDontCheckConditions(false),
 	fIsInterruptable(true),
 	fFlying(false),
+	fSelected(false),
+	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2)
 {
