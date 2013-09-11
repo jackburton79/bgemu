@@ -612,10 +612,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * matches the state specified in the 2nd parameter.
 				 */
 				object_node* doorObj = FindObjectNode(trig);
-				Door *door = Door::GetByName(doorObj->name);
+				Door *door = dynamic_cast<Door*>(
+								core->GetObject(doorObj->name));
 				if (door != NULL) {
-					bool paramOpen = trig->parameter1 == 1;
-					returnValue = door->Opened() == paramOpen;
+					bool openState = trig->parameter1 == 1;
+					returnValue = door->Opened() == openState;
 				}
 				break;
 			}

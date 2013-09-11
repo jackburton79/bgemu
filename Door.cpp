@@ -1,7 +1,5 @@
 #include "Door.h"
 
-std::map<std::string, Door*> Door::sDoors;
-
 Door::Door(IE::door* areaDoor)
 	:
 	Object(areaDoor->name,areaDoor->script.CString()),
@@ -108,32 +106,4 @@ void
 Door::Print() const
 {
 	//printf("%s\n", (const char*)fAreaDoor->id);
-}
-
-
-/* static */
-void
-Door::Add(Door* door)
-{
-	sDoors[door->fAreaDoor->name] = door;
-}
-
-
-/* static */
-Door*
-Door::GetByName(const char* name)
-{
-	std::map<std::string, Door*>::const_iterator i;
-	i = sDoors.find(name);
-	if (i == sDoors.end())
-		return NULL;
-	return i->second;
-}
-
-
-/* static */
-std::map<std::string, Door*>&
-Door::List()
-{
-	return sDoors;
 }

@@ -18,9 +18,10 @@
 #include "TLKResource.h"
 #include "Window.h"
 
-#include <stdlib.h>
 #include <algorithm>
 #include <ctype.h>
+#include <limits.h>
+#include <stdlib.h>
 #include <vector>
 
 
@@ -244,7 +245,6 @@ Core::GetObject(Object* source, object_node* node) const
 Object*
 Core::GetObject(const char* name) const
 {
-	// TODO: Check also doors, triggers, etc ?!?
 	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
@@ -253,7 +253,7 @@ Core::GetObject(const char* name) const
 		}
 	}
 
-	std::cout << "returned NONE" << std::endl;
+	//std::cout << "returned NONE" << std::endl;
 	return NULL;
 }
 
@@ -279,7 +279,7 @@ Core::GetNearestEnemyOf(const Object* object) const
 {
 	std::vector<Actor*> actorList = Actor::List();
 	std::vector<Actor*>::iterator i;
-	int minDistance = 500000;
+	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
 	for (i = actorList.begin(); i != actorList.end(); i++) {
 		if ((*i) != object && (*i)->IsEnemyOf(object)) {
