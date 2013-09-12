@@ -12,8 +12,8 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual void Dump();
 
-	std::string ValueFor(uint32 id) const;
-	uint32 ValueFor(std::string string) const;
+	std::string StringForID(uint32 id) const;
+	uint32 IDForString(std::string string) const;
 
 	typedef std::map<uint32, std::string> string_map;
 

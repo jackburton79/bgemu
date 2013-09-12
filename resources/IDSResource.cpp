@@ -69,7 +69,7 @@ IDSResource::Dump()
 
 
 std::string
-IDSResource::ValueFor(uint32 id) const
+IDSResource::StringForID(uint32 id) const
 {
 	string_map::const_iterator i = fMap.find(id);
 	if (i == fMap.end())
@@ -79,7 +79,7 @@ IDSResource::ValueFor(uint32 id) const
 
 
 uint32
-IDSResource::ValueFor(std::string string) const
+IDSResource::IDForString(std::string string) const
 {
 	string_map::const_iterator i;
 	for (i = fMap.begin(); i != fMap.end(); i++) {

@@ -639,7 +639,7 @@ IDTable::AlignmentAt(uint32 i)
 	if (sAlignment == NULL)
 		sAlignment = gResManager->GetIDS("ALIGNMENT");
 
-	return sAlignment->ValueFor(i);
+	return sAlignment->StringForID(i);
 }
 
 
@@ -649,7 +649,7 @@ IDTable::GeneralAt(uint32 i)
 	if (sGeneral == NULL)
 		sGeneral = gResManager->GetIDS("GENERAL");
 
-	return sGeneral->ValueFor(i);
+	return sGeneral->StringForID(i);
 }
 
 
@@ -658,7 +658,7 @@ IDTable::AnimationAt(uint32 i)
 {
 	if (sAnimate == NULL)
 		sAnimate = gResManager->GetIDS("ANIMATE");
-	return sAnimate->ValueFor(i);
+	return sAnimate->StringForID(i);
 }
 
 
@@ -672,7 +672,7 @@ IDTable::AniSndAt(uint32 i)
 			sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
 		}
 	}
-	return sAniSnd->ValueFor(i);
+	return sAniSnd->StringForID(i);
 }
 
 
@@ -682,7 +682,7 @@ IDTable::RaceAt(uint32 i)
 	if (sRaces == NULL)
 		sRaces = gResManager->GetIDS("RACE");
 
-	return sRaces->ValueFor(i);
+	return sRaces->StringForID(i);
 }
 
 
@@ -691,7 +691,7 @@ IDTable::GenderAt(uint32 i)
 {
 	if (sGenders == NULL)
 		sGenders = gResManager->GetIDS("GENDER");
-	return sGenders->ValueFor(i);
+	return sGenders->StringForID(i);
 }
 
 
@@ -700,7 +700,7 @@ IDTable::ClassAt(uint32 i)
 {
 	if (sClasses == NULL)
 		sClasses = gResManager->GetIDS("CLASS");
-	return sClasses->ValueFor(i);
+	return sClasses->StringForID(i);
 }
 
 
@@ -710,7 +710,7 @@ IDTable::SpecificAt(uint32 i)
 	if (sSpecifics == NULL)
 		sSpecifics = gResManager->GetIDS("SPECIFIC");
 
-	return sSpecifics->ValueFor(i);
+	return sSpecifics->StringForID(i);
 }
 
 
@@ -720,7 +720,7 @@ IDTable::TriggerAt(uint32 i)
 	if (sTriggers == NULL)
 		sTriggers = gResManager->GetIDS("TRIGGER");
 
-	return sTriggers->ValueFor(i);
+	return sTriggers->StringForID(i);
 }
 
 
@@ -729,7 +729,7 @@ IDTable::ActionAt(uint32 i)
 {
 	if (sActions == NULL)
 		sActions = gResManager->GetIDS("ACTION");
-	return sActions->ValueFor(i);
+	return sActions->StringForID(i);
 }
 
 
@@ -738,7 +738,7 @@ IDTable::ObjectAt(uint32 i)
 {
 	if (sObjects == NULL)
 		sObjects = gResManager->GetIDS("OBJECT");
-	return sObjects->ValueFor(i);
+	return sObjects->StringForID(i);
 }
 
 
@@ -747,7 +747,7 @@ IDTable::EnemyAllyAt(uint32 i)
 {
 	if (sEA == NULL)
 		sEA = gResManager->GetIDS("EA");
-	return sEA->ValueFor(i);
+	return sEA->StringForID(i);
 }
 
 
@@ -756,5 +756,5 @@ IDTable::GameTimeAt(uint32 i)
 {
 	if (sGameTimes == NULL)
 		sGameTimes = gResManager->GetIDS("GTIMES");
-	return sGameTimes->ValueFor(i);
+	return sGameTimes->StringForID(i);
 }
