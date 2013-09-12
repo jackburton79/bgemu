@@ -83,7 +83,7 @@ IDSResource::IDForString(std::string string) const
 {
 	string_map::const_iterator i;
 	for (i = fMap.begin(); i != fMap.end(); i++) {
-		if (i->second == string)
+		if (strcasecmp(i->second.c_str(), string.c_str()) == 0)
 			return i->first;
 	}
 
