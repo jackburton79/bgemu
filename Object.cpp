@@ -311,18 +311,25 @@ Object::IsEqual(const Object* objectB) const
 bool
 Object::IsDummy(const object_node* node)
 {
-	if (node->alignment == 0
-			&& node->classs == 0
-			&& node->ea == 0
-			//&& node->faction == 0
-			//&& node->team == 0
+	node->Print();
+	if (node->ea == 0
 			&& node->general == 0
 			&& node->race == 0
-			&& node->gender == 0
+			&& node->classs == 0
 			&& node->specific == 0
-			&& node->identifiers == 0
-			&& node->name[0] == '\0')
+			&& node->gender == 0
+			&& node->alignment == 0
+			//&& node->faction == 0
+			//&& node->team == 0
+			&& node->identifiers[0] == 0
+			&& node->identifiers[1] == 0
+			&& node->identifiers[2] == 0
+			&& node->identifiers[3] == 0
+			&& node->identifiers[4] == 0
+			&& node->name[0] == '\0'
+			) {
 		return true;
+	}
 
 	return false;
 }
