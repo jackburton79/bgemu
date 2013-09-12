@@ -73,7 +73,7 @@ IDSResource::ValueFor(uint32 id) const
 {
 	string_map::const_iterator i = fMap.find(id);
 	if (i == fMap.end())
-		throw std::runtime_error("IDSResource::ValueFor(): no such id");
+		return "";
 	return i->second;
 }
 
