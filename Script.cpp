@@ -764,9 +764,9 @@ Script::_ExecuteAction(action_node* act)
 		case 0xA:
 		{
 			/* ENEMY() (10 0xa) */
-			// TODO: This is "Enemy", defined in EA.IDS. See how to pass "ENEMY"
-			// to the function. Add a reverse mapping to IDSResource ?
-			thisActor->SetEnemyAlly(255);
+			uint32 id = IDTable::EnemyAllyValue("ENEM");
+			std::cout << "Enemy: " << id << std::endl;
+			thisActor->SetEnemyAlly(id);
 			break;
 		}
 		case 22:
@@ -1130,13 +1130,14 @@ object_node::Print() const
 	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), " << std::endl;
 	std::cout << "identifiers: ";
 	for (int32 i = 0; i < 5; i++) {
-		 std::cout << IDTable::ObjectAt(identifiers[i]) << " ";
+		 std::cout << IDTable::ObjectAt(identifiers[i]);
+		 std::cout << "(" << identifiers[i] <<  ")" << " ";
 	}
 	std::cout << std::endl;
 	if (Core::Get()->Game() == GAME_TORMENT)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	if (name[0] != '\0')
-		 std::cout << "name: " << name << std::endl;
+		 std::cout << "name: *" << name << "*" << std::endl;
 }
 
 
