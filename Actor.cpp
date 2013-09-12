@@ -95,7 +95,6 @@ void
 Actor::_Init()
 {
 	fSelected = false;
-	fEnemyOfEveryone = false;
 	fCurrentAnimation = NULL;
 
 	if (fCRE == NULL)
@@ -328,20 +327,6 @@ void
 Actor::Shout(int number)
 {
 	CurrentScriptRoundResults()->fShouted = number;
-}
-
-
-void
-Actor::SetIsEnemyOfEveryone(bool enemy)
-{
-	fEnemyOfEveryone = true;
-}
-
-
-bool
-Actor::IsEnemyOfEveryone() const
-{
-	return fEnemyOfEveryone;
 }
 
 

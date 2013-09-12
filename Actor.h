@@ -45,9 +45,6 @@ public:
 
 	void Shout(int number);
 
-	void SetIsEnemyOfEveryone(bool enemy);
-	bool IsEnemyOfEveryone() const;
-
 	void SetFlying(bool fly);
 	bool IsFlying() const;
 
@@ -89,7 +86,6 @@ private:
 	bool fIsInterruptable;
 
 	bool fFlying;
-	bool fEnemyOfEveryone;
 	bool fSelected;
 
 	bool fAttacking;
