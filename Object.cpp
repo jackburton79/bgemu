@@ -343,11 +343,12 @@ Object::ResolveIdentifier(const int id) const
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF")
 		return Core::Get()->GetNearestEnemyOf(this);
-
 	// TODO: Move that one here ?
 	// Move ResolveIdentifier elsewhere ?
 	if (identifier == "LASTTRIGGER")
 		return fScript->LastTrigger();
+	if (identifier == "LASTATTACKEROF")
+		return LastScriptRoundResults()->LastAttacker();
 
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
