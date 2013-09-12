@@ -102,6 +102,7 @@ TLKResource* Dialogs();
 class IDTable {
 public:
 	static std::string DialogAt(uint32 i);
+
 	static std::string AlignmentAt(uint32 i);
 	static std::string GeneralAt(uint32 i);
 	static std::string AnimationAt(uint32 i);
@@ -113,7 +114,10 @@ public:
 	static std::string TriggerAt(uint32 i);
 	static std::string ActionAt(uint32 i);
 	static std::string ObjectAt(uint32 i);
+
 	static std::string EnemyAllyAt(uint32 i);
+	static uint32 EnemyAllyValue(const char* string);
+
 	static std::string GameTimeAt(uint32 i);
 };
 

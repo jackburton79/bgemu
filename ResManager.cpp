@@ -751,6 +751,15 @@ IDTable::EnemyAllyAt(uint32 i)
 }
 
 
+uint32
+IDTable::EnemyAllyValue(const char* string)
+{
+	if (sEA == NULL)
+		sEA = gResManager->GetIDS("EA");
+	return sEA->IDForString(string);
+}
+
+
 std::string
 IDTable::GameTimeAt(uint32 i)
 {
