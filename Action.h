@@ -13,7 +13,7 @@ public:
     bool Initiated() const;
     bool Completed() const;
 
-    virtual void Run();
+    virtual void operator()();
 protected:
     Actor* fActor;
     bool fInitiated;
@@ -24,7 +24,7 @@ protected:
 class WalkTo : public Action {
 public:
 	WalkTo(Actor* actor, IE::point destination);
-	virtual void Run();
+	virtual void operator()();
 private:
 	IE::point fDestination;
 };
@@ -33,7 +33,7 @@ private:
 class Wait : public Action {
 public:
 	Wait(Actor* actor, uint32 time);
-	virtual void Run();
+	virtual void operator()();
 private:
 	uint32 fWaitTime;
 	uint32 fStartTime;
@@ -44,7 +44,7 @@ class Toggle : public Action {
 public:
 	// TODO: For any object ?
 	Toggle(Actor* actor, Door* door);
-	virtual void Run();
+	virtual void operator()();
 private:
 	Door* fDoor;
 };
@@ -53,7 +53,7 @@ private:
 class Attack : public Action {
 public:
 	Attack(Actor* actor, Actor* target);
-	virtual void Run();
+	virtual void operator()();
 private:
 	Actor* fTarget;
 };
@@ -62,7 +62,7 @@ private:
 class RunAwayFrom : public Action {
 public:
 	RunAwayFrom(Actor* actor, Actor* target);
-	virtual void Run();
+	virtual void operator()();
 private:
 	Actor* fTarget;
 

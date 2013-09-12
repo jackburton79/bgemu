@@ -36,7 +36,7 @@ Action::Completed() const
 
 /* virtual */
 void
-Action::Run()
+Action::operator()()
 {
 	if (!fInitiated)
 		fInitiated = true;
@@ -54,12 +54,12 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 
 /* virtual */
 void
-WalkTo::Run()
+WalkTo::operator()()
 {
 	if (!Initiated())
 		fActor->SetDestination(fDestination);
 
-	Action::Run();
+	Action::operator()();
 
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
@@ -83,9 +83,9 @@ Wait::Wait(Actor* actor, uint32 time)
 
 
 void
-Wait::Run()
+Wait::operator()()
 {
-	Action::Run();
+	Action::operator()();
 	if (Timer::GameTime() >= fStartTime + fWaitTime)
 		fCompleted = true;
 }
@@ -103,9 +103,9 @@ Toggle::Toggle(Actor* actor, Door* door)
 
 /* virtual */
 void
-Toggle::Run()
+Toggle::operator()()
 {
-	Action::Run();
+	Action::operator()();
 	fDoor->Toggle();
 	fCompleted = true;
 }
@@ -122,9 +122,9 @@ Attack::Attack(Actor* actor, Actor* target)
 
 /* virtual */
 void
-Attack::Run()
+Attack::operator()()
 {
-	Action::Run();
+	Action::operator()();
 	fActor->SetAnimationAction(ACT_ATTACKING);
 	fActor->AttackTarget(fTarget);
 }
@@ -142,9 +142,9 @@ RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
 
 /* virtual */
 void
-RunAwayFrom::Run()
+RunAwayFrom::operator()()
 {
-	Action::Run();
+	Action::operator()();
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
@@ -153,7 +153,6 @@ RunAwayFrom::Run()
 		if (fActor->Destination() != point)
 			fActor->SetDestination(point);
 	}
-
 
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
