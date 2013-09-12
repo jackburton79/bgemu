@@ -311,7 +311,6 @@ Object::IsEqual(const Object* objectB) const
 bool
 Object::IsDummy(const object_node* node)
 {
-	node->Print();
 	if (node->ea == 0
 			&& node->general == 0
 			&& node->race == 0
