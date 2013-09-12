@@ -187,12 +187,15 @@ Object::Update(bool scripts)
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
-		Action& action = **i;
-		if (!action.Completed())
-			action();
-		else {
-			delete *i;
-			i = fActions.erase(i);
+		while (i != fActions.end()) {
+			Action& action = **i;
+			if (action.Completed()) {
+				delete *i;
+				i = fActions.erase(i);
+			} else {
+				action();
+				break;
+			}
 		}
 	}
 
