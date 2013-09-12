@@ -360,13 +360,17 @@ bool
 Object::IsEnemyOf(const Object* object) const
 {
 	// TODO: Implement correctly
-	const Actor* actor = dynamic_cast<const Actor*>(this);
-	if (actor == NULL) {
+	const Actor* thisActor = dynamic_cast<const Actor*>(this);
+	if (thisActor == NULL) {
 		std::cout << "Not an actor" << std::endl;
 		return false;
 	}
 
-	return actor->IsEnemyOfEveryone();
+	uint8 enemy = IDTable::EnemyAllyValue("ENEM");
+	uint8 pc = IDTable::EnemyAllyValue("PC");
+	// TODO: Is this correct ? I have no idea.
+	return (object->IsEnemyAlly(enemy) 	&& thisActor->IsEnemyAlly(pc))
+			|| (object->IsEnemyAlly(pc) && thisActor->IsEnemyAlly(enemy));
 }
 
 
