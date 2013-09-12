@@ -54,4 +54,13 @@ private:
 	Actor* fTarget;
 };
 
+
+class RunAwayFrom : public Action {
+public:
+	RunAwayFrom(Actor* actor, Actor* target);
+	virtual void Run();
+	IE::point PointAway() const;
+private:
+	Actor* fTarget;
+};
 #endif

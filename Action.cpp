@@ -1,6 +1,7 @@
 #include "Action.h"
 #include "Actor.h"
 #include "Animation.h"
+#include "Core.h"
 #include "Door.h"
 #include "Timer.h"
 
@@ -111,4 +112,57 @@ Attack::Run()
 {
 	fActor->SetAnimationAction(ACT_ATTACKING);
 	fActor->AttackTarget(fTarget);
+}
+
+
+// RunAwayFrom
+RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
+	:
+	Action(actor),
+	fTarget(target)
+{
+
+}
+
+
+/* virtual */
+void
+RunAwayFrom::Run()
+{
+	// TODO: Improve.
+	// TODO: We are recalculating this every time. Is it correct ?
+	if (Core::Get()->Distance(fActor, fTarget) < 200) {
+		IE::point point = PointAway();
+		if (fActor->Destination() != point)
+			fActor->SetDestination(point);
+	}
+
+
+	if (fActor->Position() == fActor->Destination()) {
+		fCompleted = true;
+		fActor->SetAnimationAction(ACT_STANDING);
+		return;
+	}
+
+	fActor->SetAnimationAction(ACT_WALKING);
+	fActor->UpdatePath(fActor->IsFlying());
+}
+
+
+IE::point
+RunAwayFrom::PointAway() const
+{
+	IE::point point = fActor->Position();
+
+	if (fTarget->Position().x > fActor->Position().x)
+		point.x -= 10;
+	else if (fTarget->Position().x < fActor->Position().x)
+		point.x += 10;
+
+	if (fTarget->Position().y > fActor->Position().y)
+		point.y -= 10;
+	else if (fTarget->Position().x < fActor->Position().y)
+		point.y += 10;
+
+	return point;
 }
