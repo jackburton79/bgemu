@@ -9,10 +9,14 @@ class Action {
 public:
     Action(Actor* actor);
     virtual ~Action();
+
+    bool Initiated() const;
     bool Completed() const;
+
     virtual void Run();
 protected:
     Actor* fActor;
+    bool fInitiated;
     bool fCompleted;
 };
 
@@ -59,8 +63,9 @@ class RunAwayFrom : public Action {
 public:
 	RunAwayFrom(Actor* actor, Actor* target);
 	virtual void Run();
-	IE::point PointAway() const;
 private:
 	Actor* fTarget;
+
+	IE::point PointAway() const;
 };
 #endif

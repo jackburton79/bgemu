@@ -8,6 +8,7 @@
 Action::Action(Actor* actor)
     :
 	fActor(actor),
+	fInitiated(false),
 	fCompleted(false)
 {
 }
@@ -16,6 +17,13 @@ Action::Action(Actor* actor)
 Action::~Action()
 {
 
+}
+
+
+bool
+Action::Initiated() const
+{
+	return fInitiated;
 }
 
 
@@ -30,6 +38,8 @@ Action::Completed() const
 void
 Action::Run()
 {
+	if (!fInitiated)
+		fInitiated = true;
 }
 
 
@@ -39,8 +49,6 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 	Action(actor),
 	fDestination(destination)
 {
-	if (fActor->Destination() != fDestination)
-		fActor->SetDestination(fDestination);
 }
 
 
@@ -48,6 +56,11 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 void
 WalkTo::Run()
 {
+	if (!Initiated())
+		fActor->SetDestination(fDestination);
+
+	Action::Run();
+
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
 		fActor->SetAnimationAction(ACT_STANDING);
@@ -72,6 +85,7 @@ Wait::Wait(Actor* actor, uint32 time)
 void
 Wait::Run()
 {
+	Action::Run();
 	if (Timer::GameTime() >= fStartTime + fWaitTime)
 		fCompleted = true;
 }
@@ -91,6 +105,7 @@ Toggle::Toggle(Actor* actor, Door* door)
 void
 Toggle::Run()
 {
+	Action::Run();
 	fDoor->Toggle();
 	fCompleted = true;
 }
@@ -102,7 +117,6 @@ Attack::Attack(Actor* actor, Actor* target)
 	Action(actor),
 	fTarget(target)
 {
-
 }
 
 
@@ -110,6 +124,7 @@ Attack::Attack(Actor* actor, Actor* target)
 void
 Attack::Run()
 {
+	Action::Run();
 	fActor->SetAnimationAction(ACT_ATTACKING);
 	fActor->AttackTarget(fTarget);
 }
@@ -129,6 +144,8 @@ RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
 void
 RunAwayFrom::Run()
 {
+	Action::Run();
+
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
 	if (Core::Get()->Distance(fActor, fTarget) < 200) {
