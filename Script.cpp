@@ -783,15 +783,12 @@ Script::_ExecuteAction(action_node* act)
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-			/*object_node* objBlock = FindObjectNode(act);
 
-			if (objBlock == NULL)
-				break;
-*/
-			Object* targetObject = FindObject(act);
-			if (targetObject != NULL && thisActor != NULL) {
-				std::cout << thisActor->Name();
-				std::cout << " run away from " << targetObject->Name() << std::endl;
+			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
+			if (targetActor != NULL && thisActor != NULL) {
+
+				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
+				fTarget->AddAction(run);
 			}
 			break;
 		}
