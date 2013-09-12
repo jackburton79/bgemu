@@ -438,6 +438,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4023 True() */
 				returnValue = true;
 				break;
+			case 0x4027:
+			{
+				//DELAY(I:DELAY*) (16423 0x4027)
+				// TODO: Implement
+				returnValue = true;
+				break;
+			}
 			case 0x402b:
 			{
 				/* ACTIONLISTEMPTY() (16427 0x402b)*/
