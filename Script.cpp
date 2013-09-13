@@ -842,6 +842,7 @@ Script::_ExecuteAction(action_node* act)
 		}
 		case 86:
 		{
+			/* 86 SetInterrupt(I:State*Boolean) */
 			if (thisActor != NULL)
 				thisActor->SetInterruptable(act->parameter == 1);
 			break;
@@ -925,17 +926,15 @@ Script::_ExecuteAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			Object* targetObject = FindObject(act);
-			if (targetObject != NULL) {
-				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
-				if (thisActor != NULL && targetActor != NULL) {
-					IE::point point = targetActor->NearestPoint(thisActor->Position());
-					WalkTo* walkToAction = new WalkTo(thisActor, point);
-					thisActor->AddAction(walkToAction);
-					Attack* attackAction = new Attack(thisActor, targetActor);
-					thisActor->AddAction(attackAction);
-				}
+			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
+			if (thisActor != NULL && targetActor != NULL) {
+				IE::point point = targetActor->NearestPoint(thisActor->Position());
+				WalkTo* walkToAction = new WalkTo(thisActor, point);
+				thisActor->AddAction(walkToAction);
+				Attack* attackAction = new Attack(thisActor, targetActor);
+				thisActor->AddAction(attackAction);
 			}
+
 			break;
 		}
 		case 207:
