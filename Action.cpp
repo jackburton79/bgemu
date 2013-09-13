@@ -68,7 +68,7 @@ WalkTo::operator()()
 	}
 
 	fActor->SetAnimationAction(ACT_WALKING);
-	fActor->UpdatePath(fActor->IsFlying());
+	fActor->MoveToNextPointInPath(fActor->IsFlying());
 }
 
 
@@ -162,7 +162,7 @@ RunAwayFrom::operator()()
 	}
 
 	fActor->SetAnimationAction(ACT_WALKING);
-	fActor->UpdatePath(fActor->IsFlying());
+	fActor->MoveToNextPointInPath(fActor->IsFlying());
 }
 
 

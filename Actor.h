@@ -65,7 +65,7 @@ public:
 	// TODO: Merge and clean this mess
 	void SetAnimationAction(int action);
 	void UpdateAnimation(bool ignoreBlocks);
-	void UpdatePath(bool ignoreBlocks);
+	void MoveToNextPointInPath(bool ignoreBlocks);
 
 	// Global list of actors
 	static void Add(Actor *a);

@@ -506,7 +506,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 
 
 void
-Actor::UpdatePath(bool ignoreBlocks)
+Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
 	if (!fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
