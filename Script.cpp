@@ -189,7 +189,11 @@ Script::Execute()
 				if (responseSet == NULL)
 					break;
 
-				_ExecuteActions(responseSet);
+				if (!_ExecuteActions(responseSet)) {
+					// TODO: When the above method returns false,
+					// The script should stop running.
+					return false;
+				}
 
 				condition = responseSet->Next();
 			}
@@ -719,7 +723,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 }
 
 
-void
+bool
 Script::_ExecuteActions(node* responseSet)
 {
 	response_node* responses[5];
@@ -739,13 +743,15 @@ Script::_ExecuteActions(node* responseSet)
 	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
-		_ExecuteAction(action);
+		if (!_ExecuteAction(action))
+			return false;
 		action = static_cast<action_node*>(action->Next());
 	}
+	return true;
 }
 
 
-void
+bool
 Script::_ExecuteAction(action_node* act)
 {
 #if DEBUG_SCRIPTS
@@ -911,9 +917,16 @@ Script::_ExecuteAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			Actor::Remove(fTarget->Name());
 			//delete fTarget;
+
 			//fTarget = NULL;
-			// TODO: Are we sure ?!?
-			break;
+			fTarget->SetScript(NULL);
+			SetTarget(NULL);
+			// TODO: UnregisterObject crashes, since we are inside
+			// the following code:
+			// for (i = fObjects.begin(); i != fObjects.end(); i++) {
+			// 	(*i)->Update(executeScripts);
+			// }
+			return false;
 		}
 		case 0x73:
 		{
@@ -992,6 +1005,8 @@ Script::_ExecuteAction(action_node* act)
 			act->Print();
 			break;
 	}
+
+	return true;
 }
 
 

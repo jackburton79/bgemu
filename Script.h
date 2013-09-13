@@ -55,8 +55,8 @@ private:
 	bool _CheckTriggers(node* conditionNode);
 	bool _EvaluateTrigger(trigger_node* trig);
 
-	void _ExecuteActions(node* node);
-	void _ExecuteAction(action_node* act);
+	bool _ExecuteActions(node* node);
+	bool _ExecuteAction(action_node* act);
 	void _PrintNode(node* n) const;
 	void _DeleteNode(node* n);
 
