@@ -181,7 +181,14 @@ Actor::Add(Actor* actor)
 void
 Actor::Remove(const char* name)
 {
-
+	std::vector<Actor*>::iterator i;
+	for (i = sActors.begin(); i != sActors.end(); i++) {
+		if (strcmp((*i)->Name(), name) == 0) {
+			std::cout << "Erase actor " << (*i)->Name() << std::endl;
+			sActors.erase(i);
+			break;
+		}
+	}
 }
 
 
