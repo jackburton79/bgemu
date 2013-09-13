@@ -13,6 +13,7 @@
 #include "IDSResource.h"
 #include "Object.h"
 #include "Party.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
 
@@ -118,6 +119,22 @@ Object::ClickedOn(Object* target)
 
 
 void
+Object::EnteredRegion(Region* region)
+{
+	fRegion = region;
+	std::cout << Name() << " entered region " << region->Name() << std::endl;
+}
+
+
+void
+Object::ExitedRegion(Region* region)
+{
+	std::cout << Name() << " exited region " << region->Name() << std::endl;
+	fRegion = NULL;
+}
+
+
+void
 Object::SetVariable(const char* name, int32 value)
 {
 	fVariables[name] = value;
@@ -181,9 +198,15 @@ Object::Update(bool scripts)
 		}
 	}
 
+	// TODO: Make Object::Update() virtual and override
+	// in subclasses to avoid dynamic casting
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL)
 		actor->UpdateSee();
+
+	Region* region = dynamic_cast<Region*>(this);
+	if (region != NULL)
+		region->CheckObjectsInside();
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();

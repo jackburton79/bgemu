@@ -13,6 +13,8 @@
 #include "Object.h"
 #include "Polygon.h"
 
+#include <list>
+
 class Region: public Object {
 public:
 	Region(IE::region* region);
@@ -32,9 +34,13 @@ public:
 	uint32 CursorIndex() const;
 	int32 InfoTextRef() const;
 
+	void CheckObjectsInside();
+
 private:
 	IE::region* fRegion;
 	::Polygon fPolygon;
+
+	std::list<Object*> fObjectsInside;
 };
 
 #endif /* REGION_H_ */

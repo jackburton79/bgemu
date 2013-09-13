@@ -20,6 +20,7 @@
 struct object_node;
 class Actor;
 class Object;
+class Region;
 class Script;
 class ScriptResults {
 public:
@@ -69,6 +70,9 @@ public:
 
 	virtual void Clicked(Object* clicker);
 	virtual void ClickedOn(Object* target);
+
+	void EnteredRegion(Region* region);
+	void ExitedRegion(Region* region);
 
 	void SetSeenBy(Actor* actor);
 
@@ -130,6 +134,8 @@ private:
 
 	std::map<std::string, uint32> fVariables;
 	std::list<Action*> fActions;
+
+	Region* fRegion;
 };
 
 #endif // __SCRIPTABLE_H

@@ -5,8 +5,10 @@
  *      Author: stefano
  */
 
+#include "Core.h"
 #include "Region.h"
 
+#include <algorithm>
 
 Region::Region(IE::region* region)
 	:
@@ -83,4 +85,29 @@ int32
 Region::InfoTextRef() const
 {
 	return fRegion->info_text;
+}
+
+
+void
+Region::CheckObjectsInside()
+{
+	std::list<Object*>::iterator i = fObjectsInside.begin();
+	while (i != fObjectsInside.end()) {
+		Object* object = (*i);
+		if (!Contains(object->Position())) {
+			object->ExitedRegion(this);
+			i = fObjectsInside.erase(i);
+		} else
+			i++;
+	}
+
+	Object* object = Core::Get()->GetObject(this);
+	if (object == NULL)
+		return;
+	i = std::find(fObjectsInside.begin(),
+					fObjectsInside.end(), object);
+	if (i == fObjectsInside.end()) {
+		fObjectsInside.push_back(object);
+		object->EnteredRegion(this);
+	}
 }
