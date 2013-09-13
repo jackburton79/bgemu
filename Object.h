@@ -97,7 +97,10 @@ public:
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
 	bool MatchNode(object_node* node) const;
 
-	static bool CheckIfNodeInList(object_node* node, const std::vector<Object*>& vector);
+	static Object* GetMatchingObjectFromList(
+										const std::vector<Object*>&,
+										object_node* node);
+
 	static bool CheckIfNodesInList(const std::vector<object_node*>& nodeList,
 						const std::vector<Object*>& objectList);
 

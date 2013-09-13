@@ -274,16 +274,16 @@ Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 
 
 /* static */
-bool
-Object::CheckIfNodeInList(object_node* node,
-		const std::vector<Object*>& vector)
+Object*
+Object::GetMatchingObjectFromList(
+		const std::vector<Object*>& vector, object_node* matches)
 {
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vector.begin(); iter != vector.end(); iter++) {
-		if ((*iter)->MatchNode(node))
-			return true;
+		if ((*iter)->MatchNode(matches))
+			return *iter;
 	}
-	return false;
+	return NULL;
 }
 
 

@@ -286,12 +286,15 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object_node* object = FindObjectNode(trig);
-				if (object != NULL) {
-					ScriptResults* results = fTarget->LastScriptRoundResults();
-					if (results != NULL)
-						returnValue = Object::CheckIfNodeInList(object,
-								results->Attackers());
+				object_node* node = FindObjectNode(trig);
+				if (node == NULL)
+					break;
+				ScriptResults* results = fTarget->LastScriptRoundResults();
+				if (results != NULL) {
+					Object* object = Object::GetMatchingObjectFromList(
+							results->Attackers(), node);
+
+					returnValue = object != NULL;
 				}
 				break;
 			}
@@ -358,9 +361,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 					break;
 				}
-				object_node* object = FindObjectNode(trig);
-				returnValue = Object::CheckIfNodeInList(object,
-						fTarget->LastScriptRoundResults()->Hitters());
+				//object_node* object = FindObjectNode(trig);
+				//returnValue = Object::CheckIfNodeInList(object,
+				//		fTarget->LastScriptRoundResults()->Hitters());
 				break;
 			}
 			case 0x0022:
@@ -669,15 +672,32 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = true;
 				break;
 			}
+			case 0x401b:
+			{
+				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
+				Actor* actor = dynamic_cast<Actor*>(FindObject(trig));
+				if (actor != NULL) {
+					std::cout << fTarget->Name() << " reputation: ";
+					std::cout << actor->CRE()->Reputation() << std::endl;
+					returnValue = actor->CRE()->Reputation() < trig->parameter1;
+				}
+				break;
+			}
+
 			case 0x4c:
 			{
 				// Entered(O:Object)
 				object_node* node = FindObjectNode(trig);
 				Region* region = dynamic_cast<Region*>(fTarget);
 				std::vector<std::string>::const_iterator i;
-				returnValue = Object::CheckIfNodeInList(node, region->
+				Object* object = Object::GetMatchingObjectFromList(
+										region->
 										LastScriptRoundResults()->
-										EnteredActors());
+										EnteredActors(), node);
+				if (object != NULL) {
+					fLastTrigger = object;
+					returnValue = true;
+				}
 				break;
 			}
 			default:
