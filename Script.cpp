@@ -793,7 +793,6 @@ Script::_ExecuteAction(action_node* act)
 
 			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
 			if (targetActor != NULL && thisActor != NULL) {
-
 				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
 				fTarget->AddAction(run);
 			}
