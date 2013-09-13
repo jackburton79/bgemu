@@ -47,9 +47,9 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x5012, "CDMW");
 	res->AddValue(0x5013, "CIFB");
 	res->AddValue(0x5100, "CHMB");
-	res->AddValue(0x5101, "CEMB");
+	res->AddValue(0x5101, "CEMW");
 	res->AddValue(0x5102, "CDMF"); // Fighter Male Dwarf
-	res->AddValue(0x5103, "CIMB");
+	res->AddValue(0x5103, "CIMW");
 	//res->AddValue(0x5110, "CHFB");
 	res->AddValue(0x5111, "CEFB");
 	res->AddValue(0x5112, "CDMW");
@@ -70,7 +70,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x5313, "CIFB");
 
 	res->AddValue(0x6000, "CHMC"); // Cleric Male Human
-	res->AddValue(0x6001, "CEMB");
+	res->AddValue(0x6001, "CEMW");
 	res->AddValue(0x6002, "CDMW");
 	res->AddValue(0x6003, "CIMB");
 	res->AddValue(0x6004, "CDMW");
@@ -104,9 +104,9 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x6214, "CDMW");
 	//res->AddValue(0x6215, "CHFW");
 	res->AddValue(0x6300, "CHMT"); // Thief Human Male
-	res->AddValue(0x6301, "CEMB");
+	res->AddValue(0x6301, "CEMW");
 	res->AddValue(0x6302, "CDMW");
-	res->AddValue(0x6303, "CIMB");
+	res->AddValue(0x6303, "CIMW");
 	res->AddValue(0x6304, "CDMW");
 	//res->AddValue(0x6305, "CHMB");
 	//res->AddValue(0x6310, "CHFB");
@@ -127,6 +127,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x7a00, "MSPI"); // SPIDER
 	res->AddValue(0x7a02, "MSPI"); // PHASE_SPIDER
 	res->AddValue(0x7a03, "MSPI"); // SWORD_SPIDER
+	res->AddValue(0x7a04, "MSPI"); // SPIDER_WRAITH
 	res->AddValue(0x7b01, "MWLF"); // WOLF_WORG ?
 	res->AddValue(0x7b05, "MWLF"); // WOLF_DREAD ?
 
