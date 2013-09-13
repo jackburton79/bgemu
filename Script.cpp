@@ -772,7 +772,6 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* ENEMY() (10 0xa) */
 			uint32 id = IDTable::EnemyAllyValue("ENEM");
-			std::cout << "Enemy: " << id << std::endl;
 			thisActor->SetEnemyAlly(id);
 			break;
 		}
@@ -790,7 +789,6 @@ Script::_ExecuteAction(action_node* act)
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-
 			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
 			if (targetActor != NULL && thisActor != NULL) {
 				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
