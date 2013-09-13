@@ -135,6 +135,9 @@ public:
 
 	CREColors Colors();
 
+	sint8 Reputation();
+	void SetReputation(sint8 rep);
+
 	uint32 Experience();
 	uint32 ExperienceValue();
 	uint32 PermanentStatus();

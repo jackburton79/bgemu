@@ -177,6 +177,22 @@ CREResource::Colors()
 }
 
 
+sint8
+CREResource::Reputation()
+{
+	sint8 rep;
+	fData->ReadAt(0x44, rep);
+	return rep;
+}
+
+
+void
+CREResource::SetReputation(sint8 rep)
+{
+	fData->WriteAt(0x44, &rep, sizeof(rep));
+}
+
+
 uint32
 CREResource::Experience()
 {
