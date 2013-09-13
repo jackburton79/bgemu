@@ -261,6 +261,7 @@ Core::GetObject(const char* name) const
 Object*
 Core::GetObject(const Region* region) const
 {
+	// TODO: Only returns the first object!
 	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		Actor* actor = dynamic_cast<Actor*>(*i);
