@@ -677,8 +677,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
 				Actor* actor = dynamic_cast<Actor*>(FindObject(trig));
 				if (actor != NULL) {
-					std::cout << fTarget->Name() << " reputation: ";
-					std::cout << actor->CRE()->Reputation() << std::endl;
 					returnValue = actor->CRE()->Reputation() < trig->parameter1;
 				}
 				break;
@@ -885,6 +883,7 @@ Script::_ExecuteAction(action_node* act)
 			fTarget->AddAction(wait);
 			break;
 		}
+
 		case 106:
 		{
 			/* Shout */
@@ -905,6 +904,15 @@ Script::_ExecuteAction(action_node* act)
 			/* 101 FlyToPoint(Point, Time) */
 			if (thisActor != NULL && thisActor->IsInterruptable())
 				core->FlyToPoint(thisActor, act->where, act->parameter);
+			break;
+		}
+		case 111:
+		{
+			/* DESTROYSELF() (111 0x6f) */
+			Actor::Remove(fTarget->Name());
+			//delete fTarget;
+			//fTarget = NULL;
+			// TODO: Are we sure ?!?
 			break;
 		}
 		case 0x73:
