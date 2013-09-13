@@ -27,12 +27,12 @@ public:
 	ScriptResults();
 	const std::vector<Object*>& Attackers() const;
 	const std::vector<Object*>& Hitters() const;
+	const std::vector<Object*> EnteredActors() const;
 
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
 	Object* LastAttacker() const;
 	Object* Clicker() const;
-
 	int Shouted() const;
 
 	std::string fOpenedBy;
@@ -47,9 +47,10 @@ private:
 	std::vector<std::string> fSeenBy;
 	std::vector<std::string> fSeenList;
 
+	// For Trigger Regions
+	std::vector<std::string> fEnteredActors;
+
 	Object* fClicker;
-
-
 
 	int fShouted;
 };

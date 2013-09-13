@@ -637,11 +637,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				if (object != NULL) {
 					Object* objectOverRegion = core->GetObject(
 							dynamic_cast<Region*>(fTarget));
-					if (objectOverRegion != NULL) {
-						objectOverRegion->Print();
-						object->Print();
+					if (objectOverRegion != NULL)
 						returnValue = objectOverRegion->MatchNode(object);
-					}
 				}
 
 				break;
@@ -675,15 +672,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4c:
 			{
 				// Entered(O:Object)
-				object_node* obj = FindObjectNode(trig);
-				//Region* region = dynamic_cast<Region*>(fTarget);
-				//fTarget->Print();
-
-				//(void)region;
-				//Object* object = core->GetObject(region);
-				//if (object != NULL)
-					//returnValue = object->MatchNode(obj);
-				obj->Print();
+				object_node* node = FindObjectNode(trig);
+				Region* region = dynamic_cast<Region*>(fTarget);
+				std::vector<std::string>::const_iterator i;
+				returnValue = Object::CheckIfNodeInList(node, region->
+										LastScriptRoundResults()->
+										EnteredActors());
 				break;
 			}
 			default:

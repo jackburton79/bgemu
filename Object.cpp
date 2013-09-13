@@ -122,14 +122,13 @@ void
 Object::EnteredRegion(Region* region)
 {
 	fRegion = region;
-	std::cout << Name() << " entered region " << region->Name() << std::endl;
+	fRegion->CurrentScriptRoundResults()->fEnteredActors.push_back(Name());
 }
 
 
 void
 Object::ExitedRegion(Region* region)
 {
-	std::cout << Name() << " exited region " << region->Name() << std::endl;
 	fRegion = NULL;
 }
 
@@ -190,23 +189,21 @@ Object::ClearActionList()
 void
 Object::Update(bool scripts)
 {
+	Actor* actor = dynamic_cast<Actor*>(this);
 	if (scripts) {
 		if (++fTicks >= 15) {
 			fTicks = 0;
 			if (fScript != NULL)
 				fScript->Execute();
+			// TODO: Make Object::Update() virtual and override
+			// in subclasses to avoid dynamic casting
+			if (actor != NULL)
+				actor->UpdateSee();
+			else if (Region* region = dynamic_cast<Region*>(this)) {
+				region->CheckObjectsInside();
+			}
 		}
 	}
-
-	// TODO: Make Object::Update() virtual and override
-	// in subclasses to avoid dynamic casting
-	Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor != NULL)
-		actor->UpdateSee();
-
-	Region* region = dynamic_cast<Region*>(this);
-	if (region != NULL)
-		region->CheckObjectsInside();
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
@@ -268,7 +265,6 @@ Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 {
 	std::vector<Object*>::const_iterator iter;
 	for (iter = vec.begin(); iter != vec.end(); iter++) {
-		//(*iter)->Print();
 		if ((*iter)->IsEqual(this))
 			return true;
 	}
@@ -607,6 +603,21 @@ ScriptResults::Hitters() const
 {
 	return fHitters;
 }
+
+
+const std::vector<Object*>
+ScriptResults::EnteredActors() const
+{
+	std::vector<Object*> actors;
+	std::vector<std::string>::const_iterator i;
+	for (i = fEnteredActors.begin(); i != fEnteredActors.end(); i++) {
+		Object* object = Core::Get()->GetObject((*i).c_str());
+		if (object != NULL)
+			actors.push_back(object);
+	}
+	return actors;
+}
+
 
 /*
 const
