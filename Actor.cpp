@@ -107,6 +107,8 @@ Actor::_Init()
 
 	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
 	fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
+	std::cout << "Animation: " << baseName << " (" << std::hex;
+	std::cout << fCRE->AnimationID() << ")" << std::endl;
 
 	/*std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)fCRE->Colors().major << std::endl;

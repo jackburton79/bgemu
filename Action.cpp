@@ -150,8 +150,9 @@ RunAwayFrom::operator()()
 	// TODO: We are recalculating this every time. Is it correct ?
 	if (Core::Get()->Distance(fActor, fTarget) < 200) {
 		IE::point point = PointAway();
-		if (fActor->Destination() != point)
+		if (fActor->Destination() != point) {
 			fActor->SetDestination(point);
+		}
 	}
 
 	if (fActor->Position() == fActor->Destination()) {
@@ -171,14 +172,14 @@ RunAwayFrom::PointAway() const
 	IE::point point = fActor->Position();
 
 	if (fTarget->Position().x > fActor->Position().x)
-		point.x -= 10;
+		point.x -= 20;
 	else if (fTarget->Position().x < fActor->Position().x)
-		point.x += 10;
+		point.x += 20;
 
 	if (fTarget->Position().y > fActor->Position().y)
-		point.y -= 10;
+		point.y -= 20;
 	else if (fTarget->Position().x < fActor->Position().y)
-		point.y += 10;
+		point.y += 20;
 
 	return point;
 }

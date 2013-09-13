@@ -78,7 +78,7 @@ GUI::Draw()
 		(*i)->Draw();
 	}
 
-	_DrawToolTip();
+	//_DrawToolTip();
 
 	if (fCurrentCursor != NULL) {
 		try {
