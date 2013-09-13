@@ -54,6 +54,7 @@ Object::~Object()
 
 	delete fLastScriptRoundResults;
 	delete fCurrentScriptRoundResults;
+	delete fScript;
 }
 
 
@@ -193,8 +194,10 @@ Object::Update(bool scripts)
 	if (scripts) {
 		if (++fTicks >= 15) {
 			fTicks = 0;
-			if (fScript != NULL)
-				fScript->Execute();
+			if (fScript != NULL) {
+				if (!fScript->Execute())
+					return;
+			}
 			// TODO: Make Object::Update() virtual and override
 			// in subclasses to avoid dynamic casting
 			if (actor != NULL)
