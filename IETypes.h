@@ -161,7 +161,26 @@ enum orientation {
 	ORIENTATION_SE	= 7
 };
 
-
+/*
+enum orientation_new {
+	ORIENTATION_S	= 0,
+	ORIENTATION_SSW	= 1,
+	ORIENTATION_SW 	= 2,
+	ORIENTATION_SWW = 3,
+	ORIENTATION_W	= 4,
+	ORIENTATION_WNW	= 5,
+	ORIENTATION_NW	= 6,
+	ORIENTATION_NNW	= 7,
+	ORIENTATION_N	= 8,
+	ORIENTATION_NNE	= 9,
+	ORIENTATION_NE	= 10,
+	ORIENTATION_NEE	= 11,
+	ORIENTATION_E	= 12,
+	ORIENTATION_SEE	= 13,
+	ORIENTATION_SE	= 14,
+	ORIENTATION_SES	= 15
+};
+*/
 struct item {
 	res_ref name;
 	uint8 expiration_time;
