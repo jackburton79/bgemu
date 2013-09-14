@@ -717,19 +717,18 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 
 
 void
-Room::ActorEnteredArea(Actor* actor)
+Room::ActorEnteredArea(const Actor* actor)
 {
-	fActors.push_back(actor);
+	fActors.push_back(const_cast<Actor*>(actor));
 }
 
 
 void
-Room::ActorExitedArea(Actor* actor)
+Room::ActorExitedArea(const Actor* actor)
 {
 	std::vector<Actor*>::iterator i =
 			std::find(fActors.begin(), fActors.end(), actor);
 	if (i != fActors.end()) {
-		//delete *i;
 		fActors.erase(i);
 	}
 }
