@@ -31,6 +31,7 @@
 #include "WedResource.h"
 #include "WMAPResource.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
@@ -711,6 +712,25 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 					fBackBitmap, &offsetRect, fBlitMask, &rect);
 		else
 			GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &offsetRect);
+	}
+}
+
+
+void
+Room::ActorEnteredArea(Actor* actor)
+{
+	fActors.push_back(actor);
+}
+
+
+void
+Room::ActorExitedArea(Actor* actor)
+{
+	std::vector<Actor*>::iterator i =
+			std::find(fActors.begin(), fActors.end(), actor);
+	if (i != fActors.end()) {
+		//delete *i;
+		fActors.erase(i);
 	}
 }
 

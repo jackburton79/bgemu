@@ -479,7 +479,10 @@ Core::_RemoveStaleObjects()
 	std::list<Object*>::iterator i = fObjects.begin();
 	while (i != fObjects.end()) {
 		if ((*i)->IsStale()) {
-			//delete *i;
+			if (Actor* actor = dynamic_cast<Actor*>(*i))
+				Room::Get()->ActorExitedArea(actor);
+			else
+				delete *i;
 			i = fObjects.erase(i);
 		} else
 			i++;

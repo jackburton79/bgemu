@@ -64,6 +64,9 @@ public:
 	void DrawObject(const Object& object);
 	void DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask);
 
+	void ActorEnteredArea(Actor* actor);
+	void ActorExitedArea(Actor* actor);
+
 	uint16 TileNumberForPoint(const IE::point& point);
 
 	uint8 PointHeight(const IE::point& point) const;

@@ -781,7 +781,18 @@ Script::_ExecuteAction(action_node* act)
 		case 0x07:
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
-			//Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			// TODO: If point is (-1, -1) we should put the actor near
+			// the active creature. Which one is the active creature?
+			IE::point point = act->where;
+			if (point.x == -1 && point.y == -1) {
+				point = Party::Get()->ActorAt(0)->Position();
+				point.x += rand() % 10 - 10;
+				point.y += rand() % 10 - 10;
+			}
+
+			Actor* actor = new Actor(act->string1, point, act->parameter);
+			Room::Get()->ActorEnteredArea(actor);
+
 			// TODO: Add actor to the current area
 			break;
 		}
@@ -915,18 +926,7 @@ Script::_ExecuteAction(action_node* act)
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			//Actor::Remove(fTarget->Name());
-			//delete fTarget;
-
 			fTarget->SetStale(true);
-			//fTarget = NULL;
-			//fTarget->SetScript(NULL);
-			//SetTarget(NULL);
-			// TODO: UnregisterObject crashes, since we are inside
-			// the following code:
-			// for (i = fObjects.begin(); i != fObjects.end(); i++) {
-			// 	(*i)->Update(executeScripts);
-			// }
 			return false;
 		}
 		case 0x73:
@@ -993,11 +993,11 @@ Script::_ExecuteAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			/*Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			Actor* actor = new Actor(act->string1, act->where, act->parameter);
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			Actor::Add(actor);*/
+			Room::Get()->ActorEnteredArea(actor);
 			break;
 		}
 		default:
