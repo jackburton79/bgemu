@@ -28,7 +28,9 @@ Object::Object(const char* name, const char* scriptName)
 	fTicks(0),
 	fVisible(true),
 	fCurrentScriptRoundResults(NULL),
-	fLastScriptRoundResults(NULL)
+	fLastScriptRoundResults(NULL),
+	fRegion(NULL),
+	fStale(false)
 {
 	if (scriptName != NULL) {
 		BCSResource* scriptResource = gResManager->GetBCS(scriptName);
@@ -561,6 +563,20 @@ Object::NewScriptRound()
 	delete fLastScriptRoundResults;
 	fLastScriptRoundResults = fCurrentScriptRoundResults;
 	fCurrentScriptRoundResults = new ScriptResults;
+}
+
+
+void
+Object::SetStale(bool stale)
+{
+	fStale = stale;
+}
+
+
+bool
+Object::IsStale() const
+{
+	return fStale;
 }
 
 

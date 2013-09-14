@@ -124,6 +124,9 @@ public:
 
 	void NewScriptRound();
 
+	void SetStale(bool stale);
+	bool IsStale() const;
+
 	ScriptResults* CurrentScriptRoundResults() const;
 	ScriptResults* LastScriptRoundResults() const;
 
@@ -140,6 +143,7 @@ private:
 	std::list<Action*> fActions;
 
 	Region* fRegion;
+	bool fStale;
 };
 
 #endif // __SCRIPTABLE_H

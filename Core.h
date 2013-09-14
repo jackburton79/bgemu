@@ -85,6 +85,7 @@ private:
 	bool fPaused;
 
 	void _PrintObjects() const;
+	void _RemoveStaleObjects();
 
 	Core();
 	~Core();

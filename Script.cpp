@@ -918,9 +918,10 @@ Script::_ExecuteAction(action_node* act)
 			Actor::Remove(fTarget->Name());
 			//delete fTarget;
 
+			fTarget->SetStale(true);
 			//fTarget = NULL;
-			fTarget->SetScript(NULL);
-			SetTarget(NULL);
+			//fTarget->SetScript(NULL);
+			//SetTarget(NULL);
 			// TODO: UnregisterObject crashes, since we are inside
 			// the following code:
 			// for (i = fObjects.begin(); i != fObjects.end(); i++) {

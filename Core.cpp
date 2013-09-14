@@ -373,6 +373,8 @@ Core::UpdateLogic(bool executeScripts)
 	//}
 
 	fActiveActor = NULL;
+
+	_RemoveStaleObjects();
 }
 
 
@@ -464,5 +466,19 @@ Core::_PrintObjects() const
 	for (std::list<Object*>::const_iterator i = fObjects.begin();
 											i != fObjects.end(); i++) {
 		(*i)->Print();
+	}
+}
+
+
+void
+Core::_RemoveStaleObjects()
+{
+	std::list<Object*>::iterator i = fObjects.begin();
+	while (i != fObjects.end()) {
+		if ((*i)->IsStale()) {
+			//delete *i;
+			i = fObjects.erase(i);
+		} else
+			i++;
 	}
 }
