@@ -88,6 +88,7 @@ private:
 	std::map<std::string, Script*> fScripts;
 
 	uint32 fLastScriptRoundTime;
+	uint16 fNextObjectNumber;
 
 	bool fPaused;
 
