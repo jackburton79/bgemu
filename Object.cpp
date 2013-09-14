@@ -13,6 +13,7 @@
 #include "IDSResource.h"
 #include "Object.h"
 #include "Party.h"
+#include "PathFind.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
@@ -226,6 +227,42 @@ Object::Update(bool scripts)
 
 	if (actor != NULL)
 		actor->UpdateAnimation(actor->IsFlying());
+}
+
+
+void
+Object::UpdateSee()
+{
+	Actor* thisActor = dynamic_cast<Actor*>(this);
+	if (thisActor == NULL)
+		return;
+
+	// TODO: Silly implementation: We take a straight line
+	// between source and target, and see if there are any unpassable
+	// point between them, we also check distance and visibility of
+	// the target
+	std::list<Object*>::const_iterator start = Core::Get()->Objects().begin();
+	std::list<Object*>::const_iterator end = Core::Get()->Objects().end();
+	std::list<Object*>::const_iterator i;
+	for (i = start; i != end; i++) {
+		Actor* target = dynamic_cast<Actor*>(*i);
+		// TODO: Take into account any eventual spell
+		if (target == NULL || target == this || !target->IsVisible())
+			continue;
+
+		const IE::point thisPosition = Position();
+		const IE::point targetPosition = target->Position();
+		// TODO: 200 is an arbitrarily chosen number
+		if (Core::Get()->Distance(this, target) < 200 &&
+			PathFinder::IsStraightlyReachable(thisPosition,
+												targetPosition)) {
+			// TODO: This isn't correct: a low obstacle doesn't
+			// inficiate the ability to see an object
+
+			thisActor->SetSeen(target);
+			(target)->SetSeenBy(thisActor);
+		}
+	}
 }
 
 

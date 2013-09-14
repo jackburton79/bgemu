@@ -1043,16 +1043,19 @@ Room::_DrawAnimations()
 void
 Room::_DrawActors()
 {
-	std::vector<Actor*>::iterator a;
-	for (a = Actor::List().begin(); a != Actor::List().end(); a++) {
-		try {
-			DrawObject(*(*a));
-		} catch (const char* string) {
-			std::cerr << "_DrawActors: exception: " << string << std::endl;
-			continue;
-		} catch (...) {
-			std::cerr << "Caught exception on actor " << (*a)->Name() << std::endl;
-			continue;
+	std::list<Object*>::const_iterator a;
+	for (a = Core::Get()->Objects().begin();
+			a != Core::Get()->Objects().end(); a++) {
+		if (Actor* actor = dynamic_cast<Actor*>(*a)) {
+			try {
+				DrawObject(*actor);
+			} catch (const char* string) {
+				std::cerr << "_DrawActors: exception: " << string << std::endl;
+				continue;
+			} catch (...) {
+				std::cerr << "Caught exception on actor " << actor->Name() << std::endl;
+				continue;
+			}
 		}
 	}
 }
@@ -1118,15 +1121,17 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 Actor*
 Room::_ActorAtPoint(const IE::point& point)
 {
-	std::vector<Actor*>& actorList = Actor::List();
-	std::vector<Actor*>::const_iterator iter;
+	const std::list<Object*>& actorList = Core::Get()->Objects();
+	std::list<Object*>::const_iterator iter;
 	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
-		try {
-			const GFX::rect actorFrame = (*iter)->Frame();
-			if (rect_contains(actorFrame, point))
-				return *iter;
-		} catch (...) {
-			continue;
+		if (Actor* actor = dynamic_cast<Actor*>(*iter)) {
+			try {
+				const GFX::rect actorFrame = actor->Frame();
+				if (rect_contains(actorFrame, point))
+					return actor;
+			} catch (...) {
+				continue;
+			}
 		}
 	}
 
@@ -1263,13 +1268,15 @@ Room::_LoadActors()
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
-		Actor::Add(actor);
+		actor->SetArea(fArea->Name());
+		fActors.push_back(actor);
 	}
 
 	// TODO: Check if it's okay
 	Party* party = Party::Get();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
-		Actor::Add(party->ActorAt(a));
+		party->ActorAt(a)->SetArea(fArea->Name());
+		fActors.push_back(party->ActorAt(a));
 	}
 
 	std::cout << "Done!" << std::endl;
@@ -1342,13 +1349,11 @@ Room::_UnloadArea()
 	fTileCells.clear();
 
 	std::vector<Actor*>::const_iterator actorIter;
-	for (actorIter = Actor::List().begin();
-			actorIter != Actor::List().end();
-			actorIter++) {
+	for (actorIter = fActors.begin(); actorIter != fActors.end(); actorIter++) {
 		if (!Party::Get()->HasActor(*actorIter))
 			delete *actorIter;
 	}
-	Actor::List().clear();
+	fActors.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
 		delete fOverlays[c];

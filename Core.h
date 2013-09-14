@@ -70,7 +70,12 @@ public:
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);
 	void RandomWalk(Actor* actor);
 
+	const std::list<Object*>& Objects() const;
+
 private:
+	// TODO: Remove this
+	friend class Object;
+
 	game fGame;
 	Room* fCurrentRoom;
 	Actor* fActiveActor;

@@ -278,16 +278,18 @@ Core::GetObject(const Region* region) const
 Object*
 Core::GetNearestEnemyOf(const Object* object) const
 {
-	std::vector<Actor*> actorList = Actor::List();
-	std::vector<Actor*>::iterator i;
+	std::list<Object*>::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = actorList.begin(); i != actorList.end(); i++) {
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		Actor* actor = dynamic_cast<Actor*>(*i);
+		if (actor == NULL)
+			continue;
 		if ((*i) != object && (*i)->IsEnemyOf(object)) {
 			int distance = Distance(object, *i);
 			if (distance < minDistance) {
 				minDistance = distance;
-				nearest = *i;
+				nearest = actor;
 			}
 		}
 	}
@@ -356,21 +358,15 @@ Core::UpdateLogic(bool executeScripts)
 
 	Timer::UpdateGameTime();
 
-	// TODO: Should do that based on timer.
-	//NewScriptRound();
-
-	// TODO: Not nice, should be stop the scripts in some other way
+	// TODO: Not nice, should stop the scripts in some other way
 	if (strcmp(Room::Get()->AreaName().CString(), "WORLDMAP") == 0)
 		return;
 
 	// TODO: Fix/Improve
 	std::list<Object*>::iterator i;
-	//if (SDL_GetTicks() > fLastScriptRoundTime + kRoundDuration / 6) {
-		//fLastScriptRoundTime = SDL_GetTicks();
-		for (i = fObjects.begin(); i != fObjects.end(); i++) {
-			(*i)->Update(executeScripts);
-		}
-	//}
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		(*i)->Update(executeScripts);
+	}
 
 	fActiveActor = NULL;
 
@@ -457,6 +453,13 @@ Core::RandomWalk(Actor* actor)
 	WalkTo* walkTo = new WalkTo(actor, destination);
 	actor->AddAction(walkTo);
 	//actor->SetFlying(false);
+}
+
+
+const std::list<Object*>&
+Core::Objects() const
+{
+	return fObjects;
 }
 
 

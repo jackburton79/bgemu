@@ -152,6 +152,7 @@ private:
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
+	std::vector<Actor*> fActors;
 	std::vector<Animation*> fAnimations;
 	std::vector<Region*> fRegions;
 	std::vector<Container*> fContainers;

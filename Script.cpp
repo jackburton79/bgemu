@@ -781,8 +781,8 @@ Script::_ExecuteAction(action_node* act)
 		case 0x07:
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
-			Actor* actor = new Actor(act->string1, act->where, act->parameter);
-			Actor::Add(actor);
+			//Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			// TODO: Add actor to the current area
 			break;
 		}
 
@@ -915,7 +915,7 @@ Script::_ExecuteAction(action_node* act)
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			Actor::Remove(fTarget->Name());
+			//Actor::Remove(fTarget->Name());
 			//delete fTarget;
 
 			fTarget->SetStale(true);
@@ -993,11 +993,11 @@ Script::_ExecuteAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			/*Actor* actor = new Actor(act->string1, act->where, act->parameter);
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			Actor::Add(actor);
+			Actor::Add(actor);*/
 			break;
 		}
 		default:

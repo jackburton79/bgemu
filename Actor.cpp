@@ -25,7 +25,7 @@
 #include <assert.h>
 #include <string>
 
-std::vector<Actor*> Actor::sActors;
+//std::vector<Actor*> Actor::sActors;
 
 Actor::Actor(IE::actor &actor)
 	:
@@ -169,15 +169,15 @@ Actor::~Actor()
 }
 
 
-/* static */
+/* static
 void
 Actor::Add(Actor* actor)
 {
 	sActors.push_back(actor);
-}
+}*/
 
 
-/* static */
+/* static
 void
 Actor::Remove(const char* name)
 {
@@ -189,18 +189,18 @@ Actor::Remove(const char* name)
 			break;
 		}
 	}
-}
+}*/
 
 
-/* static */
+/* static
 Actor*
 Actor::GetByIndex(uint32 i)
 {
 	return sActors[i];
 }
+*/
 
-
-/* static */
+/* static
 Actor*
 Actor::GetByName(const char* name)
 {
@@ -211,15 +211,15 @@ Actor::GetByName(const char* name)
 	}
 	return NULL;
 }
+*/
 
-
-/* static */
+/* static
 std::vector<Actor*>&
 Actor::List()
 {
 	return sActors;
 }
-
+*/
 
 const ::Bitmap*
 Actor::Bitmap() const
@@ -285,6 +285,20 @@ void
 Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = fPath->SetPoints(fActor->position, point);
+}
+
+
+const char*
+Actor::Area() const
+{
+	return fArea.c_str();
+}
+
+
+void
+Actor::SetArea(const char* areaName)
+{
+	fArea = areaName;
 }
 
 
@@ -438,34 +452,6 @@ Actor::StopCheckingConditions()
 }
 
 
-void
-Actor::UpdateSee()
-{
-	// TODO: Silly implementation: We take a straight line
-	// between source and target, and see if there are any unpassable
-	// point between them, we also check distance and visibility of
-	// the target
-	std::vector<Actor*>::const_iterator i;
-	for (i = Actor::List().begin(); i != Actor::List().end(); i++) {
-		Object* target = *i;
-		// TODO: Take into account any eventual spell
-		if (target == this || !target->IsVisible())
-			continue;
-
-		const IE::point thisPosition = Position();
-		const IE::point targetPosition = target->Position();
-		// TODO: 200 is an arbitrarily chosen number
-		if (Core::Get()->Distance(this, target) < 200 &&
-			PathFinder::IsStraightlyReachable(thisPosition,
-												targetPosition)) {
-			// TODO: This isn't correct: a low obstacle doesn't
-			// inficiate the ability to see an object
-
-			SetSeen(target);
-			(target)->SetSeenBy(this);
-		}
-	}
-}
 
 
 void

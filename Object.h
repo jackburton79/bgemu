@@ -87,6 +87,7 @@ public:
 	void ClearActionList();
 
 	void Update(bool scripts);
+	void UpdateSee();
 
 	void SetScript(Script* script);
 

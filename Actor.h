@@ -40,6 +40,9 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
+	void SetArea(const char* name);
+	const char* Area() const;
+
 	virtual IE::point NearestPoint(const IE::point& point) const;
 	virtual void ClickedOn(Object* target);
 
@@ -58,7 +61,7 @@ public:
 
 	bool SkipConditions() const;
 	void StopCheckingConditions();
-	void UpdateSee();
+
 	void SetSeen(Object* object);
 	bool HasSeen(const Object* object) const;
 
@@ -67,17 +70,12 @@ public:
 	void UpdateAnimation(bool ignoreBlocks);
 	void MoveToNextPointInPath(bool ignoreBlocks);
 
-	// Global list of actors
-	static void Add(Actor *a);
-	static void Remove(const char* name);
-	static Actor* GetByIndex(uint32 i);
-	static Actor* GetByName(const char* name);
-	static std::vector<Actor*>& List();
-
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
 	Animation* fCurrentAnimation;
+
+	std::string fArea;
 
 	CREResource *fCRE;
 	bool fOwnsActor;
@@ -94,7 +92,7 @@ private:
 	PathFinder* fPath;
 	int fSpeed;
 
-	static std::vector<Actor*> sActors;
+	//static std::vector<Actor*> sActors;
 
 	void _Init();
 	void _AddScript(Script*& destination, const res_ref& scriptName);
