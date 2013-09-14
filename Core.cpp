@@ -456,6 +456,14 @@ Core::RandomWalk(Actor* actor)
 }
 
 
+/* static */
+int32
+Core::RandomNumber(int32 start, int32 end)
+{
+	return start + rand() % (end - start);
+}
+
+
 const std::list<Object*>&
 Core::Objects() const
 {

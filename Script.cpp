@@ -786,8 +786,8 @@ Script::_ExecuteAction(action_node* act)
 			IE::point point = act->where;
 			if (point.x == -1 && point.y == -1) {
 				point = Party::Get()->ActorAt(0)->Position();
-				point.x += rand() % 10 - 10;
-				point.y += rand() % 10 - 10;
+				point.x += Core::RandomNumber(-20, 20);
+				point.y += Core::RandomNumber(-20, 20);
 			}
 
 			Actor* actor = new Actor(act->string1, point, act->parameter);

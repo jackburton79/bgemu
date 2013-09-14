@@ -70,6 +70,8 @@ public:
 	void FlyToPoint(Actor* actor, IE::point, uint32 time);
 	void RandomWalk(Actor* actor);
 
+	static int32 RandomNumber(int32 start, int32 end);
+
 	const std::list<Object*>& Objects() const;
 
 private:
