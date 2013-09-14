@@ -604,7 +604,7 @@ Object::LastScriptRoundResults() const
 void
 Object::AttackTarget(Object* target)
 {
-	target->fCurrentScriptRoundResults->fAttackers.push_back(this);
+	target->fCurrentScriptRoundResults->fAttackers.push_back(Name());
 }
 
 
@@ -617,17 +617,31 @@ ScriptResults::ScriptResults()
 }
 
 
-const std::vector<Object*>&
+const std::vector<Object*>
 ScriptResults::Attackers() const
 {
-	return fAttackers;
+	std::vector<Object*> actors;
+	std::vector<std::string>::const_iterator i;
+	for (i = fAttackers.begin(); i != fAttackers.end(); i++) {
+		Object* object = Core::Get()->GetObject((*i).c_str());
+		if (object != NULL)
+			actors.push_back(object);
+	}
+	return actors;
 }
 
 
-const std::vector<Object*>&
+const std::vector<Object*>
 ScriptResults::Hitters() const
 {
-	return fHitters;
+	std::vector<Object*> actors;
+	std::vector<std::string>::const_iterator i;
+	for (i = fHitters.begin(); i != fHitters.end(); i++) {
+		Object* object = Core::Get()->GetObject((*i).c_str());
+		if (object != NULL)
+			actors.push_back(object);
+	}
+	return actors;
 }
 
 
@@ -660,7 +674,8 @@ ScriptResults::LastAttacker() const
 	const int32 numAttackers = fAttackers.size();
 	if (numAttackers == 0)
 		return NULL;
-	return fAttackers[numAttackers - 1];
+
+	return Attackers()[numAttackers - 1];
 }
 
 
@@ -674,7 +689,7 @@ ScriptResults::CountAttackers() const
 Object*
 ScriptResults::AttackerAt(int32 i) const
 {
-	return fAttackers[i];
+	return Attackers()[i];
 }
 
 

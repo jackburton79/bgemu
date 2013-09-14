@@ -25,8 +25,8 @@ class Script;
 class ScriptResults {
 public:
 	ScriptResults();
-	const std::vector<Object*>& Attackers() const;
-	const std::vector<Object*>& Hitters() const;
+	const std::vector<Object*> Attackers() const;
+	const std::vector<Object*> Hitters() const;
 	const std::vector<Object*> EnteredActors() const;
 
 	int32 CountAttackers() const;
@@ -42,8 +42,8 @@ public:
 private:
 	friend class Object;
 	friend class Actor;
-	std::vector<Object*> fAttackers;
-	std::vector<Object*> fHitters;
+	std::vector<std::string> fAttackers;
+	std::vector<std::string> fHitters;
 	std::vector<std::string> fSeenBy;
 	std::vector<std::string> fSeenList;
 
