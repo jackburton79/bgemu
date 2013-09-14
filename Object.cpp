@@ -54,6 +54,10 @@ Object::Object(const char* name, const char* scriptName)
 Object::~Object()
 {
 	Core::Get()->UnregisterObject(this);
+	std::list<Action*>::iterator i = fActions.begin();
+	for (; i != fActions.end(); i++)
+		delete *i;
+	fActions.clear();
 
 	delete fLastScriptRoundResults;
 	delete fCurrentScriptRoundResults;
