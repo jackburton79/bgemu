@@ -290,7 +290,7 @@ CREResource::DialogFile()
 
 
 uint16
-CREResource::GlobalActorValue()
+CREResource::GlobalActorEnum()
 {
 	uint16 value;
 	fData->ReadAt(0x27c, &value, sizeof(value));
@@ -298,12 +298,26 @@ CREResource::GlobalActorValue()
 }
 
 
+void
+CREResource::SetGlobalActorEnum(uint16 value)
+{
+	fData->WriteAt(0x27c, &value, sizeof(value));
+}
+
+
 uint16
-CREResource::LocalActorValue()
+CREResource::LocalActorEnum()
 {
 	uint16 value;
 	fData->ReadAt(0x27e, &value, sizeof(value));
 	return value;
+}
+
+
+void
+CREResource::SetLocalActorEnum(uint16 value)
+{
+	fData->WriteAt(0x27e, &value, sizeof(value));
 }
 
 

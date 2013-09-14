@@ -151,8 +151,10 @@ public:
 	res_ref GeneralScriptName();
 	res_ref DefaultScriptName();
 
-	uint16 GlobalActorValue();
-	uint16 LocalActorValue();
+	uint16 GlobalActorEnum();
+	void SetGlobalActorEnum(uint16 enumValue);
+	uint16 LocalActorEnum();
+	void SetLocalActorEnum(uint16 enumValue);
 
 	IE::item* ItemAtSlot(uint32 i);
 
