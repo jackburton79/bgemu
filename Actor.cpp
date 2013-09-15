@@ -25,7 +25,6 @@
 #include <assert.h>
 #include <string>
 
-//std::vector<Actor*> Actor::sActors;
 
 Actor::Actor(IE::actor &actor)
 	:
@@ -170,58 +169,6 @@ Actor::~Actor()
 	delete fPath;
 }
 
-
-/* static
-void
-Actor::Add(Actor* actor)
-{
-	sActors.push_back(actor);
-}*/
-
-
-/* static
-void
-Actor::Remove(const char* name)
-{
-	std::vector<Actor*>::iterator i;
-	for (i = sActors.begin(); i != sActors.end(); i++) {
-		if (strcmp((*i)->Name(), name) == 0) {
-			std::cout << "Erase actor " << (*i)->Name() << std::endl;
-			sActors.erase(i);
-			break;
-		}
-	}
-}*/
-
-
-/* static
-Actor*
-Actor::GetByIndex(uint32 i)
-{
-	return sActors[i];
-}
-*/
-
-/* static
-Actor*
-Actor::GetByName(const char* name)
-{
-	std::vector<Actor*>::const_iterator i;
-	for (i = sActors.begin(); i != sActors.end(); i++) {
-		if (!strcmp((*i)->Name(), name))
-				return *i;
-	}
-	return NULL;
-}
-*/
-
-/* static
-std::vector<Actor*>&
-Actor::List()
-{
-	return sActors;
-}
-*/
 
 const ::Bitmap*
 Actor::Bitmap() const
