@@ -45,8 +45,6 @@ Object::Object(const char* name, const char* scriptName)
 
 	fCurrentScriptRoundResults = new ScriptResults;
 
-	Core::Get()->RegisterObject(this);
-
 	fTicks = rand() % 15;
 }
 

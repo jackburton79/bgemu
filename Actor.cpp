@@ -105,6 +105,8 @@ Actor::_Init()
 	if (fCRE == NULL)
 		throw "error!!!";
 
+	Core::Get()->RegisterObject(this);
+
 	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
 	fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
 	std::cout << "Animation: " << baseName << " (" << std::hex;
