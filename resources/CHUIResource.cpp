@@ -79,7 +79,6 @@ CHUIResource::GetWindow(uint16 num)
 	if (window.background) {
 		MOSResource* mos = gResManager->GetMOS(window.background_mos);
 		if (mos != NULL) {
-			std::cerr << "Cannot load window background!" << std::endl;
 			background = mos->Image();
 			gResManager->ReleaseResource(mos);
 		}
