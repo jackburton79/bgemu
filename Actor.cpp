@@ -427,7 +427,6 @@ Actor::UpdateSee()
 			// inficiate the ability to see an object
 
 			SetSeen(target);
-			(target)->SetSeenBy(this);
 		}
 	}
 }
@@ -436,8 +435,8 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	//std::cout << object->Name() << " was seen by " << Name() << std::endl;
 	CurrentScriptRoundResults()->fSeenList.push_back(object->Name());
+	object->SetSeenBy(this);
 }
 
 
@@ -446,9 +445,10 @@ Actor::HasSeen(const Object* object) const
 {
 	const std::string name = object->Name();
 	std::vector<std::string>::const_iterator i;
-	i = std::find(CurrentScriptRoundResults()->fSeenList.begin(),
-			CurrentScriptRoundResults()->fSeenList.end(), name);
-	return i != CurrentScriptRoundResults()->fSeenList.end();
+	i = std::find(LastScriptRoundResults()->fSeenList.begin(),
+			LastScriptRoundResults()->fSeenList.end(), name);
+
+	return i != LastScriptRoundResults()->fSeenList.end();
 }
 
 

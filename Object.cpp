@@ -199,16 +199,16 @@ Object::Update(bool scripts)
 	if (scripts) {
 		if (++fTicks >= 15) {
 			fTicks = 0;
-			if (fScript != NULL) {
-				if (!fScript->Execute())
-					return;
-			}
 			// TODO: Make Object::Update() virtual and override
 			// in subclasses to avoid dynamic casting
 			if (actor != NULL)
 				actor->UpdateSee();
 			else if (Region* region = dynamic_cast<Region*>(this)) {
 				region->CheckObjectsInside();
+			}
+			if (fScript != NULL) {
+				if (!fScript->Execute())
+					return;
 			}
 		}
 	}
@@ -565,6 +565,7 @@ Object::IsState(int state) const
 void
 Object::NewScriptRound()
 {
+	std::cout << Name() << " NewScriptRound" << std::endl;
 	delete fLastScriptRoundResults;
 	fLastScriptRoundResults = fCurrentScriptRoundResults;
 	fCurrentScriptRoundResults = new ScriptResults;
