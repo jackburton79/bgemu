@@ -178,6 +178,8 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 		sdlFlags |= SDL_FULLSCREEN;
 	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
 	fScreen = new Bitmap(surface, false);
+	fFlags = flags;
+
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
 		(*i)->VideoAreaChanged(x, y);
@@ -194,6 +196,7 @@ GraphicsEngine::SaveCurrentMode()
 		fOldRect.w = surface->w;
 		fOldRect.h = surface->h;
 		fOldDepth = surface->format->BitsPerPixel;
+		fOldFlags = fFlags;
 	}
 }
 
@@ -202,7 +205,7 @@ void
 GraphicsEngine::RestorePreviousMode()
 {
 	if (fOldDepth != 0) {
-		SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, 0);
+		SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, fOldFlags);
 		fOldDepth = 0;
 	}
 }

@@ -62,8 +62,11 @@ public:
 	void RemoveListener(Listener* listener);
 private:
 	Bitmap* fScreen;
+	uint16 fFlags;
+
 	GFX::rect fOldRect;
 	uint16 fOldDepth;
+	uint16 fOldFlags;
 
 	std::vector<Listener*> fListeners;
 };
