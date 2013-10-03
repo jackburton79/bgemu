@@ -563,6 +563,18 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				break;
 			}
+			case 0x4063:
+			{
+				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
+				int range = 40;
+				// TODO: Check weapon range
+				Object* object = FindObject(trig);
+				if (object != NULL)
+					returnValue = core->Distance(object, fTarget) <= range;
+
+				break;
+			}
+
 #if 0
 			case 0x4068:
 			{
