@@ -135,7 +135,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 			|| !IsPassable(end))
 		return maxReachableDirectly;
 
-	//std::list<IE::point>::iterator directRouteEnd = fPoints.end();
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	fOpenList.push_back(currentNode);
 
