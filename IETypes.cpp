@@ -80,6 +80,8 @@ res_string_to_type(const char* string)
 		return -1;
 	if (!strcasecmp(ext, ".2DA"))
 		return RES_2DA;
+	else if (!strcasecmp(ext, ".DLG"))
+		return RES_DLG;
 	else if (!strcasecmp(ext, ".WED"))
 		return RES_WED;
 	else if (!strcasecmp(ext, ".WMP"))
