@@ -788,9 +788,6 @@ Script::_ExecuteAction(action_node* act)
 			if (targetObject != NULL) {
 				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
 				if (thisActor != NULL && targetActor != NULL) {
-					IE::point point = targetActor->NearestPoint(thisActor->Position());
-					WalkTo* walkToAction = new WalkTo(thisActor, point);
-					thisActor->AddAction(walkToAction);
 					Attack* attackAction = new Attack(thisActor, targetActor);
 					thisActor->AddAction(attackAction);
 				}

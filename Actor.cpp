@@ -290,9 +290,6 @@ Actor::ClickedOn(Object* target)
 		Toggle* toggleAction = new Toggle(this, door);
 		AddAction(toggleAction);
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
-		IE::point point = actor->NearestPoint(Position());
-		WalkTo* walkToAction = new WalkTo(this, point);
-		AddAction(walkToAction);
 		Attack* attackAction = new Attack(this, actor);
 		AddAction(attackAction);
 	} else if (Container* container = dynamic_cast<Container*>(target)) {

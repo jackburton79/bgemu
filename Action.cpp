@@ -134,9 +134,21 @@ Attack::Attack(Actor* actor, Actor* target)
 void
 Attack::operator()()
 {
-	Action::operator()();
-	fActor->SetAnimationAction(ACT_ATTACKING);
-	fActor->AttackTarget(fTarget);
+	if (!Initiated()) {
+		IE::point point = fTarget->NearestPoint(fActor->Position());
+		if (!PointSufficientlyClose(fActor->Position(), point))
+			fActor->SetDestination(point);
+		Action::operator()();
+	}
+
+	if (fActor->Position() != fActor->Destination()) {
+		fActor->SetAnimationAction(ACT_WALKING);
+		fActor->MoveToNextPointInPath(fActor->IsFlying());
+	} else {
+		fActor->SetAnimationAction(ACT_ATTACKING);
+		fActor->AttackTarget(fTarget);
+		fCompleted = true;
+	}
 }
 
 
