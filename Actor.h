@@ -40,6 +40,8 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
 
+	uint32 NumTimesTalkedTo() const;
+
 	void SetArea(const char* name);
 	const char* Area() const;
 

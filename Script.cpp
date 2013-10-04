@@ -494,6 +494,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = object->IsState(trig->parameter1);
 				break;
 			}
+			case 0x4039:
+			{
+				/* NUMBEROFTIMESTALKEDTO(I:NUM*) (16441 0x4039) */
+				if (actor->NumTimesTalkedTo() == (uint32)trig->parameter1)
+					returnValue = true;
+				break;
+			}
 			case 0x4040:
 			{
 				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */

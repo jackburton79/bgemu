@@ -237,6 +237,13 @@ Actor::SetDestination(const IE::point& point)
 }
 
 
+uint32
+Actor::NumTimesTalkedTo() const
+{
+	return fActor->num_times_talked_to;
+}
+
+
 const char*
 Actor::Area() const
 {
