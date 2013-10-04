@@ -220,8 +220,9 @@ Dialogue::Dialogue(Actor* source, Actor* target)
 void
 Dialogue::operator()()
 {
-	if (!PointSufficientlyClose(fActor->Destination(), fTarget->Position()))
-		fActor->SetDestination(fTarget->Position());
+	const IE::point point = fTarget->NearestPoint(fActor->Position());
+	if (!PointSufficientlyClose(fActor->Destination(), point))
+		fActor->SetDestination(point);
 
 	Action::operator()();
 
