@@ -180,11 +180,10 @@ RunAwayFrom::operator()()
 	if (fActor->Position() == fActor->Destination()) {
 		fCompleted = true;
 		fActor->SetAnimationAction(ACT_STANDING);
-		return;
+	} else {
+		fActor->SetAnimationAction(ACT_WALKING);
+		fActor->MoveToNextPointInPath(fActor->IsFlying());
 	}
-
-	fActor->SetAnimationAction(ACT_WALKING);
-	fActor->MoveToNextPointInPath(fActor->IsFlying());
 }
 
 
@@ -200,7 +199,7 @@ RunAwayFrom::PointAway() const
 
 	if (fTarget->Position().y > fActor->Position().y)
 		point.y -= 100;
-	else if (fTarget->Position().x < fActor->Position().y)
+	else if (fTarget->Position().y < fActor->Position().y)
 		point.y += 100;
 
 	return point;
