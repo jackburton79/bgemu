@@ -42,6 +42,8 @@ public:
 
 	uint32 NumTimesTalkedTo() const;
 
+	void InitiateDialogWith(Actor* actor);
+
 	void SetArea(const char* name);
 	const char* Area() const;
 

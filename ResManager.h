@@ -21,6 +21,7 @@ class BCSResource;
 class BMPResource;
 class CHUIResource;
 class CREResource;
+class DLGResource;
 class IDSResource;
 class ITMResource;
 class MOSResource;
@@ -44,6 +45,7 @@ public:
 	BMPResource *GetBMP(const res_ref& name);
 	CHUIResource* GetCHUI(const res_ref& name);
 	CREResource *GetCRE(const res_ref& name);
+	DLGResource* GetDLG(const res_ref& name);
 	IDSResource *GetIDS(const res_ref& name);
 	ITMResource *GetITM(const res_ref& name);
 	TISResource *GetTIS(const res_ref& name);

@@ -7,6 +7,7 @@
 #include "CHUIResource.h"
 #include "CreResource.h"
 #include "Core.h"
+#include "DLGResource.h"
 #include "FileStream.h"
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
@@ -286,6 +287,14 @@ ResourceManager::GetCRE(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_CRE);
 	return static_cast<CREResource*>(resource);
+}
+
+
+DLGResource*
+ResourceManager::GetDLG(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_DLG);
+	return static_cast<DLGResource*>(resource);
 }
 
 

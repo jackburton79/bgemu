@@ -9,6 +9,7 @@
 #include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
+#include "DLGResource.h"
 #include "Door.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
@@ -241,6 +242,15 @@ uint32
 Actor::NumTimesTalkedTo() const
 {
 	return fActor->num_times_talked_to;
+}
+
+
+void
+Actor::InitiateDialogWith(Actor* actor)
+{
+	DLGResource* dlgResource = gResManager->GetDLG(fActor->dialog);
+
+	gResManager->ReleaseResource(dlgResource);
 }
 
 
