@@ -816,6 +816,16 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 
+		case 0x8:
+		{
+			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
+			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			if (actor != NULL) {
+				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
+				thisActor->AddAction(dialogueAction);
+			}
+			break;
+		}
 		case 0xA:
 		{
 			/* ENEMY() (10 0xa) */

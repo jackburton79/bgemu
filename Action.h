@@ -68,4 +68,12 @@ private:
 
 	IE::point PointAway() const;
 };
+
+class Dialogue : public Action {
+public:
+	Dialogue(Actor* actor, Actor* target);
+	virtual void operator()();
+private:
+	Actor* fTarget;
+};
 #endif

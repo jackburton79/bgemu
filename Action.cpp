@@ -5,6 +5,16 @@
 #include "Door.h"
 #include "Timer.h"
 
+#include <algorithm>
+
+static bool
+PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
+{
+	return (std::abs(pointA.x - pointB.x) <= 5 * 2)
+		&& (std::abs(pointA.y - pointB.y) <= 5 * 2);
+}
+
+
 Action::Action(Actor* actor)
     :
 	fActor(actor),
@@ -172,14 +182,44 @@ RunAwayFrom::PointAway() const
 	IE::point point = fActor->Position();
 
 	if (fTarget->Position().x > fActor->Position().x)
-		point.x -= 20;
+		point.x -= 100;
 	else if (fTarget->Position().x < fActor->Position().x)
-		point.x += 20;
+		point.x += 100;
 
 	if (fTarget->Position().y > fActor->Position().y)
-		point.y -= 20;
+		point.y -= 100;
 	else if (fTarget->Position().x < fActor->Position().y)
-		point.y += 20;
+		point.y += 100;
 
 	return point;
+}
+
+
+// Dialogue
+Dialogue::Dialogue(Actor* source, Actor* target)
+	:
+	Action(source),
+	fTarget(target)
+{
+
+}
+
+
+/* virtual */
+void
+Dialogue::operator()()
+{
+	if (!PointSufficientlyClose(fActor->Destination(), fTarget->Position()))
+		fActor->SetDestination(fTarget->Position());
+
+	Action::operator()();
+
+	if (!PointSufficientlyClose(fActor->Position(), fTarget->Position())) {
+		fActor->SetAnimationAction(ACT_WALKING);
+		fActor->MoveToNextPointInPath(fActor->IsFlying());
+	} else {
+		fActor->SetAnimationAction(ACT_STANDING);
+		// TODO: Initiate the dialog
+		fCompleted = true;
+	}
 }
