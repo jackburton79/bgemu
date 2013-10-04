@@ -6,6 +6,7 @@
 #include "BmpResource.h"
 #include "CHUIResource.h"
 #include "CreResource.h"
+#include "DLGResource.h"
 #include "FileStream.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
@@ -259,6 +260,9 @@ Resource::Create(const res_ref &name, const uint16& type)
 				break;
 			case RES_CRE:
 				res = new CREResource(name);
+				break;
+			case RES_DLG:
+				res = new DLGResource(name);
 				break;
 			case RES_IDS:
 				res = new IDSResource(name);

@@ -46,6 +46,8 @@ res_extension(int type)
 			return ".CHU";
 		case RES_CRE:
 			return ".CRE";
+		case RES_DLG:
+			return ".DLG";
 		case RES_IDS:
 			return ".IDS";
 		case RES_ITM:
