@@ -231,7 +231,7 @@ Dialogue::operator()()
 		fActor->MoveToNextPointInPath(fActor->IsFlying());
 	} else {
 		fActor->SetAnimationAction(ACT_STANDING);
-		// TODO: Initiate the dialog
 		fCompleted = true;
+		fActor->InitiateDialogWith(fTarget);
 	}
 }
