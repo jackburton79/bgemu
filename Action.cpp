@@ -82,6 +82,35 @@ WalkTo::operator()()
 }
 
 
+// FlyTo
+FlyTo::FlyTo(Actor* actor, IE::point destination, int time)
+	:
+	Action(actor),
+	fDestination(destination)
+{
+}
+
+
+/* virtual */
+void
+FlyTo::operator()()
+{
+	if (!Initiated())
+		fActor->SetDestination(fDestination);
+
+	Action::operator()();
+
+	if (fActor->Position() == fActor->Destination()) {
+		fCompleted = true;
+		fActor->SetAnimationAction(ACT_STANDING);
+		return;
+	}
+
+	fActor->SetAnimationAction(ACT_WALKING);
+	fActor->MoveToNextPointInPath(true);
+}
+
+
 // Wait
 Wait::Wait(Actor* actor, uint32 time)
 	:

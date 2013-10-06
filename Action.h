@@ -30,6 +30,15 @@ private:
 };
 
 
+class FlyTo : public Action {
+public:
+	FlyTo(Actor* actor, IE::point, int time);
+	virtual void operator()();
+private:
+	IE::point fDestination;
+};
+
+
 class Wait : public Action {
 public:
 	Wait(Actor* actor, uint32 time);
@@ -68,6 +77,7 @@ private:
 
 	IE::point PointAway() const;
 };
+
 
 class Dialogue : public Action {
 public:

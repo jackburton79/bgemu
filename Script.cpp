@@ -945,8 +945,10 @@ Script::_ExecuteAction(action_node* act)
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			if (thisActor != NULL && thisActor->IsInterruptable())
-				core->FlyToPoint(thisActor, act->where, act->parameter);
+			if (thisActor != NULL && thisActor->IsInterruptable()) {
+				FlyTo* flyTo = new FlyTo(thisActor, act->where, act->parameter);
+				thisActor->AddAction(flyTo);
+			}
 			break;
 		}
 		case 111:

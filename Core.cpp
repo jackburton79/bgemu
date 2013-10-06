@@ -439,10 +439,12 @@ Core::RandomFly(Actor* actor)
 void
 Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 {
-	// TODO:
-	actor->SetFlying(true);
-	//if (rect_contains(fCurrentRoom->AreaRect(), point))
-	actor->SetDestination(point);
+	int16 randomX = (rand() % 100) - 50;
+	int16 randomY = (rand() % 100) - 50;
+
+	IE::point destination = offset_point(actor->Position(), randomX, randomY);
+	FlyTo* flyTo = new FlyTo(actor, destination, time);
+	actor->AddAction(flyTo);
 }
 
 
