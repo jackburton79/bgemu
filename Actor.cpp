@@ -248,6 +248,7 @@ Actor::NumTimesTalkedTo() const
 void
 Actor::InitiateDialogWith(Actor* actor)
 {
+	std::cout << "InitiateDialogWith " << fActor->dialog << std::endl;
 	DLGResource* dlgResource = gResManager->GetDLG(fActor->dialog);
 
 	gResManager->ReleaseResource(dlgResource);
@@ -272,11 +273,9 @@ Actor::SetArea(const char* areaName)
 IE::point
 Actor::NearestPoint(const IE::point& point) const
 {
-	// TODO: For real, check the movement restriction distance,
-	// etc.
 	IE::point newPoint = Position();
 
-	newPoint.x += 5;
+	newPoint.x += fActor->movement_restriction_distance;
 	return newPoint;
 }
 
