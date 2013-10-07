@@ -457,7 +457,6 @@ Core::RandomWalk(Actor* actor)
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	WalkTo* walkTo = new WalkTo(actor, destination);
 	actor->AddAction(walkTo);
-	//actor->SetFlying(false);
 }
 
 
