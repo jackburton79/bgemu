@@ -18,3 +18,10 @@ DLGResource::~DLGResource()
 {
 }
 
+
+/* virtual */
+bool
+DLGResource::Load(Archive* archive, uint32 key)
+{
+	return Resource::Load(archive, key);
+}
