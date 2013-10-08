@@ -51,6 +51,7 @@ resources/BCSResource.cpp \
 resources/BmpResource.cpp \
 resources/CHUIResource.cpp \
 resources/CreResource.cpp \
+resources/DLGResource.cpp \
 resources/GeneratedIDS.cpp \
 resources/IDSResource.cpp \
 resources/ITMResource.cpp \
