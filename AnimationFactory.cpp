@@ -81,6 +81,8 @@ AnimationFactory::~AnimationFactory()
 animation_description
 AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 {
+	std::cout << "CharachterAnimationFor" << std::endl;
+
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
@@ -131,6 +133,8 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 animation_description
 AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 {
+	std::cout << "MonsterAnimationFor" << std::endl;
+
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
@@ -183,6 +187,7 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 animation_description
 AnimationFactory::BG2AnimationFor(int action, IE::orientation o)
 {
+	std::cout << "BG2AnimationFor" << std::endl;
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
@@ -240,8 +245,8 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	if (i != fAnimations.end())
 		return i->second;
 
+	std::cout << "Basename: " << fBaseName << std::endl;
 	animation_description description;
-	// TODO: Only valid for G1/G11/E files
 	switch (fAnimationType) {
 		case ANIMATION_TYPE_BG1_MONSTER:
 			description = MonsterAnimationFor(action, o);
