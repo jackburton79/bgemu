@@ -35,6 +35,8 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
+	res->AddValue(0x4400, "CHMW"); // Sleeping man TODO:
+
 	// Character animations
 	res->AddValue(0x5000, "CHMW");
 	res->AddValue(0x5001, "CEMW");
@@ -117,9 +119,9 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	//res->AddValue(0x6315 "CHFB");
 
 	// rest
-	res->AddValue(0x6402, "USAR1");
+	res->AddValue(0x6402, "USAR");
 
-	res->AddValue(0x6404, "USAR1");
+	res->AddValue(0x6404, "USAR");
 	res->AddValue(0x7001, "MOGR");
 
 	res->AddValue(0x7400, "MDOG");
