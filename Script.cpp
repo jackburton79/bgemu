@@ -999,6 +999,17 @@ Script::_ExecuteAction(action_node* act)
 
 			break;
 		}
+		case 198: // 0xc6
+		{
+			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
+			// TODO: Implement more correctly.
+			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			if (actor != NULL) {
+				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
+				thisActor->AddAction(dialogueAction);
+			}
+			break;
+		}
 		case 207:
 		{
 			/* 207 MoveToPointNoInterrupt(P:Point*)

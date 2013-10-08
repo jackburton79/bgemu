@@ -249,18 +249,22 @@ Dialogue::Dialogue(Actor* source, Actor* target)
 void
 Dialogue::operator()()
 {
+	// TODO: Some dialogue action require the actor to be near the target,
+	// others do not. Must be able to differentiate
+/*
 	const IE::point point = fTarget->NearestPoint(fActor->Position());
 	if (!PointSufficientlyClose(fActor->Destination(), point))
 		fActor->SetDestination(point);
-
+*/
 	Action::operator()();
-
+/*
 	if (!PointSufficientlyClose(fActor->Position(), fTarget->Position())) {
 		fActor->SetAnimationAction(ACT_WALKING);
 		fActor->MoveToNextPointInPath(fActor->IsFlying());
 	} else {
+*/
 		fActor->SetAnimationAction(ACT_STANDING);
 		fCompleted = true;
 		fActor->InitiateDialogWith(fTarget);
-	}
+	//}
 }
