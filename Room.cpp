@@ -1234,7 +1234,7 @@ Room::_InitTileCells()
 	std::flush(std::cout);
 	uint32 numTiles = fOverlays[0]->Size();
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells.push_back(new TileCell(i, fOverlays.data(), fOverlays.size()));
+		fTileCells.push_back(new TileCell(i, fOverlays, fOverlays.size()));
 	}
 	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
 }

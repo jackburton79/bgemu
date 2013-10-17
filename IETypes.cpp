@@ -119,7 +119,7 @@ static void
 assert_size(size_t size, size_t controlValue)
 {
 	if (size != controlValue) {
-		printf("size is %d\n", size);
+		printf("size is %ld\n", size);
 		assert(size == controlValue);
 	}
 }

@@ -200,7 +200,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 
 		GFX::rect blitRect = fActiveRect;
 
-		if (sOpcodes[opcode] != NULL) {
+		if (sOpcodes[opcode]) {
 			CALL_MEMBER_FUNCTION(*this, sOpcodes[opcode])(stream,
 				(uint8*)fScratchBuffer->Pixels(), &blitRect);
 		}

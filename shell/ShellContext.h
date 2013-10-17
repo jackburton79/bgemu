@@ -10,6 +10,8 @@
 
 #include "IETypes.h"
 
+#include <string>
+
 class ShellContext {
 public:
 	ShellContext(ShellContext* parent);

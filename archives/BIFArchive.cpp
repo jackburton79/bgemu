@@ -193,13 +193,13 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 		} else
 			throw status;
 	} catch (...) {
-		decomp = -1;
+		decomp = (uint32)-1;
 	}
 
 	delete[] buffer;
 	delete[] destBuffer;
 
-	return decomp;
+	return (ssize_t)decomp;
 }
 
 

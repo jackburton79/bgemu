@@ -441,7 +441,7 @@ Tokenizer::ReadNextToken()
 			char* rest = NULL;
 			aToken.u.number = strtol(array, &rest, 0);
 			if (rest != NULL)
-				aToken.size = std::min(rest - array, aToken.size);
+				aToken.size = std::min((int)(rest - array), aToken.size);
 			break;
 		}
 	}

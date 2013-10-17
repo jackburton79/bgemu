@@ -34,7 +34,7 @@ public:
 
 private:
 	Timer(uint32 expirationTime);
-	~Timer();
+	//~Timer();
 
 	uint32 fExpiration;
 

@@ -5,8 +5,6 @@
 
 #include <vector>
 
-#include <SDL.h>
-
 class Door;
 class MapOverlay;
 class TileMap {
@@ -32,10 +30,10 @@ private:
 
 class TileCell {
 public:
-	TileCell(uint32 index, MapOverlay** overlays, int numOverlays);
+	TileCell(uint32 index, std::vector<MapOverlay*>& overlays, int numOverlays);
 	void Draw(Bitmap* bitmap, GFX::rect *rect, bool full = false);
 
-	void SetDoor(Door *d);
+	void SetDoor(::Door *d);
 	::Door *Door() const;
 
 	void MouseOver();
@@ -44,7 +42,7 @@ public:
 private:
 	uint32 fNumber;
 	::Door *fDoor;
-	MapOverlay** fOverlays;
+	std::vector<MapOverlay*>& fOverlays;
 	int fNumOverlays;
 };
 

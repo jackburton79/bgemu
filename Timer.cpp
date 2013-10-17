@@ -21,11 +21,11 @@ Timer::Timer(uint32 expirationTime)
 {
 }
 
-
+/*
 Timer::~Timer()
 {
 }
-
+*/
 
 void
 Timer::SetExpiration(uint32 expiration)

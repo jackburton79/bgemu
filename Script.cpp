@@ -710,7 +710,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// Entered(O:Object)
 				object_node* node = FindObjectNode(trig);
 				Region* region = dynamic_cast<Region*>(fTarget);
-				std::vector<std::string>::const_iterator i;
+				//std::vector<std::string>::const_iterator i;
 				Object* object = Object::GetMatchingObjectFromList(
 										region->
 										LastScriptRoundResults()->

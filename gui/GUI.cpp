@@ -345,7 +345,7 @@ GUI::Destroy()
 Window*
 GUI::_GetWindow(IE::point pt)
 {
-	std::vector<Window*>::const_reverse_iterator i;
+	std::vector<Window*>::reverse_iterator i;
 	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		Window* window = (*i);
 		if (pt.x >= window->Position().x

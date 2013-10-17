@@ -11,7 +11,7 @@
 
 static Color sTransparentColor = { 0, 255, 0 };
 
-TileCell::TileCell(uint32 number, MapOverlay** overlays, int numOverlays)
+TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOverlays)
 	:
 	fNumber(number),
 	fDoor(NULL),

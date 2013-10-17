@@ -205,7 +205,7 @@ BAMResourceContext::DisplaySequence(int32 index)
 		GFX::rect rect = bitmap->Frame();
 		gfx->BlitToScreen(bitmap, &rect, NULL);
 		gfx->Flip();
-		sleep(0.4);
+		sleep(1);
 	}
 
 	sleep(2);
