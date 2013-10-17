@@ -391,7 +391,9 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 {
 	//std::cout << "location: (" << std::hex << location << ")" << std::endl;
 	TPath pathName(fResourcesPath);
-
+	if (pathName.InitCheck() != 0)
+		throw "Invalid path";
+		
 	uint32 cd = GET_CD(location);
 	if ((location & LOC_ROOT) == 0) {
 		//if (IS_OVERRIDE(location))
