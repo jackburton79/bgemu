@@ -4,9 +4,14 @@
 #include "ResManager.h"
 #include "Utils.h"
 
+#define __STDC_FORMAT_MACROS
+
 #include <assert.h>
 #include <cmath>
 #include <cstdio>
+#include <inttypes.h>
+
+
 
 using namespace IE;
 
@@ -119,7 +124,8 @@ static void
 assert_size(size_t size, size_t controlValue)
 {
 	if (size != controlValue) {
-		printf("size is %ld\n", size);
+		printf(PRIi32);
+		printf("size is %i\n", size);
 		assert(size == controlValue);
 	}
 }
