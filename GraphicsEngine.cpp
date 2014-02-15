@@ -17,7 +17,7 @@ GraphicsEngine::GraphicsEngine()
 	fOldDepth(0)
 {
 	fOldRect.w = fOldRect.h = fOldRect.x = fOldRect.y = 0;
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
 	SDL_ShowCursor(0);
 }
 

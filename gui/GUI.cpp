@@ -19,7 +19,17 @@
 
 #include <algorithm>
 
+#include <SDL.h>
+
 static GUI* sGUI = NULL;
+
+
+Uint32
+RemoveString(Uint32 interval, void *param)
+{
+	sGUI->RemoveToolTip((uint32)param);
+	return 0;
+}
 
 
 GUI::GUI()
@@ -78,7 +88,7 @@ GUI::Draw()
 		(*i)->Draw();
 	}
 
-	//_DrawToolTip();
+	_DrawToolTip();
 
 	if (fCurrentCursor != NULL) {
 		try {
@@ -92,6 +102,20 @@ GUI::Draw()
 		}
 
 	}
+}
+
+
+void
+GUI::DrawTooltip(std::string text, uint16 x, uint16 y, uint32 time)
+{
+	static uint32 sCurrentId = 0;
+	string_entry entry = { text, x, y , sCurrentId};
+
+	fTooltipList.push_back(entry);
+
+	SDL_AddTimer((Uint32)time, RemoveString, (void*)sCurrentId);
+
+	sCurrentId++;
 }
 
 
@@ -323,6 +347,19 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 }
 
 
+void
+GUI::RemoveToolTip(uint32 id)
+{
+	std::list<string_entry>::iterator i;
+	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
+		if ((*i).id == id) {
+			fTooltipList.erase(i);
+			break;
+		}
+	}
+}
+
+
 /* static */
 GUI*
 GUI::Get()
@@ -387,10 +424,20 @@ GUI::_InitCursors()
 void
 GUI::_DrawToolTip()
 {
-	GFX::rect rect(fCursorPosition.x, fCursorPosition.y, 200, 50);
+	std::list<string_entry>::const_iterator i;
+	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
+		const string_entry& entry = *i;
+		GFX::rect rect;
+		rect.x = entry.x;
+		rect.y = entry.y;
+		rect.w = 100;
+		rect.h = 30;
 
-	Bitmap* bitmap = GraphicsEngine::Get()->ScreenBitmap();
-	TextSupport::RenderString("TEST This is a test",
-							fToolTipFontResource,
-							0, bitmap, rect);
+		Bitmap* bitmap = GraphicsEngine::Get()->ScreenBitmap();
+		TextSupport::RenderString(entry.text,
+									fToolTipFontResource,
+									0, bitmap, rect);
+	}
+
+
 }

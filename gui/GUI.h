@@ -12,7 +12,16 @@
 #include "Window.h"
 
 #include <map>
+#include <list>
+#include <string>
 #include <vector>
+
+struct string_entry {
+	std::string text;
+	uint16 x;
+	uint16 y;
+	uint32 id;
+};
 
 class Animation;
 class BAMResource;
@@ -26,6 +35,8 @@ public:
 	void Clear();
 
 	void Draw();
+	void DrawTooltip(std::string text,
+			uint16 x, uint16 y, uint32 time);
 
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
@@ -42,6 +53,8 @@ public:
 
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
+	void RemoveToolTip(uint32 id);
+
 	static GUI* Get();
 	static void Destroy();
 
@@ -52,11 +65,13 @@ private:
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
 	BAMResource* fToolTipFontResource;
+	std::list<string_entry> fTooltipList;
 
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();
 	void _DrawToolTip();
+
 };
 
 #endif /* __GUI_H_ */
