@@ -216,6 +216,9 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 		fSelectedActor = player;
 	}
 
+
+	GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 20, 3000);
+
 	return true;
 }
 
