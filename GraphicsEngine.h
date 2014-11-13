@@ -57,9 +57,6 @@ public:
 								const Color& end,
 								Palette& palette);
 
-	// Observer/Listener
-	void AddListener(Listener* listener);
-	void RemoveListener(Listener* listener);
 private:
 	Bitmap* fScreen;
 	uint16 fFlags;

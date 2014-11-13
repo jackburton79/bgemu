@@ -259,16 +259,3 @@ GraphicsEngine::CreateGradient(const Color& start, const Color& end, Palette& pa
 	}
 }
 
-
-void
-GraphicsEngine::AddListener(Listener* listener)
-{
-	fListeners.push_back(listener);
-}
-
-
-void
-GraphicsEngine::RemoveListener(Listener* listener)
-{
-	fListeners.erase(std::find(fListeners.begin(), fListeners.end(), listener));
-}
