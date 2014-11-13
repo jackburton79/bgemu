@@ -430,8 +430,8 @@ Actor::UpdateSee()
 		if (target == NULL || target == this || !target->IsVisible())
 			continue;
 
-		const IE::point thisPosition = Position();
-		const IE::point targetPosition = target->Position();
+		//const IE::point thisPosition = Position();
+		//const IE::point targetPosition = target->Position();
 		// TODO: 200 is an arbitrarily chosen number
 		if (Core::Get()->Distance(this, target) < 200 ) {
 			// TODO: Check if there are obstacles in the way
