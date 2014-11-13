@@ -17,7 +17,6 @@
 #include <limits.h>
 
 
-// TODO: Move RenderString to its own file, or a different file
 static uint32
 cycle_num_for_char(char c)
 {
