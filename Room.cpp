@@ -130,10 +130,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 	_InitWed(fArea->WedName().CString());
 
-	/*fWed = gResManager->GetWED(fArea->WedName());
-	if (fWed == NULL)
-		return false;
-*/
+
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	Script* roomScript = NULL;
 	if (fBcs != NULL)
@@ -217,7 +214,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	}
 
 
-	GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 20, 3000);
+	GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
 	return true;
 }
