@@ -183,7 +183,6 @@ MVEResource::Play()
 		}
 	}
 
-
 	SoundEngine::Get()->DestroyBuffers();
 	GraphicsEngine::Get()->RestorePreviousMode();
 }
@@ -201,12 +200,13 @@ MVEResource::GetNextChunk()
 		if (header.type == CHUNK_END)
 			return false;
 
-		DecodeChunk(header);
+		if (header.length > 0)
+			DecodeChunk(header);
 	} catch (const char *str) {
 		std::cout << str << std::endl;
 		return false;
 	} catch (movie_opcodes& op) {
-		printf("OP_END_OF_STREAM\n");
+		std::cout << "OP_END_OF_STREAM" << std::endl;
 		return false;
 	}
 	return true;
@@ -227,7 +227,7 @@ MVEResource::DecodeChunk(chunk_header header)
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	std::cout << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
+	std::cout << "opcode: " << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
 	std::cout << " length: " << std::dec << opcode.length << std::endl;
 	
 	switch (opcode.type) {
@@ -383,7 +383,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		uint8 encodedData[numSamples / 2];
 		stream->Read(encodedData, numSamples / 2);
 
-		/*SoundBuffer* buffer = SoundEngine::Get()->Buffer();
+		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		if (numChannels == 1) {
 			for (uint16 i = 0; i < numSamples / 2; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i]));
@@ -391,7 +391,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		else {
 			for (uint16 i = 0; i < numSamples / 2; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
-		}*/
+		}
 	} catch (...) {
 		printf("TODO: Buffer overflow. That's bad, okay. Will fix someday.");
 		// TODO: Do something
