@@ -1,6 +1,7 @@
 #ifndef __RECTUTILS_H
 #define __RECTUTILS_H
 
+#include "Bitmap.h"
 #include "IETypes.h"
 
 static inline GFX::rect

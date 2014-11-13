@@ -1,10 +1,10 @@
 #include "PathFind.h"
-#include "Room.h"
 #include "RectUtils.h"
 #include "Utils.h"
 
 #include <assert.h>
 #include <algorithm>
+#include <cmath>
 #include <limits.h>
 
 
@@ -255,9 +255,9 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 	int cycle;
 	int lgDelta = end.x - point.x;
 	int shDelta = end.y - point.y;
-	int lgStep = lgDelta > 0 ? fStep : -fStep;
+	int lgStep = std::signbit(lgDelta) ? -fStep : fStep;
 	lgDelta = std::abs(lgDelta);
-	int shStep = shDelta > 0 ? fStep : -fStep;
+	int shStep = std::signbit(shDelta) ? -fStep : fStep;
 	shDelta = std::abs(shDelta);
 	if (shDelta < lgDelta) {
 		cycle = lgDelta >> 1;
