@@ -74,8 +74,15 @@ PathFinder::IsEmpty() const
 }
 
 
+void
+PathFinder::GetPoints(std::list<IE::point> points) const
+{
+	points = fPoints;
+}
+
+
 bool
-PathFinder::IsPassable(const IE::point& point) const
+PathFinder::_IsPassable(const IE::point& point) const
 {
 	return fTestFunction(point);
 }
@@ -87,7 +94,7 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 {
 	PathFinder testPath(1);
 
-	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
+	if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
 		return false;
 
 	return testPath._CreateDirectPath(start, end) == end;
@@ -102,7 +109,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	IE::point maxReachableDirectly = start;//_CreateDirectPath(start, end);
 
 	if (PointSufficientlyClose(maxReachableDirectly, end)
-			|| !IsPassable(end))
+			|| !_IsPassable(end))
 		return maxReachableDirectly;
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -186,7 +193,7 @@ void
 PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 {
 	if (point.x < 0 || point.y < 0
-			|| !IsPassable(point))
+			|| !_IsPassable(point))
 		return;
 
 	// Check if point is in closed list
@@ -262,7 +269,7 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 	if (shDelta < lgDelta) {
 		cycle = lgDelta >> 1;
 		while (std::abs(point.x - end.x) > fStep) {
-			if (!IsPassable(point))
+			if (!_IsPassable(point))
 				return fPoints.back();
 			fPoints.push_back(point);
 			cycle += shDelta;
@@ -272,14 +279,14 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 			}
 			point.x += lgStep;
 		}
-		if (!IsPassable(point))
+		if (!_IsPassable(point))
 			return fPoints.back();
 
 		fPoints.push_back(point);
 	}
 	cycle = shDelta >> 1;
 	while (std::abs(point.y - end.y) > fStep) {
-		if (!IsPassable(point))
+		if (!_IsPassable(point))
 			return fPoints.back();
 		fPoints.push_back(point);
 		cycle += lgDelta;
@@ -290,7 +297,7 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		point.y += shStep;
 	}
 
-	if (IsPassable(end))
+	if (_IsPassable(end))
 		fPoints.push_back(end);
 
 	return fPoints.back();

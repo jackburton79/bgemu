@@ -2,7 +2,8 @@
 #define __PATHFIND_H
 
 #include "IETypes.h"
-#include "list"
+
+#include <list>
 
 struct point_node;
 class PathFinder {
@@ -17,7 +18,7 @@ public:
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	bool IsPassable(const IE::point& point) const;
+	void GetPoints(std::list<IE::point> points) const;
 
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 	static bool IsPassableDefault(const IE::point& point) { return true; };
@@ -33,6 +34,7 @@ private:
 
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 
+	bool _IsPassable(const IE::point& point) const;
 	void _AddPassableAdiacentPoints(const point_node& node);
 	void _AddIfPassable(const IE::point& point, const point_node& node);
 	point_node* _ChooseCheapestNode(const IE::point& end);
