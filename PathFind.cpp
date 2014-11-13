@@ -253,41 +253,41 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 {
 	IE::point point = start;
 	int cycle;
-	int lg_delta = end.x - point.x;
-	int sh_delta = end.y - point.y;
-	int lg_step = lg_delta > 0 ? fStep : -fStep;
-	lg_delta = ABS(lg_delta);
-	int sh_step = sh_delta > 0 ? fStep : -fStep;
-	sh_delta = ABS(sh_delta);
-	if (sh_delta < lg_delta) {
-		cycle = lg_delta >> 1;
+	int lgDelta = end.x - point.x;
+	int shDelta = end.y - point.y;
+	int lgStep = lgDelta > 0 ? fStep : -fStep;
+	lgDelta = std::abs(lgDelta);
+	int shStep = shDelta > 0 ? fStep : -fStep;
+	shDelta = std::abs(shDelta);
+	if (shDelta < lgDelta) {
+		cycle = lgDelta >> 1;
 		while (std::abs(point.x - end.x) > fStep) {
 			if (!IsPassable(point))
 				return fPoints.back();
 			fPoints.push_back(point);
-			cycle += sh_delta;
-			if (cycle > lg_delta) {
-				cycle -= lg_delta;
-				point.y += sh_step;
+			cycle += shDelta;
+			if (cycle > lgDelta) {
+				cycle -= lgDelta;
+				point.y += shStep;
 			}
-			point.x += lg_step;
+			point.x += lgStep;
 		}
 		if (!IsPassable(point))
 			return fPoints.back();
 
 		fPoints.push_back(point);
 	}
-	cycle = sh_delta >> 1;
+	cycle = shDelta >> 1;
 	while (std::abs(point.y - end.y) > fStep) {
 		if (!IsPassable(point))
 			return fPoints.back();
 		fPoints.push_back(point);
-		cycle += lg_delta;
-		if (cycle > sh_delta) {
-			cycle -= sh_delta;
-			point.x += lg_step;
+		cycle += lgDelta;
+		if (cycle > shDelta) {
+			cycle -= shDelta;
+			point.x += lgStep;
 		}
-		point.y += sh_step;
+		point.y += shStep;
 	}
 
 	if (IsPassable(end))
