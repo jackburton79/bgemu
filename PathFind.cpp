@@ -1,14 +1,12 @@
 #include "PathFind.h"
 #include "Room.h"
 #include "RectUtils.h"
-#include "GraphicsEngine.h"
 #include "Utils.h"
 
 #include <assert.h>
 #include <algorithm>
 #include <limits.h>
 
-#define PLOT_PATH 0
 
 struct point_node {
 	point_node(IE::point p, const point_node* parentNode, int nodeCost)
@@ -43,9 +41,9 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 }
 
 
-PathFinder::PathFinder(int step, bool ignoreUnpassable)
+PathFinder::PathFinder(int step, test_function testFunc)
 	:
-	fIgnoreUnpassable(ignoreUnpassable),
+	fTestFunction(testFunc),
 	fStep(step)
 {
 }
@@ -77,22 +75,9 @@ PathFinder::IsEmpty() const
 
 
 bool
-PathFinder::IsPassable(const IE::point& point)
+PathFinder::IsPassable(const IE::point& point) const
 {
-	if (fIgnoreUnpassable)
-		return true;
-
-	int32 state = Room::Get()->PointSearch(point);
-	switch (state) {
-		case 0:
-		case 8:
-		case 10:
-		case 12:
-		case 13:
-			return false;
-		default:
-			return true;
-	}
+	return fTestFunction(point);
 }
 
 
@@ -100,7 +85,7 @@ PathFinder::IsPassable(const IE::point& point)
 bool
 PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 {
-	PathFinder testPath(1, true);
+	PathFinder testPath(1);
 
 	if (!testPath.IsPassable(start) || !testPath.IsPassable(end))
 		return false;
@@ -112,25 +97,10 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 IE::point
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
-#if PLOT_PATH
-	const uint32 color = GraphicsEngine::Get()
-								->ScreenBitmap()->MapColor(255, 128, 100);
-#endif
 	fPoints.clear();
 
 	IE::point maxReachableDirectly = start;//_CreateDirectPath(start, end);
-#if PLOT_PATH
-	std::list<IE::point>::const_iterator d = fPoints.begin();
-	for (; d != fPoints.end(); d++) {
-		IE::point offsettedPoint = offset_point(*d,
-									-Room::Get()->AreaOffset().x,
-									-Room::Get()->AreaOffset().y);
 
-		GraphicsEngine::Get()->ScreenBitmap()->PutPixel(offsettedPoint.x,
-			offsettedPoint.y, color);
-		GraphicsEngine::Get()->Flip();
-	}
-#endif
 	if (PointSufficientlyClose(maxReachableDirectly, end)
 			|| !IsPassable(end))
 		return maxReachableDirectly;
@@ -147,16 +117,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;
-
-#if PLOT_PATH
-		IE::point offsettedPoint = offset_point(currentNode->point,
-										-Room::Get()->AreaOffset().x,
-										-Room::Get()->AreaOffset().y);
-
-		GraphicsEngine::Get()->ScreenBitmap()->PutPixel(offsettedPoint.x,
-				offsettedPoint.y, color);
-		GraphicsEngine::Get()->Flip();
-#endif
 
 		currentNode = _ChooseCheapestNode(end);
 		if (currentNode == NULL || --tries == 0) {

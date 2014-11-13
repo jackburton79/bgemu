@@ -785,6 +785,24 @@ Room::PointSearch(const IE::point& point) const
 }
 
 
+/* static */
+bool
+Room::IsPointPassable(const IE::point& point)
+{
+	int32 state = Room::Get()->PointSearch(point);
+	switch (state) {
+		case 0:
+		case 8:
+		case 10:
+		case 12:
+		case 13:
+			return false;
+		default:
+			return true;
+	}
+}
+
+
 void
 Room::ToggleOverlays()
 {

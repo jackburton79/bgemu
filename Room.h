@@ -73,6 +73,8 @@ public:
 	uint8 PointLight(const IE::point& point) const;
 	uint8 PointSearch(const IE::point& point) const;
 
+	static bool IsPointPassable(const IE::point& point);
+
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();

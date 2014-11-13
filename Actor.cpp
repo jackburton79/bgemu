@@ -151,7 +151,7 @@ Actor::_Init()
 		fActor->orientation = 0;
 	}
 
-	fPath = new PathFinder();
+	fPath = new PathFinder(PathFinder::kStep, Room::IsPointPassable);
 }
 
 
@@ -433,11 +433,8 @@ Actor::UpdateSee()
 		const IE::point thisPosition = Position();
 		const IE::point targetPosition = target->Position();
 		// TODO: 200 is an arbitrarily chosen number
-		if (Core::Get()->Distance(this, target) < 200 &&
-			PathFinder::IsStraightlyReachable(thisPosition,
-												targetPosition)) {
-			// TODO: This isn't correct: a low obstacle doesn't
-			// inficiate the ability to see an object
+		if (Core::Get()->Distance(this, target) < 200 ) {
+			// TODO: Check if there are obstacles in the way
 
 			SetSeen(target);
 		}

@@ -9,14 +9,18 @@ class PathFinder {
 public:
 	const static int kStep = 5;
 
-	PathFinder(int step = kStep, bool ignoreUnpassable = false);
+	typedef bool(*test_function)(const IE::point& point);
+
+	PathFinder(int step = kStep, test_function func = IsPassableDefault);
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
 
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	bool IsPassable(const IE::point& point);
+	bool IsPassable(const IE::point& point) const;
+
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
+	static bool IsPassableDefault(const IE::point& point) { return true; };
 
 private:
 	std::list<IE::point> fPoints;
@@ -24,7 +28,7 @@ private:
 	std::list<point_node*> fOpenList;
 	std::list<point_node*> fClosedList;
 
-	bool fIgnoreUnpassable;
+	test_function fTestFunction;
 	int fStep;
 
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
