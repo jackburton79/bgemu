@@ -558,7 +558,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: We assume this is a door, but also
 				// containers can be opened/closed
 				Door* door = dynamic_cast<Door*>(fTarget);
-				if (door == NULL);
+				if (door == NULL)
 					break;
 				if (!door->Opened())
 					break;
