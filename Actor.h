@@ -70,6 +70,8 @@ public:
 	void SetSeen(Object* object);
 	bool HasSeen(const Object* object) const;
 
+	bool IsReachable(const IE::point& pt) const;
+
 	// TODO: Merge and clean this mess
 	void SetAnimationAction(int action);
 	void UpdateAnimation(bool ignoreBlocks);
@@ -97,12 +99,10 @@ private:
 	PathFinder* fPath;
 	int fSpeed;
 
-	//static std::vector<Actor*> sActors;
-
 	void _Init();
 	void _AddScript(Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
-	bool _IsReachable(const IE::point& pt);
+
 
 };
 

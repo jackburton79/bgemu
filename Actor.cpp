@@ -544,7 +544,7 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 
 
 bool
-Actor::_IsReachable(const IE::point& pt)
+Actor::IsReachable(const IE::point& pt) const
 {
 	Room* room = Room::Get();
 	int32 state = room->PointSearch(pt);

@@ -82,9 +82,9 @@ PathFinder::GetPoints(std::list<IE::point> points) const
 
 
 bool
-PathFinder::_IsPassable(const IE::point& point) const
+PathFinder::_IsPassable(const IE::point& point)
 {
-	return fTestFunction(point);
+	return fTestFunction((IE::point&)point);
 }
 
 
@@ -112,37 +112,49 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 			|| !_IsPassable(end))
 		return maxReachableDirectly;
 
+	std::list<point_node*> openList;
+	std::list<point_node*> closedList;
+
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
-	fOpenList.push_back(currentNode);
+	openList.push_back(currentNode);
 
 	uint32 tries = 4000;
 	bool notFound = false;
 	for (;;) {
-		_AddPassableAdiacentPoints(*currentNode);
-		fOpenList.remove(currentNode);
-		fClosedList.push_back(currentNode);
+		_AddPassableAdiacentPoints(*currentNode, openList, closedList);
+		openList.remove(currentNode);
+		closedList.push_back(currentNode);
 
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;
 
-		currentNode = _ChooseCheapestNode(end);
+		currentNode = _GetCheapestNode(openList, end);
 		if (currentNode == NULL || --tries == 0) {
 			notFound = true;
 			break;
 		}
 	}
 
+	std::list<point_node*>::const_iterator i;
 	if (notFound) {
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
 		std::cout << "Path not found" << std::endl;
 
-		_EmptyLists();
-
+		for (i = openList.begin(); i != openList.end(); i++)
+			delete *i;
+		openList.clear();
+		for (i = closedList.begin(); i != closedList.end(); i++)
+			delete *i;
+		closedList.clear();
 		return start;
 	}
 
-	std::list<point_node*>::reverse_iterator r = fClosedList.rbegin();
+	for (i = openList.begin(); i != openList.end(); i++)
+		delete *i;
+	openList.clear();
+
+	std::list<point_node*>::reverse_iterator r = closedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
 		//fPoints.insert(directRouteEnd, walkNode->point);
@@ -154,7 +166,10 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		walkNode = const_cast<point_node*>(parent);
 	}
 
-	_EmptyLists();
+	for (i = closedList.begin(); i != closedList.end(); i++)
+		delete *i;
+	closedList.clear();
+
 /*
 	std::cout << "Path from (" << start.x << ", " << start.y << ") to (";
 	std::cout << end.x << ", " << end.y << "): " << std::endl;
@@ -168,16 +183,17 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 
 void
-PathFinder::_AddPassableAdiacentPoints(const point_node& current)
+PathFinder::_AddPassableAdiacentPoints(const point_node& current,
+		std::list<point_node*>& openList, std::list<point_node*>& closedList)
 {
-	_AddIfPassable(offset_point(current.point, fStep, 0), current);
-	_AddIfPassable(offset_point(current.point, fStep, fStep), current);
-	_AddIfPassable(offset_point(current.point, 0, fStep), current);
-	_AddIfPassable(offset_point(current.point, -fStep, fStep), current);
-	_AddIfPassable(offset_point(current.point, -fStep, 0), current);
-	_AddIfPassable(offset_point(current.point, -fStep, -fStep), current);
-	_AddIfPassable(offset_point(current.point, fStep, -fStep), current);
-	_AddIfPassable(offset_point(current.point, 0, -fStep), current);
+	_AddIfPassable(offset_point(current.point, fStep, 0), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, fStep, fStep), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, 0, fStep), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, -fStep, fStep), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, -fStep, 0), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, -fStep, -fStep), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, fStep, -fStep), current, openList, closedList);
+	_AddIfPassable(offset_point(current.point, 0, -fStep), current, openList, closedList);
 }
 
 
@@ -190,7 +206,10 @@ CalculateCost(const IE::point& pointA, const IE::point& pointB)
 
 
 void
-PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
+PathFinder::_AddIfPassable(const IE::point& point,
+		const point_node& current,
+		std::list<point_node*>& openList,
+		std::list<point_node*>& closedList)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsPassable(point))
@@ -198,9 +217,9 @@ PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 
 	// Check if point is in closed list
 	std::list<point_node*>::const_iterator i =
-				std::find_if(fClosedList.begin(), fClosedList.end(),
+				std::find_if(closedList.begin(), closedList.end(),
 							FindPoint(point));
-	if (i != fClosedList.end()) {
+	if (i != closedList.end()) {
 		const int newCost = CalculateCost(current.point, (*i)->point) + current.cost;
 		if (newCost < (*i)->cost) {
 			(*i)->parent = &current;
@@ -209,8 +228,8 @@ PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 		return;
 	}
 
-	i = std::find_if(fOpenList.begin(), fOpenList.end(), FindPoint(point));
-	if (i != fOpenList.end()) {
+	i = std::find_if(openList.begin(), openList.end(), FindPoint(point));
+	if (i != openList.end()) {
 		// Point is already on the open list.
 		// Check if getting through the point from this point
 		// is cheaper. If so, set this as parent.
@@ -221,7 +240,7 @@ PathFinder::_AddIfPassable(const IE::point& point, const point_node& current)
 		}
 	} else {
 		const int cost = CalculateCost(point, current.point) + current.cost;
-		fOpenList.push_back(new point_node(point, &current, cost));
+		openList.push_back(new point_node(point, &current, cost));
 	}
 }
 
@@ -236,12 +255,13 @@ HeuristicDistance(const IE::point& start, const IE::point& end)
 
 
 point_node*
-PathFinder::_ChooseCheapestNode(const IE::point& end)
+PathFinder::_GetCheapestNode(std::list<point_node*>& list,
+		const IE::point& end)
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
-	for (std::list<point_node*>::const_iterator i = fOpenList.begin();
-			i != fOpenList.end(); i++) {
+	for (std::list<point_node*>::const_iterator i = list.begin();
+			i != list.end(); i++) {
 		const point_node* node = *i;
 		const uint32 totalCost = HeuristicDistance(node->point, end)
 										+ node->cost;
@@ -301,18 +321,4 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 		fPoints.push_back(end);
 
 	return fPoints.back();
-}
-
-
-void
-PathFinder::_EmptyLists()
-{
-	std::list<point_node*>::const_iterator i;
-	for (i = fClosedList.begin(); i != fClosedList.end(); i++)
-		delete *i;
-	fClosedList.clear();
-
-	for (i = fOpenList.begin(); i != fOpenList.end(); i++)
-		delete *i;
-	fOpenList.clear();
 }
