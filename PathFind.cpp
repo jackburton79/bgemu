@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <limits.h>
 
 
@@ -101,6 +102,16 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 }
 
 
+static void
+EmptyList(std::list<point_node*> pointList)
+{
+	std::list<point_node*>::iterator i;
+	for (i = pointList.begin(); i != pointList.end(); i++) {
+		delete (*i);
+	}
+}
+
+
 IE::point
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
@@ -121,7 +132,16 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	uint32 tries = 4000;
 	bool notFound = false;
 	for (;;) {
-		_AddPassableAdiacentPoints(*currentNode, openList, closedList);
+		// If adiacent nodes are passable, add them to the list
+		_AddIfPassable(offset_point(currentNode->point, fStep, 0), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, fStep, fStep), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, 0, fStep), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, -fStep, fStep), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, -fStep, 0), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, -fStep, -fStep), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, fStep, -fStep), *currentNode, openList, closedList);
+		_AddIfPassable(offset_point(currentNode->point, 0, -fStep), *currentNode, openList, closedList);
+
 		openList.remove(currentNode);
 		closedList.push_back(currentNode);
 
@@ -141,19 +161,12 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		// Try to find a reachable point near destination
 		std::cout << "Path not found" << std::endl;
 
-		for (i = openList.begin(); i != openList.end(); i++)
-			delete *i;
-		openList.clear();
-		for (i = closedList.begin(); i != closedList.end(); i++)
-			delete *i;
-		closedList.clear();
+		EmptyList(closedList);
+		EmptyList(openList);
 		return start;
 	}
 
-	for (i = openList.begin(); i != openList.end(); i++)
-		delete *i;
-	openList.clear();
-
+	EmptyList(openList);
 	std::list<point_node*>::reverse_iterator r = closedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
@@ -166,34 +179,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		walkNode = const_cast<point_node*>(parent);
 	}
 
-	for (i = closedList.begin(); i != closedList.end(); i++)
-		delete *i;
-	closedList.clear();
-
-/*
-	std::cout << "Path from (" << start.x << ", " << start.y << ") to (";
-	std::cout << end.x << ", " << end.y << "): " << std::endl;
-	std::list<IE::point>::const_iterator p;
-	for (p = fPoints.begin(); p != fPoints.end(); p++)
-		std::cout << "\t(" << (*p).x << ", " << (*p).y << ")" << std::endl;
-*/
+	EmptyList(closedList);
 	assert (PointSufficientlyClose(fPoints.back(), end));
 	return fPoints.back();
-}
-
-
-void
-PathFinder::_AddPassableAdiacentPoints(const point_node& current,
-		std::list<point_node*>& openList, std::list<point_node*>& closedList)
-{
-	_AddIfPassable(offset_point(current.point, fStep, 0), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, fStep, fStep), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, 0, fStep), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, -fStep, fStep), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, -fStep, 0), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, -fStep, -fStep), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, fStep, -fStep), current, openList, closedList);
-	_AddIfPassable(offset_point(current.point, 0, -fStep), current, openList, closedList);
 }
 
 
@@ -220,27 +208,32 @@ PathFinder::_AddIfPassable(const IE::point& point,
 				std::find_if(closedList.begin(), closedList.end(),
 							FindPoint(point));
 	if (i != closedList.end()) {
-		const int newCost = CalculateCost(current.point, (*i)->point) + current.cost;
-		if (newCost < (*i)->cost) {
-			(*i)->parent = &current;
-			(*i)->cost = newCost;
+		point_node* node = *i;
+		const int newCost = CalculateCost(current.point,
+				node->point) + current.cost;
+		if (newCost < node->cost) {
+			node->parent = &current;
+			node->cost = newCost;
 		}
 		return;
 	}
 
 	i = std::find_if(openList.begin(), openList.end(), FindPoint(point));
 	if (i != openList.end()) {
+		point_node* node = *i;
 		// Point is already on the open list.
 		// Check if getting through the point from this point
 		// is cheaper. If so, set this as parent.
-		const int newCost = CalculateCost(current.point, (*i)->point) + current.cost;
-		if (newCost < (*i)->cost) {
-			(*i)->parent = &current;
-			(*i)->cost = newCost;
+		const int newCost = CalculateCost(current.point,
+				node->point) + current.cost;
+		if (newCost < node->cost) {
+			node->parent = &current;
+			node->cost = newCost;
 		}
 	} else {
 		const int cost = CalculateCost(point, current.point) + current.cost;
-		openList.push_back(new point_node(point, &current, cost));
+		point_node* newNode = new point_node(point, &current, cost);
+		openList.push_back(newNode);
 	}
 }
 

@@ -32,9 +32,6 @@ private:
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 
 	bool _IsPassable(const IE::point& point);
-	void _AddPassableAdiacentPoints(const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList);
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
 			std::list<point_node*>& openList,
