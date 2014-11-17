@@ -3,7 +3,7 @@
 
 #include "Resource.h"
 
-struct TLKEntry {
+struct TLKEntry : public Referenceable {
 	TLKEntry();
 	~TLKEntry();
 	char *string;

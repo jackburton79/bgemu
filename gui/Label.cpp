@@ -9,6 +9,7 @@
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "Label.h"
+#include "Reference.h"
 #include "ResManager.h"
 #include "TextSupport.h"
 #include "TLKResource.h"
@@ -45,9 +46,8 @@ Label::Label(IE::label* label)
 		_SetPalette(colorStart, colorEnd);
 	}
 
-	TLKEntry *textEntry = Dialogs()->EntryAt(label->text_ref);
-	TextSupport::RenderString(textEntry->string, fFontResource, label->flags, fBitmap);
-	delete textEntry;
+	Reference ref(Dialogs()->EntryAt(label->text_ref));
+	TextSupport::RenderString(((TLKEntry*)ref.Target())->string, fFontResource, label->flags, fBitmap);
 }
 
 
