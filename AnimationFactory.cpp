@@ -7,6 +7,9 @@
 
 #include "Animation.h"
 #include "AnimationFactory.h"
+#include "BGCharachterAnimationFactory.h"
+#include "BG2CharachterAnimationFactory.h"
+#include "Core.h"
 #include "BamResource.h"
 #include "ResManager.h"
 
@@ -27,15 +30,35 @@ const int kStandingOffset = 10;
 
 /* static */
 AnimationFactory*
-AnimationFactory::GetFactory(const char* baseName)
+AnimationFactory::GetFactory(uint16 animationID)
 {
+	std::string baseName = IDTable::AniSndAt(animationID);
+
 	AnimationFactory* factory = NULL;
 	std::map<std::string, AnimationFactory*>::const_iterator i
 		= sAnimationFactory.find(baseName);
-	if (i == sAnimationFactory.end())
-		factory = new AnimationFactory(baseName);
-	else
+	if (i != sAnimationFactory.end())
 		factory = i->second;
+	else {
+		switch (Core::Get()->Game()) {
+			case GAME_BALDURSGATE:
+				if (animationID >= 0x6000 && animationID <= 0x9000)
+					factory = new BGCharachterAnimationFactory(baseName.c_str());
+				break;
+			case GAME_BALDURSGATE2:
+				if (animationID >= 0x6000 && animationID <= 0x9000)
+					factory = new BG2CharachterAnimationFactory(baseName.c_str());
+				break;
+			default:
+				break;
+		}
+
+		if (factory == NULL)
+			factory = new AnimationFactory(baseName.c_str());
+
+		factory->fID = animationID;
+	}
+
 
 	factory->Acquire();
 
@@ -59,6 +82,7 @@ AnimationFactory::AnimationFactory(const char* baseName)
 	fAnimationType(0),
 	fHighLowSplitted(false),
 	fEastAnimations(false)
+
 {
 	fBaseName = baseName;
 
@@ -245,8 +269,9 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 	if (i != fAnimations.end())
 		return i->second;
 
-	std::cout << "Basename: " << fBaseName << std::endl;
-	animation_description description;
+	std::cout << "Basename: " << fBaseName << ", ID: ";
+	std::cout << std::hex << fID << std::endl;
+	/*animation_description description;
 	switch (fAnimationType) {
 		case ANIMATION_TYPE_BG1_MONSTER:
 			description = MonsterAnimationFor(action, o);
@@ -262,6 +287,16 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 			break;
 	}
 
+	return InstantiateAnimation(description, key);*/
+	return NULL;
+}
+
+
+Animation*
+AnimationFactory::InstantiateAnimation(
+		const animation_description description,
+		const std::pair<int, IE::orientation> key)
+{
 	Animation* animation = NULL;
 	try {
 		IE::point pos;

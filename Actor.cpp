@@ -108,7 +108,8 @@ Actor::_Init()
 	Core::Get()->RegisterObject(this);
 
 	std::string baseName = IDTable::AniSndAt(fCRE->AnimationID());
-	fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
+	//fAnimationFactory = AnimationFactory::GetFactory(baseName.c_str());
+	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
 	std::cout << "Animation: " << baseName << " (" << std::hex;
 	std::cout << fCRE->AnimationID() << ")" << std::endl;
 

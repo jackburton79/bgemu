@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+
 #include "IETypes.h"
 #include "Referenceable.h"
 
@@ -24,14 +25,19 @@ struct animation_description {
 class Animation;
 class AnimationFactory : public Referenceable {
 public:
-	static AnimationFactory* GetFactory(const char* baseName);
+	static AnimationFactory* GetFactory(const uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
-	Animation* AnimationFor(int action, IE::orientation o);
+	virtual Animation* AnimationFor(int action, IE::orientation o);
 
-private:
+protected:
 	AnimationFactory(const char* baseName);
-	~AnimationFactory();
+	AnimationFactory(const uint16 id);
+	virtual ~AnimationFactory();
+
+	Animation* InstantiateAnimation(
+							const animation_description description,
+							const std::pair<int, IE::orientation> key);
 
 	animation_description CharachterAnimationFor(int action,
 													IE::orientation o);
@@ -50,6 +56,7 @@ private:
 	
 	std::vector<std::string> fList;
 	std::string fBaseName;
+	uint16 fID;
 	int fAnimationType;
 	bool fHighLowSplitted;
 	bool fEastAnimations;
