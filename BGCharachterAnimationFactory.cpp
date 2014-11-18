@@ -43,21 +43,21 @@ BGCharachterAnimationFactory::AnimationFor(int action, int o)
 	switch (action) {
 		case ACT_WALKING:
 			description.bam_name.append("W2");
-			description.sequence_number = uint32(o);
+			description.sequence_number = o;
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o) + 8;
+			description.sequence_number = o + 8;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
-			description.sequence_number = uint32(o);
+			description.sequence_number = o;
 			break;
 		default:
 			break;
 	}
-	if (uint32(o) >= IE::ORIENTATION_NE
-			&& uint32(o) <= IE::ORIENTATION_SE) {
+	if (o >= IE::ORIENTATION_NE
+			&& o <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
 	}
 	return InstantiateAnimation(description, key);

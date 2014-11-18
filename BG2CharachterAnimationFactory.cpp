@@ -44,23 +44,21 @@ BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 		case ACT_WALKING:
 		{
 			description.bam_name.append("G11");
-			description.sequence_number = uint32(o);
 			break;
 		}
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o) + 9;
+			description.sequence_number = o + 9;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
-			description.sequence_number = uint32(o);
 			break;
 		default:
 			break;
 	}
-	if (uint32(o) >= IE::ORIENTATION_EXT_NNE && uint32(o) <= IE::ORIENTATION_EXT_SSE) {
+	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE) {
 		description.mirror = true;
-		description.sequence_number -= (uint32(o) - 8) * 2;
+		description.sequence_number -= (o - 8) * 2;
 	}
 
 	return InstantiateAnimation(description, key);
