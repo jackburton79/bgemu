@@ -15,7 +15,7 @@ public:
 	BGCharachterAnimationFactory(const char* baseName);
 	~BGCharachterAnimationFactory();
 
-	Animation* AnimationFor(int action, IE::orientation o);
+	Animation* AnimationFor(int action, int o);
 };
 
 #endif /* BGANIMATIONFACTORY_H_ */

@@ -31,8 +31,8 @@ public:
 	const ::Bitmap* Bitmap() const;
 	GFX::rect Frame() const;
 
-	IE::orientation Orientation() const;
-	void SetOrientation(IE::orientation o);
+	int Orientation() const;
+	void SetOrientation(int o);
 
 	IE::point Position() const;
 	void SetPosition(const IE::point& position);
@@ -102,6 +102,7 @@ private:
 	void _Init();
 	void _AddScript(Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
+	void _SetOrientationExtended(const IE::point& nextPoint);
 
 
 };

@@ -15,7 +15,7 @@ public:
 	BG2CharachterAnimationFactory(const char* baseName);
 	~BG2CharachterAnimationFactory();
 
-	Animation* AnimationFor(int action, IE::orientation o);
+	Animation* AnimationFor(int action, int o);
 };
 
 #endif /* BG2ANIMATIONFACTORY_H_ */

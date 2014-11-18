@@ -22,11 +22,11 @@ BG2CharachterAnimationFactory::~BG2CharachterAnimationFactory()
 
 
 Animation*
-BG2CharachterAnimationFactory::AnimationFor(int action, IE::orientation o)
+BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 {
 	// Check if animation was already loaded
-	std::pair<int, IE::orientation> key = std::make_pair(action, o);
-	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
+	std::pair<int, int> key = std::make_pair(action, o);
+	std::map<std::pair<int, int>, Animation*>::const_iterator i;
 	i = fAnimations.find(key);
 	if (i != fAnimations.end())
 		return i->second;
@@ -44,19 +44,13 @@ BG2CharachterAnimationFactory::AnimationFor(int action, IE::orientation o)
 	switch (action) {
 		case ACT_WALKING:
 		{
-			if (_HasAnimation(description.bam_name + "W2")) {
-				description.bam_name.append("W2");
-				description.sequence_number = uint32(o);
-			} else {
-				description.bam_name.append("G11");
-				description.sequence_number = uint32(o) + 8;
-			}
-
+			description.bam_name.append("G11");
+			description.sequence_number = uint32(o);
 			break;
 		}
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o) + 8;
+			description.sequence_number = uint32(o) + 9;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
@@ -65,17 +59,17 @@ BG2CharachterAnimationFactory::AnimationFor(int action, IE::orientation o)
 		default:
 			break;
 	}
-	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-		if (_HasEastBams()) {
-			description.bam_name.append("E");
+	if (uint32(o) >= IE::ORIENTATION_EXT_NNE && uint32(o) <= IE::ORIENTATION_EXT_SSE) {
+		//if (_HasEastBams()) {
+		//	description.bam_name.append("E");
 			// TODO: Doesn't work for some animations (IE: ACOW)
 			//sequenceNumber -= 1;
-		} else {
+		//} else {
 			// Orientation 5 uses bitmap from orientation 3 mirrored,
 			// 6 uses 2, and 7 uses 1
 			description.mirror = true;
-			description.sequence_number -= (uint32(o) - 4) * 2;
-		}
+			description.sequence_number -= (uint32(o) - 8) * 2;
+		//}
 	}
 
 	return InstantiateAnimation(description, key);

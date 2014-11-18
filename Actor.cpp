@@ -209,18 +209,16 @@ Actor::SetPosition(const IE::point& position)
 }
 
 
-IE::orientation
+int
 Actor::Orientation() const
 {
-	return (IE::orientation)fActor->orientation;
+	return fActor->orientation;
 }
 
 
 void
-Actor::SetOrientation(IE::orientation o)
+Actor::SetOrientation(int o)
 {
-	if (o < 0 || o > IE::ORIENTATION_SE)
-		o = IE::orientation(0);
 	fActor->orientation = o;
 }
 
@@ -478,7 +476,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 
 	fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
-										IE::orientation(fActor->orientation));
+										fActor->orientation);
 
 	if (fCurrentAnimation != NULL)
 		fCurrentAnimation->Next();
@@ -493,7 +491,10 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
 	if (!fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
-		_SetOrientation(nextPoint);
+		if (Core::Get()->Game() == GAME_BALDURSGATE)
+			_SetOrientation(nextPoint);
+		else
+			_SetOrientationExtended(nextPoint);
 		fActor->position = nextPoint;
 	}
 }
@@ -517,7 +518,7 @@ Actor::_AddScript(Script*& destination, const res_ref& scriptName)
 void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
-	IE::orientation newOrientation = (IE::orientation)fActor->orientation;
+	int newOrientation = fActor->orientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_SE;
@@ -540,6 +541,36 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 	}
 
 
+	fActor->orientation = newOrientation;
+}
+
+
+void
+Actor::_SetOrientationExtended(const IE::point& nextPoint)
+{
+	int newOrientation = fActor->orientation;
+	if (nextPoint.x > fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_SE;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_NE;
+		else
+			newOrientation = IE::ORIENTATION_EXT_E;
+	} else if (nextPoint.x < fActor->position.x) {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_SW;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_NW;
+		else
+			newOrientation = IE::ORIENTATION_EXT_W;
+	} else {
+		if (nextPoint.y > fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_S;
+		else if (nextPoint.y < fActor->position.y)
+			newOrientation = IE::ORIENTATION_EXT_N;
+	}
+
+	std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
 	fActor->orientation = newOrientation;
 }
 

@@ -94,7 +94,7 @@ AnimationFactory::AnimationFactory(const char* baseName)
 
 AnimationFactory::~AnimationFactory()
 {
-	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
+	std::map<std::pair<int, int>, Animation*>::const_iterator i;
 	for (i = fAnimations.begin(); i != fAnimations.end(); i++)
 		delete i->second;
 
@@ -103,8 +103,9 @@ AnimationFactory::~AnimationFactory()
 
 
 animation_description
-AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
+AnimationFactory::CharachterAnimationFor(int action, int o)
 {
+
 	std::cout << "CharachterAnimationFor" << std::endl;
 
 	animation_description description;
@@ -138,7 +139,7 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 		default:
 			break;
 	}
-	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+	/*if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
 		if (_HasEastBams()) {
 			description.bam_name.append("E");
 			// TODO: Doesn't work for some animations (IE: ACOW)
@@ -149,13 +150,13 @@ AnimationFactory::CharachterAnimationFor(int action, IE::orientation o)
 			description.mirror = true;
 			description.sequence_number -= (uint32(o) - 4) * 2;
 		}
-	}
+	}*/
 	return description;
 }
 
 
 animation_description
-AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
+AnimationFactory::MonsterAnimationFor(int action, int o)
 {
 	std::cout << "MonsterAnimationFor" << std::endl;
 
@@ -209,7 +210,7 @@ AnimationFactory::MonsterAnimationFor(int action, IE::orientation o)
 
 
 animation_description
-AnimationFactory::BG2AnimationFor(int action, IE::orientation o)
+AnimationFactory::BG2AnimationFor(int action, int o)
 {
 	std::cout << "BG2AnimationFor" << std::endl;
 	animation_description description;
@@ -260,11 +261,11 @@ AnimationFactory::BG2AnimationFor(int action, IE::orientation o)
 
 
 Animation*
-AnimationFactory::AnimationFor(int action, IE::orientation o)
+AnimationFactory::AnimationFor(int action, int o)
 {
 	// Check if animation was already loaded
-	std::pair<int, IE::orientation> key = std::make_pair(action, o);
-	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
+	std::pair<int, int> key = std::make_pair(action, o);
+	std::map<std::pair<int, int>, Animation*>::const_iterator i;
 	i = fAnimations.find(key);
 	if (i != fAnimations.end())
 		return i->second;
@@ -295,7 +296,7 @@ AnimationFactory::AnimationFor(int action, IE::orientation o)
 Animation*
 AnimationFactory::InstantiateAnimation(
 		const animation_description description,
-		const std::pair<int, IE::orientation> key)
+		const std::pair<int, int> key)
 {
 	Animation* animation = NULL;
 	try {

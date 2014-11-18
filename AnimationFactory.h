@@ -28,7 +28,7 @@ public:
 	static AnimationFactory* GetFactory(const uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
-	virtual Animation* AnimationFor(int action, IE::orientation o);
+	virtual Animation* AnimationFor(int action, int orientation);
 
 protected:
 	AnimationFactory(const char* baseName);
@@ -37,14 +37,14 @@ protected:
 
 	Animation* InstantiateAnimation(
 							const animation_description description,
-							const std::pair<int, IE::orientation> key);
+							const std::pair<int, int> key);
 
 	animation_description CharachterAnimationFor(int action,
-													IE::orientation o);
+													int orientation);
 	animation_description MonsterAnimationFor(int action,
-												IE::orientation o);
+												int orientation);
 	animation_description BG2AnimationFor(int action,
-												IE::orientation o);
+												int orientation);
 	bool _HasEastBams() const;
 	bool _AreHighLowSplitted() const;
 	bool _HasStandingSequence() const;
@@ -62,7 +62,7 @@ protected:
 	bool fEastAnimations;
 
 	// Animations are kept cached here
-	std::map<std::pair<int, IE::orientation>, Animation*> fAnimations;
+	std::map<std::pair<int, int>, Animation*> fAnimations;
 
 	static std::map<std::string, AnimationFactory*> sAnimationFactory;
 };

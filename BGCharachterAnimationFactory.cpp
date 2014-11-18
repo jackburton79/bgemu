@@ -22,11 +22,11 @@ BGCharachterAnimationFactory::~BGCharachterAnimationFactory()
 
 
 Animation*
-BGCharachterAnimationFactory::AnimationFor(int action, IE::orientation o)
+BGCharachterAnimationFactory::AnimationFor(int action, int o)
 {
 	// Check if animation was already loaded
-	std::pair<int, IE::orientation> key = std::make_pair(action, o);
-	std::map<std::pair<int, IE::orientation>, Animation*>::const_iterator i;
+	std::pair<int, int> key = std::make_pair(action, o);
+	std::map<std::pair<int, int>, Animation*>::const_iterator i;
 	i = fAnimations.find(key);
 	if (i != fAnimations.end())
 		return i->second;
