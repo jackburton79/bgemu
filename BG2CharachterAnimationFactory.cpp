@@ -33,7 +33,6 @@ BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 
 	std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
 
-	std::cout << "BG2AnimationFor" << std::endl;
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
@@ -60,16 +59,8 @@ BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 			break;
 	}
 	if (uint32(o) >= IE::ORIENTATION_EXT_NNE && uint32(o) <= IE::ORIENTATION_EXT_SSE) {
-		//if (_HasEastBams()) {
-		//	description.bam_name.append("E");
-			// TODO: Doesn't work for some animations (IE: ACOW)
-			//sequenceNumber -= 1;
-		//} else {
-			// Orientation 5 uses bitmap from orientation 3 mirrored,
-			// 6 uses 2, and 7 uses 1
-			description.mirror = true;
-			description.sequence_number -= (uint32(o) - 8) * 2;
-		//}
+		description.mirror = true;
+		description.sequence_number -= (uint32(o) - 8) * 2;
 	}
 
 	return InstantiateAnimation(description, key);

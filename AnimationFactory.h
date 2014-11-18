@@ -39,27 +39,13 @@ protected:
 							const animation_description description,
 							const std::pair<int, int> key);
 
-	animation_description CharachterAnimationFor(int action,
-													int orientation);
 	animation_description MonsterAnimationFor(int action,
 												int orientation);
-	animation_description BG2AnimationFor(int action,
-												int orientation);
-	bool _HasEastBams() const;
-	bool _AreHighLowSplitted() const;
-	bool _HasStandingSequence() const;
-	void _ClassifyAnimation();
 
 	const char* _GetBamName(const char* attributes) const;
 	
-	bool _HasAnimation(const std::string& name) const;
-	
-	std::vector<std::string> fList;
 	std::string fBaseName;
 	uint16 fID;
-	int fAnimationType;
-	bool fHighLowSplitted;
-	bool fEastAnimations;
 
 	// Animations are kept cached here
 	std::map<std::pair<int, int>, Animation*> fAnimations;

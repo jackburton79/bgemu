@@ -59,8 +59,6 @@ BGCharachterAnimationFactory::AnimationFor(int action, int o)
 	if (uint32(o) >= IE::ORIENTATION_NE
 			&& uint32(o) <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
-		// TODO: Doesn't work for some animations (IE: ACOW)
-		//sequenceNumber -= 1;
 	}
 	return InstantiateAnimation(description, key);
 }
