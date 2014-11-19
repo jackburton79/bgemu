@@ -471,9 +471,6 @@ Actor::SetAnimationAction(int action)
 void
 Actor::UpdateAnimation(bool ignoreBlocks)
 {
-	//std::cout << "Actor " << Name() << ": drawing action "<< action;
-	//std::cout << ", orientation " << fActor->orientation << std::endl;
-
 	fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
 										fActor->orientation);
@@ -539,7 +536,6 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 		else if (nextPoint.y < fActor->position.y)
 			newOrientation = IE::ORIENTATION_N;
 	}
-
 
 	fActor->orientation = newOrientation;
 }
