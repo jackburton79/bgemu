@@ -18,7 +18,6 @@ Animation::Animation(IE::animation *animDesc)
 {
 	memcpy(fName, animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
 	fName[8] = '\0';
-	//strcpy(fName, animDesc->bam_name);
 
 	fBAM = gResManager->GetBAM(fName);
 	if (fBAM == NULL) {
