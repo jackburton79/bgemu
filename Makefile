@@ -74,6 +74,7 @@ shell/InputConsole.cpp \
 shell/OutputConsole.cpp \
 shell/ResourceContext.cpp \
 shell/ShellContext.cpp \
+SimpleAnimationFactory.cpp \ 
 SoundEngine.cpp \
 streams/FileStream.cpp \
 streams/MemoryStream.cpp \
