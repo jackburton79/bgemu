@@ -9,15 +9,16 @@
 #include "AnimationFactory.h"
 #include "BGCharachterAnimationFactory.h"
 #include "BG2CharachterAnimationFactory.h"
-#include "Core.h"
 #include "BamResource.h"
+#include "Core.h"
 #include "ResManager.h"
+#include "SimpleAnimationFactory.h"
 
 #include <string>
 #include <vector>
 
 
-std::map<std::string, AnimationFactory*> AnimationFactory::sAnimationFactory;
+std::map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;
 
 const int kStandingOffset = 10;
 
@@ -29,8 +30,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 	std::string baseName = IDTable::AniSndAt(animationID);
 
 	AnimationFactory* factory = NULL;
-	std::map<std::string, AnimationFactory*>::const_iterator i
-		= sAnimationFactory.find(baseName);
+	std::map<uint16, AnimationFactory*>::const_iterator i
+		= sAnimationFactory.find(animationID);
 	if (i != sAnimationFactory.end())
 		factory = i->second;
 	else {
@@ -38,6 +39,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 			case GAME_BALDURSGATE:
 				if (animationID >= 0x6000 && animationID <= 0x9000)
 					factory = new BGCharachterAnimationFactory(baseName.c_str());
+				else if (animationID >= 0xd000 && animationID <= 0xd300)
+					factory = new SimpleAnimationFactory(baseName.c_str());
 				break;
 			case GAME_BALDURSGATE2:
 				if (animationID >= 0x5000 && animationID <= 0x9000)
@@ -65,7 +68,7 @@ void
 AnimationFactory::ReleaseFactory(AnimationFactory* factory)
 {
 	if (factory->Release()) {
-		sAnimationFactory.erase(factory->fBaseName);
+		sAnimationFactory.erase(factory->fID);
 		delete factory;
 	}
 }
@@ -85,63 +88,6 @@ AnimationFactory::~AnimationFactory()
 
 	fAnimations.clear();
 }
-
-
-
-animation_description
-AnimationFactory::MonsterAnimationFor(int action, int o)
-{
-	std::cout << "MonsterAnimationFor" << std::endl;
-
-	animation_description description;
-	description.bam_name = fBaseName;
-	description.sequence_number = o;
-	description.mirror = false;
-
-	// G1/G11-G15, G2/G21/26
-	/*if (_AreHighLowSplitted()) {
-		description.bam_name.append("H");
-	}*/
-	switch (action) {
-		case ACT_WALKING:
-			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
-			break;
-		case ACT_ATTACKING:
-			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
-			break;
-		case ACT_STANDING:
-			/*if (_HasAnimation(description.bam_name + "G1")) {
-				description.bam_name.append("G1");
-				description.sequence_number = uint32(o);
-			} else {
-				description.bam_name.append("C");
-				description.sequence_number = uint32(o);
-			}
-			if (_HasStandingSequence())
-				description.sequence_number += kStandingOffset;*/
-			break;
-		default:
-			break;
-	}
-	if (uint32(o) >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
-		/*if (_HasEastBams()) {
-			description.bam_name.append("E");
-			// TODO: Doesn't work for some animations (IE: ACOW)
-			//sequence_number -= 5;
-		} else */
-		{
-			// Orientation 5 uses bitmap from orientation 3 mirrored,
-			// 6 uses 2, and 7 uses 1
-			description.mirror = true;
-			description.sequence_number -= (uint32(o) - 4) * 2;
-		}
-	}
-
-	return description;
-}
-
 
 
 Animation*

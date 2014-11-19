@@ -32,15 +32,11 @@ public:
 
 protected:
 	AnimationFactory(const char* baseName);
-	AnimationFactory(const uint16 id);
 	virtual ~AnimationFactory();
 
 	Animation* InstantiateAnimation(
 							const animation_description description,
 							const std::pair<int, int> key);
-
-	animation_description MonsterAnimationFor(int action,
-												int orientation);
 
 	const char* _GetBamName(const char* attributes) const;
 	
@@ -50,7 +46,7 @@ protected:
 	// Animations are kept cached here
 	std::map<std::pair<int, int>, Animation*> fAnimations;
 
-	static std::map<std::string, AnimationFactory*> sAnimationFactory;
+	static std::map<uint16, AnimationFactory*> sAnimationFactory;
 };
 
 #endif /* ANIMATIONFACTORY_H_ */
