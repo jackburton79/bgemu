@@ -51,10 +51,8 @@ SimpleAnimationFactory::AnimationFor(int action, int o)
 			description.sequence_number = uint32(o);
 			break;
 		case ACT_STANDING:
-				description.bam_name.append("G1");
-				description.sequence_number = uint32(o);
-			//if (_HasStandingSequence())
-			//	description.sequence_number += kStandingOffset;
+			description.bam_name.append("G1");
+			description.sequence_number = uint32(o);
 			break;
 		default:
 			break;
