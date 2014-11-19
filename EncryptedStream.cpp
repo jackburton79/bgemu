@@ -51,12 +51,12 @@ EncryptedStream::~EncryptedStream()
 
 /* virtual */
 ssize_t
-EncryptedStream::Read(void* dst, int size)
+EncryptedStream::Read(void* dst, size_t size)
 {
 	uint8* pointer = static_cast<uint8*>(dst);
 	ssize_t totalSizeRead = 0;
-	for (int i = 0; i < size; i++) {
-		int32 pos = Position();
+	for (size_t i = 0; i < size; i++) {
+		off_t pos = Position();
 		uint8 byteRead;
 		ssize_t read = fEncryptedStream->Read(&byteRead, sizeof(byteRead));
 		if (read < 0)
@@ -74,11 +74,11 @@ EncryptedStream::Read(void* dst, int size)
 
 /* virtual */
 ssize_t
-EncryptedStream::ReadAt(int pos, void *dst, int size)
+EncryptedStream::ReadAt(off_t pos, void *dst, size_t size)
 {
 	uint8* pointer = static_cast<uint8*>(dst);
 	ssize_t totalSizeRead = 0;
-	for (int i = 0; i < size; i++) {
+	for (size_t i = 0; i < size; i++) {
 		uint8 byteRead;
 		ssize_t read = fEncryptedStream->ReadAt(pos, &byteRead, sizeof(byteRead));
 		if (read < 0)
@@ -96,21 +96,21 @@ EncryptedStream::ReadAt(int pos, void *dst, int size)
 }
 
 
-int32
-EncryptedStream::Seek(int32 where, int whence)
+off_t
+EncryptedStream::Seek(off_t where, int whence)
 {
 	return fEncryptedStream->Seek(where, whence);
 }
 
 
-int32
+off_t
 EncryptedStream::Position() const
 {
 	return fEncryptedStream->Position();
 }
 
 
-uint32
+size_t
 EncryptedStream::Size() const
 {
 	return fEncryptedStream->Size();

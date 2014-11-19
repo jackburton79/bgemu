@@ -1,8 +1,7 @@
 CC=g++
 CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives
 EXECUTABLE=BGEmu
-LDFLAGS= `sdl-config --libs` -lz
-
+LDFLAGS=-lz `sdl-config --libs`
 
 SOURCES=\
 archives/Archive.cpp \
@@ -14,6 +13,8 @@ Actor.cpp \
 Animation.cpp \
 AnimationFactory.cpp \
 bgemu.cpp \
+BGCharachterAnimationFactory.cpp \
+BG2CharachterAnimationFactory.cpp \
 Bitmap.cpp \
 Container.cpp \
 Core.cpp \
@@ -41,6 +42,7 @@ Party.cpp \
 Path.cpp \
 PathFind.cpp \
 Polygon.cpp \
+Reference.cpp \
 Referenceable.cpp \
 Region.cpp \
 ResManager.cpp \
@@ -88,7 +90,7 @@ OBJECTS=$(SOURCES:.cpp=.o)
 all: $(OBJECTS) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CC) $(CFLAGS) -c $< -o $@

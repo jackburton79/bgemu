@@ -38,16 +38,16 @@ public:
 				casemode caseMode = CASE_SENSITIVE);
 	bool IsValid() const;
 
-	virtual int32 Seek(int32 where, int whence);
-	virtual int32 Position() const;
+	virtual off_t Seek(off_t where, int whence);
+	virtual off_t Position() const;
 	
-	uint32 Size() const;
+	size_t Size() const;
 	bool EoF();
 	
-	virtual ssize_t ReadAt(int pos, void *dst, int count);
-	virtual ssize_t Read(void *dst, int count);
+	virtual ssize_t ReadAt(off_t pos, void *dst, size_t count);
+	virtual ssize_t Read(void *dst, size_t count);
 	
-	virtual ssize_t Write(const void *src, int count);
+	virtual ssize_t Write(const void *src, size_t count);
 	
 	// Use these only if you need to swap endianess
 	uint8 ReadByte();

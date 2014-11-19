@@ -342,8 +342,8 @@ CREResource::ItemAtSlot(uint32 i)
 	// TODO: We are returning a pointer to a memory block here.
 	// It's useful so the caller can modify the item, but might
 	// not be so correct.
-	const uint32 offset = fItemsOffset + itemSlot * sizeof(IE::item);
-	IE::item* item = (IE::item*)(uint32(fData->Data()) + offset);
+	const off_t offset = fItemsOffset + itemSlot * sizeof(IE::item);
+	IE::item* item = (IE::item*)((char*)fData->Data() + std::ptrdiff_t(offset));
 
 	return item;
 }

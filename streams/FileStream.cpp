@@ -58,15 +58,15 @@ FileStream::IsValid() const
 }
 
 
-int32
-FileStream::Seek(int32 where, int whence)
+off_t
+FileStream::Seek(off_t where, int whence)
 {
 	fseek(fFileHandle, where, whence);
 	return ftell(fFileHandle);
 }
 
 
-int32
+off_t
 FileStream::Position() const
 {
 	return ftell(fFileHandle);
@@ -81,9 +81,9 @@ FileStream::EoF()
 
 
 ssize_t
-FileStream::ReadAt(int pos, void *dst, int size)
+FileStream::ReadAt(off_t pos, void *dst, size_t size)
 {
-	int oldPos = ftell(fFileHandle);
+	off_t oldPos = ftell(fFileHandle);
 	fseek(fFileHandle, pos, SEEK_SET);
 	ssize_t read = fread(dst, 1, size, fFileHandle);
 	fseek(fFileHandle, oldPos, SEEK_SET);
@@ -93,14 +93,14 @@ FileStream::ReadAt(int pos, void *dst, int size)
 
 
 ssize_t
-FileStream::Read(void *dst, int count)
+FileStream::Read(void *dst, size_t count)
 {
 	return fread(dst, 1, count, fFileHandle);
 }
 
 
 ssize_t
-FileStream::Write(const void *src, int count)
+FileStream::Write(const void *src, size_t count)
 {
 	return fwrite(src, 1, count, fFileHandle);
 }
@@ -158,11 +158,11 @@ FileStream::ReadDWordLE(void)
 }
 
 
-uint32
+size_t
 FileStream::Size() const
 {
-	const int32 oldpos = Position();
-	int32 fileSize = const_cast<FileStream*>(this)->Seek(0L, SEEK_END);
+	const off_t oldpos = Position();
+	size_t fileSize = const_cast<FileStream*>(this)->Seek(0L, SEEK_END);
 	
 	const_cast<FileStream*>(this)->Seek(oldpos, SEEK_SET);
 

@@ -14,9 +14,9 @@ Stream::~Stream()
 
 	
 ssize_t
-Stream::Read(void *dst, int size)
+Stream::Read(void *dst, size_t size)
 {
-	int32 curPos = Position();
+	off_t curPos = Position();
 	ssize_t read = ReadAt(curPos, dst, size);
 	if (read > 0)
 		Seek(read, SEEK_CUR);
@@ -66,9 +66,9 @@ Stream::ReadString(char *string, size_t size)
 
 
 ssize_t
-Stream::Write(const void *src, int size)
+Stream::Write(const void *src, size_t size)
 {
-	int32 curPos = Position();
+	off_t curPos = Position();
 	ssize_t wrote = WriteAt(curPos, src, size);
 	if (wrote > 0)
 		Seek(wrote, SEEK_CUR);
@@ -89,7 +89,7 @@ Stream::ReadByte()
 void
 Stream::Dump()
 {
-	int32 oldPos = Position();
+	off_t oldPos = Position();
 	Seek(0, SEEK_SET);
 	ssize_t read;
 	char buffer[1024];
@@ -108,7 +108,7 @@ Stream::DumpToFile(const char *fileName)
 {
 	FILE *file = fopen(fileName, "wb");
 	if (file) {
-		int32 oldPos = Position();
+		off_t oldPos = Position();
 		Seek(0, SEEK_SET);
 		ssize_t read;
 		char buffer[1024];

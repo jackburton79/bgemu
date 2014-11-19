@@ -4,20 +4,20 @@
 #include <iostream>
 #include <string.h>
 
-MemoryStream::MemoryStream(const uint8 *data, int size, bool owns)
+MemoryStream::MemoryStream(const uint8 *data, size_t size, bool owns)
 	:
 	fData(const_cast<uint8*>(data)),
-	fSize((uint32)size),
+	fSize(size),
 	fPosition(0),
 	fOwnsBuffer(owns)
 {
 }
 
 
-MemoryStream::MemoryStream(int size)
+MemoryStream::MemoryStream(size_t size)
 	:
 	fData(NULL),
-	fSize((uint32)size),
+	fSize(size),
 	fPosition(0),
 	fOwnsBuffer(true)
 {
@@ -39,12 +39,12 @@ MemoryStream::~MemoryStream()
 
 
 ssize_t
-MemoryStream::Read(void *dst, int size)
+MemoryStream::Read(void *dst, size_t size)
 {
-	if (fPosition >= fSize)
+	if (fPosition < 0 || (size_t)fPosition >= fSize)
 		return -1;
 
-	ssize_t readable = fSize - fPosition;
+	size_t readable = fSize - fPosition;
 	if (size > readable)
 		size = readable;
 
@@ -57,12 +57,12 @@ MemoryStream::Read(void *dst, int size)
 
 
 ssize_t
-MemoryStream::ReadAt(int pos, void *dst, int size)
+MemoryStream::ReadAt(off_t pos, void *dst, size_t size)
 {
-	if (pos >= fSize)
+	if (pos < 0 || (size_t)pos >= fSize)
 		return -1;
 
-	ssize_t readable = fSize - pos;
+	size_t readable = fSize - pos;
 	if (size > readable)
 		size = readable;
 
@@ -73,12 +73,12 @@ MemoryStream::ReadAt(int pos, void *dst, int size)
 
 
 ssize_t
-MemoryStream::WriteAt(int pos, const void *src, int size)
+MemoryStream::WriteAt(off_t pos, const void *src, size_t size)
 {
-	if (pos >= fSize)
+	if (pos < 0 || (size_t)pos >= fSize)
 		return -1;
 
-	ssize_t writable = fSize - pos;
+	size_t writable = fSize - pos;
 	if (size > writable)
 		size = writable;
 
@@ -88,8 +88,8 @@ MemoryStream::WriteAt(int pos, const void *src, int size)
 }
 
 
-int32
-MemoryStream::Seek(int32 where, int whence)
+off_t
+MemoryStream::Seek(off_t where, int whence)
 {
 	switch (whence) {
 		case SEEK_SET:
@@ -109,21 +109,21 @@ MemoryStream::Seek(int32 where, int whence)
 }
 
 
-int32
+off_t
 MemoryStream::Position() const
 {
 	return fPosition;
 }
 
 
-uint32
+size_t
 MemoryStream::Size() const
 {
 	return fSize;
 }
 
 
-void *
+void*
 MemoryStream::Data() const
 {
 	return fData;

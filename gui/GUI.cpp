@@ -27,7 +27,8 @@ static GUI* sGUI = NULL;
 Uint32
 RemoveString(Uint32 interval, void *param)
 {
-	sGUI->RemoveToolTip((uint32)param);
+	long id = (long)param;
+	sGUI->RemoveToolTip((Uint32)id);
 	return 0;
 }
 
@@ -113,7 +114,8 @@ GUI::DrawTooltip(std::string text, uint16 x, uint16 y, uint32 time)
 
 	fTooltipList.push_back(entry);
 
-	SDL_AddTimer((Uint32)time, RemoveString, (void*)sCurrentId);
+	long id = sCurrentId;
+	SDL_AddTimer((Uint32)time, RemoveString, (void*)id);
 
 	sCurrentId++;
 }

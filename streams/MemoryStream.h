@@ -6,26 +6,26 @@
 
 class MemoryStream : public Stream {
 public:
-	MemoryStream(const uint8 *data, int size, bool owns = false);
-	MemoryStream(int size); // Allocates a block of memory
+	MemoryStream(const uint8 *data, size_t size, bool owns = false);
+	MemoryStream(size_t size); // Allocates a block of memory
 	
 	virtual ~MemoryStream();
 	
-	virtual ssize_t Read(void *dst, int size);
-	virtual ssize_t ReadAt(int pos, void *dst, int size);
-	virtual ssize_t WriteAt(int pos, const void *src, int size);
+	virtual ssize_t Read(void *dst, size_t size);
+	virtual ssize_t ReadAt(off_t pos, void *dst, size_t size);
+	virtual ssize_t WriteAt(off_t pos, const void *src, size_t size);
 	
-	virtual int32 Seek(int32 where, int whence);
-	virtual int32 Position() const;
+	virtual off_t Seek(off_t where, int whence);
+	virtual off_t Position() const;
 	
-	virtual uint32 Size() const;
+	virtual size_t Size() const;
 	
 	virtual void *Data() const;
 	
 public:
 	uint8 *fData;
-	int fSize;
-	int32 fPosition;
+	size_t fSize;
+	off_t fPosition;
 	bool fOwnsBuffer; 
 };
 

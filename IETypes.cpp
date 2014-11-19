@@ -124,8 +124,7 @@ static void
 assert_size(size_t size, size_t controlValue)
 {
 	if (size != controlValue) {
-		printf(PRIi32);
-		printf("size is %i\n", size);
+		printf("size is %zu\n", size);
 		assert(size == controlValue);
 	}
 }
