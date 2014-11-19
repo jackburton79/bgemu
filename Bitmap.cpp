@@ -496,5 +496,6 @@ Bitmap::_Mirror()
 	SDL_UnlockSurface(fSurface);
 
 	int newX = std::max(Frame().x - Width(), 0);
-	SetPosition((uint16)newX, Frame().y);
+
+	SetPosition((uint16)newX, fYOffset);
 }
