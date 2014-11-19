@@ -6,12 +6,11 @@
 #include "Path.h"
 #include "IETypes.h"
 #include "Utils.h"
+#include "ZLibDecompressor.h"
 
 #include <assert.h>
 #include <iostream>
 #include <limits.h>
-
-#include <zlib.h>
 
 #define BAM_SIGNATURE "BAM "
 #define BAMC_SIGNATURE "BAMC"
@@ -298,10 +297,11 @@ BAMResource::_Load()
 		uint32 len;
 		fData->ReadAt(8, len);
 		uint8 *decompressedData = new uint8[len];
-		int status = uncompress((Bytef*)decompressedData,
-			(uLongf*)&len, (const Bytef*)(fData->Data()) + 12, fData->Size() - 12);
+		status_t status = ZLibDecompressor::DecompressBuffer(
+							(uint8*)(fData->Data()) + std::ptrdiff_t(12),
+							fData->Size() - 12, decompressedData, len);
 
-		if (status != Z_OK) {
+		if (status != 0) {
 			delete decompressedData;
 			throw -1;
 		}

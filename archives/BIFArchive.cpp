@@ -5,8 +5,7 @@
 #include "BIFArchive.h"
 #include "FileStream.h"
 #include "MemoryStream.h"
-
-#include "zlib.h"
+#include "ZLibDecompressor.h"
 
 #define BIF_SIGNATURE "BIFFV1  "
 #define BIFC_SIGNATURE "BIFCV1.0"
@@ -181,10 +180,10 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 		else if ((uint32)read != comp)
 			throw -1;
 
-		int status = uncompress((Bytef*)destBuffer, (uLongf*)&decomp,
-				(const Bytef*)buffer, (uLong)comp);
+		status_t status = ZLibDecompressor::DecompressBuffer(
+				buffer, comp, destBuffer, decomp);
 
-		if (status == Z_OK) {
+		if (status == 0) {
 			ssize_t write = dest.Write(destBuffer, decomp);
 			if (write < 0)
 				throw write;

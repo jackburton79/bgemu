@@ -9,9 +9,7 @@
 #include "GraphicsEngine.h"
 #include "MemoryStream.h"
 #include "MOSResource.h"
-
-#include <zlib.h>
-
+#include "ZLibDecompressor.h"
 
 #define MOS_SIGNATURE "MOS "
 #define MOSC_SIGNATURE "MOSC"
@@ -53,10 +51,10 @@ MOSResource::Load(Archive* archive, uint32 key)
 		uint32 len;
 		fData->ReadAt(8, len);
 		uint8 *decompressedData = new uint8[len];
-		int status = uncompress((Bytef*)decompressedData,
-			(uLongf*)&len, (const Bytef*)(fData->Data()) + 12, fData->Size() - 12);
-
-		if (status != Z_OK) {
+		status_t status = ZLibDecompressor::DecompressBuffer(
+							(uint8*)fData->Data() + std::ptrdiff_t(12),
+							fData->Size() - 12, decompressedData, len);
+		if (status != 0) {
 			delete[] decompressedData;
 			return false;
 		}
