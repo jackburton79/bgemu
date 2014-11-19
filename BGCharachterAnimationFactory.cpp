@@ -9,9 +9,9 @@
 
 #include "Animation.h"
 
-BGCharachterAnimationFactory::BGCharachterAnimationFactory(const char* baseName)
+BGCharachterAnimationFactory::BGCharachterAnimationFactory(const char* baseName, const uint16 id)
 	:
-	AnimationFactory(baseName)
+	AnimationFactory(baseName, id)
 {
 }
 

@@ -31,7 +31,7 @@ public:
 	virtual Animation* AnimationFor(int action, int orientation);
 
 protected:
-	AnimationFactory(const char* baseName);
+	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
 
 	Animation* InstantiateAnimation(

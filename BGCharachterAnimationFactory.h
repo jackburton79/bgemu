@@ -12,7 +12,7 @@
 
 class BGCharachterAnimationFactory: public AnimationFactory {
 public:
-	BGCharachterAnimationFactory(const char* baseName);
+	BGCharachterAnimationFactory(const char* baseName, const uint16 id);
 	~BGCharachterAnimationFactory();
 
 	Animation* AnimationFor(int action, int o);

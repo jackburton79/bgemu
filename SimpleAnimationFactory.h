@@ -12,7 +12,7 @@
 
 class SimpleAnimationFactory: public AnimationFactory {
 public:
-	SimpleAnimationFactory(const char* baseName);
+	SimpleAnimationFactory(const char* baseName, const uint16 id);
 	~SimpleAnimationFactory();
 
 	Animation* AnimationFor(int action, int o);

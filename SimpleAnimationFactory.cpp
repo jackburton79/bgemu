@@ -9,9 +9,10 @@
 
 #include "Animation.h"
 
-SimpleAnimationFactory::SimpleAnimationFactory(const char* baseName)
+SimpleAnimationFactory::SimpleAnimationFactory(
+		const char* baseName, const uint16 id)
 	:
-	AnimationFactory(baseName)
+	AnimationFactory(baseName, id)
 {
 }
 

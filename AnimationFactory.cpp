@@ -38,22 +38,20 @@ AnimationFactory::GetFactory(uint16 animationID)
 		switch (Core::Get()->Game()) {
 			case GAME_BALDURSGATE:
 				if (animationID >= 0x6000 && animationID <= 0x9000)
-					factory = new BGCharachterAnimationFactory(baseName.c_str());
+					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xd000 && animationID <= 0xd300)
-					factory = new SimpleAnimationFactory(baseName.c_str());
+					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
 				if (animationID >= 0x5000 && animationID <= 0x9000)
-					factory = new BG2CharachterAnimationFactory(baseName.c_str());
+					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				break;
 			default:
 				break;
 		}
 
 		if (factory == NULL)
-			factory = new AnimationFactory(baseName.c_str());
-
-		factory->fID = animationID;
+			factory = new AnimationFactory(baseName.c_str(), animationID);
 	}
 
 
@@ -74,9 +72,11 @@ AnimationFactory::ReleaseFactory(AnimationFactory* factory)
 }
 
 
-AnimationFactory::AnimationFactory(const char* baseName)
+AnimationFactory::AnimationFactory(const char* baseName, const uint16 id)
+	:
+	fBaseName(baseName),
+	fID(id)
 {
-	fBaseName = baseName;
 }
 
 
