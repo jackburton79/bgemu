@@ -25,6 +25,7 @@ Animation*
 BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 {
 	// Check if animation was already loaded
+	// TODO: code duplication, put this into AnimationFactory
 	std::pair<int, int> key = std::make_pair(action, o);
 	std::map<std::pair<int, int>, Animation*>::const_iterator i;
 	i = fAnimations.find(key);
