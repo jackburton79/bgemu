@@ -13,6 +13,7 @@
 #include "Core.h"
 #include "ResManager.h"
 #include "SimpleAnimationFactory.h"
+#include "SplitAnimationFactory.h"
 
 #include <string>
 #include <vector>
@@ -39,8 +40,10 @@ AnimationFactory::GetFactory(uint16 animationID)
 			case GAME_BALDURSGATE:
 				if (animationID >= 0x6000 && animationID <= 0x9000)
 					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xd000 && animationID <= 0xd300)
+				else if (animationID >= 0xb000 && animationID <= 0xd300)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0xc700 && animationID <= 0xca00)
+					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
 				if (animationID >= 0x5000 && animationID <= 0x9000)
@@ -100,7 +103,8 @@ AnimationFactory::AnimationFor(int action, int o)
 	if (i != fAnimations.end())
 		return i->second;
 
-	std::cout << "Basename: " << fBaseName << ", ID: ";
+	std::cout << "Missing animation for ";
+	std::cout << fBaseName << ", ID: ";
 	std::cout << std::hex << fID << std::endl;
 
 	return NULL;
