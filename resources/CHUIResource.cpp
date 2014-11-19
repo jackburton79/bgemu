@@ -13,7 +13,6 @@
 #include "ResManager.h"
 #include "Window.h"
 
-#include "SDL.h"
 
 #define CHU_SIGNATURE "CHUI"
 #define CHU_VERSION_1 "V1  "
