@@ -39,11 +39,8 @@ MovieDecoderTest.cpp \
 Object.cpp \
 Parsing.cpp \
 Party.cpp \
-Path.cpp \
 PathFind.cpp \
 Polygon.cpp \
-Reference.cpp \
-Referenceable.cpp \
 Region.cpp \
 ResManager.cpp \
 resources/2DAResource.cpp \
@@ -75,15 +72,20 @@ shell/OutputConsole.cpp \
 shell/ResourceContext.cpp \
 shell/ShellContext.cpp \
 SimpleAnimationFactory.cpp \
+SplitAnimationFactory.cpp \
 SoundEngine.cpp \
 streams/FileStream.cpp \
 streams/MemoryStream.cpp \
 streams/Stream.cpp \
 streams/StringStream.cpp \
+support/Path.cpp \
+support/Reference.cpp \
+support/Referenceable.cpp \
+support/Utils.cpp \
+support/ZLibDecompressor.cpp \
 TextSupport.cpp \
 TileCell.cpp \
 Timer.cpp \
-Utils.cpp \
 WorldMap.cpp 
 
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -103,4 +105,5 @@ clean:
 	$(RM) archives/*.o
 	$(RM) gui/*.o
 	$(RM) shell/*.o
+	$(RM) support/*.o
 
