@@ -7,6 +7,8 @@
 
 #include "ZLibDecompressor.h"
 
+#include <iostream>
+
 #include <zlib.h>
 
 
@@ -29,8 +31,11 @@ ZLibDecompressor::DecompressBuffer(const void* inputBuffer,
 	int status = uncompress((Bytef*)outputBuffer, (uLongf*)&outputSize,
 					(const Bytef*)inputBuffer, (uLong)inputSize);
 
-	if (status != Z_OK)
+	if (status != Z_OK) {
+		std::cerr << "ZLibDecompressor::DecompressBuffer(): ";
+		std::cerr << zError(status);
 		return -1;
+	}
 
 	return 0;
 }
