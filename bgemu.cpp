@@ -86,9 +86,6 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	MovieDecoder *decoder = new MovieDecoder;
-	delete decoder;
-
 	Room *map = new Room();
 	GUI* gui = GUI::Get();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
