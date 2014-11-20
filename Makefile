@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives
+CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives -Isupport
 EXECUTABLE=BGEmu
 LDFLAGS=-lz `sdl-config --libs`
 
@@ -74,7 +74,7 @@ shell/InputConsole.cpp \
 shell/OutputConsole.cpp \
 shell/ResourceContext.cpp \
 shell/ShellContext.cpp \
-SimpleAnimationFactory.cpp \ 
+SimpleAnimationFactory.cpp \
 SoundEngine.cpp \
 streams/FileStream.cpp \
 streams/MemoryStream.cpp \
