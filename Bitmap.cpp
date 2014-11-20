@@ -420,6 +420,8 @@ Bitmap::Clone() const
 	SDL_Surface* surface = SDL_ConvertSurface(fSurface,
 							fSurface->format, SDL_SWSURFACE);
 	Bitmap* newBitmap = new Bitmap(surface, true);
+	newBitmap->fXOffset = fXOffset;
+	newBitmap->fYOffset = fYOffset;
 	return newBitmap;
 }
 
