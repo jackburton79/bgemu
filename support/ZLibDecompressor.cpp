@@ -23,8 +23,8 @@ ZLibDecompressor::~ZLibDecompressor()
 /* static */
 status_t
 ZLibDecompressor::DecompressBuffer(const void* inputBuffer,
-		const size_t& inputSize, void* outputBuffer,
-		size_t& outputSize)
+		const uint32& inputSize, void* outputBuffer,
+		uint32& outputSize)
 {
 	int status = uncompress((Bytef*)outputBuffer, (uLongf*)&outputSize,
 					(const Bytef*)inputBuffer, (uLong)inputSize);

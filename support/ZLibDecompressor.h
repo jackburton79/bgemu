@@ -17,9 +17,9 @@ public:
 	~ZLibDecompressor();
 
 	static status_t DecompressBuffer(const void* inputBuffer,
-								const size_t& inputSize,
+								const uint32& inputSize,
 								void* outputBuffer,
-								size_t& outputSize);
+								uint32& outputSize);
 };
 
 #endif /* ZLIBDECOMPRESSOR_H_ */
