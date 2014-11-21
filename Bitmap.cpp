@@ -489,15 +489,14 @@ Bitmap::_Mirror()
 {
 	SDL_LockSurface(fSurface);
 
-	for (int32 y = 0; y < fSurface->h; y++) {
+	for (int y = 0; y < fSurface->h; y++) {
 		uint8 *sourcePixels = (uint8*)fSurface->pixels + y * fSurface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + fSurface->pitch - 1;
-		for (int32 x = 0; x < fSurface->pitch / 2; x++)
+		uint8 *destPixels = (uint8*)sourcePixels + fSurface->w - 1;
+		while (sourcePixels < destPixels)
 			std::swap(*sourcePixels++, *destPixels--);
 	}
 	SDL_UnlockSurface(fSurface);
 
-	int newX = std::max(Frame().x - Width(), 0);
-
-	SetPosition((uint16)newX, fYOffset);
+	uint16 newX = std::max(Frame().x - Width(), 0);
+	SetPosition(newX, fYOffset);
 }
