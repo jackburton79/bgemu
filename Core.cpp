@@ -251,12 +251,10 @@ Core::GetObject(const char* name) const
 	std::list<Object*>::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, (*i)->Name())) {
-		//	std::cout << "returned " << name << std::endl;
 			return *i;
 		}
 	}
 
-	//std::cout << "returned NONE" << std::endl;
 	return NULL;
 }
 
