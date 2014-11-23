@@ -1087,7 +1087,7 @@ Room::_DrawActors()
 			try {
 				DrawObject(*actor);
 			} catch (const char* string) {
-				std::cerr << "_DrawActors: exception: " << string << std::endl;
+				//std::cerr << "_DrawActors: exception: " << string << std::endl;
 				continue;
 			} catch (...) {
 				std::cerr << "Caught exception on actor " << actor->Name() << std::endl;
