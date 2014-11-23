@@ -45,7 +45,7 @@ public:
 	void SaveCurrentMode();
 	void RestorePreviousMode();
 
-	GFX::rect VideoArea() const;
+	GFX::rect ScreenFrame() const;
 
 	void SetWindowCaption(const char* caption);
 

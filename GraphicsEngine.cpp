@@ -14,7 +14,9 @@ static GraphicsEngine *sGraphicsEngine = NULL;
 GraphicsEngine::GraphicsEngine()
 	:
 	fScreen(NULL),
-	fOldDepth(0)
+	fFlags(0),
+	fOldDepth(0),
+	fOldFlags(0)
 {
 	fOldRect.w = fOldRect.h = fOldRect.x = fOldRect.y = 0;
 	SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);
@@ -212,10 +214,9 @@ GraphicsEngine::RestorePreviousMode()
 
 
 GFX::rect
-GraphicsEngine::VideoArea() const
+GraphicsEngine::ScreenFrame() const
 {
-	return GFX::rect(0, 0, uint16(fScreen->Surface()->w),
-			uint16(fScreen->Surface()->h));
+	return fScreen->Frame();
 }
 
 

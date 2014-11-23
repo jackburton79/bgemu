@@ -12,8 +12,8 @@
 BackWindow::BackWindow()
 	:
 	Window(kBackgroundWindowID, 0, 0,
-			GraphicsEngine::Get()->VideoArea().w,
-			GraphicsEngine::Get()->VideoArea().h,
+			GraphicsEngine::Get()->ScreenFrame().w,
+			GraphicsEngine::Get()->ScreenFrame().h,
 			NULL)
 
 {
