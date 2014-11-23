@@ -489,11 +489,13 @@ Bitmap::_Mirror()
 {
 	SDL_LockSurface(fSurface);
 
+	uint8* sourcePixels = (uint8*)fSurface->pixels;
 	for (int y = 0; y < fSurface->h; y++) {
-		uint8 *sourcePixels = (uint8*)fSurface->pixels + y * fSurface->pitch;
-		uint8 *destPixels = (uint8*)sourcePixels + fSurface->w - 1;
-		while (sourcePixels < destPixels)
-			std::swap(*sourcePixels++, *destPixels--);
+		uint8* destPtr = (uint8*)sourcePixels + fSurface->w - 1;
+		uint8* sourcePtr = sourcePixels;
+		while (sourcePtr < destPtr)
+			std::swap(*sourcePtr++, *destPtr--);
+		sourcePixels += fSurface->pitch;
 	}
 	SDL_UnlockSurface(fSurface);
 
