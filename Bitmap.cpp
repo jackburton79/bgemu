@@ -103,7 +103,7 @@ Bitmap::GetPalette(Palette& palette)
 		palette.colors[c].r = sdlPalette[c].r;
 		palette.colors[c].g = sdlPalette[c].g;
 		palette.colors[c].b = sdlPalette[c].b;
-		sdlPalette[c].unused = palette.colors[c].a;
+		palette.colors[c].a = sdlPalette[c].unused;
 	}
 }
 
