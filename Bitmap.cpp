@@ -95,6 +95,20 @@ Bitmap::SetColors(Color* colors, uint8 start, int num)
 
 
 void
+Bitmap::GetPalette(Palette& palette)
+{
+	SDL_Color* sdlPalette = fSurface->format->palette->colors;
+
+	for (uint16 c = 0; c < 256; c++) {
+		palette.colors[c].r = sdlPalette[c].r;
+		palette.colors[c].g = sdlPalette[c].g;
+		palette.colors[c].b = sdlPalette[c].b;
+		sdlPalette[c].unused = palette.colors[c].a;
+	}
+}
+
+
+void
 Bitmap::SetPalette(const Palette& palette)
 {
 	SDL_Color sdlPalette[256];
@@ -397,6 +411,7 @@ Bitmap::BitsPerPixel() const
 {
 	return fSurface->format->BitsPerPixel;
 }
+
 
 
 uint32

@@ -58,6 +58,7 @@ public:
 
 	void Clear(uint32 color = 0);
 	void SetColors(Color* colors, uint8 start, int num);
+	void GetPalette(Palette& palette);
 	void SetPalette(const Palette& palette);
 	void SetColorKey(uint32 key, bool on = true);
 	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
