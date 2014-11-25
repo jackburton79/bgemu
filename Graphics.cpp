@@ -31,6 +31,30 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 	return outSize;
 }
 
+
+/* static */
+void
+Graphics::ApplyShade(Bitmap* bitmap)
+{
+	Palette palette;
+	bitmap->GetPalette(palette);
+	for (int i = 0; i < 256; i++) {
+		uint8 r = palette.colors[i].r;
+		uint8 g = palette.colors[i].g;
+		uint8 b = palette.colors[i].b;
+		uint32 test = (r + g + b) / 3;
+		if (test > 2) {
+			if (r == 0 && g == 255 && b == 0)
+				palette.colors[i].a = 255;
+			else
+				palette.colors[i].a = std::min(int(test * 2), 255);
+		} else
+			palette.colors[i].a = 0;
+	}
+	bitmap->SetAlpha(128, true);
+	bitmap->SetPalette(palette);
+}
+
 /*
 static
 bool
