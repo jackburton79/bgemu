@@ -95,7 +95,7 @@ Bitmap::SetColors(Color* colors, uint8 start, int num)
 
 
 void
-Bitmap::GetPalette(Palette& palette)
+Bitmap::GetPalette(Palette& palette) const
 {
 	SDL_Color* sdlPalette = fSurface->format->palette->colors;
 
