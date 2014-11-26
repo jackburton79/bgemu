@@ -12,6 +12,8 @@
 
 #include <sys/time.h>
 
+#include <SDL.h>
+
 Timer::timer_map Timer::sTimers;
 uint32 Timer::sGameTime;
 
@@ -38,6 +40,14 @@ bool
 Timer::Expired() const
 {
 	return sGameTime >= fExpiration;
+}
+
+
+/* static */
+void
+Timer::AddOneShotTimer(uint32 interval, timer_func func, void* parameter)
+{
+	SDL_AddTimer(interval, func, parameter);	
 }
 
 

@@ -23,6 +23,10 @@ public:
 	void SetExpiration(uint32 timer);
 	bool Expired() const;
 
+	typedef uint32 (*timer_func)(uint32 interval, void* parameter);
+	
+	static void AddOneShotTimer(uint32 time, timer_func function, void* parameter);
+	
 	static void Add(const char* name, uint32 expirationTime = -1);
 	static void Remove(const char* name);
 	static Timer* Get(const char* string);
@@ -42,5 +46,6 @@ private:
 	static timer_map sTimers;
 	static uint32 sGameTime;
 };
+
 
 #endif /* __TIMER_H */
