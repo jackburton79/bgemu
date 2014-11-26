@@ -44,7 +44,7 @@ Core::Core()
 
 Core::~Core()
 {
-	delete fCurrentRoom;
+	Room::Delete();
 }
 
 

@@ -89,6 +89,14 @@ Room::Create()
 }
 
 
+void
+Room::Delete()
+{
+	delete sCurrentRoom;
+	sCurrentRoom = NULL;	
+}
+
+
 res_ref
 Room::AreaName() const
 {

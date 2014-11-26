@@ -27,6 +27,7 @@ class WMAPResource;
 class Room : public Object, public Listener {
 public:
 	static bool Create();
+	static void Delete();
 	
 	res_ref AreaName() const;
 	WEDResource* WED();
