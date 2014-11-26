@@ -7,15 +7,10 @@
 
 #include "BackWindow.h"
 #include "Control.h"
-#include "GraphicsEngine.h"
 
-BackWindow::BackWindow()
+BackWindow::BackWindow(const uint16 width, const uint16 height)
 	:
-	Window(kBackgroundWindowID, 0, 0,
-			GraphicsEngine::Get()->ScreenFrame().w,
-			GraphicsEngine::Get()->ScreenFrame().h,
-			NULL)
-
+	Window(kBackgroundWindowID, 0, 0, width, height, NULL)
 {
 	//std::cout << "backwindow: " << Width() << " " << Height() << std::endl;
 	IE::control* fakeControl = new IE::control;

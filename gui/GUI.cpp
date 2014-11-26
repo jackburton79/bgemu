@@ -127,7 +127,6 @@ GUI::Draw()
 		} catch (...) {
 			// ...
 		}
-
 	}
 }
 
@@ -420,7 +419,7 @@ GUI::_GetWindow(IE::point pt)
 void
 GUI::_AddBackgroundWindow()
 {
-	BackWindow* backWindow = new BackWindow();
+	BackWindow* backWindow = new BackWindow(fScreenWidth, fScreenHeight);
 	//fWindows.push_back(backWindow);
 	fActiveWindows.push_back(backWindow);
 }

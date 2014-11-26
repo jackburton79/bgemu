@@ -14,7 +14,7 @@ const static uint16 kBackgroundWindowID = (uint16)-1;
 
 class BackWindow: public Window {
 public:
-	BackWindow();
+	BackWindow(const uint16 width, const uint16 height);
 	~BackWindow();
 };
 
