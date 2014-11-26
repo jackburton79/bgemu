@@ -43,12 +43,16 @@ GraphicsEngine::Get()
 bool
 GraphicsEngine::Initialize()
 {
+	std::cout << "Initializing Graphics Engine... ";
+	std::flush(std::cout);
 	try {
 		sGraphicsEngine = new GraphicsEngine();
 	} catch (...) {
+		std::cout << "Failed!" << std::endl;
 		return false;
 	}
 
+	std::cout << "OK!" << std::endl;
 	return true;
 }
 
