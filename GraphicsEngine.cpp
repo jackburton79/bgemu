@@ -155,22 +155,6 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 }
 
 
-/*static*/
-void
-GraphicsEngine::FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor)
-{
-	SDL_FillRect(bitmap->Surface(), (SDL_Rect*)rect, (Uint8)pixelColor);
-}
-
-
-void
-GraphicsEngine::FillRect(const GFX::rect& rect, uint32 color)
-{
-	SDL_Rect sdlRect = { rect.x, rect.y, rect.w, rect.h };
-	SDL_FillRect(fScreen->Surface(), &sdlRect, color);
-}
-
-
 void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 		uint16 flags)

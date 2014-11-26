@@ -30,12 +30,9 @@ public:
 	static void BlitBitmapWithMask(const Bitmap* bitmap, GFX::rect* source,
 								Bitmap* surface, GFX::rect* dest,
 								const Bitmap* mask, GFX::rect* maskRect);
-	static void FillRect(Bitmap* bitmap, GFX::rect* rect, uint8 pixelColor);
-
+	
 	void SetClipping(const GFX::rect* rect);
 	void BlitToScreen(const Bitmap* bitmap, GFX::rect* source, GFX::rect* dest);
-	void StrokeRect(const GFX::rect& rect, uint32 color);
-	void FillRect(const GFX::rect& rect, uint32 color);
 
 	enum VIDEOMODE_FLAGS {
 		VIDEOMODE_WINDOWED = 0,
