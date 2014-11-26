@@ -155,6 +155,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x8000, "MGNL"); // Gnoll
 	res->AddValue(0x8100, "MHOB");
 	res->AddValue(0x9000, "MOGR");
+
 	res->AddValue(0xb000, "ACOW"); // Cow
 	res->AddValue(0xb100, "AHRS"); // Horse
 
