@@ -143,6 +143,10 @@ MVEResource::Play()
 
 	GraphicsEngine::Get()->SaveCurrentMode();
 
+	// TODO: Needed to init the sound engine. Move to
+	// an Initialize method
+	SoundEngine::Get();
+
 	fLastFrameTime = SDL_GetTicks();
 	bool quitting = false;
 	bool paused = false;
@@ -184,6 +188,8 @@ MVEResource::Play()
 	}
 
 	SoundEngine::Get()->DestroyBuffers();
+	std::cout << "MVEResource::Play() returns..." << std::endl;
+
 	GraphicsEngine::Get()->RestorePreviousMode();
 }
 
