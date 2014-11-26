@@ -16,19 +16,19 @@
 #include "ResManager.h"
 #include "Room.h"
 #include "TextSupport.h"
+#include "Timer.h"
 
 #include <algorithm>
 
-#include <SDL.h>
 
 static GUI* sGUI = NULL;
 
 
-Uint32
-RemoveString(Uint32 interval, void *param)
+uint32
+RemoveString(uint32 interval, void *param)
 {
 	long id = (long)param;
-	sGUI->RemoveToolTip((Uint32)id);
+	sGUI->RemoveToolTip((uint32)id);
 	return 0;
 }
 
@@ -115,7 +115,7 @@ GUI::DrawTooltip(std::string text, uint16 x, uint16 y, uint32 time)
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId;
-	SDL_AddTimer((Uint32)time, RemoveString, (void*)id);
+	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
 
 	sCurrentId++;
 }
