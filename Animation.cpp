@@ -33,9 +33,11 @@ Animation::Animation(IE::animation *animDesc)
 	//if (fBlackAsTransparent)
 		//fBAM->DumpFrames("/home/stefano/dumps");
 	fMirrored = animDesc->flags & IE::ANIM_MIRRORED;
-	printf("%s\n\t: SHADED: %s\n\t, MIRRORED: %s\n", (const char*)Name(),
+	printf("%s\n\t: SHADED: %s\n\t: MIRRORED: %s\n", (const char*)Name(),
 			fBlackAsTransparent ? "YES": "NO",
 			fMirrored ? "YES": "NO");
+	printf("\t: MAX FRAME: %d\n", fMaxFrame);
+	printf("\t: HOLD: %s\n", fHold ? "YES" : "NO");
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
 }
