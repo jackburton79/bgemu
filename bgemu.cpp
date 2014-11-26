@@ -87,17 +87,23 @@ main(int argc, char **argv)
 	}
 
 	Room *map = new Room();
-	GUI* gui = GUI::Get();
 	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
 
-	// TODO: Gui::Load() calls GraphicsEngine::VideoArea() which crashes
-	// if the video mode is not set
+	uint16 screenWidth = 640;
+	uint16 screenHeight = 480;
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
-	graphicsEngine->SetVideoMode(640, 480, 16, flags);
+	graphicsEngine->SetVideoMode(screenWidth, screenHeight, 16, flags);
 	//graphicsEngine->SetVideoMode(800, 600, 16, 0);
 	// TODO: Move this to Core::Initialize() (or Core::Start())
+	
+	if (!GUI::Initialize(screenWidth, screenHeight)) {
+		std::cerr << "Initializing GUI failed" << std::endl;
+		GraphicsEngine::Destroy();
+		Core::Destroy();
+	}
+	
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		GraphicsEngine::Destroy();
@@ -105,7 +111,7 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-
+	GUI* gui = GUI::Get();
 	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
 	OutputConsole* console = new OutputConsole(consoleRect);
 	consoleRect.h = 20;

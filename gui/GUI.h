@@ -29,9 +29,9 @@ class BAMResource;
 class CHUIResource;
 class GUI : public Listener {
 public:
-	GUI();
-	~GUI();
-
+	static bool Initialize(const uint16 width, const uint16 height);
+	static void Destroy();
+	
 	void Load(const res_ref& name);
 	void Clear();
 
@@ -57,7 +57,6 @@ public:
 	void RemoveToolTip(uint32 id);
 
 	static GUI* Get();
-	static void Destroy();
 
 private:
 	CHUIResource* fResource;
@@ -67,7 +66,13 @@ private:
 	IE::point fCursorPosition;
 	BAMResource* fToolTipFontResource;
 	std::list<string_entry> fTooltipList;
-
+	
+	uint16 fScreenWidth;
+	uint16 fScreenHeight;
+	
+	GUI(uint16 width, uint16 height);
+	~GUI();
+	
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();

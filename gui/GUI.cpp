@@ -33,10 +33,12 @@ RemoveString(uint32 interval, void *param)
 }
 
 
-GUI::GUI()
+GUI::GUI(uint16 width, uint16 height)
 	:
 	fResource(NULL),
-	fCurrentCursor(NULL)
+	fCurrentCursor(NULL),
+	fScreenWidth(width),
+	fScreenHeight(height)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
@@ -60,6 +62,30 @@ GUI::~GUI()
 	}
 
 	gResManager->ReleaseResource(fToolTipFontResource);
+}
+
+
+/* static */
+bool
+GUI::Initialize(const uint16 width, const uint16 height)
+{
+	try {
+		if (sGUI == NULL)
+			sGUI = new GUI(width, height);
+	} catch (...) {
+		sGUI = NULL;
+		return false;
+	}
+	return true;
+}
+
+
+/* static */
+void
+GUI::Destroy()
+{
+	delete sGUI;
+	sGUI = NULL;
 }
 
 
@@ -369,18 +395,7 @@ GUI::RemoveToolTip(uint32 id)
 GUI*
 GUI::Get()
 {
-	if (sGUI == NULL)
-		sGUI = new GUI();
 	return sGUI;
-}
-
-
-/* static */
-void
-GUI::Destroy()
-{
-	delete sGUI;
-	sGUI = NULL;
 }
 
 
@@ -443,6 +458,4 @@ GUI::_DrawToolTip()
 									fToolTipFontResource,
 									0, bitmap, rect);
 	}
-
-
 }
