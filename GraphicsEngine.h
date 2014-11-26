@@ -10,9 +10,6 @@ class Bitmap;
 class Listener;
 class GraphicsEngine {
 public:
-	GraphicsEngine();
-	~GraphicsEngine();
-	
 	static GraphicsEngine* Get();
 	static bool Initialize();
 	static void Destroy();
@@ -63,6 +60,10 @@ private:
 	uint16 fOldFlags;
 
 	std::vector<Listener*> fListeners;
+	
+	GraphicsEngine();
+	~GraphicsEngine();
+
 };
 
 #endif
