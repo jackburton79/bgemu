@@ -17,7 +17,8 @@ Slider::Slider(IE::slider* slider)
 	:
 	Control(slider),
 	fBackground(NULL),
-	fKnobImage(NULL)
+	fKnobImage(NULL),
+	fKnobPosition(0)
 {
 	std::cout << "Slider " << slider->id << std::endl;
 	MOSResource* mos = gResManager->GetMOS(slider->background);
