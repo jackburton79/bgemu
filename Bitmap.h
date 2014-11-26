@@ -73,6 +73,7 @@ public:
 	void StrokePolygon(const Polygon& polygon, const uint32 color,
 				int32 xOffset, int32 yOffset);
 
+	void FillRect(const GFX::rect& rect, const uint32 color);
 	void FillPolygon(const Polygon& polygon, const uint32 color);
 	void FillPolygon(const Polygon& polygon, const uint32 color,
 					int32 xOffset, int32 yOffset);

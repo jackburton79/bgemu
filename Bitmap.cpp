@@ -209,6 +209,13 @@ Bitmap::StrokeRect(const GFX::rect& rect, const uint32 color)
 
 
 void
+Bitmap::FillRect(const GFX::rect& rect, const uint32 color)
+{
+	SDL_FillRect(fSurface, (SDL_Rect*)&rect, (Uint8)color);
+}
+
+
+void
 Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 {
 	const int32 numPoints = polygon.CountPoints();
