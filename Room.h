@@ -26,8 +26,7 @@ class WEDResource;
 class WMAPResource;
 class Room : public Object, public Listener {
 public:
-	Room();
-	~Room();
+	static bool Create();
 	
 	res_ref AreaName() const;
 	WEDResource* WED();
@@ -93,6 +92,9 @@ public:
 	static Room* Get();
 
 private:
+	Room();
+	~Room();
+
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 

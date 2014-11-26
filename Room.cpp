@@ -66,7 +66,6 @@ Room::Room()
 	fDrawAnimations(true),
 	fShowingConsole(false)
 {
-	sCurrentRoom = this;
 }
 
 
@@ -77,6 +76,16 @@ Room::~Room()
 	_UnloadWorldMap();
 	GraphicsEngine::DeleteBitmap(fBackBitmap);
 	GraphicsEngine::DeleteBitmap(fBlitMask);
+}
+
+
+/* static */
+bool
+Room::Create()
+{
+	if (sCurrentRoom == NULL)
+		sCurrentRoom = new Room();
+	return true;
 }
 
 

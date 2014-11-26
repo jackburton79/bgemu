@@ -86,16 +86,13 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	Room *map = new Room();
-	GraphicsEngine* graphicsEngine = GraphicsEngine::Get();
-
 	uint16 screenWidth = 640;
 	uint16 screenHeight = 480;
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
-	graphicsEngine->SetVideoMode(screenWidth, screenHeight, 16, flags);
-	//graphicsEngine->SetVideoMode(800, 600, 16, 0);
+	GraphicsEngine::Get()->SetVideoMode(screenWidth, screenHeight, 16, flags);
+
 	// TODO: Move this to Core::Initialize() (or Core::Start())
 	
 	if (!GUI::Initialize(screenWidth, screenHeight)) {
@@ -104,6 +101,8 @@ main(int argc, char **argv)
 		Core::Destroy();
 	}
 	
+	Room::Create();
+	Room* map = Room::Get();
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		GraphicsEngine::Destroy();
@@ -222,7 +221,7 @@ main(int argc, char **argv)
 			inputConsole->Draw();*/
 			Core::Get()->UpdateLogic(!sNoScripts);
 
-			graphicsEngine->Flip();
+			GraphicsEngine::Get()->Flip();
 			SDL_Delay(50);
 		}
 	}
