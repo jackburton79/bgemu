@@ -89,6 +89,7 @@ Core::Initialize(const char* path)
 	// TODO: Move this elsewhere.
 	// This should be filled by the player selection
 
+	Room::Create();
 	try {
 		IE::point point = { 20, 20 };
 		Party* party = Party::Get();

@@ -86,8 +86,8 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	uint16 screenWidth = 640;
-	uint16 screenHeight = 480;
+	uint16 screenWidth = 800;
+	uint16 screenHeight = 600;
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
@@ -101,7 +101,6 @@ main(int argc, char **argv)
 		Core::Destroy();
 	}
 	
-	Room::Create();
 	Room* map = Room::Get();
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
@@ -229,9 +228,8 @@ main(int argc, char **argv)
 	//delete console;
 	// delete inputConsole;
 	GUI::Destroy();
-	GraphicsEngine::Destroy();
 	Core::Destroy();
-
+	GraphicsEngine::Destroy();
 
 	return 0;
 }
