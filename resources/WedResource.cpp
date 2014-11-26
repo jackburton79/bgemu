@@ -39,7 +39,8 @@ WEDResource::WEDResource(const res_ref &name)
 	:
 	Resource(name, RES_WED),
 	fNumPolygons(0),
-	fPolygons(NULL)
+	fPolygons(NULL),
+	fOverlays(NULL)
 {
 }
 
@@ -224,6 +225,8 @@ WEDResource::_LoadPolygons()
 // MapOverlay
 MapOverlay::MapOverlay()
 	:
+	fWidth(0),
+	fHeight(0),
 	fTileMaps(NULL)
 {
 }
