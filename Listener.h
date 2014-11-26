@@ -15,7 +15,7 @@ public:
 	Listener();
 	virtual ~Listener();
 
-	virtual void VideoAreaChanged(uint16 width, uint16 height);
+	virtual void VideoModeChanged(uint16 newWidth, uint16 newHeight, uint16 newDepth);
 };
 
 #endif /* __LISTENER_H */

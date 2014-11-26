@@ -8,6 +8,7 @@
 #ifndef __GUI_H_
 #define __GUI_H_
 
+#include "Listener.h"
 #include "IETypes.h"
 #include "Window.h"
 
@@ -26,7 +27,7 @@ struct string_entry {
 class Animation;
 class BAMResource;
 class CHUIResource;
-class GUI {
+class GUI : public Listener {
 public:
 	GUI();
 	~GUI();

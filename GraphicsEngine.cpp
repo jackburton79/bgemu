@@ -184,7 +184,7 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
-		(*i)->VideoAreaChanged(x, y);
+		(*i)->VideoModeChanged(x, y, depth);
 	}
 }
 

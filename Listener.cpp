@@ -19,6 +19,6 @@ Listener::~Listener()
 
 /* virtual */
 void
-Listener::VideoAreaChanged(uint16 width, uint16 height)
+Listener::VideoModeChanged(uint16 newWidth, uint16 newHeight, uint16 newDepth)
 {
 }
