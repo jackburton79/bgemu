@@ -247,6 +247,9 @@ void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 {
 	Room* room = Room::Get();
+	if (room == NULL)
+		return;
+
 	if (!strcmp(fResource->Name(), "GUIWMAP")) {
 		switch (windowID) {
 			case 0:
