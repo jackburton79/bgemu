@@ -393,17 +393,16 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 	SDL_LockAudio();
 	try {
 		numSamples -= numChannels * sizeof(sint16);
-
-		uint8 encodedData[numSamples / 2];
-		stream->Read(encodedData, numSamples / 2);
+		uint16 audioSize = numSamples / 2; 
+		uint8 encodedData[audioSize];
+		stream->Read(encodedData, audioSize);
 
 		SoundBuffer* buffer = SoundEngine::Get()->Buffer();
 		if (numChannels == 1) {
-			for (uint16 i = 0; i < numSamples / 2; i++)
+			for (uint16 i = 0; i < audioSize; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i]));
-		}
-		else {
-			for (uint16 i = 0; i < numSamples / 2; i++)
+		} else {
+			for (uint16 i = 0; i < audioSize; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
 		}
 	} catch (...) {
