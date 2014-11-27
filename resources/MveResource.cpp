@@ -340,6 +340,8 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(numSamples);
 			if (opcode.type == OP_AUDIO_FRAME_DATA)
 				ReadAudioData(fData, numSamples);
+			else
+				AddSilence(numSamples);
 			break;
 		}
 		case OP_CREATE_TIMER:
@@ -402,11 +404,29 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
 		}
 	} catch (...) {
-		std::cerr << "TODO: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
+		std::cerr << "TODO: ReadAudioData: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
 		// TODO: Do something
 	}
 	SDL_UnlockAudio();
 	delete decoder;
+}
+
+
+void
+MVEResource::AddSilence(uint16 numSamples)
+{
+	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
+	numSamples -= numChannels * sizeof(sint16);
+	uint16 audioSize = numSamples / 2;
+	SDL_LockAudio();
+	try {
+		for (uint16 i = 0; i < audioSize; i++)
+			SoundEngine::Get()->Buffer()->AddSample(0);
+	} catch (...) {
+		std::cerr << "TODO: AddAudioSilence: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
+		// TODO: Do something
+	}
+	SDL_UnlockAudio();
 }
 
 
