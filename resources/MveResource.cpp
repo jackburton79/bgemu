@@ -132,6 +132,12 @@ MVEResource::~MVEResource()
 void
 MVEResource::Play()
 {
+	// TODO: Move near where we initialize the graphics engine
+	if (!SoundEngine::Initialize()) {
+		std::cerr << "MVEResource::Play(): Cannot initialize Sound Engine!" << std::endl;
+		return;
+	}
+	
 	char signature[20];
 	fData->Read(signature, 20);
 	signature[18] = '\0';
@@ -191,6 +197,8 @@ MVEResource::Play()
 	std::cout << "MVEResource::Play() returns..." << std::endl;
 
 	GraphicsEngine::Get()->RestorePreviousMode();
+	
+	SoundEngine::Destroy();
 }
 
 

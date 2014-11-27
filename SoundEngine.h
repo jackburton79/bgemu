@@ -38,10 +38,11 @@ private:
 
 class SoundEngine {
 public:
-	SoundEngine();
-	~SoundEngine();
+	static bool Initialize();
+	static void Destroy();
 
 	static SoundEngine* Get();
+
 	bool InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen);
 	void DestroyBuffers();
 	SoundBuffer* Buffer();
@@ -52,6 +53,9 @@ public:
 private:
 	SoundBuffer* fBuffer;
 	bool fPlaying;
+
+	SoundEngine();
+	~SoundEngine();
 
 	static void MixAudio(void *unused, uint8 *stream, int len);
 };

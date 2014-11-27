@@ -18,8 +18,8 @@ SoundEngine::SoundEngine()
 	fPlaying(false)
 {
 	SDL_InitSubSystem(SDL_INIT_AUDIO);
-
 }
+
 
 SoundEngine::~SoundEngine()
 {
@@ -30,11 +30,28 @@ SoundEngine::~SoundEngine()
 
 
 /* static */
-SoundEngine*
-SoundEngine::Get()
+bool
+SoundEngine::Initialize()
 {
 	if (sSoundEngine == NULL)
 		sSoundEngine = new SoundEngine();
+	return true;
+}
+
+
+/* static */
+void
+SoundEngine::Destroy()
+{
+	delete sSoundEngine;
+	sSoundEngine = NULL;
+}
+
+
+/* static */
+SoundEngine*
+SoundEngine::Get()
+{
 	return sSoundEngine;
 }
 
