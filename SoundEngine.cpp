@@ -9,6 +9,7 @@
 #include "SDL.h"
 
 #include <algorithm>
+#include <iostream>
 
 static SoundEngine* sSoundEngine = NULL;
 
@@ -59,8 +60,12 @@ SoundEngine::Get()
 bool
 SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 bufferLen)
 {
-	printf("InitBuffers(%s, %s, %d, %d)\n",
-			stereo ? "STEREO" : "MONO", bit16 ? "16BIT" : "8BIT", sampleRate, bufferLen);
+	std::cout << "InitBuffers(";
+	std::cout << sampleRate << " KHz";
+	std::cout << ", " << (stereo ? "STEREO" : "MONO");
+	std::cout << ", " << (bit16 ? "16BIT" : "8BIT");
+	std::cout << ", " << bufferLen << " bytes";
+	std::cout << std::endl;
 
 	fBuffer = new SoundBuffer(stereo, bit16, sampleRate, bufferLen);
 
@@ -68,12 +73,13 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 	fmt.freq = sampleRate;
 	fmt.format = AUDIO_S16;
 	fmt.channels = stereo ? 2 : 1;
-	fmt.samples = 512;
+	fmt.samples = 4096;
 	fmt.callback = SoundEngine::MixAudio;
 	fmt.userdata = this;
 
 	if (SDL_OpenAudio(&fmt, NULL) < 0 ) {
-		fprintf(stderr, "Unable to open audio: %s\n", SDL_GetError());
+		std::cerr << "Unable to open audio: ";
+		std::cerr << SDL_GetError() << std::endl;
 		delete fBuffer;
 		fBuffer = NULL;
 		return false;
@@ -96,6 +102,21 @@ SoundBuffer*
 SoundEngine::Buffer()
 {
 	return fBuffer;
+}
+
+
+bool
+SoundEngine::Lock()
+{
+	SDL_LockAudio();
+	return true;
+}
+
+
+void
+SoundEngine::Unlock()
+{
+	SDL_UnlockAudio();
 }
 
 

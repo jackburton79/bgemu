@@ -47,6 +47,9 @@ public:
 	void DestroyBuffers();
 	SoundBuffer* Buffer();
 
+	bool Lock();
+	void Unlock();
+
 	void StartStopAudio();
 	bool IsPlaying();
 
