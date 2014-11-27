@@ -2,12 +2,14 @@
 #include "MemoryStream.h"
 #include "MovieDecoder.h"
 #include "MveResource.h"
-#include "SDL.h"
 #include "SoundEngine.h"
 #include "Stream.h"
 
 #include <iostream>
 #include <limits.h>
+
+#include <SDL.h>
+
 
 enum chunk_type {
 	CHUNK_AUDIO_INIT 	= 0,
@@ -257,12 +259,14 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			if (opcode.version == 0) {
 				uint16 minBufferLength;
 				fData->Read(minBufferLength);
+				minBufferLength *= 3;
 				SoundEngine::Get()->InitBuffers(flags & AUDIO_STEREO,
 						flags & AUDIO_16BIT,
 						sampleRate, minBufferLength);
 			} else if (opcode.version == 1) {
 				uint32 minBufferLength;
 				fData->Read(minBufferLength);
+				minBufferLength *= 3;
 				SoundEngine::Get()->InitBuffers(flags & AUDIO_STEREO,
 						flags & AUDIO_16BIT,
 						sampleRate, minBufferLength);
@@ -340,8 +344,8 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(numSamples);
 			if (opcode.type == OP_AUDIO_FRAME_DATA)
 				ReadAudioData(fData, numSamples);
-			else
-				AddSilence(numSamples);
+			//else
+				//AddSilence(numSamples);
 			break;
 		}
 		case OP_CREATE_TIMER:
@@ -388,7 +392,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		decoder = new IEAudioDecoder(predictors[0], predictors[1]);
 	}
 
-	SDL_LockAudio();
+	SoundEngine::Get()->Lock();
 	try {
 		numSamples -= numChannels * sizeof(sint16);
 		uint16 audioSize = numSamples / 2; 
@@ -407,7 +411,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 		std::cerr << "TODO: ReadAudioData: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
 		// TODO: Do something
 	}
-	SDL_UnlockAudio();
+	SoundEngine::Get()->Unlock();
 	delete decoder;
 }
 
@@ -418,7 +422,7 @@ MVEResource::AddSilence(uint16 numSamples)
 	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
 	numSamples -= numChannels * sizeof(sint16);
 	uint16 audioSize = numSamples / 2;
-	SDL_LockAudio();
+	SoundEngine::Get()->Lock();
 	try {
 		for (uint16 i = 0; i < audioSize; i++)
 			SoundEngine::Get()->Buffer()->AddSample(0);
@@ -426,7 +430,7 @@ MVEResource::AddSilence(uint16 numSamples)
 		std::cerr << "TODO: AddAudioSilence: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
 		// TODO: Do something
 	}
-	SDL_UnlockAudio();
+	SoundEngine::Get()->Unlock();
 }
 
 
