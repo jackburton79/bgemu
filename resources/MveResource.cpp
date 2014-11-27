@@ -186,8 +186,9 @@ MVEResource::Play()
 		uint32 currentTime = SDL_GetTicks();
 		if (fTimer != 0 && !quitting) {
 			//SDL_Delay(1000);
-			if (currentTime < fLastFrameTime + fTimer)
-				SDL_Delay((fLastFrameTime + fTimer) - currentTime);
+			uint32 nextFrameTime = fLastFrameTime + fTimer;
+			if (currentTime < nextFrameTime)
+				SDL_Delay(nextFrameTime - currentTime);
 		}
 	}
 
@@ -342,10 +343,16 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(streamMask);
 			uint16 numSamples;
 			fData->Read(numSamples);
-			if (opcode.type == OP_AUDIO_FRAME_DATA)
-				ReadAudioData(fData, numSamples);
-			//else
-				//AddSilence(numSamples);
+			std::cout << "Sequence: " << seqIndex;
+			std::cout << ", mask: " << std::hex << streamMask;
+			std::cout << ", num samples: " << std::dec << numSamples;
+			std::cout << std::endl;
+			if (streamMask & 0x1) {
+				if (opcode.type == OP_AUDIO_FRAME_DATA)
+					ReadAudioData(fData, numSamples);
+				else
+					AddSilence(numSamples);
+			}
 			break;
 		}
 		case OP_CREATE_TIMER:
@@ -395,7 +402,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 	SoundEngine::Get()->Lock();
 	try {
 		numSamples -= numChannels * sizeof(sint16);
-		uint16 audioSize = numSamples / 2; 
+		uint16 audioSize = numSamples / 2;
 		uint8 encodedData[audioSize];
 		stream->Read(encodedData, audioSize);
 
