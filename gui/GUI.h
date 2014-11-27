@@ -32,7 +32,7 @@ public:
 	static bool Initialize(const uint16 width, const uint16 height);
 	static void Destroy();
 	
-	void Load(const res_ref& name);
+	bool Load(const res_ref& name);
 	void Clear();
 
 	void Draw();

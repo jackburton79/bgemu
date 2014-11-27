@@ -89,21 +89,26 @@ GUI::Destroy()
 }
 
 
-void
+bool
 GUI::Load(const res_ref& name)
 {
-	if (fCursors[0] == NULL)
-		_InitCursors();
+	try {
+		if (fCursors[0] == NULL)
+			_InitCursors();
 
-	gResManager->ReleaseResource(fResource);
-	Clear();
-	fResource = gResManager->GetCHUI(name);
+		gResManager->ReleaseResource(fResource);
+		Clear();
+		fResource = gResManager->GetCHUI(name);
 
-	/*for (uint16 c = 0; c < fResource->CountWindows(); c++) {
-		Window* window = fResource->GetWindow(c);
-		if (window != NULL)
-			fWindows.push_back(window);
-	}*/
+		/*for (uint16 c = 0; c < fResource->CountWindows(); c++) {
+			Window* window = fResource->GetWindow(c);
+			if (window != NULL)
+				fWindows.push_back(window);
+		}*/
+	} catch (...) {
+		return false;
+	}
+	return true;
 }
 
 
