@@ -147,7 +147,6 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 	_InitWed(fArea->WedName().CString());
 
-
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
 	Script* roomScript = NULL;
 	if (fBcs != NULL)
@@ -157,7 +156,19 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 	GUI* gui = GUI::Get();
 	gui->Clear();
-	gui->Load("GUIW");
+
+	if (!gui->Load("GUIW")) {
+		// TODO: Delete other loaded stuff
+		gResManager->ReleaseResource(fArea);
+		fArea = NULL;
+		gResManager->ReleaseResource(fBcs);
+		fBcs = NULL;
+		SetScript(NULL);
+		delete roomScript;
+		return false;
+	}
+
+
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
 
@@ -270,7 +281,10 @@ Room::LoadWorldMap()
 	GUI* gui = GUI::Get();
 
 	gui->Clear();
-	gui->Load("GUIWMAP");
+	
+	if (!gui->Load("GUIWMAP")) {
+		return false;
+	}
 
 	gui->ShowWindow(0);
 	Window* window = gui->GetWindow(0);
