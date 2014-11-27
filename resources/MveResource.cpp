@@ -149,10 +149,6 @@ MVEResource::Play()
 
 	GraphicsEngine::Get()->SaveCurrentMode();
 
-	// TODO: Needed to init the sound engine. Move to
-	// an Initialize method
-	SoundEngine::Get();
-
 	fLastFrameTime = SDL_GetTicks();
 	bool quitting = false;
 	bool paused = false;
@@ -406,7 +402,7 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
 		}
 	} catch (...) {
-		printf("TODO: Buffer overflow. That's bad, okay. Will fix someday.");
+		std::cerr << "TODO: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
 		// TODO: Do something
 	}
 	SDL_UnlockAudio();
