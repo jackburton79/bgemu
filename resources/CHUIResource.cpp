@@ -53,7 +53,7 @@ CHUIResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(12, fControlTableOffset);
 	fData->ReadAt(16, fWindowsOffset);
 
-	Dump();
+	//Dump();
 	return true;
 }
 
@@ -109,7 +109,7 @@ CHUIResource::Dump()
 	IE::window window;
 	for (uint16 n = 0; n < fNumWindows; n++) {
 		fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
-		window.Print();
+		//window.Print();
 	}
 }
 
