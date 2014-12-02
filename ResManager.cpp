@@ -206,21 +206,26 @@ KEYResource*
 ResourceManager::GetKEY(const char *name)
 {
 	KEYResource *key = NULL;
+	Archive *archive = NULL;
 	std::string path;
 	try {
 		key = new KEYResource("KEY");
 		path = GetFullPath(name, LOC_ROOT);
-		Archive *archive = Archive::Create(path.c_str());
-		if (!key->Load(archive, 0)) {
-			delete archive;
-			delete key;
-			return NULL;
-		}
-		delete archive;
+		archive = Archive::Create(path.c_str());
+		// TODO: Mixing exception and return values is BAD!
+		// Throw an useful exception instead
+		if (archive == NULL)
+			throw -1;
+		if (!key->Load(archive, 0))
+			throw -1;
 	} catch (...) {
+		delete key;
+		key = NULL;
 		std::cerr << "Cannot open KEY file " << path << std::endl;
-		return NULL;
 	}
+
+	delete archive;
+
 	return key;
 }
 
