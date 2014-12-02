@@ -100,8 +100,8 @@ KEYResource::GetResEntryAt(uint32 index)
 		fData->Read(entry->type);
 		fData->Read(entry->key);
 		if (!strcmp(entry->name.name, "")) {
-			std::cerr << "BUG: unnamed resource at index ";
-			std::cerr << index << "!!!" << std::endl;
+			//std::cerr << "BUG: unnamed resource at index ";
+			//std::cerr << index << "!!!" << std::endl;
 			// TODO: looks like in BG2 there is an unnamed resource
 			// and this causes all kinds of problems. Investigate
 			throw -1;
