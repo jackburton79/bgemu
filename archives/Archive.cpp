@@ -25,7 +25,7 @@ Archive::Create(const char *path)
 			archive = new PlainFileArchive(path);
 		}
 	} catch (...) {
-		delete archive; // TODO: We leak the archive ?
+		delete archive;
 		archive = NULL;
 	}
 	return archive;
