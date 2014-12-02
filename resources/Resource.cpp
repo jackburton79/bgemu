@@ -170,8 +170,8 @@ Resource::CheckSignature(const char *signature, bool dontWorry)
 
 	if (strcmp(array, signature) != 0) {
 		if (!dontWorry) {
-			printf("invalid signature %s (expected %s)\n",
-					array, signature);
+			//printf("invalid signature %s (expected %s)\n",
+				//	array, signature);
 		}
 		return false;
 	}
