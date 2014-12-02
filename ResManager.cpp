@@ -138,26 +138,26 @@ ResourceManager::Initialize(const char *path)
 
 	}
 
-	bool resourcesOk = true;
-	try {
-		const uint32 numResources = key->CountResourceEntries();
-		for (uint32 c = 0; c < numResources; c++) {
-			if (KeyResEntry *res = key->GetResEntryAt(c)) {
-				ref_type refType;
-				refType.name = res->name;
-				refType.type = res->type;
-				fResourceMap[refType] = res;
-			}
+	uint32 numResources = 0;
+	numResources = key->CountResourceEntries();
+	for (uint32 c = 0; c < numResources; c++) {
+		if (KeyResEntry *res = key->GetResEntryAt(c)) {
+			ref_type refType;
+			refType.name = res->name;
+			refType.type = res->type;
+			fResourceMap[refType] = res;
+		} else {
+			// TODO: There are some unnamed entries in BG2.
+			// Check KeyResource.cpp
+			numResources--;
 		}
-	} catch (...) {
-		std::cerr << "Error!!!" << std::endl;
-		resourcesOk = false;
 	}
 
+	std::cout << "\t-> Found " << numBifs << " BIF file entries ";
+	std::cout << "and " << numResources << " resources." << std::endl;
 	delete key;
 
-
-	return resourcesOk;
+	return true;
 }
 
 
@@ -470,7 +470,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	if (archive == NULL) {
 		std::cout << std::endl;
 		std::string fullPath = GetFullPath(archiveName, location);
-		std::cout << "\tLoading archive '" << fullPath << "'... ";
+		std::cout << "\t-> Loading archive '" << fullPath << "'... ";
 		std::flush(std::cout);
 		archive = Archive::Create(fullPath.c_str());
 		if (archive == NULL) {
