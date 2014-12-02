@@ -19,7 +19,7 @@
 static int sList = 0;
 static int sNoScripts = 0;
 static int sFullScreen = 0;
-static const char *sPath = "../BG";
+static const char *sPath;
 static const char *sResourceName = NULL;
 
 static
