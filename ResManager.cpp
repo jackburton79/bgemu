@@ -135,11 +135,9 @@ ResourceManager::Initialize(const char *path)
 	for (uint32 b = 0; b < numBifs; b++) {
 		if (KeyFileEntry* bif = key->GetFileEntryAt(b))
 			fBifs.push_back(bif);
-
 	}
 
-	uint32 numResources = 0;
-	numResources = key->CountResourceEntries();
+	uint32 numResources = key->CountResourceEntries();
 	for (uint32 c = 0; c < numResources; c++) {
 		if (KeyResEntry *res = key->GetResEntryAt(c)) {
 			ref_type refType;
@@ -211,6 +209,8 @@ ResourceManager::GetKEY(const char *name)
 	try {
 		key = new KEYResource("KEY");
 		path = GetFullPath(name, LOC_ROOT);
+		std::cout << "\t-> Loading KEY file '" << path << "'... ";
+		std::flush(std::cout);
 		archive = Archive::Create(path.c_str());
 		// TODO: Mixing exception and return values is BAD!
 		// Throw an useful exception instead
@@ -218,10 +218,12 @@ ResourceManager::GetKEY(const char *name)
 			throw -1;
 		if (key->Load(archive, 0) == false)
 			throw -1;
+
+		std::cout << "OK!" << std::endl;
 	} catch (...) {
 		delete key;
 		key = NULL;
-		std::cerr << "Cannot open KEY file " << path << std::endl;
+		std::cerr << "FAILED!" << std::endl;
 	}
 
 	delete archive;
