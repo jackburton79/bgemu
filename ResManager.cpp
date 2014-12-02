@@ -216,7 +216,7 @@ ResourceManager::GetKEY(const char *name)
 		// Throw an useful exception instead
 		if (archive == NULL)
 			throw -1;
-		if (!key->Load(archive, 0))
+		if (key->Load(archive, 0) == false)
 			throw -1;
 	} catch (...) {
 		delete key;
@@ -234,16 +234,23 @@ TLKResource*
 ResourceManager::GetTLK(const char* name)
 {
 	TLKResource* tlk = NULL;
+	Archive *archive = NULL;
 	try {
 		tlk = new TLKResource("TLK");
 		std::string path = GetFullPath(name, LOC_ROOT);
-		Archive *archive = Archive::Create(path.c_str());
-		tlk->Load(archive, 0);
+		archive = Archive::Create(path.c_str());
+
+		if (archive == NULL || tlk->Load(archive, 0) == false)
+			throw -1;
+			
 		tlk->Acquire();
-		delete archive;
+		
 	} catch (...) {
-		return NULL;
+		delete tlk;
+		tlk = NULL;
 	}
+	
+	delete archive;
 	return tlk;
 }
 
