@@ -62,6 +62,7 @@ Core::Initialize(const char* path)
 	if (sCore != NULL)
 		return true;
 
+	std::cout << "Core::Initialize()" << std::endl;
 	if (path == NULL || path[0] == 0) {
 		std::cerr << "Core::Initialize(): No path supplied" << std::endl;
 		return false;
@@ -73,12 +74,14 @@ Core::Initialize(const char* path)
 		return false;
 	}
 
+	std::cout << "\t-> Initializing Resource Manager..." << std::endl;
 	if (!gResManager->Initialize(path))
 		return false;
 
 	// Detect game
 	// TODO: Find a better/safer way
-	std::cout << "Core::Initialize(): Detecting game... ";
+	std::cout << "Core::Initialize()" << std::endl;
+	std::cout << "\t-> Detecting game... ";
 	std::flush(std::cout);
 	std::vector<std::string> stringList;
 	if (gResManager->GetResourceList(stringList, "CSJON", RES_CRE) == 1) {

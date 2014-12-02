@@ -126,6 +126,8 @@ ResourceManager::Initialize(const char *path)
 {
 	std::cout << "ResourceManager::Initialize(" << path << ")" << std::endl;
 	fResourcesPath.SetTo(path);
+	std::cout << "\t-> Set resources path to '" << fResourcesPath.Path();
+	std::cout << "'" << std::endl;
 
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
@@ -223,7 +225,7 @@ ResourceManager::GetKEY(const char *name)
 	} catch (...) {
 		delete key;
 		key = NULL;
-		std::cerr << "FAILED!" << std::endl;
+		std::cout << "FAILED!" << std::endl;
 	}
 
 	delete archive;
