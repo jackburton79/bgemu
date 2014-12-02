@@ -78,17 +78,16 @@ Core::Initialize(const char* path)
 
 	// Detect game
 	// TODO: Find a better/safer way
-	std::cout << "Detecting game... ";
+	std::cout << "Core::Initialize(): Detecting game... ";
+	std::flush(std::cout);
 	std::vector<std::string> stringList;
 	if (gResManager->GetResourceList(stringList, "CSJON", RES_CRE) == 1) {
 		sCore->fGame = GAME_BALDURSGATE2;
-		std::cout << "GAME_BALDURSGATE2" << std::endl;
+		std::cout << "Baldur's Gate 2" << std::endl;
 	} else {
 		sCore->fGame = GAME_BALDURSGATE;
-		std::cout << "GAME_BALDURSGATE" << std::endl;
+		std::cout << "Baldur's Gate" << std::endl;
 	}
-
-	std::cout << std::endl;
 
 
 	// TODO: Move this elsewhere.
