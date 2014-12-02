@@ -62,6 +62,11 @@ Core::Initialize(const char* path)
 	if (sCore != NULL)
 		return true;
 
+	if (path == NULL || path[0] == 0) {
+		std::cerr << "Core::Initialize(): No path supplied" << std::endl;
+		return false;
+	}
+		
 	try {
 		sCore = new Core();
 	} catch (...) {
