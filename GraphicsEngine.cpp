@@ -163,6 +163,10 @@ void
 GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 		uint16 flags)
 {
+	std::cout << "GraphicsEngine::SetVideoMode(";
+	std::cout << std::dec << x << ", " << y << ", " << depth;
+	std::cout << ")" << std::endl;
+
 	int sdlFlags = 0;
 	if (flags & VIDEOMODE_FULLSCREEN)
 		sdlFlags |= SDL_FULLSCREEN;

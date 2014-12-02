@@ -69,6 +69,8 @@ GUI::~GUI()
 bool
 GUI::Initialize(const uint16 width, const uint16 height)
 {
+	std::cout << "GUI::Initialize(" << std::dec << width;
+	std::cout << ", " << height << ")" << std::endl;
 	try {
 		if (sGUI == NULL)
 			sGUI = new GUI(width, height);
@@ -84,6 +86,7 @@ GUI::Initialize(const uint16 width, const uint16 height)
 void
 GUI::Destroy()
 {
+	std::cout << "GUI::Destroy()" << std::endl;
 	delete sGUI;
 	sGUI = NULL;
 }
@@ -192,7 +195,7 @@ GUI::ShowWindow(uint16 id)
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
 		fActiveWindows.push_back(window);
-		window->Print();
+		//window->Print();
 	}
 }
 

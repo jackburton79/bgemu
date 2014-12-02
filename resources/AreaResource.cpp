@@ -320,7 +320,7 @@ ARAResource::_LoadActors()
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
-		fActors[i].Print();
+		//fActors[i].Print();
 		if (fActors[i].flags & IE::ACTOR_CRE_EXTERNAL) {
 			char c;
 			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);

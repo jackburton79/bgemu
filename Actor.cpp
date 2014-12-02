@@ -114,9 +114,9 @@ Actor::_Init()
 	std::cout << "\tminor:" << (int)fCRE->Colors().minor << std::endl;
 	std::cout << "\tarmor:" << (int)fCRE->Colors().armor << std::endl;
 	std::cout << "\thair:" << (int)fCRE->Colors().hair << std::endl;*/
-	std::cout << std::dec;
-	std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
-	std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
+	//std::cout << std::dec;
+	//std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
+	//std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
 
 	// TODO: Are we overwriting the actor specific stuff here ?
 	fActor->script_override = fCRE->OverrideScriptName();
@@ -128,7 +128,7 @@ Actor::_Init()
 	Script* script = MergeScripts();
 	SetScript(script);
 
-	fActor->Print();
+	//fActor->Print();
 	/*for (uint32 i = 0; i < kNumItemSlots; i++) {
 		IE::item* item = fCRE->ItemAtSlot(i);
 		if (item != NULL) {
@@ -562,7 +562,7 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 			newOrientation = IE::ORIENTATION_EXT_N;
 	}
 
-	std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
+	//std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
 	fActor->orientation = newOrientation;
 }
 

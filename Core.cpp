@@ -148,7 +148,7 @@ Core::EnteredArea(Room* area, Script* script)
 
 	area->SetScript(NULL);
 
-	_PrintObjects();
+	//_PrintObjects();
 }
 
 

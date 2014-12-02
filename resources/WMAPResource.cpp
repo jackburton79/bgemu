@@ -69,13 +69,13 @@ WMAPResource::Load(Archive* archive, uint32 key)
 					+ c * sizeof(area_entry),
 					areaEntry);
 			AreaEntry* entry = new AreaEntry(areaEntry);
-			std::cout << "Area " << areaEntry.area;
+			/*std::cout << "Area " << areaEntry.area;
 			std::cout << ", short: " << areaEntry.shortname;
 			std::cout << ", long: " <<  areaEntry.name;
 			std::cout << ", tooltip: " << areaEntry.tooltip_ref;
 			std::cout << ", loading " << areaEntry.loading_mos;
 			std::cout << std::endl;
-
+			*/
 
 			entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
 			entry->fPosition.x = (int16)areaEntry.x;
