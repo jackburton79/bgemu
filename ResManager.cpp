@@ -68,7 +68,6 @@ const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
 
 
-
 ResourceManager::ResourceManager()
 {
 	// TODO: Move this elsewhere!
@@ -179,6 +178,9 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 	if (!strcmp(name.name, ""))
 		return NULL;
 
+	//std::cout << "ResourceManager::GetResource(";
+	//std::cout << name.CString() << ", " << strresource(type);
+	//std::cout << ")" << std::endl;
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
 		std::cerr << "ResourceManager::GetResource(";
@@ -187,7 +189,15 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 		return NULL;
 	}
 
+	//std::cout << "\t-> Is it loaded ? ";
+	//std::flush(std::cout);
 	Resource *result = _FindResource(*entry);
+	//if (result != NULL)
+	//	std::cout << "YES";
+	//else
+	//	std::cout << "NO";
+	//std::cout << std::endl;
+
 #if USE_OVERRIDE
 	if (result == NULL)
 		result = _LoadResourceFromOverride(*entry);
@@ -467,12 +477,11 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 	std::cout << "ResourceManager::LoadResource(";
 	std::cout << entry.name.CString() << ", " << strresource(entry.type);
-	std::cout << ")"; // << std::endl;
+	std::cout << ")" << std::endl;
 	//std::flush(std::cout);
 	
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
-		std::cout << std::endl;
 		std::string fullPath = GetFullPath(archiveName, location);
 		std::cout << "\t-> Loading archive '" << fullPath << "'... ";
 		std::flush(std::cout);
@@ -496,7 +505,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
-	std::cout << "Resource " << entry.name.CString();
+	std::cout << "\t-> Resource " << entry.name.CString();
 	std::cout << " (" << strresource(entry.type) << ") ";
 	std::cout << "loaded correctly!" << std::endl;
 
