@@ -162,7 +162,6 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 			nameEnd--;
 		*nameEnd = '\0';
 		strcpy(obj->name, name);
-
 	}
 }
 
