@@ -124,6 +124,7 @@ ResourceManager::~ResourceManager()
 bool
 ResourceManager::Initialize(const char *path)
 {
+	std::cout << "ResourceManager::Initialize(" << path << ")" << std::endl;
 	fResourcesPath.SetTo(path);
 
 	KEYResource *key = GetKEY(kKeyResource);
@@ -389,11 +390,19 @@ ResourceManager::GetResourceList(std::vector<std::string>& strings,
 std::string
 ResourceManager::GetFullPath(std::string name, uint16 location)
 {
-	//std::cout << "location: (" << std::hex << location << ")" << std::endl;
+	//std::cout << "ResourceManager::GetFullPath(" << name << ", 0x";
+	//std::cout << std::hex << location << ")" << std::endl;
+
 	TPath pathName(fResourcesPath);
-	if (pathName.InitCheck() != 0)
+	if (pathName.InitCheck() != 0) {
+		std::cerr << "Invalid path" << std::endl;
 		throw "Invalid path";
-		
+	}
+	
+	// TODO: Introduce the concept of a "current cd"
+	// although since the game is fully installed it doesn't
+	// really matter
+	std::string locationString = "( In ";	
 	uint32 cd = GET_CD(location);
 	if ((location & LOC_ROOT) == 0) {
 		//if (IS_OVERRIDE(location))
@@ -401,31 +410,31 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 		// TODO: this represents the LIST of cd where
 		// we can find the resource.
 		// some resources exist on many cds.
-		if (cd & LOC_CD1)
+		if (cd & LOC_CD1) {
 			pathName.Append("CD1/");
-		else if (cd & LOC_CD2)
+			locationString.append("CD 1");
+		} else if (cd & LOC_CD2) {
 			pathName.Append("CD2/");
-		else if (cd & LOC_CD3)
+			locationString.append("CD 2");
+		} else if (cd & LOC_CD3) {
 			pathName.Append("CD3/");
-		else if (cd & LOC_CD4)
+			locationString.append("CD 3");
+		} else if (cd & LOC_CD4) {
 			pathName.Append("CD4/");
-		else if (cd & LOC_CD5)
+			locationString.append("CD 4");
+		} else if (cd & LOC_CD5) {
 			pathName.Append("CD5/");
-	}
+			locationString.append("CD 5");
+		}
+	} else
+		locationString.append("ROOT");
+	
+	locationString.append(" )");
+	
+	//std::cout << locationString;
 
 	//printf("CD: 0x%x ", GET_CD(location));
-	if (cd & LOC_CD1)
-		std::cout << "CD 1 ";
-	if (cd & LOC_CD2)
-		std::cout << "CD 2 ";
-	if (cd & LOC_CD3)
-		std::cout << "CD 3 ";
-	if (cd & LOC_CD4)
-		std::cout << "CD 4 ";
-	if (cd & LOC_CD5)
-		std::cout << "CD 5";
-
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
 	pathName.Append(name.c_str(), false);
 
@@ -442,13 +451,16 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 	std::cout << "ResourceManager::LoadResource(";
 	std::cout << entry.name.CString() << ", " << strresource(entry.type);
-	std::cout << ")" << std::endl;
-
+	std::cout << ")"; // << std::endl;
+	//std::flush(std::cout);
+	
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
+		std::cout << std::endl;
 		std::string fullPath = GetFullPath(archiveName, location);
+		std::cout << "\tLoading archive '" << fullPath << "'... ";
+		std::flush(std::cout);
 		archive = Archive::Create(fullPath.c_str());
-		std::cout << "Opening archive " << fullPath << "...";
 		if (archive == NULL) {
 			std::cout << "FAILED!" << std::endl;
 			return NULL;
