@@ -185,7 +185,6 @@ MVEResource::Play()
 		}
 		uint32 currentTime = SDL_GetTicks();
 		if (fTimer != 0 && !quitting) {
-			//SDL_Delay(1000);
 			uint32 nextFrameTime = fLastFrameTime + fTimer;
 			if (currentTime < nextFrameTime)
 				SDL_Delay(nextFrameTime - currentTime);
@@ -240,8 +239,8 @@ MVEResource::DecodeChunk(chunk_header header)
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
 {	
-	std::cout << "opcode: " << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
-	std::cout << " length: " << std::dec << opcode.length << std::endl;
+	//std::cout << "opcode: " << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
+	//std::cout << " length: " << std::dec << opcode.length << std::endl;
 	
 	switch (opcode.type) {
 		case OP_END_OF_STREAM:
@@ -374,7 +373,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			}
 			break;*/
 		default:
-			printf("MVEResource: Opcode not implemented\n");
+			std::cout << "MVEResource: Opcode not implemented" << std::endl;
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
@@ -411,8 +410,9 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 			for (uint16 i = 0; i < audioSize; i++)
 				buffer->AddSample(decoder->Decode(encodedData[i]));
 		} else {
-			for (uint16 i = 0; i < audioSize; i++)
+			for (uint16 i = 0; i < audioSize; i++) {
 				buffer->AddSample(decoder->Decode(encodedData[i], i % 2));
+			}
 		}
 	} catch (...) {
 		std::cerr << "TODO: ReadAudioData: Buffer overflow. That's bad, okay. Will fix someday." << std::endl;
