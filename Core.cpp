@@ -36,6 +36,7 @@ Core::Core()
 	fActiveActor(NULL),
 	fRoomScript(NULL),
 	fLastScriptRoundTime(0),
+	fNextObjectNumber(0),
 	fPaused(false)
 {
 	srand(time(NULL));
@@ -138,7 +139,6 @@ Core::EnteredArea(Room* area, Script* script)
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
 
-	area->SetScript(script);
 	SetRoomScript(script);
 
 	// The area script
@@ -343,6 +343,7 @@ void
 Core::SetRoomScript(Script* script)
 {
 	fRoomScript = script;
+	fCurrentRoom->SetScript(script);
 }
 
 
