@@ -155,8 +155,8 @@ Core::EnteredArea(Room* area, Script* script)
 void
 Core::SetVariable(const char* name, int32 value)
 {
-	std::cout << "SetVariable(" << name << ", " << value;
-	std::cout << " (old value: " << fVariables[name] << ")";
+	std::cout << "Core::SetVariable(" << name << " = " << value;
+	std::cout << " ( was " << fVariables[name] << " ))";
 	std::cout << std::endl;
 	fVariables[name] = value;
 }
