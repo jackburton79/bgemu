@@ -103,10 +103,6 @@ MovieDecoder::MovieDecoder()
 	sOpcodes[13] = &MovieDecoder::OpcodeD;
 	sOpcodes[14] = &MovieDecoder::OpcodeE;
 	sOpcodes[15] = &MovieDecoder::OpcodeF;
-
-#if DEBUG
-	Test();
-#endif
 }
 
 
