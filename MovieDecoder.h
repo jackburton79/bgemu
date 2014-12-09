@@ -25,7 +25,7 @@ public:
 	
 	Bitmap *CurrentFrame();
 
-	void Test();
+	int Test();
 
 private:
 	uint8 *fDecodingMap;

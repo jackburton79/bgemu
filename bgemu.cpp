@@ -97,10 +97,10 @@ main(int argc, char **argv)
 		// TODO: Do more tests
 		std::cout << "Testing Mode" << std::endl;
 		MovieDecoder decoder;
-		decoder.Test();
+		int status = decoder.Test();
 		GraphicsEngine::Destroy();
 		Core::Destroy();
-		return 0;
+		return status;
 	}
 	
 	uint16 screenWidth = 800;

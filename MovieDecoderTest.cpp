@@ -15,22 +15,32 @@ DumpData(uint8 *data, int size)
 }
 
 
-void
+int
 MovieDecoder::Test()
 {
-	TestOpcode7A();
-	TestOpcode7B();
-	TestOpcode8A();
-	TestOpcode8B();
-	TestOpcode8C();
-	TestOpcode9A();
-	//TestOpcode9B();
-	//TestOpcodeA2();
-	TestOpcodeB();
-	TestOpcodeC();
-	TestOpcodeD();
-	TestOpcodeE();
-	TestOpcodeF();
+	try {
+		TestOpcode7A();
+		TestOpcode7B();
+		TestOpcode8A();
+		TestOpcode8B();
+		TestOpcode8C();
+		TestOpcode9A();
+		//TestOpcode9B();
+		//TestOpcodeA2();
+		TestOpcodeB();
+		TestOpcodeC();
+		TestOpcodeD();
+		TestOpcodeE();
+		TestOpcodeF();
+	} catch (const char* string) {
+		std::cerr << "MovieDecoder::Test(): " << string << std::endl;
+		return -1;
+	} catch (...) {
+		std::cerr << "MovieDecoder::Test(): FAILURE!" << std::endl;
+		return -1;
+	}
+
+	return 0;
 }
 
 
@@ -38,6 +48,9 @@ MovieDecoder::Test()
 void
 MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size)
 {
+	std::cout << "MovieDecoder::TestInit(opcode " << std::hex;
+	std::cout << opcode << ")" << std::endl;
+
 	AllocateBuffer(640, 480, 99, false);
 
 	uint8 *decodingMap = new uint8[1];
@@ -53,7 +66,9 @@ void
 MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 {
 	int result = memcmp(data, fScratchBuffer->Pixels(), dataSize);
-	printf("opcode 0x%x: %s\n", fDecodingMap[0] & 0xF, result ? "FAILURE" : "OK");
+	std::cout << "MovieDecoder::TestFinish(opcode " << std::hex;
+	std::cout << (int)(fDecodingMap[0] & 0xF) << "): " << std::endl;
+	std::cout << (result ? "FAILURE" : "OK") << std::endl;
 
 	if (result) {
 		DumpData((uint8*)fScratchBuffer->Pixels(), 64);

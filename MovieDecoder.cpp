@@ -118,8 +118,11 @@ MovieDecoder::~MovieDecoder()
 bool
 MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version, bool trueColor)
 {
-	printf("AllocateBuffer(width: %d, height: %d, version: %d, truecolor: %s)\n",
-			width, height, version, trueColor ? "yes" : "no");
+	std::cout << "MovieDecoder::AllocateBuffer(width: ";
+	std::cout << std::dec << width << ", height: " << height;
+	std::cout << ", version: " << version << ", truecolor: ";
+	std::cout << (trueColor ? "yes" : "no") << ")" << std::endl;
+
 	fNewFrame = GraphicsEngine::CreateBitmap(width, height, 8);
 	fCurrentFrame = GraphicsEngine::CreateBitmap(width, height, 8);
 
@@ -133,9 +136,6 @@ MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version, bool t
 bool
 MovieDecoder::InitVideoMode(uint16 width, uint16 height, uint16 flags)
 {
-	printf("InitVideoMode(width: %d, height: %d, flags: %d)\n",
-			width, height, flags);
-
 	GraphicsEngine::Get()->SetVideoMode(width, height, 16, 0);
 
 	return true;
