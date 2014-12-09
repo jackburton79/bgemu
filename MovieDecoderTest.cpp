@@ -2,7 +2,7 @@
 #include "MemoryStream.h"
 #include "MovieDecoder.h"
 
-/*
+
 static void
 DumpData(uint8 *data, int size)
 {
@@ -13,7 +13,7 @@ DumpData(uint8 *data, int size)
 	}
 	printf("\n");
 }
-*/
+
 
 void
 MovieDecoder::Test()
