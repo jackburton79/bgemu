@@ -706,7 +706,7 @@ BitStreamAdapter::BitStreamAdapter(Stream* stream)
 	:
 	fStream(stream),
 	fByte(0),
-	fBitPos(7)
+	fBitPos(0)
 {
 }
 
@@ -715,11 +715,11 @@ inline
 uint8
 BitStreamAdapter::ReadBit()
 {
-	if (fBitPos == 7)
+	if (fBitPos == 0)
 		fByte = fStream->ReadByte();
 	uint8 bit = (fByte >> fBitPos) & 1;
-	if (--fBitPos < 0)
-		fBitPos = 7;
+	if (++fBitPos > 7)
+		fBitPos = 0;
 	return bit;
 }
 
@@ -730,7 +730,7 @@ TwoBitsStreamAdapter::TwoBitsStreamAdapter(Stream* stream)
 	:
 	fStream(stream),
 	fByte(0),
-	fBitPos(6)
+	fBitPos(0)
 {
 }
 
@@ -738,11 +738,11 @@ TwoBitsStreamAdapter::TwoBitsStreamAdapter(Stream* stream)
 inline uint8
 TwoBitsStreamAdapter::ReadBits()
 {
-	if (fBitPos == 6)
+	if (fBitPos == 0)
 		fByte = fStream->ReadByte();
 	uint8 bits = (fByte >> fBitPos) & 0x3;
-	fBitPos -= 2;
-	if (fBitPos < 0)
-		fBitPos = 6;
+	fBitPos += 2;
+	if (fBitPos > 7)
+		fBitPos = 0;
 	return bits;
 }
