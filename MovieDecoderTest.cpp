@@ -2,12 +2,14 @@
 #include "MemoryStream.h"
 #include "MovieDecoder.h"
 
+#include <iomanip>
 
 static void
 DumpData(const uint8 *data, int size)
 {
 	for (int i = 0; i < size; i++) {
-		std::cout << "0x" << (int)(*(data + i)) << " ";
+		std::cout << std::setw(2) << std::setfill('0');
+		std::cout << (int)(*(data + i)) << " ";
 		if ((i % 8) == 7)
 			std::cout << std::endl;
 	}
