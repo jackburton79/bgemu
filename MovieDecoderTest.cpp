@@ -48,8 +48,8 @@ MovieDecoder::Test()
 void
 MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size)
 {
-	std::cout << "MovieDecoder::TestInit(opcode " << std::hex;
-	std::cout << opcode << ")" << std::endl;
+	std::cout << "MovieDecoder::TestInit(opcode 0x" << std::hex;
+	std::cout << (int)opcode << ")" << std::endl;
 
 	AllocateBuffer(640, 480, 99, false);
 
@@ -66,8 +66,8 @@ void
 MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 {
 	int result = memcmp(data, fScratchBuffer->Pixels(), dataSize);
-	std::cout << "MovieDecoder::TestFinish(opcode " << std::hex;
-	std::cout << (int)(fDecodingMap[0] & 0xF) << "): " << std::endl;
+	std::cout << "MovieDecoder::TestFinish(opcode 0x" << std::hex;
+	std::cout << (int)(fDecodingMap[0] & 0xF) << "): ";
 	std::cout << (result ? "FAILURE" : "OK") << std::endl;
 
 	if (result) {
