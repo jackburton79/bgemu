@@ -1,3 +1,7 @@
+/* Documentation for the format taken from:
+	http://wiki.multimedia.cx/index.php?title=Interplay_Video
+*/
+
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "MemoryStream.h"
@@ -226,6 +230,8 @@ MovieDecoder::BlitBackBuffer()
 void
 MovieDecoder::Opcode0(Stream* stream, uint8* pixels, GFX::rect* rect)
 {
+	// Block is copied from corresponding block from current frame.
+	// (i.e. this block is unchanged). 
 	GraphicsEngine::Get()->BlitBitmap(fCurrentFrame, rect, fNewFrame, rect);
 }
 
@@ -233,12 +239,27 @@ MovieDecoder::Opcode0(Stream* stream, uint8* pixels, GFX::rect* rect)
 void
 MovieDecoder::Opcode1(Stream* stream, uint8* pixels, GFX::rect* rect)
 {
+	// Block is unmodified. This appears to mean that it has the same value it had 2 frames ago,
+	// but the net effect is that nothing is done to this block of 8x8 pixels. 
 }
 
 
 void
 MovieDecoder::Opcode2(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Block is copied from nearby (below and to the right) within the new frame.
+	// The offset within the buffer from which to grab the patch of 8 pixels is
+	// given by grabbing a byte B from the data stream, which is broken into a
+	// positive x and y offset according to the following mapping:
+	/*  if B < 56:
+			x = 8 + (B % 7)
+			y = B / 7
+		else
+			x = -14 + ((B - 56) % 29)
+			y =   8 + ((B - 56) / 29)
+	*/
+	// (where % is the 'modulo' operator) 
+	
 	GFX::rect rect = fActiveRect;
 	uint8 byte = stream->ReadByte();
 	if (byte < 56) {
@@ -272,6 +293,19 @@ MovieDecoder::Opcode3(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::Opcode4(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Similar to 0x2 and 0x3, except this method copies from the "current"
+	// frame, rather than the "new" frame, and instead of the lopsided mapping
+	// they use, this one uses one which is symmetric and centered around the
+	// top-left corner of the block. This uses only 1 byte still, though, so the
+	// range is decreased, since we have to encode all directions in a single
+	// byte. The byte we pull from the data stream, I'll call B. Call the
+	// highest 4 bits of B BH and the lowest 4 bytes BL. Then the offset from
+	// which to copy the data is:
+	/*
+		x = -8 + BL
+		y = -8 + BH
+	*/
+
 	uint8 byte = stream->ReadByte();
 	GFX::rect rect = fActiveRect;
 	rect.x += -8 + (byte & 0x0F);
@@ -283,6 +317,10 @@ MovieDecoder::Opcode4(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::Opcode5(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Similar to 0x4, but instead of one byte for the offset, this uses two
+	// bytes to encode a larger range, the first being the x offset as a signed
+	// 8-bit value, and the second being the y offset as a signed 8-bit value.
+	
 	GFX::rect rect = fActiveRect;
 	rect.x += (sint8)stream->ReadByte();
 	rect.y += (sint8)stream->ReadByte();
@@ -293,12 +331,40 @@ MovieDecoder::Opcode5(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::Opcode6(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Not used
 }
 
 
 void
 MovieDecoder::Opcode7(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Most of the following encodings are "patterned" blocks, where we are
+	// given a number of pixel values and then bitmapped values to specify which
+	// pixel values belong to which squares. For this encoding, we are given the
+	// following in the data stream:
+	/*
+		P0 P1
+
+		These are pixel values (i.e. 8-bit indices into the palette).
+		If P0 <= P1, we then get 8 more bytes from the data stream, one for each
+		row in the block:
+
+		B0 B1 B2 B3 B4 B5 B6 B7
+
+		For each row, the rightmost pixel is represented by the low-order bit,
+		and the leftmost by the high-order bit. Use your imagination in between.
+		If a bit is set, the pixel value is P1 and if it is unset, the pixel
+		value is P0.
+
+		If, on the other hand, P0 > P1, we get two more bytes from the data
+		stream:
+
+		B0 B1
+
+		Each of these bytes contains a 4-bit pattern. This pattern works exactly
+		like the pattern above with 8 bytes, except each bit represents a 2x2
+		pixel region.
+	*/
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
 	BitStreamAdapter bs(stream);
@@ -321,6 +387,38 @@ MovieDecoder::Opcode7(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Ok, this one is basically like encoding 0x7, only more complicated.
+	// Again, we start out by getting two bytes on the data stream:
+	/*
+		P0 P1
+		if P0 <= P1 then we get the following from the data stream:
+
+					  B0 B1
+				P2 P3 B2 B3
+				P4 P5 B4 B5
+				P6 P7 B6 B7
+
+		P0 P1 and B0 B1 are used for the top-left corner, P2 P3 B2 B3 for the
+		bottom-left corner, P4 P5 B4 B5 for the top-right, P6 P7 B6 B7 for the
+		bottom-right. (So, each codes for a 4x4 pixel array.) Since we have
+		16 bits in B0 B1, there is one bit for each pixel in the array.
+		The convention for the bit-mapping is, again, left to right and top to
+		bottom.
+
+		So, basically, the top-left quarter of the block is an arbitrary pattern
+		with 2 pixels, the bottom-left a different arbitrary pattern with 2
+		different pixels, and so on.
+
+		if P0 > P1 then we get 10 more bytes from the data stream:
+
+		B0 B1 B2 B3 P2 P3 B4 B5 B6 B7
+
+		Now, if P2 <= P3, then [P0 P1 B0 B1 B2 B3] represent the left half of
+		the block and [P2 P3 B4 B5 B6 B7] represent the right half.
+
+		If P2 > P3, [P0 P1 B0 B1 B2 B3] represent the top half of the block and
+		[P2 P3 B4 B5 B6 B7] represent the bottom half.
+	*/
 	uint8 t0 = stream->ReadByte();
 	uint8 t1 = stream->ReadByte();
 	if (t0 <= t1) {
