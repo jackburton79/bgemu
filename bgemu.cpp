@@ -19,12 +19,14 @@
 static int sList = 0;
 static int sNoScripts = 0;
 static int sFullScreen = 0;
+static int sTest = 0;
 static const char *sPath;
 static const char *sResourceName = NULL;
 
 static
 struct option sLongOptions[] = {
 		{ "list", no_argument, &sList, 1 },
+		{ "test", no_argument, NULL, 't' },
 		{ "showresource", required_argument, NULL, 's'},
 		{ "path", required_argument, NULL, 'p'},
 		{ "noscripts", no_argument, &sNoScripts, 'n' },
@@ -38,7 +40,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "p:s:lnf",
+	while ((c = getopt_long(argc, argv, "p:s:ltnf",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -49,6 +51,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'f':
 				sFullScreen = 1;
+				break;
+			case 't':
+				sTest = 1;
 				break;
 			default:
 				break;
@@ -73,6 +78,7 @@ main(int argc, char **argv)
 	}
 
 	if (sResourceName != NULL) {
+		std::cout << "Dump resource Mode" << std::endl;
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
 			resource->Dump();
@@ -86,6 +92,17 @@ main(int argc, char **argv)
 		return -1;
 	}
 
+	
+	if (sTest) {
+		// TODO: Do more tests
+		std::cout << "Testing Mode" << std::endl;
+		MovieDecoder decoder;
+		decoder.Test();
+		GraphicsEngine::Destroy();
+		Core::Destroy();
+		return 0;
+	}
+	
 	uint16 screenWidth = 800;
 	uint16 screenHeight = 600;
 	int flags = 0;

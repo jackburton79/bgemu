@@ -18,7 +18,6 @@ DumpData(uint8 *data, int size)
 void
 MovieDecoder::Test()
 {
-#if DEBUG
 	TestOpcode7A();
 	TestOpcode7B();
 	TestOpcode8A();
@@ -32,7 +31,6 @@ MovieDecoder::Test()
 	TestOpcodeD();
 	TestOpcodeE();
 	TestOpcodeF();
-#endif
 }
 
 
