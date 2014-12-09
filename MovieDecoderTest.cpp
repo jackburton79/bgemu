@@ -48,10 +48,13 @@ MovieDecoder::Test()
 
 #if DEBUG
 void
-MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size)
+MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size, const char* name)
 {
 	std::cout << "MovieDecoder::TestInit(opcode 0x" << std::hex;
-	std::cout << (int)opcode << ")" << std::endl;
+	std::cout << (int)opcode;
+	if (name != NULL)
+		std::cout << " (" << name << ") ";
+	std::cout << ")" << std::endl;
 
 	AllocateBuffer(640, 480, 99, false);
 
@@ -94,7 +97,7 @@ MovieDecoder::TestOpcode7A()
 	const uint8 data[] = {
 			0x11, 0x22, 0xff, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xff }; // opcode7, first case
 
-	TestInit(0x7, data, sizeof(data));
+	TestInit(0x7, data, sizeof(data), "P0 <= P1");
 
 	const uint8 resultData[] = { // opcode 7, first case
 			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
@@ -117,7 +120,7 @@ MovieDecoder::TestOpcode7B()
 	// Test opcode 0x7:
 	const uint8 data[] = { 	0x22, 0x11, 0xff, 0x81 }; // opcode7, second case
 
-	TestInit(0x7, data, sizeof(data));
+	TestInit(0x7, data, sizeof(data), "P0 > P1 ");
 
 	const uint8 resultData[] = { // opcode 7, second case
 			0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -142,7 +145,7 @@ MovieDecoder::TestOpcode8A()
 			0x44, 0x55, 0xaa, 0x55, 0x66, 0x77, 0x01, 0xef
 	};
 
-	TestInit(0x8, data, sizeof(data));
+	TestInit(0x8, data, sizeof(data), "P0 <= P1");
 
 	const uint8 result[] = {
 			0x22, 0x22, 0x22, 0x22, 0x33, 0x33, 0x11, 0x11,
@@ -167,7 +170,7 @@ MovieDecoder::TestOpcode8B()
 		0x11, 0x66, 0x8c, 0xe6, 0x73, 0x31
 	};
 
-	TestInit(0x8, data, sizeof(data));
+	TestInit(0x8, data, sizeof(data), "P0 > P1 && P2 <= P3");
 
 	const uint8 result[] = {
 		0x22, 0x22, 0x22, 0x22, 0x66, 0x11, 0x11, 0x11,
@@ -192,7 +195,7 @@ MovieDecoder::TestOpcode8C()
 		0x66, 0x11, 0x18, 0x24, 0x42, 0x81
 	};
 
-	TestInit(0x8, data, sizeof(data));
+	TestInit(0x8, data, sizeof(data), "P0 > P1 && P2 > P3");
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x22, 0x22, 0x00, 0x00, 0x22, 0x22,
@@ -220,7 +223,7 @@ MovieDecoder::TestOpcode9A()
 			0xFF, 0xFF, 0xFF, 0xFF
 	};
 
-	TestInit(0x9, data, sizeof(data));
+	TestInit(0x9, data, sizeof(data), "P0 <= P1 && P2 <= P3");
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -245,7 +248,7 @@ MovieDecoder::TestOpcode9B()
 			0x01, 0x24, 0xFF, 0x11
 	};
 
-	TestInit(0x9, data, sizeof(data));
+	TestInit(0x9, data, sizeof(data), "P0 <= P1 && P2 > P3");
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -272,7 +275,7 @@ MovieDecoder::TestOpcodeA2()
 			0x25, 0xFF, 0x11, 0xFF, 0x0F, 0x0F
 	};
 
-	TestInit(0xA, data, sizeof(data));
+	TestInit(0xA, data, sizeof(data), "P0 > P1");
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

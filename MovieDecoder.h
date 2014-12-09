@@ -57,7 +57,7 @@ private:
 	void OpcodeF(Stream* stream, uint8* pixels, GFX::rect* rect);
 
 #if DEBUG
-	void TestInit(uint8 opcode, const uint8 data[], uint32 size);
+	void TestInit(uint8 opcode, const uint8 data[], uint32 size, const char* name = NULL);
 	void TestFinish(const uint8 expectedResult[], uint32 dataSize);
 	void TestOpcode7A();
 	void TestOpcode7B();
