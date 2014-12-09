@@ -7,11 +7,11 @@ static void
 DumpData(uint8 *data, int size)
 {
 	for (int i = 0; i < size; i++) {
-		printf("0x%x ", *(data + i));
+		std::cout << "0x" << (int)(*(data + i)) << " ";
 		if ((i % 8) == 7)
-			printf("\n");
+			std::cout << std::endl;
 	}
-	printf("\n");
+	std::cout << std::endl;
 }
 
 

@@ -529,7 +529,7 @@ MovieDecoder::OpcodeE(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	GFX::rect destRect = *blitRect;
 	fNewFrame->FillRect(destRect, pixel);
 #if DEBUG
-	//GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
+	GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
 #endif
 }
 
