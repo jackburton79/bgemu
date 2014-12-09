@@ -521,6 +521,38 @@ MovieDecoder::Opcode9(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeA(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// Similar to the previous, only a little more complicated. We are still
+	// dealing with patterns over 4 pixel values with 2 bits assigned to each
+	// pixel (or block of pixels).
+
+	/* So, first on the data stream are our 4 pixel values:
+
+		P0 P1 P2 P3
+
+		Now, if P0 <= P1, the block is divided into 4 quadrants, ordered
+		(as with opcode 0x8) TL, BL, TR, BR.
+		In this case the next data in the data stream should be:
+
+                               B0  B1  B2  B3
+               P4  P5  P6  P7  B4  B5  B6  B7
+               P8  P9  P10 P11 B8  B9  B10 B11
+               P12 P13 P14 P15 B12 B13 B14 B15
+
+		Each 2 bits represent a 1x1 pixel (00=P0, 01=P1, 10=P2, 11=P3).
+		The ordering is again left to right and top to bottom.
+		The most significant bits represent the left side at the top, and so on.
+
+		If P0 > P1 then the next data on the data stream is:
+
+                           B0 B1 B2  B3  B4  B5  B6  B7
+               P4 P5 P6 P7 B8 B9 B10 B11 B12 B13 B14 B15
+
+		Now, in this case, if P4 <= P5, [P0 P1 P2 P3 B0 B1 B2 B3 B4 B5 B6 B7]
+		represent the left half of the block and the other bytes represent the
+		right half.
+		If P4 > P5, then [P0 P1 P2 P3 B0 B1 B2 B3 B4 B5 B6 B7] represent the top
+		half of the block and the other bytes represent the bottom half.
+	*/
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
 	uint8 p2 = stream->ReadByte();
@@ -590,6 +622,8 @@ MovieDecoder::OpcodeA(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeB(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// In this encoding we get raw pixel data in the data stream -- 64 bytes of
+	// pixel data. 1 byte for each pixel, and in the standard order (l->r, t->b)
 	for (int y = 0; y < 64; y++)
 		*pixels++ = stream->ReadByte();
 	GraphicsEngine::Get()->BlitBitmap(fScratchBuffer, NULL, fNewFrame, blitRect);
@@ -599,6 +633,9 @@ MovieDecoder::OpcodeB(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeC(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// In this encoding we get raw pixel data in the data stream -- 16 bytes of
+	// pixel data. 1 byte for each block of 2x2 pixels, and in the standard
+	// order (l->r, t->b).
 	for (int32 r = 0; r < 8; r+=2) {
 		for (int32 c = 0; c < 8; c+=2) {
 			pixels[c] =
@@ -615,6 +652,9 @@ MovieDecoder::OpcodeC(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeD(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// In this encoding we get raw pixel data in the data stream -- 4 bytes of
+	// pixel data. 1 byte for each block of 4x4 pixels, and in the standard
+	// order (l->r, t->b). 
 	for (int i = 0; i < 4; i++) {
 		uint8 data = stream->ReadByte();
 		fill_pixels(pixels, i, data, 4);
@@ -626,6 +666,8 @@ MovieDecoder::OpcodeD(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeE(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// This encoding represents a solid frame.
+	// We get 1 byte of pixel data from the data stream. 
 	uint8 pixel = stream->ReadByte();
 	GFX::rect destRect = *blitRect;
 	fNewFrame->FillRect(destRect, pixel);
@@ -638,6 +680,10 @@ MovieDecoder::OpcodeE(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 void
 MovieDecoder::OpcodeF(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
+	// This encoding represents a "dithered" frame, which is checkerboarded with
+	// alternate pixels of two colors.
+	// We get 2 bytes of pixel data from the data stream, and these bytes are
+	// alternated
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
 	uint8 pattern1[8] = { p0, p1, p0, p1, p0, p1, p0, p1 };
