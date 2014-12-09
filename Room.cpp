@@ -129,6 +129,21 @@ bool
 Room::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 {
+	// TODO: Move this elsewhere.
+	// This should be filled by the player selection
+	try {
+		IE::point point = { 20, 20 };
+		Party* party = Party::Get();
+		if (party->CountActors() == 0) {
+			if (Core::Get()->Game() == GAME_BALDURSGATE)
+				party->AddActor(new Actor("AJANTI", point, 0));
+			else
+				party->AddActor(new Actor("AESOLD", point, 0));
+		}
+	} catch (...) {
+
+	}
+
 	// Save the entrance name, it will be unloaded in UnloadArea
 	std::string savedEntranceName = entranceName ? entranceName : "";
 

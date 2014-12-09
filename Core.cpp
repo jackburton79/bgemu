@@ -93,21 +93,9 @@ Core::Initialize(const char* path)
 		std::cout << "Baldur's Gate" << std::endl;
 	}
 
-
-	// TODO: Move this elsewhere.
-	// This should be filled by the player selection
-
 	Room::Create();
-	try {
-		IE::point point = { 20, 20 };
-		Party* party = Party::Get();
-		if (sCore->fGame == GAME_BALDURSGATE)
-			party->AddActor(new Actor("AJANTI", point, 0));
-		else
-			party->AddActor(new Actor("AESOLD", point, 0));
-	} catch (...) {
 
-	}
+	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
 }
 
@@ -139,6 +127,7 @@ Core::EnteredArea(Room* area, Script* script)
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
 
+	area->SetScript(script);
 	SetRoomScript(script);
 
 	// The area script
@@ -148,15 +137,15 @@ Core::EnteredArea(Room* area, Script* script)
 
 	area->SetScript(NULL);
 
-	//_PrintObjects();
+	_PrintObjects();
 }
 
 
 void
 Core::SetVariable(const char* name, int32 value)
 {
-	std::cout << "Core::SetVariable(" << name << " = " << value;
-	std::cout << " ( was " << fVariables[name] << " ))";
+	std::cout << "SetVariable(" << name << ", " << value;
+	std::cout << " (old value: " << fVariables[name] << ")";
 	std::cout << std::endl;
 	fVariables[name] = value;
 }
@@ -343,7 +332,6 @@ void
 Core::SetRoomScript(Script* script)
 {
 	fRoomScript = script;
-	fCurrentRoom->SetScript(script);
 }
 
 
