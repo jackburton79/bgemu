@@ -391,26 +391,29 @@ MovieDecoder::Opcode9(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 p3 = stream->ReadByte();
 	Pattern4 op(p0, p1, p2, p3);
 	TwoBitsStreamAdapter bs(stream);
-	if (p0 <= p1 && p2 <= p3) {
-		for (int i = 0; i < 64; i++)
-			*pixels++ = op.PixelValue(bs.ReadBits());
-	} else if (p0 <= p1 && p2 > p3) {
-		for (int i = 0; i < 16; i++) {
-			const uint8 value = op.PixelValue(bs.ReadBits());
-			fill_pixels(pixels, i, value, 2);
-		}
-	} else if (p0 > p1 && p2 <= p3 ) {
-		for (int i = 0; i < 32; i++) {
-			const uint8 value = op.PixelValue(bs.ReadBits());
-			*pixels++ = value;
-			*pixels++ = value;
-		}
+	if (p0 <= p1)
+		if (p2 <= p3) {
+			for (int i = 0; i < 64; i++)
+				*pixels++ = op.PixelValue(bs.ReadBits());
+		} else {
+			for (int i = 0; i < 16; i++) {
+				const uint8 value = op.PixelValue(bs.ReadBits());
+				fill_pixels(pixels, i, value, 2);
+			}
 	} else {
-		for (int i = 0; i < 32; i++) {
-			const uint8 value = op.PixelValue(bs.ReadBits());
-			uint8 ind = i + (i / 8) * 8;
-			pixels[ind] = value;
-			pixels[ind + 8] = value;
+		if (p2 <= p3 ) {
+			for (int i = 0; i < 32; i++) {
+				const uint8 value = op.PixelValue(bs.ReadBits());
+				*pixels++ = value;
+				*pixels++ = value;
+			}
+		} else {
+			for (int i = 0; i < 32; i++) {
+				const uint8 value = op.PixelValue(bs.ReadBits());
+				uint8 ind = i + (i / 8) * 8;
+				pixels[ind] = value;
+				pixels[ind + 8] = value;
+			}
 		}
 	}
 	GraphicsEngine::Get()->BlitBitmap(fScratchBuffer, NULL, fNewFrame, blitRect);
