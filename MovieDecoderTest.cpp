@@ -4,7 +4,7 @@
 
 
 static void
-DumpData(uint8 *data, int size)
+DumpData(const uint8 *data, int size)
 {
 	for (int i = 0; i < size; i++) {
 		std::cout << "0x" << (int)(*(data + i)) << " ";
@@ -25,8 +25,8 @@ MovieDecoder::Test()
 		TestOpcode8B();
 		TestOpcode8C();
 		TestOpcode9A();
-		//TestOpcode9B();
-		//TestOpcodeA2();
+		TestOpcode9B();
+		TestOpcodeA2();
 		TestOpcodeB();
 		TestOpcodeC();
 		TestOpcodeD();
@@ -71,7 +71,10 @@ MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 	std::cout << (result ? "FAILURE" : "OK") << std::endl;
 
 	if (result) {
+		std::cout << "Data is:" << std::endl;
 		DumpData((uint8*)fScratchBuffer->Pixels(), 64);
+		std::cout << "should be:" << std::endl;
+		DumpData(data, dataSize);
 		throw "error";
 	}
 
