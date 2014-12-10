@@ -67,6 +67,14 @@ main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
+	if (sTest) {
+		// TODO: Do more tests
+		std::cout << "Testing Mode" << std::endl;
+		MovieDecoder decoder;
+		int status = decoder.Test();
+		return status;
+	}
+	
 	if (!Core::Initialize(sPath)) {
 		std::cerr << "Failed to initialize Core!" << std::endl;
 		return -1;
@@ -92,17 +100,6 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	
-	if (sTest) {
-		// TODO: Do more tests
-		std::cout << "Testing Mode" << std::endl;
-		MovieDecoder decoder;
-		int status = decoder.Test();
-		GraphicsEngine::Destroy();
-		Core::Destroy();
-		return status;
-	}
-	
 	uint16 screenWidth = 800;
 	uint16 screenHeight = 600;
 	int flags = 0;
