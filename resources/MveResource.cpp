@@ -221,7 +221,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	std::cout << "CHUNK: " << chunktostr(header) << std::endl;
+	std::cout << "MVEResource::DecodeChunk(): CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -366,7 +366,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			}
 			break;*/
 		default:
-			std::cout << "MVEResource: Opcode not implemented" << std::endl;
+			std::cout << "MVEResource::ExecuteOpcode(): Opcode not implemented" << std::endl;
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
