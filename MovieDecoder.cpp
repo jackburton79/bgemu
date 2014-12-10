@@ -7,7 +7,6 @@
 #include "MemoryStream.h"
 #include "MovieDecoder.h"
 #include "Stream.h"
-#include "SDL.h"
 
 #include <assert.h>
 #include <iostream>
