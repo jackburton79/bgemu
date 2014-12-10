@@ -23,12 +23,12 @@ MovieDecoder::Test()
 	try {
 		TestOpcode7A();
 		TestOpcode7B();
-		TestOpcode8A();
-		TestOpcode8B();
-		TestOpcode8C();
-		TestOpcode9A();
-		TestOpcode9B();
-		TestOpcodeA2();
+		//TestOpcode8A();
+		//TestOpcode8B();
+		//TestOpcode8C();
+		//TestOpcode9A();
+		//TestOpcode9B();
+		//TestOpcodeA2();
 		TestOpcodeB();
 		TestOpcodeC();
 		TestOpcodeD();
