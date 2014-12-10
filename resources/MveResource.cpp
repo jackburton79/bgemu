@@ -4,6 +4,7 @@
 #include "MveResource.h"
 #include "SoundEngine.h"
 #include "Stream.h"
+#include "Timer.h"
 
 #include <iostream>
 #include <limits.h>
@@ -183,11 +184,11 @@ MVEResource::Play()
 					break;
 			}
 		}
-		uint32 currentTime = SDL_GetTicks();
+		uint32 currentTime = Timer::Ticks();
 		if (fTimer != 0 && !quitting) {
 			uint32 nextFrameTime = fLastFrameTime + fTimer;
 			if (currentTime < nextFrameTime)
-				SDL_Delay(nextFrameTime - currentTime);
+				Timer::Wait(nextFrameTime - currentTime);
 		}
 	}
 
@@ -320,7 +321,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 				uint16 unk;
 				fData->Read(unk);
 			}
-			fLastFrameTime = SDL_GetTicks();
+			fLastFrameTime = Timer::Ticks();
 			fDecoder->BlitBackBuffer();
 			break;
 		case OP_SET_DECODING_MAP:
