@@ -18,7 +18,8 @@ SoundEngine::SoundEngine()
 	fBuffer(NULL),
 	fPlaying(false)
 {
-	SDL_InitSubSystem(SDL_INIT_AUDIO);
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
+		throw "Error while initializing SDL Sound System";
 }
 
 
@@ -34,8 +35,16 @@ SoundEngine::~SoundEngine()
 bool
 SoundEngine::Initialize()
 {
-	if (sSoundEngine == NULL)
-		sSoundEngine = new SoundEngine();
+	std::cout << "Initializing Sound Engine... ";
+	std::flush(std::cout);
+	try {
+		if (sSoundEngine == NULL)
+			sSoundEngine = new SoundEngine();
+	} catch (...) {
+		std::cout << "Failed!" << std::endl;
+		return false;
+	}
+	std::cout << "OK!" << std::endl;
 	return true;
 }
 
