@@ -10,6 +10,8 @@
 #include "OutputConsole.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "SoundEngine.h"
+#include "Timer.h"
 #include "WorldMap.h"
 #include "WMAPResource.h"
 
@@ -100,6 +102,9 @@ main(int argc, char **argv)
 		return -1;
 	}
 
+	if (!SoundEngine::Initialize())
+		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
+	
 	uint16 screenWidth = 800;
 	uint16 screenHeight = 600;
 	int flags = 0;
@@ -112,6 +117,7 @@ main(int argc, char **argv)
 	if (!GUI::Initialize(screenWidth, screenHeight)) {
 		std::cerr << "Initializing GUI failed" << std::endl;
 		GraphicsEngine::Destroy();
+		SoundEngine::Destroy();
 		Core::Destroy();
 	}
 	
@@ -119,6 +125,7 @@ main(int argc, char **argv)
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		GraphicsEngine::Destroy();
+		SoundEngine::Destroy();
 		Core::Destroy();
 		return -1;
 	}
@@ -235,7 +242,7 @@ main(int argc, char **argv)
 			Core::Get()->UpdateLogic(!sNoScripts);
 
 			GraphicsEngine::Get()->Flip();
-			SDL_Delay(50);
+			Timer::Wait(50);
 		}
 	}
 
@@ -244,6 +251,7 @@ main(int argc, char **argv)
 	GUI::Destroy();
 	Core::Destroy();
 	GraphicsEngine::Destroy();
+	SoundEngine::Destroy();
 
 	return 0;
 }
