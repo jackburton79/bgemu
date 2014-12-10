@@ -22,7 +22,7 @@ PlainFileArchive::~PlainFileArchive()
 void
 PlainFileArchive::EnumEntries()
 {
-
+	// Only one entry
 }
 
 
