@@ -2,10 +2,9 @@
 #include "Utils.h"
 
 
-FileStream::FileStream(const char *filename, openmode mode,
-		casemode caseMode)
+FileStream::FileStream(const char *filename, int mode)
 {		
-	if (!SetTo(filename, mode, caseMode))
+	if (!SetTo(filename, mode))
 		throw -1;
 }
 
@@ -25,11 +24,14 @@ FileStream::~FileStream()
 
 
 bool
-FileStream::SetTo(const char *filename, openmode mode, casemode caseMode)
+FileStream::SetTo(const char *filename, int mode)
 {
 	const char *flags = NULL;
 	
-	switch (mode) {
+	int accessMode = mode & ACCESS_MODE_MASK;
+	int openFlags = mode & FLAGS_MASK;
+	
+	switch (accessMode) {
 		case READ_WRITE:
 			flags = "wrb";	
 			break;
@@ -42,10 +44,10 @@ FileStream::SetTo(const char *filename, openmode mode, casemode caseMode)
 			break;
 	}
 	
-	if (caseMode == CASE_SENSITIVE)
-		fFileHandle = fopen(filename, flags);
-	else
+	if (openFlags & FileStream::IGNORE_CASE)
 		fFileHandle = fopen_case(filename, flags);
+	else
+		fFileHandle = fopen(filename, flags);
 
 	return fFileHandle != NULL;
 }

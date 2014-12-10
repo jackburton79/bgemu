@@ -12,30 +12,29 @@ using namespace std;
 #include "SupportDefs.h"
 
 
+#define ACCESS_MODE_MASK	0x03
+#define FLAGS_MASK			0xFFF8
+
 class FileStream : public Stream {
 public:
 	enum openmode {
-		READ_ONLY = 0,
-		WRITE_ONLY = 1,
-		READ_WRITE = 2,
-		CREATE = 4
+		READ_ONLY	=	1 << 0,
+		WRITE_ONLY	=	1 << 1,
+		READ_WRITE	=	READ_ONLY | WRITE_ONLY,
+		
+		CREATE		=	1 << 3,
+		IGNORE_CASE =	1 << 5
 	};
 
-	enum casemode {
-		CASE_SENSITIVE = 0,
-		CASE_INSENSITIVE = 1
-	};
 
 	FileStream(const char *filename,
-				openmode mode = READ_ONLY,
-				casemode caseMode = CASE_SENSITIVE);
+				int mode = READ_ONLY);
 	FileStream();
 
 	virtual ~FileStream();
 	
 	bool SetTo(const char *filename,
-				openmode mode = READ_ONLY,
-				casemode caseMode = CASE_SENSITIVE);
+				int mode = READ_ONLY);
 	bool IsValid() const;
 
 	virtual off_t Seek(off_t where, int whence);

@@ -7,8 +7,7 @@ PlainFileArchive::PlainFileArchive(const char *path)
 	:
 	fFile(NULL)
 {
-	fFile = new FileStream(path, FileStream::READ_ONLY,
-					FileStream::CASE_INSENSITIVE);
+	fFile = new FileStream(path, FileStream::READ_ONLY | FileStream::IGNORE_CASE);
 }
 
 

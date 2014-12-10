@@ -15,8 +15,7 @@ BIFArchive::BIFArchive(const char *fileName)
 	:
 	fStream(NULL)
 {
-	fStream = new FileStream(fileName, FileStream::READ_ONLY,
-					FileStream::CASE_INSENSITIVE);
+	fStream = new FileStream(fileName, FileStream::READ_ONLY | FileStream::IGNORE_CASE);
 	
 	char signature[9];
 	signature[8] = '\0';
