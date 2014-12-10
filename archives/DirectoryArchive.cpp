@@ -2,8 +2,6 @@
 #include "FileArchive.h"
 #include "Path.h"
 
-
-
 #include <string>
 
 DirectoryArchive::DirectoryArchive(const char *path)

@@ -68,9 +68,8 @@ TISResource::TileAt(int index)
 
 	} catch (...) {
 		GraphicsEngine::DeleteBitmap(surface);
-		return NULL;
+		surface = NULL;
 	}
 	
-
 	return surface;
 }

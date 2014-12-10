@@ -11,7 +11,6 @@ BMPResource::BMPResource(const res_ref &name)
 
 BMPResource::~BMPResource()
 {
-
 }
 
 
