@@ -78,15 +78,15 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 
 	fBuffer = new SoundBuffer(stereo, bit16, sampleRate, bufferLen);
 
-	SDL_AudioSpec fmt;
-	fmt.freq = sampleRate;
-	fmt.format = AUDIO_S16;
-	fmt.channels = stereo ? 2 : 1;
-	fmt.samples = 4096;
-	fmt.callback = SoundEngine::MixAudio;
-	fmt.userdata = this;
+	SDL_AudioSpec audioSpec;
+	audioSpec.freq = sampleRate;
+	audioSpec.format = AUDIO_S16;
+	audioSpec.channels = stereo ? 2 : 1;
+	audioSpec.samples = 4096;
+	audioSpec.callback = SoundEngine::MixAudio;
+	audioSpec.userdata = this;
 
-	if (SDL_OpenAudio(&fmt, NULL) < 0 ) {
+	if (SDL_OpenAudio(&audioSpec, NULL) < 0 ) {
 		std::cerr << "Unable to open audio: ";
 		std::cerr << SDL_GetError() << std::endl;
 		delete fBuffer;

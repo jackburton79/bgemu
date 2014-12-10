@@ -98,22 +98,35 @@ clamp_to_sint16(int data)
 
 class IEAudioDecoder {
 public:
-	IEAudioDecoder(int predictor)
+	IEAudioDecoder(sint16 predictor)
 	{
 		fPredictors[0] = predictor;
 	}
-	IEAudioDecoder(int predictorLeft, int predictorRight)
+	IEAudioDecoder(sint16 predictorLeft, sint16 predictorRight)
 	{
 		fPredictors[0] = predictorLeft;
 		fPredictors[1] = predictorRight;
 	}
 	inline sint16 Decode(uint8 byte, int channel = 0)
 	{
-		return clamp_to_sint16(fPredictors[channel] + kDpcmDeltaTable[byte]);
+		return clamp_to_sint16((int)fPredictors[channel] + (int)kDpcmDeltaTable[byte]);
 	}
+
+	static IEAudioDecoder* GetAudioDecoder(bool isStereo, sint16* predictors);
+
 private:
 	int fPredictors[2];
 };
+
+
+/* static */
+IEAudioDecoder*
+IEAudioDecoder::GetAudioDecoder(bool isStereo, sint16* predictors)
+{
+	return isStereo ?
+		new IEAudioDecoder(predictors[0], predictors[1]) :
+		new IEAudioDecoder(predictors[0]);
+}
 
 
 MVEResource::MVEResource(const res_ref &name)
@@ -378,21 +391,16 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 void
 MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 {
-	int numChannels = SoundEngine::Get()->Buffer()->IsStereo() ? 2 : 1;
-	IEAudioDecoder* decoder = NULL;
-	if (numChannels == 1) {
-		sint16 predictor;
-		stream->Read(predictor);
-		decoder = new IEAudioDecoder(predictor);
-	} else {
-		sint16 predictors[numChannels];
-		for (int c = 0; c < numChannels; c++)
-			stream->Read(predictors[c]);
-		decoder = new IEAudioDecoder(predictors[0], predictors[1]);
-	}
+	bool isStereo = SoundEngine::Get()->Buffer()->IsStereo();
+	sint16 predictors[2];
+	stream->Read(predictors[0]);
+	if (isStereo)
+		stream->Read(predictors[1]);
 
+	IEAudioDecoder* decoder = IEAudioDecoder::GetAudioDecoder(isStereo, predictors);
 	SoundEngine::Get()->Lock();
 	try {
+		int numChannels = isStereo ? 2 : 1;
 		numSamples -= numChannels * sizeof(sint16);
 		uint16 audioSize = numSamples / 2;
 		uint8 encodedData[audioSize];
