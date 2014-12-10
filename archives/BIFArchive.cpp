@@ -48,10 +48,14 @@ BIFArchive::BIFArchive(const char *fileName)
 	}
 
 	if (strcmp(signature, BIF_SIGNATURE)) {
-		cout << "Unknown archive" << endl;
+		std::cout << "BIFArchive::BIFArchive: Unknown archive signature ";
+		std::cout << signature << std::endl;
 		throw -1;
 	}
- 			
+
+	// if we're here: either the file was a compressed BIFF file and we
+	// uncompressed it, so we have a normal BIF file, or it was already
+	// uncompressed.
 	
 	(*fStream) >> fNumEntries >> fNumTilesetEntries >> fCatalogOffset;
 	fTileEntriesOffset = fCatalogOffset + fNumEntries * sizeof(resource_info);
@@ -82,25 +86,25 @@ BIFArchive::EnumEntries()
 		
 	for (uint32 c = 0; c < fNumEntries; c++) {
 		(*fStream) >> locator >> offset >> size >> type >> unk;
-		cout << "Resource " << dec << c << " : size = " << size;
-		cout << ", offset = " << offset << ", type: ";
-		cout << strresource(type) << "(0x" << hex << type << ")";
+		std::cout << "Resource " << std::dec << c << " : size = " << size;
+		std::cout << ", offset = " << offset << ", type: ";
+		std::cout << strresource(type) << "(0x" << std::hex << type << ")";
 		
 		fStream->ReadAt(offset, name, 8);
 		
-		cout << " name : " << name << endl << dec; 
+		std::cout << " name : " << name << std::endl << dec; 
 	}
 	
 	fStream->Seek(fTileEntriesOffset, SEEK_SET);
 	for (uint32 c = 0; c < fNumTilesetEntries; c++) {
 		(*fStream) >> locator >> offset >> numTiles >> tileSize >> type >> unk;
-		cout << "Resource " << dec << c << " : numTiles = " << numTiles;
-		cout << ", offset = " << offset << ", type: ";
-		cout << strresource(type);
+		std::cout << "Resource " << std::dec << c << " : numTiles = " << numTiles;
+		std::cout << ", offset = " << offset << ", type: ";
+		std::cout << strresource(type);
 		
 		fStream->ReadAt(offset, name, 8);
 		
-		cout << " name : " << name << endl << dec; 
+		std::cout << " name : " << name << std::endl << std::dec; 
 	}
 }
 
@@ -113,8 +117,7 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 	uint32 index;
 	uint32 size;
 	uint32 offset;
-	bool isTileset = is_tileset(type);
-	if (!isTileset) {
+	if (!is_tileset(type)) {
 		index = RES_BIF_FILE_INDEX(key);
 		resource_info info;
 		if (!_GetResourceInfo(info, index))
