@@ -45,9 +45,25 @@ Timer::Expired() const
 
 /* static */
 void
+Timer::Wait(uint32 delay)
+{
+	SDL_Delay(delay);	
+}
+
+
+/* static */
+void
 Timer::AddOneShotTimer(uint32 interval, timer_func func, void* parameter)
 {
 	SDL_AddTimer(interval, func, parameter);	
+}
+
+
+/* static */
+uint32
+Timer::Ticks()
+{
+	return SDL_GetTicks();	
 }
 
 

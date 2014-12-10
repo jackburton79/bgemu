@@ -24,8 +24,10 @@ public:
 	bool Expired() const;
 
 	typedef uint32 (*timer_func)(uint32 interval, void* parameter);
-	
+
+	static void Wait(uint32 delay);
 	static void AddOneShotTimer(uint32 time, timer_func function, void* parameter);
+	static uint32 Ticks();
 	
 	static void Add(const char* name, uint32 expirationTime = -1);
 	static void Remove(const char* name);
