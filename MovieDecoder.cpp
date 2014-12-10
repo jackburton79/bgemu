@@ -419,20 +419,23 @@ MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	*/
 	uint8 t0 = stream->ReadByte();
 	uint8 t1 = stream->ReadByte();
+	uint16 flags = 0;
 	if (t0 <= t1) {
 		stream->Seek(-2, SEEK_CUR);
-		// TODO: Improve and simplify the code
-		for (int qh = 0; qh < 2; qh++) { // 8x8
-			for (int q = 0; q < 2; q++) { // 4x8
-				uint8 *p = pixels + (q * 4) + qh * 32;
-				uint8 p0 = stream->ReadByte();
-				uint8 p1 = stream->ReadByte();
-				BitStreamAdapter bs(stream);
-				for (int32 c = 0; c < 16; c++) // 4x4
-					p[c + 4 * (c / 4)] = bs.ReadBit() ? p1 : p0;
-
-			} // 4x8
-		} // 8x8
+		for (int y = 0; y < 16; y++) {
+			if (!(y & 3)) {
+				t0 = stream->ReadByte();
+				t1 = stream->ReadByte();
+				stream->Read(flags);
+			}
+			for (int x = 0; x < 4; x++, flags >>= 1)
+				*pixels++ = (flags & 1) ? t0 : t1;
+			pixels += 8 - 4;
+			if (y == 7) {
+				// switch to right half
+				pixels -= 8 * 8 - 4;
+			}
+		}
 	} else {
 		stream->Seek(4, SEEK_CUR);
 		uint8 p2 = stream->ReadByte();
@@ -553,63 +556,49 @@ MovieDecoder::OpcodeA(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	*/
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
-	uint8 p2 = stream->ReadByte();
-	uint8 p3 = stream->ReadByte();
-	Pattern4 op0(p0, p1, p2, p3);
+	uint8 p2 = 0, p3 = 0;
 	if (p0 <= p1) {
-		stream->Seek(-4, SEEK_CUR);
-		for (int qh = 0; qh < 2; qh++) { // 8x8
-			for (int q = 0; q < 2; q++) { // 4x8
-				uint8 *p = pixels + (q * 4) + qh * 32;
-				uint8 p00 = stream->ReadByte();
-				uint8 p01 = stream->ReadByte();
-				uint8 p02 = stream->ReadByte();
-				uint8 p03 = stream->ReadByte();
-				TwoBitsStreamAdapter bs(stream);
-				Pattern4 opX(p00, p01, p02, p03);
-				for (int c = 0; c < 16; c++) // 4x4
-					p[c + 4 * (c / 4)] = opX.PixelValue(bs.ReadBits());
-				// 4x4
-			} // 4x8
-		} // 8x8
+		stream->Seek(-2, SEEK_CUR);
+		uint32 flags = 0;
+		for (int y = 0; y < 16; y++) {
+			if (!(y & 3)) {
+				p0 = stream->ReadByte();
+				p1 = stream->ReadByte();
+				p2 = stream->ReadByte();
+				p3 = stream->ReadByte();
+				stream->Read(flags);
+			}
+			Pattern4 pattern(p0, p1, p2, p3);
+			for (int x = 0; x < 4; x++, flags >>= 2)
+				*pixels++ = pattern.PixelValue(flags & 3);
+
+			pixels += 4;
+			if (y == 7)
+				pixels -= 60;
+		}
 	} else {
-		stream->Seek(8, SEEK_CUR);
+		stream->Seek(10, SEEK_CUR);
 		uint8 p4 = stream->ReadByte();
 		uint8 p5 = stream->ReadByte();
-		stream->Seek(-10, SEEK_CUR);
-		if (p4 <= p5) {
-			{
-				TwoBitsStreamAdapter bs(stream);
-				for (int32 c = 0; c < 32; c++) {
-					pixels[c + 4 * (c / 4)] = op0.PixelValue(bs.ReadBits());
-				}
+		stream->Seek(-14, SEEK_CUR);
+		uint64 flags = 0;
+		for (int y = 0; y < 16; y++) {
+			if (!(y & 7)) {
+				p0 = stream->ReadByte();
+				p1 = stream->ReadByte();
+				p2 = stream->ReadByte();
+				p3 = stream->ReadByte();
+				stream->Read(flags);
 			}
-			{
-				uint8 p00 = stream->ReadByte();
-				uint8 p01 = stream->ReadByte();
-				uint8 p02 = stream->ReadByte();
-				uint8 p03 = stream->ReadByte();
-				Pattern4 op1(p00, p01, p02, p03);
+			Pattern4 pattern(p0, p1, p2, p3);
+			for (int x = 0; x < 4; x++, flags >>= 2)
+				*pixels++ = pattern.PixelValue(flags & 3);
+
+			if (p4 <= p5) {
 				pixels += 4;
-				TwoBitsStreamAdapter bs(stream);
-				for (int32 c = 0; c < 32; c++)
-					pixels[c + 4 * (c / 4)] = op1.PixelValue(bs.ReadBits());
-			}
-		} else {
-			{
-				TwoBitsStreamAdapter bs(stream);
-				for (int32 x = 0; x < 32; x++)
-					*pixels++ = op0.PixelValue(bs.ReadBits());
-			}
-			{
-				uint8 p00 = stream->ReadByte();
-				uint8 p01 = stream->ReadByte();
-				uint8 p02 = stream->ReadByte();
-				uint8 p03 = stream->ReadByte();
-				Pattern4 op2(p00, p01, p02, p03);
-				TwoBitsStreamAdapter bs(stream);
-				for (int32 x = 0; x < 32; x++)
-					*pixels++ = op2.PixelValue(bs.ReadBits());
+				if (y == 7) {
+					pixels -= 60;
+				}
 			}
 		}
 	}
