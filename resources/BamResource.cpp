@@ -212,6 +212,7 @@ BAMResource::_FrameAt(uint16 index)
 				fCompressedIndex);
 		if (decoded != entry.width * entry.height) {
 			std::cout << "BAMResource::_FrameAt(): Failed to decode image!";
+			delete[] destData;
 			return NULL;
 		}
 		bitmapData = destData;
@@ -228,7 +229,9 @@ BAMResource::_FrameAt(uint16 index)
 	
 		bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
 			entry.ypos - bitmap->Height() / 2);
-	}
+	} else if (ownsData)
+		delete bitmapData;
+
 	return bitmap;
 }
 
