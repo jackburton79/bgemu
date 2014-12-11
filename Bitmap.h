@@ -44,7 +44,6 @@ class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
 public:
-
 	void ImportData(const void *data, uint32 width, uint32 height);
 	void* Pixels() const;
 
@@ -109,6 +108,7 @@ private:
 	uint16 fYOffset;
 	bool fOwnsSurface;
 
+protected:
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
 
