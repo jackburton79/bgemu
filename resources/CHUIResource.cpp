@@ -71,34 +71,45 @@ CHUIResource::GetWindow(uint16 num)
 	if (num >= fNumWindows)
 		return NULL;
 
-	IE::window window;
-	fData->ReadAt(fWindowsOffset + num * sizeof(window), window);
+	std::cout << "CHUIResource::GetWindow(" << num << ")" << std::endl;
+	Window* newWindow = NULL;
+	try {
+		IE::window window;
+		fData->ReadAt(fWindowsOffset + num * sizeof(window), window);
 
-	Bitmap* background = NULL;
-	if (window.background) {
-		MOSResource* mos = gResManager->GetMOS(window.background_mos);
-		if (mos != NULL) {
-			background = mos->Image();
-			gResManager->ReleaseResource(mos);
-		}
-	}
-
-	Window* newWindow = new Window(window.id, window.x, window.y,
-				window.w, window.h, background);
-
-	for (uint16 controlIndex = 0;
-			controlIndex < window.num_controls; controlIndex++) {
-		control_table controlTable;
-		fData->ReadAt(fControlTableOffset
-				+ (window.control_offset + controlIndex)
-				* sizeof(controlTable), controlTable);
-
-		IE::control* control = _ReadControl(controlTable);
-		if (control != NULL) {
-			newWindow->Add(Control::CreateControl(control));
+		Bitmap* background = NULL;
+		if (window.background) {
+			MOSResource* mos = gResManager->GetMOS(window.background_mos);
+			if (mos != NULL) {
+				background = mos->Image();
+				gResManager->ReleaseResource(mos);
+			}
 		}
 
+		newWindow = new Window(window.id, window.x, window.y,
+					window.w, window.h, background);
+
+		std::cout << "CHUIResource::GetWindow(): Window has ";
+		std::cout << window.num_controls << " controls." << std::endl;
+		for (uint16 controlIndex = 0;
+				controlIndex < window.num_controls; controlIndex++) {
+			std::cout << "Control " << controlIndex << ":" << std::endl;
+			control_table controlTable;
+			fData->ReadAt(fControlTableOffset
+					+ (window.control_offset + controlIndex)
+					* sizeof(controlTable), controlTable);
+
+			IE::control* control = _ReadControl(controlTable);
+			if (control != NULL) {
+				control->Print();
+				newWindow->Add(Control::CreateControl(control));
+			}
+		}
+	} catch (...) {
+		newWindow = NULL;
+		std::cerr << "CHUIResource::GetWindow() FAILED." << std::endl;
 	}
+
 	return newWindow;
 }
 
