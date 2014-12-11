@@ -387,22 +387,21 @@ Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 GFX::rect
 Bitmap::Frame() const
 {
-	return GFX::rect(fXOffset, fYOffset, uint16(fSurface->w),
-			uint16(fSurface->h));
+	return GFX::rect(fXOffset, fYOffset, Width(), Height());
 }
 
 
 uint16
 Bitmap::Width() const
 {
-	return fSurface->w;
+	return (uint16)fSurface->w;
 }
 
 
 uint16
 Bitmap::Height() const
 {
-	return fSurface->h;
+	return (uint16)fSurface->h;
 }
 
 
