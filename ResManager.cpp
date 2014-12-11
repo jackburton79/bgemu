@@ -250,6 +250,7 @@ ResourceManager::GetTLK(const char* name)
 	TLKResource* tlk = NULL;
 	Archive *archive = NULL;
 	try {
+		std::cout << "\t-> Loading Dialogs file '" << name << "'... ";
 		tlk = new TLKResource("TLK");
 		std::string path = GetFullPath(name, LOC_ROOT);
 		archive = Archive::Create(path.c_str());
@@ -258,8 +259,10 @@ ResourceManager::GetTLK(const char* name)
 			throw -1;
 			
 		tlk->Acquire();
-		
+
+		std::cout << "OK!" << std::endl;
 	} catch (...) {
+		std::cout << "FAILED!" << std::endl;
 		delete tlk;
 		tlk = NULL;
 	}
