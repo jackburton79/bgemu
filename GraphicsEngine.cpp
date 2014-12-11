@@ -50,6 +50,7 @@ GraphicsEngine::Initialize()
 		sGraphicsEngine = new GraphicsEngine();
 	} catch (...) {
 		std::cout << "Failed!" << std::endl;
+		sGraphicsEngine = NULL;
 		return false;
 	}
 
@@ -174,6 +175,11 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
 	fScreen = new Bitmap(surface, false);
 	fFlags = flags;
+
+	std::cout << "GraphicsEngine::SetVideoMode(): Got mode ";
+	std::cout << fScreen->Width() << "x";
+	std::cout << fScreen->Height() << "x" << fScreen->BitsPerPixel();
+	std::cout << std::endl;
 
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
