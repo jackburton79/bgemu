@@ -79,6 +79,37 @@ GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
 }
 
 
+class DataBitmap : public Bitmap {
+public:
+	DataBitmap(SDL_Surface* surface, void* data, bool owns)
+		:
+		Bitmap(surface),
+		fData((uint8*)data),
+		fOwns(owns)
+	{
+	};
+	~DataBitmap()
+	{
+		if (fOwns)
+			delete[] fData;
+	}
+private:
+	uint8* fData;
+	bool fOwns;
+};
+
+
+/* static */
+Bitmap*
+GraphicsEngine::CreateBitmapFromData(void* data, uint16 width,
+		uint16 height, uint16 depth, bool ownsData)
+{
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width,
+									height, depth, width, 0, 0, 0, 0);
+	return new DataBitmap(surface, data, ownsData);
+}
+
+
 /* static */
 void
 GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
