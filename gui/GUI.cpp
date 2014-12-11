@@ -20,7 +20,6 @@
 
 #include <algorithm>
 
-
 static GUI* sGUI = NULL;
 
 
@@ -71,6 +70,7 @@ GUI::Initialize(const uint16 width, const uint16 height)
 {
 	std::cout << "GUI::Initialize(" << std::dec << width;
 	std::cout << ", " << height << ")" << std::endl;
+	std::flush(std::cout);
 	try {
 		if (sGUI == NULL)
 			sGUI = new GUI(width, height);
@@ -95,12 +95,14 @@ GUI::Destroy()
 bool
 GUI::Load(const res_ref& name)
 {
+	std::cout << "GUI::Load()" << std::endl;
 	try {
 		if (fCursors[0] == NULL)
 			_InitCursors();
 
 		gResManager->ReleaseResource(fResource);
 		Clear();
+
 		fResource = gResManager->GetCHUI(name);
 
 		/*for (uint16 c = 0; c < fResource->CountWindows(); c++) {
@@ -109,8 +111,10 @@ GUI::Load(const res_ref& name)
 				fWindows.push_back(window);
 		}*/
 	} catch (...) {
+		std::cout << "GUI::Load(): ERROR" << std::cout;
 		return false;
 	}
+	std::cout << "GUI::Load(): OK!" << std::endl;
 	return true;
 }
 
