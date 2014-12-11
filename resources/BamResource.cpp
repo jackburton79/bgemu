@@ -218,8 +218,8 @@ BAMResource::_FrameAt(uint16 index)
 
 		bitmap->ImportData(destData, entry.width, entry.height);
 	} else {
-		bitmap->ImportData(((uint32*)fData->Data() + offset),
-				entry.width, entry.height);
+		bitmap->ImportData(((uint8*)fData->Data() +
+				std::ptrdiff_t(offset)), entry.width, entry.height);
 	}
 
 	bitmap->SetPalette(*fPalette);
