@@ -241,7 +241,7 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	//std::cout << "Frame " << (int)frameIndex << std::endl;
 	if (cycleIndex >= fNumCycles) {
 		std::cerr << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
-		throw cycleIndex;
+		return NULL;
 	}
 
 	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator iter;
