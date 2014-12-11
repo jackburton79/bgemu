@@ -200,36 +200,35 @@ BAMResource::_FrameAt(uint16 index)
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	
-	Bitmap* bitmap = GraphicsEngine::CreateBitmap(
-			entry.width, entry.height, 8);
-
-	if (bitmap == NULL)
-		return NULL;
+	Bitmap* bitmap = NULL;
 	
+	uint8* bitmapData = NULL;
+	bool ownsData = false;
 	const uint32 offset = data_offset(entry.data);
 	if (is_frame_compressed(entry.data)) {
-		uint8 destData[entry.width * entry.height];
+		uint8* destData = new uint8[entry.width * entry.height];
 		int decoded = Graphics::DecodeRLE((uint8*)(fData->Data()) + offset,
 				entry.width * entry.height, destData,
 				fCompressedIndex);
 		if (decoded != entry.width * entry.height) {
 			std::cout << "BAMResource::_FrameAt(): Failed to decode image!";
-			GraphicsEngine::DeleteBitmap(bitmap);
 			return NULL;
 		}
+		bitmapData = destData;
+		ownsData = true;
+	} else
+		bitmapData = (uint8*)fData->Data() + std::ptrdiff_t(offset);
 
-		bitmap->ImportData(destData, entry.width, entry.height);
-	} else {
-		bitmap->ImportData(((uint8*)fData->Data() +
-				std::ptrdiff_t(offset)), entry.width, entry.height);
-	}
+	bitmap = GraphicsEngine::CreateBitmapFromData(bitmapData,
+					entry.width, entry.height, 8, ownsData);
 
-	bitmap->SetPalette(*fPalette);
-	bitmap->SetColorKey(fCompressedIndex, true);
+	if (bitmap != NULL) {
+		bitmap->SetPalette(*fPalette);
+		bitmap->SetColorKey(fCompressedIndex, true);
 	
-	bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
+		bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
 			entry.ypos - bitmap->Height() / 2);
-	
+	}
 	return bitmap;
 }
 
