@@ -257,7 +257,7 @@ ResourceManager::GetTLK(const char* name)
 
 		if (archive == NULL || tlk->Load(archive, 0) == false)
 			throw -1;
-			
+
 		tlk->Acquire();
 
 		std::cout << "OK!" << std::endl;
@@ -266,7 +266,7 @@ ResourceManager::GetTLK(const char* name)
 		delete tlk;
 		tlk = NULL;
 	}
-	
+
 	delete archive;
 	return tlk;
 }
@@ -681,6 +681,24 @@ Dialogs()
 		sDialogs = gResManager->GetTLK(kDialogResource);
 
 	return sDialogs;
+}
+
+
+/* static */
+std::string
+IDTable::GetDialog(uint32 i)
+{
+	std::string text;
+	if (sDialogs == NULL)
+		sDialogs = gResManager->GetTLK(kDialogResource);
+	if (sDialogs != NULL) {
+		TLKEntry* entry = sDialogs->EntryAt(i);
+		if (entry != NULL) {
+			text = entry->string;
+			delete entry;
+		}
+	}
+	return text;
 }
 
 
