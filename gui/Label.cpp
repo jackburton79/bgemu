@@ -46,8 +46,7 @@ Label::Label(IE::label* label)
 		_SetPalette(colorStart, colorEnd);
 	}
 
-	Reference ref(Dialogs()->EntryAt(label->text_ref));
-	TextSupport::RenderString(((TLKEntry*)ref.Target())->string, fFontResource, label->flags, fBitmap);
+	TextSupport::RenderString(IDTable::GetDialog(label->text_ref), fFontResource, label->flags, fBitmap);
 }
 
 
