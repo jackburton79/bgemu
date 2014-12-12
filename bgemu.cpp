@@ -84,6 +84,7 @@ main(int argc, char **argv)
 
 	if (sList) {
 		gResManager->PrintResources();
+		Core::Destroy();
 		return 0;
 	}
 
@@ -93,6 +94,7 @@ main(int argc, char **argv)
 		if (resource != NULL)
 			resource->Dump();
 		gResManager->ReleaseResource(resource);
+		Core::Destroy();
 		return 0;
 	}
 
