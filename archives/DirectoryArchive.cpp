@@ -40,7 +40,7 @@ DirectoryArchive::EnumEntries()
 /* virtual */
 MemoryStream*
 DirectoryArchive::ReadResource(res_ref& ref,
-		const uint32& key, 	const uint16& type)
+		const uint32& key, const uint16& type)
 {
 	if (fDir == NULL)
 		return NULL;
