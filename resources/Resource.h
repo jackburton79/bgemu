@@ -21,11 +21,12 @@ public:
 	const uint16 Type() const;
 	const char* Name() const;
 	
-	static Resource* Create(const res_ref &name, const uint16& type);
 	static Resource* Create(const res_ref &name, const uint16& type,
 			const uint32& key, Archive* archive);
 	
 protected:
+	static Resource* Create(const res_ref &name, const uint16& type);
+
 	bool CheckSignature(const char *signature, bool dontWorry = false);
 	bool CheckVersion(const char *version, bool dontWorry = false);
 	
