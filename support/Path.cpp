@@ -145,8 +145,10 @@ TPath::SetTo(const char* path, const char* leaf, bool normalize)
 		if (error == 0) {
 			if (normalize) {
 				char realPath[PATH_MAX];
-				if (realpath(newPath, realPath) != NULL)
+				if (realpath(newPath, realPath) != NULL) {
 					return SetTo(realPath);
+				} else
+					error = errno;
 			} else
 				error = _SetPath(newPath);
 		}
