@@ -8,7 +8,7 @@
 #include <string.h>
 
 
-char*
+const char*
 trim(char* string)
 {
 	char* returnString = string;
