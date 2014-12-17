@@ -11,17 +11,16 @@
 const char*
 trim(char* string)
 {
-	char* returnString = string;
-	while (isspace(*returnString))
-		returnString++;
+	while (isspace(*string))
+		string++;
 
-	char* ptr = returnString;
-	while (!isspace(*ptr) && *ptr != '\0')
-		ptr++;
+	char* endOfString = string;
+	while (!isspace(*endOfString) && *endOfString != '\0')
+		endOfString++;
 
-	*ptr = '\0';
+	*endOfString = '\0';
 
-	return returnString;
+	return string;
 }
 
 
