@@ -44,7 +44,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 		char *stringValue = strtok(NULL, "\n\r");
 		if (stringValue == NULL)
 			continue;
-		char *finalValue = trim(stringValue);
+		char *finalValue = (char*)trim(stringValue);
 		char *rest = NULL;
 		uint32 id = strtoul(stringID, &rest, 0);
 
