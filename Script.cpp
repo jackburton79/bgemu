@@ -1196,19 +1196,26 @@ object_node::Print() const
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
 	}
-	std::cout << std::endl;
-	std::cout << "ea: " << IDTable::EnemyAllyAt(ea) << " (" << ea << "), ";
-	std::cout << "general: " << IDTable::GeneralAt(general) << " (" << general << "), ";
-	std::cout << "race: " << IDTable::RaceAt(race) << " (" << race << "), ";
-	std::cout << "class: " << IDTable::ClassAt(classs) << " (" << classs << "), ";
-	std::cout << std::endl;
-	std::cout << "specific: " << IDTable::SpecificAt(specific) << " (" << specific << "), ";
-	std::cout << "gender: " << IDTable::GenderAt(gender) << " (" << gender << "), ";
-	std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), " << std::endl;
-	std::cout << "identifiers: ";
-	for (int32 i = 0; i < 5; i++) {
-		 std::cout << IDTable::ObjectAt(identifiers[i]);
-		 std::cout << "(" << identifiers[i] <<  ")" << " ";
+	if (ea != 0)
+		std::cout << "ea: " << IDTable::EnemyAllyAt(ea) << " (" << ea << "), ";
+	if (general != 0)
+		std::cout << "general: " << IDTable::GeneralAt(general) << " (" << general << "), ";
+	if (race != 0)
+		std::cout << "race: " << IDTable::RaceAt(race) << " (" << race << "), ";
+	if (classs != 0)
+		std::cout << "class: " << IDTable::ClassAt(classs) << " (" << classs << "), ";
+	if (specific != 0)
+		std::cout << "specific: " << IDTable::SpecificAt(specific) << " (" << specific << "), ";
+	if (gender != 0)
+		std::cout << "gender: " << IDTable::GenderAt(gender) << " (" << gender << "), ";
+	if (alignment != 0)
+		std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), " << std::endl;
+	for (int32 i = 4; i >= 0; i--) {
+		if (identifiers[i] != 0) {
+			std::cout << IDTable::ObjectAt(identifiers[i]);
+			if (i != 0)
+				std::cout << " -> ";
+		}
 	}
 	std::cout << std::endl;
 	if (Core::Get()->Game() == GAME_TORMENT)
