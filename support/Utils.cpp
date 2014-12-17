@@ -41,11 +41,11 @@ fopen_case(const char* filename, const char* flags)
 	assert(strlen(filename) > 1);
 
 	TPath path(filename, NULL);
-	size_t where = 0;
 	TPath newPath("/");
 
 	char leaf[PATH_MAX];
 	char* start = (char*)path.Path() + 1;
+	size_t where = 0;
 	while ((where = strcspn(start, "/")) > 0) {
 		char* newStart = start;
 		strncpy(leaf, newStart, where);
@@ -69,11 +69,7 @@ fopen_case(const char* filename, const char* flags)
 		return NULL;
 
 	FILE* handle = fopen(newPath.Path(), flags);
-	/*if (handle != NULL)
-		printf("FOUND!\n");
-	else
-		printf("NOT FOUND!\n");
-*/
+
 	return handle;
 }
 
@@ -84,7 +80,8 @@ leaf(const char *path)
 	if (path == NULL)
 		return NULL;
 
-	return strrchr(path, '/');
+	const char* leafPointer = strrchr(path, '/');
+	return leafPointer != NULL ? leafPointer : path;
 }
 
 
@@ -95,7 +92,7 @@ extension(const char* path)
 		return NULL;
 
 	const char* point = path + strlen(path) - 4;
-	if (*point != '.')
+	if (point == NULL || *point != '.')
 		return NULL;
 	return point;
 }
