@@ -201,7 +201,6 @@ BAMResource::_FrameAt(uint16 index)
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
 	
 	Bitmap* bitmap = NULL;
-	
 	uint8* bitmapData = NULL;
 	bool ownsData = false;
 	const uint32 offset = data_offset(entry.data);
@@ -226,7 +225,6 @@ BAMResource::_FrameAt(uint16 index)
 	if (bitmap != NULL) {
 		bitmap->SetPalette(*fPalette);
 		bitmap->SetColorKey(fCompressedIndex, true);
-	
 		bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
 			entry.ypos - bitmap->Height() / 2);
 	} else if (ownsData)
