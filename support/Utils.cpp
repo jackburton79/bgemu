@@ -1,9 +1,9 @@
-#include "Path.h"
 #include "Utils.h"
 
 #include <assert.h>
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <string.h>
 
@@ -40,34 +40,34 @@ fopen_case(const char* filename, const char* flags)
 	assert(filename != NULL);
 	assert(strlen(filename) > 1);
 
-	TPath normalizedFileName(filename, NULL);
-	TPath newPath("/");
-
-	char leaf[NAME_MAX];
-	char* start = (char*)normalizedFileName.Path() + 1;
-	size_t where = 0;
-	while ((where = strcspn(start, "/")) > 0) {
-		strncpy(leaf, start, where);
-		leaf[where] = 0;
-
-		DIR* dir = opendir(newPath.Path());
-		if (dir != NULL) {
-			dirent *entry = NULL;
-			while ((entry = readdir(dir)) != NULL) {
-				if (!strcasecmp(entry->d_name, leaf)) {
-					newPath.Append(entry->d_name);
-					break;
+	FILE* handle = NULL;
+	char normalizedFileName[PATH_MAX];
+	if (realpath(filename, normalizedFileName)) {
+		std::string newPath("/");
+		char* start = (char*)normalizedFileName + 1;
+		size_t where = 0;
+		while ((where = strcspn(start, "/")) > 0) {
+			std::string leaf;
+			leaf.append(start, where);
+			DIR* dir = opendir(newPath.c_str());
+			if (dir != NULL) {
+				dirent *entry = NULL;
+				while ((entry = readdir(dir)) != NULL) {
+					if (!strcasecmp(entry->d_name, leaf.c_str())) {
+						if (newPath != "/")
+							newPath.append("/");
+						newPath.append(entry->d_name);
+						break;
+					}
 				}
+				closedir(dir);
 			}
-			closedir(dir);
+			start += where + 1;
 		}
-		start += where + 1;
+
+		if (!strcasecmp(filename, newPath.c_str()))
+			handle = fopen(newPath.c_str(), flags);
 	}
-
-	if (strcasecmp(filename, newPath.Path()))
-		return NULL;
-
-	FILE* handle = fopen(newPath.Path(), flags);
 
 	return handle;
 }
