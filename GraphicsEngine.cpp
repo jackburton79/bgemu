@@ -104,6 +104,8 @@ Bitmap*
 GraphicsEngine::CreateBitmapFromData(void* data, uint16 width,
 		uint16 height, uint16 depth, bool ownsData)
 {
+	// SDL_CreateRGBSurfaceFrom doesn't free the passed data,
+	// that's why we have to create a custom Bitmap class
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width,
 									height, depth, width, 0, 0, 0, 0);
 	return new DataBitmap(surface, data, ownsData);
