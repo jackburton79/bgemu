@@ -48,7 +48,9 @@ public:
 	
 	virtual ssize_t Write(const void *src, size_t count);
 	
-	// Use these only if you need to swap endianess
+	// Use these only if you need to swap endianess, because they are
+	// not efficient
+	// TODO: Move to Stream
 	uint8 ReadByte();
 	uint16 ReadWordLE();
 	uint16 ReadWordBE();
