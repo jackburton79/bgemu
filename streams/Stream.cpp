@@ -49,23 +49,6 @@ Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 
 
 ssize_t
-Stream::ReadString(char *string, size_t size)
-{
-	char *ptr = string;
-	char c;
-	for (;;) {
-		c = ReadByte();
-		if (c == ' ' || c == '\n' || c == '\r')
-			break;
-		*ptr++ = c;
-	}
-	*ptr = '\0';
-
-	return ptr - string;
-}
-
-
-ssize_t
 Stream::Write(const void *src, size_t size)
 {
 	off_t curPos = Position();

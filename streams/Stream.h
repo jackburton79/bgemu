@@ -14,7 +14,6 @@ public:
 	virtual ssize_t ReadAt(off_t pos, void *dst, size_t size) = 0;
 
 	char *ReadLine(char *buffer, size_t maxSize, char endLine = '\n');
-	ssize_t ReadString(char *string, size_t size);
 
 	virtual ssize_t Write(const void *src, size_t size);
 	virtual ssize_t WriteAt(off_t pos, const void *src, size_t size)
