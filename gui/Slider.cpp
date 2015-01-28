@@ -30,7 +30,8 @@ Slider::Slider(IE::slider* slider)
 
 Slider::~Slider()
 {
-	fBackground->Release();
+	if (fBackground != NULL)
+		fBackground->Release();
 	gResManager->ReleaseResource(fKnobImage);
 }
 

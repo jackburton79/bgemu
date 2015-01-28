@@ -45,7 +45,8 @@ TextArea::TextArea(IE::text_area* text)
 TextArea::~TextArea()
 {
 	gResManager->ReleaseResource(fFontResource);
-	fBitmap->Release();
+	if (fBitmap != NULL)
+		fBitmap->Release();
 }
 
 

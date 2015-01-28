@@ -52,7 +52,8 @@ Label::Label(IE::label* label)
 
 Label::~Label()
 {
-	fBitmap->Release();
+	if (fBitmap != NULL)
+		fBitmap->Release();
 	gResManager->ReleaseResource(fFontResource);
 }
 
