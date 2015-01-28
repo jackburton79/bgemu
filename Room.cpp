@@ -1449,12 +1449,18 @@ Room::_UnloadArea()
 	fArea = NULL;
 	gResManager->ReleaseResource(fBcs);
 	fBcs = NULL;
-	fHeightMap->Release();
-	fHeightMap = NULL;
-	fLightMap->Release();
-	fLightMap = NULL;
-	fSearchMap->Release();
-	fSearchMap = NULL;
+	if (fHeightMap != NULL) {
+		fHeightMap->Release();
+		fHeightMap = NULL;
+	}
+	if (fLightMap != NULL) {
+		fLightMap->Release();
+		fLightMap = NULL;
+	}
+	if (fSearchMap != NULL) {
+		fSearchMap->Release();
+		fSearchMap = NULL;
+	}
 
 	gResManager->TryEmptyResourceCache();
 }
@@ -1466,10 +1472,12 @@ Room::_UnloadWorldMap()
 	if (fWorldMap == NULL)
 		return;
 
-	fWorldMap->Release();
+	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
-	fWorldMapBackground->Release();
+	
+	gResManager->ReleaseResource(fWorldMapBackground);
 	fWorldMapBackground = NULL;
+	
 	fWorldMapBitmap->Release();
 	fWorldMapBitmap = NULL;
 
