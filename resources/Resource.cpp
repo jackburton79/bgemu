@@ -88,6 +88,7 @@ strresource(int type)
 
 Resource::Resource(const res_ref &name, const uint16 &type)
 	:
+	Referenceable(0),
 	fData(NULL),
 	fKey(0),
 	fType(type),
