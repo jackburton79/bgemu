@@ -107,8 +107,8 @@ main(int argc, char **argv)
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
 	
-	uint16 screenWidth = 800;
-	uint16 screenHeight = 600;
+	uint16 screenWidth = 640;
+	uint16 screenHeight = 480;
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;

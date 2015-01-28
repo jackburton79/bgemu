@@ -140,7 +140,7 @@ Scrollbar::_DrawDownArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	//GraphicsEngine::DeleteBitmap(fDownArrow);
+	//fDownArrow->Release();
 	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed));
 

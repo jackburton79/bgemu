@@ -117,14 +117,8 @@ Animation::Bitmap()
 	if (fMirrored)
 		frame = frame->GetMirrored();
 	if (fBlackAsTransparent) {
-		// TODO:
+		// TODO: We are modifying the const, cached bitmap. BAD!
 		Graphics::ApplyShade(const_cast< ::Bitmap*>(frame));
-		//frame->Save("/home/stefano/test.bmp");
-		//throw -1;
-		// TODO: How to do that ?
-		//frame.bitmap = Graphics::ApplyMask(frame.bitmap, NULL, 0, 0);
-		//std::cout << "BLACK AS TRANSPARENT: Index " << (int)fBAM->TransparentIndex() << std::endl;
-
 	}
 	return frame;
 }

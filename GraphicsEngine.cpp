@@ -68,60 +68,6 @@ GraphicsEngine::Destroy()
 }
 
 
-/* static */
-Bitmap*
-GraphicsEngine::CreateBitmap(uint16 width, uint16 height, uint16 depth)
-{
-	Bitmap* bitmap = new Bitmap(width, height, depth);
-	bitmap->Acquire();
-
-	return bitmap;
-}
-
-
-class DataBitmap : public Bitmap {
-public:
-	DataBitmap(SDL_Surface* surface, void* data, bool owns)
-		:
-		Bitmap(surface),
-		fData((uint8*)data),
-		fOwns(owns)
-	{
-	};
-	~DataBitmap()
-	{
-		if (fOwns)
-			delete[] fData;
-	}
-private:
-	uint8* fData;
-	bool fOwns;
-};
-
-
-/* static */
-Bitmap*
-GraphicsEngine::CreateBitmapFromData(void* data, uint16 width,
-		uint16 height, uint16 depth, bool ownsData)
-{
-	// SDL_CreateRGBSurfaceFrom doesn't free the passed data,
-	// that's why we have to create a custom Bitmap class
-	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width,
-									height, depth, width, 0, 0, 0, 0);
-	return new DataBitmap(surface, data, ownsData);
-}
-
-
-/* static */
-void
-GraphicsEngine::DeleteBitmap(Bitmap* bitmap)
-{
-	if (bitmap != NULL && bitmap->Release()) {
-		delete bitmap;
-	}
-}
-
-
 void
 GraphicsEngine::SetClipping(const GFX::rect* rect)
 {
@@ -206,7 +152,7 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 	if (flags & VIDEOMODE_FULLSCREEN)
 		sdlFlags |= SDL_FULLSCREEN;
 	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
-	fScreen = new Bitmap(surface, false);
+	fScreen = new Bitmap(surface, true);
 	fFlags = flags;
 
 	std::cout << "GraphicsEngine::SetVideoMode(): Got mode ";

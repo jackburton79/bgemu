@@ -72,7 +72,7 @@ BAMResource::~BAMResource()
 
 	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator i;
 	for (i = fFrames.begin(); i != fFrames.end(); i++) {
-		GraphicsEngine::DeleteBitmap(i->second);
+		i->second->Release();
 	}
 }
 
@@ -219,8 +219,7 @@ BAMResource::_FrameAt(uint16 index)
 	} else
 		bitmapData = (uint8*)fData->Data() + std::ptrdiff_t(offset);
 
-	bitmap = GraphicsEngine::CreateBitmapFromData(bitmapData,
-					entry.width, entry.height, 8, ownsData);
+	bitmap = new DataBitmap(bitmapData, entry.width, entry.height, 8, ownsData);
 
 	if (bitmap != NULL) {
 		bitmap->SetPalette(*fPalette);

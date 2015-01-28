@@ -25,7 +25,7 @@ TextArea::TextArea(IE::text_area* text)
 	fBitmap(NULL)
 {
 	fFontResource = gResManager->GetBAM(text->font_bam);
-	fBitmap = GraphicsEngine::CreateBitmap(text->w, text->h, 8);
+	fBitmap = new Bitmap(text->w, text->h, 8);
 
 	Palette palette;
 	Color start = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
@@ -45,7 +45,7 @@ TextArea::TextArea(IE::text_area* text)
 TextArea::~TextArea()
 {
 	gResManager->ReleaseResource(fFontResource);
-	GraphicsEngine::DeleteBitmap(fBitmap);
+	fBitmap->Release();
 }
 
 

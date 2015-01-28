@@ -44,6 +44,8 @@ class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
 public:
+	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
+	
 	void ImportData(const void *data, uint32 width, uint32 height);
 	void* Pixels() const;
 
@@ -98,7 +100,7 @@ public:
 	void Save(const char* fileName) const;
 	void Dump() const;
 
-private:
+protected:
 	friend class GraphicsEngine;
 
 	SDL_Surface* fSurface;
@@ -108,15 +110,26 @@ private:
 	uint16 fYOffset;
 	bool fOwnsSurface;
 
-protected:
-	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
-
 	~Bitmap();
+	
+	virtual void LastReferenceReleased();
 
 	SDL_Surface* Surface() const;
 
 	void _Mirror();
+};
+
+
+class DataBitmap : public Bitmap {
+public:
+	DataBitmap(void* data, uint16 width, uint16 height, uint16 depth, bool ownsData);
+
+private:
+	~DataBitmap();
+	
+	uint8* fData;
+	bool fOwns;
 };
 
 #endif /* SPRITE_H_ */

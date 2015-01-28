@@ -49,6 +49,7 @@ rect::Print() const
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	:
+	Referenceable(1),
 	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
@@ -56,18 +57,20 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 {
 	fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
 			bytesPerPixel, 0, 0, 0, 0);
-
 }
+
 
 
 Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	:
+	Referenceable(1),
 	fSurface(surface),
 	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
-	fOwnsSurface(ownsSurface)
+	fOwnsSurface(true)
 {
+
 }
 
 
@@ -76,6 +79,14 @@ Bitmap::~Bitmap()
 	if (fOwnsSurface)
 		SDL_FreeSurface(fSurface);
 	delete fMirrored;
+}
+
+
+/* virtual */
+void
+Bitmap::LastReferenceReleased()
+{
+	delete this;	
 }
 
 
@@ -440,7 +451,9 @@ Bitmap::Clone() const
 	// Makes a copy of the original surface
 	SDL_Surface* surface = SDL_ConvertSurface(fSurface,
 							fSurface->format, SDL_SWSURFACE);
+	
 	Bitmap* newBitmap = new Bitmap(surface, true);
+	
 	newBitmap->fXOffset = fXOffset;
 	newBitmap->fYOffset = fYOffset;
 	return newBitmap;
@@ -522,4 +535,24 @@ Bitmap::_Mirror()
 
 	uint16 newX = std::max(Frame().x - Width(), 0);
 	SetPosition(newX, fYOffset);
+}
+
+
+// DataBitmap
+DataBitmap::DataBitmap(void* data, uint16 width, uint16 height, uint16 depth, bool ownsData)
+	:
+	Bitmap(SDL_CreateRGBSurfaceFrom(data, width,
+							height, depth, width, 0, 0, 0, 0), true),
+	fData((uint8*)data),
+	fOwns(ownsData)
+{
+	// SDL_CreateRGBSurfaceFrom doesn't free the passed data,
+	// that's why we have to create a custom Bitmap class
+}
+
+
+DataBitmap::~DataBitmap()
+{
+	if (fOwns)
+		delete[] fData;
 }

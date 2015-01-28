@@ -46,8 +46,7 @@ TISResource::TileAt(int index)
 
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
-	Bitmap* surface = GraphicsEngine::CreateBitmap(
-			TILE_WIDTH, TILE_HEIGHT, 8);
+	Bitmap* surface = new Bitmap(TILE_WIDTH, TILE_HEIGHT, 8);
 	
 	try {
 		Palette palette;
@@ -67,7 +66,7 @@ TISResource::TileAt(int index)
 		surface->SetPalette(palette);
 
 	} catch (...) {
-		GraphicsEngine::DeleteBitmap(surface);
+		surface->Release();
 		surface = NULL;
 	}
 	

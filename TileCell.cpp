@@ -69,7 +69,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		if (cell == NULL) {
 			printf("NULL cell. BAD.\n");
 			// TODO: Fix this. Shouldn't request an invalid cell
-			cell = GraphicsEngine::CreateBitmap(64, 64, 8);
+			cell = new Bitmap(64, 64, 8);
 		}
 
 		gResManager->ReleaseResource(tis);
@@ -81,7 +81,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 
 		_DrawOverlay(bitmap, cell, *rect, color);
 
-		GraphicsEngine::DeleteBitmap(cell);
+		cell->Release();
 	}
 }
 

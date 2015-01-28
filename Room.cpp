@@ -74,8 +74,8 @@ Room::~Room()
 	// TODO: Delete various tilecells, overlays, animations
 	_UnloadArea();
 	_UnloadWorldMap();
-	GraphicsEngine::DeleteBitmap(fBackBitmap);
-	GraphicsEngine::DeleteBitmap(fBlitMask);
+	fBackBitmap->Release();
+	fBlitMask->Release();
 }
 
 
@@ -274,7 +274,7 @@ Room::LoadArea(AreaEntry& area)
 			GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
 			GraphicsEngine::Get()->Flip();
 			SDL_Delay(2000);
-			GraphicsEngine::DeleteBitmap(loadingScreen);
+			loadingScreen->Release();
 		}
 		gResManager->ReleaseResource(mos);
 	}*/
@@ -945,8 +945,9 @@ Room::Get()
 void
 Room::_InitBitmap(GFX::rect area)
 {
-	GraphicsEngine::DeleteBitmap(fBackBitmap);
-	fBackBitmap = GraphicsEngine::CreateBitmap(area.w, area.h, 16);
+	if (fBackBitmap != NULL)
+		fBackBitmap->Release();
+	fBackBitmap = new Bitmap(area.w, area.h, 16);
 }
 
 
@@ -983,11 +984,11 @@ Room::_InitBlitMask()
 	std::flush(std::cout);
 
 	if (fBlitMask != NULL) {
-		GraphicsEngine::DeleteBitmap(fBlitMask);
+		fBlitMask->Release();
 		fBlitMask = NULL;
 	}
 
-	fBlitMask = GraphicsEngine::CreateBitmap(AreaRect().w, AreaRect().h, 8);
+	fBlitMask = new Bitmap(AreaRect().w, AreaRect().h, 8);
 
 	fBlitMask->Lock();
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
@@ -1013,7 +1014,7 @@ Room::_InitHeightMap()
 	std::flush(std::cout);
 
 	if (fHeightMap != NULL) {
-		GraphicsEngine::DeleteBitmap(fHeightMap);
+		fHeightMap->Release();
 		fHeightMap = NULL;
 	}
 
@@ -1448,11 +1449,11 @@ Room::_UnloadArea()
 	fArea = NULL;
 	gResManager->ReleaseResource(fBcs);
 	fBcs = NULL;
-	GraphicsEngine::DeleteBitmap(fHeightMap);
+	fHeightMap->Release();
 	fHeightMap = NULL;
-	GraphicsEngine::DeleteBitmap(fLightMap);
+	fLightMap->Release();
 	fLightMap = NULL;
-	GraphicsEngine::DeleteBitmap(fSearchMap);
+	fSearchMap->Release();
 	fSearchMap = NULL;
 
 	gResManager->TryEmptyResourceCache();
@@ -1465,11 +1466,11 @@ Room::_UnloadWorldMap()
 	if (fWorldMap == NULL)
 		return;
 
-	gResManager->ReleaseResource(fWorldMap);
+	fWorldMap->Release();
 	fWorldMap = NULL;
-	gResManager->ReleaseResource(fWorldMapBackground);
+	fWorldMapBackground->Release();
 	fWorldMapBackground = NULL;
-	GraphicsEngine::DeleteBitmap(fWorldMapBitmap);
+	fWorldMapBitmap->Release();
 	fWorldMapBitmap = NULL;
 
 	gResManager->TryEmptyResourceCache();

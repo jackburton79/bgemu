@@ -12,7 +12,7 @@
 
 class Referenceable {
 public:
-	Referenceable();
+	Referenceable(int32 initialRefCount = 1);
 	virtual ~Referenceable();
 
 	void Acquire();
@@ -20,6 +20,10 @@ public:
 
 	int32 RefCount() const;
 
+protected:
+	virtual void FirstReferenceAcquired();
+	virtual void LastReferenceReleased();
+	
 private:
 	int32 fRefCount;
 };

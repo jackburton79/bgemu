@@ -83,8 +83,8 @@ MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 		throw "error";
 	}
 
-	GraphicsEngine::DeleteBitmap(fNewFrame);
-	GraphicsEngine::DeleteBitmap(fCurrentFrame);
+	fNewFrame->Release();
+	fCurrentFrame->Release();
 	fNewFrame = NULL;
 	fCurrentFrame = NULL;
 }

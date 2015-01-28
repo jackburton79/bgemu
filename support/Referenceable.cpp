@@ -9,9 +9,9 @@
 
 #include <assert.h>
 
-Referenceable::Referenceable()
+Referenceable::Referenceable(int32 initialRefCount)
 	:
-	fRefCount(0)
+	fRefCount(initialRefCount)
 {
 }
 
@@ -24,14 +24,20 @@ Referenceable::~Referenceable()
 void
 Referenceable::Acquire()
 {
-	fRefCount++;
+	int previousRefCount = fRefCount++;
+	if (previousRefCount == 0)
+		FirstReferenceAcquired();
 }
 
 
 bool
 Referenceable::Release()
 {
-	if (--fRefCount <= 0)
+	int previousRefCount = fRefCount--;
+	if (previousRefCount == 1)
+		LastReferenceReleased();
+	
+	if (fRefCount <= 0)
 		return true;
 
 	return false;
@@ -43,3 +49,18 @@ Referenceable::RefCount() const
 {
 	return fRefCount;
 }
+
+
+/* virtual */
+void
+Referenceable::FirstReferenceAcquired()
+{
+}
+
+
+/* virtual */
+void
+Referenceable::LastReferenceReleased()
+{
+}
+

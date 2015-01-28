@@ -66,7 +66,7 @@ Button::Draw()
 					uint16(fControl->w), uint16(fControl->h));
 			fWindow->ConvertToScreen(destRect);
 			GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
-			//GraphicsEngine::DeleteBitmap(frame);
+			//frame->Release();
 		}
 	} catch (...) {
 

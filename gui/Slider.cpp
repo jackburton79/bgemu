@@ -30,7 +30,7 @@ Slider::Slider(IE::slider* slider)
 
 Slider::~Slider()
 {
-	GraphicsEngine::DeleteBitmap(fBackground);
+	fBackground->Release();
 	gResManager->ReleaseResource(fKnobImage);
 }
 

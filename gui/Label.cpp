@@ -27,7 +27,7 @@ Label::Label(IE::label* label)
 	if (label->flags & IE::LABEL_USE_RGB_COLORS)
 		depth = 8;
 
-	fBitmap = GraphicsEngine::CreateBitmap(label->w, label->h, depth);
+	fBitmap = new Bitmap(label->w, label->h, depth);
 
 	if (depth == 8) {
 		const Color colorStart = {
@@ -52,7 +52,7 @@ Label::Label(IE::label* label)
 
 Label::~Label()
 {
-	GraphicsEngine::DeleteBitmap(fBitmap);
+	fBitmap->Release();
 	gResManager->ReleaseResource(fFontResource);
 }
 

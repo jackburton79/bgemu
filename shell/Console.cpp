@@ -237,7 +237,7 @@ Console::Console(const GFX::rect& rect)
 	fShowing(false)
 {
 	GFX::rect consoleRect = Rect();
-	fBitmap = GraphicsEngine::CreateBitmap(consoleRect.w, consoleRect.h, 8);
+	fBitmap = new Bitmap(consoleRect.w, consoleRect.h, 8);
 	fBitmap->SetColors(sColors, 0, 8);
 	fDesc = new console_info;
 	fDesc->frame_buffer = fBitmap->Pixels();
@@ -260,7 +260,7 @@ Console::Console(const GFX::rect& rect)
 
 Console::~Console()
 {
-	GraphicsEngine::DeleteBitmap(fBitmap);
+	fBitmap->Release();
 	delete fDesc;
 }
 

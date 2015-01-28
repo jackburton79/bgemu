@@ -87,7 +87,7 @@ Bitmap*
 MOSResource::Image()
 {
 	GFX::rect tileRect( 0, 0, uint16(fBlockSize), uint16(fBlockSize));
-	Bitmap* bitmap = GraphicsEngine::CreateBitmap(fWidth, fHeight, 16);
+	Bitmap* bitmap = new Bitmap(fWidth, fHeight, 16);
 	for (uint16 y = 0; y < fRows; y++) {
 		tileRect.y = y * fBlockSize;
 		for (uint16 x = 0; x < fColumns; x++) {
@@ -99,7 +99,7 @@ MOSResource::Image()
 				std::cerr << tileNum << " is NULL" << std::endl;
 			}
 			GraphicsEngine::BlitBitmap(tile, NULL, bitmap, &tileRect);
-			GraphicsEngine::DeleteBitmap(tile);
+			tile->Release();
 		}
 	}
 	return bitmap;
@@ -122,7 +122,7 @@ MOSResource::TileAt(uint32 index)
 	if (y == fRows - 1)
 		yBlockSize = fHeight - (fRows - 1) * fBlockSize;
 
-	Bitmap* surface = GraphicsEngine::CreateBitmap(xBlockSize, yBlockSize, 8);
+	Bitmap* surface = new Bitmap(xBlockSize, yBlockSize, 8);
 	try {
 		Palette palette;
 		for (int32 i = 0; i < 256; i++) {
@@ -145,7 +145,7 @@ MOSResource::TileAt(uint32 index)
 		}
 		surface->SetPalette(palette);
 	} catch (...) {
-		GraphicsEngine::DeleteBitmap(surface);
+		surface->Release();
 		surface = NULL;
 	}
 

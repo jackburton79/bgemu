@@ -86,7 +86,7 @@ MovieDecoder::MovieDecoder()
 {
 	fActiveRect.x = fActiveRect.y = 0;
 	fActiveRect.w = fActiveRect.h = 8;
-	fScratchBuffer = GraphicsEngine::CreateBitmap(8, 8, 8);
+	fScratchBuffer = new Bitmap(8, 8, 8);
 
 	memset(sOpcodes, 0, sizeof(sOpcodes));
 
@@ -112,9 +112,9 @@ MovieDecoder::MovieDecoder()
 MovieDecoder::~MovieDecoder()
 {
 	delete[] fDecodingMap;
-	GraphicsEngine::DeleteBitmap(fNewFrame);
-	GraphicsEngine::DeleteBitmap(fCurrentFrame);
-	GraphicsEngine::DeleteBitmap(fScratchBuffer);
+	fNewFrame->Release();
+	fCurrentFrame->Release();
+	fScratchBuffer->Release();
 }
 
 
@@ -126,8 +126,8 @@ MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version, bool t
 	std::cout << ", version: " << version << ", truecolor: ";
 	std::cout << (trueColor ? "yes" : "no") << ")" << std::endl;
 
-	fNewFrame = GraphicsEngine::CreateBitmap(width, height, 8);
-	fCurrentFrame = GraphicsEngine::CreateBitmap(width, height, 8);
+	fNewFrame = new Bitmap(width, height, 8);
+	fCurrentFrame = new Bitmap(width, height, 8);
 
 	fVersion = version;
 
