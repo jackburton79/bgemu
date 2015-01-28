@@ -112,9 +112,12 @@ MovieDecoder::MovieDecoder()
 MovieDecoder::~MovieDecoder()
 {
 	delete[] fDecodingMap;
-	fNewFrame->Release();
-	fCurrentFrame->Release();
-	fScratchBuffer->Release();
+	if (fNewFrame != NULL)
+		fNewFrame->Release();
+	if (fCurrentFrame != NULL)
+		fCurrentFrame->Release();
+	if (fScratchBuffer != NULL)
+		fScratchBuffer->Release();
 }
 
 
