@@ -22,6 +22,8 @@ static int sList = 0;
 static int sNoScripts = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
+static uint16 sScreenWidth = 640;
+static uint16 sScreenHeight = 480;
 static const char *sPath;
 static const char *sResourceName = NULL;
 
@@ -37,12 +39,22 @@ struct option sLongOptions[] = {
 };
 
 
-void
+static void
+ParseScreenGeometry(char* string)
+{
+	char* rest = NULL;
+	sScreenWidth = ::strtoul(string, &rest, 10);
+	std::cout << sScreenWidth << std::endl;
+	sScreenHeight = ::strtoul(rest + 1, NULL, 10);
+}
+
+
+static void
 ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "p:s:ltnf",
+	while ((c = getopt_long(argc, argv, "g:p:s:ltnf",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -56,6 +68,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 't':
 				sTest = 1;
+				break;
+			case 'g':
+				ParseScreenGeometry(optarg);
 				break;
 			default:
 				break;
@@ -107,16 +122,15 @@ main(int argc, char **argv)
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
 	
-	uint16 screenWidth = 640;
-	uint16 screenHeight = 480;
+
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
-	GraphicsEngine::Get()->SetVideoMode(screenWidth, screenHeight, 16, flags);
+	GraphicsEngine::Get()->SetVideoMode(sScreenWidth, sScreenHeight, 16, flags);
 
 	// TODO: Move this to Core::Initialize() (or Core::Start())
 	
-	if (!GUI::Initialize(screenWidth, screenHeight)) {
+	if (!GUI::Initialize(sScreenWidth, sScreenHeight)) {
 		std::cerr << "Initializing GUI failed" << std::endl;
 		GraphicsEngine::Destroy();
 		SoundEngine::Destroy();
