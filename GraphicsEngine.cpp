@@ -27,8 +27,8 @@ GraphicsEngine::GraphicsEngine()
 
 GraphicsEngine::~GraphicsEngine()
 {
-	SDL_Quit();
 	delete fScreen;
+	SDL_Quit();
 }
 
 
@@ -64,7 +64,6 @@ void
 GraphicsEngine::Destroy()
 {
 	delete sGraphicsEngine;
-	SDL_Quit();
 }
 
 
@@ -152,7 +151,7 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 	if (flags & VIDEOMODE_FULLSCREEN)
 		sdlFlags |= SDL_FULLSCREEN;
 	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
-	fScreen = new Bitmap(surface, true);
+	fScreen = new Bitmap(surface, false);
 	fFlags = flags;
 
 	std::cout << "GraphicsEngine::SetVideoMode(): Got mode ";
