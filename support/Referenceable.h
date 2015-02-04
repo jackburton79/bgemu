@@ -28,4 +28,7 @@ private:
 	int32 fRefCount;
 };
 
+
+extern void ReleaseAndNil(Referenceable*& );
+
 #endif /* REFERENCEABLE_H_ */

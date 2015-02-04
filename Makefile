@@ -79,7 +79,6 @@ streams/MemoryStream.cpp \
 streams/Stream.cpp \
 streams/StringStream.cpp \
 support/Path.cpp \
-support/Reference.cpp \
 support/Referenceable.cpp \
 support/Utils.cpp \
 support/ZLibDecompressor.cpp \

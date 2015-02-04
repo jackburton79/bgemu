@@ -64,3 +64,12 @@ Referenceable::LastReferenceReleased()
 {
 }
 
+
+void
+ReleaseAndNil(Referenceable*& ref)
+{
+	if (ref != NULL) {
+		ref->Release();
+		ref = NULL;
+	}
+}
