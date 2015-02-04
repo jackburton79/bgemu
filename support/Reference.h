@@ -23,7 +23,7 @@ public:
 		Unset();
 	};
 
-	T* Target() {
+	T* Target() const {
 		return fTarget;
 	};
 
@@ -58,9 +58,31 @@ public:
 		return *this;
 	}
 	
-	bool operator==(const T* other) {
+	template <typename O>
+	Reference& operator=(O* other) {
+		SetTo(other->Target());	
+	}
+	
+	bool operator==(const Reference<T>& other) const
+	{
+		return fTarget == other.fTarget;
+	}
+
+	bool operator==(const T* other) const
+	{
 		return fTarget == other;
 	}
+
+	bool operator!=(const Reference<T>& other) const
+	{
+		return fTarget != other.fTarget;
+	}
+
+	bool operator!=(const T* other) const
+	{
+		return fTarget != other;
+	}
+
 private:
 	T* fTarget;
 };

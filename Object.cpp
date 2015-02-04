@@ -695,7 +695,7 @@ ScriptResults::AttackerAt(int32 i) const
 Object*
 ScriptResults::Clicker() const
 {
-	return fClicker;
+	return fClicker.Target();
 }
 
 

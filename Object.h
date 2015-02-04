@@ -8,6 +8,8 @@
 #ifndef __SCRIPTABLE_H
 #define __SCRIPTABLE_H
 
+#include "Reference.h"
+#include "Referenceable.h"
 #include "SupportDefs.h"
 
 #include <list>
@@ -50,14 +52,14 @@ private:
 	// For Trigger Regions
 	std::vector<std::string> fEnteredActors;
 
-	Object* fClicker;
+	Reference<Object> fClicker;
 
 	int fShouted;
 };
 
 
 class Action;
-class Object {
+class Object : public Referenceable {
 public:
 	Object(const char* name, const char* scriptName = NULL);
 	virtual ~Object();
