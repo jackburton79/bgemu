@@ -23,6 +23,16 @@ protected:
 };
 
 
+class ActionWithTarget : public Action {
+public:
+	ActionWithTarget(Actor* actor, Actor* target);
+	virtual void operator()();
+
+protected:
+	Reference<Actor> fTarget;
+};
+
+
 class WalkTo : public Action {
 public:
 	WalkTo(Actor* actor, IE::point destination);
@@ -61,31 +71,25 @@ private:
 };
 
 
-class Attack : public Action {
+class Attack : public ActionWithTarget {
 public:
 	Attack(Actor* actor, Actor* target);
 	virtual void operator()();
-private:
-	Reference<Actor> fTarget;
 };
 
 
-class RunAwayFrom : public Action {
+class RunAwayFrom : public ActionWithTarget {
 public:
 	RunAwayFrom(Actor* actor, Actor* target);
 	virtual void operator()();
 private:
-	Reference<Actor> fTarget;
-
 	IE::point PointAway() const;
 };
 
 
-class Dialogue : public Action {
+class Dialogue : public ActionWithTarget {
 public:
 	Dialogue(Actor* actor, Actor* target);
 	virtual void operator()();
-private:
-	Reference<Actor> fTarget;
 };
 #endif

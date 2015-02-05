@@ -53,6 +53,22 @@ Action::operator()()
 }
 
 
+// ActionWithTarget
+ActionWithTarget::ActionWithTarget(Actor* actor, Actor* target)
+	:
+	Action(actor),
+	fTarget(target)
+{
+}
+
+
+void
+ActionWithTarget::operator()()
+{
+	Action::operator()();
+}
+
+
 // WalkTo
 WalkTo::WalkTo(Actor* actor, IE::point destination)
 	:
@@ -153,8 +169,7 @@ Toggle::operator()()
 // Attack
 Attack::Attack(Actor* actor, Actor* target)
 	:
-	Action(actor),
-	fTarget(target)
+	ActionWithTarget(actor, target)
 {
 }
 
@@ -184,8 +199,7 @@ Attack::operator()()
 // RunAwayFrom
 RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
 	:
-	Action(actor),
-	fTarget(target)
+	ActionWithTarget(actor, target)
 {
 
 }
@@ -238,8 +252,7 @@ RunAwayFrom::PointAway() const
 // Dialogue
 Dialogue::Dialogue(Actor* source, Actor* target)
 	:
-	Action(source),
-	fTarget(target)
+	ActionWithTarget(source, target)
 {
 
 }
