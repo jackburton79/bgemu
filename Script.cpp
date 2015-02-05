@@ -152,7 +152,7 @@ Script::FindObject(node* start) const
 #if DEBUG_SCRIPTS
 	objectNode->Print();
 #endif
-	return Core::Get()->GetObject(fTarget, objectNode);
+	return Core::Get()->GetObject(fTarget.Target(), objectNode);
 }
 
 
@@ -161,7 +161,7 @@ Script::Execute()
 {
 	// TODO: Move this to a better place
 	if (fTarget != NULL)
-		fTarget->NewScriptRound();
+		fTarget.Target()->NewScriptRound();
 
 	fLastTrigger = NULL;
 	// for each CR block
@@ -175,7 +175,7 @@ Script::Execute()
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
 #if DEBUG_SCRIPTS
-		std::cout << "*** SCRIPT START: " << fTarget->Name();
+		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
 #endif
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
@@ -200,7 +200,7 @@ Script::Execute()
 			condRes = condRes->Next();
 		};
 #if DEBUG_SCRIPTS
-		std::cout << "*** SCRIPT END " << fTarget->Name();
+		std::cout << "*** SCRIPT END " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
 #endif
 		nextScript = nextScript->next;
@@ -222,7 +222,7 @@ Script::SetTarget(Object* object)
 Object*
 Script::LastTrigger() const
 {
-	return fLastTrigger;
+	return fLastTrigger.Target();
 }
 
 
@@ -267,7 +267,7 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	Actor* actor = dynamic_cast<Actor*>(fTarget);
+	Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
 	if (actor != NULL && actor->SkipConditions())
 		return false;
 
@@ -293,7 +293,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* node = FindObjectNode(trig);
 				if (node == NULL)
 					break;
-				ScriptResults* results = fTarget->LastScriptRoundResults();
+				ScriptResults* results = fTarget.Target()->LastScriptRoundResults();
 				if (results != NULL) {
 					Object* object = Object::GetMatchingObjectFromList(
 							results->Attackers(), node);
@@ -348,7 +348,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = fTarget->GetVariable(variableName.c_str());
+					variableValue = fTarget.Target()->GetVariable(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
@@ -389,7 +389,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
 				Object* object = FindObject(trig);
-				if (object != NULL && core->Distance(fTarget, object) <= 30
+				if (object != NULL && core->Distance(fTarget.Target(), object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
 					returnValue = true;
@@ -415,7 +415,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				is within distance given (in feet) of the active CRE. */
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget) <= trig->parameter1;
+					returnValue = core->Distance(object, fTarget.Target()) <= trig->parameter1;
 				break;
 			}
 
@@ -427,7 +427,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->See(fTarget, object);
+					returnValue = core->See(fTarget.Target(), object);
 				break;
 			}
 			case 0x401E:
@@ -455,7 +455,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x402b:
 			{
 				/* ACTIONLISTEMPTY() (16427 0x402b)*/
-				returnValue = fTarget->IsActionListEmpty();
+				returnValue = fTarget.Target()->IsActionListEmpty();
 				break;
 			}
 			case 0x4034:
@@ -557,7 +557,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					break;
 				// TODO: We assume this is a door, but also
 				// containers can be opened/closed
-				Door* door = dynamic_cast<Door*>(fTarget);
+				Door* door = dynamic_cast<Door*>(fTarget.Target());
 				if (door == NULL)
 					break;
 				if (!door->Opened())
@@ -577,7 +577,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: Check weapon range
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget) <= range;
+					returnValue = core->Distance(object, fTarget.Target()) <= range;
 
 				break;
 			}
@@ -607,10 +607,10 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	clicked on the trigger region running this script.
 				 */
 				object_node* objectNode = FindObjectNode(trig);
-				returnValue = fTarget->LastScriptRoundResults()->Clicker()
+				returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
 						->MatchNode(objectNode);
 				//objectNode->Print();
-				fTarget->LastScriptRoundResults()->Clicker()->Print();
+				fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
 
 				// TODO: When to set this, other than now ?
 				if (returnValue)
@@ -630,9 +630,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Detect ignores Protection from Creature
 				 * type effects for static objects.
 				 */
-				Object* object = core->GetObject(fTarget, FindObjectNode(trig));
+				Object* object = core->GetObject(fTarget.Target(), FindObjectNode(trig));
 				if (object != NULL)
-					returnValue = core->See(fTarget, object);
+					returnValue = core->See(fTarget.Target(), object);
 					// || core->Hear(fTarget, object);
 				break;
 			}
@@ -662,7 +662,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
 					Object* objectOverRegion = core->GetObject(
-							dynamic_cast<Region*>(fTarget));
+							dynamic_cast<Region*>(fTarget.Target()));
 					if (objectOverRegion != NULL)
 						returnValue = objectOverRegion->MatchNode(object);
 				}
@@ -709,7 +709,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				// Entered(O:Object)
 				object_node* node = FindObjectNode(trig);
-				Region* region = dynamic_cast<Region*>(fTarget);
+				Region* region = dynamic_cast<Region*>(fTarget.Target());
 				//std::vector<std::string>::const_iterator i;
 				Object* object = Object::GetMatchingObjectFromList(
 										region->
@@ -778,7 +778,7 @@ Script::_ExecuteAction(action_node* act)
 	act->Print();
 #endif
 	Core* core = Core::Get();
-	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
+	Actor* thisActor = dynamic_cast<Actor*>(fTarget.Target());
 
 	switch (act->id) {
 		case 0x03:
@@ -836,7 +836,7 @@ Script::_ExecuteAction(action_node* act)
 			Object* object = FindObject(act);
 			if (object != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, object->Position());
-				fTarget->AddAction(walkTo);
+				fTarget.Target()->AddAction(walkTo);
 			}
 
 			break;
@@ -847,7 +847,7 @@ Script::_ExecuteAction(action_node* act)
 			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
 			if (targetActor != NULL && thisActor != NULL) {
 				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
-				fTarget->AddAction(run);
+				fTarget.Target()->AddAction(run);
 			}
 			break;
 		}
@@ -909,7 +909,7 @@ Script::_ExecuteAction(action_node* act)
 
 			if (variableScope.compare("LOCALS") == 0) {
 				if (fTarget != NULL)
-					fTarget->SetVariable(variableName.c_str(),
+					fTarget.Target()->SetVariable(variableName.c_str(),
 							act->parameter);
 			} else {
 				// TODO: Check for AREA variables
@@ -923,7 +923,7 @@ Script::_ExecuteAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			Wait* wait = new Wait(thisActor, act->parameter);
-			fTarget->AddAction(wait);
+			fTarget.Target()->AddAction(wait);
 			break;
 		}
 
@@ -954,7 +954,8 @@ Script::_ExecuteAction(action_node* act)
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			fTarget->SetStale(true);
+			// TODO: Delete it for real
+			fTarget.Target()->SetStale(true);
 			return false;
 		}
 		case 0x73:
@@ -1018,7 +1019,7 @@ Script::_ExecuteAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			Actor* actor = dynamic_cast<Actor*>(fTarget);
+			Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);

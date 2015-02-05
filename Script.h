@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "IETypes.h"
+#include "Reference.h"
 
 struct node;
 struct action_node;
@@ -65,8 +66,8 @@ private:
 	bool fProcessed;
 
 	int fOrTriggers;
-	Object* fTarget;
-	Object* fLastTrigger;
+	Reference<Object> fTarget;
+	Reference<Object> fLastTrigger;
 
 	node* fCurrentNode;
 };
