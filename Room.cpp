@@ -74,8 +74,11 @@ Room::~Room()
 	// TODO: Delete various tilecells, overlays, animations
 	_UnloadArea();
 	_UnloadWorldMap();
-	fBackBitmap->Release();
-	fBlitMask->Release();
+
+	if (fBackBitmap != NULL)
+		fBackBitmap->Release();
+	if (fBlitMask != NULL)
+		fBlitMask->Release();
 }
 
 
@@ -92,6 +95,7 @@ Room::Create()
 void
 Room::Delete()
 {
+	std::cout << "Room::Delete()" << std::endl;
 	delete sCurrentRoom;
 	sCurrentRoom = NULL;	
 }
