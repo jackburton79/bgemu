@@ -416,11 +416,15 @@ Actor::UpdateSee()
 	// between source and target, and see if there are any unpassable
 	// point between them, we also check distance and visibility of
 	// the target
-	std::list<Object*>::const_iterator start = Core::Get()->Objects().begin();
-	std::list<Object*>::const_iterator end = Core::Get()->Objects().end();
-	std::list<Object*>::const_iterator i;
+	std::list<Reference<Object> >::const_iterator i;
+	std::list<Reference<Object> > actorsList;
+	Core::Get()->GetObjectList(actorsList);
+	
+	std::list<Reference<Object> >::const_iterator start = actorsList.begin();
+	std::list<Reference<Object> >::const_iterator end = actorsList.end();
+	
 	for (i = start; i != end; i++) {
-		Actor* target = dynamic_cast<Actor*>(*i);
+		Actor* target = dynamic_cast<Actor*>(i->Target());
 		// TODO: Take into account any eventual spell
 		if (target == NULL || target == this || !target->IsVisible())
 			continue;

@@ -228,12 +228,12 @@ Core::GetObject(Object* source, object_node* node) const
 
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
-	std::list<Object*>::const_iterator i;
+	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if ((*i)->MatchNode(node)) {
+		if ((*i).Target()->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
-			return *i;
+			return (*i).Target();
 		}
 	}
 
@@ -245,10 +245,10 @@ Core::GetObject(Object* source, object_node* node) const
 Object*
 Core::GetObject(const char* name) const
 {
-	std::list<Object*>::const_iterator i;
+	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (!strcmp(name, (*i)->Name())) {
-			return *i;
+		if (!strcmp(name, (*i).Target()->Name())) {
+			return (*i).Target();
 		}
 	}
 
@@ -260,9 +260,9 @@ Object*
 Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
-	std::list<Object*>::const_iterator i;
+	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>(*i);
+		Actor* actor = dynamic_cast<Actor*>((*i).Target());
 		if (actor == NULL)
 			continue;
 		if (region->Contains(actor->Position()))
@@ -276,15 +276,15 @@ Core::GetObject(const Region* region) const
 Object*
 Core::GetNearestEnemyOf(const Object* object) const
 {
-	std::list<Object*>::const_iterator i;
+	std::list<Reference<Object> >::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>(*i);
+		Actor* actor = dynamic_cast<Actor*>((*i).Target());
 		if (actor == NULL)
 			continue;
-		if ((*i) != object && (*i)->IsEnemyOf(object)) {
-			int distance = Distance(object, *i);
+		if ((*i).Target() != object && (*i).Target()->IsEnemyOf(object)) {
+			int distance = Distance(object, i->Target());
 			if (distance < minDistance) {
 				minDistance = distance;
 				nearest = actor;
@@ -361,9 +361,9 @@ Core::UpdateLogic(bool executeScripts)
 		return;
 
 	// TODO: Fix/Improve
-	std::list<Object*>::iterator i;
+	std::list<Reference<Object> >::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		(*i)->Update(executeScripts);
+		i->Target()->Update(executeScripts);
 	}
 
 	fActiveActor = NULL;
@@ -463,19 +463,27 @@ Core::RandomNumber(int32 start, int32 end)
 }
 
 
+int32
+Core::GetObjectList(std::list<Reference<Object> > & objects) const
+{
+	objects = fObjects;
+	return objects.size();
+}
+
+/*
 const std::list<Object*>&
 Core::Objects() const
 {
 	return fObjects;
 }
-
+*/
 
 void
 Core::_PrintObjects() const
 {
-	for (std::list<Object*>::const_iterator i = fObjects.begin();
+	for (std::list<Reference<Object> >::const_iterator i = fObjects.begin();
 											i != fObjects.end(); i++) {
-		(*i)->Print();
+		i->Target()->Print();
 	}
 }
 
@@ -483,14 +491,14 @@ Core::_PrintObjects() const
 void
 Core::_RemoveStaleObjects()
 {
-	std::list<Object*>::iterator i = fObjects.begin();
+	std::list<Reference<Object> >::iterator i = fObjects.begin();
 	while (i != fObjects.end()) {
-		if ((*i)->IsStale()) {
-			if (Actor* actor = dynamic_cast<Actor*>(*i)) {
+		if ((*i).Target()->IsStale()) {
+			if (Actor* actor = dynamic_cast<Actor*>((*i).Target())) {
 				Room::Get()->ActorExitedArea(actor);
-				delete *i;
+				//delete *i;
 			} else
-				delete *i;
+				//delete *i;
 			i = fObjects.erase(i);
 		} else
 			i++;

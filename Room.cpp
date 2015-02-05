@@ -1127,10 +1127,13 @@ Room::_DrawAnimations()
 void
 Room::_DrawActors()
 {
-	std::list<Object*>::const_iterator a;
-	for (a = Core::Get()->Objects().begin();
-			a != Core::Get()->Objects().end(); a++) {
-		if (Actor* actor = dynamic_cast<Actor*>(*a)) {
+	std::list<Reference<Object> >::const_iterator a;
+	std::list<Reference<Object> > actorsList;
+	Core::Get()->GetObjectList(actorsList);
+	
+	for (a = actorsList.begin();
+			a != actorsList.end(); a++) {
+		if (Actor* actor = dynamic_cast<Actor*>(a->Target())) {
 			try {
 				DrawObject(*actor);
 			} catch (const char* string) {
@@ -1205,10 +1208,13 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 Actor*
 Room::_ActorAtPoint(const IE::point& point)
 {
-	const std::list<Object*>& actorList = Core::Get()->Objects();
-	std::list<Object*>::const_iterator iter;
+	// TODO: Maybe there's no need to copy the list in this case
+	std::list<Reference<Object> >::const_iterator iter;
+	std::list<Reference<Object> > actorList;
+	Core::Get()->GetObjectList(actorList);
+	
 	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
-		if (Actor* actor = dynamic_cast<Actor*>(*iter)) {
+		if (Actor* actor = dynamic_cast<Actor*>(iter->Target())) {
 			try {
 				const GFX::rect actorFrame = actor->Frame();
 				if (rect_contains(actorFrame, point))

@@ -1,6 +1,7 @@
 #ifndef __CORE_H
 #define __CORE_H
 
+#include "Actor.h"
 #include "IETypes.h"
 #include "Reference.h"
 
@@ -73,7 +74,7 @@ public:
 
 	static int32 RandomNumber(int32 start, int32 end);
 
-	const std::list<Object*>& Objects() const;
+	int32 GetObjectList(std::list<Reference<Object> >& objects) const;
 
 private:
 	// TODO: Remove this
@@ -81,9 +82,10 @@ private:
 
 	game fGame;
 	Room* fCurrentRoom;
-	Actor* fActiveActor;
-
-	std::list<Object*> fObjects;
+	
+	Reference<Actor> fActiveActor;
+	std::list<Reference<Object> > fObjects;
+	
 	std::map<std::string, uint32> fVariables;
 	Script *fRoomScript;
 	std::map<std::string, Script*> fScripts;
