@@ -8,6 +8,7 @@
 #ifndef __SCRIPTABLE_H
 #define __SCRIPTABLE_H
 
+#include "Object.h"
 #include "Reference.h"
 #include "Referenceable.h"
 #include "SupportDefs.h"
@@ -27,13 +28,20 @@ class Script;
 class ScriptResults {
 public:
 	ScriptResults();
-	const std::vector<Object*> Attackers() const;
-	const std::vector<Object*> Hitters() const;
-	const std::vector<Object*> EnteredActors() const;
+	const std::vector<Reference<Object> > Attackers() const;
+	const std::vector<Reference<Object> > Hitters() const;
+	const std::vector<Reference<Object> > EnteredActors() const;
 
 	int32 CountAttackers() const;
 	Object* AttackerAt(int32 i) const;
 	Object* LastAttacker() const;
+	void SetAttackedBy(Object* object);
+	
+	void SetObjectSaw(Object* object);
+	void SetSeenByObject(Object* object);
+	
+	void SetEnteredActor(Object* object);
+	
 	Object* Clicker() const;
 	int Shouted() const;
 
@@ -41,16 +49,17 @@ public:
 	std::string fClosedBy;
 	std::string fDetectedBy;
 
+	
 private:
 	friend class Object;
 	friend class Actor;
-	std::vector<std::string> fAttackers;
-	std::vector<std::string> fHitters;
-	std::vector<std::string> fSeenBy;
-	std::vector<std::string> fSeenList;
+	std::vector<Reference<Object> > fAttackers;
+	std::vector<Reference<Object> > fHitters;
+	std::vector<Reference<Object> > fSeenByList;
+	std::vector<Reference<Object> > fSeenList;
 
 	// For Trigger Regions
-	std::vector<std::string> fEnteredActors;
+	std::vector<Reference<Object> > fEnteredActors;
 
 	Reference<Object> fClicker;
 
@@ -100,7 +109,7 @@ public:
 	bool MatchNode(object_node* node) const;
 
 	static Object* GetMatchingObjectFromList(
-										const std::vector<Object*>&,
+										const std::vector<Reference<Object> >&,
 										object_node* node);
 
 	static bool CheckIfNodesInList(const std::vector<object_node*>& nodeList,

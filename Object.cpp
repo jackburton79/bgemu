@@ -128,7 +128,7 @@ void
 Object::EnteredRegion(Region* region)
 {
 	fRegion = region;
-	fRegion->CurrentScriptRoundResults()->fEnteredActors.push_back(Name());
+	fRegion->CurrentScriptRoundResults()->SetEnteredActor(this);
 }
 
 
@@ -156,7 +156,7 @@ Object::GetVariable(const char* name)
 void
 Object::SetSeenBy(Actor* actor)
 {
-	fCurrentScriptRoundResults->fSeenBy.push_back(actor->Name());
+	fCurrentScriptRoundResults->SetSeenByObject(actor);
 }
 
 
@@ -286,12 +286,12 @@ Object::MatchWithOneInList(const std::vector<Object*>& vec) const
 /* static */
 Object*
 Object::GetMatchingObjectFromList(
-		const std::vector<Object*>& vector, object_node* matches)
+		const std::vector<Reference<Object> >& vector, object_node* matches)
 {
-	std::vector<Object*>::const_iterator iter;
+	std::vector<Reference<Object> >::const_iterator iter;
 	for (iter = vector.begin(); iter != vector.end(); iter++) {
-		if ((*iter)->MatchNode(matches))
-			return *iter;
+		if ((*iter).Target()->MatchNode(matches))
+			return iter->Target();
 	}
 	return NULL;
 }
@@ -603,7 +603,7 @@ Object::LastScriptRoundResults() const
 void
 Object::AttackTarget(Object* target)
 {
-	target->fCurrentScriptRoundResults->fAttackers.push_back(Name());
+	target->fCurrentScriptRoundResults->fAttackers.push_back(this);
 }
 
 
@@ -616,45 +616,24 @@ ScriptResults::ScriptResults()
 }
 
 
-const std::vector<Object*>
+const std::vector<Reference<Object> >
 ScriptResults::Attackers() const
 {
-	std::vector<Object*> actors;
-	std::vector<std::string>::const_iterator i;
-	for (i = fAttackers.begin(); i != fAttackers.end(); i++) {
-		Object* object = Core::Get()->GetObject((*i).c_str());
-		if (object != NULL)
-			actors.push_back(object);
-	}
-	return actors;
+	return fAttackers;
 }
 
 
-const std::vector<Object*>
+const std::vector<Reference<Object> >
 ScriptResults::Hitters() const
 {
-	std::vector<Object*> actors;
-	std::vector<std::string>::const_iterator i;
-	for (i = fHitters.begin(); i != fHitters.end(); i++) {
-		Object* object = Core::Get()->GetObject((*i).c_str());
-		if (object != NULL)
-			actors.push_back(object);
-	}
-	return actors;
+	return fHitters;
 }
 
 
-const std::vector<Object*>
+const std::vector<Reference<Object> >
 ScriptResults::EnteredActors() const
 {
-	std::vector<Object*> actors;
-	std::vector<std::string>::const_iterator i;
-	for (i = fEnteredActors.begin(); i != fEnteredActors.end(); i++) {
-		Object* object = Core::Get()->GetObject((*i).c_str());
-		if (object != NULL)
-			actors.push_back(object);
-	}
-	return actors;
+	return fEnteredActors;
 }
 
 
@@ -674,7 +653,35 @@ ScriptResults::LastAttacker() const
 	if (numAttackers == 0)
 		return NULL;
 
-	return Attackers()[numAttackers - 1];
+	return Attackers()[numAttackers - 1].Target();
+}
+
+
+void
+ScriptResults::SetAttackedBy(Object* object)
+{
+	fAttackers.push_back(Reference<Object>(object));
+}
+
+	
+void
+ScriptResults::SetObjectSaw(Object* object)
+{
+	fSeenList.push_back(object);
+}
+
+
+void
+ScriptResults::SetSeenByObject(Object* object)
+{
+	fSeenByList.push_back(object);
+}
+
+
+void
+ScriptResults::SetEnteredActor(Object* object)
+{
+	fEnteredActors.push_back(object);	
 }
 
 
@@ -688,7 +695,7 @@ ScriptResults::CountAttackers() const
 Object*
 ScriptResults::AttackerAt(int32 i) const
 {
-	return Attackers()[i];
+	return Attackers()[i].Target();
 }
 
 

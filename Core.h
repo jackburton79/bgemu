@@ -2,6 +2,7 @@
 #define __CORE_H
 
 #include "IETypes.h"
+#include "Reference.h"
 
 #include <list>
 #include <map>

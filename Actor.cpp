@@ -440,7 +440,8 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	CurrentScriptRoundResults()->fSeenList.push_back(object->Name());
+	CurrentScriptRoundResults()->SetObjectSaw(object);
+	
 	object->SetSeenBy(this);
 }
 
@@ -448,10 +449,9 @@ Actor::SetSeen(Object* object)
 bool
 Actor::HasSeen(const Object* object) const
 {
-	const std::string name = object->Name();
-	std::vector<std::string>::const_iterator i;
+	std::vector<Reference<Object> >::const_iterator i;
 	i = std::find(LastScriptRoundResults()->fSeenList.begin(),
-			LastScriptRoundResults()->fSeenList.end(), name);
+			LastScriptRoundResults()->fSeenList.end(), object);
 
 	return i != LastScriptRoundResults()->fSeenList.end();
 }
