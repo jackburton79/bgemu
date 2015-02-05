@@ -71,7 +71,6 @@ class Action;
 class Object : public Referenceable {
 public:
 	Object(const char* name, const char* scriptName = NULL);
-	virtual ~Object();
 
 	void Print() const;
 
@@ -140,6 +139,10 @@ public:
 
 	ScriptResults* CurrentScriptRoundResults() const;
 	ScriptResults* LastScriptRoundResults() const;
+
+protected:
+	virtual ~Object();
+	void LastReferenceReleased();
 
 private:
 	const char* fName;

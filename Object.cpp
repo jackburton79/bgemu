@@ -607,6 +607,14 @@ Object::AttackTarget(Object* target)
 }
 
 
+/* virtual */
+void
+Object::LastReferenceReleased()
+{
+	delete this;
+}
+
+
 // ScriptResults
 ScriptResults::ScriptResults()
 	:
