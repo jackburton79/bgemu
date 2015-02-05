@@ -11,6 +11,9 @@ class Referenceable;
 template <typename T = Referenceable>
 class Reference {
 public:
+	Reference() {
+		fTarget = NULL;
+	}
 	Reference(T* target)
 		:
 		fTarget(target)
@@ -18,7 +21,10 @@ public:
 		fTarget->Acquire();
 	}
 	
-	Reference(const Reference& ref);
+	Reference(const Reference<T>& ref) {
+		SetTo(ref.Target());	
+	};
+	
 	~Reference() {
 		Unset();
 	};
@@ -47,7 +53,7 @@ public:
 		return *fTarget;
 	}
 	
-	Reference& operator=(const Reference& ref) {
+	Reference& operator=(const Reference<T>& ref) {
 		SetTo(ref.Target());
 
 		return *this;
@@ -86,17 +92,6 @@ public:
 private:
 	T* fTarget;
 };
-
-
-/*
-Reference::Reference(const Reference& ref)
-	:
-	fTarget(NULL)
-{
-	fTarget = const_cast<Reference&>(ref).Target();
-	fTarget->Acquire();
-}
-*/
 
 
 
