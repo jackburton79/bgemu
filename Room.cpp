@@ -1442,11 +1442,11 @@ Room::_UnloadArea()
 		delete fTileCells[c];
 	fTileCells.clear();
 
-	std::vector<Actor*>::const_iterator actorIter;
+	/*std::vector<Actor*>::const_iterator actorIter;
 	for (actorIter = fActors.begin(); actorIter != fActors.end(); actorIter++) {
 		if (!Party::Get()->HasActor(*actorIter))
 			delete *actorIter;
-	}
+	}*/
 	fActors.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
@@ -1488,8 +1488,10 @@ Room::_UnloadWorldMap()
 	gResManager->ReleaseResource(fWorldMapBackground);
 	fWorldMapBackground = NULL;
 	
-	fWorldMapBitmap->Release();
-	fWorldMapBitmap = NULL;
+	if (fWorldMapBitmap != NULL) {
+		fWorldMapBitmap->Release();
+		fWorldMapBitmap = NULL;
+	}
 
 	gResManager->TryEmptyResourceCache();
 }
