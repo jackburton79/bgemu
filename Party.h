@@ -28,7 +28,7 @@ private:
 	Party();
 	~Party();
 
-	std::vector<Actor*> fActors;
+	std::vector<Reference<Actor> > fActors;
 };
 
 #endif /* PARTY_H_ */
