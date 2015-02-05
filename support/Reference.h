@@ -18,10 +18,14 @@ public:
 		:
 		fTarget(target)
 	{
-		fTarget->Acquire();
+		if (fTarget != NULL)
+			fTarget->Acquire();
 	}
 	
-	Reference(const Reference<T>& ref) {
+	Reference(const Reference<T>& ref)
+		:
+		fTarget(NULL)
+	{
 		SetTo(ref.Target());	
 	};
 	
