@@ -1,7 +1,9 @@
 #ifndef __ACTION_H
 #define __ACTION_H
 
+#include "Actor.h"
 #include "IETypes.h"
+#include "Reference.h"
 
 class Actor;
 class Door;
@@ -15,7 +17,7 @@ public:
 
     virtual void operator()();
 protected:
-    Actor* fActor;
+    Reference<Actor> fActor;
     bool fInitiated;
     bool fCompleted;
 };
@@ -55,7 +57,7 @@ public:
 	Toggle(Actor* actor, Door* door);
 	virtual void operator()();
 private:
-	Door* fDoor;
+	Reference<Door> fDoor;
 };
 
 
@@ -64,7 +66,7 @@ public:
 	Attack(Actor* actor, Actor* target);
 	virtual void operator()();
 private:
-	Actor* fTarget;
+	Reference<Actor> fTarget;
 };
 
 
@@ -73,7 +75,7 @@ public:
 	RunAwayFrom(Actor* actor, Actor* target);
 	virtual void operator()();
 private:
-	Actor* fTarget;
+	Reference<Actor> fTarget;
 
 	IE::point PointAway() const;
 };
@@ -84,6 +86,6 @@ public:
 	Dialogue(Actor* actor, Actor* target);
 	virtual void operator()();
 private:
-	Actor* fTarget;
+	Reference<Actor> fTarget;
 };
 #endif

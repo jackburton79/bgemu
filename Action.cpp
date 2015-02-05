@@ -67,18 +67,18 @@ void
 WalkTo::operator()()
 {
 	if (!Initiated())
-		fActor->SetDestination(fDestination);
+		fActor.Target()->SetDestination(fDestination);
 
 	Action::operator()();
 
-	if (fActor->Position() == fActor->Destination()) {
+	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
 		fCompleted = true;
-		fActor->SetAnimationAction(ACT_STANDING);
+		fActor.Target()->SetAnimationAction(ACT_STANDING);
 		return;
 	}
 
-	fActor->SetAnimationAction(ACT_WALKING);
-	fActor->MoveToNextPointInPath(fActor->IsFlying());
+	fActor.Target()->SetAnimationAction(ACT_WALKING);
+	fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 }
 
 
@@ -96,18 +96,18 @@ void
 FlyTo::operator()()
 {
 	if (!Initiated())
-		fActor->SetDestination(fDestination);
+		fActor.Target()->SetDestination(fDestination);
 
 	Action::operator()();
 
-	if (fActor->Position() == fActor->Destination()) {
+	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
 		fCompleted = true;
-		fActor->SetAnimationAction(ACT_STANDING);
+		fActor.Target()->SetAnimationAction(ACT_STANDING);
 		return;
 	}
 
-	fActor->SetAnimationAction(ACT_WALKING);
-	fActor->MoveToNextPointInPath(true);
+	fActor.Target()->SetAnimationAction(ACT_WALKING);
+	fActor.Target()->MoveToNextPointInPath(true);
 }
 
 
@@ -145,7 +145,7 @@ void
 Toggle::operator()()
 {
 	Action::operator()();
-	fDoor->Toggle();
+	fDoor.Target()->Toggle();
 	fCompleted = true;
 }
 
@@ -164,18 +164,18 @@ void
 Attack::operator()()
 {
 	if (!Initiated()) {
-		IE::point point = fTarget->NearestPoint(fActor->Position());
-		if (!PointSufficientlyClose(fActor->Position(), point))
-			fActor->SetDestination(point);
+		IE::point point = fTarget.Target()->NearestPoint(fActor.Target()->Position());
+		if (!PointSufficientlyClose(fActor.Target()->Position(), point))
+			fActor.Target()->SetDestination(point);
 		Action::operator()();
 	}
 
-	if (fActor->Position() != fActor->Destination()) {
-		fActor->SetAnimationAction(ACT_WALKING);
-		fActor->MoveToNextPointInPath(fActor->IsFlying());
+	if (fActor.Target()->Position() != fActor.Target()->Destination()) {
+		fActor.Target()->SetAnimationAction(ACT_WALKING);
+		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 	} else {
-		fActor->SetAnimationAction(ACT_ATTACKING);
-		fActor->AttackTarget(fTarget);
+		fActor.Target()->SetAnimationAction(ACT_ATTACKING);
+		fActor.Target()->AttackTarget(fTarget.Target());
 		fCompleted = true;
 	}
 }
@@ -199,19 +199,19 @@ RunAwayFrom::operator()()
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	if (Core::Get()->Distance(fActor, fTarget) < 200) {
+	if (Core::Get()->Distance(fActor.Target(), fTarget.Target()) < 200) {
 		IE::point point = PointAway();
-		if (fActor->Destination() != point) {
-			fActor->SetDestination(point);
+		if (fActor.Target()->Destination() != point) {
+			fActor.Target()->SetDestination(point);
 		}
 	}
 
-	if (fActor->Position() == fActor->Destination()) {
+	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
 		fCompleted = true;
-		fActor->SetAnimationAction(ACT_STANDING);
+		fActor.Target()->SetAnimationAction(ACT_STANDING);
 	} else {
-		fActor->SetAnimationAction(ACT_WALKING);
-		fActor->MoveToNextPointInPath(fActor->IsFlying());
+		fActor.Target()->SetAnimationAction(ACT_WALKING);
+		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 	}
 }
 
@@ -219,16 +219,16 @@ RunAwayFrom::operator()()
 IE::point
 RunAwayFrom::PointAway() const
 {
-	IE::point point = fActor->Position();
+	IE::point point = fActor.Target()->Position();
 
-	if (fTarget->Position().x > fActor->Position().x)
+	if (fTarget.Target()->Position().x > fActor.Target()->Position().x)
 		point.x -= 100;
-	else if (fTarget->Position().x < fActor->Position().x)
+	else if (fTarget.Target()->Position().x < fActor.Target()->Position().x)
 		point.x += 100;
 
-	if (fTarget->Position().y > fActor->Position().y)
+	if (fTarget.Target()->Position().y > fActor.Target()->Position().y)
 		point.y -= 100;
-	else if (fTarget->Position().y < fActor->Position().y)
+	else if (fTarget.Target()->Position().y < fActor.Target()->Position().y)
 		point.y += 100;
 
 	return point;
@@ -252,19 +252,19 @@ Dialogue::operator()()
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
 /*
-	const IE::point point = fTarget->NearestPoint(fActor->Position());
-	if (!PointSufficientlyClose(fActor->Destination(), point))
-		fActor->SetDestination(point);
+	const IE::point point = fTarget->Target()->NearestPoint(fActor.Target()->Position());
+	if (!PointSufficientlyClose(fActor.Target()->Destination(), point))
+		fActor.Target()->SetDestination(point);
 */
 	Action::operator()();
 /*
-	if (!PointSufficientlyClose(fActor->Position(), fTarget->Position())) {
-		fActor->SetAnimationAction(ACT_WALKING);
-		fActor->MoveToNextPointInPath(fActor->IsFlying());
+	if (!PointSufficientlyClose(fActor.Target()->Position(), fTarget->Target()->Position())) {
+		fActor.Target()->SetAnimationAction(ACT_WALKING);
+		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 	} else {
 */
-		fActor->SetAnimationAction(ACT_STANDING);
+		fActor.Target()->SetAnimationAction(ACT_STANDING);
 		fCompleted = true;
-		fActor->InitiateDialogWith(fTarget);
+		fActor.Target()->InitiateDialogWith(fTarget.Target());
 	//}
 }
