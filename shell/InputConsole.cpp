@@ -70,11 +70,17 @@ InputConsole::_ExecuteCommand(std::string line)
 	std::string command;
 	std::istringstream cmdStream(line);
 	cmdStream >> command;
+	std::string args;
+	try {
+		cmdStream.seekg(cmdStream.tellg() + 1);
+		args = cmdStream.str().substr(cmdStream.tellg());
+	} catch (...) {
 
+	}
 	std::cout << "Command: " << line << std::endl;
 	ShellCommand* shellCommand = _FindCommand(command);
 	if (shellCommand != NULL)
-		(*shellCommand)("", 1);
+		(*shellCommand)(args.c_str(), 1);
 	else
 		std::cout << "Invalid Command!" << std::endl;
 }
