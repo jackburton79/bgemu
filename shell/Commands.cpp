@@ -39,8 +39,24 @@ public:
 };
 
 
+class PrintObjectCommand : public ShellCommand {
+public:
+	PrintObjectCommand() : ShellCommand("print-object") {};
+	virtual ~PrintObjectCommand() {};
+	virtual void operator()(const char* argv, int argc)
+	{
+		Object* object = Core::Get()->GetObject(argv);
+		if (object != NULL)
+			object->Print();
+		else
+			std::cout << "object " << argv << " not found." << std::endl;
+	}
+};
+
+
 void
 AddCommands(InputConsole* console)
 {
 	console->AddCommand(new ListObjectsCommand());
+	console->AddCommand(new PrintObjectCommand());
 }

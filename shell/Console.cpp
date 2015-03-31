@@ -409,7 +409,7 @@ Console::Draw()
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 	if (fShowing) {
 		GFX::rect consoleRect = Rect();
-		fBitmap->SetAlpha(128);
+		fBitmap->SetAlpha(196);
 		gfx->BlitToScreen(fBitmap, NULL, &consoleRect);
 	}
 }

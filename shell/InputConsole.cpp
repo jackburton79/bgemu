@@ -46,13 +46,20 @@ InputConsole::AddCommand(ShellCommand* command)
 void
 InputConsole::HandleInput(uint8 c)
 {
-	if (c == SDLK_RETURN) {
-		_ExecuteCommand(fBuffer.c_str());
-		fBuffer = "";
-		ClearScreen();
-	} else {
-		fBuffer.push_back(c);
-		_ParseCharacter(c);
+	switch (c) {
+		case SDLK_RETURN:
+			_ExecuteCommand(fBuffer.c_str());
+			fBuffer = "";
+			ClearScreen();
+			break;
+		case SDLK_BACKSPACE:
+			if (fBuffer.length() > 0)
+				fBuffer.resize(fBuffer.length() - 1);
+			_ParseCharacter(c);
+			break;
+		default:
+			fBuffer.push_back(c);
+			_ParseCharacter(c);
 	}
 }
 
@@ -60,17 +67,29 @@ InputConsole::HandleInput(uint8 c)
 void
 InputConsole::_ExecuteCommand(std::string line)
 {
-	std::string text;
-	std::istringstream cmdString(line);
-	cmdString >> text;
+	std::string command;
+	std::istringstream cmdStream(line);
+	cmdStream >> command;
 
-	std::list<ShellCommand*>::iterator command;
-	for (command = fCommands.begin();
-			command != fCommands.end(); command++) {
-		ShellCommand& cmd = *(*command);
-		if (cmd.Command() == text) {
-			cmd("", 1);
-			break;
-		}
+	std::cout << "Command: " << line << std::endl;
+	ShellCommand* shellCommand = _FindCommand(command);
+	if (shellCommand != NULL)
+		(*shellCommand)("", 1);
+	else
+		std::cout << "Invalid Command!" << std::endl;
+}
+
+
+ShellCommand*
+InputConsole::_FindCommand(std::string cmd)
+{
+	std::list<ShellCommand*>::iterator i;
+	for (i = fCommands.begin();
+			i != fCommands.end(); i++) {
+		ShellCommand* shellCommand = *i;
+		if (shellCommand->Command() == cmd)
+			return shellCommand;
 	}
+
+	return NULL;
 }

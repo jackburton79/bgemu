@@ -24,6 +24,7 @@ public:
 	void HandleInput(uint8 key);
 private:
 	void _ExecuteCommand(std::string str);
+	ShellCommand* _FindCommand(std::string cmd);
 
 	std::string fBuffer;
 
