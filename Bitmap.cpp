@@ -86,7 +86,7 @@ Bitmap::~Bitmap()
 void
 Bitmap::LastReferenceReleased()
 {
-	delete this;	
+	delete this;
 }
 
 

@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Game.h"
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "Party.h"
@@ -526,7 +527,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// InParty
 				const Actor* actor = dynamic_cast<const Actor*>(FindObject(trig));
 				if (actor != NULL)
-					returnValue = Party::Get()->HasActor(actor);
+					returnValue = Game::Get()->Party()->HasActor(actor);
 
 				break;
 			}
@@ -676,7 +677,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * is in the area specified.
 				 */
 				// TODO: We only check the active area
-				returnValue = !strcmp(Room::Get()->Name(), trig->string1);
+				returnValue = !strcmp(RoomContainer::Get()->Name(), trig->string1);
 				break;
 			}
 			case 0x4086:
@@ -684,7 +685,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// AREATYPE(I:NUMBER*AREATYPE) (16518 0x4086)
 
 				// TODO: We only check the active area
-				const uint16 areaType = Room::Get()->AREA()->Type();
+				const uint16 areaType = RoomContainer::Get()->AREA()->Type();
 				returnValue = areaType & trig->parameter1;
 				break;
 			}
@@ -801,13 +802,13 @@ Script::_ExecuteAction(action_node* act)
 			// the active creature. Which one is the active creature?
 			IE::point point = act->where;
 			if (point.x == -1 && point.y == -1) {
-				point = Party::Get()->ActorAt(0)->Position();
+				point = Game::Get()->Party()->ActorAt(0)->Position();
 				point.x += Core::RandomNumber(-20, 20);
 				point.y += Core::RandomNumber(-20, 20);
 			}
 
 			Actor* actor = new Actor(act->string1, point, act->parameter);
-			Room::Get()->ActorEnteredArea(actor);
+			RoomContainer::Get()->ActorEnteredArea(actor);
 
 			// TODO: Add actor to the current area
 			break;
@@ -1037,7 +1038,7 @@ Script::_ExecuteAction(action_node* act)
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			Room::Get()->ActorEnteredArea(actor);
+			RoomContainer::Get()->ActorEnteredArea(actor);
 			break;
 		}
 		default:

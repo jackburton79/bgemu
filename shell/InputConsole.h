@@ -10,20 +10,24 @@
 
 #include "Console.h"
 
+#include <list>
 #include <string>
 
-class ShellContext;
+class ShellCommand;
 class InputConsole: public Console {
 public:
 	InputConsole(const GFX::rect& rect);
 	~InputConsole();
 
+	void Initialize();
+	void AddCommand(ShellCommand* command);
 	void HandleInput(uint8 key);
 private:
 	void _ExecuteCommand(std::string str);
 
-	ShellContext* fContext;
 	std::string fBuffer;
+
+	std::list<ShellCommand*> fCommands;
 };
 
 #endif /* INPUTCONSOLE_H_ */

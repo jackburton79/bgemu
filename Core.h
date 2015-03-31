@@ -25,7 +25,7 @@ class Actor;
 class Door;
 class Object;
 class Region;
-class Room;
+class RoomContainer;
 class IDSResource;
 class Script;
 class TLKResource;
@@ -42,7 +42,7 @@ public:
 
 	uint32 Game() const;
 
-	void EnteredArea(Room* area, Script* script);
+	void EnteredArea(RoomContainer* area, Script* script);
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
@@ -81,7 +81,7 @@ private:
 	friend class Object;
 
 	game fGame;
-	Room* fCurrentRoom;
+	RoomContainer* fCurrentRoom;
 	
 	Reference<Actor> fActiveActor;
 	std::list<Reference<Object> > fObjects;

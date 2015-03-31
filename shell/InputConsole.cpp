@@ -5,9 +5,10 @@
  *      Author: stefano
  */
 
+#include "Commands.h"
 #include "InputConsole.h"
 #include "ResManager.h"
-#include "ShellContext.h"
+#include "ShellCommand.h"
 
 #include "SDL.h"
 
@@ -15,13 +16,30 @@ InputConsole::InputConsole(const GFX::rect& rect)
 	:
 	Console(rect)
 {
-	fContext = new BaseContext();
 }
 
 
 InputConsole::~InputConsole()
 {
-	delete fContext;
+	std::list<ShellCommand*>::iterator command;
+	for (command = fCommands.begin();
+			command != fCommands.end(); command++) {
+		delete *command;
+	}
+}
+
+
+void
+InputConsole::Initialize()
+{
+	AddCommands(this);
+}
+
+
+void
+InputConsole::AddCommand(ShellCommand* command)
+{
+	fCommands.push_back(command);
 }
 
 
@@ -46,22 +64,13 @@ InputConsole::_ExecuteCommand(std::string line)
 	std::istringstream cmdString(line);
 	cmdString >> text;
 
-	// TODO: Change this, it doesn't look nice!
-
-	if (!text.compare("exit")) {
-		fContext = ShellContext::ExitContext(fContext);
-		if (fContext == NULL)
-			exit(0);
-	} else if (!text.compare("list")) {
-		std::string stringParam;
-		cmdString >> stringParam;
-		if (!stringParam.compare("resources")) {
-			gResManager->PrintResources();
-		} else
-			fContext->HandleCommand(line);
-	} else if (!text.compare("help")) {
-		fContext->ListCommands();
-	} else
-		fContext = fContext->HandleCommand(line);
-
+	std::list<ShellCommand*>::iterator command;
+	for (command = fCommands.begin();
+			command != fCommands.end(); command++) {
+		ShellCommand& cmd = *(*command);
+		if (cmd.Command() == text) {
+			cmd("", 1);
+			break;
+		}
+	}
 }

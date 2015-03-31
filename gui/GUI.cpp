@@ -283,7 +283,7 @@ GUI::SetCursor(uint32 index)
 void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 {
-	Room* room = Room::Get();
+	RoomContainer* room = RoomContainer::Get();
 	if (room == NULL)
 		return;
 

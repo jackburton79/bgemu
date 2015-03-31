@@ -14,7 +14,8 @@
 
 class Party {
 public:
-	static Party* Get();
+	Party();
+	~Party();
 
 	void AddActor(Actor* actor);
 	void RemoveActor(Actor* actor);
@@ -24,9 +25,6 @@ public:
 
 	bool HasActor(const Actor* actor) const;
 
-private:
-	Party();
-	~Party();
 
 	std::vector<Reference<Actor> > fActors;
 };

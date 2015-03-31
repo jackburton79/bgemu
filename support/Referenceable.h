@@ -13,14 +13,15 @@
 class Referenceable {
 public:
 	Referenceable(int32 initialRefCount = 1);
-	virtual ~Referenceable();
-
 	void Acquire();
 	bool Release();
 
 	int32 RefCount() const;
 
 protected:
+
+	virtual ~Referenceable();
+
 	virtual void FirstReferenceAcquired();
 	virtual void LastReferenceReleased();
 	

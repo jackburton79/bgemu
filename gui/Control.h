@@ -12,7 +12,7 @@
 
 #include <map>
 
-class Room;
+class RoomContainer;
 class Window;
 class Control {
 public:
@@ -43,7 +43,7 @@ public:
 
 	void ConvertFromScreen(IE::point& point) const;
 
-	void AssociateRoom(Room* room);
+	void AssociateRoom(RoomContainer* room);
 	void Print() const;
 
 	static Control* CreateControl(IE::control* control);
@@ -51,7 +51,7 @@ public:
 protected:
 	Window* fWindow;
 	IE::control* fControl;
-	Room* fRoom;
+	RoomContainer* fRoom;
 };
 
 #endif /* CONTROL_H_ */

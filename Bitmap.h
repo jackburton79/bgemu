@@ -111,7 +111,7 @@ protected:
 	bool fOwnsSurface;
 
 	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
-	~Bitmap();
+	virtual ~Bitmap();
 	
 	virtual void LastReferenceReleased();
 

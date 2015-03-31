@@ -11,6 +11,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Game.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -36,14 +37,12 @@
 #include <iostream>
 #include <stdexcept>
 
-std::vector<MapOverlay*> *gOverlays = NULL;
-
-static Room* sCurrentRoom = NULL;
+static RoomContainer* sCurrentRoom = NULL;
 
 static int sSelectedActorRadius = 20;
 static int sSelectedActorRadiusStep = 1;
 
-Room::Room()
+RoomContainer::RoomContainer()
 	:
 	Object(""),
 	fName(""),
@@ -69,11 +68,10 @@ Room::Room()
 }
 
 
-Room::~Room()
+RoomContainer::~RoomContainer()
 {
 	// TODO: Delete various tilecells, overlays, animations
-	_UnloadArea();
-	_UnloadWorldMap();
+	_Unload();
 
 	if (fBackBitmap != NULL)
 		fBackBitmap->Release();
@@ -84,16 +82,16 @@ Room::~Room()
 
 /* static */
 bool
-Room::Create()
+RoomContainer::Create()
 {
 	if (sCurrentRoom == NULL)
-		sCurrentRoom = new Room();
+		sCurrentRoom = new RoomContainer();
 	return true;
 }
 
 
 void
-Room::Delete()
+RoomContainer::Delete()
 {
 	std::cout << "Room::Delete()" << std::endl;
 	delete sCurrentRoom;
@@ -102,57 +100,41 @@ Room::Delete()
 
 
 res_ref
-Room::AreaName() const
+RoomContainer::AreaName() const
 {
 	return fName;
 }
 
 
 WEDResource*
-Room::WED()
+RoomContainer::WED()
 {
 	return fWed;
 }
 
 
 ARAResource*
-Room::AREA() const
+RoomContainer::AREA() const
 {
 	return fArea;
 }
 
 
 GFX::rect
-Room::ViewPort() const
+RoomContainer::ViewPort() const
 {
 	return fViewPort;
 }
 
 
 bool
-Room::LoadArea(const res_ref& areaName, const char* longName,
+RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 {
-	// TODO: Move this elsewhere.
-	// This should be filled by the player selection
-	try {
-		IE::point point = { 20, 20 };
-		Party* party = Party::Get();
-		if (party->CountActors() == 0) {
-			if (Core::Get()->Game() == GAME_BALDURSGATE)
-				party->AddActor(new Actor("AJANTI", point, 0));
-			else
-				party->AddActor(new Actor("AESOLD", point, 0));
-		}
-	} catch (...) {
-
-	}
-
 	// Save the entrance name, it will be unloaded in UnloadArea
 	std::string savedEntranceName = entranceName ? entranceName : "";
 
-	_UnloadArea();
-	_UnloadWorldMap();
+	_Unload();
 
 	fName = areaName;
 
@@ -215,9 +197,9 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
-	_LoadActors();
-	_InitDoors();
-	_InitContainers();
+	//_LoadActors();
+	//_InitDoors();
+	//_InitContainers();
 
 	_InitBitmap(fViewPort);
 
@@ -252,7 +234,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 		CenterArea(point);
 	}
 
-	Actor* player = Party::Get()->ActorAt(0);
+	Actor* player = Game::Get()->Party()->ActorAt(0);
 	if (player != NULL) {
 		player->SetPosition(point);
 		if (!player->IsSelected())
@@ -268,7 +250,7 @@ Room::LoadArea(const res_ref& areaName, const char* longName,
 
 
 bool
-Room::LoadArea(AreaEntry& area)
+RoomContainer::LoadArea(AreaEntry& area)
 {
 	//MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
 	/*MOSResource* mos = gResManager->GetMOS("BACK");
@@ -290,12 +272,12 @@ Room::LoadArea(AreaEntry& area)
 
 
 bool
-Room::LoadWorldMap()
+RoomContainer::LoadWorldMap()
 {
 	if (fWorldMap != NULL)
 		return true;
 
-	_UnloadArea();
+	_Unload();
 
 	GUI* gui = GUI::Get();
 
@@ -344,14 +326,14 @@ Room::LoadWorldMap()
 
 
 void
-Room::SetViewPort(GFX::rect rect)
+RoomContainer::SetViewPort(GFX::rect rect)
 {
 	fViewPort = rect;
 }
 
 
 GFX::rect
-Room::AreaRect() const
+RoomContainer::AreaRect() const
 {
 	GFX::rect rect;
 	rect.x = rect.y = 0;
@@ -367,14 +349,14 @@ Room::AreaRect() const
 
 
 IE::point
-Room::AreaOffset() const
+RoomContainer::AreaOffset() const
 {
 	return fAreaOffset;
 }
 
 
 void
-Room::SetAreaOffset(IE::point point)
+RoomContainer::SetAreaOffset(IE::point point)
 {
 	GFX::rect areaRect = AreaRect();
 	fAreaOffset = point;
@@ -393,7 +375,7 @@ Room::SetAreaOffset(IE::point point)
 
 
 void
-Room::SetRelativeAreaOffset(IE::point relativePoint)
+RoomContainer::SetRelativeAreaOffset(IE::point relativePoint)
 {
 	IE::point newOffset = fAreaOffset;
 	newOffset.x += relativePoint.x;
@@ -403,7 +385,7 @@ Room::SetRelativeAreaOffset(IE::point relativePoint)
 
 
 void
-Room::CenterArea(const IE::point& point)
+RoomContainer::CenterArea(const IE::point& point)
 {
 	IE::point destPoint;
 	destPoint.x = point.x - fViewPort.w / 2;
@@ -413,7 +395,7 @@ Room::CenterArea(const IE::point& point)
 
 
 void
-Room::ConvertToArea(GFX::rect& rect)
+RoomContainer::ConvertToArea(GFX::rect& rect)
 {
 	rect.x += fAreaOffset.x;
 	rect.y += fAreaOffset.y;
@@ -421,7 +403,7 @@ Room::ConvertToArea(GFX::rect& rect)
 
 
 void
-Room::ConvertToArea(IE::point& point)
+RoomContainer::ConvertToArea(IE::point& point)
 {
 	point.x += fAreaOffset.x;
 	point.y += fAreaOffset.y;
@@ -429,7 +411,7 @@ Room::ConvertToArea(IE::point& point)
 
 
 void
-Room::ConvertFromArea(GFX::rect& rect)
+RoomContainer::ConvertFromArea(GFX::rect& rect)
 {
 	rect.x -= fAreaOffset.x;
 	rect.y -= fAreaOffset.y;
@@ -437,7 +419,7 @@ Room::ConvertFromArea(GFX::rect& rect)
 
 
 void
-Room::ConvertFromArea(IE::point& point)
+RoomContainer::ConvertFromArea(IE::point& point)
 {
 	point.x -= fAreaOffset.x;
 	point.y -= fAreaOffset.y;
@@ -445,7 +427,7 @@ Room::ConvertFromArea(IE::point& point)
 
 
 void
-Room::ConvertToScreen(GFX::rect& rect)
+RoomContainer::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fViewPort.x;
 	rect.y += fViewPort.y;
@@ -453,7 +435,7 @@ Room::ConvertToScreen(GFX::rect& rect)
 
 
 void
-Room::ConvertToScreen(IE::point& point)
+RoomContainer::ConvertToScreen(IE::point& point)
 {
 	point.x += fViewPort.x;
 	point.y += fViewPort.y;
@@ -461,7 +443,7 @@ Room::ConvertToScreen(IE::point& point)
 
 
 void
-Room::Draw(Bitmap *surface)
+RoomContainer::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
@@ -516,13 +498,13 @@ Room::Draw(Bitmap *surface)
 		}
 
 		// TODO: handle this better
-		if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
+		if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
 			GFX::rect rect = rect_to_gfx_rect(door->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackBitmap->Lock();
 			fBackBitmap->StrokeRect(rect, 70);
 			fBackBitmap->Unlock();
-		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject)) {
+		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 			try {
 				GFX::rect rect = actor->Frame();
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
@@ -536,7 +518,7 @@ Room::Draw(Bitmap *surface)
 			} catch (...) {
 
 			}
-		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject)) {
+		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 
@@ -561,7 +543,7 @@ Room::Draw(Bitmap *surface)
 			} else
 				fBackBitmap->StrokeRect(rect, color);
 			fBackBitmap->Unlock();
-		} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject)) {
+		} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject.Target())) {
 			uint32 color = 0;
 			color = fBackBitmap->MapColor(0, 125, 0);
 			// TODO: Different colors for trapped/nontrapped
@@ -582,7 +564,7 @@ Room::Draw(Bitmap *surface)
 
 
 void
-Room::Clicked(uint16 x, uint16 y)
+RoomContainer::Clicked(uint16 x, uint16 y)
 {
 	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
@@ -599,12 +581,12 @@ Room::Clicked(uint16 x, uint16 y)
 	}
 
 	if (fSelectedActor != NULL)
-		fSelectedActor->ClearActionList();
+		fSelectedActor.Target()->ClearActionList();
 
 	// TODO: Temporary, for testing
-	if (Door* door = dynamic_cast<Door*>(fMouseOverObject)) {
+	if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
 		if (fSelectedActor != NULL)
-			fSelectedActor->ClickedOn(door);
+			fSelectedActor.Target()->ClickedOn(door);
 		return;
 	}
 
@@ -617,7 +599,7 @@ Room::Clicked(uint16 x, uint16 y)
 				fSelectedActor->Select(true);
 			*/
 			if (fSelectedActor != NULL)
-				fSelectedActor->ClickedOn(actor);
+				fSelectedActor.Target()->ClickedOn(actor);
 
 		}
 		return;
@@ -626,7 +608,7 @@ Room::Clicked(uint16 x, uint16 y)
 	if (Region* region = _RegionAtPoint(point)) {
 		// TODO:
 		if (fSelectedActor != NULL)
-			fSelectedActor->ClickedOn(region);
+			fSelectedActor.Target()->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			LoadArea(region->DestinationArea(), "foo",
 					region->DestinationEntrance());
@@ -640,19 +622,19 @@ Room::Clicked(uint16 x, uint16 y)
 	} else if (Container* container = _ContainerAtPoint(point)) {
 		// TODO:
 		if (fSelectedActor != NULL)
-			fSelectedActor->ClickedOn(container);
+			fSelectedActor.Target()->ClickedOn(container);
 	}
 
 	if (fSelectedActor != NULL) {
-		WalkTo* walkTo = new WalkTo(fSelectedActor, point);
-		fSelectedActor->AddAction(walkTo);
+		WalkTo* walkTo = new WalkTo(fSelectedActor.Target(), point);
+		fSelectedActor.Target()->AddAction(walkTo);
 	}
 
 }
 
 
 void
-Room::MouseOver(uint16 x, uint16 y)
+RoomContainer::MouseOver(uint16 x, uint16 y)
 {
 	const uint16 kScrollingStep = 45;
 
@@ -713,7 +695,7 @@ Room::MouseOver(uint16 x, uint16 y)
 
 
 void
-Room::DrawObject(const Object& object)
+RoomContainer::DrawObject(const Object& object)
 {
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
@@ -744,7 +726,7 @@ Room::DrawObject(const Object& object)
 
 
 void
-Room::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
+RoomContainer::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 {
 	if (bitmap == NULL)
 		return;
@@ -767,25 +749,26 @@ Room::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 
 
 void
-Room::ActorEnteredArea(const Actor* actor)
+RoomContainer::ActorEnteredArea(const Actor* actor)
 {
-	fActors.push_back(const_cast<Actor*>(actor));
+	//fActors.push_back(const_cast<Actor*>(actor));
 }
 
 
 void
-Room::ActorExitedArea(const Actor* actor)
+RoomContainer::ActorExitedArea(const Actor* actor)
 {
-	std::vector<Actor*>::iterator i =
+	return;
+	/*std::vector<Actor*>::iterator i =
 			std::find(fActors.begin(), fActors.end(), actor);
 	if (i != fActors.end()) {
 		fActors.erase(i);
-	}
+	}*/
 }
 
 
 uint16
-Room::TileNumberForPoint(const IE::point& point)
+RoomContainer::TileNumberForPoint(const IE::point& point)
 {
 	const uint16 overlayWidth = fOverlays[0]->Width();
 	const uint16 tileX = point.x / TILE_WIDTH;
@@ -796,7 +779,7 @@ Room::TileNumberForPoint(const IE::point& point)
 
 
 uint8
-Room::PointHeight(const IE::point& point) const
+RoomContainer::PointHeight(const IE::point& point) const
 {
 	if (fHeightMap == NULL)
 		return 8;
@@ -809,7 +792,7 @@ Room::PointHeight(const IE::point& point) const
 
 
 uint8
-Room::PointLight(const IE::point& point) const
+RoomContainer::PointLight(const IE::point& point) const
 {
 	if (fLightMap == NULL)
 		return 8;
@@ -822,7 +805,7 @@ Room::PointLight(const IE::point& point) const
 
 
 uint8
-Room::PointSearch(const IE::point& point) const
+RoomContainer::PointSearch(const IE::point& point) const
 {
 	if (fSearchMap == NULL)
 		return 1;
@@ -837,9 +820,9 @@ Room::PointSearch(const IE::point& point) const
 
 /* static */
 bool
-Room::IsPointPassable(const IE::point& point)
+RoomContainer::IsPointPassable(const IE::point& point)
 {
-	int32 state = Room::Get()->PointSearch(point);
+	int32 state = RoomContainer::Get()->PointSearch(point);
 	switch (state) {
 		case 0:
 		case 8:
@@ -854,28 +837,28 @@ Room::IsPointPassable(const IE::point& point)
 
 
 void
-Room::ToggleOverlays()
+RoomContainer::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
 }
 
 
 void
-Room::TogglePolygons()
+RoomContainer::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
 }
 
 
 void
-Room::ToggleAnimations()
+RoomContainer::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
 }
 
 
 void
-Room::ToggleSearchMap()
+RoomContainer::ToggleSearchMap()
 {
 	if (++fDrawSearchMap > 2)
 		fDrawSearchMap = 0;
@@ -891,7 +874,7 @@ Room::ToggleSearchMap()
 
 
 void
-Room::ToggleGUI()
+RoomContainer::ToggleGUI()
 {
 	GUI* gui = GUI::Get();
 	if (gui->IsWindowShown(0))
@@ -912,7 +895,7 @@ Room::ToggleGUI()
 
 
 void
-Room::ToggleDayNight()
+RoomContainer::ToggleDayNight()
 {
 	if (fWorldMap != NULL)
 		return;
@@ -931,7 +914,7 @@ Room::ToggleDayNight()
 
 /* virtual */
 void
-Room::VideoAreaChanged(uint16 width, uint16 height)
+RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
@@ -939,15 +922,15 @@ Room::VideoAreaChanged(uint16 width, uint16 height)
 
 
 /* static */
-Room*
-Room::Get()
+RoomContainer*
+RoomContainer::Get()
 {
 	return sCurrentRoom;
 }
 
 
 void
-Room::_InitBitmap(GFX::rect area)
+RoomContainer::_InitBitmap(GFX::rect area)
 {
 	if (fBackBitmap != NULL)
 		fBackBitmap->Release();
@@ -956,7 +939,7 @@ Room::_InitBitmap(GFX::rect area)
 
 
 void
-Room::_InitWed(const char* name)
+RoomContainer::_InitWed(const char* name)
 {
 	// TODO: Assume that the various resources have
 	// already been deleted and remove these lines ?
@@ -982,7 +965,7 @@ Room::_InitWed(const char* name)
 
 
 void
-Room::_InitBlitMask()
+RoomContainer::_InitBlitMask()
 {
 	std::cout << "Initializing blit mask...";
 	std::flush(std::cout);
@@ -1012,7 +995,7 @@ Room::_InitBlitMask()
 
 
 void
-Room::_InitHeightMap()
+RoomContainer::_InitHeightMap()
 {
 	std::cout << "Initializing height map...";
 	std::flush(std::cout);
@@ -1035,7 +1018,7 @@ Room::_InitHeightMap()
 
 
 void
-Room::_InitLightMap()
+RoomContainer::_InitLightMap()
 {
 	std::cout << "Initializing light map...";
 	std::flush(std::cout);
@@ -1053,7 +1036,7 @@ Room::_InitLightMap()
 
 
 void
-Room::_InitSearchMap()
+RoomContainer::_InitSearchMap()
 {
 	std::cout << "Initializing search map...";
 	std::flush(std::cout);
@@ -1073,7 +1056,7 @@ Room::_InitSearchMap()
 
 
 void
-Room::_DrawBaseMap()
+RoomContainer::_DrawBaseMap()
 {
 	MapOverlay *overlay = fOverlays[0];
 	if (overlay == NULL) {
@@ -1104,7 +1087,7 @@ Room::_DrawBaseMap()
 
 
 void
-Room::_DrawAnimations()
+RoomContainer::_DrawAnimations()
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -1129,7 +1112,7 @@ Room::_DrawAnimations()
 
 
 void
-Room::_DrawActors()
+RoomContainer::_DrawActors()
 {
 	std::list<Reference<Object> >::const_iterator a;
 	std::list<Reference<Object> > actorsList;
@@ -1153,7 +1136,7 @@ Room::_DrawActors()
 
 
 void
-Room::_DrawSearchMap(GFX::rect visibleArea)
+RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 {
 	if (fSearchMap != NULL && fDrawSearchMap > 0) {
 		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
@@ -1172,7 +1155,7 @@ Room::_DrawSearchMap(GFX::rect visibleArea)
 
 
 void
-Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
+RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
@@ -1210,7 +1193,7 @@ Room::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 
 
 Actor*
-Room::_ActorAtPoint(const IE::point& point)
+RoomContainer::_ActorAtPoint(const IE::point& point)
 {
 	// TODO: Maybe there's no need to copy the list in this case
 	std::list<Reference<Object> >::const_iterator iter;
@@ -1234,32 +1217,32 @@ Room::_ActorAtPoint(const IE::point& point)
 
 
 Region*
-Room::_RegionAtPoint(const IE::point& point)
+RoomContainer::_RegionAtPoint(const IE::point& point)
 {
-	std::vector<Region*>::const_iterator i;
+	std::vector<Reference<Region> >::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
-		IE::rect rect = (*i)->Frame();
+		IE::rect rect = i->Target()->Frame();
 		if (rect_contains(rect_to_gfx_rect(rect), point))
-			return *i;
+			return i->Target();
 	}
 	return NULL;
 }
 
 
 Container*
-Room::_ContainerAtPoint(const IE::point& point)
+RoomContainer::_ContainerAtPoint(const IE::point& point)
 {
-	std::vector<Container*>::const_iterator i;
+	std::vector<Reference<Container> >::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		if ((*i)->Polygon().Contains(point))
-			return *i;
+		if (i->Target()->Polygon().Contains(point))
+			return i->Target();
 	}
 	return NULL;
 }
 
 
 Object*
-Room::_ObjectAtPoint(const IE::point& point)
+RoomContainer::_ObjectAtPoint(const IE::point& point)
 {
 	Object* object = NULL;
 	const uint16 tileNum = TileNumberForPoint(point);
@@ -1287,7 +1270,7 @@ Room::_ObjectAtPoint(const IE::point& point)
 
 
 void
-Room::_LoadOverlays()
+RoomContainer::_LoadOverlays()
 {
 	std::cout << "Loading Overlays...";
 	std::flush(std::cout);
@@ -1303,7 +1286,7 @@ Room::_LoadOverlays()
 
 
 void
-Room::_InitTileCells()
+RoomContainer::_InitTileCells()
 {
 	std::cout << "Initializing Tile Cells...";
 	std::flush(std::cout);
@@ -1316,7 +1299,7 @@ Room::_InitTileCells()
 
 
 void
-Room::_InitVariables()
+RoomContainer::_InitVariables()
 {
 	std::cout << "Initializing Variables...";
 	std::flush(std::cout);
@@ -1331,7 +1314,7 @@ Room::_InitVariables()
 
 
 void
-Room::_InitAnimations()
+RoomContainer::_InitAnimations()
 {
 	std::cout << "Initializing Animations...";
 	std::flush(std::cout);
@@ -1342,7 +1325,7 @@ Room::_InitAnimations()
 
 
 void
-Room::_InitRegions()
+RoomContainer::_InitRegions()
 {
 	std::cout << "Initializing Regions...";
 	std::flush(std::cout);
@@ -1355,7 +1338,7 @@ Room::_InitRegions()
 
 
 void
-Room::_LoadActors()
+RoomContainer::_LoadActors()
 {
 	std::cout << "Loading Actors...";
 	std::flush(std::cout);
@@ -1363,14 +1346,14 @@ Room::_LoadActors()
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
 		actor->SetArea(fArea->Name());
-		fActors.push_back(actor);
+		//fActors.push_back(actor);
 	}
 
 	// TODO: Check if it's okay
-	Party* party = Party::Get();
+	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		party->ActorAt(a)->SetArea(fArea->Name());
-		fActors.push_back(party->ActorAt(a));
+		//fActors.push_back(party->ActorAt(a));
 	}
 
 	std::cout << "Done!" << std::endl;
@@ -1378,7 +1361,7 @@ Room::_LoadActors()
 
 
 void
-Room::_InitDoors()
+RoomContainer::_InitDoors()
 {
 	std::cout << "Initializing Doors...";
 	std::flush(std::cout);
@@ -1398,7 +1381,7 @@ Room::_InitDoors()
 
 
 void
-Room::_InitContainers()
+RoomContainer::_InitContainers()
 {
 	std::cout << "Initializing Containers...";
 	std::flush(std::cout);
@@ -1413,25 +1396,24 @@ Room::_InitContainers()
 
 
 void
-Room::_UnloadArea()
+RoomContainer::_UnloadArea()
 {
-	if (fWed == NULL)
-		return;
+	assert(fWed != NULL);
 
 	if (fSelectedActor != NULL) {
-		fSelectedActor->Select(false);
-		fSelectedActor = NULL;
+		fSelectedActor.Target()->Select(false);
+		fSelectedActor.Unset();
 	}
 
 	if (fMouseOverObject != NULL)
-	    fMouseOverObject = NULL;
+	    fMouseOverObject.Unset();
 	
-	for (uint32 c = 0; c < fRegions.size(); c++)
-		delete fRegions[c];
+	//for (uint32 c = 0; c < fRegions.size(); c++)
+		//delete fRegions[c];
 	fRegions.clear();
 
-	for (uint32 c = 0; c < fContainers.size(); c++)
-		delete fContainers[c];
+	//for (uint32 c = 0; c < fContainers.size(); c++)
+		//delete fContainers[c];
 	fContainers.clear();
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)
@@ -1447,7 +1429,7 @@ Room::_UnloadArea()
 		if (!Party::Get()->HasActor(*actorIter))
 			delete *actorIter;
 	}*/
-	fActors.clear();
+	//fActors.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
 		delete fOverlays[c];
@@ -1477,10 +1459,9 @@ Room::_UnloadArea()
 
 
 void
-Room::_UnloadWorldMap()
+RoomContainer::_UnloadWorldMap()
 {
-	if (fWorldMap == NULL)
-		return;
+	assert(fWorldMap != NULL);
 
 	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
@@ -1496,3 +1477,12 @@ Room::_UnloadWorldMap()
 	gResManager->TryEmptyResourceCache();
 }
 
+
+void
+RoomContainer::_Unload()
+{
+	if (fWorldMap != NULL)
+		_UnloadWorldMap();
+	else if (fWed != NULL)
+		_UnloadArea();
+}

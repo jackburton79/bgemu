@@ -9,8 +9,6 @@
 
 #include <algorithm>
 
-static Party* sParty = NULL;
-
 
 Party::Party()
 {
@@ -19,16 +17,6 @@ Party::Party()
 
 Party::~Party()
 {
-}
-
-
-/* static */
-Party*
-Party::Get()
-{
-	if (sParty == NULL)
-		sParty = new Party();
-	return sParty;
 }
 
 

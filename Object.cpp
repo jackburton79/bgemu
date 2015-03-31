@@ -10,6 +10,7 @@
 #include "BCSResource.h"
 #include "Core.h"
 #include "CreResource.h"
+#include "Game.h"
 #include "IDSResource.h"
 #include "Object.h"
 #include "Party.h"
@@ -24,6 +25,7 @@
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, const char* scriptName)
 	:
+	Referenceable(0),
 	fName(name),
 	fScript(NULL),
 	fTicks(0),
@@ -51,7 +53,6 @@ Object::Object(const char* name, const char* scriptName)
 
 Object::~Object()
 {
-	Core::Get()->UnregisterObject(this);
 	std::list<Action*>::iterator i = fActions.begin();
 	for (; i != fActions.end(); i++)
 		delete *i;
@@ -523,7 +524,7 @@ Object::IsEnemyAlly(int ea) const
 	std::string eaString = IDTable::EnemyAllyAt(ea);
 
 	if (eaString == "PC") {
-		if (Party::Get()->HasActor(actor))
+		if (Game::Get()->Party()->HasActor(actor))
 			return true;
 	} else if (eaString == "GOODCUTOFF") {
 		if (cre->EnemyAlly() <= ea)
@@ -611,6 +612,7 @@ Object::AttackTarget(Object* target)
 void
 Object::LastReferenceReleased()
 {
+	std::cout << Name() << "::LastReferenceReleased()" << std::endl;
 	delete this;
 }
 
@@ -668,7 +670,7 @@ ScriptResults::LastAttacker() const
 void
 ScriptResults::SetAttackedBy(Object* object)
 {
-	fAttackers.push_back(Reference<Object>(object));
+	fAttackers.push_back(object);
 }
 
 	

@@ -148,12 +148,14 @@ Actor::_Init()
 		fActor->orientation = 0;
 	}
 
-	fPath = new PathFinder(PathFinder::kStep, Room::IsPointPassable);
+	fPath = new PathFinder(PathFinder::kStep, RoomContainer::IsPointPassable);
 }
 
 
 Actor::~Actor()
 {
+	Core::Get()->UnregisterObject(this);
+
 	if (fOwnsActor)
 		delete fActor;
 
@@ -574,7 +576,7 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 bool
 Actor::IsReachable(const IE::point& pt) const
 {
-	Room* room = Room::Get();
+	RoomContainer* room = RoomContainer::Get();
 	int32 state = room->PointSearch(pt);
 	switch (state) {
 		case 0:

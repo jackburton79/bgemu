@@ -4,6 +4,7 @@
 #include "Actor.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Game.h"
 #include "GUI.h"
 #include "IDSResource.h"
 #include "MveResource.h"
@@ -45,7 +46,7 @@ Core::Core()
 
 Core::~Core()
 {
-	Room::Delete();
+	RoomContainer::Delete();
 }
 
 
@@ -93,7 +94,9 @@ Core::Initialize(const char* path)
 		std::cout << "Baldur's Gate" << std::endl;
 	}
 
-	Room::Create();
+	Game::Get();
+	RoomContainer::Create();
+
 
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
@@ -103,6 +106,7 @@ Core::Initialize(const char* path)
 void
 Core::Destroy()
 {
+	std::cout << "Core::Destroy()" << std::endl;
 	delete sCore;
 }
 
@@ -122,7 +126,7 @@ Core::Game() const
 
 
 void
-Core::EnteredArea(Room* area, Script* script)
+Core::EnteredArea(RoomContainer* area, Script* script)
 {
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
@@ -230,10 +234,10 @@ Core::GetObject(Object* source, object_node* node) const
 	// TODO: Simplify, merge code.
 	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if ((*i).Target()->MatchNode(node)) {
+		if (i->Target()->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
-			return (*i).Target();
+			return i->Target();
 		}
 	}
 
@@ -247,8 +251,8 @@ Core::GetObject(const char* name) const
 {
 	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (!strcmp(name, (*i).Target()->Name())) {
-			return (*i).Target();
+		if (!strcmp(name, i->Target()->Name())) {
+			return i->Target();
 		}
 	}
 
@@ -262,7 +266,7 @@ Core::GetObject(const Region* region) const
 	// TODO: Only returns the first object!
 	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>((*i).Target());
+		Actor* actor = dynamic_cast<Actor*>(i->Target());
 		if (actor == NULL)
 			continue;
 		if (region->Contains(actor->Position()))
@@ -280,10 +284,10 @@ Core::GetNearestEnemyOf(const Object* object) const
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>((*i).Target());
+		Actor* actor = dynamic_cast<Actor*>(i->Target());
 		if (actor == NULL)
 			continue;
-		if ((*i).Target() != object && (*i).Target()->IsEnemyOf(object)) {
+		if (i->Target() != object && i->Target()->IsEnemyOf(object)) {
 			int distance = Distance(object, i->Target());
 			if (distance < minDistance) {
 				minDistance = distance;
@@ -357,7 +361,7 @@ Core::UpdateLogic(bool executeScripts)
 	Timer::UpdateGameTime();
 
 	// TODO: Not nice, should stop the scripts in some other way
-	if (strcmp(Room::Get()->AreaName().CString(), "WORLDMAP") == 0)
+	if (strcmp(RoomContainer::Get()->AreaName().CString(), "WORLDMAP") == 0)
 		return;
 
 	// TODO: Fix/Improve
@@ -368,7 +372,7 @@ Core::UpdateLogic(bool executeScripts)
 
 	fActiveActor = NULL;
 
-	_RemoveStaleObjects();
+	//_RemoveStaleObjects();
 }
 
 
@@ -495,10 +499,8 @@ Core::_RemoveStaleObjects()
 	while (i != fObjects.end()) {
 		if (i->Target()->IsStale()) {
 			if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {
-				Room::Get()->ActorExitedArea(actor);
-				//delete *i;
-			} else
-				//delete *i;
+				RoomContainer::Get()->ActorExitedArea(actor);
+			}
 			i = fObjects.erase(i);
 		} else
 			i++;

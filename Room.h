@@ -24,7 +24,7 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class Room : public Object, public Listener {
+class RoomContainer : public Object, public Listener {
 public:
 	static bool Create();
 	static void Delete();
@@ -90,11 +90,11 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-	static Room* Get();
+	static RoomContainer* Get();
 
 private:
-	Room();
-	~Room();
+	RoomContainer();
+	~RoomContainer();
 
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
@@ -132,6 +132,7 @@ private:
 
 	void _UnloadArea();
 	void _UnloadWorldMap();
+	void _Unload();
 
 	res_ref fName;
 	GFX::rect fViewPort; // The size of the screen area
@@ -160,13 +161,13 @@ private:
 
 	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
-	std::vector<Actor*> fActors;
+	//std::vector<Actor*> fActors;
 	std::vector<Animation*> fAnimations;
-	std::vector<Region*> fRegions;
-	std::vector<Container*> fContainers;
+	std::vector<Reference<Region> > fRegions;
+	std::vector<Reference<Container> > fContainers;
 
-	Actor* fSelectedActor;
-	Object* fMouseOverObject;
+	Reference<Actor> fSelectedActor;
+	Reference<Object> fMouseOverObject;
 
 	int fDrawSearchMap;
 	bool fDrawOverlays;

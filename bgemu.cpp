@@ -137,7 +137,7 @@ main(int argc, char **argv)
 		Core::Destroy();
 	}
 	
-	Room* map = Room::Get();
+	RoomContainer* map = RoomContainer::Get();
 	if (!map->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		GraphicsEngine::Destroy();
@@ -147,12 +147,16 @@ main(int argc, char **argv)
 	}
 
 	GUI* gui = GUI::Get();
-	/*GFX::rect consoleRect = { 0, 200, 1100, 484 };
+	GFX::rect consoleRect(
+			0,
+			0,
+			sScreenWidth,
+			sScreenHeight - 25);
 	OutputConsole* console = new OutputConsole(consoleRect);
 	consoleRect.h = 20;
-	consoleRect.y = 685;
+	consoleRect.y = sScreenHeight - 23;
 	InputConsole* inputConsole = new InputConsole(consoleRect);
-*/
+	inputConsole->Initialize();
 
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
@@ -182,12 +186,12 @@ main(int argc, char **argv)
 
 						break;
 					case SDL_KEYDOWN: {
-						/*if (event.key.keysym.sym == SDLK_ESCAPE) {
+						if (event.key.keysym.sym == SDLK_ESCAPE) {
 							console->Toggle();
 							inputConsole->Toggle();
 						} else if (console->IsActive())
 							inputConsole->HandleInput(event.key.keysym.sym);
-						else */{
+						else {
 							switch (event.key.keysym.sym) {
 								/*case SDLK_o:
 									map->ToggleOverlays();
@@ -253,8 +257,8 @@ main(int argc, char **argv)
 			// is moved
 			gui->MouseMoved(lastMouseX, lastMouseY);
 
-			/*console->Draw();
-			inputConsole->Draw();*/
+			console->Draw();
+			inputConsole->Draw();
 			Core::Get()->UpdateLogic(!sNoScripts);
 
 			GraphicsEngine::Get()->Flip();
