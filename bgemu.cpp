@@ -151,10 +151,10 @@ main(int argc, char **argv)
 			0,
 			0,
 			sScreenWidth,
-			sScreenHeight - 25);
+			sScreenHeight - 22);
 	OutputConsole* console = new OutputConsole(consoleRect);
 	consoleRect.h = 20;
-	consoleRect.y = sScreenHeight - 23;
+	consoleRect.y = sScreenHeight - 20;
 	InputConsole* inputConsole = new InputConsole(consoleRect);
 	inputConsole->Initialize();
 
