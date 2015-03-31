@@ -197,7 +197,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
-	//_LoadActors();
+	_LoadActors();
 	//_InitDoors();
 	//_InitContainers();
 
