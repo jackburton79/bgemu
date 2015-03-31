@@ -49,7 +49,7 @@ public:
 		if (object != NULL)
 			object->Print();
 		else
-			std::cout << "object " << argv << " not found." << std::endl;
+			std::cout << "object \"" << argv << "\" not found." << std::endl;
 	}
 };
 
