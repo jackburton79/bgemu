@@ -97,8 +97,15 @@ Actor::_Init()
 	fSelected = false;
 	fCurrentAnimation = NULL;
 
-	if (fCRE == NULL)
-		fCRE = gResManager->GetCRE(fActor->cre);
+	if (fCRE == NULL) {
+		// We need a new instance of the CRE file for every actor,
+		// since the state of the actor is written in there
+		CREResource* cre = gResManager->GetCRE(fActor->cre);
+		if (cre != NULL) {
+			fCRE = dynamic_cast<CREResource*>(cre->Clone());
+			gResManager->ReleaseResource(cre);
+		}
+	}
 
 	// TODO: Get all scripts ? or just the specific one ?
 

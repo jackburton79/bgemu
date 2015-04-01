@@ -13,6 +13,7 @@ public:
 	virtual ~Resource();
 	
 	virtual bool Load(Archive *archive, uint32 key);
+	virtual Resource* Clone();
 
 	virtual void Dump();
 	void DumpToFile(const char *fileName);
