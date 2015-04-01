@@ -8,7 +8,7 @@
 #ifndef __SCRIPTABLE_H
 #define __SCRIPTABLE_H
 
-#include "Object.h"
+#include "IETypes.h"
 #include "Reference.h"
 #include "Referenceable.h"
 #include "SupportDefs.h"
