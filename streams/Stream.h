@@ -65,6 +65,8 @@ public:
 			throw "ReadAt() exception";
 	};
 
+	virtual Stream* Clone() const;
+
 	void Dump();
 	void DumpToFile(const char *fileName);
 };

@@ -8,7 +8,6 @@ class MemoryStream : public Stream {
 public:
 	MemoryStream(const uint8 *data, size_t size, bool owns = false);
 	MemoryStream(size_t size); // Allocates a block of memory
-	
 	virtual ~MemoryStream();
 	
 	virtual ssize_t Read(void *dst, size_t size);
@@ -22,6 +21,8 @@ public:
 	
 	virtual void *Data() const;
 	
+	virtual MemoryStream* Clone() const;
+
 public:
 	uint8 *fData;
 	size_t fSize;

@@ -69,6 +69,16 @@ Stream::ReadByte()
 }
 
 
+/* virtual */
+Stream*
+Stream::Clone() const
+{
+	std::cerr << "Stream::Clone() not implemented!";
+	throw "Stream::Clone() not implemented!";
+	return NULL;
+}
+
+
 void
 Stream::Dump()
 {

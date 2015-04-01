@@ -129,3 +129,15 @@ MemoryStream::Data() const
 	return fData;
 }
 
+
+/* virtual */
+MemoryStream*
+MemoryStream::Clone() const
+{
+	std::cout << "MemoryStream::Clone()" << std::endl;
+	MemoryStream* newStream = new MemoryStream(Size());
+	newStream->fPosition = fPosition;
+	memcpy(newStream->fData, Data(), Size());
+	std::cout << "MemoryStream cloned okay" << std::endl;
+	return newStream;
+}
