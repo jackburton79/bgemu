@@ -33,7 +33,7 @@ BG2CharachterAnimationFactory::AnimationFor(int action, int o)
 	if (i != fAnimations.end())
 		return i->second;
 
-	std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
+	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
 
 	animation_description description;
 	description.bam_name = fBaseName;
