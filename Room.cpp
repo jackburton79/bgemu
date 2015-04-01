@@ -118,10 +118,10 @@ RoomContainer::StartLoop(bool executeScripts)
 			0,
 			0,
 			screenRect.w,
-			screenRect.h - 22);
+			screenRect.h - 21);
 	OutputConsole* console = new OutputConsole(consoleRect);
 	consoleRect.h = 20;
-	consoleRect.y = screenRect.h - 20;
+	consoleRect.y = screenRect.h - consoleRect.h;
 	InputConsole* inputConsole = new InputConsole(consoleRect);
 	inputConsole->Initialize();
 
