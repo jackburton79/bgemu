@@ -16,8 +16,10 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "IDSResource.h"
+#include "InputConsole.h"
 #include "Label.h"
 #include "MOSResource.h"
+#include "OutputConsole.h"
 #include "Party.h"
 #include "Polygon.h"
 #include "RectUtils.h"
@@ -28,6 +30,7 @@
 #include "TextArea.h"
 #include "TileCell.h"
 #include "TisResource.h"
+#include "Timer.h"
 #include "TLKResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
@@ -36,6 +39,8 @@
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
+
+#include <SDL.h>
 
 static RoomContainer* sCurrentRoom = NULL;
 
@@ -96,6 +101,143 @@ RoomContainer::Delete()
 	std::cout << "Room::Delete()" << std::endl;
 	delete sCurrentRoom;
 	sCurrentRoom = NULL;	
+}
+
+
+void
+RoomContainer::StartLoop(bool executeScripts)
+{
+	uint16 lastMouseX = 0;
+	uint16 lastMouseY = 0;
+
+	SDL_EnableUNICODE(1);
+
+	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
+	GUI* gui = GUI::Get();
+	GFX::rect consoleRect(
+			0,
+			0,
+			screenRect.w,
+			screenRect.h - 22);
+	OutputConsole* console = new OutputConsole(consoleRect);
+	consoleRect.h = 20;
+	consoleRect.y = screenRect.h - 20;
+	InputConsole* inputConsole = new InputConsole(consoleRect);
+	inputConsole->Initialize();
+
+	SDL_Event event;
+	bool quitting = false;
+	while (!quitting) {
+		while (SDL_PollEvent(&event) != 0) {
+			switch (event.type) {
+				case SDL_MOUSEBUTTONDOWN:
+					//downMouseX = event.button.x;
+					//downMouseY = event.button.y;
+					gui->MouseDown(event.button.x, event.button.y);
+					break;
+				case SDL_MOUSEBUTTONUP:
+					/*if (downMouseX == event.button.x
+						&& downMouseY == event.button.y)
+						map->Clicked(event.button.x, event.button.y);*/
+					gui->MouseUp(event.button.x, event.button.y);
+
+					break;
+				case SDL_MOUSEMOTION:
+					lastMouseX = event.motion.x;
+					lastMouseY = event.motion.y;
+
+					break;
+				case SDL_KEYDOWN: {
+					if (event.key.keysym.sym == SDLK_ESCAPE) {
+						console->Toggle();
+						inputConsole->Toggle();
+					} else if (console->IsActive()) {
+						if (event.key.keysym.unicode < 0x80 && event.key.keysym.unicode > 0) {
+							uint8 key = event.key.keysym.sym;
+							if (event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT))
+								key -= 32;
+							inputConsole->HandleInput(key);
+						}
+					}
+					else {
+						switch (event.key.keysym.sym) {
+							/*case SDLK_o:
+								map->ToggleOverlays();
+								break;
+							*/
+							// TODO: Move to GUI class
+							case SDLK_h:
+								ToggleGUI();
+								break;
+							case SDLK_a:
+								ToggleAnimations();
+								break;
+							case SDLK_p:
+								TogglePolygons();
+								break;
+							case SDLK_w:
+								LoadWorldMap();
+								break;
+							case SDLK_s:
+								ToggleSearchMap();
+								break;
+							case SDLK_n:
+								ToggleDayNight();
+								break;
+							case SDLK_q:
+								quitting = true;
+								break;
+							case SDLK_1:
+								GUI::Get()->ToggleWindow(1);
+								break;
+							case SDLK_2:
+								GUI::Get()->ToggleWindow(2);
+								break;
+							case SDLK_3:
+								GUI::Get()->ToggleWindow(3);
+								break;
+							case SDLK_4:
+								GUI::Get()->ToggleWindow(4);
+								break;
+							case SDLK_SPACE:
+								Core::Get()->TogglePause();
+								break;
+							default:
+								break;
+						}
+					}
+				}
+				break;
+
+				case SDL_QUIT:
+					quitting = true;
+					break;
+				default:
+					break;
+			}
+		}
+
+		// TODO: When MouseOver() doesn't draw anymore, reorder
+		// these three calls. Draw() should be the last.
+		gui->Draw();
+
+		// TODO: needs to be called at every loop, not only when the mouse
+		// is moved
+		gui->MouseMoved(lastMouseX, lastMouseY);
+
+		console->Draw();
+		inputConsole->Draw();
+		Core::Get()->UpdateLogic(executeScripts);
+
+		GraphicsEngine::Get()->Flip();
+		if (inputConsole->IsActive())
+			Timer::Wait(25);
+		else
+			Timer::Wait(50);
+	}
+
+	delete console;
+	delete inputConsole;
 }
 
 
