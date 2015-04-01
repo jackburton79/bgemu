@@ -340,8 +340,8 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	_InitAnimations();
 	_InitRegions();
 	_LoadActors();
-	//_InitDoors();
-	//_InitContainers();
+	_InitDoors();
+	_InitContainers();
 
 	_InitBitmap(fViewPort);
 
