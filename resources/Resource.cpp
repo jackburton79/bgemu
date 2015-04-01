@@ -121,12 +121,11 @@ Resource::Load(Archive *archive, uint32 key)
 Resource*
 Resource::Clone()
 {
-	std::cout << "Resource::Clone()" << std::endl;
 	Resource* newResource = Resource::Create(Name(), Type());
 	newResource->fKey = fKey;
 	newResource->fData = fData->Clone();
 	newResource->Acquire();
-	std::cout << "Resource cloned okay" << std::endl;
+
 	return newResource;
 }
 
