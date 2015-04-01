@@ -106,9 +106,9 @@ AnimationFactory::AnimationFor(int action, int o)
 	if (i != fAnimations.end())
 		return i->second;
 
-	std::cout << "Missing animation for ";
-	std::cout << fBaseName << ", ID: ";
-	std::cout << std::hex << fID << std::endl;
+	std::cerr << "Missing animation for ";
+	std::cerr << fBaseName << ", ID: ";
+	std::cerr << std::hex << fID << std::endl;
 
 	return NULL;
 }
