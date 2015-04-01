@@ -1,12 +1,12 @@
 /*
- * Scriptable.h
+ * Object.h
  *
  *  Created on: 12/lug/2012
  *      Author: stefano
  */
 
-#ifndef __SCRIPTABLE_H
-#define __SCRIPTABLE_H
+#ifndef __OBJECT_H
+#define __OBJECT_H
 
 #include "IETypes.h"
 #include "Reference.h"
@@ -160,4 +160,4 @@ private:
 	bool fStale;
 };
 
-#endif // __SCRIPTABLE_H
+#endif // __OBJECT_H
