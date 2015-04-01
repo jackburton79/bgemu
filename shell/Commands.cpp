@@ -7,6 +7,7 @@
 
 #include "Commands.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "InputConsole.h"
 #include "ResManager.h"
 
@@ -32,6 +33,10 @@ public:
 		Core::Get()->GetObjectList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
 			std::cout << i->Target()->Name();
+			Actor* actor = dynamic_cast<Actor*>(i->Target());
+			if (actor != NULL) {
+				std::cout << " (" << actor->CRE()->GlobalActorEnum() << ")";
+			}
 			std::cout << std::endl;
 		}
 	}
