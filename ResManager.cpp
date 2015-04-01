@@ -93,7 +93,6 @@ ResourceManager::~ResourceManager()
 	gResManager->ReleaseResource(sAlignment);
 	gResManager->ReleaseResource(sDialogs);
 
-
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		delete iter->second;
@@ -104,7 +103,7 @@ ResourceManager::~ResourceManager()
 		delete *i;	
 	}
 
-	std::list<Resource *>::iterator it;
+	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
 		std::cout << "Deleting " << (*it)->Name();
 		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
@@ -389,7 +388,7 @@ ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
 		if (resource->Release()) {
-			//std::cout << "Released and deleted " << resource->Name() << std::endl;
+			//std::cerr << "Released and deleted " << resource->Name() << std::endl;
 			delete resource;
 		}
 	}
@@ -739,6 +738,9 @@ IDTable::AniSndAt(uint32 i)
 		if (sAniSnd == NULL) {
 			// No AniSnd.ids file, let's use our own.
 			sAniSnd = GeneratedIDS::CreateIDSResource("ANISND");
+			// Acquire a reference in this case, since Resources starts
+			// with a refcount of 0
+			sAniSnd->Acquire();
 		}
 	}
 	return sAniSnd->StringForID(i);
