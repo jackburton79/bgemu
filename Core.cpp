@@ -261,6 +261,20 @@ Core::GetObject(const char* name) const
 
 
 Object*
+Core::GetObject(uint16 globalEnum) const
+{
+	std::list<Reference<Object> >::const_iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		Actor* actor = dynamic_cast<Actor*>(i->Target());
+		if (actor != NULL && actor->CRE()->GlobalActorEnum() == globalEnum)
+			return i->Target();
+	}
+
+	return NULL;
+}
+
+
+Object*
 Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!

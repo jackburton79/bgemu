@@ -49,6 +49,7 @@ public:
 
 	Object* GetObject(Object* source, object_node* node) const;
 	Object* GetObject(const char* name) const;
+	Object* GetObject(uint16 globalEnum) const;
 	Object* GetObject(const Region* region) const;
 	Object* GetNearestEnemyOf(const Object* object) const;
 
