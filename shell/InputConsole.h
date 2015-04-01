@@ -25,6 +25,8 @@ public:
 private:
 	void _ExecuteCommand(std::string str);
 	ShellCommand* _FindCommand(std::string cmd);
+	std::string _FindCompleteCommand(std::string partialCommand);
+
 
 	std::string fBuffer;
 

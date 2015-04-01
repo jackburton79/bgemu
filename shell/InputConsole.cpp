@@ -57,6 +57,18 @@ InputConsole::HandleInput(uint8 c)
 				fBuffer.resize(fBuffer.length() - 1);
 			_ParseCharacter(c);
 			break;
+		case SDLK_TAB:
+		{
+			size_t pos = fBuffer.size();
+			std::string fullCommand = _FindCompleteCommand(fBuffer);
+			fBuffer = fullCommand;
+			while (pos < fBuffer.length()) {
+				_ParseCharacter(fBuffer[pos]);
+				pos++;
+			}
+			break;
+		}
+
 		default:
 			fBuffer.push_back(c);
 			_ParseCharacter(c);
@@ -98,4 +110,23 @@ InputConsole::_FindCommand(std::string cmd)
 	}
 
 	return NULL;
+}
+
+
+std::string
+InputConsole::_FindCompleteCommand(std::string partialCommand)
+{
+	std::cerr << "_FindCompleteCommand(): ";
+	std::cerr << partialCommand << std::endl;
+	std::list<ShellCommand*>::iterator i;
+	for (i = fCommands.begin();
+			i != fCommands.end(); i++) {
+		std::string fullCmd = (*i)->Command();
+		if (fullCmd.compare(0, partialCommand.length(),
+				partialCommand) == 0) {
+			std::cerr << "Found complete command " << fullCmd << std::endl;
+			return fullCmd;
+		}
+	}
+	return partialCommand;
 }
