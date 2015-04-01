@@ -25,7 +25,7 @@
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, const char* scriptName)
 	:
-	Referenceable(0),
+	Referenceable(1),
 	fName(name),
 	fScript(NULL),
 	fTicks(0),
