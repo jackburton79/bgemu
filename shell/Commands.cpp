@@ -50,7 +50,14 @@ public:
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc)
 	{
-		Object* object = Core::Get()->GetObject(argv);
+		std::istringstream stringStream(argv);
+		uint32 num;
+		Object* object = NULL;
+		if ((stringStream >> num).fail())
+			object = Core::Get()->GetObject(argv);
+		else
+			object = Core::Get()->GetObject(num);
+
 		if (object != NULL)
 			object->Print();
 		else
