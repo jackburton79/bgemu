@@ -1485,17 +1485,17 @@ RoomContainer::_LoadActors()
 	std::cout << "Loading Actors...";
 	std::flush(std::cout);
 
-	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		Actor* actor = fArea->GetActorAt(i);
-		actor->SetArea(fArea->Name());
-		Core::Get()->RegisterObject(actor);
-	}
-
 	// TODO: Check if it's okay
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		party->ActorAt(a)->SetArea(fArea->Name());
 		Core::Get()->RegisterObject(party->ActorAt(a));
+	}
+
+	for (uint16 i = 0; i < fArea->CountActors(); i++) {
+		Actor* actor = fArea->GetActorAt(i);
+		actor->SetArea(fArea->Name());
+		Core::Get()->RegisterObject(actor);
 	}
 
 	std::cout << "Done!" << std::endl;
