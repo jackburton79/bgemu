@@ -20,14 +20,9 @@
 
 class ListObjectsCommand : public ShellCommand {
 public:
-	ListObjectsCommand()
-		:
-		ShellCommand("list-objects")
-	{
-	}
+	ListObjectsCommand() : ShellCommand("list-objects") {}
 	virtual ~ListObjectsCommand() {};
-	virtual void operator()(const char* argv, int argc)
-	{
+	virtual void operator()(const char* argv, int argc) {
 		std::list<Reference<Object> > objects;
 		std::list<Reference<Object> >::iterator i;
 		Core::Get()->GetObjectList(objects);
@@ -44,12 +39,12 @@ public:
 };
 
 
+// PrintObjectCommand
 class PrintObjectCommand : public ShellCommand {
 public:
 	PrintObjectCommand() : ShellCommand("print-object") {};
 	virtual ~PrintObjectCommand() {};
-	virtual void operator()(const char* argv, int argc)
-	{
+	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		uint32 num;
 		Object* object = NULL;
@@ -66,9 +61,25 @@ public:
 };
 
 
+class ListResourcesCommand : public ShellCommand {
+public:
+	ListResourcesCommand() : ShellCommand("list-resources") {};
+	virtual ~ListResourcesCommand() {};
+	virtual void operator()(const char* argv, int argc) {
+		StringList stringList;
+		gResManager->GetCachedResourcesList(stringList);
+		StringListIterator i;
+		for (i = stringList.begin(); i != stringList.end(); i++) {
+			std::cout << (*i) << std::endl;
+		}
+	}
+};
+
+
 void
 AddCommands(InputConsole* console)
 {
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new PrintObjectCommand());
+	console->AddCommand(new ListResourcesCommand());
 }
