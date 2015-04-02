@@ -58,6 +58,8 @@ public:
 	Resource *GetResource(const char* fullName);
 	Resource *GetResource(const res_ref &name, uint16 type);
 
+	void GetCachedResourcesList(StringList& list);
+
 	void ReleaseResource(Resource *resource);
 	void TryEmptyResourceCache(bool force = false);
 	

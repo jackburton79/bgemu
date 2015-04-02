@@ -384,6 +384,20 @@ ResourceManager::GetWMAP(const res_ref& name)
 
 
 void
+ResourceManager::GetCachedResourcesList(StringList& list)
+{
+	std::list<Resource*>::iterator iter;
+	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
+		std::string resource = (*iter)->Name();
+		resource.append("(");
+		resource.append(strresource((*iter)->Type()));
+		resource.append(")");
+		list.push_back(resource);
+	}
+}
+
+
+void
 ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
