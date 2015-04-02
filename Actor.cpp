@@ -112,8 +112,6 @@ Actor::_Init()
 	if (fCRE == NULL)
 		throw "error!!!";
 
-	Core::Get()->RegisterObject(this);
-
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
 
 	/*std::cout << "colors:" << std::endl << std::dec;
@@ -161,8 +159,6 @@ Actor::_Init()
 
 Actor::~Actor()
 {
-	Core::Get()->UnregisterObject(this);
-
 	if (fOwnsActor)
 		delete fActor;
 

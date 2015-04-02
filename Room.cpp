@@ -1488,14 +1488,14 @@ RoomContainer::_LoadActors()
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
 		actor->SetArea(fArea->Name());
-		//fActors.push_back(actor);
+		Core::Get()->RegisterObject(actor);
 	}
 
 	// TODO: Check if it's okay
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		party->ActorAt(a)->SetArea(fArea->Name());
-		//fActors.push_back(party->ActorAt(a));
+		Core::Get()->RegisterObject(party->ActorAt(a));
 	}
 
 	std::cout << "Done!" << std::endl;
@@ -1550,6 +1550,8 @@ RoomContainer::_UnloadArea()
 	if (fMouseOverObject != NULL)
 	    fMouseOverObject.Unset();
 	
+	Core::Get()->ExitingArea(this);
+
 	//for (uint32 c = 0; c < fRegions.size(); c++)
 		//delete fRegions[c];
 	fRegions.clear();
@@ -1565,13 +1567,6 @@ RoomContainer::_UnloadArea()
 	for (uint32 c = 0; c < fTileCells.size(); c++)
 		delete fTileCells[c];
 	fTileCells.clear();
-
-	/*std::vector<Actor*>::const_iterator actorIter;
-	for (actorIter = fActors.begin(); actorIter != fActors.end(); actorIter++) {
-		if (!Party::Get()->HasActor(*actorIter))
-			delete *actorIter;
-	}*/
-	//fActors.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
 		delete fOverlays[c];

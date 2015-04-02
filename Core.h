@@ -43,6 +43,7 @@ public:
 	uint32 Game() const;
 
 	void EnteredArea(RoomContainer* area, Script* script);
+	void ExitingArea(RoomContainer* area);
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);

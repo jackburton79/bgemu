@@ -146,6 +146,17 @@ Core::EnteredArea(RoomContainer* area, Script* script)
 
 
 void
+Core::ExitingArea(RoomContainer* area)
+{
+	std::list<Reference<Object> >::const_iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		UnregisterObject(i->Target());
+	}
+	fObjects.clear();
+}
+
+
+void
 Core::SetVariable(const char* name, int32 value)
 {
 	std::cout << "SetVariable(" << name << ", " << value;
@@ -174,10 +185,13 @@ Core::RegisterObject(Object* object)
 }
 
 
+// Called when an object is no longer in the active area
+// Also deletes the object
 void
 Core::UnregisterObject(Object* object)
 {
-	fObjects.remove(object);
+	// TODO: Save the object state
+	object->Release();
 }
 
 
