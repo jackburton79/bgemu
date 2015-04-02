@@ -32,8 +32,8 @@ SimpleAnimationFactory::AnimationFor(int action, int o)
 	if (i != fAnimations.end())
 		return i->second;
 
-	std::cout << "SimpleAnimationFactory::AnimationFor(";
-	std::cout << action << ", " << o << ")" << std::endl;
+	//std::cout << "SimpleAnimationFactory::AnimationFor(";
+	//std::cout << action << ", " << o << ")" << std::endl;
 
 	animation_description description;
 	description.bam_name = fBaseName;
