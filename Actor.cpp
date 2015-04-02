@@ -173,6 +173,15 @@ Actor::~Actor()
 }
 
 
+// Returns true if an actor was just instantiated
+// false if it was already existing (loaded from save)
+bool
+Actor::IsNew() const
+{
+	return fCRE != NULL && fCRE->GlobalActorEnum() != 0;
+}
+
+
 const ::Bitmap*
 Actor::Bitmap() const
 {
@@ -235,6 +244,13 @@ void
 Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = fPath->SetPoints(fActor->position, point);
+}
+
+
+bool
+Actor::Spawned() const
+{
+	return fActor->spawned != 0;
 }
 
 

@@ -28,6 +28,8 @@ public:
 
 	CREResource *CRE() const;
 
+	bool IsNew() const;
+
 	const ::Bitmap* Bitmap() const;
 	GFX::rect Frame() const;
 
@@ -39,6 +41,8 @@ public:
 
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
+
+	bool Spawned() const;
 
 	uint32 NumTimesTalkedTo() const;
 

@@ -180,7 +180,8 @@ Core::RegisterObject(Object* object)
 {
 	fObjects.push_back(object);
 	if (Actor* actor = dynamic_cast<Actor*>(object)) {
-		actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
+		if (actor->IsNew())
+			actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
 	}
 }
 
