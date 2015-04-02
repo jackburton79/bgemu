@@ -22,4 +22,10 @@ typedef signed char sint8;
 
 #include <stdio.h>
 
+#include <string>
+#include <vector>
+
+typedef std::vector<std::string> StringList;
+typedef std::vector<std::string>::iterator StringListIterator;
+
 #endif /* __SUPPORTDEFS_H */
