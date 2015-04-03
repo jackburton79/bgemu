@@ -117,15 +117,13 @@ InputConsole::_FindCommand(std::string cmd)
 std::string
 InputConsole::_FindCompleteCommand(std::string partialCommand)
 {
-	std::cerr << "_FindCompleteCommand(): ";
-	std::cerr << partialCommand << std::endl;
+	// TODO: Returns only the first matching command
 	std::list<ShellCommand*>::iterator i;
 	for (i = fCommands.begin();
 			i != fCommands.end(); i++) {
 		std::string fullCmd = (*i)->Command();
 		if (fullCmd.compare(0, partialCommand.length(),
 				partialCommand) == 0) {
-			std::cerr << "Found complete command " << fullCmd << std::endl;
 			return fullCmd;
 		}
 	}
