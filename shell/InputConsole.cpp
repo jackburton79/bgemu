@@ -84,7 +84,8 @@ InputConsole::_ExecuteCommand(std::string line)
 	cmdStream >> command;
 	std::string args;
 	try {
-		cmdStream.seekg(cmdStream.tellg() + 1);
+		size_t pos = cmdStream.tellg();
+		cmdStream.seekg(pos + 1);
 		args = cmdStream.str().substr(cmdStream.tellg());
 	} catch (...) {
 
