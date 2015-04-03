@@ -32,6 +32,7 @@ gui/Slider.cpp \
 gui/TextArea.cpp \
 gui/TextEdit.cpp \
 gui/Window.cpp \
+Game.cpp \
 IETypes.cpp \
 Listener.cpp \
 MovieDecoder.cpp \
@@ -64,13 +65,11 @@ resources/WedResource.cpp \
 resources/WMAPResource.cpp \
 Room.cpp \
 Script.cpp \
-shell/Command.cpp \
+shell/Commands.cpp \
 shell/Console.cpp \
-shell/DoorContext.cpp \
 shell/InputConsole.cpp \
 shell/OutputConsole.cpp \
-shell/ResourceContext.cpp \
-shell/ShellContext.cpp \
+shell/ShellCommand.cpp \
 SimpleAnimationFactory.cpp \
 SplitAnimationFactory.cpp \
 SoundEngine.cpp \
