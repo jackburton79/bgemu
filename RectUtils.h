@@ -2,7 +2,9 @@
 #define __RECTUTILS_H
 
 #include "Bitmap.h"
+#include "GraphicsDefs.h"
 #include "IETypes.h"
+
 
 static inline GFX::rect
 offset_rect(const GFX::rect &rect, sint16 x, sint16 y)

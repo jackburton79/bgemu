@@ -2,7 +2,7 @@
 #define __GRAPHICS_ENGINE_H
 
 #include "Bitmap.h"
-#include "IETypes.h"
+#include "GraphicsDefs.h"
 
 #include <vector>
 

@@ -2,6 +2,7 @@
 #define __ACTOR_H
 
 #include "Bitmap.h"
+#include "GraphicsDefs.h"
 #include "IETypes.h"
 #include "Object.h"
 

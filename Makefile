@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igui -Ishell -Iarchives -Isupport
+CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igraphics -Igui -Ishell -Iarchives -Isupport
 EXECUTABLE=BGEmu
 LDFLAGS=-lz `sdl-config --libs`
 
@@ -15,13 +15,15 @@ AnimationFactory.cpp \
 bgemu.cpp \
 BGCharachterAnimationFactory.cpp \
 BG2CharachterAnimationFactory.cpp \
-Bitmap.cpp \
 Container.cpp \
 Core.cpp \
 Door.cpp \
 EncryptedStream.cpp \
 Graphics.cpp \
-GraphicsEngine.cpp \
+graphics/Bitmap.cpp \
+graphics/GraphicsEngine.cpp \
+graphics/Polygon.cpp \
+graphics/GraphicsDefs.cpp \
 gui/BackWindow.cpp \
 gui/Button.cpp \
 gui/Control.cpp \
@@ -41,7 +43,7 @@ Object.cpp \
 Parsing.cpp \
 Party.cpp \
 PathFind.cpp \
-Polygon.cpp \
+
 Region.cpp \
 ResManager.cpp \
 resources/2DAResource.cpp \

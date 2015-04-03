@@ -6,6 +6,8 @@
  */
 
 #include "Button.h"
+#include "GraphicsDefs.h"
+
 #include "Control.h"
 #include "GUI.h"
 #include "Label.h"

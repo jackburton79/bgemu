@@ -1,7 +1,8 @@
 #ifndef __POLYGON_H
 #define __POLYGON_H
 
-#include "Bitmap.h" // TODO: Move GFX::Rect away from here
+#include "Bitmap.h"
+#include "GraphicsDefs.h"
 #include "IETypes.h"
 
 

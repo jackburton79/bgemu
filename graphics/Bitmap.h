@@ -13,33 +13,12 @@
 
 struct SDL_Surface;
 
-struct Color {
-	uint8 r;
-	uint8 g;
-	uint8 b;
-	uint8 a;
-};
-
-
-struct Palette {
-	Color colors[256];
-};
-
 namespace GFX {
-
-struct rect {
-	sint16 x;
-	sint16 y;
-	uint16 w;
-	uint16 h;
-
-	rect();
-	rect(sint16 x, sint16 y, uint16 width, uint16 height);
-	void Print() const;
+	struct rect;
 };
 
-};
-
+class Palette;
+class Color;
 class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
