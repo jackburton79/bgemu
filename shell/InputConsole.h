@@ -21,12 +21,13 @@ public:
 
 	void Initialize();
 	void AddCommand(ShellCommand* command);
+	void ShowHelp();
 	void HandleInput(uint8 key);
+
 private:
 	void _ExecuteCommand(std::string str);
 	ShellCommand* _FindCommand(std::string cmd);
 	std::string _FindCompleteCommand(std::string partialCommand);
-
 
 	std::string fBuffer;
 

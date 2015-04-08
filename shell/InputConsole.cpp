@@ -12,6 +12,7 @@
 
 #include "SDL.h"
 
+
 InputConsole::InputConsole(const GFX::rect& rect)
 	:
 	Console(rect)
@@ -33,6 +34,19 @@ void
 InputConsole::Initialize()
 {
 	AddCommands(this);
+}
+
+
+void
+InputConsole::ShowHelp()
+{
+	std::list<ShellCommand*>::iterator i;
+	fCommands.sort();
+	for (i = fCommands.begin();
+			i != fCommands.end(); i++) {
+		ShellCommand* shellCommand = *i;
+		std::cout << shellCommand->Command() << std::endl;
+	}
 }
 
 
@@ -94,8 +108,10 @@ InputConsole::_ExecuteCommand(std::string line)
 	ShellCommand* shellCommand = _FindCommand(command);
 	if (shellCommand != NULL)
 		(*shellCommand)(args.c_str(), 1);
-	else
+	else {
 		std::cout << "Invalid Command!" << std::endl;
+		ShowHelp();
+	}
 }
 
 
