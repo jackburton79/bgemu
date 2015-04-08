@@ -12,6 +12,14 @@
 
 #include "SDL.h"
 
+#include <string>
+
+struct CommandSorter {
+	bool operator()(ShellCommand* a, ShellCommand* b) {
+		return a->Command() < b->Command();
+	}
+};
+
 
 InputConsole::InputConsole(const GFX::rect& rect)
 	:
@@ -41,7 +49,8 @@ void
 InputConsole::ShowHelp()
 {
 	std::list<ShellCommand*>::iterator i;
-	fCommands.sort();
+	CommandSorter sorter;
+	fCommands.sort(sorter);
 	for (i = fCommands.begin();
 			i != fCommands.end(); i++) {
 		ShellCommand* shellCommand = *i;
