@@ -62,14 +62,14 @@ Polygon::SetFlags(const uint8 flags)
 
 
 bool
-Polygon::AddPoints(IE::point *points, int32 num)
+Polygon::AddPoints(GFX::point *points, int32 num)
 {
-	void *newPoints = realloc(fPoints, (fCount + num) * sizeof(IE::point));
+	void *newPoints = realloc(fPoints, (fCount + num) * sizeof(GFX::point));
 	if (newPoints == NULL)
 		return false;
 
-	fPoints = (IE::point*)newPoints;
-	memcpy(fPoints + fCount, points, num * sizeof(IE::point));
+	fPoints = (GFX::point*)newPoints;
+	memcpy(fPoints + fCount, points, num * sizeof(GFX::point));
 	fCount += num;
 
 	// Recalculate Bounds
@@ -79,7 +79,7 @@ Polygon::AddPoints(IE::point *points, int32 num)
 	sint16 right = fFrame.x + fFrame.w;
 	sint16 bottom = fFrame.y + fFrame.h;
 	for (int32 v = 0; v < fCount; v++) {
-		const IE::point& point = fPoints[v];
+		const GFX::point& point = fPoints[v];
 		if (point.x < left)
 			left = point.x;
 		else if (point.x > right)
@@ -99,6 +99,14 @@ Polygon::AddPoints(IE::point *points, int32 num)
 }
 
 
+bool
+Polygon::AddPoint(const int16 x, const int16 y)
+{
+	GFX::point pt = {x, y};
+	return AddPoints(&pt, 1);
+}
+
+
 int32
 Polygon::CountPoints() const
 {
@@ -106,14 +114,7 @@ Polygon::CountPoints() const
 }
 
 
-IE::point*
-Polygon::Points() const
-{
-	return fPoints;
-}
-
-
-IE::point
+GFX::point
 Polygon::PointAt(int32 i) const
 {
 	if (i < 0 || i >= fCount)
@@ -134,9 +135,9 @@ Polygon::OffsetBy(int32 x, int32 y)
 
 
 bool
-Polygon::Contains(const IE::point& point) const
+Polygon::Contains(const int16 x, const int16 y) const
 {
-	return rect_contains(fFrame, point);
+	return rect_contains(fFrame, x, y);
 }
 
 
@@ -147,8 +148,8 @@ Polygon::operator=(const Polygon& polygon)
 	fCount = polygon.fCount;
 	fFlags = polygon.fFlags;
 	if (fCount > 0) {
-		fPoints = (IE::point*)malloc(fCount * sizeof(IE::point));
-		memcpy(fPoints, polygon.fPoints, fCount * sizeof(IE::point));
+		fPoints = (GFX::point*)malloc(fCount * sizeof(GFX::point));
+		memcpy(fPoints, polygon.fPoints, fCount * sizeof(GFX::point));
 	}
 	fFrame = polygon.fFrame;
 	return *this;

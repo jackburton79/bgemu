@@ -24,6 +24,11 @@ struct Palette {
 	Color colors[256];
 };
 
+struct point {
+	int16 x;
+	int16 y;
+};
+
 struct rect {
 	sint16 x;
 	sint16 y;

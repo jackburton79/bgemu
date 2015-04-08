@@ -206,7 +206,7 @@ ARAResource::GetRegionAt(uint16 index)
 	for (uint16 v = 0; v < fRegions[index].vertex_count; v++) {
 		IE::point vertex;
 		fData->Read(vertex);
-		polygon.AddPoints(&vertex, 1);
+		polygon.AddPoint(vertex.x, vertex.y);
 	}
 
 	return region;
@@ -241,7 +241,7 @@ ARAResource::GetContainerAt(uint16 index)
 	for (uint16 v = 0; v < fContainers[index].vertices_count; v++) {
 		IE::point vertex;
 		fData->Read(vertex);
-		polygon.AddPoints(&vertex, 1);
+		polygon.AddPoint(vertex.x, vertex.y);
 	}
 	return container;
 }
@@ -342,7 +342,7 @@ ARAResource::_LoadDoors()
 		for (uint16 c = 0; c < fDoors[i].closed_vertices_count; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].closed_vertex_index) * sizeof(IE::point), vertex);
-			closedPolygon.AddPoints(&vertex, 1);
+			closedPolygon.AddPoint(vertex.x, vertex.y);
 		}
 		
 		//closedPolygon.Print();
@@ -351,7 +351,7 @@ ARAResource::_LoadDoors()
 		for (uint16 c = 0; c < fDoors[i].open_vertex_index; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
-			openPolygon.AddPoints(&vertex, 1);
+			openPolygon.AddPoint(vertex.x, vertex.y);
 		}
 		//openPolygon.Print();
 	}

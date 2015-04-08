@@ -36,6 +36,16 @@ offset_point(const IE::point &point, sint16 x, sint16 y)
 }
 
 
+static inline GFX::point
+offset_point(const GFX::point &point, sint16 x, sint16 y)
+{
+	GFX::point newPoint = point;
+	newPoint.x += x;
+	newPoint.y += y;
+	return newPoint;
+}
+
+
 static inline bool
 rects_intersect(const GFX::rect &rectA, const GFX::rect &rectB)
 {
@@ -51,6 +61,16 @@ rect_contains(const GFX::rect& rect, const IE::point& point)
 {
 	if (point.x >= rect.x && point.x <= rect.x + rect.w
 		&& point.y >= rect.y && point.y <= rect.y + rect.h)
+		return true;
+	return false;
+}
+
+
+static inline bool
+rect_contains(const GFX::rect& rect, const int16 x, const int16 y)
+{
+	if (x >= rect.x && x <= rect.x + rect.w
+		&& y >= rect.y && y <= rect.y + rect.h)
 		return true;
 	return false;
 }

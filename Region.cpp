@@ -49,7 +49,7 @@ Region::Position() const
 bool
 Region::Contains(IE::point point) const
 {
-	return fPolygon.Contains(point);
+	return fPolygon.Contains(point.x, point.y);
 }
 
 

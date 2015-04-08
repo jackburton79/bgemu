@@ -3,8 +3,6 @@
 
 #include "Bitmap.h"
 #include "GraphicsDefs.h"
-#include "IETypes.h"
-
 
 class Polygon {
 public:
@@ -19,21 +17,22 @@ public:
 	uint8 Flags() const;
 	void SetFlags(const uint8 flags);
 
-	bool AddPoints(IE::point *points, int32 count);
-	IE::point *Points() const;
-	IE::point PointAt(int32 i) const;
+	bool AddPoints(GFX::point *points, int32 count);
+	bool AddPoint(const int16 x, const int16 y);
+
+	GFX::point PointAt(int32 i) const;
 	int32 CountPoints() const;
 
 	void OffsetBy(int32 x, int32 y);
 
-	bool Contains(const IE::point& point) const;
+	bool Contains(const int16 x, const int16 y) const;
 
 	void Print() const;
 
 	Polygon& operator=(const Polygon&);
 
 private:
-	IE::point *fPoints;
+	GFX::point *fPoints;
 	int32 fCount;
 	GFX::rect fFrame;
 	uint8 fFlags;

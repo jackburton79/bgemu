@@ -216,7 +216,7 @@ WEDResource::_LoadPolygons()
 		for (int i = 0; i < polygon.vertices_count; i++) {
 			IE::point vertex;
 			fData->Read(vertex);
-			fPolygons[p].AddPoints(&vertex, 1);
+			fPolygons[p].AddPoint(vertex.x, vertex.y);
 		}
 	}
 }

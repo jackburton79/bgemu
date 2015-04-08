@@ -205,8 +205,8 @@ Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color)
 		return;
 
 	for (int32 c = 0; c < numPoints; c++) {
-		const IE::point &pt = polygon.PointAt(c);
-		const IE::point &nextPt = (c == numPoints - 1) ?
+		const GFX::point &pt = polygon.PointAt(c);
+		const GFX::point &nextPt = (c == numPoints - 1) ?
 				polygon.PointAt(0) : polygon.PointAt(c + 1);
 
 		StrokeLine(pt.x, pt.y, nextPt.x, nextPt.y, color);
@@ -234,8 +234,8 @@ Bitmap::FillPolygon(const Polygon& polygon, const uint32 color)
 	for (uint16 y = top; y < bottom; y++) {
 		std::vector<int32> nodeList;
 		for (int32 p = 0; p < numPoints; p++) {
-			const IE::point& pointA = polygon.PointAt(p);
-			const IE::point& pointB = (p == numPoints - 1) ?
+			const GFX::point& pointA = polygon.PointAt(p);
+			const GFX::point& pointB = (p == numPoints - 1) ?
 					polygon.PointAt(0) : polygon.PointAt(p + 1);
 
 			if ((pointA.y < y && pointB.y >= y)

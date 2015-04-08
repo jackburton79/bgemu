@@ -1376,7 +1376,7 @@ RoomContainer::_ContainerAtPoint(const IE::point& point)
 {
 	std::vector<Reference<Container> >::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		if (i->Target()->Polygon().Contains(point))
+		if (i->Target()->Polygon().Contains(point.x, point.y))
 			return i->Target();
 	}
 	return NULL;
