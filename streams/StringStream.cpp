@@ -17,8 +17,8 @@ StringStream::StringStream(const char* string)
 {
 }
 
+
 StringStream::~StringStream()
 {
-
 }
 
