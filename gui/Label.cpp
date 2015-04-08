@@ -30,13 +30,13 @@ Label::Label(IE::label* label)
 	fBitmap = new Bitmap(label->w, label->h, depth);
 
 	if (depth == 8) {
-		const Color colorStart = {
+		const GFX::Color colorStart = {
 			label->color1_r,
 			label->color1_g,
 			label->color1_b,
 			label->color1_a
 		};
-		const Color colorEnd = {
+		const GFX::Color colorEnd = {
 			label->color2_r,
 			label->color2_g,
 			label->color2_b,
@@ -78,9 +78,9 @@ Label::Draw()
 
 
 void
-Label::_SetPalette(const Color& start, const Color& end)
+Label::_SetPalette(const GFX::Color& start, const GFX::Color& end)
 {
-	Palette palette;
+	GFX::Palette palette;
 	GraphicsEngine::CreateGradient(start, end, palette);
 	fBitmap->SetColors(palette.colors, 0, 256);
 }

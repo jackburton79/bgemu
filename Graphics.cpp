@@ -36,7 +36,7 @@ Graphics::DecodeRLE(const void *source, uint32 outSize,
 void
 Graphics::ApplyShade(Bitmap* bitmap)
 {
-	Palette palette;
+	GFX::Palette palette;
 	bitmap->GetPalette(palette);
 	for (int i = 0; i < 256; i++) {
 		uint8 r = palette.colors[i].r;

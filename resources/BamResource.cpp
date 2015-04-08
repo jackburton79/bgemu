@@ -17,6 +17,11 @@
 #define BAM_VERSION_1 "V1  "
 
 
+struct cycle {
+	uint16 numFrames;
+	uint16 index;
+};
+
 struct BamFrameEntry {
 	uint16 width;
 	uint16 height;
@@ -140,7 +145,7 @@ uint8
 BAMResource::_FindTransparentIndex()
 {
 	for (uint16 i = 0; i < 256; i++) {
-		const Color *color = &fPalette->colors[i];
+		const GFX::Color *color = &fPalette->colors[i];
 		if (color->r == 0 && color->g == 255 && color->b == 0) {
 			return i;
 		}
@@ -331,7 +336,7 @@ BAMResource::_Load()
 		fData->ReadAt(20, fFrameLookupOffset);
 
 		fData->Seek(paletteOffset, SEEK_SET);
-		fPalette = new Palette;
+		fPalette = new GFX::Palette;
 		for (int32 i = 0; i < 256; i++) {
 			fPalette->colors[i].b = fData->ReadByte();
 			fPalette->colors[i].g = fData->ReadByte();

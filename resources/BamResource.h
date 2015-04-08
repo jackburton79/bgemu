@@ -5,13 +5,11 @@
 
 #include <map>
 
-struct cycle {
-	uint16 numFrames;
-	uint16 index;
-};
+namespace GFX {
+	struct Palette;
+}
 
 class Bitmap;
-struct Palette;
 class BAMResource : public Resource {
 public:
 	BAMResource(const res_ref& name);
@@ -36,7 +34,7 @@ private:
 
 	Bitmap* _FrameAt(uint16 index);
 
-	Palette *fPalette;
+	GFX::Palette *fPalette;
 	uint32 fFramesOffset;
 	uint32 fCyclesOffset;
 	uint32 fFrameLookupOffset;

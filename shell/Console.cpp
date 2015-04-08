@@ -198,7 +198,7 @@ struct console_info {
 //  7 - black
 //  8-15 - same but bright (we're ignoring those)
 
-static Color sColors[8] = {
+static GFX::Color sColors[8] = {
 		{ 0xff, 0xff, 0xff, 0x00 }, // white
 		{ 0x33, 0x66, 0x98,	0x00 }, // blue
 		{ 0x4e, 0x9a, 0x00,	0x00 }, // green

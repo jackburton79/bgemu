@@ -35,7 +35,10 @@ private:
 	friend class WEDResource;
 };
 
-struct Color;
+namespace GFX {
+	struct Color;
+}
+
 struct overlay;
 class Door;
 class Polygon;

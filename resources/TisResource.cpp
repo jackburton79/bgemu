@@ -49,7 +49,7 @@ TISResource::TileAt(int index)
 	Bitmap* surface = new Bitmap(TILE_WIDTH, TILE_HEIGHT, 8);
 	
 	try {
-		Palette palette;
+		GFX::Palette palette;
 		for (int32 i = 0; i < 256; i++) {
 			palette.colors[i].b = fData->ReadByte();
 			palette.colors[i].g = fData->ReadByte();

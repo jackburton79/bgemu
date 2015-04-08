@@ -45,9 +45,9 @@ public:
 
 	void Flip();
 
-	static void CreateGradient(const Color& start,
-								const Color& end,
-								Palette& palette);
+	static void CreateGradient(const GFX::Color& start,
+								const GFX::Color& end,
+								GFX::Palette& palette);
 
 private:
 	Bitmap* fScreen;

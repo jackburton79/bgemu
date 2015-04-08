@@ -23,4 +23,5 @@ private:
 	std::string fCommand;
 };
 
+
 #endif /* SHELLCOMMAND_H_ */

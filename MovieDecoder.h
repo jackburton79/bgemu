@@ -8,6 +8,10 @@
 
 #define DEBUG 1
 
+namespace GFX {
+	struct Color;
+}
+
 class GraphicsEngine;
 class Stream;
 class MovieDecoder {
@@ -35,7 +39,7 @@ private:
 	Bitmap *fCurrentFrame;
 	Bitmap *fScratchBuffer;
 	
-	Color fColors[256];
+	GFX::Color fColors[256];
 	GFX::rect fActiveRect;
 	uint16 fVersion;
 

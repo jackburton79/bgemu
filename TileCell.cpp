@@ -9,7 +9,7 @@
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
 
-static Color sTransparentColor = { 0, 255, 0 };
+static GFX::Color sTransparentColor = { 0, 255, 0 };
 
 TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOverlays)
 	:
@@ -22,7 +22,7 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 
 
 void
-_DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, Color *color)
+_DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 {
 	if (color)
 		cell->SetColorKey(color->r, color->g, color->b);
@@ -73,7 +73,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		}
 
 		gResManager->ReleaseResource(tis);
-		Color *color = NULL;
+		GFX::Color *color = NULL;
 		if (i == 0 && mask != 0) {
 			color = &sTransparentColor;
 			//color = &cell->format->palette->colors[255];

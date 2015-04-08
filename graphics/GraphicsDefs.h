@@ -10,6 +10,8 @@
 
 #include "SupportDefs.h"
 
+namespace GFX {
+
 struct Color {
 	uint8 r;
 	uint8 g;
@@ -21,8 +23,6 @@ struct Color {
 struct Palette {
 	Color colors[256];
 };
-
-namespace GFX {
 
 struct rect {
 	sint16 x;

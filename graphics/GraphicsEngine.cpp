@@ -220,9 +220,10 @@ GraphicsEngine::Flip()
 
 /* static */
 void
-GraphicsEngine::CreateGradient(const Color& start, const Color& end, Palette& palette)
+GraphicsEngine::CreateGradient(const GFX::Color& start, const GFX::Color& end,
+		GFX::Palette& palette)
 {
-	Color* colors = palette.colors;
+	GFX::Color* colors = palette.colors;
 	uint8 rFactor = (start.r - end.r) / 255;
 	uint8 gFactor = (start.g - end.g) / 255;
 	uint8 bFactor = (start.b - end.b) / 255;

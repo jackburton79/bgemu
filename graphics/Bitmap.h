@@ -15,10 +15,11 @@ struct SDL_Surface;
 
 namespace GFX {
 	struct rect;
+	class Palette;
+	class Color;
 };
 
-class Palette;
-class Color;
+
 class GraphicsEngine;
 class Polygon;
 class Bitmap : public Referenceable {
@@ -37,9 +38,9 @@ public:
 	void SetPosition(uint16 x, uint16 y);
 
 	void Clear(uint32 color = 0);
-	void SetColors(Color* colors, uint8 start, int num);
-	void GetPalette(Palette& palette) const;
-	void SetPalette(const Palette& palette);
+	void SetColors(GFX::Color* colors, uint8 start, int num);
+	void GetPalette(GFX::Palette& palette) const;
+	void SetPalette(const GFX::Palette& palette);
 	void SetColorKey(uint32 key, bool on = true);
 	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
 	void ClearColorKey() { SetColorKey(0, false); };

@@ -124,7 +124,7 @@ MOSResource::TileAt(uint32 index)
 
 	Bitmap* surface = new Bitmap(xBlockSize, yBlockSize, 8);
 	try {
-		Palette palette;
+		GFX::Palette palette;
 		for (int32 i = 0; i < 256; i++) {
 			palette.colors[i].b = fData->ReadByte();
 			palette.colors[i].g = fData->ReadByte();

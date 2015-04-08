@@ -25,8 +25,8 @@ private:
 	BAMResource* fFontResource;
 	Bitmap* fBitmap;
 
-	void _SetPalette(const Color& colorStart,
-			const Color& colorEnd);
+	void _SetPalette(const GFX::Color& colorStart,
+			const GFX::Color& colorEnd);
 };
 
 #endif /* __LABEL_H_ */

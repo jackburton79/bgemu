@@ -27,9 +27,9 @@ TextArea::TextArea(IE::text_area* text)
 	fFontResource = gResManager->GetBAM(text->font_bam);
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
-	Palette palette;
-	Color start = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
-	Color end = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
+	GFX::Palette palette;
+	GFX::Color start = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
+	GFX::Color end = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GraphicsEngine::CreateGradient(end, start, palette);
 	std::cout << std::dec << (int)text->color1_r << ", ";
 	std::cout << (int)text->color1_g << ", " << (int)text->color1_b << std::endl;
