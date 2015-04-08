@@ -16,10 +16,8 @@ Animation::Animation(IE::animation *animDesc)
 	fCurrentFrame(0),
 	fMaxFrame(0)
 {
-	memcpy(fName, animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
-	fName[8] = '\0';
-
-	fBAM = gResManager->GetBAM(fName);
+	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
+	fBAM = gResManager->GetBAM(fName.c_str());
 	if (fBAM == NULL) {
 		printf("NULL BAM!!!\n");
 		throw -1;
@@ -54,9 +52,8 @@ Animation::Animation(const char* bamName,
 	fBlackAsTransparent(false),
 	fMirrored(false)
 {
-	strcpy(fName, bamName);
-
-	fBAM = gResManager->GetBAM(fName);
+	fName = bamName;
+	fBAM = gResManager->GetBAM(fName.c_str());
 	if (fBAM == NULL)
 		throw -1;
 
@@ -106,7 +103,7 @@ Animation::SetMirrored(const bool mirror)
 const char*
 Animation::Name() const
 {
-	return fName;
+	return fName.c_str();
 }
 
 

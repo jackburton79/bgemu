@@ -45,7 +45,7 @@ private:
 	bool fHold;
 	bool fBlackAsTransparent;
 	bool fMirrored;
-	char fName[16];
+	std::string fName;
 };
 
 #endif // __ANIMATION_H
