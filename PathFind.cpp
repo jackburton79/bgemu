@@ -155,7 +155,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		}
 	}
 
-	std::list<point_node*>::const_iterator i;
+	//std::list<point_node*>::const_iterator i;
 	if (notFound) {
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
@@ -275,9 +275,9 @@ PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
 	int cycle;
 	int lgDelta = end.x - point.x;
 	int shDelta = end.y - point.y;
-	int lgStep = std::signbit(lgDelta) ? -fStep : fStep;
+	int lgStep = std::signbit((float)lgDelta) ? -fStep : fStep;
 	lgDelta = std::abs(lgDelta);
-	int shStep = std::signbit(shDelta) ? -fStep : fStep;
+	int shStep = std::signbit((float)shDelta) ? -fStep : fStep;
 	shDelta = std::abs(shDelta);
 	if (shDelta < lgDelta) {
 		cycle = lgDelta >> 1;

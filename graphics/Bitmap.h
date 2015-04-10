@@ -104,10 +104,8 @@ protected:
 class DataBitmap : public Bitmap {
 public:
 	DataBitmap(void* data, uint16 width, uint16 height, uint16 depth, bool ownsData);
-
+	virtual ~DataBitmap();
 private:
-	~DataBitmap();
-	
 	uint8* fData;
 	bool fOwns;
 };
