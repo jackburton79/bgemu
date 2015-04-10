@@ -43,7 +43,6 @@ Object.cpp \
 Parsing.cpp \
 Party.cpp \
 PathFind.cpp \
-
 Region.cpp \
 ResManager.cpp \
 resources/2DAResource.cpp \
