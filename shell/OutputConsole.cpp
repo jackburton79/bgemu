@@ -58,10 +58,11 @@ OutputConsole::_UpdateFunction(void *arg)
 {
 	OutputConsole* console = reinterpret_cast<OutputConsole*>(arg);
 	while (!console->fQuit) {
-		SDL_LockMutex(console->fLock);
-		console->Update();
-		SDL_Delay(50);
-		SDL_UnlockMutex(console->fLock);
+		if (SDL_LockMutex(console->fLock) == 0) {
+			console->Update();
+			SDL_Delay(50);
+			SDL_UnlockMutex(console->fLock);
+		}
 	}
 
 	return 0;
