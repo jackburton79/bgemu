@@ -33,10 +33,11 @@ class WEDResource;
 class WMAPResource;
 class ResourceManager {
 public:
-	ResourceManager();
+	ResourceManager(const char* path);
 	~ResourceManager();
 	
-	bool Initialize(const char *path);
+	static bool Initialize(const char *path);
+	static void Destroy();
 
 	KEYResource *GetKEY(const char *name);
 	TLKResource *GetTLK(const char *name);

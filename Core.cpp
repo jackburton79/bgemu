@@ -47,6 +47,8 @@ Core::Core()
 Core::~Core()
 {
 	RoomContainer::Delete();
+
+	std::cout << "Core::~Core() returned" << std::endl;
 }
 
 
@@ -97,7 +99,6 @@ Core::Initialize(const char* path)
 	Game::Get();
 	RoomContainer::Create();
 
-
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
 }
@@ -107,6 +108,7 @@ void
 Core::Destroy()
 {
 	std::cout << "Core::Destroy()" << std::endl;
+	ResourceManager::Destroy();
 	delete sCore;
 }
 

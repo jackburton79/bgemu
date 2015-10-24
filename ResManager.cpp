@@ -47,7 +47,6 @@
 #define IS_OVERRIDE(loc)	((loc) & OVERRIDE_MASK)
 
 ResourceManager* gResManager = NULL;
-static ResourceManager sManager;
 
 static TLKResource* sDialogs;
 static IDSResource* sAlignment;
@@ -68,60 +67,11 @@ const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
 
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager(const char* path)
 {
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
-	gResManager = &sManager;
-}
 
-
-ResourceManager::~ResourceManager()
-{
-	gResManager->ReleaseResource(sGameTimes);
-	gResManager->ReleaseResource(sEA);
-	gResManager->ReleaseResource(sObjects);
-	gResManager->ReleaseResource(sActions);
-	gResManager->ReleaseResource(sTriggers);
-	gResManager->ReleaseResource(sSpecifics);
-	gResManager->ReleaseResource(sGenders);
-	gResManager->ReleaseResource(sRaces);
-	gResManager->ReleaseResource(sClasses);
-	gResManager->ReleaseResource(sGeneral);
-	gResManager->ReleaseResource(sAniSnd);
-	gResManager->ReleaseResource(sAnimate);
-	gResManager->ReleaseResource(sAlignment);
-	gResManager->ReleaseResource(sDialogs);
-
-	resource_map::iterator iter;
-	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
-		delete iter->second;
-	}
-	
-	bif_vector::iterator i;
-	for (i = fBifs.begin(); i != fBifs.end(); i++) {
-		delete *i;	
-	}
-
-	std::list<Resource*>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
-		std::cout << "Deleting " << (*it)->Name();
-		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
-		delete *it;
-	}
-
-	//TryEmptyResourceCache(true);
-
-	archive_map::iterator aIter;
-	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
-		delete aIter->second;
-	}
-}
-
-
-bool
-ResourceManager::Initialize(const char *path)
-{
 	std::cout << "ResourceManager::Initialize(" << path << ")" << std::endl;
 	fResourcesPath.SetTo(path);
 	std::cout << "\t-> Set resources path to '" << fResourcesPath.Path();
@@ -129,7 +79,7 @@ ResourceManager::Initialize(const char *path)
 
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
-		return false;
+		throw "Cannot find key file";
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
@@ -154,8 +104,79 @@ ResourceManager::Initialize(const char *path)
 	std::cout << "\t-> Found " << numBifs << " BIF file entries ";
 	std::cout << "and " << numResources << " resources." << std::endl;
 	delete key;
+}
 
+
+ResourceManager::~ResourceManager()
+{
+	std::cout << "ResourceManager::~ResourceManager()" << std::endl;
+	gResManager->ReleaseResource(sGameTimes);
+	gResManager->ReleaseResource(sEA);
+	gResManager->ReleaseResource(sObjects);
+	gResManager->ReleaseResource(sActions);
+	gResManager->ReleaseResource(sTriggers);
+	gResManager->ReleaseResource(sSpecifics);
+	gResManager->ReleaseResource(sGenders);
+	gResManager->ReleaseResource(sRaces);
+	gResManager->ReleaseResource(sClasses);
+	gResManager->ReleaseResource(sGeneral);
+	gResManager->ReleaseResource(sAniSnd);
+	gResManager->ReleaseResource(sAnimate);
+	gResManager->ReleaseResource(sAlignment);
+	gResManager->ReleaseResource(sDialogs);
+
+	std::cout << "ResourceManager::~ResourceManager(): deleting resource_maps...";
+	std::cout << std::endl;
+	resource_map::iterator iter;
+	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
+		delete iter->second;
+	}
+	
+	std::cout << "ResourceManager::~ResourceManager(): deleting bifs maps...";
+	std::cout << std::endl;
+	bif_vector::iterator i;
+	for (i = fBifs.begin(); i != fBifs.end(); i++) {
+		delete *i;	
+	}
+
+	std::cout << "ResourceManager::~ResourceManager(): deleting cached resources...";
+	std::cout << std::endl;
+	std::list<Resource*>::iterator it;
+	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+		std::cout << "Deleting " << (*it)->Name();
+		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
+		delete *it;
+	}
+
+	//TryEmptyResourceCache(true);
+
+	archive_map::iterator aIter;
+	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
+		delete aIter->second;
+	}
+
+	std::cout << "ResourceManager::~ResourceManager() returned" << std::endl;
+}
+
+
+/* static */
+bool
+ResourceManager::Initialize(const char *path)
+{
+	try {
+		if (gResManager == NULL)
+			gResManager = new ResourceManager(path);
+	} catch (...) {
+		return false;
+	}
 	return true;
+}
+
+
+void
+ResourceManager::Destroy()
+{
+	delete gResManager;
 }
 
 
@@ -401,8 +422,8 @@ void
 ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
+		std::cerr << "Releasing " << resource->Name() << std::endl;
 		if (resource->Release()) {
-			//std::cerr << "Released and deleted " << resource->Name() << std::endl;
 			delete resource;
 		}
 	}
@@ -672,16 +693,16 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
-		//std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
-		//std::cout << "refcount is " << (*it)->RefCount();
+		std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
+		std::cout << "refcount is " << (*it)->RefCount();
 		if (force || (*it)->RefCount() == 1) {
-			//std::cout << ": Deleting...";
-			//std::flush(std::cout);
+			std::cout << ": Deleting...";
+			std::flush(std::cout);
 			delete *it;
 			it = fCachedResources.erase(it);
 		} else
 			it++;
-		//std::cout << std::endl;
+		std::cout << std::endl;
 	}
 }
 
