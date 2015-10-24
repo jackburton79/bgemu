@@ -148,9 +148,9 @@ main(int argc, char **argv)
 		container->StartLoop(!sNoScripts);
 
 	GUI::Destroy();
-	Core::Destroy();
 	GraphicsEngine::Destroy();
 	SoundEngine::Destroy();
+	Core::Destroy();
 
 	return 0;
 }
