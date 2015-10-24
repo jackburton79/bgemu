@@ -33,8 +33,6 @@ class WEDResource;
 class WMAPResource;
 class ResourceManager {
 public:
-	ResourceManager(const char* path);
-	~ResourceManager();
 	
 	static bool Initialize(const char *path);
 	static void Destroy();
@@ -75,6 +73,9 @@ public:
 			const char* query, uint16 type)  const;
 
 private:
+	ResourceManager(const char* path);
+	~ResourceManager();
+
 	const char *ResourcesPath() const;
 
 	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;
