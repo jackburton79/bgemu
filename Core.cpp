@@ -46,8 +46,6 @@ Core::Core()
 
 Core::~Core()
 {
-	RoomContainer::Delete();
-
 	std::cout << "Core::~Core() returned" << std::endl;
 }
 
@@ -79,7 +77,7 @@ Core::Initialize(const char* path)
 	}
 
 	std::cout << "\t-> Initializing Resource Manager..." << std::endl;
-	if (!gResManager->Initialize(path))
+	if (!ResourceManager::Initialize(path))
 		return false;
 
 	// Detect game
