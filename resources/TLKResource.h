@@ -23,7 +23,6 @@ public:
 
 private:
 	virtual ~TLKResource();
-	virtual void LastReferenceReleased();
 
 	void _ReadString(int32 offset, char **string, int32 length);
 

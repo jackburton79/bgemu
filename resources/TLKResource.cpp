@@ -97,14 +97,6 @@ TLKResource::DumpEntries()
 }
 
 
-/* virtual */
-void
-TLKResource::LastReferenceReleased()
-{
-	delete this;
-}
-
-
 // TLKEntry
 TLKEntry::TLKEntry()
 	:
