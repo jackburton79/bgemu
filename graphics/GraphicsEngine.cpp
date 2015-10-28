@@ -27,7 +27,7 @@ GraphicsEngine::GraphicsEngine()
 
 GraphicsEngine::~GraphicsEngine()
 {
-	delete fScreen;
+	fScreen->Release();
 	SDL_Quit();
 }
 
@@ -63,6 +63,7 @@ GraphicsEngine::Initialize()
 void
 GraphicsEngine::Destroy()
 {
+	std::cout << "GraphicsEngine::Destroy()" << std::endl;
 	delete sGraphicsEngine;
 }
 
