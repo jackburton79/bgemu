@@ -147,10 +147,10 @@ main(int argc, char **argv)
 	if (container != NULL)
 		container->StartLoop(!sNoScripts);
 
+	RoomContainer::Delete();
 	GUI::Destroy();
 	GraphicsEngine::Destroy();
 	SoundEngine::Destroy();
 	Core::Destroy();
-
 	return 0;
 }
