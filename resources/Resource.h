@@ -6,12 +6,12 @@
 
 struct res_ref;
 class Archive;
+class ResourceManager;
 class Stream;
 class Resource : public Referenceable {
 public:
-	Resource(const res_ref &name, const uint16 &type);
-	virtual ~Resource();
-	
+	friend class ResourceManager;
+
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual Resource* Clone();
 
@@ -26,6 +26,9 @@ public:
 			const uint32& key, Archive* archive);
 	
 protected:
+	Resource(const res_ref &name, const uint16 &type);
+	virtual ~Resource();
+
 	static Resource* Create(const res_ref &name, const uint16& type);
 
 	bool CheckSignature(const char *signature, bool dontWorry = false);

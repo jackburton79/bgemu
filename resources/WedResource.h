@@ -45,7 +45,6 @@ class Polygon;
 class WEDResource : public Resource {
 public:
 	WEDResource(const res_ref& name);
-	~WEDResource();
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -59,6 +58,7 @@ public:
 	bool GetDoorTiles(Door* door, uint32 index);
 
 private:
+	virtual ~WEDResource();
 	void _Load();
 	void _LoadPolygons();
     void _ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay);

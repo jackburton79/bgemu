@@ -33,6 +33,7 @@ Script*
 BCSResource::GetScript() const
 {
 	Script* script = NULL;
+
 	try {
 		Parser parser;
 		parser.SetTo(fData);

@@ -112,3 +112,11 @@ KEYResource::GetResEntryAt(uint32 index)
 	}
 	return entry;
 }
+
+
+/* virtual */
+void
+KEYResource::LastReferenceReleased()
+{
+	delete this;
+}

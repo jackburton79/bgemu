@@ -13,7 +13,6 @@ struct TLKEntry : public Referenceable {
 class TLKResource : public Resource {
 public:
 	TLKResource(const res_ref &name);
-	virtual ~TLKResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -23,6 +22,9 @@ public:
 	void DumpEntries();
 
 private:
+	virtual ~TLKResource();
+	virtual void LastReferenceReleased();
+
 	void _ReadString(int32 offset, char **string, int32 length);
 
 	int32 fNumEntries;

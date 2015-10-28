@@ -10,7 +10,6 @@ class Region;
 class ARAResource : public Resource {
 public:
 	ARAResource(const res_ref& name);
-	~ARAResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -46,7 +45,7 @@ public:
 	IE::variable VariableAt(uint32 index);
 
 private:
-
+	virtual ~ARAResource();
 	void _LoadActors();
 	void _LoadAnimations();
 	void _LoadDoors();

@@ -20,11 +20,11 @@ class MovieDecoder;
 class MVEResource : public Resource {
 public:
 	MVEResource(const res_ref &name);
-	virtual ~MVEResource();
 	
 	void Play();
 
 private:
+	virtual ~MVEResource();
 	bool GetNextChunk();
 	void DecodeChunk(chunk_header);
 	bool ExecuteOpcode(op_stream_header opcode);

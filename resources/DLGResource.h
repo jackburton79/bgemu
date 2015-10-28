@@ -13,9 +13,10 @@
 class DLGResource : public Resource {
 public:
 	DLGResource(const res_ref& name);
-	virtual ~DLGResource();
 
 	virtual bool Load(Archive* archive, uint32 key);
+private:
+	virtual ~DLGResource();
 };
 
 #endif /* DLGRESOURCE_H_ */

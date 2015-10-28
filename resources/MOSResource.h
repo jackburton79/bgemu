@@ -13,7 +13,6 @@
 class MOSResource : public Resource {
 public:
 	MOSResource(const res_ref &name);
-	virtual ~MOSResource();
 
 	virtual bool Load(Archive* archive, uint32 key);
 
@@ -21,6 +20,8 @@ public:
 
 	Bitmap* TileAt(uint32 index);
 private:
+	virtual ~MOSResource();
+
 	uint16 fWidth;
 	uint16 fHeight;
 	uint16 fColumns;

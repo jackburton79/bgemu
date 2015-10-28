@@ -10,13 +10,12 @@ public:
 	BMPResource(uint8 *data, uint32 size, uint32 key);
 	BMPResource(const res_ref &name);
 
-	~BMPResource();
-
 	virtual bool Load(Archive *archive, uint32 key);
 
 	Bitmap *Image();
 
 private:
+	virtual ~BMPResource();
 	void _Init();
 
 };

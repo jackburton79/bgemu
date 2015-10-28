@@ -18,13 +18,13 @@ class Window;
 class CHUIResource: public Resource {
 public:
 	CHUIResource(const res_ref &name);
-	virtual ~CHUIResource();
 
 	uint16 CountWindows() const;
 	Window* GetWindow(uint16 num);
 
 	void Dump();
 private:
+	virtual ~CHUIResource();
 	virtual bool Load(Archive *archive, uint32 key);
 
 	IE::control* _ReadControl(control_table& table);

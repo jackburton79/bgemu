@@ -16,14 +16,13 @@
 class TWODAResource: public Resource {
 public:
 	TWODAResource(const res_ref& name);
-	~TWODAResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual void Dump();
 
 	std::string ValueFor(const char*, const char*);
 private:
-
+	virtual ~TWODAResource();
 	std::map<std::pair<std::string, std::string>, std::string> fMap;
 };
 

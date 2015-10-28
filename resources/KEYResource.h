@@ -19,7 +19,6 @@ struct KeyResEntry {
 class KEYResource : public Resource {
 public:
 	KEYResource(const res_ref &name);
-	virtual ~KEYResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -30,6 +29,10 @@ public:
 	KeyResEntry* GetResEntryAt(uint32 index);
 
 private:
+	virtual ~KEYResource();
+
+	virtual void LastReferenceReleased();
+
 	uint32 fNumBifs;
 	uint32 fNumResources;
 	uint32 fBifOffset;

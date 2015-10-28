@@ -13,7 +13,6 @@ class Bitmap;
 class BAMResource : public Resource {
 public:
 	BAMResource(const res_ref& name);
-	~BAMResource();
 	
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -29,6 +28,7 @@ public:
 	void DumpFrames(const char *path);
 
 private:
+	virtual ~BAMResource();
 	void _Load();
 	uint8 _FindTransparentIndex();
 

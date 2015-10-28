@@ -66,13 +66,14 @@ static IDSResource* sGameTimes;
 const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
 
+const char* kComponentName = "ResourceManager: ";
 
 ResourceManager::ResourceManager(const char* path)
 {
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
 
-	std::cout << "ResourceManager::Initialize(" << path << ")" << std::endl;
+	std::cout << kComponentName << "Initialize(" << path << ")" << std::endl;
 	fResourcesPath.SetTo(path);
 	std::cout << "\t-> Set resources path to '" << fResourcesPath.Path();
 	std::cout << "'" << std::endl;
@@ -103,13 +104,14 @@ ResourceManager::ResourceManager(const char* path)
 
 	std::cout << "\t-> Found " << numBifs << " BIF file entries ";
 	std::cout << "and " << numResources << " resources." << std::endl;
-	delete key;
+	key->Release();
 }
 
 
 ResourceManager::~ResourceManager()
 {
-	std::cout << "ResourceManager::~ResourceManager()" << std::endl;
+	std::cout << kComponentName << "~ResourceManager()" << std::endl;
+
 	gResManager->ReleaseResource(sGameTimes);
 	gResManager->ReleaseResource(sEA);
 	gResManager->ReleaseResource(sObjects);
@@ -125,27 +127,28 @@ ResourceManager::~ResourceManager()
 	gResManager->ReleaseResource(sAlignment);
 	gResManager->ReleaseResource(sDialogs);
 
-	std::cout << "ResourceManager::~ResourceManager(): deleting resource_maps...";
+	std::cout << kComponentName << "Deleting cached resources...";
+	std::cout << std::endl;
+	std::list<Resource*>::iterator it;
+	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+		std::cout << "Deleting " << (*it)->Name();
+		std::cout << "(" << strresource((*it)->Type()) << ")";
+		std::cout << " (refcount = " << (*it)->RefCount() << ")..." << std::endl;
+		delete *it;
+	}
+
+	std::cout << kComponentName << "Deleting resource_maps...";
 	std::cout << std::endl;
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		delete iter->second;
 	}
 	
-	std::cout << "ResourceManager::~ResourceManager(): deleting bifs maps...";
+	std::cout << kComponentName << "Deleting bifs maps...";
 	std::cout << std::endl;
 	bif_vector::iterator i;
 	for (i = fBifs.begin(); i != fBifs.end(); i++) {
 		delete *i;	
-	}
-
-	std::cout << "ResourceManager::~ResourceManager(): deleting cached resources...";
-	std::cout << std::endl;
-	std::list<Resource*>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
-		std::cout << "Deleting " << (*it)->Name();
-		std::cout << "(" << strresource((*it)->Type()) << ")..." << std::endl;
-		delete *it;
 	}
 
 	//TryEmptyResourceCache(true);
@@ -155,7 +158,7 @@ ResourceManager::~ResourceManager()
 		delete aIter->second;
 	}
 
-	std::cout << "ResourceManager::~ResourceManager() returned" << std::endl;
+	std::cout << kComponentName << "Destroyed." << std::endl;
 }
 
 
@@ -198,17 +201,17 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 	if (!strcmp(name.name, ""))
 		return NULL;
 
-	//std::cout << "ResourceManager::GetResource(";
-	//std::cout << name.CString() << ", " << strresource(type);
-	//std::cout << ")" << std::endl;
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
-		std::cerr << "ResourceManager::GetResource(";
+		std::cout << kComponentName << "GetResource(";
 		std::cerr << name.CString() << ", " << strresource(type);
 		std::cerr << "): Resource does not exist!" << std::endl;
 		return NULL;
 	}
 
+	std::cout << kComponentName << "GetResource(";
+	std::cout << name.CString() << ", " << strresource(type);
+	std::cout << ")" << std::endl;
 	//std::cout << "\t-> Is it loaded ? ";
 	//std::flush(std::cout);
 	Resource *result = _FindResource(*entry);
@@ -228,6 +231,7 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 	if (result != NULL)
 		result->Acquire();
 
+	std::cout << "\t" << "-> refcount " << result->RefCount() << std::endl;
 	return result;
 }
 
@@ -244,8 +248,7 @@ ResourceManager::GetKEY(const char *name)
 		std::cout << "\t-> Loading KEY file '" << path << "'... ";
 		std::flush(std::cout);
 		archive = Archive::Create(path.c_str());
-		// TODO: Mixing exception and return values is BAD!
-		// Throw an useful exception instead
+		// TODO: Throw an useful exception instead
 		if (archive == NULL)
 			throw -1;
 		if (key->Load(archive, 0) == false)
@@ -253,7 +256,7 @@ ResourceManager::GetKEY(const char *name)
 
 		std::cout << "OK!" << std::endl;
 	} catch (...) {
-		delete key;
+		key->Release();
 		key = NULL;
 		std::cout << "FAILED!" << std::endl;
 	}
@@ -283,7 +286,7 @@ ResourceManager::GetTLK(const char* name)
 		std::cout << "OK!" << std::endl;
 	} catch (...) {
 		std::cout << "FAILED!" << std::endl;
-		delete tlk;
+		tlk->Release();
 		tlk = NULL;
 	}
 
@@ -422,10 +425,17 @@ void
 ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
-		std::cerr << "Releasing " << resource->Name() << std::endl;
+		const int32 refCount = resource->RefCount();
+		std::cout << kComponentName << "ReleaseResource(";
+		std::cout << resource->Name() << ", " << strresource(resource->Type());
+		std::cout << ")";
+		std::cout << ": refcount was " << refCount;
 		if (resource->Release()) {
 			delete resource;
-		}
+			std::cout << " and is now 0. Resource deleted";
+		} else
+			std::cout << " and is now " << resource->RefCount();
+		std::cout << "." << std::endl;
 	}
 }
 
@@ -512,10 +522,9 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	const uint16& location = fBifs[bifIndex]->location;
 	const char* archiveName = fBifs[bifIndex]->name;
 
-	std::cout << "ResourceManager::LoadResource(";
+	std::cout << kComponentName << "LoadResource(";
 	std::cout << entry.name.CString() << ", " << strresource(entry.type);
 	std::cout << ")" << std::endl;
-	//std::flush(std::cout);
 	
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
@@ -534,7 +543,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	Resource *resource = Resource::Create(entry.name, entry.type,
 										entry.key, archive);
 	if (resource == NULL) {
-		std::cout << "FAILED Loading resource!" << std::endl;
+		std::cout << kComponentName << "FAILED Loading resource!" << std::endl;
 		delete resource;
 		return NULL;
 	}
@@ -600,6 +609,7 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 void
 ResourceManager::PrintResources(int32 type)
 {
+	std::cout << kComponentName;
 	std::cout << "Listing " << fResourceMap.size();
 	std::cout << " entries..." << std::endl;
 	resource_map::iterator iter;
@@ -693,6 +703,7 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
+		std::cout << kComponentName;
 		std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
 		std::cout << "refcount is " << (*it)->RefCount();
 		if (force || (*it)->RefCount() == 1) {

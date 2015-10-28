@@ -27,13 +27,13 @@ struct itm_header {
 class ITMResource: public Resource {
 public:
 	ITMResource(const res_ref& name);
-	~ITMResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 
 	uint16 Type() const;
 
 private:
+	virtual ~ITMResource();
 
 	itm_header fHeader;
 };

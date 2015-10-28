@@ -92,7 +92,6 @@ class BAMResource;
 class WMAPResource : public Resource {
 public:
 	WMAPResource(const res_ref &name);
-	virtual ~WMAPResource();
 	virtual bool Load(Archive* archive, uint32 key);
 
 	worldmap_entry WorldMapEntry();
@@ -101,6 +100,7 @@ public:
 	AreaEntry& AreaEntryAt(uint32 index);
 
 private:
+	virtual ~WMAPResource();
 	uint32 fCount;
 	uint32 fOffset;
 
