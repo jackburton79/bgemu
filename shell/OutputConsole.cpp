@@ -21,8 +21,9 @@ OutputConsole::OutputConsole(const GFX::rect& rect)
 OutputConsole::~OutputConsole()
 {
 	fQuit = true;
-	SDL_DestroyMutex(fLock);
 	SDL_WaitThread(fThread, NULL);
+	SDL_DestroyMutex(fLock);
+
 
 	_DisableOutputRedirect();
 }
