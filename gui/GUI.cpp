@@ -55,6 +55,7 @@ GUI::~GUI()
 	}
 
 	fActiveWindows.clear();
+	fCurrentCursor = NULL;
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
