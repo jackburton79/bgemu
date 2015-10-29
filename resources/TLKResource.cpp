@@ -107,6 +107,6 @@ TLKEntry::TLKEntry()
 
 TLKEntry::~TLKEntry()
 {
-	free((char *)string);
+	free((char*)string);
 }
 
