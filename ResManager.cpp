@@ -203,15 +203,15 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
-		std::cout << kComponentName << "GetResource(";
+		/*std::cout << kComponentName << "GetResource(";
 		std::cerr << name.CString() << ", " << strresource(type);
-		std::cerr << "): Resource does not exist!" << std::endl;
+		std::cerr << "): Resource does not exist!" << std::endl;*/
 		return NULL;
 	}
 
-	std::cout << kComponentName << "GetResource(";
+	/*std::cout << kComponentName << "GetResource(";
 	std::cout << name.CString() << ", " << strresource(type);
-	std::cout << ")" << std::endl;
+	std::cout << ")" << std::endl;*/
 	//std::cout << "\t-> Is it loaded ? ";
 	//std::flush(std::cout);
 	Resource *result = _FindResource(*entry);
@@ -231,7 +231,7 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 	if (result != NULL)
 		result->Acquire();
 
-	std::cout << "\t" << "-> refcount " << result->RefCount() << std::endl;
+	//std::cout << "\t" << "-> refcount " << result->RefCount() << std::endl;
 	return result;
 }
 
@@ -425,17 +425,17 @@ void
 ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
-		const int32 refCount = resource->RefCount();
+		/*const int32 refCount = resource->RefCount();
 		std::cout << kComponentName << "ReleaseResource(";
 		std::cout << resource->Name() << ", " << strresource(resource->Type());
 		std::cout << ")";
-		std::cout << ": refcount was " << refCount;
+		std::cout << ": refcount was " << refCount;*/
 		if (resource->Release()) {
 			delete resource;
-			std::cout << " and is now 0. Resource deleted";
-		} else
+			//std::cout << " and is now 0. Resource deleted";
+		} /*else
 			std::cout << " and is now " << resource->RefCount();
-		std::cout << "." << std::endl;
+		std::cout << "." << std::endl;*/
 	}
 }
 
