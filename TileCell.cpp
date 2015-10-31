@@ -53,7 +53,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		std::cerr << "Tilemap Zero is NULL!" << std::endl;
 		return;
 	}
-	int8 mask = tileMapZero->Mask();
+	const int8 mask = tileMapZero->Mask();
 	for (int i = maxOverlay - 1; i >= 0; i--) {
 		if (!ShouldDrawOverlay(i, mask))
 			continue;
