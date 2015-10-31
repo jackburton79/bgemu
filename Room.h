@@ -85,10 +85,7 @@ public:
 	void ToggleGUI();
 	void ToggleDayNight();
 
-	void CreateCreature(const char* name, IE::point where, int face);
-
-	void DrawTile(const int16 tileNum, Bitmap *surface,
-						GFX::rect tileRect, bool withOverlays);
+	TileCell* TileAt(uint16 x, uint16 y) const;
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 

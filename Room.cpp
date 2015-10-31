@@ -158,13 +158,12 @@ RoomContainer::StartLoop(bool executeScripts)
 								key -= 32;
 							inputConsole->HandleInput(key);
 						}
-					}
-					else {
+					} else {
 						switch (event.key.keysym.sym) {
-							/*case SDLK_o:
-								map->ToggleOverlays();
+							case SDLK_o:
+								ToggleOverlays();
 								break;
-							*/
+
 							// TODO: Move to GUI class
 							case SDLK_h:
 								ToggleGUI();
@@ -311,7 +310,6 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 		return false;
 	}
 
-
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
 
@@ -385,7 +383,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	}
 
 
-	GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
+	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
 	return true;
 }
@@ -778,7 +776,7 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 void
 RoomContainer::MouseOver(uint16 x, uint16 y)
 {
-	const uint16 kScrollingStep = 45;
+	const uint16 kScrollingStep = 64;
 
 	uint16 horizBorderSize = 35;
 	uint32 vertBorderSize = 40;
@@ -1054,6 +1052,13 @@ RoomContainer::ToggleDayNight()
 }
 
 
+TileCell*
+RoomContainer::TileAt(uint16 x, uint16 y) const
+{
+	return fTileCells[y + x];
+}
+
+
 /* virtual */
 void
 RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
@@ -1216,13 +1221,24 @@ RoomContainer::_DrawBaseMap()
 
 	GFX::rect tileRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
 	for (uint16 y = firstTileY; y < lastTileY; y++) {
+		tileRect.w = TILE_WIDTH;
+		tileRect.h = TILE_HEIGHT;
 		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
+		if (tileRect.y < 0) {
+			tileRect.h += tileRect.y;
+			tileRect.y = 0;
+		}
 		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
+			tileRect.w = TILE_WIDTH;
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
+			if (tileRect.x < 0) {
+				tileRect.w = TILE_WIDTH + tileRect.x;
+				tileRect.x = 0;
+			}
 			TileCell* tile = fTileCells[tileNumY + x];
-			//assert(tile != NULL);
 			tile->Draw(fBackBitmap, &tileRect, fDrawOverlays);
+
 		}
 	}
 }
@@ -1591,7 +1607,7 @@ RoomContainer::_UnloadArea()
 		fSearchMap = NULL;
 	}
 
-	gResManager->TryEmptyResourceCache();
+	//gResManager->TryEmptyResourceCache();
 }
 
 
@@ -1611,13 +1627,14 @@ RoomContainer::_UnloadWorldMap()
 		fWorldMapBitmap = NULL;
 	}
 
-	gResManager->TryEmptyResourceCache();
+	//gResManager->TryEmptyResourceCache();
 }
 
 
 void
 RoomContainer::_Unload()
 {
+	std::cout << "RoomContainer::Unload()" << std::endl;
 	if (fWorldMap != NULL)
 		_UnloadWorldMap();
 	else if (fWed != NULL)
