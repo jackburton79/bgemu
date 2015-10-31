@@ -105,7 +105,7 @@ private:
 	void _InitLightMap();
 	void _InitSearchMap();
 
-	void _DrawBaseMap();
+	void _DrawBaseMap(GFX::rect mapRect);
 
 	void _DrawHeightMap(GFX::rect area);
 	void _DrawLightMap();

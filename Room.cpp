@@ -603,10 +603,10 @@ RoomContainer::Draw(Bitmap *surface)
 		fBackBitmap->ClearColorKey();
 		fBackBitmap->Clear(0);
 
-		_DrawBaseMap();
-
 		GFX::rect mapRect = offset_rect_to(fViewPort,
 				fAreaOffset.x, fAreaOffset.y);
+
+		_DrawBaseMap(mapRect);
 
 		if (fDrawAnimations)
 			_DrawAnimations();
@@ -1203,7 +1203,7 @@ RoomContainer::_InitSearchMap()
 
 
 void
-RoomContainer::_DrawBaseMap()
+RoomContainer::_DrawBaseMap(GFX::rect mapRect)
 {
 	MapOverlay *overlay = fOverlays[0];
 	if (overlay == NULL) {
@@ -1213,8 +1213,8 @@ RoomContainer::_DrawBaseMap()
 	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = fAreaOffset.x / TILE_WIDTH;
 	const uint16 firstTileY = fAreaOffset.y / TILE_HEIGHT;
-	uint16 lastTileX = firstTileX + (fBackBitmap->Width() / TILE_WIDTH) + 2;
-	uint16 lastTileY = firstTileY + (fBackBitmap->Height() / TILE_HEIGHT) + 2;
+	uint16 lastTileX = firstTileX + (mapRect.w / TILE_WIDTH) + 2;
+	uint16 lastTileY = firstTileY + (mapRect.h / TILE_HEIGHT) + 2;
 
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
@@ -1224,21 +1224,14 @@ RoomContainer::_DrawBaseMap()
 		tileRect.w = TILE_WIDTH;
 		tileRect.h = TILE_HEIGHT;
 		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
-		if (tileRect.y < 0) {
-			tileRect.h += tileRect.y;
-			tileRect.y = 0;
-		}
+
 		const uint32 tileNumY = y * overlayWidth;
 		for (uint16 x = firstTileX; x < lastTileX; x++) {
 			tileRect.w = TILE_WIDTH;
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
-			if (tileRect.x < 0) {
-				tileRect.w = TILE_WIDTH + tileRect.x;
-				tileRect.x = 0;
-			}
-			TileCell* tile = fTileCells[tileNumY + x];
-			tile->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 
+			TileCell* tile = TileAt(tileNumY,  x);
+			tile->Draw(fBackBitmap, &tileRect, fDrawOverlays);
 		}
 	}
 }
