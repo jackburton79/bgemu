@@ -48,12 +48,24 @@ TISResource::TileAt(int index)
 	if (index < 0)
 		return NULL;
 
+	Bitmap* tile = NULL;
 	std::map<int, Bitmap*>::iterator i = fCachedTiles.find(index);
-	if (i != fCachedTiles.end()) {
-		(*i).second->Acquire();
-		return (*i).second;
+	if (i != fCachedTiles.end())
+		tile = i->second;
+	else {
+		tile = _GetTileAt(index);
+		fCachedTiles[index] = tile;
 	}
 
+	if (tile != NULL)
+		tile->Acquire();
+	return tile;
+}
+
+
+Bitmap*
+TISResource::_GetTileAt(int index)
+{
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
 	Bitmap* surface = new Bitmap(TILE_WIDTH, TILE_HEIGHT, 8);
@@ -80,9 +92,6 @@ TISResource::TileAt(int index)
 		surface = NULL;
 	}
 	
-	if (surface != NULL) {
-		fCachedTiles[index] = surface;
-		surface->Acquire();
-	}
 	return surface;
 }
+
