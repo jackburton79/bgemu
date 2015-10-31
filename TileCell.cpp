@@ -8,6 +8,7 @@
 
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
+#include <assert.h>
 
 static GFX::Color sTransparentColor = { 0, 255, 0 };
 
@@ -31,6 +32,13 @@ _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 }
 
 
+static inline bool
+ShouldDrawOverlay(const int i, const int mask)
+{
+	return i == 0 || (mask & (1 << i)) != 0;
+}
+
+
 void
 TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 {
@@ -47,9 +55,8 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 	}
 	int8 mask = tileMapZero->Mask();
 	for (int i = maxOverlay - 1; i >= 0; i--) {
-		// Check if this overlay needs to be drawn
-		if (i != 0 && (mask & (1 << i)) == 0)
-	    	continue;
+		if (!ShouldDrawOverlay(i, mask))
+			continue;
 	    MapOverlay *overlay = fOverlays[i];
 		TileMap *map = overlay->TileMapForTileCell(i == 0 ? fNumber : 0);
 		if (map == NULL)
@@ -61,18 +68,15 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 			if (secondaryIndex != -1)
 				index = secondaryIndex;
 			else
-				; //printf("TileCell::Draw(): secondary index is -1. BUG?.\n");
+				std::cerr << "TileCell::Draw(): secondary index is -1. BUG?." << std::endl;
 		}
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
 		Bitmap *cell = tis->TileAt(index);
-		if (cell == NULL) {
-			printf("NULL cell. BAD.\n");
-			// TODO: Fix this. Shouldn't request an invalid cell
-			cell = new Bitmap(64, 64, 8);
-		}
+		assert(cell != NULL);
 
 		gResManager->ReleaseResource(tis);
+
 		GFX::Color *color = NULL;
 		if (i == 0 && mask != 0) {
 			color = &sTransparentColor;
