@@ -3,6 +3,8 @@
 
 #include "Resource.h"
 
+#include <map>
+
 class Bitmap;
 class TISResource : public Resource {
 public:
@@ -16,7 +18,9 @@ private:
 	virtual ~TISResource();
 
 	void _Init();
+
 	uint32 fDataOffset;
+	std::map<int, Bitmap*> fCachedTiles;
 };
 
 #endif

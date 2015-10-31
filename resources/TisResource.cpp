@@ -21,6 +21,10 @@ TISResource::TISResource(const res_ref &name)
 
 TISResource::~TISResource()
 {
+	std::map<int, Bitmap*>::iterator i;
+	for (i = fCachedTiles.begin(); i != fCachedTiles.end(); i++) {
+		i->second->Release();
+	}
 }
 
 
@@ -43,6 +47,12 @@ TISResource::TileAt(int index)
 {
 	if (index < 0)
 		return NULL;
+
+	std::map<int, Bitmap*>::iterator i = fCachedTiles.find(index);
+	if (i != fCachedTiles.end()) {
+		(*i).second->Acquire();
+		return (*i).second;
+	}
 
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
 	
@@ -70,5 +80,9 @@ TISResource::TileAt(int index)
 		surface = NULL;
 	}
 	
+	if (surface != NULL) {
+		fCachedTiles[index] = surface;
+		surface->Acquire();
+	}
 	return surface;
 }
