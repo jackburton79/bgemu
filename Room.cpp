@@ -609,15 +609,18 @@ RoomContainer::Draw(Bitmap *surface)
 		sSelectedActorRadius += sSelectedActorRadiusStep;
 
 		fBackBitmap->ClearColorKey();
-		fBackBitmap->Clear(0);
 
 		GFX::rect mapRect = offset_rect_to(fViewPort,
 				fAreaOffset.x, fAreaOffset.y);
 
-		_DrawBaseMap(mapRect);
+		bool paused = Core::Get()->IsPaused();
+		if (!paused) {
+			fBackBitmap->Clear(0);
+			_UpdateBaseMap(mapRect);
+		}
 
 		if (fDrawAnimations)
-			_DrawAnimations();
+			_DrawAnimations(!paused);
 
 		_DrawActors();
 
@@ -968,7 +971,7 @@ RoomContainer::PointSearch(const IE::point& point) const
 bool
 RoomContainer::IsPointPassable(const IE::point& point)
 {
-	int32 state = RoomContainer::Get()->PointSearch(point);
+	uint8 state = RoomContainer::Get()->PointSearch(point);
 	switch (state) {
 		case 0:
 		case 8:
@@ -1209,7 +1212,7 @@ RoomContainer::_InitSearchMap()
 
 
 void
-RoomContainer::_DrawBaseMap(GFX::rect mapRect)
+RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 {
 	MapOverlay *overlay = fOverlays[0];
 	if (overlay == NULL) {
@@ -1244,7 +1247,7 @@ RoomContainer::_DrawBaseMap(GFX::rect mapRect)
 
 
 void
-RoomContainer::_DrawAnimations()
+RoomContainer::_DrawAnimations(bool advanceFrame)
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -1254,8 +1257,9 @@ RoomContainer::_DrawAnimations()
 		try {
 			Animation* animation = *i;
 			if (animation->IsShown()) {
-				const Bitmap* frame = animation->NextBitmap();
-
+				if (advanceFrame)
+					animation->Next();
+				const Bitmap* frame = animation->Bitmap();
 				DrawObject(frame, animation->Position(), false);
 			}
 		} catch (const char* string) {
@@ -1297,7 +1301,7 @@ RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 {
 	if (fSearchMap != NULL && fDrawSearchMap > 0) {
 		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
-							fBackBitmap->Width(), fBackBitmap->Height());
+						fBackBitmap->Width(), fBackBitmap->Height());
 
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
 

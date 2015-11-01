@@ -105,12 +105,12 @@ private:
 	void _InitLightMap();
 	void _InitSearchMap();
 
-	void _DrawBaseMap(GFX::rect mapRect);
+	void _UpdateBaseMap(GFX::rect mapRect);
 
 	void _DrawHeightMap(GFX::rect area);
 	void _DrawLightMap();
 	void _DrawSearchMap(GFX::rect area);
-	void _DrawAnimations();
+	void _DrawAnimations(bool advanceFrame);
 	void _DrawActors();
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
