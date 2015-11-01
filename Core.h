@@ -36,6 +36,7 @@ public:
 	static void Destroy();
 
 	void TogglePause();
+	bool IsPaused() const;
 
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);

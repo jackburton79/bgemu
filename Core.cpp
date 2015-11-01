@@ -118,6 +118,13 @@ Core::TogglePause()
 }
 
 
+bool
+Core::IsPaused() const
+{
+	return fPaused;
+}
+
+
 uint32
 Core::Game() const
 {
