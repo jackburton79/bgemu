@@ -28,6 +28,7 @@ public:
 	
 	void ImportData(const void *data, uint32 width, uint32 height);
 	void* Pixels() const;
+	uint32 GetPixel(uint16 x, uint16 y) const;
 
 	GFX::rect Frame() const;
 	uint16 Width() const;

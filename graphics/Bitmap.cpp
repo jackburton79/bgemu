@@ -129,6 +129,38 @@ Bitmap::SetAlpha(uint8 value, bool on)
 
 
 // The following methods require the bitmap locked
+uint32
+Bitmap::GetPixel(uint16 x, uint16 y) const
+{
+    int bpp = fSurface->format->BytesPerPixel;
+    Uint8 *p = (Uint8*)fSurface->pixels + y * fSurface->pitch + x * bpp;
+
+	switch(bpp) {
+		case 1:
+			return *p;
+			break;
+
+		case 2:
+			return *(Uint16*)p;
+			break;
+
+		case 3:
+			if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+				return p[0] << 16 | p[1] << 8 | p[2];
+			else
+				return p[0] | p[1] << 8 | p[2] << 16;
+			break;
+
+		case 4:
+			return *(Uint32*)p;
+			break;
+
+		default:
+			return 0;
+	}
+}
+
+
 void
 Bitmap::PutPixel(int32 x, int32 y, const uint32 color)
 {
