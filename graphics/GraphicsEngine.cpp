@@ -76,11 +76,11 @@ GraphicsEngine::SetClipping(const GFX::rect* rect)
 
 
 void
-GraphicsEngine::BlitToScreen(const Bitmap* bitmap, GFX::rect *source,
-		GFX::rect *dest)
+GraphicsEngine::BlitToScreen(const Bitmap* source, GFX::rect *sourceRect,
+		GFX::rect *destRect)
 {
-	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)source,
-			fScreen->Surface(), (SDL_Rect*)dest);
+	SDL_BlitSurface(source->Surface(), (SDL_Rect*)sourceRect,
+				fScreen->Surface(), (SDL_Rect*)destRect);
 }
 
 
@@ -137,6 +137,16 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 		maskPixels += mask->Pitch();
 	}
 	mask->Unlock();
+}
+
+
+/* static */
+void
+GraphicsEngine::BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* sourceRect,
+							Bitmap* surface, GFX::rect* destRect)
+{
+	SDL_SoftStretch(bitmap->Surface(), (SDL_Rect*)sourceRect,
+			surface->Surface(), (SDL_Rect*)destRect);
 }
 
 

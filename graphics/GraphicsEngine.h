@@ -26,7 +26,15 @@ public:
 								Bitmap* surface, GFX::rect* dest,
 								const Bitmap* mask, GFX::rect* maskRect);
 	
+	static void BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* source,
+							Bitmap* surface, GFX::rect* dest);
+
 	void SetClipping(const GFX::rect* rect);
+
+	enum BLITTING_FLAGS {
+		BLITTING_NORMAL = 0,
+		BLITTING_SCALED = 1
+	};
 	void BlitToScreen(const Bitmap* bitmap, GFX::rect* source, GFX::rect* dest);
 
 	enum VIDEOMODE_FLAGS {
