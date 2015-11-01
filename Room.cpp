@@ -591,6 +591,14 @@ RoomContainer::Draw(Bitmap *surface)
 		GFX::rect sourceRect = offset_rect(fViewPort,
 				-fViewPort.x, -fViewPort.y);
 		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
+		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
+			GFX::rect clippingRect = fViewPort;
+			clippingRect.w = gfx->ScreenFrame().w;
+			clippingRect.h = gfx->ScreenFrame().h;
+			gfx->SetClipping(&clippingRect);
+			gfx->ScreenBitmap()->Clear(0);
+			gfx->SetClipping(NULL);
+		}
 		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
 	} else {
 		if (sSelectedActorRadius > 22) {
