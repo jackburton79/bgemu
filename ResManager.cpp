@@ -270,7 +270,7 @@ ResourceManager::GetKEY(const char *name)
 TLKResource*
 ResourceManager::GetTLK(const char* name)
 {
-	TLKResource* tlk = NULL;
+	Resource* tlk = NULL;
 	Archive *archive = NULL;
 	try {
 		std::cout << "\t-> Loading Dialogs file '" << name << "'... ";
@@ -286,12 +286,13 @@ ResourceManager::GetTLK(const char* name)
 		std::cout << "OK!" << std::endl;
 	} catch (...) {
 		std::cout << "FAILED!" << std::endl;
-		tlk->Release();
+		if (tlk->Release())
+			delete tlk;
 		tlk = NULL;
 	}
 
 	delete archive;
-	return tlk;
+	return dynamic_cast<TLKResource*>(tlk);
 }
 
 
