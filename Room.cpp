@@ -47,6 +47,7 @@ static RoomContainer* sCurrentRoom = NULL;
 static int sSelectedActorRadius = 20;
 static int sSelectedActorRadiusStep = 1;
 
+
 RoomContainer::RoomContainer()
 	:
 	Object(""),
@@ -619,9 +620,11 @@ RoomContainer::Draw(Bitmap *surface)
 			_UpdateBaseMap(mapRect);
 		}
 
-		if (fDrawAnimations)
-			_DrawAnimations(!paused);
-
+		if (fDrawAnimations) {
+			Timer* timer = Timer::Get("ANIMATION");
+			bool advance = timer != NULL && timer->Expired() && !paused;
+			_DrawAnimations(advance);
+		}
 		_DrawActors();
 
 		if (fDrawPolygons) {

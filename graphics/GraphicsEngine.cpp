@@ -19,7 +19,7 @@ GraphicsEngine::GraphicsEngine()
 	fOldFlags(0)
 {
 	fOldRect.w = fOldRect.h = fOldRect.x = fOldRect.y = 0;
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		throw "SDL Error";
 	SDL_ShowCursor(0);
 }

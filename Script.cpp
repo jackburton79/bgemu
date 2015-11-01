@@ -374,7 +374,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0022:
 			{
 				/* TimerExpired(I:ID*) */
-				Timer* timer = Timer::Get(trig->string1);
+				GameTimer* timer = GameTimer::Get(trig->string1);
 				if (timer != NULL && timer->Expired())
 					returnValue = true;
 				break;
@@ -509,7 +509,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// Timer::Get() method (also below)
 				std::string timerName;
 				timerName.append(trig->string2).append(trig->string1);
-				Timer* timer = Timer::Get(timerName.c_str());
+				GameTimer* timer = GameTimer::Get(timerName.c_str());
 				returnValue = timer != NULL && timer->Expired();
 				break;
 			}
@@ -518,7 +518,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* GlobalTimerNotExpired(S:Name*,S:Area*) */
 				std::string timerName;
 				timerName.append(trig->string2).append(trig->string1);
-				Timer* timer = Timer::Get(timerName.c_str());
+				GameTimer* timer = GameTimer::Get(timerName.c_str());
 				returnValue = timer == NULL || !timer->Expired();
 				break;
 			}
@@ -883,7 +883,7 @@ Script::_ExecuteAction(action_node* act)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			Timer::Add(act->string1, act->parameter);
+			GameTimer::Add(act->string1, act->parameter);
 
 			break;
 		}
@@ -966,7 +966,7 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: We append the timer name to the area name,
 			// check if it's okay
 			timerName.append(act->string2).append(act->string1);
-			Timer::Add(timerName.c_str(), act->parameter);
+			GameTimer::Add(timerName.c_str(), act->parameter);
 			break;
 		}
 		case 0x97:

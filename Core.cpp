@@ -28,6 +28,7 @@
 
 static Core* sCore = NULL;
 
+const static char* kAnimationTimer = "ANIMATION";
 //const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
 Core::Core()
@@ -94,8 +95,11 @@ Core::Initialize(const char* path)
 		std::cout << "Baldur's Gate" << std::endl;
 	}
 
+	Timer::Initialize();
+
 	Game::Get();
 	RoomContainer::Create();
+	Timer::Set(kAnimationTimer, 100);
 
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
@@ -394,7 +398,10 @@ Core::UpdateLogic(bool executeScripts)
 	if (fPaused)
 		return;
 
-	Timer::UpdateGameTime();
+	GameTimer::UpdateGameTime();
+	Timer* timer = Timer::Get("ANIMATION");
+	if (timer->Expired())
+		timer->Rearm();
 
 	// TODO: Not nice, should stop the scripts in some other way
 	if (strcmp(RoomContainer::Get()->AreaName().CString(), "WORLDMAP") == 0)

@@ -133,7 +133,7 @@ Wait::Wait(Actor* actor, uint32 time)
 	Action(actor),
 	fWaitTime(time)
 {
-	fStartTime = Timer::GameTime();
+	fStartTime = GameTimer::GameTime();
 }
 
 
@@ -141,7 +141,7 @@ void
 Wait::operator()()
 {
 	Action::operator()();
-	if (Timer::GameTime() >= fStartTime + fWaitTime)
+	if (GameTimer::GameTime() >= fStartTime + fWaitTime)
 		fCompleted = true;
 }
 
