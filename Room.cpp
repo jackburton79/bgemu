@@ -810,7 +810,6 @@ RoomContainer::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
-	//std::cout << "state: " << std::dec << PointSearch(point) << std::endl;
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
@@ -934,8 +933,8 @@ RoomContainer::PointHeight(const IE::point& point) const
 
 	int32 x = point.x / fMapHorizontalRatio;
 	int32 y = point.y / fMapVerticalRatio;
-	uint8* pixels = (uint8*)fHeightMap->Pixels();
-	return pixels[y * fHeightMap->Pitch() + x * fHeightMap->BitsPerPixel() / 8];
+
+	return (uint8)fHeightMap->GetPixel(x, y);
 }
 
 
@@ -947,8 +946,8 @@ RoomContainer::PointLight(const IE::point& point) const
 
 	int32 x = point.x / fMapHorizontalRatio;
 	int32 y = point.y / fMapVerticalRatio;
-	uint8* pixels = (uint8*)fLightMap->Pixels();
-	return pixels[y * fLightMap->Pitch() + x * fLightMap->BitsPerPixel() / 8];
+
+	return (uint8)fLightMap->GetPixel(x, y);
 }
 
 
@@ -961,8 +960,7 @@ RoomContainer::PointSearch(const IE::point& point) const
 	int32 x = point.x / fMapHorizontalRatio;
 	int32 y = point.y / fMapVerticalRatio;
 
-	uint8* pixels = (uint8*)fSearchMap->Pixels();
-	return pixels[y * fSearchMap->Pitch() + x * fSearchMap->BitsPerPixel() / 8];
+	return (uint8)fSearchMap->GetPixel(x, y);
 }
 
 
