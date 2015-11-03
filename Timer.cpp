@@ -29,7 +29,8 @@ Timer::Timer(uint32 delay)
 bool
 Timer::Initialize()
 {
-	SDL_InitSubSystem(SDL_INIT_TIMER);
+	if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
+		return false;
 	return true;
 }
 
@@ -38,8 +39,6 @@ Timer::Initialize()
 Timer*
 Timer::Set(const char* name, uint32 delay)
 {
-	std::cerr << "Set timer " << name << " which expires in ";
-	std::cerr << std::dec << delay << " usecs" << std::endl;
 	sTimers[name] = new Timer(delay);
 	return sTimers[name];
 }
@@ -59,7 +58,6 @@ Timer::Get(const char* name)
 bool
 Timer::Expired()
 {
-	std::cout << std::dec << "Expired ? " << Ticks() << ", " << fExpirationTime << std::endl;
 	return Ticks() >= fExpirationTime;
 }
 
@@ -67,7 +65,6 @@ Timer::Expired()
 void
 Timer::Rearm()
 {
-	std::cout << "Timer rearmed" << std::endl;
 	fExpirationTime = Ticks() + fDelay;
 }
 
