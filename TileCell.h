@@ -12,7 +12,7 @@ public:
 	TileMap();
 
 	void AddTileIndex(int16 index);
-	int16 TileIndex();
+	int16 TileIndex(bool advanceFrame);
 
 	void SetSecondaryTileIndex(int16 index);
 	int16 SecondaryTileIndex() const;

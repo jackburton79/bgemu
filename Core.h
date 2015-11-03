@@ -98,6 +98,7 @@ private:
 
 	bool fPaused;
 
+	static void _InitGameTimers();
 	void _PrintObjects() const;
 	void _RemoveStaleObjects();
 

@@ -4,6 +4,7 @@
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "TileCell.h"
+#include "Timer.h"
 #include "TisResource.h"
 
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
@@ -62,7 +63,8 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		if (map == NULL)
 			continue;
 
-		int16 index = map->TileIndex();
+		bool advance = Timer::Get("ANIMATEDTILES")->Expired();
+		int16 index = map->TileIndex(advance);
 		if (fDoor != NULL && !fDoor->Opened()) {
 			int16 secondaryIndex = map->SecondaryTileIndex();
 			if (secondaryIndex != -1)
@@ -88,13 +90,6 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		cell->Release();
 	}
 }
-
-/*
-void
-TileCell::SetTileMap(TileMap *map, int overlayNum)
-{
-	fTileMap[overlayNum] = map;
-}*/
 
 
 Door *
@@ -144,13 +139,14 @@ TileMap::AddTileIndex(int16 index)
 
 
 int16
-TileMap::TileIndex()
+TileMap::TileIndex(bool advanceFrame)
 {
 	int16 index = fIndices[fCurrentIndex];
-	if (++fCurrentIndex >= fIndices.size())
+	if (advanceFrame && ++fCurrentIndex >= fIndices.size())
 		fCurrentIndex = 0;
 	return index;
 }
+
 
 
 void

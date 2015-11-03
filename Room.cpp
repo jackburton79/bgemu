@@ -621,7 +621,7 @@ RoomContainer::Draw(Bitmap *surface)
 		}
 
 		if (fDrawAnimations) {
-			Timer* timer = Timer::Get("ANIMATION");
+			Timer* timer = Timer::Get("ANIMATIONS");
 			bool advance = timer != NULL && timer->Expired() && !paused;
 			_DrawAnimations(advance);
 		}

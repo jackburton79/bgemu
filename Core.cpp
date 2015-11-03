@@ -28,7 +28,6 @@
 
 static Core* sCore = NULL;
 
-const static char* kAnimationTimer = "ANIMATION";
 //const static uint32 kRoundDuration = 6000; // 6 second. Actually this is the
 
 Core::Core()
@@ -99,7 +98,8 @@ Core::Initialize(const char* path)
 
 	Game::Get();
 	RoomContainer::Create();
-	Timer::Set(kAnimationTimer, 100);
+
+	_InitGameTimers();
 
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
@@ -399,7 +399,10 @@ Core::UpdateLogic(bool executeScripts)
 		return;
 
 	GameTimer::UpdateGameTime();
-	Timer* timer = Timer::Get("ANIMATION");
+	Timer* timer = Timer::Get("ANIMATIONS");
+	if (timer->Expired())
+		timer->Rearm();
+	timer = Timer::Get("ANIMATEDTILES");
 	if (timer->Expired())
 		timer->Rearm();
 
@@ -532,6 +535,14 @@ Core::_PrintObjects() const
 											i != fObjects.end(); i++) {
 		i->Target()->Print();
 	}
+}
+
+
+void
+Core::_InitGameTimers()
+{
+	Timer::Set("ANIMATIONS", 100);
+	Timer::Set("ANIMATEDTILES", 120);
 }
 
 
