@@ -68,16 +68,15 @@ TLKResource::EntryAt(int32 index)
 	tlk_entry entry;
 	fData->ReadAt(18 + sizeof(entry) * index, entry);
 	if (entry.string_length > 0)
-		_ReadString(entry.string_offset, (char **)&newEntry->string, entry.string_length);
+		_ReadString(entry.string_offset, (char*&)newEntry->string, entry.string_length);
 
 	return newEntry;
 }
 
 
 void
-TLKResource::_ReadString(int32 offset, char **_string, int32 length)
+TLKResource::_ReadString(int32 offset, char *&string, int32 length)
 {
-	char *&string = *_string;
 	string = (char*)malloc(length + 1);
 	fData->ReadAt(fDataOffset + offset, string, length);
 	string[length] = '\0';
