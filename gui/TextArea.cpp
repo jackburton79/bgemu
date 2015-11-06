@@ -28,8 +28,13 @@ TextArea::TextArea(IE::text_area* text)
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
 	GFX::Palette palette;
-	GFX::Color start = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
-	GFX::Color end = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
+	GFX::Color color1 = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
+	GFX::Color color2 = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
+	GFX::Color color3 = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
+
+	GFX::Color& start = color3;
+	GFX::Color& end = color1;
+	GFX::Color& transparent = color2;
 	GraphicsEngine::CreateGradient(end, start, palette);
 	std::cout << std::dec << (int)text->color1_r << ", ";
 	std::cout << (int)text->color1_g << ", " << (int)text->color1_b << std::endl;
@@ -38,7 +43,7 @@ TextArea::TextArea(IE::text_area* text)
 	std::cout << std::dec << (int)text->color3_r << ", ";
 	std::cout << (int)text->color3_g << ", " << (int)text->color3_b << std::endl;
 	fBitmap->SetPalette(palette);
-	fBitmap->SetColorKey(text->color2_r, text->color2_g, text->color2_b, true);
+	fBitmap->SetColorKey(transparent.r, transparent.g, transparent.b, true);
 }
 
 
