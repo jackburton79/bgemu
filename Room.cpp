@@ -132,16 +132,10 @@ RoomContainer::StartLoop(bool executeScripts)
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
-					//downMouseX = event.button.x;
-					//downMouseY = event.button.y;
 					gui->MouseDown(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
-					/*if (downMouseX == event.button.x
-						&& downMouseY == event.button.y)
-						map->Clicked(event.button.x, event.button.y);*/
 					gui->MouseUp(event.button.x, event.button.y);
-
 					break;
 				case SDL_MOUSEMOTION:
 					lastMouseX = event.motion.x;
@@ -872,6 +866,7 @@ RoomContainer::DrawObject(const Object& object)
 		const Bitmap* actorFrame = actor->Bitmap();
 
 		int32 pointHeight = PointHeight(actorPosition);
+		std::cerr << "Point Height: " << pointHeight << std::endl;
 		actorPosition.y += pointHeight - 8;
 		DrawObject(actorFrame, actorPosition, true);
 	}
@@ -940,7 +935,7 @@ RoomContainer::PointHeight(const IE::point& point) const
 	int32 x = point.x / fMapHorizontalRatio;
 	int32 y = point.y / fMapVerticalRatio;
 
-	return (uint8)fHeightMap->GetPixel(x, y);
+	return std::min((uint8)fHeightMap->GetPixel(x, y), (uint8)15);
 }
 
 
@@ -966,7 +961,7 @@ RoomContainer::PointSearch(const IE::point& point) const
 	int32 x = point.x / fMapHorizontalRatio;
 	int32 y = point.y / fMapVerticalRatio;
 
-	return (uint8)fSearchMap->GetPixel(x, y);
+	return std::min((uint8)fSearchMap->GetPixel(x, y), (uint8)15);
 }
 
 
@@ -1169,6 +1164,7 @@ RoomContainer::_InitHeightMap()
 	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
 	if (resource != NULL) {
 		fHeightMap = resource->Image();
+		std::cerr << fHeightMap->BitsPerPixel() << std::endl;
 		gResManager->ReleaseResource(resource);
 	}
 
@@ -1231,6 +1227,8 @@ RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
+	//bool advance = true;
+	bool advance = Timer::Get("ANIMATEDTILES")->Expired();
 	GFX::rect tileRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
 	for (uint16 y = firstTileY; y < lastTileY; y++) {
 		tileRect.w = TILE_WIDTH;
@@ -1243,7 +1241,7 @@ RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
 
 			TileCell* tile = TileAt(tileNumY,  x);
-			tile->Draw(fBackBitmap, &tileRect, fDrawOverlays);
+			tile->Draw(fBackBitmap, &tileRect, advance, fDrawOverlays);
 		}
 	}
 }

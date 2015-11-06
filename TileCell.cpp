@@ -41,7 +41,7 @@ ShouldDrawOverlay(const int i, const int mask)
 
 
 void
-TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
+TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 {
 	int maxOverlay = full ? fNumOverlays : 1;
 	MapOverlay* overlayZero = fOverlays[0];
@@ -63,8 +63,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool full)
 		if (map == NULL)
 			continue;
 
-		bool advance = Timer::Get("ANIMATEDTILES")->Expired();
-		int16 index = map->TileIndex(advance);
+		int16 index = map->TileIndex(advanceFrame);
 		if (fDoor != NULL && !fDoor->Opened()) {
 			int16 secondaryIndex = map->SecondaryTileIndex();
 			if (secondaryIndex != -1)
