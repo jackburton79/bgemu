@@ -23,12 +23,17 @@ namespace GFX {
 
 class TextSupport {
 public:
-	static uint32 StringWidth(std::string string,
-							BAMResource* fontRes,
-							uint32 flags);
-	static uint32 StringHeight(std::string string,
-							BAMResource* fontRes,
-							uint32 flags);
+	static void GetTextWidthAndHeight(std::string string,
+					BAMResource* fontRes,
+					uint32 flags,
+					uint32* width = NULL,
+					uint32* height = NULL);
+
+	static std::string GetFittingString(std::string string,
+					BAMResource* fontRes,
+					uint32 flags,
+					uint32 maxWidth,
+					uint32* fittingWidth = NULL);
 
 	static void RenderString(std::string string,
 								const res_ref& fontRes,

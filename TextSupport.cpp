@@ -23,6 +23,66 @@ cycle_num_for_char(char c)
 	return (int)c - 1;
 }
 
+/* static */
+void
+TextSupport::GetTextWidthAndHeight(std::string string,
+							BAMResource* fontRes,
+							uint32 flags, uint32* width, uint32* height)
+{
+	uint32 totalWidth = 0;
+	uint16 maxHeight = 0;
+	try {
+		std::vector<const Bitmap*> frames;
+		for (std::string::iterator i = string.begin();
+				i != string.end(); i++) {
+			uint32 cycleNum = cycle_num_for_char(*i);
+			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
+			totalWidth += newFrame->Frame().w;
+			maxHeight = std::max(newFrame->Frame().h, maxHeight);
+		}
+	} catch (...) {
+		std::cerr << "StringWidth() exception" << std::endl;
+	}
+	if (width != NULL)
+		*width = totalWidth;
+	if (height != NULL)
+		*height = (uint32)maxHeight;
+}
+
+
+std::string
+TextSupport::GetFittingString(std::string string,
+					BAMResource* fontRes,
+					uint32 flags,
+					uint32 maxWidth,
+					uint32* fittingWidth)
+{
+	uint32 currentWidth = 0;
+	uint16 maxHeight = 0;
+	std::string fittingString;
+	try {
+		std::vector<const Bitmap*> frames;
+		for (std::string::iterator i = string.begin();
+				i != string.end(); i++) {
+			uint32 cycleNum = cycle_num_for_char(*i);
+			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
+			uint32 charWidth = newFrame->Frame().w;
+			if (currentWidth + charWidth > maxWidth) {
+				if (fittingWidth != NULL)
+					*fittingWidth = currentWidth;
+
+				break;
+			}
+			currentWidth += charWidth;
+			maxHeight = std::max(newFrame->Frame().h, maxHeight);
+		}
+	} catch (...) {
+		std::cerr << "StringWidth() exception" << std::endl;
+	}
+
+	return fittingString;
+}
+
 
 void
 TextSupport::RenderString(std::string string, const res_ref& fontRes,
