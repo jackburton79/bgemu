@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "Bitmap.h"
-#include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "Listener.h"
 

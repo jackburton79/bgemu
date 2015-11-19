@@ -7,15 +7,13 @@
 
 #include "Bitmap.h"
 #include "Polygon.h"
-#include "RectUtils.h"
-#include "Utils.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <vector>
 
 #include "SDL.h"
-
 
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
@@ -181,10 +179,10 @@ Bitmap::StrokeLine(int32 x1, int32 y1,
 	int cycle;
 	int deltaX = x2 - x1;
 	int deltaY = y2 - y1;
-	int stepX = SGN(deltaX);
-	deltaX = ABS(deltaX);
-	int stepY = SGN(deltaY);
-	deltaY = ABS(deltaY);
+	int stepX = std::signbit(deltaX);
+	deltaX = std::abs(deltaX);
+	int stepY = std::signbit(deltaY);
+	deltaY = std::abs(deltaY);
 	if (deltaY < deltaX) {
 		cycle = deltaX >> 1;
 		while (x1 != x2) {
