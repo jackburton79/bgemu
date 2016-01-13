@@ -179,9 +179,9 @@ Bitmap::StrokeLine(int32 x1, int32 y1,
 	int cycle;
 	int deltaX = x2 - x1;
 	int deltaY = y2 - y1;
-	int stepX = std::signbit(deltaX);
+	int stepX = std::signbit(deltaX) ? -1 : 1;
 	deltaX = std::abs(deltaX);
-	int stepY = std::signbit(deltaY);
+	int stepY = std::signbit(deltaY) ? -1 : 1;
 	deltaY = std::abs(deltaY);
 	if (deltaY < deltaX) {
 		cycle = deltaX >> 1;
