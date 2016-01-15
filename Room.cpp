@@ -158,7 +158,12 @@ RoomContainer::StartLoop(bool executeScripts)
 							case SDLK_o:
 								ToggleOverlays();
 								break;
-
+							case SDLK_d:
+								if (console->HasOutputRedirected())
+									console->DisableRedirect();
+								else
+									console->EnableRedirect();
+								break;
 							// TODO: Move to GUI class
 							case SDLK_h:
 								ToggleGUI();
@@ -866,7 +871,7 @@ RoomContainer::DrawObject(const Object& object)
 		const Bitmap* actorFrame = actor->Bitmap();
 
 		int32 pointHeight = PointHeight(actorPosition);
-		std::cerr << "Point Height: " << pointHeight << std::endl;
+		//std::cerr << "Point Height: " << pointHeight << std::endl;
 		actorPosition.y += pointHeight - 8;
 		DrawObject(actorFrame, actorPosition, true);
 	}
