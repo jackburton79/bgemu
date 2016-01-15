@@ -18,6 +18,10 @@ public:
 	OutputConsole(const GFX::rect& rect);
 	~OutputConsole();
 
+	bool HasOutputRedirected() const;
+	void EnableRedirect();
+	void DisableRedirect();
+
 	void Update();
 
 private:
@@ -29,6 +33,7 @@ private:
 	std::streambuf* fOldBuf;
 	SDL_Thread* fThread;
 	SDL_mutex* fLock;
+	bool fOutputRedirected;
 	bool fQuit;
 };
 

@@ -10,6 +10,7 @@
 OutputConsole::OutputConsole(const GFX::rect& rect)
 	:
 	Console(rect),
+	fOutputRedirected(false),
 	fQuit(false)
 {
 	_EnableOutputRedirect();
@@ -24,7 +25,6 @@ OutputConsole::~OutputConsole()
 	SDL_WaitThread(fThread, NULL);
 	SDL_DestroyMutex(fLock);
 
-
 	_DisableOutputRedirect();
 }
 
@@ -34,6 +34,7 @@ OutputConsole::_EnableOutputRedirect()
 {
 	fOldBuf = std::cout.rdbuf();
 	std::cout.rdbuf(fOutputBuffer.rdbuf());
+	fOutputRedirected = true;
 }
 
 
@@ -41,6 +42,7 @@ void
 OutputConsole::_DisableOutputRedirect()
 {
 	std::cout.rdbuf(fOldBuf);
+	fOutputRedirected = false;
 }
 
 
@@ -67,4 +69,25 @@ OutputConsole::_UpdateFunction(void *arg)
 	}
 
 	return 0;
+}
+
+
+bool
+OutputConsole::HasOutputRedirected() const
+{
+	return fOutputRedirected;
+}
+
+
+void
+OutputConsole::EnableRedirect()
+{
+	_EnableOutputRedirect();
+}
+
+
+void
+OutputConsole::DisableRedirect()
+{
+	_DisableOutputRedirect();
 }
