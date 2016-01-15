@@ -105,11 +105,11 @@ AnimationFactory::AnimationFor(int action, int o)
 	i = fAnimations.find(key);
 	if (i != fAnimations.end())
 		return i->second;
-
+/*
 	std::cerr << "Missing animation for ";
 	std::cerr << fBaseName << ", ID: ";
 	std::cerr << std::hex << fID << std::endl;
-
+*/
 	return NULL;
 }
 
