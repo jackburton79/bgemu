@@ -66,7 +66,8 @@ public:
 	};
 
 	virtual Stream* Clone() const;
-
+	virtual Stream* Adopt();
+	
 	void Dump();
 	void DumpToFile(const char *fileName);
 };

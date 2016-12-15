@@ -79,6 +79,16 @@ Stream::Clone() const
 }
 
 
+/* virtual */
+Stream*
+Stream::Adopt()
+{
+	std::cerr << "Stream::Adopt() not implemented!";
+	throw "Stream::Adopt() not implemented!";
+	return NULL;
+}
+
+
 void
 Stream::Dump()
 {

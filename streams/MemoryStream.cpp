@@ -139,3 +139,16 @@ MemoryStream::Clone() const
 	memcpy(newStream->fData, Data(), Size());
 	return newStream;
 }
+
+
+/* virtual */
+MemoryStream*
+MemoryStream::Adopt()
+{
+	MemoryStream* newStream = new MemoryStream(fData, Size(), true);
+	
+	fData = NULL;
+	fSize = 0;
+	
+	return newStream;
+}

@@ -22,6 +22,7 @@ public:
 	virtual void *Data() const;
 	
 	virtual MemoryStream* Clone() const;
+	virtual MemoryStream* Adopt();
 
 public:
 	uint8 *fData;
