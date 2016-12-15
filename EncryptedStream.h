@@ -15,7 +15,6 @@ public:
 	EncryptedStream(Stream *stream);
 	virtual ~EncryptedStream();
 
-	virtual ssize_t Read(void* dst, size_t size);
 	virtual ssize_t ReadAt(off_t pos, void *dst, size_t size);
 
 	virtual off_t Seek(off_t where, int whence);
