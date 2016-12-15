@@ -25,7 +25,7 @@ EncryptedStream::EncryptedStream(Stream *stream)
 	:
 	fKeySize(64)
 {
-	fEncryptedStream = stream->Clone();
+	fEncryptedStream = stream->Adopt();
 	fEncryptedStream->Seek(2, SEEK_SET);
 }
 
