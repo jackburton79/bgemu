@@ -96,7 +96,7 @@ GUI::Destroy()
 bool
 GUI::Load(const res_ref& name)
 {
-	std::cout << "GUI::Load()" << std::endl;
+	std::cout << "GUI::Load(" << name.CString() << ")" << std::endl;
 	try {
 		if (fCursors[0] == NULL)
 			_InitCursors();
@@ -112,7 +112,7 @@ GUI::Load(const res_ref& name)
 				fWindows.push_back(window);
 		}*/
 	} catch (...) {
-		std::cout << "GUI::Load(): ERROR" << std::cout;
+		std::cout << "GUI::Load(): ERROR" << std::endl;
 		return false;
 	}
 	std::cout << "GUI::Load(): OK!" << std::endl;
