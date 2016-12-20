@@ -10,6 +10,8 @@
 
 #include "SupportDefs.h"
 
+struct SDL_Rect;
+
 namespace GFX {
 
 struct Color {
@@ -39,6 +41,9 @@ struct rect {
 	rect(sint16 x, sint16 y, uint16 width, uint16 height);
 	void Print() const;
 };
+
+void GFXRectToSDLRect(const rect* source, SDL_Rect* dest);
+void SDLRectToGFXRect(const SDL_Rect* source, rect* dest);
 
 };
 

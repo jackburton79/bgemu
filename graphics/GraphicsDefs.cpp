@@ -8,6 +8,7 @@
 #include "GraphicsDefs.h"
 
 #include <iostream>
+#include <SDL.h>
 
 namespace GFX {
 
@@ -35,6 +36,25 @@ rect::Print() const
 	std::cout << std::dec;
 	std::cout << "Rect: x: " << x << ", y: " << y;
 	std::cout << ", w: " << w << ", h: " << h << std::endl;
+}
+
+
+void
+GFXRectToSDLRect(const rect* source, SDL_Rect* dest)
+{
+	dest->x = (int)source->x;
+	dest->y = (int)source->y;
+	dest->w = (int)source->w;
+	dest->h = (int)source->h;
+}
+
+void
+SDLRectToGFXRect(const SDL_Rect* source, rect* dest)
+{
+	dest->x = (sint16)source->x;
+	dest->y = (sint16)source->y;
+	dest->w = (uint16)source->w;
+	dest->h = (uint16)source->h;
 }
 
 }
