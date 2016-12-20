@@ -59,6 +59,7 @@ TISResource::TileAt(int index)
 
 	if (tile != NULL)
 		tile->Acquire();
+
 	return tile;
 }
 
@@ -77,6 +78,7 @@ TISResource::_GetTileAt(int index)
 			palette.colors[i].g = fData->ReadByte();
 			palette.colors[i].r = fData->ReadByte();
 			palette.colors[i].a = fData->ReadByte();
+			palette.colors[i].a = 255;
 		}
 
 		uint8 *pixels = (uint8 *)surface->Pixels();

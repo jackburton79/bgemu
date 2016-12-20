@@ -5,7 +5,7 @@
 #include "GraphicsDefs.h"
 
 #include <vector>
-
+#include "SDL.h"
 class Bitmap;
 class Listener;
 class GraphicsEngine {
@@ -58,6 +58,9 @@ public:
 								GFX::Palette& palette);
 
 private:
+	SDL_Window *fSDLWindow;
+	SDL_Renderer *fSDLRenderer;
+	SDL_Texture* fSDLTexture;
 	Bitmap* fScreen;
 	uint16 fFlags;
 

@@ -16,7 +16,7 @@
 #include "SDL.h"
 
 
-Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
+Bitmap::Bitmap(uint16 width, uint16 height, uint16 bitsPerPixel)
 	:
 	Referenceable(1),
 	fMirrored(NULL),
@@ -25,7 +25,7 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel)
 	fOwnsSurface(true)
 {
 	fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
-			bytesPerPixel, 0, 0, 0, 0);
+			bitsPerPixel, 0, 0, 0, 0);
 }
 
 
@@ -37,7 +37,7 @@ Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
-	fOwnsSurface(true)
+	fOwnsSurface(ownsSurface)
 {
 
 }
@@ -62,7 +62,7 @@ Bitmap::LastReferenceReleased()
 void
 Bitmap::Clear(uint32 color)
 {
-	SDL_Rect rect = { 0, 0, uint16(fSurface->w), uint16(fSurface->h) };
+	SDL_Rect rect = { 0, 0, fSurface->w, fSurface->h };
 	SDL_FillRect(fSurface, &rect, color);
 }
 
@@ -70,7 +70,7 @@ Bitmap::Clear(uint32 color)
 void
 Bitmap::SetColors(GFX::Color* colors, uint8 start, int num)
 {
-	SDL_SetColors(fSurface, (SDL_Color*)colors, start, num);
+	SDL_SetPaletteColors(fSurface->format->palette, (SDL_Color*)colors, start, num);
 }
 
 
@@ -83,7 +83,7 @@ Bitmap::GetPalette(GFX::Palette& palette) const
 		palette.colors[c].r = sdlPalette[c].r;
 		palette.colors[c].g = sdlPalette[c].g;
 		palette.colors[c].b = sdlPalette[c].b;
-		palette.colors[c].a = sdlPalette[c].unused;
+		palette.colors[c].a = sdlPalette[c].a;
 	}
 }
 
@@ -96,17 +96,17 @@ Bitmap::SetPalette(const GFX::Palette& palette)
 		sdlPalette[c].r = palette.colors[c].r;
 		sdlPalette[c].g = palette.colors[c].g;
 		sdlPalette[c].b = palette.colors[c].b;
-		sdlPalette[c].unused = palette.colors[c].a;
+		sdlPalette[c].a = palette.colors[c].a;
 	}
 
-	SDL_SetColors(fSurface, sdlPalette, 0, 256);
+	SDL_SetPaletteColors(fSurface->format->palette, sdlPalette, 0, 256);
 }
 
 
 void
 Bitmap::SetColorKey(uint32 index, bool on)
 {
-	SDL_SetColorKey(fSurface, on ? SDL_SRCCOLORKEY|SDL_RLEACCEL : 0, index);
+	SDL_SetColorKey(fSurface, on ? SDL_TRUE|SDL_RLEACCEL : 0, index);
 }
 
 
@@ -114,7 +114,7 @@ void
 Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b, bool on)
 {
 	SDL_SetColorKey(fSurface,
-			on ? SDL_SRCCOLORKEY|SDL_RLEACCEL : 0,
+			on ? SDL_TRUE|SDL_RLEACCEL : 0,
 			SDL_MapRGB(fSurface->format, r, g, b));
 }
 
@@ -122,7 +122,7 @@ Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b, bool on)
 void
 Bitmap::SetAlpha(uint8 value, bool on)
 {
-	SDL_SetAlpha(fSurface, on ? SDL_SRCALPHA|SDL_RLEACCEL : 0, value);
+	SDL_SetSurfaceAlphaMod(fSurface, on ? value : 0);
 }
 
 
@@ -162,7 +162,7 @@ Bitmap::GetPixel(uint16 x, uint16 y) const
 void
 Bitmap::PutPixel(int32 x, int32 y, const uint32 color)
 {
-	if (x < 0 || y < 0 || x >= (uint16)fSurface->w || y >= (uint16)fSurface->h)
+	if (x < 0 || y < 0 || x >= fSurface->w || y >= fSurface->h)
 		return;
 
 	uint32 bytesPerPixel = fSurface->format->BytesPerPixel;
@@ -442,7 +442,6 @@ Bitmap::MapColor(const uint8 r, const uint8 g, const uint8 b)
 void
 Bitmap::Update()
 {
-	SDL_Flip(fSurface);
 }
 
 

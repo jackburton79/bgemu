@@ -111,8 +111,6 @@ RoomContainer::StartLoop(bool executeScripts)
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 
-	SDL_EnableUNICODE(1);
-
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
 	GFX::rect consoleRect(
@@ -147,12 +145,12 @@ RoomContainer::StartLoop(bool executeScripts)
 						console->Toggle();
 						inputConsole->Toggle();
 					} else if (console->IsActive()) {
-						if (event.key.keysym.unicode < 0x80 && event.key.keysym.unicode > 0) {
+						/*if (event.key.keysym.unicode < 0x80 && event.key.keysym.unicode > 0) {
 							uint8 key = event.key.keysym.sym;
 							if (event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 								key -= 32;
 							inputConsole->HandleInput(key);
-						}
+						}*/
 					} else {
 						switch (event.key.keysym.sym) {
 							case SDLK_o:

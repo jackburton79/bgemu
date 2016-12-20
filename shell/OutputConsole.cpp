@@ -15,7 +15,7 @@ OutputConsole::OutputConsole(const GFX::rect& rect)
 {
 	_EnableOutputRedirect();
 	fLock = SDL_CreateMutex();
-	fThread = SDL_CreateThread(_UpdateFunction, this);
+	fThread = SDL_CreateThread(_UpdateFunction, "ConsoleThread", this);
 }
 
 

@@ -12,6 +12,9 @@ static GraphicsEngine *sGraphicsEngine = NULL;
 
 GraphicsEngine::GraphicsEngine()
 	:
+	fSDLWindow(NULL),
+	fSDLRenderer(NULL),
+	fSDLTexture(NULL),
 	fScreen(NULL),
 	fFlags(0),
 	fOldDepth(0),
@@ -78,18 +81,50 @@ void
 GraphicsEngine::BlitToScreen(const Bitmap* source, GFX::rect *sourceRect,
 		GFX::rect *destRect)
 {
-	SDL_BlitSurface(source->Surface(), (SDL_Rect*)sourceRect,
-				fScreen->Surface(), (SDL_Rect*)destRect);
+	SDL_Rect sdlSourceRect;
+	SDL_Rect sdlDestRect;
+	SDL_Rect* sdlSourceRectPtr = NULL;
+	SDL_Rect* sdlDestRectPtr = NULL;
+	if (sourceRect != NULL) {
+		GFXRectToSDLRect(sourceRect, &sdlSourceRect);
+		sdlSourceRectPtr = &sdlSourceRect;
+	}
+	if (destRect != NULL) {
+		GFXRectToSDLRect(destRect, &sdlDestRect);
+		sdlDestRectPtr = &sdlDestRect;
+	}
+
+	SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
+				fScreen->Surface(), sdlDestRectPtr);
+
+	if (destRect != NULL)
+		SDLRectToGFXRect(&sdlDestRect, destRect);
 }
 
 
 /*static*/
 void
-GraphicsEngine::BlitBitmap(const Bitmap* bitmap, GFX::rect *source,
-		Bitmap *surface, GFX::rect *dest)
+GraphicsEngine::BlitBitmap(const Bitmap* source, GFX::rect *sourceRect,
+		Bitmap *dest, GFX::rect *destRect)
 {
-	SDL_BlitSurface(bitmap->Surface(), (SDL_Rect*)(source),
-			surface->Surface(), (SDL_Rect*)(dest));
+	SDL_Rect sdlSourceRect;
+	SDL_Rect sdlDestRect;
+	SDL_Rect* sdlSourceRectPtr = NULL;
+	SDL_Rect* sdlDestRectPtr = NULL;
+	if (sourceRect != NULL) {
+		GFXRectToSDLRect(sourceRect, &sdlSourceRect);
+		sdlSourceRectPtr = &sdlSourceRect;
+	}
+	if (destRect != NULL) {
+		GFXRectToSDLRect(destRect, &sdlDestRect);
+		sdlDestRectPtr = &sdlDestRect;
+	}
+
+	SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
+			dest->Surface(), sdlDestRectPtr);
+
+	if (destRect != NULL)
+		SDLRectToGFXRect(&sdlDestRect, destRect);
 }
 
 
@@ -150,17 +185,32 @@ GraphicsEngine::BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* sourceRect,
 
 
 void
-GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
+GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 		uint16 flags)
 {
 	std::cout << "GraphicsEngine::SetVideoMode(";
-	std::cout << std::dec << x << ", " << y << ", " << depth;
+	std::cout << std::dec << width << ", " << height << ", " << depth;
 	std::cout << ")" << std::endl;
 
-	int sdlFlags = 0;
-	if (flags & VIDEOMODE_FULLSCREEN)
-		sdlFlags |= SDL_FULLSCREEN;
-	SDL_Surface* surface = SDL_SetVideoMode(x, y, depth, sdlFlags);
+	if (SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN,
+			&fSDLWindow, &fSDLRenderer) != 0) {
+		std::cerr << "Cannot Create Window" << std::endl;
+	}
+
+	//int sdlFlags = 0;
+	//if (flags & VIDEOMODE_FULLSCREEN)
+		//sdlFlags |= SDL_FULLSCREEN;
+
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+	SDL_RenderSetLogicalSize(fSDLRenderer, 640, 480);
+
+	SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
+	                                        0, 0, 0, 0);
+	fSDLTexture = SDL_CreateTexture(fSDLRenderer,
+								SDL_PIXELFORMAT_RGB888,
+	                            SDL_TEXTUREACCESS_STREAMING,
+								width, height);
+
 	fScreen = new Bitmap(surface, false);
 	fFlags = flags;
 
@@ -171,7 +221,7 @@ GraphicsEngine::SetVideoMode(uint16 x, uint16 y, uint16 depth,
 
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
-		(*i)->VideoModeChanged(x, y, depth);
+		(*i)->VideoModeChanged(width, height, depth);
 	}
 }
 
@@ -194,7 +244,7 @@ void
 GraphicsEngine::RestorePreviousMode()
 {
 	if (fOldDepth != 0) {
-		SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, fOldFlags);
+		//SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, fOldFlags);
 		fOldDepth = 0;
 	}
 }
@@ -210,7 +260,7 @@ GraphicsEngine::ScreenFrame() const
 void
 GraphicsEngine::SetWindowCaption(const char* caption)
 {
-	SDL_WM_SetCaption(caption, NULL);
+	//SDL_SetWindowTitle(fSDLWindow, caption);
 }
 
 
@@ -224,7 +274,12 @@ GraphicsEngine::ScreenBitmap()
 void
 GraphicsEngine::Flip()
 {
-	fScreen->Update();
+	SDL_UpdateTexture(fSDLTexture, NULL,
+			fScreen->Surface()->pixels,
+			fScreen->Surface()->pitch);
+	SDL_RenderClear(fSDLRenderer);
+	SDL_RenderCopy(fSDLRenderer, fSDLTexture, NULL, NULL);
+	SDL_RenderPresent(fSDLRenderer);
 }
 
 

@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-Wall -Werror `sdl-config --cflags` -Iresources -I./ -Istreams -Igraphics -Igui -Ishell -Iarchives -Isupport
+CFLAGS=-Wall -Werror `sdl2-config --cflags` -Iresources -I./ -Istreams -Igraphics -Igui -Ishell -Iarchives -Isupport
 EXECUTABLE=BGEmu
-LDFLAGS=-lz `sdl-config --libs`
+LDFLAGS=-lz `sdl2-config --libs`
 
 SOURCES=\
 archives/Archive.cpp \
