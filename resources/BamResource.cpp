@@ -342,7 +342,6 @@ BAMResource::_Load()
 			fPalette->colors[i].g = fData->ReadByte();
 			fPalette->colors[i].r = fData->ReadByte();
 			fPalette->colors[i].a = fData->ReadByte();
-			fPalette->colors[i].a = 255;
 		}
 	} else
 		throw -1;

@@ -130,7 +130,6 @@ MOSResource::TileAt(uint32 index)
 			palette.colors[i].g = fData->ReadByte();
 			palette.colors[i].r = fData->ReadByte();
 			palette.colors[i].a = fData->ReadByte();
-			palette.colors[i].a = 255;
 		}
 
 		uint32 tileOffset;
