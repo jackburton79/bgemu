@@ -192,17 +192,16 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 	std::cout << std::dec << width << ", " << height << ", " << depth;
 	std::cout << ")" << std::endl;
 
-	if (SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN,
+	int SDLWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+	if (flags & VIDEOMODE_FULLSCREEN)
+		SDLWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+	if (SDL_CreateWindowAndRenderer(width, height, SDLWindowFlags,
 			&fSDLWindow, &fSDLRenderer) != 0) {
 		std::cerr << "Cannot Create Window" << std::endl;
 	}
 
-	//int sdlFlags = 0;
-	//if (flags & VIDEOMODE_FULLSCREEN)
-		//sdlFlags |= SDL_FULLSCREEN;
-
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
-	SDL_RenderSetLogicalSize(fSDLRenderer, 640, 480);
+	SDL_RenderSetLogicalSize(fSDLRenderer, width, height);
 
 	SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
 	                                        0, 0, 0, 0);
@@ -260,7 +259,7 @@ GraphicsEngine::ScreenFrame() const
 void
 GraphicsEngine::SetWindowCaption(const char* caption)
 {
-	//SDL_SetWindowTitle(fSDLWindow, caption);
+	SDL_SetWindowTitle(fSDLWindow, caption);
 }
 
 
