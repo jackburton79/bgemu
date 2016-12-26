@@ -6,6 +6,7 @@
  */
 
 #include "Bitmap.h"
+#include "GraphicsDefs.h"
 #include "Polygon.h"
 
 #include <algorithm>
@@ -223,7 +224,9 @@ Bitmap::StrokeRect(const GFX::rect& rect, const uint32 color)
 void
 Bitmap::FillRect(const GFX::rect& rect, const uint32 color)
 {
-	SDL_FillRect(fSurface, (SDL_Rect*)&rect, (Uint8)color);
+	SDL_Rect sdlRect;
+	GFXRectToSDLRect(&rect, &sdlRect);
+	SDL_FillRect(fSurface, &sdlRect, (Uint8)color);
 }
 
 
