@@ -243,7 +243,7 @@ void
 GraphicsEngine::RestorePreviousMode()
 {
 	if (fOldDepth != 0) {
-		//SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, fOldFlags);
+		SetVideoMode(fOldRect.w, fOldRect.h, fOldDepth, fOldFlags);
 		fOldDepth = 0;
 	}
 }
