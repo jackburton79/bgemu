@@ -91,6 +91,34 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 }
 
 
+void
+TileCell::AdvanceFrame()
+{
+	int maxOverlay = fNumOverlays;
+	MapOverlay* overlayZero = fOverlays[0];
+	if (overlayZero == NULL) {
+		std::cerr << "Overlay Zero is NULL!" << std::endl;
+		return;
+	}
+	TileMap* tileMapZero = overlayZero->TileMapForTileCell(fNumber);
+	if (tileMapZero == NULL) {
+		std::cerr << "Tilemap Zero is NULL!" << std::endl;
+		return;
+	}
+	const int8 mask = tileMapZero->Mask();
+	for (int i = maxOverlay - 1; i >= 0; i--) {
+		if (!ShouldDrawOverlay(i, mask))
+			continue;
+		MapOverlay *overlay = fOverlays[i];
+		TileMap *map = overlay->TileMapForTileCell(i == 0 ? fNumber : 0);
+		if (map == NULL)
+			continue;
+
+		map->TileIndex(true);
+	}
+}
+
+
 Door *
 TileCell::Door() const
 {

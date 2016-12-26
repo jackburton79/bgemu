@@ -1230,21 +1230,25 @@ RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 	lastTileX = std::min(lastTileX, overlayWidth);
 	lastTileY = std::min(lastTileY, overlay->Height());
 
-	//bool advance = true;
-	bool advance = Timer::Get("ANIMATEDTILES")->Expired();
+	bool advance = true;
+	//bool advance = Timer::Get("ANIMATEDTILES")->Expired();
 	GFX::rect tileRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
-	for (uint16 y = firstTileY; y < lastTileY; y++) {
+	for (uint16 y = 0; y < overlay->Height(); y++) {
 		tileRect.w = TILE_WIDTH;
 		tileRect.h = TILE_HEIGHT;
 		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
 
 		const uint32 tileNumY = y * overlayWidth;
-		for (uint16 x = firstTileX; x < lastTileX; x++) {
+		for (uint16 x = 0; x < overlayWidth; x++) {
 			tileRect.w = TILE_WIDTH;
 			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
 
 			TileCell* tile = TileAt(tileNumY,  x);
-			tile->Draw(fBackBitmap, &tileRect, advance, fDrawOverlays);
+			if (advance)
+				tile->AdvanceFrame();
+			if (y >= firstTileY && y <= lastTileY
+					&& x >= firstTileX && x <= lastTileX)
+				tile->Draw(fBackBitmap, &tileRect, false, fDrawOverlays);
 		}
 	}
 }
