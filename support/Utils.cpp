@@ -95,3 +95,12 @@ extension(const char* path)
 	return point;
 }
 
+
+void
+assert_size(size_t size, size_t controlValue)
+{
+	if (size != controlValue) {
+		printf("size is %zu\n", size);
+		assert(size == controlValue);
+	}
+}

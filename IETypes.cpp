@@ -120,16 +120,6 @@ is_tileset(int16 type)
 }
 
 
-static void
-assert_size(size_t size, size_t controlValue)
-{
-	if (size != controlValue) {
-		printf("size is %zu\n", size);
-		assert(size == controlValue);
-	}
-}
-
-
 void
 IE::check_objects_size()
 {

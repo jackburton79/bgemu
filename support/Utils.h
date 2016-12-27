@@ -11,10 +11,11 @@
 extern "C" {
 #endif
 
-const char *trim(char *string);
-void path_dos_to_unix(char *path);
-FILE *fopen_case(const char *name, const char *flags);
-const char *extension(const char *name);
+const char* trim(char* string);
+void path_dos_to_unix(char* path);
+FILE* fopen_case(const char* name, const char* flags);
+const char* extension(const char* name);
+void assert_size(size_t size, size_t controlValue);
 
 #ifdef __cplusplus
 }

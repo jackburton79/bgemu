@@ -82,6 +82,7 @@ support/Path.cpp \
 support/Referenceable.cpp \
 support/Utils.cpp \
 support/ZLibDecompressor.cpp \
+SupportDefs.cpp \
 TextSupport.cpp \
 TileCell.cpp \
 Timer.cpp \

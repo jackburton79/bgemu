@@ -28,4 +28,6 @@ typedef signed char sint8;
 typedef std::vector<std::string> StringList;
 typedef std::vector<std::string>::iterator StringListIterator;
 
+extern void check_types_size();
+
 #endif /* __SUPPORTDEFS_H */
