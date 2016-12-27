@@ -4,9 +4,11 @@
 #include "Resource.h"
 
 struct KeyFileEntry {
+	KeyFileEntry() { name = NULL; };
+	~KeyFileEntry() { delete[] name; };
 	uint32 length;
 	uint16 location;
-	char name[32];
+	char* name;
 };
 
 

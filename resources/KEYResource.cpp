@@ -71,14 +71,7 @@ KEYResource::GetFileEntryAt(uint32 index)
 		fData->Read(offset);
 		fData->Read(nameLen);
 		fData->Read(entry->location);
-		if ((int16)sizeof(entry->name) <= nameLen) {
-			std::cerr << "KEYResource::GetFileEntryAt(" << index;
-			std::cerr << "): name length too big (";
-			std::cerr << nameLen << " > " << sizeof(entry->name);
-			std::cerr << ")" << std::endl;
-			std::cerr << "This shouldn't really happen" << std::endl;
-			throw "ERROR";
-		}
+		entry->name = new char[nameLen + 1];
 		fData->ReadAt(offset, entry->name, nameLen);
 		path_dos_to_unix(entry->name);
 	} catch (...) {
