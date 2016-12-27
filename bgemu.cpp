@@ -80,6 +80,8 @@ ParseArgs(int argc, char **argv)
 int
 main(int argc, char **argv)
 {
+	check_types_size();
+	
 	ParseArgs(argc, argv);
 
 	if (sTest) {
