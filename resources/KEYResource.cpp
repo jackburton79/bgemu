@@ -8,6 +8,14 @@
 const static int32 kKeyFileEntrySize = 12;
 const static int32 kKeyResEntrySize = 14;
 
+void
+KeyFileEntry::Dump() const
+{
+	std::cout << name << ": length " << length;
+	std::cout << ", location " << location << std::endl;
+}
+
+
 KEYResource::KEYResource(const res_ref &name)
 	:
 	Resource(name, 0),
@@ -62,13 +70,11 @@ KEYResource::GetFileEntryAt(uint32 index)
 	KeyFileEntry* entry = NULL;
 	try {
 		entry = new KeyFileEntry;
-
 		fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
-		int32 offset;
-		int16 nameLen;
-
 		fData->Read(entry->length);
+		uint32 offset;
 		fData->Read(offset);
+		uint16 nameLen;
 		fData->Read(nameLen);
 		fData->Read(entry->location);
 		entry->name = new char[nameLen + 1];
@@ -112,6 +118,33 @@ KEYResource::GetResEntryAt(uint32 index)
 		entry = NULL;
 	}
 	return entry;
+}
+
+
+/* virtual */
+void
+KEYResource::Dump()
+{
+	std::cout << "KeyResource " << Name() << std::endl;
+	std::cout << "\tNumber of BIF files: " << CountFileEntries() << std::endl;
+	std::cout << "\tBIFs offset: " << fBifOffset << std::endl;
+	std::cout << "\tNumber of Resources: " << CountResourceEntries() << std::endl;
+	std::cout << "\tResources offset: " << fResOffset << std::endl;
+	for (uint32 i = 0; i < CountFileEntries(); i++) {
+		KeyFileEntry* fileEntry = GetFileEntryAt(i);
+		if (fileEntry != NULL) {
+			fileEntry->Dump();
+			delete fileEntry;
+		}
+	}
+	
+	for (uint32 i = 0; i < CountResourceEntries(); i++) {
+		KeyResEntry* resEntry = GetResEntryAt(i);
+		if (resEntry != NULL) {
+			//resEntry->Dump();
+			delete resEntry;
+		}
+	}
 }
 
 

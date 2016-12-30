@@ -6,6 +6,8 @@
 struct KeyFileEntry {
 	KeyFileEntry() { name = NULL; };
 	~KeyFileEntry() { delete[] name; };
+	void Dump() const;
+	
 	uint32 length;
 	uint16 location;
 	char* name;
@@ -30,6 +32,8 @@ public:
 	uint32 CountResourceEntries() const;
 	KeyResEntry* GetResEntryAt(uint32 index);
 
+	virtual void Dump();
+	
 private:
 	virtual ~KEYResource();
 
