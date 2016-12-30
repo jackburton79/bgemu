@@ -130,6 +130,7 @@ KEYResource::Dump()
 	std::cout << "\tBIFs offset: " << fBifOffset << std::endl;
 	std::cout << "\tNumber of Resources: " << CountResourceEntries() << std::endl;
 	std::cout << "\tResources offset: " << fResOffset << std::endl;
+	std::cout << "BIF entries: " << std::endl;
 	for (uint32 i = 0; i < CountFileEntries(); i++) {
 		KeyFileEntry* fileEntry = GetFileEntryAt(i);
 		if (fileEntry != NULL) {
@@ -137,7 +138,7 @@ KEYResource::Dump()
 			delete fileEntry;
 		}
 	}
-	
+	std::cout << "Resource entries: " << std::endl;
 	for (uint32 i = 0; i < CountResourceEntries(); i++) {
 		KeyResEntry* resEntry = GetResEntryAt(i);
 		if (resEntry != NULL) {
