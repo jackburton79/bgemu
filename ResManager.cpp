@@ -29,6 +29,8 @@
 #include <iostream>
 #include <limits.h>
 
+#define DEBUG_RESMANAGER 1
+
 #define USE_OVERRIDE 1
 
 #define OVERRIDE_MASK	0x00
@@ -81,6 +83,10 @@ ResourceManager::ResourceManager(const char* path)
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
 		throw "Cannot find key file";
+
+#if DEBUG_RESMANAGER > 0
+	key->Dump();
+#endif 
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
