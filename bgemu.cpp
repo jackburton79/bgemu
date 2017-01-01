@@ -138,17 +138,8 @@ main(int argc, char **argv)
 		Core::Destroy();
 	}
 
-	RoomContainer* container = RoomContainer::Get();
-	if (!container->LoadWorldMap()) {
-		std::cerr << "LoadWorldMap failed" << std::endl;
-		GraphicsEngine::Destroy();
-		SoundEngine::Destroy();
-		Core::Destroy();
-		return -1;
-	}
 
-	if (container != NULL)
-		Game::Get()->Loop(!sNoScripts);
+	Game::Get()->Loop(!sNoScripts);
 
 	RoomContainer::Delete();
 	GUI::Destroy();

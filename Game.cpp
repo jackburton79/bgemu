@@ -35,16 +35,7 @@ Game::Game()
 	:
 	fParty(NULL)
 {
-	// TODO: Move this elsewhere.
-	// This should be filled by the player selection
 	fParty = new ::Party();
-	IE::point point = { 20, 20 };
-	if (fParty->CountActors() == 0) {
-		if (Core::Get()->Game() == GAME_BALDURSGATE)
-			fParty->AddActor(new Actor("AJANTI", point, 0));
-		else
-			fParty->AddActor(new Actor("AESOLD", point, 0));
-	}
 }
 
 
@@ -59,6 +50,25 @@ Game::Loop(bool executeScripts)
 {
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
+
+	RoomContainer::Create();
+
+	RoomContainer* container = RoomContainer::Get();
+	// TODO: Move this elsewhere.
+	// This should be filled by the player selection
+
+	IE::point point = { 20, 20 };
+	if (fParty->CountActors() == 0) {
+		if (Core::Get()->Game() == GAME_BALDURSGATE)
+			fParty->AddActor(new Actor("AJANTI", point, 0));
+		else
+			fParty->AddActor(new Actor("AESOLD", point, 0));
+	}
+
+	if (!container->LoadWorldMap()) {
+		std::cerr << "LoadWorldMap failed" << std::endl;
+		return;
+	}
 
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();

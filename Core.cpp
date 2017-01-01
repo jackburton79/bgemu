@@ -96,9 +96,6 @@ Core::Initialize(const char* path)
 
 	Timer::Initialize();
 
-	Game::Get();
-	RoomContainer::Create();
-
 	_InitGameTimers();
 
 	std::cout << "Core::Initialize(): OK! " << std::endl;
