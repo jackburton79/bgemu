@@ -29,8 +29,6 @@ public:
 	static bool Create();
 	static void Delete();
 	
-	void StartLoop(bool executeScripts);
-
 	res_ref AreaName() const;
 	WEDResource* WED();
 	ARAResource* AREA() const;

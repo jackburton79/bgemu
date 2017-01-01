@@ -3,6 +3,7 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "Core.h"
+#include "Game.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "MovieDecoder.h"
@@ -136,7 +137,7 @@ main(int argc, char **argv)
 		SoundEngine::Destroy();
 		Core::Destroy();
 	}
-	
+
 	RoomContainer* container = RoomContainer::Get();
 	if (!container->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
@@ -147,7 +148,7 @@ main(int argc, char **argv)
 	}
 
 	if (container != NULL)
-		container->StartLoop(!sNoScripts);
+		Game::Get()->Loop(!sNoScripts);
 
 	RoomContainer::Delete();
 	GUI::Destroy();

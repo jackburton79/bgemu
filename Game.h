@@ -13,7 +13,7 @@ class Party;
 class Game {
 public:
 	static Game* Get();
-
+	void Loop(bool executeScripts);
 	::Party* Party();
 
 	bool Load(const char* name);
