@@ -53,10 +53,8 @@ Game::Loop(bool executeScripts)
 
 	RoomContainer::Create();
 
-	RoomContainer* container = RoomContainer::Get();
 	// TODO: Move this elsewhere.
 	// This should be filled by the player selection
-
 	IE::point point = { 20, 20 };
 	if (fParty->CountActors() == 0) {
 		if (Core::Get()->Game() == GAME_BALDURSGATE)
@@ -65,7 +63,7 @@ Game::Loop(bool executeScripts)
 			fParty->AddActor(new Actor("AESOLD", point, 0));
 	}
 
-	if (!container->LoadWorldMap()) {
+	if (!RoomContainer::Get()->LoadWorldMap()) {
 		std::cerr << "LoadWorldMap failed" << std::endl;
 		return;
 	}
