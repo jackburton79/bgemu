@@ -7,13 +7,15 @@
 
 #include "Game.h"
 
+#include "2DAResource.h"
 #include "Actor.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "InputConsole.h"
-#include "OutputConsole.h"
 #include "Party.h"
+#include "OutputConsole.h"
+#include "ResManager.h"
 #include "Room.h"
 #include "Timer.h"
 
@@ -48,6 +50,7 @@ Game::~Game()
 void
 Game::Loop(bool executeScripts)
 {
+	std::cout << "Game::Loop()" << std::endl;
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 
@@ -63,10 +66,6 @@ Game::Loop(bool executeScripts)
 			fParty->AddActor(new Actor("AESOLD", point, 0));
 	}
 
-	if (!RoomContainer::Get()->LoadWorldMap()) {
-		std::cerr << "LoadWorldMap failed" << std::endl;
-		return;
-	}
 
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
@@ -76,12 +75,21 @@ Game::Loop(bool executeScripts)
 			screenRect.w,
 			screenRect.h - 21);
 
-	OutputConsole* console = new OutputConsole(consoleRect);
+	std::cout << "Setting up output console... ";
+	std::flush(std::cout);
+	OutputConsole console(consoleRect, false);
 	consoleRect.h = 20;
 	consoleRect.y = screenRect.h - consoleRect.h;
-	InputConsole* inputConsole = new InputConsole(consoleRect);
-	inputConsole->Initialize();
+	std::cout << "OK!" << std::endl;
+	std::cout << "Setting up input console... ";
+	std::flush(std::cout);
+	InputConsole inputConsole(consoleRect);
+	inputConsole.Initialize();
+	std::cout << "OK!" << std::endl;
 
+	LoadStartingArea();
+
+	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
 	bool quitting = false;
 	while (!quitting) {
@@ -101,9 +109,9 @@ Game::Loop(bool executeScripts)
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
-						console->Toggle();
-						inputConsole->Toggle();
-					} else if (console->IsActive()) {
+						console.Toggle();
+						inputConsole.Toggle();
+					} else if (console.IsActive()) {
 						/*if (event.key.keysym.unicode < 0x80 && event.key.keysym.unicode > 0) {
 							uint8 key = event.key.keysym.sym;
 							if (event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT))
@@ -117,10 +125,10 @@ Game::Loop(bool executeScripts)
 									room->ToggleOverlays();
 								break;
 							case SDLK_d:
-								if (console->HasOutputRedirected())
-									console->DisableRedirect();
+								if (console.HasOutputRedirected())
+									console.DisableRedirect();
 								else
-									console->EnableRedirect();
+									console.EnableRedirect();
 								break;
 							// TODO: Move to GUI class
 							case SDLK_h:
@@ -188,19 +196,18 @@ Game::Loop(bool executeScripts)
 		// is moved
 		gui->MouseMoved(lastMouseX, lastMouseY);
 
-		console->Draw();
-		inputConsole->Draw();
+		console.Draw();
+		inputConsole.Draw();
 		Core::Get()->UpdateLogic(executeScripts);
 
 		GraphicsEngine::Get()->Flip();
-		if (inputConsole->IsActive())
+		if (inputConsole.IsActive())
 			Timer::Wait(25);
 		else
 			Timer::Wait(50);
 	}
 
-	delete console;
-	delete inputConsole;
+	std::cout << "Game: Input loop stopped." << std::endl;
 }
 
 
@@ -209,3 +216,18 @@ Game::Party()
 {
 	return fParty;
 }
+
+
+void
+Game::LoadStartingArea()
+{
+	std::cout << "Load Starting Area..." << std::endl;
+	TWODAResource* resource = gResManager->Get2DA("STARTARE");
+	if (resource == NULL)
+		return;
+
+	std::string string = resource->ValueFor("START_AREA", "VALUE");
+
+	RoomContainer::Get()->LoadArea(string.c_str(), "foo", NULL);
+}
+

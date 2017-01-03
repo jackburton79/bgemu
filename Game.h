@@ -16,6 +16,8 @@ public:
 	void Loop(bool executeScripts);
 	::Party* Party();
 
+	void LoadStartingArea();
+
 	bool Load(const char* name);
 	bool Save(const char* name);
 
