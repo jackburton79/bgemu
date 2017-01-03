@@ -734,7 +734,6 @@ RoomContainer::DrawObject(const Object& object)
 		const Bitmap* actorFrame = actor->Bitmap();
 
 		int32 pointHeight = PointHeight(actorPosition);
-		//std::cerr << "Point Height: " << pointHeight << std::endl;
 		actorPosition.y += pointHeight - 8;
 		DrawObject(actorFrame, actorPosition, true);
 	}
