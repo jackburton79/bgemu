@@ -183,6 +183,7 @@ Script::Execute()
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
 			while (condition != NULL) {
+				printf("IF ");
 				if (!_CheckTriggers(condition))
 					break;
 
@@ -273,9 +274,10 @@ Script::_EvaluateTrigger(trigger_node* trig)
 		return false;
 
 #if DEBUG_SCRIPTS
-	printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
-				trig->id, trig->id);
-	trig->Print();
+	printf("%s%s (%d 0x%x) ", trig->flags != 0 ? "!" : "",
+			IDTable::TriggerAt(trig->id).c_str(),
+			trig->id, trig->id);
+	//trig->Print();
 #endif
 
 	Core* core = Core::Get();
@@ -737,7 +739,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	if (trig->flags != 0)
 		returnValue = !returnValue;
 #if DEBUG_SCRIPTS
-	printf("\t*** %s (flags: %d) ***\n", returnValue ? "TRUE" : "FALSE", trig->flags);
+	printf("(%s)\n", returnValue ? "TRUE" : "FALSE");
 #endif
 	return returnValue;
 }
