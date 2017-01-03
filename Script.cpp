@@ -844,6 +844,17 @@ Script::_ExecuteAction(action_node* act)
 
 			break;
 		}
+		case 23:
+		{
+			// MoveToPoint
+			Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
+			if (actor != NULL) {
+				WalkTo* walkTo = new WalkTo(actor, act->where);
+				actor->AddAction(walkTo);
+				actor->StopCheckingConditions();
+			}
+			break;
+		}
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
