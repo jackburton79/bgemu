@@ -167,9 +167,9 @@ Core::ExitingArea(RoomContainer* area)
 void
 Core::SetVariable(const char* name, int32 value)
 {
-	std::cout << "SetVariable(" << name << ", " << value;
-	std::cout << " (old value: " << fVariables[name] << ")";
-	std::cout << std::endl;
+	//std::cout << "SetVariable(" << name << ", " << value;
+	//std::cout << " (old value: " << fVariables[name] << ")";
+	//std::cout << std::endl;
 	fVariables[name] = value;
 }
 
@@ -177,8 +177,8 @@ Core::SetVariable(const char* name, int32 value)
 int32
 Core::GetVariable(const char* name)
 {
-	std::cout << "GetVariable(" << name << "): " << fVariables[name];
-	std::cout << std::endl;
+	//std::cout << "GetVariable(" << name << "): " << fVariables[name];
+	//std::cout << std::endl;
 	return fVariables[name];
 }
 
