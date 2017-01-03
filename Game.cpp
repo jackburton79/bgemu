@@ -227,7 +227,13 @@ Game::LoadStartingArea()
 		return;
 
 	std::string string = resource->ValueFor("START_AREA", "VALUE");
+	IE::point point;
+	point.x = ::atoi(resource->ValueFor("START_XPOS", "").c_str());
+	point.y = ::atoi(resource->ValueFor("START_YPOS", "").c_str());
 
 	RoomContainer::Get()->LoadArea(string.c_str(), "foo", NULL);
+	RoomContainer::Get()->SetAreaOffset(point);
+	if (fParty != NULL)
+		fParty->ActorAt(0)->SetPosition(point);
 }
 
