@@ -20,7 +20,8 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual void Dump();
 
-	std::string ValueFor(const char*, const char*);
+	std::string ValueFor(const char* row, const char* column = NULL);
+	uint32 IntegerValueFor(const char* row, const char* column = NULL);
 private:
 	virtual ~TWODAResource();
 	std::map<std::pair<std::string, std::string>, std::string> fMap;

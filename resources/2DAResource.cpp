@@ -9,6 +9,8 @@
 #include "EncryptedStream.h"
 #include "MemoryStream.h"
 
+#include <cstdlib>
+
 #define TWODA_SIGNATURE "2DA "
 #define TWODA_VERSION_1 "V1.0"
 
@@ -109,5 +111,13 @@ TWODAResource::Dump()
 std::string
 TWODAResource::ValueFor(const char* rowValue, const char* columnValue)
 {
-	return fMap[std::make_pair(rowValue, columnValue)];
+	const char* value = columnValue ? columnValue : "";
+	return fMap[std::make_pair(rowValue, value)];
+}
+
+
+uint32
+TWODAResource::IntegerValueFor(const char* rowValue, const char* columnValue)
+{
+	return ::strtoul(ValueFor(rowValue, columnValue).c_str(), NULL, 0);
 }
