@@ -15,7 +15,7 @@
 
 class OutputConsole: public Console {
 public:
-	OutputConsole(const GFX::rect& rect);
+	OutputConsole(const GFX::rect& rect, bool redirect = true);
 	~OutputConsole();
 
 	bool HasOutputRedirected() const;

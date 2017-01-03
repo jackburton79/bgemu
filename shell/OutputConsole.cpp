@@ -7,13 +7,15 @@
 
 #include "OutputConsole.h"
 
-OutputConsole::OutputConsole(const GFX::rect& rect)
+OutputConsole::OutputConsole(const GFX::rect& rect, bool redirect)
 	:
 	Console(rect),
+	fOldBuf(NULL),
 	fOutputRedirected(false),
 	fQuit(false)
 {
-	_EnableOutputRedirect();
+	if (redirect)
+		_EnableOutputRedirect();
 	fLock = SDL_CreateMutex();
 	fThread = SDL_CreateThread(_UpdateFunction, "ConsoleThread", this);
 }
