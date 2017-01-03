@@ -52,14 +52,14 @@ TWODAResource::Load(Archive* archive, uint32 key)
 	fData->ReadLine(string, sizeof(string));
 		// skip line TODO: Handle
 
-	std::cout << "*** " << string << " ***" << std::endl;
+	//std::cout << "*** " << string << " ***" << std::endl;
 
 	fData->ReadLine(string, sizeof(string)); // skip ??? Why!?
 
-	std::cout << string << std::endl;
+	//std::cout << string << std::endl;
 	fData->ReadLine(string, sizeof(string)); // headers
 
-	std::cout << string << std::endl;
+	//std::cout << string << std::endl;
 	std::map<int, std::string> headerMap;
 	char *name = strtok(string, " ");
 	if (name != NULL) {
