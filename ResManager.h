@@ -15,6 +15,7 @@ extern const char *kKeyResource;
 extern const char *kDialogResource;
 
 class Archive;
+class TWODAResource;
 class ARAResource;
 class BAMResource;
 class BCSResource;
@@ -39,6 +40,7 @@ public:
 
 	KEYResource *GetKEY(const char *name);
 	TLKResource *GetTLK(const char *name);
+	TWODAResource *Get2DA(const res_ref& name);
 	BAMResource *GetBAM(const res_ref& name);
 	BCSResource *GetBCS(const res_ref& name);
 	BMPResource *GetBMP(const res_ref& name);

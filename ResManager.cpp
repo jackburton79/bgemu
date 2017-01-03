@@ -398,6 +398,14 @@ ResourceManager::GetTIS(const res_ref& name)
 }
 
 
+TWODAResource*
+ResourceManager::Get2DA(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_2DA);
+	return static_cast<TWODAResource*>(resource);
+}
+
+
 WEDResource*
 ResourceManager::GetWED(const res_ref& name)
 {
