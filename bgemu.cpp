@@ -120,10 +120,6 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	if (!SoundEngine::Initialize())
-		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
-	
-
 	int flags = 0;
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
@@ -138,6 +134,8 @@ main(int argc, char **argv)
 		Core::Destroy();
 	}
 
+	if (!SoundEngine::Initialize())
+		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
 
 	Game::Get()->Loop(!sNoScripts);
 
