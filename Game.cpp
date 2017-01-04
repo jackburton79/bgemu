@@ -56,17 +56,6 @@ Game::Loop(bool executeScripts)
 
 	RoomContainer::Create();
 
-	// TODO: Move this elsewhere.
-	// This should be filled by the player selection
-	IE::point point = { 20, 20 };
-	if (fParty->CountActors() == 0) {
-		if (Core::Get()->Game() == GAME_BALDURSGATE)
-			fParty->AddActor(new Actor("AJANTI", point, 0));
-		else
-			fParty->AddActor(new Actor("AESOLD", point, 0));
-	}
-
-
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
 	GFX::rect consoleRect(
@@ -86,6 +75,17 @@ Game::Loop(bool executeScripts)
 	InputConsole inputConsole(consoleRect);
 	inputConsole.Initialize();
 	std::cout << "OK!" << std::endl;
+
+
+	// TODO: Move this elsewhere.
+	// This should be filled by the player selection
+	IE::point point = { 20, 20 };
+	if (fParty->CountActors() == 0) {
+		if (Core::Get()->Game() == GAME_BALDURSGATE)
+			fParty->AddActor(new Actor("AJANTI", point, 0));
+		else
+			fParty->AddActor(new Actor("AESOLD", point, 0));
+	}
 
 	LoadStartingArea();
 
@@ -221,11 +221,14 @@ Game::Party()
 void
 Game::LoadStartingArea()
 {
-	std::cout << "Load Starting Area..." << std::endl;
+	std::cout << "Load Starting Area...";
 	TWODAResource* resource = gResManager->Get2DA("STARTARE");
-	if (resource == NULL)
+	if (resource == NULL) {
+		std::cout << "Failed!" << std::endl;
 		return;
+	}
 
+	std::cout << "OK!" << std::endl;
 	std::string string = resource->ValueFor("START_AREA", "VALUE");
 	IE::point point;
 	point.x = resource->IntegerValueFor("START_XPOS");
