@@ -136,9 +136,14 @@ main(int argc, char **argv)
 
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
-
-	Game::Get()->Loop(!sNoScripts);
-
+	try {
+		Game::Get()->Loop(!sNoScripts);
+	} catch (const char* error) {
+		std::cerr << "Game Loop exited with error: " << error << std::endl;
+	} catch (...) {
+		std::cerr << "Game Loop exited with unhandled error" << std::endl;
+	}
+	
 	RoomContainer::Delete();
 	GUI::Destroy();
 	GraphicsEngine::Destroy();
