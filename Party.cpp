@@ -23,8 +23,10 @@ Party::~Party()
 void
 Party::AddActor(Actor* actor)
 {
-	fActors.push_back(actor);
-	actor->SetInterruptable(false);
+	if (actor != NULL) {
+		fActors.push_back(actor);
+		actor->SetInterruptable(false);
+	}
 }
 
 
