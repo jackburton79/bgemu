@@ -105,12 +105,11 @@ Actor::_Init()
 			fCRE = dynamic_cast<CREResource*>(cre->Clone());
 			gResManager->ReleaseResource(cre);
 		}
+		if (fCRE == NULL)
+			throw "Actor: CRE file not loaded.";
 	}
 
 	// TODO: Get all scripts ? or just the specific one ?
-
-	if (fCRE == NULL)
-		throw "error!!!";
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
 
