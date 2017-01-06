@@ -96,10 +96,11 @@ WEDResource::CountOverlays() const
 void
 WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay)
 {
-    uint32 mapOffset = overlay.tilemap_offset + x * sizeof (tilemap);
+    uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
     tilemap tileMap;
     fData->ReadAt(mapOffset, tileMap);
-    mapOverlay->fTileMaps[x].SetMask(tileMap.mask);
+    mapOverlay->fTileMaps[x] = new TileMap();
+    mapOverlay->fTileMaps[x]->SetMask(tileMap.mask);
 
     const int32 indexCount = tileMap.primary_tile_count;
     const int32 offset = overlay.tile_lookup_offset
@@ -108,10 +109,10 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverl
     for (int32 c = 0; c < indexCount; c++) {
     	int16 tisIndex;
     	fData->ReadAt(offset + c * sizeof(int16), tisIndex);
-        mapOverlay->fTileMaps[x].AddTileIndex(tisIndex);
+        mapOverlay->fTileMaps[x]->AddTileIndex(tisIndex);
     }
 
-    mapOverlay->fTileMaps[x].SetSecondaryTileIndex(tileMap.secondary_tile_index);
+    mapOverlay->fTileMaps[x]->SetSecondaryTileIndex(tileMap.secondary_tile_index);
 }
 
 
@@ -131,7 +132,7 @@ WEDResource::GetOverlay(uint32 index)
 	mapOverlay->fTileSet = overlay.resource_ref;
 	mapOverlay->fWidth = overlay.width;
 	mapOverlay->fHeight = overlay.height;
-	mapOverlay->fTileMaps = new TileMap[overlay.width * overlay.height];
+	//mapOverlay->fTileMaps = new TileMap[overlay.width * overlay.height];
 
 	const uint32 overlaySize = overlay.height * overlay.width;
 	for (uint32 x = 0; x < overlaySize; x++)
@@ -226,15 +227,18 @@ WEDResource::_LoadPolygons()
 MapOverlay::MapOverlay()
 	:
 	fWidth(0),
-	fHeight(0),
-	fTileMaps(NULL)
+	fHeight(0)
+	//fTileMaps(NULL)
 {
 }
 
 
 MapOverlay::~MapOverlay()
 {
-	delete[] fTileMaps;
+	std::map<uint32, TileMap*>::iterator i;
+	for (i = fTileMaps.begin(); i != fTileMaps.end(); i++) {
+		delete i->second;
+	}
 }
 
 
@@ -277,7 +281,7 @@ MapOverlay::TileMapForTileCell(int32 i)
 		return NULL;
 	}
 
-	return &fTileMaps[i];
+	return fTileMaps[i];
 }
 
 

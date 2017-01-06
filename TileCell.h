@@ -31,6 +31,7 @@ private:
 class TileCell {
 public:
 	TileCell(uint32 index, std::vector<MapOverlay*>& overlays, int numOverlays);
+	void SetPosition(uint16 x, uint16 y);
 	void Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full = false);
 	void AdvanceFrame();
 	void SetDoor(::Door *d);
@@ -44,6 +45,8 @@ private:
 	::Door *fDoor;
 	std::vector<MapOverlay*>& fOverlays;
 	int fNumOverlays;
+	uint16 fPosX;
+	uint16 fPosY;
 };
 
 

@@ -30,7 +30,7 @@ private:
 	uint16 fWidth;
 	uint16 fHeight;
 
-	TileMap *fTileMaps;
+	std::map<uint32, TileMap*> fTileMaps;
 
 	friend class WEDResource;
 };

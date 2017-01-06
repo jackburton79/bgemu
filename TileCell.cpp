@@ -24,6 +24,14 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 
 
 void
+TileCell::SetPosition(uint16 x, uint16 y)
+{
+	fPosX = x;
+	fPosY = y;
+}
+
+
+void
 _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 {
 	if (color)
