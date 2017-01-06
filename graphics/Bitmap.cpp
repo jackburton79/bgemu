@@ -124,6 +124,10 @@ void
 Bitmap::SetAlpha(uint8 value, bool on)
 {
 	SDL_SetSurfaceAlphaMod(fSurface, on ? value : 0);
+	if (on)
+		SDL_SetSurfaceBlendMode(fSurface, SDL_BLENDMODE_BLEND);
+	else
+		SDL_SetSurfaceBlendMode(fSurface, SDL_BLENDMODE_NONE);
 }
 
 
