@@ -72,6 +72,7 @@ BackMap::Height() const
 }
 
 
+// Get the tile at the specified x/y index
 TileCell*
 BackMap::TileAt(uint16 x, uint16 y)
 {
@@ -97,6 +98,7 @@ BackMap::CountTiles() const
 }
 
 
+// Get the tile at the specified (GLOBAL) coordinate
 TileCell*
 BackMap::TileAtPoint(const IE::point& point)
 {
