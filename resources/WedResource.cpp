@@ -132,7 +132,6 @@ WEDResource::GetOverlay(uint32 index)
 	mapOverlay->fTileSet = overlay.resource_ref;
 	mapOverlay->fWidth = overlay.width;
 	mapOverlay->fHeight = overlay.height;
-	//mapOverlay->fTileMaps = new TileMap[overlay.width * overlay.height];
 
 	const uint32 overlaySize = overlay.height * overlay.width;
 	for (uint32 x = 0; x < overlaySize; x++)
