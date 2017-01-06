@@ -50,6 +50,8 @@ public:
 	void SetRelativeAreaOffset(IE::point point);
 	void CenterArea(const IE::point& point);
 
+	::BackMap* BackMap() const;
+
 	void ConvertToArea(GFX::rect& rect);
 	void ConvertToArea(IE::point& point);
 	void ConvertFromArea(GFX::rect& rect);
@@ -144,7 +146,7 @@ private:
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
 
-	BackMap* fBackMap;
+	::BackMap* fBackMap;
 	Bitmap* fBlitMask;
 
 	Bitmap* fHeightMap;

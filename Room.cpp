@@ -395,6 +395,13 @@ RoomContainer::CenterArea(const IE::point& point)
 }
 
 
+::BackMap*
+RoomContainer::BackMap() const
+{
+	return fBackMap;
+}
+
+
 void
 RoomContainer::ConvertToArea(GFX::rect& rect)
 {
@@ -934,7 +941,7 @@ RoomContainer::_InitBackMap(GFX::rect area)
 		delete fBackMap;
 
 	assert(fWed != NULL);
-	fBackMap = new BackMap(fWed);
+	fBackMap = new ::BackMap(fWed);
 }
 
 
