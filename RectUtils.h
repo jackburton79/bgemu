@@ -121,4 +121,16 @@ rect_to_gfx_rect(const IE::rect& rect)
 }
 
 
+static inline IE::rect
+gfx_rect_to_rect(const GFX::rect& rect)
+{
+	IE::rect IERect = {
+			rect.x,
+			rect.y,
+			(int16)(rect.x + rect.w),
+			(int16)(rect.y + rect.h)
+	};
+	return IERect;
+}
+
 #endif // __RECTUTILS_H
