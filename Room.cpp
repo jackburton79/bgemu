@@ -202,7 +202,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	_InitAnimations();
 	_InitRegions();
 	_LoadActors();
-	//_InitDoors();
+	_InitDoors();
 	_InitContainers();
 	_InitBlitMask();
 
@@ -568,7 +568,6 @@ RoomContainer::Draw(Bitmap *surface)
 			fBackMap->Image()->Unlock();
 		}
 
-		//fBackBitmap->Update();
 		gfx->BlitToScreen(fBackMap->Image(), NULL, &fViewPort);
 		_DrawSearchMap(mapRect);
 	}
