@@ -218,7 +218,8 @@ Object::Update(bool scripts)
 		}
 	}
 
-	fTileCell = RoomContainer::Get()->BackMap()->TileAtPoint(Position());
+	_UpdateTileCell();
+
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		while (i != fActions.end()) {
@@ -626,6 +627,26 @@ Object::LastReferenceReleased()
 {
 	std::cout << Name() << "::LastReferenceReleased()" << std::endl;
 	delete this;
+}
+
+
+void
+Object::_UpdateTileCell()
+{
+	BackMap* backMap = RoomContainer::Get()->BackMap();
+	if (backMap == NULL)
+		return;
+
+	::TileCell* oldTileCell = fTileCell;
+	::TileCell* newTileCell = backMap->TileAtPoint(Position());
+
+	if (oldTileCell != newTileCell) {
+		if (oldTileCell != NULL)
+			oldTileCell->RemoveObject(this);
+		fTileCell = newTileCell;
+		if (newTileCell != NULL)
+			newTileCell->SetObject(this);
+	}
 }
 
 

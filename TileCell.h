@@ -3,10 +3,12 @@
 
 #include "IETypes.h"
 
+#include <list>
 #include <vector>
 
 class Door;
 class MapOverlay;
+class Object;
 class TileMap {
 public:
 	TileMap();
@@ -37,6 +39,10 @@ public:
 	void SetDoor(::Door *d);
 	::Door *Door() const;
 
+	void SetObject(Object*);
+	void RemoveObject(Object*);
+	uint32 GetObjects(std::vector<Object*>& objects);
+
 	void MouseOver();
 	void Clicked();
 
@@ -44,6 +50,10 @@ private:
 	uint32 fNumber;
 	::Door *fDoor;
 	std::vector<MapOverlay*>& fOverlays;
+
+	// TODO: This should store the object IDs, since
+	// storing the pointers is not safe
+	std::list<Object*> fObjects;
 	int fNumOverlays;
 	uint16 fPosX;
 	uint16 fPosY;

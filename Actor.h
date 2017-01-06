@@ -32,7 +32,7 @@ public:
 	bool IsNew() const;
 
 	const ::Bitmap* Bitmap() const;
-	GFX::rect Frame() const;
+	IE::rect Frame() const;
 
 	int Orientation() const;
 	void SetOrientation(int o);

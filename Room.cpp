@@ -125,6 +125,14 @@ RoomContainer::AREA() const
 }
 
 
+/* virtual */
+IE::rect
+RoomContainer::Frame() const
+{
+	return gfx_rect_to_rect(AreaRect());
+}
+
+
 GFX::rect
 RoomContainer::ViewPort() const
 {
@@ -525,7 +533,7 @@ RoomContainer::Draw(Bitmap *surface)
 			fBackMap->Image()->Unlock();
 		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 			try {
-				GFX::rect rect = actor->Frame();
+				GFX::rect rect = rect_to_gfx_rect(actor->Frame());
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 				fBackMap->Image()->Lock();
 				IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
@@ -1215,7 +1223,7 @@ RoomContainer::_ActorAtPoint(const IE::point& point)
 	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
 		if (Actor* actor = dynamic_cast<Actor*>(iter->Target())) {
 			try {
-				const GFX::rect actorFrame = actor->Frame();
+				const GFX::rect actorFrame = rect_to_gfx_rect(actor->Frame());
 				if (rect_contains(actorFrame, point))
 					return actor;
 			} catch (...) {
@@ -1257,20 +1265,22 @@ Object*
 RoomContainer::_ObjectAtPoint(const IE::point& point)
 {
 	Object* object = NULL;
-	const uint16 tileNum = fBackMap->TileNumberForPoint(point);
-	if (tileNum >= fBackMap->CountTiles())
+
+	::TileCell* cell = fBackMap->TileAtPoint(point);
+	if (cell == NULL)
 		return object;
 
-	Door* door = fBackMap->TileAt(tileNum)->Door();
+	std::vector<Object*> objects;
+	if (cell->GetObjects(objects) > 0) {
+		std::vector<Object*>::iterator i;
+		for (i = objects.begin(); i != objects.end(); i++) {
+			if (rect_contains((*i)->Frame(), point)) {
+				object = *i;
+			}
+		}
+	}
 
-	if (Actor* actor = _ActorAtPoint(point)) {
-		object = actor;
-	} else if (door != NULL && rect_contains(door->Frame(), point)) {
-		object = door;
-	} else if (Container* container = _ContainerAtPoint(point)) {
-		object = container;
-	} else if (Region* region = _RegionAtPoint(point)) {
-		object = region;
+	if (Region* region = _RegionAtPoint(point)) {
 		// TODO: This is a side effect of a method
 		// which should just return an object, and in
 		// fact _ObjectAtPoint() should be const.

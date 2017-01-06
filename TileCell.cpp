@@ -136,6 +136,36 @@ TileCell::SetDoor(::Door *d)
 
 
 void
+TileCell::SetObject(Object* object)
+{
+	fObjects.push_back(object);
+}
+
+
+void
+TileCell::RemoveObject(Object* object)
+{
+	std::list<Object*>::iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		if (object == (*i)) {
+			fObjects.remove(object);
+			break;
+		}
+	}
+}
+
+
+uint32
+TileCell::GetObjects(std::vector<Object*>& objects)
+{
+	std::list<Object*>::iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++)
+		objects.push_back(*i);
+	return objects.size();
+}
+
+
+void
 TileCell::Clicked()
 {
 	if (fDoor != NULL)
@@ -175,7 +205,6 @@ TileMap::TileIndex(bool advanceFrame)
 		fCurrentIndex = 0;
 	return index;
 }
-
 
 
 void

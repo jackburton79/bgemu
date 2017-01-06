@@ -192,7 +192,7 @@ Actor::Bitmap() const
 
 
 // Returns the rect containing the current actor image
-GFX::rect
+IE::rect
 Actor::Frame() const
 {
 	const GFX::rect& frame = Bitmap()->Frame();
@@ -200,7 +200,14 @@ Actor::Frame() const
 								-(frame.x + frame.w / 2),
 								-(frame.y + frame.h / 2));
 
-	return GFX::rect(leftTop.x, leftTop.y, frame.w, frame.h);
+	IE::rect rect = {
+			leftTop.x,
+			leftTop.y,
+			(int16)(leftTop.x + frame.w),
+			(int16)(leftTop.y + frame.h)
+	};
+
+	return rect;
 }
 
 

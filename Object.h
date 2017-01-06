@@ -80,6 +80,7 @@ public:
 	void SetName(const char* name);
 
 	virtual IE::point Position() const;
+	virtual IE::rect Frame() const = 0;
 
 	virtual void Clicked(Object* clicker);
 	virtual void ClickedOn(Object* target);
@@ -149,6 +150,9 @@ protected:
 	void LastReferenceReleased();
 
 private:
+
+	void _UpdateTileCell();
+
 	const char* fName;
 	Script* fScript;
 	uint16 fTicks;

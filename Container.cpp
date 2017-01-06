@@ -28,7 +28,7 @@ Container::Polygon() const
 }
 
 
-const IE::rect
+IE::rect
 Container::Frame() const
 {
 	IE::rect rect;

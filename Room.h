@@ -34,6 +34,8 @@ public:
 	WEDResource* WED();
 	ARAResource* AREA() const;
 
+	virtual IE::rect Frame() const;
+
 	bool LoadArea(const res_ref& areaName,
 					const char* longName,
 					const char* entranceName = NULL);
