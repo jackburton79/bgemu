@@ -24,6 +24,9 @@ public:
 	~BackMap();
 
 	TileCell* TileAt(uint16 x, uint16 y);
+	TileCell* TileAt(uint16 index);
+	int32 CountTiles() const;
+
 	void Update(MapOverlay* overlay, GFX::rect rect);
 	Bitmap* Image() const;
 

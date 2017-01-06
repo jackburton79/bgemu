@@ -57,6 +57,20 @@ BackMap::TileAt(uint16 x, uint16 y)
 }
 
 
+TileCell*
+BackMap::TileAt(uint16 index)
+{
+	return fTileCells[index];
+}
+
+
+int32
+BackMap::CountTiles() const
+{
+	return fTileCells.size();
+}
+
+
 void
 BackMap::Update(MapOverlay* overlay, GFX::rect rect)
 {
