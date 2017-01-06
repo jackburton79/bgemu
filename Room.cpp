@@ -202,7 +202,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	_InitAnimations();
 	_InitRegions();
 	_LoadActors();
-	_InitDoors();
+	//_InitDoors();
 	_InitContainers();
 	_InitBlitMask();
 
@@ -342,8 +342,8 @@ RoomContainer::AreaRect() const
 		rect.w = fWorldMapBitmap->Width();
 		rect.h = fWorldMapBitmap->Height();
 	} else {
-		rect.w = fOverlays[0]->Width() * TILE_WIDTH;
-		rect.h = fOverlays[0]->Height() * TILE_HEIGHT;
+		rect.w = fBackMap->Width() * TILE_WIDTH;
+		rect.h = fBackMap->Height() * TILE_HEIGHT;
 	}
 	return rect;
 }
@@ -474,9 +474,8 @@ RoomContainer::Draw(Bitmap *surface)
 
 		bool paused = Core::Get()->IsPaused();
 		if (!paused) {
-			//fBackBitmap->Clear(0);
-			//_UpdateBaseMap(mapRect);
-			fBackMap->Update(fOverlays[0], mapRect);
+			assert(fBackMap != NULL);
+			fBackMap->Update(mapRect);
 		}
 
 		if (fDrawAnimations) {
@@ -779,17 +778,6 @@ RoomContainer::ActorExitedArea(const Actor* actor)
 }
 
 
-uint16
-RoomContainer::TileNumberForPoint(const IE::point& point)
-{
-	const uint16 overlayWidth = fOverlays[0]->Width();
-	const uint16 tileX = point.x / TILE_WIDTH;
-	const uint16 tileY = point.y / TILE_HEIGHT;
-
-	return tileY * overlayWidth + tileX;
-}
-
-
 uint8
 RoomContainer::PointHeight(const IE::point& point) const
 {
@@ -946,10 +934,8 @@ RoomContainer::_InitBackMap(GFX::rect area)
 	if (fBackMap != NULL)
 		delete fBackMap;
 
-	fBackMap = new BackMap(fOverlays,
-			fOverlays[0]->Width(),
-			fOverlays[0]->Height(),
-			TILE_WIDTH, TILE_HEIGHT);
+	assert(fWed != NULL);
+	fBackMap = new BackMap(fWed);
 }
 
 
@@ -959,15 +945,10 @@ RoomContainer::_InitWed(const char* name)
 	// TODO: Assume that the various resources have
 	// already been deleted and remove these lines ?
 
-	for (uint32 c = 0; c < fOverlays.size(); c++)
-		delete fOverlays[c];
-	fOverlays.clear();
-
 	gResManager->ReleaseResource(fWed);
 
 	fWed = gResManager->GetWED(name);
 
-	_LoadOverlays();
 	_InitBackMap(fViewPort);
 	_InitHeightMap();
 	_InitLightMap();
@@ -1270,7 +1251,7 @@ Object*
 RoomContainer::_ObjectAtPoint(const IE::point& point)
 {
 	Object* object = NULL;
-	const uint16 tileNum = TileNumberForPoint(point);
+	const uint16 tileNum = fBackMap->TileNumberForPoint(point);
 	if (tileNum >= fBackMap->CountTiles())
 		return object;
 
@@ -1292,23 +1273,6 @@ RoomContainer::_ObjectAtPoint(const IE::point& point)
 
 	return object;
 }
-
-
-void
-RoomContainer::_LoadOverlays()
-{
-	std::cout << "Loading Overlays...";
-	std::flush(std::cout);
-	uint32 numOverlays = fWed->CountOverlays();
-	for (uint32 i = 0; i < numOverlays; i++) {
-		MapOverlay *overlay = fWed->GetOverlay(i);
-		fOverlays.push_back(overlay);
-	}
-	std::cout << "Done! Loaded " << numOverlays << " overlays. ";
-	std::cout << "Map size: " << fOverlays[0]->Width();
-	std::cout << "x" << fOverlays[0]->Height() << std::endl;
-}
-
 
 
 void
@@ -1379,8 +1343,6 @@ RoomContainer::_InitDoors()
 	std::cout << "Initializing Doors...";
 	std::flush(std::cout);
 
-	//assert(fTileCells.size() > 0);
-
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
@@ -1434,11 +1396,6 @@ RoomContainer::_UnloadArea()
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
 	fAnimations.clear();
-
-
-	for (uint32 c = 0; c < fOverlays.size(); c++)
-		delete fOverlays[c];
-	fOverlays.clear();
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;

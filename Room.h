@@ -154,7 +154,6 @@ private:
 	int32 fMapHorizontalRatio;
 	int32 fMapVerticalRatio;
 
-	std::vector<MapOverlay*> fOverlays;
 	//std::vector<Actor*> fActors;
 	std::vector<Animation*> fAnimations;
 	std::vector<Reference<Region> > fRegions;

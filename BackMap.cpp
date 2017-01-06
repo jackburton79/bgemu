@@ -39,6 +39,21 @@ BackMap::BackMap(std::vector<MapOverlay*>& overlays,
 }
 
 
+BackMap::BackMap(WEDResource* wed)
+	:
+	fImage(NULL),
+	fMapWidth(0),
+	fMapHeight(0),
+	fTileWidth(TILE_WIDTH),
+	fTileHeight(TILE_HEIGHT)
+{
+	if (_LoadOverlays(wed)) {
+		fMapWidth = fOverlays[0]->Width();
+		fMapHeight = fOverlays[0]->Height();
+	}
+}
+
+
 BackMap::~BackMap()
 {
 	if (fImage != NULL)
@@ -47,6 +62,24 @@ BackMap::~BackMap()
 	for (uint32 c = 0; c < fTileCells.size(); c++)
 		delete fTileCells[c];
 	fTileCells.clear();
+
+	for (uint32 c = 0; c < fOverlays.size(); c++)
+		delete fOverlays[c];
+	fOverlays.clear();
+}
+
+
+uint16
+BackMap::Width() const
+{
+	return fMapWidth;
+}
+
+
+uint16
+BackMap::Height() const
+{
+	return fMapHeight;
 }
 
 
@@ -71,32 +104,51 @@ BackMap::CountTiles() const
 }
 
 
-void
-BackMap::Update(MapOverlay* overlay, GFX::rect rect)
+TileCell*
+BackMap::TileAtPoint(const IE::point& point)
 {
-	assert(overlay);
+	uint16 num = TileNumberForPoint(point);
+	return fTileCells[num];
+}
+
+
+uint16
+BackMap::TileNumberForPoint(const IE::point& point)
+{
+	const uint16 overlayWidth = fOverlays[0]->Width();
+	const uint16 tileX = point.x / TILE_WIDTH;
+	const uint16 tileY = point.y / TILE_HEIGHT;
+
+	return tileY * overlayWidth + tileX;
+}
+
+
+void
+BackMap::Update(GFX::rect rect)
+{
+	return;
+	assert(fOverlays[0]);
 
 	fImage->Clear(0);
 
-	const uint16 overlayWidth = overlay->Width();
 	const uint16 firstTileX = rect.x / fTileWidth;
 	const uint16 firstTileY = rect.y / fTileHeight;
 	uint16 lastTileX = firstTileX + (rect.w / fTileWidth) + 2;
 	uint16 lastTileY = firstTileY + (rect.h / fTileHeight) + 2;
 
-	lastTileX = std::min(lastTileX, overlayWidth);
-	lastTileY = std::min(lastTileY, overlay->Height());
+	lastTileX = std::min(lastTileX, fMapWidth);
+	lastTileY = std::min(lastTileY, fMapHeight);
 
 	bool advance = true;
 	//bool advance = Timer::Get("ANIMATEDTILES")->Expired();
 	GFX::rect tileRect(0, 0, fTileWidth, fTileHeight);
-	for (uint16 y = 0; y < overlay->Height(); y++) {
+	for (uint16 y = 0; y < fMapHeight; y++) {
 		tileRect.w = fTileWidth;
 		tileRect.h = fTileHeight;
 		tileRect.y = y * fTileHeight - rect.y;
 
-		const uint32 tileNumY = y * overlayWidth;
-		for (uint16 x = 0; x < overlayWidth; x++) {
+		const uint32 tileNumY = y * fMapWidth;
+		for (uint16 x = 0; x < fMapWidth; x++) {
 			tileRect.w = fTileWidth;
 			tileRect.x = x * fTileWidth - rect.x;
 
@@ -117,3 +169,20 @@ BackMap::Image() const
 	return fImage;
 }
 
+
+bool
+BackMap::_LoadOverlays(WEDResource* wed)
+{
+	std::cout << "Loading Overlays...";
+	std::flush(std::cout);
+	uint32 numOverlays = wed->CountOverlays();
+	for (uint32 i = 0; i < numOverlays; i++) {
+		MapOverlay *overlay = wed->GetOverlay(i);
+		fOverlays.push_back(overlay);
+	}
+	std::cout << "Done! Loaded " << numOverlays << " overlays. ";
+	std::cout << "Map size: " << fOverlays[0]->Width();
+	std::cout << "x" << fOverlays[0]->Height() << std::endl;
+
+	return true;
+}

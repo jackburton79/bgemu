@@ -16,22 +16,33 @@
 class Bitmap;
 class MapOverlay;
 class TileCell;
+class WEDResource;
 class BackMap {
 public:
 	BackMap(std::vector<MapOverlay*>& overlays,
 			uint16 mapWidth, uint16 mapHeight,
 			uint16 tileWidth, uint16 tileHeight);
+	BackMap(WEDResource* wed);
 	~BackMap();
+
+	uint16 Width() const;
+	uint16 Height() const;
 
 	TileCell* TileAt(uint16 x, uint16 y);
 	TileCell* TileAt(uint16 index);
+	TileCell* TileAtPoint(const IE::point& point);
+	uint16 TileNumberForPoint(const IE::point& point);
 	int32 CountTiles() const;
 
-	void Update(MapOverlay* overlay, GFX::rect rect);
+
+	void Update(GFX::rect rect);
 	Bitmap* Image() const;
 
 private:
+	bool _LoadOverlays(WEDResource* wed);
+
 	Bitmap* fImage;
+	std::vector<MapOverlay*> fOverlays;
 	std::vector<TileCell*> fTileCells;
 	uint16 fMapWidth;
 	uint16 fMapHeight;
