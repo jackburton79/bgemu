@@ -472,8 +472,6 @@ RoomContainer::Draw(Bitmap *surface)
 		}
 		sSelectedActorRadius += sSelectedActorRadiusStep;
 
-		//fBackBitmap->ClearColorKey();
-
 		GFX::rect mapRect = offset_rect_to(fViewPort,
 				fAreaOffset.x, fAreaOffset.y);
 
