@@ -228,7 +228,6 @@ MapOverlay::MapOverlay()
 	:
 	fWidth(0),
 	fHeight(0)
-	//fTileMaps(NULL)
 {
 }
 
@@ -273,15 +272,10 @@ MapOverlay::Size() const
 TileMap*
 MapOverlay::TileMapForTileCell(int32 i)
 {
-	if (i >= fWidth * fHeight) {
-		// TODO: We should return NULL here. Why it only works
-		// if we do this ?!?!
-		// The problem seems to be with water/lava overlays...
-		//i = Size() - 1;
-		return NULL;
-	}
-
-	return fTileMaps[i];
+	std::map<uint32, TileMap*>::iterator it = fTileMaps.find(i);
+	if (it != fTileMaps.end())
+		return it->second;
+	return NULL;
 }
 
 
