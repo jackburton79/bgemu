@@ -23,6 +23,14 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 }
 
 
+TileCell::~TileCell()
+{
+	std::list<Object*>::iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++)
+		(*i)->SetTileCell(NULL);
+}
+
+
 void
 TileCell::SetPosition(uint16 x, uint16 y)
 {

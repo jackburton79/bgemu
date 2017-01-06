@@ -33,6 +33,8 @@ private:
 class TileCell {
 public:
 	TileCell(uint32 index, std::vector<MapOverlay*>& overlays, int numOverlays);
+	~TileCell();
+
 	void SetPosition(uint16 x, uint16 y);
 	void Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full = false);
 	void AdvanceFrame();

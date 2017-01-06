@@ -265,6 +265,13 @@ Object::TileCell() const
 }
 
 
+void
+Object::SetTileCell(::TileCell* cell)
+{
+	fTileCell = cell;
+}
+
+
 // Checks if this object matches with the specified object_node.
 // Also keeps wildcards in consideration. Used for triggers.
 bool
