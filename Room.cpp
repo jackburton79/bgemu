@@ -692,8 +692,10 @@ RoomContainer::MouseOver(uint16 x, uint16 y)
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
-		fMouseOverObject = _ObjectAtPoint(point);
-
+		int32 cursor = -1;
+		fMouseOverObject = _ObjectAtPoint(point, cursor);
+		if (cursor != -1)
+			GUI::Get()->SetCursor(cursor);
 	} else if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
@@ -1237,7 +1239,7 @@ RoomContainer::_ActorAtPoint(const IE::point& point)
 
 
 Region*
-RoomContainer::_RegionAtPoint(const IE::point& point)
+RoomContainer::_RegionAtPoint(const IE::point& point) const
 {
 	std::vector<Reference<Region> >::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
@@ -1262,9 +1264,10 @@ RoomContainer::_ContainerAtPoint(const IE::point& point)
 
 
 Object*
-RoomContainer::_ObjectAtPoint(const IE::point& point)
+RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 {
 	Object* object = NULL;
+	cursorIndex = -1;
 
 	::TileCell* cell = fBackMap->TileAtPoint(point);
 	if (cell == NULL)
@@ -1288,7 +1291,7 @@ RoomContainer::_ObjectAtPoint(const IE::point& point)
 		// TODO: This is a side effect of a method
 		// which should just return an object, and in
 		// fact _ObjectAtPoint() should be const.
-		GUI::Get()->SetCursor(region->CursorIndex());
+		cursorIndex = region->CursorIndex();
 	}
 
 	return object;
