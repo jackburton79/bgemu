@@ -25,6 +25,8 @@ class Actor;
 class Object;
 class Region;
 class Script;
+class TileCell;
+
 class ScriptResults {
 public:
 	ScriptResults();
@@ -102,6 +104,8 @@ public:
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
 
+	::TileCell* TileCell() const;
+
 	Object* ResolveIdentifier(const int identifier) const;
 
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
@@ -155,6 +159,8 @@ private:
 
 	std::map<std::string, uint32> fVariables;
 	std::list<Action*> fActions;
+
+	::TileCell* fTileCell;
 
 	Region* fRegion;
 	bool fStale;

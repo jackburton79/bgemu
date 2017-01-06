@@ -7,6 +7,7 @@
 
 #include "Action.h"
 #include "Actor.h"
+#include "BackMap.h"
 #include "BCSResource.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -18,6 +19,8 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "Room.h"
+#include "TileCell.h"
 
 #include <algorithm>
 
@@ -32,6 +35,7 @@ Object::Object(const char* name, const char* scriptName)
 	fVisible(true),
 	fCurrentScriptRoundResults(NULL),
 	fLastScriptRoundResults(NULL),
+	fTileCell(NULL),
 	fRegion(NULL),
 	fStale(false)
 {
@@ -214,6 +218,7 @@ Object::Update(bool scripts)
 		}
 	}
 
+	fTileCell = RoomContainer::Get()->BackMap()->TileAtPoint(Position());
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		while (i != fActions.end()) {
@@ -249,6 +254,13 @@ IE::point
 Object::NearestPoint(const IE::point& point) const
 {
 	return Position();
+}
+
+
+::TileCell*
+Object::TileCell() const
+{
+	return fTileCell;
 }
 
 
