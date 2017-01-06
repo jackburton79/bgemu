@@ -51,6 +51,10 @@ BackMap::BackMap(WEDResource* wed)
 		fMapWidth = fOverlays[0]->Width();
 		fMapHeight = fOverlays[0]->Height();
 	}
+
+	fImage = new Bitmap(fMapWidth * fTileWidth,
+			fMapHeight * fTileHeight, 16);
+
 }
 
 
