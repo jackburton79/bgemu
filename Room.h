@@ -95,7 +95,7 @@ private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
-	void _InitBitmap(GFX::rect area);
+	void _InitBackMap(GFX::rect area);
 	void _InitWed(const char* name);
 	void _InitBlitMask();
 	void _InitHeightMap();
@@ -119,7 +119,6 @@ private:
 
 	void _LoadOverlays();
 	void _InitVariables();
-	void _InitTileCells();
 	void _InitAnimations();
 	void _InitRegions();
 	void _LoadActors();
@@ -156,7 +155,6 @@ private:
 	int32 fMapVerticalRatio;
 
 	std::vector<MapOverlay*> fOverlays;
-	std::vector<TileCell*> fTileCells;
 	//std::vector<Actor*> fActors;
 	std::vector<Animation*> fAnimations;
 	std::vector<Reference<Region> > fRegions;

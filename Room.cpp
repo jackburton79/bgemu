@@ -204,9 +204,6 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	_LoadActors();
 	_InitDoors();
 	_InitContainers();
-
-	_InitBitmap(fViewPort);
-
 	_InitBlitMask();
 
 	Core::Get()->EnteredArea(this, roomScript);
@@ -944,7 +941,7 @@ RoomContainer::Get()
 
 
 void
-RoomContainer::_InitBitmap(GFX::rect area)
+RoomContainer::_InitBackMap(GFX::rect area)
 {
 	if (fBackMap != NULL)
 		delete fBackMap;
@@ -961,9 +958,6 @@ RoomContainer::_InitWed(const char* name)
 {
 	// TODO: Assume that the various resources have
 	// already been deleted and remove these lines ?
-	for (uint32 c = 0; c < fTileCells.size(); c++)
-		delete fTileCells[c];
-	fTileCells.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
 		delete fOverlays[c];
@@ -974,8 +968,7 @@ RoomContainer::_InitWed(const char* name)
 	fWed = gResManager->GetWED(name);
 
 	_LoadOverlays();
-	_InitTileCells();
-
+	_InitBackMap(fViewPort);
 	_InitHeightMap();
 	_InitLightMap();
 	_InitSearchMap();
@@ -1278,10 +1271,10 @@ RoomContainer::_ObjectAtPoint(const IE::point& point)
 {
 	Object* object = NULL;
 	const uint16 tileNum = TileNumberForPoint(point);
-	if (tileNum >= fTileCells.size())
+	if (tileNum >= fBackMap->CountTiles())
 		return object;
 
-	Door* door = fTileCells[tileNum]->Door();
+	Door* door = fBackMap->TileAt(tileNum)->Door();
 
 	if (Actor* actor = _ActorAtPoint(point)) {
 		object = actor;
@@ -1316,18 +1309,6 @@ RoomContainer::_LoadOverlays()
 	std::cout << "x" << fOverlays[0]->Height() << std::endl;
 }
 
-
-void
-RoomContainer::_InitTileCells()
-{
-	std::cout << "Initializing Tile Cells...";
-	std::flush(std::cout);
-	uint32 numTiles = fOverlays[0]->Size();
-	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells.push_back(new TileCell(i, fOverlays, fOverlays.size()));
-	}
-	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
-}
 
 
 void
@@ -1398,14 +1379,14 @@ RoomContainer::_InitDoors()
 	std::cout << "Initializing Doors...";
 	std::flush(std::cout);
 
-	assert(fTileCells.size() > 0);
+	//assert(fTileCells.size() > 0);
 
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
 		fWed->GetDoorTiles(door, c);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
-			fTileCells[door->fTilesOpen[i]]->SetDoor(door);
+			fBackMap->TileAt(door->fTilesOpen[i])->SetDoor(door);
 		}
 	}
 	std::cout << "Done!" << std::endl;
