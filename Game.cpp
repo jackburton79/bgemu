@@ -66,7 +66,7 @@ Game::Loop(bool executeScripts)
 
 	std::cout << "Setting up output console... ";
 	std::flush(std::cout);
-	OutputConsole console(consoleRect, false);
+	OutputConsole console(consoleRect, true);
 	consoleRect.h = 20;
 	consoleRect.y = screenRect.h - consoleRect.h;
 	std::cout << "OK!" << std::endl;
