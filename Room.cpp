@@ -1270,16 +1270,20 @@ RoomContainer::_ObjectAtPoint(const IE::point& point)
 	if (cell == NULL)
 		return object;
 
-	std::vector<Object*> objects;
-	if (cell->GetObjects(objects) > 0) {
-		std::vector<Object*>::iterator i;
-		for (i = objects.begin(); i != objects.end(); i++) {
-			if (rect_contains((*i)->Frame(), point)) {
-				object = *i;
+	if (Door* door = cell->Door()) {
+		if (rect_contains(door->Frame(), point))
+			object = door;
+	} else {
+		std::vector<Object*> objects;
+		if (cell->GetObjects(objects) > 0) {
+			std::vector<Object*>::iterator i;
+			for (i = objects.begin(); i != objects.end(); i++) {
+				if (rect_contains((*i)->Frame(), point)) {
+					object = *i;
+				}
 			}
 		}
 	}
-
 	if (Region* region = _RegionAtPoint(point)) {
 		// TODO: This is a side effect of a method
 		// which should just return an object, and in

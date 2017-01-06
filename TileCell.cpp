@@ -140,6 +140,8 @@ void
 TileCell::SetDoor(::Door *d)
 {
 	fDoor = d;
+	fDoor->SetTileCell(this);
+	SetObject(d);
 }
 
 
