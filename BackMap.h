@@ -19,9 +19,6 @@ class TileCell;
 class WEDResource;
 class BackMap {
 public:
-	BackMap(std::vector<MapOverlay*>& overlays,
-			uint16 mapWidth, uint16 mapHeight,
-			uint16 tileWidth, uint16 tileHeight);
 	BackMap(WEDResource* wed);
 	~BackMap();
 

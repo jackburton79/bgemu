@@ -16,28 +16,6 @@
 #include <assert.h>
 #include <vector>
 
-BackMap::BackMap(std::vector<MapOverlay*>& overlays,
-		uint16 mapWidth, uint16 mapHeight,
-		uint16 tileWidth, uint16 tileHeight)
-	:
-	fImage(NULL),
-	fMapWidth(mapWidth),
-	fMapHeight(mapHeight),
-	fTileWidth(tileWidth),
-	fTileHeight(tileHeight)
-{
-	fImage = new Bitmap(mapWidth * tileWidth,
-			mapHeight * tileHeight, 16);
-
-	std::cout << "Initializing Tile Cells...";
-	std::flush(std::cout);
-	uint32 numTiles = overlays[0]->Size();
-	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells.push_back(new TileCell(i, overlays, overlays.size()));
-	}
-	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
-}
-
 
 BackMap::BackMap(WEDResource* wed)
 	:
@@ -52,9 +30,16 @@ BackMap::BackMap(WEDResource* wed)
 		fMapHeight = fOverlays[0]->Height();
 	}
 
+	std::cout << "Initializing Tile Cells...";
+	std::flush(std::cout);
+	uint32 numTiles = fOverlays[0]->Size();
+	for (uint16 i = 0; i < numTiles; i++) {
+		fTileCells.push_back(new TileCell(i, fOverlays, fOverlays.size()));
+	}
+	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
+
 	fImage = new Bitmap(fMapWidth * fTileWidth,
 			fMapHeight * fTileHeight, 16);
-
 }
 
 
@@ -90,7 +75,11 @@ BackMap::Height() const
 TileCell*
 BackMap::TileAt(uint16 x, uint16 y)
 {
-	return fTileCells[y + x];
+	uint16 numTile = y + x;
+	if (numTile >= fTileCells.size())
+		return NULL;
+
+	return fTileCells[numTile];
 }
 
 
@@ -130,7 +119,8 @@ BackMap::TileNumberForPoint(const IE::point& point)
 void
 BackMap::Update(GFX::rect rect)
 {
-	return;
+	if (fImage == NULL)
+		return;
 	assert(fOverlays[0]);
 
 	fImage->Clear(0);
@@ -157,6 +147,9 @@ BackMap::Update(GFX::rect rect)
 			tileRect.x = x * fTileWidth - rect.x;
 
 			TileCell* tile = TileAt(tileNumY,  x);
+			if (tile == NULL) {
+				continue;
+			}
 			if (advance)
 				tile->AdvanceFrame();
 			if (y >= firstTileY && y <= lastTileY
