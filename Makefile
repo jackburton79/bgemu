@@ -12,6 +12,7 @@ Action.cpp \
 Actor.cpp \
 Animation.cpp \
 AnimationFactory.cpp \
+BackMap.cpp \
 bgemu.cpp \
 BGCharachterAnimationFactory.cpp \
 BG2CharachterAnimationFactory.cpp \

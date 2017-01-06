@@ -13,6 +13,7 @@ class Animation;
 class ARAResource;
 class AreaEntry;
 class BCSResource;
+class BackMap;
 class Bitmap;
 class Container;
 class Door;
@@ -83,8 +84,6 @@ public:
 	void ToggleGUI();
 	void ToggleDayNight();
 
-	TileCell* TileAt(uint16 x, uint16 y) const;
-
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 	static RoomContainer* Get();
@@ -146,7 +145,7 @@ private:
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
 
-	Bitmap* fBackBitmap;
+	BackMap* fBackMap;
 	Bitmap* fBlitMask;
 
 	Bitmap* fHeightMap;

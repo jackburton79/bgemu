@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "Animation.h"
 #include "AreaResource.h"
+#include "BackMap.h"
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "BmpResource.h"
@@ -56,7 +57,7 @@ RoomContainer::RoomContainer()
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
-	fBackBitmap(NULL),
+	fBackMap(NULL),
 	fBlitMask(NULL),
 	fHeightMap(NULL),
 	fLightMap(NULL),
@@ -77,8 +78,8 @@ RoomContainer::~RoomContainer()
 	// TODO: Delete various tilecells, overlays, animations
 	_Unload();
 
-	if (fBackBitmap != NULL)
-		fBackBitmap->Release();
+	if (fBackMap != NULL)
+		delete fBackMap;
 	if (fBlitMask != NULL)
 		fBlitMask->Release();
 }
@@ -471,15 +472,16 @@ RoomContainer::Draw(Bitmap *surface)
 		}
 		sSelectedActorRadius += sSelectedActorRadiusStep;
 
-		fBackBitmap->ClearColorKey();
+		//fBackBitmap->ClearColorKey();
 
 		GFX::rect mapRect = offset_rect_to(fViewPort,
 				fAreaOffset.x, fAreaOffset.y);
 
 		bool paused = Core::Get()->IsPaused();
 		if (!paused) {
-			fBackBitmap->Clear(0);
-			_UpdateBaseMap(mapRect);
+			//fBackBitmap->Clear(0);
+			//_UpdateBaseMap(mapRect);
+			fBackMap->Update(fOverlays[0], mapRect);
 		}
 
 		if (fDrawAnimations) {
@@ -490,7 +492,7 @@ RoomContainer::Draw(Bitmap *surface)
 		_DrawActors();
 
 		if (fDrawPolygons) {
-			fBackBitmap->Lock();
+			fBackMap->Image()->Lock();
 			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 				const Polygon* poly = fWed->PolygonAt(p);
 				if (poly != NULL && poly->CountPoints() > 0) {
@@ -503,32 +505,32 @@ RoomContainer::Draw(Bitmap *surface)
 						else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
 							color = 1000;
 
-						fBackBitmap->FillPolygon(*poly, color,
+						fBackMap->Image()->FillPolygon(*poly, color,
 											-fAreaOffset.x, -fAreaOffset.y);
-						fBackBitmap->StrokePolygon(*poly, color,
+						fBackMap->Image()->StrokePolygon(*poly, color,
 											-fAreaOffset.x, -fAreaOffset.y);
 					}
 				}
 			}
-			fBackBitmap->Unlock();
+			fBackMap->Image()->Unlock();
 		}
 
 		// TODO: handle this better
 		if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
 			GFX::rect rect = rect_to_gfx_rect(door->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-			fBackBitmap->Lock();
-			fBackBitmap->StrokeRect(rect, 70);
-			fBackBitmap->Unlock();
+			fBackMap->Image()->Lock();
+			fBackMap->Image()->StrokeRect(rect, 70);
+			fBackMap->Image()->Unlock();
 		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 			try {
 				GFX::rect rect = actor->Frame();
 				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-				fBackBitmap->Lock();
+				fBackMap->Image()->Lock();
 				IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
-				uint32 color = fBackBitmap->MapColor(255, 255, 255);
-				fBackBitmap->StrokeCircle(position.x, position.y, 20, color);
-				fBackBitmap->Unlock();
+				uint32 color = fBackMap->Image()->MapColor(255, 255, 255);
+				fBackMap->Image()->StrokeCircle(position.x, position.y, 20, color);
+				fBackMap->Image()->Unlock();
 			} catch (const char* string) {
 				std::cerr << string << std::endl;
 			} catch (...) {
@@ -541,39 +543,39 @@ RoomContainer::Draw(Bitmap *surface)
 			uint32 color = 0;
 			switch (region->Type()) {
 				case IE::REGION_TYPE_TRAVEL:
-					color = fBackBitmap->MapColor(0, 125, 0);
+					color = fBackMap->Image()->MapColor(0, 125, 0);
 					break;
 				case IE::REGION_TYPE_TRIGGER:
-					color = fBackBitmap->MapColor(125, 0, 0);
+					color = fBackMap->Image()->MapColor(125, 0, 0);
 					break;
 				default:
-					color = fBackBitmap->MapColor(255, 255, 255);
+					color = fBackMap->Image()->MapColor(255, 255, 255);
 					break;
 			}
 
-			fBackBitmap->Lock();
+			fBackMap->Image()->Lock();
 
 			if (region->Polygon().CountPoints() > 2) {
-				fBackBitmap->StrokePolygon(region->Polygon(), color,
+				fBackMap->Image()->StrokePolygon(region->Polygon(), color,
 									-mapRect.x, -mapRect.y);
 			} else
-				fBackBitmap->StrokeRect(rect, color);
-			fBackBitmap->Unlock();
+				fBackMap->Image()->StrokeRect(rect, color);
+			fBackMap->Image()->Unlock();
 		} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject.Target())) {
 			uint32 color = 0;
-			color = fBackBitmap->MapColor(0, 125, 0);
+			color = fBackMap->Image()->MapColor(0, 125, 0);
 			// TODO: Different colors for trapped/nontrapped
-			fBackBitmap->Lock();
+			fBackMap->Image()->Lock();
 
 			if (container->Polygon().CountPoints() > 2) {
-						fBackBitmap->StrokePolygon(container->Polygon(), color,
+				fBackMap->Image()->StrokePolygon(container->Polygon(), color,
 											-mapRect.x, -mapRect.y);
 			}
-			fBackBitmap->Unlock();
+			fBackMap->Image()->Unlock();
 		}
 
-		fBackBitmap->Update();
-		gfx->BlitToScreen(fBackBitmap, NULL, &fViewPort);
+		//fBackBitmap->Update();
+		gfx->BlitToScreen(fBackMap->Image(), NULL, &fViewPort);
 		_DrawSearchMap(mapRect);
 	}
 }
@@ -718,18 +720,18 @@ RoomContainer::DrawObject(const Object& object)
 			IE::point position = offset_point(actorPosition,
 										-fAreaOffset.x, -fAreaOffset.y);
 
-			fBackBitmap->Lock();
-			uint32 color = fBackBitmap->MapColor(0, 255, 0);
-			fBackBitmap->StrokeCircle(position.x, position.y,
+			fBackMap->Image()->Lock();
+			uint32 color = fBackMap->Image()->MapColor(0, 255, 0);
+			fBackMap->Image()->StrokeCircle(position.x, position.y,
 										sSelectedActorRadius, color);
 			if (actor->Destination() != actor->Position()) {
 				IE::point destination = offset_point(actor->Destination(),
 											-fAreaOffset.x, -fAreaOffset.y);
-				fBackBitmap->StrokeCircle(
+				fBackMap->Image()->StrokeCircle(
 						destination.x, destination.y,
 						sSelectedActorRadius - 10, color);
 			}
-			fBackBitmap->Unlock();
+			fBackMap->Image()->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
 
@@ -756,9 +758,9 @@ RoomContainer::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mas
 		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
 		if (mask)
 			GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
-					fBackBitmap, &offsetRect, fBlitMask, &rect);
+					fBackMap->Image(), &offsetRect, fBlitMask, &rect);
 		else
-			GraphicsEngine::BlitBitmap(bitmap, NULL, fBackBitmap, &offsetRect);
+			GraphicsEngine::BlitBitmap(bitmap, NULL, fBackMap->Image(), &offsetRect);
 	}
 }
 
@@ -926,13 +928,6 @@ RoomContainer::ToggleDayNight()
 }
 
 
-TileCell*
-RoomContainer::TileAt(uint16 x, uint16 y) const
-{
-	return fTileCells[y + x];
-}
-
-
 /* virtual */
 void
 RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
@@ -953,9 +948,13 @@ RoomContainer::Get()
 void
 RoomContainer::_InitBitmap(GFX::rect area)
 {
-	if (fBackBitmap != NULL)
-		fBackBitmap->Release();
-	fBackBitmap = new Bitmap(area.w, area.h, 16);
+	if (fBackMap != NULL)
+		delete fBackMap;
+
+	fBackMap = new BackMap(fOverlays,
+			fOverlays[0]->Width(),
+			fOverlays[0]->Height(),
+			TILE_WIDTH, TILE_HEIGHT);
 }
 
 
@@ -1080,6 +1079,7 @@ RoomContainer::_InitSearchMap()
 void
 RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 {
+#if 0
 	MapOverlay *overlay = fOverlays[0];
 	if (overlay == NULL) {
 		std::cerr << "Overlay 0 is NULL!!" << std::endl;
@@ -1115,6 +1115,7 @@ RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 				tile->Draw(fBackBitmap, &tileRect, false, fDrawOverlays);
 		}
 	}
+#endif
 }
 
 
@@ -1171,7 +1172,7 @@ RoomContainer::_DrawActors()
 void
 RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 {
-	if (fSearchMap != NULL && fDrawSearchMap > 0) {
+	/*if (fSearchMap != NULL && fDrawSearchMap > 0) {
 		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
 						fBackBitmap->Width(), fBackBitmap->Height());
 
@@ -1183,7 +1184,7 @@ RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 		visibleArea.h /= fMapVerticalRatio;
 		visibleArea = offset_rect(visibleArea, 0, fBackBitmap->Height() - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
-	}
+	}*/
 }
 
 
@@ -1455,9 +1456,6 @@ RoomContainer::_UnloadArea()
 		delete fAnimations[c];
 	fAnimations.clear();
 
-	for (uint32 c = 0; c < fTileCells.size(); c++)
-		delete fTileCells[c];
-	fTileCells.clear();
 
 	for (uint32 c = 0; c < fOverlays.size(); c++)
 		delete fOverlays[c];
