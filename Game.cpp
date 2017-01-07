@@ -66,7 +66,7 @@ Game::Loop(bool executeScripts)
 
 	std::cout << "Setting up output console... ";
 	std::flush(std::cout);
-	OutputConsole console(consoleRect, true);
+	OutputConsole console(consoleRect, false);
 	consoleRect.h = 20;
 	consoleRect.y = screenRect.h - consoleRect.h;
 	std::cout << "OK!" << std::endl;
@@ -75,7 +75,6 @@ Game::Loop(bool executeScripts)
 	InputConsole inputConsole(consoleRect);
 	inputConsole.Initialize();
 	std::cout << "OK!" << std::endl;
-
 
 	// TODO: Move this elsewhere.
 	// This should be filled by the player selection
