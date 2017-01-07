@@ -616,7 +616,7 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 		return;
 	}
 
-	if (Actor* actor = _ActorAtPoint(point)) {
+	if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 		if (fSelectedActor != actor) {
 			/*if (fSelectedActor != NULL)
 				fSelectedActor->Select(false);
@@ -1211,30 +1211,6 @@ RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 
 
 	GUI::Get()->SetArrowCursor(cursorIndex);
-}
-
-
-Actor*
-RoomContainer::_ActorAtPoint(const IE::point& point)
-{
-	// TODO: Maybe there's no need to copy the list in this case
-	std::list<Reference<Object> >::const_iterator iter;
-	std::list<Reference<Object> > actorList;
-	Core::Get()->GetObjectList(actorList);
-	
-	for (iter = actorList.begin(); iter != actorList.end(); iter++) {
-		if (Actor* actor = dynamic_cast<Actor*>(iter->Target())) {
-			try {
-				const GFX::rect actorFrame = rect_to_gfx_rect(actor->Frame());
-				if (rect_contains(actorFrame, point))
-					return actor;
-			} catch (...) {
-				continue;
-			}
-		}
-	}
-
-	return NULL;
 }
 
 
