@@ -1275,7 +1275,7 @@ RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 
 	if (Door* door = cell->Door()) {
 		if (rect_contains(door->Frame(), point))
-			object = door;
+			return door;
 	} else {
 		std::vector<Object*> objects;
 		if (cell->GetObjects(objects) > 0) {
@@ -1291,6 +1291,7 @@ RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 		// TODO: This is a side effect of a method
 		// which should just return an object, and in
 		// fact _ObjectAtPoint() should be const.
+		object = region;
 		cursorIndex = region->CursorIndex();
 	}
 
@@ -1374,7 +1375,7 @@ RoomContainer::_InitDoors()
 			fBackMap->TileAt(door->fTilesOpen[i])->SetDoor(door);
 		}
 	}
-	std::cout << "Done!" << std::endl;
+	std::cout << "Done! Found " << numDoors << " doors." << std::endl;
 }
 
 
