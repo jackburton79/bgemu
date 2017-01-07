@@ -1288,9 +1288,6 @@ RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 		}
 	}
 	if (Region* region = _RegionAtPoint(point)) {
-		// TODO: This is a side effect of a method
-		// which should just return an object, and in
-		// fact _ObjectAtPoint() should be const.
 		object = region;
 		cursorIndex = region->CursorIndex();
 	}
