@@ -218,7 +218,8 @@ Object::Update(bool scripts)
 		}
 	}
 
-	_UpdateTileCell();
+	if (actor != NULL)
+		_UpdateTileCell();
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
