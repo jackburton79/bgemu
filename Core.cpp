@@ -410,7 +410,10 @@ Core::UpdateLogic(bool executeScripts)
 	// TODO: Fix/Improve
 	std::list<Reference<Object> >::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		i->Target()->Update(executeScripts);
+		Object* object = i->Target();
+		if (object->IsInsideVisibleArea()) {
+			i->Target()->Update(executeScripts);
+		}
 	}
 
 	fActiveActor = NULL;

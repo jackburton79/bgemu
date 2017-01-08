@@ -356,6 +356,13 @@ RoomContainer::AreaOffset() const
 }
 
 
+GFX::rect
+RoomContainer::VisibleArea() const
+{
+	return fMapArea;
+}
+
+
 void
 RoomContainer::SetAreaOffset(IE::point point)
 {

@@ -47,6 +47,8 @@ public:
 
 	GFX::rect AreaRect() const;
 	IE::point AreaOffset() const;
+	GFX::rect VisibleArea() const;
+
 	void SetAreaOffset(IE::point point);
 	void SetRelativeAreaOffset(IE::point point);
 	void CenterArea(const IE::point& point);

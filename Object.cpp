@@ -16,6 +16,7 @@
 #include "Object.h"
 #include "Party.h"
 #include "PathFind.h"
+#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
@@ -169,6 +170,15 @@ bool
 Object::IsVisible() const
 {
 	return fVisible;
+}
+
+bool
+Object::IsInsideVisibleArea() const
+{
+	IE::rect rect = gfx_rect_to_rect(RoomContainer::Get()->VisibleArea());
+	if (rect_contains(rect, Position()))
+		return true;
+	return false;
 }
 
 

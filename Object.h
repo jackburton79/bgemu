@@ -91,6 +91,7 @@ public:
 	void SetSeenBy(Actor* actor);
 
 	bool IsVisible() const;
+	bool IsInsideVisibleArea() const;
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
