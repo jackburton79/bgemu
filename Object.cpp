@@ -95,7 +95,7 @@ Object::Print() const
 const char*
 Object::Name() const
 {
-	return fName;
+	return fName.c_str();
 }
 
 

@@ -154,7 +154,7 @@ private:
 
 	void _UpdateTileCell();
 
-	const char* fName;
+	std::string fName;
 	Script* fScript;
 	uint16 fTicks;
 	bool fVisible;
