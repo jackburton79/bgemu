@@ -64,6 +64,8 @@ static IDSResource* sActions;
 static IDSResource* sObjects;
 static IDSResource* sEA;
 static IDSResource* sGameTimes;
+static IDSResource* sTimes;
+static IDSResource* sTimeOfDays;
 
 const char *kKeyResource = "Chitin.key";
 const char *kDialogResource = "dialog.tlk";
@@ -118,6 +120,8 @@ ResourceManager::~ResourceManager()
 {
 	std::cout << kComponentName << "~ResourceManager()" << std::endl;
 
+	gResManager->ReleaseResource(sTimeOfDays);
+	gResManager->ReleaseResource(sTimes);
 	gResManager->ReleaseResource(sGameTimes);
 	gResManager->ReleaseResource(sEA);
 	gResManager->ReleaseResource(sObjects);
@@ -899,3 +903,22 @@ IDTable::GameTimeAt(uint32 i)
 		sGameTimes = gResManager->GetIDS("GTIMES");
 	return sGameTimes->StringForID(i);
 }
+
+
+std::string
+IDTable::TimeAt(uint32 i)
+{
+	if (sTimes == NULL)
+		sTimes = gResManager->GetIDS("TIME");
+	return sTimes->StringForID(i);
+}
+
+
+std::string
+IDTable::TimesOfDayAt(uint32 i)
+{
+	if (sTimeOfDays == NULL)
+		sTimeOfDays = gResManager->GetIDS("TIMEODAY");
+	return sTimeOfDays->StringForID(i);
+}
+

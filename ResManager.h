@@ -127,6 +127,8 @@ public:
 	static uint32 EnemyAllyValue(const char* string);
 
 	static std::string GameTimeAt(uint32 i);
+	static std::string TimeAt(uint32 i);
+	static std::string TimesOfDayAt(uint32 i);
 };
 
 
