@@ -173,11 +173,11 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 	action_node* act = dynamic_cast<action_node*>(node);
 	if (act) {
 		act->id = tokenizer->ReadNextToken().u.number;
-		act->parameter = tokenizer->ReadNextToken().u.number;
+		act->integer1 = tokenizer->ReadNextToken().u.number;
 		act->where.x = tokenizer->ReadNextToken().u.number;
 		act->where.y = tokenizer->ReadNextToken().u.number;
-		act->e = tokenizer->ReadNextToken().u.number;
-		act->f = tokenizer->ReadNextToken().u.number;
+		act->integer2 = tokenizer->ReadNextToken().u.number;
+		act->integer3 = tokenizer->ReadNextToken().u.number;
 		// TODO: This removes "" from strings. Broken.
 		// Should do this from the beginning!!!
 		strcpy(act->string1, tokenizer->ReadToken().u.string + 1);

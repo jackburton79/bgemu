@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <sstream>
 
 #define DEBUG_SCRIPTS 1
 
@@ -44,6 +45,7 @@ Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
 	fProcessed(false),
+	fOrTriggers(0),
 	fTarget(NULL),
 	fLastTrigger(NULL),
 	fCurrentNode(NULL)
@@ -183,7 +185,6 @@ Script::Execute()
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
 			while (condition != NULL) {
-				printf("IF ");
 				if (!_CheckTriggers(condition))
 					break;
 
@@ -274,10 +275,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 		return false;
 
 #if DEBUG_SCRIPTS
-	printf("%s%s (%d 0x%x) ", trig->flags != 0 ? "!" : "",
+	printf("SCRIPT: %s%s (%d 0x%x) ? ",
+			trig->flags != 0 ? "!" : "",
 			IDTable::TriggerAt(trig->id).c_str(),
 			trig->id, trig->id);
-	//trig->Print();
+	trig->Print();
 #endif
 
 	Core* core = Core::Get();
@@ -296,6 +298,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* node = FindObjectNode(trig);
 				if (node == NULL)
 					break;
+				node->Print();
 				ScriptResults* results = fTarget.Target()->LastScriptRoundResults();
 				if (results != NULL) {
 					Object* object = Object::GetMatchingObjectFromList(
@@ -376,9 +379,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0022:
 			{
 				/* TimerExpired(I:ID*) */
-				GameTimer* timer = GameTimer::Get(trig->string1);
-				if (timer != NULL && timer->Expired())
+				std::ostringstream stringStream;
+				stringStream << fTarget.Target()->Name() << " " << trig->parameter1;
+				printf("TimerExpired %s\n", stringStream.str().c_str());
+				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
+				if (timer != NULL && timer->Expired()) {
 					returnValue = true;
+				}
 				break;
 			}
 			case 0x002F:
@@ -726,20 +733,20 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			}
 			default:
 			{
-				printf("UNIMPLEMENTED TRIGGER!!!\n");
-				printf("%s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
+				printf("SCRIPT: UNIMPLEMENTED TRIGGER!!!\n");
+				printf("SCRIPT: %s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
 								trig->id, trig->id);
 				trig->Print();
 				break;
 			}
 		}
 	} catch (...) {
-		printf("EvaluateTrigger() caught exception");
+		printf("SCRIPT: EvaluateTrigger() caught exception");
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
 #if DEBUG_SCRIPTS
-	printf("(%s)\n", returnValue ? "TRUE" : "FALSE");
+	printf("SCRIPT: (%s)\n", returnValue ? "TRUE" : "FALSE");
 #endif
 	return returnValue;
 }
@@ -777,7 +784,7 @@ bool
 Script::_ExecuteAction(action_node* act)
 {
 #if DEBUG_SCRIPTS
-	printf("%s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
+	printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
 	act->Print();
 #endif
 	Core* core = Core::Get();
@@ -809,7 +816,7 @@ Script::_ExecuteAction(action_node* act)
 				point.y += Core::RandomNumber(-20, 20);
 			}
 
-			Actor* actor = new Actor(act->string1, point, act->parameter);
+			Actor* actor = new Actor(act->string1, point, act->integer1);
 			RoomContainer::Get()->ActorEnteredArea(actor);
 
 			// TODO: Add actor to the current area
@@ -896,7 +903,12 @@ Script::_ExecuteAction(action_node* act)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			GameTimer::Add(act->string1, act->parameter);
+			if (fTarget.Target() == NULL)
+				printf("NULL TARGET\n");
+			std::ostringstream stringStream;
+			stringStream << fTarget.Target()->Name() << " " << act->integer1;
+
+			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
 			break;
 		}
@@ -911,7 +923,7 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
 			if (thisActor != NULL)
-				thisActor->SetInterruptable(act->parameter == 1);
+				thisActor->SetInterruptable(act->integer1 == 1);
 			break;
 		}
 		case 0x1E:
@@ -924,11 +936,11 @@ Script::_ExecuteAction(action_node* act)
 			if (variableScope.compare("LOCALS") == 0) {
 				if (fTarget != NULL)
 					fTarget.Target()->SetVariable(variableName.c_str(),
-							act->parameter);
+							act->integer1);
 			} else {
 				// TODO: Check for AREA variables
 				core->SetVariable(variableName.c_str(),
-						act->parameter);
+						act->integer1);
 			}
 			break;
 		}
@@ -936,7 +948,7 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
-			Wait* wait = new Wait(thisActor, act->parameter);
+			Wait* wait = new Wait(thisActor, act->integer1);
 			fTarget.Target()->AddAction(wait);
 			break;
 		}
@@ -946,7 +958,7 @@ Script::_ExecuteAction(action_node* act)
 			/* Shout */
 			// Check if target is silenced
 			if (thisActor != NULL)
-				thisActor->Shout(act->parameter);
+				thisActor->Shout(act->integer1);
 			break;
 		}
 		case 0x64:
@@ -960,7 +972,7 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* 101 FlyToPoint(Point, Time) */
 			if (thisActor != NULL && thisActor->IsInterruptable()) {
-				FlyTo* flyTo = new FlyTo(thisActor, act->where, act->parameter);
+				FlyTo* flyTo = new FlyTo(thisActor, act->where, act->integer1);
 				thisActor->AddAction(flyTo);
 			}
 			break;
@@ -979,7 +991,7 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: We append the timer name to the area name,
 			// check if it's okay
 			timerName.append(act->string2).append(act->string1);
-			GameTimer::Add(timerName.c_str(), act->parameter);
+			GameTimer::Add(timerName.c_str(), act->integer1);
 			break;
 		}
 		case 0x97:
@@ -989,7 +1001,7 @@ Script::_ExecuteAction(action_node* act)
 			 * in the message window, attributing the text to
 			 * the specified object.
 			 */
-			core->DisplayMessage(act->parameter);
+			core->DisplayMessage(act->integer1);
 			break;
 		}
 		case 0xA7:
@@ -1047,7 +1059,7 @@ Script::_ExecuteAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Actor* actor = new Actor(act->string1, act->where, act->parameter);
+			Actor* actor = new Actor(act->string1, act->where, act->integer1);
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
@@ -1055,8 +1067,8 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 		default:
-			printf("UNIMPLEMENTED ACTION!!!\n");
-			printf("%s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
+			printf("SCRIPT: UNIMPLEMENTED ACTION!!!\n");
+			printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
 			act->Print();
 			break;
 	}
@@ -1249,8 +1261,8 @@ action_node::action_node()
 void
 action_node::Print() const
 {
-	printf("id: %d, parameter: %d, point: (%d, %d), %d, %d, %s, %s\n",
-			id, parameter, where.x, where.y, e, f, string1, string2);
+	printf("SCRIPT: id: %d, parameter: %d, point: (%d, %d), %d, %d, %s, %s\n",
+			id, integer1, where.x, where.y, integer2, integer3, string1, string2);
 }
 
 

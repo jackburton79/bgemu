@@ -134,10 +134,10 @@ struct object_node : public node {
 struct action_node : public node {
 	virtual void Print() const;
 	int id;
-	int parameter;
+	int integer1;
 	IE::point where;
-	int e;
-	int f;
+	int integer2;
+	int integer3;
 	char string1[48];
 	char string2[48];
 
