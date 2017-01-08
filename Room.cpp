@@ -50,7 +50,6 @@ static int sSelectedActorRadiusStep = 1;
 RoomContainer::RoomContainer()
 	:
 	Object(""),
-	fName(""),
 	fWed(NULL),
 	fArea(NULL),
 	fBcs(NULL),
@@ -104,13 +103,6 @@ RoomContainer::Delete()
 }
 
 
-res_ref
-RoomContainer::AreaName() const
-{
-	return fName;
-}
-
-
 WEDResource*
 RoomContainer::WED()
 {
@@ -149,13 +141,13 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 
 	_Unload();
 
-	fName = areaName;
+	SetName(areaName.CString());
 
-	GraphicsEngine::Get()->SetWindowCaption(fName.CString());
+	GraphicsEngine::Get()->SetWindowCaption(Name());
 
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
 
-	fArea = gResManager->GetARA(fName);
+	fArea = gResManager->GetARA(Name());
 	if (fArea == NULL)
 		return false;
 
@@ -309,11 +301,11 @@ RoomContainer::LoadWorldMap()
 
 	Core::Get()->EnteredArea(this, NULL);
 
-	fName = "WORLDMAP";
+	SetName("WORLDMAP");
 
-	GraphicsEngine::Get()->SetWindowCaption(fName.CString());
+	GraphicsEngine::Get()->SetWindowCaption(Name());
 
-	fWorldMap = gResManager->GetWMAP(fName);
+	fWorldMap = gResManager->GetWMAP(Name());
 
 	worldmap_entry entry = fWorldMap->WorldMapEntry();
 	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
@@ -729,19 +721,19 @@ RoomContainer::DrawObject(const Object& object)
 		if (actor->IsSelected()) {
 			IE::point position = offset_point(actorPosition,
 										-fAreaOffset.x, -fAreaOffset.y);
-
-			fBackMap->Image()->Lock();
-			uint32 color = fBackMap->Image()->MapColor(0, 255, 0);
-			fBackMap->Image()->StrokeCircle(position.x, position.y,
+			Bitmap* image = fBackMap->Image();
+			image->Lock();
+			uint32 color = image->MapColor(0, 255, 0);
+			image->StrokeCircle(position.x, position.y,
 										sSelectedActorRadius, color);
 			if (actor->Destination() != actor->Position()) {
 				IE::point destination = offset_point(actor->Destination(),
 											-fAreaOffset.x, -fAreaOffset.y);
-				fBackMap->Image()->StrokeCircle(
+				image->StrokeCircle(
 						destination.x, destination.y,
 						sSelectedActorRadius - 10, color);
 			}
-			fBackMap->Image()->Unlock();
+			image->Unlock();
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
 
@@ -1160,9 +1152,10 @@ RoomContainer::_DrawActors()
 void
 RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 {
-	/*if (fSearchMap != NULL && fDrawSearchMap > 0) {
-		GFX::rect destRect(0, fBackBitmap->Height() - fSearchMap->Height(),
-						fBackBitmap->Width(), fBackBitmap->Height());
+	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
+
+		GFX::rect destRect(0, AreaRect().h - fSearchMap->Height(),
+						AreaRect().w, AreaRect().h);
 
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
 
@@ -1170,9 +1163,9 @@ RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 		visibleArea.y /= fMapVerticalRatio;
 		visibleArea.w /= fMapHorizontalRatio;
 		visibleArea.h /= fMapVerticalRatio;
-		visibleArea = offset_rect(visibleArea, 0, fBackBitmap->Height() - fSearchMap->Height());
+		visibleArea = offset_rect(visibleArea, 0, AreaRect().h - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
-	}*/
+	}
 }
 
 

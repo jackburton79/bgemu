@@ -404,7 +404,7 @@ Core::UpdateLogic(bool executeScripts)
 		timer->Rearm();
 
 	// TODO: Not nice, should stop the scripts in some other way
-	if (strcmp(RoomContainer::Get()->AreaName().CString(), "WORLDMAP") == 0)
+	if (strcmp(RoomContainer::Get()->Name(), "WORLDMAP") == 0)
 		return;
 
 	// TODO: Fix/Improve

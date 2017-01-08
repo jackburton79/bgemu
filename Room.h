@@ -30,7 +30,6 @@ public:
 	static bool Create();
 	static void Delete();
 	
-	res_ref AreaName() const;
 	WEDResource* WED();
 	ARAResource* AREA() const;
 
@@ -120,7 +119,6 @@ private:
 	Container* _ContainerAtPoint(const IE::point& point);
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
 
-	void _LoadOverlays();
 	void _InitVariables();
 	void _InitAnimations();
 	void _InitRegions();
@@ -132,7 +130,6 @@ private:
 	void _UnloadWorldMap();
 	void _Unload();
 
-	res_ref fName;
 	GFX::rect fViewPort; // The size of the screen area
 	GFX::rect fMapArea; // the part of map which is visible. It's fViewPort
 						// offsetted to fAreaOffset
@@ -157,7 +154,6 @@ private:
 	int32 fMapHorizontalRatio;
 	int32 fMapVerticalRatio;
 
-	//std::vector<Actor*> fActors;
 	std::vector<Animation*> fAnimations;
 	std::vector<Reference<Region> > fRegions;
 	std::vector<Reference<Container> > fContainers;
