@@ -191,8 +191,6 @@ Game::Loop(bool executeScripts)
 		// these three calls. Draw() should be the last.
 		gui->Draw();
 
-		// TODO: needs to be called at every loop, not only when the mouse
-		// is moved
 		gui->MouseMoved(lastMouseX, lastMouseY);
 
 		console.Draw();
