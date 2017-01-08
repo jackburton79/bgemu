@@ -221,7 +221,7 @@ Object::Update(bool scripts)
 			else if (Region* region = dynamic_cast<Region*>(this)) {
 				region->CheckObjectsInside();
 			}
-			if (fScript != NULL) {
+			if (fScript != NULL && IsInsideVisibleArea()) {
 				if (!fScript->Execute())
 					return;
 			}
