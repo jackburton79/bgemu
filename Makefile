@@ -104,6 +104,7 @@ clean:
 	$(RM) streams/*.o
 	$(RM) resources/*.o
 	$(RM) archives/*.o
+	$(RM) graphics/*.o
 	$(RM) gui/*.o
 	$(RM) shell/*.o
 	$(RM) support/*.o
