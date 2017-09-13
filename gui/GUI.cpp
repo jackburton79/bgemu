@@ -18,6 +18,8 @@
 #include "TextSupport.h"
 #include "Timer.h"
 
+#include "custom/ResourceWindow.h"
+
 #include <algorithm>
 
 static GUI* sGUI = NULL;
@@ -111,6 +113,7 @@ GUI::Load(const res_ref& name)
 			if (window != NULL)
 				fWindows.push_back(window);
 		}*/
+
 	} catch (...) {
 		std::cout << "GUI::Load(): ERROR" << std::endl;
 		return false;
@@ -196,6 +199,9 @@ GUI::ShowWindow(uint16 id)
 {
 	if (IsWindowShown(id))
 		return;
+
+	if (id == 999)
+		fActiveWindows.push_back(new ResourceWindow());
 
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
