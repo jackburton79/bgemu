@@ -246,6 +246,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 
 	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
+	GUI::Get()->ShowWindow(999);
 	return true;
 }
 
@@ -489,7 +490,7 @@ RoomContainer::Draw(Bitmap *surface)
 		bool paused = Core::Get()->IsPaused();
 		if (!paused) {
 			assert(fBackMap != NULL);
-			fBackMap->Update(mapRect);
+			fBackMap->Update(mapRect, fDrawOverlays);
 		}
 
 		if (fDrawAnimations) {

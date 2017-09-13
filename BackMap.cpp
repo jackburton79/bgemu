@@ -119,7 +119,7 @@ BackMap::TileNumberForPoint(const IE::point& point)
 
 
 void
-BackMap::Update(GFX::rect rect)
+BackMap::Update(GFX::rect rect, bool allOverlays)
 {
 	if (fImage == NULL)
 		return;
@@ -156,7 +156,7 @@ BackMap::Update(GFX::rect rect)
 				tile->AdvanceFrame();
 			if (y >= firstTileY && y <= lastTileY
 					&& x >= firstTileX && x <= lastTileX)
-				tile->Draw(fImage, &tileRect, false, true);
+				tile->Draw(fImage, &tileRect, false, allOverlays);
 		}
 	}
 }

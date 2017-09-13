@@ -32,7 +32,7 @@ public:
 	int32 CountTiles() const;
 
 
-	void Update(GFX::rect rect);
+	void Update(GFX::rect rect, bool allOverlays);
 	Bitmap* Image() const;
 
 private:
