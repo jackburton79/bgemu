@@ -8,6 +8,7 @@ archives/Archive.cpp \
 archives/BIFArchive.cpp \
 archives/DirectoryArchive.cpp \
 archives/FileArchive.cpp \
+custom/ResourceWindow.cpp \
 Action.cpp \
 Actor.cpp \
 Animation.cpp \
@@ -30,6 +31,7 @@ gui/Button.cpp \
 gui/Control.cpp \
 gui/GUI.cpp \
 gui/Label.cpp \
+gui/ListView.cpp \
 gui/Scrollbar.cpp \
 gui/Slider.cpp \
 gui/TextArea.cpp \
