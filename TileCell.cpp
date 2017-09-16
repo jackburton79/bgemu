@@ -83,8 +83,9 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 			int16 secondaryIndex = map->SecondaryTileIndex();
 			if (secondaryIndex != -1)
 				index = secondaryIndex;
-			else
-				std::cerr << "TileCell::Draw(): secondary index is -1. BUG?." << std::endl;
+			else {
+				//std::cerr << "TileCell::Draw(): secondary index is -1. BUG?." << std::endl;
+			}
 		}
 
 		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
