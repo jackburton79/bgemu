@@ -34,7 +34,7 @@ ListView::Draw()
 {
 	GFX::rect itemRect = { (sint16)fControl->x, (sint16)fControl->y,
 					50, 20 };
-	for (std::list<std::string>::iterator i = fList.begin();
+	for (StringList::iterator i = fList.begin();
 			i != fList.end(); i++) {
 		TextSupport::RenderString(*i, fFontResource, 0, fBitmap, itemRect);
 		itemRect.y += 20;
