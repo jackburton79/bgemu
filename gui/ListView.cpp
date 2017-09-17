@@ -32,8 +32,8 @@ ListView::~ListView()
 void
 ListView::Draw()
 {
-	GFX::rect itemRect = { (sint16)fControl->x, (sint16)fControl->y,
-					50, 20 };
+	GFX::rect itemRect((sint16)fControl->x,
+				 (sint16)fControl->y, 50, 20);
 	for (StringList::iterator i = fList.begin();
 			i != fList.end(); i++) {
 		TextSupport::RenderString(*i, fFontResource, 0, fBitmap, itemRect);
