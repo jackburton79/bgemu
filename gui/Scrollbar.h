@@ -20,7 +20,7 @@ public:
 	Scrollbar(IE::scrollbar* scrollbar);
 	virtual ~Scrollbar();
 
-	virtual void AttachedToWindow(Window* window);
+	virtual void AttachedToWindow(::Window* window);
 	virtual void Draw();
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);

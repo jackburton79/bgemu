@@ -37,7 +37,7 @@ Scrollbar::~Scrollbar()
 
 /* virtual */
 void
-Scrollbar::AttachedToWindow(Window* window)
+Scrollbar::AttachedToWindow(::Window* window)
 {
 	Control::AttachedToWindow(window);
 

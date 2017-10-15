@@ -43,13 +43,15 @@ public:
 
 	void ConvertFromScreen(IE::point& point) const;
 
+	::Window* Window() const;
+
 	void AssociateRoom(RoomContainer* room);
 	void Print() const;
 
 	static Control* CreateControl(IE::control* control);
 
 protected:
-	Window* fWindow;
+	::Window* fWindow;
 	IE::control* fControl;
 	RoomContainer* fRoom;
 };

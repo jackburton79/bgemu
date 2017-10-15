@@ -35,7 +35,7 @@ Button::~Button()
 
 /* virtual */
 void
-Button::AttachedToWindow(Window* window)
+Button::AttachedToWindow(::Window* window)
 {
 	Control::AttachedToWindow(window);
 }

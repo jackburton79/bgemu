@@ -52,7 +52,7 @@ Control::Draw()
 
 /* virtual */
 void
-Control::AttachedToWindow(Window* window)
+Control::AttachedToWindow(::Window* window)
 {
 	fWindow = window;
 
@@ -156,14 +156,22 @@ Control::AssociateRoom(RoomContainer* room)
 	fRoom = room;
 
 	GFX::rect viewPortRect(
-		Position().x + fWindow->Position().x,
-		Position().y + fWindow->Position().y,
+		Position().x,
+		Position().y,
 		Width(),
 		Height()
 	);
 
+	Window()->ConvertToScreen(viewPortRect);
 	if (room != NULL)
 		room->SetViewPort(viewPortRect);
+}
+
+
+Window *
+Control::Window() const
+{
+	return fWindow;
 }
 
 

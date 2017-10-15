@@ -47,7 +47,7 @@ ListView::Draw()
 
 
 void
-ListView::AttachedToWindow(Window* window)
+ListView::AttachedToWindow(::Window* window)
 {
 	Control::AttachedToWindow(window);
 }
