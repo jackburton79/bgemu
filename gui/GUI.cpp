@@ -13,6 +13,7 @@
 #include "Control.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
 #include "TextSupport.h"
@@ -423,12 +424,8 @@ GUI::_GetWindow(IE::point pt)
 	std::vector<Window*>::reverse_iterator i;
 	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		Window* window = (*i);
-		if (pt.x >= window->Position().x
-				&& pt.x <= window->Position().x + window->Width()
-				&& pt.y >= window->Position().y
-				&& pt.y <= window->Position().y + window->Height()) {
+		if (rect_contains(window->Frame(), pt))
 			return window;
-		}
 	}
 
 	return NULL;

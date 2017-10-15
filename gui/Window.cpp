@@ -93,6 +93,20 @@ Window::Height() const
 }
 
 
+GFX::rect
+Window::Frame() const
+{
+	GFX::rect frame = {
+			fPosition.x,
+			fPosition.y,
+			fWidth,
+			fHeight
+	};
+
+	return frame;
+}
+
+
 void
 Window::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 {
@@ -135,9 +149,8 @@ Window::MouseDown(IE::point point)
 {
 	ConvertFromScreen(point);
 
-	if (Control* control = _GetControl(point)) {
+	if (Control* control = _GetControl(point))
 		control->MouseDown(point);
-	}
 }
 
 
@@ -146,9 +159,8 @@ Window::MouseUp(IE::point point)
 {
 	ConvertFromScreen(point);
 
-	if (Control* control = _GetControl(point)) {
+	if (Control* control = _GetControl(point))
 		control->MouseUp(point);
-	}
 }
 
 

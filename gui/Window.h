@@ -33,7 +33,10 @@ public:
 	IE::point Position() const;
 	uint16 Width() const;
 	uint16 Height() const;
+
+	GFX::rect Frame() const;
 	void SetFrame(uint16 x, uint16 y, uint16 width, uint16 height);
+	void SetFrame(const GFX::rect rect);
 
 	Control* GetControlByID(uint32 id) const;
 
