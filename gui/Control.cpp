@@ -132,6 +132,17 @@ Control::Height() const
 }
 
 
+GFX::rect
+Control::Frame() const
+{
+	GFX::rect frame = {
+			(sint16)fControl->x, (sint16)fControl->y,
+			fControl->w, fControl->h
+	};
+	return frame;
+}
+
+
 void
 Control::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 {
@@ -155,12 +166,7 @@ Control::AssociateRoom(RoomContainer* room)
 {
 	fRoom = room;
 
-	GFX::rect viewPortRect(
-		Position().x,
-		Position().y,
-		Width(),
-		Height()
-	);
+	GFX::rect viewPortRect = Frame();
 
 	Window()->ConvertToScreen(viewPortRect);
 	if (room != NULL)

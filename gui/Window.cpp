@@ -10,6 +10,7 @@
 #include "GraphicsEngine.h"
 #include "Window.h"
 
+#include "RectUtils.h"
 
 // Window
 Window::Window(uint16 id, int16 xPos, int16 yPos,
@@ -243,9 +244,7 @@ Window::_GetControl(IE::point point)
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
 		Control* control = (*i);
-		const IE::point pt = control->Position();
-		if (point.x >= pt.x && point.x <= pt.x + control->Width()
-				&& point.y >= pt.y && point.y <= pt.y + control->Height()) {
+		if (rect_contains(control->Frame(), point)) {
 			return (*i);
 		}
 	}

@@ -12,6 +12,10 @@
 
 #include <map>
 
+namespace GFX {
+	struct rect;
+};
+
 class RoomContainer;
 class Window;
 class Control {
@@ -39,6 +43,7 @@ public:
 	IE::point ScreenPosition() const;
 	uint16 Width() const;
 	uint16 Height() const;
+	GFX::rect Frame() const;
 	void SetFrame(uint16 x, uint16 y, uint16 width, uint16 height);
 
 	void ConvertFromScreen(IE::point& point) const;
