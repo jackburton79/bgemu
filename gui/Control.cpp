@@ -166,11 +166,25 @@ Control::AssociateRoom(RoomContainer* room)
 {
 	fRoom = room;
 
-	GFX::rect viewPortRect = Frame();
+	GFX::rect areaRect = fRoom->AreaRect();
+	GFX::rect controlRect = Frame();
 
-	Window()->ConvertToScreen(viewPortRect);
-	if (room != NULL)
-		room->SetViewPort(viewPortRect);
+	if (areaRect.w <= Window()->Width()
+			&& areaRect.h <= Window()->Height()) {
+
+		controlRect.w = areaRect.w;
+		controlRect.h = areaRect.h;
+
+		// Center frame
+		controlRect.x = (Window()->Width() - controlRect.w) / 2;
+		controlRect.x = (Window()->Height() - controlRect.h) / 2;
+		SetFrame(controlRect.x, controlRect.y,
+				controlRect.w, controlRect.h);
+	}
+	Window()->ConvertToScreen(controlRect);
+
+	//if (room != NULL)
+	//	room->SetViewPort(controlRect);
 }
 
 
