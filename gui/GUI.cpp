@@ -201,8 +201,8 @@ GUI::ShowWindow(uint16 id)
 	if (IsWindowShown(id))
 		return;
 
-	if (id == 999)
-		fActiveWindows.push_back(new ResourceWindow());
+	//if (id == 999)
+		//fActiveWindows.push_back(new ResourceWindow());
 
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
