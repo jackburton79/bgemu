@@ -169,22 +169,22 @@ Control::AssociateRoom(RoomContainer* room)
 	GFX::rect areaRect = fRoom->AreaRect();
 	GFX::rect controlRect = Frame();
 
-	if (areaRect.w <= Window()->Width()
-			&& areaRect.h <= Window()->Height()) {
-
+	if (areaRect.w <= Window()->Width()) {
 		controlRect.w = areaRect.w;
-		controlRect.h = areaRect.h;
-
-		// Center frame
 		controlRect.x = (Window()->Width() - controlRect.w) / 2;
-		controlRect.x = (Window()->Height() - controlRect.h) / 2;
-		SetFrame(controlRect.x, controlRect.y,
-				controlRect.w, controlRect.h);
 	}
+	if (areaRect.h <= Window()->Height()) {
+		controlRect.h = areaRect.h;
+		controlRect.y = (Window()->Height() - controlRect.h) / 2;
+	}
+
+	SetFrame(controlRect.x, controlRect.y,
+				controlRect.w, controlRect.h);
+
 	Window()->ConvertToScreen(controlRect);
 
-	//if (room != NULL)
-	//	room->SetViewPort(controlRect);
+	if (room != NULL)
+		room->SetViewPort(controlRect);
 }
 
 

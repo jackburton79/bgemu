@@ -1442,6 +1442,7 @@ void
 RoomContainer::_Unload()
 {
 	std::cout << "RoomContainer::Unload()" << std::endl;
+	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 	if (fWorldMap != NULL)
 		_UnloadWorldMap();
 	else if (fWed != NULL)
