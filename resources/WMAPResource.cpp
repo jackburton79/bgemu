@@ -192,7 +192,8 @@ AreaEntry::TooltipName() const
 		return NULL;
 
 	std::cout << "tooltip: " << entry->string << std::endl;
-	std::unique_ptr<TLKEntry> _(entry);
-
-	return strdup(entry->string);
+	char* toolTip = strdup(entry->string);
+	
+	delete entry;
+	return toolTip;
 }
