@@ -12,8 +12,6 @@
 #include "Room.h"
 #include "Window.h"
 
-#include <assert.h>
-
 
 Button::Button(IE::button* button)
 	:

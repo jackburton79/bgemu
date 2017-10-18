@@ -97,12 +97,8 @@ Window::Height() const
 GFX::rect
 Window::Frame() const
 {
-	GFX::rect frame = {
-			fPosition.x,
-			fPosition.y,
-			fWidth,
-			fHeight
-	};
+	GFX::rect frame(fPosition.x, fPosition.y,
+			fWidth, fHeight);
 
 	return frame;
 }

@@ -135,10 +135,8 @@ Control::Height() const
 GFX::rect
 Control::Frame() const
 {
-	GFX::rect frame = {
-			(sint16)fControl->x, (sint16)fControl->y,
-			fControl->w, fControl->h
-	};
+	GFX::rect frame((sint16)fControl->x, (sint16)fControl->y,
+			fControl->w, fControl->h);
 	return frame;
 }
 
