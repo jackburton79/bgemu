@@ -128,7 +128,7 @@ RoomContainer::Frame() const
 GFX::rect
 RoomContainer::ViewPort() const
 {
-	return fViewPort;
+	return fScreenArea;
 }
 
 
@@ -290,13 +290,6 @@ RoomContainer::LoadWorldMap()
 	}
 
 	gui->ShowWindow(0);
-	Window* window = gui->GetWindow(0);
-	if (window != NULL) {
-		// TODO: Move this into GUI ?
-		Control* control = window->GetControlByID(4);
-		if (control != NULL)
-			control->AssociateRoom(this);
-	}
 
 	fAreaOffset.x = fAreaOffset.y = 0;
 
@@ -323,6 +316,15 @@ RoomContainer::LoadWorldMap()
 				fWorldMapBitmap, &iconRect);
 
 	}
+
+	Window* window = gui->GetWindow(0);
+		if (window != NULL) {
+			// TODO: Move this into GUI ?
+			Control* control = window->GetControlByID(4);
+			if (control != NULL)
+				control->AssociateRoom(this);
+		}
+
 	return true;
 }
 
@@ -330,7 +332,7 @@ RoomContainer::LoadWorldMap()
 void
 RoomContainer::SetViewPort(GFX::rect rect)
 {
-	fViewPort = rect;
+	fScreenArea = rect;
 }
 
 
@@ -371,14 +373,14 @@ RoomContainer::SetAreaOffset(IE::point point)
 	fAreaOffset = point;
 	if (fAreaOffset.x < 0)
 		fAreaOffset.x = 0;
-	else if (fAreaOffset.x + fViewPort.w > areaRect.w)
-		fAreaOffset.x = std::max(areaRect.w - fViewPort.w, 0);
+	else if (fAreaOffset.x + fScreenArea.w > areaRect.w)
+		fAreaOffset.x = std::max(areaRect.w - fScreenArea.w, 0);
 	if (fAreaOffset.y < 0)
 		fAreaOffset.y = 0;
-	else if (fAreaOffset.y + fViewPort.h > areaRect.h)
-		fAreaOffset.y = std::max(areaRect.h - fViewPort.h, 0);
+	else if (fAreaOffset.y + fScreenArea.h > areaRect.h)
+		fAreaOffset.y = std::max(areaRect.h - fScreenArea.h, 0);
 
-	fMapArea = offset_rect_to(fViewPort,
+	fMapArea = offset_rect_to(fScreenArea,
 			fAreaOffset.x, fAreaOffset.y);
 }
 
@@ -397,8 +399,8 @@ void
 RoomContainer::CenterArea(const IE::point& point)
 {
 	IE::point destPoint;
-	destPoint.x = point.x - fViewPort.w / 2;
-	destPoint.y = point.y - fViewPort.y / 2;
+	destPoint.x = point.x - fScreenArea.w / 2;
+	destPoint.y = point.y - fScreenArea.y / 2;
 	SetAreaOffset(destPoint);
 }
 
@@ -445,16 +447,16 @@ RoomContainer::ConvertFromArea(IE::point& point)
 void
 RoomContainer::ConvertToScreen(GFX::rect& rect)
 {
-	rect.x += fViewPort.x;
-	rect.y += fViewPort.y;
+	rect.x += fScreenArea.x;
+	rect.y += fScreenArea.y;
 }
 
 
 void
 RoomContainer::ConvertToScreen(IE::point& point)
 {
-	point.x += fViewPort.x;
-	point.y += fViewPort.y;
+	point.x += fScreenArea.x;
+	point.y += fScreenArea.y;
 }
 
 
@@ -464,18 +466,19 @@ RoomContainer::Draw(Bitmap *surface)
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
 	if (fWorldMap != NULL) {
-		GFX::rect sourceRect = offset_rect(fViewPort,
-				-fViewPort.x, -fViewPort.y);
+		//GFX::rect sourceRect = offset_rect(fViewPort,
+		//		-fViewPort.x, -fViewPort.y);
+		GFX::rect sourceRect = fScreenArea;
 		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
 		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
-			GFX::rect clippingRect = fViewPort;
+			GFX::rect clippingRect = fScreenArea;
 			clippingRect.w = gfx->ScreenFrame().w;
 			clippingRect.h = gfx->ScreenFrame().h;
 			gfx->SetClipping(&clippingRect);
 			gfx->ScreenBitmap()->Clear(0);
 			gfx->SetClipping(NULL);
 		}
-		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fViewPort);
+		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fScreenArea);
 	} else {
 		if (sSelectedActorRadius > 22) {
 			sSelectedActorRadiusStep = -1;
@@ -484,7 +487,7 @@ RoomContainer::Draw(Bitmap *surface)
 		}
 		sSelectedActorRadius += sSelectedActorRadiusStep;
 
-		GFX::rect mapRect = offset_rect_to(fViewPort,
+		GFX::rect mapRect = offset_rect_to(fScreenArea,
 				fAreaOffset.x, fAreaOffset.y);
 
 		bool paused = Core::Get()->IsPaused();
@@ -583,7 +586,7 @@ RoomContainer::Draw(Bitmap *surface)
 			fBackMap->Image()->Unlock();
 		}
 
-		gfx->BlitToScreen(fBackMap->Image(), NULL, &fViewPort);
+		gfx->BlitToScreen(fBackMap->Image(), NULL, &fScreenArea);
 		_DrawSearchMap(mapRect);
 	}
 }
@@ -677,12 +680,12 @@ RoomContainer::MouseOver(uint16 x, uint16 y)
 	sint16 scrollByY = 0;
 	if (x <= horizBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x >= fViewPort.w - horizBorderSize)
+	else if (x >= fScreenArea.w - horizBorderSize)
 		scrollByX = kScrollingStep;
 
 	if (y <= vertBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y >= fViewPort.h - vertBorderSize)
+	else if (y >= fScreenArea.h - vertBorderSize)
 		scrollByY = kScrollingStep;
 
 	IE::point point = { int16(x), int16(y) };
@@ -965,7 +968,7 @@ RoomContainer::_InitWed(const char* name)
 
 	fWed = gResManager->GetWED(name);
 
-	_InitBackMap(fViewPort);
+	_InitBackMap(fScreenArea);
 	_InitHeightMap();
 	_InitLightMap();
 	_InitSearchMap();
