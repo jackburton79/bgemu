@@ -33,10 +33,7 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	if (screenRect.w > 640) {
 		if (xPos + width == 640) {
-			if (xPos == 0) {
-				// Full screen window. Resize
-				SetFrame(xPos, yPos, screenRect.w, screenRect.h);
-			} else {
+			if (xPos != 0) {
 				SetFrame(screenRect.w - width, yPos, width, height);
 			}
 		}
