@@ -71,7 +71,7 @@ Label::SetText(const char* text)
 void
 Label::Draw()
 {
-	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
+	GFX::rect destRect = Frame();
 	fWindow->ConvertToScreen(destRect);
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
 }

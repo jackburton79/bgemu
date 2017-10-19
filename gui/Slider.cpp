@@ -40,8 +40,7 @@ Slider::~Slider()
 void
 Slider::Draw()
 {
-	GFX::rect destRect(fControl->x, fControl->y,
-			fControl->w, fControl->h);
+	GFX::rect destRect = Frame();
 	Window()->ConvertToScreen(destRect);
 	GraphicsEngine::Get()->BlitToScreen(fBackground, NULL, &destRect);
 }

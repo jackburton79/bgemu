@@ -60,8 +60,7 @@ Button::Draw()
 			frame = fResource->FrameForCycle(button->cycle, button->frame_unpressed);
 
 		if (frame != NULL) {
-			GFX::rect destRect(sint16(fControl->x), sint16(fControl->y),
-					uint16(fControl->w), uint16(fControl->h));
+			GFX::rect destRect = Frame();
 			fWindow->ConvertToScreen(destRect);
 			GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 			//frame->Release();
