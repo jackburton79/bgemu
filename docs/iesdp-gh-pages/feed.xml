@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>IESDP</title>
+    <description>The IESDP (Infinity Engine Structures Description Project) is an effort to research the workings of the Bioware Infinity Engine(R), and act as a collective resource for those interested in such workings.
+</description>
+    <link>https://gibberlings3.github.io/iesdp/</link>
+    <atom:link href="https://gibberlings3.github.io/iesdp/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 16 Apr 2018 18:13:56 +0000</pubDate>
+    <lastBuildDate>Mon, 16 Apr 2018 18:13:56 +0000</lastBuildDate>
+    <generator>Jekyll v3.7.3</generator>
+    
+  </channel>
+</rss>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<!--  <meta charset="utf-8"> -->
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>BG(2):EE 2DA Files : item_use.2da</title>
+  <meta name="description" content="The IESDP (Infinity Engine Structures Description Project) is an effort to research the workings of the Bioware Infinity Engine(R), and act as a collective resource for those interested in such workings.
+">
+
+  
+
+
+
+
+
+  <link rel="stylesheet" href="../../../css/main.css">
+
+<!--
+  <link rel="canonical" href="https://gibberlings3.github.io/iesdp/files/2da/2da_bgee/item_use.htm">
+  <link rel="alternate" type="application/rss+xml" title="IESDP" href="https://gibberlings3.github.io/iesdp/feed.xml">
+-->
+</head>
+
+
+<body>
+
+<header class="site-header">
+
+
+
+
+
+
+
+
+    <hr />
+    <div id="buttonboxtop">
+      <div id="buttonstriptop">
+        <a href="../../../index.htm">Index</a> &nbsp;&bull;&nbsp;
+        <a href="../../../files/2da/index.htm">2DA</a> &nbsp;&bull;&nbsp;
+        <a href="../../../opcodes/index.htm">Effects</a> &nbsp;&bull;&nbsp;
+        <a href="../../../file_formats/index.htm">File Formats</a> &nbsp;&bull;&nbsp;
+        <a href="../../../scripting/actions/index.htm">Actions</a> &nbsp;&bull;&nbsp;
+        <a href="../../../files/ids/index.htm">Identifiers</a> &nbsp;&bull;&nbsp;
+        <a href="../../../scripting/triggers/index.htm">Triggers</a> &nbsp;&bull;&nbsp;
+        <a href="../../../appendices/index.htm">Appendices</a> &nbsp;&bull;&nbsp;
+        <a href="../../../site_info/index.htm">Site Info</a> &nbsp;&bull;&nbsp;
+        <a href="../../../site_info/legal.htm">Legal</a> &nbsp;&bull;&nbsp;
+        <a href="http://gibberlings3.net/forums/index.php?showforum=54" target="_blank">Forum</a>
+      </div>
+    </div>
+    <hr />
+    <div id="logo">
+      <a href="../../../main.htm">
+        <img src="../../../images/iesdp_logo.gif" alt="IESDP Logo" width="120" height="120" />
+      </a>
+    </div>
+
+</header>
+
+
+<div id="nonFooter">
+  <div id="content">
+
+    <div class="title_main"> item_use.2da</div>
+<br />
+This file defines how specific items and actors interact with each other.<br />
+<br />
+First column defines the item.<br />
+Second column defines the actor's script name.<br />
+Third column defines the string that is displayed when item/actor combination matches the behaviour defined in the fourth column.<br />
+Fourth column is a bitfield that defines the item/actor behaviour:<br />
+<ul>
+<li>Bit 0: When attempting to remove item from actor.</li>
+<li>Bit 1: When another actor attempts to equip the item.</li>
+<li>Bit 2: When attempting to remove item from actor without replacing it by another item.</li>
+</ul>
+In BG2EE we have:<br />
+<br />
+
+<pre>
+2DA V1.0
+*
+            USER        STRREF  FLAG
+MISC84      MINSC       10218   3
+MISC88      ALORA       10219   1
+MISC89      EDWIN       10222   1
+SW1H13      XAN         10220   2
+AROW14      ELDOTH      10221   2
+NPARM       JAN          9382   2
+NPCHAN      VALYGAR      9382   2
+NPCLCK      CERND        9382   2
+NPMISC1     JAN          9382   2
+NPMISC2     JAN          9382   2
+NPPLAT      KELDORN      9382   2
+NPRING01    NALIA       25697   1
+NPSHLD      ANOMEN       9382   2
+NPSW02      YOSHIMO      9382   2
+NPSW03      KELDORN      9382   2
+NPSW04      VALYGAR      9382   2
+NPSW05      HAERDALIS    9382   2
+NPSW06      HAERDALIS    9382   2
+RSBOOT      RASAAD       9382   2
+RSBRAC      RASAAD       9382   2
+ohhexam0    OHHFAK      99808   1
+ohhexam1    HEXXAT      99808   1
+ohhexam2    HEXXAT      99808   1
+ohhexam3    HEXXAT      99808   1
+ohhexam4    HEXXAT      99808   1
+ohhexam5    HEXXAT      99808   1
+STAFN1      NEERA        9382   2
+OHBGLOV1    THE_WINGED   9382   2
+</pre>
+  </div>
+</div>
+
+
+<a href="#" class="go-up">
+  &nbsp;
+</a>
+
+
+  </div>
+</div>
+
+<script>
+window.addEventListener("scroll", function(event) {
+  var top = window.pageYOffset || document.documentElement.scrollTop;
+  var arrow = document.getElementsByClassName("go-up")[0];
+  if (top > 100) {
+    arrow.style.visibility = "visible";
+  } else {
+    arrow.style.visibility = "hidden";
+  }
+});
+</script>
+
+<footer class="site-footer">
+
+<div id="footer">
+  <hr />
+
+    <form method="get" action="http://www.google.com/search">
+      <div style="margin: 0px; padding: 0px; text-align: center">
+        <input type="hidden" name="ie" value="UTF-8" />
+        <input type="hidden" name="oe" value="UTF-8" />
+        <input class="form_text" type="text" name="q" size="30" maxlength="255" value="" />
+        <input class="form_button" type="submit" name="btnG" value="Search" />
+        <input type="hidden" name="domains" value="https://gibberlings3.github.io/iesdp" />
+        <input type="hidden" name="sitesearch" value="https://gibberlings3.github.io/iesdp" />
+      </div>
+    </form>
+
+  <hr />
+</div>
+
+</footer>
+
+
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+<!--  <meta charset="utf-8"> -->
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>PRO file format</title>
+  <meta name="description" content="The IESDP (Infinity Engine Structures Description Project) is an effort to research the workings of the Bioware Infinity Engine(R), and act as a collective resource for those interested in such workings.
+">
+
+  
+
+
+
+
+
+  <link rel="stylesheet" href="../../css/main.css">
+
+<!--
+  <link rel="canonical" href="https://gibberlings3.github.io/iesdp/file_formats/ie_formats/pro_v1.htm">
+  <link rel="alternate" type="application/rss+xml" title="IESDP" href="https://gibberlings3.github.io/iesdp/feed.xml">
+-->
+</head>
+
+
+<body>
+
+<header class="site-header">
+
+
+
+
+
+
+
+
+    <hr />
+    <div id="buttonboxtop">
+      <div id="buttonstriptop">
+        <a href="../../index.htm">Index</a> &nbsp;&bull;&nbsp;
+        <a href="../../files/2da/index.htm">2DA</a> &nbsp;&bull;&nbsp;
+        <a href="../../opcodes/index.htm">Effects</a> &nbsp;&bull;&nbsp;
+        <a href="../../file_formats/index.htm">File Formats</a> &nbsp;&bull;&nbsp;
+        <a href="../../scripting/actions/index.htm">Actions</a> &nbsp;&bull;&nbsp;
+        <a href="../../files/ids/index.htm">Identifiers</a> &nbsp;&bull;&nbsp;
+        <a href="../../scripting/triggers/index.htm">Triggers</a> &nbsp;&bull;&nbsp;
+        <a href="../../appendices/index.htm">Appendices</a> &nbsp;&bull;&nbsp;
+        <a href="../../site_info/index.htm">Site Info</a> &nbsp;&bull;&nbsp;
+        <a href="../../site_info/legal.htm">Legal</a> &nbsp;&bull;&nbsp;
+        <a href="http://gibberlings3.net/forums/index.php?showforum=54" target="_blank">Forum</a>
+      </div>
+    </div>
+    <hr />
+    <div id="logo">
+      <a href="../../main.htm">
+        <img src="../../images/iesdp_logo.gif" alt="IESDP Logo" width="120" height="120" />
+      </a>
+    </div>
+
+</header>
+
+
+<div id="nonFooter">
+  <div id="content">
+
+    <div class="title_main">PRO file format</div>
+    <br />
+    <div class="fileHeader">Applies to:</div>
+    <div class="indent1"> BG2, BG2: ToB, BGEE </div><br />
+
+    <div class="fileHeader">General Description</div>
+    <div class="indent1">
+      This file format describes projectiles, and the files are referenced spells and projectile weapons. Projectile files can control:<br />
+      <ul>
+        <li>Projectile graphics</li>
+        <li>Projectile speed</li>
+        <li>Projectile area of effect</li>
+        <li>Projectile sound</li>
+      </ul>
+      These files have constant length 256 bytes (no BAM), 512 bytes (single target), or 768 bytes (area of effect).
+    </div>
+    <br />
+
+    <div class="fileHeader">Detailed Description</div>
+    <div class="indent1">
+      <br />
+      <table border="1" width="98%">
+        <colgroup>
+          <col width="5%" />
+          <col width="12%" />
+           <col width="*" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Offset</th>
+            <th>Size (datatype)</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>0x00000</td>
+          <td>4 (char array)</td>
+          <td>Signature ('PRO ')</td>
+        </tr>
+        <tr>
+          <td>0x00004</td>
+          <td>4 (char array)</td>
+          <td>Version ('V1.0')</td>
+        </tr>
+        <tr>
+          <td>0x00008</td>
+          <td>2 (word)</td>
+          <td>Projectile type<br />
+            <ul>
+              <li>1 no BAM</li>
+              <li>2 single target</li>
+              <li>3 area of effect</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x0000a</td>
+          <td>2 (word)</td>
+          <td>Projectile speed (0x01 to 0xFF)</td>
+        </tr>
+        <tr>
+          <td>0x0000c</td>
+          <td>4 (dword)</td>
+          <td>Sparking flags
+            <ul>
+              <li>bit 0: Show sparkle</li>
+              <li>bit 1: Use z coordinate</li>
+              <li>bit 2: Loop sound (0x10)</li>
+              <li>bit 3: Loop sound (0x18)</li>
+              <li>bit 4: Do not affect direct target</li>
+              <li>bit 5: Draw below animate objects</li>
+              <li>bit 6: Allow saving game (EE)</li>
+            </ul>
+            Further bits are unused.
+          </td>
+        </tr>
+        <tr>
+          <td>0x00010</td>
+          <td>8 (resref)</td>
+          <td><a href="wavc_v1.htm">WAVC file</a> (travelling)</td>
+        </tr>
+        <tr>
+          <td>0x00018</td>
+          <td>8 (resref)</td>
+          <td><a href="wavc_v1.htm">WAVC file</a> (explosion/reach destination)</td>
+        </tr>
+        <tr>
+          <td>0x00020</td>
+          <td>8 (resref)</td>
+          <td>Travelling <a href="vef_v1.htm">VEF</a>/<a href="vvc_v1.htm">VVC</a>/<a href="bam_v1.htm">BAM</a></td>
+        </tr>
+        <tr>
+          <td>0x00028</td>
+          <td>2 (word)</td>
+          <td>Spark colour (from sprkclr.2da)
+            <ul>
+              <li>0 = Crashes</li>
+              <li>1 = Black</li>
+              <li>2 = Blue</li>
+              <li>3 = Chromatic</li>
+              <li>4 = Gold</li>
+              <li>5 = Green</li>
+              <li>6 = Purple</li>
+              <li>7 = Red</li>
+              <li>8 = White</li>
+              <li>9 = Ice</li>
+              <li>10 = Stone</li>
+              <li>11 = Magenta</li>
+              <li>12 = Orange</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3"><b>The following fields are used by Enhanced Editions games only:</b></td>
+        </tr>
+        <tr>
+          <td>0x0002a</td>
+          <td>2 (word)</td>
+          <td>Projectile width</td>
+        </tr>
+        <tr>
+          <td>0x0002c</td>
+          <td>4 (dword)</td>
+          <td>Extended flags
+            <ul>
+              <li>Bit 0: Bounce from walls</li>
+              <li>Bit 1: Pass target</li>
+              <li>Bit 2: Draw centre VVC once</li>
+              <li>Bit 3: Hit immediately</li>
+              <li>Bit 4: Face target</li>
+              <li>Bit 5: Curved path</li>
+              <li>Bit 6: Start random frame</li>
+              <li>Bit 7: Pillar</li>
+              <li>Bit 8: Semi-transparent trail puff VEF</li>
+              <li>Bit 9: Tinted trail puff VEF</li>
+              <li>Bit 10: Multiple projectiles</li>
+              <li>Bit 11: Default spell on missed</li>
+              <li>Bit 12: Falling path</li>
+              <li>Bit 13: Comet</li>
+              <li>Bit 14: Lined up area of effect</li>
+              <li>Bit 15: Rectangular area of effect</li>
+              <li>Bit 16: Draw behind target</li>
+              <li>Bit 17: Casting glow effect</li>
+              <li>Bit 18: Travel door</li>
+              <li>Bit 19: Stop/fade after hit</li>
+              <li>Bit 20: Display message</li>
+              <li>Bit 21: Random path</li>
+              <li>Bit 22: Start random sequence</li>
+              <li>Bit 23: Colour pulse on hit</li>
+              <li>Bit 24: Touch projectile</li>
+              <li>Bit 25: Negate first creature target</li>
+              <li>Bit 26: Negate second creature target</li>
+              <li>Bit 27: Use either IDS</li>
+              <li>Bit 28: Delayed payload</li>
+              <li>Bit 29: Limited path count</li>
+              <li>Bit 30: IWD-style check (use entries from splprot.2da for first and second creature target)</li>
+              <li>Bit 31: Caster affected</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x00030</td>
+          <td>4 (strref)</td>
+          <td>Display message</td>
+        </tr>
+        <tr>
+          <td>0x00034</td>
+          <td>4 (dword)</td>
+          <td>Pulse colour (byte order: blue, green, red, unused) </td>
+        </tr>
+        <tr>
+          <td>0x00038</td>
+          <td>2 (word)</td>
+          <td>Colour speed</td>
+        </tr>
+        <tr>
+          <td>0x0003a</td>
+          <td>2 (word)</td>
+          <td>Screen shake amount</td>
+        </tr>
+        <tr>
+          <td>0x0003c</td>
+          <td>2 (word)</td>
+          <td>First creature target: Value<br />
+              <br />
+              If Extended Flags bit 30 is
+              <ul>
+                <li>unset: use IDS targets</li>
+                <li>set: use splprot.2da</li>
+              </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x0003e</td>
+          <td>2 (word)</td>
+          <td>First creature target: Type<br />
+              <br />
+              If Extended Flags bit 30 is unset: use IDS targets
+              <ul>
+                <li>2 EA.IDS</li>
+                <li>3 GENERAL.IDS</li>
+                <li>4 RACE.IDS</li>
+                <li>5 CLASS.IDS</li>
+                <li>6 SPECIFIC.IDS</li>
+                <li>7 GENDER.IDS</li>
+                <li>8 ALIGNMEN.IDS</li>
+                <li>9 KIT.IDS</li>
+              </ul>
+              If Extended Flags bit 30 is set: use entries from splprot.2da
+          </td>
+        </tr>
+        <tr>
+          <td>0x00040</td>
+          <td>2 (word)</td>
+          <td>Second creature target: Value</td>
+        </tr>
+        <tr>
+          <td>0x00042</td>
+          <td>2 (word)</td>
+          <td>Second creature target: Type</td>
+        </tr>
+        <tr>
+          <td>0x00044</td>
+          <td>8 (resref)</td>
+          <td>Default spell (<a href="spl_v1.htm">SPL</a>)</td>
+        </tr>
+        <tr>
+          <td>0x0004c</td>
+          <td>8 (resref)</td>
+          <td>Success spell (<a href="spl_v1.htm">SPL</a>)</td>
+        </tr>
+        <tr>
+          <td>0x00054</td>
+          <td>2 (word)</td>
+          <td>Angle increase minimum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x00056</td>
+          <td>2 (word)</td>
+          <td>Angle increase maximum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x00058</td>
+          <td>2 (word)</td>
+          <td>Curve minimum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x0005a</td>
+          <td>2 (word)</td>
+          <td>Curve maximum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x0005c</td>
+          <td>2 (word)</td>
+          <td>THAC0 bonus [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x0005e</td>
+          <td>2 (word)</td>
+          <td>THAC0 bonus (non-actor) [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x00060</td>
+          <td>2 (word)</td>
+          <td>Radius minimum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x00062</td>
+          <td>2 (word)</td>
+          <td>Radius maximum [PSTEE]</td>
+        </tr>
+        <tr>
+          <td>0x00064</td>
+          <td>156 (bytes)</td>
+          <td>Unused</td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+
+    The following struct is added when the projectile is a single target or area effect projectile (see 'Projectile type' at offset 0x00008). It has 100h (256) bytes.<br />
+    <br />
+    <table border="1" width="98%">
+      <colgroup>
+        <col width="5%" />
+        <col width="12%" />
+         <col width="*" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Offset</th>
+          <th>Size (datatype)</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0x00100</td>
+          <td>4 (dword)</td>
+          <td>BAM projectile flags
+            <ul>
+              <li>bit 0: Enable BAM colouring (palette at 0x11c)</li>
+              <li>bit 1: Enable smoke</li>
+              <li>bit 2: Unused</li>
+              <li>bit 3: Enable area lighting usage</li>
+              <li>bit 4: Enable area height usage</li>
+              <li>bit 5: Enable shadow</li>
+              <li>bit 6: Enable light spot</li>
+              <li>bit 7: Enable brighten flags</li>
+              <li>bit 8: Low level brighten</li>
+              <li>bit 9: High level brighten</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x00104</td>
+          <td>8 (resref)</td>
+          <td>Projectile animation (<a href="bam_v1.htm">BAM</a>)</td>
+        </tr>
+        <tr>
+          <td>0x0010c</td>
+          <td>8 (resref)</td>
+          <td>Shadow animation (<a href="bam_v1.htm">BAM</a>)</td>
+        </tr>
+        <tr>
+          <td>0x00114</td>
+          <td>1 (byte)</td>
+          <td>Projectile number (BAM sequence)</td>
+        </tr>
+        <tr>
+          <td>0x00115</td>
+          <td>1 (byte)</td>
+          <td>Shadow number (BAM sequence)</td>
+        </tr>
+        <tr>
+          <td>0x00116</td>
+          <td>2 (word)</td>
+          <td>Light spot intensity</td>
+        </tr>
+        <tr>
+          <td>0x00118</td>
+          <td>2 (word)</td>
+          <td>Light spot width</td>
+        </tr>
+        <tr>
+          <td>0x0011a</td>
+          <td>2 (word)</td>
+          <td>Light spot height</td>
+        </tr>
+        <tr>
+          <td>0x0011c</td>
+          <td>8 (resref)</td>
+          <td>Palette (<a href="bmp.htm">BMP</a>)
+            <ul>
+              <li>STTRAVL1 = Blue</li>
+              <li>STTRAVL2 = Yellow</li>
+              <li>STTRAVL3 = Green</li>
+              <li>STTRAVL4 = Purple</li>
+              <li>STTRAVL5 = Pale purple</li>
+              <li>STTRAVL6 = Pink</li>
+              <li>STTRAVL7 = Blue</li>
+              <li>STTRAVL8 = Gold</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x00124</td>
+          <td>7 (bytes)</td>
+          <td>Projectile colours</td>
+        </tr>
+        <tr>
+          <td>0x0012b</td>
+          <td>1 (byte)</td>
+          <td>Smoke puff period</td>
+        </tr>
+        <tr>
+          <td>0x0012c</td>
+          <td>7 (bytes)</td>
+          <td>Smoke colours</td>
+        </tr>
+        <tr>
+          <td>0x00133</td>
+          <td>1 (byte)</td>
+          <td> <div class="unknown">Face target granularity<br />
+            <ul>
+              <li>1  : Do not face target</li>
+              <li>5  : Mirrored eastern directions (reduced granularity)</li>
+              <li>9  : Mirrored eastern (full granularity)</li>
+              <li>16 : Mot mirrored, not reduced</li>
+            </ul>
+          </div>
+          </td>
+        </tr>
+        <tr>
+          <td>0x00134</td>
+          <td>2 (short)</td>
+          <td>Projectile smoke animation (animate.ids)</td>
+        </tr>
+        <tr>
+          <td>0x00136</td>
+          <td>8 (resref)</td>
+          <td>Trailing animation 1 (BAM)</td>
+        </tr>
+        <tr>
+          <td>0x0013e</td>
+          <td>8 (resref)</td>
+          <td>Trailing animation 2 (BAM)</td>
+        </tr>
+        <tr>
+          <td>0x00146</td>
+          <td>8 (resref)</td>
+          <td>Trailing animation 3 (BAM)</td>
+        </tr>
+        <tr>
+          <td>0x0014e</td>
+          <td>2 (word)</td>
+          <td>Trailing number 1 (BAM sequence)</td>
+        </tr>
+        <tr>
+          <td>0x00150</td>
+          <td>2 (word)</td>
+          <td>Trailing number 2 (BAM sequence)</td>
+        </tr>
+        <tr>
+          <td>0x00152</td>
+          <td>2 (word)</td>
+          <td>Trailing number 3 (BAM sequence)</td>
+        </tr>
+        <tr>
+          <td>0x00154</td>
+          <td>4 (dword)</td>
+          <td>Flags
+            <ul>
+              <li>bit 0: Puff at target</li>
+              <li>bit 1: Puff at source</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td>0x00158</td>
+          <td>168 (bytes)</td>
+          <td>Unused</td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+
+    If the projectile is an area effect projectile then an additional struct is added to the file. It has 100h (256) bytes.<br />
+    <br />
+    <table border="1" width="98%">
+      <colgroup>
+        <col width="5%" />
+        <col width="12%" />
+         <col width="*" />
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Offset</th>
+          <th>Size (datatype)</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>0x00200</td>
+        <td>4 (dword)</td>
+        <td>Area projectile flags
+          <ul>
+            <li>bit 0: Projectile remains visible at destination</li>
+            <li><span class="unknown"> bit 1: Triggered by inanimate objects (e.g. doors) </span></li>
+            <li>bit 2: Triggered on condition</li>
+            <li>bit 3: Trigger during delay</li>
+            <li>bit 4: Use secondary projectile</li>
+            <li>bit 5: Use fragment graphics</li>
+            <li>bit 6: Target selection*</li>
+            <li>bit 7: Target selection*</li>
+            <li>bit 8: Number of triggers equal to cast mage level</li>
+            <li>bit 9: Number of triggers equal to cast cleric level</li>
+            <li>bit 10: Use VVC</li>
+            <li>bit 11: Cone shape</li>
+            <li>bit 12: Affect objects through wall, mountain, building, and off-area</li>
+            <li>bit 13: Check triggers from animation frame 30 (req. bit 0)</li>
+            <li>bit 14: Delayed explosion</li>
+            <li>bit 15: Affect only one target</li>
+            <br />
+            *Target selection is relative to caster:<br />
+            <ul>
+              <li>00 Affect all</li>
+              <li>01 Affect only enemies</li>
+              <li>10 Affect all</li>
+              <li>11 Affect only allies</li>
+            </ul>
+          </ul>
+          Further bits are unused
+        </td>
+      </tr>
+      <tr>
+        <td>0x00204</td>
+        <td>2 (word)</td>
+        <td>Trigger radius (divide by approx 8.5 to receive diameter in feet)</td>
+      </tr>
+      <tr>
+        <td>0x00206</td>
+        <td>2 (word)</td>
+        <td>Area of effect (divide by approx 8.5 to receive diameter in feet)</td>
+      </tr>
+      <tr>
+        <td>0x00208</td>
+        <td>8 (resref)</td>
+        <td>Trigger sound</td>
+      </tr>
+      <tr>
+        <td>0x00210</td>
+        <td>2 (word)</td>
+        <td>Explosion delay</td>
+      </tr>
+      <tr>
+        <td>0x00212</td>
+        <td>2 (short)</td>
+        <td>Fragment animation (animate.ids)</td>
+      </tr>
+      <tr>
+        <td>0x00214</td>
+        <td>2 (word)</td>
+        <td>Secondary projectile (projectl.ids-1)</td>
+      </tr>
+      <tr>
+        <td>0x00216</td>
+        <td>1 (byte)</td>
+        <td>Trigger count (used if bits 8 and 9 at 0x200 are not set)</td>
+      </tr>
+      <tr>
+        <td>0x00217</td>
+        <td>1 (byte)</td>
+        <td>Explosion animation (fireball.ids)</td>
+      </tr>
+      <tr>
+        <td>0x000218</td>
+        <td>1 (byte)</td>
+        <td>Explosion colour</td>
+      </tr>
+      <tr>
+        <td>0x000219</td>
+        <td>1 (byte)</td>
+        <td>Unused</td>
+      </tr>
+      <tr>
+        <td>0x00021a</td>
+        <td>2 (bytes)</td>
+        <td>Explosion projectile (projectl.ids), played on affected creatures</td>
+      </tr>
+      <tr>
+        <td>0x00021c</td>
+        <td>8 (resref)</td>
+        <td>Explosion animation (<a href="vvc_v1.htm">VVC</a>)</td>
+      </tr>
+      <tr>
+        <td>0x000224</td>
+        <td>2 (word)</td>
+        <td>Cone width (1 to 359)</td>
+      </tr>
+      <tr>
+        <td colspan="3"><b>The following fields are used by Enhanced Editions games only:</b></td>
+      </tr>
+      <tr>
+        <td>0x00226</td>
+        <td>2 (word)</td>
+        <td><span class="unknown"> Unused </span></td>
+      </tr>
+      <tr>
+        <td>0x00228</td>
+        <td>8 (resref)</td>
+        <td>Spread animation (<a href="vef_v1.htm">VEF</a>/<a href="vvc_v1.htm">VVC</a>/<a href="bam_v1.htm">BAM</a>)</td>
+      </tr>
+      <tr>
+        <td>0x00230</td>
+        <td>8 (resref)</td>
+        <td>Ring animation (<a href="vef_v1.htm">VEF</a>/<a href="vvc_v1.htm">VVC</a>/<a href="bam_v1.htm">BAM</a>)</td>
+      </tr>
+      <tr>
+        <td>0x00238</td>
+        <td>8 (resref)</td>
+        <td>Area sound (<a href="wavc_v1.htm">WAV</a>)</td>
+      </tr>
+      <tr>
+        <td>0x00240</td>
+        <td>4 (dword)</td>
+        <td>Extended flags
+          <ul>
+            <li>Bit 0: Paletted ring</li>
+            <li>Bit 1: Random speed</li>
+            <li>Bit 2: Start scattered</li>
+            <li>Bit 3: Paletted centre</li>
+            <li>Bit 4: Repeat scattering</li>
+            <li>Bit 5: Paletted animation</li>
+            <li>Bit 6: <span class="unknown"> Unused </span></li>
+            <li>Bit 7: <span class="unknown"> Unused </span></li>
+            <li>Bit 8: <span class="unknown"> Unused </span></li>
+            <li>Bit 9: Oriented fireball puffs</li>
+            <li>Bit 10: Use hit dice lookup</li>
+            <li>Bit 11: <span class="unknown"> Unused </span></li>
+            <li>Bit 12: <span class="unknown"> Unused </span></li>
+            <li>Bit 13: Blended area/ring animation</li>
+            <li>Bit 14: Glowing area/ring animation</li>
+            <li>Bit 15: Hit point limit</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>0x00244</td>
+        <td>2 (word)</td>
+        <td>Dice thrown for multiple targets</td>
+      </tr>
+      <tr>
+        <td>0x00246</td>
+        <td>2 (word)</td>
+        <td>Dice sides for multiple targets</td>
+      </tr>
+      <tr>
+        <td>0x00248</td>
+        <td>2 (word)</td>
+        <td>Animation granularity</td>
+      </tr>
+      <tr>
+        <td>0x0024a</td>
+        <td>2 (word)</td>
+        <td>Animation granularity divider</td>
+      </tr>
+      <tr>
+        <td>0x0024c</td>
+        <td>180 (bytes)</td>
+        <td>Unused</td>
+      </tr>
+    </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+
+<a href="#" class="go-up">
+  &nbsp;
+</a>
+
+
+  </div>
+</div>
+
+<script>
+window.addEventListener("scroll", function(event) {
+  var top = window.pageYOffset || document.documentElement.scrollTop;
+  var arrow = document.getElementsByClassName("go-up")[0];
+  if (top > 100) {
+    arrow.style.visibility = "visible";
+  } else {
+    arrow.style.visibility = "hidden";
+  }
+});
+</script>
+
+<footer class="site-footer">
+
+<div id="footer">
+  <hr />
+
+    <form method="get" action="http://www.google.com/search">
+      <div style="margin: 0px; padding: 0px; text-align: center">
+        <input type="hidden" name="ie" value="UTF-8" />
+        <input type="hidden" name="oe" value="UTF-8" />
+        <input class="form_text" type="text" name="q" size="30" maxlength="255" value="" />
+        <input class="form_button" type="submit" name="btnG" value="Search" />
+        <input type="hidden" name="domains" value="https://gibberlings3.github.io/iesdp" />
+        <input type="hidden" name="sitesearch" value="https://gibberlings3.github.io/iesdp" />
+      </div>
+    </form>
+
+  <hr />
+</div>
+
+</footer>
+
+
+</body>
+</html>
