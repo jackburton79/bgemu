@@ -2,7 +2,7 @@
  * ZLibDecompressor.cpp
  *
  *  Created on: 19/nov/2014
- *      Author: stefano
+ *      Author: Stefano Ceccherini
  */
 
 #include "ZLibDecompressor.h"
