@@ -188,7 +188,6 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	}*/
 	//gui->GetWindow(15);
 
-
 	if (window != NULL) {
 		Control* control = window->GetControlByID(uint32(-1));
 		if (control != NULL)
@@ -230,7 +229,6 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 			point.x = entrance.x;
 			point.y = entrance.y;
 		} catch (std::out_of_range& ex) {
-
 		}
 		CenterArea(point);
 	}
@@ -242,7 +240,6 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 			player->Select(true);
 		fSelectedActor = player;
 	}
-
 
 	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
@@ -629,7 +626,6 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 			*/
 			if (fSelectedActor != NULL)
 				fSelectedActor.Target()->ClickedOn(actor);
-
 		}
 		return;
 	}
@@ -658,7 +654,6 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 		WalkTo* walkTo = new WalkTo(fSelectedActor.Target(), point);
 		fSelectedActor.Target()->AddAction(walkTo);
 	}
-
 }
 
 
