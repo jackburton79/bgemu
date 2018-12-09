@@ -9,7 +9,7 @@
 
 /*!
 	\file Path.cpp
-	TPath implementation.
+	Path implementation.
 */
 
 #include "Path.h"
@@ -32,7 +32,7 @@ is_absolute_path(const char *path)
 
 
 //! Creates an uninitialized BPath object.
-TPath::TPath()
+Path::Path()
 	:
 	fName(NULL),
 	fCStatus(-1)
@@ -43,7 +43,7 @@ TPath::TPath()
 /*! Creates a copy of the given BPath object.
 	\param path the object to be copied
 */
-TPath::TPath(const TPath& path)
+Path::Path(const Path& path)
 	:
 	fName(NULL),
 	fCStatus(-1)
@@ -64,7 +64,7 @@ TPath::TPath(const TPath& path)
 	\param normalize boolean flag used to force normalization; normalization
 		   may occur even if false (see \ref _MustNormalize).
 */
-TPath::TPath(const char* dir, const char* leaf, bool normalize)
+Path::Path(const char* dir, const char* leaf, bool normalize)
 	:
 	fName(NULL),
 	fCStatus(-1)
@@ -74,7 +74,7 @@ TPath::TPath(const char* dir, const char* leaf, bool normalize)
 
 
 //! Destroys the BPath object and frees any of its associated resources.
-TPath::~TPath()
+Path::~Path()
 {
 	Unset();
 }
@@ -85,7 +85,7 @@ TPath::~TPath()
 			code otherwise.
 */
 status_t
-TPath::InitCheck() const
+Path::InitCheck() const
 {
 	return fCStatus;
 }
@@ -106,7 +106,7 @@ TPath::InitCheck() const
 	\note \code path.SetTo(path.Path(), "new leaf") \endcode is safe.
 */
 status_t
-TPath::SetTo(const char* path, const char* leaf, bool normalize)
+Path::SetTo(const char* path, const char* leaf, bool normalize)
 {
 	status_t error = (path ? 0 : EINVAL);
 	if (error == 0 && leaf && is_absolute_path(leaf))
@@ -165,7 +165,7 @@ TPath::SetTo(const char* path, const char* leaf, bool normalize)
 	resources it allocated and marks itself as uninitialized.
 */
 void
-TPath::Unset()
+Path::Unset()
 {
 	_SetPath(NULL);
 	fCStatus = -1;
@@ -185,11 +185,11 @@ TPath::Unset()
 	- other error codes.
 */
 status_t
-TPath::Append(const char* path, bool normalize)
+Path::Append(const char* path, bool normalize)
 {
 	status_t error = (InitCheck() == 0 ? 0 : EINVAL);
 	if (error == 0)
-		error = SetTo(Path(), path, normalize);
+		error = SetTo(String(), path, normalize);
 	if (error != 0)
 		Unset();
 	fCStatus = error;
@@ -197,13 +197,13 @@ TPath::Append(const char* path, bool normalize)
 }
 
 
-/*! \brief Returns the object's complete path name.
+/*! \brief Returns the object's complete path name as a string
 	\return
 	- the object's path name, or
 	- \c NULL, if it is not properly initialized.
 */
 const char*
-TPath::Path() const
+Path::String() const
 {
 	return fName;
 }
@@ -217,7 +217,7 @@ TPath::Path() const
 	- \c NULL, if it is not properly initialized.
 */
 const char*
-TPath::Leaf() const
+Path::Leaf() const
 {
 	if (InitCheck() != 0)
 		return NULL;
@@ -246,7 +246,7 @@ TPath::Leaf() const
 	- other error code returned by SetTo().
 */
 status_t
-TPath::GetParent(TPath* path) const
+Path::GetParent(Path* path) const
 {
 	if (path == NULL)
 		return EINVAL;
@@ -283,9 +283,9 @@ TPath::GetParent(TPath* path) const
 	\return \c true, if the path names are equal, \c false otherwise.
 */
 bool
-TPath::operator==(const TPath& item) const
+Path::operator==(const Path& item) const
 {
-	return *this == item.Path();
+	return *this == item.String();
 }
 
 
@@ -295,7 +295,7 @@ TPath::operator==(const TPath& item) const
 	\return \c true, if the path names are equal, \c false otherwise.
 */
 bool
-TPath::operator==(const char* path) const
+Path::operator==(const char* path) const
 {
 	return (InitCheck() != 0 && path == NULL)
 		|| (fName != NULL && path != NULL && strcmp(fName, path) == 0);
@@ -309,7 +309,7 @@ TPath::operator==(const char* path) const
 	\return \c true, if the path names are not equal, \c false otherwise.
 */
 bool
-TPath::operator!=(const TPath& item) const
+Path::operator!=(const Path& item) const
 {
 	return !(*this == item);
 }
@@ -321,7 +321,7 @@ TPath::operator!=(const TPath& item) const
 	\return \c true, if the path names are not equal, \c false otherwise.
 */
 bool
-TPath::operator!=(const char* path) const
+Path::operator!=(const char* path) const
 {
 	return !(*this == path);
 }
@@ -331,11 +331,11 @@ TPath::operator!=(const char* path) const
 	\param item the BPath object to be copied
 	\return \c *this
 */
-TPath&
-TPath::operator=(const TPath& item)
+Path&
+Path::operator=(const Path& item)
 {
 	if (this != &item)
-		*this = item.Path();
+		*this = item.String();
 	return *this;
 }
 
@@ -345,8 +345,8 @@ TPath::operator=(const TPath& item)
 	\param path the path name to be assigned to this object
 	\return \c *this
 */
-TPath&
-TPath::operator=(const char* path)
+Path&
+Path::operator=(const char* path)
 {
 	if (path == NULL)
 		Unset();
@@ -365,7 +365,7 @@ TPath::operator=(const char* path)
 	- \c B_NO_MEMORY: Insufficient memory.
 */
 status_t
-TPath::_SetPath(const char* path)
+Path::_SetPath(const char* path)
 {
 	status_t error = 0;
 	delete[] fName;
@@ -399,7 +399,7 @@ TPath::_SetPath(const char* path)
 		- \c false: \a path does not require normalization
 */
 bool
-TPath::_MustNormalize(const char* path, status_t* _error)
+Path::_MustNormalize(const char* path, status_t* _error)
 {
 	// Check for useless input
 	if (path == NULL || path[0] == 0) {

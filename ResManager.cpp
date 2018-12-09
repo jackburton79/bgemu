@@ -79,7 +79,7 @@ ResourceManager::ResourceManager(const char* path)
 
 	std::cout << kComponentName << "Initialize(" << path << ")" << std::endl;
 	fResourcesPath.SetTo(path);
-	std::cout << "\t-> Set resources path to '" << fResourcesPath.Path();
+	std::cout << "\t-> Set resources path to '" << fResourcesPath.String();
 	std::cout << "'" << std::endl;
 
 	KEYResource *key = GetKEY(kKeyResource);
@@ -485,7 +485,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	//std::cout << "ResourceManager::GetFullPath(" << name << ", 0x";
 	//std::cout << std::hex << location << ")" << std::endl;
 
-	TPath pathName(fResourcesPath);
+	Path pathName(fResourcesPath);
 	if (pathName.InitCheck() != 0) {
 		std::cerr << "Invalid path" << std::endl;
 		throw "Invalid path";
@@ -530,7 +530,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 
 	pathName.Append(name.c_str(), false);
 
-	return pathName.Path();
+	return pathName.String();
 }
 
 

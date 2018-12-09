@@ -41,9 +41,9 @@ fopen_case(const char* filename, const char* flags)
 	assert(filename != NULL);
 	assert(strlen(filename) > 1);
 
-	TPath normalizedFileName(filename);
+	Path normalizedFileName(filename);
 	std::string newPath("/");
-	char* start = (char*)normalizedFileName.Path() + 1;
+	char* start = (char*)normalizedFileName.String() + 1;
 	size_t where = 0;
 	while ((where = strcspn(start, "/")) > 0) {
 		std::string leaf;

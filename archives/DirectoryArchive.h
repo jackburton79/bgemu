@@ -6,7 +6,7 @@
 
 #include <dirent.h>
 
-class TPath;
+class Path;
 class DirectoryArchive : public Archive {
 public:
 	DirectoryArchive(const char *path);
@@ -20,7 +20,7 @@ public:
 
 private:
 	DIR *fDir;
-	TPath fPath;
+	Path fPath;
 };
 
 #endif // __DIRECTORYARCHIVE_H

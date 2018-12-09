@@ -7,14 +7,14 @@
 
 #include "SupportDefs.h"
 
-class TPath {
+class Path {
 public:
-							TPath();
-							TPath(const TPath& path);
-							TPath(const char* dir, const char* leaf = NULL,
+							Path();
+							Path(const Path& path);
+							Path(const char* dir, const char* leaf = NULL,
 								bool normalize = false);
 
-	virtual					~TPath();
+	virtual					~Path();
 
 			status_t		InitCheck() const;
 
@@ -24,16 +24,16 @@ public:
 
 			status_t		Append(const char* path, bool normalize = false);
 
-			const char*		Path() const;
+			const char*		String() const;
 			const char*		Leaf() const;
-			status_t		GetParent(TPath* path) const;
+			status_t		GetParent(Path* path) const;
 
-			bool			operator==(const TPath& item) const;
+			bool			operator==(const Path& item) const;
 			bool			operator==(const char* path) const;
-			bool			operator!=(const TPath& item) const;
+			bool			operator!=(const Path& item) const;
 			bool			operator!=(const char* path) const;
-			TPath&			operator=(const TPath& item);
-			TPath&			operator=(const char* path);
+			Path&			operator=(const Path& item);
+			Path&			operator=(const char* path);
 
 private:
 
