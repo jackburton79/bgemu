@@ -25,7 +25,7 @@ Door::Open(Object* actor)
 {
 	if (!(fAreaDoor->flags & IE::DOOR_OPEN)) {
 		fAreaDoor->flags |= IE::DOOR_OPEN;
-		CurrentScriptRoundResults()->fOpenedBy = actor->Name();
+		//Core::Get()->CurrentRoundResults()->fOpenedBy = actor->Name();
 	}
 }
 
@@ -35,7 +35,7 @@ Door::Close(Object* actor)
 {
 	if (fAreaDoor->flags & IE::DOOR_OPEN) {
 		fAreaDoor->flags &= ~IE::DOOR_OPEN;;
-		CurrentScriptRoundResults()->fClosedBy = actor->Name();
+		//CurrentScriptRoundResults()->fClosedBy = actor->Name();
 	}
 }
 

@@ -27,47 +27,6 @@ class Region;
 class Script;
 class TileCell;
 
-class ScriptResults {
-public:
-	ScriptResults();
-	const std::vector<Reference<Object> > Attackers() const;
-	const std::vector<Reference<Object> > Hitters() const;
-	const std::vector<Reference<Object> > EnteredActors() const;
-
-	int32 CountAttackers() const;
-	Object* AttackerAt(int32 i) const;
-	Object* LastAttacker() const;
-	void SetAttackedBy(Object* object);
-	
-	void SetObjectSaw(Object* object);
-	void SetSeenByObject(Object* object);
-	
-	void SetEnteredActor(Object* object);
-	
-	Object* Clicker() const;
-	int Shouted() const;
-
-	std::string fOpenedBy;
-	std::string fClosedBy;
-	std::string fDetectedBy;
-
-	
-private:
-	friend class Object;
-	friend class Actor;
-	std::vector<Reference<Object> > fAttackers;
-	std::vector<Reference<Object> > fHitters;
-	std::vector<Reference<Object> > fSeenByList;
-	std::vector<Reference<Object> > fSeenList;
-
-	// For Trigger Regions
-	std::vector<Reference<Object> > fEnteredActors;
-
-	Reference<Object> fClicker;
-
-	int fShouted;
-};
-
 
 class Action;
 class Object : public Referenceable {
@@ -138,14 +97,12 @@ public:
 	bool IsState(int state) const;
 
 	void AttackTarget(Object* object);
-
+	bool WasAttackedBy(object_node* node);
+	
 	void NewScriptRound();
 
 	void SetStale(bool stale);
 	bool IsStale() const;
-
-	ScriptResults* CurrentScriptRoundResults() const;
-	ScriptResults* LastScriptRoundResults() const;
 
 protected:
 	virtual ~Object();
@@ -159,9 +116,6 @@ private:
 	Script* fScript;
 	uint16 fTicks;
 	bool fVisible;
-
-	ScriptResults* fCurrentScriptRoundResults;
-	ScriptResults* fLastScriptRoundResults;
 
 	std::map<std::string, uint32> fVariables;
 	std::list<Action*> fActions;

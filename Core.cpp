@@ -13,6 +13,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "RoundResults.h"
 #include "Script.h"
 #include "TextArea.h"
 #include "Timer.h"
@@ -38,6 +39,8 @@ Core::Core()
 	fRoomScript(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
+	fCurrentRoundResults(NULL),
+	fLastRoundResults(NULL),
 	fPaused(false)
 {
 	srand(time(NULL));
@@ -98,6 +101,9 @@ Core::Initialize(const char* path)
 
 	_InitGameTimers();
 
+	sCore->fCurrentRoundResults = new ScriptResults();
+	sCore->fLastRoundResults = new ScriptResults();
+	
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
 }
@@ -416,6 +422,8 @@ Core::UpdateLogic(bool executeScripts)
 
 	fActiveActor = NULL;
 
+	_NewRound();
+	
 	//_RemoveStaleObjects();
 }
 
@@ -518,6 +526,21 @@ Core::GetObjectList(std::list<Reference<Object> > & objects) const
 	return objects.size();
 }
 
+
+ScriptResults*
+Core::RoundResults()
+{
+	return fCurrentRoundResults;
+}
+
+
+ScriptResults*
+Core::LastRoundResults()
+{
+	return fLastRoundResults;
+}
+
+
 /*
 const std::list<Object*>&
 Core::Objects() const
@@ -557,4 +580,12 @@ Core::_RemoveStaleObjects()
 		} else
 			i++;
 	}
+}
+
+
+void
+Core::_NewRound()
+{
+	std::swap(fCurrentRoundResults, fLastRoundResults);
+	fCurrentRoundResults->Clear();
 }

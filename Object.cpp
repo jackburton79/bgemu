@@ -21,6 +21,7 @@
 #include "ResManager.h"
 #include "Script.h"
 #include "Room.h"
+#include "RoundResults.h"
 #include "TileCell.h"
 
 #include <algorithm>
@@ -34,8 +35,6 @@ Object::Object(const char* name, const char* scriptName)
 	fScript(NULL),
 	fTicks(0),
 	fVisible(true),
-	fCurrentScriptRoundResults(NULL),
-	fLastScriptRoundResults(NULL),
 	fTileCell(NULL),
 	fRegion(NULL),
 	fStale(false)
@@ -50,8 +49,6 @@ Object::Object(const char* name, const char* scriptName)
 		gResManager->ReleaseResource(scriptResource);
 	}
 
-	fCurrentScriptRoundResults = new ScriptResults;
-
 	fTicks = rand() % 15;
 }
 
@@ -63,8 +60,6 @@ Object::~Object()
 		delete *i;
 	fActions.clear();
 
-	delete fLastScriptRoundResults;
-	delete fCurrentScriptRoundResults;
 	delete fScript;
 }
 
@@ -118,7 +113,7 @@ Object::Position() const
 void
 Object::Clicked(Object* clicker)
 {
-	fCurrentScriptRoundResults->fClicker = clicker;
+	//fCurrentScriptRoundResults->fClicker = clicker;
 }
 
 
@@ -134,7 +129,7 @@ void
 Object::EnteredRegion(Region* region)
 {
 	fRegion = region;
-	fRegion->CurrentScriptRoundResults()->SetEnteredActor(this);
+	//fRegion->CurrentScriptRoundResults()->SetEnteredActor(this);
 }
 
 
@@ -162,7 +157,7 @@ Object::GetVariable(const char* name)
 void
 Object::SetSeenBy(Actor* actor)
 {
-	fCurrentScriptRoundResults->SetSeenByObject(actor);
+	//fCurrentScriptRoundResults->SetSeenByObject(actor);
 }
 
 
@@ -412,9 +407,10 @@ Object::ResolveIdentifier(const int id) const
 	// Move ResolveIdentifier elsewhere ?
 	if (identifier == "LASTTRIGGER")
 		return fScript->LastTrigger();
+#if 0
 	if (identifier == "LASTATTACKEROF")
 		return LastScriptRoundResults()->LastAttacker();
-
+#endif
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
 	return NULL;
@@ -597,10 +593,10 @@ Object::IsState(int state) const
 void
 Object::NewScriptRound()
 {
-	std::cout << Name() << " NewScriptRound" << std::endl;
-	delete fLastScriptRoundResults;
-	fLastScriptRoundResults = fCurrentScriptRoundResults;
-	fCurrentScriptRoundResults = new ScriptResults;
+//	std::cout << Name() << " NewScriptRound" << std::endl;
+//	delete fLastScriptRoundResults;
+//	fLastScriptRoundResults = fCurrentScriptRoundResults;
+//	fCurrentScriptRoundResults = new ScriptResults;
 }
 
 
@@ -618,24 +614,18 @@ Object::IsStale() const
 }
 
 
-ScriptResults*
-Object::CurrentScriptRoundResults() const
-{
-	return fCurrentScriptRoundResults;
-}
-
-
-ScriptResults*
-Object::LastScriptRoundResults() const
-{
-	return fLastScriptRoundResults;
-}
-
 
 void
 Object::AttackTarget(Object* target)
 {
-	target->fCurrentScriptRoundResults->fAttackers.push_back(this);
+	Core::Get()->RoundResults()->ActorAttacked(dynamic_cast<Actor*>(this), dynamic_cast<Actor*>(target));
+}
+
+
+bool
+Object::WasAttackedBy(object_node* node)
+{
+	return Core::Get()->LastRoundResults()->WasActorAttackedBy(dynamic_cast<Actor*>(this), node);
 }
 
 
@@ -667,108 +657,3 @@ Object::_UpdateTileCell()
 	}
 }
 
-
-// ScriptResults
-ScriptResults::ScriptResults()
-	:
-	fClicker(NULL),
-	fShouted(-1)
-{
-}
-
-
-const std::vector<Reference<Object> >
-ScriptResults::Attackers() const
-{
-	return fAttackers;
-}
-
-
-const std::vector<Reference<Object> >
-ScriptResults::Hitters() const
-{
-	return fHitters;
-}
-
-
-const std::vector<Reference<Object> >
-ScriptResults::EnteredActors() const
-{
-	return fEnteredActors;
-}
-
-
-/*
-const
-std::vector<Object*>&
-ScriptResults::SeenList() const
-{
-	return fSeen;
-}*/
-
-
-Object*
-ScriptResults::LastAttacker() const
-{
-	const int32 numAttackers = fAttackers.size();
-	if (numAttackers == 0)
-		return NULL;
-
-	return Attackers()[numAttackers - 1].Target();
-}
-
-
-void
-ScriptResults::SetAttackedBy(Object* object)
-{
-	fAttackers.push_back(object);
-}
-
-	
-void
-ScriptResults::SetObjectSaw(Object* object)
-{
-	fSeenList.push_back(object);
-}
-
-
-void
-ScriptResults::SetSeenByObject(Object* object)
-{
-	fSeenByList.push_back(object);
-}
-
-
-void
-ScriptResults::SetEnteredActor(Object* object)
-{
-	fEnteredActors.push_back(object);	
-}
-
-
-int32
-ScriptResults::CountAttackers() const
-{
-	return fAttackers.size();
-}
-
-
-Object*
-ScriptResults::AttackerAt(int32 i) const
-{
-	return Attackers()[i].Target();
-}
-
-
-Object*
-ScriptResults::Clicker() const
-{
-	return fClicker.Target();
-}
-
-
-int
-ScriptResults::Shouted() const
-{
-	return fShouted;
-}

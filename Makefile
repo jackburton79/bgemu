@@ -68,6 +68,7 @@ resources/TLKResource.cpp \
 resources/WedResource.cpp \
 resources/WMAPResource.cpp \
 Room.cpp \
+RoundResults.cpp \
 Script.cpp \
 shell/Commands.cpp \
 shell/Console.cpp \

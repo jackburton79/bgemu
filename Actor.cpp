@@ -19,6 +19,7 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Room.h"
+#include "RoundResults.h"
 #include "Script.h"
 #include "WedResource.h"
 
@@ -333,7 +334,7 @@ Actor::ClickedOn(Object* target)
 void
 Actor::Shout(int number)
 {
-	CurrentScriptRoundResults()->fShouted = number;
+	//CurrentScriptRoundResults()->fShouted = number;
 }
 
 
@@ -471,8 +472,7 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	CurrentScriptRoundResults()->SetObjectSaw(object);
-	
+	Core::Get()->RoundResults()->ActorSaw(this, dynamic_cast<const Actor*>(object));
 	object->SetSeenBy(this);
 }
 
@@ -480,11 +480,7 @@ Actor::SetSeen(Object* object)
 bool
 Actor::HasSeen(const Object* object) const
 {
-	std::vector<Reference<Object> >::const_iterator i;
-	i = std::find(LastScriptRoundResults()->fSeenList.begin(),
-			LastScriptRoundResults()->fSeenList.end(), object);
-
-	return i != LastScriptRoundResults()->fSeenList.end();
+	return Core::Get()->LastRoundResults()->WasActorSeenBy(this, dynamic_cast<const Actor*>(object));
 }
 
 

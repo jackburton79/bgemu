@@ -28,6 +28,7 @@ class Region;
 class RoomContainer;
 class IDSResource;
 class Script;
+class ScriptResults;
 class TLKResource;
 class Core {
 public:
@@ -55,6 +56,9 @@ public:
 	Object* GetObject(const Region* region) const;
 	Object* GetNearestEnemyOf(const Object* object) const;
 
+	ScriptResults* RoundResults();
+	ScriptResults* LastRoundResults();
+	
 	void PlayMovie(const char* name);
 	void DisplayMessage(uint32 strRef);
 
@@ -80,9 +84,17 @@ public:
 	int32 GetObjectList(std::list<Reference<Object> >& objects) const;
 
 private:
+	static void _InitGameTimers();
+	void _PrintObjects() const;
+	void _RemoveStaleObjects();
+	void _NewRound();
+	
+	Core();
+	~Core();
+
 	// TODO: Remove this
 	friend class Object;
-
+	
 	game fGame;
 	RoomContainer* fCurrentRoom;
 	
@@ -96,14 +108,11 @@ private:
 	uint32 fLastScriptRoundTime;
 	uint16 fNextObjectNumber;
 
+	ScriptResults* fCurrentRoundResults;
+	ScriptResults* fLastRoundResults;
+	
 	bool fPaused;
 
-	static void _InitGameTimers();
-	void _PrintObjects() const;
-	void _RemoveStaleObjects();
-
-	Core();
-	~Core();
 };
 
 

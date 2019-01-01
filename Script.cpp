@@ -299,13 +299,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				if (node == NULL)
 					break;
 				node->Print();
-				ScriptResults* results = fTarget.Target()->LastScriptRoundResults();
-				if (results != NULL) {
-					Object* object = Object::GetMatchingObjectFromList(
-							results->Attackers(), node);
-
-					returnValue = object != NULL;
-				}
+				if (fTarget.Target()->WasAttackedBy(node))
+					returnValue = true;
+				
 				break;
 			}
 			case 0x400A:
@@ -398,12 +394,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				NB. If the object is specified as a death variable,
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
+#if 0
 				Object* object = FindObject(trig);
 				if (object != NULL && core->Distance(fTarget.Target(), object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
 					returnValue = true;
 				}
+#endif
 				break;
 			}
 
@@ -572,12 +570,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					break;
 				if (!door->Opened())
 					break;
-
+#if 0
 				Object* object = core->GetObject(
 						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
 				if (object != NULL)
 					returnValue = object->MatchNode(objectNode);
-
+#endif
 				break;
 			}
 			case 0x4063:
@@ -616,16 +614,18 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
+#if 0
 				object_node* objectNode = FindObjectNode(trig);
-				returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
-						->MatchNode(objectNode);
+				//returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
+				//		->MatchNode(objectNode);
 				//objectNode->Print();
-				fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
+				//fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
 
 				// TODO: When to set this, other than now ?
 				if (returnValue)
 					fLastTrigger = fTarget;
 				break;
+#endif
 			}
 
 			case 0x4074:
@@ -717,10 +717,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 			case 0x4c:
 			{
+#if 0
 				// Entered(O:Object)
 				object_node* node = FindObjectNode(trig);
 				Region* region = dynamic_cast<Region*>(fTarget.Target());
 				//std::vector<std::string>::const_iterator i;
+
 				Object* object = Object::GetMatchingObjectFromList(
 										region->
 										LastScriptRoundResults()->
@@ -729,6 +731,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					fLastTrigger = object;
 					returnValue = true;
 				}
+#endif
 				break;
 			}
 			default:
