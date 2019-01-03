@@ -51,15 +51,16 @@ MOSResource::Load(Archive* archive, uint32 key)
 		uint32 len;
 		fData->ReadAt(8, len);
 		uint8 *decompressedData = new uint8[len];
+		size_t decompressedSize = 0;
 		status_t status = ZLibDecompressor::DecompressBuffer(
 							(uint8*)fData->Data() + std::ptrdiff_t(12),
-							fData->Size() - 12, decompressedData, len);
+							fData->Size() - 12, decompressedData, decompressedSize);
 		if (status != 0) {
 			delete[] decompressedData;
 			return false;
 		}
 
-		ReplaceData(new MemoryStream(decompressedData, len, true));
+		ReplaceData(new MemoryStream(decompressedData, decompressedSize, true));
 	}
 
 	if (!CheckSignature(MOS_SIGNATURE))

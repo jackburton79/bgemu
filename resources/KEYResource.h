@@ -6,11 +6,16 @@
 struct KeyFileEntry {
 	KeyFileEntry() { name = NULL; };
 	~KeyFileEntry() { delete[] name; };
+
 	void Dump() const;
 	
 	uint32 length;
 	uint16 location;
 	char* name;
+
+private:
+	KeyFileEntry& operator=(const KeyFileEntry&);
+	KeyFileEntry(const KeyFileEntry&);
 };
 
 

@@ -25,11 +25,11 @@ ZLibDecompressor::~ZLibDecompressor()
 /* static */
 status_t
 ZLibDecompressor::DecompressBuffer(const void* inputBuffer,
-		const uint32& inputSize, void* outputBuffer,
-		uint32& outputSize)
+		const size_t& inputSize, void* outputBuffer,
+		size_t& outputSize)
 {
-	int status = uncompress((Bytef*)outputBuffer, (uLongf*)&outputSize,
-					(const Bytef*)inputBuffer, (uLong)inputSize);
+	int status = uncompress(static_cast<Bytef*>(outputBuffer), static_cast<uLongf*>(&outputSize),
+							static_cast<const Bytef*>(inputBuffer), static_cast<uLong>(inputSize));
 
 	if (status != Z_OK) {
 		std::cerr << "ZLibDecompressor::DecompressBuffer(): ";

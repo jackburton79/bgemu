@@ -172,6 +172,7 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 
 	uint8 *buffer = NULL;
 	uint8 *destBuffer = NULL;
+	size_t decompressedSize = 0;
 	try {
 		buffer = new uint8[comp];
 		destBuffer = new uint8[decomp];
@@ -182,25 +183,26 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 		else if ((uint32)read != comp)
 			throw -1;
 
+
 		status_t status = ZLibDecompressor::DecompressBuffer(
-				buffer, comp, destBuffer, decomp);
+				buffer, comp, destBuffer, decompressedSize);
 
 		if (status == 0) {
-			ssize_t write = dest.Write(destBuffer, decomp);
+			ssize_t write = dest.Write(destBuffer, decompressedSize);
 			if (write < 0)
 				throw write;
-			else if ((uint32)write != decomp)
+			else if ((size_t)write != decompressedSize)
 				throw -1;
 		} else
 			throw status;
 	} catch (...) {
-		decomp = (uint32)-1;
+		decompressedSize = (size_t)-1;
 	}
 
 	delete[] buffer;
 	delete[] destBuffer;
 
-	return (ssize_t)decomp;
+	return (ssize_t)decompressedSize;
 }
 
 

@@ -13,4 +13,5 @@ check_types_size()
 	assert_size(sizeof(int8), 1);
 	assert_size(sizeof(uint8), 1);
 	assert_size(sizeof(sint8), 1);
+	assert_size(sizeof(char), 1);
 }
