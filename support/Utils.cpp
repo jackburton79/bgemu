@@ -44,6 +44,7 @@ fopen_case(const char* filename, const char* flags)
 	Path normalizedFileName(filename);
 	std::string newPath("/");
 	char* start = (char*)normalizedFileName.String() + 1;
+	char *end = start + strlen(normalizedFileName.String());
 	size_t where = 0;
 	while ((where = strcspn(start, "/")) > 0) {
 		std::string leaf;
@@ -62,6 +63,8 @@ fopen_case(const char* filename, const char* flags)
 			closedir(dir);
 		}
 		start += where + 1;
+		if (start >= end)
+			break;
 	}
 
 	FILE* handle = NULL;
