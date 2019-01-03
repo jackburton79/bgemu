@@ -308,7 +308,7 @@ BAMResource::_Load()
 							fData->Size() - 12, decompressedData, len);
 
 		if (status != 0) {
-			delete decompressedData;
+			delete[] decompressedData;
 			throw -1;
 		}
 
