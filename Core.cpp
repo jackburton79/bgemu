@@ -362,15 +362,18 @@ Core::DisplayMessage(uint32 strRef)
 {
 	// TODO: Move away from Core ? this adds too many
 	// dependencies
-	TLKEntry* entry = Dialogs()->EntryAt(strRef);
-	std::cout << entry->string << std::endl;
-	if (Window* window = GUI::Get()->GetWindow(4)) {
-		TextArea *textArea = dynamic_cast<TextArea*>(
-									window->GetControlByID(3));
-		if (textArea != NULL)
-			textArea->SetText(entry->string);
+	try {
+		std::string dialogString = IDTable::GetDialog(strRef);
+		std::cout << dialogString << std::endl;
+		if (Window* window = GUI::Get()->GetWindow(4)) {
+			TextArea *textArea = dynamic_cast<TextArea*>(
+										window->GetControlByID(3));
+			if (textArea != NULL)
+				textArea->SetText(dialogString.c_str());
+		}
+	} catch (...) {
+		//TODO: handle exception
 	}
-	delete entry;
 }
 
 
