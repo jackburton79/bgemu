@@ -47,8 +47,6 @@ public:
 	void EnteredRegion(Region* region);
 	void ExitedRegion(Region* region);
 
-	void SetSeenBy(Actor* actor);
-
 	bool IsVisible() const;
 	bool IsInsideVisibleArea() const;
 

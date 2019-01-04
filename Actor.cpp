@@ -473,7 +473,6 @@ void
 Actor::SetSeen(Object* object)
 {
 	Core::Get()->RoundResults()->ActorSaw(this, dynamic_cast<const Actor*>(object));
-	object->SetSeenBy(this);
 }
 
 

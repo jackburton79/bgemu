@@ -154,13 +154,6 @@ Object::GetVariable(const char* name)
 }
 
 
-void
-Object::SetSeenBy(Actor* actor)
-{
-	//fCurrentScriptRoundResults->SetSeenByObject(actor);
-}
-
-
 bool
 Object::IsVisible() const
 {
