@@ -300,6 +300,10 @@ RoomContainer::LoadWorldMap()
 
 	worldmap_entry entry = fWorldMap->WorldMapEntry();
 	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
+	if (fWorldMapBackground == NULL) {
+		gResManager->ReleaseResource(fWorldMap);
+		return false;
+	}
 	fWorldMapBitmap = fWorldMapBackground->Image();
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
