@@ -303,7 +303,7 @@ BAMResource::_Load()
 		uint32 len;
 		fData->ReadAt(8, len);
 		uint8 *decompressedData = new uint8[len];
-		size_t decompressedSize = 0;
+		size_t decompressedSize = len;
 		status_t status = ZLibDecompressor::DecompressBuffer(
 							(uint8*)(fData->Data()) + std::ptrdiff_t(12),
 							fData->Size() - 12, decompressedData, decompressedSize);

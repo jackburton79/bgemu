@@ -172,7 +172,7 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 
 	uint8 *buffer = NULL;
 	uint8 *destBuffer = NULL;
-	size_t decompressedSize = 0;
+	size_t decompressedSize = decomp;
 	try {
 		buffer = new uint8[comp];
 		destBuffer = new uint8[decomp];
