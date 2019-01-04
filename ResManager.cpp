@@ -287,9 +287,8 @@ ResourceManager::GetTLK(const char* name)
 		tlk = new TLKResource("TLK");
 		std::string path = GetFullPath(name, LOC_ROOT);
 		archive = Archive::Create(path.c_str());
-
 		if (archive == NULL || tlk->Load(archive, 0) == false)
-			throw -1;
+			return NULL;
 
 		tlk->Acquire();
 
