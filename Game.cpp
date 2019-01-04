@@ -111,12 +111,12 @@ Game::Loop(bool executeScripts)
 						console.Toggle();
 						inputConsole.Toggle();
 					} else if (console.IsActive()) {
-						/*if (event.key.keysym.unicode < 0x80 && event.key.keysym.unicode > 0) {
+						if (event.key.keysym.scancode < 0x80 && event.key.keysym.scancode > 0) {
 							uint8 key = event.key.keysym.sym;
 							if (event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 								key -= 32;
-							inputConsole->HandleInput(key);
-						}*/
+							inputConsole.HandleInput(key);
+						}
 					} else {
 						switch (event.key.keysym.sym) {
 							case SDLK_o:
