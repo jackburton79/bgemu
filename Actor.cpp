@@ -185,8 +185,11 @@ Actor::IsNew() const
 const ::Bitmap*
 Actor::Bitmap() const
 {
-	if (fCurrentAnimation == NULL)
-		throw "Actor::Bitmap(): No current animation!";
+	if (fCurrentAnimation == NULL) {
+		std::string message("Actor::Bitmap() (");
+		message.append(fCRE->Name()).append(") : No current animation!");
+		throw message;
+	}
 
 	return fCurrentAnimation->Bitmap();
 }
