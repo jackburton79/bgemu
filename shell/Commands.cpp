@@ -76,10 +76,21 @@ public:
 };
 
 
+class ExitCommand : public ShellCommand {
+public:
+	ExitCommand() : ShellCommand("exit") {};
+	virtual void operator()(const char* argv, int argc) {
+		SDL_Event event;
+		event.type = SDL_QUIT;
+		SDL_PushEvent(&event);
+	};
+};
+
 void
 AddCommands(InputConsole* console)
 {
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
+	console->AddCommand(new ExitCommand());
 }
