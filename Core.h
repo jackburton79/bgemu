@@ -64,7 +64,6 @@ public:
 
 	void SetRoomScript(Script* script);
 
-	void NewScriptRound();
 	void CheckScripts();
 	void UpdateLogic(bool scripts);
 
@@ -112,7 +111,6 @@ private:
 	ScriptResults* fLastRoundResults;
 	
 	bool fPaused;
-
 };
 
 

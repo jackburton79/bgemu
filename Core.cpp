@@ -386,13 +386,6 @@ Core::SetRoomScript(Script* script)
 
 
 void
-Core::NewScriptRound()
-{
-
-}
-
-
-void
 Core::CheckScripts()
 {
 }

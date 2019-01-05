@@ -186,7 +186,6 @@ TileCell::Clicked()
 void
 TileCell::MouseOver()
 {
-
 }
 
 
