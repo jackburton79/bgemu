@@ -183,7 +183,6 @@ BIFArchive::_ExtractFileBlock(Stream &source, Stream &dest)
 		else if ((uint32)read != comp)
 			throw -1;
 
-
 		status_t status = ZLibDecompressor::DecompressBuffer(
 				buffer, comp, destBuffer, decompressedSize);
 
