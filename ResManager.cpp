@@ -740,9 +740,11 @@ ResourceManager::TryEmptyResourceCache(bool force)
 TLKResource*
 Dialogs()
 {
-	if (sDialogs == NULL)
+	if (sDialogs == NULL) {
 		sDialogs = gResManager->GetTLK(kDialogResource);
-
+		if (sDialogs == NULL)
+			throw -1;
+	}
 	return sDialogs;
 }
 
