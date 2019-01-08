@@ -50,8 +50,8 @@ MOSResource::Load(Archive* archive, uint32 key)
 
 		uint32 len;
 		fData->ReadAt(8, len);
-		uint8 *decompressedData = new uint8[len];
-		size_t decompressedSize = 0;
+		size_t decompressedSize = len;
+		uint8 *decompressedData = new uint8[decompressedSize];
 		status_t status = ZLibDecompressor::DecompressBuffer(
 							(uint8*)fData->Data() + std::ptrdiff_t(12),
 							fData->Size() - 12, decompressedData, decompressedSize);
