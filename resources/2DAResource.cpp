@@ -85,6 +85,7 @@ TWODAResource::Dump()
 	std::cout << std::endl;
 	for (StringList::const_iterator r = fRowHeaders.begin();
 									r != fRowHeaders.end(); r++) {
+		std::cout << *r << ": ";
 		for (StringList::const_iterator c = fColumnHeaders.begin();
 										c != fColumnHeaders.end(); c++) {
 			std::cout << fMap[std::make_pair(*r, *c)] << ";";
@@ -117,9 +118,6 @@ TWODAResource::_HandleHeadersRow(char* string)
 		stringValue != NULL; stringValue = ::strtok(NULL, " \t")) {
 		fColumnHeaders.push_back(stringValue);
 	}
-	/*std::cout << "headers: " << fColumnHeaders.size() << std::endl;
-	for (StringList::const_iterator h = fColumnHeaders.begin(); h != fColumnHeaders.end(); h++)
-		std::cout << *h << "-" << std::endl;*/
 }
 
 	
