@@ -405,7 +405,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
-
 			case 0x4017:
 			{
 				// Race()
@@ -825,7 +824,6 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: Add actor to the current area
 			break;
 		}
-
 		case 0x8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
@@ -851,7 +849,6 @@ Script::_ExecuteAction(action_node* act)
 				WalkTo* walkTo = new WalkTo(thisActor, object->Position());
 				fTarget.Target()->AddAction(walkTo);
 			}
-
 			break;
 		}
 		case 23:
@@ -1012,7 +1009,6 @@ Script::_ExecuteAction(action_node* act)
 			core->PlayMovie(act->string1);
 			break;
 		}
-
 		case 134:
 		{
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
@@ -1178,8 +1174,6 @@ node::Next() const
 {
 	return next;
 }
-
-
 
 
 void

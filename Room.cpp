@@ -315,16 +315,15 @@ RoomContainer::LoadWorldMap()
 
 		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
 				fWorldMapBitmap, &iconRect);
-
 	}
 
 	Window* window = gui->GetWindow(0);
-		if (window != NULL) {
-			// TODO: Move this into GUI ?
-			Control* control = window->GetControlByID(4);
-			if (control != NULL)
-				control->AssociateRoom(this);
-		}
+	if (window != NULL) {
+		// TODO: Move this into GUI ?
+		Control* control = window->GetControlByID(4);
+		if (control != NULL)
+			control->AssociateRoom(this);
+	}
 
 	return true;
 }
@@ -547,7 +546,6 @@ RoomContainer::Draw(Bitmap *surface)
 			} catch (const char* string) {
 				std::cerr << string << std::endl;
 			} catch (...) {
-
 			}
 		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
 			GFX::rect rect = rect_to_gfx_rect(region->Frame());
@@ -1214,7 +1212,6 @@ RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 		else
 			cursorIndex = IE::CURSOR_ARROW_E;
 	}
-
 
 	GUI::Get()->SetArrowCursor(cursorIndex);
 }
