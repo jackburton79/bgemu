@@ -49,26 +49,19 @@ TWODAResource::Load(Archive* archive, uint32 key)
 
 	//fData->Seek(8, SEEK_SET);
 
-	char string[512];
+	char string[1024];
 	fData->ReadLine(string, sizeof(string));
-	std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
+	//std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
 
 	fData->ReadLine(string, sizeof(string));
 	fDefaultValue = string;
 	
-	std::cout << "*** SECOND LINE:" << string << std::endl;
+	//std::cout << "*** SECOND LINE:" << string << std::endl;
 	fData->ReadLine(string, sizeof(string)); // headers
 
-	std::cout << "*** THIRD LINE: " << string << std::endl;
+	//std::cout << "*** THIRD LINE: " << string << std::endl;
 
 	_HandleHeadersRow(string);
-	
-	for (StringList::const_iterator i = fColumnHeaders.begin();
-		i != fColumnHeaders.end(); i++) {
-//		std::cout << "(" << *i << ")" << std::endl;
-	}
-
-	//std::cout << "CONTENT: " << std::endl;
 
 	while (fData->ReadLine(string, sizeof(string))) {
 		_HandleContentRow(string);
@@ -120,9 +113,9 @@ TWODAResource::_HandleHeadersRow(char* string)
 		stringValue != NULL; stringValue = ::strtok(NULL, " \t")) {
 		fColumnHeaders.push_back(stringValue);
 	}
-	std::cout << "headers: " << fColumnHeaders.size() << std::endl;
+	/*std::cout << "headers: " << fColumnHeaders.size() << std::endl;
 	for (StringList::const_iterator h = fColumnHeaders.begin(); h != fColumnHeaders.end(); h++)
-		std::cout << *h << "-" << std::endl;
+		std::cout << *h << "-" << std::endl;*/
 }
 
 	
