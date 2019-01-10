@@ -140,10 +140,11 @@ main(int argc, char **argv)
 		Game::Get()->Loop(!sNoScripts);
 	} catch (const char* error) {
 		std::cerr << "Game Loop exited with error: " << error << std::endl;
+	} catch (std::string &error) {
+		std::cerr << error << std::endl;
 	} catch (...) {
 		std::cerr << "Game Loop exited with unhandled error" << std::endl;
 	}
-	
 	RoomContainer::Delete();
 	GUI::Destroy();
 	GraphicsEngine::Destroy();

@@ -19,8 +19,7 @@ Animation::Animation(IE::animation *animDesc)
 	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
 	fBAM = gResManager->GetBAM(fName.c_str());
 	if (fBAM == NULL) {
-		printf("NULL BAM!!!\n");
-		throw -1;
+		throw "NULL BAM!!!";
 	}
 	fCycleNumber = animDesc->sequence;
 	fCenter = animDesc->center;
@@ -55,14 +54,14 @@ Animation::Animation(const char* bamName,
 	fName = bamName;
 	fBAM = gResManager->GetBAM(fName.c_str());
 	if (fBAM == NULL)
-		throw -1;
+		throw "missing BAM";
 
 	fCycleNumber = sequence;
 	if (fCycleNumber >= fBAM->CountCycles()) {
 		std::cout << "CycleNumber exceeds cycles count: cyclenumber ";
 		std::cout << fCycleNumber << ", cycles: " << int(fBAM->CountCycles());
 		std::cout << std::endl;
-		throw -1;
+		throw "Wrong cycle";
 	}
 	fCenter = position;
 	fCurrentFrame = 0;
