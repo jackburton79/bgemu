@@ -23,7 +23,6 @@ TWODAResource::TWODAResource(const res_ref& name)
 
 TWODAResource::~TWODAResource()
 {
-
 }
 
 
@@ -50,46 +49,30 @@ TWODAResource::Load(Archive* archive, uint32 key)
 
 	//fData->Seek(8, SEEK_SET);
 
-	char string[256];
+	char string[512];
 	fData->ReadLine(string, sizeof(string));
-		// skip line TODO: Handle
+	std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
 
-	//std::cout << "*** " << string << " ***" << std::endl;
-
-	fData->ReadLine(string, sizeof(string)); // skip ??? Why!?
-
-	//std::cout << string << std::endl;
+	fData->ReadLine(string, sizeof(string));
+	fDefaultValue = string;
+	
+	std::cout << "*** SECOND LINE:" << string << std::endl;
 	fData->ReadLine(string, sizeof(string)); // headers
 
-	//std::cout << string << std::endl;
-	std::map<int, std::string> headerMap;
-	char *name = strtok(string, " ");
-	if (name != NULL) {
-		headerMap[0] = name;
-		int i = 0;
-		while (true) {
-			char *stringValue = strtok(NULL, " \n\r");
-			if (stringValue == NULL)
-				break;
-			i++;
-			headerMap[i] = stringValue;
-		}
+	std::cout << "*** THIRD LINE: " << string << std::endl;
 
-		i = 0;
-		while (fData->ReadLine(string, sizeof(string)) != NULL) {
-			char *name = strtok(string, " ");
-			if (name == NULL)
-				continue;
+	_HandleHeadersRow(string);
+	
+	for (StringList::const_iterator i = fColumnHeaders.begin();
+		i != fColumnHeaders.end(); i++) {
+//		std::cout << "(" << *i << ")" << std::endl;
+	}
 
-			while (true) {
-				char *stringValue = strtok(NULL, " \n\r");
-				if (stringValue == NULL)
-					break;
+	//std::cout << "CONTENT: " << std::endl;
 
-				fMap[std::make_pair(name, headerMap[i])] = stringValue;
-				i++;
-			}
-		}
+	while (fData->ReadLine(string, sizeof(string))) {
+		_HandleContentRow(string);
+	//	std::cout << string << "/////" << std::endl;
 	}
 
 	return true;
@@ -100,11 +83,18 @@ TWODAResource::Load(Archive* archive, uint32 key)
 void
 TWODAResource::Dump()
 {
+	std::cout << "default value: " << fDefaultValue << std::endl;
+	
 	std::map<std::pair<std::string, std::string>, std::string>::const_iterator i;
-	for (i = fMap.begin(); i != fMap.end(); i++) {
-		std::cout << i->first.first << ", " << i->first.second;
-		std::cout << " = " << i->second << std::endl;
+	for (StringList::const_iterator r = fRowHeaders.begin();
+									r != fRowHeaders.end(); r++) {
+		for (StringList::const_iterator c = fColumnHeaders.begin();
+										c != fColumnHeaders.end(); c++) {
+			std::cout << fMap[std::make_pair(*r, *c)] << ";";
+		}
+		std::cout << std::endl;
 	}
+	std::cout << std::endl;
 }
 
 
@@ -120,4 +110,32 @@ uint32
 TWODAResource::IntegerValueFor(const char* rowValue, const char* columnValue)
 {
 	return ::strtoul(ValueFor(rowValue, columnValue).c_str(), NULL, 0);
+}
+
+
+void
+TWODAResource::_HandleHeadersRow(char* string)
+{
+	for (const char *stringValue = ::strtok(string, " \t");
+		stringValue != NULL; stringValue = ::strtok(NULL, " \t")) {
+		fColumnHeaders.push_back(stringValue);
+	}
+	std::cout << "headers: " << fColumnHeaders.size() << std::endl;
+	for (StringList::const_iterator h = fColumnHeaders.begin(); h != fColumnHeaders.end(); h++)
+		std::cout << *h << "-" << std::endl;
+}
+
+	
+void
+TWODAResource::_HandleContentRow(char* string)
+{
+	const char *stringValue = ::strtok(string, " \t");
+	fRowHeaders.push_back(stringValue);
+	int i = 0;
+	while ((stringValue = ::strtok(NULL, " \t")) != NULL) {
+		//if (strcmp(stringValue, "") == 0)
+		//	continue;
+		fMap[std::make_pair(fRowHeaders.back(), fColumnHeaders[i])] = stringValue;
+		i++;
+	}
 }

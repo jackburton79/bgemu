@@ -24,7 +24,17 @@ public:
 	uint32 IntegerValueFor(const char* row, const char* column = NULL);
 private:
 	virtual ~TWODAResource();
+
+	void _HandleHeadersRow(char* string);
+	void _HandleContentRow(char* string);
+
+	typedef std::vector<std::string> StringList;
+
 	std::map<std::pair<std::string, std::string>, std::string> fMap;
+	std::string fDefaultValue;
+
+	StringList fColumnHeaders;
+	StringList fRowHeaders;
 };
 
 #endif /* TWODARESOURCE_H_ */

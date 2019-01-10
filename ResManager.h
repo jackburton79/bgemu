@@ -110,7 +110,8 @@ TLKResource* Dialogs();
 class IDTable {
 public:
 	static std::string GetDialog(uint32 i);
-
+	
+	static std::string RandomColorAt(uint32 i);
 	static std::string AlignmentAt(uint32 i);
 	static std::string GeneralAt(uint32 i);
 	static std::string AnimationAt(uint32 i);
