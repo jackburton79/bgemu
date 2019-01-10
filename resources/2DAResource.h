@@ -21,7 +21,7 @@ public:
 	virtual void Dump();
 
 	std::string ValueFor(const char* row, const char* column = NULL);
-	uint32 IntegerValueFor(const char* row, const char* column = NULL);
+	int32 IntegerValueFor(const char* row, const char* column = NULL);
 private:
 	virtual ~TWODAResource();
 

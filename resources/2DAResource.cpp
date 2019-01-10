@@ -104,10 +104,10 @@ TWODAResource::ValueFor(const char* rowValue, const char* columnValue)
 }
 
 
-uint32
+int32
 TWODAResource::IntegerValueFor(const char* rowValue, const char* columnValue)
 {
-	return ::strtoul(ValueFor(rowValue, columnValue).c_str(), NULL, 0);
+	return ::strtol(ValueFor(rowValue, columnValue).c_str(), NULL, 0);
 }
 
 
