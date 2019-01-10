@@ -226,12 +226,15 @@ Game::LoadStartingArea()
 	}
 
 	std::cout << "OK!" << std::endl;
-	std::string string = resource->ValueFor("START_AREA", "VALUE");
+	std::string startingArea = resource->ValueFor("START_AREA", "VALUE");
 	IE::point point;
-	point.x = resource->IntegerValueFor("START_XPOS");
-	point.y = resource->IntegerValueFor("START_YPOS");
+	point.x = resource->IntegerValueFor("START_XPOS", "VALUE");
+	point.y = resource->IntegerValueFor("START_YPOS", "VALUE");
 
-	RoomContainer::Get()->LoadArea(string.c_str(), "foo", NULL);
+	std::cout << "Starting area: " << startingArea << std::endl;
+	std::cout << "Starting position: " << point.x << "," << point.y << std::endl;
+
+	RoomContainer::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
 	RoomContainer::Get()->SetAreaOffset(point);
 	if (fParty != NULL)
 		fParty->ActorAt(0)->SetPosition(point);
