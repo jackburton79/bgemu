@@ -51,15 +51,15 @@ TWODAResource::Load(Archive* archive, uint32 key)
 
 	char string[1024];
 	fData->ReadLine(string, sizeof(string));
-	//std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
+//	std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
 
 	fData->ReadLine(string, sizeof(string));
 	fDefaultValue = string;
-	
-	//std::cout << "*** SECOND LINE:" << string << std::endl;
+//	std::cout << "*** SECOND LINE:" << string << std::endl;
+
 	fData->ReadLine(string, sizeof(string)); // headers
 
-	//std::cout << "*** THIRD LINE: " << string << std::endl;
+//	std::cout << "*** THIRD LINE: " << string << std::endl;
 
 	_HandleHeadersRow(string);
 
@@ -125,6 +125,9 @@ void
 TWODAResource::_HandleContentRow(char* string)
 {
 	const char *stringValue = ::strtok(string, " \t");
+	if (stringValue == NULL)
+		return;
+
 	fRowHeaders.push_back(stringValue);
 	int i = 0;
 	while ((stringValue = ::strtok(NULL, " \t")) != NULL) {
