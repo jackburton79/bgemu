@@ -78,7 +78,11 @@ TWODAResource::Dump()
 {
 	std::cout << "default value: " << fDefaultValue << std::endl;
 	
-	std::map<std::pair<std::string, std::string>, std::string>::const_iterator i;
+	for (StringList::const_iterator c = fColumnHeaders.begin();
+										c != fColumnHeaders.end(); c++) {
+			std::cout << *c << " ";
+	}
+	std::cout << std::endl;
 	for (StringList::const_iterator r = fRowHeaders.begin();
 									r != fRowHeaders.end(); r++) {
 		for (StringList::const_iterator c = fColumnHeaders.begin();
