@@ -153,6 +153,9 @@ Actor::_Init()
 		fActor->orientation = 0;
 	}
 
+	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
+	fActor->destination = fActor->position;
+
 	fPath = new PathFinder(PathFinder::kStep, RoomContainer::IsPointPassable);
 }
 
