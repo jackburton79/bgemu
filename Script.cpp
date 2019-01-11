@@ -1208,7 +1208,6 @@ trigger_node::Print() const
 // object
 object_node::object_node()
 {
-
 }
 
 

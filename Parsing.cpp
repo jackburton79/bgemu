@@ -235,7 +235,7 @@ Parser::_ReadElement(::node*& node)
 				try {
 					_ReadElement(newNode);
 				} catch (...) {
-
+					// Finished
 				}
 				node->AddChild(newNode);
 			}
@@ -384,7 +384,6 @@ Tokenizer::ReadNextToken()
 			}
 			break;
 		}
-
 		case 'T':
 		{
 			if (array[1] == 'R') {
