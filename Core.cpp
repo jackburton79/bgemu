@@ -19,6 +19,7 @@
 #include "Timer.h"
 #include "TLKResource.h"
 #include "Window.h"
+#include "WorldMap.h"
 
 #include <algorithm>
 #include <ctype.h>
@@ -170,7 +171,7 @@ Core::LoadWorldMap()
 	delete fCurrentRoom;
 	fCurrentRoom = NULL;
 	try {
-		//fCurrentRoom = new WorldMap();
+		fCurrentRoom = new WorldMap();
 	} catch (...) {
 		return false;
 	}

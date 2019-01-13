@@ -634,7 +634,7 @@ Object::LastReferenceReleased()
 void
 Object::_UpdateTileCell()
 {
-	BackMap* backMap = Core::Get()->CurrentRoom()->BackMap();
+	/*BackMap* backMap = Core::Get()->CurrentRoom()->BackMap();
 	if (backMap == NULL)
 		return;
 
@@ -647,6 +647,6 @@ Object::_UpdateTileCell()
 		fTileCell = newTileCell;
 		if (newTileCell != NULL)
 			newTileCell->SetObject(this);
-	}
+	}*/
 }
 

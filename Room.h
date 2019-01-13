@@ -39,28 +39,9 @@ public:
 	WEDResource* WED();
 	ARAResource* AREA() const;
 
-	virtual IE::rect Frame() const;
+	virtual GFX::rect AreaRect() const;
 
-	GFX::rect ViewPort() const;
-	void SetViewPort(GFX::rect rect);
-
-	GFX::rect AreaRect() const;
-	IE::point AreaOffset() const;
-	GFX::rect VisibleArea() const;
-
-	void SetAreaOffset(IE::point point);
-	void SetRelativeAreaOffset(IE::point point);
-	void CenterArea(const IE::point& point);
-
-	virtual ::BackMap* BackMap() const;
-
-	void ConvertToArea(GFX::rect& rect);
-	void ConvertToArea(IE::point& point);
-	void ConvertFromArea(GFX::rect& rect);
-	void ConvertFromArea(IE::point& point);
-
-	void ConvertToScreen(IE::point& point);
-	void ConvertToScreen(GFX::rect& rect);
+	::BackMap* BackMap() const;
 
 	void Draw(Bitmap *surface);
 	void Clicked(uint16 x, uint16 y);
@@ -89,8 +70,6 @@ public:
 	void ToggleDayNight();
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
-
-	static AreaRoom* Get();
 
 private:
 	void _DrawConsole();
@@ -131,16 +110,9 @@ private:
 	GFX::rect fScreenArea;
 	GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
 						// offsetted to fAreaOffset
-	IE::point fAreaOffset;
-
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;
-
-	// WorldMap
-	WMAPResource* fWorldMap;
-	MOSResource* fWorldMapBackground;
-	Bitmap*	fWorldMapBitmap;
 
 	::BackMap* fBackMap;
 	Bitmap* fBlitMask;
@@ -149,15 +121,15 @@ private:
 	Bitmap* fLightMap;
 	Bitmap* fSearchMap;
 
-	int32 fMapHorizontalRatio;
-	int32 fMapVerticalRatio;
-
 	std::vector<Animation*> fAnimations;
 	std::vector<Reference<Region> > fRegions;
 	std::vector<Reference<Container> > fContainers;
 
 	Reference<Actor> fSelectedActor;
 	Reference<Object> fMouseOverObject;
+
+	int32 fMapHorizontalRatio;
+	int32 fMapVerticalRatio;
 
 	int fDrawSearchMap;
 	bool fDrawOverlays;

@@ -90,7 +90,8 @@ support/ZLibDecompressor.cpp \
 SupportDefs.cpp \
 TextSupport.cpp \
 TileCell.cpp \
-Timer.cpp
+Timer.cpp \
+WorldMap.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

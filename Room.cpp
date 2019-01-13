@@ -198,28 +198,6 @@ AreaRoom::AREA() const
 }
 
 
-/* virtual */
-IE::rect
-AreaRoom::Frame() const
-{
-	return gfx_rect_to_rect(AreaRect());
-}
-
-
-GFX::rect
-AreaRoom::ViewPort() const
-{
-	return fScreenArea;
-}
-
-
-void
-AreaRoom::SetViewPort(GFX::rect rect)
-{
-	fScreenArea = rect;
-}
-
-
 GFX::rect
 AreaRoom::AreaRect() const
 {
@@ -232,111 +210,10 @@ AreaRoom::AreaRect() const
 }
 
 
-IE::point
-AreaRoom::AreaOffset() const
-{
-	return fAreaOffset;
-}
-
-
-GFX::rect
-AreaRoom::VisibleArea() const
-{
-	return fMapArea;
-}
-
-
-void
-AreaRoom::SetAreaOffset(IE::point point)
-{
-	GFX::rect areaRect = AreaRect();
-	fAreaOffset = point;
-	if (fAreaOffset.x < 0)
-		fAreaOffset.x = 0;
-	else if (fAreaOffset.x + fScreenArea.w > areaRect.w)
-		fAreaOffset.x = std::max(areaRect.w - fScreenArea.w, 0);
-	if (fAreaOffset.y < 0)
-		fAreaOffset.y = 0;
-	else if (fAreaOffset.y + fScreenArea.h > areaRect.h)
-		fAreaOffset.y = std::max(areaRect.h - fScreenArea.h, 0);
-
-	fMapArea = offset_rect_to(fScreenArea,
-			fAreaOffset.x, fAreaOffset.y);
-}
-
-
-void
-AreaRoom::SetRelativeAreaOffset(IE::point relativePoint)
-{
-	IE::point newOffset = fAreaOffset;
-	newOffset.x += relativePoint.x;
-	newOffset.y += relativePoint.y;
-	SetAreaOffset(newOffset);
-}
-
-
-void
-AreaRoom::CenterArea(const IE::point& point)
-{
-	IE::point destPoint;
-	destPoint.x = point.x - fScreenArea.w / 2;
-	destPoint.y = point.y - fScreenArea.y / 2;
-	SetAreaOffset(destPoint);
-}
-
-
 ::BackMap*
 AreaRoom::BackMap() const
 {
 	return fBackMap;
-}
-
-
-void
-AreaRoom::ConvertToArea(GFX::rect& rect)
-{
-	rect.x += fAreaOffset.x;
-	rect.y += fAreaOffset.y;
-}
-
-
-void
-AreaRoom::ConvertToArea(IE::point& point)
-{
-	point.x += fAreaOffset.x;
-	point.y += fAreaOffset.y;
-}
-
-
-void
-AreaRoom::ConvertFromArea(GFX::rect& rect)
-{
-	rect.x -= fAreaOffset.x;
-	rect.y -= fAreaOffset.y;
-}
-
-
-void
-AreaRoom::ConvertFromArea(IE::point& point)
-{
-	point.x -= fAreaOffset.x;
-	point.y -= fAreaOffset.y;
-}
-
-
-void
-AreaRoom::ConvertToScreen(GFX::rect& rect)
-{
-	rect.x += fScreenArea.x;
-	rect.y += fScreenArea.y;
-}
-
-
-void
-AreaRoom::ConvertToScreen(IE::point& point)
-{
-	point.x += fScreenArea.x;
-	point.y += fScreenArea.y;
 }
 
 
@@ -753,9 +630,6 @@ AreaRoom::ToggleGUI()
 void
 AreaRoom::ToggleDayNight()
 {
-	if (fWorldMap != NULL)
-		return;
-
 	std::string wedName = fWed->Name();
 	if (*wedName.rbegin() == 'N')
 		wedName = fArea->Name();
@@ -1254,32 +1128,10 @@ AreaRoom::_UnloadArea()
 
 
 void
-AreaRoom::_UnloadWorldMap()
-{
-	assert(fWorldMap != NULL);
-
-	gResManager->ReleaseResource(fWorldMap);
-	fWorldMap = NULL;
-	
-	gResManager->ReleaseResource(fWorldMapBackground);
-	fWorldMapBackground = NULL;
-	
-	if (fWorldMapBitmap != NULL) {
-		fWorldMapBitmap->Release();
-		fWorldMapBitmap = NULL;
-	}
-
-	//gResManager->TryEmptyResourceCache();
-}
-
-
-void
 AreaRoom::_Unload()
 {
 	std::cout << "AreaRoom::Unload()" << std::endl;
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
-	if (fWorldMap != NULL)
-		_UnloadWorldMap();
-	else if (fWed != NULL)
+	if (fWed != NULL)
 		_UnloadArea();
 }
