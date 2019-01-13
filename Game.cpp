@@ -16,7 +16,7 @@
 #include "Party.h"
 #include "OutputConsole.h"
 #include "ResManager.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "Timer.h"
 
 #include <stdio.h>

@@ -20,7 +20,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "RoundResults.h"
 #include "TileCell.h"
 

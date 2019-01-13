@@ -2,6 +2,7 @@
 
 #include "Action.h"
 #include "Actor.h"
+#include "AreaRoom.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
@@ -12,7 +13,6 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "Room.h"
 #include "RoundResults.h"
 #include "Script.h"
 #include "TextArea.h"

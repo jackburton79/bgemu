@@ -11,7 +11,7 @@
 #include "Control.h"
 #include "GUI.h"
 #include "Label.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "Scrollbar.h"
 #include "Slider.h"
 #include "TextArea.h"

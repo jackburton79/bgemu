@@ -9,7 +9,7 @@
 #include "Button.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "Window.h"
 
 

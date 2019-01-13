@@ -16,7 +16,7 @@
 #include "GUI.h"
 #include "RectUtils.h"
 #include "ResManager.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "TextSupport.h"
 #include "Timer.h"
 

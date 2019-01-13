@@ -26,7 +26,6 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "Room.h"
 #include "Script.h"
 #include "TextArea.h"
 #include "TileCell.h"

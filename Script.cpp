@@ -10,7 +10,7 @@
 #include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "Room.h"
+#include "RoomBase.h"
 #include "Script.h"
 #include "Timer.h"
 

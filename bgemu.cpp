@@ -8,7 +8,6 @@
 #include "GUI.h"
 #include "MovieDecoder.h"
 #include "ResManager.h"
-#include "Room.h"
 #include "SoundEngine.h"
 #include "Timer.h"
 #include "WorldMap.h"
