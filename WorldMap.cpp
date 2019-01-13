@@ -149,7 +149,7 @@ WorldMap::Clicked(uint16 x, uint16 y)
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& area = fWorldMap->AreaEntryAt(i);
 		if (rect_contains(area.Rect(), point)) {
-			//LoadArea(area);
+			Core::Get()->LoadArea(area.Name(), area.LongName(), NULL);
 			break;
 		}
 	}

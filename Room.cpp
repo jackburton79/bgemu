@@ -368,9 +368,9 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 		if (fSelectedActor != NULL)
 			fSelectedActor.Target()->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
-			//LoadArea(region->DestinationArea(), "foo",
-			//		region->DestinationEntrance());
-			//return;
+			Core::Get()->LoadArea(region->DestinationArea(), "foo",
+					region->DestinationEntrance());
+			return;
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
 			if (strRef >= 0)
