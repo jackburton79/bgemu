@@ -68,6 +68,7 @@ resources/TLKResource.cpp \
 resources/WedResource.cpp \
 resources/WMAPResource.cpp \
 Room.cpp \
+RoomBase.cpp \
 RoundResults.cpp \
 Script.cpp \
 shell/Commands.cpp \
@@ -89,8 +90,7 @@ support/ZLibDecompressor.cpp \
 SupportDefs.cpp \
 TextSupport.cpp \
 TileCell.cpp \
-Timer.cpp \
-WorldMap.cpp 
+Timer.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

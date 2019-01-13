@@ -685,7 +685,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * is in the area specified.
 				 */
 				// TODO: We only check the active area
-				returnValue = !strcmp(RoomContainer::Get()->Name(), trig->string1);
+				//returnValue = !strcmp(RoomContainer::Get()->Name(), trig->string1);
 				break;
 			}
 			case 0x4086:
@@ -693,8 +693,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// AREATYPE(I:NUMBER*AREATYPE) (16518 0x4086)
 
 				// TODO: We only check the active area
-				const uint16 areaType = RoomContainer::Get()->AREA()->Type();
-				returnValue = areaType & trig->parameter1;
+				//const uint16 areaType = RoomContainer::Get()->AREA()->Type();
+				//returnValue = areaType & trig->parameter1;
 				break;
 			}
 			case 0x4089:
@@ -818,8 +818,8 @@ Script::_ExecuteAction(action_node* act)
 				point.y += Core::RandomNumber(-20, 20);
 			}
 
-			Actor* actor = new Actor(act->string1, point, act->integer1);
-			RoomContainer::Get()->ActorEnteredArea(actor);
+			//Actor* actor = new Actor(act->string1, point, act->integer1);
+			//RoomContainer::Get()->ActorEnteredArea(actor);
 
 			// TODO: Add actor to the current area
 			break;
@@ -1062,7 +1062,7 @@ Script::_ExecuteAction(action_node* act)
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			RoomContainer::Get()->ActorEnteredArea(actor);
+			//RoomContainer::Get()->ActorEnteredArea(actor);
 			break;
 		}
 		default:

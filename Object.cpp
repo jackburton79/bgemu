@@ -163,7 +163,7 @@ Object::IsVisible() const
 bool
 Object::IsInsideVisibleArea() const
 {
-	IE::rect rect = gfx_rect_to_rect(RoomContainer::Get()->VisibleArea());
+	IE::rect rect = gfx_rect_to_rect(Core::Get()->CurrentRoom()->VisibleArea());
 	if (rect_contains(rect, Position()))
 		return true;
 	return false;
@@ -634,7 +634,7 @@ Object::LastReferenceReleased()
 void
 Object::_UpdateTileCell()
 {
-	BackMap* backMap = RoomContainer::Get()->BackMap();
+	BackMap* backMap = Core::Get()->CurrentRoom()->BackMap();
 	if (backMap == NULL)
 		return;
 

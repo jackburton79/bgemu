@@ -186,9 +186,10 @@ const ::Bitmap*
 Actor::Bitmap() const
 {
 	if (fCurrentAnimation == NULL) {
-		std::string message("Actor::Bitmap() (");
+		/*std::string message("Actor::Bitmap() (");
 		message.append(fCRE->Name()).append(") : No current animation!");
-		throw message;
+		throw message;*/
+		return NULL;
 	}
 
 	return fCurrentAnimation->Bitmap();
@@ -599,7 +600,7 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 bool
 Actor::IsReachable(const IE::point& pt) const
 {
-	RoomContainer* room = RoomContainer::Get();
+	/*RoomContainer* room = Core::Get()->CurrentRoom();
 	int32 state = room->PointSearch(pt);
 	switch (state) {
 		case 0:
@@ -610,5 +611,6 @@ Actor::IsReachable(const IE::point& pt) const
 			return false;
 		default:
 			return true;
-	}
+	}*/
+	return false;
 }

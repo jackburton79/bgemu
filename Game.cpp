@@ -54,7 +54,8 @@ Game::Loop(bool executeScripts)
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 
-	RoomContainer::Create();
+	//RoomContainer::Create();
+	// TODO: Screenframe is 0 here, without the above commented call
 
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
@@ -93,7 +94,7 @@ Game::Loop(bool executeScripts)
 	bool quitting = false;
 	while (!quitting) {
 		while (SDL_PollEvent(&event) != 0) {
-			RoomContainer* room = RoomContainer::Get();
+			RoomContainer* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
 					gui->MouseDown(event.button.x, event.button.y);
@@ -143,8 +144,7 @@ Game::Loop(bool executeScripts)
 									room->TogglePolygons();
 								break;
 							case SDLK_w:
-								if (room != NULL)
-									room->LoadWorldMap();
+								Core::Get()->LoadWorldMap();
 								break;
 							case SDLK_s:
 								if (room != NULL)
@@ -234,8 +234,8 @@ Game::LoadStartingArea()
 	std::cout << "Starting area: " << startingArea << std::endl;
 	std::cout << "Starting position: " << point.x << "," << point.y << std::endl;
 
-	RoomContainer::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
-	RoomContainer::Get()->SetAreaOffset(point);
+	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
+	//RoomContainer::Get()->SetAreaOffset(point);
 	if (fParty != NULL)
 		fParty->ActorAt(0)->SetPosition(point);
 }

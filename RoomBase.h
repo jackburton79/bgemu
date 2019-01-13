@@ -1,7 +1,5 @@
-#ifndef __REGION_MAP_H
-#define __REGION_MAP_H
-
-#include "RoomBase.h"
+#ifndef __ROOMBASE_H
+#define __ROOMBASE_H
 
 #include "Bitmap.h"
 #include "IETypes.h"
@@ -27,16 +25,8 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class AreaRoom : public RoomContainer {
+class RoomContainer : public Object, public Listener {
 public:
-	static bool Create();
-	static void Delete();
-	
-	AreaRoom(const res_ref& areaName, const char* longName,
-					const char* entranceName);
-	~AreaRoom();
-	
-	WEDResource* WED();
 	ARAResource* AREA() const;
 
 	virtual IE::rect Frame() const;
@@ -44,7 +34,7 @@ public:
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
 
-	GFX::rect AreaRect() const;
+	virtual GFX::rect AreaRect() const = 0;
 	IE::point AreaOffset() const;
 	GFX::rect VisibleArea() const;
 
@@ -52,7 +42,7 @@ public:
 	void SetRelativeAreaOffset(IE::point point);
 	void CenterArea(const IE::point& point);
 
-	virtual ::BackMap* BackMap() const;
+	virtual::BackMap* BackMap() const = 0;
 
 	void ConvertToArea(GFX::rect& rect);
 	void ConvertToArea(IE::point& point);
@@ -62,15 +52,9 @@ public:
 	void ConvertToScreen(IE::point& point);
 	void ConvertToScreen(GFX::rect& rect);
 
-	void Draw(Bitmap *surface);
-	void Clicked(uint16 x, uint16 y);
-	void MouseOver(uint16 x, uint16 y);
-
-	void DrawObject(const Object& object);
-	void DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask);
-
-	void ActorEnteredArea(const Actor* actor);
-	void ActorExitedArea(const Actor* actor);
+	virtual void Draw(Bitmap *surface) = 0;
+	virtual void Clicked(uint16 x, uint16 y) = 0;
+	virtual void MouseOver(uint16 x, uint16 y) = 0;
 
 	uint16 TileNumberForPoint(const IE::point& point);
 
@@ -90,26 +74,29 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-	static AreaRoom* Get();
+	//static RoomContainer* Get();
+
+	RoomContainer();
+	~RoomContainer();
 
 private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
-	void _InitBackMap(GFX::rect area);
-	void _InitWed(const char* name);
-	void _InitBlitMask();
-	void _InitHeightMap();
-	void _InitLightMap();
-	void _InitSearchMap();
+	//void _InitBackMap(GFX::rect area);
+	//void _InitWed(const char* name);
+	//void _InitBlitMask();
+	//void _InitHeightMap();
+	//void _InitLightMap();
+	//void _InitSearchMap();
 
-	void _UpdateBaseMap(GFX::rect mapRect);
+	//void _UpdateBaseMap(GFX::rect mapRect);
 
-	void _DrawHeightMap(GFX::rect area);
-	void _DrawLightMap();
-	void _DrawSearchMap(GFX::rect area);
-	void _DrawAnimations(bool advanceFrame);
-	void _DrawActors();
+	//void _DrawHeightMap(GFX::rect area);
+	//void _DrawLightMap();
+	//void _DrawSearchMap(GFX::rect area);
+	//void _DrawAnimations(bool advanceFrame);
+	//void _DrawActors();
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
@@ -124,30 +111,17 @@ private:
 	void _InitDoors();
 	void _InitContainers();
 
-	void _UnloadArea();
-	void _UnloadWorldMap();
-	void _Unload();
+	//void _UnloadArea();
+	//void _UnloadWorldMap();
+	//void _Unload();
 
 	GFX::rect fScreenArea;
 	GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
 						// offsetted to fAreaOffset
 	IE::point fAreaOffset;
 
-	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;
-
-	// WorldMap
-	WMAPResource* fWorldMap;
-	MOSResource* fWorldMapBackground;
-	Bitmap*	fWorldMapBitmap;
-
-	::BackMap* fBackMap;
-	Bitmap* fBlitMask;
-
-	Bitmap* fHeightMap;
-	Bitmap* fLightMap;
-	Bitmap* fSearchMap;
 
 	int32 fMapHorizontalRatio;
 	int32 fMapVerticalRatio;
@@ -167,4 +141,4 @@ private:
 };
 
 
-#endif
+#endif // __ROOMBASE_H

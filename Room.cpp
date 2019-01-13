@@ -41,21 +41,16 @@
 
 #include <SDL.h>
 
-static RoomContainer* sCurrentRoom = NULL;
-
 static int sSelectedActorRadius = 20;
 static int sSelectedActorRadiusStep = 1;
 
 
-RoomContainer::RoomContainer()
+AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
+					const char* entranceName)
 	:
-	Object(""),
 	fWed(NULL),
 	fArea(NULL),
 	fBcs(NULL),
-	fWorldMap(NULL),
-	fWorldMapBackground(NULL),
-	fWorldMapBitmap(NULL),
 	fBackMap(NULL),
 	fBlitMask(NULL),
 	fHeightMap(NULL),
@@ -66,80 +61,10 @@ RoomContainer::RoomContainer()
 	fDrawSearchMap(0),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
-	fDrawAnimations(true),
-	fShowingConsole(false)
-{
-}
-
-
-RoomContainer::~RoomContainer()
-{
-	// TODO: Delete various tilecells, overlays, animations
-	_Unload();
-
-	if (fBackMap != NULL)
-		delete fBackMap;
-	if (fBlitMask != NULL)
-		fBlitMask->Release();
-}
-
-
-/* static */
-bool
-RoomContainer::Create()
-{
-	if (sCurrentRoom == NULL)
-		sCurrentRoom = new RoomContainer();
-	return true;
-}
-
-
-void
-RoomContainer::Delete()
-{
-	std::cout << "Room::Delete()" << std::endl;
-	delete sCurrentRoom;
-	sCurrentRoom = NULL;	
-}
-
-
-WEDResource*
-RoomContainer::WED()
-{
-	return fWed;
-}
-
-
-ARAResource*
-RoomContainer::AREA() const
-{
-	return fArea;
-}
-
-
-/* virtual */
-IE::rect
-RoomContainer::Frame() const
-{
-	return gfx_rect_to_rect(AreaRect());
-}
-
-
-GFX::rect
-RoomContainer::ViewPort() const
-{
-	return fScreenArea;
-}
-
-
-bool
-RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
-					const char* entranceName)
+	fDrawAnimations(true)
 {
 	// Save the entrance name, it will be unloaded in UnloadArea
 	std::string savedEntranceName = entranceName ? entranceName : "";
-
-	_Unload();
 
 	SetName(areaName.CString());
 
@@ -149,7 +74,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 
 	fArea = gResManager->GetARA(Name());
 	if (fArea == NULL)
-		return false;
+		throw "CANNOT LOAD AREA";
 
 	_InitWed(fArea->WedName().CString());
 
@@ -171,7 +96,7 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 		fBcs = NULL;
 		SetScript(NULL);
 		delete roomScript;
-		return false;
+		throw "CANNOT LOAD GUIW";
 	}
 
 	gui->ShowWindow(uint16(-1));
@@ -244,130 +169,85 @@ RoomContainer::LoadArea(const res_ref& areaName, const char* longName,
 	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
 	GUI::Get()->ShowWindow(999);
-	return true;
 }
 
 
-bool
-RoomContainer::LoadArea(AreaEntry& area)
+AreaRoom::~AreaRoom()
 {
-	//MOSResource* mos = gResManager->GetMOS(area.LoadingScreenName());
-	/*MOSResource* mos = gResManager->GetMOS("BACK");
-	if (mos != NULL) {
-		Bitmap* loadingScreen = mos->Image();
-		if (loadingScreen != NULL) {
-			GraphicsEngine::Get()->BlitToScreen(loadingScreen, NULL, NULL);
-			GraphicsEngine::Get()->Flip();
-			SDL_Delay(2000);
-			loadingScreen->Release();
-		}
-		gResManager->ReleaseResource(mos);
-	}*/
-
-	bool result = LoadArea(area.Name(), area.LongName());
-
-	return result;
-}
-
-
-bool
-RoomContainer::LoadWorldMap()
-{
-	if (fWorldMap != NULL)
-		return true;
-
+	// TODO: Delete various tilecells, overlays, animations
 	_Unload();
 
-	GUI* gui = GUI::Get();
+	if (fBackMap != NULL)
+		delete fBackMap;
+	if (fBlitMask != NULL)
+		fBlitMask->Release();
+}
 
-	gui->Clear();
-	
-	if (!gui->Load("GUIWMAP")) {
-		return false;
-	}
 
-	gui->ShowWindow(0);
+WEDResource*
+AreaRoom::WED()
+{
+	return fWed;
+}
 
-	fAreaOffset.x = fAreaOffset.y = 0;
 
-	Core::Get()->EnteredArea(this, NULL);
+ARAResource*
+AreaRoom::AREA() const
+{
+	return fArea;
+}
 
-	SetName("WORLDMAP");
 
-	GraphicsEngine::Get()->SetWindowCaption(Name());
+/* virtual */
+IE::rect
+AreaRoom::Frame() const
+{
+	return gfx_rect_to_rect(AreaRect());
+}
 
-	fWorldMap = gResManager->GetWMAP(Name());
 
-	worldmap_entry entry = fWorldMap->WorldMapEntry();
-	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
-	if (fWorldMapBackground == NULL) {
-		gResManager->ReleaseResource(fWorldMap);
-		return false;
-	}
-	fWorldMapBitmap = fWorldMapBackground->Image();
-	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
-		const Bitmap* iconFrame = areaEntry.Icon();
-		IE::point position = areaEntry.Position();
-		GFX::rect iconRect(int16(position.x - iconFrame->Frame().w / 2),
-					int16(position.y - iconFrame->Frame().h / 2),
-					iconFrame->Frame().w, iconFrame->Frame().h);
-
-		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
-				fWorldMapBitmap, &iconRect);
-	}
-
-	Window* window = gui->GetWindow(0);
-	if (window != NULL) {
-		// TODO: Move this into GUI ?
-		Control* control = window->GetControlByID(4);
-		if (control != NULL)
-			control->AssociateRoom(this);
-	}
-
-	return true;
+GFX::rect
+AreaRoom::ViewPort() const
+{
+	return fScreenArea;
 }
 
 
 void
-RoomContainer::SetViewPort(GFX::rect rect)
+AreaRoom::SetViewPort(GFX::rect rect)
 {
 	fScreenArea = rect;
 }
 
 
 GFX::rect
-RoomContainer::AreaRect() const
+AreaRoom::AreaRect() const
 {
 	GFX::rect rect;
 	rect.x = rect.y = 0;
-	if (fWorldMap != NULL) {
-		rect.w = fWorldMapBitmap->Width();
-		rect.h = fWorldMapBitmap->Height();
-	} else {
-		rect.w = fBackMap->Width() * TILE_WIDTH;
-		rect.h = fBackMap->Height() * TILE_HEIGHT;
-	}
+	rect.w = fBackMap->Width() * TILE_WIDTH;
+	rect.h = fBackMap->Height() * TILE_HEIGHT;
+
 	return rect;
 }
 
 
 IE::point
-RoomContainer::AreaOffset() const
+AreaRoom::AreaOffset() const
 {
 	return fAreaOffset;
 }
 
 
 GFX::rect
-RoomContainer::VisibleArea() const
+AreaRoom::VisibleArea() const
 {
 	return fMapArea;
 }
 
 
 void
-RoomContainer::SetAreaOffset(IE::point point)
+AreaRoom::SetAreaOffset(IE::point point)
 {
 	GFX::rect areaRect = AreaRect();
 	fAreaOffset = point;
@@ -386,7 +266,7 @@ RoomContainer::SetAreaOffset(IE::point point)
 
 
 void
-RoomContainer::SetRelativeAreaOffset(IE::point relativePoint)
+AreaRoom::SetRelativeAreaOffset(IE::point relativePoint)
 {
 	IE::point newOffset = fAreaOffset;
 	newOffset.x += relativePoint.x;
@@ -396,7 +276,7 @@ RoomContainer::SetRelativeAreaOffset(IE::point relativePoint)
 
 
 void
-RoomContainer::CenterArea(const IE::point& point)
+AreaRoom::CenterArea(const IE::point& point)
 {
 	IE::point destPoint;
 	destPoint.x = point.x - fScreenArea.w / 2;
@@ -406,14 +286,14 @@ RoomContainer::CenterArea(const IE::point& point)
 
 
 ::BackMap*
-RoomContainer::BackMap() const
+AreaRoom::BackMap() const
 {
 	return fBackMap;
 }
 
 
 void
-RoomContainer::ConvertToArea(GFX::rect& rect)
+AreaRoom::ConvertToArea(GFX::rect& rect)
 {
 	rect.x += fAreaOffset.x;
 	rect.y += fAreaOffset.y;
@@ -421,7 +301,7 @@ RoomContainer::ConvertToArea(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertToArea(IE::point& point)
+AreaRoom::ConvertToArea(IE::point& point)
 {
 	point.x += fAreaOffset.x;
 	point.y += fAreaOffset.y;
@@ -429,7 +309,7 @@ RoomContainer::ConvertToArea(IE::point& point)
 
 
 void
-RoomContainer::ConvertFromArea(GFX::rect& rect)
+AreaRoom::ConvertFromArea(GFX::rect& rect)
 {
 	rect.x -= fAreaOffset.x;
 	rect.y -= fAreaOffset.y;
@@ -437,7 +317,7 @@ RoomContainer::ConvertFromArea(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertFromArea(IE::point& point)
+AreaRoom::ConvertFromArea(IE::point& point)
 {
 	point.x -= fAreaOffset.x;
 	point.y -= fAreaOffset.y;
@@ -445,7 +325,7 @@ RoomContainer::ConvertFromArea(IE::point& point)
 
 
 void
-RoomContainer::ConvertToScreen(GFX::rect& rect)
+AreaRoom::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fScreenArea.x;
 	rect.y += fScreenArea.y;
@@ -453,160 +333,134 @@ RoomContainer::ConvertToScreen(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertToScreen(IE::point& point)
+AreaRoom::ConvertToScreen(IE::point& point)
 {
 	point.x += fScreenArea.x;
 	point.y += fScreenArea.y;
 }
 
 
+/* virtual */
 void
-RoomContainer::Draw(Bitmap *surface)
+AreaRoom::Draw(Bitmap *surface)
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
-	if (fWorldMap != NULL) {
-		//GFX::rect sourceRect = offset_rect(fViewPort,
-		//		-fViewPort.x, -fViewPort.y);
-		GFX::rect sourceRect = fScreenArea;
-		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
-		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
-			GFX::rect clippingRect = fScreenArea;
-			clippingRect.w = gfx->ScreenFrame().w;
-			clippingRect.h = gfx->ScreenFrame().h;
-			gfx->SetClipping(&clippingRect);
-			gfx->ScreenBitmap()->Clear(0);
-			gfx->SetClipping(NULL);
-		}
-		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fScreenArea);
-	} else {
-		if (sSelectedActorRadius > 22) {
-			sSelectedActorRadiusStep = -1;
-		} else if (sSelectedActorRadius < 18) {
-			sSelectedActorRadiusStep = 1;
-		}
-		sSelectedActorRadius += sSelectedActorRadiusStep;
+	if (sSelectedActorRadius > 22) {
+		sSelectedActorRadiusStep = -1;
+	} else if (sSelectedActorRadius < 18) {
+		sSelectedActorRadiusStep = 1;
+	}
+	sSelectedActorRadius += sSelectedActorRadiusStep;
 
-		GFX::rect mapRect = offset_rect_to(fScreenArea,
-				fAreaOffset.x, fAreaOffset.y);
+	GFX::rect mapRect = offset_rect_to(fScreenArea,
+			fAreaOffset.x, fAreaOffset.y);
 
-		bool paused = Core::Get()->IsPaused();
-		if (!paused) {
-			assert(fBackMap != NULL);
-			fBackMap->Update(mapRect, fDrawOverlays);
-		}
+	bool paused = Core::Get()->IsPaused();
+	if (!paused) {
+		assert(fBackMap != NULL);
+		fBackMap->Update(mapRect, fDrawOverlays);
+	}
 
-		if (fDrawAnimations) {
-			Timer* timer = Timer::Get("ANIMATIONS");
-			bool advance = timer != NULL && timer->Expired() && !paused;
-			_DrawAnimations(advance);
-		}
-		_DrawActors();
+	if (fDrawAnimations) {
+		Timer* timer = Timer::Get("ANIMATIONS");
+		bool advance = timer != NULL && timer->Expired() && !paused;
+		_DrawAnimations(advance);
+	}
+	_DrawActors();
 
-		if (fDrawPolygons) {
-			fBackMap->Image()->Lock();
-			for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
-				const Polygon* poly = fWed->PolygonAt(p);
-				if (poly != NULL && poly->CountPoints() > 0) {
-					if (rects_intersect(poly->Frame(), mapRect)) {
-						uint32 color = 0;
-						if (poly->Flags() & IE::POLY_SHADE_WALL)
-							color = 200;
-						else if (poly->Flags() & IE::POLY_HOVERING)
-							color = 500;
-						else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
-							color = 1000;
+	if (fDrawPolygons) {
+		fBackMap->Image()->Lock();
+		for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
+			const Polygon* poly = fWed->PolygonAt(p);
+			if (poly != NULL && poly->CountPoints() > 0) {
+				if (rects_intersect(poly->Frame(), mapRect)) {
+					uint32 color = 0;
+					if (poly->Flags() & IE::POLY_SHADE_WALL)
+						color = 200;
+					else if (poly->Flags() & IE::POLY_HOVERING)
+						color = 500;
+					else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
+						color = 1000;
 
-						fBackMap->Image()->FillPolygon(*poly, color,
-											-fAreaOffset.x, -fAreaOffset.y);
-						fBackMap->Image()->StrokePolygon(*poly, color,
-											-fAreaOffset.x, -fAreaOffset.y);
-					}
+					fBackMap->Image()->FillPolygon(*poly, color,
+										-fAreaOffset.x, -fAreaOffset.y);
+					fBackMap->Image()->StrokePolygon(*poly, color,
+										-fAreaOffset.x, -fAreaOffset.y);
 				}
 			}
-			fBackMap->Image()->Unlock();
 		}
-
-		// TODO: handle this better
-		if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
-			GFX::rect rect = rect_to_gfx_rect(door->Frame());
-			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-			fBackMap->Image()->Lock();
-			fBackMap->Image()->StrokeRect(rect, 70);
-			fBackMap->Image()->Unlock();
-		} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
-			try {
-				GFX::rect rect = rect_to_gfx_rect(actor->Frame());
-				rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-				fBackMap->Image()->Lock();
-				IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
-				uint32 color = fBackMap->Image()->MapColor(255, 255, 255);
-				fBackMap->Image()->StrokeCircle(position.x, position.y, 20, color);
-				fBackMap->Image()->Unlock();
-			} catch (const char* string) {
-				std::cerr << string << std::endl;
-			} catch (...) {
-			}
-		} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
-			GFX::rect rect = rect_to_gfx_rect(region->Frame());
-			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-
-			uint32 color = 0;
-			switch (region->Type()) {
-				case IE::REGION_TYPE_TRAVEL:
-					color = fBackMap->Image()->MapColor(0, 125, 0);
-					break;
-				case IE::REGION_TYPE_TRIGGER:
-					color = fBackMap->Image()->MapColor(125, 0, 0);
-					break;
-				default:
-					color = fBackMap->Image()->MapColor(255, 255, 255);
-					break;
-			}
-
-			fBackMap->Image()->Lock();
-
-			if (region->Polygon().CountPoints() > 2) {
-				fBackMap->Image()->StrokePolygon(region->Polygon(), color,
-									-mapRect.x, -mapRect.y);
-			} else
-				fBackMap->Image()->StrokeRect(rect, color);
-			fBackMap->Image()->Unlock();
-		} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject.Target())) {
-			uint32 color = 0;
-			color = fBackMap->Image()->MapColor(0, 125, 0);
-			// TODO: Different colors for trapped/nontrapped
-			fBackMap->Image()->Lock();
-
-			if (container->Polygon().CountPoints() > 2) {
-				fBackMap->Image()->StrokePolygon(container->Polygon(), color,
-											-mapRect.x, -mapRect.y);
-			}
-			fBackMap->Image()->Unlock();
-		}
-
-		gfx->BlitToScreen(fBackMap->Image(), NULL, &fScreenArea);
-		_DrawSearchMap(mapRect);
+		fBackMap->Image()->Unlock();
 	}
+
+	// TODO: handle this better
+	if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
+		GFX::rect rect = rect_to_gfx_rect(door->Frame());
+		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+		fBackMap->Image()->Lock();
+		fBackMap->Image()->StrokeRect(rect, 70);
+		fBackMap->Image()->Unlock();
+	} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
+		try {
+			GFX::rect rect = rect_to_gfx_rect(actor->Frame());
+			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+			fBackMap->Image()->Lock();
+			IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
+			uint32 color = fBackMap->Image()->MapColor(255, 255, 255);
+			fBackMap->Image()->StrokeCircle(position.x, position.y, 20, color);
+			fBackMap->Image()->Unlock();
+		} catch (const char* string) {
+			std::cerr << string << std::endl;
+		} catch (...) {
+		}
+	} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
+		GFX::rect rect = rect_to_gfx_rect(region->Frame());
+		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+
+		uint32 color = 0;
+		switch (region->Type()) {
+			case IE::REGION_TYPE_TRAVEL:
+				color = fBackMap->Image()->MapColor(0, 125, 0);
+				break;
+			case IE::REGION_TYPE_TRIGGER:
+				color = fBackMap->Image()->MapColor(125, 0, 0);
+				break;
+			default:
+				color = fBackMap->Image()->MapColor(255, 255, 255);
+				break;
+		}
+
+		fBackMap->Image()->Lock();
+
+		if (region->Polygon().CountPoints() > 2) {
+			fBackMap->Image()->StrokePolygon(region->Polygon(), color,
+								-mapRect.x, -mapRect.y);
+		} else
+			fBackMap->Image()->StrokeRect(rect, color);
+		fBackMap->Image()->Unlock();
+	} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject.Target())) {
+		uint32 color = 0;
+		color = fBackMap->Image()->MapColor(0, 125, 0);
+		// TODO: Different colors for trapped/nontrapped
+		fBackMap->Image()->Lock();
+
+		if (container->Polygon().CountPoints() > 2) {
+			fBackMap->Image()->StrokePolygon(container->Polygon(), color,
+										-mapRect.x, -mapRect.y);
+		}
+		fBackMap->Image()->Unlock();
+	}
+
+	gfx->BlitToScreen(fBackMap->Image(), NULL, &fScreenArea);
+	_DrawSearchMap(mapRect);
 }
 
 
 void
-RoomContainer::Clicked(uint16 x, uint16 y)
+AreaRoom::Clicked(uint16 x, uint16 y)
 {
 	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
-
-	if (fWorldMap != NULL) {
-		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-			AreaEntry& area = fWorldMap->AreaEntryAt(i);
-			if (rect_contains(area.Rect(), point)) {
-				LoadArea(area);
-				break;
-			}
-		}
-		return;
-	}
 
 	if (fSelectedActor != NULL)
 		fSelectedActor.Target()->ClearActionList();
@@ -637,9 +491,9 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 		if (fSelectedActor != NULL)
 			fSelectedActor.Target()->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
-			LoadArea(region->DestinationArea(), "foo",
-					region->DestinationEntrance());
-			return;
+			//LoadArea(region->DestinationArea(), "foo",
+			//		region->DestinationEntrance());
+			//return;
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
 			if (strRef >= 0)
@@ -660,7 +514,7 @@ RoomContainer::Clicked(uint16 x, uint16 y)
 
 
 void
-RoomContainer::MouseOver(uint16 x, uint16 y)
+AreaRoom::MouseOver(uint16 x, uint16 y)
 {
 	const uint16 kScrollingStep = 64;
 
@@ -696,20 +550,6 @@ RoomContainer::MouseOver(uint16 x, uint16 y)
 		fMouseOverObject = _ObjectAtPoint(point, cursor);
 		if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
-	} else if (fWorldMap != NULL) {
-		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-			AreaEntry& area = fWorldMap->AreaEntryAt(i);
-			GFX::rect areaRect = area.Rect();
-			if (rect_contains(areaRect, point)) {
-				ConvertFromArea(areaRect);
-				ConvertToScreen(areaRect);
-				//char* toolTip = area.TooltipName();
-				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
-				//free(toolTip);
-				GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
-				break;
-			}
-		}
 	}
 
 	IE::point newAreaOffset = fAreaOffset;
@@ -722,7 +562,7 @@ RoomContainer::MouseOver(uint16 x, uint16 y)
 
 
 void
-RoomContainer::DrawObject(const Object& object)
+AreaRoom::DrawObject(const Object& object)
 {
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
@@ -753,7 +593,7 @@ RoomContainer::DrawObject(const Object& object)
 
 
 void
-RoomContainer::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
+AreaRoom::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 {
 	if (bitmap == NULL)
 		return;
@@ -776,14 +616,14 @@ RoomContainer::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mas
 
 
 void
-RoomContainer::ActorEnteredArea(const Actor* actor)
+AreaRoom::ActorEnteredArea(const Actor* actor)
 {
 	//fActors.push_back(const_cast<Actor*>(actor));
 }
 
 
 void
-RoomContainer::ActorExitedArea(const Actor* actor)
+AreaRoom::ActorExitedArea(const Actor* actor)
 {
 	return;
 	/*std::vector<Actor*>::iterator i =
@@ -795,7 +635,7 @@ RoomContainer::ActorExitedArea(const Actor* actor)
 
 
 uint8
-RoomContainer::PointHeight(const IE::point& point) const
+AreaRoom::PointHeight(const IE::point& point) const
 {
 	if (fHeightMap == NULL)
 		return 8;
@@ -808,7 +648,7 @@ RoomContainer::PointHeight(const IE::point& point) const
 
 
 uint8
-RoomContainer::PointLight(const IE::point& point) const
+AreaRoom::PointLight(const IE::point& point) const
 {
 	if (fLightMap == NULL)
 		return 8;
@@ -821,7 +661,7 @@ RoomContainer::PointLight(const IE::point& point) const
 
 
 uint8
-RoomContainer::PointSearch(const IE::point& point) const
+AreaRoom::PointSearch(const IE::point& point) const
 {
 	if (fSearchMap == NULL)
 		return 1;
@@ -835,9 +675,9 @@ RoomContainer::PointSearch(const IE::point& point) const
 
 /* static */
 bool
-RoomContainer::IsPointPassable(const IE::point& point)
+AreaRoom::IsPointPassable(const IE::point& point)
 {
-	uint8 state = RoomContainer::Get()->PointSearch(point);
+	/*uint8 state = Core::Get()->CurrentRoom()->PointSearch(point);
 	switch (state) {
 		case 0:
 		case 8:
@@ -847,33 +687,34 @@ RoomContainer::IsPointPassable(const IE::point& point)
 			return false;
 		default:
 			return true;
-	}
+	}*/
+	return false;
 }
 
 
 void
-RoomContainer::ToggleOverlays()
+AreaRoom::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
 }
 
 
 void
-RoomContainer::TogglePolygons()
+AreaRoom::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
 }
 
 
 void
-RoomContainer::ToggleAnimations()
+AreaRoom::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
 }
 
 
 void
-RoomContainer::ToggleSearchMap()
+AreaRoom::ToggleSearchMap()
 {
 	if (++fDrawSearchMap > 2)
 		fDrawSearchMap = 0;
@@ -889,7 +730,7 @@ RoomContainer::ToggleSearchMap()
 
 
 void
-RoomContainer::ToggleGUI()
+AreaRoom::ToggleGUI()
 {
 	GUI* gui = GUI::Get();
 	if (gui->IsWindowShown(0))
@@ -910,7 +751,7 @@ RoomContainer::ToggleGUI()
 
 
 void
-RoomContainer::ToggleDayNight()
+AreaRoom::ToggleDayNight()
 {
 	if (fWorldMap != NULL)
 		return;
@@ -929,23 +770,15 @@ RoomContainer::ToggleDayNight()
 
 /* virtual */
 void
-RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
+AreaRoom::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
 }
 
 
-/* static */
-RoomContainer*
-RoomContainer::Get()
-{
-	return sCurrentRoom;
-}
-
-
 void
-RoomContainer::_InitBackMap(GFX::rect area)
+AreaRoom::_InitBackMap(GFX::rect area)
 {
 	if (fBackMap != NULL)
 		delete fBackMap;
@@ -956,7 +789,7 @@ RoomContainer::_InitBackMap(GFX::rect area)
 
 
 void
-RoomContainer::_InitWed(const char* name)
+AreaRoom::_InitWed(const char* name)
 {
 	// TODO: Assume that the various resources have
 	// already been deleted and remove these lines ?
@@ -973,7 +806,7 @@ RoomContainer::_InitWed(const char* name)
 
 
 void
-RoomContainer::_InitBlitMask()
+AreaRoom::_InitBlitMask()
 {
 	std::cout << "Initializing blit mask...";
 	std::flush(std::cout);
@@ -1003,7 +836,7 @@ RoomContainer::_InitBlitMask()
 
 
 void
-RoomContainer::_InitHeightMap()
+AreaRoom::_InitHeightMap()
 {
 	std::cout << "Initializing height map...";
 	std::flush(std::cout);
@@ -1027,7 +860,7 @@ RoomContainer::_InitHeightMap()
 
 
 void
-RoomContainer::_InitLightMap()
+AreaRoom::_InitLightMap()
 {
 	std::cout << "Initializing light map...";
 	std::flush(std::cout);
@@ -1045,7 +878,7 @@ RoomContainer::_InitLightMap()
 
 
 void
-RoomContainer::_InitSearchMap()
+AreaRoom::_InitSearchMap()
 {
 	std::cout << "Initializing search map...";
 	std::flush(std::cout);
@@ -1065,7 +898,7 @@ RoomContainer::_InitSearchMap()
 
 
 void
-RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
+AreaRoom::_UpdateBaseMap(GFX::rect mapRect)
 {
 #if 0
 	MapOverlay *overlay = fOverlays[0];
@@ -1108,7 +941,7 @@ RoomContainer::_UpdateBaseMap(GFX::rect mapRect)
 
 
 void
-RoomContainer::_DrawAnimations(bool advanceFrame)
+AreaRoom::_DrawAnimations(bool advanceFrame)
 {
 	if (fAnimations.size() == 0)
 		return;
@@ -1134,7 +967,7 @@ RoomContainer::_DrawAnimations(bool advanceFrame)
 
 
 void
-RoomContainer::_DrawActors()
+AreaRoom::_DrawActors()
 {
 	std::list<Reference<Object> >::const_iterator a;
 	std::list<Reference<Object> > actorsList;
@@ -1161,7 +994,7 @@ RoomContainer::_DrawActors()
 
 
 void
-RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
+AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 {
 	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
 
@@ -1181,7 +1014,7 @@ RoomContainer::_DrawSearchMap(GFX::rect visibleArea)
 
 
 void
-RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
+AreaRoom::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
@@ -1218,7 +1051,7 @@ RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 
 
 Region*
-RoomContainer::_RegionAtPoint(const IE::point& point) const
+AreaRoom::_RegionAtPoint(const IE::point& point) const
 {
 	std::vector<Reference<Region> >::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
@@ -1231,7 +1064,7 @@ RoomContainer::_RegionAtPoint(const IE::point& point) const
 
 
 Container*
-RoomContainer::_ContainerAtPoint(const IE::point& point)
+AreaRoom::_ContainerAtPoint(const IE::point& point)
 {
 	std::vector<Reference<Container> >::const_iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
@@ -1243,7 +1076,7 @@ RoomContainer::_ContainerAtPoint(const IE::point& point)
 
 
 Object*
-RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
+AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 {
 	Object* object = NULL;
 	cursorIndex = -1;
@@ -1276,7 +1109,7 @@ RoomContainer::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 
 
 void
-RoomContainer::_InitVariables()
+AreaRoom::_InitVariables()
 {
 	std::cout << "Initializing Variables...";
 	std::flush(std::cout);
@@ -1291,7 +1124,7 @@ RoomContainer::_InitVariables()
 
 
 void
-RoomContainer::_InitAnimations()
+AreaRoom::_InitAnimations()
 {
 	std::cout << "Initializing Animations...";
 	std::flush(std::cout);
@@ -1302,7 +1135,7 @@ RoomContainer::_InitAnimations()
 
 
 void
-RoomContainer::_InitRegions()
+AreaRoom::_InitRegions()
 {
 	std::cout << "Initializing Regions...";
 	std::flush(std::cout);
@@ -1315,7 +1148,7 @@ RoomContainer::_InitRegions()
 
 
 void
-RoomContainer::_LoadActors()
+AreaRoom::_LoadActors()
 {
 	std::cout << "Loading Actors...";
 	std::flush(std::cout);
@@ -1338,7 +1171,7 @@ RoomContainer::_LoadActors()
 
 
 void
-RoomContainer::_InitDoors()
+AreaRoom::_InitDoors()
 {
 	std::cout << "Initializing Doors...";
 	std::flush(std::cout);
@@ -1356,7 +1189,7 @@ RoomContainer::_InitDoors()
 
 
 void
-RoomContainer::_InitContainers()
+AreaRoom::_InitContainers()
 {
 	std::cout << "Initializing Containers...";
 	std::flush(std::cout);
@@ -1371,7 +1204,7 @@ RoomContainer::_InitContainers()
 
 
 void
-RoomContainer::_UnloadArea()
+AreaRoom::_UnloadArea()
 {
 	assert(fWed != NULL);
 
@@ -1421,7 +1254,7 @@ RoomContainer::_UnloadArea()
 
 
 void
-RoomContainer::_UnloadWorldMap()
+AreaRoom::_UnloadWorldMap()
 {
 	assert(fWorldMap != NULL);
 
@@ -1441,9 +1274,9 @@ RoomContainer::_UnloadWorldMap()
 
 
 void
-RoomContainer::_Unload()
+AreaRoom::_Unload()
 {
-	std::cout << "RoomContainer::Unload()" << std::endl;
+	std::cout << "AreaRoom::Unload()" << std::endl;
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 	if (fWorldMap != NULL)
 		_UnloadWorldMap();

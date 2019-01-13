@@ -44,6 +44,12 @@ public:
 
 	uint32 Game() const;
 
+	bool LoadArea(const res_ref& areaName, const char* longName,
+					const char* entranceName);
+	bool LoadWorldMap();
+	
+	RoomContainer* CurrentRoom();
+	
 	void EnteredArea(RoomContainer* area, Script* script);
 	void ExitingArea(RoomContainer* area);
 

@@ -145,7 +145,7 @@ main(int argc, char **argv)
 	} catch (...) {
 		std::cerr << "Game Loop exited with unhandled error" << std::endl;
 	}
-	RoomContainer::Delete();
+	
 	GUI::Destroy();
 	GraphicsEngine::Destroy();
 	SoundEngine::Destroy();

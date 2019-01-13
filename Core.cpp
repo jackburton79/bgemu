@@ -113,6 +113,8 @@ void
 Core::Destroy()
 {
 	std::cout << "Core::Destroy()" << std::endl;
+	delete sCore->fCurrentRoom;
+	sCore->fCurrentRoom = NULL;
 	ResourceManager::Destroy();
 	delete sCore;
 }
@@ -136,6 +138,43 @@ uint32
 Core::Game() const
 {
 	return fGame;
+}
+
+
+RoomContainer*
+Core::CurrentRoom()
+{
+	return fCurrentRoom;
+}
+
+
+bool
+Core::LoadArea(const res_ref& areaName, const char* longName,
+					const char* entranceName)
+{
+	delete fCurrentRoom;
+	fCurrentRoom = NULL;
+	try {
+		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
+	} catch (...) {
+		return false;
+	}
+	return true;
+}
+
+
+bool
+Core::LoadWorldMap()
+{
+	// TODO:
+	delete fCurrentRoom;
+	fCurrentRoom = NULL;
+	try {
+		//fCurrentRoom = new WorldMap();
+	} catch (...) {
+		return false;
+	}
+	return true;
 }
 
 
@@ -406,7 +445,7 @@ Core::UpdateLogic(bool executeScripts)
 		timer->Rearm();
 
 	// TODO: Not nice, should stop the scripts in some other way
-	if (strcmp(RoomContainer::Get()->Name(), "WORLDMAP") == 0)
+	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
 	// TODO: Fix/Improve
@@ -569,9 +608,9 @@ Core::_RemoveStaleObjects()
 	std::list<Reference<Object> >::iterator i = fObjects.begin();
 	while (i != fObjects.end()) {
 		if (i->Target()->IsStale()) {
-			if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {
-				RoomContainer::Get()->ActorExitedArea(actor);
-			}
+			//if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {
+				//->ActorExitedArea(actor);
+			//}
 			i = fObjects.erase(i);
 		} else
 			i++;

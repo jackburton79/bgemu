@@ -26,6 +26,5 @@ BackWindow::BackWindow(const uint16 width, const uint16 height)
 
 BackWindow::~BackWindow()
 {
-
 }
 

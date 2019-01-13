@@ -11,6 +11,7 @@
 #include "Bitmap.h"
 #include "CHUIResource.h"
 #include "Control.h"
+#include "Core.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "RectUtils.h"
@@ -290,7 +291,7 @@ GUI::SetCursor(uint32 index)
 void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 {
-	RoomContainer* room = RoomContainer::Get();
+	RoomContainer* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
 		return;
 
@@ -379,7 +380,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 			case 2:
 				switch (controlID) {
 					case 1:
-						room->LoadWorldMap();
+						Core::Get()->LoadWorldMap();
 						break;
 					default:
 						std::cout << "window " << std::dec << windowID << ",";
