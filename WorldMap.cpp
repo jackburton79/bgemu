@@ -2,14 +2,8 @@
 
 #include "Action.h"
 #include "Actor.h"
-#include "Animation.h"
-#include "AreaResource.h"
-#include "BackMap.h"
-#include "BamResource.h"
-#include "BCSResource.h"
 #include "BmpResource.h"
 #include "Bitmap.h"
-#include "Container.h"
 #include "Control.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -22,17 +16,12 @@
 #include "Label.h"
 #include "MOSResource.h"
 #include "Party.h"
-#include "Polygon.h"
 #include "RectUtils.h"
-#include "Region.h"
 #include "ResManager.h"
-#include "Script.h"
 #include "TextArea.h"
-#include "TileCell.h"
 #include "TisResource.h"
 #include "Timer.h"
 #include "TLKResource.h"
-#include "WedResource.h"
 #include "WMAPResource.h"
 
 #include <algorithm>
@@ -59,8 +48,6 @@ WorldMap::WorldMap()
 	}
 
 	gui->ShowWindow(0);
-
-	fAreaOffset.x = fAreaOffset.y = 0;
 
 	Core::Get()->EnteredArea(this, NULL);
 

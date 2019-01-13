@@ -29,9 +29,6 @@ class WEDResource;
 class WMAPResource;
 class AreaRoom : public RoomContainer {
 public:
-	static bool Create();
-	static void Delete();
-	
 	AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName);
 	~AreaRoom();
@@ -43,9 +40,9 @@ public:
 
 	::BackMap* BackMap() const;
 
-	void Draw(Bitmap *surface);
-	void Clicked(uint16 x, uint16 y);
-	void MouseOver(uint16 x, uint16 y);
+	virtual void Draw(Bitmap *surface);
+	virtual void Clicked(uint16 x, uint16 y);
+	virtual void MouseOver(uint16 x, uint16 y);
 
 	void DrawObject(const Object& object);
 	void DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask);

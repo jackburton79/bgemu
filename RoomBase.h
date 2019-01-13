@@ -90,8 +90,6 @@ private:
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
-	BCSResource *fBcs;
-
 	int32 fMapHorizontalRatio;
 	int32 fMapVerticalRatio;
 

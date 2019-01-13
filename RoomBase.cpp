@@ -52,6 +52,7 @@ RoomContainer::RoomContainer()
 	fDrawAnimations(true),
 	fShowingConsole(false)
 {
+	fAreaOffset.x = fAreaOffset.y = 0;
 }
 
 

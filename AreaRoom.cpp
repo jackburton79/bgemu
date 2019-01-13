@@ -566,7 +566,7 @@ AreaRoom::IsPointPassable(const IE::point& point)
 		default:
 			return true;
 	}*/
-	return false;
+	return true;
 }
 
 
