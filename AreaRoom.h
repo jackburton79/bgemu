@@ -104,8 +104,8 @@ private:
 	void _UnloadWorldMap();
 	void _Unload();
 
-	GFX::rect fScreenArea;
-	GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
+	//GFX::rect fScreenArea;
+	//GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
 						// offsetted to fAreaOffset
 	WEDResource *fWed;
 	ARAResource *fArea;
