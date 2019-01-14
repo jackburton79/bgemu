@@ -26,7 +26,7 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class RoomContainer : public Object, public Listener {
+class RoomBase : public Object, public Listener {
 public:
 	ARAResource* AREA() const;
 
@@ -75,8 +75,8 @@ public:
 
 	//static RoomContainer* Get();
 
-	RoomContainer();
-	~RoomContainer();
+	RoomBase();
+	~RoomBase();
 
 protected:
 	GFX::rect fScreenArea;

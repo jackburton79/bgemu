@@ -16,7 +16,7 @@ namespace GFX {
 	struct rect;
 };
 
-class RoomContainer;
+class RoomBase;
 class Window;
 class Control {
 public:
@@ -50,7 +50,7 @@ public:
 
 	::Window* Window() const;
 
-	void AssociateRoom(RoomContainer* room);
+	void AssociateRoom(RoomBase* room);
 	void Print() const;
 
 	static Control* CreateControl(IE::control* control);
@@ -58,7 +58,7 @@ public:
 protected:
 	::Window* fWindow;
 	IE::control* fControl;
-	RoomContainer* fRoom;
+	RoomBase* fRoom;
 };
 
 #endif /* CONTROL_H_ */

@@ -142,7 +142,7 @@ Core::Game() const
 }
 
 
-RoomContainer*
+RoomBase*
 Core::CurrentRoom()
 {
 	return fCurrentRoom;
@@ -180,7 +180,7 @@ Core::LoadWorldMap()
 
 
 void
-Core::EnteredArea(RoomContainer* area, Script* script)
+Core::EnteredArea(RoomBase* area, Script* script)
 {
 	// TODO: Move this elsewhere
 	fCurrentRoom = area;
@@ -200,7 +200,7 @@ Core::EnteredArea(RoomContainer* area, Script* script)
 
 
 void
-Core::ExitingArea(RoomContainer* area)
+Core::ExitingArea(RoomBase* area)
 {
 	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {

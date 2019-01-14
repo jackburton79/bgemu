@@ -13,7 +13,6 @@
 class Actor;
 class Animation;
 class ARAResource;
-class AreaEntry;
 class BCSResource;
 class BackMap;
 class Bitmap;
@@ -21,13 +20,11 @@ class Container;
 class Door;
 class Frame;
 class MapOverlay;
-class MOSResource;
 class Region;
 class Script;
 class TileCell;
 class WEDResource;
-class WMAPResource;
-class AreaRoom : public RoomContainer {
+class AreaRoom : public RoomBase {
 public:
 	AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName);
@@ -101,12 +98,9 @@ private:
 	void _InitContainers();
 
 	void _UnloadArea();
-	void _UnloadWorldMap();
 	void _Unload();
 
-	//GFX::rect fScreenArea;
-	//GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
-						// offsetted to fAreaOffset
+
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;

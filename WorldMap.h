@@ -27,7 +27,7 @@ class Script;
 class TileCell;
 class WEDResource;
 class WMAPResource;
-class WorldMap : public RoomContainer {
+class WorldMap : public RoomBase {
 public:
 	WorldMap();
 	~WorldMap();

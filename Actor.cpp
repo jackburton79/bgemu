@@ -156,7 +156,7 @@ Actor::_Init()
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
 
-	fPath = new PathFinder(PathFinder::kStep, RoomContainer::IsPointPassable);
+	fPath = new PathFinder(PathFinder::kStep, RoomBase::IsPointPassable);
 }
 
 

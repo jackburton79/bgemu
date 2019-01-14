@@ -157,7 +157,7 @@ Control::ConvertFromScreen(IE::point& point) const
 
 
 void
-Control::AssociateRoom(RoomContainer* room)
+Control::AssociateRoom(RoomBase* room)
 {
 	fRoom = room;
 

@@ -42,7 +42,7 @@
 #include <SDL.h>
 
 
-RoomContainer::RoomContainer()
+RoomBase::RoomBase()
 	:
 	Object(""),
 	fDrawSearchMap(0),
@@ -55,49 +55,49 @@ RoomContainer::RoomContainer()
 }
 
 
-RoomContainer::~RoomContainer()
+RoomBase::~RoomBase()
 {
 }
 
 
 /* virtual */
 IE::rect
-RoomContainer::Frame() const
+RoomBase::Frame() const
 {
 	return gfx_rect_to_rect(AreaRect());
 }
 
 
 GFX::rect
-RoomContainer::ViewPort() const
+RoomBase::ViewPort() const
 {
 	return fScreenArea;
 }
 
 
 void
-RoomContainer::SetViewPort(GFX::rect rect)
+RoomBase::SetViewPort(GFX::rect rect)
 {
 	fScreenArea = rect;
 }
 
 
 IE::point
-RoomContainer::AreaOffset() const
+RoomBase::AreaOffset() const
 {
 	return fAreaOffset;
 }
 
 
 GFX::rect
-RoomContainer::VisibleArea() const
+RoomBase::VisibleArea() const
 {
 	return fMapArea;
 }
 
 
 void
-RoomContainer::SetAreaOffset(IE::point point)
+RoomBase::SetAreaOffset(IE::point point)
 {
 	GFX::rect areaRect = AreaRect();
 	fAreaOffset = point;
@@ -116,7 +116,7 @@ RoomContainer::SetAreaOffset(IE::point point)
 
 
 void
-RoomContainer::SetRelativeAreaOffset(IE::point relativePoint)
+RoomBase::SetRelativeAreaOffset(IE::point relativePoint)
 {
 	IE::point newOffset = fAreaOffset;
 	newOffset.x += relativePoint.x;
@@ -126,7 +126,7 @@ RoomContainer::SetRelativeAreaOffset(IE::point relativePoint)
 
 
 void
-RoomContainer::CenterArea(const IE::point& point)
+RoomBase::CenterArea(const IE::point& point)
 {
 	IE::point destPoint;
 	destPoint.x = point.x - fScreenArea.w / 2;
@@ -136,7 +136,7 @@ RoomContainer::CenterArea(const IE::point& point)
 
 
 void
-RoomContainer::ConvertToArea(GFX::rect& rect)
+RoomBase::ConvertToArea(GFX::rect& rect)
 {
 	rect.x += fAreaOffset.x;
 	rect.y += fAreaOffset.y;
@@ -144,7 +144,7 @@ RoomContainer::ConvertToArea(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertToArea(IE::point& point)
+RoomBase::ConvertToArea(IE::point& point)
 {
 	point.x += fAreaOffset.x;
 	point.y += fAreaOffset.y;
@@ -152,7 +152,7 @@ RoomContainer::ConvertToArea(IE::point& point)
 
 
 void
-RoomContainer::ConvertFromArea(GFX::rect& rect)
+RoomBase::ConvertFromArea(GFX::rect& rect)
 {
 	rect.x -= fAreaOffset.x;
 	rect.y -= fAreaOffset.y;
@@ -160,7 +160,7 @@ RoomContainer::ConvertFromArea(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertFromArea(IE::point& point)
+RoomBase::ConvertFromArea(IE::point& point)
 {
 	point.x -= fAreaOffset.x;
 	point.y -= fAreaOffset.y;
@@ -168,7 +168,7 @@ RoomContainer::ConvertFromArea(IE::point& point)
 
 
 void
-RoomContainer::ConvertToScreen(GFX::rect& rect)
+RoomBase::ConvertToScreen(GFX::rect& rect)
 {
 	rect.x += fScreenArea.x;
 	rect.y += fScreenArea.y;
@@ -176,7 +176,7 @@ RoomContainer::ConvertToScreen(GFX::rect& rect)
 
 
 void
-RoomContainer::ConvertToScreen(IE::point& point)
+RoomBase::ConvertToScreen(IE::point& point)
 {
 	point.x += fScreenArea.x;
 	point.y += fScreenArea.y;
@@ -185,7 +185,7 @@ RoomContainer::ConvertToScreen(IE::point& point)
 
 /* static */
 bool
-RoomContainer::IsPointPassable(const IE::point& point)
+RoomBase::IsPointPassable(const IE::point& point)
 {
 	/*uint8 state = RoomContainer::Get()->PointSearch(point);
 	switch (state) {
@@ -203,34 +203,34 @@ RoomContainer::IsPointPassable(const IE::point& point)
 
 
 void
-RoomContainer::ToggleOverlays()
+RoomBase::ToggleOverlays()
 {
 	fDrawOverlays = !fDrawOverlays;
 }
 
 
 void
-RoomContainer::TogglePolygons()
+RoomBase::TogglePolygons()
 {
 	fDrawPolygons = !fDrawPolygons;
 }
 
 
 void
-RoomContainer::ToggleAnimations()
+RoomBase::ToggleAnimations()
 {
 	fDrawAnimations = !fDrawAnimations;
 }
 
 
 void
-RoomContainer::ToggleSearchMap()
+RoomBase::ToggleSearchMap()
 {
 }
 
 
 void
-RoomContainer::ToggleGUI()
+RoomBase::ToggleGUI()
 {
 	GUI* gui = GUI::Get();
 	if (gui->IsWindowShown(0))
@@ -251,7 +251,7 @@ RoomContainer::ToggleGUI()
 
 
 void
-RoomContainer::ToggleDayNight()
+RoomBase::ToggleDayNight()
 {
 //	if (fWorldMap != NULL)
 //		return;
@@ -270,7 +270,7 @@ RoomContainer::ToggleDayNight()
 
 /* virtual */
 void
-RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
+RoomBase::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
@@ -278,7 +278,7 @@ RoomContainer::VideoAreaChanged(uint16 width, uint16 height)
 
 
 void
-RoomContainer::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
+RoomBase::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors

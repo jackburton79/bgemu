@@ -94,7 +94,7 @@ Game::Loop(bool executeScripts)
 	bool quitting = false;
 	while (!quitting) {
 		while (SDL_PollEvent(&event) != 0) {
-			RoomContainer* room = Core::Get()->CurrentRoom();
+			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
 					gui->MouseDown(event.button.x, event.button.y);

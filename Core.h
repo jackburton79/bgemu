@@ -25,7 +25,7 @@ class Actor;
 class Door;
 class Object;
 class Region;
-class RoomContainer;
+class RoomBase;
 class IDSResource;
 class Script;
 class ScriptResults;
@@ -48,10 +48,10 @@ public:
 					const char* entranceName);
 	bool LoadWorldMap();
 	
-	RoomContainer* CurrentRoom();
+	RoomBase* CurrentRoom();
 	
-	void EnteredArea(RoomContainer* area, Script* script);
-	void ExitingArea(RoomContainer* area);
+	void EnteredArea(RoomBase* area, Script* script);
+	void ExitingArea(RoomBase* area);
 
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
@@ -101,7 +101,7 @@ private:
 	friend class Object;
 	
 	game fGame;
-	RoomContainer* fCurrentRoom;
+	RoomBase* fCurrentRoom;
 	
 	Reference<Actor> fActiveActor;
 	std::list<Reference<Object> > fObjects;
