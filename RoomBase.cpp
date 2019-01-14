@@ -45,7 +45,6 @@
 RoomContainer::RoomContainer()
 	:
 	Object(""),
-	fBcs(NULL),
 	fDrawSearchMap(0),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
