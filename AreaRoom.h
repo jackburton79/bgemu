@@ -100,7 +100,6 @@ private:
 	void _UnloadArea();
 	void _Unload();
 
-
 	WEDResource *fWed;
 	ARAResource *fArea;
 	BCSResource *fBcs;

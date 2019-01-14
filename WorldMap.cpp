@@ -1,18 +1,14 @@
 #include "WorldMap.h"
 
-#include "Action.h"
-#include "Actor.h"
 #include "BmpResource.h"
 #include "Bitmap.h"
 #include "Control.h"
 #include "Core.h"
-#include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
-#include "IDSResource.h"
 #include "Label.h"
 #include "MOSResource.h"
 #include "Party.h"
@@ -36,8 +32,7 @@ WorldMap::WorldMap()
 	:
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
-	fWorldMapBitmap(NULL),
-	fMouseOverObject(NULL)
+	fWorldMapBitmap(NULL)
 {
 	GUI* gui = GUI::Get();
 
@@ -92,6 +87,7 @@ WorldMap::~WorldMap()
 }
 
 
+/* virtual */
 GFX::rect
 WorldMap::AreaRect() const
 {

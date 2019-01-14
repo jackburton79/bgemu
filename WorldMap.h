@@ -30,9 +30,9 @@ class WMAPResource;
 class WorldMap : public RoomBase {
 public:
 	WorldMap();
-	~WorldMap();
+	virtual ~WorldMap();
 	
-	GFX::rect AreaRect() const;
+	virtual GFX::rect AreaRect() const;
 
 	virtual void Draw(Bitmap *surface);
 	virtual void Clicked(uint16 x, uint16 y);
@@ -40,8 +40,6 @@ public:
 
 	void ActorEnteredArea(const Actor* actor);
 	void ActorExitedArea(const Actor* actor);
-
-	uint16 TileNumberForPoint(const IE::point& point);
 	
 	void ToggleConsole();
 	void ToggleGUI();
@@ -61,11 +59,6 @@ private:
 	WMAPResource* fWorldMap;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
-
-	int32 fMapHorizontalRatio;
-	int32 fMapVerticalRatio;
-
-	Reference<Object> fMouseOverObject;
 };
 
 

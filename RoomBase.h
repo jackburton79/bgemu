@@ -28,14 +28,15 @@ class WEDResource;
 class WMAPResource;
 class RoomBase : public Object, public Listener {
 public:
-	ARAResource* AREA() const;
+	RoomBase();
+	virtual ~RoomBase();
 
 	virtual IE::rect Frame() const;
+	virtual GFX::rect AreaRect() const = 0;
 
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
 
-	virtual GFX::rect AreaRect() const = 0;
 	IE::point AreaOffset() const;
 	GFX::rect VisibleArea() const;
 
@@ -55,12 +56,6 @@ public:
 	virtual void Clicked(uint16 x, uint16 y) = 0;
 	virtual void MouseOver(uint16 x, uint16 y) = 0;
 
-	uint16 TileNumberForPoint(const IE::point& point);
-
-	uint8 PointHeight(const IE::point& point) const;
-	uint8 PointLight(const IE::point& point) const;
-	uint8 PointSearch(const IE::point& point) const;
-
 	static bool IsPointPassable(const IE::point& point);
 
 	void ToggleOverlays();
@@ -73,11 +68,6 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-	//static RoomContainer* Get();
-
-	RoomBase();
-	~RoomBase();
-
 protected:
 	GFX::rect fScreenArea;
 	GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
@@ -89,9 +79,6 @@ private:
 	GFX::rect _ConsoleRect() const;
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
-
-	int32 fMapHorizontalRatio;
-	int32 fMapVerticalRatio;
 
 	int fDrawSearchMap;
 	bool fDrawOverlays;
