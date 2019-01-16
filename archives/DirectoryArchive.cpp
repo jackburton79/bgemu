@@ -2,15 +2,17 @@
 #include "FileArchive.h"
 #include "Path.h"
 
+#include <iostream>
+#include <errno.h>
 #include <string>
 
 DirectoryArchive::DirectoryArchive(const char *path)
 	:
 	fPath(path)
 {
-	fDir = opendir(path);
+	fDir = ::opendir(path);
 	if (fDir == NULL) {
-		throw -1;
+		throw errno;
 	}
 }
 
@@ -18,7 +20,7 @@ DirectoryArchive::DirectoryArchive(const char *path)
 DirectoryArchive::~DirectoryArchive()
 {
 	if (fDir != NULL)
-		closedir(fDir);
+		::closedir(fDir);
 }
 
 
@@ -30,10 +32,10 @@ DirectoryArchive::EnumEntries()
 		return;
 
 	dirent *entry = NULL;
-	while ((entry = readdir(fDir)) != NULL) {
-		printf("%s\n", entry->d_name);
+	while ((entry = ::readdir(fDir)) != NULL) {
+		std::cout << entry->d_name << std::endl;
 	}
-	rewinddir(fDir);
+	::rewinddir(fDir);
 }
 
 
@@ -47,7 +49,7 @@ DirectoryArchive::ReadResource(res_ref& ref,
 
 	MemoryStream* stream = NULL;
 	dirent *entry = NULL;
-	while ((entry = readdir(fDir)) != NULL) {
+	while ((entry = ::readdir(fDir)) != NULL) {
 		std::string resourceName = ref.CString();
 		resourceName.append(res_extension(type));
 		if (!strcasecmp(resourceName.c_str(), entry->d_name)) {
@@ -58,7 +60,7 @@ DirectoryArchive::ReadResource(res_ref& ref,
 			break;
 		}
 	}
-	rewinddir(fDir);
+	::rewinddir(fDir);
 	return stream;
 }
 
