@@ -62,7 +62,9 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	fDrawSearchMap(0),
 	fDrawOverlays(true),
 	fDrawPolygons(false),
-	fDrawAnimations(true)
+	fDrawAnimations(true),
+	fShowingConsole(false)
+
 {
 	// Save the entrance name, it will be unloaded in UnloadArea
 	std::string savedEntranceName = entranceName ? entranceName : "";
@@ -636,7 +638,7 @@ AreaRoom::ToggleDayNight()
 		wedName = fArea->Name();
 	else
 		wedName.append("N");
-
+	
 	std::vector<std::string> list;
 	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
 		_InitWed(wedName.c_str());

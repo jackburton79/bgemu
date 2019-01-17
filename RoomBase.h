@@ -9,23 +9,9 @@
 
 #include <vector>
 
-class Actor;
-class Animation;
-class ARAResource;
 class AreaEntry;
-class BCSResource;
-class BackMap;
 class Bitmap;
-class Container;
-class Door;
-class Frame;
-class MapOverlay;
-class MOSResource;
 class Region;
-class Script;
-class TileCell;
-class WEDResource;
-class WMAPResource;
 class RoomBase : public Object, public Listener {
 public:
 	RoomBase();
@@ -58,13 +44,13 @@ public:
 
 	static bool IsPointPassable(const IE::point& point);
 
-	void ToggleOverlays();
-	void TogglePolygons();
-	void ToggleAnimations();
-	void ToggleSearchMap();
+	virtual void ToggleOverlays();
+	virtual void TogglePolygons();
+	virtual void ToggleAnimations();
+	virtual void ToggleSearchMap();
 	void ToggleConsole();
 	void ToggleGUI();
-	void ToggleDayNight();
+	virtual void ToggleDayNight();
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
@@ -79,12 +65,6 @@ private:
 	GFX::rect _ConsoleRect() const;
 
 	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
-
-	int fDrawSearchMap;
-	bool fDrawOverlays;
-	bool fDrawPolygons;
-	bool fDrawAnimations;
-	bool fShowingConsole;
 };
 
 

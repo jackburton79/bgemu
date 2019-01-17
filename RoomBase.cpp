@@ -16,12 +16,7 @@
 
 RoomBase::RoomBase()
 	:
-	Object(""),
-	fDrawSearchMap(0),
-	fDrawOverlays(true),
-	fDrawPolygons(false),
-	fDrawAnimations(true),
-	fShowingConsole(false)
+	Object("")
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
 }
@@ -177,21 +172,18 @@ RoomBase::IsPointPassable(const IE::point& point)
 void
 RoomBase::ToggleOverlays()
 {
-	fDrawOverlays = !fDrawOverlays;
 }
 
 
 void
 RoomBase::TogglePolygons()
 {
-	fDrawPolygons = !fDrawPolygons;
 }
 
 
 void
 RoomBase::ToggleAnimations()
 {
-	fDrawAnimations = !fDrawAnimations;
 }
 
 
@@ -222,21 +214,10 @@ RoomBase::ToggleGUI()
 }
 
 
+/* virtual */
 void
 RoomBase::ToggleDayNight()
 {
-//	if (fWorldMap != NULL)
-//		return;
-
-/*	std::string wedName = fWed->Name();
-	if (*wedName.rbegin() == 'N')
-		wedName = fArea->Name();
-	else
-		wedName.append("N");
-
-	std::vector<std::string> list;
-	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
-		_InitWed(wedName.c_str());*/
 }
 
 
