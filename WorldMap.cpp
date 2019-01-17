@@ -116,8 +116,9 @@ WorldMap::Draw(Bitmap *surface)
 			gfx->ScreenBitmap()->Clear(0);
 			gfx->SetClipping(NULL);
 		}
-		GFX::rect screenRect = ViewPort();
-		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &screenRect);
+		GFX::rect visibleArea = rect_to_gfx_rect(VisibleMapArea());
+		GFX::rect viewPort = ViewPort();
+		gfx->BlitToScreen(fWorldMapBitmap, &visibleArea, &viewPort);
 	}
 }
 
@@ -146,9 +147,10 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	uint32 vertBorderSize = 40;
 
 	// TODO: Less hardcoding of the window number
-	Window* window = GUI::Get()->GetWindow(1);
+	Window* window = GUI::Get()->GetWindow(0);
 	if (window != NULL) {
 		horizBorderSize += window->Width();
+		
 	}
 
 	sint16 scrollByX = 0;
@@ -167,17 +169,14 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	ConvertToArea(point);
 
 	_UpdateCursor(x, y, scrollByX, scrollByY);
-
-	//std::cout << "x: " << point.x << ", y:" << point.y << std::endl;
 	
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
-		//	areaRect.Print();
-			//ConvertToScreen(areaRect);
+			ConvertFromArea(areaRect);
 			if (rect_contains(areaRect, point)) {
-				ConvertToArea(areaRect);
+				areaRect.y += ViewPort().y;
 				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
 				//free(toolTip);
