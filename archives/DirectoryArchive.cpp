@@ -63,4 +63,3 @@ DirectoryArchive::ReadResource(res_ref& ref,
 	::rewinddir(fDir);
 	return stream;
 }
-
