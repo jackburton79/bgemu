@@ -668,11 +668,6 @@ AreaRoom::_InitBackMap(GFX::rect area)
 void
 AreaRoom::_InitWed(const char* name)
 {
-	// TODO: Assume that the various resources have
-	// already been deleted and remove these lines ?
-
-	gResManager->ReleaseResource(fWed);
-
 	fWed = gResManager->GetWED(name);
 
 	_InitBackMap(fScreenArea);
@@ -775,49 +770,6 @@ AreaRoom::_InitSearchMap()
 
 
 void
-AreaRoom::_UpdateBaseMap(GFX::rect mapRect)
-{
-#if 0
-	MapOverlay *overlay = fOverlays[0];
-	if (overlay == NULL) {
-		std::cerr << "Overlay 0 is NULL!!" << std::endl;
-		return;
-	}
-	const uint16 overlayWidth = overlay->Width();
-	const uint16 firstTileX = fAreaOffset.x / TILE_WIDTH;
-	const uint16 firstTileY = fAreaOffset.y / TILE_HEIGHT;
-	uint16 lastTileX = firstTileX + (mapRect.w / TILE_WIDTH) + 2;
-	uint16 lastTileY = firstTileY + (mapRect.h / TILE_HEIGHT) + 2;
-
-	lastTileX = std::min(lastTileX, overlayWidth);
-	lastTileY = std::min(lastTileY, overlay->Height());
-
-	bool advance = true;
-	//bool advance = Timer::Get("ANIMATEDTILES")->Expired();
-	GFX::rect tileRect(0, 0, TILE_WIDTH, TILE_HEIGHT);
-	for (uint16 y = 0; y < overlay->Height(); y++) {
-		tileRect.w = TILE_WIDTH;
-		tileRect.h = TILE_HEIGHT;
-		tileRect.y = y * TILE_HEIGHT - fAreaOffset.y;
-
-		const uint32 tileNumY = y * overlayWidth;
-		for (uint16 x = 0; x < overlayWidth; x++) {
-			tileRect.w = TILE_WIDTH;
-			tileRect.x = x * TILE_WIDTH - fAreaOffset.x;
-
-			TileCell* tile = TileAt(tileNumY,  x);
-			if (advance)
-				tile->AdvanceFrame();
-			if (y >= firstTileY && y <= lastTileY
-					&& x >= firstTileX && x <= lastTileX)
-				tile->Draw(fBackBitmap, &tileRect, false, fDrawOverlays);
-		}
-	}
-#endif
-}
-
-
-void
 AreaRoom::_DrawAnimations(bool advanceFrame)
 {
 	if (fAnimations.size() == 0)
@@ -874,9 +826,8 @@ void
 AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 {
 	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
-
-		GFX::rect destRect(0, AreaRect().h - fSearchMap->Height(),
-						AreaRect().w, AreaRect().h);
+		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
+						fSearchMap->Width(), fSearchMap->Height());
 
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
 
@@ -884,8 +835,8 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 		visibleArea.y /= fMapVerticalRatio;
 		visibleArea.w /= fMapHorizontalRatio;
 		visibleArea.h /= fMapVerticalRatio;
-		visibleArea = offset_rect(visibleArea, 0, AreaRect().h - fSearchMap->Height());
-		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 500);
+		visibleArea = offset_rect(visibleArea, 0, ViewPort().h - fSearchMap->Height());
+		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 200);
 	}
 }
 
