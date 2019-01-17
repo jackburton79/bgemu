@@ -10,6 +10,7 @@
 #define TIS_VERSION_1 "V1.0"
 
 const static int kTileDataSize = 1024 + 4096;
+const static int kDataOffset = strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
 
 TISResource::TISResource(const res_ref &name)
 	:
@@ -36,7 +37,7 @@ TISResource::Load(Archive *archive, uint32 key)
 
 	if (CheckSignature(TIS_SIGNATURE, true)) {
 		if (CheckVersion(TIS_VERSION_1, true))
-			fDataOffset = strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
+			fDataOffset = kDataOffset;
 	}
 	return true;
 }
@@ -87,7 +88,6 @@ TISResource::_GetTileAt(int index)
 		}
 
 		surface->SetPalette(palette);
-
 	} catch (...) {
 		surface->Release();
 		surface = NULL;
@@ -95,4 +95,3 @@ TISResource::_GetTileAt(int index)
 	
 	return surface;
 }
-
