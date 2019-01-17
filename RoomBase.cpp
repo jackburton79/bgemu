@@ -134,22 +134,6 @@ RoomBase::ConvertFromArea(IE::point& point)
 }
 
 
-void
-RoomBase::ConvertToScreen(GFX::rect& rect)
-{
-	rect.x += fScreenArea.x;
-	rect.y += fScreenArea.y;
-}
-
-
-void
-RoomBase::ConvertToScreen(IE::point& point)
-{
-	point.x += fScreenArea.x;
-	point.y += fScreenArea.y;
-}
-
-
 /* static */
 bool
 RoomBase::IsPointPassable(const IE::point& point)

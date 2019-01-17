@@ -77,6 +77,7 @@ WorldMap::WorldMap()
 		Control* control = window->GetControlByID(4);
 		if (control != NULL)
 			control->AssociateRoom(this);
+		ViewPort().Print();
 	}
 }
 
@@ -167,14 +168,13 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 
-	std::cout << "x: " << point.x << ", y:" << point.y << std::endl;
+	//std::cout << "x: " << point.x << ", y:" << point.y << std::endl;
 	
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
-			
-			areaRect.Print();
+		//	areaRect.Print();
 			//ConvertToScreen(areaRect);
 			if (rect_contains(areaRect, point)) {
 				ConvertToArea(areaRect);

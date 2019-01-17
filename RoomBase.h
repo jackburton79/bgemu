@@ -39,9 +39,6 @@ public:
 	void ConvertFromArea(GFX::rect& rect);
 	void ConvertFromArea(IE::point& point);
 
-	void ConvertToScreen(IE::point& point);
-	void ConvertToScreen(GFX::rect& rect);
-
 	virtual void Draw(Bitmap *surface) = 0;
 	virtual void Clicked(uint16 x, uint16 y) = 0;
 	virtual void MouseOver(uint16 x, uint16 y) = 0;
