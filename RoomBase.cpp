@@ -118,13 +118,13 @@ RoomBase::ConvertToArea(IE::point& point)
 }
 
 
-void
+/*void
 RoomBase::ConvertFromArea(GFX::rect& rect)
 {
 	rect.x -= fAreaOffset.x;
 	rect.y -= fAreaOffset.y;
 }
-
+*/
 
 void
 RoomBase::ConvertFromArea(IE::point& point)

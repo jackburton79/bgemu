@@ -224,6 +224,15 @@ AreaRoom::BackMap() const
 void
 AreaRoom::Draw(Bitmap *surface)
 {
+/*	std::cout << "VisibleMapArea()" << std::endl;
+	rect_to_gfx_rect(VisibleMapArea()).Print();
+	std::cout << "ViewPort()" << std::endl;
+	ViewPort().Print();
+	std::cout << "Frame():" << std::endl;
+	rect_to_gfx_rect(Frame()).Print();
+	std::cout << "AreaRect():" << std::endl;
+	AreaRect().Print();
+*/	
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
 	if (sSelectedActorRadius > 22) {
@@ -443,16 +452,16 @@ AreaRoom::DrawObject(const Object& object)
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
 		if (actor->IsSelected()) {
-			IE::point position = offset_point(actorPosition,
-										-AreaOffset().x, -AreaOffset().y);
+			IE::point position = actorPosition;
+			ConvertFromArea(position);
 			Bitmap* image = fBackMap->Image();
 			image->Lock();
 			uint32 color = image->MapColor(0, 255, 0);
 			image->StrokeCircle(position.x, position.y,
 										sSelectedActorRadius, color);
 			if (actor->Destination() != actor->Position()) {
-				IE::point destination = offset_point(actor->Destination(),
-											-AreaOffset().x, -AreaOffset().y);
+				IE::point destination = actor->Destination();
+				ConvertFromArea(destination);
 				image->StrokeCircle(
 						destination.x, destination.y,
 						sSelectedActorRadius - 10, color);

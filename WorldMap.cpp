@@ -167,13 +167,17 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 
+	std::cout << "x: " << point.x << ", y:" << point.y << std::endl;
+	
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
+			
+			areaRect.Print();
+			//ConvertToScreen(areaRect);
 			if (rect_contains(areaRect, point)) {
-				ConvertFromArea(areaRect);
-				ConvertToScreen(areaRect);
+				ConvertToArea(areaRect);
 				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
 				//free(toolTip);
