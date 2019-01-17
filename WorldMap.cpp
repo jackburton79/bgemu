@@ -107,17 +107,18 @@ WorldMap::Draw(Bitmap *surface)
 	if (fWorldMap != NULL) {
 		//GFX::rect sourceRect = offset_rect(fViewPort,
 		//		-fViewPort.x, -fViewPort.y);
-		GFX::rect sourceRect = fScreenArea;
-		sourceRect = offset_rect(sourceRect, fAreaOffset.x, fAreaOffset.y);
+		GFX::rect sourceRect = ViewPort();
+		sourceRect = offset_rect(sourceRect, AreaOffset().x, AreaOffset().y);
 		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
-			GFX::rect clippingRect = fScreenArea;
+			GFX::rect clippingRect = ViewPort();
 			clippingRect.w = gfx->ScreenFrame().w;
 			clippingRect.h = gfx->ScreenFrame().h;
 			gfx->SetClipping(&clippingRect);
 			gfx->ScreenBitmap()->Clear(0);
 			gfx->SetClipping(NULL);
 		}
-		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &fScreenArea);
+		GFX::rect screenRect = ViewPort();
+		gfx->BlitToScreen(fWorldMapBitmap, &sourceRect, &screenRect);
 	}
 }
 
@@ -156,12 +157,12 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	sint16 scrollByY = 0;
 	if (x <= horizBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x >= fScreenArea.w - horizBorderSize)
+	else if (x >= ViewPort().w - horizBorderSize)
 		scrollByX = kScrollingStep;
 
 	if (y <= vertBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y >= fScreenArea.h - vertBorderSize)
+	else if (y >= ViewPort().h - vertBorderSize)
 		scrollByY = kScrollingStep;
 
 	IE::point point = { int16(x), int16(y) };
@@ -185,11 +186,7 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 		}
 	}
 
-	IE::point newAreaOffset = fAreaOffset;
-	newAreaOffset.x += scrollByX;
-	newAreaOffset.y += scrollByY;
-
-	SetAreaOffset(newAreaOffset);
+	SetRelativeAreaOffset(scrollByX, scrollByY);
 }
 
 
@@ -232,24 +229,6 @@ WorldMap::ToggleGUI()
 		gui->ShowWindow(3);*/
 }
 
-/*
-void
-WorldMap::ToggleDayNight()
-{
-	if (fWorldMap != NULL)
-		return;
-
-	std::string wedName = fWed->Name();
-	if (*wedName.rbegin() == 'N')
-		wedName = fArea->Name();
-	else
-		wedName.append("N");
-
-	std::vector<std::string> list;
-	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
-		_InitWed(wedName.c_str());
-}
-*/
 
 /* virtual */
 void

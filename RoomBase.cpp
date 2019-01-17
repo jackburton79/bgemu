@@ -56,8 +56,8 @@ RoomBase::AreaOffset() const
 }
 
 
-GFX::rect
-RoomBase::VisibleArea() const
+IE::rect
+RoomBase::VisibleMapArea() const
 {
 	return fMapArea;
 }
@@ -77,17 +77,17 @@ RoomBase::SetAreaOffset(IE::point point)
 	else if (fAreaOffset.y + fScreenArea.h > areaRect.h)
 		fAreaOffset.y = std::max(areaRect.h - fScreenArea.h, 0);
 
-	fMapArea = offset_rect_to(fScreenArea,
-			fAreaOffset.x, fAreaOffset.y);
+	fMapArea = gfx_rect_to_rect(offset_rect_to(fScreenArea,
+			fAreaOffset.x, fAreaOffset.y));
 }
 
 
 void
-RoomBase::SetRelativeAreaOffset(IE::point relativePoint)
+RoomBase::SetRelativeAreaOffset(int16 xDelta, int16 yDelta)
 {
 	IE::point newOffset = fAreaOffset;
-	newOffset.x += relativePoint.x;
-	newOffset.y += relativePoint.y;
+	newOffset.x += xDelta;
+	newOffset.y += yDelta;
 	SetAreaOffset(newOffset);
 }
 

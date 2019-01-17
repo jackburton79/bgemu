@@ -24,10 +24,10 @@ public:
 	void SetViewPort(GFX::rect rect);
 
 	IE::point AreaOffset() const;
-	GFX::rect VisibleArea() const;
+	IE::rect VisibleMapArea() const;
 
 	void SetAreaOffset(IE::point point);
-	void SetRelativeAreaOffset(IE::point point);
+	void SetRelativeAreaOffset(int16 xDelta, int16 yDelta);
 	void CenterArea(const IE::point& point);
 
 	void ConvertToArea(GFX::rect& rect);
@@ -54,9 +54,9 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
-protected:
+private:
 	GFX::rect fScreenArea;
-	GFX::rect fMapArea; // the part of map which is visible. It's fScreenArea
+	IE::rect fMapArea; // the part of map which is visible. It's fScreenArea
 						// offsetted to fAreaOffset
 	IE::point fAreaOffset;
 

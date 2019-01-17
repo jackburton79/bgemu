@@ -233,8 +233,7 @@ AreaRoom::Draw(Bitmap *surface)
 	}
 	sSelectedActorRadius += sSelectedActorRadiusStep;
 
-	GFX::rect mapRect = offset_rect_to(fScreenArea,
-			fAreaOffset.x, fAreaOffset.y);
+	GFX::rect mapRect = rect_to_gfx_rect(VisibleMapArea());
 
 	bool paused = Core::Get()->IsPaused();
 	if (!paused) {
@@ -264,9 +263,9 @@ AreaRoom::Draw(Bitmap *surface)
 						color = 1000;
 
 					fBackMap->Image()->FillPolygon(*poly, color,
-										-fAreaOffset.x, -fAreaOffset.y);
+										-AreaOffset().x, -AreaOffset().y);
 					fBackMap->Image()->StrokePolygon(*poly, color,
-										-fAreaOffset.x, -fAreaOffset.y);
+										-AreaOffset().x, -AreaOffset().y);
 				}
 			}
 		}
@@ -331,7 +330,8 @@ AreaRoom::Draw(Bitmap *surface)
 		fBackMap->Image()->Unlock();
 	}
 
-	gfx->BlitToScreen(fBackMap->Image(), NULL, &fScreenArea);
+	GFX::rect screenArea = ViewPort();
+	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	_DrawSearchMap(mapRect);
 }
 
@@ -411,12 +411,12 @@ AreaRoom::MouseOver(uint16 x, uint16 y)
 	sint16 scrollByY = 0;
 	if (x <= horizBorderSize)
 		scrollByX = -kScrollingStep;
-	else if (x >= fScreenArea.w - horizBorderSize)
+	else if (x >= ViewPort().w - horizBorderSize)
 		scrollByX = kScrollingStep;
 
 	if (y <= vertBorderSize)
 		scrollByY = -kScrollingStep;
-	else if (y >= fScreenArea.h - vertBorderSize)
+	else if (y >= ViewPort().h - vertBorderSize)
 		scrollByY = kScrollingStep;
 
 	IE::point point = { int16(x), int16(y) };
@@ -432,11 +432,7 @@ AreaRoom::MouseOver(uint16 x, uint16 y)
 			GUI::Get()->SetCursor(cursor);
 	}
 
-	IE::point newAreaOffset = fAreaOffset;
-	newAreaOffset.x += scrollByX;
-	newAreaOffset.y += scrollByY;
-
-	SetAreaOffset(newAreaOffset);
+	SetRelativeAreaOffset(scrollByX, scrollByY);
 }
 
 
@@ -448,7 +444,7 @@ AreaRoom::DrawObject(const Object& object)
 		IE::point actorPosition = actor->Position();
 		if (actor->IsSelected()) {
 			IE::point position = offset_point(actorPosition,
-										-fAreaOffset.x, -fAreaOffset.y);
+										-AreaOffset().x, -AreaOffset().y);
 			Bitmap* image = fBackMap->Image();
 			image->Lock();
 			uint32 color = image->MapColor(0, 255, 0);
@@ -456,7 +452,7 @@ AreaRoom::DrawObject(const Object& object)
 										sSelectedActorRadius, color);
 			if (actor->Destination() != actor->Position()) {
 				IE::point destination = offset_point(actor->Destination(),
-											-fAreaOffset.x, -fAreaOffset.y);
+											-AreaOffset().x, -AreaOffset().y);
 				image->StrokeCircle(
 						destination.x, destination.y,
 						sSelectedActorRadius - 10, color);
@@ -483,9 +479,8 @@ AreaRoom::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 							-(bitmap->Frame().y + bitmap->Frame().h / 2));
 
 	GFX::rect rect(leftTop.x, leftTop.y, bitmap->Width(), bitmap->Height());
-
-	if (rects_intersect(fMapArea, rect)) {
-		GFX::rect offsetRect = offset_rect(rect, -fAreaOffset.x, -fAreaOffset.y);
+	if (rects_intersect(rect_to_gfx_rect(VisibleMapArea()), rect)) {
+		GFX::rect offsetRect = offset_rect(rect, -AreaOffset().x, -AreaOffset().y);
 		if (mask)
 			GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackMap->Image(), &offsetRect, fBlitMask, &rect);
@@ -670,7 +665,7 @@ AreaRoom::_InitWed(const char* name)
 {
 	fWed = gResManager->GetWED(name);
 
-	_InitBackMap(fScreenArea);
+	_InitBackMap(ViewPort());
 	_InitHeightMap();
 	_InitLightMap();
 	_InitSearchMap();

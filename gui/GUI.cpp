@@ -300,67 +300,43 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 			case 0:
 				switch (controlID) {
 					case 1:
-					{
-						IE::point point;
-						point.x = 0;
-						point.y = -20;
-						room->SetRelativeAreaOffset(point);
+					{						
+						room->SetRelativeAreaOffset(0, -20);
 						break;
 					}
 					case 2:
 					{
-						IE::point point;
-						point.x = 0;
-						point.y = 20;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(0, 20);
 						break;
 					}
 					case 8:
 					{
-						IE::point point;
-						point.x = -20;
-						point.y = -20;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(-20, -20);
 						break;
 					}
 					case 9:
 					{
-						IE::point point;
-						point.x = 20;
-						point.y = -20;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(20, -20);
 						break;
 					}
 					case 10:
 					{
-						IE::point point;
-						point.x = -20;
-						point.y = 0;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(-20, 0);
 						break;
 					}
 					case 12:
 					{
-						IE::point point;
-						point.x = 20;
-						point.y = 0;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(20, 0);
 						break;
 					}
 					case 13:
 					{
-						IE::point point;
-						point.x = -20;
-						point.y = 20;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(-20, 20);
 						break;
 					}
 					case 14:
 					{
-						IE::point point;
-						point.x = 20;
-						point.y = 20;
-						room->SetRelativeAreaOffset(point);
+						room->SetRelativeAreaOffset(20, 20);
 						break;
 					}
 					default:

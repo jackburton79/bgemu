@@ -163,7 +163,7 @@ Object::IsVisible() const
 bool
 Object::IsInsideVisibleArea() const
 {
-	IE::rect rect = gfx_rect_to_rect(Core::Get()->CurrentRoom()->VisibleArea());
+	IE::rect rect = Core::Get()->CurrentRoom()->VisibleMapArea();
 	if (rect_contains(rect, Position()))
 		return true;
 	return false;

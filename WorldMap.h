@@ -10,21 +10,11 @@
 
 #include <vector>
 
-class Actor;
-class Animation;
 class ARAResource;
 class AreaEntry;
-class BCSResource;
-class BackMap;
-class Bitmap;
-class Container;
-class Door;
 class Frame;
-class MapOverlay;
 class MOSResource;
 class Region;
-class Script;
-class TileCell;
 class WEDResource;
 class WMAPResource;
 class WorldMap : public RoomBase {
@@ -47,7 +37,6 @@ public:
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
-
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
