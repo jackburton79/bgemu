@@ -105,10 +105,8 @@ WorldMap::Draw(Bitmap *surface)
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
 	if (fWorldMap != NULL) {
-		//GFX::rect sourceRect = offset_rect(fViewPort,
-		//		-fViewPort.x, -fViewPort.y);
 		GFX::rect sourceRect = ViewPort();
-		sourceRect = offset_rect(sourceRect, AreaOffset().x, AreaOffset().y);
+		ConvertToArea(sourceRect);
 		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
 			GFX::rect clippingRect = ViewPort();
 			clippingRect.w = gfx->ScreenFrame().w;
@@ -128,7 +126,6 @@ WorldMap::Clicked(uint16 x, uint16 y)
 {
 	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
-
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& area = fWorldMap->AreaEntryAt(i);
 		if (rect_contains(area.Rect(), point)) {

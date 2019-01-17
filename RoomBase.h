@@ -18,12 +18,16 @@ public:
 	virtual ~RoomBase();
 
 	virtual IE::rect Frame() const;
+
+	// AreaRect is the size of the complete area map, starting at 0,0
 	virtual GFX::rect AreaRect() const = 0;
 
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
 
 	IE::point AreaOffset() const;
+
+	// The area of the map which is visible on screen
 	IE::rect VisibleMapArea() const;
 
 	void SetAreaOffset(IE::point point);
