@@ -29,7 +29,7 @@ static
 struct option sLongOptions[] = {
 		{ "list", no_argument, &sList, 1 },
 		{ "test", no_argument, NULL, 't' },
-		{ "showresource", required_argument, NULL, 's'},
+		{ "dumpresource", required_argument, NULL, 's'},
 		{ "path", required_argument, NULL, 'p'},
 		{ "noscripts", no_argument, &sNoScripts, 'n' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
