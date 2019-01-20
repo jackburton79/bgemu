@@ -224,15 +224,6 @@ AreaRoom::BackMap() const
 void
 AreaRoom::Draw(Bitmap *surface)
 {
-/*	std::cout << "VisibleMapArea()" << std::endl;
-	rect_to_gfx_rect(VisibleMapArea()).Print();
-	std::cout << "ViewPort()" << std::endl;
-	ViewPort().Print();
-	std::cout << "Frame():" << std::endl;
-	rect_to_gfx_rect(Frame()).Print();
-	std::cout << "AreaRect():" << std::endl;
-	AreaRect().Print();
-*/	
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
 	if (sSelectedActorRadius > 22) {

@@ -150,7 +150,6 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	Window* window = GUI::Get()->GetWindow(0);
 	if (window != NULL) {
 		horizBorderSize += window->Width();
-		
 	}
 
 	sint16 scrollByX = 0;
