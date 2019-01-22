@@ -74,11 +74,6 @@ BAMResource::BAMResource(const res_ref& name)
 BAMResource::~BAMResource()
 {
 	delete fPalette;
-
-	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator i;
-	for (i = fFrames.begin(); i != fFrames.end(); i++) {
-		i->second->Release();
-	}
 }
 
 
@@ -238,7 +233,7 @@ BAMResource::_FrameAt(uint16 index)
 }
 
 
-const Bitmap*
+Bitmap*
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
 	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";
@@ -248,12 +243,6 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 		return NULL;
 	}
 
-	std::map<std::pair<uint8, uint16>, Bitmap*>::const_iterator iter;
-	std::pair<uint8, uint16> key = std::make_pair(cycleIndex, frameIndex);
-	iter = fFrames.find(key);
-	if (iter != fFrames.end())
-		return iter->second;
-
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
 
@@ -261,12 +250,7 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	fData->ReadAt(fFrameLookupOffset
 			+ (newCycle.index + frameIndex) * sizeof(int16), index);
 
-	Bitmap* bitmap = _FrameAt(index);
-
-	if (bitmap != NULL)
-		fFrames[key] = bitmap;
-
-	return bitmap;
+	return _FrameAt(index);
 }
 
 

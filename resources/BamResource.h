@@ -18,7 +18,7 @@ public:
 
 	virtual void Dump();
 
-	const Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
+	Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
 	
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex) const;
@@ -43,8 +43,6 @@ private:
 	uint8 fNumCycles;
 	uint8 fCompressedIndex;
 	uint8 fTransparentIndex;
-
-	std::map<std::pair<uint8, uint16>, Bitmap*> fFrames;
 };
 
 

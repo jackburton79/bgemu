@@ -38,14 +38,12 @@ public:
 	IE::point Position() const;
 
 private:
-	void _LoadBitmaps();
+	void _LoadBitmaps(BAMResource* bam, int16 sequence);
 
-	BAMResource *fBAM;
 	IE::animation *fAnimation;
 	std::vector< ::Bitmap*> fBitmaps;
 
 	IE::point fCenter;
-	int16 fCycleNumber;
 	int16 fCurrentFrame;
 	uint16 fMaxFrame;
 	bool fHold;

@@ -10,21 +10,19 @@
 
 Animation::Animation(IE::animation *animDesc)
 	:
-	fBAM(NULL),
 	fAnimation(animDesc),
-	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0)
 {
 	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
-	fBAM = gResManager->GetBAM(fName.c_str());
-	if (fBAM == NULL) {
+	BAMResource* bam = gResManager->GetBAM(fName.c_str());
+	if (bam == NULL) {
 		throw "NULL BAM!!!";
 	}
-	fCycleNumber = animDesc->sequence;
+	
 	fCenter = animDesc->center;
 	fCurrentFrame = animDesc->frame;
-	fMaxFrame = fBAM->CountFrames(fCycleNumber);
+	fMaxFrame = bam->CountFrames(animDesc->sequence);
 	fHold = animDesc->flags & IE::ANIM_HOLD;
 	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
 	//if (fBlackAsTransparent)
@@ -38,46 +36,50 @@ Animation::Animation(IE::animation *animDesc)
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
 
-	_LoadBitmaps();
+	_LoadBitmaps(bam, animDesc->sequence);
+
+	gResManager->ReleaseResource(bam);
 }
 
 
 Animation::Animation(const char* bamName,
 		int sequence, IE::point position)
-:
-	fBAM(NULL),
+	:
 	fAnimation(NULL),
-	fCycleNumber(0),
 	fCurrentFrame(0),
 	fMaxFrame(0),
 	fBlackAsTransparent(false),
 	fMirrored(false)
 {
 	fName = bamName;
-	fBAM = gResManager->GetBAM(fName.c_str());
-	if (fBAM == NULL)
+	BAMResource* bam = gResManager->GetBAM(fName.c_str());
+	if (bam == NULL)
 		throw "missing BAM";
 
-	fCycleNumber = sequence;
-	if (fCycleNumber >= fBAM->CountCycles()) {
+	if (sequence >= bam->CountCycles()) {
 		std::cout << "CycleNumber exceeds cycles count: cyclenumber ";
-		std::cout << fCycleNumber << ", cycles: " << int(fBAM->CountCycles());
+		std::cout << sequence << ", cycles: " << int(bam->CountCycles());
 		std::cout << std::endl;
 		throw "Wrong cycle";
 	}
 	fCenter = position;
 	fCurrentFrame = 0;
-	fMaxFrame = fBAM->CountFrames(fCycleNumber);
+	fMaxFrame = bam->CountFrames(sequence);
 
 	fHold = false;
 
-	_LoadBitmaps();
+	_LoadBitmaps(bam, sequence);
+
+	gResManager->ReleaseResource(bam);
 }
 
 
 Animation::~Animation()
 {
-	gResManager->ReleaseResource(fBAM);
+	for (std::vector< ::Bitmap*>::iterator i = fBitmaps.begin();
+		i != fBitmaps.end(); i++) {
+		(*i)->Release();
+	}
 }
 
 
@@ -154,8 +156,8 @@ Animation::Position() const
 
 
 void
-Animation::_LoadBitmaps()
+Animation::_LoadBitmaps(BAMResource* bam, int16 sequence)
 {
 	for (int16 i = 0; i < fMaxFrame; i++)
-		fBitmaps.push_back(const_cast< ::Bitmap*>(fBAM->FrameForCycle(fCycleNumber, i)));
+		fBitmaps.push_back(const_cast< ::Bitmap*>(bam->FrameForCycle(sequence, i)));
 }
