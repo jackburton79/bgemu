@@ -159,5 +159,5 @@ void
 Animation::_LoadBitmaps(BAMResource* bam, int16 sequence)
 {
 	for (int16 i = 0; i < fMaxFrame; i++)
-		fBitmaps.push_back(const_cast< ::Bitmap*>(bam->FrameForCycle(sequence, i)));
+		fBitmaps.push_back(bam->FrameForCycle(sequence, i));
 }
