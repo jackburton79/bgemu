@@ -198,10 +198,7 @@ Game::Loop(bool executeScripts)
 		Core::Get()->UpdateLogic(executeScripts);
 
 		GraphicsEngine::Get()->Flip();
-		if (inputConsole.IsActive())
-			Timer::Wait(25);
-		else
-			Timer::Wait(50);
+		Timer::Wait(25);
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;
