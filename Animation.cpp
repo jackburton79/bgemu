@@ -37,6 +37,8 @@ Animation::Animation(IE::animation *animDesc)
 	printf("\t: HOLD: %s\n", fHold ? "YES" : "NO");
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
+
+	_LoadBitmaps();
 }
 
 
@@ -68,6 +70,8 @@ Animation::Animation(const char* bamName,
 	fMaxFrame = fBAM->CountFrames(fCycleNumber);
 
 	fHold = false;
+
+	_LoadBitmaps();
 }
 
 
@@ -109,7 +113,10 @@ Animation::Name() const
 const ::Bitmap*
 Animation::Bitmap()
 {
-	const ::Bitmap* frame = fBAM->FrameForCycle(fCycleNumber, fCurrentFrame);
+	if ((size_t)fCurrentFrame >= fBitmaps.size())
+		return NULL;
+
+	const ::Bitmap* frame = fBitmaps.at(fCurrentFrame);
 	if (fMirrored)
 		frame = frame->GetMirrored();
 	if (fBlackAsTransparent) {
@@ -143,4 +150,12 @@ IE::point
 Animation::Position() const
 {
 	return fCenter;
+}
+
+
+void
+Animation::_LoadBitmaps()
+{
+	for (int16 i = 0; i < fMaxFrame; i++)
+		fBitmaps.push_back(const_cast< ::Bitmap*>(fBAM->FrameForCycle(fCycleNumber, i)));
 }

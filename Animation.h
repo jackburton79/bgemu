@@ -5,6 +5,8 @@
 
 #include "Referenceable.h"
 
+#include <vector>
+
 enum animation_action {
 	ACT_WALKING = 0,
 	ACT_STANDING = 1,
@@ -36,8 +38,12 @@ public:
 	IE::point Position() const;
 
 private:
+	void _LoadBitmaps();
+
 	BAMResource *fBAM;
 	IE::animation *fAnimation;
+	std::vector< ::Bitmap*> fBitmaps;
+
 	IE::point fCenter;
 	int16 fCycleNumber;
 	int16 fCurrentFrame;
