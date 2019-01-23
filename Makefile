@@ -95,21 +95,18 @@ custom/ResourceWindow.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 
+DEPS:=$(OBJECTS:.o=.d)
+
 all: $(OBJECTS) $(EXECUTABLE)
+
+-include $(DEPS)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
 .cpp.o:
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c -MM -MF $(patsubst %.o,%.d,$@) $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) *.o $(EXECUTABLE)
-	$(RM) streams/*.o
-	$(RM) resources/*.o
-	$(RM) archives/*.o
-	$(RM) graphics/*.o
-	$(RM) gui/*.o
-	$(RM) shell/*.o
-	$(RM) support/*.o
-
+	$(RM) $(DEPS) $(EXECUTABLE) $(OBJECTS)
