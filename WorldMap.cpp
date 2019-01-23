@@ -176,14 +176,16 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
-			//ConvertFromArea(areaRect);
 			if (rect_contains(areaRect, point)) {
-				//areaRect.y += ViewPort().y;
-				//areaRect.x += ViewPort().x;
+				// Since the next strokeRect call draws to the screen bitmap,
+				// we need to adjust the rect following the area offset and
+				// viewport
+				areaRect.x += ViewPort().x - AreaOffset().x;
+				areaRect.y += ViewPort().y - AreaOffset().y;
+				
 				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
 				//free(toolTip);
-				//ConvertToScreen(areaRect);
 				GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
 				break;
 			}
