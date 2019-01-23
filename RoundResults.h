@@ -38,9 +38,9 @@ public:
 	ScriptResults();
 	void Clear();
 	
-	void ActorSaw(const Actor* actor, const Actor* target);
-	void ActorHeard(const Actor* actor, const Actor* target);
-	void ActorAttacked(const Actor* actor, const Actor* target);
+	void SetActorSaw(const Actor* actor, const Actor* target);
+	void SetActorHeard(const Actor* actor, const Actor* target);
+	void SetActorAttacked(const Actor* actor, const Actor* target);
 	
 	bool WasActorAttackedBy(const Actor* actor, object_node* node) const;
 	bool WasActorSeenBy(const Actor* actor, object_node* node) const;

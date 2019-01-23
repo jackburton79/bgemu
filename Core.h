@@ -49,6 +49,7 @@ public:
 	bool LoadWorldMap();
 	
 	RoomBase* CurrentRoom();
+	void AddActorToCurrentArea(Actor* actor);
 	
 	void EnteredArea(RoomBase* area, Script* script);
 	void ExitingArea(RoomBase* area);

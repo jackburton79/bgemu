@@ -490,25 +490,6 @@ AreaRoom::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 }
 
 
-void
-AreaRoom::ActorEnteredArea(const Actor* actor)
-{
-	//fActors.push_back(const_cast<Actor*>(actor));
-}
-
-
-void
-AreaRoom::ActorExitedArea(const Actor* actor)
-{
-	return;
-	/*std::vector<Actor*>::iterator i =
-			std::find(fActors.begin(), fActors.end(), actor);
-	if (i != fActors.end()) {
-		fActors.erase(i);
-	}*/
-}
-
-
 uint8
 AreaRoom::PointHeight(const IE::point& point) const
 {

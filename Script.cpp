@@ -11,6 +11,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "RoundResults.h"
 #include "Script.h"
 #include "Timer.h"
 
@@ -299,7 +300,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				if (node == NULL)
 					break;
 				node->Print();
-				if (fTarget.Target()->WasAttackedBy(node))
+				if (Core::Get()->LastRoundResults()->WasActorAttackedBy(actor, node))
 					returnValue = true;
 				
 				break;
@@ -818,8 +819,8 @@ Script::_ExecuteAction(action_node* act)
 				point.y += Core::RandomNumber(-20, 20);
 			}
 
-			//Actor* actor = new Actor(act->string1, point, act->integer1);
-			//RoomContainer::Get()->ActorEnteredArea(actor);
+			Actor* actor = new Actor(act->string1, point, act->integer1);
+			Core::Get()->AddActorToCurrentArea(actor);
 
 			// TODO: Add actor to the current area
 			break;

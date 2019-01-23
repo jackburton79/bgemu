@@ -510,7 +510,7 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	Core::Get()->RoundResults()->ActorSaw(this, dynamic_cast<const Actor*>(object));
+	Core::Get()->RoundResults()->SetActorSaw(this, dynamic_cast<const Actor*>(object));
 }
 
 

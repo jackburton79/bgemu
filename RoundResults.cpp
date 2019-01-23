@@ -28,7 +28,7 @@ ScriptResults::Clear()
 
 
 void
-ScriptResults::ActorSaw(const Actor* actor, const Actor* target)
+ScriptResults::SetActorSaw(const Actor* actor, const Actor* target)
 {
 	result_entry resultEntry = { actor, ScriptResults::SAW, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
@@ -37,7 +37,7 @@ ScriptResults::ActorSaw(const Actor* actor, const Actor* target)
 
 
 void
-ScriptResults::ActorHeard(const Actor* actor, const Actor* target)
+ScriptResults::SetActorHeard(const Actor* actor, const Actor* target)
 {
 	result_entry resultEntry = { actor, ScriptResults::HEARD, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
@@ -46,7 +46,7 @@ ScriptResults::ActorHeard(const Actor* actor, const Actor* target)
 
 
 void
-ScriptResults::ActorAttacked(const Actor* actor, const Actor* target)
+ScriptResults::SetActorAttacked(const Actor* actor, const Actor* target)
 {
 	result_entry resultEntry = { actor, ScriptResults::ATTACK, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));

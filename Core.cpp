@@ -149,6 +149,14 @@ Core::CurrentRoom()
 }
 
 
+void
+Core::AddActorToCurrentArea(Actor* actor)
+{
+	actor->SetArea(CurrentRoom()->Name());
+	RegisterObject(actor);
+}
+
+
 bool
 Core::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)

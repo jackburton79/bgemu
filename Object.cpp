@@ -160,6 +160,7 @@ Object::IsVisible() const
 	return fVisible;
 }
 
+
 bool
 Object::IsInsideVisibleArea() const
 {
@@ -611,7 +612,7 @@ Object::IsStale() const
 void
 Object::AttackTarget(Object* target)
 {
-	Core::Get()->RoundResults()->ActorAttacked(dynamic_cast<Actor*>(this), dynamic_cast<Actor*>(target));
+	Core::Get()->RoundResults()->SetActorAttacked(dynamic_cast<Actor*>(this), dynamic_cast<Actor*>(target));
 }
 
 
