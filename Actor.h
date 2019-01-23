@@ -104,6 +104,9 @@ private:
 
 	PathFinder* fPath;
 	int fSpeed;
+	uint8 fRandColor1;
+	uint8 fRandColor2;
+	uint8 fRandColor3;
 
 	void _Init();
 	void _AddScript(Script*& destination, const res_ref& scriptName);

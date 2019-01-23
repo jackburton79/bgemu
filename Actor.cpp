@@ -149,6 +149,10 @@ Actor::_Init()
 		}
 	}*/
 
+	fRandColor1 = Core::RandomNumber(0, 100);
+	fRandColor2 = Core::RandomNumber(00, 70);
+	fRandColor3 = Core::RandomNumber(20, 40);
+
 	//TODO: some orientations are bad. Why?!?!?!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
 		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
@@ -198,7 +202,31 @@ Actor::Bitmap() const
 		return NULL;
 	}
 
-	return fCurrentAnimation->Bitmap();
+	::Bitmap *bitmap = const_cast< ::Bitmap*>(fCurrentAnimation->Bitmap());
+	
+	// skin
+	GFX::Color colors[10];
+	for (int i = 0; i < 10; i++) {
+		colors[i].r = 190;
+		colors[i].g = 100;
+		colors[i].b = 100;
+		colors[i].a = 255;
+	}
+	bitmap->SetColors(colors, 40, 10);
+	
+	for (int i = 0; i < 10; i++) {
+		colors[i].r = fRandColor1;
+		colors[i].g = fRandColor2;
+		colors[i].b = fRandColor3;
+		colors[i].a = 255;
+	}
+	bitmap->SetColors(colors, 30, 10);
+	
+	// 30-39 = vest1
+	// 40-49 = skin
+	// 50-59 = vest2
+	// 60-69 = shoulders	
+	return bitmap;
 }
 
 
