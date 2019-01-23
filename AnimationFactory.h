@@ -28,23 +28,19 @@ public:
 	static AnimationFactory* GetFactory(const uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
-	virtual Animation* AnimationFor(int action, int orientation);
+	virtual Animation* AnimationFor(int action, int orientation) = 0;
 
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
 
 	Animation* InstantiateAnimation(
-							const animation_description description,
-							const std::pair<int, int> key);
+							const animation_description& description);
 
 	const char* _GetBamName(const char* attributes) const;
 	
 	std::string fBaseName;
 	uint16 fID;
-
-	// Animations are kept cached here
-	std::map<std::pair<int, int>, Animation*> fAnimations;
 
 	static std::map<uint16, AnimationFactory*> sAnimationFactory;
 };

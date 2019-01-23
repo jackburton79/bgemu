@@ -24,13 +24,6 @@ BGCharachterAnimationFactory::~BGCharachterAnimationFactory()
 Animation*
 BGCharachterAnimationFactory::AnimationFor(int action, int o)
 {
-	// Check if animation was already loaded
-	std::pair<int, int> key = std::make_pair(action, o);
-	std::map<std::pair<int, int>, Animation*>::const_iterator i;
-	i = fAnimations.find(key);
-	if (i != fAnimations.end())
-		return i->second;
-
 	//std::cout << "BGAnimationFactory" << std::endl;
 
 	animation_description description;
@@ -60,6 +53,6 @@ BGCharachterAnimationFactory::AnimationFor(int action, int o)
 			&& o <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
 	}
-	return InstantiateAnimation(description, key);
+	return InstantiateAnimation(description);
 }
 

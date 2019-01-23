@@ -86,7 +86,8 @@ private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
 	Animation* fCurrentAnimation;
-
+	bool fAnimationValid;
+	
 	std::string fArea;
 
 	CREResource *fCRE;

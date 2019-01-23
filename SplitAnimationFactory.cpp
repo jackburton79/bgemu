@@ -24,14 +24,6 @@ SplitAnimationFactory::~SplitAnimationFactory()
 Animation*
 SplitAnimationFactory::AnimationFor(int action, int o)
 {
-	// Check if animation was already loaded
-	// TODO: code duplication, put this into AnimationFactory
-	std::pair<int, int> key = std::make_pair(action, o);
-	std::map<std::pair<int, int>, Animation*>::const_iterator i;
-	i = fAnimations.find(key);
-	if (i != fAnimations.end())
-		return i->second;
-
 	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
 
 	animation_description description;
@@ -73,6 +65,6 @@ SplitAnimationFactory::AnimationFor(int action, int o)
 		description.sequence_number -= (o - 4) * 2;
 	}
 
-	return InstantiateAnimation(description, key);
+	return InstantiateAnimation(description);
 }
 

@@ -25,13 +25,6 @@ SimpleAnimationFactory::~SimpleAnimationFactory()
 Animation*
 SimpleAnimationFactory::AnimationFor(int action, int o)
 {
-	// Check if animation was already loaded
-	std::pair<int, int> key = std::make_pair(action, o);
-	std::map<std::pair<int, int>, Animation*>::const_iterator i;
-	i = fAnimations.find(key);
-	if (i != fAnimations.end())
-		return i->second;
-
 	//std::cout << "SimpleAnimationFactory::AnimationFor(";
 	//std::cout << action << ", " << o << ")" << std::endl;
 
@@ -64,5 +57,5 @@ SimpleAnimationFactory::AnimationFor(int action, int o)
 		description.sequence_number -= (o - 4) * 2;
 	}
 
-	return InstantiateAnimation(description, key);
+	return InstantiateAnimation(description);
 }

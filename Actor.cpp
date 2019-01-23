@@ -97,6 +97,7 @@ Actor::_Init()
 {
 	fSelected = false;
 	fCurrentAnimation = NULL;
+	fAnimationValid = false;
 
 	if (fCRE == NULL) {
 		// We need a new instance of the CRE file for every actor,
@@ -173,6 +174,7 @@ Actor::~Actor()
 		fAnimationFactory = NULL;
 	}
 
+	delete fCurrentAnimation;
 	delete fPath;
 }
 
@@ -494,18 +496,23 @@ Actor::HasSeen(const Object* object) const
 void
 Actor::SetAnimationAction(int action)
 {
-	fAction = action;
+	if (fAction != action) {
+		fAction = action;
+		fAnimationValid = false;
+	}
 }
 
 
 void
 Actor::UpdateAnimation(bool ignoreBlocks)
 {
-	fCurrentAnimation = fAnimationFactory->AnimationFor(
+	if (!fAnimationValid) {
+		delete fCurrentAnimation;
+		fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
 										fActor->orientation);
-
-	if (fCurrentAnimation != NULL)
+		fAnimationValid = true;
+	} else if (fCurrentAnimation != NULL)
 		fCurrentAnimation->Next();
 
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
@@ -545,7 +552,8 @@ Actor::_AddScript(Script*& destination, const res_ref& scriptName)
 void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
-	int newOrientation = fActor->orientation;
+	int oldOrientation = fActor->orientation;
+	int newOrientation = oldOrientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_SE;
@@ -568,13 +576,16 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 	}
 
 	fActor->orientation = newOrientation;
+	if (newOrientation != oldOrientation)
+		fAnimationValid = false;
 }
 
 
 void
 Actor::_SetOrientationExtended(const IE::point& nextPoint)
 {
-	int newOrientation = fActor->orientation;
+	int oldOrientation = fActor->orientation;
+	int newOrientation = oldOrientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_EXT_SE;
@@ -598,6 +609,8 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 
 	//std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
 	fActor->orientation = newOrientation;
+	if (newOrientation != oldOrientation)
+		fAnimationValid = false;
 }
 
 

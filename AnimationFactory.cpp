@@ -57,9 +57,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 		}
 
 		if (factory == NULL)
-			factory = new AnimationFactory(baseName.c_str(), animationID);
+			factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 	}
-
 
 	factory->Acquire();
 
@@ -88,36 +87,11 @@ AnimationFactory::AnimationFactory(const char* baseName, const uint16 id)
 
 AnimationFactory::~AnimationFactory()
 {
-	std::map<std::pair<int, int>, Animation*>::const_iterator i;
-	for (i = fAnimations.begin(); i != fAnimations.end(); i++)
-		delete i->second;
-
-	fAnimations.clear();
 }
 
 
 Animation*
-AnimationFactory::AnimationFor(int action, int o)
-{
-	// Check if animation was already loaded
-	std::pair<int, int> key = std::make_pair(action, o);
-	std::map<std::pair<int, int>, Animation*>::const_iterator i;
-	i = fAnimations.find(key);
-	if (i != fAnimations.end())
-		return i->second;
-/*
-	std::cerr << "Missing animation for ";
-	std::cerr << fBaseName << ", ID: ";
-	std::cerr << std::hex << fID << std::endl;
-*/
-	return NULL;
-}
-
-
-Animation*
-AnimationFactory::InstantiateAnimation(
-		const animation_description description,
-		const std::pair<int, int> key)
+AnimationFactory::InstantiateAnimation(const animation_description& description)
 {
 	Animation* animation = NULL;
 	try {
@@ -131,7 +105,6 @@ AnimationFactory::InstantiateAnimation(
 	if (animation != NULL) {
 		if (description.mirror)
 			animation->SetMirrored(true);
-		fAnimations[key] = animation;
 	}
 	return animation;
 }
