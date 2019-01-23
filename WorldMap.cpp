@@ -141,16 +141,17 @@ WorldMap::Clicked(uint16 x, uint16 y)
 void
 WorldMap::MouseOver(uint16 x, uint16 y)
 {
+	//std::cout << "MouseOver(" << x << ", " << y << ")" << std::endl;
 	const uint16 kScrollingStep = 64;
 
 	uint16 horizBorderSize = 35;
 	uint32 vertBorderSize = 40;
 
 	// TODO: Less hardcoding of the window number
-	Window* window = GUI::Get()->GetWindow(0);
+	/*Window* window = GUI::Get()->GetWindow(0);
 	if (window != NULL) {
 		horizBorderSize += window->Width();
-	}
+	}*/
 
 	sint16 scrollByX = 0;
 	sint16 scrollByY = 0;
@@ -200,11 +201,6 @@ void
 WorldMap::ActorExitedArea(const Actor* actor)
 {
 	return;
-	/*std::vector<Actor*>::iterator i =
-			std::find(fActors.begin(), fActors.end(), actor);
-	if (i != fActors.end()) {
-		fActors.erase(i);
-	}*/
 }
 
 
@@ -241,6 +237,7 @@ WorldMap::VideoAreaChanged(uint16 width, uint16 height)
 void
 WorldMap::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
+	//std::cout << "UpdateCursor(" << x << ", " << y << ", " << scrollByX << ", " << scrollByY << ")" << std::endl;
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
 		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);

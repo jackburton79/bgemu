@@ -213,7 +213,7 @@ RoomBase::VideoAreaChanged(uint16 width, uint16 height)
 	SetViewPort(rect);
 }
 
-
+/*
 void
 RoomBase::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
@@ -248,4 +248,4 @@ RoomBase::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 	}
 
 	GUI::Get()->SetArrowCursor(cursorIndex);
-}
+}*/
