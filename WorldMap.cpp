@@ -170,23 +170,25 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 
 	_UpdateCursor(x, y, scrollByX, scrollByY);
 	
+	SetRelativeAreaOffset(scrollByX, scrollByY);
+	
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
-			ConvertFromArea(areaRect);
+			//ConvertFromArea(areaRect);
 			if (rect_contains(areaRect, point)) {
-				areaRect.y += ViewPort().y;
+				//areaRect.y += ViewPort().y;
+				//areaRect.x += ViewPort().x;
 				//char* toolTip = area.TooltipName();
 				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
 				//free(toolTip);
+				//ConvertToScreen(areaRect);
 				GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
 				break;
 			}
 		}
 	}
-
-	SetRelativeAreaOffset(scrollByX, scrollByY);
 }
 
 
@@ -207,21 +209,6 @@ WorldMap::ActorExitedArea(const Actor* actor)
 void
 WorldMap::ToggleGUI()
 {
-	GUI* gui = GUI::Get();
-	if (gui->IsWindowShown(0))
-		gui->HideWindow(0);
-	else
-		gui->ShowWindow(0);
-
-	if (gui->IsWindowShown(1))
-		gui->HideWindow(1);
-	else
-		gui->ShowWindow(1);
-
-	/*if (gui->IsWindowShown(3))
-		gui->HideWindow(3);
-	else
-		gui->ShowWindow(3);*/
 }
 
 

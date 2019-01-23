@@ -50,7 +50,7 @@ public:
 	virtual void ToggleAnimations();
 	virtual void ToggleSearchMap();
 	void ToggleConsole();
-	void ToggleGUI();
+	virtual void ToggleGUI() = 0;
 	virtual void ToggleDayNight();
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);

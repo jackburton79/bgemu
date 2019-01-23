@@ -585,6 +585,7 @@ AreaRoom::ToggleSearchMap()
 }
 
 
+/* virtual */
 void
 AreaRoom::ToggleGUI()
 {

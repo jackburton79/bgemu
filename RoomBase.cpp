@@ -177,27 +177,6 @@ RoomBase::ToggleSearchMap()
 }
 
 
-void
-RoomBase::ToggleGUI()
-{
-	GUI* gui = GUI::Get();
-	if (gui->IsWindowShown(0))
-		gui->HideWindow(0);
-	else
-		gui->ShowWindow(0);
-
-	if (gui->IsWindowShown(1))
-		gui->HideWindow(1);
-	else
-		gui->ShowWindow(1);
-
-	/*if (gui->IsWindowShown(3))
-		gui->HideWindow(3);
-	else
-		gui->ShowWindow(3);*/
-}
-
-
 /* virtual */
 void
 RoomBase::ToggleDayNight()
@@ -212,40 +191,3 @@ RoomBase::VideoAreaChanged(uint16 width, uint16 height)
 	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
 }
-
-/*
-void
-RoomBase::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
-{
-	if (scrollByX == 0 && scrollByY == 0) {
-		// TODO: Handle other cursors
-		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
-		return;
-	}
-
-	int cursorIndex = 0;
-	if (scrollByX > 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SE;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NE;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	} else if (scrollByX < 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SW;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NW;
-		else
-			cursorIndex = IE::CURSOR_ARROW_W;
-	} else {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_S;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_N;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	}
-
-	GUI::Get()->SetArrowCursor(cursorIndex);
-}*/
