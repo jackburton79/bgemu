@@ -821,8 +821,6 @@ Script::_ExecuteAction(action_node* act)
 
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			Core::Get()->AddActorToCurrentArea(actor);
-
-			// TODO: Add actor to the current area
 			break;
 		}
 		case 0x8:
@@ -1063,7 +1061,7 @@ Script::_ExecuteAction(action_node* act)
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			//RoomContainer::Get()->ActorEnteredArea(actor);
+			Core::Get()->AddActorToCurrentArea(actor);
 			break;
 		}
 		default:
