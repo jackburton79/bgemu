@@ -97,15 +97,11 @@ AnimationFactory::InstantiateAnimation(const animation_description& description)
 	try {
 		IE::point pos;
 		animation = new Animation(description.bam_name.c_str(),
-								description.sequence_number, pos);
+								description.sequence_number, description.mirror, pos);
 	} catch (...) {
 		animation = NULL;
 	}
 
-	if (animation != NULL) {
-		if (description.mirror)
-			animation->SetMirrored(true);
-	}
 	return animation;
 }
 

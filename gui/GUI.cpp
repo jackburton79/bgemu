@@ -422,11 +422,11 @@ GUI::_InitCursors()
 {
 	IE::point pt;
 	for (int i = 0; i < 8; i++) {
-		fCursors[i] = new Animation("CURSARW", i, pt);
+		fCursors[i] = new Animation("CURSARW", i, false, pt);
 	}
 
 	for (int i = 0; i < 40; i++) {
-		fCursors[i + 8] = new Animation("CURSORS", i, pt);
+		fCursors[i + 8] = new Animation("CURSORS", i, false, pt);
 	}
 }
 

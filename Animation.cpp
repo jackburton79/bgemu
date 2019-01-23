@@ -43,13 +43,13 @@ Animation::Animation(IE::animation *animDesc)
 
 
 Animation::Animation(const char* bamName,
-		int sequence, IE::point position)
+		int sequence, bool mirror, IE::point position)
 	:
 	fAnimation(NULL),
 	fCurrentFrame(0),
 	fMaxFrame(0),
 	fBlackAsTransparent(false),
-	fMirrored(false)
+	fMirrored(mirror)
 {
 	fName = bamName;
 	BAMResource* bam = gResManager->GetBAM(fName.c_str());
@@ -98,13 +98,6 @@ Animation::SetShown(const bool show)
 }
 
 
-void
-Animation::SetMirrored(const bool mirror)
-{
-	fMirrored = mirror;
-}
-
-
 const char*
 Animation::Name() const
 {
@@ -119,12 +112,7 @@ Animation::Bitmap()
 		return NULL;
 
 	const ::Bitmap* frame = fBitmaps.at(fCurrentFrame);
-	if (fMirrored)
-		frame = frame->GetMirrored();
-	if (fBlackAsTransparent) {
-		// TODO: We are modifying the const, cached bitmap. BAD!
-		Graphics::ApplyShade(const_cast< ::Bitmap*>(frame));
-	}
+	
 	return frame;
 }
 
@@ -158,6 +146,18 @@ Animation::Position() const
 void
 Animation::_LoadBitmaps(BAMResource* bam, int16 sequence)
 {
-	for (int16 i = 0; i < fMaxFrame; i++)
-		fBitmaps.push_back(bam->FrameForCycle(sequence, i));
+	for (int16 i = 0; i < fMaxFrame; i++) {
+		::Bitmap* bitmap = bam->FrameForCycle(sequence, i);
+		
+		// TODO: Patch colors here.
+		
+		if (fBlackAsTransparent)
+			Graphics::ApplyShade(bitmap);
+		
+		// TODO: Looks like we are leaking the original bitmap here
+		if (fMirrored)
+			bitmap = bitmap->GetMirrored();
+
+		fBitmaps.push_back(bitmap);
+	}
 }

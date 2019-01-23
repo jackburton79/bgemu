@@ -21,15 +21,13 @@ class CREResource;
 class Animation : public Referenceable {
 public:
 	Animation(IE::animation *animDesc);
-	Animation(const char* bamName, int sequence, IE::point position);
+	Animation(const char* bamName, int sequence, bool mirror, IE::point position);
 	~Animation();
 
 	const char* Name() const;
 
 	bool IsShown() const;
 	void SetShown(const bool show);
-
-	void SetMirrored(const bool mirror);
 
 	const ::Bitmap* Bitmap();
 	void Next();
