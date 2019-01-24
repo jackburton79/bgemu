@@ -36,14 +36,15 @@ Animation::Animation(IE::animation *animDesc)
 	//printf("palette: %s\n", (const char *)animDesc->palette);
 	//printf("transparency: %d\n", animDesc->transparency);
 
-	_LoadBitmaps(bam, animDesc->sequence);
+	_LoadBitmaps(bam, animDesc->sequence, NULL);
 
 	gResManager->ReleaseResource(bam);
 }
 
 
 Animation::Animation(const char* bamName,
-		int sequence, bool mirror, IE::point position)
+		int sequence, bool mirror, IE::point position,
+		CREColors* colors)
 	:
 	fAnimation(NULL),
 	fCurrentFrame(0),
@@ -68,7 +69,7 @@ Animation::Animation(const char* bamName,
 
 	fHold = false;
 
-	_LoadBitmaps(bam, sequence);
+	_LoadBitmaps(bam, sequence, colors);
 
 	gResManager->ReleaseResource(bam);
 }
@@ -144,7 +145,7 @@ Animation::Position() const
 
 
 void
-Animation::_LoadBitmaps(BAMResource* bam, int16 sequence)
+Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors)
 {
 	for (int16 i = 0; i < fMaxFrame; i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(sequence, i);

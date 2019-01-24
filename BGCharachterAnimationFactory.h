@@ -15,7 +15,8 @@ public:
 	BGCharachterAnimationFactory(const char* baseName, const uint16 id);
 	~BGCharachterAnimationFactory();
 
-	Animation* AnimationFor(int action, int o);
+private:
+	virtual void GetAnimationDescription(int action, int o, animation_description&);
 };
 
 #endif /* BGANIMATIONFACTORY_H_ */

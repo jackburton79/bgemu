@@ -15,7 +15,8 @@ public:
 	SimpleAnimationFactory(const char* baseName, const uint16 id);
 	~SimpleAnimationFactory();
 
-	virtual Animation* AnimationFor(int action, int o);
+private:
+	virtual void GetAnimationDescription(int action, int o, animation_description&);
 };
 
 #endif /* SIMPLEANIMATIONFACTORY_H_ */

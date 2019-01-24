@@ -18,10 +18,12 @@ class Actor;
 class BAMResource;
 class Bitmap;
 class CREResource;
+struct CREColors;
 class Animation : public Referenceable {
 public:
 	Animation(IE::animation *animDesc);
-	Animation(const char* bamName, int sequence, bool mirror, IE::point position);
+	Animation(const char* bamName, int sequence, bool mirror,
+		IE::point position, CREColors* colors = NULL);
 	~Animation();
 
 	const char* Name() const;
@@ -36,7 +38,7 @@ public:
 	IE::point Position() const;
 
 private:
-	void _LoadBitmaps(BAMResource* bam, int16 sequence);
+	void _LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors);
 
 	IE::animation *fAnimation;
 	std::vector< ::Bitmap*> fBitmaps;

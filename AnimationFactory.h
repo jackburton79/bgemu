@@ -22,27 +22,27 @@ struct animation_description {
 	bool mirror;
 };
 
+struct CREColors;
 class Animation;
 class AnimationFactory : public Referenceable {
 public:
 	static AnimationFactory* GetFactory(const uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
-	virtual Animation* AnimationFor(int action, int orientation) = 0;
-
+	Animation* AnimationFor(int action, int orientation, CREColors* colors = NULL);
+	
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
 
-	Animation* InstantiateAnimation(
-							const animation_description& description);
-
-	const char* _GetBamName(const char* attributes) const;
+	virtual void GetAnimationDescription(int action, int orientation, animation_description& description) = 0;
 	
-	std::string fBaseName;
-	uint16 fID;
+	const char* _GetBamName(const char* attributes) const;
 
 	static std::map<uint16, AnimationFactory*> sAnimationFactory;
+
+	std::string fBaseName;
+	uint16 fID;
 };
 
 #endif /* ANIMATIONFACTORY_H_ */

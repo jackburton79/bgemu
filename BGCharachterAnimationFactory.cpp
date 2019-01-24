@@ -21,12 +21,11 @@ BGCharachterAnimationFactory::~BGCharachterAnimationFactory()
 }
 
 
-Animation*
-BGCharachterAnimationFactory::AnimationFor(int action, int o)
+/* virtual */
+void
+BGCharachterAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
 {
 	//std::cout << "BGAnimationFactory" << std::endl;
-
-	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
@@ -53,6 +52,5 @@ BGCharachterAnimationFactory::AnimationFor(int action, int o)
 			&& o <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
 	}
-	return InstantiateAnimation(description);
 }
 

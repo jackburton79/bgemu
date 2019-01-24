@@ -21,12 +21,11 @@ SplitAnimationFactory::~SplitAnimationFactory()
 }
 
 
-Animation*
-SplitAnimationFactory::AnimationFor(int action, int o)
+/* virtual */
+void
+SplitAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
 {
 	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
-
-	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
@@ -64,7 +63,5 @@ SplitAnimationFactory::AnimationFor(int action, int o)
 		description.mirror = true;
 		description.sequence_number -= (o - 4) * 2;
 	}
-
-	return InstantiateAnimation(description);
 }
 

@@ -93,13 +93,16 @@ AnimationFactory::~AnimationFactory()
 
 
 Animation*
-AnimationFactory::InstantiateAnimation(const animation_description& description)
+AnimationFactory::AnimationFor(int action, int orientation, CREColors* colors)
 {
+	animation_description description;
+	GetAnimationDescription(action, orientation, description);
+	
 	Animation* animation = NULL;
 	try {
 		IE::point pos;
 		animation = new Animation(description.bam_name.c_str(),
-								description.sequence_number, description.mirror, pos);
+								description.sequence_number, description.mirror, pos, colors);
 	} catch (...) {
 		animation = NULL;
 	}

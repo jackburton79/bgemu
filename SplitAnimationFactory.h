@@ -15,7 +15,8 @@ public:
 	SplitAnimationFactory(const char* baseName, const uint16 id);
 	~SplitAnimationFactory();
 
-	virtual Animation* AnimationFor(int action, int o);
+private:
+	virtual void GetAnimationDescription(int action, int orientation, animation_description& description);
 };
 
 #endif /* SPLITANIMATIONFACTORY_H_ */
