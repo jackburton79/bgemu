@@ -354,12 +354,12 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 
 	if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 		if (fSelectedActor != actor) {
-			/*if (fSelectedActor != NULL)
-				fSelectedActor->Select(false);
+			//if (fSelectedActor != NULL)
+			//	fSelectedActor->Select(false);
 			fSelectedActor = actor;
-			if (fSelectedActor != NULL)
-				fSelectedActor->Select(true);
-			*/
+			//if (fSelectedActor != NULL)
+			//	fSelectedActor->Select(true);
+			
 			if (fSelectedActor != NULL)
 				fSelectedActor.Target()->ClickedOn(actor);
 		}
@@ -904,6 +904,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 			}
 		}
 	}
+	
 	if (Region* region = _RegionAtPoint(point)) {
 		object = region;
 		cursorIndex = region->CursorIndex();

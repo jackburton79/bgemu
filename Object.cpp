@@ -7,6 +7,7 @@
 
 #include "Action.h"
 #include "Actor.h"
+#include "AreaRoom.h"
 #include "BackMap.h"
 #include "BCSResource.h"
 #include "Core.h"
@@ -20,7 +21,6 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
-#include "RoomBase.h"
 #include "RoundResults.h"
 #include "TileCell.h"
 
@@ -635,10 +635,10 @@ Object::LastReferenceReleased()
 void
 Object::_UpdateTileCell()
 {
-	/*BackMap* backMap = Core::Get()->CurrentRoom()->BackMap();
+	BackMap* backMap = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom())->BackMap();
 	if (backMap == NULL)
 		return;
-
+	
 	::TileCell* oldTileCell = fTileCell;
 	::TileCell* newTileCell = backMap->TileAtPoint(Position());
 
@@ -648,6 +648,6 @@ Object::_UpdateTileCell()
 		fTileCell = newTileCell;
 		if (newTileCell != NULL)
 			newTileCell->SetObject(this);
-	}*/
+	}
 }
 
