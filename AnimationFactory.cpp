@@ -51,16 +51,18 @@ AnimationFactory::GetFactory(uint16 animationID)
 			case GAME_BALDURSGATE2:
 				if (animationID >= 0x5000 && animationID <= 0x9000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0xc000 && animationID <= 0xca00)
+					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0xb000 && animationID <= 0xd300)
+					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			default:
 				break;
 		}
-
-		if (factory == NULL)
-			factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 	}
 
-	factory->Acquire();
+	if (factory != NULL)
+		factory->Acquire();
 
 	return factory;
 }

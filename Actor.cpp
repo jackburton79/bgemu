@@ -114,7 +114,10 @@ Actor::_Init()
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
-
+	if (fAnimationFactory == NULL) {
+		std::cerr << "No animation factory " << CRE()->Name();
+		std::cerr << " (" << CRE()->AnimationID() << ")" << std::endl;
+	}
 	CREColors colors = fCRE->Colors();
 	std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)colors.major << std::endl;
@@ -188,7 +191,7 @@ Actor::~Actor()
 bool
 Actor::IsNew() const
 {
-	return fCRE != NULL && fCRE->GlobalActorEnum() != 0;
+	return fCRE != NULL && fCRE->GlobalActorEnum() == 0;
 }
 
 
@@ -536,9 +539,11 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 {
 	if (!fAnimationValid) {
 		delete fCurrentAnimation;
-		fCurrentAnimation = fAnimationFactory->AnimationFor(
+		if (fAnimationFactory != NULL) {
+			fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
 										fActor->orientation);
+		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL)
 		fCurrentAnimation->Next();
