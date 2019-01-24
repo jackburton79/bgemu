@@ -76,6 +76,17 @@ Bitmap::SetColors(GFX::Color* colors, uint8 start, int num)
 
 
 void
+Bitmap::SetColors(const GFX::Color& color, uint8 start, int num)
+{
+	struct GFX::Color colorList[num];
+	for (int i = 0; i < num; i++) {
+		colorList[i] = color;
+	}
+	SDL_SetPaletteColors(fSurface->format->palette, (SDL_Color*)colorList, start, num);
+}
+
+
+void
 Bitmap::GetPalette(GFX::Palette& palette) const
 {
 	SDL_Color* sdlPalette = fSurface->format->palette->colors;
