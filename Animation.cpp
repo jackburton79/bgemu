@@ -154,18 +154,10 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 			GFX::Palette palette;
 			bitmap->GetPalette(palette);
 			GFX::Color skin = palette.colors[patchColors->skin];
-			GFX::Color metal = palette.colors[patchColors->metal];
+			//GFX::Color metal = palette.colors[patchColors->metal];
 			
-			bitmap->SetColors(&skin, 40, 1);
-			bitmap->SetColors(&skin, 41, 1);
-			bitmap->SetColors(&skin, 42, 1);
-			bitmap->SetColors(&skin, 43, 1);
-			bitmap->SetColors(&skin, 44, 1);
-			bitmap->SetColors(&skin, 45, 1);
-			bitmap->SetColors(&skin, 46, 1);
-			bitmap->SetColors(&skin, 47, 1);
-			bitmap->SetColors(&skin, 48, 1);
-			bitmap->SetColors(&metal, 30, 1);
+			bitmap->SetColors(skin, 40, 10);
+			//bitmap->SetColors(metal, 30, 10);
 		}
 
 		if (fBlackAsTransparent)
