@@ -208,7 +208,7 @@ Actor::Bitmap() const
 	::Bitmap *bitmap = const_cast< ::Bitmap*>(fCurrentAnimation->Bitmap());
 	
 	// skin
-	GFX::Color colors[10];
+	/*GFX::Color colors[10];
 	for (int i = 0; i < 10; i++) {
 		colors[i].r = 190;
 		colors[i].g = 100;
@@ -224,7 +224,7 @@ Actor::Bitmap() const
 		colors[i].a = 255;
 	}
 	bitmap->SetColors(colors, 30, 10);
-	
+	*/
 	// 30-39 = vest1
 	// 40-49 = skin
 	// 50-59 = vest2
@@ -540,9 +540,10 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 	if (!fAnimationValid) {
 		delete fCurrentAnimation;
 		if (fAnimationFactory != NULL) {
+			CREColors creColors = CRE()->Colors();
 			fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
-										fActor->orientation);
+										fActor->orientation, &creColors);
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL)

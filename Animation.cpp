@@ -150,8 +150,24 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 	for (int16 i = 0; i < fMaxFrame; i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(sequence, i);
 		
-		// TODO: Patch colors here.
-		
+		if (patchColors != NULL) {
+			GFX::Palette palette;
+			bitmap->GetPalette(palette);
+			GFX::Color skin = palette.colors[patchColors->skin];
+			GFX::Color metal = palette.colors[patchColors->metal];
+			
+			bitmap->SetColors(&skin, 40, 1);
+			bitmap->SetColors(&skin, 41, 1);
+			bitmap->SetColors(&skin, 42, 1);
+			bitmap->SetColors(&skin, 43, 1);
+			bitmap->SetColors(&skin, 44, 1);
+			bitmap->SetColors(&skin, 45, 1);
+			bitmap->SetColors(&skin, 46, 1);
+			bitmap->SetColors(&skin, 47, 1);
+			bitmap->SetColors(&skin, 48, 1);
+			bitmap->SetColors(&metal, 30, 1);
+		}
+
 		if (fBlackAsTransparent)
 			Graphics::ApplyShade(bitmap);
 		
