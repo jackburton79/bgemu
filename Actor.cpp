@@ -204,32 +204,12 @@ Actor::Bitmap() const
 		throw message;*/
 		return NULL;
 	}
-
-	::Bitmap *bitmap = const_cast< ::Bitmap*>(fCurrentAnimation->Bitmap());
 	
-	// skin
-	/*GFX::Color colors[10];
-	for (int i = 0; i < 10; i++) {
-		colors[i].r = 190;
-		colors[i].g = 100;
-		colors[i].b = 100;
-		colors[i].a = 255;
-	}
-	bitmap->SetColors(colors, 40, 10);
-	
-	for (int i = 0; i < 10; i++) {
-		colors[i].r = fRandColor1;
-		colors[i].g = fRandColor2;
-		colors[i].b = fRandColor3;
-		colors[i].a = 255;
-	}
-	bitmap->SetColors(colors, 30, 10);
-	*/
 	// 30-39 = vest1
 	// 40-49 = skin
 	// 50-59 = vest2
 	// 60-69 = shoulders	
-	return bitmap;
+	return fCurrentAnimation->Bitmap();
 }
 
 
