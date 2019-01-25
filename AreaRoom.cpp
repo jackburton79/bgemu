@@ -279,7 +279,7 @@ AreaRoom::Draw(Bitmap *surface)
 		fBackMap->Image()->Lock();
 		fBackMap->Image()->StrokeRect(rect, 70);
 		fBackMap->Image()->Unlock();
-	} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
+	} /*else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 		try {
 			GFX::rect rect = rect_to_gfx_rect(actor->Frame());
 			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
@@ -292,7 +292,7 @@ AreaRoom::Draw(Bitmap *surface)
 			std::cerr << string << std::endl;
 		} catch (...) {
 		}
-	} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
+	} */else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
 		GFX::rect rect = rect_to_gfx_rect(region->Frame());
 		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 
@@ -894,7 +894,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 		if (rect_contains(door->Frame(), point))
 			return door;
 	} else {
-		std::vector<Object*> objects;
+		/*std::vector<Object*> objects;
 		if (cell->GetObjects(objects) > 0) {
 			std::vector<Object*>::iterator i;
 			for (i = objects.begin(); i != objects.end(); i++) {
@@ -902,7 +902,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 					object = *i;
 				}
 			}
-		}
+		}*/
 	}
 	
 	if (Region* region = _RegionAtPoint(point)) {

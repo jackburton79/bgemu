@@ -1,3 +1,4 @@
+#include "Actor.h"
 #include "Bitmap.h"
 #include "Door.h"
 #include "Graphics.h"
@@ -27,7 +28,7 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 
 TileCell::~TileCell()
 {
-	std::list<Object*>::iterator i;
+	std::list<Actor*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++)
 		(*i)->SetTileCell(NULL);
 }
@@ -143,21 +144,21 @@ void
 TileCell::SetDoor(::Door *d)
 {
 	fDoor = d;
-	fDoor->SetTileCell(this);
+	//fDoor->SetTileCell(this);
 }
 
 
 void
-TileCell::SetObject(Object* object)
+TileCell::AddObject(Actor* object)
 {
 	fObjects.push_back(object);
 }
 
 
 void
-TileCell::RemoveObject(Object* object)
+TileCell::RemoveObject(Actor* object)
 {
-	std::list<Object*>::iterator i;
+	std::list<Actor*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (object == (*i)) {
 			fObjects.remove(object);
@@ -168,9 +169,9 @@ TileCell::RemoveObject(Object* object)
 
 
 uint32
-TileCell::GetObjects(std::vector<Object*>& objects)
+TileCell::GetObjects(std::vector<Actor*>& objects)
 {
-	std::list<Object*>::iterator i;
+	std::list<Actor*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++)
 		objects.push_back(*i);
 	return objects.size();

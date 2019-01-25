@@ -63,9 +63,6 @@ public:
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
 
-	::TileCell* TileCell() const;
-	void SetTileCell(::TileCell* cell);
-
 	Object* ResolveIdentifier(const int identifier) const;
 
 	bool MatchWithOneInList(const std::vector<Object*>& vector) const;

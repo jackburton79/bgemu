@@ -218,7 +218,7 @@ Object::Update(bool scripts)
 	}
 
 	if (actor != NULL)
-		_UpdateTileCell();
+		actor->UpdateTileCell();
 
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
@@ -255,20 +255,6 @@ IE::point
 Object::NearestPoint(const IE::point& point) const
 {
 	return Position();
-}
-
-
-::TileCell*
-Object::TileCell() const
-{
-	return fTileCell;
-}
-
-
-void
-Object::SetTileCell(::TileCell* cell)
-{
-	fTileCell = cell;
 }
 
 
@@ -629,25 +615,5 @@ Object::LastReferenceReleased()
 {
 	std::cout << Name() << "::LastReferenceReleased()" << std::endl;
 	delete this;
-}
-
-
-void
-Object::_UpdateTileCell()
-{
-	BackMap* backMap = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom())->BackMap();
-	if (backMap == NULL)
-		return;
-	
-	::TileCell* oldTileCell = fTileCell;
-	::TileCell* newTileCell = backMap->TileAtPoint(Position());
-
-	if (oldTileCell != newTileCell) {
-		if (oldTileCell != NULL)
-			oldTileCell->RemoveObject(this);
-		fTileCell = newTileCell;
-		if (newTileCell != NULL)
-			newTileCell->SetObject(this);
-	}
 }
 

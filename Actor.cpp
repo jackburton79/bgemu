@@ -4,6 +4,7 @@
 #include "Animation.h"
 #include "AnimationFactory.h"
 #include "AreaRoom.h"
+#include "BackMap.h"
 #include "BamResource.h"
 #include "BCSResource.h"
 #include "Bitmap.h"
@@ -21,6 +22,7 @@
 #include "ResManager.h"
 #include "RoundResults.h"
 #include "Script.h"
+#include "TileCell.h"
 #include "WedResource.h"
 
 #include <algorithm>
@@ -98,6 +100,7 @@ Actor::_Init()
 	fSelected = false;
 	fCurrentAnimation = NULL;
 	fAnimationValid = false;
+	fTileCell = NULL;
 
 	if (fCRE == NULL) {
 		// We need a new instance of the CRE file for every actor,
@@ -151,10 +154,6 @@ Actor::_Init()
 
 		}
 	}*/
-
-	fRandColor1 = Core::RandomNumber(0, 100);
-	fRandColor2 = Core::RandomNumber(00, 70);
-	fRandColor3 = Core::RandomNumber(20, 40);
 
 	//TODO: some orientations are bad. Why?!?!?!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
@@ -645,3 +644,31 @@ Actor::IsReachable(const IE::point& pt) const
 	}*/
 	return false;
 }
+
+
+void
+Actor::UpdateTileCell()
+{
+	BackMap* backMap = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom())->BackMap();
+	if (backMap == NULL)
+		return;
+
+	::TileCell* oldTileCell = fTileCell;
+	::TileCell* newTileCell = backMap->TileAtPoint(Position());
+
+	if (oldTileCell != newTileCell) {
+		if (oldTileCell != NULL)
+			oldTileCell->RemoveObject(this);
+		fTileCell = newTileCell;
+		if (newTileCell != NULL)
+			newTileCell->AddObject(this);
+	}
+}
+
+
+void
+Actor::SetTileCell(::TileCell* cell)
+{
+	fTileCell = cell;
+}
+

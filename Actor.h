@@ -19,7 +19,7 @@ class BCSResource;
 class CREResource;
 class PathFinder;
 class Script;
-
+class TileCell;
 class Actor : public Object {
 public:
 	Actor(IE::actor& actor);
@@ -82,6 +82,9 @@ public:
 	void UpdateAnimation(bool ignoreBlocks);
 	void MoveToNextPointInPath(bool ignoreBlocks);
 
+	void UpdateTileCell();
+	void SetTileCell(::TileCell*);
+
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
@@ -104,9 +107,8 @@ private:
 
 	PathFinder* fPath;
 	int fSpeed;
-	uint8 fRandColor1;
-	uint8 fRandColor2;
-	uint8 fRandColor3;
+
+	::TileCell* fTileCell;
 
 	void _Init();
 	void _AddScript(Script*& destination, const res_ref& scriptName);
