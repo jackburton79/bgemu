@@ -259,7 +259,7 @@ Core::UnregisterObject(Object* object)
 
 
 Object*
-Core::GetObject(Object* source, object_node* node) const
+Core::GetObject(Actor* source, object_node* node) const
 {
 	// TODO: Move into object_node::Print()
 	/*std::cout << "Core::GetObject(";
@@ -288,13 +288,13 @@ Core::GetObject(Object* source, object_node* node) const
 
 	// If there are any identifiers, use those to get the object
 	if (node->identifiers[0] != 0) {
-		Object* target = NULL;
+		Actor* target = NULL;
 		for (int32 id = 0; id < 5; id++) {
 			const int identifier = node->identifiers[id];
 			if (identifier == 0)
 				break;
 			//std::cout << IDTable::ObjectAt(identifier) << ", ";
-			target = source->ResolveIdentifier(identifier);
+			target = (Actor*)source->ResolveIdentifier(identifier);
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
@@ -311,7 +311,7 @@ Core::GetObject(Object* source, object_node* node) const
 	// TODO: Simplify, merge code.
 	std::list<Reference<Object> >::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (i->Target()->MatchNode(node)) {
+		if (((Actor*)i->Target())->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
 			return i->Target();
@@ -369,7 +369,7 @@ Core::GetObject(const Region* region) const
 
 
 Object*
-Core::GetNearestEnemyOf(const Object* object) const
+Core::GetNearestEnemyOf(const Actor* object) const
 {
 	std::list<Reference<Object> >::const_iterator i;
 	int minDistance = INT_MAX;
@@ -378,7 +378,7 @@ Core::GetNearestEnemyOf(const Object* object) const
 		Actor* actor = dynamic_cast<Actor*>(i->Target());
 		if (actor == NULL)
 			continue;
-		if (i->Target() != object && i->Target()->IsEnemyOf(object)) {
+		if (i->Target() != object && actor->IsEnemyOf(object)) {
 			int distance = Distance(object, i->Target());
 			if (distance < minDistance) {
 				minDistance = distance;

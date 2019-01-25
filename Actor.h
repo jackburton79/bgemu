@@ -45,6 +45,29 @@ public:
 
 	bool Spawned() const;
 
+	static bool IsDummy(const object_node* node);
+
+	bool IsEqual(const Actor* object) const;
+
+	bool IsEnemyOf(const Actor* object) const;
+	bool IsName(const char* name) const;
+	bool IsClass(int c) const;
+	bool IsRace(int race) const;
+	bool IsGender(int gender) const;
+	bool IsGeneral(int general) const;
+	bool IsSpecific(int specific) const;
+	bool IsAlignment(int alignment) const;
+	bool IsEnemyAlly(int ea) const;
+	void SetEnemyAlly(int ea);
+	bool IsState(int state) const;
+
+	bool MatchNode(object_node* node) const;
+
+	Object* ResolveIdentifier(const int identifier) const;
+
+	void AttackTarget(Actor* object);
+	bool WasAttackedBy(object_node* node);
+
 	uint32 NumTimesTalkedTo() const;
 
 	void InitiateDialogWith(Actor* actor);
@@ -66,7 +89,7 @@ public:
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
-	Script* MergeScripts();
+	::Script* MergeScripts();
 
 	bool SkipConditions() const;
 	void StopCheckingConditions();
@@ -111,7 +134,7 @@ private:
 	::TileCell* fTileCell;
 
 	void _Init();
-	void _AddScript(Script*& destination, const res_ref& scriptName);
+	void _AddScript(::Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
 

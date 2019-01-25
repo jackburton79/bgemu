@@ -13,9 +13,11 @@
 #include "CreResource.h"
 #include "DLGResource.h"
 #include "Door.h"
+#include "Game.h"
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
+#include "Party.h"
 #include "PathFind.h"
 #include "Polygon.h"
 #include "RectUtils.h"
@@ -138,7 +140,7 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
-	Script* script = MergeScripts();
+	::Script* script = MergeScripts();
 	SetScript(script);
 
 	//fActor->Print();
@@ -271,6 +273,229 @@ void
 Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = fPath->SetPoints(fActor->position, point);
+}
+
+
+
+bool
+Actor::IsEqual(const Actor* actorB) const
+{
+	if (actorB == NULL)
+		return false;
+
+	CREResource* creA = this->CRE();
+	CREResource* creB = actorB->CRE();
+
+	if (::strcasecmp(this->Name(), actorB->Name()) == 0
+		&& (creA->Class() == creB->Class())
+		&& (creA->Race() == creB->Race())
+		&& (creA->Alignment() == creB->Alignment())
+		&& (creA->Gender() == creB->Gender())
+		&& (creA->General() == creB->General())
+		&& (creA->Specific() == creB->Specific())
+		&& (creA->EnemyAlly(), creB->EnemyAlly()))
+		return true;
+	return false;
+}
+
+
+/* static */
+bool
+Actor::IsDummy(const object_node* node)
+{
+	if (node->ea == 0
+			&& node->general == 0
+			&& node->race == 0
+			&& node->classs == 0
+			&& node->specific == 0
+			&& node->gender == 0
+			&& node->alignment == 0
+			//&& node->faction == 0
+			//&& node->team == 0
+			&& node->identifiers[0] == 0
+			&& node->identifiers[1] == 0
+			&& node->identifiers[2] == 0
+			&& node->identifiers[3] == 0
+			&& node->identifiers[4] == 0
+			&& node->name[0] == '\0'
+			) {
+		return true;
+	}
+
+	return false;
+}
+
+
+bool
+Actor::IsEnemyOf(const Actor* actor) const
+{
+	// TODO: Implement correctly
+	uint8 enemy = IDTable::EnemyAllyValue("ENEM");
+	uint8 pc = IDTable::EnemyAllyValue("PC");
+	// TODO: Is this correct ? I have no idea.
+	return (actor->IsEnemyAlly(enemy) 	&& IsEnemyAlly(pc))
+			|| (actor->IsEnemyAlly(pc) && IsEnemyAlly(enemy));
+}
+
+
+bool
+Actor::IsName(const char* name) const
+{
+	if (name[0] == '\0' || !strcasecmp(name, Name()))
+		return true;
+	return false;
+}
+
+
+bool
+Actor::IsClass(int c) const
+{
+	CREResource* cre = CRE();
+	if (c == 0 || c == cre->Class())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsRace(int race) const
+{
+	CREResource* cre = CRE();
+	if (race == 0 || race == cre->Race())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsGender(int gender) const
+{
+	CREResource* cre = CRE();
+	if (gender == 0 || gender == cre->Gender())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsGeneral(int general) const
+{
+	CREResource* cre = CRE();
+	if (general == 0 || general == cre->General())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsSpecific(int specific) const
+{
+	CREResource* cre = CRE();
+	if (specific == 0 || specific == cre->Specific())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsAlignment(int alignment) const
+{
+	CREResource* cre = CRE();
+	if (alignment == 0 || alignment == cre->Alignment())
+		return true;
+
+	return false;
+}
+
+
+bool
+Actor::IsEnemyAlly(int ea) const
+{
+	if (ea == 0)
+		return true;
+
+	CREResource* cre = this->CRE();
+	if (ea == cre->EnemyAlly())
+		return true;
+
+	std::string eaString = IDTable::EnemyAllyAt(ea);
+
+	if (eaString == "PC") {
+		if (Game::Get()->Party()->HasActor(this))
+			return true;
+	} else if (eaString == "GOODCUTOFF") {
+		if (cre->EnemyAlly() <= ea)
+			return true;
+	} else if (eaString == "EVILCUTOFF") {
+		if (cre->EnemyAlly() >= ea)
+			return true;
+	}
+
+	return false;
+}
+
+
+void
+Actor::SetEnemyAlly(int ea)
+{
+	CRE()->SetEnemyAlly(ea);
+}
+
+
+bool
+Actor::IsState(int state) const
+{
+	if (CRE()->PermanentStatus() & state)
+		return true;
+
+	return false;
+}
+
+
+// Checks if this object matches with the specified object_node.
+// Also keeps wildcards in consideration. Used for triggers.
+bool
+Actor::MatchNode(object_node* node) const
+{
+	if (IsName(node->name)
+		&& IsClass(node->classs)
+		&& IsRace(node->race)
+		&& IsAlignment(node->alignment)
+		&& IsGender(node->gender)
+		&& IsGeneral(node->general)
+		&& IsSpecific(node->specific)
+		&& IsEnemyAlly(node->ea))
+		return true;
+
+	return false;
+}
+
+
+Object*
+Actor::ResolveIdentifier(const int id) const
+{
+	std::string identifier = IDTable::ObjectAt(id);
+	if (identifier == "MYSELF")
+		return const_cast<Actor*>(this);
+	// TODO: Implement more identifiers
+	if (identifier == "NEARESTENEMYOF")
+		return Core::Get()->GetNearestEnemyOf(this);
+	// TODO: Move that one here ?
+	// Move ResolveIdentifier elsewhere ?
+	if (identifier == "LASTTRIGGER")
+		return Script()->LastTrigger();
+#if 0
+	if (identifier == "LASTATTACKEROF")
+		return LastScriptRoundResults()->LastAttacker();
+#endif
+	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
+	std::cout << identifier << std::endl;
+	return NULL;
 }
 
 
@@ -423,7 +648,7 @@ Actor::MergeScripts()
 {
 	// TODO: order ??
 	// Is it correct we merge the scripts ?
-	Script* destination = NULL;
+	::Script* destination = NULL;
 	if (IsValid(fActor->script_override))
 		_AddScript(destination, fActor->script_override);
 	if (IsValid(fActor->script_race))
@@ -439,6 +664,20 @@ Actor::MergeScripts()
 
 	//printf("Choose script %s\n", (const char*)fActor->script_specific);
 	return destination;
+}
+
+
+void
+Actor::AttackTarget(Actor* target)
+{
+	Core::Get()->RoundResults()->SetActorAttacked(this, target);
+}
+
+
+bool
+Actor::WasAttackedBy(object_node* node)
+{
+	return Core::Get()->LastRoundResults()->WasActorAttackedBy(this, node);
 }
 
 
@@ -548,7 +787,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 
 
 void
-Actor::_AddScript(Script*& destination, const res_ref& scriptName)
+Actor::_AddScript(::Script*& destination, const res_ref& scriptName)
 {
 	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
 	if (scriptResource == NULL)

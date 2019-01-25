@@ -82,7 +82,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	_InitWed(fArea->WedName().CString());
 
 	fBcs = gResManager->GetBCS(fArea->ScriptName());
-	Script* roomScript = NULL;
+	::Script* roomScript = NULL;
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
@@ -894,15 +894,15 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 		if (rect_contains(door->Frame(), point))
 			return door;
 	} else {
-		/*std::vector<Object*> objects;
+		std::vector<Actor*> objects;
 		if (cell->GetObjects(objects) > 0) {
-			std::vector<Object*>::iterator i;
+			std::vector<Actor*>::iterator i;
 			for (i = objects.begin(); i != objects.end(); i++) {
 				if (rect_contains((*i)->Frame(), point)) {
 					object = *i;
 				}
 			}
-		}*/
+		}
 	}
 	
 	if (Region* region = _RegionAtPoint(point)) {

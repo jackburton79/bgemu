@@ -147,7 +147,7 @@ Object*
 Script::FindObject(node* start) const
 {
 	object_node* objectNode = FindObjectNode(start);
-	while (objectNode != NULL && Object::IsDummy(objectNode)) {
+	while (objectNode != NULL && Actor::IsDummy(objectNode)) {
 		objectNode = static_cast<object_node*>(objectNode->Next());
 	}
 
@@ -156,7 +156,7 @@ Script::FindObject(node* start) const
 #if DEBUG_SCRIPTS
 	objectNode->Print();
 #endif
-	return Core::Get()->GetObject(fTarget.Target(), objectNode);
+	return Core::Get()->GetObject((Actor*)fTarget.Target(), objectNode);
 }
 
 
@@ -310,7 +310,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsAlignment(trig->parameter1);
+					returnValue = actor->IsAlignment(trig->parameter1);
 
 				break;
 			}
@@ -319,7 +319,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsEnemyAlly(trig->parameter1);
+					returnValue = actor->IsEnemyAlly(trig->parameter1);
 
 				break;
 			}
@@ -328,7 +328,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/*0x400C Class(O:Object*,I:Class*Class)*/
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsClass(trig->parameter1);
+					returnValue = actor->IsClass(trig->parameter1);
 				break;
 			}
 			case 0x400E:
@@ -336,7 +336,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsGeneral(trig->parameter1);
+					returnValue = actor->IsGeneral(trig->parameter1);
 				break;
 			}
 			case 0x400F:
@@ -411,7 +411,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// Race()
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsRace(trig->parameter1);
+					returnValue = actor->IsRace(trig->parameter1);
 
 				break;
 			}
@@ -499,7 +499,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				Object* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = object->IsState(trig->parameter1);
+					returnValue = actor->IsState(trig->parameter1);
 				break;
 			}
 			case 0x4039:
@@ -640,7 +640,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Detect ignores Protection from Creature
 				 * type effects for static objects.
 				 */
-				Object* object = core->GetObject(fTarget.Target(), FindObjectNode(trig));
+				Object* object = core->GetObject(actor, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(fTarget.Target(), object);
 					// || core->Hear(fTarget, object);
@@ -671,8 +671,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
-					Object* objectOverRegion = core->GetObject(
-							dynamic_cast<Region*>(fTarget.Target()));
+					Actor* objectOverRegion = (Actor*)core->GetObject(
+							dynamic_cast<Region*>(actor));
 					if (objectOverRegion != NULL)
 						returnValue = objectOverRegion->MatchNode(object);
 				}

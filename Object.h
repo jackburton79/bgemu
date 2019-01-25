@@ -26,8 +26,6 @@ class Object;
 class Region;
 class Script;
 class TileCell;
-
-
 class Action;
 class Object : public Referenceable {
 public:
@@ -59,40 +57,10 @@ public:
 
 	void Update(bool scripts);
 
-	void SetScript(Script* script);
+	void SetScript(::Script* script);
+	::Script* Script() const;
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
-
-	Object* ResolveIdentifier(const int identifier) const;
-
-	bool MatchWithOneInList(const std::vector<Object*>& vector) const;
-	bool MatchNode(object_node* node) const;
-
-	static Object* GetMatchingObjectFromList(
-										const std::vector<Reference<Object> >&,
-										object_node* node);
-
-	static bool CheckIfNodesInList(const std::vector<object_node*>& nodeList,
-						const std::vector<Object*>& objectList);
-
-	static bool IsDummy(const object_node* node);
-
-	bool IsEqual(const Object* object) const;
-	bool IsEnemyOf(const Object* object) const;
-
-	bool IsName(const char* name) const;
-	bool IsClass(int c) const;
-	bool IsRace(int race) const;
-	bool IsGender(int gender) const;
-	bool IsGeneral(int general) const;
-	bool IsSpecific(int specific) const;
-	bool IsAlignment(int alignment) const;
-	bool IsEnemyAlly(int ea) const;
-	void SetEnemyAlly(int ea);
-	bool IsState(int state) const;
-
-	void AttackTarget(Object* object);
-	bool WasAttackedBy(object_node* node);
 	
 	void NewScriptRound();
 
@@ -108,7 +76,7 @@ private:
 	void _UpdateTileCell();
 
 	std::string fName;
-	Script* fScript;
+	::Script* fScript;
 	uint16 fTicks;
 	bool fVisible;
 
