@@ -18,7 +18,9 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 	fNumber(number),
 	fDoor(NULL),
 	fOverlays(overlays),
-	fNumOverlays(numOverlays)
+	fNumOverlays(numOverlays),
+	fPosX(-1),
+	fPosY(-1)
 {
 }
 
