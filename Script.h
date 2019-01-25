@@ -24,6 +24,7 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
+class Actor;
 class Object;
 class Script {
 public:
