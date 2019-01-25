@@ -463,7 +463,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x402b:
 			{
 				/* ACTIONLISTEMPTY() (16427 0x402b)*/
-				returnValue = fTarget.Target()->IsActionListEmpty();
+				returnValue = actor->IsActionListEmpty();
 				break;
 			}
 			case 0x4034:
@@ -846,7 +846,7 @@ Script::_ExecuteAction(action_node* act)
 			Object* object = FindObject(act);
 			if (object != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, object->Position());
-				fTarget.Target()->AddAction(walkTo);
+				thisActor->AddAction(walkTo);
 			}
 			break;
 		}
@@ -867,7 +867,7 @@ Script::_ExecuteAction(action_node* act)
 			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
 			if (targetActor != NULL && thisActor != NULL) {
 				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
-				fTarget.Target()->AddAction(run);
+				thisActor->AddAction(run);
 			}
 			break;
 		}
@@ -948,7 +948,7 @@ Script::_ExecuteAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			Wait* wait = new Wait(thisActor, act->integer1);
-			fTarget.Target()->AddAction(wait);
+			thisActor->AddAction(wait);
 			break;
 		}
 

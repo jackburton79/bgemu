@@ -51,11 +51,7 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
-	void AddAction(Action* action);
-	bool IsActionListEmpty() const;
-	void ClearActionList();
-
-	void Update(bool scripts);
+	virtual void Update(bool scripts);
 
 	void SetScript(::Script* script);
 	::Script* Script() const;
@@ -81,7 +77,6 @@ private:
 	bool fVisible;
 
 	std::map<std::string, uint32> fVariables;
-	std::list<Action*> fActions;
 
 	::TileCell* fTileCell;
 

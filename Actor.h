@@ -101,6 +101,12 @@ public:
 	bool IsReachable(const IE::point& pt) const;
 
 	// TODO: Merge and clean this mess
+	void AddAction(Action* action);
+	bool IsActionListEmpty() const;
+	void ClearActionList();
+
+	virtual void Update(bool scripts);
+
 	void SetAnimationAction(int action);
 	void UpdateAnimation(bool ignoreBlocks);
 	void MoveToNextPointInPath(bool ignoreBlocks);
@@ -132,6 +138,8 @@ private:
 	int fSpeed;
 
 	::TileCell* fTileCell;
+
+	std::list<Action*> fActions;
 
 	void _Init();
 	void _AddScript(::Script*& destination, const res_ref& scriptName);
