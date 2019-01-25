@@ -42,7 +42,7 @@ public:
 	node*			FindNode(block_type type, node* start = NULL) const;
 
 	// convenience call
-	Object*			FindObject(node* start = NULL) const;
+	Actor*			FindObject(node* start = NULL) const;
 
 	bool Execute();
 	void SetTarget(Object* object);

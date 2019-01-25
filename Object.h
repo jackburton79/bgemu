@@ -68,7 +68,6 @@ protected:
 	void LastReferenceReleased();
 
 private:
-
 	void _UpdateTileCell();
 
 	std::string fName;
@@ -77,8 +76,6 @@ private:
 	bool fVisible;
 
 	std::map<std::string, uint32> fVariables;
-
-	::TileCell* fTileCell;
 
 	Region* fRegion;
 	bool fStale;

@@ -478,7 +478,7 @@ Actor::MatchNode(object_node* node) const
 }
 
 
-Object*
+Actor*
 Actor::ResolveIdentifier(const int id) const
 {
 	std::string identifier = IDTable::ObjectAt(id);
@@ -490,7 +490,7 @@ Actor::ResolveIdentifier(const int id) const
 	// TODO: Move that one here ?
 	// Move ResolveIdentifier elsewhere ?
 	if (identifier == "LASTTRIGGER")
-		return Script()->LastTrigger();
+		return dynamic_cast<Actor*>(Script()->LastTrigger());
 #if 0
 	if (identifier == "LASTATTACKEROF")
 		return LastScriptRoundResults()->LastAttacker();
@@ -705,15 +705,15 @@ Actor::UpdateSee()
 	// between source and target, and see if there are any unpassable
 	// point between them, we also check distance and visibility of
 	// the target
-	std::list<Reference<Object> >::const_iterator i;
-	std::list<Reference<Object> > actorsList;
+	std::list<Reference<Actor> >::const_iterator i;
+	std::list<Reference<Actor> > actorsList;
 	Core::Get()->GetObjectList(actorsList);
 	
-	std::list<Reference<Object> >::const_iterator start = actorsList.begin();
-	std::list<Reference<Object> >::const_iterator end = actorsList.end();
+	std::list<Reference<Actor> >::const_iterator start = actorsList.begin();
+	std::list<Reference<Actor> >::const_iterator end = actorsList.end();
 	
 	for (i = start; i != end; i++) {
-		Actor* target = dynamic_cast<Actor*>(i->Target());
+		Actor* target = i->Target();
 		// TODO: Take into account any eventual spell
 		if (target == NULL || target == this || !target->IsVisible())
 			continue;

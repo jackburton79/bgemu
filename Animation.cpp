@@ -153,11 +153,20 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 		if (patchColors != NULL) {
 			GFX::Palette palette;
 			bitmap->GetPalette(palette);
+			//GFX::Color hair = palette.colors[patchColors->hair];
 			GFX::Color skin = palette.colors[patchColors->skin];
+			//GFX::Color major = palette.colors[patchColors->major];
+			GFX::Color minor = palette.colors[patchColors->minor];
 			//GFX::Color metal = palette.colors[patchColors->metal];
-			
+			GFX::Color leather = palette.colors[patchColors->leather];
+			//GFX::Color armor = palette.colors[patchColors->armor];
 			bitmap->SetColors(skin, 40, 10);
-			//bitmap->SetColors(metal, 30, 10);
+			
+			//bitmap->SetColors(major, 0, 10);
+			bitmap->SetColors(minor, 10, 10);
+			
+			bitmap->SetColors(leather, 20, 10);
+			//bitmap->SetColors(armor, 60, 10);
 		}
 
 		if (fBlackAsTransparent)

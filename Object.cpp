@@ -5,24 +5,16 @@
  *      Author: stefano
  */
 
-#include "Action.h"
-#include "Actor.h"
 #include "AreaRoom.h"
-#include "BackMap.h"
 #include "BCSResource.h"
 #include "Core.h"
-#include "CreResource.h"
 #include "Game.h"
 #include "IDSResource.h"
 #include "Object.h"
-#include "Party.h"
-#include "PathFind.h"
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
-#include "RoundResults.h"
-#include "TileCell.h"
 
 #include <algorithm>
 
@@ -35,7 +27,6 @@ Object::Object(const char* name, const char* scriptName)
 	fScript(NULL),
 	fTicks(0),
 	fVisible(true),
-	fTileCell(NULL),
 	fRegion(NULL),
 	fStale(false)
 {
@@ -62,7 +53,7 @@ Object::~Object()
 void
 Object::Print() const
 {
-	const Actor* thisActor = dynamic_cast<const Actor*>(this);
+	/*const Actor* thisActor = dynamic_cast<const Actor*>(this);
 	if (thisActor == NULL)
 	    return;
 	CREResource* cre = thisActor->CRE();
@@ -79,7 +70,7 @@ Object::Print() const
 	std::cout << " (" << (int)cre->General() << ")" << std::endl;
 	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific());
 	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
-	std::cout << "*********" << std::endl;
+	std::cout << "*********" << std::endl;*/
 }
 
 
@@ -170,12 +161,12 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
-	Actor* actor = dynamic_cast<Actor*>(this);
 	if (scripts) {
 		if (++fTicks >= 15) {
 			fTicks = 0;
 			// TODO: Make Object::Update() virtual and override
 			// in subclasses to avoid dynamic casting
+			Actor* actor = dynamic_cast<Actor*>(this);
 			if (actor != NULL)
 				actor->UpdateSee();
 			else if (Region* region = dynamic_cast<Region*>(this)) {
@@ -217,10 +208,6 @@ Object::NearestPoint(const IE::point& point) const
 void
 Object::NewScriptRound()
 {
-//	std::cout << Name() << " NewScriptRound" << std::endl;
-//	delete fLastScriptRoundResults;
-//	fLastScriptRoundResults = fCurrentScriptRoundResults;
-//	fCurrentScriptRoundResults = new ScriptResults;
 }
 
 

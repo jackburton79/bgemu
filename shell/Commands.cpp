@@ -23,12 +23,12 @@ public:
 	ListObjectsCommand() : ShellCommand("list-objects") {}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		std::list<Reference<Object> > objects;
-		std::list<Reference<Object> >::iterator i;
+		ActorsList objects;
+		ActorsList::iterator i;
 		Core::Get()->GetObjectList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
 			std::cout << i->Target()->Name();
-			Actor* actor = dynamic_cast<Actor*>(i->Target());
+			Actor* actor = i->Target();
 			if (actor != NULL) {
 				std::cout << " (" << actor->CRE()->GlobalActorEnum() << ")";
 			}

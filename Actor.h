@@ -63,7 +63,7 @@ public:
 
 	bool MatchNode(object_node* node) const;
 
-	Object* ResolveIdentifier(const int identifier) const;
+	Actor* ResolveIdentifier(const int identifier) const;
 
 	void AttackTarget(Actor* object);
 	bool WasAttackedBy(object_node* node);

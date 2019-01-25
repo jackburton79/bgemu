@@ -153,7 +153,7 @@ void
 Core::AddActorToCurrentArea(Actor* actor)
 {
 	actor->SetArea(CurrentRoom()->Name());
-	RegisterObject(actor);
+	RegisterActor(actor);
 }
 
 
@@ -210,9 +210,9 @@ Core::EnteredArea(RoomBase* area, Script* script)
 void
 Core::ExitingArea(RoomBase* area)
 {
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		UnregisterObject(i->Target());
+		UnregisterActor(i->Target());
 	}
 	fObjects.clear();
 }
@@ -238,27 +238,25 @@ Core::GetVariable(const char* name)
 
 
 void
-Core::RegisterObject(Object* object)
+Core::RegisterActor(Actor* actor)
 {
-	fObjects.push_back(object);
-	if (Actor* actor = dynamic_cast<Actor*>(object)) {
-		if (actor->IsNew())
-			actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
-	}
+	fObjects.push_back(actor);
+	if (actor->IsNew())
+		actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
 }
 
 
 // Called when an object is no longer in the active area
 // Also deletes the object
 void
-Core::UnregisterObject(Object* object)
+Core::UnregisterActor(Actor* actor)
 {
 	// TODO: Save the object state
-	object->Release();
+	actor->Release();
 }
 
 
-Object*
+Actor*
 Core::GetObject(Actor* source, object_node* node) const
 {
 	// TODO: Move into object_node::Print()
@@ -294,7 +292,7 @@ Core::GetObject(Actor* source, object_node* node) const
 			if (identifier == 0)
 				break;
 			//std::cout << IDTable::ObjectAt(identifier) << ", ";
-			target = (Actor*)source->ResolveIdentifier(identifier);
+			target = source->ResolveIdentifier(identifier);
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
@@ -309,9 +307,9 @@ Core::GetObject(Actor* source, object_node* node) const
 
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (((Actor*)i->Target())->MatchNode(node)) {
+		if ((i->Target())->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
 			return i->Target();
@@ -323,10 +321,10 @@ Core::GetObject(Actor* source, object_node* node) const
 }
 
 
-Object*
+Actor*
 Core::GetObject(const char* name) const
 {
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (!strcmp(name, i->Target()->Name())) {
 			return i->Target();
@@ -337,12 +335,12 @@ Core::GetObject(const char* name) const
 }
 
 
-Object*
+Actor*
 Core::GetObject(uint16 globalEnum) const
 {
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>(i->Target());
+		Actor* actor = i->Target();
 		if (actor != NULL && actor->CRE()->GlobalActorEnum() == globalEnum)
 			return i->Target();
 	}
@@ -351,13 +349,13 @@ Core::GetObject(uint16 globalEnum) const
 }
 
 
-Object*
+Actor*
 Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>(i->Target());
+		Actor* actor = i->Target();
 		if (actor == NULL)
 			continue;
 		if (region->Contains(actor->Position()))
@@ -368,14 +366,14 @@ Core::GetObject(const Region* region) const
 }
 
 
-Object*
+Actor*
 Core::GetNearestEnemyOf(const Actor* object) const
 {
-	std::list<Reference<Object> >::const_iterator i;
+	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = dynamic_cast<Actor*>(i->Target());
+		Actor* actor = i->Target();
 		if (actor == NULL)
 			continue;
 		if (i->Target() != object && actor->IsEnemyOf(object)) {
@@ -458,7 +456,7 @@ Core::UpdateLogic(bool executeScripts)
 		return;
 
 	// TODO: Fix/Improve
-	std::list<Reference<Object> >::iterator i;
+	ActorsList::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		Object* object = i->Target();
 		object->Update(executeScripts);
@@ -564,7 +562,7 @@ Core::RandomNumber(int32 start, int32 end)
 
 
 int32
-Core::GetObjectList(std::list<Reference<Object> > & objects) const
+Core::GetObjectList(ActorsList& objects) const
 {
 	objects = fObjects;
 	return objects.size();
@@ -596,7 +594,7 @@ Core::Objects() const
 void
 Core::_PrintObjects() const
 {
-	for (std::list<Reference<Object> >::const_iterator i = fObjects.begin();
+	for (ActorsList::const_iterator i = fObjects.begin();
 											i != fObjects.end(); i++) {
 		i->Target()->Print();
 	}
@@ -614,7 +612,7 @@ Core::_InitGameTimers()
 void
 Core::_RemoveStaleObjects()
 {
-	std::list<Reference<Object> >::iterator i = fObjects.begin();
+	ActorsList::iterator i = fObjects.begin();
 	while (i != fObjects.end()) {
 		if (i->Target()->IsStale()) {
 			//if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {

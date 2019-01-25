@@ -30,6 +30,9 @@ class IDSResource;
 class Script;
 class ScriptResults;
 class TLKResource;
+
+typedef std::list<Reference<Actor> > ActorsList;
+
 class Core {
 public:
 	static Core* Get();
@@ -39,8 +42,8 @@ public:
 	void TogglePause();
 	bool IsPaused() const;
 
-	void RegisterObject(Object* object);
-	void UnregisterObject(Object* object);
+	void RegisterActor(Actor* object);
+	void UnregisterActor(Actor* object);
 
 	uint32 Game() const;
 
@@ -57,11 +60,11 @@ public:
 	void SetVariable(const char* name, int32 value);
 	int32 GetVariable(const char* name);
 
-	Object* GetObject(Actor* source, object_node* node) const;
-	Object* GetObject(const char* name) const;
-	Object* GetObject(uint16 globalEnum) const;
-	Object* GetObject(const Region* region) const;
-	Object* GetNearestEnemyOf(const Actor* object) const;
+	Actor* GetObject(Actor* source, object_node* node) const;
+	Actor* GetObject(const char* name) const;
+	Actor* GetObject(uint16 globalEnum) const;
+	Actor* GetObject(const Region* region) const;
+	Actor* GetNearestEnemyOf(const Actor* object) const;
 
 	ScriptResults* RoundResults();
 	ScriptResults* LastRoundResults();
@@ -87,7 +90,7 @@ public:
 
 	static int32 RandomNumber(int32 start, int32 end);
 
-	int32 GetObjectList(std::list<Reference<Object> >& objects) const;
+	int32 GetObjectList(ActorsList& objects) const;
 
 private:
 	static void _InitGameTimers();
@@ -105,7 +108,8 @@ private:
 	RoomBase* fCurrentRoom;
 	
 	Reference<Actor> fActiveActor;
-	std::list<Reference<Object> > fObjects;
+	
+	ActorsList fObjects;
 	
 	std::map<std::string, uint32> fVariables;
 	Script *fRoomScript;

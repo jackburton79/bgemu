@@ -143,7 +143,7 @@ Script::FindNode(block_type nodeType, node* start) const
 }
 
 
-Object*
+Actor*
 Script::FindObject(node* start) const
 {
 	object_node* objectNode = FindObjectNode(start);
@@ -308,35 +308,35 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsAlignment(trig->parameter1);
+					returnValue = object->IsAlignment(trig->parameter1);
 
 				break;
 			}
 			case 0x400B:
 			{
 				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsEnemyAlly(trig->parameter1);
+					returnValue = object->IsEnemyAlly(trig->parameter1);
 
 				break;
 			}
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsClass(trig->parameter1);
+					returnValue = object->IsClass(trig->parameter1);
 				break;
 			}
 			case 0x400E:
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsGeneral(trig->parameter1);
+					returnValue = object->IsGeneral(trig->parameter1);
 				break;
 			}
 			case 0x400F:
@@ -409,9 +409,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4017:
 			{
 				// Race()
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsRace(trig->parameter1);
+					returnValue = object->IsRace(trig->parameter1);
 
 				break;
 			}
@@ -421,7 +421,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->Distance(object, fTarget.Target()) <= trig->parameter1;
 				break;
@@ -433,7 +433,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->See(fTarget.Target(), object);
 				break;
@@ -497,9 +497,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the specified object
 				 * is in the state specified.
 				 */
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = actor->IsState(trig->parameter1);
+					returnValue = object->IsState(trig->parameter1);
 				break;
 			}
 			case 0x4039:
@@ -532,7 +532,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4043:
 			{
 				// InParty
-				const Actor* actor = dynamic_cast<const Actor*>(FindObject(trig));
+				const Actor* actor = FindObject(trig);
 				if (actor != NULL)
 					returnValue = Game::Get()->Party()->HasActor(actor);
 
@@ -583,7 +583,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
 				int range = 40;
 				// TODO: Check weapon range
-				Object* object = FindObject(trig);
+				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->Distance(object, fTarget.Target()) <= range;
 
@@ -669,13 +669,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Only for trigger regions. Returns true only if the specified
 				 * object is over the trigger running the script
 				 */
-				object_node* object = FindObjectNode(trig);
+				/*object_node* object = FindObjectNode(trig);
 				if (object != NULL) {
-					Actor* objectOverRegion = (Actor*)core->GetObject(
+					Actor* objectOverRegion = core->GetObject(
 							dynamic_cast<Region*>(actor));
 					if (objectOverRegion != NULL)
 						returnValue = objectOverRegion->MatchNode(object);
-				}
+				}*/
 
 				break;
 			}
@@ -708,7 +708,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x401b:
 			{
 				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
-				Actor* actor = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* actor = FindObject(trig);
 				if (actor != NULL) {
 					returnValue = actor->CRE()->Reputation() < trig->parameter1;
 				}
@@ -797,10 +797,9 @@ Script::_ExecuteAction(action_node* act)
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
-			Object* targetObject = FindObject(act);
-			if (targetObject != NULL) {
-				Actor* targetActor = dynamic_cast<Actor*>(targetObject);
-				if (thisActor != NULL && targetActor != NULL) {
+			Actor* targetActor = FindObject(act);
+			if (targetActor != NULL) {
+				if (thisActor != NULL) {
 					Attack* attackAction = new Attack(thisActor, targetActor);
 					thisActor->AddAction(attackAction);
 				}
@@ -826,7 +825,7 @@ Script::_ExecuteAction(action_node* act)
 		case 0x8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			Actor* actor = FindObject(act);
 			if (actor != NULL) {
 				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
 				thisActor->AddAction(dialogueAction);
@@ -853,12 +852,12 @@ Script::_ExecuteAction(action_node* act)
 		case 23:
 		{
 			// MoveToPoint
-			Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
+			/*Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);
 				actor->StopCheckingConditions();
-			}
+			}*/
 			break;
 		}
 		case 29:
@@ -947,8 +946,8 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
-			Wait* wait = new Wait(thisActor, act->integer1);
-			thisActor->AddAction(wait);
+			/*Wait* wait = new Wait(thisActor, act->integer1);
+			thisActor->AddAction(wait);*/
 			break;
 		}
 
@@ -1046,8 +1045,8 @@ Script::_ExecuteAction(action_node* act)
 			Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
-				actor->AddAction(walkTo);
-				actor->StopCheckingConditions();
+				thisActor->AddAction(walkTo);
+				thisActor->StopCheckingConditions();
 			}
 			break;
 		}

@@ -775,13 +775,13 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 void
 AreaRoom::_DrawActors()
 {
-	std::list<Reference<Object> >::const_iterator a;
-	std::list<Reference<Object> > actorsList;
+	std::list<Reference<Actor> >::const_iterator a;
+	std::list<Reference<Actor> > actorsList;
 	Core::Get()->GetObjectList(actorsList);
 	
 	for (a = actorsList.begin();
 			a != actorsList.end(); a++) {
-		if (Actor* actor = dynamic_cast<Actor*>(a->Target())) {
+		if (Actor* actor = a->Target()) {
 			try {
 				DrawObject(*actor);
 			} catch (const char* string) {
@@ -963,13 +963,13 @@ AreaRoom::_LoadActors()
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		party->ActorAt(a)->SetArea(fArea->Name());
-		Core::Get()->RegisterObject(party->ActorAt(a));
+		Core::Get()->RegisterActor(party->ActorAt(a));
 	}
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
 		actor->SetArea(fArea->Name());
-		Core::Get()->RegisterObject(actor);
+		Core::Get()->RegisterActor(actor);
 	}
 
 	std::cout << "Done!" << std::endl;
