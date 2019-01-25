@@ -781,19 +781,18 @@ AreaRoom::_DrawActors()
 	
 	for (a = actorsList.begin();
 			a != actorsList.end(); a++) {
-		if (Actor* actor = a->Target()) {
-			try {
-				DrawObject(*actor);
-			} catch (const char* string) {
-				std::cerr << "_DrawActors: exception: " << string << std::endl;
-				continue;
-			} catch (std::string& ex) {
-				std::cerr << ex << std::endl;
-				continue;
-			} catch (...) {
-				std::cerr << "Caught exception on actor " << actor->Name() << std::endl;
-				continue;
-			}
+		Actor* actor = a->Target();
+		try {
+			DrawObject(*actor);
+		} catch (const char* string) {
+			std::cerr << "_DrawActors: exception: " << string << std::endl;
+			continue;
+		} catch (std::string& ex) {
+			std::cerr << ex << std::endl;
+			continue;
+		} catch (...) {
+			std::cerr << "Caught exception on actor " << actor->Name() << std::endl;
+			continue;
 		}
 	}
 }
