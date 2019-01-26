@@ -686,7 +686,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * is in the area specified.
 				 */
 				// TODO: We only check the active area
-				//returnValue = !strcmp(RoomContainer::Get()->Name(), trig->string1);
+				returnValue = !strcmp(core->CurrentRoom()->Name(), trig->string1);
 				break;
 			}
 			case 0x4086:
