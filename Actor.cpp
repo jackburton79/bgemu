@@ -220,7 +220,8 @@ Actor::Bitmap() const
 IE::rect
 Actor::Frame() const
 {
-	const GFX::rect& frame = Bitmap()->Frame();
+	const ::Bitmap* bitmap = Bitmap();
+	const GFX::rect& frame = bitmap ? bitmap->Frame() : (GFX::rect){0, 0, 6, 0};
 	IE::point leftTop = offset_point(Position(),
 								-(frame.x + frame.w / 2),
 								-(frame.y + frame.h / 2));
