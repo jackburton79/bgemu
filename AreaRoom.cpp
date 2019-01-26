@@ -775,13 +775,13 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 void
 AreaRoom::_DrawActors()
 {
-	std::list<Reference<Actor> >::const_iterator a;
-	std::list<Reference<Actor> > actorsList;
+	ActorsList::const_iterator a;
+	ActorsList actorsList;
 	Core::Get()->GetObjectList(actorsList);
 	
 	for (a = actorsList.begin();
 			a != actorsList.end(); a++) {
-		Actor* actor = a->Target();
+		Actor* actor = *a;
 		try {
 			DrawObject(*actor);
 		} catch (const char* string) {

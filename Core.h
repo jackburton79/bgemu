@@ -20,6 +20,11 @@ enum game {
 };
 
 
+struct actor_description {
+	uint16 global_enum;
+	res_ref area;
+};
+
 struct object_node;
 class Actor;
 class Door;
@@ -31,7 +36,8 @@ class Script;
 class ScriptResults;
 class TLKResource;
 
-typedef std::list<Reference<Actor> > ActorsList;
+typedef std::list<Actor*> ActorsList;
+typedef std::map<uint16, actor_description> ActorMap;
 
 class Core {
 public:
@@ -107,9 +113,10 @@ private:
 	game fGame;
 	RoomBase* fCurrentRoom;
 	
-	Reference<Actor> fActiveActor;
+	Actor* fActiveActor;
 	
-	ActorsList fObjects;
+	ActorsList fActiveActors;
+	ActorMap fActors;
 	
 	std::map<std::string, uint32> fVariables;
 	Script *fRoomScript;

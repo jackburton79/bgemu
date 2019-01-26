@@ -27,11 +27,9 @@ public:
 		ActorsList::iterator i;
 		Core::Get()->GetObjectList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
-			std::cout << i->Target()->Name();
-			Actor* actor = i->Target();
-			if (actor != NULL) {
-				std::cout << " (" << actor->CRE()->GlobalActorEnum() << ")";
-			}
+			Actor* actor = *i;
+			std::cout << actor->Name();
+			std::cout << " (" << actor->CRE()->GlobalActorEnum() << ")";
 			std::cout << std::endl;
 		}
 	}

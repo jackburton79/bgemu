@@ -211,10 +211,10 @@ void
 Core::ExitingArea(RoomBase* area)
 {
 	ActorsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		UnregisterActor(i->Target());
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		UnregisterActor(*i);
 	}
-	fObjects.clear();
+	fActiveActors.clear();
 }
 
 
@@ -240,7 +240,7 @@ Core::GetVariable(const char* name)
 void
 Core::RegisterActor(Actor* actor)
 {
-	fObjects.push_back(actor);
+	fActiveActors.push_back(actor);
 	if (actor->IsNew())
 		actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
 }
@@ -296,11 +296,11 @@ Core::GetObject(Actor* source, object_node* node) const
 			source = target;
 		}
 		// TODO: Filter using wildcards in node
-	/*	std::cout << "returned ";
+		std::cout << "returned ";
 		if (target != NULL)
 			std::cout << target->Name() << std::endl;
 		else
-			std::cout << "NONE" << std::endl;*/
+			std::cout << "NONE" << std::endl;
 		return target;
 	}
 
@@ -308,11 +308,11 @@ Core::GetObject(Actor* source, object_node* node) const
 	// Otherwise use the other parameters
 	// TODO: Simplify, merge code.
 	ActorsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if ((i->Target())->MatchNode(node)) {
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		if ((*i)->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
-			return i->Target();
+			return *i;
 		}
 	}
 
@@ -325,9 +325,9 @@ Actor*
 Core::GetObject(const char* name) const
 {
 	ActorsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (!strcmp(name, i->Target()->Name())) {
-			return i->Target();
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		if (!strcmp(name, (*i)->Name())) {
+			return *i;
 		}
 	}
 
@@ -339,10 +339,10 @@ Actor*
 Core::GetObject(uint16 globalEnum) const
 {
 	ActorsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = i->Target();
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		Actor* actor = *i;
 		if (actor != NULL && actor->CRE()->GlobalActorEnum() == globalEnum)
-			return i->Target();
+			return actor;
 	}
 
 	return NULL;
@@ -354,8 +354,8 @@ Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
 	ActorsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = i->Target();
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
 		if (region->Contains(actor->Position()))
@@ -372,12 +372,12 @@ Core::GetNearestEnemyOf(const Actor* object) const
 	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Actor* actor = i->Target();
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
-		if (i->Target() != object && actor->IsEnemyOf(object)) {
-			int distance = Distance(object, i->Target());
+		if (actor != object && actor->IsEnemyOf(object)) {
+			int distance = Distance(object, actor);
 			if (distance < minDistance) {
 				minDistance = distance;
 				nearest = actor;
@@ -457,8 +457,8 @@ Core::UpdateLogic(bool executeScripts)
 
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Object* object = i->Target();
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		Object* object = *i;
 		object->Update(executeScripts);
 	}
 
@@ -564,7 +564,7 @@ Core::RandomNumber(int32 start, int32 end)
 int32
 Core::GetObjectList(ActorsList& objects) const
 {
-	objects = fObjects;
+	objects = fActiveActors;
 	return objects.size();
 }
 
@@ -594,9 +594,9 @@ Core::Objects() const
 void
 Core::_PrintObjects() const
 {
-	for (ActorsList::const_iterator i = fObjects.begin();
-											i != fObjects.end(); i++) {
-		i->Target()->Print();
+	for (ActorsList::const_iterator i = fActiveActors.begin();
+											i != fActiveActors.end(); i++) {
+		(*i)->Print();
 	}
 }
 
@@ -612,13 +612,13 @@ Core::_InitGameTimers()
 void
 Core::_RemoveStaleObjects()
 {
-	ActorsList::iterator i = fObjects.begin();
-	while (i != fObjects.end()) {
-		if (i->Target()->IsStale()) {
+	ActorsList::iterator i = fActiveActors.begin();
+	while (i != fActiveActors.end()) {
+		if ((*i)->IsStale()) {
 			//if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {
 				//->ActorExitedArea(actor);
 			//}
-			i = fObjects.erase(i);
+			i = fActiveActors.erase(i);
 		} else
 			i++;
 	}
