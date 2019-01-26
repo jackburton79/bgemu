@@ -473,17 +473,13 @@ Core::UpdateLogic(bool executeScripts)
 
 
 bool
-Core::See(const Object* source, const Object* object) const
+Core::See(const Actor* sourceActor, const Object* object) const
 {
 	// TODO: improve
 	if (object == NULL)
 		return false;
 
-	const Actor* sourceActor = dynamic_cast<const Actor*>(source);
-	if (sourceActor == NULL)
-		return false;
-
-	std::cout << source->Name() << " SEE ";
+	std::cout << sourceActor->Name() << " SEE ";
 	std::cout << object->Name() << " ?" << std::endl;
 
 	return sourceActor->HasSeen(object);

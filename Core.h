@@ -84,7 +84,7 @@ public:
 	void UpdateLogic(bool scripts);
 
 	// Actions/Triggers
-	bool See(const Object* source, const Object* target) const;
+	bool See(const Actor* source, const Object* target) const;
 	int Distance(const Object* source, const Object* target) const;
 
 	void Open(Object* actor, Door* target);

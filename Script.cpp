@@ -435,7 +435,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->See(fTarget.Target(), object);
+					returnValue = core->See(actor, object);
 				break;
 			}
 			case 0x401E:
@@ -642,7 +642,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				Object* object = core->GetObject(actor, FindObjectNode(trig));
 				if (object != NULL)
-					returnValue = core->See(fTarget.Target(), object);
+					returnValue = core->See(actor, object);
 					// || core->Hear(fTarget, object);
 				break;
 			}
@@ -946,6 +946,7 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
+			//
 			/*Wait* wait = new Wait(thisActor, act->integer1);
 			thisActor->AddAction(wait);*/
 			break;
@@ -1060,7 +1061,7 @@ Script::_ExecuteAction(action_node* act)
 			std::cout << "Created actor " << act->string1 << " on ";
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
-			Core::Get()->AddActorToCurrentArea(actor);
+			core->AddActorToCurrentArea(actor);
 			break;
 		}
 		default:
