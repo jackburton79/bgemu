@@ -60,7 +60,7 @@ public:
 	RoomBase* CurrentRoom();
 	void AddActorToCurrentArea(Actor* actor);
 	
-	void EnteredArea(RoomBase* area, Script* script);
+	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 
 	void SetVariable(const char* name, int32 value);

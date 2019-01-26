@@ -133,9 +133,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	_InitContainers();
 	_InitBlitMask();
 
-	Core::Get()->EnteredArea(this, roomScript);
-
-	delete roomScript;
+	Core::Get()->SetRoomScript(roomScript);
 
 	IE::point point = { 0, 0 };
 	if (!savedEntranceName.empty()) {

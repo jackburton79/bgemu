@@ -168,6 +168,8 @@ Core::LoadArea(const res_ref& areaName, const char* longName,
 	} catch (...) {
 		return false;
 	}
+
+	EnteredArea(fCurrentRoom);
 	return true;
 }
 
@@ -183,25 +185,25 @@ Core::LoadWorldMap()
 	} catch (...) {
 		return false;
 	}
+
+	//EnteredArea(fCurrentRoom);
 	return true;
 }
 
 
 void
-Core::EnteredArea(RoomBase* area, Script* script)
+Core::EnteredArea(RoomBase* area)
 {
-	// TODO: Move this elsewhere
-	fCurrentRoom = area;
-
-	area->SetScript(script);
-	SetRoomScript(script);
-
+	area->SetScript(fRoomScript);
+	
 	// The area script
 	if (fRoomScript != NULL) {
 		fRoomScript->Execute();
 	}
 
 	area->SetScript(NULL);
+	delete fRoomScript;
+	fRoomScript = NULL;
 
 	_PrintObjects();
 }

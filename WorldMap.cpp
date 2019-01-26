@@ -44,8 +44,6 @@ WorldMap::WorldMap()
 
 	gui->ShowWindow(0);
 
-	Core::Get()->EnteredArea(this, NULL);
-
 	SetName("WORLDMAP");
 
 	GraphicsEngine::Get()->SetWindowCaption(Name());
