@@ -193,7 +193,10 @@ void
 Actor::Print() const
 {
 	CREResource* cre = CRE();
+	if (cre == NULL)
+		return;
 	std::cout << "*** " << Name() << " ***" << std::endl;
+	std::cout << "ENUM: " << cre->GlobalActorEnum() << std::endl;
 	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
 	std::cout << " (" << (int)cre->Gender() << ")" << std::endl;
 	std::cout << "Class: " << IDTable::ClassAt(cre->Class());
@@ -215,7 +218,7 @@ Actor::Print() const
 bool
 Actor::IsNew() const
 {
-	return fCRE != NULL && fCRE->GlobalActorEnum() == 0;
+	return fCRE != NULL && fCRE->GlobalActorEnum() == (uint16)-1;
 }
 
 
@@ -745,8 +748,8 @@ Actor::UpdateSee()
 		// TODO: 200 is an arbitrarily chosen number
 		if (Core::Get()->Distance(this, target) < 200 ) {
 			// TODO: Check if there are obstacles in the way
-
 			SetSeen(target);
+			//std::cout << this->Name() << " SAW " << target->Name() << std::endl;
 		}
 	}
 }
@@ -762,7 +765,7 @@ Actor::SetSeen(Object* object)
 bool
 Actor::HasSeen(const Object* object) const
 {
-	return Core::Get()->LastRoundResults()->WasActorSeenBy(this, dynamic_cast<const Actor*>(object));
+	return Core::Get()->LastRoundResults()->WasActorSeenBy(dynamic_cast<const Actor*>(object), this);
 }
 
 
