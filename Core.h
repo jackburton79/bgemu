@@ -107,9 +107,6 @@ private:
 	Core();
 	~Core();
 
-	// TODO: Remove this
-	friend class Object;
-	
 	game fGame;
 	RoomBase* fCurrentRoom;
 	
