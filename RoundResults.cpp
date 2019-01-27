@@ -30,9 +30,10 @@ ScriptResults::Clear()
 void
 ScriptResults::SetActorSaw(const Actor* actor, const Actor* target)
 {
+	std::cout << actor->Name() << " just seen " << target->Name() << std::endl;
 	result_entry resultEntry = { actor, ScriptResults::SAW, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
-	fTargetsList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
+	fTargetsList.insert(std::make_pair(target->CRE()->GlobalActorEnum(), resultEntry));
 }
 
 
@@ -41,7 +42,7 @@ ScriptResults::SetActorHeard(const Actor* actor, const Actor* target)
 {
 	result_entry resultEntry = { actor, ScriptResults::HEARD, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
-	fTargetsList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
+	fTargetsList.insert(std::make_pair(target->CRE()->GlobalActorEnum(), resultEntry));
 }
 
 
@@ -50,7 +51,7 @@ ScriptResults::SetActorAttacked(const Actor* actor, const Actor* target)
 {
 	result_entry resultEntry = { actor, ScriptResults::ATTACK, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
-	fTargetsList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
+	fTargetsList.insert(std::make_pair(target->CRE()->GlobalActorEnum(), resultEntry));
 }
 
 
@@ -99,12 +100,15 @@ ScriptResults::_FindActionByTargetObject(const Actor* target, int action, object
 bool
 ScriptResults::_FindActionByTargetActor(const Actor* target, int action, const Actor* actor) const
 {
+	std::cout << "_FindActionByTargetActor(" << target->Name() << ")" << std::endl;
 	std::pair <results_map::const_iterator, results_map::const_iterator> range;
 	range = fTargetsList.equal_range(target->CRE()->GlobalActorEnum());
 	for (results_map::const_iterator i = range.first;
 		i != range.second; i++) {
-		if (i->second.action == action && i->second.actor == actor)
+		if (i->second.action == action && i->second.actor == actor) {
+			std::cout << "found: " << actor->Name() << std::endl;
 			return true;
+		}
 	}
 	
 	return false;

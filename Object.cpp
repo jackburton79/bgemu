@@ -144,7 +144,7 @@ void
 Object::Update(bool scripts)
 {
 	if (scripts) {
-		if (++fTicks >= 15) {
+		//if (++fTicks >= 15) {
 			fTicks = 0;
 			// TODO: Make Object::Update() virtual and override
 			// in subclasses to avoid dynamic casting
@@ -158,7 +158,7 @@ Object::Update(bool scripts)
 				if (!fScript->Execute())
 					return;
 			}
-		}
+		//}
 	}
 }
 

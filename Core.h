@@ -123,6 +123,7 @@ private:
 	uint32 fLastScriptRoundTime;
 	uint16 fNextObjectNumber;
 
+	uint32 fCurrentRoundNumber;
 	ScriptResults* fCurrentRoundResults;
 	ScriptResults* fLastRoundResults;
 	

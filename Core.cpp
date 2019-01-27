@@ -40,6 +40,7 @@ Core::Core()
 	fRoomScript(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
+	fCurrentRoundNumber(0),
 	fCurrentRoundResults(NULL),
 	fLastRoundResults(NULL),
 	fPaused(false)
@@ -655,6 +656,8 @@ Core::_RemoveStaleObjects()
 void
 Core::_NewRound()
 {
+	fCurrentRoundNumber++;
 	std::swap(fCurrentRoundResults, fLastRoundResults);
 	fCurrentRoundResults->Clear();
+	std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
 }
