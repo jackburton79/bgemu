@@ -354,7 +354,7 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 		if (fSelectedActor != actor) {
 			//if (fSelectedActor != NULL)
 			//	fSelectedActor->Select(false);
-			fSelectedActor = actor;
+			//fSelectedActor = actor;
 			//if (fSelectedActor != NULL)
 			//	fSelectedActor->Select(true);
 			

@@ -189,6 +189,27 @@ Actor::~Actor()
 }
 
 
+void
+Actor::Print() const
+{
+	CREResource* cre = CRE();
+	std::cout << "*** " << Name() << " ***" << std::endl;
+	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
+	std::cout << " (" << (int)cre->Gender() << ")" << std::endl;
+	std::cout << "Class: " << IDTable::ClassAt(cre->Class());
+	std::cout << " (" << (int)cre->Class() << ")" << std::endl;
+	std::cout << "Race: " << IDTable::RaceAt(cre->Race());
+	std::cout << " (" << (int)cre->Race() << ")" << std::endl;
+	std::cout << "EA: " << IDTable::EnemyAllyAt(cre->EnemyAlly());
+	std::cout << " (" << (int)cre->EnemyAlly() << ")" << std::endl;
+	std::cout << "General: " << IDTable::GeneralAt(cre->General());
+	std::cout << " (" << (int)cre->General() << ")" << std::endl;
+	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific());
+	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
+	std::cout << "*********" << std::endl;
+}
+
+
 // Returns true if an actor was just instantiated
 // false if it was already existing (loaded from save)
 bool

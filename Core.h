@@ -71,6 +71,7 @@ public:
 	Actor* GetObject(uint16 globalEnum) const;
 	Actor* GetObject(const Region* region) const;
 	Actor* GetNearestEnemyOf(const Actor* object) const;
+	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
 
 	ScriptResults* RoundResults();
 	ScriptResults* LastRoundResults();

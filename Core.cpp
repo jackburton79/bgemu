@@ -293,9 +293,10 @@ Core::GetObject(Actor* source, object_node* node) const
 			const int identifier = node->identifiers[id];
 			if (identifier == 0)
 				break;
-			//std::cout << IDTable::ObjectAt(identifier) << ", ";
+			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = source->ResolveIdentifier(identifier);
 			source = target;
+			source->Print();
 		}
 		// TODO: Filter using wildcards in node
 		std::cout << "returned ";
@@ -388,6 +389,33 @@ Core::GetNearestEnemyOf(const Actor* object) const
 	}
 	if (nearest != NULL) {
 		std::cout << "Nearest Enemy of " << object->Name();
+		std::cout << " is " << nearest->Name() << std::endl;
+	}
+	return nearest;
+}
+
+
+Actor*
+Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
+{
+	ActorsList::const_iterator i;
+	int minDistance = INT_MAX;
+	Actor* nearest = NULL;
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		Actor* actor = *i;
+		if (actor == NULL)
+			continue;
+		if (actor != object && actor->IsEnemyOf(object) && actor->IsClass(ieClass)) {
+			int distance = Distance(object, actor);
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearest = actor;
+			}
+		}
+	}
+	if (nearest != NULL) {
+		std::cout << "Nearest Enemy of " << object->Name();
+		std::cout << " (type " << ieClass << ")";
 		std::cout << " is " << nearest->Name() << std::endl;
 	}
 	return nearest;

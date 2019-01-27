@@ -27,6 +27,8 @@ public:
 	Actor(const char* creName, IE::point position, int face);
 	virtual ~Actor();
 
+	void Print() const;
+
 	CREResource *CRE() const;
 
 	bool IsNew() const;
