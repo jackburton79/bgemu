@@ -161,6 +161,8 @@ enum orientation {
 	ORIENTATION_SE	= 7
 };
 
+bool is_orientation_facing_north(int o);
+
 enum orientation_extended {
 	ORIENTATION_EXT_S	= 0,
 	ORIENTATION_EXT_SSW	= 1,
@@ -180,6 +182,8 @@ enum orientation_extended {
 	ORIENTATION_EXT_SSE = 15
 };
 
+bool is_orientation_ext_facing_north(int o);
+int orientation_ext_to_base(int o);
 
 struct item {
 	res_ref name;

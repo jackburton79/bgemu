@@ -243,6 +243,29 @@ operator-(const IE::point& ptA, const IE::point& ptB)
 }
 
 
+// orientation
+bool
+IE::is_orientation_facing_north(int o)
+{
+	return o >= 3 && o <= 5;
+}
+
+
+bool
+IE::is_orientation_ext_facing_north(int o)
+{
+	return o >= 5 && o <= 11;
+}
+
+
+int
+IE::orientation_ext_to_base(int o)
+{
+	return o / 2;
+}
+
+
+// Animation
 void
 animation::Print() const
 {
@@ -273,6 +296,7 @@ animation::Print() const
 }
 
 
+// item
 void
 item::Print() const
 {
