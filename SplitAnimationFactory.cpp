@@ -32,25 +32,27 @@ SplitAnimationFactory::GetAnimationDescription(int action, int o, animation_desc
 	
 	if (Core::Get()->Game() == GAME_BALDURSGATE2)
 		o = IE::orientation_ext_to_base(o);
-		
-	// G1/G11-G15, G2/G21/26
-	if (IE::is_orientation_facing_north(o))
-		description.bam_name.append("H");
-	else 
-		description.bam_name.append("L");
 
+	description.sequence_number = uint32(o);
+
+	// G1/G11-G15, G2/G21/26
+	//if (IE::is_orientation_facing_north(o))
+		description.bam_name.append("H");
+	//else 
+	//	description.bam_name.append("L");
+	
 	switch (action) {
 		case ACT_WALKING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			description.sequence_number += 0;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			description.sequence_number += 0;
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			description.sequence_number += 8;
 			break;
 		default:
 			break;
@@ -60,13 +62,10 @@ SplitAnimationFactory::GetAnimationDescription(int action, int o, animation_desc
 			&& uint32(o) <= IE::ORIENTATION_SE) {
 		// Orientation 5 uses bitmap from orientation 3 mirrored,
 		// 6 uses 2, and 7 uses 1
-		description.mirror = true;
-		description.sequence_number -= (o - 4) * 2;
-	}
-	if (fBaseName == "NSIM") {
-		std::cout << "orientation: " << o << std::endl;
-		std::cout << "description.sequence: " << description.sequence_number << std::endl;
-		std::cout << "bam: " << description.bam_name << std::endl;
+		//description.mirror = true;
+		// TODO: not in BG2. There is a separate file with East-facing animation
+		description.bam_name.append("E");
+		//description.sequence_number -= (o - 4) * 2;
 	}
 }
 
