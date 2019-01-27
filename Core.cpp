@@ -296,7 +296,8 @@ Core::GetObject(Actor* source, object_node* node) const
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = source->ResolveIdentifier(identifier);
 			source = target;
-			source->Print();
+			if (source != NULL)
+				source->Print();
 		}
 		// TODO: Filter using wildcards in node
 		std::cout << "returned ";
