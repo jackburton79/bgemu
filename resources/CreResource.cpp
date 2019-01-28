@@ -30,8 +30,7 @@ CREResource::Load(Archive *archive, uint32 key)
 	if (!CheckVersion(CRE_VERSION_1))
 		return false;
 
-	fData->ReadAt(0x02b8, fItemSlotOffset);
-	fData->ReadAt(0x02bc, fItemsOffset);
+	Init();
 
 	return true;
 }
@@ -45,7 +44,17 @@ CREResource::Load(Stream* stream, uint32 position, uint32 size)
 	fData = new MemoryStream(size);
 	stream->ReadAt(position, fData->Data(), size);
 
+	Init();
+
 	return true;
+}
+
+
+void
+CREResource::Init()
+{
+	fData->ReadAt(0x02b8, fItemSlotOffset);
+	fData->ReadAt(0x02bc, fItemsOffset);
 }
 
 
@@ -358,7 +367,6 @@ void
 CREResource::_ReadItemNum(IE::item& item, uint16 itemOffset)
 {
 	const off_t offset = fItemsOffset + itemOffset * sizeof(IE::item);
-	std::cout << "Read item at offset " << offset << std::endl;
 	fData->ReadAt(offset, item);
 }
 
@@ -636,10 +644,4 @@ KitToStr(uint32 kit)
 		default:
 			return "None";
 	}
-}
-
-
-namespace IE {
-// IE::item
-
 }

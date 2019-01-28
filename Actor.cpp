@@ -110,6 +110,9 @@ Actor::_Init()
 		CREResource* cre = gResManager->GetCRE(fActor->cre);
 		if (cre != NULL) {
 			fCRE = dynamic_cast<CREResource*>(cre->Clone());
+			// TODO: Resource::Clone() only copies the raw data.
+			// Anything done in CREResource::Load() will be lost, so it needs to be redone here.
+			fCRE->Init();
 			gResManager->ReleaseResource(cre);
 		}
 		if (fCRE == NULL)

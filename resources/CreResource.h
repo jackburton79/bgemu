@@ -113,7 +113,9 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 	bool Load(Stream* stream, uint32 position, uint32 size);
-
+	
+	void Init();
+	
 	uint32 LongNameID();
 	uint32 ShortNameID();
 
