@@ -771,7 +771,7 @@ Script::_ExecuteActions(node* responseSet)
 	}
 
 	// TODO: Fix this and take the probability into account
-	int randomResponse = rand() % i;
+	int randomResponse = Core::RandomNumber(0, i);
 	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {

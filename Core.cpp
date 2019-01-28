@@ -549,8 +549,8 @@ Core::Close(Object* actor, Door* door)
 void
 Core::RandomFly(Actor* actor)
 {
-	int16 randomX = (rand() % 200) - 100;
-	int16 randomY = (rand() % 200) - 100;
+	int16 randomX = RandomNumber(-100, 100);
+	int16 randomY = RandomNumber(-100, 100);
 
 	FlyToPoint(actor, offset_point(actor->Position(), randomX,
 							randomY), 1);
@@ -560,8 +560,8 @@ Core::RandomFly(Actor* actor)
 void
 Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 {
-	int16 randomX = (rand() % 100) - 50;
-	int16 randomY = (rand() % 100) - 50;
+	int16 randomX = RandomNumber(-50, 50);
+	int16 randomY = RandomNumber(-50, 50);
 
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	FlyTo* flyTo = new FlyTo(actor, destination, time);
@@ -572,8 +572,8 @@ Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 void
 Core::RandomWalk(Actor* actor)
 {
-	int16 randomX = (rand() % 100) - 50;
-	int16 randomY = (rand() % 100) - 50;
+	int16 randomX = RandomNumber(-50, 50);
+	int16 randomY = RandomNumber(-50, 50);
 
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	WalkTo* walkTo = new WalkTo(actor, destination);
