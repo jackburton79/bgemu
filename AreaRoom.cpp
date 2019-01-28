@@ -776,6 +776,7 @@ AreaRoom::_DrawActors()
 	ActorsList::const_iterator a;
 	ActorsList actorsList;
 	Core::Get()->GetObjectList(actorsList);
+	std::sort(actorsList.begin(), actorsList.end(), ZOrderSorter());
 	
 	for (a = actorsList.begin();
 			a != actorsList.end(); a++) {

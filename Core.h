@@ -36,7 +36,7 @@ class Script;
 class ScriptResults;
 class TLKResource;
 
-typedef std::list<Actor*> ActorsList;
+typedef std::vector<Actor*> ActorsList;
 typedef std::map<uint16, actor_description> ActorMap;
 
 class Core {

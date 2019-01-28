@@ -147,8 +147,12 @@ private:
 	void _AddScript(::Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
+};
 
-
+struct ZOrderSorter {
+	bool operator()(Actor *&actor1, Actor *&actor2) const {
+		return actor1->Position().y < actor2->Position().y;
+	}
 };
 
 #endif //__ACTOR_H
