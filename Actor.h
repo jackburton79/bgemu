@@ -150,7 +150,7 @@ private:
 };
 
 struct ZOrderSorter {
-	bool operator()(Actor *&actor1, Actor *&actor2) const {
+	bool operator()(Actor* const& actor1, Actor* const& actor2) const {
 		return actor1->Position().y < actor2->Position().y;
 	}
 };
