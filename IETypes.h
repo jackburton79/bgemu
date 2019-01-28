@@ -195,7 +195,7 @@ struct item {
 	uint32 flags;
 
 	void Print() const;
-};
+} __attribute__((packed));
 
 
 enum actor_flags {

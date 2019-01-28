@@ -321,31 +321,26 @@ CREResource::SetLocalActorEnum(uint16 value)
 }
 
 
-IE::item*
+IE::item
 CREResource::ItemAtSlot(uint32 i)
 {
 	if (i >= kNumItemSlots)
-		return NULL;
+		throw -1;
 
-	// TODO: uint32 ? not uint16 ?
-
-	int16 itemSlot;
-	fData->ReadAt(fItemSlotOffset + i * sizeof(itemSlot), itemSlot);
+	uint16 itemOffset;
+	fData->ReadAt(fItemSlotOffset + i * sizeof(itemOffset), itemOffset);
 
 	std::cout << "item at slot " << std::dec << i;
-	std::cout << " :" << std::hex << itemSlot << std::endl;
+	std::cout << " :" << std::dec << itemOffset << std::endl;
 
 	// TODO: number 38 is a dword instead. Handle that case
-	if (itemSlot == -1 || itemSlot == 0)
-		return NULL;
+	if (itemOffset == (int16)-1)
+		throw -1;
 
-	// TODO: We are returning a pointer to a memory block here.
-	// It's useful so the caller can modify the item, but might
-	// not be so correct.
-	const off_t offset = fItemsOffset + itemSlot * sizeof(IE::item);
-	IE::item* item = (IE::item*)((char*)fData->Data() + std::ptrdiff_t(offset));
+	IE::item ieItem;
+	_ReadItemNum(ieItem, itemOffset);
 
-	return item;
+	return ieItem;
 }
 
 
@@ -357,6 +352,16 @@ CREResource::DeathVariable()
 	fData->ReadAt(0x280, temp, 32);
 	return temp;
 }
+
+
+void
+CREResource::_ReadItemNum(IE::item& item, uint16 itemOffset)
+{
+	const off_t offset = fItemsOffset + itemOffset * sizeof(IE::item);
+	std::cout << "Read item at offset " << offset << std::endl;
+	fData->ReadAt(offset, item);
+}
+
 /*
 void
 BGCreature::GetCreatureInfo(TStream &file)

@@ -154,14 +154,16 @@ public:
 	uint16 LocalActorEnum();
 	void SetLocalActorEnum(uint16 enumValue);
 
-	IE::item* ItemAtSlot(uint32 i);
+	IE::item ItemAtSlot(uint32 i);
 
 	const char *DialogFile();
 	const char *DeathVariable();
 
 private:
 	virtual ~CREResource();
-
+	
+	void _ReadItemNum(IE::item& ieItem, uint16 offset);
+	
 	uint32 fItemSlotOffset;
 	uint32 fItemsOffset;
 /*protected:

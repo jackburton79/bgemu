@@ -144,18 +144,18 @@ Actor::_Init()
 	SetScript(script);
 
 	//fActor->Print();
-	/*for (uint32 i = 0; i < kNumItemSlots; i++) {
-		IE::item* item = fCRE->ItemAtSlot(i);
-		if (item != NULL) {
-			item->Print();
-			ITMResource* itemRes = gResManager->GetITM(item->name);
+	for (uint32 i = 0; i < kNumItemSlots; i++) {
+		try {
+			IE::item item = fCRE->ItemAtSlot(i);
+			item.Print();
+			ITMResource* itemRes = gResManager->GetITM(item.name);
 			if (itemRes != NULL) {
 				std::cout << "type: " << std::dec << itemRes->Type() << std::endl;
 			}
 			gResManager->ReleaseResource(itemRes);
-
+		} catch (...) {
 		}
-	}*/
+	}
 
 	//TODO: some orientations are bad. Why?!?!?!
 	if (fActor->orientation > IE::ORIENTATION_SE) {
