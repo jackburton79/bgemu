@@ -177,6 +177,14 @@ RoomBase::ToggleSearchMap()
 }
 
 
+void
+RoomBase::HideGUI()
+{
+	// TODO
+	ToggleGUI();
+}
+
+
 /* virtual */
 void
 RoomBase::ToggleDayNight()

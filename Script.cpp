@@ -1064,6 +1064,12 @@ Script::_ExecuteAction(action_node* act)
 			core->AddActorToCurrentArea(actor);
 			break;
 		}
+		case 286: // 0x11e
+		{
+			/* HIDEGUI */
+			core->CurrentRoom()->HideGUI();
+			break;
+		}
 		default:
 			printf("SCRIPT: UNIMPLEMENTED ACTION!!!\n");
 			printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
