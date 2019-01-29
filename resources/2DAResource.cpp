@@ -120,6 +120,27 @@ TWODAResource::ValueAt(int rowIndex, int columnIndex) const
 }
 
 
+int32
+TWODAResource::IntegerValueAt(int rowIndex, int columnIndex) const
+{
+	return ::strtol(fTable.at(rowIndex).at(columnIndex).c_str(), NULL, 0);
+}
+
+
+int32
+TWODAResource::CountRows() const
+{
+	return fTable.size();
+}
+
+
+int32
+TWODAResource::CountColumns() const
+{
+	return fTable.at(0).size();
+}
+
+
 void
 TWODAResource::_HandleHeadersRow(char* string)
 {

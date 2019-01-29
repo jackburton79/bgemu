@@ -23,6 +23,10 @@ public:
 	std::string ValueFor(const char* row, const char* column = NULL) const;
 	int32 IntegerValueFor(const char* row, const char* column = NULL) const;
 	std::string ValueAt(int rowIndex, int columnIndex) const;
+	int32 IntegerValueAt(int rowIndex, int columnIndex) const;
+
+	int32 CountRows() const;
+	int32 CountColumns() const;
 
 private:
 	virtual ~TWODAResource();
