@@ -12,6 +12,7 @@
 const static uint32 kNumAnimations = 8;
 const static uint32 kNumActions = 2;
 
+struct CREColors;
 class Animation;
 class AnimationFactory;
 class Bitmap;
@@ -20,6 +21,7 @@ class CREResource;
 class PathFinder;
 class Script;
 class TileCell;
+class TWODAResource;
 class Actor : public Object {
 public:
 	Actor(IE::actor& actor);
@@ -127,6 +129,8 @@ private:
 	CREResource *fCRE;
 	bool fOwnsActor;
 
+	CREColors* fColors;
+
 	bool fDontCheckConditions;
 	bool fIsInterruptable;
 
@@ -147,6 +151,8 @@ private:
 	void _AddScript(::Script*& destination, const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
+	void _HandleColors();
+	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 };
 
 struct ZOrderSorter {

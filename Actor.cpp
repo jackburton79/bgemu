@@ -1,5 +1,6 @@
 #include "Actor.h"
 
+#include "2DAResource.h"
 #include "Action.h"
 #include "Animation.h"
 #include "AnimationFactory.h"
@@ -103,6 +104,7 @@ Actor::_Init()
 	fCurrentAnimation = NULL;
 	fAnimationValid = false;
 	fTileCell = NULL;
+	fColors = NULL;
 
 	if (fCRE == NULL) {
 		// We need a new instance of the CRE file for every actor,
@@ -117,6 +119,8 @@ Actor::_Init()
 		}
 		if (fCRE == NULL)
 			throw "Actor: CRE file not loaded.";
+
+		_HandleColors();
 	}
 
 	// TODO: Get all scripts ? or just the specific one ?
@@ -188,6 +192,8 @@ Actor::~Actor()
 		delete fActor;
 
 	gResManager->ReleaseResource(fCRE);
+
+	delete fColors;
 
 	if (fAnimationFactory != NULL) {
 		AnimationFactory::ReleaseFactory(fAnimationFactory);
@@ -841,10 +847,9 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 	if (!fAnimationValid) {
 		delete fCurrentAnimation;
 		if (fAnimationFactory != NULL) {
-			CREColors creColors = CRE()->Colors();
 			fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
-										fActor->orientation, &creColors);
+										fActor->orientation, fColors);
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL)
@@ -994,3 +999,39 @@ Actor::SetTileCell(::TileCell* cell)
 	fTileCell = cell;
 }
 
+
+void
+Actor::_HandleColors()
+{
+	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
+	if (randColors != NULL) {
+		CREColors originalColors = CRE()->Colors();
+		fColors = new CREColors;
+		fColors->hair = _GetRandomColor(randColors, originalColors.hair);
+		fColors->leather = _GetRandomColor(randColors, originalColors.leather);
+		fColors->armor = _GetRandomColor(randColors, originalColors.armor);
+		fColors->metal = _GetRandomColor(randColors, originalColors.metal);
+		fColors->major = _GetRandomColor(randColors, originalColors.major);
+		fColors->minor = _GetRandomColor(randColors, originalColors.minor);
+		fColors->skin = _GetRandomColor(randColors, originalColors.skin);
+		gResManager->ReleaseResource(randColors);
+	}
+}
+
+
+uint8
+Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
+{
+	uint8 num = 0;
+	// get column requested index
+	for (int i = 0; i < randColors->CountColumns(); i++) {
+		uint16 value = randColors->IntegerValueAt(0, i);
+		if (value == index) {
+			int rndNumber = Core::RandomNumber(0, randColors->CountRows() - 1);
+			num = randColors->IntegerValueAt(rndNumber, i);
+			break;
+		}
+	}
+
+	return num;
+}

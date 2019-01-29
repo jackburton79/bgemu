@@ -39,7 +39,6 @@ public:
 
 private:
 	void _LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors);
-	uint8 _GetRandomColor(uint8 index);
 
 	IE::animation *fAnimation;
 	std::vector< ::Bitmap*> fBitmaps;

@@ -1,6 +1,5 @@
 #include "Animation.h"
 
-#include "2DAResource.h"
 #include "Actor.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -157,9 +156,8 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 		if (patchColors != NULL) {
 			GFX::Palette palette;
 			bitmap->GetPalette(palette);
-
-			GFX::Color hair = palette.colors[_GetRandomColor(patchColors->hair)];
-			GFX::Color skin = palette.colors[_GetRandomColor(patchColors->skin)];
+			GFX::Color hair = palette.colors[patchColors->hair];
+			GFX::Color skin = palette.colors[patchColors->skin];
 			//GFX::Color major = palette.colors[patchColors->major];
 			//GFX::Color minor = palette.colors[patchColors->minor];
 			//GFX::Color metal = palette.colors[patchColors->metal];
@@ -190,25 +188,4 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 
 		fBitmaps.push_back(bitmap);
 	}
-}
-
-
-uint8
-Animation::_GetRandomColor(uint8 index)
-{
-	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
-	uint8 num = 0;
-	if (randColors != NULL) {
-		// get column requested index
-		for (int i = 0; i < randColors->CountColumns(); i++) {
-			uint16 value = randColors->IntegerValueAt(0, i);
-			if (value == index) {
-				int rndNumber = Core::RandomNumber(0, randColors->CountRows() - 1);
-				num = randColors->IntegerValueAt(rndNumber, i);
-				break;
-			}
-		}
-		gResManager->ReleaseResource(randColors);
-	}
-	return num;
 }
