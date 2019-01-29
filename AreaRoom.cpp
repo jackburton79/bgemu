@@ -585,23 +585,35 @@ AreaRoom::ToggleSearchMap()
 
 /* virtual */
 void
-AreaRoom::ToggleGUI()
+AreaRoom::ShowGUI()
 {
 	GUI* gui = GUI::Get();
-	if (gui->IsWindowShown(0))
-		gui->HideWindow(0);
-	else
-		gui->ShowWindow(0);
-
-	if (gui->IsWindowShown(1))
-		gui->HideWindow(1);
-	else
-		gui->ShowWindow(1);
+	gui->ShowWindow(0);
+	gui->ShowWindow(1);
 
 	/*if (gui->IsWindowShown(3))
 		gui->HideWindow(3);
 	else
 		gui->ShowWindow(3);*/
+}
+
+
+/* virtual */
+void
+AreaRoom::HideGUI()
+{
+	GUI* gui = GUI::Get();
+	gui->HideWindow(0);
+	gui->HideWindow(1);
+}
+
+
+/* virtual */
+bool
+AreaRoom::IsGUIShown() const
+{
+	GUI* gui = GUI::Get();
+	return gui->IsWindowShown(0) && gui->IsWindowShown(1);
 }
 
 

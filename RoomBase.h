@@ -50,8 +50,12 @@ public:
 	virtual void ToggleAnimations();
 	virtual void ToggleSearchMap();
 	void ToggleConsole();
-	void HideGUI();
-	virtual void ToggleGUI() = 0;
+
+	virtual void ShowGUI() = 0;
+	virtual void HideGUI() = 0;
+	virtual bool IsGUIShown() const = 0;
+	void ToggleGUI();
+
 	virtual void ToggleDayNight();
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);

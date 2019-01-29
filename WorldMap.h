@@ -32,7 +32,10 @@ public:
 	void ActorExitedArea(const Actor* actor);
 	
 	void ToggleConsole();
-	virtual void ToggleGUI();
+
+	virtual void ShowGUI();
+	virtual void HideGUI();
+	virtual bool IsGUIShown() const;
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 

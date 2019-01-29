@@ -206,9 +206,25 @@ WorldMap::ActorExitedArea(const Actor* actor)
 }
 
 
+/* virtual */
 void
-WorldMap::ToggleGUI()
+WorldMap::ShowGUI()
 {
+}
+
+
+/* virtual */
+void
+WorldMap::HideGUI()
+{
+}
+
+
+/* virtual */
+bool
+WorldMap::IsGUIShown() const
+{
+	return true;
 }
 
 

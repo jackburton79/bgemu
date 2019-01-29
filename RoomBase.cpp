@@ -178,10 +178,12 @@ RoomBase::ToggleSearchMap()
 
 
 void
-RoomBase::HideGUI()
+RoomBase::ToggleGUI()
 {
-	// TODO
-	ToggleGUI();
+	if (IsGUIShown())
+		HideGUI();
+	else
+		ShowGUI();
 }
 
 
