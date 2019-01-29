@@ -13,6 +13,7 @@ BackMap.cpp \
 bgemu.cpp \
 BGCharachterAnimationFactory.cpp \
 BG2CharachterAnimationFactory.cpp \
+BGMonsterAnimationFactory.cpp \
 Container.cpp \
 Core.cpp \
 Door.cpp \

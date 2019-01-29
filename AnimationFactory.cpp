@@ -9,6 +9,7 @@
 #include "AnimationFactory.h"
 #include "BGCharachterAnimationFactory.h"
 #include "BG2CharachterAnimationFactory.h"
+#include "BGMonsterAnimationFactory.h"
 #include "BamResource.h"
 #include "Core.h"
 #include "ResManager.h"
@@ -55,6 +56,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xb000 && animationID <= 0xd300)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0xe400 && animationID <= 0xe400)
+					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				break;
 			default:
 				break;

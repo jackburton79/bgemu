@@ -26,12 +26,30 @@ ITMResource::~ITMResource()
 }
 
 
+std::string
+ITMResource::Animation() const
+{
+	std::string animation;
+	animation.push_back(fHeader.animation[0]);
+	animation.push_back(fHeader.animation[1]);
+	return animation;
+}
+
+
 uint16
 ITMResource::Type() const
 {
 	return fHeader.type;
 }
 
+
+uint32
+ITMResource::DescriptionRef() const
+{
+	uint32 ref;
+	fData->ReadAt(0x0054, ref);
+	return ref;
+}
 
 /* virtual */
 bool

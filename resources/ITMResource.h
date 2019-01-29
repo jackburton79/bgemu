@@ -10,6 +10,7 @@
 
 #include "Resource.h"
 
+#include <string>
 
 struct itm_header {
 	uint32 name_unidentified;
@@ -31,6 +32,8 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 
 	uint16 Type() const;
+	std::string Animation() const;
+	uint32 DescriptionRef() const;
 
 private:
 	virtual ~ITMResource();
