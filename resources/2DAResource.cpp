@@ -97,17 +97,26 @@ TWODAResource::Dump()
 
 
 std::string
-TWODAResource::ValueFor(const char* rowValue, const char* columnValue)
+TWODAResource::ValueFor(const char* rowValue, const char* columnValue) const
 {
 	const char* value = columnValue ? columnValue : "";
-	return fMap[std::make_pair(rowValue, value)];
+	std::cout << "ValueFor:" << rowValue << " " << value << std::endl;
+	//StringMap::iterator i = fMap.find(std::make_pair(rowValue, value));
+	return fMap.at(std::make_pair(rowValue, value));
 }
 
 
 int32
-TWODAResource::IntegerValueFor(const char* rowValue, const char* columnValue)
+TWODAResource::IntegerValueFor(const char* rowValue, const char* columnValue) const
 {
 	return ::strtol(ValueFor(rowValue, columnValue).c_str(), NULL, 0);
+}
+
+
+std::string
+TWODAResource::ValueAt(int rowIndex, int columnIndex) const
+{
+	return fTable.at(rowIndex).at(columnIndex);
 }
 
 
@@ -130,10 +139,13 @@ TWODAResource::_HandleContentRow(char* string)
 
 	fRowHeaders.push_back(stringValue);
 	int i = 0;
+	StringList row;
 	while ((stringValue = ::strtok(NULL, " \t")) != NULL) {
 		//if (strcmp(stringValue, "") == 0)
 		//	continue;
+		row.push_back(stringValue);
 		fMap[std::make_pair(fRowHeaders.back(), fColumnHeaders[i])] = stringValue;
 		i++;
 	}
+	fTable.push_back(row);
 }

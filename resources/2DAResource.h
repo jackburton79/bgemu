@@ -20,8 +20,10 @@ public:
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual void Dump();
 
-	std::string ValueFor(const char* row, const char* column = NULL);
-	int32 IntegerValueFor(const char* row, const char* column = NULL);
+	std::string ValueFor(const char* row, const char* column = NULL) const;
+	int32 IntegerValueFor(const char* row, const char* column = NULL) const;
+	std::string ValueAt(int rowIndex, int columnIndex) const;
+
 private:
 	virtual ~TWODAResource();
 
@@ -29,12 +31,15 @@ private:
 	void _HandleContentRow(char* string);
 
 	typedef std::vector<std::string> StringList;
+	typedef std::map<std::pair<std::string, std::string>, std::string> StringMap;
 
-	std::map<std::pair<std::string, std::string>, std::string> fMap;
+	StringMap fMap;
 	std::string fDefaultValue;
 
 	StringList fColumnHeaders;
 	StringList fRowHeaders;
+
+	std::vector<StringList> fTable;
 };
 
 #endif /* TWODARESOURCE_H_ */
