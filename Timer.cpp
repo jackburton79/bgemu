@@ -169,10 +169,51 @@ GameTimer::GameTime()
 
 
 /* static */
-uint32
-GameTimer::Hour()
+uint16
+GameTimer::Days()
 {
-	return 1;
+	return Hours() / 24;
+}
+
+
+/* static */
+uint16
+GameTimer::Hours()
+{
+	return Minutes() / 60;
+}
+
+
+/* static */
+uint16
+GameTimer::Minutes()
+{
+	return Seconds() / 60;
+}
+
+
+/* static */
+uint16
+GameTimer::Seconds()
+{
+	return sGameTime;
+}
+
+
+/* static */
+uint16
+GameTimer::HourOfDay()
+{
+	return Hours() % 24;
+}
+
+
+/* static */
+void
+GameTimer::PrintTime()
+{
+	std::cout << "time: " << Hours() % 24 << ":" << Minutes() % 60;
+	std::cout << ":" << Seconds() % 60 << std::endl;
 }
 
 
@@ -183,3 +224,4 @@ GameTimer::UpdateGameTime()
 	// TODO: This way the time runs too fast
 	sGameTime++;
 }
+

@@ -475,6 +475,7 @@ Core::UpdateLogic(bool executeScripts)
 	if (fPaused)
 		return;
 
+	//GameTimer::PrintTime();
 	GameTimer::UpdateGameTime();
 	Timer* timer = Timer::Get("ANIMATIONS");
 	if (timer->Expired())

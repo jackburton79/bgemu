@@ -33,7 +33,6 @@ public:
 	static void AddOneShotTimer(uint32 time, timer_func function, void* parameter);
 	static uint32 Ticks();
 
-
 private:
 	Timer(uint32 delay);
 
@@ -55,8 +54,13 @@ public:
 	static GameTimer* Get(const char* string);
 	static uint32 GameTime();
 
-	static uint32 Hour();
+	static uint16 Days();
+	static uint16 Hours();
+	static uint16 Minutes();
+	static uint16 Seconds();
+	static uint16 HourOfDay();
 
+	static void PrintTime();
 	static void UpdateGameTime();
 
 private:
