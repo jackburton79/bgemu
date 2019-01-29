@@ -221,7 +221,12 @@ GameTimer::PrintTime()
 void
 GameTimer::UpdateGameTime()
 {
-	// TODO: This way the time runs too fast
 	sGameTime++;
 }
 
+
+void
+GameTimer::AdvanceTime(uint32 seconds)
+{
+	sGameTime += seconds;
+}

@@ -10,6 +10,7 @@
 #include "CreResource.h"
 #include "InputConsole.h"
 #include "ResManager.h"
+#include "Timer.h"
 
 #include <iostream>
 #include <sstream>
@@ -74,6 +75,21 @@ public:
 };
 
 
+class WaitTimeCommand : public ShellCommand {
+public:
+	WaitTimeCommand() : ShellCommand("wait-time") {};
+	virtual ~WaitTimeCommand() {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		uint16 hours;
+		if (!(stringStream >> hours).fail()) {
+			GameTimer::AdvanceTime(hours * 60 * 60);
+			GameTimer::PrintTime();
+		}
+	}
+};
+
+
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -90,5 +106,6 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
+	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new ExitCommand());
 }
