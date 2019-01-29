@@ -56,7 +56,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xb000 && animationID <= 0xd300)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xe400 && animationID <= 0xe400)
+				else if (animationID >= 0xe400 && animationID <= 0xe430)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				break;
 			default:

@@ -8,6 +8,7 @@
 #include "BGMonsterAnimationFactory.h"
 
 #include "Animation.h"
+#include "Core.h"
 
 BGMonsterAnimationFactory::BGMonsterAnimationFactory(const char* baseName, const uint16 id)
 	:
@@ -27,30 +28,33 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 {
 	//std::cout << "BGAnimationFactory" << std::endl;
 	description.bam_name = fBaseName;
-	description.sequence_number = o;
 	description.mirror = false;
+	if (Core::Get()->Game() == GAME_BALDURSGATE2)
+		o = IE::orientation_ext_to_base(o);
 	// Armor
 	// TODO: For real
-	description.bam_name.append("1");
 	switch (action) {
 		case ACT_WALKING:
-			description.bam_name.append("W2");
+			description.bam_name.append("G11");
 			description.sequence_number = o;
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = o + 8;
+			description.sequence_number = o + 10;
 			break;
 		case ACT_ATTACKING:
-			description.bam_name.append("A1");
+			description.bam_name.append("G2");
 			description.sequence_number = o;
 			break;
 		default:
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE
-			&& o <= IE::ORIENTATION_SE) {
-		description.bam_name.append("E");
-	}
+				&& uint32(o) <= IE::ORIENTATION_SE) {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			description.sequence_number -= (o - 4) * 2;
+		}
 }
 
