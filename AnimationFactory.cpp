@@ -51,7 +51,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
-				if (animationID == 0x7f37)
+				if (animationID >= 0x7f03 && animationID <= 0x7f37)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0x5000 && animationID <= 0x9000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
