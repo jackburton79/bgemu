@@ -21,6 +21,7 @@ EncryptedStream.cpp \
 Graphics.cpp \
 Game.cpp \
 IETypes.cpp \
+IWDAnimationFactory.cpp \
 Listener.cpp \
 MovieDecoder.cpp \
 MovieDecoderTest.cpp \

@@ -660,5 +660,5 @@ Core::_NewRound()
 	fCurrentRoundNumber++;
 	std::swap(fCurrentRoundResults, fLastRoundResults);
 	fCurrentRoundResults->Clear();
-	std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
+	//std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
 }

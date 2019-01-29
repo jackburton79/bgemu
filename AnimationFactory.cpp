@@ -12,6 +12,7 @@
 #include "BGMonsterAnimationFactory.h"
 #include "BamResource.h"
 #include "Core.h"
+#include "IWDAnimationFactory.h"
 #include "ResManager.h"
 #include "SimpleAnimationFactory.h"
 #include "SplitAnimationFactory.h"
@@ -50,14 +51,16 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
-				if (animationID >= 0x5000 && animationID <= 0x9000)
+				if (animationID == 0x7f37)
+					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0x5000 && animationID <= 0x9000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xc000 && animationID <= 0xca00)
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xb000 && animationID <= 0xd300)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xe400 && animationID <= 0xe430)
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
 				break;
 			default:
 				break;
@@ -110,6 +113,7 @@ AnimationFactory::AnimationFor(int action, int orientation, CREColors* colors)
 		animation = NULL;
 	}
 
+	std::cout << std::hex << fID << " " << description.bam_name << std::endl;
 	return animation;
 }
 
