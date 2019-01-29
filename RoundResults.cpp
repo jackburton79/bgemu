@@ -30,7 +30,6 @@ ScriptResults::Clear()
 void
 ScriptResults::SetActorSaw(const Actor* actor, const Actor* target)
 {
-	std::cout << actor->Name() << " just seen " << target->Name() << std::endl;
 	result_entry resultEntry = { actor, ScriptResults::SAW, target };
 	fSourcesList.insert(std::make_pair(actor->CRE()->GlobalActorEnum(), resultEntry));
 	fTargetsList.insert(std::make_pair(target->CRE()->GlobalActorEnum(), resultEntry));
