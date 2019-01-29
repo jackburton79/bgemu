@@ -446,6 +446,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Hours are offset by 30 minutes, e.g. Time(1) is true
 				 * between 00:30 and 01:29.
 				 */
+				if (GameTimer::HourOfDay() == trig->parameter1)
+					returnValue = true;
 				break;
 			}
 
@@ -590,7 +592,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 			}
 
-#if 0
 			case 0x4068:
 			{
 				/* TimeGT(I:Time*Time)
@@ -598,15 +599,19 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * that specified. Hours are offset by 30 minutes,
 				 * e.g. TimeGT(1) is true between 01:30 and 02:29.
 				 */
+				// TODO: Offset hour
+				if (GameTimer::HourOfDay() > trig->parameter1)
+					returnValue = true;
 				break;
 			}
-
 			case 0x4069:
 			{
 				//TIMELT(I:TIME*TIME) (16489 0x4069)
+				// TODO: Offset hour
+				if (GameTimer::HourOfDay() < trig->parameter1)
+					returnValue = true;
 				break;
 			}
-#endif
 			case 0x0070:
 			{
 				/* 0x0070 Clicked(O:Object*)
