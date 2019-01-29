@@ -130,8 +130,11 @@ Actor::_Init()
 	std::cout << "colors:" << std::endl << std::dec;
 	std::cout << "\tmajor:" << (int)colors.major << std::endl;
 	std::cout << "\tminor:" << (int)colors.minor << std::endl;
+	std::cout << "\tmetal:" << (int)colors.metal << std::endl;
 	std::cout << "\tarmor:" << (int)colors.armor << std::endl;
 	std::cout << "\thair:" << (int)colors.hair << std::endl;
+	std::cout << "\tleather:" << (int)colors.leather << std::endl;
+	std::cout << "\tskin:" << (int)colors.skin << std::endl;
 	//std::cout << std::dec;
 	//std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
 	//std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
@@ -238,11 +241,7 @@ Actor::Bitmap() const
 		throw message;*/
 		return NULL;
 	}
-	
-	// 30-39 = vest1
-	// 40-49 = skin
-	// 50-59 = vest2
-	// 60-69 = shoulders	
+
 	return fCurrentAnimation->Bitmap();
 }
 
