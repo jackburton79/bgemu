@@ -169,7 +169,7 @@ GameTimer::GameTime()
 
 
 /* static */
-uint16
+uint32
 GameTimer::Days()
 {
 	return Hours() / 24;
@@ -177,7 +177,7 @@ GameTimer::Days()
 
 
 /* static */
-uint16
+uint32
 GameTimer::Hours()
 {
 	return Minutes() / 60;
@@ -185,7 +185,7 @@ GameTimer::Hours()
 
 
 /* static */
-uint16
+uint32
 GameTimer::Minutes()
 {
 	return Seconds() / 60;
@@ -193,7 +193,7 @@ GameTimer::Minutes()
 
 
 /* static */
-uint16
+uint32
 GameTimer::Seconds()
 {
 	return sGameTime;
@@ -214,6 +214,7 @@ GameTimer::PrintTime()
 {
 	std::cout << "time: " << Hours() % 24 << ":" << Minutes() % 60;
 	std::cout << ":" << Seconds() % 60 << std::endl;
+	std::cout << "ticks: " << Seconds() << std::endl;
 }
 
 

@@ -54,10 +54,10 @@ public:
 	static GameTimer* Get(const char* string);
 	static uint32 GameTime();
 
-	static uint16 Days();
-	static uint16 Hours();
-	static uint16 Minutes();
-	static uint16 Seconds();
+	static uint32 Days();
+	static uint32 Hours();
+	static uint32 Minutes();
+	static uint32 Seconds();
 	static uint16 HourOfDay();
 
 	static void PrintTime();
