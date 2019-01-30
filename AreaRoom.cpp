@@ -1046,10 +1046,14 @@ AreaRoom::_UnloadArea()
 		delete fAnimations[c];
 	fAnimations.clear();
 
+	// TODO: I can't remember why / where, but these files have an extra reference
+	gResManager->ReleaseResource(fWed);
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
 	gResManager->ReleaseResource(fArea);
+	gResManager->ReleaseResource(fArea);
 	fArea = NULL;
+	gResManager->ReleaseResource(fBcs);
 	gResManager->ReleaseResource(fBcs);
 	fBcs = NULL;
 	if (fHeightMap != NULL) {
