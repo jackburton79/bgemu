@@ -278,8 +278,8 @@ bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
 	Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
-	if (actor != NULL && actor->SkipConditions())
-		return false;
+	//if (actor != NULL && actor->SkipConditions())
+	//	return false;
 
 #if DEBUG_SCRIPTS
 	printf("SCRIPT: %s%s (%d 0x%x) ? ",

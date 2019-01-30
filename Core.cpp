@@ -493,7 +493,6 @@ Core::UpdateLogic(bool executeScripts)
 	RegionsList::iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		Object* object = *r;
-		std::cout << "region: " << object->Name() << std::endl;
 		object->Update(executeScripts);
 	}
 	_NewRound();
