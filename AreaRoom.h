@@ -112,9 +112,14 @@ private:
 	Bitmap* fLightMap;
 	Bitmap* fSearchMap;
 
-	std::vector<Animation*> fAnimations;
-	std::vector<Reference<Region> > fRegions;
-	std::vector<Reference<Container> > fContainers;
+	typedef std::vector<Animation*> AnimationsList;
+	AnimationsList fAnimations;
+
+	typedef std::vector<Region*> RegionsList;
+	RegionsList fRegions;
+
+	typedef std::vector<Container*> ContainersList;
+	ContainersList fContainers;
 
 	Reference<Actor> fSelectedActor;
 	Reference<Object> fMouseOverObject;

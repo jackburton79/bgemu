@@ -175,7 +175,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 AreaRoom::~AreaRoom()
 {
-	// TODO: Delete various tilecells, overlays, animations
 	_Unload();
 }
 
@@ -757,7 +756,7 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 	if (fAnimations.size() == 0)
 		return;
 
-	std::vector<Animation*>::const_iterator i;
+	AnimationsList::const_iterator i;
 	for (i = fAnimations.begin(); i != fAnimations.end(); i++) {
 		try {
 			Animation* animation = *i;
@@ -863,11 +862,11 @@ AreaRoom::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 Region*
 AreaRoom::_RegionAtPoint(const IE::point& point) const
 {
-	std::vector<Reference<Region> >::const_iterator i;
+	RegionsList::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
-		IE::rect rect = i->Target()->Frame();
+		IE::rect rect = (*i)->Frame();
 		if (rect_contains(rect_to_gfx_rect(rect), point))
-			return i->Target();
+			return *i;
 	}
 	return NULL;
 }
@@ -876,10 +875,10 @@ AreaRoom::_RegionAtPoint(const IE::point& point) const
 Container*
 AreaRoom::_ContainerAtPoint(const IE::point& point)
 {
-	std::vector<Reference<Container> >::const_iterator i;
+	ContainersList::iterator i;
 	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		if (i->Target()->Polygon().Contains(point.x, point.y))
-			return i->Target();
+		if ((*i)->Polygon().Contains(point.x, point.y))
+			return *i;
 	}
 	return NULL;
 }
@@ -1029,12 +1028,12 @@ AreaRoom::_UnloadArea()
 	
 	Core::Get()->ExitingArea(this);
 
-	//for (uint32 c = 0; c < fRegions.size(); c++)
-		//delete fRegions[c];
+	for (uint32 c = 0; c < fRegions.size(); c++)
+		delete fRegions[c];
 	fRegions.clear();
 
-	//for (uint32 c = 0; c < fContainers.size(); c++)
-		//delete fContainers[c];
+	for (uint32 c = 0; c < fContainers.size(); c++)
+		delete fContainers[c];
 	fContainers.clear();
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)
