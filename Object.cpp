@@ -25,7 +25,6 @@ Object::Object(const char* name, const char* scriptName)
 	Referenceable(1),
 	fName(name),
 	fScript(NULL),
-	fTicks(0),
 	fVisible(true),
 	fRegion(NULL),
 	fStale(false)
@@ -39,8 +38,6 @@ Object::Object(const char* name, const char* scriptName)
 		}
 		gResManager->ReleaseResource(scriptResource);
 	}
-
-	fTicks = rand() % 15;
 }
 
 
@@ -137,21 +134,18 @@ void
 Object::Update(bool scripts)
 {
 	if (scripts) {
-		//if (++fTicks >= 15) {
-			fTicks = 0;
-			// TODO: Make Object::Update() virtual and override
-			// in subclasses to avoid dynamic casting
-			Actor* actor = dynamic_cast<Actor*>(this);
-			if (actor != NULL)
-				actor->UpdateSee();
-			else if (Region* region = dynamic_cast<Region*>(this)) {
-				region->CheckObjectsInside();
-			}
-			if (fScript != NULL && IsInsideVisibleArea()) {
-				if (!fScript->Execute())
-					return;
-			}
-		//}
+		// TODO: Make Object::Update() virtual and override
+		// in subclasses to avoid dynamic casting
+		Actor* actor = dynamic_cast<Actor*>(this);
+		if (actor != NULL)
+			actor->UpdateSee();
+		else if (Region* region = dynamic_cast<Region*>(this)) {
+			region->CheckObjectsInside();
+		}
+		if (fScript != NULL && IsInsideVisibleArea()) {
+			if (!fScript->Execute())
+				return;
+		}		
 	}
 }
 
@@ -177,12 +171,6 @@ IE::point
 Object::NearestPoint(const IE::point& point) const
 {
 	return Position();
-}
-
-
-void
-Object::NewScriptRound()
-{
 }
 
 

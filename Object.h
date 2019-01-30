@@ -58,8 +58,6 @@ public:
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
 	
-	void NewScriptRound();
-
 	void SetStale(bool stale);
 	bool IsStale() const;
 
@@ -72,7 +70,7 @@ private:
 
 	std::string fName;
 	::Script* fScript;
-	uint16 fTicks;
+
 	bool fVisible;
 
 	::Variables fVariables;

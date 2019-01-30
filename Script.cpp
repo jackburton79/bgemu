@@ -163,10 +163,6 @@ Script::FindObject(node* start) const
 bool
 Script::Execute()
 {
-	// TODO: Move this to a better place
-	if (fTarget != NULL)
-		fTarget.Target()->NewScriptRound();
-
 	fLastTrigger = NULL;
 	// for each CR block
 	// for each CO block
