@@ -21,14 +21,9 @@ enum game {
 };
 
 
-struct actor_description {
-	uint16 global_enum;
-	res_ref area;
-};
-
-
 struct object_node;
 class Actor;
+class Container;
 class Door;
 class Object;
 class Region;
@@ -39,7 +34,8 @@ class ScriptResults;
 class TLKResource;
 
 typedef std::vector<Actor*> ActorsList;
-typedef std::map<uint16, actor_description> ActorMap;
+typedef std::vector<Container*> ContainersList;
+
 
 class Core {
 public:
@@ -52,6 +48,8 @@ public:
 
 	void RegisterActor(Actor* object);
 	void UnregisterActor(Actor* object);
+	
+	void RegisterContainer(Container* container);
 
 	uint32 Game() const;
 
@@ -60,8 +58,9 @@ public:
 	bool LoadWorldMap();
 	
 	RoomBase* CurrentRoom();
+
 	void AddActorToCurrentArea(Actor* actor);
-	
+		
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 
@@ -115,7 +114,7 @@ private:
 	Actor* fActiveActor;
 	
 	ActorsList fActiveActors;
-	ActorMap fActors;
+	ContainersList fContainers;
 	
 	Variables fVariables;
 	Script *fRoomScript;

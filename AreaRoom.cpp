@@ -1008,6 +1008,7 @@ AreaRoom::_InitContainers()
 	for (uint32 c = 0; c < numContainers; c++) {
 		Container *container = fArea->GetContainerAt(c);
 		fContainers.push_back(container);
+		Core::Get()->RegisterContainer(container);
 	}
 	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
 }

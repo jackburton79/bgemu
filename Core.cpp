@@ -3,6 +3,7 @@
 #include "Action.h"
 #include "Actor.h"
 #include "AreaRoom.h"
+#include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
@@ -218,6 +219,8 @@ Core::ExitingArea(RoomBase* area)
 		UnregisterActor(*i);
 	}
 	fActiveActors.clear();
+
+	fContainers.clear();	
 }
 
 
@@ -245,6 +248,13 @@ Core::UnregisterActor(Actor* actor)
 	// TODO: Save the object state
 	actor->Release();
 	std::cout << "refcount: " << actor->RefCount() << std::endl;
+}
+
+
+void
+Core::RegisterContainer(Container* container)
+{
+	fContainers.push_back(container);
 }
 
 
@@ -464,6 +474,12 @@ Core::UpdateLogic(bool executeScripts)
 
 	fActiveActor = NULL;
 
+	ContainersList::iterator c;
+	for (c = fContainers.begin(); c != fContainers.end(); c++) {
+		Object* object = *c;
+		object->Update(executeScripts);
+	}
+	
 	_NewRound();
 	
 	//_RemoveStaleObjects();
