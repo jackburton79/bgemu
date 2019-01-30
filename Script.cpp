@@ -187,9 +187,9 @@ Script::Execute()
 #if DEBUG_SCRIPTS
 		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
-		if (!strcmp(fTarget.Target()->Name(), "Jail Portal")) {
-			Print();		
-		}
+		//if (!strcmp(fTarget.Target()->Name(), "LightningRoom")) {
+		//	Print();		
+		//}
 #endif
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
@@ -655,6 +655,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Detect ignores Protection from Creature
 				 * type effects for static objects.
 				 */
+				// TODO: This is valid for Regions scripts. What is the "Active CRE" ?
+				if (actor == NULL)
+					break;
 				Object* object = core->GetObject(actor, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
