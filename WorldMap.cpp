@@ -294,5 +294,5 @@ WorldMap::_UnloadWorldMap()
 		fWorldMapBitmap = NULL;
 	}
 
-	//gResManager->TryEmptyResourceCache();
+	gResManager->TryEmptyResourceCache();
 }
