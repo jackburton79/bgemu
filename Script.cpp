@@ -991,7 +991,7 @@ Script::_ExecuteAction(action_node* act)
 			std::string variableName;
 			VariableGetScopeName(act->string1, variableScope, variableName);			
 			int32 value = core->Vars().Get(act->string1);
-			core->Vars().Set(act->string1, value + 1);
+			core->Vars().Set(act->string1, value + act->integer1);
 			break;		
 		}		
 		case 111:
