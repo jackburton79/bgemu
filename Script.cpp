@@ -42,6 +42,16 @@ static void PrintIndentation()
 }
 
 
+static void
+VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
+{
+	std::string variableScope;
+	varScope.append(variable, 6);
+	std::string variableName;
+	varName.append(&variable[6]);
+}
+
+
 Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
@@ -341,10 +351,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Returns true only if the variable with name 1st parameter
 				of type 2nd parameter has value 3rd parameter.*/
 				std::string variableScope;
-				variableScope.append(trig->string1, 6);
 				std::string variableName;
-				variableName.append(&trig->string1[6]);
-
+				VariableGetScopeName(trig->string1, variableScope, variableName);
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
 					variableValue = fTarget.Target()->Vars().Get(variableName.c_str());
@@ -930,10 +938,8 @@ Script::_ExecuteAction(action_node* act)
 		case 0x1E:
 		{
 			std::string variableScope;
-			variableScope.append(act->string1, 6);
 			std::string variableName;
-			variableName.append(&act->string1[6]);
-
+			VariableGetScopeName(act->string1, variableScope, variableName);
 			if (variableScope.compare("LOCALS") == 0) {
 				if (fTarget != NULL)
 					fTarget.Target()->Vars().Set(variableName.c_str(),
@@ -978,6 +984,16 @@ Script::_ExecuteAction(action_node* act)
 			}
 			break;
 		}
+		case 0x6d:
+		{	
+			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
+			std::string variableScope;
+			std::string variableName;
+			VariableGetScopeName(act->string1, variableScope, variableName);			
+			int32 value = core->Vars().Get(act->string1);
+			core->Vars().Set(act->string1, value + 1);
+			break;		
+		}		
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
