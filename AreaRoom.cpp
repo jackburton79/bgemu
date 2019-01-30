@@ -177,11 +177,6 @@ AreaRoom::~AreaRoom()
 {
 	// TODO: Delete various tilecells, overlays, animations
 	_Unload();
-
-	if (fBackMap != NULL)
-		delete fBackMap;
-	if (fBlitMask != NULL)
-		fBlitMask->Release();
 }
 
 
@@ -1045,6 +1040,16 @@ AreaRoom::_UnloadArea()
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];
 	fAnimations.clear();
+
+	if (fBackMap != NULL) {
+		delete fBackMap;
+		fBackMap = NULL;
+	}	
+
+	if (fBlitMask != NULL) {
+		fBlitMask->Release();
+		fBlitMask = NULL;
+	}
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
