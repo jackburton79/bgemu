@@ -187,6 +187,9 @@ Script::Execute()
 #if DEBUG_SCRIPTS
 		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
+		if (!strcmp(fTarget.Target()->Name(), "Jail Portal")) {
+			Print();		
+		}
 #endif
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
@@ -422,6 +425,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 			case 0x4018:
 			{
+				std::cout << "Range" << std::endl;
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
@@ -541,7 +545,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				const Actor* actor = FindObject(trig);
 				if (actor != NULL)
 					returnValue = Game::Get()->Party()->HasActor(actor);
-
 				break;
 			}
 			case 0x4051:
@@ -569,13 +572,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* objectNode = FindObjectNode(trig);
 				if (objectNode == NULL)
 					break;
+				break;
 				// TODO: We assume this is a door, but also
 				// containers can be opened/closed
-				Door* door = dynamic_cast<Door*>(fTarget.Target());
+				/*Door* door = dynamic_cast<Door*>(fTarget.Target());
 				if (door == NULL)
 					break;
 				if (!door->Opened())
-					break;
+					break;*/
 #if 0
 				Object* object = core->GetObject(
 						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
@@ -635,8 +639,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: When to set this, other than now ?
 				if (returnValue)
 					fLastTrigger = fTarget;
-				break;
 #endif
+				break;
 			}
 
 			case 0x4074:
@@ -994,7 +998,7 @@ Script::_ExecuteAction(action_node* act)
 			core->Vars().Set(act->string1, value + act->integer1);
 			break;		
 		}		
-		case 111:
+		case 0x6f:
 		{
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Delete it for real
