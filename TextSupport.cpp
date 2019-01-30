@@ -36,9 +36,10 @@ TextSupport::GetTextWidthAndHeight(std::string string,
 		for (std::string::iterator i = string.begin();
 				i != string.end(); i++) {
 			uint32 cycleNum = cycle_num_for_char(*i);
-			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
+			Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
 			totalWidth += newFrame->Frame().w;
 			maxHeight = std::max(newFrame->Frame().h, maxHeight);
+			newFrame->Release();
 		}
 	} catch (...) {
 		std::cerr << "StringWidth() exception" << std::endl;
@@ -65,7 +66,7 @@ TextSupport::GetFittingString(std::string string,
 		for (std::string::iterator i = string.begin();
 				i != string.end(); i++) {
 			uint32 cycleNum = cycle_num_for_char(*i);
-			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
+			Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
 			uint32 charWidth = newFrame->Frame().w;
 			if (currentWidth + charWidth > maxWidth) {
 				if (fittingWidth != NULL)
@@ -75,6 +76,7 @@ TextSupport::GetFittingString(std::string string,
 			}
 			currentWidth += charWidth;
 			maxHeight = std::max(newFrame->Frame().h, maxHeight);
+			newFrame->Release();
 		}
 	} catch (...) {
 		std::cerr << "StringWidth() exception" << std::endl;
@@ -111,13 +113,13 @@ TextSupport::RenderString(std::string string,
 								const GFX::rect& destRect)
 {
 	try {
-		std::vector<const Bitmap*> frames;
+		std::vector<Bitmap*> frames;
 		uint32 totalWidth = 0;
 		uint16 maxHeight = 0;
 		for (std::string::iterator i = string.begin();
 				i != string.end(); i++) {
 			uint32 cycleNum = cycle_num_for_char(*i);
-			const Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
+			Bitmap* newFrame = fontRes->FrameForCycle(cycleNum, 0);
 			totalWidth += newFrame->Frame().w;
 			maxHeight = std::max(newFrame->Frame().h, maxHeight);
 			frames.push_back(newFrame);
@@ -130,9 +132,9 @@ TextSupport::RenderString(std::string string,
 			rect.x = destRect.w - totalWidth;
 
 		rect.x += destRect.x;
-		for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
+		for (std::vector<Bitmap*>::const_iterator i = frames.begin();
 				i != frames.end(); i++) {
-			const Bitmap* letter = *i;
+			Bitmap* letter = *i;
 			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 				rect.y = destRect.h - letter->Height();
 			else if (flags & IE::LABEL_JUSTIFY_TOP)
@@ -146,6 +148,7 @@ TextSupport::RenderString(std::string string,
 
 			GraphicsEngine::BlitBitmap(letter, NULL, bitmap, &rect);
 			rect.x += letter->Frame().w;
+			letter->Release();		
 		}
 	} catch (...) {
 		std::cerr << "RenderString() exception" << std::endl;
