@@ -355,7 +355,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
-					variableValue = Core::Get()->GetVariable(variableName.c_str());
+					variableValue = Core::Get()->GetVariable(trig->string1);
 				}
 				returnValue = variableValue == trig->parameter1;
 				break;
@@ -944,7 +944,7 @@ Script::_ExecuteAction(action_node* act)
 							act->integer1);
 			} else {
 				// TODO: Check for AREA variables
-				core->SetVariable(variableName.c_str(),
+				core->SetVariable(act->string1,
 						act->integer1);
 			}
 			break;
