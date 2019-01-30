@@ -927,7 +927,7 @@ AreaRoom::_InitVariables()
 	uint32 numVars = fArea->CountVariables();
 	for (uint32 n = 0; n < numVars; n++) {
 		IE::variable var = fArea->VariableAt(n);
-		Core::Get()->SetVariable(var.name, var.value);
+		Core::Get()->Vars().Set(var.name, var.value);
 	}
 	std::cout << "Done!" << std::endl;
 }

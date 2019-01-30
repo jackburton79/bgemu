@@ -41,6 +41,7 @@ SupportDefs.cpp \
 TextSupport.cpp \
 TileCell.cpp \
 Timer.cpp \
+Variables.cpp \
 WorldMap.cpp \
 graphics/Bitmap.cpp \
 graphics/GraphicsEngine.cpp \

@@ -351,11 +351,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = fTarget.Target()->GetVariable(variableName.c_str());
+					variableValue = fTarget.Target()->Vars().Get(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
-					variableValue = Core::Get()->GetVariable(trig->string1);
+					variableValue = Core::Get()->Vars().Get(trig->string1);
 				}
 				returnValue = variableValue == trig->parameter1;
 				break;
@@ -474,14 +474,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				See Global(S:Name*,S:Area*,I:Value*) except the variable
 				must be greater than the value specified to be true.
 				*/
-				returnValue = core->GetVariable(trig->string1) > trig->parameter1;
+				returnValue = core->Vars().Get(trig->string1) > trig->parameter1;
 				break;
 			}
 			case 0x4035:
 			{	/*
 				0x4035 GlobalLT(S:Name*,S:Area*,I:Value*)
 				As above except for less than. */
-				returnValue = core->GetVariable(trig->string1) < trig->parameter1;
+				returnValue = core->Vars().Get(trig->string1) < trig->parameter1;
 				break;
 			}
 			case 0x0036:
@@ -940,12 +940,11 @@ Script::_ExecuteAction(action_node* act)
 
 			if (variableScope.compare("LOCALS") == 0) {
 				if (fTarget != NULL)
-					fTarget.Target()->SetVariable(variableName.c_str(),
+					fTarget.Target()->Vars().Set(variableName.c_str(),
 							act->integer1);
 			} else {
 				// TODO: Check for AREA variables
-				core->SetVariable(act->string1,
-						act->integer1);
+				core->Vars().Set(act->string1, act->integer1);
 			}
 			break;
 		}

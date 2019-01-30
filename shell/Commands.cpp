@@ -94,7 +94,7 @@ class PrintVariablesCommand : public ShellCommand {
 public:
 	PrintVariablesCommand() : ShellCommand("print-variables") {};
 	virtual void operator()(const char* argv, int argc) {
-		Core::Get()->PrintVariables();
+		Core::Get()->Vars().Print();
 	}
 };
 

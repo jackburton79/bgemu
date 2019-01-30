@@ -221,34 +221,10 @@ Core::ExitingArea(RoomBase* area)
 }
 
 
-void
-Core::SetVariable(const char* name, int32 value)
+Variables&
+Core::Vars()
 {
-	//std::cout << "SetVariable(" << name << ", " << value;
-	//std::cout << " (old value: " << fVariables[name] << ")";
-	//std::cout << std::endl;
-	fVariables[name] = value;
-}
-
-
-int32
-Core::GetVariable(const char* name) const
-{
-	//std::cout << "GetVariable(" << name << "): " << fVariables[name];
-	VariablesMap::const_iterator i = fVariables.find(name);		
-	if (i != fVariables.end())
-		return i->second;
-	return 0;
-}
-
-
-void
-Core::PrintVariables() const
-{
-	VariablesMap::const_iterator i;
-	for (i = fVariables.begin(); i != fVariables.end(); i++) {
-		std::cout << i->first << "=" << i->second << std::endl;	
-	}
+	return fVariables;
 }
 
 
@@ -268,6 +244,7 @@ Core::UnregisterActor(Actor* actor)
 {
 	// TODO: Save the object state
 	actor->Release();
+	std::cout << "refcount: " << actor->RefCount() << std::endl;
 }
 
 

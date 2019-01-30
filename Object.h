@@ -12,6 +12,7 @@
 #include "Reference.h"
 #include "Referenceable.h"
 #include "SupportDefs.h"
+#include "Variables.h"
 
 #include <list>
 #include <map>
@@ -39,6 +40,8 @@ public:
 	virtual IE::point Position() const;
 	virtual IE::rect Frame() const = 0;
 
+	Variables& Vars();
+
 	virtual void Clicked(Object* clicker);
 	virtual void ClickedOn(Object* target);
 
@@ -47,9 +50,6 @@ public:
 
 	bool IsVisible() const;
 	bool IsInsideVisibleArea() const;
-
-	void SetVariable(const char* name, int32 value);
-	int32 GetVariable(const char* name);
 
 	virtual void Update(bool scripts);
 
@@ -75,7 +75,7 @@ private:
 	uint16 fTicks;
 	bool fVisible;
 
-	std::map<std::string, uint32> fVariables;
+	::Variables fVariables;
 
 	Region* fRegion;
 	bool fStale;

@@ -78,6 +78,13 @@ Object::Position() const
 }
 
 
+Variables&
+Object::Vars()
+{
+	return fVariables;
+}
+
+
 void
 Object::Clicked(Object* clicker)
 {
@@ -105,20 +112,6 @@ void
 Object::ExitedRegion(Region* region)
 {
 	fRegion = NULL;
-}
-
-
-void
-Object::SetVariable(const char* name, int32 value)
-{
-	fVariables[name] = value;
-}
-
-
-int32
-Object::GetVariable(const char* name)
-{
-	return fVariables[name];
 }
 
 
