@@ -52,9 +52,11 @@ public:
 	bool IsInsideVisibleArea() const;
 
 	virtual void Update(bool scripts);
-
+	
 	void SetScript(::Script* script);
 	::Script* Script() const;
+	
+	void SetWaitTime(int32 time);
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
 	
@@ -70,6 +72,7 @@ private:
 
 	std::string fName;
 	::Script* fScript;
+	int32 fWaitTime;
 
 	bool fVisible;
 

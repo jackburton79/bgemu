@@ -479,12 +479,12 @@ Core::UpdateLogic(bool executeScripts)
 	ActorsList::iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
 		Actor* actor = *i;
-		_CheckIfInsideRegion(actor);
+		//_CheckIfInsideRegion(actor);
 		actor->Update(executeScripts);
 	}
 
 	fActiveActor = NULL;
-
+#if 0
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;
@@ -496,6 +496,7 @@ Core::UpdateLogic(bool executeScripts)
 		Object* object = *r;
 		object->Update(executeScripts);
 	}
+#endif	
 	_NewRound();
 	
 	//_RemoveStaleObjects();

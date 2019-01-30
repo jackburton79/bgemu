@@ -960,8 +960,7 @@ Script::_ExecuteAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			//
-			/*Wait* wait = new Wait(thisActor, act->integer1);
-			thisActor->AddAction(wait);*/
+			fTarget.Target()->SetWaitTime(act->integer1);
 			break;
 		}
 

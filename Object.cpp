@@ -25,6 +25,7 @@ Object::Object(const char* name, const char* scriptName)
 	Referenceable(1),
 	fName(name),
 	fScript(NULL),
+	fWaitTime(0),
 	fVisible(true),
 	fRegion(NULL),
 	fStale(false)
@@ -142,7 +143,9 @@ Object::Update(bool scripts)
 		//else if (Region* region = dynamic_cast<Region*>(this)) {
 		//	region->CheckObjectsInside();
 		//}
-		if (fScript != NULL /*&& IsInsideVisibleArea()*/) {
+		if (fWaitTime > 0)
+			fWaitTime -= 15;
+		else if (fScript != NULL && IsInsideVisibleArea()) {
 			if (!fScript->Execute())
 				return;
 		}		
@@ -163,6 +166,13 @@ Object::SetScript(::Script* script)
 	fScript = script;
 	if (fScript != NULL)
 		fScript->SetTarget(this);
+}
+
+
+void
+Object::SetWaitTime(int32 waitTime)
+{
+	fWaitTime = waitTime;
 }
 
 
