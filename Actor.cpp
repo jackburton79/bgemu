@@ -132,15 +132,6 @@ Actor::_Init()
 		std::cerr << "No animation factory " << CRE()->Name();
 		std::cerr << " (" << CRE()->AnimationID() << ")" << std::endl;
 	}
-	CREColors colors = fCRE->Colors();
-	std::cout << "colors:" << std::endl << std::dec;
-	std::cout << "\tmajor:" << (int)colors.major << std::endl;
-	std::cout << "\tminor:" << (int)colors.minor << std::endl;
-	std::cout << "\tmetal:" << (int)colors.metal << std::endl;
-	std::cout << "\tarmor:" << (int)colors.armor << std::endl;
-	std::cout << "\thair:" << (int)colors.hair << std::endl;
-	std::cout << "\tleather:" << (int)colors.leather << std::endl;
-	std::cout << "\tskin:" << (int)colors.skin << std::endl;
 	//std::cout << std::dec;
 	//std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
 	//std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
