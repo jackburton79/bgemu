@@ -721,17 +721,17 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
-		std::cout << kComponentName;
-		std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
-		std::cout << "refcount is " << (*it)->RefCount();
+		//std::cout << kComponentName;
+		//std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
+		//std::cout << "refcount is " << (*it)->RefCount();
 		if (force || (*it)->RefCount() == 1) {
-			std::cout << ": Deleting...";
+		//	std::cout << ": Deleting...";
 			std::flush(std::cout);
 			delete *it;
 			it = fCachedResources.erase(it);
 		} else
 			it++;
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 }
 
