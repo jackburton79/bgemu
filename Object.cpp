@@ -139,10 +139,10 @@ Object::Update(bool scripts)
 		Actor* actor = dynamic_cast<Actor*>(this);
 		if (actor != NULL)
 			actor->UpdateSee();
-		else if (Region* region = dynamic_cast<Region*>(this)) {
-			region->CheckObjectsInside();
-		}
-		if (fScript != NULL && IsInsideVisibleArea()) {
+		//else if (Region* region = dynamic_cast<Region*>(this)) {
+		//	region->CheckObjectsInside();
+		//}
+		if (fScript != NULL /*&& IsInsideVisibleArea()*/) {
 			if (!fScript->Execute())
 				return;
 		}		
