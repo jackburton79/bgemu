@@ -97,8 +97,6 @@ public:
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
-	::Script* MergeScripts();
-
 	bool SkipConditions() const;
 	void StopCheckingConditions();
 
@@ -153,7 +151,8 @@ private:
 	std::list<Action*> fActions;
 
 	void _Init();
-	void _AddScript(::Script*& destination, const res_ref& scriptName);
+	void _HandleScripts();
+	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _HandleColors();

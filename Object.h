@@ -53,8 +53,8 @@ public:
 
 	virtual void Update(bool scripts);
 	
-	void SetScript(::Script* script);
-	::Script* Script() const;
+	void AddScript(::Script* script);
+	void ClearScripts();
 	
 	void SetWaitTime(int32 time);
 
@@ -69,9 +69,12 @@ protected:
 
 private:
 	void _UpdateTileCell();
+	void _ExecuteScripts(int32 maxLevel);
 
 	std::string fName;
-	::Script* fScript;
+	
+	typedef std::vector< ::Script*> ScriptsList;
+	ScriptsList fScripts;
 	int32 fWaitTime;
 
 	bool fVisible;

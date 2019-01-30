@@ -86,7 +86,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	if (fBcs != NULL)
 		roomScript = fBcs->GetScript();
 
-	SetScript(roomScript);
+	AddScript(roomScript);
 
 	GUI* gui = GUI::Get();
 	gui->Clear();
@@ -97,7 +97,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		fArea = NULL;
 		gResManager->ReleaseResource(fBcs);
 		fBcs = NULL;
-		SetScript(NULL);
+		ClearScripts();
 		delete roomScript;
 		throw "CANNOT LOAD GUIW";
 	}

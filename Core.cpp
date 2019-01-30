@@ -196,14 +196,14 @@ Core::LoadWorldMap()
 void
 Core::EnteredArea(RoomBase* area)
 {
-	area->SetScript(fRoomScript);
+	area->AddScript(fRoomScript);
 	
 	// The area script
 	if (fRoomScript != NULL) {
 		fRoomScript->Execute();
 	}
 
-	area->SetScript(NULL);
+	area->ClearScripts();
 	delete fRoomScript;
 	fRoomScript = NULL;
 

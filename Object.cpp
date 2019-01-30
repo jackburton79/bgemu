@@ -24,7 +24,6 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	fScript(NULL),
 	fWaitTime(0),
 	fVisible(true),
 	fRegion(NULL),
@@ -35,7 +34,7 @@ Object::Object(const char* name, const char* scriptName)
 		if (scriptResource != NULL) {
 			::Script* script = scriptResource->GetScript();
 			if (script != NULL)
-				SetScript(script);
+				AddScript(script);
 		}
 		gResManager->ReleaseResource(scriptResource);
 	}
@@ -44,7 +43,11 @@ Object::Object(const char* name, const char* scriptName)
 
 Object::~Object()
 {
-	delete fScript;
+	for (ScriptsList::iterator i = fScripts.begin();
+		i != fScripts.end(); i++) {
+		delete *i;
+	}
+	fScripts.clear();
 }
 
 
@@ -145,27 +148,36 @@ Object::Update(bool scripts)
 		//}
 		if (fWaitTime > 0)
 			fWaitTime -= 15;
-		else if (fScript != NULL && IsInsideVisibleArea()) {
-			if (!fScript->Execute())
-				return;
+		else if (IsInsideVisibleArea()) {
+			_ExecuteScripts(8);
 		}		
 	}
 }
 
-
+/*
 ::Script*
 Object::Script() const
 {
 	return fScript;
 }
+*/
+
+void
+Object::AddScript(::Script* script)
+{
+	if (script != NULL)
+		script->SetTarget(this);
+	fScripts.push_back(script);
+}
 
 
 void
-Object::SetScript(::Script* script)
+Object::ClearScripts()
 {
-	fScript = script;
-	if (fScript != NULL)
-		fScript->SetTarget(this);
+	for (ScriptsList::iterator i = fScripts.begin();
+		i != fScripts.end(); i++) {
+	}
+	fScripts.clear();
 }
 
 
@@ -205,4 +217,21 @@ Object::LastReferenceReleased()
 	std::cout << Name() << "::LastReferenceReleased()" << std::endl;
 	delete this;
 }
+
+
+void
+Object::_ExecuteScripts(int32 maxLevel)
+{
+	try {
+		for (int32 i = 0; i < maxLevel; i++) {
+			std::cout << "script level: " << i << std::endl;			
+			if (fScripts.at(i) != NULL) {
+				if (!fScripts[i]->Execute())
+					break;
+			}
+		}
+	} catch (...) {
+	}
+}
+
 

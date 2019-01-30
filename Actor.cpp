@@ -143,8 +143,7 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
-	::Script* script = MergeScripts();
-	SetScript(script);
+	_HandleScripts();
 
 	//fActor->Print();
 	//for (uint32 i = 0; i < kNumItemSlots; i++) {
@@ -532,8 +531,8 @@ Actor::ResolveIdentifier(const int id) const
 		return Core::Get()->GetNearestEnemyOf(this);
 	// TODO: Move that one here ?
 	// Move ResolveIdentifier elsewhere ?
-	if (identifier == "LASTTRIGGER")
-		return dynamic_cast<Actor*>(Script()->LastTrigger());
+//	if (identifier == "LASTTRIGGER")
+//		return dynamic_cast<Actor*>(Script()->LastTrigger());
 #if 0
 	if (identifier == "LASTATTACKEROF")
 		return LastScriptRoundResults()->LastAttacker();
@@ -676,7 +675,7 @@ Actor::CRE() const
 	return fCRE;
 }
 
-
+/*
 static bool
 IsValid(const res_ref& scriptName)
 {
@@ -686,29 +685,17 @@ IsValid(const res_ref& scriptName)
 		return true;
 	return false;
 }
+*/
 
-
-Script*
-Actor::MergeScripts()
+void
+Actor::_HandleScripts()
 {
-	// TODO: order ??
-	// Is it correct we merge the scripts ?
-	::Script* destination = NULL;
-	if (IsValid(fActor->script_override))
-		_AddScript(destination, fActor->script_override);
-	if (IsValid(fActor->script_race))
-		_AddScript(destination, fActor->script_race);
-	if (IsValid(fActor->script_class))
-		_AddScript(destination, fActor->script_class);
-	if (IsValid(fActor->script_general))
-		_AddScript(destination, fActor->script_general);
-	if (IsValid(fActor->script_default))
-		_AddScript(destination, fActor->script_default);
-	if (IsValid(fActor->script_specific))
-		_AddScript(destination, fActor->script_specific);
-
-	//printf("Choose script %s\n", (const char*)fActor->script_specific);
-	return destination;
+	AddScript(_ExtractScript(fActor->script_override));
+	AddScript(_ExtractScript(fActor->script_race));
+	AddScript(_ExtractScript(fActor->script_class));
+	AddScript(_ExtractScript(fActor->script_general));
+	AddScript(_ExtractScript(fActor->script_default));
+	AddScript(_ExtractScript(fActor->script_specific));
 }
 
 
@@ -880,18 +867,16 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 }
 
 
-void
-Actor::_AddScript(::Script*& destination, const res_ref& scriptName)
+::Script*
+Actor::_ExtractScript(const res_ref& scriptName)
 {
-	BCSResource* scriptResource = gResManager->GetBCS(scriptName);
-	if (scriptResource == NULL)
-		return;
-	if (destination == NULL)
-		destination = scriptResource->GetScript();
-	else
-		destination->Add(scriptResource->GetScript());
-
-	gResManager->ReleaseResource(scriptResource);
+	::Script* script = NULL;
+	BCSResource* scriptResource = gResManager->GetBCS(scriptName);	
+	if (scriptResource != NULL) {
+		script = scriptResource->GetScript();
+		gResManager->ReleaseResource(scriptResource);
+	}
+	return script;
 }
 
 
