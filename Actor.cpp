@@ -22,6 +22,7 @@
 #include "PathFind.h"
 #include "Polygon.h"
 #include "RectUtils.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "RoundResults.h"
 #include "Script.h"
@@ -105,6 +106,7 @@ Actor::_Init()
 	fAnimationValid = false;
 	fTileCell = NULL;
 	fColors = NULL;
+	fRegion = NULL;
 
 	if (fCRE == NULL) {
 		// We need a new instance of the CRE file for every actor,
@@ -314,6 +316,19 @@ Actor::SetDestination(const IE::point& point)
 	fActor->destination = fPath->SetPoints(fActor->position, point);
 }
 
+
+void
+Actor::SetRegion(Region* region)
+{
+	fRegion = region;
+}
+
+
+Region*
+Actor::CurrentRegion() const
+{
+	return fRegion;
+}
 
 
 bool
@@ -1035,3 +1050,4 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 
 	return num;
 }
+

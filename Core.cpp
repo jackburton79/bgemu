@@ -478,8 +478,9 @@ Core::UpdateLogic(bool executeScripts)
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
-		Object* object = *i;
-		object->Update(executeScripts);
+		Actor* actor = *i;
+		_CheckIfInsideRegion(actor);
+		actor->Update(executeScripts);
 	}
 
 	fActiveActor = NULL;
@@ -649,6 +650,24 @@ Core::_RemoveStaleObjects()
 		} else
 			i++;
 	}
+}
+
+
+void
+Core::_CheckIfInsideRegion(Actor* actor)
+{
+	Region* previousRegion = actor->CurrentRegion();
+	RegionsList::iterator r;
+	for (r = fRegions.begin(); r != fRegions.end(); r++) {
+		Region* region = *r;		
+		if (rect_contains(region->Frame(), actor->Position())) {
+			actor->SetRegion(region);
+			break; 
+		}	
+	}
+	// TODO: exited region
+	if (previousRegion != actor->CurrentRegion())
+		fCurrentRoundResults->SetActorEnteredRegion(actor, actor->CurrentRegion());	
 }
 
 

@@ -19,6 +19,7 @@ class Bitmap;
 class BCSResource;
 class CREResource;
 class PathFinder;
+class Region;
 class Script;
 class TileCell;
 class TWODAResource;
@@ -46,6 +47,9 @@ public:
 
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
+
+	void SetRegion(Region* region);
+	Region* CurrentRegion() const;
 
 	bool Spawned() const;
 
@@ -144,6 +148,7 @@ private:
 	int fSpeed;
 
 	::TileCell* fTileCell;
+	Region* fRegion;
 
 	std::list<Action*> fActions;
 

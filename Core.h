@@ -103,6 +103,7 @@ public:
 private:
 	static void _InitGameTimers();
 	void _PrintObjects() const;
+	void _CheckIfInsideRegion(Actor* actor);
 	void _RemoveStaleObjects();
 	void _NewRound();
 	

@@ -10,7 +10,7 @@
 
 #include "Actor.h"
 #include "CreResource.h"
-
+#include "Region.h"
 
 // ScriptResults
 ScriptResults::ScriptResults()
@@ -22,6 +22,7 @@ ScriptResults::ScriptResults()
 void
 ScriptResults::Clear()
 {
+	fRegionsList.clear();
 	fSourcesList.clear();
 	fTargetsList.clear();
 }
@@ -54,6 +55,13 @@ ScriptResults::SetActorAttacked(const Actor* actor, const Actor* target)
 }
 
 
+void
+ScriptResults::SetActorEnteredRegion(const Actor* actor, const Region* region)
+{
+	fRegionsList.insert(std::make_pair(region->Name(), actor->CRE()->GlobalActorEnum()));
+}
+
+
 bool
 ScriptResults::WasActorAttackedBy(const Actor* actor, object_node* node) const
 {
@@ -79,6 +87,20 @@ bool
 ScriptResults::WasActorHeardBy(const Actor* actor, object_node* node) const
 {
 	return _FindActionByTargetObject(actor, HEARD, node);
+}
+
+
+bool
+ScriptResults::HasActorEnteredRegion(const Actor* actor, const Region* region) const
+{
+	std::pair<regions_map::const_iterator, regions_map::const_iterator> range;
+	range = fRegionsList.equal_range(region->Name());
+	for (regions_map::const_iterator i = range.first;
+		i != range.second; i++) {	
+		if (i->second == actor->CRE()->GlobalActorEnum())
+			return true;
+	}
+	return false;
 }
 
 

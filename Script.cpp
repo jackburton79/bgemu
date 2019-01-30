@@ -735,21 +735,19 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 			case 0x4c:
 			{
-#if 0
 				// Entered(O:Object)
-				object_node* node = FindObjectNode(trig);
-				Region* region = dynamic_cast<Region*>(fTarget.Target());
+				//object_node* node = FindObjectNode(trig);
+				//Region* region = dynamic_cast<Region*>(fTarget.Target());
 				//std::vector<std::string>::const_iterator i;
 
-				Object* object = Object::GetMatchingObjectFromList(
+				/*Object* object = Object::GetMatchingObjectFromList(
 										region->
 										LastScriptRoundResults()->
-										EnteredActors(), node);
-				if (object != NULL) {
-					fLastTrigger = object;
-					returnValue = true;
-				}
-#endif
+										EnteredActors(), node);*/
+				//if (object != NULL) {
+				//	fLastTrigger = object;
+				//	returnValue = true;
+				//}
 				break;
 			}
 			default:
