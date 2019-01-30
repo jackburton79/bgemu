@@ -90,6 +90,14 @@ public:
 };
 
 
+class PrintVariablesCommand : public ShellCommand {
+public:
+	PrintVariablesCommand() : ShellCommand("print-variables") {};
+	virtual void operator()(const char* argv, int argc) {
+		Core::Get()->PrintVariables();
+	}
+};
+
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -107,5 +115,6 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new WaitTimeCommand());
+	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new ExitCommand());
 }

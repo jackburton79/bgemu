@@ -232,11 +232,23 @@ Core::SetVariable(const char* name, int32 value)
 
 
 int32
-Core::GetVariable(const char* name)
+Core::GetVariable(const char* name) const
 {
 	//std::cout << "GetVariable(" << name << "): " << fVariables[name];
-	//std::cout << std::endl;
-	return fVariables[name];
+	VariablesMap::const_iterator i = fVariables.find(name);		
+	if (i != fVariables.end())
+		return i->second;
+	return 0;
+}
+
+
+void
+Core::PrintVariables() const
+{
+	VariablesMap::const_iterator i;
+	for (i = fVariables.begin(); i != fVariables.end(); i++) {
+		std::cout << i->first << "=" << i->second << std::endl;	
+	}
 }
 
 

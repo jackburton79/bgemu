@@ -25,6 +25,8 @@ struct actor_description {
 	res_ref area;
 };
 
+typedef std::map<std::string, uint32> VariablesMap;
+
 struct object_node;
 class Actor;
 class Door;
@@ -64,7 +66,8 @@ public:
 	void ExitingArea(RoomBase* area);
 
 	void SetVariable(const char* name, int32 value);
-	int32 GetVariable(const char* name);
+	int32 GetVariable(const char* name) const;
+	void PrintVariables() const;
 
 	Actor* GetObject(Actor* source, object_node* node) const;
 	Actor* GetObject(const char* name) const;
@@ -116,7 +119,7 @@ private:
 	ActorsList fActiveActors;
 	ActorMap fActors;
 	
-	std::map<std::string, uint32> fVariables;
+	VariablesMap fVariables;
 	Script *fRoomScript;
 	std::map<std::string, Script*> fScripts;
 
