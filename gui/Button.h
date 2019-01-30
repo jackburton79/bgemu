@@ -11,7 +11,7 @@
 #include "Control.h"
 #include "IETypes.h"
 
-class BAMResource;
+class Bitmap;
 class Window;
 class Button: public Control {
 public:
@@ -24,7 +24,10 @@ public:
 	virtual void MouseUp(IE::point point);
 
 private:
-	BAMResource* fResource;
+	Bitmap* fDisabledBitmap;
+	Bitmap* fSelectedBitmap;
+	Bitmap* fPressedBitmap;
+	Bitmap* fUnpressedBitmap;
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;

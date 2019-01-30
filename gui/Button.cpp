@@ -16,18 +16,31 @@
 Button::Button(IE::button* button)
 	:
 	Control(button),
-	fResource(NULL),
+	fDisabledBitmap(NULL),
+	fSelectedBitmap(NULL),
+	fPressedBitmap(NULL),
+	fUnpressedBitmap(NULL),
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false)
 {
-	fResource = gResManager->GetBAM(button->image);
+	BAMResource *resource = gResManager->GetBAM(button->image);
+	if (resource != NULL) {
+		fDisabledBitmap = resource->FrameForCycle(button->cycle, button->frame_disabled);
+		fSelectedBitmap = resource->FrameForCycle(button->cycle, button->frame_selected); 
+		fPressedBitmap = resource->FrameForCycle(button->cycle, button->frame_pressed);
+		fUnpressedBitmap = resource->FrameForCycle(button->cycle, button->frame_unpressed);
+		gResManager->ReleaseResource(resource);
+	}
 }
 
 
 Button::~Button()
 {
-	gResManager->ReleaseResource(fResource);
+	fDisabledBitmap->Release();
+	fSelectedBitmap->Release();
+	fPressedBitmap->Release();
+	fUnpressedBitmap->Release();
 }
 
 
@@ -43,30 +56,21 @@ Button::AttachedToWindow(::Window* window)
 void
 Button::Draw()
 {
-	if (fResource == NULL)
-		return;
-	try {
-		IE::button* button = (IE::button*)fControl;
-		const Bitmap* frame;
-		// TODO: Seems enabled and selected aren't used
-		if (!fEnabled)
-			frame = fResource->FrameForCycle(button->cycle, button->frame_disabled);
-		else if (fPressed)
-			frame = fResource->FrameForCycle(button->cycle, button->frame_pressed);
-		/*else if (fSelected)
-			frame = fResource->FrameForCycle(button->cycle, button->frame_selected);
-		*/
-		else
-			frame = fResource->FrameForCycle(button->cycle, button->frame_unpressed);
-
-		if (frame != NULL) {
-			GFX::rect destRect = Frame();
-			fWindow->ConvertToScreen(destRect);
-			GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
-			//frame->Release();
-		}
-	} catch (...) {
-
+	const Bitmap* frame;
+	// TODO: Seems enabled and selected aren't used
+	if (!fEnabled)
+		frame = fDisabledBitmap;
+	else if (fPressed)
+		frame = fPressedBitmap;
+	/*else if (fSelected)
+		frame = fSelectedBitmap;
+	*/
+	else
+		frame = fUnpressedBitmap;
+	if (frame != NULL) {
+		GFX::rect destRect = Frame();
+		fWindow->ConvertToScreen(destRect);
+		GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 	}
 	Control::Draw();
 }
