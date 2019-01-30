@@ -29,8 +29,8 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 	//std::cout << "BGAnimationFactory" << std::endl;
 	description.bam_name = fBaseName;
 	description.mirror = false;
-	if (Core::Get()->Game() == GAME_BALDURSGATE2)
-		o = IE::orientation_ext_to_base(o);
+	//if (Core::Get()->Game() == GAME_BALDURSGATE2)
+	//	o = IE::orientation_ext_to_base(o);
 	// Armor
 	// TODO: For real
 	switch (action) {
@@ -49,12 +49,12 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 		default:
 			break;
 	}
-	if (o >= IE::ORIENTATION_NE
-				&& uint32(o) <= IE::ORIENTATION_SE) {
+	if (o >= IE::ORIENTATION_EXT_NNE
+				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
 			// Orientation 5 uses bitmap from orientation 3 mirrored,
 			// 6 uses 2, and 7 uses 1
 			description.mirror = true;
-			description.sequence_number -= (o - 4) * 2;
+			description.sequence_number -= (o - 8) * 2;
 		}
 }
 
