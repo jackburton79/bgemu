@@ -5,8 +5,11 @@
  *      Author: stefano
  */
 
-#include "Core.h"
 #include "Region.h"
+
+#include "BCSResource.h"
+#include "Core.h"
+#include "ResManager.h"
 
 #include <algorithm>
 
@@ -15,6 +18,11 @@ Region::Region(IE::region* region)
 	Object(region->name, region->script.CString()),
 	fRegion(region)
 {
+	BCSResource* scriptResource = gResManager->GetBCS(region->script.CString());
+	if (scriptResource != NULL) {
+		SetScript(scriptResource->GetScript());
+		gResManager->ReleaseResource(scriptResource);
+	}
 }
 
 

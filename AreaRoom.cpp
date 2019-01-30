@@ -951,7 +951,9 @@ AreaRoom::_InitRegions()
 	std::flush(std::cout);
 
 	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
-		fRegions.push_back(fArea->GetRegionAt(i));
+		Region* region = fArea->GetRegionAt(i);		
+		fRegions.push_back(region);
+		Core::Get()->RegisterRegion(region);
 	}
 	std::cout << "Done!" << std::endl;
 }

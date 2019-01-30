@@ -219,8 +219,11 @@ Core::ExitingArea(RoomBase* area)
 		UnregisterActor(*i);
 	}
 	fActiveActors.clear();
-
-	fContainers.clear();	
+	
+	// containers and regions are owned by the AreaRoom class
+	// TODO: Fix and / or clear ownership
+	fContainers.clear();
+	fRegions.clear();
 }
 
 
@@ -255,6 +258,13 @@ void
 Core::RegisterContainer(Container* container)
 {
 	fContainers.push_back(container);
+}
+
+
+void
+Core::RegisterRegion(Region* region)
+{
+	fRegions.push_back(region);
 }
 
 
@@ -480,6 +490,12 @@ Core::UpdateLogic(bool executeScripts)
 		object->Update(executeScripts);
 	}
 	
+	RegionsList::iterator r;
+	for (r = fRegions.begin(); r != fRegions.end(); r++) {
+		Object* object = *r;
+		std::cout << "region: " << object->Name() << std::endl;
+		object->Update(executeScripts);
+	}
 	_NewRound();
 	
 	//_RemoveStaleObjects();

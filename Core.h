@@ -35,7 +35,7 @@ class TLKResource;
 
 typedef std::vector<Actor*> ActorsList;
 typedef std::vector<Container*> ContainersList;
-
+typedef std::vector<Region*> RegionsList;
 
 class Core {
 public:
@@ -50,6 +50,7 @@ public:
 	void UnregisterActor(Actor* object);
 	
 	void RegisterContainer(Container* container);
+	void RegisterRegion(Region* region);
 
 	uint32 Game() const;
 
@@ -115,6 +116,7 @@ private:
 	
 	ActorsList fActiveActors;
 	ContainersList fContainers;
+	RegionsList fRegions;
 	
 	Variables fVariables;
 	Script *fRoomScript;
