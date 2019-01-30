@@ -691,11 +691,14 @@ void
 Actor::_HandleScripts()
 {
 	AddScript(_ExtractScript(fActor->script_override));
-	AddScript(_ExtractScript(fActor->script_race));
+	// What is the area script ?
+	//AddScript(_ExtractScript(fActor->script_area));
+	AddScript(_ExtractScript(fActor->script_specific));		
 	AddScript(_ExtractScript(fActor->script_class));
+	AddScript(_ExtractScript(fActor->script_race));
 	AddScript(_ExtractScript(fActor->script_general));
 	AddScript(_ExtractScript(fActor->script_default));
-	AddScript(_ExtractScript(fActor->script_specific));
+
 }
 
 
