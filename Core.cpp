@@ -274,28 +274,6 @@ Core::UnregisterActor(Actor* actor)
 Actor*
 Core::GetObject(Actor* source, object_node* node) const
 {
-	// TODO: Move into object_node::Print()
-	/*std::cout << "Core::GetObject(";
-	std::cout << "source: " << source->Name() << ", ";
-	std::cout << "node: ( ";
-	if (node->name[0])
-		std::cout << node->name;
-	if (node->general)
-		std::cout << ", " << IDTable::GeneralAt(node->general);
-	if (node->classs)
-		std::cout << ", " << IDTable::ClassAt(node->classs);
-	if (node->specific)
-		std::cout << ", " << IDTable::SpecificAt(node->specific);
-	if (node->ea)
-		std::cout << ", " << IDTable::EnemyAllyAt(node->ea);
-	if (node->gender)
-		std::cout << ", " << IDTable::GenderAt(node->gender);
-	if (node->race)
-		std::cout << ", " << IDTable::RaceAt(node->race);
-	if (node->alignment)
-		std::cout << ", " << IDTable::AlignmentAt(node->alignment);
-	std::cout << ") ) -> " ;
-*/
 	if (node->name[0] != '\0')
 		return GetObject(node->name);
 
