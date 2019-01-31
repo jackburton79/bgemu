@@ -201,7 +201,7 @@ Core::EnteredArea(RoomBase* area)
 	// then clear the script
 	area->ClearScripts();
 	
-	_PrintObjects();
+	//_PrintObjects();
 }
 
 
