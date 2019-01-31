@@ -737,7 +737,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = core->Distance(object, fTarget.Target()) <= range;
-
 				break;
 			}
 			case 0x4068:
@@ -748,7 +747,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * e.g. TimeGT(1) is true between 01:30 and 02:29.
 				 */
 				// TODO: Offset hour
-				GameTimer::PrintTime();
 				if (GameTimer::HourOfDay() > trig->parameter1)
 					returnValue = true;
 				break;
@@ -757,7 +755,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				//TIMELT(I:TIME*TIME) (16489 0x4069)
 				// TODO: Offset hour
-				GameTimer::PrintTime();
 				if (GameTimer::HourOfDay() < trig->parameter1)
 					returnValue = true;
 				break;
