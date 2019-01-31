@@ -449,7 +449,7 @@ AreaRoom::DrawObject(const Object& object)
 			ConvertFromArea(position);
 			uint32 color = 0;
 			Bitmap* image = fBackMap->Image();
-			if (actor->CRE()->EnemyAlly() < 200)
+			if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
 				color = image->MapColor(0, 255, 0);
 			else
 				color = image->MapColor(255, 0, 0);	
