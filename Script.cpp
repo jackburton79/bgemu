@@ -197,9 +197,9 @@ Script::Execute()
 	if (sDebug) {
 		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
-		//if (!strcmp(fTarget.Target()->Name(), "LightningRoom")) {
-		//	Print();		
-		//}
+		/*if (!strcmp(fTarget.Target()->Name(), "Arenthis")) {
+			Print();		
+		}*/
 	}
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
@@ -552,8 +552,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
 				Actor* object = FindObject(trig);
-				if (object != NULL)
+				if (object != NULL) {
 					returnValue = object->IsGeneral(trig->parameter1);
+					if (sDebug) {
+						std::cout << "object: " << IDTable::GeneralAt(object->CRE()->General());
+						std::cout << " vs " << IDTable::GeneralAt(trig->parameter1) << std::endl;				
+					}				
+				}
 				break;
 			}
 			case 0x400F:
@@ -873,7 +878,8 @@ Script::_ExecuteActions(node* responseSet)
 	}
 	
 	for (int p = 0; p < i; p++) {
-		std::cout << "response " << p << ": probability " << responses[p]->probability << std::endl;
+		std::cout << "response " << p << ": probability ";
+		std::cout << std::dec << responses[p]->probability << std::endl;
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, i);
@@ -1336,7 +1342,7 @@ object_node::object_node()
 void
 object_node::Print() const
 {
-	std::cout << "Object:" << std::endl;
+	std::cout << "Object: ";
 	if (Core::Get()->Game() == GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
