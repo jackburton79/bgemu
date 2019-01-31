@@ -80,8 +80,6 @@ public:
 	void PlayMovie(const char* name);
 	void DisplayMessage(uint32 strRef);
 
-	void SetRoomScript(Script* script);
-
 	void CheckScripts();
 	void UpdateLogic(bool scripts);
 
@@ -120,7 +118,6 @@ private:
 	RegionsList fRegions;
 	
 	Variables fVariables;
-	Script *fRoomScript;
 	std::map<std::string, Script*> fScripts;
 
 	uint32 fLastScriptRoundTime;

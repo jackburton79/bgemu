@@ -81,13 +81,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	_InitWed(fArea->WedName().CString());
 
-	fBcs = gResManager->GetBCS(fArea->ScriptName());
-	::Script* roomScript = NULL;
-	if (fBcs != NULL)
-		roomScript = fBcs->GetScript();
-
-	AddScript(roomScript);
-
 	GUI* gui = GUI::Get();
 	gui->Clear();
 
@@ -95,10 +88,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		// TODO: Delete other loaded stuff
 		gResManager->ReleaseResource(fArea);
 		fArea = NULL;
-		gResManager->ReleaseResource(fBcs);
-		fBcs = NULL;
-		ClearScripts();
-		delete roomScript;
 		throw "CANNOT LOAD GUIW";
 	}
 
@@ -132,8 +121,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	_InitDoors();
 	_InitContainers();
 	_InitBlitMask();
-
-	Core::Get()->SetRoomScript(roomScript);
 
 	IE::point point = { 0, 0 };
 	if (!savedEntranceName.empty()) {
@@ -170,6 +157,13 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
 
 	GUI::Get()->ShowWindow(999);
+	
+	fBcs = gResManager->GetBCS(fArea->ScriptName());
+	::Script* roomScript = NULL;
+	if (fBcs != NULL)
+		roomScript = fBcs->GetScript();
+
+	AddScript(roomScript);
 }
 
 

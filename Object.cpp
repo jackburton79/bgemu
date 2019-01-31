@@ -148,7 +148,7 @@ Object::Update(bool scripts)
 		//}
 		if (fWaitTime > 0)
 			fWaitTime -= 15;
-		else if (IsInsideVisibleArea()) {
+		else if (IsInsideVisibleArea() || dynamic_cast<AreaRoom*>(this)) {
 			_ExecuteScripts(8);
 		}		
 	}

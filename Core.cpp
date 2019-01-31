@@ -38,7 +38,6 @@ Core::Core()
 	fGame(GAME_BALDURSGATE2),
 	fCurrentRoom(NULL),
 	fActiveActor(NULL),
-	fRoomScript(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
 	fCurrentRoundNumber(0),
@@ -196,17 +195,12 @@ Core::LoadWorldMap()
 void
 Core::EnteredArea(RoomBase* area)
 {
-	area->AddScript(fRoomScript);
+	// Executes the area script (only once)
+	area->Update(true);
 	
-	// The area script
-	if (fRoomScript != NULL) {
-		fRoomScript->Execute();
-	}
-
+	// then clear the script
 	area->ClearScripts();
-	delete fRoomScript;
-	fRoomScript = NULL;
-
+	
 	_PrintObjects();
 }
 
@@ -410,20 +404,6 @@ Core::DisplayMessage(uint32 strRef)
 	} catch (...) {
 		//TODO: handle exception
 	}
-}
-
-
-
-void
-Core::SetRoomScript(Script* script)
-{
-	fRoomScript = script;
-}
-
-
-void
-Core::CheckScripts()
-{
 }
 
 
