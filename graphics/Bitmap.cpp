@@ -40,7 +40,6 @@ Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	fYOffset(0),
 	fOwnsSurface(ownsSurface)
 {
-
 }
 
 
@@ -356,7 +355,7 @@ Bitmap::GetMirrored() const
 {
 	if (fMirrored == NULL) {
 		const_cast<Bitmap*>(this)->fMirrored = Clone();
-		fMirrored->_Mirror();
+		fMirrored->Mirror();
 	}
 
 	return fMirrored;
@@ -537,7 +536,7 @@ Bitmap::Save(const char* fileName) const
 
 
 void
-Bitmap::_Mirror()
+Bitmap::Mirror()
 {
 	SDL_LockSurface(fSurface);
 

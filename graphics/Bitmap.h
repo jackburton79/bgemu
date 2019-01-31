@@ -67,6 +67,7 @@ public:
 	uint32 MapColor(const uint8 r, const uint8 g, const uint8 b);
 
 	Bitmap* GetMirrored() const;
+	void Mirror();
 	void Flip();
 
 	bool Lock() const;
@@ -98,8 +99,6 @@ protected:
 	virtual void LastReferenceReleased();
 
 	SDL_Surface* Surface() const;
-
-	void _Mirror();
 };
 
 
