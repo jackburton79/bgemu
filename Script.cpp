@@ -1171,11 +1171,23 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 		case 202:
-		{	/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
-			FadeToColorAction* action = new FadeToColorAction(fTarget.Target(), act->where.x);
+		{	
+			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
+			int numUpdates = act->where.x;
+			FadeColorAction* action = new FadeColorAction(fTarget.Target(),
+				numUpdates, FadeColorAction::TO_BLACK);
 			fTarget.Target()->AddAction(action);
 			break;		
-		}		
+		}
+		case 203:
+		{
+			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
+			int numUpdates = act->where.x;
+			FadeColorAction* action = new FadeColorAction(fTarget.Target(),
+				numUpdates, FadeColorAction::FROM_BLACK);
+			fTarget.Target()->AddAction(action);
+			break;
+		}
 		case 207:
 		{
 			/* 207 MoveToPointNoInterrupt(P:Point*)

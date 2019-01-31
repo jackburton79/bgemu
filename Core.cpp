@@ -199,7 +199,7 @@ Core::EnteredArea(RoomBase* area)
 	area->Update(true);
 	
 	// then clear the script
-	area->ClearScripts();
+	//area->ClearScripts();
 	
 	//_PrintObjects();
 }
@@ -208,6 +208,8 @@ Core::EnteredArea(RoomBase* area)
 void
 Core::ExitingArea(RoomBase* area)
 {
+	area->ClearScripts();
+	
 	ActorsList::const_iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
 		UnregisterActor(*i);
@@ -244,7 +246,6 @@ Core::UnregisterActor(Actor* actor)
 {
 	// TODO: Save the object state
 	actor->Release();
-	std::cout << "refcount: " << actor->RefCount() << std::endl;
 }
 
 
@@ -426,6 +427,8 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
+	fCurrentRoom->Update(true);
+	
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {

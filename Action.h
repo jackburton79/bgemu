@@ -92,12 +92,20 @@ public:
 	virtual void operator()();
 };
 
-class FadeToColorAction : public Action {
+class FadeColorAction : public Action {
 public:
-	FadeToColorAction(Object* object, int32 numUpdates);
+	enum fade {
+		FROM_BLACK = 1,
+		TO_BLACK = -1
+	};
+	FadeColorAction(Object* object, int32 numUpdates, int fade);
 	virtual void operator()();
 private:
 	int32 fNumUpdates;
+	int fFadeDirection;
+	int32 fCurrentValue;
+	int32 fTargetValue;
+	int16 fStepValue;
 };
 
 

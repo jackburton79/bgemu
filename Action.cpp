@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "Core.h"
 #include "Door.h"
+#include "GraphicsEngine.h"
 #include "Timer.h"
 
 #include <algorithm>
@@ -289,18 +290,49 @@ Dialogue::operator()()
 
 
 // FadeToColor
-FadeToColorAction::FadeToColorAction(Object* object, int32 numUpdates)
+FadeColorAction::FadeColorAction(Object* object,
+	int32 numUpdates, int fadeDirection)
 	:
 	Action(object),
-	fNumUpdates(numUpdates)
+	fFadeDirection(fadeDirection),
+	fCurrentValue(0),
+	fTargetValue(0),
+	fStepValue(1)
 {
+	if (fFadeDirection == TO_BLACK) {
+		fCurrentValue = 255;
+		fTargetValue = 0;
+		fStepValue = (fCurrentValue - fTargetValue) / numUpdates;
+	} else if (fFadeDirection == FROM_BLACK) {
+		fCurrentValue = 0;
+		fTargetValue = 255;
+		fStepValue = fTargetValue / numUpdates;
+	}
 }
 
 
 /* virtual */
 void
-FadeToColorAction::operator()()
+FadeColorAction::operator()()
 {
+	GraphicsEngine::Get()->SetFade(fCurrentValue);
+	switch (fFadeDirection) {
+		case TO_BLACK:
+			if (fCurrentValue > fTargetValue)
+				fCurrentValue -= fStepValue;
+			else
+				fCompleted = true;
+			break;
+		case FROM_BLACK:
+			if (fCurrentValue < fTargetValue)
+				fCurrentValue += fStepValue;
+			else
+				fCompleted = true;
+			break;
+		default:
+			fCompleted = true;
+			break;
+	}
 }
 
 
@@ -320,4 +352,5 @@ ChangeOrientationExtAction::operator()()
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor != NULL)
 		actor->SetOrientation(fOrientation);
+	fCompleted = true;
 }
