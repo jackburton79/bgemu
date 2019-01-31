@@ -248,7 +248,6 @@ Object::IsStale() const
 void
 Object::LastReferenceReleased()
 {
-	std::cout << Name() << "::LastReferenceReleased()" << std::endl;
 	delete this;
 }
 
