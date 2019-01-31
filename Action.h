@@ -13,7 +13,8 @@ public:
 
     bool Initiated() const;
     bool Completed() const;
-
+	void SetCompleted();
+	
     virtual void operator()();
 protected:
     Object* fObject;

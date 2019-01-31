@@ -44,6 +44,13 @@ Action::Completed() const
 }
 
 
+void
+Action::SetCompleted()
+{
+	fCompleted = true;
+}
+
+
 /* virtual */
 void
 Action::operator()()
@@ -92,7 +99,7 @@ WalkTo::operator()()
 	Action::operator()();
 
 	if (actor->Position() == actor->Destination()) {
-		fCompleted = true;
+		SetCompleted();
 		actor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
@@ -125,7 +132,7 @@ FlyTo::operator()()
 	Action::operator()();
 
 	if (actor->Position() == actor->Destination()) {
-		fCompleted = true;
+		SetCompleted();
 		actor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
@@ -150,7 +157,7 @@ Toggle::operator()()
 {
 	Action::operator()();
 	fDoor.Target()->Toggle();
-	fCompleted = true;
+	SetCompleted();
 }
 
 
@@ -186,7 +193,7 @@ Attack::operator()()
 	} else {
 		actor->SetAnimationAction(ACT_ATTACKING);
 		actor->AttackTarget(target);
-		fCompleted = true;
+		SetCompleted();
 	}
 }
 
@@ -219,7 +226,7 @@ RunAwayFrom::operator()()
 	}
 
 	if (actor->Position() == actor->Destination()) {
-		fCompleted = true;
+		SetCompleted();
 		actor->SetAnimationAction(ACT_STANDING);
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
@@ -252,7 +259,6 @@ Dialogue::Dialogue(Object* source, Object* target)
 	:
 	ActionWithTarget(source, target)
 {
-
 }
 
 
@@ -283,7 +289,7 @@ Dialogue::operator()()
 	} else {
 */
 		actor->SetAnimationAction(ACT_STANDING);
-		fCompleted = true;
+		SetCompleted();
 		actor->InitiateDialogWith(target);
 	//}
 }
@@ -321,16 +327,16 @@ FadeColorAction::operator()()
 			if (fCurrentValue > fTargetValue)
 				fCurrentValue -= fStepValue;
 			else
-				fCompleted = true;
+				SetCompleted();
 			break;
 		case FROM_BLACK:
 			if (fCurrentValue < fTargetValue)
 				fCurrentValue += fStepValue;
 			else
-				fCompleted = true;
+				SetCompleted();
 			break;
 		default:
-			fCompleted = true;
+			SetCompleted();
 			break;
 	}
 }
@@ -352,5 +358,5 @@ ChangeOrientationExtAction::operator()()
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor != NULL)
 		actor->SetOrientation(fOrientation);
-	fCompleted = true;
+	SetCompleted();
 }
