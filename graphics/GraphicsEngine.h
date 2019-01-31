@@ -49,10 +49,11 @@ public:
 
 	void SetWindowCaption(const char* caption);
 
-	Bitmap* ScreenBitmap();
-
+	Bitmap* ScreenBitmap();	
 	void Flip();
-
+	
+	void SetFade(uint16 value);
+	
 	static void CreateGradient(const GFX::Color& start,
 								const GFX::Color& end,
 								GFX::Palette& palette);

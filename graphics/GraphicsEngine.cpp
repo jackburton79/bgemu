@@ -282,6 +282,14 @@ GraphicsEngine::Flip()
 }
 
 
+void
+GraphicsEngine::SetFade(uint16 value)
+{
+	if (value <= 255)
+		SDL_SetTextureColorMod(fSDLTexture, value, value, value);
+}
+
+
 /* static */
 void
 GraphicsEngine::CreateGradient(const GFX::Color& start, const GFX::Color& end,
