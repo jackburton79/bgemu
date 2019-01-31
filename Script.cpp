@@ -802,13 +802,16 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Only for trigger regions. Returns true only if the specified
 				 * object is over the trigger running the script
 				 */
-				/*object_node* object = FindObjectNode(trig);
-				if (object != NULL) {
-					Actor* objectOverRegion = core->GetObject(
-							dynamic_cast<Region*>(actor));
-					if (objectOverRegion != NULL)
-						returnValue = objectOverRegion->MatchNode(object);
-				}*/
+				Region* region = dynamic_cast<Region*>(fTarget.Target());
+				if (region == NULL)
+					break;
+				object_node* objectNode = FindObjectNode(trig);
+				if (objectNode != NULL) {
+					// TODO: won't work if the object is generic and not specified					
+					Actor* actor = core->GetObject(objectNode);
+					if (actor != NULL)
+						returnValue = region->Contains(actor->Position());
+				}
 
 				break;
 			}
