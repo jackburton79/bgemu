@@ -173,8 +173,8 @@ Script::FindObject(node* start) const
 	if (objectNode == NULL)
 		return NULL;
 
-	if (sDebug)
-		objectNode->Print();
+	/*if (sDebug)
+		objectNode->Print();*/
 
 	return GetObject((Actor*)fTarget.Target(), objectNode);
 }
@@ -300,8 +300,8 @@ Script::GetObject(Actor* source, object_node* node) const
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = dynamic_cast<Actor*>(ResolveIdentifier(identifier));
 			source = target;
-			if (source != NULL)
-				source->Print();
+			/*if (source != NULL)
+				source->Print();*/
 		}
 		// TODO: Filter using wildcards in node
 		std::cout << "returned ";
