@@ -121,7 +121,6 @@ ScriptResults::_FindActionByTargetObject(const Actor* target, int action, object
 bool
 ScriptResults::_FindActionByTargetActor(const Actor* target, int action, const Actor* actor) const
 {
-	std::cout << "_FindActionByTargetActor(" << target->Name() << ")" << std::endl;
 	std::pair <results_map::const_iterator, results_map::const_iterator> range;
 	range = fTargetsList.equal_range(target->CRE()->GlobalActorEnum());
 	for (results_map::const_iterator i = range.first;
