@@ -26,7 +26,7 @@ public:
 	virtual void operator()(const char* argv, int argc) {
 		ActorsList objects;
 		ActorsList::iterator i;
-		Core::Get()->GetObjectList(objects);
+		Core::Get()->GetActorsList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
 			Actor* actor = *i;
 			std::cout << actor->Name();

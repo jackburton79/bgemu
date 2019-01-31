@@ -542,7 +542,7 @@ Core::RandomNumber(int32 start, int32 end)
 
 
 int32
-Core::GetObjectList(ActorsList& objects) const
+Core::GetActorsList(ActorsList& objects) const
 {
 	objects = fActiveActors;
 	return objects.size();

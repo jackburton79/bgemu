@@ -717,7 +717,7 @@ Actor::UpdateSee()
 	// the target
 	ActorsList::const_iterator i;
 	ActorsList actorsList;
-	Core::Get()->GetObjectList(actorsList);
+	Core::Get()->GetActorsList(actorsList);
 	
 	ActorsList::const_iterator start = actorsList.begin();
 	ActorsList::const_iterator end = actorsList.end();

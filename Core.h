@@ -80,7 +80,6 @@ public:
 	void PlayMovie(const char* name);
 	void DisplayMessage(uint32 strRef);
 
-	void CheckScripts();
 	void UpdateLogic(bool scripts);
 
 	// Actions/Triggers
@@ -96,7 +95,7 @@ public:
 
 	static int32 RandomNumber(int32 start, int32 end);
 
-	int32 GetObjectList(ActorsList& objects) const;
+	int32 GetActorsList(ActorsList& objects) const;
 
 private:
 	static void _InitGameTimers();
