@@ -62,6 +62,30 @@ ScriptResults::SetActorEnteredRegion(const Actor* actor, const Region* region)
 }
 
 
+void
+ScriptResults::SetActorClickedObject(const Actor* actor, const Object* object)
+{
+	result_entry resultEntry = { actor, ScriptResults::CLICKED, object };
+	fClickedObjects[object->Name()] = resultEntry;
+	std::cout << "SetActorClicked()" << actor->Name();
+	std::cout << " " << object->Name() << std::endl;
+}
+
+
+Actor*
+ScriptResults::GetActorWhoClickedObject(const Object* object) const
+{
+	std::cout << "GetActorClicked() " << object->Name() << " ?";
+	objects_map::const_iterator i = fClickedObjects.find(object->Name());
+	if (i != fClickedObjects.end()) {
+		std::cout << ": " << i->second.actor->Name() << std::endl;
+		return const_cast<Actor*>(i->second.actor);
+	}
+	std::cout << "no" << std::endl;
+	return NULL;
+}
+
+
 bool
 ScriptResults::WasActorAttackedBy(const Actor* actor, object_node* node) const
 {

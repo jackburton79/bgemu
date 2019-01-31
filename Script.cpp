@@ -526,17 +526,16 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
-#if 0
 				object_node* objectNode = FindObjectNode(trig);
-				//returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
-				//		->MatchNode(objectNode);
-				//objectNode->Print();
-				//fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
-
+				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fTarget.Target());
+				if (clicker != NULL) {
+					objectNode->Print();
+					returnValue = clicker->MatchNode(objectNode);
+				}
 				// TODO: When to set this, other than now ?
 				if (returnValue)
 					fLastTrigger = fTarget;
-#endif
+
 				break;
 			}
 			case 0x400A:

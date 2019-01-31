@@ -25,15 +25,16 @@ class Region;
 struct result_entry {
 	const Actor* actor;
 	int action;
-	const Actor* target;
+	const Object* target;
 };
 
 class ScriptResults {
 public:
 	enum Action {
 		ATTACK = 0,
-		SAW = 1,
-		HEARD = 2,
+		SAW,
+		HEARD,
+		CLICKED 
 	};
 	
 	ScriptResults();
@@ -44,6 +45,9 @@ public:
 	void SetActorAttacked(const Actor* actor, const Actor* target);
 
 	void SetActorEnteredRegion(const Actor* actor, const Region* region);	
+	
+	void SetActorClickedObject(const Actor* actor, const Object* object);
+	Actor* GetActorWhoClickedObject(const Object* object) const;
 
 	bool WasActorAttackedBy(const Actor* actor, object_node* node) const;
 	bool WasActorSeenBy(const Actor* actor, object_node* node) const;
@@ -58,10 +62,12 @@ private:
 	
 	typedef std::multimap<uint16, result_entry> results_map;
 	typedef std::multimap<std::string, uint16> regions_map;
-
+	typedef std::map<std::string, result_entry> objects_map;
+	
 	regions_map fRegionsList;
 	results_map fSourcesList;
 	results_map fTargetsList;
+	objects_map fClickedObjects;
 };
 
 

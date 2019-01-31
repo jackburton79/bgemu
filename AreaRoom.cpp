@@ -26,6 +26,7 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
+#include "RoundResults.h"
 #include "Script.h"
 #include "TextArea.h"
 #include "TileCell.h"
@@ -354,8 +355,10 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 
 	if (Region* region = _RegionAtPoint(point)) {
 		// TODO:
-		if (fSelectedActor != NULL)
+		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(region);
+			Core::Get()->RoundResults()->SetActorClickedObject(fSelectedActor.Target(), region);
+		}
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			Core::Get()->LoadArea(region->DestinationArea(), "foo",
 					region->DestinationEntrance());
@@ -368,8 +371,10 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 		}
 	} else if (Container* container = _ContainerAtPoint(point)) {
 		// TODO:
-		if (fSelectedActor != NULL)
+		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(container);
+			Core::Get()->RoundResults()->SetActorClickedObject(fSelectedActor.Target(), container);
+		}
 	}
 
 	if (fSelectedActor != NULL) {
