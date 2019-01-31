@@ -22,6 +22,7 @@
 // TODO: Actor and Object aren't well separated.
 // Either merge in one class or improve the separation
 struct object_node;
+class Action;
 class Actor;
 class Object;
 class Region;
@@ -52,7 +53,12 @@ public:
 	bool IsInsideVisibleArea() const;
 
 	virtual void Update(bool scripts);
-	
+
+	// TODO: Merge and clean this mess
+	void AddAction(Action* action);
+	bool IsActionListEmpty() const;
+	void ClearActionList();
+
 	void AddScript(::Script* script);
 	void ClearScripts();
 	
@@ -76,6 +82,8 @@ private:
 	typedef std::vector< ::Script*> ScriptsList;
 	ScriptsList fScripts;
 	int32 fWaitTime;
+
+	std::list<Action*> fActions;
 
 	bool fVisible;
 

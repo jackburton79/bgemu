@@ -1149,6 +1149,12 @@ Script::_ExecuteAction(action_node* act)
 			}
 			break;
 		}
+		case 202:
+		{	/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
+			FadeToColorAction* action = new FadeToColorAction(fTarget.Target(), act->where.x);
+			fTarget.Target()->AddAction(action);
+			break;		
+		}		
 		case 207:
 		{
 			/* 207 MoveToPointNoInterrupt(P:Point*)

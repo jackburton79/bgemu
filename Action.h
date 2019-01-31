@@ -1,15 +1,14 @@
 #ifndef __ACTION_H
 #define __ACTION_H
 
-#include "Actor.h"
 #include "IETypes.h"
 #include "Reference.h"
 
-class Actor;
 class Door;
+class Object;
 class Action {
 public:
-    Action(Actor* actor);
+    Action(Object* actor);
     virtual ~Action();
 
     bool Initiated() const;
@@ -17,7 +16,7 @@ public:
 
     virtual void operator()();
 protected:
-    Reference<Actor> fActor;
+    Object* fObject;
     bool fInitiated;
     bool fCompleted;
 };
@@ -25,17 +24,17 @@ protected:
 
 class ActionWithTarget : public Action {
 public:
-	ActionWithTarget(Actor* actor, Actor* target);
+	ActionWithTarget(Object* actor, Object* target);
 	virtual void operator()();
 
 protected:
-	Reference<Actor> fTarget;
+	Object* fTarget;
 };
 
 
 class WalkTo : public Action {
 public:
-	WalkTo(Actor* actor, IE::point destination);
+	WalkTo(Object* actor, IE::point destination);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -44,7 +43,7 @@ private:
 
 class FlyTo : public Action {
 public:
-	FlyTo(Actor* actor, IE::point, int time);
+	FlyTo(Object* actor, IE::point, int time);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -53,7 +52,7 @@ private:
 
 class Wait : public Action {
 public:
-	Wait(Actor* actor, uint32 time);
+	Wait(Object* actor, uint32 time);
 	virtual void operator()();
 private:
 	uint32 fWaitTime;
@@ -64,7 +63,7 @@ private:
 class Toggle : public Action {
 public:
 	// TODO: For any object ?
-	Toggle(Actor* actor, Door* door);
+	Toggle(Object* actor, Door* door);
 	virtual void operator()();
 private:
 	Reference<Door> fDoor;
@@ -73,14 +72,14 @@ private:
 
 class Attack : public ActionWithTarget {
 public:
-	Attack(Actor* actor, Actor* target);
+	Attack(Object* actor, Object* target);
 	virtual void operator()();
 };
 
 
 class RunAwayFrom : public ActionWithTarget {
 public:
-	RunAwayFrom(Actor* actor, Actor* target);
+	RunAwayFrom(Object* actor, Object* target);
 	virtual void operator()();
 private:
 	IE::point PointAway() const;
@@ -89,7 +88,16 @@ private:
 
 class Dialogue : public ActionWithTarget {
 public:
-	Dialogue(Actor* actor, Actor* target);
+	Dialogue(Object* actor, Object* target);
 	virtual void operator()();
 };
+
+class FadeToColorAction : public Action {
+public:
+	FadeToColorAction(Object* object, int32 numUpdates);
+	virtual void operator()();
+private:
+	int32 fNumUpdates;
+};
+
 #endif

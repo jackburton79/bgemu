@@ -754,51 +754,12 @@ Actor::HasSeen(const Object* object) const
 }
 
 
-void
-Actor::AddAction(Action* action)
-{
-	fActions.push_back(action);
-}
-
-
-bool
-Actor::IsActionListEmpty() const
-{
-	return fActions.size() == 0;
-}
-
-
-void
-Actor::ClearActionList()
-{
-	for (std::list<Action*>::iterator i = fActions.begin();
-									i != fActions.end(); i++) {
-		delete *i;
-	}
-	fActions.clear();
-}
-
-
 /* virtual */
 void
 Actor::Update(bool scripts)
 {
 	Object::Update(scripts);
 	UpdateTileCell();
-
-	if (fActions.size() != 0) {
-		std::list<Action*>::iterator i = fActions.begin();
-		while (i != fActions.end()) {
-			Action& action = **i;
-			if (action.Completed()) {
-				delete *i;
-				i = fActions.erase(i);
-			} else {
-				action();
-				break;
-			}
-		}
-	}
 
 	UpdateAnimation(IsFlying());
 }

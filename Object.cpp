@@ -5,12 +5,14 @@
  *      Author: stefano
  */
 
+#include "Object.h"
+
+#include "Action.h"
 #include "AreaRoom.h"
 #include "BCSResource.h"
 #include "Core.h"
 #include "Game.h"
 #include "IDSResource.h"
-#include "Object.h"
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -152,15 +154,47 @@ Object::Update(bool scripts)
 			_ExecuteScripts(8);
 		}		
 	}
+	
+	if (fActions.size() != 0) {
+		std::list<Action*>::iterator i = fActions.begin();
+		while (i != fActions.end()) {
+			Action& action = **i;
+			if (action.Completed()) {
+				delete *i;
+				i = fActions.erase(i);
+			} else {
+				action();
+				break;
+			}
+		}
+	}
 }
 
-/*
-::Script*
-Object::Script() const
+
+void
+Object::AddAction(Action* action)
 {
-	return fScript;
+	fActions.push_back(action);
 }
-*/
+
+
+bool
+Object::IsActionListEmpty() const
+{
+	return fActions.size() == 0;
+}
+
+
+void
+Object::ClearActionList()
+{
+	for (std::list<Action*>::iterator i = fActions.begin();
+									i != fActions.end(); i++) {
+		delete *i;
+	}
+	fActions.clear();
+}
+
 
 void
 Object::AddScript(::Script* script)

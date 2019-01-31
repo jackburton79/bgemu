@@ -15,9 +15,9 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 }
 
 
-Action::Action(Actor* actor)
+Action::Action(Object* object)
     :
-	fActor(actor),
+	fObject(object),
 	fInitiated(false),
 	fCompleted(false)
 {
@@ -54,9 +54,9 @@ Action::operator()()
 
 
 // ActionWithTarget
-ActionWithTarget::ActionWithTarget(Actor* actor, Actor* target)
+ActionWithTarget::ActionWithTarget(Object* object, Object* target)
 	:
-	Action(actor),
+	Action(object),
 	fTarget(target)
 {
 }
@@ -70,9 +70,9 @@ ActionWithTarget::operator()()
 
 
 // WalkTo
-WalkTo::WalkTo(Actor* actor, IE::point destination)
+WalkTo::WalkTo(Object* object, IE::point destination)
 	:
-	Action(actor),
+	Action(object),
 	fDestination(destination)
 {
 }
@@ -82,26 +82,30 @@ WalkTo::WalkTo(Actor* actor, IE::point destination)
 void
 WalkTo::operator()()
 {
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+
 	if (!Initiated())
-		fActor.Target()->SetDestination(fDestination);
+		actor->SetDestination(fDestination);
 
 	Action::operator()();
 
-	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
+	if (actor->Position() == actor->Destination()) {
 		fCompleted = true;
-		fActor.Target()->SetAnimationAction(ACT_STANDING);
+		actor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
 
-	fActor.Target()->SetAnimationAction(ACT_WALKING);
-	fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
+	actor->SetAnimationAction(ACT_WALKING);
+	actor->MoveToNextPointInPath(actor->IsFlying());
 }
 
 
 // FlyTo
-FlyTo::FlyTo(Actor* actor, IE::point destination, int time)
+FlyTo::FlyTo(Object* object, IE::point destination, int time)
 	:
-	Action(actor),
+	Action(object),
 	fDestination(destination)
 {
 }
@@ -111,48 +115,32 @@ FlyTo::FlyTo(Actor* actor, IE::point destination, int time)
 void
 FlyTo::operator()()
 {
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+
 	if (!Initiated())
-		fActor.Target()->SetDestination(fDestination);
+		actor->SetDestination(fDestination);
 
 	Action::operator()();
 
-	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
+	if (actor->Position() == actor->Destination()) {
 		fCompleted = true;
-		fActor.Target()->SetAnimationAction(ACT_STANDING);
+		actor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
 
-	fActor.Target()->SetAnimationAction(ACT_WALKING);
-	fActor.Target()->MoveToNextPointInPath(true);
-}
-
-
-// Wait
-Wait::Wait(Actor* actor, uint32 time)
-	:
-	Action(actor),
-	fWaitTime(time)
-{
-	fStartTime = GameTimer::GameTime();
-}
-
-
-void
-Wait::operator()()
-{
-	Action::operator()();
-	if (GameTimer::GameTime() >= fStartTime + fWaitTime)
-		fCompleted = true;
+	actor->SetAnimationAction(ACT_WALKING);
+	actor->MoveToNextPointInPath(true);
 }
 
 
 // Toggle
-Toggle::Toggle(Actor* actor, Door* door)
+Toggle::Toggle(Object* object, Door* door)
 	:
-	Action(actor),
+	Action(object),
 	fDoor(door)
 {
-
 }
 
 
@@ -167,9 +155,9 @@ Toggle::operator()()
 
 
 // Attack
-Attack::Attack(Actor* actor, Actor* target)
+Attack::Attack(Object* object, Object* target)
 	:
-	ActionWithTarget(actor, target)
+	ActionWithTarget(object, target)
 {
 }
 
@@ -178,30 +166,36 @@ Attack::Attack(Actor* actor, Actor* target)
 void
 Attack::operator()()
 {
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+	Actor* target = dynamic_cast<Actor*>(fTarget);
+	if (target == NULL)
+		return;
+
 	if (!Initiated()) {
-		IE::point point = fTarget.Target()->NearestPoint(fActor.Target()->Position());
-		if (!PointSufficientlyClose(fActor.Target()->Position(), point))
-			fActor.Target()->SetDestination(point);
+		IE::point point = fTarget->NearestPoint(actor->Position());
+		if (!PointSufficientlyClose(actor->Position(), point))
+			actor->SetDestination(point);
 		Action::operator()();
 	}
 
-	if (fActor.Target()->Position() != fActor.Target()->Destination()) {
-		fActor.Target()->SetAnimationAction(ACT_WALKING);
-		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
+	if (actor->Position() != actor->Destination()) {
+		actor->SetAnimationAction(ACT_WALKING);
+		actor->MoveToNextPointInPath(actor->IsFlying());
 	} else {
-		fActor.Target()->SetAnimationAction(ACT_ATTACKING);
-		fActor.Target()->AttackTarget(fTarget.Target());
+		actor->SetAnimationAction(ACT_ATTACKING);
+		actor->AttackTarget(target);
 		fCompleted = true;
 	}
 }
 
 
 // RunAwayFrom
-RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
+RunAwayFrom::RunAwayFrom(Object* object, Object* target)
 	:
-	ActionWithTarget(actor, target)
+	ActionWithTarget(object, target)
 {
-
 }
 
 
@@ -209,23 +203,27 @@ RunAwayFrom::RunAwayFrom(Actor* actor, Actor* target)
 void
 RunAwayFrom::operator()()
 {
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+
 	Action::operator()();
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	if (Core::Get()->Distance(fActor.Target(), fTarget.Target()) < 200) {
+	if (Core::Get()->Distance(actor, fTarget) < 200) {
 		IE::point point = PointAway();
-		if (fActor.Target()->Destination() != point) {
-			fActor.Target()->SetDestination(point);
+		if (actor->Destination() != point) {
+			actor->SetDestination(point);
 		}
 	}
 
-	if (fActor.Target()->Position() == fActor.Target()->Destination()) {
+	if (actor->Position() == actor->Destination()) {
 		fCompleted = true;
-		fActor.Target()->SetAnimationAction(ACT_STANDING);
+		actor->SetAnimationAction(ACT_STANDING);
 	} else {
-		fActor.Target()->SetAnimationAction(ACT_WALKING);
-		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
+		actor->SetAnimationAction(ACT_WALKING);
+		actor->MoveToNextPointInPath(actor->IsFlying());
 	}
 }
 
@@ -233,16 +231,16 @@ RunAwayFrom::operator()()
 IE::point
 RunAwayFrom::PointAway() const
 {
-	IE::point point = fActor.Target()->Position();
+	IE::point point = fObject->Position();
 
-	if (fTarget.Target()->Position().x > fActor.Target()->Position().x)
+	if (fTarget->Position().x > fObject->Position().x)
 		point.x -= 100;
-	else if (fTarget.Target()->Position().x < fActor.Target()->Position().x)
+	else if (fTarget->Position().x < fObject->Position().x)
 		point.x += 100;
 
-	if (fTarget.Target()->Position().y > fActor.Target()->Position().y)
+	if (fTarget->Position().y > fObject->Position().y)
 		point.y -= 100;
-	else if (fTarget.Target()->Position().y < fActor.Target()->Position().y)
+	else if (fTarget->Position().y < fObject->Position().y)
 		point.y += 100;
 
 	return point;
@@ -250,7 +248,7 @@ RunAwayFrom::PointAway() const
 
 
 // Dialogue
-Dialogue::Dialogue(Actor* source, Actor* target)
+Dialogue::Dialogue(Object* source, Object* target)
 	:
 	ActionWithTarget(source, target)
 {
@@ -262,6 +260,14 @@ Dialogue::Dialogue(Actor* source, Actor* target)
 void
 Dialogue::operator()()
 {
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+	
+	Actor* target = dynamic_cast<Actor*>(fTarget);
+	if (target == NULL)
+		return;
+
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
 /*
@@ -276,8 +282,25 @@ Dialogue::operator()()
 		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 	} else {
 */
-		fActor.Target()->SetAnimationAction(ACT_STANDING);
+		actor->SetAnimationAction(ACT_STANDING);
 		fCompleted = true;
-		fActor.Target()->InitiateDialogWith(fTarget.Target());
+		actor->InitiateDialogWith(target);
 	//}
 }
+
+
+// FadeToColor
+FadeToColorAction::FadeToColorAction(Object* object, int32 numUpdates)
+	:
+	Action(object),
+	fNumUpdates(numUpdates)
+{
+}
+
+
+/* virtual */
+void
+FadeToColorAction::operator()()
+{
+}
+
