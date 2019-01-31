@@ -216,6 +216,13 @@ Script::Execute()
 					// TODO: When the above method returns false,
 					// The script should stop running.
 					return false;
+				} else {
+					if (sDebug) {
+						std::cout << "*** SCRIPT RETURNED " << fTarget.Target()->Name();
+						std::cout << " ***" << std::endl;
+					}
+					SetProcessed();
+					return true;
 				}
 
 				condition = responseSet->Next();
