@@ -8,6 +8,7 @@
 #include "GUI.h"
 #include "MovieDecoder.h"
 #include "ResManager.h"
+#include "Script.h"
 #include "SoundEngine.h"
 #include "Timer.h"
 #include "WorldMap.h"
@@ -20,6 +21,7 @@ static int sList = 0;
 static int sNoScripts = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
+static int sDebug = 0;
 static uint16 sScreenWidth = 640;
 static uint16 sScreenHeight = 480;
 static const char *sPath;
@@ -32,6 +34,7 @@ struct option sLongOptions[] = {
 		{ "dumpresource", required_argument, NULL, 's'},
 		{ "path", required_argument, NULL, 'p'},
 		{ "noscripts", no_argument, &sNoScripts, 'n' },
+		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		{ 0, 0, 0, 0 }
 };
@@ -52,7 +55,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:s:ltnf",
+	while ((c = getopt_long(argc, argv, "g:p:Ds:ltnf",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -60,6 +63,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 's':
 				sResourceName = optarg;
+				break;
+			case 'D':
+				sDebug = 1;
 				break;
 			case 'f':
 				sFullScreen = 1;
@@ -112,6 +118,9 @@ main(int argc, char **argv)
 		Core::Destroy();
 		return 0;
 	}
+
+	if (sDebug)
+		Script::SetDebug(true);
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();
