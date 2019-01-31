@@ -405,6 +405,119 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				
 				break;
 			}
+			case 0x0020:
+			{
+				// HitBy
+				// Returns true on first Script launch, IOW initial area load
+				if (!Processed()) {
+					returnValue = true;
+					break;
+				}
+				//object_node* object = FindObjectNode(trig);
+				//returnValue = Object::CheckIfNodeInList(object,
+				//		fTarget->LastScriptRoundResults()->Hitters());
+				break;
+			}
+			case 0x0022:
+			{
+				/* TimerExpired(I:ID*) */
+				std::ostringstream stringStream;
+				stringStream << fTarget.Target()->Name() << " " << trig->parameter1;
+				printf("TimerExpired %s\n", stringStream.str().c_str());
+				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
+				if (timer != NULL && timer->Expired()) {
+					returnValue = true;
+				}
+				break;
+			}
+			case 0x002F:
+			{
+				/* 0x002F Heard(O:Object*,I:ID*SHOUTIDS)
+				Returns true only if the active CRE was within 30 feet
+				of the specified object and the specified object shouted
+				the specified number (which does not have to be in
+				SHOUTIDS.ids) in the last script round.
+				NB. If the object is specified as a death variable,
+				the trigger will only return true if the corresponding
+				object shouting also has an Enemy-Ally flag of NEUTRAL. */
+#if 0
+				Object* object = FindObject(trig);
+				if (object != NULL && core->Distance(fTarget.Target(), object) <= 30
+						&& object->LastScriptRoundResults()->Shouted()
+						== trig->parameter1) {
+					returnValue = true;
+				}
+#endif
+				break;
+			}
+			case 0x0036:
+			{
+				/*0x0036 OnCreation()
+				Returns true if the script is processed for the first time this session,
+				e.g. when a creature is created (for CRE scripts) or when the player
+				enters an area (for ARE scripts).*/
+				returnValue = !Processed();
+				break;
+			}
+			case 0x004c:
+			{
+				// Entered(O:Object)
+				//object_node* node = FindObjectNode(trig);
+				//Region* region = dynamic_cast<Region*>(fTarget.Target());
+				//std::vector<std::string>::const_iterator i;
+
+				/*Object* object = Object::GetMatchingObjectFromList(
+										region->
+										LastScriptRoundResults()->
+										EnteredActors(), node);*/
+				//if (object != NULL) {
+				//	fLastTrigger = object;
+				//	returnValue = true;
+				//}
+				break;
+			}
+			case 0x0052:
+			{
+				/* OPENED(O:OBJECT*) (82 0x52) */
+				object_node* objectNode = FindObjectNode(trig);
+				if (objectNode == NULL)
+					break;
+				break;
+				// TODO: We assume this is a door, but also
+				// containers can be opened/closed
+				/*Door* door = dynamic_cast<Door*>(fTarget.Target());
+				if (door == NULL)
+					break;
+				if (!door->Opened())
+					break;*/
+#if 0
+				Object* object = core->GetObject(
+						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
+				if (object != NULL)
+					returnValue = object->MatchNode(objectNode);
+#endif
+				break;
+			}
+			case 0x0070:
+			{
+				/* 0x0070 Clicked(O:Object*)
+				 *	Only for trigger regions.
+				 *	Returns true if the specified object
+				 *	clicked on the trigger region running this script.
+				 */
+#if 0
+				object_node* objectNode = FindObjectNode(trig);
+				//returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
+				//		->MatchNode(objectNode);
+				//objectNode->Print();
+				//fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
+
+				// TODO: When to set this, other than now ?
+				if (returnValue)
+					fLastTrigger = fTarget;
+#endif
+				break;
+			}
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
@@ -458,59 +571,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				returnValue = variableValue == trig->parameter1;
 				break;
 			}
-			case 0x0020:
-			{
-				// HitBy
-				// Returns true on first Script launch, IOW initial area load
-				if (!Processed()) {
-					returnValue = true;
-					break;
-				}
-				//object_node* object = FindObjectNode(trig);
-				//returnValue = Object::CheckIfNodeInList(object,
-				//		fTarget->LastScriptRoundResults()->Hitters());
-				break;
-			}
-			case 0x0022:
-			{
-				/* TimerExpired(I:ID*) */
-				std::ostringstream stringStream;
-				stringStream << fTarget.Target()->Name() << " " << trig->parameter1;
-				printf("TimerExpired %s\n", stringStream.str().c_str());
-				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
-				if (timer != NULL && timer->Expired()) {
-					returnValue = true;
-				}
-				break;
-			}
-			case 0x002F:
-			{
-				/* 0x002F Heard(O:Object*,I:ID*SHOUTIDS)
-				Returns true only if the active CRE was within 30 feet
-				of the specified object and the specified object shouted
-				the specified number (which does not have to be in
-				SHOUTIDS.ids) in the last script round.
-				NB. If the object is specified as a death variable,
-				the trigger will only return true if the corresponding
-				object shouting also has an Enemy-Ally flag of NEUTRAL. */
-#if 0
-				Object* object = FindObject(trig);
-				if (object != NULL && core->Distance(fTarget.Target(), object) <= 30
-						&& object->LastScriptRoundResults()->Shouted()
-						== trig->parameter1) {
-					returnValue = true;
-				}
-#endif
-				break;
-			}
-
 			case 0x4017:
 			{
 				// Race()
 				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsRace(trig->parameter1);
-
 				break;
 			}
 
@@ -549,7 +615,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 				break;
 			}
-
 			case 0x4023:
 				/* 0x4023 True() */
 				returnValue = true;
@@ -582,15 +647,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				0x4035 GlobalLT(S:Name*,S:Area*,I:Value*)
 				As above except for less than. */
 				returnValue = core->Vars().Get(trig->string1) < trig->parameter1;
-				break;
-			}
-			case 0x0036:
-			{
-				/*0x0036 OnCreation()
-				Returns true if the script is processed for the first time this session,
-				e.g. when a creature is created (for CRE scripts) or when the player
-				enters an area (for ARE scripts).*/
-				returnValue = !Processed();
 				break;
 			}
 			case 0x4037:
@@ -658,28 +714,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				}*/
 				break;
 			}
-			case 0x52:
-			{
-				/* OPENED(O:OBJECT*) (82 0x52) */
-				object_node* objectNode = FindObjectNode(trig);
-				if (objectNode == NULL)
-					break;
-				break;
-				// TODO: We assume this is a door, but also
-				// containers can be opened/closed
-				/*Door* door = dynamic_cast<Door*>(fTarget.Target());
-				if (door == NULL)
-					break;
-				if (!door->Opened())
-					break;*/
-#if 0
-				Object* object = core->GetObject(
-						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
-				if (object != NULL)
-					returnValue = object->MatchNode(objectNode);
-#endif
-				break;
-			}
 			case 0x4063:
 			{
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
@@ -691,7 +725,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				break;
 			}
-
 			case 0x4068:
 			{
 				/* TimeGT(I:Time*Time)
@@ -714,27 +747,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = true;
 				break;
 			}
-			case 0x0070:
-			{
-				/* 0x0070 Clicked(O:Object*)
-				 *	Only for trigger regions.
-				 *	Returns true if the specified object
-				 *	clicked on the trigger region running this script.
-				 */
-#if 0
-				object_node* objectNode = FindObjectNode(trig);
-				//returnValue = fTarget.Target()->LastScriptRoundResults()->Clicker()
-				//		->MatchNode(objectNode);
-				//objectNode->Print();
-				//fTarget.Target()->LastScriptRoundResults()->Clicker()->Print();
-
-				// TODO: When to set this, other than now ?
-				if (returnValue)
-					fLastTrigger = fTarget;
-#endif
-				break;
-			}
-
 			case 0x4074:
 			{
 				/*
@@ -756,7 +768,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					// || core->Hear(fTarget, object);
 				break;
 			}
-
 			case 0x4076:
 			{
 				/*
@@ -824,24 +835,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				}
 				break;
 			}
-
-			case 0x4c:
-			{
-				// Entered(O:Object)
-				//object_node* node = FindObjectNode(trig);
-				//Region* region = dynamic_cast<Region*>(fTarget.Target());
-				//std::vector<std::string>::const_iterator i;
-
-				/*Object* object = Object::GetMatchingObjectFromList(
-										region->
-										LastScriptRoundResults()->
-										EnteredActors(), node);*/
-				//if (object != NULL) {
-				//	fLastTrigger = object;
-				//	returnValue = true;
-				//}
-				break;
-			}
 			default:
 			{
 				printf("SCRIPT: UNIMPLEMENTED TRIGGER!!!\n");
@@ -877,7 +870,10 @@ Script::_ExecuteActions(node* responseSet)
 		response = static_cast<response_node*>(response->Next());
 		i++;
 	}
-
+	
+	for (int p = 0; p < i; p++) {
+		std::cout << "response " << p << ": probability " << responses[p]->probability << std::endl;
+	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, i);
 	action_node* action = FindActionNode(responses[randomResponse]);
