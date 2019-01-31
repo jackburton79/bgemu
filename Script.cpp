@@ -300,8 +300,10 @@ Script::GetObject(Actor* source, object_node* node) const
 		Actor* target = NULL;
 		for (int32 id = 0; id < 5; id++) {
 			const int identifier = node->identifiers[id];
-			if (identifier == 0)
+			if (identifier == 0) {
+				std::cout << std::endl;
 				break;
+			}
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = dynamic_cast<Actor*>(ResolveIdentifier(identifier));
 			/*if (source != NULL)

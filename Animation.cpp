@@ -182,9 +182,8 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 		if (fBlackAsTransparent)
 			Graphics::ApplyShade(bitmap);
 		
-		// TODO: Looks like we are leaking the original bitmap here
 		if (fMirrored)
-			bitmap = bitmap->GetMirrored();
+			bitmap->Mirror();
 
 		fBitmaps.push_back(bitmap);
 	}
