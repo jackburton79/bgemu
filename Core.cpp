@@ -343,8 +343,8 @@ Core::GetNearestEnemyOf(const Actor* object) const
 		}
 	}
 	if (nearest != NULL) {
-		std::cout << "Nearest Enemy of " << object->Name();
-		std::cout << " is " << nearest->Name() << std::endl;
+		/*std::cout << "Nearest Enemy of " << object->Name();
+		std::cout << " is " << nearest->Name() << std::endl;*/
 	}
 	return nearest;
 }

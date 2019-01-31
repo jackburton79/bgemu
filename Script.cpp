@@ -292,16 +292,18 @@ Script::ResolveIdentifier(const int id) const
 Actor*
 Script::GetObject(Actor* source, object_node* node) const
 {
-	if (node->name[0] != '\0')
-		return Core::Get()->GetObject(node->name);
-	
-	// If there are any identifiers, use those to get the object
-	if (node->identifiers[0] != 0) {
+	std::cout << "Script::GetObject() ";
+	Actor* result = NULL;
+	if (node->name[0] != '\0') {
+		std::cout << "Specified name: " << node->name << std::endl; 
+		result = Core::Get()->GetObject(node->name);
+	} else if (node->identifiers[0] != 0) {
+		std::cout << "Specified identifiers: " ;
+		// If there are any identifiers, use those to get the object
 		Actor* target = NULL;
 		for (int32 id = 0; id < 5; id++) {
 			const int identifier = node->identifiers[id];
 			if (identifier == 0) {
-				std::cout << std::endl;
 				break;
 			}
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
@@ -309,23 +311,29 @@ Script::GetObject(Actor* source, object_node* node) const
 			/*if (source != NULL)
 				source->Print();*/
 		}
+		std::cout << std::endl;
 		// TODO: Filter using wildcards in node
 		/*std::cout << "returned ";
 		if (target != NULL)
 			std::cout << target->Name() << std::endl;
 		else
 			std::cout << "NONE" << std::endl;*/
-		return target;
+		result = target;
+	} else {
+		std::cout << "Specified wildcards (BUGGY):" << std::endl;
+		// Otherwise use the other parameters
+		Object* wildCard = Core::Get()->GetObject(node);
+		if (wildCard != NULL)
+			result = dynamic_cast<Actor*>(wildCard);
 	}
-
-
-	// Otherwise use the other parameters
-	Object* wildCard = Core::Get()->GetObject(node);
-	if (wildCard != NULL)
-		return dynamic_cast<Actor*>(wildCard);
-
-	//std::cout << "returned NONE" << std::endl;
-	return NULL;
+	
+	std::cout << "Script::GetObject() returned. ";
+	if (result != NULL) {
+		std::cout << "Found: " << std::endl;
+		result->Print();
+	} else
+		std::cout << "Found NONE" << std::endl;
+	return result;
 }
 
 
