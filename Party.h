@@ -25,8 +25,7 @@ public:
 
 	bool HasActor(const Actor* actor) const;
 
-
-	std::vector<Reference<Actor> > fActors;
+	std::vector<Actor* > fActors;
 };
 
 #endif /* PARTY_H_ */

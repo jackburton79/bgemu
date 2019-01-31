@@ -33,12 +33,11 @@ Party::AddActor(Actor* actor)
 void
 Party::RemoveActor(Actor* actor)
 {
-	Reference<Actor> ref(actor);
-	std::vector<Reference<Actor> >::iterator i =
-		std::find(fActors.begin(), fActors.end(), ref);
+	std::vector<Actor*>::iterator i =
+		std::find(fActors.begin(), fActors.end(), actor);
 	if (i != fActors.end()) {
 		fActors.erase(i);
-		i->Target()->SetInterruptable(true);
+		//(i*)->SetInterruptable(true);
 	}
 }
 
@@ -53,15 +52,17 @@ Party::CountActors() const
 Actor*
 Party::ActorAt(uint16 index) const
 {
-	return fActors[index].Target();
+	return fActors[index];
 }
 
 
 bool
 Party::HasActor(const Actor* actor) const
 {
-	Reference<Actor> ref(const_cast<Actor*>(actor));
-	std::vector<Reference<Actor> >::const_iterator i
-		= std::find(fActors.begin(), fActors.end(), ref);
-	return i != fActors.end();
+	std::vector<Actor*>::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		if ((*i)->Name() == actor->Name())
+			return true;
+	}
+	return false;
 }
