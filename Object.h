@@ -78,15 +78,14 @@ private:
 	void _ExecuteScripts(int32 maxLevel);
 
 	std::string fName;
+	bool fVisible;
+	int32 fTicks;
 	
 	typedef std::vector< ::Script*> ScriptsList;
 	ScriptsList fScripts;
 	int32 fWaitTime;
 
 	std::list<Action*> fActions;
-
-	bool fVisible;
-
 	::Variables fVariables;
 
 	Region* fRegion;

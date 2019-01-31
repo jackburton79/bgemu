@@ -26,8 +26,9 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	fWaitTime(0),
 	fVisible(true),
+	fTicks(0),
+	fWaitTime(0),
 	fRegion(NULL),
 	fStale(false)
 {
@@ -139,22 +140,20 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL)
+		actor->UpdateSee();
+	
 	if (scripts) {
-		// TODO: Make Object::Update() virtual and override
-		// in subclasses to avoid dynamic casting
-		Actor* actor = dynamic_cast<Actor*>(this);
-		if (actor != NULL)
-			actor->UpdateSee();
-		//else if (Region* region = dynamic_cast<Region*>(this)) {
-		//	region->CheckObjectsInside();
-		//}
+		// TODO: fix this:	
 		if (fWaitTime > 0)
 			fWaitTime -= 15;
-		else if (IsInsideVisibleArea() || dynamic_cast<AreaRoom*>(this)) {
+		else {
 			_ExecuteScripts(8);
 		}		
 	}
 	
+	// Move to a method
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		while (i != fActions.end()) {
@@ -255,6 +254,8 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (fTicks++ % 15 != 0)
+		return;
 	try {
 		for (int32 i = 0; i < maxLevel; i++) {		
 			if (fScripts.at(i) != NULL) {

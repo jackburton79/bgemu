@@ -195,7 +195,7 @@ Core::LoadWorldMap()
 void
 Core::EnteredArea(RoomBase* area)
 {
-	// Executes the area script (only once)
+	// Executes the area script (once)
 	area->Update(true);
 	
 	// then clear the script
@@ -427,6 +427,7 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
+	// The room
 	fCurrentRoom->Update(true);
 	
 	// TODO: Fix/Improve
@@ -438,7 +439,7 @@ Core::UpdateLogic(bool executeScripts)
 	}
 
 	fActiveActor = NULL;
-#if 0
+#if 1
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;

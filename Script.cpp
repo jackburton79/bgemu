@@ -933,7 +933,7 @@ Script::_ExecuteAction(action_node* act)
 				point.x += Core::RandomNumber(-20, 20);
 				point.y += Core::RandomNumber(-20, 20);
 			}
-
+			std::cout << "active creature: " << fTarget.Target()->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			Core::Get()->AddActorToCurrentArea(actor);
 			break;
