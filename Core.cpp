@@ -268,7 +268,7 @@ Core::GetObject(const char* name) const
 {
 	ActorsList::const_iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
-		if (!strcmp(name, (*i)->Name())) {
+		if (!strcasecmp(name, (*i)->Name())) {
 			return *i;
 		}
 	}
