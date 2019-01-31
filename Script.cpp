@@ -852,10 +852,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			}
 			default:
 			{
-				printf("SCRIPT: UNIMPLEMENTED TRIGGER!!!\n");
-				printf("SCRIPT: %s (%d 0x%x)\n", IDTable::TriggerAt(trig->id).c_str(),
-								trig->id, trig->id);
-				trig->Print();
+				if (sDebug) {
+					std::cout << "SCRIPT: UNIMPLEMENTED TRIGGER!!!" << std::endl;
+				}
 				break;
 			}
 		}
@@ -1224,9 +1223,9 @@ Script::_ExecuteAction(action_node* act)
 			break;
 		}
 		default:
-			printf("SCRIPT: UNIMPLEMENTED ACTION!!!\n");
-			printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
-			act->Print();
+			if (sDebug) {
+				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;
+			}
 			break;
 	}
 
