@@ -904,7 +904,7 @@ Script::_ExecuteAction(action_node* act)
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
 		std::cout << IDTable::ActionAt(act->id);
-		std::cout << "(" << act->id << std::hex << act->id << ")";
+		std::cout << "(" << std::dec << (int)act->id << std::hex << " 0x" << (int)act->id << ")";
 		std::cout << std::endl; 
 		act->Print();
 	}
@@ -1026,6 +1026,15 @@ Script::_ExecuteAction(action_node* act)
 
 			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
+			break;
+		}
+		case 0x54:
+		{
+			/* 84 (0x54) FACE(I:DIRECTION) */
+			if (thisActor != NULL) {
+				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act->integer1);
+				thisActor->AddAction(action);
+			}				
 			break;
 		}
 		case 85:

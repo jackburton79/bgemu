@@ -26,7 +26,6 @@ Action::Action(Object* object)
 
 Action::~Action()
 {
-
 }
 
 
@@ -304,3 +303,21 @@ FadeToColorAction::operator()()
 {
 }
 
+
+// ChangeOrientationExtAction
+ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, int o)
+	:
+	Action(object),
+	fOrientation(o)
+{
+}
+
+
+/* virtual */
+void
+ChangeOrientationExtAction::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor != NULL)
+		actor->SetOrientation(fOrientation);
+}

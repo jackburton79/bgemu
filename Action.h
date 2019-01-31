@@ -100,4 +100,12 @@ private:
 	int32 fNumUpdates;
 };
 
+
+class ChangeOrientationExtAction : public Action {
+public:
+	ChangeOrientationExtAction(Object* object, int o);
+	virtual void operator()();
+private:
+	int fOrientation;
+};
 #endif
