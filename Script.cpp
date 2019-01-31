@@ -19,7 +19,8 @@
 #include <assert.h>
 #include <sstream>
 
-#define DEBUG_SCRIPTS 1
+
+bool Script::sDebug = false;
 
 static int sIndent = 0;
 static void IndentMore()
@@ -71,6 +72,14 @@ Script::Script(node* rootNode)
 Script::~Script()
 {
 	_DeleteNode(fRootNode);
+}
+
+
+/* static */
+void
+Script::SetDebug(bool debug)
+{
+	sDebug = debug;
 }
 
 
@@ -163,9 +172,10 @@ Script::FindObject(node* start) const
 
 	if (objectNode == NULL)
 		return NULL;
-#if DEBUG_SCRIPTS
-	objectNode->Print();
-#endif
+
+	if (sDebug)
+		objectNode->Print();
+
 	return Core::Get()->GetObject((Actor*)fTarget.Target(), objectNode);
 }
 
@@ -184,13 +194,13 @@ Script::Execute()
 
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
-#if DEBUG_SCRIPTS
+	if (sDebug) {
 		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
 		//if (!strcmp(fTarget.Target()->Name(), "LightningRoom")) {
 		//	Print();		
 		//}
-#endif
+	}
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
@@ -212,10 +222,10 @@ Script::Execute()
 			}
 			condRes = condRes->Next();
 		};
-#if DEBUG_SCRIPTS
-		std::cout << "*** SCRIPT END " << fTarget.Target()->Name();
-		std::cout << " ***" << std::endl;
-#endif
+		if (sDebug) {
+			std::cout << "*** SCRIPT END " << fTarget.Target()->Name();
+			std::cout << " ***" << std::endl;
+		}
 		nextScript = nextScript->next;
 	}
 
@@ -284,13 +294,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	//if (actor != NULL && actor->SkipConditions())
 	//	return false;
 
-#if DEBUG_SCRIPTS
-	printf("SCRIPT: %s%s (%d 0x%x) ? ",
-			trig->flags != 0 ? "!" : "",
-			IDTable::TriggerAt(trig->id).c_str(),
-			trig->id, trig->id);
-	trig->Print();
-#endif
+	if (sDebug) {
+		printf("SCRIPT: %s%s (%d 0x%x) ? ",
+				trig->flags != 0 ? "!" : "",
+				IDTable::TriggerAt(trig->id).c_str(),
+				trig->id, trig->id);
+		trig->Print();
+	}
 
 	Core* core = Core::Get();
 	bool returnValue = false;
@@ -765,9 +775,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
-#if DEBUG_SCRIPTS
-	printf("SCRIPT: (%s)\n", returnValue ? "TRUE" : "FALSE");
-#endif
+	if (sDebug) {
+		printf("SCRIPT: (%s)\n", returnValue ? "TRUE" : "FALSE");
+	}
 	return returnValue;
 }
 
@@ -803,10 +813,10 @@ Script::_ExecuteActions(node* responseSet)
 bool
 Script::_ExecuteAction(action_node* act)
 {
-#if DEBUG_SCRIPTS
-	printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
-	act->Print();
-#endif
+	if (sDebug) {
+		printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
+		act->Print();
+	}
 	Core* core = Core::Get();
 	Actor* thisActor = dynamic_cast<Actor*>(fTarget.Target());
 

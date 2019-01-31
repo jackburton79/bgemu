@@ -31,6 +31,8 @@ public:
 	Script(node *rootNode);
 	~Script();
 
+	static void SetDebug(bool debug);
+
 	void Print() const;
 
 	void Add(Script* script);
@@ -71,6 +73,8 @@ private:
 	Reference<Object> fLastTrigger;
 
 	node* fCurrentNode;
+
+	static bool sDebug;
 };
 
 
