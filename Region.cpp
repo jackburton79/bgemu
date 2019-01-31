@@ -18,11 +18,6 @@ Region::Region(IE::region* region)
 	Object(region->name, region->script.CString()),
 	fRegion(region)
 {
-	BCSResource* scriptResource = gResManager->GetBCS(region->script.CString());
-	if (scriptResource != NULL) {
-		AddScript(scriptResource->GetScript());
-		gResManager->ReleaseResource(scriptResource);
-	}
 }
 
 
