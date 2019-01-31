@@ -364,6 +364,10 @@ Script::_CheckTriggers(node* conditionNode)
 		}
 		trig = static_cast<trigger_node*>(trig->Next());
 	}
+	if (sDebug) {
+		std::cout << "SCRIPT: TRIGGER returned " << (evaluation ? "TRUE" : "FALSE") << std::endl;
+	}
+
 	return evaluation;
 }
 
@@ -849,9 +853,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
-	if (sDebug) {
-		printf("SCRIPT: (%s)\n", returnValue ? "TRUE" : "FALSE");
-	}
 	return returnValue;
 }
 
