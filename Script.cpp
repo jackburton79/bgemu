@@ -380,10 +380,12 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	//	return false;
 
 	if (sDebug) {
-		printf("SCRIPT: %s%s (%d 0x%x) ? ",
-				trig->flags != 0 ? "!" : "",
-				IDTable::TriggerAt(trig->id).c_str(),
-				trig->id, trig->id);
+		std::cout << "SCRIPT: TRIGGER ",
+		std::cout << (trig->flags != 0 ? "!" : "");
+		std::cout << IDTable::TriggerAt(trig->id) << " (";
+		std::cout << std::dec << trig->id << " ";
+		std::cout << std::hex << trig->id << ")";
+		std::cout << std::endl;
 		trig->Print();
 	}
 
@@ -854,7 +856,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			}
 		}
 	} catch (...) {
-		printf("SCRIPT: EvaluateTrigger() caught exception");
+		std::cerr << "SCRIPT: EvaluateTrigger() caught exception" << std::endl;
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
@@ -898,7 +900,10 @@ bool
 Script::_ExecuteAction(action_node* act)
 {
 	if (sDebug) {
-		printf("SCRIPT: %s (%d 0x%x)\n", IDTable::ActionAt(act->id).c_str(), act->id, act->id);
+		std::cout << "SCRIPT: ACTION ";
+		std::cout << IDTable::ActionAt(act->id);
+		std::cout << "(" << act->id << std::hex << act->id << ")";
+		std::cout << std::endl; 
 		act->Print();
 	}
 	Core* core = Core::Get();
