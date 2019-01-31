@@ -84,7 +84,7 @@ Game::Loop(bool executeScripts)
 		if (Core::Get()->Game() == GAME_BALDURSGATE)
 			fParty->AddActor(new Actor("AJANTI", point, 0));
 		else
-			fParty->AddActor(new Actor("AESOLD", point, 0));
+			fParty->AddActor(new Actor("IMOEN", point, 0));
 	}
 
 	LoadStartingArea();
@@ -235,5 +235,7 @@ Game::LoadStartingArea()
 	Core::Get()->CurrentRoom()->SetAreaOffset(point);
 	if (fParty != NULL)
 		fParty->ActorAt(0)->SetPosition(point);
+
+	gResManager->ReleaseResource(resource);
 }
 
