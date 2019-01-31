@@ -269,51 +269,6 @@ Core::RegisterRegion(Region* region)
 
 
 Actor*
-Core::GetObject(Actor* source, object_node* node) const
-{
-	if (node->name[0] != '\0')
-		return GetObject(node->name);
-
-	// If there are any identifiers, use those to get the object
-	if (node->identifiers[0] != 0) {
-		Actor* target = NULL;
-		for (int32 id = 0; id < 5; id++) {
-			const int identifier = node->identifiers[id];
-			if (identifier == 0)
-				break;
-			std::cout << IDTable::ObjectAt(identifier) << ", ";
-			target = source->ResolveIdentifier(identifier);
-			source = target;
-			if (source != NULL)
-				source->Print();
-		}
-		// TODO: Filter using wildcards in node
-		std::cout << "returned ";
-		if (target != NULL)
-			std::cout << target->Name() << std::endl;
-		else
-			std::cout << "NONE" << std::endl;
-		return target;
-	}
-
-
-	// Otherwise use the other parameters
-	// TODO: Simplify, merge code.
-	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
-		if ((*i)->MatchNode(node)) {
-			//std::cout << "returned " << (*i)->Name() << std::endl;
-			//(*i)->Print();
-			return *i;
-		}
-	}
-
-	//std::cout << "returned NONE" << std::endl;
-	return NULL;
-}
-
-
-Actor*
 Core::GetObject(const char* name) const
 {
 	ActorsList::const_iterator i;
@@ -337,6 +292,22 @@ Core::GetObject(uint16 globalEnum) const
 			return actor;
 	}
 
+	return NULL;
+}
+
+
+Actor*
+Core::GetObject(object_node* node) const
+{
+	// TODO: Simplify, merge code.
+	ActorsList::const_iterator i;
+	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+		if ((*i)->MatchNode(node)) {
+			//std::cout << "returned " << (*i)->Name() << std::endl;
+			//(*i)->Print();
+			return *i;
+		}
+	}
 	return NULL;
 }
 

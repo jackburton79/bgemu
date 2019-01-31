@@ -48,7 +48,12 @@ public:
 	Actor*			FindObject(node* start = NULL) const;
 
 	bool Execute();
+
+	Object* Target();
 	void SetTarget(Object* object);
+
+	Object* ResolveIdentifier(const int id) const;
+	Actor* GetObject(Actor* source, object_node* node) const;
 
 	Object* LastTrigger() const;
 

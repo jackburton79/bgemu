@@ -176,7 +176,7 @@ Script::FindObject(node* start) const
 	if (sDebug)
 		objectNode->Print();
 
-	return Core::Get()->GetObject((Actor*)fTarget.Target(), objectNode);
+	return GetObject((Actor*)fTarget.Target(), objectNode);
 }
 
 
@@ -235,10 +235,84 @@ Script::Execute()
 }
 
 
+Object*
+Script::Target()
+{
+	return fTarget.Target();
+}
+
+
 void
 Script::SetTarget(Object* object)
 {
 	fTarget = object;
+}
+
+
+Object*
+Script::ResolveIdentifier(const int id) const
+{
+	Script* thisCast = const_cast<Script*>(this);
+	std::string identifier = IDTable::ObjectAt(id);
+	if (identifier == "MYSELF")
+		return thisCast->Target();
+	// TODO: Implement more identifiers
+	if (identifier == "NEARESTENEMYOF") {
+		Actor* actor = dynamic_cast<Actor*>(thisCast->Target());
+		if (actor == NULL)
+			return NULL;
+		return Core::Get()->GetNearestEnemyOf(actor);
+	}
+	// TODO: Move that one here ?
+
+	if (identifier == "LASTTRIGGER")
+		return LastTrigger();
+#if 0
+	if (identifier == "LASTATTACKEROF")
+		return LastScriptRoundResults()->LastAttacker();
+#endif
+	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
+	std::cout << identifier << std::endl;
+	return NULL;
+}
+
+
+Actor*
+Script::GetObject(Actor* source, object_node* node) const
+{
+	if (node->name[0] != '\0')
+		return Core::Get()->GetObject(node->name);
+
+	// If there are any identifiers, use those to get the object
+	if (node->identifiers[0] != 0) {
+		Actor* target = NULL;
+		for (int32 id = 0; id < 5; id++) {
+			const int identifier = node->identifiers[id];
+			if (identifier == 0)
+				break;
+			std::cout << IDTable::ObjectAt(identifier) << ", ";
+			target = dynamic_cast<Actor*>(ResolveIdentifier(identifier));
+			source = target;
+			if (source != NULL)
+				source->Print();
+		}
+		// TODO: Filter using wildcards in node
+		std::cout << "returned ";
+		if (target != NULL)
+			std::cout << target->Name() << std::endl;
+		else
+			std::cout << "NONE" << std::endl;
+		return target;
+	}
+
+
+	// Otherwise use the other parameters
+	Object* wildCard = Core::Get()->GetObject(node);
+	if (wildCard != NULL)
+		return dynamic_cast<Actor*>(wildCard);
+
+	//std::cout << "returned NONE" << std::endl;
+	return NULL;
 }
 
 
@@ -669,7 +743,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: This is valid for Regions scripts. What is the "Active CRE" ?
 				if (actor == NULL)
 					break;
-				Object* object = core->GetObject(actor, FindObjectNode(trig));
+				Object* object = GetObject(actor, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
 					// || core->Hear(fTarget, object);

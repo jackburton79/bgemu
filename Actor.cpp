@@ -520,29 +520,6 @@ Actor::MatchNode(object_node* node) const
 }
 
 
-Actor*
-Actor::ResolveIdentifier(const int id) const
-{
-	std::string identifier = IDTable::ObjectAt(id);
-	if (identifier == "MYSELF")
-		return const_cast<Actor*>(this);
-	// TODO: Implement more identifiers
-	if (identifier == "NEARESTENEMYOF")
-		return Core::Get()->GetNearestEnemyOf(this);
-	// TODO: Move that one here ?
-	// Move ResolveIdentifier elsewhere ?
-//	if (identifier == "LASTTRIGGER")
-//		return dynamic_cast<Actor*>(Script()->LastTrigger());
-#if 0
-	if (identifier == "LASTATTACKEROF")
-		return LastScriptRoundResults()->LastAttacker();
-#endif
-	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
-	std::cout << identifier << std::endl;
-	return NULL;
-}
-
-
 bool
 Actor::Spawned() const
 {
