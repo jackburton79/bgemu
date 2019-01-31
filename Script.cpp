@@ -197,21 +197,26 @@ Script::Execute()
 	if (sDebug) {
 		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
 		std::cout << " ***" << std::endl;
-		/*if (!strcmp(fTarget.Target()->Name(), "Arenthis")) {
+#if 0
+		if (!strcmp(fTarget.Target()->Name(), "Amnish Soldier")) {
 			Print();		
-		}*/
+		}
+#endif
 	}
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
 			while (condition != NULL) {
+				if (sDebug)
+					std::cout << "CONDITION" << std::endl;
 				if (!_CheckTriggers(condition))
 					break;
 
 				::node* responseSet = condition->Next();
 				if (responseSet == NULL)
 					break;
-
+				if (sDebug)
+					std::cout << "RESPONSE" << std::endl;
 				if (!_ExecuteActions(responseSet)) {
 					// TODO: When the above method returns false,
 					// The script should stop running.
@@ -289,7 +294,7 @@ Script::GetObject(Actor* source, object_node* node) const
 {
 	if (node->name[0] != '\0')
 		return Core::Get()->GetObject(node->name);
-
+	
 	// If there are any identifiers, use those to get the object
 	if (node->identifiers[0] != 0) {
 		Actor* target = NULL;
@@ -299,16 +304,15 @@ Script::GetObject(Actor* source, object_node* node) const
 				break;
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
 			target = dynamic_cast<Actor*>(ResolveIdentifier(identifier));
-			source = target;
 			/*if (source != NULL)
 				source->Print();*/
 		}
 		// TODO: Filter using wildcards in node
-		std::cout << "returned ";
+		/*std::cout << "returned ";
 		if (target != NULL)
 			std::cout << target->Name() << std::endl;
 		else
-			std::cout << "NONE" << std::endl;
+			std::cout << "NONE" << std::endl;*/
 		return target;
 	}
 
@@ -350,25 +354,26 @@ Script::_CheckTriggers(node* conditionNode)
 	fOrTriggers = 0;
 
 	trigger_node* trig = FindTriggerNode(conditionNode);
-	bool evaluation = true;
+	bool blockEvaluation = true;
 	while (trig != NULL) {
 		if (fOrTriggers > 0) {
-			evaluation = _EvaluateTrigger(trig);
-			if (evaluation)
+			blockEvaluation = _EvaluateTrigger(trig);
+			if (blockEvaluation)
 				break;
 			fOrTriggers--;
 		} else {
-			evaluation = _EvaluateTrigger(trig) && evaluation;
-			if (!evaluation)
+			blockEvaluation = _EvaluateTrigger(trig) && blockEvaluation;
+			if (!blockEvaluation)
 				break;
 		}
 		trig = static_cast<trigger_node*>(trig->Next());
 	}
 	if (sDebug) {
-		std::cout << "SCRIPT: TRIGGER returned " << (evaluation ? "TRUE" : "FALSE") << std::endl;
+		std::cout << "SCRIPT: TRIGGER BLOCK returned ";
+		std::cout << (blockEvaluation ? "TRUE" : "FALSE") << std::endl;
 	}
 
-	return evaluation;
+	return blockEvaluation;
 }
 
 
@@ -530,7 +535,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsAlignment(trig->parameter1);
-
 				break;
 			}
 			case 0x400B:
@@ -539,7 +543,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Actor* object = FindObject(trig);
 				if (object != NULL)
 					returnValue = object->IsEnemyAlly(trig->parameter1);
-
 				break;
 			}
 			case 0x400C:
@@ -593,7 +596,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 			case 0x4018:
 			{
-				std::cout << "Range" << std::endl;
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
