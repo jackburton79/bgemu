@@ -223,8 +223,7 @@ void
 Object::_ExecuteScripts(int32 maxLevel)
 {
 	try {
-		for (int32 i = 0; i < maxLevel; i++) {
-			std::cout << "script level: " << i << std::endl;			
+		for (int32 i = 0; i < maxLevel; i++) {		
 			if (fScripts.at(i) != NULL) {
 				if (!fScripts[i]->Execute())
 					break;

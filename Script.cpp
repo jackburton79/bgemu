@@ -467,6 +467,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				//DELAY(I:DELAY*) (16423 0x4027)
 				// TODO: Implement
+				
 				returnValue = true;
 				break;
 			}
