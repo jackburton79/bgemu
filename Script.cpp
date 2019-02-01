@@ -1051,6 +1051,12 @@ Script::_ExecuteAction(action_node* act)
 
 			break;
 		}
+		case 63:
+		{
+			/* WAIT(I:TIME*)(63 0x3f) */
+			fTarget.Target()->SetWaitTime(act->integer1);
+			break;
+		}
 		case 0x54:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
