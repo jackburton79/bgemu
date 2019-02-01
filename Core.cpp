@@ -451,13 +451,14 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
+	// The room
+	fCurrentRoom->Update(true);
+
 	if (fCutsceneScript != NULL) {
 		fCutsceneScript->Execute();
 		return;	
-	}
-	// The room
-	fCurrentRoom->Update(true);
-	
+	}	
+
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
