@@ -1280,6 +1280,12 @@ Script::_ExecuteAction(action_node* act)
 			GUI::Get()->Hide();
 			break;
 		}
+		case 287:
+		{
+			/* UNHIDEGUI()(287 0x11f) */
+			GUI::Get()->Show();
+			break;
+		}
 		default:
 			if (sDebug) {
 				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;
