@@ -54,8 +54,8 @@ public:
 
 	virtual void Update(bool scripts);
 
-	// TODO: Merge and clean this mess
 	void AddAction(Action* action);
+	void ExecuteActions();
 	bool IsActionListEmpty() const;
 	void ClearActionList();
 

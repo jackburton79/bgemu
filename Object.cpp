@@ -149,7 +149,20 @@ Object::Update(bool scripts)
 		}		
 	}
 	
-	// Move to a method
+	ExecuteActions();
+}
+
+
+void
+Object::AddAction(Action* action)
+{
+	fActions.push_back(action);
+}
+
+
+void
+Object::ExecuteActions()
+{
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		while (i != fActions.end()) {
@@ -163,13 +176,6 @@ Object::Update(bool scripts)
 			}
 		}
 	}
-}
-
-
-void
-Object::AddAction(Action* action)
-{
-	fActions.push_back(action);
 }
 
 
