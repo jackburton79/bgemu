@@ -35,6 +35,9 @@ public:
 	bool Load(const res_ref& name);
 	void Clear();
 
+	void Hide();
+	void Show();
+	
 	void Draw();
 	void DrawTooltip(std::string text,
 			uint16 x, uint16 y, uint32 time);
@@ -70,6 +73,8 @@ private:
 	uint16 fScreenWidth;
 	uint16 fScreenHeight;
 	
+	bool fShown;
+
 	GUI(uint16 width, uint16 height);
 	~GUI();
 	

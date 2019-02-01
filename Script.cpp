@@ -5,6 +5,7 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
+#include "GUI.h"
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "Party.h"
@@ -1247,7 +1248,7 @@ Script::_ExecuteAction(action_node* act)
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			core->CurrentRoom()->HideGUI();
+			GUI::Get()->Hide();
 			break;
 		}
 		default:

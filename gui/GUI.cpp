@@ -41,7 +41,8 @@ GUI::GUI(uint16 width, uint16 height)
 	fResource(NULL),
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
-	fScreenHeight(height)
+	fScreenHeight(height),
+	fShown(true)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
@@ -125,6 +126,26 @@ GUI::Load(const res_ref& name)
 
 
 void
+GUI::Show()
+{
+	fShown = true;
+	RoomBase* room = Core::Get()->CurrentRoom();
+	if (!room->IsGUIShown())
+		room->ShowGUI();
+}
+
+
+void
+GUI::Hide()
+{
+	fShown = false;
+	RoomBase* room = Core::Get()->CurrentRoom();
+	if (room->IsGUIShown())
+		room->HideGUI();
+}
+
+
+void
 GUI::Draw()
 {
 	std::vector<Window*>::const_iterator i;
@@ -133,6 +154,10 @@ GUI::Draw()
 	}
 
 	_DrawToolTip();
+
+	// If GUI is hidden, don't show cursors
+	if (!fShown)
+		return;
 
 	if (fCurrentCursor != NULL) {
 		try {
