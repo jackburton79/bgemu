@@ -142,12 +142,7 @@ Object::Update(bool scripts)
 		actor->UpdateSee();
 	
 	if (scripts) {
-		// TODO: fix this:	
-		if (fWaitTime > 0)
-			fWaitTime -= 15;
-		else {
-			_ExecuteScripts(8);
-		}		
+		_ExecuteScripts(8);		
 	}
 	
 	ExecuteActions();
@@ -272,8 +267,20 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
-	if (fTicks++ % 15 != 0)
+	bool runScripts = false;
+	if ((fTicks++ % 15 == 0) || IsActionListEmpty())
+		runScripts = true;
+	
+	if (!IsInterruptable())
 		return;
+		
+	if (!runScripts)
+		return;
+		
+	if (fWaitTime > 0) {
+		fWaitTime -= 15;
+		return;
+	}
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {		
