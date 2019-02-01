@@ -139,8 +139,6 @@ private:
 	
 	bool fPaused;
 	bool fCutsceneMode;
-
-	::Script *fCutsceneScript;
 	
 	std::vector<Action*> fActions;
 };

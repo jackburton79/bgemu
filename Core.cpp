@@ -45,8 +45,7 @@ Core::Core()
 	fCurrentRoundResults(NULL),
 	fLastRoundResults(NULL),
 	fPaused(false),
-	fCutsceneMode(false),
-	fCutsceneScript(NULL)
+	fCutsceneMode(false)
 {
 	srand(time(NULL));
 }
@@ -275,8 +274,13 @@ Core::CutsceneMode() const
 void
 Core::StartCutscene(const res_ref& scriptName)
 {
-	fCutsceneScript	= ExtractScript(scriptName);
-	fCutsceneScript->SetSender(fCurrentRoom);
+	::Script* script = ExtractScript(scriptName);
+	script->SetSender(fCurrentRoom);
+	bool continuing = false;
+	if (script != NULL) {
+		script->Execute(continuing);
+		delete script;
+	}	
 }
 
 
@@ -482,12 +486,6 @@ Core::UpdateLogic(bool executeScripts)
 	
 	// The room
 	fCurrentRoom->Update(true);
-
-	bool continuing = false;
-	if (fCutsceneScript != NULL) {
-		fCutsceneScript->Execute(continuing);
-		//return;
-	}	
 
 	// TODO: Fix/Improve
 	ActorsList::iterator i;

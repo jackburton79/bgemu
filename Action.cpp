@@ -179,10 +179,10 @@ Wait::operator()()
 }
 
 
-// Toggle
-Toggle::Toggle(Object* object, Door* door)
+// OpenDoor
+OpenDoor::OpenDoor(Object* sender, Door* door)
 	:
-	Action(object),
+	Action(sender),
 	fDoor(door)
 {
 }
@@ -190,12 +190,14 @@ Toggle::Toggle(Object* object, Door* door)
 
 /* virtual */
 void
-Toggle::operator()()
+OpenDoor::operator()()
 {
 	Action::operator()();
-	fDoor.Target()->Toggle();
+	if (fDoor->Opened())
+		fDoor->Toggle();
 	SetCompleted();
 }
+
 
 
 // Attack

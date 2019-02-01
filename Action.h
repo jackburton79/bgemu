@@ -69,13 +69,12 @@ private:
 };
 
 
-class Toggle : public Action {
+class OpenDoor : public Action {
 public:
-	// TODO: For any object ?
-	Toggle(Object* actor, Door* door);
+	OpenDoor(Object* actor, Door* door);
 	virtual void operator()();
 private:
-	Reference<Door> fDoor;
+	Door* fDoor;
 };
 
 

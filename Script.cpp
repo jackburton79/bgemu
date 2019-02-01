@@ -1233,6 +1233,14 @@ Script::_HandleAction(action_node* act)
 
 			break;
 		}
+		case 143:
+		{
+			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
+			Door* door = dynamic_cast<Door*>(FindObject(act));
+			if (door != NULL)
+				fSender->AddAction(new OpenDoor(fSender, door));
+			break;
+		}
 		case 198: // 0xc6
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
