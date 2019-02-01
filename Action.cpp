@@ -350,6 +350,9 @@ MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
 	fDestination(point),
 	fScrollSpeed(scrollSpeed)
 {
+	IE::rect visibleRect = Core::Get()->CurrentRoom()->VisibleMapArea();
+	fDestination.x -= (visibleRect.x_max - visibleRect.x_min) / 2;
+	fDestination.y -= (visibleRect.y_max - visibleRect.y_min) / 2;
 }
 
 
