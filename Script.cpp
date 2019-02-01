@@ -212,9 +212,14 @@ Script::Execute(bool& continuing)
 			while (condition != NULL) {
 				if (sDebug)
 					std::cout << "CONDITION" << std::endl;
-				if (!_CheckTriggers(condition))
-						break;
-				
+				if (!_EvaluateConditionNode(condition))
+					break;
+					
+				if (continuing) {
+					std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
+					return false;
+				}
+					
 				// Check action list
 				if (!fTarget->IsActionListEmpty())
 					break;
@@ -224,7 +229,7 @@ Script::Execute(bool& continuing)
 					break;
 				if (sDebug)
 					std::cout << "RESPONSE" << std::endl;
-				if (!_ExecuteActions(responseSet)) {
+				if (!_ExecuteActions(responseSet, continuing)) {
 					// TODO: When the above method returns false,
 					// The script should stop running.
 					return false;
@@ -366,7 +371,7 @@ Script::Processed() const
 
 
 bool
-Script::_CheckTriggers(node* conditionNode)
+Script::_EvaluateConditionNode(node* conditionNode)
 {
 	fOrTriggers = 0;
 
@@ -889,7 +894,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 
 bool
-Script::_ExecuteActions(node* responseSet)
+Script::_ExecuteActions(node* responseSet, bool& continuing)
 {
 	response_node* responses[5];
 	response_node* response = static_cast<response_node*>(
@@ -912,7 +917,7 @@ Script::_ExecuteActions(node* responseSet)
 	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
-		if (!_ExecuteAction(action))
+		if (!_ExecuteAction(action, continuing))
 			return false;
 		action = static_cast<action_node*>(action->Next());
 	}
@@ -921,7 +926,7 @@ Script::_ExecuteActions(node* responseSet)
 
 
 bool
-Script::_ExecuteAction(action_node* act)
+Script::_ExecuteAction(action_node* act, bool& continuing)
 {
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
@@ -1031,6 +1036,7 @@ Script::_ExecuteAction(action_node* act)
 			 * by including a NoAction() in the empty response block.
 			 */
 			// TODO: Implement
+			continuing = true;
 			return false;
 			break;
 		}

@@ -61,11 +61,11 @@ public:
 	bool Processed() const;
 
 private:
-	bool _CheckTriggers(node* conditionNode);
+	bool _EvaluateConditionNode(node* conditionNode);
 	bool _EvaluateTrigger(trigger_node* trig);
 
-	bool _ExecuteActions(node* node);
-	bool _ExecuteAction(action_node* act);
+	bool _ExecuteActions(node* node, bool& continuing);
+	bool _ExecuteAction(action_node* act, bool& continuing);
 	void _PrintNode(node* n) const;
 	void _DeleteNode(node* n);
 
