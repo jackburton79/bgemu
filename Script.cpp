@@ -1162,6 +1162,14 @@ Script::_ExecuteAction(action_node* act)
 			core->StartCutsceneMode();
 			break;
 		}
+		case 0x7f:
+		{
+			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
+			// TODO: Should be correct			
+			Actor* actor = FindObject(act);
+			SetTarget(actor);
+			break;
+		}
 		case 0x97:
 		{
 			/* 151 DisplayString(O:Object*,I:StrRef*)
