@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "Door.h"
 #include "GraphicsEngine.h"
+#include "RoomBase.h"
 #include "Timer.h"
 
 #include <algorithm>
@@ -339,6 +340,38 @@ FadeColorAction::operator()()
 			SetCompleted();
 			break;
 	}
+}
+
+
+// MoveViewPoint
+MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
+	:
+	Action(object),
+	fDestination(point),
+	fScrollSpeed(scrollSpeed)
+{
+}
+
+
+/* virtual */
+void
+MoveViewPoint::operator()()
+{
+	RoomBase* room = Core::Get()->CurrentRoom();
+	IE::point offset = room->AreaOffset();
+	const int step = fScrollSpeed;
+	if (offset != fDestination) {
+		if (offset.x > fDestination.x)
+			offset.x -= step;
+		else if (offset.x < fDestination.x)
+			offset.x += step;
+		if (offset.y > fDestination.y)
+			offset.y -= step;
+		else if (offset.y < fDestination.y)
+			offset.y += step;
+		room->SetAreaOffset(offset);
+	} else
+		SetCompleted();
 }
 
 

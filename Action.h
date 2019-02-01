@@ -110,6 +110,16 @@ private:
 };
 
 
+class MoveViewPoint : public Action {
+public:
+	MoveViewPoint(Object* object, IE::point point, int scrollSpeed);
+	virtual void operator()();
+private:
+	IE::point fDestination;
+	int fScrollSpeed;
+};
+
+
 class ChangeOrientationExtAction : public Action {
 public:
 	ChangeOrientationExtAction(Object* object, int o);
