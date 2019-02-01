@@ -252,10 +252,18 @@ Core::ActiveActor()
 
 
 void
+Core::AddGlobalAction(Action* action)
+{
+	fActions.push_back(action);
+}
+
+
+void
 Core::StartCutsceneMode()
 {
 	fCutsceneMode = true;
 }
+
 
 bool
 Core::CutsceneMode() const
@@ -458,6 +466,11 @@ Core::UpdateLogic(bool executeScripts)
 
 	//GameTimer::PrintTime();
 	GameTimer::UpdateGameTime();
+		
+	// TODO: Not nice, should stop the scripts in some other way
+	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
+		return;
+
 	Timer* timer = Timer::Get("ANIMATIONS");
 	if (timer->Expired())
 		timer->Rearm();
@@ -465,10 +478,8 @@ Core::UpdateLogic(bool executeScripts)
 	if (timer->Expired())
 		timer->Rearm();
 
-	// TODO: Not nice, should stop the scripts in some other way
-	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
-		return;
-
+	_HandleGlobalActions();
+	
 	// The room
 	fCurrentRoom->Update(true);
 
@@ -692,4 +703,23 @@ Core::_NewRound()
 	std::swap(fCurrentRoundResults, fLastRoundResults);
 	fCurrentRoundResults->Clear();
 	//std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
+}
+
+
+void
+Core::_HandleGlobalActions()
+{
+	if (fActions.size() != 0) {
+		std::vector<Action*>::iterator i = fActions.begin();
+		while (i != fActions.end()) {
+			Action& action = **i;
+			if (action.Completed()) {
+				delete *i;
+				i = fActions.erase(i);
+			} else {
+				action();
+				break;
+			}
+		}
+	}
 }

@@ -1048,7 +1048,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
 			Action* action = new MoveViewPoint(fSender, act->where, act->integer1);
-			fSender->AddAction(action);
+			core->AddGlobalAction(action);
 			break;
 		}
 		case 61:
@@ -1073,7 +1073,8 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			fSender->SetWaitTime(act->integer1 * 15);
+			Wait* wait = new Wait(fSender, act->integer1 * 15);
+			fSender->AddAction(wait);
 			break;
 		}
 		case 0x54:
@@ -1118,7 +1119,8 @@ Script::_HandleAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			//
-			fSender->SetWaitTime(act->integer1);
+			Wait* wait = new Wait(fSender, act->integer1);
+			fSender->AddAction(wait);
 			break;
 		}
 
@@ -1248,7 +1250,7 @@ Script::_HandleAction(action_node* act)
 			int numUpdates = act->where.x;
 			FadeColorAction* action = new FadeColorAction(fSender,
 				numUpdates, FadeColorAction::TO_BLACK);
-			fSender->AddAction(action);
+			core->AddGlobalAction(action);
 			break;		
 		}
 		case 203:
@@ -1257,7 +1259,7 @@ Script::_HandleAction(action_node* act)
 			int numUpdates = act->where.x;
 			FadeColorAction* action = new FadeColorAction(fSender,
 				numUpdates, FadeColorAction::FROM_BLACK);
-			fSender->AddAction(action);
+			core->AddGlobalAction(action);
 			break;
 		}
 		case 207:

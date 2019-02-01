@@ -161,6 +161,24 @@ FlyTo::operator()()
 }
 
 
+// Wait
+Wait::Wait(Object* object, uint32 time)
+	:
+	Action(object),
+	fWaitTime(time)
+{
+}
+
+
+/* virtual */
+void
+Wait::operator()()
+{
+	fObject->SetWaitTime(fWaitTime);
+	SetCompleted();
+}
+
+
 // Toggle
 Toggle::Toggle(Object* object, Door* door)
 	:

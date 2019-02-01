@@ -66,7 +66,6 @@ public:
 	virtual void operator()();
 private:
 	uint32 fWaitTime;
-	uint32 fStartTime;
 };
 
 
@@ -101,6 +100,7 @@ public:
 	Dialogue(Object* actor, Object* target);
 	virtual void operator()();
 };
+
 
 class FadeColorAction : public Action {
 public:

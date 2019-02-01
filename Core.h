@@ -23,6 +23,7 @@ enum game {
 
 struct object_node;
 class Actor;
+class Action;
 class Container;
 class Door;
 class Object;
@@ -65,6 +66,7 @@ public:
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 
+	void AddGlobalAction(Action* action);
 	void StartCutsceneMode();
 	bool CutsceneMode() const;
 	void StartCutscene(const res_ref& scriptName);
@@ -111,6 +113,7 @@ private:
 	void _CheckIfInsideRegion(Actor* actor);
 	void _CleanDestroyedObjects();
 	void _NewRound();
+	void _HandleGlobalActions();
 	
 	Core();
 	~Core();
@@ -138,6 +141,8 @@ private:
 	bool fCutsceneMode;
 
 	::Script *fCutsceneScript;
+	
+	std::vector<Action*> fActions;
 };
 
 
