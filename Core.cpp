@@ -456,7 +456,7 @@ Core::UpdateLogic(bool executeScripts)
 
 	if (fCutsceneScript != NULL) {
 		fCutsceneScript->Execute();
-		return;	
+		//return;
 	}	
 
 	// TODO: Fix/Improve
