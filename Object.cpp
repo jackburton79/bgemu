@@ -205,6 +205,7 @@ Object::ClearActionList()
 		delete *i;
 	}
 	fActions.clear();
+	SetInterruptable(true);
 }
 
 
@@ -282,6 +283,11 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (fWaitTime > 0) {
+		fWaitTime -= 15;
+		return;
+	}
+	
 	bool runScripts = false;
 	if ((fTicks++ % 15 == 0) || IsActionListEmpty())
 		runScripts = true;
@@ -292,10 +298,6 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (!runScripts)
 		return;
 		
-	if (fWaitTime > 0) {
-		fWaitTime -= 15;
-		return;
-	}
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {		

@@ -483,7 +483,7 @@ Core::UpdateLogic(bool executeScripts)
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
 		Actor* actor = *i;
 		//_CheckIfInsideRegion(actor);
-		SetActiveActor(actor);
+		//SetActiveActor(actor);
 		actor->Update(executeScripts);
 	}
 

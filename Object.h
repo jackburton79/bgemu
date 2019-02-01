@@ -19,8 +19,6 @@
 #include <string>
 #include <vector>
 
-// TODO: Actor and Object aren't well separated.
-// Either merge in one class or improve the separation
 struct object_node;
 class Action;
 class Actor;
@@ -28,7 +26,6 @@ class Object;
 class Region;
 class Script;
 class TileCell;
-class Action;
 class Object : public Referenceable {
 public:
 	Object(const char* name, const char* scriptName = NULL);

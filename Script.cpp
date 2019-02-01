@@ -971,7 +971,7 @@ Script::_HandleAction(action_node* act)
 			std::cout << "active creature: " << fSender->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			core->AddActorToCurrentArea(actor);
-			core->SetActiveActor(actor);
+			//core->SetActiveActor(actor);
 			break;
 		}
 		case 0x8:
@@ -1004,12 +1004,12 @@ Script::_HandleAction(action_node* act)
 		case 23:
 		{
 			// MoveToPoint
-			/*Actor* actor = dynamic_cast<Actor*>(fSender);
+			Actor* actor = dynamic_cast<Actor*>(fSender);
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);
 				actor->StopCheckingConditions();
-			}*/
+			}
 			break;
 		}
 		case 29:
@@ -1287,7 +1287,7 @@ Script::_HandleAction(action_node* act)
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
 			core->AddActorToCurrentArea(actor);
-			core->SetActiveActor(actor);
+			//core->SetActiveActor(actor);
 			break;
 		}
 		case 286: // 0x11e
