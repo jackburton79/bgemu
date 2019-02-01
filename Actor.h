@@ -94,9 +94,6 @@ public:
 	void Select(bool select);
 	bool IsSelected() const;
 
-	void SetInterruptable(const bool interrupt);
-	bool IsInterruptable() const;
-
 	bool SkipConditions() const;
 	void StopCheckingConditions();
 
@@ -129,7 +126,6 @@ private:
 	CREColors* fColors;
 
 	bool fDontCheckConditions;
-	bool fIsInterruptable;
 
 	bool fFlying;
 	bool fSelected;

@@ -29,6 +29,7 @@ Object::Object(const char* name, const char* scriptName)
 	fVisible(true),
 	fTicks(0),
 	fWaitTime(0),
+	fIsInterruptable(true),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -194,6 +195,21 @@ Object::ClearActionList()
 		delete *i;
 	}
 	fActions.clear();
+}
+
+
+
+void
+Object::SetInterruptable(bool interrupt)
+{
+	fIsInterruptable = interrupt;
+}
+
+
+bool
+Object::IsInterruptable() const
+{
+	return fIsInterruptable;
 }
 
 

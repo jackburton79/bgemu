@@ -59,6 +59,9 @@ public:
 	bool IsActionListEmpty() const;
 	void ClearActionList();
 
+	void SetInterruptable(const bool interrupt);
+	bool IsInterruptable() const;
+	
 	void AddScript(::Script* script);
 	void ClearScripts();
 	
@@ -86,6 +89,8 @@ private:
 	int32 fWaitTime;
 
 	std::list<Action*> fActions;
+	bool fIsInterruptable;
+	
 	::Variables fVariables;
 
 	Region* fRegion;

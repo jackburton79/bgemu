@@ -42,7 +42,6 @@ Actor::Actor(IE::actor &actor)
 	fCRE(NULL),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
-	fIsInterruptable(true),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -61,7 +60,6 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fCRE(cre),
 	fOwnsActor(false),
 	fDontCheckConditions(false),
-	fIsInterruptable(true),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -615,20 +613,6 @@ bool
 Actor::IsFlying() const
 {
 	return fFlying;
-}
-
-
-void
-Actor::SetInterruptable(bool interrupt)
-{
-	fIsInterruptable = interrupt;
-}
-
-
-bool
-Actor::IsInterruptable() const
-{
-	return fIsInterruptable;
 }
 
 
