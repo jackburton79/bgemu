@@ -359,16 +359,16 @@ MoveViewPoint::operator()()
 {
 	RoomBase* room = Core::Get()->CurrentRoom();
 	IE::point offset = room->AreaOffset();
-	const int step = fScrollSpeed;
+	const int16 step = fScrollSpeed;
 	if (offset != fDestination) {
 		if (offset.x > fDestination.x)
-			offset.x -= step;
+			offset.x = std::max((int16)(offset.x - step), fDestination.x);
 		else if (offset.x < fDestination.x)
-			offset.x += step;
+			offset.x = std::min((int16)(offset.x + step), fDestination.x);
 		if (offset.y > fDestination.y)
-			offset.y -= step;
+			offset.y = std::max((int16)(offset.y - step), fDestination.y);
 		else if (offset.y < fDestination.y)
-			offset.y += step;
+			offset.y = std::min((int16)(offset.y + step), fDestination.y);
 		room->SetAreaOffset(offset);
 	} else
 		SetCompleted();
