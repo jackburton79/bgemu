@@ -234,6 +234,24 @@ Core::Vars()
 
 
 void
+Core::SetActiveActor(Actor* actor)
+{
+	fActiveActor = actor;
+	if (fActiveActor)
+		std::cout << "SetActiveActor(" << actor->Name() << ")" << std::endl;
+}
+
+
+Actor*
+Core::ActiveActor()
+{
+	if (fActiveActor)
+		std::cout << "ActiveActor is " << fActiveActor->Name() << std::endl;
+	return fActiveActor;
+}
+
+
+void
 Core::StartCutsceneMode()
 {
 	fCutsceneMode = true;
@@ -464,10 +482,11 @@ Core::UpdateLogic(bool executeScripts)
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
 		Actor* actor = *i;
 		//_CheckIfInsideRegion(actor);
+		SetActiveActor(actor);
 		actor->Update(executeScripts);
 	}
 
-	fActiveActor = NULL;
+	SetActiveActor(NULL);
 #if 0
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
@@ -480,10 +499,10 @@ Core::UpdateLogic(bool executeScripts)
 		Object* object = *r;
 		object->Update(executeScripts);
 	}
-#endif	
-	_NewRound();
+#endif
+	_CleanDestroyedObjects();
 	
-	//_RemoveStaleObjects();
+	_NewRound();
 }
 
 
@@ -609,14 +628,6 @@ Core::LastRoundResults()
 }
 
 
-/*
-const std::list<Object*>&
-Core::Objects() const
-{
-	return fObjects;
-}
-*/
-
 void
 Core::_PrintObjects() const
 {
@@ -636,14 +647,18 @@ Core::_InitGameTimers()
 
 
 void
-Core::_RemoveStaleObjects()
+Core::_CleanDestroyedObjects()
 {
+	// TODO: Remove objects pointers from
+	// RoundResults!!!
 	ActorsList::iterator i = fActiveActors.begin();
 	while (i != fActiveActors.end()) {
-		if ((*i)->IsStale()) {
-			//if (Actor* actor = dynamic_cast<Actor*>(i->Target())) {
-				//->ActorExitedArea(actor);
-			//}
+		Object* object = *i;
+		if (object->ToBeDestroyed()) {
+			if (Actor* actor = dynamic_cast<Actor*>(object)) {
+				std::cout << "Destroy actor " << actor->Name() << std::endl;
+				UnregisterActor(actor);
+			}
 			i = fActiveActors.erase(i);
 		} else
 			i++;

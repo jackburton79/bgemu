@@ -30,16 +30,12 @@ Object::Object(const char* name, const char* scriptName)
 	fTicks(0),
 	fWaitTime(0),
 	fRegion(NULL),
-	fStale(false)
+	fToDestroy(false)
 {
 	if (scriptName != NULL) {
-		BCSResource* scriptResource = gResManager->GetBCS(scriptName);
-		if (scriptResource != NULL) {
-			::Script* script = scriptResource->GetScript();
-			if (script != NULL)
-				AddScript(script);
-		}
-		gResManager->ReleaseResource(scriptResource);
+		::Script* script = Core::ExtractScript(scriptName);
+		if (script != NULL)
+			AddScript(script);
 	}
 }
 
@@ -230,16 +226,16 @@ Object::NearestPoint(const IE::point& point) const
 
 
 void
-Object::SetStale(bool stale)
+Object::DestroySelf()
 {
-	fStale = stale;
+	fToDestroy = true;
 }
 
 
 bool
-Object::IsStale() const
+Object::ToBeDestroyed() const
 {
-	return fStale;
+	return fToDestroy;
 }
 
 

@@ -66,8 +66,8 @@ public:
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
 	
-	void SetStale(bool stale);
-	bool IsStale() const;
+	void DestroySelf();
+	bool ToBeDestroyed() const;
 
 protected:
 	virtual ~Object();
@@ -89,7 +89,8 @@ private:
 	::Variables fVariables;
 
 	Region* fRegion;
-	bool fStale;
+	
+	bool fToDestroy;
 };
 
 #endif // __OBJECT_H

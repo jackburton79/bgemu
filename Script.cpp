@@ -951,9 +951,11 @@ Script::_ExecuteAction(action_node* act)
 				point.x += Core::RandomNumber(-20, 20);
 				point.y += Core::RandomNumber(-20, 20);
 			}
+			// TODO: should use "core->ActiveActor()" instead ?
 			std::cout << "active creature: " << fTarget.Target()->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
-			Core::Get()->AddActorToCurrentArea(actor);
+			core->AddActorToCurrentArea(actor);
+			core->SetActiveActor(actor);
 			break;
 		}
 		case 0x8:
@@ -1142,8 +1144,14 @@ Script::_ExecuteAction(action_node* act)
 		{
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Delete it for real
-			fTarget.Target()->SetStale(true);
-			return false;
+			Actor* activeActor = core->ActiveActor();
+			if (activeActor != NULL) {
+				std::cout << "DESTROY SELF" << std::endl;
+				activeActor->DestroySelf();
+				core->SetActiveActor(NULL);
+			}
+			break;
+			//return false;
 		}
 		case 0x73:
 		{
@@ -1263,6 +1271,7 @@ Script::_ExecuteAction(action_node* act)
 			std::cout << act->where.x << ", " << act->where.y << std::endl;
 			actor->SetDestination(act->where);
 			core->AddActorToCurrentArea(actor);
+			core->SetActiveActor(actor);
 			break;
 		}
 		case 286: // 0x11e

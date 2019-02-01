@@ -71,6 +71,9 @@ public:
 
 	Variables& Vars();
 
+	void SetActiveActor(Actor* actor);
+	Actor* ActiveActor();
+	
 	Actor* GetObject(const char* name) const;
 	Actor* GetObject(uint16 globalEnum) const;
 	Actor* GetObject(object_node* node) const;
@@ -106,7 +109,7 @@ private:
 	static void _InitGameTimers();
 	void _PrintObjects() const;
 	void _CheckIfInsideRegion(Actor* actor);
-	void _RemoveStaleObjects();
+	void _CleanDestroyedObjects();
 	void _NewRound();
 	
 	Core();
