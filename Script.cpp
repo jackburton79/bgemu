@@ -229,7 +229,7 @@ Script::Execute(bool& continuing)
 					break;
 				if (sDebug)
 					std::cout << "RESPONSE" << std::endl;
-				if (!_ExecuteActions(responseSet, continuing)) {
+				if (!_HandleResponseSet(responseSet)) {
 					// TODO: When the above method returns false,
 					// The script should stop running.
 					return false;
@@ -241,7 +241,6 @@ Script::Execute(bool& continuing)
 					SetProcessed();
 					return true;
 				}
-
 				condition = responseSet->Next();
 			}
 			condRes = condRes->Next();
@@ -894,7 +893,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 
 bool
-Script::_ExecuteActions(node* responseSet, bool& continuing)
+Script::_HandleResponseSet(node* responseSet)
 {
 	response_node* responses[5];
 	response_node* response = static_cast<response_node*>(
@@ -917,7 +916,7 @@ Script::_ExecuteActions(node* responseSet, bool& continuing)
 	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
-		if (!_ExecuteAction(action, continuing))
+		if (!_HandleAction(action))
 			return false;
 		action = static_cast<action_node*>(action->Next());
 	}
@@ -926,7 +925,7 @@ Script::_ExecuteActions(node* responseSet, bool& continuing)
 
 
 bool
-Script::_ExecuteAction(action_node* act, bool& continuing)
+Script::_HandleAction(action_node* act)
 {
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
@@ -1035,10 +1034,9 @@ Script::_ExecuteAction(action_node* act, bool& continuing)
 			 * contained a Continue() command - this parsing can be stopped
 			 * by including a NoAction() in the empty response block.
 			 */
-			// TODO: Implement
-			continuing = true;
+			// by returning false, we instruct the caller to stop
+			// executing the script
 			return false;
-			break;
 		}
 		case 49:
 		{
