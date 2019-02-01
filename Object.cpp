@@ -212,7 +212,7 @@ void
 Object::AddScript(::Script* script)
 {
 	if (script != NULL)
-		script->SetTarget(this);
+		script->SetSender(this);
 	fScripts.push_back(script);
 }
 

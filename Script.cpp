@@ -59,7 +59,7 @@ Script::Script(node* rootNode)
 	fRootNode(rootNode),
 	fProcessed(false),
 	fOrTriggers(0),
-	fTarget(NULL),
+	fSender(NULL),
 	fLastTrigger(NULL),
 	fCurrentNode(NULL)
 {
@@ -177,7 +177,7 @@ Script::FindObject(node* start) const
 	/*if (sDebug)
 		objectNode->Print();*/
 
-	return GetObject((Actor*)fTarget, objectNode);
+	return GetObject((Actor*)fSender, objectNode);
 }
 
 
@@ -196,15 +196,16 @@ Script::Execute(bool& continuing)
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
 		if (sDebug) {
-			std::cout << "*** SCRIPT START: " << fTarget->Name();
+			std::cout << "*** SCRIPT START: " << fSender->Name();
 			std::cout << " ***" << std::endl;
 #if 0
-			if (!strcmp(fTarget->Name(), "Amnish Soldier")) {
+			if (!strcmp(fSender->Name(), "Amnish Soldier")) {
 				Print();		
 			}
 #endif
 		}
 		
+		bool foundContinue = continuing;
 		// TODO: Find correct place
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
@@ -215,27 +216,30 @@ Script::Execute(bool& continuing)
 				if (!_EvaluateConditionNode(condition))
 					break;
 					
-				if (continuing) {
+				if (foundContinue) {
 					std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
-					return false;
+					return true;
 				}
 					
 				// Check action list
-				if (!fTarget->IsActionListEmpty())
-					break;
-					
+				if (!fSender->IsActionListEmpty()) {
+					if (!fSender->IsInterruptable())
+						break;
+				}
+
 				::node* responseSet = condition->Next();
 				if (responseSet == NULL)
 					break;
 				if (sDebug)
 					std::cout << "RESPONSE" << std::endl;
 				if (!_HandleResponseSet(responseSet)) {
-					// TODO: When the above method returns false,
-					// The script should stop running.
-					return false;
+					// When the above method returns false, it means it encountered a CONTINUE
+					// so the script should stop running.
+					SetProcessed();
+					foundContinue = true;
 				} else {
 					if (sDebug) {
-						std::cout << "*** SCRIPT RETURNED " << fTarget->Name();
+						std::cout << "*** SCRIPT RETURNED " << fSender->Name();
 						std::cout << " ***" << std::endl;
 					}
 					SetProcessed();
@@ -246,7 +250,7 @@ Script::Execute(bool& continuing)
 			condRes = condRes->Next();
 		};
 		if (sDebug) {
-			std::cout << "*** SCRIPT END " << fTarget->Name();
+			std::cout << "*** SCRIPT END " << fSender->Name();
 			std::cout << " ***" << std::endl;
 		}
 		nextScript = nextScript->next;
@@ -259,16 +263,16 @@ Script::Execute(bool& continuing)
 
 
 Object*
-Script::Target()
+Script::Sender()
 {
-	return fTarget;
+	return fSender;
 }
 
 
 void
-Script::SetTarget(Object* object)
+Script::SetSender(Object* object)
 {
-	fTarget = object;
+	fSender = object;
 }
 
 
@@ -278,10 +282,10 @@ Script::ResolveIdentifier(const int id) const
 	Script* thisCast = const_cast<Script*>(this);
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
-		return thisCast->Target();
+		return thisCast->Sender();
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF") {
-		Actor* actor = dynamic_cast<Actor*>(thisCast->Target());
+		Actor* actor = dynamic_cast<Actor*>(thisCast->Sender());
 		if (actor == NULL)
 			return NULL;
 		return Core::Get()->GetNearestEnemyOf(actor);
@@ -401,7 +405,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	Actor* actor = dynamic_cast<Actor*>(fTarget);
+	Actor* actor = dynamic_cast<Actor*>(fSender);
 	//if (actor != NULL && actor->SkipConditions())
 	//	return false;
 
@@ -447,14 +451,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				}
 				//object_node* object = FindObjectNode(trig);
 				//returnValue = Object::CheckIfNodeInList(object,
-				//		fTarget->LastScriptRoundResults()->Hitters());
+				//		fSender->LastScriptRoundResults()->Hitters());
 				break;
 			}
 			case 0x0022:
 			{
 				/* TimerExpired(I:ID*) */
 				std::ostringstream stringStream;
-				stringStream << fTarget->Name() << " " << trig->parameter1;
+				stringStream << fSender->Name() << " " << trig->parameter1;
 				printf("TimerExpired %s\n", stringStream.str().c_str());
 				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
 				if (timer != NULL && timer->Expired()) {
@@ -474,7 +478,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
 #if 0
 				Object* object = FindObject(trig);
-				if (object != NULL && core->Distance(fTarget, object) <= 30
+				if (object != NULL && core->Distance(fSender, object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
 					returnValue = true;
@@ -495,7 +499,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				// Entered(O:Object)
 				//object_node* node = FindObjectNode(trig);
-				//Region* region = dynamic_cast<Region*>(fTarget);
+				//Region* region = dynamic_cast<Region*>(fSender);
 				//std::vector<std::string>::const_iterator i;
 
 				/*Object* object = Object::GetMatchingObjectFromList(
@@ -517,7 +521,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 				// TODO: We assume this is a door, but also
 				// containers can be opened/closed
-				/*Door* door = dynamic_cast<Door*>(fTarget);
+				/*Door* door = dynamic_cast<Door*>(fSender);
 				if (door == NULL)
 					break;
 				if (!door->Opened())
@@ -538,14 +542,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	clicked on the trigger region running this script.
 				 */
 				object_node* objectNode = FindObjectNode(trig);
-				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fTarget);
+				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fSender);
 				if (clicker != NULL) {
 					objectNode->Print();
 					returnValue = clicker->MatchNode(objectNode);
 				}
 				// TODO: When to set this, other than now ?
 				if (returnValue)
-					fLastTrigger = fTarget;
+					fLastTrigger = fSender;
 
 				break;
 			}
@@ -603,7 +607,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				VariableGetScopeName(trig->string1, variableScope, variableName);
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = fTarget->Vars().Get(variableName.c_str());
+					variableValue = fSender->Vars().Get(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
@@ -628,7 +632,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				is within distance given (in feet) of the active CRE. */
 				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget) <= trig->parameter1;
+					returnValue = core->Distance(object, fSender) <= trig->parameter1;
 				break;
 			}
 
@@ -761,7 +765,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: Check weapon range
 				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget) <= range;
+					returnValue = core->Distance(object, fSender) <= range;
 				break;
 			}
 			case 0x4068:
@@ -802,7 +806,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Object* object = GetObject(actor, FindObjectNode(trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
-					// || core->Hear(fTarget, object);
+					// || core->Hear(fSender, object);
 				break;
 			}
 			case 0x4076:
@@ -827,7 +831,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Only for trigger regions. Returns true only if the specified
 				 * object is over the trigger running the script
 				 */
-				Region* region = dynamic_cast<Region*>(fTarget);
+				Region* region = dynamic_cast<Region*>(fSender);
 				if (region == NULL)
 					break;
 				object_node* objectNode = FindObjectNode(trig);
@@ -916,6 +920,8 @@ Script::_HandleResponseSet(node* responseSet)
 	action_node* action = FindActionNode(responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
+		// When _HandleAction() returns false,
+		// it means it's a CONTINUE() action.
 		if (!_HandleAction(action))
 			return false;
 		action = static_cast<action_node*>(action->Next());
@@ -935,7 +941,7 @@ Script::_HandleAction(action_node* act)
 		act->Print();
 	}
 	Core* core = Core::Get();
-	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
+	Actor* thisActor = dynamic_cast<Actor*>(fSender);
 
 	switch (act->id) {
 		case 0x03:
@@ -962,7 +968,7 @@ Script::_HandleAction(action_node* act)
 				point.y += Core::RandomNumber(-20, 20);
 			}
 			// TODO: should use "core->ActiveActor()" instead ?
-			std::cout << "active creature: " << fTarget->Name() << std::endl;
+			std::cout << "active creature: " << fSender->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			core->AddActorToCurrentArea(actor);
 			core->SetActiveActor(actor);
@@ -998,7 +1004,7 @@ Script::_HandleAction(action_node* act)
 		case 23:
 		{
 			// MoveToPoint
-			/*Actor* actor = dynamic_cast<Actor*>(fTarget);
+			/*Actor* actor = dynamic_cast<Actor*>(fSender);
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);
@@ -1041,8 +1047,8 @@ Script::_HandleAction(action_node* act)
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(fTarget, act->where, act->integer1);
-			fTarget->AddAction(action);
+			Action* action = new MoveViewPoint(fSender, act->where, act->integer1);
+			fSender->AddAction(action);
 			break;
 		}
 		case 61:
@@ -1055,10 +1061,10 @@ Script::_HandleAction(action_node* act)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			if (fTarget == NULL)
+			if (fSender == NULL)
 				printf("NULL TARGET\n");
 			std::ostringstream stringStream;
-			stringStream << fTarget->Name() << " " << act->integer1;
+			stringStream << fSender->Name() << " " << act->integer1;
 
 			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
@@ -1067,7 +1073,7 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			fTarget->SetWaitTime(act->integer1);
+			fSender->SetWaitTime(act->integer1);
 			break;
 		}
 		case 0x54:
@@ -1089,8 +1095,7 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			if (thisActor != NULL)
-				thisActor->SetInterruptable(act->integer1 == 1);
+			fSender->SetInterruptable(act->integer1 == 1);
 			break;
 		}
 		case 0x1E:
@@ -1099,8 +1104,8 @@ Script::_HandleAction(action_node* act)
 			std::string variableName;
 			VariableGetScopeName(act->string1, variableScope, variableName);
 			if (variableScope.compare("LOCALS") == 0) {
-				if (fTarget != NULL)
-					fTarget->Vars().Set(variableName.c_str(),
+				if (fSender != NULL)
+					fSender->Vars().Set(variableName.c_str(),
 							act->integer1);
 			} else {
 				// TODO: Check for AREA variables
@@ -1113,7 +1118,7 @@ Script::_HandleAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			//
-			fTarget->SetWaitTime(act->integer1);
+			fSender->SetWaitTime(act->integer1);
 			break;
 		}
 
@@ -1192,7 +1197,7 @@ Script::_HandleAction(action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			Actor* actor = FindObject(act);
-			SetTarget(actor);
+			SetSender(actor);
 			break;
 		}
 		case 0x97:
@@ -1241,18 +1246,18 @@ Script::_HandleAction(action_node* act)
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
 			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fTarget,
+			FadeColorAction* action = new FadeColorAction(fSender,
 				numUpdates, FadeColorAction::TO_BLACK);
-			fTarget->AddAction(action);
+			fSender->AddAction(action);
 			break;		
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
 			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fTarget,
+			FadeColorAction* action = new FadeColorAction(fSender,
 				numUpdates, FadeColorAction::FROM_BLACK);
-			fTarget->AddAction(action);
+			fSender->AddAction(action);
 			break;
 		}
 		case 207:
@@ -1263,7 +1268,7 @@ Script::_HandleAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			Actor* actor = dynamic_cast<Actor*>(fTarget);
+			Actor* actor = dynamic_cast<Actor*>(fSender);
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				thisActor->AddAction(walkTo);

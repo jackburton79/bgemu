@@ -49,8 +49,8 @@ public:
 
 	bool Execute(bool &continuing);
 
-	Object* Target();
-	void SetTarget(Object* object);
+	Object* Sender();
+	void SetSender(Object* object);
 
 	Object* ResolveIdentifier(const int id) const;
 	Actor* GetObject(Actor* source, object_node* node) const;
@@ -74,7 +74,8 @@ private:
 	bool fProcessed;
 
 	int fOrTriggers;
-	Object* fTarget;
+	
+	Object* fSender;
 	Object* fLastTrigger;
 
 	node* fCurrentNode;

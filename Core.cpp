@@ -268,7 +268,7 @@ void
 Core::StartCutscene(const res_ref& scriptName)
 {
 	fCutsceneScript	= ExtractScript(scriptName);
-	fCutsceneScript->SetTarget(fCurrentRoom);
+	fCutsceneScript->SetSender(fCurrentRoom);
 }
 
 
