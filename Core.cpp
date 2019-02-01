@@ -472,8 +472,9 @@ Core::UpdateLogic(bool executeScripts)
 	// The room
 	fCurrentRoom->Update(true);
 
+	bool continuing = false;
 	if (fCutsceneScript != NULL) {
-		fCutsceneScript->Execute();
+		fCutsceneScript->Execute(continuing);
 		//return;
 	}	
 

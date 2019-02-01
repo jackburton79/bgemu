@@ -47,7 +47,7 @@ public:
 	// convenience call
 	Actor*			FindObject(node* start = NULL) const;
 
-	bool Execute();
+	bool Execute(bool &continuing);
 
 	Object* Target();
 	void SetTarget(Object* object);
@@ -74,8 +74,8 @@ private:
 	bool fProcessed;
 
 	int fOrTriggers;
-	Reference<Object> fTarget;
-	Reference<Object> fLastTrigger;
+	Object* fTarget;
+	Object* fLastTrigger;
 
 	node* fCurrentNode;
 

@@ -177,12 +177,12 @@ Script::FindObject(node* start) const
 	/*if (sDebug)
 		objectNode->Print();*/
 
-	return GetObject((Actor*)fTarget.Target(), objectNode);
+	return GetObject((Actor*)fTarget, objectNode);
 }
 
 
 bool
-Script::Execute()
+Script::Execute(bool& continuing)
 {
 	fLastTrigger = NULL;
 	// for each CR block
@@ -195,15 +195,15 @@ Script::Execute()
 
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
-	if (sDebug) {
-		std::cout << "*** SCRIPT START: " << fTarget.Target()->Name();
-		std::cout << " ***" << std::endl;
+		if (sDebug) {
+			std::cout << "*** SCRIPT START: " << fTarget->Name();
+			std::cout << " ***" << std::endl;
 #if 0
-		if (!strcmp(fTarget.Target()->Name(), "Amnish Soldier")) {
-			Print();		
-		}
+			if (!strcmp(fTarget->Name(), "Amnish Soldier")) {
+				Print();		
+			}
 #endif
-	}
+		}
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
@@ -224,7 +224,7 @@ Script::Execute()
 					return false;
 				} else {
 					if (sDebug) {
-						std::cout << "*** SCRIPT RETURNED " << fTarget.Target()->Name();
+						std::cout << "*** SCRIPT RETURNED " << fTarget->Name();
 						std::cout << " ***" << std::endl;
 					}
 					SetProcessed();
@@ -236,7 +236,7 @@ Script::Execute()
 			condRes = condRes->Next();
 		};
 		if (sDebug) {
-			std::cout << "*** SCRIPT END " << fTarget.Target()->Name();
+			std::cout << "*** SCRIPT END " << fTarget->Name();
 			std::cout << " ***" << std::endl;
 		}
 		nextScript = nextScript->next;
@@ -251,7 +251,7 @@ Script::Execute()
 Object*
 Script::Target()
 {
-	return fTarget.Target();
+	return fTarget;
 }
 
 
@@ -341,7 +341,7 @@ Script::GetObject(Actor* source, object_node* node) const
 Object*
 Script::LastTrigger() const
 {
-	return fLastTrigger.Target();
+	return fLastTrigger;
 }
 
 
@@ -391,7 +391,7 @@ Script::_CheckTriggers(node* conditionNode)
 bool
 Script::_EvaluateTrigger(trigger_node* trig)
 {
-	Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
+	Actor* actor = dynamic_cast<Actor*>(fTarget);
 	//if (actor != NULL && actor->SkipConditions())
 	//	return false;
 
@@ -444,7 +444,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				/* TimerExpired(I:ID*) */
 				std::ostringstream stringStream;
-				stringStream << fTarget.Target()->Name() << " " << trig->parameter1;
+				stringStream << fTarget->Name() << " " << trig->parameter1;
 				printf("TimerExpired %s\n", stringStream.str().c_str());
 				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
 				if (timer != NULL && timer->Expired()) {
@@ -464,7 +464,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
 #if 0
 				Object* object = FindObject(trig);
-				if (object != NULL && core->Distance(fTarget.Target(), object) <= 30
+				if (object != NULL && core->Distance(fTarget, object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
 					returnValue = true;
@@ -485,7 +485,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				// Entered(O:Object)
 				//object_node* node = FindObjectNode(trig);
-				//Region* region = dynamic_cast<Region*>(fTarget.Target());
+				//Region* region = dynamic_cast<Region*>(fTarget);
 				//std::vector<std::string>::const_iterator i;
 
 				/*Object* object = Object::GetMatchingObjectFromList(
@@ -507,7 +507,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				break;
 				// TODO: We assume this is a door, but also
 				// containers can be opened/closed
-				/*Door* door = dynamic_cast<Door*>(fTarget.Target());
+				/*Door* door = dynamic_cast<Door*>(fTarget);
 				if (door == NULL)
 					break;
 				if (!door->Opened())
@@ -528,7 +528,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	clicked on the trigger region running this script.
 				 */
 				object_node* objectNode = FindObjectNode(trig);
-				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fTarget.Target());
+				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fTarget);
 				if (clicker != NULL) {
 					objectNode->Print();
 					returnValue = clicker->MatchNode(objectNode);
@@ -593,7 +593,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				VariableGetScopeName(trig->string1, variableScope, variableName);
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = fTarget.Target()->Vars().Get(variableName.c_str());
+					variableValue = fTarget->Vars().Get(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
@@ -618,7 +618,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				is within distance given (in feet) of the active CRE. */
 				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget.Target()) <= trig->parameter1;
+					returnValue = core->Distance(object, fTarget) <= trig->parameter1;
 				break;
 			}
 
@@ -751,7 +751,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: Check weapon range
 				Actor* object = FindObject(trig);
 				if (object != NULL)
-					returnValue = core->Distance(object, fTarget.Target()) <= range;
+					returnValue = core->Distance(object, fTarget) <= range;
 				break;
 			}
 			case 0x4068:
@@ -817,7 +817,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Only for trigger regions. Returns true only if the specified
 				 * object is over the trigger running the script
 				 */
-				Region* region = dynamic_cast<Region*>(fTarget.Target());
+				Region* region = dynamic_cast<Region*>(fTarget);
 				if (region == NULL)
 					break;
 				object_node* objectNode = FindObjectNode(trig);
@@ -925,7 +925,7 @@ Script::_ExecuteAction(action_node* act)
 		act->Print();
 	}
 	Core* core = Core::Get();
-	Actor* thisActor = dynamic_cast<Actor*>(fTarget.Target());
+	Actor* thisActor = dynamic_cast<Actor*>(fTarget);
 
 	switch (act->id) {
 		case 0x03:
@@ -952,7 +952,7 @@ Script::_ExecuteAction(action_node* act)
 				point.y += Core::RandomNumber(-20, 20);
 			}
 			// TODO: should use "core->ActiveActor()" instead ?
-			std::cout << "active creature: " << fTarget.Target()->Name() << std::endl;
+			std::cout << "active creature: " << fTarget->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			core->AddActorToCurrentArea(actor);
 			core->SetActiveActor(actor);
@@ -988,7 +988,7 @@ Script::_ExecuteAction(action_node* act)
 		case 23:
 		{
 			// MoveToPoint
-			/*Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
+			/*Actor* actor = dynamic_cast<Actor*>(fTarget);
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				actor->AddAction(walkTo);
@@ -1025,13 +1025,14 @@ Script::_ExecuteAction(action_node* act)
 			 * by including a NoAction() in the empty response block.
 			 */
 			// TODO: Implement
+			return false;
 			break;
 		}
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(fTarget.Target(), act->where, act->integer1);
-			fTarget.Target()->AddAction(action);
+			Action* action = new MoveViewPoint(fTarget, act->where, act->integer1);
+			fTarget->AddAction(action);
 			break;
 		}
 		case 61:
@@ -1044,10 +1045,10 @@ Script::_ExecuteAction(action_node* act)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			if (fTarget.Target() == NULL)
+			if (fTarget == NULL)
 				printf("NULL TARGET\n");
 			std::ostringstream stringStream;
-			stringStream << fTarget.Target()->Name() << " " << act->integer1;
+			stringStream << fTarget->Name() << " " << act->integer1;
 
 			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
@@ -1056,7 +1057,7 @@ Script::_ExecuteAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			fTarget.Target()->SetWaitTime(act->integer1);
+			fTarget->SetWaitTime(act->integer1);
 			break;
 		}
 		case 0x54:
@@ -1089,7 +1090,7 @@ Script::_ExecuteAction(action_node* act)
 			VariableGetScopeName(act->string1, variableScope, variableName);
 			if (variableScope.compare("LOCALS") == 0) {
 				if (fTarget != NULL)
-					fTarget.Target()->Vars().Set(variableName.c_str(),
+					fTarget->Vars().Set(variableName.c_str(),
 							act->integer1);
 			} else {
 				// TODO: Check for AREA variables
@@ -1102,7 +1103,7 @@ Script::_ExecuteAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			//
-			fTarget.Target()->SetWaitTime(act->integer1);
+			fTarget->SetWaitTime(act->integer1);
 			break;
 		}
 
@@ -1230,18 +1231,18 @@ Script::_ExecuteAction(action_node* act)
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
 			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fTarget.Target(),
+			FadeColorAction* action = new FadeColorAction(fTarget,
 				numUpdates, FadeColorAction::TO_BLACK);
-			fTarget.Target()->AddAction(action);
+			fTarget->AddAction(action);
 			break;		
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
 			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fTarget.Target(),
+			FadeColorAction* action = new FadeColorAction(fTarget,
 				numUpdates, FadeColorAction::FROM_BLACK);
-			fTarget.Target()->AddAction(action);
+			fTarget->AddAction(action);
 			break;
 		}
 		case 207:
@@ -1252,7 +1253,7 @@ Script::_ExecuteAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			Actor* actor = dynamic_cast<Actor*>(fTarget.Target());
+			Actor* actor = dynamic_cast<Actor*>(fTarget);
 			if (actor != NULL) {
 				WalkTo* walkTo = new WalkTo(actor, act->where);
 				thisActor->AddAction(walkTo);
