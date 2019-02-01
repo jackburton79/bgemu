@@ -204,6 +204,8 @@ Script::Execute(bool& continuing)
 			}
 #endif
 		}
+		
+		// TODO: Find correct place
 		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
 		while (condRes != NULL) {
 			::node* condition = FindNode(BLOCK_CONDITION, condRes);
@@ -211,8 +213,12 @@ Script::Execute(bool& continuing)
 				if (sDebug)
 					std::cout << "CONDITION" << std::endl;
 				if (!_CheckTriggers(condition))
+						break;
+				
+				// Check action list
+				if (!fTarget->IsActionListEmpty())
 					break;
-
+					
 				::node* responseSet = condition->Next();
 				if (responseSet == NULL)
 					break;
