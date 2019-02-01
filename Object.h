@@ -54,6 +54,9 @@ public:
 
 	virtual void Update(bool scripts);
 
+	void SetActive(bool active);
+	bool IsActive() const;
+
 	void AddAction(Action* action);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
@@ -61,14 +64,14 @@ public:
 
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
-	
+
 	void AddScript(::Script* script);
 	void ClearScripts();
-	
+
 	void SetWaitTime(int32 time);
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
-	
+
 	void DestroySelf();
 	bool ToBeDestroyed() const;
 
@@ -81,20 +84,22 @@ private:
 	void _ExecuteScripts(int32 maxLevel);
 
 	std::string fName;
-	bool fVisible;
 	int32 fTicks;
-	
+
+	bool fVisible;
+	bool fActive;
+	bool fIsInterruptable;
+
 	typedef std::vector< ::Script*> ScriptsList;
 	ScriptsList fScripts;
 	int32 fWaitTime;
 
 	std::list<Action*> fActions;
-	bool fIsInterruptable;
-	
+
 	::Variables fVariables;
 
 	Region* fRegion;
-	
+
 	bool fToDestroy;
 };
 

@@ -26,10 +26,11 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	fVisible(true),
 	fTicks(0),
-	fWaitTime(0),
+	fVisible(true),
+	fActive(false),
 	fIsInterruptable(true),
+	fWaitTime(0),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -146,6 +147,20 @@ Object::Update(bool scripts)
 	}
 	
 	ExecuteActions();
+}
+
+
+void
+Object::SetActive(bool active)
+{
+	fActive = active;
+}
+
+
+bool
+Object::IsActive() const
+{
+	return fActive;
 }
 
 
