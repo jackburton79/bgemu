@@ -97,10 +97,12 @@ Game::Loop(bool executeScripts)
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
+					if (!Core::Get()->CutsceneMode())					
 					gui->MouseDown(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
-					gui->MouseUp(event.button.x, event.button.y);
+					if (!Core::Get()->CutsceneMode())								
+	gui->MouseUp(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEMOTION:
 					lastMouseX = event.motion.x;
@@ -191,7 +193,8 @@ Game::Loop(bool executeScripts)
 		// these three calls. Draw() should be the last.
 		gui->Draw();
 
-		gui->MouseMoved(lastMouseX, lastMouseY);
+		if (!Core::Get()->CutsceneMode())
+			gui->MouseMoved(lastMouseX, lastMouseY);
 
 		console.Draw();
 		inputConsole.Draw();

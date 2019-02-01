@@ -65,6 +65,9 @@ public:
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 
+	void StartCutsceneMode();
+	bool CutsceneMode() const;
+
 	Variables& Vars();
 
 	Actor* GetObject(const char* name) const;
@@ -127,6 +130,7 @@ private:
 	ScriptResults* fLastRoundResults;
 	
 	bool fPaused;
+	bool fCutsceneMode;
 };
 
 

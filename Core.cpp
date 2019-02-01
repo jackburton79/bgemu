@@ -43,7 +43,8 @@ Core::Core()
 	fCurrentRoundNumber(0),
 	fCurrentRoundResults(NULL),
 	fLastRoundResults(NULL),
-	fPaused(false)
+	fPaused(false),
+	fCutsceneMode(false)
 {
 	srand(time(NULL));
 }
@@ -227,6 +228,19 @@ Variables&
 Core::Vars()
 {
 	return fVariables;
+}
+
+
+void
+Core::StartCutsceneMode()
+{
+	fCutsceneMode = true;
+}
+
+bool
+Core::CutsceneMode() const
+{
+	return fCutsceneMode;
 }
 
 
@@ -439,7 +453,7 @@ Core::UpdateLogic(bool executeScripts)
 	}
 
 	fActiveActor = NULL;
-#if 1
+#if 0
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;

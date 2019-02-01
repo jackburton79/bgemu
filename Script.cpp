@@ -538,6 +538,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 
 				break;
 			}
+			case 0x00B1:
+			{
+				/* ACTION TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
+				object_node* objectNode = FindObjectNode(trig);
+				objectNode->Print();
+				break;
+			}
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
@@ -1017,6 +1024,13 @@ Script::_ExecuteAction(action_node* act)
 			// TODO: Implement
 			break;
 		}
+		case 49:
+		{
+			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
+			Action* action = new MoveViewPoint(fTarget.Target(), act->where, act->integer1);
+			fTarget.Target()->AddAction(action);
+			break;
+		}
 		case 61:
 		{
 			/* 61 StartTimer(I:ID*,I:Time*)
@@ -1132,6 +1146,13 @@ Script::_ExecuteAction(action_node* act)
 			// check if it's okay
 			timerName.append(act->string2).append(act->string1);
 			GameTimer::Add(timerName.c_str(), act->integer1);
+			break;
+		}
+		case 121:
+		{
+			/* ACTION STARTCUTSCENEMODE()(121 0x79) */
+			// TODO: add as an action ?
+			core->StartCutsceneMode();
 			break;
 		}
 		case 0x97:
