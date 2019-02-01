@@ -77,6 +77,24 @@ ActionWithTarget::operator()()
 }
 
 
+// SetInterruptableAction
+SetInterruptableAction::SetInterruptableAction(Object* object, bool interrupt)
+	:
+	Action(object),
+	fInterruptable(interrupt)
+{
+}
+
+
+/* virtual */
+void
+SetInterruptableAction::operator()()
+{
+	fObject->SetInterruptable(fInterruptable);
+	SetCompleted();
+}
+
+
 // WalkTo
 WalkTo::WalkTo(Object* object, IE::point destination)
 	:

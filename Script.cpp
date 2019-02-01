@@ -1073,7 +1073,7 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			fSender->SetWaitTime(act->integer1);
+			fSender->SetWaitTime(act->integer1 * 15);
 			break;
 		}
 		case 0x54:
@@ -1095,7 +1095,7 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			fSender->SetInterruptable(act->integer1 == 1);
+			fSender->AddAction(new SetInterruptableAction(fSender, act->integer1 == 1));
 			break;
 		}
 		case 0x1E:

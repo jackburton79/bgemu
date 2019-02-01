@@ -284,7 +284,7 @@ void
 Object::_ExecuteScripts(int32 maxLevel)
 {
 	if (fWaitTime > 0) {
-		fWaitTime -= 15;
+		fWaitTime--;
 		return;
 	}
 	
@@ -294,7 +294,10 @@ Object::_ExecuteScripts(int32 maxLevel)
 	
 	if (!IsInterruptable())
 		return;
-		
+	
+	if (dynamic_cast<RoomBase*>(this) == NULL && !IsInsideVisibleArea())
+		return;
+
 	if (!runScripts)
 		return;
 		

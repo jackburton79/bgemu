@@ -33,6 +33,15 @@ protected:
 };
 
 
+class SetInterruptableAction : public Action {
+public:
+	SetInterruptableAction(Object* object, bool interruptable);
+	virtual void operator()();
+private:
+	bool fInterruptable;
+};
+
+
 class WalkTo : public Action {
 public:
 	WalkTo(Object* actor, IE::point destination);
