@@ -3,6 +3,7 @@
 #include "Action.h"
 #include "Actor.h"
 #include "AreaRoom.h"
+#include "BCSResource.h"
 #include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -44,7 +45,8 @@ Core::Core()
 	fCurrentRoundResults(NULL),
 	fLastRoundResults(NULL),
 	fPaused(false),
-	fCutsceneMode(false)
+	fCutsceneMode(false),
+	fCutsceneScript(NULL)
 {
 	srand(time(NULL));
 }
@@ -245,6 +247,14 @@ Core::CutsceneMode() const
 
 
 void
+Core::StartCutscene(const res_ref& scriptName)
+{
+	fCutsceneScript	= ExtractScript(scriptName);
+	fCutsceneScript->SetTarget(fCurrentRoom);
+}
+
+
+void
 Core::RegisterActor(Actor* actor)
 {
 	fActiveActors.push_back(actor);
@@ -441,6 +451,10 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
+	if (fCutsceneScript != NULL) {
+		fCutsceneScript->Execute();
+		return;	
+	}
 	// The room
 	fCurrentRoom->Update(true);
 	
@@ -556,6 +570,19 @@ int32
 Core::RandomNumber(int32 start, int32 end)
 {
 	return start + rand() % (end - start);
+}
+
+/* static */
+::Script*
+Core::ExtractScript(const res_ref& resName)
+{
+	::Script* script = NULL;
+	BCSResource* scriptResource = gResManager->GetBCS(resName);	
+	if (scriptResource != NULL) {
+		script = scriptResource->GetScript();
+		gResManager->ReleaseResource(scriptResource);
+	}
+	return script;
 }
 
 

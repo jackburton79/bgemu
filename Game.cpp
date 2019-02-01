@@ -235,7 +235,7 @@ Game::LoadStartingArea()
 	std::cout << "Starting position: " << point.x << "," << point.y << std::endl;
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
-	Core::Get()->CurrentRoom()->SetAreaOffset(point);
+	Core::Get()->CurrentRoom()->CenterArea(point);
 	if (fParty != NULL)
 		fParty->ActorAt(0)->SetPosition(point);
 

@@ -811,13 +811,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 ::Script*
 Actor::_ExtractScript(const res_ref& scriptName)
 {
-	::Script* script = NULL;
-	BCSResource* scriptResource = gResManager->GetBCS(scriptName);	
-	if (scriptResource != NULL) {
-		script = scriptResource->GetScript();
-		gResManager->ReleaseResource(scriptResource);
-	}
-	return script;
+	return Core::ExtractScript(scriptName);	
 }
 
 

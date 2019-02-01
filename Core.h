@@ -67,6 +67,7 @@ public:
 
 	void StartCutsceneMode();
 	bool CutsceneMode() const;
+	void StartCutscene(const res_ref& scriptName);
 
 	Variables& Vars();
 
@@ -97,6 +98,7 @@ public:
 	void RandomWalk(Actor* actor);
 
 	static int32 RandomNumber(int32 start, int32 end);
+	static ::Script* ExtractScript(const res_ref& resName);
 
 	int32 GetActorsList(ActorsList& objects) const;
 
@@ -131,6 +133,8 @@ private:
 	
 	bool fPaused;
 	bool fCutsceneMode;
+
+	::Script *fCutsceneScript;
 };
 
 

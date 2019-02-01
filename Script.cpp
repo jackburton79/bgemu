@@ -1149,9 +1149,15 @@ Script::_ExecuteAction(action_node* act)
 			GameTimer::Add(timerName.c_str(), act->integer1);
 			break;
 		}
+		case 120:
+		{
+			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
+			core->StartCutscene(act->string1);
+			break;
+		}
 		case 121:
 		{
-			/* ACTION STARTCUTSCENEMODE()(121 0x79) */
+			/* STARTCUTSCENEMODE()(121 0x79) */
 			// TODO: add as an action ?
 			core->StartCutsceneMode();
 			break;
