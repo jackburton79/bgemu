@@ -135,7 +135,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 			if (savedEntranceName == entrance.name) {
 				point.x = entrance.x;
 				point.y = entrance.y;
-				CenterArea(point);
+				SetAreaOffsetCenter(point);
 				break;
 			}
 		}
@@ -146,7 +146,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 			point.y = entrance.y;
 		} catch (std::out_of_range& ex) {
 		}
-		CenterArea(point);
+		SetAreaOffsetCenter(point);
 	}
 
 	Actor* player = Game::Get()->Party()->ActorAt(0);

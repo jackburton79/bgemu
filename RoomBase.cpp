@@ -60,8 +60,8 @@ IE::point
 RoomBase::AreaCenterPoint() const
 {
 	IE::point point = fAreaOffset;
-	point.x = point.x - fScreenArea.w / 2;
-	point.y = point.y - fScreenArea.y / 2;
+	point.x = point.x + fScreenArea.w / 2;
+	point.y = point.y + fScreenArea.h / 2;
 	return point;
 }
 
@@ -106,18 +106,8 @@ void
 RoomBase::SetAreaOffsetCenter(const IE::point& point)
 {
 	IE::point destPoint;
-	destPoint.x = point.x - fScreenArea.w / 2;
-	destPoint.y = point.y - fScreenArea.y / 2;
-	SetAreaOffset(destPoint);
-}
-
-
-void
-RoomBase::CenterArea(const IE::point& point)
-{
-	IE::point destPoint;
-	destPoint.x = point.x - fScreenArea.w / 2;
-	destPoint.y = point.y - fScreenArea.y / 2;
+	destPoint.x = std::max(0, point.x - fScreenArea.w / 2);
+	destPoint.y = std::max(0, point.y - fScreenArea.h / 2);
 	SetAreaOffset(destPoint);
 }
 

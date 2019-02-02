@@ -34,8 +34,6 @@ public:
 	void SetRelativeAreaOffset(int16 xDelta, int16 yDelta);
 	void SetAreaOffsetCenter(const IE::point& point);
 	
-	void CenterArea(const IE::point& point);
-
 	void ConvertToArea(GFX::rect& rect);
 	void ConvertToArea(IE::point& point);
 	void ConvertFromArea(GFX::rect& rect);
