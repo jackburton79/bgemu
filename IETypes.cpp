@@ -340,31 +340,32 @@ region::Print() const
 {
 	std::cout << "name: " << name << std::endl;
 	std::cout << "type: " << type << std::endl;
-	/*IE::rect rect;
-	uint16 vertex_count;
-	uint32 vertex_index;
-	uint32 unk;
-	uint32 cursor_index;
-	res_ref destination; */
-	std::cout << entrance_name << std::endl;
-	/*
-	uint32 flags;
-	uint32 info_text;
-	uint16 trap_detection_difficulty;
-	uint16 trap_removal_difficulty;
-	uint16 trapped;
-	uint16 trap_detected;
-	IE::point trap_launch_location;
-	res_ref key_item;
-	res_ref script;
-	uint16 use_point_x;
-	uint16 use_point_y;
-	uint32 unk2;
+	//IE::rect rect;
+	//uint16 vertex_count;
+	//uint32 vertex_index;
+	std::cout << "unk: " << unk << std::endl;
+	//uint32 cursor_index;
+	//res_ref destination;
+	std::cout << "entrance name: " << entrance_name << std::endl;
+
+	//uint32 flags;
+	std::cout << "info_text: " << info_text << std::endl;
+	//uint16 trap_detection_difficulty;
+	//uint16 trap_removal_difficulty;
+	//uint16 trapped;
+	//uint16 trap_detected;
+	std::cout << "trap_launch_location:" << trap_launch_location.x << ", " << trap_launch_location.y << std::endl;
+	std::cout << "key_item: " << key_item << std::endl;
+	std::cout << "script: "	<< script.CString() << std::endl;
+	//uint16 use_point_x;
+	//uint16 use_point_y;
+	std::cout << "unk2: " << unk2 << std::endl;
 	char unk3[32];
-	res_ref sound;
-	uint32 talk_location;
-	uint32 str_name;
-	res_ref dialog_file;*/
+	std::cout << "unk3: " << unk3 << std::endl;
+	std::cout << "sound: " << sound << std::endl;
+	std::cout << "talk_location: " << talk_location << std::endl;
+	std::cout << "str_name:" << str_name << std::endl;
+	std::cout << "dialog_file: " << dialog_file.CString() << std::endl;
 }
 
 

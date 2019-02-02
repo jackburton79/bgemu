@@ -23,6 +23,9 @@ Region::Region(IE::region* region)
 	std::string fixedName = region->name;
 	fixedName.erase(std::remove_if(fixedName.begin(), fixedName.end(), isspace), fixedName.end());
 	SetName(fixedName.c_str());
+	if (fixedName.compare("Rielevdeadtrigger") == 0) {
+		region->Print();
+	}
 }
 
 
@@ -93,6 +96,12 @@ int32
 Region::InfoTextRef() const
 {
 	return fRegion->info_text;
+}
+
+
+void
+Region::ActivateTrigger()
+{
 }
 
 

@@ -33,6 +33,8 @@ public:
 
 	uint32 CursorIndex() const;
 	int32 InfoTextRef() const;
+	
+	void ActivateTrigger();
 
 	void CheckObjectsInside();
 
