@@ -120,10 +120,12 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 		trig->flags = tokenizer->ReadToken().u.number;
 		trig->parameter2 = tokenizer->ReadToken().u.number;
 		trig->unknown = tokenizer->ReadToken().u.number;
-		strcpy(trig->string1, tokenizer->ReadToken().u.string + 1);
-		trig->string1[strlen(trig->string1) - 1] = '\0';
-		strcpy(trig->string2, tokenizer->ReadToken().u.string + 1);
-		trig->string2[strlen(trig->string2) - 1] = '\0';
+
+		// We remove the "", that's why we start from token.u.string + 1 and copy size - 2
+		token stringToken = tokenizer->ReadToken();
+		strncpy(trig->string1, stringToken.u.string + 1, stringToken.size - 2);
+		token stringToken2 = tokenizer->ReadToken();
+		strncpy(trig->string2, stringToken2.u.string + 1, stringToken.size - 2);
 	}
 }
 
@@ -155,14 +157,15 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		}
 
 		// Remove the quotation marks
-		char* name = tokenizer->ReadNextToken().u.string;
-		char* nameEnd = name + strlen(name);
+		token stringToken = tokenizer->ReadNextToken();
+		char* name = stringToken.u.string;
+		char* nameEnd = name + stringToken.size;
 		while (*name == '"')
 			name++;
 		while (*nameEnd != '"')
 			nameEnd--;
 		*nameEnd = '\0';
-		strcpy(obj->name, name);
+		strncpy(obj->name, name, sizeof(obj->name));
 	}
 }
 
@@ -181,10 +184,10 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		act->integer3 = tokenizer->ReadNextToken().u.number;
 		// TODO: This removes "" from strings. Broken.
 		// Should do this from the beginning!!!
-		strcpy(act->string1, tokenizer->ReadToken().u.string + 1);
-		act->string1[strlen(act->string1) - 1] = '\0';
-		strcpy(act->string2, tokenizer->ReadToken().u.string + 1);
-		act->string2[strlen(act->string2) - 1] = '\0';
+		token stringToken = tokenizer->ReadToken();
+		strncpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
+		token stringToken2 = tokenizer->ReadToken();
+		strncpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
 	}
 }
 
@@ -255,7 +258,7 @@ Parser::_ReadElement(::node*& node)
 void
 Parser::_ReadElementValue(::node* node, const token& tok)
 {
-	if (strlen(node->value) > 0)
+	if (node->value[0] != '\0')
 		strcat(node->value, " ");
 
 	if (tok.type == TOKEN_STRING) {
