@@ -93,7 +93,7 @@ CHUIResource::GetWindow(uint16 num)
 		std::cout << window.num_controls << " controls." << std::endl;
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
-			std::cout << "Control " << controlIndex << ":" << std::endl;
+			//std::cout << "Control " << controlIndex << ":" << std::endl;
 			control_table controlTable;
 			fData->ReadAt(fControlTableOffset
 					+ (window.control_offset + controlIndex)
@@ -101,7 +101,7 @@ CHUIResource::GetWindow(uint16 num)
 
 			IE::control* control = _ReadControl(controlTable);
 			if (control != NULL) {
-				control->Print();
+				//control->Print();
 				newWindow->Add(Control::CreateControl(control));
 			}
 		}
