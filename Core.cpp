@@ -498,13 +498,12 @@ Core::UpdateLogic(bool executeScripts)
 	ActorsList::iterator i;
 	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
 		Actor* actor = *i;
-		//_CheckIfInsideRegion(actor);
 		//SetActiveActor(actor);
 		actor->Update(executeScripts);
 	}
 
 	SetActiveActor(NULL);
-#if 1
+#if 0
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;

@@ -175,14 +175,22 @@ Object::AddAction(Action* action)
 void
 Object::ExecuteActions()
 {
+	if (fWaitTime > 0) {
+		std::cout << Name() << " : wait time " << fWaitTime << std::endl;
+		fWaitTime--;
+		return;
+	}
+
 	if (fActions.size() != 0) {
 		std::list<Action*>::iterator i = fActions.begin();
 		while (i != fActions.end()) {
 			Action& action = **i;
 			if (action.Completed()) {
+				std::cout << Name() << " action completed" << std::endl;				
 				delete *i;
 				i = fActions.erase(i);
 			} else {
+				std::cout << Name() << " execute action" << std::endl;
 				action();
 				break;
 			}
@@ -284,12 +292,6 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
-	if (fWaitTime > 0) {
-		std::cout << Name() << " : wait time " << fWaitTime << std::endl;
-		fWaitTime--;
-		return;
-	}
-	
 	bool runScripts = false;
 	if ((fTicks++ % 15 == 0) || IsActionListEmpty())
 		runScripts = true;
@@ -297,7 +299,9 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (!IsInterruptable())
 		return;
 	
-	if (dynamic_cast<RoomBase*>(this) == NULL && !IsInsideVisibleArea())
+	if (dynamic_cast<RoomBase*>(this) == NULL
+		&& dynamic_cast<Region*>(this) == NULL
+		&& !IsInsideVisibleArea())
 		return;
 
 	if (!runScripts)

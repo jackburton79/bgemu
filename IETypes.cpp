@@ -343,13 +343,13 @@ region::Print() const
 	//IE::rect rect;
 	//uint16 vertex_count;
 	//uint32 vertex_index;
-	std::cout << "unk: " << unk << std::endl;
+	std::cout << "trigger_value: " << trigger_value << std::endl;
 	//uint32 cursor_index;
 	//res_ref destination;
 	std::cout << "entrance name: " << entrance_name << std::endl;
 
 	//uint32 flags;
-	std::cout << "info_text: " << info_text << std::endl;
+	std::cout << "info_text: " << IDTable::GetDialog(info_text) << std::endl;
 	//uint16 trap_detection_difficulty;
 	//uint16 trap_removal_difficulty;
 	//uint16 trapped;

@@ -261,7 +261,7 @@ struct region {
 	IE::rect rect;
 	uint16 vertex_count;
 	uint32 vertex_index;
-	uint32 unk;
+	uint32 trigger_value;
 	uint32 cursor_index;
 	res_ref destination;
 	char entrance_name[32];

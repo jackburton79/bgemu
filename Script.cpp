@@ -556,8 +556,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x00B1:
 			{
 				/* ACTION TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-				object_node* objectNode = FindObjectNode(trig);
-				objectNode->Print();
+				Region* region = dynamic_cast<Region*>(FindObject(trig));
+				if (region != NULL) {
+					region->Print();
+					region->ActivateTrigger();
+				}	
 				break;
 			}
 			case 0x400A:
@@ -739,8 +742,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = Game::Get()->Party()->HasActor(object);
 				break;
 			}
-			case 0x4051:
-			{
+			//case 0x4051:
+			//{
 				/*
 				 * 0x4051 Dead(S:Name*)
 				 * Returns only true if the creature with the specified script name
@@ -750,14 +753,14 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
 				 * killed by a neutral creature.
 				 */
-				/*Script* actorScript = fScripts[trig->string1];
-				if (actorScript != NULL) {
+			//	Script* actorScript = fScripts[trig->string1];
+			//	if (actorScript != NULL) {
 					// TODO: More NULL checking
-					const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
-					returnValue = fVariables[deathVariable] == 1;
-				}*/
-				break;
-			}
+			//		const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
+			//		returnValue = fVariables[deathVariable] == 1;
+			//	}
+			//	break;
+			//}
 			case 0x4063:
 			{
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
@@ -963,12 +966,13 @@ Script::_HandleAction(action_node* act)
 			// the active creature. Which one is the active creature?
 			IE::point point = act->where;
 			if (point.x == -1 && point.y == -1) {
-				point = Game::Get()->Party()->ActorAt(0)->Position();
+				std::cout << "active creature: " << fSender->Name() << std::endl;
+				point = fSender->Position();
 				point.x += Core::RandomNumber(-20, 20);
 				point.y += Core::RandomNumber(-20, 20);
+			} else {
+				std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
 			}
-			// TODO: should use "core->ActiveActor()" instead ?
-			std::cout << "active creature: " << fSender->Name() << std::endl;
 			Actor* actor = new Actor(act->string1, point, act->integer1);
 			core->AddActorToCurrentArea(actor);
 			//core->SetActiveActor(actor);
