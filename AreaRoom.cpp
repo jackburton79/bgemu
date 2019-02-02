@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include <SDL.h>
@@ -319,9 +320,12 @@ AreaRoom::Draw(Bitmap *surface)
 	}
 
 	GFX::point mousePoint;
-	mousePoint.x = 100;
-	mousePoint.y = 100;
-	TextSupport::RenderString("test string", "NORMAL", 0, fBackMap->Image(), mousePoint);
+	mousePoint.x = fCursorPosition.x + 10;
+	mousePoint.y = fCursorPosition.y - 10;
+	std::string mousePosString;
+	std::ostringstream s;
+	s << fCursorPosition.x << ", " << fCursorPosition.y;
+	TextSupport::RenderString(s.str(), "NORMAL", 0, fBackMap->Image(), mousePoint);
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	_DrawSearchMap(mapRect);
@@ -841,6 +845,9 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 void
 AreaRoom::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
 {
+	fCursorPosition.x = x;
+	fCursorPosition.y = y;
+
 	if (scrollByX == 0 && scrollByY == 0) {
 		// TODO: Handle other cursors
 		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);

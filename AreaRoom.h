@@ -132,6 +132,8 @@ private:
 	bool fDrawPolygons;
 	bool fDrawAnimations;
 	bool fShowingConsole;
+	
+	IE::point fCursorPosition;
 };
 
 
