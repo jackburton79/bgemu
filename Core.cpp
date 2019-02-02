@@ -198,7 +198,7 @@ void
 Core::EnteredArea(RoomBase* area)
 {
 	// Executes the area script (once)
-	area->Update(true);
+	//area->Update(true);
 	
 	// then clear the script
 	//area->ClearScripts();
@@ -492,7 +492,7 @@ Core::UpdateLogic(bool executeScripts)
 	_HandleGlobalActions();
 	
 	// The room
-	fCurrentRoom->Update(true);
+	fCurrentRoom->Update(executeScripts);
 
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
