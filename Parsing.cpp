@@ -124,8 +124,10 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 		// We remove the "", that's why we start from token.u.string + 1 and copy size - 2
 		token stringToken = tokenizer->ReadToken();
 		strncpy(trig->string1, stringToken.u.string + 1, stringToken.size - 2);
+		trig->string1[stringToken.size - 2] = '\0';
 		token stringToken2 = tokenizer->ReadToken();
 		strncpy(trig->string2, stringToken2.u.string + 1, stringToken.size - 2);
+		trig->string2[stringToken2.size - 2] = '\0';
 	}
 }
 
@@ -165,7 +167,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 		while (*nameEnd != '"')
 			nameEnd--;
 		*nameEnd = '\0';
-		strncpy(obj->name, name, sizeof(obj->name));
+		strcpy(obj->name, name);
 	}
 }
 
@@ -186,8 +188,10 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		// Should do this from the beginning!!!
 		token stringToken = tokenizer->ReadToken();
 		strncpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
+		act->string1[stringToken.size - 2] = '\0';
 		token stringToken2 = tokenizer->ReadToken();
 		strncpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
+		act->string2[stringToken2.size - 2] = '\0';
 	}
 }
 
