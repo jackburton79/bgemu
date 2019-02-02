@@ -196,7 +196,7 @@ Script::Execute(bool& continuing)
 	::node* nextScript = fRootNode;
 	while (nextScript != NULL) {
 		if (sDebug) {
-			std::cout << "*** SCRIPT START: " << fSender->Name();
+			std::cout << "*** SCRIPT START: " << (fSender ? fSender->Name() : "");
 			std::cout << " ***" << std::endl;
 #if 0
 			if (!strcmp(fSender->Name(), "Amnish Soldier")) {
@@ -311,7 +311,7 @@ Script::GetObject(Actor* source, object_node* node) const
 	Actor* result = NULL;
 	if (node->name[0] != '\0') {
 		std::cout << "Specified name: " << node->name << std::endl; 
-		result = Core::Get()->GetObject(node->name);
+		result = dynamic_cast<Actor*>(Core::Get()->GetObject(node->name));
 	} else if (node->identifiers[0] != 0) {
 		std::cout << "Specified identifiers: " ;
 		// If there are any identifiers, use those to get the object
@@ -1073,6 +1073,7 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
+			std::cout << "wait" << fSender->Name() << ": " << act->integer1 << std::endl;
 			Wait* wait = new Wait(fSender, act->integer1 * 15);
 			fSender->AddAction(wait);
 			break;
@@ -1119,6 +1120,7 @@ Script::_HandleAction(action_node* act)
 			/* 83 SmallWait(I:Time*) */
 			// TODO: The time is probably wrong
 			//
+			std::cout << "smallwait" << fSender->Name() << ": " << act->integer1 << std::endl;
 			Wait* wait = new Wait(fSender, act->integer1);
 			fSender->AddAction(wait);
 			break;
@@ -1200,6 +1202,7 @@ Script::_HandleAction(action_node* act)
 			// TODO: Should be correct			
 			Actor* actor = FindObject(act);
 			SetSender(actor);
+			actor->SetInterruptable(false);
 			break;
 		}
 		case 0x97:
@@ -1239,6 +1242,14 @@ Script::_HandleAction(action_node* act)
 			Door* door = dynamic_cast<Door*>(FindObject(act));
 			if (door != NULL)
 				fSender->AddAction(new OpenDoor(fSender, door));
+			break;
+		}
+		case 177:
+		{
+			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
+			Object* object = FindObject(act);
+			if (object != NULL)
+				object->Print();
 			break;
 		}
 		case 198: // 0xc6
@@ -1286,6 +1297,17 @@ Script::_HandleAction(action_node* act)
 			}
 			break;
 		}
+		case 225:
+		{
+			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
+			Actor* actor = dynamic_cast<Actor*>(fSender);
+			if (actor != NULL) {
+				std::cout << "area:" << act->string1 << std::endl;
+				actor->SetPosition(act->where);
+				actor->SetOrientation(act->integer1);
+			}
+			break;
+		}
 		case 228: // 0xe4
 		{
 			/* CreateCreatureImpassable(S:NewObject*,P:Location*,I:Face*) (228 0xe4) */
@@ -1312,6 +1334,18 @@ Script::_HandleAction(action_node* act)
 			GUI::Get()->Show();
 			break;
 		}
+		case 311:
+		{
+			/* DISPLAYSTRINGWAIT(O:OBJECT*,I:STRREF*)(311 0x137) */
+			// TODO: play sound
+			Object* object = FindObject(act);
+			if (object != NULL) {
+				object->Print();
+				std::cout << IDTable::GetDialog(act->integer1);
+			}
+			break;
+		}
+		
 		default:
 			if (sDebug) {
 				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;

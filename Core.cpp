@@ -275,6 +275,7 @@ void
 Core::StartCutscene(const res_ref& scriptName)
 {
 	::Script* script = ExtractScript(scriptName);
+	// TODO: not nice. but it will be changed in the cutscene script
 	script->SetSender(fCurrentRoom);
 	bool continuing = false;
 	if (script != NULL) {
@@ -317,7 +318,7 @@ Core::RegisterRegion(Region* region)
 }
 
 
-Actor*
+Object*
 Core::GetObject(const char* name) const
 {
 	ActorsList::const_iterator i;
@@ -327,6 +328,12 @@ Core::GetObject(const char* name) const
 		}
 	}
 
+	RegionsList::const_iterator r;
+	for (r = fRegions.begin(); r != fRegions.end(); r++) {
+		if (!strcasecmp(name, (*r)->Name())) {
+			return *r;
+		}
+	}
 	return NULL;
 }
 
@@ -497,7 +504,7 @@ Core::UpdateLogic(bool executeScripts)
 	}
 
 	SetActiveActor(NULL);
-#if 0
+#if 1
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;

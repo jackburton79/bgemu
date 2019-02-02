@@ -76,7 +76,7 @@ public:
 	void SetActiveActor(Actor* actor);
 	Actor* ActiveActor();
 	
-	Actor* GetObject(const char* name) const;
+	Object* GetObject(const char* name) const;
 	Actor* GetObject(uint16 globalEnum) const;
 	Actor* GetObject(object_node* node) const;
 	Actor* GetObject(const Region* region) const;

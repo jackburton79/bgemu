@@ -284,6 +284,7 @@ void
 Object::_ExecuteScripts(int32 maxLevel)
 {
 	if (fWaitTime > 0) {
+		std::cout << Name() << " : wait time " << fWaitTime << std::endl;
 		fWaitTime--;
 		return;
 	}
