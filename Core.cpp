@@ -714,16 +714,14 @@ void
 Core::_HandleGlobalActions()
 {
 	if (fActions.size() != 0) {
+		std::cout << "actions" << std::endl;
 		std::vector<Action*>::iterator i = fActions.begin();
-		while (i != fActions.end()) {
+		if (i != fActions.end()) {
 			Action& action = **i;
-			if (action.Completed()) {
-				delete *i;
-				i = fActions.erase(i);
-			} else {
-				action();
-				break;
-			}
+			std::cout << "execute action " << action.Name() << std::endl;
+			action();
+			if (action.Completed())
+				fActions.erase(i);
 		}
 	}
 }

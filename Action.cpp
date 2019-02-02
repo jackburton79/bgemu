@@ -61,6 +61,13 @@ Action::operator()()
 }
 
 
+std::string
+Action::Name() const
+{
+	return typeid(this).name();
+}
+
+
 // ActionWithTarget
 ActionWithTarget::ActionWithTarget(Object* object, Object* target)
 	:
@@ -406,9 +413,9 @@ MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
 			fScrollSpeed = 10000;
 			break;
 	}
-	IE::rect visibleRect = Core::Get()->CurrentRoom()->VisibleMapArea();
-	fDestination.x -= (visibleRect.x_max - visibleRect.x_min) / 2;
-	fDestination.y -= (visibleRect.y_max - visibleRect.y_min) / 2;
+	//IE::rect visibleRect = Core::Get()->CurrentRoom()->VisibleMapArea();
+	//fDestination.x -= (visibleRect.x_max - visibleRect.x_min) / 2;
+	//fDestination.y -= (visibleRect.y_max - visibleRect.y_min) / 2;
 }
 
 
@@ -419,11 +426,14 @@ MoveViewPoint::operator()()
 	RoomBase* room = Core::Get()->CurrentRoom();
 	IE::point offset = room->AreaOffset();
 	const int16 step = fScrollSpeed;
+	std::cout << std::dec << "current: " << offset.x << ", " << offset.y << std::endl;
+	std::cout << "fDestination: " << fDestination.x << ", " << fDestination.y << std::endl;
 	if (offset != fDestination) {
 		if (offset.x > fDestination.x)
 			offset.x = std::max((int16)(offset.x - step), fDestination.x);
 		else if (offset.x < fDestination.x)
 			offset.x = std::min((int16)(offset.x + step), fDestination.x);
+		
 		if (offset.y > fDestination.y)
 			offset.y = std::max((int16)(offset.y - step), fDestination.y);
 		else if (offset.y < fDestination.y)

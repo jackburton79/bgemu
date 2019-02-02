@@ -106,12 +106,12 @@ public:
 	MoveViewPointCommand() : ShellCommand("move-viewpoint") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
-		uint32 x, y;
-		stringStream >> x >> y;
 		IE::point where;
-		where.x = x;
-		where.y = y;
-		Action* action = new MoveViewPoint(NULL, where, 0);
+		int speed;
+		char o;
+		stringStream >> where.x >> o >> where.y >> o >> speed;
+		std::cout << std::dec << where.x << ", " << where.y << ". Speed " << speed << std::endl;
+		Action* action = new MoveViewPoint(NULL, where, speed);
 		Core::Get()->AddGlobalAction(action);
 	}
 };

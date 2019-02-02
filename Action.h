@@ -16,6 +16,9 @@ public:
 	void SetCompleted();
 	
     virtual void operator()();
+    
+    std::string Name() const;
+    
 protected:
     Object* fObject;
     bool fInitiated;

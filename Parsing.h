@@ -16,6 +16,7 @@ enum token_type {
 	TOKEN_UNKNOWN
 };
 
+typedef std::vector<node*> node_list;
 
 struct token {
 	token();
@@ -88,6 +89,85 @@ private:
 	Stream *fStream;
 	Tokenizer *fTokenizer;
 	bool fDebug;
+};
+
+struct node {
+	static node* Create(int type, const char *string);
+
+	virtual ~node();
+	void AddChild(node *child);
+	node* Next() const;
+	node* Previous() const;
+
+	virtual void Print() const;
+
+	int type;
+	char header[3];
+	char value[128];
+
+	node* parent;
+	node* next;
+	node_list children;
+	bool closed;
+
+protected:
+	node();
+};
+
+bool operator==(const node &, const node &);
+
+struct trigger_node : public node {
+	virtual void Print() const;
+	int id;
+	int parameter1;
+	int flags;
+	int parameter2;
+	int unknown;
+	char string1[48];
+	char string2[48];
+
+	trigger_node();
+};
+
+
+struct object_node : public node {
+	virtual void Print() const;
+	int team;
+	int faction;
+	int ea;
+	int general;
+	int race;
+	int classs;
+	int specific;
+	int gender;
+	int alignment;
+	int identifiers[5];
+	IE::point point;
+	char name[48];
+
+	object_node();
+};
+
+
+struct action_node : public node {
+	virtual void Print() const;
+	int id;
+	int integer1;
+	IE::point where;
+	int integer2;
+	int integer3;
+	char string1[48];
+	char string2[48];
+
+	action_node();
+};
+
+
+struct response_node : public node {
+	virtual void Print() const;
+	int probability;
+
+	response_node();
 };
 
 

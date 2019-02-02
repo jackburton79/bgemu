@@ -98,11 +98,11 @@ Game::Loop(bool executeScripts)
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
 					if (!Core::Get()->CutsceneMode())					
-					gui->MouseDown(event.button.x, event.button.y);
+						gui->MouseDown(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
 					if (!Core::Get()->CutsceneMode())								
-	gui->MouseUp(event.button.x, event.button.y);
+						gui->MouseUp(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEMOTION:
 					lastMouseX = event.motion.x;
@@ -196,7 +196,7 @@ Game::Loop(bool executeScripts)
 		if (!Core::Get()->CutsceneMode())
 			gui->MouseMoved(lastMouseX, lastMouseY);
 
-		console.Draw();
+		//console.Draw();
 		inputConsole.Draw();
 		Core::Get()->UpdateLogic(executeScripts);
 
