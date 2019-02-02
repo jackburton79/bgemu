@@ -397,6 +397,8 @@ MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
 	fDestination(point),
 	fScrollSpeed(scrollSpeed)
 {
+	Core::Get()->CurrentRoom()->SanitizeOffsetCenter(fDestination);
+	
 	switch (fScrollSpeed) {
 		case 1:
 			fScrollSpeed = 10;
@@ -425,8 +427,6 @@ MoveViewPoint::operator()()
 	RoomBase* room = Core::Get()->CurrentRoom();
 	IE::point offset = room->AreaCenterPoint();
 	const int16 step = fScrollSpeed;
-	std::cout << std::dec << "current: " << offset.x << ", " << offset.y << std::endl;
-	std::cout << "fDestination: " << fDestination.x << ", " << fDestination.y << std::endl;
 	if (offset != fDestination) {
 		if (offset.x > fDestination.x)
 			offset.x = std::max((int16)(offset.x - step), fDestination.x);

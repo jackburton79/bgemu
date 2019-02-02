@@ -105,13 +105,55 @@ RoomBase::SetRelativeAreaOffset(int16 xDelta, int16 yDelta)
 void
 RoomBase::SetAreaOffsetCenter(const IE::point& point)
 {
-	IE::point destPoint;
-	destPoint.x = std::max(0, point.x - fScreenArea.w / 2);
-	destPoint.y = std::max(0, point.y - fScreenArea.h / 2);
+	IE::point destPoint = LeftToppedOffset(point);
 	SetAreaOffset(destPoint);
 }
 
 
+IE::point
+RoomBase::CenteredOffset(const IE::point& point) const
+{
+	IE::point result = point;	
+	result.x = result.x + fScreenArea.w / 2;
+	result.y = result.y + fScreenArea.h / 2;
+	SanitizeOffsetCenter(result);
+	return result;
+}
+
+
+IE::point
+RoomBase::LeftToppedOffset(const IE::point& point) const
+{
+	IE::point result = point;	
+	result.x = result.x - fScreenArea.w / 2;
+	result.y = result.y - fScreenArea.h / 2;
+	SanitizeOffsetLeftTop(result);
+	return result;
+}
+
+
+void
+RoomBase::SanitizeOffsetLeftTop(IE::point& point) const
+{
+	const GFX::rect areaRect = AreaRect();
+	point.x = std::max(0, (int)point.x);
+	point.y = std::max(0, (int)point.y);
+	point.x = std::min((int)point.x, areaRect.w - fScreenArea.w);
+	point.y = std::min((int)point.y, areaRect.h - fScreenArea.h);
+}
+
+
+void
+RoomBase::SanitizeOffsetCenter(IE::point& point) const
+{
+	const GFX::rect areaRect = AreaRect();
+	point.x = std::max(fScreenArea.w / 2, (int)point.x);
+	point.y = std::max(fScreenArea.h / 2, (int)point.y);
+	point.x = std::min(areaRect.w - fScreenArea.w / 2, (int)point.x);
+	point.y = std::min(areaRect.h - fScreenArea.h / 2, (int)point.y);
+}
+
+	
 void
 RoomBase::ConvertToArea(GFX::rect& rect)
 {
