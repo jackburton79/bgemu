@@ -324,7 +324,8 @@ AreaRoom::Draw(Bitmap *surface)
 	mousePoint.y = fCursorPosition.y - 10;
 	std::string mousePosString;
 	std::ostringstream s;
-	s << fCursorPosition.x << ", " << fCursorPosition.y;
+	s << (fCursorPosition.x + AreaOffset().x);
+	s << ", " << (fCursorPosition.y + AreaOffset().y);
 	TextSupport::RenderString(s.str(), "NORMAL", 0, fBackMap->Image(), mousePoint);
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
