@@ -1,11 +1,13 @@
 /*
- * Command.cpp
+ * Commands.cpp
  *
  *  Created on: 07/ott/2012
  *      Author: stefano
  */
 
 #include "Commands.h"
+
+#include "Action.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "InputConsole.h"
@@ -98,6 +100,22 @@ public:
 	}
 };
 
+
+class MoveViewPointCommand : public ShellCommand {
+public:
+	MoveViewPointCommand() : ShellCommand("move-viewpoint") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		uint32 x, y;
+		stringStream >> x >> y;
+		IE::point where;
+		where.x = x;
+		where.y = y;
+		Action* action = new MoveViewPoint(NULL, where, 0);
+		Core::Get()->AddGlobalAction(action);
+	}
+};
+
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -116,5 +134,6 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new ExitCommand());
 }
