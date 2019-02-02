@@ -8,6 +8,7 @@
 #include "Timer.h"
 
 #include <algorithm>
+#include <typeinfo>
 
 static bool
 PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
