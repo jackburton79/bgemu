@@ -29,6 +29,7 @@
 #include "RoundResults.h"
 #include "Script.h"
 #include "TextArea.h"
+#include "TextSupport.h"
 #include "TileCell.h"
 #include "TisResource.h"
 #include "Timer.h"
@@ -317,6 +318,10 @@ AreaRoom::Draw(Bitmap *surface)
 		fBackMap->Image()->Unlock();
 	}
 
+	GFX::point mousePoint;
+	mousePoint.x = 100;
+	mousePoint.y = 100;
+	TextSupport::RenderString("test string", "NORMAL", 0, fBackMap->Image(), mousePoint);
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	_DrawSearchMap(mapRect);
