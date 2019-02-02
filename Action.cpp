@@ -16,7 +16,9 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 		&& (std::abs(pointA.y - pointB.y) <= 5 * 2);
 }
 
-
+// TODO: we should not pass Object pointers,
+// but pass action parameters instead, which should be evaluated
+// when the action is being executed
 Action::Action(Object* object)
     :
 	fObject(object),
