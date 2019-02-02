@@ -713,15 +713,11 @@ Core::_NewRound()
 void
 Core::_HandleGlobalActions()
 {
-	if (fActions.size() != 0) {
-		std::cout << "actions" << std::endl;
-		std::vector<Action*>::iterator i = fActions.begin();
-		if (i != fActions.end()) {
-			Action& action = **i;
-			std::cout << "execute action " << action.Name() << std::endl;
-			action();
-			if (action.Completed())
-				fActions.erase(i);
-		}
+	std::vector<Action*>::iterator i = fActions.begin();
+	if (i != fActions.end()) {
+		Action& action = **i;
+		action();
+		if (action.Completed())
+			fActions.erase(i);
 	}
 }
