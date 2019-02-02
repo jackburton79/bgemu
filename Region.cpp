@@ -18,6 +18,11 @@ Region::Region(IE::region* region)
 	Object(region->name, region->script.CString()),
 	fRegion(region)
 {
+	// TODO: Region names contain spaces, but scripts search
+	// for them without spaces, so we remove them
+	std::string fixedName = region->name;
+	fixedName.erase(std::remove_if(fixedName.begin(), fixedName.end(), isspace), fixedName.end());
+	SetName(fixedName.c_str());
 }
 
 

@@ -55,6 +55,7 @@ Object::~Object()
 void
 Object::Print() const
 {
+	std::cout << Name() << std::endl;
 }
 
 

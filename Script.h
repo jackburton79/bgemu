@@ -45,7 +45,7 @@ public:
 	node*			FindNode(block_type type, node* start = NULL) const;
 
 	// convenience call
-	Actor*			FindObject(node* start = NULL) const;
+	Object*			FindObject(node* start = NULL) const;
 
 	bool Execute(bool &continuing);
 
@@ -53,7 +53,7 @@ public:
 	void SetSender(Object* object);
 
 	Object* ResolveIdentifier(const int id) const;
-	Actor* GetObject(Actor* source, object_node* node) const;
+	Object* GetObject(Actor* source, object_node* node) const;
 
 	Object* LastTrigger() const;
 
