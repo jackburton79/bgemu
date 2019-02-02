@@ -25,13 +25,15 @@ public:
 	GFX::rect ViewPort() const;
 	void SetViewPort(GFX::rect rect);
 
-	IE::point AreaOffset() const;
-
 	// The area of the map which is visible on screen
 	IE::rect VisibleMapArea() const;
 
-	void SetAreaOffset(IE::point point);
+	IE::point AreaOffset() const;
+	IE::point AreaCenterPoint() const;
+	void SetAreaOffset(const IE::point& point);
 	void SetRelativeAreaOffset(int16 xDelta, int16 yDelta);
+	void SetAreaOffsetCenter(const IE::point& point);
+	
 	void CenterArea(const IE::point& point);
 
 	void ConvertToArea(GFX::rect& rect);

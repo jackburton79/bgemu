@@ -413,9 +413,6 @@ MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
 			fScrollSpeed = 10000;
 			break;
 	}
-	//IE::rect visibleRect = Core::Get()->CurrentRoom()->VisibleMapArea();
-	//fDestination.x -= (visibleRect.x_max - visibleRect.x_min) / 2;
-	//fDestination.y -= (visibleRect.y_max - visibleRect.y_min) / 2;
 }
 
 
@@ -424,7 +421,7 @@ void
 MoveViewPoint::operator()()
 {
 	RoomBase* room = Core::Get()->CurrentRoom();
-	IE::point offset = room->AreaOffset();
+	IE::point offset = room->AreaCenterPoint();
 	const int16 step = fScrollSpeed;
 	std::cout << std::dec << "current: " << offset.x << ", " << offset.y << std::endl;
 	std::cout << "fDestination: " << fDestination.x << ", " << fDestination.y << std::endl;
@@ -438,7 +435,7 @@ MoveViewPoint::operator()()
 			offset.y = std::max((int16)(offset.y - step), fDestination.y);
 		else if (offset.y < fDestination.y)
 			offset.y = std::min((int16)(offset.y + step), fDestination.y);
-		room->SetAreaOffset(offset);
+		room->SetAreaOffsetCenter(offset);
 	} else
 		SetCompleted();
 }

@@ -56,6 +56,16 @@ RoomBase::AreaOffset() const
 }
 
 
+IE::point
+RoomBase::AreaCenterPoint() const
+{
+	IE::point point = fAreaOffset;
+	point.x = point.x - fScreenArea.w / 2;
+	point.y = point.y - fScreenArea.y / 2;
+	return point;
+}
+
+
 IE::rect
 RoomBase::VisibleMapArea() const
 {
@@ -64,7 +74,7 @@ RoomBase::VisibleMapArea() const
 
 
 void
-RoomBase::SetAreaOffset(IE::point point)
+RoomBase::SetAreaOffset(const IE::point& point)
 {
 	GFX::rect areaRect = AreaRect();
 	fAreaOffset = point;
@@ -89,6 +99,16 @@ RoomBase::SetRelativeAreaOffset(int16 xDelta, int16 yDelta)
 	newOffset.x += xDelta;
 	newOffset.y += yDelta;
 	SetAreaOffset(newOffset);
+}
+
+
+void
+RoomBase::SetAreaOffsetCenter(const IE::point& point)
+{
+	IE::point destPoint;
+	destPoint.x = point.x - fScreenArea.w / 2;
+	destPoint.y = point.y - fScreenArea.y / 2;
+	SetAreaOffset(destPoint);
 }
 
 
