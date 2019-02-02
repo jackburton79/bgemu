@@ -102,9 +102,9 @@ Parser::Read(node*& rootNode)
 	try {
 		_ReadElement(rootNode);
 	} catch (const char *str) {
-		printf("caught string %s\n", str);
+		std::cerr << "Parser::Read(): caught string " << str << std::endl;
 	} catch (...) {
-		printf("end of file!\n");
+		std::cerr << "Parser::Read(): end of file!" << std::endl;
 	}
 }
 
@@ -446,12 +446,12 @@ Tokenizer::ReadNextToken()
 	}
 
 	if (fDebug) {
-		printf("token: type %d, value ", aToken.type);
+		std::cout << "token: type " << std::dec << aToken.type << ", value ";
 		if (aToken.type == TOKEN_NUMBER)
-			printf("%d", aToken.u.number);
+			std::cout << aToken.u.number;
 		else
-			printf("%s", aToken.u.string);
-		printf("\n");
+			std::cout << aToken.u.string;
+		std::cout << std::endl;
 	}
 	// We could have read too much, rewind a bit if needed
 	fStream->Seek(startToken + aToken.size, SEEK_SET);
