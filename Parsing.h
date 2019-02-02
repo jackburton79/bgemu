@@ -6,7 +6,6 @@
 #include <vector>
 
 
-
 enum token_type {
 	TOKEN_END_OF_LINE,
 	TOKEN_SPACE,
@@ -16,6 +15,7 @@ enum token_type {
 	TOKEN_UNKNOWN
 };
 
+struct node;
 typedef std::vector<node*> node_list;
 
 struct token {
@@ -56,7 +56,7 @@ private:
 	bool fDebug;
 };
 
-struct node;
+
 struct specific;
 class Parser {
 public:
