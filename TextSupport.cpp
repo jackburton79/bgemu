@@ -23,6 +23,142 @@ cycle_num_for_char(char c)
 	return (int)c - 1;
 }
 
+
+Font::Font(const std::string& fontName)
+{
+	_LoadGlyphs(fontName);
+}
+
+
+Font::~Font()
+{
+	std::map<char, Bitmap*>::iterator i;
+	for (i = fGlyphs.begin(); i != fGlyphs.end(); i++) {
+		i->second->Release();
+	}
+}
+
+
+void
+Font::RenderString(std::string string,
+					uint32 flags, Bitmap* bitmap) const
+{
+	GFX::rect frame = bitmap->Frame();
+	_RenderString(string, flags, bitmap, &frame, NULL);
+}
+
+
+void
+Font::RenderString(std::string string,
+					uint32 flags, Bitmap* bitmap,
+					const GFX::rect& rect) const
+{
+	_RenderString(string, flags, bitmap, &rect, NULL);
+}
+
+
+void
+Font::RenderString(std::string string,
+					uint32 flags, Bitmap* bitmap,
+					const GFX::point& point) const
+{
+	_RenderString(string, flags, bitmap, NULL, &point);	
+}
+
+
+void
+Font::_LoadGlyphs(const std::string& fontName)
+{
+	BAMResource* fontRes = gResManager->GetBAM(fontName.c_str());
+	if (fontRes == NULL)
+		return;
+
+	for (char c = 33; c < 126; c++) {
+		uint32 cycleNum = cycle_num_for_char(c);
+		fGlyphs[c] = fontRes->FrameForCycle(cycleNum, 0);
+	}
+	
+	gResManager->ReleaseResource(fontRes);
+}
+
+
+void
+Font::_RenderString(std::string string,
+					uint32 flags, Bitmap* bitmap,
+					const GFX::rect* destRect,
+					const GFX::point* destPoint) const
+{
+	std::vector<Bitmap*> frames;
+	uint32 totalWidth = 0;
+	uint16 maxHeight = 0;
+	// First pass: calculate total width and height
+	for (std::string::iterator c = string.begin();
+			c != string.end(); c++) {
+		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
+		if (g == fGlyphs.end()) {
+			// glyph not found/cached
+			continue;
+		}
+		Bitmap* newFrame = g->second;
+		totalWidth += newFrame->Frame().w;
+		maxHeight = std::max(newFrame->Frame().h, maxHeight);
+		frames.push_back(newFrame);
+	}
+	
+	GFX::rect rect;
+	if (destRect != NULL) {
+		if (flags & IE::LABEL_JUSTIFY_CENTER)
+			rect.x = (destRect->w - totalWidth) / 2;
+		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+			rect.x = destRect->w - totalWidth;
+		rect.x += destRect->x;
+		rect.y += destRect->y;
+	} else if (destPoint != NULL) {
+		rect.x = destPoint->x;
+		rect.y = destPoint->y;
+	}
+	// Render the glyphs
+	for (std::vector<Bitmap*>::const_iterator i = frames.begin();
+			i != frames.end(); i++) {
+		Bitmap* glyph = *i;
+	
+		if (destRect != NULL) {
+			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+				rect.y = destRect->h - glyph->Height();
+			else if (flags & IE::LABEL_JUSTIFY_TOP)
+				rect.y = 0;
+			else
+				rect.y = (destRect->h - glyph->Height()) / 2;
+			rect.y += destRect->y;
+		}		
+
+		rect.w = glyph->Frame().w;
+		rect.h = glyph->Frame().h;
+		GraphicsEngine::BlitBitmap(glyph, NULL, bitmap, &rect);
+		rect.x += glyph->Frame().w;
+	}
+}
+
+					
+// FontRoster
+std::map<std::string, Font*> FontRoster::sFonts;
+
+
+/* static */
+Font*
+FontRoster::GetFont(const std::string& name)
+{
+	static std::map<std::string, Font*>::iterator i = sFonts.find(name);
+	if (i != sFonts.end())
+		return i->second;
+	
+	Font* font = new Font(name);
+	sFonts[name] = font;
+	
+	return font;
+}
+
+
 /* static */
 void
 TextSupport::GetTextWidthAndHeight(std::string string,
@@ -90,11 +226,7 @@ void
 TextSupport::RenderString(std::string string, const res_ref& fontRes,
 		uint32 flags, Bitmap* bitmap)
 {
-	BAMResource* fontResource = gResManager->GetBAM(fontRes);
-	if (fontResource != NULL) {
-		RenderString(string, fontResource, flags, bitmap);
-		gResManager->ReleaseResource(fontResource);
-	}
+	FontRoster::GetFont(fontRes.CString())->RenderString(string, flags, bitmap);
 }
 
 
@@ -102,11 +234,7 @@ void
 TextSupport::RenderString(std::string string, const res_ref& fontRes,
 		uint32 flags, Bitmap* bitmap, const GFX::point& point)
 {
-	BAMResource* fontResource = gResManager->GetBAM(fontRes);
-	if (fontResource != NULL) {
-		RenderString(string, fontResource, flags, bitmap, point);
-		gResManager->ReleaseResource(fontResource);
-	}
+	FontRoster::GetFont(fontRes.CString())->RenderString(string, flags, bitmap, point);
 }
 
 
