@@ -131,6 +131,16 @@ private:
 };
 
 
+class ScreenShake : public Action {
+public:
+	ScreenShake(Object* object, IE::point point, int duration);
+	virtual void operator()();
+private:
+	IE::point fOffset;
+	int fDuration;
+};
+
+
 class ChangeOrientationExtAction : public Action {
 public:
 	ChangeOrientationExtAction(Object* object, int o);

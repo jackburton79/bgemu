@@ -444,6 +444,35 @@ MoveViewPoint::operator()()
 }
 
 
+ScreenShake::ScreenShake(Object* object, IE::point point, int duration)
+	:
+	Action(object),
+	fOffset(point),
+	fDuration(duration)
+{
+}
+
+
+/* virtual */
+void
+ScreenShake::operator()()
+{
+	GFX::point point = { 0, 0 };
+	if (fDuration-- == 0) {	
+		GraphicsEngine::Get()->SetRenderingOffset(point);	
+		SetCompleted();
+		return;
+	}
+	
+	point.x = fOffset.x;	
+	point.y = fOffset.y;
+	
+	GraphicsEngine::Get()->SetRenderingOffset(point);
+	fOffset.x = -fOffset.x;
+	fOffset.y = -fOffset.y;
+}
+
+	
 // ChangeOrientationExtAction
 ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, int o)
 	:

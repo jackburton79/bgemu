@@ -1326,6 +1326,13 @@ Script::_HandleAction(action_node* act)
 			//core->SetActiveActor(actor);
 			break;
 		}
+		case 254:
+		{
+			/* SCREENSHAKE(P:POINT*,I:DURATION*)(254 0xfe) */
+			Action* action = new ScreenShake(fSender, act->where, act->integer1);
+			core->AddGlobalAction(action);
+			break;
+		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
