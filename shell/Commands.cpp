@@ -116,6 +116,22 @@ public:
 	}
 };
 
+
+class ShakeScreenCommand : public ShellCommand {
+public:
+	ShakeScreenCommand() : ShellCommand("shake-screen") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		IE::point where;
+		int duration;
+		char o;
+		stringStream >> where.x >> o >> where.y >> o >> duration;
+		Action* action = new ScreenShake(NULL, where, duration);
+		Core::Get()->AddGlobalAction(action);
+	}
+};
+
+
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -126,6 +142,7 @@ public:
 	};
 };
 
+
 void
 AddCommands(InputConsole* console)
 {
@@ -135,5 +152,6 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new MoveViewPointCommand());
+	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new ExitCommand());
 }
