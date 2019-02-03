@@ -46,6 +46,7 @@ public:
 	void RestorePreviousMode();
 
 	GFX::rect ScreenFrame() const;
+	void SetRenderingOffset(const GFX::point& point);
 
 	void SetWindowCaption(const char* caption);
 
@@ -53,7 +54,7 @@ public:
 	void Flip();
 	
 	void SetFade(uint16 value);
-	
+
 	static void CreateGradient(const GFX::Color& start,
 								const GFX::Color& end,
 								GFX::Palette& palette);
@@ -64,6 +65,7 @@ private:
 	SDL_Texture* fSDLTexture;
 	Bitmap* fScreen;
 	uint16 fFlags;
+	GFX::point fRenderingOffset;
 
 	GFX::rect fOldRect;
 	uint16 fOldDepth;

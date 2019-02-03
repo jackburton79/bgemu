@@ -20,6 +20,7 @@ GraphicsEngine::GraphicsEngine()
 	fOldDepth(0),
 	fOldFlags(0)
 {
+	fRenderingOffset.x = fRenderingOffset.y = 0;
 	fOldRect.w = fOldRect.h = fOldRect.x = fOldRect.y = 0;
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		throw "SDL Error";
@@ -257,6 +258,13 @@ GraphicsEngine::ScreenFrame() const
 
 
 void
+GraphicsEngine::SetRenderingOffset(const GFX::point& point)
+{
+	fRenderingOffset = point;
+}
+
+
+void
 GraphicsEngine::SetWindowCaption(const char* caption)
 {
 	SDL_SetWindowTitle(fSDLWindow, caption);
@@ -277,7 +285,10 @@ GraphicsEngine::Flip()
 			fScreen->Surface()->pixels,
 			fScreen->Surface()->pitch);
 	SDL_RenderClear(fSDLRenderer);
-	SDL_RenderCopy(fSDLRenderer, fSDLTexture, NULL, NULL);
+	SDL_Rect rect = { 0, 0, ScreenFrame().w, ScreenFrame().h };
+	rect.x = fRenderingOffset.x;
+	rect.y = fRenderingOffset.y;
+	SDL_RenderCopy(fSDLRenderer, fSDLTexture, NULL, &rect);
 	SDL_RenderPresent(fSDLRenderer);
 }
 
