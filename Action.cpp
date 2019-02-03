@@ -5,6 +5,7 @@
 #include "Door.h"
 #include "GraphicsEngine.h"
 #include "RoomBase.h"
+#include "TextSupport.h"
 #include "Timer.h"
 
 #include <algorithm>
@@ -470,6 +471,33 @@ ScreenShake::operator()()
 	GraphicsEngine::Get()->SetRenderingOffset(point);
 	fOffset.x = -fOffset.x;
 	fOffset.y = -fOffset.y;
+}
+
+
+
+DisplayString::DisplayString(Object* object, const char* text, IE::point point, int duration)
+	:
+	Action(object),
+	fString(text),
+	fOffset(point),
+	fDuration(duration)
+{
+	std::cout << "DisplayString " << text << " at " << fOffset.x << ", " << fOffset.y;
+	std::cout << ", duration: " << duration << std::endl;
+}
+
+
+/* virtual */
+void
+DisplayString::operator()()
+{
+	if (fDuration-- == 0) {	
+		SetCompleted();
+		return;
+	}
+	
+	GFX::point point = { fOffset.x, fOffset.y };
+	FontRoster::GetFont("TOOLFONT")->RenderString(fString, 0, GraphicsEngine::Get()->ScreenBitmap(), point);
 }
 
 	

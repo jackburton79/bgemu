@@ -141,6 +141,17 @@ private:
 };
 
 
+class DisplayString : public Action {
+public:
+	DisplayString(Object* object, const char* text, IE::point point, int duration);
+	virtual void operator()();
+private:
+	std::string fString;
+	IE::point fOffset;
+	int fDuration;
+};
+
+
 class ChangeOrientationExtAction : public Action {
 public:
 	ChangeOrientationExtAction(Object* object, int o);
@@ -148,4 +159,5 @@ public:
 private:
 	int fOrientation;
 };
+
 #endif

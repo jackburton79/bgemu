@@ -132,6 +132,22 @@ public:
 };
 
 
+class DisplayStringCommand : public ShellCommand {
+public:
+	DisplayStringCommand() : ShellCommand("display-string") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		std::string string;
+		IE::point where;
+		char o;
+		int duration;
+		stringStream >> string >> o >> where.x >> o >> where.y >> o >> duration;
+		Action* action = new DisplayString(NULL, string.c_str(), where, duration);
+		Core::Get()->AddGlobalAction(action);
+	}
+};
+
+
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -153,5 +169,6 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new ShakeScreenCommand());
+	console->AddCommand(new DisplayStringCommand());
 	console->AddCommand(new ExitCommand());
 }
