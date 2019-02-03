@@ -988,8 +988,10 @@ AreaRoom::_LoadActors()
 	// TODO: Check if it's okay
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
-		party->ActorAt(a)->SetArea(fArea->Name());
-		Core::Get()->RegisterActor(party->ActorAt(a));
+		Actor* actor = party->ActorAt(a);
+		actor->Acquire();
+		actor->SetArea(fArea->Name());
+		Core::Get()->RegisterActor(actor);
 	}
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
