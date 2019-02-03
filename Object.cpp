@@ -176,7 +176,7 @@ void
 Object::ExecuteActions()
 {
 	if (fWaitTime > 0) {
-		std::cout << Name() << " : wait time " << fWaitTime << std::endl;
+		//std::cout << Name() << " : wait time " << fWaitTime << std::endl;
 		fWaitTime--;
 		return;
 	}
@@ -186,11 +186,11 @@ Object::ExecuteActions()
 		while (i != fActions.end()) {
 			Action& action = **i;
 			if (action.Completed()) {
-				std::cout << Name() << " action completed" << std::endl;				
+				//std::cout << Name() << " action completed" << std::endl;				
 				delete *i;
 				i = fActions.erase(i);
 			} else {
-				std::cout << Name() << " execute action" << std::endl;
+				//std::cout << Name() << " execute action" << std::endl;
 				action();
 				break;
 			}
