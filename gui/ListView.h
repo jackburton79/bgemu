@@ -28,7 +28,6 @@ public:
 
 	void AddItem(std::string string);
 private:
-	BAMResource* fFontResource;
 	Bitmap* fBitmap;
 	StringList fList;
 };

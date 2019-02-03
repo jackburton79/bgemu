@@ -20,11 +20,9 @@
 TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
-	fFontResource(NULL),
-	fInitialsFontResource(NULL),
+	//fInitialsFontResource(NULL),
 	fBitmap(NULL)
 {
-	fFontResource = gResManager->GetBAM(text->font_bam);
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
 	GFX::Palette palette;
@@ -49,7 +47,6 @@ TextArea::TextArea(IE::text_area* text)
 
 TextArea::~TextArea()
 {
-	gResManager->ReleaseResource(fFontResource);
 	if (fBitmap != NULL)
 		fBitmap->Release();
 }
@@ -68,7 +65,9 @@ TextArea::Draw()
 void
 TextArea::SetText(const char* text)
 {
+	// TODO: Write initials with the correct font
+	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 	fBitmap->Clear(0);
 	uint32 flags = IE::LABEL_JUSTIFY_LEFT;
-	TextSupport::RenderString(text, fFontResource, flags, fBitmap);
+	FontRoster::GetFont(fontName)->RenderString(text, flags, fBitmap);
 }

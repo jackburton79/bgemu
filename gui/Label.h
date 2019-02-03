@@ -12,7 +12,6 @@
 
 struct Color;
 class Bitmap;
-class BAMResource;
 class Label: public Control {
 public:
 	Label(IE::label* label);
@@ -22,7 +21,6 @@ public:
 	virtual void Draw();
 
 private:
-	BAMResource* fFontResource;
 	Bitmap* fBitmap;
 
 	void _SetPalette(const GFX::Color& colorStart,

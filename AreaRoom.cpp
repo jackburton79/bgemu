@@ -322,7 +322,7 @@ AreaRoom::Draw(Bitmap *surface)
 	std::ostringstream s;
 	s << (fCursorPosition.x + AreaOffset().x);
 	s << ", " << (fCursorPosition.y + AreaOffset().y);
-	TextSupport::RenderString(s.str(), "NORMAL", 0, fBackMap->Image(), mousePoint);
+	FontRoster::GetFont("NORMAL")->RenderString(s.str(), 0, fBackMap->Image(), mousePoint);
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	_DrawSearchMap(mapRect);

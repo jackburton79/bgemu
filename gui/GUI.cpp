@@ -46,8 +46,6 @@ GUI::GUI(uint16 width, uint16 height)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
-
-	fToolTipFontResource = gResManager->GetBAM("TOOLFONT");
 }
 
 
@@ -65,8 +63,6 @@ GUI::~GUI()
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
 	}
-
-	gResManager->ReleaseResource(fToolTipFontResource);
 }
 
 
@@ -469,8 +465,8 @@ GUI::_DrawToolTip()
 		rect.h = 30;
 
 		Bitmap* bitmap = GraphicsEngine::Get()->ScreenBitmap();
-		TextSupport::RenderString(entry.text,
-									fToolTipFontResource,
-									0, bitmap, rect);
+		FontRoster::GetFont("TOOLFONT")->RenderString(entry.text,
+													0, bitmap, rect);
+		
 	}
 }

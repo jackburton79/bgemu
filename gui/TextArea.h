@@ -11,7 +11,6 @@
 #include "Control.h"
 
 class Bitmap;
-class BAMResource;
 class TextArea: public Control {
 public:
 	TextArea(IE::text_area* text);
@@ -21,8 +20,7 @@ public:
 	void SetText(const char* text);
 
 private:
-	BAMResource* fFontResource;
-	BAMResource* fInitialsFontResource;
+	//BAMResource* fInitialsFontResource;
 	Bitmap* fBitmap;
 };
 

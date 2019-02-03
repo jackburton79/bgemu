@@ -67,7 +67,6 @@ private:
 	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
-	BAMResource* fToolTipFontResource;
 	std::list<string_entry> fTooltipList;
 	
 	uint16 fScreenWidth;

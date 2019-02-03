@@ -21,8 +21,6 @@ Label::Label(IE::label* label)
 	Control(label),
 	fBitmap(NULL)
 {
-	fFontResource = gResManager->GetBAM(label->font_bam);
-
 	int depth = 16;
 	if (label->flags & IE::LABEL_USE_RGB_COLORS)
 		depth = 8;
@@ -46,7 +44,8 @@ Label::Label(IE::label* label)
 		_SetPalette(colorStart, colorEnd);
 	}
 
-	TextSupport::RenderString(IDTable::GetDialog(label->text_ref), fFontResource, label->flags, fBitmap);
+	std::string fontName = label->font_bam.CString();
+	FontRoster::GetFont(fontName)->RenderString(IDTable::GetDialog(label->text_ref), label->flags, fBitmap);
 }
 
 
@@ -54,7 +53,6 @@ Label::~Label()
 {
 	if (fBitmap != NULL)
 		fBitmap->Release();
-	gResManager->ReleaseResource(fFontResource);
 }
 
 
@@ -63,7 +61,7 @@ Label::SetText(const char* text)
 {
 	fBitmap->Clear(0);
 	IE::label* label = static_cast<IE::label*>(fControl);
-	TextSupport::RenderString(text, fFontResource, label->flags, fBitmap);
+	FontRoster::GetFont(label->font_bam.CString())->RenderString(text, label->flags, fBitmap);
 }
 
 

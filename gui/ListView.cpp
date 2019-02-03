@@ -17,7 +17,6 @@ ListView::ListView(IE::control* control)
 	Control(control)
 {
 	std::cout << "ListView" << std::endl;
-	fFontResource = gResManager->GetBAM("TOOLFONT");
 	//fBitmap = new Bitmap(fControl->w, fControl->h, 8);
 	fBitmap = new Bitmap(control->w, control->h, 16);
 }
@@ -34,9 +33,10 @@ ListView::Draw()
 {
 	GFX::rect itemRect((sint16)fControl->x,
 				 (sint16)fControl->y, 50, 20);
+	const Font* font = FontRoster::GetFont("NORMAL");
 	for (StringList::iterator i = fList.begin();
 			i != fList.end(); i++) {
-		TextSupport::RenderString(*i, fFontResource, 0, fBitmap, itemRect);
+		font->RenderString(*i, 0, fBitmap, itemRect);
 		itemRect.y += 20;
 	}
 
