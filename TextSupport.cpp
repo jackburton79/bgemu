@@ -77,7 +77,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 		uint32 cycleNum = cycle_num_for_char(c);
 		fGlyphs[c] = fontRes->FrameForCycle(cycleNum, 0);
 	}
-	
+
 	gResManager->ReleaseResource(fontRes);
 }
 
@@ -104,7 +104,7 @@ Font::_RenderString(std::string string,
 		maxHeight = std::max(newFrame->Frame().h, maxHeight);
 		frames.push_back(newFrame);
 	}
-	
+
 	GFX::rect rect;
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
@@ -121,7 +121,7 @@ Font::_RenderString(std::string string,
 	for (std::vector<Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		Bitmap* glyph = *i;
-	
+
 		if (destRect != NULL) {
 			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 				rect.y = destRect->h - glyph->Height();
@@ -130,7 +130,7 @@ Font::_RenderString(std::string string,
 			else
 				rect.y = (destRect->h - glyph->Height()) / 2;
 			rect.y += destRect->y;
-		}		
+		}
 
 		rect.w = glyph->Frame().w;
 		rect.h = glyph->Frame().h;
