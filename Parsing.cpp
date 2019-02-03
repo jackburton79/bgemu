@@ -10,6 +10,7 @@
 #include <string>
 
 
+
 // token
 token::token()
 	:
@@ -106,6 +107,7 @@ Parser::Read(node*& rootNode)
 	} catch (...) {
 		std::cerr << "Parser::Read(): end of file!" << std::endl;
 	}
+	
 }
 
 

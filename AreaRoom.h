@@ -103,7 +103,6 @@ private:
 
 	WEDResource *fWed;
 	ARAResource *fArea;
-	BCSResource *fBcs;
 
 	::BackMap* fBackMap;
 	Bitmap* fBlitMask;

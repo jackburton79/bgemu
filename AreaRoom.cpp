@@ -54,7 +54,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	:
 	fWed(NULL),
 	fArea(NULL),
-	fBcs(NULL),
 	fBackMap(NULL),
 	fBlitMask(NULL),
 	fHeightMap(NULL),
@@ -161,10 +160,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	GUI::Get()->ShowWindow(999);
 	
-	fBcs = gResManager->GetBCS(fArea->ScriptName());
-	::Script* roomScript = NULL;
-	if (fBcs != NULL)
-		roomScript = fBcs->GetScript();
+	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
 
 	AddScript(roomScript);
 }
@@ -1081,8 +1077,6 @@ AreaRoom::_UnloadArea()
 	fWed = NULL;
 	gResManager->ReleaseResource(fArea);
 	fArea = NULL;
-	gResManager->ReleaseResource(fBcs);
-	fBcs = NULL;
 	if (fHeightMap != NULL) {
 		fHeightMap->Release();
 		fHeightMap = NULL;
