@@ -95,37 +95,30 @@ Script::Print() const
 }
 
 
-void
-Script::Add(Script* script)
-{
-	if (script != NULL) {
-		fRootNode->next = script->fRootNode;
-		script->fRootNode = NULL;
-	}
-}
-
-
+/* static */
 trigger_node*
-Script::FindTriggerNode(node* start) const
+Script::FindTriggerNode(node* start)
 {
 	return static_cast<trigger_node*>(FindNode(BLOCK_TRIGGER, start));
 }
 
 
+/* static */
 action_node*
-Script::FindActionNode(node* start) const
+Script::FindActionNode(node* start)
 {
 	return static_cast<action_node*>(FindNode(BLOCK_ACTION, start));
 }
 
 
+/* static */
 object_node*
-Script::FindObjectNode(node* start) const
+Script::FindObjectNode(node* start)
 {
 	return static_cast<object_node*>(FindNode(BLOCK_OBJECT, start));
 }
 
-
+/*
 int32
 Script::FindMultipleObjectNodes(std::vector<object_node*>& list,
 						node* start) const
@@ -138,14 +131,12 @@ Script::FindMultipleObjectNodes(std::vector<object_node*>& list,
 
 	return list.size();
 }
+*/
 
-
+/* static */
 node*
-Script::FindNode(block_type nodeType, node* start) const
+Script::FindNode(block_type nodeType, node* start)
 {
-	if (start == NULL)
-		start = fRootNode;
-
 	if (start->type == nodeType)
 		return const_cast<node*>(start);
 
@@ -192,68 +183,63 @@ Script::Execute(bool& continuing)
 	// find response_set block
 	// choose response
 	// execute actions
-
-	::node* nextScript = fRootNode;
-	while (nextScript != NULL) {
-		if (sDebug) {
-			std::cout << "*** SCRIPT START: " << (fSender ? fSender->Name() : "");
-			std::cout << " ***" << std::endl;
+	if (sDebug) {
+		std::cout << "*** SCRIPT START: " << (fSender ? fSender->Name() : "");
+		std::cout << " ***" << std::endl;
 #if 0
-			if (!strcmp(fSender->Name(), "Amnish Soldier")) {
-				Print();		
-			}
+		if (!strcmp(fSender->Name(), "Amnish Soldier")) {
+			Print();		
+		}
 #endif
-		}
-		
-		bool foundContinue = continuing;
-		// TODO: Find correct place
-		::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, nextScript);
-		while (condRes != NULL) {
-			::node* condition = FindNode(BLOCK_CONDITION, condRes);
-			while (condition != NULL) {
-				if (sDebug)
-					std::cout << "CONDITION" << std::endl;
-				if (!_EvaluateConditionNode(condition))
-					break;
-					
-				if (foundContinue) {
-					std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
-					return true;
-				}
-					
-				// Check action list
-				if (!fSender->IsActionListEmpty()) {
-					if (!fSender->IsInterruptable())
-						break;
-				}
+	}
 
-				::node* responseSet = condition->Next();
-				if (responseSet == NULL)
-					break;
-				if (sDebug)
-					std::cout << "RESPONSE" << std::endl;
-				if (!_HandleResponseSet(responseSet)) {
-					// When the above method returns false, it means it encountered a CONTINUE
-					// so the script should stop running.
-					SetProcessed();
-					foundContinue = true;
-				} else {
-					if (sDebug) {
-						std::cout << "*** SCRIPT RETURNED " << fSender->Name();
-						std::cout << " ***" << std::endl;
-					}
-					SetProcessed();
-					return true;
-				}
-				condition = responseSet->Next();
+	bool foundContinue = continuing;
+	// TODO: Find correct place
+	::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, fRootNode);
+	while (condRes != NULL) {
+		::node* condition = FindNode(BLOCK_CONDITION, condRes);
+		while (condition != NULL) {
+			if (sDebug)
+				std::cout << "CONDITION" << std::endl;
+			if (!_EvaluateConditionNode(condition))
+				break;
+				
+			if (foundContinue) {
+				std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
+				return true;
 			}
-			condRes = condRes->Next();
-		};
-		if (sDebug) {
-			std::cout << "*** SCRIPT END " << fSender->Name();
-			std::cout << " ***" << std::endl;
+				
+			// Check action list
+			if (!fSender->IsActionListEmpty()) {
+				if (!fSender->IsInterruptable())
+					break;
+			}
+
+			::node* responseSet = condition->Next();
+			if (responseSet == NULL)
+				break;
+			if (sDebug)
+				std::cout << "RESPONSE" << std::endl;
+			if (!_HandleResponseSet(responseSet)) {
+				// When the above method returns false, it means it encountered a CONTINUE
+				// so the script should stop running.
+				SetProcessed();
+				foundContinue = true;
+			} else {
+				if (sDebug) {
+					std::cout << "*** SCRIPT RETURNED " << fSender->Name();
+					std::cout << " ***" << std::endl;
+				}
+				SetProcessed();
+				return true;
+			}
+			condition = responseSet->Next();
 		}
-		nextScript = nextScript->next;
+		condRes = condRes->Next();
+	};
+	if (sDebug) {
+		std::cout << "*** SCRIPT END " << fSender->Name();
+		std::cout << " ***" << std::endl;
 	}
 
 	SetProcessed();

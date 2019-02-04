@@ -33,15 +33,15 @@ public:
 
 	void Add(Script* script);
 
-	trigger_node*	FindTriggerNode(node* start = NULL) const;
-	action_node*	FindActionNode(node* start = NULL) const;
-	object_node*	FindObjectNode(node* start = NULL) const;
-	int32			FindMultipleObjectNodes(std::vector<object_node*>& list,
-						node* start = NULL) const;
-	node*			FindNode(block_type type, node* start = NULL) const;
+	static trigger_node*	FindTriggerNode(node* start);
+	static action_node*		FindActionNode(node* start);
+	static object_node*		FindObjectNode(node* start);
+	//int32			FindMultipleObjectNodes(std::vector<object_node*>& list,
+		//				node* start = NULL) const;
+	static node*			FindNode(block_type type, node* start);
 
 	// convenience call
-	Object*			FindObject(node* start = NULL) const;
+	Object*					FindObject(node* start) const;
 
 	bool Execute(bool &continuing);
 
