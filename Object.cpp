@@ -268,11 +268,7 @@ Object::NearestPoint(const IE::point& point) const
 		targetPoint.y = frame.y_min;
 	else if (point.y >= frame.y_max)
 		targetPoint.y = frame.y_max;
-			
-		/*std::cout << std::dec;
-		std::cout << "point: " << point.x << ", " << point.y;
-		std::cout << "target: " << targetPoint.x << ", " << targetPoint.y;
-		std::cout << std::endl;*/
+
 	return targetPoint;
 }
 
