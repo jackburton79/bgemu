@@ -133,6 +133,11 @@ Bitmap::SetColorKey(uint8 r, uint8 g, uint8 b, bool on)
 void
 Bitmap::SetAlpha(uint8 value, bool on)
 {
+	if (value == 255) {
+		std::cerr << "BUG! SetAlpha(255) fails. Use SetAlpha(254)!" << std::endl;
+		value = 254;		
+	}
+
 	SDL_SetSurfaceAlphaMod(fSurface, on ? value : 0);
 	if (on)
 		SDL_SetSurfaceBlendMode(fSurface, SDL_BLENDMODE_BLEND);
