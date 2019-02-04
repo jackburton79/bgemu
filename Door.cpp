@@ -2,7 +2,7 @@
 
 Door::Door(IE::door* areaDoor)
 	:
-	Object(areaDoor->name,areaDoor->script.CString()),
+	Object(areaDoor->name, areaDoor->script.CString()),
 	fAreaDoor(areaDoor)
 {
 }
@@ -37,6 +37,24 @@ Door::Close(Object* actor)
 		fAreaDoor->flags &= ~IE::DOOR_OPEN;;
 		//CurrentScriptRoundResults()->fClosedBy = actor->Name();
 	}
+}
+
+
+/* virtual */
+IE::point
+Door::NearestPoint(const IE::point& start) const
+{
+	IE::point targetPoint;
+	if (start.x < fAreaDoor->player_box.x_min)
+		targetPoint.x = fAreaDoor->player_box.x_min;
+	else if (start.x > fAreaDoor->player_box.x_max)
+		targetPoint.x = fAreaDoor->player_box.x_max;
+	if (start.y < fAreaDoor->player_box.y_min)
+		targetPoint.y = fAreaDoor->player_box.y_min;
+	else if (start.y > fAreaDoor->player_box.y_max)
+		targetPoint.y = fAreaDoor->player_box.y_max;
+			
+	return targetPoint;
 }
 
 
