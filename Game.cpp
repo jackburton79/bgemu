@@ -93,6 +93,7 @@ Game::Loop(bool executeScripts)
 	SDL_Event event;
 	bool quitting = false;
 	while (!quitting) {
+		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
@@ -201,7 +202,8 @@ Game::Loop(bool executeScripts)
 		Core::Get()->UpdateLogic(executeScripts);
 
 		GraphicsEngine::Get()->Flip();
-		Timer::Wait(25);
+		
+		Timer::WaitSync(startTicks, 25);
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;

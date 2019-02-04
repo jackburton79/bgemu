@@ -93,6 +93,18 @@ Timer::Wait(uint32 delay)
 }
 
 
+/* static */
+void
+Timer::WaitSync(uint32 start, uint32 maxDelay)
+{
+	int32 diff = (start + maxDelay) - Ticks();
+	if (diff > 0)
+		Wait(diff);
+	else
+		std::cout << "WaitSync: TOO SLOW!" << std::endl;
+}
+
+
 // GameTimer
 GameTimer::timer_map GameTimer::sTimers;
 uint32 GameTimer::sGameTime;

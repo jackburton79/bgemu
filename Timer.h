@@ -30,6 +30,7 @@ public:
 	void Rearm();
 
 	static void Wait(uint32 delay);
+	static void WaitSync(uint32 start, uint32 maxDelay);
 	static void AddOneShotTimer(uint32 time, timer_func function, void* parameter);
 	static uint32 Ticks();
 
