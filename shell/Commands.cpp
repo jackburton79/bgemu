@@ -107,8 +107,10 @@ class WalkToObjectCommand : public ShellCommand {
 public:
 	WalkToObjectCommand() : ShellCommand("walk-to-object") {};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
 		int objectId = 0;
+		std::istringstream stringStream(argv);
+		if ((stringStream >> objectId).fail())
+			return;
 		// TODO: Fix this
 		Actor* player = Game::Get()->Party()->ActorAt(0);
 		if (player == NULL)
