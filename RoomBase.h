@@ -68,9 +68,9 @@ public:
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
-	GFX::rect fScreenArea;
-	IE::rect fMapArea; // the part of map which is visible. It's fScreenArea
-						// offsetted to fAreaOffset
+	GFX::rect fViewPort;
+	IE::rect fMapArea;  // the part of map visible on screen.
+						// It's fViewPort offsetted to fAreaOffset
 	IE::point fAreaOffset;
 	
 	uint32 fLastScrollTime;
