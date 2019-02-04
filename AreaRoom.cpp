@@ -542,7 +542,11 @@ AreaRoom::PointSearch(const IE::point& point) const
 bool
 AreaRoom::IsPointPassable(const IE::point& point)
 {
-	/*uint8 state = Core::Get()->CurrentRoom()->PointSearch(point);
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room == NULL)
+		return true;
+
+	uint8 state = room->PointSearch(point);
 	switch (state) {
 		case 0:
 		case 8:
@@ -552,7 +556,7 @@ AreaRoom::IsPointPassable(const IE::point& point)
 			return false;
 		default:
 			return true;
-	}*/
+	}
 	return true;
 }
 

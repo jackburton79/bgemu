@@ -49,8 +49,6 @@ public:
 	virtual void Clicked(uint16 x, uint16 y) = 0;
 	virtual void MouseOver(uint16 x, uint16 y) = 0;
 
-	static bool IsPointPassable(const IE::point& point);
-
 	virtual void ToggleOverlays();
 	virtual void TogglePolygons();
 	virtual void ToggleAnimations();

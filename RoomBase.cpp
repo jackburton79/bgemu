@@ -186,25 +186,6 @@ RoomBase::ConvertFromArea(IE::point& point)
 }
 
 
-/* static */
-bool
-RoomBase::IsPointPassable(const IE::point& point)
-{
-	/*uint8 state = RoomContainer::Get()->PointSearch(point);
-	switch (state) {
-		case 0:
-		case 8:
-		case 10:
-		case 12:
-		case 13:
-			return false;
-		default:
-			return true;
-	}*/
-	return true;
-}
-
-
 void
 RoomBase::ToggleOverlays()
 {
