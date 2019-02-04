@@ -259,11 +259,22 @@ Object::SetWaitTime(int32 waitTime)
 }
 
 
-/* virtual */
+/* static */
 IE::point
-Object::NearestPoint(const IE::point& point) const
+Object::NearestPoint(const IE::point& point, Object* target)
 {
-	return Position();
+	IE::point targetPoint = target->Position();
+	IE::point restrictionDistance = target->RestrictionDistance();
+	
+	if (point.x < targetPoint.x)
+			targetPoint.x -= restrictionDistance.x;
+	else if (point.x > targetPoint.x)
+		targetPoint.x += restrictionDistance.x;
+	if (point.y < targetPoint.y)
+		targetPoint.y -= restrictionDistance.y;
+	else if (point.y > targetPoint.y)
+		targetPoint.y += restrictionDistance.y;
+	return targetPoint;
 }
 
 

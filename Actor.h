@@ -83,7 +83,6 @@ public:
 	void SetArea(const char* name);
 	const char* Area() const;
 
-	virtual IE::point NearestPoint(const IE::point& point) const;
 	virtual IE::point RestrictionDistance() const;
 	
 	virtual void ClickedOn(Object* target);

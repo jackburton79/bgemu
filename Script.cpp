@@ -1231,8 +1231,7 @@ Script::_HandleAction(action_node* act)
 			 */
 			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
 			if (thisActor != NULL && targetActor != NULL) {
-				IE::point point = targetActor->NearestPoint(thisActor->Position());
-				WalkTo* walkToAction = new WalkTo(thisActor, point);
+				Action* walkToAction = new WalkToObject(thisActor, targetActor);
 				thisActor->AddAction(walkToAction);
 				Attack* attackAction = new Attack(thisActor, targetActor);
 				thisActor->AddAction(attackAction);

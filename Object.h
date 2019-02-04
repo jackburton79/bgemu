@@ -66,8 +66,11 @@ public:
 	void ClearScripts();
 
 	void SetWaitTime(int32 time);
+	
+	// TODO: move this
+	static IE::point NearestPoint(const IE::point& start,
+										Object* target);
 
-	virtual IE::point NearestPoint(const IE::point& point) const;
 	virtual IE::point RestrictionDistance() const;
 	
 	void DestroySelf();

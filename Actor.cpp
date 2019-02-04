@@ -560,17 +560,6 @@ Actor::SetArea(const char* areaName)
 
 /* virtual */
 IE::point
-Actor::NearestPoint(const IE::point& point) const
-{
-	IE::point newPoint = Position();
-
-	newPoint.x += fActor->movement_restriction_distance;
-	return newPoint;
-}
-
-
-/* virtual */
-IE::point
 Actor::RestrictionDistance() const
 {
 	IE::point point = {
@@ -594,8 +583,7 @@ Actor::ClickedOn(Object* target)
 	// an attack from a dialog start, etc
 
 	if (Door* door = dynamic_cast<Door*>(target)) {
-		IE::point point = door->NearestPoint(Position());
-		WalkTo* walkToAction = new WalkTo(this, point);
+		Action* walkToAction = new WalkToObject(this, door);
 		AddAction(walkToAction);
 		OpenDoor* toggleAction = new OpenDoor(this, door);
 		AddAction(toggleAction);
@@ -603,7 +591,7 @@ Actor::ClickedOn(Object* target)
 		Attack* attackAction = new Attack(this, actor);
 		AddAction(attackAction);
 	} else if (Container* container = dynamic_cast<Container*>(target)) {
-		WalkTo* walkTo = new WalkTo(this, container->NearestPoint(Position()));
+		Action* walkTo = new WalkToObject(this, container);
 		AddAction(walkTo);
 	}
 }

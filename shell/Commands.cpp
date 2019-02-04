@@ -10,7 +10,9 @@
 #include "Action.h"
 #include "Core.h"
 #include "CreResource.h"
+#include "Game.h"
 #include "InputConsole.h"
+#include "Party.h"
 #include "ResManager.h"
 #include "Timer.h"
 
@@ -32,7 +34,7 @@ public:
 		for (i = objects.begin(); i != objects.end(); i++) {
 			Actor* actor = *i;
 			std::cout << actor->Name();
-			std::cout << " (" << actor->CRE()->GlobalActorEnum() << ")";
+			std::cout << " (" << std::dec << actor->CRE()->GlobalActorEnum() << ")";
 			std::cout << std::endl;
 		}
 	}
@@ -97,6 +99,22 @@ public:
 	PrintVariablesCommand() : ShellCommand("print-variables") {};
 	virtual void operator()(const char* argv, int argc) {
 		Core::Get()->Vars().Print();
+	}
+};
+
+
+class WalkToObjectCommand : public ShellCommand {
+public:
+	WalkToObjectCommand() : ShellCommand("walk-to-object") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		int objectId = 0;
+		// TODO: Fix this
+		Actor* player = Game::Get()->Party()->ActorAt(0);
+		if (player == NULL)
+			return;
+		Action* action = new WalkToObject(player, Core::Get()->GetObject(objectId));
+		player->AddAction(action);
 	}
 };
 
@@ -167,6 +185,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new DisplayStringCommand());

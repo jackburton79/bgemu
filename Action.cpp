@@ -157,7 +157,7 @@ WalkToObject::operator()()
 	if (actor == NULL)
 		return;
 
-	IE::point destination = fTarget->Position();
+	IE::point destination = Object::NearestPoint(actor->Position(), fTarget);
 	actor->SetDestination(destination);
 
 	Action::operator()();
@@ -266,7 +266,7 @@ Attack::operator()()
 		return;
 
 	if (!Initiated()) {
-		IE::point point = fTarget->NearestPoint(actor->Position());
+		IE::point point = Object::NearestPoint(actor->Position(), target);
 		if (!PointSufficientlyClose(actor->Position(), point))
 			actor->SetDestination(point);
 		Action::operator()();
