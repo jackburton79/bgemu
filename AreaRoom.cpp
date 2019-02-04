@@ -594,7 +594,7 @@ AreaRoom::ToggleSearchMap()
 	if (fDrawSearchMap == 2)
 		fSearchMap->SetAlpha(127, true);
 	else
-		fSearchMap->SetAlpha(0, false);
+		fSearchMap->SetAlpha(255, false);
 }
 
 
@@ -762,8 +762,15 @@ AreaRoom::_InitSearchMap()
 	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
 	if (resource != NULL) {
 		fSearchMap = resource->Image();
-		fMapHorizontalRatio = AreaRect().w / fSearchMap->Width();
-		fMapVerticalRatio = AreaRect().h / fSearchMap->Height();
+		fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
+		fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
+		std::cout << std::dec;
+		std::cout << "map: w=" << AreaRect().w << ", h=";
+		std::cout << AreaRect().h << std::endl;
+		std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
+		std::cout << fSearchMap->Height() << std::endl;
+		std::cout << "ratio: h=" << fMapHorizontalRatio;
+		std::cout << ", v=" << fMapVerticalRatio << std::endl;
 		gResManager->ReleaseResource(resource);
 	}
 
@@ -830,7 +837,6 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
 		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
 						fSearchMap->Width(), fSearchMap->Height());
-
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
 
 		visibleArea.x /= fMapHorizontalRatio;
@@ -839,6 +845,17 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 		visibleArea.h /= fMapVerticalRatio;
 		visibleArea = offset_rect(visibleArea, 0, ViewPort().h - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 200);
+		
+		if (fSelectedActor != NULL) {
+			IE::point actorPosition = fSelectedActor.Target()->Position();
+			actorPosition.x /= fMapHorizontalRatio;
+			actorPosition.y /= fMapVerticalRatio;
+			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
+			r = offset_rect(r, 0, ViewPort().h - fSearchMap->Height());
+			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
+				
+		}
+			
 	}
 }
 
