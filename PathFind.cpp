@@ -181,6 +181,10 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 	EmptyList(closedList);
 	assert (PointSufficientlyClose(fPoints.back(), end));
+	
+	// remove the "current" position, it's useless
+	fPoints.erase(fPoints.begin());
+	
 	return fPoints.back();
 }
 
