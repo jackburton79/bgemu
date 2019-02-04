@@ -404,6 +404,8 @@ FadeColorAction::FadeColorAction(Object* object,
 		fTargetValue = 255;
 		fStepValue = fTargetValue / numUpdates;
 	}
+	if (object != NULL)
+		object->SetWaitTime(std::abs(fStepValue * numUpdates));
 }
 
 
@@ -491,6 +493,8 @@ ScreenShake::ScreenShake(Object* object, IE::point point, int duration)
 	fOffset(point),
 	fDuration(duration)
 {
+	if (object != NULL)
+		object->SetWaitTime(fDuration);
 }
 
 
