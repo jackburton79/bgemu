@@ -139,6 +139,41 @@ WalkTo::operator()()
 }
 
 
+// WalkToObject
+WalkToObject::WalkToObject(Object* object, Object* target)
+	:
+	Action(object),
+	fTarget(target)
+{
+	fTarget->Acquire();
+}
+
+
+/* virtual */
+void
+WalkToObject::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+
+	IE::point destination = fTarget->Position();
+	actor->SetDestination(destination);
+
+	Action::operator()();
+
+	if (actor->Position() == actor->Destination()) {
+		SetCompleted();
+		actor->SetAnimationAction(ACT_STANDING);
+		fTarget->Release();
+		return;
+	}
+
+	actor->SetAnimationAction(ACT_WALKING);
+	actor->MoveToNextPointInPath(actor->IsFlying());
+}
+
+
 // FlyTo
 FlyTo::FlyTo(Object* object, IE::point destination, int time)
 	:

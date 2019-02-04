@@ -1000,7 +1000,7 @@ Script::_HandleAction(action_node* act)
 			// MoveToObject
 			Object* object = FindObject(act);
 			if (object != NULL) {
-				WalkTo* walkTo = new WalkTo(thisActor, object->Position());
+				Action* walkTo = new WalkToObject(thisActor, object);
 				thisActor->AddAction(walkTo);
 			}
 			break;

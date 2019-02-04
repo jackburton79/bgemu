@@ -54,6 +54,15 @@ private:
 };
 
 
+class WalkToObject : public Action {
+public:
+	WalkToObject(Object* actor, Object* target);
+	virtual void operator()();
+private:
+	Object* fTarget;
+};
+
+
 class FlyTo : public Action {
 public:
 	FlyTo(Object* actor, IE::point, int time);
