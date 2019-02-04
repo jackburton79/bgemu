@@ -203,7 +203,7 @@ Game::Loop(bool executeScripts)
 
 		GraphicsEngine::Get()->Flip();
 		
-		Timer::WaitSync(startTicks, 25);
+		Timer::WaitSync(startTicks, 35);
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;
