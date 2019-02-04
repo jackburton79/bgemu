@@ -239,7 +239,7 @@ void
 OpenDoor::operator()()
 {
 	Action::operator()();
-	if (fDoor->Opened())
+	if (!fDoor->Opened())
 		fDoor->Toggle();
 	SetCompleted();
 }
