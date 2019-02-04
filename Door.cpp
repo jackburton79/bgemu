@@ -8,6 +8,19 @@ Door::Door(IE::door* areaDoor)
 }
 
 
+/* virtual */
+IE::point
+Door::Position() const
+{
+	// TODO: Not completely correct, take into account x_max and y_max
+	IE::point point = {
+		fAreaDoor->player_box.x_min,
+		fAreaDoor->player_box.y_min
+	};
+	return point;
+}
+
+
 void
 Door::Toggle()
 {
@@ -72,26 +85,6 @@ const Polygon&
 Door::ClosedPolygon() const
 {
 	return fClosedPolygon;
-}
-
-
-IE::point
-Door::NearestPoint(const IE::point& point) const
-{
-	IE::point pointA = {
-			fAreaDoor->player_box.x_min,
-			fAreaDoor->player_box.y_min
-	};
-
-	IE::point pointB = {
-			fAreaDoor->player_box.x_max,
-			fAreaDoor->player_box.y_max
-	};
-
-	if (point - pointA < point - pointB)
-		return pointA;
-
-	return pointB;
 }
 
 
