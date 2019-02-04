@@ -11,8 +11,6 @@
 class Door : public Object {
 public:
 	Door(IE::door* areaDoor);
-
-	virtual IE::point Position() const;
 	
 	// TODO: Remove!
 	void Toggle();

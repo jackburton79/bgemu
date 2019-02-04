@@ -157,7 +157,7 @@ WalkToObject::operator()()
 	if (actor == NULL)
 		return;
 
-	IE::point destination = Object::NearestPoint(actor->Position(), fTarget);
+	IE::point destination = fTarget->NearestPoint(actor->Position());
 	actor->SetDestination(destination);
 
 	Action::operator()();
@@ -266,7 +266,7 @@ Attack::operator()()
 		return;
 
 	if (!Initiated()) {
-		IE::point point = Object::NearestPoint(actor->Position(), target);
+		IE::point point = target->NearestPoint(actor->Position());
 		if (!PointSufficientlyClose(actor->Position(), point))
 			actor->SetDestination(point);
 		Action::operator()();
@@ -323,19 +323,24 @@ RunAwayFrom::operator()()
 IE::point
 RunAwayFrom::PointAway() const
 {
-	IE::point point = fObject->Position();
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL) {
+		return (IE::point ){ 0, 0 };
+	}
+	
+	IE::point targetPos = fTarget->NearestPoint(actor->Position());
 
-	if (fTarget->Position().x > fObject->Position().x)
-		point.x -= 100;
-	else if (fTarget->Position().x < fObject->Position().x)
-		point.x += 100;
+	if (targetPos.x > actor->Position().x)
+		targetPos.x -= 100;
+	else if (targetPos.x < actor->Position().x)
+		targetPos.x += 100;
 
-	if (fTarget->Position().y > fObject->Position().y)
-		point.y -= 100;
-	else if (fTarget->Position().y < fObject->Position().y)
-		point.y += 100;
+	if (targetPos.y > actor->Position().y)
+		targetPos.y -= 100;
+	else if (targetPos.y < actor->Position().y)
+		targetPos.y += 100;
 
-	return point;
+	return targetPos;
 }
 
 

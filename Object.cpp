@@ -120,8 +120,11 @@ Object::IsVisible() const
 bool
 Object::IsInsideVisibleArea() const
 {
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	if (actor == NULL)
+		return true;
 	IE::rect rect = Core::Get()->CurrentRoom()->VisibleMapArea();
-	if (rect_contains(rect, Position()))
+	if (rect_contains(rect, actor->Position()))
 		return true;
 	return false;
 }
@@ -251,21 +254,39 @@ Object::SetWaitTime(int32 waitTime)
 }
 
 
-/* static */
 IE::point
-Object::NearestPoint(const IE::point& point, Object* target)
+Object::NearestPoint(const IE::point& point) const
 {
-	IE::point targetPoint = target->Position();
-	IE::point restrictionDistance = target->RestrictionDistance();
-	
-	if (point.x < targetPoint.x)
-		targetPoint.x -= restrictionDistance.x;
-	else if (point.x > targetPoint.x)
-		targetPoint.x += restrictionDistance.x;
-	if (point.y < targetPoint.y)
-		targetPoint.y -= restrictionDistance.y;
-	else if (point.y > targetPoint.y)
-		targetPoint.y += restrictionDistance.y;
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	IE::point targetPoint;
+	if (actor != NULL) {
+		IE::point restriction = actor->RestrictionDistance();
+		targetPoint = actor->Position();
+		if (point.x < targetPoint.x)
+			targetPoint.x -= restriction.x;
+		else if (point.x > targetPoint.x)
+			targetPoint.x += restriction.x;
+		if (point.y < targetPoint.y)
+			targetPoint.y -= restriction.y;
+		else if (point.y > targetPoint.y)
+			targetPoint.y += restriction.y;
+	} else {
+		IE::rect frame = Frame();
+		
+		if (point.x < frame.x_min)
+			targetPoint.x = frame.x_min;
+		else if (point.x > frame.x_max)
+			targetPoint.x = frame.x_max;
+		if (point.y < frame.y_min)
+			targetPoint.y = frame.y_min;
+		else if (point.y > frame.y_max)
+			targetPoint.y = frame.y_max;
+			
+		/*std::cout << std::dec;
+		std::cout << "point: " << point.x << ", " << point.y;
+		std::cout << "target: " << targetPoint.x << ", " << targetPoint.y;
+		std::cout << std::endl;*/
+	}
 	return targetPoint;
 }
 

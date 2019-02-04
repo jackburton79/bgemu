@@ -967,7 +967,7 @@ Script::_HandleAction(action_node* act)
 			IE::point point = act->where;
 			if (point.x == -1 && point.y == -1) {
 				std::cout << "active creature: " << fSender->Name() << std::endl;
-				point = fSender->Position();
+				point = thisActor->Position();
 				point.x += Core::RandomNumber(-20, 20);
 				point.y += Core::RandomNumber(-20, 20);
 			} else {

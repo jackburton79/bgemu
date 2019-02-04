@@ -8,19 +8,6 @@ Door::Door(IE::door* areaDoor)
 }
 
 
-/* virtual */
-IE::point
-Door::Position() const
-{
-	// TODO: Not completely correct, take into account x_max and y_max
-	IE::point point = {
-		fAreaDoor->player_box.x_min,
-		fAreaDoor->player_box.y_min
-	};
-	return point;
-}
-
-
 void
 Door::Toggle()
 {

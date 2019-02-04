@@ -108,6 +108,7 @@ Region::ActivateTrigger()
 void
 Region::CheckObjectsInside()
 {
+#if 0
 	std::list<Object*>::iterator i = fObjectsInside.begin();
 	while (i != fObjectsInside.end()) {
 		Object* object = (*i);
@@ -127,4 +128,5 @@ Region::CheckObjectsInside()
 		fObjectsInside.push_back(object);
 		object->EnteredRegion(this);
 	}
+#endif
 }

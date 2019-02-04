@@ -539,8 +539,14 @@ Core::See(const Actor* sourceActor, const Object* object) const
 int
 Core::Distance(const Object* a, const Object* b) const
 {
-	const IE::point positionA = a->Position();
-	const IE::point positionB = b->Position();
+	const Actor* actor = dynamic_cast<const Actor*>(a);
+	if (actor == NULL) {
+		std::cerr << "Distance: requested for non-actor object!" << std::endl;
+		return 0;
+	}
+		
+	const IE::point positionA = actor->Position();
+	const IE::point positionB = b->NearestPoint(positionA);
 
 	IE::point invalidPoint = { -1, -1 };
 	if (positionA == invalidPoint && positionB == invalidPoint)
