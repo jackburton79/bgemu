@@ -257,46 +257,23 @@ Object::SetWaitTime(int32 waitTime)
 IE::point
 Object::NearestPoint(const IE::point& point) const
 {
-	const Actor* actor = dynamic_cast<const Actor*>(this);
 	IE::point targetPoint;
-	if (actor != NULL) {
-		IE::point restriction = actor->RestrictionDistance();
-		targetPoint = actor->Position();
-		if (point.x < targetPoint.x)
-			targetPoint.x -= restriction.x;
-		else if (point.x > targetPoint.x)
-			targetPoint.x += restriction.x;
-		if (point.y < targetPoint.y)
-			targetPoint.y -= restriction.y;
-		else if (point.y > targetPoint.y)
-			targetPoint.y += restriction.y;
-	} else {
-		IE::rect frame = Frame();
+	IE::rect frame = Frame();
 		
-		if (point.x < frame.x_min)
-			targetPoint.x = frame.x_min;
-		else if (point.x > frame.x_max)
-			targetPoint.x = frame.x_max;
-		if (point.y < frame.y_min)
-			targetPoint.y = frame.y_min;
-		else if (point.y > frame.y_max)
-			targetPoint.y = frame.y_max;
+	if (point.x < frame.x_min)
+		targetPoint.x = frame.x_min;
+	else if (point.x > frame.x_max)
+		targetPoint.x = frame.x_max;
+	if (point.y < frame.y_min)
+		targetPoint.y = frame.y_min;
+	else if (point.y > frame.y_max)
+		targetPoint.y = frame.y_max;
 			
 		/*std::cout << std::dec;
 		std::cout << "point: " << point.x << ", " << point.y;
 		std::cout << "target: " << targetPoint.x << ", " << targetPoint.y;
 		std::cout << std::endl;*/
-	}
 	return targetPoint;
-}
-
-
-/* virtual */
-IE::point
-Object::RestrictionDistance() const
-{
-	IE::point point = { 0, 0 };
-	return point;
 }
 
 

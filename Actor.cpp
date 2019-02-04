@@ -307,6 +307,24 @@ Actor::SetDestination(const IE::point& point)
 }
 
 
+/* virtual */
+IE::point
+Actor::NearestPoint(const IE::point& start) const
+{
+	const IE::point restriction = RestrictionDistance();
+	IE::point targetPoint = Position();
+	if (start.x < targetPoint.x)
+		targetPoint.x -= restriction.x;
+	else if (start.x > targetPoint.x)
+		targetPoint.x += restriction.x;
+	if (start.y < targetPoint.y)
+		targetPoint.y -= restriction.y;
+	else if (start.y > targetPoint.y)
+		targetPoint.y += restriction.y;
+	return targetPoint;
+}
+
+
 void
 Actor::SetRegion(Region* region)
 {

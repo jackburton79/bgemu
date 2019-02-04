@@ -47,7 +47,10 @@ public:
 
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
-
+	
+	IE::point RestrictionDistance() const;
+	virtual IE::point NearestPoint(const IE::point& start) const;
+	
 	void SetRegion(Region* region);
 	Region* CurrentRegion() const;
 
@@ -82,8 +85,6 @@ public:
 
 	void SetArea(const char* name);
 	const char* Area() const;
-
-	virtual IE::point RestrictionDistance() const;
 	
 	virtual void ClickedOn(Object* target);
 
