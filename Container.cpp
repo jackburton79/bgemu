@@ -38,3 +38,16 @@ Container::Frame() const
 	rect.y_max = fContainer->y_max;
 	return rect;
 }
+
+
+/* virtual */
+IE::point
+Container::Position() const
+{
+	// TODO: Not completely correct, take into account x_max and y_max
+	IE::point point = {
+		(int16)fContainer->x_min,
+		(int16)fContainer->y_min
+	};
+	return point;
+}
