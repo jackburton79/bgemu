@@ -162,7 +162,9 @@ Actor::_Init()
 
 
 	//TODO: some orientations are bad. Why?!?!?!
-	if (fActor->orientation > IE::ORIENTATION_SE) {
+	if ((fActor->orientation > IE::ORIENTATION_SE && 
+			Core::Get()->Game() == GAME_BALDURSGATE) ||
+			fActor->orientation > IE::ORIENTATION_EXT_SSE) {
 		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
 		fActor->orientation = 0;
 	}
