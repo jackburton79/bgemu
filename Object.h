@@ -35,7 +35,7 @@ public:
 	const char* Name() const;
 	void SetName(const char* name);
 
-	virtual IE::point Position() const;
+	virtual IE::point Position() const = 0;
 	virtual IE::rect Frame() const = 0;
 
 	Variables& Vars();

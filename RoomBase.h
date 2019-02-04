@@ -18,7 +18,8 @@ public:
 	virtual ~RoomBase();
 
 	virtual IE::rect Frame() const;
-
+	virtual IE::point Position() const;
+	
 	// AreaRect is the size of the complete area map, starting at 0,0
 	virtual GFX::rect AreaRect() const = 0;
 

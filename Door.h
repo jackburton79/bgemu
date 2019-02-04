@@ -17,8 +17,8 @@ public:
 	// TODO: Remove!
 	void Toggle();
 
-	void Open(Object* actor);
-	void Close(Object* actor);
+	void Open(Object* object);
+	void Close(Object* object);
 
 	std::vector<uint16> fTilesOpen;
 

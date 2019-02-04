@@ -73,14 +73,6 @@ Object::SetName(const char* name)
 }
 
 
-IE::point
-Object::Position() const
-{
-	IE::point point = { -1, -1 };
-	return point;
-}
-
-
 Variables&
 Object::Vars()
 {
@@ -267,7 +259,7 @@ Object::NearestPoint(const IE::point& point, Object* target)
 	IE::point restrictionDistance = target->RestrictionDistance();
 	
 	if (point.x < targetPoint.x)
-			targetPoint.x -= restrictionDistance.x;
+		targetPoint.x -= restrictionDistance.x;
 	else if (point.x > targetPoint.x)
 		targetPoint.x += restrictionDistance.x;
 	if (point.y < targetPoint.y)

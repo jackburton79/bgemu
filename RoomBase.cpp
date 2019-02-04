@@ -37,6 +37,15 @@ RoomBase::Frame() const
 }
 
 
+/* virtual */
+IE::point
+RoomBase::Position() const
+{
+	IE::point point = { 0, 0 };
+	return point;
+}
+
+
 GFX::rect
 RoomBase::ViewPort() const
 {
