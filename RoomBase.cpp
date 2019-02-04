@@ -5,6 +5,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "RectUtils.h"
+#include "Timer.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -16,7 +17,8 @@
 
 RoomBase::RoomBase()
 	:
-	Object("")
+	Object(""),
+	fLastScrollTime(0)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
 }
@@ -221,7 +223,13 @@ RoomBase::UpdateCursorAndScrolling(int x, int y, int scrollByX, int scrollByY)
 
 	GUI::Get()->SetArrowCursor(cursorIndex);
 
-	SetRelativeAreaOffset(scrollByX, scrollByY);
+	const uint32 kScrollDelay = 100;
+	
+	uint32 ticks = Timer::Ticks();
+	if (fLastScrollTime + kScrollDelay < ticks) {
+		SetRelativeAreaOffset(scrollByX, scrollByY);
+		fLastScrollTime = ticks;
+	}
 }
 
 

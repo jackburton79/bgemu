@@ -72,8 +72,9 @@ private:
 	IE::rect fMapArea; // the part of map which is visible. It's fScreenArea
 						// offsetted to fAreaOffset
 	IE::point fAreaOffset;
-
-private:
+	
+	uint32 fLastScrollTime;
+	
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
