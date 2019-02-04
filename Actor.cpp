@@ -570,6 +570,18 @@ Actor::NearestPoint(const IE::point& point) const
 
 
 /* virtual */
+IE::point
+Actor::RestrictionDistance() const
+{
+	IE::point point = {
+		(int16)fActor->movement_restriction_distance,
+		(int16)fActor->movement_restriction_distance
+	};
+	return point;
+}
+
+
+/* virtual */
 void
 Actor::ClickedOn(Object* target)
 {

@@ -68,7 +68,8 @@ public:
 	void SetWaitTime(int32 time);
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
-
+	virtual IE::point RestrictionDistance() const;
+	
 	void DestroySelf();
 	bool ToBeDestroyed() const;
 

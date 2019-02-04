@@ -84,6 +84,8 @@ public:
 	const char* Area() const;
 
 	virtual IE::point NearestPoint(const IE::point& point) const;
+	virtual IE::point RestrictionDistance() const;
+	
 	virtual void ClickedOn(Object* target);
 
 	void Shout(int number);

@@ -267,6 +267,15 @@ Object::NearestPoint(const IE::point& point) const
 }
 
 
+/* virtual */
+IE::point
+Object::RestrictionDistance() const
+{
+	IE::point point = { 0, 0 };
+	return point;
+}
+
+
 void
 Object::DestroySelf()
 {
