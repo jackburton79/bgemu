@@ -166,10 +166,8 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
-	_UpdateCursor(x, y, scrollByX, scrollByY);
-	
-	SetRelativeAreaOffset(scrollByX, scrollByY);
-	
+	UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
+		
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
@@ -234,44 +232,6 @@ WorldMap::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);
 	SetViewPort(rect);
-}
-
-
-void
-WorldMap::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
-{
-	//std::cout << "UpdateCursor(" << x << ", " << y << ", " << scrollByX << ", " << scrollByY << ")" << std::endl;
-	if (scrollByX == 0 && scrollByY == 0) {
-		// TODO: Handle other cursors
-		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
-		return;
-	}
-
-	int cursorIndex = 0;
-	if (scrollByX > 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SE;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NE;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	} else if (scrollByX < 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SW;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NW;
-		else
-			cursorIndex = IE::CURSOR_ARROW_W;
-	} else {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_S;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_N;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	}
-
-	GUI::Get()->SetArrowCursor(cursorIndex);
 }
 
 

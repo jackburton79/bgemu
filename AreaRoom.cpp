@@ -419,7 +419,7 @@ AreaRoom::MouseOver(uint16 x, uint16 y)
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
-	_UpdateCursor(x, y, scrollByX, scrollByY);
+	UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
@@ -428,8 +428,6 @@ AreaRoom::MouseOver(uint16 x, uint16 y)
 		if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
 	}
-
-	SetRelativeAreaOffset(scrollByX, scrollByY);
 }
 
 
@@ -861,42 +859,12 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 
 
 void
-AreaRoom::_UpdateCursor(int x, int y, int scrollByX, int scrollByY)
+AreaRoom::UpdateCursorAndScrolling(int x, int y, int scrollByX, int scrollByY)
 {
 	fCursorPosition.x = x;
 	fCursorPosition.y = y;
-
-	if (scrollByX == 0 && scrollByY == 0) {
-		// TODO: Handle other cursors
-		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
-		return;
-	}
-
-	int cursorIndex = 0;
-	if (scrollByX > 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SE;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NE;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	} else if (scrollByX < 0) {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_SW;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_NW;
-		else
-			cursorIndex = IE::CURSOR_ARROW_W;
-	} else {
-		if (scrollByY > 0)
-			cursorIndex = IE::CURSOR_ARROW_S;
-		else if (scrollByY < 0)
-			cursorIndex = IE::CURSOR_ARROW_N;
-		else
-			cursorIndex = IE::CURSOR_ARROW_E;
-	}
-
-	GUI::Get()->SetArrowCursor(cursorIndex);
+	
+	RoomBase::UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
 }
 
 

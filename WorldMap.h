@@ -43,8 +43,6 @@ private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
-	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
-
 	void _UnloadWorldMap();
 
 	// WorldMap

@@ -40,6 +40,8 @@ public:
 	virtual void Draw(Bitmap *surface);
 	virtual void Clicked(uint16 x, uint16 y);
 	virtual void MouseOver(uint16 x, uint16 y);
+	virtual void UpdateCursorAndScrolling(int x, int y,
+										int scrollByX, int scrollByY);
 
 	void DrawObject(const Object& object);
 	void DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask);
@@ -84,8 +86,6 @@ private:
 	void _DrawSearchMap(GFX::rect area);
 	void _DrawAnimations(bool advanceFrame);
 	void _DrawActors();
-
-	void _UpdateCursor(int x, int y, int scrollByX, int scrollByY);
 
 	Region* _RegionAtPoint(const IE::point& point) const;
 	Container* _ContainerAtPoint(const IE::point& point);

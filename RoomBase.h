@@ -48,6 +48,9 @@ public:
 	virtual void Draw(Bitmap *surface) = 0;
 	virtual void Clicked(uint16 x, uint16 y) = 0;
 	virtual void MouseOver(uint16 x, uint16 y) = 0;
+	
+	virtual void UpdateCursorAndScrolling(int x, int y,
+									int scrollByX, int scrollByY);
 
 	virtual void ToggleOverlays();
 	virtual void TogglePolygons();

@@ -187,6 +187,45 @@ RoomBase::ConvertFromArea(IE::point& point)
 
 
 void
+RoomBase::UpdateCursorAndScrolling(int x, int y, int scrollByX, int scrollByY)
+{
+	if (scrollByX == 0 && scrollByY == 0) {
+		// TODO: Handle other cursors
+		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
+		return;
+	}
+
+	int cursorIndex = 0;
+	if (scrollByX > 0) {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_SE;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_NE;
+		else
+			cursorIndex = IE::CURSOR_ARROW_E;
+	} else if (scrollByX < 0) {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_SW;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_NW;
+		else
+			cursorIndex = IE::CURSOR_ARROW_W;
+	} else {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_S;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_N;
+		else
+			cursorIndex = IE::CURSOR_ARROW_E;
+	}
+
+	GUI::Get()->SetArrowCursor(cursorIndex);
+
+	SetRelativeAreaOffset(scrollByX, scrollByY);
+}
+
+
+void
 RoomBase::ToggleOverlays()
 {
 }
