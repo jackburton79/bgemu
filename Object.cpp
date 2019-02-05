@@ -138,7 +138,11 @@ Object::Update(bool scripts)
 	if (actor != NULL)
 		actor->UpdateSee();
 	
-	if (scripts) {
+	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
+	if (isArea && Core::Get()->CutsceneMode())
+		scripts = false;
+		
+	if (scripts) {	
 		_ExecuteScripts(8);		
 	}
 	

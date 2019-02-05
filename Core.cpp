@@ -504,12 +504,7 @@ Core::UpdateLogic(bool executeScripts)
 
 	//_HandleGlobalActions();
 	
-	bool executeRoomScript = true;
-	// The room
-	if (fCutsceneMode && fCutsceneActor != NULL)
-		executeRoomScript = false;
-		
-	fCurrentRoom->Update(executeRoomScript);
+	fCurrentRoom->Update(executeScripts);
 
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
