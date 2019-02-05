@@ -30,6 +30,27 @@ private:
 };
 
 
+class CreateCreatureAction : public Action {
+public:
+	CreateCreatureAction(Object* object, action_node* action);
+	virtual void operator()();
+};
+
+
+class CreateCreatureImpassableAction : public Action {
+public:
+	CreateCreatureImpassableAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
+class DestroySelfAction : public Action {
+public:
+	DestroySelfAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class SetInterruptableAction : public Action {
 public:
 	SetInterruptableAction(Object* object, action_node* node);
@@ -153,6 +174,34 @@ public:
 private:
 	IE::point fOffset;
 	int fDuration;
+};
+
+
+class StartCutsceneModeAction : public Action {
+public:
+	StartCutsceneModeAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
+class StartCutsceneAction : public Action {
+public:
+	StartCutsceneAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
+class HideGUIAction : public Action {
+public:
+	HideGUIAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
+class UnhideGUIAction : public Action {
+public:
+	UnhideGUIAction(Object* object, action_node* node);
+	virtual void operator()();
 };
 
 

@@ -274,11 +274,13 @@ Core::CutsceneMode() const
 void
 Core::StartCutscene(const res_ref& scriptName)
 {
+	std::cout << "Core::StartCutscene():" << scriptName.CString() << std::endl;
 	::Script* script = ExtractScript(scriptName);
-	// TODO: not nice. but it will be changed in the cutscene script
-	script->SetSender(fCurrentRoom);
 	bool continuing = false;
 	if (script != NULL) {
+		std::cout << "Executing script" << std::endl;
+		// TODO: not nice. but it will be changed in the cutscene script
+		script->SetSender(fCurrentRoom);
 		script->Execute(continuing);
 		delete script;
 	}	
@@ -677,8 +679,9 @@ Core::_CleanDestroyedObjects()
 	while (i != fActiveActors.end()) {
 		Object* object = *i;
 		if (object->ToBeDestroyed()) {
+			std::cout << "Destroy actor " << object->Name() << std::endl;
+			object->ClearActionList();
 			if (Actor* actor = dynamic_cast<Actor*>(object)) {
-				std::cout << "Destroy actor " << actor->Name() << std::endl;
 				UnregisterActor(actor);
 			}
 			i = fActiveActors.erase(i);

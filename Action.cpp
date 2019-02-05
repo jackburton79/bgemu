@@ -4,6 +4,7 @@
 #include "Core.h"
 #include "Door.h"
 #include "GraphicsEngine.h"
+#include "GUI.h"
 #include "Parsing.h"
 #include "RoomBase.h"
 #include "Script.h"
@@ -30,11 +31,13 @@ Action::Action(Object* object, action_node* node)
 	fInitiated(false),
 	fCompleted(false)
 {
+	fObject->Acquire();
 }
 
 
 Action::~Action()
 {
+	fObject->Release();
 }
 
 
@@ -48,6 +51,7 @@ Action::Initiated() const
 void
 Action::SetInitiated()
 {
+	fInitiated = true;
 }
 
 
@@ -72,6 +76,86 @@ Action::Name() const
 }
 
 
+// CreateCreatureAction
+CreateCreatureAction::CreateCreatureAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+CreateCreatureAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":CreateCreatureAction()" << std::endl;
+	IE::point point = fActionParams->where;
+	if (point.x == -1 && point.y == -1) {
+		Actor* thisActor = dynamic_cast<Actor*>(fObject);
+		if (thisActor != NULL) {
+			std::cout << "active creature: " << fObject->Name() << std::endl;
+			point = thisActor->Position();
+			point.x += Core::RandomNumber(-20, 20);
+			point.y += Core::RandomNumber(-20, 20);
+		}
+	} else {
+		std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
+	}
+	Actor* actor = new Actor(fActionParams->string1, point, fActionParams->integer1);
+	Core::Get()->AddActorToCurrentArea(actor);
+	//core->SetActiveActor(actor);
+	SetCompleted();
+}
+
+
+// CreateCreatureImpassableAction
+CreateCreatureImpassableAction::CreateCreatureImpassableAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+CreateCreatureImpassableAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":CreateCreatureImpassableAction()" << std::endl;
+	Actor* actor = new Actor(fActionParams->string1,
+						fActionParams->where, fActionParams->integer1);
+	std::cout << "Created actor " << fActionParams->string1 << " on ";
+	std::cout << fActionParams->where.x << ", " << fActionParams->where.y << std::endl;
+	actor->SetDestination(fActionParams->where);
+	Core::Get()->AddActorToCurrentArea(actor);
+	SetCompleted();
+	//core->SetActiveActor(actor);
+}
+
+
+// DestroySelfAction
+DestroySelfAction::DestroySelfAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+DestroySelfAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":DestroySelfAction()" << std::endl;
+	fObject->DestroySelf();
+	SetCompleted();
+}
+
+
 // SetInterruptableAction
 SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node)
 	:
@@ -84,6 +168,9 @@ SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node
 void
 SetInterruptableAction::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":SetInterruptableAction()" << std::endl;
 	fObject->SetInterruptable(fActionParams->integer1 == 1);
 	SetCompleted();
 }
@@ -102,6 +189,9 @@ WalkTo::WalkTo(Object* object, action_node* node)
 void
 WalkTo::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":WalkTo()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -130,6 +220,9 @@ WalkToObject::WalkToObject(Object* object, action_node* node)
 void
 WalkToObject::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":WalkToObject()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -165,6 +258,9 @@ FlyTo::FlyTo(Object* object, action_node* node)
 void
 FlyTo::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":FlyTo()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -197,6 +293,9 @@ Wait::Wait(Object* object, action_node* node)
 void
 Wait::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":Wait()" << std::endl;
 	Object* object = Script::FindObject(fObject, fActionParams);
 	if (object != NULL)
 		object->SetWaitTime(fActionParams->integer1 * 15); // use a constant
@@ -216,6 +315,9 @@ SmallWait::SmallWait(Object* object, action_node* node)
 void
 SmallWait::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":SmallWait()" << std::endl;
 	Object* object = Script::FindObject(fObject, fActionParams);
 	if (object != NULL)
 		object->SetWaitTime(fActionParams->integer1);
@@ -235,6 +337,9 @@ OpenDoor::OpenDoor(Object* sender, action_node* node)
 void
 OpenDoor::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":OpenDoor()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -264,6 +369,9 @@ Attack::Attack(Object* object, action_node* node)
 void
 Attack::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":Attack()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -304,6 +412,9 @@ RunAwayFrom::RunAwayFrom(Object* object, action_node* node)
 void
 RunAwayFrom::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":RunAwayFrom()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -379,6 +490,9 @@ Dialogue::Dialogue(Object* source, action_node* node)
 void
 Dialogue::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":Dialogue()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
@@ -425,6 +539,12 @@ FadeToColorAction::FadeToColorAction(Object* object, action_node* node)
 void
 FadeToColorAction::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	// TODO:
+	SetCompleted();
+	
+	std::cout << fObject->Name() << ":FadeToColorAction()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fCurrentValue = 255;
@@ -456,6 +576,9 @@ FadeFromColorAction::FadeFromColorAction(Object* object, action_node* node)
 void
 FadeFromColorAction::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":FadeFromColorAction()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fCurrentValue = 0;
@@ -485,6 +608,11 @@ MoveViewPoint::MoveViewPoint(Object* object, action_node* node)
 void
 MoveViewPoint::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	SetCompleted();
+	return;
+	std::cout << fObject->Name() << ":MoveViewPoint()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fDestination = fActionParams->where;
@@ -539,6 +667,9 @@ ScreenShake::ScreenShake(Object* object, action_node* node)
 void
 ScreenShake::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":ScreenShake()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		if (fObject != NULL)
@@ -563,6 +694,85 @@ ScreenShake::operator()()
 }
 
 
+// StartCutsceneModeAction
+StartCutsceneModeAction::StartCutsceneModeAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+StartCutsceneModeAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":StartCutsceneModeAction()" << std::endl;
+	Core::Get()->StartCutsceneMode();
+	SetCompleted();
+}
+
+
+// StartCutsceneAction
+StartCutsceneAction::StartCutsceneAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+StartCutsceneAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":StartCutsceneAction()" << std::endl;
+	Core::Get()->StartCutscene(fActionParams->string1);
+	SetCompleted();
+}
+
+
+// HideGUIAction
+HideGUIAction::HideGUIAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+HideGUIAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":HideGUIAction()" << std::endl;
+	GUI::Get()->Hide();
+	SetCompleted();
+}
+
+
+// UnhideGUIAction
+UnhideGUIAction::UnhideGUIAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+UnhideGUIAction::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":UnhideGUIAction()" << std::endl;
+	GUI::Get()->Show();
+	SetCompleted();
+}
+
 
 DisplayString::DisplayString(Object* object, action_node* node)
 	:
@@ -577,6 +787,9 @@ DisplayString::DisplayString(Object* object, action_node* node)
 void
 DisplayString::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":DisplayString()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = fActionParams->integer1;
@@ -604,6 +817,9 @@ ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_no
 void
 ChangeOrientationExtAction::operator()()
 {
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	std::cout << fObject->Name() << ":ChangeOrientationExtAction()" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor != NULL)
 		actor->SetOrientation(fActionParams->integer1);

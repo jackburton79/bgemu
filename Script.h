@@ -47,7 +47,7 @@ public:
 	void SetSender(Object* object);
 
 	static Object* ResolveIdentifier(Object* object, const int id);
-	static Object* GetObject(Actor* source, object_node* node);
+	static Object* GetObject(Object* source, object_node* node);
 
 	Object* LastTrigger() const;
 

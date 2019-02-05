@@ -182,7 +182,7 @@ Object::ExecuteActions()
 		return;
 	}
 
-	std::cout << Name() << ": Executing actions: " << std::endl;
+	//std::cout << Name() << ": Executing actions: " << std::endl;
 	std::list<Action*>::iterator i = fActions.begin();
 	if (i != fActions.end()) {
 		Action& action = **i;
@@ -278,6 +278,7 @@ void
 Object::DestroySelf()
 {
 	fToDestroy = true;
+	std::cout << Name() << ": DestroySelf()" << std::endl;
 }
 
 

@@ -169,13 +169,18 @@ Script::FindObject(Object* object, node* start)
 	/*if (sDebug)
 		objectNode->Print();*/
 
-	return GetObject((Actor*)object, objectNode);
+	return GetObject(object, objectNode);
 }
 
 
 bool
 Script::Execute(bool& continuing)
 {
+	assert(fSender != NULL);
+	if (fSender == NULL) {
+		std::cerr << "Script::Execute(): fSender is NULL!" << std::endl;
+	}
+		
 	fLastTrigger = NULL;
 	// for each CR block
 	// for each CO block
@@ -196,6 +201,8 @@ Script::Execute(bool& continuing)
 
 	bool foundContinue = continuing;
 	// TODO: Find correct place
+	// TODO: When the cutscene is started, fSender is set to the room.
+	// Then CUTSCENEID sets a different fSender. This probably causes problems.
 	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
 	while (condRes != NULL) {
 		::node* condition = FindNode(fSender, BLOCK_CONDITION, condRes);
@@ -294,7 +301,7 @@ Script::ResolveIdentifier(Object* object, const int id)
 
 /* static */
 Object*
-Script::GetObject(Actor* source, object_node* node)
+Script::GetObject(Object* source, object_node* node)
 {
 	std::cout << "Script::GetObject() ";
 	Object* result = NULL;
@@ -545,11 +552,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x00B1:
 			{
 				/* ACTION TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-				Region* region = dynamic_cast<Region*>(FindObject(fSender, trig));
+				/*Region* region = dynamic_cast<Region*>(FindObject(fSender, trig));
 				if (region != NULL) {
 					region->Print();
 					region->ActivateTrigger();
-				}	
+				}	*/
 				break;
 			}
 			case 0x400A:
@@ -939,10 +946,10 @@ Script::_HandleAction(action_node* act)
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
-			if (thisActor != NULL) {
+			/*if (thisActor != NULL) {
 				Attack* attackAction = new Attack(thisActor, act);
 				thisActor->AddAction(attackAction);
-			}
+			}*/
 			break;
 		}
 		case 0x07:
@@ -950,18 +957,8 @@ Script::_HandleAction(action_node* act)
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			// TODO: If point is (-1, -1) we should put the actor near
 			// the active creature. Which one is the active creature?
-			IE::point point = act->where;
-			if (point.x == -1 && point.y == -1) {
-				std::cout << "active creature: " << fSender->Name() << std::endl;
-				point = thisActor->Position();
-				point.x += Core::RandomNumber(-20, 20);
-				point.y += Core::RandomNumber(-20, 20);
-			} else {
-				std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
-			}
-			Actor* actor = new Actor(act->string1, point, act->integer1);
-			core->AddActorToCurrentArea(actor);
-			//core->SetActiveActor(actor);
+			Action* action = new CreateCreatureAction(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 0x8:
@@ -984,27 +981,27 @@ Script::_HandleAction(action_node* act)
 		case 22:
 		{
 			// MoveToObject
-			Action* walkTo = new WalkToObject(thisActor, act);
-			thisActor->AddAction(walkTo);
+			//Action* walkTo = new WalkToObject(thisActor, act);
+			//thisActor->AddAction(walkTo);
 			break;
 		}
 		case 23:
 		{
 			// MoveToPoint
-			if (thisActor != NULL) {
+			/*if (thisActor != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
 				thisActor->StopCheckingConditions();
-			}
+			}*/
 			break;
 		}
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-			if (thisActor != NULL) {
+			/*if (thisActor != NULL) {
 				RunAwayFrom* run = new RunAwayFrom(thisActor, act);
 				thisActor->AddAction(run);
-			}
+			}*/
 			break;
 		}
 		case 36:
@@ -1032,8 +1029,8 @@ Script::_HandleAction(action_node* act)
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(fSender, act);
-			fSender->AddAction(action);
+			//Action* action = new MoveViewPoint(fSender, act);
+			//fSender->AddAction(action);
 			break;
 		}
 		case 61:
@@ -1065,10 +1062,10 @@ Script::_HandleAction(action_node* act)
 		case 0x54:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
-			if (thisActor != NULL) {
+			/*if (thisActor != NULL) {
 				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act);
 				thisActor->AddAction(action);
-			}				
+			}*/			
 			break;
 		}
 		case 85:
@@ -1081,7 +1078,7 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			fSender->AddAction(new SetInterruptableAction(fSender, act));
+			//fSender->AddAction(new SetInterruptableAction(fSender, act));
 			break;
 		}
 		case 0x1E:
@@ -1102,8 +1099,8 @@ Script::_HandleAction(action_node* act)
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			Action* wait = new SmallWait(fSender, act);
-			fSender->AddAction(wait);
+			//Action* wait = new SmallWait(fSender, act);
+			//fSender->AddAction(wait);
 			break;
 		}
 
@@ -1144,13 +1141,10 @@ Script::_HandleAction(action_node* act)
 		case 0x6f:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			// TODO: Add as action
-			Actor* activeActor = core->ActiveActor();
-			if (activeActor != NULL) {
-				std::cout << "DESTROY SELF" << std::endl;
-				activeActor->DestroySelf();
-				core->SetActiveActor(NULL);
-			}
+			// TODO: Add as action			
+			std::cout << "DESTROY SELF" << std::endl;
+			//Action* action = new DestroySelfAction(fSender, act);
+			//fSender->AddAction(action);
 			break;
 			//return false;
 		}
@@ -1167,14 +1161,14 @@ Script::_HandleAction(action_node* act)
 		case 120:
 		{
 			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
-			core->StartCutscene(act->string1);
+			fSender->AddAction(new StartCutsceneAction(fSender, act));
 			break;
 		}
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
 			// TODO: add as an action ?
-			core->StartCutsceneMode();
+			fSender->AddAction(new StartCutsceneAction(fSender, act));
 			break;
 		}
 		case 0x7f:
@@ -1182,8 +1176,11 @@ Script::_HandleAction(action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, act));
-			SetSender(actor);
-			actor->SetInterruptable(false);
+			if (actor != NULL) {
+				std::cout << "CUTSCENEID: " << actor->Name() << std::endl;
+				SetSender(actor);
+				actor->SetInterruptable(false);
+			}
 			break;
 		}
 		case 0x97:
@@ -1193,12 +1190,12 @@ Script::_HandleAction(action_node* act)
 			 * in the message window, attributing the text to
 			 * the specified object.
 			 */
-			core->DisplayMessage(act->integer1);
+			//core->DisplayMessage(act->integer1);
 			break;
 		}
 		case 0xA7:
 		{
-			core->PlayMovie(act->string1);
+			//core->PlayMovie(act->string1);
 			break;
 		}
 		case 134:
@@ -1206,19 +1203,19 @@ Script::_HandleAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			if (thisActor != NULL) {
+			/*if (thisActor != NULL) {
 				Action* walkToAction = new WalkToObject(thisActor, act);
 				thisActor->AddAction(walkToAction);
 				Attack* attackAction = new Attack(thisActor, act);
 				thisActor->AddAction(attackAction);
-			}
+			}*/
 
 			break;
 		}
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			fSender->AddAction(new OpenDoor(fSender, act));
+			//fSender->AddAction(new OpenDoor(fSender, act));
 			break;
 		}
 		case 177:
@@ -1263,11 +1260,11 @@ Script::_HandleAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			if (thisActor != NULL) {
-				WalkTo* walkTo = new WalkTo(thisActor, act);
-				thisActor->AddAction(walkTo);
-				thisActor->StopCheckingConditions();
-			}
+			//if (thisActor != NULL) {
+			//	WalkTo* walkTo = new WalkTo(thisActor, act);
+			//	thisActor->AddAction(walkTo);
+			//	thisActor->StopCheckingConditions();
+			//}
 			break;
 		}
 		case 225:
@@ -1286,12 +1283,8 @@ Script::_HandleAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Actor* actor = new Actor(act->string1, act->where, act->integer1);
-			std::cout << "Created actor " << act->string1 << " on ";
-			std::cout << act->where.x << ", " << act->where.y << std::endl;
-			actor->SetDestination(act->where);
-			core->AddActorToCurrentArea(actor);
-			//core->SetActiveActor(actor);
+			//Action* action = new CreateCreatureImpassableAction(fSender, act);
+			//fSender->AddAction(action);
 			break;
 		}
 		case 254:
@@ -1304,13 +1297,13 @@ Script::_HandleAction(action_node* act)
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			GUI::Get()->Hide();
+			fSender->AddAction(new HideGUIAction(fSender, act));
 			break;
 		}
 		case 287:
 		{
 			/* UNHIDEGUI()(287 0x11f) */
-			GUI::Get()->Show();
+			fSender->AddAction(new UnhideGUIAction(fSender, act));
 			break;
 		}
 		case 311:
