@@ -282,7 +282,10 @@ Core::StartCutscene(const res_ref& scriptName)
 		// TODO: not nice. but it will be changed in the cutscene script
 		script->SetSender(fCurrentRoom);
 		script->Execute(continuing);
-		delete script;
+		
+		// TODO: We cannot delete the script, since actions are parsing it after we return.
+		// We are leaking the it now
+		//delete script;
 	}	
 }
 
