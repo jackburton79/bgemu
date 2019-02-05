@@ -171,24 +171,25 @@ void
 Object::ExecuteActions()
 {
 	if (fWaitTime > 0) {
-		//std::cout << Name() << " : wait time " << fWaitTime << std::endl;
+		std::cout << Name() << " : wait time " << std::dec << fWaitTime << std::endl;
 		fWaitTime--;
 		return;
 	}
 
-	if (fActions.size() != 0) {
-		std::list<Action*>::iterator i = fActions.begin();
-		while (i != fActions.end()) {
-			Action& action = **i;
-			if (action.Completed()) {
-				//std::cout << Name() << " action completed" << std::endl;				
-				delete *i;
-				i = fActions.erase(i);
-			} else {
-				//std::cout << Name() << " execute action" << std::endl;
-				action();
-				break;
-			}
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->IsWalking()) {
+		actor->HandleWalking();
+		return;
+	}
+
+	std::cout << Name() << ": Executing actions: " << std::endl;
+	std::list<Action*>::iterator i = fActions.begin();
+	if (i != fActions.end()) {
+		Action& action = **i;
+		action();
+		if (action.Completed()) {
+			delete *i;
+			fActions.erase(i);
 		}
 	}
 }
@@ -250,7 +251,7 @@ Object::ClearScripts()
 void
 Object::SetWaitTime(int32 waitTime)
 {
-	fWaitTime = waitTime;
+	fWaitTime += waitTime;
 }
 
 

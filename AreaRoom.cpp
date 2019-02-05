@@ -384,8 +384,7 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 	}
 
 	if (fSelectedActor != NULL) {
-		WalkTo* walkTo = new WalkTo(fSelectedActor.Target(), point);
-		fSelectedActor.Target()->AddAction(walkTo);
+		fSelectedActor.Target()->SetDestination(point);
 	}
 }
 

@@ -51,6 +51,9 @@ public:
 	IE::point RestrictionDistance() const;
 	virtual IE::point NearestPoint(const IE::point& start) const;
 	
+	bool IsWalking() const;
+	bool HandleWalking();
+	
 	void SetRegion(Region* region);
 	Region* CurrentRegion() const;
 
@@ -143,6 +146,7 @@ private:
 
 	void _Init();
 	void _HandleScripts();
+	
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);

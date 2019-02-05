@@ -586,24 +586,24 @@ Core::RandomFly(Actor* actor)
 void
 Core::FlyToPoint(Actor* actor, IE::point point, uint32 time)
 {
-	int16 randomX = RandomNumber(-50, 50);
+	/*int16 randomX = RandomNumber(-50, 50);
 	int16 randomY = RandomNumber(-50, 50);
 
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	FlyTo* flyTo = new FlyTo(actor, destination, time);
-	actor->AddAction(flyTo);
+	actor->AddAction(flyTo);*/
 }
 
 
 void
 Core::RandomWalk(Actor* actor)
 {
-	int16 randomX = RandomNumber(-50, 50);
+	/*int16 randomX = RandomNumber(-50, 50);
 	int16 randomY = RandomNumber(-50, 50);
 
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	WalkTo* walkTo = new WalkTo(actor, destination);
-	actor->AddAction(walkTo);
+	actor->AddAction(walkTo);*/
 }
 
 

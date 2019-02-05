@@ -4,7 +4,9 @@
 #include "Core.h"
 #include "Door.h"
 #include "GraphicsEngine.h"
+#include "Parsing.h"
 #include "RoomBase.h"
+#include "Script.h"
 #include "TextSupport.h"
 #include "Timer.h"
 
@@ -21,9 +23,10 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 // TODO: we should not pass Object pointers,
 // but pass action parameters instead, which should be evaluated
 // when the action is being executed
-Action::Action(Object* object)
+Action::Action(Object* object, action_node* node)
     :
 	fObject(object),
+	fActionParams(node),
 	fInitiated(false),
 	fCompleted(false)
 {
@@ -42,6 +45,12 @@ Action::Initiated() const
 }
 
 
+void
+Action::SetInitiated()
+{
+}
+
+
 bool
 Action::Completed() const
 {
@@ -56,15 +65,6 @@ Action::SetCompleted()
 }
 
 
-/* virtual */
-void
-Action::operator()()
-{
-	if (!fInitiated)
-		fInitiated = true;
-}
-
-
 std::string
 Action::Name() const
 {
@@ -72,27 +72,10 @@ Action::Name() const
 }
 
 
-// ActionWithTarget
-ActionWithTarget::ActionWithTarget(Object* object, Object* target)
-	:
-	Action(object),
-	fTarget(target)
-{
-}
-
-
-void
-ActionWithTarget::operator()()
-{
-	Action::operator()();
-}
-
-
 // SetInterruptableAction
-SetInterruptableAction::SetInterruptableAction(Object* object, bool interrupt)
+SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node)
 	:
-	Action(object),
-	fInterruptable(interrupt)
+	Action(object, node)
 {
 }
 
@@ -101,17 +84,17 @@ SetInterruptableAction::SetInterruptableAction(Object* object, bool interrupt)
 void
 SetInterruptableAction::operator()()
 {
-	fObject->SetInterruptable(fInterruptable);
+	fObject->SetInterruptable(fActionParams->integer1 == 1);
 	SetCompleted();
 }
 
 
 // WalkTo
-WalkTo::WalkTo(Object* object, IE::point destination)
+WalkTo::WalkTo(Object* object, action_node* node)
 	:
-	Action(object),
-	fDestination(destination)
+	Action(object, node)
 {
+	
 }
 
 
@@ -123,29 +106,23 @@ WalkTo::operator()()
 	if (actor == NULL)
 		return;
 
-	if (!Initiated())
+	if (!Initiated()) {
 		actor->SetDestination(fDestination);
-
-	Action::operator()();
+		SetInitiated();
+	}
 
 	if (actor->Position() == actor->Destination()) {
 		SetCompleted();
-		actor->SetAnimationAction(ACT_STANDING);
 		return;
 	}
-
-	actor->SetAnimationAction(ACT_WALKING);
-	actor->MoveToNextPointInPath(actor->IsFlying());
 }
 
 
 // WalkToObject
-WalkToObject::WalkToObject(Object* object, Object* target)
+WalkToObject::WalkToObject(Object* object, action_node* node)
 	:
-	Action(object),
-	fTarget(target)
+	Action(object, node)
 {
-	fTarget->Acquire();
 }
 
 
@@ -157,28 +134,29 @@ WalkToObject::operator()()
 	if (actor == NULL)
 		return;
 
-	IE::point destination = fTarget->NearestPoint(actor->Position());
+	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL) {
+		SetCompleted();
+		return;
+	}
+	
+	target->Acquire();
+	
+	IE::point destination = target->NearestPoint(actor->Position());
 	actor->SetDestination(destination);
-
-	Action::operator()();
 
 	if (actor->Position() == actor->Destination()) {
 		SetCompleted();
-		actor->SetAnimationAction(ACT_STANDING);
-		fTarget->Release();
+		target->Release();
 		return;
 	}
-
-	actor->SetAnimationAction(ACT_WALKING);
-	actor->MoveToNextPointInPath(actor->IsFlying());
 }
 
 
 // FlyTo
-FlyTo::FlyTo(Object* object, IE::point destination, int time)
+FlyTo::FlyTo(Object* object, action_node* node)
 	:
-	Action(object),
-	fDestination(destination)
+	Action(object, node)
 {
 }
 
@@ -191,10 +169,10 @@ FlyTo::operator()()
 	if (actor == NULL)
 		return;
 
-	if (!Initiated())
-		actor->SetDestination(fDestination);
-
-	Action::operator()();
+	if (!Initiated()) {
+		actor->SetDestination(fActionParams->where);
+		SetInitiated();
+	}
 
 	if (actor->Position() == actor->Destination()) {
 		SetCompleted();
@@ -208,10 +186,9 @@ FlyTo::operator()()
 
 
 // Wait
-Wait::Wait(Object* object, uint32 time)
+Wait::Wait(Object* object, action_node* node)
 	:
-	Action(object),
-	fWaitTime(time)
+	Action(object, node)
 {
 }
 
@@ -220,16 +197,36 @@ Wait::Wait(Object* object, uint32 time)
 void
 Wait::operator()()
 {
-	fObject->SetWaitTime(fWaitTime);
+	Object* object = Script::FindObject(fObject, fActionParams);
+	if (object != NULL)
+		object->SetWaitTime(fActionParams->integer1 * 15); // use a constant
+	SetCompleted();
+}
+
+
+// SmallWait
+SmallWait::SmallWait(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+SmallWait::operator()()
+{
+	Object* object = Script::FindObject(fObject, fActionParams);
+	if (object != NULL)
+		object->SetWaitTime(fActionParams->integer1);
 	SetCompleted();
 }
 
 
 // OpenDoor
-OpenDoor::OpenDoor(Object* sender, Door* door)
+OpenDoor::OpenDoor(Object* sender, action_node* node)
 	:
-	Action(sender),
-	fDoor(door)
+	Action(sender, node)
 {
 }
 
@@ -238,18 +235,27 @@ OpenDoor::OpenDoor(Object* sender, Door* door)
 void
 OpenDoor::operator()()
 {
-	Action::operator()();
-	if (!fDoor->Opened())
-		fDoor->Toggle();
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor == NULL)
+		return;
+
+	Door* target = dynamic_cast<Door*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL) {
+		SetCompleted();
+		return;
+	}
+	
+	if (!target->Opened())
+		target->Toggle();
 	SetCompleted();
 }
 
 
 
 // Attack
-Attack::Attack(Object* object, Object* target)
+Attack::Attack(Object* object, action_node* node)
 	:
-	ActionWithTarget(object, target)
+	Action(object, node)
 {
 }
 
@@ -261,15 +267,18 @@ Attack::operator()()
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor == NULL)
 		return;
-	Actor* target = dynamic_cast<Actor*>(fTarget);
-	if (target == NULL)
+	
+	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL){
+		SetCompleted();
 		return;
+	}
 
 	if (!Initiated()) {
 		IE::point point = target->NearestPoint(actor->Position());
 		if (!PointSufficientlyClose(actor->Position(), point))
 			actor->SetDestination(point);
-		Action::operator()();
+		SetInitiated();
 	}
 
 	if (actor->Position() != actor->Destination()) {
@@ -284,9 +293,9 @@ Attack::operator()()
 
 
 // RunAwayFrom
-RunAwayFrom::RunAwayFrom(Object* object, Object* target)
+RunAwayFrom::RunAwayFrom(Object* object, action_node* node)
 	:
-	ActionWithTarget(object, target)
+	Action(object, node)
 {
 }
 
@@ -299,11 +308,19 @@ RunAwayFrom::operator()()
 	if (actor == NULL)
 		return;
 
-	Action::operator()();
-
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	if (Core::Get()->Distance(actor, fTarget) < 200) {
+	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL){
+		SetCompleted();
+		return;
+	}
+	// TODO: Implement
+	SetCompleted();
+	return;
+	/*
+	
+	if (Core::Get()->Distance(actor, target) < 200) {
 		IE::point point = PointAway();
 		if (actor->Destination() != point) {
 			actor->SetDestination(point);
@@ -316,19 +333,25 @@ RunAwayFrom::operator()()
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(actor->IsFlying());
-	}
+	}*/
 }
 
 
 IE::point
-RunAwayFrom::PointAway() const
+RunAwayFrom::PointAway()
 {
-	Actor* actor = dynamic_cast<Actor*>(fObject);
-	if (actor == NULL) {
+	// TODO:
+	//Actor* actor = dynamic_cast<Actor*>(fObject);
+	//if (actor == NULL) {
 		return (IE::point ){ 0, 0 };
+	//}
+	/*
+	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL){
+		SetCompleted();
+		return;
 	}
-	
-	IE::point targetPos = fTarget->NearestPoint(actor->Position());
+	IE::point targetPos = target->NearestPoint(actor->Position());
 
 	if (targetPos.x > actor->Position().x)
 		targetPos.x -= 100;
@@ -340,14 +363,14 @@ RunAwayFrom::PointAway() const
 	else if (targetPos.y < actor->Position().y)
 		targetPos.y += 100;
 
-	return targetPos;
+	return targetPos;*/
 }
 
 
 // Dialogue
-Dialogue::Dialogue(Object* source, Object* target)
+Dialogue::Dialogue(Object* source, action_node* node)
 	:
-	ActionWithTarget(source, target)
+	Action(source, node)
 {
 }
 
@@ -360,9 +383,11 @@ Dialogue::operator()()
 	if (actor == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(fTarget);
-	if (target == NULL)
+	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	if (target == NULL){
+		SetCompleted();
 		return;
+	}
 
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
@@ -371,7 +396,7 @@ Dialogue::operator()()
 	if (!PointSufficientlyClose(fActor.Target()->Destination(), point))
 		fActor.Target()->SetDestination(point);
 */
-	Action::operator()();
+	SetInitiated();
 /*
 	if (!PointSufficientlyClose(fActor.Target()->Position(), fTarget->Target()->Position())) {
 		fActor.Target()->SetAnimationAction(ACT_WALKING);
@@ -385,82 +410,74 @@ Dialogue::operator()()
 }
 
 
-// FadeToColor
-FadeColorAction::FadeColorAction(Object* object,
-	int32 numUpdates, int fadeDirection)
+// FadeToColorAction
+FadeToColorAction::FadeToColorAction(Object* object, action_node* node)
 	:
-	Action(object),
-	fFadeDirection(fadeDirection),
+	Action(object, node),
 	fCurrentValue(0),
 	fTargetValue(0),
 	fStepValue(1)
 {
-	if (fFadeDirection == TO_BLACK) {
-		fCurrentValue = 255;
-		fTargetValue = 0;
-		fStepValue = (fCurrentValue - fTargetValue) / numUpdates;
-	} else if (fFadeDirection == FROM_BLACK) {
-		fCurrentValue = 0;
-		fTargetValue = 255;
-		fStepValue = fTargetValue / numUpdates;
-	}
-	if (object != NULL)
-		object->SetWaitTime(std::abs(fStepValue * numUpdates));
 }
 
 
 /* virtual */
 void
-FadeColorAction::operator()()
+FadeToColorAction::operator()()
 {
-	GraphicsEngine::Get()->SetFade(fCurrentValue);
-	switch (fFadeDirection) {
-		case TO_BLACK:
-			if (fCurrentValue > fTargetValue)
-				fCurrentValue -= fStepValue;
-			else
-				SetCompleted();
-			break;
-		case FROM_BLACK:
-			if (fCurrentValue < fTargetValue)
-				fCurrentValue += fStepValue;
-			else
-				SetCompleted();
-			break;
-		default:
-			SetCompleted();
-			break;
+	if (!Initiated()) {
+		SetInitiated();
+		fCurrentValue = 255;
+		fTargetValue = 0;
+		fStepValue = (fCurrentValue - fTargetValue) / fActionParams->where.x;
+		if (fObject != NULL)
+			fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
 	}
+	
+	GraphicsEngine::Get()->SetFade(fCurrentValue);
+	if (fCurrentValue > fTargetValue)
+		fCurrentValue -= fStepValue;
+	else
+		SetCompleted();
+}
+
+// FadeFromColorAction
+FadeFromColorAction::FadeFromColorAction(Object* object, action_node* node)
+	:
+	Action(object, node),
+	fCurrentValue(0),
+	fTargetValue(0),
+	fStepValue(1)
+{
+}
+
+
+/* virtual */
+void
+FadeFromColorAction::operator()()
+{
+	if (!Initiated()) {
+		SetInitiated();
+		fCurrentValue = 0;
+		fTargetValue = 255;
+		fStepValue = fTargetValue / fActionParams->where.x;
+		if (fObject != NULL)
+			fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
+	}
+	
+	GraphicsEngine::Get()->SetFade(fCurrentValue);
+	if (fCurrentValue < fTargetValue)
+		fCurrentValue += fStepValue;
+	else
+		SetCompleted();
 }
 
 
 // MoveViewPoint
-MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
+MoveViewPoint::MoveViewPoint(Object* object, action_node* node)
 	:
-	Action(object),
-	fDestination(point),
-	fScrollSpeed(scrollSpeed)
-{
-	Core::Get()->CurrentRoom()->SanitizeOffsetCenter(fDestination);
-	
-	switch (fScrollSpeed) {
-		case 1:
-			fScrollSpeed = 10;
-			break;
-		case 2:
-			fScrollSpeed = 20;
-			break;
-		case 3:
-			fScrollSpeed = 40;
-			break;
-		case 4:
-			fScrollSpeed = 80;
-			break;
-		case 0:		
-		default:		
-			fScrollSpeed = 10000;
-			break;
-	}
+	Action(object, node)
+{	
 }
 
 
@@ -468,6 +485,30 @@ MoveViewPoint::MoveViewPoint(Object* object, IE::point point, int scrollSpeed)
 void
 MoveViewPoint::operator()()
 {
+	if (!Initiated()) {
+		SetInitiated();
+		fDestination = fActionParams->where;
+		Core::Get()->CurrentRoom()->SanitizeOffsetCenter(fDestination);
+		switch (fActionParams->integer1) {
+			case 1:
+				fScrollSpeed = 10;
+				break;
+			case 2:
+				fScrollSpeed = 20;
+				break;
+			case 3:
+				fScrollSpeed = 40;
+				break;
+			case 4:
+				fScrollSpeed = 80;
+				break;
+			case 0:		
+			default:		
+				fScrollSpeed = 10000;
+				break;
+		}
+	}
+	
 	RoomBase* room = Core::Get()->CurrentRoom();
 	IE::point offset = room->AreaCenterPoint();
 	const int16 step = fScrollSpeed;
@@ -487,14 +528,10 @@ MoveViewPoint::operator()()
 }
 
 
-ScreenShake::ScreenShake(Object* object, IE::point point, int duration)
+ScreenShake::ScreenShake(Object* object, action_node* node)
 	:
-	Action(object),
-	fOffset(point),
-	fDuration(duration)
+	Action(object, node)
 {
-	if (object != NULL)
-		object->SetWaitTime(fDuration);
 }
 
 
@@ -502,6 +539,14 @@ ScreenShake::ScreenShake(Object* object, IE::point point, int duration)
 void
 ScreenShake::operator()()
 {
+	if (!Initiated()) {
+		SetInitiated();
+		if (fObject != NULL)
+			fObject->SetWaitTime(fDuration);
+		fOffset = fActionParams->where;
+		fDuration = fActionParams->integer1;
+	}
+	
 	GFX::point point = { 0, 0 };
 	if (fDuration-- == 0) {	
 		GraphicsEngine::Get()->SetRenderingOffset(point);	
@@ -519,15 +564,12 @@ ScreenShake::operator()()
 
 
 
-DisplayString::DisplayString(Object* object, const char* text, IE::point point, int duration)
+DisplayString::DisplayString(Object* object, action_node* node)
 	:
-	Action(object),
-	fString(text),
-	fOffset(point),
-	fDuration(duration)
+	Action(object, node)
 {
-	std::cout << "DisplayString " << text << " at " << fOffset.x << ", " << fOffset.y;
-	std::cout << ", duration: " << duration << std::endl;
+	//std::cout << "DisplayString " << text << " at " << fOffset.x << ", " << fOffset.y;
+	//std::cout << ", duration: " << duration << std::endl;
 }
 
 
@@ -535,21 +577,25 @@ DisplayString::DisplayString(Object* object, const char* text, IE::point point, 
 void
 DisplayString::operator()()
 {
+	if (!Initiated()) {
+		SetInitiated();
+		fDuration = fActionParams->integer1;
+	}
+	
 	if (fDuration-- == 0) {	
 		SetCompleted();
 		return;
 	}
 	
-	GFX::point point = { fOffset.x, fOffset.y };
-	FontRoster::GetFont("TOOLFONT")->RenderString(fString, 0, GraphicsEngine::Get()->ScreenBitmap(), point);
+	//GFX::point point = { fOffset.x, fOffset.y };
+	//FontRoster::GetFont("TOOLFONT")->RenderString(fString, 0, GraphicsEngine::Get()->ScreenBitmap(), point);
 }
 
 	
 // ChangeOrientationExtAction
-ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, int o)
+ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_node* node)
 	:
-	Action(object),
-	fOrientation(o)
+	Action(object, node)
 {
 }
 
@@ -560,6 +606,6 @@ ChangeOrientationExtAction::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor != NULL)
-		actor->SetOrientation(fOrientation);
+		actor->SetOrientation(fActionParams->integer1);
 	SetCompleted();
 }

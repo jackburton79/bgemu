@@ -23,6 +23,7 @@
 
 #include "ShellCommand.h"
 
+#if 0
 class ListObjectsCommand : public ShellCommand {
 public:
 	ListObjectsCommand() : ShellCommand("list-objects") {}
@@ -178,10 +179,11 @@ public:
 	};
 };
 
-
+#endif 
 void
 AddCommands(InputConsole* console)
 {
+#if 0
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
@@ -192,4 +194,5 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new DisplayStringCommand());
 	console->AddCommand(new ExitCommand());
+#endif
 }

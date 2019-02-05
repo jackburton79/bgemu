@@ -33,23 +33,21 @@ public:
 
 	void Add(Script* script);
 
-	static trigger_node*	FindTriggerNode(node* start);
-	static action_node*		FindActionNode(node* start);
-	static object_node*		FindObjectNode(node* start);
-	//int32			FindMultipleObjectNodes(std::vector<object_node*>& list,
-		//				node* start = NULL) const;
-	static node*			FindNode(block_type type, node* start);
+	static trigger_node*	FindTriggerNode(Object* object, node* start);
+	static action_node*		FindActionNode(Object* object, node* start);
+	static object_node*		FindObjectNode(Object* object, node* start);
+	static node*			FindNode(Object* object, block_type type, node* start);
 
 	// convenience call
-	Object*					FindObject(node* start) const;
-
+	static Object*			FindObject(Object* object, node* start);
+	
 	bool Execute(bool &continuing);
 
 	Object* Sender();
 	void SetSender(Object* object);
 
-	Object* ResolveIdentifier(const int id) const;
-	Object* GetObject(Actor* source, object_node* node) const;
+	static Object* ResolveIdentifier(Object* object, const int id);
+	static Object* GetObject(Actor* source, object_node* node);
 
 	Object* LastTrigger() const;
 

@@ -173,6 +173,8 @@ Actor::_Init()
 	fActor->destination = fActor->position;
 
 	fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
+
+	SetAnimationAction(ACT_STANDING);
 }
 
 
@@ -322,6 +324,27 @@ Actor::NearestPoint(const IE::point& start) const
 	else if (start.y > targetPoint.y)
 		targetPoint.y += restriction.y;
 	return targetPoint;
+}
+
+
+bool
+Actor::IsWalking() const
+{
+	return fActor->destination != fActor->position;
+}
+
+
+bool
+Actor::HandleWalking()
+{
+	if (IsWalking()) {
+		SetAnimationAction(ACT_WALKING);
+		MoveToNextPointInPath(false);
+		if (!IsWalking())
+			SetAnimationAction(ACT_STANDING);
+		return true;
+	}
+	return false;
 }
 
 
@@ -600,7 +623,7 @@ Actor::ClickedOn(Object* target)
 	// TODO: Add a "mode" to the ClickedOn method, to distinguish
 	// an attack from a dialog start, etc
 
-	if (Door* door = dynamic_cast<Door*>(target)) {
+	/*if (Door* door = dynamic_cast<Door*>(target)) {
 		Action* walkToAction = new WalkToObject(this, door);
 		AddAction(walkToAction);
 		OpenDoor* toggleAction = new OpenDoor(this, door);
@@ -611,7 +634,7 @@ Actor::ClickedOn(Object* target)
 	} else if (Container* container = dynamic_cast<Container*>(target)) {
 		Action* walkTo = new WalkToObject(this, container);
 		AddAction(walkTo);
-	}
+	}*/
 }
 
 
@@ -671,14 +694,14 @@ IsValid(const res_ref& scriptName)
 void
 Actor::_HandleScripts()
 {
-	AddScript(_ExtractScript(fActor->script_override));
+	AddScript(Core::ExtractScript(fActor->script_override));
 	// What is the area script ?
-	//AddScript(_ExtractScript(fActor->script_area));
-	AddScript(_ExtractScript(fActor->script_specific));		
-	AddScript(_ExtractScript(fActor->script_class));
-	AddScript(_ExtractScript(fActor->script_race));
-	AddScript(_ExtractScript(fActor->script_general));
-	AddScript(_ExtractScript(fActor->script_default));
+	//AddScript(Core::ExtractScript(fActor->script_area));
+	AddScript(Core::ExtractScript(fActor->script_specific));		
+	AddScript(Core::ExtractScript(fActor->script_class));
+	AddScript(Core::ExtractScript(fActor->script_race));
+	AddScript(Core::ExtractScript(fActor->script_general));
+	AddScript(Core::ExtractScript(fActor->script_default));
 
 }
 
@@ -808,14 +831,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		else
 			_SetOrientationExtended(nextPoint);
 		fActor->position = nextPoint;
-	}
-}
-
-
-::Script*
-Actor::_ExtractScript(const res_ref& scriptName)
-{
-	return Core::ExtractScript(scriptName);	
+	}		
 }
 
 

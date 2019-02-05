@@ -6,48 +6,40 @@
 
 class Door;
 class Object;
+struct action_node;
 class Action {
 public:
-    Action(Object* actor);
+    Action(Object* actor, action_node* node);
     virtual ~Action();
 
     bool Initiated() const;
+    void SetInitiated();
     bool Completed() const;
 	void SetCompleted();
 	
-    virtual void operator()();
+    virtual void operator()() = 0;
     
     std::string Name() const;
     
 protected:
     Object* fObject;
+    action_node* fActionParams;
+private:
     bool fInitiated;
     bool fCompleted;
 };
 
 
-class ActionWithTarget : public Action {
-public:
-	ActionWithTarget(Object* actor, Object* target);
-	virtual void operator()();
-
-protected:
-	Object* fTarget;
-};
-
-
 class SetInterruptableAction : public Action {
 public:
-	SetInterruptableAction(Object* object, bool interruptable);
+	SetInterruptableAction(Object* object, action_node* node);
 	virtual void operator()();
-private:
-	bool fInterruptable;
 };
 
 
 class WalkTo : public Action {
 public:
-	WalkTo(Object* actor, IE::point destination);
+	WalkTo(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -56,7 +48,7 @@ private:
 
 class WalkToObject : public Action {
 public:
-	WalkToObject(Object* actor, Object* target);
+	WalkToObject(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	Object* fTarget;
@@ -65,7 +57,7 @@ private:
 
 class FlyTo : public Action {
 public:
-	FlyTo(Object* actor, IE::point, int time);
+	FlyTo(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -74,7 +66,16 @@ private:
 
 class Wait : public Action {
 public:
-	Wait(Object* actor, uint32 time);
+	Wait(Object* actor, action_node* node);
+	virtual void operator()();
+private:
+	uint32 fWaitTime;
+};
+
+
+class SmallWait : public Action {
+public:
+	SmallWait(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	uint32 fWaitTime;
@@ -83,56 +84,61 @@ private:
 
 class OpenDoor : public Action {
 public:
-	OpenDoor(Object* actor, Door* door);
+	OpenDoor(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	Door* fDoor;
 };
 
 
-class Attack : public ActionWithTarget {
+class Attack : public Action {
 public:
-	Attack(Object* actor, Object* target);
+	Attack(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class RunAwayFrom : public ActionWithTarget {
+class RunAwayFrom : public Action {
 public:
-	RunAwayFrom(Object* actor, Object* target);
+	RunAwayFrom(Object* actor, action_node* node);
 	virtual void operator()();
 private:
-	IE::point PointAway() const;
+	IE::point PointAway();
 };
 
 
-class Dialogue : public ActionWithTarget {
+class Dialogue : public Action {
 public:
-	Dialogue(Object* actor, Object* target);
+	Dialogue(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class FadeColorAction : public Action {
+class FadeToColorAction : public Action {
 public:
-	enum fade {
-		FROM_BLACK = 1,
-		TO_BLACK = -1
-	};
-	FadeColorAction(Object* object, int32 numUpdates, int fade);
+	FadeToColorAction(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	int32 fNumUpdates;
-	int fFadeDirection;
 	int32 fCurrentValue;
 	int32 fTargetValue;
 	int16 fStepValue;
 };
 
+class FadeFromColorAction : public Action {
+public:
+	FadeFromColorAction(Object* object, action_node* node);
+	virtual void operator()();
+private:
+	int32 fNumUpdates;
+	int32 fCurrentValue;
+	int32 fTargetValue;
+	int16 fStepValue;
+};
 
 class MoveViewPoint : public Action {
 public:
-	MoveViewPoint(Object* object, IE::point point, int scrollSpeed);
+	MoveViewPoint(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -142,7 +148,7 @@ private:
 
 class ScreenShake : public Action {
 public:
-	ScreenShake(Object* object, IE::point point, int duration);
+	ScreenShake(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fOffset;
@@ -152,7 +158,7 @@ private:
 
 class DisplayString : public Action {
 public:
-	DisplayString(Object* object, const char* text, IE::point point, int duration);
+	DisplayString(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	std::string fString;
@@ -163,7 +169,7 @@ private:
 
 class ChangeOrientationExtAction : public Action {
 public:
-	ChangeOrientationExtAction(Object* object, int o);
+	ChangeOrientationExtAction(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	int fOrientation;

@@ -97,25 +97,25 @@ Script::Print() const
 
 /* static */
 trigger_node*
-Script::FindTriggerNode(node* start)
+Script::FindTriggerNode(Object* object, node* start)
 {
-	return static_cast<trigger_node*>(FindNode(BLOCK_TRIGGER, start));
+	return static_cast<trigger_node*>(FindNode(object, BLOCK_TRIGGER, start));
 }
 
 
 /* static */
 action_node*
-Script::FindActionNode(node* start)
+Script::FindActionNode(Object* object, node* start)
 {
-	return static_cast<action_node*>(FindNode(BLOCK_ACTION, start));
+	return static_cast<action_node*>(FindNode(object, BLOCK_ACTION, start));
 }
 
 
 /* static */
 object_node*
-Script::FindObjectNode(node* start)
+Script::FindObjectNode(Object* object, node* start)
 {
-	return static_cast<object_node*>(FindNode(BLOCK_OBJECT, start));
+	return static_cast<object_node*>(FindNode(object, BLOCK_OBJECT, start));
 }
 
 /*
@@ -135,29 +135,30 @@ Script::FindMultipleObjectNodes(std::vector<object_node*>& list,
 
 /* static */
 node*
-Script::FindNode(block_type nodeType, node* start)
+Script::FindNode(Object* object, block_type nodeType, node* start)
 {
 	if (start->type == nodeType)
 		return const_cast<node*>(start);
 
 	node_list::const_iterator i;
 	for (i = start->children.begin(); i != start->children.end(); i++) {
-		node *n = FindNode(nodeType, *i);
+		node *n = FindNode(object, nodeType, *i);
 		if (n != NULL)
 			return n;
 	}
 
 	if (start->next != NULL)
-		return FindNode(nodeType, start->next);
+		return FindNode(object, nodeType, start->next);
 
 	return NULL;
 }
 
 
+/* static */
 Object*
-Script::FindObject(node* start) const
+Script::FindObject(Object* object, node* start)
 {
-	object_node* objectNode = FindObjectNode(start);
+	object_node* objectNode = FindObjectNode(object, start);
 	while (objectNode != NULL && Actor::IsDummy(objectNode)) {
 		objectNode = static_cast<object_node*>(objectNode->Next());
 	}
@@ -168,7 +169,7 @@ Script::FindObject(node* start) const
 	/*if (sDebug)
 		objectNode->Print();*/
 
-	return GetObject((Actor*)fSender, objectNode);
+	return GetObject((Actor*)object, objectNode);
 }
 
 
@@ -195,9 +196,9 @@ Script::Execute(bool& continuing)
 
 	bool foundContinue = continuing;
 	// TODO: Find correct place
-	::node* condRes = FindNode(BLOCK_CONDITION_RESPONSE, fRootNode);
+	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
 	while (condRes != NULL) {
-		::node* condition = FindNode(BLOCK_CONDITION, condRes);
+		::node* condition = FindNode(fSender, BLOCK_CONDITION, condRes);
 		while (condition != NULL) {
 			if (sDebug)
 				std::cout << "CONDITION" << std::endl;
@@ -262,36 +263,38 @@ Script::SetSender(Object* object)
 }
 
 
+/* static */
 Object*
-Script::ResolveIdentifier(const int id) const
+Script::ResolveIdentifier(Object* object, const int id)
 {
-	Script* thisCast = const_cast<Script*>(this);
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
-		return thisCast->Sender();
+		return object;
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF") {
-		Actor* actor = dynamic_cast<Actor*>(thisCast->Sender());
+		Actor* actor = dynamic_cast<Actor*>(object);
 		if (actor == NULL)
 			return NULL;
 		return Core::Get()->GetNearestEnemyOf(actor);
 	}
 	// TODO: Move that one here ?
-
+/*
 	if (identifier == "LASTTRIGGER")
 		return LastTrigger();
 #if 0
 	if (identifier == "LASTATTACKEROF")
 		return LastScriptRoundResults()->LastAttacker();
 #endif
+*/
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
 	return NULL;
 }
 
 
+/* static */
 Object*
-Script::GetObject(Actor* source, object_node* node) const
+Script::GetObject(Actor* source, object_node* node)
 {
 	std::cout << "Script::GetObject() ";
 	Object* result = NULL;
@@ -308,7 +311,7 @@ Script::GetObject(Actor* source, object_node* node) const
 				break;
 			}
 			std::cout << IDTable::ObjectAt(identifier) << ", ";
-			target = dynamic_cast<Actor*>(ResolveIdentifier(identifier));
+			target = dynamic_cast<Actor*>(ResolveIdentifier(source, identifier));
 			/*if (source != NULL)
 				source->Print();*/
 		}
@@ -364,7 +367,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 {
 	fOrTriggers = 0;
 
-	trigger_node* trig = FindTriggerNode(conditionNode);
+	trigger_node* trig = FindTriggerNode(fSender, conditionNode);
 	bool blockEvaluation = true;
 	while (trig != NULL) {
 		if (fOrTriggers > 0) {
@@ -418,7 +421,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object_node* node = FindObjectNode(trig);
+				object_node* node = FindObjectNode(fSender, trig);
 				if (node == NULL)
 					break;
 				node->Print();
@@ -463,7 +466,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
 #if 0
-				Object* object = FindObject(trig);
+				Object* object = FindObject(fSender, trig);
 				if (object != NULL && core->Distance(fSender, object) <= 30
 						&& object->LastScriptRoundResults()->Shouted()
 						== trig->parameter1) {
@@ -501,7 +504,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0052:
 			{
 				/* OPENED(O:OBJECT*) (82 0x52) */
-				object_node* objectNode = FindObjectNode(trig);
+				object_node* objectNode = FindObjectNode(fSender, trig);
 				if (objectNode == NULL)
 					break;
 				break;
@@ -527,7 +530,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
-				object_node* objectNode = FindObjectNode(trig);
+				object_node* objectNode = FindObjectNode(fSender, trig);
 				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fSender);
 				if (clicker != NULL) {
 					objectNode->Print();
@@ -542,7 +545,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x00B1:
 			{
 				/* ACTION TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-				Region* region = dynamic_cast<Region*>(FindObject(trig));
+				Region* region = dynamic_cast<Region*>(FindObject(fSender, trig));
 				if (region != NULL) {
 					region->Print();
 					region->ActivateTrigger();
@@ -552,7 +555,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsAlignment(trig->parameter1);
 				break;
@@ -560,7 +563,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400B:
 			{
 				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsEnemyAlly(trig->parameter1);
 				break;
@@ -568,7 +571,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsClass(trig->parameter1);
 				break;
@@ -576,7 +579,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400E:
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL) {
 					returnValue = object->IsGeneral(trig->parameter1);
 					if (sDebug) {
@@ -608,7 +611,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4017:
 			{
 				// Race()
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsRace(trig->parameter1);
 				break;
@@ -619,7 +622,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->Distance(object, fSender) <= trig->parameter1;
 				break;
@@ -631,7 +634,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
 				break;
@@ -688,7 +691,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the specified object
 				 * is in the state specified.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsState(trig->parameter1);
 				break;
@@ -723,7 +726,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4043:
 			{
 				// InParty
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = Game::Get()->Party()->HasActor(object);
 				break;
@@ -752,7 +755,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
 				int range = 40;
 				// TODO: Check weapon range
-				Actor* object = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->Distance(actor, fSender) <= range;
 				break;
@@ -792,7 +795,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: This is valid for Regions scripts. What is the "Active CRE" ?
 				if (actor == NULL)
 					break;
-				Object* object = GetObject(actor, FindObjectNode(trig));
+				Object* object = GetObject(actor, FindObjectNode(fSender, trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
 					// || core->Hear(fSender, object);
@@ -805,7 +808,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object_node* doorObj = FindObjectNode(trig);
+				object_node* doorObj = FindObjectNode(fSender, trig);
 				Door *door = dynamic_cast<Door*>(
 								core->GetObject(doorObj->name));
 				if (door != NULL) {
@@ -823,7 +826,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Region* region = dynamic_cast<Region*>(fSender);
 				if (region == NULL)
 					break;
-				object_node* objectNode = FindObjectNode(trig);
+				object_node* objectNode = FindObjectNode(fSender, trig);
 				if (objectNode != NULL) {
 					// TODO: won't work if the object is generic and not specified					
 					Actor* actor = core->GetObject(objectNode);
@@ -862,7 +865,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x401b:
 			{
 				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
-				Actor* actor = dynamic_cast<Actor*>(FindObject(trig));
+				Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, trig));
 				if (actor != NULL) {
 					returnValue = actor->CRE()->Reputation() < trig->parameter1;
 				}
@@ -890,7 +893,7 @@ Script::_HandleResponseSet(node* responseSet)
 {
 	response_node* responses[5];
 	response_node* response = static_cast<response_node*>(
-			FindNode(BLOCK_RESPONSE, responseSet));
+			FindNode(fSender, BLOCK_RESPONSE, responseSet));
 	int i = 0;
 	int totalChance = 0;
 	while (response != NULL) {
@@ -906,7 +909,7 @@ Script::_HandleResponseSet(node* responseSet)
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, i);
-	action_node* action = FindActionNode(responses[randomResponse]);
+	action_node* action = FindActionNode(fSender, responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
 		// When _HandleAction() returns false,
@@ -936,12 +939,9 @@ Script::_HandleAction(action_node* act)
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
-			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
-			if (targetActor != NULL) {
-				if (thisActor != NULL) {
-					Attack* attackAction = new Attack(thisActor, targetActor);
-					thisActor->AddAction(attackAction);
-				}
+			if (thisActor != NULL) {
+				Attack* attackAction = new Attack(thisActor, act);
+				thisActor->AddAction(attackAction);
 			}
 			break;
 		}
@@ -967,11 +967,11 @@ Script::_HandleAction(action_node* act)
 		case 0x8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			/*Actor* actor = dynamic_cast<Actor*>(FindObject(act));
 			if (actor != NULL) {
 				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
 				thisActor->AddAction(dialogueAction);
-			}
+			}*/
 			break;
 		}
 		case 0xA:
@@ -984,30 +984,25 @@ Script::_HandleAction(action_node* act)
 		case 22:
 		{
 			// MoveToObject
-			Object* object = FindObject(act);
-			if (object != NULL) {
-				Action* walkTo = new WalkToObject(thisActor, object);
-				thisActor->AddAction(walkTo);
-			}
+			Action* walkTo = new WalkToObject(thisActor, act);
+			thisActor->AddAction(walkTo);
 			break;
 		}
 		case 23:
 		{
 			// MoveToPoint
-			Actor* actor = dynamic_cast<Actor*>(fSender);
-			if (actor != NULL) {
-				WalkTo* walkTo = new WalkTo(actor, act->where);
-				actor->AddAction(walkTo);
-				actor->StopCheckingConditions();
+			if (thisActor != NULL) {
+				WalkTo* walkTo = new WalkTo(thisActor, act);
+				thisActor->AddAction(walkTo);
+				thisActor->StopCheckingConditions();
 			}
 			break;
 		}
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
-			if (targetActor != NULL && thisActor != NULL) {
-				RunAwayFrom* run = new RunAwayFrom(thisActor, targetActor);
+			if (thisActor != NULL) {
+				RunAwayFrom* run = new RunAwayFrom(thisActor, act);
 				thisActor->AddAction(run);
 			}
 			break;
@@ -1037,8 +1032,8 @@ Script::_HandleAction(action_node* act)
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(fSender, act->where, act->integer1);
-			core->AddGlobalAction(action);
+			Action* action = new MoveViewPoint(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 61:
@@ -1063,8 +1058,7 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			std::cout << "wait" << fSender->Name() << ": " << act->integer1 << std::endl;
-			Wait* wait = new Wait(fSender, act->integer1 * 15);
+			Wait* wait = new Wait(fSender, act);
 			fSender->AddAction(wait);
 			break;
 		}
@@ -1072,7 +1066,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
 			if (thisActor != NULL) {
-				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act->integer1);
+				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act);
 				thisActor->AddAction(action);
 			}				
 			break;
@@ -1080,14 +1074,14 @@ Script::_HandleAction(action_node* act)
 		case 85:
 		{
 			/* 85 RandomWalk */
-			if (thisActor != NULL && thisActor->IsInterruptable())
-				core->RandomWalk(thisActor);
+			/*if (thisActor != NULL && thisActor->IsInterruptable())
+				core->RandomWalk(thisActor);*/
 			break;
 		}
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			fSender->AddAction(new SetInterruptableAction(fSender, act->integer1 == 1));
+			fSender->AddAction(new SetInterruptableAction(fSender, act));
 			break;
 		}
 		case 0x1E:
@@ -1108,10 +1102,7 @@ Script::_HandleAction(action_node* act)
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			// TODO: The time is probably wrong
-			//
-			std::cout << "smallwait" << fSender->Name() << ": " << act->integer1 << std::endl;
-			Wait* wait = new Wait(fSender, act->integer1);
+			Action* wait = new SmallWait(fSender, act);
 			fSender->AddAction(wait);
 			break;
 		}
@@ -1120,24 +1111,24 @@ Script::_HandleAction(action_node* act)
 		{
 			/* Shout */
 			// Check if target is silenced
-			if (thisActor != NULL)
-				thisActor->Shout(act->integer1);
+			/*if (thisActor != NULL)
+				thisActor->Shout(act->integer1);*/
 			break;
 		}
 		case 0x64:
 		{
 			/* 100 RandomFly */
-			if (thisActor != NULL && thisActor->IsInterruptable())
-				core->RandomFly(thisActor);
+			/*if (thisActor != NULL && thisActor->IsInterruptable())
+				core->RandomFly(thisActor);*/
 			break;
 		}
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			if (thisActor != NULL && thisActor->IsInterruptable()) {
+			/*if (thisActor != NULL && thisActor->IsInterruptable()) {
 				FlyTo* flyTo = new FlyTo(thisActor, act->where, act->integer1);
 				thisActor->AddAction(flyTo);
-			}
+			}*/
 			break;
 		}
 		case 0x6d:
@@ -1153,7 +1144,7 @@ Script::_HandleAction(action_node* act)
 		case 0x6f:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			// TODO: Delete it for real
+			// TODO: Add as action
 			Actor* activeActor = core->ActiveActor();
 			if (activeActor != NULL) {
 				std::cout << "DESTROY SELF" << std::endl;
@@ -1190,7 +1181,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
-			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, act));
 			SetSender(actor);
 			actor->SetInterruptable(false);
 			break;
@@ -1215,11 +1206,10 @@ Script::_HandleAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			Actor* targetActor = dynamic_cast<Actor*>(FindObject(act));
-			if (thisActor != NULL && targetActor != NULL) {
-				Action* walkToAction = new WalkToObject(thisActor, targetActor);
+			if (thisActor != NULL) {
+				Action* walkToAction = new WalkToObject(thisActor, act);
 				thisActor->AddAction(walkToAction);
-				Attack* attackAction = new Attack(thisActor, targetActor);
+				Attack* attackAction = new Attack(thisActor, act);
 				thisActor->AddAction(attackAction);
 			}
 
@@ -1228,46 +1218,41 @@ Script::_HandleAction(action_node* act)
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			Door* door = dynamic_cast<Door*>(FindObject(act));
-			if (door != NULL)
-				fSender->AddAction(new OpenDoor(fSender, door));
+			fSender->AddAction(new OpenDoor(fSender, act));
 			break;
 		}
 		case 177:
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-			Object* object = FindObject(act);
+			/*Object* object = FindObject(fSender, act);
 			if (object != NULL)
-				object->Print();
+				object->Print();*/
 			break;
 		}
 		case 198: // 0xc6
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
-			Actor* actor = dynamic_cast<Actor*>(FindObject(act));
+			/*Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, act));
 			if (actor != NULL) {
 				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
 				thisActor->AddAction(dialogueAction);
-			}
+			}*/
 			break;
 		}
 		case 202:
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
-			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fSender,
-				numUpdates, FadeColorAction::TO_BLACK);
-			core->AddGlobalAction(action);
+			FadeToColorAction* action = new FadeToColorAction(fSender, act);
+			fSender->AddAction(action);
 			break;		
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
-			int numUpdates = act->where.x;
-			FadeColorAction* action = new FadeColorAction(fSender,
+			/*FadeFromColorAction* action = new FadeColorAction(fSender,
 				numUpdates, FadeColorAction::FROM_BLACK);
-			core->AddGlobalAction(action);
+			fSender->AddAction(action);*/
 			break;
 		}
 		case 207:
@@ -1278,9 +1263,8 @@ Script::_HandleAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			Actor* actor = dynamic_cast<Actor*>(fSender);
-			if (actor != NULL) {
-				WalkTo* walkTo = new WalkTo(actor, act->where);
+			if (thisActor != NULL) {
+				WalkTo* walkTo = new WalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
 				thisActor->StopCheckingConditions();
 			}
@@ -1289,12 +1273,11 @@ Script::_HandleAction(action_node* act)
 		case 225:
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
-			Actor* actor = dynamic_cast<Actor*>(fSender);
-			if (actor != NULL) {
+			/*if (thisActor != NULL) {
 				std::cout << "area:" << act->string1 << std::endl;
 				actor->SetPosition(act->where);
 				actor->SetOrientation(act->integer1);
-			}
+			}*/
 			break;
 		}
 		case 228: // 0xe4
@@ -1314,8 +1297,8 @@ Script::_HandleAction(action_node* act)
 		case 254:
 		{
 			/* SCREENSHAKE(P:POINT*,I:DURATION*)(254 0xfe) */
-			Action* action = new ScreenShake(fSender, act->where, act->integer1);
-			core->AddGlobalAction(action);
+			Action* action = new ScreenShake(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 286: // 0x11e
@@ -1334,11 +1317,11 @@ Script::_HandleAction(action_node* act)
 		{
 			/* DISPLAYSTRINGWAIT(O:OBJECT*,I:STRREF*)(311 0x137) */
 			// TODO: play sound
-			Object* object = FindObject(act);
+			/*Object* object = FindObject(act);
 			if (object != NULL) {
 				object->Print();
 				std::cout << IDTable::GetDialog(act->integer1);
-			}
+			}*/
 			break;
 		}
 		
