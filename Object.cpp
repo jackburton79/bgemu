@@ -170,11 +170,11 @@ Object::AddAction(Action* action)
 void
 Object::ExecuteActions()
 {
-	if (fWaitTime > 0) {
+	/*if (fWaitTime > 0) {
 		std::cout << Name() << " : wait time " << std::dec << fWaitTime << std::endl;
 		fWaitTime--;
 		return;
-	}
+	}*/
 
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->IsWalking()) {
@@ -182,7 +182,6 @@ Object::ExecuteActions()
 		return;
 	}
 
-	//std::cout << Name() << ": Executing actions: " << std::endl;
 	std::list<Action*>::iterator i = fActions.begin();
 	if (i != fActions.end()) {
 		Action& action = **i;

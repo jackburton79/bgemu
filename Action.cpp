@@ -21,6 +21,17 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 		&& (std::abs(pointA.y - pointB.y) <= 5 * 2);
 }
 
+
+static void
+VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
+{
+	std::string variableScope;
+	varScope.append(variable, 6);
+	std::string variableName;
+	varName.append(&variable[6]);
+}
+
+
 // TODO: we should not pass Object pointers,
 // but pass action parameters instead, which should be evaluated
 // when the action is being executed
@@ -73,6 +84,34 @@ std::string
 Action::Name() const
 {
 	return typeid(this).name();
+}
+
+
+// SetGlobalAction
+SetGlobalAction::SetGlobalAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+SetGlobalAction::operator()()
+{
+	std::cout << fObject->Name() << ":SetGlobalAction()" << std::endl;
+	std::string variableScope;
+	std::string variableName;
+	VariableGetScopeName(fActionParams->string1, variableScope, variableName);
+	if (variableScope.compare("LOCALS") == 0) {
+		if (fObject != NULL)
+			fObject->Vars().Set(variableName.c_str(),
+					fActionParams->integer1);
+	} else {
+		// TODO: Check for AREA variables
+		Core::Get()->Vars().Set(fActionParams->string1, fActionParams->integer1);
+	}
+	SetCompleted();
 }
 
 
@@ -181,7 +220,6 @@ WalkTo::WalkTo(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
-	
 }
 
 
@@ -284,7 +322,8 @@ FlyTo::operator()()
 // Wait
 Wait::Wait(Object* object, action_node* node)
 	:
-	Action(object, node)
+	Action(object, node),
+	fWaitTime(0)
 {
 }
 
@@ -296,17 +335,22 @@ Wait::operator()()
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
 	std::cout << fObject->Name() << ":Wait()" << std::endl;
-	Object* object = Script::FindObject(fObject, fActionParams);
-	if (object != NULL)
-		object->SetWaitTime(fActionParams->integer1 * 15); // use a constant
-	SetCompleted();
+	if (!Initiated()) {
+		SetInitiated();
+		fWaitTime = fActionParams->integer1 * 15; // TODO use a constant
+		return;
+	}
+	
+	if (fWaitTime-- == 0)
+		SetCompleted();
 }
 
 
 // SmallWait
 SmallWait::SmallWait(Object* object, action_node* node)
 	:
-	Action(object, node)
+	Action(object, node),
+	fWaitTime(0)
 {
 }
 
@@ -318,10 +362,17 @@ SmallWait::operator()()
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
 	std::cout << fObject->Name() << ":SmallWait()" << std::endl;
-	Object* object = Script::FindObject(fObject, fActionParams);
-	if (object != NULL)
-		object->SetWaitTime(fActionParams->integer1);
-	SetCompleted();
+	//Object* object = Script::FindObject(fObject, fActionParams);
+	//if (object != NULL)
+	//	object->SetWaitTime(fActionParams->integer1);
+	if (!Initiated()) {
+		SetInitiated();
+		fWaitTime = fActionParams->integer1;
+		return;
+	}
+	
+	if (--fWaitTime == 0)
+		SetCompleted();
 }
 
 
@@ -542,7 +593,7 @@ FadeToColorAction::operator()()
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
 	// TODO:
-	SetCompleted();
+	//SetCompleted();
 	
 	std::cout << fObject->Name() << ":FadeToColorAction()" << std::endl;
 	if (!Initiated()) {
@@ -550,8 +601,8 @@ FadeToColorAction::operator()()
 		fCurrentValue = 255;
 		fTargetValue = 0;
 		fStepValue = (fCurrentValue - fTargetValue) / fActionParams->where.x;
-		if (fObject != NULL)
-			fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
+		//if (fObject != NULL)
+			//fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
 	}
 	
 	GraphicsEngine::Get()->SetFade(fCurrentValue);
@@ -584,8 +635,8 @@ FadeFromColorAction::operator()()
 		fCurrentValue = 0;
 		fTargetValue = 255;
 		fStepValue = fTargetValue / fActionParams->where.x;
-		if (fObject != NULL)
-			fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
+		//if (fObject != NULL)
+			//fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
 	}
 	
 	GraphicsEngine::Get()->SetFade(fCurrentValue);
@@ -610,8 +661,8 @@ MoveViewPoint::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	SetCompleted();
-	return;
+	//SetCompleted();
+	//return;
 	std::cout << fObject->Name() << ":MoveViewPoint()" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
@@ -651,6 +702,9 @@ MoveViewPoint::operator()()
 		else if (offset.y < fDestination.y)
 			offset.y = std::min((int16)(offset.y + step), fDestination.y);
 		room->SetAreaOffsetCenter(offset);
+		std::cout << std::dec;
+		std::cout << "offset: " << offset.x << ", " << offset.y << std::endl;
+		std::cout << "fDestination: " << fDestination.x << ", " << fDestination.y << std::endl;
 	} else
 		SetCompleted();
 }

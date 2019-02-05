@@ -18,12 +18,14 @@ void
 Variables::Set(const char* name, int32 value)
 {
 	fVariables[name] = value;
+	Print();
 }
 
 
 int32
 Variables::Get(const char* name) const
 {
+	Print();
 	VariablesMap::const_iterator i = fVariables.find(name);		
 	if (i != fVariables.end())
 		return i->second;

@@ -30,6 +30,13 @@ private:
 };
 
 
+class SetGlobalAction : public Action {
+public:
+	SetGlobalAction(Object* object, action_node* action);
+	virtual void operator()();
+};
+
+
 class CreateCreatureAction : public Action {
 public:
 	CreateCreatureAction(Object* object, action_node* action);
@@ -90,7 +97,7 @@ public:
 	Wait(Object* actor, action_node* node);
 	virtual void operator()();
 private:
-	uint32 fWaitTime;
+	int32 fWaitTime;
 };
 
 
@@ -99,7 +106,7 @@ public:
 	SmallWait(Object* actor, action_node* node);
 	virtual void operator()();
 private:
-	uint32 fWaitTime;
+	int32 fWaitTime;
 };
 
 
@@ -156,6 +163,7 @@ private:
 	int32 fTargetValue;
 	int16 fStepValue;
 };
+
 
 class MoveViewPoint : public Action {
 public:

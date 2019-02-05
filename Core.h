@@ -70,6 +70,7 @@ public:
 	void StartCutsceneMode();
 	bool CutsceneMode() const;
 	void StartCutscene(const res_ref& scriptName);
+	void SetCutsceneActor(Object* object);
 
 	Variables& Vars();
 
@@ -139,6 +140,7 @@ private:
 	
 	bool fPaused;
 	bool fCutsceneMode;
+	Object* fCutsceneActor;
 	
 	std::vector<Action*> fActions;
 };

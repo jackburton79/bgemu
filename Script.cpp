@@ -233,6 +233,7 @@ Script::Execute(bool& continuing)
 				// so the script should stop running.
 				SetProcessed();
 				foundContinue = true;
+				return false;
 			} else {
 				if (sDebug) {
 					std::cout << "*** SCRIPT RETURNED " << fSender->Name();
@@ -921,8 +922,10 @@ Script::_HandleResponseSet(node* responseSet)
 	while (action != NULL) {
 		// When _HandleAction() returns false,
 		// it means it's a CONTINUE() action.
-		if (!_HandleAction(action))
+		if (!_HandleAction(action)) {
+			std::cout << "Continuing. Script returns" << std::endl;
 			return false;
+		}
 		action = static_cast<action_node*>(action->Next());
 	}
 	return true;
@@ -981,18 +984,18 @@ Script::_HandleAction(action_node* act)
 		case 22:
 		{
 			// MoveToObject
-			//Action* walkTo = new WalkToObject(thisActor, act);
-			//thisActor->AddAction(walkTo);
+			Action* walkTo = new WalkToObject(thisActor, act);
+			thisActor->AddAction(walkTo);
 			break;
 		}
 		case 23:
 		{
 			// MoveToPoint
-			/*if (thisActor != NULL) {
+			if (thisActor != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
 				thisActor->StopCheckingConditions();
-			}*/
+			}
 			break;
 		}
 		case 29:
@@ -1024,13 +1027,14 @@ Script::_HandleAction(action_node* act)
 			 */
 			// by returning false, we instruct the caller to stop
 			// executing the script
+			std::cout << "CONTINUE!!!!" << std::endl;
 			return false;
 		}
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			//Action* action = new MoveViewPoint(fSender, act);
-			//fSender->AddAction(action);
+			Action* action = new MoveViewPoint(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 61:
@@ -1062,10 +1066,10 @@ Script::_HandleAction(action_node* act)
 		case 0x54:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
-			/*if (thisActor != NULL) {
+			if (thisActor != NULL) {
 				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act);
 				thisActor->AddAction(action);
-			}*/			
+			}			
 			break;
 		}
 		case 85:
@@ -1078,29 +1082,19 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			//fSender->AddAction(new SetInterruptableAction(fSender, act));
+			fSender->AddAction(new SetInterruptableAction(fSender, act));
 			break;
 		}
 		case 0x1E:
 		{
-			std::string variableScope;
-			std::string variableName;
-			VariableGetScopeName(act->string1, variableScope, variableName);
-			if (variableScope.compare("LOCALS") == 0) {
-				if (fSender != NULL)
-					fSender->Vars().Set(variableName.c_str(),
-							act->integer1);
-			} else {
-				// TODO: Check for AREA variables
-				core->Vars().Set(act->string1, act->integer1);
-			}
+			fSender->AddAction(new SetGlobalAction(fSender, act));
 			break;
 		}
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			//Action* wait = new SmallWait(fSender, act);
-			//fSender->AddAction(wait);
+			Action* wait = new SmallWait(fSender, act);
+			fSender->AddAction(wait);
 			break;
 		}
 
@@ -1143,8 +1137,8 @@ Script::_HandleAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
-			//Action* action = new DestroySelfAction(fSender, act);
-			//fSender->AddAction(action);
+			Action* action = new DestroySelfAction(fSender, act);
+			fSender->AddAction(action);
 			break;
 			//return false;
 		}
@@ -1167,8 +1161,7 @@ Script::_HandleAction(action_node* act)
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
-			// TODO: add as an action ?
-			fSender->AddAction(new StartCutsceneAction(fSender, act));
+			fSender->AddAction(new StartCutsceneModeAction(fSender, act));
 			break;
 		}
 		case 0x7f:
@@ -1179,6 +1172,7 @@ Script::_HandleAction(action_node* act)
 			if (actor != NULL) {
 				std::cout << "CUTSCENEID: " << actor->Name() << std::endl;
 				SetSender(actor);
+				Core::Get()->SetCutsceneActor(actor);
 				actor->SetInterruptable(false);
 			}
 			break;
@@ -1215,7 +1209,7 @@ Script::_HandleAction(action_node* act)
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			//fSender->AddAction(new OpenDoor(fSender, act));
+			fSender->AddAction(new OpenDoor(fSender, act));
 			break;
 		}
 		case 177:
@@ -1247,9 +1241,8 @@ Script::_HandleAction(action_node* act)
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
-			/*FadeFromColorAction* action = new FadeColorAction(fSender,
-				numUpdates, FadeColorAction::FROM_BLACK);
-			fSender->AddAction(action);*/
+			FadeFromColorAction* action = new FadeFromColorAction(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 207:
@@ -1283,8 +1276,8 @@ Script::_HandleAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			//Action* action = new CreateCreatureImpassableAction(fSender, act);
-			//fSender->AddAction(action);
+			Action* action = new CreateCreatureImpassableAction(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 254:
