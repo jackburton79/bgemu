@@ -252,13 +252,6 @@ Core::ActiveActor()
 
 
 void
-Core::AddGlobalAction(Action* action)
-{
-	fActions.push_back(action);
-}
-
-
-void
 Core::StartCutsceneMode()
 {
 	fCutsceneMode = true;
@@ -501,8 +494,6 @@ Core::UpdateLogic(bool executeScripts)
 	timer = Timer::Get("ANIMATEDTILES");
 	if (timer->Expired())
 		timer->Rearm();
-
-	//_HandleGlobalActions();
 	
 	fCurrentRoom->Update(executeScripts);
 
@@ -726,17 +717,4 @@ Core::_NewRound()
 	std::swap(fCurrentRoundResults, fLastRoundResults);
 	fCurrentRoundResults->Clear();
 	//std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
-}
-
-
-void
-Core::_HandleGlobalActions()
-{
-	std::vector<Action*>::iterator i = fActions.begin();
-	if (i != fActions.end()) {
-		Action& action = **i;
-		action();
-		if (action.Completed())
-			fActions.erase(i);
-	}
 }

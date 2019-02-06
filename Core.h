@@ -114,7 +114,6 @@ private:
 	void _CheckIfInsideRegion(Actor* actor);
 	void _CleanDestroyedObjects();
 	void _NewRound();
-	void _HandleGlobalActions();
 	
 	Core();
 	~Core();
@@ -141,8 +140,6 @@ private:
 	bool fPaused;
 	bool fCutsceneMode;
 	Object* fCutsceneActor;
-	
-	std::vector<Action*> fActions;
 };
 
 
