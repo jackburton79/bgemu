@@ -33,11 +33,12 @@ class TLKResource;
 class WEDResource;
 class WMAPResource;
 class ResourceManager {
-public:
-	
+public:	
 	static bool Initialize(const char *path);
 	static void Destroy();
 
+	void SetDebug(int level);
+	
 	KEYResource *GetKEY(const char *name);
 	TLKResource *GetTLK(const char *name);
 	TWODAResource *Get2DA(const res_ref& name);
@@ -101,6 +102,8 @@ private:
 	resource_map fResourceMap;
 	std::list<Resource*> fCachedResources;
 	archive_map fArchives;
+
+	bool fDebugLevel;
 };
 
 extern ResourceManager *gResManager;

@@ -29,8 +29,6 @@
 #include <iostream>
 #include <limits.h>
 
-#define DEBUG_RESMANAGER 1
-
 #define USE_OVERRIDE 1
 
 #define OVERRIDE_MASK	0x00
@@ -73,6 +71,8 @@ const char *kDialogResource = "dialog.tlk";
 const char* kComponentName = "ResourceManager: ";
 
 ResourceManager::ResourceManager(const char* path)
+	:
+	fDebugLevel(0)
 {
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
@@ -86,9 +86,8 @@ ResourceManager::ResourceManager(const char* path)
 	if (key == NULL)
 		throw "Cannot find key file";
 
-#if DEBUG_RESMANAGER > 0
-	key->Dump();
-#endif 
+	if (fDebugLevel > 0)
+		key->Dump(); 
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
@@ -110,8 +109,10 @@ ResourceManager::ResourceManager(const char* path)
 		}
 	}
 
-	std::cout << "\t-> Found " << numBifs << " BIF file entries ";
-	std::cout << "and " << numResources << " resources." << std::endl;
+	if (fDebugLevel > 0) {
+		std::cout << "\t-> Found " << numBifs << " BIF file entries ";
+		std::cout << "and " << numResources << " resources." << std::endl;
+	}
 	key->Release();
 }
 
@@ -186,10 +187,18 @@ ResourceManager::Initialize(const char *path)
 }
 
 
+/* static */
 void
 ResourceManager::Destroy()
 {
 	delete gResManager;
+}
+
+
+void
+ResourceManager::SetDebug(int level)
+{
+	fDebugLevel = level;
 }
 
 
@@ -255,20 +264,23 @@ ResourceManager::GetKEY(const char *name)
 	try {
 		key = new KEYResource("KEY");
 		path = GetFullPath(name, LOC_ROOT);
-		std::cout << "\t-> Loading KEY file '" << path << "'... ";
-		std::flush(std::cout);
+		if (fDebugLevel > 0) {
+			std::cout << "\t-> Loading KEY file '" << path << "'... ";
+			std::flush(std::cout);
+		}
 		archive = Archive::Create(path.c_str());
 		// TODO: Throw an useful exception instead
 		if (archive == NULL)
 			throw -1;
 		if (key->Load(archive, 0) == false)
 			throw -1;
-
-		std::cout << "OK!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << "OK!" << std::endl;
 	} catch (...) {
 		key->Release();
 		key = NULL;
-		std::cout << "FAILED!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << "FAILED!" << std::endl;
 	}
 
 	delete archive;
@@ -283,7 +295,8 @@ ResourceManager::GetTLK(const char* name)
 	Resource* tlk = NULL;
 	Archive *archive = NULL;
 	try {
-		std::cout << "\t-> Loading Dialogs file '" << name << "'... ";
+		if (fDebugLevel > 0)
+			std::cout << "\t-> Loading Dialogs file '" << name << "'... ";
 		tlk = new TLKResource("TLK");
 		std::string path = GetFullPath(name, LOC_ROOT);
 		archive = Archive::Create(path.c_str());
@@ -291,10 +304,11 @@ ResourceManager::GetTLK(const char* name)
 			return NULL;
 
 		tlk->Acquire();
-
-		std::cout << "OK!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << "OK!" << std::endl;
 	} catch (...) {
-		std::cout << "FAILED!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << "FAILED!" << std::endl;
 		if (tlk->Release())
 			delete tlk;
 		tlk = NULL;
@@ -540,39 +554,45 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 	const uint16& location = fBifs[bifIndex]->location;
 	const char* archiveName = fBifs[bifIndex]->name;
 
-	std::cout << kComponentName << "LoadResource(";
-	std::cout << entry.name.CString() << ", " << strresource(entry.type);
-	std::cout << ")" << std::endl;
-	
+	if (fDebugLevel > 0) {
+		std::cout << kComponentName << "LoadResource(";
+		std::cout << entry.name.CString() << ", " << strresource(entry.type);
+		std::cout << ")" << std::endl;
+	}
 	Archive *archive = fArchives[archiveName];
 	if (archive == NULL) {
 		std::string fullPath = GetFullPath(archiveName, location);
-		std::cout << "\t-> Loading archive '" << fullPath << "'... ";
-		std::flush(std::cout);
+		if (fDebugLevel > 0) {
+			std::cout << "\t-> Loading archive '" << fullPath << "'... ";
+			std::flush(std::cout);
+		}
 		archive = Archive::Create(fullPath.c_str());
 		if (archive == NULL) {
-			std::cout << "FAILED!" << std::endl;
+			if (fDebugLevel > 0)
+				std::cout << "FAILED!" << std::endl;
 			return NULL;
 		}
-		std::cout << "OK!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << "OK!" << std::endl;
 		fArchives[archiveName] = archive;
 	}
 
 	Resource *resource = Resource::Create(entry.name, entry.type,
 										entry.key, archive);
 	if (resource == NULL) {
-		std::cout << kComponentName << "FAILED Loading resource!" << std::endl;
+		if (fDebugLevel > 0)
+			std::cout << kComponentName << "FAILED Loading resource!" << std::endl;
 		delete resource;
 		return NULL;
 	}
 
 	resource->Acquire();
 	fCachedResources.push_back(resource);
-
-	std::cout << "\t-> Resource " << entry.name.CString();
-	std::cout << " (" << strresource(entry.type) << ") ";
-	std::cout << "loaded correctly!" << std::endl;
-
+	if (fDebugLevel > 0) {
+		std::cout << "\t-> Resource " << entry.name.CString();
+		std::cout << " (" << strresource(entry.type) << ") ";
+		std::cout << "loaded correctly!" << std::endl;
+	}
 	return resource;
 }
 
@@ -615,10 +635,11 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 	resource->Acquire();
 	fCachedResources.push_back(resource);
 
-	std::cout << "Resource " << entry.name << "(";
-	std::cout << strresource(entry.type) << ")";
-	std::cout << "loaded correctly from override!" << std::endl;
-
+	if (fDebugLevel > 0) {
+		std::cout << "Resource " << entry.name << "(";
+		std::cout << strresource(entry.type) << ")";
+		std::cout << "loaded correctly from override!" << std::endl;
+	}
 	delete dirArchive;
 	return resource;
 }
@@ -627,9 +648,11 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 void
 ResourceManager::PrintResources(int32 type)
 {
-	std::cout << kComponentName;
-	std::cout << "Listing " << fResourceMap.size();
-	std::cout << " entries..." << std::endl;
+	if (fDebugLevel > 0) {
+		std::cout << kComponentName;
+		std::cout << "Listing " << fResourceMap.size();
+		std::cout << " entries..." << std::endl;
+	}
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;
@@ -641,10 +664,12 @@ ResourceManager::PrintResources(int32 type)
 			continue;
 		}
 		if (type == -1 || type == res->type) {
-			std::cout << res->name << " " << strresource(res->type);
-			std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
-			std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
-			std::cout << std::endl;
+			if (fDebugLevel > 0) {
+				std::cout << res->name << " " << strresource(res->type);
+				std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
+				std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
+				std::cout << std::endl;
+			}
 		}
 	}
 }
@@ -656,8 +681,10 @@ ResourceManager::PrintBIFs()
 	bif_vector::iterator iter;
 	for (iter = fBifs.begin(); iter != fBifs.end(); iter++) {
 		KeyFileEntry *entry = *iter;
-		std::cout << iter - fBifs.begin() << "\t" << entry->name;
-		std::cout << "\t" << std::hex << entry->location << endl;
+		if (fDebugLevel > 0) {
+			std::cout << iter - fBifs.begin() << "\t" << entry->name;
+			std::cout << "\t" << std::hex << entry->location << endl;
+		}
 	}
 }
 
