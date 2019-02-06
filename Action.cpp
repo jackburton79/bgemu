@@ -235,7 +235,7 @@ WalkTo::operator()()
 		return;
 
 	if (!Initiated()) {
-		actor->SetDestination(fDestination);
+		actor->SetDestination(fActionParams->where);
 		SetInitiated();
 	}
 

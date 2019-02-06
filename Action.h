@@ -69,8 +69,6 @@ class WalkTo : public Action {
 public:
 	WalkTo(Object* actor, action_node* node);
 	virtual void operator()();
-private:
-	IE::point fDestination;
 };
 
 
@@ -78,8 +76,6 @@ class WalkToObject : public Action {
 public:
 	WalkToObject(Object* actor, action_node* node);
 	virtual void operator()();
-private:
-	Object* fTarget;
 };
 
 
