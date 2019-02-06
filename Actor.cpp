@@ -785,6 +785,8 @@ Actor::HasSeen(const Object* object) const
 void
 Actor::Update(bool scripts)
 {
+	_CheckRegion();
+	
 	Object::Update(scripts);
 	UpdateTileCell();
 
@@ -982,3 +984,18 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 	return num;
 }
 
+
+void
+Actor::_CheckRegion()
+{
+	Region* region = Core::Get()->RegionAtPoint(Position());
+	if (region != NULL && region != fRegion) {
+		/*trigger_entry entry;
+		entry.name = "actor_over";
+		entry.target = Name();
+		region->AddTrigger(entry);*/
+	}
+	fRegion = region;
+	if (fRegion != NULL)
+		std::cout << Name() << "is over " << fRegion->Name() << std::endl;
+}

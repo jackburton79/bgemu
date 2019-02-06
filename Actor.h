@@ -152,6 +152,8 @@ private:
 	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
+	
+	void _CheckRegion();
 };
 
 struct ZOrderSorter {

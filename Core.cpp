@@ -444,6 +444,18 @@ Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 }
 
 
+Region*
+Core::RegionAtPoint(const IE::point& point)
+{
+	RegionsList::iterator r;
+	for (r = fRegions.begin(); r != fRegions.end(); r++) {
+		if ((*r)->Contains(point))
+			return *r;
+	}
+	return NULL;
+}
+
+
 void
 Core::PlayMovie(const char* name)
 {

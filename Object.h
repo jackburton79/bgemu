@@ -20,10 +20,9 @@
 #include <vector>
 
 struct trigger_entry {
-	char name[32];
-	char target_name[32];
+	std::string name;
+	std::string target;
 };
-
 
 struct object_node;
 class Action;
