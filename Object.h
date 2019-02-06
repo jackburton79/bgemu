@@ -19,6 +19,12 @@
 #include <string>
 #include <vector>
 
+struct trigger_entry {
+	char name[32];
+	char target_name[32];
+};
+
+
 struct object_node;
 class Action;
 class Actor;
@@ -58,6 +64,8 @@ public:
 	bool IsActionListEmpty() const;
 	void ClearActionList();
 
+	void SetTriggerResult(trigger_entry entry);
+	
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
@@ -91,6 +99,7 @@ private:
 	int32 fWaitTime;
 
 	std::list<Action*> fActions;
+	std::list<trigger_entry> fTriggers;
 
 	::Variables fVariables;
 

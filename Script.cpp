@@ -1253,11 +1253,11 @@ Script::_HandleAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			//if (thisActor != NULL) {
-			//	WalkTo* walkTo = new WalkTo(thisActor, act);
-			//	thisActor->AddAction(walkTo);
-			//	thisActor->StopCheckingConditions();
-			//}
+			if (thisActor != NULL) {
+				WalkTo* walkTo = new WalkTo(thisActor, act);
+				thisActor->AddAction(walkTo);
+				thisActor->StopCheckingConditions();
+			}
 			break;
 		}
 		case 225:
@@ -1310,7 +1310,6 @@ Script::_HandleAction(action_node* act)
 			}*/
 			break;
 		}
-		
 		default:
 			if (sDebug) {
 				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;

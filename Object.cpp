@@ -142,7 +142,7 @@ Object::Update(bool scripts)
 	if (isArea && Core::Get()->CutsceneMode())
 		scripts = false;
 		
-	if (scripts) {	
+	if (scripts) {
 		_ExecuteScripts(8);		
 	}
 	
@@ -189,6 +189,7 @@ Object::ExecuteActions()
 	std::list<Action*>::iterator i = fActions.begin();
 	if (i != fActions.end()) {
 		Action& action = **i;
+		std::cout << Name() << " executing " << action.Name() << std::endl;
 		action();
 		if (action.Completed()) {
 			delete *i;
@@ -303,17 +304,27 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	//if (strcasecmp(Name(), "CSJON") == 0)
+		//return;
+
+	if (!IsActionListEmpty())
+		return;
+		
 	bool runScripts = false;
-	if ((fTicks++ % 15 == 0) || IsActionListEmpty())
+	if ((fTicks++ % 15 == 0))
 		runScripts = true;
 	
-	if (!IsInterruptable())
-		return;
+	//if (!IsInterruptable())
+		//return;
 	
-	if (dynamic_cast<RoomBase*>(this) == NULL
-		&& dynamic_cast<Region*>(this) == NULL
-		&& !IsInsideVisibleArea())
-		return;
+	if (!IsInsideVisibleArea()) {
+		if (fTicks % 60 != 0)
+			runScripts = false;
+	}
+		
+	if (dynamic_cast<RoomBase*>(this) != NULL)
+		//|| dynamic_cast<Region*>(this) != NULL)
+		runScripts = true;
 
 	if (!runScripts)
 		return;
@@ -321,9 +332,11 @@ Object::_ExecuteScripts(int32 maxLevel)
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {		
-			if (fScripts.at(i) != NULL) {
+			if (fScripts.at(i) != NULL) { {
 				if (!fScripts[i]->Execute(continuing))
+					std::cout << Name() << ": script " << i << " returned false." << std::endl;
 					break;
+				}
 			}
 		}
 	} catch (...) {
