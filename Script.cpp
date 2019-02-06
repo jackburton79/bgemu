@@ -1215,9 +1215,8 @@ Script::_HandleAction(action_node* act)
 		case 177:
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-			/*Object* object = FindObject(fSender, act);
-			if (object != NULL)
-				object->Print();*/
+			Action* action = new TriggerActivationAction(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		case 198: // 0xc6

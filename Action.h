@@ -51,6 +51,13 @@ public:
 };
 
 
+class TriggerActivationAction : public Action {
+public:
+	TriggerActivationAction(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class DestroySelfAction : public Action {
 public:
 	DestroySelfAction(Object* object, action_node* node);

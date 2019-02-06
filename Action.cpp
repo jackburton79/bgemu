@@ -6,6 +6,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Parsing.h"
+#include "Region.h"
 #include "RoomBase.h"
 #include "Script.h"
 #include "TextSupport.h"
@@ -175,6 +176,25 @@ CreateCreatureImpassableAction::operator()()
 	Core::Get()->AddActorToCurrentArea(actor);
 	SetCompleted();
 	//core->SetActiveActor(actor);
+}
+
+
+// TriggerActivationAction
+TriggerActivationAction::TriggerActivationAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+TriggerActivationAction::operator()()
+{
+	Region* region = dynamic_cast<Region*>(Script::FindObject(fObject, fActionParams));
+	if (region != NULL)
+		region->ActivateTrigger();
+	SetCompleted();
 }
 
 
