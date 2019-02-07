@@ -99,6 +99,13 @@ extension(const char* path)
 }
 
 
+bool
+is_bit_set(int i, int bitPos)
+{
+	return i & (1 << bitPos);
+}
+
+
 void
 assert_size(size_t size, size_t controlValue)
 {
