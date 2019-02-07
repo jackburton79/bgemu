@@ -1004,5 +1004,5 @@ Actor::_CheckRegion()
 	}
 	fRegion = region;
 	if (fRegion != NULL)
-		std::cout << Name() << "is over " << fRegion->Name() << std::endl;
+		std::cout << Name() << " is over " << fRegion->Name() << std::endl;
 }
