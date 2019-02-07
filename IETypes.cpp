@@ -338,6 +338,7 @@ actor::Print() const
 void
 region::Print() const
 {
+	std::cout << std::dec;
 	std::cout << "name: " << name << std::endl;
 	std::cout << "type: " << type << std::endl;
 	std::cout << "trigger_value: " << trigger_value << std::endl;
@@ -346,24 +347,31 @@ region::Print() const
 	std::cout << "entrance name: " << entrance_name << std::endl;
 
 	std::cout << "flags:" << std::endl;
-	if (flags & REGION_TRAP_INVISIBLE)
-		std::cout << "\t" << "trap invisible" << std::endl;
-	if (flags & REGION_TRAP_RESET)
+	if (is_bit_set(flags, REGION_KEY_REQUIRED))
+		std::cout << "\t" << "key required" << std::endl;
+	if (is_bit_set(flags, REGION_TRAP_RESET))
 		std::cout << "\t" << "trap reset" << std::endl;
-	if (flags & REGION_PARTY_REQUIRED)
+	if (is_bit_set(flags, REGION_PARTY_REQUIRED))
 		std::cout << "\t" << "party required" << std::endl;
-	if (flags & REGION_DETECTABLE)
+	if (is_bit_set(flags, REGION_DETECTABLE))
 		std::cout << "\t" << "detectable" << std::endl;
-	if (flags & REGION_TUTORIAL_ONLY)
+	if (is_bit_set(flags, REGION_NPC_ACTIVATES))
+		std::cout << "\t" << "NPC activates" << std::endl;
+	if (is_bit_set(flags, REGION_TUTORIAL_ONLY))
 		std::cout << "\t" << "tutorial only" << std::endl;
-	if (flags & REGION_NPC_CAN_TRIGGER)
-		std::cout << "\t" << "NPC can trigger" << std::endl;
-	if (flags & REGION_DEACTIVATED)
+	if (is_bit_set(flags, REGION_ANYONE_ACTIVATES))
+		std::cout << "\t" << "anyone activates" << std::endl;
+	if (is_bit_set(flags, REGION_NO_STRING))
+		std::cout << "\t" << "no string" << std::endl;
+	if (is_bit_set(flags, REGION_DEACTIVATED))
 		std::cout << "\t" << "deactivated" << std::endl;
-	if (flags & REGION_NPC_CANT_PASS)
+	if (is_bit_set(flags, REGION_NPC_CANT_PASS))
 		std::cout << "\t" << "NPC can't pass" << std::endl;
-	if (flags & REGION_ALTERNATIVE_POINT)
+	if (is_bit_set(flags, REGION_ALTERNATIVE_POINT))
 		std::cout << "\t" << "alternative point" << std::endl;
+	if (is_bit_set(flags, REGION_DOOR_CLOSED))
+		std::cout << "\t" << "door closed" << std::endl;		
+	
 	std::cout << "info_text: " << IDTable::GetDialog(info_text) << std::endl;
 	//uint16 trap_detection_difficulty;
 	//uint16 trap_removal_difficulty;
