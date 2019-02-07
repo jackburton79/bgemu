@@ -28,14 +28,14 @@ Animation::Animation(IE::animation *animDesc)
 	animDesc->Print();
 	fCenter = animDesc->center;
 	fMaxFrame = bam->CountFrames(animDesc->sequence);
-	if (is_bit_set(animDesc->flags, IE::ANIM_STOP_AT_FRAME))
+	if (animDesc->flags & IE::ANIM_STOP_AT_FRAME)
 		fMaxFrame = animDesc->frame;
-	if (is_bit_set(animDesc->flags, IE::ANIM_RANDOM_START_FRAME))
+	if (animDesc->flags & IE::ANIM_RANDOM_START_FRAME)
 		fStartFrame = Core::RandomNumber(0, fMaxFrame);
 	fCurrentFrame = fStartFrame;
 	
-	fBlackAsTransparent = is_bit_set(animDesc->flags, IE::ANIM_SHADED);
-	fMirrored = is_bit_set(animDesc->flags, IE::ANIM_MIRRORED);
+	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
+	fMirrored = animDesc->flags & IE::ANIM_MIRRORED;
 	
 	_LoadBitmaps(bam, animDesc->sequence, NULL);
 
@@ -87,7 +87,7 @@ Animation::~Animation()
 bool
 Animation::IsShown() const
 {
-	return fAnimation != NULL ? is_bit_set(fAnimation->flags, IE::ANIM_SHOWN) : true;
+	return fAnimation != NULL ? fAnimation->flags & IE::ANIM_SHOWN : true;
 }
 
 
@@ -97,9 +97,9 @@ Animation::SetShown(const bool show)
 	if (fAnimation != NULL) {
 		uint32 flags = fAnimation->flags;
 		if (show)
-			set_bit(flags, IE::ANIM_SHOWN);
+			flags |= IE::ANIM_SHOWN;
 		else
-			clear_bit(flags, IE::ANIM_SHOWN);
+			flags &= ~IE::ANIM_SHOWN;
 		fAnimation->flags = flags;
 	}
 }

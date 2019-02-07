@@ -277,19 +277,19 @@ animation::Print() const
 	printf("frame: %d\n", frame);
 	printf("flags: (%d)\n", flags);
 	printf("\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n",
-			is_bit_set(flags, ANIM_SHOWN) ? "SHOWN" : "",
-			is_bit_set(flags, ANIM_SHADED) ? "SHADED" : "",
-			is_bit_set(flags, ANIM_ALLOW_TINT) ? "SHADED_NIGHT" : "",
-			is_bit_set(flags, ANIM_STOP_AT_FRAME) ? "STOP_AT_FRAME" : "",
-			is_bit_set(flags, ANIM_SYNCHRONIZED) ? "ANIM_SYNCHRONIZED" : "",
-			is_bit_set(flags, ANIM_RANDOM_START_FRAME) ? "RANDOM_START_FRAME" : "",
-			is_bit_set(flags, ANIM_IGNORE_CLIPPING) ? "ANIM_IGNORE_CLIPPING" : "",
-			is_bit_set(flags, ANIM_DISABLE_ON_SLOW_MACHINES) ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
-			is_bit_set(flags, ANIM_DO_NOT_COVER) ? "ANIM_DO_NOT_COVER" : "",
-			is_bit_set(flags, ANIM_PLAY_ALL_FRAMES) ? "PLAY_ALL_FRAMES" : "",
-			is_bit_set(flags, ANIM_USE_PALETTE) ? "USE_PALETTE" : "",
-			is_bit_set(flags, ANIM_MIRRORED) ? "MIRRORED" : "",
-			is_bit_set(flags, ANIM_SHOW_IN_COMBAT) ? "ANIM_SHOW_IN_COMBAT" : "");
+			(flags & ANIM_SHOWN) ? "SHOWN" : "",
+			(flags & ANIM_SHADED) ? "SHADED" : "",
+			(flags & ANIM_ALLOW_TINT) ? "SHADED_NIGHT" : "",
+			(flags & ANIM_STOP_AT_FRAME) ? "STOP_AT_FRAME" : "",
+			(flags & ANIM_SYNCHRONIZED) ? "ANIM_SYNCHRONIZED" : "",
+			(flags & ANIM_RANDOM_START_FRAME) ? "RANDOM_START_FRAME" : "",
+			(flags & ANIM_IGNORE_CLIPPING) ? "ANIM_IGNORE_CLIPPING" : "",
+			(flags & ANIM_DISABLE_ON_SLOW_MACHINES) ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
+			(flags & ANIM_DO_NOT_COVER) ? "ANIM_DO_NOT_COVER" : "",
+			(flags & ANIM_PLAY_ALL_FRAMES) ? "PLAY_ALL_FRAMES" : "",
+			(flags & ANIM_USE_PALETTE) ? "USE_PALETTE" : "",
+			(flags & ANIM_MIRRORED) ? "MIRRORED" : "",
+			(flags & ANIM_SHOW_IN_COMBAT) ? "ANIM_SHOW_IN_COMBAT" : "");
 	printf("height: %d\n", height);
 	printf("transparency: %d\n", transparency);
 	printf("start_frame: %d\n", start_frame);
@@ -352,29 +352,29 @@ region::Print() const
 
 	std::cout << "flags:" << std::hex << "0x" << flags << std::endl;
 	std::cout << std::dec;
-	if (is_bit_set(flags, REGION_KEY_REQUIRED))
+	if (flags & REGION_KEY_REQUIRED)
 		std::cout << "\t" << "key required" << std::endl;
-	if (is_bit_set(flags, REGION_TRAP_RESET))
+	if (flags & REGION_TRAP_RESET)
 		std::cout << "\t" << "trap reset" << std::endl;
-	if (is_bit_set(flags, REGION_PARTY_REQUIRED))
+	if (flags & REGION_PARTY_REQUIRED)
 		std::cout << "\t" << "party required" << std::endl;
-	if (is_bit_set(flags, REGION_DETECTABLE))
+	if (flags & REGION_DETECTABLE)
 		std::cout << "\t" << "detectable" << std::endl;
-	if (is_bit_set(flags, REGION_NPC_ACTIVATES))
+	if (flags & REGION_NPC_ACTIVATES)
 		std::cout << "\t" << "NPC activates" << std::endl;
-	if (is_bit_set(flags, REGION_TUTORIAL_ONLY))
+	if (flags & REGION_TUTORIAL_ONLY)
 		std::cout << "\t" << "tutorial only" << std::endl;
-	if (is_bit_set(flags, REGION_ANYONE_ACTIVATES))
+	if (flags & REGION_ANYONE_ACTIVATES)
 		std::cout << "\t" << "anyone activates" << std::endl;
-	if (is_bit_set(flags, REGION_NO_STRING))
+	if (flags & REGION_NO_STRING)
 		std::cout << "\t" << "no string" << std::endl;
-	if (is_bit_set(flags, REGION_DEACTIVATED))
+	if (flags & REGION_DEACTIVATED)
 		std::cout << "\t" << "deactivated" << std::endl;
-	if (is_bit_set(flags, REGION_NPC_CANT_PASS))
+	if (flags & REGION_NPC_CANT_PASS)
 		std::cout << "\t" << "NPC can't pass" << std::endl;
-	if (is_bit_set(flags, REGION_ALTERNATIVE_POINT))
+	if (flags & REGION_ALT_POINT)
 		std::cout << "\t" << "alternative point" << std::endl;
-	if (is_bit_set(flags, REGION_DOOR_CLOSED))
+	if (flags & REGION_DOOR_CLOSED)
 		std::cout << "\t" << "door closed" << std::endl;		
 	
 	std::cout << "info_text: " << IDTable::GetDialog(info_text) << std::endl;

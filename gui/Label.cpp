@@ -23,7 +23,7 @@ Label::Label(IE::label* label)
 	fBitmap(NULL)
 {
 	int depth = 16;
-	if (is_bit_set(label->flags, IE::LABEL_USE_RGB_COLORS))
+	if (label->flags & IE::LABEL_USE_RGB_COLORS)
 		depth = 8;
 
 	fBitmap = new Bitmap(label->w, label->h, depth);
