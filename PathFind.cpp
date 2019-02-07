@@ -85,7 +85,7 @@ PathFinder::GetPoints(std::list<IE::point> points) const
 bool
 PathFinder::_IsPassable(const IE::point& point)
 {
-	return fTestFunction((IE::point&)point);
+	return fTestFunction(point);
 }
 
 
