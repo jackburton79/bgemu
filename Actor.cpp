@@ -143,6 +143,7 @@ Actor::_Init()
 
 	_HandleScripts();
 
+#if 0
 	//fActor->Print();
 	//for (uint32 i = 0; i < kNumItemSlots; i++) {
 	uint32 i = 1; // armor slot
@@ -159,7 +160,7 @@ Actor::_Init()
 	} catch (...) {
 	}
 	//}
-
+#endif
 
 	//TODO: some orientations are bad. Why?!?!?!
 	if ((fActor->orientation > IE::ORIENTATION_SE && 
@@ -1006,4 +1007,7 @@ Actor::_CheckRegion()
 	fRegion = region;
 	if (fRegion != NULL)
 		std::cout << Name() << " is over " << fRegion->Name() << std::endl;
+	//if (fRegion != NULL)
+		//std::cout << Name() << "is over " << fRegion->Name() << std::endl;
+>>>>>>> disabled debug output
 }
