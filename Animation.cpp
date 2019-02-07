@@ -8,6 +8,7 @@
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ResManager.h"
+#include "Utils.h"
 
 #include <sstream>
 
@@ -15,6 +16,7 @@ Animation::Animation(IE::animation *animDesc)
 	:
 	fAnimation(animDesc),
 	fCurrentFrame(0),
+	fStartFrame(0),
 	fMaxFrame(0)
 {
 	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
@@ -23,22 +25,18 @@ Animation::Animation(IE::animation *animDesc)
 		throw "NULL BAM!!!";
 	}
 	
+	animDesc->Print();
 	fCenter = animDesc->center;
-	fCurrentFrame = animDesc->frame;
 	fMaxFrame = bam->CountFrames(animDesc->sequence);
-	fHold = animDesc->flags & IE::ANIM_HOLD;
-	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
-	//if (fBlackAsTransparent)
-		//fBAM->DumpFrames("/home/stefano/dumps");
-	fMirrored = animDesc->flags & IE::ANIM_MIRRORED;
-	printf("%s\n\t: SHADED: %s\n\t: MIRRORED: %s\n", (const char*)Name(),
-			fBlackAsTransparent ? "YES": "NO",
-			fMirrored ? "YES": "NO");
-	printf("\t: MAX FRAME: %d\n", fMaxFrame);
-	printf("\t: HOLD: %s\n", fHold ? "YES" : "NO");
-	//printf("palette: %s\n", (const char *)animDesc->palette);
-	//printf("transparency: %d\n", animDesc->transparency);
-
+	if (is_bit_set(animDesc->flags, IE::ANIM_STOP_AT_FRAME))
+		fMaxFrame = animDesc->frame;
+	if (is_bit_set(animDesc->flags, IE::ANIM_RANDOM_START_FRAME))
+		fStartFrame = Core::RandomNumber(0, fMaxFrame);
+	fCurrentFrame = fStartFrame;
+	
+	fBlackAsTransparent = is_bit_set(animDesc->flags, IE::ANIM_SHADED);
+	fMirrored = is_bit_set(animDesc->flags, IE::ANIM_MIRRORED);
+	
 	_LoadBitmaps(bam, animDesc->sequence, NULL);
 
 	gResManager->ReleaseResource(bam);
@@ -51,6 +49,7 @@ Animation::Animation(const char* bamName,
 	:
 	fAnimation(NULL),
 	fCurrentFrame(0),
+	fStartFrame(0),
 	fMaxFrame(0),
 	fBlackAsTransparent(false),
 	fMirrored(mirror)
@@ -69,8 +68,6 @@ Animation::Animation(const char* bamName,
 	fCenter = position;
 	fCurrentFrame = 0;
 	fMaxFrame = bam->CountFrames(sequence);
-
-	fHold = false;
 
 	_LoadBitmaps(bam, sequence, colors);
 
@@ -124,11 +121,9 @@ Animation::Bitmap()
 void
 Animation::Next()
 {
-	if (!fHold) {
-		fCurrentFrame++;
-		if (fCurrentFrame >= fMaxFrame)
-			fCurrentFrame = 0;
-	}
+	fCurrentFrame++;
+	if (fCurrentFrame >= fMaxFrame)
+		fCurrentFrame = fStartFrame;	
 }
 
 

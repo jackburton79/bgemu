@@ -276,16 +276,20 @@ animation::Print() const
 	printf("sequence: %d\n", sequence);
 	printf("frame: %d\n", frame);
 	printf("flags: (%d)\n", flags);
-	printf("\t%s %s %s %s %s %s %s %s %s\n",
-			flags & ANIM_SHOWN ? "SHOWN" : "",
-			flags & ANIM_SHADED ? "SHADED" : "",
-			flags & ANIM_ALLOW_TINT ? "SHADED_NIGHT" : "",
-			flags & ANIM_HOLD ? "HOLD" : "",
-			flags & ANIM_START_ON_FIRST_FRAME ? "SYNCHRONIZED" : "",
-			flags & ANIM_DISABLE_ON_SLOW_MACHINES ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
-			flags & ANIM_PLAY_ALL_FRAMES ? "PLAY_ALL_FRAMES" : "",
-			flags & ANIM_USE_PALETTE ? "USE_PALETTE" : "",
-			flags & ANIM_MIRRORED ? "MIRRORED" : "");
+	printf("\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n",
+			is_bit_set(flags, ANIM_SHOWN) ? "SHOWN" : "",
+			is_bit_set(flags, ANIM_SHADED) ? "SHADED" : "",
+			is_bit_set(flags, ANIM_ALLOW_TINT) ? "SHADED_NIGHT" : "",
+			is_bit_set(flags, ANIM_STOP_AT_FRAME) ? "STOP_AT_FRAME" : "",
+			is_bit_set(flags, ANIM_SYNCHRONIZED) ? "ANIM_SYNCHRONIZED" : "",
+			is_bit_set(flags, ANIM_RANDOM_START_FRAME) ? "RANDOM_START_FRAME" : "",
+			is_bit_set(flags, ANIM_IGNORE_CLIPPING) ? "ANIM_IGNORE_CLIPPING" : "",
+			is_bit_set(flags, ANIM_DISABLE_ON_SLOW_MACHINES) ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
+			is_bit_set(flags, ANIM_DO_NOT_COVER) ? "ANIM_DO_NOT_COVER" : "",
+			is_bit_set(flags, ANIM_PLAY_ALL_FRAMES) ? "PLAY_ALL_FRAMES" : "",
+			is_bit_set(flags, ANIM_USE_PALETTE) ? "USE_PALETTE" : "",
+			is_bit_set(flags, ANIM_MIRRORED) ? "MIRRORED" : "",
+			is_bit_set(flags, ANIM_SHOW_IN_COMBAT) ? "ANIM_SHOW_IN_COMBAT" : "");
 	printf("height: %d\n", height);
 	printf("transparency: %d\n", transparency);
 	printf("start_frame: %d\n", start_frame);
