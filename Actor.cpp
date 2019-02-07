@@ -995,6 +995,7 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 void
 Actor::_CheckRegion()
 {
+	return;
 	Region* region = Core::Get()->RegionAtPoint(Position());
 	if (region != NULL && region != fRegion) {
 		/*trigger_entry entry;

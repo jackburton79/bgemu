@@ -87,15 +87,21 @@ Animation::~Animation()
 bool
 Animation::IsShown() const
 {
-	return fAnimation != NULL ? fAnimation->flags & IE::ANIM_SHOWN : true;
+	return fAnimation != NULL ? is_bit_set(fAnimation->flags, IE::ANIM_SHOWN) : true;
 }
 
 
 void
 Animation::SetShown(const bool show)
 {
-	if (fAnimation != NULL)
-		fAnimation->flags |= IE::ANIM_SHOWN;
+	if (fAnimation != NULL) {
+		uint32 flags = fAnimation->flags;
+		if (show)
+			set_bit(flags, IE::ANIM_SHOWN);
+		else
+			clear_bit(flags, IE::ANIM_SHOWN);
+		fAnimation->flags = flags;
+	}
 }
 
 

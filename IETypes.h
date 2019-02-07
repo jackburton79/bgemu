@@ -137,7 +137,7 @@ struct animation {
 	res_ref bam_name;
 	int16 sequence;
 	int16 frame;
-	int32 flags;
+	uint32 flags;
 	int16 height;
 	int16 transparency;
 	int16 start_frame;

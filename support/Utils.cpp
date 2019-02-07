@@ -100,9 +100,23 @@ extension(const char* path)
 
 
 bool
-is_bit_set(int i, int bitPos)
+is_bit_set(uint32 value, int bitPos)
 {
-	return i & (1 << bitPos);
+	return value & (1 << bitPos);
+}
+
+
+void
+set_bit(uint32& value, int bitPos)
+{
+	value |= (1 << bitPos);
+}
+
+
+void
+clear_bit(uint32& value, int bitPos)
+{
+	value &= ~(1 << bitPos);
 }
 
 
