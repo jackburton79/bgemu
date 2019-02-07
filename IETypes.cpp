@@ -346,7 +346,8 @@ region::Print() const
 	//res_ref destination;
 	std::cout << "entrance name: " << entrance_name << std::endl;
 
-	std::cout << "flags:" << std::endl;
+	std::cout << "flags:" << std::hex << "0x" << flags << std::endl;
+	std::cout << std::dec;
 	if (is_bit_set(flags, REGION_KEY_REQUIRED))
 		std::cout << "\t" << "key required" << std::endl;
 	if (is_bit_set(flags, REGION_TRAP_RESET))
@@ -386,10 +387,10 @@ region::Print() const
 	std::cout << "unk2: " << unk2 << std::endl;
 	char unk3[32];
 	std::cout << "unk3: " << unk3 << std::endl;
-	std::cout << "sound: " << sound << std::endl;
-	std::cout << "talk_location: " << talk_location << std::endl;
-	std::cout << "str_name:" << str_name << std::endl;
-	std::cout << "dialog_file: " << dialog_file.CString() << std::endl;
+	//std::cout << "sound: " << sound << std::endl;
+	//std::cout << "talk_location: " << talk_location << std::endl;
+	//std::cout << "str_name:" << str_name << std::endl;
+	//std::cout << "dialog_file: " << dialog_file.CString() << std::endl;
 }
 
 

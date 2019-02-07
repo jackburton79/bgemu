@@ -282,8 +282,8 @@ struct region {
 	uint32 unk2;
 	char unk3[32];
 	res_ref sound;
-	uint32 talk_location;
-	uint32 str_name;
+	point talk_location;
+	uint32 speaker_name;
 	res_ref dialog_file;
 	void Print() const;
 } __attribute__((packed));
