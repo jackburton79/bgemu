@@ -1087,6 +1087,7 @@ Script::_HandleAction(action_node* act)
 		}
 		case 0x1E:
 		{
+			// SetGlobal
 			fSender->AddAction(new SetGlobalAction(fSender, act));
 			break;
 		}
