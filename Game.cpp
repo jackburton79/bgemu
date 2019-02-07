@@ -238,8 +238,10 @@ Game::LoadStartingArea()
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
 	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(point);
-	if (fParty != NULL)
+	if (fParty != NULL) {
 		fParty->ActorAt(0)->SetPosition(point);
+		fParty->ActorAt(0)->ClearDestination();
+	}
 
 	gResManager->ReleaseResource(resource);
 }

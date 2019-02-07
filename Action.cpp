@@ -172,7 +172,7 @@ CreateCreatureImpassableAction::operator()()
 						fActionParams->where, fActionParams->integer1);
 	std::cout << "Created actor " << fActionParams->string1 << " on ";
 	std::cout << fActionParams->where.x << ", " << fActionParams->where.y << std::endl;
-	actor->SetDestination(fActionParams->where);
+	//actor->SetDestination(fActionParams->where);
 	Core::Get()->AddActorToCurrentArea(actor);
 	SetCompleted();
 	//core->SetActiveActor(actor);

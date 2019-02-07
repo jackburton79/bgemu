@@ -173,7 +173,7 @@ Actor::_Init()
 	fActor->destination = fActor->position;
 
 	fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
-
+	
 	SetAnimationAction(ACT_STANDING);
 }
 
@@ -306,6 +306,13 @@ void
 Actor::SetDestination(const IE::point& point)
 {
 	fActor->destination = fPath->SetPoints(fActor->position, point);
+}
+
+
+void
+Actor::ClearDestination()
+{
+	fActor->destination = fActor->position;
 }
 
 

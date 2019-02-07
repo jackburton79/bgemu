@@ -47,6 +47,7 @@ public:
 
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest);
+	void ClearDestination();
 	
 	IE::point RestrictionDistance() const;
 	virtual IE::point NearestPoint(const IE::point& start) const;
