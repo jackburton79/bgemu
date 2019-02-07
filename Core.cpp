@@ -626,6 +626,8 @@ Core::RandomWalk(Actor* actor)
 int32
 Core::RandomNumber(int32 start, int32 end)
 {
+	if (start == end)
+		return start;
 	return start + rand() % (end - start);
 }
 
