@@ -23,9 +23,6 @@ Region::Region(IE::region* region)
 	std::string fixedName = region->name;
 	fixedName.erase(std::remove_if(fixedName.begin(), fixedName.end(), isspace), fixedName.end());
 	SetName(fixedName.c_str());
-	if (fixedName.compare("Rielevdeadtrigger") == 0) {
-		region->Print();
-	}
 }
 
 
@@ -103,8 +100,9 @@ void
 Region::ActivateTrigger()
 {
 	if (fRegion->type != IE::REGION_TYPE_TRIGGER) {
-		std::cerr << "ActivateTrigger() called on wrong region type (" << fRegion->type << ")" << std::endl;
-		return;
+		std::cerr << "ActivateTrigger() called on wrong region type: ";
+		std::cerr << Name() <<  " (" << fRegion->type << ")" << std::endl;
+		//return;
 	}
 	fRegion->Print();
 }
