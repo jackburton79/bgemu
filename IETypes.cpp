@@ -340,19 +340,35 @@ region::Print() const
 {
 	std::cout << "name: " << name << std::endl;
 	std::cout << "type: " << type << std::endl;
-	//IE::rect rect;
-	//uint16 vertex_count;
-	//uint32 vertex_index;
 	std::cout << "trigger_value: " << trigger_value << std::endl;
 	//uint32 cursor_index;
 	//res_ref destination;
 	std::cout << "entrance name: " << entrance_name << std::endl;
 
-	//uint32 flags;
+	std::cout << "flags:" << std::endl;
+	if (flags & REGION_TRAP_INVISIBLE)
+		std::cout << "\t" << "trap invisible" << std::endl;
+	if (flags & REGION_TRAP_RESET)
+		std::cout << "\t" << "trap reset" << std::endl;
+	if (flags & REGION_PARTY_REQUIRED)
+		std::cout << "\t" << "party required" << std::endl;
+	if (flags & REGION_DETECTABLE)
+		std::cout << "\t" << "detectable" << std::endl;
+	if (flags & REGION_TUTORIAL_ONLY)
+		std::cout << "\t" << "tutorial only" << std::endl;
+	if (flags & REGION_NPC_CAN_TRIGGER)
+		std::cout << "\t" << "NPC can trigger" << std::endl;
+	if (flags & REGION_DEACTIVATED)
+		std::cout << "\t" << "deactivated" << std::endl;
+	if (flags & REGION_NPC_CANT_PASS)
+		std::cout << "\t" << "NPC can't pass" << std::endl;
+	if (flags & REGION_ALTERNATIVE_POINT)
+		std::cout << "\t" << "alternative point" << std::endl;
 	std::cout << "info_text: " << IDTable::GetDialog(info_text) << std::endl;
 	//uint16 trap_detection_difficulty;
 	//uint16 trap_removal_difficulty;
-	//uint16 trapped;
+	std::cout << "trapped: " << (trapped ? "YES" : "NO") << std::endl;
+	
 	//uint16 trap_detected;
 	std::cout << "trap_launch_location:" << trap_launch_location.x << ", " << trap_launch_location.y << std::endl;
 	std::cout << "key_item: " << key_item << std::endl;
