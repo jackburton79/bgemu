@@ -106,30 +106,3 @@ Region::ActivateTrigger()
 	}
 	fRegion->Print();
 }
-
-
-void
-Region::CheckObjectsInside()
-{
-#if 0
-	std::list<Object*>::iterator i = fObjectsInside.begin();
-	while (i != fObjectsInside.end()) {
-		Object* object = (*i);
-		if (!Contains(object->Position())) {
-			object->ExitedRegion(this);
-			i = fObjectsInside.erase(i);
-		} else
-			i++;
-	}
-
-	Object* object = Core::Get()->GetObject(this);
-	if (object == NULL)
-		return;
-	i = std::find(fObjectsInside.begin(),
-					fObjectsInside.end(), object);
-	if (i == fObjectsInside.end()) {
-		fObjectsInside.push_back(object);
-		object->EnteredRegion(this);
-	}
-#endif
-}

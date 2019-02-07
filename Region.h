@@ -36,8 +36,6 @@ public:
 	
 	void ActivateTrigger();
 
-	void CheckObjectsInside();
-
 private:
 	IE::region* fRegion;
 	::Polygon fPolygon;
