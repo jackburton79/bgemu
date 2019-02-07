@@ -137,7 +137,15 @@ Polygon::OffsetBy(int32 x, int32 y)
 bool
 Polygon::Contains(const int16 x, const int16 y) const
 {
-	return rect_contains(fFrame, x, y);
+	if (!rect_contains(fFrame, x, y))
+		return false;
+	bool contains = false;
+	for (int32 i = 0, j = fCount - 1; i < fCount; j = i++) {
+		if (((fPoints[i].y > y) != (fPoints[j].y > y)) &&
+				(x < (fPoints[j].x - fPoints[i].x) * (y-fPoints[i].y) / (fPoints[j].y - fPoints[i].y) + fPoints[i].x) )
+			contains = !contains; 
+	}
+	return contains;
 }
 
 
