@@ -343,9 +343,7 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 		if (fSelectedActor != NULL)
 			fSelectedActor.Target()->ClickedOn(door);
 		return;
-	}
-
-	if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
+	} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 		if (fSelectedActor != actor) {
 			//if (fSelectedActor != NULL)
 			//	fSelectedActor->Select(false);
@@ -357,9 +355,7 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 				fSelectedActor.Target()->ClickedOn(actor);
 		}
 		return;
-	}
-
-	if (Region* region = _RegionAtPoint(point)) {
+	} else if (Region* region = _RegionAtPoint(point)) {
 		// TODO:
 		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(region);

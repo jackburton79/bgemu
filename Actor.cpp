@@ -631,12 +631,12 @@ Actor::ClickedOn(Object* target)
 	// TODO: Add a "mode" to the ClickedOn method, to distinguish
 	// an attack from a dialog start, etc
 
-	/*if (Door* door = dynamic_cast<Door*>(target)) {
-		Action* walkToAction = new WalkToObject(this, door);
-		AddAction(walkToAction);
-		OpenDoor* toggleAction = new OpenDoor(this, door);
-		AddAction(toggleAction);
-	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
+	if (Door* door = dynamic_cast<Door*>(target)) {
+		if (Core::Get()->Distance(this, door) > 10)
+			SetDestination(door->NearestPoint(Position()));
+		else
+			door->Toggle();
+	}/* else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		Attack* attackAction = new Attack(this, actor);
 		AddAction(attackAction);
 	} else if (Container* container = dynamic_cast<Container*>(target)) {
