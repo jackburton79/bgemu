@@ -315,6 +315,7 @@ AreaRoom::Draw(Bitmap *surface)
 		fBackMap->Image()->Unlock();
 	}
 
+#if 0
 	GFX::point mousePoint;
 	mousePoint.x = fCursorPosition.x + 10;
 	mousePoint.y = fCursorPosition.y - 10;
@@ -323,8 +324,24 @@ AreaRoom::Draw(Bitmap *surface)
 	s << (fCursorPosition.x + AreaOffset().x);
 	s << ", " << (fCursorPosition.y + AreaOffset().y);
 	FontRoster::GetFont("NORMAL")->RenderString(s.str(), 0, fBackMap->Image(), mousePoint);
+#endif
+#if 0
+	RegionsList::iterator r = fRegions.begin();
+	uint32 color = fBackMap->Image()->MapColor(0, 125, 0);
+	for (; r != fRegions.end(); r++) {
+		Region* region = *r;
+		GFX::rect rect = rect_to_gfx_rect(region->Frame());
+		ConvertFromArea(rect);
+		//if (rects_intersect(rect, mapRect)) {
+			fBackMap->Image()->Lock();
+			fBackMap->Image()->FillRect(rect, color);
+			fBackMap->Image()->Unlock();
+		//}	
+	}
+#endif
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
+	
 	_DrawSearchMap(mapRect);
 }
 
@@ -959,6 +976,7 @@ AreaRoom::_InitRegions()
 		Region* region = fArea->GetRegionAt(i);		
 		fRegions.push_back(region);
 		Core::Get()->RegisterRegion(region);
+		// TODO: associate room to tile cells
 	}
 	std::cout << "Done!" << std::endl;
 }
