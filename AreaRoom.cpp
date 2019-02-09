@@ -156,8 +156,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		fSelectedActor = player;
 	}
 
-	//GUI::Get()->DrawTooltip("THIS IS A TEXT", 50, 40, 3000);
-
 	GUI::Get()->ShowWindow(999);
 	
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
