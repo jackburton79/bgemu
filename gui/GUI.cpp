@@ -42,10 +42,15 @@ GUI::GUI(uint16 width, uint16 height)
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
 	fScreenHeight(height),
-	fShown(true)
+	fShown(true),
+	fTooltipBitmap(NULL)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
+
+	// TODO: size: have a giant bitmap and draw it as an overlay ?
+	// it kills performance. Have multiple bitmaps ? 
+	fTooltipBitmap = new Bitmap(600, 500, 8);
 }
 
 
@@ -63,6 +68,9 @@ GUI::~GUI()
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
 	}
+
+	if (fTooltipBitmap != NULL)
+		fTooltipBitmap->Release();
 }
 
 
@@ -455,6 +463,8 @@ GUI::_InitCursors()
 void
 GUI::_DrawToolTip()
 {
+	fTooltipBitmap->Clear(0);
+	fTooltipBitmap->SetColorKey(0);
 	std::list<string_entry>::const_iterator i;
 	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
 		const string_entry& entry = *i;
@@ -464,9 +474,9 @@ GUI::_DrawToolTip()
 		rect.w = 100;
 		rect.h = 30;
 
-		Bitmap* bitmap = GraphicsEngine::Get()->ScreenBitmap();
 		FontRoster::GetFont("TOOLFONT")->RenderString(entry.text,
-													0, bitmap, rect);
+													0, fTooltipBitmap, rect);
 		
 	}
+	GraphicsEngine::Get()->BlitToScreen(fTooltipBitmap, NULL, NULL);
 }

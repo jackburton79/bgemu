@@ -74,6 +74,8 @@ private:
 	
 	bool fShown;
 
+	Bitmap* fTooltipBitmap;
+	
 	GUI(uint16 width, uint16 height);
 	~GUI();
 	
