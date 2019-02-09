@@ -977,13 +977,13 @@ Actor::_HandleColors()
 
 uint8
 Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
-{
+{	
 	uint8 num = index;
 	// get column requested index
 	for (int i = 0; i < randColors->CountColumns(); i++) {
 		uint16 value = randColors->IntegerValueAt(0, i);
 		if (value == index) {
-			int rndNumber = Core::RandomNumber(0, randColors->CountRows() - 1);
+			int rndNumber = Core::RandomNumber(1, randColors->CountRows() - 1);
 			num = randColors->IntegerValueAt(rndNumber, i);
 			break;
 		}
