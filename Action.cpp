@@ -218,6 +218,30 @@ DestroySelfAction::operator()()
 }
 
 
+// PlayDeadAction
+PlayDeadAction::PlayDeadAction(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+PlayDeadAction::operator()()
+{
+	if (!Initiated()) {
+		SetInitiated();
+		// TODO:
+		//fSender->SetAnimationAction(ACT_DEAD);
+		fDuration = fActionParams->integer1 * 15;
+	}
+	
+	if (fDuration-- <= 0)
+		SetCompleted();
+}
+
+
 // SetInterruptableAction
 SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node)
 	:

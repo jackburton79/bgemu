@@ -539,7 +539,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 *	clicked on the trigger region running this script.
 				 */
 				object_node* objectNode = FindObjectNode(fSender, trig);
-				Actor* clicker = core->LastRoundResults()->GetActorWhoClickedObject(fSender);
+				// TODO: Maybe LastClicker should return Actor*
+				Actor* clicker = dynamic_cast<Actor*>(fSender->LastClicker());
 				if (clicker != NULL) {
 					objectNode->Print();
 					returnValue = clicker->MatchNode(objectNode);
@@ -1029,6 +1030,23 @@ Script::_HandleAction(action_node* act)
 			// executing the script
 			std::cout << "CONTINUE!!!!" << std::endl;
 			return false;
+		}
+		case 40:
+		{
+			// 40 PlayDead(I:Time*)
+			// This action instructs the active creature to "play dead",
+			// i.e. to lay on the ground, for the specified interval
+			// (measured in AI updates per second (AI updates default to 15 per second).
+			// If used on a PC, the player can override the action by
+			// issuing a standard move command.
+			// TODO: Active creature ? This is called from the area script.
+			// Let's try this
+			Actor* actor = Game::Get()->Party()->ActorAt(0);
+			if (actor != NULL) {
+				Action* action = new PlayDeadAction(actor, act);
+				actor->AddAction(action);
+			}
+			break;
 		}
 		case 49:
 		{

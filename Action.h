@@ -65,6 +65,15 @@ public:
 };
 
 
+class PlayDeadAction : public Action {
+public:
+	PlayDeadAction(Object* object, action_node* node);
+	virtual void operator()();
+private:
+	uint32 fDuration;
+};
+
+
 class SetInterruptableAction : public Action {
 public:
 	SetInterruptableAction(Object* object, action_node* node);
