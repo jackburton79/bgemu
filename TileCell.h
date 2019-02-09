@@ -9,6 +9,7 @@
 class Actor;
 class Door;
 class MapOverlay;
+class Region;
 
 class TileMap {
 public:
@@ -49,17 +50,23 @@ public:
 	void MouseOver();
 	void Clicked();
 
+	void AddRegion(Region* Region);
+	void RemoveRegion(Region* region);
+	bool HasRegion(Region* region) const;
 private:
 	uint32 fNumber;
 	::Door *fDoor;
 	std::vector<MapOverlay*>& fOverlays;
-
-	// TODO: This should store the object IDs, since
-	// storing the pointers is not safe
-	std::list<Actor*> fObjects;
 	int fNumOverlays;
 	uint16 fPosX;
 	uint16 fPosY;
+
+	// TODO: This should store the object IDs, since
+	// storing the pointers is not safe
+	
+	std::list<Actor*> fObjects;
+	
+	std::vector<Region*> fRegions;
 };
 
 

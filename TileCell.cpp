@@ -3,6 +3,7 @@
 #include "Door.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "Region.h"
 #include "ResManager.h"
 #include "TileCell.h"
 #include "Timer.h"
@@ -10,6 +11,7 @@
 
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
 
+#include <algorithm>
 #include <assert.h>
 
 static GFX::Color sTransparentColor = { 0, 255, 0 };
@@ -189,6 +191,44 @@ TileCell::Clicked()
 void
 TileCell::MouseOver()
 {
+}
+
+
+struct FindRegion {
+	FindRegion(const Region* region)
+		: toFind(region) {};
+
+	bool operator() (const Region* region) {
+		return strcmp(region->Name(), toFind->Name()) == 0;
+	};
+	const Region* toFind;
+};
+
+
+void
+TileCell::AddRegion(Region* region)
+{
+	if (!HasRegion(region))
+		fRegions.push_back(region);
+}
+
+
+void
+TileCell::RemoveRegion(Region* region)
+{
+	std::vector<Region*>::iterator i =
+		std::find_if(fRegions.begin(), fRegions.end(), FindRegion(region));
+	if (i != fRegions.end())
+		fRegions.erase(i);
+}
+	
+
+bool
+TileCell::HasRegion(Region* region) const
+{
+	std::vector<Region*>::const_iterator i =
+		std::find_if(fRegions.begin(), fRegions.end(), FindRegion(region));
+	return i != fRegions.end();
 }
 
 
