@@ -848,7 +848,6 @@ DisplayString::operator()()
 	
 	if (fDuration-- <= 0) {	
 		SetCompleted();
-		return;
 	}
 }
 
@@ -866,9 +865,16 @@ DisplayStringHead::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		fDuration = 3000; //??
-		std::string string = IDTable::GetDialog(fActionParams->integer1); 
-		GUI::Get()->DrawTooltip(string, 100, 100, fDuration);
+		fDuration = 1500; //??
+		Actor* actor = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+		if (actor == NULL)
+			SetCompleted();
+		IE::point point = actor->Position();
+		point.y -= 100;
+		std::string string = IDTable::GetDialog(fActionParams->integer1);
+		Core::Get()->CurrentRoom()->ConvertFromArea(point);
+		// TODO: Center string
+		GUI::Get()->DrawTooltip(string, point.x, point.y, fDuration);
 	}
 	if (fDuration-- <= 0) {
 		SetCompleted();
