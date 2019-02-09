@@ -841,7 +841,7 @@ DisplayString::operator()()
 		SetInitiated();
 		fDuration = fActionParams->integer1;
 		std::string string = IDTable::GetDialog(fActionParams->integer1); 
-		GUI::Get()->DrawTooltip(string, fActionParams->where.x, fActionParams->where.y, fDuration * 15);
+		GUI::Get()->DisplayString(string, fActionParams->where.x, fActionParams->where.y, fDuration * 15);
 	}
 	
 	if (fDuration-- <= 0) {	
@@ -872,9 +872,9 @@ DisplayStringHead::operator()()
 		std::string string = IDTable::GetDialog(fActionParams->integer1);
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
 		// TODO: Center string
-		// we multiply by 15 because DrawToolTip() accepts ms, but duration
+		// we multiply by 15 because DisplayString() accepts ms, but duration
 		// is specified in AI update times
-		GUI::Get()->DrawTooltipCentered(string, point.x, point.y, fDuration *  15);
+		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration *  15);
 	}
 	if (fDuration-- <= 0) {
 		SetCompleted();

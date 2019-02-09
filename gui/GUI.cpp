@@ -149,7 +149,7 @@ GUI::Draw()
 		(*i)->Draw();
 	}
 
-	_DrawToolTip();
+	_DrawStrings();
 
 	// If GUI is hidden, don't show cursors
 	if (!fShown)
@@ -170,56 +170,17 @@ GUI::Draw()
 
 
 void
-GUI::DrawTooltip(const std::string& text, uint16 x, uint16 y, uint32 time)
+GUI::DisplayString(const std::string& text, uint16 x, uint16 y, uint32 time)
 {
-	static uint32 sCurrentId = 0;
-	
-	const Font* font = FontRoster::GetFont("TOOLFONT");
-	uint32 width = font->StringWidth(text);
-	// TODO: calculate height
-	Bitmap* bitmap = new Bitmap(width, 50, 8);
-	bitmap->SetColorKey(0);
-	
-	GFX::rect rect;
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = bitmap->Width();
-	rect.h = bitmap->Height();
-	
-	font->RenderString(text, 0, bitmap, rect);
-	
-	rect.x = x;
-	rect.y = y;
-	
-	string_entry entry = { text, bitmap, rect, sCurrentId};
-	fTooltipList.push_back(entry);
-
-	long id = sCurrentId;
-	Timer::AddOneShotTimer((uint32)time, DeleteStringEntry, (void*)id);
-
-	sCurrentId++;
+	_DisplayStringCommon(text, x, y, false, time);
 }
 
 
 void
-GUI::DrawTooltipCentered(const std::string& text,
+GUI::DisplayStringCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time)
 {
-	DrawTooltip(text, xCenter, yCenter, time);
-/*
-	const Font* font = FontRoster::GetFont("TOOLFONT");
-	static uint32 sCurrentId = 0;
-	xCenter -= (font->StringWidth(text) / 2);
-	// TODO: yCenter ????
-	string_entry entry = { text, xCenter, yCenter , sCurrentId};
-
-	fTooltipList.push_back(entry);
-
-	long id = sCurrentId;
-	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
-
-	sCurrentId++;
-	*/
+	_DisplayStringCommon(text, xCenter, yCenter, true, time);
 }
 
 
@@ -494,7 +455,7 @@ GUI::_InitCursors()
 
 
 void
-GUI::_DrawToolTip()
+GUI::_DrawStrings()
 {
 	std::list<string_entry>::const_iterator i;
 	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
@@ -502,4 +463,34 @@ GUI::_DrawToolTip()
 		GraphicsEngine::Get()->BlitToScreen(entry.bitmap, NULL, (GFX::rect*)&entry.rect);
 	}
 	
+}
+
+
+void
+GUI::_DisplayStringCommon(const std::string& text,
+			uint16 x, uint16 y, bool centerString, uint32 time)
+{
+	static uint32 sCurrentId = 0;
+	
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	uint32 stringWidth = font->StringWidth(text);
+	// TODO: calculate height
+	Bitmap* bitmap = new Bitmap(stringWidth, 50, 8);
+	bitmap->SetColorKey(0);
+	
+	// Pre-render the string to a bitmap
+	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+	font->RenderString(text, 0, bitmap, rect);
+	
+	// Set the position where to  blit the bitmap
+	rect.x = x;
+	rect.y = y;
+	if (centerString) {
+		rect.x -= stringWidth / 2;
+	}
+	string_entry entry = { text, bitmap, rect, sCurrentId};
+	fTooltipList.push_back(entry);
+
+	long id = sCurrentId++;
+	Timer::AddOneShotTimer((uint32)time, DeleteStringEntry, (void*)id);
 }

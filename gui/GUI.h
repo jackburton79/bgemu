@@ -44,9 +44,9 @@ public:
 	void Show();
 	
 	void Draw();
-	void DrawTooltip(const std::string& text,
+	void DisplayString(const std::string& text,
 			uint16 x, uint16 y, uint32 time);
-	void DrawTooltipCentered(const std::string& text,
+	void DisplayStringCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time);
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
@@ -88,7 +88,9 @@ private:
 	Window* _GetWindow(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();
-	void _DrawToolTip();
+	void _DrawStrings();
+	void _DisplayStringCommon(const std::string& text,
+			uint16 x, uint16 y, bool centerString, uint32 time);
 
 };
 
