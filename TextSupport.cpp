@@ -39,6 +39,28 @@ Font::~Font()
 }
 
 
+uint16
+Font::StringWidth(const std::string& string) const
+{
+	uint32 totalWidth = 0;
+	uint16 maxHeight = 0;
+	
+	// TODO: Duplicate code here and in _RenderString()
+	for (std::string::const_iterator c = string.begin();
+			c != string.end(); c++) {
+		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
+		if (g == fGlyphs.end()) {
+			// glyph not found/cached
+			continue;
+		}
+		Bitmap* newFrame = g->second;
+		totalWidth += newFrame->Frame().w;
+		maxHeight = std::max(newFrame->Frame().h, maxHeight);
+	}
+	return totalWidth;
+}
+
+
 void
 Font::RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap) const
@@ -89,18 +111,18 @@ Font::_RenderString(std::string string,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
 {
-	std::vector<Bitmap*> frames;
+	std::vector<const Bitmap*> frames;
 	uint32 totalWidth = 0;
 	uint16 maxHeight = 0;
 	// First pass: calculate total width and height
-	for (std::string::iterator c = string.begin();
+	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
 		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
 			// glyph not found/cached
 			continue;
 		}
-		Bitmap* newFrame = g->second;
+		const Bitmap* newFrame = g->second;
 		totalWidth += newFrame->Frame().w;
 		maxHeight = std::max(newFrame->Frame().h, maxHeight);
 		frames.push_back(newFrame);
@@ -119,9 +141,9 @@ Font::_RenderString(std::string string,
 		rect.y = destPoint->y;
 	}
 	// Render the glyphs
-	for (std::vector<Bitmap*>::const_iterator i = frames.begin();
+	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
-		Bitmap* glyph = *i;
+		const Bitmap* glyph = *i;
 
 		if (destRect != NULL) {
 			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
