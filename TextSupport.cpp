@@ -73,7 +73,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 	if (fontRes == NULL)
 		return;
 
-	for (char c = 33; c < 126; c++) {
+	for (char c = 32; c < 126; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);	
 		fGlyphs[c] = fontRes->FrameForCycle(cycleNum, 0);
 		fGlyphs[c]->ClearColorKey();
