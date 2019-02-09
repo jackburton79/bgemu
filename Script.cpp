@@ -1309,12 +1309,12 @@ Script::_HandleAction(action_node* act)
 		case 311:
 		{
 			/* DISPLAYSTRINGWAIT(O:OBJECT*,I:STRREF*)(311 0x137) */
-			// TODO: play sound
-			/*Object* object = FindObject(act);
-			if (object != NULL) {
-				object->Print();
-				std::cout << IDTable::GetDialog(act->integer1);
-			}*/
+			// This action displays the specified string over the head
+			// on the specified object (on the game-screen).
+			// The text stays onscreen until the associated sound has completed playing.
+			// TODO: use an action which plays the sound
+			Action* action = new DisplayStringHead(fSender, act);
+			fSender->AddAction(action);
 			break;
 		}
 		default:
