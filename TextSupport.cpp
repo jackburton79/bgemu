@@ -40,11 +40,10 @@ Font::~Font()
 
 
 uint16
-Font::StringWidth(const std::string& string) const
+Font::StringWidth(const std::string& string, uint16* height) const
 {
-	uint32 totalWidth = 0;
+	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
-	
 	// TODO: Duplicate code here and in _RenderString()
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
@@ -57,6 +56,8 @@ Font::StringWidth(const std::string& string) const
 		totalWidth += newFrame->Frame().w;
 		maxHeight = std::max(newFrame->Frame().h, maxHeight);
 	}
+	if (height != NULL)
+		*height = maxHeight;
 	return totalWidth;
 }
 
@@ -119,7 +120,7 @@ Font::_RenderString(std::string string,
 					const GFX::point* destPoint) const
 {
 	std::vector<const Bitmap*> frames;
-	uint32 totalWidth = 0;
+	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
 	// First pass: calculate total width and height
 	for (std::string::const_iterator c = string.begin();
@@ -128,7 +129,7 @@ Font::_RenderString(std::string string,
 		if (*c == ' ')
 			totalWidth += 10;
 		if (g == fGlyphs.end()) {
-			std::cout << int(*c) << " not found in glyph cache!" << std::endl;
+			std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
 			// glyph not found/cached
 			continue;
 		}

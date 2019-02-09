@@ -473,10 +473,10 @@ GUI::_DisplayStringCommon(const std::string& text,
 	static uint32 sCurrentId = 0;
 	
 	const Font* font = FontRoster::GetFont("TOOLFONT");
-	uint32 stringWidth = font->StringWidth(text);
-	// TODO: calculate height
-	Bitmap* bitmap = new Bitmap(stringWidth, 50, 8);
-	bitmap->SetColorKey(0);
+	uint16 height;
+	uint16 stringWidth = font->StringWidth(text, &height);
+	Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
+	//bitmap->SetColorKey(0);
 	
 	// Pre-render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());

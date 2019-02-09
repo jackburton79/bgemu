@@ -30,7 +30,7 @@ public:
 	Font(const std::string& fontName);
 	~Font();
 
-	uint16 StringWidth(const std::string& string) const;
+	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
 
 	void RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap) const;
