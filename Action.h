@@ -227,6 +227,15 @@ private:
 };
 
 
+class DisplayStringHead : public Action {
+public:
+	DisplayStringHead(Object* object, action_node* node);
+	virtual void operator()();
+private:
+	uint32 fDuration;
+};
+
+
 class ChangeOrientationExtAction : public Action {
 public:
 	ChangeOrientationExtAction(Object* object, action_node* node);

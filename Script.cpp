@@ -1287,6 +1287,13 @@ Script::_HandleAction(action_node* act)
 			fSender->AddAction(action);
 			break;
 		}
+		case 269:
+		{
+			// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*)(269 0x10d)
+			Action* action = new DisplayStringHead(fSender, act);
+			fSender->AddAction(action);
+			break;
+		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */

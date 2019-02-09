@@ -7,6 +7,7 @@
 #include "GUI.h"
 #include "Parsing.h"
 #include "Region.h"
+#include "ResManager.h"
 #include "RoomBase.h"
 #include "Script.h"
 #include "TextSupport.h"
@@ -856,7 +857,29 @@ DisplayString::operator()()
 	//FontRoster::GetFont("TOOLFONT")->RenderString(fString, 0, GraphicsEngine::Get()->ScreenBitmap(), point);
 }
 
-	
+
+DisplayStringHead::DisplayStringHead(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+DisplayStringHead::operator()()
+{
+	if (!Initiated()) {
+		fDuration = 3000; //??
+		std::string string = IDTable::GetDialog(fActionParams->integer1); 
+		GUI::Get()->DrawTooltip(string, 100, 100, fDuration);
+	}
+	if (fDuration-- <= 0) {
+		SetCompleted();
+	}
+}
+
+
 // ChangeOrientationExtAction
 ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_node* node)
 	:
