@@ -275,7 +275,7 @@ animation::Print() const
 	printf("bam_name: %s\n", bam_name.CString());
 	printf("sequence: %d\n", sequence);
 	printf("frame: %d\n", frame);
-	printf("flags: (%d)\n", flags);
+	printf("flags: (0x%x)\n", flags);
 	printf("\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n",
 			(flags & ANIM_SHOWN) ? "SHOWN" : "",
 			(flags & ANIM_SHADED) ? "SHADED" : "",
