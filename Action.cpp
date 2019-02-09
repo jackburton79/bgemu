@@ -610,8 +610,6 @@ FadeToColorAction::operator()()
 		fCurrentValue = 255;
 		fTargetValue = 0;
 		fStepValue = (fCurrentValue - fTargetValue) / fActionParams->where.x;
-		//if (fObject != NULL)
-			//fObject->SetWaitTime(std::abs(fStepValue * fActionParams->where.x));
 	}
 	
 	GraphicsEngine::Get()->SetFade(fCurrentValue);
@@ -843,7 +841,7 @@ DisplayString::operator()()
 		SetInitiated();
 		fDuration = fActionParams->integer1;
 		std::string string = IDTable::GetDialog(fActionParams->integer1); 
-		GUI::Get()->DrawTooltip(string, fActionParams->where.x, fActionParams->where.y, fDuration);
+		GUI::Get()->DrawTooltip(string, fActionParams->where.x, fActionParams->where.y, fDuration * 15);
 	}
 	
 	if (fDuration-- <= 0) {	
@@ -865,7 +863,7 @@ DisplayStringHead::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		fDuration = 1500; //??
+		fDuration = 100; //??
 		Actor* actor = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
 		if (actor == NULL)
 			SetCompleted();
@@ -874,7 +872,9 @@ DisplayStringHead::operator()()
 		std::string string = IDTable::GetDialog(fActionParams->integer1);
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
 		// TODO: Center string
-		GUI::Get()->DrawTooltip(string, point.x, point.y, fDuration);
+		// we multiply by 15 because DrawToolTip() accepts ms, but duration
+		// is specified in AI update times
+		GUI::Get()->DrawTooltip(string, point.x, point.y, fDuration *  15);
 	}
 	if (fDuration-- <= 0) {
 		SetCompleted();
