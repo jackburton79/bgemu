@@ -524,13 +524,13 @@ Core::UpdateLogic(bool executeScripts)
 		Object* object = *c;
 		object->Update(executeScripts);
 	}
-	
+#endif	
 	RegionsList::iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		Object* object = *r;
 		object->Update(executeScripts);
 	}
-#endif
+
 	_CleanDestroyedObjects();
 	
 	_NewRound();
