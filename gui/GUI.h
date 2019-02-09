@@ -17,10 +17,15 @@
 #include <string>
 #include <vector>
 
+class Bitmap;
+namespace GFX {
+	struct rect;
+};
+
 struct string_entry {
 	std::string text;
-	uint16 x;
-	uint16 y;
+	Bitmap* bitmap;
+	GFX::rect rect;
 	uint32 id;
 };
 

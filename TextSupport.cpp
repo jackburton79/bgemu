@@ -95,12 +95,19 @@ Font::_LoadGlyphs(const std::string& fontName)
 	if (fontRes == NULL)
 		return;
 
-	for (char c = 32; c < 126; c++) {
-		uint32 cycleNum = cycle_num_for_char(c);	
-		fGlyphs[c] = fontRes->FrameForCycle(cycleNum, 0);	
-		fGlyphs[c]->ClearColorKey();
+	for (char c = 32; c < 256; c++) {
+		uint32 cycleNum = cycle_num_for_char(c);
+		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
+		if (glyph != NULL) {
+			fGlyphs[c] = glyph;
+			fGlyphs[c]->ClearColorKey();
+		} else {
+			std::cerr << "glyph not found for " << (char)c << std::endl;
+			break;
+		}
 	}
 
+	fTransparentIndex = fontRes->TransparentIndex();
 	gResManager->ReleaseResource(fontRes);
 }
 
@@ -118,7 +125,10 @@ Font::_RenderString(std::string string,
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
 		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
+		if (*c == ' ')
+			totalWidth += 10;
 		if (g == fGlyphs.end()) {
+			std::cout << int(*c) << " not found in glyph cache!" << std::endl;
 			// glyph not found/cached
 			continue;
 		}

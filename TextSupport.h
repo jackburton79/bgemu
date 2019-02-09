@@ -43,6 +43,7 @@ public:
 					uint32 flags, Bitmap* bitmap,
 					const GFX::rect& rect) const;
 
+	uint8 TransparentIndex() const { return fTransparentIndex; };
 private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(std::string string,
@@ -51,6 +52,8 @@ private:
 	
 	typedef std::map<char, Bitmap*> BitmapMap;
 	BitmapMap fGlyphs;
+	
+	uint8 fTransparentIndex;
 };
 
 

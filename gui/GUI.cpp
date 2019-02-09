@@ -28,7 +28,7 @@ static GUI* sGUI = NULL;
 
 
 uint32
-RemoveString(uint32 interval, void *param)
+DeleteStringEntry(uint32 interval, void *param)
 {
 	long id = (long)param;
 	sGUI->RemoveToolTip((uint32)id);
@@ -42,15 +42,10 @@ GUI::GUI(uint16 width, uint16 height)
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
 	fScreenHeight(height),
-	fShown(true),
-	fTooltipBitmap(NULL)
+	fShown(true)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
-
-	// TODO: size: have a giant bitmap and draw it as an overlay ?
-	// it kills performance. Have multiple bitmaps ? 
-	fTooltipBitmap = new Bitmap(1024, 800, 8);
 }
 
 
@@ -68,9 +63,6 @@ GUI::~GUI()
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
 	}
-
-	if (fTooltipBitmap != NULL)
-		fTooltipBitmap->Release();
 }
 
 
@@ -181,12 +173,29 @@ void
 GUI::DrawTooltip(const std::string& text, uint16 x, uint16 y, uint32 time)
 {
 	static uint32 sCurrentId = 0;
-	string_entry entry = { text, x, y , sCurrentId};
-
+	
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	uint32 width = font->StringWidth(text);
+	// TODO: calculate height
+	Bitmap* bitmap = new Bitmap(width, 50, 8);
+	bitmap->SetColorKey(0);
+	
+	GFX::rect rect;
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = bitmap->Width();
+	rect.h = bitmap->Height();
+	
+	font->RenderString(text, 0, bitmap, rect);
+	
+	rect.x = x;
+	rect.y = y;
+	
+	string_entry entry = { text, bitmap, rect, sCurrentId};
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId;
-	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
+	Timer::AddOneShotTimer((uint32)time, DeleteStringEntry, (void*)id);
 
 	sCurrentId++;
 }
@@ -196,6 +205,8 @@ void
 GUI::DrawTooltipCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time)
 {
+	DrawTooltip(text, xCenter, yCenter, time);
+/*
 	const Font* font = FontRoster::GetFont("TOOLFONT");
 	static uint32 sCurrentId = 0;
 	xCenter -= (font->StringWidth(text) / 2);
@@ -208,7 +219,7 @@ GUI::DrawTooltipCentered(const std::string& text,
 	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
 
 	sCurrentId++;
-	
+	*/
 }
 
 
@@ -427,7 +438,9 @@ GUI::RemoveToolTip(uint32 id)
 {
 	std::list<string_entry>::iterator i;
 	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
-		if ((*i).id == id) {
+		string_entry &entry = *i;
+		if (entry.id == id) {
+			entry.bitmap->Release();
 			fTooltipList.erase(i);
 			break;
 		}
@@ -483,20 +496,10 @@ GUI::_InitCursors()
 void
 GUI::_DrawToolTip()
 {
-	fTooltipBitmap->Clear(0);
-	fTooltipBitmap->SetColorKey(0);
 	std::list<string_entry>::const_iterator i;
 	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
 		const string_entry& entry = *i;
-		GFX::rect rect;
-		rect.x = entry.x;
-		rect.y = entry.y;
-		rect.w = 100;
-		rect.h = 30;
-
-		FontRoster::GetFont("TOOLFONT")->RenderString(entry.text,
-													0, fTooltipBitmap, rect);
-		
+		GraphicsEngine::Get()->BlitToScreen(entry.bitmap, NULL, (GFX::rect*)&entry.rect);
 	}
-	GraphicsEngine::Get()->BlitToScreen(fTooltipBitmap, NULL, NULL);
+	
 }
