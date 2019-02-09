@@ -30,6 +30,8 @@ public:
 	Actor(const char* creName, IE::point position, int face);
 	virtual ~Actor();
 
+	virtual uint16 GlobalID() const;
+	
 	void Print() const;
 
 	CREResource *CRE() const;

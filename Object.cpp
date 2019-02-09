@@ -31,6 +31,8 @@ Object::Object(const char* name, const char* scriptName)
 	fActive(false),
 	fIsInterruptable(true),
 	fWaitTime(0),
+	fLastAttacker(-1),
+	fLastClicker(-1),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -73,6 +75,14 @@ Object::SetName(const char* name)
 }
 
 
+uint16
+Object::GlobalID() const
+{
+	// TODO: 
+	return 0;
+}
+
+
 Variables&
 Object::Vars()
 {
@@ -83,15 +93,13 @@ Object::Vars()
 void
 Object::Clicked(Object* clicker)
 {
-	//fCurrentScriptRoundResults->fClicker = clicker;
+	fLastClicker = clicker->GlobalID();
 }
 
-
-void
-Object::ClickedOn(Object* target)
+Object*
+Object::LastClicker() const
 {
-	if (target)
-		target->Clicked(this);
+	return Core::Get()->GetObject(fLastClicker);
 }
 
 
@@ -304,9 +312,6 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
-	//if (strcasecmp(Name(), "CSJON") == 0)
-		//return;
-
 	if (!IsActionListEmpty())
 		return;
 		

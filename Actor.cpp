@@ -224,6 +224,14 @@ Actor::Print() const
 }
 
 
+/* virtual */
+uint16
+Actor::GlobalID() const
+{
+	return fCRE != NULL ? fCRE->GlobalActorEnum() : 0;
+}
+
+
 // Returns true if an actor was just instantiated
 // false if it was already existing (loaded from save)
 bool
@@ -626,8 +634,8 @@ Actor::ClickedOn(Object* target)
 	if (target == NULL)
 		return;
 
-	Object::ClickedOn(target);
-
+	target->Clicked(this);
+	
 	// TODO: Add a "mode" to the ClickedOn method, to distinguish
 	// an attack from a dialog start, etc
 

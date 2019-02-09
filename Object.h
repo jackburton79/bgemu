@@ -39,13 +39,15 @@ public:
 
 	const char* Name() const;
 	void SetName(const char* name);
-
+	
+	uint16 GlobalID() const;
+	
 	virtual IE::rect Frame() const = 0;
 
 	Variables& Vars();
 
-	virtual void Clicked(Object* clicker);
-	virtual void ClickedOn(Object* target);
+	void Clicked(Object* clicker);
+	Object* LastClicker() const;
 
 	void EnteredRegion(Region* region);
 	void ExitedRegion(Region* region);
@@ -102,6 +104,9 @@ private:
 
 	::Variables fVariables;
 
+	uint16 fLastAttacker;
+	uint16 fLastClicker;
+	
 	Region* fRegion;
 
 	bool fToDestroy;
