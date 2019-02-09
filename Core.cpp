@@ -696,6 +696,13 @@ Core::_CleanDestroyedObjects()
 		if (object->ToBeDestroyed()) {
 			std::cout << "Destroy actor " << object->Name() << std::endl;
 			object->ClearActionList();
+			if (object == fCutsceneActor) {
+				// TODO: is this correct ?
+				GUI::Get()->Show();
+				fCutsceneMode = false;
+				fCutsceneActor = NULL;
+				
+			}
 			if (Actor* actor = dynamic_cast<Actor*>(object)) {
 				UnregisterActor(actor);
 			}
