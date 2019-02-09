@@ -232,8 +232,10 @@ PlayDeadAction::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		// TODO:
-		//fSender->SetAnimationAction(ACT_DEAD);
+		Actor* actor = dynamic_cast<Actor*>(fObject);
+		if (actor == NULL)
+			SetCompleted();
+		actor->SetAnimationAction(ACT_DEAD);
 		fDuration = fActionParams->integer1 * 15;
 	}
 	
