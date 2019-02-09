@@ -648,11 +648,9 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 void
 ResourceManager::PrintResources(int32 type)
 {
-	if (fDebugLevel > 0) {
-		std::cout << kComponentName;
-		std::cout << "Listing " << fResourceMap.size();
-		std::cout << " entries..." << std::endl;
-	}
+	std::cout << kComponentName;
+	std::cout << "Listing " << fResourceMap.size();
+	std::cout << " entries..." << std::endl;
 	resource_map::iterator iter;
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;
@@ -664,12 +662,10 @@ ResourceManager::PrintResources(int32 type)
 			continue;
 		}
 		if (type == -1 || type == res->type) {
-			if (fDebugLevel > 0) {
-				std::cout << res->name << " " << strresource(res->type);
-				std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
-				std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
-				std::cout << std::endl;
-			}
+			std::cout << res->name << " " << strresource(res->type);
+			std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
+			std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
+			std::cout << std::endl;
 		}
 	}
 }
