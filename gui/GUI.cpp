@@ -50,7 +50,7 @@ GUI::GUI(uint16 width, uint16 height)
 
 	// TODO: size: have a giant bitmap and draw it as an overlay ?
 	// it kills performance. Have multiple bitmaps ? 
-	fTooltipBitmap = new Bitmap(600, 500, 8);
+	fTooltipBitmap = new Bitmap(1024, 800, 8);
 }
 
 
