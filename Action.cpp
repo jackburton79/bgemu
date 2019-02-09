@@ -832,8 +832,6 @@ DisplayString::DisplayString(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
-	//std::cout << "DisplayString " << text << " at " << fOffset.x << ", " << fOffset.y;
-	//std::cout << ", duration: " << duration << std::endl;
 }
 
 
@@ -841,20 +839,17 @@ DisplayString::DisplayString(Object* object, action_node* node)
 void
 DisplayString::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = fActionParams->integer1;
+		std::string string = IDTable::GetDialog(fActionParams->integer1); 
+		GUI::Get()->DrawTooltip(string, fActionParams->where.x, fActionParams->where.y, fDuration);
 	}
 	
-	if (fDuration-- == 0) {	
+	if (fDuration-- <= 0) {	
 		SetCompleted();
 		return;
 	}
-	
-	//GFX::point point = { fOffset.x, fOffset.y };
-	//FontRoster::GetFont("TOOLFONT")->RenderString(fString, 0, GraphicsEngine::Get()->ScreenBitmap(), point);
 }
 
 
@@ -870,6 +865,7 @@ void
 DisplayStringHead::operator()()
 {
 	if (!Initiated()) {
+		SetInitiated();
 		fDuration = 3000; //??
 		std::string string = IDTable::GetDialog(fActionParams->integer1); 
 		GUI::Get()->DrawTooltip(string, 100, 100, fDuration);
