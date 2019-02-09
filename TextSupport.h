@@ -54,7 +54,7 @@ private:
 
 class FontRoster {
 public:
-	static Font* GetFont(const std::string& name);
+	static const Font* GetFont(const std::string& name);
 
 private:
 	static std::map<std::string, Font*> sFonts;
