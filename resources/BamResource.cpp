@@ -277,6 +277,13 @@ BAMResource::CountCycles() const
 }
 
 
+uint8
+BAMResource::TransparentIndex() const
+{
+	return fTransparentIndex;
+}
+
+
 void
 BAMResource::_Load()
 {

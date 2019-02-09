@@ -24,6 +24,8 @@ public:
 	uint16 CountFrames(uint8 cycleIndex) const;
 	uint8 CountCycles() const;
 
+	uint8 TransparentIndex() const;
+
 	void PrintFrames(uint8 cycleIndex) const;
 	void DumpFrames(const char *path);
 
