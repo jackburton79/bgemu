@@ -874,7 +874,7 @@ DisplayStringHead::operator()()
 		// TODO: Center string
 		// we multiply by 15 because DrawToolTip() accepts ms, but duration
 		// is specified in AI update times
-		GUI::Get()->DrawTooltip(string, point.x, point.y, fDuration *  15);
+		GUI::Get()->DrawTooltipCentered(string, point.x, point.y, fDuration *  15);
 	}
 	if (fDuration-- <= 0) {
 		SetCompleted();

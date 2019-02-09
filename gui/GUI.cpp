@@ -178,7 +178,7 @@ GUI::Draw()
 
 
 void
-GUI::DrawTooltip(std::string text, uint16 x, uint16 y, uint32 time)
+GUI::DrawTooltip(const std::string& text, uint16 x, uint16 y, uint32 time)
 {
 	static uint32 sCurrentId = 0;
 	string_entry entry = { text, x, y , sCurrentId};
@@ -189,6 +189,26 @@ GUI::DrawTooltip(std::string text, uint16 x, uint16 y, uint32 time)
 	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
 
 	sCurrentId++;
+}
+
+
+void
+GUI::DrawTooltipCentered(const std::string& text,
+			uint16 xCenter, uint16 yCenter, uint32 time)
+{
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	static uint32 sCurrentId = 0;
+	xCenter -= (font->StringWidth(text) / 2);
+	// TODO: yCenter ????
+	string_entry entry = { text, xCenter, yCenter , sCurrentId};
+
+	fTooltipList.push_back(entry);
+
+	long id = sCurrentId;
+	Timer::AddOneShotTimer((uint32)time, RemoveString, (void*)id);
+
+	sCurrentId++;
+	
 }
 
 
