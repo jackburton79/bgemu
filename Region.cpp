@@ -99,7 +99,8 @@ Region::InfoTextRef() const
 void
 Region::ActivateTrigger()
 {
-	if (fRegion->type != IE::REGION_TYPE_TRIGGER) {
+	if (fRegion->type != IE::REGION_TYPE_TRIGGER
+		&& fRegion->type != IE::REGION_TYPE_INFO) {
 		std::cerr << "ActivateTrigger() called on wrong region type: ";
 		std::cerr << Name() <<  " (" << fRegion->type << ")" << std::endl;
 		//return;
