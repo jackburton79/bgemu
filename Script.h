@@ -53,7 +53,8 @@ public:
 
 	void SetProcessed();
 	bool Processed() const;
-
+	
+	bool IsActionInstant(uint16 actionId);
 private:
 	bool _EvaluateConditionNode(node* conditionNode);
 	bool _EvaluateTrigger(trigger_node* trig);

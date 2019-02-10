@@ -173,9 +173,14 @@ Object::IsActive() const
 
 
 void
-Object::AddAction(Action* action)
+Object::AddAction(Action* action, bool now)
 {
 	fActions.push_back(action);
+	if (now && IsActionListEmpty()) {
+		std::cout << "action was instant and we execute it now!" << std::endl;
+		_ExecuteAction(*action);
+	}
+		
 }
 
 
@@ -194,14 +199,17 @@ Object::ExecuteActions()
 		return;
 	}
 
-	std::list<Action*>::iterator i = fActions.begin();
-	if (i != fActions.end()) {
+	std::list<Action*>::iterator i;
+	for (i = fActions.begin(); i != fActions.end();) {
 		Action& action = **i;
-		std::cout << Name() << " executing " << action.Name() << std::endl;
-		action();
 		if (action.Completed()) {
+			std::cout << "action " << action.Name() << " was completed. Removing." << std::endl;
 			delete *i;
-			fActions.erase(i);
+			i = fActions.erase(i);
+		} else {
+			std::cout << Name() << " executing " << action.Name() << std::endl;
+			action();
+			break;
 		}
 	}
 }
@@ -348,4 +356,11 @@ Object::_ExecuteScripts(int32 maxLevel)
 	}
 }
 
+
+void
+Object::_ExecuteAction(Action& action)
+{
+	std::cout << Name() << " executes " << action.Name() << std::endl;
+	action();
+}
 

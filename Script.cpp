@@ -370,6 +370,23 @@ Script::Processed() const
 }
 
 
+/* static */
+bool
+Script::IsActionInstant(uint16 id)
+{
+	std::string actionName = IDTable::ActionAt(id);
+	IDSResource* instants = gResManager->GetIDS("INSTANT");
+	if (instants == NULL)
+		return false;
+
+	bool returnValue = instants->StringForID(id) != "";
+	std::cout << actionName << " is " << (returnValue ? "" : "not") << " instant." << std::endl;		
+	gResManager->ReleaseResource(instants);
+
+	return returnValue;
+}
+
+
 bool
 Script::_EvaluateConditionNode(node* conditionNode)
 {
@@ -945,7 +962,7 @@ Script::_HandleAction(action_node* act)
 	}
 	Core* core = Core::Get();
 	Actor* thisActor = dynamic_cast<Actor*>(fSender);
-
+	bool runNow = Script::IsActionInstant(act->id);
 	switch (act->id) {
 		case 0x03:
 		{
@@ -962,7 +979,7 @@ Script::_HandleAction(action_node* act)
 			// TODO: If point is (-1, -1) we should put the actor near
 			// the active creature. Which one is the active creature?
 			Action* action = new CreateCreatureAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 		}
 		case 0x8:
@@ -1006,6 +1023,12 @@ Script::_HandleAction(action_node* act)
 				RunAwayFrom* run = new RunAwayFrom(thisActor, act);
 				thisActor->AddAction(run);
 			}*/
+			break;
+		}
+		case 30:
+		{
+			// SetGlobal
+			fSender->AddAction(new SetGlobalAction(fSender, act), runNow);
 			break;
 		}
 		case 36:
@@ -1052,7 +1075,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
 			Action* action = new MoveViewPoint(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 		}
 		case 61:
@@ -1100,13 +1123,7 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			fSender->AddAction(new SetInterruptableAction(fSender, act));
-			break;
-		}
-		case 0x1E:
-		{
-			// SetGlobal
-			fSender->AddAction(new SetGlobalAction(fSender, act));
+			fSender->AddAction(new SetInterruptableAction(fSender, act), runNow);
 			break;
 		}
 		case 0x53:
@@ -1157,7 +1174,7 @@ Script::_HandleAction(action_node* act)
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
 			Action* action = new DestroySelfAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 			//return false;
 		}
@@ -1174,13 +1191,13 @@ Script::_HandleAction(action_node* act)
 		case 120:
 		{
 			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
-			fSender->AddAction(new StartCutsceneAction(fSender, act));
+			fSender->AddAction(new StartCutsceneAction(fSender, act), runNow);
 			break;
 		}
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
-			fSender->AddAction(new StartCutsceneModeAction(fSender, act));
+			fSender->AddAction(new StartCutsceneModeAction(fSender, act), runNow);
 			break;
 		}
 		case 0x7f:
@@ -1235,7 +1252,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
 			Action* action = new TriggerActivationAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 		}
 		case 198: // 0xc6
@@ -1253,14 +1270,14 @@ Script::_HandleAction(action_node* act)
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
 			FadeToColorAction* action = new FadeToColorAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;		
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
 			FadeFromColorAction* action = new FadeFromColorAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 		}
 		case 207:
@@ -1285,7 +1302,7 @@ Script::_HandleAction(action_node* act)
 			Actor* actor = Game::Get()->Party()->ActorAt(0);
 			if (actor != NULL) {
 				Action* action = new MoveBetweenAreasEffect(actor, act);
-				actor->AddAction(action);
+				actor->AddAction(action, runNow);
 			}
 			break;
 		}
@@ -1296,7 +1313,7 @@ Script::_HandleAction(action_node* act)
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
 			Action* action = new CreateCreatureImpassableAction(fSender, act);
-			fSender->AddAction(action);
+			fSender->AddAction(action, runNow);
 			break;
 		}
 		case 254:
@@ -1316,13 +1333,13 @@ Script::_HandleAction(action_node* act)
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			fSender->AddAction(new HideGUIAction(fSender, act));
+			fSender->AddAction(new HideGUIAction(fSender, act), runNow);
 			break;
 		}
 		case 287:
 		{
 			/* UNHIDEGUI()(287 0x11f) */
-			fSender->AddAction(new UnhideGUIAction(fSender, act));
+			fSender->AddAction(new UnhideGUIAction(fSender, act), runNow);
 			break;
 		}
 		case 311:

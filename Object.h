@@ -60,7 +60,7 @@ public:
 	void SetActive(bool active);
 	bool IsActive() const;
 
-	void AddAction(Action* action);
+	void AddAction(Action* action, bool now = false);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
 	void ClearActionList();
@@ -87,7 +87,8 @@ protected:
 private:
 	void _UpdateTileCell();
 	void _ExecuteScripts(int32 maxLevel);
-
+	void _ExecuteAction(Action& action);
+	
 	std::string fName;
 	int32 fTicks;
 
