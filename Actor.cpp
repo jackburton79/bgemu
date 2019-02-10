@@ -91,7 +91,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor->name[8] = 0;
 	fActor->orientation = face;
 	//fActor->orientation = 0;
-	fActor->position = position;
+	
+	_SetPositionPrivate(position);
 
 	_Init();
 }
@@ -287,15 +288,12 @@ Actor::Position() const
 void
 Actor::SetPosition(const IE::point& position)
 {
-	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	if (room != NULL)
-		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
-
-	fActor->position = position;
+	_SetPositionPrivate(position);
+	
+	// This function is only used to move an actor to a point
+	// instantly. So we also need to set its destination to the same
+	// point, otherwise it thinks it's walking.
 	fActor->destination = position;
-
-	if (room != NULL)
-		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);		
 }
 
 
@@ -860,7 +858,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 			_SetOrientation(nextPoint);
 		else
 			_SetOrientationExtended(nextPoint);
-		fActor->position = nextPoint;
+		_SetPositionPrivate(nextPoint);
 	}		
 }
 
@@ -973,6 +971,20 @@ void
 Actor::SetTileCell(::TileCell* cell)
 {
 	fTileCell = cell;
+}
+
+
+void
+Actor::_SetPositionPrivate(const IE::point& point)
+{
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != NULL)
+		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
+
+	fActor->position = point;
+
+	if (room != NULL)
+		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
 }
 
 

@@ -149,6 +149,7 @@ private:
 
 	void _Init();
 	void _HandleScripts();
+	void _SetPositionPrivate(const IE::point& point);
 	
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
