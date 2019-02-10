@@ -218,6 +218,31 @@ DestroySelfAction::operator()()
 }
 
 
+// MoveBetweenAreasEffect
+MoveBetweenAreasEffect::MoveBetweenAreasEffect(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+MoveBetweenAreasEffect::operator()()
+{
+	if (!Initiated()) {
+		SetInitiated();
+		Actor* actor = dynamic_cast<Actor*>(fObject);
+		if (actor != NULL) {
+			std::cout << "area:" << fActionParams->string1 << std::endl;
+			//actor->SetPosition(fActionParams->where);
+			//actor->SetOrientation(fActionParams->integer1);
+		}
+		SetCompleted();
+	}
+}
+
+
 // PlayDeadAction
 PlayDeadAction::PlayDeadAction(Object* object, action_node* node)
 	:
@@ -437,14 +462,15 @@ OpenDoor::operator()()
 	if (actor == NULL)
 		return;
 
-	Door* target = dynamic_cast<Door*>(Script::FindObject(fObject, fActionParams));
+	Object* target = Script::FindObject(fObject, fActionParams);
 	if (target == NULL) {
 		SetCompleted();
 		return;
 	}
 	
-	if (!target->Opened())
-		target->Toggle();
+	target->Print();
+	//if (!target->Opened())
+		//target->Toggle();
 	SetCompleted();
 }
 

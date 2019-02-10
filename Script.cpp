@@ -546,8 +546,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = clicker->MatchNode(objectNode);
 				}
 				// TODO: When to set this, other than now ?
-				if (returnValue)
-					fLastTrigger = fSender;
+				//if (returnValue)
+					//fLastTrigger = fSender;
 
 				break;
 			}
@@ -1281,11 +1281,12 @@ Script::_HandleAction(action_node* act)
 		case 225:
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
-			/*if (thisActor != NULL) {
-				std::cout << "area:" << act->string1 << std::endl;
-				actor->SetPosition(act->where);
-				actor->SetOrientation(act->integer1);
-			}*/
+			// Active creature. Which is it ? For now, we use actor 0 in party
+			Actor* actor = Game::Get()->Party()->ActorAt(0);
+			if (actor != NULL) {
+				Action* action = new MoveBetweenAreasEffect(actor, act);
+				actor->AddAction(action);
+			}
 			break;
 		}
 		case 228: // 0xe4

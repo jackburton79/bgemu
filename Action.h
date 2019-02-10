@@ -65,6 +65,13 @@ public:
 };
 
 
+class MoveBetweenAreasEffect : public Action {
+public:
+	MoveBetweenAreasEffect(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class PlayDeadAction : public Action {
 public:
 	PlayDeadAction(Object* object, action_node* node);
