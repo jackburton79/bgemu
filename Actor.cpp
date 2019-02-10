@@ -287,6 +287,7 @@ void
 Actor::SetPosition(const IE::point& position)
 {
 	fActor->position = position;
+	fActor->destination = position;
 }
 
 
