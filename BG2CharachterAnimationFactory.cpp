@@ -35,16 +35,18 @@ BG2CharachterAnimationFactory::GetAnimationDescription(int action, int o, animat
 	description.bam_name.append("1");
 	switch (action) {
 		case ACT_WALKING:
-		{
 			description.bam_name.append("G11");
 			break;
-		}
 		case ACT_STANDING:
 			description.bam_name.append("G1");
 			description.sequence_number = o + 9;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
+			break;
+		case ACT_DEAD:
+			description.bam_name.append("G15");
+			description.sequence_number = 48 + o;
 			break;
 		default:
 			break;
