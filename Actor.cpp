@@ -831,9 +831,12 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 										fActor->orientation, fColors);
 		}
 		fAnimationValid = true;
-	} else if (fCurrentAnimation != NULL)
-		fCurrentAnimation->Next();
+	} else if (fCurrentAnimation != NULL) {
+		if (fAction != ACT_DEAD || !fCurrentAnimation->IsLastFrame())
+			fCurrentAnimation->Next();
+	}
 
+	// TODO: Move to Actor::Update()
 	if (fDontCheckConditions == true && fActor->position == fActor->destination)
 		fDontCheckConditions = false;
 }
