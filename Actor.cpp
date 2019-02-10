@@ -26,6 +26,7 @@
 #include "ResManager.h"
 #include "RoundResults.h"
 #include "Script.h"
+#include "SearchMap.h"
 #include "TileCell.h"
 #include "WedResource.h"
 
@@ -286,8 +287,15 @@ Actor::Position() const
 void
 Actor::SetPosition(const IE::point& position)
 {
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != NULL)
+		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
+
 	fActor->position = position;
 	fActor->destination = position;
+
+	if (room != NULL)
+		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);		
 }
 
 

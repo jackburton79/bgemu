@@ -22,6 +22,7 @@ class Frame;
 class MapOverlay;
 class Region;
 class Script;
+class SearchMap;
 class TileCell;
 class WEDResource;
 class AreaRoom : public RoomBase {
@@ -36,6 +37,7 @@ public:
 	virtual GFX::rect AreaRect() const;
 
 	::BackMap* BackMap() const;
+	::SearchMap* SearchMap();
 
 	virtual void Draw(Bitmap *surface);
 	virtual void Clicked(uint16 x, uint16 y);
@@ -109,7 +111,7 @@ private:
 
 	Bitmap* fHeightMap;
 	Bitmap* fLightMap;
-	Bitmap* fSearchMap;
+	::SearchMap* fSearchMap;
 
 	typedef std::vector<Animation*> AnimationsList;
 	AnimationsList fAnimations;

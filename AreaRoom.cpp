@@ -28,6 +28,7 @@
 #include "ResManager.h"
 #include "RoundResults.h"
 #include "Script.h"
+#include "SearchMap.h"
 #include "TextArea.h"
 #include "TextSupport.h"
 #include "TileCell.h"
@@ -200,6 +201,13 @@ AreaRoom::AreaRect() const
 AreaRoom::BackMap() const
 {
 	return fBackMap;
+}
+
+
+::SearchMap*
+AreaRoom::SearchMap()
+{
+	return fSearchMap;
 }
 
 
@@ -539,10 +547,9 @@ AreaRoom::PointSearch(const IE::point& point) const
 	if (fSearchMap == NULL)
 		return 1;
 
-	int32 x = point.x / fMapHorizontalRatio;
-	int32 y = point.y / fMapVerticalRatio;
+	return 0;
 
-	return std::min((uint8)fSearchMap->GetPixel(x, y), (uint8)15);
+	
 }
 
 
@@ -554,18 +561,7 @@ AreaRoom::IsPointPassable(const IE::point& point)
 	if (room == NULL)
 		return true;
 
-	uint8 state = room->PointSearch(point);
-	switch (state) {
-		case 0:
-		case 8:
-		case 10:
-		case 12:
-		case 13:
-			return false;
-		default:
-			return true;
-	}
-	return true;
+	return room->fSearchMap->IsPointPassable(point.x, point.y);
 }
 
 
@@ -593,7 +589,7 @@ AreaRoom::ToggleAnimations()
 void
 AreaRoom::ToggleSearchMap()
 {
-	if (++fDrawSearchMap > 2)
+	/*if (++fDrawSearchMap > 2)
 		fDrawSearchMap = 0;
 
 	if (fSearchMap == NULL)
@@ -602,7 +598,7 @@ AreaRoom::ToggleSearchMap()
 	if (fDrawSearchMap == 2)
 		fSearchMap->SetAlpha(127, true);
 	else
-		fSearchMap->SetAlpha(255, false);
+		fSearchMap->SetAlpha(255, false);*/
 }
 
 
@@ -767,20 +763,17 @@ AreaRoom::_InitSearchMap()
 
 	std::string searchMapName = fArea->WedName().CString();
 	searchMapName += "SR";
-	BMPResource* resource = gResManager->GetBMP(searchMapName.c_str());
-	if (resource != NULL) {
-		fSearchMap = resource->Image();
-		fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
-		fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
-		std::cout << std::dec;
-		std::cout << "map: w=" << AreaRect().w << ", h=";
-		std::cout << AreaRect().h << std::endl;
-		std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
-		std::cout << fSearchMap->Height() << std::endl;
-		std::cout << "ratio: h=" << fMapHorizontalRatio;
-		std::cout << ", v=" << fMapVerticalRatio << std::endl;
-		gResManager->ReleaseResource(resource);
-	}
+	fSearchMap = new ::SearchMap(searchMapName);
+	fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
+	fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
+	fSearchMap->SetRatios(fMapHorizontalRatio, fMapVerticalRatio);
+	std::cout << std::dec;
+	std::cout << "map: w=" << AreaRect().w << ", h=";
+	std::cout << AreaRect().h << std::endl;
+	std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
+	std::cout << fSearchMap->Height() << std::endl;
+	std::cout << "ratio: h=" << fMapHorizontalRatio;
+	std::cout << ", v=" << fMapVerticalRatio << std::endl;	
 
 	std::cout << "Done!" << std::endl;
 }
@@ -842,7 +835,7 @@ AreaRoom::_DrawActors()
 void
 AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 {
-	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
+	/*if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
 		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
 						fSearchMap->Width(), fSearchMap->Height());
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
@@ -862,9 +855,8 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 			r = offset_rect(r, 0, ViewPort().h - fSearchMap->Height());
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
 				
-		}
-			
-	}
+		}	
+	}*/
 }
 
 
@@ -1089,7 +1081,7 @@ AreaRoom::_UnloadArea()
 		fLightMap = NULL;
 	}
 	if (fSearchMap != NULL) {
-		fSearchMap->Release();
+		delete fSearchMap;
 		fSearchMap = NULL;
 	}
 

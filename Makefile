@@ -34,6 +34,7 @@ ResManager.cpp \
 RoomBase.cpp \
 RoundResults.cpp \
 Script.cpp \
+SearchMap.cpp \
 SimpleAnimationFactory.cpp \
 SplitAnimationFactory.cpp \
 SoundEngine.cpp \
