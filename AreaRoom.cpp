@@ -455,34 +455,36 @@ AreaRoom::DrawObject(const Object& object)
 {
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
-		if (actor->IsSelected()) {
-			IE::point position = actorPosition;
-			ConvertFromArea(position);
-			Bitmap* image = fBackMap->Image();
-			image->Lock();
-			uint32 color = image->MapColor(0, 255, 0);
-			image->StrokeCircle(position.x, position.y,
-										sSelectedActorRadius, color);
-			if (actor->Destination() != actor->Position()) {
-				IE::point destination = actor->Destination();
-				ConvertFromArea(destination);
-				image->StrokeCircle(
-						destination.x, destination.y,
-						sSelectedActorRadius - 10, color);
+		if (!Core::Get()->CutsceneMode()) {
+			if (actor->IsSelected()) {
+				IE::point position = actorPosition;
+				ConvertFromArea(position);
+				Bitmap* image = fBackMap->Image();
+				image->Lock();
+				uint32 color = image->MapColor(0, 255, 0);
+				image->StrokeCircle(position.x, position.y,
+											sSelectedActorRadius, color);
+				if (actor->Destination() != actor->Position()) {
+					IE::point destination = actor->Destination();
+					ConvertFromArea(destination);
+					image->StrokeCircle(
+							destination.x, destination.y,
+							sSelectedActorRadius - 10, color);
+				}
+				image->Unlock();
+			} else {
+				IE::point position = actorPosition;
+				ConvertFromArea(position);
+				uint32 color = 0;
+				Bitmap* image = fBackMap->Image();
+				if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+					color = image->MapColor(0, 255, 0);
+				else
+					color = image->MapColor(255, 0, 0);	
+				image->Lock();	
+				image->StrokeCircle(position.x, position.y, 10, color);	
+				image->Unlock();		
 			}
-			image->Unlock();
-		} else {
-			IE::point position = actorPosition;
-			ConvertFromArea(position);
-			uint32 color = 0;
-			Bitmap* image = fBackMap->Image();
-			if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-				color = image->MapColor(0, 255, 0);
-			else
-				color = image->MapColor(255, 0, 0);	
-			image->Lock();	
-			image->StrokeCircle(position.x, position.y, 10, color);	
-			image->Unlock();		
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
 
