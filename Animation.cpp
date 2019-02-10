@@ -141,6 +141,13 @@ Animation::NextBitmap()
 }
 
 
+bool
+Animation::IsLastFrame() const
+{
+	return fCurrentFrame == fMaxFrame - 1;
+}
+
+
 IE::point
 Animation::Position() const
 {

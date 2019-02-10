@@ -36,8 +36,9 @@ public:
 	void Next();
 	const ::Bitmap* NextBitmap();
 
-	IE::point Position() const;
+	bool IsLastFrame() const;
 
+	IE::point Position() const;
 private:
 	void _LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors);
 
