@@ -101,9 +101,8 @@ Font::_LoadGlyphs(const std::string& fontName)
 		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
 		if (glyph != NULL) {
 			fGlyphs[c] = glyph;
-			fGlyphs[c]->ClearColorKey();
 		} else {
-			std::cerr << "glyph not found for " << (char)c << std::endl;
+			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
 			break;
 		}
 	}
@@ -151,11 +150,15 @@ Font::_RenderString(std::string string,
 		rect.x = destPoint->x;
 		rect.y = destPoint->y;
 	}
+	
+	const Bitmap* firstFrame = frames.back();
+	GFX::Palette palette;
+	firstFrame->GetPalette(palette);
+	bitmap->SetPalette(palette);
 	// Render the glyphs
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		const Bitmap* glyph = *i;
-
 		if (destRect != NULL) {
 			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 				rect.y = destRect->h - glyph->Height();

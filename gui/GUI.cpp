@@ -476,7 +476,8 @@ GUI::_DisplayStringCommon(const std::string& text,
 	uint16 height;
 	uint16 stringWidth = font->StringWidth(text, &height);
 	Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-	//bitmap->SetColorKey(0);
+	bitmap->Clear(font->TransparentIndex());
+	//bitmap->SetColorKey(font->TransparentIndex());
 	
 	// Pre-render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
