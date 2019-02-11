@@ -425,7 +425,7 @@ Script::IsActionInstant(uint16 id)
 		return false;
 
 	bool returnValue = instants->StringForID(id) != "";
-	std::cout << actionName << " is " << (returnValue ? "" : "not") << " instant." << std::endl;		
+	std::cout << actionName << " is" << (returnValue ? "" : " not") << " instant." << std::endl;		
 	gResManager->ReleaseResource(instants);
 
 	return returnValue;
@@ -1004,7 +1004,7 @@ Script::_HandleAction(action_node* act)
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
 		act->Print();
-		std::cout << "Sender: " << (sender ? sender->Name() : "") << " -> " << target << std::endl;
+		std::cout << "Sender: " << (sender ? sender->Name() : "") << " -> " << (target ? target->Name() : "") << std::endl;
 		std::cout << std::endl; 
 	}
 

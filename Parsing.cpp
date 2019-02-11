@@ -707,6 +707,13 @@ action_node::Print() const
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
 	std::cout << std::endl;
+	std::cout << "integer1: " << integer1 << ", ";
+	std::cout << "where: (" << where.x << ", " << where.y << "), ";
+	std::cout << "integer2: " << integer2 << ", ";
+	std::cout << "integer3: " << integer3 << ", ";
+	std::cout << "integer1: " << integer1 << ", ";
+	std::cout << "string1: " << string1 << ", ";
+	std::cout << "string2: " << string2 << std::endl;
 }
 
 
