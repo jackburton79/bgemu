@@ -39,11 +39,11 @@ BCSResource::GetScript() const
 		Parser parser;
 		parser.SetTo(fData);
 
-		clock_t start = clock();
+		//clock_t start = clock();
 		node* rootNode = NULL;
 		parser.Read(rootNode);
 		
-		std::cout << "Parsing script " << Name() << " took " << std::dec << clock() - start << " usecs!" << std::endl;
+		//std::cout << "Parsing script " << Name() << " took " << std::dec << clock() - start << " usecs!" << std::endl;
 		
 		// Takes ownership of the node tree.
 		script = new Script(rootNode);
@@ -53,4 +53,14 @@ BCSResource::GetScript() const
 	}
 
 	return script;
+}
+
+
+/* virtual */
+void
+BCSResource::Dump()
+{
+	Script* script = GetScript();
+	script->Print();
+	delete script;
 }
