@@ -132,6 +132,8 @@ struct trigger_node : public node {
 
 struct object_node : public node {
 	virtual void Print() const;
+	bool Empty() const;
+	
 	int team;
 	int faction;
 	int ea;

@@ -618,8 +618,11 @@ trigger_node::trigger_node()
 void
 trigger_node::Print() const
 {
-	printf("id:%d, flags: %d, parameter1: %d, parameter2: %d, %s %s\n",
-		id, flags, parameter1, parameter2, string1, string2);
+	std::cout << IDTable::TriggerAt(id);
+	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id;
+	std::cout << "), flags: " << std::dec << flags << ", parameter1:";
+	std::cout << parameter1 << ", parameter2: " << parameter2 << ", string1: " << string1;
+	std::cout << ", string2: " << string2 << std::endl;
 }
 
 
@@ -632,7 +635,6 @@ object_node::object_node()
 void
 object_node::Print() const
 {
-	std::cout << "Object: ";
 	if (Core::Get()->Game() == GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
@@ -658,11 +660,38 @@ object_node::Print() const
 				std::cout << " -> ";
 		}
 	}
-	std::cout << std::endl;
 	if (Core::Get()->Game() == GAME_TORMENT)
 		std::cout << "point: " << point.x << ", " << point.y << std::endl;
 	if (name[0] != '\0')
-		 std::cout << "name: *" << name << "*" << std::endl;
+		std::cout << "name: *" << name << "*" << std::endl;
+	if (Empty())
+		std::cout << "EMPTY" << std::endl;
+}
+
+
+bool
+object_node::Empty() const
+{
+	if (ea == 0
+			&& general == 0
+			&& race == 0
+			&& classs == 0
+			&& specific == 0
+			&& gender == 0
+			&& alignment == 0
+			//&& faction == 0
+			//&& team == 0
+			&& identifiers[0] == 0
+			&& identifiers[1] == 0
+			&& identifiers[2] == 0
+			&& identifiers[3] == 0
+			&& identifiers[4] == 0
+			&& name[0] == '\0'
+			) {
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -675,8 +704,9 @@ action_node::action_node()
 void
 action_node::Print() const
 {
-	printf("SCRIPT: id: %d, parameter: %d, point: (%d, %d), %d, %d, %s, %s\n",
-			id, integer1, where.x, where.y, integer2, integer3, string1, string2);
+	std::cout << IDTable::ActionAt(id);
+	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
+	std::cout << std::endl;
 }
 
 
@@ -689,5 +719,5 @@ response_node::response_node()
 void
 response_node::Print() const
 {
-	printf("probability: %d\n", probability);
+	std::cout << "probability: " << probability << std::endl;
 }
