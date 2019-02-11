@@ -7,7 +7,6 @@
 
 #include "Region.h"
 
-#include "BCSResource.h"
 #include "Core.h"
 #include "ResManager.h"
 
