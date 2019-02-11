@@ -84,7 +84,7 @@ Game::Loop(bool executeScripts)
 		if (Core::Get()->Game() == GAME_BALDURSGATE)
 			fParty->AddActor(new Actor("AJANTI", point, 0));
 		else
-			fParty->AddActor(new Actor("IMOEN", point, 0));
+			fParty->AddActor(new Actor("ANOMEN10", point, 0));
 	}
 
 	LoadStartingArea();
