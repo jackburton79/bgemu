@@ -274,7 +274,7 @@ Core::StartCutscene(const res_ref& scriptName)
 	if (script != NULL) {
 		std::cout << "Executing script" << std::endl;
 		// TODO: not nice. but it will be changed in the cutscene script
-		script->SetSender(fCurrentRoom);
+		//script->SetSender(fCurrentRoom);
 		script->Execute(continuing);
 		
 		// TODO: We cannot delete the script, since actions are parsing it after we return.
@@ -333,13 +333,14 @@ Core::GetObject(const char* name) const
 			return *i;
 		}
 	}
-
+/*
 	RegionsList::const_iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		if (!strcasecmp(name, (*r)->Name())) {
 			return *r;
 		}
 	}
+*/
 	return NULL;
 }
 
@@ -517,20 +518,20 @@ Core::UpdateLogic(bool executeScripts)
 		actor->Update(executeScripts);
 	}
 
-	SetActiveActor(NULL);
+	//SetActiveActor(NULL);
 #if 0
 	ContainersList::iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		Object* object = *c;
 		object->Update(executeScripts);
 	}
-#endif	
+	
 	RegionsList::iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		Object* object = *r;
 		object->Update(executeScripts);
 	}
-
+#endif
 	_CleanDestroyedObjects();
 	
 	_NewRound();
@@ -694,15 +695,16 @@ Core::_CleanDestroyedObjects()
 	while (i != fActiveActors.end()) {
 		Object* object = *i;
 		if (object->ToBeDestroyed()) {
-			std::cout << "Destroy actor " << object->Name() << std::endl;
-			object->ClearActionList();
 			if (object == fCutsceneActor) {
 				// TODO: is this correct ?
-				GUI::Get()->Show();
+				/*GUI::Get()->Show();
 				fCutsceneMode = false;
-				fCutsceneActor = NULL;
+				fCutsceneActor = NULL;*/
+				return;	
 				
 			}
+			std::cout << "Destroy actor " << object->Name() << std::endl;			
+			object->ClearActionList();
 			if (Actor* actor = dynamic_cast<Actor*>(object)) {
 				UnregisterActor(actor);
 			}

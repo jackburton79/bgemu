@@ -40,7 +40,7 @@ static void IndentLess()
 static void PrintIndentation()
 {
 	for (int i = 0; i < sIndent; i++)
-		printf(" ");
+		std::cout << " ";
 }
 
 
@@ -156,31 +156,71 @@ Script::FindNode(Object* object, block_type nodeType, node* start)
 
 /* static */
 Object*
-Script::FindObject(Object* object, node* start)
+Script::FindTriggerObject(Object* object, trigger_node* start)
 {
 	object_node* objectNode = FindObjectNode(object, start);
-	while (objectNode != NULL && Actor::IsDummy(objectNode)) {
+	if (objectNode == NULL)
+		return NULL;
+	
+	return GetObject(object, objectNode);
+}
+
+
+/* static */
+Object*
+Script::FindSenderObject(Object* object, action_node* start)
+{
+	// actions have three object parameters:
+	// first, if not empty, is the sender.
+	// second is the target, third is ?
+	std::cout << "FindSenderObject:" << std::endl;
+	object_node* objectNode = FindObjectNode(object, start);
+	if (objectNode == NULL || objectNode->Empty()) {
+		std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
+		return object;
+	}
+	
+	Object* result = GetObject(object, objectNode);
+	if (result != NULL)
+		std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
+	if (result == NULL) {
+		std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
+		return object;
+	}
+	return result;
+}
+
+
+Object*
+Script::FindTargetObject(Object* object, action_node* start)
+{
+	std::cout << "FindTargetObject:" << std::endl;
+	object_node* objectNode = FindObjectNode(object, start);
+	if (objectNode != NULL) {
 		objectNode = static_cast<object_node*>(objectNode->Next());
 	}
 
-	if (objectNode == NULL)
+	if (objectNode == NULL || objectNode->Empty()) {
+		std::cout << "FindTargetObject returned NULL" << std::endl;
 		return NULL;
+	}
 
-	/*if (sDebug)
-		objectNode->Print();*/
-
-	return GetObject(object, objectNode);
+	objectNode->Print();
+	
+	Object* result = GetObject(object, objectNode);
+	std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
+	return result;
 }
 
 
 bool
 Script::Execute(bool& continuing)
 {
-	assert(fSender != NULL);
+	/*assert(fSender != NULL);
 	if (fSender == NULL) {
 		std::cerr << "Script::Execute(): fSender is NULL!" << std::endl;
 	}
-		
+	*/	
 	fLastTrigger = NULL;
 	// for each CR block
 	// for each CO block
@@ -201,8 +241,6 @@ Script::Execute(bool& continuing)
 
 	bool foundContinue = continuing;
 	// TODO: Find correct place
-	// TODO: When the cutscene is started, fSender is set to the room.
-	// Then CUTSCENEID sets a different fSender. This probably causes problems.
 	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
 	while (condRes != NULL) {
 		::node* condition = FindNode(fSender, BLOCK_CONDITION, condRes);
@@ -218,7 +256,7 @@ Script::Execute(bool& continuing)
 			}
 				
 			// Check action list
-			if (!fSender->IsActionListEmpty()) {
+			if (fSender != NULL && !fSender->IsActionListEmpty()) {
 				if (!fSender->IsInterruptable())
 					break;
 			}
@@ -236,7 +274,7 @@ Script::Execute(bool& continuing)
 				return false;
 			} else {
 				if (sDebug) {
-					std::cout << "*** SCRIPT RETURNED " << fSender->Name();
+					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
 					std::cout << " ***" << std::endl;
 				}
 				SetProcessed();
@@ -247,7 +285,7 @@ Script::Execute(bool& continuing)
 		condRes = condRes->Next();
 	};
 	if (sDebug) {
-		std::cout << "*** SCRIPT END " << fSender->Name();
+		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
 		std::cout << " ***" << std::endl;
 	}
 
@@ -278,6 +316,13 @@ Script::ResolveIdentifier(Object* object, const int id)
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
 		return object;
+	if (identifier.find("PLAYER") != std::string::npos) {
+		// TODO: dangerous code
+		char* n = &identifier[6];
+		uint32 numPlayer = strtoul(n, NULL, 10) - 1;
+		return Game::Get()->Party()->ActorAt(numPlayer);
+	}
+	
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF") {
 		Actor* actor = dynamic_cast<Actor*>(object);
@@ -339,12 +384,12 @@ Script::GetObject(Object* source, object_node* node)
 			result = dynamic_cast<Actor*>(wildCard);
 	}
 	
-	std::cout << "Script::GetObject() returned. ";
-	if (result != NULL) {
-		std::cout << "Found: " << std::endl;
-		result->Print();
-	} else
-		std::cout << "Found NONE" << std::endl;
+	//std::cout << "Script::GetObject() returned. ";
+	//if (result != NULL) {
+	//	std::cout << "Found: " << std::endl;
+	//	result->Print();
+	//} else
+	//	std::cout << "Found NONE" << std::endl;
 	return result;
 }
 
@@ -581,7 +626,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsAlignment(trig->parameter1);
 				break;
@@ -589,7 +634,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400B:
 			{
 				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsEnemyAlly(trig->parameter1);
 				break;
@@ -597,7 +642,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsClass(trig->parameter1);
 				break;
@@ -605,7 +650,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x400E:
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL) {
 					returnValue = object->IsGeneral(trig->parameter1);
 					if (sDebug) {
@@ -637,7 +682,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4017:
 			{
 				// Race()
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsRace(trig->parameter1);
 				break;
@@ -648,7 +693,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->Distance(object, fSender) <= trig->parameter1;
 				break;
@@ -660,7 +705,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->See(actor, object);
 				break;
@@ -717,7 +762,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the specified object
 				 * is in the state specified.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = object->IsState(trig->parameter1);
 				break;
@@ -752,7 +797,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x4043:
 			{
 				// InParty
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = Game::Get()->Party()->HasActor(object);
 				break;
@@ -781,7 +826,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
 				int range = 40;
 				// TODO: Check weapon range
-				Actor* object = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (object != NULL)
 					returnValue = core->Distance(actor, fSender) <= range;
 				break;
@@ -891,7 +936,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x401b:
 			{
 				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
-				Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, trig));
+				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
 				if (actor != NULL) {
 					returnValue = actor->CRE()->Reputation() < trig->parameter1;
 				}
@@ -953,17 +998,27 @@ Script::_HandleResponseSet(node* responseSet)
 bool
 Script::_HandleAction(action_node* act)
 {
+	Object* sender = Script::FindSenderObject(fSender, act);
+	Object* target = Script::FindTargetObject(fSender, act);
+	
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
-		std::cout << IDTable::ActionAt(act->id);
-		std::cout << "(" << std::dec << (int)act->id << std::hex << " 0x" << (int)act->id << ")";
-		std::cout << std::endl; 
 		act->Print();
+		std::cout << "Sender: " << (sender ? sender->Name() : "") << " -> " << target << std::endl;
+		std::cout << std::endl; 
 	}
+
 	Core* core = Core::Get();
-	Actor* thisActor = dynamic_cast<Actor*>(fSender);
+	
+	Actor* thisActor = dynamic_cast<Actor*>(sender);
+	
 	bool runNow = Script::IsActionInstant(act->id);
 	switch (act->id) {
+		case 1:
+		{
+			std::cout << "ActionOverride()" << std::endl;
+			break;
+		}
 		case 0x03:
 		{
 			/* Attack(O:Target*) */
@@ -978,8 +1033,8 @@ Script::_HandleAction(action_node* act)
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			// TODO: If point is (-1, -1) we should put the actor near
 			// the active creature. Which one is the active creature?
-			Action* action = new CreateCreatureAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			Action* action = new CreateCreatureAction(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 0x8:
@@ -1028,7 +1083,7 @@ Script::_HandleAction(action_node* act)
 		case 30:
 		{
 			// SetGlobal
-			fSender->AddAction(new SetGlobalAction(fSender, act), runNow);
+			sender->AddAction(new SetGlobalAction(sender, act), runNow);
 			break;
 		}
 		case 36:
@@ -1062,20 +1117,17 @@ Script::_HandleAction(action_node* act)
 			// (measured in AI updates per second (AI updates default to 15 per second).
 			// If used on a PC, the player can override the action by
 			// issuing a standard move command.
-			// TODO: Active creature ? This is called from the area script.
-			// Let's try this
-			Actor* actor = Game::Get()->Party()->ActorAt(0);
-			if (actor != NULL) {
-				Action* action = new PlayDeadAction(actor, act);
-				actor->AddAction(action);
+			if (thisActor != NULL) {
+				Action* action = new PlayDeadAction(thisActor, act);
+				thisActor->AddAction(action);
 			}
 			break;
 		}
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(fSender, act);
-			fSender->AddAction(action, runNow);
+			Action* action = new MoveViewPoint(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 61:
@@ -1088,10 +1140,10 @@ Script::_HandleAction(action_node* act)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			if (fSender == NULL)
+			if (sender == NULL)
 				printf("NULL TARGET\n");
 			std::ostringstream stringStream;
-			stringStream << fSender->Name() << " " << act->integer1;
+			stringStream << sender->Name() << " " << act->integer1;
 
 			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
@@ -1100,8 +1152,8 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			Wait* wait = new Wait(fSender, act);
-			fSender->AddAction(wait);
+			Wait* wait = new Wait(sender, act);
+			sender->AddAction(wait);
 			break;
 		}
 		case 0x54:
@@ -1123,14 +1175,14 @@ Script::_HandleAction(action_node* act)
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			fSender->AddAction(new SetInterruptableAction(fSender, act), runNow);
+			sender->AddAction(new SetInterruptableAction(sender, act), runNow);
 			break;
 		}
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			Action* wait = new SmallWait(fSender, act);
-			fSender->AddAction(wait);
+			Action* wait = new SmallWait(sender, act);
+			sender->AddAction(wait);
 			break;
 		}
 
@@ -1173,8 +1225,10 @@ Script::_HandleAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
-			Action* action = new DestroySelfAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			if (thisActor != NULL) {
+				Action* action = new DestroySelfAction(thisActor, act);
+				thisActor->AddAction(action, runNow);
+			}
 			break;
 			//return false;
 		}
@@ -1191,25 +1245,25 @@ Script::_HandleAction(action_node* act)
 		case 120:
 		{
 			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
-			fSender->AddAction(new StartCutsceneAction(fSender, act), runNow);
+			sender->AddAction(new StartCutsceneAction(sender, act), runNow);
 			break;
 		}
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
-			fSender->AddAction(new StartCutsceneModeAction(fSender, act), runNow);
+			sender->AddAction(new StartCutsceneModeAction(sender, act), runNow);
 			break;
 		}
 		case 0x7f:
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
-			Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, act));
-			if (actor != NULL) {
-				std::cout << "CUTSCENEID: " << actor->Name() << std::endl;
-				SetSender(actor);
-				Core::Get()->SetCutsceneActor(actor);
-				actor->SetInterruptable(false);
+			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
+			if (target != NULL) {
+				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
+				Core::Get()->SetCutsceneActor(target);
+				SetSender(target);
+				target->SetInterruptable(false);
 			}
 			break;
 		}
@@ -1245,14 +1299,14 @@ Script::_HandleAction(action_node* act)
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			fSender->AddAction(new OpenDoor(fSender, act));
+			sender->AddAction(new OpenDoor(sender, act));
 			break;
 		}
 		case 177:
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-			Action* action = new TriggerActivationAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			Action* action = new TriggerActivationAction(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 198: // 0xc6
@@ -1269,15 +1323,15 @@ Script::_HandleAction(action_node* act)
 		case 202:
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
-			FadeToColorAction* action = new FadeToColorAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			FadeToColorAction* action = new FadeToColorAction(sender, act);
+			sender->AddAction(action, runNow);
 			break;		
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
-			FadeFromColorAction* action = new FadeFromColorAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			FadeFromColorAction* action = new FadeFromColorAction(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 207:
@@ -1299,11 +1353,11 @@ Script::_HandleAction(action_node* act)
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
 			// Active creature. Which is it ? For now, we use actor 0 in party
-			Actor* actor = Game::Get()->Party()->ActorAt(0);
+			/*Actor* actor = Game::Get()->Party()->ActorAt(0);
 			if (actor != NULL) {
 				Action* action = new MoveBetweenAreasEffect(actor, act);
 				actor->AddAction(action, runNow);
-			}
+			}*/
 			break;
 		}
 		case 228: // 0xe4
@@ -1312,34 +1366,34 @@ Script::_HandleAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Action* action = new CreateCreatureImpassableAction(fSender, act);
-			fSender->AddAction(action, runNow);
+			Action* action = new CreateCreatureImpassableAction(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 254:
 		{
 			/* SCREENSHAKE(P:POINT*,I:DURATION*)(254 0xfe) */
-			Action* action = new ScreenShake(fSender, act);
-			fSender->AddAction(action);
+			Action* action = new ScreenShake(sender, act);
+			sender->AddAction(action);
 			break;
 		}
 		case 269:
 		{
 			// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*)(269 0x10d)
-			Action* action = new DisplayStringHead(fSender, act);
-			fSender->AddAction(action);
+			Action* action = new DisplayStringHead(sender, act);
+			sender->AddAction(action);
 			break;
 		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			fSender->AddAction(new HideGUIAction(fSender, act), runNow);
+			sender->AddAction(new HideGUIAction(sender, act), runNow);
 			break;
 		}
 		case 287:
 		{
 			/* UNHIDEGUI()(287 0x11f) */
-			fSender->AddAction(new UnhideGUIAction(fSender, act), runNow);
+			sender->AddAction(new UnhideGUIAction(sender, act), runNow);
 			break;
 		}
 		case 311:
@@ -1349,8 +1403,8 @@ Script::_HandleAction(action_node* act)
 			// on the specified object (on the game-screen).
 			// The text stays onscreen until the associated sound has completed playing.
 			// TODO: use an action which plays the sound
-			Action* action = new DisplayStringHead(fSender, act);
-			fSender->AddAction(action);
+			Action* action = new DisplayStringHead(sender, act);
+			sender->AddAction(action);
 			break;
 		}
 		default:
@@ -1368,7 +1422,7 @@ void
 Script::_PrintNode(node* n) const
 {
 	PrintIndentation();
-	printf("<%s>", n->header);
+	std::cout << "<" << n->header << ">";
 	n->Print();
 	node_list::iterator c;
 	IndentMore();
@@ -1377,7 +1431,7 @@ Script::_PrintNode(node* n) const
 	}
 	IndentLess();
 	PrintIndentation();
-	printf("<%s/>\n", n->header);
+	std::cout << "</" << n->header << ">" << std::endl;
 }
 
 

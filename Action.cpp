@@ -192,7 +192,7 @@ TriggerActivationAction::TriggerActivationAction(Object* object, action_node* no
 void
 TriggerActivationAction::operator()()
 {
-	Region* region = dynamic_cast<Region*>(Script::FindObject(fObject, fActionParams));
+	Region* region = dynamic_cast<Region*>(Script::FindTargetObject(fObject, fActionParams));
 	if (region != NULL)
 		region->ActivateTrigger();
 	SetCompleted();
@@ -336,7 +336,7 @@ WalkToObject::operator()()
 	if (actor == NULL)
 		return;
 
-	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
 	if (target == NULL) {
 		SetCompleted();
 		return;
@@ -462,7 +462,7 @@ OpenDoor::operator()()
 	if (actor == NULL)
 		return;
 
-	Object* target = Script::FindObject(fObject, fActionParams);
+	Object* target = Script::FindTargetObject(fObject, fActionParams);
 	if (target == NULL) {
 		SetCompleted();
 		return;
@@ -494,7 +494,7 @@ Attack::operator()()
 	if (actor == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
@@ -538,7 +538,7 @@ RunAwayFrom::operator()()
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
@@ -613,7 +613,7 @@ Dialogue::operator()()
 	if (actor == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
@@ -916,7 +916,7 @@ DisplayStringHead::operator()()
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = 100; //??
-		Actor* actor = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
+		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
 		if (actor == NULL)
 			SetCompleted();
 		IE::point point = actor->Position();

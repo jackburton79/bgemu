@@ -38,8 +38,10 @@ public:
 	static object_node*		FindObjectNode(Object* object, node* start);
 	static node*			FindNode(Object* object, block_type type, node* start);
 
-	// convenience call
-	static Object*			FindObject(Object* object, node* start);
+	// convenience calls
+	static Object*			FindTriggerObject(Object* object, trigger_node* start);
+	static Object*			FindSenderObject(Object* object, action_node* start);
+	static Object*			FindTargetObject(Object* object, action_node* start);
 	
 	bool Execute(bool &continuing);
 

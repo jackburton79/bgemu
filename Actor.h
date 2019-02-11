@@ -62,8 +62,6 @@ public:
 
 	bool Spawned() const;
 
-	static bool IsDummy(const object_node* node);
-
 	bool IsEqual(const Actor* object) const;
 
 	bool IsEnemyOf(const Actor* object) const;

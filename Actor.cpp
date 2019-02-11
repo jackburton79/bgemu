@@ -7,7 +7,6 @@
 #include "AreaRoom.h"
 #include "BackMap.h"
 #include "BamResource.h"
-#include "BCSResource.h"
 #include "Bitmap.h"
 #include "Container.h"
 #include "Core.h"
@@ -403,33 +402,6 @@ Actor::IsEqual(const Actor* actorB) const
 		&& (creA->Specific() == creB->Specific())
 		&& (creA->EnemyAlly(), creB->EnemyAlly()))
 		return true;
-	return false;
-}
-
-
-/* static */
-bool
-Actor::IsDummy(const object_node* node)
-{
-	if (node->ea == 0
-			&& node->general == 0
-			&& node->race == 0
-			&& node->classs == 0
-			&& node->specific == 0
-			&& node->gender == 0
-			&& node->alignment == 0
-			//&& node->faction == 0
-			//&& node->team == 0
-			&& node->identifiers[0] == 0
-			&& node->identifiers[1] == 0
-			&& node->identifiers[2] == 0
-			&& node->identifiers[3] == 0
-			&& node->identifiers[4] == 0
-			&& node->name[0] == '\0'
-			) {
-		return true;
-	}
-
 	return false;
 }
 
