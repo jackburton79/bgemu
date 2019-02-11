@@ -52,6 +52,8 @@ Party::CountActors() const
 Actor*
 Party::ActorAt(uint16 index) const
 {
+	if (index > CountActors() - 1)
+		return NULL;
 	return fActors[index];
 }
 
