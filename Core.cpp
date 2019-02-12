@@ -214,10 +214,10 @@ Core::ExitingArea(RoomBase* area)
 	area->ClearScripts();
 	
 	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		UnregisterActor(*i);
 	}
-	fActiveActors.clear();
+	fActors.clear();
 	
 	// containers and regions are owned by the AreaRoom class
 	// TODO: Fix and / or clear ownership
@@ -294,7 +294,7 @@ Core::SetCutsceneActor(Object* actor)
 void
 Core::RegisterActor(Actor* actor)
 {
-	fActiveActors.push_back(actor);
+	fActors.push_back(actor);
 	if (actor->IsNew())
 		actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
 }
@@ -328,7 +328,7 @@ Object*
 Core::GetObject(const char* name) const
 {
 	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		if (!strcasecmp(name, (*i)->Name())) {
 			return *i;
 		}
@@ -349,7 +349,7 @@ Actor*
 Core::GetObject(uint16 globalEnum) const
 {
 	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		if (actor != NULL && actor->CRE()->GlobalActorEnum() == globalEnum)
 			return actor;
@@ -364,7 +364,7 @@ Core::GetObject(object_node* node) const
 {
 	// TODO: Simplify, merge code.
 	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		if ((*i)->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
@@ -380,7 +380,7 @@ Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
 	ActorsList::const_iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
@@ -398,7 +398,7 @@ Core::GetNearestEnemyOf(const Actor* object) const
 	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
@@ -424,7 +424,7 @@ Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
@@ -512,7 +512,7 @@ Core::UpdateLogic(bool executeScripts)
 
 	// TODO: Fix/Improve
 	ActorsList::iterator i;
-	for (i = fActiveActors.begin(); i != fActiveActors.end(); i++) {
+	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		//SetActiveActor(actor);
 		actor->Update(executeScripts);
@@ -649,7 +649,7 @@ Core::ExtractScript(const res_ref& resName)
 int32
 Core::GetActorsList(ActorsList& objects) const
 {
-	objects = fActiveActors;
+	objects = fActors;
 	return objects.size();
 }
 
@@ -671,8 +671,8 @@ Core::LastRoundResults()
 void
 Core::_PrintObjects() const
 {
-	for (ActorsList::const_iterator i = fActiveActors.begin();
-											i != fActiveActors.end(); i++) {
+	for (ActorsList::const_iterator i = fActors.begin();
+											i != fActors.end(); i++) {
 		(*i)->Print();
 	}
 }
@@ -691,8 +691,8 @@ Core::_CleanDestroyedObjects()
 {
 	// TODO: Remove objects pointers from
 	// RoundResults!!!
-	ActorsList::iterator i = fActiveActors.begin();
-	while (i != fActiveActors.end()) {
+	ActorsList::iterator i = fActors.begin();
+	while (i != fActors.end()) {
 		Object* object = *i;
 		if (object->ToBeDestroyed()) {
 			if (object == fCutsceneActor) {
@@ -708,7 +708,7 @@ Core::_CleanDestroyedObjects()
 			if (Actor* actor = dynamic_cast<Actor*>(object)) {
 				UnregisterActor(actor);
 			}
-			i = fActiveActors.erase(i);
+			i = fActors.erase(i);
 		} else
 			i++;
 	}

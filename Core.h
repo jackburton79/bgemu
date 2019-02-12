@@ -125,7 +125,7 @@ private:
 	
 	Actor* fActiveActor;
 	
-	ActorsList fActiveActors;
+	ActorsList fActors;
 	ContainersList fContainers;
 	RegionsList fRegions;
 	
