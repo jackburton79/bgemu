@@ -591,16 +591,16 @@ AreaRoom::ToggleAnimations()
 void
 AreaRoom::ToggleSearchMap()
 {
-	/*if (++fDrawSearchMap > 2)
+	if (++fDrawSearchMap > 2)
 		fDrawSearchMap = 0;
 
 	if (fSearchMap == NULL)
 		return;
 
 	if (fDrawSearchMap == 2)
-		fSearchMap->SetAlpha(127, true);
+		fSearchMap->Image()->SetAlpha(127, true);
 	else
-		fSearchMap->SetAlpha(255, false);*/
+		fSearchMap->Image()->SetAlpha(255, false);
 }
 
 
@@ -837,10 +837,10 @@ AreaRoom::_DrawActors()
 void
 AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 {
-	/*if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
+	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
 		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
 						fSearchMap->Width(), fSearchMap->Height());
-		GraphicsEngine::Get()->BlitToScreen(fSearchMap, NULL, &destRect);
+		GraphicsEngine::Get()->BlitToScreen(fSearchMap->Image(), NULL, &destRect);
 
 		visibleArea.x /= fMapHorizontalRatio;
 		visibleArea.y /= fMapVerticalRatio;
@@ -858,7 +858,7 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
 				
 		}	
-	}*/
+	}
 }
 
 

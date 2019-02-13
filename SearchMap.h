@@ -23,13 +23,14 @@ public:
 
 	void SetPoint(int32 x, int32 y);
 	void ClearPoint(int32 x, int32 y);
+	
+	Bitmap* Image();
 private:
 	Bitmap* fImage;
+	Bitmap* fModifiedMap;
 	
 	int32 fHRatio;
 	int32 fVRatio;
-	
-	std::map<std::pair<int32, int32>, bool> fBusyPoints;
 };
 
 

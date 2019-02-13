@@ -10,13 +10,17 @@
 #include "BmpResource.h"
 #include "ResManager.h"
 
+#include <math.h>
+
 SearchMap::SearchMap(std::string name)
 	:
-	fImage(NULL)
+	fImage(NULL),
+	fModifiedMap(NULL)
 {
 	BMPResource* resource = gResManager->GetBMP(name.c_str());
 	if (resource != NULL) {
 		fImage = resource->Image();
+		fModifiedMap = fImage->Clone();
 		gResManager->ReleaseResource(resource);
 	}
 }
@@ -25,6 +29,7 @@ SearchMap::SearchMap(std::string name)
 SearchMap::~SearchMap()
 {
 	fImage->Release();
+	fModifiedMap->Release();
 }
 
 
@@ -53,10 +58,10 @@ SearchMap::SetRatios(int32 h, int32 v)
 bool
 SearchMap::IsPointPassable(int32 x, int32 y) const
 {
-	x = x / fHRatio;
-	y = y / fVRatio;
+	x = ceilf(x / fHRatio);
+	y = ceilf(y / fVRatio);
 	
-	uint8 state = fImage->GetPixel(x, y);
+	uint8 state = fModifiedMap->GetPixel(x, y);
 	switch (state) {
 		case 0:
 		case 8:
@@ -67,11 +72,7 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 		default:
 			break;
 	}
-
-	try {
-		return fBusyPoints.at(std::make_pair(x, y));
-	} catch (...) {
-	}
+	
 	return true;
 }
 
@@ -79,16 +80,23 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 void
 SearchMap::SetPoint(int32 x, int32 y)
 {
-	x = x / fHRatio;
-	y = y / fVRatio;
-	fBusyPoints[std::make_pair(x, y)] = true;
+	x = ceilf(x / fHRatio);
+	y = ceilf(y / fVRatio);
+	fModifiedMap->PutPixel(x, y, 0);
 }
 
 
 void
 SearchMap::ClearPoint(int32 x, int32 y)
 {
-	x = x / fHRatio;
-	y = y / fVRatio;
-	fBusyPoints[std::make_pair(x, y)] = false;
+	x = ceilf(x / fHRatio);
+	y = ceilf(y / fVRatio);
+	fModifiedMap->PutPixel(x, y, fImage->GetPixel(x, y));
+}
+
+
+Bitmap*
+SearchMap::Image()
+{
+	return fModifiedMap;
 }
