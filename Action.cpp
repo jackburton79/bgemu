@@ -300,13 +300,8 @@ WalkTo::WalkTo(Object* object, action_node* node)
 void
 WalkTo::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
-	if (actor == NULL)
-		return;
-
-	if (!Initiated()) {
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
 		SetInitiated();
 	}
@@ -330,9 +325,7 @@ WalkToObject::WalkToObject(Object* object, action_node* node)
 void
 WalkToObject::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
