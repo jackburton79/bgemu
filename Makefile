@@ -25,7 +25,7 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: BGEmu
+all: BGEmu PathFindTest
 
 # Tool invocations
 BGEmu: $(OBJECTS) $(USER_OBJS) bgemu.o
@@ -35,16 +35,16 @@ BGEmu: $(OBJECTS) $(USER_OBJS) bgemu.o
 	@echo 'Finished building target: $@'
 	@echo ' '
 
-#urltest: $(OBJECTS) $(USER_OBJS) test/urltest.o
-#	@echo 'Building target: $@'
-#	@echo 'Invoking: GCC C++ Linker'
-#	g++  -o "test/urltest" $(OBJS) $(USER_OBJS) test/urltest.o $(LDFLAGS) $(LIBS)
-#	@echo 'Finished building target: $@'
-#	@echo ' '
+PathFindTest: $(OBJECTS) $(USER_OBJS) tests/PathFindTest.o
+	@echo 'Building target: $@'
+	@echo 'Invoking: GCC C++ Linker'
+	g++  -o "tests/PathFindTest" $(OBJECTS) $(USER_OBJS) tests/PathFindTest.o $(LDFLAGS) $(LIBS)
+	@echo 'Finished building target: $@'
+	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJECTS)$(DEPS)$(EXECUTABLES)$(DEPS)$(C_UPPER_DEPS) bgemu.o
+	-$(RM) $(OBJECTS)$(DEPS)$(EXECUTABLES)$(DEPS)$(C_UPPER_DEPS) bgemu.o tests/PathFindTest
 	-@echo ' '
 
 .PHONY: all clean dependents

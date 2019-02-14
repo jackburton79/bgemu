@@ -3,3 +3,5 @@
 *.d
 data
 Chitin.key
+BGEmu
+tests/PathFindTest
