@@ -52,6 +52,8 @@ IsWalkable(const IE::point& point)
 
 int main()
 {
+	//::srand(clock());
+	
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
@@ -65,10 +67,14 @@ int main()
 	
 	GraphicsEngine::BlitBitmap(gSearchMap, NULL, bitmap, NULL);
 	
+	clock_t startTime = clock();
 	PathFinder pathFinder(1, IsWalkable);
 	IE::point start = { 0, 0 };
 	IE::point end = { 299, 299 };
 	pathFinder.SetPoints(start, end);
+	
+	if (!pathFinder.IsEmpty())
+		std::cout << "Path found in " << (clock() - startTime) / 1000 << " msecs" << std::endl;
 	
 	SDL_Event event;
 	bool quitting = false;
@@ -82,11 +88,12 @@ int main()
 					break;
 			}
 		}
-		IE::point point = pathFinder.NextWayPoint();
-		bitmap->Lock();
-		bitmap->PutPixel(point.x, point.y, 12000);
-		bitmap->Unlock();
-		
+		if (!pathFinder.IsEmpty()) {
+			IE::point point = pathFinder.NextWayPoint();
+			bitmap->Lock();
+			bitmap->PutPixel(point.x, point.y, 12000);
+			bitmap->Unlock();
+		}
 		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, NULL);
 		GraphicsEngine::Get()->Flip();
 		SDL_Delay(50);
