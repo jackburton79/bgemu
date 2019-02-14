@@ -176,7 +176,7 @@ void
 Object::AddAction(Action* action, bool now)
 {
 	if (now && IsActionListEmpty()) {
-		std::cout << "action was instant and we execute it now!" << std::endl;
+		//std::cout << "action was instant and we execute it now!" << std::endl;
 		_ExecuteAction(*action);
 	} else
 		fActions.push_back(action);
@@ -217,13 +217,13 @@ Object::ExecuteActions()
 bool
 Object::IsActionListEmpty() const
 {
-	std::cout << Name() << ": ";
+	/*std::cout << Name() << ": ";
 	std::cout << "IsActionListEmpty() ? size = " << std::dec;
 	std::cout << fActions.size() << std::endl;
 	for (std::list<Action*>::const_iterator i = fActions.begin();
 									i != fActions.end(); i++) {
 		std::cout << (*i)->Name() << std::endl;
-	}
+	}*/
 	return fActions.size() == 0;
 }
 

@@ -700,7 +700,7 @@ Core::_CleanDestroyedObjects()
 				/*GUI::Get()->Show();
 				fCutsceneMode = false;
 				fCutsceneActor = NULL;*/
-				return;	
+				//return;	
 				
 			}
 			std::cout << "Destroy actor " << object->Name() << std::endl;			

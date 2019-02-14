@@ -213,7 +213,8 @@ DestroySelfAction::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	fObject->DestroySelf();
+	Object* object = Script::FindSenderObject(fObject, fActionParams);
+	object->DestroySelf();
 	SetCompleted();
 }
 
