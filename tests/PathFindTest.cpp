@@ -1,4 +1,5 @@
 //#include "graphics/Bitmap.h"
+#include "Core.h"
 #include "GraphicsEngine.h"
 #include "PathFind.h"
 
@@ -57,8 +58,10 @@ NewPath(PathFinder& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
 	// skip non walkable points
-	while (!IsWalkable(start) && start.x < 299)
-		start.x++;
+	start.y = Core::RandomNumber(0, 299);
+	end.y = Core::RandomNumber(0, 299);
+	while (!IsWalkable(start) && start.y < 299)
+		start.y++;
 	while (!IsWalkable(end) && end.y > 0)
 		end.y--;		
 	p.SetPoints(start, end);
