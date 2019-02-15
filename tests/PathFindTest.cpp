@@ -71,10 +71,20 @@ int main()
 	PathFinder pathFinder(1, IsWalkable);
 	IE::point start = { 0, 0 };
 	IE::point end = { 299, 299 };
+	// skip non walkable points
+	while (!IsWalkable(start) && start.x < 299)
+		start.x++;
+	while (!IsWalkable(end) && end.y > 0)
+		end.y--;		
 	pathFinder.SetPoints(start, end);
 	
 	if (!pathFinder.IsEmpty())
-		std::cout << "Path found in " << (clock() - startTime) / 1000 << " msecs" << std::endl;
+		std::cout << "Path found in " << (clock() - startTime) / 1000 << " ms" << std::endl;
+	else
+		std::cout << "Path not found!" << std::endl;
+	
+	bitmap->StrokeCircle(start.x, start.y, 5, 10000);
+	bitmap->StrokeCircle(end.x, end.y, 5, 10000);
 	
 	SDL_Event event;
 	bool quitting = false;
