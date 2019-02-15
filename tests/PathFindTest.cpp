@@ -9,8 +9,8 @@
 #include <iostream>
 
 Bitmap* gSearchMap;
-int gNumRows = 300;
-int gNumColumns = 300;
+int16 gNumRows = 600;
+int16 gNumColumns = 600;
 
 int kRedIndex = 2;
 
@@ -58,9 +58,9 @@ NewPath(PathFinder& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
 	// skip non walkable points
-	start.y = Core::RandomNumber(0, 299);
-	end.y = Core::RandomNumber(0, 299);
-	while (!IsWalkable(start) && start.y < 299)
+	start.y = Core::RandomNumber(0, gNumRows - 1);
+	end.y = Core::RandomNumber(0, gNumRows - 1);
+	while (!IsWalkable(start) && start.y < gNumRows - 1)
 		start.y++;
 	while (!IsWalkable(end) && end.y > 0)
 		end.y--;		
@@ -99,16 +99,16 @@ int main()
 		return -1;
 	}
 
-	GraphicsEngine::Get()->SetVideoMode(300, 300, 16, 0);
+	GraphicsEngine::Get()->SetVideoMode(gNumColumns, gNumRows, 16, 0);
 
-	gSearchMap = new Bitmap(300, 300, 8);
-	Bitmap* bitmap = new Bitmap(300, 300, 16);
+	gSearchMap = new Bitmap(gNumColumns, gNumRows, 8);
+	Bitmap* bitmap = new Bitmap(gNumColumns, gNumRows, 16);
 	
 	
 	PathFinder pathFinder(2, IsWalkable);
 	
 	IE::point start = { 0, 0 };
-	IE::point end = { 299, 299 };	
+	IE::point end = { gNumColumns, gNumRows };	
 	if (!ResetState(pathFinder, bitmap, start, end))
 		std::cout << "Path not found!" << std::endl;
 		
@@ -120,8 +120,6 @@ int main()
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
-							start = { 0, 0 };
-							end = { 299, 299 };	
 							if (!ResetState(pathFinder, bitmap, start, end))
 								std::cout << "Path not found!" << std::endl;
 							break;
