@@ -68,7 +68,7 @@ int main()
 	GraphicsEngine::BlitBitmap(gSearchMap, NULL, bitmap, NULL);
 	
 	clock_t startTime = clock();
-	PathFinder pathFinder(1, IsWalkable);
+	PathFinder pathFinder(2, IsWalkable);
 	IE::point start = { 0, 0 };
 	IE::point end = { 299, 299 };
 	// skip non walkable points
@@ -83,8 +83,10 @@ int main()
 	else
 		std::cout << "Path not found!" << std::endl;
 	
-	bitmap->StrokeCircle(start.x, start.y, 5, 10000);
-	bitmap->StrokeCircle(end.x, end.y, 5, 10000);
+	uint32 red = bitmap->MapColor(255, 0, 0);
+	uint32 green = bitmap->MapColor(0, 255, 0);
+	bitmap->StrokeCircle(start.x, start.y, 5, red);
+	bitmap->StrokeCircle(end.x, end.y, 5, red);
 	
 	SDL_Event event;
 	bool quitting = false;
@@ -101,12 +103,12 @@ int main()
 		if (!pathFinder.IsEmpty()) {
 			IE::point point = pathFinder.NextWayPoint();
 			bitmap->Lock();
-			bitmap->PutPixel(point.x, point.y, 12000);
+			bitmap->StrokeCircle(point.x, point.y, 2, green);
 			bitmap->Unlock();
 		}
 		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, NULL);
 		GraphicsEngine::Get()->Flip();
-		SDL_Delay(50);
+		SDL_Delay(30);
 	}
 	
 	gSearchMap->Release();
