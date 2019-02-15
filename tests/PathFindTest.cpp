@@ -37,7 +37,7 @@ InitializeSearchMap()
 
 	for (int r = 0; r < gNumRows - 16; r+=16) {
 		for (int c = 0; c < gNumColumns - 16 ; c+=16) {
-			uint8 value = ((::rand() % 2)) ? 0 : 1;
+			uint8 value = ((::rand() % 5)) ? 0 : 1;
 			GFX::rect rect(c, r, c + 16, r + 16);
 			gSearchMap->FillRect(rect, value);
 		}
@@ -121,6 +121,7 @@ int main()
 							end = { 299, 299 };	
 							if (!ResetState(pathFinder, bitmap, start, end))
 								std::cout << "Path not found!" << std::endl;
+							break;
 						}
 						case SDLK_q:
 							quitting = true;
