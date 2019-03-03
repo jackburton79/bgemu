@@ -227,7 +227,7 @@ BAMResource::_FrameAt(uint16 index)
 		bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
 			entry.ypos - bitmap->Height() / 2);
 	} else if (ownsData)
-		delete bitmapData;
+		delete[] bitmapData;
 
 	return bitmap;
 }
