@@ -78,7 +78,7 @@ MOSResource::Load(Archive* archive, uint32 key)
 
 	//printf("width: %d, height: %d, columns: %d, rows: %d\n", fWidth, fHeight, fColumns, fRows);
 	fTileOffsets = fPaletteOffset + kPaletteDataSize * fColumns * fRows;
-	fPixelDataOffset = fTileOffsets + fColumns * fRows * sizeof(uint32);
+	fPixelDataOffset = fTileOffsets + (uint32)fColumns * fRows * sizeof(uint32);
 
 	return true;
 }
