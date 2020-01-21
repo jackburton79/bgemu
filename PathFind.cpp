@@ -186,8 +186,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 
 static inline const uint32
-CalculateCost(const IE::point& pointA, const IE::point& pointB)
+MovementCost(const IE::point& pointA, const IE::point& pointB)
 {
+	// Movement cost. Bigger when moving diagonally
 	return (std::abs(pointA.x - pointB.x) < PathFinder::kStep)
 			|| (std::abs(pointA.y - pointB.y) < PathFinder::kStep) ? 10 : 14;
 }
@@ -209,7 +210,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 							FindPoint(point));
 	if (i != closedList.end()) {
 		point_node* node = *i;
-		const int newCost = CalculateCost(current.point,
+		const int newCost = MovementCost(current.point,
 				node->point) + current.cost;
 		if (newCost < node->cost) {
 			node->parent = &current;
@@ -224,14 +225,14 @@ PathFinder::_AddIfPassable(const IE::point& point,
 		// Point is already on the open list.
 		// Check if getting through the point from this point
 		// is cheaper. If so, set this as parent.
-		const int newCost = CalculateCost(current.point,
+		const int newCost = MovementCost(current.point,
 				node->point) + current.cost;
 		if (newCost < node->cost) {
 			node->parent = &current;
 			node->cost = newCost;
 		}
 	} else {
-		const int cost = CalculateCost(point, current.point) + current.cost;
+		const int cost = MovementCost(point, current.point) + current.cost;
 		point_node* newNode = new point_node(point, &current, cost);
 		openList.push_back(newNode);
 	}
@@ -242,8 +243,11 @@ static inline uint32
 HeuristicDistance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
-	return 10 * (int32)((std::abs(end.x - start.x) << 2)
+	uint32 distance = 10 * (int32)((std::abs(end.x - start.x) << 2)
 			+ (std::abs(end.y - start.y) << 2));
+	//std::cout << "HeuristicDistance (" << start.x << ", " << start.y << " - ";
+	//std::cout << end.x << ", " << end.y << "):" << distance << std::endl;
+	return distance;
 }
 
 
