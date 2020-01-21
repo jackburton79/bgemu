@@ -243,11 +243,10 @@ static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
-	uint32 distance = 10 * (int32)((std::abs(end.x - start.x) << 2)
-			+ (std::abs(end.y - start.y) << 2));
-	//std::cout << "HeuristicDistance (" << start.x << ", " << start.y << " - ";
-	//std::cout << end.x << ", " << end.y << "):" << distance << std::endl;
-	return distance;
+	uint32 distance = (uint32)((std::abs(end.x - start.x))
+		+ (std::abs(end.y - start.y)));
+	// We multiply by 10 since minimum movement cost is 10
+	return distance * 10;
 }
 
 
