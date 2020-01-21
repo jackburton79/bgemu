@@ -242,9 +242,15 @@ PathFinder::_AddIfPassable(const IE::point& point,
 static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
+#if 1
 	// Manhattan method
-	uint32 distance = (uint32)((std::abs(end.x - start.x))
-		+ (std::abs(end.y - start.y)));
+	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
+		std::abs(end.y - start.y)));
+#else
+	// Movement distance
+	uint32 distance = (uint32)std::max((std::abs(end.x - start.x)),
+		std::abs(end.y - start.y));
+#endif
 	// We multiply by 10 since minimum movement cost is 10
 	return distance * 10;
 }
