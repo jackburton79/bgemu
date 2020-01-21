@@ -147,7 +147,7 @@ SoundEngine::IsPlaying()
 void
 SoundEngine::MixAudio(void *castToThis, Uint8 *stream, int numBytes)
 {
-	SoundEngine* engine = (SoundEngine*)castToThis;
+	SoundEngine* engine = reinterpret_cast<SoundEngine*>(castToThis);
 	engine->Buffer()->ConsumeSamples((uint8*)stream, (uint16)numBytes);
 }
 
