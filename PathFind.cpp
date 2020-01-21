@@ -240,7 +240,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 
 static inline uint32
-HeuristicDistance(const IE::point& start, const IE::point& end)
+Distance(const IE::point& start, const IE::point& end)
 {
 	// Manhattan method
 	uint32 distance = 10 * (int32)((std::abs(end.x - start.x) << 2)
@@ -260,7 +260,7 @@ PathFinder::_GetCheapestNode(std::list<point_node*>& list,
 	for (std::list<point_node*>::const_iterator i = list.begin();
 			i != list.end(); i++) {
 		const point_node* node = *i;
-		const uint32 totalCost = HeuristicDistance(node->point, end)
+		const uint32 totalCost = Distance(node->point, end)
 										+ node->cost;
 		if (totalCost < minCost) {
 			result = *i;
