@@ -95,12 +95,13 @@ MOSResource::Image()
 			tileRect.x = x * fBlockSize;
 			const uint32 tileNum = y * fColumns + x;
 			Bitmap* tile = TileAt(tileNum);
-			if (tile == NULL) {
+			if (tile != NULL) {
+				GraphicsEngine::BlitBitmap(tile, NULL, bitmap, &tileRect);
+				tile->Release();
+			} else {
 				std::cerr << "MOSResource::Image(): tile number ";
 				std::cerr << tileNum << " is NULL" << std::endl;
 			}
-			GraphicsEngine::BlitBitmap(tile, NULL, bitmap, &tileRect);
-			tile->Release();
 		}
 	}
 	return bitmap;
