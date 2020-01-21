@@ -43,7 +43,7 @@ public:
 		fP[2] = p2;
 		fP[3] = p3;
 	}
-	inline uint8 PixelValue(const uint8 &bits)
+	inline uint8 PixelValue(const uint8 &bits) const
 	{
 		return fP[bits];
 	}
