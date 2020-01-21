@@ -104,7 +104,6 @@ int main()
 	gSearchMap = new Bitmap(gNumColumns, gNumRows, 8);
 	Bitmap* bitmap = new Bitmap(gNumColumns, gNumRows, 16);
 	
-	
 	PathFinder pathFinder(2, IsWalkable);
 	
 	IE::point start = { 0, 0 };
