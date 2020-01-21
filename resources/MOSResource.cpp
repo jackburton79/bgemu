@@ -116,11 +116,11 @@ MOSResource::TileAt(uint32 index)
 	uint16 yBlockSize = fBlockSize;
 
 	// The last row and column tiles could be smaller
-	uint16 y = index / fColumns;
-	uint16 x = index - y * fColumns;
-	if (x == fColumns - 1)
+	uint16 yRow = index / fColumns;
+	uint16 xRow = index - yRow * fColumns;
+	if (xRow == fColumns - 1)
 		xBlockSize = fWidth - (fColumns - 1) * fBlockSize;
-	if (y == fRows - 1)
+	if (yRow == fRows - 1)
 		yBlockSize = fHeight - (fRows - 1) * fBlockSize;
 
 	Bitmap* surface = new Bitmap(xBlockSize, yBlockSize, 8);
