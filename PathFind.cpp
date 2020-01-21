@@ -117,8 +117,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
 
-	IE::point maxReachableDirectly = start;//_CreateDirectPath(start, end);
-
+	IE::point maxReachableDirectly = start;
 	if (PointSufficientlyClose(maxReachableDirectly, end)
 			|| !_IsPassable(end))
 		return maxReachableDirectly;
@@ -155,7 +154,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		}
 	}
 
-	//std::list<point_node*>::const_iterator i;
 	if (notFound) {
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
@@ -170,8 +168,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	std::list<point_node*>::reverse_iterator r = closedList.rbegin();
 	point_node* walkNode = *r;
 	for (;;) {
-		//fPoints.insert(directRouteEnd, walkNode->point);
-		//directRouteEnd--;
 		fPoints.push_front(walkNode->point);
 		const point_node* parent = walkNode->parent;
 		if (parent == NULL)
