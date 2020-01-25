@@ -12,6 +12,8 @@ Bitmap* gSearchMap;
 int16 gNumRows = 600;
 int16 gNumColumns = 600;
 
+const int kBlockSize = 16;
+
 int kRedIndex = 2;
 
 uint32 gRed;
@@ -36,10 +38,10 @@ InitializeSearchMap()
 	gSearchMap->SetColors(colors, 0, 3);
 	
 
-	for (int r = 0; r < gNumRows - 16; r+=16) {
-		for (int c = 0; c < gNumColumns - 16 ; c+=16) {
+	for (int r = 0; r < gNumRows - kBlockSize; r += kBlockSize) {
+		for (int c = 0; c < gNumColumns - kBlockSize ; c += kBlockSize) {
 			uint8 value = ((::rand() % 5)) ? 0 : 1;
-			GFX::rect rect(c, r, c + 16, r + 16);
+			GFX::rect rect(c, r, c + kBlockSize, r + kBlockSize);
 			gSearchMap->FillRect(rect, value);
 		}
 	}
@@ -92,8 +94,6 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 
 int main()
 {
-	//::srand(clock());
-	
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
