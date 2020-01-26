@@ -45,7 +45,8 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 PathFinder::PathFinder(int step, test_function testFunc)
 	:
 	fTestFunction(testFunc),
-	fStep(step)
+	fStep(step),
+	fDebugFunction(NULL)
 {
 }
 
