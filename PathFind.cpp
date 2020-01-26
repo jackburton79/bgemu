@@ -195,7 +195,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 }
 
 
-static inline const uint32
+static inline uint32
 MovementCost(const IE::point& pointA, const IE::point& pointB)
 {
 	// Movement cost. Bigger when moving diagonally
