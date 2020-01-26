@@ -139,15 +139,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	uint32 tries = 4000;
 	bool notFound = false;
 	for (;;) {
-		// If adiacent nodes are passable, add them to the list
-		_AddIfPassable(offset_point(currentNode->point, fStep, 0), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, fStep, fStep), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, 0, fStep), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, -fStep, fStep), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, -fStep, 0), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, -fStep, -fStep), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, fStep, -fStep), *currentNode, openList, closedList);
-		_AddIfPassable(offset_point(currentNode->point, 0, -fStep), *currentNode, openList, closedList);
+		_AddNeighbors(*currentNode, openList, closedList);
 
 		openList.remove(currentNode);
 		closedList.push_back(currentNode);
@@ -196,12 +188,12 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 }
 
 
-static inline uint32
-MovementCost(const IE::point& pointA, const IE::point& pointB)
+uint32
+PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB)
 {
 	// Movement cost. Bigger when moving diagonally
-	return (std::abs(pointA.x - pointB.x) < PathFinder::kStep)
-			|| (std::abs(pointA.y - pointB.y) < PathFinder::kStep) ? 10 : 14;
+	return (std::abs(pointA.x - pointB.x) < fStep)
+			|| (std::abs(pointA.y - pointB.y) < fStep) ? 10 : 14;
 }
 
 
@@ -247,6 +239,22 @@ PathFinder::_AddIfPassable(const IE::point& point,
 		point_node* newNode = new point_node(point, &current, cost);
 		openList.push_back(newNode);
 	}
+}
+
+
+void
+PathFinder::_AddNeighbors(const point_node& node,
+			std::list<point_node*>& openList,
+			std::list<point_node*>& closedList)
+{
+	_AddIfPassable(offset_point(node.point, fStep, 0), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, fStep, fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, 0, fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, -fStep, fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, -fStep, 0), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, -fStep, -fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, fStep, -fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, 0, -fStep), node, openList, closedList);
 }
 
 

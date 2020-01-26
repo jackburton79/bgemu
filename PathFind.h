@@ -26,6 +26,7 @@ public:
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
+	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB);
 private:
 	std::list<IE::point> fPoints;
 
@@ -39,6 +40,9 @@ private:
 	bool _IsPassable(const IE::point& point);
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
+			std::list<point_node*>& openList,
+			std::list<point_node*>& closedList);
+	void _AddNeighbors(const point_node& node,
 			std::list<point_node*>& openList,
 			std::list<point_node*>& closedList);
 	point_node* _GetCheapestNode(std::list<point_node*>& list,
