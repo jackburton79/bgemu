@@ -25,7 +25,7 @@ static void
 plot_point(const IE::point& pt)
 {
 	gBitmap->Lock();
-	gBitmap->PutPixel(pt.x, pt.y, 1);
+	gBitmap->StrokeCircle(pt.x, pt.y, 1, 1);
 	gBitmap->Unlock();
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 	GraphicsEngine::Get()->Flip();
@@ -71,13 +71,6 @@ static bool
 NewPath(PathFinder& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
-	// skip non walkable points
-	start.y = Core::RandomNumber(0, gNumRows - 1);
-	end.y = Core::RandomNumber(0, gNumRows - 1);
-	while (!IsWalkable(start) && start.y < gNumRows - 1)
-		start.y++;
-	while (!IsWalkable(end) && end.y > 0)
-		end.y--;		
 	p.SetPoints(start, end);
 
 	if (!p.IsEmpty())
@@ -90,16 +83,24 @@ static bool
 ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 {
 	InitializeSearchMap();
-	p.SetDebug(plot_point);
-	if (!NewPath(p, start, end))
-		return false;
 
+	// skip non walkable points
+	start.y = Core::RandomNumber(0, gNumRows - 1);
+	end.y = Core::RandomNumber(0, gNumRows - 1);
+	while (!IsWalkable(start) && start.y < gNumRows - 1)
+		start.y++;
+	while (!IsWalkable(end) && end.y > 0)
+		end.y--;
 	GraphicsEngine::BlitBitmap(gSearchMap, NULL, bitmap, NULL);
-	
+
 	gRed = bitmap->MapColor(255, 0, 0);
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 5, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 5, gRed);
+
+	p.SetDebug(plot_point);
+	if (!NewPath(p, start, end))
+		return false;
 
 	return true;	
 }
