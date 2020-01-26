@@ -349,7 +349,7 @@ ARAResource::_LoadDoors()
 		//closedPolygon.Print();
 		
 		Polygon openPolygon;
-		for (uint16 c = 0; c < fDoors[i].open_vertex_index; c++) {
+		for (uint32 c = 0; c < fDoors[i].open_vertex_index; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
 			openPolygon.AddPoint(vertex.x, vertex.y);
