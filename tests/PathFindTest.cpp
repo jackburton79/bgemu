@@ -9,15 +9,28 @@
 #include <iostream>
 
 Bitmap* gSearchMap;
+Bitmap* gBitmap;
+
 int16 gNumRows = 600;
 int16 gNumColumns = 600;
 
-const int kBlockSize = 16;
+const int kBlockSize = 32;
 
 int kRedIndex = 2;
 
 uint32 gRed;
 uint32 gGreen;
+
+static void
+plot_point(const IE::point& pt)
+{
+	gBitmap->Lock();
+	gBitmap->PutPixel(pt.x, pt.y, 1);
+	gBitmap->Unlock();
+	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
+	GraphicsEngine::Get()->Flip();
+}
+
 
 static void
 InitializeSearchMap()
@@ -36,11 +49,10 @@ InitializeSearchMap()
 	colors[kRedIndex].b = 0;
 	colors[kRedIndex].a = 0;
 	gSearchMap->SetColors(colors, 0, 3);
-	
 
 	for (int r = 0; r < gNumRows - kBlockSize; r += kBlockSize) {
 		for (int c = 0; c < gNumColumns - kBlockSize ; c += kBlockSize) {
-			uint8 value = ((::rand() % 5)) ? 0 : 1;
+			uint8 value = ((::rand() % 3)) ? 0 : 1;
 			GFX::rect rect(c, r, c + kBlockSize, r + kBlockSize);
 			gSearchMap->FillRect(rect, value);
 		}
@@ -78,7 +90,7 @@ static bool
 ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 {
 	InitializeSearchMap();
-
+	p.SetDebug(plot_point);
 	if (!NewPath(p, start, end))
 		return false;
 
@@ -88,6 +100,7 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 5, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 5, gRed);
+
 	return true;	
 }
 
@@ -102,13 +115,13 @@ int main()
 	GraphicsEngine::Get()->SetVideoMode(gNumColumns, gNumRows, 16, 0);
 
 	gSearchMap = new Bitmap(gNumColumns, gNumRows, 8);
-	Bitmap* bitmap = new Bitmap(gNumColumns, gNumRows, 16);
+	gBitmap = new Bitmap(gNumColumns, gNumRows, 16);
 	
 	PathFinder pathFinder(2, IsWalkable);
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumns, gNumRows };	
-	if (!ResetState(pathFinder, bitmap, start, end))
+	if (!ResetState(pathFinder, gBitmap, start, end))
 		std::cout << "Path not found!" << std::endl;
 		
 	SDL_Event event;
@@ -119,7 +132,7 @@ int main()
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
-							if (!ResetState(pathFinder, bitmap, start, end))
+							if (!ResetState(pathFinder, gBitmap, start, end))
 								std::cout << "Path not found!" << std::endl;
 							break;
 						}
@@ -141,17 +154,17 @@ int main()
 		}
 		if (!pathFinder.IsEmpty()) {
 			IE::point point = pathFinder.NextWayPoint();
-			bitmap->Lock();
-			bitmap->StrokeCircle(point.x, point.y, 2, gGreen);
-			bitmap->Unlock();
+			gBitmap->Lock();
+			gBitmap->StrokeCircle(point.x, point.y, 2, gGreen);
+			gBitmap->Unlock();
 		}
-		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, NULL);
+		GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 		GraphicsEngine::Get()->Flip();
 		SDL_Delay(30);
 	}
 	
 	gSearchMap->Release();
-	bitmap->Release();
+	gBitmap->Release();
 
 	GraphicsEngine::Destroy();
 }

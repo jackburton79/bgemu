@@ -57,6 +57,13 @@ PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 }
 
 
+void
+PathFinder::SetDebug(debug_function callback)
+{
+	fDebugFunction = callback;
+}
+
+
 IE::point
 PathFinder::NextWayPoint()
 {
@@ -143,6 +150,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 		openList.remove(currentNode);
 		closedList.push_back(currentNode);
+
+		if (fDebugFunction != NULL)
+			fDebugFunction(currentNode->point);
 
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;

@@ -6,6 +6,7 @@
 #include <list>
 
 typedef bool(*test_function)(const IE::point& start);
+typedef void(*debug_function)(const IE::point& pt);
 
 struct point_node;
 class PathFinder {
@@ -20,6 +21,8 @@ public:
 
 	void GetPoints(std::list<IE::point> points) const;
 
+	void SetDebug(debug_function callback);
+	
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
@@ -29,6 +32,8 @@ private:
 	test_function fTestFunction;
 	int fStep;
 
+	debug_function fDebugFunction;
+	
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 
 	bool _IsPassable(const IE::point& point);
