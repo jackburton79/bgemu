@@ -18,8 +18,8 @@ public:
 	virtual void Dump();
 	void DumpToFile(const char *fileName);
 
-	const uint32 Key() const;
-	const uint16 Type() const;
+	uint32 Key() const;
+	uint16 Type() const;
 	const char* Name() const;
 	
 	static Resource* Create(const res_ref &name, const uint16& type,

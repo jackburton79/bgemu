@@ -76,7 +76,7 @@ CREResource::ShortNameID()
 }
 
 
-const uint16
+uint16
 CREResource::AnimationID()
 {
 	uint16 id;
@@ -85,7 +85,7 @@ CREResource::AnimationID()
 }
 
 
-const uint32
+uint32
 CREResource::Kit()
 {
 	uint32 kit;

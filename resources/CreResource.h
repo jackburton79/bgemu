@@ -119,8 +119,8 @@ public:
 	uint32 LongNameID();
 	uint32 ShortNameID();
 
-	const uint16 AnimationID();
-	const uint32 Kit();
+	uint16 AnimationID();
+	uint32 Kit();
 	const char *KitStr();
 
 	uint8 EnemyAlly();

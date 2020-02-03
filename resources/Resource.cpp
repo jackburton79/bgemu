@@ -152,14 +152,14 @@ Resource::DumpToFile(const char *fileName)
 }
 
 
-const uint32
+uint32
 Resource::Key() const
 {
 	return fKey;
 }
 
 
-const uint16
+uint16
 Resource::Type() const
 {
 	return fType;
