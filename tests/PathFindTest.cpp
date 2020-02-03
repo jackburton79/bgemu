@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#define DEBUG 0
+
 Bitmap* gSearchMap;
 Bitmap* gBitmap;
 
@@ -21,6 +23,8 @@ int kRedIndex = 2;
 uint32 gRed;
 uint32 gGreen;
 
+
+#if DEBUG
 static void
 plot_point(const IE::point& pt)
 {
@@ -30,6 +34,7 @@ plot_point(const IE::point& pt)
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 	GraphicsEngine::Get()->Flip();
 }
+#endif
 
 
 static void
@@ -97,8 +102,9 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 5, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 5, gRed);
-
+#if DEBUG
 	p.SetDebug(plot_point);
+#endif
 	if (!NewPath(p, start, end))
 		return false;
 
