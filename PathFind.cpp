@@ -261,7 +261,7 @@ PathFinder::_AddNeighbors(const point_node& node,
 static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
-#if 1
+#if 0
 	// Manhattan method
 	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
 		std::abs(end.y - start.y)));
