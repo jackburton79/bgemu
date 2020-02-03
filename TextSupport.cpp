@@ -18,7 +18,7 @@
 
 
 static uint32
-cycle_num_for_char(char c)
+cycle_num_for_char(unsigned char c)
 {
 	return (int)c - 1;
 }
@@ -96,7 +96,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 	if (fontRes == NULL)
 		return;
 
-	for (char c = 32; c < 256; c++) {
+	for (unsigned char c = 32; c < 256; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);
 		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
 		if (glyph != NULL) {
