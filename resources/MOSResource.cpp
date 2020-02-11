@@ -124,7 +124,7 @@ MOSResource::TileAt(uint32 index)
 	if (yRow == fRows - 1)
 		yBlockSize = fHeight - (fRows - 1) * fBlockSize;
 
-	Bitmap* surface = new Bitmap(xBlockSize, yBlockSize, 8);
+	Bitmap* tileBitmap = new Bitmap(xBlockSize, yBlockSize, 8);
 	try {
 		GFX::Palette palette;
 		for (int32 i = 0; i < 256; i++) {
@@ -139,17 +139,17 @@ MOSResource::TileAt(uint32 index)
 		fData->Seek(fPixelDataOffset + tileOffset, SEEK_SET);
 
 		for (int y = 0; y < yBlockSize; y++) {
-			uint8 *pixels = (uint8*)surface->Pixels() + y * surface->Pitch();
+			uint8 *pixels = (uint8*)tileBitmap->Pixels() + y * tileBitmap->Pitch();
 			for (int x = 0; x < xBlockSize; x++) {
 				uint8 pixel = fData->ReadByte();
 				pixels[x] = pixel;
 			}
 		}
-		surface->SetPalette(palette);
+		tileBitmap->SetPalette(palette);
 	} catch (...) {
-		surface->Release();
-		surface = NULL;
+		tileBitmap->Release();
+		tileBitmap = NULL;
 	}
 
-	return surface;
+	return tileBitmap;
 }
