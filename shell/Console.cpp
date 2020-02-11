@@ -367,7 +367,7 @@ Console::Clear(uint8 attr)
 		case 1:
 			memset(fDesc->frame_buffer,
 				background_color(attr),
-				fDesc->height * fDesc->bytes_per_row);
+				size_t(fDesc->height) * size_t(fDesc->bytes_per_row));
 			break;
 		default:
 		{
