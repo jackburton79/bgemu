@@ -90,12 +90,14 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	InitializeSearchMap();
 
 	// skip non walkable points
-	start.y = Core::RandomNumber(0, gNumRows - 1);
-	end.y = Core::RandomNumber(0, gNumRows - 1);
-	while (!IsWalkable(start) && start.y < gNumRows - 1)
-		start.y++;
-	while (!IsWalkable(end) && end.y > 0)
-		end.y--;
+	do {
+		start.y = Core::RandomNumber(0, gNumRows - 1);
+	} while (!IsWalkable(start));
+
+	do {
+		end.y = Core::RandomNumber(0, gNumRows - 1);
+	} while (!IsWalkable(end));
+
 	GraphicsEngine::BlitBitmap(gSearchMap, NULL, bitmap, NULL);
 
 	gRed = bitmap->MapColor(255, 0, 0);
