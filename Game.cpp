@@ -81,10 +81,13 @@ Game::Loop(bool executeScripts)
 	// This should be filled by the player selection
 	IE::point point = { 20, 20 };
 	if (fParty->CountActors() == 0) {
+		Actor* player = NULL;
 		if (Core::Get()->Game() == GAME_BALDURSGATE)
-			fParty->AddActor(new Actor("AJANTI", point, 0));
+			player = new Actor("AJANTI", point, 0);
 		else
-			fParty->AddActor(new Actor("ANOMEN10", point, 0));
+			player = new Actor("ANOMEN10", point, 0);
+		if (player != NULL)
+			fParty->AddActor(player);
 	}
 
 	LoadStartingArea();
