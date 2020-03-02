@@ -188,7 +188,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 
 uint32
-PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB)
+PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 {
 	// Movement cost. Bigger when moving diagonally
 	return (std::abs(pointA.x - pointB.x) < fStep)
@@ -211,28 +211,16 @@ PathFinder::_AddIfPassable(const IE::point& point,
 				std::find_if(closedList.begin(), closedList.end(),
 							FindPoint(point));
 	if (i != closedList.end()) {
-		point_node* node = *i;
-		const int newCost = MovementCost(current.point,
-				node->point) + current.cost;
-		if (newCost < node->cost) {
-			node->parent = &current;
-			node->cost = newCost;
-		}
+		_UpdateNodeCost(*i, current);
 		return;
 	}
 
 	i = std::find_if(openList.begin(), openList.end(), FindPoint(point));
 	if (i != openList.end()) {
-		point_node* node = *i;
 		// Point is already on the open list.
 		// Check if getting through the point from this point
 		// is cheaper. If so, set this as parent.
-		const int newCost = MovementCost(current.point,
-				node->point) + current.cost;
-		if (newCost < node->cost) {
-			node->parent = &current;
-			node->cost = newCost;
-		}
+		_UpdateNodeCost(*i, current);
 	} else {
 		const int cost = MovementCost(point, current.point) + current.cost;
 		point_node* newNode = new point_node(point, &current, cost);
@@ -254,6 +242,18 @@ PathFinder::_AddNeighbors(const point_node& node,
 	_AddIfPassable(offset_point(node.point, -fStep, -fStep), node, openList, closedList);
 	_AddIfPassable(offset_point(node.point, fStep, -fStep), node, openList, closedList);
 	_AddIfPassable(offset_point(node.point, 0, -fStep), node, openList, closedList);
+}
+
+
+void
+PathFinder::_UpdateNodeCost(point_node* node, const point_node& current) const
+{
+	const int newCost = MovementCost(current.point,
+			node->point) + current.cost;
+	if (newCost < node->cost) {
+		node->parent = &current;
+		node->cost = newCost;
+	}
 }
 
 
