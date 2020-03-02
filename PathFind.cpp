@@ -8,6 +8,7 @@
 #include <memory>
 #include <limits.h>
 
+#define PATHFIND_MAX_TRIES 4000
 
 struct point_node {
 	point_node(IE::point p, const point_node* parentNode, int nodeCost)
@@ -136,7 +137,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	openList.push_back(currentNode);
 
-	uint32 tries = 4000;
+	uint32 tries = PATHFIND_MAX_TRIES;
 	bool notFound = false;
 	for (;;) {
 		_AddNeighbors(*currentNode, openList, closedList);
@@ -281,11 +282,11 @@ PathFinder::_GetCheapestNode(std::list<point_node*>& list,
 	point_node* result = NULL;
 	for (std::list<point_node*>::const_iterator i = list.begin();
 			i != list.end(); i++) {
-		const point_node* node = *i;
+		point_node* node = *i;
 		const uint32 totalCost = Distance(node->point, end)
 										+ node->cost;
 		if (totalCost < minCost) {
-			result = *i;
+			result = node;
 			minCost = totalCost;
 		}
 	}
