@@ -164,7 +164,7 @@ int main()
 		if (!pathFinder.IsEmpty()) {
 			IE::point point = pathFinder.NextWayPoint();
 			gBitmap->Lock();
-			gBitmap->StrokeCircle(point.x, point.y, 2, gGreen);
+			gBitmap->FillCircle(point.x, point.y, 2, gGreen);
 			gBitmap->Unlock();
 		}
 		GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
