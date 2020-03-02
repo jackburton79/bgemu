@@ -37,8 +37,8 @@ struct FindPoint {
 static bool
 PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 {
-	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep * 2)
-		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep * 2);
+	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep)
+		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep);
 }
 
 
@@ -160,8 +160,6 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	if (notFound) {
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
-		std::cout << "Path not found" << std::endl;
-
 		EmptyList(closedList);
 		EmptyList(openList);
 		return start;
