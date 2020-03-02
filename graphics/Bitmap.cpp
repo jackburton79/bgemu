@@ -352,6 +352,16 @@ Bitmap::StrokeCircle(const int16& centerX, const int16& centerY, const uint32 ra
 }
 
 
+// TODO: Quick, lazy and unoptimized implementation
+void
+Bitmap::FillCircle(const int16& centerX, const int16& centerY, const uint32 radius,
+		const uint32 color)
+{
+	for (uint32 r = 1; r < radius; r++) {
+		StrokeCircle(centerX, centerY, r, color);
+	}
+}
+
 // end
 
 
