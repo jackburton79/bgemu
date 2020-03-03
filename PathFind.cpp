@@ -91,13 +91,6 @@ PathFinder::GetPoints(std::list<IE::point> points) const
 }
 
 
-bool
-PathFinder::_IsPassable(const IE::point& point)
-{
-	return fTestFunction(point);
-}
-
-
 /* static */
 bool
 PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
@@ -196,6 +189,63 @@ PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 }
 
 
+bool
+PathFinder::_IsPassable(const IE::point& point) const
+{
+	return fTestFunction(point);
+}
+
+
+bool
+PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
+{
+	if (!_IsPassable(point))
+		return false;
+	
+	int step = std::max(std::abs(point.x - current.x),
+		std::abs(point.y - current.y));
+
+	IE::point upperPt = current;
+	upperPt.y -= step;
+
+	IE::point leftPt = current;
+	leftPt.x -= step;
+
+	IE::point bottomPt = current;
+	bottomPt.y += step;
+
+	IE::point rightPt = current;
+	rightPt.x += step;
+	// Check if diagonal movement
+	// four cases: NW, NE, SW, SE.
+	// Example: if movement is towards NW, we check also if the N and W
+	// nodes are passable 
+	if (point.x < current.x) {
+		if (point.y < current.y) {
+			// NW
+			if (!_IsPassable(upperPt) && !_IsPassable(leftPt))
+				return false;
+		} else if (point.y > current.y) {
+			// SW
+			if (!_IsPassable(bottomPt) && !_IsPassable(leftPt))
+				return false;
+		}
+	} else if (point.x > current.x) {
+		if (point.y < current.y) {
+			// NE
+			if (!_IsPassable(upperPt) && !_IsPassable(rightPt))
+				return false;
+		} else if (point.y > current.y) {
+			// SE
+			if (!_IsPassable(bottomPt) && !_IsPassable(rightPt))
+				return false;
+		}
+	}
+
+	return true;
+}
+
+
 void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
@@ -203,7 +253,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 		std::list<point_node*>& closedList)
 {
 	if (point.x < 0 || point.y < 0
-			|| !_IsPassable(point))
+			|| !_IsReachable(current.point, point))
 		return;
 
 	// Check if point is in closed list
