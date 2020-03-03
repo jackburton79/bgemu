@@ -1,4 +1,3 @@
-//#include "graphics/Bitmap.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
 #include "PathFind.h"
@@ -16,7 +15,7 @@ Bitmap* gBitmap;
 int16 gNumRows = 600;
 int16 gNumColumns = 600;
 
-const int kBlockSize = 32;
+const int kBlockSize = 16;
 
 int kRedIndex = 2;
 
