@@ -129,8 +129,9 @@ int main()
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumns, gNumRows };	
-	if (!ResetState(pathFinder, gBitmap, start, end))
-		std::cout << "Path not found!" << std::endl;
+	while (!ResetState(pathFinder, gBitmap, start, end)) {
+		std::cout << "Path not found!" << std::endl;	
+	}
 		
 	SDL_Event event;
 	bool quitting = false;
@@ -140,7 +141,7 @@ int main()
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
-							if (!ResetState(pathFinder, gBitmap, start, end))
+							while (!ResetState(pathFinder, gBitmap, start, end))
 								std::cout << "Path not found!" << std::endl;
 							break;
 						}
