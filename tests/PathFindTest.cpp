@@ -9,19 +9,22 @@
 
 #define DEBUG 0
 
+Bitmap* gMap;
 Bitmap* gSearchMap;
 Bitmap* gBitmap;
+
+int16 gNumRowsMap = 600;
+int16 gNumColumnsMap = 600;
+const int kBlockSize = 8;
 
 int16 gNumRows = 600;
 int16 gNumColumns = 600;
 
-const int kBlockSize = 16;
-
-int kRedIndex = 2;
-
 uint32 gRed;
 uint32 gGreen;
 
+int kBlackIndex = 0;
+int kWhiteIndex = 1;
 
 #if DEBUG
 static void
@@ -39,26 +42,45 @@ plot_point(const IE::point& pt)
 static void
 InitializeSearchMap()
 {
-	GFX::Color colors[256];
-	colors[0].r = 255;
-	colors[0].g = 255;
-	colors[0].b = 255;
-	colors[0].a = 255;
-	colors[1].r = 0;
-	colors[1].g = 0;
-	colors[1].b = 0;
-	colors[1].a = 255;
-	colors[kRedIndex].r = 255;
-	colors[kRedIndex].g = 0;
-	colors[kRedIndex].b = 0;
-	colors[kRedIndex].a = 0;
-	gSearchMap->SetColors(colors, 0, 3);
+	gNumRows = gNumRowsMap / kBlockSize;
+	gNumColumns = gNumColumnsMap / kBlockSize;
 
-	for (int r = 0; r < gNumRows - kBlockSize; r += kBlockSize) {
-		for (int c = 0; c < gNumColumns - kBlockSize ; c += kBlockSize) {
-			uint8 value = ((::rand() % 3)) ? 0 : 1;
-			GFX::rect rect(c, r, c + kBlockSize, r + kBlockSize);
-			gSearchMap->FillRect(rect, value);
+	GFX::Color colors[256];
+
+	colors[kBlackIndex].r = 0;
+	colors[kBlackIndex].g = 0;
+	colors[kBlackIndex].b = 0;
+	colors[kBlackIndex].a = 0;
+
+	colors[kWhiteIndex].r = 255;
+	colors[kWhiteIndex].g = 255;
+	colors[kWhiteIndex].b = 255;
+	colors[kWhiteIndex].a = 0;
+
+	colors[2].r = 16;
+	colors[2].g = 16;
+	colors[2].b = 16;
+	colors[2].a = 0;
+	colors[3].r = 36;
+	colors[3].g = 20;
+	colors[3].b = 20;
+	colors[3].a = 0;
+	colors[4].r = 56;
+	colors[4].g = 47;
+	colors[4].b = 47;
+	colors[4].a = 0;
+	gSearchMap->SetColors(colors, 0, 2);
+
+	gMap->SetColors(colors, 0, 5);
+
+	for (int r = 0; r < gNumRows; r++) {
+		for (int c = 0; c < gNumColumns; c++) {
+			int wall = (Core::RandomNumber(0, 3) ? 0 : 1);
+			gSearchMap->PutPixel(c, r, wall);
+			int wallColor = (wall ? (Core::RandomNumber(2, 4)) : kWhiteIndex);
+			GFX::rect rect(c * kBlockSize, r * kBlockSize,
+				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
+			gMap->FillRect(rect, wallColor);
 		}
 	}
 }
@@ -67,7 +89,7 @@ InitializeSearchMap()
 static bool
 IsWalkable(const IE::point& point)
 {
-	return gSearchMap->GetPixel(point.x, point.y) == 0;
+	return gSearchMap->GetPixel(point.x / kBlockSize, point.y / kBlockSize) == 0;
 }
 
 
@@ -90,19 +112,19 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 
 	// skip non walkable points
 	do {
-		start.y = Core::RandomNumber(0, gNumRows - 1);
+		start.y = Core::RandomNumber(0, gNumRowsMap - 1);
 	} while (!IsWalkable(start));
 
 	do {
-		end.y = Core::RandomNumber(0, gNumRows - 1);
+		end.y = Core::RandomNumber(0, gNumRowsMap - 1);
 	} while (!IsWalkable(end));
 
-	GraphicsEngine::BlitBitmap(gSearchMap, NULL, bitmap, NULL);
+	GraphicsEngine::BlitBitmap(gMap, NULL, bitmap, NULL);
 
 	gRed = bitmap->MapColor(255, 0, 0);
 	gGreen = bitmap->MapColor(0, 255, 0);
-	bitmap->StrokeCircle(start.x, start.y, 5, gRed);
-	bitmap->StrokeCircle(end.x, end.y, 5, gRed);
+	bitmap->StrokeCircle(start.x, start.y, 8, gRed);
+	bitmap->StrokeCircle(end.x, end.y, 8, gRed);
 #if DEBUG
 	p.SetDebug(plot_point);
 #endif
@@ -115,20 +137,23 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 
 int main()
 {
+	::srand(::time(NULL));
+
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
 
-	GraphicsEngine::Get()->SetVideoMode(gNumColumns, gNumRows, 16, 0);
+	GraphicsEngine::Get()->SetVideoMode(gNumColumnsMap, gNumRowsMap, 16, 0);
 
 	gSearchMap = new Bitmap(gNumColumns, gNumRows, 8);
-	gBitmap = new Bitmap(gNumColumns, gNumRows, 16);
+	gMap = new Bitmap(gNumColumnsMap, gNumRowsMap, 8);
+	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
 	PathFinder pathFinder(2, IsWalkable);
 	
 	IE::point start = { 0, 0 };
-	IE::point end = { gNumColumns, gNumRows };	
+	IE::point end = { gNumColumnsMap, gNumRowsMap };
 	while (!ResetState(pathFinder, gBitmap, start, end)) {
 		std::cout << "Path not found!" << std::endl;	
 	}
@@ -164,7 +189,7 @@ int main()
 		if (!pathFinder.IsEmpty()) {
 			IE::point point = pathFinder.NextWayPoint();
 			gBitmap->Lock();
-			gBitmap->FillCircle(point.x, point.y, 2, gGreen);
+			gBitmap->FillCircle(point.x, point.y, 3, gGreen);
 			gBitmap->Unlock();
 		}
 		GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
@@ -173,6 +198,7 @@ int main()
 	}
 	
 	gSearchMap->Release();
+	gMap->Release();
 	gBitmap->Release();
 
 	GraphicsEngine::Destroy();
