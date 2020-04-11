@@ -16,6 +16,7 @@ LOCALSOURCES= \
 ../resources/Resource.cpp \
 ../resources/TisResource.cpp \
 ../resources/TLKResource.cpp \
+../resources/WAVResource.cpp \
 ../resources/WedResource.cpp \
 ../resources/WMAPResource.cpp
 

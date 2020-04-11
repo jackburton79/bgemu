@@ -63,6 +63,8 @@ res_extension(int type)
 			return ".MVE";
 		case RES_TIS:
 			return ".TIS";
+		case RES_WAV:
+			return ".WAV";
 		case RES_WED:
 			return ".WED";
 		case RES_WMP:
@@ -109,6 +111,8 @@ res_string_to_type(const char* string)
 		return RES_IDS;
 	else if (!strcasecmp(ext, ".ITM"))
 		return RES_ITM;
+	else if (!strcasecmp(ext, ".WAV"))
+		return RES_WAV;	
 	return -1;
 }
 

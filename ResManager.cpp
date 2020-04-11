@@ -21,6 +21,7 @@
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "Utils.h"
+#include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
 
