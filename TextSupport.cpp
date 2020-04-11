@@ -2,7 +2,7 @@
  * TextDrawing.cpp
  *
  *  Created on: 03/set/2013
- *      Author: stefano
+ *      Author: Stefano Ceccherini
  */
 
 #include "TextSupport.h"
