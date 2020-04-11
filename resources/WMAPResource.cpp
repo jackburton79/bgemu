@@ -184,15 +184,14 @@ AreaEntry::Icon() const
 }
 
 
-char*
+std::string
 AreaEntry::TooltipName() const
 {
 	TLKEntry* entry = Dialogs()->EntryAt(fEntry.tooltip_ref);
 	if (entry == NULL)
 		return NULL;
 
-	std::cout << "tooltip: " << entry->string << std::endl;
-	char* toolTip = strdup(entry->string);
+	std::string toolTip = entry->text;
 	
 	delete entry;
 	return toolTip;

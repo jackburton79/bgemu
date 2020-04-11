@@ -120,7 +120,7 @@ public:
 	const Bitmap* Icon() const;
 	res_ref Name() const;
 	const char* LongName() const;
-	char* TooltipName() const;
+	std::string TooltipName() const;
 	res_ref LoadingScreenName() const;
 
 private:
