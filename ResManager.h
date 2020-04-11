@@ -109,11 +109,12 @@ private:
 extern ResourceManager *gResManager;
 
 TLKResource* Dialogs();
-
+class TLKEntry;
 class IDTable {
 public:
 	static std::string GetDialog(uint32 i);
-	
+	static TLKEntry* GetTLK(uint32 i);
+
 	static std::string RandomColorAt(uint32 i);
 	static std::string AlignmentAt(uint32 i);
 	static std::string GeneralAt(uint32 i);

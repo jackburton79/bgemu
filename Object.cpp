@@ -206,7 +206,7 @@ Object::ExecuteActions()
 			delete *i;
 			i = fActions.erase(i);
 		} else {
-			std::cout << Name() << " executing " << action.Name() << std::endl;
+			//std::cout << Name() << " executing " << action.Name() << std::endl;
 			action();
 			break;
 		}

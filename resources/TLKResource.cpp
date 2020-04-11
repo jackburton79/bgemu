@@ -73,11 +73,14 @@ TLKResource::EntryAt(int32 index)
 	if (index < 0 || index >= fNumEntries)
 		return NULL;
 
+	std::cout << "tlk_entry " << index << ": " << std::endl;
 	TLKEntry *newEntry = new TLKEntry;
 	tlk_entry entry;
 	fData->ReadAt(18 + sizeof(entry) * index, entry);
-		
-	if (entry.string_length > 0)
+	std::cout << "flags: " << entry.flags << std::endl;
+	if (entry.flags & TLK_SOUND)
+		newEntry->sound_ref = entry.sound;
+	if (entry.flags & TLK_TEXT)
 		_ReadString(entry.string_offset, newEntry->text, entry.string_length);
 
 	return newEntry;

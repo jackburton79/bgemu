@@ -12,6 +12,8 @@
 #include "Script.h"
 #include "TextSupport.h"
 #include "Timer.h"
+// TODO: Remove this dependency
+#include "TLKResource.h"
 
 #include <algorithm>
 #include <cxxabi.h>
@@ -915,12 +917,14 @@ DisplayStringHead::operator()()
 			SetCompleted();
 		IE::point point = actor->Position();
 		point.y -= 100;
-		std::string string = IDTable::GetDialog(fActionParams->integer1);
+		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
+		std::string string = tlkEntry->text;
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
 		// TODO: Center string
 		// we multiply by 15 because DisplayString() accepts ms, but duration
 		// is specified in AI update times
 		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration *  15);
+		delete tlkEntry;
 	}
 	if (fDuration-- <= 0) {
 		SetCompleted();

@@ -5,10 +5,12 @@
 
 #include <string>
 
-struct TLKEntry {
+class TLKEntry {
+public:
 	TLKEntry();
 	~TLKEntry();
 	std::string text;
+	res_ref sound_ref;
 };
 
 

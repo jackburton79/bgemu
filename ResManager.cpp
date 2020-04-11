@@ -777,16 +777,24 @@ std::string
 IDTable::GetDialog(uint32 i)
 {
 	std::string text;
-	if (sDialogs == NULL)
-		sDialogs = gResManager->GetTLK(kDialogResource);
-	if (sDialogs != NULL) {
-		TLKEntry* entry = sDialogs->EntryAt(i);
-		if (entry != NULL) {
-			text = entry->string;
-			delete entry;
-		}
+	TLKEntry* entry = GetTLK(i);
+	if (entry != NULL) {
+		text = entry->text;
+		delete entry;
 	}
 	return text;
+}
+
+
+TLKEntry*
+IDTable::GetTLK(uint32 i)
+{
+	if (sDialogs == NULL)
+		sDialogs = gResManager->GetTLK(kDialogResource);
+	if (sDialogs != NULL)
+		return sDialogs->EntryAt(i);
+	assert(sDialogs != NULL);	
+	return NULL;
 }
 
 

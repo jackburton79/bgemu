@@ -272,7 +272,7 @@ Core::StartCutscene(const res_ref& scriptName)
 	::Script* script = ExtractScript(scriptName);
 	bool continuing = false;
 	if (script != NULL) {
-		std::cout << "Executing script" << std::endl;
+		//std::cout << "Executing script" << std::endl;
 		// TODO: not nice. but it will be changed in the cutscene script
 		//script->SetSender(fCurrentRoom);
 		script->Execute(continuing);
