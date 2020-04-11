@@ -918,12 +918,12 @@ DisplayStringHead::operator()()
 		IE::point point = actor->Position();
 		point.y -= 100;
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
-		std::string string = tlkEntry->text;
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
 		// TODO: Center string
 		// we multiply by 15 because DisplayString() accepts ms, but duration
 		// is specified in AI update times
-		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration *  15);
+		GUI::Get()->DisplayStringCentered(tlkEntry->text, point.x, point.y, fDuration *  15);
+		Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
 	if (fDuration-- <= 0) {
