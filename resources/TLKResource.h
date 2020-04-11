@@ -3,10 +3,12 @@
 
 #include "Resource.h"
 
+#include <string>
+
 struct TLKEntry {
 	TLKEntry();
 	~TLKEntry();
-	char *string;
+	std::string text;
 };
 
 
@@ -24,7 +26,7 @@ public:
 private:
 	virtual ~TLKResource();
 
-	void _ReadString(int32 offset, char *&string, int32 length);
+	void _ReadString(int32 offset, std::string &text, int32 length);
 
 	int32 fNumEntries;
 	uint32 fDataOffset;

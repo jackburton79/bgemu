@@ -7,6 +7,15 @@
 #define TLK_SIGNATURE "TLK "
 #define TLK_VERSION_1 "V1  "
 
+
+enum tlk_flags {
+	TLK_NO_MESSAGE_DATA = 0,
+	TLK_TEXT = 1,
+	TLK_SOUND = 1 << 1,
+	TLK_STANDARD = 1 << 2,
+	TLK_TOKEN = 1 << 3
+};
+
 struct tlk_entry {
 	uint16 flags;
 	res_ref sound;
@@ -67,19 +76,20 @@ TLKResource::EntryAt(int32 index)
 	TLKEntry *newEntry = new TLKEntry;
 	tlk_entry entry;
 	fData->ReadAt(18 + sizeof(entry) * index, entry);
+		
 	if (entry.string_length > 0)
-		_ReadString(entry.string_offset, (char*&)newEntry->string, entry.string_length);
+		_ReadString(entry.string_offset, newEntry->text, entry.string_length);
 
 	return newEntry;
 }
 
 
 void
-TLKResource::_ReadString(int32 offset, char *&string, int32 length)
+TLKResource::_ReadString(int32 offset, std::string& text, int32 length)
 {
-	string = (char*)malloc(length + 1);
-	fData->ReadAt(fDataOffset + offset, string, length);
-	string[length] = '\0';
+	text.resize(length + 1);	
+	fData->ReadAt(fDataOffset + offset, &text[0], length);
+	text[length] = '\0';
 }
 
 
@@ -89,7 +99,10 @@ TLKResource::DumpEntries()
 	for (int32 i = 0; i < fNumEntries; i++) {
 		TLKEntry *entry = EntryAt(i);
 		if (entry != NULL) {
-			printf("entry %d: %s\n", i, entry->string);
+			std::cout << "Entry " << i << ":" << std::endl;
+			//std::cout << "flags: " << entry->flags << std::endl;
+			//if (entry->flags & TLK_TEXT)
+				std::cout << entry->text << std::endl;
 			delete entry;
 		}
 	}
@@ -98,14 +111,11 @@ TLKResource::DumpEntries()
 
 // TLKEntry
 TLKEntry::TLKEntry()
-	:
-	string(NULL)
 {
 }
 
 
 TLKEntry::~TLKEntry()
 {
-	free((char*)string);
 }
 
