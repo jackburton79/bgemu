@@ -16,15 +16,15 @@ struct wav_header {
 	uint8 wave[4];			// WAVE string
 	uint8 fmt_chunk_marker[4];	// fmt string with trailing null char
 	uint32 length_of_fmt;		// length of the format data
-	uint32 format_type;		// format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
-	uint32 channels;		// no.of channels
+	uint16 format_type;		// format type. 1-PCM, 3- IEEE float, 6 - 8bit A law, 7 - 8bit mu law
+	uint16 channels;		// no.of channels
 	uint32 sample_rate;		// sampling rate (blocks per second)
 	uint32 byterate;		// SampleRate * NumChannels * BitsPerSample/8
-	uint32 block_align;		// NumChannels * BitsPerSample/8
-	uint32 bits_per_sample;		// bits per sample, 8- 8bits, 16- 16 bits etc
+	uint16 block_align;		// NumChannels * BitsPerSample/8
+	uint16 bits_per_sample;		// bits per sample, 8- 8bits, 16- 16 bits etc
 	uint8 data_chunk_header[4];	// DATA string or FLLR string
 	uint32 data_size;		// NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
-};
+} __attribute__((packed));
 
 
 WAVResource::WAVResource(const res_ref& name)
@@ -171,85 +171,75 @@ WAVResource::Dump()
 
 	// read each sample from data chunk if PCM
 	if (header.format_type == 1) { // PCM
-		printf("Dump sample data? Y/N?");
-		char c = fData->ReadByte();
-		if (c == 'Y' || c == 'y') { 
-			long i =0;
-			char data_buffer[size_of_each_sample];
-			int  size_is_correct = true;
+		int32 i =0;
+		char data_buffer[size_of_each_sample];
+		bool size_is_correct = true;
+		// make sure that the bytes-per-sample is completely divisible by num.of channels
+		int32 bytes_in_each_channel = (size_of_each_sample / header.channels);
+		if ((bytes_in_each_channel  * header.channels) != size_of_each_sample) {
+			printf("Error: %d x %d <> %ld\n", bytes_in_each_channel, header.channels, size_of_each_sample);
+			size_is_correct = false;
+		}
 	
-			// make sure that the bytes-per-sample is completely divisible by num.of channels
-			long bytes_in_each_channel = (size_of_each_sample / header.channels);
-			if ((bytes_in_each_channel  * header.channels) != size_of_each_sample) {
-				printf("Error: %ld x %ud <> %ld\n", bytes_in_each_channel, header.channels, size_of_each_sample);
-				size_is_correct = false;
-			}
-	 
-			if (size_is_correct) { 
-						// the valid amplitude range for values based on the bits per sample
-				long low_limit = 0l;
-				long high_limit = 0l;
+		if (size_is_correct) { 
+			// the valid amplitude range for values based on the bits per sample
+			int32 low_limit = 0l;
+			int32 high_limit = 0l;
 	
-				switch (header.bits_per_sample) {
-					case 8:
-						low_limit = -128;
-						high_limit = 127;
-						break;
-					case 16:
-						low_limit = -32768;
-						high_limit = 32767;
+			switch (header.bits_per_sample) {
+				case 8:
+					low_limit = -128;
+					high_limit = 127;
 					break;
-				case 32:
-					low_limit = -2147483648;
-					high_limit = 2147483647;
-					break;
-				}					
+				case 16:
+					low_limit = -32768;
+					high_limit = 32767;
+				break;
+			case 32:
+				low_limit = -2147483648;
+				high_limit = 2147483647;
+				break;
+			}					
 
-				printf("\n\n.Valid range for data values : %ld to %ld \n", low_limit, high_limit);
-				for (i =1; i <= num_samples; i++) {
-					printf("==========Sample %ld / %ld=============\n", i, num_samples);
-					fData->Read(data_buffer, sizeof(data_buffer));
-					if (read == 1) {
-					
-						// dump the data read
-						unsigned int  xchannels = 0;
-						int data_in_channel = 0;
-	
-						for (xchannels = 0; xchannels < header.channels; xchannels ++ ) {
-							printf("Channel#%d : ", (xchannels+1));
-							// convert data from little endian to big endian based on bytes in each channel sample
-							if (bytes_in_each_channel == 4) {
-								data_in_channel =	data_buffer[0] | 
-													(data_buffer[1]<<8) | 
-													(data_buffer[2]<<16) | 
-													(data_buffer[3]<<24);
-							}
-							else if (bytes_in_each_channel == 2) {
-								data_in_channel = data_buffer[0] |
-													(data_buffer[1] << 8);
-							}
-							else if (bytes_in_each_channel == 1) {
-								data_in_channel = data_buffer[0];
-							}
-	
-							printf("%d ", data_in_channel);
-	
-							// check if value was in range
-							if (data_in_channel < low_limit || data_in_channel > high_limit)
-								printf("**value out of range\n");
-	
-							printf(" | ");
+			printf("\n\n.Valid range for data values : %d to %d \n", low_limit, high_limit);
+			for (i =1; i <= num_samples; i++) {
+				printf("==========Sample %d / %ld=============\n", i, num_samples);
+				fData->Read(data_buffer, sizeof(data_buffer));
+				if (read == 1) {
+					// dump the data read
+					uint32 xchannels = 0;
+					int32 data_in_channel = 0;
+					for (xchannels = 0; xchannels < header.channels; xchannels ++ ) {
+						printf("Channel#%d : ", (xchannels+1));
+						// convert data from little endian to big endian based on bytes in each channel sample
+						if (bytes_in_each_channel == 4) {
+							data_in_channel =	data_buffer[0] | 
+												(data_buffer[1]<<8) | 
+												(data_buffer[2]<<16) | 
+												(data_buffer[3]<<24);
+						}
+						else if (bytes_in_each_channel == 2) {
+							data_in_channel = data_buffer[0] |
+												(data_buffer[1] << 8);
+						}
+						else if (bytes_in_each_channel == 1) {
+							data_in_channel = data_buffer[0];
 						}
 	
-						printf("\n");
+						printf("%d ", data_in_channel);
+							// check if value was in range
+						if (data_in_channel < low_limit || data_in_channel > high_limit)
+							printf("**value out of range\n");	
+						printf(" | ");
 					}
-					else {
-						printf("Error reading file. %d bytes\n", read);
-						break;
-					}
+					printf("\n");
+				}
+				else {
+					printf("Error reading file. %d bytes\n", read);
+					break;
 				}
 			}
-		} 
-	}
+		}
+	} 
 }
 
