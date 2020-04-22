@@ -922,7 +922,11 @@ DisplayStringHead::operator()()
 		// TODO: Center string
 		// we multiply by 15 because DisplayString() accepts ms, but duration
 		// is specified in AI update times
-		GUI::Get()->DisplayStringCentered(tlkEntry->text, point.x, point.y, fDuration *  15);
+		std::string string = tlkEntry->text;
+		string.append(" (");
+		string.append(tlkEntry->sound_ref.CString());
+		string.append(")");
+		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration *  15);
 		Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
