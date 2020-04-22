@@ -63,8 +63,7 @@ Font::StringWidth(const std::string& string, uint16* height) const
 
 
 void
-Font::RenderString(std::string string,
-					uint32 flags, Bitmap* bitmap) const
+Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap) const
 {
 	GFX::rect frame = bitmap->Frame();
 	_RenderString(string, flags, bitmap, &frame, NULL);
@@ -72,8 +71,7 @@ Font::RenderString(std::string string,
 
 
 void
-Font::RenderString(std::string string,
-					uint32 flags, Bitmap* bitmap,
+Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 					const GFX::rect& rect) const
 {
 	_RenderString(string, flags, bitmap, &rect, NULL);
@@ -81,8 +79,7 @@ Font::RenderString(std::string string,
 
 
 void
-Font::RenderString(std::string string,
-					uint32 flags, Bitmap* bitmap,
+Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 					const GFX::point& point) const
 {
 	_RenderString(string, flags, bitmap, NULL, &point);	
@@ -95,26 +92,24 @@ Font::_LoadGlyphs(const std::string& fontName)
 	BAMResource* fontRes = gResManager->GetBAM(fontName.c_str());
 	if (fontRes == NULL)
 		return;
-
+	fTransparentIndex = fontRes->TransparentIndex();
 	for (int c = 32; c < 256; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);
 		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
 		if (glyph != NULL) {
+			glyph->SetColorKey(fTransparentIndex, true);
 			fGlyphs[c] = glyph;
 		} else {
 			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
 			break;
 		}
 	}
-
-	fTransparentIndex = fontRes->TransparentIndex();
 	gResManager->ReleaseResource(fontRes);
 }
 
 
 void
-Font::_RenderString(std::string string,
-					uint32 flags, Bitmap* bitmap,
+Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
 {
