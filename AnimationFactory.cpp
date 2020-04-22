@@ -114,8 +114,9 @@ AnimationFactory::AnimationFor(int action, int orientation, CREColors* colors)
 	} catch (...) {
 		animation = NULL;
 	}
-
+#if 0
 	std::cout << std::hex << fID << " " << description.bam_name << std::endl;
+#endif
 	return animation;
 }
 
