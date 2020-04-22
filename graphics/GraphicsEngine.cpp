@@ -206,10 +206,9 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 
 	SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
 	                                        0, 0, 0, 0);
-	fSDLTexture = SDL_CreateTexture(fSDLRenderer,
-								SDL_PIXELFORMAT_RGB888,
-	                            SDL_TEXTUREACCESS_STREAMING,
-								width, height);
+	fSDLTexture = SDL_CreateTexture(fSDLRenderer, SDL_PIXELFORMAT_RGB888,
+						SDL_TEXTUREACCESS_STREAMING,
+						width, height);
 
 	fScreen = new Bitmap(surface, false);
 	fFlags = flags;
