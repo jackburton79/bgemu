@@ -8,7 +8,8 @@
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
 
-struct point_node;
+typedef std::list<IE::point> PointList;
+
 class PathFinder {
 public:
 	const static int kStep = 5;
@@ -19,7 +20,7 @@ public:
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	void GetPoints(std::list<IE::point> points) const;
+	void GetPoints(PointList points) const;
 
 	void SetDebug(debug_function callback);
 	
@@ -28,7 +29,8 @@ public:
 
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 private:
-	std::list<IE::point> fPoints;
+	PointList fPoints;
+	IE::point fGoal;
 
 	test_function fTestFunction;
 	int fStep;
@@ -39,18 +41,11 @@ private:
 
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
-	void _AddIfPassable(const IE::point& point,
-			const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList);
-	void _AddNeighbors(const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList);
-	void _UpdateNodeCost(point_node* node, const point_node& current) const;
-	point_node* _GetCheapestNode(std::list<point_node*>& list,
-			const IE::point& end);
+	void _AddNeighbors(const IE::point& current, PointList& openList);
+	IE::point _GetCheapestNode(PointList& list, const IE::point& end);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
+	void _ReconstructPath(PointList& openList);
 };
 
 
