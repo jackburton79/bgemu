@@ -147,30 +147,35 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	std::list<point_node*> closedList;
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
+	currentNode->cost_to_goal = Distance(currentNode->point, end)
+		+ currentNode->cost;
 	openList.push_back(currentNode);
 
 	uint32 tries = PATHFIND_MAX_TRIES;
-	bool notFound = false;
+	bool found = false;
 	while (!openList.empty()) {
-		_AddNeighbors(*currentNode, openList, closedList, end);
+		currentNode = _GetCheapestNode(openList);
+#if 0
+		std::cout << "try " << tries << std::endl;
+		std::cout << "cost to goal: " << currentNode->cost_to_goal << std::endl;
+#endif
+		if (currentNode == NULL || --tries == 0)
+			break;
 
+		if (PointSufficientlyClose(currentNode->point, end)) {
+			found = true;
+			break;
+		}
+
+		_AddNeighbors(*currentNode, openList, closedList, end);
 		openList.remove(currentNode);
 		closedList.push_back(currentNode);
 
 		if (fDebugFunction != NULL)
 			fDebugFunction(currentNode->point);
-
-		if (PointSufficientlyClose(currentNode->point, end))
-			break;
-
-		currentNode = _GetCheapestNode(openList);
-		if (currentNode == NULL || --tries == 0) {
-			notFound = true;
-			break;
-		}
 	}
 
-	if (notFound) {
+	if (!found) {
 		// TODO: Destination is unreachable.
 		// Try to find a reachable point near destination
 		EmptyList(closedList);
