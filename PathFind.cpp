@@ -108,7 +108,7 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 
 
 static void
-EmptyList(std::list<point_node*> pointList)
+EmptyList(NodeList pointList)
 {
 	NodeList::iterator i;
 	for (i = pointList.begin(); i != pointList.end(); i++) {
@@ -282,14 +282,14 @@ PathFinder::_AddNeighbors(const point_node& node,
 		NodeList& closedList,
 		const IE::point& goal)
 {
-	_AddIfPassable(offset_point(node.point, fStep, 0), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, fStep, fStep), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, 0, fStep), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, -fStep, fStep), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, -fStep, 0), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, -fStep, -fStep), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, fStep, -fStep), node, openList, closedList, goal);
-	_AddIfPassable(offset_point(node.point, 0, -fStep), node, openList, closedList, goal);
+	for (int x = -fStep; x <= fStep; x += fStep) {
+		for (int y = -fStep; y <= fStep; y += fStep) {
+			if (x == 0 && y == 0)
+				continue;
+			_AddIfPassable(offset_point(node.point, x, y),
+				node, openList, closedList, goal);
+		}
+	}
 }
 
 
