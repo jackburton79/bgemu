@@ -9,7 +9,22 @@
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
 
-typedef std::map<IE::point, uint32> PointsMap;
+struct point_node {
+	point_node(IE::point p, const point_node* parentNode, int nodeCost)
+		:
+		point(p),
+		parent(parentNode),
+		cost(nodeCost),
+		cost_to_goal(UINT_MAX)
+	{
+	};
+	const IE::point point;
+	const struct point_node* parent;
+	uint32 cost;
+	uint32 cost_to_goal;
+};
+
+typedef std::list<point_node*> NodeList;
 
 struct point_node;
 class PathFinder {
@@ -44,15 +59,15 @@ private:
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList,
+			NodeList& openList,
+			NodeList& closedList,
 			const IE::point& goal);
 	void _AddNeighbors(const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList, const IE::point& goal);
+			NodeList& openList,
+			NodeList& closedList, const IE::point& goal);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
-	point_node* _GetCheapestNode(std::list<point_node*>& list);
+	point_node* _GetCheapestNode(NodeList& list);
 	void _ReconstructPath(point_node* goal);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
