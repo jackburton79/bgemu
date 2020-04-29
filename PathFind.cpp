@@ -179,18 +179,10 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	}
 
 	EmptyList(openList);
-	std::list<point_node*>::reverse_iterator r = closedList.rbegin();
-	point_node* walkNode = *r;
-	for (;;) {
-		fPoints.push_front(walkNode->point);
-		const point_node* parent = walkNode->parent;
-		if (parent == NULL)
-			break;
-		walkNode = const_cast<point_node*>(parent);
-	}
 
+	std::list<point_node*>::reverse_iterator last = closedList.rbegin();
+	_ReconstructPath(*last);
 	EmptyList(closedList);
-	assert (PointSufficientlyClose(fPoints.back(), end));
 	
 	// remove the "current" position, it's useless
 	fPoints.erase(fPoints.begin());
@@ -342,6 +334,20 @@ PathFinder::_GetCheapestNode(std::list<point_node*>& list)
 	}
 
 	return result;
+}
+
+
+void
+PathFinder::_ReconstructPath(point_node* goal)
+{
+	point_node* walkNode = goal;
+	for (;;) {
+		fPoints.push_front(walkNode->point);
+		const point_node* parent = walkNode->parent;
+		if (parent == NULL)
+			break;
+		walkNode = const_cast<point_node*>(parent);
+	}
 }
 
 

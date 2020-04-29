@@ -53,6 +53,7 @@ private:
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
 	point_node* _GetCheapestNode(std::list<point_node*>& list);
+	void _ReconstructPath(point_node* goal);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
 };
