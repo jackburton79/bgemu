@@ -17,9 +17,6 @@ const int16 gNumRowsMap = 600;
 const int16 gNumColumnsMap = 600;
 const int kBlockSize = 8;
 
-int16 gNumRows = 600;
-int16 gNumColumns = 600;
-
 uint32 gRed;
 uint32 gGreen;
 
@@ -42,8 +39,8 @@ plot_point(const IE::point& pt)
 static void
 InitializeSearchMap()
 {
-	gNumRows = gNumRowsMap / kBlockSize;
-	gNumColumns = gNumColumnsMap / kBlockSize;
+	int16 numRows = gNumRowsMap / kBlockSize;
+	int16 numColumns = gNumColumnsMap / kBlockSize;
 
 	GFX::Color colors[256];
 
@@ -73,8 +70,8 @@ InitializeSearchMap()
 
 	gMap->SetColors(colors, 0, 5);
 
-	for (int r = 0; r < gNumRows; r++) {
-		for (int c = 0; c < gNumColumns; c++) {
+	for (int r = 0; r < numRows; r++) {
+		for (int c = 0; c < numColumns; c++) {
 			int wall = (Core::RandomNumber(0, 3) ? 0 : 1);
 			gSearchMap->PutPixel(c, r, wall);
 			int wallColor = (wall ? (Core::RandomNumber(2, 4)) : kWhiteIndex);
@@ -147,7 +144,10 @@ int main()
 
 	GraphicsEngine::Get()->SetVideoMode(gNumColumnsMap, gNumRowsMap, 16, 0);
 
-	gSearchMap = new Bitmap(gNumColumns, gNumRows, 8);
+	int16 numRows = gNumRowsMap / kBlockSize;
+	int16 numColumns = gNumColumnsMap / kBlockSize;
+
+	gSearchMap = new Bitmap(numColumns, numRows, 8);
 	gMap = new Bitmap(gNumColumnsMap, gNumRowsMap, 8);
 	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
