@@ -15,12 +15,14 @@ struct point_node {
 		:
 		point(p),
 		parent(parentNode),
-		cost(nodeCost)
+		cost(nodeCost),
+		cost_to_goal(UINT_MAX)
 	{
 	};
 	const IE::point point;
 	const struct point_node* parent;
-	int cost;
+	uint32 cost;
+	uint32 cost_to_goal;
 };
 
 
@@ -40,6 +42,23 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 {
 	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep)
 		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep);
+}
+
+
+static inline uint32
+Distance(const IE::point& start, const IE::point& end)
+{
+#if 0
+	// Manhattan method
+	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
+		std::abs(end.y - start.y)));
+#else
+	// Movement distance
+	uint32 distance = (uint32)std::max((std::abs(end.x - start.x)),
+		std::abs(end.y - start.y));
+#endif
+	// We multiply by 10 since minimum movement cost is 10
+	return distance * 10;
 }
 
 
@@ -132,8 +151,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool notFound = false;
-	for (;;) {
-		_AddNeighbors(*currentNode, openList, closedList);
+	while (!openList.empty()) {
+		_AddNeighbors(*currentNode, openList, closedList, end);
 
 		openList.remove(currentNode);
 		closedList.push_back(currentNode);
@@ -250,7 +269,8 @@ void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
 		std::list<point_node*>& openList,
-		std::list<point_node*>& closedList)
+		std::list<point_node*>& closedList,
+		const IE::point& goal)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsReachable(current.point, point))
@@ -261,66 +281,49 @@ PathFinder::_AddIfPassable(const IE::point& point,
 				std::find_if(closedList.begin(), closedList.end(),
 							FindPoint(point));
 	if (i != closedList.end()) {
-		_UpdateNodeCost(*i, current);
+		_UpdateNodeCost(*i, current, goal);
 		return;
 	}
 
+	point_node* node = NULL;
 	i = std::find_if(openList.begin(), openList.end(), FindPoint(point));
 	if (i != openList.end()) {
-		// Point is already on the open list.
-		// Check if getting through the point from this point
-		// is cheaper. If so, set this as parent.
-		_UpdateNodeCost(*i, current);
+		node = *i;
 	} else {
-		const int cost = MovementCost(point, current.point) + current.cost;
-		point_node* newNode = new point_node(point, &current, cost);
-		openList.push_back(newNode);
+		node = new point_node(point, &current, UINT_MAX);
+		openList.push_back(node);
 	}
+	_UpdateNodeCost(node, current, goal);
 }
 
 
 void
 PathFinder::_AddNeighbors(const point_node& node,
-			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList)
+		std::list<point_node*>& openList,
+		std::list<point_node*>& closedList,
+		const IE::point& goal)
 {
-	_AddIfPassable(offset_point(node.point, fStep, 0), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, fStep, fStep), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, 0, fStep), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, -fStep, fStep), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, -fStep, 0), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, -fStep, -fStep), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, fStep, -fStep), node, openList, closedList);
-	_AddIfPassable(offset_point(node.point, 0, -fStep), node, openList, closedList);
+	_AddIfPassable(offset_point(node.point, fStep, 0), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, fStep, fStep), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, 0, fStep), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, -fStep, fStep), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, -fStep, 0), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, -fStep, -fStep), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, fStep, -fStep), node, openList, closedList, goal);
+	_AddIfPassable(offset_point(node.point, 0, -fStep), node, openList, closedList, goal);
 }
 
 
 void
-PathFinder::_UpdateNodeCost(point_node* node, const point_node& current) const
+PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
 {
-	const int newCost = MovementCost(current.point,
+	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
 	if (newCost < node->cost) {
 		node->parent = &current;
 		node->cost = newCost;
+		node->cost_to_goal = Distance(node->point, goal) + node->cost;
 	}
-}
-
-
-static inline uint32
-Distance(const IE::point& start, const IE::point& end)
-{
-#if 0
-	// Manhattan method
-	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
-		std::abs(end.y - start.y)));
-#else
-	// Movement distance
-	uint32 distance = (uint32)std::max((std::abs(end.x - start.x)),
-		std::abs(end.y - start.y));
-#endif
-	// We multiply by 10 since minimum movement cost is 10
-	return distance * 10;
 }
 
 
@@ -333,11 +336,9 @@ PathFinder::_GetCheapestNode(std::list<point_node*>& list,
 	for (std::list<point_node*>::const_iterator i = list.begin();
 			i != list.end(); i++) {
 		point_node* node = *i;
-		const uint32 totalCost = Distance(node->point, end)
-										+ node->cost;
-		if (totalCost < minCost) {
+		if (node->cost_to_goal < minCost) {
 			result = node;
-			minCost = totalCost;
+			minCost = node->cost_to_goal;
 		}
 	}
 

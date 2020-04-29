@@ -4,9 +4,12 @@
 #include "IETypes.h"
 
 #include <list>
+#include <map>
 
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
+
+typedef std::map<IE::point, uint32> PointsMap;
 
 struct point_node;
 class PathFinder {
@@ -22,7 +25,7 @@ public:
 	void GetPoints(std::list<IE::point> points) const;
 
 	void SetDebug(debug_function callback);
-	
+
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
@@ -34,7 +37,7 @@ private:
 	int fStep;
 
 	debug_function fDebugFunction;
-	
+
 	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
 
 	bool _IsPassable(const IE::point& point) const;
@@ -42,11 +45,13 @@ private:
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
 			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList);
+			std::list<point_node*>& closedList,
+			const IE::point& goal);
 	void _AddNeighbors(const point_node& node,
 			std::list<point_node*>& openList,
-			std::list<point_node*>& closedList);
-	void _UpdateNodeCost(point_node* node, const point_node& current) const;
+			std::list<point_node*>& closedList, const IE::point& goal);
+	void _UpdateNodeCost(point_node* node, const point_node& current,
+			const IE::point& goal) const;
 	point_node* _GetCheapestNode(std::list<point_node*>& list,
 			const IE::point& end);
 
