@@ -163,7 +163,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (PointSufficientlyClose(currentNode->point, end))
 			break;
 
-		currentNode = _GetCheapestNode(openList, end);
+		currentNode = _GetCheapestNode(openList);
 		if (currentNode == NULL || --tries == 0) {
 			notFound = true;
 			break;
@@ -328,8 +328,7 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 
 
 point_node*
-PathFinder::_GetCheapestNode(std::list<point_node*>& list,
-		const IE::point& end)
+PathFinder::_GetCheapestNode(std::list<point_node*>& list)
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
