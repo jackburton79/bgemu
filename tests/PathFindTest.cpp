@@ -13,8 +13,8 @@ Bitmap* gMap;
 Bitmap* gSearchMap;
 Bitmap* gBitmap;
 
-int16 gNumRowsMap = 600;
-int16 gNumColumnsMap = 600;
+const int16 gNumRowsMap = 600;
+const int16 gNumColumnsMap = 600;
 const int kBlockSize = 8;
 
 int16 gNumRows = 600;
@@ -137,8 +137,9 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 
 int main()
 {
+#if 0
 	::srand(::time(NULL));
-
+#endif
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
