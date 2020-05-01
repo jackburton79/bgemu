@@ -8,7 +8,7 @@
 #include <memory>
 #include <limits.h>
 
-#define PATHFIND_MAX_TRIES 4000
+#define PATHFIND_MAX_TRIES 10000
 
 struct FindPoint {
 	FindPoint(const IE::point& point)
@@ -24,8 +24,13 @@ struct FindPoint {
 static bool
 PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 {
+#if 0
+	return pointA == pointB;
+#else
+
 	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep)
 		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep);
+#endif
 }
 
 
