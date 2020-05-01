@@ -4,10 +4,12 @@
 
 #include "SDL.h"
 
+#include <getopt.h>
 #include <cstdlib>
 #include <iostream>
 
-#define DEBUG 0
+static int sDebug = 0;
+static int sRandom = 0;
 
 Bitmap* gMap;
 Bitmap* gSearchMap;
@@ -23,7 +25,15 @@ uint32 gGreen;
 int kBlackIndex = 0;
 int kWhiteIndex = 1;
 
-#if DEBUG
+
+static
+struct option sLongOptions[] = {
+		{ "random", no_argument, NULL, 'r' },
+		{ "debug", no_argument, &sDebug, 'D' },
+		{ 0, 0, 0, 0 }
+};
+
+
 static void
 plot_point(const IE::point& pt)
 {
@@ -33,7 +43,6 @@ plot_point(const IE::point& pt)
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 	GraphicsEngine::Get()->Flip();
 }
-#endif
 
 
 static void
@@ -122,9 +131,9 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 8, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 8, gRed);
-#if DEBUG
-	p.SetDebug(plot_point);
-#endif
+	if (sDebug)
+		p.SetDebug(plot_point);
+
 	if (!NewPath(p, start, end))
 		return false;
 
@@ -132,11 +141,34 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 }
 
 
-int main()
+static void
+ParseArgs(int argc, char **argv)
 {
-#if 0
-	::srand(::time(NULL));
-#endif
+	int optIndex = 0;
+	int c = 0;
+	while ((c = getopt_long(argc, argv, "g:p:Ds:ltnf",
+				sLongOptions, &optIndex)) != -1) {
+		switch (c) {
+			case 'D':
+				sDebug = 1;
+				break;
+			case 'r':
+				sRandom = 1;
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+
+int main(int argc, char **argv)
+{
+	ParseArgs(argc, argv);
+
+	if (sRandom)
+		::srand(::time(NULL));
+
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
