@@ -3,6 +3,7 @@
 
 #include "IETypes.h"
 
+#include <climits>
 #include <list>
 #include <map>
 
