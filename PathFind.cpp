@@ -37,7 +37,7 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
-#if 0
+#if 1
 	// Manhattan method
 	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
 		std::abs(end.y - start.y)));
