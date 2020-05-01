@@ -10,6 +10,9 @@
 
 #define PATHFIND_MAX_TRIES 10000
 
+const int kMovementCost = 10;
+const int kDiagMovementCost = 14;
+
 struct FindPoint {
 	FindPoint(const IE::point& point)
 		: toFind(point) {};
@@ -47,7 +50,7 @@ Distance(const IE::point& start, const IE::point& end)
 		std::abs(end.y - start.y));
 #endif
 	// We multiply by 10 since minimum movement cost is 10
-	return distance * 10;
+	return distance * kMovementCost;
 }
 
 
@@ -188,7 +191,8 @@ PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 {
 	// Movement cost. Bigger when moving diagonally
 	return (std::abs(pointA.x - pointB.x) < fStep)
-			|| (std::abs(pointA.y - pointB.y) < fStep) ? 10 : 14;
+			|| (std::abs(pointA.y - pointB.y) < fStep) ?
+				 kMovementCost : kDiagMovementCost;
 }
 
 
