@@ -105,8 +105,11 @@ NewPath(PathFinder& p, IE::point& start, IE::point& end)
 	clock_t startTime = clock();
 	p.SetPoints(start, end);
 
-	if (!p.IsEmpty())
-		std::cout << "Path found in " << (clock() - startTime) / 1000 << " ms" << std::endl;
+	clock_t elapsed = (clock() - startTime) / 1000;
+	if (p.IsEmpty())
+		std::cout << "Path not found (" << elapsed << "ms)" << std::endl;
+	else
+		std::cout << "Path found (" << elapsed << " ms)" << std::endl;
 	return !p.IsEmpty();
 }
 
@@ -187,9 +190,8 @@ int main(int argc, char **argv)
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumnsMap, gNumRowsMap };
-	while (!ResetState(pathFinder, gBitmap, start, end)) {
-		std::cout << "Path not found!" << std::endl;	
-	}
+	while (!ResetState(pathFinder, gBitmap, start, end))
+		;
 		
 	SDL_Event event;
 	bool quitting = false;
@@ -200,7 +202,7 @@ int main(int argc, char **argv)
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
 							while (!ResetState(pathFinder, gBitmap, start, end))
-								std::cout << "Path not found!" << std::endl;
+								;
 							break;
 						}
 						case SDLK_q:
@@ -227,7 +229,7 @@ int main(int argc, char **argv)
 		}
 		GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 		GraphicsEngine::Get()->Flip();
-		SDL_Delay(30);
+		SDL_Delay(10);
 	}
 	
 	gSearchMap->Release();
