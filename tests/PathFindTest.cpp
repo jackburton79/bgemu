@@ -102,9 +102,8 @@ InitializeSearchMap()
 #else
 	for (int r = 0; r < numRows; r++) {
 		for (int c = 0; c < numColumns; c++) {
-			bool passable = (Core::RandomNumber(0, 3) ? true : false);
-			bool isWall = !passable;			
-			gSearchMap->PutPixel(c, r, passable ? kPassable : kWall);
+			bool isWall = (Core::RandomNumber(0, 3) ? false : true);
+			gSearchMap->PutPixel(c, r, isWall ? kWall : kPassable);
 			int wallColor = (isWall ? Core::RandomNumber(2, 4) : kWhiteIndex);
 			GFX::rect rect(c * kBlockSize, r * kBlockSize,
 				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
