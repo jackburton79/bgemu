@@ -8,10 +8,10 @@
 #include <memory>
 #include <limits.h>
 
-#define PATHFIND_MAX_TRIES 10000
+#define PATHFIND_MAX_TRIES 100000
 
-const int kMovementCost = 10;
-const int kDiagMovementCost = 14;
+const int kMovementCost = 2;
+const int kDiagMovementCost = 3;
 
 struct FindPoint {
 	FindPoint(const IE::point& point)
