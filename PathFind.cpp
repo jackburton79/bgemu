@@ -24,19 +24,6 @@ struct FindPoint {
 };
 
 
-static bool
-PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
-{
-#if 0
-	return pointA == pointB;
-#else
-
-	return (std::abs(pointA.x - pointB.x) <= PathFinder::kStep)
-		&& (std::abs(pointA.y - pointB.y) <= PathFinder::kStep);
-#endif
-}
-
-
 static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
@@ -115,6 +102,19 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 }
 
 
+bool
+PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal)
+{
+#if 0
+	return pointA == pointB;
+#else
+
+	return (std::abs(point.x - goal.x) <= fStep)
+		&& (std::abs(point.y - goal.y) <= fStep);
+#endif
+}
+
+
 static void
 EmptyList(NodeList pointList)
 {
@@ -131,7 +131,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	fPoints.clear();
 
 	IE::point maxReachableDirectly = start;
-	if (PointSufficientlyClose(maxReachableDirectly, end)
+	if (IsCloseEnough(maxReachableDirectly, end)
 			|| !_IsPassable(end))
 		return maxReachableDirectly;
 
@@ -154,7 +154,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (currentNode == NULL || --tries == 0)
 			break;
 
-		if (PointSufficientlyClose(currentNode->point, end)) {
+		if (IsCloseEnough(currentNode->point, end)) {
 			found = true;
 			break;
 		}

@@ -45,6 +45,7 @@ public:
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
+	bool IsCloseEnough(const IE::point& point, const IE::point& goal);
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 private:
 	std::list<IE::point> fPoints;
