@@ -17,14 +17,16 @@ Bitmap* gBitmap;
 
 const int16 gNumRowsMap = 600;
 const int16 gNumColumnsMap = 600;
-const int kBlockSize = 8;
+const int kBlockSize = 20;
 
 uint32 gRed;
 uint32 gGreen;
 
-int kBlackIndex = 0;
-int kWhiteIndex = 1;
+const int kBlackIndex = 0;
+const int kWhiteIndex = 1;
 
+const int kPassable = 0;
+const int kWall = 1;
 
 static
 struct option sLongOptions[] = {
@@ -78,24 +80,44 @@ InitializeSearchMap()
 	gSearchMap->SetColors(colors, 0, 2);
 
 	gMap->SetColors(colors, 0, 5);
-
+#if 0
 	for (int r = 0; r < numRows; r++) {
+		bool wallRow = ((r % 2) == 0) ? 0 : 1;
+		int exit = Core::RandomNumber(0, numColumns - 3);
 		for (int c = 0; c < numColumns; c++) {
-			int wall = (Core::RandomNumber(0, 3) ? 0 : 1);
-			gSearchMap->PutPixel(c, r, wall);
-			int wallColor = (wall ? (Core::RandomNumber(2, 4)) : kWhiteIndex);
+			bool wall = wallRow && (c != exit);
+			if (wall)
+				gSearchMap->PutPixel(c, r, kWall);
+			else
+				gSearchMap->PutPixel(c, r, kPassable);
+			int wallColor = (wall ? kBlackIndex : kWhiteIndex);
 			GFX::rect rect(c * kBlockSize, r * kBlockSize,
 				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
 			gMap->FillRect(rect, wallColor);
 		}
 	}
+#else
+	for (int r = 0; r < numRows; r++) {
+		for (int c = 0; c < numColumns; c++) {
+			bool passable = (Core::RandomNumber(0, 3) ? true : false);
+			bool isWall = !passable;			
+			gSearchMap->PutPixel(c, r, passable ? kPassable : kWall);
+			int wallColor = (isWall ? Core::RandomNumber(2, 4) : kWhiteIndex);
+			GFX::rect rect(c * kBlockSize, r * kBlockSize,
+				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
+			gMap->FillRect(rect, wallColor);
+		}
+	}
+#endif
 }
 
 
 static bool
 IsWalkable(const IE::point& point)
 {
-	return gSearchMap->GetPixel(point.x / kBlockSize, point.y / kBlockSize) == 0;
+	if (point.x < 0 || (point.x / kBlockSize >= (gNumColumnsMap) / kBlockSize))
+		return false;
+	return gSearchMap->GetPixel(point.x / kBlockSize, point.y / kBlockSize) == kPassable;
 }
 
 
@@ -122,8 +144,10 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	// skip non walkable points
 	do {
 		start.y = Core::RandomNumber(0, gNumRowsMap - 1);
+		
 	} while (!IsWalkable(start));
 
+	end.x -= 10;
 	do {
 		end.y = Core::RandomNumber(0, gNumRowsMap - 1);
 	} while (!IsWalkable(end));
