@@ -17,7 +17,7 @@ Bitmap* gBitmap;
 
 const int16 gNumRowsMap = 600;
 const int16 gNumColumnsMap = 600;
-const int kBlockSize = 20;
+const int kBlockSize = 10;
 
 uint32 gRed;
 uint32 gGreen;
@@ -28,10 +28,13 @@ const int kWhiteIndex = 1;
 const int kPassable = 0;
 const int kWall = 1;
 
+static int sStep = 2;
+
 static
 struct option sLongOptions[] = {
 		{ "random", no_argument, NULL, 'r' },
 		{ "debug", no_argument, &sDebug, 'D' },
+		{ "step", required_argument, NULL, 's' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -99,7 +102,7 @@ InitializeSearchMap()
 #else
 	for (int r = 0; r < numRows; r++) {
 		for (int c = 0; c < numColumns; c++) {
-			bool passable = (Core::RandomNumber(0, 3) ? true : false);
+			bool passable = (Core::RandomNumber(0, 4) ? true : false);
 			bool isWall = !passable;			
 			gSearchMap->PutPixel(c, r, passable ? kPassable : kWall);
 			int wallColor = (isWall ? Core::RandomNumber(2, 4) : kWhiteIndex);
@@ -144,10 +147,8 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	// skip non walkable points
 	do {
 		start.y = Core::RandomNumber(0, gNumRowsMap - 1);
-		
 	} while (!IsWalkable(start));
-
-	end.x -= 10;
+	end.x -= 5;
 	do {
 		end.y = Core::RandomNumber(0, gNumRowsMap - 1);
 	} while (!IsWalkable(end));
@@ -182,6 +183,9 @@ ParseArgs(int argc, char **argv)
 			case 'r':
 				sRandom = 1;
 				break;
+			case 's':
+				sStep = ::strtol(optarg, NULL, 0);
+				break;
 			default:
 				break;
 		}
@@ -210,7 +214,7 @@ int main(int argc, char **argv)
 	gMap = new Bitmap(gNumColumnsMap, gNumRowsMap, 8);
 	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
-	PathFinder pathFinder(2, IsWalkable);
+	PathFinder pathFinder(sStep, IsWalkable);
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumnsMap, gNumRowsMap };
