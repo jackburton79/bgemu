@@ -17,7 +17,7 @@ Bitmap* gBitmap;
 
 const int16 gNumRowsMap = 600;
 const int16 gNumColumnsMap = 600;
-const int kBlockSize = 10;
+const int kBlockSize = 20;
 
 uint32 gRed;
 uint32 gGreen;
@@ -86,7 +86,7 @@ InitializeSearchMap()
 #if 0
 	for (int r = 0; r < numRows; r++) {
 		bool wallRow = ((r % 2) == 0) ? 0 : 1;
-		int exit = Core::RandomNumber(0, numColumns - 3);
+		int exit = Core::RandomNumber(0, numColumns);
 		for (int c = 0; c < numColumns; c++) {
 			bool wall = wallRow && (c != exit);
 			if (wall)
@@ -102,7 +102,7 @@ InitializeSearchMap()
 #else
 	for (int r = 0; r < numRows; r++) {
 		for (int c = 0; c < numColumns; c++) {
-			bool passable = (Core::RandomNumber(0, 4) ? true : false);
+			bool passable = (Core::RandomNumber(0, 3) ? true : false);
 			bool isWall = !passable;			
 			gSearchMap->PutPixel(c, r, passable ? kPassable : kWall);
 			int wallColor = (isWall ? Core::RandomNumber(2, 4) : kWhiteIndex);
