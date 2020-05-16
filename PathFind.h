@@ -26,6 +26,7 @@ struct point_node {
 };
 
 typedef std::list<point_node*> NodeList;
+typedef std::list<IE::point> PointList;
 
 struct point_node;
 class PathFinder {
@@ -38,7 +39,7 @@ public:
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	void GetPoints(std::list<IE::point> points) const;
+	void GetPoints(PointList points) const;
 
 	void SetDebug(debug_function callback);
 
@@ -48,7 +49,7 @@ public:
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal);
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 private:
-	std::list<IE::point> fPoints;
+	PointList fPoints;
 
 	test_function fTestFunction;
 	int fStep;

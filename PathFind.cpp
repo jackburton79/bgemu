@@ -83,7 +83,7 @@ PathFinder::IsEmpty() const
 
 
 void
-PathFinder::GetPoints(std::list<IE::point> points) const
+PathFinder::GetPoints(PointList points) const
 {
 	points = fPoints;
 }
@@ -147,17 +147,14 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	bool found = false;
 	while (!openList.empty()) {
 		currentNode = _GetCheapestNode(openList);
-#if 0
-		std::cout << "try " << tries << std::endl;
-		std::cout << "cost to goal: " << currentNode->cost_to_goal << std::endl;
-#endif
-		if (currentNode == NULL || --tries == 0)
-			break;
-
 		if (IsCloseEnough(currentNode->point, end)) {
 			found = true;
 			break;
 		}
+
+		if (--tries == 0)
+			break;
+
 		openList.remove(currentNode);
 		_AddNeighbors(*currentNode, openList, closedList, end);
 		closedList.push_back(currentNode);
@@ -175,7 +172,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		return start;
 	}
 
-	point_node *last = closedList.back();
+	point_node* last = closedList.back();
 	_ReconstructPath(last);
 	EmptyList(closedList);
 	
@@ -337,12 +334,9 @@ void
 PathFinder::_ReconstructPath(point_node* goal)
 {
 	point_node* walkNode = goal;
-	for (;;) {
+	while (walkNode != NULL) {
 		fPoints.push_front(walkNode->point);
-		const point_node* parent = walkNode->parent;
-		if (parent == NULL)
-			break;
-		walkNode = const_cast<point_node*>(parent);
+		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
 }
 
