@@ -175,8 +175,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		return start;
 	}
 
-	NodeList::reverse_iterator last = closedList.rbegin();
-	_ReconstructPath(*last);
+	point_node *last = closedList.back();
+	_ReconstructPath(last);
 	EmptyList(closedList);
 	
 	// remove the "current" position, it's useless
@@ -223,10 +223,10 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 
 	IE::point rightPt = current;
 	rightPt.x += step;
-	// Check if diagonal movement
+	// Check if diagonal movement is possible.
 	// four cases: NW, NE, SW, SE.
 	// Example: if movement is towards NW, we check also if the N and W
-	// nodes are passable 
+	// nodes are passable
 	if (point.x < current.x) {
 		if (point.y < current.y) {
 			// NW
