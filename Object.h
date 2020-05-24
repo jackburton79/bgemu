@@ -90,7 +90,7 @@ private:
 	void _ExecuteAction(Action& action);
 	
 	std::string fName;
-	int32 fTicks;
+	int32 fTicksIdle;
 
 	bool fVisible;
 	bool fActive;

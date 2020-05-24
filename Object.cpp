@@ -26,7 +26,7 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	fTicks(0),
+	fTicksIdle(0),
 	fVisible(true),
 	fActive(false),
 	fIsInterruptable(true),
@@ -330,15 +330,15 @@ Object::_ExecuteScripts(int32 maxLevel)
 		return;
 		
 	bool runScripts = false;
-	if ((fTicks++ % 15 == 0))
+	if ((fTicksIdle++ > 15))
 		runScripts = true;
 	
 	//if (!IsInterruptable())
 		//return;
 	
 	if (!IsInsideVisibleArea()) {
-		if (fTicks % 60 != 0)
-			runScripts = false;
+		/*if (fTicksIdle % 60 != 0)
+			runScripts = false;*/
 	}
 		
 	if (dynamic_cast<RoomBase*>(this) != NULL)
@@ -347,7 +347,9 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	if (!runScripts)
 		return;
-		
+
+	fTicksIdle = 0;
+
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {		
