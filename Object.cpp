@@ -200,10 +200,18 @@ Object::ExecuteActions()
 		return;
 	}*/
 
-	/*if (fCurrentAction != NULL) {
-		if (!fCurrentAction->Completed())
-			(*fCurrentAction)();
-	}*/
+	if (fCurrentAction != NULL) {
+		if (fCurrentAction->Completed()) {
+			std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
+			delete fCurrentAction;
+			fCurrentAction = NULL;
+		}
+	}
+
+	if (fCurrentAction == NULL && !fActions.empty()) {
+		fCurrentAction = fActions.front();
+		fActions.pop_front();
+	}
 
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->IsWalking()) {
@@ -211,21 +219,8 @@ Object::ExecuteActions()
 		return;
 	}
 
-	std::list<Action*>::iterator i;
-	for (i = fActions.begin(); i != fActions.end();) {
-		Action& action = **i;
-		if (action.Completed()) {
-			std::cout << "action " << action.Name() << " was completed. Removing." << std::endl;
-			delete *i;
-			i = fActions.erase(i);
-			fCurrentAction = NULL;
-		} else {
-			//std::cout << Name() << " executing " << action.Name() << std::endl;
-			fCurrentAction = &action;
-			action();
-			break;
-		}
-	}
+	if (fCurrentAction != NULL)
+		(*fCurrentAction)();
 }
 
 
@@ -239,7 +234,8 @@ Object::IsActionListEmpty() const
 									i != fActions.end(); i++) {
 		std::cout << (*i)->Name() << std::endl;
 	}*/
-	return fActions.size() == 0;
+
+	return fCurrentAction == NULL && fActions.size() == 0;
 }
 
 
