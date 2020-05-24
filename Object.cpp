@@ -354,8 +354,8 @@ Object::_ExecuteScripts(int32 maxLevel)
 		//return;
 	
 	if (!IsInsideVisibleArea()) {
-		/*if (fTicksIdle % 60 != 0)
-			runScripts = false;*/
+		if (fTicks % 60 != 0)
+			runScripts = false;
 	}
 		
 	if (dynamic_cast<RoomBase*>(this) != NULL)
