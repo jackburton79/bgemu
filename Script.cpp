@@ -206,6 +206,7 @@ Script::FindTargetObject(Object* object, action_node* start)
 	}
 
 	objectNode->Print();
+	std::cout << std::endl;
 	
 	Object* result = GetObject(object, objectNode);
 	std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
@@ -322,7 +323,7 @@ Script::ResolveIdentifier(Object* object, const int id)
 		uint32 numPlayer = strtoul(n, NULL, 10) - 1;
 		return Game::Get()->Party()->ActorAt(numPlayer);
 	}
-	
+
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF") {
 		Actor* actor = dynamic_cast<Actor*>(object);
@@ -383,13 +384,13 @@ Script::GetObject(Object* source, object_node* node)
 		if (wildCard != NULL)
 			result = dynamic_cast<Actor*>(wildCard);
 	}
-	
-	//std::cout << "Script::GetObject() returned. ";
-	//if (result != NULL) {
-	//	std::cout << "Found: " << std::endl;
-	//	result->Print();
-	//} else
-	//	std::cout << "Found NONE" << std::endl;
+
+	std::cout << "Script::GetObject() returned. ";
+	if (result != NULL) {
+		std::cout << "Found: " << std::endl;
+		result->Print();
+	} else
+		std::cout << "Found NONE" << std::endl;
 	return result;
 }
 
@@ -518,7 +519,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				/* TimerExpired(I:ID*) */
 				std::ostringstream stringStream;
 				stringStream << fSender->Name() << " " << trig->parameter1;
-				printf("TimerExpired %s\n", stringStream.str().c_str());
+				std::cout << "TimerExpired " << stringStream.str() << std::endl;
 				GameTimer* timer = GameTimer::Get(stringStream.str().c_str());
 				if (timer != NULL && timer->Expired()) {
 					returnValue = true;
@@ -687,7 +688,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = object->IsRace(trig->parameter1);
 				break;
 			}
-
 			case 0x4018:
 			{
 				/* 0x4018 Range(O:Object*,I:Range*)
@@ -698,7 +698,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = core->Distance(object, fSender) <= trig->parameter1;
 				break;
 			}
-
 			case 0x401C:
 			{
 				/* See(O:Object*)
@@ -730,7 +729,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			{
 				//DELAY(I:DELAY*) (16423 0x4027)
 				// TODO: Implement
-				
+
 				returnValue = true;
 				break;
 			}
