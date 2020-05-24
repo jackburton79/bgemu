@@ -26,11 +26,13 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
+	fGlobalEnum(0),
 	fTicksIdle(0),
 	fVisible(true),
 	fActive(false),
 	fIsInterruptable(true),
 	fWaitTime(0),
+	fCurrentAction(NULL),
 	fLastAttacker(-1),
 	fLastClicker(-1),
 	fRegion(NULL),
@@ -75,11 +77,17 @@ Object::SetName(const char* name)
 }
 
 
-uint16
-Object::GlobalID() const
+void
+Object::SetGlobalEnum(uint16 value)
 {
-	// TODO: 
-	return 0;
+	fGlobalEnum = value;
+}
+
+
+uint16
+Object::GlobalEnum() const
+{
+	return fGlobalEnum;
 }
 
 
@@ -93,7 +101,7 @@ Object::Vars()
 void
 Object::Clicked(Object* clicker)
 {
-	fLastClicker = clicker->GlobalID();
+	fLastClicker = clicker->GlobalEnum();
 }
 
 Object*
@@ -192,6 +200,11 @@ Object::ExecuteActions()
 		return;
 	}*/
 
+	/*if (fCurrentAction != NULL) {
+		if (!fCurrentAction->Completed())
+			(*fCurrentAction)();
+	}*/
+
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->IsWalking()) {
 		actor->HandleWalking();
@@ -205,8 +218,10 @@ Object::ExecuteActions()
 			std::cout << "action " << action.Name() << " was completed. Removing." << std::endl;
 			delete *i;
 			i = fActions.erase(i);
+			fCurrentAction = NULL;
 		} else {
 			//std::cout << Name() << " executing " << action.Name() << std::endl;
+			fCurrentAction = &action;
 			action();
 			break;
 		}

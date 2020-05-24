@@ -39,8 +39,9 @@ public:
 
 	const char* Name() const;
 	void SetName(const char* name);
-	
-	uint16 GlobalID() const;
+
+	void SetGlobalEnum(uint16 value);
+	uint16 GlobalEnum() const;
 	
 	virtual IE::rect Frame() const = 0;
 
@@ -90,6 +91,7 @@ private:
 	void _ExecuteAction(Action& action);
 	
 	std::string fName;
+	uint16 fGlobalEnum;
 	int32 fTicksIdle;
 
 	bool fVisible;
@@ -100,6 +102,7 @@ private:
 	ScriptsList fScripts;
 	int32 fWaitTime;
 
+	Action* fCurrentAction;
 	std::list<Action*> fActions;
 	std::list<trigger_entry> fTriggers;
 
