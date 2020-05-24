@@ -92,6 +92,7 @@ private:
 	
 	std::string fName;
 	uint16 fGlobalEnum;
+	int32 fTicks;
 	int32 fTicksIdle;
 
 	bool fVisible;

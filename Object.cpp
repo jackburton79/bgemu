@@ -27,6 +27,7 @@ Object::Object(const char* name, const char* scriptName)
 	Referenceable(1),
 	fName(name),
 	fGlobalEnum(0),
+	fTicks(0),
 	fTicksIdle(0),
 	fVisible(true),
 	fActive(false),
@@ -150,14 +151,16 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
+	fTicks++;
+
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL)
 		actor->UpdateSee();
-	
+
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
 	if (isArea && Core::Get()->CutsceneMode())
 		scripts = false;
-		
+
 	if (scripts) {
 		_ExecuteScripts(8);		
 	}
@@ -337,6 +340,9 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (fTicks % 16 != GlobalEnum() % 16)
+		return;
+
 	if (!IsActionListEmpty())
 		return;
 		
