@@ -8,16 +8,27 @@
 #include "Referenceable.h"
 
 #include <assert.h>
+#include <iostream>
+
+bool Referenceable::sDebug = false;
 
 Referenceable::Referenceable(int32 initialRefCount)
 	:
 	fRefCount(initialRefCount)
 {
+	if (sDebug) {
+		std::cout << "Referenceable::Referenceable(" << fRefCount;
+		std::cout << ")" << std::endl;
+	}
 }
 
 
 Referenceable::~Referenceable()
 {
+	if (sDebug) {
+		std::cout << "Referenceable::~Referenceable(" << fRefCount;
+		std::cout << ")" << std::endl;
+	}
 }
 
 
@@ -25,6 +36,11 @@ void
 Referenceable::Acquire()
 {
 	int previousRefCount = fRefCount++;
+	if (sDebug) {
+		std::cout << "Referenceable::Acquire(): ";
+		std::cout << "previous:" << previousRefCount;
+		std::cout << ", current: " << fRefCount << std::endl;
+	}
 	if (previousRefCount == 0)
 		FirstReferenceAcquired();
 }
@@ -34,6 +50,12 @@ bool
 Referenceable::Release()
 {
 	int previousRefCount = fRefCount--;
+	if (sDebug) {
+		std::cout << "Referenceable::Release(): ";
+		std::cout << "previous:" << previousRefCount;
+		std::cout << ", current: " << fRefCount << std::endl;
+	}
+	
 	if (previousRefCount == 1)
 		LastReferenceReleased();
 	
@@ -48,6 +70,14 @@ int32
 Referenceable::RefCount() const
 {
 	return fRefCount;
+}
+
+
+/* static */
+void
+Referenceable::SetDebug(bool debug)
+{
+	sDebug = debug;
 }
 
 

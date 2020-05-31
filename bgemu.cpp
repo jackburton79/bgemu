@@ -7,6 +7,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "MovieDecoder.h"
+#include "Referenceable.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SoundEngine.h"
@@ -119,8 +120,11 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	if (sDebug)
+	if (sDebug) {
 		Script::SetDebug(true);
+		//Referenceable::SetDebug(true);
+		Object::SetDebug(true);
+	}
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();

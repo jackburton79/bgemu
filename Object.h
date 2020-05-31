@@ -81,6 +81,7 @@ public:
 	void DestroySelf();
 	bool ToBeDestroyed() const;
 
+	static void SetDebug(bool debug);
 protected:
 	virtual ~Object();
 	void LastReferenceReleased();
@@ -115,6 +116,8 @@ private:
 	Region* fRegion;
 
 	bool fToDestroy;
+
+	static bool sDebug;
 };
 
 #endif // __OBJECT_H

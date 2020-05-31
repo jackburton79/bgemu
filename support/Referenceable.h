@@ -18,6 +18,7 @@ public:
 
 	int32 RefCount() const;
 
+	static void SetDebug(bool debug);
 protected:
 
 	virtual ~Referenceable();
@@ -27,6 +28,7 @@ protected:
 	
 private:
 	int32 fRefCount;
+	static bool sDebug;
 };
 
 

@@ -20,6 +20,8 @@
 
 #include <algorithm>
 
+bool Object::sDebug = false;
+
 // TODO: We always cast to Actor.
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, const char* scriptName)
@@ -329,10 +331,22 @@ Object::ToBeDestroyed() const
 }
 
 
+/* static */
+void
+Object::SetDebug(bool debug)
+{
+	sDebug = debug;
+}
+
+
 /* virtual */
 void
 Object::LastReferenceReleased()
 {
+	if (sDebug) {
+		std::cout << "Object (" << Name() << ")::LastReferenceReleased()";
+		std::cout << std::endl;	
+	}
 	delete this;
 }
 

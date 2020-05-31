@@ -17,7 +17,7 @@
 
 RoomBase::RoomBase()
 	:
-	Object(""),
+	Object("RoomBase"),
 	fLastScrollTime(0)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
