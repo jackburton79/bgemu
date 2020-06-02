@@ -31,10 +31,11 @@ AnimationFactory*
 AnimationFactory::GetFactory(uint16 animationID)
 {
 	std::string baseName = IDTable::AniSndAt(animationID);
-
+#if 0
 	std::cout << "AnimationFactory::GetFactory(";
 	std::cout << baseName << ", " << std::hex;
 	std::cout << animationID << ")" << std::endl;
+#endif
 	AnimationFactory* factory = NULL;
 	std::map<uint16, AnimationFactory*>::const_iterator i
 		= sAnimationFactory.find(animationID);
