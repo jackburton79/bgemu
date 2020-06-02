@@ -387,7 +387,7 @@ Script::GetObject(Object* source, object_node* node)
 
 	std::cout << "Script::GetObject() returned. ";
 	if (result != NULL) {
-		std::cout << "Found: " << std::endl;
+		std::cout << "Found: ";
 		result->Print();
 	} else
 		std::cout << "Found NONE" << std::endl;
@@ -998,13 +998,11 @@ bool
 Script::_HandleAction(action_node* act)
 {
 	Object* sender = Script::FindSenderObject(fSender, act);
-	Object* target = Script::FindTargetObject(fSender, act);
-	
 	if (sDebug) {
 		std::cout << "SCRIPT: ACTION ";
+		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
 		act->Print();
-		std::cout << "Sender: " << (sender ? sender->Name() : "") << " -> " << (target ? target->Name() : "") << std::endl;
-		std::cout << std::endl; 
+		std::cout << std::endl;
 	}
 
 	Core* core = Core::Get();
@@ -1258,6 +1256,7 @@ Script::_HandleAction(action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
+			Object* target = Script::FindTargetObject(fSender, act);
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);
