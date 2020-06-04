@@ -25,7 +25,7 @@ Animation::Animation(IE::animation *animDesc)
 		throw "NULL BAM!!!";
 	}
 	
-	animDesc->Print();
+	//animDesc->Print();
 	fCenter = animDesc->center;
 	fMaxFrame = bam->CountFrames(animDesc->sequence);
 	if (animDesc->flags & IE::ANIM_STOP_AT_FRAME)
