@@ -209,7 +209,7 @@ ARAResource::GetRegionAt(uint16 index)
 		polygon.AddPoint(vertex.x, vertex.y);
 	}
 
-	fRegions[index].Print();
+	//fRegions[index].Print();
 	return region;
 }
 
