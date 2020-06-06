@@ -26,6 +26,13 @@
 
 bool Object::sDebug = false;
 
+trigger_entry::trigger_entry(std::string trigName)
+	:
+	name(trigName)
+{
+}
+
+
 trigger_entry::trigger_entry(std::string trigName, Object* targetObject)
 	:
 	name(trigName)
@@ -58,6 +65,8 @@ Object::Object(const char* name, const char* scriptName)
 		if (script != NULL)
 			AddScript(script);
 	}
+	trigger_entry trig("ONCREATION()");
+	AddTrigger(trig);
 }
 
 
@@ -110,7 +119,7 @@ Object::GlobalID() const
 	if (actor != NULL && actor->CRE() != NULL)
 		return actor->CRE()->GlobalActorEnum();
 		
-	std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
+	//std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
 	return (uint16)-1;
 }
 
@@ -187,8 +196,6 @@ Object::Update(bool scripts)
 	if (scripts) {
 		_ExecuteScripts(8);		
 	}
-	
-	//PrintTriggers();
 
 	ExecuteActions();
 }
@@ -280,8 +287,9 @@ Object::ClearActionList()
 
 
 void
-Object::SetTriggerResult(trigger_entry entry)
+Object::AddTrigger(trigger_entry entry)
 {
+	fTriggers.push_back(entry);
 }
 
 
@@ -444,6 +452,11 @@ Object::_ExecuteScripts(int32 maxLevel)
 		}
 	} catch (...) {
 	}
+	
+	PrintTriggers();
+
+	if (true)
+		ClearTriggers();
 }
 
 

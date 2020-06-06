@@ -21,6 +21,7 @@
 
 class Object;
 struct trigger_entry {
+	trigger_entry(std::string trigName);
 	trigger_entry(std::string trigName, Object* targetObject);
 	std::string name;
 	std::string target;
@@ -67,7 +68,7 @@ public:
 	bool IsActionListEmpty() const;
 	void ClearActionList();
 
-	void SetTriggerResult(trigger_entry entry);
+	void AddTrigger(trigger_entry entry);
 	void PrintTriggers();	
 	void ClearTriggers();
 
@@ -89,7 +90,6 @@ protected:
 	virtual ~Object();
 	void LastReferenceReleased();
 
-	std::list<trigger_entry> fTriggers;
 private:
 	void _UpdateTileCell();
 	void _ExecuteScripts(int32 maxLevel);
@@ -109,7 +109,7 @@ private:
 
 	Action* fCurrentAction;
 	std::list<Action*> fActions;
-
+	std::list<trigger_entry> fTriggers;
 	::Variables fVariables;
 
 	uint16 fLastAttacker;
