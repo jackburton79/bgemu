@@ -1008,6 +1008,7 @@ AreaRoom::_InitDoors()
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
+		Core::Get()->RegisterObject(door);
 		fWed->GetDoorTiles(door, c);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fBackMap->TileAt(door->fTilesOpen[i])->SetDoor(door);

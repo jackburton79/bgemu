@@ -80,16 +80,18 @@ Game::Loop(bool executeScripts)
 	// TODO: Move this elsewhere.
 	// This should be filled by the player selection
 	IE::point point = { 20, 20 };
-	if (fParty->CountActors() == 0) {
-		Actor* player = NULL;
-		if (Core::Get()->Game() == GAME_BALDURSGATE)
-			player = new Actor("AJANTI", point, 0);
-		else
-			player = new Actor("ANOMEN10", point, 0);
-		if (player != NULL)
-			fParty->AddActor(player);
+	try {	
+		if (fParty->CountActors() == 0) {
+			if (Core::Get()->Game() == GAME_BALDURSGATE) {
+				fParty->AddActor(new Actor("AJANTI", point, 0));
+			} else {
+				fParty->AddActor(new Actor("ANOMEN10", point, 0));
+				fParty->AddActor(new Actor("IMOEN", point, 0));			
+			}
+		}
+	} catch (...) {
+		throw std::string("Error creating player!");
 	}
-
 	LoadStartingArea();
 
 	std::cout << "Game: Started game loop." << std::endl;

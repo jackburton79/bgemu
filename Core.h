@@ -37,6 +37,7 @@ class TLKResource;
 typedef std::vector<Actor*> ActorsList;
 typedef std::vector<Container*> ContainersList;
 typedef std::vector<Region*> RegionsList;
+typedef std::vector<Door*> DoorsList;
 
 class Core {
 public:
@@ -49,6 +50,9 @@ public:
 
 	void RegisterActor(Actor* object);
 	void UnregisterActor(Actor* object);
+
+	void RegisterObject(Object* object);
+	void UnregisterObject(Object* object);
 	
 	void RegisterContainer(Container* container);
 	void RegisterRegion(Region* region);
@@ -130,7 +134,8 @@ private:
 	ActorsList fActors;
 	ContainersList fContainers;
 	RegionsList fRegions;
-	
+	DoorsList fDoors;
+
 	Variables fVariables;
 	std::map<std::string, Script*> fScripts;
 

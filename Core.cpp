@@ -299,6 +299,26 @@ Core::PlaySound(const res_ref& soundRefName)
 
 
 void
+Core::RegisterObject(Object* object)
+{
+	if (Actor* actor = dynamic_cast<Actor*>(object))
+		RegisterActor(actor);
+	else if (Door* door = dynamic_cast<Door*>(object))
+		fDoors.push_back(door);
+}
+
+
+void
+Core::UnregisterObject(Object* object)
+{
+	// TODO: Save the object state
+	// TODO: Implement
+	if (Actor* actor = dynamic_cast<Actor*>(object))
+		actor->Release();
+}
+
+
+void
 Core::RegisterActor(Actor* actor)
 {
 	fActors.push_back(actor);
@@ -340,6 +360,14 @@ Core::GetObject(const char* name) const
 			return *i;
 		}
 	}
+
+	DoorsList::const_iterator d;
+	for (d = fDoors.begin(); d != fDoors.end(); d++) {
+		if (!strcasecmp(name, (*d)->Name())) {
+			return *d;
+		}
+	}
+
 /*
 	RegionsList::const_iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
