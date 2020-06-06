@@ -20,6 +20,10 @@
 
 #include <algorithm>
 
+
+// TODO: remove this dependency
+#include "CreResource.h"
+
 bool Object::sDebug = false;
 
 // TODO: We always cast to Actor.
@@ -28,7 +32,7 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	fGlobalEnum(0),
+	//fGlobalEnum(0),
 	fTicks(0),
 	fTicksIdle(0),
 	fVisible(true),
@@ -81,16 +85,25 @@ Object::SetName(const char* name)
 
 
 void
-Object::SetGlobalEnum(uint16 value)
+Object::SetGlobalID(uint16 id)
 {
-	fGlobalEnum = value;
+	// TODO: Not really nice
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->CRE() != NULL)
+		actor->CRE()->SetGlobalActorEnum(id);
 }
 
 
 uint16
-Object::GlobalEnum() const
+Object::GlobalID() const
 {
-	return fGlobalEnum;
+	// TODO: Not really nice
+	const Actor* actor = dynamic_cast<const Actor*>(this);
+	if (actor != NULL && actor->CRE() != NULL)
+		return actor->CRE()->GlobalActorEnum();
+		
+	std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
+	return (uint16)-1;
 }
 
 
@@ -104,7 +117,7 @@ Object::Vars()
 void
 Object::Clicked(Object* clicker)
 {
-	fLastClicker = clicker->GlobalEnum();
+	fLastClicker = clicker->GlobalID();
 }
 
 Object*
@@ -354,7 +367,7 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
-	if (fTicks % 16 != GlobalEnum() % 16)
+	if (fTicks % 16 != GlobalID() % 16)
 		return;
 
 	if (!IsActionListEmpty())

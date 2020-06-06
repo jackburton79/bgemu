@@ -303,7 +303,7 @@ Core::RegisterActor(Actor* actor)
 {
 	fActors.push_back(actor);
 	if (actor->IsNew())
-		actor->CRE()->SetGlobalActorEnum(fNextObjectNumber++);
+		actor->SetGlobalID(fNextObjectNumber++);
 }
 
 

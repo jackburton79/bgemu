@@ -40,9 +40,9 @@ public:
 	const char* Name() const;
 	void SetName(const char* name);
 
-	void SetGlobalEnum(uint16 value);
-	uint16 GlobalEnum() const;
-	
+	uint16 GlobalID() const;
+	void SetGlobalID(uint16 id);
+
 	virtual IE::rect Frame() const = 0;
 
 	Variables& Vars();
@@ -92,7 +92,6 @@ private:
 	void _ExecuteAction(Action& action);
 	
 	std::string fName;
-	uint16 fGlobalEnum;
 	int32 fTicks;
 	int32 fTicksIdle;
 

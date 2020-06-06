@@ -225,14 +225,6 @@ Actor::Print() const
 }
 
 
-/* virtual */
-uint16
-Actor::GlobalID() const
-{
-	return fCRE != NULL ? fCRE->GlobalActorEnum() : 0;
-}
-
-
 // Returns true if an actor was just instantiated
 // false if it was already existing (loaded from save)
 bool
