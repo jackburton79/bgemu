@@ -618,7 +618,7 @@ trigger_node::trigger_node()
 void
 trigger_node::Print() const
 {
-	std::cout << IDTable::TriggerAt(id);
+	std::cout << IDTable::TriggerName(id);
 	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id;
 	std::cout << "), flags: " << std::dec << flags << ", parameter1:";
 	std::cout << parameter1 << ", parameter2: " << parameter2 << ", string1: " << string1;

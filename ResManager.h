@@ -124,7 +124,10 @@ public:
 	static std::string RaceAt(uint32 i);
 	static std::string ClassAt(uint32 i);
 	static std::string SpecificAt(uint32 i);
-	static std::string TriggerAt(uint32 i);
+
+	static std::string TriggerName(uint32 i);
+	static uint32 TriggerID(std::string name);
+
 	static std::string ActionAt(uint32 i);
 	static std::string ObjectAt(uint32 i);
 

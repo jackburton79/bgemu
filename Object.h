@@ -86,6 +86,7 @@ protected:
 	virtual ~Object();
 	void LastReferenceReleased();
 
+	std::list<trigger_entry> fTriggers;
 private:
 	void _UpdateTileCell();
 	void _ExecuteScripts(int32 maxLevel);
@@ -105,7 +106,6 @@ private:
 
 	Action* fCurrentAction;
 	std::list<Action*> fActions;
-	std::list<trigger_entry> fTriggers;
 
 	::Variables fVariables;
 

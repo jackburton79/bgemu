@@ -472,7 +472,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER ",
 		std::cout << (trig->flags != 0 ? "!" : "");
-		std::cout << IDTable::TriggerAt(trig->id) << " (";
+		std::cout << IDTable::TriggerName(trig->id) << " (";
 		std::cout << std::dec << trig->id << " ";
 		std::cout << std::hex << trig->id << ")";
 		std::cout << std::endl;
@@ -1277,7 +1277,7 @@ Script::_HandleAction(action_node* act)
 		}
 		case 0xA7:
 		{
-			//core->PlayMovie(act->string1);
+			core->PlayMovie(act->string1);
 			break;
 		}
 		case 134:

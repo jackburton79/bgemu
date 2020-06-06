@@ -884,12 +884,21 @@ IDTable::SpecificAt(uint32 i)
 
 
 std::string
-IDTable::TriggerAt(uint32 i)
+IDTable::TriggerName(uint32 i)
 {
 	if (sTriggers == NULL)
 		sTriggers = gResManager->GetIDS("TRIGGER");
 
 	return sTriggers->StringForID(i);
+}
+
+
+uint32
+IDTable::TriggerID(std::string name)
+{
+	if (sTriggers == NULL)
+		sTriggers = gResManager->GetIDS("TRIGGER");
+	return sTriggers->IDForString(name);	
 }
 
 

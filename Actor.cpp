@@ -757,7 +757,9 @@ Actor::UpdateSee()
 void
 Actor::SetSeen(Object* object)
 {
-	Core::Get()->RoundResults()->SetActorSaw(this, dynamic_cast<const Actor*>(object));
+	//trigger_entry entry("SEE(O:OBJECT*)", object);
+	//fTriggers.push_back(entry);
+	//Core::Get()->RoundResults()->SetActorSaw(this, dynamic_cast<const Actor*>(object));
 }
 
 
