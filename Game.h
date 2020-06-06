@@ -13,7 +13,7 @@ class Party;
 class Game {
 public:
 	static Game* Get();
-	void Loop(bool executeScripts);
+	void Loop(bool noNewGame = false, bool executeScripts = true);
 	::Party* Party();
 
 	void LoadStartingArea();

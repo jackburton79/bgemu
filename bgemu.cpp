@@ -20,6 +20,7 @@
 
 static int sList = 0;
 static int sNoScripts = 0;
+static int sNoNewGame = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
 static int sDebug = 0;
@@ -30,11 +31,12 @@ static const char *sResourceName = NULL;
 
 static
 struct option sLongOptions[] = {
-		{ "list", no_argument, &sList, 1 },
+		{ "list-resources", no_argument, &sList, 'l' },
 		{ "test", no_argument, NULL, 't' },
-		{ "dumpresource", required_argument, NULL, 's'},
+		{ "dump-resource", required_argument, NULL, 'd' },
 		{ "path", required_argument, NULL, 'p'},
-		{ "noscripts", no_argument, &sNoScripts, 'n' },
+		{ "no-scripts", no_argument, &sNoScripts, 'n' },
+		{ "no-newgame", no_argument, &sNoNewGame, 'N' },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		{ 0, 0, 0, 0 }
@@ -56,13 +58,13 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Ds:ltnf",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltf",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
 				sPath = optarg;
 				break;
-			case 's':
+			case 'd':
 				sResourceName = optarg;
 				break;
 			case 'D':
@@ -128,7 +130,7 @@ main(int argc, char **argv)
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();
-		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
+		std::cerr << "Faxiled to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
 
@@ -149,7 +151,7 @@ main(int argc, char **argv)
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
 	try {
-		Game::Get()->Loop(!sNoScripts);
+		Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (const char* error) {
 		std::cerr << "Game Loop exited with error: " << error << std::endl;
 	} catch (std::string &error) {

@@ -48,7 +48,7 @@ Game::~Game()
 
 
 void
-Game::Loop(bool executeScripts)
+Game::Loop(bool noNewGame, bool executeScripts)
 {
 	std::cout << "Game::Loop()" << std::endl;
 	uint16 lastMouseX = 0;
@@ -92,7 +92,10 @@ Game::Loop(bool executeScripts)
 	} catch (...) {
 		throw std::string("Error creating player!");
 	}
-	LoadStartingArea();
+	if (noNewGame)
+		Core::Get()->LoadWorldMap();
+	else
+		LoadStartingArea();
 
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
