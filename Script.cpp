@@ -552,7 +552,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				Returns true if the script is processed for the first time this session,
 				e.g. when a creature is created (for CRE scripts) or when the player
 				enters an area (for ARE scripts).*/
-				returnValue = !Processed();
+				returnValue = fSender->HasTrigger("ONCREATION()");
 				break;
 			}
 			case 0x004c:
@@ -1350,12 +1350,9 @@ Script::_HandleAction(action_node* act)
 		case 225:
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
-			// Active creature. Which is it ? For now, we use actor 0 in party
-			/*Actor* actor = Game::Get()->Party()->ActorAt(0);
-			if (actor != NULL) {
-				Action* action = new MoveBetweenAreasEffect(actor, act);
-				actor->AddAction(action, runNow);
-			}*/
+			// Active creature. Which is it ? For now, we use actor 0 in party		
+			Action* action = new MoveBetweenAreasEffect(sender, act);
+			sender->AddAction(action, runNow);
 			break;
 		}
 		case 228: // 0xe4

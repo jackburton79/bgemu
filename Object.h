@@ -69,6 +69,7 @@ public:
 	void ClearActionList();
 
 	void AddTrigger(trigger_entry entry);
+	bool HasTrigger(std::string trigName);
 	void PrintTriggers();	
 	void ClearTriggers();
 

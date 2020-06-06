@@ -173,7 +173,7 @@ CreateCreatureImpassableAction::operator()()
 		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* actor = new Actor(fActionParams->string1,
 						fActionParams->where, fActionParams->integer1);
-	std::cout << "Created actor " << fActionParams->string1 << " on ";
+	std::cout << "Created actor (IMPASSABLE) " << fActionParams->string1 << " on ";
 	std::cout << fActionParams->where.x << ", " << fActionParams->where.y << std::endl;
 	//actor->SetDestination(fActionParams->where);
 	Core::Get()->AddActorToCurrentArea(actor);
@@ -238,8 +238,8 @@ MoveBetweenAreasEffect::operator()()
 		Actor* actor = dynamic_cast<Actor*>(fObject);
 		if (actor != NULL) {
 			std::cout << "area:" << fActionParams->string1 << std::endl;
-			//actor->SetPosition(fActionParams->where);
-			//actor->SetOrientation(fActionParams->integer1);
+			actor->SetPosition(fActionParams->where);
+			actor->SetOrientation(fActionParams->integer1);
 		}
 		SetCompleted();
 	}
@@ -459,14 +459,15 @@ OpenDoor::operator()()
 		return;
 
 	Object* target = Script::FindTargetObject(fObject, fActionParams);
-	if (target == NULL) {
+	Door* door = dynamic_cast<Door*>(target);
+	if (door == NULL) {
 		SetCompleted();
 		return;
 	}
 	
-	target->Print();
-	//if (!target->Opened())
-		//target->Toggle();
+	//target->Print();
+	if (!door->Opened())
+		door->Toggle();
 	SetCompleted();
 }
 

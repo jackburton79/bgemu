@@ -293,6 +293,18 @@ Object::AddTrigger(trigger_entry entry)
 }
 
 
+bool
+Object::HasTrigger(std::string trigName)
+{
+	std::list<trigger_entry>::const_iterator i;
+	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
+		if (i->name == trigName)
+			return true;
+	}
+	return false;
+}
+
+
 void
 Object::PrintTriggers()
 {
