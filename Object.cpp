@@ -26,6 +26,14 @@
 
 bool Object::sDebug = false;
 
+trigger_entry::trigger_entry(std::string trigName, Object* targetObject)
+	:
+	name(trigName)
+{
+	target = targetObject->Name();
+}
+
+
 // TODO: We always cast to Actor.
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, const char* scriptName)
@@ -180,6 +188,8 @@ Object::Update(bool scripts)
 		_ExecuteScripts(8);		
 	}
 	
+	//PrintTriggers();
+
 	ExecuteActions();
 }
 
@@ -268,6 +278,29 @@ Object::ClearActionList()
 	SetInterruptable(true);
 }
 
+
+void
+Object::SetTriggerResult(trigger_entry entry)
+{
+}
+
+
+void
+Object::PrintTriggers()
+{
+	std::list<trigger_entry>::const_iterator i;
+	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
+		const trigger_entry& entry = *i;		
+		std::cout << entry.name << " -> " << entry.target << std::endl;
+	}
+}
+
+
+void
+Object::ClearTriggers()
+{
+	fTriggers.clear();
+}
 
 
 void

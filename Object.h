@@ -19,7 +19,9 @@
 #include <string>
 #include <vector>
 
+class Object;
 struct trigger_entry {
+	trigger_entry(std::string trigName, Object* targetObject);
 	std::string name;
 	std::string target;
 };
@@ -27,7 +29,6 @@ struct trigger_entry {
 struct object_node;
 class Action;
 class Actor;
-class Object;
 class Region;
 class Script;
 class TileCell;
@@ -67,7 +68,9 @@ public:
 	void ClearActionList();
 
 	void SetTriggerResult(trigger_entry entry);
-	
+	void PrintTriggers();	
+	void ClearTriggers();
+
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
