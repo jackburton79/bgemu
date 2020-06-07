@@ -124,6 +124,10 @@ Actor::_Init()
 		_HandleColors();
 	}
 
+	if (::strcasecmp(Name(), "IMOEN") == 0) {
+		Print();
+		std::cerr << " (" << CRE()->AnimationID() << ")" << std::endl;
+	}
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
@@ -747,6 +751,8 @@ Actor::UpdateSee()
 		// TODO: 200 is an arbitrarily chosen number
 		if (Core::Get()->Distance(this, target) < 200 ) {
 			// TODO: Check if there are obstacles in the way
+			trigger_entry entry("SEE(O:OBJECT*)", target);
+			AddTrigger(entry);
 			SetSeen(target);
 			//std::cout << this->Name() << " SAW " << target->Name() << std::endl;
 		}
@@ -756,9 +762,7 @@ Actor::UpdateSee()
 
 void
 Actor::SetSeen(Object* object)
-{
-	trigger_entry entry("SEE(O:OBJECT*)", object);
-	AddTrigger(entry);
+{	
 	//Core::Get()->RoundResults()->SetActorSaw(this, dynamic_cast<const Actor*>(object));
 }
 
