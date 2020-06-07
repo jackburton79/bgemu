@@ -913,7 +913,8 @@ DisplayStringHead::operator()()
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = 100; //??
-		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
+		Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
 		if (actor == NULL)
 			SetCompleted();
 		IE::point point = actor->Position();
