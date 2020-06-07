@@ -459,7 +459,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 	} catch (...) {
 	}
 	
-	PrintTriggers();
+	//PrintTriggers();
 
 	if (true)
 		ClearTriggers();
