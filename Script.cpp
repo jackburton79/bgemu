@@ -1428,8 +1428,17 @@ Script::_PrintNode(node* n) const
 	}
 	node_list::iterator c;
 	IndentMore();
+	bool printCount = false;
+	int32 count = 0;
+	if (n->type == BLOCK_ACTION && n->children.size() == 3) {
+		printCount = true;
+	}
 	for (c = n->children.begin(); c != n->children.end(); c++) {
+		if (printCount)
+			std::cout << "(" << count << ") ";
 		_PrintNode(*c);
+		if (printCount)
+			count++;
 	}
 	IndentLess();
 	if (n->type != BLOCK_OBJECT)

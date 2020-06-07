@@ -107,7 +107,6 @@ Parser::Read(node*& rootNode)
 	} catch (...) {
 		std::cerr << "Parser::Read(): end of file!" << std::endl;
 	}
-	
 }
 
 
@@ -621,6 +620,7 @@ trigger_node::Print() const
 	std::cout << IDTable::TriggerName(id);
 	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id;
 	std::cout << "), flags: " << std::dec << flags << ", parameter1:";
+	std::cout << std::dec;
 	std::cout << parameter1 << ", parameter2: " << parameter2 << ", string1: " << string1;
 	std::cout << ", string2: " << string2 << std::endl;
 }
@@ -665,7 +665,7 @@ object_node::Print() const
 	if (name[0] != '\0')
 		std::cout << "name: *" << name << "*" << ", ";
 	if (Empty())
-		std::cout << "EMPTY";
+		std::cout << "EMPTY (MYSELF)";
 	std::flush(std::cout);
 }
 
@@ -708,6 +708,7 @@ action_node::Print() const
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
 	std::cout << std::endl;
+	std::cout << std::dec;
 	std::cout << "integer1: " << integer1 << ", ";
 	std::cout << "where: (" << where.x << ", " << where.y << "), ";
 	std::cout << "integer2: " << integer2 << ", ";
