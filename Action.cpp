@@ -332,7 +332,7 @@ WalkToObject::operator()()
 	if (actor == NULL)
 		return;
 
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
+	Object* target = Script::FindTargetObject(actor, fActionParams);
 	if (target == NULL) {
 		SetCompleted();
 		return;
@@ -424,6 +424,8 @@ SmallWait::SmallWait(Object* object, action_node* node)
 void
 SmallWait::operator()()
 {
+	// TODO: Sometimes there is a different sender object.
+	// Find a way to execute this action on the correct sender
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
 	//Object* object = Script::FindObject(fObject, fActionParams);
