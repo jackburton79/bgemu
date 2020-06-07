@@ -1419,13 +1419,21 @@ Script::_PrintNode(node* n) const
 	PrintIndentation();
 	std::cout << "<" << n->header << ">";
 	n->Print();
+	if (n->type == BLOCK_SCRIPT
+		|| n->type == BLOCK_CONDITION_RESPONSE
+		|| n->type == BLOCK_CONDITION
+		|| n->type == BLOCK_RESPONSESET) {
+		std::cout << std::endl;
+		PrintIndentation();
+	}
 	node_list::iterator c;
 	IndentMore();
 	for (c = n->children.begin(); c != n->children.end(); c++) {
 		_PrintNode(*c);
 	}
 	IndentLess();
-	PrintIndentation();
+	if (n->type != BLOCK_OBJECT)
+		PrintIndentation();
 	std::cout << "</" << n->header << ">" << std::endl;
 }
 

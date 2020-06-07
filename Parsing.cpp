@@ -661,11 +661,12 @@ object_node::Print() const
 		}
 	}
 	if (Core::Get()->Game() == GAME_TORMENT)
-		std::cout << "point: " << point.x << ", " << point.y << std::endl;
+		std::cout << "point: " << point.x << ", " << point.y << ", ";
 	if (name[0] != '\0')
-		std::cout << "name: *" << name << "*" << std::endl;
+		std::cout << "name: *" << name << "*" << ", ";
 	if (Empty())
-		std::cout << "EMPTY" << std::endl;
+		std::cout << "EMPTY";
+	std::flush(std::cout);
 }
 
 
