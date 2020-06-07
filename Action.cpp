@@ -604,13 +604,11 @@ Dialogue::Dialogue(Object* source, action_node* node)
 void
 Dialogue::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(actor, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
