@@ -405,7 +405,7 @@ region::Print() const
 void
 tiled_object::Print() const
 {
-	printf("name: %s\n", name);
+	printf("short_name: %s\n", short_name.CString());
 	printf("flags: 0x%x\n", flags);
 	printf("cell_index: %d\n", cell_index);
 	printf("cell_count: %d\n", cell_count);

@@ -303,7 +303,7 @@ enum door_flags {
 
 struct door {
 	char name[32];
-	res_ref id;
+	res_ref short_name;
 	uint32 flags;
 	uint32 open_vertex_index;
 	uint16 open_vertices_count;
@@ -338,7 +338,7 @@ struct door {
 
 
 struct tiled_object {
-	char name[8];
+	res_ref short_name;
 	uint16 flags;
 	uint16 cell_index;
 	uint16 cell_count;

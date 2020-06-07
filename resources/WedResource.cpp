@@ -163,20 +163,22 @@ WEDResource::CountDoors() const
 
 
 bool
-WEDResource::GetDoorTiles(Door* door, uint32 index)
+WEDResource::LinkDoorWithTiledObject(Door* door)
 {
-	if (index < 0 || index >= fNumTiledObjects)
-		return false;
+	const res_ref shortName = door->ShortName();
+	for (uint32 i = 0; i < fNumTiledObjects; i++) {
+		fData->Seek(fTiledObjectsOffset + i * sizeof(IE::tiled_object), SEEK_SET);
+		IE::tiled_object tiled;
+		fData->Read(tiled);
+		if (tiled.short_name != shortName)
+			continue;
 
-	fData->Seek(fTiledObjectsOffset + index * sizeof(IE::tiled_object), SEEK_SET);
-
-	IE::tiled_object wedDoor;
-	fData->Read(wedDoor);
-	fData->Seek(fTiledObjectsTileCellsOffset + wedDoor.cell_index * sizeof(uint16), SEEK_SET);
-	for (uint16 i = 0; i < wedDoor.cell_count; i++) {
-		uint16 tileIndex;
-		fData->Read(tileIndex);
-		door->fTilesOpen.push_back(tileIndex);
+		fData->Seek(fTiledObjectsTileCellsOffset + tiled.cell_index * sizeof(uint16), SEEK_SET);
+		for (uint16 i = 0; i < tiled.cell_count; i++) {
+			uint16 tileIndex;
+			fData->Read(tileIndex);
+			door->fTilesOpen.push_back(tileIndex);
+		}
 	}
 
 	return true;
