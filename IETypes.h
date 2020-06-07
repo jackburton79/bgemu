@@ -290,8 +290,13 @@ struct region {
 
 
 enum door_flags {
-	DOOR_OPEN	= 1 << 0,
-	DOOR_LOCKED = 1 << 1,
+	DOOR_OPEN = 1 << 0,
+	DOOR_LOCKED	= 1 << 1,
+	DOOR_TRAP_RESET = 1 << 2,
+	DOOR_TRAP_DETECTABLE = 1 << 3,
+	DOOR_BROKEN = 1 << 4,
+	DOOR_CANTCLOSE = 1 << 5,
+	DOOR_DETECTED = 1 << 6,
 	DOOR_SECRET = 1 << 7
 };
 
