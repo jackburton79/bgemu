@@ -23,7 +23,6 @@
 
 #include "ShellCommand.h"
 
-#if 0
 class ListObjectsCommand : public ShellCommand {
 public:
 	ListObjectsCommand() : ShellCommand("list-objects") {}
@@ -103,7 +102,7 @@ public:
 	}
 };
 
-
+#if 0
 class WalkToObjectCommand : public ShellCommand {
 public:
 	WalkToObjectCommand() : ShellCommand("walk-to-object") {};
@@ -168,7 +167,7 @@ public:
 	}
 };
 
-
+#endif
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand() : ShellCommand("exit") {};
@@ -179,20 +178,20 @@ public:
 	};
 };
 
-#endif 
+
 void
 AddCommands(InputConsole* console)
 {
-#if 0
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new ExitCommand());
+#if 0
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new DisplayStringCommand());
-	console->AddCommand(new ExitCommand());
 #endif
 }
