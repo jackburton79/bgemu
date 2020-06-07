@@ -181,12 +181,12 @@ Script::FindSenderObject(Object* object, action_node* start)
 	}
 	
 	Object* result = GetObject(object, objectNode);
-	if (result != NULL)
-		std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
 	if (result == NULL) {
 		std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
 		return object;
 	}
+
+	std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
 	return result;
 }
 

@@ -235,7 +235,7 @@ MoveBetweenAreasEffect::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		Actor* actor = dynamic_cast<Actor*>(fObject);
+		Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 		if (actor != NULL) {
 			std::cout << "area:" << fActionParams->string1 << std::endl;
 			actor->SetPosition(fActionParams->where);

@@ -229,12 +229,6 @@ Object::AddAction(Action* action, bool now)
 void
 Object::ExecuteActions()
 {
-	/*if (fWaitTime > 0) {
-		std::cout << Name() << " : wait time " << std::dec << fWaitTime << std::endl;
-		fWaitTime--;
-		return;
-	}*/
-
 	if (fCurrentAction != NULL) {
 		if (fCurrentAction->Completed()) {
 			std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;

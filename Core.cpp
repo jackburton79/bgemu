@@ -368,14 +368,13 @@ Core::GetObject(const char* name) const
 		}
 	}
 
-/*
 	RegionsList::const_iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		if (!strcasecmp(name, (*r)->Name())) {
 			return *r;
 		}
 	}
-*/
+
 	return NULL;
 }
 
