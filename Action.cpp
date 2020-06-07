@@ -454,11 +454,11 @@ OpenDoor::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
-	Object* target = Script::FindTargetObject(fObject, fActionParams);
+	Object* target = Script::FindTargetObject(actor, fActionParams);
 	Door* door = dynamic_cast<Door*>(target);
 	if (door == NULL) {
 		SetCompleted();
