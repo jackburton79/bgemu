@@ -1016,7 +1016,7 @@ Script::_HandleAction(action_node* act)
 			std::cout << "ActionOverride()" << std::endl;
 			break;
 		}
-		case 0x03:
+		case 3:
 		{
 			/* Attack(O:Target*) */
 			/*if (thisActor != NULL) {
@@ -1025,7 +1025,7 @@ Script::_HandleAction(action_node* act)
 			}*/
 			break;
 		}
-		case 0x07:
+		case 7:
 		{
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			// TODO: If point is (-1, -1) we should put the actor near
@@ -1034,7 +1034,7 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(action, runNow);
 			break;
 		}
-		case 0x8:
+		case 8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
 			/*Actor* actor = dynamic_cast<Actor*>(FindObject(act));
@@ -1044,7 +1044,7 @@ Script::_HandleAction(action_node* act)
 			}*/
 			break;
 		}
-		case 0xA:
+		case 10:
 		{
 			/* ENEMY() (10 0xa) */
 			uint32 id = IDTable::EnemyAllyValue("ENEM");
@@ -1153,7 +1153,7 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(wait);
 			break;
 		}
-		case 0x54:
+		case 84:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
 			if (thisActor != NULL) {
@@ -1207,7 +1207,7 @@ Script::_HandleAction(action_node* act)
 			}*/
 			break;
 		}
-		case 0x6d:
+		case 109:
 		{	
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
 			std::string variableScope;
@@ -1217,7 +1217,7 @@ Script::_HandleAction(action_node* act)
 			core->Vars().Set(act->string1, value + act->integer1);
 			break;		
 		}		
-		case 0x6f:
+		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
@@ -1229,7 +1229,7 @@ Script::_HandleAction(action_node* act)
 			break;
 			//return false;
 		}
-		case 0x73:
+		case 115:
 		{
 			/* SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) (115 0x73)*/
 			std::string timerName;
@@ -1251,7 +1251,7 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(new StartCutsceneModeAction(sender, act), runNow);
 			break;
 		}
-		case 0x7f:
+		case 127:
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
@@ -1307,7 +1307,7 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(action, runNow);
 			break;
 		}
-		case 198: // 0xc6
+		case 198:
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
@@ -1363,6 +1363,13 @@ Script::_HandleAction(action_node* act)
 			 * on water, on a roof). */
 			Action* action = new CreateCreatureImpassableAction(sender, act);
 			sender->AddAction(action, runNow);
+			break;
+		}
+		case 229:
+		{
+			// FACEOBJECT(O:OBJECT*)
+			Action* action = new FaceObject(sender, act);
+			sender->AddAction(action);
 			break;
 		}
 		case 254:
