@@ -476,7 +476,7 @@ OpenDoor::operator()()
 		return;
 	}
 
-	if (!door->Opened())
+	if (!door->Opened()) {
 		door->Toggle();
 		SetCompleted();
 	}
