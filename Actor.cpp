@@ -124,10 +124,10 @@ Actor::_Init()
 		_HandleColors();
 	}
 
-	if (::strcasecmp(Name(), "IMOEN") == 0) {
+	//if (::strcasecmp(Name(), "IMOEN") == 0) {
 		Print();
-		std::cerr << " (" << CRE()->AnimationID() << ")" << std::endl;
-	}
+		std::cout << fCRE->DeathVariable() << std::endl;
+	//}
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
@@ -303,6 +303,15 @@ void
 Actor::SetOrientation(int o)
 {
 	fActor->orientation = o;
+}
+
+void
+Actor::SetOrientation(const IE::point& toPoint)
+{
+	if (Core::Get()->Game() == GAME_BALDURSGATE)
+		_SetOrientation(toPoint);
+	else
+		_SetOrientationExtended(toPoint);
 }
 
 

@@ -41,6 +41,7 @@ public:
 
 	int Orientation() const;
 	void SetOrientation(int o);
+	void SetOrientation(const IE::point& toPoint);
 
 	IE::point Position() const;
 	void SetPosition(const IE::point& position);
