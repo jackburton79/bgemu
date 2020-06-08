@@ -290,15 +290,20 @@ struct region {
 
 
 enum door_flags {
-	DOOR_OPEN	= 1 << 0,
-	DOOR_LOCKED = 1 << 1,
+	DOOR_OPEN = 1 << 0,
+	DOOR_LOCKED	= 1 << 1,
+	DOOR_TRAP_RESET = 1 << 2,
+	DOOR_TRAP_DETECTABLE = 1 << 3,
+	DOOR_BROKEN = 1 << 4,
+	DOOR_CANTCLOSE = 1 << 5,
+	DOOR_DETECTED = 1 << 6,
 	DOOR_SECRET = 1 << 7
 };
 
 
 struct door {
 	char name[32];
-	res_ref id;
+	res_ref short_name;
 	uint32 flags;
 	uint32 open_vertex_index;
 	uint16 open_vertices_count;
@@ -333,7 +338,7 @@ struct door {
 
 
 struct tiled_object {
-	char name[8];
+	res_ref short_name;
 	uint16 flags;
 	uint16 cell_index;
 	uint16 cell_count;

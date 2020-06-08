@@ -55,14 +55,15 @@ public:
 	const Polygon *PolygonAt(uint32 index) const;
 
 	uint32 CountDoors() const;
-	bool GetDoorTiles(Door* door, uint32 index);
-
+	
+	bool LinkDoorWithTiledObject(Door* door);
+	
 private:
 	virtual ~WEDResource();
 	void _Load();
 	void _LoadPolygons();
 	void _ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay);
-
+	
 	uint32 fNumOverlays;
 	uint32 fNumTiledObjects;
 	uint32 fNumPolygons;

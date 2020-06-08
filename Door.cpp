@@ -8,12 +8,17 @@ Door::Door(IE::door* areaDoor)
 }
 
 
+res_ref
+Door::ShortName() const
+{
+	return fAreaDoor->short_name;
+}
+
+
 void
 Door::Toggle()
 {
-	bool wasOpen = fAreaDoor->flags & IE::DOOR_OPEN;
-
-	if (wasOpen)
+	if (Opened())
 		fAreaDoor->flags &= ~IE::DOOR_OPEN;
 	else
 		fAreaDoor->flags |= IE::DOOR_OPEN;
@@ -23,20 +28,16 @@ Door::Toggle()
 void
 Door::Open(Object* actor)
 {
-	if (!(fAreaDoor->flags & IE::DOOR_OPEN)) {
+	if (!(fAreaDoor->flags & IE::DOOR_OPEN))
 		fAreaDoor->flags |= IE::DOOR_OPEN;
-		//Core::Get()->CurrentRoundResults()->fOpenedBy = actor->Name();
-	}
 }
 
 
 void
 Door::Close(Object* actor)
 {
-	if (fAreaDoor->flags & IE::DOOR_OPEN) {
-		fAreaDoor->flags &= ~IE::DOOR_OPEN;;
-		//CurrentScriptRoundResults()->fClosedBy = actor->Name();
-	}
+	if (fAreaDoor->flags & IE::DOOR_OPEN)
+		fAreaDoor->flags &= ~IE::DOOR_OPEN;
 }
 
 
@@ -103,5 +104,4 @@ Door::Opened() const
 void
 Door::Print() const
 {
-	//printf("%s\n", (const char*)fAreaDoor->id);
 }

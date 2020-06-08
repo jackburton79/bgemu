@@ -8,9 +8,12 @@
 
 #include <vector>
 
+
 class Door : public Object {
 public:
 	Door(IE::door* areaDoor);
+
+	res_ref ShortName() const;	
 	
 	// TODO: Remove!
 	void Toggle();
@@ -35,6 +38,7 @@ public:
 
 private:
 	IE::door* fAreaDoor;
+	IE::tiled_object* fTiledObject;	
 	Polygon fOpenPolygon;
 	Polygon fClosedPolygon;
 };
