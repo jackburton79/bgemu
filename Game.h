@@ -8,6 +8,9 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+
+#define AI_UPDATE_FREQ 15
+
 class Actor;
 class Party;
 class Game {

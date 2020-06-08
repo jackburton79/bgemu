@@ -3,6 +3,7 @@
 #include "Animation.h"
 #include "Core.h"
 #include "Door.h"
+#include "Game.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Parsing.h"
@@ -264,7 +265,7 @@ PlayDeadAction::operator()()
 		if (actor == NULL)
 			SetCompleted();
 		actor->SetAnimationAction(ACT_DEAD);
-		fDuration = fActionParams->integer1 * 15;
+		fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
 	}
 	
 	if (fDuration-- <= 0)
@@ -403,7 +404,7 @@ Wait::operator()()
 		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
-		fWaitTime = fActionParams->integer1 * 15; // TODO use a constant
+		fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ; // TODO use a constant
 		return;
 	}
 	
@@ -894,7 +895,7 @@ DisplayString::operator()()
 		SetInitiated();
 		fDuration = fActionParams->integer1;
 		std::string string = IDTable::GetDialog(fActionParams->integer1); 
-		GUI::Get()->DisplayString(string, fActionParams->where.x, fActionParams->where.y, fDuration * 15);
+		GUI::Get()->DisplayString(string, fActionParams->where.x, fActionParams->where.y, fDuration * AI_UPDATE_FREQ);
 	}
 	
 	if (fDuration-- <= 0) {	
@@ -932,7 +933,7 @@ DisplayStringHead::operator()()
 		string.append(" (");
 		string.append(tlkEntry->sound_ref.CString());
 		string.append(")");
-		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration *  15);
+		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration * AI_UPDATE_FREQ);
 		Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
