@@ -260,4 +260,11 @@ private:
 	int fOrientation;
 };
 
-#endif
+
+class FaceObject : public Action {
+public:
+	FaceObject(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+#endif // __ACTION_H

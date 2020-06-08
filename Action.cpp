@@ -341,13 +341,8 @@ WalkToObject::operator()()
 	//target->Acquire();
 	
 	IE::point destination = target->NearestPoint(actor->Position());
-/*
-	std::cout << actor->Name();
-	std::cout << " position: " << actor->Position().x << ", " << actor->Position().y;
-	std::cout << " nearest " << target->Name() << ": ";
-	std::cout << destination.x << ", " << destination.y << std::endl;
-*/
-	actor->SetDestination(destination);
+	if (!PointSufficientlyClose(actor->Position(), destination))
+		actor->SetDestination(destination);
 
 	if (actor->Position() == actor->Destination()) {
 		SetCompleted();
@@ -964,5 +959,34 @@ ChangeOrientationExtAction::operator()()
 	Actor* actor = dynamic_cast<Actor*>(fObject);
 	if (actor != NULL)
 		actor->SetOrientation(fActionParams->integer1);
+	SetCompleted();
+}
+
+
+// FaceObject
+FaceObject::FaceObject(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+FaceObject::operator()()
+{
+	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Object* target = Script::FindTargetObject(sender, fActionParams);
+	
+	if (sender == NULL || target == NULL) {
+		std::cerr << "FaceObject(): NULL object" << std::endl;
+		SetCompleted();
+	}
+	
+	const IE::rect objectFrame = target->Frame();
+	IE::point point;
+	point.x = (objectFrame.x_max - objectFrame.x_min) / 2;
+	point.y = (objectFrame.y_max - objectFrame.y_min) / 2;
+	sender->SetOrientation(point);
 	SetCompleted();
 }
