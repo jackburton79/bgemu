@@ -977,12 +977,12 @@ FaceObject::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	Object* target = Script::FindTargetObject(sender, fActionParams);
-	
 	if (sender == NULL || target == NULL) {
 		std::cerr << "FaceObject(): NULL object" << std::endl;
 		SetCompleted();
+		return;
 	}
-	
+
 	const IE::rect objectFrame = target->Frame();
 	IE::point point;
 	point.x = (objectFrame.x_max - objectFrame.x_min) / 2;
