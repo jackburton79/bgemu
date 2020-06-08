@@ -18,10 +18,13 @@ Door::ShortName() const
 void
 Door::Toggle()
 {
-	if (Opened())
+	if (Opened()) {
 		fAreaDoor->flags &= ~IE::DOOR_OPEN;
-	else
+		std::cout << "Door: (" << Name() << "): Close()" << std::endl;
+	} else {
 		fAreaDoor->flags |= IE::DOOR_OPEN;
+		std::cout << "Door: (" << Name() << "): Open()" << std::endl;
+	}
 }
 
 

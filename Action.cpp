@@ -341,6 +341,12 @@ WalkToObject::operator()()
 	//target->Acquire();
 	
 	IE::point destination = target->NearestPoint(actor->Position());
+/*
+	std::cout << actor->Name();
+	std::cout << " position: " << actor->Position().x << ", " << actor->Position().y;
+	std::cout << " nearest " << target->Name() << ": ";
+	std::cout << destination.x << ", " << destination.y << std::endl;
+*/
 	actor->SetDestination(destination);
 
 	if (actor->Position() == actor->Destination()) {
@@ -457,20 +463,23 @@ OpenDoor::operator()()
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
-	if (actor == NULL)
+	if (actor == NULL) {
+		std::cerr << "NULL ACTOR!!!" << std::endl;
 		return;
+	}
 
 	Object* target = Script::FindTargetObject(actor, fActionParams);
 	Door* door = dynamic_cast<Door*>(target);
 	if (door == NULL) {
+		std::cerr << "NULL DOOR!!! MEANS THE OBJECT IS NOT A DOOR" << std::endl;
 		SetCompleted();
 		return;
 	}
-	
-	//target->Print();
+
 	if (!door->Opened())
 		door->Toggle();
-	SetCompleted();
+		SetCompleted();
+	}
 }
 
 
