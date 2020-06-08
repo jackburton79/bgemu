@@ -991,3 +991,47 @@ FaceObject::operator()()
 	sender->SetOrientation(point);
 	SetCompleted();
 }
+
+
+// CreateVisualEffect
+CreateVisualEffect::CreateVisualEffect(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+CreateVisualEffect::operator()()
+{
+	if (fObject != NULL) {
+		fObject->Print();	
+	}
+	SetCompleted();
+}
+
+
+// CreateVisualEffectObject
+CreateVisualEffectObject::CreateVisualEffectObject(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+CreateVisualEffectObject::operator()()
+{
+	if (fObject != NULL) {
+		fObject->Print();
+	}
+	IE::point point;
+	point.x = fObject->Frame().x_min;
+	point.y = fObject->Frame().y_min;
+	Core::Get()->PlayAnimation("SPENTAAI", point);
+	SetCompleted();
+}
+
+

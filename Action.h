@@ -267,4 +267,18 @@ public:
 	virtual void operator()();
 };
 
+
+class CreateVisualEffect : public Action {
+public:
+	CreateVisualEffect(Object* action, action_node* node);
+	virtual void operator()();
+};
+
+
+class CreateVisualEffectObject : public Action {
+public:
+	CreateVisualEffectObject(Object* action, action_node* node);
+	virtual void operator()();
+};
+
 #endif // __ACTION_H

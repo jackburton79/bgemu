@@ -1386,6 +1386,18 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(action);
 			break;
 		}
+		case 272:
+		{
+			// 272 CreateVisualEffect(S:Object*,P:Location*) 0x110
+			sender->AddAction(new CreateVisualEffect(sender, act), runNow);
+			break;
+		}
+		case 273:
+		{
+			// CREATEVISUALEFFECTOBJECT(S:DIALOGFILE*,O:TARGET*) 
+			sender->AddAction(new CreateVisualEffectObject(sender, act), runNow);			
+			break;
+		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */

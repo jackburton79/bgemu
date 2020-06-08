@@ -2,6 +2,7 @@
 
 #include "Action.h"
 #include "Actor.h"
+#include "Animation.h"
 #include "AreaRoom.h"
 #include "BCSResource.h"
 #include "Container.h"
@@ -288,6 +289,19 @@ void
 Core::SetCutsceneActor(Object* actor)
 {
 	fCutsceneActor = actor;
+}
+
+
+void
+Core::PlayAnimation(const res_ref& name, const IE::point where)
+{
+	AreaRoom* area = dynamic_cast<AreaRoom*>(CurrentRoom());
+	if (area == NULL)
+		return;
+
+	Animation* animation = new Animation(name.CString(), 0, false, where);
+	area->AddAnimation(animation);
+	// TODO: Delete when done
 }
 
 

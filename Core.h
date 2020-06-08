@@ -76,6 +76,8 @@ public:
 	void StartCutscene(const res_ref& scriptName);
 	void SetCutsceneActor(Object* object);
 
+	void PlayAnimation(const res_ref& name, const IE::point where);
+
 	void PlaySound(const res_ref& soundRefName);
 
 	Variables& Vars();

@@ -517,6 +517,20 @@ AreaRoom::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
 }
 
 
+void
+AreaRoom::AddAnimation(Animation* animation)
+{
+	fAnimations.push_back(animation);
+}
+
+
+void
+AreaRoom::RemoveAnimation(Animation* animation)
+{
+	// TODO: Implement
+}
+
+
 uint8
 AreaRoom::PointHeight(const IE::point& point) const
 {
