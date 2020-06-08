@@ -302,6 +302,7 @@ Core::PlayAnimation(const res_ref& name, const IE::point where)
 	Animation* animation = new Animation(name.CString(), 0, false, where);
 	area->AddAnimation(animation);
 	// TODO: Delete when done
+	// at the moment we are leaking the animation
 }
 
 
