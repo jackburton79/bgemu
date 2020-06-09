@@ -129,7 +129,7 @@ Animation::Next()
 {
 	fCurrentFrame++;
 	if (fCurrentFrame >= fMaxFrame)
-		fCurrentFrame = fStartFrame;	
+		fCurrentFrame = fStartFrame;
 }
 
 
