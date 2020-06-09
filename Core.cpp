@@ -759,9 +759,9 @@ Core::_CleanDestroyedObjects()
 		if (object->ToBeDestroyed()) {
 			if (object == fCutsceneActor) {
 				// TODO: is this correct ?
-				/*GUI::Get()->Show();
+				//GUI::Get()->Show();
 				fCutsceneMode = false;
-				fCutsceneActor = NULL;*/
+				fCutsceneActor = NULL;
 				//return;	
 				
 			}
