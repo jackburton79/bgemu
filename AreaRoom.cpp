@@ -838,6 +838,13 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 }
 
 
+static bool
+Finished(Effect* effect)
+{
+	return effect->Finished();
+}
+
+
 void
 AreaRoom::_DrawEffects()
 {
@@ -856,19 +863,9 @@ AreaRoom::_DrawEffects()
 	}
 	
 	// Remove completed effects
-	EffectsList::reverse_iterator r;
-	for (r = fEffects.rbegin(); r != fEffects.rend(); r++) {
-		try {
-			Effect* effect = *r;
-			if (effect->Finished())
-				i = fEffects.erase(i);
-		} catch (const char* string) {
-			std::cerr << string << std::endl;
-			continue;
-		} catch (...) {
-			continue;
-		}
-	}
+	
+	auto it = std::remove_if(fEffects.begin(), fEffects.end(), Finished);
+	fEffects.erase(it, fEffects.end());
 }
 
 
