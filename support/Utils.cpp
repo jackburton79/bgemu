@@ -95,7 +95,7 @@ extension(const char* path)
 	const char* point = path + strlen(path) - 4;
 	if (point == NULL || *point != '.')
 		return NULL;
-	return point;
+	return point + 1;
 }
 
 

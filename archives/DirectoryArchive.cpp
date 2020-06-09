@@ -51,7 +51,7 @@ DirectoryArchive::ReadResource(res_ref& ref,
 	dirent *entry = NULL;
 	while ((entry = ::readdir(fDir)) != NULL) {
 		std::string resourceName = ref.CString();
-		resourceName.append(res_extension(type));
+		resourceName.append(".").append(res_extension(type));
 		if (!strcasecmp(resourceName.c_str(), entry->d_name)) {
 			Path filePath = fPath.String();
 			filePath.Append(entry->d_name);

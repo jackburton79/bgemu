@@ -10,12 +10,46 @@
 #include <cmath>
 #include <cstdio>
 #include <inttypes.h>
-
+#include <string>
 
 
 using namespace IE;
 
 const static int kMaxBuffers = 10;
+
+struct resource_types {
+	int type;
+	std::string extension;
+	std::string description;
+};
+
+const static resource_types kResourceTypes[] = {
+	{ RES_2DA, "2DA", "2DA format" },
+	{ RES_ARA, "ARE", "AREA format" },
+	{ RES_BMP, "BMP", "Bitmap (BMP) format" },
+	{ RES_MVE, "MVE", "Movie (MVE) format" },
+	{ RES_WAV, "WAV", "WAV format" },
+	{ RES_PLT, "PLT", "Paper Dolls (PLT) format" },
+	{ RES_ITM, "ITM", "Item" },
+	{ RES_BAM, "BAM", "BAM format" },
+	{ RES_WED, "WED", "WED format" },
+	{ RES_TIS, "TIS", "TIS format" },
+	{ RES_MOS, "MOS", "MOS format" },
+	{ RES_SPL, "SPL", "SPL format" },
+	{ RES_IDS, "IDS", "IDS format" },
+	{ RES_BCS, "BCS", "Compiled script (BCS format)" },
+	{ RES_CRE, "CRE", "Creature" },
+	{ RES_DLG, "DLG", "Dialog" },
+	{ RES_EFF, "EFF", "EFF Effect" },
+	{ RES_VVC, "VVC", "VVC Effect" },
+	{ RES_STO, "STO", "STORE format" },
+	{ RES_WMP, "WMP", "World map format" },
+	{ RES_CHU, "CHU", "CHU format" },
+	{ RES_GAM, "GAM", "GAM format" },
+	{ RES_PRO, "PRO", "PRO format (projectile)" },
+	{ RES_WFX, "WFX", "WFX format" }
+};
+
 
 static char*
 get_buffer()
@@ -36,47 +70,12 @@ get_buffer()
 const char*
 res_extension(int type)
 {
-	switch (type) {
-		case RES_2DA:
-			return ".2DA";
-		case RES_ARA:
-			return ".ARE";
-		case RES_BAM:
-			return ".BAM";
-		case RES_BCS:
-			return ".BCS";
-		case RES_BMP:
-			return ".BMP";
-		case RES_CHU:
-			return ".CHU";
-		case RES_CRE:
-			return ".CRE";
-		case RES_DLG:
-			return ".DLG";
-		case RES_IDS:
-			return ".IDS";
-		case RES_ITM:
-			return ".ITM";
-		case RES_MOS:
-			return ".MOS";
-		case RES_MVE:
-			return ".MVE";
-		case RES_TIS:
-			return ".TIS";
-		case RES_VVC:
-			return ".VVC";
-		case RES_WAV:
-			return ".WAV";
-		case RES_WED:
-			return ".WED";
-		case RES_WMP:
-			return ".WMP";
-
-		default:
-			throw "Unknown resource!";
-			break;
+	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
+		if (kResourceTypes[i].type == type)
+			return kResourceTypes[i].extension.c_str();
 	}
 
+	throw "Unknown resource!";
 	return NULL;
 }
 
@@ -87,37 +86,24 @@ res_string_to_type(const char* string)
 	const char* ext = extension(string);
 	if (ext == NULL)
 		return -1;
-	if (!strcasecmp(ext, ".2DA"))
-		return RES_2DA;
-	else if (!strcasecmp(ext, ".DLG"))
-		return RES_DLG;
-	else if (!strcasecmp(ext, ".WED"))
-		return RES_WED;
-	else if (!strcasecmp(ext, ".WMP"))
-		return RES_WMP;
-	else if (!strcasecmp(ext, ".TIS"))
-		return RES_TIS;
-	else if (!strcasecmp(ext, ".BAM"))
-		return RES_BAM;
-	else if (!strcasecmp(ext, ".MOS"))
-		return RES_MOS;
-	else if (!strcasecmp(ext, ".ARE"))
-		return RES_ARA;
-	else if (!strcasecmp(ext, ".CRE"))
-		return RES_CRE;
-	else if (!strcasecmp(ext, ".BCS"))
-		return RES_BCS;
-	else if (!strcasecmp(ext, ".BMP"))
-		return RES_BMP;
-	else if (!strcasecmp(ext, ".IDS"))
-		return RES_IDS;
-	else if (!strcasecmp(ext, ".ITM"))
-		return RES_ITM;
-	else if (!strcasecmp(ext, ".WAV"))
-		return RES_WAV;
-	else if (!strcasecmp(ext, ".VVC"))
-		return RES_VVC;
-	return -1;
+	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
+		if (strcasecmp(kResourceTypes[i].extension.c_str(), ext) == 0) {
+			return kResourceTypes[i].type;
+		}
+	}
+	throw "Unknown Extension";
+	return -1;	
+}
+
+
+const char*
+strresource(int type)
+{
+	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
+		if (kResourceTypes[i].type == type)
+			return kResourceTypes[i].description.c_str();
+	}
+	return NULL;
 }
 
 

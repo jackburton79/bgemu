@@ -19,7 +19,7 @@ Archive::Create(const char *path)
 	try {
 		if (ext == NULL) { // TODO: Not so nice
 			archive = new DirectoryArchive(path);
-		} else if (!strcasecmp(ext, ".bif"))
+		} else if (!strcasecmp(ext, "bif"))
 			archive = new BIFArchive(path);
 		else {
 			archive = new PlainFileArchive(path);
