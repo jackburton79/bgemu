@@ -243,14 +243,29 @@ Game::LoadStartingArea()
 
 	std::cout << "Starting area: " << startingArea << std::endl;
 	std::cout << "Starting position: " << point.x << "," << point.y << std::endl;
+	
+	TWODAResource* startPosResource = gResManager->Get2DA("STARTPOS");
+	if (startPosResource == NULL) {
+		std::cout << "Failed!" << std::endl;
+		return;
+	}
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
 	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(point);
-	if (fParty != NULL) {
-		fParty->ActorAt(0)->SetPosition(point);
-		fParty->ActorAt(0)->ClearDestination();
-	}
 
-	gResManager->ReleaseResource(resource);
+	if (fParty != NULL) {
+		for (int16 i = 0; i < fParty->CountActors(); i++) {
+			char column[2];
+			snprintf(column, sizeof(column), "%d", i + 1);			
+			IE::point startPos;
+			startPos.x = startPosResource->IntegerValueFor("START_XPOS", column);
+			startPos.y = startPosResource->IntegerValueFor("START_YPOS", column);
+			fParty->ActorAt(i)->SetPosition(startPos);
+			fParty->ActorAt(i)->ClearDestination();
+		}
+	}
+	
+	gResManager->ReleaseResource(resource);	
+	gResManager->ReleaseResource(startPosResource);
 }
 
