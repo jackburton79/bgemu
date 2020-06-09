@@ -1005,7 +1005,7 @@ CreateVisualEffect::CreateVisualEffect(Object* object, action_node* node)
 void
 CreateVisualEffect::operator()()
 {
-	Core::Get()->PlayAnimation(/*fActionParams->string1*/ "SPENTAAI", fActionParams->where);
+	Core::Get()->PlayEffect(fActionParams->string1, fActionParams->where);
 	SetCompleted();
 }
 
@@ -1025,7 +1025,7 @@ CreateVisualEffectObject::operator()()
 	IE::point point;
 	point.x = fObject->Frame().x_min;
 	point.y = fObject->Frame().y_min;
-	Core::Get()->PlayAnimation(/*fActionParams->string1*/ "SPENTAAI", point);
+	Core::Get()->PlayEffect(fActionParams->string1, point);
 	SetCompleted();
 }
 

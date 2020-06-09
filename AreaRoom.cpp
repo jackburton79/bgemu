@@ -14,6 +14,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Effect.h"
 #include "Game.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
@@ -531,6 +532,20 @@ AreaRoom::RemoveAnimation(Animation* animation)
 }
 
 
+void
+AreaRoom::AddEffect(Effect* effect)
+{
+	fEffects.push_back(effect);
+}
+
+
+void
+AreaRoom::RemoveEffect(Effect* effect)
+{
+
+}
+
+
 uint8
 AreaRoom::PointHeight(const IE::point& point) const
 {
@@ -811,6 +826,40 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 				const Bitmap* frame = animation->Bitmap();
 				DrawObject(frame, animation->Position(), false);
 			}
+		} catch (const char* string) {
+			std::cerr << string << std::endl;
+			continue;
+		} catch (...) {
+			continue;
+		}
+	}
+}
+
+
+void
+AreaRoom::_DrawEffects()
+{
+	EffectsList::const_iterator i;
+	for (i = fEffects.begin(); i != fEffects.end(); i++) {
+		try {
+			Effect* effect = *i;
+			const Bitmap* frame = effect->NextBitmap();
+			DrawObject(frame, effect->Position(), false);
+		} catch (const char* string) {
+			std::cerr << string << std::endl;
+			continue;
+		} catch (...) {
+			continue;
+		}
+	}
+	
+	// Remove completed effects
+	EffectsList::reverse_iterator r;
+	for (r = fEffects.rbegin(); r != fEffects.rend(); r++) {
+		try {
+			Effect* effect = *r;
+			if (effect->Finished())
+				i = fEffects.erase(i);
 		} catch (const char* string) {
 			std::cerr << string << std::endl;
 			continue;

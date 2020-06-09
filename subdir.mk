@@ -11,6 +11,7 @@ LOCALSOURCES = \
 ../Container.cpp \
 ../Core.cpp \
 ../Door.cpp \
+../Effect.cpp \
 ../EncryptedStream.cpp \
 ../Graphics.cpp \
 ../Game.cpp \

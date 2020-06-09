@@ -30,6 +30,7 @@ class MVEResource;
 class KEYResource;
 class TISResource;
 class TLKResource;
+class VVCResource;
 class WEDResource;
 class WMAPResource;
 class ResourceManager {
@@ -39,23 +40,24 @@ public:
 
 	void SetDebug(int level);
 	
-	KEYResource *GetKEY(const char *name);
-	TLKResource *GetTLK(const char *name);
-	TWODAResource *Get2DA(const res_ref& name);
-	BAMResource *GetBAM(const res_ref& name);
-	BCSResource *GetBCS(const res_ref& name);
-	BMPResource *GetBMP(const res_ref& name);
-	CHUIResource* GetCHUI(const res_ref& name);
-	CREResource *GetCRE(const res_ref& name);
-	DLGResource* GetDLG(const res_ref& name);
-	IDSResource *GetIDS(const res_ref& name);
-	ITMResource *GetITM(const res_ref& name);
-	TISResource *GetTIS(const res_ref& name);
-	WEDResource *GetWED(const res_ref& name);
-	ARAResource *GetARA(const res_ref& name);
-	MOSResource * GetMOS(const res_ref& name);
-	MVEResource *GetMVE(const res_ref& name);
-	WMAPResource* GetWMAP(const res_ref& name);
+	KEYResource*	GetKEY(const char *name);
+	TLKResource*	GetTLK(const char *name);
+	TWODAResource*	Get2DA(const res_ref& name);
+	BAMResource*	GetBAM(const res_ref& name);
+	BCSResource*	GetBCS(const res_ref& name);
+	BMPResource*	GetBMP(const res_ref& name);
+	CHUIResource*	GetCHUI(const res_ref& name);
+	CREResource*	GetCRE(const res_ref& name);
+	DLGResource*	GetDLG(const res_ref& name);
+	IDSResource*	GetIDS(const res_ref& name);
+	ITMResource*	GetITM(const res_ref& name);
+	TISResource*	GetTIS(const res_ref& name);
+	WEDResource*	GetWED(const res_ref& name);
+	ARAResource*	GetARA(const res_ref& name);
+	MOSResource*	GetMOS(const res_ref& name);
+	MVEResource*	GetMVE(const res_ref& name);
+	VVCResource*	GetVVC(const res_ref& name);
+	WMAPResource*	GetWMAP(const res_ref& name);
 
 	Resource *GetResource(const char* fullName);
 	Resource *GetResource(const res_ref &name, uint16 type);

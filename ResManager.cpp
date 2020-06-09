@@ -21,6 +21,7 @@
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "Utils.h"
+#include "VVCResource.h"
 #include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
@@ -437,6 +438,14 @@ ResourceManager::GetWMAP(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_WMP);
 	return static_cast<WMAPResource*>(resource);
+}
+
+
+VVCResource*
+ResourceManager::GetVVC(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_VVC);
+	return static_cast<VVCResource*>(resource);
 }
 
 

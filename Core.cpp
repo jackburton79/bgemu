@@ -8,6 +8,7 @@
 #include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Effect.h"
 #include "Game.h"
 #include "GUI.h"
 #include "IDSResource.h"
@@ -303,6 +304,18 @@ Core::PlayAnimation(const res_ref& name, const IE::point where)
 	area->AddAnimation(animation);
 	// TODO: Delete when done
 	// at the moment we are leaking the animation
+}
+
+
+void
+Core::PlayEffect(const res_ref& name, const IE::point where)
+{
+	AreaRoom* area = dynamic_cast<AreaRoom*>(CurrentRoom());
+	if (area == NULL)
+		return;
+
+	Effect* effect = new Effect(name, where);
+	area->AddEffect(effect);
 }
 
 
