@@ -19,6 +19,7 @@
 #include "IETypes.h"
 #include "TisResource.h"
 #include "TLKResource.h"
+#include "VVCResource.h"
 #include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
@@ -296,6 +297,9 @@ Resource::Create(const res_ref &name, const uint16& type)
 				break;
 			case RES_TIS:
 				res = new TISResource(name);
+				break;
+			case RES_VVC:
+				res = new VVCResource(name);
 				break;
 			case RES_WAV:
 				res = new WAVResource(name);

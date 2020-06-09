@@ -46,4 +46,5 @@ protected:
 };
 
 
-#endif
+#endif // __RESOURCE_H
+

@@ -31,8 +31,8 @@ public:
 */
 private:
 	virtual ~VVCResource();
-/*	void _Load();
-	uint8 _FindTransparentIndex();
+	void _Load();
+/*	uint8 _FindTransparentIndex();
 
 	Bitmap* _FrameAt(uint16 index);
 
