@@ -2,7 +2,6 @@
 #include "FileStream.h"
 #include "MemoryStream.h"
 #include "Resource.h"
-#include "ResourceFactory.h"
 #include "SupportDefs.h"
 #include "IETypes.h"
 
@@ -44,7 +43,7 @@ Resource::Load(Archive *archive, uint32 key)
 Resource*
 Resource::Clone()
 {
-	Resource* newResource = ResourceFactory().CreateResource(Name(), Type());
+	Resource* newResource = Resource::Create(Name(), Type());
 	newResource->fKey = fKey;
 	newResource->fData = fData->Clone();
 	newResource->Acquire();
@@ -167,5 +166,39 @@ Resource::IsEncrypted()
 	fData->Seek(pos, SEEK_SET);
 
 	return encrypted;
+}
+
+
+/* static */
+Resource*
+Resource::Create(const res_ref &name, const uint16& type)
+{
+	Resource *res = NULL;
+	try {
+		resource_creation_func creationFunction = get_resource_create(type);		
+		res = creationFunction(name);
+	} catch (...) {
+		std::cerr << "Resource::Create(): exception thrown!" << std::endl;
+		res = NULL;
+	}
+
+	return res;
+}
+
+
+/* static */
+Resource*
+Resource::Create(const res_ref& name, const uint16& type,
+		const uint32& key, Archive* archive)
+{
+	Resource* resource = Resource::Create(name, type);
+	if (resource != NULL) {
+		if (!resource->Load(archive, key)) {
+			delete resource;
+			return NULL;
+		}
+	}
+
+	return resource;
 }
 

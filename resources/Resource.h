@@ -11,7 +11,6 @@ class Stream;
 class Resource : public Referenceable {
 public:
 	friend class ResourceManager;
-	friend class ResourceFactory;
 
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual Resource* Clone();
@@ -26,6 +25,10 @@ public:
 protected:
 	Resource(const res_ref &name, const uint16 &type);
 	virtual ~Resource();
+
+	static Resource* Create(const res_ref &name, const uint16& type);
+	static Resource* Create(const res_ref& name, const uint16& type,
+		const uint32& key, Archive* archive);
 
 	bool CheckSignature(const char *signature, bool dontWorry = false);
 	bool CheckVersion(const char *version, bool dontWorry = false);

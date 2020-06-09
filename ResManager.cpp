@@ -18,7 +18,6 @@
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Resource.h"
-#include "ResourceFactory.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "Utils.h"
@@ -579,7 +578,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 		fArchives[archiveName] = archive;
 	}
 
-	Resource *resource = ResourceFactory().CreateResource(entry.name, entry.type,
+	Resource *resource = Resource::Create(entry.name, entry.type,
 										entry.key, archive);
 	if (resource == NULL) {
 		if (fDebugLevel > 0)
@@ -626,7 +625,7 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
 	if (dirArchive == NULL)
 		return NULL;
 
-	Resource *resource = ResourceFactory().CreateResource(entry.name, entry.type,
+	Resource *resource = Resource::Create(entry.name, entry.type,
 										entry.key, dirArchive);
 	if (resource == NULL) {
 		delete dirArchive;

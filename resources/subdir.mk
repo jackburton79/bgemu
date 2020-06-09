@@ -14,7 +14,6 @@ LOCALSOURCES= \
 ../resources/MOSResource.cpp \
 ../resources/MveResource.cpp \
 ../resources/Resource.cpp \
-../resources/ResourceFactory.cpp \
 ../resources/TisResource.cpp \
 ../resources/TLKResource.cpp \
 ../resources/VVCResource.cpp \
