@@ -48,7 +48,7 @@ ResourceFactory::CreateResource(const res_ref &name, const uint16& type)
 		resource_creation_func creationFunction = get_resource_create(type);		
 		res = creationFunction(name);
 	} catch (...) {
-		printf("Resource::Create(): exception thrown!\n");
+		std::cerr << "ResourceFactory::Create(): exception thrown!" << std::endl;
 		res = NULL;
 	}
 
