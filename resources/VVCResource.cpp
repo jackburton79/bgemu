@@ -103,5 +103,11 @@ VVCResource::Dump()
 {
 	std::cout << Name() << std::endl;
 	std::cout << std::endl;
+	std::cout << "bam name: " << BAMName() << std::endl;	
+	std::cout << "num frames: " << CountFrames() << std::endl;	
+	res_ref paletteName;
+	fData->ReadAt(68, &paletteName, sizeof(paletteName));
+	std::cout << "Palette: ";
+	std::cout << paletteName.CString() << std::endl;
 }
 

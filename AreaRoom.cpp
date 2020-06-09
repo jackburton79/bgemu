@@ -238,7 +238,9 @@ AreaRoom::Draw(Bitmap *surface)
 		bool advance = timer != NULL && timer->Expired() && !paused;
 		_DrawAnimations(advance);
 	}
+
 	_DrawActors();
+	_DrawEffects();
 
 	if (fDrawPolygons) {
 		fBackMap->Image()->Lock();

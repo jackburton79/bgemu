@@ -11,6 +11,7 @@ Effect::Effect(const res_ref& name, IE::point where)
 	fNumFrames(0),
 	fWhere(where)
 {
+	std::cout << "Effect(): " << name.CString() << std::endl;
 	fVVC = gResManager->GetVVC(name);
 	fNumFrames = fVVC->CountFrames();
 	_LoadBitmaps();
@@ -33,7 +34,7 @@ Effect::CountFrames() const
 const ::Bitmap*
 Effect::NextBitmap()
 {
-	const ::Bitmap* bitmap = fBitmaps[fCurrentFrame];
+	const ::Bitmap* bitmap = fBitmaps.at(fCurrentFrame);
 	fCurrentFrame++;
 	if (fCurrentFrame >= fNumFrames)
 		return NULL;
@@ -63,7 +64,11 @@ Effect::_LoadBitmaps()
 	uint32 firstSequence = fVVC->IntroSequenceIndex();
 	uint32 secondSequence = fVVC->MiddleSequenceIndex();
 	uint32 thirdSequence = fVVC->EndingSequenceIndex();
-			
+	std::cout << "bamname: " << fVVC->BAMName() << std::endl;
+	std::cout << "first sequence:" << firstSequence << std::endl;
+	std::cout << "second sequence:" << secondSequence << std::endl;
+	std::cout << "third sequence:" << thirdSequence << std::endl;
+
 	for (int16 i = 0; i < bam->CountFrames(firstSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(firstSequence, i);
 		//GFX::Palette palette;
