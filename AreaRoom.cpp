@@ -864,7 +864,7 @@ AreaRoom::_DrawEffects()
 	
 	// Remove completed effects
 	
-	auto it = std::remove_if(fEffects.begin(), fEffects.end(), Finished);
+	EffectsList::iterator it = std::remove_if(fEffects.begin(), fEffects.end(), Finished);
 	fEffects.erase(it, fEffects.end());
 }
 
