@@ -43,7 +43,7 @@ struct resource_types {
 	int type;
 	std::string extension;
 	std::string description;
-	Resource* (*function)(const res_ref&);
+	Resource* (*create_function)(const res_ref&);
 };
 
 const static resource_types kResourceTypes[] = {
@@ -130,6 +130,18 @@ strresource(int type)
 }
 
 
+resource_creation_func
+get_resource_create(int type)
+{
+	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
+		if (kResourceTypes[i].type == type)
+			return kResourceTypes[i].create_function;
+	}
+	return NULL;
+}
+
+
+// ******
 bool
 is_tileset(int16 type)
 {

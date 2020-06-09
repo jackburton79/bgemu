@@ -48,6 +48,7 @@ const char *strresource(int type);
 const char *res_extension(int type);
 int res_string_to_type(const char* string);
 
+
 bool is_tileset(int16 type);
 
 struct res_ref {
@@ -61,6 +62,11 @@ struct res_ref {
 
 	char name[8];
 } __attribute__((packed));
+
+
+class Resource;
+typedef Resource* (*resource_creation_func)(const res_ref&);
+resource_creation_func get_resource_create(int type);
 
 
 struct ref_type {
