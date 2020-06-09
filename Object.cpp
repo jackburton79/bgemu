@@ -13,6 +13,7 @@
 #include "Core.h"
 #include "Game.h"
 #include "IDSResource.h"
+#include "Party.h"
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -190,12 +191,16 @@ Object::Update(bool scripts)
 		actor->UpdateSee();
 
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
-	if (isArea && Core::Get()->CutsceneMode())
+	bool cutscene = Core::Get()->CutsceneMode(); 	
+	if (isArea && cutscene)
 		scripts = false;
 
 	if (scripts) {
 		_ExecuteScripts(8);		
 	}
+
+	if (cutscene && actor != NULL && Game::Get()->Party()->HasActor(actor))
+		return;
 
 	ExecuteActions();
 }
