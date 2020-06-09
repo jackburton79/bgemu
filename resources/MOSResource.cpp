@@ -17,6 +17,14 @@
 
 const static int kPaletteDataSize = 1024;
 
+/* static */
+Resource*
+MOSResource::Create(const res_ref& name)
+{
+	return new MOSResource(name);
+}
+
+
 MOSResource::MOSResource(const res_ref &name)
 	:
 	Resource(name, RES_MOS),

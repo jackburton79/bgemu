@@ -129,6 +129,14 @@ IEAudioDecoder::GetAudioDecoder(bool isStereo, sint16* predictors)
 }
 
 
+/* static */
+Resource*
+MVEResource::Create(const res_ref& name)
+{
+	return new MVEResource(name);
+}
+
+
 MVEResource::MVEResource(const res_ref &name)
 	:
 	Resource(name, RES_MVE),

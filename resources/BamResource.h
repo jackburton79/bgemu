@@ -29,6 +29,7 @@ public:
 	void PrintFrames(uint8 cycleIndex) const;
 	void DumpFrames(const char *path);
 
+	static Resource* Create(const res_ref& name);
 private:
 	virtual ~BAMResource();
 	void _Load();

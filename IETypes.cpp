@@ -13,6 +13,28 @@
 #include <string>
 
 
+#include "2DAResource.h"
+#include "AreaResource.h"
+#include "BCSResource.h"
+#include "BamResource.h"
+#include "BmpResource.h"
+#include "CHUIResource.h"
+#include "CreResource.h"
+#include "DLGResource.h"
+#include "IDSResource.h"
+#include "ITMResource.h"
+#include "KEYResource.h"
+#include "MOSResource.h"
+#include "MveResource.h"
+#include "MemoryStream.h"
+#include "TisResource.h"
+#include "TLKResource.h"
+#include "VVCResource.h"
+#include "WAVResource.h"
+#include "WedResource.h"
+#include "WMAPResource.h"
+
+
 using namespace IE;
 
 const static int kMaxBuffers = 10;
@@ -21,33 +43,34 @@ struct resource_types {
 	int type;
 	std::string extension;
 	std::string description;
+	Resource* (*function)(const res_ref&);
 };
 
 const static resource_types kResourceTypes[] = {
-	{ RES_2DA, "2DA", "2DA format" },
-	{ RES_ARA, "ARE", "AREA format" },
-	{ RES_BAM, "BAM", "BAM format" },
-	{ RES_BCS, "BCS", "Compiled script (BCS format)" },
-	{ RES_BMP, "BMP", "Bitmap (BMP) format" },
-	{ RES_CHU, "CHU", "CHU format" },
-	{ RES_CRE, "CRE", "Creature" },
-	{ RES_DLG, "DLG", "Dialog" },
-	{ RES_EFF, "EFF", "EFF Effect" },
-	{ RES_GAM, "GAM", "GAM format" },
-	{ RES_IDS, "IDS", "IDS format" },
-	{ RES_ITM, "ITM", "Item" },
-	{ RES_MOS, "MOS", "MOS format" },
-	{ RES_MVE, "MVE", "Movie (MVE) format" },
-	{ RES_PLT, "PLT", "Paper Dolls (PLT) format" },
-	{ RES_PRO, "PRO", "PRO format (projectile)" },
-	{ RES_SPL, "SPL", "SPL format" },
-	{ RES_STO, "STO", "STORE format" },
-	{ RES_TIS, "TIS", "TIS format" },
-	{ RES_VVC, "VVC", "VVC Effect" },
-	{ RES_WAV, "WAV", "WAV format" },
-	{ RES_WED, "WED", "WED format" },
-	{ RES_WFX, "WFX", "WFX format" },
-	{ RES_WMP, "WMP", "World map format" },
+	{ RES_2DA, "2DA", "2DA format" , &TWODAResource::Create },
+	{ RES_ARA, "ARE", "AREA format", &ARAResource::Create },
+	{ RES_BAM, "BAM", "BAM format", &BAMResource::Create },
+	{ RES_BCS, "BCS", "Compiled script (BCS format)", &BCSResource::Create },
+	{ RES_BMP, "BMP", "Bitmap (BMP) format", &BMPResource::Create },
+	{ RES_CHU, "CHU", "CHU format", &CHUIResource::Create  },
+	{ RES_CRE, "CRE", "Creature", &CREResource::Create },
+	{ RES_DLG, "DLG", "Dialog", NULL  },
+	{ RES_EFF, "EFF", "EFF Effect", NULL  },
+	{ RES_GAM, "GAM", "GAM format", NULL  },
+	{ RES_IDS, "IDS", "IDS format", &IDSResource::Create },
+	{ RES_ITM, "ITM", "Item", NULL },
+	{ RES_MOS, "MOS", "MOS format", &MOSResource::Create },
+	{ RES_MVE, "MVE", "Movie (MVE) format", &MVEResource::Create },
+	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", NULL },
+	{ RES_PRO, "PRO", "PRO format (projectile)", NULL },
+	{ RES_SPL, "SPL", "SPL format", NULL },
+	{ RES_STO, "STO", "STORE format", NULL },
+	{ RES_TIS, "TIS", "TIS format", &TISResource::Create },
+	{ RES_VVC, "VVC", "VVC Effect", &VVCResource::Create },
+	{ RES_WAV, "WAV", "WAV format", &WAVResource::Create },
+	{ RES_WED, "WED", "WED format", &WEDResource::Create },
+	{ RES_WFX, "WFX", "WFX format", NULL },
+	{ RES_WMP, "WMP", "World map format", &WMAPResource::Create },
 };
 
 

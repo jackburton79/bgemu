@@ -45,7 +45,8 @@ class Polygon;
 class WEDResource : public Resource {
 public:
 	WEDResource(const res_ref& name);
-	
+	static Resource* Create(const res_ref& name);
+
 	virtual bool Load(Archive *archive, uint32 key);
 
 	uint32 CountOverlays() const;

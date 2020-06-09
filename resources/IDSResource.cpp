@@ -8,6 +8,14 @@
 #include <stdexcept>
 
 
+/* static */
+Resource*
+IDSResource::Create(const res_ref& name)
+{
+	return new IDSResource(name);
+}
+
+
 IDSResource::IDSResource(const res_ref &name)
 	:
 	Resource(name, RES_IDS)

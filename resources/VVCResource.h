@@ -13,7 +13,8 @@ class Bitmap;
 class VVCResource : public Resource {
 public:
 	VVCResource(const res_ref& name);
-	
+	static Resource* Create(const res_ref& name);
+
 	virtual bool Load(Archive *archive, uint32 key);
 
 	virtual void Dump();

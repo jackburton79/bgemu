@@ -5,6 +5,14 @@
 #include <stdlib.h>
 
 
+/* static */
+Resource*
+CREResource::Create(const res_ref& name)
+{
+	return new CREResource(name);
+}
+
+
 CREResource::CREResource(const res_ref &name)
 	:
 	Resource(name, RES_CRE)

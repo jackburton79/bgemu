@@ -14,6 +14,14 @@
 #define TWODA_SIGNATURE "2DA "
 #define TWODA_VERSION_1 "V1.0"
 
+/* static */
+Resource*
+TWODAResource::Create(const res_ref& name)
+{
+	return new TWODAResource(name);
+}
+
+
 TWODAResource::TWODAResource(const res_ref& name)
 	:
 	Resource(name, RES_2DA)

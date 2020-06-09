@@ -56,6 +56,14 @@ uint32 data_offset(uint32 x)
 }
 
 
+/* static */
+Resource*
+BAMResource::Create(const res_ref& name)
+{
+	return new BAMResource(name);
+}
+
+
 BAMResource::BAMResource(const res_ref& name)
 	:
 	Resource(name, RES_BAM),

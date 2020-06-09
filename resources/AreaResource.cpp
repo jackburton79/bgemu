@@ -14,6 +14,14 @@
 #define AREA_VERSION_1 "V1.0"
 
 
+/* static */
+Resource*
+ARAResource::Create(const res_ref& name)
+{
+	return new ARAResource(name);
+}
+
+
 ARAResource::ARAResource(const res_ref& name)
 	:
 	Resource(name, RES_ARA),

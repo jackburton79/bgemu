@@ -15,6 +15,7 @@
 class WAVResource: public Resource {
 public:
 	WAVResource(const res_ref& name);
+	static Resource* Create(const res_ref& name);
 
 	virtual bool Load(Archive *archive, uint32 key);
 	virtual void Dump();

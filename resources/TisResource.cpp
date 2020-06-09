@@ -12,6 +12,14 @@
 const static int kTileDataSize = 1024 + 4096;
 const static int kDataOffset = strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
 
+/* static */
+Resource*
+TISResource::Create(const res_ref& name)
+{
+	return new TISResource(name);
+}
+
+
 TISResource::TISResource(const res_ref &name)
 	:
 	Resource(name, RES_TIS),

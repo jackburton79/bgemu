@@ -10,7 +10,9 @@
 
 #include "Resource.h"
 
-struct control;
+namespace IE {
+	struct control;
+};
 struct control_table;
 class Bitmap;
 class CHUIResource;
@@ -18,6 +20,7 @@ class Window;
 class CHUIResource: public Resource {
 public:
 	CHUIResource(const res_ref &name);
+	static Resource* Create(const res_ref& name);
 
 	uint16 CountWindows() const;
 	Window* GetWindow(uint16 num);

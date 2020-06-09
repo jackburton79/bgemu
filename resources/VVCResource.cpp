@@ -18,6 +18,13 @@
 #define VVC_VERSION_1 "V1.0"
 
 
+/* static */
+Resource*
+VVCResource::Create(const res_ref& name)
+{
+	return new VVCResource(name);
+}
+
 
 VVCResource::VVCResource(const res_ref& name)
 	:

@@ -18,6 +18,14 @@
 #define WMAP_SIGNATURE "WMAP"
 #define WMAP_VERSION_1 "V1.0"
 
+/* static */
+Resource*
+WMAPResource::Create(const res_ref& name)
+{
+	return new WMAPResource(name);
+}
+
+
 WMAPResource::WMAPResource(const res_ref &name)
 	:
 	Resource(name, RES_WMP),

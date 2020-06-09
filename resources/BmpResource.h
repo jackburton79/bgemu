@@ -14,6 +14,7 @@ public:
 
 	Bitmap *Image();
 
+	static Resource* Create(const res_ref& name);
 private:
 	virtual ~BMPResource();
 	void _Init();

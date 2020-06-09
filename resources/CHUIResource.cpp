@@ -24,6 +24,14 @@ struct control_table {
 };
 
 
+/* static */
+Resource*
+CHUIResource::Create(const res_ref& name)
+{
+	return new CHUIResource(name);
+}
+
+
 CHUIResource::CHUIResource(const res_ref &name)
 	:
 	Resource(name, RES_CHU)

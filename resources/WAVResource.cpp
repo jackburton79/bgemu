@@ -27,6 +27,14 @@ struct wav_header {
 } __attribute__((packed));
 
 
+/* static */
+Resource*
+WAVResource::Create(const res_ref& name)
+{
+	return new WAVResource(name);
+}
+
+
 WAVResource::WAVResource(const res_ref& name)
 	:
 	Resource(name, RES_WAV)

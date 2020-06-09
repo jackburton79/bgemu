@@ -13,6 +13,8 @@ public:
 	Script *GetScript() const;
 
 	virtual void Dump();
+	
+	static Resource* Create(const res_ref& name);
 private:
 	virtual ~BCSResource();
 };

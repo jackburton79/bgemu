@@ -5,6 +5,15 @@
 
 #include <time.h>
 
+
+/* static */
+Resource*
+BCSResource::Create(const res_ref& name)
+{
+	return new BCSResource(name);	
+}
+
+
 BCSResource::BCSResource(const res_ref &name)
 	:
 	Resource(name, RES_BCS)

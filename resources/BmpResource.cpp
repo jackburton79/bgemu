@@ -2,6 +2,15 @@
 #include "BmpResource.h"
 #include "MemoryStream.h"
 
+
+/* static */
+Resource*
+BMPResource::Create(const res_ref& name)
+{
+	return new BMPResource(name);
+}
+
+
 BMPResource::BMPResource(const res_ref &name)
 	:
 	Resource(name, RES_BMP)

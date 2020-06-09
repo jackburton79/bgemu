@@ -34,6 +34,13 @@ struct tilemap {
 };
 
 
+/* static */
+Resource*
+WEDResource::Create(const res_ref& name)
+{
+	return new WEDResource(name);
+}
+
 
 WEDResource::WEDResource(const res_ref &name)
 	:

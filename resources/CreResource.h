@@ -111,6 +111,8 @@ class CREResource : public Resource {
 public:
 	CREResource(const res_ref& name);
 
+	static Resource* Create(const res_ref& name);
+
 	virtual bool Load(Archive *archive, uint32 key);
 	bool Load(Stream* stream, uint32 position, uint32 size);
 	

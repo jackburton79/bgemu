@@ -20,7 +20,8 @@ class MovieDecoder;
 class MVEResource : public Resource {
 public:
 	MVEResource(const res_ref &name);
-	
+	static Resource* Create(const res_ref& name);
+
 	void Play();
 
 private:
