@@ -704,9 +704,9 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
-				if (object != NULL)
-					returnValue = core->See(actor, object);
+				//Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
+				//if (object != NULL)
+				returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
 				break;
 			}
 			case 0x401E:
@@ -1326,7 +1326,7 @@ Script::_HandleAction(action_node* act)
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
 			FadeToColorAction* action = new FadeToColorAction(sender, act);
 			sender->AddAction(action, runNow);
-			break;		
+			break;
 		}
 		case 203:
 		{

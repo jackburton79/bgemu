@@ -610,7 +610,8 @@ Core::See(const Actor* sourceActor, const Object* object) const
 	std::cout << sourceActor->Name() << " SEE ";
 	std::cout << object->Name() << " ?" << std::endl;
 
-	return sourceActor->HasSeen(object);
+	throw "Core::See() called!!!!";
+	//return sourceActor->HasSeen(object);
 }
 
 

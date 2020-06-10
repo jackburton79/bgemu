@@ -293,12 +293,36 @@ Object::AddTrigger(trigger_entry entry)
 
 
 bool
-Object::HasTrigger(std::string trigName)
+Object::HasTrigger(std::string trigName) const
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		if (i->name == trigName)
 			return true;
+	}
+	return false;
+}
+
+
+bool
+Object::HasTrigger(std::string trigName, trigger_node* triggerNode)
+{
+	std::cout << Name() << ": HasTrigger()" << trigName << std::endl;
+	object_node* objectNode = Script::FindObjectNode(this, triggerNode);
+	if (objectNode == NULL)
+		return false;
+	std::list<trigger_entry>::const_iterator i;
+	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
+		const trigger_entry &entry = *i;
+		if (entry.name == trigName) {
+			// TODO: We should store more than the target name, since 
+			// it's not sufficient in many cases
+			Object* target = Core::Get()->GetObject(entry.target.c_str());
+			Actor* actor = dynamic_cast<Actor*>(target);
+			std::cout << target << std::endl;
+			if (actor != NULL && actor->MatchNode(objectNode))
+				return true;
+		}
 	}
 	return false;
 }
@@ -426,13 +450,13 @@ Object::_ExecuteScripts(int32 maxLevel)
 		return;
 		
 	bool runScripts = false;
-	if ((fTicksIdle++ > 15))
+	if (fTicksIdle++ > 15)
 		runScripts = true;
 	
 	//if (!IsInterruptable())
 		//return;
-	
 	if (!IsInsideVisibleArea()) {
+	
 #if 0
 		runScripts = false;		
 #else
@@ -442,7 +466,6 @@ Object::_ExecuteScripts(int32 maxLevel)
 	}
 		
 	if (dynamic_cast<RoomBase*>(this) != NULL)
-		//|| dynamic_cast<Region*>(this) != NULL)
 		runScripts = true;
 
 	if (!runScripts)
@@ -450,7 +473,9 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	fTicksIdle = 0;
 	
-	maxLevel = 1;
+	if (Core::Get()->CutsceneMode())
+		maxLevel = 1;
+
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {		

@@ -28,6 +28,7 @@ struct trigger_entry {
 };
 
 struct object_node;
+struct trigger_node;
 class Action;
 class Actor;
 class Region;
@@ -69,7 +70,9 @@ public:
 	void ClearActionList();
 
 	void AddTrigger(trigger_entry entry);
-	bool HasTrigger(std::string trigName);
+	bool HasTrigger(std::string trigName) const;
+	bool HasTrigger(std::string trigName, trigger_node* triggerNode);
+
 	void PrintTriggers();	
 	void ClearTriggers();
 
@@ -110,7 +113,8 @@ private:
 
 	Action* fCurrentAction;
 	std::list<Action*> fActions;
-	std::list<trigger_entry> fTriggers;
+	std::list<trigger_entry> fTriggers;	
+	
 	::Variables fVariables;
 
 	uint16 fLastAttacker;

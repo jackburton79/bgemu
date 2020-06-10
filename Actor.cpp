@@ -776,13 +776,6 @@ Actor::SetSeen(Object* object)
 }
 
 
-bool
-Actor::HasSeen(const Object* object) const
-{
-	return Core::Get()->LastRoundResults()->WasActorSeenBy(dynamic_cast<const Actor*>(object), this);
-}
-
-
 /* virtual */
 void
 Actor::Update(bool scripts)
