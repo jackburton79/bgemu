@@ -27,7 +27,6 @@ LOCALSOURCES = \
 ../Region.cpp \
 ../ResManager.cpp \
 ../RoomBase.cpp \
-../RoundResults.cpp \
 ../Script.cpp \
 ../SearchMap.cpp \
 ../SimpleAnimationFactory.cpp \

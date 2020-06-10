@@ -23,7 +23,6 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "RoundResults.h"
 #include "Script.h"
 #include "SearchMap.h"
 #include "TileCell.h"
@@ -709,14 +708,8 @@ Actor::_HandleScripts()
 void
 Actor::AttackTarget(Actor* target)
 {
-	Core::Get()->RoundResults()->SetActorAttacked(this, target);
-}
-
-
-bool
-Actor::WasAttackedBy(object_node* node)
-{
-	return Core::Get()->LastRoundResults()->WasActorAttackedBy(this, node);
+	trigger_entry triggerEntry("AttackedBy(O:Object*,I:Style*AStyles)", this);
+	target->AddTrigger(triggerEntry);
 }
 
 

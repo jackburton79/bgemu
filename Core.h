@@ -31,7 +31,6 @@ class Region;
 class RoomBase;
 class IDSResource;
 class Script;
-class ScriptResults;
 class TLKResource;
 
 typedef std::vector<Actor*> ActorsList;
@@ -94,9 +93,6 @@ public:
 
 	Region* RegionAtPoint(const IE::point& point);
 	
-	ScriptResults* RoundResults();
-	ScriptResults* LastRoundResults();
-	
 	void PlayMovie(const char* name);
 	void DisplayMessage(uint32 strRef);
 
@@ -145,9 +141,7 @@ private:
 	uint16 fNextObjectNumber;
 
 	uint32 fCurrentRoundNumber;
-	ScriptResults* fCurrentRoundResults;
-	ScriptResults* fLastRoundResults;
-	
+
 	bool fPaused;
 	bool fCutsceneMode;
 	Object* fCutsceneActor;

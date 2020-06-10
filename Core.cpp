@@ -17,7 +17,6 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "RoundResults.h"
 #include "Script.h"
 #include "TextArea.h"
 #include "Timer.h"
@@ -44,8 +43,6 @@ Core::Core()
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
 	fCurrentRoundNumber(0),
-	fCurrentRoundResults(NULL),
-	fLastRoundResults(NULL),
 	fPaused(false),
 	fCutsceneMode(false),
 	fCutsceneActor(NULL)
@@ -108,9 +105,6 @@ Core::Initialize(const char* path)
 
 	_InitGameTimers();
 
-	sCore->fCurrentRoundResults = new ScriptResults();
-	sCore->fLastRoundResults = new ScriptResults();
-	
 	std::cout << "Core::Initialize(): OK! " << std::endl;
 	return true;
 }
@@ -717,20 +711,6 @@ Core::GetActorsList(ActorsList& objects) const
 }
 
 
-ScriptResults*
-Core::RoundResults()
-{
-	return fCurrentRoundResults;
-}
-
-
-ScriptResults*
-Core::LastRoundResults()
-{
-	return fLastRoundResults;
-}
-
-
 void
 Core::_PrintObjects() const
 {
@@ -781,7 +761,7 @@ Core::_CleanDestroyedObjects()
 void
 Core::_CheckIfInsideRegion(Actor* actor)
 {
-	Region* previousRegion = actor->CurrentRegion();
+	//Region* previousRegion = actor->CurrentRegion();
 	RegionsList::iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		Region* region = *r;		
@@ -791,8 +771,8 @@ Core::_CheckIfInsideRegion(Actor* actor)
 		}	
 	}
 	// TODO: exited region
-	if (previousRegion != actor->CurrentRegion())
-		fCurrentRoundResults->SetActorEnteredRegion(actor, actor->CurrentRegion());	
+	/*if (previousRegion != actor->CurrentRegion())
+		fCurrentRoundResults->SetActorEnteredRegion(actor, actor->CurrentRegion());*/
 }
 
 
@@ -800,7 +780,5 @@ void
 Core::_NewRound()
 {
 	fCurrentRoundNumber++;
-	std::swap(fCurrentRoundResults, fLastRoundResults);
-	fCurrentRoundResults->Clear();
 	//std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
 }

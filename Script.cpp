@@ -12,7 +12,6 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
-#include "RoundResults.h"
 #include "Script.h"
 #include "Timer.h"
 
@@ -476,12 +475,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * The style parameter is non functional - this trigger is triggered
 				 * by any attack style.
 				 */
-				object_node* node = FindObjectNode(fSender, trig);
-				if (node == NULL)
-					break;
-				node->Print();
-				if (Core::Get()->LastRoundResults()->WasActorAttackedBy(actor, node))
-					returnValue = true;
+				// TODO: fix ?
+				returnValue = fSender->HasTrigger("AttackedBy(O:Object*,I:Style*AStyles)", trig);
 				
 				break;
 			}
