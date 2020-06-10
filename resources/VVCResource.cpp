@@ -88,11 +88,29 @@ VVCResource::SequenceFlags() const
 
 
 uint32
+VVCResource::PositionFlags() const
+{
+	uint32 flags = 0;
+	fData->ReadAt(64, &flags, sizeof(flags));
+	return flags;
+}
+
+
+int32
 VVCResource::CountFrames() const
 {
-	uint32 numFrames = 0;
+	int32 numFrames = 0;
 	fData->ReadAt(92, &numFrames, sizeof(numFrames));
 	return numFrames;
+}
+
+
+int32
+VVCResource::FrameRate() const
+{
+	int32 frameRate = 0;
+	fData->ReadAt(52, &frameRate, sizeof(frameRate));
+	return frameRate;
 }
 
 
@@ -173,8 +191,9 @@ VVCResource::Dump()
 {
 	std::cout << Name() << std::endl;
 	std::cout << std::endl;
-	std::cout << "bam name: " << BAMName() << std::endl;	
-	std::cout << "num frames: " << CountFrames() << std::endl;	
+	std::cout << "bam name: " << BAMName() << std::endl;
+	std::cout << "num frames: " << CountFrames() << std::endl;
+	std::cout << "frame rate: " << FrameRate() << std::endl;
 	std::cout << "current anim seq: " << CurrentAnimationSequence() << std::endl;
 	std::cout << "intro anim seq: " << IntroSequenceIndex() << std::endl;
 	std::cout << "middle anim seq: " << MiddleSequenceIndex() << std::endl;
@@ -182,6 +201,7 @@ VVCResource::Dump()
 	std::cout << "display flags: " << std::hex << DisplayFlags() << std::endl;
 	std::cout << "colour flags: " << std::hex << ColourFlags() << std::endl;
 	std::cout << "sequence flags: " << std::hex << SequenceFlags() << std::endl;
+	std::cout << "position flags: " << std::hex << PositionFlags() << std::endl;
 	std::cout << "alpha blending name: " << AlphaBlendingName() << std::endl;
 	res_ref paletteName;
 	fData->ReadAt(68, &paletteName, sizeof(paletteName));

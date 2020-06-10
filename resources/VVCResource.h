@@ -40,11 +40,15 @@ public:
 	virtual void Dump();
 
 	res_ref BAMName() const;
+
 	uint16 DisplayFlags() const;
 	uint16 ColourFlags() const;
 	uint32 SequenceFlags() const;
-	
-	uint32 CountFrames() const;
+	uint32 PositionFlags() const;
+
+	int32 CountFrames() const;
+	int32 FrameRate() const;
+
 	uint32 IntroSequenceIndex() const;
 	uint32 MiddleSequenceIndex() const;
 	uint32 EndingSequenceIndex() const;
