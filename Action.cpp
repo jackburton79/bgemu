@@ -222,6 +222,26 @@ DestroySelfAction::operator()()
 }
 
 
+// ForceSpell
+ForceSpell::ForceSpell(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ForceSpell::operator()()
+{
+	Object* sender = Script::FindSenderObject(fObject, fActionParams);
+	sender->Print();
+	Object* target = Script::FindTargetObject(sender, fActionParams);
+	target->Print();
+	SetCompleted();
+}
+
+
 // MoveBetweenAreasEffect
 MoveBetweenAreasEffect::MoveBetweenAreasEffect(Object* object, action_node* node)
 	:

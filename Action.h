@@ -65,6 +65,12 @@ public:
 };
 
 
+class ForceSpell : public Action {
+public:
+	ForceSpell(Object* object, action_node* node);
+	virtual void operator()();
+};
+
 class MoveBetweenAreasEffect : public Action {
 public:
 	MoveBetweenAreasEffect(Object* object, action_node* node);

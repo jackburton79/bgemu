@@ -1222,12 +1222,15 @@ Script::_HandleAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
-			if (thisActor != NULL) {
-				Action* action = new DestroySelfAction(thisActor, act);
-				thisActor->AddAction(action, runNow);
-			}
+			Action* action = new DestroySelfAction(thisActor, act);
+			thisActor->AddAction(action, runNow);
 			break;
-			//return false;
+		}
+		case 113:
+		{	
+			// FORCESPELL(O:TARGET,I:SPELL*SPELL)(113, 0x71)
+			sender->AddAction(new ForceSpell(sender, act));
+			break;
 		}
 		case 115:
 		{
