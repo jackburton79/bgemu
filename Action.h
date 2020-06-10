@@ -4,6 +4,7 @@
 #include "IETypes.h"
 #include "Reference.h"
 
+class Actor;
 class Door;
 class Object;
 struct action_node;
@@ -156,7 +157,7 @@ public:
 	RunAwayFrom(Object* actor, action_node* node);
 	virtual void operator()();
 private:
-	IE::point PointAway();
+	IE::point PointAway(Actor* actor, Actor* target);
 };
 
 

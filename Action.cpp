@@ -551,26 +551,21 @@ RunAwayFrom::RunAwayFrom(Object* object, action_node* node)
 void
 RunAwayFrom::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(actor, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
 	}
-	// TODO: Implement
-	SetCompleted();
-	return;
-	/*
 	
+	// TODO: Improve implementation
 	if (Core::Get()->Distance(actor, target) < 200) {
-		IE::point point = PointAway();
+		IE::point point = PointAway(actor, target);
 		if (actor->Destination() != point) {
 			actor->SetDestination(point);
 		}
@@ -582,37 +577,26 @@ RunAwayFrom::operator()()
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(actor->IsFlying());
-	}*/
+	}
 }
 
 
 IE::point
-RunAwayFrom::PointAway()
+RunAwayFrom::PointAway(Actor* actor, Actor* target)
 {
-	// TODO:
-	//Actor* actor = dynamic_cast<Actor*>(fObject);
-	//if (actor == NULL) {
-		return (IE::point ){ 0, 0 };
-	//}
-	/*
-	Actor* target = dynamic_cast<Actor*>(Script::FindObject(fObject, fActionParams));
-	if (target == NULL){
-		SetCompleted();
-		return;
-	}
 	IE::point targetPos = target->NearestPoint(actor->Position());
+	IE::point actorPos = actor->Position();
+	if (targetPos.x > actorPos.x)
+		actorPos.x -= 150;
+	else if (targetPos.x < actorPos.x)
+		actorPos.x += 150;
 
-	if (targetPos.x > actor->Position().x)
-		targetPos.x -= 100;
-	else if (targetPos.x < actor->Position().x)
-		targetPos.x += 100;
+	if (targetPos.y > actorPos.y)
+		actorPos.y -= 150;
+	else if (targetPos.y < actorPos.y)
+		actorPos.y += 150;
 
-	if (targetPos.y > actor->Position().y)
-		targetPos.y -= 100;
-	else if (targetPos.y < actor->Position().y)
-		targetPos.y += 100;
-
-	return targetPos;*/
+	return actorPos;
 }
 
 
