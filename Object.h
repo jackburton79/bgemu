@@ -72,6 +72,7 @@ public:
 	void AddTrigger(trigger_entry entry);
 	bool HasTrigger(std::string trigName) const;
 	bool HasTrigger(std::string trigName, trigger_node* triggerNode);
+	Object* FindTrigger(std::string trigName);
 
 	void PrintTriggers();	
 	void ClearTriggers();

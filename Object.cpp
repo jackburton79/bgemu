@@ -307,7 +307,7 @@ Object::HasTrigger(std::string trigName) const
 bool
 Object::HasTrigger(std::string trigName, trigger_node* triggerNode)
 {
-	std::cout << Name() << ": HasTrigger()" << trigName << std::endl;
+	std::cout << Name() << ": HasTrigger(" << trigName << ")" << std::endl;
 	object_node* objectNode = Script::FindObjectNode(this, triggerNode);
 	if (objectNode == NULL)
 		return false;
@@ -325,6 +325,18 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode)
 		}
 	}
 	return false;
+}
+
+
+Object*
+Object::FindTrigger(std::string trigName)
+{
+	std::list<trigger_entry>::const_iterator i;
+	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
+		if (i->name == trigName)
+			return Core::Get()->GetObject(i->target.c_str());
+	}
+	return NULL;
 }
 
 
@@ -450,7 +462,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 		return;
 		
 	bool runScripts = false;
-	if (fTicksIdle++ > 15)
+	if (fTicksIdle++ > 5)
 		runScripts = true;
 	
 	//if (!IsInterruptable())
@@ -489,8 +501,6 @@ Object::_ExecuteScripts(int32 maxLevel)
 	} catch (...) {
 	}
 	
-	//PrintTriggers();
-
 	if (true)
 		ClearTriggers();
 }

@@ -332,6 +332,9 @@ Script::ResolveIdentifier(Object* object, const int id)
 		return Core::Get()->GetNearestEnemyOf(actor);
 	}
 	// TODO: Move that one here ?
+
+	if (identifier == "LASTSEENBY")
+		return object->FindTrigger("SEE(O:OBJECT*)");
 /*
 	if (identifier == "LASTTRIGGER")
 		return LastTrigger();
