@@ -37,22 +37,24 @@ public:
 	static Resource* Create(const res_ref& name);
 
 	virtual bool Load(Archive *archive, uint32 key);
-
 	virtual void Dump();
 
 	res_ref BAMName() const;
-	uint16 DisplayFlags();
-	uint16 ColourFlags();
-	uint32 SequenceFlags();
+	uint16 DisplayFlags() const;
+	uint16 ColourFlags() const;
+	uint32 SequenceFlags() const;
 	
 	uint32 CountFrames() const;
 	uint32 IntroSequenceIndex() const;
 	uint32 MiddleSequenceIndex() const;
 	uint32 EndingSequenceIndex() const;
+	uint32 CurrentAnimationSequence() const;
 
-	uint32 XPosition();
-	uint32 ZOffset();
-	uint32 YPosition();
+	res_ref AlphaBlendingName() const;
+
+	uint32 XPosition() const;
+	uint32 ZOffset() const;
+	uint32 YPosition() const;
 	
 private:
 	virtual ~VVCResource();
