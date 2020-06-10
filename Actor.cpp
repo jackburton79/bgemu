@@ -755,18 +755,11 @@ Actor::UpdateSee()
 			// TODO: Check if there are obstacles in the way
 			trigger_entry entry("SEE(O:OBJECT*)", target);
 			AddTrigger(entry);
-			SetSeen(target);
 			//std::cout << this->Name() << " SAW " << target->Name() << std::endl;
 		}
 	}
 }
 
-
-void
-Actor::SetSeen(Object* object)
-{	
-	//Core::Get()->RoundResults()->SetActorSaw(this, dynamic_cast<const Actor*>(object));
-}
 
 
 /* virtual */

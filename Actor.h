@@ -102,8 +102,6 @@ public:
 	void StopCheckingConditions();
 
 	void UpdateSee();
-	void SetSeen(Object* object);
-	bool HasSeen(const Object* object) const;
 
 	bool IsReachable(const IE::point& pt) const;
 
