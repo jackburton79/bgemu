@@ -172,7 +172,7 @@ AreaRoom::~AreaRoom()
 
 
 WEDResource*
-AreaRoom::WED()
+AreaRoom::WED() const
 {
 	return fWed;
 }
@@ -205,7 +205,7 @@ AreaRoom::BackMap() const
 
 
 ::SearchMap*
-AreaRoom::SearchMap()
+AreaRoom::SearchMap() const
 {
 	return fSearchMap;
 }

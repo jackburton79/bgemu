@@ -32,13 +32,13 @@ public:
 					const char* entranceName);
 	~AreaRoom();
 	
-	WEDResource* WED();
+	WEDResource* WED() const;
 	ARAResource* AREA() const;
 
 	virtual GFX::rect AreaRect() const;
 
 	::BackMap* BackMap() const;
-	::SearchMap* SearchMap();
+	::SearchMap* SearchMap() const;
 
 	virtual void Draw(Bitmap *surface);
 	virtual void Clicked(uint16 x, uint16 y);
