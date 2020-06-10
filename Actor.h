@@ -80,7 +80,6 @@ public:
 	Actor* ResolveIdentifier(const int identifier) const;
 
 	void AttackTarget(Actor* object);
-	bool WasAttackedBy(object_node* node);
 
 	uint32 NumTimesTalkedTo() const;
 
