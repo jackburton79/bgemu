@@ -1,6 +1,7 @@
 #include "Effect.h"
 
 #include "BamResource.h"
+#include "Bitmap.h"
 #include "ResManager.h"
 #include "VVCResource.h"
 
@@ -11,7 +12,6 @@ Effect::Effect(const res_ref& name, IE::point where)
 	fNumFrames(0),
 	fWhere(where)
 {
-	std::cout << "Effect(): " << name.CString() << std::endl;
 	fVVC = gResManager->GetVVC(name);
 	fNumFrames = fVVC->CountFrames();
 	_LoadBitmaps();
@@ -34,10 +34,11 @@ Effect::CountFrames() const
 const ::Bitmap*
 Effect::NextBitmap()
 {
-	const ::Bitmap* bitmap = fBitmaps.at(fCurrentFrame);
-	fCurrentFrame++;
 	if (fCurrentFrame >= fNumFrames)
 		return NULL;
+
+	const ::Bitmap* bitmap = fBitmaps.at(fCurrentFrame);
+	fCurrentFrame++;
 
 	return bitmap;
 }
@@ -71,10 +72,12 @@ Effect::_LoadBitmaps()
 
 	for (int16 i = 0; i < bam->CountFrames(firstSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(firstSequence, i);
+		if (fVVC->DisplayFlags() & EFF_DISPLAY_MIRROR_X)
+			bitmap->Mirror();
 		//GFX::Palette palette;
 		//bitmap->GetPalette(palette);
 		fBitmaps.push_back(bitmap);
-	}
+	}/*
 	for (int16 i = 0; i < bam->CountFrames(secondSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(secondSequence, i);
 		//GFX::Palette palette;
@@ -86,6 +89,6 @@ Effect::_LoadBitmaps()
 		//GFX::Palette palette;
 		//bitmap->GetPalette(palette);
 		fBitmaps.push_back(bitmap);
-	}
+	}*/
 	gResManager->ReleaseResource(bam);
 }

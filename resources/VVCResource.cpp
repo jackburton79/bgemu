@@ -1,6 +1,5 @@
 #include "VVCResource.h"
 
-#include "VVCResource.h"
 #include "Bitmap.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
@@ -16,7 +15,6 @@
 
 #define VVC_SIGNATURE "VVC "
 #define VVC_VERSION_1 "V1.0"
-
 
 
 /* static */
@@ -62,6 +60,24 @@ VVCResource::BAMName() const
 }
 
 
+uint16
+VVCResource::DisplayFlags()
+{
+	uint16 flags = 0;
+	fData->ReadAt(24, &flags, sizeof(flags));
+	return flags;
+}
+
+
+uint16
+VVCResource::ColourFlags()
+{
+	uint16 flags = 0;
+	fData->ReadAt(26, &flags, sizeof(flags));
+	return flags;
+}
+
+
 uint32
 VVCResource::CountFrames() const
 {
@@ -98,6 +114,33 @@ VVCResource::EndingSequenceIndex() const
 }
 
 
+uint32
+VVCResource::XPosition()
+{
+	uint32 x = 0;
+	fData->ReadAt(40, &x, sizeof(x));
+	return x;
+}
+
+
+uint32
+VVCResource::ZOffset()
+{
+	uint32 z = 0;
+	fData->ReadAt(76, &z, sizeof(z));
+	return z;
+}
+
+
+uint32
+VVCResource::YPosition()
+{
+	uint32 y = 0;
+	fData->ReadAt(44, &y, sizeof(y));
+	return y;
+}
+
+
 void
 VVCResource::Dump()
 {
@@ -105,9 +148,14 @@ VVCResource::Dump()
 	std::cout << std::endl;
 	std::cout << "bam name: " << BAMName() << std::endl;	
 	std::cout << "num frames: " << CountFrames() << std::endl;	
+	std::cout << "display flags: " << std::hex << DisplayFlags() << std::endl;
+	std::cout << "colour flags: " << std::hex << ColourFlags() << std::endl;	
 	res_ref paletteName;
 	fData->ReadAt(68, &paletteName, sizeof(paletteName));
 	std::cout << "Palette: ";
 	std::cout << paletteName.CString() << std::endl;
+	std::cout << std::dec;
+	std::cout << "x: " << XPosition() << ", y: " << YPosition() << ", z: " << ZOffset();
+	std::cout << std::endl;
 }
 
