@@ -79,6 +79,15 @@ VVCResource::ColourFlags()
 
 
 uint32
+VVCResource::SequenceFlags()
+{
+	uint32 flags = 0;
+	fData->ReadAt(32, &flags, sizeof(flags));
+	return flags;
+}
+
+
+uint32
 VVCResource::CountFrames() const
 {
 	uint32 numFrames = 0;
@@ -149,7 +158,8 @@ VVCResource::Dump()
 	std::cout << "bam name: " << BAMName() << std::endl;	
 	std::cout << "num frames: " << CountFrames() << std::endl;	
 	std::cout << "display flags: " << std::hex << DisplayFlags() << std::endl;
-	std::cout << "colour flags: " << std::hex << ColourFlags() << std::endl;	
+	std::cout << "colour flags: " << std::hex << ColourFlags() << std::endl;
+	std::cout << "sequence flags: " << std::hex << SequenceFlags() << std::endl;
 	res_ref paletteName;
 	fData->ReadAt(68, &paletteName, sizeof(paletteName));
 	std::cout << "Palette: ";
