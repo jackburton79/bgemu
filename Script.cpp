@@ -401,7 +401,7 @@ Script::Processed() const
 
 /* static */
 bool
-Script::IsActionInstant(uint16 id)
+Script::IsActionInstant(uint16 id) const
 {
 	std::string actionName = IDTable::ActionAt(id);
 	IDSResource* instants = gResManager->GetIDS("INSTANT");
@@ -477,7 +477,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				// TODO: fix ?
 				returnValue = fSender->HasTrigger("AttackedBy(O:Object*,I:Style*AStyles)", trig);
-				
 				break;
 			}
 			case 0x0020:
@@ -591,16 +590,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				//if (returnValue)
 					//fLastTrigger = fSender;
 
-				break;
-			}
-			case 0x00B1:
-			{
-				/* ACTION TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-				/*Region* region = dynamic_cast<Region*>(FindObject(fSender, trig));
-				if (region != NULL) {
-					region->Print();
-					region->ActivateTrigger();
-				}	*/
 				break;
 			}
 			case 0x400A:
@@ -995,10 +984,8 @@ Script::_HandleAction(action_node* act)
 		case 3:
 		{
 			/* Attack(O:Target*) */
-			/*if (thisActor != NULL) {
-				Attack* attackAction = new Attack(thisActor, act);
-				thisActor->AddAction(attackAction);
-			}*/
+			Attack* attackAction = new Attack(sender, act);
+			sender->AddAction(attackAction);
 			break;
 		}
 		case 7:
