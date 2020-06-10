@@ -1034,10 +1034,10 @@ Script::_HandleAction(action_node* act)
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-			/*if (thisActor != NULL) {
+			if (thisActor != NULL) {
 				RunAwayFrom* run = new RunAwayFrom(thisActor, act);
 				thisActor->AddAction(run);
-			}*/
+			}
 			break;
 		}
 		case 30:

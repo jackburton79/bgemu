@@ -56,7 +56,7 @@ public:
 	void SetProcessed();
 	bool Processed() const;
 	
-	bool IsActionInstant(uint16 actionId);
+	bool IsActionInstant(uint16 actionId) const;
 private:
 	bool _EvaluateConditionNode(node* conditionNode);
 	bool _EvaluateTrigger(trigger_node* trig);
