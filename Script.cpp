@@ -112,7 +112,7 @@ Script::FindActionNode(Object* object, node* start)
 
 /* static */
 object_node*
-Script::FindObjectNode(Object* object, node* start)
+Script::FindObjectNode(const Object* object, node* start)
 {
 	return static_cast<object_node*>(FindNode(object, BLOCK_OBJECT, start));
 }
@@ -120,7 +120,7 @@ Script::FindObjectNode(Object* object, node* start)
 
 /* static */
 node*
-Script::FindNode(Object* object, block_type nodeType, node* start)
+Script::FindNode(const Object* object, block_type nodeType, node* start)
 {
 	if (start->type == nodeType)
 		return const_cast<node*>(start);
