@@ -73,20 +73,14 @@ Effect::_LoadBitmaps()
 		::Bitmap* bitmap = bam->FrameForCycle(firstSequence, i);
 		if (fVVC->DisplayFlags() & EFF_DISPLAY_MIRROR_X)
 			bitmap->Mirror();
-		//GFX::Palette palette;
-		//bitmap->GetPalette(palette);
 		fBitmaps.push_back(bitmap);
 	}/*
 	for (int16 i = 0; i < bam->CountFrames(secondSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(secondSequence, i);
-		//GFX::Palette palette;
-		//bitmap->GetPalette(palette);
 		fBitmaps.push_back(bitmap);
 	}
 	for (int16 i = 0; i < bam->CountFrames(thirdSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(thirdSequence, i);
-		//GFX::Palette palette;
-		//bitmap->GetPalette(palette);
 		fBitmaps.push_back(bitmap);
 	}*/
 	gResManager->ReleaseResource(bam);
