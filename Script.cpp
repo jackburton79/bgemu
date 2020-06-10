@@ -118,20 +118,6 @@ Script::FindObjectNode(Object* object, node* start)
 	return static_cast<object_node*>(FindNode(object, BLOCK_OBJECT, start));
 }
 
-/*
-int32
-Script::FindMultipleObjectNodes(std::vector<object_node*>& list,
-						node* start) const
-{
-	object_node* node = FindObjectNode(start);
-	while (node != NULL) {
-		list.push_back(node);
-		node = static_cast<object_node*>(node->Next());
-	}
-
-	return list.size();
-}
-*/
 
 /* static */
 node*
@@ -170,10 +156,6 @@ Script::FindTriggerObject(Object* object, trigger_node* start)
 Object*
 Script::FindSenderObject(Object* object, action_node* start)
 {
-	// actions have three object parameters:
-	// first, if not empty, is the sender.
-	// second is the target, third is ?
-	std::cout << "FindSenderObject:" << std::endl;
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode == NULL || objectNode->Empty()) {
 		std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
@@ -196,9 +178,8 @@ Script::FindTargetObject(Object* object, action_node* start)
 {
 	std::cout << "FindTargetObject:" << std::endl;
 	object_node* objectNode = FindObjectNode(object, start);
-	if (objectNode != NULL) {
+	if (objectNode != NULL)
 		objectNode = static_cast<object_node*>(objectNode->Next());
-	}
 
 	if (objectNode == NULL || objectNode->Empty()) {
 		std::cout << "FindTargetObject returned NULL" << std::endl;
@@ -707,9 +688,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				//Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
-				//if (object != NULL)
 				returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
+				std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
 			case 0x401E:

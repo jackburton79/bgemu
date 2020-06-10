@@ -307,7 +307,6 @@ Object::HasTrigger(std::string trigName) const
 bool
 Object::HasTrigger(std::string trigName, trigger_node* triggerNode)
 {
-	std::cout << Name() << ": HasTrigger(" << trigName << ")" << std::endl;
 	object_node* objectNode = Script::FindObjectNode(this, triggerNode);
 	if (objectNode == NULL)
 		return false;
@@ -319,9 +318,10 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode)
 			// it's not sufficient in many cases
 			Object* target = Core::Get()->GetObject(entry.target.c_str());
 			Actor* actor = dynamic_cast<Actor*>(target);
-			std::cout << target << std::endl;
-			if (actor != NULL && actor->MatchNode(objectNode))
+			if (actor != NULL && actor->MatchNode(objectNode)) {
+				std::cout << Name() << "HasTrigger " << trigName << " -> "<< actor->Name() << std::endl;
 				return true;
+			}
 		}
 	}
 	return false;
