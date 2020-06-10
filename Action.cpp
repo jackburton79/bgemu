@@ -514,29 +514,26 @@ Attack::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
-	if (actor == NULL)
+	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	if (sender == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(fObject, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
 	}
 
-	if (!Initiated()) {
-		IE::point point = target->NearestPoint(actor->Position());
-		if (!PointSufficientlyClose(actor->Position(), point))
-			actor->SetDestination(point);
-		SetInitiated();
-	}
+	IE::point point = target->NearestPoint(sender->Position());
+	if (!PointSufficientlyClose(sender->Position(), point))
+		sender->SetDestination(point);
 
-	if (actor->Position() != actor->Destination()) {
-		actor->SetAnimationAction(ACT_WALKING);
-		actor->MoveToNextPointInPath(actor->IsFlying());
+	if (sender->Position() != sender->Destination()) {
+		sender->SetAnimationAction(ACT_WALKING);
+		sender->MoveToNextPointInPath(sender->IsFlying());
 	} else {
-		actor->SetAnimationAction(ACT_ATTACKING);
-		actor->AttackTarget(target);
+		sender->SetAnimationAction(ACT_ATTACKING);
+		sender->AttackTarget(target);
 		SetCompleted();
 	}
 }

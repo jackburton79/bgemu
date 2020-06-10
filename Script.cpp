@@ -843,9 +843,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: This is valid for Regions scripts. What is the "Active CRE" ?
 				if (actor == NULL)
 					break;
-				Object* object = GetObject(actor, FindObjectNode(fSender, trig));
-				if (object != NULL)
-					returnValue = core->See(actor, object);
+				returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
 					// || core->Hear(fSender, object);
 				break;
 			}
@@ -1266,12 +1264,8 @@ Script::_HandleAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			/*if (thisActor != NULL) {
-				Action* walkToAction = new WalkToObject(thisActor, act);
-				thisActor->AddAction(walkToAction);
-				Attack* attackAction = new Attack(thisActor, act);
-				thisActor->AddAction(attackAction);
-			}*/
+			Attack* attackAction = new Attack(thisActor, act);
+			thisActor->AddAction(attackAction);
 
 			break;
 		}
