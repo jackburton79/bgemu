@@ -699,7 +699,7 @@ Actor::_HandleScripts()
 void
 Actor::AttackTarget(Actor* target)
 {
-	trigger_entry triggerEntry("AttackedBy(O:Object*,I:Style*AStyles)", this);
+	trigger_entry triggerEntry("AttackedBy", this);
 	target->AddTrigger(triggerEntry);
 }
 

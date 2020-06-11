@@ -315,14 +315,15 @@ Script::ResolveIdentifier(Object* object, const int id)
 
 	if (identifier == "LASTSEENBY")
 		return object->FindTrigger("LastSeen");
-/*
+#if 0
 	if (identifier == "LASTTRIGGER")
 		return LastTrigger();
-#if 0
-	if (identifier == "LASTATTACKEROF")
-		return LastScriptRoundResults()->LastAttacker();
 #endif
-*/
+#if 1
+	if (identifier == "LASTATTACKEROF")
+		return object->FindTrigger("AttackedBy");
+#endif
+
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
 	return NULL;

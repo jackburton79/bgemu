@@ -342,8 +342,8 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 Object*
 Object::FindTrigger(std::string trigName) const
 {
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
+	std::list<trigger_entry>::const_reverse_iterator i;
+	for (i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
 		if (i->trigger_name == trigName)
 			return Core::Get()->GetObject(i->target_id);
 	}
