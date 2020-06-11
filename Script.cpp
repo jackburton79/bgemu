@@ -1128,8 +1128,7 @@ Script::_HandleAction(action_node* act)
 		case 85:
 		{
 			/* 85 RandomWalk */
-			/*if (thisActor != NULL && thisActor->IsInterruptable())
-				core->RandomWalk(thisActor);*/
+			sender->AddAction(new RandomWalk(sender, act));
 			break;
 		}
 		case 86:

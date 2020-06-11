@@ -118,6 +118,13 @@ private:
 };
 
 
+class RandomWalk : public Action {
+public:
+	RandomWalk(Object* actor, action_node* node);
+	virtual void operator()();
+};
+
+
 class Wait : public Action {
 public:
 	Wait(Object* actor, action_node* node);

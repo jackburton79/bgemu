@@ -7,6 +7,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Parsing.h"
+#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
@@ -404,6 +405,34 @@ FlyTo::operator()()
 
 	actor->SetAnimationAction(ACT_WALKING);
 	actor->MoveToNextPointInPath(true);
+}
+
+
+// RandomWalk
+RandomWalk::RandomWalk(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+RandomWalk::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	if (actor == NULL)
+		return;
+
+	int16 randomX = Core::RandomNumber(-50, 50);
+	int16 randomY = Core::RandomNumber(-50, 50);
+
+	IE::point destination = offset_point(actor->Position(), randomX, randomY);
+	if (!PointSufficientlyClose(actor->Position(), destination))
+		actor->SetDestination(destination);
+
+	if (actor->Position() == actor->Destination())
+		SetCompleted();
 }
 
 
