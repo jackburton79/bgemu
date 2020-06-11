@@ -189,8 +189,6 @@ Object::Update(bool scripts)
 	fTicks++;
 
 	Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor != NULL)
-		actor->UpdateSee();
 
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
 	bool cutscene = Core::Get()->CutsceneMode(); 	

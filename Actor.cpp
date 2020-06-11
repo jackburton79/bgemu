@@ -747,43 +747,6 @@ Actor::CanSee(Object* target)
 }
 
 
-void
-Actor::UpdateSee()
-{
-	return;
-	// TODO: Correct ?
-
-
-	// TODO: Silly implementation: We take a straight line
-	// between source and target, and see if there are any unpassable
-	// point between them, we also check distance and visibility of
-	// the target
-	ActorsList::const_iterator i;
-	ActorsList actorsList;
-	Core::Get()->GetActorsList(actorsList);
-	ActorsList::const_iterator start = actorsList.begin();
-	ActorsList::const_iterator end = actorsList.end();
-	
-	for (i = start; i != end; i++) {
-		Actor* target = *i;
-		// TODO: Take into account any eventual spell
-		if (target == NULL || target == this || !target->IsVisible())
-			continue;
-
-		//const IE::point thisPosition = Position();
-		//const IE::point targetPosition = target->Position();
-		// TODO: 200 is an arbitrarily chosen number
-		if (Core::Get()->Distance(this, target) < 200 ) {
-			// TODO: Check if there are obstacles in the way
-			trigger_entry entry("SEE(O:OBJECT*)", target);
-			AddTrigger(entry);
-			//std::cout << this->Name() << " SAW " << target->Name() << std::endl;
-		}
-	}
-}
-
-
-
 /* virtual */
 void
 Actor::Update(bool scripts)
