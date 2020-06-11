@@ -731,6 +731,10 @@ Actor::StopCheckingConditions()
 void
 Actor::UpdateSee()
 {
+	// TODO: Correct ?
+	if (!IsInsideVisibleArea())
+		return;
+
 	// TODO: Silly implementation: We take a straight line
 	// between source and target, and see if there are any unpassable
 	// point between them, we also check distance and visibility of
@@ -738,7 +742,6 @@ Actor::UpdateSee()
 	ActorsList::const_iterator i;
 	ActorsList actorsList;
 	Core::Get()->GetActorsList(actorsList);
-	
 	ActorsList::const_iterator start = actorsList.begin();
 	ActorsList::const_iterator end = actorsList.end();
 	
