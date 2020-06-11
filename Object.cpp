@@ -29,16 +29,17 @@ bool Object::sDebug = false;
 
 trigger_entry::trigger_entry(std::string trigName)
 	:
-	name(trigName)
+	trigger_name(trigName),
+	target_id(-1)
 {
 }
 
 
 trigger_entry::trigger_entry(std::string trigName, Object* targetObject)
 	:
-	name(trigName)
+	trigger_name(trigName)
 {
-	target = targetObject->Name();
+	target_id = targetObject->GlobalID();
 }
 
 
@@ -66,7 +67,7 @@ Object::Object(const char* name, const char* scriptName)
 		if (script != NULL)
 			AddScript(script);
 	}
-	trigger_entry trig("ONCREATION()");
+	trigger_entry trig("ONCREATION()", this);
 	AddTrigger(trig);
 }
 
@@ -137,6 +138,7 @@ Object::Clicked(Object* clicker)
 {
 	fLastClicker = clicker->GlobalID();
 }
+
 
 Object*
 Object::LastClicker() const
@@ -297,7 +299,7 @@ Object::HasTrigger(std::string trigName) const
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		if (i->name == trigName)
+		if (i->trigger_name == trigName)
 			return true;
 	}
 	return false;
@@ -313,10 +315,10 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		const trigger_entry &entry = *i;
-		if (entry.name == trigName) {
+		if (entry.trigger_name == trigName) {
 			// TODO: We should store more than the target name, since 
 			// it's not sufficient in many cases
-			Object* target = Core::Get()->GetObject(entry.target.c_str());
+			Object* target = Core::Get()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
 				std::cout << Name() << "HasTrigger " << trigName << " -> "<< actor->Name() << std::endl;
@@ -333,8 +335,8 @@ Object::FindTrigger(std::string trigName) const
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		if (i->name == trigName)
-			return Core::Get()->GetObject(i->target.c_str());
+		if (i->trigger_name == trigName)
+			return Core::Get()->GetObject(i->target_id);
 	}
 	return NULL;
 }
@@ -345,8 +347,12 @@ Object::PrintTriggers()
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		const trigger_entry& entry = *i;		
-		std::cout << Name() << ": " << entry.name << " -> " << entry.target << std::endl;
+		const trigger_entry& entry = *i;
+		Object* object = Core::Get()->GetObject(entry.target_id);
+		std::cout << Name() << ": " << entry.trigger_name;
+		if (object != NULL)
+			std::cout << " -> " << object->Name();
+		std::cout << std::endl;
 	}
 }
 

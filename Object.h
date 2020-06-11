@@ -23,8 +23,8 @@ class Object;
 struct trigger_entry {
 	trigger_entry(std::string trigName);
 	trigger_entry(std::string trigName, Object* targetObject);
-	std::string name;
-	std::string target;
+	std::string trigger_name;
+	uint16 target_id;
 };
 
 struct object_node;

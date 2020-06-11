@@ -363,7 +363,7 @@ Script::GetObject(Object* source, object_node* node)
 	} else {
 		std::cout << "Specified wildcards (BUGGY):" << std::endl;
 		// Otherwise use the other parameters
-		Object* wildCard = Core::Get()->GetObject(node);
+		Object* wildCard = Core::Get()->GetObjectFromNode(node);
 		if (wildCard != NULL)
 			result = dynamic_cast<Actor*>(wildCard);
 	}
@@ -565,7 +565,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				if (!door->Opened())
 					break;*/
 #if 0
-				Object* object = core->GetObject(
+				Object* object = core->GetObjectFromNode(
 						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
 				if (object != NULL)
 					returnValue = object->MatchNode(objectNode);
@@ -673,7 +673,6 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * the specified object which must not be hidden or invisible.
 				 */
 				returnValue = actor->CanSee(FindTriggerObject(fSender, trig));
-				//returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
 				std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
@@ -833,7 +832,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				// TODO: This is valid for Regions scripts. What is the "Active CRE" ?
 				if (actor == NULL)
 					break;
-				returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
+				returnValue = actor->CanSee(FindTriggerObject(fSender, trig));
 					// || core->Hear(fSender, object);
 				break;
 			}
@@ -865,7 +864,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				object_node* objectNode = FindObjectNode(fSender, trig);
 				if (objectNode != NULL) {
 					// TODO: won't work if the object is generic and not specified					
-					Actor* actor = core->GetObject(objectNode);
+					Actor* actor = core->GetObjectFromNode(objectNode);
 					if (actor != NULL)
 						returnValue = region->Contains(actor->Position());
 				}

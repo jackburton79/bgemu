@@ -401,14 +401,14 @@ Core::GetObject(const char* name) const
 }
 
 
-Actor*
+Object*
 Core::GetObject(uint16 globalEnum) const
 {
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor != NULL && actor->CRE()->GlobalActorEnum() == globalEnum)
-			return actor;
+		Object* object = *i;
+		if (object != NULL && object->GlobalID() == globalEnum)
+			return object;
 	}
 
 	return NULL;
@@ -416,7 +416,7 @@ Core::GetObject(uint16 globalEnum) const
 
 
 Actor*
-Core::GetObject(object_node* node) const
+Core::GetObjectFromNode(object_node* node) const
 {
 	// TODO: Simplify, merge code.
 	ActorsList::const_iterator i;

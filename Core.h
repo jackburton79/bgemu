@@ -85,8 +85,8 @@ public:
 	Actor* ActiveActor();
 	
 	Object* GetObject(const char* name) const;
-	Actor* GetObject(uint16 globalEnum) const;
-	Actor* GetObject(object_node* node) const;
+	Object* GetObject(uint16 globalEnum) const;
+	Actor* GetObjectFromNode(object_node* node) const;
 	Actor* GetObject(const Region* region) const;
 	Actor* GetNearestEnemyOf(const Actor* object) const;
 	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
