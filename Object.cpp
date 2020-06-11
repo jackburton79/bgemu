@@ -121,7 +121,7 @@ Object::GlobalID() const
 	if (actor != NULL && actor->CRE() != NULL)
 		return actor->CRE()->GlobalActorEnum();
 		
-	//std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
+	std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
 	return (uint16)-1;
 }
 
@@ -207,7 +207,7 @@ Object::Update(bool scripts)
 		scripts = false;
 
 	if (scripts) {
-		_ExecuteScripts(8);		
+		_ExecuteScripts(8);
 	}
 
 	if (cutscene && actor != NULL && Game::Get()->Party()->HasActor(actor))
@@ -477,7 +477,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 		return;
 		
 	bool runScripts = false;
-	if (fTicksIdle++ > 5)
+	//if (fTicksIdle++ > 5)
 		runScripts = true;
 	
 	//if (!IsInterruptable())
