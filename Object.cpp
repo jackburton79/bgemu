@@ -49,7 +49,7 @@ Object::Object(const char* name, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
-	//fGlobalEnum(0),
+	fGlobalID(-1),
 	fTicks(0),
 	fTicksIdle(0),
 	fVisible(true),
@@ -106,6 +106,7 @@ Object::SetName(const char* name)
 void
 Object::SetGlobalID(uint16 id)
 {
+	fGlobalID = id;
 	// TODO: Not really nice
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->CRE() != NULL)
@@ -121,8 +122,7 @@ Object::GlobalID() const
 	if (actor != NULL && actor->CRE() != NULL)
 		return actor->CRE()->GlobalActorEnum();
 		
-	std::cout << "OBJECT(" << Name() << "): NO GLOBAL ID!!!" << std::endl;
-	return (uint16)-1;
+	return fGlobalID;
 }
 
 

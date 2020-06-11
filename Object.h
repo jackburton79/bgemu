@@ -103,6 +103,8 @@ private:
 	void _ExecuteAction(Action& action);
 	
 	std::string fName;
+	uint16 fGlobalID;
+
 	int32 fTicks;
 	int32 fTicksIdle;
 
