@@ -46,6 +46,8 @@ public:
 	uint16 GlobalID() const;
 	void SetGlobalID(uint16 id);
 
+	bool IsNew() const;
+
 	virtual IE::rect Frame() const = 0;
 
 	Variables& Vars();

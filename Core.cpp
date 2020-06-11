@@ -327,6 +327,9 @@ Core::RegisterObject(Object* object)
 		RegisterActor(actor);
 	else if (Door* door = dynamic_cast<Door*>(object))
 		fDoors.push_back(door);
+
+	if (object->IsNew())
+		object->SetGlobalID(fNextObjectNumber++);
 }
 
 

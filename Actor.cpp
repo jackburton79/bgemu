@@ -228,15 +228,6 @@ Actor::Print() const
 }
 
 
-// Returns true if an actor was just instantiated
-// false if it was already existing (loaded from save)
-bool
-Actor::IsNew() const
-{
-	return fCRE != NULL && fCRE->GlobalActorEnum() == (uint16)-1;
-}
-
-
 const ::Bitmap*
 Actor::Bitmap() const
 {

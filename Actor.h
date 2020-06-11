@@ -34,8 +34,6 @@ public:
 
 	CREResource *CRE() const;
 
-	bool IsNew() const;
-
 	const ::Bitmap* Bitmap() const;
 	IE::rect Frame() const;
 

@@ -126,6 +126,15 @@ Object::GlobalID() const
 }
 
 
+// Returns true if an object was just instantiated
+// false if it was already existing (loaded from save)
+bool
+Object::IsNew() const
+{
+	return GlobalID() == (uint16)-1;
+}
+
+
 Variables&
 Object::Vars()
 {
@@ -186,7 +195,7 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
-	PrintTriggers();
+	//PrintTriggers();
 
 	fTicks++;
 
