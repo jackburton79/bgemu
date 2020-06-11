@@ -314,7 +314,7 @@ Script::ResolveIdentifier(Object* object, const int id)
 	// TODO: Move that one here ?
 
 	if (identifier == "LASTSEENBY")
-		return object->FindTrigger("SEE(O:OBJECT*)");
+		return object->FindTrigger("LastSeen");
 /*
 	if (identifier == "LASTTRIGGER")
 		return LastTrigger();
@@ -672,7 +672,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Returns true only if the active CRE can see
 				 * the specified object which must not be hidden or invisible.
 				 */
-				returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
+				returnValue = actor->CanSee(FindTriggerObject(fSender, trig));
+				//returnValue = fSender->HasTrigger("SEE(O:OBJECT*)", trig);
 				std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}

@@ -184,6 +184,8 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
+	PrintTriggers();
+
 	fTicks++;
 
 	Actor* actor = dynamic_cast<Actor*>(this);
@@ -346,7 +348,7 @@ Object::PrintTriggers()
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		const trigger_entry& entry = *i;		
-		std::cout << entry.name << " -> " << entry.target << std::endl;
+		std::cout << Name() << ": " << entry.name << " -> " << entry.target << std::endl;
 	}
 }
 

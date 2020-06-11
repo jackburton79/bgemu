@@ -101,6 +101,7 @@ public:
 	bool SkipConditions() const;
 	void StopCheckingConditions();
 
+	bool CanSee(Object* target);
 	void UpdateSee();
 
 	bool IsReachable(const IE::point& pt) const;

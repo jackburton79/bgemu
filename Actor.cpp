@@ -728,12 +728,31 @@ Actor::StopCheckingConditions()
 }
 
 
+bool
+Actor::CanSee(Object* target)
+{
+	// TODO: Take into account any eventual spell
+	if (target == NULL || target == this || !target->IsVisible())
+		return false;
+	//const IE::point thisPosition = Position();
+	//const IE::point targetPosition = target->Position();
+	// TODO: 200 is an arbitrarily chosen number
+	if (Core::Get()->Distance(this, target) < 200 ) {
+		// TODO: Check if there are obstacles in the way
+		trigger_entry entry("LastSeen", target);
+		AddTrigger(entry);
+		return true;
+	}
+	return false;
+}
+
+
 void
 Actor::UpdateSee()
 {
+	return;
 	// TODO: Correct ?
-	if (!IsInsideVisibleArea())
-		return;
+
 
 	// TODO: Silly implementation: We take a straight line
 	// between source and target, and see if there are any unpassable
