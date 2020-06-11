@@ -477,7 +477,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * by any attack style.
 				 */
 				// TODO: fix ?
-				returnValue = fSender->HasTrigger("AttackedBy(O:Object*,I:Style*AStyles)", trig);
+				returnValue = fSender->HasTrigger("AttackedBy", trig);
 				break;
 			}
 			case 0x0020:
@@ -769,8 +769,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 					returnValue = Game::Get()->Party()->HasActor(object);
 				break;
 			}
-			//case 0x4051:
-			//{
+			case 0x4051:
+			{
 				/*
 				 * 0x4051 Dead(S:Name*)
 				 * Returns only true if the creature with the specified script name
@@ -780,14 +780,13 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
 				 * killed by a neutral creature.
 				 */
-			//	Script* actorScript = fScripts[trig->string1];
-			//	if (actorScript != NULL) {
-					// TODO: More NULL checking
-			//		const char* deathVariable = actorScript->Target()->CRE()->DeathVariable();
-			//		returnValue = fVariables[deathVariable] == 1;
-			//	}
-			//	break;
-			//}
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(fSender, trig));
+				if (actor != NULL) {
+					const char* deathVariable = object->CRE()->DeathVariable();
+					returnValue = object->Vars().Get(deathVariable) == 1;
+				}
+				break;
+			}
 			case 0x4063:
 			{
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
