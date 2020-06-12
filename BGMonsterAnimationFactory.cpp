@@ -55,7 +55,8 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			description.sequence_number = o;
 			break;
 		case ACT_CAST_SPELL:
-			description.bam_name.append("G25");
+			description.bam_name.append("G25"); // spell build-up
+			//description.bam_name.append("G26"); // spell release
 			description.sequence_number = o + 44;
 			break;
 		default:
@@ -63,6 +64,5 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
-	std::cerr << "sequence number (post-mirroring): " << std::dec << description.sequence_number << std::endl;
 }
 
