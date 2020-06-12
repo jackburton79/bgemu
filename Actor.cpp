@@ -290,18 +290,25 @@ Actor::Orientation() const
 
 
 void
-Actor::SetOrientation(int o)
+Actor::SetOrientation(int newOrientation)
 {
-	fActor->orientation = o;
+	uint32 oldOrientation = fActor->orientation;
+	fActor->orientation = newOrientation;
+	if (newOrientation != (int)oldOrientation)
+		fAnimationValid = false;
 }
+
 
 void
 Actor::SetOrientation(const IE::point& toPoint)
 {
+	uint32 oldOrientation = fActor->orientation;
 	if (Core::Get()->Game() == GAME_BALDURSGATE)
 		_SetOrientation(toPoint);
 	else
 		_SetOrientationExtended(toPoint);
+	if (oldOrientation != fActor->orientation)
+		fAnimationValid = false;
 }
 
 
@@ -788,10 +795,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
 	if (!fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
-		if (Core::Get()->Game() == GAME_BALDURSGATE)
-			_SetOrientation(nextPoint);
-		else
-			_SetOrientationExtended(nextPoint);
+		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
 	}		
 }
@@ -800,8 +804,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 void
 Actor::_SetOrientation(const IE::point& nextPoint)
 {
-	int oldOrientation = fActor->orientation;
-	int newOrientation = oldOrientation;
+	int newOrientation = fActor->orientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_SE;
@@ -824,16 +827,13 @@ Actor::_SetOrientation(const IE::point& nextPoint)
 	}
 
 	fActor->orientation = newOrientation;
-	if (newOrientation != oldOrientation)
-		fAnimationValid = false;
 }
 
 
 void
 Actor::_SetOrientationExtended(const IE::point& nextPoint)
 {
-	int oldOrientation = fActor->orientation;
-	int newOrientation = oldOrientation;
+	int newOrientation = fActor->orientation;
 	if (nextPoint.x > fActor->position.x) {
 		if (nextPoint.y > fActor->position.y)
 			newOrientation = IE::ORIENTATION_EXT_SE;
@@ -857,8 +857,6 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 
 	//std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
 	fActor->orientation = newOrientation;
-	if (newOrientation != oldOrientation)
-		fAnimationValid = false;
 }
 
 
