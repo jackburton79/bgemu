@@ -250,6 +250,9 @@ ForceSpell::operator()()
 	sender->SetAnimationAction(ACT_CAST_SPELL);
 	// TODO: only for testing
 	if (fDuration-- == 0) {
+		// TODO: There should be a way to set the previous animation action,
+		// because we don't know here if ACT_STANDING is the correct one
+		sender->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
 	}
 }
