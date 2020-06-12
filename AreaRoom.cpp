@@ -333,20 +333,7 @@ AreaRoom::Draw(Bitmap *surface)
 	s << ", " << (fCursorPosition.y + AreaOffset().y);
 	FontRoster::GetFont("NORMAL")->RenderString(s.str(), 0, fBackMap->Image(), mousePoint);
 #endif
-#if 0
-	RegionsList::iterator r = fRegions.begin();
-	uint32 color = fBackMap->Image()->MapColor(0, 125, 0);
-	for (; r != fRegions.end(); r++) {
-		Region* region = *r;
-		GFX::rect rect = rect_to_gfx_rect(region->Frame());
-		ConvertFromArea(rect);
-		//if (rects_intersect(rect, mapRect)) {
-			fBackMap->Image()->Lock();
-			fBackMap->Image()->FillRect(rect, color);
-			fBackMap->Image()->Unlock();
-		//}	
-	}
-#endif
+
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	
