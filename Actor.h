@@ -45,7 +45,7 @@ public:
 	void SetPosition(const IE::point& position);
 
 	IE::point Destination() const;
-	void SetDestination(const IE::point &dest);
+	void SetDestination(const IE::point &dest, bool ignoreSearchMap = false);
 	void ClearDestination();
 	
 	IE::point RestrictionDistance() const;

@@ -318,10 +318,15 @@ Actor::Destination() const
 
 
 void
-Actor::SetDestination(const IE::point& point)
+Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 {
-	if (fPath == NULL)
-		fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
+	if (fPath == NULL) {
+		if (ignoreSearchMap)
+			fPath = new PathFinder(PathFinder::kStep);
+		else
+			fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
+
+	}
 	fActor->destination = fPath->SetPoints(fActor->position, point);
 }
 
@@ -794,11 +799,19 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 void
 Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
-	if (fPath != NULL && !fPath->IsEmpty()) {
+	if (fPath == NULL)
+		return;
+
+	if (!fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
-	}		
+	}
+
+	if (fPath->IsEmpty()) {
+		delete fPath;
+		fPath = NULL;
+	}
 }
 
 

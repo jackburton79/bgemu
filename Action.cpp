@@ -410,7 +410,7 @@ RandomFly::operator()()
 
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	if (!PointSufficientlyClose(actor->Position(), destination))
-		actor->SetDestination(destination);
+		actor->SetDestination(destination, true);
 
 	if (actor->Position() == actor->Destination())
 		SetCompleted();
@@ -434,7 +434,7 @@ FlyTo::operator()()
 		return;
 
 	if (!Initiated()) {
-		actor->SetDestination(fActionParams->where);
+		actor->SetDestination(fActionParams->where, true);
 		SetInitiated();
 	}
 
