@@ -1049,9 +1049,11 @@ CreateVisualEffectObject::CreateVisualEffectObject(Object* object, action_node* 
 void
 CreateVisualEffectObject::operator()()
 {
+	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Object* target = Script::FindTargetObject(sender, fActionParams);
 	IE::point point;
-	point.x = fObject->Frame().x_min;
-	point.y = fObject->Frame().y_min;
+	point.x = target->Frame().x_min;
+	point.y = target->Frame().y_min;
 	Core::Get()->PlayEffect(fActionParams->string1, point);
 	SetCompleted();
 }
