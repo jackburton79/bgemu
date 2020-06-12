@@ -186,6 +186,24 @@ VVCResource::YPosition() const
 }
 
 
+uint32
+VVCResource::XCenter() const
+{
+	uint32 centerX = 0;
+	fData->ReadAt(80, &centerX, sizeof(centerX));
+	return centerX;
+}
+
+
+uint32
+VVCResource::YCenter() const
+{
+	uint32 centerY = 0;
+	fData->ReadAt(84, &centerY, sizeof(centerY));
+	return centerY;
+}
+
+
 void
 VVCResource::Dump()
 {
@@ -210,5 +228,6 @@ VVCResource::Dump()
 	std::cout << std::dec;
 	std::cout << "x: " << XPosition() << ", y: " << YPosition() << ", z: " << ZOffset();
 	std::cout << std::endl;
+	std::cout << "X Center: " << XCenter() << ", Y Center: " << YCenter() << std::endl;
 }
 

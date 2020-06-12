@@ -59,7 +59,9 @@ public:
 	uint32 XPosition() const;
 	uint32 ZOffset() const;
 	uint32 YPosition() const;
-	
+
+	uint32 XCenter() const;
+	uint32 YCenter() const;
 private:
 	virtual ~VVCResource();
 
