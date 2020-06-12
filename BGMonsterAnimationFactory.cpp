@@ -46,6 +46,10 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			description.bam_name.append("G2");
 			description.sequence_number = o;
 			break;
+		case ACT_CAST_SPELL:
+			description.bam_name.append("G25");
+			description.sequence_number = o + 40;
+			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
 			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
