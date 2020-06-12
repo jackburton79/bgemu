@@ -33,7 +33,6 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 	//	o = IE::orientation_ext_to_base(o);
 	// Armor
 	// TODO: For real
-	std::cerr << "orientation: " << std::dec << o << std::endl;
 	if (o >= IE::ORIENTATION_EXT_NNE
 				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
 		// Orientation 5 uses bitmap from orientation 3 mirrored,
