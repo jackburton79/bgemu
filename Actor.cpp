@@ -856,7 +856,6 @@ Actor::_SetOrientationExtended(const IE::point& nextPoint)
 			newOrientation = IE::ORIENTATION_EXT_N;
 	}
 
-	//std::cout << Name() << ": Orientation: " << std::dec << newOrientation << std::endl;
 	fActor->orientation = newOrientation;
 }
 
