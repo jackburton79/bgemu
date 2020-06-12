@@ -47,6 +47,8 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			description.sequence_number = o;
 			break;
 		default:
+			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_EXT_NNE

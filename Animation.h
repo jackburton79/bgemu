@@ -11,7 +11,8 @@ enum animation_action {
 	ACT_WALKING = 0,
 	ACT_STANDING = 1,
 	ACT_ATTACKING = 2,
-	ACT_DEAD = 3
+	ACT_DEAD = 3,
+	ACT_CAST_SPELL = 4
 };
 
 

@@ -48,7 +48,14 @@ BG2CharachterAnimationFactory::GetAnimationDescription(int action, int o, animat
 			description.bam_name.append("G15");
 			description.sequence_number = 48 + o;
 			break;
+		case ACT_CAST_SPELL:
+			std::cout << "CAST SPELL: " << fBaseName << std::endl;
+			description.bam_name.append("C1");
+			//description.sequence_number = o + 9;
+			break;
 		default:
+			std::cerr << "BG2CharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE) {

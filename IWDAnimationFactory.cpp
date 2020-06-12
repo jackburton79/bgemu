@@ -47,6 +47,8 @@ IWDAnimationFactory::GetAnimationDescription(int action, int o, animation_descri
 			description.sequence_number = o;
 			break;
 		default:
+			std::cerr << "IWDAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE

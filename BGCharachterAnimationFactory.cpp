@@ -46,6 +46,8 @@ BGCharachterAnimationFactory::GetAnimationDescription(int action, int o, animati
 			description.sequence_number = o;
 			break;
 		default:
+			std::cerr << "BGCharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE
