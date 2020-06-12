@@ -176,8 +176,6 @@ Actor::_Init()
 
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
-
-	fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
 	
 	SetAnimationAction(ACT_STANDING);
 }
@@ -322,6 +320,8 @@ Actor::Destination() const
 void
 Actor::SetDestination(const IE::point& point)
 {
+	if (fPath == NULL)
+		fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
 	fActor->destination = fPath->SetPoints(fActor->position, point);
 }
 
@@ -794,7 +794,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 void
 Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
-	if (!fPath->IsEmpty()) {
+	if (fPath != NULL && !fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
