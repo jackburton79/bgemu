@@ -70,6 +70,8 @@ class ForceSpell : public Action {
 public:
 	ForceSpell(Object* object, action_node* node);
 	virtual void operator()();
+private:
+	int fDuration;
 };
 
 class MoveBetweenAreasEffect : public Action {

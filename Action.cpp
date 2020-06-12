@@ -6,6 +6,8 @@
 #include "Game.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+// TODO: Temporary for debug. Remove
+#include "IDSResource.h"
 #include "Parsing.h"
 #include "RectUtils.h"
 #include "Region.h"
@@ -226,7 +228,8 @@ DestroySelfAction::operator()()
 // ForceSpell
 ForceSpell::ForceSpell(Object* object, action_node* node)
 	:
-	Action(object, node)
+	Action(object, node),
+	fDuration(50)
 {
 }
 
@@ -235,11 +238,20 @@ ForceSpell::ForceSpell(Object* object, action_node* node)
 void
 ForceSpell::operator()()
 {
-	Object* sender = Script::FindSenderObject(fObject, fActionParams);
+	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	sender->Print();
 	Object* target = Script::FindTargetObject(sender, fActionParams);
 	target->Print();
-	SetCompleted();
+
+	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+	std::cout << "spell: " << spellIDS->StringForID(fActionParams->integer1) << std::endl;
+	gResManager->ReleaseResource(spellIDS);
+
+	sender->SetAnimationAction(ACT_CAST_SPELL);
+	// TODO: only for testing
+	if (fDuration-- == 0) {
+		SetCompleted();
+	}
 }
 
 
