@@ -388,6 +388,34 @@ WalkToObject::operator()()
 	}
 }
 
+// RandomFly
+RandomFly::RandomFly(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+RandomFly::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	if (actor == NULL)
+		return;
+
+	// TODO: Fly
+	int16 randomX = Core::RandomNumber(-50, 50);
+	int16 randomY = Core::RandomNumber(-50, 50);
+
+	IE::point destination = offset_point(actor->Position(), randomX, randomY);
+	if (!PointSufficientlyClose(actor->Position(), destination))
+		actor->SetDestination(destination);
+
+	if (actor->Position() == actor->Destination())
+		SetCompleted();
+}
+
 
 // FlyTo
 FlyTo::FlyTo(Object* object, action_node* node)
@@ -401,9 +429,7 @@ FlyTo::FlyTo(Object* object, action_node* node)
 void
 FlyTo::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 

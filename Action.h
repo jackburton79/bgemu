@@ -111,6 +111,13 @@ public:
 };
 
 
+class RandomFly : public Action {
+public:
+	RandomFly(Object* actor, action_node* node);
+	virtual void operator()();
+};
+
+
 class FlyTo : public Action {
 public:
 	FlyTo(Object* actor, action_node* node);

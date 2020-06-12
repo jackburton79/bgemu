@@ -1165,17 +1165,15 @@ Script::_HandleAction(action_node* act)
 		case 0x64:
 		{
 			/* 100 RandomFly */
-			/*if (thisActor != NULL && thisActor->IsInterruptable())
-				core->RandomFly(thisActor);*/
+			RandomFly* fly = new RandomFly(thisActor, act);
+			thisActor->AddAction(fly);
 			break;
 		}
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			/*if (thisActor != NULL && thisActor->IsInterruptable()) {
-				FlyTo* flyTo = new FlyTo(thisActor, act->where, act->integer1);
-				thisActor->AddAction(flyTo);
-			}*/
+			FlyTo* flyTo = new FlyTo(thisActor, act);
+			thisActor->AddAction(flyTo);
 			break;
 		}
 		case 109:
