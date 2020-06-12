@@ -556,8 +556,6 @@ Attack::Attack(Object* object, action_node* node)
 void
 Attack::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (sender == NULL)
 		return;
