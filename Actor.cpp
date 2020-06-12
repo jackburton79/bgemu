@@ -773,6 +773,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 {
 	if (!fAnimationValid) {
 		delete fCurrentAnimation;
+		fCurrentAnimation = NULL;
 		if (fAnimationFactory != NULL) {
 			fCurrentAnimation = fAnimationFactory->AnimationFor(
 										fAction,
