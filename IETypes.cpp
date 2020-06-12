@@ -27,6 +27,7 @@
 #include "MOSResource.h"
 #include "MveResource.h"
 #include "MemoryStream.h"
+#include "SPLResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "VVCResource.h"
@@ -63,7 +64,7 @@ const static resource_types kResourceTypes[] = {
 	{ RES_MVE, "MVE", "Movie (MVE) format", &MVEResource::Create },
 	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", NULL },
 	{ RES_PRO, "PRO", "PRO format (projectile)", NULL },
-	{ RES_SPL, "SPL", "SPL format", NULL },
+	{ RES_SPL, "SPL", "SPL format", &SPLResource::Create },
 	{ RES_STO, "STO", "STORE format", NULL },
 	{ RES_TIS, "TIS", "TIS format", &TISResource::Create },
 	{ RES_VVC, "VVC", "VVC Effect", &VVCResource::Create },

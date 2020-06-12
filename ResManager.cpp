@@ -18,6 +18,7 @@
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Resource.h"
+#include "SPLResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "Utils.h"
@@ -422,6 +423,14 @@ ResourceManager::Get2DA(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_2DA);
 	return static_cast<TWODAResource*>(resource);
+}
+
+
+SPLResource*
+ResourceManager::GetSPL(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_SPL);
+	return static_cast<SPLResource*>(resource);
 }
 
 

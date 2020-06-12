@@ -28,6 +28,7 @@ class ITMResource;
 class MOSResource;
 class MVEResource;
 class KEYResource;
+class SPLResource;
 class TISResource;
 class TLKResource;
 class VVCResource;
@@ -58,6 +59,7 @@ public:
 	MVEResource*	GetMVE(const res_ref& name);
 	VVCResource*	GetVVC(const res_ref& name);
 	WMAPResource*	GetWMAP(const res_ref& name);
+	SPLResource*	GetSPL(const res_ref& name);
 
 	Resource *GetResource(const char* fullName);
 	Resource *GetResource(const res_ref &name, uint16 type);
