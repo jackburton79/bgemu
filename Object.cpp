@@ -245,12 +245,10 @@ Object::AddAction(Action* action, bool now)
 void
 Object::ExecuteActions()
 {
-	if (fCurrentAction != NULL) {
-		if (fCurrentAction->Completed()) {
-			std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
-			delete fCurrentAction;
-			fCurrentAction = NULL;
-		}
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->IsWalking()) {
+		actor->HandleWalking();
+		return;
 	}
 
 	if (fCurrentAction == NULL && !fActions.empty()) {
@@ -258,14 +256,16 @@ Object::ExecuteActions()
 		fActions.pop_front();
 	}
 
-	Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor != NULL && actor->IsWalking()) {
-		actor->HandleWalking();
-		return;
-	}
-
 	if (fCurrentAction != NULL)
 		(*fCurrentAction)();
+
+	if (fCurrentAction != NULL) {
+		if (fCurrentAction->Completed()) {
+			std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
+			delete fCurrentAction;
+			fCurrentAction = NULL;
+		}
+	}
 }
 
 
