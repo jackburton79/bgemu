@@ -468,6 +468,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 		std::cout << std::hex << trig->id << ")";
 		std::cout << std::endl;
 		trig->Print();
+		object_node* objectNode = FindObjectNode(fSender, trig);
+		objectNode->Print();
 	}
 
 	Core* core = Core::Get();

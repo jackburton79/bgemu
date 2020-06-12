@@ -666,7 +666,7 @@ object_node::Print() const
 		std::cout << "name: *" << name << "*" << ", ";
 	if (Empty())
 		std::cout << "EMPTY (MYSELF)";
-	std::flush(std::cout);
+	std::cout << std::endl;
 }
 
 
