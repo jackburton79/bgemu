@@ -1131,7 +1131,7 @@ Script::_HandleAction(action_node* act)
 			if (thisActor != NULL) {
 				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act);
 				thisActor->AddAction(action);
-			}			
+			}
 			break;
 		}
 		case 85:
