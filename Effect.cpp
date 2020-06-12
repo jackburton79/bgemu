@@ -18,6 +18,8 @@ Effect::Effect(const res_ref& name, IE::point where)
 	fNumFrames = fVVC->CountFrames();
 	if (fNumFrames < 0)
 		fNumFrames = fBitmaps.size();
+
+	_AdjustPosition();
 }
 
 
@@ -84,4 +86,13 @@ Effect::_LoadBitmaps()
 		fBitmaps.push_back(bitmap);
 	}*/
 	gResManager->ReleaseResource(bam);
+}
+
+
+void
+Effect::_AdjustPosition()
+{
+	// TODO: Handle X and Z (isometric)
+	uint32 yPos = fVVC->YPosition();
+	fWhere.y += yPos;
 }

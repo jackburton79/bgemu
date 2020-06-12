@@ -26,6 +26,7 @@ private:
 	IE::point fWhere;
 
 	void _LoadBitmaps();
+	void _AdjustPosition();
 };
 
 
