@@ -95,4 +95,7 @@ Effect::_AdjustPosition()
 	// TODO: Handle X and Z (isometric)
 	uint32 yPos = fVVC->YPosition();
 	fWhere.y += yPos;
+
+	fWhere.x += fVVC->XCenter();
+	fWhere.y += fVVC->YCenter();
 }
