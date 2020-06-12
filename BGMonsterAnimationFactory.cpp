@@ -33,6 +33,14 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 	//	o = IE::orientation_ext_to_base(o);
 	// Armor
 	// TODO: For real
+	std::cerr << "orientation: " << std::dec << o << std::endl;
+	if (o >= IE::ORIENTATION_EXT_NNE
+				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
+		// Orientation 5 uses bitmap from orientation 3 mirrored,
+		// 6 uses 2, and 7 uses 1
+		description.mirror = true;
+		o = 16 - o;
+	}
 	switch (action) {
 		case ACT_WALKING:
 			description.bam_name.append("G11");
@@ -48,19 +56,13 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			break;
 		case ACT_CAST_SPELL:
 			description.bam_name.append("G25");
-			description.sequence_number = o + 40;
+			description.sequence_number = o + 44;
 			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
 			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
-	if (o >= IE::ORIENTATION_EXT_NNE
-				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
-			// Orientation 5 uses bitmap from orientation 3 mirrored,
-			// 6 uses 2, and 7 uses 1
-			description.mirror = true;
-			description.sequence_number -= (o - 8) * 2;
-		}
+	std::cerr << "sequence number (post-mirroring): " << std::dec << description.sequence_number << std::endl;
 }
 
