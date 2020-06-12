@@ -492,18 +492,18 @@ AreaRoom::DrawObject(const Object& object)
 
 		int32 pointHeight = PointHeight(actorPosition);
 		actorPosition.y += pointHeight - 8;
-		DrawObject(actorFrame, actorPosition, true);
+		DrawBitmap(actorFrame, actorPosition, true);
 	}
 }
 
 
 void
-AreaRoom::DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask)
+AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask)
 {
 	if (bitmap == NULL)
 		return;
 
-	IE::point leftTop = offset_point(point,
+	IE::point leftTop = offset_point(centerPoint,
 							-(bitmap->Frame().x + bitmap->Frame().w / 2),
 							-(bitmap->Frame().y + bitmap->Frame().h / 2));
 
@@ -825,7 +825,7 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 				if (advanceFrame)
 					animation->Next();
 				const Bitmap* frame = animation->Bitmap();
-				DrawObject(frame, animation->Position(), false);
+				DrawBitmap(frame, animation->Position(), false);
 			}
 		} catch (const char* string) {
 			std::cerr << string << std::endl;
@@ -852,7 +852,7 @@ AreaRoom::_DrawEffects()
 		try {
 			Effect* effect = *i;
 			const Bitmap* frame = effect->NextBitmap();
-			DrawObject(frame, effect->Position(), false);
+			DrawBitmap(frame, effect->Position(), false);
 		} catch (const char* string) {
 			std::cerr << string << std::endl;
 			continue;

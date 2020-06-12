@@ -47,7 +47,7 @@ public:
 										int scrollByX, int scrollByY);
 
 	void DrawObject(const Object& object);
-	void DrawObject(const Bitmap* bitmap, const IE::point& point, bool mask);
+	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
 	void AddAnimation(Animation* animation);
 	void RemoveAnimation(Animation* animation);
