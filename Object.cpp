@@ -414,18 +414,18 @@ Object::SetWaitTime(int32 waitTime)
 
 
 IE::point
-Object::NearestPoint(const IE::point& point) const
+Object::NearestPoint(const IE::point& comingFrom) const
 {
 	IE::point targetPoint;
 	IE::rect frame = Frame();
 		
-	if (point.x <= frame.x_min)
+	if (comingFrom.x <= frame.x_min)
 		targetPoint.x = frame.x_min;
-	else if (point.x >= frame.x_max)
+	else if (comingFrom.x >= frame.x_max)
 		targetPoint.x = frame.x_max;
-	if (point.y <= frame.y_min)
+	if (comingFrom.y <= frame.y_min)
 		targetPoint.y = frame.y_min;
-	else if (point.y >= frame.y_max)
+	else if (comingFrom.y >= frame.y_max)
 		targetPoint.y = frame.y_max;
 
 	return targetPoint;

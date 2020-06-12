@@ -956,7 +956,7 @@ DisplayStringHead::operator()()
 		point.y -= 100;
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
-		// TODO: Center string
+
 		// we multiply by 15 because DisplayString() accepts ms, but duration
 		// is specified in AI update times
 		std::string string = tlkEntry->text;
@@ -967,9 +967,8 @@ DisplayStringHead::operator()()
 		Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
-	if (fDuration-- <= 0) {
+	if (fDuration-- <= 0)
 		SetCompleted();
-	}
 }
 
 

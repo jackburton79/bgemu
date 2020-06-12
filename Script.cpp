@@ -341,6 +341,7 @@ Script::GetObject(Object* source, object_node* node)
 		result = Core::Get()->GetObject(node->name);
 	} else if (node->identifiers[0] != 0) {
 		std::cout << "Specified identifiers: " ;
+		std::vector<std::string> identifiersList;
 		// If there are any identifiers, use those to get the object
 		Actor* target = NULL;
 		for (int32 id = 0; id < 5; id++) {
@@ -348,10 +349,16 @@ Script::GetObject(Object* source, object_node* node)
 			if (identifier == 0) {
 				break;
 			}
-			std::cout << IDTable::ObjectAt(identifier) << ", ";
+			//std::cout << IDTable::ObjectAt(identifier) << ", ";
+			identifiersList.push_back(IDTable::ObjectAt(identifier));
 			target = dynamic_cast<Actor*>(ResolveIdentifier(source, identifier));
 			/*if (source != NULL)
 				source->Print();*/
+		}
+
+		for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();
+				i != identifiersList.rend(); i++) {
+			std::cout << *i << "->";
 		}
 		std::cout << std::endl;
 		// TODO: Filter using wildcards in node
