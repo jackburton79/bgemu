@@ -96,9 +96,6 @@ public:
 	void Select(bool select);
 	bool IsSelected() const;
 
-	bool SkipConditions() const;
-	void StopCheckingConditions();
-
 	bool CanSee(Object* target);
 
 	bool IsReachable(const IE::point& pt) const;
@@ -124,8 +121,6 @@ private:
 	bool fOwnsActor;
 
 	CREColors* fColors;
-
-	bool fDontCheckConditions;
 
 	bool fFlying;
 	bool fSelected;

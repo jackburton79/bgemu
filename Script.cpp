@@ -1036,7 +1036,7 @@ Script::_HandleAction(action_node* act)
 			if (thisActor != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
-				thisActor->StopCheckingConditions();
+				thisActor->SetInterruptable(false);
 			}
 			break;
 		}
@@ -1311,7 +1311,7 @@ Script::_HandleAction(action_node* act)
 			if (thisActor != NULL) {
 				WalkTo* walkTo = new WalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
-				thisActor->StopCheckingConditions();
+				thisActor->SetInterruptable(false);
 			}
 			break;
 		}

@@ -40,7 +40,6 @@ Actor::Actor(IE::actor &actor)
 	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(false),
-	fDontCheckConditions(false),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -58,7 +57,6 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fAnimationFactory(NULL),
 	fCRE(cre),
 	fOwnsActor(false),
-	fDontCheckConditions(false),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -76,7 +74,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(true),
-	fDontCheckConditions(false),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -717,21 +714,6 @@ Actor::AttackTarget(Actor* target)
 
 
 bool
-Actor::SkipConditions() const
-{
-	return fDontCheckConditions;
-}
-
-
-void
-Actor::StopCheckingConditions()
-{
-	// TODO: Until reaches destination point
-	fDontCheckConditions = true;
-}
-
-
-bool
 Actor::CanSee(Object* target)
 {
 	// TODO: Take into account any eventual spell
@@ -789,10 +771,6 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		if (fAction != ACT_DEAD || !fCurrentAnimation->IsLastFrame())
 			fCurrentAnimation->Next();
 	}
-
-	// TODO: Move to Actor::Update()
-	if (fDontCheckConditions == true && fActor->position == fActor->destination)
-		fDontCheckConditions = false;
 }
 
 
