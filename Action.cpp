@@ -984,9 +984,7 @@ ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_no
 void
 ChangeOrientationExtAction::operator()()
 {
-	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(fObject);
+	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor != NULL)
 		actor->SetOrientation(fActionParams->integer1);
 	SetCompleted();
