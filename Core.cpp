@@ -323,10 +323,17 @@ Core::PlaySound(const res_ref& soundRefName)
 void
 Core::RegisterObject(Object* object)
 {
+	std::cout << "Core::RegisterObject(" << object->Name() << ")" << std::endl;
+	// TODO: Not nice.
+	// introduce a "type" field in Object, and maybe put all objects into the same list ?
 	if (Actor* actor = dynamic_cast<Actor*>(object))
 		RegisterActor(actor);
 	else if (Door* door = dynamic_cast<Door*>(object))
 		fDoors.push_back(door);
+	else if (Region* region = dynamic_cast<Region*>(object))
+		fRegions.push_back(region);
+	else if (Container* container = dynamic_cast<Container*>(object))
+		fContainers.push_back(container);
 
 	if (object->IsNew())
 		object->SetGlobalID(fNextObjectNumber++);
@@ -338,8 +345,10 @@ Core::UnregisterObject(Object* object)
 {
 	// TODO: Save the object state
 	// TODO: Implement
-	if (Actor* actor = dynamic_cast<Actor*>(object))
-		actor->Release();
+	// TODO: Remove from list
+	object->Release();
+	//if (Actor* actor = dynamic_cast<Actor*>(object))
+		//actor->Release();
 }
 
 
@@ -359,20 +368,6 @@ Core::UnregisterActor(Actor* actor)
 {
 	// TODO: Save the object state
 	actor->Release();
-}
-
-
-void
-Core::RegisterContainer(Container* container)
-{
-	fContainers.push_back(container);
-}
-
-
-void
-Core::RegisterRegion(Region* region)
-{
-	fRegions.push_back(region);
 }
 
 
@@ -584,7 +579,8 @@ Core::UpdateLogic(bool executeScripts)
 		Object* object = *c;
 		object->Update(executeScripts);
 	}
-	
+#endif
+#if 1
 	RegionsList::iterator r;
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		Object* object = *r;

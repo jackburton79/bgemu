@@ -145,14 +145,8 @@ Object::Vars()
 void
 Object::Clicked(Object* clicker)
 {
-	fLastClicker = clicker->GlobalID();
-}
-
-
-Object*
-Object::LastClicker() const
-{
-	return Core::Get()->GetObject(fLastClicker);
+	trigger_entry entry("Clicked", clicker);
+	fTriggers.push_back(entry);
 }
 
 
@@ -199,8 +193,6 @@ Object::Update(bool scripts)
 
 	fTicks++;
 
-	Actor* actor = dynamic_cast<Actor*>(this);
-
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
 	bool cutscene = Core::Get()->CutsceneMode(); 	
 	if (isArea && cutscene)
@@ -210,6 +202,7 @@ Object::Update(bool scripts)
 		_ExecuteScripts(8);
 	}
 
+	Actor* actor = dynamic_cast<Actor*>(this);
 	if (cutscene && actor != NULL && Game::Get()->Party()->HasActor(actor))
 		return;
 

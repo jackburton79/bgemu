@@ -591,15 +591,11 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 */
 				object_node* objectNode = FindObjectNode(fSender, trig);
 				// TODO: Maybe LastClicker should return Actor*
-				Actor* clicker = dynamic_cast<Actor*>(fSender->LastClicker());
+				Actor* clicker = dynamic_cast<Actor*>(fSender->FindTrigger("Clicked"));
 				if (clicker != NULL) {
 					objectNode->Print();
 					returnValue = clicker->MatchNode(objectNode);
 				}
-				// TODO: When to set this, other than now ?
-				//if (returnValue)
-					//fLastTrigger = fSender;
-
 				break;
 			}
 			case 0x400A:

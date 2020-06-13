@@ -53,7 +53,6 @@ public:
 	Variables& Vars();
 
 	void Clicked(Object* clicker);
-	Object* LastClicker() const;
 
 	void EnteredRegion(Region* region);
 	void ExitedRegion(Region* region);

@@ -1015,7 +1015,7 @@ AreaRoom::_InitRegions()
 	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
 		Region* region = fArea->GetRegionAt(i);		
 		fRegions.push_back(region);
-		Core::Get()->RegisterRegion(region);
+		Core::Get()->RegisterObject(region);
 		// TODO: associate room to tile cells
 	}
 	std::cout << "Done!" << std::endl;
@@ -1076,7 +1076,7 @@ AreaRoom::_InitContainers()
 	for (uint32 c = 0; c < numContainers; c++) {
 		Container *container = fArea->GetContainerAt(c);
 		fContainers.push_back(container);
-		Core::Get()->RegisterContainer(container);
+		Core::Get()->RegisterObject(container);
 	}
 	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
 }

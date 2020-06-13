@@ -53,9 +53,6 @@ public:
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
 	
-	void RegisterContainer(Container* container);
-	void RegisterRegion(Region* region);
-
 	uint32 Game() const;
 
 	bool LoadArea(const res_ref& areaName, const char* longName,
