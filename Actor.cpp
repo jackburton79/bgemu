@@ -595,6 +595,7 @@ void
 Actor::SetArea(const char* areaName)
 {
 	fArea = areaName;
+	SetAnimationAction(ACT_STANDING);
 }
 
 
