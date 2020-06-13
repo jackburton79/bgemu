@@ -121,9 +121,6 @@ private:
 	
 	::Variables fVariables;
 
-	uint16 fLastAttacker;
-	uint16 fLastClicker;
-	
 	Region* fRegion;
 
 	bool fToDestroy;

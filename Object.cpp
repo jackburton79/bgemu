@@ -57,8 +57,6 @@ Object::Object(const char* name, const char* scriptName)
 	fIsInterruptable(true),
 	fWaitTime(0),
 	fCurrentAction(NULL),
-	fLastAttacker(-1),
-	fLastClicker(-1),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -335,6 +333,8 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 Object*
 Object::FindTrigger(std::string trigName) const
 {
+	// TODO: Since we usually use this for "LastAttacker", "LastSeen", etc.
+	// we start searching from the last item
 	std::list<trigger_entry>::const_reverse_iterator i;
 	for (i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
 		if (i->trigger_name == trigName)
@@ -394,6 +394,7 @@ Object::ClearScripts()
 {
 	for (ScriptsList::iterator i = fScripts.begin();
 		i != fScripts.end(); i++) {
+		delete *i;
 	}
 	fScripts.clear();
 }
