@@ -161,6 +161,13 @@ private:
 };
 
 
+class DisplayMessage : public Action {
+public:
+	DisplayMessage(Object* actor, action_node* node);
+	virtual void operator()();
+};
+
+
 class Attack : public Action {
 public:
 	Attack(Object* actor, action_node* node);

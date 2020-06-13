@@ -569,6 +569,23 @@ OpenDoor::operator()()
 }
 
 
+// DisplayMessage
+DisplayMessage::DisplayMessage(Object* sender, action_node* node)
+	:
+	Action(sender, node)
+{
+}
+
+
+/* virtual */
+void
+DisplayMessage::operator()()
+{
+	std::cout << "DisplayMessage:: ";
+	std::cout << IDTable::GetDialog(fActionParams->integer1) << std::endl;
+	SetCompleted();
+}
+
 
 // Attack
 Attack::Attack(Object* object, action_node* node)

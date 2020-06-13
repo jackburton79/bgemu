@@ -1233,16 +1233,6 @@ Script::_HandleAction(action_node* act)
 			}
 			break;
 		}
-		case 0x97:
-		{
-			/* 151 DisplayString(O:Object*,I:StrRef*)
-			 * This action displays the strref specified by the StrRef parameter
-			 * in the message window, attributing the text to
-			 * the specified object.
-			 */
-			//core->DisplayMessage(act->integer1);
-			break;
-		}
 		case 0xA7:
 		{
 			core->PlayMovie(act->string1);
@@ -1262,6 +1252,16 @@ Script::_HandleAction(action_node* act)
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
 			sender->AddAction(new OpenDoor(sender, act));
+			break;
+		}
+		case 151:
+		{
+			/* 151 DisplayString(O:Object*,I:StrRef*)
+			 * This action displays the strref specified by the StrRef parameter
+			 * in the message window, attributing the text to
+			 * the specified object.
+			 */
+			sender->AddAction(new DisplayMessage(sender, act));
 			break;
 		}
 		case 177:
