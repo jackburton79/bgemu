@@ -59,7 +59,6 @@ Script::Script(node* rootNode)
 	fProcessed(false),
 	fOrTriggers(0),
 	fSender(NULL),
-	fLastTrigger(NULL),
 	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
@@ -201,8 +200,7 @@ Script::Execute(bool& continuing)
 	if (fSender == NULL) {
 		std::cerr << "Script::Execute(): fSender is NULL!" << std::endl;
 	}
-	*/	
-	fLastTrigger = NULL;
+	*/
 	// for each CR block
 	// for each CO block
 	// check triggers
@@ -317,7 +315,7 @@ Script::ResolveIdentifier(Object* object, const int id)
 		return object->FindTrigger("LastSeen");
 #if 0
 	if (identifier == "LASTTRIGGER")
-		return LastTrigger();
+		return object->LastTrigger();
 #endif
 #if 1
 	if (identifier == "LASTATTACKEROF")
@@ -383,13 +381,6 @@ Script::GetObject(Object* source, object_node* node)
 	} else
 		std::cout << "Found NONE" << std::endl;
 	return result;
-}
-
-
-Object*
-Script::LastTrigger() const
-{
-	return fLastTrigger;
 }
 
 

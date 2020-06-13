@@ -57,6 +57,7 @@ Object::Object(const char* name, const char* scriptName)
 	fIsInterruptable(true),
 	fWaitTime(0),
 	fCurrentAction(NULL),
+	fLastTrigger(NULL),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -291,6 +292,7 @@ void
 Object::AddTrigger(trigger_entry entry)
 {
 	fTriggers.push_back(entry);
+	fLastTrigger = Core::Get()->GetObject(entry.target_id);
 }
 
 
@@ -344,6 +346,13 @@ Object::FindTrigger(std::string trigName) const
 }
 
 
+Object*
+Object::LastTrigger() const
+{
+	return fLastTrigger;
+}
+
+
 void
 Object::PrintTriggers()
 {
@@ -363,6 +372,7 @@ void
 Object::ClearTriggers()
 {
 	fTriggers.clear();
+	fLastTrigger = NULL;
 }
 
 

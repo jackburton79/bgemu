@@ -51,8 +51,6 @@ public:
 	static Object* ResolveIdentifier(Object* object, const int id);
 	static Object* GetObject(Object* source, object_node* node);
 
-	Object* LastTrigger() const;
-
 	void SetProcessed();
 	bool Processed() const;
 	

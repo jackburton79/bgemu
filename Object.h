@@ -74,6 +74,7 @@ public:
 	bool HasTrigger(std::string trigName) const;
 	bool HasTrigger(std::string trigName, trigger_node* triggerNode) const;
 	Object* FindTrigger(std::string trigName) const;
+	Object* LastTrigger() const;
 
 	void PrintTriggers();	
 	void ClearTriggers();
@@ -118,6 +119,7 @@ private:
 	Action* fCurrentAction;
 	std::list<Action*> fActions;
 	std::list<trigger_entry> fTriggers;	
+	Object* fLastTrigger;
 	
 	::Variables fVariables;
 
