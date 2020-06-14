@@ -313,10 +313,9 @@ Script::ResolveIdentifier(Object* object, const int id)
 
 	if (identifier == "LASTSEENBY")
 		return object->FindTrigger("LastSeen");
-#if 1
 	if (identifier == "LASTTRIGGER")
 		return object->LastTrigger();
-#endif
+
 #if 1
 	if (identifier == "LASTATTACKEROF")
 		return object->FindTrigger("AttackedBy");
