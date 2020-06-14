@@ -45,10 +45,11 @@ trigger_entry::trigger_entry(std::string trigName, Object* targetObject)
 
 // TODO: We always cast to Actor.
 // Either move the methods to actor, or merge the classes
-Object::Object(const char* name, const char* scriptName)
+Object::Object(const char* name, object_type objectType, const char* scriptName)
 	:
 	Referenceable(1),
 	fName(name),
+	fType(objectType),
 	fGlobalID(-1),
 	fTicks(0),
 	fTicksIdle(0),

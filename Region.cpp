@@ -14,7 +14,7 @@
 
 Region::Region(IE::region* region)
 	:
-	Object(region->name, region->script.CString()),
+	Object(region->name, Object::REGION, region->script.CString()),
 	fRegion(region)
 {
 	// TODO: Region names contain spaces, but scripts search

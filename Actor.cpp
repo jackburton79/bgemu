@@ -35,7 +35,7 @@
 
 Actor::Actor(IE::actor &actor)
 	:
-	Object(actor.name),
+	Object(actor.name, Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCRE(NULL),
@@ -52,7 +52,7 @@ Actor::Actor(IE::actor &actor)
 
 Actor::Actor(IE::actor &actor, CREResource* cre)
 	:
-	Object(actor.name),
+	Object(actor.name, Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCRE(cre),
@@ -69,7 +69,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 
 Actor::Actor(const char* creName, IE::point position, int face)
 	:
-	Object(creName),
+	Object(creName, Object::ACTOR),
 	fActor(NULL),
 	fAnimationFactory(NULL),
 	fCRE(NULL),

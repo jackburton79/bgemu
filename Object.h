@@ -36,12 +36,22 @@ class Script;
 class TileCell;
 class Object : public Referenceable {
 public:
-	Object(const char* name, const char* scriptName = NULL);
+	enum object_type {
+		ACTOR,
+		AREA,
+		CONTAINER,
+		DOOR,
+		REGION
+	};
+
+	Object(const char* name, object_type objectType, const char* scriptName = NULL);
 
 	void Print() const;
 
 	const char* Name() const;
 	void SetName(const char* name);
+
+	object_type Type() const;
 
 	uint16 GlobalID() const;
 	void SetGlobalID(uint16 id);
@@ -103,6 +113,7 @@ private:
 	void _ExecuteAction(Action& action);
 	
 	std::string fName;
+	object_type fType;
 	uint16 fGlobalID;
 
 	int32 fTicks;
