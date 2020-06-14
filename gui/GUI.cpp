@@ -222,9 +222,6 @@ GUI::ShowWindow(uint16 id)
 	if (IsWindowShown(id))
 		return;
 
-	//if (id == 999)
-		//fActiveWindows.push_back(new ResourceWindow());
-
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
 		fActiveWindows.push_back(window);
@@ -283,7 +280,7 @@ GUI::Clear()
 
 
 Window*
-GUI::GetWindow(uint16 id)
+GUI::GetWindow(uint16 id) const
 {
 	std::vector<Window*>::const_iterator i;
 	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
