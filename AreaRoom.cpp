@@ -96,17 +96,19 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
-
+	//gui->ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
 	gui->ShowWindow(GUI::WINDOW_COMMANDS);
 	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
-	//gui->ShowWindow(2);
+
 	//gui->ShowWindow(GUI::WINDOW_MESSAGES);
-	/*
-	if (Window* tmp = gui->GetWindow(4)) {
-		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
+
+	Window* tmp = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
+	if (tmp != NULL) {
+		std::cerr << "ASD" << std::endl;
+		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(2));
 		if (textArea != NULL)
 			textArea->SetText("This is a test");
-	}*/
+	}
 	//gui->GetWindow(15);
 
 	if (window != NULL) {

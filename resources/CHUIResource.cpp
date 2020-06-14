@@ -74,17 +74,22 @@ CHUIResource::CountWindows() const
 
 
 Window*
-CHUIResource::GetWindow(uint16 num)
+CHUIResource::GetWindow(uint16 id)
 {
-	if (num >= fNumWindows)
-		return NULL;
-
-	std::cout << "CHUIResource::GetWindow(" << num << ")" << std::endl;
+	std::cout << "CHUIResource::GetWindow(" << id << ")" << std::endl;
 	Window* newWindow = NULL;
 	try {
+		// TODO: Not really efficient O(n): but shouldn't be critical
 		IE::window window;
-		fData->ReadAt(fWindowsOffset + num * sizeof(window), window);
-
+		for (uint16 n = 0; n < fNumWindows; n++) {
+			fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
+			if (window.id == id)
+				break;
+		}
+		if (window.id != id) {
+			// window not found
+			return NULL;
+		}
 		Bitmap* background = NULL;
 		if (window.background) {
 			MOSResource* mos = gResManager->GetMOS(window.background_mos);
@@ -95,7 +100,7 @@ CHUIResource::GetWindow(uint16 num)
 		}
 
 		newWindow = new Window(window.id, window.x, window.y,
-					window.w, window.h, background);
+						window.w, window.h, background);
 
 		std::cout << "CHUIResource::GetWindow(): Window has ";
 		std::cout << window.num_controls << " controls." << std::endl;
@@ -106,8 +111,7 @@ CHUIResource::GetWindow(uint16 num)
 			fData->ReadAt(fControlTableOffset
 					+ (window.control_offset + controlIndex)
 					* sizeof(controlTable), controlTable);
-
-			IE::control* control = _ReadControl(controlTable);
+				IE::control* control = _ReadControl(controlTable);
 			if (control != NULL) {
 				//control->Print();
 				newWindow->Add(Control::CreateControl(control));

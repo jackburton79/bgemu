@@ -23,7 +23,7 @@ public:
 	static Resource* Create(const res_ref& name);
 
 	uint16 CountWindows() const;
-	Window* GetWindow(uint16 num);
+	Window* GetWindow(uint16 id);
 
 	void Dump();
 private:
