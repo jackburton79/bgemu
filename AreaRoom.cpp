@@ -97,10 +97,11 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
 
-	gui->ShowWindow(0);
-	gui->ShowWindow(1);
-	/*gui->ShowWindow(2);
-	gui->ShowWindow(4);
+	gui->ShowWindow(GUI::WINDOW_COMMANDS);
+	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
+	//gui->ShowWindow(2);
+	//gui->ShowWindow(GUI::WINDOW_MESSAGES);
+	/*
 	if (Window* tmp = gui->GetWindow(4)) {
 		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(3));
 		if (textArea != NULL)
