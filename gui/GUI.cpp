@@ -42,7 +42,8 @@ GUI::GUI(uint16 width, uint16 height)
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
 	fScreenHeight(height),
-	fShown(true)
+	fShown(true),
+	fTooltipBitmap(NULL)
 {
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
@@ -225,7 +226,7 @@ GUI::ShowWindow(uint16 id)
 	Window* window = fResource->GetWindow(id);
 	if (window != NULL) {
 		fActiveWindows.push_back(window);
-		//window->Print();
+		window->Print();
 	}
 }
 
