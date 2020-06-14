@@ -48,9 +48,6 @@ public:
 	void TogglePause();
 	bool IsPaused() const;
 
-	void RegisterActor(Actor* object);
-	void UnregisterActor(Actor* object);
-
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
 	

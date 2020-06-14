@@ -153,7 +153,7 @@ void
 Core::AddActorToCurrentArea(Actor* actor)
 {
 	actor->SetArea(CurrentRoom()->Name());
-	RegisterActor(actor);
+	RegisterObject(actor);
 }
 
 
@@ -211,7 +211,7 @@ Core::ExitingArea(RoomBase* area)
 	
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
-		UnregisterActor(*i);
+		UnregisterObject(*i);
 	}
 	fActors.clear();
 	
@@ -327,7 +327,7 @@ Core::RegisterObject(Object* object)
 	// TODO: Not nice.
 	// introduce a "type" field in Object, and maybe put all objects into the same list ?
 	if (Actor* actor = dynamic_cast<Actor*>(object))
-		RegisterActor(actor);
+		fActors.push_back(actor);
 	else if (Door* door = dynamic_cast<Door*>(object))
 		fDoors.push_back(door);
 	else if (Region* region = dynamic_cast<Region*>(object))
@@ -335,7 +335,7 @@ Core::RegisterObject(Object* object)
 	else if (Container* container = dynamic_cast<Container*>(object))
 		fContainers.push_back(container);
 
-	if (object->IsNew())
+	//if (object->IsNew())
 		object->SetGlobalID(fNextObjectNumber++);
 
 	// TODO: Check if already registered
@@ -356,47 +356,15 @@ Core::UnregisterObject(Object* object)
 }
 
 
-void
-Core::RegisterActor(Actor* actor)
-{
-	fActors.push_back(actor);
-}
-
-
-// Called when an object is no longer in the active area
-// Also deletes the object
-void
-Core::UnregisterActor(Actor* actor)
-{
-	// TODO: Save the object state
-	actor->Release();
-}
-
-
 Object*
 Core::GetObject(const char* name) const
 {
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		if (!strcasecmp(name, (*i)->Name())) {
-			return *i;
+	ObjectsList::const_iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		if (!strcasecmp(name, i->second->Name())) {
+			return i->second;
 		}
 	}
-
-	DoorsList::const_iterator d;
-	for (d = fDoors.begin(); d != fDoors.end(); d++) {
-		if (!strcasecmp(name, (*d)->Name())) {
-			return *d;
-		}
-	}
-
-	RegionsList::const_iterator r;
-	for (r = fRegions.begin(); r != fRegions.end(); r++) {
-		if (!strcasecmp(name, (*r)->Name())) {
-			return *r;
-		}
-	}
-
 	return NULL;
 }
 
@@ -567,28 +535,14 @@ Core::UpdateLogic(bool executeScripts)
 	fCurrentRoom->Update(executeScripts);
 
 	// TODO: Fix/Improve
-	ActorsList::iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
+	ObjectsList::iterator i;
+	for (i = fObjects.begin(); i != fObjects.end(); i++) {
+		Object* object = i->second;
 		//SetActiveActor(actor);
-		actor->Update(executeScripts);
+		object->Update(executeScripts);
 	}
 
 	//SetActiveActor(NULL);
-#if 0
-	ContainersList::iterator c;
-	for (c = fContainers.begin(); c != fContainers.end(); c++) {
-		Object* object = *c;
-		object->Update(executeScripts);
-	}
-#endif
-#if 1
-	RegionsList::iterator r;
-	for (r = fRegions.begin(); r != fRegions.end(); r++) {
-		Object* object = *r;
-		object->Update(executeScripts);
-	}
-#endif
 	_CleanDestroyedObjects();
 	
 	_NewRound();
@@ -750,7 +704,7 @@ Core::_CleanDestroyedObjects()
 			std::cout << "Destroy actor " << object->Name() << std::endl;			
 			object->ClearActionList();
 			if (Actor* actor = dynamic_cast<Actor*>(object)) {
-				UnregisterActor(actor);
+				UnregisterObject(actor);
 			}
 			i = fActors.erase(i);
 		} else
