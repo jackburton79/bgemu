@@ -114,6 +114,13 @@ Bitmap::SetPalette(const GFX::Palette& palette)
 }
 
 
+bool
+Bitmap::GetColorKey(uint32& colorKey) const
+{
+	return SDL_GetColorKey(fSurface, &colorKey) == 0;
+}
+
+
 void
 Bitmap::SetColorKey(uint32 index, bool on)
 {

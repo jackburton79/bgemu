@@ -43,6 +43,7 @@ public:
 	void SetColors(const GFX::Color& color, uint8 start, int num);
 	void GetPalette(GFX::Palette& palette) const;
 	void SetPalette(const GFX::Palette& palette);
+	bool GetColorKey(uint32& colorKey) const;
 	void SetColorKey(uint32 key, bool on = true);
 	void SetColorKey(uint8 r, uint8 g, uint8 b, bool on = true);
 	void ClearColorKey() { SetColorKey(0, false); };
