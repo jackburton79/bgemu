@@ -337,6 +337,9 @@ Core::RegisterObject(Object* object)
 
 	if (object->IsNew())
 		object->SetGlobalID(fNextObjectNumber++);
+
+	// TODO: Check if already registered
+	fObjects[object->GlobalID()] = object;
 }
 
 
@@ -346,6 +349,7 @@ Core::UnregisterObject(Object* object)
 	// TODO: Save the object state
 	// TODO: Implement
 	// TODO: Remove from list
+	fObjects.erase(object->GlobalID());
 	object->Release();
 	//if (Actor* actor = dynamic_cast<Actor*>(object))
 		//actor->Release();
@@ -356,8 +360,6 @@ void
 Core::RegisterActor(Actor* actor)
 {
 	fActors.push_back(actor);
-	if (actor->IsNew())
-		actor->SetGlobalID(fNextObjectNumber++);
 }
 
 

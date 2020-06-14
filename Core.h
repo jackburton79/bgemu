@@ -33,6 +33,7 @@ class IDSResource;
 class Script;
 class TLKResource;
 
+typedef std::map<uint16, Object*> ObjectsList;
 typedef std::vector<Actor*> ActorsList;
 typedef std::vector<Container*> ContainersList;
 typedef std::vector<Region*> RegionsList;
@@ -125,6 +126,8 @@ private:
 	RoomBase* fCurrentRoom;
 	
 	Actor* fActiveActor;
+
+	ObjectsList fObjects;
 	
 	ActorsList fActors;
 	ContainersList fContainers;
