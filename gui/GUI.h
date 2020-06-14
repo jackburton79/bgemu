@@ -34,6 +34,12 @@ class BAMResource;
 class CHUIResource;
 class GUI : public Listener {
 public:
+	enum {
+		WINDOW_COMMANDS = 0,
+		WINDOW_PLAYER_SLOTS = 1,
+		WINDOW_MESSAGES = 4
+	};
+
 	static bool Initialize(const uint16 width, const uint16 height);
 	static void Destroy();
 	
