@@ -995,11 +995,8 @@ Script::_HandleAction(action_node* act)
 		case 8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			/*Actor* actor = dynamic_cast<Actor*>(FindObject(act));
-			if (actor != NULL) {
-				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
-				thisActor->AddAction(dialogueAction);
-			}*/
+			Dialogue* dialogueAction = new Dialogue(thisActor, act);
+			thisActor->AddAction(dialogueAction);
 			break;
 		}
 		case 10:
@@ -1265,11 +1262,8 @@ Script::_HandleAction(action_node* act)
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
-			/*Actor* actor = dynamic_cast<Actor*>(FindObject(fSender, act));
-			if (actor != NULL) {
-				Dialogue* dialogueAction = new Dialogue(thisActor, actor);
-				thisActor->AddAction(dialogueAction);
-			}*/
+			Dialogue* dialogueAction = new Dialogue(thisActor, act);
+			thisActor->AddAction(dialogueAction);
 			break;
 		}
 		case 202:
