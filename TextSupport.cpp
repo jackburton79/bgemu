@@ -44,18 +44,7 @@ Font::StringWidth(const std::string& string, uint16* height) const
 {
 	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
-	// TODO: Duplicate code here and in _RenderString()
-	for (std::string::const_iterator c = string.begin();
-			c != string.end(); c++) {
-		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
-		if (g == fGlyphs.end()) {
-			// glyph not found/cached
-			continue;
-		}
-		Bitmap* newFrame = g->second;
-		totalWidth += newFrame->Frame().w;
-		maxHeight = std::max(newFrame->Frame().h, maxHeight);
-	}
+	_PrepareBitmaps(string, totalWidth, maxHeight, NULL);
 	if (height != NULL)
 		*height = maxHeight;
 	return totalWidth;
@@ -118,22 +107,7 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	std::vector<const Bitmap*> frames;
 	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
-	// First pass: calculate total width and height
-	for (std::string::const_iterator c = string.begin();
-			c != string.end(); c++) {
-		if (*c == ' ')
-			totalWidth += 10;
-		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
-		if (g == fGlyphs.end()) {
-			//std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
-			// glyph not found/cached
-			continue;
-		}
-		const Bitmap* newFrame = g->second;
-		totalWidth += newFrame->Frame().w;
-		maxHeight = std::max(newFrame->Frame().h, maxHeight);
-		frames.push_back(newFrame);
-	}
+	_PrepareBitmaps(string, totalWidth, maxHeight, &frames);
 
 	GFX::rect rect;
 	if (destRect != NULL) {
@@ -180,7 +154,29 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	}
 }
 
-					
+
+void
+Font::_PrepareBitmaps(std::string string, uint16& width, uint16& height,
+				std::vector<const Bitmap*> *bitmaps) const
+{
+	// First pass: calculate total width and height
+	for (std::string::const_iterator c = string.begin();
+			c != string.end(); c++) {
+		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
+		if (g == fGlyphs.end()) {
+			//std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
+			// glyph not found/cached
+			continue;
+		}
+		const Bitmap* newFrame = g->second;
+		width += newFrame->Frame().w;
+		height = std::max(newFrame->Frame().h, height);
+		if (bitmaps != NULL)
+			bitmaps->push_back(newFrame);
+	}
+}
+
+
 // FontRoster
 std::map<std::string, Font*> FontRoster::sFonts;
 

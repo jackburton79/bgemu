@@ -53,7 +53,9 @@ private:
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::rect* rect, const GFX::point* point) const;
-	
+	void _PrepareBitmaps(std::string string, uint16& width, uint16& height,
+				std::vector<const Bitmap*> *bitmaps = NULL) const;
+
 	typedef std::map<char, Bitmap*> BitmapMap;
 	BitmapMap fGlyphs;
 	
