@@ -121,11 +121,11 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	// First pass: calculate total width and height
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
-		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
 		if (*c == ' ')
 			totalWidth += 10;
+		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
-			std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
+			//std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
 			// glyph not found/cached
 			continue;
 		}
