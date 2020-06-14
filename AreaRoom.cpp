@@ -96,18 +96,18 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
-	//gui->ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
+	gui->ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
 	gui->ShowWindow(GUI::WINDOW_COMMANDS);
 	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
 
 	//gui->ShowWindow(GUI::WINDOW_MESSAGES);
 
-	Window* tmp = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
-	if (tmp != NULL) {
-		std::cerr << "ASD" << std::endl;
-		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(2));
-		if (textArea != NULL)
+	if (Window* tmp = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
+		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(1));
+		if (textArea != NULL) {
 			textArea->SetText("This is a test");
+			std::cerr << "ASD" << std::endl;
+		}
 	}
 	//gui->GetWindow(15);
 
@@ -631,7 +631,7 @@ AreaRoom::ShowGUI()
 	GUI* gui = GUI::Get();
 	gui->ShowWindow(0);
 	gui->ShowWindow(1);
-
+	gui->ShowWindow(7);
 	/*if (gui->IsWindowShown(3))
 		gui->HideWindow(3);
 	else
@@ -646,6 +646,7 @@ AreaRoom::HideGUI()
 	GUI* gui = GUI::Get();
 	gui->HideWindow(0);
 	gui->HideWindow(1);
+	gui->HideWindow(7);
 }
 
 

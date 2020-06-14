@@ -33,14 +33,17 @@ public:
 	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
 
 	void RenderString(std::string string,
-					uint32 flags, Bitmap* bitmap) const;
+					uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette = true) const;
 
 	void RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette,
 					const GFX::point& point) const;
 
 	void RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette,
 					const GFX::rect& rect) const;
 
 	uint8 TransparentIndex() const { return fTransparentIndex; };
@@ -48,6 +51,7 @@ private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette,
 					const GFX::rect* rect, const GFX::point* point) const;
 	
 	typedef std::map<char, Bitmap*> BitmapMap;

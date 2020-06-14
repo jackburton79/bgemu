@@ -17,6 +17,7 @@ public:
 	virtual ~TextArea();
 	virtual void Draw();
 
+	void AddText(const char* text);
 	void SetText(const char* text);
 
 private:

@@ -36,7 +36,7 @@ ListView::Draw()
 	const Font* font = FontRoster::GetFont("NORMAL");
 	for (StringList::iterator i = fList.begin();
 			i != fList.end(); i++) {
-		font->RenderString(*i, 0, fBitmap, itemRect);
+		font->RenderString(*i, 0, fBitmap, true, itemRect);
 		itemRect.y += 20;
 	}
 

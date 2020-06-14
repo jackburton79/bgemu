@@ -479,7 +479,7 @@ GUI::_DisplayStringCommon(const std::string& text,
 	
 	// Pre-render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	font->RenderString(text, 0, bitmap, rect);
+	font->RenderString(text, 0, bitmap, true, rect);
 	
 	// Set the position where to  blit the bitmap
 	rect.x = x;

@@ -63,26 +63,27 @@ Font::StringWidth(const std::string& string, uint16* height) const
 
 
 void
-Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap) const
+Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette) const
 {
 	GFX::rect frame = bitmap->Frame();
-	_RenderString(string, flags, bitmap, &frame, NULL);
+	_RenderString(string, flags, bitmap, useBAMPalette, &frame, NULL);
 }
 
 
 void
 Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
-					const GFX::rect& rect) const
+					bool useBAMPalette, const GFX::rect& rect) const
 {
-	_RenderString(string, flags, bitmap, &rect, NULL);
+	_RenderString(string, flags, bitmap, useBAMPalette, &rect, NULL);
 }
 
 
 void
 Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
-					const GFX::point& point) const
+					bool useBAMPalette, const GFX::point& point) const
 {
-	_RenderString(string, flags, bitmap, NULL, &point);	
+	_RenderString(string, flags, bitmap, useBAMPalette, NULL, &point);
 }
 
 
@@ -110,6 +111,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 
 void
 Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+					bool useBAMPalette,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
 {
@@ -145,11 +147,13 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 		rect.x = destPoint->x;
 		rect.y = destPoint->y;
 	}
-	
-	const Bitmap* firstFrame = frames.back();
-	GFX::Palette palette;
-	firstFrame->GetPalette(palette);
-	bitmap->SetPalette(palette);
+
+	if (useBAMPalette) {
+		const Bitmap* firstFrame = frames.back();
+		GFX::Palette palette;
+		firstFrame->GetPalette(palette);
+		bitmap->SetPalette(palette);
+	}
 	// Render the glyphs
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {

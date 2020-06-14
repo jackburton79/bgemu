@@ -63,11 +63,17 @@ TextArea::Draw()
 
 
 void
+TextArea::AddText(const char* text)
+{
+}
+
+
+void
 TextArea::SetText(const char* text)
 {
 	// TODO: Write initials with the correct font
 	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 	fBitmap->Clear(0);
 	uint32 flags = IE::LABEL_JUSTIFY_LEFT;
-	FontRoster::GetFont(fontName)->RenderString(text, flags, fBitmap);
+	FontRoster::GetFont(fontName)->RenderString(text, flags, fBitmap, false);
 }
