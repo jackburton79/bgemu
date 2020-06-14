@@ -34,7 +34,10 @@ CHUIResource::Create(const res_ref& name)
 
 CHUIResource::CHUIResource(const res_ref &name)
 	:
-	Resource(name, RES_CHU)
+	Resource(name, RES_CHU),
+	fNumWindows(-1),
+	fControlTableOffset(0),
+	fWindowsOffset(0)
 {
 }
 
