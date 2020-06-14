@@ -153,6 +153,11 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);
+#if 0
+		uint32 colorKey;
+		if (firstFrame->GetColorKey(colorKey))
+			bitmap->SetColorKey(colorKey);
+#endif
 	}
 	// Render the glyphs
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
