@@ -214,11 +214,12 @@ Core::ExitingArea(RoomBase* area)
 		UnregisterObject(*i);
 	}
 	fActors.clear();
-	
+	fObjects.clear();
 	// containers and regions are owned by the AreaRoom class
 	// TODO: Fix and / or clear ownership
 	fContainers.clear();
 	fRegions.clear();
+	fDoors.clear();
 }
 
 
