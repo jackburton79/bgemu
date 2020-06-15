@@ -79,6 +79,7 @@ TextArea::Draw()
 			FontRoster::GetFont(fontName)->RenderString(line->text, flags, fBitmap, false, where);
 			rect.y += line->height + 5;
 		}
+		fChanged = false;
 	}
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
 }
