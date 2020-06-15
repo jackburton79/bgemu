@@ -171,6 +171,7 @@ WorldMap::MouseMoved(uint16 x, uint16 y)
 			}
 		}
 	}
+	GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 }
 
 
