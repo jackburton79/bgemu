@@ -32,7 +32,8 @@ WorldMap::WorldMap()
 	:
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
-	fWorldMapBitmap(NULL)
+	fWorldMapBitmap(NULL),
+	fAreaUnderMouse(NULL)
 {
 	GUI* gui = GUI::Get();
 
@@ -117,6 +118,15 @@ WorldMap::Draw(Bitmap *surface)
 		GFX::rect visibleArea = rect_to_gfx_rect(VisibleMapArea());
 		GFX::rect viewPort = ViewPort();
 		gfx->BlitToScreen(fWorldMapBitmap, &visibleArea, &viewPort);
+		if (fAreaUnderMouse != NULL) {
+			GFX::rect areaRect = fAreaUnderMouse->Rect();
+			areaRect.x += ViewPort().x - AreaOffset().x;
+			areaRect.y += ViewPort().y - AreaOffset().y;
+			//char* toolTip = area.TooltipName();
+			//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
+			//free(toolTip);
+			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
+		}
 	}
 }
 
@@ -167,7 +177,9 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 	ConvertToArea(point);
 
 	UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
-		
+
+	fAreaUnderMouse = NULL;
+
 	if (fWorldMap != NULL) {
 		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
@@ -176,13 +188,7 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 				// Since the next strokeRect call draws to the screen bitmap,
 				// we need to adjust the rect following the area offset and
 				// viewport
-				areaRect.x += ViewPort().x - AreaOffset().x;
-				areaRect.y += ViewPort().y - AreaOffset().y;
-				
-				//char* toolTip = area.TooltipName();
-				//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
-				//free(toolTip);
-				GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
+				fAreaUnderMouse = &area;
 				break;
 			}
 		}

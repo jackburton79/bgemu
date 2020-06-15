@@ -49,6 +49,7 @@ private:
 	WMAPResource* fWorldMap;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
+	AreaEntry* fAreaUnderMouse;
 };
 
 
