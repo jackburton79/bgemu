@@ -102,6 +102,22 @@ Window::Frame() const
 
 
 void
+Window::MoveTo(uint16 x, uint16 y)
+{
+	fPosition.x = x;
+	fPosition.y = y;
+}
+
+
+void
+Window::ResizeTo(uint16 newWidth, uint16 newHeight)
+{
+	fWidth = newWidth;
+	fHeight = newHeight;
+}
+
+
+void
 Window::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 {
 	fWidth = width;

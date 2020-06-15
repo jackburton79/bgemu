@@ -18,6 +18,7 @@ class CHUIResource;
 class Control;
 namespace GFX {
 	struct rect;
+	struct point;
 }
 class Window {
 public:
@@ -30,11 +31,14 @@ public:
 
 	uint16 ID() const;
 
+	GFX::rect Frame() const;
 	IE::point Position() const;
+
 	uint16 Width() const;
 	uint16 Height() const;
 
-	GFX::rect Frame() const;
+	void MoveTo(uint16 x, uint16 y);
+	void ResizeTo(uint16 newWidth, uint16 newHeight);
 	void SetFrame(uint16 x, uint16 y, uint16 width, uint16 height);
 	void SetFrame(const GFX::rect rect);
 
