@@ -107,12 +107,6 @@ GUI::Load(const res_ref& name)
 		Clear();
 
 		fResource = gResManager->GetCHUI(name);
-
-		/*for (uint16 c = 0; c < fResource->CountWindows(); c++) {
-			Window* window = fResource->GetWindow(c);
-			if (window != NULL)
-				fWindows.push_back(window);
-		}*/
 	} catch (...) {
 		std::cout << "GUI::Load(): ERROR" << std::endl;
 		return false;
@@ -417,7 +411,7 @@ GUI::_GetWindow(IE::point pt)
 	std::vector<Window*>::reverse_iterator i;
 	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
 		Window* window = (*i);
-		if (rect_contains(window->Frame(), pt))
+		if (window->Shown() && rect_contains(window->Frame(), pt))
 			return window;
 	}
 
