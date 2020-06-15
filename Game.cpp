@@ -116,7 +116,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 				case SDL_MOUSEMOTION:
 					lastMouseX = event.motion.x;
 					lastMouseY = event.motion.y;
-
+					gui->MouseMoved(lastMouseX, lastMouseY);
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
@@ -198,12 +198,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			}
 		}
 
-		// TODO: When MouseOver() doesn't draw anymore, reorder
-		// these three calls. Draw() should be the last.
 		gui->Draw();
-
-		if (!Core::Get()->CutsceneMode())
-			gui->MouseMoved(lastMouseX, lastMouseY);
 
 		//console.Draw();
 		inputConsole.Draw();
