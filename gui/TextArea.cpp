@@ -91,11 +91,9 @@ TextArea::AddText(const char* text)
 	TextLine* newLine = new TextLine();
 
 	const Font* font = FontRoster::GetFont(fontName);
-	std::cout << "Font Name: " << font->Name() << std::endl;
 	newLine->text = text;
 	newLine->width = font->StringWidth(text, &newLine->height);
 	fLines.push_back(newLine);
-	std::cout << "width: " << newLine->width << ", height: " << newLine->height << std::endl;
 	fChanged = true;
 }
 
