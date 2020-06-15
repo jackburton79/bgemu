@@ -105,8 +105,9 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	if (Window* tmp = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
 		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(1));
 		if (textArea != NULL) {
-			textArea->SetText("This is a test");
-			std::cerr << "ASD" << std::endl;
+			textArea->AddText("This is a test");
+			textArea->AddText("Second line");
+			textArea->AddText("Third line");
 		}
 	}
 	//gui->GetWindow(15);
