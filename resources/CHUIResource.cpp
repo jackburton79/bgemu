@@ -84,7 +84,7 @@ CHUIResource::GetWindow(uint16 id)
 	try {
 		// TODO: Not really efficient O(n): but shouldn't be critical
 		IE::window window;
-		for (uint16 n = 0; n < fNumWindows; n++) {
+		for (uint32 n = 0; n < fNumWindows; n++) {
 			fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
 			if (window.id == id)
 				break;

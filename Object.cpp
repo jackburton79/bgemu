@@ -293,7 +293,7 @@ void
 Object::AddTrigger(trigger_entry entry)
 {
 	fTriggers.push_back(entry);
-	if (entry.target_id != -1)
+	if (entry.target_id != (uint16)-1)
 		fLastTrigger = Core::Get()->GetObject(entry.target_id);
 }
 
