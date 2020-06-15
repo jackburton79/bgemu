@@ -31,6 +31,10 @@ public:
 
 	uint16 ID() const;
 
+	void Show();
+	void Hide();
+	bool Shown() const;
+
 	GFX::rect Frame() const;
 	IE::point Position() const;
 
@@ -58,6 +62,7 @@ private:
 	Control* _GetControl(IE::point point);
 
 	uint16 fID;
+	bool fShown;
 	Bitmap* fBackground;
 	std::vector<Control*> fControls;
 	IE::point fPosition;

@@ -147,7 +147,9 @@ GUI::Draw()
 {
 	std::vector<Window*>::const_iterator i;
 	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
-		(*i)->Draw();
+		Window* window = *i;
+		if (window->Shown())
+			window->Draw();
 	}
 
 	_DrawStrings();
@@ -220,39 +222,34 @@ GUI::MouseMoved(int16 x, int16 y)
 void
 GUI::ShowWindow(uint16 id)
 {
-	if (IsWindowShown(id))
-		return;
-
-	Window* window = fResource->GetWindow(id);
-	if (window != NULL) {
-		fActiveWindows.push_back(window);
-		window->Print();
+	Window* window = GetWindow(id);
+	if (window == NULL) {
+		window = fResource->GetWindow(id);
+		if (window != NULL)
+			fActiveWindows.push_back(window);
 	}
+
+	if (window != NULL)
+		window->Show();
 }
 
 
 void
 GUI::HideWindow(uint16 id)
 {
-	std::vector<Window*>::iterator i;
-	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
-		if ((*i)->ID() == id) {
-			delete *i;
-			fActiveWindows.erase(i);
-			break;
-		}
-	}
+	Window* window = GetWindow(id);
+	if (window != NULL)
+		window->Hide();
 }
 
 
 bool
 GUI::IsWindowShown(uint16 id) const
 {
-	std::vector<Window*>::const_iterator i;
-	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
-		if ((*i)->ID() == id)
-			return true;
-	}
+	Window* window = GetWindow(id);
+	if (window != NULL && window->Shown())
+		return true;
+
 	return false;
 }
 
@@ -362,7 +359,6 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 						std::cout << "window " << std::dec << windowID << ",";
 						std::cout << "control " << controlID << std::endl;
 						break;
-
 				}
 				break;
 			default:

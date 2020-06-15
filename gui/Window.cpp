@@ -18,6 +18,7 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 		Bitmap* background)
 	:
 	fID(id),
+	fShown(false),
 	fBackground(background),
 	fWidth(width),
 	fHeight(height),
@@ -67,6 +68,27 @@ uint16
 Window::ID() const
 {
 	return fID;
+}
+
+
+void
+Window::Show()
+{
+	fShown = true;
+}
+
+
+void
+Window::Hide()
+{
+	fShown = false;
+}
+
+
+bool
+Window::Shown() const
+{
+	return fShown;
 }
 
 
