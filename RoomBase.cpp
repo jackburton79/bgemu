@@ -20,6 +20,8 @@ RoomBase::RoomBase()
 	Object("RoomBase", Object::AREA)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
+	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;;
+	fMapArea.x_min = fMapArea.x_max = fMapArea.y_min = fMapArea.y_max = 0;
 }
 
 
