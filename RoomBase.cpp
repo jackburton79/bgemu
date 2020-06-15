@@ -20,8 +20,7 @@ RoomBase::RoomBase()
 	Object("RoomBase", Object::AREA)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
-	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;;
-	fMapArea.x_min = fMapArea.x_max = fMapArea.y_min = fMapArea.y_max = 0;
+	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;
 }
 
 
@@ -72,7 +71,8 @@ RoomBase::AreaCenterPoint() const
 IE::rect
 RoomBase::VisibleMapArea() const
 {
-	return fMapArea;
+	return gfx_rect_to_rect(offset_rect_to(fViewPort,
+			fAreaOffset.x, fAreaOffset.y));
 }
 
 
@@ -89,9 +89,6 @@ RoomBase::SetAreaOffset(const IE::point& point)
 		fAreaOffset.y = 0;
 	else if (fAreaOffset.y + fViewPort.h > areaRect.h)
 		fAreaOffset.y = std::max(areaRect.h - fViewPort.h, 0);
-
-	fMapArea = gfx_rect_to_rect(offset_rect_to(fViewPort,
-			fAreaOffset.x, fAreaOffset.y));
 }
 
 

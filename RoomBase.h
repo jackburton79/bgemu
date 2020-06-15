@@ -66,8 +66,6 @@ public:
 
 private:
 	GFX::rect fViewPort;
-	IE::rect fMapArea;  // the part of map visible on screen.
-						// It's fViewPort offsetted to fAreaOffset
 	IE::point fAreaOffset;
 
 	void _DrawConsole();
