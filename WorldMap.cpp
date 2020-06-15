@@ -185,9 +185,6 @@ WorldMap::MouseOver(uint16 x, uint16 y)
 			AreaEntry& area = fWorldMap->AreaEntryAt(i);
 			GFX::rect areaRect = area.Rect();
 			if (rect_contains(areaRect, point)) {
-				// Since the next strokeRect call draws to the screen bitmap,
-				// we need to adjust the rect following the area offset and
-				// viewport
 				fAreaUnderMouse = &area;
 				break;
 			}
