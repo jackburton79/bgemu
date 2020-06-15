@@ -28,8 +28,7 @@ public:
 	virtual void Draw();
 
 	void AddText(const char* text);
-	void SetText(const char* text);
-
+	void ClearText();
 private:
 	//BAMResource* fInitialsFontResource;
 	Bitmap* fBitmap;

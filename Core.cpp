@@ -505,7 +505,7 @@ Core::DisplayMessage(uint32 strRef)
 			TextArea *textArea = dynamic_cast<TextArea*>(
 										window->GetControlByID(3));
 			if (textArea != NULL)
-				textArea->SetText(dialogString.c_str());
+				textArea->AddText(dialogString.c_str());
 		}
 	} catch (...) {
 		//TODO: handle exception
