@@ -25,8 +25,10 @@ cycle_num_for_char(int c)
 
 
 Font::Font(const std::string& fontName)
+	:
+	fName(fontName)
 {
-	_LoadGlyphs(fontName);
+	_LoadGlyphs(fName);
 }
 
 
@@ -36,6 +38,13 @@ Font::~Font()
 	for (i = fGlyphs.begin(); i != fGlyphs.end(); i++) {
 		i->second->Release();
 	}
+}
+
+
+std::string
+Font::Name() const
+{
+	return fName;
 }
 
 

@@ -30,6 +30,8 @@ public:
 	Font(const std::string& fontName);
 	~Font();
 
+	std::string Name() const;
+
 	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
 
 	void RenderString(std::string string,
@@ -55,6 +57,8 @@ private:
 					const GFX::rect* rect, const GFX::point* point) const;
 	void _PrepareBitmaps(std::string string, uint16& width, uint16& height,
 				std::vector<const Bitmap*> *bitmaps = NULL) const;
+
+	std::string fName;
 
 	typedef std::map<char, Bitmap*> BitmapMap;
 	BitmapMap fGlyphs;
