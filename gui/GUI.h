@@ -68,6 +68,8 @@ public:
 	void SetArrowCursor(uint32 index);
 	void SetCursor(uint32 index);
 
+	void UpdateCursorAndScrolling(int x, int y);
+
 	void ControlInvoked(uint32 controlID, uint16 windowID);
 
 	void RemoveToolTip(uint32 id);
@@ -86,6 +88,7 @@ private:
 	uint16 fScreenWidth;
 	uint16 fScreenHeight;
 	
+	uint32 fLastScrollTime;
 	bool fShown;
 
 	Bitmap* fTooltipBitmap;

@@ -147,36 +147,17 @@ WorldMap::Clicked(uint16 x, uint16 y)
 
 
 void
-WorldMap::MouseOver(uint16 x, uint16 y)
+WorldMap::MouseMoved(uint16 x, uint16 y)
 {
 	//std::cout << "MouseOver(" << x << ", " << y << ")" << std::endl;
-	const uint16 kScrollingStep = 64;
-
-	uint16 horizBorderSize = 35;
-	uint32 vertBorderSize = 40;
-
 	// TODO: Less hardcoding of the window number
 	/*Window* window = GUI::Get()->GetWindow(0);
 	if (window != NULL) {
 		horizBorderSize += window->Width();
 	}*/
 
-	sint16 scrollByX = 0;
-	sint16 scrollByY = 0;
-	if (x <= horizBorderSize)
-		scrollByX = -kScrollingStep;
-	else if (x >= ViewPort().w - horizBorderSize)
-		scrollByX = kScrollingStep;
-
-	if (y <= vertBorderSize)
-		scrollByY = -kScrollingStep;
-	else if (y >= ViewPort().h - vertBorderSize)
-		scrollByY = kScrollingStep;
-
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
-
-	UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
 
 	fAreaUnderMouse = NULL;
 

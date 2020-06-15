@@ -42,9 +42,7 @@ public:
 
 	virtual void Draw(Bitmap *surface);
 	virtual void Clicked(uint16 x, uint16 y);
-	virtual void MouseOver(uint16 x, uint16 y);
-	virtual void UpdateCursorAndScrolling(int x, int y,
-										int scrollByX, int scrollByY);
+	virtual void MouseMoved(uint16 x, uint16 y);
 
 	void DrawObject(const Object& object);
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
@@ -144,8 +142,6 @@ private:
 	bool fDrawPolygons;
 	bool fDrawAnimations;
 	bool fShowingConsole;
-	
-	IE::point fCursorPosition;
 };
 
 

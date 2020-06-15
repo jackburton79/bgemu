@@ -43,6 +43,7 @@ GUI::GUI(uint16 width, uint16 height)
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
 	fScreenHeight(height),
+	fLastScrollTime(0),
 	fShown(true),
 	fTooltipBitmap(NULL)
 {
@@ -140,6 +141,9 @@ GUI::Hide()
 void
 GUI::Draw()
 {
+	// TODO: is there a better place ?
+	UpdateCursorAndScrolling(fCursorPosition.x, fCursorPosition.y);
+
 	std::vector<Window*>::const_iterator i;
 	for (i = fWindows.begin(); i < fWindows.end(); i++) {
 		Window* window = *i;
@@ -159,7 +163,7 @@ GUI::Draw()
 			GFX::rect rect(fCursorPosition.x, fCursorPosition.y, 0, 0);
 			GraphicsEngine::Get()->BlitToScreen(nextFrame, NULL, &rect);
 		} catch (const char* string) {
-			std::cerr << "Room::Draw(): " << string << std::endl;
+			std::cerr << "GUI::Draw(): " << string << std::endl;
 		} catch (...) {
 			// ...
 		}
@@ -299,6 +303,70 @@ void
 GUI::SetCursor(uint32 index)
 {
 	fCurrentCursor = fCursors[index + 8];
+}
+
+
+void
+GUI::UpdateCursorAndScrolling(int x, int y)
+{
+	const uint16 kScrollingStep = 64;
+	int horizBorderSize = 35;
+    int vertBorderSize = 40;
+
+    // TODO: Less hardcoding of the window number
+	Window* window = GUI::Get()->GetWindow(1);
+	if (window != NULL) {
+		horizBorderSize += window->Width();
+	}
+
+	GFX::rect viewPort = Core::Get()->CurrentRoom()->ViewPort();
+	sint16 scrollByX = 0;
+	sint16 scrollByY = 0;
+	if (x <= horizBorderSize)
+		scrollByX = -kScrollingStep;
+	else if (x >= viewPort.w - horizBorderSize)
+		scrollByX = kScrollingStep;
+	if (y <= vertBorderSize)
+		scrollByY = -kScrollingStep;
+	else if (y >= viewPort.h - vertBorderSize)
+		scrollByY = kScrollingStep;
+
+	if (scrollByX == 0 && scrollByY == 0)
+		return;
+
+	int cursorIndex = 0;
+	if (scrollByX > 0) {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_SE;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_NE;
+		else
+			cursorIndex = IE::CURSOR_ARROW_E;
+	} else if (scrollByX < 0) {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_SW;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_NW;
+		else
+			cursorIndex = IE::CURSOR_ARROW_W;
+	} else {
+		if (scrollByY > 0)
+			cursorIndex = IE::CURSOR_ARROW_S;
+		else if (scrollByY < 0)
+			cursorIndex = IE::CURSOR_ARROW_N;
+		else
+			cursorIndex = IE::CURSOR_ARROW_E;
+	}
+
+	SetArrowCursor(cursorIndex);
+
+	const uint32 kScrollDelay = 100;
+
+	uint32 ticks = Timer::Ticks();
+	if (fLastScrollTime + kScrollDelay < ticks) {
+		Core::Get()->CurrentRoom()->SetRelativeAreaOffset(scrollByX, scrollByY);
+		fLastScrollTime = ticks;
+	}
 }
 
 

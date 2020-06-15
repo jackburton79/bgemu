@@ -67,7 +67,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	fDrawPolygons(false),
 	fDrawAnimations(true),
 	fShowingConsole(false)
-
 {
 	// Save the entrance name, it will be unloaded in UnloadArea
 	std::string savedEntranceName = entranceName ? entranceName : "";
@@ -330,17 +329,6 @@ AreaRoom::Draw(Bitmap *surface)
 		fBackMap->Image()->Unlock();
 	}
 
-#if 0
-	GFX::point mousePoint;
-	mousePoint.x = fCursorPosition.x + 10;
-	mousePoint.y = fCursorPosition.y - 10;
-	std::string mousePosString;
-	std::ostringstream s;
-	s << (fCursorPosition.x + AreaOffset().x);
-	s << ", " << (fCursorPosition.y + AreaOffset().y);
-	FontRoster::GetFont("NORMAL")->RenderString(s.str(), 0, fBackMap->Image(), mousePoint);
-#endif
-
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	
@@ -405,35 +393,10 @@ AreaRoom::Clicked(uint16 x, uint16 y)
 
 
 void
-AreaRoom::MouseOver(uint16 x, uint16 y)
+AreaRoom::MouseMoved(uint16 x, uint16 y)
 {
-	const uint16 kScrollingStep = 64;
-
-	uint16 horizBorderSize = 35;
-	uint32 vertBorderSize = 40;
-
-	// TODO: Less hardcoding of the window number
-	Window* window = GUI::Get()->GetWindow(1);
-	if (window != NULL) {
-		horizBorderSize += window->Width();
-	}
-
-	sint16 scrollByX = 0;
-	sint16 scrollByY = 0;
-	if (x <= horizBorderSize)
-		scrollByX = -kScrollingStep;
-	else if (x >= ViewPort().w - horizBorderSize)
-		scrollByX = kScrollingStep;
-
-	if (y <= vertBorderSize)
-		scrollByY = -kScrollingStep;
-	else if (y >= ViewPort().h - vertBorderSize)
-		scrollByY = kScrollingStep;
-
 	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
-
-	UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
 
 	// TODO: This screams for improvements
 	if (fWed != NULL) {
@@ -441,6 +404,8 @@ AreaRoom::MouseOver(uint16 x, uint16 y)
 		fMouseOverObject = _ObjectAtPoint(point, cursor);
 		if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
+		else
+			GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 	}
 }
 
@@ -915,16 +880,6 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 				
 		}	
 	}
-}
-
-
-void
-AreaRoom::UpdateCursorAndScrolling(int x, int y, int scrollByX, int scrollByY)
-{
-	fCursorPosition.x = x;
-	fCursorPosition.y = y;
-	
-	RoomBase::UpdateCursorAndScrolling(x, y, scrollByX, scrollByY);
 }
 
 

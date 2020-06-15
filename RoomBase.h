@@ -47,11 +47,8 @@ public:
 
 	virtual void Draw(Bitmap *surface) = 0;
 	virtual void Clicked(uint16 x, uint16 y) = 0;
-	virtual void MouseOver(uint16 x, uint16 y) = 0;
+	virtual void MouseMoved(uint16 x, uint16 y) = 0;
 	
-	virtual void UpdateCursorAndScrolling(int x, int y,
-									int scrollByX, int scrollByY);
-
 	virtual void ToggleOverlays();
 	virtual void TogglePolygons();
 	virtual void ToggleAnimations();
@@ -72,9 +69,7 @@ private:
 	IE::rect fMapArea;  // the part of map visible on screen.
 						// It's fViewPort offsetted to fAreaOffset
 	IE::point fAreaOffset;
-	
-	uint32 fLastScrollTime;
-	
+
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
