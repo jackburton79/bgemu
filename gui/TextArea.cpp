@@ -17,11 +17,19 @@
 #include "Window.h"
 
 
+TextArea::TextLine::TextLine()
+	:
+	width(0),
+	height(0)
+{
+}
+
+
 TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
-	//fInitialsFontResource(NULL),
-	fBitmap(NULL)
+	fBitmap(NULL),
+	fChanged(true)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
@@ -58,6 +66,20 @@ TextArea::Draw()
 {
 	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
+
+	if (fChanged) {
+		GFX::rect rect = {0, 0, fBitmap->Width(), fBitmap->Height()};
+		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+		fBitmap->Clear(0);
+		uint32 flags = IE::LABEL_JUSTIFY_LEFT;
+		std::vector<TextLine*>::const_iterator i;
+		for (i = fLines.begin(); i != fLines.end(); i++) {
+			const TextLine* line = *i;
+			GFX::point where = { rect.x, rect.y };
+			FontRoster::GetFont(fontName)->RenderString(line->text, flags, fBitmap, false, where);
+			rect.y += line->height + 5;
+		}
+	}
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
 }
 
@@ -65,6 +87,16 @@ TextArea::Draw()
 void
 TextArea::AddText(const char* text)
 {
+	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+	TextLine* newLine = new TextLine();
+
+	const Font* font = FontRoster::GetFont(fontName);
+	std::cout << "Font Name: " << font->Name() << std::endl;
+	newLine->text = text;
+	newLine->width = font->StringWidth(text, &newLine->height);
+	fLines.push_back(newLine);
+	std::cout << "width: " << newLine->width << ", height: " << newLine->height << std::endl;
+	fChanged = true;
 }
 
 

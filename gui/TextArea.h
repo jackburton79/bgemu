@@ -10,9 +10,19 @@
 
 #include "Control.h"
 
+#include <string>
+#include <vector>
+
 class Bitmap;
 class TextArea: public Control {
 public:
+	class TextLine {
+	public:
+		TextLine();
+		std::string text;
+		uint16 width;
+		uint16 height;
+	};
 	TextArea(IE::text_area* text);
 	virtual ~TextArea();
 	virtual void Draw();
@@ -23,6 +33,8 @@ public:
 private:
 	//BAMResource* fInitialsFontResource;
 	Bitmap* fBitmap;
+	std::vector<TextLine*> fLines;
+	bool fChanged;
 };
 
 #endif /* TEXTAREA_H_ */
