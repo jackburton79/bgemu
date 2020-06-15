@@ -186,9 +186,6 @@ RoomBase::ConvertFromArea(IE::point& point)
 }
 
 
-
-
-
 void
 RoomBase::ToggleOverlays()
 {
