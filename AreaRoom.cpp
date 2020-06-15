@@ -102,8 +102,11 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	//gui->ShowWindow(GUI::WINDOW_MESSAGES);
 
-	if (Window* tmp = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
-		TextArea *textArea = dynamic_cast<TextArea*>(tmp->GetControlByID(1));
+	if (Window* messageWindow = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
+		messageWindow->MoveTo(messageWindow->Position().x,
+				window->Height() - messageWindow->Height());
+		messageWindow->ResizeTo(window->Width(), messageWindow->Height());
+		TextArea *textArea = dynamic_cast<TextArea*>(messageWindow->GetControlByID(1));
 		if (textArea != NULL) {
 			textArea->AddText("This is a test");
 			textArea->AddText("Second line");
