@@ -59,7 +59,7 @@ public:
 
 	void Print() const;
 private:
-	Control* _GetControl(IE::point point);
+	Control* _ControlAtPoint(IE::point point);
 
 	uint16 fID;
 	bool fShown;

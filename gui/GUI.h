@@ -93,7 +93,7 @@ private:
 	GUI(uint16 width, uint16 height);
 	~GUI();
 	
-	Window* _GetWindow(IE::point point);
+	Window* _WindowAtPoint(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();
 	void _DrawStrings();

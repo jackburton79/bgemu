@@ -181,7 +181,7 @@ Window::MouseDown(IE::point point)
 {
 	ConvertFromScreen(point);
 
-	if (Control* control = _GetControl(point))
+	if (Control* control = _ControlAtPoint(point))
 		control->MouseDown(point);
 }
 
@@ -191,7 +191,7 @@ Window::MouseUp(IE::point point)
 {
 	ConvertFromScreen(point);
 
-	if (Control* control = _GetControl(point))
+	if (Control* control = _ControlAtPoint(point))
 		control->MouseUp(point);
 }
 
@@ -202,7 +202,7 @@ Window::MouseMoved(IE::point point)
 	ConvertFromScreen(point);
 
 	Control* oldActiveControl = fActiveControl;
-	Control* control = _GetControl(point);
+	Control* control = _ControlAtPoint(point);
 
 	if (oldActiveControl != control) {
 		if (oldActiveControl != NULL)
@@ -270,7 +270,7 @@ Window::Print() const
 
 
 Control*
-Window::_GetControl(IE::point point)
+Window::_ControlAtPoint(IE::point point)
 {
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {

@@ -186,7 +186,7 @@ void
 GUI::MouseDown(int16 x, int16 y)
 {
 	IE::point point = { x, y };
-	Window* window = _GetWindow(point);
+	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
 		window->MouseDown(point);
 }
@@ -196,7 +196,7 @@ void
 GUI::MouseUp(int16 x, int16 y)
 {
 	IE::point point = { x, y };
-	Window* window = _GetWindow(point);
+	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
 		window->MouseUp(point);
 }
@@ -208,7 +208,7 @@ GUI::MouseMoved(int16 x, int16 y)
 	IE::point point = { x, y };
 	fCursorPosition = point;
 
-	Window* window = _GetWindow(point);
+	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
 		window->MouseMoved(point);
 }
@@ -224,8 +224,11 @@ GUI::ShowWindow(uint16 id)
 			fWindows.push_back(window);
 	}
 
-	if (window != NULL)
+	if (window != NULL) {
 		window->Show();
+		if (rect_contains(window->Frame(), fCursorPosition))
+			window->MouseMoved(fCursorPosition);
+	}
 }
 
 
@@ -407,7 +410,7 @@ GUI::Get()
 
 
 Window*
-GUI::_GetWindow(IE::point pt)
+GUI::_WindowAtPoint(IE::point pt)
 {
 	std::vector<Window*>::reverse_iterator i;
 	for (i = fWindows.rbegin(); i < fWindows.rend(); i++) {
