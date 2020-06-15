@@ -495,7 +495,6 @@ void
 GUI::_AddBackgroundWindow()
 {
 	fBackWindow = new BackWindow(fScreenWidth, fScreenHeight);
-	//fWindows.push_back(backWindow);
 	fWindows.push_back(fBackWindow);
 }
 
