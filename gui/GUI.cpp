@@ -39,6 +39,7 @@ DeleteStringEntry(uint32 interval, void *param)
 GUI::GUI(uint16 width, uint16 height)
 	:
 	fResource(NULL),
+	fBackWindow(NULL),
 	fCurrentCursor(NULL),
 	fScreenWidth(width),
 	fScreenHeight(height),
@@ -53,12 +54,12 @@ GUI::GUI(uint16 width, uint16 height)
 GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
-	for (std::vector<Window*>::const_iterator iter = fActiveWindows.begin();
-			iter != fActiveWindows.end(); iter++) {
+	for (std::vector<Window*>::const_iterator iter = fWindows.begin();
+			iter != fWindows.end(); iter++) {
 		delete *iter;
 	}
 
-	fActiveWindows.clear();
+	fWindows.clear();
 	fCurrentCursor = NULL;
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
@@ -140,7 +141,7 @@ void
 GUI::Draw()
 {
 	std::vector<Window*>::const_iterator i;
-	for (i = fActiveWindows.begin(); i < fActiveWindows.end(); i++) {
+	for (i = fWindows.begin(); i < fWindows.end(); i++) {
 		Window* window = *i;
 		if (window->Shown())
 			window->Draw();
@@ -220,7 +221,7 @@ GUI::ShowWindow(uint16 id)
 	if (window == NULL) {
 		window = fResource->GetWindow(id);
 		if (window != NULL)
-			fActiveWindows.push_back(window);
+			fWindows.push_back(window);
 	}
 
 	if (window != NULL)
@@ -261,11 +262,11 @@ GUI::ToggleWindow(uint16 id)
 void
 GUI::Clear()
 {
-	for (std::vector<Window*>::const_iterator i = fActiveWindows.begin();
-			i != fActiveWindows.end(); i++) {
+	for (std::vector<Window*>::const_iterator i = fWindows.begin();
+			i != fWindows.end(); i++) {
 		delete *i;
 	}
-	fActiveWindows.clear();
+	fWindows.clear();
 
 	_AddBackgroundWindow();
 }
@@ -275,7 +276,7 @@ Window*
 GUI::GetWindow(uint16 id) const
 {
 	std::vector<Window*>::const_iterator i;
-	for (i = fActiveWindows.begin(); i != fActiveWindows.end(); i++) {
+	for (i = fWindows.begin(); i != fWindows.end(); i++) {
 		if ((*i)->ID() == id)
 			return *i;
 	}
@@ -409,7 +410,7 @@ Window*
 GUI::_GetWindow(IE::point pt)
 {
 	std::vector<Window*>::reverse_iterator i;
-	for (i = fActiveWindows.rbegin(); i < fActiveWindows.rend(); i++) {
+	for (i = fWindows.rbegin(); i < fWindows.rend(); i++) {
 		Window* window = (*i);
 		if (window->Shown() && rect_contains(window->Frame(), pt))
 			return window;
@@ -422,9 +423,9 @@ GUI::_GetWindow(IE::point pt)
 void
 GUI::_AddBackgroundWindow()
 {
-	BackWindow* backWindow = new BackWindow(fScreenWidth, fScreenHeight);
+	fBackWindow = new BackWindow(fScreenWidth, fScreenHeight);
 	//fWindows.push_back(backWindow);
-	fActiveWindows.push_back(backWindow);
+	fWindows.push_back(fBackWindow);
 }
 
 

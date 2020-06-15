@@ -76,7 +76,8 @@ public:
 
 private:
 	CHUIResource* fResource;
-	std::vector<Window*> fActiveWindows;
+	std::vector<Window*> fWindows;
+	Window* fBackWindow;
 	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
