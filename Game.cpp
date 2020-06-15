@@ -116,7 +116,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 				case SDL_MOUSEMOTION:
 					lastMouseX = event.motion.x;
 					lastMouseY = event.motion.y;
-					gui->MouseMoved(lastMouseX, lastMouseY);
+					if (!Core::Get()->CutsceneMode())
+						gui->MouseMoved(lastMouseX, lastMouseY);
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
