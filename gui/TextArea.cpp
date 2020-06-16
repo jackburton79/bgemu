@@ -89,12 +89,16 @@ void
 TextArea::AddText(const char* text)
 {
 	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
-	TextLine* newLine = new TextLine();
-
 	const Font* font = FontRoster::GetFont(fontName);
-	newLine->text = text;
-	newLine->width = font->StringWidth(text, &newLine->height);
-	fLines.push_back(newLine);
+
+	std::string textString(text);
+	while (!textString.empty()) {
+		std::string textLine = _BreakTextLine(textString, fControl->w, font);
+		TextLine* newLine = new TextLine();
+		newLine->text = textLine;
+		newLine->width = font->StringWidth(textLine, &newLine->height);
+		fLines.push_back(newLine);
+	}
 	fChanged = true;
 }
 
@@ -108,4 +112,24 @@ TextArea::ClearText()
 	}
 	fLines.clear();
 	fChanged = true;
+}
+
+
+/* static */
+std::string
+TextArea::_BreakTextLine(std::string& text, uint16 maxWidth, const Font* font)
+{
+	size_t breakPos = text.length();
+	std::string line = text;
+	for (;;) {
+		line = text.substr(0, breakPos);
+		if (font->StringWidth(line, NULL) < maxWidth)
+			break;
+		breakPos = text.rfind(" ", breakPos - 1);
+	}
+	if (breakPos == text.length())
+		text = "";
+	else
+		text = text.substr(breakPos + 1, text.length());
+	return line;
 }
