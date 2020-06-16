@@ -105,12 +105,12 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		messageWindow->MoveTo(messageWindow->Position().x,
 				window->Height() - messageWindow->Height());
 		messageWindow->ResizeTo(window->Width(), messageWindow->Height());
-		TextArea *textArea = dynamic_cast<TextArea*>(messageWindow->GetControlByID(1));
-		if (textArea != NULL) {
+		//TextArea *textArea = dynamic_cast<TextArea*>(messageWindow->GetControlByID(1));
+		/*if (textArea != NULL) {
 			textArea->AddText("This is a very long line of text. It should be splitted to multiple lines. Let's see if it really works.");
 			textArea->AddText("Second line");
 			textArea->AddText("Third line");
-		}
+		}*/
 	}
 	//gui->GetWindow(15);
 
