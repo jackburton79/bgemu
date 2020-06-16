@@ -180,8 +180,20 @@ void
 GraphicsEngine::BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* sourceRect,
 							Bitmap* surface, GFX::rect* destRect)
 {
-	SDL_SoftStretch(bitmap->Surface(), (SDL_Rect*)sourceRect,
-			surface->Surface(), (SDL_Rect*)destRect);
+	SDL_Rect sdlSourceRect;
+	SDL_Rect sdlDestRect;
+	SDL_Rect* sdlSourceRectPtr = NULL;
+	SDL_Rect* sdlDestRectPtr = NULL;
+	if (sourceRect != NULL) {
+		GFXRectToSDLRect(sourceRect, &sdlSourceRect);
+		sdlSourceRectPtr = &sdlSourceRect;
+	}
+	if (destRect != NULL) {
+		GFXRectToSDLRect(destRect, &sdlDestRect);
+		sdlDestRectPtr = &sdlDestRect;
+	}
+	SDL_SoftStretch(bitmap->Surface(), sdlSourceRectPtr,
+			surface->Surface(), sdlDestRectPtr);
 }
 
 
