@@ -31,7 +31,6 @@ public:
 	void AddText(const char* text);
 	void ClearText();
 private:
-	static std::string _BreakTextLine(std::string& text, uint16 maxWidth, const Font* font);
 	//BAMResource* fInitialsFontResource;
 	Bitmap* fBitmap;
 	std::vector<TextLine*> fLines;

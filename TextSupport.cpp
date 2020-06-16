@@ -60,6 +60,25 @@ Font::StringWidth(const std::string& string, uint16* height) const
 }
 
 
+std::string
+Font::TruncateString(std::string& string, uint16 maxWidth) const
+{
+	size_t breakPos = string.length();
+	std::string line = string;
+	for (;;) {
+		line = string.substr(0, breakPos);
+		if (StringWidth(line, NULL) < maxWidth)
+			break;
+		breakPos = string.rfind(" ", breakPos - 1);
+	}
+	if (breakPos == string.length())
+		string = "";
+	else
+		string = string.substr(breakPos + 1, string.length());
+	return line;
+}
+
+
 void
 Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette) const

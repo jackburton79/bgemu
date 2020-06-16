@@ -33,6 +33,7 @@ public:
 	std::string Name() const;
 
 	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
+	std::string TruncateString(std::string& string, uint16 maxWidth) const;
 
 	void RenderString(std::string string,
 					uint32 flags, Bitmap* bitmap,
