@@ -100,7 +100,21 @@ GUI::Destroy()
 bool
 GUI::Load(const res_ref& name)
 {
-	std::cout << "GUI::Load(" << name.CString() << ")" << std::endl;
+	res_ref guiResource = name;
+	GFX::rect screenFrame = GraphicsEngine::Get()->ScreenFrame();
+	if (strcmp(guiResource.CString(), "GUIW") == 0) {
+		switch (screenFrame.w) {
+			case 800:
+				guiResource = "GUIW08";
+				break;
+			case 1024:
+				guiResource = "GUIW10";
+				break;
+			default:
+				break;
+		}
+	}
+	std::cout << "GUI::Load(" << guiResource.CString() << ")" << std::endl;
 	try {
 		if (fCursors[0] == NULL)
 			_InitCursors();
@@ -108,7 +122,7 @@ GUI::Load(const res_ref& name)
 		gResManager->ReleaseResource(fResource);
 		Clear();
 
-		fResource = gResManager->GetCHUI(name);
+		fResource = gResManager->GetCHUI(guiResource);
 	} catch (...) {
 		std::cout << "GUI::Load(): ERROR" << std::endl;
 		return false;
@@ -309,26 +323,38 @@ GUI::SetCursor(uint32 index)
 void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
+	//std::cout << x << ", " << y << std::endl;
 	const uint16 kScrollingStep = 64;
-	int horizBorderSize = 35;
-    int vertBorderSize = 40;
+	int xMinBorder = 0;
+	int yMinBorder = 0;
+	
+	RoomBase* room = Core::Get()->CurrentRoom();
+	GFX::rect viewPort = room->ViewPort();
+	int xMaxBorder = viewPort.w;
+	int yMaxBorder = viewPort.h;
 
-    // TODO: Less hardcoding of the window number
-	Window* window = GUI::Get()->GetWindow(1);
-	if (window != NULL) {
-		horizBorderSize += window->Width();
+	Control* control = room->ParentControl();
+	if (strcmp(room->Name(), "WORLDMAP") == 0) {
+		//control->Print();
+		yMinBorder = control->Position().y;
+		yMaxBorder = control->Height() + control->Position().y;
+		xMinBorder += 10;
+		xMaxBorder -= 10;
+	} else {
+		xMinBorder += 15;
+		xMaxBorder -= 15;
 	}
 
-	GFX::rect viewPort = Core::Get()->CurrentRoom()->ViewPort();
 	sint16 scrollByX = 0;
 	sint16 scrollByY = 0;
-	if (x <= horizBorderSize)
+	//std::cout << "w: " << viewPort.w << ", h:" << viewPort.h << std::endl;
+	if (x <= xMinBorder)
 		scrollByX = -kScrollingStep;
-	else if (x >= viewPort.w - horizBorderSize)
+	else if (x >= xMaxBorder)
 		scrollByX = kScrollingStep;
-	if (y <= vertBorderSize)
+	if (y <= yMinBorder)
 		scrollByY = -kScrollingStep;
-	else if (y >= viewPort.h - vertBorderSize)
+	else if (y >= yMaxBorder)
 		scrollByY = kScrollingStep;
 
 	if (scrollByX == 0 && scrollByY == 0)
