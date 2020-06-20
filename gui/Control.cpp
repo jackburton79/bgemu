@@ -178,8 +178,10 @@ Control::AssociateRoom(RoomBase* room)
 
 	Window()->ConvertToScreen(controlRect);
 
-	if (room != NULL)
+	if (room != NULL) {
 		room->SetViewPort(controlRect);
+		room->SetParentControl(this);
+	}
 }
 
 

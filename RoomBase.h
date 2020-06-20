@@ -11,11 +11,15 @@
 
 class AreaEntry;
 class Bitmap;
+class Control;
 class Region;
 class RoomBase : public Object, public Listener {
 public:
 	RoomBase();
 	virtual ~RoomBase();
+
+	Control* ParentControl() const;
+	void SetParentControl(Control* control);
 
 	virtual IE::rect Frame() const;
 	
@@ -27,7 +31,6 @@ public:
 
 	// The area of the map which is visible on screen
 	IE::rect VisibleMapArea() const;
-
 	IE::point AreaOffset() const;
 	IE::point AreaCenterPoint() const;
 	void SetAreaOffset(const IE::point& point);
@@ -67,6 +70,7 @@ public:
 private:
 	GFX::rect fViewPort;
 	IE::point fAreaOffset;
+	Control* fParentControl;
 
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;

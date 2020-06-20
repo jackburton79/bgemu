@@ -17,7 +17,8 @@
 
 RoomBase::RoomBase()
 	:
-	Object("RoomBase", Object::AREA)
+	Object("RoomBase", Object::AREA),
+	fParentControl(NULL)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
 	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;
@@ -26,6 +27,20 @@ RoomBase::RoomBase()
 
 RoomBase::~RoomBase()
 {
+}
+
+
+Control*
+RoomBase::ParentControl() const
+{
+	return fParentControl;
+}
+
+
+void
+RoomBase::SetParentControl(Control* control)
+{
+	fParentControl = control;
 }
 
 
