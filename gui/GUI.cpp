@@ -323,7 +323,6 @@ GUI::SetCursor(uint32 index)
 void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
-	//std::cout << x << ", " << y << std::endl;
 	const uint16 kScrollingStep = 64;
 	int xMinBorder = 0;
 	int yMinBorder = 0;
@@ -335,7 +334,6 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 
 	Control* control = room->ParentControl();
 	if (strcmp(room->Name(), "WORLDMAP") == 0) {
-		//control->Print();
 		yMinBorder = control->Position().y;
 		yMaxBorder = control->Height() + control->Position().y;
 		xMinBorder += 10;
@@ -349,7 +347,6 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 
 	sint16 scrollByX = 0;
 	sint16 scrollByY = 0;
-	//std::cout << "w: " << viewPort.w << ", h:" << viewPort.h << std::endl;
 	if (x <= xMinBorder)
 		scrollByX = -kScrollingStep;
 	else if (x >= xMaxBorder)
@@ -460,9 +457,9 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 				std::cout << "control " << controlID << std::endl;
 				break;
 			}
-	} else if (!strcmp(fResource->Name(), "GUIMAP")) {
+	} else if (!strncmp(fResource->Name(), "GUIW", strlen("GUIW"))) {
 		switch (windowID) {
-			case 2:
+			case WINDOW_COMMANDS:
 				switch (controlID) {
 					case 1:
 						Core::Get()->LoadWorldMap();
