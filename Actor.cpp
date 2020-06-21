@@ -902,13 +902,17 @@ void
 Actor::_SetPositionPrivate(const IE::point& point)
 {
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	if (room != NULL)
+	if (room != NULL) {
 		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
+		room->BackMap()->TileAtPoint(fActor->position)->RemoveObject(this);
+	}
 
 	fActor->position = point;
 
-	if (room != NULL)
+	if (room != NULL) {
 		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
+		room->BackMap()->TileAtPoint(point)->AddObject(this);
+	}
 }
 
 
