@@ -135,7 +135,18 @@ CHUIResource::Dump()
 	IE::window window;
 	for (uint32 n = 0; n < fNumWindows; n++) {
 		fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
-		//window.Print();
+		window.Print();
+		for (uint16 controlIndex = 0;
+				controlIndex < window.num_controls; controlIndex++) {
+			//std::cout << "Control " << controlIndex << ":" << std::endl;
+			control_table controlTable;
+			fData->ReadAt(fControlTableOffset
+					+ (window.control_offset + controlIndex)
+					* sizeof(controlTable), controlTable);
+				IE::control* control = _ReadControl(controlTable);
+			if (control != NULL)
+				control->Print();
+		}
 	}
 }
 
