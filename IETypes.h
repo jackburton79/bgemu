@@ -560,7 +560,7 @@ struct text_edit : public control {
 
 #define NUM_CURSORS 128
 
-enum cursors {
+enum arrow_cursors {
 	CURSOR_ARROW_E = 0,
 	CURSOR_ARROW_NE = 1,
 	CURSOR_ARROW_N = 2,
@@ -573,6 +573,26 @@ enum cursors {
 	CURSOR_HAND = 8
 };
 
+enum cursors {
+	CURSOR_HAND2 = 1,
+	CURSOR_PICKUP = 2,
+	CURSOR_WALKTO = 4,
+	CURSOR_WALKTO2 = 5,
+	CURSOR_NOWAY = 6,
+	CURSOR_NOWAY2 = 7,
+	CURSOR_CIRCLE_UNK = 8,
+	CURSOR_CIRCLE_UNK2 = 9,
+	CURSOR_CLOCK = 10,
+	CURSOR_CLOCK2 = 11,
+	CURSOR_ATTACK = 12,
+	CURSOR_ATTACK2 = 13,
+	CURSOR_SCROLLUNK = 14,
+	CURSOR_SCROLLUNK2 = 15,
+	CURSOR_DEFEND = 16,
+	CURSOR_DEFEND2 = 17,
+	CURSOR_TALK = 18,
+	CURSOR_TALK2 = 19,
+};
 
 void check_objects_size();
 
