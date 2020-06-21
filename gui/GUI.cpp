@@ -407,7 +407,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 			case 0:
 				switch (controlID) {
 					case 1:
-					{						
+					{
 						room->SetRelativeAreaOffset(0, -20);
 						break;
 					}
