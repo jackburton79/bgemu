@@ -343,6 +343,8 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 	} else {
 		xMinBorder += 15;
 		xMaxBorder -= 15;
+		yMinBorder += 15;
+		yMaxBorder -= 15;
 	}
 
 	sint16 scrollByX = 0;
