@@ -928,6 +928,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 			for (i = objects.begin(); i != objects.end(); i++) {
 				if (rect_contains((*i)->Frame(), point)) {
 					object = *i;
+					cursorIndex = IE::CURSOR_TALK;
 				}
 			}
 		}
