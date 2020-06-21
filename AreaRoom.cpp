@@ -928,7 +928,10 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 			for (i = objects.begin(); i != objects.end(); i++) {
 				if (rect_contains((*i)->Frame(), point)) {
 					object = *i;
-					cursorIndex = IE::CURSOR_TALK;
+					if ((*i)->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+						cursorIndex = IE::CURSOR_TALK;
+					else
+						cursorIndex = IE::CURSOR_ATTACK;
 				}
 			}
 		}
