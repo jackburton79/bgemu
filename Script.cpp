@@ -59,6 +59,7 @@ Script::Script(node* rootNode)
 	fProcessed(false),
 	fOrTriggers(0),
 	fSender(NULL),
+	fLastTrigger(NULL),
 	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
