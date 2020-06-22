@@ -15,7 +15,9 @@
 SearchMap::SearchMap(std::string name)
 	:
 	fImage(NULL),
-	fModifiedMap(NULL)
+	fModifiedMap(NULL),
+	fHRatio(1),
+	fVRatio(1)
 {
 	BMPResource* resource = gResManager->GetBMP(name.c_str());
 	if (resource != NULL) {

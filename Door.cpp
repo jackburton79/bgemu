@@ -3,7 +3,8 @@
 Door::Door(IE::door* areaDoor)
 	:
 	Object(areaDoor->name, Object::DOOR, areaDoor->script.CString()),
-	fAreaDoor(areaDoor)
+	fAreaDoor(areaDoor),
+	fTiledObject(NULL)
 {
 }
 
