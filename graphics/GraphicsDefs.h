@@ -22,7 +22,10 @@ struct Color {
 };
 
 
-struct Palette {
+class Palette {
+public:
+	Palette();
+	Palette(const GFX::Color& start, const GFX::Color& end);
 	Color colors[256];
 };
 

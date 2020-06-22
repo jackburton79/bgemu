@@ -33,15 +33,14 @@ TextArea::TextArea(IE::text_area* text)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
-	GFX::Palette palette;
 	GFX::Color foreground = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
 	GFX::Color transparent = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GFX::Color background = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
 
 	//GFX::Color transparent = palette.colors[0];
-	GraphicsEngine::CreateGradient(foreground, background, palette);
+	GFX::Palette palette(foreground, background);
 	fBitmap->SetPalette(palette);
-	fBitmap->SetColorKey(transparent.r, transparent.g, transparent.b, true);
+	//fBitmap->SetColorKey(transparent.r, transparent.g, transparent.b, true);
 }
 
 

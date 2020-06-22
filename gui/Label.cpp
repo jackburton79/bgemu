@@ -79,7 +79,6 @@ Label::Draw()
 void
 Label::_SetPalette(const GFX::Color& start, const GFX::Color& end)
 {
-	GFX::Palette palette;
-	GraphicsEngine::CreateGradient(start, end, palette);
+	GFX::Palette palette(start, end);
 	fBitmap->SetColors(palette.colors, 0, 256);
 }

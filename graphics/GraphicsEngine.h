@@ -55,10 +55,6 @@ public:
 	
 	void SetFade(uint16 value);
 
-	static void CreateGradient(const GFX::Color& start,
-								const GFX::Color& end,
-								GFX::Palette& palette);
-
 private:
 	SDL_Window *fSDLWindow;
 	SDL_Renderer *fSDLRenderer;

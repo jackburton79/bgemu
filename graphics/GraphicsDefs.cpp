@@ -48,6 +48,7 @@ GFXRectToSDLRect(const rect* source, SDL_Rect* dest)
 	dest->h = (int)source->h;
 }
 
+
 void
 SDLRectToGFXRect(const SDL_Rect* source, rect* dest)
 {
@@ -55,6 +56,33 @@ SDLRectToGFXRect(const SDL_Rect* source, rect* dest)
 	dest->y = (sint16)source->y;
 	dest->w = (uint16)source->w;
 	dest->h = (uint16)source->h;
+}
+
+
+Palette::Palette()
+{
+}
+
+
+
+Palette::Palette(const GFX::Color& start, const GFX::Color& end)
+{
+	uint8 rFactor = (start.r - end.r) / 255;
+	uint8 gFactor = (start.g - end.g) / 255;
+	uint8 bFactor = (start.b - end.b) / 255;
+	uint8 aFactor = (start.a - end.a) / 255;
+	colors[0].r = 0;
+	colors[0].g = 255;
+	colors[0].b = 0;
+	colors[0].a = 0;
+	colors[1] = start;
+	colors[255] = end;
+	for (uint8 c = 2; c < 255; c++) {
+		colors[c].r = colors[c - 1].r + rFactor;
+		colors[c].g = colors[c - 1].g + gFactor;
+		colors[c].b = colors[c - 1].b + bFactor;
+		colors[c].a = colors[c - 1].a + aFactor;
+	}
 }
 
 }
