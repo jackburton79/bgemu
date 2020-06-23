@@ -67,23 +67,31 @@ Palette::Palette()
 
 Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 {
-	uint8 rFactor = (start.r - end.r) / 255;
-	uint8 gFactor = (start.g - end.g) / 255;
-	uint8 bFactor = (start.b - end.b) / 255;
-	uint8 aFactor = (start.a - end.a) / 255;
 	colors[0].r = 0;
 	colors[0].g = 255;
 	colors[0].b = 0;
 	colors[0].a = 0;
-	colors[1] = start;
-	colors[255] = end;
-	for (uint8 c = 2; c < 255; c++) {
-		colors[c].r = colors[c - 1].r + rFactor;
-		colors[c].g = colors[c - 1].g + gFactor;
-		colors[c].b = colors[c - 1].b + bFactor;
-		colors[c].a = colors[c - 1].a + aFactor;
+	for (int c = 1; c < 256; c++) {
+		colors[c].r = end.r + (uint8)(((start.r - end.r) * c ) / 255);
+		colors[c].g = end.g + (uint8)(((start.g - end.g) * c ) / 255);
+		colors[c].b = end.b + (uint8)(((start.b - end.b) * c ) / 255);
+		colors[c].a = end.a + (uint8)(((start.a - end.a) * c ) / 255);
 	}
 }
+
+
+void
+Palette::Dump() const
+{
+	std::cout << "Palette:" << std::endl;
+	for (int c = 0; c < 256; c++) {
+		std::cout << std::dec;
+		std::cout << "color " << c << ":" << std::endl;
+		std::cout << (int)colors[c].r << ", " << (int)colors[c].g << ", ";
+		std::cout << (int)colors[c].b << ", " << (int)colors[c].a << std::endl;
+	}
+}
+
 
 }
 

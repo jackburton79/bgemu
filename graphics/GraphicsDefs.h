@@ -26,6 +26,7 @@ class Palette {
 public:
 	Palette();
 	Palette(const GFX::Color& start, const GFX::Color& end);
+	void Dump() const;
 	Color colors[256];
 };
 
