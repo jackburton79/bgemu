@@ -115,7 +115,6 @@ Font::_LoadGlyphs(const std::string& fontName)
 		uint32 cycleNum = cycle_num_for_char(c);
 		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
 		if (glyph != NULL) {
-			glyph->SetColorKey(fTransparentIndex, true);
 			fGlyphs[c] = glyph;
 		} else {
 			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
