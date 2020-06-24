@@ -193,6 +193,20 @@ AreaEntry::Icon() const
 
 
 std::string
+AreaEntry::Caption() const
+{
+	TLKEntry* entry = Dialogs()->EntryAt(fEntry.caption_ref);
+	if (entry == NULL)
+		return "";
+
+	std::string toolTip = entry->text;
+
+	delete entry;
+	return toolTip;
+}
+
+
+std::string
 AreaEntry::TooltipName() const
 {
 	TLKEntry* entry = Dialogs()->EntryAt(fEntry.tooltip_ref);
