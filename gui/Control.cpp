@@ -79,7 +79,7 @@ Control::MouseDown(IE::point point)
 	if (fRoom != NULL) {
 		ConvertFromScreen(point);
 		if (point.x >= 0 && point.y >= 0)
-			fRoom->Clicked(point.x, point.y);
+			fRoom->MouseDown(point);
 	}
 }
 
@@ -220,11 +220,3 @@ Control::CreateControl(IE::control* control)
 			return new Control(control);
 	}
 }
-
-
-/* static */
-/*Control*
-Control::GetByID(uint32 id)
-{
-	return sControlsMap[id];
-}*/

@@ -321,9 +321,8 @@ AreaRoom::Draw(Bitmap *surface)
 
 
 void
-AreaRoom::Clicked(uint16 x, uint16 y)
+AreaRoom::MouseDown(IE::point point)
 {
-	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
 
 	if (fSelectedActor != NULL)

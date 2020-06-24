@@ -49,7 +49,7 @@ public:
 	void ConvertFromArea(IE::point& point);
 
 	virtual void Draw(Bitmap *surface) = 0;
-	virtual void Clicked(uint16 x, uint16 y) = 0;
+	virtual void MouseDown(IE::point point) = 0;
 	virtual void MouseMoved(uint16 x, uint16 y) = 0;
 	
 	virtual void ToggleOverlays();

@@ -41,7 +41,7 @@ public:
 	::SearchMap* SearchMap() const;
 
 	virtual void Draw(Bitmap *surface);
-	virtual void Clicked(uint16 x, uint16 y);
+	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(uint16 x, uint16 y);
 
 	void DrawObject(const Object& object);

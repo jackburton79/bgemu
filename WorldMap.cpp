@@ -132,9 +132,8 @@ WorldMap::Draw(Bitmap *surface)
 
 
 void
-WorldMap::Clicked(uint16 x, uint16 y)
+WorldMap::MouseDown(IE::point point)
 {
-	IE::point point = {int16(x), int16(y)};
 	ConvertToArea(point);
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry& area = fWorldMap->AreaEntryAt(i);
