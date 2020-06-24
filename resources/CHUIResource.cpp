@@ -115,10 +115,8 @@ CHUIResource::GetWindow(uint16 id)
 					+ (window.control_offset + controlIndex)
 					* sizeof(controlTable), controlTable);
 				IE::control* control = _ReadControl(controlTable);
-			if (control != NULL) {
-				//control->Print();
+			if (control != NULL)
 				newWindow->Add(Control::CreateControl(control));
-			}
 		}
 	} catch (...) {
 		newWindow = NULL;
