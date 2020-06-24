@@ -171,7 +171,19 @@ WorldMap::MouseMoved(uint16 x, uint16 y)
 			}
 		}
 	}
+
 	GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
+
+	Window* window = GUI::Get()->GetWindow(0);
+	if (window == NULL)
+		return;
+	Label* label = dynamic_cast<Label*>(window->GetControlByID(268435458));
+	if (label != NULL) {
+		if (fAreaUnderMouse != NULL) {
+			label->SetText(fAreaUnderMouse->Caption().c_str());
+		} else
+			label->SetText("");
+	}
 }
 
 
