@@ -191,7 +191,6 @@ Font::_PrepareBitmaps(std::string string, uint16& width, uint16& height,
 			c != string.end(); c++) {
 		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
-			//std::cout << "*" << int(*c) << "* not found in glyph cache!" << std::endl;
 			// glyph not found/cached
 			continue;
 		}
