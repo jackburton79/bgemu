@@ -197,7 +197,7 @@ AreaEntry::TooltipName() const
 {
 	TLKEntry* entry = Dialogs()->EntryAt(fEntry.tooltip_ref);
 	if (entry == NULL)
-		return NULL;
+		return "";
 
 	std::string toolTip = entry->text;
 	
