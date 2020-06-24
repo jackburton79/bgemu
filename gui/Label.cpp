@@ -61,8 +61,10 @@ void
 Label::SetText(const char* text)
 {
 	fBitmap->Clear(0);
-	IE::label* label = static_cast<IE::label*>(fControl);
-	FontRoster::GetFont(label->font_bam.CString())->RenderString(text, label->flags, fBitmap);
+	if (::strlen(text) > 0) {
+		IE::label* label = static_cast<IE::label*>(fControl);
+		FontRoster::GetFont(label->font_bam.CString())->RenderString(text, label->flags, fBitmap);
+	}
 }
 
 
