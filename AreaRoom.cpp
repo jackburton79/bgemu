@@ -95,24 +95,8 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	gui->ShowWindow(uint16(-1));
 	Window* window = gui->GetWindow(uint16(-1));
-	gui->ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
-	gui->ShowWindow(GUI::WINDOW_COMMANDS);
-	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
 
-	//gui->ShowWindow(GUI::WINDOW_MESSAGES);
-
-	if (Window* messageWindow = gui->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
-		messageWindow->MoveTo(messageWindow->Position().x,
-				window->Height() - messageWindow->Height());
-		messageWindow->ResizeTo(window->Width(), messageWindow->Height());
-		//TextArea *textArea = dynamic_cast<TextArea*>(messageWindow->GetControlByID(1));
-		/*if (textArea != NULL) {
-			textArea->AddText("This is a very long line of text. It should be splitted to multiple lines. Let's see if it really works.");
-			textArea->AddText("Second line");
-			textArea->AddText("Third line");
-		}*/
-	}
-	//gui->GetWindow(15);
+	ShowGUI();
 
 	if (window != NULL) {
 		Control* control = window->GetControlByID(uint32(-1));
@@ -598,13 +582,9 @@ void
 AreaRoom::ShowGUI()
 {
 	GUI* gui = GUI::Get();
-	gui->ShowWindow(0);
-	gui->ShowWindow(1);
-	gui->ShowWindow(7);
-	/*if (gui->IsWindowShown(3))
-		gui->HideWindow(3);
-	else
-		gui->ShowWindow(3);*/
+	gui->ShowWindow(GUI::WINDOW_MESSAGES);
+	gui->ShowWindow(GUI::WINDOW_COMMANDS);
+	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
 }
 
 
@@ -613,9 +593,9 @@ void
 AreaRoom::HideGUI()
 {
 	GUI* gui = GUI::Get();
-	gui->HideWindow(0);
-	gui->HideWindow(1);
-	gui->HideWindow(7);
+	gui->HideWindow(GUI::WINDOW_MESSAGES);
+	gui->HideWindow(GUI::WINDOW_COMMANDS);
+	gui->HideWindow(GUI::WINDOW_PLAYER_SLOTS);
 }
 
 
@@ -624,7 +604,7 @@ bool
 AreaRoom::IsGUIShown() const
 {
 	GUI* gui = GUI::Get();
-	return gui->IsWindowShown(0) && gui->IsWindowShown(1);
+	return gui->IsWindowShown(GUI::WINDOW_MESSAGES) && gui->IsWindowShown(GUI::WINDOW_COMMANDS);
 }
 
 
