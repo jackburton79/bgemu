@@ -493,6 +493,22 @@ button::Print() const
 
 
 void
+slider::Print() const
+{
+	std::cout << "slider" << std::endl;
+	control::Print();
+}
+
+
+void
+text_area::Print() const
+{
+	std::cout << "text_area" << std::endl;
+	control::Print();
+}
+
+
+void
 label::Print() const
 {
 	std::cout << "label:" << std::endl;
@@ -509,4 +525,20 @@ label::Print() const
 	if (flags & LABEL_JUSTIFY_RIGHT)
 		std::cout << "\tright" << std::endl;
 
+}
+
+
+void
+scrollbar::Print() const
+{
+	std::cout << "scrollbar" << std::endl;
+	control::Print();
+}
+
+
+void
+text_edit::Print() const
+{
+	std::cout << "text_edit" << std::endl;
+	control::Print();
 }

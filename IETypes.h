@@ -477,6 +477,7 @@ struct slider : public control {
 	uint16 unk2;
 	uint16 unk3;
 	uint16 unk4;
+	void Print() const;
 } __attribute__((packed));
 
 
@@ -506,6 +507,7 @@ struct text_area : public control {
 	uint8 color3_b;
 	uint8 color3_a;
 	uint32 parent_control_id;
+	void Print() const;
 } __attribute__((packed));
 
 
@@ -555,6 +557,7 @@ struct text_edit : public control {
 	char initial_text[32];
 	uint16 max_length;
 	uint32 case_flags;
+	void Print() const;
 } __attribute__((packed));
 
 
