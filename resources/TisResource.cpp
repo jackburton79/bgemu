@@ -10,7 +10,7 @@
 #define TIS_VERSION_1 "V1.0"
 
 const static int kTileDataSize = 1024 + 4096;
-const static int kDataOffset = strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
+const static int kDataOffset = 8; //strlen(TIS_SIGNATURE) + strlen(TIS_VERSION_1);
 
 /* static */
 Resource*
@@ -77,29 +77,28 @@ Bitmap*
 TISResource::_GetTileAt(int index)
 {
 	fData->Seek(fDataOffset + index * kTileDataSize, SEEK_SET);
-	
-	Bitmap* surface = new Bitmap(TILE_WIDTH, TILE_HEIGHT, 8);
-	
+
+	Bitmap* bitmap = new Bitmap(TILE_WIDTH, TILE_HEIGHT, 8);
 	try {
 		GFX::Palette palette;
-		for (int32 i = 0; i < 256; i++) {
+		for (int i = 0; i < 256; i++) {
 			palette.colors[i].b = fData->ReadByte();
 			palette.colors[i].g = fData->ReadByte();
 			palette.colors[i].r = fData->ReadByte();
 			palette.colors[i].a = fData->ReadByte();
 		}
 
-		uint8 *pixels = (uint8 *)surface->Pixels();
+		uint8 *pixels = reinterpret_cast<uint8*>(bitmap->Pixels());
 		for (int i = 0; i < 4096; i++) {
 			uint8 pixel = fData->ReadByte();
 			*pixels++ = pixel;
 		}
 
-		surface->SetPalette(palette);
+		bitmap->SetPalette(palette);
 	} catch (...) {
-		surface->Release();
-		surface = NULL;
+		bitmap->Release();
+		bitmap = NULL;
 	}
-	
-	return surface;
+
+	return bitmap;
 }

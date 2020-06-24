@@ -8,10 +8,10 @@
 class Bitmap;
 class TISResource : public Resource {
 public:
-	TISResource(const res_ref &name);
+	TISResource(const res_ref& name);
 	static Resource* Create(const res_ref& name);
 
-	virtual bool Load(Archive *archive, uint32 key);
+	virtual bool Load(Archive* archive, uint32 key);
 
 	Bitmap* TileAt(int index);
 
