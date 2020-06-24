@@ -584,6 +584,7 @@ AreaRoom::ShowGUI()
 	GUI* gui = GUI::Get();
 	gui->ShowWindow(GUI::WINDOW_MESSAGES);
 	gui->ShowWindow(GUI::WINDOW_COMMANDS);
+	gui->ShowWindow(GUI::WINDOW_CMDS);
 	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
 }
 
@@ -595,6 +596,7 @@ AreaRoom::HideGUI()
 	GUI* gui = GUI::Get();
 	gui->HideWindow(GUI::WINDOW_MESSAGES);
 	gui->HideWindow(GUI::WINDOW_COMMANDS);
+	gui->HideWindow(GUI::WINDOW_CMDS);
 	gui->HideWindow(GUI::WINDOW_PLAYER_SLOTS);
 }
 
