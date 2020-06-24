@@ -501,9 +501,14 @@ Core::DisplayMessage(uint32 strRef)
 	try {
 		std::string dialogString = IDTable::GetDialog(strRef);
 		std::cout << dialogString << std::endl;
-		if (Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
+		if (Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES)) {
 			TextArea *textArea = dynamic_cast<TextArea*>(
-										window->GetControlByID(1));
+										window->GetControlByID(3));
+			if (textArea != NULL)
+				textArea->AddText(dialogString.c_str());
+		} else if (Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
+			TextArea *textArea = dynamic_cast<TextArea*>(
+													window->GetControlByID(1));
 			if (textArea != NULL)
 				textArea->AddText(dialogString.c_str());
 		}
