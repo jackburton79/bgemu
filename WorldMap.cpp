@@ -122,9 +122,6 @@ WorldMap::Draw(Bitmap *surface)
 			GFX::rect areaRect = fAreaUnderMouse->Rect();
 			areaRect.x += ViewPort().x - AreaOffset().x;
 			areaRect.y += ViewPort().y - AreaOffset().y;
-			//char* toolTip = area.TooltipName();
-			//RenderString(toolTip, GraphicsEngine::Get()->ScreenSurface());
-			//free(toolTip);
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
 		}
 	}
