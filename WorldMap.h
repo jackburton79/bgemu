@@ -26,7 +26,7 @@ public:
 
 	virtual void Draw(Bitmap *surface);
 	virtual void MouseDown(IE::point point);
-	virtual void MouseMoved(uint16 x, uint16 y);
+	virtual void MouseMoved(IE::point point, uint32 transit);
 
 	void ActorEnteredArea(const Actor* actor);
 	void ActorExitedArea(const Actor* actor);

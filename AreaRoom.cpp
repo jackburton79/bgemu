@@ -376,12 +376,10 @@ AreaRoom::MouseDown(IE::point point)
 
 
 void
-AreaRoom::MouseMoved(uint16 x, uint16 y)
+AreaRoom::MouseMoved(IE::point point, uint32 transit)
 {
-	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
-	// TODO: This screams for improvements
 	if (fWed != NULL) {
 		int32 cursor = -1;
 		fMouseOverObject = _ObjectAtPoint(point, cursor);

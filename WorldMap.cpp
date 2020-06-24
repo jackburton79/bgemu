@@ -146,16 +146,8 @@ WorldMap::MouseDown(IE::point point)
 
 
 void
-WorldMap::MouseMoved(uint16 x, uint16 y)
+WorldMap::MouseMoved(IE::point point, uint32 transit)
 {
-	//std::cout << "MouseOver(" << x << ", " << y << ")" << std::endl;
-	// TODO: Less hardcoding of the window number
-	/*Window* window = GUI::Get()->GetWindow(0);
-	if (window != NULL) {
-		horizBorderSize += window->Width();
-	}*/
-
-	IE::point point = { int16(x), int16(y) };
 	ConvertToArea(point);
 
 	fAreaUnderMouse = NULL;

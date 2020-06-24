@@ -42,7 +42,7 @@ public:
 
 	virtual void Draw(Bitmap *surface);
 	virtual void MouseDown(IE::point point);
-	virtual void MouseMoved(uint16 x, uint16 y);
+	virtual void MouseMoved(IE::point point, uint32 transit);
 
 	void DrawObject(const Object& object);
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
