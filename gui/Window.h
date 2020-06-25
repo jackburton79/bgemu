@@ -47,6 +47,7 @@ public:
 	void SetFrame(const GFX::rect rect);
 
 	Control* GetControlByID(uint32 id) const;
+	Control* GetGUIControl() const;
 
 	void MouseDown(IE::point point);
 	void MouseUp(IE::point point);

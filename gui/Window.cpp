@@ -163,6 +163,23 @@ Window::GetControlByID(uint32 id) const
 }
 
 
+Control*
+Window::GetGUIControl() const
+{
+	const char* kGuiCtrlName = "GUICTRL";
+	std::vector<Control*>::const_iterator i;
+	for (i = fControls.begin(); i != fControls.end(); i++) {
+		Control* control = *i;
+		if (control != NULL && control->Type() == IE::CONTROL_BUTTON) {
+			IE::button* button = (IE::button*)control->InternalControl();
+			if (strcmp(button->image.CString(), kGuiCtrlName) == 0)
+				return control;
+		}
+	}
+	return NULL;
+}
+
+
 void
 Window::MouseDown(IE::point point)
 {
