@@ -30,6 +30,8 @@ public:
 	virtual ~Control();
 
 	uint32 ID() const;
+	int Type() const;
+
 	IE::control* InternalControl() const;
 
 	virtual void Draw();

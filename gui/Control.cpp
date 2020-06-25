@@ -41,6 +41,12 @@ Control::ID() const
 }
 
 
+int
+Control::Type() const
+{
+	return fControl->type;
+}
+
 
 IE::control*
 Control::InternalControl() const
