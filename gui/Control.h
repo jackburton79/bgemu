@@ -30,6 +30,7 @@ public:
 	virtual ~Control();
 
 	uint32 ID() const;
+	IE::control* InternalControl() const;
 
 	virtual void Draw();
 	virtual void AttachedToWindow(Window* window);

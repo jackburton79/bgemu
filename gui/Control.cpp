@@ -41,6 +41,14 @@ Control::ID() const
 }
 
 
+
+IE::control*
+Control::InternalControl() const
+{
+	return fControl;
+}
+
+
 /* virtual */
 void
 Control::Draw()
