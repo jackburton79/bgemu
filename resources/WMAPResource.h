@@ -98,7 +98,6 @@ public:
 
 	worldmap_entry WorldMapEntry();
 	uint32 CountAreaEntries() const;
-	bool GetAreaEntry(uint32 index, area_entry& area);
 	AreaEntry& AreaEntryAt(uint32 index);
 
 private:

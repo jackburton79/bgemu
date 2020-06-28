@@ -71,25 +71,22 @@ WMAPResource::Load(Archive* archive, uint32 key)
 
 	for (uint32 c = 0; c < fWorldMapEntry.areaentries_count; c++) {
 		area_entry areaEntry;
-		if (GetAreaEntry(c, areaEntry)) {
-			fData->ReadAt(
-					fWorldMapEntry.areaentries_offset
-					+ c * sizeof(area_entry),
-					areaEntry);
-			AreaEntry* entry = new AreaEntry(areaEntry);
-			/*std::cout << "Area " << areaEntry.area;
-			std::cout << ", short: " << areaEntry.shortname;
-			std::cout << ", long: " <<  areaEntry.name;
-			std::cout << ", tooltip: " << areaEntry.tooltip_ref;
-			std::cout << ", loading " << areaEntry.loading_mos;
-			std::cout << std::endl;
-			*/
-
-			entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
-			entry->fPosition.x = (int16)areaEntry.x;
-			entry->fPosition.y = (int16)areaEntry.y;
-			fAreaEntries.push_back(entry);
-		}
+		fData->ReadAt(
+				fWorldMapEntry.areaentries_offset
+				+ c * sizeof(area_entry),
+				areaEntry);
+		AreaEntry* entry = new AreaEntry(areaEntry);
+		/*std::cout << "Area " << areaEntry.area;
+		std::cout << ", short: " << areaEntry.shortname;
+		std::cout << ", long: " <<  areaEntry.name;
+		std::cout << ", tooltip: " << areaEntry.tooltip_ref;
+		std::cout << ", loading " << areaEntry.loading_mos;
+		std::cout << std::endl;
+		*/
+		entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
+		entry->fPosition.x = (int16)areaEntry.x;
+		entry->fPosition.y = (int16)areaEntry.y;
+		fAreaEntries.push_back(entry);
 	}
 
 	return true;
@@ -107,18 +104,6 @@ uint32
 WMAPResource::CountAreaEntries() const
 {
 	return fWorldMapEntry.areaentries_count;
-}
-
-
-bool
-WMAPResource::GetAreaEntry(uint32 index, area_entry& area)
-{
-	if (index >= fWorldMapEntry.areaentries_count)
-		return false;
-
-	fData->ReadAt(fWorldMapEntry.areaentries_offset
-			+ index * sizeof(area_entry), area);
-	return true;
 }
 
 
@@ -163,7 +148,6 @@ AreaEntry::LongName() const
 res_ref
 AreaEntry::LoadingScreenName() const
 {
-	printf("loading screen %s\n", fEntry.loading_mos.CString());
 	return fEntry.loading_mos;
 }
 
