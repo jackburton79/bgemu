@@ -70,7 +70,7 @@ WorldMap::WorldMap()
 				fWorldMapBitmap, &iconRect);
 	}
 
-	Window* window = gui->GetWindow(0);
+	::Window* window = gui->GetWindow(0);
 	if (window != NULL) {
 		// TODO: Move this into GUI ?
 		Control* control = window->GetControlByID(4);
@@ -162,7 +162,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 
 	GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 
-	Window* window = GUI::Get()->GetWindow(0);
+	::Window* window = GUI::Get()->GetWindow(0);
 	if (window == NULL)
 		return;
 	Label* label = dynamic_cast<Label*>(window->GetControlByID(268435458));

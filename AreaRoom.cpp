@@ -94,7 +94,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	}
 
 	gui->ShowWindow(uint16(-1));
-	Window* window = gui->GetWindow(uint16(-1));
+	::Window* window = gui->GetWindow(uint16(-1));
 
 	ShowGUI();
 
