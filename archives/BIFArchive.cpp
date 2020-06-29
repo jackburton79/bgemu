@@ -1,11 +1,13 @@
-#include <assert.h>
-#include <iostream>
-#include <string.h>
-
 #include "BIFArchive.h"
+
 #include "FileStream.h"
 #include "MemoryStream.h"
 #include "ZLibDecompressor.h"
+
+#include <assert.h>
+#include <cstring>
+#include <iostream>
+
 
 #define BIF_SIGNATURE "BIFFV1  "
 #define BIFC_SIGNATURE "BIFCV1.0"
@@ -48,8 +50,8 @@ BIFArchive::BIFArchive(const char *fileName)
 	}
 
 	if (strcmp(signature, BIF_SIGNATURE)) {
-		std::cout << "BIFArchive::BIFArchive: Unknown archive signature ";
-		std::cout << signature << std::endl;
+		std::cerr << "BIFArchive::BIFArchive: Unknown archive signature ";
+		std::cerr << signature << std::endl;
 		throw -1;
 	}
 
