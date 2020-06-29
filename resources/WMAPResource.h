@@ -98,8 +98,7 @@ public:
 
 	worldmap_entry WorldMapEntry();
 	uint32 CountAreaEntries() const;
-	AreaEntry& AreaEntryAt(uint32 index);
-
+	AreaEntry* GetAreaEntry(uint32 index);
 private:
 	virtual ~WMAPResource();
 	uint32 fCount;
@@ -107,7 +106,6 @@ private:
 
 	worldmap_entry fWorldMapEntry;
 	BAMResource* fIcons;
-	std::vector<AreaEntry*> fAreaEntries;
 };
 
 

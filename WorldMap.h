@@ -45,10 +45,14 @@ private:
 
 	void _UnloadWorldMap();
 
+	void _LoadAreaEntries();
+
 	// WorldMap
 	WMAPResource* fWorldMap;
 	MOSResource* fWorldMapBackground;
 	Bitmap*	fWorldMapBitmap;
+
+	std::vector<AreaEntry*> fAreaEntries;
 	AreaEntry* fAreaUnderMouse;
 };
 

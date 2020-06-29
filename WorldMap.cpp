@@ -58,10 +58,12 @@ WorldMap::WorldMap()
 		throw "Cannot load World map bitmap";
 	}
 	fWorldMapBitmap = fWorldMapBackground->Image();
+	_LoadAreaEntries();
+
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-		AreaEntry& areaEntry = fWorldMap->AreaEntryAt(i);
-		const Bitmap* iconFrame = areaEntry.Icon();
-		IE::point position = areaEntry.Position();
+		AreaEntry* areaEntry = fAreaEntries.at(i);
+		const Bitmap* iconFrame = areaEntry->Icon();
+		IE::point position = areaEntry->Position();
 		GFX::rect iconRect(int16(position.x - iconFrame->Frame().w / 2),
 					int16(position.y - iconFrame->Frame().h / 2),
 					iconFrame->Frame().w, iconFrame->Frame().h);
@@ -132,10 +134,10 @@ void
 WorldMap::MouseDown(IE::point point)
 {
 	ConvertToArea(point);
-	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-		AreaEntry& area = fWorldMap->AreaEntryAt(i);
-		if (rect_contains(area.Rect(), point)) {
-			Core::Get()->LoadArea(area.Name(), area.LongName(), NULL);
+	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
+		AreaEntry* area = fAreaEntries.at(i);
+		if (rect_contains(area->Rect(), point)) {
+			Core::Get()->LoadArea(area->Name(), area->LongName(), NULL);
 			break;
 		}
 	}
@@ -149,14 +151,11 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 
 	fAreaUnderMouse = NULL;
 
-	if (fWorldMap != NULL) {
-		for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
-			AreaEntry& area = fWorldMap->AreaEntryAt(i);
-			GFX::rect areaRect = area.Rect();
-			if (rect_contains(areaRect, point)) {
-				fAreaUnderMouse = &area;
-				break;
-			}
+	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
+		AreaEntry* area = fAreaEntries.at(i);
+		if (rect_contains(area->Rect(), point)) {
+			fAreaUnderMouse = area;
+			break;
 		}
 	}
 
@@ -228,6 +227,12 @@ WorldMap::_UnloadWorldMap()
 
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 
+	std::vector<AreaEntry*>::const_iterator i;
+	for (i = fAreaEntries.begin(); i != fAreaEntries.end(); i++) {
+		delete *i;
+	}
+	fAreaEntries.clear();
+
 	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
 	
@@ -240,4 +245,14 @@ WorldMap::_UnloadWorldMap()
 	}
 
 	gResManager->TryEmptyResourceCache();
+}
+
+
+void
+WorldMap::_LoadAreaEntries()
+{
+	for (uint32 c = 0; c < fWorldMap->CountAreaEntries(); c++) {
+		AreaEntry* areaEntry = fWorldMap->GetAreaEntry(c);
+		fAreaEntries.push_back(areaEntry);
+	}
 }

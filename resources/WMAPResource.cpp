@@ -40,11 +40,6 @@ WMAPResource::WMAPResource(const res_ref &name)
 WMAPResource::~WMAPResource()
 {
 	gResManager->ReleaseResource(fIcons);
-	std::vector<AreaEntry*>::const_iterator i;
-	for (i = fAreaEntries.begin(); i != fAreaEntries.end(); i++) {
-		delete *i;
-	}
-	fAreaEntries.clear();
 }
 
 
@@ -69,26 +64,6 @@ WMAPResource::Load(Archive* archive, uint32 key)
 
 	fIcons = gResManager->GetBAM(fWorldMapEntry.map_icons_bam);
 
-	for (uint32 c = 0; c < fWorldMapEntry.areaentries_count; c++) {
-		area_entry areaEntry;
-		fData->ReadAt(
-				fWorldMapEntry.areaentries_offset
-				+ c * sizeof(area_entry),
-				areaEntry);
-		AreaEntry* entry = new AreaEntry(areaEntry);
-		/*std::cout << "Area " << areaEntry.area;
-		std::cout << ", short: " << areaEntry.shortname;
-		std::cout << ", long: " <<  areaEntry.name;
-		std::cout << ", tooltip: " << areaEntry.tooltip_ref;
-		std::cout << ", loading " << areaEntry.loading_mos;
-		std::cout << std::endl;
-		*/
-		entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
-		entry->fPosition.x = (int16)areaEntry.x;
-		entry->fPosition.y = (int16)areaEntry.y;
-		fAreaEntries.push_back(entry);
-	}
-
 	return true;
 }
 
@@ -107,13 +82,21 @@ WMAPResource::CountAreaEntries() const
 }
 
 
-AreaEntry&
-WMAPResource::AreaEntryAt(uint32 index)
+AreaEntry*
+WMAPResource::GetAreaEntry(uint32 index)
 {
 	if (index >= fWorldMapEntry.areaentries_count)
-		throw -1;
+		return NULL;
 
-	return *fAreaEntries[index];
+	area_entry areaEntry;
+    fData->ReadAt(
+    		fWorldMapEntry.areaentries_offset
+				+ index * sizeof(area_entry), areaEntry);
+    AreaEntry* entry = new AreaEntry(areaEntry);
+    entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
+    entry->fPosition.x = (int16)areaEntry.x;
+    entry->fPosition.y = (int16)areaEntry.y;
+    return entry;
 }
 
 
