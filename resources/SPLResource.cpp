@@ -11,6 +11,7 @@
 #define SPL_SIGNATURE "SPL "
 #define SPL_VERSION_1 "V1  "
 
+#include <Stream.h>
 
 /* static */
 Resource*
@@ -38,4 +39,58 @@ SPLResource::Load(Archive *archive, uint32 key)
 		return false;
 
 	return true;
+}
+
+
+uint32
+SPLResource::SpellNameUnidentified() const
+{
+	uint32 strRef;
+	fData->ReadAt(8, strRef);
+	return strRef;
+}
+
+
+uint32
+SPLResource::SpellNameIdentified() const
+{
+	uint32 strRef;
+	fData->ReadAt(12, strRef);
+	return strRef;
+}
+
+
+uint32
+SPLResource::Flags() const
+{
+	uint32 flags;
+	fData->ReadAt(24, flags);
+	return flags;
+}
+
+
+uint16
+SPLResource::CastingGraphics() const
+{
+	uint16 id;
+	fData->ReadAt(34, id);
+	return id;
+}
+
+
+uint32
+SPLResource::SpellDescriptionUnidentified() const
+{
+	uint32 strRef;
+	fData->ReadAt(80, strRef);
+	return strRef;
+}
+
+
+uint32
+SPLResource::SpellDescriptionIdentified() const
+{
+	uint32 strRef;
+	fData->ReadAt(84, strRef);
+	return strRef;
 }
