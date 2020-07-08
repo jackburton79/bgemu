@@ -14,6 +14,7 @@
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "Script.h"
+#include "SPLResource.h"
 #include "TextSupport.h"
 #include "Timer.h"
 // TODO: Remove this dependency
@@ -244,9 +245,14 @@ ForceSpell::operator()()
 	target->Print();
 
 	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-	std::cout << "spell: " << spellIDS->StringForID(fActionParams->integer1) << std::endl;
+	res_ref spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
 	gResManager->ReleaseResource(spellIDS);
 
+	std::cout << "spell: " << spellName.CString() << std::endl;
+	SPLResource* spellResource = gResManager->GetSPL(spellName);
+	std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
+	std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
+	gResManager->ReleaseResource(spellResource);
 	sender->SetAnimationAction(ACT_CAST_SPELL);
 	// TODO: only for testing
 	if (fDuration-- == 0) {
