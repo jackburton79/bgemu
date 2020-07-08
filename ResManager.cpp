@@ -225,9 +225,9 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
-		/*std::cout << kComponentName << "GetResource(";
+		std::cerr << kComponentName << "GetResource(";
 		std::cerr << name.CString() << ", " << strresource(type);
-		std::cerr << "): Resource does not exist!" << std::endl;*/
+		std::cerr << "): Resource does not exist!" << std::endl;
 		return NULL;
 	}
 
