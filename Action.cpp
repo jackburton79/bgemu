@@ -245,14 +245,14 @@ ForceSpell::operator()()
 	target->Print();
 
 	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-	res_ref spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+	std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
 	gResManager->ReleaseResource(spellIDS);
 
-	std::cout << "spell: " << spellName.CString() << std::endl;
-	SPLResource* spellResource = gResManager->GetSPL(spellName);
+	std::cout << "spell: " << spellName << std::endl;
+	/*SPLResource* spellResource = gResManager->GetSPL(spellName);
 	std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
 	std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
-	gResManager->ReleaseResource(spellResource);
+	gResManager->ReleaseResource(spellResource);*/
 	sender->SetAnimationAction(ACT_CAST_SPELL);
 	// TODO: only for testing
 	if (fDuration-- == 0) {
