@@ -161,31 +161,8 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 	for (int16 i = 0; i < fMaxFrame; i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(sequence, i);
 		
-		if (patchColors != NULL) {
-			GFX::Palette palette;
-			bitmap->GetPalette(palette);
-			GFX::Color hair = palette.colors[patchColors->hair];
-			GFX::Color skin = palette.colors[patchColors->skin];
-			//GFX::Color major = palette.colors[patchColors->major];
-			//GFX::Color minor = palette.colors[patchColors->minor];
-			//GFX::Color metal = palette.colors[patchColors->metal];
-			//GFX::Color leather = palette.colors[patchColors->leather];
-			//GFX::Color armor = palette.colors[patchColors->armor];
-			bitmap->SetColors(skin, 45, 5);
-			/*
-			//bitmap->SetColors(major, 0, 10);
-			bitmap->SetColors(minor, 10, 10);
-			
-			bitmap->SetColors(leather, 20, 10);*/
-			//bitmap->SetColors(armor, 60, 10);
-			bitmap->SetColors(hair, 80, 10);
-			// 00-10 = shadow
-			// 30-39 = vest1
-			// 40-49 = skin
-			// 50-59 = vest2
-			// 60-69 = shoulders
-
-		}
+		if (patchColors != NULL)
+			_ApplyColorMODs(bitmap, patchColors);
 
 		if (fBlackAsTransparent)
 			Graphics::ApplyShade(bitmap);
@@ -195,4 +172,32 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 
 		fBitmaps.push_back(bitmap);
 	}
+}
+
+
+void
+Animation::_ApplyColorMODs(::Bitmap *bitmap, CREColors *patchColors)
+{
+	GFX::Palette palette;
+	bitmap->GetPalette(palette);
+	GFX::Color hair = palette.colors[patchColors->hair];
+	GFX::Color skin = palette.colors[patchColors->skin];
+	//GFX::Color major = palette.colors[patchColors->major];
+	//GFX::Color minor = palette.colors[patchColors->minor];
+	//GFX::Color metal = palette.colors[patchColors->metal];
+	//GFX::Color leather = palette.colors[patchColors->leather];
+	//GFX::Color armor = palette.colors[patchColors->armor];
+	bitmap->SetColors(skin, 45, 5);
+	/*
+	//bitmap->SetColors(major, 0, 10);
+	bitmap->SetColors(minor, 10, 10);
+
+	bitmap->SetColors(leather, 20, 10);*/
+	//bitmap->SetColors(armor, 60, 10);
+	bitmap->SetColors(hair, 80, 10);
+	// 00-10 = shadow
+	// 30-39 = vest1
+	// 40-49 = skin
+	// 50-59 = vest2
+	// 60-69 = shoulders
 }
