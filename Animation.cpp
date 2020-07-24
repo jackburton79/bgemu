@@ -180,24 +180,64 @@ Animation::_ApplyColorMODs(::Bitmap *bitmap, CREColors *patchColors)
 {
 	GFX::Palette palette;
 	bitmap->GetPalette(palette);
-	GFX::Color hair = palette.colors[patchColors->hair];
-	GFX::Color skin = palette.colors[patchColors->skin];
-	//GFX::Color major = palette.colors[patchColors->major];
-	//GFX::Color minor = palette.colors[patchColors->minor];
-	//GFX::Color metal = palette.colors[patchColors->metal];
-	//GFX::Color leather = palette.colors[patchColors->leather];
-	//GFX::Color armor = palette.colors[patchColors->armor];
-	bitmap->SetColors(skin, 45, 5);
-	/*
-	//bitmap->SetColors(major, 0, 10);
-	bitmap->SetColors(minor, 10, 10);
 
-	bitmap->SetColors(leather, 20, 10);*/
-	//bitmap->SetColors(armor, 60, 10);
-	bitmap->SetColors(hair, 80, 10);
-	// 00-10 = shadow
-	// 30-39 = vest1
-	// 40-49 = skin
-	// 50-59 = vest2
-	// 60-69 = shoulders
+	int i;
+	//for (i = 0; i < 4; ++i)
+		//col[i] = src->col[i];
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x04 + i, patchColors->metal);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x10 + i, patchColors->minor);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x1c + i, patchColors->major);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x28 + i, patchColors->skin);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x34 + i, patchColors->leather);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x40 + i, patchColors->armor);
+
+	for (i = 0; i < 12; ++i)
+		palette.ModColor(0x4c + i, patchColors->hair);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x58 + i, patchColors->minor);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x60 + i, patchColors->major);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x68 + i, patchColors->minor);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x70 + i, patchColors->metal);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x78 + i, patchColors->leather);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x80 + i, patchColors->leather);
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0x88 + i, patchColors->minor);
+
+	for (i = 0; i < 24; ++i)
+		palette.ModColor(0x90 + i, patchColors->leather);
+
+	//for (i = 0; i < 8; ++i)
+	//	palette.colors[[0xA8 + i] = src->col[0xA8+i];
+
+	for (i = 0; i < 8; ++i)
+		palette.ModColor(0xB0 + i, patchColors->skin);
+
+	for (i = 0; i < 72; ++i)
+		palette.ModColor(0xB8 + i, patchColors->leather);
+
+	bitmap->SetPalette(palette);
 }
