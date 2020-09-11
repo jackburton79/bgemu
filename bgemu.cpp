@@ -123,14 +123,15 @@ main(int argc, char **argv)
 	}
 
 	if (sDebug) {
+		//gResManager->SetDebug(2);
 		Script::SetDebug(true);
 		//Referenceable::SetDebug(true);
-		Object::SetDebug(true);
+		//Object::SetDebug(true);
 	}
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();
-		std::cerr << "Faxiled to initialize Graphics Engine!" << std::endl;
+		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
 		return -1;
 	}
 
