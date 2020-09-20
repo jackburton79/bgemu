@@ -393,7 +393,7 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 
 
 void
-AreaRoom::DrawObject(const Object& object)
+AreaRoom::DrawActor(const Object& object)
 {
 	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
 		IE::point actorPosition = actor->Position();
@@ -819,7 +819,7 @@ AreaRoom::_DrawActors()
 			a != actorsList.end(); a++) {
 		Actor* actor = *a;
 		try {
-			DrawObject(*actor);
+			DrawActor(*actor);
 		} catch (const char* string) {
 			std::cerr << "_DrawActors: exception: " << string << std::endl;
 			continue;

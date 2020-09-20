@@ -44,7 +44,7 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 
-	void DrawObject(const Object& object);
+	void DrawActor(const Object& object);
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
 	void AddAnimation(Animation* animation);
