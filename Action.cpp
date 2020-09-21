@@ -1017,6 +1017,8 @@ DisplayStringHead::operator()()
 		IE::point point = actor->Position();
 		point.y -= 100;
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
+
+		actor->SetText(tlkEntry->text);
 		Core::Get()->CurrentRoom()->ConvertFromArea(point);
 
 		// we multiply by 15 because DisplayString() accepts ms, but duration
@@ -1025,12 +1027,17 @@ DisplayStringHead::operator()()
 		string.append(" (");
 		string.append(tlkEntry->sound_ref.CString());
 		string.append(")");
-		GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration * AI_UPDATE_FREQ);
-		Core::Get()->PlaySound(tlkEntry->sound_ref);
+		//GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration * AI_UPDATE_FREQ);
+		//Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
-	if (fDuration-- <= 0)
+	if (fDuration-- <= 0) {
+		Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
+		if (actor != NULL)
+			actor->SetText("");
 		SetCompleted();
+	}
 }
 
 

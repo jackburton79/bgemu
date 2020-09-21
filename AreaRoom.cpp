@@ -430,10 +430,34 @@ AreaRoom::DrawActor(const Object& object)
 		}
 		const Bitmap* actorFrame = actor->Bitmap();
 
+		{
+			// TODO: See if it's better here
+			std::string text = actor->Text();
+			if (!text.empty()) {
+				const Font* font = FontRoster::GetFont("TOOLFONT");
+				uint16 height;
+				uint16 stringWidth = font->StringWidth(text, &height);
+				Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
+				bitmap->Clear(font->TransparentIndex());
+				//bitmap->SetColorKey(font->TransparentIndex());
+
+				// Pre-render the string to a bitmap
+				GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+				font->RenderString(text, 0, bitmap, true, rect);
+
+				IE::point point = actor->Position();
+				point.y -= 100;
+
+				DrawBitmap(bitmap, point, false);
+			}
+		}
+
 		int32 pointHeight = PointHeight(actorPosition);
 		actorPosition.y += pointHeight - 8;
 		DrawBitmap(actorFrame, actorPosition, true);
 	}
+
+
 }
 
 
