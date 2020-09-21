@@ -899,6 +899,20 @@ Actor::SetTileCell(::TileCell* cell)
 
 
 void
+Actor::SetText(const std::string& string)
+{
+	fText = string;
+}
+
+
+std::string
+Actor::Text() const
+{
+	return fText;
+}
+
+
+void
 Actor::_SetPositionPrivate(const IE::point& point)
 {
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());

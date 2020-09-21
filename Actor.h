@@ -7,6 +7,7 @@
 #include "Object.h"
 
 #include <list>
+#include <string>
 #include <vector>
 
 const static uint32 kNumAnimations = 8;
@@ -109,6 +110,9 @@ public:
 	void UpdateTileCell();
 	void SetTileCell(::TileCell*);
 
+	void SetText(const std::string& string);
+	std::string Text() const;
+
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
@@ -133,6 +137,8 @@ private:
 
 	::TileCell* fTileCell;
 	Region* fRegion;
+
+	std::string fText;
 
 	void _Init();
 	void _HandleScripts();
