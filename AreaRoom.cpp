@@ -393,71 +393,60 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 
 
 void
-AreaRoom::DrawActor(const Object& object)
+AreaRoom::DrawActor(const Actor& actor)
 {
-	if (const Actor* actor = dynamic_cast<const Actor*>(&object)) {
-		IE::point actorPosition = actor->Position();
-		if (!Core::Get()->CutsceneMode()) {
-			if (actor->IsSelected()) {
-				IE::point position = actorPosition;
-				ConvertFromArea(position);
-				Bitmap* image = fBackMap->Image();
-				image->Lock();
-				uint32 color = image->MapColor(0, 255, 0);
-				image->StrokeCircle(position.x, position.y,
-											sSelectedActorRadius, color);
-				if (actor->Destination() != actor->Position()) {
-					IE::point destination = actor->Destination();
-					ConvertFromArea(destination);
-					image->StrokeCircle(
-							destination.x, destination.y,
-							sSelectedActorRadius - 10, color);
-				}
-				image->Unlock();
-			} else {
-				IE::point position = actorPosition;
-				ConvertFromArea(position);
-				uint32 color = 0;
-				Bitmap* image = fBackMap->Image();
-				if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-					color = image->MapColor(0, 255, 0);
-				else
-					color = image->MapColor(255, 0, 0);	
-				image->Lock();	
-				image->StrokeCircle(position.x, position.y, 10, color);	
-				image->Unlock();		
+	IE::point actorPosition = actor.Position();
+	IE::point position = actorPosition;
+	ConvertFromArea(position);
+	Bitmap* image = fBackMap->Image();
+	if (!Core::Get()->CutsceneMode()) {
+		if (actor.IsSelected()) {
+			image->Lock();
+			uint32 color = image->MapColor(0, 255, 0);
+			image->StrokeCircle(position.x, position.y,
+										sSelectedActorRadius, color);
+			if (actor.Destination() != actor.Position()) {
+				IE::point destination = actor.Destination();
+				ConvertFromArea(destination);
+				image->StrokeCircle(
+						destination.x, destination.y,
+						sSelectedActorRadius - 10, color);
 			}
+			image->Unlock();
+		} else {
+			uint32 color = 0;
+			if (actor.CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+				color = image->MapColor(0, 255, 0);
+			else
+				color = image->MapColor(255, 0, 0);
+			image->Lock();
+			image->StrokeCircle(position.x, position.y, 10, color);
+			image->Unlock();
 		}
-		const Bitmap* actorFrame = actor->Bitmap();
+	}
+	const Bitmap* actorFrame = actor.Bitmap();
 
-		{
-			// TODO: See if it's better here
-			std::string text = actor->Text();
-			if (!text.empty()) {
-				const Font* font = FontRoster::GetFont("TOOLFONT");
-				uint16 height;
-				uint16 stringWidth = font->StringWidth(text, &height);
-				Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-				bitmap->Clear(font->TransparentIndex());
-				//bitmap->SetColorKey(font->TransparentIndex());
-
-				// Pre-render the string to a bitmap
-				GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-				font->RenderString(text, 0, bitmap, true, rect);
-
-				IE::point point = actor->Position();
-				point.y -= 100;
-
-				DrawBitmap(bitmap, point, false);
-			}
-		}
-
-		int32 pointHeight = PointHeight(actorPosition);
-		actorPosition.y += pointHeight - 8;
-		DrawBitmap(actorFrame, actorPosition, true);
+	// TODO: See if it's better here
+	std::string text = actor.Text();
+	if (!text.empty()) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		uint16 height;
+		uint16 stringWidth = font->StringWidth(text, &height);
+		Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
+		bitmap->Clear(font->TransparentIndex());
+		//bitmap->SetColorKey(font->TransparentIndex());
+			// Pre-render the string to a bitmap
+		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+		font->RenderString(text, 0, bitmap, true, rect);
+			IE::point textPoint = actorPosition;
+		textPoint.y -= 100;
+		DrawBitmap(bitmap, textPoint, false);
+		bitmap->Release();
 	}
 
-
+	int32 pointHeight = PointHeight(actorPosition);
+	actorPosition.y += pointHeight - 8;
+	DrawBitmap(actorFrame, actorPosition, true);
 }
 
 
@@ -841,7 +830,7 @@ AreaRoom::_DrawActors()
 	
 	for (a = actorsList.begin();
 			a != actorsList.end(); a++) {
-		Actor* actor = *a;
+		const Actor* actor = *a;
 		try {
 			DrawActor(*actor);
 		} catch (const char* string) {
