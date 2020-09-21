@@ -1014,21 +1014,8 @@ DisplayStringHead::operator()()
 		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
 		if (actor == NULL)
 			SetCompleted();
-		IE::point point = actor->Position();
-		point.y -= 100;
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
-
 		actor->SetText(tlkEntry->text);
-		Core::Get()->CurrentRoom()->ConvertFromArea(point);
-
-		// we multiply by 15 because DisplayString() accepts ms, but duration
-		// is specified in AI update times
-		std::string string = tlkEntry->text;
-		string.append(" (");
-		string.append(tlkEntry->sound_ref.CString());
-		string.append(")");
-		//GUI::Get()->DisplayStringCentered(string, point.x, point.y, fDuration * AI_UPDATE_FREQ);
-		//Core::Get()->PlaySound(tlkEntry->sound_ref);
 		delete tlkEntry;
 	}
 	if (fDuration-- <= 0) {
