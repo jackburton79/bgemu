@@ -9,6 +9,9 @@
 
 #include "MemoryStream.h"
 
+#define DLG_SIGNATURE "DLG "
+#define DLG_VERSION_1 "V1.0"
+
 DLGResource::DLGResource(const res_ref& name)
 	:
 	Resource(name, RES_DLG)
@@ -25,6 +28,7 @@ void
 DLGResource::StartDialog()
 {
 	dlg_state state = _GetStateAt(0);
+	std::cout << "*** STARTDIALOG ***" << std::endl;
 	std::cout << state.text_ref << std::endl;
 }
 
@@ -34,6 +38,10 @@ bool
 DLGResource::Load(Archive* archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
+		return false;
+
+	if (!CheckSignature(DLG_SIGNATURE) ||
+		!CheckVersion(DLG_VERSION_1))
 		return false;
 
 	fData->ReadAt(0x0008, fNumStates);
