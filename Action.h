@@ -184,9 +184,9 @@ private:
 };
 
 
-class Dialogue : public Action {
+class DialogAction : public Action {
 public:
-	Dialogue(Object* actor, action_node* node);
+	DialogAction(Object* actor, action_node* node);
 	virtual void operator()();
 };
 

@@ -996,7 +996,7 @@ Script::_HandleAction(action_node* act)
 		case 8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			Dialogue* dialogueAction = new Dialogue(thisActor, act);
+			DialogAction* dialogueAction = new DialogAction(thisActor, act);
 			thisActor->AddAction(dialogueAction);
 			break;
 		}
@@ -1263,7 +1263,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
-			Dialogue* dialogueAction = new Dialogue(sender, act);
+			DialogAction* dialogueAction = new DialogAction(sender, act);
 			sender->AddAction(dialogueAction);
 			break;
 		}

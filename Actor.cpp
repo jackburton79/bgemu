@@ -11,7 +11,7 @@
 #include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
-#include "DLGResource.h"
+#include "Dialog.h"
 #include "Door.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
@@ -577,10 +577,12 @@ Actor::NumTimesTalkedTo() const
 void
 Actor::InitiateDialogWith(Actor* actor)
 {
-	std::cout << "InitiateDialogWith " << fActor->dialog << std::endl;
-	DLGResource* dlgResource = gResManager->GetDLG(fActor->dialog);
-
-	gResManager->ReleaseResource(dlgResource);
+	std::cout << "InitiateDialogWith ";
+	if (fActor->dialog.CString() != NULL)
+		std::cout << fActor->dialog << std::endl;
+	Dialog* dialog = new Dialog(fActor->dialog);
+	dialog->Start();
+	delete dialog;
 }
 
 

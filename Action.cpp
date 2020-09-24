@@ -691,28 +691,32 @@ RunAwayFrom::PointAway(Actor* actor, Actor* target)
 }
 
 
-// Dialogue
-Dialogue::Dialogue(Object* source, action_node* node)
+// DialogAction
+DialogAction::DialogAction(Object* source, action_node* node)
 	:
 	Action(source, node)
 {
+	std::cout << "Dialogue::Dialogue()" << std::endl;
 }
 
 
 /* virtual */
 void
-Dialogue::operator()()
+DialogAction::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
-	if (actor == NULL)
+	Object* object = Script::FindSenderObject(fObject, fActionParams);
+	if (object == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(actor, fActionParams));
-	if (target == NULL){
+	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(object, fActionParams));
+	if (target == NULL) {
 		SetCompleted();
 		return;
 	}
 
+	std::cout << "object: " << object->Name();
+	std::cout << "target: " << target->Name();
+	std::cout << std::endl;
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
 /*
@@ -727,10 +731,11 @@ Dialogue::operator()()
 		fActor.Target()->MoveToNextPointInPath(fActor.Target()->IsFlying());
 	} else {
 */
-		actor->SetAnimationAction(ACT_STANDING);
+		//SetAnimationAction(ACT_STANDING);
+		target->InitiateDialogWith(NULL);
 		SetCompleted();
-		actor->InitiateDialogWith(target);
 	//}
+	throw "ASHDADAS";
 }
 
 
