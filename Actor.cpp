@@ -142,6 +142,10 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
+	// Replace actor name with dialog file
+	// TODO: Correct ?
+	if (strcmp(fCRE->DialogFile().CString(), "None") != 0)
+		SetName(fCRE->DialogFile().CString());
 	_HandleScripts();
 
 #if 0
@@ -581,10 +585,14 @@ Actor::InitiateDialogWith(Actor* actor)
 	std::cout << "InitiateDialogWith ";
 
 	const res_ref dialogFile = CRE()->DialogFile();
-	std::cout << dialogFile << std::endl;
-	Dialog* dialog = new Dialog(dialogFile);
-	dialog->Start();
-	delete dialog;
+	if (dialogFile.name[0] == '\0')
+		std::cout << "EMPTY DIALOG FILE" << std::endl;
+	else {
+			std::cout << dialogFile << std::endl;
+			Dialog* dialog = new Dialog(dialogFile);
+			dialog->Start();
+			delete dialog;
+	}
 }
 
 
