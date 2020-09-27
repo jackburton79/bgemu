@@ -735,7 +735,6 @@ DialogAction::operator()()
 		target->InitiateDialogWith(NULL);
 		SetCompleted();
 	//}
-	throw "ASHDADAS";
 }
 
 
