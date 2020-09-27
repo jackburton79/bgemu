@@ -588,10 +588,10 @@ Actor::InitiateDialogWith(Actor* actor)
 	if (dialogFile.name[0] == '\0')
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 	else {
-			std::cout << dialogFile << std::endl;
-			Dialog* dialog = new Dialog(dialogFile);
-			dialog->Start();
-			delete dialog;
+		std::cout << dialogFile << std::endl;
+		Dialog* dialog = new Dialog(dialogFile);
+		dialog->Start();
+		delete dialog;
 	}
 }
 

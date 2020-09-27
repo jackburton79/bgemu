@@ -714,6 +714,12 @@ DialogAction::operator()()
 		return;
 	}
 
+	if (!Initiated()) {
+			Actor* actor = dynamic_cast<Actor*>(object);
+			if (actor != NULL)
+				actor->InitiateDialogWith(target);
+			SetInitiated();
+	}
 	std::cout << "object: " << object->Name();
 	std::cout << "target: " << target->Name();
 	std::cout << std::endl;
@@ -724,7 +730,7 @@ DialogAction::operator()()
 	if (!PointSufficientlyClose(fActor.Target()->Destination(), point))
 		fActor.Target()->SetDestination(point);
 */
-	SetInitiated();
+
 /*
 	if (!PointSufficientlyClose(fActor.Target()->Position(), fTarget->Target()->Position())) {
 		fActor.Target()->SetAnimationAction(ACT_WALKING);
@@ -732,8 +738,7 @@ DialogAction::operator()()
 	} else {
 */
 		//SetAnimationAction(ACT_STANDING);
-		target->InitiateDialogWith(NULL);
-		SetCompleted();
+	SetCompleted();
 	//}
 }
 

@@ -13,8 +13,9 @@
 
 Dialog::Dialog(const res_ref& name)
 {
+	std::cout << "Dialog(" << name << ")" << std::endl;
 	fDLG = gResManager->GetDLG(name);
-
+	std::cout << "OK" << std::endl;
 }
 
 
@@ -27,5 +28,8 @@ Dialog::~Dialog()
 void
 Dialog::Start()
 {
-	fDLG->StartDialog();
+	if (fDLG == NULL)
+		std::cout << "Dialog::Start(): BUG! fDLG is empty!!!!" << std::endl;
+	else
+		fDLG->StartDialog();
 }
