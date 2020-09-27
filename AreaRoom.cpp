@@ -438,7 +438,7 @@ AreaRoom::DrawActor(const Actor& actor)
 			// Pre-render the string to a bitmap
 		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
 		font->RenderString(text, 0, bitmap, true, rect);
-			IE::point textPoint = actorPosition;
+		IE::point textPoint = actorPosition;
 		textPoint.y -= 100;
 		DrawBitmap(bitmap, textPoint, false);
 		bitmap->Release();
