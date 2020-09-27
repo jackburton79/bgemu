@@ -160,7 +160,7 @@ public:
 
 	IE::item ItemAtSlot(uint32 i);
 
-	const char *DialogFile();
+	std::string DialogFile();
 	const char *DeathVariable();
 
 private:
