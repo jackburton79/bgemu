@@ -297,13 +297,11 @@ CREResource::GetAttributes(BaseAttributes &attributes)
 }
 
 
-std::string
+res_ref
 CREResource::DialogFile()
 {
-	char temp[10];
-	std::string dialogFile;
-	fData->ReadAt(0x2cc, temp, 8);
-	dialogFile = temp;
+	res_ref dialogFile;
+	fData->ReadAt(0x2cc, dialogFile.name, 8);
 	return dialogFile;
 }
 

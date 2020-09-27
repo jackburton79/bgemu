@@ -219,6 +219,7 @@ Actor::Print() const
 	std::cout << " (" << (int)cre->General() << ")" << std::endl;
 	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific());
 	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
+	std::cout << "Dialog: " << cre->DialogFile() << std::endl;
 	std::cout << "*********" << std::endl;
 }
 
@@ -578,9 +579,10 @@ void
 Actor::InitiateDialogWith(Actor* actor)
 {
 	std::cout << "InitiateDialogWith ";
-	if (fActor->dialog.CString() != NULL)
-		std::cout << fActor->dialog << std::endl;
-	Dialog* dialog = new Dialog(fActor->dialog);
+
+	const res_ref dialogFile = CRE()->DialogFile();
+	std::cout << dialogFile << std::endl;
+	Dialog* dialog = new Dialog(dialogFile);
 	dialog->Start();
 	delete dialog;
 }
