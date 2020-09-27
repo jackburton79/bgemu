@@ -25,6 +25,7 @@ public:
 
 	void StartDialog();
 
+	static Resource* Create(const res_ref& name);
 private:
 	virtual ~DLGResource();
 

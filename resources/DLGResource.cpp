@@ -12,6 +12,14 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
+/* static */
+Resource*
+DLGResource::Create(const res_ref& name)
+{
+	return new DLGResource(name);
+}
+
+
 DLGResource::DLGResource(const res_ref& name)
 	:
 	Resource(name, RES_DLG)
