@@ -12,6 +12,13 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
+
+struct state_trigger {
+	uint32 offset;
+	uint32 length;
+};
+
+
 /* static */
 Resource*
 DLGResource::Create(const res_ref& name)
@@ -37,7 +44,12 @@ DLGResource::StartDialog()
 {
 	dlg_state state = _GetStateAt(0);
 	std::cout << "*** STARTDIALOG ***" << std::endl;
+
 	std::cout << state.text_ref << std::endl;
+	std::cout << "trigger: " << state.trigger << std::endl;
+	std::string triggerString = _GetStateTrigger(state.trigger);
+
+	std::cout << "trigger: " << triggerString << std::endl;
 }
 
 
@@ -73,4 +85,21 @@ DLGResource::_GetStateAt(int index)
 	struct dlg_state dlgState;
 	fData->ReadAt(fStateTableOffset + index * sizeof(dlg_state), dlgState);
 	return dlgState;
+}
+
+
+std::string
+DLGResource::_GetStateTrigger(int triggerIndex)
+{
+	state_trigger stateTrigger;
+	uint32 offset = fStateTriggersTableOffset
+			+ triggerIndex * sizeof(state_trigger);
+	fData->Seek(offset, SEEK_SET);
+	fData->Read(stateTrigger);
+
+	char triggerData[64];
+	fData->ReadAt(stateTrigger.offset, triggerData, stateTrigger.length);
+	triggerData[stateTrigger.length] = '\0';
+	std::string string = triggerData;
+	return string;
 }

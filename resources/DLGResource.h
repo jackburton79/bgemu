@@ -30,6 +30,7 @@ private:
 	virtual ~DLGResource();
 
 	struct dlg_state _GetStateAt(int index);
+	std::string _GetStateTrigger(int triggerIndex);
 
 	uint32 fNumStates;
 	uint32 fStateTableOffset;
