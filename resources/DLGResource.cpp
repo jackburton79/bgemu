@@ -8,6 +8,7 @@
 #include "DLGResource.h"
 
 #include "MemoryStream.h"
+#include "ResManager.h"
 
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
@@ -46,13 +47,14 @@ DLGResource::GetNextState(int32& index)
 		throw std::out_of_range("GetNextState()");
 
 	dlg_state state = _GetStateAt(index);
-	std::cout << "trigger: " << state.trigger << std::endl;
-	std::string triggerString = _GetStateTrigger(state.trigger);
+	std::string triggerString = "";
+	if (state.trigger != -1)
+		triggerString = _GetStateTrigger(state.trigger);
 
 	std::cout << "trigger: " << triggerString << std::endl;
 
 	DialogState dialogState;
-	dialogState.text = state.text_ref;
+	dialogState.text = IDTable::GetDialog(state.text_ref);
 	dialogState.trigger = triggerString;
 
 	index++;

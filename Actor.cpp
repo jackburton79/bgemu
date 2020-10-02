@@ -603,7 +603,9 @@ Actor::InitiateDialogWith(Actor* actor)
 		while (true) {
 			try {
 					dialogState = fDLG->GetNextState(i);
-					std::cout << dialogState.trigger << std::endl;
+					if (!dialogState.trigger.empty())
+						std::cout << dialogState.trigger << std::endl;
+					std::cout << dialogState.text << std::endl;
 			} catch (...) {
 					break;
 			}
