@@ -11,7 +11,7 @@
 #include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
-#include "Dialog.h"
+#include "DLGResource.h"
 #include "Door.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
@@ -40,6 +40,8 @@ Actor::Actor(IE::actor &actor)
 	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(false),
+	fColors(NULL),
+	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -57,6 +59,8 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fAnimationFactory(NULL),
 	fCRE(cre),
 	fOwnsActor(false),
+	fColors(NULL),
+	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -74,6 +78,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fAnimationFactory(NULL),
 	fCRE(NULL),
 	fOwnsActor(true),
+	fColors(NULL),
+	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -100,7 +106,6 @@ Actor::_Init()
 	fCurrentAnimation = NULL;
 	fAnimationValid = false;
 	fTileCell = NULL;
-	fColors = NULL;
 	fRegion = NULL;
 
 	if (fCRE == NULL) {
@@ -584,14 +589,25 @@ Actor::InitiateDialogWith(Actor* actor)
 {
 	std::cout << "InitiateDialogWith ";
 
+	assert(fDLG == NULL);
+
 	const res_ref dialogFile = CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0')
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 	else {
 		std::cout << dialogFile << std::endl;
-		Dialog* dialog = new Dialog(dialogFile);
-		dialog->Start();
-		delete dialog;
+
+		fDLG = gResManager->GetDLG(dialogFile);
+		int32 i = 0;
+		DialogState dialogState;
+		while (true) {
+			try {
+					dialogState = fDLG->GetNextState(i);
+					std::cout << dialogState.trigger << std::endl;
+			} catch (...) {
+					break;
+			}
+		}
 	}
 }
 

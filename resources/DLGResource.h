@@ -17,15 +17,24 @@ struct dlg_state {
 	int32 trigger;
 };
 
+
+class DialogState {
+public:
+	std::string trigger;
+	std::string text;
+};
+
+
 class DLGResource : public Resource {
 public:
 	DLGResource(const res_ref& name);
 
 	virtual bool Load(Archive* archive, uint32 key);
 
-	void StartDialog();
+	DialogState GetNextState(int32& index);
 
 	static Resource* Create(const res_ref& name);
+
 private:
 	virtual ~DLGResource();
 

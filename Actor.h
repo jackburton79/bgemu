@@ -19,6 +19,7 @@ class AnimationFactory;
 class Bitmap;
 class BCSResource;
 class CREResource;
+class DLGResource;
 class PathFinder;
 class Region;
 class Script;
@@ -125,6 +126,8 @@ private:
 	bool fOwnsActor;
 
 	CREColors* fColors;
+
+	DLGResource* fDLG;
 
 	bool fFlying;
 	bool fSelected;

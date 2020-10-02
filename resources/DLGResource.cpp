@@ -39,17 +39,25 @@ DLGResource::~DLGResource()
 }
 
 
-void
-DLGResource::StartDialog()
+DialogState
+DLGResource::GetNextState(int32& index)
 {
-	dlg_state state = _GetStateAt(0);
-	std::cout << "*** STARTDIALOG ***" << std::endl;
+	if ((uint32)index == fNumStates)
+		throw std::out_of_range("GetNextState()");
 
-	std::cout << state.text_ref << std::endl;
+	dlg_state state = _GetStateAt(index);
 	std::cout << "trigger: " << state.trigger << std::endl;
 	std::string triggerString = _GetStateTrigger(state.trigger);
 
 	std::cout << "trigger: " << triggerString << std::endl;
+
+	DialogState dialogState;
+	dialogState.text = state.text_ref;
+	dialogState.trigger = triggerString;
+
+	index++;
+
+	return dialogState;
 }
 
 
@@ -103,3 +111,4 @@ DLGResource::_GetStateTrigger(int triggerIndex)
 	std::string string = triggerData;
 	return string;
 }
+
