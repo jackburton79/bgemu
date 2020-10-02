@@ -51,8 +51,6 @@ DLGResource::GetNextState(int32& index)
 	if (state.trigger != -1)
 		triggerString = _GetStateTrigger(state.trigger);
 
-	std::cout << "trigger: " << triggerString << std::endl;
-
 	DialogState dialogState;
 	dialogState.text = IDTable::GetDialog(state.text_ref);
 	dialogState.trigger = triggerString;
