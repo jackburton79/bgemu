@@ -15,8 +15,6 @@ enum token_type {
 	TOKEN_UNKNOWN
 };
 
-struct node;
-typedef std::vector<node*> node_list;
 
 struct token {
 	token();
@@ -32,64 +30,8 @@ struct token {
 
 bool operator==(const struct token &t1, const struct token &t2);
 
-
-class Stream;
-class Tokenizer {
-public:
-	Tokenizer();
-	Tokenizer(Stream *stream, int32 position);
-	void SetTo(Stream *stream, int32 position);
-
-	token ReadToken();
-	token ReadNextToken();
-	void RewindToken(const token &tok);
-
-	void SetDebug(bool state);
-
-	static bool IsSeparator(char const &c);
-private:
-	void _SkipSeparators();
-	int32 _ReadFullToken(char *dest, int32 start);
-
-	Stream *fStream;
-	int32 fPosition;
-	bool fDebug;
-};
-
-
-struct specific;
-class Parser {
-public:
-	Parser();
-	~Parser();
-	void SetTo(Stream *stream);
-
-	token ReadToken();
-	void Read(node*& root);
-	void PrintNode(node* n) const;
-
-	void SetDebug(bool debug);
-
-private:
-	void _SkipUselessTokens();
-
-	void _ReadElementGuard(node*& n);
-	void _ReadElement(node*& n);
-	void _ReadElementValue(node* n, const token& tok);
-
-	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
-	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
-	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
-	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
-
-	void _FixNode(::node *node);
-
-	static int _BlockTypeFromToken(const token &tok);
-
-	Stream *fStream;
-	Tokenizer *fTokenizer;
-	bool fDebug;
-};
+struct node;
+typedef std::vector<node*> node_list;
 
 struct node {
 	static node* Create(int type, const char *string);
@@ -115,6 +57,7 @@ protected:
 };
 
 bool operator==(const node &, const node &);
+
 
 struct trigger_node : public node {
 	virtual void Print() const;
@@ -172,5 +115,62 @@ struct response_node : public node {
 	response_node();
 };
 
+
+class Stream;
+class Tokenizer {
+public:
+	Tokenizer();
+	Tokenizer(Stream *stream, int32 position);
+	void SetTo(Stream *stream, int32 position);
+
+	token ReadToken();
+	token ReadNextToken();
+	void RewindToken(const token &tok);
+
+	void SetDebug(bool state);
+
+	static bool IsSeparator(char const &c);
+private:
+	void _SkipSeparators();
+	int32 _ReadFullToken(char *dest, int32 start);
+
+	Stream *fStream;
+	int32 fPosition;
+	bool fDebug;
+};
+
+
+class Parser {
+public:
+	Parser();
+	~Parser();
+	void SetTo(Stream *stream);
+
+	token ReadToken();
+	void Read(node*& root);
+	void PrintNode(node* n) const;
+	
+	void SetDebug(bool debug);
+
+private:
+	void _SkipUselessTokens();
+
+	void _ReadElementGuard(node*& n);
+	void _ReadElement(node*& n);
+	void _ReadElementValue(node* n, const token& tok);
+
+	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
+	
+	void _FixNode(::node *node);
+
+	static int _BlockTypeFromToken(const token &tok);
+
+	Stream *fStream;
+	Tokenizer *fTokenizer;
+	bool fDebug;
+};
 
 #endif // __PARSING_H
