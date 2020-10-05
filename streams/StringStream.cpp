@@ -18,6 +18,14 @@ StringStream::StringStream(const char* string)
 }
 
 
+StringStream::StringStream(std::string string)
+	:
+	MemoryStream(string.length() + 1)
+{
+	Write(string.c_str(), string.length());
+}
+
+
 StringStream::~StringStream()
 {
 }
