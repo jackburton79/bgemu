@@ -24,7 +24,7 @@ public:
 	virtual MemoryStream* Clone() const;
 	virtual MemoryStream* Adopt();
 
-public:
+private:
 	uint8 *fData;
 	size_t fSize;
 	off_t fPosition;
