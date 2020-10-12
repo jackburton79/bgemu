@@ -71,7 +71,8 @@ Effect::_LoadBitmaps()
 	//uint32 secondSequence = fVVC->MiddleSequenceIndex();
 	//uint32 thirdSequence = fVVC->EndingSequenceIndex();
 
-	for (int16 i = 0; i < bam->CountFrames(firstSequence); i++) {
+	uint16 count = bam->CountFrames(firstSequence);
+	for (int16 i = 0; i < count; i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(firstSequence, i);
 		if (fVVC->DisplayFlags() & EFF_DISPLAY_MIRROR_X)
 			bitmap->Mirror();
