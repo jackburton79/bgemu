@@ -21,8 +21,12 @@ token::token()
 
 
 token::token(const char *tok)
+	:
+	type(TOKEN_UNKNOWN),
+	size(0)
 {
 	strncpy(u.string, tok, sizeof(u.string));
+	size = strlen(u.string);
 
 	if (!memcmp(tok, "SC", 2)
 		|| !memcmp(tok, "CR", 2)
