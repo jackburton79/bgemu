@@ -515,24 +515,23 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 		char* ptr = dest;
 		for (;;) {
 			char c = fStream->ReadByte();
-			if (Tokenizer::IsSeparator(c))
+			if (Tokenizer::IsSeparator(c)) {
+				fStream->Seek(-1, SEEK_CUR);
 				break;
+			}
 			*ptr++ = c;
 			if (c == '"') {
 				if (!quotesOpen) {
 					quotesOpen = true;
 				} else {
-					// Seek 1 forward since later we subtract 1.
-					// TODO: Fix differently
-					fStream->Seek(1, SEEK_CUR);
 					break;
 				}
 			}
 		}
 	} catch (...) {
-		//printf("end of stream exception\n");
+		//std::cerr << "end of stream exception" << std::endl;
 	}
-	return fStream->Position() - 1 - start;
+	return fStream->Position() - start;
 }
 
 
