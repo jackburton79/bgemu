@@ -128,11 +128,21 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 
 		// We remove the "", that's why we start from token.u.string + 1 and copy size - 2
 		token stringToken = tokenizer->ReadToken();
-		strncpy(trig->string1, stringToken.u.string + 1, stringToken.size - 2);
-		trig->string1[stringToken.size - 2] = '\0';
+		size_t newTokenSize = 0;
+		if (stringToken.size > 2) {
+			// less than 2 means it's an empty string, like ""
+			newTokenSize = stringToken.size - 2;
+			strncpy(trig->string1, stringToken.u.string + 1, newTokenSize);
+		}
+		trig->string1[newTokenSize] = '\0';
+
 		token stringToken2 = tokenizer->ReadToken();
-		strncpy(trig->string2, stringToken2.u.string + 1, stringToken.size - 2);
-		trig->string2[stringToken2.size - 2] = '\0';
+		size_t newTokenSize2 = 0;
+		if (stringToken2.size > 2) {
+			newTokenSize2 = stringToken2.size - 2;
+			strncpy(trig->string2, stringToken2.u.string + 1, newTokenSize2);
+		}
+		trig->string2[newTokenSize2] = '\0';
 	}
 }
 
@@ -215,15 +225,12 @@ void
 Parser::_ReadElementGuard(node*& n)
 {
 	token tok = fTokenizer->ReadNextToken();
-	if (tok.type == TOKEN_BLOCK_GUARD) {
-		int blockType = Parser::_BlockTypeFromToken(tok);
-		if (n == NULL)
-			n = node::Create(blockType, tok.u.string);
-		else if (!n->closed && blockType == n->type) {
-			n->closed = true;
-		}
-	} else
-		fTokenizer->RewindToken(tok);
+	int blockType = Parser::_BlockTypeFromToken(tok);
+	if (n == NULL)
+		n = node::Create(blockType, tok.u.string);
+	else if (!n->closed && blockType == n->type) {
+		n->closed = true;
+	}
 }
 
 
@@ -440,7 +447,7 @@ Tokenizer::ReadNextToken()
 		case '"':
 		{
 			aToken.type = TOKEN_STRING;
-			aToken.size = strrchr(array, '"') - array + 1;
+			aToken.size = supposedSize;
 			memcpy(aToken.u.string, array, aToken.size);
 			aToken.u.string[aToken.size] = '\0';
 			break;
@@ -458,11 +465,12 @@ Tokenizer::ReadNextToken()
 	}
 
 	if (fDebug) {
-		std::cout << "token: type " << std::dec << aToken.type << ", value ";
+		std::cout << "token: type " << std::dec << aToken.type << ", size ";
+		std::cout << aToken.size << ", value ";
 		if (aToken.type == TOKEN_NUMBER)
 			std::cout << aToken.u.number;
 		else
-			std::cout << aToken.u.string;
+			std::cout << "'* " << aToken.u.string << " *'";
 		std::cout << std::endl;
 	}
 	// We could have read too much, rewind a bit if needed
@@ -502,6 +510,7 @@ Tokenizer::_SkipSeparators()
 int32
 Tokenizer::_ReadFullToken(char* dest, int32 start)
 {
+	bool quotesOpen = false;
 	try {
 		char* ptr = dest;
 		for (;;) {
@@ -509,6 +518,16 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 			if (Tokenizer::IsSeparator(c))
 				break;
 			*ptr++ = c;
+			if (c == '"') {
+				if (!quotesOpen) {
+					quotesOpen = true;
+				} else {
+					// Seek 1 forward since later we subtract 1.
+					// TODO: Fix differently
+					fStream->Seek(1, SEEK_CUR);
+					break;
+				}
+			}
 		}
 	} catch (...) {
 		//printf("end of stream exception\n");
