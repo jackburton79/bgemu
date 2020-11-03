@@ -588,7 +588,6 @@ void
 Actor::InitiateDialogWith(Actor* actor)
 {
 	std::cout << "InitiateDialogWith ";
-
 	assert(fDLG == NULL);
 
 	const res_ref dialogFile = CRE()->DialogFile();
@@ -610,6 +609,8 @@ Actor::InitiateDialogWith(Actor* actor)
 					break;
 			}
 		}
+		gResManager->ReleaseResource(fDLG);
+		fDLG = NULL;
 	}
 }
 
