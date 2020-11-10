@@ -152,6 +152,8 @@ public:
 	
 	void SetDebug(bool debug);
 
+	static trigger_node TriggerFromString(const std::string& string);
+
 private:
 	void _SkipUselessTokens();
 

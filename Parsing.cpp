@@ -101,6 +101,16 @@ Parser::SetDebug(bool debug)
 }
 
 
+/* static */
+trigger_node
+Parser::TriggerFromString(const std::string& string)
+{
+	trigger_node node;
+	return node;
+	//node.id =
+}
+
+
 void
 Parser::Read(node*& rootNode)
 {
