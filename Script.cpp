@@ -420,7 +420,7 @@ Script::IsActionInstant(uint16 id) const
 		return false;
 
 	bool returnValue = instants->StringForID(id) != "";
-	std::cout << actionName << " is" << (returnValue ? "" : " not") << " instant." << std::endl;		
+	//std::cout << actionName << " is" << (returnValue ? "" : " not") << " instant." << std::endl;
 	gResManager->ReleaseResource(instants);
 
 	return returnValue;
