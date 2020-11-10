@@ -38,6 +38,8 @@ Actor::Actor(IE::actor &actor)
 	Object(actor.name, Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
+	fCurrentAnimation(NULL),
+	fAnimationValid(false),
 	fCRE(NULL),
 	fOwnsActor(false),
 	fColors(NULL),
@@ -46,7 +48,9 @@ Actor::Actor(IE::actor &actor)
 	fSelected(false),
 	fAction(ACT_STANDING),
 	fPath(NULL),
-	fSpeed(2)
+	fSpeed(2),
+	fTileCell(NULL),
+	fRegion(NULL)
 {
 	_Init();
 }
@@ -57,6 +61,8 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	Object(actor.name, Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
+	fCurrentAnimation(NULL),
+	fAnimationValid(false),
 	fCRE(cre),
 	fOwnsActor(false),
 	fColors(NULL),
@@ -65,7 +71,9 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fSelected(false),
 	fAction(ACT_STANDING),
 	fPath(NULL),
-	fSpeed(2)
+	fSpeed(2),
+	fTileCell(NULL),
+	fRegion(NULL)
 {
 	_Init();
 }
@@ -76,6 +84,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	Object(creName, Object::ACTOR),
 	fActor(NULL),
 	fAnimationFactory(NULL),
+	fCurrentAnimation(NULL),
+	fAnimationValid(false),
 	fCRE(NULL),
 	fOwnsActor(true),
 	fColors(NULL),
@@ -84,7 +94,9 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fSelected(false),
 	fAction(ACT_STANDING),
 	fPath(NULL),
-	fSpeed(2)
+	fSpeed(2),
+	fTileCell(NULL),
+	fRegion(NULL)
 {
 	fActor = new IE::actor;
 	fActor->cre = creName;
@@ -93,7 +105,8 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor->orientation = face;
 	//fActor->orientation = 0;
 	
-	_SetPositionPrivate(position);
+	fActor->position = position;
+	//_SetPositionPrivate(position);
 
 	_Init();
 }
@@ -102,12 +115,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 void
 Actor::_Init()
 {
-	fSelected = false;
-	fCurrentAnimation = NULL;
-	fAnimationValid = false;
-	fTileCell = NULL;
-	fRegion = NULL;
-
 	if (fCRE == NULL) {
 		// We need a new instance of the CRE file for every actor,
 		// since the state of the actor is written in there
@@ -149,7 +156,7 @@ Actor::_Init()
 
 	// Replace actor name with dialog file
 	// TODO: Correct ?
-	if (strcmp(fCRE->DialogFile().CString(), "None") != 0)
+	if (strcasecmp(fCRE->DialogFile().CString(), "None") != 0)
 		SetName(fCRE->DialogFile().CString());
 	_HandleScripts();
 
@@ -591,7 +598,8 @@ Actor::InitiateDialogWith(Actor* actor)
 	assert(fDLG == NULL);
 
 	const res_ref dialogFile = CRE()->DialogFile();
-	if (dialogFile.name[0] == '\0')
+	if (dialogFile.name[0] == '\0'
+			|| strcasecmp(dialogFile.CString(), "None") == 0)
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 	else {
 		std::cout << dialogFile << std::endl;
@@ -602,8 +610,10 @@ Actor::InitiateDialogWith(Actor* actor)
 		while (true) {
 			try {
 					dialogState = fDLG->GetNextState(i);
-					if (!dialogState.trigger.empty())
+					if (!dialogState.trigger.empty()) {
 						std::cout << dialogState.trigger << std::endl;
+						trigger_node triggerNode = Parser::TriggerFromString(dialogState.trigger);
+					}
 					std::cout << dialogState.text << std::endl;
 			} catch (...) {
 					break;
