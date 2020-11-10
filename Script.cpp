@@ -157,17 +157,19 @@ Script::FindSenderObject(Object* object, action_node* start)
 {
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode == NULL || objectNode->Empty()) {
-		std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
+		if (sDebug)
+			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
 		return object;
 	}
 	
 	Object* result = GetObject(object, objectNode);
 	if (result == NULL) {
-		std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
+		if (sDebug)
+			std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
 		return object;
 	}
-
-	std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
+	if (sDebug)
+		std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
 	return result;
 }
 
@@ -175,21 +177,25 @@ Script::FindSenderObject(Object* object, action_node* start)
 Object*
 Script::FindTargetObject(Object* object, action_node* start)
 {
-	std::cout << "FindTargetObject:" << std::endl;
+	if (sDebug)
+		std::cout << "FindTargetObject:" << std::endl;
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode != NULL)
 		objectNode = static_cast<object_node*>(objectNode->Next());
 
 	if (objectNode == NULL || objectNode->Empty()) {
-		std::cout << "FindTargetObject returned NULL" << std::endl;
+		if (sDebug)
+			std::cout << "FindTargetObject returned NULL" << std::endl;
 		return NULL;
 	}
 
-	objectNode->Print();
-	std::cout << std::endl;
-	
+	if (sDebug) {
+		objectNode->Print();
+		std::cout << std::endl;
+	}
 	Object* result = GetObject(object, objectNode);
-	std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
+	if (sDebug)
+		std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
 	return result;
 }
 
@@ -332,13 +338,16 @@ Script::ResolveIdentifier(Object* object, const int id)
 Object*
 Script::GetObject(Object* source, object_node* node)
 {
-	std::cout << "Script::GetObject() ";
+	if (sDebug)
+		std::cout << "Script::GetObject() ";
 	Object* result = NULL;
 	if (node->name[0] != '\0') {
-		std::cout << "Specified name: " << node->name << std::endl; 
+		if (sDebug)
+			std::cout << "Specified name: " << node->name << std::endl;
 		result = Core::Get()->GetObject(node->name);
 	} else if (node->identifiers[0] != 0) {
-		std::cout << "Specified identifiers: " ;
+		if (sDebug)
+			std::cout << "Specified identifiers: " ;
 		std::vector<std::string> identifiersList;
 		// If there are any identifiers, use those to get the object
 		Actor* target = NULL;
@@ -354,11 +363,13 @@ Script::GetObject(Object* source, object_node* node)
 				source->Print();*/
 		}
 
-		for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();
-				i != identifiersList.rend(); i++) {
-			std::cout << *i << "->";
+		if (sDebug) {
+			for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();
+					i != identifiersList.rend(); i++) {
+				std::cout << *i << "->";
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 		// TODO: Filter using wildcards in node
 		/*std::cout << "returned ";
 		if (target != NULL)
@@ -373,13 +384,14 @@ Script::GetObject(Object* source, object_node* node)
 		if (wildCard != NULL)
 			result = dynamic_cast<Actor*>(wildCard);
 	}
-
-	std::cout << "Script::GetObject() returned. ";
-	if (result != NULL) {
-		std::cout << "Found: ";
-		result->Print();
-	} else
-		std::cout << "Found NONE" << std::endl;
+	if (sDebug) {
+		std::cout << "Script::GetObject() returned. ";
+		if (result != NULL) {
+			std::cout << "Found: ";
+			result->Print();
+		} else
+			std::cout << "Found NONE" << std::endl;
+	}
 	return result;
 }
 
@@ -670,7 +682,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				 * the specified object which must not be hidden or invisible.
 				 */
 				returnValue = actor->CanSee(FindTriggerObject(fSender, trig));
-				std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
+				//std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
 			case 0x401E:
@@ -934,9 +946,11 @@ Script::_HandleResponseSet(node* responseSet)
 		i++;
 	}
 	
-	for (int p = 0; p < i; p++) {
-		std::cout << "response " << p << ": probability ";
-		std::cout << std::dec << responses[p]->probability << std::endl;
+	if (sDebug) {
+		for (int p = 0; p < i; p++) {
+			std::cout << "response " << p << ": probability ";
+			std::cout << std::dec << responses[p]->probability << std::endl;
+		}
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, i);
