@@ -378,7 +378,8 @@ Script::GetObject(Object* source, object_node* node)
 			std::cout << "NONE" << std::endl;*/
 		result = target;
 	} else {
-		std::cout << "Specified wildcards (BUGGY):" << std::endl;
+		if (sDebug)
+			std::cout << "Specified wildcards (BUGGY):" << std::endl;
 		// Otherwise use the other parameters
 		Object* wildCard = Core::Get()->GetObjectFromNode(node);
 		if (wildCard != NULL)
