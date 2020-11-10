@@ -30,8 +30,13 @@ const int kStandingOffset = 10;
 AnimationFactory*
 AnimationFactory::GetFactory(uint16 animationID)
 {
+	// 0xc100: ACAT: Simple
+	// 0xc700: ABOY: Split
+
+	uint8 highId = animationID >> 8;
+
 	std::string baseName = IDTable::AniSndAt(animationID);
-#if 0
+#if 1
 	std::cout << "AnimationFactory::GetFactory(";
 	std::cout << baseName << ", " << std::hex;
 	std::cout << animationID << ")" << std::endl;
@@ -56,7 +61,9 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0x5000 && animationID <= 0x9000 )
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xc000 && animationID <= 0xca00)
+				else if (highId >= 0xb4 && highId <= 0xb5)
+					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
+				else if (highId >= 0xc7 && highId <= 0xca)
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID == 0x2300 || animationID == 0x2000
 					|| (animationID >= 0xb000 && animationID <= 0xd300))
