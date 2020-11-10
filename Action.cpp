@@ -86,7 +86,7 @@ Action::Completed() const
 void
 Action::SetCompleted()
 {
-	std::cout << Name() << ":SetCompleted()!" << std::endl;
+	//std::cout << Name() << ":SetCompleted()!" << std::endl;
 	fCompleted = true;
 }
 

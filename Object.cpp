@@ -254,7 +254,7 @@ Object::ExecuteActions()
 
 	if (fCurrentAction != NULL) {
 		if (fCurrentAction->Completed()) {
-			std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
+			//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
 			delete fCurrentAction;
 			fCurrentAction = NULL;
 		}
