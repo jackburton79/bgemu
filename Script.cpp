@@ -297,7 +297,7 @@ Script::SetSender(Object* object)
 
 /* static */
 Object*
-Script::ResolveIdentifier(Object* object, const int id)
+Script::ResolveIdentifier(Object* object, object_node* node, const int id)
 {
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
@@ -330,6 +330,7 @@ Script::ResolveIdentifier(Object* object, const int id)
 
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
+	node->Print();
 	return NULL;
 }
 
@@ -358,7 +359,7 @@ Script::GetObject(Object* source, object_node* node)
 			}
 			//std::cout << IDTable::ObjectAt(identifier) << ", ";
 			identifiersList.push_back(IDTable::ObjectAt(identifier));
-			target = dynamic_cast<Actor*>(ResolveIdentifier(source, identifier));
+			target = dynamic_cast<Actor*>(ResolveIdentifier(source, node, identifier));
 			/*if (source != NULL)
 				source->Print();*/
 		}

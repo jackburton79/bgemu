@@ -48,7 +48,7 @@ public:
 	Object* Sender();
 	void SetSender(Object* object);
 
-	static Object* ResolveIdentifier(Object* object, const int id);
+	static Object* ResolveIdentifier(Object* object, object_node* node, const int id);
 	static Object* GetObject(Object* source, object_node* node);
 
 	void SetProcessed();
