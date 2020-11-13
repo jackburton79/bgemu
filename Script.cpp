@@ -328,6 +328,12 @@ Script::ResolveIdentifier(Object* object, object_node* node, const int id)
 		return object->FindTrigger("AttackedBy");
 #endif
 
+	if (identifier == "NEARESTENEMYOFTYPE") {
+		Actor* actor = dynamic_cast<Actor*>(object);
+		if (actor == NULL)
+			return NULL;
+		return Core::Get()->GetNearestEnemyOfType(actor, node->classs);
+	}
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
 	node->Print();
