@@ -32,7 +32,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 {
 	// 0xc100: ACAT: Simple
 	// 0xc700: ABOY: Split
-
+	// 0x7400: MDOG: Simple
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
@@ -57,18 +57,19 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
-				if (animationID >= 0x7f03 && animationID <= 0x7f37)
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0x5000 && animationID <= 0x9000 )
-					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (highId >= 0xb4 && highId <= 0xb5)
-					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-				else if (highId >= 0xc6 && highId <= 0xca)
-					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID == 0x2300 || animationID == 0x2000
-					|| (animationID >= 0xb000 && animationID <= 0xd300))
+				if (highId == 0x20 || highId == 0x23
+						|| highId == 0x74 || highId == 0xb0
+						|| (highId >= 0xc1 && highId <= 0xc3)
+						|| (highId >= 0xd1 && highId <= 0xd3))
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xe400 && animationID <= 0xe430)
+				else if (highId == 0x7f)
+					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+				else if (highId >= 0x50 && highId <= 0x90 )
+					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
+				else if (highId == 0xb4 || highId == 0xb5
+						|| (highId >= 0xc6 && highId <= 0xca))
+					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
+				else if (highId == 0xe4)
 					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
 				break;
 
