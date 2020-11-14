@@ -5,6 +5,7 @@
 #include "StringStream.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -55,9 +56,8 @@ operator==(const struct token &t1, const struct token &t2)
 		return false;
 
 	switch (t1.type) {
-		case TOKEN_BLOCK_GUARD:
-			return memcmp((const void*)t1.u.string, (const void*)t2.u.string, 2) == 0;
 		case TOKEN_STRING:
+		case TOKEN_BLOCK_GUARD:
 			return strncmp(t1.u.string, t2.u.string, sizeof(t1.u.string)) == 0;
 		case TOKEN_NUMBER:
 			return t1.u.number == t2.u.number;
@@ -106,8 +106,12 @@ trigger_node
 Parser::TriggerFromString(const std::string& string)
 {
 	trigger_node node;
+	//StringStream stream(string);
+	//Tokenizer tokenizer(&stream, 0);
+	//token stringToken = tokenizer.ReadToken();
+	
+	//std::cout << stringToken.u.string << std::endl;
 	return node;
-	//node.id =
 }
 
 
@@ -389,89 +393,24 @@ Tokenizer::ReadNextToken()
 
 	char array[128];
 	int32 startToken = fStream->Position();
-	int32 supposedSize = _ReadFullToken(array, startToken);
-	array[supposedSize] = '\0';
-
 	token aToken;
-	switch (array[0]) {
-		case 'S':
-		{
-			if (array[1] == 'C') {
-				aToken.type = TOKEN_BLOCK_GUARD; // script
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case 'C':
-		{
-			if (array[1] == 'R' || array[1] == 'O') {
-				aToken.type = TOKEN_BLOCK_GUARD; // condition or condition-response
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case 'T':
-		{
-			if (array[1] == 'R') {
-				aToken.type = TOKEN_BLOCK_GUARD; // trigger
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case 'O':
-		{
-			if (array[1] == 'B') {
-				aToken.type = TOKEN_BLOCK_GUARD; // object
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case 'R':
-		{
-			if (array[1] == 'E' || array[1] == 'S') {
-				aToken.type = TOKEN_BLOCK_GUARD; // response
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case 'A':
-		{
-			if (array[1] == 'C') {
-				aToken.type = TOKEN_BLOCK_GUARD; // action
-				aToken.size = 2;
-				memcpy(aToken.u.string, array, aToken.size);
-				aToken.u.string[aToken.size] = '\0';
-			}
-			break;
-		}
-		case '"':
-		{
-			aToken.type = TOKEN_STRING;
-			aToken.size = supposedSize;
-			memcpy(aToken.u.string, array, aToken.size);
-			aToken.u.string[aToken.size] = '\0';
-			break;
-		}
-		default:
-		{
-			aToken.type = TOKEN_NUMBER;
-			aToken.size = supposedSize;
-			char* rest = NULL;
-			aToken.u.number = strtol(array, &rest, 0);
-			if (rest != NULL)
-				aToken.size = std::min((int)(rest - array), aToken.size);
-			break;
-		}
+	aToken.size = _ReadFullToken(array, startToken);
+	array[aToken.size] = '\0';
+
+	if (array[0] == '"') {
+		aToken.type = TOKEN_STRING;
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else if (isalpha(array[0])) {
+		aToken.type = TOKEN_BLOCK_GUARD; // script
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else {
+		aToken.type = TOKEN_NUMBER;
+		char* rest = NULL;
+		aToken.u.number = strtol(array, &rest, 0);
+		if (rest != NULL)
+			aToken.size = std::min((int)(rest - array), aToken.size);
 	}
 
 	if (fDebug) {
