@@ -11,7 +11,6 @@
 #include <string>
 
 
-
 // token
 token::token()
 	:
@@ -37,13 +36,13 @@ token::token(const char *tok)
 		|| !memcmp(tok, "RS", 2)
 		|| !memcmp(tok, "RE", 2)
 		|| !memcmp(tok, "AC", 2))
-		type = TOKEN_BLOCK_GUARD;
+		type = TOKEN_STRING;
 	else if (tok[0] == ' ')
 		type = TOKEN_SPACE;
 	else if (tok[0] == '\n' || tok[0] == '\r')
 		type = TOKEN_END_OF_LINE;
 	else if (tok[0] == '"')
-		type = TOKEN_STRING;
+		type = TOKEN_QUOTED_STRING;
 	else
 		type = TOKEN_UNKNOWN;
 }
@@ -56,8 +55,8 @@ operator==(const struct token &t1, const struct token &t2)
 		return false;
 
 	switch (t1.type) {
+		case TOKEN_QUOTED_STRING:
 		case TOKEN_STRING:
-		case TOKEN_BLOCK_GUARD:
 			return strncmp(t1.u.string, t2.u.string, sizeof(t1.u.string)) == 0;
 		case TOKEN_NUMBER:
 			return t1.u.number == t2.u.number;
@@ -254,7 +253,7 @@ Parser::_ReadElement(::node*& node)
 	_ReadElementGuard(node);
 	for (;;) {
 		token tok = fTokenizer->ReadNextToken();
-		if (tok.type == TOKEN_BLOCK_GUARD) {
+		if (tok.type == TOKEN_STRING) {
 			fTokenizer->RewindToken(tok);
 			if (Parser::_BlockTypeFromToken(tok) == node->type) {
 				// Means the block is open, and this is
@@ -291,7 +290,7 @@ Parser::_ReadElementValue(::node* node, const token& tok)
 	if (node->value[0] != '\0')
 		strcat(node->value, " ");
 
-	if (tok.type == TOKEN_STRING) {
+	if (tok.type == TOKEN_QUOTED_STRING) {
 		strcat(node->value, tok.u.string);
 	} else if (tok.type == TOKEN_NUMBER) {
 		char numb[16];
@@ -398,11 +397,11 @@ Tokenizer::ReadNextToken()
 	array[aToken.size] = '\0';
 
 	if (array[0] == '"') {
-		aToken.type = TOKEN_STRING;
+		aToken.type = TOKEN_QUOTED_STRING;
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	} else if (isalpha(array[0])) {
-		aToken.type = TOKEN_BLOCK_GUARD; // script
+		aToken.type = TOKEN_STRING; // script
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	} else {
