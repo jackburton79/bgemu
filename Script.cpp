@@ -957,7 +957,7 @@ Script::_HandleResponseSet(node* responseSet)
 		// When _HandleAction() returns false,
 		// it means it's a CONTINUE() action.
 		if (!_HandleAction(action)) {
-			std::cout << "Continuing. Script returns" << std::endl;
+			//std::cout << "Continuing. Script returns" << std::endl;
 			return false;
 		}
 		action = static_cast<action_node*>(action->Next());

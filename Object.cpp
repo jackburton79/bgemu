@@ -517,7 +517,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 		for (int32 i = 0; i < maxLevel; i++) {
 			if (fScripts.at(i) != NULL) {
 				if (!fScripts[i]->Execute(continuing)) {
-					std::cout << Name() << ": script " << i << " returned false." << std::endl;
+					//std::cout << Name() << ": script " << i << " returned false." << std::endl;
 					break;
 				}
 			}
