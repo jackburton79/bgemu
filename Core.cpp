@@ -324,7 +324,7 @@ Core::PlaySound(const res_ref& soundRefName)
 void
 Core::RegisterObject(Object* object)
 {
-	std::cout << "Core::RegisterObject(" << object->Name() << ")" << std::endl;
+	//std::cout << "Core::RegisterObject(" << object->Name() << ")" << std::endl;
 	// TODO: Not nice.
 	// introduce a "type" field in Object, and maybe put all objects into the same list ?
 	if (Actor* actor = dynamic_cast<Actor*>(object))
