@@ -924,10 +924,10 @@ Actor::UpdateTileCell()
 
 	if (oldTileCell != newTileCell) {
 		if (oldTileCell != NULL)
-			oldTileCell->RemoveObject(this);
+			oldTileCell->ActorExitedCell(this);
 		fTileCell = newTileCell;
 		if (newTileCell != NULL)
-			newTileCell->AddObject(this);
+			newTileCell->ActorEnteredCell(this);
 	}
 }
 
@@ -962,14 +962,14 @@ Actor::_SetPositionPrivate(const IE::point& point)
 		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
 		TileCell* tile = room->BackMap()->TileAtPoint(fActor->position);
 		if (tile != NULL)
-			tile->RemoveObject(this);
+			tile->ActorExitedCell(this);
 	}
 
 	fActor->position = point;
 
 	if (room != NULL) {
 		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
-		room->BackMap()->TileAtPoint(point)->AddObject(this);
+		room->BackMap()->TileAtPoint(point)->ActorEnteredCell(this);
 	}
 }
 

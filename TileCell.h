@@ -43,8 +43,8 @@ public:
 	void SetDoor(::Door *d);
 	::Door *Door() const;
 
-	void AddObject(Actor*);
-	void RemoveObject(Actor*);
+	void ActorEnteredCell(Actor*);
+	void ActorExitedCell(Actor*);
 	uint32 GetObjects(std::vector<Actor*>& objects);
 
 	void MouseOver();

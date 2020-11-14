@@ -151,14 +151,16 @@ TileCell::SetDoor(::Door *d)
 
 
 void
-TileCell::AddObject(Actor* object)
+TileCell::ActorEnteredCell(Actor* object)
 {
 	fObjects.push_back(object);
+	// TODO: Check if actor entered regions which covers
+	// this cell (in part or completely)
 }
 
 
 void
-TileCell::RemoveObject(Actor* object)
+TileCell::ActorExitedCell(Actor* object)
 {
 	std::list<Actor*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
