@@ -932,6 +932,7 @@ Actor::UpdateTileCell()
 }
 
 
+// Called by TileCell on destruction
 void
 Actor::SetTileCell(::TileCell* cell)
 {
