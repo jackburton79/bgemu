@@ -1081,7 +1081,8 @@ Script::_HandleAction(action_node* act)
 			 */
 			// by returning false, we instruct the caller to stop
 			// executing the script
-			std::cout << "CONTINUE!!!!" << std::endl;
+			if (sDebug)
+				std::cout << "CONTINUE!!!!" << std::endl;
 			return false;
 		}
 		case 40:
