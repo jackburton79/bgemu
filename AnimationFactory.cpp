@@ -59,7 +59,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 			case GAME_BALDURSGATE2:
 				if (highId == 0x20 || highId == 0x23
 						|| highId == 0x74 || highId == 0xb0
-						|| (highId >= 0xc1 && highId <= 0xc3)
+						|| (highId >= 0xc1 && highId <= 0xc4)
 						|| (highId >= 0xd1 && highId <= 0xd3))
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				else if (highId == 0x7f)
