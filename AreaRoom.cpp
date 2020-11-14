@@ -518,7 +518,8 @@ AreaRoom::GetTileCellsForRegion(std::vector<TileCell*>& cells,
 	IE::rect regionFrame = region->Frame();
 	for (int16 x = regionFrame.x_min; x < regionFrame.x_max; x++) {
 		for (int16 y = regionFrame.y_min; y < regionFrame.y_max; y++) {
-			TileCell* cell = fBackMap->TileAt(x / TILE_WIDTH, y / TILE_HEIGHT);
+			IE::point point = {x, y};
+			TileCell* cell = fBackMap->TileAtPoint(point);
 			tileCellsSet[cell->ID()] = cell;
 		}
 	}
