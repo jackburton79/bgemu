@@ -161,6 +161,10 @@ void
 TileCell::ActorEnteredCell(Actor* object)
 {
 	fObjects.push_back(object);
+	for (std::vector<Region*>::iterator i = fRegions.begin();
+		i != fRegions.end(); i++) {
+		(*i)->AddTrigger(trigger_entry("Entered", object));
+	}
 	// TODO: Check if actor entered regions which covers
 	// this cell (in part or completely)
 }

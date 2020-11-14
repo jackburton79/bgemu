@@ -513,6 +513,7 @@ uint32
 AreaRoom::GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region)
 {
+	// TODO: Improve
 	std::map<uint16, TileCell* > tileCellsSet;
 	IE::rect regionFrame = region->Frame();
 	for (int16 x = regionFrame.x_min; x < regionFrame.x_max; x++) {
