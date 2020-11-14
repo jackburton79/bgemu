@@ -661,6 +661,9 @@ Core::RandomNumber(int32 start, int32 end)
 ::Script*
 Core::ExtractScript(const res_ref& resName)
 {
+	if (strcasecmp(resName.CString(), "None") == 0)
+		return NULL;
+
 	::Script* script = NULL;
 	BCSResource* scriptResource = gResManager->GetBCS(resName);	
 	if (scriptResource != NULL) {
