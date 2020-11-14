@@ -253,9 +253,10 @@ Parser::_ReadElement(::node*& node)
 	_ReadElementGuard(node);
 	for (;;) {
 		token tok = fTokenizer->ReadNextToken();
-		if (tok.type == TOKEN_STRING) {
+		int blockType =_BlockTypeFromToken(tok);
+		if (blockType != -1) {
 			fTokenizer->RewindToken(tok);
-			if (Parser::_BlockTypeFromToken(tok) == node->type) {
+			if (blockType == node->type) {
 				// Means the block is open, and this is
 				// the closing tag. FixNode will copy the node values
 				// to the node specific values.
@@ -345,8 +346,8 @@ Parser::_BlockTypeFromToken(const token& tok)
 	else if (tok == token("AC"))
 		return BLOCK_ACTION;
 
-	throw "Unknown block!";
-
+	// token is not a header guard
+	// so we cannot gues the block type
 	return -1;
 }
 
@@ -401,7 +402,7 @@ Tokenizer::ReadNextToken()
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	} else if (isalpha(array[0])) {
-		aToken.type = TOKEN_STRING; // script
+		aToken.type = TOKEN_STRING;
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	} else {
