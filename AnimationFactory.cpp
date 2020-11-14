@@ -62,14 +62,14 @@ AnimationFactory::GetFactory(uint16 animationID)
 						|| (highId >= 0xc1 && highId <= 0xc4)
 						|| (highId >= 0xd1 && highId <= 0xd3))
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0x7f)
+				else if (highId == 0x7f || highId == 0x73)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				else if (highId >= 0x50 && highId <= 0x90 )
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (highId == 0xb4 || highId == 0xb5
 						|| (highId >= 0xc6 && highId <= 0xca))
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0xe4)
+				else if (highId == 0xe0 || highId == 0xe4 || highId == 0xe6)
 					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
 				break;
 
