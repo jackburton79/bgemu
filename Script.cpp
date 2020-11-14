@@ -1002,7 +1002,7 @@ Script::_HandleAction(action_node* act)
 		case 3:
 		{
 			/* Attack(O:Target*) */
-			Attack* attackAction = new Attack(sender, act);
+			ActionAttack* attackAction = new ActionAttack(sender, act);
 			sender->AddAction(attackAction);
 			break;
 		}
@@ -1011,14 +1011,14 @@ Script::_HandleAction(action_node* act)
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			// TODO: If point is (-1, -1) we should put the actor near
 			// the active creature. Which one is the active creature?
-			Action* action = new CreateCreatureAction(sender, act);
+			Action* action = new ActionCreateCreature(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
 		case 8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			DialogAction* dialogueAction = new DialogAction(thisActor, act);
+			ActionDialog* dialogueAction = new ActionDialog(thisActor, act);
 			thisActor->AddAction(dialogueAction);
 			break;
 		}
@@ -1032,7 +1032,7 @@ Script::_HandleAction(action_node* act)
 		case 22:
 		{
 			// MoveToObject
-			Action* walkTo = new WalkToObject(thisActor, act);
+			Action* walkTo = new ActionWalkToObject(thisActor, act);
 			thisActor->AddAction(walkTo);
 			break;
 		}
@@ -1040,7 +1040,7 @@ Script::_HandleAction(action_node* act)
 		{
 			// MoveToPoint
 			if (thisActor != NULL) {
-				WalkTo* walkTo = new WalkTo(thisActor, act);
+				ActionWalkTo* walkTo = new ActionWalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
 				thisActor->SetInterruptable(false);
 			}
@@ -1050,7 +1050,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
 			if (thisActor != NULL) {
-				RunAwayFrom* run = new RunAwayFrom(thisActor, act);
+				ActionRunAwayFrom* run = new ActionRunAwayFrom(thisActor, act);
 				thisActor->AddAction(run);
 			}
 			break;
@@ -1058,7 +1058,7 @@ Script::_HandleAction(action_node* act)
 		case 30:
 		{
 			// SetGlobal
-			sender->AddAction(new SetGlobalAction(sender, act), runNow);
+			sender->AddAction(new ActionSetGlobal(sender, act), runNow);
 			break;
 		}
 		case 36:
@@ -1093,7 +1093,7 @@ Script::_HandleAction(action_node* act)
 			// If used on a PC, the player can override the action by
 			// issuing a standard move command.
 			if (thisActor != NULL) {
-				Action* action = new PlayDeadAction(thisActor, act);
+				Action* action = new ActionPlayDead(thisActor, act);
 				thisActor->AddAction(action);
 			}
 			break;
@@ -1101,7 +1101,7 @@ Script::_HandleAction(action_node* act)
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new MoveViewPoint(sender, act);
+			Action* action = new ActionMoveViewPoint(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
@@ -1127,7 +1127,7 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			Wait* wait = new Wait(sender, act);
+			ActionWait* wait = new ActionWait(sender, act);
 			sender->AddAction(wait);
 			break;
 		}
@@ -1135,7 +1135,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
 			if (thisActor != NULL) {
-				ChangeOrientationExtAction* action = new ChangeOrientationExtAction(thisActor, act);
+				ActionChangeOrientationExt* action = new ActionChangeOrientationExt(thisActor, act);
 				thisActor->AddAction(action);
 			}
 			break;
@@ -1143,19 +1143,19 @@ Script::_HandleAction(action_node* act)
 		case 85:
 		{
 			/* 85 RandomWalk */
-			sender->AddAction(new RandomWalk(sender, act));
+			sender->AddAction(new ActionRandomWalk(sender, act));
 			break;
 		}
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			sender->AddAction(new SetInterruptableAction(sender, act), runNow);
+			sender->AddAction(new ActionSetInterruptable(sender, act), runNow);
 			break;
 		}
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			Action* wait = new SmallWait(sender, act);
+			Action* wait = new ActionSmallWait(sender, act);
 			sender->AddAction(wait);
 			break;
 		}
@@ -1171,14 +1171,14 @@ Script::_HandleAction(action_node* act)
 		case 0x64:
 		{
 			/* 100 RandomFly */
-			RandomFly* fly = new RandomFly(thisActor, act);
+			ActionRandomFly* fly = new ActionRandomFly(thisActor, act);
 			thisActor->AddAction(fly);
 			break;
 		}
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			FlyTo* flyTo = new FlyTo(thisActor, act);
+			ActionFlyTo* flyTo = new ActionFlyTo(thisActor, act);
 			thisActor->AddAction(flyTo);
 			break;
 		}
@@ -1197,14 +1197,14 @@ Script::_HandleAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
-			Action* action = new DestroySelfAction(thisActor, act);
+			Action* action = new ActionDestroySelf(thisActor, act);
 			thisActor->AddAction(action, runNow);
 			break;
 		}
 		case 113:
 		{	
 			// FORCESPELL(O:TARGET,I:SPELL*SPELL)(113, 0x71)
-			sender->AddAction(new ForceSpell(sender, act));
+			sender->AddAction(new ActionForceSpell(sender, act));
 			break;
 		}
 		case 115:
@@ -1220,13 +1220,13 @@ Script::_HandleAction(action_node* act)
 		case 120:
 		{
 			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
-			sender->AddAction(new StartCutsceneAction(sender, act), runNow);
+			sender->AddAction(new ActionStartCutscene(sender, act), runNow);
 			break;
 		}
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
-			sender->AddAction(new StartCutsceneModeAction(sender, act), runNow);
+			sender->AddAction(new ActionStartCutsceneMode(sender, act), runNow);
 			break;
 		}
 		case 127:
@@ -1253,7 +1253,7 @@ Script::_HandleAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			Attack* attackAction = new Attack(thisActor, act);
+			ActionAttack* attackAction = new ActionAttack(thisActor, act);
 			thisActor->AddAction(attackAction);
 
 			break;
@@ -1261,7 +1261,7 @@ Script::_HandleAction(action_node* act)
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			sender->AddAction(new OpenDoor(sender, act));
+			sender->AddAction(new ActionOpenDoor(sender, act));
 			break;
 		}
 		case 151:
@@ -1271,13 +1271,13 @@ Script::_HandleAction(action_node* act)
 			 * in the message window, attributing the text to
 			 * the specified object.
 			 */
-			sender->AddAction(new DisplayMessage(sender, act));
+			sender->AddAction(new ActionDisplayMessage(sender, act));
 			break;
 		}
 		case 177:
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-			Action* action = new TriggerActivationAction(sender, act);
+			Action* action = new ActionTriggerActivation(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
@@ -1285,21 +1285,21 @@ Script::_HandleAction(action_node* act)
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
-			DialogAction* dialogueAction = new DialogAction(sender, act);
+			ActionDialog* dialogueAction = new ActionDialog(sender, act);
 			sender->AddAction(dialogueAction);
 			break;
 		}
 		case 202:
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
-			FadeToColorAction* action = new FadeToColorAction(sender, act);
+			ActionFadeToColor* action = new ActionFadeToColor(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
-			FadeFromColorAction* action = new FadeFromColorAction(sender, act);
+			ActionFadeFromColor* action = new ActionFadeFromColor(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
@@ -1312,7 +1312,7 @@ Script::_HandleAction(action_node* act)
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
 			if (thisActor != NULL) {
-				WalkTo* walkTo = new WalkTo(thisActor, act);
+				ActionWalkTo* walkTo = new ActionWalkTo(thisActor, act);
 				thisActor->AddAction(walkTo);
 				thisActor->SetInterruptable(false);
 			}
@@ -1322,7 +1322,7 @@ Script::_HandleAction(action_node* act)
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
 			// Active creature. Which is it ? For now, we use actor 0 in party		
-			Action* action = new MoveBetweenAreasEffect(sender, act);
+			Action* action = new ActionMoveBetweenAreasEffect(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
@@ -1332,53 +1332,53 @@ Script::_HandleAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Action* action = new CreateCreatureImpassableAction(sender, act);
+			Action* action = new ActionCreateCreatureImpassable(sender, act);
 			sender->AddAction(action, runNow);
 			break;
 		}
 		case 229:
 		{
 			// FACEOBJECT(O:OBJECT*)
-			Action* action = new FaceObject(sender, act);
+			Action* action = new ActionFaceObject(sender, act);
 			sender->AddAction(action);
 			break;
 		}
 		case 254:
 		{
 			/* SCREENSHAKE(P:POINT*,I:DURATION*)(254 0xfe) */
-			Action* action = new ScreenShake(sender, act);
+			Action* action = new ActionScreenShake(sender, act);
 			sender->AddAction(action);
 			break;
 		}
 		case 269:
 		{
 			// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*)(269 0x10d)
-			Action* action = new DisplayStringHead(sender, act);
+			Action* action = new ActionDisplayStringHead(sender, act);
 			sender->AddAction(action);
 			break;
 		}
 		case 272:
 		{
 			// 272 CreateVisualEffect(S:Object*,P:Location*) 0x110
-			sender->AddAction(new CreateVisualEffect(sender, act), runNow);
+			sender->AddAction(new ActionCreateVisualEffect(sender, act), runNow);
 			break;
 		}
 		case 273:
 		{
 			// CREATEVISUALEFFECTOBJECT(S:DIALOGFILE*,O:TARGET*) 
-			sender->AddAction(new CreateVisualEffectObject(sender, act), runNow);			
+			sender->AddAction(new ActionCreateVisualEffectObject(sender, act), runNow);			
 			break;
 		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			sender->AddAction(new HideGUIAction(sender, act), runNow);
+			sender->AddAction(new ActionHideGUI(sender, act), runNow);
 			break;
 		}
 		case 287:
 		{
 			/* UNHIDEGUI()(287 0x11f) */
-			sender->AddAction(new UnhideGUIAction(sender, act), runNow);
+			sender->AddAction(new ActionUnhideGUI(sender, act), runNow);
 			break;
 		}
 		case 311:
@@ -1388,7 +1388,7 @@ Script::_HandleAction(action_node* act)
 			// on the specified object (on the game-screen).
 			// The text stays onscreen until the associated sound has completed playing.
 			// TODO: use an action which plays the sound
-			Action* action = new DisplayStringHead(sender, act);
+			Action* action = new ActionDisplayStringHead(sender, act);
 			sender->AddAction(action);
 			break;
 		}

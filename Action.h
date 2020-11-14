@@ -31,180 +31,170 @@ private:
 };
 
 
-class SetGlobalAction : public Action {
+class ActionSetGlobal : public Action {
 public:
-	SetGlobalAction(Object* object, action_node* action);
+	ActionSetGlobal(Object* object, action_node* action);
 	virtual void operator()();
 };
 
 
-class CreateCreatureAction : public Action {
+class ActionCreateCreature : public Action {
 public:
-	CreateCreatureAction(Object* object, action_node* action);
+	ActionCreateCreature(Object* object, action_node* action);
 	virtual void operator()();
 };
 
 
-class CreateCreatureImpassableAction : public Action {
+class ActionCreateCreatureImpassable : public Action {
 public:
-	CreateCreatureImpassableAction(Object* object, action_node* node);
+	ActionCreateCreatureImpassable(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class TriggerActivationAction : public Action {
+class ActionTriggerActivation : public Action {
 public:
-	TriggerActivationAction(Object* object, action_node* node);
+	ActionTriggerActivation(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class DestroySelfAction : public Action {
+class ActionDestroySelf : public Action {
 public:
-	DestroySelfAction(Object* object, action_node* node);
+	ActionDestroySelf(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class ForceSpell : public Action {
+class ActionForceSpell : public Action {
 public:
-	ForceSpell(Object* object, action_node* node);
+	ActionForceSpell(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	int fDuration;
 };
 
-class MoveBetweenAreasEffect : public Action {
+
+class ActionMoveBetweenAreasEffect : public Action {
 public:
-	MoveBetweenAreasEffect(Object* object, action_node* node);
+	ActionMoveBetweenAreasEffect(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class PlayDeadAction : public Action {
+class ActionPlayDead : public Action {
 public:
-	PlayDeadAction(Object* object, action_node* node);
+	ActionPlayDead(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	uint32 fDuration;
 };
 
 
-class SetInterruptableAction : public Action {
+class ActionSetInterruptable : public Action {
 public:
-	SetInterruptableAction(Object* object, action_node* node);
+	ActionSetInterruptable(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class WalkTo : public Action {
+class ActionWalkTo : public Action {
 public:
-	WalkTo(Object* actor, action_node* node);
+	ActionWalkTo(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class WalkToObject : public Action {
+class ActionWalkToObject : public Action {
 public:
-	WalkToObject(Object* actor, action_node* node);
+	ActionWalkToObject(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class RandomFly : public Action {
+class ActionRandomFly : public Action {
 public:
-	RandomFly(Object* actor, action_node* node);
+	ActionRandomFly(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class FlyTo : public Action {
+class ActionFlyTo : public Action {
 public:
-	FlyTo(Object* actor, action_node* node);
+	ActionFlyTo(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fDestination;
 };
 
 
-class RandomWalk : public Action {
+class ActionRandomWalk : public Action {
 public:
-	RandomWalk(Object* actor, action_node* node);
+	ActionRandomWalk(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class Wait : public Action {
+class ActionWait : public Action {
 public:
-	Wait(Object* actor, action_node* node);
-	virtual void operator()();
-private:
-	int32 fWaitTime;
-};
-
-
-class SmallWait : public Action {
-public:
-	SmallWait(Object* actor, action_node* node);
+	ActionWait(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	int32 fWaitTime;
 };
 
 
-class OpenDoor : public Action {
+class ActionSmallWait : public Action {
 public:
-	OpenDoor(Object* actor, action_node* node);
+	ActionSmallWait(Object* actor, action_node* node);
+	virtual void operator()();
+private:
+	int32 fWaitTime;
+};
+
+
+class ActionOpenDoor : public Action {
+public:
+	ActionOpenDoor(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	Door* fDoor;
 };
 
 
-class DisplayMessage : public Action {
+class ActionDisplayMessage : public Action {
 public:
-	DisplayMessage(Object* actor, action_node* node);
+	ActionDisplayMessage(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class Attack : public Action {
+class ActionAttack : public Action {
 public:
-	Attack(Object* actor, action_node* node);
+	ActionAttack(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class RunAwayFrom : public Action {
+class ActionRunAwayFrom : public Action {
 public:
-	RunAwayFrom(Object* actor, action_node* node);
+	ActionRunAwayFrom(Object* actor, action_node* node);
 	virtual void operator()();
 private:
 	IE::point PointAway(Actor* actor, Actor* target);
 };
 
 
-class DialogAction : public Action {
+class ActionDialog : public Action {
 public:
-	DialogAction(Object* actor, action_node* node);
+	ActionDialog(Object* actor, action_node* node);
 	virtual void operator()();
 };
 
 
-class FadeToColorAction : public Action {
+class ActionFadeToColor : public Action {
 public:
-	FadeToColorAction(Object* object, action_node* node);
-	virtual void operator()();
-private:
-	int32 fNumUpdates;
-	int32 fCurrentValue;
-	int32 fTargetValue;
-	int16 fStepValue;
-};
-
-class FadeFromColorAction : public Action {
-public:
-	FadeFromColorAction(Object* object, action_node* node);
+	ActionFadeToColor(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	int32 fNumUpdates;
@@ -214,9 +204,21 @@ private:
 };
 
 
-class MoveViewPoint : public Action {
+class ActionFadeFromColor : public Action {
 public:
-	MoveViewPoint(Object* object, action_node* node);
+	ActionFadeFromColor(Object* object, action_node* node);
+	virtual void operator()();
+private:
+	int32 fNumUpdates;
+	int32 fCurrentValue;
+	int32 fTargetValue;
+	int16 fStepValue;
+};
+
+
+class ActionMoveViewPoint : public Action {
+public:
+	ActionMoveViewPoint(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fDestination;
@@ -224,9 +226,9 @@ private:
 };
 
 
-class ScreenShake : public Action {
+class ActionScreenShake : public Action {
 public:
-	ScreenShake(Object* object, action_node* node);
+	ActionScreenShake(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	IE::point fOffset;
@@ -234,37 +236,37 @@ private:
 };
 
 
-class StartCutsceneModeAction : public Action {
+class ActionStartCutsceneMode : public Action {
 public:
-	StartCutsceneModeAction(Object* object, action_node* node);
+	ActionStartCutsceneMode(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class StartCutsceneAction : public Action {
+class ActionStartCutscene : public Action {
 public:
-	StartCutsceneAction(Object* object, action_node* node);
+	ActionStartCutscene(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class HideGUIAction : public Action {
+class ActionHideGUI : public Action {
 public:
-	HideGUIAction(Object* object, action_node* node);
+	ActionHideGUI(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class UnhideGUIAction : public Action {
+class ActionUnhideGUI : public Action {
 public:
-	UnhideGUIAction(Object* object, action_node* node);
+	ActionUnhideGUI(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class DisplayString : public Action {
+class ActionDisplayString : public Action {
 public:
-	DisplayString(Object* object, action_node* node);
+	ActionDisplayString(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	std::string fString;
@@ -273,41 +275,41 @@ private:
 };
 
 
-class DisplayStringHead : public Action {
+class ActionDisplayStringHead : public Action {
 public:
-	DisplayStringHead(Object* object, action_node* node);
+	ActionDisplayStringHead(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	uint32 fDuration;
 };
 
 
-class ChangeOrientationExtAction : public Action {
+class ActionChangeOrientationExt : public Action {
 public:
-	ChangeOrientationExtAction(Object* object, action_node* node);
+	ActionChangeOrientationExt(Object* object, action_node* node);
 	virtual void operator()();
 private:
 	int fOrientation;
 };
 
 
-class FaceObject : public Action {
+class ActionFaceObject : public Action {
 public:
-	FaceObject(Object* object, action_node* node);
+	ActionFaceObject(Object* object, action_node* node);
 	virtual void operator()();
 };
 
 
-class CreateVisualEffect : public Action {
+class ActionCreateVisualEffect : public Action {
 public:
-	CreateVisualEffect(Object* action, action_node* node);
+	ActionCreateVisualEffect(Object* action, action_node* node);
 	virtual void operator()();
 };
 
 
-class CreateVisualEffectObject : public Action {
+class ActionCreateVisualEffectObject : public Action {
 public:
-	CreateVisualEffectObject(Object* action, action_node* node);
+	ActionCreateVisualEffectObject(Object* action, action_node* node);
 	virtual void operator()();
 };
 

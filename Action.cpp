@@ -103,7 +103,7 @@ Action::Name() const
 
 
 // SetGlobalAction
-SetGlobalAction::SetGlobalAction(Object* object, action_node* node)
+ActionSetGlobal::ActionSetGlobal(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -112,7 +112,7 @@ SetGlobalAction::SetGlobalAction(Object* object, action_node* node)
 
 /* virtual */
 void
-SetGlobalAction::operator()()
+ActionSetGlobal::operator()()
 {
 	std::string variableScope;
 	std::string variableName;
@@ -130,7 +130,7 @@ SetGlobalAction::operator()()
 
 
 // CreateCreatureAction
-CreateCreatureAction::CreateCreatureAction(Object* object, action_node* node)
+ActionCreateCreature::ActionCreateCreature(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -139,7 +139,7 @@ CreateCreatureAction::CreateCreatureAction(Object* object, action_node* node)
 
 /* virtual */
 void
-CreateCreatureAction::operator()()
+ActionCreateCreature::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -163,7 +163,7 @@ CreateCreatureAction::operator()()
 
 
 // CreateCreatureImpassableAction
-CreateCreatureImpassableAction::CreateCreatureImpassableAction(Object* object, action_node* node)
+ActionCreateCreatureImpassable::ActionCreateCreatureImpassable(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -172,7 +172,7 @@ CreateCreatureImpassableAction::CreateCreatureImpassableAction(Object* object, a
 
 /* virtual */
 void
-CreateCreatureImpassableAction::operator()()
+ActionCreateCreatureImpassable::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -188,7 +188,7 @@ CreateCreatureImpassableAction::operator()()
 
 
 // TriggerActivationAction
-TriggerActivationAction::TriggerActivationAction(Object* object, action_node* node)
+ActionTriggerActivation::ActionTriggerActivation(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -197,7 +197,7 @@ TriggerActivationAction::TriggerActivationAction(Object* object, action_node* no
 
 /* virtual */
 void
-TriggerActivationAction::operator()()
+ActionTriggerActivation::operator()()
 {
 	Region* region = dynamic_cast<Region*>(Script::FindTargetObject(fObject, fActionParams));
 	if (region != NULL)
@@ -207,7 +207,7 @@ TriggerActivationAction::operator()()
 
 
 // DestroySelfAction
-DestroySelfAction::DestroySelfAction(Object* object, action_node* node)
+ActionDestroySelf::ActionDestroySelf(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -216,7 +216,7 @@ DestroySelfAction::DestroySelfAction(Object* object, action_node* node)
 
 /* virtual */
 void
-DestroySelfAction::operator()()
+ActionDestroySelf::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -227,7 +227,7 @@ DestroySelfAction::operator()()
 
 
 // ForceSpell
-ForceSpell::ForceSpell(Object* object, action_node* node)
+ActionForceSpell::ActionForceSpell(Object* object, action_node* node)
 	:
 	Action(object, node),
 	fDuration(50)
@@ -237,7 +237,7 @@ ForceSpell::ForceSpell(Object* object, action_node* node)
 
 /* virtual */
 void
-ForceSpell::operator()()
+ActionForceSpell::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	sender->Print();
@@ -265,7 +265,7 @@ ForceSpell::operator()()
 
 
 // MoveBetweenAreasEffect
-MoveBetweenAreasEffect::MoveBetweenAreasEffect(Object* object, action_node* node)
+ActionMoveBetweenAreasEffect::ActionMoveBetweenAreasEffect(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -274,7 +274,7 @@ MoveBetweenAreasEffect::MoveBetweenAreasEffect(Object* object, action_node* node
 
 /* virtual */
 void
-MoveBetweenAreasEffect::operator()()
+ActionMoveBetweenAreasEffect::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
@@ -290,7 +290,7 @@ MoveBetweenAreasEffect::operator()()
 
 
 // PlayDeadAction
-PlayDeadAction::PlayDeadAction(Object* object, action_node* node)
+ActionPlayDead::ActionPlayDead(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -299,7 +299,7 @@ PlayDeadAction::PlayDeadAction(Object* object, action_node* node)
 
 /* virtual */
 void
-PlayDeadAction::operator()()
+ActionPlayDead::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
@@ -316,7 +316,7 @@ PlayDeadAction::operator()()
 
 
 // SetInterruptableAction
-SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node)
+ActionSetInterruptable::ActionSetInterruptable(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -325,7 +325,7 @@ SetInterruptableAction::SetInterruptableAction(Object* object, action_node* node
 
 /* virtual */
 void
-SetInterruptableAction::operator()()
+ActionSetInterruptable::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -335,7 +335,7 @@ SetInterruptableAction::operator()()
 
 
 // WalkTo
-WalkTo::WalkTo(Object* object, action_node* node)
+ActionWalkTo::ActionWalkTo(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -344,7 +344,7 @@ WalkTo::WalkTo(Object* object, action_node* node)
 
 /* virtual */
 void
-WalkTo::operator()()
+ActionWalkTo::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
@@ -360,7 +360,7 @@ WalkTo::operator()()
 
 
 // WalkToObject
-WalkToObject::WalkToObject(Object* object, action_node* node)
+ActionWalkToObject::ActionWalkToObject(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -369,7 +369,7 @@ WalkToObject::WalkToObject(Object* object, action_node* node)
 
 /* virtual */
 void
-WalkToObject::operator()()
+ActionWalkToObject::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
@@ -395,7 +395,7 @@ WalkToObject::operator()()
 }
 
 // RandomFly
-RandomFly::RandomFly(Object* object, action_node* node)
+ActionRandomFly::ActionRandomFly(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -404,7 +404,7 @@ RandomFly::RandomFly(Object* object, action_node* node)
 
 /* virtual */
 void
-RandomFly::operator()()
+ActionRandomFly::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
@@ -424,7 +424,7 @@ RandomFly::operator()()
 
 
 // FlyTo
-FlyTo::FlyTo(Object* object, action_node* node)
+ActionFlyTo::ActionFlyTo(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -433,7 +433,7 @@ FlyTo::FlyTo(Object* object, action_node* node)
 
 /* virtual */
 void
-FlyTo::operator()()
+ActionFlyTo::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
@@ -456,7 +456,7 @@ FlyTo::operator()()
 
 
 // RandomWalk
-RandomWalk::RandomWalk(Object* object, action_node* node)
+ActionRandomWalk::ActionRandomWalk(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -465,7 +465,7 @@ RandomWalk::RandomWalk(Object* object, action_node* node)
 
 /* virtual */
 void
-RandomWalk::operator()()
+ActionRandomWalk::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
@@ -484,7 +484,7 @@ RandomWalk::operator()()
 
 
 // Wait
-Wait::Wait(Object* object, action_node* node)
+ActionWait::ActionWait(Object* object, action_node* node)
 	:
 	Action(object, node),
 	fWaitTime(0)
@@ -494,7 +494,7 @@ Wait::Wait(Object* object, action_node* node)
 
 /* virtual */
 void
-Wait::operator()()
+ActionWait::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -510,7 +510,7 @@ Wait::operator()()
 
 
 // SmallWait
-SmallWait::SmallWait(Object* object, action_node* node)
+ActionSmallWait::ActionSmallWait(Object* object, action_node* node)
 	:
 	Action(object, node),
 	fWaitTime(0)
@@ -520,7 +520,7 @@ SmallWait::SmallWait(Object* object, action_node* node)
 
 /* virtual */
 void
-SmallWait::operator()()
+ActionSmallWait::operator()()
 {
 	// TODO: Sometimes there is a different sender object.
 	// Find a way to execute this action on the correct sender
@@ -541,7 +541,7 @@ SmallWait::operator()()
 
 
 // OpenDoor
-OpenDoor::OpenDoor(Object* sender, action_node* node)
+ActionOpenDoor::ActionOpenDoor(Object* sender, action_node* node)
 	:
 	Action(sender, node)
 {
@@ -550,7 +550,7 @@ OpenDoor::OpenDoor(Object* sender, action_node* node)
 
 /* virtual */
 void
-OpenDoor::operator()()
+ActionOpenDoor::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -576,7 +576,7 @@ OpenDoor::operator()()
 
 
 // DisplayMessage
-DisplayMessage::DisplayMessage(Object* sender, action_node* node)
+ActionDisplayMessage::ActionDisplayMessage(Object* sender, action_node* node)
 	:
 	Action(sender, node)
 {
@@ -585,7 +585,7 @@ DisplayMessage::DisplayMessage(Object* sender, action_node* node)
 
 /* virtual */
 void
-DisplayMessage::operator()()
+ActionDisplayMessage::operator()()
 {
 	std::cout << "DisplayMessage:: ";
 	std::cout << IDTable::GetDialog(fActionParams->integer1) << std::endl;
@@ -594,7 +594,7 @@ DisplayMessage::operator()()
 
 
 // Attack
-Attack::Attack(Object* object, action_node* node)
+ActionAttack::ActionAttack(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -603,7 +603,7 @@ Attack::Attack(Object* object, action_node* node)
 
 /* virtual */
 void
-Attack::operator()()
+ActionAttack::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (sender == NULL)
@@ -631,7 +631,7 @@ Attack::operator()()
 
 
 // RunAwayFrom
-RunAwayFrom::RunAwayFrom(Object* object, action_node* node)
+ActionRunAwayFrom::ActionRunAwayFrom(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -640,7 +640,7 @@ RunAwayFrom::RunAwayFrom(Object* object, action_node* node)
 
 /* virtual */
 void
-RunAwayFrom::operator()()
+ActionRunAwayFrom::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor == NULL)
@@ -673,7 +673,7 @@ RunAwayFrom::operator()()
 
 
 IE::point
-RunAwayFrom::PointAway(Actor* actor, Actor* target)
+ActionRunAwayFrom::PointAway(Actor* actor, Actor* target)
 {
 	IE::point targetPos = target->NearestPoint(actor->Position());
 	IE::point actorPos = actor->Position();
@@ -692,7 +692,7 @@ RunAwayFrom::PointAway(Actor* actor, Actor* target)
 
 
 // DialogAction
-DialogAction::DialogAction(Object* source, action_node* node)
+ActionDialog::ActionDialog(Object* source, action_node* node)
 	:
 	Action(source, node)
 {
@@ -702,7 +702,7 @@ DialogAction::DialogAction(Object* source, action_node* node)
 
 /* virtual */
 void
-DialogAction::operator()()
+ActionDialog::operator()()
 {
 	Object* object = Script::FindSenderObject(fObject, fActionParams);
 	if (object == NULL)
@@ -744,7 +744,7 @@ DialogAction::operator()()
 
 
 // FadeToColorAction
-FadeToColorAction::FadeToColorAction(Object* object, action_node* node)
+ActionFadeToColor::ActionFadeToColor(Object* object, action_node* node)
 	:
 	Action(object, node),
 	fCurrentValue(0),
@@ -756,7 +756,7 @@ FadeToColorAction::FadeToColorAction(Object* object, action_node* node)
 
 /* virtual */
 void
-FadeToColorAction::operator()()
+ActionFadeToColor::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -775,7 +775,7 @@ FadeToColorAction::operator()()
 }
 
 // FadeFromColorAction
-FadeFromColorAction::FadeFromColorAction(Object* object, action_node* node)
+ActionFadeFromColor::ActionFadeFromColor(Object* object, action_node* node)
 	:
 	Action(object, node),
 	fCurrentValue(0),
@@ -787,7 +787,7 @@ FadeFromColorAction::FadeFromColorAction(Object* object, action_node* node)
 
 /* virtual */
 void
-FadeFromColorAction::operator()()
+ActionFadeFromColor::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -807,7 +807,7 @@ FadeFromColorAction::operator()()
 
 
 // MoveViewPoint
-MoveViewPoint::MoveViewPoint(Object* object, action_node* node)
+ActionMoveViewPoint::ActionMoveViewPoint(Object* object, action_node* node)
 	:
 	Action(object, node)
 {	
@@ -816,7 +816,7 @@ MoveViewPoint::MoveViewPoint(Object* object, action_node* node)
 
 /* virtual */
 void
-MoveViewPoint::operator()()
+ActionMoveViewPoint::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -868,7 +868,7 @@ MoveViewPoint::operator()()
 }
 
 
-ScreenShake::ScreenShake(Object* object, action_node* node)
+ActionScreenShake::ActionScreenShake(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -877,7 +877,7 @@ ScreenShake::ScreenShake(Object* object, action_node* node)
 
 /* virtual */
 void
-ScreenShake::operator()()
+ActionScreenShake::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -906,7 +906,7 @@ ScreenShake::operator()()
 
 
 // StartCutsceneModeAction
-StartCutsceneModeAction::StartCutsceneModeAction(Object* object, action_node* node)
+ActionStartCutsceneMode::ActionStartCutsceneMode(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -915,7 +915,7 @@ StartCutsceneModeAction::StartCutsceneModeAction(Object* object, action_node* no
 
 /* virtual */
 void
-StartCutsceneModeAction::operator()()
+ActionStartCutsceneMode::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -925,7 +925,7 @@ StartCutsceneModeAction::operator()()
 
 
 // StartCutsceneAction
-StartCutsceneAction::StartCutsceneAction(Object* object, action_node* node)
+ActionStartCutscene::ActionStartCutscene(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -934,7 +934,7 @@ StartCutsceneAction::StartCutsceneAction(Object* object, action_node* node)
 
 /* virtual */
 void
-StartCutsceneAction::operator()()
+ActionStartCutscene::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -944,7 +944,7 @@ StartCutsceneAction::operator()()
 
 
 // HideGUIAction
-HideGUIAction::HideGUIAction(Object* object, action_node* node)
+ActionHideGUI::ActionHideGUI(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -953,7 +953,7 @@ HideGUIAction::HideGUIAction(Object* object, action_node* node)
 
 /* virtual */
 void
-HideGUIAction::operator()()
+ActionHideGUI::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -963,7 +963,7 @@ HideGUIAction::operator()()
 
 
 // UnhideGUIAction
-UnhideGUIAction::UnhideGUIAction(Object* object, action_node* node)
+ActionUnhideGUI::ActionUnhideGUI(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -972,7 +972,7 @@ UnhideGUIAction::UnhideGUIAction(Object* object, action_node* node)
 
 /* virtual */
 void
-UnhideGUIAction::operator()()
+ActionUnhideGUI::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
@@ -981,7 +981,7 @@ UnhideGUIAction::operator()()
 }
 
 
-DisplayString::DisplayString(Object* object, action_node* node)
+ActionDisplayString::ActionDisplayString(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -990,7 +990,7 @@ DisplayString::DisplayString(Object* object, action_node* node)
 
 /* virtual */
 void
-DisplayString::operator()()
+ActionDisplayString::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
@@ -1005,7 +1005,7 @@ DisplayString::operator()()
 }
 
 
-DisplayStringHead::DisplayStringHead(Object* object, action_node* node)
+ActionDisplayStringHead::ActionDisplayStringHead(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -1014,7 +1014,7 @@ DisplayStringHead::DisplayStringHead(Object* object, action_node* node)
 
 /* virtual */
 void
-DisplayStringHead::operator()()
+ActionDisplayStringHead::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
@@ -1038,7 +1038,7 @@ DisplayStringHead::operator()()
 
 
 // ChangeOrientationExtAction
-ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_node* node)
+ActionChangeOrientationExt::ActionChangeOrientationExt(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -1047,7 +1047,7 @@ ChangeOrientationExtAction::ChangeOrientationExtAction(Object* object, action_no
 
 /* virtual */
 void
-ChangeOrientationExtAction::operator()()
+ActionChangeOrientationExt::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	if (actor != NULL)
@@ -1057,7 +1057,7 @@ ChangeOrientationExtAction::operator()()
 
 
 // FaceObject
-FaceObject::FaceObject(Object* object, action_node* node)
+ActionFaceObject::ActionFaceObject(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -1066,7 +1066,7 @@ FaceObject::FaceObject(Object* object, action_node* node)
 
 /* virtual */
 void
-FaceObject::operator()()
+ActionFaceObject::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	Object* target = Script::FindTargetObject(sender, fActionParams);
@@ -1086,7 +1086,7 @@ FaceObject::operator()()
 
 
 // CreateVisualEffect
-CreateVisualEffect::CreateVisualEffect(Object* object, action_node* node)
+ActionCreateVisualEffect::ActionCreateVisualEffect(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -1095,7 +1095,7 @@ CreateVisualEffect::CreateVisualEffect(Object* object, action_node* node)
 
 /* virtual */
 void
-CreateVisualEffect::operator()()
+ActionCreateVisualEffect::operator()()
 {
 	Core::Get()->PlayEffect(fActionParams->string1, fActionParams->where);
 	SetCompleted();
@@ -1103,7 +1103,7 @@ CreateVisualEffect::operator()()
 
 
 // CreateVisualEffectObject
-CreateVisualEffectObject::CreateVisualEffectObject(Object* object, action_node* node)
+ActionCreateVisualEffectObject::ActionCreateVisualEffectObject(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
@@ -1112,7 +1112,7 @@ CreateVisualEffectObject::CreateVisualEffectObject(Object* object, action_node* 
 
 /* virtual */
 void
-CreateVisualEffectObject::operator()()
+ActionCreateVisualEffectObject::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 	Object* target = Script::FindTargetObject(sender, fActionParams);
