@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 
@@ -497,6 +498,34 @@ void
 AreaRoom::RemoveEffect(Effect* effect)
 {
 
+}
+
+
+struct TileCompare {
+	bool operator() (const TileCell*& lhs, const TileCell*& rhs) const
+	{
+		return lhs->ID() < rhs->ID();
+	}
+};
+
+
+uint32
+AreaRoom::GetTileCellsForRegion(std::vector<TileCell*>& cells,
+											Region* region)
+{
+	std::map<uint16, TileCell* > tileCellsSet;
+	IE::rect regionFrame = region->Frame();
+	for (int16 x = regionFrame.x_min; x < regionFrame.x_max; x++) {
+		for (int16 y = regionFrame.y_min; y < regionFrame.y_max; y++) {
+			TileCell* cell = fBackMap->TileAt(x / TILE_WIDTH, y / TILE_HEIGHT);
+			tileCellsSet[cell->ID()] = cell;
+		}
+	}
+	for (std::map<uint16, TileCell*>::iterator i = tileCellsSet.begin();
+			i != tileCellsSet.end(); i++) {
+		cells.push_back((*i).second);
+	}
+	return cells.size();
 }
 
 
@@ -975,6 +1004,13 @@ AreaRoom::_InitRegions()
 		Region* region = fArea->GetRegionAt(i);		
 		fRegions.push_back(region);
 		Core::Get()->RegisterObject(region);
+		std::vector<TileCell*> cells;
+		GetTileCellsForRegion(cells, region);
+		for (std::vector<TileCell*>::iterator i = cells.begin();
+			i != cells.end(); i++) {
+			(*i)->AddRegion(region);
+		}
+
 		// TODO: associate room to tile cells
 	}
 	std::cout << "Done!" << std::endl;

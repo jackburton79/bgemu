@@ -36,6 +36,13 @@ TileCell::~TileCell()
 }
 
 
+uint16
+TileCell::ID() const
+{
+	return fNumber;
+}
+
+
 void
 TileCell::SetPosition(uint16 x, uint16 y)
 {

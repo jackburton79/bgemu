@@ -53,8 +53,8 @@ public:
 	void AddEffect(Effect* effect);
 	void RemoveEffect(Effect* effect);
 
-	uint16 TileNumberForPoint(const IE::point& point);
-
+	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
+											Region* region);
 	uint8 PointHeight(const IE::point& point) const;
 	uint8 PointLight(const IE::point& point) const;
 	uint8 PointSearch(const IE::point& point) const;

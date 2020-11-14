@@ -37,6 +37,7 @@ public:
 	TileCell(uint32 index, std::vector<MapOverlay*>& overlays, int numOverlays);
 	~TileCell();
 
+	uint16 ID() const;
 	void SetPosition(uint16 x, uint16 y);
 	void Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full = false);
 	void AdvanceFrame();
@@ -53,6 +54,9 @@ public:
 	void AddRegion(Region* Region);
 	void RemoveRegion(Region* region);
 	bool HasRegion(Region* region) const;
+
+	static uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
+										Region* region);
 private:
 	uint32 fNumber;
 	::Door *fDoor;
