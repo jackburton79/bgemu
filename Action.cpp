@@ -589,6 +589,7 @@ ActionDisplayMessage::operator()()
 {
 	std::cout << "DisplayMessage:: ";
 	std::cout << IDTable::GetDialog(fActionParams->integer1) << std::endl;
+	Core::Get()->DisplayMessage(fActionParams->integer1);
 	SetCompleted();
 }
 
