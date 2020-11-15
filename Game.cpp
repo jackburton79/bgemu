@@ -243,6 +243,7 @@ Game::LoadStartingArea()
 	TWODAResource* startPosResource = gResManager->Get2DA("STARTPOS");
 	if (startPosResource == NULL) {
 		std::cout << "Failed!" << std::endl;
+		gResManager->ReleaseResource(resource);
 		return;
 	}
 
