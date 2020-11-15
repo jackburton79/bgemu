@@ -32,16 +32,20 @@ Door::Toggle()
 void
 Door::Open(Object* actor)
 {
-	if (!(fAreaDoor->flags & IE::DOOR_OPEN))
+	if (!(fAreaDoor->flags & IE::DOOR_OPEN)) {
 		fAreaDoor->flags |= IE::DOOR_OPEN;
+		AddTrigger(trigger_entry("Opened", actor));
+	}
 }
 
 
 void
 Door::Close(Object* actor)
 {
-	if (fAreaDoor->flags & IE::DOOR_OPEN)
+	if (fAreaDoor->flags & IE::DOOR_OPEN) {
 		fAreaDoor->flags &= ~IE::DOOR_OPEN;
+		AddTrigger(trigger_entry("Closed", actor));
+	}
 }
 
 

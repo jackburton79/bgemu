@@ -563,23 +563,7 @@ Script::_EvaluateTrigger(trigger_node* trig)
 			case 0x0052:
 			{
 				/* OPENED(O:OBJECT*) (82 0x52) */
-				object_node* objectNode = FindObjectNode(fSender, trig);
-				if (objectNode == NULL)
-					break;
-				break;
-				// TODO: We assume this is a door, but also
-				// containers can be opened/closed
-				/*Door* door = dynamic_cast<Door*>(fSender);
-				if (door == NULL)
-					break;
-				if (!door->Opened())
-					break;*/
-#if 0
-				Object* object = core->GetObjectFromNode(
-						door->CurrentScriptRoundResults()->fOpenedBy.c_str());
-				if (object != NULL)
-					returnValue = object->MatchNode(objectNode);
-#endif
+				returnValue = fSender->HasTrigger("Opened", trig);
 				break;
 			}
 			case 0x0070:

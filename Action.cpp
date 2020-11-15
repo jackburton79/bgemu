@@ -569,7 +569,7 @@ ActionOpenDoor::operator()()
 	}
 
 	if (!door->Opened()) {
-		door->Toggle();
+		door->Open(actor);
 		SetCompleted();
 	}
 }
