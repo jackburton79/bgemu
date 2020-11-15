@@ -105,8 +105,15 @@ trigger_node
 Parser::TriggerFromString(const std::string& string)
 {
 	trigger_node node;
-	//StringStream stream(string);
-	//Tokenizer tokenizer(&stream, 0);
+	StringStream stream(string);
+	Tokenizer tokenizer(&stream, 0);
+	tokenizer.SetDebug(true);
+	token t;
+	while ((size_t)stream.Position() < stream.Size() - 1) {
+		t = tokenizer.ReadToken();
+
+		std::cout << "token: " << t.u.string << " type: " << t.type << std::endl;
+	}
 	//token stringToken = tokenizer.ReadToken();
 	
 	//std::cout << stringToken.u.string << std::endl;
@@ -397,7 +404,19 @@ Tokenizer::ReadNextToken()
 	aToken.size = _ReadFullToken(array, startToken);
 	array[aToken.size] = '\0';
 
-	if (array[0] == '"') {
+	if (array[0] == '!') {
+		aToken.type = TOKEN_EXCLAMATION_MARK;
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else if (array[0] == ',') {
+		aToken.type = TOKEN_COMMA;
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else if (array[0] == '(' || array[0] == ')') {
+		aToken.type = TOKEN_PARENTHESIS;
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else if (array[0] == '"') {
 		aToken.type = TOKEN_QUOTED_STRING;
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
@@ -460,8 +479,8 @@ int32
 Tokenizer::_ReadFullToken(char* dest, int32 start)
 {
 	bool quotesOpen = false;
+	char* ptr = dest;
 	try {
-		char* ptr = dest;
 		for (;;) {
 			char c = fStream->ReadByte();
 			if (Tokenizer::IsSeparator(c)) {
@@ -475,10 +494,14 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 				} else {
 					break;
 				}
+			} else if (c == '!' || c == ',' || c == '(' || c == ')') {
+				if (fStream->Position() > start + 1)
+					fStream->Seek(-1, SEEK_CUR);
+				break;
 			}
 		}
 	} catch (...) {
-		//std::cerr << "end of stream exception" << std::endl;
+
 	}
 	return fStream->Position() - start;
 }
