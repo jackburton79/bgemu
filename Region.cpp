@@ -106,3 +106,51 @@ Region::ActivateTrigger()
 	}
 	fRegion->Print();
 }
+
+
+void
+Region::ActorEntered(Actor* actor)
+{
+	// TODO: check if is already in
+	if (!IsActorInside(actor)) {
+		fObjectsInside.push_back(actor);
+		AddTrigger(trigger_entry("Entered", actor));
+	}
+}
+
+
+void
+Region::ActorExited(Actor* actor)
+{
+	for (std::list<Actor*>::iterator i = fObjectsInside.begin();
+			i != fObjectsInside.end(); i++) {
+		if ((*i)->GlobalID() == actor->GlobalID()) {
+			fObjectsInside.remove(actor);
+			break;
+		}
+	}
+}
+
+
+bool
+Region::IsActorInside(Actor* actor) const
+{
+	for (std::list<Actor*>::const_iterator i = fObjectsInside.begin();
+			i != fObjectsInside.end(); i++) {
+		if ((*i)->GlobalID() == actor->GlobalID())
+			return true;
+	}
+	return false;
+}
+
+
+bool
+Region::IsActorInside(object_node* actorNode) const
+{
+	for (std::list<Actor*>::const_iterator i = fObjectsInside.begin();
+			i != fObjectsInside.end(); i++) {
+		if ((*i)->MatchNode(actorNode))
+			return true;
+	}
+	return false;
+}

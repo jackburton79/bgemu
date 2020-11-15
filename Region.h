@@ -36,11 +36,17 @@ public:
 	
 	void ActivateTrigger();
 
+	void ActorEntered(Actor* actor);
+	void ActorExited(Actor* actor);
+	bool IsActorInside(Actor* actor) const;
+	bool IsActorInside(object_node* actorNode) const;
+
+
 private:
 	IE::region* fRegion;
 	::Polygon fPolygon;
 
-	std::list<Object*> fObjectsInside;
+	std::list<Actor*> fObjectsInside;
 };
 
 #endif /* REGION_H_ */

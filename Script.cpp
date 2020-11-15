@@ -867,13 +867,8 @@ Script::_EvaluateTrigger(trigger_node* trig)
 				if (region == NULL)
 					break;
 				object_node* objectNode = FindObjectNode(fSender, trig);
-				if (objectNode != NULL) {
-					// TODO: won't work if the object is generic and not specified					
-					Actor* actor = core->GetObjectFromNode(objectNode);
-					if (actor != NULL)
-						returnValue = region->Contains(actor->Position());
-				}
-
+				if (objectNode != NULL)
+					returnValue = region->IsActorInside(objectNode);
 				break;
 			}
 			case 0x407E:

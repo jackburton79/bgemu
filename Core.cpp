@@ -720,24 +720,6 @@ Core::_CleanDestroyedObjects()
 
 
 void
-Core::_CheckIfInsideRegion(Actor* actor)
-{
-	//Region* previousRegion = actor->CurrentRegion();
-	RegionsList::iterator r;
-	for (r = fRegions.begin(); r != fRegions.end(); r++) {
-		Region* region = *r;		
-		if (rect_contains(region->Frame(), actor->Position())) {
-			actor->SetRegion(region);
-			break; 
-		}	
-	}
-	// TODO: exited region
-	/*if (previousRegion != actor->CurrentRegion())
-		fCurrentRoundResults->SetActorEnteredRegion(actor, actor->CurrentRegion());*/
-}
-
-
-void
 Core::_NewRound()
 {
 	fCurrentRoundNumber++;

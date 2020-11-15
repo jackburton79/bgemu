@@ -163,7 +163,7 @@ TileCell::ActorEnteredCell(Actor* object)
 	fObjects.push_back(object);
 	for (std::vector<Region*>::iterator i = fRegions.begin();
 		i != fRegions.end(); i++) {
-		(*i)->AddTrigger(trigger_entry("Entered", object));
+		(*i)->ActorEntered(object);
 	}
 	// TODO: Check if actor entered regions which covers
 	// this cell (in part or completely)
@@ -176,6 +176,13 @@ TileCell::ActorExitedCell(Actor* object)
 	std::list<Actor*>::iterator i;
 	for (i = fObjects.begin(); i != fObjects.end(); i++) {
 		if (object == (*i)) {
+			// Remove object from regions
+			// TODO: Wrong. If region spans over multiple tiles,
+			// the actor could still be inside region
+			for (std::vector<Region*>::iterator i = fRegions.begin();
+					i != fRegions.end(); i++) {
+				(*i)->ActorExited(object);
+			}
 			fObjects.remove(object);
 			break;
 		}
