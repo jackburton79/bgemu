@@ -194,15 +194,17 @@ Object::Update(bool scripts)
 	fTicks++;
 
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
+	Actor* actor = dynamic_cast<Actor*>(this);
+	bool isActor = actor != NULL;
 	bool cutscene = Core::Get()->CutsceneMode(); 	
-	if (isArea && cutscene)
-		scripts = false;
-
+	if (cutscene) {
+		if (isArea || !isActor)
+			scripts = false;
+	}
 	if (scripts) {
 		_ExecuteScripts(8);
 	}
 
-	Actor* actor = dynamic_cast<Actor*>(this);
 	if (cutscene && actor != NULL && Game::Get()->Party()->HasActor(actor))
 		return;
 
@@ -320,8 +322,6 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		const trigger_entry &entry = *i;
 		if (entry.trigger_name == trigName) {
-			// TODO: We should store more than the target name, since 
-			// it's not sufficient in many cases
 			Object* target = Core::Get()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
