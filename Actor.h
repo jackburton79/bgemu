@@ -114,6 +114,8 @@ public:
 	void SetText(const std::string& string);
 	std::string Text() const;
 
+	static bool PointPassableTrue(const IE::point& point) { return true; };
+
 private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
