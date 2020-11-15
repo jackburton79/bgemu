@@ -224,6 +224,7 @@ GameTimer::HourOfDay()
 void
 GameTimer::PrintTime()
 {
+	std::cout << std::dec;
 	std::cout << "GameTime: " << Hours() % 24 << ":" << Minutes() % 60;
 	std::cout << ":" << Seconds() % 60 << std::endl;
 	std::cout << "ticks: " << Seconds() << std::endl;
