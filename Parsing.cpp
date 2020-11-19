@@ -134,17 +134,22 @@ Parser::TriggerFromString(const std::string& string)
 	t = tokenizer.ReadToken();
 	if (t.type == TOKEN_NUMBER)
 		node.parameter1 = t.u.number;
-	else
-		strcpy(node.string1, t.u.string);
-	
+	else {
+		// Unquote string
+		strncpy(node.string1, t.u.string + 1, strlen(t.u.string) - 1);
+		node.string1[strlen(t.u.string) - 2] = '\0';
+	}
 	t = tokenizer.ReadToken();
 	if (t.type != TOKEN_PARENTHESIS) {
 		if (t.type == TOKEN_COMMA)
 			t = tokenizer.ReadToken();
 		if (t.type == TOKEN_NUMBER)
 			node.parameter2 = t.u.number;
-		else
-			strcpy(node.string2, t.u.string);
+		else {
+			// Unquote string
+			strncpy(node.string2, t.u.string + 1, strlen(t.u.string) - 1);
+			node.string2[strlen(t.u.string) - 2] = '\0';
+		}
 	}
 
 	std::cout << "TriggerNodeFromString: NODE" << std::endl;
