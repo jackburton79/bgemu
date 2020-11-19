@@ -48,13 +48,15 @@ public:
 	Object* Sender();
 	void SetSender(Object* object);
 
+	static bool EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrig);
+
 	static Object* ResolveIdentifier(Object* object, object_node* node, const int id);
 	static Object* GetObject(Object* source, object_node* node);
 	
 	bool IsActionInstant(uint16 actionId) const;
 private:
 	bool _EvaluateConditionNode(node* conditionNode);
-	static bool _EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrig);
+
 	bool _HandleResponseSet(node* node);
 	bool _HandleAction(action_node* act);
 	

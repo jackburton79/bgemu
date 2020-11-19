@@ -614,6 +614,8 @@ Actor::InitiateDialogWith(Actor* actor)
 				if (!dialogState.trigger.empty()) {
 					std::cout << dialogState.trigger << std::endl;
 					trigger_node triggerNode = Parser::TriggerFromString(dialogState.trigger);
+					int orTrig = 0;
+					Script::EvaluateTrigger(this, &triggerNode, orTrig);
 					triggerNode.Print();
 				}
 			}

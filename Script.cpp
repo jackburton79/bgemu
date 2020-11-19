@@ -129,7 +129,6 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 		if (n != NULL)
 			return n;
 	}
-
 	if (start->next != NULL)
 		return FindNode(object, nodeType, start->next);
 
@@ -423,12 +422,12 @@ Script::_EvaluateConditionNode(node* conditionNode)
 	int32 orTriggers = 0;
 	while (trig != NULL) {
 		if (orTriggers > 0) {
-			blockEvaluation = _EvaluateTrigger(fSender, trig, orTriggers);
+			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers);
 			if (blockEvaluation)
 				break;
 			orTriggers--;
 		} else {
-			blockEvaluation = _EvaluateTrigger(fSender, trig, orTriggers) && blockEvaluation;
+			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers) && blockEvaluation;
 			if (!blockEvaluation)
 				break;
 		}
@@ -446,7 +445,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 // TODO: move this to Object ?
 /* static*/
 bool
-Script::_EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
+Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 {
 	Actor* actor = dynamic_cast<Actor*>(sender);
 	//if (actor != NULL && actor->SkipConditions())
