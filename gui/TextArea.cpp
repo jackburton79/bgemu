@@ -59,7 +59,6 @@ TextArea::Draw()
 	GFX::rect destRect(fControl->x, fControl->y,
 					   fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
-
 	if (fChanged) {
 		GFX::rect rect(0, -fYOffset, fBitmap->Width(), fBitmap->Height());
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
@@ -112,4 +111,5 @@ void
 TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 {
 	fYOffset += y;
+	fChanged = true;
 }

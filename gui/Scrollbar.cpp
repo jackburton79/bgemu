@@ -11,6 +11,7 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "Scrollbar.h"
+#include "TextArea.h"
 #include "Window.h"
 
 
@@ -58,7 +59,6 @@ Scrollbar::Draw()
 {
 	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
-
 	_DrawTrough(destRect);
 	//_DrawSlider(destRect);
 	_DrawUpArrow(destRect);
@@ -70,10 +70,22 @@ Scrollbar::Draw()
 void
 Scrollbar::MouseDown(IE::point point)
 {
-	if (rect_contains(fUpArrow->Frame(), point)) {
+	uint32 textAreaID = ((IE::scrollbar*)fControl)->text_area_id;
+	TextArea* textArea = dynamic_cast<TextArea*>(Window()->GetControlByID(textAreaID));
+	if (textArea == NULL)
+		return;
+
+	// TODO: move this calculation
+	GFX::rect upFrame = fUpArrow->Frame();
+	GFX::rect downFrame = fDownArrow->Frame();
+	Window()->ConvertFromScreen(upFrame);
+	Window()->ConvertFromScreen(downFrame);
+	if (rect_contains(upFrame, point)) {
 		fUpArrowPressed = true;
-	} else if (rect_contains(fDownArrow->Frame(), point)) {
+		textArea->ScrollBy(0, -5);
+	} else if (rect_contains(downFrame, point)) {
 		fDownArrowPressed = true;
+		textArea->ScrollBy(0, 5);
 	}
 }
 
