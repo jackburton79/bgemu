@@ -170,10 +170,8 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		const Bitmap* glyph = *i;
-		if (flags & IE::LABEL_JUSTIFY_BOTTOM) {
-			std::cout << "JUSTIFY BOTTOM" << std::endl;
+		if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 			rect.y = containerRect.h - glyph->Height();
-		}
 		else if (flags & IE::LABEL_JUSTIFY_TOP)
 			rect.y = 0;
 		else
