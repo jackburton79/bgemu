@@ -62,7 +62,7 @@ TextArea::Draw()
 		GFX::rect rect(0, 0, fBitmap->Width(), fBitmap->Height());
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 		fBitmap->Clear(0);
-		uint32 flags = IE::LABEL_JUSTIFY_LEFT;
+		uint32 flags = IE::LABEL_JUSTIFY_LEFT|IE::LABEL_JUSTIFY_BOTTOM;
 		std::vector<TextLine*>::const_iterator i;
 		for (i = fLines.begin(); i != fLines.end(); i++) {
 			const TextLine* line = *i;
