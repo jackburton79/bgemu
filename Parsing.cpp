@@ -110,7 +110,6 @@ Parser::TriggerFromString(const std::string& string)
 	trigger_node node;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-	tokenizer.SetDebug(true);
 
 	// Trigger name and modifier
 	token t = tokenizer.ReadToken();
@@ -152,11 +151,6 @@ Parser::TriggerFromString(const std::string& string)
 		}
 	}
 
-	std::cout << "TriggerNodeFromString: NODE" << std::endl;
-
-	node.Print();
-
-	std::cout << "TriggerNodeFromString RETURNS" << std::endl;
 	return node;
 }
 
