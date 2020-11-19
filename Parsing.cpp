@@ -112,11 +112,6 @@ Parser::TriggerFromString(const std::string& string)
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 
-	object_node *objectNode = (object_node*)node::Create(BLOCK_OBJECT, "");
-	objectNode->identifiers[0] = 0;
-
-	node.children.push_back(objectNode);
-
 	// Trigger name and modifier
 	token t = tokenizer.ReadToken();
 	if (t.type == TOKEN_EXCLAMATION_MARK) {
