@@ -29,6 +29,7 @@ TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
 	fBitmap(NULL),
+	fYOffset(),
 	fChanged(true)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
@@ -55,14 +56,15 @@ TextArea::~TextArea()
 void
 TextArea::Draw()
 {
-	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
+	GFX::rect destRect(fControl->x, fControl->y,
+					   fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
 
 	if (fChanged) {
-		GFX::rect rect(0, 0, fBitmap->Width(), fBitmap->Height());
+		GFX::rect rect(0, -fYOffset, fBitmap->Width(), fBitmap->Height());
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 		fBitmap->Clear(0);
-		uint32 flags = IE::LABEL_JUSTIFY_LEFT|IE::LABEL_JUSTIFY_BOTTOM;
+		uint32 flags = IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_BOTTOM;
 		std::vector<TextLine*>::const_iterator i;
 		for (i = fLines.begin(); i != fLines.end(); i++) {
 			const TextLine* line = *i;
@@ -103,4 +105,11 @@ TextArea::ClearText()
 	}
 	fLines.clear();
 	fChanged = true;
+}
+
+
+void
+TextArea::ScrollBy(int16 /* not implemented */, int16 y)
+{
+	fYOffset += y;
 }
