@@ -50,14 +50,11 @@ public:
 
 	static Object* ResolveIdentifier(Object* object, object_node* node, const int id);
 	static Object* GetObject(Object* source, object_node* node);
-
-	void SetProcessed();
-	bool Processed() const;
 	
 	bool IsActionInstant(uint16 actionId) const;
 private:
 	bool _EvaluateConditionNode(node* conditionNode);
-	bool _EvaluateTrigger(trigger_node* trig);
+	static bool _EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrig);
 	bool _HandleResponseSet(node* node);
 	bool _HandleAction(action_node* act);
 	
@@ -65,10 +62,6 @@ private:
 	void _DeleteNode(node* n);
 
 	node *fRootNode;
-
-	bool fProcessed;
-
-	int fOrTriggers;
 	
 	Object* fSender;
 	Object* fLastTrigger;
