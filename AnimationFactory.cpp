@@ -33,6 +33,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	// 0xc100: ACAT: Simple
 	// 0xc700: ABOY: Split
 	// 0x7400: MDOG: Simple
+	// 0x7e00: MWER, BG2Monster
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
@@ -62,7 +63,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 						|| (highId >= 0xc1 && highId <= 0xc4)
 						|| (highId >= 0xd1 && highId <= 0xd3))
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0x7f || highId == 0x73)
+				else if (highId == 0x7e || highId == 0x7f || highId == 0x73)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				else if (highId >= 0x50 && highId <= 0x90 )
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
