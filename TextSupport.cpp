@@ -136,6 +136,7 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	uint16 maxHeight = 0;
 	_PrepareBitmaps(string, totalWidth, maxHeight, &frames);
 
+	GFX::rect containerRect;
 	GFX::rect rect;
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
@@ -148,6 +149,11 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 		rect.x = destPoint->x;
 		rect.y = destPoint->y;
 	}
+
+	containerRect.x = rect.x;
+	containerRect.y = rect.y;
+	containerRect.w = totalWidth;
+	containerRect.h = maxHeight;
 
 	if (useBAMPalette) {
 		const Bitmap* firstFrame = frames.back();
@@ -164,15 +170,15 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		const Bitmap* glyph = *i;
-		if (destRect != NULL) {
-			if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-				rect.y = destRect->h - glyph->Height();
-			else if (flags & IE::LABEL_JUSTIFY_TOP)
-				rect.y = 0;
-			else
-				rect.y = (destRect->h - glyph->Height()) / 2;
-			rect.y += destRect->y;
+		if (flags & IE::LABEL_JUSTIFY_BOTTOM) {
+			std::cout << "JUSTIFY BOTTOM" << std::endl;
+			rect.y = containerRect.h - glyph->Height();
 		}
+		else if (flags & IE::LABEL_JUSTIFY_TOP)
+			rect.y = 0;
+		else
+			rect.y = (containerRect.h - glyph->Height()) / 2;
+		rect.y += containerRect.y;
 
 		rect.w = glyph->Frame().w;
 		rect.h = glyph->Frame().h;
