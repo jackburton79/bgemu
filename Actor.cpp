@@ -608,17 +608,17 @@ Actor::InitiateDialogWith(Actor* actor)
 		fDLG = gResManager->GetDLG(dialogFile);
 		int32 i = 0;
 		DialogState dialogState;
-		while (true) {
-			try {
-					dialogState = fDLG->GetNextState(i);
-					if (!dialogState.trigger.empty()) {
-						std::cout << dialogState.trigger << std::endl;
-						trigger_node triggerNode = Parser::TriggerFromString(dialogState.trigger);
-					}
-					std::cout << dialogState.text << std::endl;
-			} catch (...) {
-					break;
+		try {
+			for (;;) {
+				dialogState = fDLG->GetNextState(i);
+				if (!dialogState.trigger.empty()) {
+					std::cout << dialogState.trigger << std::endl;
+					trigger_node triggerNode = Parser::TriggerFromString(dialogState.trigger);
+					triggerNode.Print();
+				}
 			}
+		} catch (...) {
+
 		}
 		gResManager->ReleaseResource(fDLG);
 		fDLG = NULL;

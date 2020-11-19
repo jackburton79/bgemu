@@ -3,7 +3,9 @@
 #include "ResManager.h"
 #include "Script.h"
 #include "StringStream.h"
+#include "Triggers.h"
 
+#include <algorithm>
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -100,6 +102,7 @@ Parser::SetDebug(bool debug)
 }
 
 
+
 /* static */
 trigger_node
 Parser::TriggerFromString(const std::string& string)
@@ -108,15 +111,47 @@ Parser::TriggerFromString(const std::string& string)
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 	tokenizer.SetDebug(true);
-	token t;
-	while ((size_t)stream.Position() < stream.Size() - 1) {
-		t = tokenizer.ReadToken();
 
-		std::cout << "token: " << t.u.string << " type: " << t.type << std::endl;
+	// Trigger name and modifier
+	token t = tokenizer.ReadToken();
+	if (t.type == TOKEN_EXCLAMATION_MARK) {
+		node.flags = 1;
+		t = tokenizer.ReadToken();
 	}
-	//token stringToken = tokenizer.ReadToken();
+
+	std::string triggerName = t.u.string;
+
+	try {
+		std::cout << t.u.string << std::endl;
+		node.id = GetTriggerID(triggerName);
+	} catch (std::runtime_error& e) {
+		std::cerr << e.what() << std::endl;
+	}
+	// parameters
+	tokenizer.ReadToken(); // parens
+
+	// first paramater
+	t = tokenizer.ReadToken();
+	if (t.type == TOKEN_NUMBER)
+		node.parameter1 = t.u.number;
+	else
+		strcpy(node.string1, t.u.string);
 	
-	//std::cout << stringToken.u.string << std::endl;
+	t = tokenizer.ReadToken();
+	if (t.type != TOKEN_PARENTHESIS) {
+		if (t.type == TOKEN_COMMA)
+			t = tokenizer.ReadToken();
+		if (t.type == TOKEN_NUMBER)
+			node.parameter2 = t.u.number;
+		else
+			strcpy(node.string2, t.u.string);
+	}
+
+	std::cout << "TriggerNodeFromString: NODE" << std::endl;
+
+	node.Print();
+
+	std::cout << "TriggerNodeFromString RETURNS" << std::endl;
 	return node;
 }
 
@@ -604,7 +639,14 @@ operator==(const node &a, const node &b)
 
 // trigger
 trigger_node::trigger_node()
+	:
+	id(0),
+	parameter1(0),
+	flags(0),
+	parameter2(0)
 {
+	string1[0] = '\0';
+	string2[0] = '\0';
 }
 
 
