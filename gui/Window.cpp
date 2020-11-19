@@ -263,6 +263,14 @@ Window::ConvertFromScreen(IE::point& point) const
 
 
 void
+Window::ConvertFromScreen(GFX::rect& rect) const
+{
+	rect.x -= fPosition.x;
+	rect.y -= fPosition.y;
+}
+
+
+void
 Window::Print() const
 {
 	//std::cout << "Window controls:" << std::endl;

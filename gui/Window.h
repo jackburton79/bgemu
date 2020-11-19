@@ -57,6 +57,7 @@ public:
 	void ConvertToScreen(GFX::rect& rect) const;
 
 	void ConvertFromScreen(IE::point& point) const;
+	void ConvertFromScreen(GFX::rect& rect) const;
 
 	void Print() const;
 private:
