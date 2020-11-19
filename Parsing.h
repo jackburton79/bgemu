@@ -168,6 +168,11 @@ private:
 	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
+
+	static void _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static void _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static void _ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static void _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	
 	void _FixNode(::node *node);
 

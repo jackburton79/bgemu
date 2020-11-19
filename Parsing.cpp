@@ -112,45 +112,9 @@ Parser::TriggerFromString(const std::string& string)
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 
-	// Trigger name and modifier
-	token t = tokenizer.ReadToken();
-	if (t.type == TOKEN_EXCLAMATION_MARK) {
-		node.flags = 1;
-		t = tokenizer.ReadToken();
-	}
-
-	std::string triggerName = t.u.string;
-
-	try {
-		std::cout << t.u.string << std::endl;
-		node.id = GetTriggerID(triggerName);
-	} catch (std::runtime_error& e) {
-		std::cerr << e.what() << std::endl;
-	}
-	// parameters
-	tokenizer.ReadToken(); // parens
-
-	// first paramater
-	t = tokenizer.ReadToken();
-	if (t.type == TOKEN_NUMBER)
-		node.parameter1 = t.u.number;
-	else {
-		// Unquote string
-		strncpy(node.string1, t.u.string + 1, strlen(t.u.string) - 1);
-		node.string1[strlen(t.u.string) - 2] = '\0';
-	}
-	t = tokenizer.ReadToken();
-	if (t.type != TOKEN_PARENTHESIS) {
-		if (t.type == TOKEN_COMMA)
-			t = tokenizer.ReadToken();
-		if (t.type == TOKEN_NUMBER)
-			node.parameter2 = t.u.number;
-		else {
-			// Unquote string
-			strncpy(node.string2, t.u.string + 1, strlen(t.u.string) - 1);
-			node.string2[strlen(t.u.string) - 2] = '\0';
-		}
-	}
+	_ExtractTriggerName(tokenizer, &node);
+	_ExtractFirstParameter(tokenizer, &node);
+	_ExtractSecondParameter(tokenizer, &node);
 
 	return node;
 }
@@ -273,6 +237,69 @@ Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 	response_node* resp = dynamic_cast<response_node*>(node);
 	if (resp)
 		resp->probability = tokenizer->ReadNextToken().u.number;
+}
+
+
+/* static */
+void
+Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
+{
+	// Trigger name and modifier
+	token t = tokenizer.ReadToken();
+	if (t.type == TOKEN_EXCLAMATION_MARK) {
+		node->flags = 1;
+		t = tokenizer.ReadToken();
+	}
+	std::string triggerName = t.u.string;
+	try {
+		node->id = GetTriggerID(triggerName);
+	} catch (std::runtime_error& e) {
+		std::cerr << e.what() << std::endl;
+	}
+}
+
+
+/* static */
+void
+Parser::_ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* node)
+{
+	tokenizer.ReadToken(); // parenthesis
+
+	token t = tokenizer.ReadToken();
+	if (t.type == TOKEN_NUMBER)
+		node->parameter1 = t.u.number;
+	else {
+		// Unquote string
+		strncpy(node->string1, t.u.string + 1, strlen(t.u.string) - 1);
+		node->string1[strlen(t.u.string) - 2] = '\0';
+	}
+}
+
+
+/* static */
+void
+Parser::_ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* node)
+{
+	token t = tokenizer.ReadToken();
+	if (t.type != TOKEN_PARENTHESIS) {
+		if (t.type == TOKEN_COMMA)
+			t = tokenizer.ReadToken();
+		if (t.type == TOKEN_NUMBER)
+			node->parameter2 = t.u.number;
+		else {
+			// Unquote string
+			strncpy(node->string2, t.u.string + 1, strlen(t.u.string) - 1);
+			node->string2[strlen(t.u.string) - 2] = '\0';
+		}
+	}
+}
+
+
+/* static */
+void
+Parser:: _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode)
+{
+	// TODO:
 }
 
 
