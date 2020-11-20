@@ -234,6 +234,13 @@ GUI::MouseMoved(int16 x, int16 y)
 }
 
 
+struct WindowsSorter {
+	bool operator()(Window* const& window1, Window* const& window2) const {
+		return window1->ID() > window2->ID();
+	}
+};
+
+
 void
 GUI::ShowWindow(uint16 id)
 {
@@ -243,6 +250,9 @@ GUI::ShowWindow(uint16 id)
 		if (window != NULL)
 			fWindows.push_back(window);
 	}
+
+	// Sort windows based on id
+	std::sort(fWindows.begin(), fWindows.end(), WindowsSorter());
 
 	if (window != NULL) {
 		window->Show();
