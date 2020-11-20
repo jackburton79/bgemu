@@ -472,6 +472,30 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 						break;
 				}
 				break;
+			case WINDOW_MESSAGES:
+				switch (controlID) {
+					case 2:
+						HideWindow(WINDOW_MESSAGES);
+						ShowWindow(WINDOW_MESSAGES_LARGE);
+						break;
+					default:
+						std::cout << "window " << std::dec << windowID << ",";
+						std::cout << "control " << controlID << std::endl;
+						break;
+				}
+				break;
+			case WINDOW_MESSAGES_LARGE:
+				switch (controlID) {
+					case 0:
+						HideWindow(WINDOW_MESSAGES_LARGE);
+						ShowWindow(WINDOW_MESSAGES);
+						break;
+					default:
+						std::cout << "window " << std::dec << windowID << ",";
+						std::cout << "control " << controlID << std::endl;
+						break;
+				}
+				break;
 			default:
 				std::cout << "window " << std::dec << windowID << ",";
 				std::cout << "control " << controlID << std::endl;
