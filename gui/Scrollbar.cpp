@@ -41,15 +41,6 @@ void
 Scrollbar::AttachedToWindow(::Window* window)
 {
 	Control::AttachedToWindow(window);
-
-	GFX::rect upRect = fUpArrow->Frame();
-	GFX::rect downRect = fUpArrow->Frame();
-
-	window->ConvertToScreen(upRect);
-	window->ConvertToScreen(downRect);
-
-	fUpArrow->SetPosition(upRect.x, upRect.y);
-	fDownArrow->SetPosition(downRect.x, downRect.y);
 }
 
 
@@ -82,10 +73,10 @@ Scrollbar::MouseDown(IE::point point)
 	Window()->ConvertFromScreen(downFrame);
 	if (rect_contains(upFrame, point)) {
 		fUpArrowPressed = true;
-		textArea->ScrollBy(0, -5);
+		//textArea->ScrollBy(0, -5);
 	} else if (rect_contains(downFrame, point)) {
 		fDownArrowPressed = true;
-		textArea->ScrollBy(0, 5);
+		//textArea->ScrollBy(0, 5);
 	}
 }
 
