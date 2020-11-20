@@ -161,8 +161,10 @@ GUI::Draw()
 	std::vector<Window*>::const_iterator i;
 	for (i = fWindows.begin(); i < fWindows.end(); i++) {
 		Window* window = *i;
-		if (window->Shown())
+		if (window->Shown()) {
+			window->Pulse();
 			window->Draw();
+		}
 	}
 
 	_DrawStrings();

@@ -11,6 +11,7 @@
 #include "Window.h"
 
 #include "RectUtils.h"
+#include "Timer.h"
 
 // Window
 Window::Window(uint16 id, int16 xPos, int16 yPos,
@@ -22,6 +23,7 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 	fBackground(background),
 	fWidth(width),
 	fHeight(height),
+	fLastPulseTime(0),
 	fActiveControl(NULL)
 {
 	fPosition.x = xPos;
@@ -218,6 +220,24 @@ Window::MouseMoved(IE::point point)
 			control->MouseMoved(point, Control::MOUSE_INSIDE);
 	}
 	fActiveControl = control;
+}
+
+
+void
+Window::Pulse()
+{
+	const uint32 pulsePeriod = 100;
+
+	uint32 ticks = Timer::Ticks();
+	if (fLastPulseTime + pulsePeriod < ticks) {
+		std::vector<Control*>::const_iterator i;
+		for (i = fControls.begin(); i != fControls.end(); i++) {
+			Control* control = (*i);
+			if (control != NULL)
+				control->Pulse();
+		}
+		fLastPulseTime = ticks;
+	}
 }
 
 

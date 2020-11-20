@@ -25,6 +25,7 @@ public:
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);
+	virtual void Pulse();
 
 private:
 	BAMResource* fResource;

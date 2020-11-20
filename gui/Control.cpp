@@ -105,6 +105,13 @@ Control::MouseUp(IE::point point)
 }
 
 
+/* virtual */
+void
+Control::Pulse()
+{
+}
+
+
 void
 Control::Invoke()
 {

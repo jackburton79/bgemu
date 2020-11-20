@@ -53,6 +53,8 @@ public:
 	void MouseUp(IE::point point);
 	void MouseMoved(IE::point point);
 
+	void Pulse();
+
 	void ConvertToScreen(IE::point& point) const;
 	void ConvertToScreen(GFX::rect& rect) const;
 
@@ -70,6 +72,7 @@ private:
 	IE::point fPosition;
 	uint16 fWidth;
 	uint16 fHeight;
+	uint32 fLastPulseTime;
 	Control* fActiveControl;
 };
 

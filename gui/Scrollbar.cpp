@@ -101,6 +101,22 @@ Scrollbar::MouseUp(IE::point point)
 
 /* virtual */
 void
+Scrollbar::Pulse()
+{
+	uint32 textAreaID = ((IE::scrollbar*)fControl)->text_area_id;
+	TextArea* textArea = dynamic_cast<TextArea*>(Window()->GetControlByID(textAreaID));
+	if (textArea == NULL)
+		return;
+	if (fDownArrowPressed)
+		textArea->ScrollBy(0, 5);
+	else if (fUpArrowPressed)
+		textArea->ScrollBy(0, -5);
+
+}
+
+
+/* virtual */
+void
 Scrollbar::MouseMoved(IE::point point, uint32 transit)
 {
 }
