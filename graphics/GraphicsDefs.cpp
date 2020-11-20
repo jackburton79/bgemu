@@ -7,6 +7,8 @@
 
 #include "GraphicsDefs.h"
 
+#include "Bitmap.h"
+
 #include <iostream>
 #include <SDL.h>
 
@@ -101,6 +103,34 @@ Palette::Dump() const
 		std::cout << (int)colors[c].r << ", " << (int)colors[c].g << ", ";
 		std::cout << (int)colors[c].b << ", " << (int)colors[c].a << std::endl;
 	}
+}
+
+
+static void
+FillBlock(Bitmap* bitmap, uint16 x, uint16 y, uint32 color)
+{
+	GFX::rect rect(x, y, 8, 8);
+	bitmap->FillRect(rect, color);
+}
+
+
+void
+Palette::Dump(const char* fileName) const
+{
+	int blockSize = 8;
+
+	Bitmap* bitmap = new Bitmap(16 * blockSize, 16 * blockSize, 8);
+	bitmap->SetPalette(*this);
+	int c = 0;
+	for (int y = 0; y < bitmap->Height(); y += blockSize) {
+		for (int x = 0; x < bitmap->Width(); x += blockSize) {
+			uint32 color = bitmap->MapColor(colors[c].r, colors[c].g, colors[c].b);
+			FillBlock(bitmap, x, y, color);
+			c++;
+		}
+	}
+	bitmap->Save(fileName);
+	bitmap->Release();
 }
 
 
