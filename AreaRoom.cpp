@@ -963,7 +963,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	}
 	
 	if (Region* region = _RegionAtPoint(point)) {
-		std::cout << region->Name() << std::endl;
+		//std::cout << region->Name() << std::endl;
 		object = region;
 		cursorIndex = region->CursorIndex();
 	}
