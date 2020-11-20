@@ -501,16 +501,20 @@ Core::DisplayMessage(uint32 strRef)
 	try {
 		std::string dialogString = IDTable::GetDialog(strRef);
 		std::cout << dialogString << std::endl;
-		if (Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES)) {
+		Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES);
+		if (window->Shown()) {
 			TextArea *textArea = dynamic_cast<TextArea*>(
 										window->GetControlByID(3));
 			if (textArea != NULL)
 				textArea->AddText(dialogString.c_str());
-		} else if (Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE)) {
-			TextArea *textArea = dynamic_cast<TextArea*>(
-													window->GetControlByID(1));
-			if (textArea != NULL)
-				textArea->AddText(dialogString.c_str());
+		} else {
+			window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
+			if (window->Shown()) {
+				TextArea *textArea = dynamic_cast<TextArea*>(
+						window->GetControlByID(1));
+				if (textArea != NULL)
+					textArea->AddText(dialogString.c_str());
+			}
 		}
 	} catch (...) {
 		//TODO: handle exception
