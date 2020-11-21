@@ -2,6 +2,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include animations/subdir.mk
 -include archives/subdir.mk
 -include graphics/subdir.mk
 -include gui/subdir.mk

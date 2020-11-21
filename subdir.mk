@@ -1,13 +1,8 @@
 LOCALSOURCES = \
 ../Action.cpp \
 ../Actor.cpp \
-../Animation.cpp \
-../AnimationFactory.cpp \
 ../AreaRoom.cpp \
 ../BackMap.cpp \
-../BGCharachterAnimationFactory.cpp \
-../BG2CharachterAnimationFactory.cpp \
-../BGMonsterAnimationFactory.cpp \
 ../Container.cpp \
 ../Core.cpp \
 ../Door.cpp \
@@ -16,7 +11,6 @@ LOCALSOURCES = \
 ../Graphics.cpp \
 ../Game.cpp \
 ../IETypes.cpp \
-../IWDAnimationFactory.cpp \
 ../Listener.cpp \
 ../MovieDecoder.cpp \
 ../MovieDecoderTest.cpp \
@@ -29,8 +23,6 @@ LOCALSOURCES = \
 ../RoomBase.cpp \
 ../Script.cpp \
 ../SearchMap.cpp \
-../SimpleAnimationFactory.cpp \
-../SplitAnimationFactory.cpp \
 ../SoundEngine.cpp \
 ../SupportDefs.cpp \
 ../TextSupport.cpp \
