@@ -93,10 +93,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		} catch (...) {
 			throw std::string("Error creating player!");
 		}
-	if (noNewGame)
-		Core::Get()->LoadWorldMap();
-	else
-		LoadStartingArea();
+		if (noNewGame)
+			Core::Get()->LoadWorldMap();
+		else
+			LoadStartingArea();
 	}
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
