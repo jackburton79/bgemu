@@ -74,9 +74,9 @@ Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 	colors[0].b = 0;
 	colors[0].a = 0;
 	for (int c = 1; c < 256; c++) {
-		colors[c].r = end.r + (uint8)(((start.r - end.r) * c ) / 255);
-		colors[c].g = end.g + (uint8)(((start.g - end.g) * c ) / 255);
-		colors[c].b = end.b + (uint8)(((start.b - end.b) * c ) / 255);
+		colors[c].r = 155;
+		colors[c].g = 200;
+		colors[c].b = 0;
 		colors[c].a = end.a + (uint8)(((start.a - end.a) * c ) / 255);
 	}
 }
