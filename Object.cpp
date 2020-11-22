@@ -154,7 +154,6 @@ void
 Object::EnteredRegion(Region* region)
 {
 	fRegion = region;
-	//fRegion->CurrentScriptRoundResults()->SetEnteredActor(this);
 }
 
 

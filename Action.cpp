@@ -709,8 +709,10 @@ void
 ActionDialog::operator()()
 {
 	Object* object = Script::FindSenderObject(fObject, fActionParams);
-	if (object == NULL)
+	if (object == NULL) {
+		SetCompleted();
 		return;
+	}
 	
 	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(object, fActionParams));
 	if (target == NULL) {
@@ -719,10 +721,10 @@ ActionDialog::operator()()
 	}
 
 	if (!Initiated()) {
-			Actor* actor = dynamic_cast<Actor*>(object);
-			if (actor != NULL)
-				actor->InitiateDialogWith(target);
-			SetInitiated();
+		Actor* actor = dynamic_cast<Actor*>(object);
+		if (actor != NULL)
+			actor->InitiateDialogWith(target);
+		SetInitiated();
 	}
 	std::cout << "object: " << object->Name() << std::endl;
 	std::cout << "target: " << target->Name() << std::endl;
