@@ -620,13 +620,17 @@ Actor::InitiateDialogWith(Actor* actor)
 							i != triggerList.end(); i++) {
 						int orTrig = 0;
 						trigger_node triggerNode = *i;
+						triggerNode.Print();
 						if (!Script::EvaluateTrigger(this, &triggerNode, orTrig)) {
 							pass = false;
 							break;
 						}
 					}
-					if (pass)
+					std::cout << (pass ? "PASS" : "") << std::endl;
+					if (pass) {
+						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
 						break;
+					}
 				}
 			}
 		} catch (...) {

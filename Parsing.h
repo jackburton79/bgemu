@@ -156,7 +156,7 @@ public:
 	void SetDebug(bool debug);
 
 	static std::vector<trigger_node> TriggersFromString(const std::string& string);
-	static trigger_node TriggerFromString(const std::string& string);
+	static bool TriggerFromString(const std::string& string, trigger_node& node);
 
 private:
 	void _SkipUselessTokens();
@@ -170,7 +170,7 @@ private:
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
-	static void _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	static void _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	static void _ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	static void _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);

@@ -109,8 +109,9 @@ Parser::TriggersFromString(const std::string& string)
 	std::string localString = string;
 	std::vector<trigger_node> triggerList;
 	while (true) {
-		trigger_node triggerNode = TriggerFromString(localString);
-		triggerList.push_back(triggerNode);
+		trigger_node triggerNode;
+		if (TriggerFromString(localString, triggerNode))
+			triggerList.push_back(triggerNode);
 		size_t endLine = localString.find('\n');
 		if (endLine == localString.length() || endLine == std::string::npos)
 			break;
@@ -122,19 +123,20 @@ Parser::TriggersFromString(const std::string& string)
 
 
 /* static */
-trigger_node
-Parser::TriggerFromString(const std::string& string)
+bool
+Parser::TriggerFromString(const std::string& string, trigger_node& node)
 {
-	trigger_node node;
 	node.type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 
-	_ExtractTriggerName(tokenizer, &node);
+	if (!_ExtractTriggerName(tokenizer, &node))
+		return false;
 	_ExtractFirstParameter(tokenizer, &node);
 	_ExtractSecondParameter(tokenizer, &node);
 
-	return node;
+	node.Print();
+	return true;
 }
 
 
@@ -259,7 +261,7 @@ Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 
 
 /* static */
-void
+bool
 Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 {
 	// Trigger name and modifier
@@ -268,12 +270,16 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 		node->flags = 1;
 		t = tokenizer.ReadToken();
 	}
+	if (t.type != TOKEN_STRING)
+		return false;
 	std::string triggerName = t.u.string;
 	try {
 		node->id = GetTriggerID(triggerName);
 	} catch (std::runtime_error& e) {
 		std::cerr << e.what() << std::endl;
+		return false;
 	}
+	return true;
 }
 
 
