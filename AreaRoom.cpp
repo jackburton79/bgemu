@@ -358,8 +358,9 @@ AreaRoom::MouseDown(IE::point point)
 			return;
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
+			std::string text = IDTable::GetDialog(strRef);
 			if (strRef >= 0)
-				Core::Get()->DisplayMessage(strRef);
+				Core::Get()->DisplayMessage(NULL, text.c_str());
 			return;
 		}
 	} else if (Container* container = _ContainerAtPoint(point)) {

@@ -618,6 +618,7 @@ Actor::InitiateDialogWith(Actor* actor)
 					int orTrig = 0;
 					if (Script::EvaluateTrigger(this, &triggerNode, orTrig)) {
 						std::cout << dialogState.text << std::endl;
+						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
 						break;
 					}
 				}

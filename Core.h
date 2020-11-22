@@ -90,7 +90,9 @@ public:
 	Region* RegionAtPoint(const IE::point& point);
 	
 	void PlayMovie(const char* name);
-	void DisplayMessage(uint32 strRef);
+
+	// TODO: Move away from here, don't belong here
+	void DisplayMessage(const char* actor, const char* text);
 
 	void UpdateLogic(bool scripts);
 

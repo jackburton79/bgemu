@@ -588,8 +588,9 @@ void
 ActionDisplayMessage::operator()()
 {
 	std::cout << "DisplayMessage:: ";
-	std::cout << IDTable::GetDialog(fActionParams->integer1) << std::endl;
-	Core::Get()->DisplayMessage(fActionParams->integer1);
+	std::string dialogText = IDTable::GetDialog(fActionParams->integer1);
+	std::cout << dialogText << std::endl;
+	Core::Get()->DisplayMessage(NULL, dialogText.c_str());
 	SetCompleted();
 }
 
@@ -721,9 +722,8 @@ ActionDialog::operator()()
 				actor->InitiateDialogWith(target);
 			SetInitiated();
 	}
-	std::cout << "object: " << object->Name();
-	std::cout << "target: " << target->Name();
-	std::cout << std::endl;
+	std::cout << "object: " << object->Name() << std::endl;
+	std::cout << "target: " << target->Name() << std::endl;
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
 /*

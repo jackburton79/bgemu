@@ -501,27 +501,30 @@ Core::PlayMovie(const char* name)
 
 
 void
-Core::DisplayMessage(uint32 strRef)
+Core::DisplayMessage(const char* actor, const char* text)
 {
 	// TODO: Move away from Core ? this adds too many
 	// dependencies
 	try {
-		std::string dialogString = IDTable::GetDialog(strRef);
-		std::cout << dialogString << std::endl;
+		std::cout << actor << ": " << text << std::endl;
 		Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES);
+		TextArea* textArea = NULL;
 		if (window != NULL && window->Shown()) {
-			TextArea *textArea = dynamic_cast<TextArea*>(
+			textArea = dynamic_cast<TextArea*>(
 										window->GetControlByID(3));
-			if (textArea != NULL)
-				textArea->AddText(dialogString.c_str());
 		} else {
 			window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
 			if (window != NULL && window->Shown()) {
-				TextArea *textArea = dynamic_cast<TextArea*>(
+				textArea = dynamic_cast<TextArea*>(
 						window->GetControlByID(1));
-				if (textArea != NULL)
-					textArea->AddText(dialogString.c_str());
 			}
+		}
+		if (textArea != NULL) {
+			std::string fullText;
+			if (actor != NULL)
+				fullText.append(actor).append(": ");
+			fullText.append(text);
+			textArea->AddText(fullText.c_str());
 		}
 	} catch (...) {
 		//TODO: handle exception
