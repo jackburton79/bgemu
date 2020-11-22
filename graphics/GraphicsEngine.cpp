@@ -74,7 +74,12 @@ GraphicsEngine::Destroy()
 void
 GraphicsEngine::SetClipping(const GFX::rect* rect)
 {
-	SDL_SetClipRect(fScreen->Surface(), (const SDL_Rect*)rect);
+	if (rect != NULL) {
+		SDL_Rect sdlRect;
+		GFXRectToSDLRect(rect, &sdlRect);
+		SDL_SetClipRect(fScreen->Surface(), &sdlRect);
+	}
+	SDL_SetClipRect(fScreen->Surface(), NULL);
 }
 
 
