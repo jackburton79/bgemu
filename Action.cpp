@@ -372,8 +372,10 @@ void
 ActionWalkToObject::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
-	if (actor == NULL)
+	if (actor == NULL) {
+		SetCompleted();
 		return;
+	}
 
 	Object* target = Script::FindTargetObject(actor, fActionParams);
 	if (target == NULL) {
