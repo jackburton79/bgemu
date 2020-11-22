@@ -567,12 +567,19 @@ void
 GUI::_InitCursors()
 {
 	IE::point pt;
-	for (int i = 0; i < 8; i++) {
-		fCursors[i] = new Animation("CURSARW", i, false, pt);
+	try {
+		for (int i = 0; i < 8; i++) {
+			fCursors[i] = new Animation("CURSARW", i, false, pt);
+		}
+	} catch (...) {
+		std::cerr << "GUI::_InitCursors(): Failed to load arrow cursors" << std::endl;
 	}
-
-	for (int i = 0; i < 40; i++) {
-		fCursors[i + 8] = new Animation("CURSORS", i, false, pt);
+	try {
+		for (int i = 0; i < 40; i++) {
+			fCursors[i + 8] = new Animation("CURSORS", i, false, pt);
+		}
+	} catch (...) {
+		std::cerr << "GUI::_InitCursors(): Failed to load cursors" << std::endl;
 	}
 }
 
