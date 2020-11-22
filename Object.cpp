@@ -146,7 +146,7 @@ void
 Object::Clicked(Object* clicker)
 {
 	trigger_entry entry("Clicked", clicker);
-	fTriggers.push_back(entry);
+	AddTrigger(entry);
 }
 
 
