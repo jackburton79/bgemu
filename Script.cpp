@@ -456,7 +456,8 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 		std::cout << std::endl;
 		trig->Print();
 		object_node* objectNode = FindObjectNode(sender, trig);
-		objectNode->Print();
+		if (objectNode != NULL)
+			objectNode->Print();
 	}
 
 	Core* core = Core::Get();
