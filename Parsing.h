@@ -155,6 +155,7 @@ public:
 	
 	void SetDebug(bool debug);
 
+	static std::vector<trigger_node> TriggersFromString(const std::string& string);
 	static trigger_node TriggerFromString(const std::string& string);
 
 private:

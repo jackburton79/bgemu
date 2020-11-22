@@ -613,14 +613,20 @@ Actor::InitiateDialogWith(Actor* actor)
 				dialogState = fDLG->GetNextState(i);
 				if (!dialogState.trigger.empty()) {
 					std::cout << dialogState.trigger << std::endl;
-					trigger_node triggerNode = Parser::TriggerFromString(dialogState.trigger);
-					triggerNode.Print();
-					int orTrig = 0;
-					if (Script::EvaluateTrigger(this, &triggerNode, orTrig)) {
-						std::cout << dialogState.text << std::endl;
-						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
-						break;
+					std::vector<trigger_node> triggerList;
+					triggerList = Parser::TriggersFromString(dialogState.trigger);
+					bool pass = true;
+					for (std::vector<trigger_node>::iterator i = triggerList.begin();
+							i != triggerList.end(); i++) {
+						int orTrig = 0;
+						trigger_node triggerNode = *i;
+						if (!Script::EvaluateTrigger(this, &triggerNode, orTrig)) {
+							pass = false;
+							break;
+						}
 					}
+					if (pass)
+						break;
 				}
 			}
 		} catch (...) {

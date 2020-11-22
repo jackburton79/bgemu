@@ -102,6 +102,24 @@ Parser::SetDebug(bool debug)
 }
 
 
+/* static */
+std::vector<trigger_node>
+Parser::TriggersFromString(const std::string& string)
+{
+	std::string localString = string;
+	std::vector<trigger_node> triggerList;
+	while (true) {
+		trigger_node triggerNode = TriggerFromString(localString);
+		triggerList.push_back(triggerNode);
+		size_t endLine = localString.find('\n');
+		if (endLine == localString.length() || endLine == std::string::npos)
+			break;
+
+		localString = localString.substr(endLine + 1, string.length());
+	}
+	return triggerList;
+}
+
 
 /* static */
 trigger_node
