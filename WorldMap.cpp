@@ -109,14 +109,6 @@ WorldMap::Draw(Bitmap *surface)
 	if (fWorldMap != NULL) {
 		GFX::rect sourceRect = ViewPort();
 		ConvertToArea(sourceRect);
-		if (sourceRect.w < gfx->ScreenFrame().w || sourceRect.h < gfx->ScreenFrame().h) {
-			GFX::rect clippingRect = ViewPort();
-			clippingRect.w = gfx->ScreenFrame().w;
-			clippingRect.h = gfx->ScreenFrame().h;
-			gfx->SetClipping(&clippingRect);
-			gfx->ScreenBitmap()->Clear(0);
-			gfx->SetClipping(NULL);
-		}
 		GFX::rect visibleArea = rect_to_gfx_rect(VisibleMapArea());
 		GFX::rect viewPort = ViewPort();
 		gfx->BlitToScreen(fWorldMapBitmap, &visibleArea, &viewPort);

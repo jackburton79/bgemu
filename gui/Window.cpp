@@ -230,6 +230,8 @@ Window::Pulse()
 void
 Window::Draw()
 {
+	GFX::rect clipRect = Frame();
+	GraphicsEngine::Get()->SetClipping(&clipRect);
 	if (fBackground != NULL) {
 		GFX::rect destRect(fPosition.x, fPosition.y,
 						fBackground->Width(), fBackground->Height());
@@ -241,6 +243,7 @@ Window::Draw()
 		Control* control = (*i);
 		control->Draw();
 	}
+	GraphicsEngine::Get()->SetClipping(NULL);
 }
 
 
