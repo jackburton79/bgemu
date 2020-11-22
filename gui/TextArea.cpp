@@ -128,5 +128,6 @@ TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 void
 TextArea::_UpdateScrollbar(int16 change)
 {
-	fScrollbar->UpdateOffset(fYOffset);
+	if (fScrollbar != NULL)
+		fScrollbar->UpdateOffset(fYOffset);
 }
