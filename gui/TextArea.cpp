@@ -119,6 +119,8 @@ void
 TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 {
 	fYOffset += y;
+	if (fYOffset < 0)
+		fYOffset = 0;
 	fChanged = true;
 
 	_UpdateScrollbar(y);
