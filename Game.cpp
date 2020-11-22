@@ -87,7 +87,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 					fParty->AddActor(new Actor("AJANTI", point, 0));
 				} else {
 					fParty->AddActor(new Actor("ANOMEN10", point, 0));
-					fParty->AddActor(new Actor("IMOEN", point, 0));
 				}
 			}
 		} catch (...) {
@@ -233,14 +232,18 @@ Game::LoadStartingArea()
 		return;
 	}
 
+	// TODO: Needed for the initial script
+	IE::point startPoint = {20, 20};
+	fParty->AddActor(new Actor("IMOEN", startPoint, 0));
+
 	std::cout << "OK!" << std::endl;
 	std::string startingArea = resource->ValueFor("START_AREA", "VALUE");
-	IE::point point;
-	point.x = resource->IntegerValueFor("START_XPOS", "VALUE");
-	point.y = resource->IntegerValueFor("START_YPOS", "VALUE");
+	IE::point viewPosition;
+	viewPosition.x = resource->IntegerValueFor("START_XPOS", "VALUE");
+	viewPosition.y = resource->IntegerValueFor("START_YPOS", "VALUE");
 
 	std::cout << "Starting area: " << startingArea << std::endl;
-	std::cout << "Starting position: " << point.x << "," << point.y << std::endl;
+	std::cout << "Starting position: " << viewPosition.x << "," << viewPosition.y << std::endl;
 	
 	TWODAResource* startPosResource = gResManager->Get2DA("STARTPOS");
 	if (startPosResource == NULL) {
@@ -250,7 +253,7 @@ Game::LoadStartingArea()
 	}
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
-	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(point);
+	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(viewPosition);
 
 	if (fParty != NULL) {
 		for (int16 i = 0; i < fParty->CountActors(); i++) {
