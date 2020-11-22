@@ -506,7 +506,6 @@ Core::DisplayMessage(const char* actor, const char* text)
 	// TODO: Move away from Core ? this adds too many
 	// dependencies
 	try {
-		std::cout << actor << ": " << text << std::endl;
 		Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES);
 		TextArea* textArea = NULL;
 		if (window != NULL && window->Shown()) {
