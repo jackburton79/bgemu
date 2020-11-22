@@ -35,7 +35,8 @@ Game::Get()
 
 Game::Game()
 	:
-	fParty(NULL)
+	fParty(NULL),
+	fTestMode(false)
 {
 	fParty = new ::Party();
 }
@@ -74,26 +75,29 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	inputConsole.Initialize();
 	std::cout << "OK!" << std::endl;
 
-	// TODO: Move this elsewhere.
-	// This should be filled by the player selection
-	IE::point point = { 20, 20 };
-	try {	
-		if (fParty->CountActors() == 0) {
-			if (Core::Get()->Game() == GAME_BALDURSGATE) {
-				fParty->AddActor(new Actor("AJANTI", point, 0));
-			} else {
-				fParty->AddActor(new Actor("ANOMEN10", point, 0));
-				fParty->AddActor(new Actor("IMOEN", point, 0));			
+	if (TestMode()) {
+		GUI::Get()->Load("GUITEST");
+	} else {
+		// TODO: Move this elsewhere.
+		// This should be filled by the player selection
+		IE::point point = { 20, 20 };
+		try {
+			if (fParty->CountActors() == 0) {
+				if (Core::Get()->Game() == GAME_BALDURSGATE) {
+					fParty->AddActor(new Actor("AJANTI", point, 0));
+				} else {
+					fParty->AddActor(new Actor("ANOMEN10", point, 0));
+					fParty->AddActor(new Actor("IMOEN", point, 0));
+				}
 			}
+		} catch (...) {
+			throw std::string("Error creating player!");
 		}
-	} catch (...) {
-		throw std::string("Error creating player!");
-	}
 	if (noNewGame)
 		Core::Get()->LoadWorldMap();
 	else
 		LoadStartingArea();
-
+	}
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
 	bool quitting = false;
@@ -198,9 +202,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 		gui->Draw();
 
-		//console.Draw();
+		console.Draw();
 		inputConsole.Draw();
-		Core::Get()->UpdateLogic(executeScripts);
+		if (!TestMode())
+			Core::Get()->UpdateLogic(executeScripts);
 
 		GraphicsEngine::Get()->Flip();
 		
@@ -263,3 +268,16 @@ Game::LoadStartingArea()
 	gResManager->ReleaseResource(startPosResource);
 }
 
+
+void
+Game::SetTestMode(bool value)
+{
+	fTestMode = value;
+}
+
+
+bool
+Game::TestMode() const
+{
+	return fTestMode;
+}

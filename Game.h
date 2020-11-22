@@ -24,11 +24,14 @@ public:
 	bool Load(const char* name);
 	bool Save(const char* name);
 
+	void SetTestMode(bool value);
+	bool TestMode() const;
 private:
 	Game();
 	~Game();
 
 	::Party* fParty;
+	bool fTestMode;
 };
 
 #endif /* GAME_H_ */

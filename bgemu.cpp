@@ -98,7 +98,9 @@ main(int argc, char **argv)
 		std::cout << "Testing Mode" << std::endl;
 		MovieDecoder decoder;
 		int status = decoder.Test();
-		return status;
+		if (status != 0)
+			std::cerr << "Movie Decoding test failed!" << std::endl;
+		Game::Get()->SetTestMode(true);
 	}
 	
 	if (!Core::Initialize(sPath)) {
