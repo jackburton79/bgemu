@@ -66,6 +66,7 @@ public:
 
 	void AddGlobalAction(Action* action);
 	void StartCutsceneMode();
+	void EndCutsceneMode();
 	bool CutsceneMode() const;
 	void StartCutscene(const res_ref& scriptName);
 	void SetCutsceneActor(Object* object);

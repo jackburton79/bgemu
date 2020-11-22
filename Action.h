@@ -243,6 +243,13 @@ public:
 };
 
 
+class ActionEndCutsceneMode : public Action {
+public:
+	ActionEndCutsceneMode(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionStartCutscene : public Action {
 public:
 	ActionStartCutscene(Object* object, action_node* node);

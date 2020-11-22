@@ -1178,6 +1178,12 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(new ActionStartCutsceneMode(sender, act), runNow);
 			break;
 		}
+		case 122:
+		{
+			/* ENDCUTSCENEMODE()(122 0x7a) */
+			sender->AddAction(new ActionEndCutsceneMode(sender, act), runNow);
+			break;
+		}
 		case 127:
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */

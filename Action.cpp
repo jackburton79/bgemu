@@ -925,6 +925,25 @@ ActionStartCutsceneMode::operator()()
 }
 
 
+// EndCutsceneModeAction
+ActionEndCutsceneMode::ActionEndCutsceneMode(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionEndCutsceneMode::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	Core::Get()->EndCutsceneMode();
+	SetCompleted();
+}
+
+
 // StartCutsceneAction
 ActionStartCutscene::ActionStartCutscene(Object* object, action_node* node)
 	:

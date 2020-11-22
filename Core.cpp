@@ -255,6 +255,13 @@ Core::StartCutsceneMode()
 }
 
 
+void
+Core::EndCutsceneMode()
+{
+	fCutsceneMode = false;
+}
+
+
 bool
 Core::CutsceneMode() const
 {
