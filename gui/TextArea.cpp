@@ -29,7 +29,7 @@ TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
 	fBitmap(NULL),
-	fYOffset(),
+	fYOffset(0),
 	fChanged(true)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
