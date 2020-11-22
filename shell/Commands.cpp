@@ -11,6 +11,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Game.h"
+#include "GUI.h"
 #include "InputConsole.h"
 #include "Party.h"
 #include "ResManager.h"
@@ -102,6 +103,20 @@ public:
 	}
 };
 
+
+class ShowWindowCommand : public ShellCommand {
+public:
+	ShowWindowCommand() : ShellCommand("toggle-window") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		uint16 windowID;
+		if (!(stringStream >> windowID).fail()) {
+			GUI::Get()->ToggleWindow(windowID);
+		}
+	}
+};
+
+
 #if 0
 class WalkToObjectCommand : public ShellCommand {
 public:
@@ -187,6 +202,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new WaitTimeCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ExitCommand());
 #if 0
 	console->AddCommand(new WalkToObjectCommand());
