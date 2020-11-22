@@ -54,9 +54,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
 
-	//RoomContainer::Create();
-	// TODO: Screenframe is 0 here, without the above commented call
-
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
 	GFX::rect consoleRect(
