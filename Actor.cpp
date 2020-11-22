@@ -598,8 +598,6 @@ Actor::InitiateDialogWith(Actor* actor)
 	std::cout << "InitiateDialogWith ";
 	assert(fDLG == NULL);
 
-	fActor->num_times_talked_to++;
-
 	const res_ref dialogFile = CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0'
 			|| strcasecmp(dialogFile.CString(), "None") == 0)
@@ -628,6 +626,9 @@ Actor::InitiateDialogWith(Actor* actor)
 		} catch (...) {
 
 		}
+
+		fActor->num_times_talked_to++;
+
 		gResManager->ReleaseResource(fDLG);
 		fDLG = NULL;
 	}
