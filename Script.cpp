@@ -709,6 +709,14 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 					returnValue = true;
 				break;
 			}
+			case 0x403A:
+			{
+				/* NUMTIMESTALKEDTOGT(I:NUM*)(16442, 0x403a) */
+				Actor* actor = dynamic_cast<Actor*>(sender);
+				if (actor->NumTimesTalkedTo() > (uint32)trig->parameter1)
+					returnValue = true;
+				break;
+			}
 			case 0x4040:
 			{
 				/* GlobalTimerExpired(S:Name*,S:Area*) (16448 0x4040) */
