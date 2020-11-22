@@ -335,11 +335,14 @@ GUI::SetCursor(uint32 index)
 void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
+	RoomBase* room = Core::Get()->CurrentRoom();
+	if (room == NULL)
+		return;
+
 	const uint16 kScrollingStep = 64;
 	int xMinBorder = 0;
 	int yMinBorder = 0;
 	
-	RoomBase* room = Core::Get()->CurrentRoom();
 	GFX::rect viewPort = room->ViewPort();
 	int xMaxBorder = viewPort.w;
 	int yMaxBorder = viewPort.h;
