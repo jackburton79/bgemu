@@ -135,20 +135,6 @@ Window::SetFrame(uint16 x, uint16 y, uint16 width, uint16 height)
 	fHeight = height;
 	fPosition.x = x;
 	fPosition.y = y;
-
-	//TODO: Don't hardcode here. Move to BackWindow ?
-	std::vector<Control*>::const_iterator i;
-	for (i = fControls.begin(); i != fControls.end(); i++) {
-		Control* control = (*i);
-		std::cout << "width: " << control->Width() << std::endl;
-		if (control->Width() == 640 && control->Position().x == 0) {
-			control->SetFrame(0, 0, width, height);
-		}
-	}
-
-	/*Control* control = GetControlByID(uint32(-1));
-	if (control != NULL)
-		control->SetFrame(0, 0, width, height);*/
 }
 
 
