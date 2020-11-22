@@ -9,7 +9,7 @@
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
-#include "Utils.h"
+#include "Scrollbar.h"
 #include "TextArea.h"
 #include "TextSupport.h"
 #include "TLKResource.h"
@@ -30,7 +30,8 @@ TextArea::TextArea(IE::text_area* text)
 	Control(text),
 	fBitmap(NULL),
 	fYOffset(0),
-	fChanged(true)
+	fChanged(true),
+	fScrollbar(NULL)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
 
@@ -78,6 +79,13 @@ TextArea::Draw()
 
 
 void
+TextArea::SetScrollbar(Scrollbar* scrollbar)
+{
+	fScrollbar = scrollbar;
+}
+
+
+void
 TextArea::AddText(const char* text)
 {
 	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
@@ -112,4 +120,13 @@ TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 {
 	fYOffset += y;
 	fChanged = true;
+
+	_UpdateScrollbar(y);
+}
+
+
+void
+TextArea::_UpdateScrollbar(int16 change)
+{
+	fScrollbar->UpdateOffset(fYOffset);
 }

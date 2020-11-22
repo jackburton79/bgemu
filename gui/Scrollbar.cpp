@@ -20,7 +20,8 @@ Scrollbar::Scrollbar(IE::scrollbar* scrollbar)
 	Control(scrollbar),
 	fResource(NULL),
 	fUpArrowPressed(false),
-	fDownArrowPressed(false)
+	fDownArrowPressed(false),
+	fSliderPosition(20)
 {
 	fResource = gResManager->GetBAM(scrollbar->bam);
 	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
@@ -41,6 +42,10 @@ void
 Scrollbar::AttachedToWindow(::Window* window)
 {
 	Control::AttachedToWindow(window);
+	uint16 textAreaID = ((IE::scrollbar*)fControl)->text_area_id;
+	TextArea* textArea = dynamic_cast<TextArea*>(window->GetControlByID(textAreaID));
+	if (textArea != NULL)
+		textArea->SetScrollbar(this);
 }
 
 
@@ -51,7 +56,7 @@ Scrollbar::Draw()
 	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
 	_DrawTrough(destRect);
-	//_DrawSlider(destRect);
+	_DrawSlider(destRect);
 	_DrawUpArrow(destRect);
 	_DrawDownArrow(destRect);
 }
@@ -114,6 +119,13 @@ Scrollbar::MouseMoved(IE::point point, uint32 transit)
 
 
 void
+Scrollbar::UpdateOffset(int16 offset)
+{
+	fSliderPosition = 20 + offset;
+}
+
+
+void
 Scrollbar::_DrawTrough(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
@@ -133,7 +145,7 @@ Scrollbar::_DrawSlider(const GFX::rect& screenRect)
 
 	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
 					scrollbar->slider));
-	GFX::rect destRect(screenRect.x, screenRect.y + 20,
+	GFX::rect destRect(screenRect.x, screenRect.y + fSliderPosition,
 			frame->Width(), frame->Height());
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 }

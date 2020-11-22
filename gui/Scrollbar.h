@@ -27,12 +27,14 @@ public:
 	virtual void MouseUp(IE::point point);
 	virtual void Pulse();
 
+	void UpdateOffset(int16 offset);
 private:
 	BAMResource* fResource;
 	Bitmap* fUpArrow;
 	Bitmap* fDownArrow;
 	bool fUpArrowPressed;
 	bool fDownArrowPressed;
+	int16 fSliderPosition;
 
 	void _DrawTrough(const GFX::rect& screenRect);
 	void _DrawSlider(const GFX::rect& screenRect);

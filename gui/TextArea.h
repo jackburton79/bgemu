@@ -15,6 +15,7 @@
 
 class Bitmap;
 class Font;
+class Scrollbar;
 class TextArea: public Control {
 public:
 	class TextLine {
@@ -28,6 +29,8 @@ public:
 	virtual ~TextArea();
 	virtual void Draw();
 
+	void SetScrollbar(Scrollbar* scrollbar);
+
 	void AddText(const char* text);
 	void ClearText();
 
@@ -38,6 +41,10 @@ private:
 	std::vector<TextLine*> fLines;
 	int16 fYOffset;
 	bool fChanged;
+
+	Scrollbar* fScrollbar;
+
+	void _UpdateScrollbar(int16 change);
 };
 
 #endif /* TEXTAREA_H_ */
