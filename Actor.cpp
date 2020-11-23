@@ -612,7 +612,6 @@ Actor::InitiateDialogWith(Actor* actor)
 			for (;;) {
 				dialogState = fDLG->GetNextState(i);
 				if (!dialogState.trigger.empty()) {
-					std::cout << dialogState.trigger << std::endl;
 					std::vector<trigger_node> triggerList;
 					triggerList = Parser::TriggersFromString(dialogState.trigger);
 					bool pass = true;
@@ -626,7 +625,6 @@ Actor::InitiateDialogWith(Actor* actor)
 							break;
 						}
 					}
-					std::cout << (pass ? "PASS" : "") << std::endl;
 					if (pass) {
 						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
 						break;
