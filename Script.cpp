@@ -138,7 +138,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 
 /* static */
 Object*
-Script::FindTriggerObject(Object* object, trigger_node* start)
+Script::FindTriggerObject(const Object* object, trigger_node* start)
 {
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode == NULL)
@@ -150,20 +150,20 @@ Script::FindTriggerObject(Object* object, trigger_node* start)
 
 /* static */
 Object*
-Script::FindSenderObject(Object* object, action_node* start)
+Script::FindSenderObject(const Object* object, action_node* start)
 {
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
-		return object;
+		return const_cast<Object*>(object);
 	}
 	
 	Object* result = GetObject(object, objectNode);
 	if (result == NULL) {
 		if (sDebug)
 			std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
-		return object;
+		return const_cast<Object*>(object);
 	}
 	if (sDebug)
 		std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
@@ -172,7 +172,7 @@ Script::FindSenderObject(Object* object, action_node* start)
 
 
 Object*
-Script::FindTargetObject(Object* object, action_node* start)
+Script::FindTargetObject(const Object* object, action_node* start)
 {
 	if (sDebug)
 		std::cout << "FindTargetObject:" << std::endl;

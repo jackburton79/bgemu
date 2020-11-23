@@ -39,9 +39,9 @@ public:
 	static node*			FindNode(const Object* object, block_type type, node* start);
 
 	// convenience calls
-	static Object*			FindTriggerObject(Object* object, trigger_node* start);
-	static Object*			FindSenderObject(Object* object, action_node* start);
-	static Object*			FindTargetObject(Object* object, action_node* start);
+	static Object*			FindTriggerObject(const Object* object, trigger_node* start);
+	static Object*			FindSenderObject(const Object* object, action_node* start);
+	static Object*			FindTargetObject(const Object* object, action_node* start);
 	
 	bool Execute(bool &continuing);
 
