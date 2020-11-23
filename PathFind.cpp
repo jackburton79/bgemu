@@ -17,7 +17,7 @@ struct FindPoint {
 	FindPoint(const IE::point& point)
 		: toFind(point) {};
 
-	bool operator() (const point_node* node) {
+	bool operator() (const point_node* node) const {
 		return node->point == toFind;
 	};
 	const IE::point& toFind;
