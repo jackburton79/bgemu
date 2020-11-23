@@ -20,6 +20,37 @@ struct state_trigger {
 };
 
 
+struct dlg_state {
+	int32 text_ref;
+	int32 transition_first;
+	int32 transitions_num;
+	int32 trigger;
+};
+
+
+struct transition_table {
+	int32 flags;
+	int32 text_player;
+	int32 text_journal;
+	int32 index_trigger;
+	int32 index_action;
+	res_ref resource_next_state;
+	int32 index_next_state;
+};
+
+
+enum dlg_transition_flags {
+	DLG_TRANSITION_HAS_TEXT = 1,
+	DLG_TRANSITION_HAS_ACTION = 1 << 1,
+	DLG_TRANSITION_END = 1 << 2,
+	DLG_TRANSITION_HAS_JOURNAL = 1 << 3,
+	DLG_TRANSITION_INTERRUPT = 1 << 4,
+	DLG_TRANSITION_JOURNAL_UNSOLVED = 1 << 5,
+	DLG_TRANSITION_JOURNAL_NOTE = 1 << 6,
+	DLG_TRANSITION_JOURNAL_SOLVED = 1 << 7
+};
+
+
 /* static */
 Resource*
 DLGResource::Create(const res_ref& name)
@@ -46,7 +77,8 @@ DLGResource::GetNextState(int32& index)
 	if ((uint32)index == fNumStates)
 		throw std::out_of_range("GetNextState()");
 
-	dlg_state state = _GetStateAt(index);
+	dlg_state state;
+	_GetStateAt(index, state);
 	std::string triggerString = "";
 	if (state.trigger != -1)
 		triggerString = _GetStateTrigger(state.trigger);
@@ -87,12 +119,10 @@ DLGResource::Load(Archive* archive, uint32 key)
 }
 
 
-struct dlg_state
-DLGResource::_GetStateAt(int index)
+void
+DLGResource::_GetStateAt(int index, dlg_state& dlgState)
 {
-	struct dlg_state dlgState;
 	fData->ReadAt(fStateTableOffset + index * sizeof(dlg_state), dlgState);
-	return dlgState;
 }
 
 

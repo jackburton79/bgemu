@@ -10,24 +10,6 @@
 
 #include "Resource.h"
 
-struct dlg_state {
-	int32 text_ref;
-	int32 transition_first;
-	int32 transitions_num;
-	int32 trigger;
-};
-
-
-struct transition_table {
-	int32 flags;
-	int32 text_player;
-	int32 text_journal;
-	int32 index_trigger;
-	int32 index_action;
-	res_ref resource_next_state;
-	int32 index_next_state;
-};
-
 
 class DialogState {
 public:
@@ -35,7 +17,7 @@ public:
 	std::string text;
 };
 
-
+struct dlg_state;
 class DLGResource : public Resource {
 public:
 	DLGResource(const res_ref& name);
@@ -49,7 +31,7 @@ public:
 private:
 	virtual ~DLGResource();
 
-	struct dlg_state _GetStateAt(int index);
+	void _GetStateAt(int index, dlg_state& state);
 	std::string _GetStateTrigger(int triggerIndex);
 
 	uint32 fNumStates;
