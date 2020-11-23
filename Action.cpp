@@ -726,8 +726,8 @@ ActionDialog::operator()()
 			actor->InitiateDialogWith(target);
 		SetInitiated();
 	}
-	std::cout << "object: " << object->Name() << std::endl;
-	std::cout << "target: " << target->Name() << std::endl;
+	std::cout << "Actor " << object->Name();
+	std::cout << " will talk to " << target->Name() << std::endl;
 	// TODO: Some dialogue action require the actor to be near the target,
 	// others do not. Must be able to differentiate
 /*
