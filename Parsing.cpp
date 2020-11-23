@@ -715,7 +715,20 @@ trigger_node::Print() const
 
 // object
 object_node::object_node()
+	:
+	team(0),
+	faction(0),
+	ea(0),
+	general(0),
+	race(0),
+	classs(0),
+	specific(0),
+	gender(0),
+	alignment(0)
 {
+	memset(identifiers, 0, sizeof(identifiers));
+	point = {-1, -1};
+	name[0] = '\0';
 }
 
 
