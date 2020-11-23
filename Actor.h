@@ -155,6 +155,8 @@ private:
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 	
+	bool _EvaluateDialogTriggers(std::vector<trigger_node>& triggers);
+
 	void _CheckRegion();
 };
 
