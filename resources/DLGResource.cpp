@@ -86,6 +86,8 @@ DLGResource::GetNextState(int32& index)
 	DialogState dialogState;
 	dialogState.text = IDTable::GetDialog(state.text_ref);
 	dialogState.trigger = triggerString;
+	dialogState.transition_index = state.transition_first;
+	dialogState.transition_count = state.transitions_num;
 
 	index++;
 
