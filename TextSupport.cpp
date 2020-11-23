@@ -80,7 +80,7 @@ Font::TruncateString(std::string& string, uint16 maxWidth) const
 
 
 void
-Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette) const
 {
 	GFX::rect frame = bitmap->Frame();
@@ -89,7 +89,7 @@ Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 
 
 void
-Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette, const GFX::rect& rect) const
 {
 	_RenderString(string, flags, bitmap, useBAMPalette, &rect, NULL);
@@ -97,7 +97,7 @@ Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 
 
 void
-Font::RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette, const GFX::point& point) const
 {
 	_RenderString(string, flags, bitmap, useBAMPalette, NULL, &point);
@@ -126,7 +126,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 
 
 void
-Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
+Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
@@ -187,7 +187,7 @@ Font::_RenderString(std::string string, uint32 flags, Bitmap* bitmap,
 
 
 void
-Font::_PrepareBitmaps(std::string string, uint16& width, uint16& height,
+Font::_PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
 				std::vector<const Bitmap*> *bitmaps) const
 {
 	// First pass: calculate total width and height

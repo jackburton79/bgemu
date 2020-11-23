@@ -35,16 +35,16 @@ public:
 	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
 	std::string TruncateString(std::string& string, uint16 maxWidth) const;
 
-	void RenderString(std::string string,
+	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette = true) const;
 
-	void RenderString(std::string string,
+	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::point& point) const;
 
-	void RenderString(std::string string,
+	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::rect& rect) const;
@@ -52,11 +52,11 @@ public:
 	uint8 TransparentIndex() const { return fTransparentIndex; };
 private:
 	void _LoadGlyphs(const std::string& fontName);
-	void _RenderString(std::string string,
+	void _RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::rect* rect, const GFX::point* point) const;
-	void _PrepareBitmaps(std::string string, uint16& width, uint16& height,
+	void _PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
 				std::vector<const Bitmap*> *bitmaps = NULL) const;
 
 	std::string fName;
