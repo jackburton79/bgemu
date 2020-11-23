@@ -32,6 +32,7 @@ struct string_entry {
 class Animation;
 class BAMResource;
 class CHUIResource;
+class TextArea;
 class GUI : public Listener {
 public:
 	enum {
@@ -66,6 +67,8 @@ public:
 	void ToggleWindow(uint16 id);
 
 	Window* GetWindow(uint16 id) const;
+	TextArea* GetMessagesTextArea();
+
 	void SetArrowCursor(uint32 index);
 	void SetCursor(uint32 index);
 

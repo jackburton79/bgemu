@@ -17,6 +17,7 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "TextArea.h"
 #include "TextSupport.h"
 #include "Timer.h"
 
@@ -315,6 +316,25 @@ GUI::GetWindow(uint16 id) const
 	}
 
 	return NULL;
+}
+
+
+TextArea*
+GUI::GetMessagesTextArea()
+{
+	Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES);
+	TextArea* textArea = NULL;
+	if (window != NULL && window->Shown()) {
+		textArea = dynamic_cast<TextArea*>(
+									window->GetControlByID(3));
+	} else {
+		window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
+		if (window != NULL && window->Shown()) {
+			textArea = dynamic_cast<TextArea*>(
+					window->GetControlByID(1));
+		}
+	}
+	return textArea;
 }
 
 

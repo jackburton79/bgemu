@@ -505,28 +505,13 @@ Core::DisplayMessage(const char* actor, const char* text)
 {
 	// TODO: Move away from Core ? this adds too many
 	// dependencies
-	try {
-		Window* window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES);
-		TextArea* textArea = NULL;
-		if (window != NULL && window->Shown()) {
-			textArea = dynamic_cast<TextArea*>(
-										window->GetControlByID(3));
-		} else {
-			window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
-			if (window != NULL && window->Shown()) {
-				textArea = dynamic_cast<TextArea*>(
-						window->GetControlByID(1));
-			}
-		}
-		if (textArea != NULL) {
-			std::string fullText;
-			if (actor != NULL)
-				fullText.append(actor).append(": ");
-			fullText.append(text);
-			textArea->AddText(fullText.c_str());
-		}
-	} catch (...) {
-		//TODO: handle exception
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea != NULL) {
+		std::string fullText;
+		if (actor != NULL)
+			fullText.append(actor).append(": ");
+		fullText.append(text);
+		textArea->AddText(fullText.c_str());
 	}
 }
 
