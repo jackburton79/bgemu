@@ -195,7 +195,7 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 	const uint32 loopMax = fMapSize * 2;
 	for (uint32 i = 0; i < loopMax; i++) {
 		const uint32 index = i >> 1;
-		uint8 opcode = i & 1 ?
+		uint8 opcode = (i & 1) ?
 				((fDecodingMap[index] >> 4) & 0x0F) :
 				(fDecodingMap[index] & 0x0F);
 
