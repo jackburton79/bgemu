@@ -52,9 +52,9 @@ Animation::Animation(const char* bamName,
 	fStartFrame(0),
 	fMaxFrame(0),
 	fBlackAsTransparent(false),
-	fMirrored(mirror)
+	fMirrored(mirror),
+	fName(bamName)
 {
-	fName = bamName;
 	BAMResource* bam = gResManager->GetBAM(fName.c_str());
 	if (bam == NULL)
 		throw "missing BAM";
