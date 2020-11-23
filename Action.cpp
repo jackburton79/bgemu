@@ -119,7 +119,7 @@ ActionSetGlobal::operator()()
 	VariableGetScopeName(fActionParams->string1, variableScope, variableName);
 	if (variableScope.compare("LOCALS") == 0) {
 		if (fObject != NULL)
-			fObject->Vars().Set(variableName.c_str(),
+			fObject->SetVariable(variableName.c_str(),
 					fActionParams->integer1);
 	} else {
 		// TODO: Check for AREA variables

@@ -605,7 +605,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				VariableGetScopeName(trig->string1, variableScope, variableName);
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = sender->Vars().Get(variableName.c_str());
+					variableValue = sender->GetVariable(variableName.c_str());
 				} else {
 					// TODO: Check for AREA variables, currently we
 					// treat AREA variables as global variables
@@ -758,7 +758,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
 				if (actor != NULL) {
 					const char* deathVariable = actor->CRE()->DeathVariable();
-					returnValue = actor->Vars().Get(deathVariable) == 1;
+					returnValue = actor->GetVariable(deathVariable) == 1;
 				}
 				break;
 			}

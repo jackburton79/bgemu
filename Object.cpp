@@ -135,10 +135,17 @@ Object::IsNew() const
 }
 
 
-Variables&
-Object::Vars()
+int32
+Object::GetVariable(const char* name) const
 {
-	return fVariables;
+	return fVariables.Get(name);
+}
+
+
+void
+Object::SetVariable(const char* name, int32 value)
+{
+	fVariables.Set(name, value);
 }
 
 

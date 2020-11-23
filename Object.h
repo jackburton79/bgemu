@@ -60,7 +60,8 @@ public:
 
 	virtual IE::rect Frame() const = 0;
 
-	Variables& Vars();
+	int32 GetVariable(const char* name) const;
+	void SetVariable(const char* name, int32 value);
 
 	void Clicked(Object* clicker);
 
