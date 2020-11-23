@@ -793,8 +793,6 @@ Actor::CanSee(Object* target)
 void
 Actor::Update(bool scripts)
 {
-	_CheckRegion();
-	
 	Object::Update(scripts);
 	UpdateTileCell();
 
@@ -1038,21 +1036,4 @@ Actor::_EvaluateDialogTriggers(std::vector<trigger_node>& triggers)
 			return false;
 	}
 	return true;
-}
-
-
-void
-Actor::_CheckRegion()
-{
-	return;
-	Region* region = Core::Get()->RegionAtPoint(Position());
-	if (region != NULL && region != fRegion) {
-		/*trigger_entry entry;
-		entry.name = "actor_over";
-		entry.target = Name();
-		region->AddTrigger(entry);*/
-	}
-	fRegion = region;
-	if (fRegion != NULL)
-		std::cout << Name() << " is over " << fRegion->Name() << std::endl;
 }
