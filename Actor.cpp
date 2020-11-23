@@ -606,11 +606,11 @@ Actor::InitiateDialogWith(Actor* actor)
 		std::cout << dialogFile << std::endl;
 
 		fDLG = gResManager->GetDLG(dialogFile);
-		int32 i = 0;
 		DialogState dialogState;
 		try {
+			int32 stateIndex = 0;
 			for (;;) {
-				dialogState = fDLG->GetNextState(i);
+				dialogState = fDLG->GetNextState(stateIndex);
 				if (!dialogState.trigger.empty()) {
 					std::vector<trigger_node> triggerList;
 					triggerList = Parser::TriggersFromString(dialogState.trigger);
@@ -619,8 +619,8 @@ Actor::InitiateDialogWith(Actor* actor)
 						// present options to the player
 						// etc.
 						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
-						for (uint32 i = 0; i < dialogState.transition_count; i++) {
-							DialogTransition transition = fDLG->GetTransition(i + dialogState.transition_index);
+						for (uint32 t = 0; t < dialogState.transition_count; t++) {
+							DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
 							std::cout << "player: " << transition.text_player << std::endl;
 						}
 
