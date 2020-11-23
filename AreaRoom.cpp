@@ -1007,15 +1007,15 @@ AreaRoom::_InitRegions()
 	std::cout << "Initializing Regions...";
 	std::flush(std::cout);
 
-	for (uint16 i = 0; i < fArea->CountRegions(); i++) {
-		Region* region = fArea->GetRegionAt(i);		
+	for (uint16 regionIndex = 0; regionIndex < fArea->CountRegions(); regionIndex++) {
+		Region* region = fArea->GetRegionAt(regionIndex);
 		fRegions.push_back(region);
 		Core::Get()->RegisterObject(region);
 		std::vector<TileCell*> cells;
 		GetTileCellsForRegion(cells, region);
-		for (std::vector<TileCell*>::iterator i = cells.begin();
-			i != cells.end(); i++) {
-			(*i)->AddRegion(region);
+		for (std::vector<TileCell*>::iterator cellIterator = cells.begin();
+			cellIterator != cells.end(); cellIterator++) {
+			(*cellIterator)->AddRegion(region);
 		}
 
 		// TODO: associate room to tile cells
