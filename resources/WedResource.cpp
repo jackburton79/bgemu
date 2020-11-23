@@ -181,7 +181,7 @@ WEDResource::LinkDoorWithTiledObject(Door* door)
 			continue;
 
 		fData->Seek(fTiledObjectsTileCellsOffset + tiled.cell_index * sizeof(uint16), SEEK_SET);
-		for (uint16 i = 0; i < tiled.cell_count; i++) {
+		for (uint16 cellIndex = 0; cellIndex < tiled.cell_count; cellIndex++) {
 			uint16 tileIndex;
 			fData->Read(tileIndex);
 			door->fTilesOpen.push_back(tileIndex);
