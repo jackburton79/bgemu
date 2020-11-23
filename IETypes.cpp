@@ -419,7 +419,6 @@ region::Print() const
 	//uint16 use_point_x;
 	//uint16 use_point_y;
 	std::cout << "unk2: " << unk2 << std::endl;
-	char unk3[32];
 	std::cout << "unk3: " << unk3 << std::endl;
 	//std::cout << "sound: " << sound << std::endl;
 	//std::cout << "talk_location: " << talk_location << std::endl;
