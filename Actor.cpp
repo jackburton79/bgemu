@@ -627,7 +627,9 @@ Actor::InitiateDialogWith(Actor* actor)
 					}
 					if (pass) {
 						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
-						// TODO: handle transition
+						//DialogTransition transition = fDLG->GetTransition(dialogState.transition_index);
+						//std::cout << "player: " << transition.text_player << std::endl;
+						// TODO: handle all transitions
 						break;
 					}
 				}

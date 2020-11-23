@@ -15,7 +15,16 @@ class DialogState {
 public:
 	std::string trigger;
 	std::string text;
+	uint32 transition_index;
+	uint32 transition_count;
 };
+
+
+class DialogTransition {
+public:
+	std::string text_player;
+};
+
 
 struct dlg_state;
 class DLGResource : public Resource {
@@ -25,6 +34,7 @@ public:
 	virtual bool Load(Archive* archive, uint32 key);
 
 	DialogState GetNextState(int32& index);
+	DialogTransition GetTransition(int32 index);
 
 	static Resource* Create(const res_ref& name);
 

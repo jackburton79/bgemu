@@ -28,7 +28,7 @@ struct dlg_state {
 };
 
 
-struct transition_table {
+struct transition_entry {
 	int32 flags;
 	int32 text_player;
 	int32 text_journal;
@@ -90,6 +90,18 @@ DLGResource::GetNextState(int32& index)
 	index++;
 
 	return dialogState;
+}
+
+
+
+DialogTransition
+DLGResource::GetTransition(int32 index)
+{
+	DialogTransition transition;
+	transition_entry entry;
+	fData->ReadAt(fTransitionsTableOffset + index * sizeof(transition_entry), entry);
+	transition.text_player = IDTable::GetDialog(entry.text_player);
+	return transition;
 }
 
 
