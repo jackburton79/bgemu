@@ -627,6 +627,7 @@ Actor::InitiateDialogWith(Actor* actor)
 					}
 					if (pass) {
 						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
+						// TODO: handle transition
 						break;
 					}
 				}

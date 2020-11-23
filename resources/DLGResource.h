@@ -18,6 +18,17 @@ struct dlg_state {
 };
 
 
+struct transition_table {
+	int32 flags;
+	int32 text_player;
+	int32 text_journal;
+	int32 index_trigger;
+	int32 index_action;
+	res_ref resource_next_state;
+	int32 index_next_state;
+};
+
+
 class DialogState {
 public:
 	std::string trigger;
