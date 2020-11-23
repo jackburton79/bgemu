@@ -694,7 +694,8 @@ trigger_node::trigger_node()
 	id(0),
 	parameter1(0),
 	flags(0),
-	parameter2(0)
+	parameter2(0),
+	unknown(0)
 {
 	string1[0] = '\0';
 	string2[0] = '\0';
