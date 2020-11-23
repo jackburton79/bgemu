@@ -281,7 +281,7 @@ Object::IsActionListEmpty() const
 		std::cout << (*i)->Name() << std::endl;
 	}*/
 
-	return fCurrentAction == NULL && fActions.size() == 0;
+	return fCurrentAction == NULL && fActions.empty();
 }
 
 
