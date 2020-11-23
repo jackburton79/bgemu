@@ -717,10 +717,12 @@ AreaRoom::_InitBlitMask()
 	fBlitMask->Lock();
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 		const Polygon* poly = fWed->PolygonAt(p);
+		if (poly == NULL)
+			continue;
 		uint32 mask = GraphicsEngine::MASK_COMPLETELY;
 		if (poly->Flags() & IE::POLY_SHADE_WALL)
 			mask = GraphicsEngine::MASK_SHADE;
-		if (poly != NULL && poly->CountPoints() > 0) {
+		if (poly->CountPoints() > 0) {
 			fBlitMask->FillPolygon(*poly, mask);
 		}
 	}
