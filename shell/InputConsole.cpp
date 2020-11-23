@@ -71,7 +71,7 @@ InputConsole::HandleInput(uint8 c)
 {
 	switch (c) {
 		case SDLK_RETURN:
-			_ExecuteCommand(fBuffer.c_str());
+			_ExecuteCommand(fBuffer);
 			fBuffer = "";
 			ClearScreen();
 			break;
