@@ -290,11 +290,11 @@ Script::SetSender(Object* object)
 
 /* static */
 Object*
-Script::ResolveIdentifier(Object* object, object_node* node, const int id)
+Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 {
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
-		return object;
+		return const_cast<Object*>(object);
 	if (identifier.find("PLAYER") != std::string::npos) {
 		// TODO: dangerous code
 		char* n = &identifier[6];
@@ -304,7 +304,7 @@ Script::ResolveIdentifier(Object* object, object_node* node, const int id)
 
 	// TODO: Implement more identifiers
 	if (identifier == "NEARESTENEMYOF") {
-		Actor* actor = dynamic_cast<Actor*>(object);
+		const Actor* actor = dynamic_cast<const Actor*>(object);
 		if (actor == NULL)
 			return NULL;
 		return Core::Get()->GetNearestEnemyOf(actor);
@@ -316,13 +316,11 @@ Script::ResolveIdentifier(Object* object, object_node* node, const int id)
 	if (identifier == "LASTTRIGGER")
 		return object->LastTrigger();
 
-#if 1
 	if (identifier == "LASTATTACKEROF")
 		return object->FindTrigger("AttackedBy");
-#endif
 
 	if (identifier == "NEARESTENEMYOFTYPE") {
-		Actor* actor = dynamic_cast<Actor*>(object);
+		const Actor* actor = dynamic_cast<const Actor*>(object);
 		if (actor == NULL)
 			return NULL;
 		return Core::Get()->GetNearestEnemyOfType(actor, node->classs);
@@ -336,7 +334,7 @@ Script::ResolveIdentifier(Object* object, object_node* node, const int id)
 
 /* static */
 Object*
-Script::GetObject(Object* source, object_node* node)
+Script::GetObject(const Object* source, object_node* node)
 {
 	if (sDebug)
 		std::cout << "Script::GetObject() ";

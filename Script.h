@@ -50,8 +50,8 @@ public:
 
 	static bool EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrig);
 
-	static Object* ResolveIdentifier(Object* object, object_node* node, const int id);
-	static Object* GetObject(Object* source, object_node* node);
+	static Object* ResolveIdentifier(const Object* object, object_node* node, const int id);
+	static Object* GetObject(const Object* source, object_node* node);
 	
 	bool IsActionInstant(uint16 actionId) const;
 private:
