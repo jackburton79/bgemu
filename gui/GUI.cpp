@@ -339,6 +339,15 @@ GUI::GetMessagesTextArea()
 
 
 void
+GUI::EnsureShowDialogArea()
+{
+	if (IsWindowShown(WINDOW_MESSAGES)) {
+		HideWindow(WINDOW_MESSAGES);
+		ShowWindow(WINDOW_MESSAGES_LARGE);
+	}
+}
+
+void
 GUI::SetArrowCursor(uint32 index)
 {
 	fCurrentCursor = fCursors[index];

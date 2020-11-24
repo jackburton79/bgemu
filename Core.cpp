@@ -307,6 +307,7 @@ void
 Core::SetDialogMode(bool value)
 {
 	fDialogMode = value;
+	GUI::Get()->EnsureShowDialogArea();
 }
 
 
