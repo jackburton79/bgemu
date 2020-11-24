@@ -291,6 +291,9 @@ Script::SetSender(Object* object)
 Object*
 Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 {
+	if (object == NULL)
+		return NULL;
+
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
 		return const_cast<Object*>(object);
