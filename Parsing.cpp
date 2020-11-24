@@ -814,7 +814,6 @@ action_node::Print() const
 	std::cout << "where: (" << where.x << ", " << where.y << "), ";
 	std::cout << "integer2: " << integer2 << ", ";
 	std::cout << "integer3: " << integer3 << ", ";
-	std::cout << "integer1: " << integer1 << ", ";
 	std::cout << "string1: " << string1 << ", ";
 	std::cout << "string2: " << string2 << std::endl;
 }
