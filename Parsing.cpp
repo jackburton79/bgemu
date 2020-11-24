@@ -728,7 +728,7 @@ object_node::object_node()
 	alignment(0)
 {
 	memset(identifiers, 0, sizeof(identifiers));
-	point = {-1, -1};
+	point.x = point.y = -1;
 	name[0] = '\0';
 }
 
