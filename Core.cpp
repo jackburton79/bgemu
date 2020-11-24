@@ -45,6 +45,7 @@ Core::Core()
 	fCurrentRoundNumber(0),
 	fPaused(false),
 	fCutsceneMode(false),
+	fDialogMode(false),
 	fCutsceneActor(NULL)
 {
 	srand(time(NULL));
@@ -295,6 +296,20 @@ Core::SetCutsceneActor(Object* actor)
 }
 
 
+bool
+Core::InDialogMode() const
+{
+	return fDialogMode;
+}
+
+
+void
+Core::SetDialogMode(bool value)
+{
+	fDialogMode = value;
+}
+
+
 void
 Core::PlayAnimation(const res_ref& name, const IE::point where)
 {
@@ -538,18 +553,19 @@ Core::UpdateLogic(bool executeScripts)
 	
 	fCurrentRoom->Update(executeScripts);
 
-	// TODO: Fix/Improve
-	ObjectsList::iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		Object* object = i->second;
-		//SetActiveActor(actor);
-		object->Update(executeScripts);
-	}
+	if (!InDialogMode()) {
+		// TODO: Fix/Improve
+		ObjectsList::iterator i;
+		for (i = fObjects.begin(); i != fObjects.end(); i++) {
+			Object* object = i->second;
+			//SetActiveActor(actor);
+			object->Update(executeScripts);
+		}
+		//SetActiveActor(NULL);
+		_CleanDestroyedObjects();
 
-	//SetActiveActor(NULL);
-	_CleanDestroyedObjects();
-	
-	_NewRound();
+		_NewRound();
+	}
 }
 
 

@@ -71,6 +71,9 @@ public:
 	void StartCutscene(const res_ref& scriptName);
 	void SetCutsceneActor(Object* object);
 
+	bool InDialogMode() const;
+	void SetDialogMode(bool value);
+
 	void PlayAnimation(const res_ref& name, const IE::point where);
 	void PlayEffect(const res_ref& name, const IE::point where);
 	void PlaySound(const res_ref& soundRefName);
@@ -143,6 +146,7 @@ private:
 
 	bool fPaused;
 	bool fCutsceneMode;
+	bool fDialogMode;
 	Object* fCutsceneActor;
 };
 

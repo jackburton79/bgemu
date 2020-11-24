@@ -605,6 +605,8 @@ Actor::InitiateDialogWith(Actor* actor)
 	else {
 		std::cout << dialogFile << std::endl;
 
+		Core::Get()->SetDialogMode(true);
+
 		fDLG = gResManager->GetDLG(dialogFile);
 		DialogState dialogState;
 		try {
@@ -631,11 +633,18 @@ Actor::InitiateDialogWith(Actor* actor)
 		} catch (...) {
 
 		}
+	}
+}
 
+
+void
+Actor::TerminateDialog()
+{
+	if (Core::Get()->InDialogMode()) {
 		fActor->num_times_talked_to++;
-
 		gResManager->ReleaseResource(fDLG);
 		fDLG = NULL;
+		Core::Get()->SetDialogMode(false);
 	}
 }
 
