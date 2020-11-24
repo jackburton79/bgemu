@@ -66,7 +66,6 @@ private:
 	node *fRootNode;
 	
 	Object* fSender;
-	Object* fLastTrigger;
 
 	node* fCurrentNode;
 

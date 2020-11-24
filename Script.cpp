@@ -57,7 +57,6 @@ Script::Script(node* rootNode)
 	:
 	fRootNode(rootNode),
 	fSender(NULL),
-	fLastTrigger(NULL),
 	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
