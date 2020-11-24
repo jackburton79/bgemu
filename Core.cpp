@@ -552,9 +552,8 @@ Core::UpdateLogic(bool executeScripts)
 	if (timer->Expired())
 		timer->Rearm();
 	
-	fCurrentRoom->Update(executeScripts);
-
 	if (!InDialogMode()) {
+		fCurrentRoom->Update(executeScripts);
 		// TODO: Fix/Improve
 		ObjectsList::iterator i;
 		for (i = fObjects.begin(); i != fObjects.end(); i++) {

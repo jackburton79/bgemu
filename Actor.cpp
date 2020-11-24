@@ -627,7 +627,6 @@ Actor::InitiateDialogWith(Actor* actor)
 							std::string option("DIALOGOPTION");
 							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
 						}
-
 						break;
 					}
 				}
