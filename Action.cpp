@@ -966,7 +966,7 @@ ActionClearAllActions::operator()()
 }
 
 
-// StartCutsceneAction
+// ActionStartCutscene
 ActionStartCutscene::ActionStartCutscene(Object* object, action_node* node)
 	:
 	Action(object, node)
@@ -979,7 +979,7 @@ void
 ActionStartCutscene::operator()()
 {
 	if (fObject == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
+		std::cerr << "ActionStartCutscene: NULL OBJECT" << std::endl;
 	Core::Get()->StartCutscene(fActionParams->string1);
 	SetCompleted();
 }
