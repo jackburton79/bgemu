@@ -962,6 +962,7 @@ void
 ActionClearAllActions::operator()()
 {
 	Core::Get()->ClearAllActions();
+	SetCompleted();
 }
 
 
