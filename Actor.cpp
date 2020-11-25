@@ -153,10 +153,6 @@ Actor::_Init()
 	fActor->script_default = fCRE->DefaultScriptName();
 	fActor->script_general = fCRE->GeneralScriptName();
 
-	// Replace actor name with dialog file
-	// TODO: Correct ?
-	if (strcasecmp(fCRE->DialogFile().CString(), "None") != 0)
-		SetName(fCRE->DialogFile().CString());
 	_HandleScripts();
 
 #if 0
