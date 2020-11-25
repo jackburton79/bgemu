@@ -624,8 +624,11 @@ Actor::InitiateDialogWith(Actor* actor)
 						for (uint32 t = 0; t < dialogState.transition_count; t++) {
 							DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
 							// TODO: For now, later something like "AddDialogOption(t)"
-							std::string option("DIALOGOPTION");
-							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
+
+							if (!transition.text_player.empty()) {
+								std::string option("DIALOGOPTION");
+								Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
+							}
 						}
 						break;
 					}

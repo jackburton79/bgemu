@@ -23,6 +23,7 @@ public:
 class DialogTransition {
 public:
 	std::string text_player;
+	std::string action;
 };
 
 

@@ -102,7 +102,16 @@ DLGResource::GetTransition(int32 index)
 	DialogTransition transition;
 	transition_entry entry;
 	fData->ReadAt(fTransitionsTableOffset + index * sizeof(transition_entry), entry);
-	transition.text_player = IDTable::GetDialog(entry.text_player);
+	if (entry.flags & DLG_TRANSITION_HAS_TEXT)
+		transition.text_player = IDTable::GetDialog(entry.text_player);
+	if (entry.flags & DLG_TRANSITION_HAS_ACTION) {
+		uint32 action;
+		fData->ReadAt(fActionsTableOffset + entry.index_action * sizeof(uint32), action);
+		transition.action = IDTable::ActionAt(action);
+		std::cout << "action:" << action << std::endl;
+	}
+
+
 	return transition;
 }
 
