@@ -111,6 +111,9 @@ DLGResource::GetTransition(int32 index)
 		std::cout << "action:" << action << std::endl;
 	}
 
+	if (entry.flags & DLG_TRANSITION_END) {
+		std::cout << "TRANSITION_END" << std::endl;
+	}
 
 	return transition;
 }
