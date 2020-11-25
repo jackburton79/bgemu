@@ -1193,6 +1193,12 @@ Script::_HandleAction(action_node* act)
 			sender->AddAction(new ActionEndCutsceneMode(sender, act), runNow);
 			break;
 		}
+		case 123:
+		{
+			/* CLEARALLACTIONS()(123, 0x7b) */
+			sender->AddAction(new ActionClearAllActions(sender, act), runNow);
+			break;
+		}
 		case 127:
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */

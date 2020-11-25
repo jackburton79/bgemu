@@ -250,6 +250,14 @@ Core::ActiveActor()
 
 
 void
+Core::ClearAllActions()
+{
+	for (ActorsList::iterator a = fActors.begin(); a != fActors.end(); a++)
+		(*a)->ClearActionList();
+}
+
+
+void
 Core::StartCutsceneMode()
 {
 	fCutsceneMode = true;

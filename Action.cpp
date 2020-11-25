@@ -949,6 +949,22 @@ ActionEndCutsceneMode::operator()()
 }
 
 
+// ActionClearAllActions
+ActionClearAllActions::ActionClearAllActions(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionClearAllActions::operator()()
+{
+	Core::Get()->ClearAllActions();
+}
+
+
 // StartCutsceneAction
 ActionStartCutscene::ActionStartCutscene(Object* object, action_node* node)
 	:

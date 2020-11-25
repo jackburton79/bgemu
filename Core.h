@@ -64,7 +64,8 @@ public:
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 
-	void AddGlobalAction(Action* action);
+	void ClearAllActions();
+
 	void StartCutsceneMode();
 	void EndCutsceneMode();
 	bool CutsceneMode() const;

@@ -250,6 +250,13 @@ public:
 };
 
 
+class ActionClearAllActions : public Action {
+public:
+	ActionClearAllActions(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionStartCutscene : public Action {
 public:
 	ActionStartCutscene(Object* object, action_node* node);
