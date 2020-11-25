@@ -296,11 +296,9 @@ Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 	if (identifier == "MYSELF")
 		return const_cast<Object*>(object);
 	if (identifier.find("PLAYER") != std::string::npos) {
-		std::cout << "player " << std::endl;
 		// TODO: dangerous code
 		char* n = &identifier[6];
 		uint32 numPlayer = strtoul(n, NULL, 10) - 1;
-		std::cout << "numPlayer: " << numPlayer << std::endl;
 		return Game::Get()->Party()->ActorAt(numPlayer);
 	}
 
