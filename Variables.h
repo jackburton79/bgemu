@@ -18,7 +18,8 @@ public:
 	Variables();
 	void Set(const char* name, int32 value);
 	int32 Get(const char* name) const;
-	void Print() const;
+	void Print(const char* name) const;
+	void PrintAll() const;
 private:
 	typedef std::map<std::string, uint32> VariablesMap;
 	VariablesMap fVariables;
