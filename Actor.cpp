@@ -133,8 +133,7 @@ Actor::_Init()
 	}
 
 	//if (::strcasecmp(Name(), "IMOEN") == 0) {
-		Print();
-		std::cout << fCRE->DeathVariable() << std::endl;
+	Print();
 	//}
 	// TODO: Get all scripts ? or just the specific one ?
 
@@ -161,7 +160,6 @@ Actor::_Init()
 	_HandleScripts();
 
 #if 0
-	//fActor->Print();
 	//for (uint32 i = 0; i < kNumItemSlots; i++) {
 	uint32 i = 1; // armor slot
 	try {
@@ -221,7 +219,7 @@ Actor::Print() const
 	CREResource* cre = CRE();
 	if (cre == NULL)
 		return;
-	std::cout << "*** " << Name() << " ***" << std::endl;
+	std::cout << "Name: " << Name() << std::endl;
 	std::cout << "ENUM: " << cre->GlobalActorEnum() << std::endl;
 	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
 	std::cout << " (" << (int)cre->Gender() << ")" << std::endl;
@@ -236,6 +234,8 @@ Actor::Print() const
 	std::cout << "Specific: " << IDTable::SpecificAt(cre->Specific());
 	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
 	std::cout << "Dialog: " << cre->DialogFile() << std::endl;
+	std::cout << "Death Variable: " << cre->DeathVariable() << std::endl;
+	fActor->Print();
 	std::cout << "*********" << std::endl;
 }
 
