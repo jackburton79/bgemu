@@ -106,7 +106,7 @@ CHUIResource::GetWindow(uint16 id)
 						window.w, window.h, background);
 
 		std::cout << "CHUIResource::GetWindow(): Window has ";
-		std::cout << window.num_controls << " controls." << std::endl;
+		std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
 			//std::cout << "Control " << controlIndex << ":" << std::endl;
