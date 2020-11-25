@@ -174,7 +174,7 @@ Object*
 Script::FindTargetObject(const Object* object, action_node* start)
 {
 	if (sDebug)
-		std::cout << "FindTargetObject:" << std::endl;
+		std::cout << "*** FindTargetObject:" << std::endl;
 	object_node* objectNode = FindObjectNode(object, start);
 	if (objectNode != NULL)
 		objectNode = static_cast<object_node*>(objectNode->Next());
@@ -189,6 +189,7 @@ Script::FindTargetObject(const Object* object, action_node* start)
 		objectNode->Print();
 		std::cout << std::endl;
 	}
+
 	Object* result = GetObject(object, objectNode);
 	if (sDebug)
 		std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
@@ -291,16 +292,15 @@ Script::SetSender(Object* object)
 Object*
 Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 {
-	if (object == NULL)
-		return NULL;
-
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
 		return const_cast<Object*>(object);
 	if (identifier.find("PLAYER") != std::string::npos) {
+		std::cout << "player " << std::endl;
 		// TODO: dangerous code
 		char* n = &identifier[6];
 		uint32 numPlayer = strtoul(n, NULL, 10) - 1;
+		std::cout << "numPlayer: " << numPlayer << std::endl;
 		return Game::Get()->Party()->ActorAt(numPlayer);
 	}
 
@@ -939,7 +939,7 @@ Script::_HandleAction(action_node* act)
 {
 	Object* sender = Script::FindSenderObject(fSender, act);
 	if (sDebug) {
-		std::cout << "SCRIPT: ACTION ";
+		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
 		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
 		act->Print();
 		std::cout << std::endl;
@@ -1199,6 +1199,11 @@ Script::_HandleAction(action_node* act)
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
 			Object* target = Script::FindTargetObject(fSender, act);
+			ActorsList list;
+			Core::Get()->GetActorsList(list);
+			for (ActorsList::iterator a = list.begin(); a != list.end(); a++) {
+				std::cout << (*a)->Name() << std::endl;
+			}
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);
