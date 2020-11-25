@@ -211,7 +211,7 @@ Object::Update(bool scripts)
 		_ExecuteScripts(8);
 	}
 
-	if (cutscene && actor != NULL && Game::Get()->Party()->HasActor(actor))
+	if (cutscene && actor != NULL && actor->InParty())
 		return;
 
 	ExecuteActions();
