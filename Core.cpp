@@ -297,6 +297,13 @@ Core::StartCutscene(const res_ref& scriptName)
 }
 
 
+Object*
+Core::CutsceneActor() const
+{
+	return fCutsceneActor;
+}
+
+
 void
 Core::SetCutsceneActor(Object* actor)
 {

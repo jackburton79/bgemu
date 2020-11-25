@@ -69,7 +69,10 @@ public:
 	void StartCutsceneMode();
 	void EndCutsceneMode();
 	bool CutsceneMode() const;
+
 	void StartCutscene(const res_ref& scriptName);
+
+	Object* CutsceneActor() const;
 	void SetCutsceneActor(Object* object);
 
 	bool InDialogMode() const;
