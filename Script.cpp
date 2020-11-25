@@ -1203,11 +1203,6 @@ Script::_HandleAction(action_node* act)
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
 			Object* target = Script::FindTargetObject(fSender, act);
-			ActorsList list;
-			Core::Get()->GetActorsList(list);
-			for (ActorsList::iterator a = list.begin(); a != list.end(); a++) {
-				std::cout << (*a)->Name() << std::endl;
-			}
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);
