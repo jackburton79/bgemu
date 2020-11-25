@@ -585,6 +585,13 @@ Actor::Spawned() const
 }
 
 
+bool
+Actor::InParty() const
+{
+	return Game::Get()->Party()->HasActor(this);
+}
+
+
 uint32
 Actor::NumTimesTalkedTo() const
 {

@@ -61,6 +61,8 @@ public:
 
 	bool Spawned() const;
 
+	bool InParty() const;
+
 	bool IsEqual(const Actor* object) const;
 
 	bool IsEnemyOf(const Actor* object) const;
