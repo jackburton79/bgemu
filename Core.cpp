@@ -569,21 +569,6 @@ Core::UpdateLogic(bool executeScripts)
 }
 
 
-bool
-Core::See(const Actor* sourceActor, const Object* object) const
-{
-	// TODO: improve
-	if (object == NULL)
-		return false;
-
-	std::cout << sourceActor->Name() << " SEE ";
-	std::cout << object->Name() << " ?" << std::endl;
-
-	throw "Core::See() called!!!!";
-	//return sourceActor->HasSeen(object);
-}
-
-
 int
 Core::Distance(const Object* a, const Object* b) const
 {
