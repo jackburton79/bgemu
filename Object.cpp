@@ -211,7 +211,7 @@ Object::Update(bool scripts)
 		_ExecuteScripts(8);
 	}
 
-	if (cutscene && actor != NULL && actor->InParty())
+	if (cutscene && actor != NULL && actor->InParty() && actor != Core::Get()->CutsceneActor())
 		return;
 
 	ExecuteActions();
