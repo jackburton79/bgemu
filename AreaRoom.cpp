@@ -350,7 +350,6 @@ AreaRoom::MouseDown(IE::point point)
 		// TODO:
 		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(region);
-			//Core::Get()->RoundResults()->SetActorClickedObject(fSelectedActor.Target(), region);
 		}
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			Core::Get()->LoadArea(region->DestinationArea(), "foo",
@@ -367,7 +366,6 @@ AreaRoom::MouseDown(IE::point point)
 		// TODO:
 		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(container);
-			//Core::Get()->RoundResults()->SetActorClickedObject(fSelectedActor.Target(), container);
 		}
 	}
 
