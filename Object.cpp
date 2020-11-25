@@ -495,14 +495,12 @@ Object::_ExecuteScripts(int32 maxLevel)
 	
 	//if (!IsInterruptable())
 		//return;
+	Actor* actor = dynamic_cast<Actor*>(this);
 	if (!IsInsideVisibleArea()) {
-	
-#if 0
-		runScripts = false;		
-#else
-		if (fTicks % 60 != 0)
-			runScripts = false;
-#endif	
+		if (actor == NULL || !actor->InParty()) {
+			if (fTicks % 60 != 0)
+				runScripts = false;
+		}
 	}
 		
 	if (dynamic_cast<RoomBase*>(this) != NULL)
