@@ -331,7 +331,8 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 			Object* target = Core::Get()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
-				std::cout << Name() << "HasTrigger " << trigName << " -> "<< actor->Name() << std::endl;
+				std::cout << Name() << "HasTrigger " << trigName << " -> " << actor->Name() << std::endl;
+				std::cout << "LastTrigger: " << fLastTrigger->Name() << std::endl;
 				return true;
 			}
 		}

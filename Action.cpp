@@ -570,6 +570,7 @@ ActionOpenDoor::operator()()
 		return;
 	}
 
+	std::cout << "actor " << actor->Name() << " opens " << door->Name() << std::endl;
 	if (!door->Opened()) {
 		door->Open(actor);
 		SetCompleted();
@@ -1045,8 +1046,10 @@ ActionDisplayStringHead::operator()()
 		fDuration = 100; //??
 		Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
 		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
-		if (actor == NULL)
+		if (actor == NULL) {
+			std::cerr << "ActionDisplayHead: no TARGET!!!" << std::endl;
 			SetCompleted();
+		}
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
 		actor->SetText(tlkEntry->text);
 		delete tlkEntry;
