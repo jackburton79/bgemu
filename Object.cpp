@@ -273,14 +273,6 @@ Object::ExecuteActions()
 bool
 Object::IsActionListEmpty() const
 {
-	/*std::cout << Name() << ": ";
-	std::cout << "IsActionListEmpty() ? size = " << std::dec;
-	std::cout << fActions.size() << std::endl;
-	for (std::list<Action*>::const_iterator i = fActions.begin();
-									i != fActions.end(); i++) {
-		std::cout << (*i)->Name() << std::endl;
-	}*/
-
 	return fCurrentAction == NULL && fActions.empty();
 }
 
