@@ -676,8 +676,6 @@ node::Next() const
 void
 node::Print() const
 {
-	//printf("header: %s\n", header);
-	//printf("value: %s\n", value);
 }
 
 
@@ -753,7 +751,7 @@ object_node::Print() const
 	if (gender != 0)
 		std::cout << "gender: " << IDTable::GenderAt(gender) << " (" << gender << "), ";
 	if (alignment != 0)
-		std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), " << std::endl;
+		std::cout << "alignment: " << IDTable::AlignmentAt(alignment) << " (" << alignment << "), ";
 	for (int32 i = 4; i >= 0; i--) {
 		if (identifiers[i] != 0) {
 			std::cout << IDTable::ObjectAt(identifiers[i]);
@@ -808,8 +806,8 @@ action_node::Print() const
 {
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
-	std::cout << std::endl;
 	std::cout << std::dec;
+	std::cout << " ";
 	std::cout << "integer1: " << integer1 << ", ";
 	std::cout << "where: (" << where.x << ", " << where.y << "), ";
 	std::cout << "integer2: " << integer2 << ", ";

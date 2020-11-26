@@ -38,8 +38,18 @@ static void IndentLess()
 
 static void PrintIndentation()
 {
-	for (int i = 0; i < sIndent; i++)
+	int i = 0;
+	for (i = 0; i < sIndent; i++)
 		std::cout << " ";
+}
+
+
+static void PrintHeader(node& node, bool close = false)
+{
+	if (!close)
+		std::cout << "<" << node.header << ">" << std::endl;
+	else
+		std::cout << "<" << node.header << "\\>" << std::endl;
 }
 
 
@@ -1375,33 +1385,20 @@ void
 Script::_PrintNode(node* n) const
 {
 	PrintIndentation();
-	std::cout << "<" << n->header << ">";
-	n->Print();
-	if (n->type == BLOCK_SCRIPT
-		|| n->type == BLOCK_CONDITION_RESPONSE
-		|| n->type == BLOCK_CONDITION
-		|| n->type == BLOCK_RESPONSESET) {
-		std::cout << std::endl;
-		PrintIndentation();
-	}
-	node_list::iterator c;
+	PrintHeader(*n);
 	IndentMore();
-	bool printCount = false;
-	int32 count = 0;
-	if (n->type == BLOCK_ACTION && n->children.size() == 3) {
-		printCount = true;
-	}
+	
+	PrintIndentation();
+	n->Print();
+
+	node_list::iterator c;
 	for (c = n->children.begin(); c != n->children.end(); c++) {
-		if (printCount)
-			std::cout << "(" << count << ") ";
 		_PrintNode(*c);
-		if (printCount)
-			count++;
 	}
+	
 	IndentLess();
-	if (n->type != BLOCK_OBJECT)
-		PrintIndentation();
-	std::cout << "</" << n->header << ">" << std::endl;
+	PrintIndentation();
+	PrintHeader(*n, true);
 }
 
 
