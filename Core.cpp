@@ -668,7 +668,7 @@ Core::RandomNumber(int32 start, int32 end)
 ::Script*
 Core::ExtractScript(const res_ref& resName)
 {
-	if (strcasecmp(resName.CString(), "None") == 0)
+	if (resName == "None")
 		return NULL;
 
 	::Script* script = NULL;
