@@ -294,7 +294,9 @@ Parser::_ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* node)
 		node->parameter1 = t.u.number;
 	else if (t.type == TOKEN_STRING) {
 		// This is an identifier
-		strncpy(node->string1, t.u.string, strlen(t.u.string));
+		object_node* objectNode = new object_node;
+		objectNode->identifiers[0] = IDTable::ObjectID(t.u.string);
+		objectNode->Print();
 	} else if (t.type == TOKEN_QUOTED_STRING) {
 		// Unquote string
 		strncpy(node->string1, t.u.string + 1, strlen(t.u.string) - 1);
@@ -314,12 +316,16 @@ Parser::_ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* node)
 		if (t.type == TOKEN_NUMBER)
 			node->parameter2 = t.u.number;
 		else if (t.type == TOKEN_STRING) {
-			// This is an identifier
 			strncpy(node->string2, t.u.string, strlen(t.u.string));
 		} else if (t.type == TOKEN_QUOTED_STRING) {
 			// Unquote string
 			strncpy(node->string2, t.u.string + 1, strlen(t.u.string) - 1);
 			node->string2[strlen(t.u.string) - 2] = '\0';
+		}
+		// TODO: Hack: check if string1 is empty, and move there string2
+		if (node->string1[0] == '\0') {
+			strcpy(node->string1, node->string2);
+			node->string2[0] = '\0';
 		}
 	}
 }
