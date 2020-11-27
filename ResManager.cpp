@@ -882,6 +882,15 @@ IDTable::GenderAt(uint32 i)
 }
 
 
+uint32
+IDTable::GenderID(std::string string)
+{
+	if (sGenders == NULL)
+		sGenders = gResManager->GetIDS("GENDER");
+	return sGenders->IDForString(string);
+}
+
+
 std::string
 IDTable::ClassAt(uint32 i)
 {
@@ -957,7 +966,7 @@ IDTable::EnemyAllyAt(uint32 i)
 
 
 uint32
-IDTable::EnemyAllyValue(const char* string)
+IDTable::EnemyAllyValue(std::string string)
 {
 	if (sEA == NULL)
 		sEA = gResManager->GetIDS("EA");

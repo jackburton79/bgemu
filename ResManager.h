@@ -119,30 +119,33 @@ public:
 	static std::string GetDialog(uint32 i);
 	static TLKEntry* GetTLK(uint32 i);
 
-	static std::string RandomColorAt(uint32 i);
-	static std::string AlignmentAt(uint32 i);
-	static std::string GeneralAt(uint32 i);
-	static std::string AnimationAt(uint32 i);
-	static std::string AniSndAt(uint32 i);
-	static std::string GenderAt(uint32 i);
-	static std::string RaceAt(uint32 i);
-	static std::string ClassAt(uint32 i);
-	static std::string SpecificAt(uint32 i);
+	static std::string	RandomColorAt(uint32 i);
+	static std::string	AlignmentAt(uint32 i);
+	static std::string	GeneralAt(uint32 i);
+	static std::string	AnimationAt(uint32 i);
+	static std::string	AniSndAt(uint32 i);
 
-	static std::string TriggerName(uint32 i);
-	static uint32 TriggerID(std::string name);
+	static std::string	GenderAt(uint32 i);
+	static uint32		GenderID(std::string);
 
-	static std::string ActionAt(uint32 i);
+	static std::string	RaceAt(uint32 i);
+	static std::string	ClassAt(uint32 i);
+	static std::string	SpecificAt(uint32 i);
 
-	static std::string ObjectAt(uint32 i);
-	static uint32 ObjectID(std::string string);
+	static std::string	TriggerName(uint32 i);
+	static uint32		TriggerID(std::string name);
 
-	static std::string EnemyAllyAt(uint32 i);
-	static uint32 EnemyAllyValue(const char* string);
+	static std::string 	ActionAt(uint32 i);
 
-	static std::string GameTimeAt(uint32 i);
-	static std::string TimeAt(uint32 i);
-	static std::string TimesOfDayAt(uint32 i);
+	static std::string 	ObjectAt(uint32 i);
+	static uint32 		ObjectID(std::string string);
+
+	static std::string	EnemyAllyAt(uint32 i);
+	static uint32 		EnemyAllyValue(std::string);
+
+	static std::string 	GameTimeAt(uint32 i);
+	static std::string 	TimeAt(uint32 i);
+	static std::string 	TimesOfDayAt(uint32 i);
 };
 
 
