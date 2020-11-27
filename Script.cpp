@@ -144,7 +144,6 @@ Script::FindTriggerObject(const Object* object, trigger_node* start)
 	object_node* objectNode = start->Object();
 	if (objectNode == NULL)
 		return NULL;
-	std::cout << "Before GetObject" << std::endl;
 	return GetObject(object, objectNode);
 }
 
