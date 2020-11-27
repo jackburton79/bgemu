@@ -355,7 +355,7 @@ Object::LastTrigger() const
 
 
 void
-Object::PrintTriggers()
+Object::PrintTriggers() const
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {

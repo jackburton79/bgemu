@@ -87,7 +87,7 @@ public:
 	Object* FindTrigger(std::string trigName) const;
 	Object* LastTrigger() const;
 
-	void PrintTriggers();	
+	void PrintTriggers() const;
 	void ClearTriggers();
 
 	void SetInterruptable(const bool interrupt);
