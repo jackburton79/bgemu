@@ -35,7 +35,6 @@ public:
 
 	static trigger_node*	FindTriggerNode(Object* object, node* start);
 	static action_node*		FindActionNode(Object* object, node* start);
-	static object_node*		FindObjectNode(const Object* object, node* start);
 	static node*			FindNode(const Object* object, block_type type, node* start);
 
 	// convenience calls

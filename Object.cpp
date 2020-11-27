@@ -313,7 +313,7 @@ Object::HasTrigger(std::string trigName) const
 bool
 Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 {
-	object_node* objectNode = Script::FindObjectNode(this, triggerNode);
+	object_node* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
 		return false;
 	std::list<trigger_entry>::const_iterator i;

@@ -118,14 +118,6 @@ Script::FindActionNode(Object* object, node* start)
 
 
 /* static */
-object_node*
-Script::FindObjectNode(const Object* object, node* start)
-{
-	return static_cast<object_node*>(FindNode(object, BLOCK_OBJECT, start));
-}
-
-
-/* static */
 node*
 Script::FindNode(const Object* object, block_type nodeType, node* start)
 {
@@ -559,7 +551,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
-				object_node* objectNode = FindObjectNode(sender, trig);
+				object_node* objectNode = trig->Object();
 				// TODO: Maybe LastClicker should return Actor*
 				Actor* clicker = dynamic_cast<Actor*>(sender->FindTrigger("Clicked"));
 				if (clicker != NULL) {
@@ -829,7 +821,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object_node* doorObj = FindObjectNode(sender, trig);
+				object_node* doorObj = trig->Object();
 				Door *door = dynamic_cast<Door*>(
 								core->GetObject(doorObj->name));
 				if (door != NULL) {
@@ -847,7 +839,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				Region* region = dynamic_cast<Region*>(sender);
 				if (region == NULL)
 					break;
-				object_node* objectNode = FindObjectNode(sender, trig);
+				object_node* objectNode = trig->Object();
 				if (objectNode != NULL)
 					returnValue = region->IsActorInside(objectNode);
 				break;
