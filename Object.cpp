@@ -258,7 +258,7 @@ Object::ExecuteActions()
 	}
 
 	if (fCurrentAction != NULL)
-		(*fCurrentAction)();
+		_ExecuteAction(*fCurrentAction);
 
 	if (fCurrentAction != NULL) {
 		if (fCurrentAction->Completed()) {
