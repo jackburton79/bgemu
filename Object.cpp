@@ -530,7 +530,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
-	std::cout << Name() << " executes " << action.Name() << std::endl;
+	//std::cout << Name() << " executes " << action.Name() << std::endl;
 	action();
 }
 
