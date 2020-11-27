@@ -320,6 +320,8 @@ Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 
 	if (identifier == "LASTSEENBY")
 		return object->FindTrigger("LastSeen");
+	if (identifier == "LASTTALKEDTOBY")
+		return object->FindTrigger("LastTalkedToBy");
 	if (identifier == "LASTTRIGGER")
 		return object->LastTrigger();
 
