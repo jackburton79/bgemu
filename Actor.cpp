@@ -598,7 +598,6 @@ Actor::NumTimesTalkedTo() const
 void
 Actor::InitiateDialogWith(Actor* actor)
 {
-	std::cout << "InitiateDialogWith ";
 	assert(fDLG == NULL);
 
 	const res_ref dialogFile = CRE()->DialogFile();
@@ -606,7 +605,10 @@ Actor::InitiateDialogWith(Actor* actor)
 			|| strcasecmp(dialogFile.CString(), "None") == 0)
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 	else {
-		std::cout << dialogFile << std::endl;
+		trigger_entry triggerEntry("LastTalkedToBy", this);
+		actor->AddTrigger(triggerEntry);
+		std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
+		std::cout << "Dialog file: " << dialogFile << std::endl;
 
 		Core::Get()->SetDialogMode(true);
 
