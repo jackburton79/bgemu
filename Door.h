@@ -21,6 +21,9 @@ public:
 	void Open(Object* object);
 	void Close(Object* object);
 
+	void Lock();
+	void Unlock();
+
 	std::vector<uint16> fTilesOpen;
 
 	bool Opened() const;

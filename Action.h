@@ -59,6 +59,13 @@ public:
 };
 
 
+class ActionUnlock : public Action {
+public:
+	ActionUnlock(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionDestroySelf : public Action {
 public:
 	ActionDestroySelf(Object* object, action_node* node);

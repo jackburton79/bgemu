@@ -206,6 +206,31 @@ ActionTriggerActivation::operator()()
 }
 
 
+// ActionUnlock
+ActionUnlock::ActionUnlock(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+void
+ActionUnlock::operator()()
+{
+	Object* sender = Script::FindSenderObject(fObject, fActionParams);
+	Object* target = Script::FindTargetObject(sender, fActionParams);
+	Door* door = dynamic_cast<Door*>(target);
+	if (door == NULL) {
+		std::cerr << "NULL DOOR!!! MEANS THE OBJECT IS NOT A DOOR" << std::endl;
+		SetCompleted();
+		return;
+	}
+
+	door->Unlock();
+
+	SetCompleted();
+}
+
 // DestroySelfAction
 ActionDestroySelf::ActionDestroySelf(Object* object, action_node* node)
 	:

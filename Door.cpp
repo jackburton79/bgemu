@@ -49,6 +49,20 @@ Door::Close(Object* actor)
 }
 
 
+void
+Door::Lock()
+{
+	std::cout << Name() << ": Lock()" << std::endl;
+}
+
+
+void
+Door::Unlock()
+{
+	std::cout << Name() << ": Unlock()" << std::endl;
+}
+
+
 /* virtual */
 IE::point
 Door::NearestPoint(const IE::point& start) const
