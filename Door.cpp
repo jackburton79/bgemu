@@ -52,6 +52,8 @@ Door::Close(Object* actor)
 void
 Door::Lock()
 {
+	if (!(fAreaDoor->flags & IE::DOOR_LOCKED))
+		fAreaDoor->flags |= IE::DOOR_LOCKED;
 	std::cout << Name() << ": Lock()" << std::endl;
 }
 
@@ -59,6 +61,8 @@ Door::Lock()
 void
 Door::Unlock()
 {
+	if (fAreaDoor->flags & IE::DOOR_LOCKED)
+		fAreaDoor->flags &= ~IE::DOOR_LOCKED;
 	std::cout << Name() << ": Unlock()" << std::endl;
 }
 
