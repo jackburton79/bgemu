@@ -149,7 +149,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 Object*
 Script::FindTriggerObject(const Object* object, trigger_node* start)
 {
-	object_node* objectNode = (object_node*)start->children.front();
+	object_node* objectNode = start->Object();
 	if (objectNode == NULL)
 		return NULL;
 	
@@ -161,13 +161,15 @@ Script::FindTriggerObject(const Object* object, trigger_node* start)
 Object*
 Script::FindSenderObject(const Object* object, action_node* start)
 {
-	object_node* objectNode = FindObjectNode(object, start);
+	object_node* objectNode = start->First();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
 		return const_cast<Object*>(object);
 	}
 	
+	// Try getting an object from sender. If it fails, return sender
+	// TODO: Not sure if it's correct but seems to work most of the time
 	Object* result = GetObject(object, objectNode);
 	if (result == NULL) {
 		if (sDebug)
@@ -185,9 +187,9 @@ Script::FindTargetObject(const Object* object, action_node* start)
 {
 	if (sDebug)
 		std::cout << "*** FindTargetObject:" << std::endl;
-	object_node* objectNode = FindObjectNode(object, start);
+	object_node* objectNode = start->First();
 	if (objectNode != NULL)
-		objectNode = static_cast<object_node*>(objectNode->Next());
+		objectNode = start->Second();
 
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
@@ -463,7 +465,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 		std::cout << std::hex << trig->id << ")";
 		std::cout << std::endl;
 		trig->Print();
-		object_node* objectNode = FindObjectNode(sender, trig);
+		object_node* objectNode = trig->Object();
 		if (objectNode != NULL)
 			objectNode->Print();
 	}
