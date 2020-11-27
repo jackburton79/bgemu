@@ -929,6 +929,15 @@ IDTable::ActionAt(uint32 i)
 }
 
 
+uint32
+IDTable::ObjectID(std::string string)
+{
+	if (sObjects == NULL)
+		sObjects = gResManager->GetIDS("OBJECT");
+	return sObjects->IDForString(string);
+}
+
+
 std::string
 IDTable::ObjectAt(uint32 i)
 {
