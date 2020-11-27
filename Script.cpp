@@ -324,7 +324,6 @@ Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 		return object->FindTrigger("LastTalkedToBy");
 	if (identifier == "LASTTRIGGER")
 		return object->LastTrigger();
-
 	if (identifier == "LASTATTACKEROF")
 		return object->FindTrigger("AttackedBy");
 
@@ -346,7 +345,7 @@ Object*
 Script::GetObject(const Object* source, object_node* node)
 {
 	if (sDebug)
-		std::cout << "Script::GetObject() ";
+		std::cout << "Script::GetObject(source=" << source->Name() << ") ";
 	Object* result = NULL;
 	if (node->name[0] != '\0') {
 		if (sDebug)
