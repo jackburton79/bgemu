@@ -605,8 +605,8 @@ Actor::InitiateDialogWith(Actor* actor)
 			|| strcasecmp(dialogFile.CString(), "None") == 0)
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 	else {
-		trigger_entry triggerEntry("LastTalkedToBy", this);
-		actor->AddTrigger(triggerEntry);
+		trigger_entry triggerEntry("LastTalkedToBy", actor);
+		AddTrigger(triggerEntry);
 		std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
 		std::cout << "Dialog file: " << dialogFile << std::endl;
 
