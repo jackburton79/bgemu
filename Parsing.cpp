@@ -129,7 +129,7 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	node.type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-
+	tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, &node))
 		return false;
 	_ExtractFirstParameter(tokenizer, &node);
@@ -292,7 +292,10 @@ Parser::_ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* node)
 	token t = tokenizer.ReadToken();
 	if (t.type == TOKEN_NUMBER)
 		node->parameter1 = t.u.number;
-	else {
+	else if (t.type == TOKEN_STRING) {
+		// This is an identifier
+		strncpy(node->string1, t.u.string, strlen(t.u.string));
+	} else if (t.type == TOKEN_QUOTED_STRING) {
 		// Unquote string
 		strncpy(node->string1, t.u.string + 1, strlen(t.u.string) - 1);
 		node->string1[strlen(t.u.string) - 2] = '\0';
@@ -310,7 +313,10 @@ Parser::_ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* node)
 			t = tokenizer.ReadToken();
 		if (t.type == TOKEN_NUMBER)
 			node->parameter2 = t.u.number;
-		else {
+		else if (t.type == TOKEN_STRING) {
+			// This is an identifier
+			strncpy(node->string2, t.u.string, strlen(t.u.string));
+		} else if (t.type == TOKEN_QUOTED_STRING) {
 			// Unquote string
 			strncpy(node->string2, t.u.string + 1, strlen(t.u.string) - 1);
 			node->string2[strlen(t.u.string) - 2] = '\0';
@@ -666,7 +672,6 @@ node::node()
 	parent(NULL),
 	next(NULL),
 	closed(false)
-
 {
 	value[0] = '\0';
 }
