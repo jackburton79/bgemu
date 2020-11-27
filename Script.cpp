@@ -391,7 +391,7 @@ Script::GetObject(const Object* source, object_node* node)
 			result = dynamic_cast<Actor*>(wildCard);
 	}
 	if (sDebug) {
-		std::cout << "Script::GetObject() returned. ";
+		std::cout << "\t";
 		if (result != NULL) {
 			std::cout << "Found: ";
 			result->Print();
