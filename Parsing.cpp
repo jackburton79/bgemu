@@ -739,6 +739,13 @@ trigger_node::Print() const
 }
 
 
+object_node*
+trigger_node::Object()
+{
+	return (object_node*)children.front();
+}
+
+
 // object
 object_node::object_node()
 	:
@@ -849,6 +856,34 @@ action_node::Print() const
 	std::cout << "integer3: " << integer3 << ", ";
 	std::cout << "string1: " << string1 << ", ";
 	std::cout << "string2: " << string2 << std::endl;
+}
+
+
+object_node*
+action_node::First()
+{
+	return (object_node*)(*children.begin());
+}
+
+
+object_node*
+action_node::Second()
+{
+	node_list::iterator i = children.begin();
+	i++;
+
+	return (object_node*)(*i);
+}
+
+
+object_node*
+action_node::Third()
+{
+	node_list::iterator i = children.begin();
+	i++;
+	i++;
+
+	return (object_node*)(*i);
 }
 
 

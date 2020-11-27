@@ -62,20 +62,6 @@ protected:
 bool operator==(const node &, const node &);
 
 
-struct trigger_node : public node {
-	virtual void Print() const;
-	int id;
-	int parameter1;
-	int flags;
-	int parameter2;
-	int unknown;
-	char string1[48];
-	char string2[48];
-
-	trigger_node();
-};
-
-
 struct object_node : public node {
 	virtual void Print() const;
 	bool Empty() const;
@@ -97,8 +83,26 @@ struct object_node : public node {
 };
 
 
+struct trigger_node : public node {
+	virtual void Print() const;
+	object_node* Object();
+	int id;
+	int parameter1;
+	int flags;
+	int parameter2;
+	int unknown;
+	char string1[48];
+	char string2[48];
+
+	trigger_node();
+};
+
+
 struct action_node : public node {
 	virtual void Print() const;
+	object_node* First();
+	object_node* Second();
+	object_node* Third();
 	int id;
 	int integer1;
 	IE::point where;
