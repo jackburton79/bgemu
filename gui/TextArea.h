@@ -28,6 +28,7 @@ public:
 	TextArea(IE::text_area* text);
 	virtual ~TextArea();
 	virtual void Draw();
+	virtual void MouseDown(IE::point point);
 
 	void SetScrollbar(Scrollbar* scrollbar);
 

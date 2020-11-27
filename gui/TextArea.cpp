@@ -7,6 +7,7 @@
 
 #include "BamResource.h"
 #include "Bitmap.h"
+#include "Core.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "Scrollbar.h"
@@ -75,6 +76,15 @@ TextArea::Draw()
 		fChanged = false;
 	}
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
+}
+
+
+/* virtual */
+void
+TextArea::MouseDown(IE::point point)
+{
+	if (Core::Get()->InDialogMode())
+		Core::Get()->SetDialogMode(false);
 }
 
 
