@@ -154,6 +154,13 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	// Third param
 	_ExtractNextParameter(tokenizer, &node, intParam, strParam);
 
+	// TODO: we add an empty object node since in other parts of
+	// the code (example: Script::EvaluateTrigger()) we assume there is always an object_node here.
+	// FIX!
+	if (node.children.empty()) {
+		object_node* emptyNode = new object_node;
+		node.children.push_back(emptyNode);
+	}
 	node.Print();
 
 	return true;
