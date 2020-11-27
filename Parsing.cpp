@@ -132,9 +132,36 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, &node))
 		return false;
-	_ExtractFirstParameter(tokenizer, &node);
-	_ExtractSecondParameter(tokenizer, &node);
 
+	token firstParam = _ExtractFirstParameter(tokenizer, &node);
+	if (firstParam.type == TOKEN_NUMBER)
+		node.parameter1 = firstParam.u.number;
+	else if (firstParam.type == TOKEN_STRING) {
+		// This is an identifier
+		object_node* objectNode = new object_node;
+		objectNode->identifiers[0] = IDTable::ObjectID(firstParam.u.string);
+		node.children.push_back(objectNode);
+		objectNode->Print();
+	} else if (firstParam.type == TOKEN_QUOTED_STRING) {
+		// Unquote string
+		strncpy(node.string1, firstParam.u.string + 1, strlen(firstParam.u.string) - 1);
+		node.string1[strlen(firstParam.u.string) - 2] = '\0';
+	}
+
+	token secondParam = _ExtractSecondParameter(tokenizer, &node);
+	if (secondParam.type == TOKEN_NUMBER)
+		node.parameter1 = secondParam.u.number;
+	else if (secondParam.type == TOKEN_STRING) {
+		// This is an identifier
+		object_node* objectNode = new object_node;
+		objectNode->identifiers[0] = IDTable::ObjectID(secondParam.u.string);
+		node.children.push_back(objectNode);
+		objectNode->Print();
+	} else if (firstParam.type == TOKEN_QUOTED_STRING) {
+		// Unquote string
+		strncpy(node.string1, secondParam.u.string + 1, strlen(secondParam.u.string) - 1);
+		node.string1[strlen(secondParam.u.string) - 2] = '\0';
+	}
 	node.Print();
 	return true;
 }
@@ -284,58 +311,36 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 
 
 /* static */
-void
+token
 Parser::_ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* node)
 {
 	tokenizer.ReadToken(); // parenthesis
 
 	token t = tokenizer.ReadToken();
-	if (t.type == TOKEN_NUMBER)
-		node->parameter1 = t.u.number;
-	else if (t.type == TOKEN_STRING) {
-		// This is an identifier
-		object_node* objectNode = new object_node;
-		objectNode->identifiers[0] = IDTable::ObjectID(t.u.string);
-		objectNode->Print();
-	} else if (t.type == TOKEN_QUOTED_STRING) {
-		// Unquote string
-		strncpy(node->string1, t.u.string + 1, strlen(t.u.string) - 1);
-		node->string1[strlen(t.u.string) - 2] = '\0';
-	}
+
+	return t;
 }
 
 
 /* static */
-void
+token
 Parser::_ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* node)
 {
 	token t = tokenizer.ReadToken();
 	if (t.type != TOKEN_PARENTHESIS) {
 		if (t.type == TOKEN_COMMA)
 			t = tokenizer.ReadToken();
-		if (t.type == TOKEN_NUMBER)
-			node->parameter2 = t.u.number;
-		else if (t.type == TOKEN_STRING) {
-			strncpy(node->string2, t.u.string, strlen(t.u.string));
-		} else if (t.type == TOKEN_QUOTED_STRING) {
-			// Unquote string
-			strncpy(node->string2, t.u.string + 1, strlen(t.u.string) - 1);
-			node->string2[strlen(t.u.string) - 2] = '\0';
-		}
-		// TODO: Hack: check if string1 is empty, and move there string2
-		if (node->string1[0] == '\0') {
-			strcpy(node->string1, node->string2);
-			node->string2[0] = '\0';
-		}
 	}
+	return t;
 }
 
 
 /* static */
-void
+token
 Parser:: _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode)
 {
-	// TODO:
+	token t = tokenizer.ReadToken();
+	return t;
 }
 
 

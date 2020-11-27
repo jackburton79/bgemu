@@ -144,7 +144,7 @@ Script::FindTriggerObject(const Object* object, trigger_node* start)
 	object_node* objectNode = start->Object();
 	if (objectNode == NULL)
 		return NULL;
-	
+	std::cout << "Before GetObject" << std::endl;
 	return GetObject(object, objectNode);
 }
 
@@ -749,6 +749,14 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
 				if (object != NULL)
 					returnValue = Game::Get()->Party()->HasActor(object);
+				break;
+			}
+			case 0x404d:
+			{
+				// GENDER(O:OBJECT*,I:SEX*GENDER)(16461, 0x404d)
+				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				if (object != NULL)
+					returnValue = object->CRE()->Gender() == IDTable::GenderID(trig->string1);
 				break;
 			}
 			case 0x4051:

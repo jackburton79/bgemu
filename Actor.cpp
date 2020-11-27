@@ -700,10 +700,22 @@ Actor::ClickedOn(Object* target)
 			SetDestination(door->NearestPoint(Position()));
 		else
 			door->Toggle();
-	}/* else if (Actor* actor = dynamic_cast<Actor*>(target)) {
-		Attack* attackAction = new Attack(this, actor);
-		AddAction(attackAction);
-	} else if (Container* container = dynamic_cast<Container*>(target)) {
+	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
+		// TODO: this screams for improvements:
+		// no way we have to do all this just to add an action.
+		// Plus, we're probably leaking things
+		action_node* actionParams = new action_node;
+		object_node* sender = new object_node;
+		strcpy(sender->name, Name());
+		object_node* target = new object_node;
+		strcpy(target->name, actor->Name());
+		object_node* nullObject = new object_node;
+		actionParams->children.push_back(sender);
+		actionParams->children.push_back(target);
+		actionParams->children.push_back(nullObject);
+		Action* dialogAction = new ActionDialog(this, actionParams);
+		AddAction(dialogAction);
+	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
 		Action* walkTo = new WalkToObject(this, container);
 		AddAction(walkTo);
 	}*/

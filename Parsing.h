@@ -177,9 +177,9 @@ private:
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static void _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static void _ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static void _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static token _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static token _ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static token _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	
 	void _FixNode(::node *node);
 
