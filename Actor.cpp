@@ -619,7 +619,7 @@ Actor::InitiateDialogWith(Actor* actor)
 			for (;;) {
 				dialogState = fDLG->GetNextState(stateIndex);
 				if (!dialogState.trigger.empty()) {
-					std::vector<trigger_node> triggerList;
+					std::vector<trigger_node*> triggerList;
 					triggerList = Parser::TriggersFromString(dialogState.trigger);
 					if (_EvaluateDialogTriggers(triggerList)) {
 						// TODO: handle all transitions
@@ -1055,14 +1055,14 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 
 
 bool
-Actor::_EvaluateDialogTriggers(std::vector<trigger_node>& triggers)
+Actor::_EvaluateDialogTriggers(std::vector<trigger_node*>& triggers)
 {
-	for (std::vector<trigger_node>::iterator i = triggers.begin();
+	for (std::vector<trigger_node*>::iterator i = triggers.begin();
 			i != triggers.end(); i++) {
 		int orTrig = 0;
-		trigger_node triggerNode = *i;
-		triggerNode.Print();
-		if (!Script::EvaluateTrigger(this, &triggerNode, orTrig))
+		trigger_node* triggerNode = *i;
+		triggerNode->Print();
+		if (!Script::EvaluateTrigger(this, triggerNode, orTrig))
 			return false;
 	}
 	return true;

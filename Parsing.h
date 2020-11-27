@@ -57,6 +57,8 @@ struct node {
 
 protected:
 	node();
+	node(const node&);
+	node& operator=(const node&);
 };
 
 bool operator==(const node &, const node &);
@@ -161,7 +163,7 @@ public:
 	
 	void SetDebug(bool debug);
 
-	static std::vector<trigger_node> TriggersFromString(const std::string& string);
+	static std::vector<trigger_node*> TriggersFromString(const std::string& string);
 	static bool TriggerFromString(const std::string& string, trigger_node& node);
 
 private:
@@ -177,9 +179,10 @@ private:
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static token _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static token _ExtractSecondParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static token _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static token _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,
+							int* intParam, char* stringParam);
+	static token _ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,
+							int* intParam, char* stringParam);
 	
 	void _FixNode(::node *node);
 
