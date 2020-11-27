@@ -153,6 +153,11 @@ Script::FindTriggerObject(const Object* object, trigger_node* start)
 Object*
 Script::FindSenderObject(const Object* object, action_node* start)
 {
+	std::cout << "FindSenderObject: objects:" << std::endl;
+	start->First()->Print();
+	start->Second()->Print();
+	start->Third()->Print();
+
 	object_node* objectNode = start->First();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
@@ -1249,6 +1254,12 @@ Script::_HandleAction(action_node* act)
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
 			Action* action = new ActionTriggerActivation(sender, act);
 			sender->AddAction(action, runNow);
+			break;
+		}
+		case 196:
+		{
+			// UNLOCK(O:OBJECT*)(196, 0xc4)
+			sender->AddAction(new ActionUnlock(sender, act));
 			break;
 		}
 		case 198:
