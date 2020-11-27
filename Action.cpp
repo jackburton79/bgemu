@@ -265,7 +265,13 @@ void
 ActionForceSpell::operator()()
 {
 	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	if (sender == NULL) {
+		std::cerr << "ActionForceSpell:: NO sender Actor" << std::endl;
+		SetCompleted();
+		return;
+	}
 	sender->Print();
+
 	Object* target = Script::FindTargetObject(sender, fActionParams);
 	target->Print();
 
@@ -1086,18 +1092,19 @@ ActionDisplayStringHead::operator()()
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = 100; //??
-		Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+		Object* sender = Script::FindSenderObject(fObject, fActionParams);
 		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
 		if (actor == NULL) {
 			std::cerr << "ActionDisplayHead: no TARGET!!!" << std::endl;
 			SetCompleted();
+			return;
 		}
 		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
 		actor->SetText(tlkEntry->text);
 		delete tlkEntry;
 	}
 	if (fDuration-- <= 0) {
-		Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+		Object* sender = Script::FindSenderObject(fObject, fActionParams);
 		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
 		if (actor != NULL)
 			actor->SetText("");
