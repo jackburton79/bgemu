@@ -144,7 +144,7 @@ void
 Parser::Read(node*& rootNode)
 {
 	try {
-		_ReadElement(rootNode);
+		_ReadNode(rootNode);
 	} catch (const char *str) {
 		std::cerr << "Parser::Read(): caught string " << str << std::endl;
 	} catch (...) {
@@ -328,7 +328,7 @@ Parser:: _ExtractThirdParameter(Tokenizer& tokenizer, ::trigger_node* triggerNod
 
 
 void
-Parser::_ReadElementGuard(node*& n)
+Parser::_ReadNodeHeader(node*& n)
 {
 	token tok = fTokenizer->ReadNextToken();
 	int blockType = Parser::_BlockTypeFromToken(tok);
@@ -341,9 +341,9 @@ Parser::_ReadElementGuard(node*& n)
 
 
 void
-Parser::_ReadElement(::node*& node)
+Parser::_ReadNode(::node*& node)
 {
-	_ReadElementGuard(node);
+	_ReadNodeHeader(node);
 	for (;;) {
 		token tok = fTokenizer->ReadNextToken();
 		int blockType =_BlockTypeFromToken(tok);
@@ -360,18 +360,18 @@ Parser::_ReadElement(::node*& node)
 				// We found a nested block,
 				::node *newNode = NULL;
 				try {
-					_ReadElement(newNode);
+					_ReadNode(newNode);
 				} catch (...) {
 					// Finished
 				}
 				node->AddChild(newNode);
 			}
 		} else {
-			_ReadElementValue(node, tok);
+			_ReadNodeValue(node, tok);
 		}
 	}
 
-	_ReadElementGuard(node);
+	_ReadNodeHeader(node);
 
 	if (fDebug)
 		node->Print();
@@ -379,7 +379,7 @@ Parser::_ReadElement(::node*& node)
 
 
 void
-Parser::_ReadElementValue(::node* node, const token& tok)
+Parser::_ReadNodeValue(::node* node, const token& tok)
 {
 	if (node->value[0] != '\0')
 		strcat(node->value, " ");

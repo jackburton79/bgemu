@@ -163,9 +163,9 @@ public:
 private:
 	void _SkipUselessTokens();
 
-	void _ReadElementGuard(node*& n);
-	void _ReadElement(node*& n);
-	void _ReadElementValue(node* n, const token& tok);
+	void _ReadNodeHeader(node*& n);
+	void _ReadNode(node*& n);
+	void _ReadNodeValue(node* n, const token& tok);
 
 	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
