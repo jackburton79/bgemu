@@ -472,6 +472,32 @@ Tokenizer::SetTo(Stream *stream, int32 position)
 }
 
 
+std::string
+Tokenizer::TokenType(const token& t) const
+{
+	switch (t.type) {
+		case TOKEN_END_OF_LINE:
+			return "TOKEN_END_OF_LINE";
+		case TOKEN_STRING:
+			return "TOKEN_STRING";
+		case TOKEN_SPACE:
+			return "TOKEN_SPACE";
+		case TOKEN_NUMBER:
+			return "TOKEN_NUMBER";
+		case TOKEN_QUOTED_STRING:
+			return "TOKEN_QUOTED_STRING";
+		case TOKEN_EXCLAMATION_MARK:
+			return "TOKEN_EXCLAMATION_MARK";
+		case TOKEN_COMMA:
+			return "TOKEN_COMMA";
+		case TOKEN_PARENTHESIS:
+			return "TOKEN_PARENTHESIS";
+		default:
+			return "TOKEN_UNKNOWN";
+	}
+}
+
+
 token
 Tokenizer::ReadToken()
 {
@@ -519,7 +545,8 @@ Tokenizer::ReadNextToken()
 	}
 
 	if (fDebug) {
-		std::cout << "token: type " << std::dec << aToken.type << ", size ";
+		std::cout << "token: type " << TokenType(aToken);
+		std::cout << std::dec << ", size ";
 		std::cout << aToken.size << ", value ";
 		if (aToken.type == TOKEN_NUMBER)
 			std::cout << aToken.u.number;
@@ -797,7 +824,15 @@ object_node::Empty() const
 
 // action
 action_node::action_node()
+	:
+	id(0),
+	integer1(0),
+	integer2(0),
+	integer3(0)
 {
+	where.x = where.y = -1;
+	string1[0] = '\0';
+	string2[0] = '\0';
 }
 
 

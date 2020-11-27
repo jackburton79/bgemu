@@ -126,6 +126,8 @@ public:
 	Tokenizer(Stream *stream, int32 position);
 	void SetTo(Stream *stream, int32 position);
 
+	std::string TokenType(const token& t) const;
+
 	token ReadToken();
 	token ReadNextToken();
 	void RewindToken(const token &tok);
