@@ -187,8 +187,8 @@ Script::FindTargetObject(const Object* object, action_node* start)
 {
 	if (sDebug)
 		std::cout << "*** FindTargetObject:" << std::endl;
-	object_node* objectNode = start->Second();
 
+	object_node* objectNode = start->Second();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindTargetObject returned NULL" << std::endl;
