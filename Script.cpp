@@ -149,7 +149,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 Object*
 Script::FindTriggerObject(const Object* object, trigger_node* start)
 {
-	object_node* objectNode = FindObjectNode(object, start);
+	object_node* objectNode = (object_node*)start->children.front();
 	if (objectNode == NULL)
 		return NULL;
 	
