@@ -15,9 +15,13 @@
 #include <string>
 
 
+
 class Parameter {
 public:
 	Parameter();
+	std::string Type() const;
+
+	void Print() const;
 
 	enum {
 		INTEGER,
@@ -32,11 +36,43 @@ public:
 };
 
 
+class TriggerParameters {
+	std::vector<Parameter> parameters;
+};
+
+
 Parameter::Parameter()
 	:
 	type(UNKNOWN),
 	position(1)
 {
+}
+
+
+std::string
+Parameter::Type() const
+{
+	switch (type) {
+		case OBJECT:
+			return "OBJECT";
+		case INTEGER:
+			return "INTEGER";
+		case STRING:
+			return "STRING";
+		case INT_ENUM:
+			return "INT_ENUM";
+		case UNKNOWN:
+		default:
+			return "UNKNOWN";
+	}
+}
+
+void
+Parameter::Print() const
+{
+	std::cout << "type:" << Type() << std::endl;
+	std::cout << "position: " << position << std::endl;
+	std::cout << "IDtable: " << IDtable << std::endl;
 }
 
 
@@ -155,8 +191,9 @@ GetTriggerParameters(std::string trigger)
 {
 	StringStream stream(trigger);
 	Tokenizer tokenizer(&stream, 0);
-	tokenizer.SetDebug(true);
+	//tokenizer.SetDebug(true);
 
+	std::cout << "trigger: " << trigger << std::endl;
 	std::vector<Parameter> parameters;
 	token triggerName = tokenizer.ReadToken();
 	token parens = tokenizer.ReadToken();
@@ -168,15 +205,15 @@ GetTriggerParameters(std::string trigger)
 	int integerPos = 1;
 	for (;;) {
 		token t = tokenizer.ReadToken();
-		Parameter object;
+		Parameter parameter;
 		// TODO:
-		if (strcmp(t.u.string, "O:OBJECT") == 0) {
-			object.type = Parameter::OBJECT;
-			parameters.push_back(object);
+		if (strcmp(t.u.string, "O:OBJECT*") == 0) {
+			parameter.type = Parameter::OBJECT;
+			parameters.push_back(parameter);
 		} else if (strncmp(t.u.string, "S:", 2) == 0) {
-			object.type = Parameter::STRING;
-			object.position = stringPos;
-			parameters.push_back(object);
+			parameter.type = Parameter::STRING;
+			parameter.position = stringPos;
+			parameters.push_back(parameter);
 			stringPos++;
 		} else if (strncmp(t.u.string, "I:", 2) == 0) {
 			std::string string = t.u.string;
@@ -185,21 +222,21 @@ GetTriggerParameters(std::string trigger)
 			std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
 			std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
 			if (valueIDS == "")
-				object.type = Parameter::INTEGER;
+				parameter.type = Parameter::INTEGER;
 			else {
-				object.type = Parameter::INT_ENUM;
-				object.IDtable = valueIDS;
+				parameter.type = Parameter::INT_ENUM;
+				parameter.IDtable = valueIDS;
 			}
-			std::cout << valueName << ", " << valueIDS << std::endl;
-			object.position = integerPos;
+			parameter.position = integerPos;
 			integerPos++;
-			parameters.push_back(object);
+			parameters.push_back(parameter);
 		}
 		// closing parenthesis
 		if (t.type == TOKEN_PARENTHESIS)
 			break;
 	}
 
+	std::cout << "found " << parameters.size() << " parameters." << std::endl;
 	return parameters;
 }
 
@@ -211,7 +248,7 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	node.type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-	tokenizer.SetDebug(true);
+	//tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, &node))
 		return false;
 
@@ -383,6 +420,8 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 	if (tokenParam.type == TOKEN_PARENTHESIS)
 		return tokenParam;
 
+	if (parameter.type != Parameter::UNKNOWN)
+		parameter.Print();
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = tokenizer.ReadToken();
 	switch (parameter.type) {
@@ -428,7 +467,13 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 					node->string1[strlen(tokenParam.u.string)] = '\0';
 				}
 			} else if (parameter.position == 2) {
-				node->parameter2 = tokenParam.u.number;
+				if (tokenParam.type == TOKEN_QUOTED_STRING) {
+					strncpy(node->string2, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
+					node->string2[strlen(tokenParam.u.string) - 2] = '\0';
+				} else if (tokenParam.type == TOKEN_STRING) {
+					strncpy(node->string2, tokenParam.u.string, strlen(tokenParam.u.string));
+					node->string2[strlen(tokenParam.u.string)] = '\0';
+				}
 			}
 			break;
 		default:

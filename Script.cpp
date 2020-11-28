@@ -756,7 +756,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				// GENDER(O:OBJECT*,I:SEX*GENDER)(16461, 0x404d)
 				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
 				if (object != NULL)
-					returnValue = object->CRE()->Gender() == IDTable::GenderID(trig->string1);
+					returnValue = object->CRE()->Gender() == trig->parameter1;
 				break;
 			}
 			case 0x4051:
