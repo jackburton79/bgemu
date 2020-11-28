@@ -5,13 +5,15 @@
  *      Author: stefano
  */
 
+#include "TextArea.h"
+
 #include "BamResource.h"
 #include "Bitmap.h"
 #include "Core.h"
 #include "GraphicsEngine.h"
+#include "RectUtils.h"
 #include "ResManager.h"
 #include "Scrollbar.h"
-#include "TextArea.h"
 #include "TextSupport.h"
 #include "TLKResource.h"
 #include "Utils.h"
@@ -21,8 +23,17 @@
 TextArea::TextLine::TextLine()
 	:
 	width(0),
-	height(0)
+	height(0),
+	dialog_option(-1)
 {
+}
+
+
+IE::rect
+TextArea::TextLine::Frame() const
+{
+	IE::rect frame = { 0, 0, (int16)width, (int16)height };
+	return frame;
 }
 
 
@@ -88,6 +99,16 @@ TextArea::MouseDown(IE::point point)
 }
 
 
+/* virtual */
+void
+TextArea::MouseMoved(IE::point point, uint32 transit)
+{
+	const TextLine* line = _HitTestLine(point);
+	if (line != NULL)
+		std::cout << line->text << std::endl;
+}
+
+
 void
 TextArea::SetScrollbar(Scrollbar* scrollbar)
 {
@@ -107,6 +128,26 @@ TextArea::AddText(const char* text)
 		TextLine* newLine = new TextLine();
 		newLine->text = textLine;
 		newLine->width = font->StringWidth(textLine, &newLine->height);
+		fLines.push_back(newLine);
+	}
+	fChanged = true;
+}
+
+
+// TODO: dublicated code with the above function
+void
+TextArea::AddDialogText(const char*, const char* text, int32 dialogOption)
+{
+	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+	const Font* font = FontRoster::GetFont(fontName);
+
+	std::string textString(text);
+	while (!textString.empty()) {
+		std::string textLine = font->TruncateString(textString, fControl->w);
+		TextLine* newLine = new TextLine();
+		newLine->text = textLine;
+		newLine->width = font->StringWidth(textLine, &newLine->height);
+		newLine->dialog_option = dialogOption;
 		fLines.push_back(newLine);
 	}
 	fChanged = true;
@@ -142,4 +183,23 @@ TextArea::_UpdateScrollbar(int16 change)
 {
 	if (fScrollbar != NULL)
 		fScrollbar->UpdateOffset(fYOffset);
+}
+
+
+const TextArea::TextLine*
+TextArea::_HitTestLine(IE::point point) const
+{
+	IE::point lineOffset = {0, fYOffset};
+	int32 numLine = 0;
+	std::vector<TextLine*>::const_iterator i;
+	for (i = fLines.begin(); i != fLines.end(); i++) {
+		const TextLine* line = *i;
+		IE::rect frame = line->Frame();
+		frame = offset_rect(frame, lineOffset.x, lineOffset.y);
+		if (rect_contains(frame, point))
+			return line;
+		lineOffset.y += line->height;
+		numLine++;
+	}
+	return NULL;
 }

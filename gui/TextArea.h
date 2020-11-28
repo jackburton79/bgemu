@@ -21,18 +21,22 @@ public:
 	class TextLine {
 	public:
 		TextLine();
+		IE::rect Frame() const;
 		std::string text;
 		uint16 width;
 		uint16 height;
+		int32 dialog_option;
 	};
 	TextArea(IE::text_area* text);
 	virtual ~TextArea();
 	virtual void Draw();
 	virtual void MouseDown(IE::point point);
+	virtual void MouseMoved(IE::point point, uint32 transit);
 
 	void SetScrollbar(Scrollbar* scrollbar);
 
 	void AddText(const char* text);
+	void AddDialogText(const char*, const char* text, int32 dialogOption);
 	void ClearText();
 
 	void ScrollBy(int16 x, int16 y);
@@ -46,6 +50,7 @@ private:
 	Scrollbar* fScrollbar;
 
 	void _UpdateScrollbar(int16 change);
+	const TextLine* _HitTestLine(IE::point point) const;
 };
 
 #endif /* TEXTAREA_H_ */
