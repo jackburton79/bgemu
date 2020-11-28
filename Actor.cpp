@@ -35,7 +35,7 @@
 
 Actor::Actor(IE::actor &actor)
 	:
-	Object(actor.name, Object::ACTOR),
+	Object(actor.cre.CString(), Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
@@ -58,7 +58,7 @@ Actor::Actor(IE::actor &actor)
 
 Actor::Actor(IE::actor &actor, CREResource* cre)
 	:
-	Object(actor.name, Object::ACTOR),
+	Object(actor.cre.CString(), Object::ACTOR),
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
@@ -82,7 +82,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 Actor::Actor(const char* creName, IE::point position, int face)
 	:
 	Object(creName, Object::ACTOR),
-	fActor(NULL),
+	fActor(new IE::actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
 	fAnimationValid(false),
@@ -98,7 +98,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fTileCell(NULL),
 	fRegion(NULL)
 {
-	fActor = new IE::actor;
 	fActor->cre = creName;
 	memcpy(fActor->name, fActor->cre.name, 8);
 	fActor->name[8] = 0;
@@ -109,6 +108,13 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	//_SetPositionPrivate(position);
 
 	_Init();
+}
+
+
+std::string
+Actor::LongName() const
+{
+	return fActor->name;
 }
 
 
@@ -214,7 +220,7 @@ Actor::Print() const
 	CREResource* cre = CRE();
 	if (cre == NULL)
 		return;
-	std::cout << "Name: " << Name() << std::endl;
+	std::cout << "Name: " << LongName() << "(" << Name() << ")" << std::endl;
 	std::cout << "ENUM: " << cre->GlobalActorEnum() << std::endl;
 	std::cout << "Gender: " << IDTable::GenderAt(cre->Gender());
 	std::cout << " (" << (int)cre->Gender() << ")" << std::endl;
@@ -607,7 +613,7 @@ Actor::InitiateDialogWith(Actor* actor)
 
 	trigger_entry triggerEntry("LastTalkedToBy", this);
 	AddTrigger(triggerEntry);
-	std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
+	std::cout << LongName() << " initiates dialog with " << actor->LongName() << std::endl;
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	Core::Get()->DialogInitiated(true, this);
