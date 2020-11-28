@@ -610,7 +610,7 @@ Actor::InitiateDialogWith(Actor* actor)
 		std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
 		std::cout << "Dialog file: " << dialogFile << std::endl;
 
-		Core::Get()->SetDialogMode(true);
+		Core::Get()->DialogInitiated(true, this);
 
 		fDLG = gResManager->GetDLG(dialogFile);
 		DialogState dialogState;
@@ -643,17 +643,21 @@ Actor::InitiateDialogWith(Actor* actor)
 
 		}
 	}
+
+	std::cout << "INITIATEDIALOG returns" << std::endl;
 }
 
 
 void
 Actor::TerminateDialog()
 {
+	// Called by Core::TerminateDialog().
+	// TODO: If called from other places, Core will still be in dialog mode
+	std::cout << Name() << " TerminateDialog()" << std::endl;
 	if (Core::Get()->InDialogMode()) {
 		fActor->num_times_talked_to++;
 		gResManager->ReleaseResource(fDLG);
 		fDLG = NULL;
-		Core::Get()->SetDialogMode(false);
 	}
 }
 

@@ -84,7 +84,7 @@ void
 TextArea::MouseDown(IE::point point)
 {
 	if (Core::Get()->InDialogMode())
-		Core::Get()->SetDialogMode(false);
+		Core::Get()->TerminateDialog();
 }
 
 

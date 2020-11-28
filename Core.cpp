@@ -46,7 +46,8 @@ Core::Core()
 	fPaused(false),
 	fCutsceneMode(false),
 	fDialogMode(false),
-	fCutsceneActor(NULL)
+	fCutsceneActor(NULL),
+	fDialogInitiatorActor(NULL)
 {
 	srand(time(NULL));
 }
@@ -319,10 +320,31 @@ Core::InDialogMode() const
 
 
 void
-Core::SetDialogMode(bool value)
+Core::DialogInitiated(bool value, Actor* initiator)
 {
+	if (value) {
+		GUI::Get()->EnsureShowDialogArea();
+		fDialogInitiatorActor = initiator;
+	}
 	fDialogMode = value;
-	GUI::Get()->EnsureShowDialogArea();
+}
+
+
+Actor*
+Core::DialogInitiator() const
+{
+	return fDialogInitiatorActor;
+}
+
+
+void
+Core::TerminateDialog()
+{
+	if (InDialogMode()) {
+		fDialogInitiatorActor->TerminateDialog();
+		fDialogMode = false;
+		fDialogInitiatorActor = NULL;
+	}
 }
 
 
