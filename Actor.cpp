@@ -631,7 +631,7 @@ Actor::InitiateDialogWith(Actor* actor)
 					// TODO: handle all transitions
 					// present options to the player
 					// etc.
-					Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
+					Core::Get()->DisplayMessage(LongName().c_str(), dialogState.text.c_str());
 					for (uint32 t = 0; t < dialogState.transition_count; t++) {
 						DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
 						// TODO: For now, later something like "AddDialogOption(t)"
