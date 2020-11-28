@@ -750,7 +750,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				// InParty
 				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
 				if (object != NULL)
-					returnValue = Game::Get()->Party()->HasActor(object);
+					returnValue = object->InParty();
 				break;
 			}
 			case 0x404d:
