@@ -1,6 +1,7 @@
 #ifndef __PARSING_H
 #define __PARSING_H
 
+#include "IETypes.h"
 #include "SupportDefs.h"
 
 #include <vector>
@@ -151,6 +152,7 @@ private:
 };
 
 
+class Parameter;
 class Parser {
 public:
 	Parser();
@@ -179,10 +181,8 @@ private:
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static token _ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,
-							int* intParam, char* stringParam);
 	static token _ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,
-							int* intParam, char* stringParam);
+									   Parameter& parameter);
 	
 	void _FixNode(::node *node);
 

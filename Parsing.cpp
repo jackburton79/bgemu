@@ -1,5 +1,7 @@
-#include "Core.h"
 #include "Parsing.h"
+
+#include "Core.h"
+#include "IDSResource.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "StringStream.h"
@@ -11,6 +13,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+
+
+class Parameter {
+public:
+	Parameter();
+
+	enum {
+		INTEGER,
+		INT_ENUM,
+		STRING,
+		OBJECT,
+		UNKNOWN
+	};
+	int type;
+	int position;
+	std::string IDtable;
+};
+
+
+Parameter::Parameter()
+	:
+	type(UNKNOWN),
+	position(1)
+{
+}
 
 
 // token
@@ -122,6 +149,61 @@ Parser::TriggersFromString(const std::string& string)
 }
 
 
+static
+std::vector<Parameter>
+GetTriggerParameters(std::string trigger)
+{
+	StringStream stream(trigger);
+	Tokenizer tokenizer(&stream, 0);
+	tokenizer.SetDebug(true);
+
+	std::vector<Parameter> parameters;
+	token triggerName = tokenizer.ReadToken();
+	token parens = tokenizer.ReadToken();
+	if (triggerName.type != TOKEN_STRING
+			|| parens.type != TOKEN_PARENTHESIS)
+		return parameters;
+
+	int stringPos = 1;
+	int integerPos = 1;
+	for (;;) {
+		token t = tokenizer.ReadToken();
+		Parameter object;
+		// TODO:
+		if (strcmp(t.u.string, "O:OBJECT") == 0) {
+			object.type = Parameter::OBJECT;
+			parameters.push_back(object);
+		} else if (strncmp(t.u.string, "S:", 2) == 0) {
+			object.type = Parameter::STRING;
+			object.position = stringPos;
+			parameters.push_back(object);
+			stringPos++;
+		} else if (strncmp(t.u.string, "I:", 2) == 0) {
+			std::string string = t.u.string;
+			size_t valueNamePos = string.find(":");
+			size_t IDSNamePos = string.find("*");
+			std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
+			std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
+			if (valueIDS == "")
+				object.type = Parameter::INTEGER;
+			else {
+				object.type = Parameter::INT_ENUM;
+				object.IDtable = valueIDS;
+			}
+			std::cout << valueName << ", " << valueIDS << std::endl;
+			object.position = integerPos;
+			integerPos++;
+			parameters.push_back(object);
+		}
+		// closing parenthesis
+		if (t.type == TOKEN_PARENTHESIS)
+			break;
+	}
+
+	return parameters;
+}
+
+
 /* static */
 bool
 Parser::TriggerFromString(const std::string& string, trigger_node& node)
@@ -129,37 +211,18 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	node.type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
+	tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, &node))
 		return false;
 
-	int* intParam = &node.parameter1;
-	char* strParam = node.string1;
+	// Opening parenthesis
+	tokenizer.ReadToken();
 
-	token firstParam = _ExtractFirstParameter(tokenizer, &node,
-											  intParam, strParam);
-	if (firstParam.type == TOKEN_NUMBER)
-		intParam = &node.parameter2;
-	else if (firstParam.type == TOKEN_QUOTED_STRING)
-		strParam = node.string2;
-
-	token secondParam = _ExtractNextParameter(tokenizer, &node,
-										  	  intParam, strParam);
-
-	if (secondParam.type == TOKEN_NUMBER)
-		intParam = &node.parameter2;
-	else if (secondParam.type == TOKEN_QUOTED_STRING)
-		strParam = node.string2;
-
-	// Third param
-	_ExtractNextParameter(tokenizer, &node, intParam, strParam);
-
-	// TODO: we add an empty object node since in other parts of
-	// the code (example: Script::EvaluateTrigger()) we assume there is always an object_node here.
-	// FIX!
-	if (node.children.empty()) {
-		object_node* emptyNode = new object_node;
-		node.children.push_back(emptyNode);
+	std::vector<Parameter> paramTypes = GetTriggerParameters(IDTable::TriggerName(node.id));
+	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
+			i != paramTypes.end(); i++) {
+		Parameter parameter = *i;
+		_ExtractNextParameter(tokenizer, &node, parameter);
 	}
 	node.Print();
 
@@ -312,50 +375,66 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 
 /* static */
 token
-Parser::_ExtractFirstParameter(Tokenizer& tokenizer, ::trigger_node* node,
-							   int* intParam, char* stringParam)
-{
-	tokenizer.ReadToken(); // parenthesis
-	token firstParam = tokenizer.ReadToken();
-	if (firstParam.type == TOKEN_NUMBER)
-		*intParam = firstParam.u.number;
-	else if (firstParam.type == TOKEN_STRING) {
-		// This is an identifier
-		object_node* objectNode = new object_node;
-		objectNode->identifiers[0] = IDTable::ObjectID(firstParam.u.string);
-		node->children.push_back(objectNode);
-		objectNode->Print();
-	} else if (firstParam.type == TOKEN_QUOTED_STRING) {
-		// Unquote string
-		strncpy(stringParam, firstParam.u.string + 1, strlen(firstParam.u.string) - 1);
-		stringParam[strlen(firstParam.u.string) - 2] = '\0';
-	}
-	return firstParam;
-}
-
-
-/* static */
-token
 Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
-								int* intParam, char* stringParam)
+								Parameter& parameter)
 {
-	token secondParam = tokenizer.ReadToken();
-	if (secondParam.type != TOKEN_PARENTHESIS) {
-		if (secondParam.type == TOKEN_COMMA)
-			secondParam = tokenizer.ReadToken();
+	std::cout << "ExtractNextParameter" << std::endl;
+	token tokenParam = tokenizer.ReadToken();
+	if (tokenParam.type == TOKEN_PARENTHESIS)
+		return tokenParam;
 
-		if (secondParam.type == TOKEN_NUMBER)
-			*intParam = secondParam.u.number;
-		else if (secondParam.type == TOKEN_STRING) {
-			strncpy(stringParam, secondParam.u.string, strlen(secondParam.u.string));
-			stringParam[strlen(secondParam.u.string)] = '\0';
-		} else if (secondParam.type == TOKEN_QUOTED_STRING) {
-			// Unquote string
-			strncpy(stringParam, secondParam.u.string + 1, strlen(secondParam.u.string) - 1);
-			stringParam[strlen(secondParam.u.string) - 2] = '\0';
+	if (tokenParam.type == TOKEN_COMMA)
+		tokenParam = tokenizer.ReadToken();
+	switch (parameter.type) {
+		case Parameter::OBJECT:
+		{
+			object_node* objectNode = new object_node;
+			if (tokenParam.type == TOKEN_QUOTED_STRING) {
+				strncpy(objectNode->name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
+				objectNode->name[strlen(tokenParam.u.string) - 2] = '\0';
+			} else if (tokenParam.type == TOKEN_STRING) {
+				objectNode->identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
+			}
+			node->children.push_back(objectNode);
+			break;
 		}
+		case Parameter::INTEGER:
+			if (parameter.position == 1)
+				node->parameter1 = tokenParam.u.number;
+			else if (parameter.position == 2)
+				node->parameter2 = tokenParam.u.number;
+			break;
+		case Parameter::INT_ENUM:
+		{
+			int integerValue;
+			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
+			if (idsResource != NULL) {
+				integerValue = idsResource->IDForString(tokenParam.u.string);
+				gResManager->ReleaseResource(idsResource);
+			}
+			if (parameter.position == 1)
+				node->parameter1 = integerValue;
+			else
+				node->parameter2 = integerValue;
+			break;
+		}
+		case Parameter::STRING:
+			if (parameter.position == 1) {
+				if (tokenParam.type == TOKEN_QUOTED_STRING) {
+					strncpy(node->string1, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
+					node->string1[strlen(tokenParam.u.string) - 2] = '\0';
+				} else if (tokenParam.type == TOKEN_STRING) {
+					strncpy(node->string1, tokenParam.u.string, strlen(tokenParam.u.string));
+					node->string1[strlen(tokenParam.u.string)] = '\0';
+				}
+			} else if (parameter.position == 2) {
+				node->parameter2 = tokenParam.u.number;
+			}
+			break;
+		default:
+			break;
 	}
-	return secondParam;
+	return tokenParam;
 }
 
 
