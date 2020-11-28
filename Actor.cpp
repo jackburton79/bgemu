@@ -600,14 +600,14 @@ Actor::InitiateDialogWith(Actor* actor)
 {
 	assert(fDLG == NULL);
 
-	const res_ref dialogFile = actor->CRE()->DialogFile();
+	const res_ref dialogFile = CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0'
 			|| strcasecmp(dialogFile.CString(), "None") == 0) {
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
 		return;
 	}
 
-	trigger_entry triggerEntry("LastTalkedToBy", actor);
+	trigger_entry triggerEntry("LastTalkedToBy", this);
 	AddTrigger(triggerEntry);
 	std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
 	std::cout << "Dialog file: " << dialogFile << std::endl;
@@ -627,7 +627,7 @@ Actor::InitiateDialogWith(Actor* actor)
 					// TODO: handle all transitions
 					// present options to the player
 					// etc.
-					Core::Get()->DisplayMessage(actor->Name(), dialogState.text.c_str());
+					Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
 					for (uint32 t = 0; t < dialogState.transition_count; t++) {
 						DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
 						// TODO: For now, later something like "AddDialogOption(t)"
@@ -710,9 +710,9 @@ Actor::ClickedOn(Object* target)
 		// Plus, we're probably leaking things
 		action_node* actionParams = new action_node;
 		object_node* sender = new object_node;
-		strcpy(sender->name, Name());
+		strcpy(sender->name, actor->Name());
 		object_node* target = new object_node;
-		strcpy(target->name, actor->Name());
+		strcpy(target->name, Name());
 		object_node* nullObject = new object_node;
 		actionParams->children.push_back(sender);
 		actionParams->children.push_back(target);

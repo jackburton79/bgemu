@@ -86,7 +86,6 @@ Action::Completed() const
 void
 Action::SetCompleted()
 {
-	//std::cout << Name() << ":SetCompleted()!" << std::endl;
 	fCompleted = true;
 }
 
@@ -147,7 +146,6 @@ ActionCreateCreature::operator()()
 	if (point.x == -1 && point.y == -1) {
 		Actor* thisActor = dynamic_cast<Actor*>(fObject);
 		if (thisActor != NULL) {
-			std::cout << "active creature: " << fObject->Name() << std::endl;
 			point = thisActor->Position();
 			point.x += Core::RandomNumber(-20, 20);
 			point.y += Core::RandomNumber(-20, 20);
