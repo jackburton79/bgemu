@@ -343,8 +343,10 @@ Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 Object*
 Script::GetObject(const Object* source, object_node* node)
 {
-	if (sDebug)
-		std::cout << "Script::GetObject(source=" << source->Name() << ") ";
+	if (sDebug) {
+		std::cout << "Script::GetObject(source=";
+		std::cout << (source ? source->Name() : "NULL") << ") ";
+	}
 	Object* result = NULL;
 	if (node->name[0] != '\0') {
 		if (sDebug)
