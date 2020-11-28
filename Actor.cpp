@@ -132,9 +132,8 @@ Actor::_Init()
 		_HandleColors();
 	}
 
-	//if (::strcasecmp(Name(), "IMOEN") == 0) {
 	Print();
-	//}
+
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
@@ -325,7 +324,6 @@ Actor::Destination() const
 {
 	return fActor->destination;
 }
-
 
 
 void
@@ -761,23 +759,12 @@ Actor::IsSelected() const
 }
 
 
-CREResource *
+CREResource*
 Actor::CRE() const
 {
 	return fCRE;
 }
 
-/*
-static bool
-IsValid(const res_ref& scriptName)
-{
-	res_ref noneRef = "None";
-	if (scriptName.name[0] != '\0'
-			&& scriptName != noneRef)
-		return true;
-	return false;
-}
-*/
 
 void
 Actor::_HandleScripts()
@@ -790,7 +777,6 @@ Actor::_HandleScripts()
 	AddScript(Core::ExtractScript(fActor->script_race));
 	AddScript(Core::ExtractScript(fActor->script_general));
 	AddScript(Core::ExtractScript(fActor->script_default));
-
 }
 
 
