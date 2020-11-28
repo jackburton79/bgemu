@@ -13,6 +13,7 @@
 
 class DialogState {
 public:
+	void SelectOption(int32 option);
 	std::string trigger;
 	std::string text;
 	uint32 transition_index;

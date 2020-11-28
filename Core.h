@@ -25,6 +25,7 @@ struct object_node;
 class Actor;
 class Action;
 class Container;
+class DialogState;
 class Door;
 class Object;
 class Region;
@@ -80,6 +81,8 @@ public:
 	void TerminateDialog();
 
 	Actor* DialogInitiator() const;
+
+	DialogState* Dialog();
 
 	void PlayAnimation(const res_ref& name, const IE::point where);
 	void PlayEffect(const res_ref& name, const IE::point where);
@@ -155,6 +158,8 @@ private:
 	bool fDialogMode;
 	Object* fCutsceneActor;
 	Actor* fDialogInitiatorActor;
+
+	DialogState* fDialogState;
 };
 
 

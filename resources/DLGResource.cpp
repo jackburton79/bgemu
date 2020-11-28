@@ -168,3 +168,10 @@ DLGResource::_GetStateTrigger(int triggerIndex)
 	return string;
 }
 
+
+// DialogState
+void
+DialogState::SelectOption(int32 option)
+{
+
+}

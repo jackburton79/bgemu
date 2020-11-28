@@ -7,6 +7,7 @@
 #include "BCSResource.h"
 #include "Container.h"
 #include "CreResource.h"
+#include "DLGResource.h"
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
@@ -47,7 +48,8 @@ Core::Core()
 	fCutsceneMode(false),
 	fDialogMode(false),
 	fCutsceneActor(NULL),
-	fDialogInitiatorActor(NULL)
+	fDialogInitiatorActor(NULL),
+	fDialogState(NULL)
 {
 	srand(time(NULL));
 }
@@ -334,6 +336,13 @@ Actor*
 Core::DialogInitiator() const
 {
 	return fDialogInitiatorActor;
+}
+
+
+DialogState*
+Core::Dialog()
+{
+	return fDialogState;
 }
 
 

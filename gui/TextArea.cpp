@@ -10,6 +10,7 @@
 #include "BamResource.h"
 #include "Bitmap.h"
 #include "Core.h"
+#include "DLGResource.h"
 #include "GraphicsEngine.h"
 #include "RectUtils.h"
 #include "ResManager.h"
@@ -94,6 +95,13 @@ TextArea::Draw()
 void
 TextArea::MouseDown(IE::point point)
 {
+	const TextLine* line = _HitTestLine(point);
+	if (line != NULL) {
+		DialogState* dialog = Core::Get()->Dialog();
+		if (dialog != NULL)
+			dialog->SelectOption(line->dialog_option);
+		// TODO: pass option to the dialog state
+	}
 	if (Core::Get()->InDialogMode())
 		Core::Get()->TerminateDialog();
 }
@@ -103,9 +111,6 @@ TextArea::MouseDown(IE::point point)
 void
 TextArea::MouseMoved(IE::point point, uint32 transit)
 {
-	const TextLine* line = _HitTestLine(point);
-	if (line != NULL)
-		std::cout << line->text << std::endl;
 }
 
 
@@ -190,16 +195,17 @@ const TextArea::TextLine*
 TextArea::_HitTestLine(IE::point point) const
 {
 	IE::point lineOffset = {0, fYOffset};
-	int32 numLine = 0;
 	std::vector<TextLine*>::const_iterator i;
 	for (i = fLines.begin(); i != fLines.end(); i++) {
 		const TextLine* line = *i;
+		// skip non-dialog lines
+		if (line->dialog_option == -1)
+			continue;
 		IE::rect frame = line->Frame();
 		frame = offset_rect(frame, lineOffset.x, lineOffset.y);
 		if (rect_contains(frame, point))
 			return line;
 		lineOffset.y += line->height;
-		numLine++;
 	}
 	return NULL;
 }
