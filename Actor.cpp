@@ -600,7 +600,7 @@ Actor::InitiateDialogWith(Actor* actor)
 {
 	assert(fDLG == NULL);
 
-	const res_ref dialogFile = CRE()->DialogFile();
+	const res_ref dialogFile = actor->CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0'
 			|| strcasecmp(dialogFile.CString(), "None") == 0)
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
@@ -625,7 +625,7 @@ Actor::InitiateDialogWith(Actor* actor)
 						// TODO: handle all transitions
 						// present options to the player
 						// etc.
-						Core::Get()->DisplayMessage(Name(), dialogState.text.c_str());
+						Core::Get()->DisplayMessage(actor->Name(), dialogState.text.c_str());
 						for (uint32 t = 0; t < dialogState.transition_count; t++) {
 							DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
 							// TODO: For now, later something like "AddDialogOption(t)"
