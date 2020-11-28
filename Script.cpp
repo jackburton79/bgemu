@@ -773,10 +773,8 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * killed by a neutral creature.
 				 */
 				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
-				if (actor != NULL) {
-					const char* deathVariable = actor->CRE()->DeathVariable();
-					returnValue = actor->GetVariable(deathVariable) == 1;
-				}
+				if (actor != NULL)
+					returnValue = actor->GetVariable(actor->CRE()->DeathVariable().c_str()) == 1;
 				break;
 			}
 			case 0x4063:

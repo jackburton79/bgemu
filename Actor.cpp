@@ -602,49 +602,47 @@ Actor::InitiateDialogWith(Actor* actor)
 
 	const res_ref dialogFile = actor->CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0'
-			|| strcasecmp(dialogFile.CString(), "None") == 0)
+			|| strcasecmp(dialogFile.CString(), "None") == 0) {
 		std::cout << "EMPTY DIALOG FILE" << std::endl;
-	else {
-		trigger_entry triggerEntry("LastTalkedToBy", actor);
-		AddTrigger(triggerEntry);
-		std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
-		std::cout << "Dialog file: " << dialogFile << std::endl;
-
-		Core::Get()->DialogInitiated(true, this);
-
-		fDLG = gResManager->GetDLG(dialogFile);
-		DialogState dialogState;
-		try {
-			int32 stateIndex = 0;
-			for (;;) {
-				dialogState = fDLG->GetNextState(stateIndex);
-				if (!dialogState.trigger.empty()) {
-					std::vector<trigger_node*> triggerList;
-					triggerList = Parser::TriggersFromString(dialogState.trigger);
-					if (_EvaluateDialogTriggers(triggerList)) {
-						// TODO: handle all transitions
-						// present options to the player
-						// etc.
-						Core::Get()->DisplayMessage(actor->Name(), dialogState.text.c_str());
-						for (uint32 t = 0; t < dialogState.transition_count; t++) {
-							DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
-							// TODO: For now, later something like "AddDialogOption(t)"
-
-							if (!transition.text_player.empty()) {
-								std::string option("DIALOGOPTION");
-								Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
-							}
-						}
-						break;
-					}
-				}
-			}
-		} catch (...) {
-
-		}
+		return;
 	}
 
-	std::cout << "INITIATEDIALOG returns" << std::endl;
+	trigger_entry triggerEntry("LastTalkedToBy", actor);
+	AddTrigger(triggerEntry);
+	std::cout << Name() << " initiates dialog with " << actor->Name() << std::endl;
+	std::cout << "Dialog file: " << dialogFile << std::endl;
+
+	Core::Get()->DialogInitiated(true, this);
+
+	fDLG = gResManager->GetDLG(dialogFile);
+	DialogState dialogState;
+	try {
+		int32 stateIndex = 0;
+		for (;;) {
+			dialogState = fDLG->GetNextState(stateIndex);
+			if (!dialogState.trigger.empty()) {
+				std::vector<trigger_node*> triggerList;
+				triggerList = Parser::TriggersFromString(dialogState.trigger);
+				if (_EvaluateDialogTriggers(triggerList)) {
+					// TODO: handle all transitions
+					// present options to the player
+					// etc.
+					Core::Get()->DisplayMessage(actor->Name(), dialogState.text.c_str());
+					for (uint32 t = 0; t < dialogState.transition_count; t++) {
+						DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
+						// TODO: For now, later something like "AddDialogOption(t)"
+						if (!transition.text_player.empty()) {
+							std::string option("DIALOGOPTION");
+							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
+						}
+					}
+					break;
+				}
+			}
+		}
+	} catch (...) {
+		std::cerr << "InitiateDialog: error!!!" << std::endl;
+	}
 }
 
 

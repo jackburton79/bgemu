@@ -361,11 +361,10 @@ CREResource::ItemAtSlot(uint32 i)
 }
 
 
-const char*
+std::string
 CREResource::DeathVariable()
 {
-	// TODO: Fix this, use a std::string ?
-	static char temp[32];
+	char temp[32];
 	fData->ReadAt(0x280, temp, 32);
 	return temp;
 }

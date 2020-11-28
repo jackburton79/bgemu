@@ -161,7 +161,7 @@ public:
 	IE::item ItemAtSlot(uint32 i);
 
 	res_ref DialogFile();
-	const char *DeathVariable();
+	std::string DeathVariable();
 
 private:
 	virtual ~CREResource();
