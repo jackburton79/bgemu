@@ -206,7 +206,6 @@ GetTriggerParameters(std::string trigger)
 	for (;;) {
 		token t = tokenizer.ReadToken();
 		Parameter parameter;
-		// TODO:
 		if (strcmp(t.u.string, "O:OBJECT*") == 0) {
 			parameter.type = Parameter::OBJECT;
 			parameters.push_back(parameter);
@@ -261,6 +260,14 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 		Parameter parameter = *i;
 		_ExtractNextParameter(tokenizer, &node, parameter);
 	}
+
+	// Add an empty object
+	// TODO: a bit hacky
+	if (node.children.size() == 0) {
+		object_node* objectNode = new object_node;
+		node.children.push_back(objectNode);
+	}
+
 	node.Print();
 
 	return true;
