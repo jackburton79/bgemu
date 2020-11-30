@@ -7,7 +7,6 @@
 #include "BCSResource.h"
 #include "Container.h"
 #include "CreResource.h"
-#include "DLGResource.h"
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
@@ -47,9 +46,7 @@ Core::Core()
 	fPaused(false),
 	fCutsceneMode(false),
 	fDialogMode(false),
-	fCutsceneActor(NULL),
-	fDialogInitiatorActor(NULL),
-	fDialogState(NULL)
+	fCutsceneActor(NULL)
 {
 	srand(time(NULL));
 }

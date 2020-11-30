@@ -153,9 +153,6 @@ private:
 	bool fCutsceneMode;
 	bool fDialogMode;
 	Object* fCutsceneActor;
-	Actor* fDialogInitiatorActor;
-
-	DialogState* fDialogState;
 };
 
 

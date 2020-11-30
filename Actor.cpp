@@ -11,7 +11,6 @@
 #include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
-#include "DLGResource.h"
 #include "Door.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
@@ -43,7 +42,6 @@ Actor::Actor(IE::actor &actor)
 	fCRE(NULL),
 	fOwnsActor(false),
 	fColors(NULL),
-	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -66,7 +64,6 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fCRE(cre),
 	fOwnsActor(false),
 	fColors(NULL),
-	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
@@ -89,7 +86,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fCRE(NULL),
 	fOwnsActor(true),
 	fColors(NULL),
-	fDLG(NULL),
 	fFlying(false),
 	fSelected(false),
 	fAction(ACT_STANDING),
