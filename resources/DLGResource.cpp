@@ -49,9 +49,6 @@ DLGResource::GetNextState(int32& index)
 
 	dlg_state state;
 	_GetStateAt(index, state);
-	//std::string triggerString = "";
-	//if (state.trigger != -1)
-		//triggerString = _GetStateTrigger(state.trigger);
 
 	index++;
 

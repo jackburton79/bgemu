@@ -12,7 +12,6 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Dialog.h"
-//#include "DLGResource.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "InputConsole.h"
@@ -21,7 +20,9 @@
 #include "OutputConsole.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "TextArea.h"
 #include "Timer.h"
+
 
 #include <assert.h>
 #include <stdio.h>
@@ -254,13 +255,18 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 					// TODO: handle all transitions
 					// present options to the player
 					// etc.
+					TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+					if (textArea == NULL) {
+						std::cerr << "NULL Text Area!!!" << std::endl;
+						continue;
+					}
+
 					Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
 					for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
 						DialogState::Transition transition = fDialog->TransitionAt(t);
-						// TODO: For now, later something like "AddDialogOption(t)"
 						if (!transition.text_player.empty()) {
 							std::string option("-");
-							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
+							textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
 						}
 					}
 					break;

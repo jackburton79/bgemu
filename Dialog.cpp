@@ -67,8 +67,20 @@ DialogState::GetNextState(int32& index)
 void
 DialogState::SelectOption(int32 option)
 {
-	// TODO: Get new transition or execute action
-	//if ()
+	DialogState::Transition transition = fTransitions.at(option);
+	std::cout << "SelectOption: " << transition.text_player << std::endl;
+	if (!(transition.entry.flags & DLG_TRANSITION_END)) {
+		delete fState;
+		fState = NULL;
+		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
+		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
+	}
+	if (transition.entry.index_action != -1) {
+		std::cout << "Action: " << transition.entry.index_action << std::endl;
+	}
+	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
+		std::cout << "Action: " << transition.entry.text_journal << std::endl;
+
 }
 
 
