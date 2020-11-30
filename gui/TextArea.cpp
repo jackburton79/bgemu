@@ -22,6 +22,8 @@
 #include "Window.h"
 
 
+const static int16 kLineSpacing = 5;
+
 TextArea::TextLine::TextLine()
 	:
 	width(0),
@@ -84,7 +86,7 @@ TextArea::Draw()
 			const TextLine* line = *i;
 			GFX::point where = { rect.x, rect.y };
 			FontRoster::GetFont(fontName)->RenderString(line->text, flags, fBitmap, false, where);
-			rect.y += line->height + 5;
+			rect.y += line->height + kLineSpacing;
 		}
 		fChanged = false;
 	}
@@ -98,6 +100,7 @@ TextArea::MouseDown(IE::point point)
 {
 	const TextLine* line = _HitTestLine(point);
 	if (line != NULL) {
+		std::cout << "MouseDown" << std::endl;
 		DialogState* dialog = Game::Get()->Dialog();
 		if (dialog != NULL)
 			dialog->SelectOption(line->dialog_option);
@@ -195,18 +198,18 @@ TextArea::_UpdateScrollbar(int16 change)
 const TextArea::TextLine*
 TextArea::_HitTestLine(IE::point point) const
 {
-	IE::point lineOffset = {0, fYOffset};
+	IE::point lineOffset = {(int16)fControl->x, (int16)(fControl->y + fYOffset)};
 	std::vector<TextLine*>::const_iterator i;
 	for (i = fLines.begin(); i != fLines.end(); i++) {
 		const TextLine* line = *i;
-		// skip non-dialog lines
-		if (line->dialog_option == -1)
-			continue;
 		IE::rect frame = line->Frame();
 		frame = offset_rect(frame, lineOffset.x, lineOffset.y);
+		lineOffset.y += line->height + kLineSpacing;
+		// skip non-dialog lines
+		if (line->dialog_option == -1)
+				continue;
 		if (rect_contains(frame, point))
 			return line;
-		lineOffset.y += line->height;
 	}
 	return NULL;
 }
