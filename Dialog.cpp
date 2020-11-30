@@ -43,13 +43,32 @@ DialogState::GetNextState(int32& index)
 
 	fState = new DialogState::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
+
+	// Get Transitions for this state
+	for (int32 i = 0; i < fState->NumTransitions(); i++) {
+		DialogState::Transition transition;
+		transition.entry = fResource->GetTransition(fState->TransitionIndex() + i);
+		if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
+			transition.text_player = IDTable::GetDialog(transition.entry.text_player);
+		if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
+			uint32 action = fResource->GetAction(transition.entry.index_action);
+			transition.action = IDTable::ActionAt(action);
+			std::cout << "action:" << action << std::endl;
+		}
+
+		if (transition.entry.flags & DLG_TRANSITION_END) {
+			std::cout << "TRANSITION_END" << std::endl;
+		}
+		fTransitions.push_back(transition);
+	}
 }
 
 
 void
 DialogState::SelectOption(int32 option)
 {
-
+	// TODO: Get new transition or execute action
+	//if ()
 }
 
 
@@ -61,20 +80,34 @@ DialogState::CurrentState()
 
 
 DialogState::Transition
-DialogState::GetTransition(int32 num)
+DialogState::TransitionAt(int32 index)
+{
+	return fTransitions.at(index);
+}
+
+
+int32
+DialogState::CountTransitions() const
+{
+	return fTransitions.size();
+}
+
+
+DialogState::Transition
+DialogState::_GetTransition(int32 num)
 {
 	DialogState::Transition transition;
-	transition_entry entry = fResource->GetTransition(num);
-	if (entry.flags & DLG_TRANSITION_HAS_TEXT)
-			transition.text_player = IDTable::GetDialog(entry.text_player);
+	transition.entry = fResource->GetTransition(num);
+	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
+		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
 
-	if (entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		uint32 action = fResource->GetAction(entry.index_action);
+	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
+		uint32 action = fResource->GetAction(transition.entry.index_action);
 		transition.action = IDTable::ActionAt(action);
 		std::cout << "action:" << action << std::endl;
 	}
 
-	if (entry.flags & DLG_TRANSITION_END) {
+	if (transition.entry.flags & DLG_TRANSITION_END) {
 		std::cout << "TRANSITION_END" << std::endl;
 	}
 

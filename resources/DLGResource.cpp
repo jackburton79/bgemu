@@ -63,10 +63,8 @@ DLGResource::GetNextState(int32& index)
 transition_entry
 DLGResource::GetTransition(int32 index)
 {
-	DialogTransition transition;
 	transition_entry entry;
 	fData->ReadAt(fTransitionsTableOffset + index * sizeof(transition_entry), entry);
-
 	return entry;
 }
 

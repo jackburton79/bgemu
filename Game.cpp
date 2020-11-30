@@ -255,8 +255,8 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 					// present options to the player
 					// etc.
 					Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
-					for (int32 t = 0; t < currentState->NumTransitions(); t++) {
-						DialogState::Transition transition = fDialog->GetTransition(t + currentState->TransitionIndex());
+					for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
+						DialogState::Transition transition = fDialog->TransitionAt(t);
 						// TODO: For now, later something like "AddDialogOption(t)"
 						if (!transition.text_player.empty()) {
 							std::string option("-");

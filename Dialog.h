@@ -16,8 +16,6 @@ class DialogState {
 public:
 	DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef);
 	~DialogState();
-	void GetNextState(int32& index);
-	void SelectOption(int32 option);
 
 	class State {
 	public:
@@ -39,10 +37,17 @@ public:
 	public:
 		std::string text_player;
 		std::string action;
+		transition_entry entry;
 	};
 
+	void GetNextState(int32& index);
+	void SelectOption(int32 option);
+
 	State* CurrentState();
-	Transition GetTransition(int32 num);
+
+	typedef std::vector<Transition> TransitionList;
+	Transition TransitionAt(int32 index);
+	int32 CountTransitions() const;
 
 	DLGResource* Resource();
 	::Actor* Actor();
@@ -51,7 +56,10 @@ private:
 	State* fState;
 	::Actor* fInitiator;
 	::Actor* fTarget;
+	TransitionList fTransitions;
 	DLGResource* fResource;
+
+	Transition _GetTransition(int32 num);
 };
 
 

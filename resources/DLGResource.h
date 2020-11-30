@@ -11,13 +11,6 @@
 #include "Resource.h"
 
 
-class DialogTransition {
-public:
-	std::string text_player;
-	std::string action;
-};
-
-
 struct dlg_state {
 	int32 text_ref;
 	int32 transition_first;
