@@ -30,7 +30,7 @@ DialogState::~DialogState()
 
 
 void
-DialogState::GetNextState(int32 index)
+DialogState::GetNextState(int32& index)
 {
 	dlg_state nextState = fResource->GetNextState(index);
 

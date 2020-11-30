@@ -16,7 +16,7 @@ class DialogState {
 public:
 	DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef);
 	~DialogState();
-	void GetNextState(int32 index);
+	void GetNextState(int32& index);
 	void SelectOption(int32 option);
 
 	class State {
