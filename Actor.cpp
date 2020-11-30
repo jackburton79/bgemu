@@ -592,6 +592,13 @@ Actor::InParty() const
 }
 
 
+void
+Actor::IncrementNumTimesTalkedTo()
+{
+	fActor->num_times_talked_to++;
+}
+
+
 uint32
 Actor::NumTimesTalkedTo() const
 {
@@ -599,69 +606,6 @@ Actor::NumTimesTalkedTo() const
 }
 
 
-void
-Actor::InitiateDialogWith(Actor* actor)
-{
-	assert(fDLG == NULL);
-
-	const res_ref dialogFile = CRE()->DialogFile();
-	if (dialogFile.name[0] == '\0'
-			|| strcasecmp(dialogFile.CString(), "None") == 0) {
-		std::cout << "EMPTY DIALOG FILE" << std::endl;
-		return;
-	}
-
-	trigger_entry triggerEntry("LastTalkedToBy", this);
-	AddTrigger(triggerEntry);
-	std::cout << LongName() << " initiates dialog with " << actor->LongName() << std::endl;
-	std::cout << "Dialog file: " << dialogFile << std::endl;
-
-	Core::Get()->DialogInitiated(true, this);
-
-	fDLG = gResManager->GetDLG(dialogFile);
-	DialogState dialogState;
-	try {
-		int32 stateIndex = 0;
-		for (;;) {
-			dialogState = fDLG->GetNextState(stateIndex);
-			if (!dialogState.trigger.empty()) {
-				std::vector<trigger_node*> triggerList;
-				triggerList = Parser::TriggersFromString(dialogState.trigger);
-				if (_EvaluateDialogTriggers(triggerList)) {
-					// TODO: handle all transitions
-					// present options to the player
-					// etc.
-					Core::Get()->DisplayMessage(LongName().c_str(), dialogState.text.c_str());
-					for (uint32 t = 0; t < dialogState.transition_count; t++) {
-						DialogTransition transition = fDLG->GetTransition(t + dialogState.transition_index);
-						// TODO: For now, later something like "AddDialogOption(t)"
-						if (!transition.text_player.empty()) {
-							std::string option("-");
-							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
-						}
-					}
-					break;
-				}
-			}
-		}
-	} catch (...) {
-		std::cerr << "InitiateDialog: error!!!" << std::endl;
-	}
-}
-
-
-void
-Actor::TerminateDialog()
-{
-	// Called by Core::TerminateDialog().
-	// TODO: If called from other places, Core will still be in dialog mode
-	std::cout << Name() << " TerminateDialog()" << std::endl;
-	if (Core::Get()->InDialogMode()) {
-		fActor->num_times_talked_to++;
-		gResManager->ReleaseResource(fDLG);
-		fDLG = NULL;
-	}
-}
 
 
 const char*
@@ -1049,7 +993,7 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 
 
 bool
-Actor::_EvaluateDialogTriggers(std::vector<trigger_node*>& triggers)
+Actor::EvaluateDialogTriggers(std::vector<trigger_node*>& triggers)
 {
 	for (std::vector<trigger_node*>::iterator i = triggers.begin();
 			i != triggers.end(); i++) {

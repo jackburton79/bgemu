@@ -85,10 +85,9 @@ public:
 
 	void AttackTarget(Actor* object);
 
+	void IncrementNumTimesTalkedTo();
 	uint32 NumTimesTalkedTo() const;
 
-	void InitiateDialogWith(Actor* actor);
-	void TerminateDialog();
 
 	void SetArea(const char* name);
 	const char* Area() const;
@@ -118,6 +117,8 @@ public:
 
 	void SetText(const std::string& string);
 	std::string Text() const;
+
+	bool EvaluateDialogTriggers(std::vector<trigger_node*>& triggers);
 
 	static bool PointPassableTrue(const IE::point& point) { return true; };
 
@@ -159,8 +160,6 @@ private:
 	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
-	
-	bool _EvaluateDialogTriggers(std::vector<trigger_node*>& triggers);
 };
 
 struct ZOrderSorter {

@@ -10,7 +10,8 @@
 #include "BamResource.h"
 #include "Bitmap.h"
 #include "Core.h"
-#include "DLGResource.h"
+#include "Dialog.h"
+#include "Game.h"
 #include "GraphicsEngine.h"
 #include "RectUtils.h"
 #include "ResManager.h"
@@ -97,13 +98,13 @@ TextArea::MouseDown(IE::point point)
 {
 	const TextLine* line = _HitTestLine(point);
 	if (line != NULL) {
-		DialogState* dialog = Core::Get()->Dialog();
+		DialogState* dialog = Game::Get()->Dialog();
 		if (dialog != NULL)
 			dialog->SelectOption(line->dialog_option);
 		// TODO: pass option to the dialog state
 	}
-	if (Core::Get()->InDialogMode())
-		Core::Get()->TerminateDialog();
+	if (Game::Get()->InDialogMode())
+		Game::Get()->TerminateDialog();
 }
 
 

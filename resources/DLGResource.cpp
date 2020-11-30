@@ -20,36 +20,6 @@ struct state_trigger {
 };
 
 
-struct dlg_state {
-	int32 text_ref;
-	int32 transition_first;
-	int32 transitions_num;
-	int32 trigger;
-};
-
-
-struct transition_entry {
-	int32 flags;
-	int32 text_player;
-	int32 text_journal;
-	int32 index_trigger;
-	int32 index_action;
-	res_ref resource_next_state;
-	int32 index_next_state;
-};
-
-
-enum dlg_transition_flags {
-	DLG_TRANSITION_HAS_TEXT = 1,
-	DLG_TRANSITION_HAS_ACTION = 1 << 1,
-	DLG_TRANSITION_END = 1 << 2,
-	DLG_TRANSITION_HAS_JOURNAL = 1 << 3,
-	DLG_TRANSITION_INTERRUPT = 1 << 4,
-	DLG_TRANSITION_JOURNAL_UNSOLVED = 1 << 5,
-	DLG_TRANSITION_JOURNAL_NOTE = 1 << 6,
-	DLG_TRANSITION_JOURNAL_SOLVED = 1 << 7
-};
-
 
 /* static */
 Resource*
@@ -71,7 +41,7 @@ DLGResource::~DLGResource()
 }
 
 
-DialogState
+dlg_state
 DLGResource::GetNextState(int32& index)
 {
 	if ((uint32)index == fNumStates)
@@ -79,43 +49,34 @@ DLGResource::GetNextState(int32& index)
 
 	dlg_state state;
 	_GetStateAt(index, state);
-	std::string triggerString = "";
-	if (state.trigger != -1)
-		triggerString = _GetStateTrigger(state.trigger);
-
-	DialogState dialogState;
-	dialogState.text = IDTable::GetDialog(state.text_ref);
-	dialogState.trigger = triggerString;
-	dialogState.transition_index = state.transition_first;
-	dialogState.transition_count = state.transitions_num;
+	//std::string triggerString = "";
+	//if (state.trigger != -1)
+		//triggerString = _GetStateTrigger(state.trigger);
 
 	index++;
 
-	return dialogState;
+	return state;
 }
 
 
 
-DialogTransition
+transition_entry
 DLGResource::GetTransition(int32 index)
 {
 	DialogTransition transition;
 	transition_entry entry;
 	fData->ReadAt(fTransitionsTableOffset + index * sizeof(transition_entry), entry);
-	if (entry.flags & DLG_TRANSITION_HAS_TEXT)
-		transition.text_player = IDTable::GetDialog(entry.text_player);
-	if (entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		uint32 action;
-		fData->ReadAt(fActionsTableOffset + entry.index_action * sizeof(uint32), action);
-		transition.action = IDTable::ActionAt(action);
-		std::cout << "action:" << action << std::endl;
-	}
 
-	if (entry.flags & DLG_TRANSITION_END) {
-		std::cout << "TRANSITION_END" << std::endl;
-	}
+	return entry;
+}
 
-	return transition;
+
+uint32
+DLGResource::GetAction(int32 index)
+{
+	uint32 action;
+	fData->ReadAt(fActionsTableOffset + index * sizeof(uint32), action);
+	return action;
 }
 
 
@@ -145,15 +106,8 @@ DLGResource::Load(Archive* archive, uint32 key)
 }
 
 
-void
-DLGResource::_GetStateAt(int index, dlg_state& dlgState)
-{
-	fData->ReadAt(fStateTableOffset + index * sizeof(dlg_state), dlgState);
-}
-
-
 std::string
-DLGResource::_GetStateTrigger(int triggerIndex)
+DLGResource::GetStateTrigger(int triggerIndex)
 {
 	state_trigger stateTrigger;
 	uint32 offset = fStateTriggersTableOffset
@@ -169,9 +123,8 @@ DLGResource::_GetStateTrigger(int triggerIndex)
 }
 
 
-// DialogState
 void
-DialogState::SelectOption(int32 option)
+DLGResource::_GetStateAt(int index, dlg_state& dlgState)
 {
-
+	fData->ReadAt(fStateTableOffset + index * sizeof(dlg_state), dlgState);
 }

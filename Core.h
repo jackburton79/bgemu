@@ -76,10 +76,6 @@ public:
 	Object* CutsceneActor() const;
 	void SetCutsceneActor(Object* object);
 
-	bool InDialogMode() const;
-	void DialogInitiated(bool value, Actor* initiator);
-	void TerminateDialog();
-
 	Actor* DialogInitiator() const;
 
 	DialogState* Dialog();

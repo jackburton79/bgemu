@@ -11,16 +11,6 @@
 #include "Resource.h"
 
 
-class DialogState {
-public:
-	void SelectOption(int32 option);
-	std::string trigger;
-	std::string text;
-	uint32 transition_index;
-	uint32 transition_count;
-};
-
-
 class DialogTransition {
 public:
 	std::string text_player;
@@ -28,15 +18,48 @@ public:
 };
 
 
-struct dlg_state;
+struct dlg_state {
+	int32 text_ref;
+	int32 transition_first;
+	int32 transitions_num;
+	int32 trigger;
+};
+
+
+enum dlg_transition_flags {
+	DLG_TRANSITION_HAS_TEXT = 1,
+	DLG_TRANSITION_HAS_ACTION = 1 << 1,
+	DLG_TRANSITION_END = 1 << 2,
+	DLG_TRANSITION_HAS_JOURNAL = 1 << 3,
+	DLG_TRANSITION_INTERRUPT = 1 << 4,
+	DLG_TRANSITION_JOURNAL_UNSOLVED = 1 << 5,
+	DLG_TRANSITION_JOURNAL_NOTE = 1 << 6,
+	DLG_TRANSITION_JOURNAL_SOLVED = 1 << 7
+};
+
+
+struct transition_entry {
+	int32 flags;
+	int32 text_player;
+	int32 text_journal;
+	int32 index_trigger;
+	int32 index_action;
+	res_ref resource_next_state;
+	int32 index_next_state;
+};
+
+
 class DLGResource : public Resource {
 public:
 	DLGResource(const res_ref& name);
 
 	virtual bool Load(Archive* archive, uint32 key);
 
-	DialogState GetNextState(int32& index);
-	DialogTransition GetTransition(int32 index);
+	dlg_state GetNextState(int32& index);
+	std::string GetStateTrigger(int triggerIndex);
+	transition_entry GetTransition(int32 index);
+
+	uint32 GetAction(int32 index);
 
 	static Resource* Create(const res_ref& name);
 
@@ -44,7 +67,6 @@ private:
 	virtual ~DLGResource();
 
 	void _GetStateAt(int index, dlg_state& state);
-	std::string _GetStateTrigger(int triggerIndex);
 
 	uint32 fNumStates;
 	uint32 fStateTableOffset;

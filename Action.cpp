@@ -753,7 +753,7 @@ ActionDialog::operator()()
 	if (!Initiated()) {
 		Actor* actor = dynamic_cast<Actor*>(object);
 		if (actor != NULL)
-			actor->InitiateDialogWith(target);
+			Game::Get()->InitiateDialog(actor, target);
 		SetInitiated();
 	}
 	std::cout << "Actor " << object->Name();

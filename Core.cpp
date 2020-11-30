@@ -314,49 +314,6 @@ Core::SetCutsceneActor(Object* actor)
 }
 
 
-bool
-Core::InDialogMode() const
-{
-	return fDialogMode;
-}
-
-
-void
-Core::DialogInitiated(bool value, Actor* initiator)
-{
-	if (value) {
-		GUI::Get()->EnsureShowDialogArea();
-		fDialogInitiatorActor = initiator;
-	}
-	fDialogMode = value;
-}
-
-
-Actor*
-Core::DialogInitiator() const
-{
-	return fDialogInitiatorActor;
-}
-
-
-DialogState*
-Core::Dialog()
-{
-	return fDialogState;
-}
-
-
-void
-Core::TerminateDialog()
-{
-	if (InDialogMode()) {
-		fDialogInitiatorActor->TerminateDialog();
-		fDialogMode = false;
-		fDialogInitiatorActor = NULL;
-	}
-}
-
-
 void
 Core::PlayAnimation(const res_ref& name, const IE::point where)
 {
@@ -598,7 +555,7 @@ Core::UpdateLogic(bool executeScripts)
 	if (timer->Expired())
 		timer->Rearm();
 	
-	if (!InDialogMode()) {
+	if (!Game::Get()->InDialogMode()) {
 		fCurrentRoom->Update(executeScripts);
 		// TODO: Fix/Improve
 		ObjectsList::iterator i;

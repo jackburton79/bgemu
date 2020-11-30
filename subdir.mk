@@ -5,6 +5,7 @@ LOCALSOURCES = \
 ../BackMap.cpp \
 ../Container.cpp \
 ../Core.cpp \
+../Dialog.cpp \
 ../Door.cpp \
 ../Effect.cpp \
 ../EncryptedStream.cpp \

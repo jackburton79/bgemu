@@ -10,15 +10,20 @@
 #include "2DAResource.h"
 #include "Actor.h"
 #include "Core.h"
+#include "CreResource.h"
+#include "Dialog.h"
+//#include "DLGResource.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "InputConsole.h"
+#include "Parsing.h"
 #include "Party.h"
 #include "OutputConsole.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "Timer.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 static Game* sGame;
@@ -35,6 +40,7 @@ Game::Get()
 
 Game::Game()
 	:
+	fDialog(NULL),
 	fParty(NULL),
 	fTestMode(false)
 {
@@ -212,6 +218,86 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;
+}
+
+
+void
+Game::InitiateDialog(Actor* actor, Actor* target)
+{
+	assert(fDialog == NULL);
+
+	const res_ref dialogFile = actor->CRE()->DialogFile();
+	if (dialogFile.name[0] == '\0'
+			|| strcasecmp(dialogFile.CString(), "None") == 0) {
+		std::cout << "EMPTY DIALOG FILE" << std::endl;
+		return;
+	}
+
+	GUI::Get()->EnsureShowDialogArea();
+
+	trigger_entry triggerEntry("LastTalkedToBy", actor);
+	actor->AddTrigger(triggerEntry);
+	std::cout << "initiates dialog with " << actor->LongName() << std::endl;
+	std::cout << "Dialog file: " << dialogFile << std::endl;
+
+	fDialog = new DialogState(actor, target, dialogFile);
+
+	try {
+		int32 stateIndex = 0;
+		for (;;) {
+			fDialog->GetNextState(stateIndex);
+			DialogState::State* currentState = fDialog->CurrentState();
+			if (!currentState->Trigger().empty()) {
+				std::vector<trigger_node*> triggerList;
+				triggerList = Parser::TriggersFromString(currentState->Trigger());
+				if (actor->EvaluateDialogTriggers(triggerList)) {
+					// TODO: handle all transitions
+					// present options to the player
+					// etc.
+					Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
+					for (int32 t = 0; t < currentState->NumTransitions(); t++) {
+						DialogState::Transition transition = fDialog->GetTransition(t + currentState->TransitionIndex());
+						// TODO: For now, later something like "AddDialogOption(t)"
+						if (!transition.text_player.empty()) {
+							std::string option("-");
+							Core::Get()->DisplayMessage(option.c_str(), transition.text_player.c_str());
+						}
+					}
+					break;
+				}
+			}
+		}
+	} catch (...) {
+		std::cerr << "InitiateDialog: error!!!" << std::endl;
+	}
+}
+
+
+bool
+Game::InDialogMode() const
+{
+	return fDialog != NULL;
+}
+
+
+void
+Game::TerminateDialog()
+{
+	// Called by Core::TerminateDialog().
+	// TODO: If called from other places, Core will still be in dialog mode
+	std::cout << fDialog->Actor()->Name() << " TerminateDialog()" << std::endl;
+	if (InDialogMode()) {
+		fDialog->Actor()->IncrementNumTimesTalkedTo();
+		delete fDialog;
+		fDialog = NULL;
+	}
+}
+
+
+DialogState*
+Game::Dialog()
+{
+	return fDialog;
 }
 
 
