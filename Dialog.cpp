@@ -77,9 +77,11 @@ DialogState::SelectOption(int32 option)
 	}
 	if (transition.entry.index_action != -1) {
 		std::cout << "Action: " << transition.entry.index_action << std::endl;
+		uint32 action = fResource->GetAction(transition.entry.index_action);
+		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
 	}
 	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "Action: " << transition.entry.text_journal << std::endl;
+		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
 
 }
 
