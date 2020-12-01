@@ -130,8 +130,6 @@ main(int argc, char **argv)
 	if (sFullScreen)
 		flags = GraphicsEngine::VIDEOMODE_FULLSCREEN;
 	GraphicsEngine::Get()->SetVideoMode(sScreenWidth, sScreenHeight, 16, flags);
-
-	// TODO: Move this to Core::Initialize() (or Core::Start())
 	
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
