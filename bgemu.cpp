@@ -1,19 +1,12 @@
-#include "Actor.h"
-#include "Archive.h"
 #include "Bitmap.h"
-#include "Control.h"
 #include "Core.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
-#include "GUI.h"
 #include "MovieDecoder.h"
 #include "Referenceable.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SoundEngine.h"
-#include "Timer.h"
-#include "WorldMap.h"
-#include "WMAPResource.h"
 
 #include <getopt.h>
 #include <SDL.h>
@@ -144,15 +137,9 @@ main(int argc, char **argv)
 
 	// TODO: Move this to Core::Initialize() (or Core::Start())
 	
-	if (!GUI::Initialize(sScreenWidth, sScreenHeight)) {
-		std::cerr << "Initializing GUI failed" << std::endl;
-		GraphicsEngine::Destroy();
-		SoundEngine::Destroy();
-		Core::Destroy();
-	}
-
 	if (!SoundEngine::Initialize())
 		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
+
 	try {
 		Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (const char* error) {
@@ -163,7 +150,6 @@ main(int argc, char **argv)
 		std::cerr << "Game Loop exited with unhandled error" << std::endl;
 	}
 	
-	GUI::Destroy();
 	GraphicsEngine::Destroy();
 	SoundEngine::Destroy();
 	Core::Destroy();

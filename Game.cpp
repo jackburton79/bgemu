@@ -61,6 +61,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	std::cout << "Game::Loop()" << std::endl;
 	uint16 lastMouseX = 0;
 	uint16 lastMouseY = 0;
+	if (!GUI::Initialize(GraphicsEngine::Get()->ScreenFrame().w,
+						 GraphicsEngine::Get()->ScreenFrame().h)) {
+		throw std::string("Initializing GUI failed");
+	}
 
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
 	GUI* gui = GUI::Get();
@@ -219,6 +223,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;
+
+	GUI::Destroy();
 }
 
 
