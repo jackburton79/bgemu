@@ -190,17 +190,16 @@ Parser::TriggersFromString(const std::string& string)
 
 static
 std::vector<Parameter>
-GetTriggerParameters(std::string trigger)
+GetFunctionParameters(std::string functionString)
 {
-	StringStream stream(trigger);
+	StringStream stream(functionString);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
 
-	std::cout << "trigger: " << trigger << std::endl;
 	std::vector<Parameter> parameters;
-	token triggerName = tokenizer.ReadToken();
+	token functionName = tokenizer.ReadToken();
 	token parens = tokenizer.ReadToken();
-	if (triggerName.type != TOKEN_STRING
+	if (functionName.type != TOKEN_STRING
 			|| parens.type != TOKEN_PARENTHESIS)
 		return parameters;
 
@@ -257,7 +256,7 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	// Opening parenthesis
 	tokenizer.ReadToken();
 
-	std::vector<Parameter> paramTypes = GetTriggerParameters(IDTable::TriggerName(node.id));
+	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node.id));
 	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
 			i != paramTypes.end(); i++) {
 		Parameter parameter = *i;
