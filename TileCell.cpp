@@ -173,15 +173,15 @@ TileCell::ActorEnteredCell(Actor* object)
 void
 TileCell::ActorExitedCell(Actor* object)
 {
-	std::list<Actor*>::iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (object == (*i)) {
+	std::list<Actor*>::iterator actorIterator;
+	for (actorIterator = fObjects.begin(); actorIterator != fObjects.end(); actorIterator++) {
+		if (object == (*actorIterator)) {
 			// Remove object from regions
 			// TODO: Wrong. If region spans over multiple tiles,
 			// the actor could still be inside region
-			for (std::vector<Region*>::iterator i = fRegions.begin();
-					i != fRegions.end(); i++) {
-				(*i)->ActorExited(object);
+			for (std::vector<Region*>::iterator regionIterator = fRegions.begin();
+					regionIterator != fRegions.end(); regionIterator++) {
+				(*regionIterator)->ActorExited(object);
 			}
 			fObjects.remove(object);
 			break;
