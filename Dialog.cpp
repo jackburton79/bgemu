@@ -76,6 +76,7 @@ DialogState::SelectOption(int32 option)
 		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
 	}
 	if (transition.entry.index_action != -1) {
+		// TODO: Execute action
 		std::cout << "Action: " << transition.entry.index_action << std::endl;
 		uint32 action = fResource->GetAction(transition.entry.index_action);
 		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
