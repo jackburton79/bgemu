@@ -167,6 +167,7 @@ public:
 
 	static std::vector<trigger_node*> TriggersFromString(const std::string& string);
 	static bool TriggerFromString(const std::string& string, trigger_node& node);
+	static bool ActionFromString(const std::string& string, action_node& node);
 
 private:
 	void _SkipUselessTokens();

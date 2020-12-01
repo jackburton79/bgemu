@@ -28,6 +28,7 @@ public:
 		INT_ENUM,
 		STRING,
 		OBJECT,
+		POINT,
 		UNKNOWN
 	};
 	int type;
@@ -61,6 +62,8 @@ Parameter::Type() const
 			return "STRING";
 		case INT_ENUM:
 			return "INT_ENUM";
+		case POINT:
+			return "POINT";
 		case UNKNOWN:
 		default:
 			return "UNKNOWN";
@@ -271,6 +274,13 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 	node.Print();
 
 	return true;
+}
+
+/* static */
+bool
+Parser::ActionFromString(const std::string& string, action_node& node)
+{
+	return false;
 }
 
 
