@@ -655,11 +655,11 @@ Actor::ClickedOn(Object* target)
 		action_node* actionParams = new action_node;
 		object_node* sender = new object_node;
 		strcpy(sender->name, actor->Name());
-		object_node* target = new object_node;
-		strcpy(target->name, Name());
+		object_node* targetNode = new object_node;
+		strcpy(targetNode->name, Name());
 		object_node* nullObject = new object_node;
 		actionParams->children.push_back(sender);
-		actionParams->children.push_back(target);
+		actionParams->children.push_back(targetNode);
 		actionParams->children.push_back(nullObject);
 		Action* dialogAction = new ActionDialog(this, actionParams);
 		AddAction(dialogAction);
