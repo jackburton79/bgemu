@@ -6,6 +6,7 @@
 #include "Script.h"
 #include "StringStream.h"
 #include "Triggers.h"
+#include "Utils.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -310,21 +311,10 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 
 		// We remove the "", that's why we start from token.u.string + 1 and copy size - 2
 		token stringToken = tokenizer->ReadToken();
-		size_t newTokenSize = 0;
-		if (stringToken.size > 2) {
-			// less than 2 means it's an empty string, like ""
-			newTokenSize = stringToken.size - 2;
-			strncpy(trig->string1, stringToken.u.string + 1, newTokenSize);
-		}
-		trig->string1[newTokenSize] = '\0';
+		unquote_string(trig->string1, stringToken.u.string, stringToken.size);
 
 		token stringToken2 = tokenizer->ReadToken();
-		size_t newTokenSize2 = 0;
-		if (stringToken2.size > 2) {
-			newTokenSize2 = stringToken2.size - 2;
-			strncpy(trig->string2, stringToken2.u.string + 1, newTokenSize2);
-		}
-		trig->string2[newTokenSize2] = '\0';
+		unquote_string(trig->string2, stringToken2.u.string, stringToken2.size);
 	}
 }
 
@@ -381,14 +371,12 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		act->where.y = tokenizer->ReadNextToken().u.number;
 		act->integer2 = tokenizer->ReadNextToken().u.number;
 		act->integer3 = tokenizer->ReadNextToken().u.number;
-		// TODO: This removes "" from strings. Broken.
-		// Should do this from the beginning!!!
+
 		token stringToken = tokenizer->ReadToken();
-		strncpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
-		act->string1[stringToken.size - 2] = '\0';
+		unquote_string(act->string1, stringToken.u.string, stringToken.size);
+		
 		token stringToken2 = tokenizer->ReadToken();
-		strncpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
-		act->string2[stringToken2.size - 2] = '\0';
+		unquote_string(act->string2, stringToken2.u.string, stringToken2.size);
 	}
 }
 
@@ -444,12 +432,10 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		case Parameter::OBJECT:
 		{
 			object_node* objectNode = new object_node;
-			if (tokenParam.type == TOKEN_QUOTED_STRING) {
-				strncpy(objectNode->name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-				objectNode->name[strlen(tokenParam.u.string) - 2] = '\0';
-			} else if (tokenParam.type == TOKEN_STRING) {
+			if (tokenParam.type == TOKEN_QUOTED_STRING)
+				unquote_string(objectNode->name, tokenParam.u.string, strlen(tokenParam.u.string));
+			else if (tokenParam.type == TOKEN_STRING)
 				objectNode->identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
-			}
 			node->children.push_back(objectNode);
 			break;
 		}
@@ -475,18 +461,16 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		}
 		case Parameter::STRING:
 			if (parameter.position == 1) {
-				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					strncpy(node->string1, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-					node->string1[strlen(tokenParam.u.string) - 2] = '\0';
-				} else if (tokenParam.type == TOKEN_STRING) {
+				if (tokenParam.type == TOKEN_QUOTED_STRING)
+					unquote_string(objectNode->name, tokenParam.u.string, strlen(tokenParam.u.string));
+				else if (tokenParam.type == TOKEN_STRING) {
 					strncpy(node->string1, tokenParam.u.string, strlen(tokenParam.u.string));
 					node->string1[strlen(tokenParam.u.string)] = '\0';
 				}
 			} else if (parameter.position == 2) {
-				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					strncpy(node->string2, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-					node->string2[strlen(tokenParam.u.string) - 2] = '\0';
-				} else if (tokenParam.type == TOKEN_STRING) {
+				if (tokenParam.type == TOKEN_QUOTED_STRING)
+					unquote_string(node->string2, tokenParam.u.string, strlen(tokenParam.u.string));
+				else if (tokenParam.type == TOKEN_STRING) {
 					strncpy(node->string2, tokenParam.u.string, strlen(tokenParam.u.string));
 					node->string2[strlen(tokenParam.u.string)] = '\0';
 				}
