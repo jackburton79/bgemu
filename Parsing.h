@@ -170,6 +170,9 @@ public:
 	static bool ActionFromString(const std::string& string, action_node& node);
 
 private:
+	Parser(const Parser&);
+	Parser& operator=(const Parser&);
+
 	void _SkipUselessTokens();
 
 	void _ReadNodeHeader(node*& n);
