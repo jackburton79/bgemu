@@ -11,6 +11,8 @@ void path_dos_to_unix(char* path);
 FILE* fopen_case(const char* name, const char* flags);
 const char* extension(const char* name);
 
+size_t unquote_string(char* dest, char* source, size_t maxSize);
+
 bool is_bit_set(uint32 value, int bitPos);
 void set_bit(uint32& value, int bitPos);
 void clear_bit(uint32& value, int bitPos);

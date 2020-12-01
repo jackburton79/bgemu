@@ -99,6 +99,21 @@ extension(const char* path)
 }
 
 
+/* static */
+size_t
+unquote_string(char* dest, char* source, size_t length)
+{
+	length -= 2;
+	if (length < 0)
+		length = 0;
+	if (length >= 0) {
+		strncpy(dest, source + 1, length);
+		dest[length] = '\0';
+	}
+	return length;
+}
+
+		
 bool
 is_bit_set(uint32 value, int bitPos)
 {
