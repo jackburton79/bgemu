@@ -108,6 +108,8 @@ private:
 
 	void _UnloadArea();
 	void _Unload();
+	void
+	_DrawActorText(const Actor& actor, IE::point actorPosition);
 
 	WEDResource *fWed;
 	ARAResource *fArea;

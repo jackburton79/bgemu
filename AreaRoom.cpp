@@ -390,6 +390,27 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 	}
 }
 
+void
+AreaRoom::_DrawActorText(const Actor& actor, IE::point actorPosition)
+{
+	// TODO: See if it's better here
+	std::string text = actor.Text();
+	if (!text.empty()) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		uint16 height;
+		uint16 stringWidth = font->StringWidth(text, &height);
+		Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
+		bitmap->Clear(font->TransparentIndex());
+		//bitmap->SetColorKey(font->TransparentIndex());
+		// Pre-render the string to a bitmap
+		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+		font->RenderString(text, 0, bitmap, true, rect);
+		IE::point textPoint = actorPosition;
+		textPoint.y -= 100;
+		DrawBitmap(bitmap, textPoint, false);
+		bitmap->Release();
+	}
+}
 
 
 void
@@ -426,23 +447,7 @@ AreaRoom::DrawActor(const Actor& actor)
 	}
 	const Bitmap* actorFrame = actor.Bitmap();
 
-	// TODO: See if it's better here
-	std::string text = actor.Text();
-	if (!text.empty()) {
-		const Font* font = FontRoster::GetFont("TOOLFONT");
-		uint16 height;
-		uint16 stringWidth = font->StringWidth(text, &height);
-		Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-		bitmap->Clear(font->TransparentIndex());
-		//bitmap->SetColorKey(font->TransparentIndex());
-			// Pre-render the string to a bitmap
-		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-		font->RenderString(text, 0, bitmap, true, rect);
-		IE::point textPoint = actorPosition;
-		textPoint.y -= 100;
-		DrawBitmap(bitmap, textPoint, false);
-		bitmap->Release();
-	}
+	_DrawActorText(actor, actorPosition);
 
 	int32 pointHeight = PointHeight(actorPosition);
 	actorPosition.y += pointHeight - 8;
