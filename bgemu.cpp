@@ -1,15 +1,12 @@
-#include "Bitmap.h"
 #include "Core.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
 #include "MovieDecoder.h"
-#include "Referenceable.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SoundEngine.h"
 
 #include <getopt.h>
-#include <SDL.h>
 
 static int sList = 0;
 static int sNoScripts = 0;
@@ -120,7 +117,6 @@ main(int argc, char **argv)
 	if (sDebug) {
 		//gResManager->SetDebug(2);
 		Script::SetDebug(true);
-		//Referenceable::SetDebug(true);
 		//Object::SetDebug(true);
 	}
 
