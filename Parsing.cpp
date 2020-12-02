@@ -263,13 +263,6 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 		_ExtractNextParameter(tokenizer, &node, parameter);
 	}
 
-	// Add an empty object
-	// TODO: a bit hacky
-	if (node.children.size() == 0) {
-		object_node* objectNode = new object_node;
-		node.children.push_back(objectNode);
-	}
-
 	node.Print();
 
 	return true;
@@ -331,10 +324,12 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 
 /* static */
 void
-Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
+Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_node* obj)
 {
-	object_node* obj = dynamic_cast<object_node*>(node);
 	if (obj) {
+		// HEADER GUARD (OB)
+		tokenizer->ReadNextToken();
+
 		obj->ea = tokenizer->ReadNextToken().u.number;
 		if (Core::Get()->Game() == GAME_TORMENT) {
 			obj->faction = tokenizer->ReadNextToken().u.number;
@@ -355,8 +350,11 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, ::node* node)
 			obj->point.y = tokenizer->ReadNextToken().u.number;
 		}
 
-		// Remove the quotation marks
 		token stringToken = tokenizer->ReadNextToken();
+		// HEADER GUARD (OB)
+		tokenizer->ReadNextToken();
+
+		// Remove the quotation marks
 		char* name = stringToken.u.string;
 		char* nameEnd = name + stringToken.size;
 		while (*name == '"')
@@ -450,7 +448,7 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 			} else if (tokenParam.type == TOKEN_STRING) {
 				objectNode->identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
 			}
-			node->children.push_back(objectNode);
+			//node->children.push_back(objectNode);
 			break;
 		}
 		case Parameter::INTEGER:
@@ -515,6 +513,9 @@ Parser::_ReadNodeHeader(node*& n)
 void
 Parser::_ReadNode(::node*& node)
 {
+	// TODO: Horrible
+	static int sActionIndexHACK = 0;
+
 	_ReadNodeHeader(node);
 	for (;;) {
 		token tok = fTokenizer->ReadNextToken();
@@ -529,14 +530,33 @@ Parser::_ReadNode(::node*& node)
 				_FixNode(node);
 				break;
 			} else {
-				// We found a nested block,
-				::node *newNode = NULL;
-				try {
-					_ReadNode(newNode);
-				} catch (...) {
-					// Finished
+				if (blockType == BLOCK_OBJECT) {
+					if (node->type == BLOCK_TRIGGER) {
+						trigger_node* trig = (trigger_node*)node;
+						_ReadObjectBlock(fTokenizer, &trig->object);
+					} else if (node->type == BLOCK_ACTION) {
+						action_node* act = (action_node*)node;
+						object_node objectBlock;
+						_ReadObjectBlock(fTokenizer, &objectBlock);
+						if (sActionIndexHACK == 0)
+							act->first = objectBlock;
+						else if (sActionIndexHACK == 1)
+							act->second = objectBlock;
+						else if (sActionIndexHACK == 2)
+							act->third = objectBlock;
+						if (++sActionIndexHACK > 2)
+							sActionIndexHACK = 0;
+					}
+				} else {
+					// We found a nested block,
+					::node *newNode = NULL;
+					try {
+						_ReadNode(newNode);
+					} catch (...) {
+						// Finished
+					}
+					node->AddChild(newNode);
 				}
-				node->AddChild(newNode);
 			}
 		} else {
 			_ReadNodeValue(node, tok);
@@ -580,7 +600,8 @@ Parser::_FixNode(::node* node)
 			_ReadActionBlock(&tokenizer, node);
 			break;
 		case BLOCK_OBJECT:
-			_ReadObjectBlock(&tokenizer, node);
+			throw std::string("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
+			//_ReadObjectBlock(&tokenizer, node);
 			break;
 		case BLOCK_RESPONSE:
 			_ReadResponseBlock(&tokenizer, node);
@@ -811,7 +832,7 @@ node::Create(int type, const char *string)
 			newNode = new trigger_node;
 			break;
 		case BLOCK_OBJECT:
-			newNode = new object_node;
+			throw std::string("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
 			break;
 		case BLOCK_ACTION:
 			newNode = new action_node;
@@ -913,7 +934,7 @@ trigger_node::Print() const
 object_node*
 trigger_node::Object()
 {
-	return (object_node*)children.front();
+	return &object;
 }
 
 
@@ -1033,28 +1054,21 @@ action_node::Print() const
 object_node*
 action_node::First()
 {
-	return (object_node*)(*children.begin());
+	return &first;
 }
 
 
 object_node*
 action_node::Second()
 {
-	node_list::iterator i = children.begin();
-	i++;
-
-	return (object_node*)(*i);
+	return &second;
 }
 
 
 object_node*
 action_node::Third()
 {
-	node_list::iterator i = children.begin();
-	i++;
-	i++;
-
-	return (object_node*)(*i);
+	return &third;
 }
 
 

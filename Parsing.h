@@ -65,8 +65,8 @@ protected:
 bool operator==(const node &, const node &);
 
 
-struct object_node : public node {
-	virtual void Print() const;
+struct object_node {
+	void Print() const;
 	bool Empty() const;
 	
 	int team;
@@ -96,6 +96,7 @@ struct trigger_node : public node {
 	int unknown;
 	char string1[48];
 	char string2[48];
+	object_node object;
 
 	trigger_node();
 };
@@ -113,6 +114,9 @@ struct action_node : public node {
 	int integer3;
 	char string1[48];
 	char string2[48];
+	object_node first;
+	object_node second;
+	object_node third;
 
 	action_node();
 };
@@ -180,7 +184,7 @@ private:
 	void _ReadNodeValue(node* n, const token& tok);
 
 	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
-	static void _ReadObjectBlock(Tokenizer *tokenizer, ::node* node);
+	static void _ReadObjectBlock(Tokenizer *tokenizer, object_node* obj);
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
 
