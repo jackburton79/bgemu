@@ -933,6 +933,7 @@ trigger_node::Print() const
 	std::cout << std::dec;
 	std::cout << parameter1 << ", parameter2: " << parameter2 << ", string1: " << string1;
 	std::cout << ", string2: " << string2 << std::endl;
+	object.Print();
 }
 
 
@@ -1053,6 +1054,9 @@ action_node::Print() const
 	std::cout << "integer3: " << integer3 << ", ";
 	std::cout << "string1: " << string1 << ", ";
 	std::cout << "string2: " << string2 << std::endl;
+	first.Print();
+	second.Print();
+	third.Print();
 }
 
 
