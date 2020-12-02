@@ -60,24 +60,53 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
-				if (highId == 0x20 || highId == 0x23
-						|| highId == 0x74 || highId == 0xb0
-						|| (highId >= 0xc1 && highId <= 0xc4)
-						|| (highId >= 0xd1 && highId <= 0xd3))
-					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0x7e || highId == 0x7f
-						|| highId == 0x73 || highId == 0x81
-						|| highId == 0x90)
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-				else if (highId >= 0x50 && highId < 0x90 )
-					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0xb4 || highId == 0xb5
-						|| (highId >= 0xc6 && highId <= 0xca))
-					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-				else if (highId == 0xe0 || highId == 0xe4 || highId == 0xe6)
-					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
-				break;
-
+				switch (highId) {
+					case 0x20:
+					case 0x23:
+					case 0x74:
+					case 0xc1:
+					case 0xc2:
+					case 0xc3:
+					case 0xc4:
+					case 0xb0:
+					case 0xd1:
+					case 0xd2:
+					case 0xd3:
+						factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
+						break;
+					case 0x7e:
+					case 0x7f:
+					case 0x73:
+					case 0x81:
+					case 0x90:
+						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+						break;
+					// WRONG
+					case 0xb4:
+					case 0xb5:
+					case 0xc6:
+					case 0xc7:
+					case 0xc8:
+					case 0xc9:
+					case 0xca:
+						factory = new SplitAnimationFactory(baseName.c_str(), animationID);
+						break;
+					case 0xe0:
+					case 0xe4:
+					case 0xe6:
+						factory = new IWDAnimationFactory(baseName.c_str(), animationID);
+						break;
+					case 0x50:
+					case 0x60:
+					case 0x61:
+					case 0x63:
+					case 0x80:
+						//else if (highId >= 0x50 && highId < 0x90 )
+						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
+						break;
+					default:
+						break;
+				}
 			default:
 				break;
 		}
@@ -85,7 +114,10 @@ AnimationFactory::GetFactory(uint16 animationID)
 
 	if (factory != NULL)
 		factory->Acquire();
-
+	else {
+		std::cerr << "No animation factory " << baseName;
+		std::cerr << " (0x" << std::hex << animationID << ")" << std::endl;
+	}
 	return factory;
 }
 

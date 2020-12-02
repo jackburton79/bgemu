@@ -139,10 +139,6 @@ Actor::_Init()
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
-	if (fAnimationFactory == NULL) {
-		std::cerr << "No animation factory " << CRE()->Name();
-		std::cerr << " (" << CRE()->AnimationID() << ")" << std::endl;
-	}
 	//std::cout << std::dec;
 	//std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
 	//std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
