@@ -141,7 +141,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 Object*
 Script::FindTriggerObject(const Object* object, trigger_node* start)
 {
-	object_node* objectNode = start->Object();
+	object_params* objectNode = start->Object();
 	if (objectNode == NULL)
 		return NULL;
 	return GetObject(object, objectNode);
@@ -157,7 +157,7 @@ Script::FindSenderObject(const Object* object, action_node* start)
 	start->Second()->Print();
 	start->Third()->Print();
 
-	object_node* objectNode = start->First();
+	object_params* objectNode = start->First();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
@@ -184,7 +184,7 @@ Script::FindTargetObject(const Object* object, action_node* start)
 	if (sDebug)
 		std::cout << "*** FindTargetObject:" << std::endl;
 
-	object_node* objectNode = start->Second();
+	object_params* objectNode = start->Second();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindTargetObject returned NULL" << std::endl;
@@ -296,7 +296,7 @@ Script::SetSender(Object* object)
 
 /* static */
 Object*
-Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
+Script::ResolveIdentifier(const Object* object, object_params* node, const int id)
 {
 	std::string identifier = IDTable::ObjectAt(id);
 	if (identifier == "MYSELF")
@@ -341,7 +341,7 @@ Script::ResolveIdentifier(const Object* object, object_node* node, const int id)
 
 /* static */
 Object*
-Script::GetObject(const Object* source, object_node* node)
+Script::GetObject(const Object* source, object_params* node)
 {
 	if (sDebug) {
 		std::cout << "Script::GetObject(source=";
@@ -462,7 +462,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 		std::cout << std::hex << trig->id << ")";
 		std::cout << std::endl;
 		trig->Print();
-		object_node* objectNode = trig->Object();
+		object_params* objectNode = trig->Object();
 		if (objectNode != NULL)
 			objectNode->Print();
 	}
@@ -558,7 +558,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 *	Returns true if the specified object
 				 *	clicked on the trigger region running this script.
 				 */
-				object_node* objectNode = trig->Object();
+				object_params* objectNode = trig->Object();
 				// TODO: Maybe LastClicker should return Actor*
 				Actor* clicker = dynamic_cast<Actor*>(sender->FindTrigger("Clicked"));
 				if (clicker != NULL) {
@@ -834,7 +834,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * NT Returns true only if the open state of the specified door
 				 * matches the state specified in the 2nd parameter.
 				 */
-				object_node* doorObj = trig->Object();
+				object_params* doorObj = trig->Object();
 				Door *door = dynamic_cast<Door*>(
 								core->GetObject(doorObj->name));
 				if (door != NULL) {
@@ -852,7 +852,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				Region* region = dynamic_cast<Region*>(sender);
 				if (region == NULL)
 					break;
-				object_node* objectNode = trig->Object();
+				object_params* objectNode = trig->Object();
 				if (objectNode != NULL)
 					returnValue = region->IsActorInside(objectNode);
 				break;

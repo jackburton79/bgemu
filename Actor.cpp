@@ -558,7 +558,7 @@ Actor::IsState(int state) const
 // Checks if this object matches with the specified object_node.
 // Also keeps wildcards in consideration. Used for triggers.
 bool
-Actor::MatchNode(object_node* node) const
+Actor::MatchNode(object_params* node) const
 {
 	if (IsName(node->name)
 		&& IsClass(node->classs)
@@ -653,9 +653,9 @@ Actor::ClickedOn(Object* target)
 		// no way we have to do all this just to add an action.
 		// Plus, we're probably leaking the action node
 		action_node* actionParams = new action_node;
-		object_node sender;
+		object_params sender;
 		strcpy(actionParams->first.name, actor->Name());
-		object_node targetNode;
+		object_params targetNode;
 		strcpy(actionParams->second.name, Name());
 
 		Action* dialogAction = new ActionDialog(this, actionParams);

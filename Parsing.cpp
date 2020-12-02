@@ -324,46 +324,44 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 
 /* static */
 void
-Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_node* obj)
+Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 {
-	if (obj) {
-		// HEADER GUARD (OB)
-		tokenizer->ReadNextToken();
+	// HEADER GUARD (OB)
+	tokenizer->ReadNextToken();
 
-		obj->ea = tokenizer->ReadNextToken().u.number;
-		if (Core::Get()->Game() == GAME_TORMENT) {
-			obj->faction = tokenizer->ReadNextToken().u.number;
-			obj->team = tokenizer->ReadNextToken().u.number;
-		}
-		obj->general = tokenizer->ReadNextToken().u.number;
-		obj->race = tokenizer->ReadNextToken().u.number;
-		obj->classs = tokenizer->ReadNextToken().u.number;
-		obj->specific = tokenizer->ReadNextToken().u.number;
-		obj->gender = tokenizer->ReadNextToken().u.number;
-		obj->alignment = tokenizer->ReadNextToken().u.number;
-		for (int32 i = 0; i < 5; i++)
-			obj->identifiers[i] = tokenizer->ReadNextToken().u.number;
-
-		// TODO: Not sure which games supports that
-		if (Core::Get()->Game() == GAME_TORMENT) {
-			obj->point.x = tokenizer->ReadNextToken().u.number;
-			obj->point.y = tokenizer->ReadNextToken().u.number;
-		}
-
-		token stringToken = tokenizer->ReadNextToken();
-		// HEADER GUARD (OB)
-		tokenizer->ReadNextToken();
-
-		// Remove the quotation marks
-		char* name = stringToken.u.string;
-		char* nameEnd = name + stringToken.size;
-		while (*name == '"')
-			name++;
-		while (*nameEnd != '"')
-			nameEnd--;
-		*nameEnd = '\0';
-		strcpy(obj->name, name);
+	obj.ea = tokenizer->ReadNextToken().u.number;
+	if (Core::Get()->Game() == GAME_TORMENT) {
+		obj.faction = tokenizer->ReadNextToken().u.number;
+		obj.team = tokenizer->ReadNextToken().u.number;
 	}
+	obj.general = tokenizer->ReadNextToken().u.number;
+	obj.race = tokenizer->ReadNextToken().u.number;
+	obj.classs = tokenizer->ReadNextToken().u.number;
+	obj.specific = tokenizer->ReadNextToken().u.number;
+	obj.gender = tokenizer->ReadNextToken().u.number;
+	obj.alignment = tokenizer->ReadNextToken().u.number;
+	for (int32 i = 0; i < 5; i++)
+		obj.identifiers[i] = tokenizer->ReadNextToken().u.number;
+
+	// TODO: Not sure which games supports that
+	if (Core::Get()->Game() == GAME_TORMENT) {
+		obj.point.x = tokenizer->ReadNextToken().u.number;
+		obj.point.y = tokenizer->ReadNextToken().u.number;
+	}
+
+	token stringToken = tokenizer->ReadNextToken();
+	// HEADER GUARD (OB)
+	tokenizer->ReadNextToken();
+
+	// Remove the quotation marks
+	char* name = stringToken.u.string;
+	char* nameEnd = name + stringToken.size;
+	while (*name == '"')
+		name++;
+	while (*nameEnd != '"')
+		nameEnd--;
+	*nameEnd = '\0';
+	strcpy(obj.name, name);
 }
 
 
@@ -441,7 +439,7 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 	switch (parameter.type) {
 		case Parameter::OBJECT:
 		{
-			object_node* objectNode = new object_node;
+			object_params* objectNode = new object_params;
 			if (tokenParam.type == TOKEN_QUOTED_STRING) {
 				strncpy(objectNode->name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
 				objectNode->name[strlen(tokenParam.u.string) - 2] = '\0';
@@ -530,14 +528,17 @@ Parser::_ReadNode(::node*& node)
 				_FixNode(node);
 				break;
 			} else {
+				// Object blocks are no longer nodes
+				// so we handle them differently
 				if (blockType == BLOCK_OBJECT) {
 					if (node->type == BLOCK_TRIGGER) {
 						trigger_node* trig = (trigger_node*)node;
-						_ReadObjectBlock(fTokenizer, &trig->object);
+						_ReadObjectBlock(fTokenizer, trig->object);
 					} else if (node->type == BLOCK_ACTION) {
+						// TODO: Horrible hack
 						action_node* act = (action_node*)node;
-						object_node objectBlock;
-						_ReadObjectBlock(fTokenizer, &objectBlock);
+						object_params objectBlock;
+						_ReadObjectBlock(fTokenizer, objectBlock);
 						if (sActionIndexHACK == 0)
 							act->first = objectBlock;
 						else if (sActionIndexHACK == 1)
@@ -599,14 +600,11 @@ Parser::_FixNode(::node* node)
 		case BLOCK_ACTION:
 			_ReadActionBlock(&tokenizer, node);
 			break;
-		case BLOCK_OBJECT:
-			throw std::string("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
-			//_ReadObjectBlock(&tokenizer, node);
-			break;
 		case BLOCK_RESPONSE:
 			_ReadResponseBlock(&tokenizer, node);
 			break;
 		default:
+			throw std::string("ERROR _FixNode() called on wrong node type!!!");
 			break;
 	}
 }
@@ -633,7 +631,7 @@ Parser::_BlockTypeFromToken(const token& tok)
 		return BLOCK_ACTION;
 
 	// token is not a header guard
-	// so we cannot gues the block type
+	// so we cannot guess the block type
 	return -1;
 }
 
@@ -931,7 +929,7 @@ trigger_node::Print() const
 }
 
 
-object_node*
+object_params*
 trigger_node::Object()
 {
 	return &object;
@@ -939,7 +937,7 @@ trigger_node::Object()
 
 
 // object
-object_node::object_node()
+object_params::object_params()
 	:
 	team(0),
 	faction(0),
@@ -958,7 +956,7 @@ object_node::object_node()
 
 
 void
-object_node::Print() const
+object_params::Print() const
 {
 	if (Core::Get()->Game() == GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
@@ -996,7 +994,7 @@ object_node::Print() const
 
 
 bool
-object_node::Empty() const
+object_params::Empty() const
 {
 	if (ea == 0
 			&& general == 0
@@ -1051,21 +1049,21 @@ action_node::Print() const
 }
 
 
-object_node*
+object_params*
 action_node::First()
 {
 	return &first;
 }
 
 
-object_node*
+object_params*
 action_node::Second()
 {
 	return &second;
 }
 
 
-object_node*
+object_params*
 action_node::Third()
 {
 	return &third;

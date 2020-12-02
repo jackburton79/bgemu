@@ -78,7 +78,7 @@ public:
 	void SetEnemyAlly(int ea);
 	bool IsState(int state) const;
 
-	bool MatchNode(object_node* node) const;
+	bool MatchNode(object_params* node) const;
 
 	Actor* ResolveIdentifier(const int identifier) const;
 

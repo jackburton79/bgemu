@@ -65,7 +65,7 @@ protected:
 bool operator==(const node &, const node &);
 
 
-struct object_node {
+struct object_params {
 	void Print() const;
 	bool Empty() const;
 	
@@ -82,13 +82,13 @@ struct object_node {
 	IE::point point;
 	char name[48];
 
-	object_node();
+	object_params();
 };
 
 
 struct trigger_node : public node {
 	virtual void Print() const;
-	object_node* Object();
+	object_params* Object();
 	int id;
 	int parameter1;
 	int flags;
@@ -96,7 +96,7 @@ struct trigger_node : public node {
 	int unknown;
 	char string1[48];
 	char string2[48];
-	object_node object;
+	object_params object;
 
 	trigger_node();
 };
@@ -104,9 +104,9 @@ struct trigger_node : public node {
 
 struct action_node : public node {
 	virtual void Print() const;
-	object_node* First();
-	object_node* Second();
-	object_node* Third();
+	object_params* First();
+	object_params* Second();
+	object_params* Third();
 	int id;
 	int integer1;
 	IE::point where;
@@ -114,9 +114,9 @@ struct action_node : public node {
 	int integer3;
 	char string1[48];
 	char string2[48];
-	object_node first;
-	object_node second;
-	object_node third;
+	object_params first;
+	object_params second;
+	object_params third;
 
 	action_node();
 };
@@ -184,9 +184,10 @@ private:
 	void _ReadNodeValue(node* n, const token& tok);
 
 	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
-	static void _ReadObjectBlock(Tokenizer *tokenizer, object_node* obj);
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadResponseBlock(Tokenizer *tokenizer, ::node* node);
+
+	static void _ReadObjectBlock(Tokenizer *tokenizer, object_params& obj);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
 	static token _ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,

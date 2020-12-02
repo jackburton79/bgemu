@@ -39,7 +39,7 @@ public:
 	void ActorEntered(Actor* actor);
 	void ActorExited(Actor* actor);
 	bool IsActorInside(Actor* actor) const;
-	bool IsActorInside(object_node* actorNode) const;
+	bool IsActorInside(object_params* actorNode) const;
 
 
 private:

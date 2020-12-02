@@ -21,7 +21,7 @@ enum game {
 };
 
 
-struct object_node;
+struct object_params;
 class Actor;
 class Action;
 class Container;
@@ -91,7 +91,7 @@ public:
 	
 	Object* GetObject(const char* name) const;
 	Object* GetObject(uint16 globalEnum) const;
-	Actor* GetObjectFromNode(object_node* node) const;
+	Actor* GetObjectFromNode(object_params* node) const;
 	Actor* GetObject(const Region* region) const;
 	Actor* GetNearestEnemyOf(const Actor* object) const;
 	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;

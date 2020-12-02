@@ -145,7 +145,7 @@ Region::IsActorInside(Actor* actor) const
 
 
 bool
-Region::IsActorInside(object_node* actorNode) const
+Region::IsActorInside(object_params* actorNode) const
 {
 	for (std::list<Actor*>::const_iterator i = fObjectsInside.begin();
 			i != fObjectsInside.end(); i++) {

@@ -408,7 +408,7 @@ Core::GetObject(uint16 globalEnum) const
 
 
 Actor*
-Core::GetObjectFromNode(object_node* node) const
+Core::GetObjectFromNode(object_params* node) const
 {
 	// TODO: Simplify, merge code.
 	ActorsList::const_iterator i;

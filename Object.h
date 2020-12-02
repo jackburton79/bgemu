@@ -27,7 +27,7 @@ struct trigger_entry {
 	uint16 target_id;
 };
 
-struct object_node;
+struct object_params;
 struct trigger_node;
 class Action;
 class Actor;
