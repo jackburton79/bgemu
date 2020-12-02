@@ -322,6 +322,21 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 }
 
 
+static
+void
+get_unquoted_string(char* dest, char* source, size_t size)
+{
+	char* name = source;
+	char* nameEnd = name + size;
+	while (*name == '"')
+		name++;
+	while (*nameEnd != '"')
+		nameEnd--;
+	*nameEnd = '\0';
+	strcpy(dest, name);
+}
+
+
 /* static */
 void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
@@ -353,15 +368,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 	// HEADER GUARD (OB)
 	tokenizer->ReadNextToken();
 
-	// Remove the quotation marks
-	char* name = stringToken.u.string;
-	char* nameEnd = name + stringToken.size;
-	while (*name == '"')
-		name++;
-	while (*nameEnd != '"')
-		nameEnd--;
-	*nameEnd = '\0';
-	strcpy(obj.name, name);
+	get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);
 }
 
 
@@ -439,14 +446,14 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 	switch (parameter.type) {
 		case Parameter::OBJECT:
 		{
-			object_params* objectNode = new object_params;
+			object_params objectNode;
 			if (tokenParam.type == TOKEN_QUOTED_STRING) {
-				strncpy(objectNode->name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-				objectNode->name[strlen(tokenParam.u.string) - 2] = '\0';
+				strncpy(objectNode.name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
+				objectNode.name[strlen(tokenParam.u.string) - 2] = '\0';
 			} else if (tokenParam.type == TOKEN_STRING) {
-				objectNode->identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
+				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
 			}
-			//node->children.push_back(objectNode);
+			node->object = objectNode;
 			break;
 		}
 		case Parameter::INTEGER:
