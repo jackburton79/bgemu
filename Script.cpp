@@ -139,7 +139,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 
 /* static */
 Object*
-Script::FindTriggerObject(const Object* object, trigger_node* start)
+Script::GetTriggerObject(const Object* object, trigger_node* start)
 {
 	object_params* objectNode = start->Object();
 	if (objectNode == NULL)
@@ -150,7 +150,7 @@ Script::FindTriggerObject(const Object* object, trigger_node* start)
 
 /* static */
 Object*
-Script::FindSenderObject(const Object* object, action_node* start)
+Script::GetSenderObject(const Object* object, action_node* start)
 {
 	std::cout << "FindSenderObject: objects:" << std::endl;
 	start->First()->Print();
@@ -179,7 +179,7 @@ Script::FindSenderObject(const Object* object, action_node* start)
 
 
 Object*
-Script::FindTargetObject(const Object* object, action_node* start)
+Script::GetTargetObject(const Object* object, action_node* start)
 {
 	if (sDebug)
 		std::cout << "*** FindTargetObject:" << std::endl;
@@ -570,7 +570,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x400A:
 			{
 				//ALIGNMENT(O:OBJECT*,I:ALIGNMENT*Align) (16395 0x400A)
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = actor->IsAlignment(trig->parameter1);
 				break;
@@ -578,7 +578,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x400B:
 			{
 				//ALLEGIANCE(O:OBJECT*,I:ALLEGIENCE*EA) (16395 0x400b)
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = actor->IsEnemyAlly(trig->parameter1);
 				break;
@@ -586,7 +586,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x400C:
 			{
 				/*0x400C Class(O:Object*,I:Class*Class)*/
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = actor->IsClass(trig->parameter1);
 				break;
@@ -594,7 +594,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x400E:
 			{
 				/* GENERAL(O:OBJECT*,I:GENERAL*GENERAL) (16398 0x400e)*/
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL) {
 					returnValue = actor->IsGeneral(trig->parameter1);
 					if (sDebug) {
@@ -626,7 +626,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x4017:
 			{
 				// Race()
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = actor->IsRace(trig->parameter1);
 				break;
@@ -636,7 +636,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				/* 0x4018 Range(O:Object*,I:Range*)
 				Returns true only if the specified object
 				is within distance given (in feet) of the active CRE. */
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = core->Distance(actor, sender) <= trig->parameter1;
 				break;
@@ -648,7 +648,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * the specified object which must not be hidden or invisible.
 				 */
 				Actor* actor = dynamic_cast<Actor*>(sender);
-				returnValue = actor->CanSee(FindTriggerObject(sender, trig));
+				returnValue = actor->CanSee(GetTriggerObject(sender, trig));
 				//std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
@@ -704,7 +704,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * Returns true only if the specified object
 				 * is in the state specified.
 				 */
-				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* object = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (object != NULL)
 					returnValue = object->IsState(trig->parameter1);
 				break;
@@ -748,7 +748,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x4043:
 			{
 				// InParty
-				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* object = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (object != NULL)
 					returnValue = object->InParty();
 				break;
@@ -756,7 +756,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x404d:
 			{
 				// GENDER(O:OBJECT*,I:SEX*GENDER)(16461, 0x404d)
-				Actor* object = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* object = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (object != NULL)
 					returnValue = object->CRE()->Gender() == trig->parameter1;
 				break;
@@ -772,7 +772,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
 				 * killed by a neutral creature.
 				 */
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = actor->GetVariable(actor->CRE()->DeathVariable().c_str()) == 1;
 				break;
@@ -782,7 +782,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				/*INWEAPONRANGE(O:OBJECT*) (16483 0x4063) */
 				int range = 40;
 				// TODO: Check weapon range
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
 					returnValue = core->Distance(actor, sender) <= range;
 				break;
@@ -823,7 +823,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				Actor* actor = dynamic_cast<Actor*>(sender);
 				if (actor == NULL)
 					break;
-				returnValue = actor->CanSee(FindTriggerObject(sender, trig));
+				returnValue = actor->CanSee(GetTriggerObject(sender, trig));
 					// || core->Hear(sender, object);
 				break;
 			}
@@ -886,7 +886,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 			case 0x401b:
 			{
 				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
-				Actor* actor = dynamic_cast<Actor*>(FindTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL) {
 					returnValue = actor->CRE()->Reputation() < trig->parameter1;
 				}
@@ -950,7 +950,7 @@ Script::_HandleResponseSet(node* responseSet)
 bool
 Script::_HandleAction(action_node* act)
 {
-	Object* sender = Script::FindSenderObject(fSender, act);
+	Object* sender = Script::GetSenderObject(fSender, act);
 	if (sDebug) {
 		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
 		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
@@ -1217,7 +1217,7 @@ Script::_HandleAction(action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
-			Object* target = Script::FindTargetObject(fSender, act);
+			Object* target = Script::GetTargetObject(fSender, act);
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);

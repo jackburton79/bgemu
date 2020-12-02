@@ -197,7 +197,7 @@ ActionTriggerActivation::ActionTriggerActivation(Object* object, action_node* no
 void
 ActionTriggerActivation::operator()()
 {
-	Region* region = dynamic_cast<Region*>(Script::FindTargetObject(fObject, fActionParams));
+	Region* region = dynamic_cast<Region*>(Script::GetTargetObject(fObject, fActionParams));
 	if (region != NULL)
 		region->ActivateTrigger();
 	SetCompleted();
@@ -215,8 +215,8 @@ ActionUnlock::ActionUnlock(Object* object, action_node* node)
 void
 ActionUnlock::operator()()
 {
-	Object* sender = Script::FindSenderObject(fObject, fActionParams);
-	Object* target = Script::FindTargetObject(sender, fActionParams);
+	Object* sender = Script::GetSenderObject(fObject, fActionParams);
+	Object* target = Script::GetTargetObject(sender, fActionParams);
 	Door* door = dynamic_cast<Door*>(target);
 	if (door == NULL) {
 		std::cerr << "NULL DOOR!!! MEANS THE OBJECT IS NOT A DOOR" << std::endl;
@@ -243,7 +243,7 @@ ActionDestroySelf::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	Object* object = Script::FindSenderObject(fObject, fActionParams);
+	Object* object = Script::GetSenderObject(fObject, fActionParams);
 	object->DestroySelf();
 	SetCompleted();
 }
@@ -262,7 +262,7 @@ ActionForceSpell::ActionForceSpell(Object* object, action_node* node)
 void
 ActionForceSpell::operator()()
 {
-	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (sender == NULL) {
 		std::cerr << "ActionForceSpell:: NO sender Actor" << std::endl;
 		SetCompleted();
@@ -270,7 +270,7 @@ ActionForceSpell::operator()()
 	}
 	sender->Print();
 
-	Object* target = Script::FindTargetObject(sender, fActionParams);
+	Object* target = Script::GetTargetObject(sender, fActionParams);
 	target->Print();
 
 	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
@@ -307,7 +307,7 @@ ActionMoveBetweenAreasEffect::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+		Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 		if (actor != NULL) {
 			std::cout << "area:" << fActionParams->string1 << std::endl;
 			actor->SetPosition(fActionParams->where);
@@ -375,7 +375,7 @@ ActionWalkTo::ActionWalkTo(Object* object, action_node* node)
 void
 ActionWalkTo::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
 		SetInitiated();
@@ -400,13 +400,13 @@ ActionWalkToObject::ActionWalkToObject(Object* object, action_node* node)
 void
 ActionWalkToObject::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL) {
 		SetCompleted();
 		return;
 	}
 
-	Object* target = Script::FindTargetObject(actor, fActionParams);
+	Object* target = Script::GetTargetObject(actor, fActionParams);
 	if (target == NULL) {
 		SetCompleted();
 		return;
@@ -437,7 +437,7 @@ ActionRandomFly::ActionRandomFly(Object* object, action_node* node)
 void
 ActionRandomFly::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
@@ -466,7 +466,7 @@ ActionFlyTo::ActionFlyTo(Object* object, action_node* node)
 void
 ActionFlyTo::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
@@ -498,7 +498,7 @@ ActionRandomWalk::ActionRandomWalk(Object* object, action_node* node)
 void
 ActionRandomWalk::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
@@ -585,13 +585,13 @@ ActionOpenDoor::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL) {
 		std::cerr << "NULL ACTOR!!!" << std::endl;
 		return;
 	}
 
-	Object* target = Script::FindTargetObject(actor, fActionParams);
+	Object* target = Script::GetTargetObject(actor, fActionParams);
 	Door* door = dynamic_cast<Door*>(target);
 	if (door == NULL) {
 		std::cerr << "NULL DOOR!!! MEANS THE OBJECT IS NOT A DOOR" << std::endl;
@@ -639,11 +639,11 @@ ActionAttack::ActionAttack(Object* object, action_node* node)
 void
 ActionAttack::operator()()
 {
-	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (sender == NULL)
 		return;
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
@@ -676,13 +676,13 @@ ActionRunAwayFrom::ActionRunAwayFrom(Object* object, action_node* node)
 void
 ActionRunAwayFrom::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor == NULL)
 		return;
 
 	// TODO: Improve.
 	// TODO: We are recalculating this every time. Is it correct ?
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(actor, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(actor, fActionParams));
 	if (target == NULL){
 		SetCompleted();
 		return;
@@ -738,13 +738,13 @@ ActionDialog::ActionDialog(Object* source, action_node* node)
 void
 ActionDialog::operator()()
 {
-	Object* object = Script::FindSenderObject(fObject, fActionParams);
+	Object* object = Script::GetSenderObject(fObject, fActionParams);
 	if (object == NULL) {
 		SetCompleted();
 		return;
 	}
 	
-	Actor* target = dynamic_cast<Actor*>(Script::FindTargetObject(object, fActionParams));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(object, fActionParams));
 	if (target == NULL) {
 		SetCompleted();
 		return;
@@ -1090,8 +1090,8 @@ ActionDisplayStringHead::operator()()
 	if (!Initiated()) {
 		SetInitiated();
 		fDuration = 100; //??
-		Object* sender = Script::FindSenderObject(fObject, fActionParams);
-		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
+		Object* sender = Script::GetSenderObject(fObject, fActionParams);
+		Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(sender, fActionParams));
 		if (actor == NULL) {
 			std::cerr << "ActionDisplayHead: no TARGET!!!" << std::endl;
 			SetCompleted();
@@ -1102,8 +1102,8 @@ ActionDisplayStringHead::operator()()
 		delete tlkEntry;
 	}
 	if (fDuration-- <= 0) {
-		Object* sender = Script::FindSenderObject(fObject, fActionParams);
-		Actor* actor = dynamic_cast<Actor*>(Script::FindTargetObject(sender, fActionParams));
+		Object* sender = Script::GetSenderObject(fObject, fActionParams);
+		Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(sender, fActionParams));
 		if (actor != NULL)
 			actor->SetText("");
 		SetCompleted();
@@ -1123,7 +1123,7 @@ ActionChangeOrientationExt::ActionChangeOrientationExt(Object* object, action_no
 void
 ActionChangeOrientationExt::operator()()
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (actor != NULL)
 		actor->SetOrientation(fActionParams->integer1);
 	SetCompleted();
@@ -1142,8 +1142,8 @@ ActionFaceObject::ActionFaceObject(Object* object, action_node* node)
 void
 ActionFaceObject::operator()()
 {
-	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
-	Object* target = Script::FindTargetObject(sender, fActionParams);
+	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
+	Object* target = Script::GetTargetObject(sender, fActionParams);
 	if (sender == NULL || target == NULL) {
 		std::cerr << "FaceObject(): NULL object" << std::endl;
 		SetCompleted();
@@ -1188,8 +1188,8 @@ ActionCreateVisualEffectObject::ActionCreateVisualEffectObject(Object* object, a
 void
 ActionCreateVisualEffectObject::operator()()
 {
-	Actor* sender = dynamic_cast<Actor*>(Script::FindSenderObject(fObject, fActionParams));
-	Object* target = Script::FindTargetObject(sender, fActionParams);
+	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
+	Object* target = Script::GetTargetObject(sender, fActionParams);
 	IE::point point;
 	point.x = target->Frame().x_min;
 	point.y = target->Frame().y_min;
