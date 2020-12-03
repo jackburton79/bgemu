@@ -111,6 +111,10 @@ token::token(const char *tok)
 		type = TOKEN_END_OF_LINE;
 	else if (tok[0] == '"')
 		type = TOKEN_QUOTED_STRING;
+	else if (tok[0] == '(')
+		type = TOKEN_PARENTHESIS_OPEN;
+	else if (tok[0] == '(')
+		type = TOKEN_PARENTHESIS_CLOSED;
 	else
 		type = TOKEN_UNKNOWN;
 }
@@ -125,6 +129,9 @@ operator==(const struct token &t1, const struct token &t2)
 	switch (t1.type) {
 		case TOKEN_QUOTED_STRING:
 		case TOKEN_STRING:
+		case TOKEN_PARENTHESIS_OPEN:
+		case TOKEN_PARENTHESIS_CLOSED:
+		case TOKEN_COMMA:
 			return strncmp(t1.u.string, t2.u.string, sizeof(t1.u.string)) == 0;
 		case TOKEN_NUMBER:
 			return t1.u.number == t2.u.number;
