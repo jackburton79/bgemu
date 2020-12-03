@@ -1,5 +1,6 @@
 #include "Stream.h"
 
+#include <stdexcept>
 #include <iostream>
 
 
@@ -64,7 +65,7 @@ Stream::ReadByte()
 {
 	uint8 byte;
 	if (Read(&byte, sizeof(byte)) != sizeof(byte))
-		throw -1;
+		throw std::runtime_error("Stream::ReadByte(): tried to read uint8 but failed!");
 	return byte;
 }
 
