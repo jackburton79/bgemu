@@ -283,8 +283,12 @@ Parser::Read(node*& rootNode)
 		_ReadNode(rootNode);
 	} catch (const char *str) {
 		std::cerr << "Parser::Read(): caught string " << str << std::endl;
+	} catch (std::string& str) {
+		std::cerr << "Parser::Read(): caught string " << str << std::endl;
+	} catch (std::exception& except) {
+		std::cerr << "Parser::Read(): " << except.what() << std::endl;
 	} catch (...) {
-		std::cerr << "Parser::Read(): end of file!" << std::endl;
+		std::cerr << "Parser::Read(): unknown exception" << std::endl;
 	}
 }
 
