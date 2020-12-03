@@ -548,14 +548,12 @@ Parser::_ReadNode(::node*& node)
 					} else if (node->type == BLOCK_ACTION) {
 						// TODO: Horrible hack
 						action_node* act = (action_node*)node;
-						object_params objectBlock;
-						_ReadObjectBlock(fTokenizer, objectBlock);
 						if (sActionIndexHACK == 0)
-							act->first = objectBlock;
+							_ReadObjectBlock(fTokenizer, act->first);
 						else if (sActionIndexHACK == 1)
-							act->second = objectBlock;
+							_ReadObjectBlock(fTokenizer, act->second);
 						else if (sActionIndexHACK == 2)
-							act->third = objectBlock;
+							_ReadObjectBlock(fTokenizer, act->third);
 						if (++sActionIndexHACK > 2)
 							sActionIndexHACK = 0;
 					}
