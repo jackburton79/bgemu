@@ -200,7 +200,7 @@ GetFunctionParameters(std::string functionString)
 	token functionName = tokenizer.ReadToken();
 	token parens = tokenizer.ReadToken();
 	if (functionName.type != TOKEN_STRING
-			|| parens.type != TOKEN_PARENTHESIS)
+			|| parens.type != TOKEN_PARENTHESIS_OPEN)
 		return parameters;
 
 	int stringPos = 1;
@@ -233,7 +233,7 @@ GetFunctionParameters(std::string functionString)
 			parameters.push_back(parameter);
 		}
 		// closing parenthesis
-		if (t.type == TOKEN_PARENTHESIS)
+		if (t.type == TOKEN_PARENTHESIS_CLOSED)
 			break;
 	}
 
@@ -436,7 +436,7 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 {
 	std::cout << "ExtractNextParameter" << std::endl;
 	token tokenParam = tokenizer.ReadToken();
-	if (tokenParam.type == TOKEN_PARENTHESIS)
+	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
 		return tokenParam;
 
 	if (parameter.type != Parameter::UNKNOWN)
@@ -688,8 +688,10 @@ Tokenizer::TokenType(const token& t) const
 			return "TOKEN_EXCLAMATION_MARK";
 		case TOKEN_COMMA:
 			return "TOKEN_COMMA";
-		case TOKEN_PARENTHESIS:
-			return "TOKEN_PARENTHESIS";
+		case TOKEN_PARENTHESIS_OPEN:
+			return "TOKEN_PARENTHESIS_OPEN";
+		case TOKEN_PARENTHESIS_CLOSED:
+			return "TOKEN_PARENTHESIS_CLOSED";
 		default:
 			return "TOKEN_UNKNOWN";
 	}
@@ -722,8 +724,12 @@ Tokenizer::ReadNextToken()
 		aToken.type = TOKEN_COMMA;
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
-	} else if (array[0] == '(' || array[0] == ')') {
-		aToken.type = TOKEN_PARENTHESIS;
+	} else if (array[0] == '(') {
+		aToken.type = TOKEN_PARENTHESIS_OPEN;
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+	} else if (array[0] == ')') {
+		aToken.type = TOKEN_PARENTHESIS_CLOSED;
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	} else if (array[0] == '"') {
