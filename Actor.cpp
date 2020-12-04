@@ -653,8 +653,6 @@ Actor::NumTimesTalkedTo() const
 }
 
 
-
-
 const char*
 Actor::Area() const
 {
