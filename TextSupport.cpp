@@ -136,7 +136,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	uint16 maxHeight = 0;
 	_PrepareBitmaps(string, totalWidth, maxHeight, &frames);
 
-	GFX::rect containerRect;
 	GFX::rect rect;
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
@@ -150,10 +149,12 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		rect.y = destPoint->y;
 	}
 
-	containerRect.x = rect.x;
-	containerRect.y = rect.y;
-	containerRect.w = totalWidth;
-	containerRect.h = maxHeight;
+	GFX::rect containerRect = {
+		rect.x,
+		rect.y,
+		totalWidth,
+		maxHeight
+	};
 
 	if (useBAMPalette) {
 		const Bitmap* firstFrame = frames.back();
