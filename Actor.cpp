@@ -353,37 +353,21 @@ Actor::Draw(AreaRoom* room, ::Bitmap* image) const
 	IE::point position = actorPosition;
 	room->ConvertFromArea(position);
 	if (!Core::Get()->CutsceneMode()) {
-		/*if (IsSelected()) {
-			image->Lock();
-			uint32 color = image->MapColor(0, 255, 0);
-			image->StrokeCircle(position.x, position.y,
-										sSelectedActorRadius, color);
-			if (Destination() != Position()) {
-				IE::point destination = Destination();
-				room->ConvertFromArea(destination);
-				image->StrokeCircle(
-						destination.x, destination.y,
-						sSelectedActorRadius - 10, color);
-			}
-			image->Unlock();
-		} else */ {
-			uint32 color = 0;
-			if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-				color = image->MapColor(0, 255, 0);
-			else
-				color = image->MapColor(255, 0, 0);
-			image->Lock();
-			image->StrokeCircle(position.x, position.y, 10, color);
-			image->Unlock();
-		}
+		uint32 color = 0;
+		if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+			color = image->MapColor(0, 255, 0);
+		else
+			color = image->MapColor(255, 0, 0);
+		image->Lock();
+		image->StrokeCircle(position.x, position.y, 10, color);
+		image->Unlock();
 	}
-	const ::Bitmap* actorFrame = Bitmap();
 
 	_DrawActorText(room, actorPosition);
 
 	int32 pointHeight = room->PointHeight(actorPosition);
 	actorPosition.y += pointHeight - 8;
-	room->DrawBitmap(actorFrame, actorPosition, true);
+	room->DrawBitmap(Bitmap(), actorPosition, true);
 }
 
 
