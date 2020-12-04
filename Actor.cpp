@@ -349,30 +349,17 @@ Actor::ClearDestination()
 void
 Actor::Draw(AreaRoom* room, ::Bitmap* image) const
 {
+	_DrawCircle(room, image);
+	_DrawActorText(room);
+
 	IE::point actorPosition = Position();
-	IE::point position = actorPosition;
-	room->ConvertFromArea(position);
-	if (!Core::Get()->CutsceneMode()) {
-		uint32 color = 0;
-		if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-			color = image->MapColor(0, 255, 0);
-		else
-			color = image->MapColor(255, 0, 0);
-		image->Lock();
-		image->StrokeCircle(position.x, position.y, 10, color);
-		image->Unlock();
-	}
-
-	_DrawActorText(room, actorPosition);
-
-	int32 pointHeight = room->PointHeight(actorPosition);
-	actorPosition.y += pointHeight - 8;
+	actorPosition.y += room->PointHeight(actorPosition) - 8;
 	room->DrawBitmap(Bitmap(), actorPosition, true);
 }
 
 
 void
-Actor::_DrawActorText(AreaRoom* room, IE::point actorPosition) const
+Actor::_DrawActorText(AreaRoom* room) const
 {
 	// TODO: See if it's better here
 	std::string text = Text();
@@ -386,11 +373,29 @@ Actor::_DrawActorText(AreaRoom* room, IE::point actorPosition) const
 		// Pre-render the string to a bitmap
 		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
 		font->RenderString(text, 0, bitmap, true, rect);
-		IE::point textPoint = actorPosition;
+		IE::point textPoint = Position();
 		textPoint.y -= 100;
 		room->DrawBitmap(bitmap, textPoint, false);
 		bitmap->Release();
 	}
+}
+
+
+void
+Actor::_DrawCircle(AreaRoom* room, ::Bitmap* image) const
+{
+	if (!Core::Get()->CutsceneMode()) {
+		IE::point position = Position();		
+		room->ConvertFromArea(position);
+		uint32 color = 0;
+		if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+			color = image->MapColor(0, 255, 0);
+		else
+			color = image->MapColor(255, 0, 0);
+		image->Lock();
+		image->StrokeCircle(position.x, position.y, 10, color);
+		image->Unlock();
+	}	
 }
 
 
