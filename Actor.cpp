@@ -350,11 +350,12 @@ void
 Actor::Draw(AreaRoom* room, ::Bitmap* image) const
 {
 	_DrawCircle(room, image);
-	_DrawActorText(room);
 
 	IE::point actorPosition = Position();
 	actorPosition.y += room->PointHeight(actorPosition) - 8;
 	room->DrawBitmap(Bitmap(), actorPosition, true);
+
+	_DrawActorText(room);
 }
 
 
