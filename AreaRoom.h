@@ -44,7 +44,6 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 
-	void DrawActor(const Actor& actor);
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
 	void AddAnimation(Animation* animation);
@@ -108,9 +107,7 @@ private:
 
 	void _UnloadArea();
 	void _Unload();
-	void
-	_DrawActorText(const Actor& actor, IE::point actorPosition);
-
+	
 	WEDResource *fWed;
 	ARAResource *fArea;
 

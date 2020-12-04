@@ -24,6 +24,7 @@
 #include "ResManager.h"
 #include "Script.h"
 #include "SearchMap.h"
+#include "TextSupport.h"
 #include "TileCell.h"
 #include "WedResource.h"
 
@@ -342,6 +343,70 @@ void
 Actor::ClearDestination()
 {
 	fActor->destination = fActor->position;
+}
+
+
+void
+Actor::Draw(AreaRoom* room, ::Bitmap* image) const
+{
+	IE::point actorPosition = Position();
+	IE::point position = actorPosition;
+	room->ConvertFromArea(position);
+	if (!Core::Get()->CutsceneMode()) {
+		/*if (IsSelected()) {
+			image->Lock();
+			uint32 color = image->MapColor(0, 255, 0);
+			image->StrokeCircle(position.x, position.y,
+										sSelectedActorRadius, color);
+			if (Destination() != Position()) {
+				IE::point destination = Destination();
+				room->ConvertFromArea(destination);
+				image->StrokeCircle(
+						destination.x, destination.y,
+						sSelectedActorRadius - 10, color);
+			}
+			image->Unlock();
+		} else */ {
+			uint32 color = 0;
+			if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+				color = image->MapColor(0, 255, 0);
+			else
+				color = image->MapColor(255, 0, 0);
+			image->Lock();
+			image->StrokeCircle(position.x, position.y, 10, color);
+			image->Unlock();
+		}
+	}
+	const ::Bitmap* actorFrame = Bitmap();
+
+	_DrawActorText(room, actorPosition);
+
+	int32 pointHeight = room->PointHeight(actorPosition);
+	actorPosition.y += pointHeight - 8;
+	room->DrawBitmap(actorFrame, actorPosition, true);
+}
+
+
+void
+Actor::_DrawActorText(AreaRoom* room, IE::point actorPosition) const
+{
+	// TODO: See if it's better here
+	std::string text = Text();
+	if (!text.empty()) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		uint16 height;
+		uint16 stringWidth = font->StringWidth(text, &height);
+		::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
+		bitmap->Clear(font->TransparentIndex());
+		//bitmap->SetColorKey(font->TransparentIndex());
+		// Pre-render the string to a bitmap
+		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+		font->RenderString(text, 0, bitmap, true, rect);
+		IE::point textPoint = actorPosition;
+		textPoint.y -= 100;
+		room->DrawBitmap(bitmap, textPoint, false);
+		bitmap->Release();
+	}
 }
 
 

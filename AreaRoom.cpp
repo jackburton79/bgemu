@@ -390,70 +390,6 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 	}
 }
 
-void
-AreaRoom::_DrawActorText(const Actor& actor, IE::point actorPosition)
-{
-	// TODO: See if it's better here
-	std::string text = actor.Text();
-	if (!text.empty()) {
-		const Font* font = FontRoster::GetFont("TOOLFONT");
-		uint16 height;
-		uint16 stringWidth = font->StringWidth(text, &height);
-		Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-		bitmap->Clear(font->TransparentIndex());
-		//bitmap->SetColorKey(font->TransparentIndex());
-		// Pre-render the string to a bitmap
-		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-		font->RenderString(text, 0, bitmap, true, rect);
-		IE::point textPoint = actorPosition;
-		textPoint.y -= 100;
-		DrawBitmap(bitmap, textPoint, false);
-		bitmap->Release();
-	}
-}
-
-
-void
-AreaRoom::DrawActor(const Actor& actor)
-{
-	IE::point actorPosition = actor.Position();
-	IE::point position = actorPosition;
-	ConvertFromArea(position);
-	Bitmap* image = fBackMap->Image();
-	if (!Core::Get()->CutsceneMode()) {
-		if (actor.IsSelected()) {
-			image->Lock();
-			uint32 color = image->MapColor(0, 255, 0);
-			image->StrokeCircle(position.x, position.y,
-										sSelectedActorRadius, color);
-			if (actor.Destination() != actor.Position()) {
-				IE::point destination = actor.Destination();
-				ConvertFromArea(destination);
-				image->StrokeCircle(
-						destination.x, destination.y,
-						sSelectedActorRadius - 10, color);
-			}
-			image->Unlock();
-		} else {
-			uint32 color = 0;
-			if (actor.CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-				color = image->MapColor(0, 255, 0);
-			else
-				color = image->MapColor(255, 0, 0);
-			image->Lock();
-			image->StrokeCircle(position.x, position.y, 10, color);
-			image->Unlock();
-		}
-	}
-	const Bitmap* actorFrame = actor.Bitmap();
-
-	_DrawActorText(actor, actorPosition);
-
-	int32 pointHeight = PointHeight(actorPosition);
-	actorPosition.y += pointHeight - 8;
-	DrawBitmap(actorFrame, actorPosition, true);
-}
-
 
 void
 AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask)
@@ -871,7 +807,7 @@ AreaRoom::_DrawActors()
 			a != actorsList.end(); a++) {
 		const Actor* actor = *a;
 		try {
-			DrawActor(*actor);
+			actor->Draw(this, fBackMap->Image());
 		} catch (const char* string) {
 			std::cerr << "_DrawActors: exception: " << string << std::endl;
 			continue;

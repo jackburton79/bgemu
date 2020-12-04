@@ -16,6 +16,7 @@ const static uint32 kNumActions = 2;
 struct CREColors;
 class Animation;
 class AnimationFactory;
+class AreaRoom;
 class Bitmap;
 class BCSResource;
 class CREResource;
@@ -50,6 +51,8 @@ public:
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest, bool ignoreSearchMap = false);
 	void ClearDestination();
+
+	void Draw(AreaRoom* room, ::Bitmap* image) const;
 	
 	IE::point RestrictionDistance() const;
 	virtual IE::point NearestPoint(const IE::point& start) const;
@@ -86,7 +89,6 @@ public:
 
 	void IncrementNumTimesTalkedTo();
 	uint32 NumTimesTalkedTo() const;
-
 
 	void SetArea(const char* name);
 	const char* Area() const;
@@ -155,6 +157,7 @@ private:
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
+	void _DrawActorText(AreaRoom* room, IE::point actorPosition) const;
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 };
