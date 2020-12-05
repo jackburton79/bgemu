@@ -149,13 +149,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		rect.y = destPoint->y;
 	}
 
-	GFX::rect containerRect = {
-		rect.x,
-		rect.y,
-		totalWidth,
-		maxHeight
-	};
-
 	if (useBAMPalette) {
 		const Bitmap* firstFrame = frames.back();
 		GFX::Palette palette;
@@ -168,6 +161,7 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 #endif
 	}
 	// Render the glyphs
+	GFX::rect containerRect(rect.x, rect.y, totalWidth, maxHeight);
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		const Bitmap* glyph = *i;
