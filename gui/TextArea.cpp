@@ -102,12 +102,14 @@ TextArea::MouseDown(IE::point point)
 	if (line != NULL) {
 		std::cout << "MouseDown" << std::endl;
 		DialogState* dialog = Game::Get()->Dialog();
-		if (dialog != NULL)
+		if (dialog != NULL) {
 			dialog->SelectOption(line->dialog_option);
+			Game::Get()->HandleDialog();
+		}
 		// TODO: pass option to the dialog state
 	}
-	if (Game::Get()->InDialogMode())
-		Game::Get()->TerminateDialog();
+	//if (Game::Get()->InDialogMode())
+		//Game::Get()->TerminateDialog();
 }
 
 

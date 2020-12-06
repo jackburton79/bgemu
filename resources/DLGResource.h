@@ -48,7 +48,7 @@ public:
 
 	virtual bool Load(Archive* archive, uint32 key);
 
-	dlg_state GetNextState(int32& index);
+	dlg_state GetStateAt(int32 index);
 	std::string GetStateTrigger(int triggerIndex);
 	transition_entry GetTransition(int32 index);
 

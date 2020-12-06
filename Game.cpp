@@ -216,7 +216,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		inputConsole.Draw();
 		if (!TestMode())
 			Core::Get()->UpdateLogic(executeScripts);
-
 		GraphicsEngine::Get()->Flip();
 		
 		Timer::WaitSync(startTicks, 35);
@@ -248,40 +247,8 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	fDialog = new DialogState(actor, target, dialogFile);
-
-	try {
-		int32 stateIndex = 0;
-		for (;;) {
-			fDialog->GetNextState(stateIndex);
-			DialogState::State* currentState = fDialog->CurrentState();
-			if (!currentState->Trigger().empty()) {
-				std::vector<trigger_node*> triggerList;
-				triggerList = Parser::TriggersFromString(currentState->Trigger());
-				if (actor->EvaluateDialogTriggers(triggerList)) {
-					// TODO: handle all transitions
-					// present options to the player
-					// etc.
-					TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-					if (textArea == NULL) {
-						std::cerr << "NULL Text Area!!!" << std::endl;
-						continue;
-					}
-
-					Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
-					for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
-						DialogState::Transition transition = fDialog->TransitionAt(t);
-						if (!transition.text_player.empty()) {
-							std::string option("-");
-							textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
-						}
-					}
-					break;
-				}
-			}
-		}
-	} catch (...) {
-		std::cerr << "InitiateDialog: error!!!" << std::endl;
-	}
+	fDialog->GetNextState();
+	HandleDialog();
 }
 
 
@@ -310,6 +277,54 @@ DialogState*
 Game::Dialog()
 {
 	return fDialog;
+}
+
+
+void
+Game::HandleDialog()
+{
+	try {
+		std::cout << "Game::HandleDialog():" << std::endl;
+		for (;;) {
+			std::cout << "Get current state:" << std::endl;
+			DialogState::State* currentState = fDialog->CurrentState();
+			if (currentState == NULL) {
+				std::cout << "Current State is NULL" << std::endl;
+				break;
+			}
+			::Actor* actor = fDialog->Actor();
+			std::vector<trigger_node*> triggerList = Parser::TriggersFromString(currentState->Trigger());
+			std::cout << "Checking triggers..." << std::endl;
+			if (actor->EvaluateDialogTriggers(triggerList)) {
+				// TODO: handle all transitions
+				// present options to the player
+				// etc.
+				TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+				if (textArea == NULL) {
+					std::cerr << "NULL Text Area!!!" << std::endl;
+					continue;
+				}
+
+				std::cout << "Display message." << std::endl;
+				Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
+
+				std::cout << "Getting transitions..." << std::endl;
+				for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
+					DialogState::Transition transition = fDialog->TransitionAt(t);
+					if (!transition.text_player.empty()) {
+						std::string option("-");
+						textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
+					}
+				}
+				break;
+			} else
+				fDialog->GetNextState();
+		}
+		//std::cout << "Getting Next State " << stateIndex << " ..." << std::endl;
+		//fDialog->GetNextState(stateIndex);
+	} catch (...) {
+		std::cerr << "HandleDialog: error!!!" << std::endl;
+	}
 }
 
 

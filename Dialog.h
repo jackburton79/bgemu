@@ -40,7 +40,7 @@ public:
 		transition_entry entry;
 	};
 
-	void GetNextState(int32& index);
+	State* GetNextState(int32 index = -1);
 	void SelectOption(int32 option);
 
 	State* CurrentState();
@@ -54,6 +54,7 @@ public:
 
 private:
 	State* fState;
+	int32 fStateIndex;
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	TransitionList fTransitions;

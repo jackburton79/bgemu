@@ -15,6 +15,7 @@
 DialogState::DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
 	fState(NULL),
+	fStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
 	fResource(NULL)
@@ -29,21 +30,30 @@ DialogState::~DialogState()
 }
 
 
-void
-DialogState::GetNextState(int32& index)
+DialogState::State*
+DialogState::GetNextState(int32 index)
 {
-	dlg_state nextState = fResource->GetNextState(index);
+	if (index != -1)
+		fStateIndex = index;
+
+	std::cout << "DialogState::GetNextState(" << index << ")" << std::endl;
+	dlg_state nextState = fResource->GetStateAt(fStateIndex);
 
 	delete fState;
 	fState = NULL;
+	fTransitions.clear();
 
 	std::string triggerString;
 	if (nextState.trigger != -1)
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
+	std::cout << "New DialogState::State()" << std::endl;
 	fState = new DialogState::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
 
+	fStateIndex++;
+
+	std::cout << "Get Transitions..." << std::endl;
 	// Get Transitions for this state
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
 		DialogState::Transition transition;
@@ -61,6 +71,9 @@ DialogState::GetNextState(int32& index)
 		}
 		fTransitions.push_back(transition);
 	}
+	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
+
+	return fState;
 }
 
 
@@ -74,16 +87,26 @@ DialogState::SelectOption(int32 option)
 		fState = NULL;
 		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
 		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
+		if (transition.entry.resource_next_state != fResource->Name()) {
+			gResManager->ReleaseResource(fResource);
+			fResource = NULL;
+			std::cout << "Getting resource..." << std::endl;
+			fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+		}
+		std::cout << "Getting next state..." << std::endl;
+		GetNextState(transition.entry.index_next_state);
 	}
+/*
 	if (transition.entry.index_action != -1) {
 		// TODO: Execute action
 		std::cout << "Action: " << transition.entry.index_action << std::endl;
 		uint32 action = fResource->GetAction(transition.entry.index_action);
 		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
 	}
+
 	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
 		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
-
+*/
 }
 
 

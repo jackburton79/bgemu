@@ -181,15 +181,17 @@ Parser::TriggersFromString(const std::string& string)
 {
 	std::string localString = string;
 	std::vector<trigger_node*> triggerList;
-	while (true) {
-		trigger_node* triggerNode = new trigger_node;
-		if (TriggerFromString(localString, *triggerNode)) {
-			triggerList.push_back(triggerNode);
+	if (!string.empty()) {
+		while (true) {
+			trigger_node* triggerNode = new trigger_node;
+			if (TriggerFromString(localString, *triggerNode)) {
+				triggerList.push_back(triggerNode);
+			}
+			size_t endLine = localString.find('\n');
+			if (endLine == localString.length() || endLine == std::string::npos)
+				break;
+			localString = localString.substr(endLine + 1, string.length());
 		}
-		size_t endLine = localString.find('\n');
-		if (endLine == localString.length() || endLine == std::string::npos)
-			break;
-		localString = localString.substr(endLine + 1, string.length());
 	}
 	return triggerList;
 }

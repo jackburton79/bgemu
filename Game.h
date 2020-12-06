@@ -8,6 +8,7 @@
 #ifndef GAME_H_
 #define GAME_H_
 
+#include "IETypes.h"
 
 #define AI_UPDATE_FREQ 15
 
@@ -23,6 +24,8 @@ public:
 	bool InDialogMode() const;
 	void TerminateDialog();
 	DialogState* Dialog();
+
+	void HandleDialog();
 
 	::Party* Party();
 

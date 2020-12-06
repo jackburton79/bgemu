@@ -42,15 +42,13 @@ DLGResource::~DLGResource()
 
 
 dlg_state
-DLGResource::GetNextState(int32& index)
+DLGResource::GetStateAt(int32 index)
 {
 	if ((uint32)index == fNumStates)
 		throw std::out_of_range("GetNextState()");
 
 	dlg_state state;
 	_GetStateAt(index, state);
-
-	index++;
 
 	return state;
 }
