@@ -320,8 +320,6 @@ Game::HandleDialog()
 			} else
 				fDialog->GetNextState();
 		}
-		//std::cout << "Getting Next State " << stateIndex << " ..." << std::endl;
-		//fDialog->GetNextState(stateIndex);
 	} catch (...) {
 		std::cerr << "HandleDialog: error!!!" << std::endl;
 	}

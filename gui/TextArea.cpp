@@ -105,11 +105,9 @@ TextArea::MouseDown(IE::point point)
 		if (dialog != NULL) {
 			dialog->SelectOption(line->dialog_option);
 			Game::Get()->HandleDialog();
-		}
-		// TODO: pass option to the dialog state
+		} else
+			Game::Get()->TerminateDialog();
 	}
-	//if (Game::Get()->InDialogMode())
-		//Game::Get()->TerminateDialog();
 }
 
 
