@@ -98,16 +98,15 @@ TextArea::Draw()
 void
 TextArea::MouseDown(IE::point point)
 {
-	const TextLine* line = _HitTestLine(point);
-	if (line != NULL) {
-		std::cout << "MouseDown" << std::endl;
-		DialogState* dialog = Game::Get()->Dialog();
-		if (dialog != NULL) {
+	DialogState* dialog = Game::Get()->Dialog();
+	if (dialog != NULL) {
+		const TextLine* line = _HitTestLine(point);
+		if (line != NULL) {
 			dialog->SelectOption(line->dialog_option);
-			Game::Get()->HandleDialog();
-		} else
-			Game::Get()->TerminateDialog();
+		}
+		Game::Get()->HandleDialog();
 	}
+	//Game::Get()->TerminateDialog();
 }
 
 

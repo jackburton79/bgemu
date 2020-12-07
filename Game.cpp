@@ -317,8 +317,12 @@ Game::HandleDialog()
 					}
 				}
 				break;
-			} else
-				fDialog->GetNextState();
+			} else {
+				if (fDialog->GetNextState() == NULL) {
+					TerminateDialog();
+					break;
+				}
+			}
 		}
 	} catch (...) {
 		std::cerr << "HandleDialog: error!!!" << std::endl;

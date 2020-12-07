@@ -41,7 +41,6 @@ public:
 
 	void ScrollBy(int16 x, int16 y);
 private:
-	//BAMResource* fInitialsFontResource;
 	Bitmap* fBitmap;
 	std::vector<TextLine*> fLines;
 	int16 fYOffset;

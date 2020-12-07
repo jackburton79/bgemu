@@ -36,12 +36,22 @@ DialogState::GetNextState(int32 index)
 	if (index != -1)
 		fStateIndex = index;
 
-	std::cout << "DialogState::GetNextState(" << index << ")" << std::endl;
-	dlg_state nextState = fResource->GetStateAt(fStateIndex);
-
 	delete fState;
 	fState = NULL;
 	fTransitions.clear();
+
+	dlg_state nextState;
+	try {
+		std::cout << "DialogState::GetNextState(" << index << ")" << std::endl;
+		nextState = fResource->GetStateAt(fStateIndex);
+	} catch (std::exception& e ) {
+		fStateIndex = 0;
+		std::cerr << e.what() << std::endl;
+		return NULL;
+	} catch (...) {
+		fStateIndex = 0;
+		return NULL;
+	}
 
 	std::string triggerString;
 	if (nextState.trigger != -1)
@@ -82,7 +92,7 @@ DialogState::SelectOption(int32 option)
 {
 	DialogState::Transition transition = fTransitions.at(option);
 	std::cout << "SelectOption: " << transition.text_player << std::endl;
-	if (!(transition.entry.flags & DLG_TRANSITION_END)) {
+	//if (!(transition.entry.flags & DLG_TRANSITION_END)) {
 		delete fState;
 		fState = NULL;
 		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
@@ -95,7 +105,7 @@ DialogState::SelectOption(int32 option)
 		}
 		std::cout << "Getting next state..." << std::endl;
 		GetNextState(transition.entry.index_next_state);
-	}
+	//}
 /*
 	if (transition.entry.index_action != -1) {
 		// TODO: Execute action
