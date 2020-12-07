@@ -247,7 +247,6 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	fDialog = new DialogState(actor, target, dialogFile);
-	fDialog->GetNextState();
 	HandleDialog();
 }
 
@@ -283,6 +282,12 @@ Game::Dialog()
 void
 Game::HandleDialog()
 {
+	if (fDialog->GetNextState() == NULL) {
+		std::cout << "Game::HandleDialog(): GetNextState is NULL" << std::endl;
+		TerminateDialog();
+		return;
+	}
+
 	try {
 		std::cout << "Game::HandleDialog():" << std::endl;
 		for (;;) {

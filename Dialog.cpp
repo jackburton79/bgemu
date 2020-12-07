@@ -15,7 +15,7 @@
 DialogState::DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
 	fState(NULL),
-	fStateIndex(0),
+	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
 	fResource(NULL)
@@ -31,25 +31,22 @@ DialogState::~DialogState()
 
 
 DialogState::State*
-DialogState::GetNextState(int32 index)
+DialogState::GetNextState()
 {
-	if (index != -1)
-		fStateIndex = index;
-
 	delete fState;
 	fState = NULL;
 	fTransitions.clear();
 
 	dlg_state nextState;
 	try {
-		std::cout << "DialogState::GetNextState(" << index << ")" << std::endl;
-		nextState = fResource->GetStateAt(fStateIndex);
+		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
+		nextState = fResource->GetStateAt(fNextStateIndex);
 	} catch (std::exception& e ) {
-		fStateIndex = 0;
+		fNextStateIndex = 0;
 		std::cerr << e.what() << std::endl;
 		return NULL;
 	} catch (...) {
-		fStateIndex = 0;
+		fNextStateIndex = 0;
 		return NULL;
 	}
 
@@ -61,7 +58,7 @@ DialogState::GetNextState(int32 index)
 	fState = new DialogState::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
 
-	fStateIndex++;
+	fNextStateIndex++;
 
 	std::cout << "Get Transitions..." << std::endl;
 	// Get Transitions for this state
@@ -104,7 +101,8 @@ DialogState::SelectOption(int32 option)
 			fResource = gResManager->GetDLG(transition.entry.resource_next_state);
 		}
 		std::cout << "Getting next state..." << std::endl;
-		GetNextState(transition.entry.index_next_state);
+		fNextStateIndex = transition.entry.index_next_state;
+		//GetNextState();
 	//}
 /*
 	if (transition.entry.index_action != -1) {
