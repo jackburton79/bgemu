@@ -282,55 +282,32 @@ Game::Dialog()
 void
 Game::HandleDialog()
 {
-	if (fDialog->GetNextState() == NULL) {
+	DialogState::State* currentState = fDialog->GetNextValidState();
+	if (currentState == NULL) {
 		std::cout << "Game::HandleDialog(): GetNextState is NULL" << std::endl;
 		TerminateDialog();
 		return;
 	}
 
-	try {
-		std::cout << "Game::HandleDialog():" << std::endl;
-		for (;;) {
-			std::cout << "Get current state:" << std::endl;
-			DialogState::State* currentState = fDialog->CurrentState();
-			if (currentState == NULL) {
-				std::cout << "Current State is NULL" << std::endl;
-				break;
-			}
-			::Actor* actor = fDialog->Actor();
-			std::vector<trigger_node*> triggerList = Parser::TriggersFromString(currentState->Trigger());
-			std::cout << "Checking triggers..." << std::endl;
-			if (actor->EvaluateDialogTriggers(triggerList)) {
-				// TODO: handle all transitions
-				// present options to the player
-				// etc.
-				TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-				if (textArea == NULL) {
-					std::cerr << "NULL Text Area!!!" << std::endl;
-					continue;
-				}
+	// TODO: handle all transitions
+	// present options to the player
+	// etc.
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea == NULL) {
+		std::cerr << "NULL Text Area!!!" << std::endl;
+		return;
+	}
 
-				std::cout << "Display message." << std::endl;
-				Core::Get()->DisplayMessage(actor->LongName().c_str(), currentState->Text().c_str());
+	std::cout << "Display message." << std::endl;
+	Core::Get()->DisplayMessage(fDialog->Actor()->LongName().c_str(), currentState->Text().c_str());
 
-				std::cout << "Getting transitions..." << std::endl;
-				for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
-					DialogState::Transition transition = fDialog->TransitionAt(t);
-					if (!transition.text_player.empty()) {
-						std::string option("-");
-						textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
-					}
-				}
-				break;
-			} else {
-				if (fDialog->GetNextState() == NULL) {
-					TerminateDialog();
-					break;
-				}
-			}
+	std::cout << "Getting transitions..." << std::endl;
+	for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
+		DialogState::Transition transition = fDialog->TransitionAt(t);
+		if (!transition.text_player.empty()) {
+			std::string option("-");
+			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
 		}
-	} catch (...) {
-		std::cerr << "HandleDialog: error!!!" << std::endl;
 	}
 }
 

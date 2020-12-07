@@ -106,7 +106,6 @@ TextArea::MouseDown(IE::point point)
 		}
 		Game::Get()->HandleDialog();
 	}
-	//Game::Get()->TerminateDialog();
 }
 
 

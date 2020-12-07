@@ -8,6 +8,7 @@
 #include "Dialog.h"
 
 #include "Actor.h"
+#include "Parsing.h"
 #include "ResManager.h"
 
 
@@ -84,36 +85,60 @@ DialogState::GetNextState()
 }
 
 
+DialogState::State*
+DialogState::GetNextValidState()
+{
+	::Actor* actor = Actor();
+	for (;;) {
+		DialogState::State* state = GetNextState();
+		if (state == NULL) {
+			fState = NULL;
+			break;
+		}
+		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(state->Trigger());
+		std::cout << "Checking triggers..." << std::endl;
+		if (actor->EvaluateDialogTriggers(triggerList)) {
+			fState = state;
+			break;
+		}
+	}
+
+	return fState;
+}
+
+
 void
 DialogState::SelectOption(int32 option)
 {
-	DialogState::Transition transition = fTransitions.at(option);
-	std::cout << "SelectOption: " << transition.text_player << std::endl;
+	fCurrentTransition = fTransitions.at(option);
+	std::cout << "SelectOption: " << fCurrentTransition.text_player << std::endl;
+	std::cout << "END ? " << ((fCurrentTransition.entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
+
 	//if (!(transition.entry.flags & DLG_TRANSITION_END)) {
 		delete fState;
 		fState = NULL;
-		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
-		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
-		if (transition.entry.resource_next_state != fResource->Name()) {
+		std::cout << "next resource: " << fCurrentTransition.entry.resource_next_state << std::endl;
+		std::cout << "next index: " << fCurrentTransition.entry.index_next_state << std::endl;
+		if (fCurrentTransition.entry.resource_next_state != fResource->Name()) {
 			gResManager->ReleaseResource(fResource);
 			fResource = NULL;
 			std::cout << "Getting resource..." << std::endl;
-			fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+			fResource = gResManager->GetDLG(fCurrentTransition.entry.resource_next_state);
 		}
 		std::cout << "Getting next state..." << std::endl;
-		fNextStateIndex = transition.entry.index_next_state;
+		fNextStateIndex = fCurrentTransition.entry.index_next_state;
 		//GetNextState();
 	//}
 /*
 	if (transition.entry.index_action != -1) {
 		// TODO: Execute action
-		std::cout << "Action: " << transition.entry.index_action << std::endl;
-		uint32 action = fResource->GetAction(transition.entry.index_action);
+		std::cout << "Action: " << fCurrentTransition.entry.index_action << std::endl;
+		uint32 action = fResource->GetAction(fCurrentTransition.entry.index_action);
 		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
 	}
 
 	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
+		std::cout << "text journal: " << fCurrentTransition.entry.text_journal << std::endl;
 */
 }
 
@@ -136,6 +161,13 @@ int32
 DialogState::CountTransitions() const
 {
 	return fTransitions.size();
+}
+
+
+DialogState::Transition&
+DialogState::CurrentTransition()
+{
+	return fCurrentTransition;
 }
 
 

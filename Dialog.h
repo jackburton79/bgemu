@@ -40,14 +40,16 @@ public:
 		transition_entry entry;
 	};
 
-	State* GetNextState();
-	void SelectOption(int32 option);
-
 	State* CurrentState();
+	State* GetNextState();
+	State* GetNextValidState();
+
+	void SelectOption(int32 option);
 
 	typedef std::vector<Transition> TransitionList;
 	Transition TransitionAt(int32 index);
 	int32 CountTransitions() const;
+	Transition& CurrentTransition();
 
 	DLGResource* Resource();
 	::Actor* Actor();
@@ -58,6 +60,7 @@ private:
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	TransitionList fTransitions;
+	Transition fCurrentTransition;
 	DLGResource* fResource;
 
 	Transition _GetTransition(int32 num);
