@@ -610,7 +610,7 @@ Parser::_FixNode(::node* node)
 {
 	StringStream stream(node->value);
 	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
+	tokenizer.SetDebug(true);
 	switch (node->type) {
 		case BLOCK_TRIGGER:
 			_ReadTriggerBlock(&tokenizer, node);
@@ -944,12 +944,14 @@ trigger_node::trigger_node()
 void
 trigger_node::Print() const
 {
+	if (flags)
+		std::cout << "!";
+
 	std::cout << IDTable::TriggerName(id);
-	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id;
-	std::cout << "), flags: " << std::dec << flags << ", parameter1:";
+	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id << ")";
+	std::cout << "(";
 	std::cout << std::dec;
-	std::cout << parameter1 << ", parameter2: " << parameter2 << ", string1: " << string1;
-	std::cout << ", string2: " << string2 << std::endl;
+	std::cout << parameter1 << ", " << parameter2 << ", " << string1 << ", " << string2 << ")" << std::endl;
 	object.Print();
 }
 
@@ -1064,13 +1066,13 @@ action_node::Print() const
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
 	std::cout << std::dec;
-	std::cout << " ";
-	std::cout << "integer1: " << integer1 << ", ";
-	std::cout << "where: (" << where.x << ", " << where.y << "), ";
-	std::cout << "integer2: " << integer2 << ", ";
-	std::cout << "integer3: " << integer3 << ", ";
-	std::cout << "string1: " << string1 << ", ";
-	std::cout << "string2: " << string2 << std::endl;
+	std::cout << "(";
+	std::cout << integer1 << ", ";
+	std::cout << "(" << where.x << ", " << where.y << "), ";
+	std::cout << integer2 << ", ";
+	std::cout << integer3 << ", ";
+	std::cout << string1 << ", ";
+	std::cout << string2 << ")" << std::endl;
 	first.Print();
 	second.Print();
 	third.Print();

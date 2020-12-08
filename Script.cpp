@@ -21,7 +21,7 @@
 
 
 bool Script::sDebug = false;
-
+/*
 static int sIndent = 0;
 static void IndentMore()
 {
@@ -33,17 +33,16 @@ static void IndentLess()
 {
 	if (--sIndent < 0)
 		sIndent = 0;
-}
+}*/
 
 
-static void PrintIndentation()
+static void PrintIndentation(int indent)
 {
-	int i = 0;
-	for (i = 0; i < sIndent; i++)
+	for (int i = 0; i < indent; i++)
 		std::cout << " ";
 }
 
-
+/*
 static void PrintHeader(node& node, bool close = false)
 {
 	if (!close)
@@ -51,7 +50,7 @@ static void PrintHeader(node& node, bool close = false)
 	else
 		std::cout << "<" << node.header << "\\>" << std::endl;
 }
-
+*/
 
 static void
 VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
@@ -1395,11 +1394,17 @@ Script::_HandleAction(action_node* act)
 void
 Script::_PrintNode(node* n) const
 {
-	PrintIndentation();
-	PrintHeader(*n);
-	IndentMore();
+	//PrintIndentation();
+	//PrintHeader(*n);
+	//IndentMore();
 	
-	PrintIndentation();
+	if (n->type == BLOCK_TRIGGER)
+		std::cout << "IF" << std::endl;
+	else if (n->type == BLOCK_ACTION)
+		std::cout << "THEN" << std::endl;
+
+	if (n->type == BLOCK_TRIGGER || n->type == BLOCK_ACTION)
+		PrintIndentation(4);
 	n->Print();
 
 	node_list::iterator c;
@@ -1407,9 +1412,9 @@ Script::_PrintNode(node* n) const
 		_PrintNode(*c);
 	}
 	
-	IndentLess();
-	PrintIndentation();
-	PrintHeader(*n, true);
+	//IndentLess();
+	//PrintIndentation();
+	//PrintHeader(*n, true);
 }
 
 
