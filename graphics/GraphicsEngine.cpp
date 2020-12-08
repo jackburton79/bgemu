@@ -215,7 +215,7 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 		SDLWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	if (SDL_CreateWindowAndRenderer(width, height, SDLWindowFlags,
 			&fSDLWindow, &fSDLRenderer) != 0) {
-		std::cerr << "Cannot Create Window" << std::endl;
+		throw std::runtime_error("Cannot Create Window");
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.

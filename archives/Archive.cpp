@@ -24,7 +24,8 @@ Archive::Create(const char *path)
 		else {
 			archive = new PlainFileArchive(path);
 		}
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		delete archive;
 		archive = NULL;
 	}

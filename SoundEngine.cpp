@@ -40,7 +40,8 @@ SoundEngine::Initialize()
 	try {
 		if (sSoundEngine == NULL)
 			sSoundEngine = new SoundEngine();
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		std::cout << "Failed!" << std::endl;
 		return false;
 	}

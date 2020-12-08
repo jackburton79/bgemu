@@ -34,8 +34,8 @@ MovieDecoder::Test()
 		TestOpcodeD();
 		TestOpcodeE();
 		TestOpcodeF();
-	} catch (const char* string) {
-		std::cerr << "MovieDecoder::Test(): " << string << std::endl;
+	} catch (std::exception& e) {
+		std::cerr << "MovieDecoder::Test(): " << e.what() << std::endl;
 		return -1;
 	} catch (...) {
 		std::cerr << "MovieDecoder::Test(): FAILURE!" << std::endl;
@@ -80,7 +80,7 @@ MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 		DumpData((uint8*)fScratchBuffer->Pixels(), 64);
 		std::cout << "should be:" << std::endl;
 		DumpData(data, dataSize);
-		throw "error";
+		throw std::runtime_error("TestFinish error!");
 	}
 
 	fNewFrame->Release();

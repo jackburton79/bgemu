@@ -194,7 +194,8 @@ BAMResource::DumpFrames(const char *filePath)
 				path.Append(fileName);
 				printf("save to %s\n", path.String());
 				frame->Save(path.String());
-			} catch (...) {
+			} catch (std::exception& e) {
+				std::cerr << e.what() << std::endl;
 				continue;
 			}
 		}

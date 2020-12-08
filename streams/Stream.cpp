@@ -36,7 +36,7 @@ Stream::ReadLine(char *buffer, size_t maxSize, char endLine)
 				&& (size_t)(ptr - buffer) < maxSize) {
 			ptr++;
 		}
-	} catch (...) {
+	} catch (std::exception& e) {
 		// eof
 	}
 

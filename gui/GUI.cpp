@@ -80,7 +80,8 @@ GUI::Initialize(const uint16 width, const uint16 height)
 	try {
 		if (sGUI == NULL)
 			sGUI = new GUI(width, height);
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		sGUI = NULL;
 		return false;
 	}

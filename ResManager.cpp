@@ -183,7 +183,8 @@ ResourceManager::Initialize(const char *path)
 	try {
 		if (gResManager == NULL)
 			gResManager = new ResourceManager(path);
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		return false;
 	}
 	return true;
@@ -264,27 +265,20 @@ ResourceManager::GetKEY(const char *name)
 	KEYResource *key = NULL;
 	Archive *archive = NULL;
 	std::string path;
-	try {
-		key = new KEYResource("KEY");
-		path = GetFullPath(name, LOC_ROOT);
-		if (fDebugLevel > 0) {
-			std::cout << "\t-> Loading KEY file '" << path << "'... ";
-			std::flush(std::cout);
-		}
-		archive = Archive::Create(path.c_str());
-		// TODO: Throw an useful exception instead
-		if (archive == NULL)
-			throw std::runtime_error("GetKey: cannot open key archive file!");
-		if (key->Load(archive, 0) == false)
-			throw std::runtime_error("GetKey: cannot load key file!");
-		if (fDebugLevel > 0)
-			std::cout << "OK!" << std::endl;
-	} catch (...) {
-		key->Release();
-		key = NULL;
-		if (fDebugLevel > 0)
-			std::cout << "FAILED!" << std::endl;
+	key = new KEYResource("KEY");
+	path = GetFullPath(name, LOC_ROOT);
+	if (fDebugLevel > 0) {
+		std::cout << "\t-> Loading KEY file '" << path << "'... ";
+		std::flush(std::cout);
 	}
+	archive = Archive::Create(path.c_str());
+	// TODO: Throw an useful exception instead
+	if (archive == NULL)
+		throw std::runtime_error("GetKey: cannot open key archive file!");
+	if (key->Load(archive, 0) == false)
+		throw std::runtime_error("GetKey: cannot load key file!");
+	if (fDebugLevel > 0)
+		std::cout << "OK!" << std::endl;
 
 	delete archive;
 
@@ -309,9 +303,10 @@ ResourceManager::GetTLK(const char* name)
 		tlk->Acquire();
 		if (fDebugLevel > 0)
 			std::cout << "OK!" << std::endl;
-	} catch (...) {
+	} catch (std::exception& e) {
 		if (fDebugLevel > 0)
-			std::cout << "FAILED!" << std::endl;
+			std::cout << "FAILED!";
+		std::cerr << e.what() << std::endl;
 		if (tlk->Release())
 			delete tlk;
 		tlk = NULL;
