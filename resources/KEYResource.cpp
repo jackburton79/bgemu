@@ -111,7 +111,7 @@ KEYResource::GetResEntryAt(uint32 index)
 			//std::cerr << index << "!!!" << std::endl;
 			// TODO: looks like in BG2 there is an unnamed resource
 			// and this causes all kinds of problems. Investigate
-			throw -1;
+			throw std::runtime_error("GetResEntryAt(): unnamed resource!");
 		}
 	} catch (...) {
 		delete entry;

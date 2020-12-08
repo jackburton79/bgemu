@@ -228,13 +228,11 @@ MVEResource::GetNextChunk()
 
 		if (header.length > 0)
 			DecodeChunk(header);
-	} catch (const char *str) {
-		std::cout << str << std::endl;
-		return false;
 	} catch (movie_opcodes& op) {
 		std::cout << "OP_END_OF_STREAM" << std::endl;
 		return false;
 	}
+
 	return true;
 }
 
