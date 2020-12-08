@@ -421,7 +421,7 @@ struct window {
 	uint16 unk2;
 
 	void Print() const;
-};
+} __attribute__((packed));
 
 
 enum control_type {
