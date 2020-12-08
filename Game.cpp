@@ -329,10 +329,6 @@ Game::LoadStartingArea()
 		return;
 	}
 
-	// TODO: Needed for the initial script
-	IE::point startPoint = {20, 20};
-	fParty->AddActor(new Actor("IMOEN", startPoint, 0));
-
 	std::cout << "OK!" << std::endl;
 	std::string startingArea = resource->ValueFor("START_AREA", "VALUE");
 	IE::point viewPosition;
@@ -347,6 +343,12 @@ Game::LoadStartingArea()
 		std::cout << "Failed!" << std::endl;
 		gResManager->ReleaseResource(resource);
 		return;
+	}
+
+	// TODO: Needed for the initial script
+	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+		IE::point startPoint = {20, 20};
+		fParty->AddActor(new Actor("IMOEN", startPoint, 0));
 	}
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
