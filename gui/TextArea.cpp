@@ -113,6 +113,7 @@ TextArea::MouseDown(IE::point point)
 void
 TextArea::MouseMoved(IE::point point, uint32 transit)
 {
+	Control::MouseMoved(point, transit);
 }
 
 
