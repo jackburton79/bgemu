@@ -130,7 +130,7 @@ Actor::_Init()
 			gResManager->ReleaseResource(cre);
 		}
 		if (fCRE == NULL)
-			throw "Actor: CRE file not loaded.";
+			throw std::runtime_error("Actor: CRE file not loaded.");
 
 		_HandleColors();
 	}

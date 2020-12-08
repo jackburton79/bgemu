@@ -22,7 +22,7 @@ Animation::Animation(IE::animation *animDesc)
 	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
 	BAMResource* bam = gResManager->GetBAM(fName.c_str());
 	if (bam == NULL) {
-		throw "NULL BAM!!!";
+		throw std::runtime_error("Animation: Missing BAM");
 	}
 	
 	//animDesc->Print();
@@ -57,13 +57,13 @@ Animation::Animation(const char* bamName,
 {
 	BAMResource* bam = gResManager->GetBAM(fName.c_str());
 	if (bam == NULL)
-		throw "missing BAM";
+		throw std::runtime_error("Animation: Missing BAM");
 
 	if (sequence >= bam->CountCycles()) {
 		std::cout << "CycleNumber exceeds cycles count: cyclenumber ";
 		std::cout << sequence << ", cycles: " << int(bam->CountCycles());
 		std::cout << std::endl;
-		throw "Wrong cycle";
+		throw std::runtime_error("Animation: Wrong cycle!");
 	}
 	fCenter = position;
 	fCurrentFrame = 0;
