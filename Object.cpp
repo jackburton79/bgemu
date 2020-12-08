@@ -207,7 +207,9 @@ Object::Update(bool scripts)
 		if (isArea || !isActor)
 			scripts = false;
 	}
+
 	if (scripts) {
+		std::cout << Name() << ": Execute scripts..." << std::endl;
 		_ExecuteScripts(8);
 	}
 
@@ -475,28 +477,41 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
-	if (fTicks % 16 != GlobalID() % 16)
-		return;
-
-	if (!IsActionListEmpty())
-		return;
-		
 	bool runScripts = false;
 	//if (fTicksIdle++ > 5)
 		runScripts = true;
+
+	if (fTicks % 16 != GlobalID() % 16) {
+		// no scripts
+		runScripts = false;
+		// return;
+	}
+
+	if (!IsActionListEmpty()) {
+		// no scripts
+		runScripts = false;
+		// return;
+	}
+		
 	
+	// scripts
+
 	//if (!IsInterruptable())
 		//return;
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (!IsInsideVisibleArea()) {
 		if (actor == NULL || !actor->InParty()) {
-			if (fTicks % 60 != 0)
+			if (fTicks % 60 != 0) {
+				// no scripts
 				runScripts = false;
+			}
 		}
 	}
 		
-	if (dynamic_cast<RoomBase*>(this) != NULL)
+	if (dynamic_cast<RoomBase*>(this) != NULL) {
+		// scripts
 		runScripts = true;
+	}
 
 	if (!runScripts)
 		return;
@@ -506,8 +521,10 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (Core::Get()->CutsceneMode())
 		maxLevel = 1;
 
-	if (!IsInterruptable())
+	if (!IsInterruptable()) {
+		// no scripts
 		return;
+	}
 
 	try {
 		bool continuing = false;
@@ -520,6 +537,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 			}
 		}
 	} catch (...) {
+		std::cerr << "Exception while running scripts!" << std::endl;
 	}
 	
 	if (true)
@@ -530,7 +548,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
-	//std::cout << Name() << " executes " << action.Name() << std::endl;
+	std::cout << Name() << " executes " << action.Name() << std::endl;
 	action();
 }
 
