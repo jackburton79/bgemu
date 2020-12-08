@@ -290,10 +290,6 @@ Parser::Read(node*& rootNode)
 {
 	try {
 		_ReadNode(rootNode);
-	} catch (const char *str) {
-		std::cerr << "Parser::Read(): caught string " << str << std::endl;
-	} catch (std::string& str) {
-		std::cerr << "Parser::Read(): caught string " << str << std::endl;
 	} catch (std::exception& except) {
 		std::cerr << "Parser::Read(): " << except.what() << std::endl;
 	} catch (...) {
@@ -434,7 +430,7 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 	std::string triggerName = t.u.string;
 	try {
 		node->id = GetTriggerID(triggerName);
-	} catch (std::runtime_error& e) {
+	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 		return false;
 	}

@@ -756,10 +756,8 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 				const Bitmap* frame = animation->Bitmap();
 				DrawBitmap(frame, animation->Position(), false);
 			}
-		} catch (const char* string) {
-			std::cerr << string << std::endl;
-			continue;
-		} catch (...) {
+		} catch (std::exception& e) {
+			std::cerr << e.what() << std::endl;
 			continue;
 		}
 	}
@@ -782,10 +780,8 @@ AreaRoom::_DrawEffects()
 			Effect* effect = *i;
 			const Bitmap* frame = effect->NextBitmap();
 			DrawBitmap(frame, effect->Position(), false);
-		} catch (const char* string) {
-			std::cerr << string << std::endl;
-			continue;
-		} catch (...) {
+		} catch (std::exception& e) {
+			std::cerr << e.what() << std::endl;
 			continue;
 		}
 	}
@@ -810,14 +806,8 @@ AreaRoom::_DrawActors()
 		const Actor* actor = *a;
 		try {
 			actor->Draw(this, fBackMap->Image());
-		} catch (const char* string) {
-			std::cerr << "_DrawActors: exception: " << string << std::endl;
-			continue;
-		} catch (std::string& ex) {
-			std::cerr << ex << std::endl;
-			continue;
-		} catch (...) {
-			std::cerr << "Caught exception on actor " << actor->Name() << std::endl;
+		} catch (std::exception& ex) {
+			std::cerr << ex.what() << std::endl;
 			continue;
 		}
 	}

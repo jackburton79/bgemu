@@ -136,12 +136,10 @@ main(int argc, char **argv)
 
 	try {
 		Game::Get()->Loop(sNoNewGame, !sNoScripts);
-	} catch (const char* error) {
-		std::cerr << "Game Loop exited with error: " << error << std::endl;
-	} catch (std::string &error) {
-		std::cerr << error << std::endl;
+	} catch (std::exception &error) {
+		std::cerr << error.what() << std::endl;
 	} catch (...) {
-		std::cerr << "Game Loop exited with unhandled error" << std::endl;
+		std::cerr << "Game Loop exited with unknown error" << std::endl;
 	}
 	
 	GraphicsEngine::Destroy();
