@@ -622,7 +622,7 @@ Parser::_FixNode(::node* node)
 			_ReadResponseBlock(&tokenizer, node);
 			break;
 		default:
-			throw std::string("ERROR _FixNode() called on wrong node type!!!");
+			// other, no need to read anything
 			break;
 	}
 }
