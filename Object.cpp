@@ -209,7 +209,6 @@ Object::Update(bool scripts)
 	}
 
 	if (scripts) {
-		std::cout << Name() << ": Execute scripts..." << std::endl;
 		_ExecuteScripts(8);
 	}
 
