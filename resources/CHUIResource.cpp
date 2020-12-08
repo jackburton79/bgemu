@@ -65,7 +65,9 @@ CHUIResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(16, fWindowsOffset);
 
 	std::cout << Name() << ", " << fNumWindows << " windows" << std::endl;
-	//Dump();
+	std::cout << "Windows offset: " << fWindowsOffset << std::endl;
+	std::cout << "Controls table offset: " << fControlTableOffset << std::endl;
+
 	return true;
 }
 
@@ -181,49 +183,8 @@ CHUIResource::_ReadControl(IE::window& window, uint16 controlIndex)
 			+ (window.control_offset + controlIndex)
 			* sizeof(controlTable), controlTable);
 
-	IE::control baseControl;
-	fData->ReadAt(controlTable.offset, baseControl);
-	switch (baseControl.type) {
-		case IE::CONTROL_BUTTON:
-		{
-			IE::button* newButton = new IE::button;
-			fData->ReadAt(controlTable.offset, *newButton);
-			return newButton;
-		}
-		case IE::CONTROL_LABEL:
-		{
-			IE::label* newLabel = new IE::label;
-			fData->ReadAt(controlTable.offset, *newLabel);
-			return newLabel;
-		}
-		case IE::CONTROL_TEXTAREA:
-		{
-			IE::text_area* textArea = new IE::text_area;
-			fData->ReadAt(controlTable.offset, *textArea);
-			return textArea;
-		}
-		case IE::CONTROL_SLIDER:
-		{
-			IE::slider* slider = new IE::slider;
-			fData->ReadAt(controlTable.offset, *slider);
-			return slider;
-		}
-		case IE::CONTROL_SCROLLBAR:
-		{
-			IE::scrollbar* scrollbar = new IE::scrollbar;
-			fData->ReadAt(controlTable.offset, *scrollbar);
-			return scrollbar;
-		}
-		case IE::CONTROL_TEXTEDIT:
-		{
-			IE::text_edit* textEdit = new IE::text_edit;
-			fData->ReadAt(controlTable.offset, *textEdit);
-			return textEdit;
-		}
-		default:
-		{
-			return NULL;
-		}
-	}
+	IE::control* control = (IE::control*)new uint8[controlTable.length];
+	fData->ReadAt(controlTable.offset, control, controlTable.length);
 
+	return control;
 }
