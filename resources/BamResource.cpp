@@ -297,7 +297,7 @@ BAMResource::_Load()
 {
 	if (CheckSignature(BAMC_SIGNATURE)) {
 		if (!CheckVersion(BAM_VERSION_1))
-			throw -1;
+			throw std::runtime_error("BAMResource::Load() wrong version!");
 
 		uint32 len;
 		fData->ReadAt(8, len);
@@ -309,7 +309,7 @@ BAMResource::_Load()
 
 		if (status != 0) {
 			delete[] decompressedData;
-			throw -1;
+			throw std::runtime_error("BAMResource::Load() decompression failed!");
 		}
 
 		ReplaceData(new MemoryStream(decompressedData, decompressedSize, true));
@@ -320,7 +320,7 @@ BAMResource::_Load()
 
 	if (CheckSignature(BAM_SIGNATURE)) {
 		if (!CheckVersion(BAM_VERSION_1))
-			throw -1;
+			throw std::runtime_error("BAMResource::Load() wrong version!");
 
 		fData->ReadAt(8, fNumFrames);
 		//std::cout << fNumFrames << " frames found." << std::endl;
@@ -344,7 +344,7 @@ BAMResource::_Load()
 			fPalette->colors[i].a = fData->ReadByte();
 		}
 	} else
-		throw -1;
+		throw std::runtime_error("BAMResource::Load() wrong signature!");
 
 	fTransparentIndex = _FindTransparentIndex();
 }

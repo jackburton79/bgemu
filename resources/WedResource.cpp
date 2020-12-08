@@ -62,10 +62,10 @@ void
 WEDResource::_Load()
 {
 	if (!CheckSignature("WED "))
-		throw -1;
+		throw std::runtime_error("WEDResource::Load() wrong signature!");;
 
 	if (!CheckVersion("V1.3"))
-		throw -1;
+		throw std::runtime_error("WEDResource::Load() wrong version!");;
 	
 	fData->ReadAt(8, fNumOverlays);
 	fData->ReadAt(12, fNumTiledObjects);

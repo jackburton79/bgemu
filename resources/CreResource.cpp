@@ -342,7 +342,7 @@ IE::item
 CREResource::ItemAtSlot(uint32 i)
 {
 	if (i >= kNumItemSlots)
-		throw -1;
+		throw std::out_of_range("ItemAtSlot() out of range");
 
 	uint16 itemOffset;
 	fData->ReadAt(fItemSlotOffset + i * sizeof(itemOffset), itemOffset);
@@ -352,7 +352,7 @@ CREResource::ItemAtSlot(uint32 i)
 
 	// TODO: number 38 is a dword instead. Handle that case
 	if (itemOffset == (int16)-1)
-		throw -1;
+		throw std::runtime_error("Wrong item offset");
 
 	IE::item ieItem;
 	_ReadItemNum(ieItem, itemOffset);
