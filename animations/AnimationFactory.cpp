@@ -97,9 +97,11 @@ AnimationFactory::GetFactory(uint16 animationID)
 						factory = new IWDAnimationFactory(baseName.c_str(), animationID);
 						break;
 					case 0x50:
+					case 0x51:
 					case 0x60:
 					case 0x61:
 					case 0x63:
+					case 0x64:
 					case 0x80:
 						//else if (highId >= 0x50 && highId < 0x90 )
 						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
@@ -107,6 +109,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					default:
 						break;
 				}
+				break;
 			default:
 				break;
 		}
