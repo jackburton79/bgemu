@@ -385,8 +385,10 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 		fMouseOverObject = _ObjectAtPoint(point, cursor);
 		if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
-		else
-			GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
+		else {
+			GUI::Get()->SetCursor(IE::CURSOR_WALKTO);
+			//GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
+		}
 	}
 }
 
