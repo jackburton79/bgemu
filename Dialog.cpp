@@ -88,19 +88,14 @@ DialogState::GetNextState()
 DialogState::State*
 DialogState::GetNextValidState()
 {
-	::Actor* actor = Actor();
 	for (;;) {
 		DialogState::State* state = GetNextState();
-		if (state == NULL) {
-			fState = NULL;
+		if (state == NULL)
 			break;
-		}
 		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(state->Trigger());
 		std::cout << "Checking triggers..." << std::endl;
-		if (actor->EvaluateDialogTriggers(triggerList)) {
-			fState = state;
+		if (Actor()->EvaluateDialogTriggers(triggerList))
 			break;
-		}
 	}
 
 	return fState;
@@ -127,7 +122,6 @@ DialogState::SelectOption(int32 option)
 		}
 		std::cout << "Getting next state..." << std::endl;
 		fNextStateIndex = fCurrentTransition.entry.index_next_state;
-		//GetNextState();
 	//}
 /*
 	if (transition.entry.index_action != -1) {
