@@ -12,7 +12,7 @@ DirectoryArchive::DirectoryArchive(const char *path)
 {
 	fDir = ::opendir(path);
 	if (fDir == NULL) {
-		throw errno;
+		throw std::runtime_error(::strerror(errno));
 	}
 }
 
