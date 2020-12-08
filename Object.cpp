@@ -526,6 +526,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 		return;
 	}
 
+	maxLevel = std::min((size_t)maxLevel, fScripts.size());
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {
@@ -536,6 +537,8 @@ Object::_ExecuteScripts(int32 maxLevel)
 				}
 			}
 		}
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 	} catch (...) {
 		std::cerr << "Exception while running scripts!" << std::endl;
 	}
