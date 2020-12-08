@@ -64,6 +64,7 @@ CHUIResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(12, fControlTableOffset);
 	fData->ReadAt(16, fWindowsOffset);
 
+	std::cout << Name() << ", " << fNumWindows << " windows" << std::endl;
 	//Dump();
 	return true;
 }
@@ -109,12 +110,8 @@ CHUIResource::GetWindow(uint16 id)
 		std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
-			//std::cout << "Control " << controlIndex << ":" << std::endl;
-			control_table controlTable;
-			fData->ReadAt(fControlTableOffset
-					+ (window.control_offset + controlIndex)
-					* sizeof(controlTable), controlTable);
-				IE::control* control = _ReadControl(controlTable);
+			std::cout << "Control " << controlIndex << ":" << std::endl;
+			IE::control* control = _ReadControl(window, controlIndex);
 			if (control != NULL)
 				newWindow->Add(Control::CreateControl(control));
 		}
@@ -177,8 +174,13 @@ CHUIResource::Dump()
 
 
 IE::control*
-CHUIResource::_ReadControl(control_table& controlTable)
+CHUIResource::_ReadControl(IE::window& window, uint16 controlIndex)
 {
+	control_table controlTable;
+	fData->ReadAt(fControlTableOffset
+			+ (window.control_offset + controlIndex)
+			* sizeof(controlTable), controlTable);
+
 	IE::control baseControl;
 	fData->ReadAt(controlTable.offset, baseControl);
 	switch (baseControl.type) {

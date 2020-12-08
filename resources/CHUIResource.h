@@ -30,7 +30,7 @@ private:
 	virtual ~CHUIResource();
 	virtual bool Load(Archive *archive, uint32 key);
 
-	IE::control* _ReadControl(control_table& table);
+	IE::control* _ReadControl(IE::window& window, uint16 controlIndex);
 	uint32 fNumWindows;
 	uint32 fControlTableOffset;
 	uint32 fWindowsOffset;
