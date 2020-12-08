@@ -56,8 +56,10 @@ void
 Resource::Dump()
 {
 	try {
-		if (fData != NULL)
+		if (fData != NULL) {
+			std::cout << Name() << ": size: " << fData->Size() << std::endl;
 			fData->Dump();
+		}
 	} catch (const char* string) {
 		std::cerr << "Resource::Dump() caught exception: " << string << std::endl;
 	} catch (...) {
