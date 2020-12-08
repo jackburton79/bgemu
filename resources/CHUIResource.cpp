@@ -118,6 +118,9 @@ CHUIResource::GetWindow(uint16 id)
 			if (control != NULL)
 				newWindow->Add(Control::CreateControl(control));
 		}
+	} catch (std::exception& e) {
+		newWindow = NULL;
+		std::cerr << "CHUIResource::GetWindow() FAILED: " << e.what() << std::endl;
 	} catch (...) {
 		newWindow = NULL;
 		std::cerr << "CHUIResource::GetWindow() FAILED." << std::endl;

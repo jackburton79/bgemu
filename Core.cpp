@@ -166,7 +166,8 @@ Core::LoadArea(const res_ref& areaName, const char* longName,
 	fCurrentRoom = NULL;
 	try {
 		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
 		return false;
 	}
 
