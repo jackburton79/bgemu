@@ -21,12 +21,7 @@ MemoryStream::MemoryStream(size_t size)
 	fPosition(0),
 	fOwnsBuffer(true)
 {
-	try {
-		fData = new uint8[size];
-	} catch (...) {
-		std::cout << __PRETTY_FUNCTION__ << ": Can't allocate memory!" << std::endl;
-		throw "Cannot allocate memory!";
-	}
+	fData = new uint8[size];
 }
 
 

@@ -75,7 +75,7 @@ Stream*
 Stream::Clone() const
 {
 	std::cerr << "Stream::Clone() not implemented!";
-	throw "Stream::Clone() not implemented!";
+	throw std::runtime_error("Stream::Clone() not implemented!");
 	return NULL;
 }
 
@@ -85,7 +85,7 @@ Stream*
 Stream::Adopt()
 {
 	std::cerr << "Stream::Adopt() not implemented!";
-	throw "Stream::Adopt() not implemented!";
+	throw std::runtime_error("Stream::Adopt() not implemented!");
 	return NULL;
 }
 

@@ -80,7 +80,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	fArea = gResManager->GetARA(Name());
 	if (fArea == NULL)
-		throw "CANNOT LOAD AREA";
+		throw std::runtime_error("CANNOT LOAD AREA");
 
 	_InitWed(fArea->WedName().CString());
 
@@ -91,7 +91,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		// TODO: Delete other loaded stuff
 		gResManager->ReleaseResource(fArea);
 		fArea = NULL;
-		throw "CANNOT LOAD GUIW";
+		throw std::runtime_error("CANNOT LOAD GUIW");
 	}
 
 	gui->ShowWindow(uint16(-1));

@@ -63,7 +63,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	uint16 lastMouseY = 0;
 	if (!GUI::Initialize(GraphicsEngine::Get()->ScreenFrame().w,
 						 GraphicsEngine::Get()->ScreenFrame().h)) {
-		throw std::string("Initializing GUI failed");
+		throw std::runtime_error("Initializing GUI failed");
 	}
 
 	GFX::rect screenRect = GraphicsEngine::Get()->ScreenFrame();
@@ -101,7 +101,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 				}
 			}
 		} catch (...) {
-			throw std::string("Error creating player!");
+			throw std::runtime_error("Error creating player!");
 		}
 		if (noNewGame)
 			Core::Get()->LoadWorldMap();

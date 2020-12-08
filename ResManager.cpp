@@ -87,7 +87,7 @@ ResourceManager::ResourceManager(const char* path)
 
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
-		throw "Cannot find key file";
+		throw std::runtime_error("Cannot find key file");
 
 	if (fDebugLevel > 0)
 		key->Dump(); 
@@ -274,9 +274,9 @@ ResourceManager::GetKEY(const char *name)
 		archive = Archive::Create(path.c_str());
 		// TODO: Throw an useful exception instead
 		if (archive == NULL)
-			throw -1;
+			throw std::runtime_error("GetKey: cannot open key archive file!");
 		if (key->Load(archive, 0) == false)
-			throw -1;
+			throw std::runtime_error("GetKey: cannot load key file!");
 		if (fDebugLevel > 0)
 			std::cout << "OK!" << std::endl;
 	} catch (...) {
@@ -520,7 +520,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	Path pathName(fResourcesPath);
 	if (pathName.InitCheck() != 0) {
 		std::cerr << "Invalid path" << std::endl;
-		throw "Invalid path";
+		throw std::runtime_error("Invalid path");
 	}
 	
 	// TODO: Introduce the concept of a "current cd"
@@ -785,7 +785,7 @@ Dialogs()
 	if (sDialogs == NULL) {
 		sDialogs = gResManager->GetTLK(kDialogResource);
 		if (sDialogs == NULL)
-			throw -1;
+			throw std::runtime_error("Cannot load dialog resource!");
 	}
 	return sDialogs;
 }

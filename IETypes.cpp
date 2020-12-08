@@ -99,7 +99,7 @@ res_extension(int type)
 			return kResourceTypes[i].extension.c_str();
 	}
 
-	throw "Unknown resource!";
+	throw std::runtime_error("Unknown resource!");
 	return NULL;
 }
 
@@ -115,7 +115,7 @@ res_string_to_type(const char* string)
 			return kResourceTypes[i].type;
 		}
 	}
-	throw "Unknown Extension";
+	throw std::runtime_error("Unknown Extension");
 	return -1;	
 }
 

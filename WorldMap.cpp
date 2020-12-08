@@ -40,7 +40,7 @@ WorldMap::WorldMap()
 	gui->Clear();
 	
 	if (!gui->Load("GUIWMAP")) {
-		throw "Cannot load GUIWMAP";
+		throw std::runtime_error("Cannot load GUIWMAP");
 	}
 
 	gui->ShowWindow(0);
@@ -55,7 +55,7 @@ WorldMap::WorldMap()
 	fWorldMapBackground = gResManager->GetMOS(entry.background_mos);
 	if (fWorldMapBackground == NULL) {
 		gResManager->ReleaseResource(fWorldMap);
-		throw "Cannot load World map bitmap";
+		throw std::runtime_error("Cannot load World map bitmap");
 	}
 	fWorldMapBitmap = fWorldMapBackground->Image();
 	_LoadAreaEntries();

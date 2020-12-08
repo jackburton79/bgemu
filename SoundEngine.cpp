@@ -19,7 +19,7 @@ SoundEngine::SoundEngine()
 	fPlaying(false)
 {
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
-		throw "Error while initializing SDL Sound System";
+		throw std::runtime_error("Error while initializing SDL Sound System");
 }
 
 
@@ -211,7 +211,7 @@ SoundBuffer::AddSample(sint16 sample)
 		fBufferPos = 0;
 
 	if (fBufferPos == fConsumedPos)
-		throw "Buffer Overflow";
+		throw std::runtime_error("Buffer Overflow");
 }
 
 

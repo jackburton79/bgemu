@@ -5,7 +5,7 @@
 FileStream::FileStream(const char *filename, int mode)
 {		
 	if (!SetTo(filename, mode))
-		throw -1;
+		throw std::runtime_error("FileStream creation error");
 }
 
 
@@ -114,7 +114,7 @@ FileStream::ReadByte()
 	uint8 result;
 	
 	if (fread(&result, 1, 1, fFileHandle) != 1)
-		throw -1;
+		throw std::runtime_error("ReadByte() error");
 		
 	return result;
 }
@@ -135,7 +135,7 @@ FileStream::ReadWordLE(void)
 {
 	uint16 result;
 	if (fread(&result, sizeof(result), 1, fFileHandle) != sizeof(result))
-		throw -1;
+		throw std::runtime_error("ReadWordLE() read error");
 	return result;
 }
 
@@ -155,7 +155,7 @@ FileStream::ReadDWordLE(void)
 {
 	uint32 result;
 	if (fread(&result, sizeof(result), 1, fFileHandle) != sizeof(result))
-		throw -1;
+		throw std::runtime_error("ReadDWordLE() read error");
 	return result;
 }
 
