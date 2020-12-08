@@ -854,7 +854,7 @@ node::Create(int type, const char *string)
 			newNode = new trigger_node;
 			break;
 		case BLOCK_OBJECT:
-			throw std::string("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
+			throw std::runtime_error("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
 			break;
 		case BLOCK_ACTION:
 			newNode = new action_node;

@@ -69,7 +69,7 @@ Script::Script(node* rootNode)
 	fCurrentNode(NULL)
 {
 	if (rootNode == NULL)
-		throw "Script::Script(): root node is NULL";
+		throw std::runtime_error("Script::Script(): root node is NULL");
 
 	fRootNode->next = NULL;
 }
