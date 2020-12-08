@@ -610,7 +610,7 @@ Parser::_FixNode(::node* node)
 {
 	StringStream stream(node->value);
 	Tokenizer tokenizer(&stream, 0);
-	tokenizer.SetDebug(true);
+	//tokenizer.SetDebug(true);
 	switch (node->type) {
 		case BLOCK_TRIGGER:
 			_ReadTriggerBlock(&tokenizer, node);
