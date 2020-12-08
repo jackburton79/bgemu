@@ -25,8 +25,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <SDL.h>
-
 
 WorldMap::WorldMap()
 	:
@@ -58,6 +56,8 @@ WorldMap::WorldMap()
 		throw std::runtime_error("Cannot load World map bitmap");
 	}
 	fWorldMapBitmap = fWorldMapBackground->Image();
+	std::cout << "World map bitmap rect:" << std::endl;
+	fWorldMapBitmap->Frame().Print();
 	_LoadAreaEntries();
 
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {

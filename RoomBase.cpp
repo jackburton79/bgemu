@@ -12,8 +12,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <SDL.h>
-
 
 RoomBase::RoomBase()
 	:

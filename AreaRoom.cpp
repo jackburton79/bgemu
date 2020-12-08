@@ -45,7 +45,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <SDL.h>
 
 static int sSelectedActorRadius = 20;
 static int sSelectedActorRadiusStep = 1;
