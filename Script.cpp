@@ -1398,11 +1398,17 @@ Script::_PrintNode(node* n) const
 	//PrintHeader(*n);
 	//IndentMore();
 	
-	if (n->type == BLOCK_TRIGGER)
-		std::cout << "IF" << std::endl;
-	else if (n->type == BLOCK_ACTION)
-		std::cout << "THEN" << std::endl;
-
+	if (n->type == BLOCK_TRIGGER) {
+		if (n->parent->children.front() == n)
+			std::cout << "IF" << std::endl;
+		else
+			std::cout << "AND/OR" << std::endl;
+	} else if (n->type == BLOCK_ACTION) {
+		if (n->parent->children.front() == n) {
+			std::cout << "THEN" << std::endl;
+			std::cout << " (probability: " << ((response_node*)(n->parent))->probability << ")" << std::endl;
+		}
+	}
 	if (n->type == BLOCK_TRIGGER || n->type == BLOCK_ACTION)
 		PrintIndentation(4);
 	n->Print();
