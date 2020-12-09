@@ -95,12 +95,10 @@ Stream::Dump()
 {
 	off_t oldPos = Position();
 	Seek(0, SEEK_SET);
-	ssize_t read;
-	char buffer[1024];
-	while ((read = Read(buffer, 1024)) > 0) {
-		if (read < 1024)
-			buffer[read] = '\0';
-		std::cout << buffer;
+	uint8 byte;
+	while (true) {
+		byte = ReadByte();
+		std::cout << byte;
 	}
 
 	Seek(oldPos, SEEK_SET);
