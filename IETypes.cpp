@@ -452,6 +452,7 @@ window::Print() const
 	std::cout << "position: " << x << ", " << y << std::endl;
 	std::cout << "size: " << w << ", " << h << std::endl;
 	std::cout << "has background ? " << (background ? "YES" : "NO") << std::endl;
+	std::cout << "num_controls: " << num_controls << std::endl;
 	std::cout << "control offset: " << control_offset << std::endl;
 	if (background)
 		std::cout << "background: " << background_mos << std::endl;
