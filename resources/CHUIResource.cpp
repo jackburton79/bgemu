@@ -146,8 +146,31 @@ CHUIResource::Dump()
 					+ (window.control_offset + controlIndex)
 					* sizeof(controlTable), controlTable);
 			IE::control* control = _ReadControl(controlTable);
-			if (control != NULL)
-				control->Print();
+			if (control != NULL) {
+				switch (control->type) {
+					case IE::CONTROL_BUTTON:
+						((IE::button*)control)->Print();
+						break;
+					case IE::CONTROL_LABEL:
+						((IE::label*)control)->Print();
+						break;
+					case IE::CONTROL_TEXTAREA:
+						((IE::text_area*)control)->Print();
+						break;
+					case IE::CONTROL_SLIDER:
+						((IE::slider*)control)->Print();
+						break;
+					case IE::CONTROL_SCROLLBAR:
+						((IE::scrollbar*)control)->Print();
+						break;
+					case IE::CONTROL_TEXTEDIT:
+						((IE::text_edit*)control)->Print();
+						break;
+					default:
+						control->Print();
+						break;
+				}
+			}
 		}
 	}
 }
