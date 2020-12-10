@@ -135,6 +135,7 @@ void
 CHUIResource::Dump()
 {
 	IE::window window;
+	std::cout << Name() << ": " << fNumWindows << " windows" << std::endl;
 	for (uint32 n = 0; n < fNumWindows; n++) {
 		fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
 		window.Print();
