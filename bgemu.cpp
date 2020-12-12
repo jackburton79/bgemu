@@ -39,7 +39,6 @@ ParseScreenGeometry(char* string)
 {
 	char* rest = NULL;
 	sScreenWidth = ::strtoul(string, &rest, 10);
-	std::cout << sScreenWidth << std::endl;
 	sScreenHeight = ::strtoul(rest + 1, NULL, 10);
 }
 
