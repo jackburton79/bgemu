@@ -75,7 +75,7 @@ Core::Initialize(const char* path)
 
 	std::cout << "Core::Initialize()" << std::endl;
 	if (path == NULL || path[0] == 0) {
-		std::cerr << "Core::Initialize(): No path supplied" << std::endl;
+		std::cerr << RED("Core::Initialize(): No path supplied") << std::endl;
 		return false;
 	}
 		
