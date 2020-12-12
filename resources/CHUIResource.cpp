@@ -140,11 +140,7 @@ CHUIResource::Dump()
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
 			//std::cout << "Control " << controlIndex << ":" << std::endl;
-			control_table controlTable;
-			fData->ReadAt(fControlTableOffset
-					+ (window.control_offset + controlIndex)
-					* sizeof(controlTable), controlTable);
-			IE::control* control = _ReadControl(controlTable);
+			IE::control* control = _ReadControl(window, controlIndex);
 			if (control != NULL) {
 				switch (control->type) {
 					case IE::CONTROL_BUTTON:
