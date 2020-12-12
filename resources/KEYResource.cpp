@@ -30,13 +30,12 @@ KEYResource::KEYResource(const res_ref &name)
 /* virtual */
 KEYResource::~KEYResource()
 {
-
 }
 
 
 /* virtual */
 bool
-KEYResource::Load(Archive *archive, uint32 key)
+KEYResource::Load(Archive* archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
@@ -113,6 +112,10 @@ KEYResource::GetResEntryAt(uint32 index)
 			// and this causes all kinds of problems. Investigate
 			throw std::runtime_error("GetResEntryAt(): unnamed resource!");
 		}
+	} catch (std::exception& e) {
+		std::cerr << "GetResEntryAt(): " << e.what() << std::endl;
+		delete entry;
+		entry = NULL;
 	} catch (...) {
 		delete entry;
 		entry = NULL;
