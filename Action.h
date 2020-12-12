@@ -309,8 +309,6 @@ class ActionChangeOrientationExt : public Action {
 public:
 	ActionChangeOrientationExt(Object* object, action_node* node);
 	virtual void operator()();
-private:
-	int fOrientation;
 };
 
 
