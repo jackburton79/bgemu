@@ -4,6 +4,7 @@
 #include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "Log.h"
 #include "MemoryStream.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -119,7 +120,7 @@ IE::door*
 ARAResource::DoorAt(uint32 index)
 {
 	if (index > fNumDoors) {
-		printf("Requested wrong door.\n");
+		std::cerr << RED("ARAResource::DoorAt(): Requested wrong door") << std::endl;
 		return NULL;
 	}
 
