@@ -108,7 +108,7 @@ ResourceManager::ResourceManager(const char* path)
 		} else {
 			// TODO: There are some unnamed entries in BG2.
 			// Check KeyResource.cpp
-			numResources--;
+			//numResources--;
 		}
 	}
 
