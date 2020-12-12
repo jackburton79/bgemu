@@ -1,7 +1,9 @@
+#include "Resource.h"
+
 #include "Archive.h"
 #include "FileStream.h"
+#include "Log.h"
 #include "MemoryStream.h"
-#include "Resource.h"
 #include "SupportDefs.h"
 #include "IETypes.h"
 
@@ -61,7 +63,7 @@ Resource::Dump()
 			fData->Dump();
 		}
 	} catch (std::exception& e) {
-		std::cerr << "Resource::Dump() caught exception: " << e.what() << std::endl;
+		std::cerr << RED("Resource::Dump() caught exception: ") << RED(e.what()) << std::endl;
 	}
 }
 
@@ -176,10 +178,10 @@ Resource::Create(const res_ref& name, const uint16& type)
 		resource_creation_func creationFunction = get_resource_create(type);		
 		res = creationFunction(name);
 	} catch (std::exception& e) {
-		std::cerr << "Resource::Create(): " << e.what() << std::endl;
+		std::cerr << RED("Resource::Create(): ") << RED(e.what()) << std::endl;
 		res = NULL;
 	} catch (...) {
-		std::cerr << "Resource::Create(): exception thrown!" << std::endl;
+		std::cerr << RED("Resource::Create(): exception thrown!") << std::endl;
 		res = NULL;
 	}
 
