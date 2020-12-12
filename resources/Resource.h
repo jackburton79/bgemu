@@ -30,8 +30,8 @@ protected:
 	static Resource* Create(const res_ref& name, const uint16& type,
 		const uint32& key, Archive* archive);
 
-	bool CheckSignature(const char *signature, bool dontWorry = false);
-	bool CheckVersion(const char *version, bool dontWorry = false);
+	bool CheckSignature(const char *signature);
+	bool CheckVersion(const char *version);
 	
 	bool ReplaceData(Stream *stream);
 	void DropData();

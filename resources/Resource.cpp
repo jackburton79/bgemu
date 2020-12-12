@@ -60,10 +60,8 @@ Resource::Dump()
 			std::cout << Name() << ": size: " << fData->Size() << std::endl;
 			fData->Dump();
 		}
-	} catch (const char* string) {
-		std::cerr << "Resource::Dump() caught exception: " << string << std::endl;
-	} catch (...) {
-		std::cerr << "Resource::Dump() caught exception." << std::endl;
+	} catch (std::exception& e) {
+		std::cerr << "Resource::Dump() caught exception: " << e.what() << std::endl;
 	}
 }
 
@@ -98,7 +96,7 @@ Resource::Name() const
 
 
 bool
-Resource::CheckSignature(const char *signature, bool dontWorry)
+Resource::CheckSignature(const char *signature)
 {
 	char array[5];
 	array[4] = '\0';
@@ -107,10 +105,8 @@ Resource::CheckSignature(const char *signature, bool dontWorry)
 		return false;
 
 	if (strcmp(array, signature) != 0) {
-		if (!dontWorry) {
-			//printf("invalid signature %s (expected %s)\n",
-				//	array, signature);
-		}
+		std::cerr << "CheckSignature: expected " << signature;
+		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
 		return false;
 	}
 
@@ -119,7 +115,7 @@ Resource::CheckSignature(const char *signature, bool dontWorry)
 
 
 bool
-Resource::CheckVersion(const char *version, bool dontWorry)
+Resource::CheckVersion(const char *version)
 {
 	char array[5];
 	array[4] = '\0';
@@ -128,10 +124,8 @@ Resource::CheckVersion(const char *version, bool dontWorry)
 		return false;
 
 	if (strcmp(array, version) != 0) {
-		if (!dontWorry) {
-			printf("invalid version %s (expected %s)\n",
-				array, version);
-		}
+		std::cerr << "CheckVersion: expected " << version;
+		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
 		return false;
 	}
 

@@ -47,11 +47,11 @@ TWODAResource::Load(Archive* archive, uint32 key)
 		ReplaceData(newStream);
 	}
 
-	if (CheckSignature(TWODA_SIGNATURE, true)) {
+	if (CheckSignature(TWODA_SIGNATURE)) {
 		fData->Seek(4, SEEK_CUR);
 	}
 
-	if (CheckVersion(TWODA_VERSION_1, true)) {
+	if (CheckVersion(TWODA_VERSION_1)) {
 		fData->Seek(4, SEEK_CUR);
 	}
 

@@ -43,8 +43,8 @@ TISResource::Load(Archive *archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
-	if (CheckSignature(TIS_SIGNATURE, true)) {
-		if (CheckVersion(TIS_VERSION_1, true))
+	if (CheckSignature(TIS_SIGNATURE)) {
+		if (CheckVersion(TIS_VERSION_1))
 			fDataOffset = kDataOffset;
 	}
 	return true;
