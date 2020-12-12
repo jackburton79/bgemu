@@ -31,5 +31,3 @@ Archive::Create(const char *path)
 	}
 	return archive;
 }
-
-

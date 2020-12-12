@@ -98,13 +98,14 @@ Resource::Name() const
 bool
 Resource::CheckSignature(const char* signature)
 {
-	char array[5];
-	array[4] = '\0';
+	char array[32];
 
-	if (fData->ReadAt(0, array, 4) != 4)
+	ssize_t len = ::strlen(signature);
+	if (fData->ReadAt(0, array, len) != len)
 		return false;
 
-	if (strcmp(array, signature) != 0) {
+	array[len] = '\0';
+	if (strncmp(array, signature, len) != 0) {
 		std::cerr << "CheckSignature: expected " << signature;
 		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
 		return false;
@@ -117,12 +118,13 @@ Resource::CheckSignature(const char* signature)
 bool
 Resource::CheckVersion(const char* version)
 {
-	char array[5];
-	array[4] = '\0';
+	char array[32];
 
-	if (fData->ReadAt(4, array, 4) != 4)
+	ssize_t len = ::strlen(version);
+	if (fData->ReadAt(4, array, len) != len)
 		return false;
 
+	array[len] = '\0';
 	if (strcmp(array, version) != 0) {
 		std::cerr << "CheckVersion: expected " << version;
 		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
