@@ -852,7 +852,11 @@ IDTable::AniSndAt(uint32 i)
 			sAniSnd->Acquire();
 		}
 	}
-	return sAniSnd->StringForID(i);
+	std::string string = sAniSnd->StringForID(i);
+	// lines are like
+	// 28928 = MBAS     CGAMEANIMATIONTYPE_BASILISK
+	// so truncate at first space
+	return string.substr(0, string.find(' '));
 }
 
 
