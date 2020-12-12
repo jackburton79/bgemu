@@ -151,11 +151,11 @@ Script::GetTriggerObject(const Object* object, trigger_node* start)
 Object*
 Script::GetSenderObject(const Object* object, action_node* start)
 {
-	std::cout << "FindSenderObject: objects:" << std::endl;
+	/*std::cout << "FindSenderObject: objects:" << std::endl;
 	start->First()->Print();
 	start->Second()->Print();
 	start->Third()->Print();
-
+*/
 	object_params* objectNode = start->First();
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)

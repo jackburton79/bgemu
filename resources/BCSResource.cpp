@@ -1,4 +1,6 @@
 #include "BCSResource.h"
+
+#include "Log.h"
 #include "MemoryStream.h"
 #include "Parsing.h"
 #include "Script.h"
@@ -54,7 +56,8 @@ BCSResource::GetScript() const
 		// Takes ownership of the node tree.
 		script = new Script(rootNode);
 
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << RED(e.what()) << std::endl;
 		script = NULL;
 	}
 

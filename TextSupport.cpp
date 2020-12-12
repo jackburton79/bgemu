@@ -12,7 +12,6 @@
 #include "Path.h"
 #include "ResManager.h"
 
-
 #include <algorithm>
 #include <limits.h>
 

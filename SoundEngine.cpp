@@ -6,6 +6,9 @@
  */
 
 #include "SoundEngine.h"
+
+#include "Log.h"
+
 #include "SDL.h"
 
 #include <algorithm>
@@ -41,11 +44,11 @@ SoundEngine::Initialize()
 		if (sSoundEngine == NULL)
 			sSoundEngine = new SoundEngine();
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		std::cout << "Failed!" << std::endl;
+		std::cerr << RED(e.what()) << std::endl;
+		std::cout << RED("Failed!") << std::endl;
 		return false;
 	}
-	std::cout << "OK!" << std::endl;
+	std::cout << GREEN("OK!") << std::endl;
 	return true;
 }
 
@@ -88,8 +91,8 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 	audioSpec.userdata = this;
 
 	if (SDL_OpenAudio(&audioSpec, NULL) < 0 ) {
-		std::cerr << "Unable to open audio: ";
-		std::cerr << SDL_GetError() << std::endl;
+		std::cerr << RED("Unable to open audio: ");
+		std::cerr << RED(SDL_GetError()) << std::endl;
 		delete fBuffer;
 		fBuffer = NULL;
 		return false;

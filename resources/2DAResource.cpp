@@ -6,6 +6,7 @@
  */
 
 #include "2DAResource.h"
+
 #include "EncryptedStream.h"
 #include "MemoryStream.h"
 
@@ -108,7 +109,7 @@ std::string
 TWODAResource::ValueFor(const char* rowValue, const char* columnValue) const
 {
 	const char* value = columnValue ? columnValue : "";
-	std::cout << "ValueFor:" << rowValue << " " << value << std::endl;
+	//std::cout << "ValueFor:" << rowValue << " " << value << std::endl;
 	//StringMap::iterator i = fMap.find(std::make_pair(rowValue, value));
 	return fMap.at(std::make_pair(rowValue, value));
 }
