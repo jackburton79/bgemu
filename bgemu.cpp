@@ -95,7 +95,7 @@ main(int argc, char **argv)
 	}
 	
 	if (!Core::Initialize(sPath)) {
-		std::cerr << "Failed to initialize Core!" << std::endl;
+		std::cerr << RED("Failed to initialize Core!") << std::endl;
 		return -1;
 	}
 

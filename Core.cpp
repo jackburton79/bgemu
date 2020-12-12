@@ -12,6 +12,7 @@
 #include "Game.h"
 #include "GUI.h"
 #include "IDSResource.h"
+#include "Log.h"
 #include "MveResource.h"
 #include "Party.h"
 #include "RectUtils.h"
@@ -106,7 +107,7 @@ Core::Initialize(const char* path)
 
 	_InitGameTimers();
 
-	std::cout << "Core::Initialize(): OK! " << std::endl;
+	std::cout << GREEN("Core::Initialize(): OK!") << std::endl;
 	return true;
 }
 
@@ -167,7 +168,7 @@ Core::LoadArea(const res_ref& areaName, const char* longName,
 	try {
 		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << RED(e.what()) << std::endl;
 		return false;
 	}
 
@@ -184,7 +185,8 @@ Core::LoadWorldMap()
 	fCurrentRoom = NULL;
 	try {
 		fCurrentRoom = new WorldMap();
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << RED("Core::LoadWorldMap: ") << RED(e.what()) << std::endl;
 		return false;
 	}
 

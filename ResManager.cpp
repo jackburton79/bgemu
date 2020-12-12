@@ -14,6 +14,7 @@
 #include "ITMResource.h"
 #include "IETypes.h"
 #include "KEYResource.h"
+#include "Log.h"
 #include "MOSResource.h"
 #include "MveResource.h"
 #include "ResManager.h"
@@ -184,7 +185,7 @@ ResourceManager::Initialize(const char *path)
 		if (gResManager == NULL)
 			gResManager = new ResourceManager(path);
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << RED(e.what()) << std::endl;
 		return false;
 	}
 	return true;
@@ -226,9 +227,9 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 
 	KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
-		std::cerr << kComponentName << "GetResource(";
-		std::cerr << name.CString() << ", " << strresource(type);
-		std::cerr << "): Resource does not exist!" << std::endl;
+		std::cerr << RED(kComponentName) << RED("GetResource(");
+		std::cerr << RED(name.CString()) << RED(", ") << RED(strresource(type));
+		std::cerr << RED("): Resource does not exist!") << std::endl;
 		return NULL;
 	}
 
@@ -278,7 +279,7 @@ ResourceManager::GetKEY(const char *name)
 	if (key->Load(archive, 0) == false)
 		throw std::runtime_error("GetKey: cannot load key file!");
 	if (fDebugLevel > 0)
-		std::cout << "OK!" << std::endl;
+		std::cout << GREEN("OK!") << std::endl;
 
 	delete archive;
 
@@ -302,11 +303,11 @@ ResourceManager::GetTLK(const char* name)
 
 		tlk->Acquire();
 		if (fDebugLevel > 0)
-			std::cout << "OK!" << std::endl;
+			std::cout << GREEN("OK!") << std::endl;
 	} catch (std::exception& e) {
 		if (fDebugLevel > 0)
-			std::cout << "FAILED!";
-		std::cerr << e.what() << std::endl;
+			std::cout << RED("FAILED!");
+		std::cerr << RED(e.what()) << std::endl;
 		if (tlk->Release())
 			delete tlk;
 		tlk = NULL;
@@ -490,7 +491,6 @@ int32
 ResourceManager::GetResourceList(std::vector<std::string>& strings,
 		const char* query, uint16 type) const
 {
-	//std::cout << "GetResourceList(" << query << "):" << std::endl;
 	resource_map::const_iterator iter;
 	const int32 queryLen = strlen(query);
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
@@ -513,10 +513,8 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	//std::cout << std::hex << location << ")" << std::endl;
 
 	Path pathName(fResourcesPath);
-	if (pathName.InitCheck() != 0) {
-		std::cerr << "Invalid path" << std::endl;
+	if (pathName.InitCheck() != 0)
 		throw std::runtime_error("Invalid path");
-	}
 	
 	// TODO: Introduce the concept of a "current cd"
 	// although since the game is fully installed it doesn't
@@ -583,11 +581,11 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 		archive = Archive::Create(fullPath.c_str());
 		if (archive == NULL) {
 			if (fDebugLevel > 0)
-				std::cout << "FAILED!" << std::endl;
+				std::cout << RED("FAILED!") << std::endl;
 			return NULL;
 		}
 		if (fDebugLevel > 0)
-			std::cout << "OK!" << std::endl;
+			std::cout << GREEN("OK!") << std::endl;
 		fArchives[archiveName] = archive;
 	}
 
@@ -595,7 +593,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 										entry.key, archive);
 	if (resource == NULL) {
 		if (fDebugLevel > 0)
-			std::cout << kComponentName << "FAILED Loading resource!" << std::endl;
+			std::cout << RED(kComponentName) << RED("FAILED Loading resource!") << std::endl;
 		delete resource;
 		return NULL;
 	}
@@ -669,7 +667,7 @@ ResourceManager::PrintResources(int32 type)
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		KeyResEntry *res = iter->second;
 		if (res == NULL) {
-			std::cerr << "KeyResEntry is NULL. SHOULD NOT HAPPEN! ";
+			std::cerr << RED("KeyResEntry is NULL. SHOULD NOT HAPPEN! ");
 			std::cerr << iter->first.name << " (";
 			std::cerr << iter->first.type << " )" << std::endl;
 			abort();
@@ -994,4 +992,3 @@ IDTable::TimesOfDayAt(uint32 i)
 		sTimeOfDays = gResManager->GetIDS("TIMEODAY");
 	return sTimeOfDays->StringForID(i);
 }
-
