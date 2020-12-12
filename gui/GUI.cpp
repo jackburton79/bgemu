@@ -180,10 +180,8 @@ GUI::Draw()
 			const Bitmap* nextFrame = fCurrentCursor->NextBitmap();
 			GFX::rect rect(fCursorPosition.x, fCursorPosition.y, 0, 0);
 			GraphicsEngine::Get()->BlitToScreen(nextFrame, NULL, &rect);
-		} catch (const char* string) {
-			std::cerr << "GUI::Draw(): " << string << std::endl;
-		} catch (...) {
-			// ...
+		} catch (std::exception& e) {
+			std::cerr << "GUI::Draw(): " << e.what() << std::endl;
 		}
 	}
 }

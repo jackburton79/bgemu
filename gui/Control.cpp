@@ -5,10 +5,10 @@
  *      Author: stefano
  */
 
+#include "Control.h"
+
 #include "Button.h"
 #include "GraphicsDefs.h"
-
-#include "Control.h"
 #include "GUI.h"
 #include "Label.h"
 #include "RoomBase.h"
