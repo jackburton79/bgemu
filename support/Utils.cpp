@@ -9,19 +9,24 @@
 #include <string>
 #include <string.h>
 
+#include <iostream>
 
 const char*
 trim(char* string)
 {
+	std::cout << "before trim: " << string << std::endl;
 	while (isspace(*string))
 		string++;
 
-	char* endOfString = string;
-	while (!isspace(*endOfString) && *endOfString != '\0')
-		endOfString++;
+	ssize_t length = ::strlen(string);
+	char* endOfString = string + length - 1;
+	while (isspace(*endOfString))
+		endOfString--;
 
-	*endOfString = '\0';
+	endOfString++;
+	*endOfString  = '\0';
 
+	std::cout << "after trim: " << string << std::endl;
 	return string;
 }
 
