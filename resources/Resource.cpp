@@ -173,6 +173,9 @@ Resource::Create(const res_ref &name, const uint16& type)
 	try {
 		resource_creation_func creationFunction = get_resource_create(type);		
 		res = creationFunction(name);
+	} catch (std::exception& e) {
+		std::cerr << "Resource::Create(): " << e.what() << std::endl;
+		res = NULL;
 	} catch (...) {
 		std::cerr << "Resource::Create(): exception thrown!" << std::endl;
 		res = NULL;
