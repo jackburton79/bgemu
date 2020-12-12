@@ -8,7 +8,7 @@
 #include <cstdio>
 
 
-Resource::Resource(const res_ref &name, const uint16 &type)
+Resource::Resource(const res_ref& name, const uint16& type)
 	:
 	Referenceable(0),
 	fData(NULL),
@@ -26,7 +26,7 @@ Resource::~Resource()
 
 
 bool
-Resource::Load(Archive *archive, uint32 key)
+Resource::Load(Archive* archive, uint32 key)
 {
 	fKey = key;
 
@@ -67,7 +67,7 @@ Resource::Dump()
 
 
 void
-Resource::DumpToFile(const char *fileName)
+Resource::DumpToFile(const char* fileName)
 {
 	if (fData != NULL)
 		fData->DumpToFile(fileName);
@@ -96,7 +96,7 @@ Resource::Name() const
 
 
 bool
-Resource::CheckSignature(const char *signature)
+Resource::CheckSignature(const char* signature)
 {
 	char array[5];
 	array[4] = '\0';
@@ -115,7 +115,7 @@ Resource::CheckSignature(const char *signature)
 
 
 bool
-Resource::CheckVersion(const char *version)
+Resource::CheckVersion(const char* version)
 {
 	char array[5];
 	array[4] = '\0';
@@ -134,7 +134,7 @@ Resource::CheckVersion(const char *version)
 
 
 bool
-Resource::ReplaceData(Stream *stream)
+Resource::ReplaceData(Stream* stream)
 {
 	delete fData;
 	fData = stream;
@@ -167,9 +167,9 @@ Resource::IsEncrypted()
 
 /* static */
 Resource*
-Resource::Create(const res_ref &name, const uint16& type)
+Resource::Create(const res_ref& name, const uint16& type)
 {
-	Resource *res = NULL;
+	Resource* res = NULL;
 	try {
 		resource_creation_func creationFunction = get_resource_create(type);		
 		res = creationFunction(name);
