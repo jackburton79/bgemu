@@ -14,7 +14,6 @@
 const char*
 trim(char* string)
 {
-	std::cout << "before trim: " << string << std::endl;
 	while (isspace(*string))
 		string++;
 
@@ -26,7 +25,6 @@ trim(char* string)
 	endOfString++;
 	*endOfString  = '\0';
 
-	std::cout << "after trim: " << string << std::endl;
 	return string;
 }
 
