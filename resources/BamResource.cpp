@@ -1,7 +1,9 @@
 #include "BamResource.h"
+
 #include "Bitmap.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "Log.h"
 #include "MemoryStream.h"
 #include "Path.h"
 #include "IETypes.h"
@@ -93,7 +95,8 @@ BAMResource::Load(Archive *archive, uint32 key)
 
 	try {
 		_Load();
-	} catch (...) {
+	} catch (std::exception& e) {
+		std::cerr << RED(e.what()) << std::endl;
 		return false;
 	}
 	return true;
@@ -248,7 +251,7 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";
 	//std::cout << "Frame " << (int)frameIndex << std::endl;
 	if (cycleIndex >= fNumCycles) {
-		std::cerr << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
+		std::cerr << RED("BAMResource::FrameForCycle(): out of bounds!") << std::endl;
 		return NULL;
 	}
 
