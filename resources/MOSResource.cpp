@@ -5,10 +5,11 @@
  *      Author: stefano
  */
 
+#include "MOSResource.h"
+
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "MemoryStream.h"
-#include "MOSResource.h"
 #include "ZLibDecompressor.h"
 
 #define MOS_SIGNATURE "MOS "
@@ -25,7 +26,7 @@ MOSResource::Create(const res_ref& name)
 }
 
 
-MOSResource::MOSResource(const res_ref &name)
+MOSResource::MOSResource(const res_ref& name)
 	:
 	Resource(name, RES_MOS),
 	fWidth(0),
@@ -59,7 +60,7 @@ MOSResource::Load(Archive* archive, uint32 key)
 		uint32 len;
 		fData->ReadAt(8, len);
 		size_t decompressedSize = len;
-		uint8 *decompressedData = new uint8[decompressedSize];
+		uint8* decompressedData = new uint8[decompressedSize];
 		status_t status = ZLibDecompressor::DecompressBuffer(
 							(uint8*)fData->Data() + std::ptrdiff_t(12),
 							fData->Size() - 12, decompressedData, decompressedSize);
@@ -147,13 +148,17 @@ MOSResource::TileAt(uint32 index)
 		fData->Seek(fPixelDataOffset + tileOffset, SEEK_SET);
 
 		for (int y = 0; y < yBlockSize; y++) {
-			uint8 *pixels = (uint8*)tileBitmap->Pixels() + y * tileBitmap->Pitch();
+			uint8* pixels = (uint8*)tileBitmap->Pixels() + y * tileBitmap->Pitch();
 			for (int x = 0; x < xBlockSize; x++) {
 				uint8 pixel = fData->ReadByte();
 				pixels[x] = pixel;
 			}
 		}
 		tileBitmap->SetPalette(palette);
+	} catch (std::exception& e) {
+		std::cerr << "MOSResource::TileAt()" << e.what() << std::endl;
+		tileBitmap->Release();
+		tileBitmap = NULL;
 	} catch (...) {
 		tileBitmap->Release();
 		tileBitmap = NULL;

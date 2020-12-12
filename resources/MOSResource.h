@@ -10,6 +10,7 @@
 
 #include "Resource.h"
 
+class Bitmap;
 class MOSResource : public Resource {
 public:
 	MOSResource(const res_ref &name);
