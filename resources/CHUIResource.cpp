@@ -112,7 +112,7 @@ CHUIResource::GetWindow(uint16 id)
 		std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
-			std::cout << "Control " << controlIndex << ":" << std::endl;
+			//std::cout << "Control " << controlIndex << ":" << std::endl;
 			IE::control* control = _ReadControl(window, controlIndex);
 			if (control != NULL)
 				newWindow->Add(Control::CreateControl(control));
