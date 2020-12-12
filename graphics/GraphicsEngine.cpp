@@ -5,6 +5,7 @@
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "Listener.h"
+#include "Log.h"
 
 #include <SDL.h>
 
@@ -52,12 +53,12 @@ GraphicsEngine::Initialize()
 	try {
 		sGraphicsEngine = new GraphicsEngine();
 	} catch (...) {
-		std::cout << "Failed!" << std::endl;
+		std::cout << RED("Failed!") << std::endl;
 		sGraphicsEngine = NULL;
 		return false;
 	}
 
-	std::cout << "OK!" << std::endl;
+	std::cout << GREEN("OK!") << std::endl;
 	return true;
 }
 

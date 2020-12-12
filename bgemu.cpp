@@ -1,6 +1,7 @@
 #include "Core.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
+#include "Log.h"
 #include "MovieDecoder.h"
 #include "ResManager.h"
 #include "Script.h"
@@ -89,7 +90,7 @@ main(int argc, char **argv)
 		MovieDecoder decoder;
 		int status = decoder.Test();
 		if (status != 0)
-			std::cerr << "Movie Decoding test failed!" << std::endl;
+			std::cerr << RED("Movie Decoding test failed!") << std::endl;
 		Game::Get()->SetTestMode(true);
 	}
 	
@@ -122,7 +123,7 @@ main(int argc, char **argv)
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();
-		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
+		std::cerr << RED("Failed to initialize Graphics Engine!") << std::endl;
 		return -1;
 	}
 
@@ -132,14 +133,14 @@ main(int argc, char **argv)
 	GraphicsEngine::Get()->SetVideoMode(sScreenWidth, sScreenHeight, 16, flags);
 	
 	if (!SoundEngine::Initialize())
-		std::cerr << "Failed to initialize Sound Engine! Continuing anyway..." << std::endl;
+		std::cerr << RED("Failed to initialize Sound Engine! Continuing anyway...") << std::endl;
 
 	try {
 		Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (std::exception &error) {
-		std::cerr << error.what() << std::endl;
+		std::cerr << RED(error.what()) << std::endl;
 	} catch (...) {
-		std::cerr << "Game Loop exited with unknown error" << std::endl;
+		std::cerr << RED("Game Loop exited with unknown error") << std::endl;
 	}
 	
 	GraphicsEngine::Destroy();
