@@ -38,6 +38,9 @@ DialogState::GetNextState()
 	fState = NULL;
 	fTransitions.clear();
 
+	if (fCurrentTransition != NULL && fCurrentTransition->entry.flags & DLG_TRANSITION_END)
+		return NULL;
+
 	dlg_state nextState;
 	try {
 		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
@@ -102,23 +105,23 @@ DialogState::GetNextValidState()
 void
 DialogState::SelectOption(int32 option)
 {
-	fCurrentTransition = fTransitions.at(option);
-	std::cout << "SelectOption: " << fCurrentTransition.text_player << std::endl;
-	std::cout << "END ? " << ((fCurrentTransition.entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
+	fCurrentTransition = &fTransitions.at(option);
+	std::cout << "SelectOption: " << fCurrentTransition->text_player << std::endl;
+	std::cout << "END ? " << ((fCurrentTransition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
 
 	//if (!(transition.entry.flags & DLG_TRANSITION_END)) {
 		delete fState;
 		fState = NULL;
-		std::cout << "next resource: " << fCurrentTransition.entry.resource_next_state << std::endl;
-		std::cout << "next index: " << fCurrentTransition.entry.index_next_state << std::endl;
-		if (fCurrentTransition.entry.resource_next_state != fResource->Name()) {
+		std::cout << "next resource: " << fCurrentTransition->entry.resource_next_state << std::endl;
+		std::cout << "next index: " << fCurrentTransition->entry.index_next_state << std::endl;
+		if (fCurrentTransition->entry.resource_next_state != fResource->Name()) {
 			gResManager->ReleaseResource(fResource);
 			fResource = NULL;
 			std::cout << "Getting resource..." << std::endl;
-			fResource = gResManager->GetDLG(fCurrentTransition.entry.resource_next_state);
+			fResource = gResManager->GetDLG(fCurrentTransition->entry.resource_next_state);
 		}
 		std::cout << "Getting next state..." << std::endl;
-		fNextStateIndex = fCurrentTransition.entry.index_next_state;
+		fNextStateIndex = fCurrentTransition->entry.index_next_state;
 	//}
 /*
 	if (transition.entry.index_action != -1) {
@@ -155,10 +158,16 @@ DialogState::CountTransitions() const
 }
 
 
-DialogState::Transition&
+DialogState::Transition*
 DialogState::CurrentTransition()
 {
 	return fCurrentTransition;
+}
+
+
+void
+DialogState::HandleTransition(Transition& transition)
+{
 }
 
 

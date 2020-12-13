@@ -49,7 +49,9 @@ public:
 	typedef std::vector<Transition> TransitionList;
 	Transition TransitionAt(int32 index);
 	int32 CountTransitions() const;
-	Transition& CurrentTransition();
+	Transition* CurrentTransition();
+
+	void HandleTransition(Transition& transition);
 
 	DLGResource* Resource();
 	::Actor* Actor();
@@ -60,7 +62,7 @@ private:
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	TransitionList fTransitions;
-	Transition fCurrentTransition;
+	Transition* fCurrentTransition;
 	DLGResource* fResource;
 
 	Transition _GetTransition(int32 num);
