@@ -144,12 +144,13 @@ TextArea::AddText(const char* text)
 
 // TODO: dublicated code with the above function
 void
-TextArea::AddDialogText(const char*, const char* text, int32 dialogOption)
+TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 {
 	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 	const Font* font = FontRoster::GetFont(fontName);
 
-	std::string textString(text);
+	std::string textString(pre);
+	textString.append(text);
 	while (!textString.empty()) {
 		std::string textLine = font->TruncateString(textString, fControl->w);
 		TextLine* newLine = new TextLine();
