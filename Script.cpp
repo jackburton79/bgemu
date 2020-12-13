@@ -771,7 +771,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
 				 * killed by a neutral creature.
 				 */
-				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				Actor* actor = dynamic_cast<Actor*>(Core::Get()->GetObject(trig->string1));
 				if (actor != NULL)
 					returnValue = actor->GetVariable(actor->CRE()->DeathVariable().c_str()) == 1;
 				break;
