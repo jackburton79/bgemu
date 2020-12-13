@@ -159,7 +159,7 @@ MVEResource::Play()
 	char signature[20];
 	fData->Read(signature, 20);
 	signature[18] = '\0';
-	std::cout << signature << std::endl;
+	//std::cout << signature << std::endl;
 	int16 magic[3];
 
 	fData->Read(magic);
@@ -240,7 +240,7 @@ MVEResource::GetNextChunk()
 void
 MVEResource::DecodeChunk(chunk_header header)
 {
-	std::cout << "MVEResource::DecodeChunk(): CHUNK: " << chunktostr(header) << std::endl;
+	//std::cout << "MVEResource::DecodeChunk(): CHUNK: " << chunktostr(header) << std::endl;
 	op_stream_header opHeader;
 	do {
 		fData->Read(opHeader);
@@ -354,10 +354,12 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fData->Read(streamMask);
 			uint16 numSamples;
 			fData->Read(numSamples);
+/*
 			std::cout << "Sequence: " << seqIndex;
 			std::cout << ", mask: " << std::hex << streamMask;
 			std::cout << ", num samples: " << std::dec << numSamples;
 			std::cout << std::endl;
+*/
 			if (streamMask & 0x1) {
 				if (opcode.type == OP_AUDIO_FRAME_DATA)
 					ReadAudioData(fData, numSamples);
@@ -376,16 +378,20 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			break;
 		}
 		case OP_UNKNOWN_13:
+		case OP_UNKNOWN_15:
+			// TODO: ???
 			/*printf("opcode 13:\n");
 			for (int32 c = 0; c < opcode.length; c++) {
 				printf("%d ", fData->ReadByte());
 				if (c != 0 && (c + 1) % 8 == 0) {
 					printf("\n");
 				}
-			}
-			break;*/
+			}*/
+			fData->Seek(opcode.length, SEEK_CUR);
+			break;
 		default:
-			std::cout << "MVEResource::ExecuteOpcode(): Opcode not implemented" << std::endl;
+			std::cerr << "MVEResource::ExecuteOpcode(): Opcode ";
+			std::cerr << std::hex << (int)opcode.type << " not implemented" << std::endl;
 			fData->Seek(opcode.length, SEEK_CUR);
 			break;
 	}
