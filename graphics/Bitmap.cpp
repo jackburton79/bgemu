@@ -478,12 +478,6 @@ Bitmap::MapColor(const uint8 r, const uint8 g, const uint8 b)
 }
 
 
-void
-Bitmap::Update()
-{
-}
-
-
 Bitmap*
 Bitmap::Clone() const
 {

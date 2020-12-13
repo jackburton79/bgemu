@@ -76,8 +76,6 @@ public:
 	bool Lock() const;
 	void Unlock() const;
 
-	void Update();
-
 	Bitmap* Clone() const;
 
 	static Bitmap* Load(const char* fileName);

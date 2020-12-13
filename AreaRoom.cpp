@@ -667,7 +667,6 @@ AreaRoom::_InitBlitMask()
 		}
 	}
 	fBlitMask->Unlock();
-	fBlitMask->Update();
 
 	std::cout << "Done!" << std::endl;
 }
