@@ -213,12 +213,14 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 	std::cerr << std::dec << width << "x" << height << "x" << depth;
 	std::cerr << ", ";
 
-	int SDLWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-	if (flags & VIDEOMODE_FULLSCREEN)
-		SDLWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-	if (SDL_CreateWindowAndRenderer(width, height, SDLWindowFlags,
-			&fSDLWindow, &fSDLRenderer) != 0) {
-		throw std::runtime_error("Cannot Create Window");
+	if (fSDLWindow == NULL) {
+		int SDLWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+		if (flags & VIDEOMODE_FULLSCREEN)
+			SDLWindowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+		if (SDL_CreateWindowAndRenderer(width, height, SDLWindowFlags,
+										&fSDLWindow, &fSDLRenderer) != 0) {
+			throw std::runtime_error("Cannot Create Window");
+		}
 	}
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
