@@ -8,6 +8,7 @@
 
 #include "Timer.h"
 
+#include "Log.h"
 #include "ResManager.h"
 
 #include <sys/time.h>
@@ -101,7 +102,8 @@ Timer::WaitSync(uint32 start, uint32 maxDelay)
 	if (diff > 0)
 		Wait(diff);
 	else
-		std::cout << "WaitSync: TOO SLOW!" << std::endl;
+		std::cerr << Log::Red << "WaitSync: TOO SLOW!" << std::endl;
+	std::cerr << Log::Normal;
 }
 
 

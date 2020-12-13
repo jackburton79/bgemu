@@ -208,10 +208,10 @@ void
 GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 		uint16 flags)
 {
-	std::cout << "GraphicsEngine::SetVideoMode(): ";
-	std::cout << "Requested ";
-	std::cout << std::dec << width << "x" << height << "x" << depth;
-	std::cout << ", ";
+	std::cerr << "GraphicsEngine::SetVideoMode(): ";
+	std::cerr << "Requested ";
+	std::cerr << std::dec << width << "x" << height << "x" << depth;
+	std::cerr << ", ";
 
 	int SDLWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 	if (flags & VIDEOMODE_FULLSCREEN)
