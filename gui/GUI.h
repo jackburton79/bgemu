@@ -8,8 +8,9 @@
 #ifndef __GUI_H_
 #define __GUI_H_
 
-#include "Listener.h"
+#include "GraphicsDefs.h"
 #include "IETypes.h"
+#include "Listener.h"
 #include "Window.h"
 
 #include <map>

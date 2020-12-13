@@ -5,6 +5,8 @@
  *      Author: stefano
  */
 
+#include "GUI.h"
+
 #include "Animation.h"
 #include "BackWindow.h"
 #include "BamResource.h"
@@ -14,7 +16,6 @@
 #include "Core.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
-#include "GUI.h"
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "RoomBase.h"
@@ -117,6 +118,7 @@ GUI::Load(const res_ref& name)
 				break;
 		}
 	}
+	std::cout << Log::Normal;
 	std::cout << "GUI::Load(" << guiResource.CString() << "): ";
 	try {
 		if (fCursors[0] == NULL)

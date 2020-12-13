@@ -674,6 +674,7 @@ AreaRoom::_InitBlitMask()
 void
 AreaRoom::_InitHeightMap()
 {
+	std::cout << Log::Normal;
 	std::cout << "Initializing height map...";
 	std::flush(std::cout);
 
@@ -687,17 +688,17 @@ AreaRoom::_InitHeightMap()
 	BMPResource* resource = gResManager->GetBMP(heightMapName.c_str());
 	if (resource != NULL) {
 		fHeightMap = resource->Image();
-		std::cerr << fHeightMap->BitsPerPixel() << std::endl;
 		gResManager->ReleaseResource(resource);
 	}
 
-	std::cout << "Done!" << std::endl;
+	std::cout << Log::Green << "Done!" << std::endl;
 }
 
 
 void
 AreaRoom::_InitLightMap()
 {
+	std::cout << Log::Normal;
 	std::cout << "Initializing light map...";
 	std::flush(std::cout);
 
@@ -709,13 +710,14 @@ AreaRoom::_InitLightMap()
 		gResManager->ReleaseResource(resource);
 	}
 
-	std::cout << "Done!" << std::endl;
+	std::cout << Log::Green << "Done!" << std::endl;
 }
 
 
 void
 AreaRoom::_InitSearchMap()
 {
+	std::cout << Log::Normal;
 	std::cout << "Initializing search map...";
 	std::flush(std::cout);
 
@@ -725,15 +727,15 @@ AreaRoom::_InitSearchMap()
 	fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
 	fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
 	fSearchMap->SetRatios(fMapHorizontalRatio, fMapVerticalRatio);
-	std::cout << std::dec;
+	/*std::cout << std::dec;
 	std::cout << "map: w=" << AreaRect().w << ", h=";
 	std::cout << AreaRect().h << std::endl;
 	std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
 	std::cout << fSearchMap->Height() << std::endl;
 	std::cout << "ratio: h=" << fMapHorizontalRatio;
 	std::cout << ", v=" << fMapVerticalRatio << std::endl;	
-
-	std::cout << "Done!" << std::endl;
+*/
+	std::cout << Log::Green << "Done!" << std::endl;
 }
 
 
