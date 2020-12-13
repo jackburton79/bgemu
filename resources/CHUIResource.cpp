@@ -5,9 +5,11 @@
  *      Author: stefano
  */
 
-#include "Bitmap.h"
 #include "CHUIResource.h"
+
+#include "Bitmap.h"
 #include "Control.h"
+#include "Log.h"
 #include "MemoryStream.h"
 #include "MOSResource.h"
 #include "ResManager.h"
@@ -64,10 +66,10 @@ CHUIResource::Load(Archive *archive, uint32 key)
 	fData->ReadAt(12, fControlTableOffset);
 	fData->ReadAt(16, fWindowsOffset);
 
-	std::cout << Name() << ", " << fNumWindows << " windows" << std::endl;
+	/*std::cout << Name() << ", " << fNumWindows << " windows" << std::endl;
 	std::cout << "Windows offset: " << fWindowsOffset << std::endl;
 	std::cout << "Controls table offset: " << fControlTableOffset << std::endl;
-
+*/
 	return true;
 }
 
@@ -82,7 +84,7 @@ CHUIResource::CountWindows() const
 Window*
 CHUIResource::GetWindow(uint16 id)
 {
-	std::cout << "CHUIResource::GetWindow(" << id << ")" << std::endl;
+	//std::cout << "CHUIResource::GetWindow(" << id << ")" << std::endl;
 	Window* newWindow = NULL;
 	try {
 		// TODO: Not really efficient O(n): but shouldn't be critical
@@ -108,8 +110,8 @@ CHUIResource::GetWindow(uint16 id)
 		newWindow = new Window(window.id, window.x, window.y,
 						window.w, window.h, background);
 
-		std::cout << "CHUIResource::GetWindow(): Window has ";
-		std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;
+		//std::cout << "CHUIResource::GetWindow(): Window has ";
+		//std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;
 		for (uint16 controlIndex = 0;
 				controlIndex < window.num_controls; controlIndex++) {
 			//std::cout << "Control " << controlIndex << ":" << std::endl;
@@ -119,10 +121,10 @@ CHUIResource::GetWindow(uint16 id)
 		}
 	} catch (std::exception& e) {
 		newWindow = NULL;
-		std::cerr << "CHUIResource::GetWindow() FAILED: " << e.what() << std::endl;
+		std::cerr << Log::Red << "CHUIResource::GetWindow() FAILED: " << e.what() << std::endl;
 	} catch (...) {
 		newWindow = NULL;
-		std::cerr << "CHUIResource::GetWindow() FAILED." << std::endl;
+		std::cerr << Log::Red << "CHUIResource::GetWindow() FAILED." << std::endl;
 	}
 
 	return newWindow;

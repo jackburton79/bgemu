@@ -12,6 +12,7 @@
 #include "CHUIResource.h"
 #include "Control.h"
 #include "Core.h"
+#include "Log.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "RectUtils.h"
@@ -116,7 +117,7 @@ GUI::Load(const res_ref& name)
 				break;
 		}
 	}
-	std::cout << "GUI::Load(" << guiResource.CString() << ")" << std::endl;
+	std::cout << "GUI::Load(" << guiResource.CString() << "): ";
 	try {
 		if (fCursors[0] == NULL)
 			_InitCursors();
@@ -125,11 +126,12 @@ GUI::Load(const res_ref& name)
 		Clear();
 
 		fResource = gResManager->GetCHUI(guiResource);
-	} catch (...) {
-		std::cout << "GUI::Load(): ERROR" << std::endl;
+	} catch (std::exception& e) {
+		std::cout << Log::Red << e.what() << std::endl;
 		return false;
 	}
-	std::cout << "GUI::Load(): OK!" << std::endl;
+	std::cout << Log::Green << "OK!" << std::endl;
+	std::cout << Log::Normal;
 	return true;
 }
 
