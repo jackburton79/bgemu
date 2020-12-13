@@ -53,12 +53,13 @@ GraphicsEngine::Initialize()
 	try {
 		sGraphicsEngine = new GraphicsEngine();
 	} catch (...) {
-		std::cout << RED("Failed!") << std::endl;
+		std::cout << Log::Red << "Failed!" << std::endl;
 		sGraphicsEngine = NULL;
 		return false;
 	}
 
-	std::cout << GREEN("OK!") << std::endl;
+	std::cout << Log::Green << "OK!" << std::endl;
+	std::cout << Log::Normal;
 	return true;
 }
 
@@ -207,9 +208,10 @@ void
 GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 		uint16 flags)
 {
-	std::cout << "GraphicsEngine::SetVideoMode(";
-	std::cout << std::dec << width << ", " << height << ", " << depth;
-	std::cout << ")" << std::endl;
+	std::cout << "GraphicsEngine::SetVideoMode(): ";
+	std::cout << "Requested ";
+	std::cout << std::dec << width << "x" << height << "x" << depth;
+	std::cout << ", ";
 
 	int SDLWindowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 	if (flags & VIDEOMODE_FULLSCREEN)
@@ -231,7 +233,7 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 	fScreen = new Bitmap(surface, false);
 	fFlags = flags;
 
-	std::cout << "GraphicsEngine::SetVideoMode(): Got mode ";
+	std::cout << "got ";
 	std::cout << fScreen->Width() << "x";
 	std::cout << fScreen->Height() << "x" << fScreen->BitsPerPixel();
 	std::cout << std::endl;

@@ -81,10 +81,11 @@ ResourceManager::ResourceManager(const char* path)
 	// TODO: Move this elsewhere!
 	IE::check_objects_size();
 
-	std::cout << kComponentName << "Initialize(" << path << ")" << std::endl;
+	std::cout << "ResourceManager: set resources path to '";
 	fResourcesPath.SetTo(path);
-	std::cout << "\t-> Set resources path to '" << fResourcesPath.String();
-	std::cout << "'" << std::endl;
+	std::cout << fResourcesPath.String();
+	std::cout << "' (from '" << path;
+	std::cout << "')" << std::endl;
 
 	KEYResource *key = GetKEY(kKeyResource);
 	if (key == NULL)
