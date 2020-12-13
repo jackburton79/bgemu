@@ -55,7 +55,7 @@ Core::Core()
 
 Core::~Core()
 {
-	std::cout << "Core::~Core() returned" << std::endl;
+	//std::cout << "Core::~Core() returned" << std::endl;
 }
 
 
@@ -75,7 +75,7 @@ Core::Initialize(const char* path)
 
 	std::cout << "Core::Initialize()" << std::endl;
 	if (path == NULL || path[0] == 0) {
-		std::cerr << RED("Core::Initialize(): No path supplied") << std::endl;
+		std::cerr << Log::Red << "Core::Initialize(): No path supplied" << std::endl;
 		return false;
 	}
 		
@@ -85,14 +85,12 @@ Core::Initialize(const char* path)
 		return false;
 	}
 
-	std::cout << "\t-> Initializing Resource Manager..." << std::endl;
 	if (!ResourceManager::Initialize(path))
 		return false;
 
 	// Detect game
 	// TODO: Find a better/safer way
-	std::cout << "Core::Initialize()" << std::endl;
-	std::cout << "\t-> Detecting game... ";
+	std::cout << "Core: Detecting game... ";
 	std::flush(std::cout);
 	std::vector<std::string> stringList;
 	if (gResManager->GetResourceList(stringList, "CSJON", RES_CRE) == 1) {
@@ -107,7 +105,6 @@ Core::Initialize(const char* path)
 
 	_InitGameTimers();
 
-	std::cout << GREEN("Core::Initialize(): OK!") << std::endl;
 	return true;
 }
 
@@ -168,7 +165,7 @@ Core::LoadArea(const res_ref& areaName, const char* longName,
 	try {
 		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
 	} catch (std::exception& e) {
-		std::cerr << RED(e.what()) << std::endl;
+		std::cerr << Log::Red << e.what() << std::endl;
 		return false;
 	}
 
@@ -186,7 +183,7 @@ Core::LoadWorldMap()
 	try {
 		fCurrentRoom = new WorldMap();
 	} catch (std::exception& e) {
-		std::cerr << RED("Core::LoadWorldMap: ") << RED(e.what()) << std::endl;
+		std::cerr << Log::Red << "Core::LoadWorldMap: " << e.what() << std::endl;
 		return false;
 	}
 

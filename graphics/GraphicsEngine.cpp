@@ -48,7 +48,7 @@ GraphicsEngine::Get()
 bool
 GraphicsEngine::Initialize()
 {
-	std::cout << "Initializing Graphics Engine... ";
+	std::cout << Log::Normal << "Initializing Graphics Engine... ";
 	std::flush(std::cout);
 	try {
 		sGraphicsEngine = new GraphicsEngine();

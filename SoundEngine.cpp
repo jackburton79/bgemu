@@ -44,11 +44,12 @@ SoundEngine::Initialize()
 		if (sSoundEngine == NULL)
 			sSoundEngine = new SoundEngine();
 	} catch (std::exception& e) {
-		std::cerr << RED(e.what()) << std::endl;
-		std::cout << RED("Failed!") << std::endl;
+		std::cerr << Log::Red << e.what() << std::endl;
+		std::cout << "Failed!" << std::endl;
 		return false;
 	}
-	std::cout << GREEN("OK!") << std::endl;
+	std::cout << Log::Green << "OK!" << std::endl;
+	std::cerr << Log::Normal;
 	return true;
 }
 
@@ -91,8 +92,9 @@ SoundEngine::InitBuffers(bool stereo, bool bit16, uint16 sampleRate, uint32 buff
 	audioSpec.userdata = this;
 
 	if (SDL_OpenAudio(&audioSpec, NULL) < 0 ) {
-		std::cerr << RED("Unable to open audio: ");
-		std::cerr << RED(SDL_GetError()) << std::endl;
+		std::cerr << Log::Red << "Unable to open audio: ";
+		std::cerr << SDL_GetError() << std::endl;
+		std::cerr << Log::Normal;
 		delete fBuffer;
 		fBuffer = NULL;
 		return false;

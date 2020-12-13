@@ -13,6 +13,7 @@ LOCALSOURCES = \
 ../Game.cpp \
 ../IETypes.cpp \
 ../Listener.cpp \
+../Log.cpp \
 ../MovieDecoder.cpp \
 ../MovieDecoderTest.cpp \
 ../Object.cpp \

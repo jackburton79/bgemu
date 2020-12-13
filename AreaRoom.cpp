@@ -21,6 +21,7 @@
 #include "GUI.h"
 #include "IDSResource.h"
 #include "Label.h"
+#include "Log.h"
 #include "MOSResource.h"
 #include "Party.h"
 #include "Polygon.h"
@@ -505,8 +506,6 @@ AreaRoom::PointSearch(const IE::point& point) const
 		return 1;
 
 	return 0;
-
-	
 }
 
 
@@ -555,7 +554,7 @@ AreaRoom::ToggleSearchMap()
 	if (fDrawSearchMap == 2)
 		fSearchMap->Image()->SetAlpha(127, true);
 	else
-		fSearchMap->Image()->SetAlpha(255, false);
+		fSearchMap->Image()->SetAlpha(0, true);
 }
 
 
@@ -755,7 +754,7 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 				DrawBitmap(frame, animation->Position(), false);
 			}
 		} catch (std::exception& e) {
-			std::cerr << e.what() << std::endl;
+			std::cerr << Log::Red << e.what() << std::endl;
 			continue;
 		}
 	}
@@ -779,7 +778,7 @@ AreaRoom::_DrawEffects()
 			const Bitmap* frame = effect->NextBitmap();
 			DrawBitmap(frame, effect->Position(), false);
 		} catch (std::exception& e) {
-			std::cerr << e.what() << std::endl;
+			std::cerr << Log::Red << e.what() << std::endl;
 			continue;
 		}
 	}
@@ -805,7 +804,7 @@ AreaRoom::_DrawActors()
 		try {
 			actor->Draw(this, fBackMap->Image());
 		} catch (std::exception& ex) {
-			std::cerr << ex.what() << std::endl;
+			std::cerr << Log::Red << ex.what() << std::endl;
 			continue;
 		}
 	}

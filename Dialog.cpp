@@ -46,9 +46,6 @@ DialogState::GetNextState()
 		fNextStateIndex = 0;
 		std::cerr << e.what() << std::endl;
 		return NULL;
-	} catch (...) {
-		fNextStateIndex = 0;
-		return NULL;
 	}
 
 	std::string triggerString;

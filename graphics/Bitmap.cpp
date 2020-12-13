@@ -7,6 +7,7 @@
 
 #include "Bitmap.h"
 #include "GraphicsDefs.h"
+#include "Log.h"
 #include "Polygon.h"
 
 #include <algorithm>
@@ -141,7 +142,7 @@ void
 Bitmap::SetAlpha(uint8 value, bool on)
 {
 	if (value == 255) {
-		std::cerr << "BUG! SetAlpha(255) fails. Use SetAlpha(254)!" << std::endl;
+		std::cerr << RED("BUG! SetAlpha(255) fails. Use SetAlpha(254)!") << std::endl;
 		value = 254;		
 	}
 
@@ -164,22 +165,18 @@ Bitmap::GetPixel(uint16 x, uint16 y) const
 		case 1:
 			return *p;
 			break;
-
 		case 2:
 			return *(Uint16*)p;
 			break;
-
 		case 3:
 			if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				return p[0] << 16 | p[1] << 8 | p[2];
 			else
 				return p[0] | p[1] << 8 | p[2] << 16;
 			break;
-
 		case 4:
 			return *(Uint32*)p;
 			break;
-
 		default:
 			return 0;
 	}
