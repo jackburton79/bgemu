@@ -46,7 +46,7 @@ plot_point(const IE::point& pt)
 	gBitmap->StrokeCircle(pt.x, pt.y, 1, 1);
 	gBitmap->Unlock();
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
-	GraphicsEngine::Get()->Flip();
+	GraphicsEngine::Get()->Update();
 }
 
 
@@ -255,7 +255,7 @@ int main(int argc, char **argv)
 			gBitmap->Unlock();
 		}
 		GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
-		GraphicsEngine::Get()->Flip();
+		GraphicsEngine::Get()->Update();
 		SDL_Delay(10);
 	}
 	

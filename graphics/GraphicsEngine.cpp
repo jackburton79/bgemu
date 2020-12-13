@@ -300,7 +300,7 @@ GraphicsEngine::ScreenBitmap()
 
 
 void
-GraphicsEngine::Flip()
+GraphicsEngine::Update()
 {
 	SDL_UpdateTexture(fSDLTexture, NULL,
 			fScreen->Surface()->pixels,

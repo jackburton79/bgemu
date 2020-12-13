@@ -221,7 +221,7 @@ void
 MovieDecoder::BlitBackBuffer()
 {
 	GraphicsEngine::Get()->BlitToScreen(fNewFrame, NULL, NULL);
-	GraphicsEngine::Get()->Flip();
+	GraphicsEngine::Get()->Update();
 
 	std::swap(fNewFrame, fCurrentFrame);
 }

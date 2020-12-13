@@ -216,7 +216,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		inputConsole.Draw();
 		if (!TestMode())
 			Core::Get()->UpdateLogic(executeScripts);
-		GraphicsEngine::Get()->Flip();
+		GraphicsEngine::Get()->Update();
 		
 		Timer::WaitSync(startTicks, 35);
 	}

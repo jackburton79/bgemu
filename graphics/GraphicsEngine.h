@@ -53,7 +53,7 @@ public:
 	void SetWindowCaption(const char* caption);
 
 	Bitmap* ScreenBitmap();	
-	void Flip();
+	void Update();
 	
 	void SetFade(uint16 value);
 
