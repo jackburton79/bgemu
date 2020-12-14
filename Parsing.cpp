@@ -1098,6 +1098,8 @@ action_node::Third()
 
 //response
 response_node::response_node()
+	:
+	probability(100)
 {
 }
 
