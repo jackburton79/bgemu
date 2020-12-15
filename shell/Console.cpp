@@ -7,10 +7,7 @@
  */
 
 
-#include "BamResource.h"
 #include "Console.h"
-#include "ResManager.h"
-
 
 #include <stdlib.h>
 #include <string.h>
@@ -259,7 +256,8 @@ Console::Console(const GFX::rect& rect)
 
 
 Console::~Console()
-{	if (fBitmap != NULL) {
+{
+	if (fBitmap != NULL) {
 		fBitmap->Release();
 	}
 	delete fDesc;
