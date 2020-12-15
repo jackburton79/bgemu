@@ -350,6 +350,28 @@ GUI::EnsureShowDialogArea()
 	}
 }
 
+
+void
+GUI::ToggleMessageArea()
+{
+	TextArea::TextLines lines;
+	TextArea* currentTextArea = GetMessagesTextArea();
+	if (currentTextArea != NULL)
+		currentTextArea->GetLines(lines);
+	
+	if (IsWindowShown(WINDOW_MESSAGES)) {
+		HideWindow(WINDOW_MESSAGES);
+		ShowWindow(WINDOW_MESSAGES_LARGE);
+	} else if (IsWindowShown(WINDOW_MESSAGES_LARGE)) {
+		HideWindow(WINDOW_MESSAGES_LARGE);
+		ShowWindow(WINDOW_MESSAGES);
+	}
+	TextArea* newTextArea = GetMessagesTextArea();
+	if (newTextArea != NULL)
+		newTextArea->SetLines(lines);
+}
+
+
 void
 GUI::SetArrowCursor(uint32 index)
 {
@@ -520,8 +542,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 			case WINDOW_MESSAGES:
 				switch (controlID) {
 					case 2:
-						HideWindow(WINDOW_MESSAGES);
-						ShowWindow(WINDOW_MESSAGES_LARGE);
+						ToggleMessageArea();
 						break;
 					default:
 						std::cout << "window " << std::dec << windowID << ",";
@@ -532,8 +553,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 			case WINDOW_MESSAGES_LARGE:
 				switch (controlID) {
 					case 0:
-						HideWindow(WINDOW_MESSAGES_LARGE);
-						ShowWindow(WINDOW_MESSAGES);
+						ToggleMessageArea();
 						break;
 					default:
 						std::cout << "window " << std::dec << windowID << ",";

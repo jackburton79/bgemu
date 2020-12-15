@@ -38,11 +38,17 @@ public:
 	void AddText(const char* text);
 	void AddDialogText(const char*, const char* text, int32 dialogOption);
 	void ClearText();
+	
+	typedef std::vector<TextArea::TextLine> TextLines;
+	
+	void SetLines(const TextLines& lines);
+	void GetLines(TextLines& lines) const;
 
 	void ScrollBy(int16 x, int16 y);
 private:
 	Bitmap* fBitmap;
-	std::vector<TextLine*> fLines;
+	
+	TextLines fLines;
 	int16 fYOffset;
 	bool fChanged;
 

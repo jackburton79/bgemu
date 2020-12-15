@@ -70,6 +70,7 @@ public:
 	Window* GetWindow(uint16 id) const;
 	TextArea* GetMessagesTextArea();
 	void EnsureShowDialogArea();
+	void ToggleMessageArea();
 
 	void SetArrowCursor(uint32 index);
 	void SetCursor(uint32 index);

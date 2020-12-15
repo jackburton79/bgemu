@@ -81,12 +81,12 @@ TextArea::Draw()
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 		fBitmap->Clear(0);
 		uint32 flags = IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_BOTTOM;
-		std::vector<TextLine*>::const_iterator i;
+		TextLines::const_iterator i;
 		for (i = fLines.begin(); i != fLines.end(); i++) {
-			const TextLine* line = *i;
+			const TextLine& line = *i;
 			GFX::point where = { rect.x, rect.y };
-			FontRoster::GetFont(fontName)->RenderString(line->text, flags, fBitmap, false, where);
-			rect.y += line->height + kLineSpacing;
+			FontRoster::GetFont(fontName)->RenderString(line.text, flags, fBitmap, false, where);
+			rect.y += line.height + kLineSpacing;
 		}
 		fChanged = false;
 	}
@@ -133,9 +133,9 @@ TextArea::AddText(const char* text)
 	std::string textString(text);
 	while (!textString.empty()) {
 		std::string textLine = font->TruncateString(textString, fControl->w);
-		TextLine* newLine = new TextLine();
-		newLine->text = textLine;
-		newLine->width = font->StringWidth(textLine, &newLine->height);
+		TextLine newLine;
+		newLine.text = textLine;
+		newLine.width = font->StringWidth(textLine, &newLine.height);
 		fLines.push_back(newLine);
 	}
 	fChanged = true;
@@ -153,10 +153,10 @@ TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 	textString.append(text);
 	while (!textString.empty()) {
 		std::string textLine = font->TruncateString(textString, fControl->w);
-		TextLine* newLine = new TextLine();
-		newLine->text = textLine;
-		newLine->width = font->StringWidth(textLine, &newLine->height);
-		newLine->dialog_option = dialogOption;
+		TextLine newLine;
+		newLine.text = textLine;
+		newLine.width = font->StringWidth(textLine, &newLine.height);
+		newLine.dialog_option = dialogOption;
 		fLines.push_back(newLine);
 	}
 	fChanged = true;
@@ -166,12 +166,29 @@ TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 void
 TextArea::ClearText()
 {
-	for (std::vector<TextLine*>::const_iterator i = fLines.begin();
-			i != fLines.end(); i++) {
-		delete *i;
-	}
 	fLines.clear();
 	fChanged = true;
+}
+
+
+void
+TextArea::SetLines(const TextLines& lines)
+{
+	fLines.clear();
+	TextLines::const_iterator i;
+	for (i = lines.begin(); i != lines.end(); i++)
+		fLines.push_back(*i);
+	fChanged = true;
+}
+
+
+void
+TextArea::GetLines(TextLines& lines) const
+{
+	lines.clear();
+	TextLines::const_iterator i;
+	for (i = fLines.begin(); i != fLines.end(); i++)
+		lines.push_back(*i);
 }
 
 
@@ -199,17 +216,17 @@ const TextArea::TextLine*
 TextArea::_HitTestLine(IE::point point) const
 {
 	IE::point lineOffset = {(int16)fControl->x, (int16)(fControl->y + fYOffset)};
-	std::vector<TextLine*>::const_iterator i;
+	TextLines::const_iterator i;
 	for (i = fLines.begin(); i != fLines.end(); i++) {
-		const TextLine* line = *i;
-		IE::rect frame = line->Frame();
+		const TextLine& line = *i;
+		IE::rect frame = line.Frame();
 		frame = offset_rect(frame, lineOffset.x, lineOffset.y);
-		lineOffset.y += line->height + kLineSpacing;
+		lineOffset.y += line.height + kLineSpacing;
 		// skip non-dialog lines
-		if (line->dialog_option == -1)
+		if (line.dialog_option == -1)
 				continue;
 		if (rect_contains(frame, point))
-			return line;
+			return &line;
 	}
 	return NULL;
 }
