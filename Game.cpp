@@ -59,8 +59,6 @@ void
 Game::Loop(bool noNewGame, bool executeScripts)
 {
 	std::cout << "Game::Loop()" << std::endl;
-	uint16 lastMouseX = 0;
-	uint16 lastMouseY = 0;
 	if (!GUI::Initialize(GraphicsEngine::Get()->ScreenFrame().w,
 						 GraphicsEngine::Get()->ScreenFrame().h)) {
 		throw std::runtime_error("Initializing GUI failed");
@@ -117,18 +115,13 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
-					if (!Core::Get()->CutsceneMode())					
-						gui->MouseDown(event.button.x, event.button.y);
+					gui->MouseDown(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
-					if (!Core::Get()->CutsceneMode())								
-						gui->MouseUp(event.button.x, event.button.y);
+					gui->MouseUp(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEMOTION:
-					lastMouseX = event.motion.x;
-					lastMouseY = event.motion.y;
-					if (!Core::Get()->CutsceneMode())
-						gui->MouseMoved(lastMouseX, lastMouseY);
+					gui->MouseMoved(event.motion.x, event.motion.y);
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {

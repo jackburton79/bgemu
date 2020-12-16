@@ -209,6 +209,9 @@ GUI::DisplayStringCentered(const std::string& text,
 void
 GUI::MouseDown(int16 x, int16 y)
 {
+	if (Core::Get()->CutsceneMode())
+		return;
+
 	IE::point point = { x, y };
 	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
@@ -219,6 +222,9 @@ GUI::MouseDown(int16 x, int16 y)
 void
 GUI::MouseUp(int16 x, int16 y)
 {
+	if (Core::Get()->CutsceneMode())
+		return;
+
 	IE::point point = { x, y };
 	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
@@ -231,6 +237,9 @@ GUI::MouseMoved(int16 x, int16 y)
 {
 	IE::point point = { x, y };
 	fCursorPosition = point;
+
+	if (Core::Get()->CutsceneMode())
+		return;
 
 	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
