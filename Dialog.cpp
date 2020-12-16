@@ -19,6 +19,7 @@ DialogState::DialogState(::Actor* initiator, ::Actor* target, const res_ref& res
 	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
+	fCurrentTransition(NULL),
 	fResource(NULL)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
