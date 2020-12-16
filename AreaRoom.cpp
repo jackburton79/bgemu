@@ -218,10 +218,8 @@ AreaRoom::Draw(Bitmap *surface)
 	GFX::rect mapRect = rect_to_gfx_rect(VisibleMapArea());
 
 	bool paused = Core::Get()->IsPaused();
-	if (!paused) {
-		assert(fBackMap != NULL);
-		fBackMap->Update(mapRect, fDrawOverlays);
-	}
+	assert(fBackMap != NULL);
+	fBackMap->Update(mapRect, fDrawOverlays);
 
 	if (fDrawAnimations) {
 		Timer* timer = Timer::Get("ANIMATIONS");
