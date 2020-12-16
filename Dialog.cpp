@@ -13,7 +13,7 @@
 
 
 // DialogState
-DialogState::DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
+DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
 	fState(NULL),
 	fNextStateIndex(0),
@@ -26,14 +26,14 @@ DialogState::DialogState(::Actor* initiator, ::Actor* target, const res_ref& res
 }
 
 
-DialogState::~DialogState()
+DialogHandler::~DialogHandler()
 {
 	gResManager->ReleaseResource(fResource);
 }
 
 
-DialogState::State*
-DialogState::GetNextState()
+DialogHandler::State*
+DialogHandler::GetNextState()
 {
 	delete fState;
 	fState = NULL;
@@ -57,7 +57,7 @@ DialogState::GetNextState()
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
 	std::cout << "New DialogState::State()" << std::endl;
-	fState = new DialogState::State(triggerString, IDTable::GetDialog(nextState.text_ref),
+	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
 
 	fNextStateIndex++;
@@ -65,7 +65,7 @@ DialogState::GetNextState()
 	std::cout << "Get Transitions..." << std::endl;
 	// Get Transitions for this state
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
-		DialogState::Transition transition;
+		DialogHandler::Transition transition;
 		transition.entry = fResource->GetTransition(fState->TransitionIndex() + i);
 		if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 			transition.text_player = IDTable::GetDialog(transition.entry.text_player);
@@ -86,11 +86,11 @@ DialogState::GetNextState()
 }
 
 
-DialogState::State*
-DialogState::GetNextValidState()
+DialogHandler::State*
+DialogHandler::GetNextValidState()
 {
 	for (;;) {
-		DialogState::State* state = GetNextState();
+		DialogHandler::State* state = GetNextState();
 		if (state == NULL)
 			break;
 		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(state->Trigger());
@@ -104,7 +104,7 @@ DialogState::GetNextValidState()
 
 
 void
-DialogState::SelectOption(int32 option)
+DialogHandler::SelectOption(int32 option)
 {
 	fCurrentTransition = &fTransitions.at(option);
 	std::cout << "SelectOption: " << fCurrentTransition->text_player << std::endl;
@@ -138,44 +138,44 @@ DialogState::SelectOption(int32 option)
 }
 
 
-DialogState::State*
-DialogState::CurrentState()
+DialogHandler::State*
+DialogHandler::CurrentState()
 {
 	return fState;
 }
 
 
-DialogState::Transition
-DialogState::TransitionAt(int32 index)
+DialogHandler::Transition
+DialogHandler::TransitionAt(int32 index)
 {
 	return fTransitions.at(index);
 }
 
 
 int32
-DialogState::CountTransitions() const
+DialogHandler::CountTransitions() const
 {
 	return fTransitions.size();
 }
 
 
-DialogState::Transition*
-DialogState::CurrentTransition()
+DialogHandler::Transition*
+DialogHandler::CurrentTransition()
 {
 	return fCurrentTransition;
 }
 
 
 void
-DialogState::HandleTransition(Transition& transition)
+DialogHandler::HandleTransition(Transition& transition)
 {
 }
 
 
-DialogState::Transition
-DialogState::_GetTransition(int32 num)
+DialogHandler::Transition
+DialogHandler::_GetTransition(int32 num)
 {
-	DialogState::Transition transition;
+	DialogHandler::Transition transition;
 	transition.entry = fResource->GetTransition(num);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
@@ -195,21 +195,21 @@ DialogState::_GetTransition(int32 num)
 
 
 DLGResource*
-DialogState::Resource()
+DialogHandler::Resource()
 {
 	return fResource;
 }
 
 
 Actor*
-DialogState::Actor()
+DialogHandler::Actor()
 {
 	return fInitiator;
 }
 
 
 // DialogState::State
-DialogState::State::State(std::string triggerString, std::string text,
+DialogHandler::State::State(std::string triggerString, std::string text,
 						  int32 numTransitions, int32 transitionIndex)
 	:
 	fText(text),
@@ -221,28 +221,28 @@ DialogState::State::State(std::string triggerString, std::string text,
 
 
 std::string
-DialogState::State::Trigger() const
+DialogHandler::State::Trigger() const
 {
 	return fTrigger;
 }
 
 
 std::string
-DialogState::State::Text() const
+DialogHandler::State::Text() const
 {
 	return fText;
 }
 
 
 int32
-DialogState::State::NumTransitions() const
+DialogHandler::State::NumTransitions() const
 {
 	return fNumTransitions;
 }
 
 
 int32
-DialogState::State::TransitionIndex() const
+DialogHandler::State::TransitionIndex() const
 {
 	return fTransitonIndex;
 }

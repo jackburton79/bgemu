@@ -12,10 +12,10 @@
 
 class Actor;
 class DLGResource;
-class DialogState {
+class DialogHandler {
 public:
-	DialogState(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef);
-	~DialogState();
+	DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef);
+	~DialogHandler();
 
 	class State {
 	public:

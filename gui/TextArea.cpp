@@ -98,7 +98,7 @@ TextArea::Draw()
 void
 TextArea::MouseDown(IE::point point)
 {
-	DialogState* dialog = Game::Get()->Dialog();
+	DialogHandler* dialog = Game::Get()->Dialog();
 	if (dialog != NULL) {
 		const TextLine* line = _HitTestLine(point);
 		if (line != NULL) {

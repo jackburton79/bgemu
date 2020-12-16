@@ -25,7 +25,7 @@ struct object_params;
 class Actor;
 class Action;
 class Container;
-class DialogState;
+class DialogHandler;
 class Door;
 class Object;
 class Region;
@@ -78,7 +78,7 @@ public:
 
 	Actor* DialogInitiator() const;
 
-	DialogState* Dialog();
+	DialogHandler* Dialog();
 
 	void PlayAnimation(const res_ref& name, const IE::point where);
 	void PlayEffect(const res_ref& name, const IE::point where);

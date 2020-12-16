@@ -13,7 +13,7 @@
 #define AI_UPDATE_FREQ 15
 
 class Actor;
-class DialogState;
+class DialogHandler;
 class Party;
 class Game {
 public:
@@ -23,7 +23,7 @@ public:
 	void InitiateDialog(Actor* actor, Actor* target);
 	bool InDialogMode() const;
 	void TerminateDialog();
-	DialogState* Dialog();
+	DialogHandler* Dialog();
 
 	void HandleDialog();
 
@@ -40,7 +40,7 @@ private:
 	Game();
 	~Game();
 
-	DialogState* fDialog;
+	DialogHandler* fDialog;
 
 	::Party* fParty;
 	bool fTestMode;

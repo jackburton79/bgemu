@@ -239,7 +239,7 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "initiates dialog with " << actor->LongName() << std::endl;
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
-	fDialog = new DialogState(actor, target, dialogFile);
+	fDialog = new DialogHandler(actor, target, dialogFile);
 	HandleDialog();
 }
 
@@ -265,7 +265,7 @@ Game::TerminateDialog()
 }
 
 
-DialogState*
+DialogHandler*
 Game::Dialog()
 {
 	return fDialog;
@@ -275,7 +275,7 @@ Game::Dialog()
 void
 Game::HandleDialog()
 {
-	DialogState::State* currentState = fDialog->GetNextValidState();
+	DialogHandler::State* currentState = fDialog->GetNextValidState();
 	if (currentState == NULL) {
 		std::cout << "Game::HandleDialog(): GetNextState is NULL" << std::endl;
 		TerminateDialog();
@@ -296,7 +296,7 @@ Game::HandleDialog()
 
 	std::cout << "Getting transitions..." << std::endl;
 	for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
-		DialogState::Transition transition = fDialog->TransitionAt(t);
+		DialogHandler::Transition transition = fDialog->TransitionAt(t);
 		if (!transition.text_player.empty()) {
 			std::string option("-");
 			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
