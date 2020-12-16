@@ -39,7 +39,7 @@ DialogState::GetNextState()
 	fState = NULL;
 	fTransitions.clear();
 
-	if (fCurrentTransition != NULL && fCurrentTransition->entry.flags & DLG_TRANSITION_END)
+	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END))
 		return NULL;
 
 	dlg_state nextState;
