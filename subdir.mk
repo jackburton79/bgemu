@@ -2,6 +2,7 @@ LOCALSOURCES = \
 ../Action.cpp \
 ../Actor.cpp \
 ../AreaRoom.cpp \
+../AnimationTester.cpp \
 ../BackMap.cpp \
 ../Container.cpp \
 ../Core.cpp \

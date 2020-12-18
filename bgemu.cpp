@@ -1,3 +1,4 @@
+#include "AnimationTester.h"
 #include "Core.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
@@ -14,6 +15,7 @@ static int sNoScripts = 0;
 static int sNoNewGame = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
+static int sTestAnimation = 0;
 static int sDebug = 0;
 static uint16 sScreenWidth = 640;
 static uint16 sScreenHeight = 480;
@@ -24,6 +26,7 @@ static
 struct option sLongOptions[] = {
 		{ "list-resources", no_argument, &sList, 'l' },
 		{ "test", no_argument, NULL, 't' },
+		{ "test-animation", required_argument, NULL, 'T' },
 		{ "dump-resource", required_argument, NULL, 'd' },
 		{ "path", required_argument, NULL, 'p'},
 		{ "no-scripts", no_argument, &sNoScripts, 'n' },
@@ -48,7 +51,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltf",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -65,6 +68,10 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 't':
 				sTest = 1;
+				break;
+			case 'T':
+				sTestAnimation = 1;
+				sResourceName = optarg;
 				break;
 			case 'g':
 				ParseScreenGeometry(optarg);
@@ -104,7 +111,7 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	if (sResourceName != NULL) {
+	/*if (sResourceName != NULL) {
 		std::cout << "Dump resource Mode" << std::endl;
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
@@ -112,8 +119,8 @@ main(int argc, char **argv)
 		gResManager->ReleaseResource(resource);
 		Core::Destroy();
 		return 0;
-	}
-
+	}*/
+	
 	if (sDebug) {
 		//gResManager->SetDebug(2);
 		Script::SetDebug(true);
@@ -135,7 +142,11 @@ main(int argc, char **argv)
 		std::cerr << RED("Failed to initialize Sound Engine! Continuing anyway...") << std::endl;
 
 	try {
-		Game::Get()->Loop(sNoNewGame, !sNoScripts);
+		if (sTestAnimation) {
+			AnimationTester animTester(sResourceName);
+			animTester.Loop();
+		} else
+			Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (std::exception &error) {
 		std::cerr << RED(error.what()) << std::endl;
 	} catch (...) {
