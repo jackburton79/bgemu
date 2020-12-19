@@ -106,14 +106,11 @@ extension(const char* path)
 size_t
 unquote_string(char* dest, char* source, size_t length)
 {
-	length -= 2;
-	if (length < 0)
-		length = 0;
-	if (length >= 0) {
-		::strncpy(dest, source + 1, length);
-		dest[length] = '\0';
-	}
-	return length;
+	int32 newLength = std::max((int32)length - 2, (int32)0);
+	::strncpy(dest, source + 1, newLength);
+	dest[newLength] = '\0';
+
+	return newLength;
 }
 
 		
