@@ -51,6 +51,7 @@ Game::Game()
 
 Game::~Game()
 {
+	TerminateDialog();
 	delete fParty;
 }
 
@@ -256,12 +257,12 @@ Game::TerminateDialog()
 {
 	// Called by Core::TerminateDialog().
 	// TODO: If called from other places, Core will still be in dialog mode
-	std::cout << fDialog->Actor()->Name() << " TerminateDialog()" << std::endl;
 	if (InDialogMode()) {
+		std::cout << fDialog->Actor()->Name() << " TerminateDialog()" << std::endl;
 		fDialog->Actor()->IncrementNumTimesTalkedTo();
-		delete fDialog;
-		fDialog = NULL;
 	}
+	delete fDialog;
+	fDialog = NULL;
 }
 
 
