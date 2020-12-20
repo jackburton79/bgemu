@@ -102,7 +102,7 @@ CREResource::Kit()
 }
 
 
-const char *
+const char*
 CREResource::KitStr()
 {
 	return KitToStr(Kit());
@@ -351,7 +351,7 @@ CREResource::ItemAtSlot(uint32 i)
 	std::cout << " :" << std::dec << itemOffset << std::endl;
 
 	// TODO: number 38 is a dword instead. Handle that case
-	if (itemOffset == (int16)-1)
+	if ((int16)itemOffset == -1)
 		throw std::runtime_error("Wrong item offset");
 
 	IE::item ieItem;
