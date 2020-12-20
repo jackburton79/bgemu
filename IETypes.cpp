@@ -1,17 +1,4 @@
-#include "Resource.h"
-#include "IDSResource.h"
 #include "IETypes.h"
-#include "ResManager.h"
-#include "Utils.h"
-
-#define __STDC_FORMAT_MACROS
-
-#include <assert.h>
-#include <cmath>
-#include <cstdio>
-#include <inttypes.h>
-#include <string>
-
 
 #include "2DAResource.h"
 #include "AreaResource.h"
@@ -27,13 +14,23 @@
 #include "MOSResource.h"
 #include "MveResource.h"
 #include "MemoryStream.h"
+#include "ResManager.h"
 #include "SPLResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
+#include "Utils.h"
 #include "VVCResource.h"
 #include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
+
+#define __STDC_FORMAT_MACROS
+
+#include <assert.h>
+#include <cmath>
+#include <cstdio>
+#include <inttypes.h>
+#include <string>
 
 
 using namespace IE;
