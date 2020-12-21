@@ -333,7 +333,6 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 			fPath = new PathFinder(PathFinder::kStep, Actor::PointPassableTrue);
 		else
 			fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
-
 	}
 	fActor->destination = fPath->SetPoints(fActor->position, point);
 }
