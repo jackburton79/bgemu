@@ -437,7 +437,6 @@ AreaRoom::AddEffect(Effect* effect)
 void
 AreaRoom::RemoveEffect(Effect* effect)
 {
-
 }
 
 
@@ -833,7 +832,6 @@ AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
 			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
 			r = offset_rect(r, 0, ViewPort().h - fSearchMap->Height());
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
-				
 		}	
 	}
 }

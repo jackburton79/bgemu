@@ -653,7 +653,6 @@ GUI::_DrawStrings()
 		const string_entry& entry = *i;
 		GraphicsEngine::Get()->BlitToScreen(entry.bitmap, NULL, (GFX::rect*)&entry.rect);
 	}
-	
 }
 
 

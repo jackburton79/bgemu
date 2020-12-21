@@ -521,7 +521,6 @@ label::Print() const
 		std::cout << "\tcenter" << std::endl;
 	if (flags & LABEL_JUSTIFY_RIGHT)
 		std::cout << "\tright" << std::endl;
-
 }
 
 

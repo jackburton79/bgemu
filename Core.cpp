@@ -707,7 +707,6 @@ Core::_CleanDestroyedObjects()
 				fCutsceneMode = false;
 				fCutsceneActor = NULL;
 				//return;	
-				
 			}
 			std::cout << "Destroy actor " << object->Name() << std::endl;			
 			object->ClearActionList();

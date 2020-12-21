@@ -392,7 +392,6 @@ ARAResource::_LoadRegions()
 	fData->Seek(fRegionsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumRegions; i++)
 		fData->Read(fRegions[i]);
-
 }
 
 

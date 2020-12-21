@@ -33,7 +33,6 @@ WMAPResource::WMAPResource(const res_ref &name)
 	fOffset(0),
 	fIcons(NULL)
 {
-
 }
 
 
