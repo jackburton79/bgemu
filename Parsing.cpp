@@ -825,7 +825,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 			}
 		}
 	} catch (...) {
-
+		// Not an error
 	}
 	return fStream->Position() - start;
 }
