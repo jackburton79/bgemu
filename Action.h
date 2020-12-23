@@ -164,8 +164,6 @@ class ActionOpenDoor : public Action {
 public:
 	ActionOpenDoor(Object* actor, action_node* node);
 	virtual void operator()();
-private:
-	Door* fDoor;
 };
 
 
