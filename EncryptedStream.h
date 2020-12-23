@@ -12,7 +12,7 @@
 
 class EncryptedStream : public Stream {
 public:
-	EncryptedStream(Stream *stream);
+	EncryptedStream(Stream* stream, const uint8* key, size_t keyLength);
 	virtual ~EncryptedStream();
 
 	virtual ssize_t ReadAt(off_t pos, void *dst, size_t size);
@@ -24,7 +24,8 @@ public:
 
 private:
 	Stream* fEncryptedStream;
-	int fKeySize;
+	const uint8* fKey;
+	size_t fKeySize;
 };
 
 

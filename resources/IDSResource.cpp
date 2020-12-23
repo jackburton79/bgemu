@@ -1,4 +1,6 @@
 #include "IDSResource.h"
+
+#include "EncryptionKey.h"
 #include "EncryptedStream.h"
 #include "MemoryStream.h"
 #include "Utils.h"
@@ -32,7 +34,7 @@ IDSResource::Load(Archive *archive, uint32 key)
 
 	if (IsEncrypted()) {
 		EncryptedStream *newStream =
-				new EncryptedStream(fData);
+				new EncryptedStream(fData, kEncryptionKey, kEncryptionKeySize);
 		ReplaceData(newStream);
 	}
 

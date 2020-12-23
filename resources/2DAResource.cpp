@@ -7,6 +7,7 @@
 
 #include "2DAResource.h"
 
+#include "EncryptionKey.h"
 #include "EncryptedStream.h"
 #include "MemoryStream.h"
 
@@ -44,7 +45,7 @@ TWODAResource::Load(Archive* archive, uint32 key)
 
 	if (IsEncrypted()) {
 		EncryptedStream *newStream =
-				new EncryptedStream(fData);
+				new EncryptedStream(fData, kEncryptionKey, kEncryptionKeySize);
 		ReplaceData(newStream);
 	}
 

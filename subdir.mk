@@ -9,6 +9,7 @@ LOCALSOURCES = \
 ../Dialog.cpp \
 ../Door.cpp \
 ../Effect.cpp \
+../EncryptionKey.cpp \
 ../EncryptedStream.cpp \
 ../Graphics.cpp \
 ../Game.cpp \
