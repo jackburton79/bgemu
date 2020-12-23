@@ -70,6 +70,7 @@ GraphicsEngine::Destroy()
 {
 	std::cout << "GraphicsEngine::Destroy()" << std::endl;
 	delete sGraphicsEngine;
+	sGraphicsEngine = NULL;
 }
 
 
