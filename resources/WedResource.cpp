@@ -123,10 +123,10 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverl
 }
 
 
-MapOverlay *
+MapOverlay*
 WEDResource::GetOverlay(uint32 index)
 {
-	if (index < 0 || index >= fNumOverlays)
+	if (index >= fNumOverlays)
 		return NULL;
 
 	MapOverlay *mapOverlay = new MapOverlay();
