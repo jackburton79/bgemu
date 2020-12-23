@@ -43,8 +43,10 @@ OutputConsole::_EnableOutputRedirect()
 void
 OutputConsole::_DisableOutputRedirect()
 {
-	std::cout.rdbuf(fOldBuf);
-	fOutputRedirected = false;
+	if (fOutputRedirected) {
+		std::cout.rdbuf(fOldBuf);
+		fOutputRedirected = false;
+	}
 }
 
 
