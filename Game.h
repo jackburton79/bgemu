@@ -36,6 +36,7 @@ public:
 
 	void SetTestMode(bool value);
 	bool TestMode() const;
+
 private:
 	Game();
 	~Game();

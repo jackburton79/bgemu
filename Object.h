@@ -104,6 +104,7 @@ public:
 	bool ToBeDestroyed() const;
 
 	static void SetDebug(bool debug);
+
 protected:
 	virtual ~Object();
 	void LastReferenceReleased();
