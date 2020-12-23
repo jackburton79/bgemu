@@ -42,12 +42,18 @@ WEDResource::Create(const res_ref& name)
 }
 
 
-WEDResource::WEDResource(const res_ref &name)
+WEDResource::WEDResource(const res_ref& name)
 	:
 	Resource(name, RES_WED),
+	fNumOverlays(0),
+	fNumTiledObjects(0),
 	fNumPolygons(0),
 	fPolygons(NULL),
-	fOverlays(NULL)
+	fOverlays(NULL),
+	fOverlaysOffset(0),
+	f2ndHeaderOffset(0),
+	fTiledObjectsOffset(0),
+	fTiledObjectsTileCellsOffset(0)
 {
 }
 
@@ -79,7 +85,7 @@ WEDResource::_Load()
 
 
 bool
-WEDResource::Load(Archive *archive, uint32 key)
+WEDResource::Load(Archive* archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
@@ -101,7 +107,7 @@ WEDResource::CountOverlays() const
 
 
 void
-WEDResource::_ReadTileMap(overlay overlay, const uint32 &x, MapOverlay *mapOverlay)
+WEDResource::_ReadTileMap(overlay overlay, const uint32& x, MapOverlay* mapOverlay)
 {
     uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
     tilemap tileMap;
@@ -129,7 +135,7 @@ WEDResource::GetOverlay(uint32 index)
 	if (index >= fNumOverlays)
 		return NULL;
 
-	MapOverlay *mapOverlay = new MapOverlay();
+	MapOverlay* mapOverlay = new MapOverlay();
 
 	fData->Seek(fOverlaysOffset + index * sizeof(overlay), SEEK_SET);
 
