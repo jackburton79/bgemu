@@ -1,4 +1,5 @@
 LOCALSOURCES= \
+../streams/EncryptedStream.cpp \
 ../streams/FileStream.cpp \
 ../streams/MemoryStream.cpp \
 ../streams/Stream.cpp \
