@@ -1072,7 +1072,11 @@ void
 AreaRoom::_Unload()
 {
 	std::cout << "AreaRoom::Unload()" << std::endl;
-	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
+	// TODO: On quit, Core has already deleted the graphicsengine, so here is't NULL.
+	// change order of object destruction
+	GraphicsEngine* gfx = GraphicsEngine::Get();
+	if (gfx != NULL)
+		gfx->ScreenBitmap()->Clear(0);
 	if (fWed != NULL)
 		_UnloadArea();
 }
