@@ -59,9 +59,9 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       wget https://www.libsdl.org/release/SDL2-2.0.5.tar.gz -O SDL2-2.0.5.tar.gz
-       tar -xzvf SDL2-2.0.5.tar.gz
-       (cd SDL2-2.0.5 && ./configure && make && sudo make install)
+       wget https://www.libsdl.org/release/SDL2-2.0.12.tar.gz -O SDL2-2.0.12.tar.gz
+       tar -xzvf SDL2-2.0.12.tar.gz
+       (cd SDL2-2.0.12 && ./configure && make && sudo make install)
        # make bootstrap
        make
 
