@@ -15,7 +15,6 @@
 #include <string>
 
 
-
 class Parameter {
 public:
 	Parameter();
