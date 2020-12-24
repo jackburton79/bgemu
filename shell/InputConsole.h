@@ -25,9 +25,9 @@ public:
 	void HandleInput(uint8 key);
 
 private:
-	void _ExecuteCommand(std::string str);
-	ShellCommand* _FindCommand(std::string cmd);
-	std::string _FindCompleteCommand(std::string partialCommand);
+	void _ExecuteCommand(const std::string& str);
+	ShellCommand* _FindCommand(const std::string& cmd);
+	std::string _FindCompleteCommand(const std::string& partialCommand) const;
 
 	std::string fBuffer;
 
