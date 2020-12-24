@@ -20,6 +20,7 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
+class Action;
 class Actor;
 class Object;
 class Script {
@@ -58,6 +59,7 @@ private:
 
 	bool _HandleResponseSet(node* node);
 	bool _HandleAction(action_node* act);
+	Action* _GetAction(Object* sender, action_node* act);
 	
 	void _PrintNode(node* n) const;
 	void _DeleteNode(node* n);

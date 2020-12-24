@@ -205,11 +205,6 @@ Script::GetTargetObject(const Object* object, action_node* start)
 bool
 Script::Execute(bool& continuing)
 {
-	/*assert(fSender != NULL);
-	if (fSender == NULL) {
-		std::cerr << "Script::Execute(): fSender is NULL!" << std::endl;
-	}
-	*/
 	// for each CR block
 	// for each CO block
 	// check triggers
@@ -220,11 +215,6 @@ Script::Execute(bool& continuing)
 	if (sDebug) {
 		std::cout << "*** SCRIPT START: " << (fSender ? fSender->Name() : "");
 		std::cout << " ***" << std::endl;
-#if 0
-		if (!strcmp(fSender->Name(), "Amnish Soldier")) {
-			Print();		
-		}
-#endif
 	}
 
 	bool foundContinue = continuing;
@@ -946,9 +936,8 @@ Script::_HandleResponseSet(node* responseSet)
 }
 
 
-static
 Action*
-GetAction(Object* sender, action_node* act)
+Script::_GetAction(Object* sender, action_node* act)
 {
 	Action* action = NULL;
 	switch (act->id) {
@@ -1028,8 +1017,8 @@ GetAction(Object* sender, action_node* act)
 			 */
 			// by returning false, we instruct the caller to stop
 			// executing the script
-			//if (sDebug)
-			//	std::cout << "CONTINUE!!!!" << std::endl;
+			if (sDebug)
+				std::cout << "CONTINUE!!!!" << std::endl;
 			//return false;
 			// TODO: How to ?!?!?!
 			break;
@@ -1134,8 +1123,6 @@ GetAction(Object* sender, action_node* act)
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
-			// TODO: Add as action			
-			std::cout << "DESTROY SELF" << std::endl;
 			action = new ActionDestroySelf(sender, act);
 			break;
 		}
@@ -1184,13 +1171,13 @@ GetAction(Object* sender, action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
-			Object* target = Script::GetTargetObject(sender, act);
+			/*Object* target = Script::GetTargetObject(sender, act);
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);
 				//SetSender(target);
 				target->SetInterruptable(false);
-			}
+			}*/
 			break;
 		}
 		case 0xA7:
@@ -1333,9 +1320,9 @@ GetAction(Object* sender, action_node* act)
 			break;
 		}
 		default:
-			//if (sDebug) {
+			if (sDebug) {
 				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;
-			//}
+			}
 			break;
 	}
 	return action;
@@ -1368,7 +1355,7 @@ Script::_HandleAction(action_node* act)
 	}
 
 	bool runNow = Script::IsActionInstant(act->id);
-	Action* action = GetAction(sender, act);
+	Action* action = _GetAction(sender, act);
 	if (action != NULL)
 		sender->AddAction(action, runNow);
 
