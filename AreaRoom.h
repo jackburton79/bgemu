@@ -78,7 +78,7 @@ private:
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 
-	void _InitBackMap(GFX::rect area);
+	void _InitBackMap(const GFX::rect& area);
 	void _InitWed(const char* name);
 	void _InitBlitMask();
 	void _InitHeightMap();
@@ -89,7 +89,7 @@ private:
 
 	void _DrawHeightMap(GFX::rect area);
 	void _DrawLightMap();
-	void _DrawSearchMap(GFX::rect area);
+	void _DrawSearchMap(const GFX::rect& visibleArea);
 	void _DrawAnimations(bool advanceFrame);
 	void _DrawEffects();
 	void _DrawActors();

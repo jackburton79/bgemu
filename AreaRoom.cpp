@@ -615,7 +615,7 @@ AreaRoom::VideoAreaChanged(uint16 width, uint16 height)
 
 
 void
-AreaRoom::_InitBackMap(GFX::rect area)
+AreaRoom::_InitBackMap(const GFX::rect& area)
 {
 	if (fBackMap != NULL)
 		delete fBackMap;
@@ -811,19 +811,19 @@ AreaRoom::_DrawActors()
 
 
 void
-AreaRoom::_DrawSearchMap(GFX::rect visibleArea)
+AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 {
 	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
 		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
 						fSearchMap->Width(), fSearchMap->Height());
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap->Image(), NULL, &destRect);
-
-		visibleArea.x /= fMapHorizontalRatio;
-		visibleArea.y /= fMapVerticalRatio;
-		visibleArea.w /= fMapHorizontalRatio;
-		visibleArea.h /= fMapVerticalRatio;
-		visibleArea = offset_rect(visibleArea, 0, ViewPort().h - fSearchMap->Height());
-		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(visibleArea, 200);
+		GFX::rect scaledRect = visibleArea;
+		scaledRect.x /= fMapHorizontalRatio;
+		scaledRect.y /= fMapVerticalRatio;
+		scaledRect.w /= fMapHorizontalRatio;
+		scaledRect.h /= fMapVerticalRatio;
+		scaledRect = offset_rect(scaledRect, 0, ViewPort().h - fSearchMap->Height());
+		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
 		
 		if (fSelectedActor != NULL) {
 			IE::point actorPosition = fSelectedActor.Target()->Position();
@@ -1072,8 +1072,9 @@ void
 AreaRoom::_Unload()
 {
 	std::cout << "AreaRoom::Unload()" << std::endl;
-	// TODO: On quit, Core has already deleted the graphicsengine, so here is't NULL.
-	// change order of object destruction
+	// TODO: On quit, Core has already deleted the GraphicsEngine,
+	// so here it's NULL. Change order of object destruction
+	// so it doesn't happen.
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 	if (gfx != NULL)
 		gfx->ScreenBitmap()->Clear(0);
