@@ -946,22 +946,11 @@ Script::_HandleResponseSet(node* responseSet)
 }
 
 
-bool
-Script::_HandleAction(action_node* act)
+static
+Action*
+GetAction(Object* sender, action_node* act)
 {
-	Object* sender = Script::GetSenderObject(fSender, act);
-	if (sDebug) {
-		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
-		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
-		act->Print();
-		std::cout << std::endl;
-	}
-
-	Core* core = Core::Get();
-	
-	Actor* thisActor = dynamic_cast<Actor*>(sender);
-	
-	bool runNow = Script::IsActionInstant(act->id);
+	Action* action = NULL;
 	switch (act->id) {
 		case 1:
 		{
@@ -971,8 +960,7 @@ Script::_HandleAction(action_node* act)
 		case 3:
 		{
 			/* Attack(O:Target*) */
-			ActionAttack* attackAction = new ActionAttack(sender, act);
-			sender->AddAction(attackAction);
+			action = new ActionAttack(sender, act);
 			break;
 		}
 		case 7:
@@ -980,54 +968,44 @@ Script::_HandleAction(action_node* act)
 			/* CreateCreature(S:NewObject*,P:Location*,I:Face*) */
 			// TODO: If point is (-1, -1) we should put the actor near
 			// the active creature. Which one is the active creature?
-			Action* action = new ActionCreateCreature(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionCreateCreature(sender, act);
 			break;
 		}
 		case 8:
 		{
 			/*	DIALOGUE(O:OBJECT*) (8 0x8) */
-			ActionDialog* dialogueAction = new ActionDialog(thisActor, act);
-			thisActor->AddAction(dialogueAction);
+			action = new ActionDialog(sender, act);
 			break;
 		}
 		case 10:
 		{
 			/* ENEMY() (10 0xa) */
-			uint32 id = IDTable::EnemyAllyValue("ENEM");
-			thisActor->SetEnemyAlly(id);
+			action = new ActionSetEnemyAlly(sender, act);
 			break;
 		}
 		case 22:
 		{
 			// MoveToObject
-			Action* walkTo = new ActionWalkToObject(thisActor, act);
-			thisActor->AddAction(walkTo);
+			action = new ActionWalkToObject(sender, act);
 			break;
 		}
 		case 23:
 		{
 			// MoveToPoint
-			if (thisActor != NULL) {
-				ActionWalkTo* walkTo = new ActionWalkTo(thisActor, act);
-				thisActor->AddAction(walkTo);
-				thisActor->SetInterruptable(false);
-			}
+			action = new ActionWalkTo(sender, act);
+			//thisActor->SetInterruptable(false);
 			break;
 		}
 		case 29:
 		{
 			/* RunAwayFrom(O:Creature*,I:Time*) */
-			if (thisActor != NULL) {
-				ActionRunAwayFrom* run = new ActionRunAwayFrom(thisActor, act);
-				thisActor->AddAction(run);
-			}
+			action = new ActionRunAwayFrom(sender, act);
 			break;
 		}
 		case 30:
 		{
 			// SetGlobal
-			sender->AddAction(new ActionSetGlobal(sender, act), runNow);
+			action = new ActionSetGlobal(sender, act);
 			break;
 		}
 		case 36:
@@ -1050,9 +1028,11 @@ Script::_HandleAction(action_node* act)
 			 */
 			// by returning false, we instruct the caller to stop
 			// executing the script
-			if (sDebug)
-				std::cout << "CONTINUE!!!!" << std::endl;
-			return false;
+			//if (sDebug)
+			//	std::cout << "CONTINUE!!!!" << std::endl;
+			//return false;
+			// TODO: How to ?!?!?!
+			break;
 		}
 		case 40:
 		{
@@ -1062,17 +1042,13 @@ Script::_HandleAction(action_node* act)
 			// (measured in AI updates per second (AI updates default to 15 per second).
 			// If used on a PC, the player can override the action by
 			// issuing a standard move command.
-			if (thisActor != NULL) {
-				Action* action = new ActionPlayDead(thisActor, act);
-				thisActor->AddAction(action);
-			}
+			action = new ActionPlayDead(sender, act);
 			break;
 		}
 		case 49:
 		{
 			/* MOVEVIEWPOINT(P:TARGET*,I:SCROLLSPEED*SCROLL)(49 0x31) */
-			Action* action = new ActionMoveViewPoint(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionMoveViewPoint(sender, act);
 			break;
 		}
 		case 61:
@@ -1097,39 +1073,33 @@ Script::_HandleAction(action_node* act)
 		case 63:
 		{
 			/* WAIT(I:TIME*)(63 0x3f) */
-			ActionWait* wait = new ActionWait(sender, act);
-			sender->AddAction(wait);
+			action = new ActionWait(sender, act);
 			break;
 		}
 		case 84:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
-			if (thisActor != NULL) {
-				ActionChangeOrientationExt* action = new ActionChangeOrientationExt(thisActor, act);
-				thisActor->AddAction(action);
-			}
+			action = new ActionChangeOrientationExt(sender, act);
 			break;
 		}
 		case 85:
 		{
 			/* 85 RandomWalk */
-			sender->AddAction(new ActionRandomWalk(sender, act));
+			action = new ActionRandomWalk(sender, act);
 			break;
 		}
 		case 86:
 		{
 			/* 86 SetInterrupt(I:State*Boolean) */
-			sender->AddAction(new ActionSetInterruptable(sender, act), runNow);
+			action = new ActionSetInterruptable(sender, act);
 			break;
 		}
 		case 0x53:
 		{
 			/* 83 SmallWait(I:Time*) */
-			Action* wait = new ActionSmallWait(sender, act);
-			sender->AddAction(wait);
+			action = new ActionSmallWait(sender, act);
 			break;
 		}
-
 		case 106:
 		{
 			/* Shout */
@@ -1141,25 +1111,24 @@ Script::_HandleAction(action_node* act)
 		case 0x64:
 		{
 			/* 100 RandomFly */
-			ActionRandomFly* fly = new ActionRandomFly(thisActor, act);
-			thisActor->AddAction(fly);
+			action = new ActionRandomFly(sender, act);
 			break;
 		}
 		case 0x65:
 		{
 			/* 101 FlyToPoint(Point, Time) */
-			ActionFlyTo* flyTo = new ActionFlyTo(thisActor, act);
-			thisActor->AddAction(flyTo);
+			action = new ActionFlyTo(sender, act);
 			break;
 		}
 		case 109:
 		{	
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
-			std::string variableScope;
+			/*std::string variableScope;
 			std::string variableName;
 			VariableGetScopeName(act->string1, variableScope, variableName);			
 			int32 value = core->Vars().Get(act->string1);
-			core->Vars().Set(act->string1, value + act->integer1);
+			core->Vars().Set(act->string1, value + act->integer1);*/
+			// TODO: Reimplement
 			break;		
 		}		
 		case 111:
@@ -1167,14 +1136,13 @@ Script::_HandleAction(action_node* act)
 			/* DESTROYSELF() (111 0x6f) */
 			// TODO: Add as action			
 			std::cout << "DESTROY SELF" << std::endl;
-			Action* action = new ActionDestroySelf(thisActor, act);
-			thisActor->AddAction(action, runNow);
+			action = new ActionDestroySelf(sender, act);
 			break;
 		}
 		case 113:
 		{	
 			// FORCESPELL(O:TARGET,I:SPELL*SPELL)(113, 0x71)
-			sender->AddAction(new ActionForceSpell(sender, act));
+			action = new ActionForceSpell(sender, act);
 			break;
 		}
 		case 115:
@@ -1190,25 +1158,25 @@ Script::_HandleAction(action_node* act)
 		case 120:
 		{
 			/* STARTCUTSCENE(S:CUTSCENE*)(120 0x78) */
-			sender->AddAction(new ActionStartCutscene(sender, act), runNow);
+			action = new ActionStartCutscene(sender, act);
 			break;
 		}
 		case 121:
 		{
 			/* STARTCUTSCENEMODE()(121 0x79) */
-			sender->AddAction(new ActionStartCutsceneMode(sender, act), runNow);
+			action = new ActionStartCutsceneMode(sender, act);
 			break;
 		}
 		case 122:
 		{
 			/* ENDCUTSCENEMODE()(122 0x7a) */
-			sender->AddAction(new ActionEndCutsceneMode(sender, act), runNow);
+			action = new ActionEndCutsceneMode(sender, act);
 			break;
 		}
 		case 123:
 		{
 			/* CLEARALLACTIONS()(123, 0x7b) */
-			sender->AddAction(new ActionClearAllActions(sender, act), runNow);
+			action = new ActionClearAllActions(sender, act);
 			break;
 		}
 		case 127:
@@ -1216,18 +1184,18 @@ Script::_HandleAction(action_node* act)
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
 			// TODO: Should be correct			
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
-			Object* target = Script::GetTargetObject(fSender, act);
+			Object* target = Script::GetTargetObject(sender, act);
 			if (target != NULL) {
 				std::cout << "CUTSCENEID: " << target->Name() << std::endl;
 				Core::Get()->SetCutsceneActor(target);
-				SetSender(target);
+				//SetSender(target);
 				target->SetInterruptable(false);
 			}
 			break;
 		}
 		case 0xA7:
 		{
-			core->PlayMovie(act->string1);
+			Core::Get()->PlayMovie(act->string1);
 			break;
 		}
 		case 134:
@@ -1235,15 +1203,13 @@ Script::_HandleAction(action_node* act)
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
 			 *  (134 0x86)
 			 */
-			ActionAttack* attackAction = new ActionAttack(thisActor, act);
-			thisActor->AddAction(attackAction);
-
+			action = new ActionAttack(sender, act);
 			break;
 		}
 		case 143:
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
-			sender->AddAction(new ActionOpenDoor(sender, act));
+			action = new ActionOpenDoor(sender, act);
 			break;
 		}
 		case 151:
@@ -1253,42 +1219,38 @@ Script::_HandleAction(action_node* act)
 			 * in the message window, attributing the text to
 			 * the specified object.
 			 */
-			sender->AddAction(new ActionDisplayMessage(sender, act));
+			action = new ActionDisplayMessage(sender, act);
 			break;
 		}
 		case 177:
 		{
 			/* TRIGGERACTIVATION(O:OBJECT*,I:STATE*BOOLEAN)(177 0xb1) */
-			Action* action = new ActionTriggerActivation(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionTriggerActivation(sender, act);
 			break;
 		}
 		case 196:
 		{
 			// UNLOCK(O:OBJECT*)(196, 0xc4)
-			sender->AddAction(new ActionUnlock(sender, act));
+			action = new ActionUnlock(sender, act);
 			break;
 		}
 		case 198:
 		{
 			/* STARTDIALOGNOSET(O:OBJECT*) (198 0xc6) */
 			// TODO: Implement more correctly.
-			ActionDialog* dialogueAction = new ActionDialog(sender, act);
-			sender->AddAction(dialogueAction);
+			action = new ActionDialog(sender, act);
 			break;
 		}
 		case 202:
 		{	
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
-			ActionFadeToColor* action = new ActionFadeToColor(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionFadeToColor(sender, act);
 			break;
 		}
 		case 203:
 		{
 			/* FADEFROMCOLOR(P:POINT*,I:BLUE*)(203 0xcb) */
-			ActionFadeFromColor* action = new ActionFadeFromColor(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionFadeFromColor(sender, act);
 			break;
 		}
 		case 207:
@@ -1299,19 +1261,14 @@ Script::_HandleAction(action_node* act)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			if (thisActor != NULL) {
-				ActionWalkTo* walkTo = new ActionWalkTo(thisActor, act);
-				thisActor->AddAction(walkTo);
-				thisActor->SetInterruptable(false);
-			}
+			action = new ActionWalkTo(sender, act);
 			break;
 		}
 		case 225:
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
 			// Active creature. Which is it ? For now, we use actor 0 in party		
-			Action* action = new ActionMoveBetweenAreasEffect(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionMoveBetweenAreasEffect(sender, act);
 			break;
 		}
 		case 228: // 0xe4
@@ -1320,53 +1277,49 @@ Script::_HandleAction(action_node* act)
 			/* This action creates the specified creature
 			 * on a normally impassable surface (e.g. on a wall,
 			 * on water, on a roof). */
-			Action* action = new ActionCreateCreatureImpassable(sender, act);
-			sender->AddAction(action, runNow);
+			action = new ActionCreateCreatureImpassable(sender, act);
 			break;
 		}
 		case 229:
 		{
 			// FACEOBJECT(O:OBJECT*)
-			Action* action = new ActionFaceObject(sender, act);
-			sender->AddAction(action);
+			action = new ActionFaceObject(sender, act);
 			break;
 		}
 		case 254:
 		{
 			/* SCREENSHAKE(P:POINT*,I:DURATION*)(254 0xfe) */
-			Action* action = new ActionScreenShake(sender, act);
-			sender->AddAction(action);
+			action = new ActionScreenShake(sender, act);
 			break;
 		}
 		case 269:
 		{
 			// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*)(269 0x10d)
-			Action* action = new ActionDisplayStringHead(sender, act);
-			sender->AddAction(action);
+			action = new ActionDisplayStringHead(sender, act);
 			break;
 		}
 		case 272:
 		{
 			// 272 CreateVisualEffect(S:Object*,P:Location*) 0x110
-			sender->AddAction(new ActionCreateVisualEffect(sender, act), runNow);
+			action = new ActionCreateVisualEffect(sender, act);
 			break;
 		}
 		case 273:
 		{
 			// CREATEVISUALEFFECTOBJECT(S:DIALOGFILE*,O:TARGET*) 
-			sender->AddAction(new ActionCreateVisualEffectObject(sender, act), runNow);			
+			action = new ActionCreateVisualEffectObject(sender, act);
 			break;
 		}
 		case 286: // 0x11e
 		{
 			/* HIDEGUI */
-			sender->AddAction(new ActionHideGUI(sender, act), runNow);
+			action = new ActionHideGUI(sender, act);
 			break;
 		}
 		case 287:
 		{
 			/* UNHIDEGUI()(287 0x11f) */
-			sender->AddAction(new ActionUnhideGUI(sender, act), runNow);
+			action = new ActionUnhideGUI(sender, act);
 			break;
 		}
 		case 311:
@@ -1376,16 +1329,34 @@ Script::_HandleAction(action_node* act)
 			// on the specified object (on the game-screen).
 			// The text stays onscreen until the associated sound has completed playing.
 			// TODO: use an action which plays the sound
-			Action* action = new ActionDisplayStringHead(sender, act);
-			sender->AddAction(action);
+			action = new ActionDisplayStringHead(sender, act);
 			break;
 		}
 		default:
-			if (sDebug) {
+			//if (sDebug) {
 				std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;
-			}
+			//}
 			break;
 	}
+	return action;
+}
+
+
+bool
+Script::_HandleAction(action_node* act)
+{
+	Object* sender = Script::GetSenderObject(fSender, act);
+	if (sDebug) {
+		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
+		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
+		act->Print();
+		std::cout << std::endl;
+	}
+
+	bool runNow = Script::IsActionInstant(act->id);
+	Action* action = GetAction(sender, act);
+	if (action != NULL)
+		sender->AddAction(action, runNow);
 
 	return true;
 }
