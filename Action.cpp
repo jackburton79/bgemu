@@ -486,6 +486,28 @@ ActionFlyTo::operator()()
 }
 
 
+// IncrementGlobal
+ActionIncrementGlobal::ActionIncrementGlobal(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionIncrementGlobal::operator()()
+{
+	Core* core = Core::Get();
+	std::string variableScope;
+	std::string variableName;
+	VariableGetScopeName(fActionParams->string1, variableScope, variableName);
+	int32 value = core->Vars().Get(fActionParams->string1);
+	core->Vars().Set(fActionParams->string1, value + fActionParams->integer1);
+	SetCompleted();
+}
+
+
 // RandomWalk
 ActionRandomWalk::ActionRandomWalk(Object* object, action_node* node)
 	:

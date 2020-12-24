@@ -1112,12 +1112,7 @@ Script::_GetAction(Object* sender, action_node* act)
 		case 109:
 		{	
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
-			/*std::string variableScope;
-			std::string variableName;
-			VariableGetScopeName(act->string1, variableScope, variableName);			
-			int32 value = core->Vars().Get(act->string1);
-			core->Vars().Set(act->string1, value + act->integer1);*/
-			// TODO: Reimplement
+			action = new ActionIncrementGlobal(sender, act);
 			break;		
 		}		
 		case 111:

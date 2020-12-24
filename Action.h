@@ -135,6 +135,13 @@ private:
 };
 
 
+class ActionIncrementGlobal : public Action {
+public:
+	ActionIncrementGlobal(Object* actor, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionRandomWalk : public Action {
 public:
 	ActionRandomWalk(Object* actor, action_node* node);
