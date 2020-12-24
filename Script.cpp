@@ -1353,6 +1353,20 @@ Script::_HandleAction(action_node* act)
 		std::cout << std::endl;
 	}
 
+	// TODO: Fix this mess
+	if (act->id == 127) {
+		/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
+		// TODO: Should be correct
+		Object* target = Script::GetTargetObject(sender, act);
+		if (target != NULL) {
+			std::cout << "CUTSCENEID: " << target->Name() << std::endl;
+			Core::Get()->SetCutsceneActor(target);
+			SetSender(target);
+			target->SetInterruptable(false);
+		}
+		return true;
+	}
+
 	bool runNow = Script::IsActionInstant(act->id);
 	Action* action = GetAction(sender, act);
 	if (action != NULL)
