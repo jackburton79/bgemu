@@ -21,8 +21,8 @@
 
 class Object;
 struct trigger_entry {
-	trigger_entry(std::string trigName);
-	trigger_entry(std::string trigName, Object* targetObject);
+	trigger_entry(const std::string& trigName);
+	trigger_entry(const std::string& trigName, Object* targetObject);
 	std::string trigger_name;
 	uint16 target_id;
 };
@@ -81,10 +81,10 @@ public:
 	bool IsActionListEmpty() const;
 	void ClearActionList();
 
-	void AddTrigger(trigger_entry entry);
-	bool HasTrigger(std::string trigName) const;
-	bool HasTrigger(std::string trigName, trigger_node* triggerNode) const;
-	Object* FindTrigger(std::string trigName) const;
+	void AddTrigger(const trigger_entry& entry);
+	bool HasTrigger(const std::string& trigName) const;
+	bool HasTrigger(const std::string& trigName, trigger_node* triggerNode) const;
+	Object* FindTrigger(const std::string& trigName) const;
 	Object* LastTrigger() const;
 
 	void PrintTriggers() const;

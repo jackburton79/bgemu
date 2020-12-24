@@ -27,7 +27,7 @@
 
 bool Object::sDebug = false;
 
-trigger_entry::trigger_entry(std::string trigName)
+trigger_entry::trigger_entry(const std::string& trigName)
 	:
 	trigger_name(trigName),
 	target_id(-1)
@@ -35,7 +35,7 @@ trigger_entry::trigger_entry(std::string trigName)
 }
 
 
-trigger_entry::trigger_entry(std::string trigName, Object* targetObject)
+trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 	:
 	trigger_name(trigName)
 {
@@ -291,7 +291,7 @@ Object::ClearActionList()
 
 
 void
-Object::AddTrigger(trigger_entry entry)
+Object::AddTrigger(const trigger_entry& entry)
 {
 	fTriggers.push_back(entry);
 	if (entry.target_id != (uint16)-1)
@@ -300,7 +300,7 @@ Object::AddTrigger(trigger_entry entry)
 
 
 bool
-Object::HasTrigger(std::string trigName) const
+Object::HasTrigger(const std::string& trigName) const
 {
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
@@ -312,7 +312,7 @@ Object::HasTrigger(std::string trigName) const
 
 
 bool
-Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
+Object::HasTrigger(const std::string& trigName, trigger_node* triggerNode) const
 {
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
@@ -335,7 +335,7 @@ Object::HasTrigger(std::string trigName, trigger_node* triggerNode) const
 
 
 Object*
-Object::FindTrigger(std::string trigName) const
+Object::FindTrigger(const std::string& trigName) const
 {
 	// TODO: Since we usually use this for "LastAttacker", "LastSeen", etc.
 	// we start searching from the last item
