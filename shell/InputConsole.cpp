@@ -15,7 +15,7 @@
 #include <string>
 
 struct CommandSorter {
-	bool operator()(ShellCommand* a, ShellCommand* b) {
+	bool operator()(ShellCommand* a, ShellCommand* b) const {
 		return a->Command() < b->Command();
 	}
 };
