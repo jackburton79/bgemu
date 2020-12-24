@@ -197,6 +197,13 @@ public:
 };
 
 
+class ActionSetEnemyAlly : public Action {
+public:
+	ActionSetEnemyAlly(Object* actor, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionFadeToColor : public Action {
 public:
 	ActionFadeToColor(Object* object, action_node* node);

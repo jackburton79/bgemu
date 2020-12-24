@@ -778,6 +778,27 @@ ActionDialog::operator()()
 }
 
 
+// ActionSetEnemyAlly
+ActionSetEnemyAlly::ActionSetEnemyAlly(Object* actor, action_node* node)
+	:
+	Action(actor, node)
+{
+}
+
+
+/* virtual */
+void
+ActionSetEnemyAlly::operator()()
+{
+	uint32 id = IDTable::EnemyAllyValue("ENEM");
+	// TODO: Correct ? or should we get the sender object ?
+	Actor* actor = dynamic_cast<Actor*>(fObject);
+	if (actor != NULL)
+		actor->SetEnemyAlly(id);
+	SetCompleted();
+}
+
+
 // FadeToColorAction
 ActionFadeToColor::ActionFadeToColor(Object* object, action_node* node)
 	:
