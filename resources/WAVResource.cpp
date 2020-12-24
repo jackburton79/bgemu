@@ -212,7 +212,7 @@ WAVResource::Dump()
 			printf("\n\n.Valid range for data values : %d to %d \n", low_limit, high_limit);
 			for (i =1; i <= num_samples; i++) {
 				printf("==========Sample %d / %ld=============\n", i, num_samples);
-				fData->Read(data_buffer, sizeof(data_buffer));
+				read = fData->Read(data_buffer, sizeof(data_buffer));
 				if (read == 1) {
 					// dump the data read
 					uint32 xchannels = 0;
