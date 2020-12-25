@@ -1130,11 +1130,7 @@ Script::_GetAction(Object* sender, action_node* act)
 		case 115:
 		{
 			/* SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) (115 0x73)*/
-			std::string timerName;
-			// TODO: We append the timer name to the area name,
-			// check if it's okay
-			timerName.append(act->string2).append(act->string1);
-			GameTimer::Add(timerName.c_str(), act->integer1);
+			action = new ActionSetGlobalTimer(sender, act);
 			break;
 		}
 		case 120:
@@ -1177,7 +1173,7 @@ Script::_GetAction(Object* sender, action_node* act)
 		}
 		case 0xA7:
 		{
-			Core::Get()->PlayMovie(act->string1);
+			action = new ActionPlayMovie(sender, act);
 			break;
 		}
 		case 134:

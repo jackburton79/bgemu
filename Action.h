@@ -181,6 +181,13 @@ public:
 };
 
 
+class ActionPlayMovie : public Action {
+public:
+	ActionPlayMovie(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
 class ActionAttack : public Action {
 public:
 	ActionAttack(Object* actor, action_node* node);
@@ -272,6 +279,13 @@ public:
 class ActionClearAllActions : public Action {
 public:
 	ActionClearAllActions(Object* object, action_node* node);
+	virtual void operator()();
+};
+
+
+class ActionSetGlobalTimer : public Action {
+public:
+	ActionSetGlobalTimer(Object* object, action_node* node);
 	virtual void operator()();
 };
 

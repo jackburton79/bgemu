@@ -649,6 +649,22 @@ ActionDisplayMessage::operator()()
 }
 
 
+// PlayMovie
+ActionPlayMovie::ActionPlayMovie(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionPlayMovie::operator()()
+{
+	Core::Get()->PlayMovie(fActionParams->string1);
+}
+
+
 // Attack
 ActionAttack::ActionAttack(Object* object, action_node* node)
 	:
@@ -1035,6 +1051,26 @@ ActionClearAllActions::operator()()
 {
 	Core::Get()->ClearAllActions();
 	SetCompleted();
+}
+
+
+// ActionSetGlobalTimer
+ActionSetGlobalTimer::ActionSetGlobalTimer(Object* object, action_node* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionSetGlobalTimer::operator()()
+{
+	std::string timerName;
+	// TODO: We append the timer name to the area name,
+	// check if it's okay
+	timerName.append(fActionParams->string2).append(fActionParams->string1);
+	GameTimer::Add(timerName.c_str(), fActionParams->integer1);
 }
 
 
