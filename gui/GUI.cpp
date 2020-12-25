@@ -235,11 +235,11 @@ GUI::MouseUp(int16 x, int16 y)
 void
 GUI::MouseMoved(int16 x, int16 y)
 {
-	IE::point point = { x, y };
-	fCursorPosition = point;
-
 	if (Core::Get()->CutsceneMode())
 		return;
+
+	IE::point point = { x, y };
+	fCursorPosition = point;
 
 	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
@@ -399,7 +399,7 @@ void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
 	RoomBase* room = Core::Get()->CurrentRoom();
-	if (room == NULL || !fShown)
+	if (room == NULL)
 		return;
 
 	const uint16 kScrollingStep = 64;

@@ -937,8 +937,9 @@ Script::_HandleResponseSet(node* responseSet)
 
 
 Action*
-Script::_GetAction(Object* sender, action_node* act)
+Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 {
+	std::cout << "GetAction" << std::endl;
 	Action* action = NULL;
 	switch (act->id) {
 		case 1:
@@ -1019,7 +1020,7 @@ Script::_GetAction(Object* sender, action_node* act)
 			// executing the script
 			if (sDebug)
 				std::cout << "CONTINUE!!!!" << std::endl;
-			//return false;
+			isContinue = true;
 			// TODO: How to ?!?!?!
 			break;
 		}
@@ -1346,10 +1347,13 @@ Script::_HandleAction(action_node* act)
 	}
 
 	bool runNow = Script::IsActionInstant(act->id);
-	Action* action = _GetAction(sender, act);
+	bool isContinue = false;
+	Action* action = _GetAction(sender, act, isContinue);
 	if (action != NULL)
 		sender->AddAction(action, runNow);
 
+	if (isContinue)
+		return false;
 	return true;
 }
 

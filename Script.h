@@ -59,7 +59,7 @@ private:
 
 	bool _HandleResponseSet(node* node);
 	bool _HandleAction(action_node* act);
-	Action* _GetAction(Object* sender, action_node* act);
+	Action* _GetAction(Object* sender, action_node* act, bool& isContinue);
 	
 	void _PrintNode(node* n) const;
 	void _DeleteNode(node* n);
