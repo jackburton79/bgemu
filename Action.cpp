@@ -662,6 +662,7 @@ void
 ActionPlayMovie::operator()()
 {
 	Core::Get()->PlayMovie(fActionParams->string1);
+	SetCompleted();
 }
 
 
@@ -1071,6 +1072,7 @@ ActionSetGlobalTimer::operator()()
 	// check if it's okay
 	timerName.append(fActionParams->string2).append(fActionParams->string1);
 	GameTimer::Add(timerName.c_str(), fActionParams->integer1);
+	SetCompleted();
 }
 
 
