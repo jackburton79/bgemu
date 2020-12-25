@@ -399,7 +399,7 @@ void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
 	RoomBase* room = Core::Get()->CurrentRoom();
-	if (room == NULL)
+	if (room == NULL || !fShown)
 		return;
 
 	const uint16 kScrollingStep = 64;
