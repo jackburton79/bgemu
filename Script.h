@@ -53,7 +53,6 @@ public:
 	static Object* ResolveIdentifier(const Object* object, object_params* node, const int id);
 	static Object* GetObject(const Object* source, object_params* node);
 	
-	bool IsActionInstant(uint16 actionId) const;
 private:
 	bool _EvaluateConditionNode(node* conditionNode);
 

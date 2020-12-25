@@ -20,6 +20,7 @@ public:
 	
     virtual void operator()() = 0;
     
+    bool IsInstant() const;
     std::string Name() const;
     
 protected:
@@ -107,8 +108,10 @@ public:
 
 class ActionWalkTo : public Action {
 public:
-	ActionWalkTo(Object* actor, action_node* node);
+	ActionWalkTo(Object* actor, action_node* node, bool canInterrupt = true);
 	virtual void operator()();
+private:
+	bool fInterruptable;
 };
 
 

@@ -76,7 +76,7 @@ public:
 	void SetActive(bool active);
 	bool IsActive() const;
 
-	void AddAction(Action* action, bool now = false);
+	void AddAction(Action* action);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
 	void ClearActionList();

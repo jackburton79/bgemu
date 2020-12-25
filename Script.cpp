@@ -393,22 +393,6 @@ Script::GetObject(const Object* source, object_params* node)
 }
 
 
-/* static */
-bool
-Script::IsActionInstant(uint16 id) const
-{
-	std::string actionName = IDTable::ActionAt(id);
-	IDSResource* instants = gResManager->GetIDS("INSTANT");
-	if (instants == NULL)
-		return false;
-
-	bool returnValue = instants->StringForID(id) != "";
-	//std::cout << actionName << " is" << (returnValue ? "" : " not") << " instant." << std::endl;
-	gResManager->ReleaseResource(instants);
-
-	return returnValue;
-}
-
 
 bool
 Script::_EvaluateConditionNode(node* conditionNode)
@@ -981,8 +965,7 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 		case 23:
 		{
 			// MoveToPoint
-			action = new ActionWalkTo(sender, act);
-			//thisActor->SetInterruptable(false);
+			action = new ActionWalkTo(sender, act, true);
 			break;
 		}
 		case 29:
@@ -1239,7 +1222,7 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			 * (first by setting the coordinates of the destination point, then by setting
 			 * the coordinates of the current point once the destination is reached).
 			 * Conditions are not checked until the destination point is reached.*/
-			action = new ActionWalkTo(sender, act);
+			action = new ActionWalkTo(sender, act, false);
 			break;
 		}
 		case 225:
@@ -1323,14 +1306,11 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 bool
 Script::_HandleAction(action_node* act)
 {
-	bool instant = Script::IsActionInstant(act->id);
-
 	Object* sender = Script::GetSenderObject(fSender, act);
 	if (sDebug) {
 		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
 		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
 		act->Print();
-		std::cout << "Instant ? " << (instant ? "YES" : "NO") << std::endl;
 		std::cout << std::endl;
 	}
 
@@ -1348,11 +1328,10 @@ Script::_HandleAction(action_node* act)
 		return true;
 	}
 
-
 	bool isContinue = false;
 	Action* action = _GetAction(sender, act, isContinue);
 	if (action != NULL)
-		sender->AddAction(action, instant);
+		sender->AddAction(action);
 
 	if (isContinue)
 		return false;

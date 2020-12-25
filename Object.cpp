@@ -234,9 +234,9 @@ Object::IsActive() const
 
 
 void
-Object::AddAction(Action* action, bool now)
+Object::AddAction(Action* action)
 {
-	if (now && IsActionListEmpty()) {
+	if (action->IsInstant() && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
 		_ExecuteAction(*action);
 	} else
@@ -550,7 +550,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
-	//std::cout << Name() << " executes " << action.Name() << std::endl;
+	std::cout << Name() << " executes " << action.Name() << std::endl;
 	action();
 }
 

@@ -90,6 +90,20 @@ Action::SetCompleted()
 }
 
 
+bool
+Action::IsInstant() const
+{
+	const int id = fActionParams->id;
+	std::string actionName = IDTable::ActionAt(id);
+	IDSResource* instants = gResManager->GetIDS("INSTANT");
+	if (instants == NULL)
+		return false;
+	bool returnValue = instants->StringForID(id) != "";
+	gResManager->ReleaseResource(instants);
+	return returnValue;
+}
+
+
 std::string
 Action::Name() const
 {
@@ -364,9 +378,10 @@ ActionSetInterruptable::operator()()
 
 
 // WalkTo
-ActionWalkTo::ActionWalkTo(Object* object, action_node* node)
+ActionWalkTo::ActionWalkTo(Object* object, action_node* node, bool canInterrupt)
 	:
-	Action(object, node)
+	Action(object, node),
+	fInterruptable(canInterrupt)
 {
 }
 
@@ -378,6 +393,7 @@ ActionWalkTo::operator()()
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
+		actor->SetInterruptable(fInterruptable);
 		SetInitiated();
 	}
 
@@ -1277,5 +1293,3 @@ ActionCreateVisualEffectObject::operator()()
 	Core::Get()->PlayEffect(fActionParams->string1, point);
 	SetCompleted();
 }
-
-
