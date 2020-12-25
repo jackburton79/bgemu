@@ -1330,8 +1330,11 @@ Script::_HandleAction(action_node* act)
 
 	bool isContinue = false;
 	Action* action = _GetAction(sender, act, isContinue);
-	if (action != NULL)
+	if (action != NULL) {
+		if (action->IsInstant())
+			std::cout << "action " << action->Name() << " is instant" << std::endl;
 		sender->AddAction(action);
+	}
 
 	if (isContinue)
 		return false;

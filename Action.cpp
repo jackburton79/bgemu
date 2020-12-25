@@ -393,7 +393,8 @@ ActionWalkTo::operator()()
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
-		actor->SetInterruptable(fInterruptable);
+		if (!fInterruptable)
+			actor->SetInterruptable(false);
 		SetInitiated();
 	}
 
@@ -920,7 +921,8 @@ ActionFadeFromColor::operator()()
 // MoveViewPoint
 ActionMoveViewPoint::ActionMoveViewPoint(Object* object, action_node* node)
 	:
-	Action(object, node)
+	Action(object, node),
+	fScrollSpeed(10000)
 {	
 }
 
