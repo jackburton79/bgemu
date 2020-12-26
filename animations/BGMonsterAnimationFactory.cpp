@@ -7,6 +7,7 @@
 
 #include "BGMonsterAnimationFactory.h"
 
+#include "Actor.h"
 #include "Animation.h"
 #include "Core.h"
 
@@ -24,9 +25,10 @@ BGMonsterAnimationFactory::~BGMonsterAnimationFactory()
 
 /* virtual */
 animation_description
-BGMonsterAnimationFactory::GetAnimationDescription(int action, int o)
+BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	//std::cout << "BGAnimationFactory" << std::endl;
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
@@ -41,7 +43,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o)
 		description.mirror = true;
 		o = 16 - o;
 	}
-	switch (action) {
+	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G11");
 			description.sequence_number = o;
@@ -61,7 +63,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o)
 			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
+			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	return description;

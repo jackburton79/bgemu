@@ -7,6 +7,7 @@
 
 #include "IWDAnimationFactory.h"
 
+#include "Actor.h"
 #include "Animation.h"
 #include "Core.h"
 
@@ -24,9 +25,10 @@ IWDAnimationFactory::~IWDAnimationFactory()
 
 /* virtual */
 animation_description
-IWDAnimationFactory::GetAnimationDescription(int action, int o)
+IWDAnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	//std::cout << "IWDAnimationFactory" << std::endl;
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
@@ -34,7 +36,7 @@ IWDAnimationFactory::GetAnimationDescription(int action, int o)
 	if (Core::Get()->Game() == GAME_BALDURSGATE2)
 		o = IE::orientation_ext_to_base(o);
 
-	switch (action) {
+	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("WK");
 			description.sequence_number = o;
@@ -49,7 +51,7 @@ IWDAnimationFactory::GetAnimationDescription(int action, int o)
 			break;
 		default:
 			std::cerr << "IWDAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
+			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE

@@ -7,6 +7,7 @@
 
 #include "SplitAnimationFactory.h"
 
+#include "Actor.h"
 #include "Animation.h"
 #include "Core.h"
 
@@ -24,9 +25,10 @@ SplitAnimationFactory::~SplitAnimationFactory()
 
 /* virtual */
 animation_description
-SplitAnimationFactory::GetAnimationDescription(int action, int o)
+SplitAnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
@@ -42,7 +44,7 @@ SplitAnimationFactory::GetAnimationDescription(int action, int o)
 	//else 
 	//	description.bam_name.append("L");
 	
-	switch (action) {
+	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G1");
 			description.sequence_number += 0;

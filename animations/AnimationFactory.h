@@ -35,7 +35,7 @@ protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
 
-	virtual animation_description GetAnimationDescription(int action, int orientation) = 0;
+	virtual animation_description GetAnimationDescription(Actor* actor) = 0;
 	
 	const char* _GetBamName(const char* attributes) const;
 

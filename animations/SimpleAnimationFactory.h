@@ -16,7 +16,7 @@ public:
 	~SimpleAnimationFactory();
 
 private:
-	virtual animation_description GetAnimationDescription(int action, int o);
+	virtual animation_description GetAnimationDescription(Actor* actor);
 };
 
 #endif /* SIMPLEANIMATIONFACTORY_H_ */

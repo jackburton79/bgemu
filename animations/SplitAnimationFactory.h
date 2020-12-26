@@ -16,7 +16,7 @@ public:
 	~SplitAnimationFactory();
 
 private:
-	virtual animation_description GetAnimationDescription(int action, int orientation);
+	virtual animation_description GetAnimationDescription(Actor* actor);
 };
 
 #endif /* SPLITANIMATIONFACTORY_H_ */

@@ -7,6 +7,7 @@
 
 #include "BGCharachterAnimationFactory.h"
 
+#include "Actor.h"
 #include "Animation.h"
 
 BGCharachterAnimationFactory::BGCharachterAnimationFactory(const char* baseName, const uint16 id)
@@ -23,9 +24,10 @@ BGCharachterAnimationFactory::~BGCharachterAnimationFactory()
 
 /* virtual */
 animation_description
-BGCharachterAnimationFactory::GetAnimationDescription(int action, int o)
+BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	//std::cout << "BGAnimationFactory" << std::endl;
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
@@ -33,7 +35,7 @@ BGCharachterAnimationFactory::GetAnimationDescription(int action, int o)
 	// Armor
 	// TODO: For real
 	description.bam_name.append("1");
-	switch (action) {
+	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("W2");
 			description.sequence_number = o;
@@ -48,7 +50,7 @@ BGCharachterAnimationFactory::GetAnimationDescription(int action, int o)
 			break;
 		default:
 			std::cerr << "BGCharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
+			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE

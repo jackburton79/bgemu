@@ -7,6 +7,7 @@
 
 #include "SimpleAnimationFactory.h"
 
+#include "Actor.h"
 #include "Animation.h"
 
 SimpleAnimationFactory::SimpleAnimationFactory(
@@ -24,17 +25,18 @@ SimpleAnimationFactory::~SimpleAnimationFactory()
 
 /* virtual */
 animation_description
-SimpleAnimationFactory::GetAnimationDescription(int action, int o)
+SimpleAnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	//std::cout << "SimpleAnimationFactory::AnimationFor(";
 	//std::cout << action << ", " << o << ")" << std::endl;
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
 
 	// G1/G11-G15, G2/G21/26
-	switch (action) {
+	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G1");
 			description.sequence_number = uint32(o);
