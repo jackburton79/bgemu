@@ -143,6 +143,7 @@ public:
 	uint32 Experience();
 	uint32 ExperienceValue();
 	uint32 PermanentStatus();
+	uint16 CurrentHitPoints() const;
 	uint32 Gold();
 	
 	void GetAttributes(BaseAttributes &attributes);

@@ -228,6 +228,16 @@ CREResource::PermanentStatus()
 }
 
 
+uint16
+CREResource::CurrentHitPoints() const
+{
+	uint32 hp;
+	fData->ReadAt(0x24, hp);
+	return hp;
+
+}
+
+
 uint32
 CREResource::ExperienceValue()
 {
