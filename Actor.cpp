@@ -171,7 +171,6 @@ Actor::_Init()
 	//}
 #endif
 
-	//TODO: some orientations are bad. Why?!?!?!
 	if ((fActor->orientation > IE::ORIENTATION_SE && 
 			Core::Get()->Game() == GAME_BALDURSGATE) ||
 			fActor->orientation > IE::ORIENTATION_EXT_SSE) {
@@ -182,7 +181,10 @@ Actor::_Init()
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
 	
-	SetAnimationAction(ACT_STANDING);
+	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
+		SetAnimationAction(ACT_DEAD);
+	else
+		SetAnimationAction(ACT_STANDING);
 }
 
 
@@ -230,6 +232,7 @@ Actor::Print() const
 	std::cout << "Dialog: " << cre->DialogFile() << std::endl;
 	std::cout << "Death Variable: " << cre->DeathVariable() << std::endl;
 	std::cout << "Hitpoints:" << cre->CurrentHitPoints() << std::endl;
+	std::cout << "Status flags: " << std::dec << cre->PermanentStatus() << std::endl;
 	fActor->Print();
 	std::cout << "*********" << std::endl;
 }
@@ -685,7 +688,10 @@ void
 Actor::SetArea(const char* areaName)
 {
 	fArea = areaName;
-	SetAnimationAction(ACT_STANDING);
+	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
+		SetAnimationAction(ACT_DEAD);
+	else
+		SetAnimationAction(ACT_STANDING);
 }
 
 
