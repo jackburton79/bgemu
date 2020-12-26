@@ -50,7 +50,11 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	// TODO: Improve
 	std::string armorAnimation = actor->ArmorType();
 	std::cout << armorAnimation << std::endl;
-	description.bam_name.append(armorAnimation.substr(0, 1));
+	// TODO: Correct ? Fighters seems always to have full plate
+	if (description.bam_name[3] == 'F')
+		description.bam_name.append("4");
+	else
+		description.bam_name.append(armorAnimation.substr(0, 1));
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
@@ -90,6 +94,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 std::string
 BG2CharachterAnimationFactory::_RaceCharacter(uint8 race) const
 {
+	std::cout << "race: " << (int)race << std::endl;
 	switch (race) {
 		case 1: // HUMAN
 		case 7: // HALFORC
@@ -97,14 +102,14 @@ BG2CharachterAnimationFactory::_RaceCharacter(uint8 race) const
 		case 2: // ELF
 			return "E";
 		case 3: // HALF_ELF
-			return "E";
+			return "H";
 		case 4: // DWARF
+		case 6: // GNOME
 			return "D";
 		case 5: // HALFLING
-		case 6: // GNOME
 			return "I";
 		default:
-			return "H";
+			return "Z";
 	}
 }
 
@@ -112,15 +117,21 @@ BG2CharachterAnimationFactory::_RaceCharacter(uint8 race) const
 std::string
 BG2CharachterAnimationFactory::_ClassCharacter(uint8 c) const
 {
+	std::cout << "class: " << (int)c << std::endl;
 	switch (c) {
-		case 1:
+		case 1: // MAGE
+		case 11:
 			return "W";
-		case 2:
-		case 6:
+		case 2: // FIGHTER
+		case 6: // PALADIN
+		case 7: // FIGHTER_MAGE
+		case 8: // FIGHTER_CLERIC
+		case 9: // FIGHTER_THIEF
 			return "F";
-		case 3:
+		case 3: // CLERIC
 			return "C";
-		case 4:
+		case 4: // THIEF
+		case 5: // BARD
 			return "B";
 		default:
 			return "B";
