@@ -34,8 +34,16 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.sequence_number = o;
 	description.mirror = false;
 	// Armor
-	// TODO: For real
-	description.bam_name.append("1");
+	// TODO: Improve
+	if (actor->ArmorType() == 1)
+		description.bam_name.append("1");
+	else if (actor->ArmorType() == 2)
+		description.bam_name.append("2");
+	else if (actor->ArmorType() == 3)
+		description.bam_name.append("3");
+	else if (actor->ArmorType() == 4)
+		description.bam_name.append("4");
+
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G11");

@@ -631,6 +631,13 @@ Actor::Spawned() const
 }
 
 
+int
+Actor::ArmorType() const
+{
+	return 1;
+}
+
+
 bool
 Actor::InParty() const
 {
