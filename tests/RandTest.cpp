@@ -8,10 +8,9 @@
 
 int main()
 {
-	bool fail = false;
 	for (int i = 0; i < 10; i++) {
 		int iterations = 200;
-		fail = false;
+		bool fail = false;
 		int first = Core::RandomNumber(0, 10);
 		int last = Core::RandomNumber(first, 10);
 		std::cout << "Number between " << first << " and " << last << ": ";
