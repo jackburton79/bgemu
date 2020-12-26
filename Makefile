@@ -52,7 +52,7 @@ RandTest: $(OBJECTS) $(USER_OBJS) tests/RandTest.o
 
 # Other Targets
 clean:
-	-$(RM) $(OBJECTS)$(DEPS)$(EXECUTABLES)$(DEPS)$(C_UPPER_DEPS) bgemu.o tests/PathFindTest
+	-$(RM) $(OBJECTS)$(DEPS)$(EXECUTABLES)$(DEPS)$(C_UPPER_DEPS) bgemu.o tests/PathFindTest tests/RandTest
 	-@echo ' '
 
 .PHONY: all clean dependents
