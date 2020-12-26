@@ -18,7 +18,7 @@ IDSResource::Create(const res_ref& name)
 }
 
 
-IDSResource::IDSResource(const res_ref &name)
+IDSResource::IDSResource(const res_ref& name)
 	:
 	Resource(name, RES_IDS)
 {
@@ -27,7 +27,7 @@ IDSResource::IDSResource(const res_ref &name)
 
 /* virtual */
 bool
-IDSResource::Load(Archive *archive, uint32 key)
+IDSResource::Load(Archive* archive, uint32 key)
 {
 	if (!Resource::Load(archive, key))
 		return false;
@@ -41,25 +41,24 @@ IDSResource::Load(Archive *archive, uint32 key)
 	uint32 numEntries = 0;
 	char string[256];
 	if (fData->ReadLine(string, sizeof(string)) != NULL)
-		numEntries = atoi(string);
+		numEntries = ::atoi(string);
 
 	(void)(numEntries);
 
 	// PFFFT! just ignore the number of entries,
 	// since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
-		char *stringID = strtok(string, " ");
+		char *stringID = ::strtok(string, " ");
 		if (stringID == NULL)
 			continue;
-		char *stringValue = strtok(NULL, "\n\r");
+		char *stringValue = ::strtok(NULL, "\n\r");
 		if (stringValue == NULL)
 			continue;
-		char *finalValue = (char*)trim(stringValue);
 		char *rest = NULL;
-		uint32 id = strtoul(stringID, &rest, 0);
-
-		std::transform(finalValue, finalValue + strlen(finalValue),
-					finalValue, ::toupper);
+		uint32 id = ::strtoul(stringID, &rest, 0);
+		std::string finalValue = (char*)trim(stringValue);
+		std::transform(finalValue.begin(), finalValue.end(),
+					finalValue.begin(), ::toupper);
 		fMap[id] = finalValue;
 	}
 
@@ -93,7 +92,7 @@ IDSResource::IDForString(std::string string) const
 {
 	string_map::const_iterator i;
 	for (i = fMap.begin(); i != fMap.end(); i++) {
-		if (strcasecmp(i->second.c_str(), string.c_str()) == 0)
+		if (::strcasecmp(i->second.c_str(), string.c_str()) == 0)
 			return i->first;
 	}
 
