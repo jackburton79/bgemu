@@ -111,7 +111,7 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	/*if (sResourceName != NULL) {
+	if (sResourceName != NULL) {
 		std::cout << "Dump resource Mode" << std::endl;
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
@@ -119,7 +119,7 @@ main(int argc, char **argv)
 		gResManager->ReleaseResource(resource);
 		Core::Destroy();
 		return 0;
-	}*/
+	}
 	
 	if (sDebug) {
 		//gResManager->SetDebug(2);
