@@ -118,51 +118,51 @@ public:
 	
 	void Init();
 	
-	uint32 LongNameID();
-	uint32 ShortNameID();
+	uint32 LongNameID() const;
+	uint32 ShortNameID() const;
 
-	uint16 AnimationID();
-	uint32 Kit();
+	uint16 AnimationID() const;
+	uint32 Kit() const;
 	const char *KitStr();
 
-	uint8 EnemyAlly();
+	uint8 EnemyAlly() const;
 	void SetEnemyAlly(uint8 ea);
 
-	uint8 General();
-	uint8 Race();
-	uint8 Class();
-	uint8 Specific();
-	uint8 Gender();
-	uint8 Alignment();
+	uint8 General() const;
+	uint8 Race() const;
+	uint8 Class() const;
+	uint8 Specific() const;
+	uint8 Gender() const;
+	uint8 Alignment() const;
 
 	CREColors Colors();
 
-	sint8 Reputation();
+	sint8 Reputation() const;
 	void SetReputation(sint8 rep);
 
-	uint32 Experience();
-	uint32 ExperienceValue();
-	uint32 PermanentStatus();
+	uint32 Experience() const;
+	uint32 ExperienceValue() const;
+	uint32 PermanentStatus() const;
 	uint16 CurrentHitPoints() const;
-	uint32 Gold();
+	uint32 Gold() const;
 	
 	void GetAttributes(BaseAttributes &attributes);
 	
-	res_ref OverrideScriptName();
-	res_ref ClassScriptName();
-	res_ref RaceScriptName();
-	res_ref GeneralScriptName();
-	res_ref DefaultScriptName();
+	res_ref OverrideScriptName() const;
+	res_ref ClassScriptName() const;
+	res_ref RaceScriptName() const;
+	res_ref GeneralScriptName() const;
+	res_ref DefaultScriptName() const;
 
-	uint16 GlobalActorEnum();
+	uint16 GlobalActorEnum() const;
 	void SetGlobalActorEnum(uint16 enumValue);
-	uint16 LocalActorEnum();
+	uint16 LocalActorEnum() const;
 	void SetLocalActorEnum(uint16 enumValue);
 
 	IE::item ItemAtSlot(uint32 i);
 
-	res_ref DialogFile();
-	std::string DeathVariable();
+	res_ref DialogFile() const;
+	std::string DeathVariable() const;
 
 private:
 	virtual ~CREResource();

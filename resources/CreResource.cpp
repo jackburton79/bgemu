@@ -15,7 +15,9 @@ CREResource::Create(const res_ref& name)
 
 CREResource::CREResource(const res_ref &name)
 	:
-	Resource(name, RES_CRE)
+	Resource(name, RES_CRE),
+	fItemSlotOffset(0),
+	fItemsOffset(0)
 {
 }
 
@@ -67,7 +69,7 @@ CREResource::Init()
 
 
 uint32
-CREResource::LongNameID()
+CREResource::LongNameID() const
 {
 	uint32 id;
 	fData->ReadAt(8, id);
@@ -76,7 +78,7 @@ CREResource::LongNameID()
 
 
 uint32
-CREResource::ShortNameID()
+CREResource::ShortNameID() const
 {
 	uint32 id;
 	fData->ReadAt(12, id);
@@ -85,7 +87,7 @@ CREResource::ShortNameID()
 
 
 uint16
-CREResource::AnimationID()
+CREResource::AnimationID() const
 {
 	uint16 id;
 	fData->ReadAt(0x28, id);
@@ -94,7 +96,7 @@ CREResource::AnimationID()
 
 
 uint32
-CREResource::Kit()
+CREResource::Kit() const
 {
 	uint32 kit;
 	fData->ReadAt(0x244, kit);
@@ -110,7 +112,7 @@ CREResource::KitStr()
 
 
 uint8
-CREResource::EnemyAlly()
+CREResource::EnemyAlly() const
 {
 	uint8 ea;
 	fData->ReadAt(0x270, ea);
@@ -126,7 +128,7 @@ CREResource::SetEnemyAlly(uint8 ea)
 
 
 uint8
-CREResource::General()
+CREResource::General() const
 {
 	uint8 gen;
 	fData->ReadAt(0x271, gen);
@@ -135,7 +137,7 @@ CREResource::General()
 
 
 uint8
-CREResource::Race()
+CREResource::Race() const
 {
 	uint8 rac;
 	fData->ReadAt(0x272, rac);
@@ -144,7 +146,7 @@ CREResource::Race()
 
 
 uint8
-CREResource::Class()
+CREResource::Class() const
 {
 	uint8 c;
 	fData->ReadAt(0x273, c);
@@ -153,7 +155,7 @@ CREResource::Class()
 
 
 uint8
-CREResource::Specific()
+CREResource::Specific() const
 {
 	uint8 spec;
 	fData->ReadAt(0x0274, spec);
@@ -162,7 +164,7 @@ CREResource::Specific()
 
 
 uint8
-CREResource::Gender()
+CREResource::Gender() const
 {
 	uint8 gend;
 	fData->ReadAt(0x275, gend);
@@ -171,7 +173,7 @@ CREResource::Gender()
 
 
 uint8
-CREResource::Alignment()
+CREResource::Alignment() const
 {
 	uint8 align;
 	fData->ReadAt(0x27b, align);
@@ -195,7 +197,7 @@ CREResource::Colors()
 
 
 sint8
-CREResource::Reputation()
+CREResource::Reputation() const
 {
 	sint8 rep;
 	fData->ReadAt(0x44, rep);
@@ -211,7 +213,7 @@ CREResource::SetReputation(sint8 rep)
 
 
 uint32
-CREResource::Experience()
+CREResource::Experience() const
 {
 	uint32 exp;
 	fData->ReadAt(0x18, exp);
@@ -220,7 +222,7 @@ CREResource::Experience()
 
 
 uint32
-CREResource::PermanentStatus()
+CREResource::PermanentStatus() const
 {
 	uint32 state;
 	fData->ReadAt(0x20, state);
@@ -234,12 +236,11 @@ CREResource::CurrentHitPoints() const
 	uint32 hp;
 	fData->ReadAt(0x24, hp);
 	return hp;
-
 }
 
 
 uint32
-CREResource::ExperienceValue()
+CREResource::ExperienceValue() const
 {
 	uint32 exp;
 	fData->ReadAt(0x14, exp);
@@ -248,7 +249,7 @@ CREResource::ExperienceValue()
 
 
 uint32
-CREResource::Gold()
+CREResource::Gold() const
 {
 	uint32 gold;
 	fData->ReadAt(0x1C, gold);
@@ -257,7 +258,7 @@ CREResource::Gold()
 
 
 res_ref
-CREResource::OverrideScriptName()
+CREResource::OverrideScriptName() const
 {
 	res_ref name;
 	fData->ReadAt(0x248, name);
@@ -266,7 +267,7 @@ CREResource::OverrideScriptName()
 
 
 res_ref
-CREResource::ClassScriptName()
+CREResource::ClassScriptName() const
 {
 	res_ref name;
 	fData->ReadAt(0x250, name);
@@ -275,7 +276,7 @@ CREResource::ClassScriptName()
 
 
 res_ref
-CREResource::RaceScriptName()
+CREResource::RaceScriptName() const
 {
 	res_ref name;
 	fData->ReadAt(0x258, name);
@@ -284,15 +285,16 @@ CREResource::RaceScriptName()
 
 
 res_ref
-CREResource::GeneralScriptName()
+CREResource::GeneralScriptName() const
 {
 	res_ref name;
 	fData->ReadAt(0x260, name);
 	return name;
 }
 
+
 res_ref
-CREResource::DefaultScriptName()
+CREResource::DefaultScriptName() const
 {
 	res_ref name;
 	fData->ReadAt(0x268, name);
@@ -308,7 +310,7 @@ CREResource::GetAttributes(BaseAttributes &attributes)
 
 
 res_ref
-CREResource::DialogFile()
+CREResource::DialogFile() const
 {
 	res_ref dialogFile;
 	fData->ReadAt(0x2cc, dialogFile.name, 8);
@@ -317,7 +319,7 @@ CREResource::DialogFile()
 
 
 uint16
-CREResource::GlobalActorEnum()
+CREResource::GlobalActorEnum() const
 {
 	uint16 value;
 	fData->ReadAt(0x27c, &value, sizeof(value));
@@ -333,7 +335,7 @@ CREResource::SetGlobalActorEnum(uint16 value)
 
 
 uint16
-CREResource::LocalActorEnum()
+CREResource::LocalActorEnum() const
 {
 	uint16 value;
 	fData->ReadAt(0x27e, &value, sizeof(value));
@@ -372,7 +374,7 @@ CREResource::ItemAtSlot(uint32 i)
 
 
 std::string
-CREResource::DeathVariable()
+CREResource::DeathVariable() const
 {
 	char temp[32];
 	fData->ReadAt(0x280, temp, 32);
