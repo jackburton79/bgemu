@@ -352,7 +352,7 @@ CREResource::ItemAtSlot(uint32 i)
 
 	// TODO: number 38 is a dword instead. Handle that case
 	if ((int16)itemOffset == -1)
-		throw std::runtime_error("Wrong item offset");
+		throw std::runtime_error("Empty item");
 
 	IE::item ieItem;
 	_ReadItemNum(ieItem, itemOffset);

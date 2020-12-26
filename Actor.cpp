@@ -631,10 +631,25 @@ Actor::Spawned() const
 }
 
 
-int
+std::string
 Actor::ArmorType() const
 {
-	return 1;
+	// TODO: Refactor: items should be loaded elsewhere
+	try {
+		IE::item armor = fCRE->ItemAtSlot(1);
+		std::cout << armor.name << std::endl;
+		ITMResource* itm = gResManager->GetITM(armor.name);
+		if (itm != NULL) {
+			std::cout << "item type: " << itm->Type() << std::endl;
+			return itm->Animation();
+			gResManager->ReleaseResource(itm);
+		}
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	} catch (...) {
+	}
+
+	return "1";
 }
 
 

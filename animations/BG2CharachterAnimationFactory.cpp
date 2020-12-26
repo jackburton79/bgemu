@@ -35,14 +35,9 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.mirror = false;
 	// Armor
 	// TODO: Improve
-	if (actor->ArmorType() == 1)
-		description.bam_name.append("1");
-	else if (actor->ArmorType() == 2)
-		description.bam_name.append("2");
-	else if (actor->ArmorType() == 3)
-		description.bam_name.append("3");
-	else if (actor->ArmorType() == 4)
-		description.bam_name.append("4");
+	std::string armorAnimation = actor->ArmorType();
+	std::cout << armorAnimation << std::endl;
+	description.bam_name.append(armorAnimation.substr(0, 1));
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
@@ -73,6 +68,8 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		description.mirror = true;
 		description.sequence_number -= (o - 8) * 2;
 	}
+
+	std::cout << description.bam_name << std::endl;
 	return description;
 }
 
