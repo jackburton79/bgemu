@@ -93,12 +93,10 @@ Action::SetCompleted()
 bool
 Action::IsInstant() const
 {
-	const int id = fActionParams->id;
-	std::string actionName = IDTable::ActionAt(id);
 	IDSResource* instants = gResManager->GetIDS("INSTANT");
 	if (instants == NULL)
 		return false;
-	bool returnValue = instants->StringForID(id) != "";
+	bool returnValue = instants->StringForID(fActionParams->id) != "";
 	gResManager->ReleaseResource(instants);
 	return returnValue;
 }
