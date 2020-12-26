@@ -226,7 +226,6 @@ public:
 	ActionFadeToColor(Object* object, action_node* node);
 	virtual void operator()();
 private:
-	int32 fNumUpdates;
 	int32 fCurrentValue;
 	int32 fTargetValue;
 	int16 fStepValue;
@@ -238,7 +237,6 @@ public:
 	ActionFadeFromColor(Object* object, action_node* node);
 	virtual void operator()();
 private:
-	int32 fNumUpdates;
 	int32 fCurrentValue;
 	int32 fTargetValue;
 	int16 fStepValue;
