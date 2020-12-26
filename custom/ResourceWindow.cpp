@@ -17,7 +17,7 @@ ResourceWindow::ResourceWindow()
 	control->x = 0;
 	control->y = 0;
 	control->w = 300;
-	control->w = 200;
+	control->h = 200;
 	ListView* listView = new ListView(control);
 	StringList resourceList;
 	gResManager->GetCachedResourcesList(resourceList);
