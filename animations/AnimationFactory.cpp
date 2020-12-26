@@ -151,9 +151,10 @@ AnimationFactory::~AnimationFactory()
 
 
 Animation*
-AnimationFactory::AnimationFor(int action, int orientation, CREColors* colors)
+AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 {
-	animation_description description = GetAnimationDescription(action, orientation);
+	animation_description description = GetAnimationDescription(actor->AnimationAction(),
+																actor->Orientation());
 	
 	Animation* animation = NULL;
 	try {

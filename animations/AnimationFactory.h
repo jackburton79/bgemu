@@ -22,13 +22,14 @@ struct animation_description {
 };
 
 struct CREColors;
+class Actor;
 class Animation;
 class AnimationFactory : public Referenceable {
 public:
 	static AnimationFactory* GetFactory(const uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
-	Animation* AnimationFor(int action, int orientation, CREColors* colors = NULL);
+	Animation* AnimationFor(Actor* actor, CREColors* colors = NULL);
 	
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);

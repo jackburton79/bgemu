@@ -809,6 +809,13 @@ Actor::Update(bool scripts)
 }
 
 
+int
+Actor::AnimationAction() const
+{
+	return fAction;
+}
+
+
 void
 Actor::SetAnimationAction(int action)
 {
@@ -826,9 +833,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		delete fCurrentAnimation;
 		fCurrentAnimation = NULL;
 		if (fAnimationFactory != NULL) {
-			fCurrentAnimation = fAnimationFactory->AnimationFor(
-										fAction,
-										fActor->orientation, fColors);
+			fCurrentAnimation = fAnimationFactory->AnimationFor(this, fColors);
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {

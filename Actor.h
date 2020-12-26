@@ -109,7 +109,9 @@ public:
 
 	virtual void Update(bool scripts);
 
+	int AnimationAction() const;
 	void SetAnimationAction(int action);
+
 	void UpdateAnimation(bool ignoreBlocks);
 	void MoveToNextPointInPath(bool ignoreBlocks);
 
