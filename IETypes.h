@@ -219,7 +219,8 @@ struct actor {
 	uint8 cre_resref_first_letter;
 	uint8 unk;
 	uint32 animation;
-	uint32 orientation;
+	uint16 orientation;
+	uint16 unused;
 	uint32 removal_timer;
 	uint16 movement_restriction_distance;
 	uint16 movement_restriction_distance_object;
