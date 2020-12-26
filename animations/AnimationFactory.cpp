@@ -98,6 +98,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 						break;
 					case 0x50:
 					case 0x51:
+					case 0x52:
 					case 0x60:
 					case 0x61:
 					case 0x63:
