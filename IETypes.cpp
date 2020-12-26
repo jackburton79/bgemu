@@ -355,14 +355,15 @@ actor::Print() const
 	std::cout << "(" << animation << ")" << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
 	std::cout << "\tcre attached: " << ((flags & IE::ACTOR_CRE_EXTERNAL) ? "NO" : "YES") << std::endl;
-	/*printf("\tscript_override: %s\n", (const char*)script_override);
-	printf("\tscript_general: %s\n", (const char*)script_general);
-	printf("\tscript_class: %s\n", (const char*)script_class);
-	printf("\tscript_race: %s\n", (const char*)script_race);
-	printf("\tscript_default: %s\n", (const char*)script_default);
-	printf("\tscript_specific: %s\n", (const char*)script_specific);
-	printf("\tcre_offset: %u\n", cre_offset);
-	printf("\tcre_size: %u\n", cre_size);*/
+
+	/*std::cout << "\tscript_override: " << script_override.CString() << std::endl;
+	std::cout << "\tscript_general: " << script_general.CString() << std::endl;
+	std::cout << "\tscript_class: " << script_class.CString() << std::endl;
+	std::cout << "\tscript_race:  " << script_race.CString() << std::endl;
+	std::cout << "\tscript_default: " << script_default.CString() << std::endl;
+	std::cout << "\tscript_specific: " << script_specific.CString() << std::endl;
+	std::cout << "\tcre_offset: " << cre_offset << std::endl;
+	std::cout << "\tcre_size: " << cre_size << std::endl;*/
 }
 
 
