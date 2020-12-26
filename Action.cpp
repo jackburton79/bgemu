@@ -335,6 +335,7 @@ ActionPlayDead::ActionPlayDead(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
+	fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
 }
 
 
@@ -350,7 +351,6 @@ ActionPlayDead::operator()()
 			return;
 		}
 		actor->SetAnimationAction(ACT_DEAD);
-		fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
 	}
 	
 	if (fDuration-- <= 0)
@@ -985,6 +985,7 @@ ActionScreenShake::ActionScreenShake(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
+	fDuration = fActionParams->integer1;
 }
 
 
@@ -999,7 +1000,6 @@ ActionScreenShake::operator()()
 		if (fObject != NULL)
 			fObject->SetWaitTime(fDuration);
 		fOffset = fActionParams->where;
-		fDuration = fActionParams->integer1;
 	}
 	
 	GFX::point point = { 0, 0 };
@@ -1155,6 +1155,7 @@ ActionDisplayString::ActionDisplayString(Object* object, action_node* node)
 	:
 	Action(object, node)
 {
+	fDuration = fActionParams->integer1;
 }
 
 
@@ -1164,7 +1165,6 @@ ActionDisplayString::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		fDuration = fActionParams->integer1;
 		std::string string = IDTable::GetDialog(fActionParams->integer1); 
 		GUI::Get()->DisplayString(string, fActionParams->where.x, fActionParams->where.y, fDuration * AI_UPDATE_FREQ);
 	}
@@ -1179,6 +1179,7 @@ ActionDisplayStringHead::ActionDisplayStringHead(Object* object, action_node* no
 	:
 	Action(object, node)
 {
+	fDuration = 100; //??
 }
 
 
@@ -1188,7 +1189,6 @@ ActionDisplayStringHead::operator()()
 {
 	if (!Initiated()) {
 		SetInitiated();
-		fDuration = 100; //??
 		Object* sender = Script::GetSenderObject(fObject, fActionParams);
 		Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(sender, fActionParams));
 		if (actor == NULL) {
