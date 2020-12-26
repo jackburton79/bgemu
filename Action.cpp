@@ -345,8 +345,10 @@ ActionPlayDead::operator()()
 	if (!Initiated()) {
 		SetInitiated();
 		Actor* actor = dynamic_cast<Actor*>(fObject);
-		if (actor == NULL)
+		if (actor == NULL) {
 			SetCompleted();
+			return;
+		}
 		actor->SetAnimationAction(ACT_DEAD);
 		fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
 	}
