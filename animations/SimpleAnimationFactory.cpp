@@ -23,11 +23,12 @@ SimpleAnimationFactory::~SimpleAnimationFactory()
 
 
 /* virtual */
-void
-SimpleAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
+animation_description
+SimpleAnimationFactory::GetAnimationDescription(int action, int o)
 {
 	//std::cout << "SimpleAnimationFactory::AnimationFor(";
 	//std::cout << action << ", " << o << ")" << std::endl;
+	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
@@ -55,4 +56,5 @@ SimpleAnimationFactory::GetAnimationDescription(int action, int o, animation_des
 		description.mirror = true;
 		description.sequence_number -= (o - 4) * 2;
 	}
+	return description;
 }

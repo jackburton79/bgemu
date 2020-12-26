@@ -16,7 +16,7 @@ public:
 	~BG2CharachterAnimationFactory();
 
 private:
-	virtual void GetAnimationDescription(int action, int o, animation_description&);
+	virtual animation_description GetAnimationDescription(int action, int o);
 };
 
 #endif /* BG2ANIMATIONFACTORY_H_ */

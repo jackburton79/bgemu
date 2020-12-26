@@ -23,10 +23,11 @@ SplitAnimationFactory::~SplitAnimationFactory()
 
 
 /* virtual */
-void
-SplitAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
+animation_description
+SplitAnimationFactory::GetAnimationDescription(int action, int o)
 {
 	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
+	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
 	
@@ -67,5 +68,6 @@ SplitAnimationFactory::GetAnimationDescription(int action, int o, animation_desc
 		description.bam_name.append("E");
 		//description.sequence_number -= (o - 4) * 2;
 	}
+	return description;
 }
 

@@ -23,10 +23,11 @@ IWDAnimationFactory::~IWDAnimationFactory()
 
 
 /* virtual */
-void
-IWDAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
+animation_description
+IWDAnimationFactory::GetAnimationDescription(int action, int o)
 {
 	//std::cout << "IWDAnimationFactory" << std::endl;
+	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
 
@@ -55,5 +56,6 @@ IWDAnimationFactory::GetAnimationDescription(int action, int o, animation_descri
 			&& o <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
 	}
+	return description;
 }
 

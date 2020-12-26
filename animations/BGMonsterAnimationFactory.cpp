@@ -23,10 +23,11 @@ BGMonsterAnimationFactory::~BGMonsterAnimationFactory()
 
 
 /* virtual */
-void
-BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
+animation_description
+BGMonsterAnimationFactory::GetAnimationDescription(int action, int o)
 {
 	//std::cout << "BGAnimationFactory" << std::endl;
+	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
 	//if (Core::Get()->Game() == GAME_BALDURSGATE2)
@@ -63,5 +64,6 @@ BGMonsterAnimationFactory::GetAnimationDescription(int action, int o, animation_
 			std::cerr << fBaseName << ", action " << action << ", orientation " << o << std::endl;
 			break;
 	}
+	return description;
 }
 

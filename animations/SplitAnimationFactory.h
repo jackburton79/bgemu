@@ -16,7 +16,7 @@ public:
 	~SplitAnimationFactory();
 
 private:
-	virtual void GetAnimationDescription(int action, int orientation, animation_description& description);
+	virtual animation_description GetAnimationDescription(int action, int orientation);
 };
 
 #endif /* SPLITANIMATIONFACTORY_H_ */

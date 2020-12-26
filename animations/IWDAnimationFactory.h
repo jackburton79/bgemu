@@ -16,7 +16,7 @@ public:
 	~IWDAnimationFactory();
 
 private:
-	virtual void GetAnimationDescription(int action, int o, animation_description&);
+	virtual animation_description GetAnimationDescription(int action, int o);
 };
 
 #endif /* IWDANIMATIONFACTORY_H_ */

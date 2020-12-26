@@ -23,10 +23,11 @@ BG2CharachterAnimationFactory::~BG2CharachterAnimationFactory()
 
 
 /* virtual */
-void
-BG2CharachterAnimationFactory::GetAnimationDescription(int action, int o, animation_description& description)
+animation_description
+BG2CharachterAnimationFactory::GetAnimationDescription(int action, int o)
 {
 	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
+	animation_description description;
 	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
@@ -62,5 +63,6 @@ BG2CharachterAnimationFactory::GetAnimationDescription(int action, int o, animat
 		description.mirror = true;
 		description.sequence_number -= (o - 8) * 2;
 	}
+	return description;
 }
 
