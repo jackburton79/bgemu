@@ -9,6 +9,7 @@
 
 #include "Actor.h"
 #include "Animation.h"
+#include "CreResource.h"
 
 BG2CharachterAnimationFactory::BG2CharachterAnimationFactory(
 		const char* baseName, const uint16 id)
@@ -30,9 +31,21 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
 	int o = actor->Orientation();
 	animation_description description;
-	description.bam_name = fBaseName;
 	description.sequence_number = o;
 	description.mirror = false;
+
+	// TODO: In theory, fBaseName should already be correct, but in
+	// practice, it's not
+	description.bam_name = "";
+	description.bam_name.append("C");
+
+	// Race
+	description.bam_name.append(_RaceCharacter(actor->CRE()->Race()));
+	// Gender
+	description.bam_name.append(_GenderCharacter(actor->CRE()->Gender()));
+	// Class
+	description.bam_name.append(_ClassCharacter(actor->CRE()->Class()));
+
 	// Armor
 	// TODO: Improve
 	std::string armorAnimation = actor->ArmorType();
@@ -73,3 +86,56 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	return description;
 }
 
+
+std::string
+BG2CharachterAnimationFactory::_RaceCharacter(uint8 race) const
+{
+	switch (race) {
+		case 1: // HUMAN
+		case 7: // HALFORC
+			return "H";
+		case 2: // ELF
+			return "E";
+		case 3: // HALF_ELF
+			return "E";
+		case 4: // DWARF
+			return "D";
+		case 5: // HALFLING
+		case 6: // GNOME
+			return "I";
+		default:
+			return "H";
+	}
+}
+
+
+std::string
+BG2CharachterAnimationFactory::_ClassCharacter(uint8 c) const
+{
+	switch (c) {
+		case 1:
+			return "W";
+		case 2:
+		case 6:
+			return "F";
+		case 3:
+			return "C";
+		case 4:
+			return "B";
+		default:
+			return "B";
+	}
+}
+
+
+std::string
+BG2CharachterAnimationFactory::_GenderCharacter(uint8 gender) const
+{
+	switch (gender) {
+		case 2:
+			return "F";
+		case 1:
+		default:
+			return "M";
+	}
+}
