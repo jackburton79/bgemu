@@ -481,12 +481,8 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (!IsActionListEmpty())
 		return;
 		
-	bool runScripts = false;
-	//if (fTicksIdle++ > 5)
-		runScripts = true;
+	bool runScripts = true;
 	
-	//if (!IsInterruptable())
-		//return;
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (!IsInsideVisibleArea()) {
 		if (actor == NULL || !actor->InParty()) {
@@ -503,11 +499,11 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	fTicksIdle = 0;
 	
-	if (Core::Get()->CutsceneMode())
-		maxLevel = 1;
-
 	if (!IsInterruptable())
 		return;
+
+	if (Core::Get()->CutsceneMode())
+		maxLevel = 1;
 
 	maxLevel = std::min((size_t)maxLevel, fScripts.size());
 	try {
