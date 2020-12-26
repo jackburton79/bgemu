@@ -39,7 +39,7 @@ public:
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 
-	void GetPoints(PointList points) const;
+	void GetPoints(PointList& points) const;
 
 	void SetDebug(debug_function callback);
 

@@ -83,7 +83,7 @@ PathFinder::IsEmpty() const
 
 
 void
-PathFinder::GetPoints(PointList points) const
+PathFinder::GetPoints(PointList& points) const
 {
 	points = fPoints;
 }
