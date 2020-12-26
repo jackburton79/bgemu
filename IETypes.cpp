@@ -56,7 +56,7 @@ const static resource_types kResourceTypes[] = {
 	{ RES_EFF, "EFF", "EFF Effect", NULL  },
 	{ RES_GAM, "GAM", "GAM format", NULL  },
 	{ RES_IDS, "IDS", "IDS format", &IDSResource::Create },
-	{ RES_ITM, "ITM", "Item", NULL },
+	{ RES_ITM, "ITM", "Item", &ITMResource::Create },
 	{ RES_MOS, "MOS", "MOS format", &MOSResource::Create },
 	{ RES_MVE, "MVE", "Movie (MVE) format", &MVEResource::Create },
 	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", NULL },

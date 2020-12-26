@@ -13,6 +13,13 @@
 #define ITM_VERSION_1 "V1  "
 
 
+/* static */
+Resource*
+ITMResource::Create(const res_ref& name)
+{
+	return new ITMResource(name);
+}
+
 
 ITMResource::ITMResource(const res_ref& resName)
 	:
@@ -66,7 +73,7 @@ ITMResource::Load(Archive *archive, uint32 key)
 
 	fData->ReadAt(8, fHeader);
 
-	std::cout << "Name: " << IDTable::ObjectAt(fHeader.name_identified) << std::endl;
+	//std::cout << "Name: " << IDTable::ObjectAt(fHeader.name_identified) << std::endl;
 
 	return true;
 }

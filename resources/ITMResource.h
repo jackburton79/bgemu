@@ -1,4 +1,4 @@
-/*
+	/*
  * ITMResource.h
  *
  *  Created on: 25/mag/2013
@@ -28,6 +28,7 @@ struct itm_header {
 class ITMResource: public Resource {
 public:
 	ITMResource(const res_ref& name);
+	static Resource* Create(const res_ref& name);
 
 	virtual bool Load(Archive *archive, uint32 key);
 
