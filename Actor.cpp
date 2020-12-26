@@ -229,6 +229,7 @@ Actor::Print() const
 	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
 	std::cout << "Dialog: " << cre->DialogFile() << std::endl;
 	std::cout << "Death Variable: " << cre->DeathVariable() << std::endl;
+	std::cout << "Hitpoints:" << cre->CurrentHitPoints() << std::endl;
 	fActor->Print();
 	std::cout << "*********" << std::endl;
 }
