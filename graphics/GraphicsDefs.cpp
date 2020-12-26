@@ -135,5 +135,3 @@ Palette::Dump(const char* fileName) const
 
 
 }
-
-
