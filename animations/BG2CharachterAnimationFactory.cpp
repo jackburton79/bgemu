@@ -136,7 +136,7 @@ BG2CharachterAnimationFactory::_ClassCharacter(uint8 c) const
 			return "C";
 		case 4: // THIEF
 		case 5: // BARD
-			return "B";
+			return "T";
 		default:
 			return "B";
 	}
