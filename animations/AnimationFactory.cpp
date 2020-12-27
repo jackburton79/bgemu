@@ -36,6 +36,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	// 0x7e00: MWER, BG2Monster
 	// 0x8100: MHOB, BGMonster
 	// 0x9000: MOGR, BG2Monster
+	// 0x7f2c: NSOL, BG2Monster
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
