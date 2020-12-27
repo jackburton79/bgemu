@@ -38,11 +38,11 @@ SplitAnimationFactory::GetAnimationDescription(Actor* actor)
 
 	description.sequence_number = uint32(o);
 
-	// G1/G11-G15, G2/G21/26
+	// G1
 	//if (IE::is_orientation_facing_north(o))
 		description.bam_name.append("H");
 	//else 
-	//	description.bam_name.append("L");
+		//description.bam_name.append("L");
 	
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
