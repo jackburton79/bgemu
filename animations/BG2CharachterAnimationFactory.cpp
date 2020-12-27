@@ -36,26 +36,30 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 
 	// TODO: In theory, fBaseName should already be correct, but in
 	// practice, it's not
-	description.bam_name = "";
-	description.bam_name.append("C");
+	if (actor->InParty()) {
+		description.bam_name = "";
+		description.bam_name.append("C");
 
-	// Race
-	description.bam_name.append(_RaceCharacter(actor->CRE()->Race()));
-	// Gender
-	description.bam_name.append(_GenderCharacter(actor->CRE()->Gender()));
-	// Class
-	description.bam_name.append(_ClassCharacter(actor->CRE()->Class()));
+		// Race
+		description.bam_name.append(_RaceCharacter(actor->CRE()->Race()));
+		// Gender
+		description.bam_name.append(_GenderCharacter(actor->CRE()->Gender()));
+		// Class
+		description.bam_name.append(_ClassCharacter(actor->CRE()->Class()));
 
-	// Armor
-	// TODO: Improve
-	std::string armorAnimation = actor->ArmorType();
-	std::cout << armorAnimation << std::endl;
-	// TODO: Correct ? Fighters seems always to have full plate
-	if (description.bam_name[3] == 'F')
-		description.bam_name.append("4");
-	else
-		description.bam_name.append(armorAnimation.substr(0, 1));
-
+		// Armor
+		// TODO: Improve
+		std::string armorAnimation = actor->ArmorType();
+		std::cout << armorAnimation << std::endl;
+		// TODO: Correct ? Fighters seems always to have full plate
+		if (description.bam_name[3] == 'F')
+			description.bam_name.append("4");
+		else
+			description.bam_name.append(armorAnimation.substr(0, 1));
+	} else {
+		description.bam_name = fBaseName;
+		description.bam_name.append("1");
+	}
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G11");
