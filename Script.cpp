@@ -1048,6 +1048,12 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			action = new ActionWait(sender, act);
 			break;
 		}
+		case 83:
+		{
+			/* 83 SmallWait(I:Time*) */
+			action = new ActionSmallWait(sender, act);
+			break;
+		}
 		case 84:
 		{
 			/* 84 (0x54) FACE(I:DIRECTION) */
@@ -1066,10 +1072,16 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			action = new ActionSetInterruptable(sender, act);
 			break;
 		}
-		case 0x53:
+		case 100:
 		{
-			/* 83 SmallWait(I:Time*) */
-			action = new ActionSmallWait(sender, act);
+			/* 100 RandomFly */
+			action = new ActionRandomFly(sender, act);
+			break;
+		}
+		case 101:
+		{
+			/* 101 FlyToPoint(Point, Time) */
+			action = new ActionFlyTo(sender, act);
 			break;
 		}
 		case 106:
@@ -1078,18 +1090,6 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			// Check if target is silenced
 			/*if (thisActor != NULL)
 				thisActor->Shout(act->integer1);*/
-			break;
-		}
-		case 0x64:
-		{
-			/* 100 RandomFly */
-			action = new ActionRandomFly(sender, act);
-			break;
-		}
-		case 0x65:
-		{
-			/* 101 FlyToPoint(Point, Time) */
-			action = new ActionFlyTo(sender, act);
 			break;
 		}
 		case 109:
@@ -1154,11 +1154,6 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			}*/
 			break;
 		}
-		case 0xA7:
-		{
-			action = new ActionPlayMovie(sender, act);
-			break;
-		}
 		case 134:
 		{
 			/* AttackReevaluate(O:Target*,I:ReevaluationPeriod*)
@@ -1181,6 +1176,11 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 			 * the specified object.
 			 */
 			action = new ActionDisplayMessage(sender, act);
+			break;
+		}
+		case 167:
+		{
+			action = new ActionPlayMovie(sender, act);
 			break;
 		}
 		case 177:
