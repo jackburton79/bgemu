@@ -198,6 +198,36 @@ Parser::TriggersFromString(const std::string& string)
 
 
 static
+Parameter
+ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
+{
+	Parameter parameter;
+	std::string typeString = string.substr(0, 2);
+	size_t valueNamePos = string.find(":");
+	size_t IDSNamePos = string.find("*");
+	std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
+	std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
+	if (typeString == "O:") {
+		parameter.type = Parameter::OBJECT;
+	} else if (typeString == "S:") {
+		parameter.type = Parameter::STRING;
+		parameter.position = stringPos;
+		stringPos++;
+	} else if (typeString == "I:") {
+		if (valueIDS == "")
+			parameter.type = Parameter::INTEGER;
+		else {
+			parameter.type = Parameter::INT_ENUM;
+			parameter.IDtable = valueIDS;
+		}
+		parameter.position = integerPos;
+		integerPos++;
+	}
+	return parameter;
+}
+
+
+static
 std::vector<Parameter>
 GetFunctionParameters(std::string functionString)
 {
@@ -217,34 +247,11 @@ GetFunctionParameters(std::string functionString)
 	int integerPos = 1;
 	for (;;) {
 		token t = tokenizer.ReadToken();
-		Parameter parameter;
-		if (strcmp(t.u.string, "O:OBJECT*") == 0) {
-			parameter.type = Parameter::OBJECT;
-			parameters.push_back(parameter);
-		} else if (strncmp(t.u.string, "S:", 2) == 0) {
-			parameter.type = Parameter::STRING;
-			parameter.position = stringPos;
-			parameters.push_back(parameter);
-			stringPos++;
-		} else if (strncmp(t.u.string, "I:", 2) == 0) {
-			std::string string = t.u.string;
-			size_t valueNamePos = string.find(":");
-			size_t IDSNamePos = string.find("*");
-			std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
-			std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
-			if (valueIDS == "")
-				parameter.type = Parameter::INTEGER;
-			else {
-				parameter.type = Parameter::INT_ENUM;
-				parameter.IDtable = valueIDS;
-			}
-			parameter.position = integerPos;
-			integerPos++;
-			parameters.push_back(parameter);
-		}
 		// closing parenthesis
 		if (t.type == TOKEN_PARENTHESIS_CLOSED)
 			break;
+		Parameter parameter = ParameterFromString(t.u.string, stringPos, integerPos);
+		parameters.push_back(parameter);
 	}
 
 	std::cout << "found " << parameters.size() << " parameters." << std::endl;
