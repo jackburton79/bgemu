@@ -74,7 +74,8 @@ Parameter::Print() const
 {
 	std::cout << "type:" << Type() << std::endl;
 	std::cout << "position: " << position << std::endl;
-	std::cout << "IDtable: " << IDtable << std::endl;
+	if (!IDtable.empty())
+		std::cout << "IDtable: " << IDtable << std::endl;
 }
 
 
@@ -211,6 +212,7 @@ GetFunctionParameters(std::string functionString)
 			|| parens.type != TOKEN_PARENTHESIS_OPEN)
 		return parameters;
 
+	// TODO: Improve, refactor
 	int stringPos = 1;
 	int integerPos = 1;
 	for (;;) {
@@ -442,6 +444,7 @@ token
 Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 								Parameter& parameter)
 {
+	// TODO: horrible, complex code. Improve, refactor
 	std::cout << "ExtractNextParameter" << std::endl;
 	token tokenParam = tokenizer.ReadToken();
 	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
