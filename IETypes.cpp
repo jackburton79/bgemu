@@ -50,7 +50,7 @@ const static resource_types kResourceTypes[] = {
 	{ RES_BAM, "BAM", "BAM format", &BAMResource::Create },
 	{ RES_BCS, "BCS", "Compiled script (BCS format)", &BCSResource::Create },
 	{ RES_BMP, "BMP", "Bitmap (BMP) format", &BMPResource::Create },
-	{ RES_CHU, "CHU", "CHU format", &CHUIResource::Create  },
+	{ RES_CHU, "CHU", "CHUI format", &CHUIResource::Create  },
 	{ RES_CRE, "CRE", "Creature", &CREResource::Create },
 	{ RES_DLG, "DLG", "Dialog", &DLGResource::Create  },
 	{ RES_EFF, "EFF", "EFF Effect", NULL  },
@@ -166,9 +166,9 @@ res_ref::res_ref()
 
 res_ref::res_ref(const char *string)
 {
-	int32 len = string ? strlen(string) : 0;
+	int32 len = string ? ::strnlen(string, 8) : 0;
 	len = std::min(len, 8);
-	strncpy(name, string, len);
+	::memcpy(name, string, len);
 	if (len < 8)
 		name[len] = '\0';
 }
@@ -176,7 +176,7 @@ res_ref::res_ref(const char *string)
 
 res_ref::res_ref(const res_ref &ref)
 {
-	memcpy(name, ref.name, 8);
+	::memcpy(name, ref.name, 8);
 }
 
 
@@ -184,7 +184,7 @@ const char*
 res_ref::CString() const
 {
 	char* str = get_buffer();
-	strncpy(str, name, 8);
+	::memcpy(str, name, 8);
 	str[8] = '\0';
 	return (const char *)str;
 }
@@ -193,7 +193,7 @@ res_ref::CString() const
 res_ref&
 res_ref::operator=(const res_ref& other)
 {
-	memcpy(name, other.name, 8);
+	::memcpy(name, other.name, 8);
 	return *this;
 }
 
@@ -209,21 +209,21 @@ res_ref::operator [](int index)
 bool
 operator<(const res_ref &ref1, const res_ref &ref2)
 {
-	return strncasecmp(ref1.name, ref2.name, 8) < 0;
+	return ::strncasecmp(ref1.name, ref2.name, 8) < 0;
 }
 
 
 bool
 operator==(const res_ref &ref1, const res_ref &ref2)
 {
-	return strncasecmp(ref1.name, ref2.name, 8) == 0;
+	return ::strncasecmp(ref1.name, ref2.name, 8) == 0;
 }
 
 
 bool
 operator!=(const res_ref &ref1, const res_ref &ref2)
 {
-	return strncasecmp(ref1.name, ref2.name, 8) != 0;
+	return ::strncasecmp(ref1.name, ref2.name, 8) != 0;
 }
 
 
