@@ -495,25 +495,6 @@ ResourceManager::ReleaseResource(Resource* resource)
 }
 
 
-int32
-ResourceManager::GetResourceList(std::vector<std::string>& strings,
-		const char* query, uint16 type) const
-{
-	resource_map::const_iterator iter;
-	const int32 queryLen = strlen(query);
-	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
-		const ref_type resType = (*iter).first;
-		std::string newString(resType.name.CString());
-		if (resType.type == type
-				&& !strncmp(newString.c_str(), query, queryLen)) {
-			strings.push_back(newString);
-		}
-	}
-
-	return strings.size();
-}
-
-
 std::string
 ResourceManager::GetFullPath(std::string name, uint16 location)
 {

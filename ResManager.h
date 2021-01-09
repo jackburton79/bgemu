@@ -78,9 +78,6 @@ public:
 	static std::string LightMapName(const char *name);
 	static std::string SearchMapName(const char *name);
 
-	int32 GetResourceList(std::vector<std::string>& list,
-			const char* query, uint16 type)  const;
-
 private:
 	ResourceManager(const char* path);
 	~ResourceManager();
