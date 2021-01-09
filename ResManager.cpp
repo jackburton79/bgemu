@@ -211,11 +211,10 @@ ResourceManager::SetDebug(int level)
 bool
 ResourceManager::ResourceExists(const res_ref& ref, uint16 type) const
 {
-	KeyResEntry* entry = _GetKeyRes(ref, type);
-	if (entry != NULL) {
-		delete entry;
+	const KeyResEntry* entry = _GetKeyRes(ref, type);
+	if (entry != NULL)
 		return true;
-	}
+
 	return false;
 }
 
@@ -238,7 +237,7 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 	if (!strcmp(name.name, ""))
 		return NULL;
 
-	KeyResEntry *entry = _GetKeyRes(name, type);
+	const KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
 		std::cerr << RED(kComponentName) << RED("GetResource(");
 		std::cerr << RED(name.CString()) << RED(", ") << RED(strresource(type));
@@ -573,7 +572,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 
 
 Resource*
-ResourceManager::_LoadResource(KeyResEntry &entry)
+ResourceManager::_LoadResource(const KeyResEntry &entry)
 {
 	const int bifIndex = RES_BIF_INDEX(entry.key);
 	const uint16& location = fBifs[bifIndex]->location;
@@ -623,7 +622,7 @@ ResourceManager::_LoadResource(KeyResEntry &entry)
 
 
 Resource*
-ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
+ResourceManager::_LoadResourceFromOverride(const KeyResEntry& entry)
 {
 	// TODO: Try the other override directories (dialogs, characters, etc.... override)
 
@@ -637,7 +636,7 @@ ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry)
 
 
 Resource*
-ResourceManager::_LoadResourceFromOverride(KeyResEntry& entry,
+ResourceManager::_LoadResourceFromOverride(const KeyResEntry& entry,
 		const char* overridePath)
 {
 	std::string fullPath = GetFullPath(overridePath, LOC_ROOT);
@@ -741,7 +740,7 @@ ResourceManager::SearchMapName(const char *name)
 
 
 Resource*
-ResourceManager::_FindResource(KeyResEntry &entry)
+ResourceManager::_FindResource(const KeyResEntry &entry)
 {
 	std::list<Resource*>::iterator iter;
 	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
@@ -752,7 +751,7 @@ ResourceManager::_FindResource(KeyResEntry &entry)
 }
 
 
-KeyResEntry*
+const KeyResEntry*
 ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 {
 	ref_type nameType = { name, type };

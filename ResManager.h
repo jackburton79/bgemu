@@ -87,12 +87,12 @@ private:
 
 	const char *ResourcesPath() const;
 
-	KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;
+	const KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;
 
-	Resource *_FindResource(KeyResEntry &entry);
-	Resource *_LoadResource(KeyResEntry &entry);
-	Resource* _LoadResourceFromOverride(KeyResEntry& entry);
-	Resource* _LoadResourceFromOverride(KeyResEntry& entry, const char* overridePath);
+	Resource *_FindResource(const KeyResEntry &entry);
+	Resource *_LoadResource(const KeyResEntry &entry);
+	Resource* _LoadResourceFromOverride(const KeyResEntry& entry);
+	Resource* _LoadResourceFromOverride(const KeyResEntry& entry, const char* overridePath);
 
 	std::string GetFullPath(std::string name, uint16 location);
 
