@@ -226,7 +226,7 @@ GameTimer::HourOfDay()
 bool
 GameTimer::IsDayTime()
 {
-	return false;
+	return (HourOfDay() > 6) && (HourOfDay() < 20);
 }
 
 
