@@ -33,7 +33,7 @@ void
 path_dos_to_unix(char* path)
 {
 	char* c;
-	while ((c = strchr(path, '\\')) != NULL)
+	while ((c = ::strchr(path, '\\')) != NULL)
 		*c = '/';
 }
 
@@ -42,7 +42,7 @@ FILE*
 fopen_case(const char* filename, const char* flags)
 {
 	assert(filename != NULL);
-	assert(strlen(filename) > 1);
+	assert(::strlen(filename) > 1);
 
 	Path normalizedFileName(filename);
 	std::string newPath("/");
@@ -107,7 +107,7 @@ size_t
 unquote_string(char* dest, char* source, size_t length)
 {
 	int32 newLength = std::max((int32)length - 2, (int32)0);
-	::strncpy(dest, source + 1, newLength);
+	::memcpy(dest, source + 1, newLength);
 	dest[newLength] = '\0';
 
 	return newLength;
