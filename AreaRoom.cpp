@@ -630,11 +630,13 @@ AreaRoom::_InitBackMap(const GFX::rect& area)
 void
 AreaRoom::_InitWed(const char* name)
 {
-	std::string wedName = name;
-	if (!GameTimer::IsDayTime())
-		wedName.append("N");
+	std::string nightName = name;
+	nightName.append("N");
 
-	fWed = gResManager->GetWED(wedName.c_str());
+	if (!GameTimer::IsDayTime() && gResManager->ResourceExists(nightName.c_str(), RES_WED))
+		fWed = gResManager->GetWED(nightName.c_str());
+	else
+		fWed = gResManager->GetWED(name);
 
 	_InitBackMap(ViewPort());
 	_InitHeightMap();
