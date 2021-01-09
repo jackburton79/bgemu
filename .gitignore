@@ -5,3 +5,4 @@ data
 Chitin.key
 BGEmu
 tests/PathFindTest
+tests/RandTest
