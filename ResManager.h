@@ -40,6 +40,8 @@ public:
 	static void Destroy();
 
 	void SetDebug(int level);
+
+	bool ResourceExists(const res_ref& ref, uint16 type) const;
 	
 	KEYResource*	GetKEY(const char *name);
 	TLKResource*	GetTLK(const char *name);

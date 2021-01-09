@@ -208,6 +208,18 @@ ResourceManager::SetDebug(int level)
 }
 
 
+bool
+ResourceManager::ResourceExists(const res_ref& ref, uint16 type) const
+{
+	KeyResEntry* entry = _GetKeyRes(ref, type);
+	if (entry != NULL) {
+		delete entry;
+		return true;
+	}
+	return false;
+}
+
+
 Resource*
 ResourceManager::GetResource(const char* fullName)
 {
