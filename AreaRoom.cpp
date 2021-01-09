@@ -593,6 +593,7 @@ AreaRoom::IsGUIShown() const
 void
 AreaRoom::ToggleDayNight()
 {
+#if 0
 	std::string wedName = fWed->Name();
 	if (*wedName.rbegin() == 'N')
 		wedName = fArea->Name();
@@ -602,6 +603,7 @@ AreaRoom::ToggleDayNight()
 	std::vector<std::string> list;
 	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
 		_InitWed(wedName.c_str());
+#endif
 }
 
 
@@ -628,7 +630,11 @@ AreaRoom::_InitBackMap(const GFX::rect& area)
 void
 AreaRoom::_InitWed(const char* name)
 {
-	fWed = gResManager->GetWED(name);
+	std::string wedName = name;
+	if (!GameTimer::IsDayTime())
+		wedName.append("N");
+
+	fWed = gResManager->GetWED(wedName.c_str());
 
 	_InitBackMap(ViewPort());
 	_InitHeightMap();
