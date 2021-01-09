@@ -101,7 +101,7 @@ Path::InitCheck() const
 	\return
 	- \c B_OK: The initialization was successful.
 	- \c B_BAD_VALUE: \c NULL \a path or absolute \a leaf.
-	- \c B_NAME_TOO_LONG: The pathname is longer than \c B_PATH_NAME_LENGTH.
+	- \c B_NAME_TOO_LONG: The pathname is longer than \c PATH_MAX.
 	- other error codes.
 	\note \code path.SetTo(path.Path(), "new leaf") \endcode is safe.
 */
