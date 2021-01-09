@@ -211,11 +211,7 @@ ResourceManager::SetDebug(int level)
 bool
 ResourceManager::ResourceExists(const res_ref& ref, uint16 type) const
 {
-	const KeyResEntry* entry = _GetKeyRes(ref, type);
-	if (entry != NULL)
-		return true;
-
-	return false;
+	return _GetKeyRes(ref, type) != NULL;
 }
 
 
