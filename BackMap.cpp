@@ -72,21 +72,11 @@ BackMap::Height() const
 }
 
 
-// Get the tile at the specified x/y index
-TileCell*
-BackMap::TileAt(uint16 x, uint16 y)
-{
-	uint16 numTile = y + x;
-	if (numTile >= fTileCells.size())
-		return NULL;
-
-	return fTileCells[numTile];
-}
-
-
 TileCell*
 BackMap::TileAt(uint16 index)
 {
+	if (index >= fTileCells.size())
+		return NULL;
 	return fTileCells[index];
 }
 
@@ -148,7 +138,7 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 			tileRect.w = fTileWidth;
 			tileRect.x = x * fTileWidth - rect.x;
 
-			TileCell* tile = TileAt(tileNumY,  x);
+			TileCell* tile = TileAt(tileNumY + x);
 			if (tile == NULL) {
 				continue;
 			}

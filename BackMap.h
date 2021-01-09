@@ -25,7 +25,6 @@ public:
 	uint16 Width() const;
 	uint16 Height() const;
 
-	TileCell* TileAt(uint16 x, uint16 y);
 	TileCell* TileAt(uint16 index);
 	TileCell* TileAtPoint(const IE::point& point);
 	uint16 TileNumberForPoint(const IE::point& point);
