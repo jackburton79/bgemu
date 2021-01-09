@@ -103,17 +103,17 @@ token::token(const char *tok)
 	type(TOKEN_UNKNOWN),
 	size(0)
 {
-	strncpy(u.string, tok, sizeof(u.string));
-	size = strlen(u.string);
+	::memcpy(u.string, tok, sizeof(u.string));
+	size = ::strnlen(u.string, sizeof(u.string));
 
-	if (!memcmp(tok, "SC", 2)
-		|| !memcmp(tok, "CR", 2)
-		|| !memcmp(tok, "CO", 2)
-		|| !memcmp(tok, "TR", 2)
-		|| !memcmp(tok, "OB", 2)
-		|| !memcmp(tok, "RS", 2)
-		|| !memcmp(tok, "RE", 2)
-		|| !memcmp(tok, "AC", 2))
+	if (!::memcmp(tok, "SC", 2)
+		|| !::memcmp(tok, "CR", 2)
+		|| !::memcmp(tok, "CO", 2)
+		|| !::memcmp(tok, "TR", 2)
+		|| !::memcmp(tok, "OB", 2)
+		|| !::memcmp(tok, "RS", 2)
+		|| !::memcmp(tok, "RE", 2)
+		|| !::memcmp(tok, "AC", 2))
 		type = TOKEN_STRING;
 	else if (tok[0] == ' ')
 		type = TOKEN_SPACE;
@@ -142,7 +142,7 @@ operator==(const struct token &t1, const struct token &t2)
 		case TOKEN_PARENTHESIS_OPEN:
 		case TOKEN_PARENTHESIS_CLOSED:
 		case TOKEN_COMMA:
-			return strncmp(t1.u.string, t2.u.string, sizeof(t1.u.string)) == 0;
+			return ::strncmp(t1.u.string, t2.u.string, sizeof(t1.u.string)) == 0;
 		case TOKEN_NUMBER:
 			return t1.u.number == t2.u.number;
 		default:
@@ -335,7 +335,7 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 		if (stringToken.size > 2) {
 			// less than 2 means it's an empty string, like ""
 			newTokenSize = stringToken.size - 2;
-			strncpy(trig->string1, stringToken.u.string + 1, newTokenSize);
+			::memcpy(trig->string1, stringToken.u.string + 1, newTokenSize);
 		}
 		trig->string1[newTokenSize] = '\0';
 
@@ -343,7 +343,7 @@ Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 		size_t newTokenSize2 = 0;
 		if (stringToken2.size > 2) {
 			newTokenSize2 = stringToken2.size - 2;
-			strncpy(trig->string2, stringToken2.u.string + 1, newTokenSize2);
+			::memcpy(trig->string2, stringToken2.u.string + 1, newTokenSize2);
 		}
 		trig->string2[newTokenSize2] = '\0';
 	}
@@ -361,7 +361,7 @@ get_unquoted_string(char* dest, char* source, size_t size)
 	while (*nameEnd != '"')
 		nameEnd--;
 	*nameEnd = '\0';
-	strcpy(dest, name);
+	::strcpy(dest, name);
 }
 
 
@@ -415,10 +415,10 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		// TODO: This removes "" from strings. Broken.
 		// Should do this from the beginning!!!
 		token stringToken = tokenizer->ReadToken();
-		strncpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
+		::memcpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
 		act->string1[stringToken.size - 2] = '\0';
 		token stringToken2 = tokenizer->ReadToken();
-		strncpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
+		::memcpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
 		act->string2[stringToken2.size - 2] = '\0';
 	}
 }
@@ -472,13 +472,15 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		parameter.Print();
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = tokenizer.ReadToken();
+
+	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
 		case Parameter::OBJECT:
 		{
 			object_params objectNode;
 			if (tokenParam.type == TOKEN_QUOTED_STRING) {
-				strncpy(objectNode.name, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-				objectNode.name[strlen(tokenParam.u.string) - 2] = '\0';
+				::memcpy(objectNode.name, tokenParam.u.string + 1, stringLength - 1);
+				objectNode.name[stringLength - 2] = '\0';
 			} else if (tokenParam.type == TOKEN_STRING) {
 				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
 			}
@@ -506,24 +508,27 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 			break;
 		}
 		case Parameter::STRING:
+		{
 			if (parameter.position == 1) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					strncpy(node->string1, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-					node->string1[strlen(tokenParam.u.string) - 2] = '\0';
+
+					::memcpy(node->string1, tokenParam.u.string + 1, stringLength - 1);
+					node->string1[stringLength - 2] = '\0';
 				} else if (tokenParam.type == TOKEN_STRING) {
-					strncpy(node->string1, tokenParam.u.string, strlen(tokenParam.u.string));
-					node->string1[strlen(tokenParam.u.string)] = '\0';
+					::memcpy(node->string1, tokenParam.u.string, stringLength);
+					node->string1[stringLength] = '\0';
 				}
 			} else if (parameter.position == 2) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					strncpy(node->string2, tokenParam.u.string + 1, strlen(tokenParam.u.string) - 1);
-					node->string2[strlen(tokenParam.u.string) - 2] = '\0';
+					::memcpy(node->string2, tokenParam.u.string + 1, stringLength - 1);
+					node->string2[stringLength - 2] = '\0';
 				} else if (tokenParam.type == TOKEN_STRING) {
-					strncpy(node->string2, tokenParam.u.string, strlen(tokenParam.u.string));
-					node->string2[strlen(tokenParam.u.string)] = '\0';
+					::memcpy(node->string2, tokenParam.u.string, stringLength);
+					node->string2[stringLength] = '\0';
 				}
 			}
 			break;
+		}
 		default:
 			break;
 	}
