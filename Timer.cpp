@@ -223,6 +223,14 @@ GameTimer::HourOfDay()
 
 
 /* static */
+bool
+GameTimer::IsDayTime()
+{
+	return false;
+}
+
+
+/* static */
 void
 GameTimer::PrintTime()
 {

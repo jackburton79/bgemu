@@ -60,6 +60,7 @@ public:
 	static uint32 Minutes();
 	static uint32 Seconds();
 	static uint16 HourOfDay();
+	static bool IsDayTime();
 
 	static void PrintTime();
 	static void UpdateGameTime();
