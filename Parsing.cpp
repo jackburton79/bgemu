@@ -18,6 +18,7 @@
 class Parameter {
 public:
 	Parameter();
+	std::string Name() const;
 	std::string Type() const;
 
 	void Print() const;
@@ -30,6 +31,7 @@ public:
 		POINT,
 		UNKNOWN
 	};
+	std::string name;
 	int type;
 	int position;
 	std::string IDtable;
@@ -46,6 +48,13 @@ Parameter::Parameter()
 	type(UNKNOWN),
 	position(1)
 {
+}
+
+
+std::string
+Parameter::Name() const
+{
+	return name;
 }
 
 
@@ -72,6 +81,7 @@ Parameter::Type() const
 void
 Parameter::Print() const
 {
+	std::cout << "name:" << Name() << std::endl;
 	std::cout << "type:" << Type() << std::endl;
 	std::cout << "position: " << position << std::endl;
 	if (!IDtable.empty())
@@ -207,6 +217,7 @@ ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 	size_t IDSNamePos = string.find("*");
 	std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
 	std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
+	parameter.name = valueName;
 	if (typeString == "O:") {
 		parameter.type = Parameter::OBJECT;
 	} else if (typeString == "S:") {
