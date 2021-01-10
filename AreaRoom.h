@@ -40,7 +40,7 @@ public:
 	::BackMap* BackMap() const;
 	::SearchMap* SearchMap() const;
 
-	virtual void Draw(Bitmap *surface);
+	virtual void Draw();
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 

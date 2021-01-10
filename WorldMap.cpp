@@ -102,7 +102,7 @@ WorldMap::AreaRect() const
 
 
 void
-WorldMap::Draw(Bitmap *surface)
+WorldMap::Draw()
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 

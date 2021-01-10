@@ -60,7 +60,7 @@ void
 Control::Draw()
 {
 	if (fRoom != NULL)
-		fRoom->Draw(NULL);
+		fRoom->Draw();
 }
 
 

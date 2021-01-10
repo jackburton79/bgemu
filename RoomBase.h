@@ -48,7 +48,7 @@ public:
 	void ConvertFromArea(GFX::rect& rect);
 	void ConvertFromArea(IE::point& point);
 
-	virtual void Draw(Bitmap *surface) = 0;
+	virtual void Draw() = 0;
 	virtual void MouseDown(IE::point point) = 0;
 	virtual void MouseMoved(IE::point point, uint32 transit) = 0;
 	

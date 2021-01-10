@@ -204,7 +204,7 @@ AreaRoom::SearchMap() const
 
 /* virtual */
 void
-AreaRoom::Draw(Bitmap *surface)
+AreaRoom::Draw()
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 

@@ -24,7 +24,7 @@ public:
 	
 	virtual GFX::rect AreaRect() const;
 
-	virtual void Draw(Bitmap *surface);
+	virtual void Draw();
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 
