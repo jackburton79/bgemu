@@ -171,59 +171,6 @@ private:
 	
 	uint32 fItemSlotOffset;
 	uint32 fItemsOffset;
-/*protected:
-	uint32 fLongNameID;
-	uint32 fShortNameID;
-	
-	uint16 fFlags;
-	//uint8 fFlags2;
-	
-	int32 fExperienceValue;
-	int32 fExperience;
-	int32 fGold;
-	uint32 fPermanentFlags;
-	int16 fCurrentHP;
-	int16 fMaxHP;
-	int16 fAnimationID;
-	
-	CreatureColors fColors;
-	
-	char fRSCSmallPortrait[9];
-	char fRSCLargePortrait[9];
-	
-	uint8 fReputation;
-	uint8 fHideInShadows;
-	
-	ArmorClass fArmorClass;
-	
-	uint8 fTHAC0;
-	
-	uint8 fNumberOfAttacks;
-	
-	SaveVersus fSaveVersus;
-	Resistances fResistances;
-	
-	uint8 fDetectIllusion;
-	uint8 fSetTraps;
-	uint8 fLore;
-	uint8 fLockPicking;
-	uint8 fStealth;
-	uint8 fDisarmTraps;
-	uint8 fPickPockets;
-	uint8 fFatigue;
-	uint8 fIntoxification;
-	uint8 fLuck;
-	
-	BaseAttributes fAttributes;
-	
-	uint8 fMorale;
-	uint8 fMoraleBreak;
-	uint8 fRacialEnemy;
-	uint8 fMoraleRecoveryTime;
-	
-	uint32 fKit;
-	
-	char fDialogFile[9];*/
 };
 
 const char *KitToStr(uint32 kit);
