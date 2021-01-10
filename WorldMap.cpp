@@ -159,7 +159,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 	Label* label = dynamic_cast<Label*>(window->GetControlByID(268435458));
 	if (label != NULL) {
 		if (fAreaUnderMouse != NULL) {
-			label->SetText(fAreaUnderMouse->Caption().c_str());
+			label->SetText(fAreaUnderMouse->Caption());
 		} else
 			label->SetText("");
 	}
