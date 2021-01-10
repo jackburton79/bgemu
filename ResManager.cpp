@@ -659,7 +659,6 @@ ResourceManager::PrintResources(int32 type)
 			std::cerr << RED("KeyResEntry is NULL. SHOULD NOT HAPPEN! ");
 			std::cerr << iter->first.name << " (";
 			std::cerr << iter->first.type << " )" << std::endl;
-			abort();
 			continue;
 		}
 		if (type == -1 || type == res->type) {
