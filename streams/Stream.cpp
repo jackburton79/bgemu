@@ -96,9 +96,13 @@ Stream::Dump()
 	off_t oldPos = Position();
 	Seek(0, SEEK_SET);
 	uint8 byte;
-	while (true) {
-		byte = ReadByte();
-		std::cout << byte;
+	try {
+		while (true) {
+			byte = ReadByte();
+			std::cout << byte;
+		}
+	} catch (std::exception& e) {
+		// eof
 	}
 
 	Seek(oldPos, SEEK_SET);
