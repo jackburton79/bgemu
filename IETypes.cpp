@@ -52,7 +52,7 @@ const static resource_types kResourceTypes[] = {
 	{ RES_BMP, "BMP", "Bitmap (BMP) format", &BMPResource::Create },
 	{ RES_CHU, "CHU", "CHUI format", &CHUIResource::Create  },
 	{ RES_CRE, "CRE", "Creature", &CREResource::Create },
-	{ RES_DLG, "DLG", "Dialog", &DLGResource::Create  },
+	{ RES_DLG, "DLG", "DLG format", &DLGResource::Create  },
 	{ RES_EFF, "EFF", "EFF Effect", NULL  },
 	{ RES_GAM, "GAM", "GAM format", NULL  },
 	{ RES_IDS, "IDS", "IDS format", &IDSResource::Create },
