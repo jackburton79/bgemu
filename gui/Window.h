@@ -49,6 +49,8 @@ public:
 	Control* GetControlByID(uint32 id) const;
 	Control* GetGUIControl() const;
 
+	Control* ReplaceControl(uint32 id, Control* newcontrol);
+
 	void MouseDown(IE::point point);
 	void MouseUp(IE::point point);
 	void MouseMoved(IE::point point);

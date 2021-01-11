@@ -180,10 +180,10 @@ Control::ConvertFromScreen(IE::point& point) const
 void
 Control::AssociateRoom(RoomBase* room)
 {
-	fRoom = room;
+	//fRoom = room;
 
-	GFX::rect areaRect = fRoom->AreaRect();
-	GFX::rect controlRect = Frame();
+	GFX::rect areaRect = room->AreaRect();
+	GFX::rect controlRect = Window()->Frame();
 
 	if (areaRect.w <= Window()->Width()) {
 		controlRect.w = areaRect.w;
@@ -194,6 +194,8 @@ Control::AssociateRoom(RoomBase* room)
 		controlRect.y = (Window()->Height() - controlRect.h) / 2;
 	}
 
+	std::cout << "Control::AssociateRoom(): ControlRect: " << std::endl;
+	controlRect.Print();
 	SetFrame(controlRect.x, controlRect.y,
 				controlRect.w, controlRect.h);
 

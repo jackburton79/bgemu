@@ -100,9 +100,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	ShowGUI();
 
 	if (window != NULL) {
-		Control* control = window->GetControlByID(uint32(-1));
-		if (control != NULL)
-			control->AssociateRoom(this);
+		fSavedControl = window->ReplaceControl((uint32)-1, this);
 		Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
 		if (label != NULL)
 			label->SetText(longName);
@@ -1022,6 +1020,8 @@ void
 AreaRoom::_UnloadArea()
 {
 	assert(fWed != NULL);
+
+	Window()->ReplaceControl(InternalControl()->id, fSavedControl);
 
 	if (fSelectedActor != NULL) {
 		fSelectedActor.Target()->Select(false);

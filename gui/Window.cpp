@@ -8,6 +8,7 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "GraphicsEngine.h"
+#include "RoomBase.h"
 #include "Window.h"
 
 #include "RectUtils.h"
@@ -162,6 +163,26 @@ Window::GetGUIControl() const
 			IE::button* button = (IE::button*)control->InternalControl();
 			if (strcmp(button->image.CString(), kGuiCtrlName) == 0)
 				return control;
+		}
+	}
+	return NULL;
+}
+
+
+Control*
+Window::ReplaceControl(uint32 id, Control* newControl)
+{
+	std::vector<Control*>::iterator i;
+	for (i = fControls.begin(); i != fControls.end(); i++) {
+		Control* control = (*i);
+		if (id == control->ID()) {
+			newControl->InternalControl()->id = id;
+			newControl->AttachedToWindow(this);
+			*i = newControl;
+			RoomBase* room = dynamic_cast<RoomBase*>(newControl);
+			if (room != NULL)
+				newControl->AssociateRoom(room);
+			return control;
 		}
 	}
 	return NULL;

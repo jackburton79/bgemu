@@ -417,7 +417,7 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 	int xMaxBorder = viewPort.w;
 	int yMaxBorder = viewPort.h;
 
-	Control* control = room->ParentControl();
+	Control* control = room;
 	if (strcmp(room->Name(), "WORLDMAP") == 0) {
 		yMinBorder = control->Position().y;
 		yMaxBorder = control->Height() + control->Position().y;

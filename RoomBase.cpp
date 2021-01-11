@@ -16,7 +16,9 @@
 RoomBase::RoomBase()
 	:
 	Object("RoomBase", Object::AREA),
-	fParentControl(NULL)
+	Control(new IE::control()),
+	fParentControl(NULL),
+	fSavedControl(NULL)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;
 	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;
@@ -61,6 +63,7 @@ void
 RoomBase::SetViewPort(GFX::rect rect)
 {
 	fViewPort = rect;
+	SetFrame(rect.x, rect.y, rect.w, rect.h);
 }
 
 

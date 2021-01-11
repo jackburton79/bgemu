@@ -74,10 +74,7 @@ WorldMap::WorldMap()
 
 	::Window* window = gui->GetWindow(0);
 	if (window != NULL) {
-		// TODO: Move this into GUI ?
-		Control* control = window->GetControlByID(4);
-		if (control != NULL)
-			control->AssociateRoom(this);
+		fSavedControl = window->ReplaceControl(4, this);
 		ViewPort().Print();
 	}
 }
@@ -216,6 +213,8 @@ WorldMap::_UnloadWorldMap()
 {
 	std::cout << "WorldMap::Unload()" << std::endl;
 	assert(fWorldMap != NULL);
+
+	Window()->ReplaceControl(InternalControl()->id, fSavedControl);
 
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 

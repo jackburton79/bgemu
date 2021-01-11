@@ -2,18 +2,17 @@
 #define __ROOMBASE_H
 
 #include "Bitmap.h"
+#include "Control.h"
 #include "GraphicsDefs.h"
 #include "IETypes.h"
-#include "Listener.h"
 #include "Object.h"
 
 #include <vector>
 
 class AreaEntry;
 class Bitmap;
-class Control;
 class Region;
-class RoomBase : public Object, public Listener {
+class RoomBase : public Object, public Control {
 public:
 	RoomBase();
 	virtual ~RoomBase();
@@ -71,6 +70,8 @@ private:
 	GFX::rect fViewPort;
 	IE::point fAreaOffset;
 	Control* fParentControl;
+protected:
+	Control* fSavedControl;
 
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
