@@ -62,7 +62,6 @@ public:
 protected:
 	::Window* fWindow;
 	IE::control* fControl;
-	RoomBase* fRoom;
 };
 
 #endif /* CONTROL_H_ */

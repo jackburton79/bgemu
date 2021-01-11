@@ -176,7 +176,9 @@ Window::ReplaceControl(uint32 id, Control* newControl)
 	for (i = fControls.begin(); i != fControls.end(); i++) {
 		Control* control = (*i);
 		if (id == control->ID()) {
+			GFX::rect controlFrame = control->Frame();
 			newControl->InternalControl()->id = id;
+			newControl->SetFrame(controlFrame.x, controlFrame.y, controlFrame.w, controlFrame.h);
 			newControl->AttachedToWindow(this);
 			*i = newControl;
 			RoomBase* room = dynamic_cast<RoomBase*>(newControl);

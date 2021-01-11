@@ -22,8 +22,7 @@
 Control::Control(IE::control* control)
 	:
 	fWindow(NULL),
-	fControl(control),
-	fRoom(NULL)
+	fControl(control)
 {
 }
 
@@ -59,8 +58,6 @@ Control::InternalControl() const
 void
 Control::Draw()
 {
-	if (fRoom != NULL)
-		fRoom->Draw();
 }
 
 
@@ -76,13 +73,8 @@ Control::AttachedToWindow(::Window* window)
 void
 Control::MouseMoved(IE::point point, uint32 transit)
 {
-	if (fRoom != NULL) {
-		ConvertFromScreen(point);
-		if (point.x >= 0 && point.y >= 0)
-			fRoom->MouseMoved(point, transit);
-	} else if (transit == MOUSE_ENTER) {
+	if (transit == MOUSE_ENTER)
 		GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
-	}
 }
 
 
@@ -90,11 +82,6 @@ Control::MouseMoved(IE::point point, uint32 transit)
 void
 Control::MouseDown(IE::point point)
 {
-	if (fRoom != NULL) {
-		ConvertFromScreen(point);
-		if (point.x >= 0 && point.y >= 0)
-			fRoom->MouseDown(point);
-	}
 }
 
 
@@ -180,10 +167,8 @@ Control::ConvertFromScreen(IE::point& point) const
 void
 Control::AssociateRoom(RoomBase* room)
 {
-	//fRoom = room;
-
 	GFX::rect areaRect = room->AreaRect();
-	GFX::rect controlRect = Window()->Frame();
+	GFX::rect controlRect = Frame();
 
 	if (areaRect.w <= Window()->Width()) {
 		controlRect.w = areaRect.w;
@@ -196,8 +181,8 @@ Control::AssociateRoom(RoomBase* room)
 
 	std::cout << "Control::AssociateRoom(): ControlRect: " << std::endl;
 	controlRect.Print();
-	SetFrame(controlRect.x, controlRect.y,
-				controlRect.w, controlRect.h);
+	//SetFrame(controlRect.x, controlRect.y,
+		////		controlRect.w, controlRect.h);
 
 	Window()->ConvertToScreen(controlRect);
 
