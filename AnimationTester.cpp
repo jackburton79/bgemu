@@ -2,8 +2,18 @@
 #include "BamResource.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "Label.h"
 #include "ResManager.h"
 #include "Timer.h"
+#include "Window.h"
+
+#include <sstream>
+
+class AnimationTesterWindow : public Window {
+public:
+	AnimationTesterWindow();
+};
+
 
 AnimationTester::AnimationTester(std::string name)
 	:
@@ -45,6 +55,16 @@ AnimationTester::UpdateAnimation()
 	bitmapFrame.y = fPosition.y;
 	GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, &bitmapFrame);
 	bitmap->Release();
+	
+	Window* window = GUI::Get()->GetWindow(999);
+	if (window != NULL) {
+		Label* label = (Label*)window->GetControlByID(1);
+		if (label != NULL) {
+			std::ostringstream stringStream;
+			stringStream << "frame " << fFrameNum;
+			label->SetText(stringStream.str().c_str());
+		}
+	}
 }
 
 
@@ -55,10 +75,13 @@ AnimationTester::Loop()
 						 GraphicsEngine::Get()->ScreenFrame().h)) {
 		throw std::runtime_error("Initializing GUI failed");
 	}
+
 	SelectCycle(0);
 	SDL_Event event;
 	bool quitting = false;
 	GUI* gui = GUI::Get();
+	gui->AddWindow(new AnimationTesterWindow());
+	gui->ShowWindow(999);
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
@@ -87,4 +110,26 @@ AnimationTester::Loop()
 		
 		Timer::WaitSync(startTicks, 35);
 	}
+}
+
+
+AnimationTesterWindow::AnimationTesterWindow()
+	:
+	Window(999, 0, 0, GraphicsEngine::Get()->ScreenFrame().w, GraphicsEngine::Get()->ScreenFrame().h, NULL)
+{
+	IE::label* control = new IE::label;
+	control->id = 1;
+	control->x = 30;
+	control->y = 400;
+	control->w = 300;
+	control->h = 15;
+	control->type = IE::CONTROL_LABEL;
+	control->font_bam = "TOOLFONT";
+	control->flags = IE::LABEL_USE_RGB_COLORS;
+	control->color1_r = control->color1_g = control->color1_b = control->color1_a = 0;
+	control->color2_r = control->color2_g = control->color2_b = control->color2_a = 255;
+	
+	Label* frameLabel = new Label(control);
+	frameLabel->SetText("");
+	Add(frameLabel);
 }

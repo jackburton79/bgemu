@@ -67,6 +67,7 @@ public:
 	bool IsWindowShown(uint16 id) const;
 	void ToggleWindow(uint16 id);
 
+	void AddWindow(Window* window);
 	Window* GetWindow(uint16 id) const;
 	TextArea* GetMessagesTextArea();
 	void EnsureShowDialogArea();

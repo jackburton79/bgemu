@@ -276,6 +276,13 @@ GUI::ShowWindow(uint16 id)
 
 
 void
+GUI::AddWindow(Window* window)
+{
+	fWindows.push_back(window);
+}
+
+
+void
 GUI::HideWindow(uint16 id)
 {
 	Window* window = GetWindow(id);
