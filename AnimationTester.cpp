@@ -32,13 +32,13 @@ AnimationTester::SelectCycle(uint8 cycle)
 		return;
 	
 	Bitmap* bitmap = fResource->FrameForCycle(fCycleNum, fFrameNum);
-
-	GFX::rect screenFrame = GraphicsEngine::Get()->ScreenFrame();	
-	GFX::rect frame = bitmap->Frame();
-	fPosition.x = (screenFrame.w - frame.w) / 2;
-	fPosition.y = (screenFrame.h - frame.h) / 2;
-	
-	bitmap->Release();
+	if (bitmap != NULL) {
+		GFX::rect screenFrame = GraphicsEngine::Get()->ScreenFrame();
+		GFX::rect frame = bitmap->Frame();
+		fPosition.x = (screenFrame.w - frame.w) / 2;
+		fPosition.y = (screenFrame.h - frame.h) / 2;
+		bitmap->Release();
+	}
 	fCycleNum = cycle;
 	fFrameNum = 0;
 }
@@ -50,12 +50,13 @@ AnimationTester::UpdateAnimation()
 	if (fFrameNum++ >= fResource->CountFrames(fCycleNum))
 		fFrameNum = 0;
 	Bitmap* bitmap = fResource->FrameForCycle(fCycleNum, fFrameNum);
-	GFX::rect bitmapFrame = bitmap->Frame();
-	bitmapFrame.x = fPosition.x;
-	bitmapFrame.y = fPosition.y;
-	GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, &bitmapFrame);
-	bitmap->Release();
-	
+	if (bitmap != NULL) {
+		GFX::rect bitmapFrame = bitmap->Frame();
+		bitmapFrame.x = fPosition.x;
+		bitmapFrame.y = fPosition.y;
+		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, &bitmapFrame);
+		bitmap->Release();
+	}
 	Window* window = GUI::Get()->GetWindow(999);
 	if (window != NULL) {
 		Label* label = (Label*)window->GetControlByID(1);
