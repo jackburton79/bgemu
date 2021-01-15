@@ -1251,8 +1251,8 @@ ActionFaceObject::operator()()
 
 	const IE::rect objectFrame = target->Frame();
 	IE::point point;
-	point.x = (objectFrame.x_max - objectFrame.x_min) / 2;
-	point.y = (objectFrame.y_max - objectFrame.y_min) / 2;
+	point.x = objectFrame.Width() / 2;
+	point.y = objectFrame.Height() / 2;
 	sender->SetOrientation(point);
 	SetCompleted();
 }
