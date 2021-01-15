@@ -122,15 +122,8 @@ WorldMap::Draw()
 void
 WorldMap::MouseDown(IE::point point)
 {
-	ConvertFromScreen(point);
-	ConvertToArea(point);
-	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
-		AreaEntry* area = fAreaEntries.at(i);
-		if (rect_contains(area->Rect(), point)) {
-			Core::Get()->LoadArea(area->Name(), area->LongName(), NULL);
-			break;
-		}
-	}
+	if (fAreaUnderMouse != NULL)
+		Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), NULL);
 }
 
 
