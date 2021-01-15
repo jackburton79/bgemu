@@ -122,6 +122,7 @@ WorldMap::Draw()
 void
 WorldMap::MouseDown(IE::point point)
 {
+	ConvertFromScreen(point);
 	ConvertToArea(point);
 	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
 		AreaEntry* area = fAreaEntries.at(i);
@@ -136,6 +137,7 @@ WorldMap::MouseDown(IE::point point)
 void
 WorldMap::MouseMoved(IE::point point, uint32 transit)
 {
+	ConvertFromScreen(point);
 	ConvertToArea(point);
 
 	fAreaUnderMouse = NULL;

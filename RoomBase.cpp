@@ -17,7 +17,6 @@ RoomBase::RoomBase()
 	:
 	Object("RoomBase", Object::AREA),
 	Control(new IE::control()),
-	fParentControl(NULL),
 	fSavedControl(NULL)
 {
 	fAreaOffset.x = fAreaOffset.y = 0;

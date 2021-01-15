@@ -374,6 +374,7 @@ AreaRoom::MouseDown(IE::point point)
 void
 AreaRoom::MouseMoved(IE::point point, uint32 transit)
 {
+	ConvertFromScreen(point);
 	ConvertToArea(point);
 
 	if (fWed != NULL) {

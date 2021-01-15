@@ -181,10 +181,10 @@ Control::AssociateRoom(RoomBase* room)
 
 	std::cout << "Control::AssociateRoom(): ControlRect: " << std::endl;
 
-	//Window()->ConvertToScreen(controlRect);
+	//Window()->ConvertFromScreen(controlRect);
 
 	if (room != NULL) {
-		//room->SetViewPort(controlRect);
+		room->SetViewPort(controlRect);
 	}
 }
 
