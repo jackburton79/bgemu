@@ -30,20 +30,6 @@ RoomBase::~RoomBase()
 }
 
 
-Control*
-RoomBase::ParentControl() const
-{
-	return fParentControl;
-}
-
-
-void
-RoomBase::SetParentControl(Control* control)
-{
-	fParentControl = control;
-}
-
-
 /* virtual */
 IE::rect
 RoomBase::Frame() const

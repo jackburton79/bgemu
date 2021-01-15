@@ -69,7 +69,6 @@ public:
 private:
 	GFX::rect fViewPort;
 	IE::point fAreaOffset;
-	Control* fParentControl;
 protected:
 	Control* fSavedControl;
 

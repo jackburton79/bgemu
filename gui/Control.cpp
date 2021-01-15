@@ -180,15 +180,11 @@ Control::AssociateRoom(RoomBase* room)
 	}
 
 	std::cout << "Control::AssociateRoom(): ControlRect: " << std::endl;
-	controlRect.Print();
-	//SetFrame(controlRect.x, controlRect.y,
-		////		controlRect.w, controlRect.h);
 
-	Window()->ConvertToScreen(controlRect);
+	//Window()->ConvertToScreen(controlRect);
 
 	if (room != NULL) {
-		room->SetViewPort(controlRect);
-		room->SetParentControl(this);
+		//room->SetViewPort(controlRect);
 	}
 }
 
