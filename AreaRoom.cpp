@@ -320,6 +320,7 @@ AreaRoom::Draw()
 void
 AreaRoom::MouseDown(IE::point point)
 {
+	ConvertFromScreen(point);
 	ConvertToArea(point);
 
 	if (fSelectedActor != NULL)
