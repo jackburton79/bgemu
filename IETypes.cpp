@@ -270,6 +270,20 @@ operator-(const IE::point& ptA, const IE::point& ptB)
 }
 
 
+uint16
+IE::rect::Width() const
+{
+	return x_max - x_min;
+}
+
+
+uint16
+IE::rect::Height() const
+{
+	return y_max - y_min;
+}
+
+
 // orientation
 bool
 IE::is_orientation_facing_north(int o)
