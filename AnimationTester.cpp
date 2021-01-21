@@ -111,7 +111,7 @@ AnimationTester::Loop()
 		UpdateAnimation();
 		GraphicsEngine::Get()->Update();
 		
-		Timer::WaitSync(startTicks, 35);
+		Timer::WaitSync(startTicks, 100);
 	}
 }
 
