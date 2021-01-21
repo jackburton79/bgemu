@@ -54,6 +54,8 @@ AnimationTester::UpdateAnimation()
 		GFX::rect bitmapFrame = bitmap->Frame();
 		bitmapFrame.x = fPosition.x;
 		bitmapFrame.y = fPosition.y;
+		GFX::rect animationFrame = {fPosition.x, fPosition.y, 100, 100};
+		GraphicsEngine::Get()->ScreenBitmap()->FillRect(animationFrame, 0);
 		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, &bitmapFrame);
 		bitmap->Release();
 	}
@@ -81,8 +83,8 @@ AnimationTester::Loop()
 	SDL_Event event;
 	bool quitting = false;
 	GUI* gui = GUI::Get();
-	gui->AddWindow(new AnimationTesterWindow());
-	gui->ShowWindow(999);
+	//gui->AddWindow(new AnimationTesterWindow());
+	//gui->ShowWindow(999);
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
