@@ -54,7 +54,7 @@ AnimationTester::UpdateAnimation()
 		GFX::rect bitmapFrame = bitmap->Frame();
 		bitmapFrame.x = fPosition.x;
 		bitmapFrame.y = fPosition.y;
-		GFX::rect animationFrame = {fPosition.x, fPosition.y, 100, 100};
+		GFX::rect animationFrame(fPosition.x, fPosition.y, 100, 100);
 		GraphicsEngine::Get()->ScreenBitmap()->FillRect(animationFrame, 0);
 		GraphicsEngine::Get()->BlitToScreen(bitmap, NULL, &bitmapFrame);
 		bitmap->Release();
