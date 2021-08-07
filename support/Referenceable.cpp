@@ -56,10 +56,11 @@ Referenceable::Release()
 		std::cout << ", current: " << fRefCount << std::endl;
 	}
 	
+	int currentRefCount = fRefCount;
 	if (previousRefCount == 1)
 		LastReferenceReleased();
 	
-	if (fRefCount <= 0)
+	if (currentRefCount <= 0)
 		return true;
 
 	return false;
