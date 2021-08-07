@@ -37,10 +37,14 @@ Button::Button(IE::button* button)
 
 Button::~Button()
 {
-	fDisabledBitmap->Release();
-	fSelectedBitmap->Release();
-	fPressedBitmap->Release();
-	fUnpressedBitmap->Release();
+	if (fDisabledBitmap != NULL)
+		fDisabledBitmap->Release();
+	if (fSelectedBitmap != NULL)
+		fSelectedBitmap->Release();
+	if (fPressedBitmap != NULL)
+		fPressedBitmap->Release();
+	if (fUnpressedBitmap != NULL)
+		fUnpressedBitmap->Release();
 }
 
 
