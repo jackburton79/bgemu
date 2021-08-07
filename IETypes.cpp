@@ -355,8 +355,37 @@ item::Print() const
 
 
 actor::actor()
+	:
+	name(""),
+	flags(0),
+	spawned(0),
+	cre_resref_first_letter(0),
+	unk(0),
+	animation(0),
+	orientation(0),
+	unused(0),
+	removal_timer(0),
+	movement_restriction_distance(0),
+	movement_restriction_distance_object(0),
+	time_intervals(0),
+	num_times_talked_to(0),
+	dialog(""),
+	script_override(""),
+	script_general(""),
+	script_class(""),
+	script_race(""),
+	script_default(""),
+	script_specific(""),
+	cre(""),
+	cre_offset(0),
+	cre_size(0)
 {
-	memset(this, 0, sizeof(actor));
+	position.x = 0;
+	position.y = 0;
+	destination.x = 0;
+	destination.y = 0;
+
+	memset(bytes, 0, sizeof(bytes));
 }
 
 
