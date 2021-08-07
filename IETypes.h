@@ -213,6 +213,8 @@ enum actor_flags {
 
 
 struct actor {
+	actor();
+
 	char name[32];
 	point position;
 	point destination;

@@ -354,6 +354,12 @@ item::Print() const
 }
 
 
+actor::actor()
+{
+	memset(this, 0, sizeof(actor));
+}
+
+
 void
 actor::Print() const
 {
