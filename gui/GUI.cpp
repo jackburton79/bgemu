@@ -50,6 +50,9 @@ GUI::GUI(uint16 width, uint16 height)
 	fShown(true),
 	fTooltipBitmap(NULL)
 {
+	fCursorPosition.x = 0;
+	fCursorPosition.y = 0;
+
 	for (int c = 0; c < NUM_CURSORS; c++)
 		fCursors[c] = NULL;
 }
