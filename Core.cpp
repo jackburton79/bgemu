@@ -113,7 +113,7 @@ Core::Destroy()
 {
 	std::cout << "Core::Destroy()" << std::endl;
 	if (sCore->fCurrentRoom != NULL) {
-		sCore->fCurrentRoom->Release();
+		//sCore->fCurrentRoom->Release();
 		sCore->fCurrentRoom = NULL;
 	}
 	ResourceManager::Destroy();
@@ -162,7 +162,7 @@ Core::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 {
 	if (fCurrentRoom != NULL) {
-		fCurrentRoom->Release();
+		//fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
 	try {
@@ -182,7 +182,7 @@ Core::LoadWorldMap()
 {
 	// TODO:
 	if (fCurrentRoom != NULL) {
-		fCurrentRoom->Release();
+		//fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
 	try {

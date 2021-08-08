@@ -31,7 +31,8 @@ WorldMap::WorldMap()
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
-	fAreaUnderMouse(NULL)
+	fAreaUnderMouse(NULL),
+	fControlID(InternalControl()->id)
 {
 	GUI* gui = GUI::Get();
 
@@ -211,7 +212,7 @@ WorldMap::_UnloadWorldMap()
 
 	// TODO: here we could have been called by the Window destructor,
 	// so some of these fields could be already have been deleted
-	Window()->ReplaceControl(InternalControl()->id, fSavedControl);
+	Window()->ReplaceControl(fControlID, fSavedControl);
 
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 

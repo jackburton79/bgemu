@@ -56,6 +56,7 @@ private:
 
 	std::vector<AreaEntry*> fAreaEntries;
 	AreaEntry* fAreaUnderMouse;
+	int32 fControlID;
 };
 
 

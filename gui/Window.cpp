@@ -36,9 +36,11 @@ Window::~Window()
 {
 	if (fBackground != NULL)
 		fBackground->Release();
-	for (std::vector<Control*>::const_iterator i = fControls.begin();
-			i != fControls.end(); i++)
+	for (std::vector<Control*>::iterator i = fControls.begin();
+			i != fControls.end(); i++) {
 		delete *i;
+		*i = NULL;
+	}
 
 	fControls.clear();
 }
@@ -174,7 +176,9 @@ Window::ReplaceControl(uint32 id, Control* newControl)
 {
 	std::vector<Control*>::iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
-		Control* control = (*i);
+		Control* control = *i;
+		if (control == NULL)
+			continue;
 		if (id == control->ID()) {
 			GFX::rect controlFrame = control->Frame();
 			newControl->InternalControl()->id = id;
