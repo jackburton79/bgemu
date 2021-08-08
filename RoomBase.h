@@ -70,9 +70,10 @@ private:
 	GFX::rect fViewPort;
 	IE::point fAreaOffset;
 protected:
-	virtual ~RoomBase();
 	Control* fSavedControl;
+	int32 fControlID;
 
+	virtual ~RoomBase();
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 };
