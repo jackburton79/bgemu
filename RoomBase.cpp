@@ -17,11 +17,12 @@ RoomBase::RoomBase()
 	:
 	Object("RoomBase", Object::AREA),
 	Control((IE::control*)new uint8[sizeof(IE::control)]),
-	fSavedControl(NULL),
-	fControlID(InternalControl()->id)
+	fSavedControl(NULL)
 {
 	InternalControl()->x = InternalControl()->y = InternalControl()->h = InternalControl()->w = 0;
 	InternalControl()->type = 0;
+	InternalControl()->unk = 0;
+	fControlID = InternalControl()->id = -1;
 
 	fAreaOffset.x = fAreaOffset.y = 0;
 	fViewPort.x = fViewPort.y = fViewPort.w = fViewPort.h = 0;
