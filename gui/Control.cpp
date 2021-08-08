@@ -29,8 +29,8 @@ Control::Control(IE::control* control)
 
 Control::~Control()
 {
-	// fControl was allocated with new[]
-	delete[] fControl;
+	// fControl was allocated with new uint8[]
+	delete[] (uint8*)fControl;
 }
 
 
