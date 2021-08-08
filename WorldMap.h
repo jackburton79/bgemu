@@ -20,7 +20,6 @@ class WMAPResource;
 class WorldMap : public RoomBase {
 public:
 	WorldMap();
-	virtual ~WorldMap();
 	
 	virtual GFX::rect AreaRect() const;
 
@@ -38,6 +37,9 @@ public:
 	virtual bool IsGUIShown() const;
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
+
+protected:
+	virtual ~WorldMap();
 
 private:
 	void _DrawConsole();

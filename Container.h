@@ -15,13 +15,13 @@
 class Container: public Object {
 public:
 	Container(IE::container* container);
-	~Container();
 
 	virtual IE::rect Frame() const;
 	
 	const ::Polygon& Polygon() const;
 
 private:
+	virtual ~Container();
 	IE::container* fContainer;
 	::Polygon fPolygon;
 };

@@ -15,7 +15,6 @@ class Region;
 class RoomBase : public Object, public Control {
 public:
 	RoomBase();
-	virtual ~RoomBase();
 
 	Control* ParentControl() const;
 	void SetParentControl(Control* control);
@@ -67,9 +66,11 @@ public:
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
+
 	GFX::rect fViewPort;
 	IE::point fAreaOffset;
 protected:
+	virtual ~RoomBase();
 	Control* fSavedControl;
 
 	void _DrawConsole();

@@ -18,7 +18,6 @@
 class Region: public Object {
 public:
 	Region(IE::region* region);
-	virtual ~Region();
 
 	uint16 Type() const;
 	IE::rect Frame() const;
@@ -43,6 +42,8 @@ public:
 
 
 private:
+	virtual ~Region();
+
 	IE::region* fRegion;
 	::Polygon fPolygon;
 

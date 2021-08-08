@@ -30,7 +30,6 @@ class AreaRoom : public RoomBase {
 public:
 	AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName);
-	~AreaRoom();
 	
 	WEDResource* WED() const;
 	ARAResource* AREA() const;
@@ -75,6 +74,7 @@ public:
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
+	virtual ~AreaRoom();
 	void _DrawConsole();
 	GFX::rect _ConsoleRect() const;
 

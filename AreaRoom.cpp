@@ -1035,12 +1035,16 @@ AreaRoom::_UnloadArea()
 	
 	Core::Get()->ExitingArea(this);
 
-	for (uint32 c = 0; c < fRegions.size(); c++)
-		delete fRegions[c];
+	for (uint32 c = 0; c < fRegions.size(); c++) {
+		if (fRegions[c] != NULL)
+			fRegions[c]->Release();
+	}
 	fRegions.clear();
 
-	for (uint32 c = 0; c < fContainers.size(); c++)
-		delete fContainers[c];
+	for (uint32 c = 0; c < fContainers.size(); c++) {
+		if (fContainers[c] != NULL)
+			fContainers[c]->Release();
+	}
 	fContainers.clear();
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)

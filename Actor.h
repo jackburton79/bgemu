@@ -30,7 +30,6 @@ public:
 	Actor(IE::actor& actor);
 	Actor(IE::actor& actor, CREResource* cre);
 	Actor(const char* creName, IE::point position, int face);
-	virtual ~Actor();
 
 	std::string LongName() const;
 
@@ -128,6 +127,8 @@ public:
 	static bool PointPassableTrue(const IE::point& point) { return true; };
 
 private:
+	virtual ~Actor();
+
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
 	Animation* fCurrentAnimation;

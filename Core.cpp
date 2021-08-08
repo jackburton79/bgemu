@@ -112,8 +112,10 @@ void
 Core::Destroy()
 {
 	std::cout << "Core::Destroy()" << std::endl;
-	delete sCore->fCurrentRoom;
-	sCore->fCurrentRoom = NULL;
+	if (sCore->fCurrentRoom != NULL) {
+		sCore->fCurrentRoom->Release();
+		sCore->fCurrentRoom = NULL;
+	}
 	ResourceManager::Destroy();
 	delete sCore;
 }
@@ -159,8 +161,10 @@ bool
 Core::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 {
-	delete fCurrentRoom;
-	fCurrentRoom = NULL;
+	if (fCurrentRoom != NULL) {
+		fCurrentRoom->Release();
+		fCurrentRoom = NULL;
+	}
 	try {
 		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
 	} catch (std::exception& e) {
@@ -177,8 +181,10 @@ bool
 Core::LoadWorldMap()
 {
 	// TODO:
-	delete fCurrentRoom;
-	fCurrentRoom = NULL;
+	if (fCurrentRoom != NULL) {
+		fCurrentRoom->Release();
+		fCurrentRoom = NULL;
+	}
 	try {
 		fCurrentRoom = new WorldMap();
 	} catch (std::exception& e) {
