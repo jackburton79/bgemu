@@ -31,8 +31,7 @@ WorldMap::WorldMap()
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
-	fAreaUnderMouse(NULL),
-	fControlID(InternalControl()->id)
+	fAreaUnderMouse(NULL)
 {
 	GUI* gui = GUI::Get();
 
