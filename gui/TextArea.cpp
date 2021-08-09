@@ -142,7 +142,7 @@ TextArea::AddText(const char* text)
 }
 
 
-// TODO: dublicated code with the above function
+// TODO: duplicated code with the above function
 void
 TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 {
