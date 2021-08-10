@@ -370,6 +370,9 @@ Game::ToggleDayNight()
 	// Advance 10 hours
 	GameTimer::AdvanceTime(10 * 60 * 60);
 
+	RoomBase* area = Core::Get()->CurrentRoom();
+	if (area != NULL)
+		area->ReloadArea();
 	// TODO: Update Area
 }
 

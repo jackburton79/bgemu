@@ -36,6 +36,8 @@ public:
 	virtual void HideGUI();
 	virtual bool IsGUIShown() const;
 
+	virtual void ReloadArea();
+
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 protected:

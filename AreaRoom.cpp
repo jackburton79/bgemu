@@ -174,6 +174,18 @@ AreaRoom::AREA() const
 }
 
 
+void
+AreaRoom::ReloadArea()
+{
+	if (fWed != NULL) {
+		gResManager->ReleaseResource(fWed);
+		fWed = NULL;
+	}
+
+	_InitWed();
+}
+
+
 GFX::rect
 AreaRoom::AreaRect() const
 {
@@ -613,6 +625,8 @@ AreaRoom::_InitBackMap(const GFX::rect& area)
 void
 AreaRoom::_InitWed()
 {
+	assert(fWed == NULL);
+
 	std::string nightName = fArea->WedName().CString();
 	nightName.append("N");
 

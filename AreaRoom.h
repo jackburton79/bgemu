@@ -34,6 +34,8 @@ public:
 	WEDResource* WED() const;
 	ARAResource* AREA() const;
 
+	virtual void ReloadArea();
+
 	virtual GFX::rect AreaRect() const;
 
 	::BackMap* BackMap() const;
