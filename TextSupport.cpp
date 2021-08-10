@@ -22,6 +22,28 @@ cycle_num_for_char(int c)
 	return c - 1;
 }
 
+enum char_classification {
+	CHAR_IS_NORMAL = 0,
+	CHAR_IS_TOP,
+	CHAR_IS_BOTTOM
+};
+
+
+static uint32
+get_char_classification(int c)
+{
+	switch (c) {
+		case ',':
+		case '.':
+			return CHAR_IS_BOTTOM;
+		case '"':
+		case '\'':
+			return CHAR_IS_TOP;
+	}
+
+	return CHAR_IS_NORMAL;
+}
+
 
 Font::Font(const std::string& fontName)
 	:
@@ -163,9 +185,10 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 	}
 
 	// TODO: improve
-	if (glyph.char_code == '"')
+	uint32 charClassification = get_char_classification(glyph.char_code);
+	if (charClassification == CHAR_IS_TOP)
 		rect.y = 0;
-	else if (glyph.char_code == '.' || glyph.char_code == ',')
+	else if (charClassification == CHAR_IS_BOTTOM)
 		rect.y = containerRect.h - bitmap->Height();
 
 	rect.y += containerRect.y;
