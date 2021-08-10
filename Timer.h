@@ -31,7 +31,7 @@ public:
 
 	static void Wait(uint32 delay);
 	static void WaitSync(uint32 start, uint32 maxDelay);
-	static void AddOneShotTimer(uint32 time, timer_func function, void* parameter);
+	static void AddPeriodicTimer(uint32 time, timer_func function, void* parameter);
 	static uint32 Ticks();
 
 private:
@@ -62,6 +62,7 @@ public:
 	static uint16 HourOfDay();
 	static bool IsDayTime();
 
+	static std::string GameTimeString();
 	static void PrintTime();
 	static void UpdateGameTime();
 	static void AdvanceTime(uint32 seconds);

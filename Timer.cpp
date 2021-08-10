@@ -11,6 +11,7 @@
 #include "Log.h"
 #include "ResManager.h"
 
+#include <sstream>
 #include <sys/time.h>
 
 #include <SDL.h>
@@ -72,7 +73,7 @@ Timer::Rearm()
 
 /* static */
 void
-Timer::AddOneShotTimer(uint32 interval, timer_func func, void* parameter)
+Timer::AddPeriodicTimer(uint32 interval, timer_func func, void* parameter)
 {
 	SDL_AddTimer(interval, func, parameter);
 }
@@ -227,6 +228,18 @@ bool
 GameTimer::IsDayTime()
 {
 	return (HourOfDay() > 6) && (HourOfDay() < 20);
+}
+
+
+/* static */
+std::string
+GameTimer::GameTimeString()
+{
+	std::ostringstream timeString;
+	timeString << std::dec;
+	timeString << (Hours() % 24) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60) << std::endl;
+
+	return timeString.str();
 }
 
 

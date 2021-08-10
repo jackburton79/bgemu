@@ -15,7 +15,6 @@
 #include "RoomBase.h"
 #include "Script.h"
 #include "SPLResource.h"
-#include "TextSupport.h"
 #include "Timer.h"
 // TODO: Remove this dependency
 #include "TLKResource.h"

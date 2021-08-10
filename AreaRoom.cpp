@@ -31,7 +31,6 @@
 #include "Script.h"
 #include "SearchMap.h"
 #include "TextArea.h"
-#include "TextSupport.h"
 #include "TileCell.h"
 #include "TisResource.h"
 #include "Timer.h"

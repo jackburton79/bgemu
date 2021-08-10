@@ -676,12 +676,12 @@ GUI::_DisplayStringCommon(const std::string& text,
 	uint16 height;
 	uint16 stringWidth = font->StringWidth(text, &height);
 	Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-	bitmap->Clear(font->TransparentIndex());
+	//bitmap->Clear(font->TransparentIndex());
 	//bitmap->SetColorKey(font->TransparentIndex());
 	
 	// Pre-render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	font->RenderString(text, 0, bitmap, true, rect);
+	font->RenderString(text, 0, bitmap, false, rect);
 	
 	// Set the position where to  blit the bitmap
 	rect.x = x;
@@ -693,5 +693,5 @@ GUI::_DisplayStringCommon(const std::string& text,
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId++;
-	Timer::AddOneShotTimer((uint32)time, DeleteStringEntry, (void*)id);
+	Timer::AddPeriodicTimer((uint32)time, DeleteStringEntry, (void*)id);
 }
