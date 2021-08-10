@@ -21,6 +21,7 @@ class Bitmap;
 namespace GFX {
 	struct rect;
 	struct point;
+	class Palette;
 }
 
 class Font {
@@ -73,6 +74,8 @@ private:
 	typedef std::map<char, Glyph> GlyphMap;
 	GlyphMap fGlyphs;
 	
+	GFX::Palette* fPalette;
+
 	uint8 fTransparentIndex;
 };
 

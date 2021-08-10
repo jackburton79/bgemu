@@ -47,9 +47,24 @@ get_char_classification(int c)
 
 Font::Font(const std::string& fontName)
 	:
-	fName(fontName)
+	fName(fontName),
+	fPalette(NULL)
 {
 	_LoadGlyphs(fName);
+
+	const GFX::Color colorStart = {
+		0,
+		0,
+		0,
+		0
+	};
+	const GFX::Color colorEnd = {
+		255,
+		255,
+		255,
+		0
+	};
+	fPalette = new GFX::Palette(colorStart, colorEnd);
 }
 
 
@@ -59,6 +74,7 @@ Font::~Font()
 	for (i = fGlyphs.begin(); i != fGlyphs.end(); i++) {
 		i->second.bitmap->Release();
 	}
+	delete fPalette;
 }
 
 
@@ -128,11 +144,12 @@ Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 void
 Font::_LoadGlyphs(const std::string& fontName)
 {
+	//std::cout <<  "Font::_LoadGlyphs(): " << fontName << std::endl;
 	BAMResource* fontRes = gResManager->GetBAM(fontName.c_str());
 	if (fontRes == NULL)
 		return;
 	fTransparentIndex = fontRes->TransparentIndex();
-	for (int c = 32; c < 256; c++) {
+	for (int c = 1; c < 256; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
@@ -142,6 +159,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
 			break;
 		}
+		//std::cout << "char: " << (char)c << ", height: " << bitmap->Height() << std::endl;
 	}
 	gResManager->ReleaseResource(fontRes);
 }
@@ -208,17 +226,21 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	uint16 maxHeight = 0;
 	_PrepareGlyphs(string, totalWidth, maxHeight, &glyphs);
 
-	if (useBAMPalette) {
-		const Bitmap* firstFrame = glyphs.back().bitmap;
+	if (fPalette != NULL)
+		bitmap->SetPalette(*fPalette);
+	const Bitmap* firstFrame = glyphs.back().bitmap;
+	/*if (useBAMPalette) {
+
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);
-#if 0
+	}*/
+#if 1
 		uint32 colorKey;
 		if (firstFrame->GetColorKey(colorKey))
 			bitmap->SetColorKey(colorKey);
 #endif
-	}
+
 
 	// Render glyphs
 	GFX::rect rect = _GetFirstGlyphRect(destRect, flags, totalWidth, destPoint);
