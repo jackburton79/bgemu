@@ -235,9 +235,10 @@ GameTimer::IsDayTime()
 std::string
 GameTimer::GameTimeString()
 {
+	// returns the in-game time as a string (in a 24 hour format)
 	std::ostringstream timeString;
 	timeString << std::dec;
-	timeString << (Hours() % 24) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60);
+	timeString << (HourOfDay()) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60);
 
 	return timeString.str();
 }
