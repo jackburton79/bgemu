@@ -33,9 +33,9 @@ Font::Font(const std::string& fontName)
 
 Font::~Font()
 {
-	BitmapMap::iterator i;
+	GlyphMap::iterator i;
 	for (i = fGlyphs.begin(); i != fGlyphs.end(); i++) {
-		i->second->Release();
+		i->second.bitmap->Release();
 	}
 }
 
@@ -52,7 +52,7 @@ Font::StringWidth(const std::string& string, uint16* height) const
 {
 	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
-	_PrepareBitmaps(string, totalWidth, maxHeight, NULL);
+	_PrepareGlyphs(string, totalWidth, maxHeight, NULL);
 	if (height != NULL)
 		*height = maxHeight;
 	return totalWidth;
@@ -112,8 +112,9 @@ Font::_LoadGlyphs(const std::string& fontName)
 	fTransparentIndex = fontRes->TransparentIndex();
 	for (int c = 32; c < 256; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);
-		Bitmap* glyph = fontRes->FrameForCycle(cycleNum, 0);
-		if (glyph != NULL) {
+		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
+		if (bitmap != NULL) {
+			Glyph glyph = { c, bitmap };
 			fGlyphs[c] = glyph;
 		} else {
 			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
@@ -149,20 +150,21 @@ Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
 
 void
 Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
-							const GFX::rect& containerRect, const Bitmap* glyph) const
+							const GFX::rect& containerRect, const Glyph glyph) const
 {
+	const Bitmap* bitmap = glyph.bitmap;
 	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-		rect.y = containerRect.h - glyph->Height();
+		rect.y = containerRect.h - bitmap->Height();
 	else if (flags & IE::LABEL_JUSTIFY_TOP)
 		rect.y = 0;
 	else {
 		// center
-		rect.y = (containerRect.h - glyph->Height()) / 2;
+		rect.y = (containerRect.h - bitmap->Height()) / 2;
 	}
 
 	rect.y += containerRect.y;
-	rect.w = glyph->Frame().w;
-	rect.h = glyph->Frame().h;
+	rect.w = bitmap->Frame().w;
+	rect.h = bitmap->Frame().h;
 }
 
 
@@ -172,13 +174,13 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
 {
-	std::vector<const Bitmap*> frames;
+	std::vector<Glyph> glyphs;
 	uint16 totalWidth = 0;
 	uint16 maxHeight = 0;
-	_PrepareBitmaps(string, totalWidth, maxHeight, &frames);
+	_PrepareGlyphs(string, totalWidth, maxHeight, &glyphs);
 
 	if (useBAMPalette) {
-		const Bitmap* firstFrame = frames.back();
+		const Bitmap* firstFrame = glyphs.back().bitmap;
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);
@@ -192,35 +194,35 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// Render glyphs
 	GFX::rect rect = _GetFirstGlyphRect(destRect, flags, totalWidth, destPoint);
 	GFX::rect containerRect(rect.x, rect.y, totalWidth, maxHeight);
-	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
-			i != frames.end(); i++) {
-		const Bitmap* glyph = *i;
+	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
+			i != glyphs.end(); i++) {
+		const Glyph glyph = (*i);
 		_AdjustGlyphAlignment(rect, flags, containerRect, glyph);
-		GraphicsEngine::BlitBitmap(glyph, NULL, bitmap, &rect);
+		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
 
 		// Advance cursor
-		rect.x += glyph->Frame().w;
+		rect.x += glyph.bitmap->Frame().w;
 	}
 }
 
 
 void
-Font::_PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
-				std::vector<const Bitmap*> *bitmaps) const
+Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
+				std::vector<Glyph> *glyphs) const
 {
 	// First pass: calculate total width and height
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
-		BitmapMap::const_iterator g = fGlyphs.find(*c);
+		GlyphMap::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
 			// glyph not found/cached
 			continue;
 		}
-		const Bitmap* newFrame = g->second;
-		width += newFrame->Frame().w;
-		height = std::max(newFrame->Frame().h, height);
-		if (bitmaps != NULL)
-			bitmaps->push_back(newFrame);
+		Glyph newGlyph = g->second;
+		width += newGlyph.bitmap->Frame().w;
+		height = std::max(newGlyph.bitmap->Frame().h, height);
+		if (glyphs != NULL)
+			glyphs->push_back(newGlyph);
 
 		//std::cout << "char: " << (char)*c << ", height: " << newFrame->Height() << std::endl;
 	}

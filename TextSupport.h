@@ -49,24 +49,29 @@ public:
 
 	uint8 TransparentIndex() const { return fTransparentIndex; };
 
+	struct Glyph {
+		int char_code;
+		Bitmap* bitmap;
+	};
 private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette,
 					const GFX::rect* rect, const GFX::point* point) const;
-	void _PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
-				std::vector<const Bitmap*> *bitmaps = NULL) const;
+	void _PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
+				std::vector<Glyph> *bitmaps = NULL) const;
 	GFX::rect _GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
 						uint16 totalWidth, const GFX::point* destPoint) const;
 	void _AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 							   const GFX::rect& containerRect,
-							   const Bitmap* glyph) const;
+							   const Glyph glyph) const;
 
 	std::string fName;
 
-	typedef std::map<char, Bitmap*> BitmapMap;
-	BitmapMap fGlyphs;
+
+	typedef std::map<char, Glyph> GlyphMap;
+	GlyphMap fGlyphs;
 	
 	uint8 fTransparentIndex;
 };
