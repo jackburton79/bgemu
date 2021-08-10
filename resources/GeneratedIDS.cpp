@@ -13,7 +13,6 @@ class WriteableIDSResource : public IDSResource {
 public:
 	WriteableIDSResource(const res_ref& name);
 	bool AddValue(uint32 id, std::string value);
-
 };
 
 IDSResource*
