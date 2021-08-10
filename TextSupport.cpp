@@ -33,7 +33,7 @@ Font::Font(const std::string& fontName)
 
 Font::~Font()
 {
-	std::map<char, Bitmap*>::iterator i;
+	BitmapMap::iterator i;
 	for (i = fGlyphs.begin(); i != fGlyphs.end(); i++) {
 		i->second->Release();
 	}
@@ -123,6 +123,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 	gResManager->ReleaseResource(fontRes);
 }
 
+
 GFX::rect
 Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
 							uint16 totalWidth,
@@ -210,7 +211,7 @@ Font::_PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
 	// First pass: calculate total width and height
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
-		std::map<char, Bitmap*>::const_iterator g = fGlyphs.find(*c);
+		BitmapMap::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
 			// glyph not found/cached
 			continue;
@@ -220,19 +221,21 @@ Font::_PrepareBitmaps(const std::string& string, uint16& width, uint16& height,
 		height = std::max(newFrame->Frame().h, height);
 		if (bitmaps != NULL)
 			bitmaps->push_back(newFrame);
+
+		//std::cout << "char: " << (char)*c << ", height: " << newFrame->Height() << std::endl;
 	}
 }
 
 
 // FontRoster
-std::map<std::string, Font*> FontRoster::sFonts;
+FontRoster::FontsMap FontRoster::sFonts;
 
 
 /* static */
 const Font*
 FontRoster::GetFont(const std::string& name)
 {
-	static std::map<std::string, Font*>::iterator i = sFonts.find(name);
+	static FontsMap::iterator i = sFonts.find(name);
 	if (i != sFonts.end())
 		return i->second;
 	

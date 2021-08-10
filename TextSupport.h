@@ -9,15 +9,13 @@
 #define TEXTSUPPORT_H_
 
 
+#include "IETypes.h"
 #include "SupportDefs.h"
 
 #include <map>
 #include <string>
 
-
 class BAMResource;
-#include "IETypes.h"
-
 class Bitmap;
 
 namespace GFX {
@@ -79,7 +77,8 @@ public:
 	static const Font* GetFont(const std::string& name);
 
 private:
-	static std::map<std::string, Font*> sFonts;
+	typedef std::map<std::string, Font*> FontsMap;
+	static FontsMap sFonts;
 };
 
 
