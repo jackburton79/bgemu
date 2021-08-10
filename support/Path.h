@@ -36,7 +36,6 @@ public:
 			Path&			operator=(const char* path);
 
 private:
-
 			status_t		_SetPath(const char* path);
 	static	bool			_MustNormalize(const char* path, status_t* _error);
 

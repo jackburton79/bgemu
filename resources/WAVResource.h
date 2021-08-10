@@ -22,7 +22,6 @@ public:
 
 private:
 	virtual ~WAVResource();
-
 };
 
 #endif /* WAVRESOURCE_H_ */

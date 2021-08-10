@@ -19,8 +19,8 @@ public:
 	int32 RefCount() const;
 
 	static void SetDebug(bool debug);
-protected:
 
+protected:
 	virtual ~Referenceable();
 
 	virtual void FirstReferenceAcquired();
