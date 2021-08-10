@@ -77,7 +77,7 @@ private:
 	GFX::rect _ConsoleRect() const;
 
 	void _InitBackMap(const GFX::rect& area);
-	void _InitWed(const char* name);
+	void _InitWed();
 	void _InitBlitMask();
 	void _InitHeightMap();
 	void _InitLightMap();

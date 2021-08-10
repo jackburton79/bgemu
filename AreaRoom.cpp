@@ -82,7 +82,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	if (fArea == NULL)
 		throw std::runtime_error("CANNOT LOAD AREA");
 
-	_InitWed(fArea->WedName().CString());
+	_InitWed();
 
 	GUI* gui = GUI::Get();
 	gui->Clear();
@@ -611,15 +611,15 @@ AreaRoom::_InitBackMap(const GFX::rect& area)
 
 
 void
-AreaRoom::_InitWed(const char* name)
+AreaRoom::_InitWed()
 {
-	std::string nightName = name;
+	std::string nightName = fArea->WedName().CString();
 	nightName.append("N");
 
 	if (!GameTimer::IsDayTime() && gResManager->ResourceExists(nightName.c_str(), RES_WED))
 		fWed = gResManager->GetWED(nightName.c_str());
 	else
-		fWed = gResManager->GetWED(name);
+		fWed = gResManager->GetWED(fArea->WedName().CString());
 
 	_InitBackMap(ViewPort());
 	_InitHeightMap();
