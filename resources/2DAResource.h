@@ -29,6 +29,7 @@ public:
 	int32 CountColumns() const;
 
 	static Resource* Create(const res_ref& name);
+
 private:
 	virtual ~TWODAResource();
 

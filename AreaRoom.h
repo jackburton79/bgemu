@@ -93,6 +93,7 @@ private:
 	void _DrawAnimations(bool advanceFrame);
 	void _DrawEffects();
 	void _DrawActors();
+	void _DrawPolygons(const GFX::rect& mapRect);
 
 	Region* _RegionAtPoint(const IE::point& point) const;
 	Container* _ContainerAtPoint(const IE::point& point);
@@ -107,7 +108,7 @@ private:
 
 	void _UnloadArea();
 	void _Unload();
-	
+
 	WEDResource *fWed;
 	ARAResource *fArea;
 

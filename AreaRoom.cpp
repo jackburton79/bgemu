@@ -240,29 +240,8 @@ AreaRoom::Draw()
 	_DrawActors();
 	_DrawEffects();
 
-	if (fDrawPolygons) {
-		fBackMap->Image()->Lock();
-		for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
-			const Polygon* poly = fWed->PolygonAt(p);
-			if (poly != NULL && poly->CountPoints() > 0) {
-				if (rects_intersect(poly->Frame(), mapRect)) {
-					uint32 color = 0;
-					if (poly->Flags() & IE::POLY_SHADE_WALL)
-						color = 200;
-					else if (poly->Flags() & IE::POLY_HOVERING)
-						color = 500;
-					else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
-						color = 1000;
-
-					fBackMap->Image()->FillPolygon(*poly, color,
-										-AreaOffset().x, -AreaOffset().y);
-					fBackMap->Image()->StrokePolygon(*poly, color,
-										-AreaOffset().x, -AreaOffset().y);
-				}
-			}
-		}
-		fBackMap->Image()->Unlock();
-	}
+	if (fDrawPolygons)
+		_DrawPolygons(mapRect);
 
 	// TODO: handle this better
 	if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
@@ -812,6 +791,33 @@ AreaRoom::_DrawActors()
 			continue;
 		}
 	}
+}
+
+
+void
+AreaRoom::_DrawPolygons(const GFX::rect& mapRect)
+{
+	fBackMap->Image()->Lock();
+	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
+		const Polygon* poly = fWed->PolygonAt(p);
+		if (poly != NULL && poly->CountPoints() > 0) {
+			if (rects_intersect(poly->Frame(), mapRect)) {
+				uint32 color = 0;
+				if (poly->Flags() & IE::POLY_SHADE_WALL)
+					color = 200;
+				else if (poly->Flags() & IE::POLY_HOVERING)
+					color = 500;
+				else if (poly->Flags() & IE::POLY_COVER_ANIMATIONS)
+					color = 1000;
+
+				fBackMap->Image()->FillPolygon(*poly, color, -AreaOffset().x,
+												-AreaOffset().y);
+				fBackMap->Image()->StrokePolygon(*poly, color, -AreaOffset().x,
+													-AreaOffset().y);
+			}
+		}
+	}
+	fBackMap->Image()->Unlock();
 }
 
 
