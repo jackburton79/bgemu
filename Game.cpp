@@ -168,8 +168,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 									room->ToggleSearchMap();
 								break;
 							case SDLK_n:
-								if (room != NULL)
-									room->ToggleDayNight();
+								ToggleDayNight();
 								break;
 							case SDLK_q:
 								quitting = true;
@@ -362,6 +361,16 @@ Game::LoadStartingArea()
 	
 	gResManager->ReleaseResource(resource);	
 	gResManager->ReleaseResource(startPosResource);
+}
+
+
+void
+Game::ToggleDayNight()
+{
+	// Advance 10 hours
+	GameTimer::AdvanceTime(10 * 60 * 60);
+
+	// TODO: Update Area
 }
 
 

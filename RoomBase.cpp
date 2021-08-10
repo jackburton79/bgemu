@@ -228,13 +228,6 @@ RoomBase::ToggleGUI()
 
 /* virtual */
 void
-RoomBase::ToggleDayNight()
-{
-}
-
-
-/* virtual */
-void
 RoomBase::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);

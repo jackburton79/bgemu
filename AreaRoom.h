@@ -69,8 +69,6 @@ public:
 	virtual void HideGUI();
 	virtual bool IsGUIShown() const;
 
-	void ToggleDayNight();
-
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:

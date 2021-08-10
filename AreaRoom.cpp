@@ -590,23 +590,6 @@ AreaRoom::IsGUIShown() const
 }
 
 
-void
-AreaRoom::ToggleDayNight()
-{
-#if 0
-	std::string wedName = fWed->Name();
-	if (*wedName.rbegin() == 'N')
-		wedName = fArea->Name();
-	else
-		wedName.append("N");
-	
-	std::vector<std::string> list;
-	if (gResManager->GetResourceList(list, wedName.c_str(), RES_WED) > 0)
-		_InitWed(wedName.c_str());
-#endif
-}
-
-
 /* virtual */
 void
 AreaRoom::VideoAreaChanged(uint16 width, uint16 height)

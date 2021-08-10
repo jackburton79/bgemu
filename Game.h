@@ -30,6 +30,7 @@ public:
 	::Party* Party();
 
 	void LoadStartingArea();
+	void ToggleDayNight();
 
 	bool Load(const char* name);
 	bool Save(const char* name);
