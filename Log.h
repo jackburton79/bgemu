@@ -14,9 +14,10 @@
 
 class Log {
 public:
-	static const char* Red;
 	static const char* Green;
 	static const char* Normal;
+	static const char* Red;
+	static const char* Yellow;
 };
 
 
