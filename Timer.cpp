@@ -237,7 +237,7 @@ GameTimer::GameTimeString()
 {
 	std::ostringstream timeString;
 	timeString << std::dec;
-	timeString << (Hours() % 24) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60) << std::endl;
+	timeString << (Hours() % 24) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60);
 
 	return timeString.str();
 }
@@ -247,9 +247,7 @@ GameTimer::GameTimeString()
 void
 GameTimer::PrintTime()
 {
-	std::cout << std::dec;
-	std::cout << "GameTime: " << Hours() % 24 << ":" << Minutes() % 60;
-	std::cout << ":" << Seconds() % 60 << std::endl;
+	std::cout << "GameTime: " << GameTimeString() << std::endl;
 	std::cout << "ticks: " << Seconds() << std::endl;
 }
 
