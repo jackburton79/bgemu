@@ -48,6 +48,7 @@ public:
 
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal);
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
+
 private:
 	PointList fPoints;
 

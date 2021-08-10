@@ -62,9 +62,9 @@ public:
 
 	uint32 XCenter() const;
 	uint32 YCenter() const;
+
 private:
 	virtual ~VVCResource();
-
 };
 
 

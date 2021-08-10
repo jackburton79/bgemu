@@ -64,6 +64,7 @@ public:
 	void ConvertFromScreen(GFX::rect& rect) const;
 
 	void Print() const;
+
 private:
 	Control* _ControlAtPoint(IE::point point) const;
 

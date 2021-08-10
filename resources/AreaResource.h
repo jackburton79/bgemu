@@ -45,6 +45,7 @@ public:
 	IE::variable VariableAt(uint32 index);
 
 	static Resource* Create(const res_ref& name);
+
 private:
 	virtual ~ARAResource();
 	void _LoadActors();

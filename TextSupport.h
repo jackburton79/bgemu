@@ -50,6 +50,7 @@ public:
 					const GFX::rect& rect) const;
 
 	uint8 TransparentIndex() const { return fTransparentIndex; };
+
 private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(const std::string& string,
