@@ -107,7 +107,6 @@ Scrollbar::Pulse()
 		textArea->ScrollBy(0, 5);
 	else if (fUpArrowPressed)
 		textArea->ScrollBy(0, -5);
-
 }
 
 

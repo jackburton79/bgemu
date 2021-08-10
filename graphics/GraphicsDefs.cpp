@@ -28,7 +28,6 @@ rect::rect(sint16 _x, sint16 _y, uint16 width, uint16 height)
 	w(width),
 	h(height)
 {
-
 }
 
 
