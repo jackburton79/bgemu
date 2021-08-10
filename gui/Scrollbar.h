@@ -28,6 +28,7 @@ public:
 	virtual void Pulse();
 
 	void UpdateOffset(int16 offset);
+
 private:
 	BAMResource* fResource;
 	Bitmap* fUpArrow;

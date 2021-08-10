@@ -73,7 +73,6 @@ private:
 	
 	GraphicsEngine();
 	~GraphicsEngine();
-
 };
 
 #endif

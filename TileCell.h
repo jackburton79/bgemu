@@ -57,6 +57,7 @@ public:
 
 	static uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 										Region* region);
+
 private:
 	uint32 fNumber;
 	::Door *fDoor;
@@ -69,7 +70,6 @@ private:
 	// storing the pointers is not safe
 	
 	std::list<Actor*> fObjects;
-	
 	std::vector<Region*> fRegions;
 };
 
