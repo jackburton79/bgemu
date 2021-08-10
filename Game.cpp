@@ -60,7 +60,7 @@ uint32
 DisplayClock(uint32 interval, void *param)
 {
 	std::string clock = GameTimer::GameTimeString();
-	GUI::Get()->DisplayString(clock.c_str(), 200, 200, 1000);
+	GUI::Get()->DisplayString(clock.c_str(), 200, 200, 2500);
 	return interval;
 }
 
@@ -120,7 +120,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	SDL_Event event;
 	bool quitting = false;
 
-	Timer::AddPeriodicTimer((uint32)2000, DisplayClock, NULL);
+	Timer::AddPeriodicTimer((uint32)8000, DisplayClock, NULL);
 
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
