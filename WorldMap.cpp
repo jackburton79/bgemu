@@ -198,7 +198,6 @@ WorldMap::IsGUIShown() const
  void
  WorldMap::ReloadArea()
  {
-
  }
 
 
