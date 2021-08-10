@@ -74,7 +74,7 @@ Timer::Rearm()
 static uint32
 oneshot_timer_callback(uint32 interval, void* castToFunctor)
 {
-	Functor* functor = reinterpret_cast<Functor*>(castToFunctor);
+	Timer::Functor* functor = reinterpret_cast<Timer::Functor*>(castToFunctor);
 	SDL_Event event;
 	SDL_UserEvent userevent;
 
@@ -97,7 +97,7 @@ oneshot_timer_callback(uint32 interval, void* castToFunctor)
 static uint32
 periodic_timer_callback(uint32 interval, void* castToFunctor)
 {
-	Functor* functor = reinterpret_cast<Functor*>(castToFunctor);
+	Timer::Functor* functor = reinterpret_cast<Timer::Functor*>(castToFunctor);
 
 	SDL_Event event;
 	SDL_UserEvent userevent;
@@ -120,18 +120,20 @@ periodic_timer_callback(uint32 interval, void* castToFunctor)
 
 /* static */
 void
-Timer::AddOneShotTimer(uint32 delay, void* parameter)
+Timer::AddOneShotTimer(uint32 delay, timer_function func, void* parameter)
 {
-	SDL_AddTimer(delay, oneshot_timer_callback, parameter);
+	Functor* functor = new Functor(func, parameter);
+	SDL_AddTimer(delay, oneshot_timer_callback, (void*)functor);
 }
 
 
 /* static */
 void
-Timer::AddPeriodicTimer(uint32 interval, void* parameter)
+Timer::AddPeriodicTimer(uint32 interval, timer_function func, void* parameter)
 {
+	Functor* functor = new Functor(func, parameter);
 	// TODO: we should register this timer and remove it when not needed anymore
-	SDL_AddTimer(interval, periodic_timer_callback, parameter);
+	SDL_AddTimer(interval, periodic_timer_callback, (void*)functor);
 }
 
 
@@ -162,6 +164,30 @@ Timer::WaitSync(uint32 start, uint32 maxDelay)
 		std::cerr << Log::Red << "WaitSync: TOO SLOW!" << std::endl;
 	std::cerr << Log::Normal;
 }
+
+
+// Functor
+Timer::Functor::Functor(timer_function func, void* parameter)
+	:
+	fFunction(func),
+	fParameter(parameter)
+{
+}
+
+
+timer_function&
+Timer::Functor::Function()
+{
+	return fFunction;
+}
+
+
+void*
+Timer::Functor::Parameter()
+{
+	return fParameter;
+}
+
 
 
 // GameTimer
@@ -330,27 +356,4 @@ void
 GameTimer::AdvanceTime(uint16 hours, uint16 minutes, uint16 seconds)
 {
 	sGameTime += hours * 60 * 60 + minutes * 60 + seconds;
-}
-
-
-// Functor
-Functor::Functor(generic_function func, void* parameter)
-	:
-	fFunction(func),
-	fParameter(parameter)
-{
-}
-
-
-generic_function&
-Functor::Function()
-{
-	return fFunction;
-}
-
-
-void*
-Functor::Parameter()
-{
-	return fParameter;
 }

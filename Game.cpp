@@ -119,16 +119,15 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	SDL_Event event;
 	bool quitting = false;
 
-	Functor* functor = new Functor(DisplayClock, NULL);
-	Timer::AddPeriodicTimer(8000, functor);
+	Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
 
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
-				// Used to handle timers
 				case SDL_USEREVENT: {
+					// Used to handle timers
 					void (*event_func)(void*) = (void (*)(void*))event.user.data1;
 					event_func(event.user.data2);
 					break;
