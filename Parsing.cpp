@@ -511,7 +511,6 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		{
 			if (parameter.position == 1) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-
 					::memcpy(node->string1, tokenParam.u.string + 1, stringLength - 1);
 					node->string1[stringLength - 2] = '\0';
 				} else if (tokenParam.type == TOKEN_STRING) {
