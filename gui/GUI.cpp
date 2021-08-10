@@ -692,5 +692,5 @@ GUI::_DisplayStringCommon(const std::string& text,
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId++;
-	Timer::AddPeriodicTimer(time, DeleteStringEntry, (void*)id);
+	Timer::AddOneShotTimer(time, DeleteStringEntry, (void*)id);
 }
