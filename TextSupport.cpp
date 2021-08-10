@@ -123,6 +123,47 @@ Font::_LoadGlyphs(const std::string& fontName)
 	gResManager->ReleaseResource(fontRes);
 }
 
+GFX::rect
+Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
+							uint16 totalWidth,
+							const GFX::point* destPoint) const
+{
+	GFX::rect rect;
+	if (destRect != NULL) {
+		if (flags & IE::LABEL_JUSTIFY_CENTER)
+			rect.x = (destRect->w - totalWidth) / 2;
+		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+			rect.x = destRect->w - totalWidth;
+
+		rect.x += destRect->x;
+		rect.y += destRect->y;
+	} else if (destPoint != NULL) {
+		rect.x = destPoint->x;
+		rect.y = destPoint->y;
+	}
+
+	return rect;
+}
+
+
+void
+Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
+							const GFX::rect& containerRect, const Bitmap* glyph) const
+{
+	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+		rect.y = containerRect.h - glyph->Height();
+	else if (flags & IE::LABEL_JUSTIFY_TOP)
+		rect.y = 0;
+	else {
+		// center
+		rect.y = (containerRect.h - glyph->Height()) / 2;
+	}
+
+	rect.y += containerRect.y;
+	rect.w = glyph->Frame().w;
+	rect.h = glyph->Frame().h;
+}
+
 
 void
 Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
@@ -135,19 +176,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	uint16 maxHeight = 0;
 	_PrepareBitmaps(string, totalWidth, maxHeight, &frames);
 
-	GFX::rect rect;
-	if (destRect != NULL) {
-		if (flags & IE::LABEL_JUSTIFY_CENTER)
-			rect.x = (destRect->w - totalWidth) / 2;
-		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-			rect.x = destRect->w - totalWidth;
-		rect.x += destRect->x;
-		rect.y += destRect->y;
-	} else if (destPoint != NULL) {
-		rect.x = destPoint->x;
-		rect.y = destPoint->y;
-	}
-
 	if (useBAMPalette) {
 		const Bitmap* firstFrame = frames.back();
 		GFX::Palette palette;
@@ -159,22 +187,17 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 			bitmap->SetColorKey(colorKey);
 #endif
 	}
-	// Render the glyphs
+
+	// Render glyphs
+	GFX::rect rect = _GetFirstGlyphRect(destRect, flags, totalWidth, destPoint);
 	GFX::rect containerRect(rect.x, rect.y, totalWidth, maxHeight);
 	for (std::vector<const Bitmap*>::const_iterator i = frames.begin();
 			i != frames.end(); i++) {
 		const Bitmap* glyph = *i;
-		if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-			rect.y = containerRect.h - glyph->Height();
-		else if (flags & IE::LABEL_JUSTIFY_TOP)
-			rect.y = 0;
-		else
-			rect.y = (containerRect.h - glyph->Height()) / 2;
-		rect.y += containerRect.y;
-
-		rect.w = glyph->Frame().w;
-		rect.h = glyph->Frame().h;
+		_AdjustGlyphAlignment(rect, flags, containerRect, glyph);
 		GraphicsEngine::BlitBitmap(glyph, NULL, bitmap, &rect);
+
+		// Advance cursor
 		rect.x += glyph->Frame().w;
 	}
 }
