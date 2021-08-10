@@ -40,6 +40,7 @@ public:
 	bool IsLastFrame() const;
 
 	IE::point Position() const;
+
 private:
 	void _LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors);
 	void _ApplyColorMODs(::Bitmap* bitmap, CREColors* patchColors);

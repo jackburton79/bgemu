@@ -45,6 +45,7 @@ public:
 	void GetLines(TextLines& lines) const;
 
 	void ScrollBy(int16 x, int16 y);
+
 private:
 	Bitmap* fBitmap;
 	

@@ -123,5 +123,4 @@ Stream::DumpToFile(const char *fileName)
 		fclose(file);
 		Seek(oldPos, SEEK_SET);
 	}
-	
 }

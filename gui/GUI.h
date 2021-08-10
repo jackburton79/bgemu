@@ -110,7 +110,6 @@ private:
 	void _DrawStrings();
 	void _DisplayStringCommon(const std::string& text,
 			uint16 x, uint16 y, bool centerString, uint32 time);
-
 };
 
 #endif /* __GUI_H_ */

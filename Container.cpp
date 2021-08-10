@@ -17,7 +17,6 @@ Container::Container(IE::container* container)
 
 Container::~Container()
 {
-
 }
 
 
