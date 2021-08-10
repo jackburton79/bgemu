@@ -162,6 +162,12 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 		rect.y = (containerRect.h - bitmap->Height()) / 2;
 	}
 
+	// TODO: improve
+	if (glyph.char_code == '"')
+		rect.y = 0;
+	else if (glyph.char_code == '.' || glyph.char_code == ',')
+		rect.y = containerRect.h - bitmap->Height();
+
 	rect.y += containerRect.y;
 	rect.w = bitmap->Frame().w;
 	rect.h = bitmap->Frame().h;
