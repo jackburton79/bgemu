@@ -262,8 +262,16 @@ GameTimer::UpdateGameTime()
 }
 
 
+/* static */
 void
 GameTimer::AdvanceTime(uint32 seconds)
 {
 	sGameTime += seconds;
+}
+
+/* static */
+void
+GameTimer::AdvanceTime(uint16 hours, uint16 minutes, uint16 seconds)
+{
+	sGameTime += hours * 60 * 60 + minutes * 60 + seconds;
 }

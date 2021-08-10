@@ -379,8 +379,7 @@ Game::LoadStartingArea()
 void
 Game::ToggleDayNight()
 {
-	// Advance 10 hours
-	GameTimer::AdvanceTime(10 * 60 * 60);
+	GameTimer::AdvanceTime(12, 0, 0);
 
 	RoomBase* area = Core::Get()->CurrentRoom();
 	if (area != NULL)

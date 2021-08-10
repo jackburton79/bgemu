@@ -66,6 +66,7 @@ public:
 	static void PrintTime();
 	static void UpdateGameTime();
 	static void AdvanceTime(uint32 seconds);
+	static void AdvanceTime(uint16 hours, uint16 minutes, uint16 seconds);
 
 private:
 	GameTimer(uint32 expirationTime);
