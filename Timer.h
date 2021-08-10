@@ -17,11 +17,22 @@ enum timer_type {
 	TIMER_GLOBAL = 0
 };
 
+typedef void (*generic_function)(void* parameter);
+
+class Functor {
+public:
+	Functor(generic_function func, void* parameter);
+	generic_function& Function();
+	void* Parameter();
+
+private:
+	generic_function fFunction;
+	void* fParameter;
+};
+
 
 class Timer {
 public:
-	typedef uint32 (*timer_func)(uint32 interval, void* parameter);
-
 	static bool Initialize();
 	static Timer* Set(const char* name, uint32 delay);
 	static Timer* Get(const char* name);
@@ -31,7 +42,8 @@ public:
 
 	static void Wait(uint32 delay);
 	static void WaitSync(uint32 start, uint32 maxDelay);
-	static void AddPeriodicTimer(uint32 time, timer_func function, void* parameter);
+	static void AddOneShotTimer(uint32 time, void* castToFunctor);
+	static void AddPeriodicTimer(uint32 interval, void* castToFunctor);
 	static uint32 Ticks();
 
 private:

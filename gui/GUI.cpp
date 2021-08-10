@@ -30,12 +30,11 @@
 static GUI* sGUI = NULL;
 
 
-uint32
-DeleteStringEntry(uint32 interval, void *param)
+void
+DeleteStringEntry(void *param)
 {
 	long id = (long)param;
 	sGUI->RemoveToolTip((uint32)id);
-	return 0;
 }
 
 
@@ -693,5 +692,6 @@ GUI::_DisplayStringCommon(const std::string& text,
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId++;
-	Timer::AddPeriodicTimer((uint32)time, DeleteStringEntry, (void*)id);
+	Functor* functor = new Functor(DeleteStringEntry, (void*)id);
+	Timer::AddPeriodicTimer(time, functor);
 }

@@ -71,11 +71,67 @@ Timer::Rearm()
 }
 
 
+static uint32
+oneshot_timer_callback(uint32 interval, void* castToFunctor)
+{
+	Functor* functor = reinterpret_cast<Functor*>(castToFunctor);
+	SDL_Event event;
+	SDL_UserEvent userevent;
+
+	userevent.type = SDL_USEREVENT;
+	userevent.code = 0;
+	userevent.data1 = (void*)functor->Function();
+	userevent.data2 = functor->Parameter();
+
+	event.type = SDL_USEREVENT;
+	event.user = userevent;
+
+	SDL_PushEvent(&event);
+
+	delete functor;
+
+	return 0;
+}
+
+
+static uint32
+periodic_timer_callback(uint32 interval, void* castToFunctor)
+{
+	Functor* functor = reinterpret_cast<Functor*>(castToFunctor);
+
+	SDL_Event event;
+	SDL_UserEvent userevent;
+
+	userevent.type = SDL_USEREVENT;
+	userevent.code = 0;
+	userevent.data1 = (void*)functor->Function();
+	userevent.data2 = functor->Parameter();
+
+	event.type = SDL_USEREVENT;
+	event.user = userevent;
+
+	SDL_PushEvent(&event);
+
+	// TODO: we are leaking the functor here
+
+	return interval;
+}
+
+
 /* static */
 void
-Timer::AddPeriodicTimer(uint32 interval, timer_func func, void* parameter)
+Timer::AddOneShotTimer(uint32 delay, void* parameter)
 {
-	SDL_AddTimer(interval, func, parameter);
+	SDL_AddTimer(delay, oneshot_timer_callback, parameter);
+}
+
+
+/* static */
+void
+Timer::AddPeriodicTimer(uint32 interval, void* parameter)
+{
+	// TODO: we should register this timer and remove it when not needed anymore
+	SDL_AddTimer(interval, periodic_timer_callback, parameter);
 }
 
 
@@ -136,7 +192,6 @@ GameTimer::Expired() const
 {
 	return sGameTime >= fExpiration;
 }
-
 
 
 /* static */
@@ -275,4 +330,27 @@ void
 GameTimer::AdvanceTime(uint16 hours, uint16 minutes, uint16 seconds)
 {
 	sGameTime += hours * 60 * 60 + minutes * 60 + seconds;
+}
+
+
+// Functor
+Functor::Functor(generic_function func, void* parameter)
+	:
+	fFunction(func),
+	fParameter(parameter)
+{
+}
+
+
+generic_function&
+Functor::Function()
+{
+	return fFunction;
+}
+
+
+void*
+Functor::Parameter()
+{
+	return fParameter;
 }

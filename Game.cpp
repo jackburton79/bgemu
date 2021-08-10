@@ -56,12 +56,11 @@ Game::~Game()
 }
 
 
-uint32
-DisplayClock(uint32 interval, void *param)
+void
+DisplayClock(void *param)
 {
 	std::string clock = GameTimer::GameTimeString();
 	GUI::Get()->DisplayString(clock.c_str(), 200, 200, 2500);
-	return interval;
 }
 
 
@@ -120,13 +119,20 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	SDL_Event event;
 	bool quitting = false;
 
-	Timer::AddPeriodicTimer((uint32)8000, DisplayClock, NULL);
+	Functor* functor = new Functor(DisplayClock, NULL);
+	Timer::AddPeriodicTimer(8000, functor);
 
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
+				// Used to handle timers
+				case SDL_USEREVENT: {
+					void (*event_func)(void*) = (void (*)(void*))event.user.data1;
+					event_func(event.user.data2);
+					break;
+				}
 				case SDL_MOUSEBUTTONDOWN:
 					gui->MouseDown(event.button.x, event.button.y);
 					break;
