@@ -328,6 +328,25 @@ Script::ResolveIdentifier(const Object* object, object_params* node, const int i
 	return NULL;
 }
 
+Actor*
+Script::_GetIdentifiers(const Object* source, object_params* node,
+						std::vector<std::string>& identifiersList)
+{
+	Actor* target = NULL;
+	for (int32 id = 0; id < 5; id++) {
+		const int identifier = node->identifiers[id];
+		if (identifier == 0) {
+			break;
+		}
+		//std::cout << IDTable::ObjectAt(identifier) << ", ";
+		identifiersList.push_back(IDTable::ObjectAt(identifier));
+		target = dynamic_cast<Actor*>(ResolveIdentifier(source, node,
+														identifier));
+		/*if (source != NULL)
+		 source->Print();*/
+	}
+	return target;
+}
 
 /* static */
 Object*
@@ -345,20 +364,9 @@ Script::GetObject(const Object* source, object_params* node)
 	} else if (node->identifiers[0] != 0) {
 		if (sDebug)
 			std::cout << "Specified identifiers: " ;
-		std::vector<std::string> identifiersList;
 		// If there are any identifiers, use those to get the object
-		Actor* target = NULL;
-		for (int32 id = 0; id < 5; id++) {
-			const int identifier = node->identifiers[id];
-			if (identifier == 0) {
-				break;
-			}
-			//std::cout << IDTable::ObjectAt(identifier) << ", ";
-			identifiersList.push_back(IDTable::ObjectAt(identifier));
-			target = dynamic_cast<Actor*>(ResolveIdentifier(source, node, identifier));
-			/*if (source != NULL)
-				source->Print();*/
-		}
+		std::vector<std::string> identifiersList;
+		Actor* target = _GetIdentifiers(source, node, identifiersList);
 
 		if (sDebug) {
 			for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();

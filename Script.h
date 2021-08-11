@@ -62,6 +62,8 @@ private:
 	
 	void _PrintNode(node* n) const;
 	void _DeleteNode(node* n);
+	static Actor* _GetIdentifiers(const Object* source, object_params* node,
+					std::vector<std::string>& identifiersList);
 
 	node *fRootNode;
 	
