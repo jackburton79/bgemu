@@ -33,7 +33,7 @@ static GUI* sGUI = NULL;
 void
 DeleteStringEntry(void *param)
 {
-	long id = (long)param;
+	long id = reinterpret_cast<long>(param);
 	sGUI->RemoveToolTip((uint32)id);
 }
 
