@@ -233,7 +233,8 @@ Resource*
 ResourceManager::GetResource(const res_ref &name, uint16 type)
 {
 	if (!strcmp(name.CString(), "")) {
-		std::cerr << Log::Yellow << kComponentName << "GetResource() called with emtpy name!" << std::endl;
+		std::cerr << Log::Yellow << kComponentName << "GetResource() called with empty name!" << std::endl;
+		std::cerr << Log::Normal;
 		return NULL;
 	}
 
