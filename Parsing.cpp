@@ -123,7 +123,7 @@ token::token(const char *tok)
 		type = TOKEN_QUOTED_STRING;
 	else if (tok[0] == '(')
 		type = TOKEN_PARENTHESIS_OPEN;
-	else if (tok[0] == '(')
+	else if (tok[0] == ')')
 		type = TOKEN_PARENTHESIS_CLOSED;
 	else
 		type = TOKEN_UNKNOWN;
