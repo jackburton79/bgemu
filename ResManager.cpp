@@ -147,9 +147,11 @@ ResourceManager::~ResourceManager()
 	std::cout << std::endl;
 	std::list<Resource*>::iterator it;
 	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
-		std::cout << "Deleting " << (*it)->Name();
-		std::cout << "(" << strresource((*it)->Type()) << ")";
-		std::cout << " (refcount = " << (*it)->RefCount() << ")..." << std::endl;
+		if (fDebugLevel > 0) {
+			std::cout << "Deleting " << (*it)->Name();
+			std::cout << "(" << strresource((*it)->Type()) << ")";
+			std::cout << " (refcount = " << (*it)->RefCount() << ")..." << std::endl;
+		}
 		delete *it;
 	}
 
@@ -230,8 +232,10 @@ ResourceManager::GetResource(const char* fullName)
 Resource*
 ResourceManager::GetResource(const res_ref &name, uint16 type)
 {
-	if (!strcmp(name.name, ""))
+	if (!strcmp(name.CString(), "")) {
+		std::cerr << Log::Yellow << kComponentName << "GetResource() called with emtpy name!" << std::endl;
 		return NULL;
+	}
 
 	const KeyResEntry *entry = _GetKeyRes(name, type);
 	if (entry == NULL) {
