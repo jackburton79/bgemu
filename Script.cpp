@@ -345,6 +345,13 @@ Script::_GetIdentifiers(const Object* source, object_params* node,
 		/*if (source != NULL)
 		 source->Print();*/
 	}
+	if (sDebug) {
+		for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();
+				i != identifiersList.rend(); i++) {
+			std::cout << *i << "->";
+		}
+		std::cout << std::endl;
+	}
 	return target;
 }
 
@@ -368,13 +375,6 @@ Script::GetObject(const Object* source, object_params* node)
 		std::vector<std::string> identifiersList;
 		Actor* target = _GetIdentifiers(source, node, identifiersList);
 
-		if (sDebug) {
-			for (std::vector<std::string>::const_reverse_iterator i = identifiersList.rbegin();
-					i != identifiersList.rend(); i++) {
-				std::cout << *i << "->";
-			}
-			std::cout << std::endl;
-		}
 		// TODO: Filter using wildcards in node
 		/*std::cout << "returned ";
 		if (target != NULL)
