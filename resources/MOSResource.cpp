@@ -134,6 +134,8 @@ MOSResource::TileAt(uint32 index)
 		yBlockSize = fHeight - (fRows - 1) * fBlockSize;
 
 	Bitmap* tileBitmap = new Bitmap(xBlockSize, yBlockSize, 8);
+	if (tileBitmap == NULL)
+		return NULL;
 	try {
 		GFX::Palette palette;
 		for (int32 i = 0; i < 256; i++) {
