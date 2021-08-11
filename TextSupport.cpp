@@ -48,7 +48,9 @@ get_char_classification(int c)
 Font::Font(const std::string& fontName)
 	:
 	fName(fontName),
-	fPalette(NULL)
+	fHeight(0),
+	fPalette(NULL),
+	fTransparentIndex(0)
 {
 	_LoadGlyphs(fName);
 
@@ -86,6 +88,13 @@ Font::Name() const
 
 
 uint16
+Font::Height() const
+{
+	return fHeight;
+}
+
+
+uint16
 Font::StringWidth(const std::string& string, uint16* height) const
 {
 	uint16 totalWidth = 0;
@@ -98,14 +107,18 @@ Font::StringWidth(const std::string& string, uint16* height) const
 
 
 std::string
-Font::TruncateString(std::string& string, uint16 maxWidth) const
+Font::TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidth) const
 {
 	size_t breakPos = string.length();
 	std::string line = string;
 	for (;;) {
 		line = string.substr(0, breakPos);
-		if (StringWidth(line, NULL) < maxWidth)
+		uint16 newWidth = StringWidth(line, NULL);
+		if (newWidth < maxWidth) {
+			if (truncatedWidth != NULL)
+				*truncatedWidth = newWidth;
 			break;
+		}
 		breakPos = string.rfind(" ", breakPos - 1);
 	}
 	if (breakPos == string.length())
@@ -155,6 +168,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 		if (bitmap != NULL) {
 			Glyph glyph = { c, bitmap };
 			fGlyphs[c] = glyph;
+			fHeight = std::max(bitmap->Height(), fHeight);
 		} else {
 			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
 			break;

@@ -132,10 +132,10 @@ TextArea::AddText(const char* text)
 
 	std::string textString(text);
 	while (!textString.empty()) {
-		std::string textLine = font->TruncateString(textString, fControl->w);
 		TextLine newLine;
+		std::string textLine = font->TruncateString(textString, fControl->w, &newLine.width);
 		newLine.text = textLine;
-		newLine.width = font->StringWidth(textLine, &newLine.height);
+		newLine.height = font->Height();
 		fLines.push_back(newLine);
 	}
 	fChanged = true;
@@ -152,10 +152,10 @@ TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 	std::string textString(pre);
 	textString.append(text);
 	while (!textString.empty()) {
-		std::string textLine = font->TruncateString(textString, fControl->w);
 		TextLine newLine;
+		std::string textLine = font->TruncateString(textString, fControl->w, &newLine.width);
 		newLine.text = textLine;
-		newLine.width = font->StringWidth(textLine, &newLine.height);
+		newLine.height = font->Height();
 		newLine.dialog_option = dialogOption;
 		fLines.push_back(newLine);
 	}

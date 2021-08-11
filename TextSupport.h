@@ -30,9 +30,10 @@ public:
 	~Font();
 
 	std::string Name() const;
-
+	uint16 Height() const;
 	uint16 StringWidth(const std::string& string, uint16* height = NULL) const;
-	std::string TruncateString(std::string& string, uint16 maxWidth) const;
+
+	std::string TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidth = NULL) const;
 
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
@@ -71,10 +72,9 @@ private:
 
 	std::string fName;
 
-
 	typedef std::map<char, Glyph> GlyphMap;
 	GlyphMap fGlyphs;
-	
+	uint16 fHeight;
 	GFX::Palette* fPalette;
 
 	uint8 fTransparentIndex;
