@@ -176,7 +176,6 @@ Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
 			rect.x = (destRect->w - totalWidth) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
 			rect.x = destRect->w - totalWidth;
-
 		rect.x += destRect->x;
 		rect.y += destRect->y;
 	} else if (destPoint != NULL) {
@@ -240,7 +239,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		if (firstFrame->GetColorKey(colorKey))
 			bitmap->SetColorKey(colorKey);
 #endif
-
 
 	// Render glyphs
 	GFX::rect rect = _GetFirstGlyphRect(destRect, flags, totalWidth, destPoint);

@@ -54,6 +54,7 @@ public:
 		int char_code;
 		Bitmap* bitmap;
 	};
+
 private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(const std::string& string,
