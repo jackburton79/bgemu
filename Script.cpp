@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "GUI.h"
 #include "IDSResource.h"
+#include "Log.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "Region.h"
@@ -1033,10 +1034,11 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 
 			// TODO: We should add the timer local to the active creature,
 			// whatever that means
-			if (sender == NULL)
-				printf("NULL TARGET\n");
 			std::ostringstream stringStream;
-			stringStream << sender->Name() << " " << act->integer1;
+			if (sender == NULL) {
+				std::cerr << Log::Red << "StartTimer(): NULL TARGET" << std::endl;
+			} else
+				stringStream << sender->Name() << " " << act->integer1;
 
 			GameTimer::Add(stringStream.str().c_str(), act->integer2);
 
