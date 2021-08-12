@@ -129,11 +129,12 @@ Scrollbar::_DrawTrough(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-					scrollbar->trough));
+	Bitmap* frame = fResource->FrameForCycle(scrollbar->cycle,
+					scrollbar->trough);
 	GFX::rect destRect(screenRect.x, screenRect.y + 40,
 			frame->Width(), frame->Height());
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
+	frame->Release();
 }
 
 
@@ -142,11 +143,12 @@ Scrollbar::_DrawSlider(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	Bitmap* frame = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-					scrollbar->slider));
+	Bitmap* frame = fResource->FrameForCycle(scrollbar->cycle,
+					scrollbar->slider);
 	GFX::rect destRect(screenRect.x, screenRect.y + fSliderPosition,
 			frame->Width(), frame->Height());
 	GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
+	frame->Release();
 }
 
 
@@ -155,13 +157,14 @@ Scrollbar::_DrawUpArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed));
+	fUpArrow = fResource->FrameForCycle(scrollbar->cycle,
+		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed);
 
 	GFX::rect destRect(screenRect.x, screenRect.y,
 			fUpArrow->Width(), fUpArrow->Height());
 	fUpArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fUpArrow, NULL, &destRect);
+	fUpArrow->Release();
 }
 
 
@@ -170,13 +173,13 @@ Scrollbar::_DrawDownArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
-	//fDownArrow->Release();
-	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed));
+	fDownArrow = fResource->FrameForCycle(scrollbar->cycle,
+		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed);
 
 	GFX::rect destRect(screenRect.x,
 			screenRect.y + fControl->h - fDownArrow->Height(),
 			fDownArrow->Width(), fDownArrow->Height());
 	fDownArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fDownArrow, NULL, &destRect);
+	fDownArrow->Release();
 }
