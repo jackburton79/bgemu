@@ -45,14 +45,13 @@ dlg_state
 DLGResource::GetStateAt(int32 index)
 {
 	if ((uint32)index == fNumStates)
-		throw std::out_of_range("GetNextState()");
+		throw std::out_of_range("DLGResource::GetStateAt() out of range");
 
 	dlg_state state;
 	_GetStateAt(index, state);
 
 	return state;
 }
-
 
 
 transition_entry
