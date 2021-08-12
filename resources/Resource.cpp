@@ -157,15 +157,9 @@ Resource::DropData()
 bool
 Resource::IsEncrypted()
 {
-	int32 pos = fData->Position();
-	fData->Seek(0, SEEK_SET);
-
-	bool encrypted = (fData->ReadByte() == 0xFF)
-		&& (fData->ReadByte() == 0xFF);
-
-	fData->Seek(pos, SEEK_SET);
-
-	return encrypted;
+	uint16 data = 0;
+	fData->ReadAt(0, &data, sizeof(data));
+	return data == 0xFFFF;
 }
 
 
