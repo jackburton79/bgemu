@@ -300,7 +300,7 @@ FontRoster::FontsMap FontRoster::sFonts;
 const Font*
 FontRoster::GetFont(const std::string& name)
 {
-	static FontsMap::iterator i = sFonts.find(name);
+	const FontsMap::iterator i = sFonts.find(name);
 	if (i != sFonts.end())
 		return i->second;
 	
