@@ -261,7 +261,10 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 			i != glyphs.end(); i++) {
 		const Glyph glyph = (*i);
 		_AdjustGlyphAlignment(rect, flags, containerRect, glyph);
-		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
+		if (flags & TEXT_SELECTED)
+			bitmap->FillRect(rect, 45);
+		else
+			GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
 
 		// Advance cursor
 		rect.x += glyph.bitmap->Frame().w;

@@ -50,6 +50,8 @@ private:
 	Bitmap* fBitmap;
 	
 	TextLines fLines;
+	TextLine* fSelected;
+
 	int16 fYOffset;
 	bool fChanged;
 

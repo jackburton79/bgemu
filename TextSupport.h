@@ -24,6 +24,12 @@ namespace GFX {
 	class Palette;
 }
 
+enum text_attributes {
+	TEXT_NONE = 0,
+	TEXT_SELECTED = 4096
+};
+
+
 class Font {
 public:
 	Font(const std::string& fontName);
