@@ -185,57 +185,74 @@ Animation::_ApplyColorMODs(::Bitmap *bitmap, CREColors *patchColors)
 	//for (i = 0; i < 4; ++i)
 		//col[i] = src->col[i];
 
+	// 4-15
 	for (i = 0; i < 12; ++i)
-		palette.ModColor(0x04 + i, patchColors->metal);
+		palette.ModColor(0x4 + i, patchColors->metal);
 
+	// 16-27
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x10 + i, patchColors->minor);
 
+	// 28-39
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x1c + i, patchColors->major);
 
+	// 40-51
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x28 + i, patchColors->skin);
 
+	// 52-63
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x34 + i, patchColors->leather);
 
+	// 64-75
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x40 + i, patchColors->armor);
 
+	// 76-87
 	for (i = 0; i < 12; ++i)
 		palette.ModColor(0x4c + i, patchColors->hair);
 
+	// 88-95
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x58 + i, patchColors->minor);
 
+	// 96-103
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x60 + i, patchColors->major);
 
+	// 103-111
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x68 + i, patchColors->minor);
 
+	// 112-119
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x70 + i, patchColors->metal);
 
+	// 120-127
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x78 + i, patchColors->leather);
 
+	// 128-135
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x80 + i, patchColors->leather);
 
+	// 136-143
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0x88 + i, patchColors->minor);
 
+	// 144-167
 	for (i = 0; i < 24; ++i)
 		palette.ModColor(0x90 + i, patchColors->leather);
 
 	//for (i = 0; i < 8; ++i)
-	//	palette.colors[[0xA8 + i] = src->col[0xA8+i];
+		//palette.colors[[0xA8 + i] = src->col[0xA8+i];
 
+	// 176-183
 	for (i = 0; i < 8; ++i)
 		palette.ModColor(0xB0 + i, patchColors->skin);
 
+	// 184-255
 	for (i = 0; i < 72; ++i)
 		palette.ModColor(0xB8 + i, patchColors->leather);
 
