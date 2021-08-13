@@ -235,7 +235,7 @@ TextArea::_HitTestLine(IE::point point) const
 		lineOffset.y += line.height + kLineSpacing;
 		// skip non-dialog lines
 		if (line.dialog_option == -1)
-				continue;
+			continue;
 		if (rect_contains(frame, point))
 			return &line;
 	}

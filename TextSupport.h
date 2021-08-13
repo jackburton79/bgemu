@@ -70,8 +70,10 @@ private:
 					const GFX::rect* rect, const GFX::point* point) const;
 	void _PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs = NULL) const;
-	GFX::rect _GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
-						uint16 totalWidth, const GFX::point* destPoint) const;
+	GFX::rect _GetContainerRect(uint16 width, uint16 height,
+								 uint32 flags,
+								 const GFX::rect* destRect,
+								 const GFX::point* destPoint) const;
 	void _AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 							   const GFX::rect& containerRect,
 							   const Glyph glyph) const;

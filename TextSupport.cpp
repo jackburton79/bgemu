@@ -180,16 +180,17 @@ Font::_LoadGlyphs(const std::string& fontName)
 
 
 GFX::rect
-Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
-							uint16 totalWidth,
-							const GFX::point* destPoint) const
+Font::_GetContainerRect(uint16 width, uint16 height,
+						 uint32 flags,
+						 const GFX::rect* destRect,
+						 const GFX::point* destPoint) const
 {
 	GFX::rect rect;
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
-			rect.x = (destRect->w - totalWidth) / 2;
+			rect.x = (destRect->w - width) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-			rect.x = destRect->w - totalWidth;
+			rect.x = destRect->w - width;
 		rect.x += destRect->x;
 		rect.y += destRect->y;
 	} else if (destPoint != NULL) {
@@ -197,6 +198,8 @@ Font::_GetFirstGlyphRect(const GFX::rect* destRect, uint32 flags,
 		rect.y = destPoint->y;
 	}
 
+	rect.w = width;
+	rect.h = height;
 	return rect;
 }
 
@@ -255,16 +258,15 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 #endif
 
 	// Render glyphs
-	GFX::rect rect = _GetFirstGlyphRect(destRect, flags, totalWidth, destPoint);
-	GFX::rect containerRect(rect.x, rect.y, totalWidth, maxHeight);
+	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
+												 flags, destRect, destPoint);
+	GFX::rect rect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {
 		const Glyph glyph = (*i);
+
 		_AdjustGlyphAlignment(rect, flags, containerRect, glyph);
-		if (flags & TEXT_SELECTED)
-			bitmap->FillRect(rect, 45);
-		else
-			GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
+		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
 
 		// Advance cursor
 		rect.x += glyph.bitmap->Frame().w;
