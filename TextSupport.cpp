@@ -309,3 +309,12 @@ FontRoster::GetFont(const std::string& name)
 	
 	return font;
 }
+
+
+/* static */
+void
+FontRoster::Destroy()
+{
+	for (FontsMap::iterator i = sFonts.begin(); i != sFonts.end(); i++)
+		delete i->second;
+}

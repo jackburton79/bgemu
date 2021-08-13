@@ -84,6 +84,7 @@ private:
 class FontRoster {
 public:
 	static const Font* GetFont(const std::string& name);
+	static void Destroy();
 
 private:
 	typedef std::map<std::string, Font*> FontsMap;

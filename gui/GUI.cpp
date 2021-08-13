@@ -100,6 +100,7 @@ GUI::Destroy()
 	std::cout << "GUI::Destroy()" << std::endl;
 	delete sGUI;
 	sGUI = NULL;
+	FontRoster::Destroy();
 }
 
 
