@@ -749,17 +749,15 @@ ResourceManager::TryEmptyResourceCache(bool force)
 {
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
-		//std::cout << kComponentName;
-		//std::cout << (*it)->Name() << "(" << strresource((*it)->Type()) << "): ";
-		//std::cout << "refcount is " << (*it)->RefCount();
-		if (force || (*it)->RefCount() == 1) {
-		//	std::cout << ": Deleting...";
-			std::flush(std::cout);
+		if ((*it)->RefCount() == 1) {
+			//std::cout << "deleting resource " << (*it)->Name() << std::endl;
 			delete *it;
-			it = fCachedResources.erase(it);
-		} else
-			it++;
-		//std::cout << std::endl;
+		} else {
+			//std::cout << "releasing resource " << (*it)->Name() << "(still used)" << std::endl;
+			(*it)->Release();
+		}
+
+		it = fCachedResources.erase(it);
 	}
 }
 
