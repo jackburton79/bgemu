@@ -77,7 +77,7 @@ TextArea::Draw()
 	GFX::rect destRect(fControl->x, fControl->y,
 					   fControl->w, fControl->h);
 	fWindow->ConvertToScreen(destRect);
-	if (fChanged || fSelected != NULL) {
+	if (fChanged) {
 		GFX::rect rect(0, -fYOffset, fBitmap->Width(), fBitmap->Height());
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
 		fBitmap->Clear(0);
@@ -105,10 +105,8 @@ TextArea::MouseDown(IE::point point)
 {
 	DialogHandler* dialog = Game::Get()->Dialog();
 	if (dialog != NULL) {
-		const TextLine* line = _HitTestLine(point);
-		if (line != NULL) {
-			dialog->SelectOption(line->dialog_option);
-		}
+		if (fSelected != NULL)
+			dialog->SelectOption(fSelected->dialog_option);
 		Game::Get()->HandleDialog();
 	}
 }
@@ -119,11 +117,14 @@ void
 TextArea::MouseMoved(IE::point point, uint32 transit)
 {
 	Control::MouseMoved(point, transit);
-	DialogHandler* dialog = Game::Get()->Dialog();
-	if (dialog != NULL) {
+	TextLine* oldSelected = fSelected;
+	if (Game::Get()->Dialog() != NULL)
 		fSelected = const_cast<TextLine*>(_HitTestLine(point));
-	} else
+	else
 		fSelected = NULL;
+
+	if (oldSelected != fSelected)
+		fChanged = true;
 }
 
 
