@@ -745,7 +745,7 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 
 
 void
-ResourceManager::TryEmptyResourceCache(bool force)
+ResourceManager::TryEmptyResourceCache()
 {
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {

@@ -69,7 +69,7 @@ public:
 	void GetCachedResourcesList(StringList& list);
 
 	void ReleaseResource(Resource *resource);
-	void TryEmptyResourceCache(bool force = false);
+	void TryEmptyResourceCache();
 	
 	void PrintResources(int32 type = -1);
 	void PrintBIFs();
