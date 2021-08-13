@@ -52,6 +52,13 @@ DialogHandler::GetNextValidState()
 }
 
 
+bool
+DialogHandler::IsWaitingUserChoice() const
+{
+	return fTransitions.size() > 1;
+}
+
+
 void
 DialogHandler::SelectOption(int32 option)
 {
@@ -84,6 +91,14 @@ DialogHandler::SelectOption(int32 option)
 	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
 		std::cout << "text journal: " << fCurrentTransition.entry.text_journal << std::endl;
 */
+}
+
+
+void
+DialogHandler::Continue()
+{
+	fCurrentTransition = NULL;
+	fState = GetNextValidState();
 }
 
 

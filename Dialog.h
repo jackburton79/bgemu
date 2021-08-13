@@ -43,7 +43,10 @@ public:
 	State* CurrentState();
 	State* GetNextValidState();
 
+	bool IsWaitingUserChoice() const;
+
 	void SelectOption(int32 option);
+	void Continue();
 
 	typedef std::vector<Transition> TransitionList;
 	Transition TransitionAt(int32 index);

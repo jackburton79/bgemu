@@ -292,9 +292,10 @@ Game::Dialog()
 void
 Game::HandleDialog()
 {
-	DialogHandler::State* currentState = fDialog->GetNextValidState();
+	std::cout << "Game::HandleDialog()" << std::endl;
+	DialogHandler::State* currentState = fDialog->CurrentState();
 	if (currentState == NULL) {
-		std::cout << "Game::HandleDialog(): GetNextState is NULL" << std::endl;
+		std::cout << "Game::HandleDialog(): CurrensState() is NULL" << std::endl;
 		TerminateDialog();
 		return;
 	}
@@ -319,6 +320,11 @@ Game::HandleDialog()
 			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
 		}
 	}
+
+	// TODO: get next state
+	/*DialogHandler::State* currentState = fDialog->GetNextValidState();
+	if (currentState == NULL) {
+	*/
 }
 
 
