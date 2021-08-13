@@ -24,15 +24,17 @@ Scrollbar::Scrollbar(IE::scrollbar* scrollbar)
 	fSliderPosition(20)
 {
 	fResource = gResManager->GetBAM(scrollbar->bam);
-	fUpArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-			scrollbar->arrow_up_unpressed));
-	fDownArrow = const_cast<Bitmap*>(fResource->FrameForCycle(scrollbar->cycle,
-				scrollbar->arrow_down_unpressed));
+	fUpArrow = fResource->FrameForCycle(scrollbar->cycle,
+			scrollbar->arrow_up_unpressed);
+	fDownArrow = fResource->FrameForCycle(scrollbar->cycle,
+				scrollbar->arrow_down_unpressed);
 }
 
 
 Scrollbar::~Scrollbar()
 {
+	fUpArrow->Release();
+	fDownArrow->Release();
 	gResManager->ReleaseResource(fResource);
 }
 
@@ -157,14 +159,16 @@ Scrollbar::_DrawUpArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
+	// retrieve the pressed/unpressed image
+	fUpArrow->Release();
 	fUpArrow = fResource->FrameForCycle(scrollbar->cycle,
 		fUpArrowPressed ? scrollbar->arrow_up_pressed : scrollbar->arrow_up_unpressed);
-
+	if (fUpArrow == NULL)
+		return;
 	GFX::rect destRect(screenRect.x, screenRect.y,
 			fUpArrow->Width(), fUpArrow->Height());
 	fUpArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fUpArrow, NULL, &destRect);
-	fUpArrow->Release();
 }
 
 
@@ -173,13 +177,15 @@ Scrollbar::_DrawDownArrow(const GFX::rect& screenRect)
 {
 	IE::scrollbar* scrollbar = (IE::scrollbar*)fControl;
 
+	// retrieve the pressed/unpressed image
+	fDownArrow->Release();
 	fDownArrow = fResource->FrameForCycle(scrollbar->cycle,
 		fDownArrowPressed ? scrollbar->arrow_down_pressed : scrollbar->arrow_down_unpressed);
-
+	if (fDownArrow == NULL)
+		return;
 	GFX::rect destRect(screenRect.x,
 			screenRect.y + fControl->h - fDownArrow->Height(),
 			fDownArrow->Width(), fDownArrow->Height());
 	fDownArrow->SetPosition(destRect.x, destRect.y);
 	GraphicsEngine::Get()->BlitToScreen(fDownArrow, NULL, &destRect);
-	fDownArrow->Release();
 }
