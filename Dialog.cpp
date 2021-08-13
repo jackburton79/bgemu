@@ -41,9 +41,11 @@ DialogHandler::GetNextValidState()
 		if (fState == NULL)
 			break;
 		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(fState->Trigger());
-		std::cout << "Checking triggers..." << std::endl;
-		if (Actor()->EvaluateDialogTriggers(triggerList))
+		std::cout << "GetNextValidState: Checking triggers..." << std::endl;
+		if (Actor()->EvaluateDialogTriggers(triggerList)) {
+			std::cout << "GetNextValidState(): a trigger returned true!" << std::endl;
 			break;
+		}
 	}
 
 	return fState;
@@ -122,12 +124,15 @@ DialogHandler::HandleTransition(Transition& transition)
 DialogHandler::State*
 DialogHandler::_GetNextState()
 {
+	std::cout << "_GetNextState():" << std::endl;
 	delete fState;
 	fState = NULL;
 	fTransitions.clear();
 
-	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END))
+	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END)) {
+		std::cout << "_GetNextState(): TRANSITION_END, return NULL" << std::endl;
 		return NULL;
+	}
 
 	dlg_state nextState;
 	try {
