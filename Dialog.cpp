@@ -23,6 +23,7 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fResource(NULL)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
+	_GetNextState();
 }
 
 
@@ -33,67 +34,13 @@ DialogHandler::~DialogHandler()
 
 
 DialogHandler::State*
-DialogHandler::GetNextState()
-{
-	delete fState;
-	fState = NULL;
-	fTransitions.clear();
-
-	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END))
-		return NULL;
-
-	dlg_state nextState;
-	try {
-		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
-		nextState = fResource->GetStateAt(fNextStateIndex);
-	} catch (std::exception& e ) {
-		fNextStateIndex = 0;
-		std::cerr << e.what() << std::endl;
-		return NULL;
-	}
-
-	std::string triggerString;
-	if (nextState.trigger != -1)
-		triggerString = fResource->GetStateTrigger(nextState.trigger);
-
-	std::cout << "New DialogState::State()" << std::endl;
-	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
-									nextState.transitions_num, nextState.transition_first);
-
-	fNextStateIndex++;
-
-	std::cout << "Get Transitions..." << std::endl;
-	// Get Transitions for this state
-	for (int32 i = 0; i < fState->NumTransitions(); i++) {
-		DialogHandler::Transition transition;
-		transition.entry = fResource->GetTransition(fState->TransitionIndex() + i);
-		if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
-			transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-		if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-			uint32 action = fResource->GetAction(transition.entry.index_action);
-			transition.action = IDTable::ActionAt(action);
-			std::cout << "action:" << action << std::endl;
-		}
-
-		if (transition.entry.flags & DLG_TRANSITION_END) {
-			std::cout << "TRANSITION_END" << std::endl;
-		}
-		fTransitions.push_back(transition);
-	}
-	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
-
-	return fState;
-}
-
-
-DialogHandler::State*
 DialogHandler::GetNextValidState()
 {
 	for (;;) {
-		DialogHandler::State* state = GetNextState();
-		if (state == NULL)
+		fState = _GetNextState();
+		if (fState == NULL)
 			break;
-		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(state->Trigger());
+		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(fState->Trigger());
 		std::cout << "Checking triggers..." << std::endl;
 		if (Actor()->EvaluateDialogTriggers(triggerList))
 			break;
@@ -169,6 +116,60 @@ DialogHandler::CurrentTransition()
 void
 DialogHandler::HandleTransition(Transition& transition)
 {
+}
+
+
+DialogHandler::State*
+DialogHandler::_GetNextState()
+{
+	delete fState;
+	fState = NULL;
+	fTransitions.clear();
+
+	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END))
+		return NULL;
+
+	dlg_state nextState;
+	try {
+		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
+		nextState = fResource->GetStateAt(fNextStateIndex);
+	} catch (std::exception& e ) {
+		fNextStateIndex = 0;
+		std::cerr << e.what() << std::endl;
+		return NULL;
+	}
+
+	std::string triggerString;
+	if (nextState.trigger != -1)
+		triggerString = fResource->GetStateTrigger(nextState.trigger);
+
+	std::cout << "New DialogState::State()" << std::endl;
+	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
+									nextState.transitions_num, nextState.transition_first);
+
+	fNextStateIndex++;
+
+	std::cout << "Get Transitions..." << std::endl;
+	// Get Transitions for this state
+	for (int32 i = 0; i < fState->NumTransitions(); i++) {
+		DialogHandler::Transition transition;
+		transition.entry = fResource->GetTransition(fState->TransitionIndex() + i);
+		if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
+			transition.text_player = IDTable::GetDialog(transition.entry.text_player);
+		if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
+			uint32 action = fResource->GetAction(transition.entry.index_action);
+			transition.action = IDTable::ActionAt(action);
+			std::cout << "action:" << action << std::endl;
+		}
+
+		if (transition.entry.flags & DLG_TRANSITION_END) {
+			std::cout << "TRANSITION_END" << std::endl;
+		}
+		fTransitions.push_back(transition);
+	}
+	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
+
+	return fState;
 }
 
 

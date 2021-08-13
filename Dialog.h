@@ -41,7 +41,6 @@ public:
 	};
 
 	State* CurrentState();
-	State* GetNextState();
 	State* GetNextValidState();
 
 	void SelectOption(int32 option);
@@ -65,6 +64,7 @@ private:
 	Transition* fCurrentTransition;
 	DLGResource* fResource;
 
+	State* _GetNextState();
 	Transition _GetTransition(int32 num);
 };
 
