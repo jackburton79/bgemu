@@ -52,7 +52,6 @@ Path::Path(const Path& path)
 }
 
 
-
 /*! \brief Creates a BPath object and initializes it to the specified path or
 		   path and filename combination.
 
@@ -89,7 +88,6 @@ Path::InitCheck() const
 {
 	return fCStatus;
 }
-
 
 
 /*!	\brief Reinitializes the object to the specified path or path and file
