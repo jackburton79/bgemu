@@ -1031,6 +1031,7 @@ Actor::_SetPositionPrivate(const IE::point& point)
 void
 Actor::_HandleColors()
 {
+	assert(fColors == NULL);
 	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
 	if (randColors != NULL) {
 		CREColors originalColors = CRE()->Colors();
