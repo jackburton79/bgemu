@@ -222,6 +222,12 @@ TextArea::_AddText(std::string textString, int32 dialogOption)
 		newLine.dialog_option = dialogOption;
 		fLines.push_back(newLine);
 	}
+
+	TextLine& lastLine = fLines.back();
+	int16 scrollToOffset = _LineOffset(&lastLine);
+	scrollToOffset -= Height();
+	ScrollTo(0, scrollToOffset);
+
 	fChanged = true;
 }
 
@@ -254,4 +260,19 @@ TextArea::_HitTestLines(IE::point point) const
 			return &line;
 	}
 	return NULL;
+}
+
+
+int16
+TextArea::_LineOffset(TextLine* line) const
+{
+	int16 lineOffset = 0;
+	TextLines::const_iterator i;
+	for (i = fLines.begin(); i != fLines.end(); i++) {
+		const TextLine& l = *i;
+		lineOffset += l.height + kLineSpacing;
+		if (&l == line)
+			break;
+	}
+	return lineOffset;
 }

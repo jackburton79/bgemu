@@ -61,6 +61,7 @@ private:
 	void _AddText(std::string textString, int32 dialogOption);
 	void _UpdateScrollbar(int16 change);
 	const TextLine* _HitTestLines(IE::point point) const;
+	int16 _LineOffset(TextLine* line) const;
 };
 
 #endif /* TEXTAREA_H_ */
