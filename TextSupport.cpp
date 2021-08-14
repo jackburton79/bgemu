@@ -246,18 +246,19 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 
 	if (fPalette != NULL)
 		bitmap->SetPalette(*fPalette);
+
 	const Bitmap* firstFrame = glyphs.back().bitmap;
+
 	/*if (useBAMPalette) {
 
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);
 	}*/
-#if 1
-		uint32 colorKey;
-		if (firstFrame->GetColorKey(colorKey))
-			bitmap->SetColorKey(colorKey);
-#endif
+
+	uint32 colorKey;
+	if (firstFrame->GetColorKey(colorKey))
+		bitmap->SetColorKey(colorKey);
 
 	// Render glyphs
 	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
