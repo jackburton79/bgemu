@@ -260,6 +260,8 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// Render glyphs
 	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
 												 flags, destRect, destPoint);
+	if (flags & TEXT_SELECTED)
+		bitmap->FillRect(containerRect, 23);
 	GFX::rect rect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {
