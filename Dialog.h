@@ -67,6 +67,7 @@ private:
 	::Actor* fTarget;
 	TransitionList fTransitions;
 	DLGResource* fResource;
+	bool fEnd;
 
 	State* _GetNextState();
 	Transition _GetTransition(int32 num);

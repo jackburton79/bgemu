@@ -24,7 +24,8 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
-	fResource(NULL)
+	fResource(NULL),
+	fEnd(false)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
 	Continue();
@@ -119,7 +120,10 @@ DialogHandler::SelectOption(int32 option)
 	}
 	std::cout << "Getting next state..." << std::endl;
 	fNextStateIndex = transition->entry.index_next_state;
-/*
+
+	if (transition->entry.flags & DLG_TRANSITION_END)
+		fEnd = true;
+	/*
 	if (transition.entry.index_action != -1) {
 		// TODO: Execute action
 		std::cout << "Action: " << fCurrentTransition.entry.index_action << std::endl;
@@ -136,6 +140,11 @@ DialogHandler::SelectOption(int32 option)
 void
 DialogHandler::Continue()
 {
+	if (fEnd) {
+		// TODO: Not nice. TerminateDialog deletes this object
+		Game::Get()->TerminateDialog();
+		return;
+	}
 	std::cout << "DialogHandler::Continue()" << std::endl;
 	fState = GetNextValidState();
 	std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
