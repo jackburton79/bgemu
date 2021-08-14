@@ -15,6 +15,8 @@
 #include "ResManager.h"
 #include "TextArea.h"
 
+#include <cassert>
+
 // DialogState
 DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
@@ -22,7 +24,6 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
-	//fCurrentTransition(NULL),
 	fResource(NULL)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
@@ -70,7 +71,7 @@ DialogHandler::ShowActorMessage()
 		std::cerr << "NULL Text Area!!!" << std::endl;
 		return;
 	}
-	std::cout << "Display message." << std::endl;
+	//std::cout << "Display message." << std::endl;
 	Core::Get()->DisplayMessage(Actor()->LongName().c_str(), fState->Text().c_str());
 }
 
@@ -96,6 +97,8 @@ DialogHandler::ShowPlayerOptions()
 void
 DialogHandler::SelectOption(int32 option)
 {
+	assert(fTransitions.size() >= (size_t)option);
+
 	Transition *transition = &fTransitions.at(option);
 	std::cout << "SelectOption: " << transition->text_player << std::endl;
 	std::cout << "END ? " << ((transition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
@@ -165,13 +168,6 @@ DialogHandler::CountTransitions() const
 	return fTransitions.size();
 }
 
-/*
-DialogHandler::Transition*
-DialogHandler::CurrentTransition()
-{
-	return fCurrentTransition;
-}*/
-
 
 void
 DialogHandler::HandleTransition(Transition& transition)
@@ -194,7 +190,7 @@ DialogHandler::_GetNextState()
 
 	dlg_state nextState;
 	try {
-		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
+//		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
 		nextState = fResource->GetStateAt(fNextStateIndex);
 	} catch (std::exception& e ) {
 		fNextStateIndex = 0;
@@ -206,7 +202,7 @@ DialogHandler::_GetNextState()
 	if (nextState.trigger != -1)
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
-	std::cout << "New DialogState::State()" << std::endl;
+	//std::cout << "New DialogState::State()" << std::endl;
 	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
 
