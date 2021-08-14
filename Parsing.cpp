@@ -266,6 +266,11 @@ GetFunctionParameters(std::string functionString)
 	}
 
 	std::cout << "found " << parameters.size() << " parameters." << std::endl;
+	std::vector<Parameter>::const_iterator i;
+	for (i = parameters.begin(); i != parameters.end(); i++) {
+		(*i).Print();
+	}
+
 	return parameters;
 }
 
