@@ -105,9 +105,13 @@ TextArea::MouseDown(IE::point point)
 {
 	DialogHandler* dialog = Game::Get()->Dialog();
 	if (dialog != NULL) {
-		if (dialog->IsWaitingUserChoice() && fSelected != NULL)
-			dialog->SelectOption(fSelected->dialog_option);
-		dialog->Continue();
+		if (dialog->IsWaitingUserChoice()) {
+			if (fSelected != NULL) {
+				dialog->SelectOption(fSelected->dialog_option);
+				dialog->Continue();
+			}
+		} else
+			dialog->Continue();
 	}
 }
 
