@@ -241,6 +241,9 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 	std::cout << fScreen->Height() << "x" << fScreen->BitsPerPixel();
 	std::cout << std::endl;
 
+	// Center cursor in window
+	SDL_WarpMouseInWindow(fSDLWindow, fScreen->Width() / 2, fScreen->Height() / 2);
+
 	std::vector<Listener*>::iterator i;
 	for (i = fListeners.begin(); i != fListeners.end(); i++) {
 		(*i)->VideoModeChanged(width, height, depth);
