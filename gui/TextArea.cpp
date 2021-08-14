@@ -103,14 +103,11 @@ TextArea::Draw()
 void
 TextArea::MouseDown(IE::point point)
 {
-	std::cout << "TextArea::MouseDown()" << std::endl;
 	DialogHandler* dialog = Game::Get()->Dialog();
 	if (dialog != NULL) {
 		if (dialog->IsWaitingUserChoice() && fSelected != NULL)
 			dialog->SelectOption(fSelected->dialog_option);
 		dialog->Continue();
-
-		//Game::Get()->HandleDialog();
 	}
 }
 
