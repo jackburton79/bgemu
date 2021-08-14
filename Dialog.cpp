@@ -107,20 +107,18 @@ DialogHandler::SelectOption(int32 option)
 	std::cout << "SelectOption: " << transition->text_player << std::endl;
 	std::cout << "END ? " << ((transition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
 
-	//if (!(transition.entry.flags & DLG_TRANSITION_END)) {
-		delete fState;
-		fState = NULL;
-		std::cout << "next resource: " << transition->entry.resource_next_state << std::endl;
-		std::cout << "next index: " << transition->entry.index_next_state << std::endl;
-		if (transition->entry.resource_next_state != fResource->Name()) {
-			gResManager->ReleaseResource(fResource);
-			fResource = NULL;
-			std::cout << "Getting resource..." << std::endl;
-			fResource = gResManager->GetDLG(transition->entry.resource_next_state);
-		}
-		std::cout << "Getting next state..." << std::endl;
-		fNextStateIndex = transition->entry.index_next_state;
-	//}
+	delete fState;
+	fState = NULL;
+	std::cout << "next resource: " << transition->entry.resource_next_state << std::endl;
+	std::cout << "next index: " << transition->entry.index_next_state << std::endl;
+	if (transition->entry.resource_next_state != fResource->Name()) {
+		gResManager->ReleaseResource(fResource);
+		fResource = NULL;
+		std::cout << "Getting resource..." << std::endl;
+		fResource = gResManager->GetDLG(transition->entry.resource_next_state);
+	}
+	std::cout << "Getting next state..." << std::endl;
+	fNextStateIndex = transition->entry.index_next_state;
 /*
 	if (transition.entry.index_action != -1) {
 		// TODO: Execute action
