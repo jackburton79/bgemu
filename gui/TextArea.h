@@ -45,6 +45,7 @@ public:
 	void GetLines(TextLines& lines) const;
 
 	void ScrollBy(int16 x, int16 y);
+	void ScrollTo(int16 x, int16 y);
 
 private:
 	Bitmap* fBitmap;
@@ -57,6 +58,7 @@ private:
 
 	Scrollbar* fScrollbar;
 
+	void _AddText(std::string textString, int32 dialogOption);
 	void _UpdateScrollbar(int16 change);
 	const TextLine* _HitTestLines(IE::point point) const;
 };

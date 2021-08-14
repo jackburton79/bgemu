@@ -141,39 +141,17 @@ TextArea::SetScrollbar(Scrollbar* scrollbar)
 void
 TextArea::AddText(const char* text)
 {
-	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
-	const Font* font = FontRoster::GetFont(fontName);
-
 	std::string textString(text);
-	while (!textString.empty()) {
-		TextLine newLine;
-		std::string textLine = font->TruncateString(textString, fControl->w, &newLine.width);
-		newLine.text = textLine;
-		newLine.height = font->Height();
-		fLines.push_back(newLine);
-	}
-	fChanged = true;
+	_AddText(textString, -1);
 }
 
 
-// TODO: duplicated code with the above function
 void
 TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
 {
-	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
-	const Font* font = FontRoster::GetFont(fontName);
-
 	std::string textString(pre);
 	textString.append(text);
-	while (!textString.empty()) {
-		TextLine newLine;
-		std::string textLine = font->TruncateString(textString, fControl->w, &newLine.width);
-		newLine.text = textLine;
-		newLine.height = font->Height();
-		newLine.dialog_option = dialogOption;
-		fLines.push_back(newLine);
-	}
-	fChanged = true;
+	_AddText(textString, dialogOption);
 }
 
 
@@ -215,6 +193,36 @@ TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 	fChanged = true;
 
 	_UpdateScrollbar(y);
+}
+
+
+void
+TextArea::ScrollTo(int16 /* not implemented */, int16 y)
+{
+	fYOffset = y;
+	if (fYOffset < 0)
+		fYOffset = 0;
+	fChanged = true;
+
+	_UpdateScrollbar(y);
+}
+
+
+void
+TextArea::_AddText(std::string textString, int32 dialogOption)
+{
+	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+	const Font* font = FontRoster::GetFont(fontName);
+
+	while (!textString.empty()) {
+		TextLine newLine;
+		std::string textLine = font->TruncateString(textString, fControl->w, &newLine.width);
+		newLine.text = textLine;
+		newLine.height = font->Height();
+		newLine.dialog_option = dialogOption;
+		fLines.push_back(newLine);
+	}
+	fChanged = true;
 }
 
 

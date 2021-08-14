@@ -209,6 +209,10 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 							const GFX::rect& containerRect, const Glyph glyph) const
 {
 	const Bitmap* bitmap = glyph.bitmap;
+
+	rect.w = bitmap->Frame().w;
+	rect.h = bitmap->Frame().h;
+
 	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 		rect.y = containerRect.h - bitmap->Height();
 	else if (flags & IE::LABEL_JUSTIFY_TOP)
@@ -226,8 +230,6 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 		rect.y = containerRect.h - bitmap->Height();
 
 	rect.y += containerRect.y;
-	rect.w = bitmap->Frame().w;
-	rect.h = bitmap->Frame().h;
 }
 
 
