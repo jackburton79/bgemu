@@ -242,6 +242,7 @@ static
 std::vector<Parameter>
 GetFunctionParameters(std::string functionString)
 {
+	std::cout << "GetFunctionParameters()" << std::endl;
 	StringStream stream(functionString);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
@@ -287,7 +288,8 @@ Parser::TriggerFromString(const std::string& string, trigger_node& node)
 		return false;
 
 	// Opening parenthesis
-	tokenizer.ReadToken();
+	token parenthesis = tokenizer.ReadToken();
+	assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
 
 	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node.id));
 	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
