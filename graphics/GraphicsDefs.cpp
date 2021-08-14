@@ -68,6 +68,8 @@ Palette::Palette()
 
 Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 {
+	// TODO: this is used only by text rendering, at the moment.
+	// in theory should be a gradient, but for text it doesn't work
 	colors[0].r = 0;
 	colors[0].g = 255;
 	colors[0].b = 0;
@@ -84,7 +86,6 @@ Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 void
 Palette::ModColor(uint8 index, uint8 mod)
 {
-	return;
 	colors[index].r = colors[mod].r;
 	colors[index].g = colors[mod].g;
 	colors[index].b = colors[mod].b;
