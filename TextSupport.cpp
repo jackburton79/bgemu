@@ -186,6 +186,9 @@ Font::_GetContainerRect(uint16 width, uint16 height,
 						 const GFX::point* destPoint) const
 {
 	GFX::rect rect;
+	rect.w = width;
+	rect.h = height;
+
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
 			rect.x = (destRect->w - width) / 2;
@@ -198,8 +201,6 @@ Font::_GetContainerRect(uint16 width, uint16 height,
 		rect.y = destPoint->y;
 	}
 
-	rect.w = width;
-	rect.h = height;
 	return rect;
 }
 
@@ -263,8 +264,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// Render glyphs
 	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
 												 flags, destRect, destPoint);
-	if (flags & TEXT_SELECTED)
-		bitmap->FillRect(containerRect, 23);
 	GFX::rect rect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {
@@ -276,6 +275,9 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		// Advance cursor
 		rect.x += glyph.bitmap->Frame().w;
 	}
+
+	if (flags & TEXT_SELECTED)
+		bitmap->FillRect(containerRect, 10);
 }
 
 
