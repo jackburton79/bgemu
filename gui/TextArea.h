@@ -58,7 +58,7 @@ private:
 	Scrollbar* fScrollbar;
 
 	void _UpdateScrollbar(int16 change);
-	const TextLine* _HitTestLine(IE::point point) const;
+	const TextLine* _HitTestLines(IE::point point) const;
 };
 
 #endif /* TEXTAREA_H_ */

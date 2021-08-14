@@ -122,7 +122,7 @@ TextArea::MouseMoved(IE::point point, uint32 transit)
 	Control::MouseMoved(point, transit);
 	TextLine* oldSelected = fSelected;
 	if (Game::Get()->Dialog() != NULL)
-		fSelected = const_cast<TextLine*>(_HitTestLine(point));
+		fSelected = const_cast<TextLine*>(_HitTestLines(point));
 	else
 		fSelected = NULL;
 
@@ -227,14 +227,17 @@ TextArea::_UpdateScrollbar(int16 change)
 
 
 const TextArea::TextLine*
-TextArea::_HitTestLine(IE::point point) const
+TextArea::_HitTestLines(IE::point point) const
 {
-	IE::point lineOffset = {(int16)fControl->x, (int16)(fControl->y + fYOffset)};
+	IE::point lineOffset = {
+			(int16)fControl->x,
+			(int16)(fControl->y - fYOffset)
+	};
 	TextLines::const_iterator i;
 	for (i = fLines.begin(); i != fLines.end(); i++) {
 		const TextLine& line = *i;
-		IE::rect frame = line.Frame();
-		frame = offset_rect(frame, lineOffset.x, lineOffset.y);
+		const IE::rect frame = offset_rect(line.Frame(),
+										   lineOffset.x, lineOffset.y);
 		lineOffset.y += line.height + kLineSpacing;
 		// skip non-dialog lines
 		if (line.dialog_option == -1)
