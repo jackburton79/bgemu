@@ -45,13 +45,15 @@ public:
 
 	bool IsWaitingUserChoice() const;
 
+	void ShowActorMessage();
+	void ShowPlayerOptions();
+
 	void SelectOption(int32 option);
 	void Continue();
 
 	typedef std::vector<Transition> TransitionList;
 	Transition TransitionAt(int32 index);
 	int32 CountTransitions() const;
-	Transition* CurrentTransition();
 
 	void HandleTransition(Transition& transition);
 
@@ -64,7 +66,6 @@ private:
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	TransitionList fTransitions;
-	Transition* fCurrentTransition;
 	DLGResource* fResource;
 
 	State* _GetNextState();

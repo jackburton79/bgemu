@@ -8,9 +8,12 @@
 #include "Dialog.h"
 
 #include "Actor.h"
+#include "Core.h"
+#include "Game.h"
+#include "GUI.h"
 #include "Parsing.h"
 #include "ResManager.h"
-
+#include "TextArea.h"
 
 // DialogState
 DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
@@ -19,11 +22,11 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
-	fCurrentTransition(NULL),
+	//fCurrentTransition(NULL),
 	fResource(NULL)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
-	_GetNextState();
+	Continue();
 }
 
 
@@ -60,25 +63,56 @@ DialogHandler::IsWaitingUserChoice() const
 
 
 void
+DialogHandler::ShowActorMessage()
+{
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea == NULL) {
+		std::cerr << "NULL Text Area!!!" << std::endl;
+		return;
+	}
+	std::cout << "Display message." << std::endl;
+	Core::Get()->DisplayMessage(Actor()->LongName().c_str(), fState->Text().c_str());
+}
+
+
+void
+DialogHandler::ShowPlayerOptions()
+{
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea == NULL) {
+		std::cerr << "NULL Text Area!!!" << std::endl;
+		return;
+	}
+	for (int32 t = 0; t < CountTransitions(); t++) {
+		DialogHandler::Transition transition = TransitionAt(t);
+		if (!transition.text_player.empty()) {
+			std::string option("-");
+			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
+		}
+	}
+}
+
+
+void
 DialogHandler::SelectOption(int32 option)
 {
-	fCurrentTransition = &fTransitions.at(option);
-	std::cout << "SelectOption: " << fCurrentTransition->text_player << std::endl;
-	std::cout << "END ? " << ((fCurrentTransition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
+	Transition *transition = &fTransitions.at(option);
+	std::cout << "SelectOption: " << transition->text_player << std::endl;
+	std::cout << "END ? " << ((transition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
 
 	//if (!(transition.entry.flags & DLG_TRANSITION_END)) {
 		delete fState;
 		fState = NULL;
-		std::cout << "next resource: " << fCurrentTransition->entry.resource_next_state << std::endl;
-		std::cout << "next index: " << fCurrentTransition->entry.index_next_state << std::endl;
-		if (fCurrentTransition->entry.resource_next_state != fResource->Name()) {
+		std::cout << "next resource: " << transition->entry.resource_next_state << std::endl;
+		std::cout << "next index: " << transition->entry.index_next_state << std::endl;
+		if (transition->entry.resource_next_state != fResource->Name()) {
 			gResManager->ReleaseResource(fResource);
 			fResource = NULL;
 			std::cout << "Getting resource..." << std::endl;
-			fResource = gResManager->GetDLG(fCurrentTransition->entry.resource_next_state);
+			fResource = gResManager->GetDLG(transition->entry.resource_next_state);
 		}
 		std::cout << "Getting next state..." << std::endl;
-		fNextStateIndex = fCurrentTransition->entry.index_next_state;
+		fNextStateIndex = transition->entry.index_next_state;
 	//}
 /*
 	if (transition.entry.index_action != -1) {
@@ -97,8 +131,17 @@ DialogHandler::SelectOption(int32 option)
 void
 DialogHandler::Continue()
 {
-	fCurrentTransition = NULL;
+	std::cout << "DialogHandler::Continue()" << std::endl;
 	fState = GetNextValidState();
+	std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
+
+	if (fState) {
+		ShowActorMessage();
+		ShowPlayerOptions();
+	} else {
+		// TODO: Not nice. TerminateDialog deletes this object
+		Game::Get()->TerminateDialog();
+	}
 }
 
 
@@ -122,12 +165,12 @@ DialogHandler::CountTransitions() const
 	return fTransitions.size();
 }
 
-
+/*
 DialogHandler::Transition*
 DialogHandler::CurrentTransition()
 {
 	return fCurrentTransition;
-}
+}*/
 
 
 void
@@ -144,10 +187,10 @@ DialogHandler::_GetNextState()
 	fState = NULL;
 	fTransitions.clear();
 
-	if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END)) {
+	/*if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END)) {
 		std::cout << "_GetNextState(): TRANSITION_END, return NULL" << std::endl;
 		return NULL;
-	}
+	}*/
 
 	dlg_state nextState;
 	try {

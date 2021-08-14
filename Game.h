@@ -25,8 +25,6 @@ public:
 	void TerminateDialog();
 	DialogHandler* Dialog();
 
-	void HandleDialog();
-
 	::Party* Party();
 
 	void LoadStartingArea();

@@ -257,7 +257,6 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	fDialog = new DialogHandler(actor, target, dialogFile);
-	HandleDialog();
 }
 
 
@@ -271,8 +270,6 @@ Game::InDialogMode() const
 void
 Game::TerminateDialog()
 {
-	// Called by Core::TerminateDialog().
-	// TODO: If called from other places, Core will still be in dialog mode
 	if (InDialogMode()) {
 		std::cout << fDialog->Actor()->Name() << " TerminateDialog()" << std::endl;
 		fDialog->Actor()->IncrementNumTimesTalkedTo();
@@ -286,45 +283,6 @@ DialogHandler*
 Game::Dialog()
 {
 	return fDialog;
-}
-
-
-void
-Game::HandleDialog()
-{
-	std::cout << "Game::HandleDialog()" << std::endl;
-	DialogHandler::State* currentState = fDialog->CurrentState();
-	if (currentState == NULL) {
-		std::cout << "Game::HandleDialog(): CurrensState() is NULL" << std::endl;
-		TerminateDialog();
-		return;
-	}
-
-	// TODO: handle all transitions
-	// present options to the player
-	// etc.
-	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-	if (textArea == NULL) {
-		std::cerr << "NULL Text Area!!!" << std::endl;
-		return;
-	}
-
-	std::cout << "Display message." << std::endl;
-	Core::Get()->DisplayMessage(fDialog->Actor()->LongName().c_str(), currentState->Text().c_str());
-
-	std::cout << "Getting transitions..." << std::endl;
-	for (int32 t = 0; t < fDialog->CountTransitions(); t++) {
-		DialogHandler::Transition transition = fDialog->TransitionAt(t);
-		if (!transition.text_player.empty()) {
-			std::string option("-");
-			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
-		}
-	}
-
-	// TODO: get next state
-	/*DialogHandler::State* currentState = fDialog->GetNextValidState();
-	if (currentState == NULL) {
-	*/
 }
 
 
