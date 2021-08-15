@@ -108,7 +108,7 @@ TextArea::MouseDown(IE::point point)
 	if (dialog != NULL) {
 		if (dialog->IsWaitingUserChoice()) {
 			if (fSelected != NULL) {
-				dialog->SelectOption(fSelected->dialog_option);
+				dialog->SelectOption(fSelected->dialog_option - 1);
 				dialog->Continue();
 			}
 		} else
