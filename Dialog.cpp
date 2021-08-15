@@ -156,6 +156,7 @@ DialogHandler::Continue()
 
 	if (fState) {
 		ShowActorMessage();
+		//if (fCurrentTransaction != NULL && fCurrentTransaction->)
 		ShowPlayerOptions();
 	} else {
 		// TODO: Not nice. TerminateDialog deletes this object
@@ -227,19 +228,7 @@ DialogHandler::_GetNextState()
 	std::cout << "Get Transitions..." << std::endl;
 	// Get Transitions for this state
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
-		DialogHandler::Transition transition;
-		transition.entry = fResource->GetTransition(fState->TransitionIndex() + i);
-		if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
-			transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-		if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-			uint32 action = fResource->GetAction(transition.entry.index_action);
-			transition.action = IDTable::ActionAt(action);
-			std::cout << "action:" << action << std::endl;
-		}
-
-		if (transition.entry.flags & DLG_TRANSITION_END) {
-			std::cout << "TRANSITION_END" << std::endl;
-		}
+		DialogHandler::Transition transition = _GetTransition(fState->TransitionIndex() + i);
 		fTransitions.push_back(transition);
 	}
 	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
@@ -255,13 +244,11 @@ DialogHandler::_GetTransition(int32 num)
 	transition.entry = fResource->GetTransition(num);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-
 	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
 		uint32 action = fResource->GetAction(transition.entry.index_action);
 		transition.action = IDTable::ActionAt(action);
 		std::cout << "action:" << action << std::endl;
 	}
-
 	if (transition.entry.flags & DLG_TRANSITION_END) {
 		std::cout << "TRANSITION_END" << std::endl;
 	}
