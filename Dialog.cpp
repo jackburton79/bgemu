@@ -150,12 +150,20 @@ DialogHandler::Continue()
 		Game::Get()->TerminateDialog();
 		return;
 	}
+
 	std::cout << "DialogHandler::Continue()" << std::endl;
 	fState = GetNextValidState();
 	std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	if (fState) {
 		ShowTriggerText();
+		// TODO: see if it's correct
+		if (fTransitions.size() == 1) {
+			Transition& transition = fTransitions.at(0);
+			if (transition.entry.flags & DLG_TRANSITION_END) {
+				fEnd = true;
+			}
+		}
 		ShowPlayerOptions();
 	} else {
 		// TODO: Not nice. TerminateDialog deletes this object
