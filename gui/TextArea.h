@@ -36,7 +36,7 @@ public:
 	void SetScrollbar(Scrollbar* scrollbar);
 
 	void AddText(const char* text);
-	void AddDialogText(const char*, const char* text, int32 dialogOption);
+	void AddDialogText(const char* text, int32 dialogOption);
 	void ClearText();
 	
 	typedef std::vector<TextArea::TextLine> TextLines;

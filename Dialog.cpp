@@ -16,6 +16,7 @@
 #include "TextArea.h"
 
 #include <cassert>
+#include <sstream>
 
 // DialogState
 DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
@@ -89,11 +90,15 @@ DialogHandler::ShowPlayerOptions()
 		std::cerr << "NULL Text Area!!!" << std::endl;
 		return;
 	}
-	for (int32 t = 0; t < CountTransitions(); t++) {
-		DialogHandler::Transition transition = TransitionAt(t);
+	for (int32 index = 0; index < CountTransitions(); index++) {
+		DialogHandler::Transition transition = TransitionAt(index);
 		if (!transition.text_player.empty()) {
-			std::string option("-");
-			textArea->AddDialogText(option.c_str(), transition.text_player.c_str(), t);
+			std::ostringstream s;
+			s << (index + 1) << "-";
+			std::string fullString;
+			fullString.append(s.str());
+			fullString.append(transition.text_player.c_str());
+			textArea->AddDialogText(fullString.c_str(), index + 1);
 		}
 	}
 }

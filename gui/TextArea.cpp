@@ -149,11 +149,9 @@ TextArea::AddText(const char* text)
 
 
 void
-TextArea::AddDialogText(const char* pre, const char* text, int32 dialogOption)
+TextArea::AddDialogText(const char* text, int32 dialogOption)
 {
-	std::string textString(pre);
-	textString.append(text);
-	_AddText(textString, dialogOption);
+	_AddText(text, dialogOption);
 }
 
 
