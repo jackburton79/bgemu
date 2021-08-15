@@ -70,7 +70,7 @@ DialogHandler::IsWaitingUserChoice() const
 
 
 void
-DialogHandler::ShowActorMessage()
+DialogHandler::ShowTriggerText()
 {
 	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
 	if (textArea == NULL) {
@@ -155,8 +155,7 @@ DialogHandler::Continue()
 	std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	if (fState) {
-		ShowActorMessage();
-		//if (fCurrentTransaction != NULL && fCurrentTransaction->)
+		ShowTriggerText();
 		ShowPlayerOptions();
 	} else {
 		// TODO: Not nice. TerminateDialog deletes this object

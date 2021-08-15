@@ -45,7 +45,7 @@ public:
 
 	bool IsWaitingUserChoice() const;
 
-	void ShowActorMessage();
+	void ShowTriggerText();
 	void ShowPlayerOptions();
 
 	void SelectOption(int32 option);

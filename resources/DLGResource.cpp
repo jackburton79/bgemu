@@ -20,7 +20,6 @@ struct state_trigger {
 };
 
 
-
 /* static */
 Resource*
 DLGResource::Create(const res_ref& name)
