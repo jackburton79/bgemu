@@ -63,6 +63,8 @@ public:
 	};
 
 private:
+	Font(const Font&);
+
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,

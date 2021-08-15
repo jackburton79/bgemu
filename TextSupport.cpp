@@ -71,6 +71,12 @@ Font::Font(const std::string& fontName)
 }
 
 
+Font::Font(const Font&)
+{
+	// private unimplemented
+}
+
+
 Font::~Font()
 {
 	GlyphMap::iterator i;
