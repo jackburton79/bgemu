@@ -77,7 +77,10 @@ DialogHandler::ShowTriggerText()
 		std::cerr << "NULL Text Area!!!" << std::endl;
 		return;
 	}
-	Core::Get()->DisplayMessage(Actor()->LongName().c_str(), fState->Text().c_str());
+	std::string fullText;
+	fullText.append(Actor()->LongName()).append(": ");
+	fullText.append(fState->Text());
+	textArea->AddText(fullText.c_str());
 }
 
 
