@@ -77,7 +77,6 @@ DialogHandler::ShowTriggerText()
 		std::cerr << "NULL Text Area!!!" << std::endl;
 		return;
 	}
-	//std::cout << "Display message." << std::endl;
 	Core::Get()->DisplayMessage(Actor()->LongName().c_str(), fState->Text().c_str());
 }
 
@@ -111,6 +110,12 @@ DialogHandler::SelectOption(int32 option)
 
 	Transition *transition = &fTransitions.at(option);
 	std::cout << "SelectOption: " << transition->text_player << std::endl;
+
+	// Write selected option to text area
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea != NULL)
+		textArea->AddText(transition->text_player.c_str());
+
 	std::cout << "END ? " << ((transition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
 
 	delete fState;
@@ -207,14 +212,8 @@ DialogHandler::_GetNextState()
 	fState = NULL;
 	fTransitions.clear();
 
-	/*if (fCurrentTransition != NULL && (fCurrentTransition->entry.flags & DLG_TRANSITION_END)) {
-		std::cout << "_GetNextState(): TRANSITION_END, return NULL" << std::endl;
-		return NULL;
-	}*/
-
 	dlg_state nextState;
 	try {
-//		std::cout << "DialogState::GetNextState(" << fNextStateIndex << ")" << std::endl;
 		nextState = fResource->GetStateAt(fNextStateIndex);
 	} catch (std::exception& e ) {
 		fNextStateIndex = 0;
@@ -226,7 +225,6 @@ DialogHandler::_GetNextState()
 	if (nextState.trigger != -1)
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
-	//std::cout << "New DialogState::State()" << std::endl;
 	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
 									nextState.transitions_num, nextState.transition_first);
 

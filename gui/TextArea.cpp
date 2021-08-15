@@ -108,7 +108,16 @@ TextArea::MouseDown(IE::point point)
 	if (dialog != NULL) {
 		if (dialog->IsWaitingUserChoice()) {
 			if (fSelected != NULL) {
-				dialog->SelectOption(fSelected->dialog_option - 1);
+				const int32 selectedIndex = fSelected->dialog_option - 1;
+				// Deselect, then remove all dialog lines
+				fSelected = NULL;
+				for (;;) {
+					TextLine& line = fLines.back();
+					if (line.dialog_option == -1)
+						break;
+					fLines.pop_back();
+				}
+				dialog->SelectOption(selectedIndex);
 				dialog->Continue();
 			}
 		} else
