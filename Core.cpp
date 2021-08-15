@@ -530,6 +530,7 @@ Core::DisplayMessage(Object* object, const char* text)
 	// Show text on screen
 	if (object != NULL) {
 		GFX::rect frame = rect_to_gfx_rect(object->Frame());
+		Core::Get()->CurrentRoom()->ConvertFromArea(frame);
 		GUI::Get()->DisplayStringCentered(text, frame.x, frame.y, 5000);
 	}
 
