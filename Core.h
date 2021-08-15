@@ -101,7 +101,7 @@ public:
 	void PlayMovie(const char* name);
 
 	// TODO: Move away from here, don't belong here
-	void DisplayMessage(const char* actor, const char* text);
+	void DisplayMessage(Object* object, const char* text);
 
 	void UpdateLogic(bool scripts);
 

@@ -522,15 +522,23 @@ Core::PlayMovie(const char* name)
 
 
 void
-Core::DisplayMessage(const char* actor, const char* text)
+Core::DisplayMessage(Object* object, const char* text)
 {
 	// TODO: Move away from Core ? this adds too many
 	// dependencies
+
+	// Show text on screen
+	if (object != NULL) {
+		GFX::rect frame = rect_to_gfx_rect(object->Frame());
+		GUI::Get()->DisplayStringCentered(text, frame.x, frame.y, 5000);
+	}
+
+	// Write text in TextArea
 	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
 	if (textArea != NULL) {
 		std::string fullText;
-		if (actor != NULL)
-			fullText.append(actor).append(": ");
+		if (object != NULL)
+			fullText.append(object->Name()).append(": ");
 		fullText.append(text);
 		textArea->AddText(fullText.c_str());
 	}

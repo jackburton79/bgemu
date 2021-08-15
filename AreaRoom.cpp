@@ -346,7 +346,7 @@ AreaRoom::MouseDown(IE::point point)
 			int32 strRef = region->InfoTextRef();
 			std::string text = IDTable::GetDialog(strRef);
 			if (strRef >= 0)
-				Core::Get()->DisplayMessage(NULL, text.c_str());
+				Core::Get()->DisplayMessage(region, text.c_str());
 			return;
 		}
 	} else if (Container* container = _ContainerAtPoint(point)) {
@@ -564,7 +564,7 @@ AreaRoom::HideGUI()
 {
 	GUI* gui = GUI::Get();
 	gui->HideWindow(GUI::WINDOW_MESSAGES);
-	//gui->HideWindow(GUI::WINDOW_MESSAGES_LARGE);
+	gui->HideWindow(GUI::WINDOW_MESSAGES_LARGE);
 	gui->HideWindow(GUI::WINDOW_COMMANDS);
 	gui->HideWindow(GUI::WINDOW_CMDS);
 	gui->HideWindow(GUI::WINDOW_PLAYER_SLOTS);
