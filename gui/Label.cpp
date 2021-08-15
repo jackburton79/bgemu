@@ -28,7 +28,7 @@ Label::Label(IE::label* label)
 
 	fBitmap = new Bitmap(label->w, label->h, depth);
 
-	if (depth == 8) {
+	if (depth == 8) {/*
 		const GFX::Color colorStart = {
 			label->color1_r,
 			label->color1_g,
@@ -42,7 +42,10 @@ Label::Label(IE::label* label)
 			label->color2_a
 		};
 
-		_SetPalette(colorStart, colorEnd);
+		_SetPalette(colorStart, colorEnd);*/
+
+		// TODO: Should use these colors, but how to build the palette ?
+		fBitmap->SetPalette(*GFX::kPaletteYellow);
 	}
 
 	std::string fontName = label->font_bam.CString();
@@ -75,12 +78,4 @@ Label::Draw()
 	GFX::rect destRect = Frame();
 	fWindow->ConvertToScreen(destRect);
 	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
-}
-
-
-void
-Label::_SetPalette(const GFX::Color& start, const GFX::Color& end)
-{
-	GFX::Palette palette(start, end);
-	fBitmap->SetColors(palette.colors, 0, 256);
 }

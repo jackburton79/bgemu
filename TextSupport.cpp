@@ -53,7 +53,7 @@ Font::Font(const std::string& fontName)
 	fTransparentIndex(0)
 {
 	_LoadGlyphs(fName);
-
+/*
 	const GFX::Color colorStart = {
 		0,
 		0,
@@ -66,7 +66,8 @@ Font::Font(const std::string& fontName)
 		255,
 		0
 	};
-	fPalette = new GFX::Palette(colorStart, colorEnd);
+	fPalette = new GFX::Palette(colorStart, colorEnd);*/
+	fPalette = new GFX::Palette(*GFX::kPaletteYellow);
 }
 
 

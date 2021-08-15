@@ -58,6 +58,11 @@ GraphicsEngine::Initialize()
 		return false;
 	}
 
+	if (!GFX::InitializeGlobalPalettes()) {
+		std::cout << Log::Red << "Failed (palettes)" << std::endl;
+		return false;
+	}
+
 	std::cout << Log::Green << "OK!" << std::endl;
 	std::cout << Log::Normal;
 	return true;

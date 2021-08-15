@@ -14,6 +14,11 @@
 
 namespace GFX {
 
+	// I put these here but don't belong
+GFX::Palette* kPaletteRed;
+GFX::Palette* kPaletteBlue;
+GFX::Palette* kPaletteYellow;
+
 
 rect::rect()
 {
@@ -75,9 +80,9 @@ Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 	colors[0].b = 0;
 	colors[0].a = 0;
 	for (int c = 1; c < 256; c++) {
-		colors[c].r = 155;
-		colors[c].g = 200;
-		colors[c].b = 0;
+		colors[c].r = end.r + (uint8)(((start.r - end.r) * c ) / 255);
+		colors[c].g = end.g + (uint8)(((start.g - end.g) * c ) / 255);
+		colors[c].b = end.b + (uint8)(((start.b - end.b) * c ) / 255);
 		colors[c].a = end.a + (uint8)(((start.a - end.a) * c ) / 255);
 	}
 }
@@ -131,6 +136,46 @@ Palette::Dump(const char* fileName) const
 	}
 	bitmap->Save(fileName);
 	bitmap->Release();
+}
+
+
+bool
+InitializeGlobalPalettes()
+{
+	const GFX::Color kTransparentColor = { 0, 255, 0, 0 };
+	try {
+		kPaletteRed = new GFX::Palette();
+		kPaletteBlue = new GFX::Palette();
+		kPaletteYellow = new GFX::Palette();
+
+		kPaletteRed->colors[0] = kTransparentColor;
+		kPaletteBlue->colors[0] = kTransparentColor;
+		kPaletteYellow->colors[0] = kTransparentColor;
+
+		for (int c = 1; c < 256; c++) {
+			kPaletteRed->colors[c].r = 230;
+			kPaletteRed->colors[c].g = 0;
+			kPaletteRed->colors[c].b = 0;
+			kPaletteRed->colors[c].a = 0;
+
+			kPaletteYellow->colors[c].r = 155;
+			kPaletteYellow->colors[c].g = 200;
+			kPaletteYellow->colors[c].b = 0;
+			kPaletteYellow->colors[c].a = 0;
+		}
+	} catch (...) {
+		return false;
+	}
+	return true;
+}
+
+
+void
+DestroyGlobalPalettes()
+{
+	delete kPaletteRed;
+	delete kPaletteBlue;
+	delete kPaletteYellow;
 }
 
 

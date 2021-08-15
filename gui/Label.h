@@ -22,9 +22,6 @@ public:
 
 private:
 	Bitmap* fBitmap;
-
-	void _SetPalette(const GFX::Color& colorStart,
-			const GFX::Color& colorEnd);
 };
 
 #endif /* __LABEL_H_ */

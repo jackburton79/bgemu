@@ -32,6 +32,14 @@ public:
 	Color colors[256];
 };
 
+extern bool InitializeGlobalPalettes();
+extern void DestroyGlobalPalettes();
+
+extern GFX::Palette *kPaletteRed;
+extern GFX::Palette *kPaletteBlue;
+extern GFX::Palette *kPaletteYellow;
+
+
 struct point {
 	int16 x;
 	int16 y;
