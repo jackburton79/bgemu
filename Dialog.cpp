@@ -12,6 +12,7 @@
 #include "Game.h"
 #include "GUI.h"
 #include "Parsing.h"
+#include "Party.h"
 #include "ResManager.h"
 #include "TextArea.h"
 
@@ -228,7 +229,9 @@ DialogHandler::_GetNextState()
 	if (nextState.trigger != -1)
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
-	fState = new DialogHandler::State(triggerString, IDTable::GetDialog(nextState.text_ref),
+	std::string text = IDTable::GetDialog(nextState.text_ref);
+	_FillPlaceHolders(text);
+	fState = new DialogHandler::State(triggerString, text,
 									nextState.transitions_num, nextState.transition_first);
 
 	fNextStateIndex++;
@@ -276,6 +279,19 @@ Actor*
 DialogHandler::Actor()
 {
 	return fInitiator;
+}
+
+
+void
+DialogHandler::_FillPlaceHolders(std::string& text)
+{
+	// TODO: Fill other placeholders
+	std::string playerName = Game::Get()->Party()->ActorAt(0)->Name();
+	std::string charPlaceHolder = "<CHARNAME>";
+	size_t i = text.find(charPlaceHolder);
+	if (i != std::string::npos) {
+		text.replace(i, charPlaceHolder.length(), playerName.c_str());
+	}
 }
 
 

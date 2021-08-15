@@ -71,6 +71,7 @@ private:
 
 	State* _GetNextState();
 	Transition _GetTransition(int32 num);
+	void _FillPlaceHolders(std::string& text);
 };
 
 
