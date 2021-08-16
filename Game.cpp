@@ -60,7 +60,8 @@ void
 DisplayClock(void *param)
 {
 	std::string clock = GameTimer::GameTimeString();
-	GUI::Get()->DisplayString(clock.c_str(), 200, 200, 2500);
+	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
+	GUI::Get()->DisplayString(clock.c_str(), frame.x + 10, frame.h - 50, 2500);
 }
 
 
