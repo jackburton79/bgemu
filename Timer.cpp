@@ -317,11 +317,10 @@ std::string
 GameTimer::GameTimeString()
 {
 	// returns the in-game time as a string (in a 24 hour format)
-	std::ostringstream timeString;
-	timeString << std::dec;
-	timeString << (HourOfDay()) << ":" << (Minutes() % 60) << ":" << (Seconds() % 60);
-
-	return timeString.str();
+	char timeString[64];
+	::snprintf(timeString, sizeof(timeString), "%02u:%02u:%02u",
+			   HourOfDay(), Minutes() % 60, Seconds() % 60);
+	return timeString;
 }
 
 
