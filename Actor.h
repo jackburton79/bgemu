@@ -155,6 +155,9 @@ private:
 
 	std::string fText;
 
+	int fSelectedRadius;
+	int fSelectedRadiusStep;
+
 	void _Init();
 	void _HandleScripts();
 	void _SetPositionPrivate(const IE::point& point);

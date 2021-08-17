@@ -46,10 +46,6 @@
 #include <stdexcept>
 
 
-static int sSelectedActorRadius = 20;
-static int sSelectedActorRadiusStep = 1;
-
-
 AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 	:
@@ -201,13 +197,6 @@ AreaRoom::Draw()
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
-	if (sSelectedActorRadius > 22) {
-		sSelectedActorRadiusStep = -1;
-	} else if (sSelectedActorRadius < 18) {
-		sSelectedActorRadiusStep = 1;
-	}
-	sSelectedActorRadius += sSelectedActorRadiusStep;
-
 	GFX::rect mapRect = rect_to_gfx_rect(VisibleMapArea());
 
 	bool paused = Core::Get()->IsPaused();
@@ -233,20 +222,7 @@ AreaRoom::Draw()
 		fBackMap->Image()->Lock();
 		fBackMap->Image()->StrokeRect(rect, 70);
 		fBackMap->Image()->Unlock();
-	} /*else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
-		try {
-			GFX::rect rect = rect_to_gfx_rect(actor->Frame());
-			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-			fBackMap->Image()->Lock();
-			IE::point position = offset_point(actor->Position(), -mapRect.x, -mapRect.y);
-			uint32 color = fBackMap->Image()->MapColor(255, 255, 255);
-			fBackMap->Image()->StrokeCircle(position.x, position.y, 20, color);
-			fBackMap->Image()->Unlock();
-		} catch (const char* string) {
-			std::cerr << string << std::endl;
-		} catch (...) {
-		}
-	} */else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
+	} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
 		GFX::rect rect = rect_to_gfx_rect(region->Frame());
 		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 
@@ -560,7 +536,8 @@ bool
 AreaRoom::IsGUIShown() const
 {
 	GUI* gui = GUI::Get();
-	return gui->IsWindowShown(GUI::WINDOW_MESSAGES) && gui->IsWindowShown(GUI::WINDOW_COMMANDS);
+	return (gui->IsWindowShown(GUI::WINDOW_MESSAGES) || gui->IsWindowShown(GUI::WINDOW_MESSAGES))
+			&& gui->IsWindowShown(GUI::WINDOW_COMMANDS);
 }
 
 

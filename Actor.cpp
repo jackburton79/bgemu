@@ -93,7 +93,9 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fPath(NULL),
 	fSpeed(2),
 	fTileCell(NULL),
-	fRegion(NULL)
+	fRegion(NULL),
+	fSelectedRadius(20),
+	fSelectedRadiusStep(1)
 {
 	fActor->cre = creName;
 	memcpy(fActor->name, fActor->cre.name, 8);
@@ -396,7 +398,8 @@ Actor::_DrawCircle(AreaRoom* room, ::Bitmap* image) const
 		else
 			color = image->MapColor(255, 0, 0);
 		image->Lock();
-		image->StrokeCircle(position.x, position.y, 10, color);
+		image->StrokeCircle(position.x, position.y,
+							fSelected ? fSelectedRadius : 10, color);
 		image->Unlock();
 	}	
 }
@@ -831,8 +834,15 @@ Actor::Update(bool scripts)
 {
 	Object::Update(scripts);
 	UpdateTileCell();
-
 	UpdateAnimation(IsFlying());
+	if (fSelected) {
+		if (fSelectedRadius > 22) {
+			fSelectedRadiusStep = -1;
+		} else if (fSelectedRadius < 18) {
+			fSelectedRadiusStep = 1;
+		}
+		fSelectedRadius += fSelectedRadiusStep;
+	}
 }
 
 
