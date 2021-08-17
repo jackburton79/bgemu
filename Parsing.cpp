@@ -262,6 +262,8 @@ GetFunctionParameters(std::string functionString)
 		// closing parenthesis
 		if (t.type == TOKEN_PARENTHESIS_CLOSED)
 			break;
+		else if (t.type == TOKEN_COMMA)
+			continue;
 		Parameter parameter = ParameterFromString(t.u.string, stringPos, integerPos);
 		parameters.push_back(parameter);
 	}
