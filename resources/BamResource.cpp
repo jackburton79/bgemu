@@ -96,7 +96,7 @@ BAMResource::Load(Archive *archive, uint32 key)
 	try {
 		_Load();
 	} catch (std::exception& e) {
-		std::cerr << RED(e.what()) << std::endl;
+		std::cerr << Log::Red << e.what() << std::endl;
 		return false;
 	}
 	return true;
@@ -156,7 +156,6 @@ BAMResource::_FindTransparentIndex()
 			return i;
 		}
 	}
-
 	return 0;
 }
 
@@ -181,11 +180,11 @@ BAMResource::PrintFrames(uint8 cycleIndex) const
 void
 BAMResource::DumpFrames(const char *filePath)
 {
-	printf("DumpFrames: cycles: %d\n", fNumCycles);
+	std::cout << "BAMResource::DumpFrames: cycles: " << fNumCycles << std::endl;
 	for (uint8 cycle = 0; cycle < fNumCycles; cycle++) {
-		printf("cycle %d\n", cycle);
+		std::cout << "cycle " << cycle << std::endl;
 		int numFrames = CountFrames(cycle);
-		printf("\tframes: %d\n", numFrames);
+		std::cout << "\tframes: " << numFrames << std::endl;
 		for (int numFrame = 0; numFrame < numFrames; numFrame++) {
 			try {
 				const Bitmap* frame = FrameForCycle(cycle, numFrame);
@@ -195,10 +194,10 @@ BAMResource::DumpFrames(const char *filePath)
 				snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
 						fName.CString(), cycle, numFrame);
 				path.Append(fileName);
-				printf("save to %s\n", path.String());
+				std::cout << "save to " << path.String() << std::endl;
 				frame->Save(path.String());
 			} catch (std::exception& e) {
-				std::cerr << e.what() << std::endl;
+				std::cerr << Log::Red << e.what() << std::endl;
 				continue;
 			}
 		}
@@ -232,7 +231,6 @@ BAMResource::_FrameAt(uint16 index)
 		bitmapData = (uint8*)fData->Data() + std::ptrdiff_t(offset);
 
 	bitmap = new DataBitmap(bitmapData, entry.width, entry.height, 8, ownsData);
-
 	if (bitmap != NULL) {
 		bitmap->SetPalette(*fPalette);
 		bitmap->SetColorKey(fCompressedIndex, true);
@@ -248,10 +246,8 @@ BAMResource::_FrameAt(uint16 index)
 Bitmap*
 BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 {
-	//std::cout << "FrameForCycle: Cycle " << (int)cycleIndex << ", ";
-	//std::cout << "Frame " << (int)frameIndex << std::endl;
 	if (cycleIndex >= fNumCycles) {
-		std::cerr << RED("BAMResource::FrameForCycle(): out of bounds!") << std::endl;
+		std::cerr << Log::Red << "BAMResource::FrameForCycle(): out of bounds!" << std::endl;
 		return NULL;
 	}
 
