@@ -109,6 +109,8 @@ private:
 	void _UnloadArea();
 	void _Unload();
 
+	bool _GetEntrance(const std::string& entranceName,
+						  IE::entrance& outEntrance) const;
 	WEDResource *fWed;
 	ARAResource *fArea;
 
