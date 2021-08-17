@@ -488,8 +488,7 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		{
 			object_params objectNode;
 			if (tokenParam.type == TOKEN_QUOTED_STRING) {
-				::memcpy(objectNode.name, tokenParam.u.string + 1, stringLength - 1);
-				objectNode.name[stringLength - 2] = '\0';
+				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
 			} else if (tokenParam.type == TOKEN_STRING) {
 				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
 			}
@@ -520,16 +519,14 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 		{
 			if (parameter.position == 1) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					::memcpy(node->string1, tokenParam.u.string + 1, stringLength - 1);
-					node->string1[stringLength - 2] = '\0';
+					get_unquoted_string(node->string1, tokenParam.u.string, stringLength);
 				} else if (tokenParam.type == TOKEN_STRING) {
 					::memcpy(node->string1, tokenParam.u.string, stringLength);
 					node->string1[stringLength] = '\0';
 				}
 			} else if (parameter.position == 2) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					::memcpy(node->string2, tokenParam.u.string + 1, stringLength - 1);
-					node->string2[stringLength - 2] = '\0';
+					get_unquoted_string(node->string1, tokenParam.u.string, stringLength);
 				} else if (tokenParam.type == TOKEN_STRING) {
 					::memcpy(node->string2, tokenParam.u.string, stringLength);
 					node->string2[stringLength] = '\0';
