@@ -498,10 +498,10 @@ AreaRoom::ToggleSearchMap()
 	if (fSearchMap == NULL)
 		return;
 
-	if (fDrawSearchMap == 2)
+	if (fDrawSearchMap == 1)
+		fSearchMap->Image()->SetAlpha(255, false);
+	else if (fDrawSearchMap == 2)
 		fSearchMap->Image()->SetAlpha(127, true);
-	else
-		fSearchMap->Image()->SetAlpha(0, true);
 }
 
 
