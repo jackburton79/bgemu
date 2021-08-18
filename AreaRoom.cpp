@@ -260,6 +260,14 @@ AreaRoom::Draw()
 		fBackMap->Image()->Unlock();
 	}
 
+	if (fSelectedActor.Target() != NULL) {
+		IE::point destination = fSelectedActor.Target()->Destination();
+		destination = offset_point(destination, -mapRect.x, -mapRect.y);
+		fBackMap->Image()->Lock();
+		uint32 color = fBackMap->Image()->MapColor(0, 255, 0);
+		fBackMap->Image()->StrokeCircle(destination.x, destination.y, 10, color);
+		fBackMap->Image()->Unlock();
+	}
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 	
