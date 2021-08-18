@@ -518,13 +518,19 @@ Parser::_ReadNode(::node*& node)
 						_ReadObjectBlock(fTokenizer, trig->object);
 					} else if (node->type == BLOCK_ACTION) {
 						// TODO: Horrible hack
-						action_node* act = (action_node*)node;
+						action_node* act = dynamic_cast<action_node*>(node);
+						object_params* destObjectParams = NULL;
 						if (sActionIndexHACK == 0)
-							_ReadObjectBlock(fTokenizer, act->first);
+							destObjectParams = &act->first;
 						else if (sActionIndexHACK == 1)
-							_ReadObjectBlock(fTokenizer, act->second);
+							destObjectParams = &act->second;
 						else if (sActionIndexHACK == 2)
-							_ReadObjectBlock(fTokenizer, act->third);
+							destObjectParams = &act->third;
+
+						assert(destObjectParams != NULL);
+
+						_ReadObjectBlock(fTokenizer, *destObjectParams);
+
 						if (++sActionIndexHACK > 2)
 							sActionIndexHACK = 0;
 					}
