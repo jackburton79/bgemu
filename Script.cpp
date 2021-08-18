@@ -328,6 +328,7 @@ Script::ResolveIdentifier(const Object* object, object_params* node, const int i
 	return NULL;
 }
 
+
 Actor*
 Script::_GetIdentifiers(const Object* source, object_params* node,
 						std::vector<std::string>& identifiersList)
