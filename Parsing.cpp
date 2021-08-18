@@ -432,14 +432,13 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 		act->where.y = tokenizer->ReadNextToken().u.number;
 		act->integer2 = tokenizer->ReadNextToken().u.number;
 		act->integer3 = tokenizer->ReadNextToken().u.number;
-		// TODO: This removes "" from strings. Broken.
-		// Should do this from the beginning!!!
+
+		// TODO: This removes "" from strings.
+		// Should do this from the beginning
 		token stringToken = tokenizer->ReadToken();
-		::memcpy(act->string1, stringToken.u.string + 1, stringToken.size - 2);
-		act->string1[stringToken.size - 2] = '\0';
+		get_unquoted_string(act->string1, stringToken.u.string, stringToken.size);
 		token stringToken2 = tokenizer->ReadToken();
-		::memcpy(act->string2, stringToken2.u.string + 1, stringToken2.size - 2);
-		act->string2[stringToken2.size - 2] = '\0';
+		get_unquoted_string(act->string2, stringToken2.u.string, stringToken2.size);
 	}
 }
 
