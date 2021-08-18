@@ -53,6 +53,25 @@ Region::Position() const
 }
 
 
+::Outline
+Region::Outline() const
+{
+	GFX::Color color;
+	switch (Type()) {
+		case IE::REGION_TYPE_TRAVEL:
+			color = { 0, 125, 0 };
+			break;
+		case IE::REGION_TYPE_TRIGGER:
+			color = { 225, 0, 0 };
+			break;
+		default:
+			color = { 255, 255, 255 };
+			break;
+	}
+	return ::Outline(fPolygon, color);
+}
+
+
 bool
 Region::Contains(IE::point point) const
 {

@@ -37,3 +37,12 @@ Container::Frame() const
 	rect.y_max = fContainer->y_max;
 	return rect;
 }
+
+
+::Outline
+Container::Outline() const
+{
+	GFX::Color color =  { 0, 125, 0 };
+	// TODO: Different colors for trapped/nontrapped
+	return ::Outline(Polygon(), color);
+}

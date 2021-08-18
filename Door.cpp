@@ -106,6 +106,14 @@ Door::ClosedBox() const
 }
 
 
+::Outline
+Door::Outline() const
+{
+	GFX::Color color = {10, 10, 50};
+	return ::Outline(Frame(), color);
+}
+
+
 const Polygon&
 Door::OpenPolygon() const
 {

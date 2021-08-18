@@ -30,10 +30,12 @@ public:
 	
 	virtual IE::point NearestPoint(const IE::point& start) const;
 	
-	IE::rect Frame() const;
+	virtual IE::rect Frame() const;
 	IE::rect OpenBox() const;
 	IE::rect ClosedBox() const;
 	
+	virtual ::Outline Outline() const;
+
 	const Polygon& OpenPolygon() const;
 	const Polygon& ClosedPolygon() const;
 

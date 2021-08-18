@@ -27,6 +27,54 @@
 
 bool Object::sDebug = false;
 
+
+Outline::Outline(const ::Polygon& polygon, GFX::Color color)
+	:
+	fColor(color),
+	fType(OUTLINE_POLY),
+	fPolygon(polygon)
+{
+}
+
+
+Outline::Outline(const IE::rect& rect, GFX::Color color)
+	:
+	fColor(color),
+	fType(OUTLINE_RECT),
+	fRect(rect)
+{
+}
+
+
+GFX::Color
+Outline::Color() const
+{
+	return fColor;
+}
+
+
+int
+Outline::Type() const
+{
+	return fType;
+}
+
+
+::Polygon
+Outline::Polygon() const
+{
+	return fPolygon;
+}
+
+
+IE::rect
+Outline::Rect() const
+{
+	return fRect;
+}
+
+
+// trigger_entry
 trigger_entry::trigger_entry(const std::string& trigName)
 	:
 	trigger_name(trigName),
@@ -132,6 +180,15 @@ bool
 Object::IsNew() const
 {
 	return GlobalID() == (uint16)-1;
+}
+
+
+/* virtual */
+::Outline
+Object::Outline() const
+{
+	GFX::Color color = { 0, 0, 0 };
+	return ::Outline(Frame(), color);
 }
 
 

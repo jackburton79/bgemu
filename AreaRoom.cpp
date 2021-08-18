@@ -215,47 +215,19 @@ AreaRoom::Draw()
 	if (fDrawPolygons)
 		_DrawPolygons(mapRect);
 
-	// TODO: handle this better
-	if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
-		GFX::rect rect = rect_to_gfx_rect(door->Frame());
-		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+	if (fMouseOverObject.Target() != NULL) {
+		::Outline outline = fMouseOverObject.Target()->Outline();
+		GFX::Color rgbColor = outline.Color();
+		uint32 color = fBackMap->Image()->MapColor(rgbColor.r, rgbColor.g, rgbColor.b);
 		fBackMap->Image()->Lock();
-		fBackMap->Image()->StrokeRect(rect, 70);
-		fBackMap->Image()->Unlock();
-	} else if (Region* region = dynamic_cast<Region*>(fMouseOverObject.Target())) {
-		GFX::rect rect = rect_to_gfx_rect(region->Frame());
-		rect = offset_rect(rect, -mapRect.x, -mapRect.y);
-
-		uint32 color = 0;
-		switch (region->Type()) {
-			case IE::REGION_TYPE_TRAVEL:
-				color = fBackMap->Image()->MapColor(0, 125, 0);
-				break;
-			case IE::REGION_TYPE_TRIGGER:
-				color = fBackMap->Image()->MapColor(125, 0, 0);
-				break;
-			default:
-				color = fBackMap->Image()->MapColor(255, 255, 255);
-				break;
-		}
-
-		fBackMap->Image()->Lock();
-
-		if (region->Polygon().CountPoints() > 2) {
-			fBackMap->Image()->StrokePolygon(region->Polygon(), color,
-								-mapRect.x, -mapRect.y);
-		} else
+		if (outline.Type() == Outline::OUTLINE_RECT) {
+			GFX::rect rect = rect_to_gfx_rect(outline.Rect());
+			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
 			fBackMap->Image()->StrokeRect(rect, color);
-		fBackMap->Image()->Unlock();
-	} else if (Container* container = dynamic_cast<Container*>(fMouseOverObject.Target())) {
-		uint32 color = 0;
-		color = fBackMap->Image()->MapColor(0, 125, 0);
-		// TODO: Different colors for trapped/nontrapped
-		fBackMap->Image()->Lock();
-
-		if (container->Polygon().CountPoints() > 2) {
-			fBackMap->Image()->StrokePolygon(container->Polygon(), color,
-										-mapRect.x, -mapRect.y);
+		} else {
+			::Polygon polygon = outline.Polygon();
+			fBackMap->Image()->StrokePolygon(polygon, color,
+											-mapRect.x, -mapRect.y);
 		}
 		fBackMap->Image()->Unlock();
 	}

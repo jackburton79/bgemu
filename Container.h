@@ -17,6 +17,7 @@ public:
 	Container(IE::container* container);
 
 	virtual IE::rect Frame() const;
+	::Outline Outline() const;
 	
 	const ::Polygon& Polygon() const;
 

@@ -9,6 +9,7 @@
 #define __OBJECT_H
 
 #include "IETypes.h"
+#include "Polygon.h"
 #include "Reference.h"
 #include "Referenceable.h"
 #include "SupportDefs.h"
@@ -20,12 +21,34 @@
 #include <vector>
 
 class Object;
+
 struct trigger_entry {
 	trigger_entry(const std::string& trigName);
 	trigger_entry(const std::string& trigName, Object* targetObject);
 	std::string trigger_name;
 	uint16 target_id;
 };
+
+
+class Outline {
+public:
+	enum type {
+		OUTLINE_RECT = 0,
+		OUTLINE_POLY = 1
+	};
+	Outline(const IE::rect& rect, GFX::Color color);
+	Outline(const ::Polygon& polygon, GFX::Color color);
+	GFX::Color Color() const;
+	int Type() const;
+	IE::rect Rect() const;
+	::Polygon Polygon() const;
+private:
+	GFX::Color fColor;
+	int fType;
+	IE::rect fRect;
+	::Polygon fPolygon;
+};
+
 
 struct object_params;
 struct trigger_node;
@@ -59,6 +82,7 @@ public:
 	bool IsNew() const;
 
 	virtual IE::rect Frame() const = 0;
+	virtual ::Outline Outline() const;
 
 	int32 GetVariable(const char* name) const;
 	void SetVariable(const char* name, int32 value);

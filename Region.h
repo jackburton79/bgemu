@@ -23,6 +23,8 @@ public:
 	IE::rect Frame() const;
 	virtual IE::point Position() const;
 
+	virtual ::Outline Outline() const;
+
 	bool Contains(IE::point) const;
 
 	res_ref DestinationArea() const;
