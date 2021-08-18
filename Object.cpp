@@ -32,9 +32,9 @@ Outline::Outline(const ::Polygon& polygon, GFX::Color color)
 	:
 	fColor(color),
 	fType(OUTLINE_POLY),
+	fRect(gfx_rect_to_rect(polygon.Frame())),
 	fPolygon(polygon)
 {
-	fRect = gfx_rect_to_rect(polygon.Frame());
 }
 
 
