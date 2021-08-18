@@ -135,7 +135,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 			|| !_IsPassable(end))
 		return maxReachableDirectly;
 
-	NodeList openList;
+	OpenNodeList openList;
 	NodeList closedList;
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -253,7 +253,7 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
-		NodeList& openList,
+		OpenNodeList& openList,
 		NodeList& closedList,
 		const IE::point& goal)
 {
@@ -284,7 +284,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 void
 PathFinder::_AddNeighbors(const point_node& node,
-		NodeList& openList,
+		OpenNodeList& openList,
 		NodeList& closedList,
 		const IE::point& goal)
 {
@@ -313,7 +313,7 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 
 
 point_node*
-PathFinder::_GetCheapestNode(NodeList& list)
+PathFinder::_GetCheapestNode(OpenNodeList& list)
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;

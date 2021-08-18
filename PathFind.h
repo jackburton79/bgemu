@@ -26,6 +26,7 @@ struct point_node {
 };
 
 typedef std::list<point_node*> NodeList;
+typedef std::list<point_node*> OpenNodeList;
 typedef std::list<IE::point> PointList;
 
 struct point_node;
@@ -63,15 +64,15 @@ private:
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
-			NodeList& openList,
+			OpenNodeList& openList,
 			NodeList& closedList,
 			const IE::point& goal);
 	void _AddNeighbors(const point_node& node,
-			NodeList& openList,
+			OpenNodeList& openList,
 			NodeList& closedList, const IE::point& goal);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
-	point_node* _GetCheapestNode(NodeList& list);
+	point_node* _GetCheapestNode(OpenNodeList& list);
 	void _ReconstructPath(point_node* goal);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
