@@ -526,7 +526,7 @@ Parser::_ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* node,
 				}
 			} else if (parameter.position == 2) {
 				if (tokenParam.type == TOKEN_QUOTED_STRING) {
-					get_unquoted_string(node->string1, tokenParam.u.string, stringLength);
+					get_unquoted_string(node->string2, tokenParam.u.string, stringLength);
 				} else if (tokenParam.type == TOKEN_STRING) {
 					::memcpy(node->string2, tokenParam.u.string, stringLength);
 					node->string2[stringLength] = '\0';
