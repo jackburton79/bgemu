@@ -191,8 +191,6 @@ private:
 	static void _ReadObjectBlock(Tokenizer *tokenizer, object_params& obj);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
-	static token _ExtractNextParameter(Tokenizer& tokenizer, ::trigger_node* triggerNode,
-									   Parameter& parameter);
 	
 	void _FixNode(::node *node);
 
