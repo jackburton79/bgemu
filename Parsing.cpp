@@ -337,39 +337,6 @@ Parser::Read(node*& rootNode)
 }
 
 
-/* static */
-void
-Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
-{
-	trigger_node* trig = dynamic_cast<trigger_node*>(node);
-	if (trig) {
-		trig->id = tokenizer->ReadToken().u.number;
-		trig->parameter1 = tokenizer->ReadToken().u.number;
-		trig->flags = tokenizer->ReadToken().u.number;
-		trig->parameter2 = tokenizer->ReadToken().u.number;
-		trig->unknown = tokenizer->ReadToken().u.number;
-
-		// We remove the "", that's why we start from token.u.string + 1 and copy size - 2
-		token stringToken = tokenizer->ReadToken();
-		size_t newTokenSize = 0;
-		if (stringToken.size > 2) {
-			// less than 2 means it's an empty string, like ""
-			newTokenSize = stringToken.size - 2;
-			::memcpy(trig->string1, stringToken.u.string + 1, newTokenSize);
-		}
-		trig->string1[newTokenSize] = '\0';
-
-		token stringToken2 = tokenizer->ReadToken();
-		size_t newTokenSize2 = 0;
-		if (stringToken2.size > 2) {
-			newTokenSize2 = stringToken2.size - 2;
-			::memcpy(trig->string2, stringToken2.u.string + 1, newTokenSize2);
-		}
-		trig->string2[newTokenSize2] = '\0';
-	}
-}
-
-
 static
 void
 get_unquoted_string(char* dest, char* source, size_t size)
@@ -382,6 +349,27 @@ get_unquoted_string(char* dest, char* source, size_t size)
 		nameEnd--;
 	*nameEnd = '\0';
 	::strcpy(dest, name);
+}
+
+
+/* static */
+void
+Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
+{
+	trigger_node* trig = dynamic_cast<trigger_node*>(node);
+	if (trig) {
+		trig->id = tokenizer->ReadToken().u.number;
+		trig->parameter1 = tokenizer->ReadToken().u.number;
+		trig->flags = tokenizer->ReadToken().u.number;
+		trig->parameter2 = tokenizer->ReadToken().u.number;
+		trig->unknown = tokenizer->ReadToken().u.number;
+
+		// Strings are quoted. We remove quotes
+		token stringToken = tokenizer->ReadToken();
+		get_unquoted_string(trig->string1, stringToken.u.string, stringToken.size);
+		token stringToken2 = tokenizer->ReadToken();
+		get_unquoted_string(trig->string2, stringToken2.u.string, stringToken2.size);
+	}
 }
 
 
