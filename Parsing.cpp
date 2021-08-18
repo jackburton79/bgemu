@@ -2,6 +2,7 @@
 
 #include "Core.h"
 #include "IDSResource.h"
+#include "Log.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "StringStream.h"
@@ -330,9 +331,9 @@ Parser::Read(node*& rootNode)
 	try {
 		_ReadNode(rootNode);
 	} catch (std::exception& except) {
-		std::cerr << "Parser::Read(): " << except.what() << std::endl;
+		std::cerr << Log::Red << "Parser::Read(): " << except.what() << std::endl;
 	} catch (...) {
-		std::cerr << "Parser::Read(): unknown exception" << std::endl;
+		std::cerr << Log::Red << "Parser::Read(): unknown exception" << std::endl;
 	}
 }
 
