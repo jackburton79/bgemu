@@ -87,9 +87,9 @@ trigger_entry::trigger_entry(const std::string& trigName)
 
 trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 	:
-	trigger_name(trigName)
+	trigger_name(trigName),
+	target_id(targetObject->GlobalID())
 {
-	target_id = targetObject->GlobalID();
 }
 
 
