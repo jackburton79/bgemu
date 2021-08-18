@@ -274,6 +274,9 @@ void
 Bitmap::StrokePolygon(const Polygon& polygon, const uint32 color,
 						int32 xOffset, int32 yOffset)
 {
+	if (polygon.CountPoints() <= 2)
+		return;
+
 	Polygon newPolygon = polygon;
 	newPolygon.OffsetBy(xOffset, yOffset);
 	StrokePolygon(newPolygon, color);
