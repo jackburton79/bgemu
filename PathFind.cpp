@@ -125,6 +125,23 @@ EmptyList(NodeList pointList)
 }
 
 
+static void
+EmptyOpenList(OpenNodeList pointList)
+{
+	OpenNodeList::iterator i;
+	for (i = pointList.begin(); i != pointList.end(); i++) {
+		delete (*i);
+	}
+}
+
+
+static void
+RemoveNodeFromOpenList(point_node* node, OpenNodeList& list)
+{
+	list.remove(node);
+}
+
+
 IE::point
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
@@ -155,7 +172,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 		if (--tries == 0)
 			break;
 
-		openList.remove(currentNode);
+		RemoveNodeFromOpenList(currentNode, openList);
 		_AddNeighbors(*currentNode, openList, closedList, end);
 		closedList.push_back(currentNode);
 
@@ -163,7 +180,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 			fDebugFunction(currentNode->point);
 	}
 
-	EmptyList(openList);
+	EmptyOpenList(openList);
 
 	if (!found) {
 		// TODO: Destination is unreachable.
@@ -271,9 +288,9 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	}
 
 	point_node* node = NULL;
-	i = std::find_if(openList.begin(), openList.end(), FindPoint(point));
-	if (i != openList.end()) {
-		node = *i;
+	OpenNodeList::const_iterator o = std::find_if(openList.begin(), openList.end(), FindPoint(point));
+	if (o != openList.end()) {
+		node = *o;
 	} else {
 		node = new point_node(point, &current, UINT_MAX);
 		openList.push_back(node);
@@ -317,7 +334,7 @@ PathFinder::_GetCheapestNode(OpenNodeList& list)
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
-	for (NodeList::const_iterator i = list.begin();
+	for (OpenNodeList::const_iterator i = list.begin();
 			i != list.end(); i++) {
 		point_node* node = *i;
 		if (node->cost_to_goal < minCost) {
