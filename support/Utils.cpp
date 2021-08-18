@@ -102,15 +102,19 @@ extension(const char* path)
 }
 
 
-/* static */
 size_t
-unquote_string(char* dest, char* source, size_t length)
+get_unquoted_string(char* dest, char* source, size_t size)
 {
-	int32 newLength = std::max((int32)length - 2, (int32)0);
-	::memcpy(dest, source + 1, newLength);
-	dest[newLength] = '\0';
+	char* name = source;
+	char* nameEnd = name + size;
+	while (*name == '"')
+		name++;
+	while (*nameEnd != '"')
+		nameEnd--;
+	*nameEnd = '\0';
+	::strcpy(dest, name);
 
-	return newLength;
+	return nameEnd - source;
 }
 
 		

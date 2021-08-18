@@ -7,6 +7,7 @@
 #include "Script.h"
 #include "StringStream.h"
 #include "Triggers.h"
+#include "Utils.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -335,21 +336,6 @@ Parser::Read(node*& rootNode)
 	} catch (...) {
 		std::cerr << Log::Red << "Parser::Read(): unknown exception" << std::endl;
 	}
-}
-
-
-static
-void
-get_unquoted_string(char* dest, char* source, size_t size)
-{
-	char* name = source;
-	char* nameEnd = name + size;
-	while (*name == '"')
-		name++;
-	while (*nameEnd != '"')
-		nameEnd--;
-	*nameEnd = '\0';
-	::strcpy(dest, name);
 }
 
 
