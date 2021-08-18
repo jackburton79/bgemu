@@ -13,6 +13,7 @@
 #include "Core.h"
 #include "Game.h"
 #include "IDSResource.h"
+#include "Log.h"
 #include "Party.h"
 #include "RectUtils.h"
 #include "Region.h"
@@ -575,9 +576,9 @@ Object::_ExecuteScripts(int32 maxLevel)
 			}
 		}
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << Log::Red << e.what() << std::endl;
 	} catch (...) {
-		std::cerr << "Exception while running script!" << std::endl;
+		std::cerr << Log::Red << "Exception while running script!" << std::endl;
 	}
 	
 	if (true)
