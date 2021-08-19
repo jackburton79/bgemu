@@ -305,14 +305,20 @@ PathFinder::_AddNeighbors(const point_node& node,
 		ClosedNodeList& closedList,
 		const IE::point& goal)
 {
-	for (int x = -fStep; x <= fStep; x += fStep) {
-		for (int y = -fStep; y <= fStep; y += fStep) {
-			if (x == 0 && y == 0)
-				continue;
-			_AddIfPassable(offset_point(node.point, x, y),
-				node, openList, closedList, goal);
-		}
-	}
+	const IE::point pointArray[] = {
+			offset_point(node.point, -fStep, -fStep),
+			offset_point(node.point, -fStep, 0),
+			offset_point(node.point, -fStep, +fStep),
+			offset_point(node.point, 0, -fStep),
+			offset_point(node.point, 0, +fStep),
+			offset_point(node.point, +fStep, -fStep),
+			offset_point(node.point, +fStep, 0),
+			offset_point(node.point, +fStep, +fStep),
+
+	};
+	const size_t arraySize = sizeof(pointArray) / sizeof(pointArray[0]);
+	for (size_t c = 0; c < arraySize; c++)
+		_AddIfPassable(pointArray[c], node, openList, closedList, goal);
 }
 
 
