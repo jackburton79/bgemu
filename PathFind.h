@@ -51,10 +51,11 @@ public:
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
 private:
-	PointList fPoints;
-
-	test_function fTestFunction;
 	int fStep;
+	PointList fPoints;
+	OpenNodeList* fOpenNodeList;
+	ClosedNodeList* fClosedNodeList;
+	test_function fTestFunction;
 
 	debug_function fDebugFunction;
 
@@ -64,15 +65,12 @@ private:
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
 			const point_node& node,
-			OpenNodeList& openList,
-			ClosedNodeList& closedList,
 			const IE::point& goal);
 	void _AddNeighbors(const point_node& node,
-			OpenNodeList& openList,
-			ClosedNodeList& closedList, const IE::point& goal);
+			const IE::point& goal);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
-	point_node* _GetCheapestNode(OpenNodeList& list);
+	point_node* _GetCheapestNode();
 	void _ReconstructPath(point_node* goal);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);
