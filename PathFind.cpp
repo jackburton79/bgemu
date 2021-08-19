@@ -282,23 +282,27 @@ PathFinder::_AddIfPassable(const IE::point& point,
 			|| !_IsReachable(current.point, point))
 		return;
 
-	// Check if point is in closed list
+	// Check if point is in closed list. If so, update it.
 	ClosedNodeList::const_iterator i =
-				std::find_if(fClosedNodeList->begin(), fClosedNodeList->end(),
+			std::find_if(fClosedNodeList->begin(), fClosedNodeList->end(),
 							FindPoint(point));
 	if (i != fClosedNodeList->end()) {
 		_UpdateNodeCost(*i, current, goal);
 		return;
 	}
 
+	// Check if node is in the open list. If so,update it.
 	point_node* node = NULL;
-	OpenNodeList::const_iterator o = std::find_if(fOpenNodeList->begin(), fOpenNodeList->end(), FindPoint(point));
+	OpenNodeList::const_iterator o =
+			std::find_if(fOpenNodeList->begin(), fOpenNodeList->end(), FindPoint(point));
 	if (o != fOpenNodeList->end()) {
-		node = *o;
-	} else {
-		node = new point_node(point, &current, UINT_MAX);
-		fOpenNodeList->push_back(node);
+		_UpdateNodeCost(*o, current, goal);
+		return;
 	}
+
+	// Otherwise, add it to the open list
+	node = new point_node(point, &current, UINT_MAX);
+	fOpenNodeList->push_back(node);
 	_UpdateNodeCost(node, current, goal);
 }
 
