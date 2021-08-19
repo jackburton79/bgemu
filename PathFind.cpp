@@ -226,6 +226,9 @@ PathFinder::_IsPassable(const IE::point& point) const
 bool
 PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 {
+#if 1
+	return _IsPassable(point);
+#else
 	if (!_IsPassable(point))
 		return false;
 	
@@ -270,6 +273,7 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 	}
 
 	return true;
+#endif
 }
 
 
