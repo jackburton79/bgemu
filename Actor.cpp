@@ -367,7 +367,6 @@ Actor::Draw(AreaRoom* room, ::Bitmap* image) const
 void
 Actor::_DrawActorText(AreaRoom* room) const
 {
-	// TODO: See if it's better here
 	std::string text = Text();
 	if (!text.empty()) {
 		const Font* font = FontRoster::GetFont("TOOLFONT");
