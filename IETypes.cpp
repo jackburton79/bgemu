@@ -155,7 +155,6 @@ IE::is_play_time(uint32 bits)
 	uint16 minutes = GameTimer::Minutes()% 60;
 
 	int bit = (hour * 60 + minutes - 30) / 60;
-	GameTimer::PrintTime();
 	if (bit < 0)
 		bit = 23;
 	return is_bit_set(bits, bit);
