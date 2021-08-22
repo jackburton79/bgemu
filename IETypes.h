@@ -158,6 +158,9 @@ struct animation {
 } __attribute__((packed));
 
 
+bool is_play_time(uint32 play_time);
+
+
 enum orientation {
 	ORIENTATION_S	= 0,
 	ORIENTATION_SW	= 1,
