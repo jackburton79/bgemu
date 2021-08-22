@@ -698,8 +698,11 @@ AreaRoom::_DrawEffects()
 	for (i = fEffects.begin(); i != fEffects.end(); i++) {
 		try {
 			Effect* effect = *i;
-			const Bitmap* frame = effect->NextBitmap();
+			const Bitmap* frame = effect->Bitmap();
 			DrawBitmap(frame, effect->Position(), false);
+			if (!Core::Get()->IsPaused()) {
+				effect->AdvanceFrame();
+			}
 		} catch (std::exception& e) {
 			std::cerr << Log::Red << e.what() << std::endl;
 			continue;

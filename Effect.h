@@ -14,15 +14,15 @@ public:
 
 	int32 CountFrames() const;
 	bool Finished() const;
-	const ::Bitmap* NextBitmap();
-
+	const ::Bitmap* Bitmap() const;
+	void AdvanceFrame();
 	IE::point Position() const;
 private:
 	VVCResource* fVVC;
 	int32 fCurrentFrame;
 	int32 fNumFrames;
 	
-	std::vector<Bitmap*> fBitmaps;
+	std::vector<::Bitmap*> fBitmaps;
 	IE::point fWhere;
 
 	void _LoadBitmaps();

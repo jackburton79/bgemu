@@ -37,15 +37,19 @@ Effect::CountFrames() const
 
 
 const ::Bitmap*
-Effect::NextBitmap()
+Effect::Bitmap() const
 {
 	if (fCurrentFrame >= fNumFrames)
 		return NULL;
 
-	const ::Bitmap* bitmap = fBitmaps.at(fCurrentFrame);
-	fCurrentFrame++;
+	return fBitmaps.at(fCurrentFrame);
+}
 
-	return bitmap;
+
+void
+Effect::AdvanceFrame()
+{
+	fCurrentFrame++;
 }
 
 
@@ -77,8 +81,8 @@ Effect::_LoadBitmaps()
 		if (fVVC->DisplayFlags() & EFF_DISPLAY_MIRROR_X)
 			bitmap->Mirror();
 		fBitmaps.push_back(bitmap);
-	}/*
-	for (int16 i = 0; i < bam->CountFrames(secondSequence); i++) {
+	}
+	/*for (int16 i = 0; i < bam->CountFrames(secondSequence); i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(secondSequence, i);
 		fBitmaps.push_back(bitmap);
 	}
