@@ -56,7 +56,7 @@ BCSResource::GetScript() const
 		// Takes ownership of the node tree.
 		script = new Script(rootNode);
 	} catch (std::exception& e) {
-		std::cerr << RED(e.what()) << std::endl;
+		std::cerr << Log::Red << e.what() << std::endl;
 		script = NULL;
 	}
 
