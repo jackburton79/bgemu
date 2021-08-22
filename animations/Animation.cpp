@@ -87,7 +87,12 @@ Animation::~Animation()
 bool
 Animation::IsShown() const
 {
-	return fAnimation != NULL ? fAnimation->flags & IE::ANIM_SHOWN : true;
+	if (fAnimation == NULL)
+		return false;
+	if ((fAnimation->flags & IE::ANIM_SHOWN) == 0)
+		return false;
+
+	return IE::is_play_time(fAnimation->play_time);
 }
 
 
