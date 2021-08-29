@@ -356,6 +356,7 @@ Script::_GetIdentifiers(const Object* source, object_params* node,
 	return target;
 }
 
+
 /* static */
 Object*
 Script::GetObject(const Object* source, object_params* node)
@@ -401,7 +402,6 @@ Script::GetObject(const Object* source, object_params* node)
 	}
 	return result;
 }
-
 
 
 bool
