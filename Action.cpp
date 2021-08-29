@@ -6,7 +6,6 @@
 #include "Game.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
-// TODO: Temporary for debug. Remove
 #include "IDSResource.h"
 #include "Parsing.h"
 #include "RectUtils.h"
@@ -41,9 +40,6 @@ VariableGetScopeName(const char* variable, std::string& varScope, std::string& v
 }
 
 
-// TODO: we should not pass Object pointers,
-// but pass action parameters instead, which should be evaluated
-// when the action is being executed
 Action::Action(Object* object, action_node* node)
     :
 	fObject(object),
@@ -161,9 +157,9 @@ ActionCreateCreature::operator()()
 			point.x += Core::RandomNumber(-20, 20);
 			point.y += Core::RandomNumber(-20, 20);
 		}
-	} else {
-		std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
 	}
+	std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
+
 	Actor* actor = new Actor(fActionParams->string1, point, fActionParams->integer1);
 	Core::Get()->AddActorToCurrentArea(actor);
 	//core->SetActiveActor(actor);
@@ -240,6 +236,7 @@ ActionUnlock::operator()()
 	SetCompleted();
 }
 
+
 // DestroySelfAction
 ActionDestroySelf::ActionDestroySelf(Object* object, action_node* node)
 	:
@@ -279,10 +276,10 @@ ActionForceSpell::operator()()
 		SetCompleted();
 		return;
 	}
-	sender->Print();
+	//sender->Print();
 
-	Object* target = Script::GetTargetObject(sender, fActionParams);
-	target->Print();
+	//Object* target = Script::GetTargetObject(sender, fActionParams);
+	//target->Print();
 
 	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
 	std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
@@ -569,7 +566,7 @@ ActionWait::operator()()
 		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
-		fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ; // TODO use a constant
+		fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ;
 		return;
 	}
 	
@@ -885,6 +882,7 @@ ActionFadeToColor::operator()()
 		SetCompleted();
 }
 
+
 // FadeFromColorAction
 ActionFadeFromColor::ActionFadeFromColor(Object* object, action_node* node)
 	:
@@ -1168,9 +1166,8 @@ ActionDisplayString::operator()()
 		GUI::Get()->DisplayString(string, fActionParams->where.x, fActionParams->where.y, fDuration * AI_UPDATE_FREQ);
 	}
 	
-	if (fDuration-- <= 0) {	
+	if (fDuration-- <= 0)
 		SetCompleted();
-	}
 }
 
 
