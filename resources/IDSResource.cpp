@@ -45,8 +45,8 @@ IDSResource::Load(Archive* archive, uint32 key)
 
 	(void)(numEntries);
 
-	// PFFFT! just ignore the number of entries,
-	// since most IDS files contain an empty first line
+	// First line should be number of number of entries,
+	// but we ignore it since most IDS files contain an empty first line
 	while (fData->ReadLine(string, sizeof(string)) != NULL) {
 		char *stringID = ::strtok(string, " ");
 		if (stringID == NULL)
@@ -56,7 +56,7 @@ IDSResource::Load(Archive* archive, uint32 key)
 			continue;
 		char *rest = NULL;
 		uint32 id = ::strtoul(stringID, &rest, 0);
-		std::string finalValue = (char*)trim(stringValue);
+		std::string finalValue = trim(stringValue);
 		std::transform(finalValue.begin(), finalValue.end(),
 					finalValue.begin(), ::toupper);
 		fMap[id] = finalValue;
