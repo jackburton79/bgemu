@@ -20,7 +20,7 @@ public:
 
 	uint32 Key() const;
 	uint16 Type() const;
-	const char* Name() const;
+	std::string Name() const;
 	
 protected:
 	Resource(const res_ref &name, const uint16 &type);

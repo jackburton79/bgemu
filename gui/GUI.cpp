@@ -490,7 +490,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 	if (room == NULL)
 		return;
 
-	if (!strcmp(fResource->Name(), "GUIWMAP")) {
+	if (fResource->Name().compare("GUIWMAP") == 0) {
 		switch (windowID) {
 			case 0:
 				switch (controlID) {
@@ -545,7 +545,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 				std::cout << "control " << controlID << std::endl;
 				break;
 			}
-	} else if (!strncmp(fResource->Name(), "GUIW", strlen("GUIW"))) {
+	} else if (fResource->Name().find("GUIW") == 0) {
 		switch (windowID) {
 			case WINDOW_COMMANDS:
 				switch (controlID) {

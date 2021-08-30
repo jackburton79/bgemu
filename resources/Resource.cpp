@@ -45,7 +45,7 @@ Resource::Load(Archive* archive, uint32 key)
 Resource*
 Resource::Clone()
 {
-	Resource* newResource = Resource::Create(Name(), Type());
+	Resource* newResource = Resource::Create(Name().c_str(), Type());
 	newResource->fKey = fKey;
 	newResource->fData = fData->Clone();
 	newResource->Acquire();
@@ -90,7 +90,7 @@ Resource::Type() const
 }
 
 
-const char*
+std::string
 Resource::Name() const
 {
 	return fName.CString();

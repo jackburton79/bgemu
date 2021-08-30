@@ -915,13 +915,13 @@ AreaRoom::_LoadActors()
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor* actor = party->ActorAt(a);
 		actor->Acquire();
-		actor->SetArea(fArea->Name());
+		actor->SetArea(fArea->Name().c_str());
 		Core::Get()->RegisterObject(actor);
 	}
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
-		actor->SetArea(fArea->Name());
+		actor->SetArea(fArea->Name().c_str());
 		Core::Get()->RegisterObject(actor);
 	}
 

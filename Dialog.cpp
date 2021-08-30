@@ -126,12 +126,12 @@ DialogHandler::SelectOption(int32 option)
 	fState = NULL;
 	std::cout << "next resource: " << transition->entry.resource_next_state << std::endl;
 	std::cout << "next index: " << transition->entry.index_next_state << std::endl;
-	if (transition->entry.resource_next_state != fResource->Name()) {
+	//if (fResource->Name().compare(transition->entry.resource_next_state.CString()) != 0) {
 		gResManager->ReleaseResource(fResource);
 		fResource = NULL;
 		std::cout << "Getting resource..." << std::endl;
 		fResource = gResManager->GetDLG(transition->entry.resource_next_state);
-	}
+	//}
 	std::cout << "Getting next state..." << std::endl;
 	fNextStateIndex = transition->entry.index_next_state;
 
