@@ -2,6 +2,7 @@
 #include "Utils.h"
 
 #include <assert.h>
+#include <algorithm>
 #include <dirent.h>
 #include <errno.h>
 #include <stdio.h>
