@@ -749,36 +749,35 @@ Tokenizer::ReadNextToken()
 	aToken.size = _ReadFullToken(array, startToken);
 	array[aToken.size] = '\0';
 
-	if (array[0] == '!') {
-		aToken.type = TOKEN_EXCLAMATION_MARK;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else if (array[0] == ',') {
-		aToken.type = TOKEN_COMMA;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else if (array[0] == '(') {
-		aToken.type = TOKEN_PARENTHESIS_OPEN;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else if (array[0] == ')') {
-		aToken.type = TOKEN_PARENTHESIS_CLOSED;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else if (array[0] == '"') {
-		aToken.type = TOKEN_QUOTED_STRING;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else if (isalpha(array[0])) {
-		aToken.type = TOKEN_STRING;
-		memcpy(aToken.u.string, array, aToken.size);
-		aToken.u.string[aToken.size] = '\0';
-	} else {
+	if (isdigit(array[0])) {
 		aToken.type = TOKEN_NUMBER;
 		char* rest = NULL;
 		aToken.u.number = strtol(array, &rest, 0);
 		if (rest != NULL)
 			aToken.size = std::min((int)(rest - array), aToken.size);
+	} else {
+		memcpy(aToken.u.string, array, aToken.size);
+		aToken.u.string[aToken.size] = '\0';
+		switch (array[0]) {
+			case '!':
+				aToken.type = TOKEN_EXCLAMATION_MARK;
+				break;
+			case ',':
+				aToken.type = TOKEN_COMMA;
+				break;
+			case '(':
+				aToken.type = TOKEN_PARENTHESIS_OPEN;
+				break;
+			case ')':
+				aToken.type = TOKEN_PARENTHESIS_CLOSED;
+				break;
+			case '"':
+				aToken.type = TOKEN_QUOTED_STRING;
+				break;
+			default:
+				aToken.type = TOKEN_STRING;
+				break;
+		}
 	}
 
 	if (fDebug) {
