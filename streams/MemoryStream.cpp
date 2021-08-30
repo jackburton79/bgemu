@@ -25,12 +25,17 @@ MemoryStream::MemoryStream(size_t size)
 }
 
 
+MemoryStream::MemoryStream(const MemoryStream& other)
+{
+	// private unimplemented
+}
+
+
 MemoryStream::~MemoryStream()
 {
 	if (fOwnsBuffer)
 		delete[] fData;
 }
-
 
 
 ssize_t

@@ -28,7 +28,9 @@ private:
 	uint8 *fData;
 	size_t fSize;
 	off_t fPosition;
-	bool fOwnsBuffer; 
+	bool fOwnsBuffer;
+
+	MemoryStream(const MemoryStream& other);
 };
 
 #endif
