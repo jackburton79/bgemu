@@ -113,7 +113,7 @@ get_unquoted_string(char* dest, char* source, size_t size)
 	while (*nameEnd != '"')
 		nameEnd--;
 	*nameEnd = '\0';
-	::strcpy(dest, name);
+	::strncpy(dest, name, size);
 
 	return nameEnd - source;
 }

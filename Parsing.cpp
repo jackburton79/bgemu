@@ -624,11 +624,10 @@ ParameterExtractor::_ExtractNextParameter(::trigger_node* node,
 		case Parameter::OBJECT:
 		{
 			object_params objectNode;
-			if (tokenParam.type == TOKEN_QUOTED_STRING) {
+			if (tokenParam.type == TOKEN_QUOTED_STRING)
 				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
-			} else if (tokenParam.type == TOKEN_STRING) {
+			else if (tokenParam.type == TOKEN_STRING)
 				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
-			}
 			node->object = objectNode;
 			break;
 		}
@@ -661,9 +660,9 @@ ParameterExtractor::_ExtractNextParameter(::trigger_node* node,
 				destString = node->string2;
 			else
 				throw std::runtime_error("wrong parameter position");
-			if (tokenParam.type == TOKEN_QUOTED_STRING) {
+			if (tokenParam.type == TOKEN_QUOTED_STRING)
 				get_unquoted_string(destString, tokenParam.u.string, stringLength);
-			} else if (tokenParam.type == TOKEN_STRING) {
+			else if (tokenParam.type == TOKEN_STRING) {
 				::memcpy(destString, tokenParam.u.string, stringLength);
 				destString[stringLength] = '\0';
 			}

@@ -178,8 +178,6 @@ private:
 	Parser(const Parser&);
 	Parser& operator=(const Parser&);
 
-	void _SkipUselessTokens();
-
 	void _ReadNodeHeader(node*& n);
 	void _ReadNode(node*& n);
 	void _ReadNodeValue(node* n, const token& tok);
