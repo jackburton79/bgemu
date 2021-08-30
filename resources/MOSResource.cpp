@@ -159,15 +159,11 @@ MOSResource::TileAt(uint32 index)
 		tileBitmap->SetPalette(palette);
 	} catch (std::exception& e) {
 		std::cerr << "MOSResource::TileAt()" << e.what() << std::endl;
-		if (tileBitmap != NULL) {
-			tileBitmap->Release();
-			tileBitmap = NULL;
-		}
+		tileBitmap->Release();
+		tileBitmap = NULL;
 	} catch (...) {
-		if (tileBitmap != NULL) {
-			tileBitmap->Release();
-			tileBitmap = NULL;
-		}
+		tileBitmap->Release();
+		tileBitmap = NULL;
 	}
 
 	return tileBitmap;
