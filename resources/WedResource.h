@@ -13,7 +13,7 @@ class TileMap;
 class WEDResource;
 class MapOverlay {
 public:
-	MapOverlay();
+	MapOverlay(uint16 width, uint16 height, const res_ref& tileSet);
 	~MapOverlay();
 	
 	res_ref TileSet() const;

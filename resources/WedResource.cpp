@@ -135,17 +135,12 @@ WEDResource::GetOverlay(uint32 index)
 	if (index >= fNumOverlays)
 		return NULL;
 
-	MapOverlay* mapOverlay = new MapOverlay();
-
 	fData->Seek(fOverlaysOffset + index * sizeof(overlay), SEEK_SET);
 
 	::overlay overlay;
 	fData->Read(overlay);
 
-	mapOverlay->fTileSet = overlay.resource_ref;
-	mapOverlay->fWidth = overlay.width;
-	mapOverlay->fHeight = overlay.height;
-
+	MapOverlay* mapOverlay = new MapOverlay(overlay.width, overlay.height, overlay.resource_ref);
 	const uint32 overlaySize = overlay.height * overlay.width;
 	for (uint32 x = 0; x < overlaySize; x++)
 		_ReadTileMap(overlay, x, mapOverlay);
@@ -238,10 +233,11 @@ WEDResource::_LoadPolygons()
 
 
 // MapOverlay
-MapOverlay::MapOverlay()
+MapOverlay::MapOverlay(uint16 width, uint16 height, const res_ref& tileSet)
 	:
-	fWidth(0),
-	fHeight(0)
+	fTileSet(tileSet),
+	fWidth(width),
+	fHeight(height)
 {
 }
 
