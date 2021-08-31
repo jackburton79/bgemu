@@ -106,10 +106,10 @@ WEDResource::CountOverlays() const
 }
 
 
-void
-WEDResource::_ReadTileMap(overlay overlay, const uint32& x, MapOverlay* mapOverlay)
+TileMap*
+WEDResource::_ReadTileMap(overlay overlay, const uint32& x)
 {
-    uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
+	uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
     tilemap tileMap;
     fData->ReadAt(mapOffset, tileMap);
 
@@ -124,7 +124,7 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32& x, MapOverlay* mapOverl
     	indexes.push_back(tisIndex);
     }
 
-    mapOverlay->SetTileMap(new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index), x);
+    return new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index);
 }
 
 
@@ -141,8 +141,10 @@ WEDResource::GetOverlay(uint32 index)
 
 	MapOverlay* mapOverlay = new MapOverlay(overlay.width, overlay.height, overlay.resource_ref);
 	const uint32 overlaySize = overlay.height * overlay.width;
-	for (uint32 x = 0; x < overlaySize; x++)
-		_ReadTileMap(overlay, x, mapOverlay);
+	for (uint32 x = 0; x < overlaySize; x++) {
+		TileMap* tileMap = _ReadTileMap(overlay, x);
+		mapOverlay->SetTileMap(tileMap, x);
+	}
 
 	return mapOverlay;
 }
