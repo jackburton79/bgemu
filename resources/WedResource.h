@@ -21,6 +21,7 @@ public:
 	uint16 Height() const;
 	uint16 Size() const;
 
+	void SetTileMap(TileMap*, uint32 index);
 	TileMap *TileMapForTileCell(int32 i);
 	void PrintTileMaps();
 
@@ -31,8 +32,6 @@ private:
 	uint16 fHeight;
 
 	std::map<uint32, TileMap*> fTileMaps;
-
-	friend class WEDResource;
 };
 
 namespace GFX {

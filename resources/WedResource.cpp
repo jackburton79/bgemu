@@ -124,7 +124,7 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32& x, MapOverlay* mapOverl
     	indexes.push_back(tisIndex);
     }
 
-    mapOverlay->fTileMaps[x] = new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index);
+    mapOverlay->SetTileMap(new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index), x);
 }
 
 
@@ -275,6 +275,13 @@ uint16
 MapOverlay::Size() const
 {
 	return fWidth * fHeight;
+}
+
+
+void
+MapOverlay::SetTileMap(TileMap* tileMap, uint32 index)
+{
+	fTileMaps[index] = tileMap;
 }
 
 
