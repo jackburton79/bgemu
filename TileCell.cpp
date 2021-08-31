@@ -255,11 +255,11 @@ TileCell::HasRegion(Region* region) const
 
 
 // TileMap
-TileMap::TileMap()
+TileMap::TileMap(uint8 mask, int16 secondaryIndex)
 	:
-	fSecondaryIndex(-1),
+	fSecondaryIndex(secondaryIndex),
 	fCurrentIndex(0),
-	fMask(0)
+	fMask(mask)
 {
 }
 

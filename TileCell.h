@@ -13,7 +13,7 @@ class Region;
 
 class TileMap {
 public:
-	TileMap();
+	TileMap(uint8 mask, int16 secondaryIndex = -1);
 
 	void AddTileIndex(int16 index);
 	int16 TileIndex(bool advanceFrame);

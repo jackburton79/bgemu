@@ -112,20 +112,17 @@ WEDResource::_ReadTileMap(overlay overlay, const uint32& x, MapOverlay* mapOverl
     uint32 mapOffset = overlay.tilemap_offset + x * sizeof(tilemap);
     tilemap tileMap;
     fData->ReadAt(mapOffset, tileMap);
-    mapOverlay->fTileMaps[x] = new TileMap();
-    mapOverlay->fTileMaps[x]->SetMask(tileMap.mask);
 
     const int32 indexCount = tileMap.primary_tile_count;
     const int32 offset = overlay.tile_lookup_offset
     		+ (tileMap.primary_tile_index * sizeof(uint16));
 
+    mapOverlay->fTileMaps[x] = new TileMap(tileMap.mask, tileMap.secondary_tile_index);
     for (int32 c = 0; c < indexCount; c++) {
     	int16 tisIndex;
     	fData->ReadAt(offset + c * sizeof(int16), tisIndex);
         mapOverlay->fTileMaps[x]->AddTileIndex(tisIndex);
     }
-
-    mapOverlay->fTileMaps[x]->SetSecondaryTileIndex(tileMap.secondary_tile_index);
 }
 
 
