@@ -101,11 +101,10 @@ BackMap::TileAtPoint(const IE::point& point)
 uint16
 BackMap::TileNumberForPoint(const IE::point& point)
 {
-	const uint16 overlayWidth = fOverlays[0]->Width();
 	const uint16 tileX = point.x / TILE_WIDTH;
 	const uint16 tileY = point.y / TILE_HEIGHT;
 
-	return tileY * overlayWidth + tileX;
+	return tileY * fMapWidth + tileX;
 }
 
 
