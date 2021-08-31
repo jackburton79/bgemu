@@ -62,7 +62,7 @@ private:
 	virtual ~WEDResource();
 	void _Load();
 	void _LoadPolygons();
-	TileMap* _ReadTileMap(overlay overlay, const uint32 &x);
+	TileMap* _ReadTileMap(overlay overlay, const uint32 &tileMapIndex);
 	
 	uint32 fNumOverlays;
 	uint32 fNumTiledObjects;
