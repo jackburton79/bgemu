@@ -255,19 +255,13 @@ TileCell::HasRegion(Region* region) const
 
 
 // TileMap
-TileMap::TileMap(uint8 mask, int16 secondaryIndex)
+TileMap::TileMap(uint8 mask, const std::vector<int16>& primaryIndexes, int16 secondaryIndex)
 	:
 	fSecondaryIndex(secondaryIndex),
 	fCurrentIndex(0),
 	fMask(mask)
 {
-}
-
-
-void
-TileMap::AddTileIndex(int16 index)
-{
-	fIndices.push_back(index);
+	fIndices = primaryIndexes;
 }
 
 
@@ -281,24 +275,10 @@ TileMap::TileIndex(bool advanceFrame)
 }
 
 
-void
-TileMap::SetSecondaryTileIndex(int16 index)
-{
-	fSecondaryIndex = index;
-}
-
-
 int16
 TileMap::SecondaryTileIndex() const
 {
 	return fSecondaryIndex;
-}
-
-
-void
-TileMap::SetMask(uint8 mask)
-{
-	fMask = mask;
 }
 
 

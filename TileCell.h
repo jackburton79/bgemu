@@ -13,16 +13,11 @@ class Region;
 
 class TileMap {
 public:
-	TileMap(uint8 mask, int16 secondaryIndex = -1);
+	TileMap(uint8 mask, const std::vector<int16>& primaryIndexes, int16 secondaryIndex = -1);
 
-	void AddTileIndex(int16 index);
 	int16 TileIndex(bool advanceFrame);
-
-	void SetSecondaryTileIndex(int16 index);
 	int16 SecondaryTileIndex() const;
-
 	uint8 Mask() const;
-	void SetMask(uint8 mask);
 
 private:
 	std::vector<int16> fIndices;
