@@ -38,7 +38,6 @@ namespace GFX {
 	struct Color;
 }
 
-struct overlay;
 class Door;
 class Polygon;
 class WEDResource : public Resource {
@@ -62,7 +61,9 @@ private:
 	virtual ~WEDResource();
 	void _Load();
 	void _LoadPolygons();
-	TileMap* _ReadTileMap(overlay overlay, const uint32 &tileMapIndex);
+	TileMap* _ReadTileMap(const uint32& tileMapOffset,
+						const uint32& tileLookupOffset,
+						const uint32 &tileMapIndex);
 	
 	uint32 fNumOverlays;
 	uint32 fNumTiledObjects;

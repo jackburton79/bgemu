@@ -107,20 +107,22 @@ WEDResource::CountOverlays() const
 
 
 TileMap*
-WEDResource::_ReadTileMap(overlay overlay, const uint32& tileMapIndex)
+WEDResource::_ReadTileMap(const uint32& tileMapOffset,
+						const uint32& tileLookupOffset,
+						const uint32& tileMapIndex)
 {
-	uint32 mapOffset = overlay.tilemap_offset + tileMapIndex * sizeof(tilemap);
+	uint32 mapOffset = tileMapOffset + tileMapIndex * sizeof(tilemap);
     tilemap tileMap;
     fData->ReadAt(mapOffset, tileMap);
 
     const int32 indexCount = tileMap.primary_tile_count;
-    const int32 offset = overlay.tile_lookup_offset
+    const int32 offset = tileLookupOffset
     		+ (tileMap.primary_tile_index * sizeof(uint16));
 
     std::vector<int16> indexes;
-    for (int32 c = 0; c < indexCount; c++) {
+    for (int32 i = 0; i < indexCount; i++) {
     	int16 tisIndex;
-    	fData->ReadAt(offset + c * sizeof(int16), tisIndex);
+    	fData->ReadAt(offset + i * sizeof(int16), tisIndex);
     	indexes.push_back(tisIndex);
     }
 
@@ -142,7 +144,9 @@ WEDResource::GetOverlay(uint32 index)
 	MapOverlay* mapOverlay = new MapOverlay(overlay.width, overlay.height, overlay.resource_ref);
 	const uint32 overlaySize = overlay.height * overlay.width;
 	for (uint32 index = 0; index < overlaySize; index++) {
-		TileMap* tileMap = _ReadTileMap(overlay, index);
+		TileMap* tileMap = _ReadTileMap(overlay.tilemap_offset,
+										overlay.tile_lookup_offset,
+										index);
 		mapOverlay->SetTileMap(tileMap, index);
 	}
 
