@@ -178,5 +178,4 @@ BackMap::_LoadOverlays(WEDResource* wed)
 		std::cout << "overlay " << i << ": ";
 		std::cout << fOverlays[i]->Width() << "x" << fOverlays[i]->Height() << std::endl;
 	}
-
 }
