@@ -35,7 +35,7 @@ public:
 	Bitmap* Image() const;
 
 private:
-	bool _LoadOverlays(WEDResource* wed);
+	void _LoadOverlays(WEDResource* wed);
 
 	Bitmap* fImage;
 	std::vector<MapOverlay*> fOverlays;
