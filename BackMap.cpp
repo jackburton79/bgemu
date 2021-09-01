@@ -174,4 +174,9 @@ BackMap::_LoadOverlays(WEDResource* wed)
 	std::cout << "Done! Loaded " << numOverlays << " overlays. ";
 	std::cout << "Map size: " << fMapWidth << "x" << fMapHeight;
 	std::cout << " (" << fMapWidth * fTileWidth << "x" << fMapHeight * fTileHeight << ")" << std::endl;
+	for (uint32 i = 1; i < numOverlays; i++) {
+		std::cout << "overlay " << i << ": ";
+		std::cout << fOverlays[i]->Width() << "x" << fOverlays[i]->Height() << std::endl;
+	}
+
 }
