@@ -86,7 +86,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 		if (!ShouldDrawOverlay(i, mask))
 			continue;
 	    MapOverlay *overlay = fOverlays[i];
-		TileMap *map = overlay->TileMapForTileCell(i == 0 ? fNumber : 0);
+		TileMap *map = overlay->TileMapForTileCell(fNumber);
 		if (map == NULL)
 			continue;
 
@@ -135,7 +135,7 @@ TileCell::AdvanceFrame()
 		if (!ShouldDrawOverlay(i, mask))
 			continue;
 		MapOverlay *overlay = fOverlays[i];
-		TileMap *map = overlay->TileMapForTileCell(i == 0 ? fNumber : 0);
+		TileMap *map = overlay->TileMapForTileCell(fNumber);
 		if (map != NULL)
 			map->TileIndex(true);
 	}
