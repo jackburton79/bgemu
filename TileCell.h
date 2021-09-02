@@ -57,9 +57,9 @@ private:
 	uint32 fNumber;
 	::Door *fDoor;
 	std::vector<MapOverlay*>& fOverlays;
-	int fNumOverlays;
 	uint16 fPosX;
 	uint16 fPosY;
+	int8 fOverlayMask;
 
 	// TODO: This should store the object IDs, since
 	// storing the pointers is not safe

@@ -21,10 +21,13 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays, int numOve
 	fNumber(number),
 	fDoor(NULL),
 	fOverlays(overlays),
-	fNumOverlays(numOverlays),
 	fPosX(-1),
-	fPosY(-1)
+	fPosY(-1),
+	fOverlayMask(0)
 {
+	TileMap* map = overlays[0]->TileMapForTileCell(number);
+	if (map != NULL)
+		fOverlayMask = map->Mask();
 }
 
 
@@ -71,19 +74,9 @@ ShouldDrawOverlay(const int i, const int mask)
 void
 TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 {
-	MapOverlay* overlayZero = fOverlays[0];
-	if (overlayZero == NULL)
-		return;
-
-	TileMap* tileMapZero = overlayZero->TileMapForTileCell(fNumber);
-	if (tileMapZero == NULL) {
-		std::cerr << "Tilemap Zero is NULL!" << std::endl;
-		return;
-	}
-	const int8 mask = tileMapZero->Mask();
-	int maxOverlay = full ? fNumOverlays : 1;
+	int maxOverlay = full ? fOverlays.size() : 1;
 	for (int i = maxOverlay - 1; i >= 0; i--) {
-		if (!ShouldDrawOverlay(i, mask))
+		if (!ShouldDrawOverlay(i, fOverlayMask))
 			continue;
 	    MapOverlay *overlay = fOverlays[i];
 		TileMap *map = overlay->TileMapForTileCell(fNumber);
@@ -107,7 +100,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 		gResManager->ReleaseResource(tis);
 
 		GFX::Color *color = NULL;
-		if (i == 0 && mask != 0) {
+		if (i == 0 && fOverlayMask != 0) {
 			color = &sTransparentColor;
 			//color = &cell->format->palette->colors[255];
 		}
@@ -122,17 +115,8 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 void
 TileCell::AdvanceFrame()
 {
-	MapOverlay* overlayZero = fOverlays[0];
-	if (overlayZero == NULL)
-		return;
-
-	TileMap* tileMapZero = overlayZero->TileMapForTileCell(fNumber);
-	if (tileMapZero == NULL)
-		return;
-
-	const int8 mask = tileMapZero->Mask();
-	for (int i = fNumOverlays - 1; i >= 0; i--) {
-		if (!ShouldDrawOverlay(i, mask))
+	for (int i = fOverlays.size() - 1; i >= 0; i--) {
+		if (!ShouldDrawOverlay(i, fOverlayMask))
 			continue;
 		MapOverlay *overlay = fOverlays[i];
 		TileMap *map = overlay->TileMapForTileCell(fNumber);
