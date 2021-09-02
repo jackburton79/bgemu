@@ -33,7 +33,6 @@ public:
 	~TileCell();
 
 	uint16 ID() const;
-	void SetPosition(uint16 x, uint16 y);
 	void Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full = false);
 	void AdvanceFrame();
 	void SetDoor(::Door *d);
@@ -57,8 +56,6 @@ private:
 	uint32 fNumber;
 	::Door *fDoor;
 	std::vector<MapOverlay*>& fOverlays;
-	uint16 fPosX;
-	uint16 fPosY;
 	int8 fOverlayMask;
 
 	// TODO: This should store the object IDs, since

@@ -30,11 +30,11 @@ BackMap::BackMap(WEDResource* wed)
 
 	std::cout << "Initializing Tile Cells...";
 	std::flush(std::cout);
-	uint32 numTiles = fOverlays[0]->Size();
-	for (uint16 i = 0; i < numTiles; i++) {
+	uint32 numCells = fOverlays[0]->Size();
+	for (uint16 i = 0; i < numCells; i++) {
 		fTileCells.push_back(new TileCell(i, fOverlays));
 	}
-	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
+	std::cout << "Done! Loaded " << numCells << " tile cells!" << std::endl;
 
 	fImage = new Bitmap(fMapWidth * fTileWidth,
 			fMapHeight * fTileHeight, 16);

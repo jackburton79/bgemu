@@ -21,8 +21,6 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays)
 	fNumber(number),
 	fDoor(NULL),
 	fOverlays(overlays),
-	fPosX(-1),
-	fPosY(-1),
 	fOverlayMask(0)
 {
 	TileMap* map = overlays[0]->TileMapForTileCell(number);
@@ -43,14 +41,6 @@ uint16
 TileCell::ID() const
 {
 	return fNumber;
-}
-
-
-void
-TileCell::SetPosition(uint16 x, uint16 y)
-{
-	fPosX = x;
-	fPosY = y;
 }
 
 
@@ -254,6 +244,7 @@ TileMap::TileMap(uint8 mask, const std::vector<int16>& primaryIndexes, int16 sec
 int16
 TileMap::TileIndex(bool advanceFrame)
 {
+	advanceFrame = false;
 	int16 index = fIndices[fCurrentIndex];
 	if (advanceFrame && ++fCurrentIndex >= fIndices.size())
 		fCurrentIndex = 0;
