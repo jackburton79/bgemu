@@ -300,7 +300,6 @@ MapOverlay::TileMapForTileCell(int32 i)
 }
 
 
-
 void
 MapOverlay::PrintTileMaps()
 {

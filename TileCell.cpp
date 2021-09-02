@@ -121,7 +121,7 @@ TileCell::AdvanceFrame()
 }
 
 
-Door *
+Door*
 TileCell::Door() const
 {
 	return fDoor;
@@ -129,7 +129,7 @@ TileCell::Door() const
 
 
 void
-TileCell::SetDoor(::Door *d)
+TileCell::SetDoor(::Door* d)
 {
 	fDoor = d;
 	//fDoor->SetTileCell(this);

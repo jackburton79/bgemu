@@ -90,13 +90,13 @@ BackMap::CountTiles() const
 TileCell*
 BackMap::TileAtPoint(const IE::point& point)
 {
-	uint16 num = TileNumberForPoint(point);
+	const uint16 num = TileNumberForPoint(point);
 	return fTileCells[num];
 }
 
 
 uint16
-BackMap::TileNumberForPoint(const IE::point& point)
+BackMap::TileNumberForPoint(const IE::point& point) const
 {
 	const uint16 tileX = point.x / fTileWidth;
 	const uint16 tileY = point.y / fTileHeight;
