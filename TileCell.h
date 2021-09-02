@@ -66,6 +66,8 @@ private:
 	
 	std::list<Actor*> fObjects;
 	std::vector<Region*> fRegions;
+
+	bool _ShouldDrawOverlay(int overlayIndex) const;
 };
 
 

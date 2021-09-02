@@ -64,10 +64,10 @@ _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 }
 
 
-static inline bool
-ShouldDrawOverlay(const int i, const int mask)
+bool
+TileCell::_ShouldDrawOverlay(const int overlayIndex) const
 {
-	return i == 0 || (mask & (1 << i)) != 0;
+	return overlayIndex == 0 || (fOverlayMask & (1 << overlayIndex)) != 0;
 }
 
 
@@ -76,10 +76,11 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 {
 	int maxOverlay = full ? fOverlays.size() : 1;
 	for (int i = maxOverlay - 1; i >= 0; i--) {
-		if (!ShouldDrawOverlay(i, fOverlayMask))
+		if (!_ShouldDrawOverlay(i))
 			continue;
-	    MapOverlay *overlay = fOverlays[i];
-		TileMap *map = overlay->TileMapForTileCell(fNumber);
+		if (fOverlays[i]->Size() == 0)
+			continue;
+		TileMap *map = fOverlays[i]->TileMapForTileCell(fNumber);
 		if (map == NULL)
 			continue;
 
@@ -93,7 +94,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 			}
 		}
 
-		TISResource *tis = gResManager->GetTIS(overlay->TileSet());
+		TISResource *tis = gResManager->GetTIS(fOverlays[i]->TileSet());
 		Bitmap *cell = tis->TileAt(index);
 		assert(cell != NULL);
 
@@ -116,10 +117,11 @@ void
 TileCell::AdvanceFrame()
 {
 	for (int i = fOverlays.size() - 1; i >= 0; i--) {
-		if (!ShouldDrawOverlay(i, fOverlayMask))
+		if (!_ShouldDrawOverlay(i))
 			continue;
-		MapOverlay *overlay = fOverlays[i];
-		TileMap *map = overlay->TileMapForTileCell(fNumber);
+		if (fOverlays[i]->Size() == 0)
+			continue;
+		TileMap *map = fOverlays[i]->TileMapForTileCell(fNumber);
 		if (map != NULL)
 			map->TileIndex(true);
 	}
