@@ -64,13 +64,6 @@ _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 }
 
 
-bool
-TileCell::_ShouldDrawOverlay(const int overlayIndex) const
-{
-	return overlayIndex == 0 || (fOverlayMask & (1 << overlayIndex)) != 0;
-}
-
-
 void
 TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 {
@@ -237,6 +230,13 @@ TileCell::HasRegion(Region* region) const
 	std::vector<Region*>::const_iterator i =
 		std::find_if(fRegions.begin(), fRegions.end(), FindRegion(region));
 	return i != fRegions.end();
+}
+
+
+bool
+TileCell::_ShouldDrawOverlay(const int overlayIndex) const
+{
+	return overlayIndex == 0 || (fOverlayMask & (1 << overlayIndex)) != 0;
 }
 
 
