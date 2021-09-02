@@ -31,6 +31,7 @@ LOCALSOURCES = \
 ../TextSupport.cpp \
 ../TileCell.cpp \
 ../Timer.cpp \
+../Tokenizer.cpp \
 ../Triggers.cpp \
 ../Variables.cpp \
 ../WorldMap.cpp
