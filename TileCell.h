@@ -29,7 +29,7 @@ private:
 
 class TileCell {
 public:
-	TileCell(uint32 index, std::vector<MapOverlay*>& overlays, int numOverlays);
+	TileCell(uint32 index, std::vector<MapOverlay*>& overlays);
 	~TileCell();
 
 	uint16 ID() const;

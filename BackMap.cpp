@@ -32,7 +32,7 @@ BackMap::BackMap(WEDResource* wed)
 	std::flush(std::cout);
 	uint32 numTiles = fOverlays[0]->Size();
 	for (uint16 i = 0; i < numTiles; i++) {
-		fTileCells.push_back(new TileCell(i, fOverlays, fOverlays.size()));
+		fTileCells.push_back(new TileCell(i, fOverlays));
 	}
 	std::cout << "Done! Loaded " << numTiles << " tile cells!" << std::endl;
 
