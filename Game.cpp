@@ -29,6 +29,8 @@
 
 
 static uint32 sFrames = 0;
+static uint32 sLastFrame = 0;
+static uint32 sLastTime = 0;
 
 static Game* sGame;
 
@@ -71,10 +73,14 @@ DisplayClock(void *param)
 void
 DisplayFrameRate(void* param)
 {
+	uint32 currentTime = SDL_GetTicks();
 	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
 	char frameRate[32];
-	snprintf(frameRate, sizeof(frameRate), "%d", sFrames / (SDL_GetTicks() / 1000));
-	GUI::Get()->DisplayString(frameRate, frame.x + 30, 20, 1000);
+	uint32 numFrames = sFrames - sLastFrame;
+	snprintf(frameRate, sizeof(frameRate), "%d", 1000 * numFrames / (currentTime - sLastTime));
+	GUI::Get()->DisplayString(frameRate, frame.x + 70, 20, 1000);
+	sLastFrame = sFrames;
+	sLastTime = currentTime;
 }
 
 
