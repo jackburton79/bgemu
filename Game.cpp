@@ -27,6 +27,9 @@
 #include <assert.h>
 #include <stdio.h>
 
+
+static uint32 sFrames = 0;
+
 static Game* sGame;
 
 /* static */
@@ -62,6 +65,16 @@ DisplayClock(void *param)
 	std::string clock = GameTimer::GameTimeString();
 	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
 	GUI::Get()->DisplayString(clock.c_str(), frame.x + 10, frame.h - 50, 2500);
+}
+
+
+void
+DisplayFrameRate(void* param)
+{
+	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
+	char frameRate[32];
+	snprintf(frameRate, sizeof(frameRate), "%d", sFrames / (SDL_GetTicks() / 1000));
+	GUI::Get()->DisplayString(frameRate, frame.x + 30, 20, 1000);
 }
 
 
@@ -121,6 +134,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	bool quitting = false;
 
 	Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
+	Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
 
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
@@ -229,6 +243,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			Core::Get()->UpdateLogic(executeScripts);
 		GraphicsEngine::Get()->Update();
 		
+		sFrames++;
 		Timer::WaitSync(startTicks, 35);
 	}
 
