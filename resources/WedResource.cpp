@@ -142,7 +142,7 @@ WEDResource::GetOverlay(uint32 index)
 
 	MapOverlay* mapOverlay = new MapOverlay(overlay.width, overlay.height, overlay.resource_ref);
 	const uint32 tileMapsCount = overlay.height * overlay.width;
-	for (uint32 tileMapIndex = 0; index < tileMapsCount; tileMapIndex++) {
+	for (uint32 tileMapIndex = 0; tileMapIndex < tileMapsCount; tileMapIndex++) {
 		TileMap* tileMap = _ReadTileMap(overlay.tilemap_offset,
 										overlay.tile_lookup_offset,
 										tileMapIndex);
