@@ -22,6 +22,7 @@ cycle_num_for_char(int c)
 	return c - 1;
 }
 
+
 enum char_classification {
 	CHAR_IS_NORMAL = 0,
 	CHAR_IS_TOP,
