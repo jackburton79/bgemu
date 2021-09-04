@@ -120,34 +120,12 @@ IE::door*
 ARAResource::DoorAt(uint32 index)
 {
 	if (index > fNumDoors) {
-		std::cerr << RED("ARAResource::DoorAt(): Requested wrong door") << std::endl;
+		std::cerr << Log::Red << "ARAResource::DoorAt(): Requested wrong door" << std::endl;
 		return NULL;
 	}
 
 	return &fDoors[index];
 }
-
-/*
-Door *
-ARAResource::GetDoor(uint32 index)
-{
-	Door *d = new Door();
-
-	uint16 tileIndex = fDoors[index].open_cell_index;
-	for (uint32 i = 0; i < fDoors[index].open_cell_count; i++) {
-		d->fTilesOpen.push_back(tileIndex++);
-	}
-
-	printf("index: %d count: %d\n", fDoors[index].open_cell_index,
-			fDoors[index].open_cell_count);
-
-	tileIndex = fDoors[index].closed_cell_index;
-	for (uint32 i = 0; i < fDoors[index].closed_cell_count; i++) {
-		d->fTilesClosed.push_back(tileIndex++);
-	}
-
-	return d;
-}*/
 
 
 uint32
