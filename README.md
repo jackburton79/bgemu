@@ -1,6 +1,6 @@
 bgemu
 =====
-![Build Status](https://github.com/jackburton79/bgemu/workflows/C/C++%20CI/badge.svg)
+[![build](https://github.com/jackburton79/bgemu/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/jackburton79/bgemu/actions/workflows/c-cpp.yml)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ff3bb74ed5174a989893fb6bc833ff71)](https://app.codacy.com/gh/jackburton79/bgemu?utm_source=github.com&utm_medium=referral&utm_content=jackburton79/bgemu&utm_campaign=Badge_Grade_Settings)
 [![CodeFactor](https://www.codefactor.io/repository/github/jackburton79/bgemu/badge)](https://www.codefactor.io/repository/github/jackburton79/bgemu)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/jackburton79/bgemu.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/jackburton79/bgemu/context:cpp)
