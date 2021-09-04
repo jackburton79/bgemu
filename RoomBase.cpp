@@ -31,6 +31,7 @@ RoomBase::RoomBase()
 
 RoomBase::~RoomBase()
 {
+	std::cout << "RoomBase::~RoomBase()" << std::endl;
 }
 
 
