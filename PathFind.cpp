@@ -323,8 +323,7 @@ PathFinder::_AddNeighbors(const point_node& node,
 			offset_point(node.point, 0, +fStep),
 			offset_point(node.point, +fStep, -fStep),
 			offset_point(node.point, +fStep, 0),
-			offset_point(node.point, +fStep, +fStep),
-
+			offset_point(node.point, +fStep, +fStep)
 	};
 	const size_t arraySize = sizeof(pointArray) / sizeof(pointArray[0]);
 	for (size_t c = 0; c < arraySize; c++)
