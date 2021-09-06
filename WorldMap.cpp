@@ -4,20 +4,15 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "Core.h"
-#include "Door.h"
-#include "Game.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Label.h"
 #include "MOSResource.h"
-#include "Party.h"
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "TextArea.h"
 #include "TisResource.h"
-#include "Timer.h"
-#include "TLKResource.h"
 #include "WMAPResource.h"
 
 #include <algorithm>
@@ -195,10 +190,10 @@ WorldMap::IsGUIShown() const
 
 
 /* virtual */
- void
- WorldMap::ReloadArea()
- {
- }
+void
+WorldMap::ReloadArea()
+{
+}
 
 
 /* virtual */
