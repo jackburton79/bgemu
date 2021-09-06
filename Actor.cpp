@@ -142,9 +142,6 @@ Actor::_Init()
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
-	//std::cout << std::dec;
-	//std::cout << Name() << " enum: local: " << fCRE->LocalActorEnum();
-	//std::cout << ", global: " << fCRE->GlobalActorEnum() << std::endl;
 
 	// TODO: Are we overwriting the actor specific stuff here ?
 	fActor->script_override = fCRE->OverrideScriptName();
@@ -244,10 +241,9 @@ const ::Bitmap*
 Actor::Bitmap() const
 {
 	if (fCurrentAnimation == NULL) {
-		/*std::string message("Actor::Bitmap() (");
+		std::string message("Actor::Bitmap() (");
 		message.append(fCRE->Name()).append(") : No current animation!");
-		throw message;*/
-		return NULL;
+		throw std::runtime_error(message);
 	}
 
 	return fCurrentAnimation->Bitmap();
