@@ -82,20 +82,26 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 void
 SearchMap::SetPoint(int32 x, int32 y)
 {
+#if 1
 	return;
+#else
 	x = ceilf(x / fHRatio);
 	y = ceilf(y / fVRatio);
 	fModifiedMap->PutPixel(x, y, 0);
+#endif
 }
 
 
 void
 SearchMap::ClearPoint(int32 x, int32 y)
 {
+#if 1
 	return;
+#else
 	x = ceilf(x / fHRatio);
 	y = ceilf(y / fVRatio);
 	fModifiedMap->PutPixel(x, y, fImage->GetPixel(x, y));
+#endif
 }
 
 
