@@ -663,9 +663,6 @@ AreaRoom::_InitSearchMap()
 void
 AreaRoom::_DrawAnimations(bool advanceFrame)
 {
-	if (fAnimations.size() == 0)
-		return;
-
 	AnimationsList::const_iterator i;
 	for (i = fAnimations.begin(); i != fAnimations.end(); i++) {
 		try {
