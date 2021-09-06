@@ -677,7 +677,7 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 				DrawBitmap(frame, animation->Position(), false);
 			}
 		} catch (std::exception& e) {
-			std::cerr << Log::Red << e.what() << std::endl;
+			std::cerr << Log::Red << e.what() << Log::Normal << std::endl;
 			continue;
 		}
 	}
@@ -704,7 +704,7 @@ AreaRoom::_DrawEffects()
 				effect->AdvanceFrame();
 			}
 		} catch (std::exception& e) {
-			std::cerr << Log::Red << e.what() << std::endl;
+			std::cerr << Log::Red << e.what() << Log::Normal << std::endl;
 			continue;
 		}
 	}
@@ -730,7 +730,7 @@ AreaRoom::_DrawActors()
 		try {
 			actor->Draw(this, fBackMap->Image());
 		} catch (std::exception& ex) {
-			std::cerr << Log::Red << ex.what() << std::endl;
+			std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
 			continue;
 		}
 	}
