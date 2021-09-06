@@ -47,7 +47,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 #if 1
 	std::cout << "AnimationFactory::GetFactory(";
 	std::cout << baseName << ", " << std::hex;
-	std::cout << animationID << ")" << std::endl;
+	std::cout << "0x" << animationID << ")" << std::endl;
 #endif
 	AnimationFactory* factory = NULL;
 	std::map<uint16, AnimationFactory*>::const_iterator i
