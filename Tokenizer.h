@@ -55,7 +55,7 @@ public:
 
 	void SetDebug(bool state);
 
-	static bool IsSeparator(char const &c);
+	static bool IsWhiteSpace(char const &c);
 private:
 	void _SkipSeparators();
 	int32 _ReadFullToken(char *dest, int32 start);

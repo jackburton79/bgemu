@@ -216,7 +216,7 @@ Tokenizer::_SkipSeparators()
 {
 	for (;;) {
 		char c = fStream->ReadByte();
-		if (!Tokenizer::IsSeparator(c))
+		if (!Tokenizer::IsWhiteSpace(c))
 			break;
 	}
 
@@ -232,7 +232,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 	try {
 		for (;;) {
 			char c = fStream->ReadByte();
-			if (Tokenizer::IsSeparator(c)) {
+			if (Tokenizer::IsWhiteSpace(c)) {
 				fStream->Seek(-1, SEEK_CUR);
 				break;
 			}
@@ -258,7 +258,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 
 /* static */
 bool
-Tokenizer::IsSeparator(char const &c)
+Tokenizer::IsWhiteSpace(char const &c)
 {
 	return (c == ' ' || c == '\n' || c == '\r' || c == '\t');
 }
