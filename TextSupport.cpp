@@ -72,7 +72,12 @@ Font::Font(const std::string& fontName)
 }
 
 
-Font::Font(const Font&)
+Font::Font(const Font& font)
+	:
+	fName(font.fName),
+	fHeight(font.Height()),
+	fPalette(NULL),
+	fTransparentIndex(font.fTransparentIndex)
 {
 	// private unimplemented
 }
