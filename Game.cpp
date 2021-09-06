@@ -76,7 +76,7 @@ DisplayFrameRate(void* param)
 	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
 	char frameRate[32];
 	uint32 numFrames = sFrames - sLastFrame;
-	snprintf(frameRate, sizeof(frameRate), "%d", 1000 * numFrames / (currentTime - sLastTime));
+	snprintf(frameRate, sizeof(frameRate), "FPS: %d", 1000 * numFrames / (currentTime - sLastTime));
 	GUI::Get()->DisplayString(frameRate, frame.x + 70, 20, 1000);
 	sLastFrame = sFrames;
 	sLastTime = currentTime;
@@ -115,7 +115,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	if (TestMode()) {
 		GUI::Get()->Load("GUITEST");
 	} else {
-
 		try {
 			CreateParty();
 		} catch (...) {
