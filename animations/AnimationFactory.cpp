@@ -5,19 +5,23 @@
  *      Author: stefano
  */
 
-#include "Animation.h"
 #include "AnimationFactory.h"
+
+#include "Animation.h"
 #include "BGCharachterAnimationFactory.h"
 #include "BG2CharachterAnimationFactory.h"
 #include "BGMonsterAnimationFactory.h"
 #include "BamResource.h"
 #include "Core.h"
 #include "IWDAnimationFactory.h"
+#include "Log.h"
 #include "ResManager.h"
 #include "SimpleAnimationFactory.h"
 #include "SplitAnimationFactory.h"
 
+#include <cxxabi.h>
 #include <string>
+#include <typeinfo>
 #include <vector>
 
 
@@ -118,10 +122,17 @@ AnimationFactory::GetFactory(uint16 animationID)
 		}
 	}
 
-	if (factory != NULL)
+	if (factory != NULL) {
+		int status;
+#if 1
+		char* demangled = abi::__cxa_demangle(typeid(*factory).name(), 0, 0, &status);
+		std::string name = demangled;
+		free(demangled);
+		std::cout << "instantiate factory " << name << std::endl;
+#endif
 		factory->Acquire();
-	else {
-		std::cerr << "No animation factory " << baseName;
+	} else {
+		std::cerr << Log::Red << "No animation factory " << baseName;
 		std::cerr << " (0x" << std::hex << animationID << ")" << std::endl;
 	}
 	return factory;
