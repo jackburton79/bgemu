@@ -428,7 +428,7 @@ Parser::_ReadNode(::node*& node)
 				// so we handle them differently
 				if (blockType == BLOCK_OBJECT) {
 					if (node->type == BLOCK_TRIGGER) {
-						trigger_node* trig = (trigger_node*)node;
+						trigger_node* trig = dynamic_cast<trigger_node*>(node);
 						_ReadObjectBlock(fTokenizer, trig->object);
 					} else if (node->type == BLOCK_ACTION) {
 						// TODO: Horrible hack
