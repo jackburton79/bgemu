@@ -870,7 +870,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {
 		if (fAction != ACT_DEAD || !fCurrentAnimation->IsLastFrame())
-			fCurrentAnimation->Next();
+			fCurrentAnimation->NextFrame();
 	}
 }
 

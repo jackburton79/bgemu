@@ -34,7 +34,7 @@ public:
 	void SetShown(const bool show);
 
 	const ::Bitmap* Bitmap();
-	void Next();
+	void NextFrame();
 	const ::Bitmap* NextBitmap();
 
 	bool IsLastFrame() const;

@@ -672,7 +672,7 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 			Animation* animation = *i;
 			if (animation->IsShown()) {
 				if (advanceFrame)
-					animation->Next();
+					animation->NextFrame();
 				const Bitmap* frame = animation->Bitmap();
 				DrawBitmap(frame, animation->Position(), false);
 			}
