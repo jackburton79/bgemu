@@ -19,7 +19,7 @@ class Game {
 public:
 	static Game* Get();
 	void Loop(bool noNewGame = false, bool executeScripts = true);
-
+	void CreateParty();
 	void InitiateDialog(Actor* actor, Actor* target);
 	bool InDialogMode() const;
 	void TerminateDialog();

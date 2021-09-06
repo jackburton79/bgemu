@@ -7,6 +7,8 @@
 
 #include "Party.h"
 
+#include "Core.h"
+
 #include <algorithm>
 
 

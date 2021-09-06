@@ -50,7 +50,6 @@ Game::Game()
 	fParty(NULL),
 	fTestMode(false)
 {
-	fParty = new ::Party();
 }
 
 
@@ -116,17 +115,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	if (TestMode()) {
 		GUI::Get()->Load("GUITEST");
 	} else {
-		// TODO: Move this elsewhere.
-		// This should be filled by the player selection
-		IE::point point = { 20, 20 };
+
 		try {
-			if (fParty->CountActors() == 0) {
-				if (Core::Get()->Game() == GAME_BALDURSGATE) {
-					fParty->AddActor(new Actor("AJANTI", point, 0));
-				} else {
-					fParty->AddActor(new Actor("ANOMEN10", point, 0));
-				}
-			}
+			CreateParty();
 		} catch (...) {
 			throw std::runtime_error("Error creating player!");
 		}
@@ -256,6 +247,20 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	std::cout << "Game: Input loop stopped." << std::endl;
 
 	GUI::Destroy();
+}
+
+
+void
+Game::CreateParty()
+{
+	assert(fParty == NULL);
+	// TODO: This should be filled by the player selection
+	IE::point point = { 20, 20 };
+	fParty = new ::Party();
+	if (Core::Get()->Game() == GAME_BALDURSGATE)
+		fParty->AddActor(new Actor("AJANTI", point, 0));
+	else
+		fParty->AddActor(new Actor("ANOMEN10", point, 0));
 }
 
 
