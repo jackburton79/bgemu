@@ -37,14 +37,14 @@ using namespace IE;
 
 const static int kMaxBuffers = 10;
 
-struct resource_types {
+struct resource_struct {
 	int type;
 	std::string extension;
 	std::string description;
 	Resource* (*create_function)(const res_ref&);
 };
 
-const static resource_types kResourceTypes[] = {
+const static resource_struct kResourceTypes[] = {
 	{ RES_2DA, "2DA", "2DA format" , &TWODAResource::Create },
 	{ RES_ARA, "ARE", "AREA format", &ARAResource::Create },
 	{ RES_BAM, "BAM", "BAM format", &BAMResource::Create },
@@ -88,14 +88,24 @@ get_buffer()
 }
 
 
-const char*
-res_extension(int type)
+static
+const struct resource_struct*
+resource_get_from_type(int type)
 {
 	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
 		if (kResourceTypes[i].type == type)
-			return kResourceTypes[i].extension.c_str();
+			return &kResourceTypes[i];
 	}
+	return NULL;
+}
 
+
+const char*
+res_extension(int type)
+{
+	const struct resource_struct* res = resource_get_from_type(type);
+	if (res != NULL)
+		return res->extension.c_str();
 	throw std::runtime_error("Unknown resource!");
 	return NULL;
 }
@@ -120,10 +130,9 @@ res_string_to_type(const char* string)
 const char*
 strresource(int type)
 {
-	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
-		if (kResourceTypes[i].type == type)
-			return kResourceTypes[i].description.c_str();
-	}
+	const struct resource_struct* res = resource_get_from_type(type);
+	if (res != NULL)
+		return res->description.c_str();
 	return NULL;
 }
 
@@ -131,10 +140,9 @@ strresource(int type)
 resource_creation_func
 get_resource_create(int type)
 {
-	for (size_t i = 0; i < sizeof(kResourceTypes) / sizeof(kResourceTypes[0]); i++) {
-		if (kResourceTypes[i].type == type)
-			return kResourceTypes[i].create_function;
-	}
+	const struct resource_struct* res = resource_get_from_type(type);
+	if (res != NULL)
+		return res->create_function;
 	return NULL;
 }
 
