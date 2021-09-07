@@ -43,7 +43,7 @@ Variables::Get(const char* name) const
 
 /* static */
 void
-Variables::GetScopeName(const char* variable, std::string& varScope, std::string& varName)
+Variables::GetNameAndScope(const char* variable, std::string& varScope, std::string& varName)
 {
 	varScope.append(variable, 6);
 	varName.append(&variable[6]);

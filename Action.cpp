@@ -113,7 +113,7 @@ ActionSetGlobal::operator()()
 {
 	std::string variableScope;
 	std::string variableName;
-	Variables::GetScopeName(fActionParams->string1, variableScope, variableName);
+	Variables::GetNameAndScope(fActionParams->string1, variableScope, variableName);
 	if (variableScope.compare("LOCALS") == 0) {
 		if (fObject != NULL)
 			fObject->SetVariable(variableName.c_str(),
@@ -505,7 +505,7 @@ ActionIncrementGlobal::operator()()
 	Core* core = Core::Get();
 	std::string variableScope;
 	std::string variableName;
-	Variables::GetScopeName(fActionParams->string1, variableScope, variableName);
+	Variables::GetNameAndScope(fActionParams->string1, variableScope, variableName);
 	int32 value = core->Vars().Get(fActionParams->string1);
 	core->Vars().Set(fActionParams->string1, value + fActionParams->integer1);
 	SetCompleted();

@@ -18,7 +18,7 @@ public:
 	Variables();
 	void Set(const char* name, int32 value);
 	int32 Get(const char* name) const;
-	static void GetScopeName(const char* variable, std::string& varScope, std::string& varName);
+	static void GetNameAndScope(const char* variable, std::string& varScope, std::string& varName);
 
 	void Print(const char* name) const;
 	void PrintAll() const;
