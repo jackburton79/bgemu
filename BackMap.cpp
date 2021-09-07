@@ -132,12 +132,11 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 
 		const uint32 tileNumY = y * fMapWidth;
 		for (uint16 x = 0; x < fMapWidth; x++) {
-			tileRect.w = fTileWidth;
 			tileRect.x = x * fTileWidth - rect.x;
 			const uint16 tileIndex = tileNumY + x;
 			TileCell* tile = TileAt(tileIndex);
 			if (tile == NULL) {
-				std::cerr << Log::Red << "Tile "<< tileIndex << " not found!" << std::endl;
+				std::cerr << Log::Red << "Tile " << tileIndex << " not found!" << std::endl;
 				continue;
 			}
 			if (advance)
