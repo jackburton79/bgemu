@@ -32,8 +32,6 @@ public:
 
 	void Print() const;
 
-	void Add(Script* script);
-
 	static trigger_node*	FindTriggerNode(Object* object, node* start);
 	static action_node*		FindActionNode(Object* object, node* start);
 	static node*			FindNode(const Object* object, block_type type, node* start);

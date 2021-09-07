@@ -56,9 +56,7 @@ static void PrintHeader(node& node, bool close = false)
 static void
 VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
 {
-	std::string variableScope;
 	varScope.append(variable, 6);
-	std::string variableName;
 	varName.append(&variable[6]);
 }
 
