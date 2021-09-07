@@ -29,7 +29,6 @@
 
 #include <assert.h>
 #include <cmath>
-#include <cstdio>
 #include <inttypes.h>
 #include <string>
 
@@ -324,34 +323,33 @@ IE::orientation_ext_to_base(int o)
 void
 animation::Print() const
 {
-	printf("name: %s\n", name);
-	printf("center: %d %d\n", center.x, center.y);
-	printf("play_time: %d\n", play_time);
-	printf("bam_name: %s\n", bam_name.CString());
-	printf("sequence: %d\n", sequence);
-	printf("frame: %d\n", frame);
-	printf("flags: (0x%x)\n", flags);
-	printf("\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n\t%s\n",
-			(flags & ANIM_SHOWN) ? "SHOWN" : "",
-			(flags & ANIM_SHADED) ? "SHADED" : "",
-			(flags & ANIM_ALLOW_TINT) ? "SHADED_NIGHT" : "",
-			(flags & ANIM_STOP_AT_FRAME) ? "STOP_AT_FRAME" : "",
-			(flags & ANIM_SYNCHRONIZED) ? "ANIM_SYNCHRONIZED" : "",
-			(flags & ANIM_RANDOM_START_FRAME) ? "RANDOM_START_FRAME" : "",
-			(flags & ANIM_IGNORE_CLIPPING) ? "ANIM_IGNORE_CLIPPING" : "",
-			(flags & ANIM_DISABLE_ON_SLOW_MACHINES) ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "",
-			(flags & ANIM_DO_NOT_COVER) ? "ANIM_DO_NOT_COVER" : "",
-			(flags & ANIM_PLAY_ALL_FRAMES) ? "PLAY_ALL_FRAMES" : "",
-			(flags & ANIM_USE_PALETTE) ? "USE_PALETTE" : "",
-			(flags & ANIM_MIRRORED) ? "MIRRORED" : "",
-			(flags & ANIM_SHOW_IN_COMBAT) ? "ANIM_SHOW_IN_COMBAT" : "");
-	printf("height: %d\n", height);
-	printf("transparency: %d\n", transparency);
-	printf("start_frame: %d\n", start_frame);
-	printf("looping_chance: %d\n", looping_chance);
-	printf("skip_cycles: %d\n", skip_cycles);
-	printf("palette: %s\n", palette.CString());
-	printf("unknown: %d\n", unknown);
+	std::cout << "name: " << name << std::endl;
+	std::cout << "center: " << center.x << ", " << center.y << std::endl;
+	std::cout << "play_time: " << play_time << std::endl;
+	std::cout << "bam_name: " << bam_name << std::endl;
+	std::cout << "sequence: " << sequence << std::endl;
+	std::cout << "frame: " << frame << std::endl;
+	std::cout << "flags: (0x" << std::hex << flags << std::endl;
+	std::cout << "\t" << ((flags & ANIM_SHOWN) ? "SHOWN" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_SHADED) ? "SHADED" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_ALLOW_TINT) ? "SHADED_NIGHT" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_STOP_AT_FRAME) ? "STOP_AT_FRAME" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_SYNCHRONIZED) ? "ANIM_SYNCHRONIZED" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_RANDOM_START_FRAME) ? "RANDOM_START_FRAME" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_IGNORE_CLIPPING) ? "ANIM_IGNORE_CLIPPING" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_DISABLE_ON_SLOW_MACHINES) ? "ANIM_DISABLE_ON_SLOW_MACHINES" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_DO_NOT_COVER) ? "ANIM_DO_NOT_COVER" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_PLAY_ALL_FRAMES) ? "PLAY_ALL_FRAMES" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_USE_PALETTE) ? "USE_PALETTE" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_MIRRORED) ? "MIRRORED" : "") << std::endl;
+	std::cout << "\t" << ((flags & ANIM_SHOW_IN_COMBAT) ? "ANIM_SHOW_IN_COMBAT" : "");
+	std::cout << "height: " << height << std::endl;
+	std::cout << "transparency: " << transparency << std::endl;
+	std::cout << "start_frame: " << start_frame << std::endl;
+	std::cout << "looping_chance: " << looping_chance << std::endl;
+	std::cout << "skip_cycles: " << skip_cycles << std::endl;
+	std::cout << "palette: " << palette << std::endl;
+	std::cout << "unknown: " << unknown << std::endl;
 }
 
 
@@ -491,17 +489,17 @@ region::Print() const
 void
 tiled_object::Print() const
 {
-	printf("short_name: %s\n", short_name.CString());
-	printf("flags: 0x%x\n", flags);
-	printf("cell_index: %d\n", cell_index);
-	printf("cell_count: %d\n", cell_count);
+	std::cout << "short_name: " << short_name << std::endl;
+	std::cout << "flags: " << std::hex << "0x" << flags << std::endl;
+	std::cout << "cell_index: " << cell_index << std::endl;
+	std::cout << "cell_count: " << cell_count << std::endl;
 }
 
 
 void
 variable::Print() const
 {
-	printf("name: %s, value: %d\n", name, value);
+	std::cout << "name: " << name << ", value: " << value << std::endl;
 }
 
 
