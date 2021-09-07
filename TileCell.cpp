@@ -55,7 +55,7 @@ _DrawOverlay(Bitmap* dest, Bitmap *cell, GFX::rect rect, GFX::Color *color)
 
 
 void
-TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
+TileCell::Draw(Bitmap* bitmap, const GFX::rect& rect, bool advanceFrame, bool full)
 {
 	int maxOverlay = full ? fOverlays.size() : 1;
 	for (int i = maxOverlay - 1; i >= 0; i--) {
@@ -89,7 +89,7 @@ TileCell::Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full)
 			//color = &cell->format->palette->colors[255];
 		}
 
-		_DrawOverlay(bitmap, cell, *rect, color);
+		_DrawOverlay(bitmap, cell, rect, color);
 
 		cell->Release();
 	}

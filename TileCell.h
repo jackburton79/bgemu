@@ -33,7 +33,7 @@ public:
 	~TileCell();
 
 	uint16 ID() const;
-	void Draw(Bitmap* bitmap, GFX::rect *rect, bool advanceFrame, bool full = false);
+	void Draw(Bitmap* bitmap, const GFX::rect& rect, bool advanceFrame, bool full = false);
 	void AdvanceFrame();
 	void SetDoor(::Door *d);
 	::Door *Door() const;

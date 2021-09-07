@@ -143,7 +143,7 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 				tile->AdvanceFrame();
 			if (y >= firstTileY && y <= lastTileY
 					&& x >= firstTileX && x <= lastTileX)
-				tile->Draw(fImage, &tileRect, false, allOverlays);
+				tile->Draw(fImage, tileRect, false, allOverlays);
 		}
 	}
 }
