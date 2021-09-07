@@ -53,13 +53,6 @@ static void PrintHeader(node& node, bool close = false)
 }
 */
 
-static void
-VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
-{
-	varScope.append(variable, 6);
-	varName.append(&variable[6]);
-}
-
 
 Script::Script(node* rootNode)
 	:
@@ -592,7 +585,7 @@ Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
 				of type 2nd parameter has value 3rd parameter.*/
 				std::string variableScope;
 				std::string variableName;
-				VariableGetScopeName(trig->string1, variableScope, variableName);
+				Variables::GetScopeName(trig->string1, variableScope, variableName);
 				int32 variableValue = 0;
 				if (variableScope.compare("LOCALS") == 0) {
 					variableValue = sender->GetVariable(variableName.c_str());

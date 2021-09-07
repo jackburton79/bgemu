@@ -30,15 +30,6 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 }
 
 
-static void
-VariableGetScopeName(const char* variable, std::string& varScope, std::string& varName)
-{
-	std::string variableScope;
-	varScope.append(variable, 6);
-	std::string variableName;
-	varName.append(&variable[6]);
-}
-
 
 Action::Action(Object* object, action_node* node)
     :
@@ -122,7 +113,7 @@ ActionSetGlobal::operator()()
 {
 	std::string variableScope;
 	std::string variableName;
-	VariableGetScopeName(fActionParams->string1, variableScope, variableName);
+	Variables::GetScopeName(fActionParams->string1, variableScope, variableName);
 	if (variableScope.compare("LOCALS") == 0) {
 		if (fObject != NULL)
 			fObject->SetVariable(variableName.c_str(),
@@ -514,7 +505,7 @@ ActionIncrementGlobal::operator()()
 	Core* core = Core::Get();
 	std::string variableScope;
 	std::string variableName;
-	VariableGetScopeName(fActionParams->string1, variableScope, variableName);
+	Variables::GetScopeName(fActionParams->string1, variableScope, variableName);
 	int32 value = core->Vars().Get(fActionParams->string1);
 	core->Vars().Set(fActionParams->string1, value + fActionParams->integer1);
 	SetCompleted();
