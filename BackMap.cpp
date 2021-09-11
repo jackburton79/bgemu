@@ -126,10 +126,7 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 	//bool advance = Timer::Get("ANIMATEDTILES")->Expired();
 	GFX::rect tileRect(0, 0, fTileWidth, fTileHeight);
 	for (uint16 y = 0; y < fMapHeight; y++) {
-		tileRect.w = fTileWidth;
-		tileRect.h = fTileHeight;
 		tileRect.y = y * fTileHeight - rect.y;
-
 		const uint32 tileNumY = y * fMapWidth;
 		for (uint16 x = 0; x < fMapWidth; x++) {
 			tileRect.x = x * fTileWidth - rect.x;
