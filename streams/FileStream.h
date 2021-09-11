@@ -33,7 +33,7 @@ public:
 
 	virtual ~FileStream();
 	
-	bool SetTo(const char *filename,
+	int SetTo(const char *filename,
 				int mode = READ_ONLY);
 	bool IsValid() const;
 

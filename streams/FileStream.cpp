@@ -1,11 +1,13 @@
 #include "FileStream.h"
 #include "Utils.h"
 
+#include <string.h>
 
 FileStream::FileStream(const char *filename, int mode)
 {		
-	if (!SetTo(filename, mode))
-		throw std::runtime_error("FileStream creation error");
+	int status = SetTo(filename, mode);
+	if (status != 0)
+		throw std::runtime_error(::strerror(status));
 }
 
 
@@ -23,7 +25,7 @@ FileStream::~FileStream()
 }
 
 
-bool
+int
 FileStream::SetTo(const char *filename, int mode)
 {
 	const char *flags = NULL;
@@ -49,7 +51,10 @@ FileStream::SetTo(const char *filename, int mode)
 	else
 		fFileHandle = fopen(filename, flags);
 
-	return fFileHandle != NULL;
+	if (fFileHandle != NULL)
+		return errno;
+
+	return 0;
 }
 
 
