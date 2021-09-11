@@ -2,6 +2,7 @@
 #include "BIFArchive.h"
 #include "DirectoryArchive.h"
 #include "IETypes.h"
+#include "Log.h"
 #include "FileArchive.h"
 #include "MemoryStream.h"
 #include "Utils.h"
@@ -25,7 +26,7 @@ Archive::Create(const char *path)
 			archive = new PlainFileArchive(path);
 		}
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << Log::Red << e.what() << Log::Normal << std::endl;
 		delete archive;
 		archive = NULL;
 	}
