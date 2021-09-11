@@ -51,7 +51,7 @@ FileStream::SetTo(const char *filename, int mode)
 	else
 		fFileHandle = fopen(filename, flags);
 
-	if (fFileHandle != NULL)
+	if (fFileHandle == NULL)
 		return errno;
 
 	return 0;
