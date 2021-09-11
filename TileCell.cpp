@@ -3,6 +3,7 @@
 #include "Door.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
+#include "Log.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "TileCell.h"
@@ -63,9 +64,13 @@ TileCell::Draw(Bitmap* bitmap, const GFX::rect& rect, bool advanceFrame, bool fu
 			continue;
 		if (fOverlays[i]->Size() == 0)
 			continue;
-		TileMap *map = fOverlays[i]->TileMapForTileCell(fNumber);
-		if (map == NULL)
+		// TODO: It's wrong to use fNumber here. Some overlays have only fewer cells than
+		// the base overlay
+		TileMap *map = fOverlays[i]->TileMapForTileCell(i == 0 ? fNumber : 0);
+		if (map == NULL) {
+			std::cerr << Log::Yellow << "Overlay " << i << ": no tile map for cell " << fNumber << std::endl;
 			continue;
+		}
 
 		int16 index = map->TileIndex(advanceFrame);
 		if (fDoor != NULL && !fDoor->Opened()) {
@@ -86,7 +91,6 @@ TileCell::Draw(Bitmap* bitmap, const GFX::rect& rect, bool advanceFrame, bool fu
 		GFX::Color *color = NULL;
 		if (i == 0 && fOverlayMask != 0) {
 			color = &sTransparentColor;
-			//color = &cell->format->palette->colors[255];
 		}
 
 		_DrawOverlay(bitmap, cell, rect, color);
@@ -104,7 +108,8 @@ TileCell::AdvanceFrame()
 			continue;
 		if (fOverlays[i]->Size() == 0)
 			continue;
-		TileMap *map = fOverlays[i]->TileMapForTileCell(fNumber);
+		// TODO: See Draw
+		TileMap *map = fOverlays[i]->TileMapForTileCell(i == 0 ? fNumber : 0);
 		if (map != NULL)
 			map->TileIndex(true);
 	}
@@ -244,7 +249,7 @@ TileMap::TileMap(uint8 mask, const std::vector<int16>& primaryIndexes, int16 sec
 int16
 TileMap::TileIndex(bool advanceFrame)
 {
-	advanceFrame = false;
+	//advanceFrame = false;
 	int16 index = fIndices[fCurrentIndex];
 	if (advanceFrame && ++fCurrentIndex >= fIndices.size())
 		fCurrentIndex = 0;
