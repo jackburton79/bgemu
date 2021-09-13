@@ -7,6 +7,7 @@
 
 #include "Tokenizer.h"
 
+#include "Log.h"
 #include "Stream.h"
 
 #include <cstring>
@@ -214,7 +215,7 @@ Tokenizer::SetDebug(bool state)
 void
 Tokenizer::_SkipSeparators()
 {
-	for (;;) {
+	while (!fStream->Eof()) {
 		char c = fStream->ReadByte();
 		if (!Tokenizer::IsWhiteSpace(c))
 			break;
@@ -230,7 +231,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 	bool quotesOpen = false;
 	char* ptr = dest;
 	try {
-		for (;;) {
+		while (!fStream->Eof()) {
 			char c = fStream->ReadByte();
 			if (Tokenizer::IsWhiteSpace(c)) {
 				fStream->Seek(-1, SEEK_CUR);
@@ -249,8 +250,9 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 				break;
 			}
 		}
-	} catch (...) {
-		// Not an error
+	} catch (std::exception& e) {
+		std::cerr << Log::Red << e.what() << Log::Normal << std::endl;
+		abort();
 	}
 	return fStream->Position() - start;
 }
