@@ -145,10 +145,9 @@ Parser::TriggersFromString(const std::string& string)
 	std::vector<trigger_node*> triggerList;
 	if (!string.empty()) {
 		while (true) {
-			trigger_node* triggerNode = new trigger_node;
-			if (TriggerFromString(localString, *triggerNode)) {
+			trigger_node* triggerNode = TriggerFromString(localString);
+			if (triggerNode != NULL)
 				triggerList.push_back(triggerNode);
-			}
 			size_t endLine = localString.find('\n');
 			if (endLine == localString.length() || endLine == std::string::npos)
 				break;
@@ -231,32 +230,40 @@ GetFunctionParameters(std::string functionString)
 
 
 /* static */
-bool
-Parser::TriggerFromString(const std::string& string, trigger_node& node)
+trigger_node*
+Parser::TriggerFromString(const std::string& string)
 {
-	node.type = BLOCK_TRIGGER;
+	std::cout << "TriggerFromString()" << std::endl;
+	trigger_node* node = new trigger_node();
+	node->type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
-	if (!_ExtractTriggerName(tokenizer, &node))
-		return false;
+	if (!_ExtractTriggerName(tokenizer, node))
+		return NULL;
 
 	// Opening parenthesis
-	token parenthesis = tokenizer.ReadToken();
-	assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
-
+	try {
+		token parenthesis = tokenizer.ReadToken();
+		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
+	} catch (std::exception& e)	{
+		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		return NULL;
+	}
 	ParameterExtractor extractor(tokenizer);
-	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node.id));
+	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node->id));
 	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
 			i != paramTypes.end(); i++) {
 		Parameter parameter = *i;
-		extractor._ExtractNextParameter(&node, parameter);
+		extractor._ExtractNextParameter(node, parameter);
 	}
 
-	node.Print();
+	std::cout << "TriggerFromString() END" << std::endl;
+	node->Print();
 
-	return true;
+	return node;
 }
+
 
 /* static */
 bool
@@ -373,18 +380,25 @@ bool
 Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 {
 	// Trigger name and modifier
-	token t = tokenizer.ReadToken();
-	if (t.type == TOKEN_EXCLAMATION_MARK) {
-		node->flags = 1;
+	token t;
+	try {
 		t = tokenizer.ReadToken();
-	}
-	if (t.type != TOKEN_STRING)
+		if (t.type == TOKEN_EXCLAMATION_MARK) {
+			node->flags = 1;
+			t = tokenizer.ReadToken();
+		}
+		if (t.type != TOKEN_STRING)
+			return false;
+	} catch (std::exception& e) {
+		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
 		return false;
+	}
+
 	std::string triggerName = t.u.string;
 	try {
 		node->id = GetTriggerID(triggerName);
 	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
+		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
 		return false;
 	}
 	return true;

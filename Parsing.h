@@ -118,7 +118,7 @@ public:
 	void SetDebug(bool debug);
 
 	static std::vector<trigger_node*> TriggersFromString(const std::string& string);
-	static bool TriggerFromString(const std::string& string, trigger_node& node);
+	static trigger_node* TriggerFromString(const std::string& string);
 	static bool ActionFromString(const std::string& string, action_node& node);
 
 private:
