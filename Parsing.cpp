@@ -395,10 +395,9 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 	}
 
 	std::string triggerName = t.u.string;
-	try {
-		node->id = GetTriggerID(triggerName);
-	} catch (std::exception& e) {
-		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+	node->id = GetTriggerID(triggerName);
+	if (node->id == -1) {
+		std::cerr << Log::Red << "GetTriggerID: no trigger found" << Log::Normal << std::endl;
 		return false;
 	}
 	return true;
