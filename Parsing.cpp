@@ -312,31 +312,31 @@ void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 {
 	// HEADER GUARD (OB)
-	tokenizer->ReadNextToken();
+	tokenizer->ReadToken();
 
-	obj.ea = tokenizer->ReadNextToken().u.number;
+	obj.ea = tokenizer->ReadToken().u.number;
 	if (Core::Get()->Game() == GAME_TORMENT) {
-		obj.faction = tokenizer->ReadNextToken().u.number;
-		obj.team = tokenizer->ReadNextToken().u.number;
+		obj.faction = tokenizer->ReadToken().u.number;
+		obj.team = tokenizer->ReadToken().u.number;
 	}
-	obj.general = tokenizer->ReadNextToken().u.number;
-	obj.race = tokenizer->ReadNextToken().u.number;
-	obj.classs = tokenizer->ReadNextToken().u.number;
-	obj.specific = tokenizer->ReadNextToken().u.number;
-	obj.gender = tokenizer->ReadNextToken().u.number;
-	obj.alignment = tokenizer->ReadNextToken().u.number;
+	obj.general = tokenizer->ReadToken().u.number;
+	obj.race = tokenizer->ReadToken().u.number;
+	obj.classs = tokenizer->ReadToken().u.number;
+	obj.specific = tokenizer->ReadToken().u.number;
+	obj.gender = tokenizer->ReadToken().u.number;
+	obj.alignment = tokenizer->ReadToken().u.number;
 	for (int32 i = 0; i < 5; i++)
-		obj.identifiers[i] = tokenizer->ReadNextToken().u.number;
+		obj.identifiers[i] = tokenizer->ReadToken().u.number;
 
 	// TODO: Not sure which games supports that
 	if (Core::Get()->Game() == GAME_TORMENT) {
-		obj.point.x = tokenizer->ReadNextToken().u.number;
-		obj.point.y = tokenizer->ReadNextToken().u.number;
+		obj.point.x = tokenizer->ReadToken().u.number;
+		obj.point.y = tokenizer->ReadToken().u.number;
 	}
 
-	token stringToken = tokenizer->ReadNextToken();
+	token stringToken = tokenizer->ReadToken();
 	// HEADER GUARD (OB)
-	tokenizer->ReadNextToken();
+	tokenizer->ReadToken();
 
 	get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);
 }
@@ -348,12 +348,12 @@ Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 {
 	action_node* act = dynamic_cast<action_node*>(node);
 	if (act) {
-		act->id = tokenizer->ReadNextToken().u.number;
-		act->integer1 = tokenizer->ReadNextToken().u.number;
-		act->where.x = tokenizer->ReadNextToken().u.number;
-		act->where.y = tokenizer->ReadNextToken().u.number;
-		act->integer2 = tokenizer->ReadNextToken().u.number;
-		act->integer3 = tokenizer->ReadNextToken().u.number;
+		act->id = tokenizer->ReadToken().u.number;
+		act->integer1 = tokenizer->ReadToken().u.number;
+		act->where.x = tokenizer->ReadToken().u.number;
+		act->where.y = tokenizer->ReadToken().u.number;
+		act->integer2 = tokenizer->ReadToken().u.number;
+		act->integer3 = tokenizer->ReadToken().u.number;
 
 		// TODO: This removes "" from strings.
 		// Should do this from the beginning
@@ -371,7 +371,7 @@ Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 {
 	response_node* resp = dynamic_cast<response_node*>(node);
 	if (resp)
-		resp->probability = tokenizer->ReadNextToken().u.number;
+		resp->probability = tokenizer->ReadToken().u.number;
 }
 
 
@@ -408,7 +408,7 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 void
 Parser::_ReadNodeHeader(node*& n)
 {
-	token tok = fTokenizer->ReadNextToken();
+	token tok = fTokenizer->ReadToken();
 	int blockType = Parser::_BlockTypeFromToken(tok);
 	if (n == NULL)
 		n = node::Create(blockType, tok.u.string);
@@ -426,7 +426,7 @@ Parser::_ReadNode(::node*& node)
 
 	_ReadNodeHeader(node);
 	for (;;) {
-		token tok = fTokenizer->ReadNextToken();
+		token tok = fTokenizer->ReadToken();
 		int blockType =_BlockTypeFromToken(tok);
 		if (blockType != -1) {
 			fTokenizer->RewindToken(tok);

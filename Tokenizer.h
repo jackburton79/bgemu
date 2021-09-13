@@ -50,7 +50,6 @@ public:
 	std::string TokenType(const token& t) const;
 
 	token ReadToken();
-	token ReadNextToken();
 	void RewindToken(const token &tok);
 
 	void SetDebug(bool state);

@@ -134,13 +134,6 @@ Tokenizer::TokenType(const token& t) const
 token
 Tokenizer::ReadToken()
 {
-	return ReadNextToken();
-}
-
-
-token
-Tokenizer::ReadNextToken()
-{
 	_SkipSeparators();
 
 	char array[128];
