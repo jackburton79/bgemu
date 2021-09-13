@@ -210,11 +210,11 @@ Tokenizer::_SkipSeparators()
 {
 	while (!fStream->Eof()) {
 		char c = fStream->ReadByte();
-		if (!Tokenizer::IsWhiteSpace(c))
+		if (!Tokenizer::IsWhiteSpace(c)) {
+			fStream->Seek(-1, SEEK_CUR);
 			break;
+		}
 	}
-
-	fStream->Seek(-1, SEEK_CUR);
 }
 
 
