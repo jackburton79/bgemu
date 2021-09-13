@@ -109,7 +109,7 @@ GUI::Load(const res_ref& name)
 {
 	res_ref guiResource = name;
 	GFX::rect screenFrame = GraphicsEngine::Get()->ScreenFrame();
-	if (strcmp(guiResource.CString(), "GUIW") == 0) {
+	if (::strcasecmp(guiResource.CString(), "GUIW") == 0) {
 		switch (screenFrame.w) {
 			case 800:
 				guiResource = "GUIW08";
@@ -120,6 +120,10 @@ GUI::Load(const res_ref& name)
 			default:
 				break;
 		}
+	}
+	if (!gResManager->ResourceExists(guiResource, RES_CHU)) {
+		// fallback to "normal" gui (BG)
+		guiResource = "GUIW";
 	}
 	std::cout << Log::Normal;
 	std::cout << "GUI::Load(" << guiResource.CString() << "): ";
