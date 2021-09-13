@@ -16,6 +16,8 @@ public:
 
 	char *ReadLine(char *buffer, size_t maxSize, char endLine = '\n');
 
+	bool Eof() const { return (size_t)Position() >= Size(); };
+
 	virtual ssize_t Write(const void *src, size_t size);
 	virtual ssize_t WriteAt(off_t pos, const void *src, size_t size)
 	{
