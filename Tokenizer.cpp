@@ -257,5 +257,3 @@ Tokenizer::IsWhiteSpace(char const &c)
 {
 	return (c == ' ' || c == '\n' || c == '\r' || c == '\t');
 }
-
-
