@@ -44,8 +44,8 @@ class Stream;
 class Tokenizer {
 public:
 	Tokenizer();
-	Tokenizer(Stream *stream, int32 position);
-	void SetTo(Stream *stream, int32 position);
+	Tokenizer(::Stream *stream, int32 position);
+	void SetTo(::Stream *stream, int32 position);
 
 	std::string TokenType(const token& t) const;
 
@@ -54,12 +54,14 @@ public:
 
 	void SetDebug(bool state);
 
+	::Stream* Stream() const;
+
 	static bool IsWhiteSpace(char const &c);
 private:
 	void _SkipSeparators();
 	int32 _ReadFullToken(char *dest, int32 start);
 
-	Stream *fStream;
+	::Stream *fStream;
 	int32 fPosition;
 	bool fDebug;
 };

@@ -86,7 +86,7 @@ Tokenizer::Tokenizer()
 }
 
 
-Tokenizer::Tokenizer(Stream *stream, int32 position)
+Tokenizer::Tokenizer(::Stream *stream, int32 position)
 	:
 	fDebug(false)
 {
@@ -95,7 +95,7 @@ Tokenizer::Tokenizer(Stream *stream, int32 position)
 
 
 void
-Tokenizer::SetTo(Stream *stream, int32 position)
+Tokenizer::SetTo(::Stream *stream, int32 position)
 {
 	fStream = stream;
 	fPosition = position;
@@ -204,6 +204,13 @@ void
 Tokenizer::SetDebug(bool state)
 {
 	fDebug = state;
+}
+
+
+::Stream*
+Tokenizer::Stream() const
+{
+	return fStream;
 }
 
 
