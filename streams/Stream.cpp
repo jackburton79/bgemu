@@ -64,8 +64,9 @@ uint8
 Stream::ReadByte()
 {
 	uint8 byte;
-	if (Read(&byte, sizeof(byte)) != sizeof(byte))
-		throw std::runtime_error("Stream::ReadByte(): tried to read uint8 but failed!");
+	ssize_t read = Read(&byte, sizeof(byte));
+	if (read != sizeof(byte))
+		throw std::runtime_error("Stream::ReadByte(): tried to read uint8 but got less !");
 	return byte;
 }
 
