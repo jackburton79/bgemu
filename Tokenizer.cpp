@@ -223,29 +223,24 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 {
 	bool quotesOpen = false;
 	char* ptr = dest;
-	try {
-		while (!fStream->Eof()) {
-			char c = fStream->ReadByte();
-			if (Tokenizer::IsWhiteSpace(c)) {
-				fStream->Seek(-1, SEEK_CUR);
-				break;
-			}
-			*ptr++ = c;
-			if (c == '"') {
-				if (!quotesOpen) {
-					quotesOpen = true;
-				} else {
-					break;
-				}
-			} else if (c == '!' || c == ',' || c == '(' || c == ')') {
-				if (fStream->Position() > start + 1)
-					fStream->Seek(-1, SEEK_CUR);
-				break;
-			}
+	while (!fStream->Eof()) {
+		char c = fStream->ReadByte();
+		if (Tokenizer::IsWhiteSpace(c)) {
+			fStream->Seek(-1, SEEK_CUR);
+			break;
 		}
-	} catch (std::exception& e) {
-		std::cerr << Log::Red << e.what() << Log::Normal << std::endl;
-		abort();
+		*ptr++ = c;
+		if (c == '"') {
+			if (!quotesOpen) {
+				quotesOpen = true;
+			} else {
+				break;
+			}
+		} else if (c == '!' || c == ',' || c == '(' || c == ')') {
+			if (fStream->Position() > start + 1)
+				fStream->Seek(-1, SEEK_CUR);
+			break;
+		}
 	}
 	return fStream->Position() - start;
 }
