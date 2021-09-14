@@ -10,6 +10,7 @@
 #include "Log.h"
 #include "Stream.h"
 
+#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -142,6 +143,7 @@ Tokenizer::ReadToken()
 	aToken.size = _ReadFullToken(array, startToken);
 	array[aToken.size] = '\0';
 
+	assert(aToken.size > 0);
 	switch (array[0]) {
 		case '!':
 			aToken.type = TOKEN_EXCLAMATION_MARK;

@@ -10,10 +10,10 @@
 #include "Utils.h"
 
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
 #include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
 #include <string>
 
 
@@ -99,8 +99,6 @@ Parameter::Print() const
 	if (!IDtable.empty())
 		std::cout << "IDtable: " << IDtable << std::endl;
 }
-
-
 
 
 // Parser
@@ -239,8 +237,10 @@ Parser::TriggerFromString(const std::string& string)
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
-	if (!_ExtractTriggerName(tokenizer, node))
+	if (!_ExtractTriggerName(tokenizer, node)) {
+		delete node;
 		return NULL;
+	}
 
 	// Opening parenthesis
 	try {
@@ -387,8 +387,10 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 			node->flags = 1;
 			t = tokenizer.ReadToken();
 		}
-		if (t.type != TOKEN_STRING)
+
+		if (t.type != TOKEN_STRING) {
 			return false;
+		}
 	} catch (std::exception& e) {
 		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
 		return false;
