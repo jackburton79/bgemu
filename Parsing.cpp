@@ -380,21 +380,14 @@ bool
 Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
 {
 	// Trigger name and modifier
-	token t;
-	try {
+	token t = tokenizer.ReadToken();
+	if (t.type == TOKEN_EXCLAMATION_MARK) {
+		node->flags = 1;
 		t = tokenizer.ReadToken();
-		if (t.type == TOKEN_EXCLAMATION_MARK) {
-			node->flags = 1;
-			t = tokenizer.ReadToken();
-		}
-
-		if (t.type != TOKEN_STRING) {
-			return false;
-		}
-	} catch (std::exception& e) {
-		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
-		return false;
 	}
+
+	if (t.type != TOKEN_STRING)
+		return false;
 
 	std::string triggerName = t.u.string;
 	node->id = GetTriggerID(triggerName);
@@ -466,11 +459,7 @@ Parser::_ReadNode(::node*& node)
 				} else {
 					// We found a nested block,
 					::node *newNode = NULL;
-					try {
-						_ReadNode(newNode);
-					} catch (...) {
-						// Finished
-					}
+					_ReadNode(newNode);
 					node->AddChild(newNode);
 				}
 			}
