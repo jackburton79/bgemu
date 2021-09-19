@@ -110,11 +110,7 @@ public:
 	Parser();
 	~Parser();
 	void SetTo(Stream *stream);
-
-	token ReadToken();
 	node* Read();
-	void PrintNode(node* n) const;
-	
 	void SetDebug(bool debug);
 
 	static std::vector<trigger_node*> TriggersFromString(const std::string& string);
