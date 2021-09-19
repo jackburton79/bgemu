@@ -273,16 +273,19 @@ Parser::ActionFromString(const std::string& string, action_node& node)
 }
 
 
-void
-Parser::Read(node*& rootNode)
+node*
+Parser::Read()
 {
+	node* rootNode = NULL;
 	try {
+		// allocates the node
 		_ReadNode(rootNode);
 	} catch (std::exception& except) {
 		std::cerr << Log::Red << "Parser::Read(): " << except.what() << std::endl;
 	} catch (...) {
 		std::cerr << Log::Red << "Parser::Read(): unknown exception" << std::endl;
 	}
+	return rootNode;
 }
 
 

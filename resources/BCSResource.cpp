@@ -48,8 +48,7 @@ BCSResource::GetScript() const
 		parser.SetTo(fData);
 
 		clock_t start = clock();
-		node* rootNode = NULL;
-		parser.Read(rootNode);
+		node* rootNode = parser.Read();
 		
 		std::cout << "Parsing script " << Name() << " took " << std::dec << clock() - start << " usecs!" << std::endl;
 		

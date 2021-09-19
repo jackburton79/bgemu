@@ -112,7 +112,7 @@ public:
 	void SetTo(Stream *stream);
 
 	token ReadToken();
-	void Read(node*& root);
+	node* Read();
 	void PrintNode(node* n) const;
 	
 	void SetDebug(bool debug);
