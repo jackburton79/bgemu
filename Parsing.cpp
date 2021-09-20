@@ -481,7 +481,7 @@ Parser::_ReadNode(::node*& node)
 void
 Parser::_ReadNodeValue(::node* node, const token& tok)
 {
-	if (node->value[0] != '\0')
+	if (node->Value()[0] != '\0')
 		strcat(node->value, " ");
 
 	if (tok.type == TOKEN_QUOTED_STRING) {
@@ -497,7 +497,7 @@ Parser::_ReadNodeValue(::node* node, const token& tok)
 void
 Parser::_FixNode(::node* node)
 {
-	StringStream stream(node->value);
+	StringStream stream(node->Value());
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
 	switch (node->type) {
