@@ -688,9 +688,23 @@ node::AddChild(node* child)
 
 
 node*
+node::Parent() const
+{
+	return parent;
+}
+
+
+node*
 node::Next() const
 {
 	return next;
+}
+
+
+const char*
+node::Value() const
+{
+	return value;
 }
 
 

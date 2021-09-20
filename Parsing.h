@@ -16,8 +16,10 @@ struct node {
 
 	virtual ~node();
 	void AddChild(node *child);
+	node* Parent() const;
 	node* Next() const;
-	node* Previous() const;
+
+	const char* Value() const;
 
 	virtual void Print() const;
 

@@ -87,7 +87,7 @@ Script::Print() const
 	node *nextNode = fRootNode;
 	while (nextNode != NULL) {
 		_PrintNode(nextNode);
-		nextNode = nextNode->next;
+		nextNode = nextNode->Next();
 	}
 }
 
@@ -121,8 +121,8 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 		if (n != NULL)
 			return n;
 	}
-	if (start->next != NULL)
-		return FindNode(object, nodeType, start->next);
+	if (start->Next() != NULL)
+		return FindNode(object, nodeType, start->Next());
 
 	return NULL;
 }
@@ -1354,14 +1354,14 @@ Script::_PrintNode(node* n) const
 	//IndentMore();
 	
 	if (n->type == BLOCK_TRIGGER) {
-		if (n->parent->children.front() == n)
+		if (n->Parent()->children.front() == n)
 			std::cout << "IF" << std::endl;
 		else
 			std::cout << "AND/OR" << std::endl;
 	} else if (n->type == BLOCK_ACTION) {
-		if (n->parent->children.front() == n) {
+		if (n->Parent()->children.front() == n) {
 			std::cout << "THEN" << std::endl;
-			std::cout << " (probability: " << ((response_node*)(n->parent))->probability << ")" << std::endl;
+			std::cout << " (probability: " << ((response_node*)(n->Parent()))->probability << ")" << std::endl;
 		}
 	}
 	if (n->type == BLOCK_TRIGGER || n->type == BLOCK_ACTION)
@@ -1383,8 +1383,8 @@ void
 Script::_DeleteNode(::node* node)
 {
 	if (node != NULL) {
-		if (node->next != NULL)
-			_DeleteNode(node->next);
+		if (node->Next() != NULL)
+			_DeleteNode(node->Next());
 		delete node;
 	}
 }
