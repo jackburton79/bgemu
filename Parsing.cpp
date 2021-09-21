@@ -426,12 +426,13 @@ Parser::_ReadNode(::node*& node)
 		token tok = fTokenizer->ReadToken();
 		int blockType =_BlockTypeFromToken(tok);
 		if (blockType != -1) {
+			// This is a block header tag: could be opening or closing tag
 			fTokenizer->RewindToken(tok);
 			if (blockType == node->type) {
 				// Means the block is open, and this is
 				// the closing tag. FixNode will copy the node values
 				// to the node specific values.
-				// _ReadElementGuard will do the rest.
+				// _ReadNodeHeader will do the rest.
 				_FixNode(node);
 				break;
 			} else {
@@ -460,7 +461,8 @@ Parser::_ReadNode(::node*& node)
 							sActionIndexHACK = 0;
 					}
 				} else {
-					// We found a nested block,
+					// We found a nested block:
+					// call ourselves recursively
 					::node *newNode = NULL;
 					_ReadNode(newNode);
 					node->AddChild(newNode);
