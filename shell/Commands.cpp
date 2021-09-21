@@ -164,16 +164,11 @@ public:
 		stringStream >> where.x >> o >> where.y >> o >> duration;
 		// TODO: We are leaking the actionParams
 		action_node* actionParams = new action_node;
-		//strcpy(actionParams->first.name, actor->Name());
-		//strcpy(actionParams->second.name, Name());
 		actionParams->integer1 = duration;
 		actionParams->where = where;
-		std::cout << "creating action" << std::endl;
 		RoomBase* room = Core::Get()->CurrentRoom();
 		Action* action = new ActionScreenShake(room, actionParams);
-		std::cout << "Adding action" << std::endl;
 		room->AddAction(action);
-		std::cout << "end" << std::endl;
 	}
 };
 
