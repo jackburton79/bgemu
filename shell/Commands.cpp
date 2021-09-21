@@ -13,8 +13,10 @@
 #include "Game.h"
 #include "GUI.h"
 #include "InputConsole.h"
+#include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
+#include "RoomBase.h"
 #include "Timer.h"
 
 #include <iostream>
@@ -149,7 +151,7 @@ public:
 		Core::Get()->AddGlobalAction(action);
 	}
 };
-
+#endif
 
 class ShakeScreenCommand : public ShellCommand {
 public:
@@ -160,12 +162,22 @@ public:
 		int duration;
 		char o;
 		stringStream >> where.x >> o >> where.y >> o >> duration;
-		Action* action = new ScreenShake(NULL, where, duration);
-		Core::Get()->AddGlobalAction(action);
+		// TODO: We are leaking the actionParams
+		action_node* actionParams = new action_node;
+		//strcpy(actionParams->first.name, actor->Name());
+		//strcpy(actionParams->second.name, Name());
+		actionParams->integer1 = duration;
+		actionParams->where = where;
+		std::cout << "creating action" << std::endl;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionScreenShake(room, actionParams);
+		std::cout << "Adding action" << std::endl;
+		room->AddAction(action);
+		std::cout << "end" << std::endl;
 	}
 };
 
-
+#if 0
 class DisplayStringCommand : public ShellCommand {
 public:
 	DisplayStringCommand() : ShellCommand("display-string") {};
@@ -203,10 +215,10 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ExitCommand());
+	console->AddCommand(new ShakeScreenCommand());
 #if 0
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new MoveViewPointCommand());
-	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new DisplayStringCommand());
 #endif
 }
