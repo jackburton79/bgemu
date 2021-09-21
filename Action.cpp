@@ -32,7 +32,7 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 
 
 
-Action::Action(Object* object, action_node* node)
+Action::Action(Object* object, action_params* node)
     :
 	fObject(object),
 	fActionParams(node),
@@ -102,7 +102,7 @@ Action::Name() const
 
 
 // SetGlobalAction
-ActionSetGlobal::ActionSetGlobal(Object* object, action_node* node)
+ActionSetGlobal::ActionSetGlobal(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -129,7 +129,7 @@ ActionSetGlobal::operator()()
 
 
 // CreateCreatureAction
-ActionCreateCreature::ActionCreateCreature(Object* object, action_node* node)
+ActionCreateCreature::ActionCreateCreature(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -161,7 +161,7 @@ ActionCreateCreature::operator()()
 
 
 // CreateCreatureImpassableAction
-ActionCreateCreatureImpassable::ActionCreateCreatureImpassable(Object* object, action_node* node)
+ActionCreateCreatureImpassable::ActionCreateCreatureImpassable(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -186,7 +186,7 @@ ActionCreateCreatureImpassable::operator()()
 
 
 // TriggerActivationAction
-ActionTriggerActivation::ActionTriggerActivation(Object* object, action_node* node)
+ActionTriggerActivation::ActionTriggerActivation(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -205,7 +205,7 @@ ActionTriggerActivation::operator()()
 
 
 // ActionUnlock
-ActionUnlock::ActionUnlock(Object* object, action_node* node)
+ActionUnlock::ActionUnlock(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -231,7 +231,7 @@ ActionUnlock::operator()()
 
 
 // DestroySelfAction
-ActionDestroySelf::ActionDestroySelf(Object* object, action_node* node)
+ActionDestroySelf::ActionDestroySelf(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -251,7 +251,7 @@ ActionDestroySelf::operator()()
 
 
 // ForceSpell
-ActionForceSpell::ActionForceSpell(Object* object, action_node* node)
+ActionForceSpell::ActionForceSpell(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fDuration(50)
@@ -295,7 +295,7 @@ ActionForceSpell::operator()()
 
 
 // MoveBetweenAreasEffect
-ActionMoveBetweenAreasEffect::ActionMoveBetweenAreasEffect(Object* object, action_node* node)
+ActionMoveBetweenAreasEffect::ActionMoveBetweenAreasEffect(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -320,7 +320,7 @@ ActionMoveBetweenAreasEffect::operator()()
 
 
 // PlayDeadAction
-ActionPlayDead::ActionPlayDead(Object* object, action_node* node)
+ActionPlayDead::ActionPlayDead(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -348,7 +348,7 @@ ActionPlayDead::operator()()
 
 
 // SetInterruptableAction
-ActionSetInterruptable::ActionSetInterruptable(Object* object, action_node* node)
+ActionSetInterruptable::ActionSetInterruptable(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -367,7 +367,7 @@ ActionSetInterruptable::operator()()
 
 
 // WalkTo
-ActionWalkTo::ActionWalkTo(Object* object, action_node* node, bool canInterrupt)
+ActionWalkTo::ActionWalkTo(Object* object, action_params* node, bool canInterrupt)
 	:
 	Action(object, node),
 	fInterruptable(canInterrupt)
@@ -395,7 +395,7 @@ ActionWalkTo::operator()()
 
 
 // WalkToObject
-ActionWalkToObject::ActionWalkToObject(Object* object, action_node* node)
+ActionWalkToObject::ActionWalkToObject(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -432,7 +432,7 @@ ActionWalkToObject::operator()()
 }
 
 // RandomFly
-ActionRandomFly::ActionRandomFly(Object* object, action_node* node)
+ActionRandomFly::ActionRandomFly(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -461,7 +461,7 @@ ActionRandomFly::operator()()
 
 
 // FlyTo
-ActionFlyTo::ActionFlyTo(Object* object, action_node* node)
+ActionFlyTo::ActionFlyTo(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -493,7 +493,7 @@ ActionFlyTo::operator()()
 
 
 // IncrementGlobal
-ActionIncrementGlobal::ActionIncrementGlobal(Object* object, action_node* node)
+ActionIncrementGlobal::ActionIncrementGlobal(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -515,7 +515,7 @@ ActionIncrementGlobal::operator()()
 
 
 // RandomWalk
-ActionRandomWalk::ActionRandomWalk(Object* object, action_node* node)
+ActionRandomWalk::ActionRandomWalk(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -543,7 +543,7 @@ ActionRandomWalk::operator()()
 
 
 // Wait
-ActionWait::ActionWait(Object* object, action_node* node)
+ActionWait::ActionWait(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fWaitTime(0)
@@ -569,7 +569,7 @@ ActionWait::operator()()
 
 
 // SmallWait
-ActionSmallWait::ActionSmallWait(Object* object, action_node* node)
+ActionSmallWait::ActionSmallWait(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fWaitTime(0)
@@ -600,7 +600,7 @@ ActionSmallWait::operator()()
 
 
 // OpenDoor
-ActionOpenDoor::ActionOpenDoor(Object* sender, action_node* node)
+ActionOpenDoor::ActionOpenDoor(Object* sender, action_params* node)
 	:
 	Action(sender, node)
 {
@@ -636,7 +636,7 @@ ActionOpenDoor::operator()()
 
 
 // DisplayMessage
-ActionDisplayMessage::ActionDisplayMessage(Object* sender, action_node* node)
+ActionDisplayMessage::ActionDisplayMessage(Object* sender, action_params* node)
 	:
 	Action(sender, node)
 {
@@ -656,7 +656,7 @@ ActionDisplayMessage::operator()()
 
 
 // PlayMovie
-ActionPlayMovie::ActionPlayMovie(Object* object, action_node* node)
+ActionPlayMovie::ActionPlayMovie(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -673,7 +673,7 @@ ActionPlayMovie::operator()()
 
 
 // Attack
-ActionAttack::ActionAttack(Object* object, action_node* node)
+ActionAttack::ActionAttack(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -710,7 +710,7 @@ ActionAttack::operator()()
 
 
 // RunAwayFrom
-ActionRunAwayFrom::ActionRunAwayFrom(Object* object, action_node* node)
+ActionRunAwayFrom::ActionRunAwayFrom(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -771,7 +771,7 @@ ActionRunAwayFrom::PointAway(Actor* actor, Actor* target)
 
 
 // DialogAction
-ActionDialog::ActionDialog(Object* source, action_node* node)
+ActionDialog::ActionDialog(Object* source, action_params* node)
 	:
 	Action(source, node)
 {
@@ -824,7 +824,7 @@ ActionDialog::operator()()
 
 
 // ActionSetEnemyAlly
-ActionSetEnemyAlly::ActionSetEnemyAlly(Object* actor, action_node* node)
+ActionSetEnemyAlly::ActionSetEnemyAlly(Object* actor, action_params* node)
 	:
 	Action(actor, node)
 {
@@ -845,7 +845,7 @@ ActionSetEnemyAlly::operator()()
 
 
 // FadeToColorAction
-ActionFadeToColor::ActionFadeToColor(Object* object, action_node* node)
+ActionFadeToColor::ActionFadeToColor(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fCurrentValue(0),
@@ -877,7 +877,7 @@ ActionFadeToColor::operator()()
 
 
 // FadeFromColorAction
-ActionFadeFromColor::ActionFadeFromColor(Object* object, action_node* node)
+ActionFadeFromColor::ActionFadeFromColor(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fCurrentValue(0),
@@ -909,7 +909,7 @@ ActionFadeFromColor::operator()()
 
 
 // MoveViewPoint
-ActionMoveViewPoint::ActionMoveViewPoint(Object* object, action_node* node)
+ActionMoveViewPoint::ActionMoveViewPoint(Object* object, action_params* node)
 	:
 	Action(object, node),
 	fScrollSpeed(10000)
@@ -971,7 +971,7 @@ ActionMoveViewPoint::operator()()
 }
 
 
-ActionScreenShake::ActionScreenShake(Object* object, action_node* node)
+ActionScreenShake::ActionScreenShake(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1009,7 +1009,7 @@ ActionScreenShake::operator()()
 
 
 // StartCutsceneModeAction
-ActionStartCutsceneMode::ActionStartCutsceneMode(Object* object, action_node* node)
+ActionStartCutsceneMode::ActionStartCutsceneMode(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1028,7 +1028,7 @@ ActionStartCutsceneMode::operator()()
 
 
 // EndCutsceneModeAction
-ActionEndCutsceneMode::ActionEndCutsceneMode(Object* object, action_node* node)
+ActionEndCutsceneMode::ActionEndCutsceneMode(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1047,7 +1047,7 @@ ActionEndCutsceneMode::operator()()
 
 
 // ActionClearAllActions
-ActionClearAllActions::ActionClearAllActions(Object* object, action_node* node)
+ActionClearAllActions::ActionClearAllActions(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1064,7 +1064,7 @@ ActionClearAllActions::operator()()
 
 
 // ActionSetGlobalTimer
-ActionSetGlobalTimer::ActionSetGlobalTimer(Object* object, action_node* node)
+ActionSetGlobalTimer::ActionSetGlobalTimer(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1085,7 +1085,7 @@ ActionSetGlobalTimer::operator()()
 
 
 // ActionStartCutscene
-ActionStartCutscene::ActionStartCutscene(Object* object, action_node* node)
+ActionStartCutscene::ActionStartCutscene(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1104,7 +1104,7 @@ ActionStartCutscene::operator()()
 
 
 // HideGUIAction
-ActionHideGUI::ActionHideGUI(Object* object, action_node* node)
+ActionHideGUI::ActionHideGUI(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1123,7 +1123,7 @@ ActionHideGUI::operator()()
 
 
 // UnhideGUIAction
-ActionUnhideGUI::ActionUnhideGUI(Object* object, action_node* node)
+ActionUnhideGUI::ActionUnhideGUI(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1141,7 +1141,7 @@ ActionUnhideGUI::operator()()
 }
 
 
-ActionDisplayString::ActionDisplayString(Object* object, action_node* node)
+ActionDisplayString::ActionDisplayString(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1164,7 +1164,7 @@ ActionDisplayString::operator()()
 }
 
 
-ActionDisplayStringHead::ActionDisplayStringHead(Object* object, action_node* node)
+ActionDisplayStringHead::ActionDisplayStringHead(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1200,7 +1200,7 @@ ActionDisplayStringHead::operator()()
 
 
 // ChangeOrientationExtAction
-ActionChangeOrientationExt::ActionChangeOrientationExt(Object* object, action_node* node)
+ActionChangeOrientationExt::ActionChangeOrientationExt(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1219,7 +1219,7 @@ ActionChangeOrientationExt::operator()()
 
 
 // FaceObject
-ActionFaceObject::ActionFaceObject(Object* object, action_node* node)
+ActionFaceObject::ActionFaceObject(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1248,7 +1248,7 @@ ActionFaceObject::operator()()
 
 
 // CreateVisualEffect
-ActionCreateVisualEffect::ActionCreateVisualEffect(Object* object, action_node* node)
+ActionCreateVisualEffect::ActionCreateVisualEffect(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
@@ -1265,7 +1265,7 @@ ActionCreateVisualEffect::operator()()
 
 
 // CreateVisualEffectObject
-ActionCreateVisualEffectObject::ActionCreateVisualEffectObject(Object* object, action_node* node)
+ActionCreateVisualEffectObject::ActionCreateVisualEffectObject(Object* object, action_params* node)
 	:
 	Action(object, node)
 {

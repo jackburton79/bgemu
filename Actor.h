@@ -122,7 +122,7 @@ public:
 	void SetText(const std::string& string);
 	std::string Text() const;
 
-	bool EvaluateDialogTriggers(std::vector<trigger_node*>& triggers);
+	bool EvaluateDialogTriggers(std::vector<trigger_params*>& triggers);
 
 	static bool PointPassableTrue(const IE::point& point) { return true; };
 

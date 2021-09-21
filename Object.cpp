@@ -370,7 +370,7 @@ Object::HasTrigger(const std::string& trigName) const
 
 
 bool
-Object::HasTrigger(const std::string& trigName, trigger_node* triggerNode) const
+Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) const
 {
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)

@@ -93,18 +93,18 @@ Script::Print() const
 
 
 /* static */
-trigger_node*
+trigger_params*
 Script::FindTriggerNode(Object* object, node* start)
 {
-	return static_cast<trigger_node*>(FindNode(object, BLOCK_TRIGGER, start));
+	return static_cast<trigger_params*>(FindNode(object, BLOCK_TRIGGER, start));
 }
 
 
 /* static */
-action_node*
+action_params*
 Script::FindActionNode(Object* object, node* start)
 {
-	return static_cast<action_node*>(FindNode(object, BLOCK_ACTION, start));
+	return static_cast<action_params*>(FindNode(object, BLOCK_ACTION, start));
 }
 
 
@@ -130,7 +130,7 @@ Script::FindNode(const Object* object, block_type nodeType, node* start)
 
 /* static */
 Object*
-Script::GetTriggerObject(const Object* object, trigger_node* start)
+Script::GetTriggerObject(const Object* object, trigger_params* start)
 {
 	object_params* objectNode = start->Object();
 	if (objectNode == NULL)
@@ -141,7 +141,7 @@ Script::GetTriggerObject(const Object* object, trigger_node* start)
 
 /* static */
 Object*
-Script::GetSenderObject(const Object* object, action_node* start)
+Script::GetSenderObject(const Object* object, action_params* start)
 {
 	/*std::cout << "FindSenderObject: objects:" << std::endl;
 	start->First()->Print();
@@ -170,7 +170,7 @@ Script::GetSenderObject(const Object* object, action_node* start)
 
 
 Object*
-Script::GetTargetObject(const Object* object, action_node* start)
+Script::GetTargetObject(const Object* object, action_params* start)
 {
 	if (sDebug)
 		std::cout << "*** FindTargetObject:" << std::endl;
@@ -398,7 +398,7 @@ Script::GetObject(const Object* source, object_params* node)
 bool
 Script::_EvaluateConditionNode(node* conditionNode)
 {
-	trigger_node* trig = FindTriggerNode(fSender, conditionNode);
+	trigger_params* trig = FindTriggerNode(fSender, conditionNode);
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;
 	while (trig != NULL) {
@@ -412,7 +412,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 			if (!blockEvaluation)
 				break;
 		}
-		trig = static_cast<trigger_node*>(trig->Next());
+		trig = static_cast<trigger_params*>(trig->Next());
 	}
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER BLOCK returned ";
@@ -426,7 +426,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 // TODO: move this to Object ?
 /* static*/
 bool
-Script::EvaluateTrigger(Object* sender, trigger_node* trig, int& orTrigger)
+Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 {
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER ",
@@ -906,7 +906,7 @@ Script::_HandleResponseSet(node* responseSet)
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, i);
-	action_node* action = FindActionNode(fSender, responses[randomResponse]);
+	action_params* action = FindActionNode(fSender, responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
 		// When _HandleAction() returns false,
@@ -915,14 +915,14 @@ Script::_HandleResponseSet(node* responseSet)
 			//std::cout << "Continuing. Script returns" << std::endl;
 			return false;
 		}
-		action = static_cast<action_node*>(action->Next());
+		action = static_cast<action_params*>(action->Next());
 	}
 	return true;
 }
 
 
 Action*
-Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
+Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 {
 	Action* action = NULL;
 	switch (act->id) {
@@ -1306,7 +1306,7 @@ Script::_GetAction(Object* sender, action_node* act, bool& isContinue)
 
 
 bool
-Script::_HandleAction(action_node* act)
+Script::_HandleAction(action_params* act)
 {
 	Object* sender = Script::GetSenderObject(fSender, act);
 	if (sDebug) {

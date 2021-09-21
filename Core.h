@@ -10,9 +10,9 @@
 #include <map>
 #include <string>
 
-struct action_node;
+struct action_params;
 struct node;
-struct trigger_node;
+struct trigger_params;
 
 enum game {
 	GAME_BALDURSGATE,

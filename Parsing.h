@@ -62,7 +62,7 @@ struct object_params {
 };
 
 
-struct trigger_node : public node {
+struct trigger_params : public node {
 	virtual void Print() const;
 	object_params* Object();
 	int id;
@@ -74,11 +74,11 @@ struct trigger_node : public node {
 	char string2[48];
 	object_params object;
 
-	trigger_node();
+	trigger_params();
 };
 
 
-struct action_node : public node {
+struct action_params : public node {
 	virtual void Print() const;
 	object_params* First();
 	object_params* Second();
@@ -94,7 +94,7 @@ struct action_node : public node {
 	object_params second;
 	object_params third;
 
-	action_node();
+	action_params();
 };
 
 
@@ -115,9 +115,9 @@ public:
 	node* Read();
 	void SetDebug(bool debug);
 
-	static std::vector<trigger_node*> TriggersFromString(const std::string& string);
-	static trigger_node* TriggerFromString(const std::string& string);
-	static bool ActionFromString(const std::string& string, action_node& node);
+	static std::vector<trigger_params*> TriggersFromString(const std::string& string);
+	static trigger_params* TriggerFromString(const std::string& string);
+	static bool ActionFromString(const std::string& string, action_params& node);
 
 private:
 	Parser(const Parser&);
@@ -133,7 +133,7 @@ private:
 
 	static void _ReadObjectBlock(Tokenizer *tokenizer, object_params& obj);
 
-	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* triggerNode);
+	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* triggerNode);
 	
 	void _FixNode(::node *node);
 

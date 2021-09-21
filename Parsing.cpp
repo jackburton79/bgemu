@@ -48,7 +48,7 @@ class TriggerParameters {
 class ParameterExtractor {
 public:
 	ParameterExtractor(Tokenizer& tokenizer);
-	token _ExtractNextParameter(::trigger_node* triggerNode,
+	token _ExtractNextParameter(::trigger_params* triggerNode,
 								Parameter& parameter);
 private:
 	Tokenizer& fTokenizer;
@@ -136,14 +136,14 @@ Parser::SetDebug(bool debug)
 
 
 /* static */
-std::vector<trigger_node*>
+std::vector<trigger_params*>
 Parser::TriggersFromString(const std::string& string)
 {
 	std::string localString = string;
-	std::vector<trigger_node*> triggerList;
+	std::vector<trigger_params*> triggerList;
 	if (!string.empty()) {
 		while (true) {
-			trigger_node* triggerNode = TriggerFromString(localString);
+			trigger_params* triggerNode = TriggerFromString(localString);
 			if (triggerNode != NULL)
 				triggerList.push_back(triggerNode);
 			size_t endLine = localString.find('\n');
@@ -228,11 +228,11 @@ GetFunctionParameters(std::string functionString)
 
 
 /* static */
-trigger_node*
+trigger_params*
 Parser::TriggerFromString(const std::string& string)
 {
 	std::cout << "TriggerFromString()" << std::endl;
-	trigger_node* node = new trigger_node();
+	trigger_params* node = new trigger_params();
 	node->type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
@@ -267,7 +267,7 @@ Parser::TriggerFromString(const std::string& string)
 
 /* static */
 bool
-Parser::ActionFromString(const std::string& string, action_node& node)
+Parser::ActionFromString(const std::string& string, action_params& node)
 {
 	return false;
 }
@@ -293,7 +293,7 @@ Parser::Read()
 void
 Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
 {
-	trigger_node* trig = dynamic_cast<trigger_node*>(node);
+	trigger_params* trig = dynamic_cast<trigger_params*>(node);
 	if (trig) {
 		trig->id = tokenizer->ReadToken().u.number;
 		trig->parameter1 = tokenizer->ReadToken().u.number;
@@ -349,7 +349,7 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 void
 Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
 {
-	action_node* act = dynamic_cast<action_node*>(node);
+	action_params* act = dynamic_cast<action_params*>(node);
 	if (act) {
 		act->id = tokenizer->ReadToken().u.number;
 		act->integer1 = tokenizer->ReadToken().u.number;
@@ -380,7 +380,7 @@ Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
 
 /* static */
 bool
-Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_node* node)
+Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 {
 	// Trigger name and modifier
 	token t = tokenizer.ReadToken();
@@ -440,11 +440,11 @@ Parser::_ReadNode(::node*& node)
 				// so we handle them differently
 				if (blockType == BLOCK_OBJECT) {
 					if (node->type == BLOCK_TRIGGER) {
-						trigger_node* trig = dynamic_cast<trigger_node*>(node);
+						trigger_params* trig = dynamic_cast<trigger_params*>(node);
 						_ReadObjectBlock(fTokenizer, trig->object);
 					} else if (node->type == BLOCK_ACTION) {
 						// TODO: Horrible hack
-						action_node* act = dynamic_cast<action_node*>(node);
+						action_params* act = dynamic_cast<action_params*>(node);
 						object_params* destObjectParams = NULL;
 						if (sActionIndexHACK == 0)
 							destObjectParams = &act->first;
@@ -554,7 +554,7 @@ ParameterExtractor::ParameterExtractor(Tokenizer& tokenizer)
 
 
 token
-ParameterExtractor::_ExtractNextParameter(::trigger_node* node,
+ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 								Parameter& parameter)
 {
 	// TODO: horrible, complex code. Improve, refactor
@@ -633,13 +633,13 @@ node::Create(int type, const char *string)
 	node* newNode = NULL;
 	switch (type) {
 		case BLOCK_TRIGGER:
-			newNode = new trigger_node;
+			newNode = new trigger_params;
 			break;
 		case BLOCK_OBJECT:
 			throw std::runtime_error("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
 			break;
 		case BLOCK_ACTION:
-			newNode = new action_node;
+			newNode = new action_params;
 			break;
 		case BLOCK_RESPONSE:
 			newNode = new response_node;
@@ -724,7 +724,7 @@ operator==(const node &a, const node &b)
 
 
 // trigger
-trigger_node::trigger_node()
+trigger_params::trigger_params()
 	:
 	id(0),
 	parameter1(0),
@@ -738,7 +738,7 @@ trigger_node::trigger_node()
 
 
 void
-trigger_node::Print() const
+trigger_params::Print() const
 {
 	if (flags)
 		std::cout << "!";
@@ -753,7 +753,7 @@ trigger_node::Print() const
 
 
 object_params*
-trigger_node::Object()
+trigger_params::Object()
 {
 	return &object;
 }
@@ -843,7 +843,7 @@ object_params::Empty() const
 
 
 // action
-action_node::action_node()
+action_params::action_params()
 	:
 	id(0),
 	integer1(0),
@@ -857,7 +857,7 @@ action_node::action_node()
 
 
 void
-action_node::Print() const
+action_params::Print() const
 {
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
@@ -876,21 +876,21 @@ action_node::Print() const
 
 
 object_params*
-action_node::First()
+action_params::First()
 {
 	return &first;
 }
 
 
 object_params*
-action_node::Second()
+action_params::Second()
 {
 	return &second;
 }
 
 
 object_params*
-action_node::Third()
+action_params::Third()
 {
 	return &third;
 }

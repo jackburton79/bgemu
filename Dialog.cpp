@@ -47,7 +47,7 @@ DialogHandler::GetNextValidState()
 		fState = _GetNextState();
 		if (fState == NULL)
 			break;
-		std::vector<trigger_node*> triggerList = Parser::TriggersFromString(fState->Trigger());
+		std::vector<trigger_params*> triggerList = Parser::TriggersFromString(fState->Trigger());
 		std::cout << "GetNextValidState: Checking triggers... " << std::endl;
 		if (triggerList.size() == 0) {
 			std::cout << "GetNextValidState: no trigger found." << std::endl;

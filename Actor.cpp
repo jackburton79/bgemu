@@ -725,7 +725,7 @@ Actor::ClickedOn(Object* target)
 		// TODO: this screams for improvements:
 		// no way we have to do all this just to add an action.
 		// Plus, we're leaking the action node
-		action_node* actionParams = new action_node;
+		action_params* actionParams = new action_params;
 		strcpy(actionParams->first.name, actor->Name());
 		strcpy(actionParams->second.name, Name());
 		Action* dialogAction = new ActionDialog(this, actionParams);
@@ -1069,7 +1069,7 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 
 
 bool
-Actor::EvaluateDialogTriggers(std::vector<trigger_node*>& triggers)
+Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 {
 	bool debug = 0;
 #if 1
@@ -1081,10 +1081,10 @@ Actor::EvaluateDialogTriggers(std::vector<trigger_node*>& triggers)
 	if (debug)
 		std::cout << "IF ";
 
-	for (std::vector<trigger_node*>::iterator i = triggers.begin();
+	for (std::vector<trigger_params*>::iterator i = triggers.begin();
 			i != triggers.end(); i++) {
 		int orTrig = 0;
-		trigger_node* triggerNode = *i;
+		trigger_params* triggerNode = *i;
 		if (debug)
 			triggerNode->Print();
 		if (!Script::EvaluateTrigger(this, triggerNode, orTrig))

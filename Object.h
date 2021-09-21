@@ -51,7 +51,7 @@ private:
 
 
 struct object_params;
-struct trigger_node;
+struct trigger_params;
 class Action;
 class Actor;
 class Region;
@@ -107,7 +107,7 @@ public:
 
 	void AddTrigger(const trigger_entry& entry);
 	bool HasTrigger(const std::string& trigName) const;
-	bool HasTrigger(const std::string& trigName, trigger_node* triggerNode) const;
+	bool HasTrigger(const std::string& trigName, trigger_params* triggerNode) const;
 	Object* FindTrigger(const std::string& trigName) const;
 	Object* LastTrigger() const;
 

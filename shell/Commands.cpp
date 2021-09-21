@@ -163,7 +163,7 @@ public:
 		char o;
 		stringStream >> where.x >> o >> where.y >> o >> duration;
 		// TODO: We are leaking the actionParams
-		action_node* actionParams = new action_node;
+		action_params* actionParams = new action_params;
 		actionParams->integer1 = duration;
 		actionParams->where = where;
 		RoomBase* room = Core::Get()->CurrentRoom();
