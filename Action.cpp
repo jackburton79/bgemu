@@ -19,6 +19,7 @@
 #include "TLKResource.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cxxabi.h>
 #include <typeinfo>
 
@@ -38,6 +39,7 @@ Action::Action(Object* object, action_node* node)
 	fInitiated(false),
 	fCompleted(false)
 {
+	assert(fObject != NULL);
 	fObject->Acquire();
 }
 
