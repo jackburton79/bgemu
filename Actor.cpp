@@ -724,13 +724,10 @@ Actor::ClickedOn(Object* target)
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		// TODO: this screams for improvements:
 		// no way we have to do all this just to add an action.
-		// Plus, we're probably leaking the action node
+		// Plus, we're leaking the action node
 		action_node* actionParams = new action_node;
-		object_params sender;
 		strcpy(actionParams->first.name, actor->Name());
-		object_params targetNode;
 		strcpy(actionParams->second.name, Name());
-
 		Action* dialogAction = new ActionDialog(this, actionParams);
 		AddAction(dialogAction);
 	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
