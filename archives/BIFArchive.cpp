@@ -24,7 +24,7 @@ BIFArchive::BIFArchive(const char *fileName)
 	signature[8] = '\0';
 	fStream->Read(signature, 8);
 		
-	if (!strcmp(signature, BIFC_SIGNATURE)) {
+	if (::strcmp(signature, BIFC_SIGNATURE) == 0) {
 		Stream *tmpStream = fStream;
 
 		uint32 uncompressedSize;
@@ -43,18 +43,15 @@ BIFArchive::BIFArchive(const char *fileName)
 		
 		if (done != uncompressedSize) {
 			delete fStream;
-			throw -1;
+			throw std::runtime_error("BIFArchive::BIFArchive(): deflate error!");
 		}
 
 		fStream->Seek(0, SEEK_SET);
 		fStream->Read(signature, 8);
 	}
 
-	if (strcmp(signature, BIF_SIGNATURE)) {
-		std::cerr << "BIFArchive::BIFArchive: Unknown archive signature ";
-		std::cerr << signature << std::endl;
-		throw -1;
-	}
+	if (::strcmp(signature, BIF_SIGNATURE) != 0)
+		throw std::runtime_error("BIFArchive::BIFArchive(): invalid signature!");
 
 	// if we're here: either the file was a compressed BIFF file and we
 	// uncompressed it, so we have a normal BIF file, or it was already
