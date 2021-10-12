@@ -13,13 +13,14 @@ Only partially functional. Can load areas, actors, run internal scripts, etc.
 
 To run, you need game files from an infinity engine based game (Baldur's Gate, Baldur's Gate 2, etc) 
 
- ./BGEmu --path=<path-to-game>
-  
+ ./BGEmu --path=\<path-to-game\>
+
+<pre>
 commandline options:
   --no-newgame      Don't start a new game
   --test            Star in test mode
   -gNNNxNNN         Select windows size (example: -g1024x768)
   -f                Start in fullscreen mode
   --no-scripts      Don't run scripts
-  
+</pre>  
 In the tests folder there is also a test application for the path finding algorithm (which needs more work)
