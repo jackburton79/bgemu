@@ -727,7 +727,8 @@ AreaRoom::_DrawActors()
 		try {
 			actor->Draw(this, fBackMap->Image());
 		} catch (std::exception& ex) {
-			std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
+			// TODO: too much spam
+			//std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
 			continue;
 		}
 	}
