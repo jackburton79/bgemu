@@ -133,7 +133,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 		factory->Acquire();
 	} else {
 		std::cerr << Log::Red << "No animation factory " << baseName;
-		std::cerr << " (0x" << std::hex << animationID << ")" << std::endl;
+		std::cerr << " (0x" << std::hex << animationID << ")" << Log::Normal << std::endl;
 	}
 	return factory;
 }
