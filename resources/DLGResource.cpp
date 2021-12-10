@@ -96,19 +96,31 @@ DLGResource::Load(Archive* archive, uint32 key)
 	return true;
 }
 
+#define TRIGGER_LENGTH 64
 
 std::string
 DLGResource::GetStateTrigger(int triggerIndex)
 {
+	if ((size_t)triggerIndex >= fStateTriggersNum) {
+		std::cerr << "trigger out of range" << std::endl;
+		return "";
+	}
+
 	state_trigger stateTrigger;
 	uint32 offset = fStateTriggersTableOffset
 			+ triggerIndex * sizeof(state_trigger);
 	fData->Seek(offset, SEEK_SET);
 	fData->Read(stateTrigger);
 
-	char triggerData[64];
+	if (stateTrigger.length > TRIGGER_LENGTH) {
+		std::cerr << "trigger length too big" << std::endl;
+		return "";
+	}
+
+	char triggerData[TRIGGER_LENGTH];
 	fData->ReadAt(stateTrigger.offset, triggerData, stateTrigger.length);
 	triggerData[stateTrigger.length] = '\0';
+
 	std::string string = triggerData;
 	return string;
 }
