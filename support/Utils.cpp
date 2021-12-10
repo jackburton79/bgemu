@@ -80,17 +80,6 @@ fopen_case(const char* filename, const char* flags)
 
 
 const char*
-leaf(const char *path)
-{
-	if (path == NULL)
-		return NULL;
-
-	const char* leafPointer = ::strrchr(path, '/');
-	return leafPointer != NULL ? leafPointer : path;
-}
-
-
-const char*
 extension(const char* path)
 {
 	if (path == NULL)
