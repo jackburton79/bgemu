@@ -561,7 +561,7 @@ struct text_edit : public control {
 	uint16 text_edit_y;
 	uint32 parent_control_id;
 	res_ref font_bam;
-	uint16 unk;
+	uint16 unk_textedit;
 	char initial_text[32];
 	uint16 max_length;
 	uint32 case_flags;
