@@ -11,7 +11,9 @@ DirectoryArchive::DirectoryArchive(const char *path)
 	fPath(path)
 {
 	// TODO: This should work case insensitively
+#if 0
 	std::cout << "DirectoryArchive: " << path << std::endl;
+#endif
 	fDir = ::opendir(path);
 	if (fDir == NULL) {
 		throw std::runtime_error(::strerror(errno));

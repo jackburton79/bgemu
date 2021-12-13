@@ -7,7 +7,9 @@ PlainFileArchive::PlainFileArchive(const char *path)
 	:
 	fFile(NULL)
 {
+#if 0
 	std::cout << "PlainFileArchive: " << path << std::endl;
+#endif
 	fFile = new FileStream(path, FileStream::READ_ONLY | FileStream::IGNORE_CASE);
 }
 

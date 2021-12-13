@@ -17,7 +17,9 @@ BIFArchive::BIFArchive(const char *fileName)
 	:
 	fStream(NULL)
 {
+#if 0
 	std::cout << "BIFArchive: " << fileName << std::endl;
+#endif
 	fStream = new FileStream(fileName, FileStream::READ_ONLY | FileStream::IGNORE_CASE);
 	
 	char signature[9];
