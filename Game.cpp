@@ -240,7 +240,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		GraphicsEngine::Get()->Update();
 		
 		sFrames++;
-		Timer::WaitSync(startTicks, 35);
+		Timer::WaitSync(startTicks, 40);
 	}
 
 	std::cout << "Game: Input loop stopped." << std::endl;
