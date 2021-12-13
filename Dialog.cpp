@@ -236,7 +236,6 @@ DialogHandler::_GetNextState()
 
 	fNextStateIndex++;
 
-	std::cout << "Get Transitions..." << std::endl;
 	// Get Transitions for this state
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
 		DialogHandler::Transition transition = _GetTransition(fState->TransitionIndex() + i);

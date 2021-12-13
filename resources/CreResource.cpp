@@ -359,8 +359,8 @@ CREResource::ItemAtSlot(uint32 i)
 	uint16 itemOffset;
 	fData->ReadAt(fItemSlotOffset + i * sizeof(itemOffset), itemOffset);
 
-	std::cout << "item at slot " << std::dec << i;
-	std::cout << " :" << std::dec << itemOffset << std::endl;
+	//std::cout << "item at slot " << std::dec << i;
+	//std::cout << " :" << std::dec << itemOffset << std::endl;
 
 	// TODO: number 38 is a dword instead. Handle that case
 	if ((int16)itemOffset == -1)

@@ -50,7 +50,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		// Armor
 		// TODO: Improve
 		std::string armorAnimation = actor->ArmorType();
-		std::cout << armorAnimation << std::endl;
+		//std::cout << armorAnimation << std::endl;
 		// TODO: Correct ? Fighters seems always to have full plate
 		if (description.bam_name[3] == 'F')
 			description.bam_name.append("4");
@@ -89,8 +89,9 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		description.mirror = true;
 		description.sequence_number -= (o - 8) * 2;
 	}
-
+#if 0
 	std::cout << description.bam_name << std::endl;
+#endif
 	return description;
 }
 
