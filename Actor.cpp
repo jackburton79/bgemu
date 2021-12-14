@@ -357,6 +357,7 @@ Actor::Draw(AreaRoom* room, ::Bitmap* image) const
 	room->DrawBitmap(Bitmap(), actorPosition, true);
 
 	_DrawActorText(room);
+	_DrawActorName(room);
 }
 
 
@@ -375,6 +376,26 @@ Actor::_DrawActorText(AreaRoom* room) const
 		font->RenderString(text, 0, bitmap, true, rect);
 		IE::point textPoint = Position();
 		textPoint.y -= 100;
+		room->DrawBitmap(bitmap, textPoint, false);
+		bitmap->Release();
+	}
+}
+
+
+void
+Actor::_DrawActorName(AreaRoom* room) const
+{
+	std::string text = Name();
+	if (!text.empty()) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		uint16 height;
+		uint16 stringWidth = font->StringWidth(text, &height);
+		::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
+		// Pre-render the string to a bitmap
+		GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+		font->RenderString(text, 0, bitmap, true, rect);
+		IE::point textPoint = Position();
+		textPoint.y += 30;
 		room->DrawBitmap(bitmap, textPoint, false);
 		bitmap->Release();
 	}

@@ -166,6 +166,7 @@ private:
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _DrawActorText(AreaRoom* room) const;
+	void _DrawActorName(AreaRoom* room) const;
 	void _DrawCircle(AreaRoom* room, ::Bitmap* image) const;
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
