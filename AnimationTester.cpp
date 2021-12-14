@@ -21,7 +21,7 @@ AnimationTester::AnimationTester(std::string name)
 	fCycleNum(0),
 	fFrameNum(0)
 {
-	fResource = gResManager->GetBAM(name.c_str());
+	fResource = dynamic_cast<BAMResource*>(gResManager->GetResource(name.c_str()));
 }
 
 
