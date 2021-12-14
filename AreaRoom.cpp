@@ -1045,7 +1045,7 @@ AreaRoom::_Unload()
 bool
 AreaRoom::_IsVisibleOnScreen(const Actor* actor) const
 {
-	if (rects_intersect(rect_to_gfx_rect(actor->Frame()), AreaRect()))
+	if (rects_intersect(rect_to_gfx_rect(actor->Frame()), rect_to_gfx_rect(VisibleMapArea())))
 		return true;
 	return false;
 }
