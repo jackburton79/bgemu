@@ -85,9 +85,10 @@ extension(const char* path)
 	if (path == NULL)
 		return NULL;
 
-	const char* point = path + ::strlen(path) - 4;
-	if (point == NULL || *point != '.')
+	const char* point = ::strrchr(path, '.');
+	if (point == NULL)
 		return NULL;
+
 	return point + 1;
 }
 
