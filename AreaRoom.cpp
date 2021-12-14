@@ -725,7 +725,8 @@ AreaRoom::_DrawActors()
 			a != actorsList.end(); a++) {
 		const Actor* actor = *a;
 		try {
-			actor->Draw(this, fBackMap->Image());
+			if (_IsVisibleOnScreen(actor))
+				actor->Draw(this, fBackMap->Image());
 		} catch (std::exception& ex) {
 			// TODO: too much spam
 			//std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
@@ -1038,6 +1039,15 @@ AreaRoom::_Unload()
 		gfx->ScreenBitmap()->Clear(0);
 	if (fWed != NULL)
 		_UnloadArea();
+}
+
+
+bool
+AreaRoom::_IsVisibleOnScreen(const Actor* actor) const
+{
+	if (rects_intersect(rect_to_gfx_rect(actor->Frame()), AreaRect()))
+		return true;
+	return false;
 }
 
 
