@@ -539,7 +539,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	if (!IsActionListEmpty())
 		return;
-		
+
 	bool runScripts = true;
 	
 	Actor* actor = dynamic_cast<Actor*>(this);
@@ -549,7 +549,10 @@ Object::_ExecuteScripts(int32 maxLevel)
 				runScripts = false;
 		}
 	}
-		
+
+	if (actor != NULL && actor->IsWalking())
+		return;
+
 	if (dynamic_cast<RoomBase*>(this) != NULL)
 		runScripts = true;
 
