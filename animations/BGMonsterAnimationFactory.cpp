@@ -50,7 +50,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = o + 10;
+			description.sequence_number = o + 9;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("G2");
