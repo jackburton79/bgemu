@@ -337,8 +337,8 @@ GameTimer::PrintTime()
 void
 GameTimer::UpdateGameTime()
 {
-	if (sGameTime % 60 == 0)
-		PrintTime();
+	//if (sGameTime % 60 == 0)
+	//	PrintTime();
 	sGameTime++;
 }
 
