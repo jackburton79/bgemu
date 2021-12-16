@@ -385,7 +385,9 @@ Actor::_DrawActorText(AreaRoom* room) const
 void
 Actor::_DrawActorName(AreaRoom* room) const
 {
-	std::string text = Name();
+	std::string text = LongName();
+	text.append(" (");
+	text.append(Name()).append(")");
 	if (!text.empty()) {
 		const Font* font = FontRoster::GetFont("TOOLFONT");
 		uint16 height;
