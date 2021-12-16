@@ -232,7 +232,7 @@ AreaRoom::Draw()
 		fBackMap->Image()->Unlock();
 	}
 
-	if (fSelectedActor.Target() != NULL) {
+	if (fSelectedActor.Target() != NULL && fSelectedActor.Target()->IsWalking()) {
 		IE::point destination = fSelectedActor.Target()->Destination();
 		destination = offset_point(destination, -mapRect.x, -mapRect.y);
 		fBackMap->Image()->Lock();
