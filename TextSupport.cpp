@@ -122,8 +122,8 @@ Font::StringWidth(const std::string& string, uint16* height) const
 std::string
 Font::TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidth) const
 {
-	size_t breakPos = string.length();
 	std::string line = string;
+	size_t breakPos = string.length();
 	for (;;) {
 		line = string.substr(0, breakPos);
 		uint16 newWidth = StringWidth(line, NULL);
