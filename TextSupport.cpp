@@ -9,6 +9,7 @@
 
 #include "BamResource.h"
 #include "GraphicsEngine.h"
+#include "Log.h"
 #include "Path.h"
 #include "ResManager.h"
 
@@ -170,10 +171,12 @@ Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 void
 Font::_LoadGlyphs(const std::string& fontName)
 {
-	//std::cout <<  "Font::_LoadGlyphs(): " << fontName << std::endl;
 	BAMResource* fontRes = gResManager->GetBAM(fontName.c_str());
-	if (fontRes == NULL)
+	if (fontRes == NULL) {
+		std::cerr << Log::Red << "Font::_LoadGlyphs(): no resource ";
+		std::cerr << fontName << Log::Normal << std::endl;
 		return;
+	}
 	fTransparentIndex = fontRes->TransparentIndex();
 	for (int c = 1; c < 256; c++) {
 		uint32 cycleNum = cycle_num_for_char(c);
@@ -183,10 +186,10 @@ Font::_LoadGlyphs(const std::string& fontName)
 			fGlyphs[c] = glyph;
 			fHeight = std::max(bitmap->Height(), fHeight);
 		} else {
-			std::cerr << "glyph not found for *" << int(c) << "*" << std::endl;
+			std::cerr << Log::Yellow << "Font::_LoadGlyphs(): glyph not found for *";
+			std::cerr << int(c) << "*" << Log::Normal << std::endl;
 			break;
 		}
-		//std::cout << "char: " << (char)c << ", height: " << bitmap->Height() << std::endl;
 	}
 	gResManager->ReleaseResource(fontRes);
 }
@@ -298,12 +301,14 @@ void
 Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs) const
 {
-	// First pass: calculate total width and height
+	// calculate total width and height
 	for (std::string::const_iterator c = string.begin();
 			c != string.end(); c++) {
 		GlyphMap::const_iterator g = fGlyphs.find(*c);
 		if (g == fGlyphs.end()) {
 			// glyph not found/cached
+			std::cerr << Log::Yellow << "Font::_PrepareGlyphs: glyph '";
+			std::cerr << (char)*c << "' not found" << Log::Normal << std::endl;
 			continue;
 		}
 		Glyph newGlyph = g->second;
@@ -311,8 +316,6 @@ Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 		height = std::max(newGlyph.bitmap->Frame().h, height);
 		if (glyphs != NULL)
 			glyphs->push_back(newGlyph);
-
-		//std::cout << "char: " << (char)*c << ", height: " << newFrame->Height() << std::endl;
 	}
 }
 
