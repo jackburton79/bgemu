@@ -92,7 +92,7 @@ WMAPResource::GetAreaEntry(uint32 index)
     		fWorldMapEntry.areaentries_offset
 				+ index * sizeof(area_entry), areaEntry);
     AreaEntry* entry = new AreaEntry(areaEntry);
-    entry->fIcon = const_cast<Bitmap*>(fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0));
+    entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
     entry->fPosition.x = (int16)areaEntry.x;
     entry->fPosition.y = (int16)areaEntry.y;
     return entry;
