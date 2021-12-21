@@ -90,7 +90,7 @@ TLKResource::EntryAt(int32 index)
 void
 TLKResource::_ReadString(int32 offset, std::string& text, int32 length)
 {
-	text.resize(length + 1);	
+	text.resize(length);
 	fData->ReadAt(fDataOffset + offset, &text[0], length);
 	text[length] = '\0';
 }
