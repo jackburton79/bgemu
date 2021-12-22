@@ -747,6 +747,9 @@ ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 void
 ResourceManager::TryEmptyResourceCache()
 {
+#if 0
+	// TODO: This causes font resources (amongs others) to be unloaded
+	// when they are still used. Need to fix resource unloading
 	std::list<Resource*>::iterator it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
 		if ((*it)->RefCount() == 1) {
@@ -759,6 +762,7 @@ ResourceManager::TryEmptyResourceCache()
 
 		it = fCachedResources.erase(it);
 	}
+#endif
 }
 
 
