@@ -110,6 +110,7 @@ AreaEntry::AreaEntry(const area_entry& entry)
 
 AreaEntry::~AreaEntry()
 {
+	fIcon->Release();
 }
 
 
