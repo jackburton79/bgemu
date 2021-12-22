@@ -168,11 +168,13 @@ Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 }
 
 
+// Returns a bitmap with the passed string rendered on it
 Bitmap*
-Font::GetRenderedString(const std::string& string, uint32 flags)
+Font::GetRenderedString(const std::string& string, uint32 flags) const
 {
 	uint16 height;
 	uint16 stringWidth = StringWidth(string, &height);
+	// TODO: Bitmap is always 8 bits
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());

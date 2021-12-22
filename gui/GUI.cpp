@@ -677,19 +677,16 @@ GUI::_DisplayStringCommon(const std::string& text,
 	static uint32 sCurrentId = 0;
 	
 	const Font* font = FontRoster::GetFont("TOOLFONT");
-	uint16 height;
-	uint16 stringWidth = font->StringWidth(text, &height);
-	Bitmap* bitmap = new Bitmap(stringWidth, height, 8);
-	
-	// Pre-render the string to a bitmap
-	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	font->RenderString(text, 0, bitmap, false, rect);
+	// TODO: GetRenderedString always use "true" for palette, while
+	// previous call used "false" here. Check!
+	Bitmap* bitmap = font->GetRenderedString(text, 0);
 	
 	// Set the position where to  blit the bitmap
+	GFX::rect rect;
 	rect.x = x;
 	rect.y = y;
 	if (centerString) {
-		rect.x -= stringWidth / 2;
+		rect.x -= bitmap->Width() / 2;
 	}
 	string_entry entry = { text, bitmap, rect, sCurrentId};
 	fTooltipList.push_back(entry);
