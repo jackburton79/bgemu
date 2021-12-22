@@ -422,6 +422,7 @@ actor::Print() const
 	std::cout << "\tcre_resref_first_letter: " << (int)cre_resref_first_letter << std::endl;
 	std::cout << "\tanimation: " << IDTable::AnimationAt(animation);
 	std::cout << "(" << animation << ")" << std::endl;
+	std::cout << "\torientation: " << orientation << std::endl;
 	std::cout << "\tdialog: " << dialog << std::endl;
 	std::cout << "\tcre attached: " << ((flags & IE::ACTOR_CRE_EXTERNAL) ? "NO" : "YES") << std::endl;
 
