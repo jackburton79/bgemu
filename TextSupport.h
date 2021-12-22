@@ -55,6 +55,9 @@ public:
 					bool useBAMPalette,
 					const GFX::rect& rect) const;
 
+	Bitmap* GetRenderedString(const std::string& string,
+							  uint32 flags);
+
 	uint8 TransparentIndex() const { return fTransparentIndex; };
 
 	struct Glyph {

@@ -168,6 +168,20 @@ Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 }
 
 
+Bitmap*
+Font::GetRenderedString(const std::string& string, uint32 flags)
+{
+	uint16 height;
+	uint16 stringWidth = StringWidth(string, &height);
+	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
+	// render the string to a bitmap
+	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
+	RenderString(string, 0, bitmap, true, rect);
+
+	return bitmap;
+}
+
+
 void
 Font::_LoadGlyphs(const std::string& fontName)
 {
