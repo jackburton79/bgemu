@@ -41,6 +41,8 @@ public:
 
 	std::string TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidth = NULL) const;
 
+	// The RenderString methods only work if the destination
+	// bitmap is 8-bit paletted
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					bool useBAMPalette = true) const;
