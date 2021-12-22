@@ -81,6 +81,7 @@ TextArea::Draw()
 	if (fChanged) {
 		GFX::rect rect(0, -fYOffset, fBitmap->Width(), fBitmap->Height());
 		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+		const Font* font = FontRoster::GetFont(fontName);
 		fBitmap->Clear(0);
 		uint32 flags = IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_BOTTOM;
 		TextLines::const_iterator i;
@@ -91,7 +92,7 @@ TextArea::Draw()
 			if (&line == fSelected) {
 				attr |= TEXT_SELECTED;
 			}
-			FontRoster::GetFont(fontName)->RenderString(line.text, flags | attr, fBitmap, false, where);
+			font->RenderString(line.text, flags | attr, fBitmap, false, where);
 			rect.y += line.height + kLineSpacing;
 		}
 		fChanged = false;
