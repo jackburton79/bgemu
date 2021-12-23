@@ -35,8 +35,12 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
 	int o = actor->Orientation();
 	animation_description description;
-	description.sequence_number = o;
 	description.mirror = false;
+
+	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
+		_GetMirroredAnimation(o, description);
+
+	description.sequence_number = o;
 
 	// TODO: In theory, fBaseName should already be correct, but in
 	// practice, it's not
@@ -82,15 +86,13 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		case ACT_CAST_SPELL:
 			std::cout << "CAST SPELL: " << fBaseName << std::endl;
 			description.bam_name.append("C1");
-			//description.sequence_number = o + 9;
+			//description.sequence_number += 9;
 			break;
 		default:
 			std::cerr << "BG2CharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
 			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
-	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
-		_GetMirroredAnimation(o, description);
 #if 0
 	std::cout << description.bam_name << std::endl;
 #endif
@@ -99,10 +101,10 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 
 
 void
-BG2CharachterAnimationFactory::_GetMirroredAnimation(int orientation, animation_description& description)
+BG2CharachterAnimationFactory::_GetMirroredAnimation(int& orientation, animation_description& description)
 {
 	description.mirror = true;
-	description.sequence_number -= (orientation - 8) * 2;
+	orientation = 16 - orientation;
 }
 
 
