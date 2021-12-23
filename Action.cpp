@@ -274,16 +274,20 @@ ActionForceSpell::operator()()
 	//Object* target = Script::GetTargetObject(sender, fActionParams);
 	//target->Print();
 
-	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-	std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
-	gResManager->ReleaseResource(spellIDS);
+	if (!Initiated()) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+		gResManager->ReleaseResource(spellIDS);
 
-	std::cout << "spell: " << spellName << std::endl;
-	/*SPLResource* spellResource = gResManager->GetSPL(spellName);
-	std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
-	std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
-	gResManager->ReleaseResource(spellResource);*/
-	sender->SetAnimationAction(ACT_CAST_SPELL);
+		std::cout << "spell: " << spellName << std::endl;
+		/*SPLResource* spellResource = gResManager->GetSPL(spellName);
+		std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
+		std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
+		gResManager->ReleaseResource(spellResource);*/
+		sender->SetAnimationAction(ACT_CAST_SPELL);
+		SetInitiated();
+	}
+
 	// TODO: only for testing
 	if (fDuration-- == 0) {
 		// TODO: There should be a way to set the previous animation action,
