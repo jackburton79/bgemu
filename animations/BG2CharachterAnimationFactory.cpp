@@ -11,6 +11,10 @@
 #include "Animation.h"
 #include "CreResource.h"
 
+// TODO: Move these to a common header ?
+#define ANIM_STANDING_OFFSET 9
+#define ANIM_DEAD_OFFSET 48
+
 BG2CharachterAnimationFactory::BG2CharachterAnimationFactory(
 		const char* baseName, const uint16 id)
 	:
@@ -66,14 +70,14 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number = o + 9;
+			description.sequence_number += ANIM_STANDING_OFFSET;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
 			break;
 		case ACT_DEAD:
 			description.bam_name.append("G15");
-			description.sequence_number = 48 + o;
+			description.sequence_number += ANIM_DEAD_OFFSET;
 			break;
 		case ACT_CAST_SPELL:
 			std::cout << "CAST SPELL: " << fBaseName << std::endl;
@@ -85,14 +89,20 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
-	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE) {
-		description.mirror = true;
-		description.sequence_number -= (o - 8) * 2;
-	}
+	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
+		_GetMirroredAnimation(o, description);
 #if 0
 	std::cout << description.bam_name << std::endl;
 #endif
 	return description;
+}
+
+
+void
+BG2CharachterAnimationFactory::_GetMirroredAnimation(int orientation, animation_description& description)
+{
+	description.mirror = true;
+	description.sequence_number -= (orientation - 8) * 2;
 }
 
 

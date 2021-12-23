@@ -17,6 +17,7 @@ public:
 
 private:
 	virtual animation_description GetAnimationDescription(Actor* actor);
+	void _GetMirroredAnimation(int orientation, animation_description& description);
 
 	std::string _RaceCharacter(uint8 race) const;
 	std::string _ClassCharacter(uint8 c) const;
