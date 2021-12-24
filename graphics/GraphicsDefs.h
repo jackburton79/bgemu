@@ -36,9 +36,10 @@ public:
 extern bool InitializeGlobalPalettes();
 extern void DestroyGlobalPalettes();
 
-extern GFX::Palette *kPaletteRed;
-extern GFX::Palette *kPaletteBlue;
-extern GFX::Palette *kPaletteYellow;
+extern GFX::Palette* kPaletteRed;
+extern GFX::Palette* kPaletteBlue;
+extern GFX::Palette* kPaletteYellow;
+extern GFX::Palette* kPaletteBlack;
 
 
 struct point {

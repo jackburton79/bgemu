@@ -18,6 +18,7 @@ namespace GFX {
 GFX::Palette* kPaletteRed;
 GFX::Palette* kPaletteBlue;
 GFX::Palette* kPaletteYellow;
+GFX::Palette* kPaletteBlack;
 
 
 rect::rect()
@@ -154,10 +155,12 @@ InitializeGlobalPalettes()
 		kPaletteRed = new GFX::Palette();
 		kPaletteBlue = new GFX::Palette();
 		kPaletteYellow = new GFX::Palette();
+		kPaletteBlack = new GFX::Palette();
 
 		kPaletteRed->colors[0] = kTransparentColor;
 		kPaletteBlue->colors[0] = kTransparentColor;
 		kPaletteYellow->colors[0] = kTransparentColor;
+		kPaletteBlack->colors[0] = kTransparentColor;
 
 		for (int c = 1; c < 256; c++) {
 			kPaletteRed->colors[c].r = 230;
@@ -169,6 +172,16 @@ InitializeGlobalPalettes()
 			kPaletteYellow->colors[c].g = 200;
 			kPaletteYellow->colors[c].b = 0;
 			kPaletteYellow->colors[c].a = 0;
+
+			kPaletteBlue->colors[c].r = 0;
+			kPaletteBlue->colors[c].g = 0;
+			kPaletteBlue->colors[c].b = 135;
+			kPaletteBlue->colors[c].a = 0;
+
+			kPaletteBlack->colors[c].r = 0;
+			kPaletteBlack->colors[c].g = 0;
+			kPaletteBlack->colors[c].b = 0;
+			kPaletteBlack->colors[c].a = 0;
 		}
 	} catch (...) {
 		return false;
