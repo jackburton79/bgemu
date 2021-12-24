@@ -97,7 +97,7 @@ TextArea::Draw()
 				attr |= TEXT_SELECTED;
 			}
 			// TODO: Pass textarea palette
-			font->RenderString(line.text, flags | attr, fBitmap, NULL, where);
+			font->RenderString(line.text, flags | attr, fBitmap, GFX::kPaletteRed, where);
 			rect.y += line.height + kLineSpacing;
 		}
 		fChanged = false;
