@@ -12,6 +12,7 @@
 #include "RectUtils.h"
 #include "ResManager.h"
 #include "TextArea.h"
+#include "TextSupport.h"
 #include "TisResource.h"
 #include "WMAPResource.h"
 
@@ -65,6 +66,19 @@ WorldMap::WorldMap()
 
 		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
 				fWorldMapBitmap, &iconRect);
+
+		if (!areaEntry->Caption().empty()) {
+			const Font* font = FontRoster::GetFont("TOOLFONT");
+			Bitmap* nameBitmap = font->GetRenderedString(areaEntry->Caption(), 0);
+			if (nameBitmap != NULL) {
+				GFX::rect textRect = nameBitmap->Frame();
+				// center horizontally
+				textRect.x = iconRect.x + (iconRect.w - textRect.w) / 2;
+				textRect.y = iconRect.y + iconRect.h + 5;
+				GraphicsEngine::Get()->BlitBitmap(nameBitmap, NULL, fWorldMapBitmap, &textRect);
+				nameBitmap->Release();
+			}
+		}
 	}
 
 	::Window* window = gui->GetWindow(0);
@@ -139,7 +153,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 	}
 
 	GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
-
+#if 0
 	::Window* window = GUI::Get()->GetWindow(0);
 	if (window == NULL)
 		return;
@@ -150,6 +164,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 		} else
 			label->SetText("");
 	}
+#endif
 }
 
 
