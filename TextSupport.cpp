@@ -277,17 +277,15 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	uint16 maxHeight = 0;
 	_PrepareGlyphs(string, totalWidth, maxHeight, &glyphs);
 
-	if (fPalette != NULL)
-		bitmap->SetPalette(*fPalette);
-
 	const Bitmap* firstFrame = glyphs.back().bitmap;
 
-	/*if (useBAMPalette) {
-
+	if (useBAMPalette && fPalette != NULL) {
+		bitmap->SetPalette(*fPalette);
+	} else {
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);
-	}*/
+	}
 
 	uint32 colorKey;
 	if (firstFrame->GetColorKey(colorKey))
