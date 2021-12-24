@@ -55,7 +55,6 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		// Class
 		description.bam_name.append(_ClassCharacter(actor->CRE()->Class()));
 
-
 		// Armor
 		// TODO: Improve
 		std::string armorAnimation = _ArmorCharacter(actor);

@@ -33,8 +33,15 @@ BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.sequence_number = o;
 	description.mirror = false;
 	// Armor
-	// TODO: For real
-	description.bam_name.append("1");
+	// TODO: Improve
+	std::string armorAnimation = _ArmorCharacter(actor);
+	//std::cout << armorAnimation << std::endl;
+	// TODO: Correct ? Fighters seems always to have full plate
+	if (description.bam_name[3] == 'F')
+		description.bam_name.append("4");
+	else
+		description.bam_name.append(armorAnimation);
+
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("W2");
