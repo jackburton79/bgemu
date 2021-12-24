@@ -58,7 +58,8 @@ public:
 					const GFX::rect& rect) const;
 
 	Bitmap* GetRenderedString(const std::string& string,
-							  uint32 flags) const;
+							  uint32 flags,
+							  const GFX::Palette* palette = NULL) const;
 
 	uint8 TransparentIndex() const { return fTransparentIndex; };
 

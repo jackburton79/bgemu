@@ -170,7 +170,8 @@ Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 
 // Returns a bitmap with the passed string rendered on it
 Bitmap*
-Font::GetRenderedString(const std::string& string, uint32 flags) const
+Font::GetRenderedString(const std::string& string, uint32 flags,
+						const GFX::Palette* palette) const
 {
 	uint16 height;
 	uint16 stringWidth = StringWidth(string, &height);
@@ -178,7 +179,7 @@ Font::GetRenderedString(const std::string& string, uint32 flags) const
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	RenderString(string, 0, bitmap, NULL, rect);
+	_RenderString(string, 0, bitmap, palette, &rect, NULL);
 
 	return bitmap;
 }

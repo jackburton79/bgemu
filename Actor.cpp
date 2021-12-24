@@ -366,7 +366,6 @@ Actor::_DrawActorText(AreaRoom* room) const
 {
 	std::string text = Text();
 	if (!text.empty()) {
-
 		const Font* font = FontRoster::GetFont("TOOLFONT");
 		::Bitmap* bitmap = font->GetRenderedString(text, 0);
 		IE::point textPoint = Position();

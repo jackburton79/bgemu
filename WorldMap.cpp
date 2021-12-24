@@ -69,13 +69,15 @@ WorldMap::WorldMap()
 
 		if (!areaEntry->Caption().empty()) {
 			const Font* font = FontRoster::GetFont("TOOLFONT");
-			Bitmap* nameBitmap = font->GetRenderedString(areaEntry->Caption(), 0);
+			Bitmap* nameBitmap = font->GetRenderedString(areaEntry->Caption(), 0,
+														 GFX::kPaletteBlack);
 			if (nameBitmap != NULL) {
 				GFX::rect textRect = nameBitmap->Frame();
 				// center horizontally
 				textRect.x = iconRect.x + (iconRect.w - textRect.w) / 2;
 				textRect.y = iconRect.y + iconRect.h + 5;
-				GraphicsEngine::Get()->BlitBitmap(nameBitmap, NULL, fWorldMapBitmap, &textRect);
+				GraphicsEngine::Get()->BlitBitmap(nameBitmap, NULL,
+												  fWorldMapBitmap, &textRect);
 				nameBitmap->Release();
 			}
 		}
