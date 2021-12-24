@@ -25,6 +25,7 @@ struct Color {
 class Palette {
 public:
 	Palette();
+	Palette(const GFX::Palette& palette);
 	Palette(const GFX::Color& start, const GFX::Color& end);
 	void ModColor(uint8 index, uint8 mod);
 	void Dump() const;
