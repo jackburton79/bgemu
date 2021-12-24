@@ -182,3 +182,71 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 	return animation;
 }
 
+
+std::string
+AnimationFactory::_RaceCharacter(uint8 race) const
+{
+	std::cout << "race: " << (int)race << std::endl;
+	switch (race) {
+		case 1: // HUMAN
+		case 7: // HALFORC
+			return "H";
+		case 2: // ELF
+			return "E";
+		case 3: // HALF_ELF
+			return "H";
+		case 4: // DWARF
+		case 6: // GNOME
+			return "D";
+		case 5: // HALFLING
+			return "I";
+		default:
+			return "Z";
+	}
+}
+
+
+std::string
+AnimationFactory::_ClassCharacter(uint8 c) const
+{
+	std::cout << "class: " << (int)c << std::endl;
+	switch (c) {
+		case 1: // MAGE
+		case 11:
+			return "W";
+		case 2: // FIGHTER
+		case 6: // PALADIN
+		case 7: // FIGHTER_MAGE
+		case 8: // FIGHTER_CLERIC
+		case 9: // FIGHTER_THIEF
+			return "F";
+		case 3: // CLERIC
+			return "C";
+		case 4: // THIEF
+		case 5: // BARD
+			return "T";
+		default:
+			return "B";
+	}
+}
+
+
+std::string
+AnimationFactory::_GenderCharacter(uint8 gender) const
+{
+	switch (gender) {
+		case 2:
+			return "F";
+		case 1:
+		default:
+			return "M";
+	}
+}
+
+
+std::string
+AnimationFactory::_ArmorCharacter(Actor* actor) const
+{
+	std::string armor = actor->ArmorType();
+	return armor.substr(0, 1);
+}

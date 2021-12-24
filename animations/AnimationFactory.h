@@ -36,7 +36,11 @@ protected:
 	virtual ~AnimationFactory();
 
 	virtual animation_description GetAnimationDescription(Actor* actor) = 0;
-	
+	std::string _RaceCharacter(uint8 race) const;
+	std::string _ClassCharacter(uint8 c) const;
+	std::string _GenderCharacter(uint8 gender) const;
+	std::string _ArmorCharacter(Actor* actor) const;
+
 	const char* _GetBamName(const char* attributes) const;
 
 	static std::map<uint16, AnimationFactory*> sAnimationFactory;
