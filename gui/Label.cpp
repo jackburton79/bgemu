@@ -49,7 +49,8 @@ Label::Label(IE::label* label)
 	}
 
 	std::string fontName = label->font_bam.CString();
-	FontRoster::GetFont(fontName)->RenderString(IDTable::GetDialog(label->text_ref), label->flags, fBitmap);
+	FontRoster::GetFont(fontName)->RenderString(IDTable::GetDialog(label->text_ref),
+												label->flags, fBitmap);
 }
 
 

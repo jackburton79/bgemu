@@ -13,20 +13,33 @@
 #include <string>
 #include <vector>
 
+namespace GFX {
+	class Palette;
+};
+
 class Bitmap;
 class Font;
 class Scrollbar;
 class TextArea: public Control {
 public:
+	enum text_attributes {
+		TEXTSPAN_SELECTED = 1,
+		TEXTSPAN_RED = 2,
+		TEXTSPAN_YELLOW = 4
+	};
+
 	class TextLine {
 	public:
 		TextLine();
 		IE::rect Frame() const;
+
 		std::string text;
+		uint32 attributes;
 		uint16 width;
 		uint16 height;
 		int32 dialog_option;
 	};
+
 	TextArea(IE::text_area* text);
 	virtual ~TextArea();
 	virtual void Draw();

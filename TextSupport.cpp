@@ -145,26 +145,26 @@ Font::TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidt
 
 void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette) const
+					const GFX::Palette* palette) const
 {
 	GFX::rect frame = bitmap->Frame();
-	_RenderString(string, flags, bitmap, useBAMPalette, &frame, NULL);
+	_RenderString(string, flags, bitmap, palette, &frame, NULL);
 }
 
 
 void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette, const GFX::rect& rect) const
+					const GFX::Palette* palette, const GFX::point& point) const
 {
-	_RenderString(string, flags, bitmap, useBAMPalette, &rect, NULL);
+	_RenderString(string, flags, bitmap, palette, NULL, &point);
 }
 
 
 void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette, const GFX::point& point) const
+					const GFX::Palette* palette, const GFX::rect& rect) const
 {
-	_RenderString(string, flags, bitmap, useBAMPalette, NULL, &point);
+	_RenderString(string, flags, bitmap, palette, &rect, NULL);
 }
 
 
@@ -178,7 +178,7 @@ Font::GetRenderedString(const std::string& string, uint32 flags) const
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
 	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	RenderString(string, 0, bitmap, true, rect);
+	RenderString(string, 0, bitmap, NULL, rect);
 
 	return bitmap;
 }
@@ -268,7 +268,7 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 
 void
 Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette,
+					const GFX::Palette* palette,
 					const GFX::rect* destRect,
 					const GFX::point* destPoint) const
 {
@@ -279,9 +279,13 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 
 	const Bitmap* firstFrame = glyphs.back().bitmap;
 
-	if (useBAMPalette && fPalette != NULL) {
+	if (palette != NULL) {
+		bitmap->SetPalette(*palette);
+	} else if (fPalette != NULL) {
 		bitmap->SetPalette(*fPalette);
 	} else {
+		// No palette.
+		throw std::runtime_error("Font::RenderString: no palette");
 		GFX::Palette palette;
 		firstFrame->GetPalette(palette);
 		bitmap->SetPalette(palette);

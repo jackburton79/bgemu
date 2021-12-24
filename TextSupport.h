@@ -45,16 +45,16 @@ public:
 	// bitmap is 8-bit paletted
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette = true) const;
+					const GFX::Palette* palette = NULL) const;
 
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette,
+					const GFX::Palette* palette,
 					const GFX::point& point) const;
 
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette,
+					const GFX::Palette* palette,
 					const GFX::rect& rect) const;
 
 	Bitmap* GetRenderedString(const std::string& string,
@@ -73,7 +73,7 @@ private:
 	void _LoadGlyphs(const std::string& fontName);
 	void _RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
-					bool useBAMPalette,
+					const GFX::Palette* palette,
 					const GFX::rect* rect, const GFX::point* point) const;
 	void _PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs = NULL) const;

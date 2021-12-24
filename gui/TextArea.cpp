@@ -26,6 +26,7 @@ const static int16 kLineSpacing = 5;
 
 TextArea::TextLine::TextLine()
 	:
+	attributes(0),
 	width(0),
 	height(0),
 	dialog_option(-1)
@@ -41,6 +42,8 @@ TextArea::TextLine::Frame() const
 }
 
 
+
+// TextArea
 TextArea::TextArea(IE::text_area* text)
 	:
 	Control(text),
@@ -51,13 +54,14 @@ TextArea::TextArea(IE::text_area* text)
 	fScrollbar(NULL)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
-/*
+#if 1
 	GFX::Color foreground = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
 	//GFX::Color transparent = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GFX::Color background = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
 	GFX::Palette palette(foreground, background);
-	*/
+#else
 	GFX::Palette palette(*GFX::kPaletteYellow);
+#endif
 	GFX::Color transparent = palette.colors[0];
 	fBitmap->SetPalette(palette);
 	fBitmap->SetColorKey(transparent.r, transparent.g, transparent.b, true);
@@ -92,7 +96,8 @@ TextArea::Draw()
 			if (&line == fSelected) {
 				attr |= TEXT_SELECTED;
 			}
-			font->RenderString(line.text, flags | attr, fBitmap, false, where);
+			// TODO: Pass textarea palette
+			font->RenderString(line.text, flags | attr, fBitmap, NULL, where);
 			rect.y += line.height + kLineSpacing;
 		}
 		fChanged = false;
