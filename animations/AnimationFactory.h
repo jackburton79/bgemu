@@ -15,6 +15,9 @@
 #include "IETypes.h"
 #include "Referenceable.h"
 
+#define ANIM_STANDING_OFFSET 9
+#define ANIM_DEAD_OFFSET 48
+
 struct animation_description {
 	std::string bam_name;
 	int sequence_number;

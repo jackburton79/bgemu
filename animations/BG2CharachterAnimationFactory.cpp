@@ -12,8 +12,7 @@
 #include "CreResource.h"
 
 // TODO: Move these to a common header ?
-#define ANIM_STANDING_OFFSET 9
-#define ANIM_DEAD_OFFSET 48
+
 
 BG2CharachterAnimationFactory::BG2CharachterAnimationFactory(
 		const char* baseName, const uint16 id)
