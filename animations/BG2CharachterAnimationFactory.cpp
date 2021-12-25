@@ -42,9 +42,8 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 
 	description.sequence_number = o;
 
-	// TODO: In theory, fBaseName should already be correct, but in
-	// practice, it's not
 	if (actor->InParty()) {
+		// Charachter animations are specific
 		description.bam_name = "";
 		description.bam_name.append("C");
 
