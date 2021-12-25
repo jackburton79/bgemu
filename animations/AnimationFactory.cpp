@@ -249,3 +249,12 @@ AnimationFactory::_ArmorCharacter(Actor* actor) const
 	std::string armor = actor->ArmorType();
 	return armor.substr(0, 1);
 }
+
+
+bool
+AnimationFactory::_HasSeparateWalkingBAM(const std::string& name) const
+{
+	std::string walkingBam = name;
+	walkingBam.append("G11");
+	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
+}

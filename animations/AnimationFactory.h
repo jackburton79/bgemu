@@ -44,6 +44,8 @@ protected:
 	std::string _GenderCharacter(uint8 gender) const;
 	std::string _ArmorCharacter(Actor* actor) const;
 
+	bool _HasSeparateWalkingBAM(const std::string& name) const;
+
 	const char* _GetBamName(const char* attributes) const;
 
 	static std::map<uint16, AnimationFactory*> sAnimationFactory;
