@@ -5,7 +5,6 @@ LOCALSOURCES=\
 ../animations/BG2CharachterAnimationFactory.cpp \
 ../animations/BGMonsterAnimationFactory.cpp \
 ../animations/IWDAnimationFactory.cpp \
-../animations/SimpleAnimationFactory.cpp \
 ../animations/SplitAnimationFactory.cpp
 
 
