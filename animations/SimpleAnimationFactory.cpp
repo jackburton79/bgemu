@@ -39,11 +39,11 @@ SimpleAnimationFactory::GetAnimationDescription(Actor* actor)
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
 			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			description.sequence_number += 9;
 			break;
 		case ACT_ATTACKING:
-			description.bam_name.append("G1");
-			description.sequence_number = uint32(o);
+			description.bam_name.append("G2");
+			description.sequence_number += 9;
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
