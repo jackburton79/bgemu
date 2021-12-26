@@ -417,35 +417,35 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 		return;
 
 	const uint16 kScrollingStep = 64;
-	int xMinBorder = 0;
-	int yMinBorder = 0;
+	int leftBorder = 0;
+	int upperBorder = 0;
 	
 	GFX::rect viewPort = room->ViewPort();
-	int xMaxBorder = viewPort.w;
-	int yMaxBorder = viewPort.h;
+	int rightBorder = viewPort.w;
+	int bottomBorder = viewPort.h;
 
 	Control* control = room;
 	if (strcmp(room->Name(), "WORLDMAP") == 0) {
-		yMinBorder = control->Position().y;
-		yMaxBorder = control->Height() + control->Position().y;
-		xMinBorder += 10;
-		xMaxBorder -= 10;
+		upperBorder = control->Position().y;
+		bottomBorder = control->Height() + control->Position().y;
+		leftBorder += 10;
+		rightBorder -= 10;
 	} else {
-		xMinBorder += 15;
-		xMaxBorder -= 15;
-		yMinBorder += 15;
-		yMaxBorder -= 15;
+		leftBorder += 15;
+		rightBorder -= 15;
+		upperBorder += 15;
+		bottomBorder -= 15;
 	}
 
 	sint16 scrollByX = 0;
 	sint16 scrollByY = 0;
-	if (x <= xMinBorder)
+	if (x <= leftBorder)
 		scrollByX = -kScrollingStep;
-	else if (x >= xMaxBorder)
+	else if (x >= rightBorder)
 		scrollByX = kScrollingStep;
-	if (y <= yMinBorder)
+	if (y <= upperBorder)
 		scrollByY = -kScrollingStep;
-	else if (y >= yMaxBorder)
+	else if (y >= bottomBorder)
 		scrollByY = kScrollingStep;
 
 	if (scrollByX == 0 && scrollByY == 0)
