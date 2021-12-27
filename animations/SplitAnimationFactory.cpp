@@ -57,7 +57,10 @@ SplitAnimationFactory::GetAnimationDescription(Actor* actor)
 			description.bam_name.append("G1");
 			description.sequence_number += 8;
 			break;
+		case ACT_DEAD:
 		default:
+			std::cout << "unknown action " << actor->AnimationAction() << std::endl;
+			description.bam_name.append("G1");
 			break;
 	}
 
