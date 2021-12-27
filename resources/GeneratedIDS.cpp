@@ -120,6 +120,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	//res->AddValue(0x6315 "CHFB");
 
 	// rest
+	res->AddValue(0x6401, "UELM"); // ELMINSTER
 	res->AddValue(0x6402, "USAR");
 
 	res->AddValue(0x6404, "USAR");
