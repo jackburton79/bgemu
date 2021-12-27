@@ -165,6 +165,8 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xb400, "NFAM");
 	res->AddValue(0xb410, "NFAW");
 
+	res->AddValue(0xb510, "NFAW"); // TODO
+
 	res->AddValue(0xca00, "NNOM");
 	res->AddValue(0xca10, "NNOW");
 
@@ -173,6 +175,9 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xc300, "ARAT"); // Rat
 	res->AddValue(0xc400, "ASQU"); // Squirrel
 	res->AddValue(0xc500, "ABAT"); // Bat
+
+	res->AddValue(0xc600, "NBEG");
+	res->AddValue(0xc610, "NFAW"); // TODO
 
 	res->AddValue(0xc600, "NBEG");
 	res->AddValue(0xc700, "NBOY");
