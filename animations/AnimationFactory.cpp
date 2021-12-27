@@ -57,11 +57,12 @@ AnimationFactory::GetFactory(uint16 animationID)
 	else {
 		switch (Core::Get()->Game()) {
 			case GAME_BALDURSGATE:
+				/*
 				if (animationID >= 0x5000 && animationID < 0x8000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				else
 					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-				break;
+				break;*/
 			case GAME_BALDURSGATE2:
 				switch (highId) {
 					case 0x20:

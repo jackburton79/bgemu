@@ -12,8 +12,6 @@
 #include "Core.h"
 #include "CreResource.h"
 
-// TODO: Move these to a common header ?
-
 
 BG2CharachterAnimationFactory::BG2CharachterAnimationFactory(
 		const char* baseName, const uint16 id)
