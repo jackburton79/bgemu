@@ -40,7 +40,10 @@ BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			description.bam_name.append("W2");
+			if (_HasW(description.bam_name))
+				description.bam_name.append("W2");
+			else
+				description.bam_name.append("G1");
 			description.sequence_number = o;
 			break;
 		case ACT_STANDING:

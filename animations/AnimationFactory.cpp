@@ -57,18 +57,10 @@ AnimationFactory::GetFactory(uint16 animationID)
 	else {
 		switch (Core::Get()->Game()) {
 			case GAME_BALDURSGATE:
-				if (animationID == 0x7001)
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID == 0x8000)
-					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID == 0x2000)
-					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0x5000 && animationID < 0x8000)
+				if (animationID >= 0x5000 && animationID < 0x8000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xc000 && animationID <= 0xca00)
-					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0xb000 && animationID <= 0xd300)
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+				else
+					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
 				break;
 			case GAME_BALDURSGATE2:
 				switch (highId) {
