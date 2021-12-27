@@ -47,7 +47,8 @@ Core::Core()
 	fPaused(false),
 	fCutsceneMode(false),
 	fDialogMode(false),
-	fCutsceneActor(NULL)
+	fCutsceneActor(NULL),
+	fHasExtendedOrientations(false)
 {
 	srand(time(NULL));
 }
@@ -94,9 +95,11 @@ Core::Initialize(const char* path)
 	std::flush(std::cout);
 	if (gResManager->ResourceExists("CSJON", RES_CRE)) {
 		sCore->fGame = GAME_BALDURSGATE2;
+		sCore->fHasExtendedOrientations = true;
 		std::cout << "Baldur's Gate 2" << std::endl;
 	} else {
 		sCore->fGame = GAME_BALDURSGATE;
+		sCore->fHasExtendedOrientations = false;
 		std::cout << "Baldur's Gate" << std::endl;
 	}
 
@@ -118,6 +121,13 @@ Core::Destroy()
 	}
 	ResourceManager::Destroy();
 	delete sCore;
+}
+
+
+bool
+Core::HasExtendedOrientations() const
+{
+	return fHasExtendedOrientations;
 }
 
 

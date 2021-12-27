@@ -46,6 +46,8 @@ public:
 	static bool Initialize(const char* path);
 	static void Destroy();
 
+	bool HasExtendedOrientations() const;
+
 	void TogglePause();
 	bool IsPaused() const;
 
@@ -153,6 +155,9 @@ private:
 	bool fCutsceneMode;
 	bool fDialogMode;
 	Object* fCutsceneActor;
+
+	// Engine features
+	bool fHasExtendedOrientations;
 };
 
 

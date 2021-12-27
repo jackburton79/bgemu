@@ -73,7 +73,10 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number += ANIM_STANDING_OFFSET;
+			if (Core::Get()->HasExtendedOrientations())
+				description.sequence_number += ANIM_STANDING_OFFSET;
+			else
+				description.sequence_number += 8;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
@@ -92,7 +95,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
-	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+	if (Core::Get()->HasExtendedOrientations()) {
 		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
 			_GetMirroredAnimation(o, description);
 	} else {
