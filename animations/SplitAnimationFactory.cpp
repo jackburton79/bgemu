@@ -30,7 +30,7 @@ SplitAnimationFactory::GetAnimationDescription(Actor* actor)
 	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
 	int o = actor->Orientation();
 	animation_description description;
-	description.bam_name = fBaseName;
+	description.bam_name = BaseName();
 	description.mirror = false;
 	
 	if (Core::Get()->Game() == GAME_BALDURSGATE2)

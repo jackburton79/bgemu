@@ -39,6 +39,9 @@ protected:
 	virtual ~AnimationFactory();
 
 	virtual animation_description GetAnimationDescription(Actor* actor) = 0;
+
+	std::string BaseName() const;
+
 	std::string _RaceCharacter(uint8 race) const;
 	std::string _ClassCharacter(uint8 c) const;
 	std::string _GenderCharacter(uint8 gender) const;
@@ -49,10 +52,9 @@ protected:
 	bool _HasW(const std::string& name) const;
 	bool _HasSeparateEasternOrientations(const std::string& name) const;
 
-	const char* _GetBamName(const char* attributes) const;
-
 	static std::map<uint16, AnimationFactory*> sAnimationFactory;
 
+private:
 	std::string fBaseName;
 	uint16 fID;
 };

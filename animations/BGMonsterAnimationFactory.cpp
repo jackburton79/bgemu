@@ -30,7 +30,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 	//std::cout << "BGAnimationFactory" << std::endl;
 	int o = actor->Orientation();
 	animation_description description;
-	description.bam_name = fBaseName;
+	description.bam_name = BaseName();
 	description.mirror = false;
 
 	// TODO: Improve this
@@ -73,7 +73,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	return description;

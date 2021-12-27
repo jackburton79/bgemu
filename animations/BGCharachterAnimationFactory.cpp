@@ -29,7 +29,7 @@ BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	//std::cout << "BGAnimationFactory" << std::endl;
 	int o = actor->Orientation();
 	animation_description description;
-	description.bam_name = fBaseName;
+	description.bam_name = BaseName();
 	description.sequence_number = o;
 	description.mirror = false;
 
@@ -56,7 +56,7 @@ BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		default:
 			std::cerr << "BGCharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE

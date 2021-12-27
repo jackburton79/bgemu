@@ -58,7 +58,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		else
 			description.bam_name.append(armorAnimation);
 	} else {
-		description.bam_name = fBaseName;
+		description.bam_name = BaseName();
 		description.bam_name.append("1");
 	}
 
@@ -87,13 +87,13 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 				description.bam_name.append("G1");
 			break;
 		case ACT_CAST_SPELL:
-			std::cout << "CAST SPELL: " << fBaseName << std::endl;
+			std::cout << "CAST SPELL: " << BaseName() << std::endl;
 			description.bam_name.append("C1");
 			//description.sequence_number += 9;
 			break;
 		default:
 			std::cerr << "BG2CharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
-			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
 	if (Core::Get()->HasExtendedOrientations()) {

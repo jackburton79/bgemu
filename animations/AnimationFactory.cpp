@@ -180,6 +180,13 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 
 
 std::string
+AnimationFactory::BaseName() const
+{
+	return fBaseName;
+}
+
+
+std::string
 AnimationFactory::_RaceCharacter(uint8 race) const
 {
 	std::cout << "race: " << (int)race << std::endl;
