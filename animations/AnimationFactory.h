@@ -44,7 +44,9 @@ protected:
 	std::string _GenderCharacter(uint8 gender) const;
 	std::string _ArmorCharacter(Actor* actor) const;
 
-	bool _HasSeparateWalkingBAM(const std::string& name) const;
+	bool _HasG11(const std::string& name) const;
+	bool _HasW(const std::string& name) const;
+	bool _HasSeparateEasternOrientations(const std::string& name) const;
 
 	const char* _GetBamName(const char* attributes) const;
 

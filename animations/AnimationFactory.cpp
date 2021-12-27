@@ -58,8 +58,10 @@ AnimationFactory::GetFactory(uint16 animationID)
 			case GAME_BALDURSGATE:
 				if (animationID == 0x7001)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-				else if (animationID >= 0x5000 && animationID < 0x8000)
+				else if (animationID == 0x8000)
 					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID >= 0x5000 && animationID < 0x8000)
+					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xc000 && animationID <= 0xca00)
 					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xb000 && animationID <= 0xd300)
@@ -246,15 +248,33 @@ AnimationFactory::_GenderCharacter(uint8 gender) const
 std::string
 AnimationFactory::_ArmorCharacter(Actor* actor) const
 {
-	std::string armor = actor->ArmorType();
+	std::string armor = actor->ArmorAnimation();
 	return armor.substr(0, 1);
 }
 
 
 bool
-AnimationFactory::_HasSeparateWalkingBAM(const std::string& name) const
+AnimationFactory::_HasG11(const std::string& name) const
 {
 	std::string walkingBam = name;
 	walkingBam.append("G11");
 	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
+}
+
+
+bool
+AnimationFactory::_HasW(const std::string& name) const
+{
+	std::string walkingBam = name;
+	walkingBam.append("W2");
+	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
+}
+
+
+bool
+AnimationFactory::_HasSeparateEasternOrientations(const std::string& name) const
+{
+	std::string easternFacing = name;
+	easternFacing.append("E");
+	return gResManager->ResourceExists(easternFacing.c_str(), RES_BAM);
 }

@@ -9,6 +9,7 @@
 
 #include "Actor.h"
 #include "Animation.h"
+#include "Core.h"
 #include "CreResource.h"
 
 // TODO: Move these to a common header ?
@@ -35,11 +36,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	int o = actor->Orientation();
 	animation_description description;
 	description.mirror = false;
-
-	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
-		_GetMirroredAnimation(o, description);
-
-	description.sequence_number = o;
+	description.sequence_number = 0;
 
 	if (actor->InParty()) {
 		// Charachter animations are specific
@@ -66,9 +63,13 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		description.bam_name = fBaseName;
 		description.bam_name.append("1");
 	}
+
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			description.bam_name.append("G11");
+			if (_HasW(description.bam_name))
+				description.bam_name.append("W2");
+			else
+				description.bam_name.append("G11");
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
@@ -91,6 +92,17 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			std::cerr << fBaseName << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
+	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
+			_GetMirroredAnimation(o, description);
+	} else {
+		if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
+			if (_HasSeparateEasternOrientations(description.bam_name))
+				description.bam_name.append("E");
+		}
+	}
+	description.sequence_number += o;
+
 #if 0
 	std::cout << description.bam_name << std::endl;
 #endif

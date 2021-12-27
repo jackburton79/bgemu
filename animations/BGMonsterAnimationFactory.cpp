@@ -55,7 +55,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.sequence_number = o;
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			if (_HasSeparateWalkingBAM(description.bam_name))
+			if (_HasG11(description.bam_name))
 				description.bam_name.append("G11");
 			else
 				description.bam_name.append("G1");

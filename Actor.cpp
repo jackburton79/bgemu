@@ -645,7 +645,7 @@ Actor::Spawned() const
 
 
 std::string
-Actor::ArmorType() const
+Actor::ArmorAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere
 	try {
@@ -659,9 +659,32 @@ Actor::ArmorType() const
 	} catch (std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	} catch (...) {
+		std::cerr << "Error" << std::endl;
 	}
 
-	return "1";
+	return "";
+}
+
+
+std::string
+Actor::WeaponAnimation() const
+{
+	// TODO: Refactor: items should be loaded elsewhere
+	try {
+		IE::item weapon = fCRE->ItemAtSlot(35);
+		ITMResource* itm = gResManager->GetITM(weapon.name);
+		if (itm != NULL) {
+			std::string animationString = itm->Animation();
+			gResManager->ReleaseResource(itm);
+			return animationString;
+		}
+	} catch (std::exception& e) {
+		std::cerr << e.what() << std::endl;
+	} catch (...) {
+		std::cerr << "Error" << std::endl;
+	}
+
+	return "S";
 }
 
 

@@ -66,7 +66,8 @@ public:
 
 	bool InParty() const;
 
-	std::string ArmorType() const;
+	std::string ArmorAnimation() const;
+	std::string WeaponAnimation() const;
 
 	bool IsEqual(const Actor* object) const;
 
