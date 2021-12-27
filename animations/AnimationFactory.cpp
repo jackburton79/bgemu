@@ -71,6 +71,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x7e:
 					case 0x7f:
 					case 0x73:
+					case 0x80:
 					case 0x81:
 					case 0x90:
 					case 0xb0:
@@ -78,6 +79,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0xc2:
 					case 0xc3:
 					case 0xc4:
+					case 0xc5:
 					case 0xd1:
 					case 0xd2:
 					case 0xd3:
@@ -106,7 +108,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x62:
 					case 0x63:
 					case 0x64:
-					case 0x80:
+
 						//else if (highId >= 0x50 && highId < 0x90 )
 						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
