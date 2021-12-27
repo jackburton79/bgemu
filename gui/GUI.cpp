@@ -367,10 +367,10 @@ GUI::GetMessagesTextArea()
 void
 GUI::EnsureShowDialogArea()
 {
-	if (IsWindowShown(WINDOW_MESSAGES)) {
+	if (IsWindowShown(WINDOW_MESSAGES))
 		HideWindow(WINDOW_MESSAGES);
-		ShowWindow(WINDOW_MESSAGES_LARGE);
-	}
+
+	ShowWindow(WINDOW_MESSAGES_LARGE);
 }
 
 
