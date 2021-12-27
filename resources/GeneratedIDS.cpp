@@ -30,6 +30,8 @@ GeneratedIDS::CreateIDSResource(const res_ref& name)
 void
 GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 {
+	res->AddValue(0x1000, "MWYV"); // Wyvern
+
 	res->AddValue(0x2000, "MSIR");
 
 	res->AddValue(0x3000, "MAKH"); // Ankheg
@@ -155,6 +157,8 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x8100, "MHOB");
 	res->AddValue(0x9000, "MOGR");
 
+	res->AddValue(0xa000, "MWYV"); // TODO
+
 	res->AddValue(0xb000, "ACOW"); // Cow
 	res->AddValue(0xb100, "AHRS"); // Horse
 
@@ -177,7 +181,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xc500, "ABAT"); // Bat
 
 	res->AddValue(0xc600, "NBEG");
-	res->AddValue(0xc610, "NFAW"); // TODO
+	res->AddValue(0xc610, "NFAW"); // HARLOT_WOMAN
 
 	res->AddValue(0xc600, "NBEG");
 	res->AddValue(0xc700, "NBOY");

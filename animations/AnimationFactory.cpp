@@ -42,6 +42,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 	// 0x9000: MOGR, BG2Monster
 	// 0x7f2c: NSOL, BG2Monster
 	// MSIR, 0x2000 BGCharacter
+	// 0xa000: MWYV (Wyvern)
+	// 0x1000: MWYV (Wyvern)
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
@@ -63,6 +65,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x70:
 						factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
+					case 0x10:
 					case 0x20:
 					case 0x23:
 					case 0x74:
@@ -72,6 +75,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x80:
 					case 0x81:
 					case 0x90:
+					case 0xa0:
 					case 0xb0:
 					case 0xc1:
 					case 0xc2:
