@@ -83,6 +83,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0xc3:
 					case 0xc4:
 					case 0xc5:
+					case 0xd0: // AEAG (Eagle)
 					case 0xd1:
 					case 0xd2:
 					case 0xd3:
