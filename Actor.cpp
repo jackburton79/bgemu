@@ -684,7 +684,7 @@ Actor::WeaponAnimation() const
 		std::cerr << "Error" << std::endl;
 	}
 
-	return "S";
+	return "";
 }
 
 
