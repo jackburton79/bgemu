@@ -536,7 +536,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				// TODO: Maybe LastClicker should return Actor*
 				Actor* clicker = dynamic_cast<Actor*>(sender->FindTrigger("Clicked"));
 				if (clicker != NULL) {
-					objectNode->Print();
+					//objectNode->Print();
 					returnValue = clicker->MatchNode(objectNode);
 				}
 				break;
