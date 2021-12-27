@@ -35,6 +35,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 {
 	// 0xc100: ACAT: Simple
 	// 0xc700: ABOY: Split
+	// 0x7001: MOGR
 	// 0x7400: MDOG: Simple
 	// 0x7e00: MWER, BG2Monster
 	// 0x8100: MHOB, BGMonster
@@ -57,14 +58,11 @@ AnimationFactory::GetFactory(uint16 animationID)
 	else {
 		switch (Core::Get()->Game()) {
 			case GAME_BALDURSGATE:
-				/*
-				if (animationID >= 0x5000 && animationID < 0x8000)
-					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-				else
-					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-				break;*/
 			case GAME_BALDURSGATE2:
 				switch (highId) {
+					case 0x70:
+						factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
+						break;
 					case 0x20:
 					case 0x23:
 					case 0x74:
@@ -108,7 +106,6 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x62:
 					case 0x63:
 					case 0x64:
-
 						//else if (highId >= 0x50 && highId < 0x90 )
 						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
@@ -256,6 +253,15 @@ AnimationFactory::_HasG11(const std::string& name) const
 {
 	std::string walkingBam = name;
 	walkingBam.append("G11");
+	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
+}
+
+
+bool
+AnimationFactory::_HasG15(const std::string& name) const
+{
+	std::string walkingBam = name;
+	walkingBam.append("G15");
 	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
 }
 

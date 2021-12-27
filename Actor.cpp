@@ -662,7 +662,7 @@ Actor::ArmorAnimation() const
 		std::cerr << "Error" << std::endl;
 	}
 
-	return "";
+	return "1";
 }
 
 

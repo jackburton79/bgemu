@@ -80,8 +80,11 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			description.bam_name.append("A1");
 			break;
 		case ACT_DEAD:
-			description.bam_name.append("G15");
-			description.sequence_number += ANIM_DEAD_OFFSET;
+			if (_HasG15(description.bam_name)) {
+				description.bam_name.append("G15");
+				description.sequence_number += ANIM_DEAD_OFFSET;
+			} else
+				description.bam_name.append("G1");
 			break;
 		case ACT_CAST_SPELL:
 			std::cout << "CAST SPELL: " << fBaseName << std::endl;

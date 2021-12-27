@@ -45,6 +45,7 @@ protected:
 	std::string _ArmorCharacter(Actor* actor) const;
 
 	bool _HasG11(const std::string& name) const;
+	bool _HasG15(const std::string& name) const;
 	bool _HasW(const std::string& name) const;
 	bool _HasSeparateEasternOrientations(const std::string& name) const;
 
