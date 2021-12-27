@@ -157,7 +157,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x8100, "MHOB");
 	res->AddValue(0x9000, "MOGR");
 
-	res->AddValue(0xa000, "MWYV"); // TODO
+	res->AddValue(0xa000, "MWYV"); // Baby Wyvern
 
 	res->AddValue(0xb000, "ACOW"); // Cow
 	res->AddValue(0xb100, "AHRS"); // Horse
@@ -188,7 +188,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xc710, "NGRL");
 	res->AddValue(0xc800, "NFAM");
 	res->AddValue(0xc810, "NFAW");
-	res->AddValue(0xc900, "NFAM"); // TODO
+	res->AddValue(0xc900, "NSIM");
 	res->AddValue(0xc910, "NFAW"); // TODO
 
 	// Birds
