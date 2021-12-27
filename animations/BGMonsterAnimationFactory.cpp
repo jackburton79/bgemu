@@ -32,8 +32,6 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 	animation_description description;
 	description.bam_name = fBaseName;
 	description.mirror = false;
-	//if (Core::Get()->Game() == GAME_BALDURSGATE2)
-	//	o = IE::orientation_ext_to_base(o);
 
 	// TODO: Improve this
 	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
@@ -59,7 +57,6 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 				description.bam_name.append("G11");
 			else
 				description.bam_name.append("G1");
-			//description.sequence_number = o;
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
