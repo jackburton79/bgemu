@@ -40,6 +40,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	// 0x8100: MHOB, BGMonster
 	// 0x9000: MOGR, BG2Monster
 	// 0x7f2c: NSOL, BG2Monster
+	// MSIR, 0x2000 BGCharacter
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
@@ -60,6 +61,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID == 0x8000)
 					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
+				else if (animationID == 0x2000)
+					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0x5000 && animationID < 0x8000)
 					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 				else if (animationID >= 0xc000 && animationID <= 0xca00)
@@ -72,19 +75,19 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x20:
 					case 0x23:
 					case 0x74:
-					case 0xc1:
-					case 0xc2:
-					case 0xc3:
-					case 0xc4:
-					case 0xb0:
-					case 0xd1:
-					case 0xd2:
-					case 0xd3:
 					case 0x7e:
 					case 0x7f:
 					case 0x73:
 					case 0x81:
 					case 0x90:
+					case 0xb0:
+					case 0xc1:
+					case 0xc2:
+					case 0xc3:
+					case 0xc4:
+					case 0xd1:
+					case 0xd2:
+					case 0xd3:
 						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 						break;
 					// WRONG
