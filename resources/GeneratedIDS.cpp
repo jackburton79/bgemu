@@ -41,88 +41,100 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
-	res->AddValue(0x4400, "CHMW"); // Sleeping man TODO:
+	res->AddValue(0x4400, "LHMC"); //
 
 	// Character animations
-	res->AddValue(0x5000, "CHMW");
-	res->AddValue(0x5001, "CEMW");
-	res->AddValue(0x5002, "CDMW");
-	res->AddValue(0x5003, "CIMW");
+	res->AddValue(0x5000, "CHMC");
+	res->AddValue(0x5001, "CEMC");
+	res->AddValue(0x5002, "CDMC");
+	res->AddValue(0x5003, "CIMC");
 
-	//res->AddValue(0x5010, "CHFB");
+	res->AddValue(0x5010, "CHFC");
+	res->AddValue(0x5011, "CEFC");
+	res->AddValue(0x5012, "CDMC");
+	res->AddValue(0x5013, "CIFC");
 
-	res->AddValue(0x5011, "CEFB");
-	res->AddValue(0x5012, "CDMW");
-	res->AddValue(0x5013, "CIFB");
-	res->AddValue(0x5100, "CHMB");
-	res->AddValue(0x5101, "CEMW");
+	res->AddValue(0x5100, "CHMF");
+	res->AddValue(0x5101, "CEMF");
 	res->AddValue(0x5102, "CDMF");	// Fighter Male Dwarf
 	res->AddValue(0x5103, "CIMF");	// Fighter Male Halfling
-	//res->AddValue(0x5110, "CHFB");
-	res->AddValue(0x5111, "CEFB");
-	res->AddValue(0x5112, "CDMW");
-	res->AddValue(0x5113, "CIFB");
+
+	res->AddValue(0x5110, "CHFF");
+	res->AddValue(0x5111, "CEFF");
+	res->AddValue(0x5112, "CDMF");
+	res->AddValue(0x5113, "CIFF");
+
 	res->AddValue(0x5200, "CHMW");
 	res->AddValue(0x5201, "CEMW");
 	res->AddValue(0x5202, "CDMW");
+
 	res->AddValue(0x5210, "CHFW");
 	res->AddValue(0x5211, "CEFW");
 	res->AddValue(0x5212, "CDMW");
-	res->AddValue(0x5300, "CHMB");
-	res->AddValue(0x5301, "CEMB");
-	res->AddValue(0x5302, "CDMW");
-	res->AddValue(0x5303, "CIMB");
-	//res->AddValue(0x5310, "CHFB");
-	res->AddValue(0x5311, "CEFB");
-	res->AddValue(0x5312, "CDMW");
-	res->AddValue(0x5313, "CIFB");
+
+	res->AddValue(0x5300, "CHMT");
+	res->AddValue(0x5301, "CEMT");
+	res->AddValue(0x5302, "CDMT");
+	res->AddValue(0x5303, "CIMT");
+
+	res->AddValue(0x5310, "CHFT");
+	res->AddValue(0x5311, "CEFT");
+	res->AddValue(0x5312, "CDMT");
+	res->AddValue(0x5313, "CIFT");
 
 	res->AddValue(0x6000, "CHMC"); // Cleric Male Human
-	res->AddValue(0x6001, "CEMW");
-	res->AddValue(0x6002, "CDMW");
-	res->AddValue(0x6003, "CIMB");
-	res->AddValue(0x6004, "CDMW");
-	//res->AddValue(0x6005, "CHMB");
-	//res->AddValue(0x6010, "CHFB");
-	res->AddValue(0x6011, "CEFB");
-	res->AddValue(0x6012, "CDMW");
-	res->AddValue(0x6013, "CIFB");
-	res->AddValue(0x6014, "CIFB");
-	//res->AddValue(0x6015, "CHFB");
+	res->AddValue(0x6001, "CEMC");
+	res->AddValue(0x6002, "CDMC");
+	res->AddValue(0x6003, "CIMC");
+	res->AddValue(0x6004, "CDMC");
+	res->AddValue(0x6005, "CHMC");
+
+	res->AddValue(0x6010, "CHFC");
+	res->AddValue(0x6011, "CEFC");
+	res->AddValue(0x6012, "CDMC");
+	res->AddValue(0x6013, "CIFC");
+	res->AddValue(0x6014, "CIFC");
+	res->AddValue(0x6015, "CHFC");
+
 	res->AddValue(0x6100, "CHMF"); // Fighter Male Human
-	res->AddValue(0x6101, "CEMB");
+	res->AddValue(0x6101, "CEMF");
 	res->AddValue(0x6102, "CDMF"); // Fighter Male Dwarf
-	res->AddValue(0x6103, "CIMB");
-	res->AddValue(0x6104, "CDMW");
-	res->AddValue(0x6105, "CHMB");
-	res->AddValue(0x6110, "CHFF"); // ?
-	res->AddValue(0x6111, "CEFB");
-	res->AddValue(0x6112, "CDMW");
-	res->AddValue(0x6113, "CIFB");
-	res->AddValue(0x6114, "CDFB");
-	// res->AddValue(0x6115, "CHFB"); // ?
+	res->AddValue(0x6103, "CIMF");
+	res->AddValue(0x6104, "CDMF");
+	res->AddValue(0x6105, "CHMF");
+
+	res->AddValue(0x6110, "CHFF");
+	res->AddValue(0x6111, "CEFF");
+	res->AddValue(0x6112, "CDMF");
+	res->AddValue(0x6113, "CIFF");
+	res->AddValue(0x6114, "CIFF");
+	res->AddValue(0x6115, "CHFF");
+
 	res->AddValue(0x6200, "CHMW"); // Mage Male Human
 	res->AddValue(0x6201, "CEMW");
 	res->AddValue(0x6202, "CDMW");
 	res->AddValue(0x6204, "CDMW");
-	//res->AddValue(0x6205, "CHMW");
+	res->AddValue(0x6205, "CDMW");
+
 	res->AddValue(0x6210, "CHFW"); // Mage Female Human
 	res->AddValue(0x6211, "CEFW");
 	res->AddValue(0x6212, "CDMW");
 	res->AddValue(0x6214, "CDMW");
-	//res->AddValue(0x6215, "CHFW");
+	res->AddValue(0x6215, "CHFW");
+
 	res->AddValue(0x6300, "CHMT"); // Thief Human Male
-	res->AddValue(0x6301, "CEMW");
-	res->AddValue(0x6302, "CDMW");
-	res->AddValue(0x6303, "CIMW");
-	res->AddValue(0x6304, "CDMW");
-	//res->AddValue(0x6305, "CHMB");
-	//res->AddValue(0x6310, "CHFB");
-	res->AddValue(0x6311, "CEFB");
-	res->AddValue(0x6312, "CDMW");
-	//res->AddValue(0x6313, "CIFB");
-	//res->AddValue(0x6314, "CIFB");
-	//res->AddValue(0x6315 "CHFB");
+	res->AddValue(0x6301, "CEMT");
+	res->AddValue(0x6302, "CDMT");
+	res->AddValue(0x6303, "CIMT");
+	res->AddValue(0x6304, "CDMT");
+	res->AddValue(0x6305, "CHMT");
+
+	res->AddValue(0x6310, "CHFT");
+	res->AddValue(0x6311, "CEFT");
+	res->AddValue(0x6312, "CDMT");
+	res->AddValue(0x6313, "CIFT");
+	res->AddValue(0x6314, "CIFT");
+	res->AddValue(0x6315, "CHFT");
 
 	// rest
 	res->AddValue(0x6400, "UDRZ");	// CGAMEANIMATIONTYPE_DRIZZT
