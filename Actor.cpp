@@ -187,7 +187,7 @@ Actor::_Init()
 	fActor->destination = fActor->position;
 	
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
-		SetAnimationAction(ACT_DIE);
+		SetAnimationAction(ACT_DEAD);
 	else
 		SetAnimationAction(ACT_STANDING);
 }
