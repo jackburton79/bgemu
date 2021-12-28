@@ -18,15 +18,15 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 
-	uint32 SpellNameUnidentified() const;
-	uint32 SpellNameIdentified() const;
+	uint32 NameUnidentifiedRef() const;
+	uint32 NameIdentifiedRef() const;
 
 	uint32 Flags() const;
 
 	uint16 CastingGraphics() const;
 
-	uint32 SpellDescriptionUnidentified() const;
-	uint32 SpellDescriptionIdentified() const;
+	uint32 DescriptionUnidentifiedRef() const;
+	uint32 DescriptionIdentifiedRef() const;
 
 	uint16 CastingTime() const;
 

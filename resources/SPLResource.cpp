@@ -46,7 +46,7 @@ SPLResource::Load(Archive *archive, uint32 key)
 
 
 uint32
-SPLResource::SpellNameUnidentified() const
+SPLResource::NameUnidentifiedRef() const
 {
 	uint32 strRef;
 	fData->ReadAt(8, strRef);
@@ -55,7 +55,7 @@ SPLResource::SpellNameUnidentified() const
 
 
 uint32
-SPLResource::SpellNameIdentified() const
+SPLResource::NameIdentifiedRef() const
 {
 	uint32 strRef;
 	fData->ReadAt(12, strRef);
@@ -82,7 +82,7 @@ SPLResource::CastingGraphics() const
 
 
 uint32
-SPLResource::SpellDescriptionUnidentified() const
+SPLResource::DescriptionUnidentifiedRef() const
 {
 	uint32 strRef;
 	fData->ReadAt(80, strRef);
@@ -91,7 +91,7 @@ SPLResource::SpellDescriptionUnidentified() const
 
 
 uint32
-SPLResource::SpellDescriptionIdentified() const
+SPLResource::DescriptionIdentifiedRef() const
 {
 	uint32 strRef;
 	fData->ReadAt(84, strRef);

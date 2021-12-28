@@ -283,8 +283,8 @@ ActionForceSpell::operator()()
 		std::cout << "spell: " << spellName << std::endl;
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
 		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
-		std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
-		std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
+		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
+		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
 		gResManager->ReleaseResource(spellResource);
 		sender->SetAnimationAction(ACT_CAST_SPELL);
 		SetInitiated();
