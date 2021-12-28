@@ -16,7 +16,8 @@
 #include "Referenceable.h"
 
 #define ANIM_STANDING_OFFSET 9
-#define ANIM_DEAD_OFFSET 48
+#define ANIM_DIE_OFFSET 45
+#define ANIM_DEAD_OFFSET 54
 
 struct animation_description {
 	std::string bam_name;

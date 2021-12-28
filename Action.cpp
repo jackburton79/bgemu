@@ -355,7 +355,7 @@ ActionPlayDead::operator()()
 			SetCompleted();
 			return;
 		}
-		actor->SetAnimationAction(ACT_DEAD);
+		actor->SetAnimationAction(ACT_DIE);
 	}
 	
 	if (fDuration-- <= 0)

@@ -187,7 +187,7 @@ Actor::_Init()
 	fActor->destination = fActor->position;
 	
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
-		SetAnimationAction(ACT_DEAD);
+		SetAnimationAction(ACT_DIE);
 	else
 		SetAnimationAction(ACT_STANDING);
 }
@@ -719,7 +719,7 @@ Actor::SetArea(const char* areaName)
 {
 	fArea = areaName;
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
-		SetAnimationAction(ACT_DEAD);
+		SetAnimationAction(ACT_DIE);
 	else
 		SetAnimationAction(ACT_STANDING);
 }
@@ -884,9 +884,19 @@ Actor::SetAnimationAction(int action)
 	if (fAnimationAction != action) {
 		fAnimationAction = action;
 		fAnimationValid = false;
-		if (action == ACT_CAST_SPELL_RELEASE) {
-			fNextAnimationAction = ACT_STANDING;
-			fAnimationAutoSwitchOnEnd = true;
+		switch (action) {
+			case ACT_CAST_SPELL_RELEASE:
+				fNextAnimationAction = ACT_STANDING;
+				fAnimationAutoSwitchOnEnd = true;
+				break;
+			case ACT_DIE:
+				fNextAnimationAction = ACT_DEAD;
+				fAnimationAutoSwitchOnEnd = true;
+				break;
+			default:
+				fNextAnimationAction = ACT_WALKING;
+				fAnimationAutoSwitchOnEnd = false;
+				break;
 		}
 	}
 }
@@ -903,9 +913,20 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {
-		if ((fAnimationAction != ACT_DEAD && fAnimationAction != ACT_CAST_SPELL_RELEASE)
-				|| !fCurrentAnimation->IsLastFrame())
+		if (fCurrentAnimation->IsLastFrame()) {
+			if (fAnimationAutoSwitchOnEnd) {
+				fAnimationAutoSwitchOnEnd = false;
+				fAnimationAction = fNextAnimationAction;
+				fCurrentAnimation = fAnimationFactory->AnimationFor(this, fColors);
+			}
+			if (fAnimationAction != ACT_DEAD) {
+				fCurrentAnimation->NextFrame();
+			}
+		} else
 			fCurrentAnimation->NextFrame();
+		/*if ((fAnimationAction != ACT_DIE && fAnimationAction != ACT_CAST_SPELL_RELEASE)
+				|| !fCurrentAnimation->IsLastFrame())
+			fCurrentAnimation->NextFrame();*/
 	}
 }
 

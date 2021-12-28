@@ -79,12 +79,16 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
 			break;
-		case ACT_DEAD:
+		case ACT_DIE:
 			if (_HasG15(description.bam_name)) {
 				description.bam_name.append("G15");
-				description.sequence_number += ANIM_DEAD_OFFSET;
+				description.sequence_number += ANIM_DIE_OFFSET;
 			} else
 				description.bam_name.append("G1");
+			break;
+		case ACT_DEAD:
+			description.bam_name.append("G16");
+			description.sequence_number += ANIM_DEAD_OFFSET;
 			break;
 		case ACT_CAST_SPELL_PREPARE:
 			std::cout << "CAST SPELL (PREPARE): " << BaseName() << std::endl;
