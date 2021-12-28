@@ -256,6 +256,7 @@ ActionForceSpell::ActionForceSpell(Object* object, action_params* node)
 	Action(object, node),
 	fDuration(50)
 {
+	fStart = Timer::Ticks();
 }
 
 
@@ -283,6 +284,14 @@ ActionForceSpell::operator()()
 		std::cout << "spell: " << spellName << std::endl;
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
 		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
+
+		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
+		// Round takes 6 seconds (in BG)
+		// AI update every 15 ticks (do we respect this ? don't know)
+		//
+
+		fDuration = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		std::cout << "fDuration:" << fDuration << std::endl;
 		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
 		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
 		gResManager->ReleaseResource(spellResource);
@@ -296,6 +305,7 @@ ActionForceSpell::operator()()
 		// because we don't know here if ACT_STANDING is the correct one
 		sender->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
+		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
 	}
 }
 

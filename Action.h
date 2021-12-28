@@ -80,6 +80,7 @@ public:
 	virtual void operator()();
 private:
 	int fDuration;
+	uint32 fStart;
 };
 
 
