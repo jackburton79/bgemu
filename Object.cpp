@@ -153,6 +153,13 @@ Object::SetName(const char* name)
 }
 
 
+Object::object_type
+Object::Type() const
+{
+	return fType;
+}
+
+
 void
 Object::SetGlobalID(uint16 id)
 {
@@ -305,6 +312,8 @@ Object::AddAction(Action* action)
 void
 Object::ExecuteActions()
 {
+	// TODO: handle uninterruptable actions
+
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->IsWalking()) {
 		actor->HandleWalking();
@@ -382,7 +391,7 @@ Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) con
 			Object* target = Core::Get()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
-				std::cout << Name() << "HasTrigger " << trigName << " -> " << actor->Name() << std::endl;
+				std::cout << Name() << " HasTrigger " << trigName << " -> " << actor->Name() << std::endl;
 				std::cout << "LastTrigger: " << fLastTrigger->Name() << std::endl;
 				return true;
 			}
@@ -537,7 +546,8 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (fTicks % 16 != GlobalID() % 16)
 		return;
 
-	if (!IsActionListEmpty())
+	//
+	if (fCurrentAction != NULL)
 		return;
 
 	bool runScripts = true;
