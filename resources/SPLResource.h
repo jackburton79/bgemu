@@ -27,6 +27,14 @@ public:
 
 	uint32 SpellDescriptionUnidentified() const;
 	uint32 SpellDescriptionIdentified() const;
+
+	uint16 CastingTime() const;
+
+	static std::string GetSpellResourceName(uint16 id);
+
+private:
+	uint32 fExtendedHeadersOffset;
+	uint16 fExtendedHeadersCount;
 };
 
 
