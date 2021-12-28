@@ -571,13 +571,13 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
-	Timer* timer = Timer::Get("ANIMATIONS");
+	/*Timer* timer = Timer::Get("ANIMATIONS");
 	if (timer->Expired())
 		timer->Rearm();
 	timer = Timer::Get("ANIMATEDTILES");
 	if (timer->Expired())
 		timer->Rearm();
-	
+	*/
 	if (!Game::Get()->InDialogMode()) {
 		fCurrentRoom->Update(executeScripts);
 		// TODO: Fix/Improve

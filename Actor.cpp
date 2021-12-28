@@ -648,18 +648,14 @@ std::string
 Actor::ArmorAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere
-	try {
-		IE::item armor = fCRE->ItemAtSlot(1);
+	IE::item armor;
+	if (fCRE->GetItemAtSlot(1, armor)) {
 		ITMResource* itm = gResManager->GetITM(armor.name);
 		if (itm != NULL) {
 			std::string animationString = itm->Animation();
 			gResManager->ReleaseResource(itm);
 			return animationString;
 		}
-	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
-	} catch (...) {
-		std::cerr << "Error" << std::endl;
 	}
 
 	return "1";
@@ -670,18 +666,14 @@ std::string
 Actor::WeaponAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere
-	try {
-		IE::item weapon = fCRE->ItemAtSlot(35);
+	IE::item weapon;
+	if (fCRE->GetItemAtSlot(35, weapon)) {
 		ITMResource* itm = gResManager->GetITM(weapon.name);
 		if (itm != NULL) {
 			std::string animationString = itm->Animation();
 			gResManager->ReleaseResource(itm);
 			return animationString;
 		}
-	} catch (std::exception& e) {
-		std::cerr << e.what() << std::endl;
-	} catch (...) {
-		std::cerr << "Error" << std::endl;
 	}
 
 	return "";

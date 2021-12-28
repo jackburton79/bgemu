@@ -159,7 +159,7 @@ public:
 	uint16 LocalActorEnum() const;
 	void SetLocalActorEnum(uint16 enumValue);
 
-	IE::item ItemAtSlot(uint32 i);
+	bool GetItemAtSlot(uint32 i, IE::item& item) const;
 
 	res_ref DialogFile() const;
 	std::string DeathVariable() const;
@@ -167,7 +167,7 @@ public:
 private:
 	virtual ~CREResource();
 	
-	void _ReadItemNum(IE::item& ieItem, uint16 offset);
+	void _ReadItemNum(IE::item& ieItem, uint16 offset) const;
 	
 	uint32 fItemSlotOffset;
 	uint32 fItemsOffset;

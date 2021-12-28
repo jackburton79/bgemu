@@ -350,8 +350,8 @@ CREResource::SetLocalActorEnum(uint16 value)
 }
 
 
-IE::item
-CREResource::ItemAtSlot(uint32 i)
+bool
+CREResource::GetItemAtSlot(uint32 i, IE::item& item) const
 {
 	if (i >= kNumItemSlots)
 		throw std::out_of_range("ItemAtSlot() out of range");
@@ -363,13 +363,15 @@ CREResource::ItemAtSlot(uint32 i)
 	//std::cout << " :" << std::dec << itemOffset << std::endl;
 
 	// TODO: number 38 is a dword instead. Handle that case
-	if ((int16)itemOffset == -1)
-		throw std::runtime_error("Empty item");
+	if ((int16)itemOffset == -1) {
+		// empty
+		return false;
+	}
 
 	IE::item ieItem;
-	_ReadItemNum(ieItem, itemOffset);
+	_ReadItemNum(item, itemOffset);
 
-	return ieItem;
+	return true;
 }
 
 
@@ -383,7 +385,7 @@ CREResource::DeathVariable() const
 
 
 void
-CREResource::_ReadItemNum(IE::item& item, uint16 itemOffset)
+CREResource::_ReadItemNum(IE::item& item, uint16 itemOffset) const
 {
 	const off_t offset = fItemsOffset + itemOffset * sizeof(IE::item);
 	fData->ReadAt(offset, item);
