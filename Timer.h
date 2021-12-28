@@ -31,8 +31,10 @@ public:
 
 	static void Wait(uint32 delay);
 	static void WaitSync(uint32 start, uint32 maxDelay);
-	static void AddOneShotTimer(uint32 time, timer_function func, void* parameter);
-	static void AddPeriodicTimer(uint32 interval, timer_function func, void* parameter);
+	static int AddOneShotTimer(uint32 time, timer_function func, void* parameter);
+	static int AddPeriodicTimer(uint32 interval, timer_function func, void* parameter);
+	static void RemovePeriodicTimer(int id);
+
 	static uint32 Ticks();
 
 	class Functor {
@@ -53,7 +55,7 @@ private:
 	uint32 fExpirationTime;
 
 	typedef std::map<std::string, Timer*> timer_map;
-	static timer_map sTimers;
+	static timer_map sNamedTimers;
 };
 
 

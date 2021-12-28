@@ -129,8 +129,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	SDL_Event event;
 	bool quitting = false;
 
-	Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
-	Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
+	int clockTimer = Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
+	int fpsTimer = Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
 
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
@@ -242,6 +242,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		sFrames++;
 		Timer::WaitSync(startTicks, 40);
 	}
+
+	Timer::RemovePeriodicTimer(clockTimer);
+	Timer::RemovePeriodicTimer(fpsTimer);
 
 	std::cout << "Game: Input loop stopped." << std::endl;
 

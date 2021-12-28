@@ -17,7 +17,8 @@
 #include <SDL.h>
 
 
-Timer::timer_map Timer::sTimers;
+Timer::timer_map Timer::sNamedTimers;
+
 
 Timer::Timer(uint32 delay)
 	:
@@ -41,8 +42,8 @@ Timer::Initialize()
 Timer*
 Timer::Set(const char* name, uint32 delay)
 {
-	sTimers[name] = new Timer(delay);
-	return sTimers[name];
+	sNamedTimers[name] = new Timer(delay);
+	return sNamedTimers[name];
 }
 
 
@@ -50,8 +51,8 @@ Timer::Set(const char* name, uint32 delay)
 Timer*
 Timer::Get(const char* name)
 {
-	timer_map::iterator i = sTimers.find(name);
-	if (i == sTimers.end())
+	timer_map::iterator i = sNamedTimers.find(name);
+	if (i == sNamedTimers.end())
 		return NULL;
 	return i->second;
 }
@@ -119,23 +120,30 @@ periodic_timer_callback(uint32 interval, void* castToFunctor)
 
 
 /* static */
-void
+int
 Timer::AddOneShotTimer(uint32 delay, timer_function func, void* parameter)
 {
 	Functor* functor = new Functor(func, parameter);
-	SDL_AddTimer(delay, oneshot_timer_callback, (void*)functor);
+	SDL_TimerID id = SDL_AddTimer(delay, oneshot_timer_callback, (void*)functor);
+	return id;
 }
 
 
 /* static */
-void
+int
 Timer::AddPeriodicTimer(uint32 interval, timer_function func, void* parameter)
 {
 	Functor* functor = new Functor(func, parameter);
-	// TODO: we should register this timer and remove it when not needed anymore
-	SDL_AddTimer(interval, periodic_timer_callback, (void*)functor);
+	SDL_TimerID id = SDL_AddTimer(interval, periodic_timer_callback, (void*)functor);
+	return id;
 }
 
+
+void
+Timer::RemovePeriodicTimer(int id)
+{
+	SDL_RemoveTimer(id);
+}
 
 /* static */
 uint32
