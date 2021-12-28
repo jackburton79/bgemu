@@ -51,8 +51,8 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x5013, "CIFB");
 	res->AddValue(0x5100, "CHMB");
 	res->AddValue(0x5101, "CEMW");
-	res->AddValue(0x5102, "CDMF"); // Fighter Male Dwarf
-	res->AddValue(0x5103, "CIMW");
+	res->AddValue(0x5102, "CDMF");	// Fighter Male Dwarf
+	res->AddValue(0x5103, "CIMF");	// Fighter Male Halfling
 	//res->AddValue(0x5110, "CHFB");
 	res->AddValue(0x5111, "CEFB");
 	res->AddValue(0x5112, "CDMW");
@@ -124,7 +124,9 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x6402, "USAR");
 
 	res->AddValue(0x6404, "USAR");
-	res->AddValue(0x7001, "MOGR");
+
+	res->AddValue(0x7000, "MOGR");	// HALF-OGRE
+	res->AddValue(0x7001, "MOGR");	// OGRE
 
 	res->AddValue(0x7400, "MDOG");
 	res->AddValue(0x7600, "METT"); // ETTERCAP
