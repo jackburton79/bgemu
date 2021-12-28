@@ -172,6 +172,30 @@ public:
 	}
 };
 
+class CreateVisualEffectCommand : public ShellCommand {
+public:
+	CreateVisualEffectCommand() : ShellCommand("create-visualeffect") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		std::string effectName;
+		IE::point where;
+		std::getline(stringStream, effectName, ',');
+
+		char o;
+		stringStream >> where.x >> o >> where.y;
+		// TODO: We are leaking the actionParams
+		action_params* actionParams = new action_params;
+		strcpy(actionParams->string1, effectName.c_str());
+		actionParams->where = where;
+
+		std::cout << where.x << ", " << where.y << std::endl;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionCreateVisualEffect(room, actionParams);
+		room->AddAction(action);
+	}
+};
+
+
 #if 0
 class DisplayStringCommand : public ShellCommand {
 public:
@@ -211,6 +235,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ShakeScreenCommand());
+	console->AddCommand(new CreateVisualEffectCommand());
 #if 0
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new MoveViewPointCommand());
