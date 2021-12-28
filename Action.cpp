@@ -288,14 +288,12 @@ ActionForceSpell::operator()()
 		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
 		// Round takes 6 seconds (in BG)
 		// AI update every 15 ticks (do we respect this ? don't know)
-		//
-
 		fDuration = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
 		std::cout << "fDuration:" << fDuration << std::endl;
 		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
 		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
 		gResManager->ReleaseResource(spellResource);
-		sender->SetAnimationAction(ACT_CAST_SPELL);
+		sender->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
 		SetInitiated();
 	}
 
@@ -303,7 +301,9 @@ ActionForceSpell::operator()()
 	if (fDuration-- == 0) {
 		// TODO: There should be a way to set the previous animation action,
 		// because we don't know here if ACT_STANDING is the correct one
-		sender->SetAnimationAction(ACT_STANDING);
+
+		// TODO: Play final cast animation
+		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
 		SetCompleted();
 		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
 	}

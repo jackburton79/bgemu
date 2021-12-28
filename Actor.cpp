@@ -901,7 +901,8 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {
-		if (fAction != ACT_DEAD || !fCurrentAnimation->IsLastFrame())
+		if ((fAction != ACT_DEAD && fAction != ACT_CAST_SPELL_RELEASE)
+				|| !fCurrentAnimation->IsLastFrame())
 			fCurrentAnimation->NextFrame();
 	}
 }

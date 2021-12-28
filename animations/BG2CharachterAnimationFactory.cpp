@@ -86,8 +86,8 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			} else
 				description.bam_name.append("G1");
 			break;
-		case ACT_CAST_SPELL:
-			std::cout << "CAST SPELL: " << BaseName() << std::endl;
+		case ACT_CAST_SPELL_PREPARE:
+			std::cout << "CAST SPELL (PREPARE): " << BaseName() << std::endl;
 			description.bam_name.append("C1");
 			//description.sequence_number += 9;
 			break;
@@ -107,7 +107,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	}
 	description.sequence_number += o;
 
-#if 0
+#if 1
 	std::cout << description.bam_name << std::endl;
 #endif
 	return description;

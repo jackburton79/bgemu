@@ -66,10 +66,13 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 			description.bam_name.append("G2");
 			//description.sequence_number = o;
 			break;
-		case ACT_CAST_SPELL:
-			description.bam_name.append("G25"); // spell build-up
-			//description.bam_name.append("G26"); // spell release
-			description.sequence_number += 44;
+		case ACT_CAST_SPELL_PREPARE:
+			description.bam_name.append("G25");
+			description.sequence_number += 45;
+			break;
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name.append("G26");
+			description.sequence_number += 54;
 			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
