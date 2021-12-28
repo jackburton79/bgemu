@@ -9,10 +9,14 @@
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
 
+#include <iostream>
+#include <fstream>
+
 class WriteableIDSResource : public IDSResource {
 public:
 	WriteableIDSResource(const res_ref& name);
 	bool AddValue(uint32 id, std::string value);
+	void WriteToFile(const char* fileName);
 };
 
 IDSResource*
@@ -23,6 +27,7 @@ GeneratedIDS::CreateIDSResource(const res_ref& name)
 	if (name == "ANISND")
 		FillAniSnd(res);
 
+	//res->WriteToFile("/home/stefano/anisnd.ids");
 	return res;
 }
 
@@ -220,4 +225,18 @@ WriteableIDSResource::AddValue(uint32 id, std::string value)
 {
 	fMap[id] = value;
 	return true;
+}
+
+
+void
+WriteableIDSResource::WriteToFile(const char* fileName)
+{
+	uint32 numEntries = fMap.size();
+
+	std::ofstream outputFile(fileName, std::ios_base::out);
+	outputFile << numEntries << std::endl;
+
+	for (string_map::const_iterator i = fMap.begin(); i != fMap.end(); i++) {
+		outputFile << std::hex << "0x" << i->first << " " << i->second << std::endl;
+	}
 }
