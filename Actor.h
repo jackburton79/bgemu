@@ -133,7 +133,10 @@ private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
 	Animation* fCurrentAnimation;
+	int fAnimationAction;
+	int fNextAnimationAction;
 	bool fAnimationValid;
+	bool fAnimationAutoSwitchOnEnd;
 	
 	std::string fArea;
 
@@ -146,7 +149,7 @@ private:
 	bool fSelected;
 
 	bool fAttacking;
-	int fAction;
+
 
 	PathFinder* fPath;
 	int fSpeed;

@@ -39,13 +39,15 @@ Actor::Actor(IE::actor &actor)
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fAnimationAction(ACT_STANDING),
+	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
+	fAnimationAutoSwitchOnEnd(false),
 	fCRE(NULL),
 	fOwnsActor(false),
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
-	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2),
 	fTileCell(NULL),
@@ -61,13 +63,15 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fAnimationAction(ACT_STANDING),
+	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
+	fAnimationAutoSwitchOnEnd(false),
 	fCRE(cre),
 	fOwnsActor(false),
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
-	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2),
 	fTileCell(NULL),
@@ -83,13 +87,15 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor(new IE::actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fAnimationAction(ACT_STANDING),
+	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
+	fAnimationAutoSwitchOnEnd(false),
 	fCRE(NULL),
 	fOwnsActor(true),
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
-	fAction(ACT_STANDING),
 	fPath(NULL),
 	fSpeed(2),
 	fTileCell(NULL),
@@ -868,16 +874,20 @@ Actor::Update(bool scripts)
 int
 Actor::AnimationAction() const
 {
-	return fAction;
+	return fAnimationAction;
 }
 
 
 void
 Actor::SetAnimationAction(int action)
 {
-	if (fAction != action) {
-		fAction = action;
+	if (fAnimationAction != action) {
+		fAnimationAction = action;
 		fAnimationValid = false;
+		if (action == ACT_CAST_SPELL_RELEASE) {
+			fNextAnimationAction = ACT_STANDING;
+			fAnimationAutoSwitchOnEnd = true;
+		}
 	}
 }
 
@@ -893,7 +903,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {
-		if ((fAction != ACT_DEAD && fAction != ACT_CAST_SPELL_RELEASE)
+		if ((fAnimationAction != ACT_DEAD && fAnimationAction != ACT_CAST_SPELL_RELEASE)
 				|| !fCurrentAnimation->IsLastFrame())
 			fCurrentAnimation->NextFrame();
 	}
