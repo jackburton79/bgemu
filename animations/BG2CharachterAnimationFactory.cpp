@@ -107,7 +107,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	}
 	description.sequence_number += o;
 
-#if 1
+#if 0
 	std::cout << description.bam_name << std::endl;
 #endif
 	return description;
