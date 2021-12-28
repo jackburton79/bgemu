@@ -188,7 +188,6 @@ public:
 		strcpy(actionParams->string1, effectName.c_str());
 		actionParams->where = where;
 
-		std::cout << where.x << ", " << where.y << std::endl;
 		RoomBase* room = Core::Get()->CurrentRoom();
 		Action* action = new ActionCreateVisualEffect(room, actionParams);
 		room->AddAction(action);
