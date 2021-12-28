@@ -71,7 +71,10 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number += ANIM_STANDING_OFFSET;
+			if (Core::Get()->HasExtendedOrientations())
+				description.sequence_number += ANIM_STANDING_OFFSET;
+			else
+				description.sequence_number += 8;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
