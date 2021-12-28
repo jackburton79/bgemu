@@ -277,13 +277,15 @@ ActionForceSpell::operator()()
 	if (!Initiated()) {
 		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
 		std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+		std::string spellResourceName = SPLResource::GetSpellResourceName(fActionParams->integer1);
 		gResManager->ReleaseResource(spellIDS);
 
 		std::cout << "spell: " << spellName << std::endl;
-		/*SPLResource* spellResource = gResManager->GetSPL(spellName);
+		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
 		std::cout << spellResource->SpellDescriptionIdentified() << std::endl;
 		std::cout << spellResource->SpellDescriptionUnidentified() << std::endl;
-		gResManager->ReleaseResource(spellResource);*/
+		gResManager->ReleaseResource(spellResource);
 		sender->SetAnimationAction(ACT_CAST_SPELL);
 		SetInitiated();
 	}
