@@ -8,10 +8,10 @@
 #include "AnimationFactory.h"
 
 #include "Animation.h"
+#include "BamResource.h"
 #include "BGCharachterAnimationFactory.h"
 #include "BG2CharachterAnimationFactory.h"
 #include "BGMonsterAnimationFactory.h"
-#include "BamResource.h"
 #include "Core.h"
 #include "IWDAnimationFactory.h"
 #include "Log.h"
@@ -70,6 +70,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x23:
 					case 0x74:
 					case 0x7b: // MWLF
+					case 0x7d: // MZOM (Zombie)
 					case 0x7e:
 					case 0x7f:
 					case 0x73:
@@ -112,7 +113,6 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x62:
 					case 0x63:
 					case 0x64:
-						//else if (highId >= 0x50 && highId < 0x90 )
 						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
 					default:
@@ -235,7 +235,9 @@ AnimationFactory::_ClassCharacter(uint8 c) const
 		case 5: // BARD
 			return "T";
 		default:
-			return "B";
+			// if class is not one of those, use the basename
+			return BaseName().substr(3, 1);
+			//return "B"; In BG there is no B type
 	}
 }
 
