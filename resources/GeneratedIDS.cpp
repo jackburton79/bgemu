@@ -153,16 +153,20 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x7a02, "MSPI"); // PHASE_SPIDER
 	res->AddValue(0x7a03, "MSPI"); // SWORD_SPIDER
 	res->AddValue(0x7a04, "MSPI"); // SPIDER_WRAITH
+
 	res->AddValue(0x7b00, "MWLF"); // WOLF
 	res->AddValue(0x7b01, "MWLF"); // WOLF_WORG ?
+	res->AddValue(0x7b04, "MWLF"); // WOLF_DREAD ?
 	res->AddValue(0x7b05, "MWLF"); // WOLF_DREAD ?
 
 	res->AddValue(0x7c01, "MTAS");
 	res->AddValue(0x7d00, "MZOM"); // ZOMBIE
 	res->AddValue(0x7e00, "MWER");
+
 	res->AddValue(0x7f01, "MMIN");
 	res->AddValue(0x7f02, "MBEH");
 	res->AddValue(0x7f03, "MIMP");
+
 	res->AddValue(0x7f09, "MSAH");
 	res->AddValue(0x7f0c, "MKUO");
 	res->AddValue(0x7f11, "MUMB");
@@ -187,12 +191,15 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 
 	res->AddValue(0xb200, "NBEG");
 	res->AddValue(0xb210, "NPRO");
+
 	res->AddValue(0xb300, "NBOY");
 	res->AddValue(0xb310, "NGRL");
+
 	res->AddValue(0xb400, "NFAM");
 	res->AddValue(0xb410, "NFAW");
 
-	res->AddValue(0xb510, "NFAW"); // TODO
+	res->AddValue(0xb500, "NSIM"); // TODO
+	res->AddValue(0xb510, "NSIW"); // TODO
 
 	res->AddValue(0xca00, "NNOM");
 	res->AddValue(0xca10, "NNOW");
@@ -207,12 +214,15 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xc610, "NFAW"); // HARLOT_WOMAN
 
 	res->AddValue(0xc600, "NBEG");
+
 	res->AddValue(0xc700, "NBOY");
 	res->AddValue(0xc710, "NGRL");
+
 	res->AddValue(0xc800, "NFAM");
 	res->AddValue(0xc810, "NFAW");
+
 	res->AddValue(0xc900, "NSIM");
-	res->AddValue(0xc910, "NFAW"); // TODO
+	res->AddValue(0xc910, "NSIW"); // TODO
 
 	// Birds
 	res->AddValue(0xd000, "AEAG"); // Eagle
@@ -220,7 +230,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0xd200, "AVUL");
 	res->AddValue(0xd300, "ABIR"); // Bird
 
-	res->AddValue(0xe010, "METT");
+	res->AddValue(0xe010, "METN");
 }
 
 
