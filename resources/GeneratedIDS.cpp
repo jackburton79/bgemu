@@ -134,6 +134,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x7a02, "MSPI"); // PHASE_SPIDER
 	res->AddValue(0x7a03, "MSPI"); // SWORD_SPIDER
 	res->AddValue(0x7a04, "MSPI"); // SPIDER_WRAITH
+	res->AddValue(0x7b00, "MWLF"); // WOLF
 	res->AddValue(0x7b01, "MWLF"); // WOLF_WORG ?
 	res->AddValue(0x7b05, "MWLF"); // WOLF_DREAD ?
 
