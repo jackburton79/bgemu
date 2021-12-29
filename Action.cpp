@@ -299,10 +299,6 @@ ActionForceSpell::operator()()
 
 	// TODO: only for testing
 	if (fDuration-- == 0) {
-		// TODO: There should be a way to set the previous animation action,
-		// because we don't know here if ACT_STANDING is the correct one
-
-		// TODO: Play final cast animation
 		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
 		SetCompleted();
 		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
@@ -358,8 +354,11 @@ ActionPlayDead::operator()()
 		actor->SetAnimationAction(ACT_DEAD);
 	}
 	
-	if (fDuration-- <= 0)
+	if (fDuration-- <= 0) {
+		Actor* actor = dynamic_cast<Actor*>(fObject);
+		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
+	}
 }
 
 
