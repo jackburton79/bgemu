@@ -719,7 +719,7 @@ Actor::SetArea(const char* areaName)
 {
 	fArea = areaName;
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
-		SetAnimationAction(ACT_DIE);
+		SetAnimationAction(ACT_DEAD);
 	else
 		SetAnimationAction(ACT_STANDING);
 }
@@ -881,6 +881,7 @@ Actor::AnimationAction() const
 void
 Actor::SetAnimationAction(int action)
 {
+	std::cout << Name() << " SetAnimationAction() " << action << std::endl;
 	if (fAnimationAction != action) {
 		fAnimationAction = action;
 		fAnimationValid = false;
@@ -894,10 +895,11 @@ Actor::SetAnimationAction(int action)
 				fAnimationAutoSwitchOnEnd = true;
 				break;
 			default:
-				fNextAnimationAction = ACT_WALKING;
+				fNextAnimationAction = ACT_STANDING;
 				fAnimationAutoSwitchOnEnd = false;
 				break;
 		}
+		std::cout << "new action: " << fAnimationAction << std::endl;
 	}
 }
 
