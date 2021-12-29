@@ -33,17 +33,6 @@ const int kStandingOffset = 10;
 AnimationFactory*
 AnimationFactory::GetFactory(uint16 animationID)
 {
-	// 0xc100: ACAT: Simple
-	// 0xc700: ABOY: Split
-	// 0x7001: MOGR
-	// 0x7400: MDOG: Simple
-	// 0x7e00: MWER, BG2Monster
-	// 0x8100: MHOB, BGMonster
-	// 0x9000: MOGR, BG2Monster
-	// 0x7f2c: NSOL, BG2Monster
-	// MSIR, 0x2000 BGCharacter
-	// 0xa000: MWYV (Wyvern)
-	// 0x1000: MWYV (Wyvern)
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
