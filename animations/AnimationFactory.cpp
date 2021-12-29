@@ -184,7 +184,6 @@ AnimationFactory::BaseName() const
 std::string
 AnimationFactory::_RaceCharacter(uint8 race) const
 {
-	std::cout << "race: " << (int)race << std::endl;
 	switch (race) {
 		case 1: // HUMAN
 		case 7: // HALFORC
@@ -207,7 +206,6 @@ AnimationFactory::_RaceCharacter(uint8 race) const
 std::string
 AnimationFactory::_ClassCharacter(uint8 c) const
 {
-	std::cout << "class: " << (int)c << std::endl;
 	switch (c) {
 		case 1: // MAGE
 		case 11:
