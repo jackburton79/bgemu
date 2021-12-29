@@ -124,7 +124,7 @@ main(int argc, char **argv)
 	if (sDebug) {
 		//gResManager->SetDebug(2);
 		Script::SetDebug(true);
-		Object::SetDebug(true);
+		//Object::SetDebug(true);
 	}
 
 	if (!GraphicsEngine::Initialize()) {
