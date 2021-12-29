@@ -261,9 +261,10 @@ Object::IsInsideVisibleArea() const
 void
 Object::Update(bool scripts)
 {
-	//PrintTriggers();
-
 	fTicks++;
+
+	if (sDebug)
+		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
 	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
 	Actor* actor = dynamic_cast<Actor*>(this);
@@ -534,10 +535,6 @@ Object::SetDebug(bool debug)
 void
 Object::LastReferenceReleased()
 {
-	if (sDebug) {
-		std::cout << "Object (" << Name() << ")::LastReferenceReleased()";
-		std::cout << std::endl;	
-	}
 	delete this;
 }
 
@@ -545,10 +542,12 @@ Object::LastReferenceReleased()
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (sDebug)
+		std::cout << Name() << ": _ExecuteScripts()" << std::endl;
+
 	if (fTicks % 16 != GlobalID() % 16)
 		return;
 
-	//
 	if (fCurrentAction != NULL)
 		return;
 
@@ -581,6 +580,11 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	if (!IsActive())
 		return;
+
+	if (sDebug) {
+		std::cout << Name() << ": _ExecuteScripts(): run scripts (ticks=" << fTicks;
+		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;
+	}
 
 	maxLevel = std::min((size_t)maxLevel, fScripts.size());
 	try {
