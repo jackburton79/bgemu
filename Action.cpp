@@ -650,6 +650,42 @@ ActionOpenDoor::operator()()
 }
 
 
+// ActionCloseDoor
+ActionCloseDoor::ActionCloseDoor(Object* sender, action_params* node)
+	:
+	Action(sender, node)
+{
+}
+
+
+/* virtual */
+void
+ActionCloseDoor::operator()()
+{
+	if (fObject == NULL)
+		std::cerr << "NULL OBJECT" << std::endl;
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
+	if (actor == NULL) {
+		std::cerr << "NULL ACTOR!!!" << std::endl;
+		return;
+	}
+
+	Object* target = Script::GetTargetObject(actor, fActionParams);
+	Door* door = dynamic_cast<Door*>(target);
+	if (door == NULL) {
+		std::cerr << "NULL DOOR!!! MEANS THE OBJECT IS NOT A DOOR" << std::endl;
+		SetCompleted();
+		return;
+	}
+
+	std::cout << "actor " << actor->Name() << " closes " << door->Name() << std::endl;
+	if (door->Opened()) {
+		door->Close(actor);
+		SetCompleted();
+	}
+}
+
+
 // DisplayMessage
 ActionDisplayMessage::ActionDisplayMessage(Object* sender, action_params* node)
 	:

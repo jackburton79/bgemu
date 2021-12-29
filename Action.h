@@ -177,6 +177,12 @@ public:
 	virtual void operator()();
 };
 
+class ActionCloseDoor : public Action {
+public:
+	ActionCloseDoor(Object* actor, action_params* node);
+	virtual void operator()();
+};
+
 
 class ActionDisplayMessage : public Action {
 public:

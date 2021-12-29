@@ -462,7 +462,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 			{
 				// HitBy
 				// Returns true on first Script launch, IOW initial area load
-				if (sender->HasTrigger("ONCREATION()")) {
+				if (sender->HasTrigger("OnCreation")) {
 					returnValue = true;
 					break;
 				}
@@ -510,7 +510,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				Returns true if the script is processed for the first time this session,
 				e.g. when a creature is created (for CRE scripts) or when the player
 				enters an area (for ARE scripts).*/
-				returnValue = sender->HasTrigger("ONCREATION()");
+				returnValue = sender->HasTrigger("OnCreation");
 				break;
 			}
 			case 0x004c:
@@ -1168,6 +1168,12 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 		{
 			/* OPENDOOR(O:OBJECT*)(143 0x8f) */
 			action = new ActionOpenDoor(sender, act);
+			break;
+		}
+		case 144:
+		{
+			/* CLOSEDOOR(O:OBJECT*)(144 0x90) */
+			action = new ActionCloseDoor(sender, act);
 			break;
 		}
 		case 151:

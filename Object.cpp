@@ -117,7 +117,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 		if (script != NULL)
 			AddScript(script);
 	}
-	trigger_entry trig("ONCREATION()", this);
+	trigger_entry trig("OnCreation", this);
 	AddTrigger(trig);
 }
 
@@ -266,12 +266,11 @@ Object::Update(bool scripts)
 	if (sDebug)
 		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
-	bool isArea = dynamic_cast<RoomBase*>(this) != NULL;
 	Actor* actor = dynamic_cast<Actor*>(this);
 	bool isActor = actor != NULL;
 	bool cutscene = Core::Get()->CutsceneMode(); 	
 	if (cutscene) {
-		if (isArea || !isActor)
+		if (Type() == Object::AREA || !isActor)
 			scripts = false;
 	}
 	if (scripts) {

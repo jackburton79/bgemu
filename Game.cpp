@@ -348,8 +348,9 @@ Game::LoadStartingArea()
 		return;
 	}
 
-	// TODO: Needed for the initial script
+	// TODO: Fix this
 	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+		// TODO: Needed for the initial script
 		IE::point startPoint = {20, 20};
 		fParty->AddActor(new Actor("IMOEN", startPoint, 0));
 	}
