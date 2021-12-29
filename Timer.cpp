@@ -244,6 +244,7 @@ GameTimer::Add(const char* name, uint32 expirationTime)
 void
 GameTimer::Remove(const char* name)
 {
+	std::cout << "GameTimer::Remove()" << name << std::endl;
 	GameTimer* timer = Get(name);
 	if (timer != NULL) {
 		sTimers.erase(name);
@@ -348,6 +349,13 @@ GameTimer::UpdateGameTime()
 	//if (sGameTime % 60 == 0)
 	//	PrintTime();
 	sGameTime++;
+
+	// TODO: Check timer expiration, add a trigger and delete
+	// the timer
+	/*std::map<std::string, GameTimer*>::const_iterator i;
+	for (i = sTimers.begin(); i != sTimers.end(); i++) {
+
+	}*/
 }
 
 
