@@ -881,7 +881,6 @@ Actor::AnimationAction() const
 void
 Actor::SetAnimationAction(int action)
 {
-	std::cout << Name() << " SetAnimationAction() " << action << std::endl;
 	if (fAnimationAction != action) {
 		fAnimationAction = action;
 		fAnimationValid = false;
@@ -899,7 +898,6 @@ Actor::SetAnimationAction(int action)
 				fAnimationAutoSwitchOnEnd = false;
 				break;
 		}
-		std::cout << "new action: " << fAnimationAction << std::endl;
 	}
 }
 
