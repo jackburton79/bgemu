@@ -274,7 +274,7 @@ Object::Update(bool scripts)
 			scripts = false;
 	}
 	if (scripts) {
-		_ExecuteScripts(8);
+		_HandleScripting(8);
 	}
 
 	if (cutscene && actor != NULL && actor->InParty() && actor != Core::Get()->CutsceneActor())
@@ -539,10 +539,10 @@ Object::LastReferenceReleased()
 
 
 void
-Object::_ExecuteScripts(int32 maxLevel)
+Object::_HandleScripting(int32 maxLevel)
 {
 	if (sDebug)
-		std::cout << Name() << ": _ExecuteScripts()" << std::endl;
+		std::cout << Name() << ": _HandleScripting()" << std::endl;
 
 	if (fTicks % 16 != GlobalID() % 16)
 		return;
@@ -585,7 +585,17 @@ Object::_ExecuteScripts(int32 maxLevel)
 		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;
 	}
 
-	maxLevel = std::min((size_t)maxLevel, fScripts.size());
+	_ExecuteScripts(maxLevel);
+
+	if (true)
+		ClearTriggers();
+}
+
+
+void
+Object::_ExecuteScripts(int32 maxLevel)
+{
+	maxLevel = std::min((size_t) (maxLevel), fScripts.size());
 	try {
 		bool continuing = false;
 		for (int32 i = 0; i < maxLevel; i++) {
@@ -601,9 +611,6 @@ Object::_ExecuteScripts(int32 maxLevel)
 	} catch (...) {
 		std::cerr << Log::Red << "Exception while running script!" << std::endl;
 	}
-	
-	if (true)
-		ClearTriggers();
 }
 
 

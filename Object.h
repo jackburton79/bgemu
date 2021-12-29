@@ -135,9 +135,10 @@ protected:
 
 private:
 	void _UpdateTileCell();
+	void _HandleScripting(int32 maxLevel);
 	void _ExecuteScripts(int32 maxLevel);
 	void _ExecuteAction(Action& action);
-	
+
 	std::string fName;
 	object_type fType;
 	uint16 fGlobalID;
