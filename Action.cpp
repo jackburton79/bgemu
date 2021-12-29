@@ -790,7 +790,6 @@ ActionDialog::ActionDialog(Object* source, action_params* node)
 	:
 	Action(source, node)
 {
-	std::cout << "Dialogue::Dialogue()" << std::endl;
 }
 
 
