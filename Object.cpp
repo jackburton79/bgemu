@@ -563,7 +563,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (actor != NULL && actor->IsWalking())
 		return;
 
-	if (dynamic_cast<RoomBase*>(this) != NULL)
+	if (Type() == Object::AREA)
 		runScripts = true;
 
 	if (!runScripts)
