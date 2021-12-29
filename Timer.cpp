@@ -233,7 +233,7 @@ void
 GameTimer::Add(const char* name, uint32 expirationTime)
 {
 	std::string expiration = IDTable::GameTimeAt(expirationTime);
-	std::cout << "Added timer " << name << " which expires in ";
+	std::cout << "Added timer '" << name << "' which expires in ";
 	std::cout << expiration << "(" << std::dec << expirationTime;
 	std::cout << ")" << std::endl;
 	sTimers[name] = new GameTimer(expirationTime);
