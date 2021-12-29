@@ -104,7 +104,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fTicks(0),
 	fTicksIdle(0),
 	fVisible(true),
-	fActive(false),
+	fActive(true),
 	fIsInterruptable(true),
 	fWaitTime(0),
 	fCurrentAction(NULL),
@@ -306,6 +306,8 @@ Object::AddAction(Action* action)
 		_ExecuteAction(*action);
 	} else
 		fActions.push_back(action);
+
+	SetActive(true);
 }
 
 
@@ -576,6 +578,9 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 	if (Core::Get()->CutsceneMode())
 		maxLevel = 1;
+
+	if (!IsActive())
+		return;
 
 	maxLevel = std::min((size_t)maxLevel, fScripts.size());
 	try {

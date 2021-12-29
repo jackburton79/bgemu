@@ -183,6 +183,8 @@ Actor::_Init()
 		fActor->orientation = 0;
 	}
 
+	SetActive(false);
+
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
 	
