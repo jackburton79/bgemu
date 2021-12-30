@@ -100,16 +100,21 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			screenRect.w,
 			screenRect.h - 21);
 
+	OutputConsole* outputConsole = NULL;
+	InputConsole* inputConsole = NULL;
+#if 0
 	std::cout << "Setting up output console... ";
 	std::flush(std::cout);
-	OutputConsole console(consoleRect, false);
+	outputConsole = new OutputConsole(consoleRect, false);
+	std::cout << "OK!" << std::endl;
+#endif
 	consoleRect.h = 20;
 	consoleRect.y = screenRect.h - consoleRect.h;
-	std::cout << "OK!" << std::endl;
 	std::cout << "Setting up input console... ";
 	std::flush(std::cout);
-	InputConsole inputConsole(consoleRect);
-	inputConsole.Initialize();
+	inputConsole = new InputConsole(consoleRect);
+	if (inputConsole != NULL)
+		inputConsole->Initialize();
 	std::cout << "OK!" << std::endl;
 
 	if (TestMode()) {
@@ -154,14 +159,17 @@ Game::Loop(bool noNewGame, bool executeScripts)
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
-						console.Toggle();
-						inputConsole.Toggle();
-					} else if (console.IsActive()) {
+						if (outputConsole != NULL)
+							outputConsole->Toggle();
+						if (inputConsole != NULL)
+							inputConsole->Toggle();
+					} else if (inputConsole != NULL && inputConsole->IsActive()) {
 						if (event.key.keysym.scancode < 0x80 && event.key.keysym.scancode > 0) {
 							uint8 key = event.key.keysym.sym;
 							if (event.key.keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT))
 								key -= 32;
-							inputConsole.HandleInput(key);
+							if (inputConsole != NULL)
+								inputConsole->HandleInput(key);
 						}
 					} else {
 						switch (event.key.keysym.sym) {
@@ -170,11 +178,13 @@ Game::Loop(bool noNewGame, bool executeScripts)
 									room->ToggleOverlays();
 								break;
 							case SDLK_d:
-								if (console.HasOutputRedirected())
-									console.DisableRedirect();
-								else
-									console.EnableRedirect();
-								break;
+								if (outputConsole != NULL) {
+									if (outputConsole->HasOutputRedirected())
+										outputConsole->DisableRedirect();
+									else
+										outputConsole->EnableRedirect();
+									break;
+								}
 							// TODO: Move to GUI class
 							case SDLK_h:
 								if (room != NULL)
@@ -233,8 +243,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 		gui->Draw();
 
-		console.Draw();
-		inputConsole.Draw();
+		if (outputConsole != NULL)
+			outputConsole->Draw();
+		if (inputConsole != NULL)
+			inputConsole->Draw();
 		if (!TestMode())
 			Core::Get()->UpdateLogic(executeScripts);
 		GraphicsEngine::Get()->Update();
@@ -245,6 +257,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	Timer::RemovePeriodicTimer(clockTimer);
 	Timer::RemovePeriodicTimer(fpsTimer);
+
+	delete inputConsole;
+	delete outputConsole;
 
 	std::cout << "Game: Input loop stopped." << std::endl;
 
