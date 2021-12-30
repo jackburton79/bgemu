@@ -135,6 +135,7 @@ public:
 		player->AddAction(action);
 	}
 };
+#endif
 
 
 class MoveViewPointCommand : public ShellCommand {
@@ -145,13 +146,18 @@ public:
 		IE::point where;
 		int speed;
 		char o;
+
 		stringStream >> where.x >> o >> where.y >> o >> speed;
-		std::cout << std::dec << where.x << ", " << where.y << ". Speed " << speed << std::endl;
-		Action* action = new MoveViewPoint(NULL, where, speed);
-		Core::Get()->AddGlobalAction(action);
+		// TODO: We are leaking the actionParams
+		action_params* actionParams = new action_params;
+		actionParams->integer1 = speed;
+		actionParams->where = where;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionMoveViewPoint(room, actionParams);
+		room->AddAction(action);
 	}
 };
-#endif
+
 
 class ShakeScreenCommand : public ShellCommand {
 public:
@@ -248,19 +254,19 @@ public:
 void
 AddCommands(InputConsole* console)
 {
+	console->AddCommand(new CreateCreatureCommand());
+	console->AddCommand(new CreateVisualEffectCommand());
+	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
-	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new ListResourcesCommand());
-	console->AddCommand(new WaitTimeCommand());
+	console->AddCommand(new MoveViewPointCommand());
+	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new ShowWindowCommand());
-	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ShakeScreenCommand());
-	console->AddCommand(new CreateVisualEffectCommand());
-	console->AddCommand(new CreateCreatureCommand());
+	console->AddCommand(new WaitTimeCommand());
 #if 0
 	console->AddCommand(new WalkToObjectCommand());
-	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new DisplayStringCommand());
 #endif
 }
