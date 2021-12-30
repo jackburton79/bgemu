@@ -416,7 +416,7 @@ Script::_EvaluateConditionNode(node* conditionNode)
 	}
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER BLOCK returned ";
-		std::cout << (blockEvaluation ? "TRUE" : "FALSE") << std::endl;
+		std::cout << (blockEvaluation ? "TRUE" : "FALSE") << std::endl << std::endl;
 	}
 
 	return blockEvaluation;
