@@ -747,7 +747,10 @@ trigger_params::Print() const
 	std::cout << "(" << std::dec << (int)id << ", 0x" << std::hex << (int)id << ")";
 	std::cout << "(";
 	std::cout << std::dec;
-	std::cout << parameter1 << ", " << parameter2 << ", " << string1 << ", " << string2 << ")" << std::endl;
+	std::cout << "int1=" << parameter1 << ", ";
+	std::cout << "int2=" << parameter2 << ", ";
+	std::cout << "string1=" << string1 << ", ";
+	std::cout << "string2=" << string2 << ")" << std::endl;
 	object.Print();
 }
 
@@ -862,13 +865,13 @@ action_params::Print() const
 	std::cout << IDTable::ActionAt(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
 	std::cout << std::dec;
-	std::cout << "(";
+	std::cout << "(int1=";
 	std::cout << integer1 << ", ";
-	std::cout << "(" << where.x << ", " << where.y << "), ";
-	std::cout << integer2 << ", ";
-	std::cout << integer3 << ", ";
-	std::cout << string1 << ", ";
-	std::cout << string2 << ")" << std::endl;
+	std::cout << "point=(" << where.x << ", " << where.y << "), ";
+	std::cout << "int2=" << integer2 << ", ";
+	std::cout << "int3=" << integer3 << ", ";
+	std::cout << "string1=" << string1 << ", ";
+	std::cout << "string2=" << string2 << ")" << std::endl;
 	first.Print();
 	second.Print();
 	third.Print();
