@@ -172,6 +172,7 @@ public:
 	}
 };
 
+
 class CreateVisualEffectCommand : public ShellCommand {
 public:
 	CreateVisualEffectCommand() : ShellCommand("create-visualeffect") {};
@@ -180,7 +181,6 @@ public:
 		std::string effectName;
 		IE::point where;
 		std::getline(stringStream, effectName, ',');
-
 		char o;
 		stringStream >> where.x >> o >> where.y;
 		// TODO: We are leaking the actionParams
@@ -190,6 +190,28 @@ public:
 
 		RoomBase* room = Core::Get()->CurrentRoom();
 		Action* action = new ActionCreateVisualEffect(room, actionParams);
+		room->AddAction(action);
+	}
+};
+
+
+class CreateCreatureCommand : public ShellCommand {
+public:
+	CreateCreatureCommand() : ShellCommand("create-creature") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		std::string creatureName;
+		stringStream >> creatureName;
+		// TODO: We are leaking the actionParams
+		action_params* actionParams = new action_params;
+		strcpy(actionParams->string1, creatureName.c_str());
+		IE::point where;
+		// TODO:
+		where.x = 100;
+		where.y = 100;
+		actionParams->where = where;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionCreateCreature(room, actionParams);
 		room->AddAction(action);
 	}
 };
@@ -235,6 +257,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new CreateVisualEffectCommand());
+	console->AddCommand(new CreateCreatureCommand());
 #if 0
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new MoveViewPointCommand());
