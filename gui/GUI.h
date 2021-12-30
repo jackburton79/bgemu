@@ -58,9 +58,12 @@ public:
 			uint16 x, uint16 y, uint32 time);
 	void DisplayStringCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time);
+
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
 	void MouseMoved(int16 x, int16 y);
+
+	void GetCursorPosition(int16& x, int16& y) const;
 
 	void ShowWindow(uint16 id);
 	void HideWindow(uint16 id);

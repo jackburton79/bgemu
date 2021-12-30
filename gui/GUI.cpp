@@ -254,6 +254,14 @@ GUI::MouseMoved(int16 x, int16 y)
 }
 
 
+void
+GUI::GetCursorPosition(int16& x, int16& y) const
+{
+	x = fCursorPosition.x;
+	y = fCursorPosition.y;
+}
+
+
 struct WindowsSorter {
 	bool operator()(Window* const& window1, Window* const& window2) const {
 		return window1->ID() > window2->ID();
