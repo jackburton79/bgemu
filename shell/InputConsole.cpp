@@ -136,7 +136,7 @@ InputConsole::_FindCommand(const std::string& cmd)
 	for (i = fCommands.begin();
 			i != fCommands.end(); i++) {
 		ShellCommand* shellCommand = *i;
-		if (shellCommand->Command() == cmd)
+		if (::strcasecmp(shellCommand->Command().c_str(), cmd.c_str()) == 0)
 			return shellCommand;
 	}
 
@@ -152,8 +152,8 @@ InputConsole::_FindCompleteCommand(const std::string& partialCommand) const
 	for (i = fCommands.begin();
 			i != fCommands.end(); i++) {
 		std::string fullCmd = (*i)->Command();
-		if (fullCmd.compare(0, partialCommand.length(),
-				partialCommand) == 0) {
+		if (::strncasecmp(fullCmd.c_str(), partialCommand.c_str(),
+						partialCommand.length()) == 0) {
 			return fullCmd;
 		}
 	}

@@ -28,7 +28,7 @@
 
 class ListObjectsCommand : public ShellCommand {
 public:
-	ListObjectsCommand() : ShellCommand("list-objects") {}
+	ListObjectsCommand() : ShellCommand("List-Objects") {}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		ActorsList objects;
@@ -47,7 +47,7 @@ public:
 // PrintObjectCommand
 class PrintObjectCommand : public ShellCommand {
 public:
-	PrintObjectCommand() : ShellCommand("print-object") {};
+	PrintObjectCommand() : ShellCommand("Print-Object") {};
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
@@ -68,7 +68,7 @@ public:
 
 class ListResourcesCommand : public ShellCommand {
 public:
-	ListResourcesCommand() : ShellCommand("list-resources") {};
+	ListResourcesCommand() : ShellCommand("List-Resources") {};
 	virtual ~ListResourcesCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		StringList stringList;
@@ -83,7 +83,7 @@ public:
 
 class WaitTimeCommand : public ShellCommand {
 public:
-	WaitTimeCommand() : ShellCommand("wait-time") {};
+	WaitTimeCommand() : ShellCommand("Wait-Time") {};
 	virtual ~WaitTimeCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
@@ -98,7 +98,7 @@ public:
 
 class PrintVariablesCommand : public ShellCommand {
 public:
-	PrintVariablesCommand() : ShellCommand("print-variables") {};
+	PrintVariablesCommand() : ShellCommand("Print-Variables") {};
 	virtual void operator()(const char* argv, int argc) {
 		Core::Get()->Vars().PrintAll();
 	}
@@ -107,7 +107,7 @@ public:
 
 class ShowWindowCommand : public ShellCommand {
 public:
-	ShowWindowCommand() : ShellCommand("toggle-window") {};
+	ShowWindowCommand() : ShellCommand("Toggle-Window") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		uint16 windowID;
@@ -121,7 +121,7 @@ public:
 #if 0
 class WalkToObjectCommand : public ShellCommand {
 public:
-	WalkToObjectCommand() : ShellCommand("walk-to-object") {};
+	WalkToObjectCommand() : ShellCommand("Walk-ToObject") {};
 	virtual void operator()(const char* argv, int argc) {
 		int objectId = 0;
 		std::istringstream stringStream(argv);
@@ -140,7 +140,7 @@ public:
 
 class MoveViewPointCommand : public ShellCommand {
 public:
-	MoveViewPointCommand() : ShellCommand("move-viewpoint") {};
+	MoveViewPointCommand() : ShellCommand("Move-ViewPoint") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		IE::point where;
@@ -161,7 +161,7 @@ public:
 
 class ShakeScreenCommand : public ShellCommand {
 public:
-	ShakeScreenCommand() : ShellCommand("shake-screen") {};
+	ShakeScreenCommand() : ShellCommand("Shake-Screen") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		IE::point where;
@@ -181,7 +181,7 @@ public:
 
 class CreateVisualEffectCommand : public ShellCommand {
 public:
-	CreateVisualEffectCommand() : ShellCommand("create-visualeffect") {};
+	CreateVisualEffectCommand() : ShellCommand("Create-VisualEffect") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		std::string effectName;
@@ -203,7 +203,7 @@ public:
 
 class CreateCreatureCommand : public ShellCommand {
 public:
-	CreateCreatureCommand() : ShellCommand("create-creature") {};
+	CreateCreatureCommand() : ShellCommand("Create-Creature") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		std::string creatureName;
@@ -226,7 +226,7 @@ public:
 #if 0
 class DisplayStringCommand : public ShellCommand {
 public:
-	DisplayStringCommand() : ShellCommand("display-string") {};
+	DisplayStringCommand() : ShellCommand("Display-String") {};
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		std::string string;
@@ -242,7 +242,7 @@ public:
 #endif
 class ExitCommand : public ShellCommand {
 public:
-	ExitCommand() : ShellCommand("exit") {};
+	ExitCommand() : ShellCommand("Exit") {};
 	virtual void operator()(const char* argv, int argc) {
 		SDL_Event event;
 		event.type = SDL_QUIT;
