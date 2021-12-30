@@ -92,8 +92,8 @@ public:
 	void IncrementNumTimesTalkedTo();
 	uint32 NumTimesTalkedTo() const;
 
-	void SetArea(const char* name);
-	const char* Area() const;
+	void SetArea(AreaRoom* area);
+	AreaRoom* Area() const;
 	
 	virtual void ClickedOn(Object* target);
 
@@ -138,7 +138,7 @@ private:
 	bool fAnimationValid;
 	bool fAnimationAutoSwitchOnEnd;
 	
-	std::string fArea;
+	AreaRoom* fArea;
 
 	CREResource *fCRE;
 	bool fOwnsActor;
@@ -149,7 +149,6 @@ private:
 	bool fSelected;
 
 	bool fAttacking;
-
 
 	PathFinder* fPath;
 	int fSpeed;

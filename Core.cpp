@@ -162,7 +162,7 @@ Core::CurrentRoom()
 void
 Core::AddActorToCurrentArea(Actor* actor)
 {
-	actor->SetArea(CurrentRoom()->Name());
+	actor->SetArea(static_cast<AreaRoom*>(CurrentRoom()));
 	RegisterObject(actor);
 }
 

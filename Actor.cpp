@@ -710,17 +710,17 @@ Actor::NumTimesTalkedTo() const
 }
 
 
-const char*
+AreaRoom*
 Actor::Area() const
 {
-	return fArea.c_str();
+	return fArea;
 }
 
 
 void
-Actor::SetArea(const char* areaName)
+Actor::SetArea(AreaRoom* area)
 {
-	fArea = areaName;
+	fArea = area;
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
 		SetAnimationAction(ACT_DEAD);
 	else
