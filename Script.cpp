@@ -220,15 +220,17 @@ Script::Execute(bool& continuing)
 			if (!_EvaluateConditionNode(condition))
 				break;
 				
-			if (foundContinue) {
+			/*if (foundContinue) {
 				std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
 				return true;
-			}
+			}*/
 				
 			// Check action list
 			if (fSender != NULL && !fSender->IsActionListEmpty()) {
-				if (!fSender->IsInterruptable())
+				if (!fSender->IsInterruptable()) {
+					std::cout << "action list not empty. Break" << std::endl;
 					break;
+				}
 			}
 
 			::node* responseSet = condition->Next();
@@ -239,14 +241,14 @@ Script::Execute(bool& continuing)
 			if (!_HandleResponseSet(responseSet)) {
 				// When the above method returns false, it means it encountered a CONTINUE
 				// so the script should stop running.
+				std::cout << "_HandleResponse returned. found continue" << std::endl;
 				foundContinue = true;
-				return false;
 			} else {
 				if (sDebug) {
 					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
 					std::cout << " ***" << std::endl;
 				}
-				return true;
+				return false;
 			}
 			condition = responseSet->Next();
 		}
@@ -257,7 +259,7 @@ Script::Execute(bool& continuing)
 		std::cout << " ***" << std::endl;
 	}
 
-	return true;
+	return foundContinue;
 }
 
 
@@ -916,9 +918,10 @@ Script::_HandleResponseSet(node* responseSet)
 	// More than one action
 	while (action != NULL) {
 		// When _HandleAction() returns false,
-		// it means it's a CONTINUE() action.
+		// it means it's a CONTINUE() action,
+		// and should be the last action
 		if (!_HandleAction(action)) {
-			//std::cout << "Continuing. Script returns" << std::endl;
+			std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
 			return false;
 		}
 		action = static_cast<action_params*>(action->Next());
@@ -1005,12 +1008,9 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 			 * contained a Continue() command - this parsing can be stopped
 			 * by including a NoAction() in the empty response block.
 			 */
-			// by returning false, we instruct the caller to stop
-			// executing the script
 			if (sDebug)
 				std::cout << "CONTINUE!!!!" << std::endl;
 			isContinue = true;
-			// TODO: How to ?!?!?!
 			break;
 		}
 		case 40:
