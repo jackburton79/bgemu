@@ -143,8 +143,9 @@ Actor::_Init()
 		_HandleColors();
 	}
 
+#if 0
 	Print();
-
+#endif
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());

@@ -151,8 +151,9 @@ ActionCreateCreature::operator()()
 			point.y += Core::RandomNumber(-20, 20);
 		}
 	}
+#if 0
 	std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
-
+#endif
 	Actor* actor = new Actor(fActionParams->string1, point, fActionParams->integer1);
 	Core::Get()->AddActorToCurrentArea(actor);
 	//core->SetActiveActor(actor);
