@@ -108,19 +108,23 @@ InputConsole::_ExecuteCommand(const std::string& line)
 	try {
 		size_t pos = cmdStream.tellg();
 		cmdStream.seekg(pos + 1);
-		args = cmdStream.str().substr(cmdStream.tellg());
+		try {
+			args = cmdStream.str().substr(cmdStream.tellg());
+		} catch (...) {
+			// some commands are argless
+		}
+		std::cout << "Command: " << line << std::endl;
+		ShellCommand* shellCommand = _FindCommand(command);
+		if (shellCommand != NULL)
+			(*shellCommand)(args.c_str(), 1);
+		else {
+			std::cout << "Invalid Command!" << std::endl;
+			ShowHelp();
+		}
 	} catch (...) {
 		std::cerr << Log::Red;
 		std::cerr << "_ExecuteCommand(): " << line << " failed!" << std::endl;
 		std::cerr << Log::Normal;
-	}
-	std::cout << "Command: " << line << std::endl;
-	ShellCommand* shellCommand = _FindCommand(command);
-	if (shellCommand != NULL)
-		(*shellCommand)(args.c_str(), 1);
-	else {
-		std::cout << "Invalid Command!" << std::endl;
-		ShowHelp();
 	}
 }
 
