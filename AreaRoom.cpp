@@ -31,6 +31,7 @@
 #include "Script.h"
 #include "SearchMap.h"
 #include "TextArea.h"
+#include "TextSupport.h"
 #include "TileCell.h"
 #include "TisResource.h"
 #include "Timer.h"
@@ -242,9 +243,27 @@ AreaRoom::Draw()
 		fBackMap->Image()->StrokeCircle(destination.x, destination.y, 10, color);
 		fBackMap->Image()->Unlock();
 	}
+
 	GFX::rect screenArea = ViewPort();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
+
+#if 1
+	// Show mouse position as string
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	IE::point pt;
+
+	GUI::Get()->GetCursorPosition(pt.x, pt.y);
+	std::ostringstream text;
+	text << pt.x << ", " << pt.y;
+	::Bitmap* bitmap = font->GetRenderedString(text.str().c_str(), 0);
+	GFX::rect rect = bitmap->Frame();
+	rect.x = pt.x;
+	rect.y = pt.y - 10;
+	gfx->BlitToScreen(bitmap, NULL, &rect);
+	bitmap->Release();
+#endif
 	
+
 	_DrawSearchMap(mapRect);
 }
 
