@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <limits.h>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -409,6 +410,7 @@ AreaRoom::GetObject(const char* name) const
 Object*
 AreaRoom::GetObject(uint16 globalEnum) const
 {
+	// TODO: containers, doors, other objects
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Object* object = *i;
@@ -417,6 +419,94 @@ AreaRoom::GetObject(uint16 globalEnum) const
 	}
 
 	return NULL;
+}
+
+
+Actor*
+AreaRoom::GetObjectFromNode(object_params* node) const
+{
+	// TODO: Simplify, merge code.
+
+	ActorsList::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		if ((*i)->MatchNode(node)) {
+			//std::cout << "returned " << (*i)->Name() << std::endl;
+			//(*i)->Print();
+			return *i;
+		}
+	}
+
+	return NULL;
+}
+
+
+Actor*
+AreaRoom::GetObject(const Region* region) const
+{
+	// TODO: Only returns the first object!
+	// TODO: containers, doors, other objects
+	ActorsList::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		Actor* actor = *i;
+		if (actor == NULL)
+			continue;
+		if (region->Contains(actor->Position()))
+			return actor;
+	}
+
+	return NULL;
+}
+
+
+Actor*
+AreaRoom::GetNearestEnemyOf(const Actor* object) const
+{
+
+	ActorsList::const_iterator i;
+	int minDistance = INT_MAX;
+	Actor* nearest = NULL;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		Actor* actor = *i;
+		if (actor == NULL)
+			continue;
+		if (actor != object && actor->IsEnemyOf(object)) {
+			int distance = Core::Get()->Distance(object, actor);
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearest = actor;
+			}
+		}
+	}
+
+	return nearest;
+}
+
+
+Actor*
+AreaRoom::GetNearestEnemyOfType(const Actor* object, int ieClass) const
+{
+	ActorsList::const_iterator i;
+	int minDistance = INT_MAX;
+	Actor* nearest = NULL;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		Actor* actor = *i;
+		if (actor == NULL)
+			continue;
+		if (actor != object && actor->IsEnemyOf(object) && actor->IsClass(ieClass)) {
+			int distance = Core::Get()->Distance(object, actor);
+			if (distance < minDistance) {
+				minDistance = distance;
+				nearest = actor;
+			}
+		}
+	}
+	if (nearest != NULL) {
+		std::cout << "Nearest Enemy of " << object->Name();
+		std::cout << " (type " << ieClass << ")";
+		std::cout << " is " << nearest->Name() << std::endl;
+	}
+
+	return nearest;
 }
 
 

@@ -298,7 +298,7 @@ Script::ResolveIdentifier(const Object* object, object_params* node, const int i
 		const Actor* actor = dynamic_cast<const Actor*>(object);
 		if (actor == NULL)
 			return NULL;
-		return Core::Get()->GetNearestEnemyOf(actor);
+		return actor->Area()->GetNearestEnemyOf(actor);
 	}
 	// TODO: Move that one here ?
 
@@ -315,7 +315,7 @@ Script::ResolveIdentifier(const Object* object, object_params* node, const int i
 		const Actor* actor = dynamic_cast<const Actor*>(object);
 		if (actor == NULL)
 			return NULL;
-		return Core::Get()->GetNearestEnemyOfType(actor, node->classs);
+		return actor->Area()->GetNearestEnemyOfType(actor, node->classs);
 	}
 	std::cout << "ResolveIdentifier: UNIMPLEMENTED(" << id << ") = ";
 	std::cout << identifier << std::endl;
@@ -383,7 +383,7 @@ Script::GetObject(const Object* source, object_params* node)
 		if (sDebug)
 			std::cout << "Specified wildcards (BUGGY):" << std::endl;
 		// Otherwise use the other parameters
-		Object* wildCard = Core::Get()->GetObjectFromNode(node);
+		Object* wildCard = ((AreaRoom*)Core::Get()->CurrentRoom())->Area()->GetObjectFromNode(node);
 		if (wildCard != NULL)
 			result = dynamic_cast<Actor*>(wildCard);
 	}

@@ -374,94 +374,6 @@ Core::UnregisterObject(Object* object)
 }
 
 
-Actor*
-Core::GetObjectFromNode(object_params* node) const
-{
-	// TODO: Simplify, merge code.
-/*
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		if ((*i)->MatchNode(node)) {
-			//std::cout << "returned " << (*i)->Name() << std::endl;
-			//(*i)->Print();
-			return *i;
-		}
-	}
-*/
-	return NULL;
-}
-
-
-Actor*
-Core::GetObject(const Region* region) const
-{
-	// TODO: Only returns the first object!
-/*
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
-		if (region->Contains(actor->Position()))
-			return actor;
-	}
-*/
-	return NULL;
-}
-
-
-Actor*
-Core::GetNearestEnemyOf(const Actor* object) const
-{
-/*
-	ActorsList::const_iterator i;
-	int minDistance = INT_MAX;
-	Actor* nearest = NULL;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
-		if (actor != object && actor->IsEnemyOf(object)) {
-			int distance = Distance(object, actor);
-			if (distance < minDistance) {
-				minDistance = distance;
-				nearest = actor;
-			}
-		}
-	}
-
-	return nearest;
-	*/
-	return NULL;
-}
-
-
-Actor*
-Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
-{
-/*	ActorsList::const_iterator i;
-	int minDistance = INT_MAX;*/
-	Actor* nearest = NULL;
-/*	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
-		if (actor != object && actor->IsEnemyOf(object) && actor->IsClass(ieClass)) {
-			int distance = Distance(object, actor);
-			if (distance < minDistance) {
-				minDistance = distance;
-				nearest = actor;
-			}
-		}
-	}
-	if (nearest != NULL) {
-		std::cout << "Nearest Enemy of " << object->Name();
-		std::cout << " (type " << ieClass << ")";
-		std::cout << " is " << nearest->Name() << std::endl;
-	}
-*/
-	return nearest;
-}
 
 
 Region*
@@ -628,6 +540,7 @@ Core::RandomNumber(int32 start, int32 end)
 		return start;
 	return start + rand() % (end - start);
 }
+
 
 /* static */
 ::Script*

@@ -56,6 +56,10 @@ public:
 	// Objects
 	Object* GetObject(const char* name) const;
 	Object* GetObject(uint16 globalEnum) const;
+	Actor* GetObjectFromNode(object_params* node) const;
+	Actor* GetObject(const Region* region) const;
+	Actor* GetNearestEnemyOf(const Actor* object) const;
+	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
 
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);

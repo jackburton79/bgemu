@@ -86,11 +86,6 @@ public:
 
 	Variables& Vars();
 
-	Actor* GetObjectFromNode(object_params* node) const;
-	Actor* GetObject(const Region* region) const;
-	Actor* GetNearestEnemyOf(const Actor* object) const;
-	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
-
 	Region* RegionAtPoint(const IE::point& point);
 	
 	void PlayMovie(const char* name);
