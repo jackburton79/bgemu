@@ -88,8 +88,6 @@ public:
 
 	Variables& Vars();
 
-	Object* GetObject(const char* name) const;
-	Object* GetObject(uint16 globalEnum) const;
 	Actor* GetObjectFromNode(object_params* node) const;
 	Actor* GetObject(const Region* region) const;
 	Actor* GetNearestEnemyOf(const Actor* object) const;

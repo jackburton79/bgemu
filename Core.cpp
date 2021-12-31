@@ -378,33 +378,6 @@ Core::UnregisterObject(Object* object)
 }
 
 
-Object*
-Core::GetObject(const char* name) const
-{
-	ObjectsList::const_iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++) {
-		if (!strcasecmp(name, i->second->Name())) {
-			return i->second;
-		}
-	}
-	return NULL;
-}
-
-
-Object*
-Core::GetObject(uint16 globalEnum) const
-{
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Object* object = *i;
-		if (object != NULL && object->GlobalID() == globalEnum)
-			return object;
-	}
-
-	return NULL;
-}
-
-
 Actor*
 Core::GetObjectFromNode(object_params* node) const
 {

@@ -392,6 +392,34 @@ AreaRoom::RemoveEffect(Effect* effect)
 }
 
 
+Object*
+AreaRoom::GetObject(const char* name) const
+{
+	// TODO: containers, doors, other objects
+	ActorsList::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		if (!strcasecmp(name, (*i)->Name())) {
+			return (*i);
+		}
+	}
+	return NULL;
+}
+
+
+Object*
+AreaRoom::GetObject(uint16 globalEnum) const
+{
+	ActorsList::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		Object* object = *i;
+		if (object != NULL && object->GlobalID() == globalEnum)
+			return object;
+	}
+
+	return NULL;
+}
+
+
 struct TileCompare {
 	bool operator() (const TileCell*& lhs, const TileCell*& rhs) const
 	{

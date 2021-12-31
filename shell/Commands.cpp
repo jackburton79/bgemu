@@ -50,7 +50,7 @@ public:
 	PrintObjectCommand() : ShellCommand("Print-Object") {};
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
+		/*std::istringstream stringStream(argv);
 		uint32 num;
 		Object* object = NULL;
 		if ((stringStream >> num).fail())
@@ -61,7 +61,7 @@ public:
 		if (object != NULL)
 			object->Print();
 		else
-			std::cout << "object \"" << argv << "\" not found." << std::endl;
+			std::cout << "object \"" << argv << "\" not found." << std::endl;*/
 	}
 };
 

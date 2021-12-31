@@ -53,6 +53,10 @@ public:
 	void AddEffect(Effect* effect);
 	void RemoveEffect(Effect* effect);
 
+	// Objects
+	Object* GetObject(const char* name) const;
+	Object* GetObject(uint16 globalEnum) const;
+
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);
 	uint8 PointHeight(const IE::point& point) const;

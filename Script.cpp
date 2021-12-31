@@ -1,6 +1,9 @@
+#include "Script.h"
+
 #include "Action.h"
 #include "Actor.h"
 #include "AreaResource.h"
+#include "AreaRoom.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -13,7 +16,6 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
-#include "Script.h"
 #include "Timer.h"
 
 #include <algorithm>
@@ -362,7 +364,7 @@ Script::GetObject(const Object* source, object_params* node)
 	if (node->name[0] != '\0') {
 		if (sDebug)
 			std::cout << "Specified name: " << node->name << std::endl;
-		result = Core::Get()->GetObject(node->name);
+		result = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(node->name);
 	} else if (node->identifiers[0] != 0) {
 		if (sDebug)
 			std::cout << "Specified identifiers: " ;
@@ -754,7 +756,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				 * Note that SPRITE_IS_DEAD variables are not set if the creature is
 				 * killed by a neutral creature.
 				 */
-				Actor* actor = dynamic_cast<Actor*>(Core::Get()->GetObject(trig->string1));
+				Actor* actor = dynamic_cast<Actor*>(((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(trig->string1));
 				if (actor != NULL)
 					returnValue = actor->GetVariable(actor->CRE()->DeathVariable().c_str()) == 1;
 				break;
@@ -818,7 +820,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				 */
 				object_params* doorObj = trig->Object();
 				Door *door = dynamic_cast<Door*>(
-								core->GetObject(doorObj->name));
+								((AreaRoom*)core->CurrentRoom())->GetObject(doorObj->name));
 				if (door != NULL) {
 					bool openState = trig->parameter1 == 1;
 					returnValue = door->Opened() == openState;
