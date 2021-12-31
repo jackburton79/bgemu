@@ -395,7 +395,6 @@ AreaRoom::AddObject(Object* object)
 void
 AreaRoom::RemoveObject(Object* object)
 {
-
 }
 
 
