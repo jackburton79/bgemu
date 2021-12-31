@@ -197,6 +197,9 @@ Object::SetArea(AreaRoom* area)
 {
 	fArea = area;
 
+	if (area == NULL)
+		return;
+
 	// TODO: Not really nice
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->CRE() != NULL) {

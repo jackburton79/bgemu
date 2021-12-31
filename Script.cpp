@@ -383,7 +383,7 @@ Script::GetObject(const Object* source, object_params* node)
 		if (sDebug)
 			std::cout << "Specified wildcards (BUGGY):" << std::endl;
 		// Otherwise use the other parameters
-		Object* wildCard = ((AreaRoom*)Core::Get()->CurrentRoom())->Area()->GetObjectFromNode(node);
+		Object* wildCard = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObjectFromNode(node);
 		if (wildCard != NULL)
 			result = dynamic_cast<Actor*>(wildCard);
 	}

@@ -327,23 +327,8 @@ Core::PlaySound(const res_ref& soundRefName)
 void
 Core::RegisterObject(Object* object)
 {
-	//std::cout << "Core::RegisterObject(" << object->Name() << ")" << std::endl;
-	// TODO: Not nice.
-	// introduce a "type" field in Object, and maybe put all objects into the same list ?
-	/*if (Actor* actor = dynamic_cast<Actor*>(object))
-		fActors.push_back(actor);
-	else if (Door* door = dynamic_cast<Door*>(object))
-		fDoors.push_back(door);
-	else if (Region* region = dynamic_cast<Region*>(object))
-		fRegions.push_back(region);
-	else if (Container* container = dynamic_cast<Container*>(object))
-		fContainers.push_back(container);
-*/
-	//if (object->IsNew())
-		object->SetGlobalID(fNextObjectNumber++);
-
 	// TODO: Check if already registered
-	//fObjects[object->GlobalID()] = object;
+	object->SetGlobalID(fNextObjectNumber++);
 }
 
 
