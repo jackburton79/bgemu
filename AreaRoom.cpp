@@ -739,12 +739,12 @@ void
 AreaRoom::_DrawActors()
 {
 	ActorsList::const_iterator a;
-	ActorsList actorsList;
-	Core::Get()->GetActorsList(actorsList);
+#if 0
+	// TODO: do this once on start and every time an actor is added
 	std::sort(actorsList.begin(), actorsList.end(), ZOrderSorter());
-	
-	for (a = actorsList.begin();
-			a != actorsList.end(); a++) {
+#endif
+	for (a = fActors.begin();
+			a != fActors.end(); a++) {
 		const Actor* actor = *a;
 		try {
 			if (_IsVisibleOnScreen(actor))
@@ -938,12 +938,14 @@ AreaRoom::_LoadActors()
 		actor->Acquire();
 		actor->SetArea(this);
 		Core::Get()->RegisterObject(actor);
+		fActors.push_back(actor);
 	}
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
 		actor->SetArea(this);
 		Core::Get()->RegisterObject(actor);
+		fActors.push_back(actor);
 	}
 
 	std::cout << "Done!" << std::endl;

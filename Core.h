@@ -117,8 +117,6 @@ public:
 	static int32 RandomNumber(int32 start, int32 end);
 	static ::Script* ExtractScript(const res_ref& resName);
 
-	int32 GetActorsList(ActorsList& objects) const;
-
 private:
 	static void _InitGameTimers();
 	void _PrintObjects() const;

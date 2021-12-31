@@ -348,7 +348,7 @@ Core::RegisterObject(Object* object)
 	//std::cout << "Core::RegisterObject(" << object->Name() << ")" << std::endl;
 	// TODO: Not nice.
 	// introduce a "type" field in Object, and maybe put all objects into the same list ?
-	if (Actor* actor = dynamic_cast<Actor*>(object))
+	/*if (Actor* actor = dynamic_cast<Actor*>(object))
 		fActors.push_back(actor);
 	else if (Door* door = dynamic_cast<Door*>(object))
 		fDoors.push_back(door);
@@ -356,7 +356,7 @@ Core::RegisterObject(Object* object)
 		fRegions.push_back(region);
 	else if (Container* container = dynamic_cast<Container*>(object))
 		fContainers.push_back(container);
-
+*/
 	//if (object->IsNew())
 		object->SetGlobalID(fNextObjectNumber++);
 
@@ -670,14 +670,6 @@ Core::ExtractScript(const res_ref& resName)
 		gResManager->ReleaseResource(scriptResource);
 	}
 	return script;
-}
-
-
-int32
-Core::GetActorsList(ActorsList& objects) const
-{
-	objects = fActors;
-	return objects.size();
 }
 
 

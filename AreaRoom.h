@@ -135,6 +135,8 @@ private:
 	typedef std::vector<Effect*> EffectsList;
 	EffectsList fEffects;
 
+	typedef std::vector<Actor*> ActorsList;
+	ActorsList fActors;
 	Reference<Actor> fSelectedActor;
 	Reference<Object> fMouseOverObject;
 

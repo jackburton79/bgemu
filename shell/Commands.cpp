@@ -31,7 +31,7 @@ public:
 	ListObjectsCommand() : ShellCommand("List-Objects") {}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		ActorsList objects;
+		/*ActorsList objects;
 		ActorsList::iterator i;
 		Core::Get()->GetActorsList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
@@ -39,7 +39,7 @@ public:
 			std::cout << actor->Name();
 			std::cout << " (" << std::dec << actor->CRE()->GlobalActorEnum() << ")";
 			std::cout << std::endl;
-		}
+		}*/
 	}
 };
 
