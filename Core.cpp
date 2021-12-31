@@ -216,21 +216,7 @@ Core::EnteredArea(RoomBase* area)
 void
 Core::ExitingArea(RoomBase* area)
 {
-	area->ClearScripts();
 
-#if 0
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		UnregisterObject(*i);
-	}
-	fActors.clear();
-#endif
-	fObjects.clear();
-	// containers and regions are owned by the AreaRoom class
-	// TODO: Fix and / or clear ownership
-	fContainers.clear();
-	fRegions.clear();
-	fDoors.clear();
 }
 
 
@@ -357,7 +343,7 @@ Core::RegisterObject(Object* object)
 		object->SetGlobalID(fNextObjectNumber++);
 
 	// TODO: Check if already registered
-	fObjects[object->GlobalID()] = object;
+	//fObjects[object->GlobalID()] = object;
 }
 
 
@@ -367,24 +353,10 @@ Core::UnregisterObject(Object* object)
 	// TODO: Save the object state
 	// TODO: Implement
 	// TODO: Remove from list
-	fObjects.erase(object->GlobalID());
-	object->Release();
+	//fObjects.erase(object->GlobalID());
+	//object->Release();
 	//if (Actor* actor = dynamic_cast<Actor*>(object))
 		//actor->Release();
-}
-
-
-
-
-Region*
-Core::RegionAtPoint(const IE::point& point)
-{
-	RegionsList::iterator r;
-	for (r = fRegions.begin(); r != fRegions.end(); r++) {
-		if ((*r)->Contains(point))
-			return *r;
-	}
-	return NULL;
 }
 
 
@@ -447,12 +419,14 @@ Core::UpdateLogic(bool executeScripts)
 	if (!Game::Get()->InDialogMode()) {
 		fCurrentRoom->Update(executeScripts);
 		// TODO: Fix/Improve
-		ObjectsList::iterator i;
+
+		// THIS WAS MOVED TO AREAROOM
+		/*ObjectsList::iterator i;
 		for (i = fObjects.begin(); i != fObjects.end(); i++) {
 			Object* object = i->second;
 			//SetActiveActor(actor);
 			object->Update(executeScripts);
-		}
+		}*/
 		//SetActiveActor(NULL);
 		_CleanDestroyedObjects();
 

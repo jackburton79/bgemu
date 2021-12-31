@@ -120,12 +120,8 @@ private:
 	game fGame;
 	RoomBase* fCurrentRoom;
 	
-	ObjectsList fObjects;
+	//ObjectsList fObjects;
 	
-	ContainersList fContainers;
-	RegionsList fRegions;
-	DoorsList fDoors;
-
 	Variables fVariables;
 	std::map<std::string, Script*> fScripts;
 

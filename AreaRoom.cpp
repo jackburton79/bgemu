@@ -197,6 +197,19 @@ AreaRoom::SearchMap() const
 
 /* virtual */
 void
+AreaRoom::Update(bool runScripts)
+{
+	ActorsList::iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		Actor* object = (*i);
+		//SetActiveActor(actor);
+		object->Update(runScripts);
+	}
+}
+
+
+/* virtual */
+void
 AreaRoom::Draw()
 {
 	GraphicsEngine* gfx = GraphicsEngine::Get();
@@ -296,7 +309,7 @@ AreaRoom::MouseDown(IE::point point)
 				fSelectedActor.Target()->ClickedOn(actor);
 		}
 		return;
-	} else if (Region* region = _RegionAtPoint(point)) {
+	} else if (Region* region = RegionAtPoint(point)) {
 		// TODO:
 		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(region);
@@ -931,7 +944,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 
 
 Region*
-AreaRoom::_RegionAtPoint(const IE::point& point) const
+AreaRoom::RegionAtPoint(const IE::point& point) const
 {
 	RegionsList::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
@@ -984,7 +997,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 		}
 	}
 	
-	if (Region* region = _RegionAtPoint(point)) {
+	if (Region* region = RegionAtPoint(point)) {
 		//std::cout << region->Name() << std::endl;
 		object = region;
 		cursorIndex = region->CursorIndex();
@@ -1120,6 +1133,18 @@ AreaRoom::_UnloadArea()
 	if (fMouseOverObject != NULL)
 	    fMouseOverObject.Unset();
 	
+	ClearScripts();
+
+
+	ActorsList::const_iterator i;
+	for (i = fActors.begin(); i != fActors.end(); i++) {
+		//UnregisterObject(*i);
+	}
+	fActors.clear();
+
+//	fObjects.clear();
+
+
 	Core::Get()->ExitingArea(this);
 
 	for (uint32 c = 0; c < fRegions.size(); c++) {

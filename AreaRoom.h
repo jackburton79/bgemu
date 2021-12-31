@@ -41,6 +41,8 @@ public:
 	::BackMap* BackMap() const;
 	::SearchMap* SearchMap() const;
 
+	virtual void Update(bool runScripts); // From Object (updates scripts, etc)
+
 	virtual void Draw();
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
@@ -60,6 +62,7 @@ public:
 	Actor* GetObject(const Region* region) const;
 	Actor* GetNearestEnemyOf(const Actor* object) const;
 	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
+	Region* RegionAtPoint(const IE::point& point) const;
 
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);
@@ -103,7 +106,6 @@ private:
 	void _DrawActors();
 	void _DrawPolygons(const GFX::rect& mapRect);
 
-	Region* _RegionAtPoint(const IE::point& point) const;
 	Container* _ContainerAtPoint(const IE::point& point);
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
 
