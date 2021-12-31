@@ -53,6 +53,7 @@ public:
 		std::istringstream stringStream(argv);
 		uint32 num;
 		Object* object = NULL;
+
 		if ((stringStream >> num).fail())
 			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
 		else
@@ -146,15 +147,15 @@ public:
 		IE::point where;
 		int speed;
 		char o;
-
-		stringStream >> where.x >> o >> where.y >> o >> speed;
-		// TODO: We are leaking the actionParams
-		action_params* actionParams = new action_params;
-		actionParams->integer1 = speed;
-		actionParams->where = where;
-		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionMoveViewPoint(room, actionParams);
-		room->AddAction(action);
+		if (!(stringStream >> where.x >> o >> where.y >> o >> speed).fail()) {
+			// TODO: We are leaking the actionParams
+			action_params* actionParams = new action_params;
+			actionParams->integer1 = speed;
+			actionParams->where = where;
+			RoomBase* room = Core::Get()->CurrentRoom();
+			Action* action = new ActionMoveViewPoint(room, actionParams);
+			room->AddAction(action);
+		}
 	}
 };
 
@@ -188,15 +189,16 @@ public:
 		IE::point where;
 		std::getline(stringStream, effectName, ',');
 		char o;
-		stringStream >> where.x >> o >> where.y;
-		// TODO: We are leaking the actionParams
-		action_params* actionParams = new action_params;
-		strcpy(actionParams->string1, effectName.c_str());
-		actionParams->where = where;
+		if (!(stringStream >> where.x >> o >> where.y).fail()) {
+			// TODO: We are leaking the actionParams
+			action_params* actionParams = new action_params;
+			strcpy(actionParams->string1, effectName.c_str());
+			actionParams->where = where;
 
-		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionCreateVisualEffect(room, actionParams);
-		room->AddAction(action);
+			RoomBase* room = Core::Get()->CurrentRoom();
+			Action* action = new ActionCreateVisualEffect(room, actionParams);
+			room->AddAction(action);
+		}
 	}
 };
 
@@ -207,18 +209,18 @@ public:
 	virtual void operator()(const char* argv, int argc) {
 		std::istringstream stringStream(argv);
 		std::string creatureName;
-		stringStream >> creatureName;
-		// TODO: We are leaking the actionParams
-		action_params* actionParams = new action_params;
-		strcpy(actionParams->string1, creatureName.c_str());
 		IE::point where;
-		// TODO:
-		where.x = 100;
-		where.y = 100;
-		actionParams->where = where;
-		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionCreateCreature(room, actionParams);
-		room->AddAction(action);
+		std::getline(stringStream, creatureName, ',');
+		char o;
+		if (!(stringStream >> where.x >> o >> where.y).fail()) {
+			// TODO: We are leaking the actionParams
+			action_params* actionParams = new action_params;
+			strcpy(actionParams->string1, creatureName.c_str());
+			actionParams->where = where;
+			RoomBase* room = Core::Get()->CurrentRoom();
+			Action* action = new ActionCreateCreature(room, actionParams);
+			room->AddAction(action);
+		}
 	}
 };
 
