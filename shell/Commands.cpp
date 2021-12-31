@@ -8,6 +8,7 @@
 #include "Commands.h"
 
 #include "Action.h"
+#include "AreaRoom.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Game.h"
@@ -16,7 +17,6 @@
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
-#include "RoomBase.h"
 #include "Timer.h"
 
 #include <iostream>
@@ -31,15 +31,15 @@ public:
 	ListObjectsCommand() : ShellCommand("List-Objects") {}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		/*ActorsList objects;
+		ActorsList objects;
 		ActorsList::iterator i;
-		Core::Get()->GetActorsList(objects);
+		((AreaRoom*)Core::Get()->CurrentRoom())->GetActorsList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
 			Actor* actor = *i;
 			std::cout << actor->Name();
 			std::cout << " (" << std::dec << actor->CRE()->GlobalActorEnum() << ")";
 			std::cout << std::endl;
-		}*/
+		}
 	}
 };
 
@@ -50,18 +50,18 @@ public:
 	PrintObjectCommand() : ShellCommand("Print-Object") {};
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		/*std::istringstream stringStream(argv);
+		std::istringstream stringStream(argv);
 		uint32 num;
 		Object* object = NULL;
 		if ((stringStream >> num).fail())
-			object = Core::Get()->GetObject(argv);
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
 		else
-			object = Core::Get()->GetObject(num);
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
 
 		if (object != NULL)
 			object->Print();
 		else
-			std::cout << "object \"" << argv << "\" not found." << std::endl;*/
+			std::cout << "object \"" << argv << "\" not found." << std::endl;
 	}
 };
 

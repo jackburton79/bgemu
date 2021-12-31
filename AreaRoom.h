@@ -10,6 +10,8 @@
 
 #include <vector>
 
+typedef std::vector<Actor*> ActorsList;
+
 class Actor;
 class Animation;
 class ARAResource;
@@ -56,6 +58,8 @@ public:
 	void RemoveEffect(Effect* effect);
 
 	// Objects
+	int32 GetActorsList(ActorsList& list) const;
+
 	Object* GetObject(const char* name) const;
 	Object* GetObject(uint16 globalEnum) const;
 	Actor* GetObjectFromNode(object_params* node) const;
@@ -66,6 +70,9 @@ public:
 
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);
+
+	int Distance(const Object* a, const Object* b) const;
+
 	uint8 PointHeight(const IE::point& point) const;
 	uint8 PointLight(const IE::point& point) const;
 	uint8 PointSearch(const IE::point& point) const;
@@ -145,7 +152,6 @@ private:
 	typedef std::vector<Effect*> EffectsList;
 	EffectsList fEffects;
 
-	typedef std::vector<Actor*> ActorsList;
 	ActorsList fActors;
 	Reference<Actor> fSelectedActor;
 	Reference<Object> fMouseOverObject;

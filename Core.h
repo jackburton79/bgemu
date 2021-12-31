@@ -96,8 +96,6 @@ public:
 	void UpdateLogic(bool scripts);
 
 	// Actions/Triggers
-	int Distance(const Object* source, const Object* target) const;
-
 	void Open(Object* actor, Door* target);
 	void Close(Object* actor, Door* target);
 

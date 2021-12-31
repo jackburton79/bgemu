@@ -622,7 +622,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				is within distance given (in feet) of the active CRE. */
 				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
-					returnValue = core->Distance(actor, sender) <= trig->parameter1;
+					returnValue = actor->Area()->Distance(actor, sender) <= trig->parameter1;
 				break;
 			}
 			case 0x401C:
@@ -768,7 +768,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				// TODO: Check weapon range
 				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				if (actor != NULL)
-					returnValue = core->Distance(actor, sender) <= range;
+					returnValue = actor->Area()->Distance(actor, sender) <= range;
 				break;
 			}
 			case 0x4068:

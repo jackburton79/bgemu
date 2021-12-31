@@ -199,6 +199,8 @@ AreaRoom::SearchMap() const
 void
 AreaRoom::Update(bool runScripts)
 {
+	Object::Update(runScripts);
+
 	ActorsList::iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* object = (*i);
@@ -400,6 +402,14 @@ AreaRoom::AddEffect(Effect* effect)
 }
 
 
+int32
+AreaRoom::GetActorsList(ActorsList& list) const
+{
+	list = fActors;
+	return list.size();
+}
+
+
 void
 AreaRoom::RemoveEffect(Effect* effect)
 {
@@ -483,7 +493,7 @@ AreaRoom::GetNearestEnemyOf(const Actor* object) const
 		if (actor == NULL)
 			continue;
 		if (actor != object && actor->IsEnemyOf(object)) {
-			int distance = Core::Get()->Distance(object, actor);
+			int distance = Distance(object, actor);
 			if (distance < minDistance) {
 				minDistance = distance;
 				nearest = actor;
@@ -506,7 +516,7 @@ AreaRoom::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 		if (actor == NULL)
 			continue;
 		if (actor != object && actor->IsEnemyOf(object) && actor->IsClass(ieClass)) {
-			int distance = Core::Get()->Distance(object, actor);
+			int distance = Distance(object, actor);
 			if (distance < minDistance) {
 				minDistance = distance;
 				nearest = actor;
@@ -550,6 +560,25 @@ AreaRoom::GetTileCellsForRegion(std::vector<TileCell*>& cells,
 		cells.push_back((*i).second);
 	}
 	return cells.size();
+}
+
+
+int
+AreaRoom::Distance(const Object* a, const Object* b) const
+{
+	const Actor* actor = dynamic_cast<const Actor*>(a);
+	if (actor == NULL) {
+		std::cerr << "Distance: requested for non-actor object!" << std::endl;
+		return 0;
+	}
+
+	const IE::point positionA = actor->Position();
+	const IE::point positionB = b->NearestPoint(positionA);
+
+	IE::point invalidPoint = { -1, -1 };
+	if (positionA == invalidPoint && positionB == invalidPoint)
+		return 100; // TODO: ???
+	return positionA - positionB;
 }
 
 

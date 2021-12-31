@@ -1,6 +1,8 @@
 #include "Action.h"
+
 #include "Actor.h"
 #include "Animation.h"
+#include "AreaRoom.h"
 #include "Core.h"
 #include "Door.h"
 #include "Game.h"
@@ -789,7 +791,7 @@ ActionRunAwayFrom::operator()()
 	}
 	
 	// TODO: Improve implementation
-	if (Core::Get()->Distance(actor, target) < 200) {
+	if (actor->Area()->Distance(actor, target) < 200) {
 		IE::point point = PointAway(actor, target);
 		if (actor->Destination() != point) {
 			actor->SetDestination(point);

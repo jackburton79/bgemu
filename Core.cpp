@@ -402,41 +402,13 @@ Core::UpdateLogic(bool executeScripts)
 		timer->Rearm();
 	*/
 	if (!Game::Get()->InDialogMode()) {
+		// AreaRoom::Update() calls Update() for every object
 		fCurrentRoom->Update(executeScripts);
-		// TODO: Fix/Improve
 
-		// THIS WAS MOVED TO AREAROOM
-		/*ObjectsList::iterator i;
-		for (i = fObjects.begin(); i != fObjects.end(); i++) {
-			Object* object = i->second;
-			//SetActiveActor(actor);
-			object->Update(executeScripts);
-		}*/
-		//SetActiveActor(NULL);
 		_CleanDestroyedObjects();
 
 		_NewRound();
 	}
-}
-
-
-int
-Core::Distance(const Object* a, const Object* b) const
-{
-	const Actor* actor = dynamic_cast<const Actor*>(a);
-	if (actor == NULL) {
-		std::cerr << "Distance: requested for non-actor object!" << std::endl;
-		return 0;
-	}
-		
-	const IE::point positionA = actor->Position();
-	const IE::point positionB = b->NearestPoint(positionA);
-
-	IE::point invalidPoint = { -1, -1 };
-	if (positionA == invalidPoint && positionB == invalidPoint)
-		return 100; // TODO: ???
-
-	return positionA - positionB;
 }
 
 
