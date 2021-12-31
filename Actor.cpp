@@ -710,24 +710,6 @@ Actor::NumTimesTalkedTo() const
 }
 
 
-AreaRoom*
-Actor::Area() const
-{
-	return fArea;
-}
-
-
-void
-Actor::SetArea(AreaRoom* area)
-{
-	fArea = area;
-	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
-		SetAnimationAction(ACT_DEAD);
-	else
-		SetAnimationAction(ACT_STANDING);
-}
-
-
 /* virtual */
 IE::point
 Actor::RestrictionDistance() const

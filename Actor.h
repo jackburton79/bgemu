@@ -92,9 +92,6 @@ public:
 	void IncrementNumTimesTalkedTo();
 	uint32 NumTimesTalkedTo() const;
 
-	void SetArea(AreaRoom* area);
-	AreaRoom* Area() const;
-	
 	virtual void ClickedOn(Object* target);
 
 	void Shout(int number);
@@ -138,8 +135,6 @@ private:
 	bool fAnimationValid;
 	bool fAnimationAutoSwitchOnEnd;
 	
-	AreaRoom* fArea;
-
 	CREResource *fCRE;
 	bool fOwnsActor;
 

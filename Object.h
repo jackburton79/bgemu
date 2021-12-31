@@ -54,6 +54,7 @@ struct object_params;
 struct trigger_params;
 class Action;
 class Actor;
+class AreaRoom;
 class Region;
 class Script;
 class TileCell;
@@ -78,6 +79,9 @@ public:
 
 	uint16 GlobalID() const;
 	void SetGlobalID(uint16 id);
+
+	void SetArea(AreaRoom* area);
+	AreaRoom* Area() const;
 
 	bool IsNew() const;
 
@@ -161,6 +165,7 @@ private:
 	
 	::Variables fVariables;
 
+	AreaRoom* fArea;
 	Region* fRegion;
 
 	bool fToDestroy;

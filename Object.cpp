@@ -8,6 +8,7 @@
 #include "Object.h"
 
 #include "Action.h"
+#include "Animation.h"
 #include "AreaRoom.h"
 #include "BCSResource.h"
 #include "Core.h"
@@ -93,7 +94,7 @@ trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 }
 
 
-// TODO: We always cast to Actor.
+// TODO: We cast to Actor very often in various methods.
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, object_type objectType, const char* scriptName)
 	:
@@ -109,6 +110,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fWaitTime(0),
 	fCurrentAction(NULL),
 	fLastTrigger(NULL),
+	fArea(NULL),
 	fRegion(NULL),
 	fToDestroy(false)
 {
@@ -180,6 +182,29 @@ Object::GlobalID() const
 		return actor->CRE()->GlobalActorEnum();
 		
 	return fGlobalID;
+}
+
+
+AreaRoom*
+Object::Area() const
+{
+	return fArea;
+}
+
+
+void
+Object::SetArea(AreaRoom* area)
+{
+	fArea = area;
+
+	// TODO: Not really nice
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->CRE() != NULL) {
+		if (actor->CRE()->PermanentStatus() == 2048) // STATE_DEAD
+			actor->SetAnimationAction(ACT_DEAD);
+		else
+			actor->SetAnimationAction(ACT_STANDING);
+	}
 }
 
 
