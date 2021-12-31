@@ -201,10 +201,10 @@ AreaRoom::Update(bool runScripts)
 {
 	Object::Update(runScripts);
 
+	// TODO: other objects
 	ActorsList::iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* object = (*i);
-		//SetActiveActor(actor);
 		object->Update(runScripts);
 	}
 }
@@ -501,7 +501,6 @@ AreaRoom::GetObject(const Region* region) const
 Actor*
 AreaRoom::GetNearestEnemyOf(const Actor* object) const
 {
-
 	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
