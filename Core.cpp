@@ -158,14 +158,6 @@ Core::CurrentRoom()
 }
 
 
-void
-Core::AddActorToCurrentArea(Actor* actor)
-{
-	actor->SetArea(static_cast<AreaRoom*>(CurrentRoom()));
-	RegisterObject(actor);
-}
-
-
 bool
 Core::LoadArea(const res_ref& areaName, const char* longName,
 					const char* entranceName)
@@ -225,12 +217,14 @@ void
 Core::ExitingArea(RoomBase* area)
 {
 	area->ClearScripts();
-	
+
+#if 0
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		UnregisterObject(*i);
 	}
 	fActors.clear();
+#endif
 	fObjects.clear();
 	// containers and regions are owned by the AreaRoom class
 	// TODO: Fix and / or clear ownership
@@ -250,8 +244,10 @@ Core::Vars()
 void
 Core::ClearAllActions()
 {
+#if 0
 	for (ActorsList::iterator a = fActors.begin(); a != fActors.end(); a++)
 		(*a)->ClearActionList();
+#endif
 }
 
 
@@ -382,6 +378,7 @@ Actor*
 Core::GetObjectFromNode(object_params* node) const
 {
 	// TODO: Simplify, merge code.
+/*
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		if ((*i)->MatchNode(node)) {
@@ -390,6 +387,7 @@ Core::GetObjectFromNode(object_params* node) const
 			return *i;
 		}
 	}
+*/
 	return NULL;
 }
 
@@ -398,6 +396,7 @@ Actor*
 Core::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
+/*
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
@@ -406,7 +405,7 @@ Core::GetObject(const Region* region) const
 		if (region->Contains(actor->Position()))
 			return actor;
 	}
-
+*/
 	return NULL;
 }
 
@@ -414,6 +413,7 @@ Core::GetObject(const Region* region) const
 Actor*
 Core::GetNearestEnemyOf(const Actor* object) const
 {
+/*
 	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
@@ -429,21 +429,20 @@ Core::GetNearestEnemyOf(const Actor* object) const
 			}
 		}
 	}
-	if (nearest != NULL) {
-		/*std::cout << "Nearest Enemy of " << object->Name();
-		std::cout << " is " << nearest->Name() << std::endl;*/
-	}
+
 	return nearest;
+	*/
+	return NULL;
 }
 
 
 Actor*
 Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 {
-	ActorsList::const_iterator i;
-	int minDistance = INT_MAX;
+/*	ActorsList::const_iterator i;
+	int minDistance = INT_MAX;*/
 	Actor* nearest = NULL;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
+/*	for (i = fActors.begin(); i != fActors.end(); i++) {
 		Actor* actor = *i;
 		if (actor == NULL)
 			continue;
@@ -460,6 +459,7 @@ Core::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 		std::cout << " (type " << ieClass << ")";
 		std::cout << " is " << nearest->Name() << std::endl;
 	}
+*/
 	return nearest;
 }
 
@@ -649,10 +649,10 @@ Core::ExtractScript(const res_ref& resName)
 void
 Core::_PrintObjects() const
 {
-	for (ActorsList::const_iterator i = fActors.begin();
+/*	for (ActorsList::const_iterator i = fActors.begin();
 											i != fActors.end(); i++) {
 		(*i)->Print();
-	}
+	}*/
 }
 
 
@@ -669,7 +669,7 @@ Core::_CleanDestroyedObjects()
 {
 	// TODO: Remove objects pointers from
 	// RoundResults!!!
-	ActorsList::iterator i = fActors.begin();
+/*	ActorsList::iterator i = fActors.begin();
 	while (i != fActors.end()) {
 		Object* object = *i;
 		if (object->ToBeDestroyed()) {
@@ -688,7 +688,7 @@ Core::_CleanDestroyedObjects()
 			i = fActors.erase(i);
 		} else
 			i++;
-	}
+	}*/
 }
 
 

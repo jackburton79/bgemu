@@ -61,8 +61,6 @@ public:
 	bool LoadWorldMap();
 	
 	RoomBase* CurrentRoom();
-
-	void AddActorToCurrentArea(Actor* actor);
 		
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
@@ -129,7 +127,6 @@ private:
 	
 	ObjectsList fObjects;
 	
-	ActorsList fActors;
 	ContainersList fContainers;
 	RegionsList fRegions;
 	DoorsList fDoors;
