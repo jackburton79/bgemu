@@ -40,7 +40,6 @@ Core::Core()
 	:
 	fGame(GAME_BALDURSGATE2),
 	fCurrentRoom(NULL),
-	fActiveActor(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
 	fCurrentRoundNumber(0),
@@ -245,24 +244,6 @@ Variables&
 Core::Vars()
 {
 	return fVariables;
-}
-
-
-void
-Core::SetActiveActor(Actor* actor)
-{
-	fActiveActor = actor;
-	if (fActiveActor)
-		std::cout << "SetActiveActor(" << actor->Name() << ")" << std::endl;
-}
-
-
-Actor*
-Core::ActiveActor()
-{
-	if (fActiveActor)
-		std::cout << "ActiveActor is " << fActiveActor->Name() << std::endl;
-	return fActiveActor;
 }
 
 

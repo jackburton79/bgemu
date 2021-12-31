@@ -88,9 +88,6 @@ public:
 
 	Variables& Vars();
 
-	void SetActiveActor(Actor* actor);
-	Actor* ActiveActor();
-	
 	Object* GetObject(const char* name) const;
 	Object* GetObject(uint16 globalEnum) const;
 	Actor* GetObjectFromNode(object_params* node) const;
@@ -134,8 +131,6 @@ private:
 	game fGame;
 	RoomBase* fCurrentRoom;
 	
-	Actor* fActiveActor;
-
 	ObjectsList fObjects;
 	
 	ActorsList fActors;
