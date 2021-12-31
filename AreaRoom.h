@@ -51,6 +51,9 @@ public:
 
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
+	void AddObject(Object* object);
+	void RemoveObject(Object* object); // a globalId version would be nice ?
+
 	void AddAnimation(Animation* animation);
 	void RemoveAnimation(Animation* animation);
 

@@ -157,8 +157,7 @@ ActionCreateCreature::operator()()
 	std::cout << "create actor at " << point.x << ", " << point.y << std::endl;
 #endif
 	Actor* actor = new Actor(fActionParams->string1, point, fActionParams->integer1);
-	Core::Get()->RegisterObject(actor);
-	actor->SetArea((AreaRoom*)Core::Get()->CurrentRoom());
+	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
 
 	//core->SetActiveActor(actor);
 	SetCompleted();
@@ -184,8 +183,8 @@ ActionCreateCreatureImpassable::operator()()
 	std::cout << "Created actor (IMPASSABLE) " << fActionParams->string1 << " on ";
 	std::cout << fActionParams->where.x << ", " << fActionParams->where.y << std::endl;
 	//actor->SetDestination(fActionParams->where);
-	Core::Get()->RegisterObject(actor);
-	actor->SetArea((AreaRoom*)Core::Get()->CurrentRoom());
+	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+
 	SetCompleted();
 	//core->SetActiveActor(actor);
 }

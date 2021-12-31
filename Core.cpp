@@ -203,20 +203,12 @@ Core::LoadWorldMap()
 void
 Core::EnteredArea(RoomBase* area)
 {
-	// Executes the area script (once)
-	//area->Update(true);
-	
-	// then clear the script
-	//area->ClearScripts();
-	
-	//_PrintObjects();
 }
 
 
 void
 Core::ExitingArea(RoomBase* area)
 {
-
 }
 
 
@@ -328,7 +320,8 @@ void
 Core::RegisterObject(Object* object)
 {
 	// TODO: Check if already registered
-	object->SetGlobalID(fNextObjectNumber++);
+	if (object->IsNew())
+		object->SetGlobalID(fNextObjectNumber++);
 }
 
 

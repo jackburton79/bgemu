@@ -280,7 +280,6 @@ AreaRoom::Draw()
 	bitmap->Release();
 #endif
 	
-
 	_DrawSearchMap(mapRect);
 }
 
@@ -378,6 +377,25 @@ AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool ma
 		else
 			GraphicsEngine::BlitBitmap(bitmap, NULL, fBackMap->Image(), &offsetRect);
 	}
+}
+
+
+void
+AreaRoom::AddObject(Object* object)
+{
+	object->SetArea(this);
+	Core::Get()->RegisterObject(object);
+
+	// TODO: Other objects
+	if (object->Type() == Object::ACTOR)
+		fActors.push_back(dynamic_cast<Actor*>(object));
+}
+
+
+void
+AreaRoom::RemoveObject(Object* object)
+{
+
 }
 
 
@@ -1096,16 +1114,12 @@ AreaRoom::_LoadActors()
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor* actor = party->ActorAt(a);
 		actor->Acquire();
-		actor->SetArea(this);
-		Core::Get()->RegisterObject(actor);
-		fActors.push_back(actor);
+		AddObject(actor);
 	}
 
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
-		actor->SetArea(this);
-		Core::Get()->RegisterObject(actor);
-		fActors.push_back(actor);
+		AddObject(actor);
 	}
 
 	std::cout << "Done!" << std::endl;
