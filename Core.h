@@ -61,7 +61,7 @@ public:
 	bool LoadWorldMap();
 	
 	RoomBase* CurrentRoom();
-		
+
 	void EnteredArea(RoomBase* area);
 	void ExitingArea(RoomBase* area);
 

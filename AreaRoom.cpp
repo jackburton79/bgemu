@@ -907,7 +907,6 @@ AreaRoom::_DrawEffects()
 	}
 	
 	// Remove completed effects
-	
 	EffectsList::iterator it = std::remove_if(fEffects.begin(), fEffects.end(), Finished);
 	fEffects.erase(it, fEffects.end());
 }
