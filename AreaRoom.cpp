@@ -387,8 +387,16 @@ AreaRoom::AddObject(Object* object)
 	Core::Get()->RegisterObject(object);
 
 	// TODO: Other objects
-	if (object->Type() == Object::ACTOR)
-		fActors.push_back(dynamic_cast<Actor*>(object));
+	switch (object->Type()) {
+		case Object::ACTOR:
+			fActors.push_back(dynamic_cast<Actor*>(object));
+			break;
+		case Object::REGION:
+			fRegions.push_back(dynamic_cast<Region*>(object));
+			break;
+		default:
+			break;
+	}
 }
 
 
@@ -437,11 +445,16 @@ Object*
 AreaRoom::GetObject(const char* name) const
 {
 	// TODO: containers, doors, other objects
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		if (!strcasecmp(name, (*i)->Name())) {
-			return (*i);
-		}
+	ActorsList::const_iterator a;
+	for (a = fActors.begin(); a != fActors.end(); a++) {
+		if (!strcasecmp(name, (*a)->Name()))
+			return *a;
+	}
+
+	RegionsList::const_iterator r;
+	for (r = fRegions.begin(); r != fRegions.end(); r++) {
+		if (!strcasecmp(name, (*r)->Name()))
+			return *r;
 	}
 	return NULL;
 }
