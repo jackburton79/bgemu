@@ -1057,7 +1057,7 @@ Actor::Text() const
 void
 Actor::_SetPositionPrivate(const IE::point& point)
 {
-	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	AreaRoom* room = Area();
 	if (room != NULL) {
 		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
 		TileCell* tile = room->BackMap()->TileAtPoint(fActor->position);
