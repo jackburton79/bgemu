@@ -1015,7 +1015,7 @@ Actor::IsReachable(const IE::point& pt) const
 void
 Actor::UpdateTileCell()
 {
-	BackMap* backMap = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom())->BackMap();
+	BackMap* backMap = Area()->BackMap();
 	if (backMap == NULL)
 		return;
 

@@ -278,7 +278,7 @@ Object::IsInsideVisibleArea() const
 	const Actor* actor = dynamic_cast<const Actor*>(this);
 	if (actor == NULL)
 		return true;
-	IE::rect rect = Core::Get()->CurrentRoom()->VisibleMapArea();
+	IE::rect rect = Area()->VisibleMapArea();
 	if (rect_contains(rect, actor->Position()))
 		return true;
 	return false;
@@ -392,7 +392,7 @@ Object::AddTrigger(const trigger_entry& entry)
 {
 	fTriggers.push_back(entry);
 	if (entry.target_id != (uint16)-1)
-		fLastTrigger = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(entry.target_id);
+		fLastTrigger = Area()->GetObject(entry.target_id);
 }
 
 
@@ -418,7 +418,7 @@ Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) con
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		const trigger_entry &entry = *i;
 		if (entry.trigger_name == trigName) {
-			Object* target = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(entry.target_id);
+			Object* target = Area()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
 				std::cout << Name() << " HasTrigger " << trigName << " -> " << actor->Name() << std::endl;
@@ -458,7 +458,7 @@ Object::PrintTriggers() const
 	std::list<trigger_entry>::const_iterator i;
 	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
 		const trigger_entry& entry = *i;
-		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(entry.target_id);
+		Object* object = Area()->GetObject(entry.target_id);
 		std::cout << Name() << ": " << entry.trigger_name;
 		if (object != NULL)
 			std::cout << " -> " << object->Name();
