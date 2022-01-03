@@ -394,6 +394,9 @@ AreaRoom::AddObject(Object* object)
 		case Object::REGION:
 			fRegions.push_back(dynamic_cast<Region*>(object));
 			break;
+		case Object::CONTAINER:
+			fContainers.push_back(dynamic_cast<Container*>(object));
+			break;
 		default:
 			break;
 	}
@@ -403,6 +406,7 @@ AreaRoom::AddObject(Object* object)
 void
 AreaRoom::RemoveObject(Object* object)
 {
+	// TODO: Implement
 }
 
 
@@ -455,6 +459,12 @@ AreaRoom::GetObject(const char* name) const
 	for (r = fRegions.begin(); r != fRegions.end(); r++) {
 		if (!strcasecmp(name, (*r)->Name()))
 			return *r;
+	}
+
+	ContainersList::const_iterator c;
+	for (c = fContainers.begin(); c != fContainers.end(); c++) {
+		if (!strcasecmp(name, (*c)->Name()))
+			return *c;
 	}
 	return NULL;
 }
