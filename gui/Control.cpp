@@ -173,31 +173,6 @@ Control::ConvertFromScreen(IE::point& point) const
 }
 
 
-void
-Control::AssociateRoom(RoomBase* room)
-{
-	GFX::rect areaRect = room->AreaRect();
-	GFX::rect controlRect = Frame();
-
-	if (areaRect.w <= Window()->Width()) {
-		std::cout << "Control::AssociateRoom(): Window is wider than area. Fixing..." << std::endl;
-		controlRect.w = areaRect.w;
-		controlRect.x = (Window()->Width() - controlRect.w) / 2;
-	}
-	if (areaRect.h <= Window()->Height()) {
-		std::cout << "Control::AssociateRoom(): Window is shorter than area. Fixing..." << std::endl;
-		controlRect.h = areaRect.h;
-		controlRect.y = (Window()->Height() - controlRect.h) / 2;
-	}
-
-	std::cout << "Control::AssociateRoom(): ControlRect: " << std::endl;
-
-	if (room != NULL) {
-		room->SetFrame(controlRect.x, controlRect.y, controlRect.w, controlRect.h);
-	}
-}
-
-
 Window *
 Control::Window() const
 {

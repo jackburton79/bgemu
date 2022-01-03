@@ -55,7 +55,6 @@ public:
 
 	::Window* Window() const;
 
-	void AssociateRoom(RoomBase* room);
 	void Print() const;
 
 	static Control* CreateControl(IE::control* control);

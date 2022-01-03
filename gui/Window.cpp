@@ -185,9 +185,6 @@ Window::ReplaceControl(uint32 id, Control* newControl)
 			newControl->SetFrame(controlFrame.x, controlFrame.y, controlFrame.w, controlFrame.h);
 			newControl->AttachedToWindow(this);
 			*i = newControl;
-			RoomBase* room = dynamic_cast<RoomBase*>(newControl);
-			if (room != NULL)
-				newControl->AssociateRoom(room);
 			return control;
 		}
 	}
