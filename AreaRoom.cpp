@@ -103,8 +103,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 			label->SetText(longName);
 	}
 
-	//Core::Get()->RegisterObject(this);
-
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
@@ -172,6 +170,7 @@ AreaRoom::ReloadArea()
 GFX::rect
 AreaRoom::AreaRect() const
 {
+	// Complete map rect, starting at 0, 0
 	GFX::rect rect;
 	rect.x = rect.y = 0;
 	rect.w = fBackMap->Width() * TILE_WIDTH;
