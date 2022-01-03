@@ -1020,9 +1020,11 @@ ActionMoveViewPoint::operator()()
 		else if (offset.y < fDestination.y)
 			offset.y = std::min((int16)(offset.y + step), fDestination.y);
 		room->SetAreaOffsetCenter(offset);
+#if 0
 		std::cout << std::dec;
 		std::cout << "offset: " << offset.x << ", " << offset.y << std::endl;
 		std::cout << "fDestination: " << fDestination.x << ", " << fDestination.y << std::endl;
+#endif
 	} else
 		SetCompleted();
 }
