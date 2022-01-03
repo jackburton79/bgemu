@@ -429,7 +429,7 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 	int upperBorder = 0;
 	int upperBorderLimit = 0;
 
-	GFX::rect viewPort = room->ViewPort();
+	GFX::rect viewPort = room->Control::Frame();
 	int rightBorder = viewPort.w;
 	int bottomBorder = viewPort.h;
 

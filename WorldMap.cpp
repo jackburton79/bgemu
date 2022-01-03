@@ -86,7 +86,7 @@ WorldMap::WorldMap()
 	::Window* window = gui->GetWindow(0);
 	if (window != NULL) {
 		fSavedControl = window->ReplaceControl(4, this);
-		ViewPort().Print();
+		Control::Frame().Print();
 	}
 }
 
@@ -115,15 +115,15 @@ WorldMap::Draw()
 	GraphicsEngine* gfx = GraphicsEngine::Get();
 
 	if (fWorldMap != NULL) {
-		GFX::rect sourceRect = ViewPort();
+		GFX::rect sourceRect = Control::Frame();
 		ConvertToArea(sourceRect);
 		GFX::rect visibleArea = rect_to_gfx_rect(VisibleMapArea());
-		GFX::rect viewPort = ViewPort();
+		GFX::rect viewPort = Control::Frame();
 		gfx->BlitToScreen(fWorldMapBitmap, &visibleArea, &viewPort);
 		if (fAreaUnderMouse != NULL) {
 			GFX::rect areaRect = fAreaUnderMouse->Rect();
-			areaRect.x += ViewPort().x - AreaOffset().x;
-			areaRect.y += ViewPort().y - AreaOffset().y;
+			areaRect.x += viewPort.x - AreaOffset().x;
+			areaRect.y += viewPort.y - AreaOffset().y;
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(areaRect, 600);
 		}
 	}

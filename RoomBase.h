@@ -21,8 +21,6 @@ public:
 	// AreaRect is the size of the complete area map, starting at 0,0
 	virtual GFX::rect AreaRect() const = 0;
 
-	GFX::rect ViewPort() const;
-
 	// The area of the map which is visible on screen
 	IE::rect VisibleMapArea() const;
 	IE::point AreaOffset() const;

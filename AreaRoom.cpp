@@ -261,7 +261,7 @@ AreaRoom::Draw()
 		fBackMap->Image()->Unlock();
 	}
 
-	GFX::rect screenArea = ViewPort();
+	GFX::rect screenArea = Control::Frame();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 
 #if 1
@@ -767,7 +767,7 @@ AreaRoom::_InitWed()
 	else
 		fWed = gResManager->GetWED(fArea->WedName().CString());
 
-	_InitBackMap(ViewPort());
+	_InitBackMap(Control::Frame());
 	_InitHeightMap();
 	_InitLightMap();
 	_InitSearchMap();
@@ -979,7 +979,8 @@ void
 AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 {
 	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
-		GFX::rect destRect(0, ViewPort().h - fSearchMap->Height(),
+		GFX::rect viewPort = Control::Frame();
+		GFX::rect destRect(0, viewPort.h - fSearchMap->Height(),
 						fSearchMap->Width(), fSearchMap->Height());
 		GraphicsEngine::Get()->BlitToScreen(fSearchMap->Image(), NULL, &destRect);
 		GFX::rect scaledRect = visibleArea;
@@ -987,7 +988,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 		scaledRect.y /= fMapVerticalRatio;
 		scaledRect.w /= fMapHorizontalRatio;
 		scaledRect.h /= fMapVerticalRatio;
-		scaledRect = offset_rect(scaledRect, 0, ViewPort().h - fSearchMap->Height());
+		scaledRect = offset_rect(scaledRect, 0, viewPort.h - fSearchMap->Height());
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
 		
 		if (fSelectedActor != NULL) {
@@ -995,7 +996,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 			actorPosition.x /= fMapHorizontalRatio;
 			actorPosition.y /= fMapVerticalRatio;
 			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
-			r = offset_rect(r, 0, ViewPort().h - fSearchMap->Height());
+			r = offset_rect(r, 0, viewPort.h - fSearchMap->Height());
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
 		}	
 	}

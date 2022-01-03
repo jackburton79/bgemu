@@ -42,13 +42,6 @@ RoomBase::Frame() const
 }
 
 
-GFX::rect
-RoomBase::ViewPort() const
-{
-	return Control::Frame();
-}
-
-
 IE::point
 RoomBase::AreaOffset() const
 {
