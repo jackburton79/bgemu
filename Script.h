@@ -41,7 +41,7 @@ public:
 	static Object*			GetSenderObject(const Object* object, action_params* start);
 	static Object*			GetTargetObject(const Object* object, action_params* start);
 	
-	bool Execute(bool &continuing);
+	void Execute(bool &continuing, bool& action);
 
 	Object* Sender();
 	void SetSender(Object* object);

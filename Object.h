@@ -22,6 +22,16 @@
 
 class Object;
 
+enum SCRIPT_LEVEL {
+	SCRIPT_LEVEL_OVERRIDE = 0,
+	SCRIPT_LEVEL_AREA = 1,
+	SCRIPT_LEVEL_SPECIFICS = 2,
+	SCRIPT_LEVEL_CLASS = 3,
+	SCRIPT_LEVEL_RACE= 4,
+	SCRIPT_LEVEL_GENERAL = 5,
+	SCRIPT_LEVEL_DEFAULT = 6
+};
+
 struct trigger_entry {
 	trigger_entry(const std::string& trigName);
 	trigger_entry(const std::string& trigName, Object* targetObject);

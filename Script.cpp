@@ -196,8 +196,8 @@ Script::GetTargetObject(const Object* object, action_params* start)
 }
 
 
-bool
-Script::Execute(bool& continuing)
+void
+Script::Execute(bool& continuing, bool& actionExecuted)
 {
 	// for each CR block
 	// for each CO block
@@ -211,7 +211,7 @@ Script::Execute(bool& continuing)
 		std::cout << " ***" << std::endl;
 	}
 
-	bool foundContinue = continuing;
+	bool foundContinue = false;
 	// TODO: Find correct place
 	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
 	while (condRes != NULL) {
@@ -221,11 +221,6 @@ Script::Execute(bool& continuing)
 				std::cout << "CONDITION" << std::endl;
 			if (!_EvaluateConditionNode(condition))
 				break;
-				
-			/*if (foundContinue) {
-				std::cout << "CONTINUE(), EXIT SCRIPT" << std::endl;
-				return true;
-			}*/
 				
 			// Check action list
 			if (fSender != NULL && !fSender->IsActionListEmpty()) {
@@ -238,19 +233,27 @@ Script::Execute(bool& continuing)
 			::node* responseSet = condition->Next();
 			if (responseSet == NULL)
 				break;
+
 			if (sDebug)
 				std::cout << "RESPONSE" << std::endl;
-			if (!_HandleResponseSet(responseSet)) {
-				// When the above method returns false, it means it encountered a CONTINUE
-				// so the script should stop running.
+
+			if (_HandleResponseSet(responseSet)) {
+				// encountered a CONTINUE, don't restart script
 				std::cout << "_HandleResponse returned. found continue" << std::endl;
 				foundContinue = true;
-			} else {
+				continuing = true;
+			}
+
+			// If we're here, at least an action was executed
+			// TODO: maybe not: what if the response set was empty ?
+			actionExecuted = true;
+			if (!foundContinue) {
+				// An action was executed, restart script
 				if (sDebug) {
 					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
 					std::cout << " ***" << std::endl;
 				}
-				return false;
+				return;
 			}
 			condition = responseSet->Next();
 		}
@@ -260,8 +263,6 @@ Script::Execute(bool& continuing)
 		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
 		std::cout << " ***" << std::endl;
 	}
-
-	return foundContinue;
 }
 
 
@@ -893,9 +894,12 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 }
 
 
+// returns true in case of continue
+// false if not
 bool
 Script::_HandleResponseSet(node* responseSet)
 {
+	// TODO: Handle the case where the response set is empty
 	response_node* responses[5];
 	response_node* response = static_cast<response_node*>(
 			FindNode(fSender, BLOCK_RESPONSE, responseSet));
@@ -919,16 +923,19 @@ Script::_HandleResponseSet(node* responseSet)
 	action_params* action = FindActionNode(fSender, responses[randomResponse]);
 	// More than one action
 	while (action != NULL) {
-		// When _HandleAction() returns false,
-		// it means it's a CONTINUE() action,
-		// and should be the last action
-		if (!_HandleAction(action)) {
+		// When _HandleAction() returns true,
+		// it means it's a CONTINUE() action
+		// since this should be the last action of an action block, we return
+		// TODO: check if it's correct
+		if (_HandleAction(action)) {
 			std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
-			return false;
+			return true;
 		}
 		action = static_cast<action_params*>(action->Next());
 	}
-	return true;
+
+	// false means "don't continue execution"
+	return false;
 }
 
 
@@ -1319,6 +1326,8 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 }
 
 
+// returns true in case of CONTINUE()
+// false if not
 bool
 Script::_HandleAction(action_params* act)
 {
@@ -1341,7 +1350,7 @@ Script::_HandleAction(action_params* act)
 			SetSender(target);
 			target->SetInterruptable(false);
 		}
-		return true;
+		return false;
 	}
 
 	bool isContinue = false;
@@ -1354,9 +1363,7 @@ Script::_HandleAction(action_params* act)
 		sender->AddAction(action);
 	}
 
-	if (isContinue)
-		return false;
-	return true;
+	return isContinue;
 }
 
 
