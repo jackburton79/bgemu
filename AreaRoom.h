@@ -106,6 +106,8 @@ private:
 	void _InitLightMap();
 	void _InitSearchMap();
 
+	void _CleanDestroyedObjects();
+
 	void _UpdateBaseMap(GFX::rect mapRect);
 
 	void _DrawHeightMap(GFX::rect area);

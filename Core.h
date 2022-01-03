@@ -107,7 +107,6 @@ public:
 private:
 	static void _InitGameTimers();
 	void _PrintObjects() const;
-	void _CleanDestroyedObjects();
 	void _NewRound();
 	
 	Core();

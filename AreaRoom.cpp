@@ -207,6 +207,8 @@ AreaRoom::Update(bool runScripts)
 		Actor* object = (*i);
 		object->Update(runScripts);
 	}
+
+	_CleanDestroyedObjects();
 }
 
 
@@ -1177,6 +1179,32 @@ AreaRoom::_InitContainers()
 		Core::Get()->RegisterObject(container);
 	}
 	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
+}
+
+
+void
+AreaRoom::_CleanDestroyedObjects()
+{
+	// TODO: Remove objects pointers from
+	// RoundResults!!!
+	ActorsList::iterator i = fActors.begin();
+	while (i != fActors.end()) {
+		Object* object = *i;
+		if (object->ToBeDestroyed()) {
+			if (object == Core::Get()->CutsceneActor()) {
+				// TODO: is this correct ?
+				Core::Get()->EndCutsceneMode();
+				//return;
+			}
+			std::cout << "Destroy actor " << object->Name() << std::endl;
+			object->ClearActionList();
+			if (Actor* actor = dynamic_cast<Actor*>(object)) {
+				Core::Get()->UnregisterObject(actor);
+			}
+			i = fActors.erase(i);
+		} else
+			i++;
+	}
 }
 
 

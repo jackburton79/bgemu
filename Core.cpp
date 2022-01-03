@@ -373,8 +373,6 @@ Core::UpdateLogic(bool executeScripts)
 		// AreaRoom::Update() calls Update() for every object
 		fCurrentRoom->Update(executeScripts);
 
-		_CleanDestroyedObjects();
-
 		_NewRound();
 	}
 }
@@ -473,34 +471,6 @@ Core::_InitGameTimers()
 {
 	Timer::Set("ANIMATIONS", 100);
 	Timer::Set("ANIMATEDTILES", 120);
-}
-
-
-void
-Core::_CleanDestroyedObjects()
-{
-	// TODO: Remove objects pointers from
-	// RoundResults!!!
-/*	ActorsList::iterator i = fActors.begin();
-	while (i != fActors.end()) {
-		Object* object = *i;
-		if (object->ToBeDestroyed()) {
-			if (object == fCutsceneActor) {
-				// TODO: is this correct ?
-				//GUI::Get()->Show();
-				fCutsceneMode = false;
-				fCutsceneActor = NULL;
-				//return;	
-			}
-			std::cout << "Destroy actor " << object->Name() << std::endl;			
-			object->ClearActionList();
-			if (Actor* actor = dynamic_cast<Actor*>(object)) {
-				UnregisterObject(actor);
-			}
-			i = fActors.erase(i);
-		} else
-			i++;
-	}*/
 }
 
 
