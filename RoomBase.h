@@ -63,7 +63,6 @@ public:
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
 private:
-	GFX::rect fViewPort;
 	IE::point fAreaOffset;
 
 protected:
