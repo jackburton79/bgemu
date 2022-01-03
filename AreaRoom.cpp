@@ -1156,6 +1156,7 @@ AreaRoom::_InitDoors()
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
+		door->SetArea(this);
 		Core::Get()->RegisterObject(door);
 		fWed->LinkDoorWithTiledObject(door);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
