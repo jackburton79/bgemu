@@ -84,6 +84,7 @@ Action::SetCompleted()
 bool
 Action::IsInstant() const
 {
+	assert(fActionParams != NULL);
 	IDSResource* instants = gResManager->GetIDS("INSTANT");
 	if (instants == NULL)
 		return false;
