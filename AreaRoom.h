@@ -129,7 +129,6 @@ private:
 	void _InitContainers();
 
 	void _UnloadArea();
-	void _Unload();
 
 	bool _IsVisibleOnScreen(const Actor* actor) const;
 

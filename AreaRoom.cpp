@@ -139,7 +139,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 AreaRoom::~AreaRoom()
 {
-	_Unload();
+	_UnloadArea();
 }
 
 
@@ -1211,7 +1211,13 @@ AreaRoom::_CleanDestroyedObjects()
 void
 AreaRoom::_UnloadArea()
 {
-	assert(fWed != NULL);
+	std::cout << "AreaRoom::_UnloadArea()" << std::endl;
+	// TODO: On quit, Core has already deleted the GraphicsEngine,
+	// so here it's NULL. Change order of object destruction
+	// so it doesn't happen.
+	GraphicsEngine* gfx = GraphicsEngine::Get();
+	if (gfx != NULL)
+		gfx->ScreenBitmap()->Clear(0);
 
 	Window()->ReplaceControl(InternalControl()->id, fSavedControl);
 
@@ -1225,15 +1231,11 @@ AreaRoom::_UnloadArea()
 	
 	ClearScripts();
 
-
 	ActorsList::const_iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		//UnregisterObject(*i);
 	}
 	fActors.clear();
-
-//	fObjects.clear();
-
 
 	Core::Get()->ExitingArea(this);
 
@@ -1281,21 +1283,6 @@ AreaRoom::_UnloadArea()
 	}
 
 	gResManager->TryEmptyResourceCache();
-}
-
-
-void
-AreaRoom::_Unload()
-{
-	std::cout << "AreaRoom::Unload()" << std::endl;
-	// TODO: On quit, Core has already deleted the GraphicsEngine,
-	// so here it's NULL. Change order of object destruction
-	// so it doesn't happen.
-	GraphicsEngine* gfx = GraphicsEngine::Get();
-	if (gfx != NULL)
-		gfx->ScreenBitmap()->Clear(0);
-	if (fWed != NULL)
-		_UnloadArea();
 }
 
 
