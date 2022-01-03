@@ -115,6 +115,14 @@ Control::Position() const
 }
 
 
+void
+Control::SetPosition(uint16 x, uint16 y)
+{
+	fControl->x = x;
+	fControl->y = y;
+}
+
+
 IE::point
 Control::ScreenPosition() const
 {

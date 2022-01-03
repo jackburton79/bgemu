@@ -44,6 +44,7 @@ public:
 	void Invoke();
 
 	IE::point Position() const;
+	void SetPosition(uint16 x, uint16 y);
 	IE::point ScreenPosition() const;
 	uint16 Width() const;
 	uint16 Height() const;
