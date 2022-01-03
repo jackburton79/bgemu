@@ -148,13 +148,13 @@ public:
 		int speed;
 		char o;
 		if (!(stringStream >> where.x >> o >> where.y >> o >> speed).fail()) {
-			// TODO: We are leaking the actionParams
 			action_params* actionParams = new action_params;
 			actionParams->integer1 = speed;
 			actionParams->where = where;
 			RoomBase* room = Core::Get()->CurrentRoom();
 			Action* action = new ActionMoveViewPoint(room, actionParams);
 			room->AddAction(action);
+			actionParams->Release();
 		}
 	}
 };
@@ -169,13 +169,13 @@ public:
 		int duration;
 		char o;
 		stringStream >> where.x >> o >> where.y >> o >> duration;
-		// TODO: We are leaking the actionParams
 		action_params* actionParams = new action_params;
 		actionParams->integer1 = duration;
 		actionParams->where = where;
 		RoomBase* room = Core::Get()->CurrentRoom();
 		Action* action = new ActionScreenShake(room, actionParams);
 		room->AddAction(action);
+		actionParams->Release();
 	}
 };
 
@@ -190,7 +190,6 @@ public:
 		std::getline(stringStream, effectName, ',');
 		char o;
 		if (!(stringStream >> where.x >> o >> where.y).fail()) {
-			// TODO: We are leaking the actionParams
 			action_params* actionParams = new action_params;
 			strcpy(actionParams->string1, effectName.c_str());
 			actionParams->where = where;
@@ -198,6 +197,7 @@ public:
 			RoomBase* room = Core::Get()->CurrentRoom();
 			Action* action = new ActionCreateVisualEffect(room, actionParams);
 			room->AddAction(action);
+			actionParams->Release();
 		}
 	}
 };
@@ -213,13 +213,13 @@ public:
 		std::getline(stringStream, creatureName, ',');
 		char o;
 		if (!(stringStream >> where.x >> o >> where.y).fail()) {
-			// TODO: We are leaking the actionParams
 			action_params* actionParams = new action_params;
 			strcpy(actionParams->string1, creatureName.c_str());
 			actionParams->where = where;
 			RoomBase* room = Core::Get()->CurrentRoom();
 			Action* action = new ActionCreateCreature(room, actionParams);
 			room->AddAction(action);
+			actionParams->Release();
 		}
 	}
 };
@@ -241,13 +241,13 @@ public:
 			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
 
 		if (object != NULL) {
-			// TODO: We are leaking the actionParams
 			action_params* actionParams = new action_params;
 			// TODO: we pass a dummy actionParams because Action::IsInstant()
 			// crashes if actionParams is NULL
 			RoomBase* room = Core::Get()->CurrentRoom();
 			Action* action = new ActionDestroySelf(object, actionParams);
 			room->AddAction(action);
+			actionParams->Release();
 		} else
 			std::cout << "object \"" << argv << "\" not found." << std::endl;
 	}

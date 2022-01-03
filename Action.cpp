@@ -44,12 +44,14 @@ Action::Action(Object* object, action_params* node)
 {
 	assert(fObject != NULL);
 	fObject->Acquire();
+	fActionParams->Acquire();
 }
 
 
 Action::~Action()
 {
 	fObject->Release();
+	fActionParams->Release();
 }
 
 
