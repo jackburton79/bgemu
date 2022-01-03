@@ -233,14 +233,22 @@ public:
 		uint32 num;
 		Object* object = NULL;
 
+		// If an id was passed, use it.
+		// otherwise use the passed string (the creature name)
 		if ((stringStream >> num).fail())
 			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
 		else
 			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
 
-		if (object != NULL)
-			object->DestroySelf();
-		else
+		if (object != NULL) {
+			// TODO: We are leaking the actionParams
+			action_params* actionParams = new action_params;
+			// TODO: we pass a dummy actionParams because Action::IsInstant()
+			// crashes if actionParams is NULL
+			RoomBase* room = Core::Get()->CurrentRoom();
+			Action* action = new ActionDestroySelf(object, actionParams);
+			room->AddAction(action);
+		} else
 			std::cout << "object \"" << argv << "\" not found." << std::endl;
 	}
 };
