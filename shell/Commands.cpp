@@ -225,6 +225,27 @@ public:
 };
 
 
+class DestroyCreatureCommand : public ShellCommand {
+public:
+	DestroyCreatureCommand() : ShellCommand("Destroy-Creature") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		uint32 num;
+		Object* object = NULL;
+
+		if ((stringStream >> num).fail())
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
+		else
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
+
+		if (object != NULL)
+			object->DestroySelf();
+		else
+			std::cout << "object \"" << argv << "\" not found." << std::endl;
+	}
+};
+
+
 #if 0
 class DisplayStringCommand : public ShellCommand {
 public:
@@ -258,6 +279,7 @@ AddCommands(InputConsole* console)
 {
 	console->AddCommand(new CreateCreatureCommand());
 	console->AddCommand(new CreateVisualEffectCommand());
+	console->AddCommand(new DestroyCreatureCommand());
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new ListResourcesCommand());
