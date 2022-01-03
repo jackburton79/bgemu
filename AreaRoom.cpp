@@ -408,7 +408,7 @@ AreaRoom::AddObject(Object* object)
 void
 AreaRoom::RemoveObject(Object* object)
 {
-	// TODO: Implement
+	// TODO: Implement ?
 }
 
 
@@ -1185,22 +1185,21 @@ AreaRoom::_InitContainers()
 void
 AreaRoom::_CleanDestroyedObjects()
 {
-	// TODO: Remove objects pointers from
-	// RoundResults!!!
+	// TODO: Remove other objects?
 	ActorsList::iterator i = fActors.begin();
 	while (i != fActors.end()) {
-		Object* object = *i;
-		if (object->ToBeDestroyed()) {
-			if (object == Core::Get()->CutsceneActor()) {
+		Actor* actor = *i;
+		if (actor->ToBeDestroyed()) {
+			if (actor == Core::Get()->CutsceneActor()) {
 				// TODO: is this correct ?
 				Core::Get()->EndCutsceneMode();
 				//return;
 			}
-			std::cout << "Destroy actor " << object->Name() << std::endl;
-			object->ClearActionList();
-			if (Actor* actor = dynamic_cast<Actor*>(object)) {
-				Core::Get()->UnregisterObject(actor);
-			}
+			std::cout << "Destroy actor " << actor->Name() << std::endl;
+			actor->ClearActionList();
+			actor->SetArea(NULL);
+			Core::Get()->UnregisterObject(actor);
+
 			i = fActors.erase(i);
 		} else
 			i++;
