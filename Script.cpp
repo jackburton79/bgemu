@@ -1406,6 +1406,6 @@ Script::_DeleteNode(::node* node)
 	if (node != NULL) {
 		if (node->Next() != NULL)
 			_DeleteNode(node->Next());
-		delete node;
+		node->Release();
 	}
 }

@@ -14,7 +14,6 @@ typedef std::vector<node*> node_list;
 struct node {
 	static node* Create(int type, const char *string);
 
-	virtual ~node();
 	void AddChild(node *child);
 	node* Parent() const;
 	node* Next() const;
@@ -31,11 +30,18 @@ struct node {
 	node* next;
 	node_list children;
 	bool closed;
-
+	
+	void Acquire();
+	void Release();
+	
 protected:
 	node();
 	node(const node&);
 	node& operator=(const node&);
+	virtual ~node();
+	
+private:
+	int32 fRefCount;	
 };
 
 bool operator==(const node &, const node &);

@@ -238,7 +238,7 @@ Parser::TriggerFromString(const std::string& string)
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, node)) {
-		delete node;
+		node->Release();
 		return NULL;
 	}
 
@@ -662,7 +662,8 @@ node::node()
 	type(BLOCK_UNKNOWN),
 	parent(NULL),
 	next(NULL),
-	closed(false)
+	closed(false),
+	fRefCount(1)
 {
 	value[0] = '\0';
 }
@@ -672,7 +673,7 @@ node::~node()
 {
 	node_list::iterator i;
 	for (i = children.begin(); i != children.end(); i++)
-		delete (*i);
+		(*i)->Release();
 }
 
 
@@ -713,6 +714,21 @@ node::Value() const
 void
 node::Print() const
 {
+}
+
+
+void
+node::Acquire()
+{
+	++fRefCount;
+}
+
+
+void
+node::Release()
+{
+	if (--fRefCount == 0)
+		delete this;
 }
 
 
