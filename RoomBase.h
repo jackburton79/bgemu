@@ -22,7 +22,6 @@ public:
 	virtual GFX::rect AreaRect() const = 0;
 
 	GFX::rect ViewPort() const;
-	void SetViewPort(GFX::rect rect);
 
 	// The area of the map which is visible on screen
 	IE::rect VisibleMapArea() const;

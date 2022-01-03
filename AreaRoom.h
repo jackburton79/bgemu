@@ -92,8 +92,6 @@ public:
 	virtual void HideGUI();
 	virtual bool IsGUIShown() const;
 
-	virtual void VideoAreaChanged(uint16 width, uint16 height);
-
 private:
 	virtual ~AreaRoom();
 	void _DrawConsole();

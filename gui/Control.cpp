@@ -193,7 +193,7 @@ Control::AssociateRoom(RoomBase* room)
 	//Window()->ConvertFromScreen(controlRect);
 
 	if (room != NULL) {
-		room->SetViewPort(controlRect);
+		room->SetFrame(controlRect.x, controlRect.y, controlRect.w, controlRect.h);
 	}
 }
 

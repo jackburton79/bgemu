@@ -743,15 +743,6 @@ AreaRoom::IsGUIShown() const
 }
 
 
-/* virtual */
-void
-AreaRoom::VideoAreaChanged(uint16 width, uint16 height)
-{
-	GFX::rect rect(0, 0, width, height);
-	SetViewPort(rect);
-}
-
-
 void
 AreaRoom::_InitBackMap(const GFX::rect& area)
 {

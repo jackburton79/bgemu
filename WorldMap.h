@@ -38,8 +38,6 @@ public:
 
 	virtual void ReloadArea();
 
-	virtual void VideoAreaChanged(uint16 width, uint16 height);
-
 protected:
 	virtual ~WorldMap();
 

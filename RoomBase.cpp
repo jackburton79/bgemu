@@ -49,13 +49,6 @@ RoomBase::ViewPort() const
 }
 
 
-void
-RoomBase::SetViewPort(GFX::rect rect)
-{
-	SetFrame(rect.x, rect.y, rect.w, rect.h);
-}
-
-
 IE::point
 RoomBase::AreaOffset() const
 {
@@ -230,6 +223,6 @@ void
 RoomBase::VideoAreaChanged(uint16 width, uint16 height)
 {
 	GFX::rect rect(0, 0, width, height);
-	SetViewPort(rect);
+	SetFrame(rect.x, rect.y, rect.w, rect.h);
 }
 

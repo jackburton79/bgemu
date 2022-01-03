@@ -213,15 +213,6 @@ WorldMap::ReloadArea()
 }
 
 
-/* virtual */
-void
-WorldMap::VideoAreaChanged(uint16 width, uint16 height)
-{
-	GFX::rect rect(0, 0, width, height);
-	SetViewPort(rect);
-}
-
-
 void
 WorldMap::_UnloadWorldMap()
 {
