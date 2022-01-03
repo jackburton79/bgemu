@@ -44,6 +44,7 @@ private:
 	DialogHandler* fDialog;
 
 	::Party* fParty;
+	uint32 fDelay;
 	bool fTestMode;
 };
 

@@ -48,6 +48,7 @@ Game::Game()
 	:
 	fDialog(NULL),
 	fParty(NULL),
+	fDelay(40),
 	fTestMode(false)
 {
 }
@@ -211,6 +212,13 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_q:
 								quitting = true;
 								break;
+							case SDLK_PLUS:
+								if (--fDelay == 0)
+									fDelay = 1;
+								break;
+							case SDLK_MINUS:
+								fDelay++;
+								break;
 							case SDLK_1:
 								GUI::Get()->ToggleWindow(1);
 								break;
@@ -252,7 +260,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		GraphicsEngine::Get()->Update();
 		
 		sFrames++;
-		Timer::WaitSync(startTicks, 40);
+		Timer::WaitSync(startTicks, fDelay);
 	}
 
 	Timer::RemovePeriodicTimer(clockTimer);
