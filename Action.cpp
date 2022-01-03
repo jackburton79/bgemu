@@ -5,6 +5,7 @@
 #include "AreaRoom.h"
 #include "Core.h"
 #include "Door.h"
+#include "Effect.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -1314,7 +1315,12 @@ ActionCreateVisualEffect::ActionCreateVisualEffect(Object* object, action_params
 void
 ActionCreateVisualEffect::operator()()
 {
-	Core::Get()->PlayEffect(fActionParams->string1, fActionParams->where);
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (area == NULL)
+		return;
+
+	Effect* effect = new Effect(fActionParams->string1, fActionParams->where);
+	area->AddEffect(effect);
 	SetCompleted();
 }
 
@@ -1342,6 +1348,8 @@ ActionCreateVisualEffectObject::operator()()
 		point.y = target->Frame().y_max - target->Frame().y_min;
 	}
 
-	Core::Get()->PlayEffect(fActionParams->string1, point);
+	Effect* effect = new Effect(fActionParams->string1, point);
+	sender->Area()->AddEffect(effect);
+	SetCompleted();
 	SetCompleted();
 }

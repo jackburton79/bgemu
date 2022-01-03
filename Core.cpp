@@ -8,7 +8,6 @@
 #include "Container.h"
 #include "CreResource.h"
 #include "Door.h"
-#include "Effect.h"
 #include "Game.h"
 #include "GUI.h"
 #include "IDSResource.h"
@@ -222,10 +221,11 @@ Core::Vars()
 void
 Core::ClearAllActions()
 {
-#if 0
-	for (ActorsList::iterator a = fActors.begin(); a != fActors.end(); a++)
+	// TODO: Move to AreaRoom
+	ActorsList list;
+	((AreaRoom*)CurrentRoom())->GetActorsList(list);
+	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
 		(*a)->ClearActionList();
-#endif
 }
 
 
@@ -280,32 +280,6 @@ void
 Core::SetCutsceneActor(Object* actor)
 {
 	fCutsceneActor = actor;
-}
-
-
-void
-Core::PlayAnimation(const res_ref& name, const IE::point where)
-{
-	AreaRoom* area = dynamic_cast<AreaRoom*>(CurrentRoom());
-	if (area == NULL)
-		return;
-
-	Animation* animation = new Animation(name.CString(), 0, false, where);
-	area->AddAnimation(animation);
-	// TODO: Delete when done
-	// at the moment we are leaking the animation
-}
-
-
-void
-Core::PlayEffect(const res_ref& name, const IE::point where)
-{
-	AreaRoom* area = dynamic_cast<AreaRoom*>(CurrentRoom());
-	if (area == NULL)
-		return;
-
-	Effect* effect = new Effect(name, where);
-	area->AddEffect(effect);
 }
 
 
