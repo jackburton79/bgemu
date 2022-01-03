@@ -1098,8 +1098,7 @@ AreaRoom::_InitRegions()
 
 	for (uint16 regionIndex = 0; regionIndex < fArea->CountRegions(); regionIndex++) {
 		Region* region = fArea->GetRegionAt(regionIndex);
-		fRegions.push_back(region);
-		Core::Get()->RegisterObject(region);
+		AddObject(region);
 		std::vector<TileCell*> cells;
 		GetTileCellsForRegion(cells, region);
 		for (std::vector<TileCell*>::iterator cellIterator = cells.begin();
