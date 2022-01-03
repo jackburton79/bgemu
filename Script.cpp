@@ -150,7 +150,7 @@ Script::GetSenderObject(const Object* object, action_params* start)
 	start->Second()->Print();
 	start->Third()->Print();
 */
-	object_params* objectNode = start->First();
+	object_params* objectNode = start ? start->First() : NULL;
 	if (objectNode == NULL || objectNode->Empty()) {
 		if (sDebug)
 			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
