@@ -289,19 +289,17 @@ Object::Update(bool scripts)
 	if (sDebug)
 		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
-	Actor* actor = dynamic_cast<Actor*>(this);
-	bool isActor = actor != NULL;
 	bool cutscene = Core::Get()->CutsceneMode(); 	
 	if (cutscene) {
-		if (Type() == Object::AREA || !isActor)
+		if (Type() == Object::AREA)
 			scripts = false;
 	}
 	if (scripts) {
 		_HandleScripting(8);
 	}
 
-	if (cutscene && actor != NULL && actor->InParty() && actor != Core::Get()->CutsceneActor())
-		return;
+	//if (cutscene && actor != NULL && actor->InParty() && actor != Core::Get()->CutsceneActor())
+	//	return;
 
 	ExecuteActions();
 }
@@ -580,17 +578,14 @@ Object::_HandleScripting(int32 maxLevel)
 		}
 	}
 
-	/*if (actor != NULL && actor->IsWalking())
-		return;
-*/
 	if (!runScripts) {
 		fTicksIdle++;
 		return;
 	}
 	
-	if (Core::Get()->CutsceneMode())
+	/*if (Core::Get()->CutsceneMode())
 		maxLevel = 1;
-
+*/
 	if (sDebug) {
 		std::cout << Name() << ": _ExecuteScripts(): run scripts (ticks=" << fTicks;
 		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;

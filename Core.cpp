@@ -255,7 +255,7 @@ Core::StartCutscene(const res_ref& scriptName)
 {
 	std::cout << "Core::StartCutscene():" << scriptName.CString() << std::endl;
 	::Script* script = ExtractScript(scriptName);
-	bool continuing = false;
+	bool continuing = true;
 	bool action = false;
 	if (script != NULL) {
 		//std::cout << "Executing script" << std::endl;

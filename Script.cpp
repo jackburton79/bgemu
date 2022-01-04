@@ -197,7 +197,7 @@ Script::GetTargetObject(const Object* object, action_params* start)
 
 
 void
-Script::Execute(bool& continuing, bool& actionExecuted)
+Script::Execute(bool& continuing, bool& finished)
 {
 	// for each CR block
 	// for each CO block
@@ -227,7 +227,7 @@ Script::Execute(bool& continuing, bool& actionExecuted)
 				if (fSender != NULL && !fSender->IsActionListEmpty()) {
 					if (!fSender->IsInterruptable()) {
 						std::cout << "action list not empty and not interruptable. Break" << std::endl;
-						actionExecuted = true;
+						finished = true;
 						return;
 					}
 				}
@@ -242,7 +242,7 @@ Script::Execute(bool& continuing, bool& actionExecuted)
 
 			foundContinue = _HandleResponseSet(responseSet);
 			if (!foundContinue) {
-				actionExecuted = true;
+				finished = true;
 				// An action was executed, restart script
 				if (sDebug) {
 					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
