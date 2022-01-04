@@ -1,12 +1,12 @@
 /*
- * Sprite.h
+ * Bitmap.h
  *
  *  Created on: 29/mag/2012
- *      Author: stefano
+ *      Author: Stefano Ceccherini
  */
 
-#ifndef SPRITE_H_
-#define SPRITE_H_
+#ifndef BITMAP_H_
+#define BITMAP_H
 
 #include "Referenceable.h"
 #include "SupportDefs.h"
@@ -112,4 +112,4 @@ private:
 	bool fOwns;
 };
 
-#endif /* SPRITE_H_ */
+#endif /* BITMAP_H_ */
