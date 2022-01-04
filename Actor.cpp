@@ -143,6 +143,10 @@ Actor::_Init()
 		_HandleColors();
 	}
 
+	// This only makes sense for actors already created once
+	if (fCRE->GlobalActorEnum() != uint16(-1))
+		SetGlobalID(fCRE->GlobalActorEnum());
+
 #if 0
 	Print();
 #endif

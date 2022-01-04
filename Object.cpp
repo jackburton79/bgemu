@@ -176,11 +176,6 @@ Object::SetGlobalID(uint16 id)
 uint16
 Object::GlobalID() const
 {
-	// TODO: Not really nice
-	const Actor* actor = dynamic_cast<const Actor*>(this);
-	if (actor != NULL && actor->CRE() != NULL)
-		return actor->CRE()->GlobalActorEnum();
-		
 	return fGlobalID;
 }
 
