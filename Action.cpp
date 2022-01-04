@@ -1356,5 +1356,4 @@ ActionCreateVisualEffectObject::operator()()
 	Effect* effect = new Effect(fActionParams->string1, point);
 	sender->Area()->AddEffect(effect);
 	SetCompleted();
-	SetCompleted();
 }
