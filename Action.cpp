@@ -345,7 +345,7 @@ ActionPlayDead::ActionPlayDead(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
-	fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
+	fDuration = fActionParams->integer1;
 }
 
 
@@ -364,6 +364,7 @@ ActionPlayDead::operator()()
 	}
 	
 	if (fDuration-- <= 0) {
+		std::cout << "PlayDead finished" << std::endl;
 		Actor* actor = dynamic_cast<Actor*>(fObject);
 		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
@@ -560,9 +561,6 @@ ActionRandomWalk::operator()()
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
-
-	if (actor->Position() == actor->Destination())
-		SetCompleted();
 }
 
 
