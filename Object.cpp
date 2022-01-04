@@ -619,7 +619,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 				continue;
 
 			fScripts[i]->Execute(continuing, actionDone);
-			if (actionDone && !continuing) {
+			if (actionDone) {
 				//std::cout << Name() << ": script " << i << " returned false." << std::endl;
 				break;
 			}

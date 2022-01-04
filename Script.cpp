@@ -211,7 +211,7 @@ Script::Execute(bool& continuing, bool& actionExecuted)
 		std::cout << " ***" << std::endl;
 	}
 
-	bool foundContinue = false;
+	bool foundContinue = continuing;
 	// TODO: Find correct place
 	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
 	while (condRes != NULL) {
@@ -221,12 +221,15 @@ Script::Execute(bool& continuing, bool& actionExecuted)
 				std::cout << "CONDITION" << std::endl;
 			if (!_EvaluateConditionNode(condition))
 				break;
-				
-			// Check action list
-			if (fSender != NULL && !fSender->IsActionListEmpty()) {
-				if (!fSender->IsInterruptable()) {
-					std::cout << "action list not empty. Break" << std::endl;
-					break;
+
+			if (!foundContinue) {
+				// Check action list
+				if (fSender != NULL && !fSender->IsActionListEmpty()) {
+					if (!fSender->IsInterruptable()) {
+						std::cout << "action list not empty and not interruptable. Break" << std::endl;
+						actionExecuted = true;
+						return;
+					}
 				}
 			}
 
@@ -237,17 +240,9 @@ Script::Execute(bool& continuing, bool& actionExecuted)
 			if (sDebug)
 				std::cout << "RESPONSE" << std::endl;
 
-			if (_HandleResponseSet(responseSet)) {
-				// encountered a CONTINUE, don't restart script
-				std::cout << "_HandleResponse returned. found continue" << std::endl;
-				foundContinue = true;
-				continuing = true;
-			}
-
-			// If we're here, at least an action was executed
-			// TODO: maybe not: what if the response set was empty ?
-			actionExecuted = true;
+			foundContinue = _HandleResponseSet(responseSet);
 			if (!foundContinue) {
+				actionExecuted = true;
 				// An action was executed, restart script
 				if (sDebug) {
 					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
