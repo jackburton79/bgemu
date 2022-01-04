@@ -6,7 +6,7 @@
  */
 
 #ifndef BITMAP_H_
-#define BITMAP_H
+#define BITMAP_H_
 
 #include "Referenceable.h"
 #include "SupportDefs.h"
