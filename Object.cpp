@@ -570,10 +570,7 @@ Object::_HandleScripting(int32 maxLevel)
 	if (fTicks % 16 != GlobalID() % 16)
 		return;
 
-	if (fCurrentAction != NULL)
-		return;
-
-	bool runScripts = true;
+	bool runScripts = (fTicksIdle > 15) || IsActionListEmpty();
 	
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (!IsInsideVisibleArea()) {
@@ -583,31 +580,23 @@ Object::_HandleScripting(int32 maxLevel)
 		}
 	}
 
-	if (actor != NULL && actor->IsWalking())
+	/*if (actor != NULL && actor->IsWalking())
 		return;
-
-	if (Type() == Object::AREA)
-		runScripts = true;
-
-	if (!runScripts)
+*/
+	if (!runScripts) {
+		fTicksIdle++;
 		return;
-
-	fTicksIdle = 0;
+	}
 	
-	if (!IsInterruptable())
-		return;
-
 	if (Core::Get()->CutsceneMode())
 		maxLevel = 1;
-
-	if (!IsActive())
-		return;
 
 	if (sDebug) {
 		std::cout << Name() << ": _ExecuteScripts(): run scripts (ticks=" << fTicks;
 		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;
 	}
 
+	fTicksIdle = 0;
 	_ExecuteScripts(maxLevel);
 
 	if (true)
