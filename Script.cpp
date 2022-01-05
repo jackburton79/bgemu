@@ -840,7 +840,7 @@ Script::_HandleResponseSet(response_set& responseSet)
 		// since this should be the last action of an action block, we return
 		// TODO: check if it's correct
 		if (_HandleAction(*action)) {
-			std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
+			//std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
 			return true;
 		}
 	}
