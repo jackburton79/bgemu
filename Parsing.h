@@ -65,6 +65,7 @@ struct object_params {
 	char name[48];
 
 	object_params();
+	object_params(const object_params& other);
 };
 
 
@@ -80,9 +81,13 @@ struct trigger_params : public node {
 	char string2[48];
 
 	trigger_params();
+	trigger_params(const trigger_params& other);
+	virtual ~trigger_params();
+
+	trigger_params& operator=(const trigger_params& other);
 
 private:
-	object_params object;
+	object_params* object;
 };
 
 

@@ -739,17 +739,63 @@ operator==(const node &a, const node &b)
 }
 
 
-// trigger
+// trigger_params
 trigger_params::trigger_params()
 	:
 	id(0),
 	parameter1(0),
 	flags(0),
 	parameter2(0),
-	unknown(0)
+	unknown(0),
+	object(NULL)
 {
 	string1[0] = '\0';
 	string2[0] = '\0';
+
+	object = new object_params();
+}
+
+
+trigger_params::trigger_params(const trigger_params& other)
+	:
+	id(other.id),
+	parameter1(other.id),
+	flags(other.flags),
+	parameter2(other.parameter2),
+	unknown(other.unknown),
+	object(NULL)
+{
+	strcpy(string1, other.string1);
+	strcpy(string2, other.string2);
+	if (other.object != NULL)
+		object = new object_params(*other.object);
+	else
+		object = new object_params();
+}
+
+
+/* virtual */
+trigger_params::~trigger_params()
+{
+	delete object;
+}
+
+
+trigger_params&
+trigger_params::operator=(const trigger_params& other)
+{
+	id = other.id;
+	parameter1 = other.id;
+	flags = other.flags;
+	parameter2 = other.parameter2;
+	unknown = other.unknown;
+	object = NULL;
+	strcpy(string1, other.string1);
+	strcpy(string2, other.string2);
+	if (other.object)
+		object = new object_params(*other.object);
+
+	return *this;
 }
 
 
@@ -767,14 +813,15 @@ trigger_params::Print() const
 	std::cout << "int2=" << parameter2 << ", ";
 	std::cout << "string1=" << string1 << ", ";
 	std::cout << "string2=" << string2 << ")" << std::endl;
-	object.Print();
+	if (object != NULL)
+		object->Print();
 }
 
 
 object_params*
 trigger_params::Object()
 {
-	return &object;
+	return object;
 }
 
 
@@ -794,6 +841,24 @@ object_params::object_params()
 	memset(identifiers, 0, sizeof(identifiers));
 	point.x = point.y = -1;
 	name[0] = '\0';
+}
+
+
+object_params::object_params(const object_params& other)
+	:
+	team(other.team),
+	faction(other.faction),
+	ea(other.ea),
+	general(other.general),
+	race(other.race),
+	classs(other.classs),
+	specific(other.specific),
+	gender(other.gender),
+	alignment(other.alignment)
+{
+	memcpy(identifiers, other.identifiers, sizeof(identifiers));
+	point = other.point;
+	strcpy(name, other.name);
 }
 
 
