@@ -147,7 +147,7 @@ Script::Execute(bool& continuing, bool& finished)
 		if (sDebug)
 			std::cout << "CONDITION" << std::endl;
 		if (!_EvaluateConditionNode(cr->conditions))
-			break;
+			continue;
 
 		if (!foundContinue) {
 			// Check action list
