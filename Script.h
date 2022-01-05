@@ -25,7 +25,7 @@ class Actor;
 class Object;
 class Script {
 public:
-	Script(node *rootNode);
+	Script(std::vector<condition_response*> root);
 	~Script();
 
 	static void SetDebug(bool debug);
@@ -52,9 +52,9 @@ public:
 	static Object* GetObject(const Object* source, object_params* node);
 	
 private:
-	bool _EvaluateConditionNode(node* conditionNode);
+	bool _EvaluateConditionNode(condition_block& block);
 
-	bool _HandleResponseSet(node* node);
+	bool _HandleResponseSet(response_set& responseSet);
 	bool _HandleAction(action_params* act);
 	Action* _GetAction(Object* sender, action_params* act, bool& isContinue);
 	
@@ -62,12 +62,9 @@ private:
 	void _DeleteNode(node* n);
 	static Actor* _GetIdentifiers(const Object* source, object_params* node,
 					std::vector<std::string>& identifiersList);
-
-	node *fRootNode;
 	
+	std::vector<condition_response*> fConditionResponses;
 	Object* fSender;
-
-	node* fCurrentNode;
 
 	static bool sDebug;
 };

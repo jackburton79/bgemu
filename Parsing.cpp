@@ -273,13 +273,13 @@ Parser::ActionFromString(const std::string& string, action_params& node)
 }
 
 
-node*
+std::vector<condition_response*>
 Parser::Read()
 {
 	std::vector<condition_response*> blocks;
-	node* rootNode = NULL;
+	//node* rootNode = NULL;
 	try {
-#if 0
+#if 1
 		fTokenizer->SetDebug(true);
 		if (fTokenizer->ReadToken() == token("SC")) {
 			condition_response* condResp = NULL;
@@ -297,7 +297,7 @@ Parser::Read()
 	} catch (...) {
 		std::cerr << Log::Red << "Parser::Read(): unknown exception" << std::endl;
 	}
-	return rootNode;
+	return blocks;
 }
 
 

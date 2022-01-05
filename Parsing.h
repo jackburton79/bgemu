@@ -142,7 +142,7 @@ public:
 	Parser();
 	~Parser();
 	void SetTo(Stream *stream);
-	node* Read();
+	std::vector<condition_response*> Read();
 	void SetDebug(bool debug);
 
 	static std::vector<trigger_params*> TriggersFromString(const std::string& string);

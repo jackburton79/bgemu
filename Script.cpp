@@ -56,22 +56,17 @@ static void PrintHeader(node& node, bool close = false)
 */
 
 
-Script::Script(node* rootNode)
+Script::Script(std::vector<condition_response*> rootNode)
 	:
-	fRootNode(rootNode),
-	fSender(NULL),
-	fCurrentNode(NULL)
+	fConditionResponses(rootNode),
+	fSender(NULL)
 {
-	if (rootNode == NULL)
-		throw std::runtime_error("Script::Script(): root node is NULL");
-
-	fRootNode->next = NULL;
 }
 
 
 Script::~Script()
 {
-	_DeleteNode(fRootNode);
+	//_DeleteNode(fRootNode);
 }
 
 
@@ -86,11 +81,11 @@ Script::SetDebug(bool debug)
 void
 Script::Print() const
 {
-	node *nextNode = fRootNode;
+	/*node *nextNode = fRootNode;
 	while (nextNode != NULL) {
 		_PrintNode(nextNode);
 		nextNode = nextNode->Next();
-	}
+	}*/
 }
 
 
@@ -213,46 +208,39 @@ Script::Execute(bool& continuing, bool& finished)
 
 	bool foundContinue = continuing;
 	// TODO: Find correct place
-	::node* condRes = FindNode(fSender, BLOCK_CONDITION_RESPONSE, fRootNode);
-	while (condRes != NULL) {
-		::node* condition = FindNode(fSender, BLOCK_CONDITION, condRes);
-		while (condition != NULL) {
-			if (sDebug)
-				std::cout << "CONDITION" << std::endl;
-			if (!_EvaluateConditionNode(condition))
-				break;
+	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
+		condition_response* cr = fConditionResponses.at(cri);
+		if (sDebug)
+			std::cout << "CONDITION" << std::endl;
+		if (!_EvaluateConditionNode(cr->conditions))
+			break;
 
-			if (!foundContinue) {
-				// Check action list
-				if (fSender != NULL && !fSender->IsActionListEmpty()) {
-					if (!fSender->IsInterruptable()) {
-						std::cout << "action list not empty and not interruptable. Break" << std::endl;
-						finished = true;
-						return;
-					}
+		if (!foundContinue) {
+			// Check action list
+			if (fSender != NULL && !fSender->IsActionListEmpty()) {
+				if (!fSender->IsInterruptable()) {
+					std::cout << "action list not empty and not interruptable. Break" << std::endl;
+					finished = true;
+					return;
 				}
 			}
-
-			::node* responseSet = condition->Next();
-			if (responseSet == NULL)
-				break;
-
-			if (sDebug)
-				std::cout << "RESPONSE" << std::endl;
-
-			foundContinue = _HandleResponseSet(responseSet);
-			if (!foundContinue) {
-				finished = true;
-				// An action was executed, restart script
-				if (sDebug) {
-					std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
-					std::cout << " ***" << std::endl;
-				}
-				return;
-			}
-			condition = responseSet->Next();
 		}
-		condRes = condRes->Next();
+
+		response_set& responseSet = cr->responseSet;
+
+		if (sDebug)
+			std::cout << "RESPONSE" << std::endl;
+
+		foundContinue = _HandleResponseSet(responseSet);
+		if (!foundContinue) {
+			finished = true;
+			// An action was executed, restart script
+			if (sDebug) {
+				std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
+				std::cout << " ***" << std::endl;
+			}
+			return;
+		}
 	};
 	if (sDebug) {
 		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
@@ -396,12 +384,12 @@ Script::GetObject(const Object* source, object_params* node)
 
 
 bool
-Script::_EvaluateConditionNode(node* conditionNode)
+Script::_EvaluateConditionNode(condition_block& conditionNode)
 {
-	trigger_params* trig = FindTriggerNode(fSender, conditionNode);
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;
-	while (trig != NULL) {
+	for (size_t i = 0; i < conditionNode.triggers.size(); i++) {
+		trigger_params* trig = conditionNode.triggers.at(i);
 		if (orTriggers > 0) {
 			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers);
 			if (blockEvaluation)
@@ -412,7 +400,6 @@ Script::_EvaluateConditionNode(node* conditionNode)
 			if (!blockEvaluation)
 				break;
 		}
-		trig = static_cast<trigger_params*>(trig->Next());
 	}
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER BLOCK returned ";
@@ -892,41 +879,36 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 // returns true in case of continue
 // false if not
 bool
-Script::_HandleResponseSet(node* responseSet)
+Script::_HandleResponseSet(response_set& responseSet)
 {
 	// TODO: Handle the case where the response set is empty
-	response_node* responses[5];
-	response_node* response = static_cast<response_node*>(
-			FindNode(fSender, BLOCK_RESPONSE, responseSet));
-	int i = 0;
 	int totalChance = 0;
-	while (response != NULL) {
-		responses[i] = response;
-		totalChance += responses[i]->probability;
-		response = static_cast<response_node*>(response->Next());
-		i++;
+	size_t numResponses = responseSet.resp.size();
+	for (size_t i = 0; i < numResponses; i++) {
+		totalChance += responseSet.resp[i]->probability;
 	}
 	
 	if (sDebug) {
-		for (int p = 0; p < i; p++) {
+		for (size_t p = 0; p < numResponses; p++) {
 			std::cout << "response " << p << ": probability ";
-			std::cout << std::dec << responses[p]->probability << std::endl;
+			std::cout << std::dec << responseSet.resp[p]->probability << std::endl;
 		}
 	}
 	// TODO: Fix this and take the probability into account
-	int randomResponse = Core::RandomNumber(0, i);
-	action_params* action = FindActionNode(fSender, responses[randomResponse]);
+	int randomResponse = Core::RandomNumber(0, numResponses);
+	
+	std::vector<action_params*> actions = responseSet.resp[randomResponse]->actions;
+	std::vector<action_params*>::iterator action;
 	// More than one action
-	while (action != NULL) {
+	for (action = actions.begin(); action != actions.end(); action++) {
 		// When _HandleAction() returns true,
 		// it means it's a CONTINUE() action
 		// since this should be the last action of an action block, we return
 		// TODO: check if it's correct
-		if (_HandleAction(action)) {
+		if (_HandleAction(*action)) {
 			std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
 			return true;
 		}
-		action = static_cast<action_params*>(action->Next());
 	}
 
 	// false means "don't continue execution"
