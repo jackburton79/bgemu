@@ -197,8 +197,11 @@ Tokenizer::ReadToken()
 void
 Tokenizer::RewindToken(const token &tok)
 {
-	if (tok.size != 0)
+	if (tok.size != 0) {
+		if (fDebug)
+			std::cout << "Tokenizer::RewindToken() (" << tok.size << " bytes)" << std::endl;
 		fStream->Seek(-tok.size, SEEK_CUR);
+	}
 }
 
 
