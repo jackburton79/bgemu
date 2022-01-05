@@ -38,6 +38,7 @@ public:
 	static Object*			GetTargetObject(const Object* object, action_params* start);
 	
 	void Execute(bool &continuing, bool& action);
+	void ExecuteCutscene();
 
 	Object* Sender();
 	void SetSender(Object* object);

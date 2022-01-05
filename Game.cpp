@@ -372,11 +372,11 @@ Game::LoadStartingArea()
 	}
 
 	// TODO: Fix this
-	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+	/*if (Core::Get()->Game() == GAME_BALDURSGATE2) {
 		// TODO: Needed for the initial script
 		IE::point startPoint = {20, 20};
 		fParty->AddActor(new Actor("IMOEN", startPoint, 0));
-	}
+	}*/
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
 	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(viewPosition);

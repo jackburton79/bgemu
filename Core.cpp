@@ -255,13 +255,11 @@ Core::StartCutscene(const res_ref& scriptName)
 {
 	std::cout << "Core::StartCutscene():" << scriptName.CString() << std::endl;
 	::Script* script = ExtractScript(scriptName);
-	bool continuing = true;
-	bool action = false;
 	if (script != NULL) {
 		//std::cout << "Executing script" << std::endl;
 		// TODO: not nice. but it will be changed in the cutscene script
 		//script->SetSender(fCurrentRoom);
-		script->Execute(continuing, action);
+		script->ExecuteCutscene();
 		
 		// TODO: We cannot delete the script, since actions are parsing it after we return.
 		// We are leaking the it now

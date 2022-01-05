@@ -197,6 +197,32 @@ Script::Execute(bool& continuing, bool& finished)
 }
 
 
+void
+Script::ExecuteCutscene()
+{
+	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
+		condition_response* cr = fConditionResponses.at(cri);
+		response_set& responseSet = cr->responseSet;
+		if (sDebug)
+			std::cout << "RESPONSE" << std::endl;
+
+		Object* sender = NULL;
+		for (size_t r = 0; r < responseSet.resp.size(); r++) {
+			std::vector<action_params*>* actions = &responseSet.resp.at(r)->actions;
+			if (sender == NULL)
+				sender = GetObject(NULL, actions->at(0)->Second());
+			if (sender != NULL) {
+				SetSender(sender);
+				std::cout << "CUTSCENEID: " << sender->Name() << std::endl;
+			}
+			for (size_t a = 0; a < actions->size(); a++) {
+				_HandleAction(actions->at(a));
+			}
+		}
+	}
+}
+
+
 Object*
 Script::Sender()
 {

@@ -291,7 +291,7 @@ Object::Update(bool scripts)
 
 	bool cutscene = Core::Get()->CutsceneMode(); 	
 	if (cutscene) {
-		if (Type() == Object::AREA)
+		//if (Type() == Object::AREA)
 			scripts = false;
 	}
 	if (scripts) {
