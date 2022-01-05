@@ -441,17 +441,17 @@ Parser::_ReadNode(::node*& node)
 				if (blockType == BLOCK_OBJECT) {
 					if (node->type == BLOCK_TRIGGER) {
 						trigger_params* trig = dynamic_cast<trigger_params*>(node);
-						_ReadObjectBlock(fTokenizer, trig->object);
+						_ReadObjectBlock(fTokenizer, *trig->Object());
 					} else if (node->type == BLOCK_ACTION) {
 						// TODO: Horrible hack
 						action_params* act = dynamic_cast<action_params*>(node);
 						object_params* destObjectParams = NULL;
 						if (sActionIndexHACK == 0)
-							destObjectParams = &act->first;
+							destObjectParams = act->First();
 						else if (sActionIndexHACK == 1)
-							destObjectParams = &act->second;
+							destObjectParams = act->Second();
 						else if (sActionIndexHACK == 2)
-							destObjectParams = &act->third;
+							destObjectParams = act->Third();
 
 						assert(destObjectParams != NULL);
 
@@ -577,7 +577,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
 			else if (tokenParam.type == TOKEN_STRING)
 				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
-			node->object = objectNode;
+			*node->Object() = objectNode;
 			break;
 		}
 		case Parameter::INTEGER:

@@ -78,9 +78,11 @@ struct trigger_params : public node {
 	int unknown;
 	char string1[48];
 	char string2[48];
-	object_params object;
 
 	trigger_params();
+
+private:
+	object_params object;
 };
 
 
@@ -96,11 +98,12 @@ struct action_params : public node {
 	int integer3;
 	char string1[48];
 	char string2[48];
+	action_params();
+
+private:
 	object_params first;
 	object_params second;
 	object_params third;
-
-	action_params();
 };
 
 
