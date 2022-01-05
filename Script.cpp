@@ -24,36 +24,6 @@
 
 
 bool Script::sDebug = false;
-/*
-static int sIndent = 0;
-static void IndentMore()
-{
-	sIndent++;
-}
-
-
-static void IndentLess()
-{
-	if (--sIndent < 0)
-		sIndent = 0;
-}*/
-
-
-static void PrintIndentation(int indent)
-{
-	for (int i = 0; i < indent; i++)
-		std::cout << " ";
-}
-
-/*
-static void PrintHeader(node& node, bool close = false)
-{
-	if (!close)
-		std::cout << "<" << node.header << ">" << std::endl;
-	else
-		std::cout << "<" << node.header << "\\>" << std::endl;
-}
-*/
 
 
 Script::Script(std::vector<condition_response*> rootNode)
@@ -86,42 +56,6 @@ Script::Print() const
 		_PrintNode(nextNode);
 		nextNode = nextNode->Next();
 	}*/
-}
-
-
-/* static */
-trigger_params*
-Script::FindTriggerNode(Object* object, node* start)
-{
-	return static_cast<trigger_params*>(FindNode(object, BLOCK_TRIGGER, start));
-}
-
-
-/* static */
-action_params*
-Script::FindActionNode(Object* object, node* start)
-{
-	return static_cast<action_params*>(FindNode(object, BLOCK_ACTION, start));
-}
-
-
-/* static */
-node*
-Script::FindNode(const Object* object, block_type nodeType, node* start)
-{
-	if (start->type == nodeType)
-		return const_cast<node*>(start);
-
-	node_list::const_iterator i;
-	for (i = start->children.begin(); i != start->children.end(); i++) {
-		node *n = FindNode(object, nodeType, *i);
-		if (n != NULL)
-			return n;
-	}
-	if (start->Next() != NULL)
-		return FindNode(object, nodeType, start->Next());
-
-	return NULL;
 }
 
 
@@ -1341,48 +1275,4 @@ Script::_HandleAction(action_params* act)
 	}
 
 	return isContinue;
-}
-
-
-void
-Script::_PrintNode(node* n) const
-{
-	//PrintIndentation();
-	//PrintHeader(*n);
-	//IndentMore();
-	
-	if (n->type == BLOCK_TRIGGER) {
-		if (n->Parent()->children.front() == n)
-			std::cout << "IF" << std::endl;
-		else
-			std::cout << "AND/OR" << std::endl;
-	} else if (n->type == BLOCK_ACTION) {
-		if (n->Parent()->children.front() == n) {
-			std::cout << "THEN" << std::endl;
-			std::cout << " (probability: " << ((response_node*)(n->Parent()))->probability << ")" << std::endl;
-		}
-	}
-	if (n->type == BLOCK_TRIGGER || n->type == BLOCK_ACTION)
-		PrintIndentation(4);
-	n->Print();
-
-	node_list::iterator c;
-	for (c = n->children.begin(); c != n->children.end(); c++) {
-		_PrintNode(*c);
-	}
-	
-	//IndentLess();
-	//PrintIndentation();
-	//PrintHeader(*n, true);
-}
-
-
-void
-Script::_DeleteNode(::node* node)
-{
-	if (node != NULL) {
-		if (node->Next() != NULL)
-			_DeleteNode(node->Next());
-		node->Release();
-	}
 }

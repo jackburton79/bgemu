@@ -32,9 +32,9 @@ public:
 
 	void Print() const;
 
-	static trigger_params*	FindTriggerNode(Object* object, node* start);
-	static action_params*		FindActionNode(Object* object, node* start);
-	static node*			FindNode(const Object* object, block_type type, node* start);
+	//static trigger_params*	FindTriggerNode(Object* object, node* start);
+	//static action_params*		FindActionNode(Object* object, node* start);
+	//static node*			FindNode(const Object* object, block_type type, node* start);
 
 	// convenience calls
 	static Object*			GetTriggerObject(const Object* object, trigger_params* start);
@@ -58,8 +58,8 @@ private:
 	bool _HandleAction(action_params* act);
 	Action* _GetAction(Object* sender, action_params* act, bool& isContinue);
 	
-	void _PrintNode(node* n) const;
-	void _DeleteNode(node* n);
+	//void _PrintNode(node* n) const;
+	//void _DeleteNode(node* n);
 	static Actor* _GetIdentifiers(const Object* source, object_params* node,
 					std::vector<std::string>& identifiersList);
 	

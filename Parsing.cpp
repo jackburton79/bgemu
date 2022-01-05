@@ -233,12 +233,11 @@ Parser::TriggerFromString(const std::string& string)
 {
 	std::cout << "TriggerFromString()" << std::endl;
 	trigger_params* node = new trigger_params();
-	node->type = BLOCK_TRIGGER;
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, node)) {
-		node->Release();
+		//node->Release();
 		return NULL;
 	}
 
@@ -296,27 +295,6 @@ Parser::Read()
 
 /* static */
 void
-Parser::_ReadTriggerBlock(Tokenizer *tokenizer,::node* node)
-{
-	trigger_params* trig = dynamic_cast<trigger_params*>(node);
-	if (trig) {
-		trig->id = tokenizer->ReadToken().u.number;
-		trig->parameter1 = tokenizer->ReadToken().u.number;
-		trig->flags = tokenizer->ReadToken().u.number;
-		trig->parameter2 = tokenizer->ReadToken().u.number;
-		trig->unknown = tokenizer->ReadToken().u.number;
-
-		// Strings are quoted. We remove quotes
-		token stringToken = tokenizer->ReadToken();
-		get_unquoted_string(trig->string1, stringToken.u.string, stringToken.size);
-		token stringToken2 = tokenizer->ReadToken();
-		get_unquoted_string(trig->string2, stringToken2.u.string, stringToken2.size);
-	}
-}
-
-
-/* static */
-void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 {
 	// HEADER GUARD (OB)
@@ -353,39 +331,6 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 
 
 /* static */
-void
-Parser::_ReadActionBlock(Tokenizer *tokenizer, node* node)
-{
-	action_params* act = dynamic_cast<action_params*>(node);
-	if (act) {
-		act->id = tokenizer->ReadToken().u.number;
-		act->integer1 = tokenizer->ReadToken().u.number;
-		act->where.x = tokenizer->ReadToken().u.number;
-		act->where.y = tokenizer->ReadToken().u.number;
-		act->integer2 = tokenizer->ReadToken().u.number;
-		act->integer3 = tokenizer->ReadToken().u.number;
-
-		// TODO: This removes "" from strings.
-		// Should do this from the beginning
-		token stringToken = tokenizer->ReadToken();
-		get_unquoted_string(act->string1, stringToken.u.string, stringToken.size);
-		token stringToken2 = tokenizer->ReadToken();
-		get_unquoted_string(act->string2, stringToken2.u.string, stringToken2.size);
-	}
-}
-
-
-/* static */
-void
-Parser::_ReadResponseBlock(Tokenizer *tokenizer, node* node)
-{
-	response_node* resp = dynamic_cast<response_node*>(node);
-	if (resp)
-		resp->probability = tokenizer->ReadToken().u.number;
-}
-
-
-/* static */
 bool
 Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 {
@@ -406,100 +351,6 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 		return false;
 	}
 	return true;
-}
-
-
-void
-Parser::_ReadNodeHeader(node*& n)
-{
-	token tok = fTokenizer->ReadToken();
-	int blockType = Parser::_BlockTypeFromToken(tok);
-	if (n == NULL)
-		n = node::Create(blockType, tok.u.string);
-	else if (!n->closed && blockType == n->type) {
-		n->closed = true;
-	}
-}
-
-
-void
-Parser::_ReadNode(::node*& node)
-{
-	// TODO: Horrible
-	static int sActionIndexHACK = 0;
-
-	_ReadNodeHeader(node);
-	for (;;) {
-		token tok = fTokenizer->ReadToken();
-		int blockType =_BlockTypeFromToken(tok);
-		if (blockType != -1) {
-			// This is a block header tag: could be opening or closing tag
-			fTokenizer->RewindToken(tok);
-			if (blockType == node->type) {
-				// Means the block is open, and this is
-				// the closing tag. FixNode will copy the node values
-				// to the node specific values.
-				// _ReadNodeHeader will do the rest.
-				_FixNode(node);
-				break;
-			} else {
-				// Object blocks are no longer nodes
-				// so we handle them differently
-				if (blockType == BLOCK_OBJECT) {
-					if (node->type == BLOCK_TRIGGER) {
-						trigger_params* trig = dynamic_cast<trigger_params*>(node);
-						_ReadObjectBlock(fTokenizer, *trig->Object());
-					} else if (node->type == BLOCK_ACTION) {
-						// TODO: Horrible hack
-						action_params* act = dynamic_cast<action_params*>(node);
-						object_params* destObjectParams = NULL;
-						if (sActionIndexHACK == 0)
-							destObjectParams = act->First();
-						else if (sActionIndexHACK == 1)
-							destObjectParams = act->Second();
-						else if (sActionIndexHACK == 2)
-							destObjectParams = act->Third();
-
-						assert(destObjectParams != NULL);
-
-						_ReadObjectBlock(fTokenizer, *destObjectParams);
-
-						if (++sActionIndexHACK > 2)
-							sActionIndexHACK = 0;
-					}
-				} else {
-					// We found a nested block:
-					// call ourselves recursively
-					::node *newNode = NULL;
-					_ReadNode(newNode);
-					node->AddChild(newNode);
-				}
-			}
-		} else {
-			_ReadNodeValue(node, tok);
-		}
-	}
-
-	_ReadNodeHeader(node);
-
-	if (fDebug)
-		node->Print();
-}
-
-
-void
-Parser::_ReadNodeValue(::node* node, const token& tok)
-{
-	if (node->Value()[0] != '\0')
-		strcat(node->value, " ");
-
-	if (tok.type == TOKEN_QUOTED_STRING) {
-		strcat(node->value, tok.u.string);
-	} else if (tok.type == TOKEN_NUMBER) {
-		char numb[16];
-		snprintf(numb, sizeof(numb), "%d", tok.u.number);
-		strcat(node->value, numb);
-	}
 }
 
 
@@ -651,29 +502,6 @@ Parser::_ReadActionBlock()
 }
 
 
-void
-Parser::_FixNode(::node* node)
-{
-	StringStream stream(node->Value());
-	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
-	switch (node->type) {
-		case BLOCK_TRIGGER:
-			_ReadTriggerBlock(&tokenizer, node);
-			break;
-		case BLOCK_ACTION:
-			_ReadActionBlock(&tokenizer, node);
-			break;
-		case BLOCK_RESPONSE:
-			_ReadResponseBlock(&tokenizer, node);
-			break;
-		default:
-			// other, no need to read anything
-			break;
-	}
-}
-
-
 int
 Parser::_BlockTypeFromToken(const token& tok)
 {
@@ -776,121 +604,6 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 			break;
 	}
 	return tokenParam;
-}
-
-
-
-// node
-/* static */
-node*
-node::Create(int type, const char *string)
-{
-	node* newNode = NULL;
-	switch (type) {
-		case BLOCK_TRIGGER:
-			newNode = new trigger_params;
-			break;
-		case BLOCK_OBJECT:
-			throw std::runtime_error("ERROR BLOCK OBJECT IS NOT HANDLED CORRECTLY!!!!");
-			break;
-		case BLOCK_ACTION:
-			newNode = new action_params;
-			break;
-		case BLOCK_RESPONSE:
-			newNode = new response_node;
-			break;
-		default:
-			newNode = new node;
-			break;
-	}
-	if (newNode != NULL) {
-		newNode->type = type;
-		strcpy(newNode->header, string);
-	}
-	return newNode;
-}
-
-
-// node
-node::node()
-	:
-	type(BLOCK_UNKNOWN),
-	parent(NULL),
-	next(NULL),
-	closed(false),
-	fRefCount(1)
-{
-	value[0] = '\0';
-}
-
-
-node::~node()
-{
-	node_list::iterator i;
-	for (i = children.begin(); i != children.end(); i++)
-		(*i)->Release();
-}
-
-
-void
-node::AddChild(node* child)
-{
-	child->parent = this;
-	child->next = NULL;
-	if (children.size() > 0) {
-		std::vector<node*>::reverse_iterator i = children.rbegin();
-		(*i)->next = child;
-	}
-	children.push_back(child);
-}
-
-
-node*
-node::Parent() const
-{
-	return parent;
-}
-
-
-node*
-node::Next() const
-{
-	return next;
-}
-
-
-const char*
-node::Value() const
-{
-	return value;
-}
-
-
-void
-node::Print() const
-{
-}
-
-
-void
-node::Acquire()
-{
-	++fRefCount;
-}
-
-
-void
-node::Release()
-{
-	if (--fRefCount == 0)
-		delete this;
-}
-
-
-bool
-operator==(const node &a, const node &b)
-{
-	return false;
 }
 
 
@@ -1132,6 +845,21 @@ object_params*
 action_params::Third()
 {
 	return &third;
+}
+
+
+void
+action_params::Acquire()
+{
+	fRefCount++;
+}
+
+
+void
+action_params::Release()
+{
+	if (--fRefCount == 0)
+		delete this;
 }
 
 
