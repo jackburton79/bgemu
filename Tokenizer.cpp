@@ -250,7 +250,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 			} else {
 				break;
 			}
-		} else if (c == '!' || c == ',' || c == '(' || c == ')') {
+		} else if ((c == '!' || c == ',' || c == '(' || c == ')') && !quotesOpen) {
 			if (fStream->Position() > start + 1)
 				fStream->Seek(-1, SEEK_CUR);
 			break;
