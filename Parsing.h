@@ -48,6 +48,9 @@ bool operator==(const node &, const node &);
 
 
 struct object_params {
+	object_params();
+	object_params(const object_params& other);
+
 	void Print() const;
 	bool Empty() const;
 	
@@ -63,9 +66,6 @@ struct object_params {
 	int identifiers[5];
 	IE::point point;
 	char name[48];
-
-	object_params();
-	object_params(const object_params& other);
 };
 
 
@@ -114,10 +114,25 @@ private:
 
 
 struct response_node : public node {
+	response_node();
 	virtual void Print() const;
 	int probability;
+	std::vector<action_params*> actions;
+};
 
-	response_node();
+
+struct response_set {
+	std::vector<response_node*> resp;
+};
+
+
+struct condition_block {
+	std::vector<trigger_params*> triggers;
+};
+
+struct condition_response {
+	condition_block conditions;
+	response_set responseSet;
 };
 
 
@@ -141,6 +156,14 @@ private:
 	void _ReadNodeHeader(node*& n);
 	void _ReadNode(node*& n);
 	void _ReadNodeValue(node* n, const token& tok);
+
+	condition_response* _ReadConditionResponseBlock();
+	void _ReadConditionBlock(condition_block& param);
+	trigger_params* _ReadTriggerBlock();
+
+	void _ReadResponseSetBlock(response_set& respSet);
+	response_node* _ReadResponseBlock();
+	action_params* _ReadActionBlock();
 
 	static void _ReadTriggerBlock(Tokenizer *tokenizer, ::node* node);
 	static void _ReadActionBlock(Tokenizer *tokenizer, ::node* node);
