@@ -46,12 +46,7 @@ BCSResource::GetScript() const
 	try {
 		Parser parser;
 		parser.SetTo(fData);
-
-		clock_t start = clock();
 		std::vector<condition_response*> rootNode = parser.Read();
-		
-		std::cout << "Parsing script " << Name() << " took " << std::dec << clock() - start << " usecs!" << std::endl;
-		
 		script = new Script(rootNode);
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << e.what() << std::endl;
