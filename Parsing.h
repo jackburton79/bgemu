@@ -71,7 +71,8 @@ struct object_params {
 
 struct trigger_params : public node {
 	virtual void Print() const;
-	object_params* Object();
+	object_params* Object() const;
+
 	int id;
 	int parameter1;
 	int flags;

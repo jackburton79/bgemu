@@ -819,7 +819,7 @@ trigger_params::Print() const
 
 
 object_params*
-trigger_params::Object()
+trigger_params::Object() const
 {
 	return object;
 }
