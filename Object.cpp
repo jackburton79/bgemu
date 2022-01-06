@@ -290,16 +290,12 @@ Object::Update(bool scripts)
 		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
 	bool cutscene = Core::Get()->CutsceneMode(); 	
-	if (cutscene) {
-		//if (Type() == Object::AREA)
-			scripts = false;
-	}
+	if (cutscene)
+		scripts = false;
+
 	if (scripts) {
 		_HandleScripting(8);
 	}
-
-	//if (cutscene && actor != NULL && actor->InParty() && actor != Core::Get()->CutsceneActor())
-	//	return;
 
 	ExecuteActions();
 }
