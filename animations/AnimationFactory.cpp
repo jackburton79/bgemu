@@ -115,7 +115,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 
 	if (factory != NULL) {
 		int status;
-#if 1
+#if 0
 		char* demangled = abi::__cxa_demangle(typeid(*factory).name(), 0, 0, &status);
 		std::string name = demangled;
 		free(demangled);
