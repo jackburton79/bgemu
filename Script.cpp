@@ -51,11 +51,25 @@ Script::SetDebug(bool debug)
 void
 Script::Print() const
 {
-	/*node *nextNode = fRootNode;
-	while (nextNode != NULL) {
-		_PrintNode(nextNode);
-		nextNode = nextNode->Next();
-	}*/
+	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
+		condition_response* cr = fConditionResponses.at(cri);
+		if (sDebug)
+			std::cout << "CONDITION" << std::endl;
+		for (size_t t = 0; t < cr->conditions.triggers.size(); t++) {
+			cr->conditions.triggers.at(t)->Print();
+		}
+
+		response_set& responseSet = cr->responseSet;
+		if (sDebug)
+			std::cout << "RESPONSE" << std::endl;
+
+		for (size_t r = 0; r < responseSet.resp.size(); r++) {
+			std::vector<action_params*>* actions = &responseSet.resp.at(r)->actions;
+			for (size_t a = 0; a < actions->size(); a++) {
+				actions->at(a)->Print();
+			}
+		}
+	}
 }
 
 
