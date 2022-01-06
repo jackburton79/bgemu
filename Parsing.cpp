@@ -800,7 +800,8 @@ action_params::action_params()
 	id(0),
 	integer1(0),
 	integer2(0),
-	integer3(0)
+	integer3(0),
+	fRefCount(1)
 {
 	where.x = where.y = -1;
 	string1[0] = '\0';
