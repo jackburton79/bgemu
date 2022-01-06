@@ -36,7 +36,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	uint8 highId = animationID >> 8;
 
 	std::string baseName = IDTable::AniSndAt(animationID);
-#if 1
+#if 0
 	std::cout << "AnimationFactory::GetFactory(";
 	std::cout << baseName << ", " << std::hex;
 	std::cout << "0x" << animationID << ")" << std::endl;
@@ -114,8 +114,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 	}
 
 	if (factory != NULL) {
-		int status;
 #if 0
+		int status;
 		char* demangled = abi::__cxa_demangle(typeid(*factory).name(), 0, 0, &status);
 		std::string name = demangled;
 		free(demangled);
