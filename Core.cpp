@@ -290,8 +290,10 @@ void
 Core::RegisterObject(Object* object)
 {
 	// TODO: Check if already registered
-	if (object->IsNew())
+	if (object->IsNew()) {
 		object->SetGlobalID(fNextObjectNumber++);
+		//std::cout << "RegisterObject " << object->Name() << ": " << object->GlobalID() << std::endl;
+	}
 }
 
 

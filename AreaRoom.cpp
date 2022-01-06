@@ -103,6 +103,8 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 			label->SetText(longName);
 	}
 
+	Core::Get()->RegisterObject(this);
+
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
