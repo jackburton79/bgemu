@@ -1115,6 +1115,7 @@ ActionStartTimer::operator()()
 	std::ostringstream stringStream;
 	stringStream << fObject->Name() << " " << fActionParams->integer1;
 	GameTimer::Add(stringStream.str().c_str(), fActionParams->integer2);
+	SetCompleted();
 }
 
 
