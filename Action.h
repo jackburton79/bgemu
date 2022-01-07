@@ -270,6 +270,13 @@ private:
 };
 
 
+class ActionStartTimer : public Action {
+public:
+	ActionStartTimer(Object* object, action_params* params);
+	virtual void operator()();
+};
+
+
 class ActionScreenShake : public Action {
 public:
 	ActionScreenShake(Object* object, action_params* node);

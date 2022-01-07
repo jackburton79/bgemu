@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cxxabi.h>
+#include <sstream>
 #include <typeinfo>
 
 static bool
@@ -1096,6 +1097,24 @@ ActionMoveViewPoint::operator()()
 #endif
 	} else
 		SetCompleted();
+}
+
+
+ActionStartTimer::ActionStartTimer(Object* object, action_params* params)
+	:
+	Action(object, params)
+{
+}
+
+
+/* virtual */
+void
+ActionStartTimer::operator()()
+{
+	// TODO: We use the id as part of the name
+	std::ostringstream stringStream;
+	stringStream << fObject->Name() << " " << fActionParams->integer1;
+	GameTimer::Add(stringStream.str().c_str(), fActionParams->integer2);
 }
 
 

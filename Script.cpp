@@ -997,17 +997,7 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 			The timer is measured in seconds, and the timer value is
 			not saved in save games. The timer is checked with the
 			TimerExpired trigger.*/
-
-			// TODO: We should add the timer local to the active creature,
-			// whatever that means
-			std::ostringstream stringStream;
-			if (sender == NULL) {
-				std::cerr << Log::Red << "StartTimer(): NULL TARGET" << std::endl;
-			} else
-				stringStream << sender->Name() << " " << act->integer1;
-
-			GameTimer::Add(stringStream.str().c_str(), act->integer2);
-
+			action = new ActionStartTimer(sender, act);
 			break;
 		}
 		case 63:
