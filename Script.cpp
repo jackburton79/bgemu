@@ -1078,6 +1078,12 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 			action = new ActionForceSpell(sender, act);
 			break;
 		}
+		case 114:
+		{
+			//FORCESPELLPOINT(P:TARGET,I:SPELL*SPELL)(114, 0x72)
+			action = new ActionForceSpellPoint(sender, act);
+			break;
+		}
 		case 115:
 		{
 			/* SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) (115 0x73)*/

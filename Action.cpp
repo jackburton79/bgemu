@@ -315,6 +315,62 @@ ActionForceSpell::operator()()
 }
 
 
+// ForceSpellPoint
+ActionForceSpellPoint::ActionForceSpellPoint(Object* object, action_params* node)
+	:
+	Action(object, node),
+	fDuration(50)
+{
+	fStart = Timer::Ticks();
+}
+
+
+/* virtual */
+void
+ActionForceSpellPoint::operator()()
+{
+	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
+	if (sender == NULL) {
+		std::cerr << "ActionForceSpell:: NO sender Actor" << std::endl;
+		SetCompleted();
+		return;
+	}
+	//sender->Print();
+
+	//Object* target = Script::GetTargetObject(sender, fActionParams);
+	//target->Print();
+
+	if (!Initiated()) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+		std::string spellResourceName = SPLResource::GetSpellResourceName(fActionParams->integer1);
+		gResManager->ReleaseResource(spellIDS);
+
+		std::cout << "spell: " << spellName << std::endl;
+		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
+
+		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
+		// Round takes 6 seconds (in BG)
+		// AI update every 15 ticks (do we respect this ? don't know)
+		fDuration = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		std::cout << "fDuration:" << fDuration << std::endl;
+		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
+		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
+		gResManager->ReleaseResource(spellResource);
+		sender->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
+		SetInitiated();
+	}
+
+	// TODO: only for testing
+	if (fDuration-- == 0) {
+		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
+		SetCompleted();
+		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
+	}
+}
+
+
 // MoveBetweenAreasEffect
 ActionMoveBetweenAreasEffect::ActionMoveBetweenAreasEffect(Object* object, action_params* node)
 	:

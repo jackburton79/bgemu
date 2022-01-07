@@ -84,6 +84,16 @@ private:
 };
 
 
+class ActionForceSpellPoint : public Action {
+public:
+	ActionForceSpellPoint(Object* object, action_params* node);
+	virtual void operator()();
+private:
+	int fDuration;
+	uint32 fStart;
+};
+
+
 class ActionMoveBetweenAreasEffect : public Action {
 public:
 	ActionMoveBetweenAreasEffect(Object* object, action_params* node);
