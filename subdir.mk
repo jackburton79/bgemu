@@ -27,6 +27,7 @@ LOCALSOURCES = \
 ../Script.cpp \
 ../SearchMap.cpp \
 ../SoundEngine.cpp \
+../SpellEffect.cpp \
 ../SupportDefs.cpp \
 ../TextSupport.cpp \
 ../TileCell.cpp \

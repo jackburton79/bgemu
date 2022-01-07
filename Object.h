@@ -67,6 +67,7 @@ class Actor;
 class AreaRoom;
 class Region;
 class Script;
+class SpellEffect;
 class TileCell;
 class Object : public Referenceable {
 public:
@@ -136,6 +137,8 @@ public:
 	void AddScript(::Script* script);
 	void ClearScripts();
 
+	void AddSpellEffect(SpellEffect* effect);
+
 	void SetWaitTime(int32 time);
 	
 	virtual IE::point NearestPoint(const IE::point& start) const;
@@ -154,6 +157,7 @@ private:
 	void _HandleScripting(int32 maxLevel);
 	void _ExecuteScripts(int32 maxLevel);
 	void _ExecuteAction(Action& action);
+	void _ApplySpellEffects();
 
 	std::string fName;
 	object_type fType;
@@ -174,8 +178,10 @@ private:
 	std::list<Action*> fActions;
 	std::list<trigger_entry> fTriggers;	
 	Object* fLastTrigger;
-	
+
 	::Variables fVariables;
+
+	std::list<SpellEffect*> fSpellEffects;
 
 	AreaRoom* fArea;
 	Region* fRegion;

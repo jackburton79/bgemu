@@ -16,6 +16,7 @@
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "Script.h"
+#include "SpellEffect.h"
 #include "SPLResource.h"
 #include "Timer.h"
 // TODO: Remove this dependency
@@ -310,6 +311,14 @@ ActionForceSpell::operator()()
 	// TODO: only for testing
 	if (fDuration-- == 0) {
 		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
+		Object* target = Script::GetTargetObject(sender, fActionParams);
+		if (target != NULL) {
+			IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+			std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+			gResManager->ReleaseResource(spellIDS);
+			SpellEffect* dummy = new SpellEffect(spellName);
+			target->AddSpellEffect(dummy);
+		}
 		SetCompleted();
 		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
 	}

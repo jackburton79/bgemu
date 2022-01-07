@@ -20,6 +20,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "SpellEffect.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -298,6 +299,8 @@ Object::Update(bool scripts)
 	}
 
 	ExecuteActions();
+
+	_ApplySpellEffects();
 }
 
 
@@ -531,6 +534,17 @@ Object::ClearScripts()
 
 
 void
+Object::AddSpellEffect(SpellEffect* effect)
+{
+	fSpellEffects.push_back(effect);
+	// TODO: only for testing the intro cutscene
+	if (::strcasecmp(Name(), "ishaddud") == 0) {
+		DestroySelf();
+	}
+}
+
+
+void
 Object::SetWaitTime(int32 waitTime)
 {
 	fWaitTime += waitTime;
@@ -672,3 +686,15 @@ Object::_ExecuteAction(Action& action)
 	}
 }
 
+
+void
+Object::_ApplySpellEffects()
+{
+	for (std::list<SpellEffect*>::iterator i = fSpellEffects.begin();
+			i != fSpellEffects.end(); i++) {
+		/*if ((*i)->Name() == "WIZARD_DISINTEGRATE2_IGNORE_RESISTANCE") {
+			DestroySelf();
+			break;
+		}*/
+	}
+}
