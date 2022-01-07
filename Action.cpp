@@ -417,7 +417,6 @@ ActionPlayDead::operator()()
 			SetCompleted();
 			return;
 		}
-		actor->SetInterruptable(false);
 		actor->SetAnimationAction(ACT_DEAD);
 	}
 	
