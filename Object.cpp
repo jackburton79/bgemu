@@ -349,10 +349,8 @@ Object::ExecuteActions()
 	// TODO: handle uninterruptable action
 
 
-	if (fCurrentAction == NULL && !fActions.empty()) {
-		fCurrentAction = fActions.front();
-		fActions.pop_front();
-	}
+	if (fCurrentAction == NULL)
+		fCurrentAction = PopNextAction();
 
 	if (fCurrentAction != NULL)
 		_ExecuteAction(*fCurrentAction);
@@ -373,6 +371,17 @@ bool
 Object::IsActionListEmpty() const
 {
 	return fCurrentAction == NULL && fActions.empty();
+}
+
+
+Action*
+Object::PopNextAction()
+{
+	if (!fActions.empty()) {
+		fCurrentAction = fActions.front();
+		fActions.pop_front();
+	}
+	return fCurrentAction;
 }
 
 

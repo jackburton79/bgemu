@@ -117,7 +117,7 @@ public:
 	void AddAction(Action* action);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
-	void PopNextAction();
+	Action* PopNextAction();
 	void ClearCurrentAction();
 	void ClearActionList();
 
