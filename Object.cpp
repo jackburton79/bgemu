@@ -366,7 +366,6 @@ Object::ExecuteActions()
 		_ExecuteAction(*fCurrentAction);
 		count++;
 
-
 		// the current action is not yet completed, will
 		// execute it next time
 		if (fCurrentAction != NULL)
