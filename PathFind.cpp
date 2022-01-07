@@ -55,7 +55,8 @@ PathFinder::PathFinder(int step, test_function testFunc)
 IE::point
 PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 {
-	return _GeneratePath(start, end);
+	_GeneratePath(start, end);
+	return fPoints.back();
 }
 
 
@@ -148,7 +149,7 @@ RemoveNodeFromOpenList(point_node* node, OpenNodeList& list)
 }
 
 
-IE::point
+bool
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
@@ -156,7 +157,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	IE::point maxReachableDirectly = start;
 	if (IsCloseEnough(maxReachableDirectly, end)
 			|| !_IsPassable(end))
-		return maxReachableDirectly;
+		return true;
 
 	fOpenNodeList = new OpenNodeList();
 	fClosedNodeList = new ClosedNodeList();
@@ -189,10 +190,9 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	EmptyOpenList(fOpenNodeList);
 
 	if (!found) {
-		// TODO: Destination is unreachable.
-		// Try to find a reachable point near destination
+		// TODO: failed to create path: destination is unreachable.
 		EmptyClosedList(fClosedNodeList);
-		return start;
+		return false;
 	}
 
 	point_node* last = fClosedNodeList->back();
@@ -202,7 +202,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	// remove the "current" position, it's useless
 	fPoints.erase(fPoints.begin());
 	
-	return fPoints.back();
+	return true;
 }
 
 

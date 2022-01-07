@@ -59,7 +59,7 @@ private:
 
 	debug_function fDebugFunction;
 
-	IE::point _GeneratePath(const IE::point& start, const IE::point& end);
+	bool _GeneratePath(const IE::point& start, const IE::point& end);
 
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
