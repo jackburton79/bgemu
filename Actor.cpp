@@ -16,6 +16,7 @@
 #include "GraphicsEngine.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
+#include "Log.h"
 #include "Party.h"
 #include "PathFind.h"
 #include "Polygon.h"
@@ -349,7 +350,11 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 		else
 			fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
 	}
-	fActor->destination = fPath->SetPoints(fActor->position, point);
+	try {
+		fActor->destination = fPath->SetPoints(fActor->position, point);
+	} catch (...) {
+		std::cerr << Log::Red << "Actor::SetDestination() failed!" << Log::Normal << std::endl;
+	}
 }
 
 

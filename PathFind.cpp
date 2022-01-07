@@ -8,7 +8,7 @@
 #include <memory>
 #include <limits.h>
 
-#define PATHFIND_MAX_TRIES 100000
+#define PATHFIND_MAX_TRIES 5000
 
 const int kMovementCost = 2;
 const int kDiagMovementCost = 3;
@@ -55,7 +55,9 @@ PathFinder::PathFinder(int step, test_function testFunc)
 IE::point
 PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 {
-	_GeneratePath(start, end);
+	// TODO: Return a bool here
+	if (!_GeneratePath(start, end))
+		throw std::runtime_error("PathFinder::SetPoints: cannot create path");
 	return fPoints.back();
 }
 
