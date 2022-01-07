@@ -1223,11 +1223,12 @@ ActionSetGlobalTimer::ActionSetGlobalTimer(Object* object, action_params* node)
 void
 ActionSetGlobalTimer::operator()()
 {
+	uint32 currentTime = GameTimer::GameTime();
 	std::string timerName;
 	// TODO: We append the timer name to the area name,
 	// check if it's okay
 	timerName.append(fActionParams->string2).append(fActionParams->string1);
-	GameTimer::Add(timerName.c_str(), fActionParams->integer1);
+	GameTimer::Add(timerName.c_str(), fActionParams->integer1 * AI_UPDATE_FREQ + currentTime);
 	SetCompleted();
 }
 

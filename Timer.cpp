@@ -208,11 +208,13 @@ GameTimer::GameTimer(uint32 expirationTime)
 {
 }
 
-/*
-GameTimer::~GameTimer()
+
+uint32
+GameTimer::Get() const
 {
+	return fExpiration;
 }
-*/
+
 
 void
 GameTimer::SetExpiration(uint32 expiration)
@@ -236,7 +238,11 @@ GameTimer::Add(const char* name, uint32 expirationTime)
 	std::cout << "Added timer '" << name << "' which expires in ";
 	std::cout << expiration << "(" << std::dec << expirationTime;
 	std::cout << ")" << std::endl;
-	sTimers[name] = new GameTimer(expirationTime);
+	timer_map::iterator i = sTimers.find(name);
+	if (i != sTimers.end())
+		i->second->SetExpiration(expirationTime);
+	else
+		sTimers[name] = new GameTimer(expirationTime);
 }
 
 
