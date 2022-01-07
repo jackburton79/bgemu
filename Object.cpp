@@ -321,6 +321,7 @@ Object::AddAction(Action* action)
 	SetActive(true);
 	if (action->IsInstant() && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
+		fCurrentAction = action;
 		_ExecuteAction(*action);
 		return;
 	}
@@ -662,7 +663,6 @@ Object::_ExecuteAction(Action& action)
 {
 	SetInterruptable(false);
 	//std::cout << Name() << " executes " << action.Name() << std::endl;
-	fCurrentAction = &action;
 	action();
 
 	// if completed, clear
