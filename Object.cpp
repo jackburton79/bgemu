@@ -318,19 +318,34 @@ Object::IsActive() const
 void
 Object::AddAction(Action* action)
 {
+	SetActive(true);
 	if (action->IsInstant() && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
 		_ExecuteAction(*action);
-	} else
-		fActions.push_back(action);
+		fCurrentAction = action;
+		return;
+	}
 
-	SetActive(true);
+	fActions.push_back(action);
 }
 
 
 void
 Object::ExecuteActions()
 {
+#if 0
+	if (fActions.size() > 0) {
+		std::cout << Name() << " action list:" << std::endl;
+		// dump action list
+		for (std::list<Action*>::iterator i = fActions.begin();
+										i != fActions.end(); i++) {
+
+			std::cout << (*i)->Name() << std::endl;
+		}
+	}
+	if (fCurrentAction != NULL)
+		std::cout << "current action: " << fCurrentAction->Name() << std::endl;
+#endif
 	// TODO: handle uninterruptable action
 
 	if (fCurrentAction == NULL && !fActions.empty()) {
