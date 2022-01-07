@@ -464,9 +464,10 @@ ActionWalkTo::operator()()
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
-		actor->SetInterruptable(fInterruptable);
 		SetInitiated();
 	}
+
+	actor->SetInterruptable(fInterruptable);
 
 	if (actor->Position() == actor->Destination()) {
 		actor->SetAnimationAction(ACT_STANDING);
@@ -545,7 +546,7 @@ ActionRandomFly::operator()()
 
 	if (actor->Position() == actor->Destination()) {
 		actor->SetAnimationAction(ACT_STANDING);
-		SetCompleted();
+		//SetCompleted();
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(true);
@@ -631,8 +632,8 @@ ActionRandomWalk::operator()()
 		actor->SetDestination(destination);
 
 	if (actor->Position() == actor->Destination()) {
-			actor->SetAnimationAction(ACT_STANDING);
-			SetCompleted();
+		actor->SetAnimationAction(ACT_STANDING);
+		//SetCompleted();
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(true);
