@@ -450,20 +450,6 @@ Actor::IsWalking() const
 }
 
 
-bool
-Actor::HandleWalking()
-{
-	if (IsWalking()) {
-		SetAnimationAction(ACT_WALKING);
-		MoveToNextPointInPath(false);
-		if (!IsWalking())
-			SetAnimationAction(ACT_STANDING);
-		return true;
-	}
-	return false;
-}
-
-
 void
 Actor::SetRegion(Region* region)
 {

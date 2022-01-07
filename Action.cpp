@@ -413,9 +413,13 @@ ActionWalkTo::operator()()
 	}
 
 	if (actor->Position() == actor->Destination()) {
+		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
 		return;
 	}
+
+	actor->SetAnimationAction(ACT_WALKING);
+	actor->MoveToNextPointInPath(false);
 }
 
 
@@ -450,10 +454,13 @@ ActionWalkToObject::operator()()
 		actor->SetDestination(destination);
 
 	if (actor->Position() == actor->Destination()) {
+		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
-		//target->Release();
 		return;
 	}
+
+	actor->SetAnimationAction(ACT_WALKING);
+	actor->MoveToNextPointInPath(false);
 }
 
 // RandomFly
@@ -480,8 +487,13 @@ ActionRandomFly::operator()()
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination, true);
 
-	if (actor->Position() == actor->Destination())
+	if (actor->Position() == actor->Destination()) {
+		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
+	} else {
+		actor->SetAnimationAction(ACT_WALKING);
+		actor->MoveToNextPointInPath(true);
+	}
 }
 
 
@@ -561,6 +573,14 @@ ActionRandomWalk::operator()()
 	IE::point destination = offset_point(actor->Position(), randomX, randomY);
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
+
+	if (actor->Position() == actor->Destination()) {
+			actor->SetAnimationAction(ACT_STANDING);
+			SetCompleted();
+	} else {
+		actor->SetAnimationAction(ACT_WALKING);
+		actor->MoveToNextPointInPath(true);
+	}
 }
 
 

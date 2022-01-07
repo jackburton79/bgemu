@@ -331,13 +331,7 @@ Object::AddAction(Action* action)
 void
 Object::ExecuteActions()
 {
-	// TODO: handle uninterruptable actions
-
-	Actor* actor = dynamic_cast<Actor*>(this);
-	if (actor != NULL && actor->IsWalking()) {
-		actor->HandleWalking();
-		return;
-	}
+	// TODO: handle uninterruptable action
 
 	if (fCurrentAction == NULL && !fActions.empty()) {
 		fCurrentAction = fActions.front();

@@ -57,7 +57,6 @@ public:
 	virtual IE::point NearestPoint(const IE::point& start) const;
 	
 	bool IsWalking() const;
-	bool HandleWalking();
 	
 	void SetRegion(Region* region);
 	Region* CurrentRegion() const;
