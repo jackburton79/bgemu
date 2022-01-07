@@ -348,21 +348,42 @@ Object::ExecuteActions()
 #endif
 	// TODO: handle uninterruptable action
 
-	if (fCurrentAction == NULL && !fActions.empty()) {
-		fCurrentAction = fActions.front();
-		fActions.pop_front();
-	}
+	// Execute actions in the queue until there is an action which
+	// takes more than one call.
+	while (true) {
+		if (fCurrentAction == NULL) {
+			if (!fActions.empty()) {
+				fCurrentAction = fActions.front();
+				fActions.pop_front();
+			}
+		}
 
-	if (fCurrentAction != NULL)
+		// No actions in the queue, bail out
+		if (fCurrentAction == NULL)
+			break;
+
 		_ExecuteAction(*fCurrentAction);
-
-	if (fCurrentAction != NULL) {
 		if (fCurrentAction->Completed()) {
 			//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
-			delete fCurrentAction;
-			fCurrentAction = NULL;
+			ClearCurrentAction();
 		}
+
+		// the current action is not yet completed, will
+		// execute it next time
+		if (fCurrentAction != NULL)
+			break;
 	}
+}
+
+
+void
+Object::ClearCurrentAction()
+{
+	if (fCurrentAction != NULL) {
+		delete fCurrentAction;
+		fCurrentAction = NULL;
+	}
+	SetInterruptable(true);
 }
 
 
@@ -376,12 +397,12 @@ Object::IsActionListEmpty() const
 void
 Object::ClearActionList()
 {
+	ClearCurrentAction();
 	for (std::list<Action*>::iterator i = fActions.begin();
 									i != fActions.end(); i++) {
 		delete *i;
 	}
 	fActions.clear();
-	SetInterruptable(true);
 }
 
 
@@ -607,6 +628,9 @@ Object::_HandleScripting(int32 maxLevel)
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (!IsInterruptable())
+		return;
+
 	maxLevel = std::min((size_t) (maxLevel), fScripts.size());
 	try {
 		bool continuing = false;
