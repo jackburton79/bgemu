@@ -321,8 +321,8 @@ Object::AddAction(Action* action)
 	SetActive(true);
 	if (action->IsInstant() && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
-		_ExecuteAction(*action);
 		fCurrentAction = action;
+		_ExecuteAction(*action);
 		return;
 	}
 
@@ -365,10 +365,7 @@ Object::ExecuteActions()
 
 		_ExecuteAction(*fCurrentAction);
 		count++;
-		if (fCurrentAction->Completed()) {
-			//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
-			ClearCurrentAction();
-		}
+
 
 		// the current action is not yet completed, will
 		// execute it next time
@@ -663,7 +660,12 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
+	SetInterruptable(false);
 	//std::cout << Name() << " executes " << action.Name() << std::endl;
 	action();
+	if (action.Completed()) {
+		//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
+		ClearCurrentAction();
+	}
 }
 
