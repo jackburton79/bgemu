@@ -647,6 +647,7 @@ ActionWait::ActionWait(Object* object, action_params* node)
 	Action(object, node),
 	fWaitTime(0)
 {
+	fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ;
 }
 
 
@@ -656,11 +657,6 @@ ActionWait::operator()()
 {
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
-	if (!Initiated()) {
-		SetInitiated();
-		fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ;
-		return;
-	}
 	
 	if (--fWaitTime <= 0)
 		SetCompleted();
@@ -673,6 +669,7 @@ ActionSmallWait::ActionSmallWait(Object* object, action_params* node)
 	Action(object, node),
 	fWaitTime(0)
 {
+	fWaitTime = fActionParams->integer1;
 }
 
 
@@ -687,12 +684,6 @@ ActionSmallWait::operator()()
 	//Object* object = Script::FindObject(fObject, fActionParams);
 	//if (object != NULL)
 	//	object->SetWaitTime(fActionParams->integer1);
-	if (!Initiated()) {
-		SetInitiated();
-		fWaitTime = fActionParams->integer1;
-		return;
-	}
-	
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }

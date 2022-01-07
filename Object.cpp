@@ -350,6 +350,7 @@ Object::ExecuteActions()
 
 	// Execute actions in the queue until there is an action which
 	// takes more than one call.
+	int32 count = 0;
 	while (true) {
 		if (fCurrentAction == NULL) {
 			if (!fActions.empty()) {
@@ -363,6 +364,7 @@ Object::ExecuteActions()
 			break;
 
 		_ExecuteAction(*fCurrentAction);
+		count++;
 		if (fCurrentAction->Completed()) {
 			//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
 			ClearCurrentAction();
@@ -373,6 +375,8 @@ Object::ExecuteActions()
 		if (fCurrentAction != NULL)
 			break;
 	}
+
+	//std::cout << Name() << " executed " << count << " actions" << std::endl;
 }
 
 
