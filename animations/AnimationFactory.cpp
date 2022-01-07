@@ -63,6 +63,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x7e:
 					case 0x7f:
 					case 0x73:
+					case 0x77:	// MSHD 0x7703
 					case 0x80:
 					case 0x81:
 					case 0x90:
