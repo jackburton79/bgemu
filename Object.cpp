@@ -660,8 +660,6 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
-	assert(fCurrentAction == NULL);
-
 	SetInterruptable(false);
 	//std::cout << Name() << " executes " << action.Name() << std::endl;
 	fCurrentAction = &action;
