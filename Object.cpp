@@ -399,12 +399,12 @@ Object::ClearCurrentAction()
 void
 Object::ClearActionList()
 {
+	ClearCurrentAction();
 	for (std::list<Action*>::iterator i = fActions.begin();
 									i != fActions.end(); i++) {
 		delete *i;
 	}
 	fActions.clear();
-	SetInterruptable(true);
 }
 
 
@@ -630,6 +630,9 @@ Object::_HandleScripting(int32 maxLevel)
 void
 Object::_ExecuteScripts(int32 maxLevel)
 {
+	if (!IsInterruptable())
+		return;
+
 	maxLevel = std::min((size_t) (maxLevel), fScripts.size());
 	try {
 		bool continuing = false;
