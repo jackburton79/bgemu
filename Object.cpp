@@ -537,10 +537,6 @@ void
 Object::AddSpellEffect(SpellEffect* effect)
 {
 	fSpellEffects.push_back(effect);
-	// TODO: only for testing the intro cutscene
-	if (::strcasecmp(Name(), "ishaddud") == 0) {
-		DestroySelf();
-	}
 }
 
 
