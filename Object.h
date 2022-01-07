@@ -117,6 +117,8 @@ public:
 	void AddAction(Action* action);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
+	void PopNextAction();
+	void ClearCurrentAction();
 	void ClearActionList();
 
 	void AddTrigger(const trigger_entry& entry);

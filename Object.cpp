@@ -377,6 +377,17 @@ Object::IsActionListEmpty() const
 
 
 void
+Object::ClearCurrentAction()
+{
+	if (fCurrentAction != NULL) {
+		delete fCurrentAction;
+		fCurrentAction = NULL;
+	}
+	SetInterruptable(true);
+}
+
+
+void
 Object::ClearActionList()
 {
 	for (std::list<Action*>::iterator i = fActions.begin();
