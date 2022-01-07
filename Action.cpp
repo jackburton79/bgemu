@@ -44,6 +44,7 @@ Action::Action(Object* object, action_params* node)
 	fCompleted(false)
 {
 	assert(fObject != NULL);
+	assert (fActionParams != NULL);
 	fObject->Acquire();
 	fActionParams->Acquire();
 }
@@ -87,7 +88,6 @@ Action::SetCompleted()
 bool
 Action::IsInstant() const
 {
-	assert(fActionParams != NULL);
 	IDSResource* instants = gResManager->GetIDS("INSTANT");
 	if (instants == NULL)
 		return false;
