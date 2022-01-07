@@ -464,8 +464,7 @@ ActionWalkTo::operator()()
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (!Initiated()) {	
 		actor->SetDestination(fActionParams->where);
-		if (!fInterruptable)
-			actor->SetInterruptable(false);
+		actor->SetInterruptable(fInterruptable);
 		SetInitiated();
 	}
 
@@ -681,6 +680,7 @@ ActionSmallWait::operator()()
 	// Find a way to execute this action on the correct sender
 	if (fObject == NULL)
 		std::cerr << "NULL OBJECT" << std::endl;
+	fObject->SetInterruptable(false);
 	//Object* object = Script::FindObject(fObject, fActionParams);
 	//if (object != NULL)
 	//	object->SetWaitTime(fActionParams->integer1);
