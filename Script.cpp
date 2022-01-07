@@ -1307,6 +1307,7 @@ Script::_HandleAction(action_params* act)
 		if (action->IsInstant())
 			std::cout << "action " << action->Name() << " is instant" << std::endl;
 #endif
+		assert(sender != NULL);
 		sender->AddAction(action);
 	}
 

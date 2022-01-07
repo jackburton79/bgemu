@@ -22,7 +22,7 @@
 #include "Script.h"
 
 #include <algorithm>
-
+#include <assert.h>
 
 // TODO: remove this dependency
 #include "CreResource.h"
@@ -321,7 +321,6 @@ Object::AddAction(Action* action)
 	SetActive(true);
 	if (action->IsInstant() && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
-		fCurrentAction = action;
 		_ExecuteAction(*action);
 		return;
 	}
@@ -348,19 +347,19 @@ Object::ExecuteActions()
 #endif
 	// TODO: handle uninterruptable action
 
+	 while (true) {
+		if (fCurrentAction == NULL)
+			PopNextAction();
 
-	if (fCurrentAction == NULL)
-		fCurrentAction = PopNextAction();
+		if (fCurrentAction == NULL)
+			break;
 
-	if (fCurrentAction != NULL)
 		_ExecuteAction(*fCurrentAction);
 
-	if (fCurrentAction != NULL) {
-		if (fCurrentAction->Completed()) {
-			//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
-			delete fCurrentAction;
-			fCurrentAction = NULL;
-		}
+		// fCurrentAction is not completed, will
+		// do another execution next time
+		if (fCurrentAction != NULL)
+			break;
 	}
 
 	//std::cout << Name() << " executed " << count << " actions" << std::endl;
@@ -661,10 +660,15 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction(Action& action)
 {
+	assert(fCurrentAction == NULL);
+
 	SetInterruptable(false);
 	//std::cout << Name() << " executes " << action.Name() << std::endl;
+	fCurrentAction = &action;
 	action();
-	if (action.Completed()) {
+
+	// if completed, clear
+	if (fCurrentAction != NULL && fCurrentAction->Completed()) {
 		//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
 		ClearCurrentAction();
 	}
