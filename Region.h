@@ -35,7 +35,7 @@ public:
 	uint32 CursorIndex() const;
 	int32 InfoTextRef() const;
 	
-	void ActivateTrigger();
+	void ActivateTrigger(bool activate);
 
 	void ActorEntered(Actor* actor);
 	void ActorExited(Actor* actor);

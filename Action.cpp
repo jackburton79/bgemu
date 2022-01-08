@@ -210,7 +210,7 @@ ActionTriggerActivation::operator()()
 {
 	Region* region = dynamic_cast<Region*>(Script::GetTargetObject(fSender, fActionParams));
 	if (region != NULL)
-		region->ActivateTrigger();
+		region->ActivateTrigger(fActionParams->integer1);
 	SetCompleted();
 }
 

@@ -115,7 +115,7 @@ Region::InfoTextRef() const
 
 
 void
-Region::ActivateTrigger()
+Region::ActivateTrigger(bool activate)
 {
 	if (fRegion->type != IE::REGION_TYPE_TRIGGER
 		&& fRegion->type != IE::REGION_TYPE_INFO
@@ -123,6 +123,10 @@ Region::ActivateTrigger()
 		std::cerr << "ActivateTrigger() called on wrong region type: ";
 		std::cerr << Name() <<  " (" << fRegion->type << ")" << std::endl;
 	}
+	if (activate)
+		fRegion->flags &= ~IE::REGION_DEACTIVATED;
+	else
+		fRegion->flags |= IE::REGION_DEACTIVATED;
 	fRegion->Print();
 }
 
