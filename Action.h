@@ -24,7 +24,7 @@ public:
     std::string Name() const;
     
 protected:
-    Object* fObject;
+    Object* fSender;
     action_params* fActionParams;
 private:
     bool fInitiated;
