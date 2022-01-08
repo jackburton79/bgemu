@@ -343,6 +343,10 @@ Object::AddAction(Action* action)
 void
 Object::ExecuteActions()
 {
+	if (fWaitTime) {
+		if (--fWaitTime)
+			return;
+	}
 #if 0
 	if (fActions.size() > 0) {
 		std::cout << Name() << " action list:" << std::endl;
