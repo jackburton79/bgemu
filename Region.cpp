@@ -118,10 +118,10 @@ void
 Region::ActivateTrigger()
 {
 	if (fRegion->type != IE::REGION_TYPE_TRIGGER
-		&& fRegion->type != IE::REGION_TYPE_INFO) {
+		&& fRegion->type != IE::REGION_TYPE_INFO
+		&& fRegion->type != IE::REGION_TYPE_TRAVEL) {
 		std::cerr << "ActivateTrigger() called on wrong region type: ";
 		std::cerr << Name() <<  " (" << fRegion->type << ")" << std::endl;
-		//return;
 	}
 	fRegion->Print();
 }
