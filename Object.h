@@ -137,6 +137,8 @@ public:
 	void AddScript(::Script* script);
 	void ClearScripts();
 
+	void Disable();
+
 	void AddSpellEffect(SpellEffect* effect);
 
 	void SetWaitTime(int32 time);
@@ -186,6 +188,7 @@ private:
 	AreaRoom* fArea;
 	Region* fRegion;
 
+	bool fDisabled;
 	bool fToDestroy;
 
 	static bool sDebug;

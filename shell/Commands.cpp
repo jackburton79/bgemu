@@ -232,7 +232,6 @@ public:
 		std::istringstream stringStream(argv);
 		uint32 num;
 		Object* object = NULL;
-
 		// If an id was passed, use it.
 		// otherwise use the passed string (the creature name)
 		if ((stringStream >> num).fail())
@@ -248,6 +247,28 @@ public:
 			Action* action = new ActionDestroySelf(object, actionParams);
 			room->AddAction(action);
 			actionParams->Release();
+		} else
+			std::cout << "object \"" << argv << "\" not found." << std::endl;
+	}
+};
+
+
+class DisableCreatureCommand : public ShellCommand {
+public:
+	DisableCreatureCommand() : ShellCommand("Disable-Creature") {};
+	virtual void operator()(const char* argv, int argc) {
+		std::istringstream stringStream(argv);
+		uint32 num;
+		Object* object = NULL;
+		// If an id was passed, use it.
+		// otherwise use the passed string (the creature name)
+		if ((stringStream >> num).fail())
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
+		else
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
+
+		if (object != NULL) {
+			object->Disable();
 		} else
 			std::cout << "object \"" << argv << "\" not found." << std::endl;
 	}
@@ -288,6 +309,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new CreateCreatureCommand());
 	console->AddCommand(new CreateVisualEffectCommand());
 	console->AddCommand(new DestroyCreatureCommand());
+	console->AddCommand(new DisableCreatureCommand());
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new ListResourcesCommand());

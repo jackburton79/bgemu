@@ -113,6 +113,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fLastTrigger(NULL),
 	fArea(NULL),
 	fRegion(NULL),
+	fDisabled(false),
 	fToDestroy(false)
 {
 	if (scriptName != NULL) {
@@ -294,9 +295,15 @@ Object::Update(bool scripts)
 	if (cutscene)
 		scripts = false;
 
+	if (fDisabled)
+		scripts = fDisabled;
+
 	if (scripts) {
 		_HandleScripting(8);
 	}
+
+	if (fDisabled)
+		return;
 
 	ExecuteActions();
 
@@ -530,6 +537,13 @@ Object::ClearScripts()
 		delete *i;
 	}
 	fScripts.clear();
+}
+
+
+void
+Object::Disable()
+{
+	fDisabled = true;
 }
 
 
