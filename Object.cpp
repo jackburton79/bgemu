@@ -688,9 +688,14 @@ Object::_ApplySpellEffects()
 {
 	for (std::list<SpellEffect*>::iterator i = fSpellEffects.begin();
 			i != fSpellEffects.end(); i++) {
-		/*if ((*i)->Name() == "WIZARD_DISINTEGRATE2_IGNORE_RESISTANCE") {
-			DestroySelf();
+		if ((*i)->Name() == "WIZARD_DIMENSION_DOOR") {
+			// TODO: Just to handle Irenicus teleporting in the initial cutscene
+			Actor* actor = dynamic_cast<Actor*>(this);
+			// TODO: This should teleport to saved location.
+			// if it's not set, it's 0, 0
+			IE::point home = {0, 0};
+			actor->SetPosition(home);
 			break;
-		}*/
+		}
 	}
 }

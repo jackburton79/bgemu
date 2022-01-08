@@ -13,6 +13,7 @@ SpellEffect::SpellEffect(const std::string& name)
 {
 }
 
+
 SpellEffect::~SpellEffect()
 {
 }

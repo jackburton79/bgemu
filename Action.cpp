@@ -275,16 +275,14 @@ ActionForceSpell::ActionForceSpell(Object* object, action_params* node)
 void
 ActionForceSpell::operator()()
 {
+	// TODO: Code duplication between here and ActionForceSpellPoint.
+	// Refactor
 	Actor* sender = dynamic_cast<Actor*>(Script::GetSenderObject(fObject, fActionParams));
 	if (sender == NULL) {
 		std::cerr << "ActionForceSpell:: NO sender Actor" << std::endl;
 		SetCompleted();
 		return;
 	}
-	//sender->Print();
-
-	//Object* target = Script::GetTargetObject(sender, fActionParams);
-	//target->Print();
 
 	if (!Initiated()) {
 		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
@@ -294,15 +292,15 @@ ActionForceSpell::operator()()
 
 		std::cout << "spell: " << spellName << std::endl;
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
+		uint16 castTime = spellResource->CastingTime();
 
 		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
 		// Round takes 6 seconds (in BG)
 		// AI update every 15 ticks (do we respect this ? don't know)
-		fDuration = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
-		std::cout << "fDuration:" << fDuration << std::endl;
-		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
-		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
+		fDuration = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		std::cout << "casting time:" << fDuration << std::endl;
+		//std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
+		//std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
 		gResManager->ReleaseResource(spellResource);
 		sender->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
 		SetInitiated();
@@ -310,12 +308,18 @@ ActionForceSpell::operator()()
 
 	// TODO: only for testing
 	if (fDuration-- == 0) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+		gResManager->ReleaseResource(spellIDS);
+
+		std::cout << "Spell " << spellName << " finished" << std::endl;
 		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
 		Object* target = Script::GetTargetObject(sender, fActionParams);
+		if (target == NULL)
+			target = sender;
 		if (target != NULL) {
-			IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-			std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
-			gResManager->ReleaseResource(spellIDS);
+			std::cout << "target: " << target->Name() << std::endl;
+			std::cout << "spell name: " << spellName << std::endl;
 			SpellEffect* dummy = new SpellEffect(spellName);
 			target->AddSpellEffect(dummy);
 		}
@@ -358,15 +362,15 @@ ActionForceSpellPoint::operator()()
 
 		std::cout << "spell: " << spellName << std::endl;
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-		std::cout << "Casting time: " << spellResource->CastingTime() << std::endl;
+		uint16 castTime = spellResource->CastingTime();
 
 		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
 		// Round takes 6 seconds (in BG)
 		// AI update every 15 ticks (do we respect this ? don't know)
-		fDuration = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
-		std::cout << "fDuration:" << fDuration << std::endl;
-		std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
-		std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
+		fDuration = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		std::cout << "casting time:" << fDuration << std::endl;
+		//std::cout << spellResource->DescriptionIdentifiedRef() << std::endl;
+		//std::cout << spellResource->DescriptionUnidentifiedRef() << std::endl;
 		gResManager->ReleaseResource(spellResource);
 		sender->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
 		SetInitiated();
@@ -374,7 +378,21 @@ ActionForceSpellPoint::operator()()
 
 	// TODO: only for testing
 	if (fDuration-- == 0) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(fActionParams->integer1).c_str();
+		gResManager->ReleaseResource(spellIDS);
+
+		std::cout << "Spell " << spellName << " finished" << std::endl;
 		sender->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
+		Object* target = Script::GetTargetObject(sender, fActionParams);
+		if (target == NULL)
+			target = sender;
+		if (target != NULL) {
+			std::cout << "target: " << target->Name() << std::endl;
+			std::cout << "spell name: " << spellName << std::endl;
+			SpellEffect* dummy = new SpellEffect(spellName);
+			target->AddSpellEffect(dummy);
+		}
 		SetCompleted();
 		std::cout << "duration:" << (Timer::Ticks() - fStart) << std::endl;
 	}
