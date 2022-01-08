@@ -652,13 +652,14 @@ ActionRandomWalk::operator()()
 	if (actor == NULL)
 		return;
 
-	int16 randomX = Core::RandomNumber(-50, 50);
-	int16 randomY = Core::RandomNumber(-50, 50);
+	if (!actor->IsWalking()) {
+		int16 randomX = Core::RandomNumber(-50, 50);
+		int16 randomY = Core::RandomNumber(-50, 50);
 
-	IE::point destination = offset_point(actor->Position(), randomX, randomY);
-	if (!PointSufficientlyClose(actor->Position(), destination))
+		IE::point destination = offset_point(actor->Position(), randomX, randomY);
+		if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
-
+	}
 	if (actor->Position() == actor->Destination()) {
 		actor->SetAnimationAction(ACT_STANDING);
 		//SetCompleted();
