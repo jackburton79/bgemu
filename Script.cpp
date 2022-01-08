@@ -88,28 +88,15 @@ Script::GetTriggerObject(const Object* object, trigger_params* start)
 Object*
 Script::GetSenderObject(const Object* object, action_params* start)
 {
-	/*std::cout << "FindSenderObject: objects:" << std::endl;
-	start->First()->Print();
-	start->Second()->Print();
-	start->Third()->Print();
-*/
 	object_params* objectNode = start ? start->First() : NULL;
-	if (objectNode == NULL || objectNode->Empty()) {
-		if (sDebug)
-			std::cout << "FindSenderObject returned " << (object ? object->Name() : "NULL") << std::endl;
+	if (objectNode == NULL || objectNode->Empty())
 		return const_cast<Object*>(object);
-	}
 	
 	// Try getting an object from sender. If it fails, return sender
 	// TODO: Not sure if it's correct but seems to work most of the time
 	Object* result = GetObject(object, objectNode);
-	if (result == NULL) {
-		if (sDebug)
-			std::cout << "FindSenderObject returned " <<  (object ? object->Name() : "NULL") << std::endl;
+	if (result == NULL)
 		return const_cast<Object*>(object);
-	}
-	if (sDebug)
-		std::cout << "FindSenderObject returned " <<  result->Name() << std::endl;
 	return result;
 }
 
@@ -117,25 +104,11 @@ Script::GetSenderObject(const Object* object, action_params* start)
 Object*
 Script::GetTargetObject(const Object* object, action_params* start)
 {
-	if (sDebug)
-		std::cout << "*** FindTargetObject:" << std::endl;
-
 	object_params* objectNode = start->Second();
-	if (objectNode == NULL || objectNode->Empty()) {
-		if (sDebug)
-			std::cout << "FindTargetObject returned NULL" << std::endl;
-		return NULL;
-	}
+	if (objectNode == NULL || objectNode->Empty())
+		return const_cast<Object*>(object);
 
-	if (sDebug) {
-		objectNode->Print();
-		std::cout << std::endl;
-	}
-
-	Object* result = GetObject(object, objectNode);
-	if (sDebug)
-		std::cout << "FindTargetObject returned " << (result ? result->Name() : "NONE") << std::endl;
-	return result;
+	return GetObject(object, objectNode);
 }
 
 
