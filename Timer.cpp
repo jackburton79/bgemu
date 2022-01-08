@@ -168,9 +168,11 @@ Timer::WaitSync(uint32 start, uint32 maxDelay)
 	int32 diff = (start + maxDelay) - Ticks();
 	if (diff > 0)
 		Wait(diff);
+#if 0
 	else
 		std::cerr << Log::Yellow << "WaitSync: TOO SLOW!" << std::endl;
 	std::cerr << Log::Normal;
+#endif
 }
 
 
