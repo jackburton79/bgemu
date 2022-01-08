@@ -189,6 +189,7 @@ Script::Execute(bool& continuing, bool& finished)
 			}
 			return;
 		}
+		continuing = foundContinue;
 	};
 	if (sDebug) {
 		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
