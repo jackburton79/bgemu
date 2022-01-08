@@ -674,9 +674,8 @@ ActionRandomWalk::operator()()
 ActionWait::ActionWait(Object* object, action_params* node)
 	:
 	Action(object, node),
-	fWaitTime(0)
+	fWaitTime(fActionParams->integer1 * AI_UPDATE_FREQ)
 {
-	fWaitTime = fActionParams->integer1 * AI_UPDATE_FREQ;
 }
 
 
@@ -696,9 +695,8 @@ ActionWait::operator()()
 ActionSmallWait::ActionSmallWait(Object* object, action_params* node)
 	:
 	Action(object, node),
-	fWaitTime(0)
+	fWaitTime(fActionParams->integer1)
 {
-	fWaitTime = fActionParams->integer1;
 }
 
 
@@ -706,11 +704,6 @@ ActionSmallWait::ActionSmallWait(Object* object, action_params* node)
 void
 ActionSmallWait::operator()()
 {
-	// TODO: Sometimes there is a different sender object.
-	// Find a way to execute this action on the correct sender
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	fSender->SetInterruptable(false);
 	//Object* object = Script::FindObject(fObject, fActionParams);
 	//if (object != NULL)
 	//	object->SetWaitTime(fActionParams->integer1);
@@ -1196,8 +1189,6 @@ ActionStartCutsceneMode::ActionStartCutsceneMode(Object* object, action_params* 
 void
 ActionStartCutsceneMode::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Core::Get()->StartCutsceneMode();
 	SetCompleted();
 }
@@ -1388,8 +1379,10 @@ void
 ActionChangeOrientationExt::operator()()
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
-	if (actor != NULL)
+	if (actor != NULL) {
 		actor->SetOrientation(fActionParams->integer1);
+		actor->SetWaitTime(1);
+	}
 	SetCompleted();
 }
 
@@ -1419,6 +1412,7 @@ ActionFaceObject::operator()()
 	point.x = objectFrame.Width() / 2;
 	point.y = objectFrame.Height() / 2;
 	sender->SetOrientation(point);
+	sender->SetWaitTime(1);
 	SetCompleted();
 }
 
