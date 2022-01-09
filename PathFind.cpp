@@ -155,10 +155,11 @@ bool
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	fPoints.clear();
+	if (!_IsPassable(end))
+		return false;
 
 	IE::point maxReachableDirectly = start;
-	if (IsCloseEnough(maxReachableDirectly, end)
-			|| !_IsPassable(end))
+	if (IsCloseEnough(maxReachableDirectly, end))
 		return true;
 
 	fOpenNodeList = new OpenNodeList();
