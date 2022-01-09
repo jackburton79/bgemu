@@ -435,14 +435,11 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				NB. If the object is specified as a death variable,
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
-#if 0
-				Object* object = FindObject(sender, trig);
-				if (object != NULL && core->Distance(sender, object) <= 30
-						&& object->LastScriptRoundResults()->Shouted()
-						== trig->parameter1) {
-					returnValue = true;
-				}
-#endif
+
+				// TODO: Improve trigger API:
+				// we need to check if target shouted the given int,
+				// not just if it shouted
+				returnValue = sender->HasTrigger("shout");
 				break;
 			}
 			case 0x0036:
