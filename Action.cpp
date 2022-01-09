@@ -169,8 +169,6 @@ ActionCreateCreature::ActionCreateCreature(Object* object, action_params* node)
 void
 ActionCreateCreature::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	IE::point point = fActionParams->where;
 	if (point.x == -1 && point.y == -1) {
 		Actor* thisActor = dynamic_cast<Actor*>(fSender);
@@ -186,7 +184,6 @@ ActionCreateCreature::operator()()
 	Actor* actor = new Actor(fActionParams->string1, point, fActionParams->integer1);
 	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
 
-	//core->SetActiveActor(actor);
 	SetCompleted();
 }
 
@@ -203,8 +200,6 @@ ActionCreateCreatureImpassable::ActionCreateCreatureImpassable(Object* object, a
 void
 ActionCreateCreatureImpassable::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* actor = new Actor(fActionParams->string1,
 						fActionParams->where, fActionParams->integer1);
 	std::cout << "Created actor (IMPASSABLE) " << fActionParams->string1 << " on ";
@@ -213,7 +208,6 @@ ActionCreateCreatureImpassable::operator()()
 	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
 
 	SetCompleted();
-	//core->SetActiveActor(actor);
 }
 
 
@@ -274,8 +268,6 @@ ActionDestroySelf::ActionDestroySelf(Object* object, action_params* node)
 void
 ActionDestroySelf::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Object* object = Script::GetSenderObject(fSender, fActionParams);
 	object->DestroySelf();
 	SetCompleted();
@@ -490,8 +482,6 @@ ActionSetInterruptable::ActionSetInterruptable(Object* object, action_params* no
 void
 ActionSetInterruptable::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	fSender->SetInterruptable(fActionParams->integer1 == 1);
 	SetCompleted();
 }
@@ -703,9 +693,6 @@ ActionWait::ActionWait(Object* object, action_params* node)
 void
 ActionWait::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }
@@ -744,8 +731,6 @@ ActionOpenDoor::ActionOpenDoor(Object* sender, action_params* node)
 void
 ActionOpenDoor::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
 	if (actor == NULL) {
 		std::cerr << "NULL ACTOR!!!" << std::endl;
@@ -780,8 +765,6 @@ ActionCloseDoor::ActionCloseDoor(Object* sender, action_params* node)
 void
 ActionCloseDoor::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
 	if (actor == NULL) {
 		std::cerr << "NULL ACTOR!!!" << std::endl;
@@ -1027,8 +1010,6 @@ ActionFadeToColor::ActionFadeToColor(Object* object, action_params* node)
 void
 ActionFadeToColor::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fCurrentValue = 255;
@@ -1059,8 +1040,6 @@ ActionFadeFromColor::ActionFadeFromColor(Object* object, action_params* node)
 void
 ActionFadeFromColor::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		fCurrentValue = 0;
@@ -1089,10 +1068,6 @@ ActionMoveViewPoint::ActionMoveViewPoint(Object* object, action_params* node)
 void
 ActionMoveViewPoint::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
-	//SetCompleted();
-	//return;
 	if (!Initiated()) {
 		SetInitiated();
 		fDestination = fActionParams->where;
@@ -1172,8 +1147,6 @@ ActionScreenShake::ActionScreenShake(Object* object, action_params* node)
 void
 ActionScreenShake::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	if (!Initiated()) {
 		SetInitiated();
 		if (fSender != NULL)
@@ -1226,8 +1199,6 @@ ActionEndCutsceneMode::ActionEndCutsceneMode(Object* object, action_params* node
 void
 ActionEndCutsceneMode::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	Core::Get()->EndCutsceneMode();
 	SetCompleted();
 }
@@ -1283,8 +1254,6 @@ ActionStartCutscene::ActionStartCutscene(Object* object, action_params* node)
 void
 ActionStartCutscene::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "ActionStartCutscene: NULL OBJECT" << std::endl;
 	Core::Get()->StartCutscene(fActionParams->string1);
 	SetCompleted();
 }
@@ -1302,8 +1271,6 @@ ActionHideGUI::ActionHideGUI(Object* object, action_params* node)
 void
 ActionHideGUI::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	GUI::Get()->Hide();
 	SetCompleted();
 }
@@ -1321,8 +1288,6 @@ ActionUnhideGUI::ActionUnhideGUI(Object* object, action_params* node)
 void
 ActionUnhideGUI::operator()()
 {
-	if (fSender == NULL)
-		std::cerr << "NULL OBJECT" << std::endl;
 	GUI::Get()->Show();
 	SetCompleted();
 }
