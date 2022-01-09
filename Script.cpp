@@ -242,7 +242,8 @@ Script::ResolveIdentifier(const Object* object, object_params* node, const int i
 		return object->LastTrigger();
 	if (identifier == "LASTATTACKEROF")
 		return object->FindTrigger("AttackedBy");
-
+	if (identifier == "LASTHEARDBY")
+		return object->FindTrigger("LastHeardBy");
 	if (identifier == "NEARESTENEMYOFTYPE") {
 		const Actor* actor = dynamic_cast<const Actor*>(object);
 		if (actor == NULL)
