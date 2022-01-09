@@ -759,6 +759,13 @@ Actor::Shout(int number)
 	// Moreover: we need to track the shout number
 	trigger_entry shout("shout");
 	AddTrigger(shout);
+	// Track who has heard this shout
+	for (int32 a = 0; a < Area()->ActorsCount(); a++) {
+		Actor* actor = Area()->ActorAt(a);
+		if (Area()->Distance(actor, this) < 200)
+			actor->AddTrigger(trigger_entry("LastHeardBy", this));
+
+	}
 }
 
 
