@@ -447,6 +447,20 @@ AreaRoom::GetActorsList(ActorsList& list) const
 }
 
 
+int32
+AreaRoom::ActorsCount() const
+{
+	return fActors.size();
+}
+
+
+Actor*
+AreaRoom::ActorAt(int32 index) const
+{
+	return fActors[index];
+}
+
+
 void
 AreaRoom::RemoveEffect(Effect* effect)
 {

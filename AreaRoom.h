@@ -62,6 +62,8 @@ public:
 
 	// Objects
 	int32 GetActorsList(ActorsList& list) const;
+	int32 ActorsCount() const;
+	Actor* ActorAt(int32 index) const;
 
 	Object* GetObject(const char* name) const;
 	Object* GetObject(uint16 globalEnum) const;
