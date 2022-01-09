@@ -156,6 +156,14 @@ public:
 };
 
 
+class ActionShout : public Action {
+public:
+	ActionShout(Object* sender, action_params* params);
+	virtual void operator()();
+};
+
+
+// Check if target is silenced
 class ActionRandomWalk : public Action {
 public:
 	ActionRandomWalk(Object* actor, action_params* node);

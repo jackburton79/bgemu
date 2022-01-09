@@ -1019,9 +1019,7 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 		case 106:
 		{
 			/* Shout */
-			// Check if target is silenced
-			/*if (thisActor != NULL)
-				thisActor->Shout(act->integer1);*/
+			action = new ActionShout(sender, act);
 			break;
 		}
 		case 109:
@@ -1172,7 +1170,6 @@ Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
 		case 225:
 		{
 			/* MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*)(225 0xe1) */
-			// Active creature. Which is it ? For now, we use actor 0 in party		
 			action = new ActionMoveBetweenAreasEffect(sender, act);
 			break;
 		}

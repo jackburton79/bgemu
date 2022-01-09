@@ -636,6 +636,27 @@ ActionIncrementGlobal::operator()()
 }
 
 
+// ActionShout
+ActionShout::ActionShout(Object* sender, action_params* params)
+	:
+	Action(sender, params)
+{
+}
+
+
+/* virtual */
+void
+ActionShout::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
+	if (actor == NULL)
+		return;
+
+	actor->Shout(fActionParams->integer1);
+}
+
+
+
 // RandomWalk
 ActionRandomWalk::ActionRandomWalk(Object* object, action_params* node)
 	:

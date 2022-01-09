@@ -753,7 +753,10 @@ Actor::ClickedOn(Object* target)
 void
 Actor::Shout(int number)
 {
-	//CurrentScriptRoundResults()->fShouted = number;
+	// TODO: Not sure if handling shouts as triggers is correct
+	// Moreover: we need to track the shout number
+	trigger_entry shout("shout");
+	AddTrigger(shout);
 }
 
 
