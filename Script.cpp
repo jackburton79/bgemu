@@ -553,6 +553,15 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 					returnValue = actor->Area()->Distance(actor, sender) <= trig->parameter1;
 				break;
 			}
+			case 0x401b:
+			{
+				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					returnValue = actor->CRE()->Reputation() < trig->parameter1;
+				}
+				break;
+			}
 			case 0x401C:
 			{
 				/* See(O:Object*)
@@ -795,13 +804,13 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				returnValue = true;
 				break;
 			}
-			case 0x401b:
+			case 0x40A5:
 			{
-				/* REPUTATIONLT(O:OBJECT*,I:REPUTATION*) (16411 0x401b) */
+				// SCRIPT: TRIGGER NAME(S:NAME*,O:OBJECT*) (16549 40a5)
+				// TODO: not sure it's correct. We should check the name
+				// of the script
 				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
-				if (actor != NULL) {
-					returnValue = actor->CRE()->Reputation() < trig->parameter1;
-				}
+				return actor != NULL && actor->Name() == trig->string1;
 				break;
 			}
 			default:
