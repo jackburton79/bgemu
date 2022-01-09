@@ -36,7 +36,6 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 }
 
 
-
 Action::Action(Object* object, action_params* node)
     :
 	fSender(object),
@@ -132,6 +131,28 @@ ActionSetGlobal::operator()()
 		// TODO: Check for AREA variables
 		Core::Get()->Vars().Set(fActionParams->string1, fActionParams->integer1);
 	}
+	SetCompleted();
+}
+
+
+// IncrementGlobal
+ActionIncrementGlobal::ActionIncrementGlobal(Object* object, action_params* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionIncrementGlobal::operator()()
+{
+	Core* core = Core::Get();
+	std::string variableScope;
+	std::string variableName;
+	Variables::GetNameAndScope(fActionParams->string1, variableScope, variableName);
+	int32 value = core->Vars().Get(fActionParams->string1);
+	core->Vars().Set(fActionParams->string1, value + fActionParams->integer1);
 	SetCompleted();
 }
 
@@ -611,28 +632,6 @@ ActionFlyTo::operator()()
 
 	actor->SetAnimationAction(ACT_WALKING);
 	actor->MoveToNextPointInPath(true);
-}
-
-
-// IncrementGlobal
-ActionIncrementGlobal::ActionIncrementGlobal(Object* object, action_params* node)
-	:
-	Action(object, node)
-{
-}
-
-
-/* virtual */
-void
-ActionIncrementGlobal::operator()()
-{
-	Core* core = Core::Get();
-	std::string variableScope;
-	std::string variableName;
-	Variables::GetNameAndScope(fActionParams->string1, variableScope, variableName);
-	int32 value = core->Vars().Get(fActionParams->string1);
-	core->Vars().Set(fActionParams->string1, value + fActionParams->integer1);
-	SetCompleted();
 }
 
 
