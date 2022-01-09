@@ -103,6 +103,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x62:
 					case 0x63:
 					case 0x64:
+					case 0x65:
 						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
 					default:
