@@ -303,6 +303,31 @@ public:
 };
 
 
+class SetEnemyAllyCommand : public ShellCommand {
+public:
+	SetEnemyAllyCommand() : ShellCommand("Set-EnemyAlly") {};
+	virtual void operator()(const char* argv, int argc) {
+		Object* object = NULL;
+		std::istringstream stringStream(argv);
+		std::string creatureName;
+		uint16 enemyAlly;
+		std::getline(stringStream, creatureName, ',');
+		if (!(stringStream >> enemyAlly).fail())
+			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(creatureName.c_str());
+
+		if (object == NULL)
+			return;
+
+		action_params* actionParams = new action_params;
+		actionParams->integer1 = enemyAlly;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionSetEnemyAlly(object, actionParams);
+		room->AddAction(action);
+		actionParams->Release();
+	};
+};
+
+
 void
 AddCommands(InputConsole* console)
 {
@@ -316,6 +341,7 @@ AddCommands(InputConsole* console)
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new SetEnemyAllyCommand());
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new WaitTimeCommand());
