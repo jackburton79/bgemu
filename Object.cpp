@@ -666,14 +666,14 @@ Object::_ExecuteScripts(int32 maxLevel)
 		bool continuing = false;
 		bool actionDone = false;
 		for (int32 i = 0; i < maxLevel; i++) {
-#if 0
-			std::cout << Name() << ": script " << i << std::endl;
+#if 1
+			std::cout << "*** "<< Name() << ": script " << i << " ***" << std::endl;
 #endif
 			if (fScripts.at(i) == NULL)
 				continue;
 
 			fScripts[i]->Execute(continuing, actionDone);
-			if (actionDone) {
+			if (actionDone && !continuing) {
 				//std::cout << Name() << ": script " << i << " returned false." << std::endl;
 				break;
 			}

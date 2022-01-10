@@ -153,7 +153,7 @@ Script::Execute(bool& continuing, bool& finished)
 			std::cout << "RESPONSE" << std::endl;
 
 		foundContinue = _HandleResponseSet(responseSet);
-		if (!foundContinue) {
+		if (!continuing && !foundContinue) {
 			finished = true;
 			// An action was executed, restart script
 			if (sDebug) {
@@ -162,7 +162,7 @@ Script::Execute(bool& continuing, bool& finished)
 			}
 			return;
 		}
-		continuing = foundContinue;
+		continuing = foundContinue || continuing;
 	};
 	if (sDebug) {
 		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
