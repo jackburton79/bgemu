@@ -133,7 +133,7 @@ Script::Execute(bool& continuing, bool& finished)
 		condition_response* cr = fConditionResponses.at(cri);
 		if (sDebug)
 			std::cout << "CONDITION" << std::endl;
-		if (!_EvaluateConditionNode(cr->conditions))
+		if (!_EvaluateConditionBlock(cr->conditions))
 			continue;
 
 		if (!foundContinue) {
@@ -333,7 +333,7 @@ Script::GetObject(const Object* source, object_params* node)
 
 
 bool
-Script::_EvaluateConditionNode(condition_block& conditionNode)
+Script::_EvaluateConditionBlock(condition_block& conditionNode)
 {
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;

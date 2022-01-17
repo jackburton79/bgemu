@@ -49,7 +49,7 @@ public:
 	static Object* GetObject(const Object* source, object_params* node);
 	
 private:
-	bool _EvaluateConditionNode(condition_block& block);
+	bool _EvaluateConditionBlock(condition_block& block);
 
 	bool _HandleResponseSet(response_set& responseSet);
 	bool _HandleAction(action_params* act);
