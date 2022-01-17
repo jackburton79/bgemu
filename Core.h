@@ -11,7 +11,6 @@
 #include <string>
 
 struct action_params;
-struct node;
 struct trigger_params;
 
 enum game {
@@ -115,10 +114,7 @@ private:
 	game fGame;
 	RoomBase* fCurrentRoom;
 	
-	//ObjectsList fObjects;
-	
 	Variables fVariables;
-	std::map<std::string, Script*> fScripts;
 
 	uint32 fLastScriptRoundTime;
 	uint16 fNextObjectNumber;
