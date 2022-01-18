@@ -67,8 +67,6 @@ protected:
 	int32 fControlID;
 
 	virtual ~RoomBase();
-	void _DrawConsole();
-	GFX::rect _ConsoleRect() const;
 };
 
 
