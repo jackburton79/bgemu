@@ -3,8 +3,6 @@
 
 #include "IETypes.h"
 
-#include "Referenceable.h"
-
 #include <vector>
 
 enum animation_action {
@@ -23,7 +21,7 @@ class BAMResource;
 class Bitmap;
 class CREResource;
 struct CREColors;
-class Animation : public Referenceable {
+class Animation {
 public:
 	Animation(IE::animation *animDesc);
 	Animation(const char* bamName, int sequence, bool mirror,
