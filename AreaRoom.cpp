@@ -949,17 +949,22 @@ AreaRoom::_DrawEffects()
 void
 AreaRoom::_DrawActors()
 {
-	ActorsList::const_iterator a;
-#if 0
-	// TODO: do this once on start and every time an actor is added
-	std::sort(actorsList.begin(), actorsList.end(), ZOrderSorter());
-#endif
+	ActorsList visibleActors;
+	ActorsList::iterator a;
 	for (a = fActors.begin();
 			a != fActors.end(); a++) {
-		const Actor* actor = *a;
+		Actor* actor = *a;
+		if (_IsVisibleOnScreen(actor))
+			visibleActors.push_back(actor);
+	}
+
+	// Sort visible actors by z-order
+	std::sort(visibleActors.begin(), visibleActors.end(), ZOrderSorter());
+	for (a = visibleActors.begin();
+			a != visibleActors.end(); a++) {
+		Actor* actor = *a;
 		try {
-			if (_IsVisibleOnScreen(actor))
-				actor->Draw(this, fBackMap->Image());
+			actor->Draw(this, fBackMap->Image());
 		} catch (std::exception& ex) {
 			// TODO: too much spam
 			//std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
@@ -1301,8 +1306,12 @@ AreaRoom::_UnloadArea()
 bool
 AreaRoom::_IsVisibleOnScreen(const Actor* actor) const
 {
-	if (rects_intersect(rect_to_gfx_rect(actor->Frame()), rect_to_gfx_rect(VisibleMapArea())))
-		return true;
+	try {
+		if (rects_intersect(rect_to_gfx_rect(actor->Frame()), rect_to_gfx_rect(VisibleMapArea())))
+			return true;
+	} catch (...) {
+		// most likely there is no animation, so actor->Frame() throws an exception
+	}
 	return false;
 }
 
