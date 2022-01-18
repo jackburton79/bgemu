@@ -69,7 +69,7 @@ class Region;
 class Script;
 class SpellEffect;
 class TileCell;
-class Object : public Referenceable {
+class Object : public AutoDeletingReferenceable {
 public:
 	enum object_type {
 		ACTOR,
@@ -152,7 +152,6 @@ public:
 
 protected:
 	virtual ~Object();
-	void LastReferenceReleased();
 
 private:
 	void _UpdateTileCell();

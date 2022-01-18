@@ -32,6 +32,19 @@ private:
 };
 
 
+// Referenceable which auto deletes itself when refcount reaches 0
+class AutoDeletingReferenceable : public Referenceable {
+public:
+	AutoDeletingReferenceable();
+
+protected:
+	virtual ~AutoDeletingReferenceable();
+
+private:
+	virtual void LastReferenceReleased();
+};
+
+
 extern void ReleaseAndNil(Referenceable*& );
 
 #endif /* REFERENCEABLE_H_ */

@@ -20,7 +20,7 @@
 
 Bitmap::Bitmap(uint16 width, uint16 height, uint16 bitsPerPixel)
 	:
-	Referenceable(1),
+	AutoDeletingReferenceable(),
 	fMirrored(NULL),
 	fXOffset(0),
 	fYOffset(0),
@@ -34,7 +34,7 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bitsPerPixel)
 
 Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	:
-	Referenceable(1),
+	AutoDeletingReferenceable(),
 	fSurface(surface),
 	fMirrored(NULL),
 	fXOffset(0),
@@ -44,19 +44,12 @@ Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 }
 
 
+/* virtual */
 Bitmap::~Bitmap()
 {
 	if (fOwnsSurface)
 		SDL_FreeSurface(fSurface);
 	delete fMirrored;
-}
-
-
-/* virtual */
-void
-Bitmap::LastReferenceReleased()
-{
-	delete this;
 }
 
 

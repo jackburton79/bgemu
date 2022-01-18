@@ -96,6 +96,28 @@ Referenceable::LastReferenceReleased()
 }
 
 
+// AutodeletingReferenceable
+AutoDeletingReferenceable::AutoDeletingReferenceable()
+	:
+	Referenceable(1)
+{
+}
+
+
+/* virtual */
+AutoDeletingReferenceable::~AutoDeletingReferenceable()
+{
+}
+
+
+/* virtual */
+void
+AutoDeletingReferenceable::LastReferenceReleased()
+{
+	delete this;
+}
+
+
 void
 ReleaseAndNil(Referenceable*& ref)
 {

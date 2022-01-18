@@ -22,7 +22,7 @@ namespace GFX {
 
 class GraphicsEngine;
 class Polygon;
-class Bitmap : public Referenceable {
+class Bitmap : public AutoDeletingReferenceable {
 public:
 	Bitmap(uint16 width, uint16 height, uint16 bytesPerPixel);
 	
@@ -96,8 +96,6 @@ protected:
 
 	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
 	virtual ~Bitmap();
-	
-	virtual void LastReferenceReleased();
 
 	SDL_Surface* Surface() const;
 };

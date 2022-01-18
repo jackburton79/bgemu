@@ -99,7 +99,7 @@ trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 // Either move the methods to actor, or merge the classes
 Object::Object(const char* name, object_type objectType, const char* scriptName)
 	:
-	Referenceable(1),
+	AutoDeletingReferenceable(),
 	fName(name),
 	fType(objectType),
 	fGlobalID(-1),
@@ -604,14 +604,6 @@ void
 Object::SetDebug(bool debug)
 {
 	sDebug = debug;
-}
-
-
-/* virtual */
-void
-Object::LastReferenceReleased()
-{
-	delete this;
 }
 
 
