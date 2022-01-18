@@ -9,12 +9,14 @@
 
 #include "EncryptionKey.h"
 #include "EncryptedStream.h"
+#include "Log.h"
 #include "MemoryStream.h"
 
 #include <cstdlib>
 
 #define TWODA_SIGNATURE "2DA "
 #define TWODA_VERSION_1 "V1.0"
+
 
 /* static */
 Resource*
@@ -44,39 +46,32 @@ TWODAResource::Load(Archive* archive, uint32 key)
 		return false;
 
 	if (IsEncrypted()) {
+		std::cout << Log::Yellow << "2DAResource: " << Name() << ": encrypted resource" << std::endl;
 		EncryptedStream *newStream =
 				new EncryptedStream(fData, kEncryptionKey, kEncryptionKeySize);
 		ReplaceData(newStream);
 	}
 
-	if (CheckSignature(TWODA_SIGNATURE)) {
+	if (CheckSignature(TWODA_SIGNATURE))
 		fData->Seek(4, SEEK_CUR);
-	}
 
-	if (CheckVersion(TWODA_VERSION_1)) {
+	if (CheckVersion(TWODA_VERSION_1))
 		fData->Seek(4, SEEK_CUR);
-	}
 
 	//fData->Seek(8, SEEK_SET);
 
 	char string[1024];
 	fData->ReadLine(string, sizeof(string));
-//	std::cout << "*** FIRST LINE: " << string << " ***" << std::endl;
 
 	fData->ReadLine(string, sizeof(string));
 	fDefaultValue = string;
-//	std::cout << "*** SECOND LINE:" << string << std::endl;
 
 	fData->ReadLine(string, sizeof(string)); // headers
 
-//	std::cout << "*** THIRD LINE: " << string << std::endl;
-
 	_HandleHeadersRow(string);
 
-	while (fData->ReadLine(string, sizeof(string))) {
+	while (fData->ReadLine(string, sizeof(string)))
 		_HandleContentRow(string);
-	//	std::cout << string << "/////" << std::endl;
-	}
 
 	return true;
 }
@@ -110,8 +105,6 @@ std::string
 TWODAResource::ValueFor(const char* rowValue, const char* columnValue) const
 {
 	const char* value = columnValue ? columnValue : "";
-	//std::cout << "ValueFor:" << rowValue << " " << value << std::endl;
-	//StringMap::iterator i = fMap.find(std::make_pair(rowValue, value));
 	return fMap.at(std::make_pair(rowValue, value));
 }
 

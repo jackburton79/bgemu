@@ -15,9 +15,10 @@
 class WriteableIDSResource : public IDSResource {
 public:
 	WriteableIDSResource(const res_ref& name);
-	bool AddValue(uint32 id, std::string value);
+	bool AddValue(uint32 id, const std::string& value);
 	void WriteToFile(const char* fileName);
 };
+
 
 IDSResource*
 GeneratedIDS::CreateIDSResource(const res_ref& name)
@@ -243,7 +244,7 @@ WriteableIDSResource::WriteableIDSResource(const res_ref& name)
 
 
 bool
-WriteableIDSResource::AddValue(uint32 id, std::string value)
+WriteableIDSResource::AddValue(uint32 id, const std::string& value)
 {
 	fMap[id] = value;
 	return true;
