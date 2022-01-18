@@ -588,7 +588,6 @@ ResourceManager::_LoadResource(const KeyResEntry &entry)
 	if (resource == NULL) {
 		if (fDebugLevel > 0)
 			std::cout << RED(kComponentName) << RED("FAILED Loading resource!") << std::endl;
-		delete resource;
 		return NULL;
 	}
 
@@ -634,7 +633,6 @@ ResourceManager::_LoadResourceFromOverride(const KeyResEntry& entry,
 										entry.key, dirArchive);
 	if (resource == NULL) {
 		delete dirArchive;
-		delete resource;
 		return NULL;
 	}
 
