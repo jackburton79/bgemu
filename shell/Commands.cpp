@@ -205,39 +205,48 @@ public:
 
 class CreateCreatureCommand : public ShellCommand {
 public:
-	CreateCreatureCommand() : ShellCommand("Create-Creature") {};
+	CreateCreatureCommand()
+		: ShellCommand(
+				"Create-Creature",
+				{
+						{ PARAMETER_STRING, },
+						{ PARAMETER_POINT, }
+				}
+		)
+	{};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		std::string creatureName;
-		IE::point where;
-		std::getline(stringStream, creatureName, ',');
-		char o;
-		if (!(stringStream >> where.x >> o >> where.y).fail()) {
-			action_params* actionParams = new action_params;
-			strcpy(actionParams->string1, creatureName.c_str());
-			actionParams->where = where;
-			RoomBase* room = Core::Get()->CurrentRoom();
-			Action* action = new ActionCreateCreature(room, actionParams);
-			room->AddAction(action);
-			actionParams->Release();
-		}
+		ParseParameters(argv, argc);
+
+		action_params* actionParams = new action_params;
+		strcpy(actionParams->string1, Parameters().at(0).value.string);
+		actionParams->where = Parameters().at(1).value.point;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionCreateCreature(room, actionParams);
+		room->AddAction(action);
+		actionParams->Release();
 	}
 };
 
 
 class DestroyCreatureCommand : public ShellCommand {
 public:
-	DestroyCreatureCommand() : ShellCommand("Destroy-Creature") {};
+	DestroyCreatureCommand()
+		: ShellCommand(
+				"Destroy-Creature",
+				{
+				   { PARAMETER_STRING, }
+				}
+		)
+	{};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		uint32 num;
+		ParseParameters(argv, argc);
 		Object* object = NULL;
+		// TODO: Use PARAMETER_STRING_OR_INTEGER
+		// and reimplement this
 		// If an id was passed, use it.
 		// otherwise use the passed string (the creature name)
-		if ((stringStream >> num).fail())
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
-		else
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
+		std::string name = Parameters().at(0).value.string;
+		object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL) {
 			action_params* actionParams = new action_params;

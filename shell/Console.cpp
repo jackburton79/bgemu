@@ -257,9 +257,8 @@ Console::Console(const GFX::rect& rect)
 
 Console::~Console()
 {
-	if (fBitmap != NULL) {
+	if (fBitmap != NULL)
 		fBitmap->Release();
-	}
 	delete fDesc;
 }
 
