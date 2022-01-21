@@ -1,4 +1,5 @@
 LOCALSOURCES= \
+../Log.cpp \
 ../support/Path.cpp \
 ../support/Referenceable.cpp \
 ../support/Utils.cpp \
