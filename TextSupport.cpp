@@ -287,9 +287,9 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	} else {
 		// No palette.
 		throw std::runtime_error("Font::RenderString: no palette");
-		GFX::Palette palette;
-		firstFrame->GetPalette(palette);
-		bitmap->SetPalette(palette);
+		GFX::Palette framePalette;
+		firstFrame->GetPalette(framePalette);
+		bitmap->SetPalette(framePalette);
 	}
 
 	uint32 colorKey;

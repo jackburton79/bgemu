@@ -73,9 +73,7 @@ Palette::Palette()
 
 Palette::Palette(const GFX::Palette& palette)
 {
-	for (int c = 0; c < 256; c++) {
-		colors[c] = palette.colors[c];
-	}
+	*this = palette;
 }
 
 
@@ -93,6 +91,17 @@ Palette::Palette(const GFX::Color& start, const GFX::Color& end)
 		colors[c].b = end.b + (uint8)(((start.b - end.b) * c ) / 255);
 		colors[c].a = end.a + (uint8)(((start.a - end.a) * c ) / 255);
 	}
+}
+
+
+Palette&
+Palette::operator=(const Palette& palette)
+{
+	for (int c = 0; c < 256; c++) {
+		colors[c] = palette.colors[c];
+	}
+
+	return *this;
 }
 
 

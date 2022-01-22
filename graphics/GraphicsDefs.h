@@ -27,6 +27,9 @@ public:
 	Palette();
 	Palette(const GFX::Palette& palette);
 	Palette(const GFX::Color& start, const GFX::Color& end);
+
+	Palette& operator=(const Palette& palette);
+
 	void ModColor(uint8 index, uint8 mod);
 	void Dump() const;
 	void Dump(const char* fileName) const;
