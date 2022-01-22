@@ -355,7 +355,6 @@ Object::ExecuteActions()
 		// dump action list
 		for (std::list<Action*>::iterator i = fActions.begin();
 										i != fActions.end(); i++) {
-
 			std::cout << (*i)->Name() << std::endl;
 		}
 	}

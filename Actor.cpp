@@ -765,7 +765,6 @@ Actor::Shout(int number)
 		Actor* actor = Area()->ActorAt(a);
 		if (Area()->Distance(actor, this) < 200)
 			actor->AddTrigger(trigger_entry("LastHeardBy", this));
-
 	}
 }
 
