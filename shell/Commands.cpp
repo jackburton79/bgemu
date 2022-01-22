@@ -286,17 +286,19 @@ public:
 
 class DisableCreatureCommand : public ShellCommand {
 public:
-	DisableCreatureCommand() : ShellCommand("Disable-Creature") {};
+	DisableCreatureCommand()
+		: ShellCommand(
+				"Disable-Creature",
+				{
+				   { PARAMETER_STRING, }
+				}
+		)
+	{
+	};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		uint32 num;
-		Object* object = NULL;
-		// If an id was passed, use it.
-		// otherwise use the passed string (the creature name)
-		if ((stringStream >> num).fail())
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
-		else
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		std::string name = params.at(0).value.string;
+		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL) {
 			object->Disable();
@@ -336,16 +338,22 @@ public:
 
 class SetEnemyAllyCommand : public ShellCommand {
 public:
-	SetEnemyAllyCommand() : ShellCommand("Set-EnemyAlly") {};
+	SetEnemyAllyCommand()
+		: ShellCommand(
+				"Set-EnemyAlly",
+				{
+				   { PARAMETER_STRING, },
+				   { PARAMETER_INT, }
+				}
+		)
+	{
+	};
 	virtual void operator()(const char* argv, int argc) {
-		Object* object = NULL;
-		std::istringstream stringStream(argv);
-		std::string creatureName;
-		uint16 enemyAlly;
-		std::getline(stringStream, creatureName, ',');
-		if (!(stringStream >> enemyAlly).fail())
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(creatureName.c_str());
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		std::string creatureName = params.at(0).value.string;
+		uint16 enemyAlly = params.at(1).value.integer;
 
+		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(creatureName.c_str());
 		if (object == NULL)
 			return;
 
