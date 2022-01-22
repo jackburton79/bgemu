@@ -5,7 +5,7 @@
  *      Author: stefano
  */
 
-#include "InputConsole.h"
+#include "GameConsole.h"
 
 #include "Commands.h"
 #include "Log.h"
