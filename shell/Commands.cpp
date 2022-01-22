@@ -47,17 +47,20 @@ public:
 // PrintObjectCommand
 class PrintObjectCommand : public ShellCommand {
 public:
-	PrintObjectCommand() : ShellCommand("Print-Object") {};
+	PrintObjectCommand()
+		: ShellCommand(
+			"Print-Object",
+			{
+				{ PARAMETER_STRING, }
+			}
+		)
+	{
+	};
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		uint32 num;
-		Object* object = NULL;
-
-		if ((stringStream >> num).fail())
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(argv);
-		else
-			object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(num);
+		ParseParameters(argv, argc);
+		std::string name = Parameters().at(0).value.string;
+		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL)
 			object->Print();
@@ -84,15 +87,21 @@ public:
 
 class WaitTimeCommand : public ShellCommand {
 public:
-	WaitTimeCommand() : ShellCommand("Wait-Time") {};
+	WaitTimeCommand()
+		: ShellCommand(
+			"Wait-Time",
+			{
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	};
 	virtual ~WaitTimeCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		uint16 hours;
-		if (!(stringStream >> hours).fail()) {
-			GameTimer::AdvanceTime(hours * 60 * 60);
-			GameTimer::PrintTime();
-		}
+		ParseParameters(argv, argc);
+		uint16 hours = Parameters().at(0).value.integer;
+		GameTimer::AdvanceTime(hours * 60 * 60);
+		GameTimer::PrintTime();
 	}
 };
 
@@ -108,13 +117,19 @@ public:
 
 class ShowWindowCommand : public ShellCommand {
 public:
-	ShowWindowCommand() : ShellCommand("Toggle-Window") {};
+	ShowWindowCommand()
+		: ShellCommand(
+			"Toggle-Window",
+			{
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		uint16 windowID;
-		if (!(stringStream >> windowID).fail()) {
-			GUI::Get()->ToggleWindow(windowID);
-		}
+		ParseParameters(argv, argc);
+		uint16 windowID = Parameters().at(0).value.integer;
+		GUI::Get()->ToggleWindow(windowID);
 	}
 };
 
