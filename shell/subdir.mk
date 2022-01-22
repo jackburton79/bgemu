@@ -2,7 +2,6 @@ LOCALSOURCES= \
 ../shell/Commands.cpp \
 ../shell/Console.cpp \
 ../shell/InputConsole.cpp \
-../shell/OutputConsole.cpp \
 ../shell/ShellCommand.cpp
 
 LOCALOBJECTS = $(addprefix ./shell/, $(notdir $(LOCALSOURCES:.cpp=.o)))

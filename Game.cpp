@@ -99,21 +99,15 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			0,
 			0,
 			screenRect.w,
-			screenRect.h - 21);
+			screenRect.h);
 
-	OutputConsole* outputConsole = NULL;
 	InputConsole* inputConsole = NULL;
-#if 0
-	std::cout << "Setting up output console... ";
+#if 1
+	std::cout << "Setting up console... ";
 	std::flush(std::cout);
-	outputConsole = new OutputConsole(consoleRect, false);
+	inputConsole = new InputConsole(consoleRect, true);
 	std::cout << "OK!" << std::endl;
 #endif
-	consoleRect.h = 20;
-	consoleRect.y = screenRect.h - consoleRect.h;
-	std::cout << "Setting up input console... ";
-	std::flush(std::cout);
-	inputConsole = new InputConsole(consoleRect);
 	if (inputConsole != NULL)
 		inputConsole->Initialize();
 	std::cout << "OK!" << std::endl;
@@ -160,8 +154,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
-						if (outputConsole != NULL)
-							outputConsole->Toggle();
 						if (inputConsole != NULL)
 							inputConsole->Toggle();
 					} else if (inputConsole != NULL && inputConsole->IsActive()) {
@@ -179,11 +171,11 @@ Game::Loop(bool noNewGame, bool executeScripts)
 									room->ToggleOverlays();
 								break;
 							case SDLK_d:
-								if (outputConsole != NULL) {
-									if (outputConsole->HasOutputRedirected())
-										outputConsole->DisableRedirect();
+								if (inputConsole != NULL) {
+									if (inputConsole->HasOutputRedirected())
+										inputConsole->DisableRedirect();
 									else
-										outputConsole->EnableRedirect();
+										inputConsole->EnableRedirect();
 									break;
 								}
 							// TODO: Move to GUI class
@@ -251,8 +243,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 		gui->Draw();
 
-		if (outputConsole != NULL)
-			outputConsole->Draw();
 		if (inputConsole != NULL)
 			inputConsole->Draw();
 		if (!TestMode())
@@ -267,7 +257,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	Timer::RemovePeriodicTimer(fpsTimer);
 
 	delete inputConsole;
-	delete outputConsole;
 
 	std::cout << "Game: Input loop stopped." << std::endl;
 

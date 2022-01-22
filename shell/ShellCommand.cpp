@@ -41,8 +41,6 @@ ShellCommand::Command() const
 const ShellCommandParameters&
 ShellCommand::ParseParameters(const char* argv)
 {
-	fParameters.clear();
-
 	std::istringstream stringStream(argv);
 	std::vector<std::string> strings;
 	std::string arg;

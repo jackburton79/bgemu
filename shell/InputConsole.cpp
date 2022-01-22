@@ -21,15 +21,28 @@ struct CommandSorter {
 };
 
 
-InputConsole::InputConsole(const GFX::rect& rect)
+InputConsole::InputConsole(const GFX::rect& rect, bool redirect)
 	:
-	Console(rect)
+	Console(rect),
+	fOldBuf(NULL),
+	fOutputRedirected(false),
+	fQuit(false)
 {
+	if (redirect)
+		_EnableOutputRedirect();
+	fLock = SDL_CreateMutex();
+	fThread = SDL_CreateThread(_UpdateFunction, "ConsoleThread", this);
 }
 
 
 InputConsole::~InputConsole()
 {
+	fQuit = true;
+	SDL_WaitThread(fThread, NULL);
+	SDL_DestroyMutex(fLock);
+
+	_DisableOutputRedirect();
+
 	std::list<ShellCommand*>::iterator command;
 	for (command = fCommands.begin();
 			command != fCommands.end(); command++) {
@@ -73,7 +86,7 @@ InputConsole::HandleInput(uint8 c)
 		case SDLK_RETURN:
 			_ExecuteCommand(fBuffer);
 			fBuffer = "";
-			ClearScreen();
+			//ClearScreen();
 			break;
 		case SDLK_BACKSPACE:
 			if (fBuffer.length() > 0)
@@ -99,6 +112,53 @@ InputConsole::HandleInput(uint8 c)
 
 
 void
+InputConsole::Update()
+{
+	// Write stdout to console
+	Puts(fOutputBuffer.str().c_str());
+	fOutputBuffer.str("");
+}
+
+
+/* static */
+int
+InputConsole::_UpdateFunction(void *arg)
+{
+	InputConsole* console = reinterpret_cast<InputConsole*>(arg);
+	while (!console->fQuit) {
+		if (SDL_LockMutex(console->fLock) == 0) {
+			console->Update();
+			SDL_Delay(50);
+			SDL_UnlockMutex(console->fLock);
+		}
+	}
+
+	return 0;
+}
+
+
+bool
+InputConsole::HasOutputRedirected() const
+{
+	return fOutputRedirected;
+}
+
+
+void
+InputConsole::EnableRedirect()
+{
+	_EnableOutputRedirect();
+}
+
+
+void
+InputConsole::DisableRedirect()
+{
+	_DisableOutputRedirect();
+}
+
+
+void
 InputConsole::_ExecuteCommand(const std::string& line)
 {
 	std::string command;
@@ -113,7 +173,7 @@ InputConsole::_ExecuteCommand(const std::string& line)
 		} catch (...) {
 			// some commands are argless
 		}
-		std::cout << "Command: " << line << std::endl;
+		std::cout << std::endl;
 		ShellCommand* shellCommand = _FindCommand(command);
 		if (shellCommand != NULL)
 			(*shellCommand)(args.c_str());
@@ -125,6 +185,25 @@ InputConsole::_ExecuteCommand(const std::string& line)
 		std::cerr << Log::Red;
 		std::cerr << "_ExecuteCommand(): " << line << " failed!" << std::endl;
 		std::cerr << Log::Normal;
+	}
+}
+
+
+void
+InputConsole::_EnableOutputRedirect()
+{
+	fOldBuf = std::cout.rdbuf();
+	std::cout.rdbuf(fOutputBuffer.rdbuf());
+	fOutputRedirected = true;
+}
+
+
+void
+InputConsole::_DisableOutputRedirect()
+{
+	if (fOutputRedirected) {
+		std::cout.rdbuf(fOldBuf);
+		fOutputRedirected = false;
 	}
 }
 
