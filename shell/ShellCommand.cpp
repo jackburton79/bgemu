@@ -39,9 +39,8 @@ ShellCommand::Command() const
 
 
 const ShellCommandParameters&
-ShellCommand::ParseParameters(const char* argv, int argc)
+ShellCommand::ParseParameters(const char* argv)
 {
-	// TODO: seems argc is always 1
 	std::istringstream stringStream(argv);
 	std::vector<std::string> strings;
 	std::string arg;

@@ -33,7 +33,7 @@ public:
 	{
 	}
 	virtual ~ListObjectsCommand() {};
-	virtual void operator()(const char* argv, int argc) {
+	virtual void operator()(const char* argv) {
 		ActorsList objects;
 		ActorsList::iterator i;
 		((AreaRoom*)Core::Get()->CurrentRoom())->GetActorsList(objects);
@@ -60,15 +60,15 @@ public:
 	{
 	}
 	virtual ~PrintObjectCommand() {};
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::string name = params.at(0).value.string;
 		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL)
 			object->Print();
 		else
-			std::cout << "object \"" << argv << "\" not found." << std::endl;
+			std::cout << "object \"" << name << "\" not found." << std::endl;
 	}
 };
 
@@ -80,7 +80,7 @@ public:
 	{
 	}
 	virtual ~ListResourcesCommand() {};
-	virtual void operator()(const char* argv, int argc) {
+	virtual void operator()(const char* argv) {
 		StringList stringList;
 		gResManager->GetCachedResourcesList(stringList);
 		StringListIterator i;
@@ -103,8 +103,8 @@ public:
 	{
 	}
 	virtual ~WaitTimeCommand() {};
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		uint16 hours = params.at(0).value.integer;
 		GameTimer::AdvanceTime(hours * 60 * 60);
 		GameTimer::PrintTime();
@@ -118,7 +118,7 @@ public:
 		: ShellCommand("Print-Variables")
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
+	virtual void operator()(const char* argv) {
 		Core::Get()->Vars().PrintAll();
 	}
 };
@@ -135,8 +135,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		uint16 windowID = params.at(0).value.integer;
 		GUI::Get()->ToggleWindow(windowID);
 	}
@@ -146,8 +146,11 @@ public:
 #if 0
 class WalkToObjectCommand : public ShellCommand {
 public:
-	WalkToObjectCommand() : ShellCommand("Walk-ToObject") {};
-	virtual void operator()(const char* argv, int argc) {
+	WalkToObjectCommand()
+		: ShellCommand("Walk-ToObject")
+	{
+	}
+	virtual void operator()(const char* argv) {
 		int objectId = 0;
 		std::istringstream stringStream(argv);
 		if ((stringStream >> objectId).fail())
@@ -175,8 +178,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		IE::point where = params.at(0).value.point;
 		int speed = params.at(1).value.integer;
 
@@ -203,8 +206,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::istringstream stringStream(argv);
 		IE::point where = params.at(0).value.point;
 		int duration = params.at(1).value.integer;
@@ -232,8 +235,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::string effectName = params.at(0).value.string;
 		IE::point where = params.at(0).value.point;
 
@@ -261,8 +264,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 
 		action_params* actionParams = new action_params;
 		strcpy(actionParams->string1, params.at(0).value.string);
@@ -286,8 +289,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		Object* object = NULL;
 		// TODO: Use PARAMETER_STRING_OR_INTEGER
 		// and reimplement this
@@ -321,8 +324,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::string name = params.at(0).value.string;
 		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
@@ -346,8 +349,8 @@ public:
 		)
 	{
 	}
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::string string = params.at(0).value.string;
 		IE::point where = params.at(1).value.point;
 		int duration = params.at(2).value.integer;
@@ -370,8 +373,8 @@ public:
 	ExitCommand()
 		: ShellCommand("Exit")
 	{
-	};
-	virtual void operator()(const char* argv, int argc) {
+	}
+	virtual void operator()(const char* argv) {
 		SDL_Event event;
 		event.type = SDL_QUIT;
 		SDL_PushEvent(&event);
@@ -390,9 +393,9 @@ public:
 			}
 		)
 	{
-	};
-	virtual void operator()(const char* argv, int argc) {
-		const ShellCommandParameters params = ParseParameters(argv, argc);
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
 		std::string creatureName = params.at(0).value.string;
 		uint16 enemyAlly = params.at(1).value.integer;
 

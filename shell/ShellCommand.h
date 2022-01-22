@@ -39,10 +39,10 @@ public:
 
 	std::string Command() const;
 
-	virtual void operator()(const char* argv, int argc) = 0;
+	virtual void operator()(const char* argv) = 0;
 
 protected:
-	const ShellCommandParameters& ParseParameters(const char* argv, int argc);
+	const ShellCommandParameters& ParseParameters(const char* argv);
 
 private:
 	std::string fCommand;

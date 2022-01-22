@@ -116,7 +116,7 @@ InputConsole::_ExecuteCommand(const std::string& line)
 		std::cout << "Command: " << line << std::endl;
 		ShellCommand* shellCommand = _FindCommand(command);
 		if (shellCommand != NULL)
-			(*shellCommand)(args.c_str(), 1);
+			(*shellCommand)(args.c_str());
 		else {
 			std::cout << "Invalid Command!" << std::endl;
 			ShowHelp();
