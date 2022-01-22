@@ -33,7 +33,7 @@ public:
 
 	std::string LongName() const;
 
-	void Print() const;
+	virtual void Print() const;
 
 	CREResource *CRE() const;
 

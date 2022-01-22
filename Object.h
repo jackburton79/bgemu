@@ -81,7 +81,7 @@ public:
 
 	Object(const char* name, object_type objectType, const char* scriptName = NULL);
 
-	void Print() const;
+	virtual void Print() const;
 
 	const char* Name() const;
 	void SetName(const char* name);

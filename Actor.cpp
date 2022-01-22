@@ -222,6 +222,7 @@ Actor::~Actor()
 }
 
 
+/* virtual */
 void
 Actor::Print() const
 {

@@ -136,6 +136,7 @@ Object::~Object()
 }
 
 
+/* virtual */
 void
 Object::Print() const
 {
@@ -347,6 +348,7 @@ Object::ExecuteActions()
 		if (--fWaitTime)
 			return;
 	}
+	
 #if 0
 	if (fActions.size() > 0) {
 		std::cout << Name() << " action list:" << std::endl;
@@ -658,7 +660,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 		bool continuing = false;
 		bool actionDone = false;
 		for (int32 i = 0; i < maxLevel; i++) {
-#if 1
+#if 0
 			std::cout << "*** "<< Name() << ": script " << i << " ***" << std::endl;
 #endif
 			if (fScripts.at(i) == NULL)
