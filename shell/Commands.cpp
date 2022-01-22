@@ -28,7 +28,10 @@
 
 class ListObjectsCommand : public ShellCommand {
 public:
-	ListObjectsCommand() : ShellCommand("List-Objects") {}
+	ListObjectsCommand()
+		: ShellCommand("List-Objects")
+	{
+	}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		ActorsList objects;
@@ -55,7 +58,7 @@ public:
 			}
 		)
 	{
-	};
+	}
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
@@ -72,7 +75,10 @@ public:
 
 class ListResourcesCommand : public ShellCommand {
 public:
-	ListResourcesCommand() : ShellCommand("List-Resources") {};
+	ListResourcesCommand()
+		: ShellCommand("List-Resources")
+	{
+	}
 	virtual ~ListResourcesCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		StringList stringList;
@@ -95,7 +101,7 @@ public:
 			}
 		)
 	{
-	};
+	}
 	virtual ~WaitTimeCommand() {};
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
@@ -108,7 +114,10 @@ public:
 
 class PrintVariablesCommand : public ShellCommand {
 public:
-	PrintVariablesCommand() : ShellCommand("Print-Variables") {};
+	PrintVariablesCommand()
+		: ShellCommand("Print-Variables")
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
 		Core::Get()->Vars().PrintAll();
 	}
@@ -125,7 +134,7 @@ public:
 			}
 		)
 	{
-	};
+	}
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
 		uint16 windowID = params.at(0).value.integer;
@@ -165,7 +174,7 @@ public:
 			}
 		)
 	{
-	};
+	}
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
 		IE::point where = params.at(0).value.point;
@@ -184,13 +193,22 @@ public:
 
 class ShakeScreenCommand : public ShellCommand {
 public:
-	ShakeScreenCommand() : ShellCommand("Shake-Screen") {};
+	ShakeScreenCommand()
+		: ShellCommand(
+			"Shake-Screen",
+			{
+				{ PARAMETER_POINT, },
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
+		const ShellCommandParameters params = ParseParameters(argv, argc);
 		std::istringstream stringStream(argv);
-		IE::point where;
-		int duration;
-		char o;
-		stringStream >> where.x >> o >> where.y >> o >> duration;
+		IE::point where = params.at(0).value.point;
+		int duration = params.at(1).value.integer;
+
 		action_params* actionParams = new action_params;
 		actionParams->integer1 = duration;
 		actionParams->where = where;
@@ -204,23 +222,29 @@ public:
 
 class CreateVisualEffectCommand : public ShellCommand {
 public:
-	CreateVisualEffectCommand() : ShellCommand("Create-VisualEffect") {};
+	CreateVisualEffectCommand()
+		: ShellCommand(
+			"Create-VisualEffect",
+			{
+				{ PARAMETER_STRING, },
+				{ PARAMETER_POINT, }
+			}
+		)
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		std::string effectName;
-		IE::point where;
-		std::getline(stringStream, effectName, ',');
-		char o;
-		if (!(stringStream >> where.x >> o >> where.y).fail()) {
-			action_params* actionParams = new action_params;
-			strcpy(actionParams->string1, effectName.c_str());
-			actionParams->where = where;
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		std::string effectName = params.at(0).value.string;
+		IE::point where = params.at(0).value.point;
 
-			RoomBase* room = Core::Get()->CurrentRoom();
-			Action* action = new ActionCreateVisualEffect(room, actionParams);
-			room->AddAction(action);
-			actionParams->Release();
-		}
+		action_params* actionParams = new action_params;
+		strcpy(actionParams->string1, effectName.c_str());
+		actionParams->where = where;
+
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionCreateVisualEffect(room, actionParams);
+		room->AddAction(action);
+		actionParams->Release();
 	}
 };
 
@@ -229,13 +253,14 @@ class CreateCreatureCommand : public ShellCommand {
 public:
 	CreateCreatureCommand()
 		: ShellCommand(
-				"Create-Creature",
-				{
-						{ PARAMETER_STRING, },
-						{ PARAMETER_POINT, }
-				}
+			"Create-Creature",
+			{
+				{ PARAMETER_STRING, },
+				{ PARAMETER_POINT, }
+			}
 		)
-	{};
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
 
@@ -254,12 +279,13 @@ class DestroyCreatureCommand : public ShellCommand {
 public:
 	DestroyCreatureCommand()
 		: ShellCommand(
-				"Destroy-Creature",
-				{
-				   { PARAMETER_STRING, }
-				}
+			"Destroy-Creature",
+			{
+			   { PARAMETER_STRING, }
+			}
 		)
-	{};
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
 		Object* object = NULL;
@@ -288,13 +314,13 @@ class DisableCreatureCommand : public ShellCommand {
 public:
 	DisableCreatureCommand()
 		: ShellCommand(
-				"Disable-Creature",
-				{
-				   { PARAMETER_STRING, }
-				}
+			"Disable-Creature",
+			{
+			   { PARAMETER_STRING, }
+			}
 		)
 	{
-	};
+	}
 	virtual void operator()(const char* argv, int argc) {
 		const ShellCommandParameters params = ParseParameters(argv, argc);
 		std::string name = params.at(0).value.string;
@@ -308,26 +334,43 @@ public:
 };
 
 
-#if 0
 class DisplayStringCommand : public ShellCommand {
 public:
-	DisplayStringCommand() : ShellCommand("Display-String") {};
+	DisplayStringCommand()
+		: ShellCommand("Display-String",
+			{
+				{ PARAMETER_STRING, },
+				{ PARAMETER_POINT, },
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	}
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		std::string string;
-		IE::point where;
-		char o;
-		int duration;
-		stringStream >> string >> o >> where.x >> o >> where.y >> o >> duration;
-		Action* action = new DisplayString(NULL, string.c_str(), where, duration);
-		Core::Get()->AddGlobalAction(action);
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		std::string string = params.at(0).value.string;
+		IE::point where = params.at(1).value.point;
+		int duration = params.at(2).value.integer;
+
+		action_params* actionParams = new action_params;
+		RoomBase* room = Core::Get()->CurrentRoom();
+
+		actionParams->integer1 = duration;
+		actionParams->where = where;
+
+		// TODO: ActionDisplayString needs an int, not a string
+		Action* action = new ActionDisplayString(room, actionParams);
+		room->AddAction(action);
 	}
 };
 
-#endif
+
 class ExitCommand : public ShellCommand {
 public:
-	ExitCommand() : ShellCommand("Exit") {};
+	ExitCommand()
+		: ShellCommand("Exit")
+	{
+	};
 	virtual void operator()(const char* argv, int argc) {
 		SDL_Event event;
 		event.type = SDL_QUIT;
@@ -340,11 +383,11 @@ class SetEnemyAllyCommand : public ShellCommand {
 public:
 	SetEnemyAllyCommand()
 		: ShellCommand(
-				"Set-EnemyAlly",
-				{
-				   { PARAMETER_STRING, },
-				   { PARAMETER_INT, }
-				}
+			"Set-EnemyAlly",
+			{
+			   { PARAMETER_STRING, },
+			   { PARAMETER_INT, }
+			}
 		)
 	{
 	};
