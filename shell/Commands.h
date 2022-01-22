@@ -8,7 +8,7 @@
 #ifndef COMMANDS_H_
 #define COMMANDS_H_
 
-class InputConsole;
-extern void AddCommands(InputConsole* console);
+class GameConsole;
+extern void AddCommands(GameConsole* console);
 
 #endif /* COMMAND_H_ */

@@ -100,11 +100,11 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			screenRect.w,
 			screenRect.h);
 
-	InputConsole* inputConsole = NULL;
+	GameConsole* inputConsole = NULL;
 #if 1
 	std::cout << "Setting up console... ";
 	std::flush(std::cout);
-	inputConsole = new InputConsole(consoleRect, true);
+	inputConsole = new GameConsole(consoleRect, true);
 	std::cout << "OK!" << std::endl;
 #endif
 	if (inputConsole != NULL)

@@ -1,5 +1,5 @@
 /*
- * InputConsole.cpp
+ * GameConsole.cpp
  *
  *  Created on: 13/ott/2012
  *      Author: stefano
@@ -21,7 +21,7 @@ struct CommandSorter {
 };
 
 
-InputConsole::InputConsole(const GFX::rect& rect, bool redirect)
+GameConsole::GameConsole(const GFX::rect& rect, bool redirect)
 	:
 	Console(rect),
 	fOldBuf(NULL),
@@ -35,7 +35,7 @@ InputConsole::InputConsole(const GFX::rect& rect, bool redirect)
 }
 
 
-InputConsole::~InputConsole()
+GameConsole::~GameConsole()
 {
 	fQuit = true;
 	SDL_WaitThread(fThread, NULL);
@@ -52,14 +52,14 @@ InputConsole::~InputConsole()
 
 
 void
-InputConsole::Initialize()
+GameConsole::Initialize()
 {
 	AddCommands(this);
 }
 
 
 void
-InputConsole::ShowHelp()
+GameConsole::ShowHelp()
 {
 	std::list<ShellCommand*>::iterator i;
 	CommandSorter sorter;
@@ -73,14 +73,14 @@ InputConsole::ShowHelp()
 
 
 void
-InputConsole::AddCommand(ShellCommand* command)
+GameConsole::AddCommand(ShellCommand* command)
 {
 	fCommands.push_back(command);
 }
 
 
 void
-InputConsole::HandleInput(uint8 c)
+GameConsole::HandleInput(uint8 c)
 {
 	switch (c) {
 		case SDLK_RETURN:
@@ -112,7 +112,7 @@ InputConsole::HandleInput(uint8 c)
 
 
 void
-InputConsole::Update()
+GameConsole::Update()
 {
 	// Write stdout to console
 	Puts(fOutputBuffer.str().c_str());
@@ -122,9 +122,9 @@ InputConsole::Update()
 
 /* static */
 int
-InputConsole::_UpdateFunction(void *arg)
+GameConsole::_UpdateFunction(void *arg)
 {
-	InputConsole* console = reinterpret_cast<InputConsole*>(arg);
+	GameConsole* console = reinterpret_cast<GameConsole*>(arg);
 	while (!console->fQuit) {
 		if (SDL_LockMutex(console->fLock) == 0) {
 			console->Update();
@@ -138,28 +138,28 @@ InputConsole::_UpdateFunction(void *arg)
 
 
 bool
-InputConsole::HasOutputRedirected() const
+GameConsole::HasOutputRedirected() const
 {
 	return fOutputRedirected;
 }
 
 
 void
-InputConsole::EnableRedirect()
+GameConsole::EnableRedirect()
 {
 	_EnableOutputRedirect();
 }
 
 
 void
-InputConsole::DisableRedirect()
+GameConsole::DisableRedirect()
 {
 	_DisableOutputRedirect();
 }
 
 
 void
-InputConsole::_ExecuteCommand(const std::string& line)
+GameConsole::_ExecuteCommand(const std::string& line)
 {
 	std::string command;
 	std::istringstream cmdStream(line);
@@ -190,7 +190,7 @@ InputConsole::_ExecuteCommand(const std::string& line)
 
 
 void
-InputConsole::_EnableOutputRedirect()
+GameConsole::_EnableOutputRedirect()
 {
 	fOldBuf = std::cout.rdbuf();
 	std::cout.rdbuf(fOutputBuffer.rdbuf());
@@ -199,7 +199,7 @@ InputConsole::_EnableOutputRedirect()
 
 
 void
-InputConsole::_DisableOutputRedirect()
+GameConsole::_DisableOutputRedirect()
 {
 	if (fOutputRedirected) {
 		std::cout.rdbuf(fOldBuf);
@@ -209,7 +209,7 @@ InputConsole::_DisableOutputRedirect()
 
 
 ShellCommand*
-InputConsole::_FindCommand(const std::string& cmd)
+GameConsole::_FindCommand(const std::string& cmd)
 {
 	std::list<ShellCommand*>::iterator i;
 	for (i = fCommands.begin();
@@ -224,7 +224,7 @@ InputConsole::_FindCommand(const std::string& cmd)
 
 
 std::string
-InputConsole::_FindCompleteCommand(const std::string& partialCommand) const
+GameConsole::_FindCompleteCommand(const std::string& partialCommand) const
 {
 	// TODO: Returns only the first matching command
 	std::list<ShellCommand*>::const_iterator i;

@@ -12,8 +12,8 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Game.h"
+#include "GameConsole.h"
 #include "GUI.h"
-#include "InputConsole.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
@@ -414,7 +414,7 @@ public:
 
 
 void
-AddCommands(InputConsole* console)
+AddCommands(GameConsole* console)
 {
 	console->AddCommand(new CreateCreatureCommand());
 	console->AddCommand(new CreateVisualEffectCommand());

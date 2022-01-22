@@ -1,12 +1,12 @@
 /*
- * InputConsole.h
+ * GameConsole.h
  *
  *  Created on: 13/ott/2012
  *      Author: stefano
  */
 
-#ifndef INPUTCONSOLE_H_
-#define INPUTCONSOLE_H_
+#ifndef GAMECONSOLE_H_
+#define GAMECONSOLE_H_
 
 #include "Console.h"
 
@@ -14,10 +14,10 @@
 #include <string>
 
 class ShellCommand;
-class InputConsole: public Console {
+class GameConsole: public Console {
 public:
-	InputConsole(const GFX::rect& rect, bool outputRedirect);
-	~InputConsole();
+	GameConsole(const GFX::rect& rect, bool outputRedirect);
+	~GameConsole();
 
 	void Initialize();
 	void AddCommand(ShellCommand* command);
@@ -50,4 +50,4 @@ private:
 	std::list<ShellCommand*> fCommands;
 };
 
-#endif /* INPUTCONSOLE_H_ */
+#endif /* GAMECONSOLE_H_ */
