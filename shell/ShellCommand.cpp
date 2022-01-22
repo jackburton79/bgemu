@@ -38,14 +38,7 @@ ShellCommand::Command() const
 }
 
 
-ShellCommandParameters&
-ShellCommand::Parameters()
-{
-	return fParameters;
-}
-
-
-void
+const ShellCommandParameters&
 ShellCommand::ParseParameters(const char* argv, int argc)
 {
 	// TODO: seems argc is always 1
@@ -73,4 +66,6 @@ ShellCommand::ParseParameters(const char* argv, int argc)
 				break;
 		}
 	}
+	
+	return fParameters;
 }

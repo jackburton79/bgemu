@@ -42,8 +42,7 @@ public:
 	virtual void operator()(const char* argv, int argc) = 0;
 
 protected:
-	void ParseParameters(const char* argv, int argc);
-	ShellCommandParameters& Parameters();
+	const ShellCommandParameters& ParseParameters(const char* argv, int argc);
 
 private:
 	std::string fCommand;

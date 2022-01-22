@@ -58,8 +58,8 @@ public:
 	};
 	virtual ~PrintObjectCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		ParseParameters(argv, argc);
-		std::string name = Parameters().at(0).value.string;
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		std::string name = params.at(0).value.string;
 		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL)
@@ -98,8 +98,8 @@ public:
 	};
 	virtual ~WaitTimeCommand() {};
 	virtual void operator()(const char* argv, int argc) {
-		ParseParameters(argv, argc);
-		uint16 hours = Parameters().at(0).value.integer;
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		uint16 hours = params.at(0).value.integer;
 		GameTimer::AdvanceTime(hours * 60 * 60);
 		GameTimer::PrintTime();
 	}
@@ -127,8 +127,8 @@ public:
 	{
 	};
 	virtual void operator()(const char* argv, int argc) {
-		ParseParameters(argv, argc);
-		uint16 windowID = Parameters().at(0).value.integer;
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		uint16 windowID = params.at(0).value.integer;
 		GUI::Get()->ToggleWindow(windowID);
 	}
 };
@@ -156,21 +156,28 @@ public:
 
 class MoveViewPointCommand : public ShellCommand {
 public:
-	MoveViewPointCommand() : ShellCommand("Move-ViewPoint") {};
+	MoveViewPointCommand()
+		: ShellCommand(
+			"Move-ViewPoint",
+			{
+				{ PARAMETER_POINT, },
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	};
 	virtual void operator()(const char* argv, int argc) {
-		std::istringstream stringStream(argv);
-		IE::point where;
-		int speed;
-		char o;
-		if (!(stringStream >> where.x >> o >> where.y >> o >> speed).fail()) {
-			action_params* actionParams = new action_params;
-			actionParams->integer1 = speed;
-			actionParams->where = where;
-			RoomBase* room = Core::Get()->CurrentRoom();
-			Action* action = new ActionMoveViewPoint(room, actionParams);
-			room->AddAction(action);
-			actionParams->Release();
-		}
+		const ShellCommandParameters params = ParseParameters(argv, argc);
+		IE::point where = params.at(0).value.point;
+		int speed = params.at(1).value.integer;
+
+		action_params* actionParams = new action_params;
+		actionParams->integer1 = speed;
+		actionParams->where = where;
+		RoomBase* room = Core::Get()->CurrentRoom();
+		Action* action = new ActionMoveViewPoint(room, actionParams);
+		room->AddAction(action);
+		actionParams->Release();
 	}
 };
 
@@ -230,11 +237,11 @@ public:
 		)
 	{};
 	virtual void operator()(const char* argv, int argc) {
-		ParseParameters(argv, argc);
+		const ShellCommandParameters params = ParseParameters(argv, argc);
 
 		action_params* actionParams = new action_params;
-		strcpy(actionParams->string1, Parameters().at(0).value.string);
-		actionParams->where = Parameters().at(1).value.point;
+		strcpy(actionParams->string1, params.at(0).value.string);
+		actionParams->where = params.at(1).value.point;
 		RoomBase* room = Core::Get()->CurrentRoom();
 		Action* action = new ActionCreateCreature(room, actionParams);
 		room->AddAction(action);
@@ -254,13 +261,13 @@ public:
 		)
 	{};
 	virtual void operator()(const char* argv, int argc) {
-		ParseParameters(argv, argc);
+		const ShellCommandParameters params = ParseParameters(argv, argc);
 		Object* object = NULL;
 		// TODO: Use PARAMETER_STRING_OR_INTEGER
 		// and reimplement this
 		// If an id was passed, use it.
 		// otherwise use the passed string (the creature name)
-		std::string name = Parameters().at(0).value.string;
+		std::string name = params.at(0).value.string;
 		object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
 
 		if (object != NULL) {
