@@ -86,7 +86,6 @@ GameConsole::HandleInput(uint8 c)
 		case SDLK_RETURN:
 			_ExecuteCommand(fBuffer);
 			fBuffer = "";
-			//ClearScreen();
 			break;
 		case SDLK_BACKSPACE:
 			if (fBuffer.length() > 0)
