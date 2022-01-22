@@ -850,6 +850,12 @@ Actor::CanSee(Object* target)
 void
 Actor::Update(bool scripts)
 {
+	if (IsActionListEmpty() && IsWalking()) {
+		SetAnimationAction(ACT_WALKING);
+		MoveToNextPointInPath(false);
+		SetWaitTime(1);
+	}
+
 	Object::Update(scripts);
 	UpdateTileCell();
 	UpdateAnimation(IsFlying());
