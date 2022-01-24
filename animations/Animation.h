@@ -50,7 +50,7 @@ private:
 	IE::point fCenter;
 	int16 fCurrentFrame;
 	uint16 fStartFrame;
-	uint16 fMaxFrame;
+	uint16 fLastFrame;
 	bool fHold;
 	bool fBlackAsTransparent;
 	bool fMirrored;

@@ -17,7 +17,7 @@ Animation::Animation(IE::animation *animDesc)
 	fAnimation(animDesc),
 	fCurrentFrame(0),
 	fStartFrame(0),
-	fMaxFrame(0)
+	fLastFrame(0)
 {
 	fName.append(animDesc->bam_name.name, sizeof(animDesc->bam_name.name));
 	BAMResource* bam = gResManager->GetBAM(fName.c_str());
@@ -27,11 +27,11 @@ Animation::Animation(IE::animation *animDesc)
 	
 	//animDesc->Print();
 	fCenter = animDesc->center;
-	fMaxFrame = bam->CountFrames(animDesc->sequence);
+	fLastFrame = bam->CountFrames(animDesc->sequence);
 	if (animDesc->flags & IE::ANIM_STOP_AT_FRAME)
-		fMaxFrame = animDesc->frame;
+		fLastFrame = animDesc->frame;
 	if (animDesc->flags & IE::ANIM_RANDOM_START_FRAME)
-		fStartFrame = Core::RandomNumber(0, fMaxFrame);
+		fStartFrame = Core::RandomNumber(0, fLastFrame);
 	fCurrentFrame = fStartFrame;
 	
 	fBlackAsTransparent = animDesc->flags & IE::ANIM_SHADED;
@@ -50,7 +50,7 @@ Animation::Animation(const char* bamName,
 	fAnimation(NULL),
 	fCurrentFrame(0),
 	fStartFrame(0),
-	fMaxFrame(0),
+	fLastFrame(0),
 	fBlackAsTransparent(false),
 	fMirrored(mirror),
 	fName(bamName)
@@ -67,7 +67,7 @@ Animation::Animation(const char* bamName,
 	}
 	fCenter = position;
 	fCurrentFrame = 0;
-	fMaxFrame = bam->CountFrames(sequence);
+	fLastFrame = bam->CountFrames(sequence);
 
 	_LoadBitmaps(bam, sequence, colors);
 
@@ -133,7 +133,7 @@ void
 Animation::NextFrame()
 {
 	fCurrentFrame++;
-	if (fCurrentFrame == fMaxFrame)
+	if (fCurrentFrame == fLastFrame)
 		fCurrentFrame = fStartFrame;
 }
 
@@ -141,7 +141,7 @@ Animation::NextFrame()
 bool
 Animation::IsLastFrame() const
 {
-	return fCurrentFrame == fMaxFrame - 1;
+	return fCurrentFrame == fLastFrame - 1;
 }
 
 
@@ -155,7 +155,7 @@ Animation::Position() const
 void
 Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors)
 {
-	for (int16 i = 0; i < fMaxFrame; i++) {
+	for (uint16 i = 0; i < fLastFrame; i++) {
 		::Bitmap* bitmap = bam->FrameForCycle(sequence, i);
 		
 		if (patchColors != NULL)
