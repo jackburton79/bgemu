@@ -188,7 +188,7 @@ GUI::Draw()
 
 	if (fCurrentCursor != NULL) {
 		try {
-			const Bitmap* nextFrame = fCurrentCursor->NextBitmap();
+			const Bitmap* nextFrame = fCurrentCursor->Bitmap();
 			GFX::rect rect(fCursorPosition.x, fCursorPosition.y, 0, 0);
 			GraphicsEngine::Get()->BlitToScreen(nextFrame, NULL, &rect);
 		} catch (std::exception& e) {

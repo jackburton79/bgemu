@@ -35,7 +35,6 @@ public:
 
 	const ::Bitmap* Bitmap();
 	void NextFrame();
-	const ::Bitmap* NextBitmap();
 
 	bool IsLastFrame() const;
 

@@ -133,16 +133,8 @@ void
 Animation::NextFrame()
 {
 	fCurrentFrame++;
-	if (fCurrentFrame >= fMaxFrame)
+	if (fCurrentFrame == fMaxFrame)
 		fCurrentFrame = fStartFrame;
-}
-
-
-const ::Bitmap*
-Animation::NextBitmap()
-{
-	NextFrame();
-	return Animation::Bitmap();
 }
 
 
