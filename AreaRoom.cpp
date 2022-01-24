@@ -902,9 +902,9 @@ AreaRoom::_DrawAnimations(bool advanceFrame)
 		try {
 			Animation* animation = *i;
 			if (animation->IsShown()) {
+				const Bitmap* frame = animation->Bitmap();
 				if (advanceFrame)
 					animation->NextFrame();
-				const Bitmap* frame = animation->Bitmap();
 				DrawBitmap(frame, animation->Position(), false);
 			}
 		} catch (std::exception& e) {
