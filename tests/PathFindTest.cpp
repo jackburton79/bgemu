@@ -127,8 +127,11 @@ static bool
 NewPath(PathFinder& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
-	p.SetPoints(start, end);
-
+	try {
+		p.SetPoints(start, end);
+	} catch (...) {
+		// not found
+	}
 	clock_t elapsed = (clock() - startTime) / 1000;
 	if (p.IsEmpty())
 		std::cout << "Path not found (" << elapsed << "ms)" << std::endl;
