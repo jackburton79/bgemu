@@ -10,31 +10,20 @@
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
 
-struct point_node {
-	point_node(IE::point p, const point_node* parentNode, int nodeCost)
-		:
-		point(p),
-		parent(parentNode),
-		cost(nodeCost),
-		cost_to_goal(UINT_MAX)
-	{
-	};
-	const IE::point point;
-	const struct point_node* parent;
-	uint32 cost;
-	uint32 cost_to_goal;
-};
+
+struct point_node;
 
 typedef std::list<point_node*> ClosedNodeList;
 typedef std::list<point_node*> OpenNodeList;
 typedef std::list<IE::point> PointList;
 
-struct point_node;
 class PathFinder {
 public:
 	const static int kStep = 5;
 
 	PathFinder(int step = kStep, test_function func = IsPassableDefault);
+	~PathFinder();
+
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
 
 	IE::point NextWayPoint();
@@ -52,7 +41,7 @@ public:
 
 private:
 	int fStep;
-	PointList fPoints;
+	PointList* fPoints;
 	OpenNodeList* fOpenNodeList;
 	ClosedNodeList* fClosedNodeList;
 	test_function fTestFunction;
