@@ -163,8 +163,8 @@ bool
 PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 {
 	delete fPoints;
-	fPoints = new PointList;
-	
+	fPoints = NULL;
+
 	if (!_IsPassable(end))
 		return false;
 
@@ -172,6 +172,7 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	if (IsCloseEnough(maxReachableDirectly, end))
 		return true;
 
+	fPoints = new PointList;
 	fClosedNodeList = new ClosedNodeList();
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -201,6 +202,8 @@ PathFinder::_GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found) {
 		// TODO: failed to create path: destination is unreachable.
 		EmptyClosedList(fClosedNodeList);
+		delete fPoints;
+		fPoints = NULL;
 		return false;
 	}
 
