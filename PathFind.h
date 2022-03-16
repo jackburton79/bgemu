@@ -4,7 +4,9 @@
 #include "IETypes.h"
 
 #include <climits>
+#include <deque>
 #include <list>
+#include <queue>
 #include <map>
 
 typedef bool(*test_function)(const IE::point& start);
@@ -13,9 +15,8 @@ typedef void(*debug_function)(const IE::point& pt);
 
 struct point_node;
 
-typedef std::list<point_node*> ClosedNodeList;
-typedef std::list<point_node*> OpenNodeList;
-typedef std::list<IE::point> PointList;
+typedef std::deque<point_node*> ClosedNodeList;
+typedef std::deque<IE::point> PointList;
 
 class PathFinder {
 public:
@@ -42,7 +43,6 @@ public:
 private:
 	int fStep;
 	PointList* fPoints;
-	OpenNodeList* fOpenNodeList;
 	ClosedNodeList* fClosedNodeList;
 	test_function fTestFunction;
 
