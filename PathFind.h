@@ -37,7 +37,7 @@ public:
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
 
-	bool IsCloseEnough(const IE::point& point, const IE::point& goal);
+	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
 private:
@@ -59,7 +59,7 @@ private:
 			const IE::point& goal);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
-	point_node* _GetCheapestNode();
+	point_node* _GetCheapestNode() const;
 	void _ReconstructPath(point_node* goal);
 
 	IE::point _CreateDirectPath(const IE::point&, const IE::point& point);

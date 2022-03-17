@@ -135,7 +135,7 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 
 
 bool
-PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal)
+PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal) const
 {
 #if 0
 	return pointA == pointB;
@@ -349,7 +349,7 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 
 
 point_node*
-PathFinder::_GetCheapestNode()
+PathFinder::_GetCheapestNode() const
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
