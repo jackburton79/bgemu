@@ -17,7 +17,7 @@ Bitmap* gBitmap;
 
 const int16 gNumRowsMap = 600;
 const int16 gNumColumnsMap = 600;
-const int kBlockSize = 20;
+const int kBlockSize = 10;
 
 uint32 gRed;
 uint32 gGreen;

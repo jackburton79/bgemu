@@ -43,7 +43,6 @@ public:
 private:
 	int fStep;
 	PointList* fPoints;
-	ClosedNodeList* fClosedNodeList;
 	test_function fTestFunction;
 
 	debug_function fDebugFunction;
@@ -53,11 +52,9 @@ private:
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
-			const point_node& node,
+			point_node& node,
 			const IE::point& goal);
-	void _AddNeighbors(const point_node& node,
-			const IE::point& goal);
-	void _UpdateNodeCost(point_node* node, const point_node& current,
+	void _UpdateNodeCost(point_node* node, point_node& current,
 			const IE::point& goal) const;
 	point_node* _GetCheapestNode() const;
 	void _ReconstructPath(point_node* goal);
