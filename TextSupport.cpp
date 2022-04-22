@@ -218,23 +218,21 @@ Font::_GetContainerRect(uint16 width, uint16 height,
 						 const GFX::rect* destRect,
 						 const GFX::point* destPoint) const
 {
-	GFX::rect rect;
-	rect.w = width;
-	rect.h = height;
+	GFX::rect containerRect = { 0, 0, width, height };
 
 	if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
-			rect.x = (destRect->w - width) / 2;
+			containerRect.x = (destRect->w - width) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-			rect.x = destRect->w - width;
-		rect.x += destRect->x;
-		rect.y += destRect->y;
+			containerRect.x = destRect->w - width;
+		containerRect.x += destRect->x;
+		containerRect.y += destRect->y;
 	} else if (destPoint != NULL) {
-		rect.x = destPoint->x;
-		rect.y = destPoint->y;
+		containerRect.x = destPoint->x;
+		containerRect.y = destPoint->y;
 	}
 
-	return rect;
+	return containerRect;
 }
 
 
