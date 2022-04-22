@@ -24,29 +24,6 @@ cycle_num_for_char(int c)
 }
 
 
-enum char_classification {
-	CHAR_IS_NORMAL = 0,
-	CHAR_IS_TOP,
-	CHAR_IS_BOTTOM
-};
-
-
-static uint32
-get_char_classification(int c)
-{
-	switch (c) {
-		case ',':
-		case '.':
-			return CHAR_IS_BOTTOM;
-		case '"':
-		case '\'':
-			return CHAR_IS_TOP;
-	}
-
-	return CHAR_IS_NORMAL;
-}
-
-
 Font::Font(const std::string& fontName)
 	:
 	fName(fontName),
@@ -242,6 +219,8 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 {
 	const Bitmap* bitmap = glyph.bitmap;
 
+	sint16 ascent = bitmap->Frame().y;
+
 	rect.w = bitmap->Frame().w;
 	rect.h = bitmap->Frame().h;
 
@@ -254,13 +233,9 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 		rect.y = (containerRect.h - bitmap->Height()) / 2;
 	}
 
-	// TODO: improve
-	uint32 charClassification = get_char_classification(glyph.char_code);
-	if (charClassification == CHAR_IS_TOP)
-		rect.y = 0;
-	else if (charClassification == CHAR_IS_BOTTOM)
-		rect.y = containerRect.h - bitmap->Height();
-
+	// TODO: Fix
+	rect.y = containerRect.y + containerRect.h - 1;
+	rect.y -= ascent;
 	rect.y += containerRect.y;
 }
 
