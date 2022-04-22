@@ -82,9 +82,8 @@ private:
 								 uint32 flags,
 								 const GFX::rect* destRect,
 								 const GFX::point* destPoint) const;
-	void _AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
-							   const GFX::rect& containerRect,
-							   const Glyph glyph) const;
+	GFX::rect _CalcGlyphRect(const Glyph& glyph, uint32 flags,
+							   const GFX::rect& containerRect) const;
 
 	std::string fName;
 

@@ -213,31 +213,28 @@ Font::_GetContainerRect(uint16 width, uint16 height,
 }
 
 
-void
-Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
-							const GFX::rect& containerRect, const Glyph glyph) const
+GFX::rect
+Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
+							   const GFX::rect& containerRect) const
 {
-	const Bitmap* bitmap = glyph.bitmap;
+	sint16 ascent = glyph.bitmap->Frame().y;
+	GFX::rect rect;
+	rect.x = containerRect.x;
+	rect.w = glyph.bitmap->Width();
+	rect.h = glyph.bitmap->Height();
 
-	sint16 ascent = bitmap->Frame().y;
-
-	rect.w = bitmap->Frame().w;
-	rect.h = bitmap->Frame().h;
-
-	/*if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-		rect.y = containerRect.h - bitmap->Height();
+#if 0
+	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+		rect.y = containerRect.h - rect.h;
 	else if (flags & IE::LABEL_JUSTIFY_TOP)
 		rect.y = 0;
-	else */{
+	else {
 		// center
-		//rect.y = (containerRect.h - bitmap->Height()) / 2;
+		rect.y = (containerRect.h - rect.h) / 2;
 	}
-
-	// TODO: Fix
-	std::cout << ascent << std::endl;
-	//rect.y = containerRect.y + containerRect.h - 1;
-	rect.y = containerRect.h;
-	rect.y -= ascent;
+#endif
+	rect.y = containerRect.h - ascent;
+	return rect;
 }
 
 
@@ -273,16 +270,16 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// Render glyphs
 	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
 												 flags, destRect, destPoint);
-	GFX::rect rect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {
 		const Glyph glyph = (*i);
 
-		_AdjustGlyphAlignment(rect, flags, containerRect, glyph);
-		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &rect);
+		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, containerRect);
+		//_AdjustGlyphAlignment(glyphRect, flags, containerRect, glyph);
+		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
 
 		// Advance cursor
-		rect.x += glyph.bitmap->Frame().w;
+		containerRect.x += glyph.bitmap->Frame().w;
 	}
 
 	if (flags & TEXT_SELECTED)
