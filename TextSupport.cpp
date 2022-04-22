@@ -224,19 +224,20 @@ Font::_AdjustGlyphAlignment(GFX::rect& rect, uint32 flags,
 	rect.w = bitmap->Frame().w;
 	rect.h = bitmap->Frame().h;
 
-	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+	/*if (flags & IE::LABEL_JUSTIFY_BOTTOM)
 		rect.y = containerRect.h - bitmap->Height();
 	else if (flags & IE::LABEL_JUSTIFY_TOP)
 		rect.y = 0;
-	else {
+	else */{
 		// center
-		rect.y = (containerRect.h - bitmap->Height()) / 2;
+		//rect.y = (containerRect.h - bitmap->Height()) / 2;
 	}
 
 	// TODO: Fix
-	rect.y = containerRect.y + containerRect.h - 1;
+	std::cout << ascent << std::endl;
+	//rect.y = containerRect.y + containerRect.h - 1;
+	rect.y = containerRect.h;
 	rect.y -= ascent;
-	rect.y += containerRect.y;
 }
 
 
