@@ -13,6 +13,9 @@
 const int kMovementCost = 2;
 const int kDiagMovementCost = 3;
 
+uint32 PathFinder::sPrecision = 15;
+
+
 struct point_node {
 	point_node(IE::point p, const point_node* parentNode, int nodeCost)
 		:
@@ -47,8 +50,7 @@ Distance(const IE::point& start, const IE::point& end)
 {
 #if 1
 	// Manhattan method
-	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
-		std::abs(end.y - start.y)));
+	uint32 distance = start - end;
 #else
 	// Movement distance
 	uint32 distance = (uint32)std::max((std::abs(end.x - start.x)),
@@ -74,6 +76,14 @@ PathFinder::~PathFinder()
 {
 	delete fPoints;
 	delete fClosedNodeList;
+}
+
+
+/* static */
+void
+PathFinder::SetPrecision(uint32 precision)
+{
+	sPrecision = precision;
 }
 
 
@@ -141,8 +151,8 @@ PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal) const
 	return pointA == pointB;
 #else
 
-	return (std::abs(point.x - goal.x) <= fStep)
-		&& (std::abs(point.y - goal.y) <= fStep);
+	return (std::abs(point.x - goal.x) <= sPrecision)
+		&& (std::abs(point.y - goal.y) <= sPrecision);
 #endif
 }
 
@@ -320,14 +330,14 @@ PathFinder::_AddNeighbors(const point_node& node,
 		const IE::point& goal)
 {
 	const IE::point pointArray[] = {
-			offset_point(node.point, -fStep, -fStep),
-			offset_point(node.point, -fStep, 0),
-			offset_point(node.point, -fStep, +fStep),
-			offset_point(node.point, 0, -fStep),
-			offset_point(node.point, 0, +fStep),
-			offset_point(node.point, +fStep, -fStep),
-			offset_point(node.point, +fStep, 0),
-			offset_point(node.point, +fStep, +fStep)
+			offset_point(node.point, -sPrecision, -sPrecision),
+			offset_point(node.point, -sPrecision, 0),
+			offset_point(node.point, -sPrecision, +sPrecision),
+			offset_point(node.point, 0, -sPrecision),
+			offset_point(node.point, 0, +sPrecision),
+			offset_point(node.point, +sPrecision, -fStep),
+			offset_point(node.point, +sPrecision, 0),
+			offset_point(node.point, +sPrecision, +sPrecision)
 	};
 	const size_t arraySize = sizeof(pointArray) / sizeof(pointArray[0]);
 	for (size_t c = 0; c < arraySize; c++)
@@ -368,13 +378,39 @@ PathFinder::_GetCheapestNode() const
 }
 
 
+static IE::point
+CalcIntermediatePoint(const IE::point& A, const IE::point& B)
+{
+	IE::point newPoint = A;
+	int stepX =  (A.x - B.x) / 2;
+	if (A.x < B.x)
+		newPoint.x += stepX;
+	else if (A.x > B.x)
+		newPoint.x -= stepX;
+
+	int stepY =  (A.y - B.y) / 2;
+	if (A.y < B.y)
+		newPoint.y += stepY;
+	else if (A.y > B.y)
+		newPoint.y -= stepY;
+	return newPoint;
+}
+
+
 void
 PathFinder::_ReconstructPath(point_node* goal)
 {
-	point_node* walkNode = goal;
-	while (walkNode != NULL) {
-		fPoints->push_front(walkNode->point);
-		walkNode = const_cast<point_node*>(walkNode->parent);
+	point_node* next = goal;
+	while (next != NULL) {
+		const IE::point& point = next->point;
+		fPoints->push_front(point);
+		next = const_cast<point_node*>(next->parent);
+		if (next != NULL) {
+			if (next->point - point > fStep) {
+				IE::point newPoint = CalcIntermediatePoint(next->point, point);
+				fPoints->push_front(newPoint);
+			}
+		}
 	}
 }
 

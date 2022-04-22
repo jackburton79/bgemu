@@ -97,6 +97,7 @@ TileCell::Draw(Bitmap* bitmap, const GFX::rect& rect, bool advanceFrame, bool fu
 
 		cell->Release();
 	}
+	bitmap->StrokeRect(rect, 5000);
 }
 
 

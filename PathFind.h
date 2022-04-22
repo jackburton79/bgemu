@@ -25,6 +25,8 @@ public:
 	PathFinder(int step = kStep, test_function func = IsPassableDefault);
 	~PathFinder();
 
+	static void SetPrecision(uint32 precision);
+
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
 
 	IE::point NextWayPoint();
@@ -47,6 +49,8 @@ private:
 	test_function fTestFunction;
 
 	debug_function fDebugFunction;
+
+	static uint32 sPrecision;
 
 	bool _GeneratePath(const IE::point& start, const IE::point& end);
 
