@@ -220,6 +220,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 	sint16 ascent = glyph.bitmap->Frame().y;
 	GFX::rect rect;
 	rect.x = containerRect.x;
+	rect.y = containerRect.y;
 	rect.w = glyph.bitmap->Width();
 	rect.h = glyph.bitmap->Height();
 
@@ -233,7 +234,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 		rect.y = (containerRect.h - rect.h) / 2;
 	}
 #endif
-	rect.y = containerRect.h - ascent;
+	rect.y += containerRect.h - ascent;
 	return rect;
 }
 
@@ -275,7 +276,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		const Glyph glyph = (*i);
 
 		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, containerRect);
-		//_AdjustGlyphAlignment(glyphRect, flags, containerRect, glyph);
 		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
 
 		// Advance cursor
