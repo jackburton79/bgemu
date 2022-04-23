@@ -269,19 +269,21 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		bitmap->SetColorKey(colorKey);
 
 	// Render glyphs
-	GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
+	const GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
 												 flags, destRect, destPoint);
+	GFX::rect renderRect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {
 		const Glyph glyph = (*i);
 
-		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, containerRect);
+		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, renderRect);
 		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
 
 		// Advance cursor
-		containerRect.x += glyph.bitmap->Frame().w;
+		renderRect.x += glyph.bitmap->Frame().w;
 	}
 
+	// TODO: This doesn't take ascent into account
 	if (flags & TEXT_SELECTED)
 		bitmap->FillRect(containerRect, 10);
 }
