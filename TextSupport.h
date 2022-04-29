@@ -12,6 +12,7 @@
 #include "IETypes.h"
 #include "SupportDefs.h"
 
+#include <climits>
 #include <map>
 #include <string>
 
@@ -50,12 +51,8 @@ public:
 	void RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					const GFX::Palette* palette,
-					const GFX::point& point) const;
-
-	void RenderString(const std::string& string,
-					uint32 flags, Bitmap* bitmap,
-					const GFX::Palette* palette,
-					const GFX::rect& rect) const;
+					const GFX::point& point,
+					const uint32 maxWidth = UINT_MAX) const;
 
 	Bitmap* GetRenderedString(const std::string& string,
 							  uint32 flags,
@@ -75,13 +72,13 @@ private:
 	void _RenderString(const std::string& string,
 					uint32 flags, Bitmap* bitmap,
 					const GFX::Palette* palette,
-					const GFX::rect* rect, const GFX::point* point) const;
+					const GFX::point& point,
+					const uint32 maxWidth) const;
 	void _PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs = NULL) const;
 	GFX::rect _GetContainerRect(uint16 width, uint16 height,
 								 uint32 flags,
-								 const GFX::rect* destRect,
-								 const GFX::point* destPoint) const;
+								 const GFX::point& destPoint) const;
 	GFX::rect _CalcGlyphRect(const Glyph& glyph, uint32 flags,
 							   const GFX::rect& containerRect) const;
 
@@ -90,6 +87,7 @@ private:
 	typedef std::map<char, Glyph> GlyphMap;
 	GlyphMap fGlyphs;
 	uint16 fHeight;
+	uint16 fBaseLine;
 	GFX::Palette* fPalette;
 
 	uint8 fTransparentIndex;

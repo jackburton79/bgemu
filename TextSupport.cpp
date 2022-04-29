@@ -28,6 +28,7 @@ Font::Font(const std::string& fontName)
 	:
 	fName(fontName),
 	fHeight(0),
+	fBaseLine(0),
 	fPalette(NULL),
 	fTransparentIndex(0)
 {
@@ -54,6 +55,7 @@ Font::Font(const Font& font)
 	:
 	fName(font.fName),
 	fHeight(font.Height()),
+	fBaseLine(font.fBaseLine),
 	fPalette(NULL),
 	fTransparentIndex(font.fTransparentIndex)
 {
@@ -124,24 +126,17 @@ void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					const GFX::Palette* palette) const
 {
-	GFX::rect frame = bitmap->Frame();
-	_RenderString(string, flags, bitmap, palette, &frame, NULL);
+	GFX::point point = { bitmap->Frame().x, bitmap->Frame().y };
+	_RenderString(string, flags, bitmap, palette, point, bitmap->Width());
 }
 
 
 void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					const GFX::Palette* palette, const GFX::point& point) const
+					const GFX::Palette* palette, const GFX::point& point,
+					const uint32 maxWidth) const
 {
-	_RenderString(string, flags, bitmap, palette, NULL, &point);
-}
-
-
-void
-Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					const GFX::Palette* palette, const GFX::rect& rect) const
-{
-	_RenderString(string, flags, bitmap, palette, &rect, NULL);
+	_RenderString(string, flags, bitmap, palette, point, maxWidth);
 }
 
 
@@ -155,8 +150,8 @@ Font::GetRenderedString(const std::string& string, uint32 flags,
 	// TODO: Bitmap is always 8 bits
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
-	GFX::rect rect(0, 0, bitmap->Width(), bitmap->Height());
-	_RenderString(string, 0, bitmap, palette, &rect, NULL);
+	GFX::point point = { 0, 0 };
+	_RenderString(string, 0, bitmap, palette, point, bitmap->Width());
 
 	return bitmap;
 }
@@ -176,6 +171,13 @@ Font::_LoadGlyphs(const std::string& fontName)
 		uint32 cycleNum = cycle_num_for_char(c);
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
+			if (c == 1) {
+				fBaseLine = bitmap->Frame().y;
+			}
+#if 1
+			std::cout << "Glyph " << (char)c << "(" << c << ") ascent: " << bitmap->Frame().y;
+			std::cout << ", height: " << bitmap->Frame().h << std::endl;
+#endif
 			Glyph glyph = { c, bitmap };
 			fGlyphs[c] = glyph;
 			fHeight = std::max(bitmap->Height(), fHeight);
@@ -192,22 +194,21 @@ Font::_LoadGlyphs(const std::string& fontName)
 GFX::rect
 Font::_GetContainerRect(uint16 width, uint16 height,
 						 uint32 flags,
-						 const GFX::rect* destRect,
-						 const GFX::point* destPoint) const
+						 const GFX::point& destPoint) const
 {
 	GFX::rect containerRect = { 0, 0, width, height };
 
-	if (destRect != NULL) {
+	/*if (destRect != NULL) {
 		if (flags & IE::LABEL_JUSTIFY_CENTER)
 			containerRect.x = (destRect->w - width) / 2;
 		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
 			containerRect.x = destRect->w - width;
 		containerRect.x += destRect->x;
 		containerRect.y += destRect->y;
-	} else if (destPoint != NULL) {
-		containerRect.x = destPoint->x;
-		containerRect.y = destPoint->y;
-	}
+	} else if (destPoint != NULL) {*/
+		containerRect.x = destPoint.x;
+		containerRect.y = destPoint.y;
+	//}
 
 	return containerRect;
 }
@@ -218,6 +219,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 							   const GFX::rect& containerRect) const
 {
 	sint16 ascent = glyph.bitmap->Frame().y;
+
 	GFX::rect rect;
 	rect.x = containerRect.x;
 	rect.y = containerRect.y;
@@ -234,16 +236,15 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 		rect.y = (containerRect.h - rect.h) / 2;
 	}
 #endif
-	rect.y += containerRect.h - ascent;
+	rect.y += fBaseLine + containerRect.h - ascent - rect.h;
 	return rect;
 }
 
 
 void
 Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
-					const GFX::Palette* palette,
-					const GFX::rect* destRect,
-					const GFX::point* destPoint) const
+					const GFX::Palette* palette, const GFX::point& destPoint,
+					const uint32 maxWidth) const
 {
 	std::vector<Glyph> glyphs;
 	uint16 totalWidth = 0;
@@ -270,7 +271,7 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 
 	// Render glyphs
 	const GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
-												 flags, destRect, destPoint);
+												 flags, destPoint);
 	GFX::rect renderRect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {

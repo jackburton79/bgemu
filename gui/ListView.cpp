@@ -31,13 +31,13 @@ ListView::~ListView()
 void
 ListView::Draw()
 {
-	GFX::rect itemRect((sint16)fControl->x,
-				 (sint16)fControl->y, 50, 20);
+	GFX::point itemPoint = { (sint16)fControl->x,
+			 (sint16)fControl->y };
 	const Font* font = FontRoster::GetFont("NORMAL");
 	for (StringList::iterator i = fList.begin();
 			i != fList.end(); i++) {
-		font->RenderString(*i, 0, fBitmap, NULL, itemRect);
-		itemRect.y += 20;
+		font->RenderString(*i, 0, fBitmap, NULL, itemPoint, 50);
+		itemPoint.y += 20;
 	}
 
 	GFX::rect destRect(fControl->x, fControl->y, fControl->w, fControl->h);
