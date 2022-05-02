@@ -174,7 +174,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 			if (c == 1) {
 				fBaseLine = bitmap->Frame().y;
 			}
-#if 1
+#if 0
 			std::cout << "Glyph " << (char)c << "(" << c << ") ascent: " << bitmap->Frame().y;
 			std::cout << ", height: " << bitmap->Frame().h << std::endl;
 #endif
@@ -226,17 +226,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 	rect.w = glyph.bitmap->Width();
 	rect.h = glyph.bitmap->Height();
 
-#if 0
-	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
-		rect.y = containerRect.h - rect.h;
-	else if (flags & IE::LABEL_JUSTIFY_TOP)
-		rect.y = 0;
-	else {
-		// center
-		rect.y = (containerRect.h - rect.h) / 2;
-	}
-#endif
-	rect.y += fBaseLine + containerRect.h - ascent - rect.h;
+	rect.y += containerRect.h - ascent - rect.h;
 	return rect;
 }
 
@@ -306,7 +296,8 @@ Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 		}
 		Glyph newGlyph = g->second;
 		width += newGlyph.bitmap->Frame().w;
-		height = std::max(newGlyph.bitmap->Frame().h, height);
+		uint16 fontHeight = newGlyph.bitmap->Frame().h + fBaseLine - newGlyph.bitmap->Frame().y;
+		height = std::max(fontHeight, height);
 		if (glyphs != NULL)
 			glyphs->push_back(newGlyph);
 	}
