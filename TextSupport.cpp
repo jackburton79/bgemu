@@ -172,7 +172,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
 			if (c == 1) {
-				fBaseLine = bitmap->Frame().y;
+				fBaseLine = bitmap->Height() - 2;//bitmap->Frame().y;
 			}
 #if 0
 			std::cout << "Glyph " << (char)c << "(" << c << ") ascent: " << bitmap->Frame().y;
@@ -218,15 +218,12 @@ GFX::rect
 Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 							   const GFX::rect& containerRect) const
 {
-	sint16 ascent = glyph.bitmap->Frame().y;
-
 	GFX::rect rect;
 	rect.x = containerRect.x;
 	rect.y = containerRect.y;
 	rect.w = glyph.bitmap->Width();
 	rect.h = glyph.bitmap->Height();
 
-	rect.y += containerRect.h - ascent - rect.h;
 	return rect;
 }
 
