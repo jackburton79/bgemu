@@ -192,23 +192,21 @@ Font::_LoadGlyphs(const std::string& fontName)
 
 
 GFX::rect
-Font::_GetContainerRect(uint16 width, uint16 height,
+Font::_GetContainerRect(uint16 textWidth,
 						 uint32 flags,
-						 const GFX::point& destPoint) const
+						 const GFX::point& destPoint,
+						 uint16 width, uint16 height) const
 {
 	GFX::rect containerRect = { 0, 0, width, height };
 
-	/*if (destRect != NULL) {
-		if (flags & IE::LABEL_JUSTIFY_CENTER)
-			containerRect.x = (destRect->w - width) / 2;
-		else if (flags & IE::LABEL_JUSTIFY_RIGHT)
-			containerRect.x = destRect->w - width;
-		containerRect.x += destRect->x;
-		containerRect.y += destRect->y;
-	} else if (destPoint != NULL) {*/
+	if (flags & IE::LABEL_JUSTIFY_CENTER)
+		containerRect.x = (width - textWidth) / 2;
+	else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+		containerRect.x = width - textWidth;
+	else
 		containerRect.x = destPoint.x;
-		containerRect.y = destPoint.y;
-	//}
+
+	containerRect.y = destPoint.y;
 
 	return containerRect;
 }
@@ -234,9 +232,9 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					const uint32 maxWidth) const
 {
 	std::vector<Glyph> glyphs;
-	uint16 totalWidth = 0;
+	uint16 textWidth = 0;
 	uint16 maxHeight = 0;
-	_PrepareGlyphs(string, totalWidth, maxHeight, &glyphs);
+	_PrepareGlyphs(string, textWidth, maxHeight, &glyphs);
 
 	const Bitmap* firstFrame = glyphs.back().bitmap;
 
@@ -257,8 +255,9 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		bitmap->SetColorKey(colorKey);
 
 	// Render glyphs
-	const GFX::rect containerRect = _GetContainerRect(totalWidth, maxHeight,
-												 flags, destPoint);
+	const GFX::rect containerRect = _GetContainerRect(textWidth,
+													  flags, destPoint,
+													  maxWidth, maxHeight);
 	GFX::rect renderRect = containerRect;
 	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
 			i != glyphs.end(); i++) {

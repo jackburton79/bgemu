@@ -76,9 +76,10 @@ private:
 					const uint32 maxWidth) const;
 	void _PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs = NULL) const;
-	GFX::rect _GetContainerRect(uint16 width, uint16 height,
+	GFX::rect _GetContainerRect(uint16 textWidth,
 								 uint32 flags,
-								 const GFX::point& destPoint) const;
+								 const GFX::point& destPoint,
+								 uint16 width, uint16 height) const;
 	GFX::rect _CalcGlyphRect(const Glyph& glyph, uint32 flags,
 							   const GFX::rect& containerRect) const;
 
