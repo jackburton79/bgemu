@@ -36,7 +36,6 @@ Script::Script(std::vector<condition_response*> rootNode)
 
 Script::~Script()
 {
-	//_DeleteNode(fRootNode);
 }
 
 
