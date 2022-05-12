@@ -17,7 +17,7 @@
 #include <limits.h>
 
 
-static uint32
+static inline uint32
 cycle_num_for_char(int c)
 {
 	return c - 1;
