@@ -76,7 +76,10 @@ DisplayFrameRate(void* param)
 	GFX::rect frame = GraphicsEngine::Get()->ScreenFrame();
 	char frameRate[32];
 	uint32 numFrames = sFrames - sLastFrame;
-	snprintf(frameRate, sizeof(frameRate), "FPS: %d", 1000 * numFrames / (currentTime - sLastTime));
+	uint32 elapsedTime = currentTime - sLastTime;
+	if (elapsedTime == 0)
+		elapsedTime = 1;
+	snprintf(frameRate, sizeof(frameRate), "FPS: %d", 1000 * numFrames / elapsedTime);
 	GUI::Get()->DisplayString(frameRate, frame.x + 70, 20, 1000);
 	sLastFrame = sFrames;
 	sLastTime = currentTime;
