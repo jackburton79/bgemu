@@ -1,60 +1,38 @@
-RM := rm -rf
+-include custom.mk
 
-# All of the sources participating in the build are defined here
--include sources.mk
--include animations/subdir.mk
--include archives/subdir.mk
--include graphics/subdir.mk
--include gui/subdir.mk
--include resources/subdir.mk
--include shell/subdir.mk
--include streams/subdir.mk
--include support/subdir.mk
--include subdir.mk
--include objects.mk
+CC = g++
+RM = rm -rf
 
-ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(strip $(DEPS)),)
--include $(DEPS)
-endif
-ifneq ($(strip $(C_UPPER_DEPS)),)
--include $(C_UPPER_DEPS)
-endif
-endif
+OUTDIR = ./bin
+DIR_OBJ = ./obj
+INCS = $(wildcard *.h $(foreach fd, $(SUBDIR), $(fd)/*.h))
+SRCS = $(wildcard *.cpp $(foreach fd, $(SUBDIR), $(fd)/*.cpp))
+NODIR_SRC = $(notdir $(SRCS))
+OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
+INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 
+#PHONY := all
+#all: $(TARGET)
 
-# Add inputs and outputs from these tool invocations to the build variables 
+PHONY := $(TARGET)
+$(TARGET):	$(OBJS)
+	$(CC) -o $(OUTDIR)/$@ $(OBJS) $(LDFLAGS) $(LIBS)
 
-# All Target
-all: BGEmu PathFindTest RandTest
+$(DIR_OBJ)/%.o: %.cpp $(INCS)
+	mkdir -p $(@D)
+	$(CC) -o $@ $(CXXFLAGS) -c $< $(INC_DIRS)
 
-# Tool invocations
-BGEmu: $(OBJECTS) $(USER_OBJS) bgemu.o
-	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "BGEmu" $(OBJECTS) $(USER_OBJS) bgemu.o $(LDFLAGS) $(LIBS)
-	@echo 'Finished building target: $@'
-	@echo ' '
-
-PathFindTest: $(OBJECTS) $(USER_OBJS) tests/PathFindTest.o
-	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "tests/PathFindTest" $(OBJECTS) $(USER_OBJS) tests/PathFindTest.o $(LDFLAGS) $(LIBS)
-	@echo 'Finished building target: $@'
-	@echo ' '
-
-RandTest: $(OBJECTS) $(USER_OBJS) tests/RandTest.o
-	@echo 'Building target: $@'
-	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "tests/RandTest" $(OBJECTS) $(USER_OBJS) tests/RandTest.o $(LDFLAGS) $(LIBS)
-	@echo 'Finished building target: $@'
-	@echo ' '
-
-# Other Targets
+PHONY += clean
 clean:
-	-$(RM) $(OBJECTS)$(DEPS)$(EXECUTABLES)$(DEPS)$(C_UPPER_DEPS) bgemu.o
-	-@echo ' '
+	rm -rf $(OUTDIR)/* $(DIR_OBJ)/*
 
-.PHONY: all clean dependents
-.SECONDARY:
+PHONY += echoes
+echoes:
+	@echo "INC files: $(INCS)"
+	@echo "SRC files: $(SRCS)"
+	@echo "OBJ files: $(OBJS)"
+	@echo "LIB files: $(LIBS)"
+	@echo "INC DIR: $(INC_DIRS)"
+	@echo "LIB DIR: $(LIB_DIRS)"
 
+.PHONY = $(PHONY)
