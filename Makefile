@@ -12,7 +12,7 @@ OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
 INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 
 #PHONY := all
-#all: $(TARGET)
+all: $(TARGET)
 
 PHONY := $(TARGET)
 $(TARGET):	$(OBJS)
