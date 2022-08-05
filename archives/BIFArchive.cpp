@@ -13,6 +13,26 @@
 #define BIFC_SIGNATURE "BIFCV1.0"
 
 
+struct resource_info
+{
+	uint32 key;
+	uint32 offset;
+	uint32 size;
+	uint16 type;
+	uint16 unk;
+};
+
+
+struct tileset_info
+{
+	uint32 key;
+	uint32 offset;
+	uint32 numTiles;
+	uint32 tileSize;
+	uint32 type;
+};
+
+
 BIFArchive::BIFArchive(const char *fileName)
 	:
 	fStream(NULL)
@@ -122,15 +142,15 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 	if (!is_tileset(type)) {
 		index = RES_BIF_FILE_INDEX(key);
 		resource_info info;
-		if (!_GetResourceInfo(info, index))
-			return NULL;
+		fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
+					&info, sizeof(resource_info));
 		size = info.size;
 		offset = info.offset;
 	} else {
 		index = RES_TILESET_INDEX(key);
 		tileset_info info;
-		if (!_GetTilesetInfo(info, index))
-			return NULL;
+		fStream->ReadAt(fTileEntriesOffset + index * sizeof(tileset_info),
+							&info, sizeof(tileset_info));
 		size = info.numTiles * info.tileSize;
 		offset = info.offset;
 	}
@@ -143,24 +163,6 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 	}
 
 	return stream;
-}
-
-
-bool
-BIFArchive::_GetResourceInfo(resource_info &info, uint16 index) const
-{
-	fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
-			&info, sizeof(resource_info));
-	return true;
-}
-
-
-bool
-BIFArchive::_GetTilesetInfo(tileset_info &info, uint16 index) const
-{
-	fStream->ReadAt(fTileEntriesOffset + index * sizeof(tileset_info),
-			&info, sizeof(tileset_info));
-	return true;
 }
 
 
