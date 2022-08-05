@@ -29,4 +29,4 @@ private:
 	uint32 fTileEntriesOffset;
 };
 
-#endif
+#endif // __BIFARCHIVE_H

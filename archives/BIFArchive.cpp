@@ -139,19 +139,19 @@ BIFArchive::ReadResource(res_ref& name, const uint32& key,
 	uint32 index;
 	uint32 size;
 	uint32 offset;
-	if (!is_tileset(type)) {
-		index = RES_BIF_FILE_INDEX(key);
-		resource_info info;
-		fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
-					&info, sizeof(resource_info));
-		size = info.size;
-		offset = info.offset;
-	} else {
+	if (is_tileset(type)) {
 		index = RES_TILESET_INDEX(key);
 		tileset_info info;
 		fStream->ReadAt(fTileEntriesOffset + index * sizeof(tileset_info),
 							&info, sizeof(tileset_info));
 		size = info.numTiles * info.tileSize;
+		offset = info.offset;
+	} else {
+		index = RES_BIF_FILE_INDEX(key);
+		resource_info info;
+		fStream->ReadAt(fCatalogOffset + index * sizeof(resource_info),
+					&info, sizeof(resource_info));
+		size = info.size;
 		offset = info.offset;
 	}
 
