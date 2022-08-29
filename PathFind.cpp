@@ -78,9 +78,6 @@ public:
 	bool GeneratePath(const IE::point& start, const IE::point& end);
 	PointList* Points();
 
-	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
-	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
-
 	void SetDebug(debug_function callback);
 
 private:
@@ -90,6 +87,9 @@ private:
 	test_function fTestFunction;
 
 	debug_function fDebugFunction;
+
+	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
+	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
