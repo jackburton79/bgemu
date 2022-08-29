@@ -105,10 +105,11 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	GameConsole* inputConsole = NULL;
 #if 1
-	std::cout << "Setting up console... ";
+	std::cout << "Setting up console...";
 	std::flush(std::cout);
-	inputConsole = new GameConsole(consoleRect, true);
+	inputConsole = new GameConsole(consoleRect, false);
 	std::cout << "OK!" << std::endl;
+	inputConsole->EnableRedirect();
 #endif
 	if (inputConsole != NULL)
 		inputConsole->Initialize();

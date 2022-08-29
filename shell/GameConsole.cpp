@@ -191,6 +191,7 @@ GameConsole::_ExecuteCommand(const std::string& line)
 void
 GameConsole::_EnableOutputRedirect()
 {
+	std::cout << "GameConsole::EnablRedirect(): Check console for debug output from now on" << std::endl;
 	fOldBuf = std::cout.rdbuf();
 	std::cout.rdbuf(fOutputBuffer.rdbuf());
 	fOutputRedirected = true;
@@ -203,6 +204,7 @@ GameConsole::_DisableOutputRedirect()
 	if (fOutputRedirected) {
 		std::cout.rdbuf(fOldBuf);
 		fOutputRedirected = false;
+		std::cout << "GameConsole::DisableRedirect(): Debug output on stdout/stderr" << std::endl;
 	}
 }
 
