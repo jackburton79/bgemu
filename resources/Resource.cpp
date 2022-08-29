@@ -107,9 +107,11 @@ Resource::CheckSignature(const char* signature)
 		return false;
 
 	array[len] = '\0';
-	if (strncmp(array, signature, len) != 0) {
+	if (::strncmp(array, signature, len) != 0) {
+#if 0
 		std::cerr << "CheckSignature: expected " << signature;
 		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
+#endif
 		return false;
 	}
 
@@ -127,9 +129,11 @@ Resource::CheckVersion(const char* version)
 		return false;
 
 	array[len] = '\0';
-	if (strcmp(array, version) != 0) {
+	if (::strcmp(array, version) != 0) {
+#if 0
 		std::cerr << "CheckVersion: expected " << version;
 		std::cerr << ", found " << array << " (not necessarily an error)" << std::endl;
+#endif
 		return false;
 	}
 
