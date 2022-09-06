@@ -539,9 +539,9 @@ ActionWalkToObject::operator()()
 		SetCompleted();
 		return;
 	}
-	
+
 	//target->Acquire();
-	
+
 	IE::point destination = target->NearestPoint(actor->Position());
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
@@ -551,6 +551,7 @@ ActionWalkToObject::operator()()
 
 	actor->MoveToNextPointInPath(false);
 }
+
 
 // RandomFly
 ActionRandomFly::ActionRandomFly(Object* object, action_params* node)
@@ -655,13 +656,11 @@ ActionRandomWalk::operator()()
 
 		IE::point destination = offset_point(actor->Position(), randomX, randomY);
 		if (!PointSufficientlyClose(actor->Position(), destination))
-		actor->SetDestination(destination);
+			actor->SetDestination(destination);
 	}
 	if (actor->Position() == actor->Destination()) {
-		actor->SetAnimationAction(ACT_STANDING);
 		//SetCompleted();
 	} else {
-		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(true);
 	}
 }
