@@ -939,9 +939,15 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		IE::point nextPoint = fPath->NextWayPoint();
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
+		SetAnimationAction(ACT_WALKING);
+		return;
 	}
 
+	if (Position() == Destination())
+		SetAnimationAction(ACT_STANDING);
+
 	if (fPath->IsEmpty()) {
+		SetAnimationAction(ACT_STANDING);
 		delete fPath;
 		fPath = NULL;
 	}

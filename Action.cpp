@@ -509,12 +509,9 @@ ActionWalkTo::operator()()
 	actor->SetInterruptable(fInterruptable);
 
 	if (actor->Position() == actor->Destination()) {
-		actor->SetAnimationAction(ACT_STANDING);
 		SetCompleted();
-		return;
 	}
 
-	actor->SetAnimationAction(ACT_WALKING);
 	actor->MoveToNextPointInPath(false);
 }
 
@@ -549,13 +546,9 @@ ActionWalkToObject::operator()()
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
 
-	if (actor->Position() == actor->Destination()) {
-		actor->SetAnimationAction(ACT_STANDING);
+	if (actor->Position() == actor->Destination())
 		SetCompleted();
-		return;
-	}
 
-	actor->SetAnimationAction(ACT_WALKING);
 	actor->MoveToNextPointInPath(false);
 }
 
@@ -584,10 +577,8 @@ ActionRandomFly::operator()()
 		actor->SetDestination(destination, true);
 
 	if (actor->Position() == actor->Destination()) {
-		actor->SetAnimationAction(ACT_STANDING);
 		//SetCompleted();
 	} else {
-		actor->SetAnimationAction(ACT_WALKING);
 		actor->MoveToNextPointInPath(true);
 	}
 }
@@ -614,13 +605,9 @@ ActionFlyTo::operator()()
 		SetInitiated();
 	}
 
-	if (actor->Position() == actor->Destination()) {
+	if (actor->Position() == actor->Destination())
 		SetCompleted();
-		actor->SetAnimationAction(ACT_STANDING);
-		return;
-	}
 
-	actor->SetAnimationAction(ACT_WALKING);
 	actor->MoveToNextPointInPath(true);
 }
 
