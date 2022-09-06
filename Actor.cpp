@@ -744,7 +744,6 @@ Actor::ClickedOn(Object* target)
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		// TODO: this screams for improvements:
 		// no way we have to do all this just to add an action.
-		// Plus, we're leaking the action node
 		action_params* actionParams = new action_params;
 		strcpy(actionParams->First()->name, actor->Name());
 		strcpy(actionParams->Second()->name, Name());
