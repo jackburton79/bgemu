@@ -139,9 +139,6 @@ PathFinder::SetDebug(debug_function callback)
 IE::point
 PathFinder::NextWayPoint()
 {
-	//assert(fPoints != NULL);
-	//assert(!fPoints->empty());
-
 	IE::point point = fImplementation->Points()->front();
 	fImplementation->Points()->pop_front();
 	return point;
