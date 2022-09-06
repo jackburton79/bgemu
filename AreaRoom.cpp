@@ -483,6 +483,12 @@ AreaRoom::GetObject(const char* name) const
 			return *r;
 	}
 
+	DoorsList::const_iterator d;
+	for (d = fDoors.begin(); d != fDoors.end(); d++) {
+		if (!strcasecmp(name, (*d)->Name()))
+			return *d;
+	}
+
 	ContainersList::const_iterator c;
 	for (c = fContainers.begin(); c != fContainers.end(); c++) {
 		if (!strcasecmp(name, (*c)->Name()))
@@ -1174,6 +1180,7 @@ AreaRoom::_InitDoors()
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
 		door->SetArea(this);
+		fDoors.push_back(door);
 		Core::Get()->RegisterObject(door);
 		fWed->LinkDoorWithTiledObject(door);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
@@ -1267,6 +1274,12 @@ AreaRoom::_UnloadArea()
 			fContainers[c]->Release();
 	}
 	fContainers.clear();
+
+	for (uint32 c = 0; c < fDoors.size(); c++) {
+		if (fDoors[c] != NULL)
+			fDoors[c]->Release();
+	}
+	fDoors.clear();
 
 	for (uint32 c = 0; c < fAnimations.size(); c++)
 		delete fAnimations[c];

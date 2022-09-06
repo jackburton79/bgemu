@@ -733,10 +733,14 @@ Actor::ClickedOn(Object* target)
 	// an attack from a dialog start, etc
 
 	if (Door* door = dynamic_cast<Door*>(target)) {
-		if (Area()->Distance(this, door) > 10)
-			SetDestination(door->NearestPoint(Position()));
-		else
-			door->Toggle();
+		action_params* actionParams = new action_params;
+		strcpy(actionParams->First()->name, Name());
+		strcpy(actionParams->Second()->name, door->Name());
+		Action* action = new ActionWalkToObject(this, actionParams);
+		AddAction(action);
+
+		action = new ActionOpenDoor(this, actionParams);
+		AddAction(action);
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		// TODO: this screams for improvements:
 		// no way we have to do all this just to add an action.

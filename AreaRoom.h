@@ -150,6 +150,9 @@ private:
 	typedef std::vector<Region*> RegionsList;
 	RegionsList fRegions;
 
+	typedef std::vector<Door*> DoorsList;
+	DoorsList fDoors;
+
 	typedef std::vector<Container*> ContainersList;
 	ContainersList fContainers;
 
