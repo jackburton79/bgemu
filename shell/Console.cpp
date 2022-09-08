@@ -912,4 +912,3 @@ Console::Puts(const char *text)
 
 	_MoveCursor(fDesc->cursor_x, fDesc->cursor_y);
 }
-
