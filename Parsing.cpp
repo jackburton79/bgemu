@@ -809,6 +809,24 @@ action_params::action_params()
 }
 
 
+action_params::action_params(const char* firstParamName, const char* secondParamName)
+	:
+	id(0),
+	integer1(0),
+	integer2(0),
+	integer3(0),
+	fRefCount(1)
+{
+	where.x = where.y = -1;
+	string1[0] = '\0';
+	string2[0] = '\0';
+
+	// TODO: Linux does not have strlcpy by default
+	::strncpy(First()->name, firstParamName, sizeof(First()->name));
+	::strncpy(Second()->name, secondParamName, sizeof(Second()->name));
+}
+
+
 void
 action_params::Print() const
 {

@@ -54,7 +54,9 @@ private:
 
 
 struct action_params {
-	action_params();	
+	action_params();
+	action_params(const char* firstParamName, const char* secondParamName);
+
 	void Print() const;
 	object_params* First();
 	object_params* Second();
