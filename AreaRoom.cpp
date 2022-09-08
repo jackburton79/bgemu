@@ -970,7 +970,7 @@ AreaRoom::_DrawActors()
 			a != visibleActors.end(); a++) {
 		Actor* actor = *a;
 		try {
-			actor->Draw(this, fBackMap->Image());
+			actor->Draw(this);
 		} catch (std::exception& ex) {
 			// TODO: too much spam
 			//std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;

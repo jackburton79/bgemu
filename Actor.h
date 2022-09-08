@@ -51,7 +51,7 @@ public:
 	void SetDestination(const IE::point &dest, bool ignoreSearchMap = false);
 	void ClearDestination();
 
-	void Draw(AreaRoom* room, ::Bitmap* image) const;
+	void Draw(AreaRoom* room) const;
 	
 	IE::point RestrictionDistance() const;
 	virtual IE::point NearestPoint(const IE::point& start) const;
@@ -164,7 +164,7 @@ private:
 	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _DrawActorText(AreaRoom* room) const;
 	void _DrawActorName(AreaRoom* room) const;
-	void _DrawCircle(AreaRoom* room, ::Bitmap* image) const;
+	void _DrawCircle(AreaRoom* room) const;
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 };

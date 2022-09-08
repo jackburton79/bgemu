@@ -371,9 +371,9 @@ Actor::ClearDestination()
 
 
 void
-Actor::Draw(AreaRoom* room, ::Bitmap* image) const
+Actor::Draw(AreaRoom* room) const
 {
-	_DrawCircle(room, image);
+	_DrawCircle(room);
 
 	IE::point actorPosition = Position();
 	actorPosition.y += room->PointHeight(actorPosition) - 8;
@@ -417,9 +417,10 @@ Actor::_DrawActorName(AreaRoom* room) const
 
 
 void
-Actor::_DrawCircle(AreaRoom* room, ::Bitmap* image) const
+Actor::_DrawCircle(AreaRoom* room) const
 {
 	if (!Core::Get()->CutsceneMode()) {
+		::Bitmap* image = room->BackMap()->Image();
 		IE::point position = Position();		
 		room->ConvertFromArea(position);
 		uint32 color = 0;
@@ -427,6 +428,7 @@ Actor::_DrawCircle(AreaRoom* room, ::Bitmap* image) const
 			color = image->MapColor(0, 255, 0);
 		else
 			color = image->MapColor(255, 0, 0);
+
 		image->Lock();
 		image->StrokeCircle(position.x, position.y,
 							fSelected ? fSelectedRadius : 10, color);
