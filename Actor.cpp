@@ -738,10 +738,11 @@ Actor::ClickedOn(Object* target)
 		action_params* actionParams = new action_params(Name(), door->Name());
 		AddAction(new ActionWalkToObject(this, actionParams));
 		AddAction(new ActionOpenDoor(this, actionParams));
-
+		actionParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		action_params* actionParams = new action_params(actor->Name(), Name());
 		AddAction(new ActionDialog(this, actionParams));
+		actionParams->Release();
 	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
 		Action* walkTo = new WalkToObject(this, container);
 		AddAction(walkTo);
