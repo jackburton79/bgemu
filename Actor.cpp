@@ -345,6 +345,8 @@ Actor::Destination() const
 void
 Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 {
+	// TODO: If point can't be reached currently it fails without returning
+	// the failure to the caller
 	if (fPath == NULL) {
 		if (ignoreSearchMap)
 			fPath = new PathFinder(PathFinder::kStep, Actor::PointPassableTrue);
@@ -733,22 +735,13 @@ Actor::ClickedOn(Object* target)
 	// an attack from a dialog start, etc
 
 	if (Door* door = dynamic_cast<Door*>(target)) {
-		action_params* actionParams = new action_params;
-		strcpy(actionParams->First()->name, Name());
-		strcpy(actionParams->Second()->name, door->Name());
-		Action* action = new ActionWalkToObject(this, actionParams);
-		AddAction(action);
+		action_params* actionParams = new action_params(Name(), door->Name());
+		AddAction(new ActionWalkToObject(this, actionParams));
+		AddAction(new ActionOpenDoor(this, actionParams));
 
-		action = new ActionOpenDoor(this, actionParams);
-		AddAction(action);
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
-		// TODO: this screams for improvements:
-		// no way we have to do all this just to add an action.
-		action_params* actionParams = new action_params;
-		strcpy(actionParams->First()->name, actor->Name());
-		strcpy(actionParams->Second()->name, Name());
-		Action* dialogAction = new ActionDialog(this, actionParams);
-		AddAction(dialogAction);
+		action_params* actionParams = new action_params(actor->Name(), Name());
+		AddAction(new ActionDialog(this, actionParams));
 	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
 		Action* walkTo = new WalkToObject(this, container);
 		AddAction(walkTo);
