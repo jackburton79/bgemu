@@ -364,6 +364,7 @@ public:
 		// TODO: ActionDisplayString needs an int, not a string
 		Action* action = new ActionDisplayString(room, actionParams);
 		room->AddAction(action);
+		actionParams->Release();
 	}
 };
 
