@@ -508,9 +508,8 @@ ActionWalkTo::operator()()
 
 	actor->SetInterruptable(fInterruptable);
 
-	if (actor->Position() == actor->Destination()) {
+	if (actor->Position() == actor->Destination())
 		SetCompleted();
-	}
 
 	actor->MoveToNextPointInPath(false);
 }
