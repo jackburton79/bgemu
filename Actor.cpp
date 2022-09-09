@@ -948,28 +948,30 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 }
 
 
-void
+bool
 Actor::MoveToNextPointInPath(bool ignoreBlocks)
 {
 	if (fPath == NULL)
-		return;
+		return false;
 
 	if (!fPath->IsEmpty()) {
 		IE::point nextPoint = fPath->NextWayPoint();
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
 		SetAnimationAction(ACT_WALKING);
-		return;
+		return true;
 	}
 
-	if (Position() == Destination())
-		SetAnimationAction(ACT_STANDING);
+	//if (Position() == Destination())
+	//	SetAnimationAction(ACT_STANDING);
 
-	if (fPath->IsEmpty()) {
-		SetAnimationAction(ACT_STANDING);
-		delete fPath;
-		fPath = NULL;
-	}
+	assert(fPath->IsEmpty());
+
+	SetAnimationAction(ACT_STANDING);
+
+	delete fPath;
+	fPath = NULL;
+	return false;
 }
 
 

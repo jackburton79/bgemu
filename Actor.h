@@ -111,7 +111,7 @@ public:
 	void SetAnimationAction(int action);
 
 	void UpdateAnimation(bool ignoreBlocks);
-	void MoveToNextPointInPath(bool ignoreBlocks);
+	bool MoveToNextPointInPath(bool ignoreBlocks);
 
 	void UpdateTileCell();
 	void SetTileCell(::TileCell*);
