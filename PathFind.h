@@ -7,6 +7,7 @@
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
 
+#include <vector>
 
 class PathFinderImpl;
 class PathFinder {
@@ -17,6 +18,8 @@ public:
 	~PathFinder();
 
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
+	void GetPoints(std::vector<IE::point>& points) const;
+
 	IE::point NextWayPoint();
 	bool IsEmpty() const;
 

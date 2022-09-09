@@ -366,6 +366,7 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 }
 
 
+// Takes into account the view offset
 void
 AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask)
 {

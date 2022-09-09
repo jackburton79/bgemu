@@ -379,6 +379,8 @@ Actor::Draw(AreaRoom* room) const
 	actorPosition.y += room->PointHeight(actorPosition) - 8;
 	room->DrawBitmap(Bitmap(), actorPosition, true);
 
+	if (InParty())
+		_DrawActorPath(room);
 	_DrawActorText(room);
 	_DrawActorName(room);
 }
@@ -412,6 +414,24 @@ Actor::_DrawActorName(AreaRoom* room) const
 		textPoint.y += 30;
 		room->DrawBitmap(bitmap, textPoint, false);
 		bitmap->Release();
+	}
+}
+
+
+void
+Actor::_DrawActorPath(AreaRoom* room) const
+{
+	std::vector<IE::point> points;
+	if (!fPath)
+		return;
+	fPath->GetPoints(points);
+	::Bitmap* image = room->BackMap()->Image();
+	if (image->Lock()) {
+		for (std::vector<IE::point>::iterator i = points.begin(); i != points.end(); i++) {
+			IE::point point = offset_point(*i, -room->AreaOffset().x, -room->AreaOffset().y);
+			image->StrokeCircle(point.x, point.y, 3, image->MapColor(0, 240, 0));
+		}
+		image->Unlock();
 	}
 }
 

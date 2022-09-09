@@ -130,6 +130,15 @@ PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 
 
 void
+PathFinder::GetPoints(std::vector<IE::point>& points) const
+{
+	PointList* list = fImplementation->Points();
+	for (PointList::iterator i = list->begin(); i != list->end(); i++)
+		points.push_back(*i);
+}
+
+
+void
 PathFinder::SetDebug(debug_function callback)
 {
 	fImplementation->SetDebug(callback);
