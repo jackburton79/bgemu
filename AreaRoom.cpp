@@ -406,6 +406,9 @@ AreaRoom::AddObject(Object* object)
 		case Object::CONTAINER:
 			fContainers.push_back(dynamic_cast<Container*>(object));
 			break;
+		case Object::DOOR:
+			fDoors.push_back(dynamic_cast<Door*>(object));
+			break;
 		default:
 			break;
 	}
@@ -1180,9 +1183,7 @@ AreaRoom::_InitDoors()
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
 		Door *door = new Door(fArea->DoorAt(c));
-		door->SetArea(this);
-		fDoors.push_back(door);
-		Core::Get()->RegisterObject(door);
+		AddObject(door);
 		fWed->LinkDoorWithTiledObject(door);
 		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
 			fBackMap->TileAt(door->fTilesOpen[i])->SetDoor(door);
@@ -1201,8 +1202,7 @@ AreaRoom::_InitContainers()
 	const uint32 numContainers = fArea->CountContainers();
 	for (uint32 c = 0; c < numContainers; c++) {
 		Container *container = fArea->GetContainerAt(c);
-		fContainers.push_back(container);
-		Core::Get()->RegisterObject(container);
+		AddObject(container);
 	}
 	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
 }
