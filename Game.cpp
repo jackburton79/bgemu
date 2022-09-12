@@ -109,7 +109,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	std::flush(std::cout);
 	inputConsole = new GameConsole(consoleRect, false);
 	std::cout << "OK!" << std::endl;
-	inputConsole->EnableRedirect();
+	//inputConsole->EnableRedirect();
 #endif
 	if (inputConsole != NULL)
 		inputConsole->Initialize();
@@ -117,6 +117,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	if (TestMode()) {
 		GUI::Get()->Load("GUITEST");
+		// Parsing tests
+		Parser::Test();
 	} else {
 		try {
 			CreateParty();
