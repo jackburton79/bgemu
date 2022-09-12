@@ -65,7 +65,7 @@ DLGResource::GetTransition(int32 index)
 std::string
 DLGResource::GetAction(int32 index)
 {
-	char rawData[32];
+	char rawData[64];
 	uint32 offset;
 	uint32 length;
 	off_t pos = fData->Position();
@@ -102,6 +102,10 @@ DLGResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(0x0028, fActionsTableOffset);
 	fData->ReadAt(0x002c, fActionsNum);
 
+	for (uint32 i = 0; i < fActionsNum; i++) {
+		std::string actionString = GetAction(i);
+		std::cerr << actionString << std::endl;
+	}
 	return true;
 }
 
