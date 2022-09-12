@@ -137,17 +137,17 @@ DialogHandler::SelectOption(int32 option)
 
 	if (transition->entry.flags & DLG_TRANSITION_END)
 		fEnd = true;
-	/*
-	if (transition.entry.index_action != -1) {
+
+	if (transition->entry.index_action != -1) {
 		// TODO: Execute action
-		std::cout << "Action: " << fCurrentTransition.entry.index_action << std::endl;
-		uint32 action = fResource->GetAction(fCurrentTransition.entry.index_action);
+		std::cout << "Action: " << transition->entry.index_action << std::endl;
+		uint32 action = fResource->GetAction(transition->entry.index_action);
 		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
 	}
 
-	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "text journal: " << fCurrentTransition.entry.text_journal << std::endl;
-*/
+	if (transition->entry.flags & DLG_TRANSITION_HAS_JOURNAL)
+		std::cout << "text journal: " << transition->entry.text_journal << std::endl;
+
 }
 
 
