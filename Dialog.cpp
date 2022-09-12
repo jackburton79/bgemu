@@ -141,13 +141,12 @@ DialogHandler::SelectOption(int32 option)
 
 	if (transition->entry.index_action != -1) {
 		std::cout << "Action: " << transition->entry.index_action << std::endl;
-		int actionID = fResource->GetAction(transition->entry.index_action);
-		std::string actionString = IDTable::ActionName(actionID);
+		std::string actionString = fResource->GetAction(transition->entry.index_action);
 		std::cout << "Action: " << actionString << std::endl;
 
 		// TODO: Cleanup
 		action_params* params = Parser::ActionFromString(actionString);
-		assert(params->id == actionID);
+
 		bool canContinue = false;
 		Action* action = Script::GetAction(Actor(), params, canContinue);
 		if (action != NULL)
@@ -264,9 +263,9 @@ DialogHandler::_GetTransition(int32 num)
 	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		uint32 action = fResource->GetAction(transition.entry.index_action);
-		transition.action = IDTable::ActionName(action);
-		std::cout << "action:" << action << std::endl;
+		//uint32 action = fResource->GetAction(transition.entry.index_action);
+		//transition.action = IDTable::ActionName(action);
+		//std::cout << "action:" << action << std::endl;
 	}
 	if (transition.entry.flags & DLG_TRANSITION_END) {
 		std::cout << "TRANSITION_END" << std::endl;

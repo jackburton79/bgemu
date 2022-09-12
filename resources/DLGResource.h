@@ -52,7 +52,7 @@ public:
 	std::string GetStateTrigger(int triggerIndex);
 	transition_entry GetTransition(int32 index);
 
-	uint32 GetAction(int32 index);
+	std::string GetAction(int32 index);
 
 	static Resource* Create(const res_ref& name);
 

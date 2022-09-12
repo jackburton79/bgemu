@@ -273,6 +273,7 @@ Parser::TriggerFromString(const std::string& string)
 action_params*
 Parser::ActionFromString(const std::string& string)
 {
+	std::cerr << "ActionFromString: " << string << std::endl;
 	action_params* params = new action_params();
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);

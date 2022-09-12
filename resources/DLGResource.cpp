@@ -62,12 +62,18 @@ DLGResource::GetTransition(int32 index)
 }
 
 
-uint32
+std::string
 DLGResource::GetAction(int32 index)
 {
-	uint32 action;
-	fData->ReadAt(fActionsTableOffset + index * sizeof(uint32), action);
-	return action;
+	char rawData[32];
+	uint32 offset;
+	uint32 length;
+	fData->ReadAt(fActionsTableOffset + index * (2 * sizeof(uint32)), offset);
+	fData->ReadAt(fActionsTableOffset + index * (2 * sizeof(uint32)) + sizeof(uint32), length);
+
+	fData->ReadAt(offset, rawData, length);
+
+	return std::string(rawData, length);
 }
 
 
