@@ -659,7 +659,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 
 
 token
-ParameterExtractor::_ExtractNextParameter(::action_params* node,
+ParameterExtractor::_ExtractNextParameter(::action_params* param,
 								Parameter& parameter)
 {
 	// TODO: horrible, complex code. Improve, refactor
@@ -673,19 +673,18 @@ ParameterExtractor::_ExtractNextParameter(::action_params* node,
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = fTokenizer.ReadToken();
 
-	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
 		case Parameter::POINT:
-			node->where.x = fTokenizer.ReadToken().u.number;
+			param->where.x = fTokenizer.ReadToken().u.number;
 			fTokenizer.ReadToken(); // comma
-			node->where.y = fTokenizer.ReadToken().u.number;
+			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
 		default:
 			break;
 	}
 
-	node->Print();
-	(void)stringLength;
+	param->Print();
+
 	std::cout << tokenParam.u.string << std::endl;
 
 	return tokenParam;
