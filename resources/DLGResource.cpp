@@ -68,8 +68,11 @@ DLGResource::GetAction(int32 index)
 	char rawData[32];
 	uint32 offset;
 	uint32 length;
-	fData->ReadAt(fActionsTableOffset + index * (2 * sizeof(uint32)), offset);
-	fData->ReadAt(fActionsTableOffset + index * (2 * sizeof(uint32)) + sizeof(uint32), length);
+	off_t pos = fData->Position();
+	fData->Seek(fActionsTableOffset + index * (2 * sizeof(uint32)), SEEK_SET);
+	fData->Read(&offset, sizeof(offset));
+	fData->Read(&length, sizeof(length));
+	fData->Seek(pos, SEEK_SET);
 
 	fData->ReadAt(offset, rawData, length);
 
