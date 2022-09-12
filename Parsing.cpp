@@ -396,7 +396,7 @@ Parser::_ExtractActionName(Tokenizer& tokenizer, ::action_params* param)
 	std::string actionName = t.u.string;
 	param->id = GetActionID(actionName);
 	if (param->id == -1) {
-		std::cerr << Log::Red << "GetActionID: no action found" << Log::Normal << std::endl;
+		std::cerr << Log::Red << "GetActionID: no action found (" << actionName << ")" << Log::Normal << std::endl;
 		return false;
 	}
 	return true;
