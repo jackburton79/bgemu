@@ -689,12 +689,31 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = fTokenizer.ReadToken();
 
+	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
 		case Parameter::POINT:
 			param->where.x = tokenParam.u.number;
 			fTokenizer.ReadToken(); // comma
 			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
+		case Parameter::STRING:
+		{
+
+			char* destString = NULL;
+			if (parameter.position == 1)
+				destString = param->string1;
+			else if (parameter.position == 2)
+				destString = param->string2;
+			else
+				throw std::runtime_error("wrong parameter position");
+			if (tokenParam.type == TOKEN_QUOTED_STRING)
+				get_unquoted_string(destString, tokenParam.u.string, stringLength);
+			else if (tokenParam.type == TOKEN_STRING) {
+				::memcpy(destString, tokenParam.u.string, stringLength);
+				destString[stringLength] = '\0';
+			}
+			break;
+		}
 		default:
 			break;
 	}
