@@ -118,6 +118,7 @@ public:
 	static trigger_params* TriggerFromString(const std::string& string);
 	static action_params* ActionFromString(const std::string& string);
 
+	static void Test();
 private:
 	Parser(const Parser&);
 	Parser& operator=(const Parser&);

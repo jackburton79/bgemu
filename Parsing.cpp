@@ -326,6 +326,21 @@ Parser::Read()
 }
 
 
+
+void
+Parser::Test()
+{
+	std::string actions[] = {
+			"SetGlobal(\"TalkedToMadeen\",\"GLOBAL\",1)",
+	};
+
+	for (size_t i = 0; i < sizeof(actions) / sizeof(actions[0]); i++) {
+		action_params* params = Parser::ActionFromString(actions[i]);
+		params->Print();
+	}
+}
+
+
 /* static */
 void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
@@ -676,7 +691,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 
 	switch (parameter.type) {
 		case Parameter::POINT:
-			param->where.x = fTokenizer.ReadToken().u.number;
+			param->where.x = tokenParam.u.number;
 			fTokenizer.ReadToken(); // comma
 			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
