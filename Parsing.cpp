@@ -696,6 +696,30 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			fTokenizer.ReadToken(); // comma
 			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
+		case Parameter::INTEGER:
+			if (parameter.position == 1)
+				param->integer1 = tokenParam.u.number;
+			else if (parameter.position == 2)
+				param->integer2 = tokenParam.u.number;
+			else if (parameter.position == 3)
+				param->integer3 = tokenParam.u.number;
+			break;
+		case Parameter::INT_ENUM:
+		{
+			int integerValue;
+			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
+			if (idsResource != NULL) {
+				integerValue = idsResource->IDForString(tokenParam.u.string);
+				gResManager->ReleaseResource(idsResource);
+			}
+			if (parameter.position == 1)
+				param->integer1 = integerValue;
+			else if (parameter.position == 2)
+				param->integer2 = integerValue;
+			else if (parameter.position == 3)
+				param->integer3 = integerValue;
+			break;
+		}
 		case Parameter::STRING:
 		{
 
