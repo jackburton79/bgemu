@@ -185,7 +185,9 @@ ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 		}
 		parameter.position = integerPos;
 		integerPos++;
-	}
+	} else if (typeString == "P:")
+		parameter.type = Parameter::POINT;
+
 	return parameter;
 }
 
@@ -671,12 +673,19 @@ ParameterExtractor::_ExtractNextParameter(::action_params* node,
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = fTokenizer.ReadToken();
 
-	//size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
+	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
+		case Parameter::POINT:
+			node->where.x = fTokenizer.ReadToken().u.number;
+			fTokenizer.ReadToken(); // comma
+			node->where.y = fTokenizer.ReadToken().u.number;
+			break;
 		default:
 			break;
 	}
 
+	node->Print();
+	(void)stringLength;
 	std::cout << tokenParam.u.string << std::endl;
 
 	return tokenParam;
