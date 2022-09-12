@@ -51,6 +51,8 @@ public:
 	ParameterExtractor(Tokenizer& tokenizer);
 	token _ExtractNextParameter(::trigger_params* triggerNode,
 								Parameter& parameter);
+	token _ExtractNextParameter(::action_params* params,
+									Parameter& parameter);
 private:
 	Tokenizer& fTokenizer;
 };
@@ -277,6 +279,25 @@ Parser::ActionFromString(const std::string& string)
 		//node->Release();
 		return NULL;
 	}
+
+	// Opening parenthesis
+	try {
+		token parenthesis = tokenizer.ReadToken();
+		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
+	} catch (std::exception& e)	{
+		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		return NULL;
+	}
+	ParameterExtractor extractor(tokenizer);
+	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionAt(params->id));
+	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
+			i != paramTypes.end(); i++) {
+		Parameter parameter = *i;
+		extractor._ExtractNextParameter(params, parameter);
+	}
+	std::cout << "ActionFromString() END" << std::endl;
+	params->Print();
+
 	return params;
 }
 
@@ -631,6 +652,33 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 		default:
 			break;
 	}
+	return tokenParam;
+}
+
+
+token
+ParameterExtractor::_ExtractNextParameter(::action_params* node,
+								Parameter& parameter)
+{
+	// TODO: horrible, complex code. Improve, refactor
+	std::cout << "ExtractNextParameter(ACTION)" << std::endl;
+	token tokenParam = fTokenizer.ReadToken();
+	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
+		return tokenParam;
+
+	if (parameter.type != Parameter::UNKNOWN)
+		parameter.Print();
+	if (tokenParam.type == TOKEN_COMMA)
+		tokenParam = fTokenizer.ReadToken();
+
+	//size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
+	switch (parameter.type) {
+		default:
+			break;
+	}
+
+	std::cout << tokenParam.u.string << std::endl;
+
 	return tokenParam;
 }
 

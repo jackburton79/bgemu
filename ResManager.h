@@ -135,6 +135,7 @@ public:
 	static uint32		TriggerID(std::string name);
 
 	static std::string 	ActionAt(uint32 i);
+	static std::string	ActionID(std::string name);
 
 	static std::string 	ObjectAt(uint32 i);
 	static uint32 		ObjectID(std::string string);

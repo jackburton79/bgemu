@@ -44,6 +44,7 @@ public:
 	void SetSender(Object* object);
 
 	static bool EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrig);
+	static Action* GetAction(Object* sender, action_params* act, bool& isContinue);
 
 	static Object* ResolveIdentifier(const Object* object, object_params* node, const int id);
 	static Object* GetObject(const Object* source, object_params* node);
@@ -53,8 +54,7 @@ private:
 
 	bool _HandleResponseSet(response_set& responseSet);
 	bool _HandleAction(action_params* act);
-	Action* _GetAction(Object* sender, action_params* act, bool& isContinue);
-	
+
 	static Actor* _GetIdentifiers(const Object* source, object_params* node,
 					std::vector<std::string>& identifiersList);
 	

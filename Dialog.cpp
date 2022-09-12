@@ -14,6 +14,7 @@
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
+#include "Script.h"
 #include "TextArea.h"
 
 #include <cassert>
@@ -139,10 +140,18 @@ DialogHandler::SelectOption(int32 option)
 		fEnd = true;
 
 	if (transition->entry.index_action != -1) {
-		// TODO: Execute action
 		std::cout << "Action: " << transition->entry.index_action << std::endl;
-		uint32 action = fResource->GetAction(transition->entry.index_action);
-		std::cout << "Action: " << IDTable::ActionAt(action) << std::endl;
+		int actionID = fResource->GetAction(transition->entry.index_action);
+		std::string actionString = IDTable::ActionAt(actionID);
+		std::cout << "Action: " << actionString << std::endl;
+
+		// TODO: Cleanup
+		action_params* params = Parser::ActionFromString(actionString);
+		assert(params->id == actionID);
+		bool canContinue = false;
+		Action* action = Script::GetAction(Actor(), params, canContinue);
+		if (action != NULL)
+			Actor()->AddAction(action);
 	}
 
 	if (transition->entry.flags & DLG_TRANSITION_HAS_JOURNAL)

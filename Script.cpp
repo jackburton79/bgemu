@@ -870,8 +870,9 @@ Script::_HandleResponseSet(response_set& responseSet)
 }
 
 
+/* static */
 Action*
-Script::_GetAction(Object* sender, action_params* act, bool& isContinue)
+Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 {
 	Action* action = NULL;
 	switch (act->id) {
@@ -1278,7 +1279,7 @@ Script::_HandleAction(action_params* act)
 	}
 
 	bool isContinue = false;
-	Action* action = _GetAction(sender, act, isContinue);
+	Action* action = GetAction(sender, act, isContinue);
 	if (action != NULL) {
 #if 0
 		if (action->IsInstant())
