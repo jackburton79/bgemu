@@ -7,6 +7,7 @@
 
 
 #include "BackMap.h"
+
 #include "Bitmap.h"
 #include "GraphicsDefs.h"
 #include "IETypes.h"
