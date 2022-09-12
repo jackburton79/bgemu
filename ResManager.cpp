@@ -920,7 +920,7 @@ IDTable::TriggerID(std::string name)
 
 
 std::string
-IDTable::ActionAt(uint32 i)
+IDTable::ActionName(uint32 i)
 {
 	if (sActions == NULL)
 		sActions = gResManager->GetIDS("ACTION");

@@ -291,7 +291,7 @@ Parser::ActionFromString(const std::string& string)
 		return NULL;
 	}
 	ParameterExtractor extractor(tokenizer);
-	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionAt(params->id));
+	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionName(params->id));
 	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
 			i != paramTypes.end(); i++) {
 		Parameter parameter = *i;
@@ -914,7 +914,7 @@ action_params::action_params(const char* firstParamName, const char* secondParam
 void
 action_params::Print() const
 {
-	std::cout << IDTable::ActionAt(id);
+	std::cout << IDTable::ActionName(id);
 	std::cout << "(" << std::dec << (int)id << std::hex << ", 0x" << (int)id << ")";
 	std::cout << std::dec;
 	std::cout << "(int1=";

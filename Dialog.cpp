@@ -142,7 +142,7 @@ DialogHandler::SelectOption(int32 option)
 	if (transition->entry.index_action != -1) {
 		std::cout << "Action: " << transition->entry.index_action << std::endl;
 		int actionID = fResource->GetAction(transition->entry.index_action);
-		std::string actionString = IDTable::ActionAt(actionID);
+		std::string actionString = IDTable::ActionName(actionID);
 		std::cout << "Action: " << actionString << std::endl;
 
 		// TODO: Cleanup
@@ -265,7 +265,7 @@ DialogHandler::_GetTransition(int32 num)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
 		uint32 action = fResource->GetAction(transition.entry.index_action);
-		transition.action = IDTable::ActionAt(action);
+		transition.action = IDTable::ActionName(action);
 		std::cout << "action:" << action << std::endl;
 	}
 	if (transition.entry.flags & DLG_TRANSITION_END) {
