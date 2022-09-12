@@ -116,7 +116,7 @@ public:
 
 	static std::vector<trigger_params*> TriggersFromString(const std::string& string);
 	static trigger_params* TriggerFromString(const std::string& string);
-	static bool ActionFromString(const std::string& string, action_params& node);
+	static action_params* ActionFromString(const std::string& string);
 
 private:
 	Parser(const Parser&);
@@ -133,6 +133,7 @@ private:
 	static void _ReadObjectBlock(Tokenizer *tokenizer, object_params& obj);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* triggerNode);
+	static bool _ExtractActionName(Tokenizer& tokenizer, ::action_params* param);
 	
 	static int _BlockTypeFromToken(const token &tok);
 

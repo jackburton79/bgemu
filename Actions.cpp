@@ -311,3 +311,30 @@ static const Actions kActionsTable[] = {
 { 323, "CREATECREATUREIMPASSABLEALLOWOVERLAP(S:NEWOBJECT*,P:LOCATION*,I:FACE*)" },
 { 324, "SETBEENINPARTYFLAGS(" },
 };
+
+
+std::string
+GetActionName(int32 id)
+{
+	size_t numItems = sizeof(kActionsTable) / sizeof(kActionsTable[0]);
+	for (size_t i = 0; i < numItems; i++) {
+		if (kActionsTable[i].id == id)
+			return std::string(kActionsTable[i].name);
+	}
+	return "";
+}
+
+
+int32
+GetActionID(std::string name)
+{
+	size_t numItems = sizeof(kActionsTable) / sizeof(kActionsTable[0]);
+	for (size_t i = 0; i < numItems; i++) {
+		if (strcasecmp(kActionsTable[i].name, name.c_str()) == 0) {
+			std::cout << "in: " << name << ", found: " << kActionsTable[i].name << ", id: " << kActionsTable[i].id << std::endl;
+			return kActionsTable[i].id;
+		}
+	}
+	return -1;
+}
+

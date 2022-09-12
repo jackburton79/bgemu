@@ -233,4 +233,3 @@ GetTriggerID(std::string name)
 	}
 	return -1;
 }
-

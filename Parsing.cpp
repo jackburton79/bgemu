@@ -1,5 +1,6 @@
 #include "Parsing.h"
 
+#include "Actions.h"
 #include "Core.h"
 #include "IDSResource.h"
 #include "Log.h"
@@ -265,10 +266,18 @@ Parser::TriggerFromString(const std::string& string)
 
 
 /* static */
-bool
-Parser::ActionFromString(const std::string& string, action_params& node)
+action_params*
+Parser::ActionFromString(const std::string& string)
 {
-	return false;
+	action_params* params = new action_params();
+	StringStream stream(string);
+	Tokenizer tokenizer(&stream, 0);
+	//tokenizer.SetDebug(true);
+	if (!_ExtractActionName(tokenizer, params)) {
+		//node->Release();
+		return NULL;
+	}
+	return params;
 }
 
 
@@ -348,6 +357,25 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 	node->id = GetTriggerID(triggerName);
 	if (node->id == -1) {
 		std::cerr << Log::Red << "GetTriggerID: no trigger found" << Log::Normal << std::endl;
+		return false;
+	}
+	return true;
+}
+
+
+/* static */
+bool
+Parser::_ExtractActionName(Tokenizer& tokenizer, ::action_params* param)
+{
+	// Action name
+	token t = tokenizer.ReadToken();
+	if (t.type != TOKEN_STRING)
+		return false;
+
+	std::string actionName = t.u.string;
+	param->id = GetActionID(actionName);
+	if (param->id == -1) {
+		std::cerr << Log::Red << "GetActionID: no action found" << Log::Normal << std::endl;
 		return false;
 	}
 	return true;
