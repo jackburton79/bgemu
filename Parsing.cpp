@@ -332,6 +332,10 @@ Parser::Test()
 {
 	std::string actions[] = {
 			"SetGlobal(\"TalkedToMadeen\",\"GLOBAL\",1)",
+			"SetGlobalTimer(\"ImoenDream1\",\"GLOBAL\",ONE_DAY)",
+			"ClearAllActions()",
+			"StartCutSceneMode()",
+			"StartCutScene(\"Cut42a\")",
 	};
 
 	for (size_t i = 0; i < sizeof(actions) / sizeof(actions[0]); i++) {
