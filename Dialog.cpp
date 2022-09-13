@@ -171,7 +171,7 @@ DialogHandler::HandleTransition(transition_entry transition)
 {
 	std::cout << "DialogHandler::HandleTransition" << std::endl;
 
-	if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
+	if (transition.HasPlayerText()) {
 		std::cout << "PlayerText: " << transition.text_player << std::endl;
 		// Write selected option to text area
 		TextArea* textArea = GUI::Get()->GetMessagesTextArea();
@@ -179,11 +179,11 @@ DialogHandler::HandleTransition(transition_entry transition)
 		if (textArea != NULL)
 			textArea->AddText(text.c_str());
 	}
-	if (transition.flags & DLG_TRANSITION_END) {
+	if (!transition.HasNextState()) {
 		fEnd = true;
 		std::cout << "TRANSITION_END" << std::endl;
 	}
-	if (transition.flags & DLG_TRANSITION_HAS_ACTION) {
+	if (transition.HasActions()) {
 		std::string actionString = fResource->GetAction(transition.index_action);
 		std::cout << "Actions: " << actionString << std::endl;
 		// TODO: Cleanup
@@ -208,7 +208,7 @@ DialogHandler::HandleTransition(transition_entry transition)
 	// Prepare next state
 	delete fState;
 	fState = NULL;
-	if ((transition.flags & DLG_TRANSITION_END) == 0) {
+	if (transition.HasNextState()) {
 		std::cout << "next resource: " << transition.resource_next_state << std::endl;
 		std::cout << "next index: " << transition.index_next_state << std::endl;
 		if (fResource->Name().compare(transition.resource_next_state.CString()) != 0) {
@@ -271,13 +271,13 @@ DialogHandler::_ReadTransition(int32 num)
 {
 	std::cout << "DialogHandler::_ReadTransition(" << num << ")" << std::endl;
 	transition_entry transition = fResource->GetTransition(num);
-	if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
+	if (transition.HasPlayerText()) {
 		std::cout << "- has text: " << IDTable::GetDialog(transition.text_player) << std::endl;
 	}
-	if (transition.flags & DLG_TRANSITION_HAS_ACTION) {
+	if (transition.HasActions()) {
 		std::cout << "- has action: " << transition.index_action << std::endl;
 	}
-	if ((transition.flags & DLG_TRANSITION_END) == 0) {
+	if (transition.HasNextState()) {
 		std::cout << "- has next" << std::endl;
 	}
 
