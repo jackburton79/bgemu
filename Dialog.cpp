@@ -172,7 +172,7 @@ DialogHandler::CountTransitions() const
 
 
 void
-DialogHandler::HandleTransition(Transition& transition)
+DialogHandler::HandleTransition(Transition transition)
 {
 	std::cout << "DialogHandler::HandleTransition" << std::endl;
 
@@ -181,10 +181,10 @@ DialogHandler::HandleTransition(Transition& transition)
 	if (textArea != NULL)
 		textArea->AddText(transition.text_player.c_str());
 
-	if (transition.entry.flags & DLG_TRANSITION_END)
+	if (transition.entry.flags & DLG_TRANSITION_END) {
 		fEnd = true;
-
-	std::cout << "END ? " << ((transition.entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
+		std::cout << "TRANSITION_END" << std::endl;
+	}
 
 	delete fState;
 	fState = NULL;
@@ -201,7 +201,7 @@ DialogHandler::HandleTransition(Transition& transition)
 
 	if (transition.entry.index_action != -1) {
 		std::cout << "Action: " << transition.entry.index_action << std::endl;
-		std::string actionString = fResource->GetAction(transition.entry.index_action);
+		std::string actionString = transition.action;
 		std::cout << "Action: " << actionString << std::endl;
 
 		// TODO: Cleanup
@@ -225,6 +225,8 @@ DialogHandler::_GetNextState()
 	std::cout << "_GetNextState():" << std::endl;
 	delete fState;
 	fState = NULL;
+
+	std::cout << "Clearing transitions" << std::endl;
 	fTransitions.clear();
 
 	dlg_state nextState;
@@ -245,11 +247,13 @@ DialogHandler::_GetNextState()
 	fState = new DialogHandler::State(triggerString, text,
 									nextState.transitions_num, nextState.transition_first);
 
+	// Get Transitions for this state
+	std::cout << "Getting transition for state " << fNextStateIndex << std::endl;
+
 	fNextStateIndex++;
 
-	// Get Transitions for this state
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
-		DialogHandler::Transition transition = _GetTransition(fState->TransitionIndex() + i);
+		DialogHandler::Transition transition = _ReadTransition(fState->TransitionIndex() + i);
 		fTransitions.push_back(transition);
 	}
 	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
@@ -259,18 +263,16 @@ DialogHandler::_GetNextState()
 
 
 DialogHandler::Transition
-DialogHandler::_GetTransition(int32 num)
+DialogHandler::_ReadTransition(int32 num)
 {
 	DialogHandler::Transition transition;
 	transition.entry = fResource->GetTransition(num);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
+	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION)
 		transition.action = fResource->GetAction(transition.entry.index_action);
-		std::cout << "action:" << transition.action << std::endl;
-	}
 	if (transition.entry.flags & DLG_TRANSITION_END) {
-		std::cout << "TRANSITION_END" << std::endl;
+
 	}
 
 	return transition;

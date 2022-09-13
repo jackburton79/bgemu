@@ -55,7 +55,7 @@ public:
 	Transition TransitionAt(int32 index);
 	int32 CountTransitions() const;
 
-	void HandleTransition(Transition& transition);
+	void HandleTransition(Transition transition);
 
 	DLGResource* Resource();
 	::Actor* Actor();
@@ -70,7 +70,7 @@ private:
 	bool fEnd;
 
 	State* _GetNextState();
-	Transition _GetTransition(int32 num);
+	Transition _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);
 };
 
