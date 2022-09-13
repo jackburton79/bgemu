@@ -95,6 +95,7 @@ static const Actions kActionsTable[] = {
 		{ 105, "ATTACKONEROUND" },
 		{ 106, "SHOUT" },
 		{ 107, "MOVETOOFFSET" },
+		{ 108, "ESCAPEAREA" },
 		{ 108, "ESCAPEAREAMOVE" },
 		{ 109, "INCREMENTGLOBAL" },
 		{ 110, "LEAVEAREALUA" },
