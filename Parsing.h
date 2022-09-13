@@ -116,6 +116,8 @@ public:
 
 	static std::vector<trigger_params*> TriggersFromString(const std::string& string);
 	static trigger_params* TriggerFromString(const std::string& string);
+
+	static std::vector<action_params*> ActionsFromString(const std::string& string);
 	static action_params* ActionFromString(const std::string& string);
 
 	static void Test();

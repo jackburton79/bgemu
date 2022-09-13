@@ -159,6 +159,27 @@ Parser::TriggersFromString(const std::string& string)
 }
 
 
+/* static */
+std::vector<action_params*>
+Parser::ActionsFromString(const std::string& string)
+{
+	std::string localString = string;
+	std::vector<action_params*> actionList;
+	if (!string.empty()) {
+		while (true) {
+			action_params* actionParam = ActionFromString(localString);
+			if (actionParam != NULL)
+				actionList.push_back(actionParam);
+			size_t endLine = localString.find('\n');
+			if (endLine == localString.length() || endLine == std::string::npos)
+				break;
+			localString = localString.substr(endLine + 1, string.length());
+		}
+	}
+	return actionList;
+}
+
+
 static
 Parameter
 ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
