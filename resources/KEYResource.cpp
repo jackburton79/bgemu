@@ -68,17 +68,20 @@ KEYResource::GetFileEntryAt(uint32 index)
 {
 	KeyFileEntry* entry = NULL;
 	try {
-		entry = new KeyFileEntry;
+		uint32 length = 0;
 		fData->Seek(fBifOffset + index * kKeyFileEntrySize, SEEK_SET);
-		fData->Read(entry->length);
+		fData->Read(length);
 		uint32 offset;
 		fData->Read(offset);
 		uint16 nameLen;
 		fData->Read(nameLen);
-		fData->Read(entry->location);
-		entry->name = new char[nameLen + 1];
-		fData->ReadAt(offset, entry->name, nameLen);
-		path_dos_to_unix(entry->name);
+		uint16 location;
+		fData->Read(location);
+		char* name = new char[nameLen + 1];
+		fData->ReadAt(offset, name, nameLen);
+		path_dos_to_unix(name);
+
+		entry = new KeyFileEntry(name, length, location);
 	} catch (...) {
 		delete entry;
 		entry = NULL;
