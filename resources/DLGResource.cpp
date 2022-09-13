@@ -147,3 +147,25 @@ DLGResource::_GetStateAt(int index, dlg_state& dlgState)
 {
 	fData->ReadAt(fStateTableOffset + index * sizeof(dlg_state), dlgState);
 }
+
+
+// transition_entry
+bool
+transition_entry::HasPlayerText() const
+{
+	return flags & DLG_TRANSITION_HAS_TEXT;
+}
+
+
+bool
+transition_entry::HasActions() const
+{
+	return flags & DLG_TRANSITION_HAS_ACTION;
+}
+
+
+bool
+transition_entry::HasNextState() const
+{
+	return (flags & DLG_TRANSITION_END) == 0;
+}

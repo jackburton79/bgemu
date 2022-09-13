@@ -33,6 +33,10 @@ enum dlg_transition_flags {
 
 
 struct transition_entry {
+	bool HasPlayerText() const;
+	bool HasActions() const;
+	bool HasNextState() const;
+
 	int32 flags;
 	int32 text_player;
 	int32 text_journal;
