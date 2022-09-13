@@ -185,7 +185,23 @@ DialogHandler::HandleTransition(Transition transition)
 		fEnd = true;
 		std::cout << "TRANSITION_END" << std::endl;
 	}
+	if (transition.entry.index_action != -1) {
+		std::cout << "Action: " << transition.entry.index_action << std::endl;
+		std::string actionString = transition.action;
+		std::cout << "Action: " << actionString << std::endl;
+		// TODO: Cleanup
+		action_params* params = Parser::ActionFromString(actionString);
 
+		bool canContinue = false;
+		Action* action = Script::GetAction(Actor(), params, canContinue);
+		if (action != NULL)
+			Actor()->AddAction(action);
+	}
+
+	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
+		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
+
+	// Prepare next state
 	delete fState;
 	fState = NULL;
 	std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
@@ -199,22 +215,6 @@ DialogHandler::HandleTransition(Transition transition)
 
 	fNextStateIndex = transition.entry.index_next_state;
 
-	if (transition.entry.index_action != -1) {
-		std::cout << "Action: " << transition.entry.index_action << std::endl;
-		std::string actionString = transition.action;
-		std::cout << "Action: " << actionString << std::endl;
-
-		// TODO: Cleanup
-		action_params* params = Parser::ActionFromString(actionString);
-
-		bool canContinue = false;
-		Action* action = Script::GetAction(Actor(), params, canContinue);
-		if (action != NULL)
-			Actor()->AddAction(action);
-	}
-
-	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
 
 }
 
@@ -254,6 +254,7 @@ DialogHandler::_GetNextState()
 
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
 		DialogHandler::Transition transition = _ReadTransition(fState->TransitionIndex() + i);
+
 		fTransitions.push_back(transition);
 	}
 	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
@@ -265,15 +266,21 @@ DialogHandler::_GetNextState()
 DialogHandler::Transition
 DialogHandler::_ReadTransition(int32 num)
 {
+	std::cout << "DialogHandler::_ReadTransition(" << num << ")" << std::endl;
 	DialogHandler::Transition transition;
 	transition.entry = fResource->GetTransition(num);
-	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
+	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT) {
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION)
-		transition.action = fResource->GetAction(transition.entry.index_action);
-	if (transition.entry.flags & DLG_TRANSITION_END) {
-
+		std::cout << "- has text: " << transition.text_player << std::endl;
 	}
+	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
+		transition.action = fResource->GetAction(transition.entry.index_action);
+		std::cout << "- has action: " << transition.action << std::endl;
+	}
+	if ((transition.entry.flags & DLG_TRANSITION_END) == 0) {
+		std::cout << "- has next" << std::endl;
+	}
+
 
 	return transition;
 }
