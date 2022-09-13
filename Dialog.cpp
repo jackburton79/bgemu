@@ -166,7 +166,6 @@ DialogHandler::CurrentState()
 }
 
 
-
 void
 DialogHandler::HandleTransition(transition_entry transition)
 {
