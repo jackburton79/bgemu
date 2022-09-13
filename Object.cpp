@@ -683,7 +683,7 @@ void
 Object::_ExecuteAction(Action& action)
 {
 	SetInterruptable(false);
-	std::cout << Name() << " executes " << action.Name() << std::endl;
+	//std::cout << Name() << " executes " << action.Name() << std::endl;
 	action();
 
 	// if completed, clear
