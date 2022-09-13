@@ -44,9 +44,6 @@ public:
 	void SelectOption(int32 option);
 	void Continue();
 
-	transition_entry TransitionAt(int32 index);
-	int32 CountTransitions() const;
-
 	void HandleTransition(transition_entry transition);
 
 	DLGResource* Resource();

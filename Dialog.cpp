@@ -100,8 +100,8 @@ DialogHandler::ShowPlayerOptions()
 	}
 
 	int32 numOptions = 0;
-	for (int32 index = 0; index < CountTransitions(); index++) {
-		transition_entry transition = TransitionAt(index);
+	for (size_t index = 0; index < fTransitions.size(); index++) {
+		transition_entry transition = fTransitions.at(index);
 		if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
 			std::ostringstream s;
 			s << (index + 1) << "-";
@@ -165,19 +165,6 @@ DialogHandler::CurrentState()
 	return fState;
 }
 
-
-transition_entry
-DialogHandler::TransitionAt(int32 index)
-{
-	return fTransitions.at(index);
-}
-
-
-int32
-DialogHandler::CountTransitions() const
-{
-	return fTransitions.size();
-}
 
 
 void
