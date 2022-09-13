@@ -27,7 +27,7 @@ public:
 
 	TileCell* TileAt(uint16 index);
 	TileCell* TileAtPoint(const IE::point& point);
-	uint16 TileNumberForPoint(const IE::point& point) const;
+	int32 TileNumberForPoint(const IE::point& point) const;
 	int32 CountTiles() const;
 
 	void Update(GFX::rect rect, bool allOverlays);
