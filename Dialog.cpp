@@ -44,10 +44,12 @@ DialogHandler::~DialogHandler()
 DialogHandler::State*
 DialogHandler::GetNextValidState()
 {
+	std::cout << "DialogHandler::GetNextValidState()" << std::endl;
 	for (;;) {
 		fState = _GetNextState();
 		if (fState == NULL)
 			break;
+		std::cout << "DialogHandler::GetNextValidState(): got state" << std::endl;
 		std::vector<trigger_params*> triggerList = Parser::TriggersFromString(fState->Trigger());
 		std::cout << "GetNextValidState: Checking triggers... " << std::endl;
 		if (triggerList.size() == 0) {
@@ -59,6 +61,8 @@ DialogHandler::GetNextValidState()
 			break;
 		}
 	}
+
+	std::cout << "GetNextValidState: text: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	return fState;
 }
@@ -130,7 +134,6 @@ DialogHandler::Continue()
 	}
 
 	fState = GetNextValidState();
-	//std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	if (fState) {
 		ShowTriggerText();
