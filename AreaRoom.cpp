@@ -897,7 +897,7 @@ AreaRoom::_InitSearchMap()
 	std::cout << "ratio: h=" << fMapHorizontalRatio;
 	std::cout << ", v=" << fMapVerticalRatio << std::endl;	
 */
-	std::cout << Log::Green << "Done!" << std::endl;
+	std::cout << Log::Green << "Done!" << Log::Normal << std::endl;
 }
 
 
