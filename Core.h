@@ -55,8 +55,8 @@ public:
 	
 	uint32 Game() const;
 
-	bool LoadArea(const res_ref& areaName, const char* longName,
-					const char* entranceName);
+	bool LoadArea(const res_ref areaName, std::string longName,
+					std::string entranceName);
 	bool LoadWorldMap();
 	
 	RoomBase* CurrentRoom();

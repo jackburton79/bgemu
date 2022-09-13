@@ -158,15 +158,15 @@ Core::CurrentRoom()
 
 
 bool
-Core::LoadArea(const res_ref& areaName, const char* longName,
-					const char* entranceName)
+Core::LoadArea(const res_ref areaName, std::string longName,
+					std::string entranceName)
 {
 	if (fCurrentRoom != NULL) {
 		fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
 	try {
-		fCurrentRoom = new AreaRoom(areaName, longName, entranceName);
+		fCurrentRoom = new AreaRoom(areaName, longName.c_str(), entranceName.c_str());
 		fCurrentRoom->Acquire();
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << e.what() << std::endl;

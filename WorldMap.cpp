@@ -134,7 +134,7 @@ void
 WorldMap::MouseDown(IE::point point)
 {
 	if (fAreaUnderMouse != NULL)
-		Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), NULL);
+		Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), "");
 }
 
 
