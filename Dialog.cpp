@@ -195,7 +195,6 @@ DialogHandler::HandleTransition(Transition transition)
 		std::cout << "TRANSITION_END" << std::endl;
 	}
 	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		std::cout << "Action: " << transition.entry.index_action << std::endl;
 		std::string actionString = transition.action;
 		std::cout << "Action: " << actionString << std::endl;
 		// TODO: Cleanup
