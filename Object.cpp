@@ -330,7 +330,7 @@ void
 Object::AddAction(Action* action)
 {
 	SetActive(true);
-	if (action->IsInstant() && IsActionListEmpty()) {
+	if (action->IsInstant() && IsActionListEmpty() && !Game::Get()->InDialogMode()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
 		fCurrentAction = action;
 		_ExecuteAction(*action);
