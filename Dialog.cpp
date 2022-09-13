@@ -114,8 +114,6 @@ DialogHandler::SelectOption(int32 option)
 	assert(fTransitions.size() >= (size_t)option);
 
 	Transition transition = fTransitions.at(option);
-	std::cout << "SelectOption: " << transition.text_player << std::endl;
-
 	HandleTransition(transition);
 }
 
@@ -123,27 +121,27 @@ DialogHandler::SelectOption(int32 option)
 void
 DialogHandler::Continue()
 {
+	std::cout << "DialogHandler::Continue()" << std::endl;
+
 	if (fEnd) {
 		// TODO: Not nice. TerminateDialog deletes this object
 		Game::Get()->TerminateDialog();
 		return;
 	}
 
-	std::cout << "DialogHandler::Continue()" << std::endl;
 	fState = GetNextValidState();
-	std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
+	//std::cout << "state: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	if (fState) {
 		ShowTriggerText();
 		// TODO: see if it's correct
 		if (fTransitions.size() == 1) {
-			Transition& transition = fTransitions.at(0);
-			if (transition.entry.flags & DLG_TRANSITION_END) {
-				fEnd = true;
-			}
+			Transition transition = fTransitions.at(0);
+			HandleTransition(transition);
 		}
 		ShowPlayerOptions();
 	} else {
+		std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
 		// TODO: Not nice. TerminateDialog deletes this object
 		Game::Get()->TerminateDialog();
 	}
@@ -176,26 +174,33 @@ DialogHandler::HandleTransition(Transition transition)
 {
 	std::cout << "DialogHandler::HandleTransition" << std::endl;
 
-	// Write selected option to text area
-	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-	if (textArea != NULL)
-		textArea->AddText(transition.text_player.c_str());
-
+	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT) {
+		std::cout << "PlayerText: " << transition.text_player << std::endl;
+		// Write selected option to text area
+		TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+		if (textArea != NULL)
+			textArea->AddText(transition.text_player.c_str());
+	}
 	if (transition.entry.flags & DLG_TRANSITION_END) {
 		fEnd = true;
 		std::cout << "TRANSITION_END" << std::endl;
 	}
-	if (transition.entry.index_action != -1) {
+	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
 		std::cout << "Action: " << transition.entry.index_action << std::endl;
 		std::string actionString = transition.action;
 		std::cout << "Action: " << actionString << std::endl;
 		// TODO: Cleanup
-		action_params* params = Parser::ActionFromString(actionString);
 
-		bool canContinue = false;
-		Action* action = Script::GetAction(Actor(), params, canContinue);
-		if (action != NULL)
-			Actor()->AddAction(action);
+		std::cout << "add list to " << Actor()->Name() << " queue" << std::endl;
+		std::vector<action_params*> actionList = Parser::ActionsFromString(actionString);
+		for (std::vector<action_params*>::iterator i = actionList.begin();
+				i != actionList.end(); i++) {
+			action_params* params = *i;
+			bool canContinue = false;
+			Action* action = Script::GetAction(Actor(), params, canContinue);
+			if (action != NULL)
+				Actor()->AddAction(action);
+		}
 	}
 
 	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
@@ -204,18 +209,18 @@ DialogHandler::HandleTransition(Transition transition)
 	// Prepare next state
 	delete fState;
 	fState = NULL;
-	std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
-	std::cout << "next index: " << transition.entry.index_next_state << std::endl;
-	if (fResource->Name().compare(transition.entry.resource_next_state.CString()) != 0) {
-		gResManager->ReleaseResource(fResource);
-		fResource = NULL;
+	if ((transition.entry.flags & DLG_TRANSITION_END) == 0) {
+		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
+		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
+		if (fResource->Name().compare(transition.entry.resource_next_state.CString()) != 0) {
+			gResManager->ReleaseResource(fResource);
+			fResource = NULL;
 
-		fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+			fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+		}
+
+		fNextStateIndex = transition.entry.index_next_state;
 	}
-
-	fNextStateIndex = transition.entry.index_next_state;
-
-
 }
 
 
@@ -254,7 +259,6 @@ DialogHandler::_GetNextState()
 
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
 		DialogHandler::Transition transition = _ReadTransition(fState->TransitionIndex() + i);
-
 		fTransitions.push_back(transition);
 	}
 	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;

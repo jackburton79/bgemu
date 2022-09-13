@@ -13,7 +13,7 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
-#define DATALENGTH 80
+#define DATALENGTH 128
 
 
 /* static */
