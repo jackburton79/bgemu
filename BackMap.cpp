@@ -94,7 +94,7 @@ BackMap::TileAtPoint(const IE::point& point)
 	const int32 num = TileNumberForPoint(point);
 	try {
 		return fTileCells.at(num);
-	} catch (std::out_of_range& e) {
+	} catch (std::exception& e) {
 		return NULL;
 	}
 }
