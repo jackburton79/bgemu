@@ -196,7 +196,7 @@ static
 std::vector<Parameter>
 GetFunctionParameters(std::string functionString)
 {
-	std::cout << "GetFunctionParameters()" << std::endl;
+	//std::cout << "GetFunctionParameters()" << std::endl;
 	StringStream stream(functionString);
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
@@ -221,13 +221,13 @@ GetFunctionParameters(std::string functionString)
 		Parameter parameter = ParameterFromString(t.u.string, stringPos, integerPos);
 		parameters.push_back(parameter);
 	}
-
+#if 0
 	std::cout << "found " << parameters.size() << " parameters." << std::endl;
 	std::vector<Parameter>::const_iterator i;
 	for (i = parameters.begin(); i != parameters.end(); i++) {
 		(*i).Print();
 	}
-
+#endif
 	return parameters;
 }
 
@@ -236,7 +236,7 @@ GetFunctionParameters(std::string functionString)
 trigger_params*
 Parser::TriggerFromString(const std::string& string)
 {
-	std::cout << "TriggerFromString()" << std::endl;
+	//std::cout << "TriggerFromString()" << std::endl;
 	trigger_params* node = new trigger_params();
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
@@ -262,8 +262,8 @@ Parser::TriggerFromString(const std::string& string)
 		extractor._ExtractNextParameter(node, parameter);
 	}
 
-	std::cout << "TriggerFromString() END" << std::endl;
-	node->Print();
+	//std::cout << "TriggerFromString() END" << std::endl;
+	//node->Print();
 
 	return node;
 }
@@ -273,7 +273,7 @@ Parser::TriggerFromString(const std::string& string)
 action_params*
 Parser::ActionFromString(const std::string& string)
 {
-	std::cerr << "ActionFromString: " << string << std::endl;
+	//std::cerr << "ActionFromString: " << string << std::endl;
 	action_params* params = new action_params();
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
@@ -298,8 +298,8 @@ Parser::ActionFromString(const std::string& string)
 		Parameter parameter = *i;
 		extractor._ExtractNextParameter(params, parameter);
 	}
-	std::cout << "ActionFromString() END" << std::endl;
-	params->Print();
+	//std::cout << "ActionFromString() END" << std::endl;
+	//params->Print();
 
 	return params;
 }
@@ -612,13 +612,13 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 								Parameter& parameter)
 {
 	// TODO: horrible, complex code. Improve, refactor
-	std::cout << "ExtractNextParameter" << std::endl;
+	//std::cout << "ExtractNextParameter" << std::endl;
 	token tokenParam = fTokenizer.ReadToken();
 	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
 		return tokenParam;
 
-	if (parameter.type != Parameter::UNKNOWN)
-		parameter.Print();
+	//if (parameter.type != Parameter::UNKNOWN)
+	//	parameter.Print();
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = fTokenizer.ReadToken();
 
@@ -683,13 +683,13 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 								Parameter& parameter)
 {
 	// TODO: horrible, complex code. Improve, refactor
-	std::cout << "ExtractNextParameter(ACTION)" << std::endl;
+	//std::cout << "ExtractNextParameter(ACTION)" << std::endl;
 	token tokenParam = fTokenizer.ReadToken();
 	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
 		return tokenParam;
 
-	if (parameter.type != Parameter::UNKNOWN)
-		parameter.Print();
+	//if (parameter.type != Parameter::UNKNOWN)
+	//	parameter.Print();
 	if (tokenParam.type == TOKEN_COMMA)
 		tokenParam = fTokenizer.ReadToken();
 
@@ -746,9 +746,9 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			break;
 	}
 
-	param->Print();
+	//param->Print();
 
-	std::cout << tokenParam.u.string << std::endl;
+	//std::cout << tokenParam.u.string << std::endl;
 
 	return tokenParam;
 }
