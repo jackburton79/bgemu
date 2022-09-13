@@ -1109,7 +1109,9 @@ Actor::_SetPositionPrivate(const IE::point& point)
 
 	if (room != NULL) {
 		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
-		room->BackMap()->TileAtPoint(point)->ActorEnteredCell(this);
+		TileCell* tile = room->BackMap()->TileAtPoint(fActor->position);
+		if (tile != NULL)
+			tile->ActorEnteredCell(this);
 	}
 }
 
