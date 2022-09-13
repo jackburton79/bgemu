@@ -101,13 +101,15 @@ DialogHandler::ShowPlayerOptions()
 
 	int32 numOptions = 0;
 	for (int32 index = 0; index < CountTransitions(); index++) {
-		DialogHandler::Transition transition = TransitionAt(index);
-		if (!transition.text_player.empty()) {
+		transition_entry transition = TransitionAt(index);
+		if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
 			std::ostringstream s;
 			s << (index + 1) << "-";
 			std::string fullString;
 			fullString.append(s.str());
-			fullString.append(transition.text_player.c_str());
+
+			std::string text = IDTable::GetDialog(transition.text_player);
+			fullString.append(text.c_str());
 			textArea->AddDialogText(fullString.c_str(), index + 1);
 			numOptions++;
 		}
@@ -122,7 +124,7 @@ DialogHandler::SelectOption(int32 option)
 {
 	assert(fTransitions.size() >= (size_t)option);
 
-	Transition transition = fTransitions.at(option);
+	transition_entry transition = fTransitions.at(option);
 	HandleTransition(transition);
 }
 
@@ -146,7 +148,7 @@ DialogHandler::Continue()
 		int32 numOptions = ShowPlayerOptions();
 		// TODO: Handle all transactions ?
 		if (numOptions == 0 && fTransitions.size() >= 1) {
-			Transition transition = fTransitions.at(0);
+			transition_entry transition = fTransitions.at(0);
 			HandleTransition(transition);
 		}
 	} else {
@@ -164,7 +166,7 @@ DialogHandler::CurrentState()
 }
 
 
-DialogHandler::Transition
+transition_entry
 DialogHandler::TransitionAt(int32 index)
 {
 	return fTransitions.at(index);
@@ -179,24 +181,25 @@ DialogHandler::CountTransitions() const
 
 
 void
-DialogHandler::HandleTransition(Transition transition)
+DialogHandler::HandleTransition(transition_entry transition)
 {
 	std::cout << "DialogHandler::HandleTransition" << std::endl;
 
-	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT) {
+	if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
 		std::cout << "PlayerText: " << transition.text_player << std::endl;
 		// Write selected option to text area
 		TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+		std::string text = IDTable::GetDialog(transition.text_player);
 		if (textArea != NULL)
-			textArea->AddText(transition.text_player.c_str());
+			textArea->AddText(text.c_str());
 	}
-	if (transition.entry.flags & DLG_TRANSITION_END) {
+	if (transition.flags & DLG_TRANSITION_END) {
 		fEnd = true;
 		std::cout << "TRANSITION_END" << std::endl;
 	}
-	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		std::string actionString = transition.action;
-		std::cout << "Action: " << actionString << std::endl;
+	if (transition.flags & DLG_TRANSITION_HAS_ACTION) {
+		std::string actionString = fResource->GetAction(transition.index_action);
+		std::cout << "Actions: " << actionString << std::endl;
 		// TODO: Cleanup
 
 		::Actor* player = Game::Get()->Party()->ActorAt(0);
@@ -213,23 +216,23 @@ DialogHandler::HandleTransition(Transition transition)
 		}
 	}
 
-	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
+	if (transition.flags & DLG_TRANSITION_HAS_JOURNAL)
+		std::cout << "text journal: " << transition.text_journal << std::endl;
 
 	// Prepare next state
 	delete fState;
 	fState = NULL;
-	if ((transition.entry.flags & DLG_TRANSITION_END) == 0) {
-		std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
-		std::cout << "next index: " << transition.entry.index_next_state << std::endl;
-		if (fResource->Name().compare(transition.entry.resource_next_state.CString()) != 0) {
+	if ((transition.flags & DLG_TRANSITION_END) == 0) {
+		std::cout << "next resource: " << transition.resource_next_state << std::endl;
+		std::cout << "next index: " << transition.index_next_state << std::endl;
+		if (fResource->Name().compare(transition.resource_next_state.CString()) != 0) {
 			gResManager->ReleaseResource(fResource);
 			fResource = NULL;
 
-			fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+			fResource = gResManager->GetDLG(transition.resource_next_state);
 		}
 
-		fNextStateIndex = transition.entry.index_next_state;
+		fNextStateIndex = transition.index_next_state;
 	}
 }
 
@@ -258,7 +261,7 @@ DialogHandler::_GetNextState()
 		triggerString = fResource->GetStateTrigger(nextState.trigger);
 
 	std::string text = IDTable::GetDialog(nextState.text_ref);
-	_FillPlaceHolders(text);
+	//_FillPlaceHolders(text);
 	fState = new DialogHandler::State(triggerString, text,
 									nextState.transitions_num, nextState.transition_first);
 
@@ -268,7 +271,7 @@ DialogHandler::_GetNextState()
 	fNextStateIndex++;
 
 	for (int32 i = 0; i < fState->NumTransitions(); i++) {
-		DialogHandler::Transition transition = _ReadTransition(fState->TransitionIndex() + i);
+		transition_entry transition = _ReadTransition(fState->TransitionIndex() + i);
 		fTransitions.push_back(transition);
 	}
 	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
@@ -277,21 +280,18 @@ DialogHandler::_GetNextState()
 }
 
 
-DialogHandler::Transition
+transition_entry
 DialogHandler::_ReadTransition(int32 num)
 {
 	std::cout << "DialogHandler::_ReadTransition(" << num << ")" << std::endl;
-	DialogHandler::Transition transition;
-	transition.entry = fResource->GetTransition(num);
-	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT) {
-		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
-		std::cout << "- has text: " << transition.text_player << std::endl;
+	transition_entry transition = fResource->GetTransition(num);
+	if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
+		std::cout << "- has text: " << IDTable::GetDialog(transition.text_player) << std::endl;
 	}
-	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		transition.action = fResource->GetAction(transition.entry.index_action);
-		std::cout << "- has action: " << transition.action << std::endl;
+	if (transition.flags & DLG_TRANSITION_HAS_ACTION) {
+		std::cout << "- has action: " << transition.index_action << std::endl;
 	}
-	if ((transition.entry.flags & DLG_TRANSITION_END) == 0) {
+	if ((transition.flags & DLG_TRANSITION_END) == 0) {
 		std::cout << "- has next" << std::endl;
 	}
 

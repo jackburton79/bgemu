@@ -33,13 +33,6 @@ public:
 		int32 fNumTransitions;
 	};
 
-	class Transition {
-	public:
-		std::string text_player;
-		std::string action;
-		transition_entry entry;
-	};
-
 	State* CurrentState();
 	State* GetNextValidState();
 
@@ -51,11 +44,10 @@ public:
 	void SelectOption(int32 option);
 	void Continue();
 
-	typedef std::vector<Transition> TransitionList;
-	Transition TransitionAt(int32 index);
+	transition_entry TransitionAt(int32 index);
 	int32 CountTransitions() const;
 
-	void HandleTransition(Transition transition);
+	void HandleTransition(transition_entry transition);
 
 	DLGResource* Resource();
 	::Actor* Actor();
@@ -65,12 +57,15 @@ private:
 	int32 fNextStateIndex;
 	::Actor* fInitiator;
 	::Actor* fTarget;
+
+	typedef std::vector<transition_entry> TransitionList;
 	TransitionList fTransitions;
+
 	DLGResource* fResource;
 	bool fEnd;
 
 	State* _GetNextState();
-	Transition _ReadTransition(int32 num);
+	transition_entry _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);
 };
 
