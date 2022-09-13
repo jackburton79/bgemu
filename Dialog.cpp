@@ -90,14 +90,16 @@ DialogHandler::ShowTriggerText()
 }
 
 
-void
+int32
 DialogHandler::ShowPlayerOptions()
 {
 	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
 	if (textArea == NULL) {
 		std::cerr << "NULL Text Area!!!" << std::endl;
-		return;
+		return 0;
 	}
+
+	int32 numOptions = 0;
 	for (int32 index = 0; index < CountTransitions(); index++) {
 		DialogHandler::Transition transition = TransitionAt(index);
 		if (!transition.text_player.empty()) {
@@ -107,8 +109,11 @@ DialogHandler::ShowPlayerOptions()
 			fullString.append(s.str());
 			fullString.append(transition.text_player.c_str());
 			textArea->AddDialogText(fullString.c_str(), index + 1);
+			numOptions++;
 		}
 	}
+
+	return numOptions;
 }
 
 
@@ -138,11 +143,12 @@ DialogHandler::Continue()
 	if (fState) {
 		ShowTriggerText();
 		// TODO: see if it's correct
-		if (fTransitions.size() == 1) {
+		int32 numOptions = ShowPlayerOptions();
+		// TODO: Handle all transactions ?
+		if (numOptions == 0 && fTransitions.size() >= 1) {
 			Transition transition = fTransitions.at(0);
 			HandleTransition(transition);
 		}
-		ShowPlayerOptions();
 	} else {
 		std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
 		// TODO: Not nice. TerminateDialog deletes this object
