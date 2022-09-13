@@ -1236,7 +1236,7 @@ AreaRoom::_CleanDestroyedObjects()
 void
 AreaRoom::_UnloadArea()
 {
-	std::cout << "AreaRoom::_UnloadArea()" << std::endl;
+	std::cout << "AreaRoom::_UnloadArea(" << Name() << ")" << std::endl;
 	// TODO: On quit, Core has already deleted the GraphicsEngine,
 	// so here it's NULL. Change order of object destruction
 	// so it doesn't happen.
