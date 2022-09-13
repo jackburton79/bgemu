@@ -113,49 +113,10 @@ DialogHandler::SelectOption(int32 option)
 {
 	assert(fTransitions.size() >= (size_t)option);
 
-	Transition *transition = &fTransitions.at(option);
-	std::cout << "SelectOption: " << transition->text_player << std::endl;
+	Transition transition = fTransitions.at(option);
+	std::cout << "SelectOption: " << transition.text_player << std::endl;
 
-	// Write selected option to text area
-	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-	if (textArea != NULL)
-		textArea->AddText(transition->text_player.c_str());
-
-	std::cout << "END ? " << ((transition->entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
-
-	delete fState;
-	fState = NULL;
-	std::cout << "next resource: " << transition->entry.resource_next_state << std::endl;
-	std::cout << "next index: " << transition->entry.index_next_state << std::endl;
-	if (fResource->Name().compare(transition->entry.resource_next_state.CString()) != 0) {
-		gResManager->ReleaseResource(fResource);
-		fResource = NULL;
-		std::cout << "Getting resource..." << std::endl;
-		fResource = gResManager->GetDLG(transition->entry.resource_next_state);
-	}
-	std::cout << "Getting next state..." << std::endl;
-	fNextStateIndex = transition->entry.index_next_state;
-
-	if (transition->entry.flags & DLG_TRANSITION_END)
-		fEnd = true;
-
-	if (transition->entry.index_action != -1) {
-		std::cout << "Action: " << transition->entry.index_action << std::endl;
-		std::string actionString = fResource->GetAction(transition->entry.index_action);
-		std::cout << "Action: " << actionString << std::endl;
-
-		// TODO: Cleanup
-		action_params* params = Parser::ActionFromString(actionString);
-
-		bool canContinue = false;
-		Action* action = Script::GetAction(Actor(), params, canContinue);
-		if (action != NULL)
-			Actor()->AddAction(action);
-	}
-
-	if (transition->entry.flags & DLG_TRANSITION_HAS_JOURNAL)
-		std::cout << "text journal: " << transition->entry.text_journal << std::endl;
-
+	HandleTransition(transition);
 }
 
 
@@ -213,6 +174,48 @@ DialogHandler::CountTransitions() const
 void
 DialogHandler::HandleTransition(Transition& transition)
 {
+	std::cout << "DialogHandler::HandleTransition" << std::endl;
+
+	// Write selected option to text area
+	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
+	if (textArea != NULL)
+		textArea->AddText(transition.text_player.c_str());
+
+	if (transition.entry.flags & DLG_TRANSITION_END)
+		fEnd = true;
+
+	std::cout << "END ? " << ((transition.entry.flags & DLG_TRANSITION_END) ? "YES" : "no" )<< std::endl;
+
+	delete fState;
+	fState = NULL;
+	std::cout << "next resource: " << transition.entry.resource_next_state << std::endl;
+	std::cout << "next index: " << transition.entry.index_next_state << std::endl;
+	if (fResource->Name().compare(transition.entry.resource_next_state.CString()) != 0) {
+		gResManager->ReleaseResource(fResource);
+		fResource = NULL;
+
+		fResource = gResManager->GetDLG(transition.entry.resource_next_state);
+	}
+
+	fNextStateIndex = transition.entry.index_next_state;
+
+	if (transition.entry.index_action != -1) {
+		std::cout << "Action: " << transition.entry.index_action << std::endl;
+		std::string actionString = fResource->GetAction(transition.entry.index_action);
+		std::cout << "Action: " << actionString << std::endl;
+
+		// TODO: Cleanup
+		action_params* params = Parser::ActionFromString(actionString);
+
+		bool canContinue = false;
+		Action* action = Script::GetAction(Actor(), params, canContinue);
+		if (action != NULL)
+			Actor()->AddAction(action);
+	}
+
+	if (transition.entry.flags & DLG_TRANSITION_HAS_JOURNAL)
+		std::cout << "text journal: " << transition.entry.text_journal << std::endl;
+
 }
 
 
@@ -263,9 +266,8 @@ DialogHandler::_GetTransition(int32 num)
 	if (transition.entry.flags & DLG_TRANSITION_HAS_TEXT)
 		transition.text_player = IDTable::GetDialog(transition.entry.text_player);
 	if (transition.entry.flags & DLG_TRANSITION_HAS_ACTION) {
-		//uint32 action = fResource->GetAction(transition.entry.index_action);
-		//transition.action = IDTable::ActionName(action);
-		//std::cout << "action:" << action << std::endl;
+		transition.action = fResource->GetAction(transition.entry.index_action);
+		std::cout << "action:" << transition.action << std::endl;
 	}
 	if (transition.entry.flags & DLG_TRANSITION_END) {
 		std::cout << "TRANSITION_END" << std::endl;

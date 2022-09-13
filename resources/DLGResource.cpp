@@ -13,11 +13,7 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
-
-struct state_trigger {
-	uint32 offset;
-	uint32 length;
-};
+#define DATALENGTH 64
 
 
 /* static */
@@ -62,24 +58,6 @@ DLGResource::GetTransition(int32 index)
 }
 
 
-std::string
-DLGResource::GetAction(int32 index)
-{
-	char rawData[64];
-	uint32 offset;
-	uint32 length;
-	off_t pos = fData->Position();
-	fData->Seek(fActionsTableOffset + index * (2 * sizeof(uint32)), SEEK_SET);
-	fData->Read(&offset, sizeof(offset));
-	fData->Read(&length, sizeof(length));
-	fData->Seek(pos, SEEK_SET);
-
-	fData->ReadAt(offset, rawData, length);
-
-	return std::string(rawData, length);
-}
-
-
 /* virtual */
 bool
 DLGResource::Load(Archive* archive, uint32 key)
@@ -105,33 +83,62 @@ DLGResource::Load(Archive* archive, uint32 key)
 	return true;
 }
 
-#define TRIGGER_LENGTH 64
 
 std::string
 DLGResource::GetStateTrigger(int triggerIndex)
 {
 	if ((size_t)triggerIndex >= fStateTriggersNum) {
-		std::cerr << "trigger out of range" << std::endl;
+		std::cerr << "DLGResource::GetStateTrigger(): out of range" << std::endl;
 		return "";
 	}
 
-	state_trigger stateTrigger;
-	uint32 offset = fStateTriggersTableOffset
-			+ triggerIndex * sizeof(state_trigger);
-	fData->Seek(offset, SEEK_SET);
-	fData->Read(stateTrigger);
+	const off_t pos = fData->Position();
+	fData->Seek(fStateTriggersTableOffset + triggerIndex * (2 * sizeof(uint32)), SEEK_SET);
+	uint32 offset;
+	fData->Read(&offset, sizeof(offset));
+	uint32 length;
+	fData->Read(&length, sizeof(length));
+	fData->Seek(pos, SEEK_SET);
 
-	if (stateTrigger.length > TRIGGER_LENGTH) {
+	if (length > DATALENGTH) {
 		std::cerr << "trigger length too big" << std::endl;
 		return "";
 	}
 
-	char triggerData[TRIGGER_LENGTH];
-	fData->ReadAt(stateTrigger.offset, triggerData, stateTrigger.length);
-	triggerData[stateTrigger.length] = '\0';
+	char triggerData[DATALENGTH];
+	fData->ReadAt(offset, triggerData, length);
+	triggerData[length] = '\0';
 
-	std::string string = triggerData;
-	return string;
+	return std::string(triggerData);
+}
+
+
+std::string
+DLGResource::GetAction(int32 index)
+{
+	if ((size_t)index >= fActionsNum) {
+		std::cerr << "DLGResource::GetAction() out of range" << std::endl;
+		return "";
+	}
+
+	const off_t pos = fData->Position();
+	fData->Seek(fActionsTableOffset + index * (2 * sizeof(uint32)), SEEK_SET);
+	uint32 offset;
+	fData->Read(&offset, sizeof(offset));
+	uint32 length;
+	fData->Read(&length, sizeof(length));
+	fData->Seek(pos, SEEK_SET);
+
+	if (length > DATALENGTH) {
+		std::cerr << "action string length too big" << std::endl;
+		return "";
+	}
+
+	char rawData[DATALENGTH];
+	fData->ReadAt(offset, rawData, length);
+	rawData[length] = '\0';
+
+	return std::string(rawData, length);
 }
 
 
