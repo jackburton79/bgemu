@@ -13,7 +13,7 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
-#define DATALENGTH 64
+#define DATALENGTH 80
 
 
 /* static */
@@ -130,7 +130,7 @@ DLGResource::GetAction(int32 index)
 	fData->Seek(pos, SEEK_SET);
 
 	if (length > DATALENGTH) {
-		std::cerr << "action string length too big" << std::endl;
+		std::cerr << "action string length too big (" << std::dec << length << ")" << std::endl;
 		return "";
 	}
 
