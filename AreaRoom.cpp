@@ -66,9 +66,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	fDrawAnimations(true),
 	fShowingConsole(false)
 {
-	// Save the entrance name, it will be unloaded in UnloadArea
-	std::string savedEntranceName = entranceName ? entranceName : "";
-
 	SetName(areaName.CString());
 
 	GraphicsEngine::Get()->SetWindowCaption(Name());
@@ -115,7 +112,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	IE::point point = { 0, 0 };
 	IE::entrance entrance;
-	if (_GetEntrance(savedEntranceName, entrance)) {
+	if (_GetEntrance(entranceName, entrance)) {
 		point.x = entrance.x;
 		point.y = entrance.y;
 	}
