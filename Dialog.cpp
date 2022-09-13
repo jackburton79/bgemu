@@ -206,9 +206,9 @@ DialogHandler::HandleTransition(transition_entry transition)
 		std::cout << "text journal: " << transition.text_journal << std::endl;
 
 	// Prepare next state
-	delete fState;
-	fState = NULL;
 	if (transition.HasNextState()) {
+		delete fState;
+		fState = NULL;
 		std::cout << "next resource: " << transition.resource_next_state << std::endl;
 		std::cout << "next index: " << transition.index_next_state << std::endl;
 		if (fResource->Name().compare(transition.resource_next_state.CString()) != 0) {

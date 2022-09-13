@@ -254,6 +254,8 @@ void
 Core::StartCutscene(const res_ref& scriptName)
 {
 	std::cout << "Core::StartCutscene():" << scriptName.CString() << std::endl;
+	if (Game::Get()->InDialogMode())
+		Game::Get()->TerminateDialog();
 	::Script* script = ExtractScript(scriptName);
 	if (script != NULL) {
 		script->ExecuteCutscene();
