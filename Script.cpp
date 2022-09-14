@@ -1029,6 +1029,12 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			action = new ActionShout(sender, act);
 			break;
 		}
+		case 108:
+		{
+			/* EscapeArea */
+			action = new ActionEscapeArea(sender, act);
+			break;
+		}
 		case 109:
 		{	
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)

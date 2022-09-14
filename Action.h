@@ -163,6 +163,13 @@ public:
 };
 
 
+class ActionEscapeArea : public Action {
+public:
+	ActionEscapeArea(Object* sender, action_params* params);
+	virtual void operator()();
+};
+
+
 // Check if target is silenced
 class ActionRandomWalk : public Action {
 public:

@@ -629,6 +629,27 @@ ActionShout::operator()()
 
 
 
+// EscapeArea
+ActionEscapeArea::ActionEscapeArea(Object* object, action_params* node)
+:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionEscapeArea::operator()()
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
+	if (actor == NULL)
+		return;
+
+	// TODO: destroying is a bit too much: escape area by walking or other
+	actor->DestroySelf();
+}
+
+
 // RandomWalk
 ActionRandomWalk::ActionRandomWalk(Object* object, action_params* node)
 	:
