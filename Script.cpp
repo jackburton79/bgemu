@@ -1040,7 +1040,14 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
 			action = new ActionIncrementGlobal(sender, act);
 			break;		
-		}		
+		}
+		case 110:
+		{
+			// 110 LeaveAreaLUA(S:Area*,S:Parchment*,P:Point*,I:Face*)
+			// This action changes the current area.
+			action = new ActionChangeArea(sender, act);
+			break;
+		}
 		case 111:
 		{
 			/* DESTROYSELF() (111 0x6f) */
