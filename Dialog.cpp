@@ -188,17 +188,17 @@ DialogHandler::HandleTransition(transition_entry transition)
 		std::cout << "Actions: " << actionString << std::endl;
 		// TODO: Cleanup
 
-		::Actor* player = Game::Get()->Party()->ActorAt(0);
-		std::cout << "add list to " << player->Name() << " queue" << std::endl;
+		::Actor* actor = Actor();
+		std::cout << "add list to " << actor->Name() << " queue" << std::endl;
 		std::vector<action_params*> actionList = Parser::ActionsFromString(actionString);
 		for (std::vector<action_params*>::iterator i = actionList.begin();
 				i != actionList.end(); i++) {
 			action_params* params = *i;
 			bool canContinue = false;
 
-			Action* action = Script::GetAction(player, params, canContinue);
+			Action* action = Script::GetAction(actor, params, canContinue);
 			if (action != NULL)
-				player->AddAction(action);
+				actor->AddAction(action);
 		}
 	}
 
