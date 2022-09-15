@@ -1151,23 +1151,35 @@ AreaRoom::_InitRegions()
 void
 AreaRoom::_LoadActors()
 {
-	std::cout << "Loading Actors...";
-	std::flush(std::cout);
+	std::cout << "AreaRoom: Loading Actors..." << std::endl;
 
 	// TODO: Check if it's okay
+	std::cout << "- Loading party actors:" ;
+	std::flush(std::cout);
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor* actor = party->ActorAt(a);
 		actor->Acquire();
 		AddObject(actor);
+		std::cout << " + ";
+		std::flush(std::cout);
 	}
+	std::cout << Log::Normal << std::endl;
 
+	std::cout << "- Loading other actors:" ;
+	std::cout << std::endl;
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
 		Actor* actor = fArea->GetActorAt(i);
 		AddObject(actor);
+		std::cout << "\t + ";
+		std::cout << actor->LongName() << "(" << actor->Name() << ")";
+		std::cout << "(id: " << actor->GlobalID() << ")";
+		std::cout << std::endl;
+		std::flush(std::cout);
 	}
+	std::cout << std::endl;
 
-	std::cout << "Done!" << std::endl;
+	std::cout << Log::Green << "AreaRoom: done loading actors!" << Log::Normal << std::endl;
 }
 
 
