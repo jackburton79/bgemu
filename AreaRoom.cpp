@@ -1166,6 +1166,25 @@ AreaRoom::_LoadActors()
 	}
 	std::cout << Log::Normal << std::endl;
 
+	Game::TempState* tempState = Game::Get()->GetTempState();
+	if (tempState != NULL) {
+		std::cout << "- Loading actors from previous room:" ;
+		std::cout << std::endl;
+		while (!tempState->actors.empty()) {
+			Actor* actor = tempState->actors.back();
+			tempState->actors.pop_back();
+			AddObject(actor);
+			std::cout << "\t + ";
+			std::cout << actor->LongName() << "(" << actor->Name() << ")";
+			std::cout << "(id: " << actor->GlobalID() << ")";
+			std::cout << std::endl;
+			std::flush(std::cout);
+
+		}
+		std::cout << std::endl;
+	}
+
+
 	std::cout << "- Loading other actors:" ;
 	std::cout << std::endl;
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {

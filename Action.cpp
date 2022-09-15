@@ -447,9 +447,12 @@ ActionMoveBetweenAreasEffect::operator()()
 		if (actor != NULL) {
 			if (::strcasecmp(fActionParams->string1, actor->CurrentRegion()->Name()) != 0) {
 				std::cerr << "BUG: ActionMoveBetweenAreasEffect() IMPLEMENT MOVING TO AREAS" << std::endl;
+				Game::TempState* tempState = Game::Get()->GetTempState();
+				tempState->actors.push_back(actor);
+			} else {
+				actor->SetPosition(fActionParams->where);
+				actor->SetOrientation(fActionParams->integer1);
 			}
-			actor->SetPosition(fActionParams->where);
-			actor->SetOrientation(fActionParams->integer1);
 		}
 		SetCompleted();
 	}

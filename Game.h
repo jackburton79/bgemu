@@ -34,8 +34,17 @@ public:
 	bool Load(const char* name);
 	bool Save(const char* name);
 
+	// TODO: we need this to keep track of actor moving between areas
+	// until we have proper support for saving areas data
+	class TempState {
+	public:
+		std::vector<Actor*> actors;
+	};
+	TempState* GetTempState();
+
 	void SetTestMode(bool value);
 	bool TestMode() const;
+
 
 private:
 	Game();
@@ -44,6 +53,8 @@ private:
 	DialogHandler* fDialog;
 
 	::Party* fParty;
+	TempState* fTempState;
+
 	uint32 fDelay;
 	bool fTestMode;
 };

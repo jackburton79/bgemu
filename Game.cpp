@@ -47,9 +47,11 @@ Game::Game()
 	:
 	fDialog(NULL),
 	fParty(NULL),
+	fTempState(NULL),
 	fDelay(40),
 	fTestMode(false)
 {
+	fTempState = new Game::TempState;
 }
 
 
@@ -57,6 +59,7 @@ Game::~Game()
 {
 	TerminateDialog();
 	delete fParty;
+	delete fTempState;
 }
 
 
@@ -401,6 +404,13 @@ Game::ToggleDayNight()
 	if (area != NULL)
 		area->ReloadArea();
 	// TODO: Update Area
+}
+
+
+Game::TempState*
+Game::GetTempState()
+{
+	return fTempState;
 }
 
 
