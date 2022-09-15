@@ -157,6 +157,23 @@ ActionIncrementGlobal::operator()()
 }
 
 
+// ChangeArea / LeaveAreaLUA
+ActionChangeArea::ActionChangeArea(Object* object, action_params* node)
+	:
+	Action(object, node)
+{
+}
+
+
+/* virtual */
+void
+ActionChangeArea::operator()()
+{
+	Core::Get()->LoadArea(fActionParams->string1, "", "");
+	SetCompleted();
+}
+
+
 // CreateCreatureAction
 ActionCreateCreature::ActionCreateCreature(Object* object, action_params* node)
 	:

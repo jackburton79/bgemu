@@ -156,6 +156,13 @@ public:
 };
 
 
+class ActionChangeArea : public Action {
+public:
+	ActionChangeArea(Object* actor, action_params* node);
+	virtual void operator()();
+};
+
+
 class ActionShout : public Action {
 public:
 	ActionShout(Object* sender, action_params* params);
