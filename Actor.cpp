@@ -203,6 +203,7 @@ Actor::_Init()
 
 Actor::~Actor()
 {
+	std::cout << "Actor::~Actor(" << LongName() << ")" << std::endl;
 	ClearActionList();
 
 	if (fOwnsActor)
