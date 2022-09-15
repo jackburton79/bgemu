@@ -73,6 +73,8 @@ public:
 	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
 	Region* RegionAtPoint(const IE::point& point) const;
 
+	void ClearAllActions();
+
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);
 

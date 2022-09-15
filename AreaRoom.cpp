@@ -468,6 +468,16 @@ AreaRoom::RemoveEffect(Effect* effect)
 }
 
 
+void
+AreaRoom::ClearAllActions()
+{
+	ActorsList list;
+	GetActorsList(list);
+	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
+		(*a)->ClearActionList();
+}
+
+
 Object*
 AreaRoom::GetObject(const char* name) const
 {
@@ -1174,6 +1184,7 @@ AreaRoom::_LoadActors()
 			Actor* actor = tempState->actors.back();
 			tempState->actors.pop_back();
 			AddObject(actor);
+			actor->Release();
 			std::cout << "\t + ";
 			std::cout << actor->LongName() << "(" << actor->Name() << ")";
 			std::cout << "(id: " << actor->GlobalID() << ")";

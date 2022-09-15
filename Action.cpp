@@ -448,6 +448,7 @@ ActionMoveBetweenAreasEffect::operator()()
 			if (::strcasecmp(fActionParams->string1, actor->CurrentRegion()->Name()) != 0) {
 				std::cerr << "BUG: ActionMoveBetweenAreasEffect() IMPLEMENT MOVING TO AREAS" << std::endl;
 				Game::TempState* tempState = Game::Get()->GetTempState();
+				actor->Acquire();
 				tempState->actors.push_back(actor);
 			} else {
 				actor->SetPosition(fActionParams->where);
@@ -1240,7 +1241,7 @@ ActionClearAllActions::ActionClearAllActions(Object* object, action_params* node
 void
 ActionClearAllActions::operator()()
 {
-	Core::Get()->ClearAllActions();
+	fSender->Area()->ClearAllActions();
 	SetCompleted();
 }
 

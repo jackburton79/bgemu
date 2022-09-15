@@ -219,17 +219,6 @@ Core::Vars()
 
 
 void
-Core::ClearAllActions()
-{
-	// TODO: Move to AreaRoom
-	ActorsList list;
-	((AreaRoom*)CurrentRoom())->GetActorsList(list);
-	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
-		(*a)->ClearActionList();
-}
-
-
-void
 Core::StartCutsceneMode()
 {
 	fCutsceneMode = true;
