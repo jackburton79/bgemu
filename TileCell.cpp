@@ -134,7 +134,7 @@ TileCell::SetDoor(::Door* d)
 void
 TileCell::ActorEnteredCell(Actor* object)
 {
-	object->Acquire();
+	//object->Acquire();
 	fObjects.push_back(object);
 	for (std::vector<Region*>::iterator i = fRegions.begin();
 		i != fRegions.end(); i++) {
@@ -159,7 +159,7 @@ TileCell::ActorExitedCell(Actor* object)
 				(*regionIterator)->ActorExited(object);
 			}
 			fObjects.remove(object);
-			object->Release();
+			//object->Release();
 			break;
 		}
 	}
