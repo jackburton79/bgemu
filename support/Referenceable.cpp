@@ -10,6 +10,11 @@
 #include <assert.h>
 #include <iostream>
 
+#define ACTORDEBUG 0
+#if ACTORDEBUG
+#include "Actor.h"
+#endif
+
 bool Referenceable::sDebug = false;
 
 Referenceable::Referenceable(int32 initialRefCount)
@@ -35,6 +40,13 @@ Referenceable::~Referenceable()
 void
 Referenceable::Acquire()
 {
+#if ACTORDEBUG
+if (Actor* actor = dynamic_cast<Actor*>(this)) {
+	std::cout << actor->Name() << "(" << actor->LongName() << ")";
+	std::cout << "(" << actor->GlobalID() << ")";
+	std::cout << ") - Referenceable::Acquire()" << std::endl;
+}
+#endif
 	int previousRefCount = fRefCount++;
 	if (sDebug) {
 		std::cout << "Referenceable::Acquire(): ";
@@ -43,6 +55,8 @@ Referenceable::Acquire()
 	}
 	if (previousRefCount == 0)
 		FirstReferenceAcquired();
+
+
 }
 
 
@@ -55,7 +69,13 @@ Referenceable::Release()
 		std::cout << "previous:" << previousRefCount;
 		std::cout << ", current: " << fRefCount << std::endl;
 	}
-	
+#if ACTORDEBUG
+if (Actor* actor = dynamic_cast<Actor*>(this)) {
+	std::cout << actor->Name() << "(" << actor->LongName() << ")";
+	std::cout << "(" << actor->GlobalID() << ")";
+	std::cout << "- Referenceable::Release()" << std::endl;
+}
+#endif
 	int currentRefCount = fRefCount;
 	if (previousRefCount == 1)
 		LastReferenceReleased();
