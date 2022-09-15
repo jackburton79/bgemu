@@ -1284,7 +1284,7 @@ Script::_HandleAction(action_params* act)
 		// TODO: Should be correct
 		Object* target = Script::GetTargetObject(sender, act);
 		if (target != NULL) {
-			std::cout << "CUTSCENEID: " << target->Name() << std::endl;
+			std::cout << "Script::_HandleAction(): CUTSCENEID: " << target->Name() << std::endl;
 			Core::Get()->SetCutsceneActor(target);
 			SetSender(target);
 			target->SetInterruptable(false);
