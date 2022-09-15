@@ -203,7 +203,9 @@ Actor::_Init()
 
 Actor::~Actor()
 {
-	std::cout << "Actor::~Actor(" << LongName() << ")" << std::endl;
+	// TODO: Since actions keep a reference to actor,
+	// this won't be ever called if an actor has actions in the list,
+	// and if it doesn't, there is no point to call it here
 	ClearActionList();
 
 	if (fOwnsActor)
