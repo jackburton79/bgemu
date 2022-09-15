@@ -1052,9 +1052,7 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 void
 AreaRoom::ClearAllActions()
 {
-	ActorsList list;
-	GetActorsList(list);
-	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
+	for (ActorsList::iterator a = fActors.begin(); a != fActors.end(); a++)
 		(*a)->ClearActionList();
 }
 
