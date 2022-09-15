@@ -375,7 +375,7 @@ Game::LoadStartingArea()
 		fParty->AddActor(new Actor("IMOEN", startPoint, 0));
 	}*/
 
-	Core::Get()->LoadArea(startingArea.c_str(), "foo", NULL);
+	Core::Get()->LoadArea(startingArea.c_str(), "foo", "");
 	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(viewPosition);
 
 	if (fParty != NULL) {
