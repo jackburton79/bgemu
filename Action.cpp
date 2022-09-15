@@ -445,7 +445,7 @@ ActionMoveBetweenAreasEffect::operator()()
 		SetInitiated();
 		Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
 		if (actor != NULL) {
-			if (::strcasecmp(fActionParams->string1, actor->CurrentRegion()->Name()) != 0) {
+			if (::strcasecmp(fActionParams->string1, actor->Area()->Name()) != 0) {
 				std::cerr << "BUG: ActionMoveBetweenAreasEffect() IMPLEMENT MOVING TO AREAS" << std::endl;
 				Game::TempState* tempState = Game::Get()->GetTempState();
 				actor->Acquire();
