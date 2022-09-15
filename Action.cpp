@@ -445,7 +445,9 @@ ActionMoveBetweenAreasEffect::operator()()
 		SetInitiated();
 		Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(fSender, fActionParams));
 		if (actor != NULL) {
-			std::cout << "area:" << fActionParams->string1 << std::endl;
+			if (::strcasecmp(fActionParams->string1, actor->CurrentRegion()->Name()) != 0) {
+				std::cerr << "BUG: ActionMoveBetweenAreasEffect() IMPLEMENT MOVING TO AREAS" << std::endl;
+			}
 			actor->SetPosition(fActionParams->where);
 			actor->SetOrientation(fActionParams->integer1);
 		}
