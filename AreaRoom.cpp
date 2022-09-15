@@ -468,16 +468,6 @@ AreaRoom::RemoveEffect(Effect* effect)
 }
 
 
-void
-AreaRoom::ClearAllActions()
-{
-	ActorsList list;
-	GetActorsList(list);
-	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
-		(*a)->ClearActionList();
-}
-
-
 Object*
 AreaRoom::GetObject(const char* name) const
 {
@@ -1056,6 +1046,16 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 			return *i;
 	}
 	return NULL;
+}
+
+
+void
+AreaRoom::ClearAllActions()
+{
+	ActorsList list;
+	GetActorsList(list);
+	for (ActorsList::iterator a = list.begin(); a != list.end(); a++)
+		(*a)->ClearActionList();
 }
 
 
