@@ -189,6 +189,7 @@ Script::ExecuteCutscene()
 				std::cout << "CUTSCENEID: " << sender->Name() << std::endl;
 			}
 			for (size_t a = 0; a < actions->size(); a++) {
+				std::cout << "SENDER: " << (sender ? sender->Name() : "NONE") << std::endl;
 				_HandleAction(actions->at(a));
 			}
 		}
