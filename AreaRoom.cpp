@@ -116,6 +116,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		point.x = entrance.x;
 		point.y = entrance.y;
 	}
+
 	SetAreaOffsetCenter(point);
 
 	Actor* player = Game::Get()->Party()->ActorAt(0);
@@ -129,7 +130,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	GUI::Get()->ShowWindow(999);
 	
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
-
 	AddScript(roomScript);
 }
 
@@ -1268,6 +1268,9 @@ AreaRoom::_UnloadArea()
 	ActorsList::iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		//UnregisterObject(*i);
+		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
+		// and this blocks deletion of said object
+		(*i)->ClearActionList();
 		(*i)->Release();
 	}
 	fActors.clear();
