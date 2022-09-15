@@ -1253,9 +1253,10 @@ AreaRoom::_UnloadArea()
 	
 	ClearScripts();
 
-	ActorsList::const_iterator i;
+	ActorsList::iterator i;
 	for (i = fActors.begin(); i != fActors.end(); i++) {
 		//UnregisterObject(*i);
+		(*i)->Release();
 	}
 	fActors.clear();
 
