@@ -72,7 +72,12 @@ DialogHandler::GetNextValidState()
 bool
 DialogHandler::IsWaitingUserChoice() const
 {
-	return fTransitions.size() > 1;
+	for (size_t index = 0; index < fTransitions.size(); index++) {
+		transition_entry transition = fTransitions.at(index);
+		if (transition.HasPlayerText())
+			return true;
+	}
+	return false;
 }
 
 
@@ -103,7 +108,7 @@ DialogHandler::ShowPlayerOptions()
 	int32 numOptions = 0;
 	for (size_t index = 0; index < fTransitions.size(); index++) {
 		transition_entry transition = fTransitions.at(index);
-		if (transition.flags & DLG_TRANSITION_HAS_TEXT) {
+		if (transition.HasPlayerText()) {
 			std::ostringstream s;
 			s << (index + 1) << "-";
 			std::string fullString;
