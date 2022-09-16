@@ -37,6 +37,7 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 
 DialogHandler::~DialogHandler()
 {
+	delete fState;
 	gResManager->ReleaseResource(fResource);
 }
 
@@ -179,10 +180,7 @@ DialogHandler::HandleTransition(transition_entry transition)
 		if (textArea != NULL)
 			textArea->AddText(text.c_str());
 	}
-	if (!transition.HasNextState()) {
-		fEnd = true;
-		std::cout << "TRANSITION_END" << std::endl;
-	}
+
 	if (transition.HasActions()) {
 		std::string actionString = fResource->GetAction(transition.index_action);
 		std::cout << "Actions: " << actionString << std::endl;
@@ -200,6 +198,7 @@ DialogHandler::HandleTransition(transition_entry transition)
 			if (action != NULL)
 				actor->AddAction(action);
 		}
+		std::cout << "Finished Adding actions" << std::endl;
 	}
 
 	if (transition.flags & DLG_TRANSITION_HAS_JOURNAL)
@@ -219,6 +218,9 @@ DialogHandler::HandleTransition(transition_entry transition)
 		}
 
 		fNextStateIndex = transition.index_next_state;
+	} else {
+		fEnd = true;
+		std::cout << "TRANSITION_END" << std::endl;
 	}
 }
 
