@@ -312,12 +312,18 @@ Parser::ActionFromString(const std::string& string)
 		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
 		return NULL;
 	}
+	// TODO: This isn't too reliable: there are cases where an action has two forms
+	// with the same id: one with some parameters and one with other or no parameters
 	ParameterExtractor extractor(tokenizer);
 	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionName(params->id));
-	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
-			i != paramTypes.end(); i++) {
-		Parameter parameter = *i;
-		extractor._ExtractNextParameter(params, parameter);
+	try {
+		for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
+				i != paramTypes.end(); i++) {
+			Parameter parameter = *i;
+			extractor._ExtractNextParameter(params, parameter);
+		}
+	} catch (const std::exception& exception) {
+		std::cerr << "Parser::ActionFromString(): got exception " << exception.what() << std::endl;
 	}
 	//std::cout << "ActionFromString() END" << std::endl;
 	//params->Print();
@@ -707,7 +713,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 	//std::cout << "ExtractNextParameter(ACTION)" << std::endl;
 	token tokenParam = fTokenizer.ReadToken();
 	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
-		return tokenParam;
+		throw std::runtime_error("Expecting parameter, got closing parenthesis");
 
 	//if (parameter.type != Parameter::UNKNOWN)
 	//	parameter.Print();
