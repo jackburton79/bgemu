@@ -648,6 +648,7 @@ ActionShout::operator()()
 		return;
 
 	actor->Shout(fActionParams->integer1);
+	SetCompleted();
 }
 
 
