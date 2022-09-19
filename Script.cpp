@@ -398,10 +398,11 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 			{
 				// HitBy
 				// Returns true on first Script launch, IOW initial area load
-				if (sender->HasTrigger("OnCreation")) {
+				// TODO: Not sure: if I do that, every actor attacks the player
+				/*if (sender->HasTrigger("OnCreation")) {
 					returnValue = true;
 					break;
-				}
+				}*/
 				// TODO:
 				//object_node* object = FindObjectNode(trig);
 				//returnValue = Object::CheckIfNodeInList(object,
