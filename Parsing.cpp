@@ -458,14 +458,12 @@ Parser::_ReadConditionResponseBlock()
 	condition_response* condResp = NULL;
 	token h = fTokenizer->ReadToken();
 	if (h == token("CR")) {
-		//std::cout << "_ReadConditionResponseBlock()" << std::endl;
 		condResp = new condition_response;
 		_ReadConditionBlock(condResp->conditions);
 		_ReadResponseSetBlock(condResp->responseSet);
 		
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("CR"));
-		//std::cout << "_ReadConditionResponseBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 	return condResp;
@@ -477,17 +475,14 @@ Parser::_ReadConditionBlock(condition_block& cond)
 {
 	token h = fTokenizer->ReadToken();
 	if (h == token("CO")) {
-		//std::cout << "_ReadConditionBlock()" << std::endl;
 		trigger_params* trig = NULL;
 		int32 i = 0;
 		while ((trig = _ReadTriggerBlock()) != NULL) {
-			//std::cout << "Condition: found trigger " << i << std::endl;
 			cond.triggers.push_back(trig);
 			i++;
 		}
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("CO"));
-		//std::cout << "_ReadConditionBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 }
@@ -499,7 +494,6 @@ Parser::_ReadTriggerBlock()
 	trigger_params* trig = NULL;
 	token h = fTokenizer->ReadToken();
 	if (h == token("TR")) {
-		//std::cout << "_ReadTriggerBlock()" << std::endl;
 		trig = new trigger_params();
 
 		trig->id = fTokenizer->ReadToken().u.number;
@@ -519,7 +513,6 @@ Parser::_ReadTriggerBlock()
 
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("TR"));
-		//std::cout << "_ReadTriggerBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 	return trig;
@@ -531,13 +524,11 @@ Parser::_ReadResponseSetBlock(response_set& respSet)
 {
 	token h = fTokenizer->ReadToken();
 	if (h == token("RS")) {
-		//std::cout << "_ReadResponseSetBlock()" << std::endl;
 		response_node* resp = NULL;
 		while ((resp = _ReadResponseBlock()) != NULL)
 			respSet.resp.push_back(resp);
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("RS"));
-		//std::cout << "_ReadResponseSetBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 }
@@ -549,7 +540,6 @@ Parser::_ReadResponseBlock()
 	response_node* resp = NULL;
 	token h = fTokenizer->ReadToken();
 	if (h == token("RE")) {
-		//std::cout << "_ReadResponseBlock()" << std::endl;
 		resp = new response_node;
 		resp->probability = fTokenizer->ReadToken().u.number;
 		action_params* act = new action_params();
@@ -558,7 +548,6 @@ Parser::_ReadResponseBlock()
 		token t = fTokenizer->ReadToken(); // closing tag
 		if (!(t == token("RE")))
 			return NULL;
-		//std::cout << "_ReadResponseBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 	return resp;
@@ -571,7 +560,6 @@ Parser::_ReadActionBlock()
 	action_params* act = NULL;
 	token h = fTokenizer->ReadToken();
 	if (h == token("AC")) {
-		//std::cout << "_ReadActionBlock()" << std::endl;
 		act = new action_params;
 		act->id = fTokenizer->ReadToken().u.number;
 		_ReadObjectBlock(fTokenizer, *act->First());
@@ -593,7 +581,6 @@ Parser::_ReadActionBlock()
 
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("AC"));
-		//std::cout << "_ReadActionBlock() end" << std::endl;
 	} else
 		fTokenizer->RewindToken(h);
 	return act;
