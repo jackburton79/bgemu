@@ -360,7 +360,7 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 	try {
 		destination = fPath->SetPoints(fActor->position, point);
 	} catch (...) {
-		std::cerr << Log::Red << "Actor::SetDestination() failed!" << Log::Normal << std::endl;
+		std::cerr << Log::Red << Name() << ": Actor::SetDestination() failed!" << Log::Normal << std::endl;
 	}
 	fActor->destination = destination;
 }
