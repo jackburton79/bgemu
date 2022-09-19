@@ -671,6 +671,7 @@ ActionEscapeArea::operator()()
 
 	// TODO: destroying is a bit too much: escape area by walking or other
 	actor->DestroySelf();
+	SetCompleted();
 }
 
 
