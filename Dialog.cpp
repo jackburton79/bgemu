@@ -45,25 +45,25 @@ DialogHandler::~DialogHandler()
 DialogHandler::State*
 DialogHandler::GetNextValidState()
 {
-	std::cout << "DialogHandler::GetNextValidState()" << std::endl;
+	//std::cout << "DialogHandler::GetNextValidState()" << std::endl;
 	for (;;) {
 		fState = _GetNextState();
 		if (fState == NULL)
 			break;
-		std::cout << "DialogHandler::GetNextValidState(): got state" << std::endl;
+		//std::cout << "DialogHandler::GetNextValidState(): got state" << std::endl;
 		std::vector<trigger_params*> triggerList = Parser::TriggersFromString(fState->Trigger());
-		std::cout << "GetNextValidState: Checking triggers... " << std::endl;
+		//std::cout << "GetNextValidState: Checking triggers... " << std::endl;
 		if (triggerList.size() == 0) {
-			std::cout << "GetNextValidState: no trigger found." << std::endl;
+			//std::cout << "GetNextValidState: no trigger found." << std::endl;
 			break;
 		}
 		if (Actor()->EvaluateDialogTriggers(triggerList)) {
-			std::cout << "GetNextValidState: a trigger returned true!" << std::endl;
+			//std::cout << "GetNextValidState: a trigger returned true!" << std::endl;
 			break;
 		}
 	}
 
-	std::cout << "GetNextValidState: text: " << (fState ? fState->Text() : "NULL") << std::endl;
+	//std::cout << "GetNextValidState: text: " << (fState ? fState->Text() : "NULL") << std::endl;
 
 	return fState;
 }
@@ -138,7 +138,7 @@ DialogHandler::SelectOption(int32 option)
 void
 DialogHandler::Continue()
 {
-	std::cout << "DialogHandler::Continue()" << std::endl;
+	//std::cout << "DialogHandler::Continue()" << std::endl;
 
 	if (fEnd) {
 		// TODO: Not nice. TerminateDialog deletes this object
@@ -158,7 +158,7 @@ DialogHandler::Continue()
 			HandleTransition(transition);
 		}
 	} else {
-		std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
+		//std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
 		// TODO: Not nice. TerminateDialog deletes this object
 		Game::Get()->TerminateDialog();
 	}
@@ -175,10 +175,10 @@ DialogHandler::CurrentState()
 void
 DialogHandler::HandleTransition(transition_entry transition)
 {
-	std::cout << "DialogHandler::HandleTransition" << std::endl;
+	//std::cout << "DialogHandler::HandleTransition" << std::endl;
 
 	if (transition.HasPlayerText()) {
-		std::cout << "PlayerText: " << transition.text_player << std::endl;
+		//std::cout << "PlayerText: " << transition.text_player << std::endl;
 		// Write selected option to text area
 		TextArea* textArea = GUI::Get()->GetMessagesTextArea();
 		std::string text = IDTable::GetDialog(transition.text_player);
@@ -188,11 +188,11 @@ DialogHandler::HandleTransition(transition_entry transition)
 
 	if (transition.HasActions()) {
 		std::string actionString = fResource->GetAction(transition.index_action);
-		std::cout << "Actions: " << actionString << std::endl;
+		//std::cout << "Actions: " << actionString << std::endl;
 		// TODO: Cleanup
 
 		::Actor* actor = Actor();
-		std::cout << "add list to " << actor->Name() << " queue" << std::endl;
+		//std::cout << "add list to " << actor->Name() << " queue" << std::endl;
 		std::vector<action_params*> actionList = Parser::ActionsFromString(actionString);
 		for (std::vector<action_params*>::iterator i = actionList.begin();
 				i != actionList.end(); i++) {
@@ -203,18 +203,19 @@ DialogHandler::HandleTransition(transition_entry transition)
 			if (action != NULL)
 				actor->AddAction(action);
 		}
-		std::cout << "Finished Adding actions" << std::endl;
+		//std::cout << "Finished Adding actions" << std::endl;
 	}
 
+	/*
 	if (transition.flags & DLG_TRANSITION_HAS_JOURNAL)
 		std::cout << "text journal: " << transition.text_journal << std::endl;
-
+	*/
 	// Prepare next state
 	if (transition.HasNextState()) {
 		delete fState;
 		fState = NULL;
-		std::cout << "next resource: " << transition.resource_next_state << std::endl;
-		std::cout << "next index: " << transition.index_next_state << std::endl;
+		//std::cout << "next resource: " << transition.resource_next_state << std::endl;
+		//std::cout << "next index: " << transition.index_next_state << std::endl;
 		if (fResource->Name().compare(transition.resource_next_state.CString()) != 0) {
 			gResManager->ReleaseResource(fResource);
 			fResource = NULL;
@@ -225,7 +226,7 @@ DialogHandler::HandleTransition(transition_entry transition)
 		fNextStateIndex = transition.index_next_state;
 	} else {
 		fEnd = true;
-		std::cout << "TRANSITION_END" << std::endl;
+		//std::cout << "TRANSITION_END" << std::endl;
 	}
 }
 
@@ -233,11 +234,11 @@ DialogHandler::HandleTransition(transition_entry transition)
 DialogHandler::State*
 DialogHandler::_GetNextState()
 {
-	std::cout << "_GetNextState():" << std::endl;
+	//std::cout << "_GetNextState():" << std::endl;
 	delete fState;
 	fState = NULL;
 
-	std::cout << "Clearing transitions" << std::endl;
+	//std::cout << "Clearing transitions" << std::endl;
 	fTransitions.clear();
 
 	dlg_state nextState;
@@ -259,7 +260,7 @@ DialogHandler::_GetNextState()
 									nextState.transitions_num, nextState.transition_first);
 
 	// Get Transitions for this state
-	std::cout << "Getting transition for state " << fNextStateIndex << std::endl;
+	//std::cout << "Getting transition for state " << fNextStateIndex << std::endl;
 
 	fNextStateIndex++;
 
@@ -267,7 +268,7 @@ DialogHandler::_GetNextState()
 		transition_entry transition = _ReadTransition(fState->TransitionIndex() + i);
 		fTransitions.push_back(transition);
 	}
-	std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
+	//std::cout << " found " << fTransitions.size() << " transitions." << std::endl;
 
 	return fState;
 }
@@ -276,19 +277,7 @@ DialogHandler::_GetNextState()
 transition_entry
 DialogHandler::_ReadTransition(int32 num)
 {
-	std::cout << "DialogHandler::_ReadTransition(" << num << ")" << std::endl;
 	transition_entry transition = fResource->GetTransition(num);
-	if (transition.HasPlayerText()) {
-		std::cout << "- has text: " << IDTable::GetDialog(transition.text_player) << std::endl;
-	}
-	if (transition.HasActions()) {
-		std::cout << "- has action: " << transition.index_action << std::endl;
-	}
-	if (transition.HasNextState()) {
-		std::cout << "- has next" << std::endl;
-	}
-
-
 	return transition;
 }
 
