@@ -2,7 +2,7 @@
  * Game.h
  *
  *  Created on: 29/mar/2015
- *      Author: stefano
+ *      Author: Stefano Ceccherini
  */
 
 #ifndef GAME_H_
