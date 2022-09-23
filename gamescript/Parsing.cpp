@@ -1,11 +1,9 @@
-#include "Parsing.h"
-
 #include "Actions.h"
 #include "Core.h"
 #include "IDSResource.h"
 #include "Log.h"
+#include "Parsing.h"
 #include "ResManager.h"
-#include "Script.h"
 #include "StringStream.h"
 #include "Triggers.h"
 #include "Utils.h"
@@ -16,6 +14,7 @@
 #include <cstring>
 #include <ctype.h>
 #include <string>
+#include "Script.h"
 
 
 class Parameter {

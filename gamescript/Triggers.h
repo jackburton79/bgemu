@@ -5,8 +5,8 @@
  *      Author: Stefano Ceccherini
  */
 
-#ifndef TRIGGERS_H_
-#define TRIGGERS_H_
+#ifndef GAMESCRIPT_TRIGGERS_H_
+#define GAMESCRIPT_TRIGGERS_H_
 
 #include "IETypes.h"
 
@@ -21,4 +21,4 @@ struct Triggers {
 std::string GetTriggerName(int32 id);
 int32 GetTriggerID(std::string name);
 
-#endif /* TRIGGERS_H_ */
+#endif /* GAMESCRIPT_TRIGGERS_H_ */

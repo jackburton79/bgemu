@@ -5,8 +5,8 @@
  *      Author: Stefano Ceccherini
  */
 
-#ifndef ACTIONS_H_
-#define ACTIONS_H_
+#ifndef GAMESCRIPT_ACTIONS_H_
+#define GAMESCRIPT_ACTIONS_H_
 
 #include "IETypes.h"
 
@@ -21,4 +21,4 @@ struct Actions {
 std::string GetActionName(int32 id);
 int32 GetActionID(std::string name);
 
-#endif /* ACTIONS_H_ */
+#endif /* GAMESCRIPT_ACTIONS_H_ */

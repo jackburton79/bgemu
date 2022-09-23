@@ -23,14 +23,15 @@
 #include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
-#include "Script.h"
 #include "SearchMap.h"
+#include "Script.h"
 #include "TextSupport.h"
 #include "TileCell.h"
 #include "WedResource.h"
 
 #include <algorithm>
 #include <assert.h>
+
 #include <string>
 
 

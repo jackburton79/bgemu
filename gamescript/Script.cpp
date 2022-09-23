@@ -1,5 +1,3 @@
-#include "Script.h"
-
 #include "Action.h"
 #include "Actor.h"
 #include "AreaResource.h"
@@ -16,6 +14,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "Script.h"
 #include "Timer.h"
 
 #include <algorithm>

@@ -4,6 +4,7 @@ CXXFLAGS = -Wall -Werror -g -O0 `sdl2-config --cflags`
 SUBDIR = \
 animations \
 archives \
+gamescript \
 graphics \
 gui \
 resources \
