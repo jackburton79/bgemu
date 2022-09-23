@@ -41,10 +41,6 @@ public:
 };
 
 
-class TriggerParameters {
-	std::vector<Parameter> parameters;
-};
-
 
 class ParameterExtractor {
 public:
