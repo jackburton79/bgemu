@@ -151,7 +151,7 @@ Font::GetRenderedString(const std::string& string, uint32 flags,
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
 	GFX::point point = { 0, 0 };
-	_RenderString(string, 0, bitmap, palette, point, bitmap->Width());
+	_RenderString(string, flags, bitmap, palette, point, bitmap->Width());
 
 	return bitmap;
 }
@@ -239,7 +239,10 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	const Bitmap* firstFrame = glyphs.back().bitmap;
 
 	if (palette != NULL) {
-		bitmap->SetPalette(*palette);
+		if (flags & TEXT_SELECTED)
+			bitmap->SetPalette(*GFX::kPaletteYellow);
+		else
+			bitmap->SetPalette(*palette);
 	} else if (fPalette != NULL) {
 		bitmap->SetPalette(*fPalette);
 	} else {
@@ -269,10 +272,6 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 		// Advance cursor
 		renderRect.x += glyph.bitmap->Frame().w;
 	}
-
-	// TODO: This doesn't take ascent into account
-	if (flags & TEXT_SELECTED)
-		bitmap->FillRect(containerRect, 10);
 }
 
 

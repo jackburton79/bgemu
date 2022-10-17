@@ -24,6 +24,7 @@
 
 const static int16 kLineSpacing = 5;
 
+
 TextArea::TextLine::TextLine()
 	:
 	attributes(0),
@@ -97,7 +98,13 @@ TextArea::Draw()
 				attr |= TEXT_SELECTED;
 			}
 			// TODO: Pass textarea palette
-			font->RenderString(line.text, flags | attr, fBitmap, GFX::kPaletteRed, where);
+			// TODO: Should we apply palette to the bitmap ?
+			// somehow it doesn't get the correct palette
+			Bitmap* tmpBitmap = font->GetRenderedString(line.text, flags | attr, GFX::kPaletteRed);
+			GFX::rect lineRect = tmpBitmap->Frame();
+			lineRect = offset_rect(lineRect, where.x, where.y);
+			GraphicsEngine::BlitBitmap(tmpBitmap, NULL, fBitmap, &lineRect);
+			tmpBitmap->Release();
 			rect.y += line.height + kLineSpacing;
 		}
 		fChanged = false;
