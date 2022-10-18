@@ -205,6 +205,7 @@ DestroyGlobalPalettes()
 	delete kPaletteRed;
 	delete kPaletteBlue;
 	delete kPaletteYellow;
+	delete kPaletteBlack;
 }
 
 
