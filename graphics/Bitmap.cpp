@@ -7,8 +7,10 @@
 
 #include "Bitmap.h"
 #include "GraphicsDefs.h"
+#include "GraphicsEngine.h"
 #include "Log.h"
 #include "Polygon.h"
+#include "RectUtils.h"
 
 #include <algorithm>
 #include <cmath>
@@ -363,6 +365,15 @@ Bitmap::FillCircle(const int16& centerX, const int16& centerY, const uint32 radi
 }
 
 // end
+
+
+void
+Bitmap::BlitTo(Bitmap* target, const GFX::point& where)
+{
+	GFX::rect sourceRect = Frame();
+	GFX::rect destRect = offset_rect(sourceRect, where.x, where.y);
+	GraphicsEngine::BlitBitmap(this, &sourceRect, target, &destRect);
+}
 
 
 Bitmap*

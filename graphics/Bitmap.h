@@ -14,6 +14,7 @@
 struct SDL_Surface;
 
 namespace GFX {
+	struct point;
 	struct rect;
 	class Palette;
 	class Color;
@@ -75,6 +76,9 @@ public:
 					const uint32 radius, const uint32 color);
 	void FillCircle(const int16& centerX, const int16& centerY,
 					const uint32 radius, const uint32 color);
+
+	// Blitting
+	void BlitTo(Bitmap* target, const GFX::point& where);
 
 	uint32 MapColor(const uint8 r, const uint8 g, const uint8 b);
 
