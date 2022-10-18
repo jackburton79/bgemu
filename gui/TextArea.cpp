@@ -101,9 +101,7 @@ TextArea::Draw()
 			// TODO: Should we apply palette to the bitmap ?
 			// somehow it doesn't get the correct palette
 			Bitmap* tmpBitmap = font->GetRenderedString(line.text, flags | attr, GFX::kPaletteRed);
-			GFX::rect lineRect = tmpBitmap->Frame();
-			lineRect = offset_rect(lineRect, where.x, where.y);
-			GraphicsEngine::BlitBitmap(tmpBitmap, NULL, fBitmap, &lineRect);
+			tmpBitmap->BlitTo(fBitmap, where);
 			tmpBitmap->Release();
 			rect.y += line.height + kLineSpacing;
 		}
