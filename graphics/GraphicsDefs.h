@@ -58,6 +58,9 @@ struct rect {
 
 	rect();
 	rect(sint16 x, sint16 y, uint16 width, uint16 height);
+
+	GFX::point LeftTop() const;
+
 	void Print() const;
 };
 

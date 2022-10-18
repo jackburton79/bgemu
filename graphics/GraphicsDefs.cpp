@@ -37,6 +37,15 @@ rect::rect(sint16 _x, sint16 _y, uint16 width, uint16 height)
 }
 
 
+
+GFX::point
+rect::LeftTop() const
+{
+	GFX::point point = {x, y};
+	return point;
+}
+
+
 void
 rect::Print() const
 {
