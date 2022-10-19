@@ -126,8 +126,7 @@ void
 Font::RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					const GFX::Palette* palette) const
 {
-	GFX::point point = { bitmap->Frame().x, bitmap->Frame().y };
-	_RenderString(string, flags, bitmap, palette, point, bitmap->Width());
+	_RenderString(string, flags, bitmap, palette, bitmap->Frame().LeftTop(), bitmap->Width());
 }
 
 
