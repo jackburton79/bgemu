@@ -20,6 +20,9 @@ GFX::Palette* kPaletteBlue;
 GFX::Palette* kPaletteYellow;
 GFX::Palette* kPaletteBlack;
 
+const GFX::point kOrigin = {0, 0};
+
+
 void
 point::Print() const
 {

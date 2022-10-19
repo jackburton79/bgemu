@@ -149,8 +149,7 @@ Font::GetRenderedString(const std::string& string, uint32 flags,
 	// TODO: Bitmap is always 8 bits
 	::Bitmap* bitmap = new ::Bitmap(stringWidth, height, 8);
 	// render the string to a bitmap
-	GFX::point point = { 0, 0 };
-	_RenderString(string, flags, bitmap, palette, point, bitmap->Width());
+	_RenderString(string, flags, bitmap, palette, GFX::kOrigin, bitmap->Width());
 
 	return bitmap;
 }

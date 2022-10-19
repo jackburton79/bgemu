@@ -68,6 +68,8 @@ struct rect {
 void GFXRectToSDLRect(const rect* source, SDL_Rect* dest);
 void SDLRectToGFXRect(const SDL_Rect* source, rect* dest);
 
+extern const GFX::point kOrigin;
+
 };
 
 #endif /* GRAPHICSDEFS_H_ */
