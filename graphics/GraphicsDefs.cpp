@@ -20,6 +20,12 @@ GFX::Palette* kPaletteBlue;
 GFX::Palette* kPaletteYellow;
 GFX::Palette* kPaletteBlack;
 
+void
+point::Print() const
+{
+	std::cout << "x: " << x << ", y: " << y << std::endl;
+}
+
 
 rect::rect()
 {

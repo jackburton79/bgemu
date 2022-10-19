@@ -48,6 +48,7 @@ extern GFX::Palette* kPaletteBlack;
 struct point {
 	int16 x;
 	int16 y;
+	void Print() const;
 };
 
 struct rect {
