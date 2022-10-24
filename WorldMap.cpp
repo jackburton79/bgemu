@@ -64,8 +64,7 @@ WorldMap::WorldMap()
 					int16(position.y - iconFrame->Frame().h / 2),
 					iconFrame->Frame().w, iconFrame->Frame().h);
 
-		GraphicsEngine::Get()->BlitBitmap(iconFrame, NULL,
-				fWorldMapBitmap, &iconRect);
+		iconFrame->BlitTo(fWorldMapBitmap, iconRect.LeftTop());
 
 		if (!areaEntry->Caption().empty()) {
 			const Font* font = FontRoster::GetFont("TOOLFONT");
@@ -76,8 +75,7 @@ WorldMap::WorldMap()
 				// center horizontally
 				textRect.x = iconRect.x + (iconRect.w - textRect.w) / 2;
 				textRect.y = iconRect.y + iconRect.h + 5;
-				GraphicsEngine::Get()->BlitBitmap(nameBitmap, NULL,
-												  fWorldMapBitmap, &textRect);
+				nameBitmap->BlitTo(fWorldMapBitmap, textRect.LeftTop());
 				nameBitmap->Release();
 			}
 		}
