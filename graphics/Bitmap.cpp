@@ -368,9 +368,9 @@ Bitmap::FillCircle(const int16& centerX, const int16& centerY, const uint32 radi
 
 
 void
-Bitmap::BlitTo(Bitmap* target, const GFX::point& where)
+Bitmap::BlitTo(Bitmap* target, const GFX::point& where) const
 {
-	GFX::rect sourceRect = Frame();
+	GFX::rect sourceRect = { 0, 0, Width(), Height() };
 	GFX::rect destRect = offset_rect(sourceRect, where.x, where.y);
 	GraphicsEngine::BlitBitmap(this, &sourceRect, target, &destRect);
 }

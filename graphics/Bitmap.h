@@ -78,7 +78,7 @@ public:
 					const uint32 radius, const uint32 color);
 
 	// Blitting
-	void BlitTo(Bitmap* target, const GFX::point& where);
+	void BlitTo(Bitmap* target, const GFX::point& where) const;
 
 	uint32 MapColor(const uint8 r, const uint8 g, const uint8 b);
 
