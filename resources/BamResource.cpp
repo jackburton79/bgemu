@@ -27,8 +27,8 @@ struct cycle {
 struct BamFrameEntry {
 	uint16 width;
 	uint16 height;
-	uint16 xpos;
-	uint16 ypos;
+	uint16 centerX;
+	uint16 centerY;
 	uint32 data;
 	void Print() const;
 };
@@ -39,8 +39,8 @@ BamFrameEntry::Print() const
 {
 	std::cout << "width: " << width << std::endl;
 	std::cout << "height: " << height << std::endl;
-	std::cout << "xpos: " << xpos << std::endl;
-	std::cout << "ypos: " << ypos << std::endl;
+	std::cout << "centerX: " << centerX << std::endl;
+	std::cout << "centerY: " << centerY << std::endl;
 }
 
 
@@ -234,8 +234,8 @@ BAMResource::_FrameAt(uint16 index)
 	if (bitmap != NULL) {
 		bitmap->SetPalette(*fPalette);
 		bitmap->SetColorKey(fCompressedIndex, true);
-		bitmap->SetPosition(entry.xpos - bitmap->Width() / 2,
-			entry.ypos - bitmap->Height() / 2);
+		bitmap->SetPosition(entry.centerX - bitmap->Width() / 2,
+			entry.centerY - bitmap->Height() / 2);
 	} else if (ownsData)
 		delete[] bitmapData;
 
