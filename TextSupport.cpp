@@ -288,8 +288,8 @@ Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 			continue;
 		}
 		Glyph newGlyph = g->second;
-		width += newGlyph.bitmap->Frame().w;
-		uint16 fontHeight = newGlyph.bitmap->Frame().h + fBaseLine - newGlyph.bitmap->Frame().y;
+		width += newGlyph.bitmap->Width();
+		uint16 fontHeight = newGlyph.bitmap->Height() + fBaseLine - newGlyph.bitmap->Frame().y;
 		height = std::max(fontHeight, height);
 		if (glyphs != NULL)
 			glyphs->push_back(newGlyph);
