@@ -165,11 +165,11 @@ Font::_LoadGlyphs(const std::string& fontName)
 		return;
 	}
 	fTransparentIndex = fontRes->TransparentIndex();
-	for (int c = 1; c < 256; c++) {
-		uint32 cycleNum = cycle_num_for_char(c);
+	for (uint8 cycleNum = 0; cycleNum < fontRes->CountCycles(); cycleNum++) {
+		char c = cycleNum + 1;
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
-			if (c == 1) {
+			if (cycleNum == 1) {
 				fBaseLine = bitmap->Height() - 2;//bitmap->Frame().y;
 			}
 #if 0
