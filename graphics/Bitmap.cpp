@@ -24,8 +24,7 @@ Bitmap::Bitmap(uint16 width, uint16 height, uint16 bitsPerPixel)
 	:
 	AutoDeletingReferenceable(),
 	fMirrored(NULL),
-	fXOffset(0),
-	fYOffset(0),
+	fOffset(GFX::kOrigin),
 	fOwnsSurface(true)
 {
 	fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height,
@@ -39,8 +38,7 @@ Bitmap::Bitmap(SDL_Surface* surface, bool ownsSurface)
 	AutoDeletingReferenceable(),
 	fSurface(surface),
 	fMirrored(NULL),
-	fXOffset(0),
-	fYOffset(0),
+	fOffset(GFX::kOrigin),
 	fOwnsSurface(ownsSurface)
 {
 }
@@ -398,8 +396,8 @@ Bitmap::Flip()
 void
 Bitmap::SetPosition(uint16 x, uint16 y)
 {
-	fXOffset = x;
-	fYOffset = y;
+	fOffset.x = x;
+	fOffset.y = y;
 }
 
 
@@ -442,7 +440,7 @@ Bitmap::ImportData(const void* data, uint32 width, uint32 height)
 GFX::rect
 Bitmap::Frame() const
 {
-	return GFX::rect(fXOffset, fYOffset, Width(), Height());
+	return GFX::rect(fOffset.x, fOffset.y, Width(), Height());
 }
 
 
@@ -491,8 +489,8 @@ Bitmap::Clone() const
 	
 	Bitmap* newBitmap = new Bitmap(surface, true);
 	
-	newBitmap->fXOffset = fXOffset;
-	newBitmap->fYOffset = fYOffset;
+	newBitmap->fOffset = fOffset;
+
 	return newBitmap;
 }
 
@@ -571,7 +569,7 @@ Bitmap::Mirror()
 	SDL_UnlockSurface(fSurface);
 
 	uint16 newX = std::max(Frame().x - Width(), 0);
-	SetPosition(newX, fYOffset);
+	SetPosition(newX, fOffset.y);
 }
 
 

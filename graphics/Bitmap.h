@@ -9,16 +9,10 @@
 #define BITMAP_H_
 
 #include "Referenceable.h"
+#include "GraphicsDefs.h"
 #include "SupportDefs.h"
 
 struct SDL_Surface;
-
-namespace GFX {
-	struct point;
-	struct rect;
-	class Palette;
-	class Color;
-};
 
 
 class GraphicsEngine;
@@ -102,8 +96,8 @@ protected:
 	SDL_Surface* fSurface;
 	Bitmap* fMirrored;
 
-	uint16 fXOffset;
-	uint16 fYOffset;
+	GFX::point fOffset;
+
 	bool fOwnsSurface;
 
 	Bitmap(SDL_Surface* surface, bool ownsSurface = true);
