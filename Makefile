@@ -32,7 +32,7 @@ tests: PathFindTest RandTest
 PHONY := $(BGEMU) $(GAMELIB)
 $(BGEMU):  bgemu.cpp $(GAMELIB)
 	mkdir -p $(OUTDIR)
-	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(LIBS) $(DIR_OBJ)/$(GAMELIB) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(DIR_OBJ)/$(GAMELIB) $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 	
 $(GAMELIB): $(OBJS)
 	ar rcu $(DIR_OBJ)/$(GAMELIB) $(OBJS)
