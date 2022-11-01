@@ -3,6 +3,20 @@
 CC = g++
 RM = rm -rf
 
+TARGET = BGEmu
+LIBS = -lz `sdl2-config --libs`
+CXXFLAGS = -Wall -Werror -g -O0 `sdl2-config --cflags`
+SUBDIR = \
+animations \
+archives \
+game \
+graphics \
+gui \
+resources \
+shell \
+streams \
+support
+
 OUTDIR = ./bin
 DIR_OBJ = ./obj
 INCS = $(wildcard *.h $(foreach fd, $(SUBDIR), $(fd)/*.h))
