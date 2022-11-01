@@ -3,7 +3,8 @@
 CC = g++
 RM = rm -rf
 
-TARGET = BGEmu
+BGEMU = BGEmu
+GAMELIB = libgame.a
 LIBS = -lz `sdl2-config --libs`
 CXXFLAGS = -Wall -Werror -g -O0 `sdl2-config --cflags`
 SUBDIR = \
@@ -26,12 +27,16 @@ OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
 INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 
 #PHONY := all
-all: $(TARGET)
+all: $(BGEMU) 
 
-PHONY := $(TARGET)
-$(TARGET):	$(OBJS)
+PHONY := $(BGEMU)
+$(BGEMU):	$(GAMELIB) bgemu.cpp
 	mkdir -p $(OUTDIR)
-	$(CC) -o $(OUTDIR)/$@ $(OBJS) $(LDFLAGS) $(LIBS)
+	$(CC) -o $(OUTDIR)/$@ $(LIBS) $(DIR_OBJ)/$(GAMELIB) $(LDFLAGS)
+	
+$(GAMELIB): $(OBJS)
+	ar rcu $(DIR_OBJ)/$(GAMELIB) $(OBJS)
+	ranlib $(DIR_OBJ)/$(GAMELIB)
 
 $(DIR_OBJ)/%.o: %.cpp $(INCS)
 	mkdir -p $(@D)
