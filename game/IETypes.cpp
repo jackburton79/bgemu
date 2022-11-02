@@ -323,6 +323,22 @@ IE::rect::Height() const
 }
 
 
+point
+IE::rect::LeftTop() const
+{
+	IE::point point = { x_min, y_min };
+	return point;
+}
+
+
+point
+IE::rect::RightBottom() const
+{
+	IE::point point = { x_max, y_max };
+	return point;
+}
+
+
 // orientation
 bool
 IE::is_orientation_facing_north(int o)

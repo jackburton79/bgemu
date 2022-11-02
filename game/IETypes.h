@@ -97,8 +97,12 @@ struct rect {
 	int16 y_min;
 	int16 x_max;
 	int16 y_max;
+
 	uint16 Width() const;
 	uint16 Height() const;
+
+	point LeftTop() const;
+	point RightBottom() const;
 };
 
 
