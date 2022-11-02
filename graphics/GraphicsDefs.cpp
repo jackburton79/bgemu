@@ -23,6 +23,22 @@ GFX::Palette* kPaletteBlack;
 const GFX::point kOrigin = {0, 0};
 
 
+point::point()
+	:
+	x(0),
+	y(0)
+{
+}
+
+
+point::point(int16 _x, int16 _y)
+	:
+	x(_x),
+	y(_y)
+{
+}
+
+
 void
 point::Print() const
 {

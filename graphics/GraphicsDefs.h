@@ -45,13 +45,19 @@ extern GFX::Palette* kPaletteYellow;
 extern GFX::Palette* kPaletteBlack;
 
 
-struct point {
+class point {
+public:
+	point();
+	point(int16 x, int16 y);
+
 	int16 x;
 	int16 y;
 	void Print() const;
 };
 
-struct rect {
+
+class rect {
+public:
 	sint16 x;
 	sint16 y;
 	uint16 w;
