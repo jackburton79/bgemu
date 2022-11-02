@@ -72,7 +72,7 @@ typedef std::deque<IE::point> PointList;
 
 class PathFinderImpl {
 public:
-	PathFinderImpl(int step, test_function func, bool checkNeighbors);
+	PathFinderImpl(int16 step, test_function func, bool checkNeighbors);
 	~PathFinderImpl();
 
 	bool GeneratePath(const IE::point& start, const IE::point& end);
@@ -81,7 +81,7 @@ public:
 	void SetDebug(debug_function callback);
 
 private:
-	int fStep;
+	int16 fStep;
 	PointList* fPoints;
 	ClosedNodeList* fClosedNodeList;
 	test_function fTestFunction;
@@ -176,7 +176,7 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 
 
 // PathFinderImpl
-PathFinderImpl::PathFinderImpl(int step, test_function testFunc, bool checkNeighbors)
+PathFinderImpl::PathFinderImpl(int16 step, test_function testFunc, bool checkNeighbors)
 	:
 	fStep(step),
 	fPoints(NULL),
@@ -394,19 +394,19 @@ void
 PathFinderImpl::_AddNeighbors(const point_node& node,
 		const IE::point& goal)
 {
-	const IE::point pointArray[] = {
-			offset_point(node.point, -fStep, -fStep),
-			offset_point(node.point, -fStep, 0),
-			offset_point(node.point, -fStep, +fStep),
-			offset_point(node.point, 0, -fStep),
-			offset_point(node.point, 0, +fStep),
-			offset_point(node.point, +fStep, -fStep),
-			offset_point(node.point, +fStep, 0),
-			offset_point(node.point, +fStep, +fStep)
+	const IE::point directions[] = {
+		{ int16(-fStep), int16(-fStep) },
+		{ int16(-fStep), 0 },
+		{ int16(-fStep), int16(+fStep) },
+		{ 0, int16(-fStep) },
+		{ 0, int16(+fStep) },
+		{ int16(+fStep), int16(-fStep) },
+		{ int16(+fStep), 0 },
+		{ int16(+fStep), int16(+fStep) }
 	};
-	const size_t arraySize = sizeof(pointArray) / sizeof(pointArray[0]);
+	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
 	for (size_t c = 0; c < arraySize; c++)
-		_AddIfPassable(pointArray[c], node, goal);
+		_AddIfPassable(node.point + directions[c], node, goal);
 }
 
 
