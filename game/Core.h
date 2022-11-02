@@ -96,10 +96,6 @@ public:
 	void Open(Object* actor, Door* target);
 	void Close(Object* actor, Door* target);
 
-	void RandomFly(Actor* actor);
-	void FlyToPoint(Actor* actor, IE::point, uint32 time);
-	void RandomWalk(Actor* actor);
-
 	static int32 RandomNumber(int32 start, int32 end);
 	static ::Script* ExtractScript(const res_ref& resName);
 

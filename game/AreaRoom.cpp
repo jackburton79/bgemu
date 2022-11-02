@@ -252,8 +252,9 @@ AreaRoom::Draw()
 	}
 
 	if (fSelectedActor.Target() != NULL && fSelectedActor.Target()->IsWalking()) {
-		IE::point destination = fSelectedActor.Target()->Destination();
-		destination = offset_point(destination, -mapRect.x, -mapRect.y);
+		IE::point mapOffset = { mapRect.x, mapRect.y };
+		IE::point destination = fSelectedActor.Target()->Destination() - mapOffset;
+
 		fBackMap->Image()->Lock();
 		uint32 color = fBackMap->Image()->MapColor(0, 255, 0);
 		fBackMap->Image()->StrokeCircle(destination.x, destination.y, 10, color);

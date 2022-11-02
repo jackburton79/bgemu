@@ -588,10 +588,12 @@ ActionRandomFly::operator()()
 		return;
 
 	// TODO: Fly
-	int16 randomX = Core::RandomNumber(-50, 50);
-	int16 randomY = Core::RandomNumber(-50, 50);
+	IE::point randomValue = {
+		int16(Core::RandomNumber(-50, 50)),
+		int16(Core::RandomNumber(-50, 50))
+	};
 
-	IE::point destination = offset_point(actor->Position(), randomX, randomY);
+	IE::point destination = actor->Position() + randomValue;
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination, true);
 
@@ -692,10 +694,11 @@ ActionRandomWalk::operator()()
 		return;
 
 	if (!actor->IsWalking()) {
-		int16 randomX = Core::RandomNumber(-50, 50);
-		int16 randomY = Core::RandomNumber(-50, 50);
-
-		IE::point destination = offset_point(actor->Position(), randomX, randomY);
+		IE::point randomValue = {
+			int16(Core::RandomNumber(-50, 50)),
+			int16(Core::RandomNumber(-50, 50))
+		};
+		IE::point destination = actor->Position() + randomValue;
 		if (!PointSufficientlyClose(actor->Position(), destination))
 			actor->SetDestination(destination);
 	}
