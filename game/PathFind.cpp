@@ -72,7 +72,7 @@ typedef std::deque<IE::point> PointList;
 
 class PathFinderImpl {
 public:
-	PathFinderImpl(int step, test_function func);
+	PathFinderImpl(int step, test_function func, bool checkNeighbors);
 	~PathFinderImpl();
 
 	bool GeneratePath(const IE::point& start, const IE::point& end);
@@ -85,6 +85,7 @@ private:
 	PointList* fPoints;
 	ClosedNodeList* fClosedNodeList;
 	test_function fTestFunction;
+	bool fCheckNeighbors;
 
 	debug_function fDebugFunction;
 
@@ -105,11 +106,11 @@ private:
 };
 
 
-PathFinder::PathFinder(int step, test_function testFunc)
+PathFinder::PathFinder(int step, test_function testFunc, bool checkNeighbors)
 	:
 	fImplementation(NULL)
 {
-	fImplementation = new PathFinderImpl(step, testFunc);
+	fImplementation = new PathFinderImpl(step, testFunc, checkNeighbors);
 }
 
 
@@ -175,12 +176,13 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 
 
 // PathFinderImpl
-PathFinderImpl::PathFinderImpl(int step, test_function testFunc)
+PathFinderImpl::PathFinderImpl(int step, test_function testFunc, bool checkNeighbors)
 	:
 	fStep(step),
 	fPoints(NULL),
 	fClosedNodeList(NULL),
 	fTestFunction(testFunc),
+	fCheckNeighbors(checkNeighbors),
 	fDebugFunction(NULL)
 {
 }
@@ -312,9 +314,9 @@ PathFinderImpl::_IsPassable(const IE::point& point) const
 bool
 PathFinderImpl::_IsReachable(const IE::point& current, const IE::point& point) const
 {
-#if 1
-	return _IsPassable(point);
-#else
+	if (!fCheckNeighbors)
+		return _IsPassable(point);
+
 	if (!_IsPassable(point))
 		return false;
 	
@@ -359,7 +361,6 @@ PathFinderImpl::_IsReachable(const IE::point& current, const IE::point& point) c
 	}
 
 	return true;
-#endif
 }
 
 

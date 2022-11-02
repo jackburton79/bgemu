@@ -14,7 +14,7 @@ class PathFinder {
 public:
 	const static int kStep = 5;
 
-	PathFinder(int step = kStep, test_function func = IsPassableDefault);
+	PathFinder(int step = kStep, test_function func = IsPassableDefault, bool checkNeighbors = false);
 	~PathFinder();
 
 	IE::point SetPoints(const IE::point& start, const IE::point& end);

@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 	gMap = new Bitmap(gNumColumnsMap, gNumRowsMap, 8);
 	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
-	PathFinder pathFinder(sStep, IsWalkable);
+	PathFinder pathFinder(sStep, IsWalkable, true);
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumnsMap, gNumRowsMap };
