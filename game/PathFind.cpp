@@ -66,7 +66,8 @@ Distance(const IE::point& start, const IE::point& end)
 }
 
 
-typedef std::deque<point_node*> ClosedNodeList;
+typedef std::vector<point_node*> NodeVector;
+typedef std::deque<point_node*> NodeList;
 typedef std::deque<IE::point> PointList;
 
 
@@ -83,7 +84,7 @@ public:
 private:
 	int16 fStep;
 	PointList* fPoints;
-	ClosedNodeList* fClosedNodeList;
+	NodeList* fClosedNodeList;
 	test_function fTestFunction;
 	bool fCheckNeighbors;
 
@@ -146,6 +147,21 @@ PathFinder::SetDebug(debug_function callback)
 }
 
 
+bool
+PathFinder::GenerateNodes(Bitmap* searchMap)
+{
+	// TODO: Not doing anything useful yet
+	NodeVector nodes;
+	for (int16 x = 0; searchMap->Width(); x++) {
+		for (int16 y = 0; searchMap->Height(); y++) {
+			IE::point point = {x, y};
+			nodes.push_back(new point_node(point, NULL, 0));
+		}
+	}
+	return true;
+}
+
+
 IE::point
 PathFinder::NextWayPoint()
 {
@@ -196,9 +212,9 @@ PathFinderImpl::~PathFinderImpl()
 
 
 static void
-EmptyClosedList(ClosedNodeList*& pointList)
+EmptyClosedList(NodeList*& pointList)
 {
-	ClosedNodeList::iterator i;
+	NodeList::iterator i;
 	for (i = pointList->begin(); i != pointList->end(); i++) {
 		delete (*i);
 	}
@@ -221,7 +237,7 @@ PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
 		return true;
 
 	fPoints = new PointList;
-	fClosedNodeList = new ClosedNodeList();
+	fClosedNodeList = new NodeList();
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	currentNode->cost_to_goal = Distance(currentNode->point, end)
@@ -303,7 +319,6 @@ PathFinderImpl::SetDebug(debug_function callback)
 }
 
 
-//fDebugFunction = callback;
 bool
 PathFinderImpl::_IsPassable(const IE::point& point) const
 {
@@ -374,7 +389,7 @@ PathFinderImpl::_AddIfPassable(const IE::point& point,
 		return;
 
 	// Check if point is in closed list. If so, update it.
-	ClosedNodeList::const_iterator i =
+	NodeList::const_iterator i =
 			std::find_if(fClosedNodeList->begin(), fClosedNodeList->end(),
 							FindPoint(point));
 	if (i != fClosedNodeList->end()) {
@@ -428,7 +443,7 @@ PathFinderImpl::_GetCheapestNode() const
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
-	for (ClosedNodeList::const_iterator i = fClosedNodeList->begin();
+	for (NodeList::const_iterator i = fClosedNodeList->begin();
 			i != fClosedNodeList->end(); i++) {
 		point_node* node = *i;
 		if (!node->open)

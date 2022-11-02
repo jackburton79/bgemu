@@ -9,6 +9,7 @@ typedef void(*debug_function)(const IE::point& pt);
 
 #include <vector>
 
+class Bitmap;
 class PathFinderImpl;
 class PathFinder {
 public:
@@ -24,6 +25,8 @@ public:
 	bool IsEmpty() const;
 
 	void SetDebug(debug_function callback);
+
+	bool GenerateNodes(Bitmap* searchMap);
 
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
