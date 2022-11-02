@@ -116,6 +116,21 @@ GraphicsEngine::BlitToScreen(const Bitmap* source, GFX::rect *sourceRect,
 }
 
 
+void
+GraphicsEngine::BlitToScreen(const Bitmap* sourceBitmap,
+					  const GFX::point& position)
+{
+	SDL_Rect sdlDestRect = {
+		position.x,
+		position.y,
+		sourceBitmap->Width(),
+		sourceBitmap->Height()
+	};
+	SDL_BlitSurface(sourceBitmap->Surface(), NULL,
+					fScreen->Surface(), &sdlDestRect);
+}
+
+
 /*static*/
 void
 GraphicsEngine::BlitBitmap(const Bitmap* source, GFX::rect *sourceRect,

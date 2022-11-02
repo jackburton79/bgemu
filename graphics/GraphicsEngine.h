@@ -36,6 +36,8 @@ public:
 	void BlitToScreen(const Bitmap* sourceBitmap,
 					  GFX::rect* sourceRect,
 					  GFX::rect* destRect);
+	void BlitToScreen(const Bitmap* sourceBitmap,
+					  const GFX::point& position);
 
 	void SetClipping(const GFX::rect* rect);
 
