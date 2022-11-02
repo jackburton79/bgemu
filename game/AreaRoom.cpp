@@ -241,7 +241,7 @@ AreaRoom::Draw()
 		fBackMap->Image()->Lock();
 		if (outline.Type() == Outline::OUTLINE_RECT) {
 			GFX::rect rect = rect_to_gfx_rect(outline.Rect());
-			rect = offset_rect(rect, -mapRect.x, -mapRect.y);
+			ConvertFromArea(rect);
 			fBackMap->Image()->StrokeRect(rect, color);
 		} else {
 			::Polygon polygon = outline.Polygon();
