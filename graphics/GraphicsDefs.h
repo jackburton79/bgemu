@@ -45,6 +45,7 @@ extern GFX::Palette* kPaletteYellow;
 extern GFX::Palette* kPaletteBlack;
 
 
+// GFX::point
 class point {
 public:
 	point();
@@ -55,7 +56,11 @@ public:
 	void Print() const;
 };
 
+point operator+(const point& pointA, const point& pointB);
+point operator-(const point& pointA, const point& pointB);
 
+
+// GFX::rect
 class rect {
 public:
 	sint16 x;

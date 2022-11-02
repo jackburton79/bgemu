@@ -20,9 +20,10 @@ GFX::Palette* kPaletteBlue;
 GFX::Palette* kPaletteYellow;
 GFX::Palette* kPaletteBlack;
 
-const GFX::point kOrigin = {0, 0};
+const GFX::point kOrigin = { 0, 0 };
 
 
+// GFX::point
 point::point()
 	:
 	x(0),
@@ -46,6 +47,21 @@ point::Print() const
 }
 
 
+point
+operator+(const point& pointA, const point& pointB)
+{
+	return point(pointA.x + pointB.x, pointA.y + pointB.y);
+}
+
+
+point
+operator-(const point& pointA, const point& pointB)
+{
+	return point(pointA.x - pointB.x, pointA.y - pointB.y);
+}
+
+
+// GFX::rect
 rect::rect()
 {
 	x = y = w = h = 0;
