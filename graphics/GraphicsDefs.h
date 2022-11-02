@@ -72,6 +72,8 @@ public:
 	rect(sint16 x, sint16 y, uint16 width, uint16 height);
 
 	GFX::point LeftTop() const;
+	GFX::point Center() const;
+	GFX::point RightBottom() const;
 
 	void Print() const;
 };

@@ -87,6 +87,20 @@ rect::LeftTop() const
 }
 
 
+GFX::point
+rect::Center() const
+{
+	return GFX::point(x + w / 2, y + h / 2);
+}
+
+
+GFX::point
+rect::RightBottom() const
+{
+	return GFX::point(x + w, y + h);
+}
+
+
 void
 rect::Print() const
 {
