@@ -1011,17 +1011,16 @@ AreaRoom::_DrawPolygons(const GFX::rect& mapRect)
 void
 AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 {
-	if ((fSearchMap != NULL && fDrawSearchMap > 0)) {
+	if (fSearchMap != NULL && fDrawSearchMap > 0) {
 		GFX::rect viewPort = Control::Frame();
-		GFX::rect destRect(0, viewPort.h - fSearchMap->Height(),
-						fSearchMap->Width(), fSearchMap->Height());
-		GraphicsEngine::Get()->BlitToScreen(fSearchMap->Image(), NULL, &destRect);
+		GFX::point destPoint = {80, int16(viewPort.h - fSearchMap->Height() - 80)};
+		GraphicsEngine::Get()->BlitToScreen(fSearchMap->Image(), destPoint);
 		GFX::rect scaledRect = visibleArea;
 		scaledRect.x /= fMapHorizontalRatio;
 		scaledRect.y /= fMapVerticalRatio;
 		scaledRect.w /= fMapHorizontalRatio;
 		scaledRect.h /= fMapVerticalRatio;
-		scaledRect = offset_rect(scaledRect, 0, viewPort.h - fSearchMap->Height());
+		scaledRect = offset_rect(scaledRect, destPoint.x, destPoint.y);
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
 		
 		if (fSelectedActor != NULL) {
@@ -1029,7 +1028,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 			actorPosition.x /= fMapHorizontalRatio;
 			actorPosition.y /= fMapVerticalRatio;
 			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
-			r = offset_rect(r, 0, viewPort.h - fSearchMap->Height());
+			r = offset_rect(r, destPoint.x, destPoint.y);
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
 		}	
 	}
