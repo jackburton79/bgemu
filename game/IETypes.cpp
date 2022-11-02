@@ -270,27 +270,45 @@ operator<<(std::ostream &os, res_ref ref)
 };
 
 
+// IE::point
 bool
-operator==(const IE::point& ptA, const IE::point& ptB)
+IE::operator==(const IE::point& ptA, const IE::point& ptB)
 {
 	return ptA.x == ptB.x && ptA.y == ptB.y;
 }
 
 
 bool
-operator!=(const IE::point& ptA, const IE::point& ptB)
+IE::operator!=(const IE::point& ptA, const IE::point& ptB)
 {
 	return ptA.x != ptB.x || ptA.y != ptB.y;
 }
 
 
+point
+IE::operator+(const IE::point& ptA, const IE::point& ptB)
+{
+	IE::point newPoint = { int16(ptA.x + ptB.x), int16(ptA.y + ptB.y) };
+	return newPoint;
+}
+
+
+point
+IE::operator-(const IE::point& ptA, const IE::point& ptB)
+{
+	IE::point newPoint = { int16(ptA.x - ptB.x), int16(ptA.y - ptB.y) };
+	return newPoint;
+}
+
+
 int
-operator-(const IE::point& ptA, const IE::point& ptB)
+IE::point_distance(const IE::point& ptA, const IE::point& ptB)
 {
 	return std::abs(ptA.x - ptB.x) + std::abs(ptA.y - ptB.y);
 }
 
 
+// IE::rect
 uint16
 IE::rect::Width() const
 {

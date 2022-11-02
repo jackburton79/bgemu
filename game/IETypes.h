@@ -78,12 +78,20 @@ struct ref_type {
 // TODO: Include the above stuff into the namespace
 namespace IE {
 
+// IE::point
 struct point {
 	int16 x;
 	int16 y;
 };
 
+bool operator==(const IE::point&, const IE::point&);
+bool operator!=(const IE::point&, const IE::point&);
+int point_distance(const IE::point&, const IE::point&);
+IE::point operator+(const IE::point&, const IE::point&);
+IE::point operator-(const IE::point&, const IE::point&);
 
+
+// IE::rect
 struct rect {
 	int16 x_min;
 	int16 y_min;
@@ -616,8 +624,5 @@ bool operator!=(const res_ref&, const res_ref&);
 bool operator<(const ref_type&, const ref_type&);
 std::ostream &operator<<(std::ostream &os, res_ref ref);
 
-bool operator==(const IE::point&, const IE::point&);
-bool operator!=(const IE::point&, const IE::point&);
-int operator-(const IE::point&, const IE::point&);
 
 #endif

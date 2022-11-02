@@ -646,7 +646,8 @@ AreaRoom::Distance(const Object* a, const Object* b) const
 	IE::point invalidPoint = { -1, -1 };
 	if (positionA == invalidPoint && positionB == invalidPoint)
 		return 100; // TODO: ???
-	return positionA - positionB;
+
+	return point_distance(positionA, positionB);
 }
 
 
