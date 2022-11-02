@@ -377,7 +377,8 @@ AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool ma
 
 	GFX::rect rect(leftTop.x, leftTop.y, bitmap->Width(), bitmap->Height());
 	if (rects_intersect(rect_to_gfx_rect(VisibleMapArea()), rect)) {
-		GFX::rect offsetRect = offset_rect(rect, -AreaOffset().x, -AreaOffset().y);
+		GFX::rect offsetRect = rect;
+		ConvertFromArea(offsetRect);
 		if (mask)
 			GraphicsEngine::BlitBitmapWithMask(bitmap, NULL,
 					fBackMap->Image(), &offsetRect, fBlitMask, &rect);
