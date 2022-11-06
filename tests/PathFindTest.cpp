@@ -117,7 +117,9 @@ InitializeSearchMap()
 static bool
 IsWalkable(const IE::point& point)
 {
-	if (point.x < 0 || (point.x / kBlockSize >= (gNumColumnsMap) / kBlockSize))
+	if (point.x < 0 || point.y < 0
+			|| (point.x / kBlockSize >= (gNumColumnsMap) / kBlockSize)
+			|| (point.y / kBlockSize >= (gNumRowsMap) / kBlockSize))
 		return false;
 	return gSearchMap->GetPixel(point.x / kBlockSize, point.y / kBlockSize) == kPassable;
 }
