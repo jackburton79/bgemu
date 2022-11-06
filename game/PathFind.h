@@ -21,7 +21,7 @@ public:
 	IE::point SetPoints(const IE::point& start, const IE::point& end);
 	void GetPoints(std::vector<IE::point>& points) const;
 
-	IE::point NextWayPoint();
+	IE::point NextWayPoint(const int& step = 1);
 	bool IsEmpty() const;
 
 	void SetDebug(debug_function callback);

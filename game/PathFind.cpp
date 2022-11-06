@@ -112,7 +112,7 @@ PathFinder::PathFinder(int step, test_function testFunc, bool checkNeighbors)
 	:
 	fImplementation(NULL)
 {
-	fImplementation = new PathFinderImpl(step, testFunc, checkNeighbors);
+	fImplementation = new PathFinderImpl(1, testFunc, checkNeighbors);
 }
 
 
@@ -162,10 +162,15 @@ PathFinder::GenerateNodes(Bitmap* searchMap)
 
 
 IE::point
-PathFinder::NextWayPoint()
+PathFinder::NextWayPoint(const int& step)
 {
-	IE::point point = fImplementation->Points()->front();
-	fImplementation->Points()->pop_front();
+	IE::point point;
+	for (int i = 0; i < step; i++) {
+		if (fImplementation->Points()->empty())
+			break;
+		point = fImplementation->Points()->front();
+		fImplementation->Points()->pop_front();
+	}
 	return point;
 }
 
@@ -247,7 +252,7 @@ PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
 	while ((currentNode = _GetCheapestNode()) != NULL) {
-		if (IsCloseEnough(currentNode->point, end)) {
+		if (currentNode->point == end) {
 			found = true;
 			break;
 		}
