@@ -77,6 +77,7 @@ public:
 	~PathFinderImpl();
 
 	bool GeneratePath(const IE::point& start, const IE::point& end);
+	void GetPoints(std::vector<IE::point>& points) const;
 	PointList* Points();
 
 	void SetDebug(debug_function callback);
@@ -134,9 +135,7 @@ PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 void
 PathFinder::GetPoints(std::vector<IE::point>& points) const
 {
-	PointList* list = fImplementation->Points();
-	for (PointList::iterator i = list->begin(); i != list->end(); i++)
-		points.push_back(*i);
+	fImplementation->GetPoints(points);
 }
 
 
@@ -309,6 +308,14 @@ PathFinderImpl::MovementCost(const IE::point& pointA, const IE::point& pointB) c
 	return (std::abs(pointA.x - pointB.x) < fStep)
 			|| (std::abs(pointA.y - pointB.y) < fStep) ?
 				 kMovementCost : kDiagMovementCost;
+}
+
+
+void
+PathFinderImpl::GetPoints(std::vector<IE::point>& points) const
+{
+	for (PointList::iterator i = fPoints->begin(); i != fPoints->end(); i++)
+		points.push_back(*i);
 }
 
 
