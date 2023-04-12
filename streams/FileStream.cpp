@@ -6,8 +6,14 @@
 FileStream::FileStream(const char *filename, int mode)
 {		
 	int status = SetTo(filename, mode);
-	if (status != 0)
-		throw std::runtime_error(::strerror(status));
+	if (status != 0) {
+		std::string error;
+		error += ::strerror(status);
+		error += " (\"";
+		error += filename;
+		error += "\")";
+		throw std::runtime_error(error);
+	}
 }
 
 
