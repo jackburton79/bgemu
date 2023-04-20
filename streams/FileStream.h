@@ -1,5 +1,5 @@
-#ifndef __FILE_H
-#define __FILE_H
+#ifndef __FILESTREAM_H
+#define __FILESTREAM_H
 
 using namespace std;
 
@@ -62,4 +62,4 @@ private:
 };
 
 
-#endif
+#endif // __FILESTREAM_H
