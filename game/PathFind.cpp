@@ -252,6 +252,7 @@ PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
 	while ((currentNode = _GetCheapestNode()) != NULL) {
+		// TODO: this could never happen if step is > 1
 		if (currentNode->point == end) {
 			found = true;
 			break;
