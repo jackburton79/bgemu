@@ -1,0 +1,4 @@
+[submodule "streams"]
+	path = streams
+	url = git@github.com:jackburton79/streams.git
+	branch = v1
