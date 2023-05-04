@@ -4,7 +4,6 @@
 
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
-#include "Listener.h"
 #include "Log.h"
 
 #include <SDL.h>
@@ -91,7 +90,22 @@ GraphicsEngine::SetClipping(const GFX::rect* rect)
 }
 
 
-void
+bool
+GraphicsEngine::BlitToScreen(const Bitmap* sourceBitmap,
+					  const GFX::point& position)
+{
+	SDL_Rect sdlDestRect = {
+		position.x,
+		position.y,
+		sourceBitmap->Width(),
+		sourceBitmap->Height()
+	};
+	return SDL_BlitSurface(sourceBitmap->Surface(), NULL,
+					fScreen->Surface(), &sdlDestRect) == 0;
+}
+
+
+bool
 GraphicsEngine::BlitToScreen(const Bitmap* source, GFX::rect *sourceRect,
 		GFX::rect *destRect)
 {
@@ -108,31 +122,45 @@ GraphicsEngine::BlitToScreen(const Bitmap* source, GFX::rect *sourceRect,
 		sdlDestRectPtr = &sdlDestRect;
 	}
 
-	SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
-				fScreen->Surface(), sdlDestRectPtr);
+	int result = SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
+					fScreen->Surface(), sdlDestRectPtr);
 
 	if (destRect != NULL)
 		SDLRectToGFXRect(&sdlDestRect, destRect);
+
+	return result == 0;
 }
 
 
-void
-GraphicsEngine::BlitToScreen(const Bitmap* sourceBitmap,
-					  const GFX::point& position)
+bool
+GraphicsEngine::BlitToScreenScaled(const Bitmap* source, GFX::rect *sourceRect,
+		GFX::rect *destRect)
 {
-	SDL_Rect sdlDestRect = {
-		position.x,
-		position.y,
-		sourceBitmap->Width(),
-		sourceBitmap->Height()
-	};
-	SDL_BlitSurface(sourceBitmap->Surface(), NULL,
-					fScreen->Surface(), &sdlDestRect);
+	SDL_Rect sdlSourceRect;
+	SDL_Rect sdlDestRect;
+	SDL_Rect* sdlSourceRectPtr = NULL;
+	SDL_Rect* sdlDestRectPtr = NULL;
+	if (sourceRect != NULL) {
+		GFXRectToSDLRect(sourceRect, &sdlSourceRect);
+		sdlSourceRectPtr = &sdlSourceRect;
+	}
+	if (destRect != NULL) {
+		GFXRectToSDLRect(destRect, &sdlDestRect);
+		sdlDestRectPtr = &sdlDestRect;
+	}
+
+	int result = SDL_BlitScaled(source->Surface(), sdlSourceRectPtr,
+					fScreen->Surface(), sdlDestRectPtr);
+
+	if (destRect != NULL)
+		SDLRectToGFXRect(&sdlDestRect, destRect);
+
+	return result == 0;
 }
 
 
 /*static*/
-void
+bool
 GraphicsEngine::BlitBitmap(const Bitmap* source, GFX::rect *sourceRect,
 		Bitmap *dest, GFX::rect *destRect)
 {
@@ -149,16 +177,18 @@ GraphicsEngine::BlitBitmap(const Bitmap* source, GFX::rect *sourceRect,
 		sdlDestRectPtr = &sdlDestRect;
 	}
 
-	SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
-			dest->Surface(), sdlDestRectPtr);
+	int result = SDL_BlitSurface(source->Surface(), sdlSourceRectPtr,
+					dest->Surface(), sdlDestRectPtr);
 
 	if (destRect != NULL)
 		SDLRectToGFXRect(&sdlDestRect, destRect);
+
+	return result == 0;
 }
 
 
 /*static*/
-void
+bool
 GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 		GFX::rect *source, Bitmap *destBitmap, GFX::rect *dest,
 		const Bitmap* mask, GFX::rect *maskRect)
@@ -174,7 +204,8 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 		dest->y = 0;
 	}
 
-	mask->Lock();
+	if (!mask->Lock())
+		return false;
 
 	uint8* maskPixels = (uint8*)mask->Pixels()
 				+ (maskRect->y * mask->Pitch()) + maskRect->x;
@@ -200,11 +231,14 @@ GraphicsEngine::BlitBitmapWithMask(const Bitmap* bitmap,
 		maskPixels += mask->Pitch();
 	}
 	mask->Unlock();
+
+	// TODO: take into account the return value of the SDL_BlitSurface calls
+	return true;
 }
 
 
 /* static */
-void
+bool
 GraphicsEngine::BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* sourceRect,
 							Bitmap* surface, GFX::rect* destRect)
 {
@@ -220,8 +254,8 @@ GraphicsEngine::BlitBitmapScaled(const Bitmap* bitmap, GFX::rect* sourceRect,
 		GFXRectToSDLRect(destRect, &sdlDestRect);
 		sdlDestRectPtr = &sdlDestRect;
 	}
-	SDL_SoftStretch(bitmap->Surface(), sdlSourceRectPtr,
-			surface->Surface(), sdlDestRectPtr);
+	return SDL_SoftStretch(bitmap->Surface(), sdlSourceRectPtr,
+			surface->Surface(), sdlDestRectPtr) == 0;
 }
 
 
@@ -263,11 +297,6 @@ GraphicsEngine::SetVideoMode(uint16 width, uint16 height, uint16 depth,
 
 	// Center cursor in window
 	SDL_WarpMouseInWindow(fSDLWindow, fScreen->Width() / 2, fScreen->Height() / 2);
-
-	std::vector<Listener*>::iterator i;
-	for (i = fListeners.begin(); i != fListeners.end(); i++) {
-		(*i)->VideoModeChanged(width, height, depth);
-	}
 }
 
 

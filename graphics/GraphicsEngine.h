@@ -21,23 +21,26 @@ public:
 		MASK_COMPLETELY = 255
 	};
 
-	static void BlitBitmap(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
+	static bool BlitBitmap(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
 						   Bitmap* destBitmap, GFX::rect* destRect);
-	static void BlitBitmapWithMask(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
+	static bool BlitBitmapWithMask(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
 								Bitmap* destBitmap, GFX::rect* destRect,
 								const Bitmap* mask, GFX::rect* maskRect);
-	static void BlitBitmapScaled(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
+	static bool BlitBitmapScaled(const Bitmap* sourceBitmap, GFX::rect* sourceRect,
 							Bitmap* destBitmap, GFX::rect* destRect);
 
 	enum BLITTING_FLAGS {
 		BLITTING_NORMAL = 0,
 		BLITTING_SCALED = 1
 	};
-	void BlitToScreen(const Bitmap* sourceBitmap,
+	bool BlitToScreen(const Bitmap* sourceBitmap,
+						  const GFX::point& position);
+	bool BlitToScreen(const Bitmap* sourceBitmap,
 					  GFX::rect* sourceRect,
 					  GFX::rect* destRect);
-	void BlitToScreen(const Bitmap* sourceBitmap,
-					  const GFX::point& position);
+	bool BlitToScreenScaled(const Bitmap* sourceBitmap,
+					  GFX::rect* sourceRect,
+					  GFX::rect* destRect);
 
 	void SetClipping(const GFX::rect* rect);
 
