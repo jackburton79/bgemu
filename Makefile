@@ -9,12 +9,9 @@ SUBDIR = \
 animations \
 archives \
 game \
-graphics \
 gui \
 resources \
-shell \
-streams \
-support
+shell
 
 OUTDIR = ./bin
 DIR_OBJ = ./obj
@@ -23,14 +20,20 @@ SRCS = $(wildcard /*.cpp $(foreach fd, $(SUBDIR), $(fd)/*.cpp))
 NODIR_SRC = $(notdir $(SRCS))
 OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
 INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
+INC_DIRS += -I libjgame/graphics
+INC_DIRS += -I libjgame/streams
+INC_DIRS += -I libjgame/support
 
 #PHONY := all
 all: $(BGEMU) 
 
+deps:
+	make -C libjgame
+
 tests: PathFindTest RandTest
 
 PHONY := $(BGEMU) $(GAMELIB)
-$(BGEMU):  bgemu.cpp $(GAMELIB)
+$(BGEMU):  bgemu.cpp $(GAMELIB) libjgame/obj/libjgame.a
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(DIR_OBJ)/$(GAMELIB) $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 	

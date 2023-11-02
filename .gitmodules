@@ -1,0 +1,3 @@
+[submodule "libjgame"]
+	path = libjgame
+	url = https://github.com/jackburton79/libjgame.git
