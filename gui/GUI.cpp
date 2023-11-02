@@ -284,7 +284,7 @@ GUI::ShowWindow(uint16 id)
 
 	if (window != NULL) {
 		window->Show();
-		if (rect_contains(window->Frame(), fCursorPosition))
+		if (rect_contains(window->Frame(), fCursorPosition.x, fCursorPosition.y))
 			window->MouseMoved(fCursorPosition);
 	}
 }
@@ -634,7 +634,7 @@ GUI::_WindowAtPoint(IE::point pt)
 	std::vector<Window*>::reverse_iterator i;
 	for (i = fWindows.rbegin(); i < fWindows.rend(); i++) {
 		Window* window = (*i);
-		if (window->Shown() && rect_contains(window->Frame(), pt))
+		if (window->Shown() && rect_contains(window->Frame(), pt.x, pt.y))
 			return window;
 	}
 

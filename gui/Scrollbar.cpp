@@ -78,10 +78,10 @@ Scrollbar::MouseDown(IE::point point)
 	GFX::rect downFrame = fDownArrow->Frame();
 	Window()->ConvertFromScreen(upFrame);
 	Window()->ConvertFromScreen(downFrame);
-	if (rect_contains(upFrame, point)) {
+	if (rect_contains(upFrame, point.x, point.y)) {
 		fUpArrowPressed = true;
 		//textArea->ScrollBy(0, -5);
-	} else if (rect_contains(downFrame, point)) {
+	} else if (rect_contains(downFrame, point.x, point.y)) {
 		fDownArrowPressed = true;
 		//textArea->ScrollBy(0, 5);
 	}

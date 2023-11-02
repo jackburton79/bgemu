@@ -1044,7 +1044,7 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 	RegionsList::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
 		IE::rect rect = (*i)->Frame();
-		if (rect_contains(rect_to_gfx_rect(rect), point))
+		if (rect_contains(rect_to_gfx_rect(rect), point.x, point.y))
 			return *i;
 	}
 	return NULL;

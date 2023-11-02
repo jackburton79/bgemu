@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 
+#include "GraphicsDefs.h"
 #include "SupportDefs.h"
 
 #define TILE_HEIGHT 64
@@ -621,6 +622,66 @@ void check_objects_size();
 
 
 }
+
+// point
+static inline IE::point
+offset_point(const IE::point &point, sint16 x, sint16 y)
+{
+	IE::point newPoint = point;
+	newPoint.x += x;
+	newPoint.y += y;
+	return newPoint;
+}
+
+
+static inline IE::rect
+offset_rect(const IE::rect &rect, sint16 x, sint16 y)
+{
+	IE::rect newRect = rect;
+	newRect.x_min += x;
+	newRect.y_min += y;
+	newRect.x_max += x;
+	newRect.y_max += y;
+	return newRect;
+}
+
+
+static inline bool
+rect_contains(const IE::rect& rect, const IE::point& point)
+{
+	if (point.x >= rect.x_min && point.x <= rect.x_max
+		&& point.y >= rect.y_min && point.y <= rect.y_max)
+		return true;
+	return false;
+}
+
+
+// conversion
+static inline GFX::rect
+rect_to_gfx_rect(const IE::rect& rect)
+{
+	GFX::rect gfxRect(
+			rect.x_min,
+			rect.y_min,
+			rect.Width(),
+			rect.Height()
+	);
+	return gfxRect;
+}
+
+
+static inline IE::rect
+gfx_rect_to_rect(const GFX::rect& rect)
+{
+	IE::rect IERect = {
+			rect.x,
+			rect.y,
+			(int16)(rect.x + rect.w),
+			(int16)(rect.y + rect.h)
+	};
+	return IERect;
+}
+
 
 bool operator<(const res_ref&, const res_ref&);
 bool operator==(const res_ref&, const res_ref&);
