@@ -30,28 +30,29 @@ all: $(BGEMU)
 deps:
 	make -C libjgame
 
-tests: PathFindTest RandTest
+tests:
+	PathFindTest RandTest
 
 PHONY := $(BGEMU) $(OBJS)
-$(BGEMU):  bgemu.cpp $(OBJS) libjgame/obj/libjgame.a
+$(BGEMU):  bgemu.cpp $(OBJS)
 	mkdir -p $(OUTDIR)
-	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(OBJS) libjgame/obj/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 	
-$(GAMELIB): $(OBJS) libjgame/obj/libjgame.a
-	ar rcu $(DIR_OBJ)/$(GAMELIB) $(OBJS)
-	ranlib $(DIR_OBJ)/$(GAMELIB)
+#$(GAMELIB): $(OBJS)
+#	ar rcu $(DIR_OBJ)/$(GAMELIB) $(OBJS)
+#	ranlib $(DIR_OBJ)/$(GAMELIB)
 
 $(DIR_OBJ)/%.o: %.cpp $(INCS)
 	mkdir -p $(@D)
 	$(CC) -o $@ $(CXXFLAGS) -c $< $(INC_DIRS)
 
-#PathFindTest: $(GAMELIB) tests/PathFindTest.cpp
+#PathFindTest: $(GAMELIB) tests/PathFindTest.cpp libjgame/lib/libjgame.a
 #	mkdir -p $(OUTDIR)
-#	$(CC) -o $(OUTDIR)/$@ tests/PathFindTest.cpp $(LIBS) $(DIR_OBJ)/$(GAMELIB) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+#	$(CC) -o $(OUTDIR)/$@ tests/PathFindTest.cpp $(DIR_OBJ)/$(GAMELIB) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
-#RandTest: $(GAMELIB) tests/RandTest.cpp
+#RandTest: $(GAMELIB) tests/RandTest.cpp libjgame/lib/libjgame.a
 #	mkdir -p $(OUTDIR)
-#	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(LIBS) $(DIR_OBJ)/$(GAMELIB) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)	
+#	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(DIR_OBJ)/$(GAMELIB) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
 PHONY += clean
 clean:
