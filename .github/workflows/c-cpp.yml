@@ -21,4 +21,4 @@ jobs:
     - name: sdl-build
       run: (cd SDL2-2.0.12 && ./configure && make && sudo make install)
     - name: build-all
-      run: make
+      run: make deps && make
