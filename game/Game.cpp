@@ -256,7 +256,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		if (!TestMode())
 			Core::Get()->UpdateLogic(executeScripts);
 		GraphicsEngine::Get()->Update();
-		
+
 		sFrames++;
 		Timer::WaitSync(startTicks, fDelay);
 	}
@@ -360,7 +360,7 @@ Game::LoadStartingArea()
 
 	std::cout << "Starting area: " << startingArea << std::endl;
 	std::cout << "Starting position: " << viewPosition.x << "," << viewPosition.y << std::endl;
-	
+
 	TWODAResource* startPosResource = gResManager->Get2DA("STARTPOS");
 	if (startPosResource == NULL) {
 		std::cout << "Failed!" << std::endl;
@@ -380,8 +380,8 @@ Game::LoadStartingArea()
 
 	if (fParty != NULL) {
 		for (int16 i = 0; i < fParty->CountActors(); i++) {
-			char column[2];
-			snprintf(column, sizeof(column), "%d", i + 1);			
+			char column[16];
+			snprintf(column, sizeof(column), "%d", i + 1);
 			IE::point startPos;
 			startPos.x = startPosResource->IntegerValueFor("START_XPOS", column);
 			startPos.y = startPosResource->IntegerValueFor("START_YPOS", column);
@@ -389,8 +389,8 @@ Game::LoadStartingArea()
 			fParty->ActorAt(i)->ClearDestination();
 		}
 	}
-	
-	gResManager->ReleaseResource(resource);	
+
+	gResManager->ReleaseResource(resource);
 	gResManager->ReleaseResource(startPosResource);
 }
 
