@@ -114,7 +114,7 @@ SPLResource::CastingTime() const
 std::string
 SPLResource::GetSpellResourceName(uint16 id)
 {
-	char stringID[5];
+	char stringID[16];
 	snprintf(stringID, sizeof(stringID), "%u", id);
 	std::string resourceName;
 	switch (stringID[0]) {
