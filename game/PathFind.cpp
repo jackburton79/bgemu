@@ -1,6 +1,4 @@
 #include "PathFind.h"
-#include "RectUtils.h"
-#include "Utils.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -13,6 +11,9 @@
 
 
 #include <memory>
+
+#include "Bitmap.h"
+#include "Utils.h"
 
 #define PATHFIND_MAX_TRIES 5000
 
