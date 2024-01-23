@@ -16,7 +16,6 @@
 #include "IDSResource.h"
 #include "Log.h"
 #include "Party.h"
-#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"

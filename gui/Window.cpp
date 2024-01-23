@@ -11,7 +11,6 @@
 #include "RoomBase.h"
 #include "Window.h"
 
-#include "RectUtils.h"
 #include "Timer.h"
 
 // Window
@@ -320,7 +319,7 @@ Window::_ControlAtPoint(IE::point point) const
 	std::vector<Control*>::const_iterator i;
 	for (i = fControls.begin(); i != fControls.end(); i++) {
 		Control* control = (*i);
-		if (rect_contains(control->Frame(), point.x, point.y)) {
+		if (control->Frame().Contains(point.x, point.y)) {
 			return (*i);
 		}
 	}

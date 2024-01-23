@@ -20,7 +20,6 @@
 #include "Party.h"
 #include "PathFind.h"
 #include "Polygon.h"
-#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "SearchMap.h"

@@ -1,7 +1,6 @@
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "Polygon.h"
-#include "RectUtils.h"
 #include "Utils.h"
 
 #include <assert.h>

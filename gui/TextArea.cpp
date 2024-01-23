@@ -13,7 +13,6 @@
 #include "Dialog.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
-#include "RectUtils.h"
 #include "ResManager.h"
 #include "Scrollbar.h"
 #include "TextSupport.h"

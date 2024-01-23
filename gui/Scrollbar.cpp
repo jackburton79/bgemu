@@ -8,7 +8,6 @@
 
 #include "BamResource.h"
 #include "GraphicsEngine.h"
-#include "RectUtils.h"
 #include "ResManager.h"
 #include "Scrollbar.h"
 #include "TextArea.h"
@@ -78,10 +77,10 @@ Scrollbar::MouseDown(IE::point point)
 	GFX::rect downFrame = fDownArrow->Frame();
 	Window()->ConvertFromScreen(upFrame);
 	Window()->ConvertFromScreen(downFrame);
-	if (rect_contains(upFrame, point.x, point.y)) {
+	if (upFrame.Contains(point.x, point.y)) {
 		fUpArrowPressed = true;
 		//textArea->ScrollBy(0, -5);
-	} else if (rect_contains(downFrame, point.x, point.y)) {
+	} else if (downFrame.Contains(point.x, point.y)) {
 		fDownArrowPressed = true;
 		//textArea->ScrollBy(0, 5);
 	}

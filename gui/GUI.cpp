@@ -16,7 +16,6 @@
 #include "Core.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
-#include "RectUtils.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "TextArea.h"
@@ -284,7 +283,7 @@ GUI::ShowWindow(uint16 id)
 
 	if (window != NULL) {
 		window->Show();
-		if (rect_contains(window->Frame(), fCursorPosition.x, fCursorPosition.y))
+		if (window->Frame().Contains(fCursorPosition.x, fCursorPosition.y))
 			window->MouseMoved(fCursorPosition);
 	}
 }
@@ -634,7 +633,7 @@ GUI::_WindowAtPoint(IE::point pt)
 	std::vector<Window*>::reverse_iterator i;
 	for (i = fWindows.rbegin(); i < fWindows.rend(); i++) {
 		Window* window = (*i);
-		if (window->Shown() && rect_contains(window->Frame(), pt.x, pt.y))
+		if (window->Shown() && window->Frame().Contains(pt.x, pt.y))
 			return window;
 	}
 

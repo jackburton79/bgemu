@@ -10,7 +10,6 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "IDSResource.h"
-#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"

@@ -4,7 +4,6 @@
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
-#include "RectUtils.h"
 #include "Timer.h"
 
 #include <algorithm>
@@ -62,8 +61,7 @@ RoomBase::AreaCenterPoint() const
 IE::rect
 RoomBase::VisibleMapArea() const
 {
-	return gfx_rect_to_rect(offset_rect_to(Control::Frame(),
-			fAreaOffset.x, fAreaOffset.y));
+	return gfx_rect_to_rect(Control::Frame().OffsetToCopy(fAreaOffset.x, fAreaOffset.y));
 }
 
 

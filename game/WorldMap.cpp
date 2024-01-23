@@ -9,7 +9,6 @@
 #include "GUI.h"
 #include "Label.h"
 #include "MOSResource.h"
-#include "RectUtils.h"
 #include "ResManager.h"
 #include "TextArea.h"
 #include "TextSupport.h"
@@ -146,7 +145,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 
 	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
 		AreaEntry* area = fAreaEntries.at(i);
-		if (rect_contains(area->Rect(), point.x, point.y)) {
+		if (area->Rect().Contains(point.x, point.y)) {
 			fAreaUnderMouse = area;
 			break;
 		}

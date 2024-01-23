@@ -25,7 +25,6 @@
 #include "MOSResource.h"
 #include "Party.h"
 #include "Polygon.h"
-#include "RectUtils.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "SearchMap.h"
@@ -376,7 +375,8 @@ AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool ma
 							-(bitmap->Frame().y + bitmap->Frame().h / 2));
 
 	GFX::rect rect(leftTop.x, leftTop.y, bitmap->Width(), bitmap->Height());
-	if (rects_intersect(rect_to_gfx_rect(VisibleMapArea()), rect)) {
+	GFX::rect areaRect = rect_to_gfx_rect(VisibleMapArea());
+	if (rect.Intersects(areaRect)) {
 		GFX::rect offsetRect = rect;
 		ConvertFromArea(offsetRect);
 		if (mask)
@@ -991,7 +991,7 @@ AreaRoom::_DrawPolygons(const GFX::rect& mapRect)
 	for (uint32 p = 0; p < fWed->CountPolygons(); p++) {
 		const Polygon* poly = fWed->PolygonAt(p);
 		if (poly != NULL && poly->CountPoints() > 0) {
-			if (rects_intersect(poly->Frame(), mapRect)) {
+			if (poly->Frame().Intersects(mapRect)) {
 				uint32 color = 0;
 				if (poly->Flags() & IE::POLY_SHADE_WALL)
 					color = 200;
@@ -1023,7 +1023,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 		scaledRect.y /= fMapVerticalRatio;
 		scaledRect.w /= fMapHorizontalRatio;
 		scaledRect.h /= fMapVerticalRatio;
-		scaledRect = offset_rect(scaledRect, destPoint.x, destPoint.y);
+		scaledRect.OffsetBy(destPoint.x, destPoint.y);
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
 		
 		if (fSelectedActor != NULL) {
@@ -1031,7 +1031,7 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 			actorPosition.x /= fMapHorizontalRatio;
 			actorPosition.y /= fMapVerticalRatio;
 			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
-			r = offset_rect(r, destPoint.x, destPoint.y);
+			r.OffsetBy(destPoint.x, destPoint.y);
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
 		}	
 	}
@@ -1043,8 +1043,8 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 {
 	RegionsList::const_iterator i;
 	for (i = fRegions.begin(); i != fRegions.end(); i++) {
-		IE::rect rect = (*i)->Frame();
-		if (rect_contains(rect_to_gfx_rect(rect), point.x, point.y))
+		GFX::rect rect = rect_to_gfx_rect((*i)->Frame());
+		if (rect.Contains(point.x, point.y))
 			return *i;
 	}
 	return NULL;
@@ -1364,7 +1364,9 @@ bool
 AreaRoom::_IsVisibleOnScreen(const Actor* actor) const
 {
 	try {
-		if (rects_intersect(rect_to_gfx_rect(actor->Frame()), rect_to_gfx_rect(VisibleMapArea())))
+		GFX::rect actorFrame = rect_to_gfx_rect(actor->Frame());
+		GFX::rect mapRect = rect_to_gfx_rect(VisibleMapArea());
+		if (actorFrame.Intersects(mapRect))
 			return true;
 	} catch (...) {
 		// most likely there is no animation, so actor->Frame() throws an exception
