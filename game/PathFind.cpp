@@ -49,9 +49,8 @@ struct FindPoint {
 	const IE::point& toFind;
 };
 
-
 static inline uint32
-Distance(const IE::point& start, const IE::point& end)
+PointDistance(const IE::point& start, const IE::point& end)
 {
 #if 1
 	// Manhattan method
@@ -62,8 +61,15 @@ Distance(const IE::point& start, const IE::point& end)
 	uint32 distance = (uint32)std::max((std::abs(end.x - start.x)),
 		std::abs(end.y - start.y));
 #endif
+	return distance;
+}
+
+
+static inline uint32
+Distance(const IE::point& start, const IE::point& end)
+{
 	// We multiply by 10 since minimum movement cost is 10
-	return distance * kMovementCost;
+	return PointDistance(start, end) * kMovementCost;
 }
 
 
@@ -113,7 +119,7 @@ PathFinder::PathFinder(int step, test_function testFunc, bool checkNeighbors)
 	:
 	fImplementation(NULL)
 {
-	fImplementation = new PathFinderImpl(1, testFunc, checkNeighbors);
+	fImplementation = new PathFinderImpl(step, testFunc, checkNeighbors);
 }
 
 
@@ -253,8 +259,7 @@ PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
 	while ((currentNode = _GetCheapestNode()) != NULL) {
-		// TODO: this could never happen if step is > 1
-		if (currentNode->point == end) {
+		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
 			break;
 		}

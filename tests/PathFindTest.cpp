@@ -218,6 +218,7 @@ int main(int argc, char **argv)
 	gMap = new Bitmap(gNumColumnsMap, gNumRowsMap, 8);
 	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
+	std::cout << "Step: " << sStep << std::endl;
 	PathFinder pathFinder(sStep, IsWalkable, true);
 	
 	IE::point start = { 0, 0 };
