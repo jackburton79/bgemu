@@ -30,8 +30,7 @@ all: $(BGEMU)
 deps:
 	make -C libjgame
 
-tests:
-	PathFindTest RandTest
+tests: PathFindTest RandTest
 
 PHONY := $(BGEMU) $(OBJS)
 $(BGEMU):  bgemu.cpp $(OBJS)
@@ -46,7 +45,7 @@ PathFindTest: $(OBJS) tests/PathFindTest.cpp
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ tests/PathFindTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
-RandTest: $(GAMELIB) tests/RandTest.cpp
+RandTest: $(OBJS) tests/RandTest.cpp
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
