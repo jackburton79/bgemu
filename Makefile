@@ -25,7 +25,7 @@ INC_DIRS += -I libjgame/streams
 INC_DIRS += -I libjgame/support
 
 #PHONY := all
-all: $(BGEMU) 
+all: $(BGEMU)
 
 deps:
 	make -C libjgame
@@ -37,22 +37,18 @@ PHONY := $(BGEMU) $(OBJS)
 $(BGEMU):  bgemu.cpp $(OBJS)
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
-	
-#$(GAMELIB): $(OBJS)
-#	ar rcu $(DIR_OBJ)/$(GAMELIB) $(OBJS)
-#	ranlib $(DIR_OBJ)/$(GAMELIB)
 
 $(DIR_OBJ)/%.o: %.cpp $(INCS)
 	mkdir -p $(@D)
 	$(CC) -o $@ $(CXXFLAGS) -c $< $(INC_DIRS)
 
-#PathFindTest: $(GAMELIB) tests/PathFindTest.cpp libjgame/lib/libjgame.a
-#	mkdir -p $(OUTDIR)
-#	$(CC) -o $(OUTDIR)/$@ tests/PathFindTest.cpp $(DIR_OBJ)/$(GAMELIB) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+PathFindTest: $(OBJS) tests/PathFindTest.cpp
+	mkdir -p $(OUTDIR)
+	$(CC) -o $(OUTDIR)/$@ tests/PathFindTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
-#RandTest: $(GAMELIB) tests/RandTest.cpp libjgame/lib/libjgame.a
-#	mkdir -p $(OUTDIR)
-#	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(DIR_OBJ)/$(GAMELIB) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+RandTest: $(GAMELIB) tests/RandTest.cpp
+	mkdir -p $(OUTDIR)
+	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
 PHONY += clean
 clean:
