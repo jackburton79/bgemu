@@ -15,9 +15,7 @@
 SearchMap::SearchMap(std::string name)
 	:
 	fImage(NULL),
-	fModifiedMap(NULL),
-	fHRatio(1),
-	fVRatio(1)
+	fModifiedMap(NULL)
 {
 	BMPResource* resource = gResManager->GetBMP(name.c_str());
 	if (resource != NULL) {
@@ -49,19 +47,13 @@ SearchMap::Height() const
 }
 
 
-void
-SearchMap::SetRatios(int32 h, int32 v)
-{
-	fHRatio = h;
-	fVRatio = v;
-}
-
 
 bool
 SearchMap::IsPointPassable(int32 x, int32 y) const
 {
-	x = ceilf(x / fHRatio);
-	y = ceilf(y / fVRatio);
+	// Search tile is 1/16 and 1/12
+	x = x / 16;
+	y = y / 12;
 	
 	uint8 state = fModifiedMap->GetPixel(x, y);
 	switch (state) {
@@ -85,8 +77,8 @@ SearchMap::SetPoint(int32 x, int32 y)
 #if 1
 	return;
 #else
-	x = ceilf(x / fHRatio);
-	y = ceilf(y / fVRatio);
+	x = x / 16;
+	y = y / 12;
 	fModifiedMap->PutPixel(x, y, 0);
 #endif
 }
@@ -98,8 +90,8 @@ SearchMap::ClearPoint(int32 x, int32 y)
 #if 1
 	return;
 #else
-	x = ceilf(x / fHRatio);
-	y = ceilf(y / fVRatio);
+	x = x / 16;
+	y = y / 12;
 	fModifiedMap->PutPixel(x, y, fImage->GetPixel(x, y));
 #endif
 }

@@ -891,7 +891,6 @@ AreaRoom::_InitSearchMap()
 	fSearchMap = new ::SearchMap(searchMapName);
 	fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
 	fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
-	fSearchMap->SetRatios(fMapHorizontalRatio, fMapVerticalRatio);
 	/*std::cout << std::dec;
 	std::cout << "map: w=" << AreaRect().w << ", h=";
 	std::cout << AreaRect().h << std::endl;

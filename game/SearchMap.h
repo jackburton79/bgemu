@@ -17,7 +17,6 @@ public:
 
 	int32 Width() const;
 	int32 Height() const;
-	void SetRatios(int32 h, int32 v);
 
 	bool IsPointPassable(int32 x, int32 y) const;
 
@@ -28,9 +27,6 @@ public:
 private:
 	Bitmap* fImage;
 	Bitmap* fModifiedMap;
-	
-	int32 fHRatio;
-	int32 fVRatio;
 };
 
 
