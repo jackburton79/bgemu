@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <climits>
 #include <cmath>
-#include <deque>
 #include <list>
 #include <map>
 #include <queue>
@@ -74,82 +73,36 @@ Distance(const IE::point& start, const IE::point& end)
 
 
 typedef std::vector<point_node*> NodeVector;
-typedef std::deque<point_node*> NodeList;
-typedef std::deque<IE::point> PointList;
 
 
-class PathFinderImpl {
-public:
-	PathFinderImpl(int16 step, test_function func, bool checkNeighbors);
-	~PathFinderImpl();
 
-	bool GeneratePath(const IE::point& start, const IE::point& end);
-	void GetPoints(std::vector<IE::point>& points) const;
-	PointList* Points();
-
-	void SetDebug(debug_function callback);
-
-private:
-	int16 fStep;
-	PointList* fPoints;
-	NodeList* fClosedNodeList;
-	test_function fTestFunction;
-	bool fCheckNeighbors;
-
-	debug_function fDebugFunction;
-
-	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
-	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
-
-	bool _IsPassable(const IE::point& point) const;
-	bool _IsReachable(const IE::point& current, const IE::point& point) const;
-	void _AddIfPassable(const IE::point& point,
-			const point_node& node,
-			const IE::point& goal);
-	void _AddNeighbors(const point_node& node,
-			const IE::point& goal);
-	void _UpdateNodeCost(point_node* node, const point_node& current,
-			const IE::point& goal) const;
-	point_node* _GetCheapestNode() const;
-	void _ReconstructPath(point_node* goal);
-};
-
-
-PathFinder::PathFinder(int step, test_function testFunc, bool checkNeighbors)
+PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	:
-	fImplementation(NULL)
+	fStep(step),
+	fPoints(NULL),
+	fClosedNodeList(NULL),
+	fTestFunction(testFunc),
+	fCheckNeighbors(checkNeighbors),
+	fDebugFunction(NULL)
 {
-	fImplementation = new PathFinderImpl(step, testFunc, checkNeighbors);
 }
 
 
 PathFinder::~PathFinder()
 {
-	delete fImplementation;
+	delete fPoints;
+	delete fClosedNodeList;
 }
+
 
 
 IE::point
 PathFinder::SetPoints(const IE::point& start, const IE::point& end)
 {
 	// TODO: Return a bool here
-	if (!fImplementation->GeneratePath(start, end))
+	if (!GeneratePath(start, end))
 		throw std::runtime_error("PathFinder::SetPoints: cannot create path");
-	return fImplementation->Points()->back();
-}
-
-
-void
-PathFinder::GetPoints(std::vector<IE::point>& points) const
-{
-	fImplementation->GetPoints(points);
-}
-
-
-void
-PathFinder::SetDebug(debug_function callback)
-{
-	fImplementation->SetDebug(callback);
+	return Points()->back();
 }
 
 
@@ -173,10 +126,10 @@ PathFinder::NextWayPoint(const int& step)
 {
 	IE::point point;
 	for (int i = 0; i < step; i++) {
-		if (fImplementation->Points()->empty())
+		if (Points()->empty())
 			break;
-		point = fImplementation->Points()->front();
-		fImplementation->Points()->pop_front();
+		point = Points()->front();
+		Points()->pop_front();
 	}
 	return point;
 }
@@ -185,7 +138,7 @@ PathFinder::NextWayPoint(const int& step)
 bool
 PathFinder::IsEmpty() const
 {
-	return fImplementation->Points() == NULL || fImplementation->Points()->empty();
+	return Points() == NULL || Points()->empty();
 }
 
 
@@ -202,24 +155,6 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 }
 
 
-// PathFinderImpl
-PathFinderImpl::PathFinderImpl(int16 step, test_function testFunc, bool checkNeighbors)
-	:
-	fStep(step),
-	fPoints(NULL),
-	fClosedNodeList(NULL),
-	fTestFunction(testFunc),
-	fCheckNeighbors(checkNeighbors),
-	fDebugFunction(NULL)
-{
-}
-
-
-PathFinderImpl::~PathFinderImpl()
-{
-	delete fPoints;
-	delete fClosedNodeList;
-}
 
 
 static void
@@ -235,7 +170,7 @@ EmptyClosedList(NodeList*& pointList)
 
 
 bool
-PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
+PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
 	delete fPoints;
 	fPoints = NULL;
@@ -294,7 +229,7 @@ PathFinderImpl::GeneratePath(const IE::point& start, const IE::point& end)
 
 
 bool
-PathFinderImpl::IsCloseEnough(const IE::point& point, const IE::point& goal) const
+PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal) const
 {
 #if 0
 	return pointA == pointB;
@@ -307,14 +242,14 @@ PathFinderImpl::IsCloseEnough(const IE::point& point, const IE::point& goal) con
 
 
 PointList*
-PathFinderImpl::Points()
+PathFinder::Points() const
 {
 	return fPoints;
 }
 
 
 uint32
-PathFinderImpl::MovementCost(const IE::point& pointA, const IE::point& pointB) const
+PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 {
 	// Movement cost. Bigger when moving diagonally
 	return (std::abs(pointA.x - pointB.x) < fStep)
@@ -324,7 +259,7 @@ PathFinderImpl::MovementCost(const IE::point& pointA, const IE::point& pointB) c
 
 
 void
-PathFinderImpl::GetPoints(std::vector<IE::point>& points) const
+PathFinder::GetPoints(std::vector<IE::point>& points) const
 {
 	for (PointList::iterator i = fPoints->begin(); i != fPoints->end(); i++)
 		points.push_back(*i);
@@ -332,21 +267,21 @@ PathFinderImpl::GetPoints(std::vector<IE::point>& points) const
 
 
 void
-PathFinderImpl::SetDebug(debug_function callback)
+PathFinder::SetDebug(debug_function callback)
 {
 	fDebugFunction = callback;
 }
 
 
 bool
-PathFinderImpl::_IsPassable(const IE::point& point) const
+PathFinder::_IsPassable(const IE::point& point) const
 {
 	return fTestFunction(point);
 }
 
 
 bool
-PathFinderImpl::_IsReachable(const IE::point& current, const IE::point& point) const
+PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 {
 	if (!fCheckNeighbors)
 		return _IsPassable(point);
@@ -399,7 +334,7 @@ PathFinderImpl::_IsReachable(const IE::point& current, const IE::point& point) c
 
 
 void
-PathFinderImpl::_AddIfPassable(const IE::point& point,
+PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
 		const IE::point& goal)
 {
@@ -425,7 +360,7 @@ PathFinderImpl::_AddIfPassable(const IE::point& point,
 
 
 void
-PathFinderImpl::_AddNeighbors(const point_node& node,
+PathFinder::_AddNeighbors(const point_node& node,
 		const IE::point& goal)
 {
 	const IE::point directions[] = {
@@ -445,7 +380,7 @@ PathFinderImpl::_AddNeighbors(const point_node& node,
 
 
 void
-PathFinderImpl::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
+PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
 {
 	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
@@ -458,7 +393,7 @@ PathFinderImpl::_UpdateNodeCost(point_node* node, const point_node& current, con
 
 
 point_node*
-PathFinderImpl::_GetCheapestNode() const
+PathFinder::_GetCheapestNode() const
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
@@ -478,7 +413,7 @@ PathFinderImpl::_GetCheapestNode() const
 
 
 void
-PathFinderImpl::_ReconstructPath(point_node* goal)
+PathFinder::_ReconstructPath(point_node* goal)
 {
 	point_node* walkNode = goal;
 	while (walkNode != NULL) {
