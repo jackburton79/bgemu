@@ -51,6 +51,7 @@ private:
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
+	bool _CreateDirectPath(const IE::point& start, const IE::point& end);
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,

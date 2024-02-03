@@ -47,7 +47,6 @@ SearchMap::Height() const
 }
 
 
-
 bool
 SearchMap::IsPointPassable(int32 x, int32 y) const
 {

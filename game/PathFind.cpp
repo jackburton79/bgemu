@@ -48,6 +48,7 @@ struct FindPoint {
 	const IE::point& toFind;
 };
 
+
 static inline uint32
 PointDistance(const IE::point& start, const IE::point& end)
 {
@@ -69,6 +70,17 @@ Distance(const IE::point& start, const IE::point& end)
 {
 	// We multiply by 10 since minimum movement cost is 10
 	return PointDistance(start, end) * kMovementCost;
+}
+
+
+
+static inline IE::point
+HalfPoint(const IE::point& start, const IE::point& end)
+{
+	IE::point halfPoint;
+	halfPoint.x = start.x + (end.x - start.x);
+	halfPoint.y = start.y + (end.y - start.y);
+	return halfPoint;
 }
 
 
@@ -148,10 +160,10 @@ PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
 {
 	PathFinder testPath(1);
 
-	//if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
+	if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
 		return false;
 
-	//return testPath._CreateDirectPath(start, end) == end;
+	return testPath._CreateDirectPath(start, end);
 }
 
 
@@ -270,6 +282,55 @@ void
 PathFinder::SetDebug(debug_function callback)
 {
 	fDebugFunction = callback;
+}
+
+
+bool
+PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
+{
+	IE::point point = start;
+	int cycle;
+	int lgDelta = end.x - point.x;
+	int shDelta = end.y - point.y;
+	int lgStep = std::signbit((float)lgDelta) ? -fStep : fStep;
+	lgDelta = std::abs(lgDelta);
+	int shStep = std::signbit((float)shDelta) ? -fStep : fStep;
+	shDelta = std::abs(shDelta);
+	if (shDelta < lgDelta) {
+		cycle = lgDelta >> 1;
+		while (std::abs(point.x - end.x) > fStep) {
+			if (!_IsPassable(point))
+				return false;
+			fPoints->push_back(point);
+			cycle += shDelta;
+			if (cycle > lgDelta) {
+				cycle -= lgDelta;
+				point.y += shStep;
+			}
+			point.x += lgStep;
+		}
+		if (!_IsPassable(point))
+			return false;
+
+		fPoints->push_back(point);
+	}
+	cycle = shDelta >> 1;
+	while (std::abs(point.y - end.y) > fStep) {
+		if (!_IsPassable(point))
+			return false;
+		fPoints->push_back(point);
+		cycle += lgDelta;
+		if (cycle > shDelta) {
+			cycle -= shDelta;
+			point.x += lgStep;
+		}
+		point.y += shStep;
+	}
+
+	if (_IsPassable(end))
+		fPoints->push_back(end);
+
+	return true;
 }
 
 
