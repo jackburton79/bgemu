@@ -156,16 +156,15 @@ PathFinder::IsEmpty() const
 
 /* static */
 bool
-PathFinder::IsStraightlyReachable(const IE::point& start, const IE::point& end)
+PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
 {
 	PathFinder testPath(1);
 
 	if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
 		return false;
 
-	return testPath._CreateDirectPath(start, end);
+	return testPath.CreateLineOfSightPath(start, end);
 }
-
 
 
 
@@ -191,8 +190,15 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		return false;
 
 	IE::point maxReachableDirectly = start;
-	if (IsCloseEnough(maxReachableDirectly, end))
-		return true;
+
+	// Try a line of sight path
+	PathFinder lofPath(fStep, fTestFunction);
+	lofPath.CreateLineOfSightPath(start, end);
+	if (!lofPath.IsEmpty())
+		maxReachableDirectly = *lofPath.Points()->rbegin();
+
+	//if (IsCloseEnough(maxReachableDirectly, end))
+	//	return true;
 
 	fPoints = new PointList;
 	fClosedNodeList = new NodeList();
@@ -233,6 +239,10 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	_ReconstructPath(last);
 	EmptyClosedList(fClosedNodeList);
 	
+	for (PointList::reverse_iterator i = lofPath.Points()->rbegin(); i != lofPath.Points()->rend(); i++) {
+		fPoints->push_front(*i);
+	}
+
 	// remove the "current" position, it's useless
 	fPoints->erase(fPoints->begin());
 	
@@ -286,8 +296,14 @@ PathFinder::SetDebug(debug_function callback)
 
 
 bool
-PathFinder::_CreateDirectPath(const IE::point& start, const IE::point& end)
+PathFinder::CreateLineOfSightPath(const IE::point& start, const IE::point& end)
 {
+	assert(fPoints == NULL);
+	assert(fClosedNodeList == NULL);
+
+	fPoints = new PointList;
+	fClosedNodeList = new NodeList();
+
 	IE::point point = start;
 	int cycle;
 	int lgDelta = end.x - point.x;

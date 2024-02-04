@@ -37,7 +37,7 @@ public:
 	bool GeneratePath(const IE::point& start, const IE::point& end);
 
 	static bool IsPassableDefault(const IE::point& start) { return true; };
-	static bool IsStraightlyReachable(const IE::point& start, const IE::point& end);
+	static bool IsInLineOfSight(const IE::point& start, const IE::point& end);
 
 private:
 	int16 fStep;
@@ -51,7 +51,8 @@ private:
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
-	bool _CreateDirectPath(const IE::point& start, const IE::point& end);
+	bool CreateLineOfSightPath(const IE::point& start, const IE::point& end);
+
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
