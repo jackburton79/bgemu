@@ -57,7 +57,7 @@ DirectoryArchive::ReadResource(res_ref& ref,
 		std::string resourceName = ref.CString();
 		resourceName.append(".").append(res_extension(type));
 		if (!strcasecmp(resourceName.c_str(), entry->d_name)) {
-			Path filePath = fPath.String();
+			Storage::Path filePath = fPath.String();
 			filePath.Append(entry->d_name);
 			PlainFileArchive archive(filePath.String());
 			stream = archive.ReadResource(ref, key, type);

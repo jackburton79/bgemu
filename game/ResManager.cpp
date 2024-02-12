@@ -506,7 +506,7 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	//std::cout << "ResourceManager::GetFullPath(" << name << ", 0x";
 	//std::cout << std::hex << location << ")" << std::endl;
 
-	Path pathName(fResourcesPath);
+	Storage::Path pathName(fResourcesPath);
 	if (pathName.InitCheck() != 0)
 		throw std::runtime_error("Invalid path");
 	

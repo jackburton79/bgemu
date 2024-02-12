@@ -189,7 +189,7 @@ BAMResource::DumpFrames(const char *filePath)
 			try {
 				const Bitmap* frame = FrameForCycle(cycle, numFrame);
 				std::cout << "frame retrieved" << std::endl;
-				Path path(filePath);
+				Storage::Path path(filePath);
 				char fileName[PATH_MAX];
 				snprintf(fileName, PATH_MAX, "%s_CYCLE%d_FRAME%d.bmp",
 						fName.CString(), cycle, numFrame);

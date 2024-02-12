@@ -99,7 +99,7 @@ private:
 	typedef std::vector<KeyFileEntry *> bif_vector;
 	typedef std::map<std::string, Archive *> archive_map;
 
-	Path fResourcesPath;
+	Storage::Path fResourcesPath;
 
 	bif_vector fBifs;
 	resource_map fResourceMap;

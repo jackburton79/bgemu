@@ -6,7 +6,10 @@
 
 #include <dirent.h>
 
-class Path;
+namespace Storage {
+	class Path;
+};
+
 class DirectoryArchive : public Archive {
 public:
 	DirectoryArchive(const char *path);
@@ -20,7 +23,7 @@ public:
 
 private:
 	DIR *fDir;
-	Path fPath;
+	Storage::Path fPath;
 };
 
 #endif // __DIRECTORYARCHIVE_H
