@@ -20,7 +20,7 @@ class AreaRoom;
 class Bitmap;
 class BCSResource;
 class CREResource;
-class PathFinder;
+class Path;
 class Region;
 class Script;
 class TileCell;
@@ -144,7 +144,7 @@ private:
 
 	bool fAttacking;
 
-	PathFinder* fPath;
+	Path* fPath;
 	int fSpeed;
 
 	::TileCell* fTileCell;

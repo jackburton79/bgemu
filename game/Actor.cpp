@@ -352,13 +352,14 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 	// the failure to the caller
 	if (fPath == NULL) {
 		if (ignoreSearchMap)
-			fPath = new PathFinder(PathFinder::kStep, Actor::PointPassableTrue);
+			fPath = new Path(); //(PathFinder::kStep, Actor::PointPassableTrue);
 		else
-			fPath = new PathFinder(PathFinder::kStep, AreaRoom::IsPointPassable);
+			fPath = new Path(); //(PathFinder::kStep, AreaRoom::IsPointPassable);
 	}
 	IE::point destination = fActor->position;
 	try {
-		destination = fPath->SetPoints(fActor->position, point);
+		fPath->Set(fActor->position, point, AreaRoom::IsPointPassable);
+		destination = fPath->End();
 	} catch (...) {
 		std::cerr << Log::Red << Name() << ": Actor::SetDestination() failed!" << Log::Normal << std::endl;
 	}
@@ -424,7 +425,7 @@ Actor::_DrawActorName(AreaRoom* room) const
 void
 Actor::_DrawActorPath(AreaRoom* room) const
 {
-	std::vector<IE::point> points;
+/*	std::vector<IE::point> points;
 	if (!fPath)
 		return;
 	fPath->GetPoints(points);
@@ -437,6 +438,7 @@ Actor::_DrawActorPath(AreaRoom* room) const
 		}
 		image->Unlock();
 	}
+*/
 }
 
 
@@ -958,7 +960,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 	if (fPath == NULL)
 		return false;
 
-	if (!fPath->IsEmpty()) {
+	if (!fPath->IsEmpty() && !fPath->IsEnd()) {
 		IE::point nextPoint = fPath->NextWayPoint(4);
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
@@ -969,7 +971,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 	//if (Position() == Destination())
 	//	SetAnimationAction(ACT_STANDING);
 
-	assert(fPath->IsEmpty());
+	assert(fPath->IsEnd());
 
 	SetAnimationAction(ACT_STANDING);
 

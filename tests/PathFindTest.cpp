@@ -38,7 +38,7 @@ struct option sLongOptions[] = {
 		{ 0, 0, 0, 0 }
 };
 
-
+/*
 static void
 plot_point(const IE::point& pt)
 {
@@ -48,7 +48,7 @@ plot_point(const IE::point& pt)
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 	GraphicsEngine::Get()->Update();
 }
-
+*/
 
 static void
 InitializeSearchMap()
@@ -126,11 +126,11 @@ IsWalkable(const IE::point& point)
 
 
 static bool
-NewPath(PathFinder& p, IE::point& start, IE::point& end)
+NewPath(Path& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
 	try {
-		p.SetPoints(start, end);
+		p.Set(start, end, IsWalkable);
 	} catch (...) {
 		// not found
 	}
@@ -144,7 +144,7 @@ NewPath(PathFinder& p, IE::point& start, IE::point& end)
 
 
 static bool
-ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
+ResetState(Path& p, Bitmap* bitmap, IE::point& start, IE::point& end)
 {
 	InitializeSearchMap();
 
@@ -163,8 +163,8 @@ ResetState(PathFinder&p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 8, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 8, gRed);
-	if (sDebug)
-		p.SetDebug(plot_point);
+	//if (sDebug)
+		//p.SetDebug(plot_point);
 
 	if (!NewPath(p, start, end))
 		return false;
@@ -219,11 +219,11 @@ int main(int argc, char **argv)
 	gBitmap = new Bitmap(gNumColumnsMap, gNumRowsMap, 16);
 	
 	std::cout << "Step: " << sStep << std::endl;
-	PathFinder pathFinder(sStep, IsWalkable, true);
+	Path path;
 	
 	IE::point start = { 0, 0 };
 	IE::point end = { gNumColumnsMap, gNumRowsMap };
-	while (!ResetState(pathFinder, gBitmap, start, end))
+	while (!ResetState(path, gBitmap, start, end))
 		;
 		
 	SDL_Event event;
@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
-							while (!ResetState(pathFinder, gBitmap, start, end))
+							while (!ResetState(path, gBitmap, start, end))
 								;
 							break;
 						}
@@ -254,8 +254,8 @@ int main(int argc, char **argv)
 					break;
 			}
 		}
-		if (!pathFinder.IsEmpty()) {
-			IE::point point = pathFinder.NextWayPoint();
+		if (!path.IsEmpty() && !path.IsEnd()) {
+			IE::point point = path.NextWayPoint();
 			gBitmap->Lock();
 			gBitmap->FillCircle(point.x, point.y, 3, gGreen);
 			gBitmap->Unlock();

@@ -2,12 +2,10 @@
 
 #include <algorithm>
 #include <assert.h>
-#include <climits>
 #include <cmath>
 #include <list>
 #include <map>
 #include <queue>
-
 
 #include <memory>
 
@@ -19,23 +17,6 @@
 const int kMovementCost = 2;
 const int kDiagMovementCost = 3;
 
-
-struct point_node {
-	point_node(IE::point p, const point_node* parentNode, int nodeCost)
-		:
-		point(p),
-		parent(parentNode),
-		cost(nodeCost),
-		cost_to_goal(UINT_MAX),
-		open(false)
-	{
-	};
-	const IE::point point;
-	const struct point_node* parent;
-	uint32 cost;
-	uint32 cost_to_goal;
-	bool open;
-};
 
 
 struct FindPoint {
@@ -84,14 +65,103 @@ HalfPoint(const IE::point& start, const IE::point& end)
 }
 
 
+
+
+// Path
+Path::Path()
+	:
+	fPoints(new PointList),
+	fIterator(fPoints->begin())
+{
+}
+
+
+Path::Path(const IE::point start, const IE::point end, test_function func)
+	:
+	fPoints(new PointList),
+	fIterator(fPoints->begin())
+{
+	Set(start, end, func);
+}
+
+
+Path::~Path()
+{
+	delete fPoints;
+}
+
+
+void
+Path::Set(const IE::point& start, const IE::point& end, test_function func)
+{
+	fPoints->erase(fPoints->begin(), fPoints->end());
+
+	PathFinder pathFinder(2, func);
+	PointList path = pathFinder.GeneratePath(start, end);
+
+	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
+		fPoints->push_back(*i);
+
+	fIterator = fPoints->begin();
+}
+
+
+IE::point
+Path::Start() const
+{
+	return *fPoints->begin();
+}
+
+
+IE::point
+Path::End() const
+{
+	return *fPoints->rbegin();
+}
+
+
+void
+Path::AddPoint(const IE::point& point, test_function func)
+{
+	PathFinder pathFinder(2, func);
+	PointList path = pathFinder.GeneratePath(fPoints->front(), point);
+	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
+		fPoints->push_back(*i);
+}
+
+
+IE::point
+Path::NextWayPoint(const int& step)
+{
+	for (int i = 0; i < step; i++) {
+		if (fIterator != fPoints->end())
+			fIterator++;
+	}
+	return *fIterator;
+}
+
+
+bool
+Path::IsEmpty() const
+{
+	return fPoints->empty();
+}
+
+
+bool
+Path::IsEnd() const
+{
+	 return fIterator == fPoints->end();
+}
+
+
 typedef std::vector<point_node*> NodeVector;
 
 
-
+// PathFinder
 PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	:
 	fStep(step),
-	fPoints(NULL),
 	fClosedNodeList(NULL),
 	fTestFunction(testFunc),
 	fCheckNeighbors(checkNeighbors),
@@ -102,19 +172,7 @@ PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 
 PathFinder::~PathFinder()
 {
-	delete fPoints;
 	delete fClosedNodeList;
-}
-
-
-
-IE::point
-PathFinder::SetPoints(const IE::point& start, const IE::point& end)
-{
-	// TODO: Return a bool here
-	if (!GeneratePath(start, end))
-		throw std::runtime_error("PathFinder::SetPoints: cannot create path");
-	return Points()->back();
 }
 
 
@@ -133,24 +191,10 @@ PathFinder::GenerateNodes(Bitmap* searchMap)
 }
 
 
-IE::point
-PathFinder::NextWayPoint(const int& step)
-{
-	IE::point point;
-	for (int i = 0; i < step; i++) {
-		if (Points()->empty())
-			break;
-		point = Points()->front();
-		Points()->pop_front();
-	}
-	return point;
-}
-
-
 bool
 PathFinder::IsEmpty() const
 {
-	return Points() == NULL || Points()->empty();
+	return fPoints.empty();
 }
 
 
@@ -180,27 +224,23 @@ EmptyClosedList(NodeList*& pointList)
 }
 
 
-bool
+PointList
 PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
-	delete fPoints;
-	fPoints = NULL;
-
-	if (!_IsPassable(end))
-		return false;
+	//if (!_IsPassable(end))
+	//	return false;
 
 	IE::point maxReachableDirectly = start;
 
 	// Try a line of sight path
-	PathFinder lofPath(fStep, fTestFunction);
+	/*PathFinder lofPath(fStep, fTestFunction);
 	lofPath.CreateLineOfSightPath(start, end);
 	if (!lofPath.IsEmpty())
-		maxReachableDirectly = *lofPath.Points()->rbegin();
-
+		maxReachableDirectly = *lofPath.fPoints.rbegin();
+*/
 	//if (IsCloseEnough(maxReachableDirectly, end))
 	//	return true;
 
-	fPoints = new PointList;
 	fClosedNodeList = new NodeList();
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -230,23 +270,21 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found) {
 		// TODO: failed to create path: destination is unreachable.
 		EmptyClosedList(fClosedNodeList);
-		delete fPoints;
-		fPoints = NULL;
-		return false;
+		return fPoints;
 	}
 
 	point_node* last = fClosedNodeList->back();
 	_ReconstructPath(last);
 	EmptyClosedList(fClosedNodeList);
 	
-	for (PointList::reverse_iterator i = lofPath.Points()->rbegin(); i != lofPath.Points()->rend(); i++) {
-		fPoints->push_front(*i);
-	}
+	/*for (PointList::reverse_iterator i = lofPath.Points()->rbegin(); i != lofPath.Points()->rend(); i++) {
+		fPoints.push_front(*i);
+	}*/
 
 	// remove the "current" position, it's useless
-	fPoints->erase(fPoints->begin());
+	fPoints.erase(fPoints.begin());
 	
-	return true;
+	return fPoints;
 }
 
 
@@ -263,12 +301,6 @@ PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal) const
 }
 
 
-PointList*
-PathFinder::Points() const
-{
-	return fPoints;
-}
-
 
 uint32
 PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
@@ -277,14 +309,6 @@ PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 	return (std::abs(pointA.x - pointB.x) < fStep)
 			|| (std::abs(pointA.y - pointB.y) < fStep) ?
 				 kMovementCost : kDiagMovementCost;
-}
-
-
-void
-PathFinder::GetPoints(std::vector<IE::point>& points) const
-{
-	for (PointList::iterator i = fPoints->begin(); i != fPoints->end(); i++)
-		points.push_back(*i);
 }
 
 
@@ -298,9 +322,8 @@ PathFinder::SetDebug(debug_function callback)
 bool
 PathFinder::CreateLineOfSightPath(const IE::point& start, const IE::point& end)
 {
-	assert(fPoints == NULL);
 	assert(fClosedNodeList == NULL);
-
+/*
 	fPoints = new PointList;
 	fClosedNodeList = new NodeList();
 
@@ -345,7 +368,7 @@ PathFinder::CreateLineOfSightPath(const IE::point& start, const IE::point& end)
 
 	if (_IsPassable(end))
 		fPoints->push_back(end);
-
+*/
 	return true;
 }
 
@@ -494,7 +517,7 @@ PathFinder::_ReconstructPath(point_node* goal)
 {
 	point_node* walkNode = goal;
 	while (walkNode != NULL) {
-		fPoints->push_front(walkNode->point);
+		fPoints.push_front(walkNode->point);
 		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
 }
