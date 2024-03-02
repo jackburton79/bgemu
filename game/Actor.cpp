@@ -425,7 +425,7 @@ Actor::_DrawActorName(AreaRoom* room) const
 void
 Actor::_DrawActorPath(AreaRoom* room) const
 {
-/*	std::vector<IE::point> points;
+	/*std::vector<IE::point> points;
 	if (!fPath)
 		return;
 	fPath->GetPoints(points);
@@ -437,8 +437,7 @@ Actor::_DrawActorPath(AreaRoom* room) const
 			image->StrokeCircle(point.x, point.y, 3, image->MapColor(0, 240, 0));
 		}
 		image->Unlock();
-	}
-*/
+	}*/
 }
 
 
@@ -961,17 +960,21 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		return false;
 
 	if (!fPath->IsEmpty() && !fPath->IsEnd()) {
-		IE::point nextPoint = fPath->NextWayPoint(4);
+		IE::point nextPoint = fPath->NextStep();
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
 		SetAnimationAction(ACT_WALKING);
+		if (nextPoint == fPath->End()) {
+			fPath->Clear();
+		}
+
 		return true;
 	}
 
 	//if (Position() == Destination())
 	//	SetAnimationAction(ACT_STANDING);
 
-	assert(fPath->IsEnd());
+	//assert(fPath->IsEnd());
 
 	SetAnimationAction(ACT_STANDING);
 

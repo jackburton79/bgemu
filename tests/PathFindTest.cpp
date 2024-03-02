@@ -255,7 +255,7 @@ int main(int argc, char **argv)
 			}
 		}
 		if (!path.IsEmpty() && !path.IsEnd()) {
-			IE::point point = path.NextWayPoint();
+			IE::point point = path.NextStep();
 			gBitmap->Lock();
 			gBitmap->FillCircle(point.x, point.y, 3, gGreen);
 			gBitmap->Unlock();
