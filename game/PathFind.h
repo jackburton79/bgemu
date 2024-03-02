@@ -88,7 +88,6 @@ public:
 
 private:
 	int16 fStep;
-	PointList fPoints;
 	test_function fTestFunction;
 	bool fCheckNeighbors;
 
@@ -107,13 +106,8 @@ private:
 			const point_node& current,
 			const IE::point& goal,
 			NodeList* nodeList);
-	void _AddNeighbors(const point_node& node,
-			const IE::point& goal);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
-	point_node* _GetCheapestNode() const;
-	void _ReconstructPath(point_node* goal);
-
 };
 
 

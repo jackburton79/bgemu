@@ -206,7 +206,7 @@ PathFinder::GenerateNodes(Bitmap* searchMap)
 bool
 PathFinder::IsEmpty() const
 {
-	return fPoints.empty();
+	return false;
 }
 
 
@@ -266,6 +266,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		{ int16(+fStep), 0 },
 		{ int16(+fStep), int16(+fStep) }
 	};
+
+	PointList pathPoints;
 	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
@@ -291,12 +293,16 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		throw PathNotFoundException();
 
 	point_node* last = closedNodeList.nodelist->back();
-	_ReconstructPath(last);
+	point_node* walkNode = last;
+	while (walkNode != NULL) {
+		pathPoints.push_front(walkNode->point);
+		walkNode = const_cast<point_node*>(walkNode->parent);
+	}
 	
 	// remove the "current" position, it's useless
-	fPoints.erase(fPoints.begin());
+	pathPoints.erase(pathPoints.begin());
 	
-	return fPoints;
+	return pathPoints;
 }
 
 
@@ -483,13 +489,6 @@ PathFinder::_AddIfPassable(const IE::point& point,
 }
 
 
-void
-PathFinder::_AddNeighbors(const point_node& node,
-		const IE::point& goal)
-{
-
-}
-
 
 void
 PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
@@ -500,17 +499,6 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 		node->parent = &current;
 		node->cost = newCost;
 		node->cost_to_goal = Distance(node->point, goal) + node->cost;
-	}
-}
-
-
-void
-PathFinder::_ReconstructPath(point_node* goal)
-{
-	point_node* walkNode = goal;
-	while (walkNode != NULL) {
-		fPoints.push_front(walkNode->point);
-		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
 }
 
