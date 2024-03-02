@@ -38,7 +38,7 @@ struct option sLongOptions[] = {
 		{ 0, 0, 0, 0 }
 };
 
-/*
+
 static void
 plot_point(const IE::point& pt)
 {
@@ -48,7 +48,7 @@ plot_point(const IE::point& pt)
 	GraphicsEngine::Get()->BlitToScreen(gBitmap, NULL, NULL);
 	GraphicsEngine::Get()->Update();
 }
-*/
+
 
 static void
 InitializeSearchMap()
@@ -163,8 +163,8 @@ ResetState(Path& p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	gGreen = bitmap->MapColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 8, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 8, gRed);
-	//if (sDebug)
-		//p.SetDebug(plot_point);
+	if (sDebug)
+		PathFinder::SetDebug(plot_point);
 
 	if (!NewPath(p, start, end))
 		return false;

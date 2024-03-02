@@ -78,7 +78,7 @@ public:
 
 	bool IsEmpty() const;
 
-	void SetDebug(debug_function callback);
+	static void SetDebug(debug_function callback);
 
 	bool GenerateNodes(Bitmap* searchMap);
 	PointList GeneratePath(const IE::point& start, const IE::point& end);
@@ -91,7 +91,7 @@ private:
 	test_function fTestFunction;
 	bool fCheckNeighbors;
 
-	debug_function fDebugFunction;
+	static debug_function sDebugFunction;
 
 	static IE::point HalfPoint(const IE::point& start, const IE::point& end);
 

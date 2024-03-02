@@ -172,13 +172,14 @@ Path::IsEnd() const
 typedef std::vector<point_node*> NodeVector;
 
 
+debug_function PathFinder::sDebugFunction;
+
 // PathFinder
 PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	:
 	fStep(step),
 	fTestFunction(testFunc),
-	fCheckNeighbors(checkNeighbors),
-	fDebugFunction(NULL)
+	fCheckNeighbors(checkNeighbors)
 {
 }
 
@@ -228,21 +229,14 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
 	//if (!_IsPassable(end))
 	//	return false;
-
-	/*if (Distance(start, end) > 40) {
-		IE::point shorterEnd = HalfPoint(start, end);
-		PathFinder shorterPath(2);
-		PointList path = shorterPath.GeneratePath(start, shorterEnd);
-
-	}*/
+	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
+	if (Distance(start, end) > 40) {
+		IE::point shorterEnd = HalfPoint(start, end);
+		pathPoints = GeneratePath(start, shorterEnd);
+		maxReachableDirectly = pathPoints.back();
+	}
 
-	// Try a line of sight path
-	/*PathFinder lofPath(fStep, fTestFunction);
-	lofPath.CreateLineOfSightPath(start, end);
-	if (!lofPath.IsEmpty())
-		maxReachableDirectly = *lofPath.fPoints.rbegin();
-*/
 	//if (IsCloseEnough(maxReachableDirectly, end))
 	//	return true;
 
@@ -267,7 +261,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		{ int16(+fStep), int16(+fStep) }
 	};
 
-	PointList pathPoints;
 	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
@@ -285,8 +278,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 			_AddIfPassable(currentNode->point + directions[c], *currentNode,
 						   end, closedNodeList.nodelist);
 		}
-		if (fDebugFunction != NULL)
-			fDebugFunction(currentNode->point);
+		if (sDebugFunction != NULL)
+			sDebugFunction(currentNode->point);
 	}
 
 	if (!found)
@@ -311,8 +304,8 @@ IE::point
 PathFinder::HalfPoint(const IE::point& start, const IE::point& end)
 {
 	IE::point half;
-	half.x = start.x + end.x / 2;
-	half.y = start.y + end.y / 2;
+	half.x = start.x + (end.x - start.x) / 2;
+	half.y = start.y + (end.y - start.y) / 2;
 	return half;
 }
 
@@ -344,7 +337,7 @@ PathFinder::MovementCost(const IE::point& pointA, const IE::point& pointB) const
 void
 PathFinder::SetDebug(debug_function callback)
 {
-	fDebugFunction = callback;
+	sDebugFunction = callback;
 }
 
 
@@ -487,7 +480,6 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	nodeList->push_back(node);
 	_UpdateNodeCost(node, current, goal);
 }
-
 
 
 void
