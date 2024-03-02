@@ -964,9 +964,6 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
 		SetAnimationAction(ACT_WALKING);
-		if (nextPoint == fPath->End()) {
-			fPath->Clear();
-		}
 
 		return true;
 	}
