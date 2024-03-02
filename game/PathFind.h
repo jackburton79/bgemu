@@ -17,6 +17,11 @@ typedef std::deque<IE::point> PointList;
 
 
 
+class PathNotFoundException : public std::runtime_error {
+public:
+	PathNotFoundException();
+};
+
 
 class Path {
 public:
@@ -25,16 +30,18 @@ public:
 	~Path();
 
 	void Set(const IE::point& start, const IE::point& end, test_function func);
+	void Clear();
 
 	IE::point Start() const;
 	IE::point End() const;
 
 	void AddPoint(const IE::point& point, test_function func);
 
-	IE::point NextWayPoint(const int& step = 1);
+	IE::point NextStep(const int& step = 1);
 	bool IsEmpty() const;
 	bool IsEnd() const;
 	void Rewind();
+
 private:
 	PointList* fPoints;
 	PointList::iterator fIterator;
@@ -87,6 +94,8 @@ private:
 	bool fCheckNeighbors;
 
 	debug_function fDebugFunction;
+
+	static IE::point HalfPoint(const IE::point& start, const IE::point& end);
 
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;

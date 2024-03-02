@@ -66,7 +66,6 @@ HalfPoint(const IE::point& start, const IE::point& end)
 
 
 
-
 // Path
 Path::Path()
 	:
@@ -96,13 +95,20 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
 	fPoints->erase(fPoints->begin(), fPoints->end());
 
-	PathFinder pathFinder(2, func);
+	PathFinder pathFinder(2, func, true);
 	PointList path = pathFinder.GeneratePath(start, end);
 
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
 		fPoints->push_back(*i);
 
 	fIterator = fPoints->begin();
+}
+
+
+void
+Path::Clear()
+{
+	fPoints->erase(fPoints->begin(), fPoints->end());
 }
 
 
@@ -123,7 +129,7 @@ Path::End() const
 void
 Path::AddPoint(const IE::point& point, test_function func)
 {
-	PathFinder pathFinder(2, func);
+	PathFinder pathFinder(2, func, true);
 	PointList path = pathFinder.GeneratePath(fPoints->front(), point);
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
 		fPoints->push_back(*i);
@@ -131,12 +137,14 @@ Path::AddPoint(const IE::point& point, test_function func)
 
 
 IE::point
-Path::NextWayPoint(const int& step)
+Path::NextStep(const int& step)
 {
-	for (int i = 0; i < step; i++) {
+	//for (int i = 0; i < step; i++) {
 		if (fIterator != fPoints->end())
 			fIterator++;
-	}
+	//}
+//	if (fIterator == fPoints->end())
+	//	return *fPoints->rbegin();
 	return *fIterator;
 }
 
@@ -268,23 +276,29 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	}
 
 	if (!found) {
-		// TODO: failed to create path: destination is unreachable.
 		EmptyClosedList(fClosedNodeList);
-		return fPoints;
+		throw PathNotFoundException();
 	}
 
 	point_node* last = fClosedNodeList->back();
 	_ReconstructPath(last);
 	EmptyClosedList(fClosedNodeList);
 	
-	/*for (PointList::reverse_iterator i = lofPath.Points()->rbegin(); i != lofPath.Points()->rend(); i++) {
-		fPoints.push_front(*i);
-	}*/
-
 	// remove the "current" position, it's useless
 	fPoints.erase(fPoints.begin());
 	
 	return fPoints;
+}
+
+
+/* static */
+IE::point
+PathFinder::HalfPoint(const IE::point& start, const IE::point& end)
+{
+	IE::point half;
+	half.x = start.x + end.x / 2;
+	half.y = start.y + end.y / 2;
+	return half;
 }
 
 
@@ -521,3 +535,12 @@ PathFinder::_ReconstructPath(point_node* goal)
 		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
 }
+
+
+// PathNotFoundException
+PathNotFoundException::PathNotFoundException()
+	:
+	std::runtime_error("Path not found")
+{
+}
+
