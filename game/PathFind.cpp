@@ -17,6 +17,14 @@
 const int kMovementCost = 2;
 const int kDiagMovementCost = 3;
 
+class ClosedNodes {
+public:
+	ClosedNodes();
+	~ClosedNodes();
+	point_node* GetCheapestNode() const;
+
+	NodeList* nodelist;
+};
 
 
 struct FindPoint {
@@ -62,7 +70,6 @@ HalfPoint(const IE::point& start, const IE::point& end)
 	halfPoint.y = start.y + (end.y - start.y);
 	return halfPoint;
 }
-
 
 
 // Path
@@ -169,7 +176,6 @@ typedef std::vector<point_node*> NodeVector;
 PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	:
 	fStep(step),
-	fClosedNodeList(NULL),
 	fTestFunction(testFunc),
 	fCheckNeighbors(checkNeighbors),
 	fDebugFunction(NULL)
@@ -179,7 +185,6 @@ PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 
 PathFinder::~PathFinder()
 {
-	delete fClosedNodeList;
 }
 
 
@@ -218,25 +223,18 @@ PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
 }
 
 
-
-static void
-EmptyClosedList(NodeList*& pointList)
-{
-	NodeList::iterator i;
-	for (i = pointList->begin(); i != pointList->end(); i++) {
-		delete (*i);
-	}
-	delete pointList;
-	pointList = NULL;
-}
-
-
 PointList
 PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
 	//if (!_IsPassable(end))
 	//	return false;
 
+	/*if (Distance(start, end) > 40) {
+		IE::point shorterEnd = HalfPoint(start, end);
+		PathFinder shorterPath(2);
+		PointList path = shorterPath.GeneratePath(start, shorterEnd);
+
+	}*/
 	IE::point maxReachableDirectly = start;
 
 	// Try a line of sight path
@@ -248,17 +246,27 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	//if (IsCloseEnough(maxReachableDirectly, end))
 	//	return true;
 
-	fClosedNodeList = new NodeList();
+	ClosedNodes closedNodeList;
 
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	currentNode->cost_to_goal = Distance(currentNode->point, end)
 		+ currentNode->cost;
 	currentNode->open = true;
-	fClosedNodeList->push_back(currentNode);
+	closedNodeList.nodelist->push_back(currentNode);
 
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
-	while ((currentNode = _GetCheapestNode()) != NULL) {
+	const IE::point directions[] = {
+		{ int16(-fStep), int16(-fStep) },
+		{ int16(-fStep), 0 },
+		{ int16(-fStep), int16(+fStep) },
+		{ 0, int16(-fStep) },
+		{ 0, int16(+fStep) },
+		{ int16(+fStep), int16(-fStep) },
+		{ int16(+fStep), 0 },
+		{ int16(+fStep), int16(+fStep) }
+	};
+	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
 			break;
@@ -268,20 +276,22 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 			break;
 
 		currentNode->open = false;
-		_AddNeighbors(*currentNode, end);
-		
+
+		// Add neighbours
+		const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
+		for (size_t c = 0; c < arraySize; c++) {
+			_AddIfPassable(currentNode->point + directions[c], *currentNode,
+						   end, closedNodeList.nodelist);
+		}
 		if (fDebugFunction != NULL)
 			fDebugFunction(currentNode->point);
 	}
 
-	if (!found) {
-		EmptyClosedList(fClosedNodeList);
+	if (!found)
 		throw PathNotFoundException();
-	}
 
-	point_node* last = fClosedNodeList->back();
+	point_node* last = closedNodeList.nodelist->back();
 	_ReconstructPath(last);
-	EmptyClosedList(fClosedNodeList);
 	
 	// remove the "current" position, it's useless
 	fPoints.erase(fPoints.begin());
@@ -335,7 +345,7 @@ PathFinder::SetDebug(debug_function callback)
 bool
 PathFinder::CreateLineOfSightPath(const IE::point& start, const IE::point& end)
 {
-	assert(fClosedNodeList == NULL);
+	//assert(fClosedNodeList == NULL);
 /*
 	fPoints = new PointList;
 	fClosedNodeList = new NodeList();
@@ -449,7 +459,8 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
-		const IE::point& goal)
+		const IE::point& goal,
+		NodeList* nodeList)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsReachable(current.point, point))
@@ -457,9 +468,9 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 	// Check if point is in closed list. If so, update it.
 	NodeList::const_iterator i =
-			std::find_if(fClosedNodeList->begin(), fClosedNodeList->end(),
+			std::find_if(nodeList->begin(), nodeList->end(),
 							FindPoint(point));
-	if (i != fClosedNodeList->end()) {
+	if (i != nodeList->end()) {
 		_UpdateNodeCost(*i, current, goal);
 		return;
 	}
@@ -467,7 +478,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	// Otherwise, add it to the open list
 	point_node* node = new point_node(point, &current, UINT_MAX);
 	node->open = true;
-	fClosedNodeList->push_back(node);
+	nodeList->push_back(node);
 	_UpdateNodeCost(node, current, goal);
 }
 
@@ -476,19 +487,7 @@ void
 PathFinder::_AddNeighbors(const point_node& node,
 		const IE::point& goal)
 {
-	const IE::point directions[] = {
-		{ int16(-fStep), int16(-fStep) },
-		{ int16(-fStep), 0 },
-		{ int16(-fStep), int16(+fStep) },
-		{ 0, int16(-fStep) },
-		{ 0, int16(+fStep) },
-		{ int16(+fStep), int16(-fStep) },
-		{ int16(+fStep), 0 },
-		{ int16(+fStep), int16(+fStep) }
-	};
-	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
-	for (size_t c = 0; c < arraySize; c++)
-		_AddIfPassable(node.point + directions[c], node, goal);
+
 }
 
 
@@ -505,13 +504,44 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 }
 
 
+void
+PathFinder::_ReconstructPath(point_node* goal)
+{
+	point_node* walkNode = goal;
+	while (walkNode != NULL) {
+		fPoints.push_front(walkNode->point);
+		walkNode = const_cast<point_node*>(walkNode->parent);
+	}
+}
+
+
+// ClosedNodes
+ClosedNodes::ClosedNodes()
+	:
+	nodelist(nullptr)
+{
+	nodelist = new NodeList;
+}
+
+
+ClosedNodes::~ClosedNodes()
+{
+	NodeList::iterator i;
+	for (i = nodelist->begin(); i != nodelist->end(); i++) {
+		delete (*i);
+	}
+	delete nodelist;
+	nodelist = NULL;
+}
+
+
 point_node*
-PathFinder::_GetCheapestNode() const
+ClosedNodes::GetCheapestNode() const
 {
 	uint32 minCost = UINT_MAX;
 	point_node* result = NULL;
-	for (NodeList::const_iterator i = fClosedNodeList->begin();
-			i != fClosedNodeList->end(); i++) {
+	for (NodeList::const_iterator i = nodelist->begin();
+			i != nodelist->end(); i++) {
 		point_node* node = *i;
 		if (!node->open)
 			continue;
@@ -522,17 +552,6 @@ PathFinder::_GetCheapestNode() const
 	}
 
 	return result;
-}
-
-
-void
-PathFinder::_ReconstructPath(point_node* goal)
-{
-	point_node* walkNode = goal;
-	while (walkNode != NULL) {
-		fPoints.push_front(walkNode->point);
-		walkNode = const_cast<point_node*>(walkNode->parent);
-	}
 }
 
 
