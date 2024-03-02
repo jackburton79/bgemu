@@ -12,7 +12,7 @@
 #include "Bitmap.h"
 #include "Utils.h"
 
-#define PATHFIND_MAX_TRIES 5000
+#define PATHFIND_MAX_TRIES 2000
 
 const int kMovementCost = 2;
 const int kDiagMovementCost = 3;
@@ -49,7 +49,6 @@ PointDistance(const IE::point& start, const IE::point& end)
 static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
-	// We multiply by 10 since minimum movement cost is 10
 	return PointDistance(start, end) * kMovementCost;
 }
 
@@ -139,12 +138,12 @@ Path::AddPoint(const IE::point& point, test_function func)
 IE::point
 Path::NextStep(const int& step)
 {
-	//for (int i = 0; i < step; i++) {
+	for (int i = 0; i < step; i++) {
 		if (fIterator != fPoints->end())
 			fIterator++;
-	//}
-//	if (fIterator == fPoints->end())
-	//	return *fPoints->rbegin();
+	}
+	if (fIterator == fPoints->end())
+		return *fPoints->rbegin();
 	return *fIterator;
 }
 

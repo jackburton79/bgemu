@@ -960,7 +960,7 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		return false;
 
 	if (!fPath->IsEmpty() && !fPath->IsEnd()) {
-		IE::point nextPoint = fPath->NextStep();
+		IE::point nextPoint = fPath->NextStep(2);
 		SetOrientation(nextPoint);
 		_SetPositionPrivate(nextPoint);
 		SetAnimationAction(ACT_WALKING);
