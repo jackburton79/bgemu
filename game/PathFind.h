@@ -76,7 +76,7 @@ public:
 	PathFinder(int16 step = kStep, test_function func = IsPassableDefault, bool checkNeighbors = false);
 	~PathFinder();
 
-	bool IsEmpty() const;
+	//bool IsEmpty() const;
 
 	static void SetDebug(debug_function callback);
 

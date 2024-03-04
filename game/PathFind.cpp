@@ -101,11 +101,11 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
 	fPoints->erase(fPoints->begin(), fPoints->end());
 
-	PathFinder pathFinder(2, func, true);
+	PathFinder pathFinder(4, func, true);
 	PointList path = pathFinder.GeneratePath(start, end);
-
-	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
+	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
 		fPoints->push_back(*i);
+	}
 
 	fIterator = fPoints->begin();
 }
@@ -204,19 +204,11 @@ PathFinder::GenerateNodes(Bitmap* searchMap)
 }
 
 
-bool
-PathFinder::IsEmpty() const
-{
-	return false;
-}
-
-
 /* static */
 bool
 PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
 {
 	PathFinder testPath(1);
-
 	if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
 		return false;
 
@@ -229,19 +221,20 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
 	//if (!_IsPassable(end))
 	//	return false;
+
+	//std::cout << "GeneratePath(start: " << start.x << ", " << start.y << " -> " << end.x << ", " << end.y << ")" << std::endl;
 	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
-	if (Distance(start, end) > 40) {
-		IE::point shorterEnd = HalfPoint(start, end);
-		pathPoints = GeneratePath(start, shorterEnd);
+	// Generate path to half point if distance is excessive.
+	// TODO: This has the drawback that sometimes we should backtrack,
+	// because it's not possibile to reach destination from the midpoint
+	/*if (Distance(start, end) > 100) {
+		IE::point half = HalfPoint(start, end);
+		pathPoints = GeneratePath(start, half);
 		maxReachableDirectly = pathPoints.back();
-	}
-
-	//if (IsCloseEnough(maxReachableDirectly, end))
-	//	return true;
+	}*/
 
 	ClosedNodes closedNodeList;
-
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	currentNode->cost_to_goal = Distance(currentNode->point, end)
 		+ currentNode->cost;
@@ -285,16 +278,20 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found)
 		throw PathNotFoundException();
 
+	PointList tmpPoints;
 	point_node* last = closedNodeList.nodelist->back();
 	point_node* walkNode = last;
 	while (walkNode != NULL) {
-		pathPoints.push_front(walkNode->point);
+		tmpPoints.push_front(walkNode->point);
 		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
 	
 	// remove the "current" position, it's useless
-	pathPoints.erase(pathPoints.begin());
+	tmpPoints.erase(tmpPoints.begin());
 	
+	PointList::iterator p;
+	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++)
+		pathPoints.push_back(*p);
 	return pathPoints;
 }
 
