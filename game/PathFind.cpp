@@ -101,7 +101,8 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
 	fPoints->erase(fPoints->begin(), fPoints->end());
 
-	PathFinder pathFinder(4, func, true);
+	fPoints->push_back(start);
+	PathFinder pathFinder(2, func, true);
 	PointList path = pathFinder.GeneratePath(start, end);
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
 		fPoints->push_back(*i);
@@ -219,8 +220,8 @@ PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
 PointList
 PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
-	//if (!_IsPassable(end))
-	//	return false;
+	if (!_IsPassable(end))
+		throw PathNotFoundException();
 
 	//std::cout << "GeneratePath(start: " << start.x << ", " << start.y << " -> " << end.x << ", " << end.y << ")" << std::endl;
 	PointList pathPoints;
@@ -228,7 +229,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	// Generate path to half point if distance is excessive.
 	// TODO: This has the drawback that sometimes we should backtrack,
 	// because it's not possibile to reach destination from the midpoint
-	/*if (Distance(start, end) > 100) {
+	/*if (PointDistance(start, end) > 100) {
 		IE::point half = HalfPoint(start, end);
 		pathPoints = GeneratePath(start, half);
 		maxReachableDirectly = pathPoints.back();
