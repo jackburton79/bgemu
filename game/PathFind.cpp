@@ -14,8 +14,8 @@
 
 #define PATHFIND_MAX_TRIES 2000
 
-const int kMovementCost = 2;
-const int kDiagMovementCost = 3;
+const int kMovementCost = 1;
+const int kDiagMovementCost = 2;
 
 class ClosedNodes {
 public:
@@ -99,11 +99,12 @@ Path::~Path()
 void
 Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
-	fPoints->erase(fPoints->begin(), fPoints->end());
+	delete fPoints;
+	fPoints = nullptr;
 
-	fPoints->push_back(start);
 	PathFinder pathFinder(2, func, true);
 	PointList path = pathFinder.GeneratePath(start, end);
+	fPoints = new PointList;
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
 		fPoints->push_back(*i);
 	}
@@ -237,7 +238,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 
 	ClosedNodes closedNodeList;
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
-	currentNode->cost_to_goal = Distance(currentNode->point, end)
+	currentNode->cost_to_goal = PointDistance(currentNode->point, end)
 		+ currentNode->cost;
 	currentNode->open = true;
 	closedNodeList.nodelist->push_back(currentNode);
@@ -255,6 +256,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		{ int16(+fStep), int16(+fStep) }
 	};
 
+	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
+
 	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
@@ -267,7 +270,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		currentNode->open = false;
 
 		// Add neighbours
-		const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
 		for (size_t c = 0; c < arraySize; c++) {
 			_AddIfPassable(currentNode->point + directions[c], *currentNode,
 						   end, closedNodeList.nodelist);
@@ -290,9 +292,10 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	// remove the "current" position, it's useless
 	tmpPoints.erase(tmpPoints.begin());
 	
-	PointList::iterator p;
+	/*PointList::iterator p;
 	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++)
-		pathPoints.push_back(*p);
+		pathPoints.push_back(*p);*/
+	pathPoints = tmpPoints;
 	return pathPoints;
 }
 
@@ -483,6 +486,8 @@ PathFinder::_AddIfPassable(const IE::point& point,
 void
 PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
 {
+	//std::cout << "current: " << current.point.x << ", " << current.point.y << std::endl;
+	//std::cout << "new: " << node->point.x << ", " << node->point.y << std::endl;
 	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
 	if (newCost < node->cost) {
