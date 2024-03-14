@@ -150,8 +150,9 @@ ResetState(Path& p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	InitializeSearchMap();
 
 	// skip non walkable points
+	start.y = gNumRowsMap;
 	do {
-		start.y = Core::RandomNumber(0, gNumRowsMap - 1);
+		start.y--;
 	} while (!IsWalkable(start));
 	end.x -= 5;
 	do {
