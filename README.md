@@ -17,8 +17,8 @@ To run, you need game files from an infinity engine based game (Baldur's Gate, B
 <pre>
 commandline options:
   --no-newgame      Don't start a new game
-  --test            Star in test mode
-  -gNNNxNNN         Select windows size (example: -g1024x768)
+  --test            Start in test mode
+  -gNNNxNNN         Select window size (example: -g1024x768)
   -f                Start in fullscreen mode
   --no-scripts      Don't run scripts
 </pre>  
