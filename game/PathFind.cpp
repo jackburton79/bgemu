@@ -83,7 +83,7 @@ Path::Path()
 
 Path::Path(const IE::point start, const IE::point end, test_function func)
 	:
-	fPoints(new PointList),
+	fPoints(NULL),
 	fIterator(fPoints->begin())
 {
 	Set(start, end, func);
@@ -102,9 +102,12 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 	delete fPoints;
 	fPoints = nullptr;
 
-	PathFinder pathFinder(2, func, true);
-	PointList path = pathFinder.GeneratePath(start, end);
 	fPoints = new PointList;
+
+	PathFinder pathFinder(2, func, true);
+	// This can throw an exception
+	PointList path = pathFinder.GeneratePath(start, end);
+
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
 		fPoints->push_back(*i);
 	}
@@ -160,6 +163,7 @@ Path::NextStep(const int& step)
 bool
 Path::IsEmpty() const
 {
+	assert(fPoints != NULL);
 	return fPoints->empty();
 }
 
