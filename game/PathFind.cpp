@@ -119,6 +119,7 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 void
 Path::Clear()
 {
+	assert(fPoints != NULL);
 	fPoints->erase(fPoints->begin(), fPoints->end());
 }
 
@@ -126,6 +127,7 @@ Path::Clear()
 IE::point
 Path::Start() const
 {
+	assert(fPoints != NULL);
 	return *fPoints->begin();
 }
 
@@ -133,6 +135,7 @@ Path::Start() const
 IE::point
 Path::End() const
 {
+	assert(fPoints != NULL);
 	return *fPoints->rbegin();
 }
 
@@ -140,6 +143,7 @@ Path::End() const
 void
 Path::AddPoint(const IE::point& point, test_function func)
 {
+	assert(fPoints != NULL);
 	PathFinder pathFinder(2, func, true);
 	PointList path = pathFinder.GeneratePath(fPoints->front(), point);
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
@@ -150,6 +154,7 @@ Path::AddPoint(const IE::point& point, test_function func)
 IE::point
 Path::NextStep(const int& step)
 {
+	assert(fPoints != NULL);
 	for (int i = 0; i < step; i++) {
 		if (fIterator != fPoints->end())
 			fIterator++;
@@ -171,7 +176,8 @@ Path::IsEmpty() const
 bool
 Path::IsEnd() const
 {
-	 return fIterator == fPoints->end();
+	assert(fPoints != NULL);
+	return fIterator == fPoints->end();
 }
 
 
