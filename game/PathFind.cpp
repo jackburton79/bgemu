@@ -61,17 +61,6 @@ Distance(const IE::point& start, const IE::point& end)
 }
 
 
-
-static inline IE::point
-HalfPoint(const IE::point& start, const IE::point& end)
-{
-	IE::point halfPoint;
-	halfPoint.x = start.x + (end.x - start.x);
-	halfPoint.y = start.y + (end.y - start.y);
-	return halfPoint;
-}
-
-
 // Path
 Path::Path()
 	:
@@ -233,18 +222,27 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
 	if (!_IsPassable(end))
 		throw PathNotFoundException();
-
-	//std::cout << "GeneratePath(start: " << start.x << ", " << start.y << " -> " << end.x << ", " << end.y << ")" << std::endl;
+#if 0
+	std::cout << "GeneratePath(start: " << start.x << ", " << start.y << " -> ";
+	std::cout << end.x << ", " << end.y << ")" << std::endl;
+#endif
 	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
 	// Generate path to half point if distance is excessive.
 	// TODO: This has the drawback that sometimes we should backtrack,
 	// because it's not possibile to reach destination from the midpoint
-	/*if (PointDistance(start, end) > 100) {
+	if (PointDistance(start, end) > 100) {
 		IE::point half = HalfPoint(start, end);
+#if 0
+		std::cout << "half point:" << half.x << ", " << half.y << std::endl;
+#endif
 		pathPoints = GeneratePath(start, half);
+#if 0
+		std::cout << "Generated from " << pathPoints.front().x << ", " << pathPoints.front().y;
+		std::cout << " to " << pathPoints.back().x << ", " << pathPoints.back().y << std::endl;
+#endif
 		maxReachableDirectly = pathPoints.back();
-	}*/
+	}
 
 	ClosedNodes closedNodeList;
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -267,7 +265,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	};
 
 	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
-
 	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
@@ -298,25 +295,29 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		tmpPoints.push_front(walkNode->point);
 		walkNode = const_cast<point_node*>(walkNode->parent);
 	}
-	
+
 	// remove the "current" position, it's useless
 	tmpPoints.erase(tmpPoints.begin());
-	
-	/*PointList::iterator p;
-	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++)
-		pathPoints.push_back(*p);*/
+
 	pathPoints = tmpPoints;
+#if 0
+	PointList::iterator p;
+	for (p = pathPoints.begin(); p != pathPoints.end(); p++) {
+		std::cout << p->x << ", " << p->y << std::endl;
+	}
+#endif
 	return pathPoints;
 }
 
 
-/* static */
 IE::point
 PathFinder::HalfPoint(const IE::point& start, const IE::point& end)
 {
 	IE::point half;
 	half.x = start.x + (end.x - start.x) / 2;
 	half.y = start.y + (end.y - start.y) / 2;
+	half.x -= half.x % fStep;
+	half.y -= half.y % fStep;
 	return half;
 }
 
