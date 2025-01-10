@@ -13,6 +13,7 @@
 #include "Utils.h"
 
 #define PATHFIND_MAX_TRIES 2000
+#define PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
@@ -228,6 +229,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
+#ifdef PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
 	// Generate path to half point if distance is excessive.
 	// TODO: This has the drawback that sometimes we should backtrack,
 	// because it's not possibile to reach destination from the midpoint
@@ -243,6 +245,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 		maxReachableDirectly = pathPoints.back();
 	}
+#endif
 
 	ClosedNodes closedNodeList;
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
