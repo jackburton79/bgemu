@@ -15,7 +15,6 @@ shell
 
 OUTDIR = ./bin
 DIR_OBJ = ./obj
-INCS = $(wildcard *.h $(foreach fd, $(SUBDIR), $(fd)/*.h))
 SRCS = $(wildcard /*.cpp $(foreach fd, $(SUBDIR), $(fd)/*.cpp))
 NODIR_SRC = $(notdir $(SRCS))
 OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
@@ -23,6 +22,10 @@ INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 INC_DIRS += -I libjgame/graphics
 INC_DIRS += -I libjgame/streams
 INC_DIRS += -I libjgame/support
+
+DEP = $(OBJS:%.o=%.d)
+
+-include $(DEP)
 
 #PHONY := all
 all: $(BGEMU)
@@ -37,9 +40,9 @@ $(BGEMU):  bgemu.cpp $(OBJS)
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ bgemu.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
-$(DIR_OBJ)/%.o: %.cpp $(INCS)
+$(DIR_OBJ)/%.o: %.cpp
 	mkdir -p $(@D)
-	$(CC) -o $@ $(CXXFLAGS) -c $< $(INC_DIRS)
+	$(CC) -o $@ $(CXXFLAGS) -MMD -c $< $(INC_DIRS)
 
 PathFindTest: $(OBJS) tests/PathFindTest.cpp
 	mkdir -p $(OUTDIR)
@@ -55,7 +58,6 @@ clean:
 
 PHONY += echoes
 echoes:
-	@echo "INC files: $(INCS)"
 	@echo "SRC files: $(SRCS)"
 	@echo "OBJ files: $(OBJS)"
 	@echo "LIB files: $(LIBS)"
