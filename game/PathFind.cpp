@@ -302,9 +302,11 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	// remove the "current" position, it's useless
 	tmpPoints.erase(tmpPoints.begin());
 
-	pathPoints = tmpPoints;
-#if 0
 	PointList::iterator p;
+	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
+		pathPoints.push_back(*p);
+	}
+#if 0
 	for (p = pathPoints.begin(); p != pathPoints.end(); p++) {
 		std::cout << p->x << ", " << p->y << std::endl;
 	}
