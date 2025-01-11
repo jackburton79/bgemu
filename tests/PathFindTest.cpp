@@ -236,6 +236,8 @@ int main(int argc, char **argv)
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
+							start = { 0, 0 };
+							end = { gNumColumnsMap, gNumRowsMap };
 							while (!ResetState(path, gBitmap, start, end))
 								;
 							break;
