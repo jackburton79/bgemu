@@ -210,7 +210,7 @@ ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 
 static
 std::vector<Parameter>
-GetFunctionParameters(std::string functionString)
+GetFunctionParameters(const std::string& functionString)
 {
 	//std::cout << "GetFunctionParameters()" << std::endl;
 	StringStream stream(functionString);

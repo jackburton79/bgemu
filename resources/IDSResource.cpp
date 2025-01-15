@@ -56,7 +56,7 @@ IDSResource::Load(Archive* archive, uint32 key)
 			continue;
 		char *rest = NULL;
 		uint32 id = ::strtoul(stringID, &rest, 0);
-		std::string finalValue = trim(stringValue);
+		std::string finalValue = trimmed(stringValue);
 		std::transform(finalValue.begin(), finalValue.end(),
 					finalValue.begin(), ::toupper);
 		fMap[id] = finalValue;
