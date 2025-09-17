@@ -350,14 +350,16 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 {
 	// TODO: If point can't be reached currently it fails without returning
 	// the failure to the caller
-	if (fPath == NULL) {
-		if (ignoreSearchMap)
-			fPath = new Path(); //(PathFinder::kStep, Actor::PointPassableTrue);
-		else
-			fPath = new Path(); //(PathFinder::kStep, AreaRoom::IsPointPassable);
-	}
+	if (fPath == NULL)
+		fPath = new Path(); //(PathFinder::kStep, AreaRoom::IsPointPassable);
+
 	IE::point destination = fActor->position;
-	if (fPath->Set(fActor->position, point, AreaRoom::IsPointPassable) == 0) {
+	test_function func;
+	if (ignoreSearchMap)
+		func = Actor::PointPassableTrue;
+	else
+		func = AreaRoom::IsPointPassable;
+	if (fPath->Set(fActor->position, point, func) == 0) {
 		destination = fPath->End();
 	} else {
 		// Do something
