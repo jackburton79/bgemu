@@ -86,7 +86,7 @@ Path::~Path()
 }
 
 
-int
+void
 Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
 	delete fPoints;
@@ -94,23 +94,15 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 
 	fPoints = new PointList;
 
-	try {
-		PathFinder pathFinder(2, func, true);
-		// This can throw an exception
-		PointList path = pathFinder.GeneratePath(start, end);
+	PathFinder pathFinder(2, func, true);
+	// This can throw an exception
+	PointList path = pathFinder.GeneratePath(start, end);
 
-		for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
-			fPoints->push_back(*i);
-		}
-	} catch (const PathNotFoundException& ex) {
-		// failed to build path
-		std::cerr << "Path::Set(): failed to build path!" << std::endl;
-		return -1;
+	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
+		fPoints->push_back(*i);
 	}
 
 	fIterator = fPoints->begin();
-
-	return 0;
 }
 
 

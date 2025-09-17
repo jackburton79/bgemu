@@ -129,7 +129,12 @@ static bool
 NewPath(Path& p, IE::point& start, IE::point& end)
 {
 	clock_t startTime = clock();
-	bool found = p.Set(start, end, IsWalkable) == 0;
+	bool found = true;
+	try {
+		p.Set(start, end, IsWalkable);
+	} catch (const PathNotFoundException& e) {
+		found = false;
+	}
 	clock_t elapsed = (clock() - startTime) / 1000;
 	if (!found)
 		std::cout << "Path not found (" << elapsed << "ms)" << std::endl;
