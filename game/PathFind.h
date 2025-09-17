@@ -29,7 +29,7 @@ public:
 	Path(const IE::point start, const IE::point end, test_function func);
 	~Path();
 
-	void Set(const IE::point& start, const IE::point& end, test_function func);
+	int Set(const IE::point& start, const IE::point& end, test_function func);
 	void Clear();
 
 	IE::point Start() const;

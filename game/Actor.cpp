@@ -357,13 +357,12 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 			fPath = new Path(); //(PathFinder::kStep, AreaRoom::IsPointPassable);
 	}
 	IE::point destination = fActor->position;
-	try {
-		fPath->Set(fActor->position, point, AreaRoom::IsPointPassable);
+	if (fPath->Set(fActor->position, point, AreaRoom::IsPointPassable) == 0) {
 		destination = fPath->End();
-	} catch (...) {
-		std::cerr << Log::Red << Name() << ": Actor::SetDestination() failed!" << Log::Normal << std::endl;
+	} else {
+		// Do something
+		fActor->destination = destination;
 	}
-	fActor->destination = destination;
 }
 
 

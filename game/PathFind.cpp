@@ -13,7 +13,7 @@
 #include "Utils.h"
 
 #define PATHFIND_MAX_TRIES 2000
-#define PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
+//#define PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
@@ -86,7 +86,7 @@ Path::~Path()
 }
 
 
-void
+int
 Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
 	delete fPoints;
@@ -94,15 +94,23 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 
 	fPoints = new PointList;
 
-	PathFinder pathFinder(2, func, true);
-	// This can throw an exception
-	PointList path = pathFinder.GeneratePath(start, end);
+	try {
+		PathFinder pathFinder(2, func, true);
+		// This can throw an exception
+		PointList path = pathFinder.GeneratePath(start, end);
 
-	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
-		fPoints->push_back(*i);
+		for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
+			fPoints->push_back(*i);
+		}
+	} catch (const PathNotFoundException& ex) {
+		// failed to build path
+		std::cerr << "Path::Set(): failed to build path!" << std::endl;
+		return -1;
 	}
 
 	fIterator = fPoints->begin();
+
+	return 0;
 }
 
 
