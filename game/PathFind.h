@@ -106,6 +106,8 @@ private:
 			NodeList* nodeList);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
 			const IE::point& goal) const;
+
+	void _GetSmoothenPath(PointList& pointList);
 };
 
 

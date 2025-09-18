@@ -94,7 +94,8 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 
 	fPoints = new PointList;
 
-	PathFinder pathFinder(2, func, true);
+	// Use 4 here so it's faster, we'll interpolate the path later
+	PathFinder pathFinder(4, func, true);
 	// This can throw an exception
 	PointList path = pathFinder.GeneratePath(start, end);
 
@@ -183,6 +184,7 @@ PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	fTestFunction(testFunc),
 	fCheckNeighbors(checkNeighbors)
 {
+	std::cout << "PathFinder: step " << fStep << std::endl;
 }
 
 
@@ -311,6 +313,9 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		std::cout << p->x << ", " << p->y << std::endl;
 	}
 #endif
+
+	_GetSmoothenPath(pathPoints);
+
 	return pathPoints;
 }
 
@@ -510,6 +515,23 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 		node->parent = &current;
 		node->cost = newCost;
 		node->cost_to_goal = Distance(node->point, goal) + node->cost;
+	}
+}
+
+
+void
+PathFinder::_GetSmoothenPath(PointList& pointList)
+{
+	PointList::iterator p;
+	for (p = pointList.begin(); p != pointList.end(); p++) {
+		IE::point pointA = *p;
+		PointList::iterator current = p;
+		p++;
+		if (p == pointList.end())
+			break;
+		IE::point pointB = *p;
+		IE::point halfPoint = HalfPoint(pointA, pointB);
+		pointList.insert(current, halfPoint);
 	}
 }
 
