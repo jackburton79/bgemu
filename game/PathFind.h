@@ -94,7 +94,7 @@ private:
 	IE::point HalfPoint(const IE::point& start, const IE::point& end);
 
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
-	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
+	//uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
 	bool CreateLineOfSightPath(const IE::point& start, const IE::point& end);
 
