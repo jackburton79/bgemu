@@ -649,7 +649,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue;
+			int integerValue = 0;
 			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
 			if (idsResource != NULL) {
 				integerValue = idsResource->IDForString(tokenParam.u.string);
@@ -717,7 +717,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue;
+			int integerValue = 0;
 			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
 			if (idsResource != NULL) {
 				integerValue = idsResource->IDForString(tokenParam.u.string);
@@ -733,7 +733,6 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 		}
 		case Parameter::STRING:
 		{
-
 			char* destString = NULL;
 			if (parameter.position == 1)
 				destString = param->string1;
@@ -976,8 +975,8 @@ action_params::action_params(const char* firstParamName, const char* secondParam
 	string2[0] = '\0';
 
 	// TODO: Linux does not have strlcpy by default
-	::strncpy(First()->name, firstParamName, sizeof(First()->name));
-	::strncpy(Second()->name, secondParamName, sizeof(Second()->name));
+	::strncpy(First()->name, firstParamName, sizeof(First()->name) - 1);
+	::strncpy(Second()->name, secondParamName, sizeof(Second()->name) - 1);
 }
 
 
