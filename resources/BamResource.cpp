@@ -7,7 +7,6 @@
 #include "MemoryStream.h"
 #include "Path.h"
 #include "IETypes.h"
-#include "Utils.h"
 #include "ZLibDecompressor.h"
 
 #include <assert.h>
@@ -210,7 +209,7 @@ BAMResource::_FrameAt(uint16 index)
 {
 	BamFrameEntry entry;
 	fData->ReadAt(fFramesOffset + index * sizeof(BamFrameEntry), entry);
-	
+
 	Bitmap* bitmap = NULL;
 	uint8* bitmapData = NULL;
 	bool ownsData = false;

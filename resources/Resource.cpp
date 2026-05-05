@@ -1,7 +1,6 @@
 #include "Resource.h"
 
 #include "Archive.h"
-#include "FileStream.h"
 #include "Log.h"
 #include "MemoryStream.h"
 #include "SupportDefs.h"
@@ -173,7 +172,7 @@ Resource::Create(const res_ref& name, const uint16& type)
 {
 	Resource* res = NULL;
 	try {
-		resource_creation_func creationFunction = get_resource_create(type);		
+		resource_creation_func creationFunction = get_resource_create(type);
 		res = creationFunction(name);
 	} catch (std::exception& e) {
 		std::cerr << RED("Resource::Create(): ") << RED(e.what()) << std::endl;

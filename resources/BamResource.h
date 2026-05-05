@@ -3,23 +3,22 @@
 
 #include "Resource.h"
 
-#include <map>
 
 namespace GFX {
-	struct Palette;
+	class Palette;
 }
 
 class Bitmap;
 class BAMResource : public Resource {
 public:
 	BAMResource(const res_ref& name);
-	
+
 	virtual bool Load(Archive *archive, uint32 key);
 
 	virtual void Dump();
 
 	Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
-	
+
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex) const;
 	uint8 CountCycles() const;
@@ -42,7 +41,7 @@ private:
 	uint32 fFramesOffset;
 	uint32 fCyclesOffset;
 	uint32 fFrameLookupOffset;
-	
+
 	uint16 fNumFrames;
 	uint8 fNumCycles;
 	uint8 fCompressedIndex;

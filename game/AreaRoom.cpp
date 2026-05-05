@@ -19,7 +19,6 @@
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
-#include "IDSResource.h"
 #include "Label.h"
 #include "Log.h"
 #include "MOSResource.h"
@@ -34,7 +33,6 @@
 #include "TileCell.h"
 #include "TisResource.h"
 #include "Timer.h"
-#include "TLKResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
 
@@ -127,7 +125,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	}
 
 	GUI::Get()->ShowWindow(999);
-	
+
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
 	AddScript(roomScript);
 }
@@ -279,7 +277,7 @@ AreaRoom::Draw()
 	gfx->BlitToScreen(bitmap, NULL, &rect);
 	bitmap->Release();
 #endif
-	
+
 	_DrawSearchMap(mapRect);
 }
 
@@ -305,7 +303,7 @@ AreaRoom::MouseDown(IE::point point)
 			//fSelectedActor = actor;
 			//if (fSelectedActor != NULL)
 			//	fSelectedActor->Select(true);
-			
+
 			if (fSelectedActor != NULL)
 				fSelectedActor.Target()->ClickedOn(actor);
 		}
@@ -897,7 +895,7 @@ AreaRoom::_InitSearchMap()
 	std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
 	std::cout << fSearchMap->Height() << std::endl;
 	std::cout << "ratio: h=" << fMapHorizontalRatio;
-	std::cout << ", v=" << fMapVerticalRatio << std::endl;	
+	std::cout << ", v=" << fMapVerticalRatio << std::endl;
 */
 	std::cout << Log::Green << "Done!" << Log::Normal << std::endl;
 }
@@ -948,7 +946,7 @@ AreaRoom::_DrawEffects()
 			continue;
 		}
 	}
-	
+
 	// Remove completed effects
 	EffectsList::iterator it = std::remove_if(fEffects.begin(), fEffects.end(), Finished);
 	fEffects.erase(it, fEffects.end());
@@ -1024,15 +1022,15 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 		scaledRect.h /= fMapVerticalRatio;
 		scaledRect.OffsetBy(destPoint.x, destPoint.y);
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
-		
+
 		if (fSelectedActor != NULL) {
 			IE::point actorPosition = fSelectedActor.Target()->Position();
 			actorPosition.x /= fMapHorizontalRatio;
 			actorPosition.y /= fMapVerticalRatio;
-			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );			
+			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );
 			r.OffsetBy(destPoint.x, destPoint.y);
 			GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(r, 2000);
-		}	
+		}
 	}
 }
 
@@ -1098,7 +1096,7 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 			}
 		}
 	}
-	
+
 	if (Region* region = RegionAtPoint(point)) {
 		//std::cout << region->Name() << std::endl;
 		object = region;
@@ -1291,7 +1289,7 @@ AreaRoom::_UnloadArea()
 
 	if (fMouseOverObject != NULL)
 	    fMouseOverObject.Unset();
-	
+
 	ClearScripts();
 
 	ActorsList::iterator i;
@@ -1331,7 +1329,7 @@ AreaRoom::_UnloadArea()
 	if (fBackMap != NULL) {
 		delete fBackMap;
 		fBackMap = NULL;
-	}	
+	}
 
 	if (fBlitMask != NULL) {
 		fBlitMask->Release();

@@ -1,17 +1,14 @@
-#include "BmpResource.h"
+#include "WedResource.h"
+
 #include "Door.h"
-#include "MemoryStream.h"
-#include "Graphics.h"
 #include "Polygon.h"
 #include "ResManager.h"
+#include "Stream.h"
 #include "TileCell.h"
-#include "TisResource.h"
-#include "WedResource.h"
-#include "Utils.h"
 
 #include <assert.h>
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 
 struct overlay {
@@ -72,7 +69,7 @@ WEDResource::_Load()
 
 	if (!CheckVersion("V1.3"))
 		throw std::runtime_error("WEDResource::Load() wrong version!");;
-	
+
 	fData->ReadAt(8, fNumOverlays);
 	fData->ReadAt(12, fNumTiledObjects);
 	fData->ReadAt(16, fOverlaysOffset);

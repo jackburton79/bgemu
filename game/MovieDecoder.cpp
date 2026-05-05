@@ -4,7 +4,6 @@
 
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
-#include "MemoryStream.h"
 #include "MovieDecoder.h"
 #include "Stream.h"
 
@@ -232,7 +231,7 @@ void
 MovieDecoder::Opcode0(Stream* stream, uint8* pixels, GFX::rect* rect)
 {
 	// Block is copied from corresponding block from current frame.
-	// (i.e. this block is unchanged). 
+	// (i.e. this block is unchanged).
 	GraphicsEngine::Get()->BlitBitmap(fCurrentFrame, rect, fNewFrame, rect);
 }
 
@@ -241,7 +240,7 @@ void
 MovieDecoder::Opcode1(Stream* stream, uint8* pixels, GFX::rect* rect)
 {
 	// Block is unmodified. This appears to mean that it has the same value it had 2 frames ago,
-	// but the net effect is that nothing is done to this block of 8x8 pixels. 
+	// but the net effect is that nothing is done to this block of 8x8 pixels.
 }
 
 
@@ -259,8 +258,8 @@ MovieDecoder::Opcode2(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 			x = -14 + ((B - 56) % 29)
 			y =   8 + ((B - 56) / 29)
 	*/
-	// (where % is the 'modulo' operator) 
-	
+	// (where % is the 'modulo' operator)
+
 	GFX::rect rect = fActiveRect;
 	uint8 byte = stream->ReadByte();
 	if (byte < 56) {
@@ -321,7 +320,7 @@ MovieDecoder::Opcode5(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	// Similar to 0x4, but instead of one byte for the offset, this uses two
 	// bytes to encode a larger range, the first being the x offset as a signed
 	// 8-bit value, and the second being the y offset as a signed 8-bit value.
-	
+
 	GFX::rect rect = fActiveRect;
 	rect.x += (sint8)stream->ReadByte();
 	rect.y += (sint8)stream->ReadByte();
@@ -644,7 +643,7 @@ MovieDecoder::OpcodeD(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
 	// In this encoding we get raw pixel data in the data stream -- 4 bytes of
 	// pixel data. 1 byte for each block of 4x4 pixels, and in the standard
-	// order (l->r, t->b). 
+	// order (l->r, t->b).
 	for (int i = 0; i < 4; i++) {
 		uint8 data = stream->ReadByte();
 		fill_pixels(pixels, i, data, 4);
@@ -657,7 +656,7 @@ void
 MovieDecoder::OpcodeE(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 {
 	// This encoding represents a solid frame.
-	// We get 1 byte of pixel data from the data stream. 
+	// We get 1 byte of pixel data from the data stream.
 	uint8 pixel = stream->ReadByte();
 	GFX::rect destRect = *blitRect;
 	fNewFrame->FillRect(destRect, pixel);

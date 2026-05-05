@@ -1,15 +1,10 @@
 #include "RoomBase.h"
 
-#include "Bitmap.h"
-#include "Graphics.h"
-#include "GraphicsEngine.h"
 #include "GUI.h"
-#include "Timer.h"
 
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
-#include <stdexcept>
 
 
 RoomBase::RoomBase()
@@ -102,7 +97,7 @@ RoomBase::SetAreaOffsetCenter(const IE::point& point)
 IE::point
 RoomBase::CenteredOffset(const IE::point& point) const
 {
-	IE::point result = point;	
+	IE::point result = point;
 	result.x = result.x + Control::Frame().w / 2;
 	result.y = result.y + Control::Frame().h / 2;
 	SanitizeOffsetCenter(result);
@@ -113,7 +108,7 @@ RoomBase::CenteredOffset(const IE::point& point) const
 IE::point
 RoomBase::LeftToppedOffset(const IE::point& point) const
 {
-	IE::point result = point;	
+	IE::point result = point;
 	result.x = result.x - Control::Frame().w / 2;
 	result.y = result.y - Control::Frame().h / 2;
 	SanitizeOffsetLeftTop(result);
@@ -142,7 +137,7 @@ RoomBase::SanitizeOffsetCenter(IE::point& point) const
 	point.y = std::min(areaRect.h - Control::Frame().h / 2, (int)point.y);
 }
 
-	
+
 void
 RoomBase::ConvertToArea(GFX::rect& rect)
 {

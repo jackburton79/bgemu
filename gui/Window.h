@@ -17,8 +17,8 @@ class Bitmap;
 class CHUIResource;
 class Control;
 namespace GFX {
-	struct rect;
-	struct point;
+	class rect;
+	class point;
 }
 class Window {
 public:

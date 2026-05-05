@@ -2,32 +2,22 @@
 
 #include "Action.h"
 #include "Actor.h"
-#include "Animation.h"
 #include "AreaRoom.h"
 #include "BCSResource.h"
-#include "Container.h"
-#include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
 #include "GUI.h"
-#include "IDSResource.h"
 #include "Log.h"
 #include "MveResource.h"
-#include "Party.h"
-#include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "TextArea.h"
 #include "Timer.h"
-#include "TLKResource.h"
 #include "Window.h"
 #include "WorldMap.h"
 
-#include <algorithm>
-#include <ctype.h>
 #include <limits.h>
 #include <stdlib.h>
-#include <vector>
 
 
 static Core* sCore = NULL;
@@ -76,7 +66,7 @@ Core::Initialize(const char* path)
 		std::cerr << Log::Red << "Core::Initialize(): No path supplied" << std::endl;
 		return false;
 	}
-		
+
 	try {
 		sCore = new Core();
 	} catch (...) {
@@ -247,11 +237,11 @@ Core::StartCutscene(const res_ref& scriptName)
 	::Script* script = ExtractScript(scriptName);
 	if (script != NULL) {
 		script->ExecuteCutscene();
-		
+
 		// TODO: We cannot delete the script, since actions are parsing it after we return.
 		// We are leaking the it now
 		//delete script;
-	}	
+	}
 }
 
 
@@ -344,7 +334,7 @@ Core::UpdateLogic(bool executeScripts)
 
 	//GameTimer::PrintTime();
 	GameTimer::UpdateGameTime();
-		
+
 	// TODO: Not nice, should stop the scripts in some other way
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
@@ -399,7 +389,7 @@ Core::ExtractScript(const res_ref& resName)
 		return NULL;
 
 	::Script* script = NULL;
-	BCSResource* scriptResource = gResManager->GetBCS(resName);	
+	BCSResource* scriptResource = gResManager->GetBCS(resName);
 	if (scriptResource != NULL) {
 		script = scriptResource->GetScript();
 		gResManager->ReleaseResource(scriptResource);

@@ -1,13 +1,7 @@
 #include "VVCResource.h"
 
-#include "Bitmap.h"
-#include "Graphics.h"
-#include "GraphicsEngine.h"
-#include "MemoryStream.h"
-#include "Path.h"
 #include "IETypes.h"
-#include "Utils.h"
-#include "ZLibDecompressor.h"
+#include "Stream.h"
 
 #include <assert.h>
 #include <iostream>
@@ -56,7 +50,7 @@ VVCResource::BAMName() const
 {
 	res_ref name;
 	fData->ReadAt(8, &name, sizeof(name));
-	return name; 
+	return name;
 }
 
 

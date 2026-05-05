@@ -3,11 +3,10 @@
 #include "Actor.h"
 #include "Container.h"
 #include "CreResource.h"
-#include "Door.h"
 #include "Log.h"
-#include "MemoryStream.h"
 #include "Region.h"
 #include "ResManager.h"
+#include "Stream.h"
 
 #include <stdexcept>
 
@@ -76,7 +75,7 @@ ARAResource::Load(Archive* archive, uint32 key)
 	fData->ReadAt(92, fRegionsOffset);
 
 	fData->ReadAt(124, fVerticesOffset);
-	
+
 	fData->ReadAt(164, fNumDoors);
 	fData->ReadAt(168, fDoorsOffset);
 
@@ -332,9 +331,9 @@ ARAResource::_LoadDoors()
 			fData->ReadAt(0x007c + (c + fDoors[i].closed_vertex_index) * sizeof(IE::point), vertex);
 			closedPolygon.AddPoint(vertex.x, vertex.y);
 		}
-		
+
 		//closedPolygon.Print();
-		
+
 		Polygon openPolygon;
 		for (uint32 c = 0; c < fDoors[i].open_vertex_index; c++) {
 			IE::point vertex;

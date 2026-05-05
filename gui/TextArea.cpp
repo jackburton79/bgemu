@@ -13,11 +13,8 @@
 #include "Dialog.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
-#include "ResManager.h"
 #include "Scrollbar.h"
 #include "TextSupport.h"
-#include "TLKResource.h"
-#include "Utils.h"
 #include "Window.h"
 
 

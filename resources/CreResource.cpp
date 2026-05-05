@@ -1,7 +1,6 @@
 #include "CreResource.h"
 #include "MemoryStream.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 

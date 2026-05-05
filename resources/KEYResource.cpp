@@ -1,5 +1,6 @@
 #include "KEYResource.h"
-#include "MemoryStream.h"
+
+#include "Stream.h"
 #include "Utils.h"
 
 #define KEY_SIGNATURE "KEY "

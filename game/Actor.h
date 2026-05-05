@@ -2,11 +2,9 @@
 #define __ACTOR_H
 
 #include "Bitmap.h"
-#include "GraphicsDefs.h"
 #include "IETypes.h"
 #include "Object.h"
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -52,12 +50,12 @@ public:
 	void ClearDestination();
 
 	void Draw(AreaRoom* room) const;
-	
+
 	IE::point RestrictionDistance() const;
 	virtual IE::point NearestPoint(const IE::point& start) const;
-	
+
 	bool IsWalking() const;
-	
+
 	void SetRegion(Region* region);
 	Region* CurrentRegion() const;
 
@@ -133,7 +131,7 @@ private:
 	int fNextAnimationAction;
 	bool fAnimationValid;
 	bool fAnimationAutoSwitchOnEnd;
-	
+
 	CREResource *fCRE;
 	bool fOwnsActor;
 
@@ -158,7 +156,7 @@ private:
 	void _Init();
 	void _HandleScripts();
 	void _SetPositionPrivate(const IE::point& point);
-	
+
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
 	void _SetOrientationExtended(const IE::point& nextPoint);

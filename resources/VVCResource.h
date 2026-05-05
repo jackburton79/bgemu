@@ -3,10 +3,9 @@
 
 #include "Resource.h"
 
-#include <map>
 
 namespace GFX {
-	struct Palette;
+	class Palette;
 }
 
 enum effect_display_flags {

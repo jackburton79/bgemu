@@ -10,15 +10,12 @@
 #include "DLGResource.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
-#include "KEYResource.h"
 #include "MOSResource.h"
 #include "MveResource.h"
-#include "MemoryStream.h"
 #include "ResManager.h"
 #include "SPLResource.h"
 #include "Timer.h"
 #include "TisResource.h"
-#include "TLKResource.h"
 #include "Utils.h"
 #include "VVCResource.h"
 #include "WAVResource.h"
@@ -123,7 +120,7 @@ res_string_to_type(const char* string)
 		}
 	}
 	throw std::runtime_error("Unknown Extension");
-	return -1;	
+	return -1;
 }
 
 
@@ -508,13 +505,13 @@ region::Print() const
 	if (flags & REGION_ALT_POINT)
 		std::cout << "\t" << "alternative point" << std::endl;
 	if (flags & REGION_DOOR_CLOSED)
-		std::cout << "\t" << "door closed" << std::endl;		
-	
+		std::cout << "\t" << "door closed" << std::endl;
+
 	std::cout << "info_text: " << IDTable::GetDialog(info_text) << std::endl;
 	//uint16 trap_detection_difficulty;
 	//uint16 trap_removal_difficulty;
 	std::cout << "trapped: " << (trapped ? "YES" : "NO") << std::endl;
-	
+
 	//uint16 trap_detected;
 	std::cout << "trap_launch_location:" << trap_launch_location.x << ", " << trap_launch_location.y << std::endl;
 	std::cout << "key_item: " << key_item << std::endl;

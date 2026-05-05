@@ -8,7 +8,6 @@
 #include "ShellCommand.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <sstream>
 
 ShellCommand::ShellCommand(const char* command)
@@ -65,6 +64,6 @@ ShellCommand::ParseParameters(const char* argv)
 				break;
 		}
 	}
-	
+
 	return fParameters;
 }

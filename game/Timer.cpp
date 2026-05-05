@@ -8,10 +8,8 @@
 
 #include "Timer.h"
 
-#include "Log.h"
 #include "ResManager.h"
 
-#include <sstream>
 #include <sys/time.h>
 
 #include <SDL.h>

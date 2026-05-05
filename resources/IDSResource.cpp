@@ -2,7 +2,6 @@
 
 #include "EncryptionKey.h"
 #include "EncryptedStream.h"
-#include "MemoryStream.h"
 #include "Utils.h"
 
 #include <algorithm>

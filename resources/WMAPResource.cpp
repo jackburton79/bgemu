@@ -4,16 +4,14 @@
  *  Created on: 18/lug/2012
  *      Author: stefano
  */
-
+#include "WMAPResource.h"
 
 #include "BamResource.h"
 #include "GraphicsEngine.h"
-#include "MemoryStream.h"
 #include "ResManager.h"
+#include "Stream.h"
 #include "TLKResource.h"
-#include "WMAPResource.h"
 
-#include <memory>
 
 #define WMAP_SIGNATURE "WMAP"
 #define WMAP_VERSION_1 "V1.0"
@@ -181,7 +179,7 @@ AreaEntry::TooltipName() const
 		return "";
 
 	std::string toolTip = entry->text;
-	
+
 	delete entry;
 	return toolTip;
 }

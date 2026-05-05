@@ -13,9 +13,7 @@
 #include "BCSResource.h"
 #include "Core.h"
 #include "Game.h"
-#include "IDSResource.h"
 #include "Log.h"
-#include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Script.h"
@@ -291,7 +289,7 @@ Object::Update(bool scripts)
 	if (sDebug)
 		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
-	bool cutscene = Core::Get()->CutsceneMode(); 	
+	bool cutscene = Core::Get()->CutsceneMode();
 	if (cutscene)
 		scripts = false;
 
@@ -347,7 +345,7 @@ Object::ExecuteActions()
 		if (--fWaitTime)
 			return;
 	}
-	
+
 #if 0
 	if (fActions.size() > 0) {
 		std::cout << Name() << " action list:" << std::endl;
@@ -570,7 +568,7 @@ Object::NearestPoint(const IE::point& comingFrom) const
 {
 	IE::point targetPoint;
 	IE::rect frame = Frame();
-		
+
 	if (comingFrom.x <= frame.x_min)
 		targetPoint.x = frame.x_min;
 	else if (comingFrom.x >= frame.x_max)
@@ -617,7 +615,7 @@ Object::_HandleScripting(int32 maxLevel)
 		return;
 
 	bool runScripts = (fTicksIdle > 15) || IsActionListEmpty();
-	
+
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (!IsInsideVisibleArea()) {
 		if (actor == NULL || !actor->InParty()) {
@@ -630,7 +628,7 @@ Object::_HandleScripting(int32 maxLevel)
 		fTicksIdle++;
 		return;
 	}
-	
+
 	/*if (Core::Get()->CutsceneMode())
 		maxLevel = 1;
 */

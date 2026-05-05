@@ -8,7 +8,6 @@
 #include "CreResource.h"
 #include "Core.h"
 #include "DLGResource.h"
-#include "FileStream.h"
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
@@ -22,13 +21,10 @@
 #include "SPLResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
-#include "Utils.h"
 #include "VVCResource.h"
-#include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
 
-#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <limits.h>
@@ -92,7 +88,7 @@ ResourceManager::ResourceManager(const char* path)
 		throw std::runtime_error("Cannot find key file");
 
 	if (fDebugLevel > 0)
-		key->Dump(); 
+		key->Dump();
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
@@ -161,12 +157,12 @@ ResourceManager::~ResourceManager()
 	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
 		delete iter->second;
 	}
-	
+
 	std::cout << kComponentName << "Deleting bifs maps...";
 	std::cout << std::endl;
 	bif_vector::iterator i;
 	for (i = fBifs.begin(); i != fBifs.end(); i++) {
-		delete *i;	
+		delete *i;
 	}
 
 	//TryEmptyResourceCache(true);
@@ -509,11 +505,11 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 	Storage::Path pathName(fResourcesPath);
 	if (pathName.InitCheck() != 0)
 		throw std::runtime_error("Invalid path");
-	
+
 	// TODO: Introduce the concept of a "current cd"
 	// although since the game is fully installed it doesn't
 	// really matter
-	std::string locationString = "( In ";	
+	std::string locationString = "( In ";
 	uint32 cd = GET_CD(location);
 	if ((location & LOC_ROOT) == 0) {
 		//if (IS_OVERRIDE(location))
@@ -539,9 +535,9 @@ ResourceManager::GetFullPath(std::string name, uint16 location)
 		}
 	} else
 		locationString.append("ROOT");
-	
+
 	locationString.append(" )");
-	
+
 	//std::cout << locationString;
 
 	//printf("CD: 0x%x ", GET_CD(location));
@@ -682,7 +678,7 @@ ResourceManager::PrintBIFs()
 		KeyFileEntry *entry = *iter;
 		if (fDebugLevel > 0) {
 			std::cout << iter - fBifs.begin() << "\t" << entry->name;
-			std::cout << "\t" << std::hex << entry->location << endl;
+			std::cout << "\t" << std::hex << entry->location << std::endl;
 		}
 	}
 }
@@ -798,7 +794,7 @@ IDTable::GetTLK(uint32 i)
 		sDialogs = gResManager->GetTLK(kDialogResource);
 	if (sDialogs != NULL)
 		return sDialogs->EntryAt(i);
-	assert(sDialogs != NULL);	
+	assert(sDialogs != NULL);
 	return NULL;
 }
 
@@ -915,7 +911,7 @@ IDTable::TriggerID(std::string name)
 {
 	if (sTriggers == NULL)
 		sTriggers = gResManager->GetIDS("TRIGGER");
-	return sTriggers->IDForString(name);	
+	return sTriggers->IDForString(name);
 }
 
 

@@ -10,9 +10,9 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "Log.h"
-#include "MemoryStream.h"
 #include "MOSResource.h"
 #include "ResManager.h"
+#include "Stream.h"
 #include "Window.h"
 
 

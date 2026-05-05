@@ -6,9 +6,6 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
-#include "GUI.h"
-#include "IDSResource.h"
-#include "Log.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "Region.h"
@@ -17,7 +14,6 @@
 #include "Script.h"
 #include "Timer.h"
 
-#include <algorithm>
 #include <assert.h>
 #include <sstream>
 
@@ -89,7 +85,7 @@ Script::GetSenderObject(const Object* object, action_params* start)
 	object_params* objectNode = start ? start->First() : NULL;
 	if (objectNode == NULL || objectNode->Empty())
 		return const_cast<Object*>(object);
-	
+
 	// Try getting an object from sender. If it fails, return sender
 	// TODO: Not sure if it's correct but seems to work most of the time
 	Object* result = GetObject(object, objectNode);
@@ -512,8 +508,8 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 					returnValue = actor->IsGeneral(trig->parameter1);
 					if (sDebug) {
 						std::cout << "object: " << IDTable::GeneralAt(actor->CRE()->General());
-						std::cout << " vs " << IDTable::GeneralAt(trig->parameter1) << std::endl;				
-					}				
+						std::cout << " vs " << IDTable::GeneralAt(trig->parameter1) << std::endl;
+					}
 				}
 				break;
 			}
@@ -842,7 +838,7 @@ Script::_HandleResponseSet(response_set& responseSet)
 	for (size_t i = 0; i < numResponses; i++) {
 		totalChance += responseSet.resp[i]->probability;
 	}
-	
+
 	if (sDebug) {
 		for (size_t p = 0; p < numResponses; p++) {
 			std::cout << "response " << p << ": probability ";
@@ -851,7 +847,7 @@ Script::_HandleResponseSet(response_set& responseSet)
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, numResponses);
-	
+
 	std::vector<action_params*> actions = responseSet.resp[randomResponse]->actions;
 	std::vector<action_params*>::iterator action;
 	// More than one action
@@ -1037,10 +1033,10 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			break;
 		}
 		case 109:
-		{	
+		{
 			// INCREMENTGLOBAL(S:NAME*,S:AREA*,I:VALUE*) (109 0x6d)
 			action = new ActionIncrementGlobal(sender, act);
-			break;		
+			break;
 		}
 		case 110:
 		{
@@ -1056,7 +1052,7 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			break;
 		}
 		case 113:
-		{	
+		{
 			// FORCESPELL(O:TARGET,I:SPELL*SPELL)(113, 0x71)
 			action = new ActionForceSpell(sender, act);
 			break;
@@ -1100,7 +1096,7 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 		case 127:
 		{
 			/* CUTSCENEID(O:OBJECT*)(127 0x7f) */
-			// TODO: Should be correct			
+			// TODO: Should be correct
 			//Actor* actor = dynamic_cast<Actor*>(FindObject(sender, act));
 			/*Object* target = Script::GetTargetObject(sender, act);
 			if (target != NULL) {
@@ -1166,7 +1162,7 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			break;
 		}
 		case 202:
-		{	
+		{
 			/* FADETOCOLOR(P:POINT*,I:BLUE*) (202 0xca) */
 			action = new ActionFadeToColor(sender, act);
 			break;
@@ -1229,7 +1225,7 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 		}
 		case 273:
 		{
-			// CREATEVISUALEFFECTOBJECT(S:DIALOGFILE*,O:TARGET*) 
+			// CREATEVISUALEFFECTOBJECT(S:DIALOGFILE*,O:TARGET*)
 			action = new ActionCreateVisualEffectObject(sender, act);
 			break;
 		}

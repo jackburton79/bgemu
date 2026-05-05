@@ -1,10 +1,8 @@
 #include "Archive.h"
 #include "BIFArchive.h"
 #include "DirectoryArchive.h"
-#include "IETypes.h"
 #include "Log.h"
 #include "FileArchive.h"
-#include "MemoryStream.h"
 #include "Utils.h"
 
 #include <stdio.h>

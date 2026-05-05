@@ -1,6 +1,8 @@
-#include "Bitmap.h"
 #include "BmpResource.h"
-#include "MemoryStream.h"
+
+#include "Bitmap.h"
+#include "Stream.h"
+
 
 
 /* static */

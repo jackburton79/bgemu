@@ -8,7 +8,6 @@
 #include "Region.h"
 
 #include "Core.h"
-#include "ResManager.h"
 
 #include <algorithm>
 

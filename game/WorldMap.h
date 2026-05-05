@@ -5,7 +5,6 @@
 
 #include "Bitmap.h"
 #include "IETypes.h"
-#include "Listener.h"
 #include "Object.h"
 
 #include <vector>
@@ -20,7 +19,7 @@ class WMAPResource;
 class WorldMap : public RoomBase {
 public:
 	WorldMap();
-	
+
 	virtual GFX::rect AreaRect() const;
 
 	virtual void Draw();
@@ -29,7 +28,7 @@ public:
 
 	void ActorEnteredArea(const Actor* actor);
 	void ActorExitedArea(const Actor* actor);
-	
+
 	void ToggleConsole();
 
 	virtual void ShowGUI();

@@ -2,9 +2,7 @@
 #define __MOVIEDECODER_H
 
 #include "Bitmap.h"
-#include "IETypes.h"
 
-#include <vector>
 
 #define DEBUG 1
 
@@ -18,15 +16,15 @@ class MovieDecoder {
 public:
 	MovieDecoder();
 	~MovieDecoder();
-	
+
 	bool AllocateBuffer(uint16 width, uint16 height, uint16 version, bool trueColor);
 	bool InitVideoMode(uint16 width, uint16 height, uint16 flags);
 	void BlitBackBuffer();
-	
+
 	void SetDecodingMap(uint8 *map, uint32 size);
 	void SetPalette(uint16 start, uint16 count, uint8 palette[]);
 	void DecodeDataBlock(Stream *stream, uint32 length);
-	
+
 	Bitmap *CurrentFrame();
 
 	int Test();
@@ -34,11 +32,11 @@ public:
 private:
 	uint8 *fDecodingMap;
 	uint32 fMapSize;
-	
+
 	Bitmap *fNewFrame;
 	Bitmap *fCurrentFrame;
 	Bitmap *fScratchBuffer;
-	
+
 	GFX::Color fColors[256];
 	GFX::rect fActiveRect;
 	uint16 fVersion;

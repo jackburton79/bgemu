@@ -8,7 +8,6 @@
 #include "AnimationFactory.h"
 
 #include "Animation.h"
-#include "BamResource.h"
 #include "BGCharachterAnimationFactory.h"
 #include "BG2CharachterAnimationFactory.h"
 #include "BGMonsterAnimationFactory.h"
@@ -20,8 +19,6 @@
 
 #include <cxxabi.h>
 #include <string>
-#include <typeinfo>
-#include <vector>
 
 
 std::map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;

@@ -13,14 +13,13 @@
 #include "Listener.h"
 #include "Window.h"
 
-#include <map>
 #include <list>
 #include <string>
 #include <vector>
 
 class Bitmap;
 namespace GFX {
-	struct rect;
+	class rect;
 };
 
 struct string_entry {
@@ -43,16 +42,16 @@ public:
 		WINDOW_MESSAGES = 4,
 		WINDOW_MESSAGES_LARGE = 7
 	};
-	
+
 	static bool Initialize(const uint16 width, const uint16 height);
 	static void Destroy();
-	
+
 	bool Load(const res_ref& name);
 	void Clear();
 
 	void Hide();
 	void Show();
-	
+
 	void Draw();
 	void DisplayString(const std::string& text,
 			uint16 x, uint16 y, uint32 time);
@@ -95,18 +94,18 @@ private:
 	Animation* fCurrentCursor;
 	IE::point fCursorPosition;
 	std::list<string_entry> fTooltipList;
-	
+
 	uint16 fScreenWidth;
 	uint16 fScreenHeight;
-	
+
 	uint32 fLastScrollTime;
 	bool fShown;
 
 	Bitmap* fTooltipBitmap;
-	
+
 	GUI(uint16 width, uint16 height);
 	~GUI();
-	
+
 	Window* _WindowAtPoint(IE::point point);
 	void _AddBackgroundWindow();
 	void _InitCursors();

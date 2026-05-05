@@ -5,8 +5,8 @@
 
 #include "Bitmap.h"
 #include "IETypes.h"
-#include "Listener.h"
 #include "Object.h"
+#include "Reference.h"
 
 #include <vector>
 
@@ -32,7 +32,7 @@ class AreaRoom : public RoomBase {
 public:
 	AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName);
-	
+
 	WEDResource* WED() const;
 	ARAResource* AREA() const;
 

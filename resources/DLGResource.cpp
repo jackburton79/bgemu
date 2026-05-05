@@ -7,8 +7,8 @@
 
 #include "DLGResource.h"
 
-#include "MemoryStream.h"
 #include "ResManager.h"
+#include "Stream.h"
 
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"

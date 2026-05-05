@@ -9,7 +9,6 @@
 #define TEXTSUPPORT_H_
 
 
-#include "IETypes.h"
 #include "SupportDefs.h"
 
 #include <climits>

@@ -1,7 +1,6 @@
 #include "BCSResource.h"
 
 #include "Log.h"
-#include "MemoryStream.h"
 #include "Parsing.h"
 #include "Script.h"
 
@@ -13,7 +12,7 @@
 Resource*
 BCSResource::Create(const res_ref& name)
 {
-	return new BCSResource(name);	
+	return new BCSResource(name);
 }
 
 

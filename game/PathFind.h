@@ -5,7 +5,6 @@
 
 #include <climits>
 #include <deque>
-#include <vector>
 
 
 struct point_node;

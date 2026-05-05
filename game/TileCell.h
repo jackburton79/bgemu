@@ -1,7 +1,10 @@
 #ifndef __TILE_H
 #define __TILE_H
 
-#include "IETypes.h"
+
+#include "Bitmap.h"
+#include "GraphicsDefs.h"
+#include "SupportDefs.h"
 
 #include <list>
 #include <vector>
@@ -60,7 +63,7 @@ private:
 
 	// TODO: This should store the object IDs, since
 	// storing the pointers is not safe
-	
+
 	std::list<Actor*> fObjects;
 	std::vector<Region*> fRegions;
 

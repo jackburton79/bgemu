@@ -8,7 +8,6 @@
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "ListView.h"
-#include "ResManager.h"
 #include "TextSupport.h"
 #include "Window.h"
 

@@ -10,7 +10,6 @@
 #include "BamResource.h"
 #include "GraphicsEngine.h"
 #include "Log.h"
-#include "Path.h"
 #include "ResManager.h"
 
 #include <algorithm>
@@ -308,10 +307,10 @@ FontRoster::GetFont(const std::string& name)
 	const FontsMap::iterator i = sFonts.find(name);
 	if (i != sFonts.end())
 		return i->second;
-	
+
 	Font* font = new Font(name);
 	sFonts[name] = font;
-	
+
 	return font;
 }
 

@@ -8,10 +8,10 @@
 #ifndef __WMAPRESOURCE_H
 #define __WMAPRESOURCE_H
 
+#include "Bitmap.h"
 #include "IETypes.h"
 #include "Resource.h"
 
-#include <vector>
 
 struct worldmap_entry {
 	res_ref background_mos;
@@ -84,7 +84,7 @@ struct arealink_entry {
 
 
 namespace GFX {
-	struct rect;
+	class rect;
 }
 
 class AreaEntry;

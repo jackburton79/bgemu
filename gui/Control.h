@@ -10,10 +10,9 @@
 
 #include "IETypes.h"
 
-#include <map>
 
 namespace GFX {
-	struct rect;
+	class rect;
 };
 
 class RoomBase;

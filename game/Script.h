@@ -5,7 +5,6 @@
 
 
 #include "Parsing.h"
-#include "Reference.h"
 
 
 enum block_type {
@@ -36,7 +35,7 @@ public:
 	static Object*			GetTriggerObject(const Object* object, trigger_params* start);
 	static Object*			GetSenderObject(const Object* object, action_params* start);
 	static Object*			GetTargetObject(const Object* object, action_params* start);
-	
+
 	void Execute(bool &continuing, bool& action);
 	void ExecuteCutscene();
 
@@ -48,7 +47,7 @@ public:
 
 	static Object* ResolveIdentifier(const Object* object, object_params* node, const int id);
 	static Object* GetObject(const Object* source, object_params* node);
-	
+
 private:
 	bool _EvaluateConditionBlock(condition_block& block);
 
@@ -57,7 +56,7 @@ private:
 
 	static Actor* _GetIdentifiers(const Object* source, object_params* node,
 					std::vector<std::string>& identifiersList);
-	
+
 	std::vector<condition_response*> fConditionResponses;
 	Object* fSender;
 

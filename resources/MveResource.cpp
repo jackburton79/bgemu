@@ -1,5 +1,4 @@
 #include "GraphicsEngine.h"
-#include "MemoryStream.h"
 #include "MovieDecoder.h"
 #include "MveResource.h"
 #include "SoundEngine.h"
@@ -220,7 +219,7 @@ MVEResource::GetNextChunk()
 	try {
 		if ((uint32)fData->Position() >= fData->Size())
 			return false;
-	
+
 		chunk_header header;
 		fData->Read(header);
 		if (header.type == CHUNK_END)
@@ -250,10 +249,10 @@ MVEResource::DecodeChunk(chunk_header header)
 
 bool
 MVEResource::ExecuteOpcode(op_stream_header opcode)
-{	
+{
 	//std::cout << "opcode: " << opcodetostr(opcode.type) << " (" << std::hex << (int)opcode.type << ") ";
 	//std::cout << " length: " << std::dec << opcode.length << std::endl;
-	
+
 	switch (opcode.type) {
 		case OP_END_OF_STREAM:
 			throw (movie_opcodes)OP_END_OF_STREAM;
@@ -336,7 +335,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			fDecoder->BlitBackBuffer();
 			break;
 		case OP_SET_DECODING_MAP:
-		{	
+		{
 			uint8 *map = new uint8[opcode.length];
 			fData->Read(map, opcode.length);
 			fDecoder->SetDecodingMap(map, opcode.length);

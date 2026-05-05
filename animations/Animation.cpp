@@ -6,11 +6,7 @@
 #include "BamResource.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
-#include "IDSResource.h"
 #include "ResManager.h"
-#include "Utils.h"
-
-#include <sstream>
 
 Animation::Animation(IE::animation *animDesc)
 	:

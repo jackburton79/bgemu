@@ -19,7 +19,6 @@
 #include "Party.h"
 #include "ResManager.h"
 #include "RoomBase.h"
-#include "TextArea.h"
 #include "Timer.h"
 
 

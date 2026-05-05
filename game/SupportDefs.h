@@ -20,7 +20,6 @@ typedef char int8;
 typedef unsigned char uint8;
 typedef signed char sint8;
 
-#include <stdio.h>
 
 #include <string>
 #include <vector>

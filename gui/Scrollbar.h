@@ -8,10 +8,11 @@
 #ifndef SCROLLBAR_H_
 #define SCROLLBAR_H_
 
+#include "Bitmap.h"
 #include "Control.h"
 
 namespace GFX {
-	struct rect;
+	class rect;
 }
 
 class BAMResource;

@@ -3,10 +3,8 @@
 
 #include "Actor.h"
 #include "IETypes.h"
-#include "Reference.h"
 #include "Variables.h"
 
-#include <list>
 #include <map>
 #include <string>
 
@@ -52,13 +50,13 @@ public:
 
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
-	
+
 	uint32 Game() const;
 
 	bool LoadArea(const res_ref areaName, std::string longName,
 					std::string entranceName);
 	bool LoadWorldMap();
-	
+
 	RoomBase* CurrentRoom();
 
 	void EnteredArea(RoomBase* area);
@@ -84,7 +82,7 @@ public:
 	Variables& Vars();
 
 	Region* RegionAtPoint(const IE::point& point);
-	
+
 	void PlayMovie(const char* name);
 
 	// TODO: Move away from here, don't belong here
@@ -103,13 +101,13 @@ private:
 	static void _InitGameTimers();
 	void _PrintObjects() const;
 	void _NewRound();
-	
+
 	Core();
 	~Core();
 
 	game fGame;
 	RoomBase* fCurrentRoom;
-	
+
 	Variables fVariables;
 
 	uint32 fLastScriptRoundTime;

@@ -1,8 +1,8 @@
 #include "TLKResource.h"
 
-#include "MemoryStream.h"
+#include <cstdlib>
 
-#include <stdlib.h>
+#include "Stream.h"
 
 #define TLK_SIGNATURE "TLK "
 #define TLK_VERSION_1 "V1  "

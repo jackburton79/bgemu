@@ -8,7 +8,8 @@
 #ifndef GAMESCRIPT_TRIGGERS_H_
 #define GAMESCRIPT_TRIGGERS_H_
 
-#include "IETypes.h"
+
+#include "SupportDefs.h"
 
 #include <string>
 

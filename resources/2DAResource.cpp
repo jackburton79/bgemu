@@ -10,7 +10,6 @@
 #include "EncryptionKey.h"
 #include "EncryptedStream.h"
 #include "Log.h"
-#include "MemoryStream.h"
 
 #include <cstdlib>
 
@@ -82,7 +81,7 @@ void
 TWODAResource::Dump()
 {
 	std::cout << "default value: " << fDefaultValue << std::endl;
-	
+
 	for (StringList::const_iterator c = fColumnHeaders.begin();
 										c != fColumnHeaders.end(); c++) {
 			std::cout << *c << " ";

@@ -22,7 +22,6 @@
 #include "TextSupport.h"
 #include "Timer.h"
 
-#include "custom/ResourceWindow.h"
 
 #include <algorithm>
 
@@ -388,7 +387,7 @@ GUI::ToggleMessageArea()
 	TextArea* currentTextArea = GetMessagesTextArea();
 	if (currentTextArea != NULL)
 		currentTextArea->GetLines(lines);
-	
+
 	if (IsWindowShown(WINDOW_MESSAGES)) {
 		HideWindow(WINDOW_MESSAGES);
 		ShowWindow(WINDOW_MESSAGES_LARGE);
@@ -686,12 +685,12 @@ GUI::_DisplayStringCommon(const std::string& text,
 			uint16 x, uint16 y, bool centerString, uint32 time)
 {
 	static uint32 sCurrentId = 0;
-	
+
 	const Font* font = FontRoster::GetFont("TOOLFONT");
 	// TODO: GetRenderedString always use "true" for palette, while
 	// previous call used "false" here. Check!
 	Bitmap* bitmap = font->GetRenderedString(text, 0);
-	
+
 	// Set the position where to  blit the bitmap
 	GFX::rect rect;
 	rect.x = x;

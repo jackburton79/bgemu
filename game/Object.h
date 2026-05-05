@@ -10,13 +10,11 @@
 
 #include "IETypes.h"
 #include "Polygon.h"
-#include "Reference.h"
 #include "Referenceable.h"
 #include "SupportDefs.h"
 #include "Variables.h"
 
 #include <list>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -142,9 +140,9 @@ public:
 	void AddSpellEffect(SpellEffect* effect);
 
 	void SetWaitTime(int32 time);
-	
+
 	virtual IE::point NearestPoint(const IE::point& start) const;
-	
+
 	void DestroySelf();
 	bool ToBeDestroyed() const;
 
@@ -177,7 +175,7 @@ private:
 
 	Action* fCurrentAction;
 	std::list<Action*> fActions;
-	std::list<trigger_entry> fTriggers;	
+	std::list<trigger_entry> fTriggers;
 	Object* fLastTrigger;
 
 	::Variables fVariables;

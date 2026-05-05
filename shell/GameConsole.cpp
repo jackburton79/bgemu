@@ -9,7 +9,6 @@
 
 #include "Commands.h"
 #include "Log.h"
-#include "ResManager.h"
 #include "ShellCommand.h"
 
 #include <string>

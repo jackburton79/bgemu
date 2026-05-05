@@ -1,10 +1,8 @@
 #include "Bitmap.h"
 #include "TisResource.h"
 #include "GraphicsEngine.h"
-#include "MemoryStream.h"
 #include "Stream.h"
 
-#include <iostream>
 
 #define TIS_SIGNATURE "TIS "
 #define TIS_VERSION_1 "V1.0"

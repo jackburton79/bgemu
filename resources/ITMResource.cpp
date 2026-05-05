@@ -5,9 +5,11 @@
  *      Author: stefano
  */
 
-#include "ResManager.h"
+
 #include "ITMResource.h"
-#include "MemoryStream.h"
+
+#include "ResManager.h"
+#include "Stream.h"
 
 #define ITM_SIGNATURE "ITM "
 #define ITM_VERSION_1 "V1  "

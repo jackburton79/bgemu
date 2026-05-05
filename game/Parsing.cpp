@@ -8,11 +8,9 @@
 #include "Triggers.h"
 #include "Utils.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <ctype.h>
 #include <string>
 #include "Script.h"
 
@@ -394,8 +392,8 @@ Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
 			obj.point.y = tokenizer->ReadToken().u.number;
 		}
 		token stringToken = tokenizer->ReadToken();
-		get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);	
-		
+		get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);
+
 		// HEADER GUARD (OB)
 		token t = tokenizer->ReadToken();
 		assert(t == token("OB"));
@@ -456,7 +454,7 @@ Parser::_ReadConditionResponseBlock()
 		condResp = new condition_response;
 		_ReadConditionBlock(condResp->conditions);
 		_ReadResponseSetBlock(condResp->responseSet);
-		
+
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("CR"));
 	} else
@@ -471,10 +469,10 @@ Parser::_ReadConditionBlock(condition_block& cond)
 	token h = fTokenizer->ReadToken();
 	if (h == token("CO")) {
 		trigger_params* trig = NULL;
-		int32 i = 0;
+		//int32 i = 0;
 		while ((trig = _ReadTriggerBlock()) != NULL) {
 			cond.triggers.push_back(trig);
-			i++;
+		//	i++;
 		}
 		token t = fTokenizer->ReadToken(); // closing tag
 		assert(t == token("CO"));

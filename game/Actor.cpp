@@ -8,18 +8,15 @@
 #include "BackMap.h"
 #include "BamResource.h"
 #include "Bitmap.h"
-#include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
-#include "IDSResource.h"
 #include "ITMResource.h"
 #include "Log.h"
 #include "Party.h"
 #include "PathFind.h"
-#include "Polygon.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "SearchMap.h"
@@ -28,7 +25,6 @@
 #include "TileCell.h"
 #include "WedResource.h"
 
-#include <algorithm>
 #include <assert.h>
 
 #include <string>
@@ -109,7 +105,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor->name[8] = 0;
 	fActor->orientation = face;
 	//fActor->orientation = 0;
-	
+
 	fActor->position = position;
 	//_SetPositionPrivate(position);
 
@@ -182,7 +178,7 @@ Actor::_Init()
 	//}
 #endif
 
-	if ((fActor->orientation > IE::ORIENTATION_SE && 
+	if ((fActor->orientation > IE::ORIENTATION_SE &&
 			Core::Get()->Game() == GAME_BALDURSGATE) ||
 			fActor->orientation > IE::ORIENTATION_EXT_SSE) {
 		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
@@ -193,7 +189,7 @@ Actor::_Init()
 
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
-	
+
 	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
 		SetAnimationAction(ACT_DEAD);
 	else
@@ -300,7 +296,7 @@ void
 Actor::SetPosition(const IE::point& position)
 {
 	_SetPositionPrivate(position);
-	
+
 	// This function is only used to move an actor to a point
 	// instantly. So we also need to set its destination to the same
 	// point, otherwise it thinks it's walking.
@@ -449,7 +445,7 @@ Actor::_DrawCircle(AreaRoom* room) const
 {
 	if (!Core::Get()->CutsceneMode()) {
 		::Bitmap* image = room->BackMap()->Image();
-		IE::point position = Position();		
+		IE::point position = Position();
 		room->ConvertFromArea(position);
 		uint32 color = 0;
 		if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
@@ -461,7 +457,7 @@ Actor::_DrawCircle(AreaRoom* room) const
 		image->StrokeCircle(position.x, position.y,
 							fSelected ? fSelectedRadius : 10, color);
 		image->Unlock();
-	}	
+	}
 }
 
 
@@ -760,7 +756,7 @@ Actor::ClickedOn(Object* target)
 		return;
 
 	target->Clicked(this);
-	
+
 	// TODO: Add a "mode" to the ClickedOn method, to distinguish
 	// an attack from a dialog start, etc
 
@@ -837,7 +833,7 @@ Actor::_HandleScripts()
 	AddScript(Core::ExtractScript(fActor->script_override));
 	// What is the area script ?
 	//AddScript(Core::ExtractScript(fActor->script_area));
-	AddScript(Core::ExtractScript(fActor->script_specific));		
+	AddScript(Core::ExtractScript(fActor->script_specific));
 	AddScript(Core::ExtractScript(fActor->script_class));
 	AddScript(Core::ExtractScript(fActor->script_race));
 	AddScript(Core::ExtractScript(fActor->script_general));
@@ -1147,7 +1143,7 @@ Actor::_HandleColors()
 
 uint8
 Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
-{	
+{
 	uint8 num = index;
 	// get column requested index
 	for (int i = 0; i < randColors->CountColumns(); i++) {

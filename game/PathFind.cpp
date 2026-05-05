@@ -3,14 +3,9 @@
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
-#include <list>
-#include <map>
-#include <queue>
 
-#include <memory>
 
 #include "Bitmap.h"
-#include "Utils.h"
 
 #define PATHFIND_MAX_TRIES 2000
 //#define PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
@@ -44,7 +39,7 @@ PointDistance(const IE::point& start, const IE::point& end)
 {
 #if 1
 	// Manhattan method
-	uint32 distance = (uint32)(((std::abs(end.x - start.x)) + 
+	uint32 distance = (uint32)(((std::abs(end.x - start.x)) +
 		std::abs(end.y - start.y)));
 #else
 	// Movement distance
@@ -432,7 +427,7 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 
 	if (!_IsPassable(point))
 		return false;
-	
+
 	int step = std::max(std::abs(point.x - current.x),
 		std::abs(point.y - current.y));
 

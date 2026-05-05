@@ -7,7 +7,6 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "TileCell.h"
-#include "Timer.h"
 #include "TisResource.h"
 
 #include "WedResource.h" // TODO: Remove once WedOverlay is moved
@@ -217,7 +216,7 @@ TileCell::RemoveRegion(Region* region)
 	if (i != fRegions.end())
 		fRegions.erase(i);
 }
-	
+
 
 bool
 TileCell::HasRegion(Region* region) const

@@ -7,7 +7,6 @@
 
 #include "SupportDefs.h"
 
-#include <map>
 
 class Bitmap;
 class SearchMap {
@@ -22,7 +21,7 @@ public:
 
 	void SetPoint(int32 x, int32 y);
 	void ClearPoint(int32 x, int32 y);
-	
+
 	Bitmap* Image();
 private:
 	Bitmap* fImage;

@@ -15,7 +15,6 @@
 #include "TisResource.h"
 #include "WMAPResource.h"
 
-#include <algorithm>
 #include <assert.h>
 #include <iostream>
 #include <stdexcept>
@@ -31,7 +30,7 @@ WorldMap::WorldMap()
 	GUI* gui = GUI::Get();
 
 	gui->Clear();
-	
+
 	if (!gui->Load("GUIWMAP")) {
 		throw std::runtime_error("Cannot load GUIWMAP");
 	}
@@ -230,10 +229,10 @@ WorldMap::_UnloadWorldMap()
 
 	gResManager->ReleaseResource(fWorldMap);
 	fWorldMap = NULL;
-	
+
 	gResManager->ReleaseResource(fWorldMapBackground);
 	fWorldMapBackground = NULL;
-	
+
 	if (fWorldMapBitmap != NULL) {
 		fWorldMapBitmap->Release();
 		fWorldMapBitmap = NULL;

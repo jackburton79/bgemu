@@ -9,11 +9,8 @@
 #include "Bitmap.h"
 #include "GraphicsEngine.h"
 #include "Label.h"
-#include "Reference.h"
 #include "ResManager.h"
 #include "TextSupport.h"
-#include "TLKResource.h"
-#include "Utils.h"
 #include "Window.h"
 
 

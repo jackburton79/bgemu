@@ -3,6 +3,7 @@
 #include "MovieDecoder.h"
 
 #include <iomanip>
+#include <iostream>
 
 static void
 DumpData(const uint8 *data, int size)

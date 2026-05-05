@@ -7,7 +7,6 @@
 
 #include "Tokenizer.h"
 
-#include "Log.h"
 #include "Stream.h"
 
 #include <cassert>

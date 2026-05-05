@@ -15,7 +15,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <iostream>
 
 
 #define CHAR_WIDTH 6
