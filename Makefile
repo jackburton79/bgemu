@@ -11,10 +11,10 @@ ifeq ($(DEBUG),1)
 	DEBUG := TRUE
 endif
 
-ifeq ($(DEBUG),TRUE))
-	CXXFLAGS += -g -O0
-else
+ifneq ($(DEBUG),TRUE)
 	CXXFLAGS += -O3
+else
+	CXXFLAGS += -g -O0
 endif
 
 SUBDIR = \
