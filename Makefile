@@ -4,7 +4,19 @@ RM = rm -rf
 BGEMU = BGEmu
 GAMELIB = libgame.a
 LIBS = -lz `sdl2-config --libs`
-CXXFLAGS = -Wall -Werror -g -O0 `sdl2-config --cflags`
+CXXFLAGS = -Wall -Werror `sdl2-config --cflags`
+
+# DEBUG=TRUE or DEBUG=1
+ifeq ($(DEBUG),1)
+	DEBUG := TRUE
+endif
+
+ifeq ($(DEBUG),TRUE))
+	CXXFLAGS += -g -O0
+else
+	CXXFLAGS += -O3
+endif
+
 SUBDIR = \
 animations \
 archives \
