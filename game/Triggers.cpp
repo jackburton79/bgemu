@@ -7,6 +7,7 @@
 #include "Triggers.h"
 
 #include <iostream>
+#include <cstrings>
 
 static const Triggers kTriggersTable[] = {
 	{1, "ACQUIRED"},
