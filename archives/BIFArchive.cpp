@@ -41,17 +41,17 @@ BIFArchive::BIFArchive(const char *fileName)
 	std::cout << "BIFArchive: " << fileName << std::endl;
 #endif
 	fStream = new FileStream(fileName, FileStream::READ_ONLY | FileStream::IGNORE_CASE);
-	
+
 	char signature[9];
 	signature[8] = '\0';
 	fStream->Read(signature, 8);
-		
+
 	if (::strcmp(signature, BIFC_SIGNATURE) == 0) {
 		Stream *tmpStream = fStream;
 
 		uint32 uncompressedSize;
 		tmpStream->Read(&uncompressedSize, sizeof(uncompressedSize));
-		
+
 		fStream = new MemoryStream(uncompressedSize);
 		uint32 done = 0;
 		do {
@@ -60,9 +60,9 @@ BIFArchive::BIFArchive(const char *fileName)
 				break;
 			done += blockSize;
 		} while (done < uncompressedSize);
-			
+
 		delete tmpStream;
-		
+
 		if (done != uncompressedSize) {
 			delete fStream;
 			throw std::runtime_error("BIFArchive::BIFArchive(): deflate error!");
@@ -78,7 +78,7 @@ BIFArchive::BIFArchive(const char *fileName)
 	// if we're here: either the file was a compressed BIFF file and we
 	// uncompressed it, so we have a normal BIF file, or it was already
 	// uncompressed.
-	
+
 	(*fStream) >> fNumEntries >> fNumTilesetEntries >> fCatalogOffset;
 	fTileEntriesOffset = fCatalogOffset + fNumEntries * sizeof(resource_info);
 }
@@ -94,7 +94,7 @@ void
 BIFArchive::EnumEntries()
 {
 	fStream->Seek(fCatalogOffset, SEEK_SET);
-	
+
 	uint32 locator;
 	uint32 offset;
 	uint32 size;
@@ -102,31 +102,31 @@ BIFArchive::EnumEntries()
 	uint16 unk;
 	uint32 tileSize;
 	uint32 numTiles;
-	
+
 	char name[9];
 	name[8] = '\0';
-		
+
 	for (uint32 c = 0; c < fNumEntries; c++) {
 		(*fStream) >> locator >> offset >> size >> type >> unk;
 		std::cout << "Resource " << std::dec << c << " : size = " << size;
 		std::cout << ", offset = " << offset << ", type: ";
 		std::cout << strresource(type) << "(0x" << std::hex << type << ")";
-		
+
 		fStream->ReadAt(offset, name, 8);
-		
-		std::cout << " name : " << name << std::endl << dec; 
+
+		std::cout << " name : " << name << std::endl << std::dec;
 	}
-	
+
 	fStream->Seek(fTileEntriesOffset, SEEK_SET);
 	for (uint32 c = 0; c < fNumTilesetEntries; c++) {
 		(*fStream) >> locator >> offset >> numTiles >> tileSize >> type >> unk;
 		std::cout << "Resource " << std::dec << c << " : numTiles = " << numTiles;
 		std::cout << ", offset = " << offset << ", type: ";
 		std::cout << strresource(type);
-		
+
 		fStream->ReadAt(offset, name, 8);
-		
-		std::cout << " name : " << name << std::endl << std::dec; 
+
+		std::cout << " name : " << name << std::endl << std::dec;
 	}
 }
 
