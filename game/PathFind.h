@@ -25,7 +25,7 @@ struct PathFindStats {
 	uint32 expanded_nodes = 0;
 	uint32 updated_nodes = 0;
 	uint32 max_open_nodes = 0;
-	uint64 get_cheapest_scans = 0;
+
 	// path
 	uint32 path_nodes;
 	uint32 path_length;
