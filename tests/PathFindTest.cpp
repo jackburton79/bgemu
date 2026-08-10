@@ -5,6 +5,7 @@
 #include "SDL.h"
 
 #include <getopt.h>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 
@@ -128,18 +129,20 @@ IsWalkable(const IE::point& point)
 static bool
 NewPath(Path& p, IE::point& start, IE::point& end)
 {
-	clock_t startTime = clock();
+	auto startTime = std::chrono::high_resolution_clock::now();
 	bool found = true;
 	try {
 		p.Set(start, end, IsWalkable);
 	} catch (const PathNotFoundException& e) {
 		found = false;
 	}
-	clock_t elapsed = (clock() - startTime) / 1000;
+
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
 	if (!found)
-		std::cout << "Path not found (" << elapsed << "ms)" << std::endl;
+		std::cout << "Path not found (" << elapsed.count() << "us)" << std::endl;
 	else
-		std::cout << "Path found (" << elapsed << " ms)" << std::endl;
+		std::cout << "Path found (" << elapsed.count() << " us)" << std::endl;
 	return found;
 }
 
