@@ -365,7 +365,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		length += Distance(*prev, *it);
 	}
 
-	fStats.get_cheapest_scans = closedNodeList.getCheapestScans;
 	fStats.path_nodes = pathPoints.size();
 	fStats.path_length = length;
 
