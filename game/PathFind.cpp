@@ -68,7 +68,7 @@ Path::Path()
 
 Path::Path(const IE::point start, const IE::point end, test_function func)
 	:
-	fPoints(NULL),
+	fPoints(new PointList),
 	fIterator(fPoints->begin())
 {
 	Set(start, end, func);
