@@ -249,7 +249,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
 	while ((currentNode = searchContext.GetCheapestNode()) != NULL) {
 		fStats.expanded_nodes++;
-		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
+		if (IsCloseEnough(currentNode->point, end)) {
 			found = true;
 			break;
 		}
