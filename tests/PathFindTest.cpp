@@ -17,7 +17,6 @@ enum MapType {
 };
 
 static int sDebug = 0;
-static int sRandom = 0;
 
 Bitmap* gMap;
 Bitmap* gSearchMap;
@@ -37,6 +36,8 @@ const int kPassable = 0;
 const int kWall = 1;
 
 static int sStep = 2;
+
+static uint32 sSeed = 0;
 static MapType sMapType = kMazeMap;
 
 static
@@ -45,6 +46,7 @@ struct option sLongOptions[] = {
 		{ "maptype", required_argument, NULL, 0 },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "step", required_argument, NULL, 's' },
+		{ "seed", required_argument, NULL, 'S' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -88,6 +90,7 @@ Intersects(const Room& a, const Room& b)
 	return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height
 			&& a.y + a.height > b.y;
 }
+
 
 static
 void
@@ -267,6 +270,7 @@ InitializeSearchMap()
 	gSearchMap->SetColors(colors, 0, 2);
 	gMap->SetColors(colors, 0, 5);
 
+	std::cout << "Map seed: " << sSeed << std::endl;
 	// Full wall
 	std::vector<std::vector<uint8>> maze(rows, std::vector<uint8>(cols, kWall));
 
@@ -349,13 +353,13 @@ NewPath(Path& p, IE::point& start, IE::point& end)
 
 
 static bool
-ResetState(Path& p, Bitmap* bitmap, IE::point& start, IE::point& end)
+ResetState(Path& p, Bitmap* bitmap)
 {
 	InitializeSearchMap();
 
 	// skip non walkable points
-	start = RandomWalkablePoint();
-	end = RandomWalkablePoint();
+	IE::point start = RandomWalkablePoint();
+	IE::point end = RandomWalkablePoint();
 
 	GraphicsEngine::BlitBitmap(gMap, NULL, bitmap, NULL);
 
@@ -378,17 +382,17 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Ds:ltnf",
+	while ((c = getopt_long(argc, argv, "g:Ds:S:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'D':
 				sDebug = 1;
 				break;
-			case 'r':
-				sRandom = 1;
-				break;
 			case 's':
 				sStep = ::strtol(optarg, NULL, 0);
+				break;
+			case 'S':
+				sSeed = ::strtoul(optarg, NULL, 0);
 				break;
 			case 0:
 				if (::strcmp(sLongOptions[optIndex].name, "maptype") == 0) {
@@ -410,8 +414,12 @@ int main(int argc, char **argv)
 {
 	ParseArgs(argc, argv);
 
-	if (sRandom)
-		::srand(::time(NULL));
+	if (sSeed == 0)
+		sSeed = static_cast<uint32>(::time(NULL));
+
+	::srand(sSeed);
+
+	std::cout << "Seed: " << sSeed << std::endl;
 
 	if (!GraphicsEngine::Initialize()) {
 		std::cerr << "Failed to initialize Graphics Engine!" << std::endl;
@@ -430,9 +438,7 @@ int main(int argc, char **argv)
 	std::cout << "Step: " << sStep << std::endl;
 	Path path;
 	
-	IE::point start = { 0, 0 };
-	IE::point end = { gNumColumnsMap, gNumRowsMap };
-	while (!ResetState(path, gBitmap, start, end))
+	while (!ResetState(path, gBitmap))
 		;
 		
 	SDL_Event event;
@@ -443,9 +449,9 @@ int main(int argc, char **argv)
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
 						case SDLK_n: {
-							start = { 0, 0 };
-							end = { gNumColumnsMap, gNumRowsMap };
-							while (!ResetState(path, gBitmap, start, end))
+							sSeed++;
+							::srand(sSeed);
+							while (!ResetState(path, gBitmap))
 								;
 							break;
 						}
