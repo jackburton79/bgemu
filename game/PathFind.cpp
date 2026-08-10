@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
+#include <queue>
+#include <vector>
 
 
 #include "Bitmap.h"
@@ -13,15 +15,6 @@
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
 
-class ClosedNodes {
-public:
-	ClosedNodes();
-	~ClosedNodes();
-	point_node* GetCheapestNode() const;
-
-	NodeList* nodelist;
-	mutable uint64 getCheapestScans;
-};
 
 
 struct FindPoint {
@@ -32,6 +25,30 @@ struct FindPoint {
 		return node->point == toFind;
 	};
 	const IE::point& toFind;
+};
+
+
+struct NodeCompare {
+	bool operator()(const point_node* a, const point_node* b) const
+	{
+		return a->cost_to_goal > b->cost_to_goal;
+	}
+};
+
+typedef std::priority_queue<point_node*, std::vector<point_node*>, NodeCompare> OpenQueue;
+
+class ClosedNodes {
+public:
+	ClosedNodes();
+	~ClosedNodes();
+	point_node* GetCheapestNode();
+	void AddOpenNode(point_node* node);
+
+	NodeList* nodelist;
+	uint64 getCheapestScans;
+
+private:
+	OpenQueue fOpenQueue;
 };
 
 
@@ -256,6 +273,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		+ currentNode->cost;
 	currentNode->open = true;
 	closedNodeList.nodelist->push_back(currentNode);
+	closedNodeList.AddOpenNode(currentNode);
 
 	fStats.generated_nodes++;
 
@@ -288,7 +306,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		// Add neighbours
 		for (size_t c = 0; c < arraySize; c++) {
 			_AddIfPassable(currentNode->point + directions[c], *currentNode,
-						   end, closedNodeList.nodelist);
+						end, &closedNodeList);
 		}
 		if (sDebugFunction != NULL)
 			sDebugFunction(currentNode->point);
@@ -331,6 +349,13 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	fStats.path_length = length;
 
 	return pathPoints;
+}
+
+
+void
+ClosedNodes::AddOpenNode(point_node* node)
+{
+	fOpenQueue.push(node);
 }
 
 
@@ -502,7 +527,7 @@ void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
 		const IE::point& goal,
-		NodeList* nodeList)
+		ClosedNodes* closedNodes)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsReachable(current.point, point))
@@ -510,10 +535,10 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 	// Check if point is in closed list. If so, update it.
 	NodeList::const_iterator i =
-			std::find_if(nodeList->begin(), nodeList->end(),
+			std::find_if(closedNodes->nodelist->begin(), closedNodes->nodelist->end(),
 							FindPoint(point));
-	if (i != nodeList->end()) {
-		_UpdateNodeCost(*i, current, goal);
+	if (i != closedNodes->nodelist->end()) {
+		_UpdateNodeCost(*i, current, goal, *closedNodes);
 		return;
 	}
 
@@ -521,13 +546,14 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	point_node* node = new point_node(point, &current, UINT_MAX);
 	fStats.generated_nodes++;
 	node->open = true;
-	nodeList->push_back(node);
-	_UpdateNodeCost(node, current, goal);
+	closedNodes->nodelist->push_back(node);
+	_UpdateNodeCost(node, current, goal, *closedNodes);
 }
 
 
 void
-PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal) const
+PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal,
+							ClosedNodes& closedNodeList) const
 {
 	//std::cout << "current: " << current.point.x << ", " << current.point.y << std::endl;
 	//std::cout << "new: " << node->point.x << ", " << node->point.y << std::endl;
@@ -538,6 +564,7 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 		node->parent = &current;
 		node->cost = newCost;
 		node->cost_to_goal = Distance(node->point, goal) + node->cost;
+		closedNodeList.AddOpenNode(node);
 	}
 }
 
@@ -581,23 +608,18 @@ ClosedNodes::~ClosedNodes()
 
 
 point_node*
-ClosedNodes::GetCheapestNode() const
+ClosedNodes::GetCheapestNode()
 {
-	uint32 minCost = UINT_MAX;
-	point_node* result = NULL;
-	for (NodeList::const_iterator i = nodelist->begin();
-			i != nodelist->end(); i++) {
-		point_node* node = *i;
-		getCheapestScans++;
-		if (!node->open)
-			continue;
-		if (node->cost_to_goal < minCost) {
-			result = node;
-			minCost = node->cost_to_goal;
-		}
+	while (!fOpenQueue.empty()) {
+		point_node* node = fOpenQueue.top();
+
+		fOpenQueue.pop();
+
+		if (node->open)
+			return node;
 	}
 
-	return result;
+	return nullptr;
 }
 
 
