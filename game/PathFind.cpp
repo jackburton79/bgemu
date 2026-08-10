@@ -16,8 +16,7 @@ const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
 
 
-struct PointHash
-{
+struct PointHash {
 	std::size_t operator()(const IE::point& p) const
 	{
 		return (std::hash<int>()(p.x) << 16) ^ std::hash<int>()(p.y);
@@ -25,16 +24,13 @@ struct PointHash
 };
 
 
-struct PointEqual
-{
+struct PointEqual {
 	bool operator()(const IE::point &a, const IE::point& b) const
 	{
 		return a.x == b.x && a.y == b.y;
 	}
 };
 
-
-typedef std::unordered_map<IE::point, point_node*, PointHash, PointEqual> NodeMap;
 
 struct NodeCompare {
 	bool operator()(const point_node* a, const point_node* b) const
@@ -43,6 +39,7 @@ struct NodeCompare {
 	}
 };
 
+typedef std::unordered_map<IE::point, point_node*, PointHash, PointEqual> NodeMap;
 typedef std::priority_queue<point_node*, std::vector<point_node*>, NodeCompare> OpenQueue;
 
 class NodeSearchContext {
@@ -203,9 +200,6 @@ Path::IsEnd() const
 }
 
 
-typedef std::vector<point_node*> NodeVector;
-
-
 debug_function PathFinder::sDebugFunction;
 
 // PathFinder
@@ -235,19 +229,9 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	std::cout << "GeneratePath(start: " << start.x << ", " << start.y << " -> ";
 	std::cout << end.x << ", " << end.y << ")" << std::endl;
 #endif
-	PointList pathPoints;
-	IE::point maxReachableDirectly = start;
 
-	NodeSearchContext closedNodeList;
-	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
-	currentNode->cost_to_goal = PointDistance(currentNode->point, end)
-		+ currentNode->cost;
-	currentNode->open = true;
-	closedNodeList.nodelist.push_back(currentNode);
-	closedNodeList.AddOpenNode(currentNode);
-	closedNodeList.nodeMap[currentNode->point] = currentNode;
-
-	fStats.generated_nodes++;
+	NodeSearchContext searchContext;
+	point_node* currentNode = _InitializeSearch(searchContext, start, end);
 
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
@@ -263,7 +247,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	};
 
 	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
-	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
+	while ((currentNode = searchContext.GetCheapestNode()) != NULL) {
 		fStats.expanded_nodes++;
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
@@ -278,7 +262,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		// Add neighbours
 		for (size_t c = 0; c < arraySize; c++) {
 			_AddIfPassable(currentNode->point + directions[c], *currentNode,
-						end, &closedNodeList);
+						end, &searchContext);
 		}
 		if (sDebugFunction != NULL)
 			sDebugFunction(currentNode->point);
@@ -299,6 +283,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!tmpPoints.empty())
 		tmpPoints.erase(tmpPoints.begin());
 
+	PointList pathPoints;
 	PointList::iterator p;
 	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
 		pathPoints.push_back(*p);
@@ -373,6 +358,22 @@ void
 PathFinder::SetDebug(debug_function callback)
 {
 	sDebugFunction = callback;
+}
+
+
+point_node*
+PathFinder::_InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end)
+{
+	point_node* startNode = new point_node(start, NULL, 0);
+	startNode->cost_to_goal = PointDistance(startNode->point, end) + startNode->cost;
+	startNode->open = true;
+	context.nodelist.push_back(startNode);
+	context.AddOpenNode(startNode);
+	context.nodeMap[startNode->point] = startNode;
+
+	fStats.generated_nodes++;
+
+	return startNode;
 }
 
 
@@ -496,7 +497,7 @@ PathFinder::_GetSmoothenPath(PointList& pointList)
 }
 
 
-// ClosedNodes
+// NodeSearchContext
 NodeSearchContext::NodeSearchContext()
 {
 }

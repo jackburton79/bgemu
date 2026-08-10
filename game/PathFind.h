@@ -102,7 +102,6 @@ struct point_node {
 
 class Bitmap;
 class NodeSearchContext;
-class PathFinder;
 class PathFinder {
 public:
 	const static int kStep = 5;
@@ -131,8 +130,7 @@ private:
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
-	bool CreateLineOfSightPath(const IE::point& start, const IE::point& end);
-
+	point_node* _InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end);
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
