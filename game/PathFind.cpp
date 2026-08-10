@@ -266,6 +266,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 
 	const size_t arraySize = sizeof(directions) / sizeof(directions[0]);
 	while ((currentNode = closedNodeList.GetCheapestNode()) != NULL) {
+		fStats.expanded_nodes++;
 		if (PointDistance(currentNode->point, end) < uint32(fStep)) {
 			found = true;
 			break;
@@ -288,6 +289,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found)
 		throw PathNotFoundException();
 
+	fPathStats.path_nodes = pathPoints.size();
+
 	PointList tmpPoints;
 	point_node* last = currentNode;
 	point_node* walkNode = last;
@@ -309,6 +312,13 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	}
 #endif
 
+	uint32 length = 0;
+
+	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
+		auto prev = std::prev(it);
+
+		length += Distance(*prev, *it);
+	}
 	_GetSmoothenPath(pathPoints);
 
 	return pathPoints;
@@ -493,6 +503,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 	// Otherwise, add it to the open list
 	point_node* node = new point_node(point, &current, UINT_MAX);
+	fStats.generated_nodes++;
 	node->open = true;
 	nodeList->push_back(node);
 	_UpdateNodeCost(node, current, goal);
@@ -507,6 +518,7 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
 	if (newCost < node->cost) {
+		fStats.updated_nodes++;
 		node->parent = &current;
 		node->cost = newCost;
 		node->cost_to_goal = Distance(node->point, goal) + node->cost;

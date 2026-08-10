@@ -72,6 +72,26 @@ class PathFinder {
 public:
 	const static int kStep = 5;
 
+	struct PathFindStats {
+		uint32 generated_nodes = 0;
+		uint32 expanded_nodes = 0;
+		uint32 updated_nodes = 0;
+		uint32 max_open_nodes = 0;
+
+		void Reset()
+		{
+			generated_nodes = 0;
+			expanded_nodes = 0;
+			updated_nodes = 0;
+			max_open_nodes = 0;
+		}
+	};
+
+	struct PathStats {
+		uint32 path_nodes;
+		uint32 path_length;
+	};
+
 	PathFinder(int16 step = kStep, test_function func = IsPassableDefault, bool checkNeighbors = false);
 	~PathFinder();
 
@@ -80,6 +100,8 @@ public:
 	bool GenerateNodes(Bitmap* searchMap);
 	PointList GeneratePath(const IE::point& start, const IE::point& end);
 
+	PathFindStats& Statistics() const;
+
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 	static bool IsInLineOfSight(const IE::point& start, const IE::point& end);
 
@@ -87,6 +109,8 @@ private:
 	int16 fStep;
 	test_function fTestFunction;
 	bool fCheckNeighbors;
+	mutable PathFindStats fStats;
+	mutable PathStats fPathStats;
 
 	static debug_function sDebugFunction;
 
