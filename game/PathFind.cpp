@@ -10,7 +10,7 @@
 
 #include "Bitmap.h"
 
-#define PATHFIND_MAX_TRIES 2000
+#define PATHFIND_MAX_TRIES 5000
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
@@ -112,8 +112,8 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 
 	fPoints = new PointList;
 
-	// Use 4 here so it's faster, we'll interpolate the path later
-	PathFinder pathFinder(4, func, true);
+	// Use 2 here so it's faster, we'll interpolate the path later
+	PathFinder pathFinder(2, func, true);
 	// This can throw an exception
 	PointList path = pathFinder.GeneratePath(start, end);
 
@@ -289,7 +289,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		pathPoints.push_back(*p);
 	}
 
-	_GetSmoothenPath(pathPoints);
+	//_GetSmoothenPath(pathPoints);
 
 	uint32 length = 0;
 	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
@@ -301,13 +301,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	fStats.path_length = length;
 
 	return pathPoints;
-}
-
-
-void
-NodeSearchContext::AddOpenNode(point_node* node)
-{
-	fOpenQueue.push(node);
 }
 
 
@@ -505,6 +498,8 @@ NodeSearchContext::NodeSearchContext()
 
 NodeSearchContext::~NodeSearchContext()
 {
+	for (auto* node : nodelist)
+		delete node;
 }
 
 
@@ -521,6 +516,13 @@ NodeSearchContext::GetCheapestNode()
 	}
 
 	return nullptr;
+}
+
+
+void
+NodeSearchContext::AddOpenNode(point_node* node)
+{
+	fOpenQueue.push(node);
 }
 
 
