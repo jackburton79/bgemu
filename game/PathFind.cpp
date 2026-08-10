@@ -107,6 +107,7 @@ Path::Clear()
 {
 	assert(fPoints != NULL);
 	fPoints->erase(fPoints->begin(), fPoints->end());
+	fIterator = fPoints->begin();
 }
 
 
@@ -114,6 +115,7 @@ IE::point
 Path::Start() const
 {
 	assert(fPoints != NULL);
+	assert(!fPoints->empty());
 	return *fPoints->begin();
 }
 
@@ -122,6 +124,7 @@ IE::point
 Path::End() const
 {
 	assert(fPoints != NULL);
+	assert(!fPoints->empty());
 	return *fPoints->rbegin();
 }
 
@@ -141,12 +144,16 @@ IE::point
 Path::NextStep(const int& step)
 {
 	assert(fPoints != NULL);
+	if (fPoints->empty())
+		return IE::point{0, 0};
+
 	for (int i = 0; i < step; i++) {
 		if (fIterator != fPoints->end())
 			fIterator++;
 	}
 	if (fIterator == fPoints->end())
-		return *fPoints->rbegin();
+		return fPoints->back();
+
 	return *fIterator;
 }
 
@@ -192,14 +199,7 @@ bool
 PathFinder::GenerateNodes(Bitmap* searchMap)
 {
 	// TODO: Not doing anything useful yet
-	NodeVector nodes;
-	for (int16 x = 0; searchMap->Width(); x++) {
-		for (int16 y = 0; searchMap->Height(); y++) {
-			IE::point point = {x, y};
-			nodes.push_back(new point_node(point, NULL, 0));
-		}
-	}
-	return true;
+	return false;
 }
 
 
@@ -289,7 +289,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		throw PathNotFoundException();
 
 	PointList tmpPoints;
-	point_node* last = closedNodeList.nodelist->back();
+	point_node* last = currentNode;
 	point_node* walkNode = last;
 	while (walkNode != NULL) {
 		tmpPoints.push_front(walkNode->point);
