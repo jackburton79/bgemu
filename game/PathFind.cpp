@@ -11,22 +11,10 @@
 #include "Bitmap.h"
 
 #define PATHFIND_MAX_TRIES 2000
-//#define PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
 
-
-
-struct FindPoint {
-	FindPoint(const IE::point& point)
-		: toFind(point) {};
-
-	bool operator() (const point_node* node) const {
-		return node->point == toFind;
-	};
-	const IE::point& toFind;
-};
 
 struct PointHash
 {
@@ -35,6 +23,7 @@ struct PointHash
 		return (std::hash<int>()(p.x) << 16) ^ std::hash<int>()(p.y);
 	}
 };
+
 
 struct PointEqual
 {
@@ -236,26 +225,6 @@ PathFinder::~PathFinder()
 }
 
 
-bool
-PathFinder::GenerateNodes(Bitmap* searchMap)
-{
-	// TODO: Not doing anything useful yet
-	return false;
-}
-
-
-/* static */
-bool
-PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
-{
-	PathFinder testPath(1);
-	if (!testPath._IsPassable(start) || !testPath._IsPassable(end))
-		return false;
-
-	return testPath.CreateLineOfSightPath(start, end);
-}
-
-
 PointList
 PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
@@ -269,23 +238,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
-#ifdef PATHFIND_ENABLE_HALFPATH_OPTIMIZATION
-	// Generate path to half point if distance is excessive.
-	// TODO: This has the drawback that sometimes we should backtrack,
-	// because it's not possibile to reach destination from the midpoint
-	if (PointDistance(start, end) > 100) {
-		IE::point half = HalfPoint(start, end);
-#if 0
-		std::cout << "half point:" << half.x << ", " << half.y << std::endl;
-#endif
-		pathPoints = GeneratePath(start, half);
-#if 0
-		std::cout << "Generated from " << pathPoints.front().x << ", " << pathPoints.front().y;
-		std::cout << " to " << pathPoints.back().x << ", " << pathPoints.back().y << std::endl;
-#endif
-		maxReachableDirectly = pathPoints.back();
-	}
-#endif
 
 	ClosedNodes closedNodeList;
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
@@ -351,11 +303,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
 		pathPoints.push_back(*p);
 	}
-#if 0
-	for (p = pathPoints.begin(); p != pathPoints.end(); p++) {
-		std::cout << p->x << ", " << p->y << std::endl;
-	}
-#endif
 
 	_GetSmoothenPath(pathPoints);
 
@@ -426,60 +373,6 @@ void
 PathFinder::SetDebug(debug_function callback)
 {
 	sDebugFunction = callback;
-}
-
-
-bool
-PathFinder::CreateLineOfSightPath(const IE::point& start, const IE::point& end)
-{
-	//assert(fClosedNodeList == NULL);
-/*
-	fPoints = new PointList;
-	fClosedNodeList = new NodeList();
-
-	IE::point point = start;
-	int cycle;
-	int lgDelta = end.x - point.x;
-	int shDelta = end.y - point.y;
-	int lgStep = std::signbit((float)lgDelta) ? -fStep : fStep;
-	lgDelta = std::abs(lgDelta);
-	int shStep = std::signbit((float)shDelta) ? -fStep : fStep;
-	shDelta = std::abs(shDelta);
-	if (shDelta < lgDelta) {
-		cycle = lgDelta >> 1;
-		while (std::abs(point.x - end.x) > fStep) {
-			if (!_IsPassable(point))
-				return false;
-			fPoints->push_back(point);
-			cycle += shDelta;
-			if (cycle > lgDelta) {
-				cycle -= lgDelta;
-				point.y += shStep;
-			}
-			point.x += lgStep;
-		}
-		if (!_IsPassable(point))
-			return false;
-
-		fPoints->push_back(point);
-	}
-	cycle = shDelta >> 1;
-	while (std::abs(point.y - end.y) > fStep) {
-		if (!_IsPassable(point))
-			return false;
-		fPoints->push_back(point);
-		cycle += lgDelta;
-		if (cycle > shDelta) {
-			cycle -= shDelta;
-			point.x += lgStep;
-		}
-		point.y += shStep;
-	}
-
-	if (_IsPassable(end))
-		fPoints->push_back(end);
-*/
-	return true;
 }
 
 

@@ -113,13 +113,11 @@ public:
 
 	static void SetDebug(debug_function callback);
 
-	bool GenerateNodes(Bitmap* searchMap);
 	PointList GeneratePath(const IE::point& start, const IE::point& end);
 
 	PathFindStats& Statistics() const;
 
 	static bool IsPassableDefault(const IE::point& start) { return true; };
-	static bool IsInLineOfSight(const IE::point& start, const IE::point& end);
 
 private:
 	int16 fStep;
