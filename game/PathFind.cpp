@@ -10,7 +10,7 @@
 
 #include "Bitmap.h"
 
-#define PATHFIND_MAX_TRIES 5000
+#define PATHFIND_MAX_TRIES 9000000
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
