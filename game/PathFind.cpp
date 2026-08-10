@@ -99,6 +99,8 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 	}
 
 	fIterator = fPoints->begin();
+
+	fStats = pathFinder.Statistics();
 }
 
 
@@ -137,6 +139,7 @@ Path::AddPoint(const IE::point& point, test_function func)
 	PointList path = pathFinder.GeneratePath(fPoints->front(), point);
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
 		fPoints->push_back(*i);
+	fStats = pathFinder.Statistics();
 }
 
 
@@ -218,6 +221,8 @@ PathFinder::IsInLineOfSight(const IE::point& start, const IE::point& end)
 PointList
 PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 {
+	fStats.Reset();
+
 	if (!_IsPassable(end))
 		throw PathNotFoundException();
 #if 0
@@ -250,6 +255,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		+ currentNode->cost;
 	currentNode->open = true;
 	closedNodeList.nodelist->push_back(currentNode);
+
+	fStats.generated_nodes++;
 
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
@@ -289,8 +296,6 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found)
 		throw PathNotFoundException();
 
-	fPathStats.path_nodes = pathPoints.size();
-
 	PointList tmpPoints;
 	point_node* last = currentNode;
 	point_node* walkNode = last;
@@ -312,16 +317,25 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	}
 #endif
 
-	uint32 length = 0;
-
-	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
-		auto prev = std::prev(it);
-
-		length += Distance(*prev, *it);
-	}
 	_GetSmoothenPath(pathPoints);
 
+	uint32 length = 0;
+	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
+		auto prev = std::prev(it);
+		length += Distance(*prev, *it);
+	}
+
+	fStats.path_nodes = pathPoints.size();
+	fStats.path_length = length;
+
 	return pathPoints;
+}
+
+
+PathFindStats&
+PathFinder::Statistics() const
+{
+	return fStats;
 }
 
 

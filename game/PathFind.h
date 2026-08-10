@@ -21,6 +21,37 @@ public:
 	PathNotFoundException();
 };
 
+struct PathFindStats {
+	// pathfind algo
+	uint32 generated_nodes = 0;
+	uint32 expanded_nodes = 0;
+	uint32 updated_nodes = 0;
+	uint32 max_open_nodes = 0;
+
+	// path
+	uint32 path_nodes;
+	uint32 path_length;
+
+	void Dump() const
+	{
+		std::cout
+			<< "Generated: " << generated_nodes << std::endl
+			<< "Expanded : " << expanded_nodes << std::endl
+			<< "Updated  : " << updated_nodes << std::endl
+			<< "Path length : " << path_length << std::endl
+			<< "Path points  : " << path_nodes <<  std::endl;
+	}
+	void Reset()
+	{
+		generated_nodes = 0;
+		expanded_nodes = 0;
+		updated_nodes = 0;
+		max_open_nodes = 0;
+		path_nodes = 0;
+		path_length = 0;
+	}
+};
+
 
 class Path {
 public:
@@ -41,9 +72,12 @@ public:
 	bool IsEnd() const;
 	void Rewind();
 
+	const PathFindStats& Statistics() const { return fStats; };
 private:
 	PointList* fPoints;
 	PointList::iterator fIterator;
+
+	PathFindStats fStats;
 };
 
 
@@ -72,26 +106,6 @@ class PathFinder {
 public:
 	const static int kStep = 5;
 
-	struct PathFindStats {
-		uint32 generated_nodes = 0;
-		uint32 expanded_nodes = 0;
-		uint32 updated_nodes = 0;
-		uint32 max_open_nodes = 0;
-
-		void Reset()
-		{
-			generated_nodes = 0;
-			expanded_nodes = 0;
-			updated_nodes = 0;
-			max_open_nodes = 0;
-		}
-	};
-
-	struct PathStats {
-		uint32 path_nodes;
-		uint32 path_length;
-	};
-
 	PathFinder(int16 step = kStep, test_function func = IsPassableDefault, bool checkNeighbors = false);
 	~PathFinder();
 
@@ -110,7 +124,6 @@ private:
 	test_function fTestFunction;
 	bool fCheckNeighbors;
 	mutable PathFindStats fStats;
-	mutable PathStats fPathStats;
 
 	static debug_function sDebugFunction;
 

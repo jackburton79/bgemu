@@ -143,6 +143,9 @@ NewPath(Path& p, IE::point& start, IE::point& end)
 		std::cout << "Path not found (" << elapsed.count() << "us)" << std::endl;
 	else
 		std::cout << "Path found (" << elapsed.count() << " us)" << std::endl;
+
+	p.Statistics().Dump();
+
 	return found;
 }
 
