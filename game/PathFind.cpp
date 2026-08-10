@@ -52,9 +52,8 @@ public:
 	point_node* GetCheapestNode();
 	void AddOpenNode(point_node* node);
 
-	NodeList* nodelist;
+	NodeList nodelist;
 	NodeMap nodeMap;
-	uint64 getCheapestScans;
 
 private:
 	OpenQueue fOpenQueue;
@@ -244,7 +243,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	currentNode->cost_to_goal = PointDistance(currentNode->point, end)
 		+ currentNode->cost;
 	currentNode->open = true;
-	closedNodeList.nodelist->push_back(currentNode);
+	closedNodeList.nodelist.push_back(currentNode);
 	closedNodeList.AddOpenNode(currentNode);
 	closedNodeList.nodeMap[currentNode->point] = currentNode;
 
@@ -297,7 +296,8 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	}
 
 	// remove the "current" position, it's useless
-	tmpPoints.erase(tmpPoints.begin());
+	if (!tmpPoints.empty())
+		tmpPoints.erase(tmpPoints.begin());
 
 	PointList::iterator p;
 	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
@@ -326,7 +326,7 @@ ClosedNodes::AddOpenNode(point_node* node)
 }
 
 
-PathFindStats&
+const PathFindStats&
 PathFinder::Statistics() const
 {
 	return fStats;
@@ -457,7 +457,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	point_node* node = new point_node(point, &current, UINT_MAX);
 	fStats.generated_nodes++;
 	node->open = true;
-	nodes->nodelist->push_back(node);
+	nodes->nodelist.push_back(node);
 	nodes->nodeMap[node->point] = node;
 	_UpdateNodeCost(node, current, goal, *nodes);
 }
@@ -467,8 +467,6 @@ void
 PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal,
 							ClosedNodes& closedNodeList) const
 {
-	//std::cout << "current: " << current.point.x << ", " << current.point.y << std::endl;
-	//std::cout << "new: " << node->point.x << ", " << node->point.y << std::endl;
 	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
 	if (newCost < node->cost) {
@@ -500,22 +498,12 @@ PathFinder::_GetSmoothenPath(PointList& pointList)
 
 // ClosedNodes
 ClosedNodes::ClosedNodes()
-	:
-	nodelist(nullptr),
-	getCheapestScans(0)
 {
-	nodelist = new NodeList;
 }
 
 
 ClosedNodes::~ClosedNodes()
 {
-	NodeList::iterator i;
-	for (i = nodelist->begin(); i != nodelist->end(); i++) {
-		delete (*i);
-	}
-	delete nodelist;
-	nodelist = NULL;
 }
 
 

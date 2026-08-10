@@ -15,7 +15,6 @@ typedef std::deque<point_node*> NodeList;
 typedef std::deque<IE::point> PointList;
 
 
-
 class PathNotFoundException : public std::runtime_error {
 public:
 	PathNotFoundException();
@@ -115,7 +114,7 @@ public:
 
 	PointList GeneratePath(const IE::point& start, const IE::point& end);
 
-	PathFindStats& Statistics() const;
+	const PathFindStats& Statistics() const;
 
 	static bool IsPassableDefault(const IE::point& start) { return true; };
 
