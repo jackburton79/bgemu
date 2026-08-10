@@ -45,10 +45,10 @@ struct NodeCompare {
 
 typedef std::priority_queue<point_node*, std::vector<point_node*>, NodeCompare> OpenQueue;
 
-class ClosedNodes {
+class NodeSearchContext {
 public:
-	ClosedNodes();
-	~ClosedNodes();
+	NodeSearchContext();
+	~NodeSearchContext();
 	point_node* GetCheapestNode();
 	void AddOpenNode(point_node* node);
 
@@ -238,7 +238,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	PointList pathPoints;
 	IE::point maxReachableDirectly = start;
 
-	ClosedNodes closedNodeList;
+	NodeSearchContext closedNodeList;
 	point_node* currentNode = new point_node(maxReachableDirectly, NULL, 0);
 	currentNode->cost_to_goal = PointDistance(currentNode->point, end)
 		+ currentNode->cost;
@@ -320,7 +320,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 
 
 void
-ClosedNodes::AddOpenNode(point_node* node)
+NodeSearchContext::AddOpenNode(point_node* node)
 {
 	fOpenQueue.push(node);
 }
@@ -440,7 +440,7 @@ void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
 		const IE::point& goal,
-		ClosedNodes* nodes)
+		NodeSearchContext* nodes)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsReachable(current.point, point))
@@ -465,7 +465,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 void
 PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal,
-							ClosedNodes& closedNodeList) const
+							NodeSearchContext& closedNodeList) const
 {
 	const uint32 newCost = MovementCost(current.point,
 			node->point) + current.cost;
@@ -497,18 +497,18 @@ PathFinder::_GetSmoothenPath(PointList& pointList)
 
 
 // ClosedNodes
-ClosedNodes::ClosedNodes()
+NodeSearchContext::NodeSearchContext()
 {
 }
 
 
-ClosedNodes::~ClosedNodes()
+NodeSearchContext::~NodeSearchContext()
 {
 }
 
 
 point_node*
-ClosedNodes::GetCheapestNode()
+NodeSearchContext::GetCheapestNode()
 {
 	while (!fOpenQueue.empty()) {
 		point_node* node = fOpenQueue.top();

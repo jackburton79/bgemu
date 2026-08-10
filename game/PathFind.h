@@ -101,7 +101,7 @@ struct point_node {
 
 
 class Bitmap;
-class ClosedNodes;
+class NodeSearchContext;
 class PathFinder;
 class PathFinder {
 public:
@@ -138,9 +138,9 @@ private:
 	void _AddIfPassable(const IE::point& point,
 			const point_node& current,
 			const IE::point& goal,
-			ClosedNodes* nodeList);
+			NodeSearchContext* nodeList);
 	void _UpdateNodeCost(point_node* node, const point_node& current,
-			const IE::point& goal, ClosedNodes& closedNodeList ) const;
+			const IE::point& goal, NodeSearchContext& closedNodeList ) const;
 
 	void _GetSmoothenPath(PointList& pointList);
 };
