@@ -27,7 +27,7 @@ struct PathFindStats {
 	uint32 expanded_nodes = 0;
 	uint32 updated_nodes = 0;
 	uint32 max_open_nodes = 0;
-
+	uint64 get_cheapest_scans = 0;
 	// path
 	uint32 path_nodes;
 	uint32 path_length;
@@ -38,6 +38,7 @@ struct PathFindStats {
 			<< "Generated: " << generated_nodes << std::endl
 			<< "Expanded : " << expanded_nodes << std::endl
 			<< "Updated  : " << updated_nodes << std::endl
+			<< "GetCheapest scans: " << get_cheapest_scans << std::endl
 			<< "Path length : " << path_length << std::endl
 			<< "Path points  : " << path_nodes <<  std::endl;
 	}
@@ -47,6 +48,7 @@ struct PathFindStats {
 		expanded_nodes = 0;
 		updated_nodes = 0;
 		max_open_nodes = 0;
+		get_cheapest_scans = 0;
 		path_nodes = 0;
 		path_length = 0;
 	}

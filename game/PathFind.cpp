@@ -20,6 +20,7 @@ public:
 	point_node* GetCheapestNode() const;
 
 	NodeList* nodelist;
+	mutable uint64 getCheapestScans;
 };
 
 
@@ -325,6 +326,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		length += Distance(*prev, *it);
 	}
 
+	fStats.get_cheapest_scans = closedNodeList.getCheapestScans;
 	fStats.path_nodes = pathPoints.size();
 	fStats.path_length = length;
 
@@ -560,7 +562,8 @@ PathFinder::_GetSmoothenPath(PointList& pointList)
 // ClosedNodes
 ClosedNodes::ClosedNodes()
 	:
-	nodelist(nullptr)
+	nodelist(nullptr),
+	getCheapestScans(0)
 {
 	nodelist = new NodeList;
 }
@@ -585,6 +588,7 @@ ClosedNodes::GetCheapestNode() const
 	for (NodeList::const_iterator i = nodelist->begin();
 			i != nodelist->end(); i++) {
 		point_node* node = *i;
+		getCheapestScans++;
 		if (!node->open)
 			continue;
 		if (node->cost_to_goal < minCost) {
