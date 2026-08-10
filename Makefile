@@ -6,6 +6,8 @@ GAMELIB = libgame.a
 LIBS = -lz `sdl2-config --libs`
 CXXFLAGS = -Wall -Werror `sdl2-config --cflags`
 
+.DEFAULT_GOAL := all
+
 # DEBUG=TRUE or DEBUG=1
 ifeq ($(DEBUG),1)
 	DEBUG := TRUE
