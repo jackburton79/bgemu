@@ -289,10 +289,10 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 
 	PointList tmpPoints;
 	point_node* last = currentNode;
-	point_node* walkNode = last;
+	const point_node* walkNode = last;
 	while (walkNode != NULL) {
 		tmpPoints.push_front(walkNode->point);
-		walkNode = const_cast<point_node*>(walkNode->parent);
+		walkNode = walkNode->parent;
 	}
 
 	// remove the "current" position, it's useless
@@ -458,7 +458,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	fStats.generated_nodes++;
 	node->open = true;
 	nodes->nodelist.push_back(node);
-	nodes->nodeMap[node->point] = node;
+	nodes->nodeMap.emplace(node->point, node);
 	_UpdateNodeCost(node, current, goal, *nodes);
 }
 
