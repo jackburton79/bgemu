@@ -10,6 +10,12 @@
 #include <iostream>
 #include <stack>
 
+enum MapType {
+	kRandomMap,
+	kMazeMap,
+	kRoomsMap
+};
+
 static int sDebug = 0;
 static int sRandom = 0;
 
@@ -31,13 +37,36 @@ const int kPassable = 0;
 const int kWall = 1;
 
 static int sStep = 2;
+static MapType sMapType = kMazeMap;
 
 static
 struct option sLongOptions[] = {
 		{ "random", no_argument, NULL, 'r' },
+		{ "maptype", required_argument, NULL, 0 },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "step", required_argument, NULL, 's' },
 		{ 0, 0, 0, 0 }
+};
+
+
+
+struct Room {
+	int x;
+	int y;
+	int width;
+	int height;
+
+	int
+	CenterX() const
+	{
+		return x + width / 2;
+	}
+
+	int
+	CenterY() const
+	{
+		return y + height / 2;
+	}
 };
 
 
@@ -52,45 +81,107 @@ plot_point(const IE::point& pt)
 }
 
 
-static void
-InitializeSearchMap()
+static
+bool
+Intersects(const Room& a, const Room& b)
 {
-	const int rows = gNumRowsMap / kBlockSize;
-	const int cols = gNumColumnsMap / kBlockSize;
+	return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height
+			&& a.y + a.height > b.y;
+}
 
-	GFX::Color colors[256];
+static
+void
+CreateRoom(std::vector<std::vector<unsigned char>>& map, const Room& room,
+			int kPassable)
+{
+	for (int y = room.y; y < room.y + room.height; ++y) {
+		for (int x = room.x; x < room.x + room.width; ++x) {
+			map[y][x] = kPassable;
+		}
+	}
+}
 
-	colors[kBlackIndex].r = 0;
-	colors[kBlackIndex].g = 0;
-	colors[kBlackIndex].b = 0;
-	colors[kBlackIndex].a = 0;
+static
+void
+CreateHorizontalCorridor(std::vector<std::vector<unsigned char>>& map, int x1,
+							int x2, int y, int kPassable)
+{
+	if (x1 > x2)
+		std::swap(x1, x2);
 
-	colors[kWhiteIndex].r = 255;
-	colors[kWhiteIndex].g = 255;
-	colors[kWhiteIndex].b = 255;
-	colors[kWhiteIndex].a = 0;
+	for (int x = x1; x <= x2; ++x)
+		map[y][x] = kPassable;
+}
 
-	colors[2].r = 16;
-	colors[2].g = 16;
-	colors[2].b = 16;
-	colors[2].a = 0;
+static
+void
+CreateVerticalCorridor(std::vector<std::vector<unsigned char>>& map, int y1,
+						int y2, int x, int kPassable)
+{
+	if (y1 > y2)
+		std::swap(y1, y2);
 
-	colors[3].r = 36;
-	colors[3].g = 20;
-	colors[3].b = 20;
-	colors[3].a = 0;
+	for (int y = y1; y <= y2; ++y)
+		map[y][x] = kPassable;
+}
 
-	colors[4].r = 56;
-	colors[4].g = 47;
-	colors[4].b = 47;
-	colors[4].a = 0;
 
-	gSearchMap->SetColors(colors, 0, 2);
-	gMap->SetColors(colors, 0, 5);
+static void
+InitializeRoomsMap(std::vector<std::vector<uint8>> &map, int cols, int rows)
+{
+	std::vector<Room> rooms;
 
-	// Full wall
-	std::vector<std::vector<uint8_t>> maze(rows, std::vector<uint8_t>(cols, kWall));
+	const int kNumRooms = 20;
 
+	for (int i = 0; i < kNumRooms; ++i) {
+		Room room;
+
+		room.width = Core::RandomNumber(4, 8);
+		room.height = Core::RandomNumber(4, 8);
+
+		room.x = Core::RandomNumber(1, cols - room.width - 2);
+
+		room.y = Core::RandomNumber(1, rows - room.height - 2);
+
+		bool overlaps = false;
+
+		for (const auto& other : rooms) {
+			if (Intersects(room, other)) {
+				overlaps = true;
+				break;
+			}
+		}
+
+		if (overlaps)
+			continue;
+
+		CreateRoom(map, room, kPassable);
+		rooms.push_back(room);
+	}
+
+	for (size_t i = 1; i < rooms.size(); ++i) {
+		const Room& prev = rooms[i - 1];
+		const Room& curr = rooms[i];
+
+		int x1 = prev.CenterX();
+		int y1 = prev.CenterY();
+		int x2 = curr.CenterX();
+		int y2 = curr.CenterY();
+
+		if (Core::RandomNumber(0, 1)) {
+			CreateHorizontalCorridor(map, x1, x2, y1, kPassable);
+			CreateVerticalCorridor(map, y1, y2, x2, kPassable);
+		} else {
+			CreateVerticalCorridor(map, y1, y2, x1, kPassable);
+			CreateHorizontalCorridor(map, x1, x2, y2, kPassable);
+		}
+	}
+}
+
+
+static void
+InitializeMazeMap(std::vector<std::vector<uint8>> &maze, int cols, int rows)
+{
 	// Recursive Backtracker
 	std::stack<IE::point> stack;
 	IE::point start = { 1, 1 };
@@ -137,6 +228,52 @@ InitializeSearchMap()
 
 		stack.push(next);
 	}
+}
+
+
+static void
+InitializeSearchMap()
+{
+	const int rows = gNumRowsMap / kBlockSize;
+	const int cols = gNumColumnsMap / kBlockSize;
+
+	GFX::Color colors[256];
+
+	colors[kBlackIndex].r = 0;
+	colors[kBlackIndex].g = 0;
+	colors[kBlackIndex].b = 0;
+	colors[kBlackIndex].a = 0;
+
+	colors[kWhiteIndex].r = 255;
+	colors[kWhiteIndex].g = 255;
+	colors[kWhiteIndex].b = 255;
+	colors[kWhiteIndex].a = 0;
+
+	colors[2].r = 16;
+	colors[2].g = 16;
+	colors[2].b = 16;
+	colors[2].a = 0;
+
+	colors[3].r = 36;
+	colors[3].g = 20;
+	colors[3].b = 20;
+	colors[3].a = 0;
+
+	colors[4].r = 56;
+	colors[4].g = 47;
+	colors[4].b = 47;
+	colors[4].a = 0;
+
+	gSearchMap->SetColors(colors, 0, 2);
+	gMap->SetColors(colors, 0, 5);
+
+	// Full wall
+	std::vector<std::vector<uint8>> maze(rows, std::vector<uint8>(cols, kWall));
+
+	if (sMapType == kMazeMap)
+		InitializeMazeMap(maze, cols, rows);
+	else if (sMapType == kRoomsMap)
+		InitializeRoomsMap(maze, cols, rows);
 
 	// Copy into bitmap and search map
 	for (int r = 0; r < rows; r++) {
@@ -253,7 +390,16 @@ ParseArgs(int argc, char **argv)
 			case 's':
 				sStep = ::strtol(optarg, NULL, 0);
 				break;
+			case 0:
+				if (::strcmp(sLongOptions[optIndex].name, "maptype") == 0) {
+					if (::strcmp(optarg, "maze") == 0)
+						sMapType = kMazeMap;
+					else if (::strcmp(optarg, "rooms") == 0)
+						sMapType = kRoomsMap;
+				}
+				break;
 			default:
+
 				break;
 		}
 	}
