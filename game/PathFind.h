@@ -11,7 +11,6 @@ struct point_node;
 
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
-typedef std::deque<point_node*> NodeList;
 typedef std::deque<IE::point> PointList;
 
 
@@ -31,25 +30,8 @@ struct PathFindStats {
 	uint32 path_nodes;
 	uint32 path_length;
 
-	void Dump() const
-	{
-		std::cout
-			<< "Generated: " << generated_nodes << std::endl
-			<< "Expanded : " << expanded_nodes << std::endl
-			<< "Updated  : " << updated_nodes << std::endl
-			<< "Path length : " << path_length << std::endl
-			<< "Path points  : " << path_nodes <<  std::endl;
-	}
-	void Reset()
-	{
-		generated_nodes = 0;
-		expanded_nodes = 0;
-		updated_nodes = 0;
-		max_open_nodes = 0;
-
-		path_nodes = 0;
-		path_length = 0;
-	}
+	void Dump() const;
+	void Reset();
 };
 
 

@@ -41,6 +41,7 @@ struct NodeCompare {
 
 typedef std::unordered_map<IE::point, point_node*, PointHash, PointEqual> NodeMap;
 typedef std::priority_queue<point_node*, std::vector<point_node*>, NodeCompare> OpenQueue;
+typedef std::deque<point_node*> NodeList;
 
 class NodeSearchContext {
 public:
@@ -77,6 +78,32 @@ static inline uint32
 Distance(const IE::point& start, const IE::point& end)
 {
 	return PointDistance(start, end) * kMovementCost;
+}
+
+
+// PathFindStats
+void
+PathFindStats::Dump() const
+{
+	std::cout
+		<< "Generated: " << generated_nodes << std::endl
+		<< "Expanded : " << expanded_nodes << std::endl
+		<< "Updated  : " << updated_nodes << std::endl
+		<< "Path length : " << path_length << std::endl
+		<< "Path points  : " << path_nodes <<  std::endl;
+}
+
+
+void
+PathFindStats::Reset()
+{
+	generated_nodes = 0;
+	expanded_nodes = 0;
+	updated_nodes = 0;
+	max_open_nodes = 0;
+
+	path_nodes = 0;
+	path_length = 0;
 }
 
 
