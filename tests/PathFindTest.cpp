@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <stack>
 
 static int sDebug = 0;
 static int sRandom = 0;
@@ -16,8 +17,8 @@ Bitmap* gMap;
 Bitmap* gSearchMap;
 Bitmap* gBitmap;
 
-const int16 gNumRowsMap = 600;
-const int16 gNumColumnsMap = 600;
+const int16 gNumRowsMap = 620;
+const int16 gNumColumnsMap = 620;
 const int kBlockSize = 20;
 
 uint32 gRed;
@@ -54,8 +55,8 @@ plot_point(const IE::point& pt)
 static void
 InitializeSearchMap()
 {
-	int16 numRows = gNumRowsMap / kBlockSize;
-	int16 numColumns = gNumColumnsMap / kBlockSize;
+	const int rows = gNumRowsMap / kBlockSize;
+	const int cols = gNumColumnsMap / kBlockSize;
 
 	GFX::Color colors[256];
 
@@ -73,45 +74,86 @@ InitializeSearchMap()
 	colors[2].g = 16;
 	colors[2].b = 16;
 	colors[2].a = 0;
+
 	colors[3].r = 36;
 	colors[3].g = 20;
 	colors[3].b = 20;
 	colors[3].a = 0;
+
 	colors[4].r = 56;
 	colors[4].g = 47;
 	colors[4].b = 47;
 	colors[4].a = 0;
-	gSearchMap->SetColors(colors, 0, 2);
 
+	gSearchMap->SetColors(colors, 0, 2);
 	gMap->SetColors(colors, 0, 5);
-#if 0
-	for (int r = 0; r < numRows; r++) {
-		bool wallRow = ((r % 2) == 0) ? 0 : 1;
-		int exit = Core::RandomNumber(0, numColumns);
-		for (int c = 0; c < numColumns; c++) {
-			bool wall = wallRow && (c != exit);
-			if (wall)
-				gSearchMap->PutPixel(c, r, kWall);
-			else
-				gSearchMap->PutPixel(c, r, kPassable);
-			int wallColor = (wall ? kBlackIndex : kWhiteIndex);
+
+	// Full wall
+	std::vector<std::vector<uint8_t>> maze(rows, std::vector<uint8_t>(cols, kWall));
+
+	// Recursive Backtracker
+	std::stack<IE::point> stack;
+	IE::point start = { 1, 1 };
+
+	maze[start.y][start.x] = kPassable;
+	stack.push(start);
+
+	const IE::point directions[] =
+	{
+		{ -2, 0 },
+		{ 2, 0 },
+		{ 0, -2 },
+		{ 0, 2 }
+	};
+
+	while (!stack.empty()) {
+		IE::point current = stack.top();
+
+		std::vector<IE::point> candidates;
+		for (const auto& dir : directions) {
+			IE::point next =
+				{ int16(current.x + dir.x), int16(current.y + dir.y) };
+
+			if (next.x <= 0 || next.y <= 0 || next.x >= cols - 1
+					|| next.y >= rows - 1)
+				continue;
+
+			if (maze[next.y][next.x] == kWall)
+				candidates.push_back(next);
+		}
+
+		if (candidates.empty()) {
+			stack.pop();
+			continue;
+		}
+
+		IE::point next = candidates[Core::RandomNumber(0, static_cast<int>(candidates.size()) - 1)];
+
+		const int wallX = (current.x + next.x) / 2;
+		const int wallY = (current.y + next.y) / 2;
+
+		maze[wallY][wallX] = kPassable;
+		maze[next.y][next.x] = kPassable;
+
+		stack.push(next);
+	}
+
+	// Copy into bitmap and search map
+	for (int r = 0; r < rows; r++) {
+		for (int c = 0; c < cols; c++) {
+			gSearchMap->PutPixel(c, r, maze[r][c]);
+
+			int color = kWhiteIndex;
+			if (maze[r][c] == kWall)
+				color = Core::RandomNumber(2, 4);
+
 			GFX::rect rect(c * kBlockSize, r * kBlockSize,
-				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
-			gMap->FillRect(rect, wallColor);
+							c * kBlockSize + kBlockSize,
+							r * kBlockSize + kBlockSize);
+
+			gMap->FillRect(rect, color);
 		}
 	}
-#else
-	for (int r = 0; r < numRows; r++) {
-		for (int c = 0; c < numColumns; c++) {
-			bool isWall = (Core::RandomNumber(0, 3) ? false : true);
-			gSearchMap->PutPixel(c, r, isWall ? kWall : kPassable);
-			int wallColor = (isWall ? Core::RandomNumber(2, 4) : kWhiteIndex);
-			GFX::rect rect(c * kBlockSize, r * kBlockSize,
-				c * kBlockSize + kBlockSize, r * kBlockSize + kBlockSize);
-			gMap->FillRect(rect, wallColor);
-		}
-	}
-#endif
 }
 
 
@@ -123,6 +165,25 @@ IsWalkable(const IE::point& point)
 			|| (point.y / kBlockSize >= (gNumRowsMap) / kBlockSize))
 		return false;
 	return gSearchMap->GetPixel(point.x / kBlockSize, point.y / kBlockSize) == kPassable;
+}
+
+
+static IE::point
+RandomWalkablePoint()
+{
+	IE::point pt;
+
+	do {
+		int cellX = Core::RandomNumber(0, gNumColumnsMap / kBlockSize - 1);
+
+		int cellY = Core::RandomNumber(0, gNumRowsMap / kBlockSize - 1);
+
+		pt.x = cellX * kBlockSize + kBlockSize / 2;
+		pt.y = cellY * kBlockSize + kBlockSize / 2;
+
+	} while (!IsWalkable(pt));
+
+	return pt;
 }
 
 
@@ -156,14 +217,8 @@ ResetState(Path& p, Bitmap* bitmap, IE::point& start, IE::point& end)
 	InitializeSearchMap();
 
 	// skip non walkable points
-	start.y = gNumRowsMap;
-	do {
-		start.y--;
-	} while (!IsWalkable(start));
-	end.x -= 5;
-	do {
-		end.y = Core::RandomNumber(0, gNumRowsMap - 1);
-	} while (!IsWalkable(end));
+	start = RandomWalkablePoint();
+	end = RandomWalkablePoint();
 
 	GraphicsEngine::BlitBitmap(gMap, NULL, bitmap, NULL);
 
