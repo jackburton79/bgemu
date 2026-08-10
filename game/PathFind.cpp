@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <cmath>
 #include <queue>
+#include <unordered_map>
 #include <vector>
 
 
@@ -27,6 +28,24 @@ struct FindPoint {
 	const IE::point& toFind;
 };
 
+struct PointHash
+{
+	std::size_t operator()(const IE::point& p) const
+	{
+		return (std::hash<int>()(p.x) << 16) ^ std::hash<int>()(p.y);
+	}
+};
+
+struct PointEqual
+{
+	bool operator()(const IE::point &a, const IE::point& b) const
+	{
+		return a.x == b.x && a.y == b.y;
+	}
+};
+
+
+typedef std::unordered_map<IE::point, point_node*, PointHash, PointEqual> NodeMap;
 
 struct NodeCompare {
 	bool operator()(const point_node* a, const point_node* b) const
@@ -45,6 +64,7 @@ public:
 	void AddOpenNode(point_node* node);
 
 	NodeList* nodelist;
+	NodeMap nodeMap;
 	uint64 getCheapestScans;
 
 private:
@@ -274,6 +294,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	currentNode->open = true;
 	closedNodeList.nodelist->push_back(currentNode);
 	closedNodeList.AddOpenNode(currentNode);
+	closedNodeList.nodeMap[currentNode->point] = currentNode;
 
 	fStats.generated_nodes++;
 
@@ -527,18 +548,16 @@ void
 PathFinder::_AddIfPassable(const IE::point& point,
 		const point_node& current,
 		const IE::point& goal,
-		ClosedNodes* closedNodes)
+		ClosedNodes* nodes)
 {
 	if (point.x < 0 || point.y < 0
 			|| !_IsReachable(current.point, point))
 		return;
 
 	// Check if point is in closed list. If so, update it.
-	NodeList::const_iterator i =
-			std::find_if(closedNodes->nodelist->begin(), closedNodes->nodelist->end(),
-							FindPoint(point));
-	if (i != closedNodes->nodelist->end()) {
-		_UpdateNodeCost(*i, current, goal, *closedNodes);
+	auto it = nodes->nodeMap.find(point);
+	if (it != nodes->nodeMap.end()) {
+		_UpdateNodeCost(it->second, current, goal, *nodes);
 		return;
 	}
 
@@ -546,8 +565,9 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	point_node* node = new point_node(point, &current, UINT_MAX);
 	fStats.generated_nodes++;
 	node->open = true;
-	closedNodes->nodelist->push_back(node);
-	_UpdateNodeCost(node, current, goal, *closedNodes);
+	nodes->nodelist->push_back(node);
+	nodes->nodeMap[node->point] = node;
+	_UpdateNodeCost(node, current, goal, *nodes);
 }
 
 
