@@ -466,17 +466,17 @@ Parser::_ExtractActionName(Tokenizer& tokenizer, ::action_params* param)
 condition_response*
 Parser::_ReadConditionResponseBlock()
 {
-	condition_response* condResp = NULL;
-	token h = fTokenizer->ReadToken();
-	if (h == token("CR")) {
-		condResp = new condition_response;
-		_ReadConditionBlock(condResp->conditions);
-		_ReadResponseSetBlock(condResp->responseSet);
+	if (!_IsNext("CR"))
+		return NULL;
 
-		token t = fTokenizer->ReadToken(); // closing tag
-		assert(t == token("CR"));
-	} else
-		fTokenizer->RewindToken(h);
+	_Expect("CR");
+
+	condition_response* condResp = new condition_response;
+	_ReadConditionBlock(condResp->conditions);
+	_ReadResponseSetBlock(condResp->responseSet);
+
+	_Expect("CR");
+
 	return condResp;
 }
 
@@ -484,48 +484,47 @@ Parser::_ReadConditionResponseBlock()
 void
 Parser::_ReadConditionBlock(condition_block& cond)
 {
-	token h = fTokenizer->ReadToken();
-	if (h == token("CO")) {
-		trigger_params* trig = NULL;
-		//int32 i = 0;
-		while ((trig = _ReadTriggerBlock()) != NULL) {
-			cond.triggers.push_back(trig);
-		//	i++;
-		}
-		token t = fTokenizer->ReadToken(); // closing tag
-		assert(t == token("CO"));
-	} else
-		fTokenizer->RewindToken(h);
+	if (!_IsNext("CO"))
+		return;
+
+	_Expect("CO");
+
+	trigger_params* trig = NULL;
+	while ((trig = _ReadTriggerBlock()) != NULL) {
+		cond.triggers.push_back(trig);
+	}
+
+	_Expect("CO");
+
 }
 
 
 trigger_params*
 Parser::_ReadTriggerBlock()
 {
-	trigger_params* trig = NULL;
-	token h = fTokenizer->ReadToken();
-	if (h == token("TR")) {
-		trig = new trigger_params();
+	if (!_IsNext("TR"))
+		return NULL;
 
-		trig->id = fTokenizer->ReadToken().u.number;
-		trig->parameter1 = fTokenizer->ReadToken().u.number;
-		trig->flags = fTokenizer->ReadToken().u.number;
-		trig->parameter2 = fTokenizer->ReadToken().u.number;
-		trig->unknown = fTokenizer->ReadToken().u.number;
+	_Expect("TR");
 
-		// Strings are quoted. We remove quotes
-		token stringToken = fTokenizer->ReadToken();
-		get_unquoted_string(trig->string1, stringToken.u.string, stringToken.size);
-		token stringToken2 = fTokenizer->ReadToken();
-		get_unquoted_string(trig->string2, stringToken2.u.string, stringToken2.size);
+	trigger_params* trig = new trigger_params();
+	trig->id = fTokenizer->ReadToken().u.number;
+	trig->parameter1 = fTokenizer->ReadToken().u.number;
+	trig->flags = fTokenizer->ReadToken().u.number;
+	trig->parameter2 = fTokenizer->ReadToken().u.number;
+	trig->unknown = fTokenizer->ReadToken().u.number;
 
-		// Object
-		_ReadObjectBlock(fTokenizer, *trig->Object());
+	// Strings are quoted. We remove quotes
+	token stringToken = fTokenizer->ReadToken();
+	get_unquoted_string(trig->string1, stringToken.u.string, stringToken.size);
+	token stringToken2 = fTokenizer->ReadToken();
+	get_unquoted_string(trig->string2, stringToken2.u.string, stringToken2.size);
 
-		token t = fTokenizer->ReadToken(); // closing tag
-		assert(t == token("TR"));
-	} else
-		fTokenizer->RewindToken(h);
+	// Object
+	_ReadObjectBlock(fTokenizer, *trig->Object());
+
+	_Expect("TR");
+
 	return trig;
 }
 
@@ -533,34 +532,36 @@ Parser::_ReadTriggerBlock()
 void
 Parser::_ReadResponseSetBlock(response_set& respSet)
 {
-	token h = fTokenizer->ReadToken();
-	if (h == token("RS")) {
-		response_node* resp = NULL;
-		while ((resp = _ReadResponseBlock()) != NULL)
-			respSet.resp.push_back(resp);
-		token t = fTokenizer->ReadToken(); // closing tag
-		assert(t == token("RS"));
-	} else
-		fTokenizer->RewindToken(h);
+	if (!_IsNext("RS"))
+		return;
+
+	_Expect("RS");
+
+	response_node* resp = NULL;
+	while ((resp = _ReadResponseBlock()) != NULL)
+		respSet.resp.push_back(resp);
+
+	_Expect("RS");
+
 }
 
 
 response_node*
 Parser::_ReadResponseBlock()
 {
-	response_node* resp = NULL;
-	token h = fTokenizer->ReadToken();
-	if (h == token("RE")) {
-		resp = new response_node;
-		resp->probability = fTokenizer->ReadToken().u.number;
-		action_params* act = new action_params();
-		while ((act = _ReadActionBlock()) != NULL)
-			resp->actions.push_back(act);
-		token t = fTokenizer->ReadToken(); // closing tag
-		if (!(t == token("RE")))
-			return NULL;
-	} else
-		fTokenizer->RewindToken(h);
+	if (!_IsNext("RE"))
+		return NULL;
+
+	_Expect("RE");
+
+	response_node* resp = new response_node;
+	resp->probability = fTokenizer->ReadToken().u.number;
+	action_params* act = new action_params();
+	while ((act = _ReadActionBlock()) != NULL)
+		resp->actions.push_back(act);
+
+	_Expect("RE");
+
 	return resp;
 }
 
@@ -568,32 +569,32 @@ Parser::_ReadResponseBlock()
 action_params*
 Parser::_ReadActionBlock()
 {
-	action_params* act = NULL;
-	token h = fTokenizer->ReadToken();
-	if (h == token("AC")) {
-		act = new action_params;
-		act->id = fTokenizer->ReadToken().u.number;
-		_ReadObjectBlock(fTokenizer, *act->First());
-		_ReadObjectBlock(fTokenizer, *act->Second());
-		_ReadObjectBlock(fTokenizer, *act->Third());
+	if (!_IsNext("AC"))
+		return NULL;
 
-		act->integer1 = fTokenizer->ReadToken().u.number;
-		act->where.x = fTokenizer->ReadToken().u.number;
-		act->where.y = fTokenizer->ReadToken().u.number;
-		act->integer2 = fTokenizer->ReadToken().u.number;
-		act->integer3 = fTokenizer->ReadToken().u.number;
+	_Expect("AC");
 
-		// TODO: This removes "" from strings.
-		// Should do this from the beginning
-		token stringToken = fTokenizer->ReadToken();
-		get_unquoted_string(act->string1, stringToken.u.string, stringToken.size);
-		token stringToken2 = fTokenizer->ReadToken();
-		get_unquoted_string(act->string2, stringToken2.u.string, stringToken2.size);
+	action_params* act = new action_params;
+	act->id = fTokenizer->ReadToken().u.number;
+	_ReadObjectBlock(fTokenizer, *act->First());
+	_ReadObjectBlock(fTokenizer, *act->Second());
+	_ReadObjectBlock(fTokenizer, *act->Third());
 
-		token t = fTokenizer->ReadToken(); // closing tag
-		assert(t == token("AC"));
-	} else
-		fTokenizer->RewindToken(h);
+	act->integer1 = fTokenizer->ReadToken().u.number;
+	act->where.x = fTokenizer->ReadToken().u.number;
+	act->where.y = fTokenizer->ReadToken().u.number;
+	act->integer2 = fTokenizer->ReadToken().u.number;
+	act->integer3 = fTokenizer->ReadToken().u.number;
+
+	// TODO: This removes "" from strings.
+	// Should do this from the beginning
+	token stringToken = fTokenizer->ReadToken();
+	get_unquoted_string(act->string1, stringToken.u.string, stringToken.size);
+	token stringToken2 = fTokenizer->ReadToken();
+	get_unquoted_string(act->string2, stringToken2.u.string, stringToken2.size);
+
+	_Expect("AC");
+
 	return act;
 }
 
