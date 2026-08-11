@@ -32,8 +32,8 @@ struct PointEqual {
 };
 
 
-struct point_node {
-	point_node(IE::point p, const point_node* parentNode, int nodeCost)
+struct SearchNode {
+	SearchNode(IE::point p, const SearchNode* parentNode, int nodeCost)
 		:
 		point(p),
 		parent(parentNode),
@@ -44,7 +44,7 @@ struct point_node {
 	};
 
 	const IE::point point;
-	const struct point_node* parent;
+	const struct SearchNode* parent;
 	uint32 cost;
 	uint32 cost_to_goal;
 	bool open;
@@ -52,23 +52,23 @@ struct point_node {
 
 
 struct NodeCompare {
-	bool operator()(const point_node* a, const point_node* b) const
+	bool operator()(const SearchNode* a, const SearchNode* b) const
 	{
 		return a->cost_to_goal > b->cost_to_goal;
 	}
 };
 
-typedef std::unordered_map<IE::point, point_node*, PointHash, PointEqual> NodeMap;
-typedef std::priority_queue<point_node*, std::vector<point_node*>, NodeCompare> OpenQueue;
-typedef std::deque<point_node*> NodeList;
+typedef std::unordered_map<IE::point, SearchNode*, PointHash, PointEqual> NodeMap;
+typedef std::priority_queue<SearchNode*, std::vector<SearchNode*>, NodeCompare> OpenQueue;
+typedef std::deque<SearchNode*> NodeList;
 
 class NodeSearchContext {
 public:
 	NodeSearchContext();
 	~NodeSearchContext();
 
-	point_node* GetCheapestNode();
-	void AddOpenNode(point_node* node);
+	SearchNode* GetCheapestNode();
+	void AddOpenNode(SearchNode* node);
 
 	NodeList nodelist;
 	NodeMap nodeMap;
@@ -278,7 +278,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 #endif
 
 	NodeSearchContext searchContext;
-	point_node* currentNode = _InitializeSearch(searchContext, start, end);
+	SearchNode* currentNode = _InitializeSearch(searchContext, start, end);
 
 	uint32 tries = PATHFIND_MAX_TRIES;
 	bool found = false;
@@ -427,10 +427,10 @@ PathFinder::SetDebug(debug_function callback)
 }
 
 
-point_node*
+SearchNode*
 PathFinder::_InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end)
 {
-	point_node* startNode = new point_node(start, NULL, 0);
+	SearchNode* startNode = new SearchNode(start, NULL, 0);
 	startNode->cost_to_goal = PointDistance(startNode->point, end) + startNode->cost;
 	startNode->open = true;
 	context.nodelist.push_back(startNode);
@@ -444,11 +444,11 @@ PathFinder::_InitializeSearch(NodeSearchContext& context, IE::point start, IE::p
 
 
 PointList
-PathFinder::_BuildPath(point_node* goalNode)
+PathFinder::_BuildPath(SearchNode* goalNode)
 {
 	PointList tmpPoints;
-	point_node* last = goalNode;
-	const point_node* walkNode = last;
+	SearchNode* last = goalNode;
+	const SearchNode* walkNode = last;
 	while (walkNode != NULL) {
 		tmpPoints.push_front(walkNode->point);
 		walkNode = walkNode->parent;
@@ -530,7 +530,7 @@ PathFinder::_IsReachable(const IE::point& current, const IE::point& point) const
 
 void
 PathFinder::_AddIfPassable(const IE::point& point,
-		const point_node& current,
+		const SearchNode& current,
 		const IE::point& goal,
 		NodeSearchContext* nodes)
 {
@@ -546,7 +546,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 	}
 
 	// Otherwise, add it to the open list
-	point_node* node = new point_node(point, &current, UINT_MAX);
+	SearchNode* node = new SearchNode(point, &current, UINT_MAX);
 	fStats.generated_nodes++;
 	node->open = true;
 	nodes->nodelist.push_back(node);
@@ -556,7 +556,7 @@ PathFinder::_AddIfPassable(const IE::point& point,
 
 
 void
-PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const IE::point& goal,
+PathFinder::_UpdateNodeCost(SearchNode* node, const SearchNode& current, const IE::point& goal,
 							NodeSearchContext& closedNodeList) const
 {
 	const uint32 newCost = MovementCost(current.point,
@@ -590,11 +590,11 @@ NodeSearchContext::~NodeSearchContext()
 }
 
 
-point_node*
+SearchNode*
 NodeSearchContext::GetCheapestNode()
 {
 	while (!fOpenQueue.empty()) {
-		point_node* node = fOpenQueue.top();
+		SearchNode* node = fOpenQueue.top();
 
 		fOpenQueue.pop();
 
@@ -607,7 +607,7 @@ NodeSearchContext::GetCheapestNode()
 
 
 void
-NodeSearchContext::AddOpenNode(point_node* node)
+NodeSearchContext::AddOpenNode(SearchNode* node)
 {
 	fOpenQueue.push(node);
 }
