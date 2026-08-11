@@ -50,6 +50,7 @@ private:
 	Tokenizer& fTokenizer;
 
 	token _ReadParameterToken();
+	int _EnumValue(const char* idsName, const char* string);
 };
 
 
@@ -636,12 +637,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue = 0;
-			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
-			if (idsResource != NULL) {
-				integerValue = idsResource->IDForString(tokenParam.u.string);
-				gResManager->ReleaseResource(idsResource);
-			}
+			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
 			if (parameter.position == 1)
 				node->parameter1 = integerValue;
 			else
@@ -697,12 +693,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue = 0;
-			IDSResource* idsResource = gResManager->GetIDS(parameter.IDtable.c_str());
-			if (idsResource != NULL) {
-				integerValue = idsResource->IDForString(tokenParam.u.string);
-				gResManager->ReleaseResource(idsResource);
-			}
+			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
 			if (parameter.position == 1)
 				param->integer1 = integerValue;
 			else if (parameter.position == 2)
@@ -751,6 +742,21 @@ ParameterExtractor::_ReadParameterToken()
 		t = fTokenizer.ReadToken();
 
 	return t;
+}
+
+
+int
+ParameterExtractor::_EnumValue(const char* idsName, const char* tokenString)
+{
+	int value = 0;
+	IDSResource* ids = gResManager->GetIDS(idsName);
+
+	if (ids != NULL) {
+		value = ids->IDForString(tokenString);
+		gResManager->ReleaseResource(ids);
+	}
+
+	return value;
 }
 
 
