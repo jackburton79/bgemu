@@ -47,6 +47,7 @@ class NodeSearchContext {
 public:
 	NodeSearchContext();
 	~NodeSearchContext();
+
 	point_node* GetCheapestNode();
 	void AddOpenNode(point_node* node);
 
@@ -144,9 +145,7 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 	// This can throw an exception
 	PointList path = pathFinder.GeneratePath(start, end);
 
-	for (PointList::const_iterator i = path.begin(); i != path.end(); i++) {
-		fPoints->push_back(*i);
-	}
+	fPoints->swap(path);
 
 	fIterator = fPoints->begin();
 
