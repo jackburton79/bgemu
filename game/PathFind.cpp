@@ -240,7 +240,7 @@ PathFinder::PathFinder(int16 step, test_function testFunc, bool checkNeighbors)
 	fTestFunction(testFunc),
 	fCheckNeighbors(checkNeighbors)
 {
-	std::cout << "PathFinder: step " << fStep << std::endl;
+	//std::cout << "PathFinder: step " << fStep << std::endl;
 }
 
 
