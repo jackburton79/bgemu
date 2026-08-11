@@ -81,6 +81,7 @@ Tokenizer::Tokenizer()
 	:
 	fStream(NULL),
 	fPosition(0),
+	fHasUnreadToken(false),
 	fDebug(false)
 {
 }
@@ -88,6 +89,7 @@ Tokenizer::Tokenizer()
 
 Tokenizer::Tokenizer(::Stream *stream, int32 position)
 	:
+	fHasUnreadToken(false),
 	fDebug(false)
 {
 	SetTo(stream, position);
@@ -134,6 +136,11 @@ Tokenizer::TokenType(const token& t) const
 token
 Tokenizer::ReadToken()
 {
+	if (fHasUnreadToken) {
+		fHasUnreadToken = false;
+		return fUnreadToken;
+	}
+
 	_SkipSeparators();
 
 	char array[128];
@@ -196,11 +203,19 @@ Tokenizer::ReadToken()
 void
 Tokenizer::RewindToken(const token &tok)
 {
-	if (tok.size != 0) {
-		if (fDebug)
-			std::cout << "Tokenizer::RewindToken() (" << tok.size << " bytes)" << std::endl;
-		fStream->Seek(-tok.size, SEEK_CUR);
+	if (tok.size == 0)
+		return;
+
+	if (fDebug)
+		std::cout << "Tokenizer::RewindToken() (" << tok.size << " bytes)" << std::endl;
+
+	if (fHasUnreadToken) {
+		std::cout << "Tokenizer::RewindToken(): attempted to rewind more than one token!" << std::endl;
+		return;
 	}
+
+	fUnreadToken = tok;
+	fHasUnreadToken = true;
 }
 
 

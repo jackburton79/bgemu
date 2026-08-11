@@ -63,6 +63,8 @@ private:
 
 	::Stream *fStream;
 	int32 fPosition;
+	token fUnreadToken;
+	bool fHasUnreadToken;
 	bool fDebug;
 };
 
