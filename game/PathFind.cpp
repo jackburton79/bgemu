@@ -10,7 +10,7 @@
 
 #include "Bitmap.h"
 
-static constexpr uint32 kMaxTries = 9000000;
+static constexpr uint32 kMaxTries = 500000;
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
