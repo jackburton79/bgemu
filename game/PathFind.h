@@ -55,6 +55,7 @@ public:
 	void Rewind();
 
 	const PathFindStats& Statistics() const { return fStats; };
+
 private:
 	PointList* fPoints;
 	PointList::iterator fIterator;
