@@ -55,7 +55,7 @@ public:
 	const PathFindStats& Statistics() const { return fStats; };
 
 private:
-	PointList* fPoints;
+	PointList fPoints;
 	PointList::iterator fIterator;
 
 	PathFindStats fStats;
