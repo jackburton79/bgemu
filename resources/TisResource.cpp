@@ -28,10 +28,8 @@ TISResource::TISResource(const res_ref &name)
 
 TISResource::~TISResource()
 {
-	std::map<int, Bitmap*>::iterator i;
-	for (i = fCachedTiles.begin(); i != fCachedTiles.end(); i++) {
-		i->second->Release();
-	}
+	for (auto tile: fCachedTiles)
+		tile.second->Release();
 }
 
 
@@ -56,9 +54,9 @@ TISResource::TileAt(int index)
 		return NULL;
 
 	Bitmap* tile = NULL;
-	std::map<int, Bitmap*>::iterator i = fCachedTiles.find(index);
-	if (i != fCachedTiles.end())
-		tile = i->second;
+	auto entry = fCachedTiles.find(index);
+	if (entry != fCachedTiles.end())
+		tile = entry->second;
 	else {
 		tile = _GetTileAt(index);
 		fCachedTiles[index] = tile;

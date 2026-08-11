@@ -3,7 +3,7 @@
 
 #include "Resource.h"
 
-#include <map>
+#include <unordered_map>
 
 class Bitmap;
 class TISResource : public Resource {
@@ -21,7 +21,7 @@ private:
 	Bitmap* _GetTileAt(int index);
 
 	uint32 fDataOffset;
-	std::map<int, Bitmap*> fCachedTiles;
+	std::unordered_map<int, Bitmap*> fCachedTiles;
 };
 
 #endif
