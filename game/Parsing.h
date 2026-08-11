@@ -143,8 +143,6 @@ private:
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* triggerNode);
 	static bool _ExtractActionName(Tokenizer& tokenizer, ::action_params* param);
-	
-	static int _BlockTypeFromToken(const token &tok);
 
 	Stream *fStream;
 	Tokenizer *fTokenizer;

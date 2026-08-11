@@ -598,32 +598,6 @@ Parser::_ReadActionBlock()
 }
 
 
-int
-Parser::_BlockTypeFromToken(const token& tok)
-{
-	if (tok == token("SC"))
-		return BLOCK_SCRIPT;
-	else if (tok == token("CR"))
-		return BLOCK_CONDITION_RESPONSE;
-	else if (tok == token("CO"))
-		return BLOCK_CONDITION;
-	else if (tok == token("TR"))
-		return BLOCK_TRIGGER;
-	else if (tok == token("OB"))
-		return BLOCK_OBJECT;
-	else if (tok == token("RE"))
-		return BLOCK_RESPONSE;
-	else if (tok == token("RS"))
-		return BLOCK_RESPONSESET;
-	else if (tok == token("AC"))
-		return BLOCK_ACTION;
-
-	// token is not a header guard
-	// so we cannot guess the block type
-	return -1;
-}
-
-
 // ParameterExtractor
 ParameterExtractor::ParameterExtractor(Tokenizer& tokenizer)
 	:
