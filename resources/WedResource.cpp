@@ -109,20 +109,20 @@ WEDResource::_ReadTileMap(const uint32& tileMapOffset,
 						const uint32& tileMapIndex)
 {
 	const uint32 mapOffset = tileMapOffset + tileMapIndex * sizeof(tilemap);
-    tilemap tileMap;
-    fData->ReadAt(mapOffset, tileMap);
+	tilemap tileMap;
+	fData->ReadAt(mapOffset, tileMap);
 
-    const int32 offset = tileLookupOffset
-    		+ (tileMap.primary_tile_index * sizeof(uint16));
+	const int32 offset = tileLookupOffset
+			+ (tileMap.primary_tile_index * sizeof(uint16));
 
-    std::vector<int16> indexes;
-    for (int32 i = 0; i < tileMap.primary_tile_count; i++) {
-    	int16 tisIndex;
-    	fData->ReadAt(offset + i * sizeof(int16), tisIndex);
-    	indexes.push_back(tisIndex);
-    }
+	std::vector<int16> indexes;
+	for (int32 i = 0; i < tileMap.primary_tile_count; i++) {
+		int16 tisIndex;
+		fData->ReadAt(offset + i * sizeof(int16), tisIndex);
+		indexes.push_back(tisIndex);
+	}
 
-    return new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index);
+	return new TileMap(tileMap.mask, indexes, tileMap.secondary_tile_index);
 }
 
 
@@ -245,10 +245,8 @@ MapOverlay::MapOverlay(uint16 width, uint16 height, const res_ref& tileSet)
 
 MapOverlay::~MapOverlay()
 {
-	std::map<uint32, TileMap*>::iterator i;
-	for (i = fTileMaps.begin(); i != fTileMaps.end(); i++) {
-		delete i->second;
-	}
+	for (auto entry: fTileMaps)
+		delete entry.second;
 }
 
 
@@ -290,7 +288,7 @@ MapOverlay::SetTileMap(TileMap* tileMap, uint32 index)
 TileMap*
 MapOverlay::TileMapForTileCell(int32 i)
 {
-	std::map<uint32, TileMap*>::iterator it = fTileMaps.find(i);
+	auto it = fTileMaps.find(i);
 	if (it != fTileMaps.end())
 		return it->second;
 	return NULL;

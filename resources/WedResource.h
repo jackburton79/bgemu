@@ -6,7 +6,7 @@
 
 #include <SDL.h>
 
-#include <map>
+#include <unordered_map>
 
 struct tilemap;
 class TileMap;
@@ -31,7 +31,7 @@ private:
 	uint16 fWidth;
 	uint16 fHeight;
 
-	std::map<uint32, TileMap*> fTileMaps;
+	std::unordered_map<uint32, TileMap*> fTileMaps;
 };
 
 namespace GFX {
