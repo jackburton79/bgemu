@@ -95,9 +95,11 @@ public:
 
 	PointList GeneratePath(const IE::point& start, const IE::point& end);
 
-	const PathFindStats& Statistics() const;
+	bool HasLineOfSight(const IE::point &from, const IE::point& to) const;
 
 	static bool IsPassableDefault(const IE::point& start) { return true; };
+
+	const PathFindStats& Statistics() const;
 
 private:
 	int16 fStep;

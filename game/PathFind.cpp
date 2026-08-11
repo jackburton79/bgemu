@@ -331,6 +331,50 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 }
 
 
+
+bool
+PathFinder::HasLineOfSight(const IE::point& from, const IE::point& to) const
+{
+	int x0 = from.x;
+	int y0 = from.y;
+
+	int x1 = to.x;
+	int y1 = to.y;
+
+	int dx = std::abs(x1 - x0);
+	int dy = std::abs(y1 - y0);
+
+	int sx = (x0 < x1) ? 1 : -1;
+	int sy = (y0 < y1) ? 1 : -1;
+
+	int err = dx - dy;
+
+	while (true) {
+		IE::point p = { static_cast<int16>(x0), static_cast<int16>(y0) };
+
+		if (!_IsPassable(p))
+			return false;
+
+		if (x0 == x1 && y0 == y1)
+			break;
+
+		int e2 = 2 * err;
+
+		if (e2 > -dy) {
+			err -= dy;
+			x0 += sx;
+		}
+
+		if (e2 < dx) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+
+	return true;
+}
+
+
 const PathFindStats&
 PathFinder::Statistics() const
 {
@@ -501,19 +545,8 @@ PathFinder::_UpdateNodeCost(point_node* node, const point_node& current, const I
 
 
 void
-PathFinder::_GetSmoothenPath(PointList& pointList)
+PathFinder::_GetSmoothenPath(PointList& path)
 {
-	PointList::iterator p;
-	for (p = pointList.begin(); p != pointList.end(); p++) {
-		IE::point pointA = *p;
-		PointList::iterator current = p;
-		p++;
-		if (p == pointList.end())
-			break;
-		IE::point pointB = *p;
-		IE::point halfPoint = HalfPoint(pointA, pointB);
-		pointList.insert(current, halfPoint);
-	}
 }
 
 
