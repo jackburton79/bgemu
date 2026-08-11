@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 
+constexpr size_t kMaxTokenSize = 127;
+
 // token
 token::token()
 	:
@@ -251,7 +253,7 @@ Tokenizer::_ReadFullToken(char* dest, int32 start)
 {
 	bool quotesOpen = false;
 	char* ptr = dest;
-	while (!fStream->Eof()) {
+	while (!fStream->Eof() && size_t(ptr - dest) < kMaxTokenSize) {
 		char c = fStream->ReadByte();
 		if (Tokenizer::IsWhiteSpace(c)) {
 			fStream->Seek(-1, SEEK_CUR);
