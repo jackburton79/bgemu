@@ -7,8 +7,6 @@
 #include <deque>
 
 
-struct point_node;
-
 typedef bool(*test_function)(const IE::point& start);
 typedef void(*debug_function)(const IE::point& pt);
 typedef std::deque<IE::point> PointList;
@@ -64,6 +62,7 @@ private:
 };
 
 
+struct SearchNode;
 class Bitmap;
 class NodeSearchContext;
 class PathFinder {
@@ -96,16 +95,16 @@ private:
 	bool IsCloseEnough(const IE::point& point, const IE::point& goal) const;
 	uint32 MovementCost(const IE::point& pointA, const IE::point& pointB) const;
 
-	point_node* _InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end);
-	PointList _BuildPath(point_node* goalNode);
+	SearchNode* _InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end);
+	PointList _BuildPath(SearchNode* goalNode);
 
 	bool _IsPassable(const IE::point& point) const;
 	bool _IsReachable(const IE::point& current, const IE::point& point) const;
 	void _AddIfPassable(const IE::point& point,
-			const point_node& current,
+			const SearchNode& current,
 			const IE::point& goal,
 			NodeSearchContext* nodeList);
-	void _UpdateNodeCost(point_node* node, const point_node& current,
+	void _UpdateNodeCost(SearchNode* node, const SearchNode& current,
 			const IE::point& goal, NodeSearchContext& closedNodeList ) const;
 
 	void _GetSmoothenPath(PointList& pointList);
