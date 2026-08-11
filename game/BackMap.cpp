@@ -37,8 +37,7 @@ BackMap::BackMap(WEDResource* wed)
 	}
 	std::cout << "Done! Loaded " << numCells << " tile cells!" << std::endl;
 
-	fImage = new Bitmap(fMapWidth * fTileWidth,
-			fMapHeight * fTileHeight, 16);
+	fImage = new Bitmap(fMapWidth * fTileWidth, fMapHeight * fTileHeight, 16);
 }
 
 
@@ -47,12 +46,12 @@ BackMap::~BackMap()
 	if (fImage != NULL)
 		fImage->Release();
 
-	for (uint32 c = 0; c < fTileCells.size(); c++)
-		delete fTileCells[c];
+	for (auto tileCell : fTileCells)
+		delete tileCell;
 	fTileCells.clear();
 
-	for (uint32 c = 0; c < fOverlays.size(); c++)
-		delete fOverlays[c];
+	for (auto overlay: fOverlays)
+		delete overlay;
 	fOverlays.clear();
 }
 
