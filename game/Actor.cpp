@@ -967,11 +967,6 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 		return true;
 	}
 
-	//if (Position() == Destination())
-	//	SetAnimationAction(ACT_STANDING);
-
-	//assert(fPath->IsEnd());
-
 	SetAnimationAction(ACT_STANDING);
 
 	delete fPath;
