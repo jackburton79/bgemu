@@ -48,6 +48,8 @@ public:
 									Parameter& parameter);
 private:
 	Tokenizer& fTokenizer;
+
+	token _ReadParameterToken();
 };
 
 
@@ -612,14 +614,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 {
 	// TODO: horrible, complex code. Improve, refactor
 	//std::cout << "ExtractNextParameter" << std::endl;
-	token tokenParam = fTokenizer.ReadToken();
-	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
-		return tokenParam;
-
-	//if (parameter.type != Parameter::UNKNOWN)
-	//	parameter.Print();
-	if (tokenParam.type == TOKEN_COMMA)
-		tokenParam = fTokenizer.ReadToken();
+	token tokenParam = _ReadParameterToken();
 
 	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
@@ -683,14 +678,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 {
 	// TODO: horrible, complex code. Improve, refactor
 	//std::cout << "ExtractNextParameter(ACTION)" << std::endl;
-	token tokenParam = fTokenizer.ReadToken();
-	if (tokenParam.type == TOKEN_PARENTHESIS_CLOSED)
-		throw std::runtime_error("Expecting parameter, got closing parenthesis");
-
-	//if (parameter.type != Parameter::UNKNOWN)
-	//	parameter.Print();
-	if (tokenParam.type == TOKEN_COMMA)
-		tokenParam = fTokenizer.ReadToken();
+	token tokenParam = _ReadParameterToken();
 
 	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
@@ -749,6 +737,20 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 	//std::cout << tokenParam.u.string << std::endl;
 
 	return tokenParam;
+}
+
+
+token
+ParameterExtractor::_ReadParameterToken()
+{
+	token t = fTokenizer.ReadToken();
+	if (t.type == TOKEN_PARENTHESIS_CLOSED)
+			throw std::runtime_error("Expecting parameter, got closing parenthesis");
+
+	if (t.type == TOKEN_COMMA)
+		t = fTokenizer.ReadToken();
+
+	return t;
 }
 
 

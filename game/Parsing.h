@@ -112,7 +112,6 @@ public:
 	Parser(const Parser&) = delete;
 	~Parser();
 
-
 	void SetTo(Stream *stream);
 	std::vector<condition_response*> Read();
 	void SetDebug(bool debug);
