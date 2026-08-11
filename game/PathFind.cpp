@@ -318,25 +318,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	if (!found)
 		throw PathNotFoundException();
 
-	PointList tmpPoints;
-	point_node* last = currentNode;
-	const point_node* walkNode = last;
-	while (walkNode != NULL) {
-		tmpPoints.push_front(walkNode->point);
-		walkNode = walkNode->parent;
-	}
-
-	// remove the "current" position, it's useless
-	if (!tmpPoints.empty())
-		tmpPoints.erase(tmpPoints.begin());
-
-	PointList pathPoints;
-	PointList::iterator p;
-	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
-		pathPoints.push_back(*p);
-	}
-
-	//_GetSmoothenPath(pathPoints);
+	PointList pathPoints = _BuildPath(currentNode);
 
 	uint32 length = 0;
 	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
@@ -458,6 +440,31 @@ PathFinder::_InitializeSearch(NodeSearchContext& context, IE::point start, IE::p
 	fStats.generated_nodes++;
 
 	return startNode;
+}
+
+
+PointList
+PathFinder::_BuildPath(point_node* goalNode)
+{
+	PointList tmpPoints;
+	point_node* last = goalNode;
+	const point_node* walkNode = last;
+	while (walkNode != NULL) {
+		tmpPoints.push_front(walkNode->point);
+		walkNode = walkNode->parent;
+	}
+
+	// remove the "current" position, it's useless
+	if (!tmpPoints.empty())
+		tmpPoints.erase(tmpPoints.begin());
+
+	PointList pathPoints;
+	PointList::iterator p;
+	for (p = tmpPoints.begin(); p != tmpPoints.end(); p++) {
+		pathPoints.push_back(*p);
+	}
+
+	return pathPoints;
 }
 
 
