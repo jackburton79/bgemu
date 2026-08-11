@@ -365,6 +365,24 @@ Parser::Test()
 }
 
 
+bool
+Parser::_IsNext(const char* tag)
+{
+	token t = fTokenizer->ReadToken();
+	fTokenizer->RewindToken(t);
+	return t == token(tag);
+}
+
+
+void
+Parser::_Expect(const char* tag)
+{
+	token t = fTokenizer->ReadToken();
+	if (!(t == token(tag)))
+		throw std::runtime_error(std::string("Expected token ") + tag);
+}
+
+
 /* static */
 void
 Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)

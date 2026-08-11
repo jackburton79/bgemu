@@ -109,7 +109,10 @@ class Parameter;
 class Parser {
 public:
 	Parser();
+	Parser(const Parser&) = delete;
 	~Parser();
+
+
 	void SetTo(Stream *stream);
 	std::vector<condition_response*> Read();
 	void SetDebug(bool debug);
@@ -121,9 +124,12 @@ public:
 	static action_params* ActionFromString(const std::string& string);
 
 	static void Test();
+
+	Parser& operator=(const Parser&) = delete;
+
 private:
-	Parser(const Parser&);
-	Parser& operator=(const Parser&);
+	bool _IsNext(const char* tag);
+	void _Expect(const char* tag);
 
 	condition_response* _ReadConditionResponseBlock();
 	void _ReadConditionBlock(condition_block& param);
