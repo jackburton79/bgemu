@@ -385,38 +385,38 @@ Parser::_Expect(const char* tag)
 
 /* static */
 void
-Parser::_ReadObjectBlock(Tokenizer *tokenizer, object_params& obj)
+Parser::_ReadObjectBlock(object_params& obj)
 {
 	// HEADER GUARD (OB)
-	token h = tokenizer->ReadToken();
-	if (h == token("OB")) {
-		obj.ea = tokenizer->ReadToken().u.number;
-		if (Core::Get()->Game() == GAME_TORMENT) {
-			obj.faction = tokenizer->ReadToken().u.number;
-			obj.team = tokenizer->ReadToken().u.number;
-		}
-		obj.general = tokenizer->ReadToken().u.number;
-		obj.race = tokenizer->ReadToken().u.number;
-		obj.classs = tokenizer->ReadToken().u.number;
-		obj.specific = tokenizer->ReadToken().u.number;
-		obj.gender = tokenizer->ReadToken().u.number;
-		obj.alignment = tokenizer->ReadToken().u.number;
-		for (int32 i = 0; i < 5; i++)
-			obj.identifiers[i] = tokenizer->ReadToken().u.number;
+	if (!_IsNext("OB"))
+		return;
 
-		// TODO: Not sure which games supports that
-		if (Core::Get()->Game() == GAME_TORMENT) {
-			obj.point.x = tokenizer->ReadToken().u.number;
-			obj.point.y = tokenizer->ReadToken().u.number;
-		}
-		token stringToken = tokenizer->ReadToken();
-		get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);
+	_Expect("OB");
 
-		// HEADER GUARD (OB)
-		token t = tokenizer->ReadToken();
-		assert(t == token("OB"));
-	} else
-		tokenizer->RewindToken(h);
+	obj.ea = fTokenizer->ReadToken().u.number;
+	if (Core::Get()->Game() == GAME_TORMENT) {
+		obj.faction = fTokenizer->ReadToken().u.number;
+		obj.team = fTokenizer->ReadToken().u.number;
+	}
+	obj.general = fTokenizer->ReadToken().u.number;
+	obj.race = fTokenizer->ReadToken().u.number;
+	obj.classs = fTokenizer->ReadToken().u.number;
+	obj.specific = fTokenizer->ReadToken().u.number;
+	obj.gender = fTokenizer->ReadToken().u.number;
+	obj.alignment = fTokenizer->ReadToken().u.number;
+	for (int32 i = 0; i < 5; i++)
+		obj.identifiers[i] = fTokenizer->ReadToken().u.number;
+
+	// TODO: Not sure which games supports that
+	if (Core::Get()->Game() == GAME_TORMENT) {
+		obj.point.x = fTokenizer->ReadToken().u.number;
+		obj.point.y = fTokenizer->ReadToken().u.number;
+	}
+	token stringToken = fTokenizer->ReadToken();
+	get_unquoted_string(obj.name, stringToken.u.string, stringToken.size);
+
+	// HEADER GUARD (OB)
+	_Expect("OB");
 }
 
 
@@ -521,7 +521,7 @@ Parser::_ReadTriggerBlock()
 	get_unquoted_string(trig->string2, stringToken2.u.string, stringToken2.size);
 
 	// Object
-	_ReadObjectBlock(fTokenizer, *trig->Object());
+	_ReadObjectBlock(*trig->Object());
 
 	_Expect("TR");
 
@@ -576,9 +576,9 @@ Parser::_ReadActionBlock()
 
 	action_params* act = new action_params;
 	act->id = fTokenizer->ReadToken().u.number;
-	_ReadObjectBlock(fTokenizer, *act->First());
-	_ReadObjectBlock(fTokenizer, *act->Second());
-	_ReadObjectBlock(fTokenizer, *act->Third());
+	_ReadObjectBlock(*act->First());
+	_ReadObjectBlock(*act->Second());
+	_ReadObjectBlock(*act->Third());
 
 	act->integer1 = fTokenizer->ReadToken().u.number;
 	act->where.x = fTokenizer->ReadToken().u.number;

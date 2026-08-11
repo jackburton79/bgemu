@@ -139,7 +139,7 @@ private:
 	response_node* _ReadResponseBlock();
 	action_params* _ReadActionBlock();
 
-	static void _ReadObjectBlock(Tokenizer *tokenizer, object_params& obj);
+	void _ReadObjectBlock(object_params& obj);
 
 	static bool _ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* triggerNode);
 	static bool _ExtractActionName(Tokenizer& tokenizer, ::action_params* param);
