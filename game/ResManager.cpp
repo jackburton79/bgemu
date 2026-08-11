@@ -485,6 +485,7 @@ ResourceManager::ReleaseResource(Resource* resource)
 		std::cout << ")";
 		std::cout << ": refcount was " << refCount;*/
 		if (resource->Release()) {
+			fCachedResources.erase(resource->Key());
 			delete resource;
 			//std::cout << " and is now 0. Resource deleted";
 		} /*else
