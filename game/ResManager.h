@@ -9,6 +9,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 extern const char *kKeyResource;
@@ -103,7 +104,7 @@ private:
 
 	bif_vector fBifs;
 	resource_map fResourceMap;
-	std::list<Resource*> fCachedResources;
+	std::unordered_map<uint32, Resource*> fCachedResources;
 	archive_map fArchives;
 
 	bool fDebugLevel;

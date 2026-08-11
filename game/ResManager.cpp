@@ -141,14 +141,13 @@ ResourceManager::~ResourceManager()
 
 	std::cout << kComponentName << "Deleting cached resources...";
 	std::cout << std::endl;
-	std::list<Resource*>::iterator it;
-	for (it = fCachedResources.begin(); it != fCachedResources.end(); it++) {
+	for (auto resource: fCachedResources) {
 		if (fDebugLevel > 0) {
-			std::cout << "Deleting " << (*it)->Name();
-			std::cout << "(" << strresource((*it)->Type()) << ")";
-			std::cout << " (refcount = " << (*it)->RefCount() << ")..." << std::endl;
+			std::cout << "Deleting " << resource.second->Name();
+			std::cout << "(" << strresource(resource.second->Type()) << ")";
+			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
 		}
-		delete *it;
+		delete resource.second;
 	}
 
 	std::cout << kComponentName << "Deleting resource_maps...";
@@ -466,13 +465,12 @@ ResourceManager::GetVVC(const res_ref& name)
 void
 ResourceManager::GetCachedResourcesList(StringList& list)
 {
-	std::list<Resource*>::iterator iter;
-	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
-		std::string resource = (*iter)->Name();
-		resource.append("(");
-		resource.append(strresource((*iter)->Type()));
-		resource.append(")");
-		list.push_back(resource);
+	for (auto resource : fCachedResources) {
+		std::string resourceName = resource.second->Name();
+		resourceName.append("(");
+		resourceName.append(strresource(resource.second->Type()));
+		resourceName.append(")");
+		list.push_back(resourceName);
 	}
 }
 
@@ -588,7 +586,7 @@ ResourceManager::_LoadResource(const KeyResEntry &entry)
 	}
 
 	resource->Acquire();
-	fCachedResources.push_back(resource);
+	fCachedResources[resource->Key()] = resource;
 	if (fDebugLevel > 0) {
 		std::cout << "\t-> Resource " << entry.name.CString();
 		std::cout << " (" << strresource(entry.type) << ") ";
@@ -633,7 +631,7 @@ ResourceManager::_LoadResourceFromOverride(const KeyResEntry& entry,
 	}
 
 	resource->Acquire();
-	fCachedResources.push_back(resource);
+	fCachedResources[resource->Key()] = resource;
 
 	if (fDebugLevel > 0) {
 		std::cout << "Resource " << entry.name << "(";
@@ -717,12 +715,11 @@ ResourceManager::SearchMapName(const char *name)
 Resource*
 ResourceManager::_FindResource(const KeyResEntry &entry)
 {
-	std::list<Resource*>::iterator iter;
-	for (iter = fCachedResources.begin(); iter != fCachedResources.end(); iter++) {
-		if ((*iter)->Key() == entry.key)
-			return *iter;
-	}
-	return NULL;
+	auto iter = fCachedResources.find(entry.key);
+	if (iter == fCachedResources.end())
+		return NULL;
+
+	return iter->second;
 }
 
 
@@ -744,7 +741,7 @@ ResourceManager::TryEmptyResourceCache()
 #if 0
 	// TODO: This causes font resources (amongs others) to be unloaded
 	// when they are still used. Need to fix resource unloading
-	std::list<Resource*>::iterator it = fCachedResources.begin();
+	auto it = fCachedResources.begin();
 	while (it != fCachedResources.end()) {
 		if ((*it)->RefCount() == 1) {
 			//std::cout << "deleting resource " << (*it)->Name() << std::endl;
