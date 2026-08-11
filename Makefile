@@ -25,6 +25,7 @@ archives \
 game \
 gui \
 resources \
+scripting \
 shell
 
 OUTDIR = ./bin
