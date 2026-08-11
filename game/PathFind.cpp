@@ -32,6 +32,25 @@ struct PointEqual {
 };
 
 
+struct point_node {
+	point_node(IE::point p, const point_node* parentNode, int nodeCost)
+		:
+		point(p),
+		parent(parentNode),
+		cost(nodeCost),
+		cost_to_goal(UINT_MAX),
+		open(false)
+	{
+	};
+
+	const IE::point point;
+	const struct point_node* parent;
+	uint32 cost;
+	uint32 cost_to_goal;
+	bool open;
+};
+
+
 struct NodeCompare {
 	bool operator()(const point_node* a, const point_node* b) const
 	{
