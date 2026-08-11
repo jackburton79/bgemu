@@ -346,7 +346,6 @@ Parser::Read()
 }
 
 
-
 void
 Parser::Test()
 {
@@ -824,11 +823,15 @@ trigger_params::~trigger_params()
 trigger_params&
 trigger_params::operator=(const trigger_params& other)
 {
+	if (&other == this)
+		return *this;
+
 	id = other.id;
 	parameter1 = other.id;
 	flags = other.flags;
 	parameter2 = other.parameter2;
 	unknown = other.unknown;
+	delete object;
 	object = NULL;
 	strcpy(string1, other.string1);
 	strcpy(string2, other.string2);

@@ -49,7 +49,7 @@ struct trigger_params {
 	trigger_params& operator=(const trigger_params& other);
 
 private:
-	object_params* object;
+	object_params* object = NULL;
 };
 
 
