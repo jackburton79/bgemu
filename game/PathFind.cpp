@@ -194,16 +194,18 @@ Path::AddPoint(const IE::point& point, test_function func)
 
 
 IE::point
-Path::NextStep(const int& step)
+Path::NextStep(int step)
 {
-	assert(fPoints != NULL);
-	if (fPoints->empty())
-		return IE::point{0, 0};
+	assert(fPoints != nullptr);
 
-	for (int i = 0; i < step; i++) {
-		if (fIterator != fPoints->end())
-			fIterator++;
+	if (fPoints->empty())
+		return IE::point{ 0, 0 };
+
+	while (step > 0 && fIterator != fPoints->end()) {
+		++fIterator;
+		--step;
 	}
+
 	if (fIterator == fPoints->end())
 		return fPoints->back();
 

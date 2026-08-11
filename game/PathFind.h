@@ -49,7 +49,7 @@ public:
 
 	void AddPoint(const IE::point& point, test_function func);
 
-	IE::point NextStep(const int& step = 1);
+	IE::point NextStep(int step = 1);
 	bool IsEmpty() const;
 	bool IsEnd() const;
 	void Rewind();
