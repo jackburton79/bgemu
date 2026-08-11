@@ -10,7 +10,7 @@
 
 #include "Bitmap.h"
 
-#define PATHFIND_MAX_TRIES 9000000
+static constexpr uint32 kMaxTries = 9000000;
 
 const int kMovementCost = 1;
 const int kDiagMovementCost = 2;
@@ -37,16 +37,16 @@ struct SearchNode {
 		:
 		point(p),
 		parent(parentNode),
-		cost(nodeCost),
-		cost_to_goal(UINT_MAX),
+		gCost(nodeCost),
+		fCost(UINT_MAX),
 		open(false)
 	{
 	};
 
 	const IE::point point;
 	const struct SearchNode* parent;
-	uint32 cost;
-	uint32 cost_to_goal;
+	uint32 gCost;
+	uint32 fCost;
 	bool open;
 };
 
@@ -54,7 +54,7 @@ struct SearchNode {
 struct NodeCompare {
 	bool operator()(const SearchNode* a, const SearchNode* b) const
 	{
-		return a->cost_to_goal > b->cost_to_goal;
+		return a->fCost > b->fCost;
 	}
 };
 
@@ -130,16 +130,14 @@ PathFindStats::Reset()
 // Path
 Path::Path()
 	:
-	fPoints(new PointList),
-	fIterator(fPoints->begin())
+	fIterator(fPoints.begin())
 {
 }
 
 
 Path::Path(const IE::point start, const IE::point end, test_function func)
 	:
-	fPoints(new PointList),
-	fIterator(fPoints->begin())
+	fIterator(fPoints.begin())
 {
 	Set(start, end, func);
 }
@@ -147,26 +145,20 @@ Path::Path(const IE::point start, const IE::point end, test_function func)
 
 Path::~Path()
 {
-	delete fPoints;
 }
 
 
 void
 Path::Set(const IE::point& start, const IE::point& end, test_function func)
 {
-	delete fPoints;
-	fPoints = nullptr;
-
-	fPoints = new PointList;
-
 	// Use 2 here so it's faster, we'll interpolate the path later
 	PathFinder pathFinder(2, func, true);
 	// This can throw an exception
 	PointList path = pathFinder.GeneratePath(start, end);
 
-	fPoints->swap(path);
+	fPoints.swap(path);
 
-	fIterator = fPoints->begin();
+	fIterator = fPoints.begin();
 
 	fStats = pathFinder.Statistics();
 }
@@ -175,38 +167,34 @@ Path::Set(const IE::point& start, const IE::point& end, test_function func)
 void
 Path::Clear()
 {
-	assert(fPoints != NULL);
-	fPoints->erase(fPoints->begin(), fPoints->end());
-	fIterator = fPoints->begin();
+	fPoints.clear();
+	fIterator = fPoints.begin();
 }
 
 
 IE::point
 Path::Start() const
 {
-	assert(fPoints != NULL);
-	assert(!fPoints->empty());
-	return *fPoints->begin();
+	assert(!fPoints.empty());
+	return *fPoints.begin();
 }
 
 
 IE::point
 Path::End() const
 {
-	assert(fPoints != NULL);
-	assert(!fPoints->empty());
-	return *fPoints->rbegin();
+	assert(!fPoints.empty());
+	return *fPoints.rbegin();
 }
 
 
 void
 Path::AddPoint(const IE::point& point, test_function func)
 {
-	assert(fPoints != NULL);
 	PathFinder pathFinder(2, func, true);
-	PointList path = pathFinder.GeneratePath(fPoints->front(), point);
+	PointList path = pathFinder.GeneratePath(fPoints.front(), point);
 	for (PointList::const_iterator i = path.begin(); i != path.end(); i++)
-		fPoints->push_back(*i);
+		fPoints.push_back(*i);
 	fStats = pathFinder.Statistics();
 }
 
@@ -214,18 +202,16 @@ Path::AddPoint(const IE::point& point, test_function func)
 IE::point
 Path::NextStep(int step)
 {
-	assert(fPoints != nullptr);
-
-	if (fPoints->empty())
+	if (fPoints.empty())
 		return IE::point{ 0, 0 };
 
-	while (step > 0 && fIterator != fPoints->end()) {
+	while (step > 0 && fIterator != fPoints.end()) {
 		++fIterator;
 		--step;
 	}
 
-	if (fIterator == fPoints->end())
-		return fPoints->back();
+	if (fIterator == fPoints.end())
+		return fPoints.back();
 
 	return *fIterator;
 }
@@ -234,16 +220,14 @@ Path::NextStep(int step)
 bool
 Path::IsEmpty() const
 {
-	assert(fPoints != NULL);
-	return fPoints->empty();
+	return fPoints.empty();
 }
 
 
 bool
 Path::IsEnd() const
 {
-	assert(fPoints != NULL);
-	return fIterator == fPoints->end();
+	return fIterator == fPoints.end();
 }
 
 
@@ -280,7 +264,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	NodeSearchContext searchContext;
 	SearchNode* currentNode = _InitializeSearch(searchContext, start, end);
 
-	uint32 tries = PATHFIND_MAX_TRIES;
+	uint32 tries = kMaxTries;
 	bool found = false;
 	const IE::point directions[] = {
 		{ int16(-fStep), int16(-fStep) },
@@ -431,7 +415,7 @@ SearchNode*
 PathFinder::_InitializeSearch(NodeSearchContext& context, IE::point start, IE::point end)
 {
 	SearchNode* startNode = new SearchNode(start, NULL, 0);
-	startNode->cost_to_goal = PointDistance(startNode->point, end) + startNode->cost;
+	startNode->fCost = PointDistance(startNode->point, end) + startNode->gCost;
 	startNode->open = true;
 	context.nodelist.push_back(startNode);
 	context.AddOpenNode(startNode);
@@ -560,12 +544,12 @@ PathFinder::_UpdateNodeCost(SearchNode* node, const SearchNode& current, const I
 							NodeSearchContext& closedNodeList) const
 {
 	const uint32 newCost = MovementCost(current.point,
-			node->point) + current.cost;
-	if (newCost < node->cost) {
+			node->point) + current.gCost;
+	if (newCost < node->gCost) {
 		fStats.updated_nodes++;
 		node->parent = &current;
-		node->cost = newCost;
-		node->cost_to_goal = Distance(node->point, goal) + node->cost;
+		node->gCost = newCost;
+		node->fCost = Distance(node->point, goal) + node->gCost;
 		closedNodeList.AddOpenNode(node);
 	}
 }
