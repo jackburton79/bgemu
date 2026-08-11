@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, Stefano Ceccherini <stefano.ceccherini@gmail.com>
+ * Copyright 2018-2026, Stefano Ceccherini <stefano.ceccherini@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
 
@@ -22,6 +22,23 @@ SearchMap::SearchMap(std::string name)
 		fImage = resource->Image();
 		fModifiedMap = fImage->Clone();
 		gResManager->ReleaseResource(resource);
+	}
+
+	if (fImage != nullptr) {
+		fWidth = fImage->Width();
+		fHeight = fImage->Height();
+
+		fPassabilityMap.resize(fWidth * fHeight);
+
+		for (int y = 0; y < fHeight; ++y) {
+			for (int x = 0; x < fWidth; ++x) {
+				uint8 state = fModifiedMap->GetPixel(x, y);
+				bool passable = state != 0 && state != 8 && state != 10
+						&& state != 12 && state != 13;
+
+				fPassabilityMap[y * fWidth + x] = passable;
+			}
+		}
 	}
 }
 
@@ -50,23 +67,9 @@ SearchMap::Height() const
 bool
 SearchMap::IsPointPassable(int32 x, int32 y) const
 {
-	// Search tile is 1/16 and 1/12
-	x = x / 16;
-	y = y / 12;
-	
-	uint8 state = fModifiedMap->GetPixel(x, y);
-	switch (state) {
-		case 0:
-		case 8:
-		case 10:
-		case 12:
-		case 13:
-			return false;
-		default:
-			break;
-	}
-	
-	return true;
+	x /= 16;
+	y /= 12;
+	return fPassabilityMap[y * fWidth + x];
 }
 
 

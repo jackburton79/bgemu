@@ -26,6 +26,10 @@ public:
 private:
 	Bitmap* fImage;
 	Bitmap* fModifiedMap;
+
+	std::vector<uint8> fPassabilityMap;
+	int32 fWidth;
+	int32 fHeight;
 };
 
 
