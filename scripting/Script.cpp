@@ -168,24 +168,23 @@ Script::Execute(bool& continuing, bool& finished)
 void
 Script::ExecuteCutscene()
 {
-	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
-		condition_response* cr = fConditionResponses.at(cri);
+	for (auto cr: fConditionResponses) {
 		response_set& responseSet = cr->responseSet;
 		if (sDebug)
 			std::cout << "RESPONSE" << std::endl;
 
 		Object* sender = NULL;
-		for (size_t r = 0; r < responseSet.resp.size(); r++) {
-			std::vector<action_params*>* actions = &responseSet.resp.at(r)->actions;
+		for (auto response: responseSet.resp) {
+			std::vector<action_params*>* actions = &response->actions;
 			if (sender == NULL)
 				sender = GetObject(NULL, actions->at(0)->Second());
 			if (sender != NULL) {
 				SetSender(sender);
 				std::cout << "CUTSCENEID: " << sender->Name() << std::endl;
 			}
-			for (size_t a = 0; a < actions->size(); a++) {
+			for (auto action: *actions) {
 				std::cout << "SENDER: " << (sender ? sender->Name() : "NONE") << std::endl;
-				_HandleAction(actions->at(a));
+				_HandleAction(action);
 			}
 		}
 	}
@@ -835,8 +834,8 @@ Script::_HandleResponseSet(response_set& responseSet)
 	// TODO: Handle the case where the response set is empty
 	int totalChance = 0;
 	size_t numResponses = responseSet.resp.size();
-	for (size_t i = 0; i < numResponses; i++) {
-		totalChance += responseSet.resp[i]->probability;
+	for (auto response: responseSet.resp) {
+		totalChance += response->probability;
 	}
 
 	if (sDebug) {
@@ -847,16 +846,14 @@ Script::_HandleResponseSet(response_set& responseSet)
 	}
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, numResponses - 1);
-
-	std::vector<action_params*> actions = responseSet.resp[randomResponse]->actions;
-	std::vector<action_params*>::iterator action;
+	auto actions = responseSet.resp.at(randomResponse)->actions;
 	// More than one action
-	for (action = actions.begin(); action != actions.end(); action++) {
+	for (auto action : actions) {
 		// When _HandleAction() returns true,
 		// it means it's a CONTINUE() action
 		// since this should be the last action of an action block, we return
 		// TODO: check if it's correct
-		if (_HandleAction(*action)) {
+		if (_HandleAction(action)) {
 			//std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
 			return true;
 		}
