@@ -36,6 +36,7 @@ struct transition_entry {
 	bool HasPlayerText() const;
 	bool HasActions() const;
 	bool HasNextState() const;
+	bool HasTrigger() const;
 
 	int32 flags;
 	int32 text_player;

@@ -169,3 +169,10 @@ transition_entry::HasNextState() const
 {
 	return (flags & DLG_TRANSITION_END) == 0;
 }
+
+
+bool
+transition_entry::HasTrigger() const
+{
+	return flags & DLG_TRANSITION_HAS_TRIGGER;
+}
