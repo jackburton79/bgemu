@@ -16,10 +16,6 @@ enum class DialogState {
 	Finished
 };
 
-struct DialogContext {
-	int32 currentState;
-	std::vector<transition_entry> visibleTransitions;
-};
 
 class Actor;
 class DLGResource;
@@ -30,7 +26,6 @@ public:
 
 	bool IsWaitingUserChoice() const;
 
-	void ShowTriggerText();
 	int32 ShowPlayerOptions();
 
 	void SelectOption(int32 option);
@@ -45,7 +40,6 @@ public:
 
 private:
 	DialogState	fStatus;
-	DialogContext fContext;
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	int32 fCurrentState;
@@ -53,10 +47,12 @@ private:
 	std::vector<size_t> fVisibleTransitions;
 
 	DLGResource* fResource;
-	bool fEnd;
 
 	void _AdvanceState();
-	void _ShowCurrentState();
+	void _ShowCurrentState(const dlg_state& state);
+	bool _TransitionVisible(const transition_entry& transition);
+	void _BuildTransitions(const dlg_state& state);
+	void _ShowTriggerText(const dlg_state& state);
 	void _ExecuteTransition(const transition_entry& transition);
 
 	void _Advance();
