@@ -10,31 +10,23 @@
 
 #include "DLGResource.h"
 
+enum class DialogState {
+	Advancing,
+	WaitingForPlayer,
+	Finished
+};
+
+struct DialogContext {
+	int32 currentState;
+	std::vector<transition_entry> visibleTransitions;
+};
+
 class Actor;
 class DLGResource;
 class DialogHandler {
 public:
 	DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef);
 	~DialogHandler();
-
-	class State {
-	public:
-		State(std::string triggerString, std::string text,
-			  int32 numTransitions, int32 transitionIndex);
-		std::string Trigger() const;
-		std::string Text() const;
-		int32 NumTransitions() const;
-		int32 TransitionIndex() const;
-
-	private:
-		std::string fText;
-		std::string fTrigger;
-		int32 fTransitonIndex;
-		int32 fNumTransitions;
-	};
-
-	State* CurrentState();
-	State* GetNextValidState();
 
 	bool IsWaitingUserChoice() const;
 
@@ -52,20 +44,23 @@ public:
 	::Actor* Actor();
 
 private:
-	State* fState;
-	int32 fNextStateIndex;
+	DialogState	fStatus;
+	DialogContext fContext;
 	::Actor* fInitiator;
 	::Actor* fTarget;
-
-	typedef std::vector<transition_entry> TransitionList;
-	TransitionList fTransitions;
-
+	int32 fCurrentState;
+	std::vector<transition_entry> fTransitions;
 	std::vector<size_t> fVisibleTransitions;
 
 	DLGResource* fResource;
 	bool fEnd;
 
-	State* _GetNextState();
+	void _AdvanceState();
+	void _ShowCurrentState();
+	void _ExecuteTransition(const transition_entry& transition);
+
+	void _Advance();
+
 	transition_entry _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);
 };

@@ -23,10 +23,9 @@
 // DialogState
 DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
-	fState(NULL),
-	fNextStateIndex(0),
 	fInitiator(initiator),
 	fTarget(target),
+	fCurrentState(0),
 	fResource(NULL),
 	fEnd(false)
 {
@@ -36,35 +35,7 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 
 DialogHandler::~DialogHandler()
 {
-	delete fState;
 	gResManager->ReleaseResource(fResource);
-}
-
-
-DialogHandler::State*
-DialogHandler::GetNextValidState()
-{
-	//std::cout << "DialogHandler::GetNextValidState()" << std::endl;
-	for (;;) {
-		fState = _GetNextState();
-		if (fState == NULL)
-			break;
-		//std::cout << "DialogHandler::GetNextValidState(): got state" << std::endl;
-		std::vector<trigger_params*> triggerList = Parser::TriggersFromString(fState->Trigger());
-		//std::cout << "GetNextValidState: Checking triggers... " << std::endl;
-		if (triggerList.size() == 0) {
-			//std::cout << "GetNextValidState: no trigger found." << std::endl;
-			break;
-		}
-		if (Actor()->EvaluateDialogTriggers(triggerList)) {
-			//std::cout << "GetNextValidState: a trigger returned true!" << std::endl;
-			break;
-		}
-	}
-
-	//std::cout << "GetNextValidState: text: " << (fState ? fState->Text() : "NULL") << std::endl;
-
-	return fState;
 }
 
 
@@ -134,46 +105,27 @@ void
 DialogHandler::SelectOption(int32 option)
 {
 	assert(option >= 0);
-	assert(static_cast<size_t>(option) < fVisibleTransitions.size());
+	assert(option < fVisibleTransitions.size());
 
-	const size_t transitionIndex = fVisibleTransitions[option];
+	int32 transitionIndex = fVisibleTransitions[option];
 
-	HandleTransition(fTransitions.at(transitionIndex));
+	transition_entry transition = fResource->GetTransition(transitionIndex);
+	_ExecuteTransition(transition);
 }
 
 
 bool
 DialogHandler::Continue()
 {
-	//std::cout << "DialogHandler::Continue()" << std::endl;
-
-	if (fEnd)
+	if (fStatus == DialogState::Finished)
 		return false;
 
-	fState = GetNextValidState();
-	if (fState) {
-		ShowTriggerText();
-		// TODO: see if it's correct
-		int32 numOptions = ShowPlayerOptions();
-		// TODO: Handle all transactions ?
-		if (numOptions == 0 && fTransitions.size() >= 1) {
-			transition_entry transition = fTransitions.at(0);
-			HandleTransition(transition);
-		}
+	if (fStatus == DialogState::WaitingForPlayer)
 		return true;
-	}
 
-	//std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
+	_Advance();
 
-	return false;
-
-}
-
-
-DialogHandler::State*
-DialogHandler::CurrentState()
-{
-	return fState;
+	return fStatus != DialogState::Finished;
 }
 
 
@@ -232,6 +184,88 @@ DialogHandler::HandleTransition(transition_entry transition)
 	} else {
 		fEnd = true;
 		//std::cout << "TRANSITION_END" << std::endl;
+	}
+}
+
+
+void
+DialogHandler::_AdvanceState()
+{
+	for (;;) {
+		dlg_state state = fResource->GetStateAt(fCurrentState);
+
+		if (StateTriggersAreTrue(state)) {
+			_ShowCurrentState(state);
+			return;
+		}
+
+		fCurrentState++;
+	}
+}
+
+
+void
+DialogHandler::_ShowCurrentState(const dlg_state& state)
+{
+	ShowNPCText(state);
+
+	BuildVisibleTransitions(state);
+
+	if (fVisibleTransitions.empty()) {
+		...
+	}
+	else {
+		fStatus = DialogStatus::WaitingForPlayer;
+	}
+}
+
+
+void
+DialogHandler::_ExecuteTransition(const transition_entry& transition)
+{
+	RunActions(transition);
+
+	if (!transition.HasNextState()) {
+		fStatus =
+			DialogStatus::Finished;
+		return;
+	}
+
+	LoadNextState(transition);
+
+	fStatus = DialogStatus::Advancing;
+}
+
+
+void
+DialogHandler::_Advance()
+{
+	for (;;) {
+		dlg_state state;
+
+		try {
+			state = fResource->GetStateAt(fCurrentState);
+		} catch (...) {
+			fStatus = FINISHED;
+			return;
+		}
+
+		bool valid = true;
+
+		if (state.trigger != -1) {
+			std::string trigger = fResource->GetStateTrigger(state.trigger);
+
+			auto triggers = Parser::TriggersFromString(trigger);
+
+			valid = fInitiator->EvaluateDialogTriggers(triggers);
+		}
+
+		if (valid) {
+			_ShowState(state);
+			return;
+		}
+
+		fCurrentState++;
 	}
 }
 
@@ -313,42 +347,3 @@ DialogHandler::_FillPlaceHolders(std::string& text)
 	}
 }
 
-
-// DialogState::State
-DialogHandler::State::State(std::string triggerString, std::string text,
-						  int32 numTransitions, int32 transitionIndex)
-	:
-	fText(text),
-	fTrigger(triggerString),
-	fTransitonIndex(transitionIndex),
-	fNumTransitions(numTransitions)
-{
-}
-
-
-std::string
-DialogHandler::State::Trigger() const
-{
-	return fTrigger;
-}
-
-
-std::string
-DialogHandler::State::Text() const
-{
-	return fText;
-}
-
-
-int32
-DialogHandler::State::NumTransitions() const
-{
-	return fNumTransitions;
-}
-
-
-int32
-DialogHandler::State::TransitionIndex() const
-{
-	return fTransitonIndex;
-}
