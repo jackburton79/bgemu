@@ -228,8 +228,7 @@ DialogHandler::_AdvanceState()
 transition_entry
 DialogHandler::_ReadTransition(int32 num)
 {
-	transition_entry transition = fResource->GetTransition(num);
-	return transition;
+	return fResource->GetTransition(num);
 }
 
 

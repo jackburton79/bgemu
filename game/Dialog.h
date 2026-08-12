@@ -55,8 +55,6 @@ private:
 	void _ShowTriggerText(const dlg_state& state);
 	void _ExecuteTransition(const transition_entry& transition);
 
-	void _Advance();
-
 	transition_entry _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);
 };
