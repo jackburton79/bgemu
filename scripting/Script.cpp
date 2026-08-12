@@ -138,11 +138,10 @@ Script::Execute(bool& continuing, bool& finished)
 			}
 		}
 
-		response_set& responseSet = cr->responseSet;
-
 		if (sDebug)
 			std::cout << "RESPONSE" << std::endl;
 
+		response_set& responseSet = cr->responseSet;
 		foundContinue = _HandleResponseSet(responseSet);
 		if (!continuing && !foundContinue) {
 			finished = true;

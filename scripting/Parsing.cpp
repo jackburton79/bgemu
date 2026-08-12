@@ -38,7 +38,6 @@ public:
 };
 
 
-
 class ParameterExtractor {
 public:
 	ParameterExtractor(Tokenizer& tokenizer);
