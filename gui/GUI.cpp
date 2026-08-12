@@ -58,9 +58,8 @@ GUI::GUI(uint16 width, uint16 height)
 GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
-	for (std::vector<Window*>::const_iterator iter = fWindows.begin();
-			iter != fWindows.end(); iter++) {
-		delete *iter;
+	for (auto window: fWindows) {
+		delete window;
 	}
 
 	fWindows.clear();
@@ -169,9 +168,7 @@ GUI::Draw()
 	// TODO: is there a better place ?
 	UpdateCursorAndScrolling(fCursorPosition.x, fCursorPosition.y);
 
-	std::vector<Window*>::const_iterator i;
-	for (i = fWindows.begin(); i < fWindows.end(); i++) {
-		Window* window = *i;
+	for (auto window: fWindows) {
 		if (window->Shown()) {
 			window->Pulse();
 			window->Draw();
@@ -328,10 +325,8 @@ GUI::ToggleWindow(uint16 id)
 void
 GUI::Clear()
 {
-	for (std::vector<Window*>::const_iterator i = fWindows.begin();
-			i != fWindows.end(); i++) {
-		delete *i;
-	}
+	for (auto window: fWindows)
+		delete window;
 	fWindows.clear();
 
 	_AddBackgroundWindow();
@@ -342,9 +337,9 @@ Window*
 GUI::GetWindow(uint16 id) const
 {
 	std::vector<Window*>::const_iterator i;
-	for (i = fWindows.begin(); i != fWindows.end(); i++) {
-		if ((*i)->ID() == id)
-			return *i;
+	for (const auto window: fWindows) {
+		if (window->ID() == id)
+			return window;
 	}
 
 	return NULL;
@@ -672,9 +667,7 @@ GUI::_InitCursors()
 void
 GUI::_DrawStrings()
 {
-	std::list<string_entry>::const_iterator i;
-	for (i = fTooltipList.begin(); i != fTooltipList.end(); i++) {
-		const string_entry& entry = *i;
+	for (const auto& entry: fTooltipList) {
 		GraphicsEngine::Get()->BlitToScreen(entry.bitmap, NULL, (GFX::rect*)&entry.rect);
 	}
 }
