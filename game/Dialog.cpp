@@ -151,7 +151,6 @@ DialogHandler::Continue()
 		return false;
 
 	fState = GetNextValidState();
-
 	if (fState) {
 		ShowTriggerText();
 		// TODO: see if it's correct
