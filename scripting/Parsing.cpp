@@ -1,18 +1,18 @@
-#include "Actions.h"
-#include "Core.h"
-#include "IDSResource.h"
-#include "Log.h"
 #include "Parsing.h"
-#include "ResManager.h"
-#include "StringStream.h"
-#include "Triggers.h"
-#include "Utils.h"
 
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include "Script.h"
+
+#include "Actions.h"
+#include "Core.h"
+#include "IDSResource.h"
+#include "Log.h"
+#include "ResManager.h"
+#include "StringStream.h"
+#include "Triggers.h"
+#include "Utils.h"
 
 
 class Parameter {
@@ -241,8 +241,8 @@ GetFunctionParameters(const std::string& functionString)
 #if 0
 	std::cout << "found " << parameters.size() << " parameters." << std::endl;
 	std::vector<Parameter>::const_iterator i;
-	for (i = parameters.begin(); i != parameters.end(); i++) {
-		(*i).Print();
+	for (auto param: parameters) {
+		param.Print();
 	}
 #endif
 	return parameters;
@@ -275,9 +275,7 @@ Parser::TriggerFromString(const std::string& string)
 	}
 	ParameterExtractor extractor(tokenizer);
 	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node->id));
-	for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
-			i != paramTypes.end(); i++) {
-		Parameter parameter = *i;
+	for (auto parameter: paramTypes) {
 		extractor._ExtractNextParameter(node, parameter);
 	}
 
@@ -317,9 +315,7 @@ Parser::ActionFromString(const std::string& string)
 	ParameterExtractor extractor(tokenizer);
 	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionName(params->id));
 	try {
-		for (std::vector<Parameter>::const_iterator i = paramTypes.begin();
-				i != paramTypes.end(); i++) {
-			Parameter parameter = *i;
+		for (auto parameter: paramTypes) {
 			extractor._ExtractNextParameter(params, parameter);
 		}
 	} catch (const std::exception& exception) {
@@ -549,7 +545,6 @@ Parser::_ReadResponseSetBlock(response_set& respSet)
 		respSet.resp.push_back(resp);
 
 	_Expect("RS");
-
 }
 
 
@@ -563,6 +558,7 @@ Parser::_ReadResponseBlock()
 
 	response_node* resp = new response_node;
 	resp->probability = fTokenizer->ReadToken().u.number;
+
 	action_params* act = NULL;
 	while ((act = _ReadActionBlock()) != NULL)
 		resp->actions.push_back(act);
@@ -741,7 +737,7 @@ ParameterExtractor::_ReadParameterToken()
 {
 	token t = fTokenizer.ReadToken();
 	if (t.type == TOKEN_PARENTHESIS_CLOSED)
-			throw std::runtime_error("Expecting parameter, got closing parenthesis");
+		throw std::runtime_error("Expecting parameter, got closing parenthesis");
 
 	if (t.type == TOKEN_COMMA)
 		t = fTokenizer.ReadToken();
@@ -755,7 +751,6 @@ ParameterExtractor::_EnumValue(const char* idsName, const char* tokenString)
 {
 	int value = 0;
 	IDSResource* ids = gResManager->GetIDS(idsName);
-
 	if (ids != NULL) {
 		value = ids->IDForString(tokenString);
 		gResManager->ReleaseResource(ids);
@@ -763,4 +758,3 @@ ParameterExtractor::_EnumValue(const char* idsName, const char* tokenString)
 
 	return value;
 }
-
