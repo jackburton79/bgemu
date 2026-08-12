@@ -98,6 +98,7 @@ public:
 	static ::Script* ExtractScript(const res_ref& resName);
 
 private:
+
 	static void _InitGameTimers();
 	void _PrintObjects() const;
 	void _NewRound();

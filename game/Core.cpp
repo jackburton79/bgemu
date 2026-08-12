@@ -101,6 +101,9 @@ Core::Initialize(const char* path)
 void
 Core::Destroy()
 {
+	if (sCore == NULL)
+		return;
+
 	std::cout << "Core::Destroy()" << std::endl;
 	if (sCore->fCurrentRoom != NULL) {
 		sCore->fCurrentRoom->Release();
@@ -377,7 +380,7 @@ Core::RandomNumber(int32 start, int32 end)
 {
 	if (start == end)
 		return start;
-	return start + rand() % (end - start);
+	return start + rand() % (end - start + 1);
 }
 
 
