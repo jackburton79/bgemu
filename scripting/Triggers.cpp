@@ -215,10 +215,9 @@ static const Triggers kTriggersTable[] = {
 std::string
 GetTriggerName(int32 id)
 {
-	size_t numItems = sizeof(kTriggersTable) / sizeof(kTriggersTable[0]);
-	for (size_t i = 0; i < numItems; i++) {
-		if (kTriggersTable[i].id == id)
-			return std::string(kTriggersTable[i].name);
+	for (auto trigger : kTriggersTable) {
+		if (trigger.id == id)
+			return std::string(trigger.name);
 	}
 	return "";
 }
@@ -227,11 +226,10 @@ GetTriggerName(int32 id)
 int32
 GetTriggerID(std::string name)
 {
-	size_t numItems = sizeof(kTriggersTable) / sizeof(kTriggersTable[0]);
-	for (size_t i = 0; i < numItems; i++) {
-		if (strcasecmp(kTriggersTable[i].name, name.c_str()) == 0) {
-			std::cout << "in: " << name << ", found: " << kTriggersTable[i].name << ", id: " << kTriggersTable[i].id << std::endl;
-			return kTriggersTable[i].id;
+	for (auto trigger : kTriggersTable) {
+		if (strcasecmp(trigger.name, name.c_str()) == 0) {
+			std::cout << "in: " << name << ", found: " << trigger.name << ", id: " << trigger.id << std::endl;
+			return trigger.id;
 		}
 	}
 	return -1;
