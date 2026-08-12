@@ -259,6 +259,7 @@ Parser::TriggerFromString(const std::string& string)
 	Tokenizer tokenizer(&stream, 0);
 	//tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, node)) {
+		delete node;
 		//node->Release();
 		return NULL;
 	}
@@ -269,6 +270,7 @@ Parser::TriggerFromString(const std::string& string)
 		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
 	} catch (std::exception& e)	{
 		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		delete node;
 		return NULL;
 	}
 	ParameterExtractor extractor(tokenizer);
@@ -297,6 +299,7 @@ Parser::ActionFromString(const std::string& string)
 	//tokenizer.SetDebug(true);
 	if (!_ExtractActionName(tokenizer, params)) {
 		//node->Release();
+		delete params;
 		return NULL;
 	}
 
@@ -306,6 +309,7 @@ Parser::ActionFromString(const std::string& string)
 		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
 	} catch (std::exception& e)	{
 		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		delete params;
 		return NULL;
 	}
 	// TODO: This isn't too reliable: there are cases where an action has two forms
@@ -320,6 +324,7 @@ Parser::ActionFromString(const std::string& string)
 		}
 	} catch (const std::exception& exception) {
 		std::cerr << "Parser::ActionFromString(): got exception " << exception.what() << std::endl;
+		delete params;
 	}
 	//std::cout << "ActionFromString() END" << std::endl;
 	//params->Print();
@@ -558,7 +563,7 @@ Parser::_ReadResponseBlock()
 
 	response_node* resp = new response_node;
 	resp->probability = fTokenizer->ReadToken().u.number;
-	action_params* act = new action_params();
+	action_params* act = NULL;
 	while ((act = _ReadActionBlock()) != NULL)
 		resp->actions.push_back(act);
 
