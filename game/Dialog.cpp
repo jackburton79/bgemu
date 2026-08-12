@@ -100,38 +100,46 @@ int32
 DialogHandler::ShowPlayerOptions()
 {
 	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-	if (textArea == NULL) {
-		std::cerr << "NULL Text Area!!!" << std::endl;
+
+	if (textArea == NULL)
 		return 0;
+
+	fVisibleTransitions.clear();
+
+	int32 optionNumber = 1;
+
+	for (size_t index = 0; index < fTransitions.size(); ++index) {
+		const transition_entry& transition = fTransitions[index];
+
+		if (!transition.HasPlayerText())
+			continue;
+
+		fVisibleTransitions.push_back(index);
+
+		std::ostringstream s;
+		s << optionNumber << "-";
+
+		std::string fullString = s.str();
+		fullString += IDTable::GetDialog(transition.text_player);
+
+		textArea->AddDialogText(fullString.c_str(), optionNumber);
+
+		optionNumber++;
 	}
 
-	int32 numOptions = 0;
-	for (size_t index = 0; index < fTransitions.size(); index++) {
-		transition_entry transition = fTransitions.at(index);
-		if (transition.HasPlayerText()) {
-			std::ostringstream s;
-			s << (index + 1) << "-";
-			std::string fullString;
-			fullString.append(s.str());
-
-			std::string text = IDTable::GetDialog(transition.text_player);
-			fullString.append(text.c_str());
-			textArea->AddDialogText(fullString.c_str(), index + 1);
-			numOptions++;
-		}
-	}
-
-	return numOptions;
+	return optionNumber - 1;
 }
 
 
 void
 DialogHandler::SelectOption(int32 option)
 {
-	assert(fTransitions.size() >= (size_t)option);
+	assert(option >= 0);
+	assert(static_cast<size_t>(option) < fVisibleTransitions.size());
 
-	transition_entry transition = fTransitions.at(option);
-	HandleTransition(transition);
+	const size_t transitionIndex = fVisibleTransitions[option];
+
+	HandleTransition(fTransitions.at(transitionIndex));
 }
 
 

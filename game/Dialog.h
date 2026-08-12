@@ -58,6 +58,8 @@ private:
 	typedef std::vector<transition_entry> TransitionList;
 	TransitionList fTransitions;
 
+	std::vector<size_t> fVisibleTransitions;
+
 	DLGResource* fResource;
 	bool fEnd;
 
