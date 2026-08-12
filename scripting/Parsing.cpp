@@ -780,7 +780,7 @@ trigger_params::trigger_params()
 trigger_params::trigger_params(const trigger_params& other)
 	:
 	id(other.id),
-	parameter1(other.id),
+	parameter1(other.parameter1),
 	flags(other.flags),
 	parameter2(other.parameter2),
 	unknown(other.unknown),
@@ -809,7 +809,7 @@ trigger_params::operator=(const trigger_params& other)
 		return *this;
 
 	id = other.id;
-	parameter1 = other.id;
+	parameter1 = other.parameter1;
 	flags = other.flags;
 	parameter2 = other.parameter2;
 	unknown = other.unknown;
