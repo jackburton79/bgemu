@@ -31,7 +31,6 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fEnd(false)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
-	Continue();
 }
 
 
@@ -143,16 +142,13 @@ DialogHandler::SelectOption(int32 option)
 }
 
 
-void
+bool
 DialogHandler::Continue()
 {
 	//std::cout << "DialogHandler::Continue()" << std::endl;
 
-	if (fEnd) {
-		// TODO: Not nice. TerminateDialog deletes this object
-		Game::Get()->TerminateDialog();
-		return;
-	}
+	if (fEnd)
+		return false;
 
 	fState = GetNextValidState();
 
@@ -165,11 +161,13 @@ DialogHandler::Continue()
 			transition_entry transition = fTransitions.at(0);
 			HandleTransition(transition);
 		}
-	} else {
-		//std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
-		// TODO: Not nice. TerminateDialog deletes this object
-		Game::Get()->TerminateDialog();
+		return true;
 	}
+
+	//std::cout << "DialogHandler::Continue(): next state is NULL. Terminating dialog" << std::endl;
+
+	return false;
+
 }
 
 

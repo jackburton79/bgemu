@@ -305,6 +305,8 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	fDialog = new DialogHandler(actor, target, dialogFile);
+	if (!fDialog->Continue())
+		TerminateDialog();
 }
 
 

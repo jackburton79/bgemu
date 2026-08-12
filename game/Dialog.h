@@ -42,7 +42,9 @@ public:
 	int32 ShowPlayerOptions();
 
 	void SelectOption(int32 option);
-	void Continue();
+
+	// returns false if dialog has ended
+	bool Continue();
 
 	void HandleTransition(transition_entry transition);
 

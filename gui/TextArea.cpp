@@ -125,10 +125,12 @@ TextArea::MouseDown(IE::point point)
 					fLines.pop_back();
 				}
 				dialog->SelectOption(selectedIndex);
-				dialog->Continue();
+				if (!dialog->Continue())
+					Game::Get()->TerminateDialog();
 			}
 		} else
-			dialog->Continue();
+			if (!dialog->Continue())
+				Game::Get()->TerminateDialog();
 	}
 }
 
