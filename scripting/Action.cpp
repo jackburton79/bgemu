@@ -13,7 +13,6 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
-#include "Parsing.h"
 #include "Script.h"
 #include "SpellEffect.h"
 #include "SPLResource.h"
