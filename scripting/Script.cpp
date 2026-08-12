@@ -846,7 +846,7 @@ Script::_HandleResponseSet(response_set& responseSet)
 		}
 	}
 	// TODO: Fix this and take the probability into account
-	int randomResponse = Core::RandomNumber(0, numResponses);
+	int randomResponse = Core::RandomNumber(0, numResponses - 1);
 
 	std::vector<action_params*> actions = responseSet.resp[randomResponse]->actions;
 	std::vector<action_params*>::iterator action;
