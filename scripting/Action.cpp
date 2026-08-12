@@ -73,7 +73,7 @@ Action::SetInitiated()
 bool
 Action::Completed() const
 {
-    return fCompleted;
+	return fCompleted;
 }
 
 

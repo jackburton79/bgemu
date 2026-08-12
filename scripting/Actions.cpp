@@ -317,10 +317,9 @@ static const Actions kActionsTable[] = {
 std::string
 GetActionName(int32 id)
 {
-	size_t numItems = sizeof(kActionsTable) / sizeof(kActionsTable[0]);
-	for (size_t i = 0; i < numItems; i++) {
-		if (kActionsTable[i].id == id)
-			return std::string(kActionsTable[i].name);
+	for (auto action: kActionsTable) {
+		if (action.id == id)
+			return std::string(action.name);
 	}
 	return "";
 }
@@ -329,11 +328,10 @@ GetActionName(int32 id)
 int32
 GetActionID(std::string name)
 {
-	size_t numItems = sizeof(kActionsTable) / sizeof(kActionsTable[0]);
-	for (size_t i = 0; i < numItems; i++) {
-		if (strcasecmp(kActionsTable[i].name, name.c_str()) == 0) {
-			std::cout << "in: " << name << ", found: " << kActionsTable[i].name << ", id: " << kActionsTable[i].id << std::endl;
-			return kActionsTable[i].id;
+	for (auto action: kActionsTable) {
+		if (::strcasecmp(action.name, name.c_str()) == 0) {
+			std::cout << "in: " << name << ", found: " << action.name << ", id: " << action.id << std::endl;
+			return action.id;
 		}
 	}
 	return -1;
