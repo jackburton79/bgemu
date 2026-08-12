@@ -6,7 +6,6 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
-#include "Parsing.h"
 #include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -45,22 +44,21 @@ Script::SetDebug(bool debug)
 void
 Script::Print() const
 {
-	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
-		condition_response* cr = fConditionResponses.at(cri);
+	for (auto cr: fConditionResponses) {
 		if (sDebug)
 			std::cout << "CONDITION" << std::endl;
-		for (size_t t = 0; t < cr->conditions.triggers.size(); t++) {
-			cr->conditions.triggers.at(t)->Print();
+		for (auto trigger: cr->conditions.triggers) {
+			trigger->Print();
 		}
 
 		response_set& responseSet = cr->responseSet;
 		if (sDebug)
 			std::cout << "RESPONSE" << std::endl;
 
-		for (size_t r = 0; r < responseSet.resp.size(); r++) {
-			std::vector<action_params*>* actions = &responseSet.resp.at(r)->actions;
-			for (size_t a = 0; a < actions->size(); a++) {
-				actions->at(a)->Print();
+		for (auto response: responseSet.resp) {
+			auto actions = response->actions;
+			for (auto action: actions) {
+				action->Print();
 			}
 		}
 	}
@@ -123,8 +121,7 @@ Script::Execute(bool& continuing, bool& finished)
 
 	bool foundContinue = continuing;
 	// TODO: Find correct place
-	for (size_t cri = 0; cri < fConditionResponses.size(); cri++) {
-		condition_response* cr = fConditionResponses.at(cri);
+	for (auto cr: fConditionResponses) {
 		if (sDebug)
 			std::cout << "CONDITION" << std::endl;
 		if (!_EvaluateConditionBlock(cr->conditions))
@@ -331,8 +328,7 @@ Script::_EvaluateConditionBlock(condition_block& conditionNode)
 {
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;
-	for (size_t i = 0; i < conditionNode.triggers.size(); i++) {
-		trigger_params* trig = conditionNode.triggers.at(i);
+	for (auto trig: conditionNode.triggers) {
 		if (orTriggers > 0) {
 			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers);
 			if (blockEvaluation)
@@ -838,12 +834,9 @@ Script::_HandleResponseSet(response_set& responseSet)
 		totalChance += response->probability;
 	}
 
-	if (sDebug) {
-		for (size_t p = 0; p < numResponses; p++) {
-			std::cout << "response " << p << ": probability ";
-			std::cout << std::dec << responseSet.resp[p]->probability << std::endl;
-		}
-	}
+	// TODO: Use this
+	(void)totalChance;
+
 	// TODO: Fix this and take the probability into account
 	int randomResponse = Core::RandomNumber(0, numResponses - 1);
 	auto actions = responseSet.resp.at(randomResponse)->actions;
