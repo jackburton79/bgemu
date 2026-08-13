@@ -63,8 +63,7 @@ KeyDatabase::Load(const char* path)
 		}
 	}
 
-	// TODO: This is private. We leak the resource here
-	//key->Release();
+	delete key;
 
 	return true;
 }

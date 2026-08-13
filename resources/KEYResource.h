@@ -33,6 +33,7 @@ struct KeyResEntry {
 class KEYResource : public Resource {
 public:
 	KEYResource(const res_ref &name);
+	virtual ~KEYResource();
 
 	virtual bool Load(Archive *archive, uint32 key);
 
@@ -45,7 +46,6 @@ public:
 	virtual void Dump();
 	
 private:
-	virtual ~KEYResource();
 
 	virtual void LastReferenceReleased();
 
