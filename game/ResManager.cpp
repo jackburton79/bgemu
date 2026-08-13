@@ -159,9 +159,8 @@ ResourceManager::~ResourceManager()
 
 	std::cout << kComponentName << "Deleting bifs maps...";
 	std::cout << std::endl;
-	bif_vector::iterator i;
-	for (i = fBifs.begin(); i != fBifs.end(); i++) {
-		delete *i;
+	for (auto entry: fBifs) {
+		delete entry;
 	}
 
 	//TryEmptyResourceCache(true);
@@ -672,11 +671,9 @@ ResourceManager::PrintResources(int32 type)
 void
 ResourceManager::PrintBIFs()
 {
-	bif_vector::iterator iter;
-	for (iter = fBifs.begin(); iter != fBifs.end(); iter++) {
-		KeyFileEntry *entry = *iter;
+	for (const auto entry: fBifs) {
 		if (fDebugLevel > 0) {
-			std::cout << iter - fBifs.begin() << "\t" << entry->name;
+			std::cout << entry->name;
 			std::cout << "\t" << std::hex << entry->location << std::endl;
 		}
 	}

@@ -97,12 +97,12 @@ private:
 	void _TryEmptyResourceCache();
 
 	typedef std::map<ref_type, KeyResEntry *> resource_map;
-	typedef std::vector<KeyFileEntry *> bif_vector;
 	typedef std::map<std::string, Archive *> archive_map;
 
 	Storage::Path fResourcesPath;
 
-	bif_vector fBifs;
+	std::vector<KeyFileEntry *> fBifs;
+
 	resource_map fResourceMap;
 	std::unordered_map<uint32, Resource*> fCachedResources;
 	archive_map fArchives;
