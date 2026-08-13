@@ -36,7 +36,7 @@ KeyFileEntry::Dump() const
 uint32
 KeyResEntry::BIFIndex() const
 {
-	return key >> 20;
+	return RES_BIF_INDEX(key);
 }
 
 
