@@ -17,9 +17,13 @@ public:
 	~KeyDatabase();
 
 	bool Load(const char* path);
+	void Dispose();
 
 	const KeyResEntry* Find(const ref_type& id) const;
 	const KeyFileEntry* GetBIF(uint32 index) const;
+
+	int32 CountResources() const;
+	int32 CountBIFs() const;
 
 	void PrintResources(int32 type);
 	void PrintBIFs();

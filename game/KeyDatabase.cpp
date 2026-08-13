@@ -16,6 +16,13 @@ KeyDatabase::KeyDatabase()
 
 KeyDatabase::~KeyDatabase()
 {
+	Dispose();
+}
+
+
+void
+KeyDatabase::Dispose()
+{
 	std::cout << "KeyDatabase: " << "Deleting resource_maps...";
 	std::cout << std::endl;
 	for (auto entry: fResourceMap) {
@@ -27,12 +34,17 @@ KeyDatabase::~KeyDatabase()
 	for (auto entry: fBifs) {
 		delete entry;
 	}
+
+	fResourceMap.clear();
+	fBifs.clear();
 }
 
 
 bool
 KeyDatabase::Load(const char* path)
 {
+	Dispose();
+
 	KEYResource *key = new KEYResource("KEY");
 	Archive *archive = Archive::Create(path);
 	// TODO: Throw an useful exception instead
@@ -52,14 +64,7 @@ KeyDatabase::Load(const char* path)
 	uint32 numResources = key->CountResourceEntries();
 	for (uint32 c = 0; c < numResources; c++) {
 		if (KeyResEntry *res = key->GetResEntryAt(c)) {
-			ref_type refType;
-			refType.name = res->name;
-			refType.type = res->type;
-			fResourceMap[refType] = res;
-		} else {
-			// TODO: There are some unnamed entries in BG2.
-			// Check KeyResource.cpp
-			//numResources--;
+			fResourceMap[{res->name, res->type}] = res;
 		}
 	}
 
@@ -84,6 +89,20 @@ const KeyFileEntry*
 KeyDatabase::GetBIF(uint32 index) const
 {
 	return fBifs.at(index);
+}
+
+
+int32
+KeyDatabase::CountResources() const
+{
+	return fResourceMap.size();
+}
+
+
+int32
+KeyDatabase::CountBIFs() const
+{
+	return fBifs.size();
 }
 
 
