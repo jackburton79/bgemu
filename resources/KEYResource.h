@@ -4,13 +4,9 @@
 #include "Resource.h"
 
 struct KeyFileEntry {
-	KeyFileEntry(char* _name, uint32 _length, uint16 _location) {
-		name = _name;
-		length = _length;
-		location = _location;
-	};
-
-	~KeyFileEntry() { delete[] name; };
+	KeyFileEntry(char* _name, uint32 _length, uint16 _location);
+	KeyFileEntry(const KeyFileEntry&) = delete;
+	~KeyFileEntry();
 
 	void Dump() const;
 	
@@ -18,9 +14,7 @@ struct KeyFileEntry {
 	uint16 location;
 	char* name;
 
-private:
-	KeyFileEntry& operator=(const KeyFileEntry&);
-	KeyFileEntry(const KeyFileEntry&);
+	KeyFileEntry& operator=(const KeyFileEntry&) = delete;
 };
 
 
@@ -28,7 +22,10 @@ struct KeyResEntry {
 	res_ref name;
 	uint16 type;
 	uint32 key;
+	uint32 BIFIndex() const;
+	uint32 BIFFileIndex() const;
 };
+
 
 class KEYResource : public Resource {
 public:

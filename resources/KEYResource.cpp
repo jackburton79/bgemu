@@ -9,6 +9,21 @@
 const static int32 kKeyFileEntrySize = 12;
 const static int32 kKeyResEntrySize = 14;
 
+
+KeyFileEntry::KeyFileEntry(char* _name, uint32 _length, uint16 _location)
+{
+	name = _name;
+	length = _length;
+	location = _location;
+};
+
+
+KeyFileEntry::~KeyFileEntry()
+{
+	delete[] name;
+};
+
+
 void
 KeyFileEntry::Dump() const
 {
@@ -17,6 +32,22 @@ KeyFileEntry::Dump() const
 }
 
 
+// KeyResEntry
+uint32
+KeyResEntry::BIFIndex() const
+{
+	return key >> 20;
+}
+
+
+uint32
+KeyResEntry::BIFFileIndex() const
+{
+	return RES_BIF_FILE_INDEX(key);
+}
+
+
+// KeyResource
 KEYResource::KEYResource(const res_ref &name)
 	:
 	Resource(name, 0),

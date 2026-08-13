@@ -129,9 +129,8 @@ ResourceManager::~ResourceManager()
 	delete fKeyDB;
 	//TryEmptyResourceCache(true);
 
-	archive_map::iterator aIter;
-	for (aIter = fArchives.begin(); aIter != fArchives.end(); aIter++) {
-		delete aIter->second;
+	for (auto archive: fArchives) {
+		delete archive.second;
 	}
 
 	std::cout << kComponentName << "Destroyed." << std::endl;

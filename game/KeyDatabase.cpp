@@ -118,8 +118,8 @@ KeyDatabase::PrintResources(int32 type)
 		}
 		if (type == -1 || type == value->type) {
 			std::cout << value->name << " " << strresource(value->type);
-			std::cout << ", " << fBifs[RES_BIF_INDEX(value->key)]->name;
-			std::cout << ", index " << RES_BIF_FILE_INDEX(value->key);
+			std::cout << ", " << fBifs[value->BIFIndex()]->name;
+			std::cout << ", index " << value->BIFFileIndex();
 			std::cout << std::endl;
 		}
 	}
