@@ -7,6 +7,8 @@
 
 #include "KeyDatabase.h"
 
+#include <memory>
+
 #include "Archive.h"
 
 KeyDatabase::KeyDatabase()
@@ -45,15 +47,12 @@ KeyDatabase::Load(const char* path)
 {
 	Dispose();
 
-	KEYResource *key = new KEYResource("KEY");
-	Archive *archive = Archive::Create(path);
+	std::unique_ptr<KEYResource> key(new KEYResource("KEY"));
+	std::unique_ptr<Archive> archive(Archive::Create(path));
+
 	// TODO: Throw an useful exception instead
-	if (archive == NULL) {
-		throw std::runtime_error("GetKey: cannot open key archive file!");
-	}
-	if (key->Load(archive, 0) == false)
+	if (!key.get()->Load(archive.get(), 0))
 		throw std::runtime_error("GetKey: cannot load key file!");
-	delete archive;
 
 	const uint32 numBifs = key->CountFileEntries();
 	for (uint32 b = 0; b < numBifs; b++) {
@@ -67,8 +66,6 @@ KeyDatabase::Load(const char* path)
 			fResourceMap[{res->name, res->type}] = res;
 		}
 	}
-
-	delete key;
 
 	return true;
 }
