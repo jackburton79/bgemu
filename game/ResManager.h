@@ -26,6 +26,7 @@ class CREResource;
 class DLGResource;
 class IDSResource;
 class ITMResource;
+class KeyDatabase;
 class MOSResource;
 class MVEResource;
 class KEYResource;
@@ -43,7 +44,7 @@ public:
 	void SetDebug(int level);
 
 	bool ResourceExists(const res_ref& ref, uint16 type) const;
-	
+
 	KEYResource*	GetKEY(const char *name);
 	TLKResource*	GetTLK(const char *name);
 	TWODAResource*	Get2DA(const res_ref& name);
@@ -96,14 +97,11 @@ private:
 
 	void _TryEmptyResourceCache();
 
-	typedef std::map<ref_type, KeyResEntry *> resource_map;
 	typedef std::map<std::string, Archive *> archive_map;
 
 	Storage::Path fResourcesPath;
+	KeyDatabase* fKeyDB;
 
-	std::vector<KeyFileEntry *> fBifs;
-
-	resource_map fResourceMap;
 	std::unordered_map<uint32, Resource*> fCachedResources;
 	archive_map fArchives;
 

@@ -12,6 +12,7 @@
 #include "IDSResource.h"
 #include "ITMResource.h"
 #include "IETypes.h"
+#include "KeyDatabase.h"
 #include "KEYResource.h"
 #include "Log.h"
 #include "MOSResource.h"
@@ -72,6 +73,7 @@ const char* kComponentName = "ResourceManager: ";
 
 ResourceManager::ResourceManager(const char* path)
 	:
+	fKeyDB(NULL),
 	fDebugLevel(0)
 {
 	// TODO: Move this elsewhere!
@@ -83,38 +85,12 @@ ResourceManager::ResourceManager(const char* path)
 	std::cout << "' (from '" << path;
 	std::cout << "')" << std::endl;
 
-	KEYResource *key = GetKEY(kKeyResource);
-	if (key == NULL)
+	fKeyDB = new KeyDatabase();
+
+	std::string keyFilePath = GetFullPath(kKeyResource, LOC_ROOT);
+	if (!fKeyDB->Load(keyFilePath.c_str())) {
 		throw std::runtime_error("Cannot find key file");
-
-	if (fDebugLevel > 0)
-		key->Dump();
-
-	const uint32 numBifs = key->CountFileEntries();
-	for (uint32 b = 0; b < numBifs; b++) {
-		if (KeyFileEntry* bif = key->GetFileEntryAt(b))
-			fBifs.push_back(bif);
 	}
-
-	uint32 numResources = key->CountResourceEntries();
-	for (uint32 c = 0; c < numResources; c++) {
-		if (KeyResEntry *res = key->GetResEntryAt(c)) {
-			ref_type refType;
-			refType.name = res->name;
-			refType.type = res->type;
-			fResourceMap[refType] = res;
-		} else {
-			// TODO: There are some unnamed entries in BG2.
-			// Check KeyResource.cpp
-			//numResources--;
-		}
-	}
-
-	if (fDebugLevel > 0) {
-		std::cout << "\t-> Found " << numBifs << " BIF file entries ";
-		std::cout << "and " << numResources << " resources." << std::endl;
-	}
-	key->Release();
 }
 
 
@@ -150,19 +126,7 @@ ResourceManager::~ResourceManager()
 		delete resource.second;
 	}
 
-	std::cout << kComponentName << "Deleting resource_maps...";
-	std::cout << std::endl;
-	resource_map::iterator iter;
-	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
-		delete iter->second;
-	}
-
-	std::cout << kComponentName << "Deleting bifs maps...";
-	std::cout << std::endl;
-	for (auto entry: fBifs) {
-		delete entry;
-	}
-
+	delete fKeyDB;
 	//TryEmptyResourceCache(true);
 
 	archive_map::iterator aIter;
@@ -207,7 +171,7 @@ ResourceManager::SetDebug(int level)
 bool
 ResourceManager::ResourceExists(const res_ref& ref, uint16 type) const
 {
-	return _GetKeyRes(ref, type) != NULL;
+	return fKeyDB->Find({ ref, type }) != NULL;
 }
 
 
@@ -232,7 +196,8 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 		return NULL;
 	}
 
-	const KeyResEntry *entry = _GetKeyRes(name, type);
+	const ref_type id = {name, type};
+	const KeyResEntry *entry = fKeyDB->Find(id);
 	if (entry == NULL) {
 		std::cerr << RED(kComponentName) << RED("GetResource(");
 		std::cerr << RED(name.CString()) << RED(", ") << RED(strresource(type));
@@ -240,18 +205,7 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 		return NULL;
 	}
 
-	/*std::cout << kComponentName << "GetResource(";
-	std::cout << name.CString() << ", " << strresource(type);
-	std::cout << ")" << std::endl;*/
-	//std::cout << "\t-> Is it loaded ? ";
-	//std::flush(std::cout);
 	Resource *result = _FindResource(*entry);
-	//if (result != NULL)
-	//	std::cout << "YES";
-	//else
-	//	std::cout << "NO";
-	//std::cout << std::endl;
-
 #if USE_OVERRIDE
 	if (result == NULL)
 		result = _LoadResourceFromOverride(*entry);
@@ -264,33 +218,6 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 
 	//std::cout << "\t" << "-> refcount " << result->RefCount() << std::endl;
 	return result;
-}
-
-
-KEYResource*
-ResourceManager::GetKEY(const char *name)
-{
-	KEYResource *key = NULL;
-	Archive *archive = NULL;
-	std::string path;
-	key = new KEYResource("KEY");
-	path = GetFullPath(name, LOC_ROOT);
-	if (fDebugLevel > 0) {
-		std::cout << "\t-> Loading KEY file '" << path << "'... ";
-		std::flush(std::cout);
-	}
-	archive = Archive::Create(path.c_str());
-	// TODO: Throw an useful exception instead
-	if (archive == NULL)
-		throw std::runtime_error("GetKey: cannot open key archive file!");
-	if (key->Load(archive, 0) == false)
-		throw std::runtime_error("GetKey: cannot load key file!");
-	if (fDebugLevel > 0)
-		std::cout << GREEN("OK!") << std::endl;
-
-	delete archive;
-
-	return key;
 }
 
 
@@ -551,17 +478,16 @@ Resource*
 ResourceManager::_LoadResource(const KeyResEntry &entry)
 {
 	const int bifIndex = RES_BIF_INDEX(entry.key);
-	const uint16& location = fBifs[bifIndex]->location;
-	const char* archiveName = fBifs[bifIndex]->name;
 
 	if (fDebugLevel > 0) {
 		std::cout << kComponentName << "LoadResource(";
 		std::cout << entry.name.CString() << ", " << strresource(entry.type);
 		std::cout << ")" << std::endl;
 	}
-	Archive *archive = fArchives[archiveName];
+	const KeyFileEntry* fileEntry = fKeyDB->GetBIF(bifIndex);
+	Archive *archive = fArchives[fileEntry->name];
 	if (archive == NULL) {
-		std::string fullPath = GetFullPath(archiveName, location);
+		std::string fullPath = GetFullPath(fileEntry->name, fileEntry->location);
 		if (fDebugLevel > 0) {
 			std::cout << "\t-> Loading archive '" << fullPath << "'... ";
 			std::flush(std::cout);
@@ -574,7 +500,7 @@ ResourceManager::_LoadResource(const KeyResEntry &entry)
 		}
 		if (fDebugLevel > 0)
 			std::cout << GREEN("OK!") << std::endl;
-		fArchives[archiveName] = archive;
+		fArchives[fileEntry->name] = archive;
 	}
 
 	Resource *resource = Resource::Create(entry.name, entry.type,
@@ -646,37 +572,14 @@ ResourceManager::_LoadResourceFromOverride(const KeyResEntry& entry,
 void
 ResourceManager::PrintResources(int32 type)
 {
-	std::cout << kComponentName;
-	std::cout << "Listing " << fResourceMap.size();
-	std::cout << " entries..." << std::endl;
-	resource_map::iterator iter;
-	for (iter = fResourceMap.begin(); iter != fResourceMap.end(); iter++) {
-		KeyResEntry *res = iter->second;
-		if (res == NULL) {
-			std::cerr << RED("KeyResEntry is NULL. SHOULD NOT HAPPEN! ");
-			std::cerr << iter->first.name << " (";
-			std::cerr << iter->first.type << " )" << std::endl;
-			continue;
-		}
-		if (type == -1 || type == res->type) {
-			std::cout << res->name << " " << strresource(res->type);
-			std::cout << ", " << fBifs[RES_BIF_INDEX(res->key)]->name;
-			std::cout << ", index " << RES_BIF_FILE_INDEX(res->key);
-			std::cout << std::endl;
-		}
-	}
+	fKeyDB->PrintResources(type);
 }
 
 
 void
 ResourceManager::PrintBIFs()
 {
-	for (const auto entry: fBifs) {
-		if (fDebugLevel > 0) {
-			std::cout << entry->name;
-			std::cout << "\t" << std::hex << entry->location << std::endl;
-		}
-	}
+	fKeyDB->PrintBIFs();
 }
 
 
@@ -724,12 +627,7 @@ ResourceManager::_FindResource(const KeyResEntry &entry)
 const KeyResEntry*
 ResourceManager::_GetKeyRes(const res_ref &name, uint16 type) const
 {
-	ref_type nameType = { name, type };
-	resource_map::const_iterator iter = fResourceMap.find(nameType);
-	if (iter == fResourceMap.end())
-		return NULL;
-
-	return iter->second;
+	return NULL;
 }
 
 
