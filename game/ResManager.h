@@ -97,13 +97,11 @@ private:
 
 	void _TryEmptyResourceCache();
 
-	typedef std::map<std::string, Archive *> archive_map;
-
 	Storage::Path fResourcesPath;
 	KeyDatabase* fKeyDB;
 
 	std::unordered_map<uint32, Resource*> fCachedResources;
-	archive_map fArchives;
+	std::map<std::string, Archive *> fArchives;
 
 	bool fDebugLevel;
 };
