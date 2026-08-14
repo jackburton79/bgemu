@@ -108,7 +108,8 @@ public:
 	}
 	inline sint16 Decode(uint8 byte, int channel = 0)
 	{
-		return clamp_to_sint16((int)fPredictors[channel] + (int)kDpcmDeltaTable[byte]);
+		fPredictors[channel] = clamp_to_sint16((int)fPredictors[channel] + (int)kDpcmDeltaTable[byte]);
+		return fPredictors[channel];
 	}
 
 	static IEAudioDecoder* GetAudioDecoder(bool isStereo, sint16* predictors);
