@@ -431,7 +431,7 @@ MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 				stream->Read(flags);
 			}
 			for (int x = 0; x < 4; x++, flags >>= 1)
-				*pixels++ = (flags & 1) ? t0 : t1;
+				*pixels++ = (flags & 1) ? t1 : t0;
 			pixels += 8 - 4;
 			if (y == 7) {
 				// switch to right half
