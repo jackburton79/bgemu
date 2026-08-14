@@ -311,6 +311,9 @@ MovieDecoder::Opcode4(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	rect.x += -8 + (byte & 0x0F);
 	rect.y += -8 + ((byte >> 4) & 0x0F);
 	GraphicsEngine::Get()->BlitBitmap(fCurrentFrame, &rect, fNewFrame, blitRect);
+#if DEBUG
+	GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
+#endif
 }
 
 
@@ -325,6 +328,9 @@ MovieDecoder::Opcode5(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	rect.x += (sint8)stream->ReadByte();
 	rect.y += (sint8)stream->ReadByte();
 	GraphicsEngine::Get()->BlitBitmap(fCurrentFrame, &rect, fNewFrame, blitRect);
+#if DEBUG
+	GraphicsEngine::Get()->BlitBitmap(fNewFrame, blitRect, fScratchBuffer, NULL);
+#endif
 }
 
 
