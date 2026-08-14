@@ -10,6 +10,13 @@ const static int32 kKeyFileEntrySize = 12;
 const static int32 kKeyResEntrySize = 14;
 
 
+bool
+operator==(const ref_type& lhs, const ref_type& rhs)
+{
+	return lhs.type == rhs.type && lhs.name == rhs.name;
+}
+
+
 KeyFileEntry::KeyFileEntry(char* _name, uint32 _length, uint16 _location)
 {
 	name = _name;
