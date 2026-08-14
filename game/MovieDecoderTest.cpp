@@ -22,6 +22,7 @@ int
 MovieDecoder::Test()
 {
 	try {
+		TestOpcode4A();
 		TestOpcode7A();
 		TestOpcode7B();
 		TestOpcode8A();
@@ -61,7 +62,12 @@ MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size, const char
 	std::cout << ")" << std::endl;
 
 	AllocateBuffer(640, 480, 99, false);
+}
 
+
+void
+MovieDecoder::TestExecute(uint8 opcode, const uint8 data[], uint32 size, const char* name)
+{
 	uint8 *decodingMap = new uint8[1];
 	decodingMap[0] = opcode;
 	SetDecodingMap(decodingMap, 1);
@@ -71,7 +77,7 @@ MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size, const char
 	DecodeDataBlock(&stream, stream.Size());
 	if (stream.Position() - start != size) {
 		std::cout << "Streaming error: consumed size is different than data size" << std::endl;
-		throw std::runtime_error("TestInit decode error!");
+		throw std::runtime_error("TestExecute decode error!");
 	}
 }
 
@@ -100,6 +106,48 @@ MovieDecoder::TestFinish(const uint8 data[], uint32 dataSize)
 
 
 void
+MovieDecoder::TestOpcode4A()
+{
+	const uint8 data[] = {
+		0x88	// dx=0 dy=0
+	};
+
+	TestInit(0x4, data, sizeof(data), "Identity copy");
+
+	// Fill current frame with a pattern
+	uint8* pixels = (uint8*)fCurrentFrame->Pixels();
+
+	for (int y = 0; y < 8; y++) {
+		for (int x = 0; x < 8; x++) {
+			pixels[y * 8 + x] = y * 8 + x;
+		}
+	}
+
+	// Decoding
+	GFX::rect rect;
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = 8;
+	rect.h = 8;
+
+	TestExecute(0x4, data, sizeof(data), "Identity copy");
+
+	const uint8 result[] = {
+		 0,  1,  2,  3,  4,  5,  6,  7,
+		 8,  9, 10, 11, 12, 13, 14, 15,
+		16, 17, 18, 19, 20, 21, 22, 23,
+		24, 25, 26, 27, 28, 29, 30, 31,
+		32, 33, 34, 35, 36, 37, 38, 39,
+		40, 41, 42, 43, 44, 45, 46, 47,
+		48, 49, 50, 51, 52, 53, 54, 55,
+		56, 57, 58, 59, 60, 61, 62, 63
+	};
+
+	TestFinish(result, sizeof(result));
+}
+
+
+void
 MovieDecoder::TestOpcode7A()
 {
 	// Test opcode 0x7:
@@ -107,6 +155,8 @@ MovieDecoder::TestOpcode7A()
 			0x11, 0x22, 0xff, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xff }; // opcode7, first case
 
 	TestInit(0x7, data, sizeof(data), "P0 <= P1");
+
+	TestExecute(0x7, data, sizeof(data), "P0 <= P1");
 
 	const uint8 resultData[] = { // opcode 7, first case
 			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
@@ -130,6 +180,8 @@ MovieDecoder::TestOpcode7B()
 	const uint8 data[] = { 	0x22, 0x11, 0xff, 0x81 }; // opcode7, second case
 
 	TestInit(0x7, data, sizeof(data), "P0 > P1 ");
+
+	TestExecute(0x7, data, sizeof(data), "P0 > P1 ");
 
 	const uint8 resultData[] = { // opcode 7, second case
 			0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
@@ -169,6 +221,8 @@ MovieDecoder::TestOpcode8A()
 
 	TestInit(0x8, data, sizeof(data), "P0 <= P1");
 
+	TestExecute(0x8, data, sizeof(data), "P0 <= P1");
+
 	const uint8 result[] = {
 		0x11,0x11,0x11,0x11,0x33,0x33,0x33,0x33,
 		0x11,0x11,0x11,0x11,0x33,0x33,0x33,0x33,
@@ -201,6 +255,8 @@ MovieDecoder::TestOpcode8B()
 
 	TestInit(0x8, data, sizeof(data), "LEFT-RIGHT (t0 > t1 && p2 <= p3)");
 
+	TestExecute(0x8, data, sizeof(data), "LEFT-RIGHT (t0 > t1 && p2 <= p3)");
+
 	const uint8 result[] = {
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
@@ -226,6 +282,8 @@ MovieDecoder::TestOpcode8C()
 	};
 
 	TestInit(0x8, data, sizeof(data), "P0 > P1 && P2 > P3");
+
+	TestExecute(0x8, data, sizeof(data), "P0 > P1 && P2 > P3");
 
 	const uint8 result[] = {
 		0x00, 0x00, 0x22, 0x22, 0x00, 0x00, 0x22, 0x22,
@@ -261,6 +319,8 @@ MovieDecoder::TestOpcode9A()
 
 	TestInit(0x9, data, sizeof(data), "P0 <= P1 && P2 <= P3");
 
+	TestExecute(0x9, data, sizeof(data), "P0 <= P1 && P2 <= P3");
+
 	const uint8 result[] = {
 		0x10,0x20,0x30,0x40,0x10,0x20,0x30,0x40,
 		0x10,0x20,0x30,0x40,0x10,0x20,0x30,0x40,
@@ -286,6 +346,8 @@ MovieDecoder::TestOpcode9B()
 	};
 
 	TestInit(0x9, data, sizeof(data), "P0 <= P1 && P2 > P3");
+
+	TestExecute(0x9, data, sizeof(data), "P0 <= P1 && P2 > P3");
 
 	const uint8 result[] = {
 		1,1,1,1,1,1,1,1,
@@ -316,6 +378,8 @@ MovieDecoder::TestOpcode9C()
 	};
 
 	TestInit(0x9, data, sizeof(data), "P0 > P1 && P2 <= P3 (2x1)");
+
+	TestExecute(0x9, data, sizeof(data), "P0 > P1 && P2 <= P3 (2x1)");
 
 	const uint8 result[] = {
 		0x40,0x40,0x20,0x20,0x10,0x10,0x30,0x30,
@@ -355,6 +419,8 @@ MovieDecoder::TestOpcodeA1()
 
 	TestInit(0xA, data, sizeof(data), "p0 <= p1 (4 4x4 blocks)");
 
+	TestExecute(0xA, data, sizeof(data), "p0 <= p1 (4 4x4 blocks)");
+
 	const uint8 result[] = {
 		0x11,0x11,0x11,0x11,0x33,0x33,0x33,0x33,
 		0x11,0x11,0x11,0x11,0x33,0x33,0x33,0x33,
@@ -382,6 +448,8 @@ MovieDecoder::TestOpcodeA2()
 	};
 
 	TestInit(0xA, data, sizeof(data), "P0 > P1");
+
+	TestExecute(0xA, data, sizeof(data), "P0 > P1");
 
 	const uint8 result[] = {
 		0x00, 0x22, 0x00, 0x22, 0x00, 0x22, 0x00, 0x22,
@@ -418,6 +486,8 @@ MovieDecoder::TestOpcodeA3()
 
 	TestInit(0xA, data, sizeof(data), "P0 > P1");
 
+	TestExecute(0xA, data, sizeof(data), "P0 > P1");
+
 	const uint8 result[] = {
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
 		0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,
@@ -450,6 +520,8 @@ MovieDecoder::TestOpcodeB()
 
 	TestInit(0xB, data, sizeof(data));
 
+	TestExecute(0xB, data, sizeof(data));
+
 	const uint8 result[] = {
 		0x01, 0x00, 0x22, 0x22, 0x00, 0x00, 0x22, 0x22,
 		0x22, 0x02, 0x00, 0x22, 0x22, 0x00, 0x00, 0x22,
@@ -477,6 +549,8 @@ MovieDecoder::TestOpcodeC()
 
 	TestInit(0xC, data, sizeof(data));
 
+	TestExecute(0xC, data, sizeof(data));
+
 	const uint8 result[] = {
 		0x01, 0x01, 0x00, 0x00, 0x22, 0x22, 0x23, 0x23,
 		0x01, 0x01, 0x00, 0x00, 0x22, 0x22, 0x23, 0x23,
@@ -500,6 +574,8 @@ MovieDecoder::TestOpcodeD()
 	};
 
 	TestInit(0xD, data, sizeof(data));
+
+	TestExecute(0xD, data, sizeof(data));
 
 	const uint8 result[] = {
 		0x01, 0x01, 0x01, 0x01, 0x22, 0x22, 0x22, 0x22,
@@ -525,6 +601,8 @@ MovieDecoder::TestOpcodeE()
 
 	TestInit(0xE, data, sizeof(data));
 
+	TestExecute(0xE, data, sizeof(data));
+
 	const uint8 result[] = {
 		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
 		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
@@ -548,6 +626,8 @@ MovieDecoder::TestOpcodeF()
 	};
 
 	TestInit(0xF, data, sizeof(data));
+
+	TestExecute(0xF, data, sizeof(data));
 
 	const uint8 result[] = {
 		0x01, 0x10, 0x01, 0x10, 0x01, 0x10, 0x01, 0x10,
