@@ -69,7 +69,9 @@ private:
 	void TestOpcode9A();
 	void TestOpcode9B();
 	void TestOpcode9C();
+	void TestOpcodeA1();
 	void TestOpcodeA2();
+	void TestOpcodeA3();
 	void TestOpcodeB();
 	void TestOpcodeC();
 	void TestOpcodeD();
