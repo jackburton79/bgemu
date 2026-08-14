@@ -68,6 +68,7 @@ private:
 	void TestOpcode8C();
 	void TestOpcode9A();
 	void TestOpcode9B();
+	void TestOpcode9C();
 	void TestOpcodeA2();
 	void TestOpcodeB();
 	void TestOpcodeC();
