@@ -64,6 +64,11 @@ struct res_ref {
 	char name[8];
 } __attribute__((packed));
 
+bool operator<(const res_ref&, const res_ref&);
+bool operator==(const res_ref&, const res_ref&);
+bool operator!=(const res_ref&, const res_ref&);
+std::ostream &operator<<(std::ostream &os, res_ref ref);
+
 
 class Resource;
 typedef Resource* (*resource_creation_func)(const res_ref&);
@@ -74,6 +79,8 @@ struct ref_type {
 	res_ref name;
 	uint16 type;
 };
+
+bool operator<(const ref_type&, const ref_type&);
 
 
 // TODO: Include the above stuff into the namespace
@@ -681,13 +688,6 @@ gfx_rect_to_rect(const GFX::rect& rect)
 	};
 	return IERect;
 }
-
-
-bool operator<(const res_ref&, const res_ref&);
-bool operator==(const res_ref&, const res_ref&);
-bool operator!=(const res_ref&, const res_ref&);
-bool operator<(const ref_type&, const ref_type&);
-std::ostream &operator<<(std::ostream &os, res_ref ref);
 
 
 #endif
