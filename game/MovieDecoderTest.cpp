@@ -65,7 +65,12 @@ MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size, const char
 	SetDecodingMap(decodingMap, 1);
 
 	MemoryStream stream(data, size);
+	const off_t start = stream.Position();
 	DecodeDataBlock(&stream, stream.Size());
+	if (stream.Position() - start != size) {
+		std::cout << "Streaming error: consumed size is different than data size" << std::endl;
+		throw std::runtime_error("TestInit decode error!");
+	}
 }
 
 
