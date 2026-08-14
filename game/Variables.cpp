@@ -1,7 +1,7 @@
 /*
  * Variables.cpp
  *
- *      Author: Stefano Ceccherini
+ *      Author: Jackburton
  */
 
 
@@ -34,9 +34,9 @@ Variables::Get(const char* name) const
 	std::cout << "GET ";
 	Print(name);
 #endif
-	VariablesMap::const_iterator i = fVariables.find(name);		
-	if (i != fVariables.end())
-		return i->second;
+	const auto &v = fVariables.find(name);
+	if (v != fVariables.end())
+		return v->second;
 	return 0;
 }
 
@@ -54,9 +54,9 @@ void
 Variables::Print(const char* variable) const
 {
 	int32 value = 0;
-	VariablesMap::const_iterator i = fVariables.find(variable);		
-	if (i != fVariables.end())
-		value = i->second;
+	const auto& v = fVariables.find(variable);
+	if (v != fVariables.end())
+		value = v->second;
 	std::cout << "VARIABLE " << variable << " value is " << value << std::endl;	
 }
 
@@ -64,9 +64,8 @@ Variables::Print(const char* variable) const
 void
 Variables::PrintAll() const
 {
-	VariablesMap::const_iterator i;
-	for (i = fVariables.begin(); i != fVariables.end(); i++) {
-		std::cout << i->first << "=" << i->second << std::endl;	
+	for (const auto &v: fVariables) {
+		std::cout << v.first << "=" << v.second << std::endl;
 	}
 }
 
