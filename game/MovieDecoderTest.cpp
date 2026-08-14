@@ -23,6 +23,7 @@ MovieDecoder::Test()
 {
 	try {
 		TestOpcode4A();
+		//TestOpcode4B();
 		TestOpcode7A();
 		TestOpcode7B();
 		TestOpcode8A();
@@ -61,7 +62,7 @@ MovieDecoder::TestInit(uint8 opcode, const uint8 data[], uint32 size, const char
 		std::cout << " (" << name << ") ";
 	std::cout << ")" << std::endl;
 
-	AllocateBuffer(640, 480, 99, false);
+	AllocateBuffer(64, 64, 99, false);
 }
 
 
