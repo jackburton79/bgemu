@@ -17,6 +17,7 @@ struct KeyFileEntry {
 	KeyFileEntry& operator=(const KeyFileEntry&) = delete;
 };
 
+bool operator==(const ref_type& lhs, const ref_type& rhs);
 
 struct KeyResEntry {
 	res_ref name;

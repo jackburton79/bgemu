@@ -8,8 +8,21 @@
 
 #include "KEYResource.h"
 
-#include <map>
+#include <algorithm>
+#include <unordered_map>
 #include <vector>
+
+struct RefTypeHash {
+	size_t operator()(
+		const ref_type& id) const
+	{
+		std::string key = id.name.CString();
+
+		std::transform(key.begin(), key.end(), key.begin(), ::toupper);
+
+		return std::hash<std::string>()(key) ^ std::hash<uint16>()(id.type);
+	}
+};
 
 class KeyDatabase {
 public:
@@ -29,7 +42,7 @@ public:
 	void PrintBIFs();
 
 private:
-	std::map<ref_type, KeyResEntry*> fResourceMap;
+	std::unordered_map<ref_type, KeyResEntry*, RefTypeHash> fResourceMap;
 	std::vector<KeyFileEntry*> fBifs;
 };
 
