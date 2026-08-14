@@ -61,7 +61,7 @@ private:
 #if DEBUG
 	void TestInit(uint8 opcode, const uint8 data[], uint32 size, const char* name = NULL);
 	void TestExecute(uint8 opcode, const uint8 data[], uint32 size, const char* name = NULL);
-	void TestFinish(const uint8 expectedResult[], uint32 dataSize);
+	void TestFinish(Bitmap* bitmap, const uint8 expectedResult[], uint32 dataSize);
 	void TestOpcode4A();
 	void TestOpcode7A();
 	void TestOpcode7B();
