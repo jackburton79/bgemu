@@ -423,12 +423,13 @@ MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 t1 = stream->ReadByte();
 	uint16 flags = 0;
 	if (t0 <= t1) {
-		stream->Seek(-2, SEEK_CUR);
 		for (int y = 0; y < 16; y++) {
 			if (!(y & 3)) {
-				t0 = stream->ReadByte();
-				t1 = stream->ReadByte();
-				stream->Read(flags);
+				if (y) {
+					t0 = stream->ReadByte();
+					t1 = stream->ReadByte();
+				}
+				flags = stream->ReadWordLE();
 			}
 			for (int x = 0; x < 4; x++, flags >>= 1)
 				*pixels++ = (flags & 1) ? t1 : t0;
@@ -439,43 +440,34 @@ MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 			}
 		}
 	} else {
-		stream->Seek(4, SEEK_CUR);
+		uint32 flags32 = stream->ReadDWordLE();
 		uint8 p2 = stream->ReadByte();
 		uint8 p3 = stream->ReadByte();
-		stream->Seek(-6, SEEK_CUR);
 		if (p2 <= p3) { // LEFT-RIGHT
-			{
-				uint8* p = pixels;
-				BitStreamAdapter bs(stream);
-				for (int32 r = 0; r < 8; r++) {
-					for (int32 c = 0; c < 4; c++) {
-						*p++ = bs.ReadBit() ? t1 : t0;
-					}
-					p += 4;
+			for (int y = 0; y < 16; y++) {
+				for (int x = 0; x < 4; x++, flags32 >>= 1) {
+					*pixels++ = (flags32 & 1) ? t1 : t0;
 				}
-				stream->Seek(2, SEEK_CUR);
-			}
-			{
-				uint8* p = pixels + 4;
-				BitStreamAdapter bs(stream);
-				for (int32 r = 0; r < 8; r++) {
-					for (int32 c = 0; c < 4; c++) {
-						*p++ = bs.ReadBit() ? p3 : p2;
-					}
-					p += 4;
+				pixels += 8 - 4;
+
+				// Right half
+				if (y == 7) {
+					*pixels -= 8 * 8 - 4;
+					t0 = p2;
+					t1 = p3;
+					flags32 = stream->ReadDWordLE();
 				}
 			}
 		} else { // TOP-BOTTOM
-			{
-				BitStreamAdapter bs(stream);
-				for (int32 x = 0; x < 32; x++)
-					*pixels++ = bs.ReadBit() ? t1 : t0;
-				stream->Seek(2, SEEK_CUR);
-			}
-			{
-				BitStreamAdapter bs(stream);
-				for (int32 x = 0; x < 32; x++)
-					*pixels++ = bs.ReadBit() ? p3 : p2;
+			for (int y = 0; y < 8; y++) {
+				if (y == 4) {
+					t0 = p2;
+					t1 = p3;
+					flags32 = stream->ReadDWordLE();
+				}
+				for (int x = 0; x < 8; x++, flags32 >>= 1) {
+					*pixels++ = (flags32 & 1) ? t1 : t0;
+				}
 			}
 		}
 	}
