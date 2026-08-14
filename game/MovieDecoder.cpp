@@ -452,7 +452,7 @@ MovieDecoder::Opcode8(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 
 				// Right half
 				if (y == 7) {
-					*pixels -= 8 * 8 - 4;
+					pixels -= 8 * 8 - 4;
 					t0 = p2;
 					t1 = p3;
 					flags32 = stream->ReadDWordLE();
