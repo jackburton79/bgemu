@@ -9,6 +9,12 @@
 namespace GFX {
 	struct Color;
 }
+class MovieDecoderObserver {
+public:
+	virtual ~MovieDecoderObserver() {};
+	virtual void BlockDecoded(uint8 opcode, const GFX::rect& rect) = 0;
+};
+
 
 class GraphicsEngine;
 class Stream;
@@ -27,6 +33,7 @@ public:
 
 	Bitmap *CurrentFrame();
 
+	void SetDecoderObserver(MovieDecoderObserver* observer);
 	int Test();
 
 private:
@@ -40,6 +47,8 @@ private:
 	GFX::Color fColors[256];
 	GFX::rect fActiveRect;
 	uint16 fVersion;
+
+	MovieDecoderObserver* fObserver;
 
 	void Opcode0(Stream* stream, uint8* pixels, GFX::rect* rect);
 	void Opcode1(Stream* stream, uint8* pixels, GFX::rect* rect);
