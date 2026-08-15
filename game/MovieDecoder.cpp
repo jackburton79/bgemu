@@ -81,7 +81,8 @@ MovieDecoder::MovieDecoder()
 	fMapSize(0),
 	fNewFrame(NULL),
 	fCurrentFrame(NULL),
-	fVersion(0)
+	fVersion(0),
+	fObserver(NULL)
 {
 	fActiveRect.x = fActiveRect.y = 0;
 	fActiveRect.w = fActiveRect.h = 8;
@@ -205,6 +206,9 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 				(uint8*)fScratchBuffer->Pixels(), &blitRect);
 		}
 
+		if (fObserver != NULL)
+			fObserver->BlockDecoded(opcode, fActiveRect);
+
 		fActiveRect.x += 8;
 		if (fActiveRect.x >= fNewFrame->Width()) {
 			fActiveRect.x = 0;
@@ -223,6 +227,13 @@ MovieDecoder::BlitBackBuffer()
 	GraphicsEngine::Get()->Update();
 
 	std::swap(fNewFrame, fCurrentFrame);
+}
+
+
+void
+MovieDecoder::SetDecoderObserver(MovieDecoderObserver* observer)
+{
+	fObserver = observer;
 }
 
 
