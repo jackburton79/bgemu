@@ -4,6 +4,24 @@
 
 #include <iomanip>
 #include <iostream>
+#include <map>
+
+class OpcodeCounter : public MovieDecoderObserver {
+	void Print() override {
+		for (const auto [opcode, count]: fOpcodeCount) {
+			std::cout << "opcode " << int32(opcode) << ": " << count << std::endl;
+		}
+	}
+private:
+	virtual ~OpcodeCounter() {};
+
+	void BlockDecoded(uint8 opcode, const GFX::rect& rect) override
+	{
+		fOpcodeCount[opcode]++;
+	}
+	std::map<uint8, int32> fOpcodeCount;
+};
+
 
 static void
 DumpData(const uint8 *data, int size)
@@ -21,6 +39,7 @@ DumpData(const uint8 *data, int size)
 int
 MovieDecoder::Test()
 {
+	int result = 0;
 	try {
 		TestOpcode4A();
 		//TestOpcode4B();
@@ -42,13 +61,13 @@ MovieDecoder::Test()
 		TestOpcodeF();
 	} catch (std::exception& e) {
 		std::cerr << "MovieDecoder::Test(): " << e.what() << std::endl;
-		return -1;
+		result = -1;
 	} catch (...) {
 		std::cerr << "MovieDecoder::Test(): FAILURE!" << std::endl;
-		return -1;
+		result = -1;
 	}
 
-	return 0;
+	return result;
 }
 
 

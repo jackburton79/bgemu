@@ -13,6 +13,7 @@ class MovieDecoderObserver {
 public:
 	virtual ~MovieDecoderObserver() {};
 	virtual void BlockDecoded(uint8 opcode, const GFX::rect& rect) = 0;
+	virtual void Print() = 0;
 };
 
 
