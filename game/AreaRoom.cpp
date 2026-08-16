@@ -910,9 +910,8 @@ void
 AreaRoom::_DrawEffects()
 {
 	EffectsList::const_iterator i;
-	for (i = fEffects.begin(); i != fEffects.end(); i++) {
+	for (const auto &effect : fEffects) {
 		try {
-			Effect* effect = *i;
 			const Bitmap* frame = effect->Bitmap();
 			DrawBitmap(frame, effect->Position(), false);
 			if (!Core::Get()->IsPaused()) {
@@ -934,19 +933,14 @@ void
 AreaRoom::_DrawActors()
 {
 	ActorsList visibleActors;
-	ActorsList::iterator a;
-	for (a = fActors.begin();
-			a != fActors.end(); a++) {
-		Actor* actor = *a;
+	for (auto &actor : fActors) {
 		if (_IsVisibleOnScreen(actor))
 			visibleActors.push_back(actor);
 	}
 
 	// Sort visible actors by z-order
 	std::sort(visibleActors.begin(), visibleActors.end(), ZOrderSorter());
-	for (a = visibleActors.begin();
-			a != visibleActors.end(); a++) {
-		Actor* actor = *a;
+	for (auto &actor : visibleActors) {
 		try {
 			actor->Draw(this);
 		} catch (std::exception& ex) {
@@ -1015,11 +1009,10 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 Region*
 AreaRoom::RegionAtPoint(const IE::point& point) const
 {
-	RegionsList::const_iterator i;
-	for (i = fRegions.begin(); i != fRegions.end(); i++) {
-		GFX::rect rect = rect_to_gfx_rect((*i)->Frame());
+	for (const auto& region : fRegions) {
+		GFX::rect rect = rect_to_gfx_rect(region->Frame());
 		if (rect.Contains(point.x, point.y))
-			return *i;
+			return region;
 	}
 	return NULL;
 }
@@ -1196,8 +1189,8 @@ AreaRoom::_InitDoors()
 		Door *door = new Door(fArea->DoorAt(c));
 		AddObject(door);
 		fWed->LinkDoorWithTiledObject(door);
-		for (uint32 i = 0; i < door->fTilesOpen.size(); i++) {
-			fBackMap->TileAt(door->fTilesOpen[i])->SetDoor(door);
+		for (auto& tilesOpen :  door->fTilesOpen) {
+			fBackMap->TileAt(tilesOpen)->SetDoor(door);
 		}
 	}
 	std::cout << "Done! Found " << numDoors << " doors." << std::endl;
