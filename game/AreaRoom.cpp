@@ -198,9 +198,8 @@ AreaRoom::Update(bool runScripts)
 
 	// TODO: other objects
 	ActorsList::iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* object = (*i);
-		object->Update(runScripts);
+	for (auto& actor : fActors) {
+		actor->Update(runScripts);
 	}
 
 	_CleanDestroyedObjects();
@@ -472,28 +471,24 @@ Object*
 AreaRoom::GetObject(const char* name) const
 {
 	// TODO: containers, doors, other objects
-	ActorsList::const_iterator a;
-	for (a = fActors.begin(); a != fActors.end(); a++) {
-		if (!strcasecmp(name, (*a)->Name()))
-			return *a;
+	for (const auto &actor : fActors) {
+		if (!strcasecmp(name, actor->Name()))
+			return actor;
 	}
 
-	RegionsList::const_iterator r;
-	for (r = fRegions.begin(); r != fRegions.end(); r++) {
-		if (!strcasecmp(name, (*r)->Name()))
-			return *r;
+	for (const auto& region : fRegions) {
+		if (!strcasecmp(name, region->Name()))
+			return region;
 	}
 
-	DoorsList::const_iterator d;
-	for (d = fDoors.begin(); d != fDoors.end(); d++) {
-		if (!strcasecmp(name, (*d)->Name()))
-			return *d;
+	for (const auto& door : fDoors) {
+		if (!strcasecmp(name, door->Name()))
+			return door;
 	}
 
-	ContainersList::const_iterator c;
-	for (c = fContainers.begin(); c != fContainers.end(); c++) {
-		if (!strcasecmp(name, (*c)->Name()))
-			return *c;
+	for (const auto& container :  fContainers) {
+		if (!strcasecmp(name, container->Name()))
+			return container;
 	}
 	return NULL;
 }
@@ -503,9 +498,7 @@ Object*
 AreaRoom::GetObject(uint16 globalEnum) const
 {
 	// TODO: containers, doors, other objects
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Object* object = *i;
+	for (const auto& object : fActors) {
 		if (object != NULL && object->GlobalID() == globalEnum)
 			return object;
 	}
@@ -519,12 +512,11 @@ AreaRoom::GetObjectFromNode(object_params* node) const
 {
 	// TODO: Simplify, merge code.
 
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		if ((*i)->MatchNode(node)) {
+	for (const auto& actor : fActors) {
+		if (actor->MatchNode(node)) {
 			//std::cout << "returned " << (*i)->Name() << std::endl;
 			//(*i)->Print();
-			return *i;
+			return actor;
 		}
 	}
 
@@ -537,11 +529,7 @@ AreaRoom::GetObject(const Region* region) const
 {
 	// TODO: Only returns the first object!
 	// TODO: containers, doors, other objects
-	ActorsList::const_iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
+	for (const auto &actor : fActors) {
 		if (region->Contains(actor->Position()))
 			return actor;
 	}
@@ -553,13 +541,9 @@ AreaRoom::GetObject(const Region* region) const
 Actor*
 AreaRoom::GetNearestEnemyOf(const Actor* object) const
 {
-	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
+	for (const auto& actor : fActors) {
 		if (actor != object && actor->IsEnemyOf(object)) {
 			int distance = Distance(object, actor);
 			if (distance < minDistance) {
@@ -576,13 +560,9 @@ AreaRoom::GetNearestEnemyOf(const Actor* object) const
 Actor*
 AreaRoom::GetNearestEnemyOfType(const Actor* object, int ieClass) const
 {
-	ActorsList::const_iterator i;
 	int minDistance = INT_MAX;
 	Actor* nearest = NULL;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
-		Actor* actor = *i;
-		if (actor == NULL)
-			continue;
+	for (const auto& actor : fActors) {
 		if (actor != object && actor->IsEnemyOf(object) && actor->IsClass(ieClass)) {
 			int distance = Distance(object, actor);
 			if (distance < minDistance) {
@@ -623,9 +603,8 @@ AreaRoom::GetTileCellsForRegion(std::vector<TileCell*>& cells,
 			tileCellsSet[cell->ID()] = cell;
 		}
 	}
-	for (std::map<uint16, TileCell*>::iterator i = tileCellsSet.begin();
-			i != tileCellsSet.end(); i++) {
-		cells.push_back((*i).second);
+	for (auto tileCellSet : tileCellsSet) {
+		cells.push_back(tileCellSet.second);
 	}
 	return cells.size();
 }
@@ -904,10 +883,8 @@ AreaRoom::_InitSearchMap()
 void
 AreaRoom::_DrawAnimations(bool advanceFrame)
 {
-	AnimationsList::const_iterator i;
-	for (i = fAnimations.begin(); i != fAnimations.end(); i++) {
+	for (const auto& animation : fAnimations) {
 		try {
-			Animation* animation = *i;
 			if (animation->IsShown()) {
 				const Bitmap* frame = animation->Bitmap();
 				if (advanceFrame)

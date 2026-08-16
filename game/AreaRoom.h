@@ -115,10 +115,12 @@ private:
 	void _DrawHeightMap(GFX::rect area);
 	void _DrawLightMap();
 	void _DrawSearchMap(const GFX::rect& visibleArea);
+	void _DrawPolygons(const GFX::rect& mapRect);
+
+	// Drawing
 	void _DrawAnimations(bool advanceFrame);
 	void _DrawEffects();
 	void _DrawActors();
-	void _DrawPolygons(const GFX::rect& mapRect);
 
 	Container* _ContainerAtPoint(const IE::point& point);
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
