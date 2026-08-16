@@ -1028,18 +1028,17 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 void
 AreaRoom::ClearAllActions()
 {
-	for (ActorsList::iterator a = fActors.begin(); a != fActors.end(); a++)
-		(*a)->ClearActionList();
+	for (auto actor : fActors)
+		actor->ClearActionList();
 }
 
 
 Container*
 AreaRoom::_ContainerAtPoint(const IE::point& point)
 {
-	ContainersList::iterator i;
-	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		if ((*i)->Polygon().Contains(point.x, point.y))
-			return *i;
+	for (const auto& container : fContainers) {
+		if (container->Polygon().Contains(point.x, point.y))
+			return container;
 	}
 	return NULL;
 }
@@ -1061,11 +1060,10 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	} else {
 		std::vector<Actor*> objects;
 		if (cell->GetObjects(objects) > 0) {
-			std::vector<Actor*>::iterator i;
-			for (i = objects.begin(); i != objects.end(); i++) {
-				if (rect_contains((*i)->Frame(), point)) {
-					object = *i;
-					if ((*i)->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+			for (auto actor : objects) {
+				if (rect_contains(actor->Frame(), point)) {
+					object = actor;
+					if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
 						cursorIndex = IE::CURSOR_TALK;
 					else
 						cursorIndex = IE::CURSOR_ATTACK;
@@ -1265,42 +1263,41 @@ AreaRoom::_UnloadArea()
 	}
 
 	if (fMouseOverObject != NULL)
-	    fMouseOverObject.Unset();
+		fMouseOverObject.Unset();
 
 	ClearScripts();
 
-	ActorsList::iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
+	for (auto &actor : fActors) {
 		//UnregisterObject(*i);
 		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
 		// and this blocks deletion of said object
-		(*i)->ClearActionList();
-		(*i)->Release();
+		actor->ClearActionList();
+		actor->Release();
 	}
 	fActors.clear();
 
 	Core::Get()->ExitingArea(this);
 
-	for (uint32 c = 0; c < fRegions.size(); c++) {
-		if (fRegions[c] != NULL)
-			fRegions[c]->Release();
+	for (auto region : fRegions) {
+		if (region != NULL)
+			region->Release();
 	}
 	fRegions.clear();
 
-	for (uint32 c = 0; c < fContainers.size(); c++) {
-		if (fContainers[c] != NULL)
-			fContainers[c]->Release();
+	for (auto container : fContainers) {
+		if (container != NULL)
+			container->Release();
 	}
 	fContainers.clear();
 
-	for (uint32 c = 0; c < fDoors.size(); c++) {
-		if (fDoors[c] != NULL)
-			fDoors[c]->Release();
+	for (auto door : fDoors) {
+		if (door != NULL)
+			door->Release();
 	}
 	fDoors.clear();
 
-	for (uint32 c = 0; c < fAnimations.size(); c++)
-		delete fAnimations[c];
+	for (auto animation : fAnimations)
+		delete animation;
 	fAnimations.clear();
 
 	if (fBackMap != NULL) {
