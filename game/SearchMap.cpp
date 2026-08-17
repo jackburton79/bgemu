@@ -28,10 +28,10 @@ SearchMap::SearchMap(std::string name)
 		fWidth = fImage->Width();
 		fHeight = fImage->Height();
 
-		fPassabilityMap.resize(fWidth * fHeight);
+		fPassabilityMap.resize(size_t(fWidth * fHeight));
 
-		for (int y = 0; y < fHeight; ++y) {
-			for (int x = 0; x < fWidth; ++x) {
+		for (int32 y = 0; y < fHeight; ++y) {
+			for (int32 x = 0; x < fWidth; ++x) {
 				uint8 state = fModifiedMap->GetPixel(x, y);
 				bool passable = state != 0 && state != 8 && state != 10
 						&& state != 12 && state != 13;
