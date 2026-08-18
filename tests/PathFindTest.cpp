@@ -135,19 +135,15 @@ InitializeRoomsMap(std::vector<std::vector<uint8>> &map, int cols, int rows)
 	std::vector<Room> rooms;
 
 	const int kNumRooms = 20;
-
 	for (int i = 0; i < kNumRooms; ++i) {
 		Room room;
 
 		room.width = Core::RandomNumber(4, 8);
 		room.height = Core::RandomNumber(4, 8);
-
 		room.x = Core::RandomNumber(1, cols - room.width - 2);
-
 		room.y = Core::RandomNumber(1, rows - room.height - 2);
 
 		bool overlaps = false;
-
 		for (const auto& other : rooms) {
 			if (Intersects(room, other)) {
 				overlaps = true;
