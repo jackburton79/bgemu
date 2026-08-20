@@ -1124,7 +1124,6 @@ AreaRoom::_InitRegions()
 		std::vector<TileCell*> cells;
 		GetTileCellsForRegion(cells, region);
 		for (auto cell : cells) {
-			std::cerr << "AddRegion" << std::endl;
 			cell->AddRegion(region);
 		}
 
