@@ -32,6 +32,7 @@ BGCharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.bam_name = BaseName();
 	description.sequence_number = o;
 	description.mirror = false;
+	description.custom_colors = true;
 
 	// Optional weapon id
 	// TODO: improve
