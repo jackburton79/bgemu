@@ -30,7 +30,9 @@ token::token(const char *tok)
 	type(TOKEN_UNKNOWN),
 	size(0)
 {
-	::memcpy(u.string, tok, sizeof(u.string));
+	size = std::min(std::strlen(tok), sizeof(u.string) - 1);
+	::memcpy(u.string, tok, size);
+	u.string[size] = '\0';
 	size = ::strnlen(u.string, sizeof(u.string));
 
 	if (!::memcmp(tok, "SC", 2)
