@@ -32,6 +32,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 	animation_description description;
 	description.bam_name = BaseName();
 	description.mirror = false;
+	description.custom_colors = false;
 
 	// TODO: Improve this
 	if (Core::Get()->Game() == GAME_BALDURSGATE2) {

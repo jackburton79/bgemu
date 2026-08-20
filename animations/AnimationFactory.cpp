@@ -162,7 +162,8 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 	try {
 		IE::point pos;
 		animation = new Animation(description.bam_name.c_str(),
-								description.sequence_number, description.mirror, pos, colors);
+								description.sequence_number, description.mirror,
+								pos, description.custom_colors ? colors : nullptr);
 	} catch (...) {
 		animation = NULL;
 	}

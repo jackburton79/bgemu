@@ -23,6 +23,7 @@ struct animation_description {
 	std::string bam_name;
 	int sequence_number;
 	bool mirror;
+	bool custom_colors;
 };
 
 struct CREColors;

@@ -6,6 +6,7 @@
 
 #include "ColorRange.h"
 
+#include <assert.h>
 #include <iostream>
 
 #include "BmpResource.h"
@@ -42,6 +43,7 @@ InitColorRanges()
 void
 ApplyRange(GFX::Palette& palette, uint8 start, uint8 rangeIndex)
 {
+	assert(rangeIndex < 147);
 	const ColorRange& range = sColorRanges[rangeIndex];
 
 	for (int i = 0; i < 12; i++)
