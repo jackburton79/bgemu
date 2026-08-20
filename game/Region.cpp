@@ -130,6 +130,15 @@ Region::ActivateTrigger(bool activate)
 }
 
 
+uint32
+Region::GetObjects(std::vector<Actor*>& objects)
+{
+	for (auto object : fObjectsInside)
+		objects.push_back(object);
+	return objects.size();
+}
+
+
 void
 Region::ActorEntered(Actor* actor)
 {
@@ -176,3 +185,4 @@ Region::IsActorInside(object_params* actorNode) const
 	}
 	return false;
 }
+

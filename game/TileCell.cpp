@@ -31,7 +31,6 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays)
 
 TileCell::~TileCell()
 {
-	fObjects.clear();
 }
 
 
@@ -129,51 +128,6 @@ TileCell::SetDoor(::Door* d)
 
 
 void
-TileCell::ActorEnteredCell(Actor* object)
-{
-	//object->Acquire();
-	fObjects.push_back(object);
-	for (std::vector<Region*>::iterator i = fRegions.begin();
-		i != fRegions.end(); i++) {
-		(*i)->ActorEntered(object);
-	}
-	// TODO: Check if actor entered regions which covers
-	// this cell (in part or completely)
-}
-
-
-void
-TileCell::ActorExitedCell(Actor* object)
-{
-	std::list<Actor*>::iterator actorIterator;
-	for (actorIterator = fObjects.begin(); actorIterator != fObjects.end(); actorIterator++) {
-		if (object == (*actorIterator)) {
-			// Remove object from regions
-			// TODO: Wrong. If region spans over multiple tiles,
-			// the actor could still be inside region
-			for (std::vector<Region*>::iterator regionIterator = fRegions.begin();
-					regionIterator != fRegions.end(); regionIterator++) {
-				(*regionIterator)->ActorExited(object);
-			}
-			fObjects.remove(object);
-			//object->Release();
-			break;
-		}
-	}
-}
-
-
-uint32
-TileCell::GetObjects(std::vector<Actor*>& objects)
-{
-	std::list<Actor*>::iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++)
-		objects.push_back(*i);
-	return objects.size();
-}
-
-
-void
 TileCell::Clicked()
 {
 	if (fDoor != NULL)
@@ -219,9 +173,15 @@ TileCell::RemoveRegion(Region* region)
 bool
 TileCell::HasRegion(Region* region) const
 {
-	std::vector<Region*>::const_iterator i =
-		std::find_if(fRegions.begin(), fRegions.end(), FindRegion(region));
+	auto i = std::find_if(fRegions.begin(), fRegions.end(), FindRegion(region));
 	return i != fRegions.end();
+}
+
+
+void
+TileCell::GetRegions(std::vector<Region*> &region) const
+{
+	region = fRegions;
 }
 
 

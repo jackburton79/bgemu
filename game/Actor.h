@@ -111,9 +111,6 @@ public:
 	void UpdateAnimation(bool ignoreBlocks);
 	bool MoveToNextPointInPath(bool ignoreBlocks);
 
-	void UpdateTileCell();
-	void SetTileCell(::TileCell*);
-
 	void SetText(const std::string& string);
 	std::string Text() const;
 
@@ -145,7 +142,6 @@ private:
 	Path* fPath;
 	int fSpeed;
 
-	::TileCell* fTileCell;
 	Region* fRegion;
 
 	std::string fText;
@@ -166,6 +162,8 @@ private:
 	void _DrawCircle(AreaRoom* room) const;
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
+
+	void _UpdateRegions();
 };
 
 struct ZOrderSorter {

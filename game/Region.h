@@ -37,6 +37,8 @@ public:
 	
 	void ActivateTrigger(bool activate);
 
+	uint32 GetObjects(std::vector<Actor*>& objects);
+
 	void ActorEntered(Actor* actor);
 	void ActorExited(Actor* actor);
 	bool IsActorInside(Actor* actor) const;
