@@ -35,6 +35,7 @@ BG2CharachterAnimationFactory::GetAnimationDescription(Actor* actor)
 	animation_description description;
 	description.mirror = false;
 	description.sequence_number = 0;
+	description.custom_colors = true;
 
 	if (actor->InParty()) {
 		// Charachter animations are specific
