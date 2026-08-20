@@ -35,7 +35,7 @@ BGMonsterAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.custom_colors = false;
 
 	// TODO: Improve this
-	if (Core::Get()->Game() == GAME_BALDURSGATE2) {
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2) {
 		if (o >= IE::ORIENTATION_EXT_NNE
 				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
 			// Orientation 5 uses bitmap from orientation 3 mirrored,

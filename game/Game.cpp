@@ -284,7 +284,7 @@ Game::CreateParty()
 	// TODO: This should be filled by the player selection
 	IE::point point = { 20, 20 };
 	fParty = new ::Party();
-	if (Core::Get()->Game() == GAME_BALDURSGATE)
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
 		fParty->AddActor(new Actor("AJANTI", point, 0));
 	else
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));

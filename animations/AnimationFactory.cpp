@@ -45,8 +45,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 		factory = i->second;
 	else {
 		switch (Core::Get()->Game()) {
-			case GAME_BALDURSGATE:
-			case GAME_BALDURSGATE2:
+			case game::GAME_BALDURSGATE:
+			case game::GAME_BALDURSGATE2:
 				switch (highId) {
 					case 0x70:
 						factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);

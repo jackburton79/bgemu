@@ -137,7 +137,7 @@ object_params::object_params(const object_params& other)
 void
 object_params::Print() const
 {
-	if (Core::Get()->Game() == GAME_TORMENT) {
+	if (Core::Get()->Game() == game::GAME_TORMENT) {
 		std::cout << "team: " << team << ", ";
 		std::cout << "faction: " << faction << ", ";
 	}
@@ -162,7 +162,7 @@ object_params::Print() const
 				std::cout << " -> ";
 		}
 	}
-	if (Core::Get()->Game() == GAME_TORMENT)
+	if (Core::Get()->Game() == game::GAME_TORMENT)
 		std::cout << "point: " << point.x << ", " << point.y << ", ";
 	if (name[0] != '\0')
 		std::cout << "name: *" << name << "*" << ", ";

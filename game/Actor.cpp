@@ -177,7 +177,7 @@ Actor::_Init()
 #endif
 
 	if ((fActor->orientation > IE::ORIENTATION_SE &&
-			Core::Get()->Game() == GAME_BALDURSGATE) ||
+			Core::Get()->Game() == game::GAME_BALDURSGATE) ||
 			fActor->orientation > IE::ORIENTATION_EXT_SSE) {
 		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
 		fActor->orientation = 0;
@@ -323,7 +323,7 @@ void
 Actor::SetOrientation(const IE::point& toPoint)
 {
 	uint32 oldOrientation = fActor->orientation;
-	if (Core::Get()->Game() == GAME_BALDURSGATE)
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
 		_SetOrientation(toPoint);
 	else
 		_SetOrientationExtended(toPoint);

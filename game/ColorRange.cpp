@@ -11,6 +11,7 @@
 
 #include "BmpResource.h"
 #include "Bitmap.h"
+#include "Core.h"
 #include "ResManager.h"
 
 static std::vector<ColorRange> sColorRanges;
@@ -18,6 +19,10 @@ static std::vector<ColorRange> sColorRanges;
 bool
 InitColorRanges()
 {
+	// Baldur's gate 1 use COLGRAD.BAM instead
+	if (Core::Get()->Game() != game::GAME_BALDURSGATE2)
+		return false;
+
 	std::cout << "InitColorRanges()" << std::endl;
 	BMPResource* ranges = gResManager->GetBMP("RANGES12");
 	if (ranges == nullptr)

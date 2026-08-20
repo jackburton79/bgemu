@@ -34,7 +34,7 @@ SplitAnimationFactory::GetAnimationDescription(Actor* actor)
 	description.mirror = false;
 	description.custom_colors = true;
 
-	if (Core::Get()->Game() == GAME_BALDURSGATE2)
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
 		o = IE::orientation_ext_to_base(o);
 
 	description.sequence_number = uint32(o);

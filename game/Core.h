@@ -11,7 +11,7 @@
 struct action_params;
 struct trigger_params;
 
-enum game {
+enum class game {
 	GAME_BALDURSGATE,
 	GAME_BALDURSGATE2,
 	GAME_TORMENT
@@ -51,7 +51,7 @@ public:
 	void RegisterObject(Object* object);
 	void UnregisterObject(Object* object);
 
-	uint32 Game() const;
+	game Game() const;
 
 	bool LoadArea(const res_ref areaName, std::string longName,
 					std::string entranceName);

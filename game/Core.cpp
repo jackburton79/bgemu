@@ -26,7 +26,7 @@ static Core* sCore = NULL;
 
 Core::Core()
 	:
-	fGame(GAME_BALDURSGATE2),
+	fGame(game::GAME_BALDURSGATE2),
 	fCurrentRoom(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
@@ -81,11 +81,11 @@ Core::Initialize(const char* path)
 	std::cout << "Core: Detecting game... ";
 	std::flush(std::cout);
 	if (gResManager->ResourceExists("CSJON", RES_CRE)) {
-		sCore->fGame = GAME_BALDURSGATE2;
+		sCore->fGame = game::GAME_BALDURSGATE2;
 		sCore->fHasExtendedOrientations = true;
 		std::cout << "Baldur's Gate 2" << std::endl;
 	} else {
-		sCore->fGame = GAME_BALDURSGATE;
+		sCore->fGame = game::GAME_BALDURSGATE;
 		sCore->fHasExtendedOrientations = false;
 		std::cout << "Baldur's Gate" << std::endl;
 	}
@@ -135,7 +135,7 @@ Core::IsPaused() const
 }
 
 
-uint32
+game
 Core::Game() const
 {
 	return fGame;

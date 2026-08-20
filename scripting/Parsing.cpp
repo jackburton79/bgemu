@@ -396,7 +396,7 @@ Parser::_ReadObjectBlock(object_params& obj)
 	_Expect("OB");
 
 	obj.ea = fTokenizer->ReadToken().u.number;
-	if (Core::Get()->Game() == GAME_TORMENT) {
+	if (Core::Get()->Game() == game::GAME_TORMENT) {
 		obj.faction = fTokenizer->ReadToken().u.number;
 		obj.team = fTokenizer->ReadToken().u.number;
 	}
@@ -410,7 +410,7 @@ Parser::_ReadObjectBlock(object_params& obj)
 		obj.identifiers[i] = fTokenizer->ReadToken().u.number;
 
 	// TODO: Not sure which games supports that
-	if (Core::Get()->Game() == GAME_TORMENT) {
+	if (Core::Get()->Game() == game::GAME_TORMENT) {
 		obj.point.x = fTokenizer->ReadToken().u.number;
 		obj.point.y = fTokenizer->ReadToken().u.number;
 	}
