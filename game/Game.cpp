@@ -9,6 +9,7 @@
 
 #include "2DAResource.h"
 #include "Actor.h"
+#include "ColorRange.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Dialog.h"
@@ -91,6 +92,11 @@ DisplayFrameRate(void* param)
 void
 Game::Loop(bool noNewGame, bool executeScripts)
 {
+	// TODO: Move this ? where ?
+	if (!InitColorRanges()) {
+		throw std::runtime_error("Initializing color range failed");
+	}
+
 	std::cout << "Game::Loop()" << std::endl;
 	if (!GUI::Initialize(GraphicsEngine::Get()->ScreenFrame().w,
 						 GraphicsEngine::Get()->ScreenFrame().h)) {

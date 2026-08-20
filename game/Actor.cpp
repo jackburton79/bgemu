@@ -449,9 +449,9 @@ Actor::_DrawCircle(AreaRoom* room) const
 		room->ConvertFromArea(position);
 		uint32 color = 0;
 		if (CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-			color = image->MapColor(0, 255, 0);
+			color = image->MapRGBColor(0, 255, 0);
 		else
-			color = image->MapColor(255, 0, 0);
+			color = image->MapRGBColor(255, 0, 0);
 
 		image->Lock();
 		image->StrokeCircle(position.x, position.y,

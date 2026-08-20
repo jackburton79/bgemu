@@ -13,6 +13,7 @@
 #define AI_UPDATE_FREQ 15
 #define ROUND_DURATION_SEC 6
 
+
 class Actor;
 class DialogHandler;
 class Party;

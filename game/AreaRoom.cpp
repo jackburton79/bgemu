@@ -233,7 +233,7 @@ AreaRoom::Draw()
 	if (fMouseOverObject.Target() != NULL) {
 		::Outline outline = fMouseOverObject.Target()->Outline();
 		GFX::Color rgbColor = outline.Color();
-		uint32 color = fBackMap->Image()->MapColor(rgbColor.r, rgbColor.g, rgbColor.b);
+		uint32 color = fBackMap->Image()->MapRGBColor(rgbColor.r, rgbColor.g, rgbColor.b);
 		fBackMap->Image()->Lock();
 		if (outline.Type() == Outline::OUTLINE_RECT) {
 			GFX::rect rect = rect_to_gfx_rect(outline.Rect());
@@ -252,7 +252,7 @@ AreaRoom::Draw()
 		IE::point destination = fSelectedActor.Target()->Destination() - mapOffset;
 
 		fBackMap->Image()->Lock();
-		uint32 color = fBackMap->Image()->MapColor(0, 255, 0);
+		uint32 color = fBackMap->Image()->MapRGBColor(0, 255, 0);
 		fBackMap->Image()->StrokeCircle(destination.x, destination.y, 10, color);
 		fBackMap->Image()->Unlock();
 	}
