@@ -259,10 +259,7 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 													  flags, destPoint,
 													  maxWidth, maxHeight);
 	GFX::rect renderRect = containerRect;
-	for (std::vector<Glyph>::const_iterator i = glyphs.begin();
-			i != glyphs.end(); i++) {
-		const Glyph glyph = (*i);
-
+	for (const auto &glyph : glyphs) {
 		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, renderRect);
 		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
 
@@ -277,13 +274,12 @@ Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 				std::vector<Glyph> *glyphs) const
 {
 	// calculate total width and height
-	for (std::string::const_iterator c = string.begin();
-			c != string.end(); c++) {
-		GlyphMap::const_iterator g = fGlyphs.find(*c);
+	for (const auto &c : string) {
+		GlyphMap::const_iterator g = fGlyphs.find(c);
 		if (g == fGlyphs.end()) {
 			// glyph not found/cached
 			std::cerr << Log::Yellow << "Font::_PrepareGlyphs: glyph '";
-			std::cerr << (char)*c << "' not found" << Log::Normal << std::endl;
+			std::cerr << (char)c << "' not found" << Log::Normal << std::endl;
 			continue;
 		}
 		Glyph newGlyph = g->second;
