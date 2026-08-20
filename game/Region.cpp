@@ -142,7 +142,7 @@ Region::GetObjects(std::vector<Actor*>& objects)
 void
 Region::ActorEntered(Actor* actor)
 {
-	// TODO: check if is already in
+	std::cerr << "Actor Entered" << std::endl;
 	if (!IsActorInside(actor)) {
 		fObjectsInside.push_back(actor);
 		AddTrigger(trigger_entry("Entered", actor));
@@ -153,9 +153,9 @@ Region::ActorEntered(Actor* actor)
 void
 Region::ActorExited(Actor* actor)
 {
-	for (std::list<Actor*>::iterator i = fObjectsInside.begin();
-			i != fObjectsInside.end(); i++) {
-		if ((*i)->GlobalID() == actor->GlobalID()) {
+	std::cerr << "Actor Exited" << std::endl;
+	for (auto actor : fObjectsInside) {
+		if (actor->GlobalID() == actor->GlobalID()) {
 			fObjectsInside.remove(actor);
 			break;
 		}
@@ -166,9 +166,8 @@ Region::ActorExited(Actor* actor)
 bool
 Region::IsActorInside(Actor* actor) const
 {
-	for (std::list<Actor*>::const_iterator i = fObjectsInside.begin();
-			i != fObjectsInside.end(); i++) {
-		if ((*i)->GlobalID() == actor->GlobalID())
+	for (auto object : fObjectsInside) {
+		if (object->GlobalID() == actor->GlobalID())
 			return true;
 	}
 	return false;
@@ -178,9 +177,8 @@ Region::IsActorInside(Actor* actor) const
 bool
 Region::IsActorInside(object_params* actorNode) const
 {
-	for (std::list<Actor*>::const_iterator i = fObjectsInside.begin();
-			i != fObjectsInside.end(); i++) {
-		if ((*i)->MatchNode(actorNode))
+	for (auto object : fObjectsInside) {
+		if (object->MatchNode(actorNode))
 			return true;
 	}
 	return false;

@@ -135,12 +135,6 @@ TileCell::Clicked()
 }
 
 
-void
-TileCell::MouseOver()
-{
-}
-
-
 struct FindRegion {
 	FindRegion(const Region* region)
 		: toFind(region) {};
@@ -181,6 +175,7 @@ TileCell::HasRegion(Region* region) const
 void
 TileCell::GetRegions(std::vector<Region*> &region) const
 {
+	std::cerr << "GetRegions: " << region.size() << std::endl;
 	region = fRegions;
 }
 

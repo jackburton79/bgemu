@@ -41,7 +41,6 @@ public:
 	void SetDoor(::Door *d);
 	::Door *Door() const;
 
-	void MouseOver();
 	void Clicked();
 
 	void AddRegion(Region* Region);

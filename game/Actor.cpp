@@ -1160,9 +1160,10 @@ Actor::_UpdateRegions()
 		return;
 
 	if (fRegion != nullptr) {
-		if (!fRegion->Contains(Position()))
+		if (!fRegion->Contains(Position())) {
 			fRegion->ActorExited(this);
-		else
+			fRegion = nullptr;
+		} else
 			return;
 	}
 
@@ -1171,8 +1172,10 @@ Actor::_UpdateRegions()
 	if (tileCell != NULL) {
 		tileCell->GetRegions(regions);
 		for (auto region: regions) {
-			if (region->Contains(Position()))
+			if (region->Contains(Position())) {
+				fRegion = region;
 				region->ActorEntered(this);
+			}
 		}
 	}
 }
