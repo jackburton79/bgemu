@@ -16,7 +16,8 @@ endif
 ifneq ($(DEBUG),TRUE)
 	CXXFLAGS += -O3
 else
-	CXXFLAGS += -g -O0
+	CXXFLAGS += -g -O0 -fsanitize=address
+	LDFLAGS = -fsanitize=address
 endif
 
 SUBDIR = \
