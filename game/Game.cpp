@@ -94,7 +94,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 {
 	// TODO: Move this ? where ?
 	if (!InitColorRanges()) {
-		throw std::runtime_error("Initializing color range failed");
+		std::cerr << "Initializing color range failed" << std::endl;
+		// Not a bad error, we can still continue
 	}
 
 	std::cout << "Game::Loop()" << std::endl;
