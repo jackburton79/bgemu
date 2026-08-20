@@ -31,9 +31,7 @@ TileCell::TileCell(uint32 number, std::vector<MapOverlay*>& overlays)
 
 TileCell::~TileCell()
 {
-	std::list<Actor*>::iterator i;
-	for (i = fObjects.begin(); i != fObjects.end(); i++)
-		(*i)->SetTileCell(NULL);
+	fObjects.clear();
 }
 
 

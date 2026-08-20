@@ -1265,17 +1265,18 @@ AreaRoom::_UnloadArea()
 	}
 
 	if (fMouseOverObject != NULL)
-	    fMouseOverObject.Unset();
+		fMouseOverObject.Unset();
 
 	ClearScripts();
 
-	ActorsList::iterator i;
-	for (i = fActors.begin(); i != fActors.end(); i++) {
+	for (auto actor : fActors) {
+		actor->SetTileCell(NULL);
 		//UnregisterObject(*i);
 		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
 		// and this blocks deletion of said object
-		(*i)->ClearActionList();
-		(*i)->Release();
+		actor->ClearActionList();
+
+		actor->Release();
 	}
 	fActors.clear();
 
