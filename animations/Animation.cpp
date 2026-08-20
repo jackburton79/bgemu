@@ -172,14 +172,10 @@ Animation::_LoadBitmaps(BAMResource* bam, int16 sequence, CREColors* patchColors
 void
 Animation::_ApplyColorMODs(::Bitmap *bitmap, CREColors *patchColors)
 {
-#if 0
 	GFX::Palette palette;
 	bitmap->GetPalette(palette);
 
-	int i;
-	//for (i = 0; i < 4; ++i)
-		//col[i] = src->col[i];
-
+	// TODO :Finish this
 	// 4-15
 	ApplyRange(palette, 0x4, patchColors->metal);
 
@@ -253,5 +249,4 @@ Animation::_ApplyColorMODs(::Bitmap *bitmap, CREColors *patchColors)
 	//	palette.ModColor(0xB8 + i, patchColors->leather);
 
 	bitmap->SetPalette(palette);
-#endif
 }

@@ -22,14 +22,10 @@ InitColorRanges()
 	if (ranges == nullptr)
 		return false;
 	Bitmap* bitmap = ranges->Image();
-	std::cout << "width: " << bitmap->Width() << ", height: " << bitmap->Height() << std::endl;
-	std::cout << "bitsperpixel: " << bitmap->BitsPerPixel() << std::endl;
-	bitmap->Dump();
 	ColorRange range;
-	for (int y = 0; y < bitmap->Height(); y++) {
+	for (uint16 y = 0; y < bitmap->Height(); y++) {
 		for (int x = 0; x < 12; x++) {
 			uint32 pixel = bitmap->GetPixel(x, y);
-
 			bitmap->GetRGBColor(pixel, range.shade[x].r, range.shade[x].g, range.shade[x].b);
 		}
 		sColorRanges.push_back(range);
