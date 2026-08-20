@@ -47,7 +47,6 @@ Actor::Actor(IE::actor &actor)
 	fSelected(false),
 	fPath(NULL),
 	fSpeed(2),
-	fTileCell(NULL),
 	fRegion(NULL)
 {
 	_Init();
@@ -71,7 +70,6 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fSelected(false),
 	fPath(NULL),
 	fSpeed(2),
-	fTileCell(NULL),
 	fRegion(NULL)
 {
 	_Init();
@@ -95,7 +93,6 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fSelected(false),
 	fPath(NULL),
 	fSpeed(2),
-	fTileCell(NULL),
 	fRegion(NULL),
 	fSelectedRadius(20),
 	fSelectedRadiusStep(1)
@@ -880,7 +877,7 @@ Actor::Update(bool scripts)
 	}
 
 	Object::Update(scripts);
-	UpdateTileCell();
+	_UpdateRegions();
 	UpdateAnimation(IsFlying());
 	if (fSelected) {
 		if (fSelectedRadius > 22) {
@@ -1054,34 +1051,6 @@ Actor::IsReachable(const IE::point& pt) const
 
 
 void
-Actor::UpdateTileCell()
-{
-	BackMap* backMap = Area()->BackMap();
-	if (backMap == NULL)
-		return;
-
-	::TileCell* oldTileCell = fTileCell;
-	::TileCell* newTileCell = backMap->TileAtPoint(Position());
-
-	if (oldTileCell != newTileCell) {
-		if (oldTileCell != NULL)
-			oldTileCell->ActorExitedCell(this);
-		fTileCell = newTileCell;
-		if (newTileCell != NULL)
-			newTileCell->ActorEnteredCell(this);
-	}
-}
-
-
-// Called by TileCell on destruction
-void
-Actor::SetTileCell(::TileCell* cell)
-{
-	fTileCell = cell;
-}
-
-
-void
 Actor::SetText(const std::string& string)
 {
 	fText = string;
@@ -1101,19 +1070,15 @@ Actor::_SetPositionPrivate(const IE::point& point)
 	AreaRoom* room = Area();
 	if (room != NULL) {
 		room->SearchMap()->ClearPoint(fActor->position.x, fActor->position.y);
-		TileCell* tile = room->BackMap()->TileAtPoint(fActor->position);
-		if (tile != NULL)
-			tile->ActorExitedCell(this);
 	}
 
 	fActor->position = point;
 
 	if (room != NULL) {
 		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
-		TileCell* tile = room->BackMap()->TileAtPoint(fActor->position);
-		if (tile != NULL)
-			tile->ActorEnteredCell(this);
 	}
+
+	_UpdateRegions();
 }
 
 
@@ -1184,4 +1149,33 @@ Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 		}
 	}
 	return true;
+}
+
+
+void
+Actor::_UpdateRegions()
+{
+	BackMap* backMap = Area()->BackMap();
+	if (backMap == NULL)
+		return;
+
+	if (fRegion != nullptr) {
+		if (!fRegion->Contains(Position())) {
+			fRegion->ActorExited(this);
+			fRegion = nullptr;
+		} else
+			return;
+	}
+
+	::TileCell* tileCell = backMap->TileAtPoint(Position());
+	std::vector<Region*> regions;
+	if (tileCell != NULL) {
+		tileCell->GetRegions(regions);
+		for (auto region: regions) {
+			if (region->Contains(Position())) {
+				fRegion = region;
+				region->ActorEntered(this);
+			}
+		}
+	}
 }

@@ -1015,11 +1015,10 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 Region*
 AreaRoom::RegionAtPoint(const IE::point& point) const
 {
-	RegionsList::const_iterator i;
-	for (i = fRegions.begin(); i != fRegions.end(); i++) {
-		GFX::rect rect = rect_to_gfx_rect((*i)->Frame());
+	for (auto region : fRegions) {
+		GFX::rect rect = rect_to_gfx_rect(region->Frame());
 		if (rect.Contains(point.x, point.y))
-			return *i;
+			return region;
 	}
 	return NULL;
 }
@@ -1034,15 +1033,26 @@ AreaRoom::ClearAllActions()
 
 
 Container*
-AreaRoom::_ContainerAtPoint(const IE::point& point)
+AreaRoom::_ContainerAtPoint(const IE::point& point) const
 {
-	ContainersList::iterator i;
-	for (i = fContainers.begin(); i != fContainers.end(); i++) {
-		if ((*i)->Polygon().Contains(point.x, point.y))
-			return *i;
+	for (const auto container : fContainers) {
+		if (container->Polygon().Contains(point.x, point.y))
+			return container;
 	}
 	return NULL;
 }
+
+
+Actor*
+AreaRoom::_ActorAtPoint(const IE::point& point) const
+{
+	for (const auto actor : fActors) {
+		if (rect_contains(actor->Frame(), point))
+			return actor;
+	}
+	return nullptr;
+}
+
 
 
 Object*
@@ -1058,20 +1068,12 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	if (Door* door = cell->Door()) {
 		if (rect_contains(door->Frame(), point))
 			return door;
-	} else {
-		std::vector<Actor*> objects;
-		if (cell->GetObjects(objects) > 0) {
-			std::vector<Actor*>::iterator i;
-			for (i = objects.begin(); i != objects.end(); i++) {
-				if (rect_contains((*i)->Frame(), point)) {
-					object = *i;
-					if ((*i)->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-						cursorIndex = IE::CURSOR_TALK;
-					else
-						cursorIndex = IE::CURSOR_ATTACK;
-				}
-			}
-		}
+	} else if (Actor *actor = _ActorAtPoint(point)) {
+		object = actor;
+		if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+			cursorIndex = IE::CURSOR_TALK;
+		else
+			cursorIndex = IE::CURSOR_ATTACK;
 	}
 
 	if (Region* region = RegionAtPoint(point)) {
@@ -1121,9 +1123,8 @@ AreaRoom::_InitRegions()
 		AddObject(region);
 		std::vector<TileCell*> cells;
 		GetTileCellsForRegion(cells, region);
-		for (std::vector<TileCell*>::iterator cellIterator = cells.begin();
-			cellIterator != cells.end(); cellIterator++) {
-			(*cellIterator)->AddRegion(region);
+		for (auto cell : cells) {
+			cell->AddRegion(region);
 		}
 
 		// TODO: associate room to tile cells
@@ -1270,7 +1271,6 @@ AreaRoom::_UnloadArea()
 	ClearScripts();
 
 	for (auto actor : fActors) {
-		actor->SetTileCell(NULL);
 		//UnregisterObject(*i);
 		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
 		// and this blocks deletion of said object

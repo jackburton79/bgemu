@@ -41,16 +41,12 @@ public:
 	void SetDoor(::Door *d);
 	::Door *Door() const;
 
-	void ActorEnteredCell(Actor*);
-	void ActorExitedCell(Actor*);
-	uint32 GetObjects(std::vector<Actor*>& objects);
-
-	void MouseOver();
 	void Clicked();
 
 	void AddRegion(Region* Region);
 	void RemoveRegion(Region* region);
 	bool HasRegion(Region* region) const;
+	void GetRegions(std::vector<Region*> &regions) const;
 
 	static uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 										Region* region);
@@ -64,7 +60,6 @@ private:
 	// TODO: This should store the object IDs, since
 	// storing the pointers is not safe
 
-	std::list<Actor*> fObjects;
 	std::vector<Region*> fRegions;
 
 	bool _ShouldDrawOverlay(int overlayIndex) const;

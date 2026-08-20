@@ -122,7 +122,8 @@ private:
 	void _DrawEffects();
 	void _DrawActors();
 
-	Container* _ContainerAtPoint(const IE::point& point);
+	Container* _ContainerAtPoint(const IE::point& point) const;
+	Actor* _ActorAtPoint(const IE::point& point) const;
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
 
 	void _InitVariables();
