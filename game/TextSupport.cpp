@@ -215,7 +215,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 {
 	GFX::rect rect;
 	rect.x = containerRect.x;
-	rect.y = containerRect.y;
+	rect.y = containerRect.y + fBaseLine - glyph.bitmap->Frame().y;
 	rect.w = glyph.bitmap->Width();
 	rect.h = glyph.bitmap->Height();
 
