@@ -359,8 +359,8 @@ ResetState(Path& p, Bitmap* bitmap)
 
 	GraphicsEngine::BlitBitmap(gMap, NULL, bitmap, NULL);
 
-	gRed = bitmap->MapColor(255, 0, 0);
-	gGreen = bitmap->MapColor(0, 255, 0);
+	gRed = bitmap->MapRGBColor(255, 0, 0);
+	gGreen = bitmap->MapRGBColor(0, 255, 0);
 	bitmap->StrokeCircle(start.x, start.y, 8, gRed);
 	bitmap->StrokeCircle(end.x, end.y, 8, gRed);
 	if (sDebug)
