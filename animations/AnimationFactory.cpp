@@ -54,6 +54,19 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x10:
 					case 0x20:
 					case 0x23:
+						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+						break;
+					case 0x50:
+					case 0x51:
+					case 0x52:
+					case 0x60:
+					case 0x61:
+					case 0x62:
+					case 0x63:
+					case 0x64:
+					case 0x65:
+						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
+						break;
 					case 0x74:
 					case 0x7b: // MWLF
 					case 0x7d: // MZOM (Zombie)
@@ -78,6 +91,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
 						break;
 					// WRONG
+					case 0xb2: // NBEG 0xb200
 					case 0xb4:
 					case 0xb5:
 					case 0xc6:
@@ -91,17 +105,6 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0xe4:
 					case 0xe6:
 						factory = new IWDAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0x50:
-					case 0x51:
-					case 0x52:
-					case 0x60:
-					case 0x61:
-					case 0x62:
-					case 0x63:
-					case 0x64:
-					case 0x65:
-						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
 						break;
 					default:
 						break;
