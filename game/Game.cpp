@@ -14,13 +14,13 @@
 #include "CreResource.h"
 #include "Dialog.h"
 #include "GameConsole.h"
+#include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
 #include "RoomBase.h"
-#include "Timer.h"
 
 
 #include <assert.h>

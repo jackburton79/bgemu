@@ -7,6 +7,7 @@
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
+#include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "IDSResource.h"
@@ -16,7 +17,6 @@
 #include "Script.h"
 #include "SpellEffect.h"
 #include "SPLResource.h"
-#include "Timer.h"
 // TODO: Remove this dependency
 #include "TLKResource.h"
 

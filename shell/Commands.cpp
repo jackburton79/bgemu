@@ -14,11 +14,11 @@
 #include "CreResource.h"
 #include "Game.h"
 #include "GameConsole.h"
+#include "GameTimer.h"
 #include "GUI.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
-#include "Timer.h"
 
 #include <iostream>
 #include <sstream>

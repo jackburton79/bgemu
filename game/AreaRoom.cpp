@@ -16,6 +16,7 @@
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
+#include "GameTimer.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -32,7 +33,6 @@
 #include "TextSupport.h"
 #include "TileCell.h"
 #include "TisResource.h"
-#include "Timer.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
 

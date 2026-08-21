@@ -6,12 +6,12 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Game.h"
+#include "GameTimer.h"
 #include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "Script.h"
-#include "Timer.h"
 
 #include <assert.h>
 #include <sstream>

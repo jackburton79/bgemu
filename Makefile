@@ -38,6 +38,7 @@ INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 INC_DIRS += -I libjgame/graphics
 INC_DIRS += -I libjgame/streams
 INC_DIRS += -I libjgame/support
+INC_DIRS += -I libjgame/timers
 
 DEP = $(OBJS:%.o=%.d)
 

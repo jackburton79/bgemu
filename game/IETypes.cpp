@@ -14,13 +14,13 @@
 #include "MveResource.h"
 #include "ResManager.h"
 #include "SPLResource.h"
-#include "Timer.h"
 #include "TisResource.h"
-#include "Utils.h"
 #include "VVCResource.h"
 #include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
+#include "GameTimer.h"
+#include "Utils.h"
 
 #define __STDC_FORMAT_MACROS
 
