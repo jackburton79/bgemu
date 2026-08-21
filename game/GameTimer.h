@@ -52,5 +52,3 @@ private:
 	static uint32 sGameTime;
 };
 
-
-#endif /* __TIMER_H */
