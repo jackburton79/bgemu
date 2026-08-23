@@ -58,6 +58,13 @@ GUI::GUI(uint16 width, uint16 height)
 GUI::~GUI()
 {
 	gResManager->ReleaseResource(fResource);
+
+	for (auto tooltip : fTooltipList) {
+		if (tooltip.bitmap != nullptr)
+			tooltip.bitmap->Release();
+	}
+	fTooltipList.clear();
+
 	for (auto window: fWindows) {
 		delete window;
 	}
