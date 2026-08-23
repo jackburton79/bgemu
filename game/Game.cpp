@@ -276,6 +276,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	GUI::Destroy();
 	GameTimer::DisposeTimers();
+	Timer::TearDown();
 }
 
 
