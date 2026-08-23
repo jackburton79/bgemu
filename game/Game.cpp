@@ -275,6 +275,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	std::cout << "Game: Input loop stopped." << std::endl;
 
 	GUI::Destroy();
+	GameTimer::DisposeTimers();
 }
 
 

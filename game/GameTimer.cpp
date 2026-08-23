@@ -33,6 +33,17 @@ GameTimer::Get() const
 }
 
 
+/* static */
+void
+GameTimer::DisposeTimers()
+{
+	for (auto timer : sTimers) {
+		delete timer.second;
+	}
+	sTimers.clear();
+}
+
+
 void
 GameTimer::SetExpiration(uint32 expiration)
 {

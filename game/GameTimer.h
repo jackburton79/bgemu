@@ -20,6 +20,9 @@ enum timer_type {
 class GameTimer {
 public:
 	uint32 Get() const;
+
+	static void DisposeTimers();
+
 	void SetExpiration(uint32 timer);
 	bool Expired() const;
 	
