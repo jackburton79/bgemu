@@ -39,8 +39,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	std::cout << "0x" << animationID << ")" << std::endl;
 #endif
 	AnimationFactory* factory = NULL;
-	std::map<uint16, AnimationFactory*>::const_iterator i
-		= sAnimationFactory.find(animationID);
+	auto i = sAnimationFactory.find(animationID);
 	if (i != sAnimationFactory.end())
 		factory = i->second;
 	else {
