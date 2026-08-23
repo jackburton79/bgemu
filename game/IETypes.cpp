@@ -32,7 +32,7 @@
 
 using namespace IE;
 
-const static int kMaxBuffers = 10;
+const static int kMaxBuffers = 32;
 
 struct resource_struct {
 	int type;
