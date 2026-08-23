@@ -30,6 +30,9 @@ Script::Script(std::vector<condition_response*> rootNode)
 
 Script::~Script()
 {
+	for (auto c : fConditionResponses) {
+		delete c;
+	}
 }
 
 
