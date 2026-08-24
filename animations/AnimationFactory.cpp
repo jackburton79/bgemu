@@ -51,10 +51,14 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x5003, FactoryType::CharacterAnimationBG2 },
 	{ 0x5100, FactoryType::CharacterAnimationBG2 },
 	{ 0x5200, FactoryType::CharacterAnimationBG2 },
-	{ 0x6000, FactoryType::CharacterAnimationBG2 },
+	{ 0x6003, FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6100, FactoryType::CharacterAnimationBG2 },
+	{ 0x6102, FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6103, FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6200, FactoryType::CharacterAnimationBG2 },
 	{ 0x6300, FactoryType::CharacterAnimationBG2 },
+	{ 0x6303, FactoryType::CharacterAnimationBG2 }, // CIMB
+	{ 0x6311, FactoryType::CharacterAnimationBG2 }, // CEFB
 	{ 0x6400, FactoryType::CharacterAnimationBG2 },
 	{ 0x6500, FactoryType::CharacterAnimationBG2 },
 	{ 0x7000, FactoryType::CharacterAnimationBG },
@@ -62,6 +66,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7b00, FactoryType::MonsterAnimation }, // MWLF
 	{ 0x7d00, FactoryType::MonsterAnimation }, // MZOM (Zombie)
 	{ 0x7e00, FactoryType::MonsterAnimation },
+	{ 0x7f2a, FactoryType::MonsterAnimation }, // NSAI
 	{ 0x7f2c, FactoryType::MonsterAnimation }, // NSOL
 	{ 0x7f36, FactoryType::MonsterAnimation }, // NSHD
 	{ 0x7300, FactoryType::MonsterAnimation },
@@ -83,10 +88,12 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xd100, FactoryType::MonsterAnimation },
 	{ 0xd200, FactoryType::MonsterAnimation },
 	{ 0xd300, FactoryType::MonsterAnimation },
-	{ 0xc600, FactoryType::SplitAnimation },
-	{ 0xc700, FactoryType::SplitAnimation },
+	{ 0xc600, FactoryType::SplitAnimation }, // NBEG
+	{ 0xc610, FactoryType::SplitAnimation }, // NPRO
+	{ 0xc710, FactoryType::SplitAnimation }, // NGRL
 	{ 0xc800, FactoryType::SplitAnimation },
-	{ 0xc900, FactoryType::SplitAnimation },
+	{ 0xc900, FactoryType::SplitAnimation },  // NSIM
+	{ 0xc910, FactoryType::SplitAnimation },  // NSIW
 	{ 0xca00, FactoryType::SplitAnimation },
 	{ 0xe000, FactoryType::IWD },
 	{ 0xe400, FactoryType::IWD },
