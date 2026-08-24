@@ -23,7 +23,7 @@
 #include <string>
 
 
-std::map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;
+std::unordered_map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;
 
 const int kStandingOffset = 10;
 
@@ -151,11 +151,9 @@ const static AnimationDescriptor kAnimationEntries[] = {
 };
 
 struct AnimationFinder {
-	AnimationFinder(uint16 id) { fID = id; };
 	bool operator()(const AnimationDescriptor *A, const AnimationDescriptor* B) {
-		return A->animation_id < B->animation_id;
+		return A->animation_id == B->animation_id;
 	}
-	uint16 fID;
 };
 
 /* static */

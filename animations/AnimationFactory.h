@@ -8,8 +8,8 @@
 #ifndef __ANIMATIONFACTORY_H_
 #define __ANIMATIONFACTORY_H_
 
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "IETypes.h"
@@ -54,7 +54,7 @@ protected:
 	bool _HasW(const std::string& name) const;
 	bool _HasSeparateEasternOrientations(const std::string& name) const;
 
-	static std::map<uint16, AnimationFactory*> sAnimationFactory;
+	static std::unordered_map<uint16, AnimationFactory*> sAnimationFactory;
 
 private:
 	std::string fBaseName;
