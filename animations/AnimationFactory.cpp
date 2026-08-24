@@ -50,7 +50,8 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x2300, "", FactoryType::MonsterAnimation },
 	{ 0x4000, "SNOM", FactoryType::SimpleAnimation },
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
-	{ 0x4100, "SSIM", FactoryType::SimpleAnimation },
+	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
+
 	{ 0x5000, "CHMB", FactoryType::CharacterAnimationBG2 },
 	{ 0x5002, "CDMB", FactoryType::CharacterAnimationBG2 },
 	{ 0x5003, "", FactoryType::CharacterAnimationBG2 },
@@ -62,6 +63,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x5210, "CHFW", FactoryType::CharacterAnimationBG2 },
 	{ 0x5303, "CIMB", FactoryType::CharacterAnimationBG2 },
 	{ 0x6000, "CHMB", FactoryType::CharacterAnimationBG2 },
+	{ 0x6002, "CDMB", FactoryType::CharacterAnimationBG2 },
 	{ 0x6003, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6004, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
 	{ 0x6010, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
@@ -89,6 +91,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6400, "", FactoryType::CharacterAnimationBG2 },
 	{ 0x6403, "MSKL", FactoryType::CharacterAnimationBG2 },
 	{ 0x6500, "", FactoryType::CharacterAnimationBG2 },
+
 	{ 0x7000, "", FactoryType::CharacterAnimationBG },
 	{ 0x7300, "", FactoryType::MonsterAnimation },
 	{ 0x7400, "", FactoryType::MonsterAnimation },
@@ -99,6 +102,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7e00, "", FactoryType::MonsterAnimation },
 	{ 0x7f05, "MDJI", FactoryType::MonsterAnimation },
 	{ 0x7f0b, "MGCL", FactoryType::MonsterAnimation },
+	{ 0x7f0d, "MLIC", FactoryType::MonsterAnimation },
 	{ 0x7f10, "MRAK", FactoryType::MonsterAnimation },
 	{ 0x7f13, "MSNK", FactoryType::MonsterAnimation },
 	{ 0x7f16, "AMOO", FactoryType::MonsterAnimation },
@@ -121,17 +125,13 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
 	{ 0xb500, "", FactoryType::SplitAnimation },
 	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
-	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
 	{ 0xc100, "", FactoryType::MonsterAnimation },
 	{ 0xc200, "", FactoryType::MonsterAnimation },
 	{ 0xc300, "", FactoryType::MonsterAnimation },
 	{ 0xc400, "", FactoryType::MonsterAnimation },
 	{ 0xc500, "", FactoryType::MonsterAnimation },
 	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
-	{ 0xd000, "AEAG", FactoryType::MonsterAnimation }, // AEAG (Eagle)
-	{ 0xd100, "", FactoryType::MonsterAnimation },
-	{ 0xd200, "", FactoryType::MonsterAnimation },
-	{ 0xd300, "", FactoryType::MonsterAnimation },
+	{ 0xc800, "NFAM", FactoryType::SplitAnimation }, // NBOY
 	{ 0xc600, "NBEG", FactoryType::SplitAnimation }, // NBEG
 	{ 0xc610, "NPRO", FactoryType::SplitAnimation }, // NPRO
 	{ 0xc710, "NGRL", FactoryType::SplitAnimation }, // NGRL
@@ -140,6 +140,11 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xc900, "NSIM", FactoryType::SplitAnimation }, // NSIM
 	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
 	{ 0xca00, "", FactoryType::SplitAnimation },
+	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
+	{ 0xd000, "AEAG", FactoryType::MonsterAnimation }, // AEAG (Eagle)
+	{ 0xd100, "", FactoryType::MonsterAnimation },
+	{ 0xd200, "", FactoryType::MonsterAnimation },
+	{ 0xd300, "", FactoryType::MonsterAnimation },
 	{ 0xe000, "", FactoryType::IWD },
 	{ 0xe400, "", FactoryType::IWD },
 	{ 0xe600, "", FactoryType::IWD }
