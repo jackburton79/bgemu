@@ -15,6 +15,7 @@
 #include "IWDAnimationFactory.h"
 #include "Log.h"
 #include "ResManager.h"
+#include "SimpleAnimationFactory.h"
 #include "SplitAnimationFactory.h"
 
 #include <cxxabi.h>
@@ -54,6 +55,9 @@ AnimationFactory::GetFactory(uint16 animationID)
 					case 0x20:
 					case 0x23:
 						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+						break;
+					case 0x40: // SNOM / SNOW 0x4010, 0x4020
+						factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
 						break;
 					case 0x50:
 					case 0x51:
