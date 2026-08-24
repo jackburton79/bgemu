@@ -39,104 +39,105 @@ enum class FactoryType {
 
 struct AnimationDescriptor {
 	uint16 animation_id;
+	std::string base_name;
 	FactoryType animation_type;
 };
 
 
 const static AnimationDescriptor kAnimationEntries[] = {
-	{ 0x1000, FactoryType::MonsterAnimation },
-	{ 0x2000, FactoryType::MonsterAnimation },
-	{ 0x2300, FactoryType::MonsterAnimation },
-	{ 0x4000, FactoryType::SimpleAnimation }, // SNOM
-	{ 0x4010, FactoryType::SimpleAnimation }, // SNOW
-	{ 0x4100, FactoryType::SimpleAnimation }, // SSIM
-	{ 0x5000, FactoryType::CharacterAnimationBG2 }, // CHMB
-	{ 0x5003, FactoryType::CharacterAnimationBG2 },
-	{ 0x5100, FactoryType::CharacterAnimationBG2 },
-	{ 0x5102, FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x5110, FactoryType::CharacterAnimationBG2 }, // CHFB
-	{ 0x5113, FactoryType::CharacterAnimationBG2 }, // CIFB
-	{ 0x5200, FactoryType::CharacterAnimationBG2 },
-	{ 0x5210, FactoryType::CharacterAnimationBG2 }, // CHFW
-	{ 0x5303, FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6000, FactoryType::CharacterAnimationBG2 }, // CHMB
-	{ 0x6003, FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6004, FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6010, FactoryType::CharacterAnimationBG2 }, // CHFB
-	{ 0x6011, FactoryType::CharacterAnimationBG2 }, // CEFB
-	{ 0x6013, FactoryType::CharacterAnimationBG2 }, // CIFB
-	{ 0x6100, FactoryType::CharacterAnimationBG2 },
-	{ 0x6101, FactoryType::CharacterAnimationBG2 }, // CEMB
-	{ 0x6102, FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6103, FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6104, FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6110, FactoryType::CharacterAnimationBG2 }, // CHFB
-	{ 0x6113, FactoryType::CharacterAnimationBG2 }, // CIFB
-	{ 0x6200, FactoryType::CharacterAnimationBG2 },
-	{ 0x6201, FactoryType::CharacterAnimationBG2 }, // CEMW
-	{ 0x6210, FactoryType::CharacterAnimationBG2 }, // CHFW
-	{ 0x6300, FactoryType::CharacterAnimationBG2 },
-	{ 0x6301, FactoryType::CharacterAnimationBG2 }, // CEMB
-	{ 0x6302, FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6303, FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6310, FactoryType::CharacterAnimationBG2 }, // CHFB
-	{ 0x6311, FactoryType::CharacterAnimationBG2 }, // CEFB
-	{ 0x6314, FactoryType::CharacterAnimationBG2 }, // CEFB
-	{ 0x6315, FactoryType::CharacterAnimationBG2 }, // CEFB
-	{ 0x6400, FactoryType::CharacterAnimationBG2 },
-	{ 0x6403, FactoryType::CharacterAnimationBG2 }, // MSKL
-	{ 0x6500, FactoryType::CharacterAnimationBG2 },
-	{ 0x7000, FactoryType::CharacterAnimationBG },
-	{ 0x7300, FactoryType::MonsterAnimation },
-	{ 0x7400, FactoryType::MonsterAnimation },
-	{ 0x7703, FactoryType::MonsterAnimation },	// MSHD 0x7703
-	{ 0x7b00, FactoryType::MonsterAnimation }, // MWLF
-	{ 0x7d00, FactoryType::MonsterAnimation }, // MZOM (Zombie)
-	{ 0x7e00, FactoryType::MonsterAnimation },
-	{ 0x7f0b, FactoryType::MonsterAnimation }, // MGCL
-	{ 0x7f10, FactoryType::MonsterAnimation }, // MRAK
-	{ 0x7f13, FactoryType::MonsterAnimation }, // MSNK
-	{ 0x7f16, FactoryType::MonsterAnimation }, // AMOO
-	{ 0x7f17, FactoryType::MonsterAnimation }, // ARAB
-	{ 0x7f20, FactoryType::MonsterAnimation }, // AGRO
-	{ 0x7f21, FactoryType::MonsterAnimation }, // APHE
-	{ 0x7f24, FactoryType::MonsterAnimation }, // NPIR
-	{ 0x7f2a, FactoryType::MonsterAnimation }, // NSAI
-	{ 0x7f2c, FactoryType::MonsterAnimation }, // NSOL
-	{ 0x7f36, FactoryType::MonsterAnimation }, // NSHD
-	{ 0x8000, FactoryType::MonsterAnimation },
-	{ 0x8100, FactoryType::MonsterAnimation },
-	{ 0x9000, FactoryType::MonsterAnimation },
-	{ 0xa000, FactoryType::MonsterAnimation },
-	{ 0xb000, FactoryType::MonsterAnimation },
-	{ 0xb100, FactoryType::MonsterAnimation }, // AHRS
-	{ 0xb200, FactoryType::SplitAnimation }, // NBEG 0xb200
-	{ 0xb400, FactoryType::SplitAnimation },
-	{ 0xb410, FactoryType::SplitAnimation }, // NFAW
-	{ 0xb500, FactoryType::SplitAnimation },
-	{ 0xb510, FactoryType::SplitAnimation }, // NSIW
-	{ 0xca10, FactoryType::SplitAnimation }, // NNOW
-	{ 0xc100, FactoryType::MonsterAnimation },
-	{ 0xc200, FactoryType::MonsterAnimation },
-	{ 0xc300, FactoryType::MonsterAnimation },
-	{ 0xc400, FactoryType::MonsterAnimation },
-	{ 0xc500, FactoryType::MonsterAnimation },
-	{ 0xc700, FactoryType::SplitAnimation }, // NBOY
-	{ 0xd000, FactoryType::MonsterAnimation }, // AEAG (Eagle)
-	{ 0xd100, FactoryType::MonsterAnimation },
-	{ 0xd200, FactoryType::MonsterAnimation },
-	{ 0xd300, FactoryType::MonsterAnimation },
-	{ 0xc600, FactoryType::SplitAnimation }, // NBEG
-	{ 0xc610, FactoryType::SplitAnimation }, // NPRO
-	{ 0xc710, FactoryType::SplitAnimation }, // NGRL
-	{ 0xc800, FactoryType::SplitAnimation },
-	{ 0xc810, FactoryType::SplitAnimation }, // NFAW
-	{ 0xc900, FactoryType::SplitAnimation }, // NSIM
-	{ 0xc910, FactoryType::SplitAnimation }, // NSIW
-	{ 0xca00, FactoryType::SplitAnimation },
-	{ 0xe000, FactoryType::IWD },
-	{ 0xe400, FactoryType::IWD },
-	{ 0xe600, FactoryType::IWD }
+	{ 0x1000, "", FactoryType::MonsterAnimation },
+	{ 0x2000, "", FactoryType::MonsterAnimation },
+	{ 0x2300, "", FactoryType::MonsterAnimation },
+	{ 0x4000, "SNOM", FactoryType::SimpleAnimation }, // SNOM
+	{ 0x4010, "SNOW", FactoryType::SimpleAnimation }, // SNOW
+	{ 0x4100, "SSIM", FactoryType::SimpleAnimation }, // SSIM
+	{ 0x5000, "CHMB", FactoryType::CharacterAnimationBG2 }, // CHMB
+	{ 0x5003, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x5100, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x5102, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x5110, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
+	{ 0x5113, "CIFB", FactoryType::CharacterAnimationBG2 }, // CIFB
+	{ 0x5200, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x5210, "CHFW", FactoryType::CharacterAnimationBG2 }, // CHFW
+	{ 0x5303, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
+	{ 0x6000, "CHMB", FactoryType::CharacterAnimationBG2 }, // CHMB
+	{ 0x6003, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
+	{ 0x6004, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6010, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
+	{ 0x6011, "CEFB", FactoryType::CharacterAnimationBG2 }, // CEFB
+	{ 0x6013, "CIFB", FactoryType::CharacterAnimationBG2 }, // CIFB
+	{ 0x6100, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x6101, "CEMB", FactoryType::CharacterAnimationBG2 }, // CEMB
+	{ 0x6102, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6103, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
+	{ 0x6104, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6110, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
+	{ 0x6113, "CIFB", FactoryType::CharacterAnimationBG2 }, // CIFB
+	{ 0x6200, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x6201, "CEMW", FactoryType::CharacterAnimationBG2 }, // CEMW
+	{ 0x6210, "CHFW", FactoryType::CharacterAnimationBG2 }, // CHFW
+	{ 0x6300, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x6301, "CEMB", FactoryType::CharacterAnimationBG2 }, // CEMB
+	{ 0x6302, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6303, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
+	{ 0x6310, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
+	{ 0x6311, "CEFB", FactoryType::CharacterAnimationBG2 }, // CEFB
+	{ 0x6314, "CEFB", FactoryType::CharacterAnimationBG2 }, // CEFB
+	{ 0x6315, "CEFB", FactoryType::CharacterAnimationBG2 }, // CEFB
+	{ 0x6400, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x6403, "MSKL", FactoryType::CharacterAnimationBG2 }, // MSKL
+	{ 0x6500, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x7000, "", FactoryType::CharacterAnimationBG },
+	{ 0x7300, "", FactoryType::MonsterAnimation },
+	{ 0x7400, "", FactoryType::MonsterAnimation },
+	{ 0x7703, "MSHD", FactoryType::MonsterAnimation },	// MSHD 0x7703
+	{ 0x7b00, "MWLF", FactoryType::MonsterAnimation }, // MWLF
+	{ 0x7d00, "MZOM", FactoryType::MonsterAnimation }, // MZOM (Zombie)
+	{ 0x7e00, "", FactoryType::MonsterAnimation },
+	{ 0x7f0b, "MGCL", FactoryType::MonsterAnimation }, // MGCL
+	{ 0x7f10, "MRAK", FactoryType::MonsterAnimation }, // MRAK
+	{ 0x7f13, "MSNK", FactoryType::MonsterAnimation }, // MSNK
+	{ 0x7f16, "AMOO", FactoryType::MonsterAnimation }, // AMOO
+	{ 0x7f17, "ARAB", FactoryType::MonsterAnimation }, // ARAB
+	{ 0x7f20, "AGRO", FactoryType::MonsterAnimation }, // AGRO
+	{ 0x7f21, "APHE", FactoryType::MonsterAnimation }, // APHE
+	{ 0x7f24, "NPIR", FactoryType::MonsterAnimation }, // NPIR
+	{ 0x7f2a, "NSAI", FactoryType::MonsterAnimation }, // NSAI
+	{ 0x7f2c, "NSOL", FactoryType::MonsterAnimation }, // NSOL
+	{ 0x7f36, "NSHD", FactoryType::MonsterAnimation }, // NSHD
+	{ 0x8000, "", FactoryType::MonsterAnimation },
+	{ 0x8100, "", FactoryType::MonsterAnimation },
+	{ 0x9000, "", FactoryType::MonsterAnimation },
+	{ 0xa000, "", FactoryType::MonsterAnimation },
+	{ 0xb000, "", FactoryType::MonsterAnimation },
+	{ 0xb100, "AHRS", FactoryType::MonsterAnimation }, // AHRS
+	{ 0xb200, "NBEG", FactoryType::SplitAnimation }, // NBEG 0xb200
+	{ 0xb400, "", FactoryType::SplitAnimation },
+	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
+	{ 0xb500, "", FactoryType::SplitAnimation },
+	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
+	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
+	{ 0xc100, "", FactoryType::MonsterAnimation },
+	{ 0xc200, "", FactoryType::MonsterAnimation },
+	{ 0xc300, "", FactoryType::MonsterAnimation },
+	{ 0xc400, "", FactoryType::MonsterAnimation },
+	{ 0xc500, "", FactoryType::MonsterAnimation },
+	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
+	{ 0xd000, "AEAG", FactoryType::MonsterAnimation }, // AEAG (Eagle)
+	{ 0xd100, "", FactoryType::MonsterAnimation },
+	{ 0xd200, "", FactoryType::MonsterAnimation },
+	{ 0xd300, "", FactoryType::MonsterAnimation },
+	{ 0xc600, "NBEG", FactoryType::SplitAnimation }, // NBEG
+	{ 0xc610, "NPRO", FactoryType::SplitAnimation }, // NPRO
+	{ 0xc710, "NGRL", FactoryType::SplitAnimation }, // NGRL
+	{ 0xc800, "", FactoryType::SplitAnimation },
+	{ 0xc810, "NFAW", FactoryType::SplitAnimation }, // NFAW
+	{ 0xc900, "NSIM", FactoryType::SplitAnimation }, // NSIM
+	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
+	{ 0xca00, "", FactoryType::SplitAnimation },
+	{ 0xe000, "", FactoryType::IWD },
+	{ 0xe400, "", FactoryType::IWD },
+	{ 0xe600, "", FactoryType::IWD }
 };
 
 struct AnimationFinder {
@@ -170,6 +171,9 @@ AnimationFactory::GetFactory(uint16 animationID)
 								return entry.animation_id == animationID;
 							});
 		if (it != std::end(kAnimationEntries)) {
+			// Seems some animation aren't in the AniSnd file
+			if (baseName == "")
+				baseName = it->base_name;
 			switch (it->animation_type) {
 				case FactoryType::CharacterAnimationBG:
 					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
