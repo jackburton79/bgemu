@@ -14,6 +14,8 @@ class RoomBase : public Object, public Control {
 public:
 	RoomBase();
 
+	virtual void Unload();
+
 	virtual IE::rect Frame() const;
 
 	// AreaRect is the size of the complete area map, starting at 0,0

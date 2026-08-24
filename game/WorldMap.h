@@ -35,6 +35,7 @@ public:
 	virtual void HideGUI();
 	virtual bool IsGUIShown() const;
 
+	virtual void Unload();
 	virtual void ReloadArea();
 
 protected:

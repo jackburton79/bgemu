@@ -71,6 +71,14 @@ Control::AttachedToWindow(::Window* window)
 
 /* virtual */
 void
+Control::DetachedFromWindow(::Window* window)
+{
+	fWindow = nullptr;
+}
+
+
+/* virtual */
+void
 Control::MouseMoved(IE::point point, uint32 transit)
 {
 	if (transit == MOUSE_ENTER)

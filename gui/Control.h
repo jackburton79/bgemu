@@ -35,6 +35,7 @@ public:
 
 	virtual void Draw();
 	virtual void AttachedToWindow(Window* window);
+	virtual void DetachedFromWindow(Window* window);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);

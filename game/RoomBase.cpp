@@ -29,6 +29,13 @@ RoomBase::~RoomBase()
 
 
 /* virtual */
+void
+RoomBase::Unload()
+{
+}
+
+
+/* virtual */
 IE::rect
 RoomBase::Frame() const
 {

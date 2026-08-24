@@ -154,6 +154,7 @@ Core::LoadArea(const res_ref areaName, std::string longName,
 					std::string entranceName)
 {
 	if (fCurrentRoom != NULL) {
+		fCurrentRoom->Unload();
 		fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
@@ -175,6 +176,7 @@ Core::LoadWorldMap()
 {
 	// TODO:
 	if (fCurrentRoom != NULL) {
+		fCurrentRoom->Unload();
 		fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}

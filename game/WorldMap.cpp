@@ -89,7 +89,7 @@ WorldMap::WorldMap()
 
 WorldMap::~WorldMap()
 {
-	_UnloadWorldMap();
+	Unload();
 }
 
 
@@ -142,8 +142,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 
 	fAreaUnderMouse = NULL;
 
-	for (uint32 i = 0; i < fAreaEntries.size(); i++) {
-		AreaEntry* area = fAreaEntries.at(i);
+	for (const auto area : fAreaEntries) {
 		if (area->Rect().Contains(point.x, point.y)) {
 			fAreaUnderMouse = area;
 			break;
@@ -204,6 +203,15 @@ WorldMap::IsGUIShown() const
 
 /* virtual */
 void
+WorldMap::Unload()
+{
+	_UnloadWorldMap();
+	RoomBase::Unload();
+}
+
+
+/* virtual */
+void
 WorldMap::ReloadArea()
 {
 }
@@ -216,23 +224,26 @@ WorldMap::_UnloadWorldMap()
 	assert(fWorldMap != NULL);
 
 	// TODO: here we could have been called by the Window destructor,
-	// so some of these fields could be already have been deleted
-	Window()->ReplaceControl(fControlID, fSavedControl);
-
+	// so some of these fields could have already been deleted
+	if (fSavedControl != nullptr) {
+		if (Window() != nullptr)
+			Window()->ReplaceControl(fControlID, fSavedControl);
+		fSavedControl = nullptr;
+	}
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 
-	std::vector<AreaEntry*>::const_iterator i;
-	for (i = fAreaEntries.begin(); i != fAreaEntries.end(); i++) {
-		delete *i;
-	}
+	for (auto entry : fAreaEntries)
+		delete entry;
 	fAreaEntries.clear();
 
-	gResManager->ReleaseResource(fWorldMap);
-	fWorldMap = NULL;
-
-	gResManager->ReleaseResource(fWorldMapBackground);
-	fWorldMapBackground = NULL;
-
+	if (fWorldMap != nullptr) {
+		gResManager->ReleaseResource(fWorldMap);
+		fWorldMap = NULL;
+	}
+	if (fWorldMapBackground != nullptr) {
+		gResManager->ReleaseResource(fWorldMapBackground);
+		fWorldMapBackground = NULL;
+	}
 	if (fWorldMapBitmap != NULL) {
 		fWorldMapBitmap->Release();
 		fWorldMapBitmap = NULL;

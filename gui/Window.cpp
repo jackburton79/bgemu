@@ -35,10 +35,12 @@ Window::~Window()
 {
 	if (fBackground != NULL)
 		fBackground->Release();
-	for (std::vector<Control*>::iterator i = fControls.begin();
-			i != fControls.end(); i++) {
-		delete *i;
-		*i = NULL;
+
+	// TODO: Deleting control triggers WorldMap's destructor
+	// which in turn calls Window::ReplaceControl() which accesses the control's array
+	for (auto control : fControls) {
+		control->DetachedFromWindow(this);
+		delete control;
 	}
 
 	fControls.clear();
