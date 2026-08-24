@@ -110,7 +110,7 @@ BAMResource::Dump()
 	std::cout << "FrameLookupOffset: " << fFrameLookupOffset << std::endl;
 
 	std::cout << "NumFrames: " << fNumFrames << std::endl;
-	std::cout << "NumCycles: " << fNumCycles << std::endl;
+	std::cout << "NumCycles: " << (int)fNumCycles << std::endl;
 
 	for (int cycle = 0; cycle < fNumCycles; cycle++)
 		PrintFrames(cycle);
