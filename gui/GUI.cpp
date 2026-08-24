@@ -70,6 +70,7 @@ GUI::~GUI()
 	}
 
 	fWindows.clear();
+
 	fCurrentCursor = NULL;
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
