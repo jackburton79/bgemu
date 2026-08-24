@@ -53,18 +53,24 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x5000, FactoryType::CharacterAnimationBG2 }, // CHMB
 	{ 0x5003, FactoryType::CharacterAnimationBG2 },
 	{ 0x5100, FactoryType::CharacterAnimationBG2 },
+	{ 0x5102, FactoryType::CharacterAnimationBG2 }, // CDMB
 	{ 0x5110, FactoryType::CharacterAnimationBG2 }, // CHFB
 	{ 0x5200, FactoryType::CharacterAnimationBG2 },
+	{ 0x5210, FactoryType::CharacterAnimationBG2 }, // CHFW
+	{ 0x5303, FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6000, FactoryType::CharacterAnimationBG2 }, // CHMB
 	{ 0x6003, FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6004, FactoryType::CharacterAnimationBG2 }, // CDMB
+	{ 0x6010, FactoryType::CharacterAnimationBG2 }, // CHFB
 	{ 0x6013, FactoryType::CharacterAnimationBG2 }, // CIFB
 	{ 0x6100, FactoryType::CharacterAnimationBG2 },
+	{ 0x6101, FactoryType::CharacterAnimationBG2 }, // CEMB
 	{ 0x6102, FactoryType::CharacterAnimationBG2 }, // CDMB
 	{ 0x6103, FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6110, FactoryType::CharacterAnimationBG2 }, // CHFB
 	{ 0x6113, FactoryType::CharacterAnimationBG2 }, // CIFB
 	{ 0x6200, FactoryType::CharacterAnimationBG2 },
+	{ 0x6201, FactoryType::CharacterAnimationBG2 }, // CEMW
 	{ 0x6300, FactoryType::CharacterAnimationBG2 },
 	{ 0x6301, FactoryType::CharacterAnimationBG2 }, // CEMB
 	{ 0x6302, FactoryType::CharacterAnimationBG2 }, // CDMB
@@ -73,6 +79,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6314, FactoryType::CharacterAnimationBG2 }, // CEFB
 	{ 0x6315, FactoryType::CharacterAnimationBG2 }, // CEFB
 	{ 0x6400, FactoryType::CharacterAnimationBG2 },
+	{ 0x6403, FactoryType::CharacterAnimationBG2 }, // MSKL
 	{ 0x6500, FactoryType::CharacterAnimationBG2 },
 	{ 0x7000, FactoryType::CharacterAnimationBG },
 	{ 0x7300, FactoryType::MonsterAnimation },
@@ -82,6 +89,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7d00, FactoryType::MonsterAnimation }, // MZOM (Zombie)
 	{ 0x7e00, FactoryType::MonsterAnimation },
 	{ 0x7f0b, FactoryType::MonsterAnimation }, // MGCL
+	{ 0x7f10, FactoryType::MonsterAnimation }, // MRAK
 	{ 0x7f13, FactoryType::MonsterAnimation }, // MSNK
 	{ 0x7f16, FactoryType::MonsterAnimation }, // AMOO
 	{ 0x7f2a, FactoryType::MonsterAnimation }, // NSAI
