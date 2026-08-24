@@ -101,6 +101,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7d00, "MZOM", FactoryType::MonsterAnimation }, // (Zombie)
 	{ 0x7e00, "", FactoryType::MonsterAnimation },
 	{ 0x7f05, "MDJI", FactoryType::MonsterAnimation },
+	{ 0x7f08, "MOTY", FactoryType::MonsterAnimation },
 	{ 0x7f0b, "MGCL", FactoryType::MonsterAnimation },
 	{ 0x7f0d, "MLIC", FactoryType::MonsterAnimation },
 	{ 0x7f10, "MRAK", FactoryType::MonsterAnimation },
@@ -146,6 +147,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xd200, "", FactoryType::MonsterAnimation },
 	{ 0xd300, "", FactoryType::MonsterAnimation },
 	{ 0xe000, "", FactoryType::IWD },
+	{ 0xed00, "MYU1", FactoryType::IWD },
 	{ 0xe400, "", FactoryType::IWD },
 	{ 0xe600, "", FactoryType::IWD }
 };
@@ -175,7 +177,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 		factory = i->second;
 	else {
 		auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
-							[&] (const AnimationDescriptor& entry) {
+							[&] (const AnimationDescriptor entry) {
 								return entry.animation_id == animationID;
 							});
 		if (it != std::end(kAnimationEntries)) {
