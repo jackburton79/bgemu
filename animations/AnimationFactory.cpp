@@ -72,7 +72,8 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6102, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
 	{ 0x6103, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
 	{ 0x6104, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6110, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
+	{ 0x6110, "CHFB", FactoryType::CharacterAnimationBG2 },
+	{ 0x6111, "CEFB", FactoryType::CharacterAnimationBG2 },
 	{ 0x6113, "CIFB", FactoryType::CharacterAnimationBG2 },
 	{ 0x6200, "", FactoryType::CharacterAnimationBG2 },
 	{ 0x6201, "CEMW", FactoryType::CharacterAnimationBG2 },
@@ -102,6 +103,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f13, "MSNK", FactoryType::MonsterAnimation },
 	{ 0x7f16, "AMOO", FactoryType::MonsterAnimation },
 	{ 0x7f17, "ARAB", FactoryType::MonsterAnimation },
+	{ 0x7f18, "ADER", FactoryType::MonsterAnimation },
 	{ 0x7f20, "AGRO", FactoryType::MonsterAnimation },
 	{ 0x7f21, "APHE", FactoryType::MonsterAnimation },
 	{ 0x7f24, "NPIR", FactoryType::MonsterAnimation },
