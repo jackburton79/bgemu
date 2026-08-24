@@ -104,6 +104,8 @@ Core::Destroy()
 	if (sCore == NULL)
 		return;
 
+	Timer::TearDown();
+
 	std::cout << "Core::Destroy()" << std::endl;
 	if (sCore->fCurrentRoom != NULL) {
 		sCore->fCurrentRoom->Release();
