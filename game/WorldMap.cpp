@@ -228,6 +228,8 @@ WorldMap::_UnloadWorldMap()
 	if (fSavedControl != nullptr) {
 		if (Window() != nullptr)
 			Window()->ReplaceControl(fControlID, fSavedControl);
+		else
+			delete fSavedControl;
 		fSavedControl = nullptr;
 	}
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);

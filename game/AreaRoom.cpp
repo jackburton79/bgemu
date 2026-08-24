@@ -1258,7 +1258,13 @@ AreaRoom::_UnloadArea()
 	if (gfx != NULL)
 		gfx->ScreenBitmap()->Clear(0);
 
-	Window()->ReplaceControl(InternalControl()->id, fSavedControl);
+	if (fSavedControl != nullptr) {
+		if (Window() != nullptr)
+			Window()->ReplaceControl(InternalControl()->id, fSavedControl);
+		else
+			delete fSavedControl;
+		fSavedControl = nullptr;
+	}
 
 	if (fSelectedActor != NULL) {
 		fSelectedActor.Target()->Select(false);
