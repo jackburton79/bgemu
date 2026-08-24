@@ -18,6 +18,7 @@
 #include "SimpleAnimationFactory.h"
 #include "SplitAnimationFactory.h"
 
+#include <algorithm>
 #include <cxxabi.h>
 #include <string>
 
@@ -26,95 +27,125 @@ std::map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;
 
 const int kStandingOffset = 10;
 
+enum class FactoryType {
+	CharacterAnimationBG,
+	CharacterAnimationBG2,
+	MonsterAnimation,
+	SplitAnimation,
+	SimpleAnimation,
+	IWD
+};
+
+
+struct AnimationDescriptor {
+	uint16 animation_id;
+	FactoryType animation_type;
+};
+
+
+const static AnimationDescriptor kAnimationEntries[] = {
+	{ 0x1000, FactoryType::MonsterAnimation },
+	{ 0x2000, FactoryType::MonsterAnimation },
+	{ 0x2300, FactoryType::MonsterAnimation },
+	{ 0x4000, FactoryType::SimpleAnimation }, // SNOM // SNOW
+	{ 0x5003, FactoryType::CharacterAnimationBG2 },
+	{ 0x5100, FactoryType::CharacterAnimationBG2 },
+	{ 0x5200, FactoryType::CharacterAnimationBG2 },
+	{ 0x6000, FactoryType::CharacterAnimationBG2 },
+	{ 0x6100, FactoryType::CharacterAnimationBG2 },
+	{ 0x6200, FactoryType::CharacterAnimationBG2 },
+	{ 0x6300, FactoryType::CharacterAnimationBG2 },
+	{ 0x6400, FactoryType::CharacterAnimationBG2 },
+	{ 0x6500, FactoryType::CharacterAnimationBG2 },
+	{ 0x7000, FactoryType::CharacterAnimationBG },
+	{ 0x7400, FactoryType::MonsterAnimation },
+	{ 0x7b00, FactoryType::MonsterAnimation }, // MWLF
+	{ 0x7d00, FactoryType::MonsterAnimation }, // MZOM (Zombie)
+	{ 0x7e00, FactoryType::MonsterAnimation },
+	{ 0x7f2c, FactoryType::MonsterAnimation }, // NSOL
+	{ 0x7f36, FactoryType::MonsterAnimation }, // NSHD
+	{ 0x7300, FactoryType::MonsterAnimation },
+	{ 0x7703, FactoryType::MonsterAnimation },	// MSHD 0x7703
+	{ 0x8000, FactoryType::MonsterAnimation },
+	{ 0x8100, FactoryType::MonsterAnimation },
+	{ 0x9000, FactoryType::MonsterAnimation },
+	{ 0xa000, FactoryType::MonsterAnimation },
+	{ 0xb000, FactoryType::MonsterAnimation },
+	{ 0xb200, FactoryType::SplitAnimation }, // NBEG 0xb200
+	{ 0xb400, FactoryType::SplitAnimation },
+	{ 0xb500, FactoryType::SplitAnimation },
+	{ 0xc100, FactoryType::MonsterAnimation },
+	{ 0xc200, FactoryType::MonsterAnimation },
+	{ 0xc300, FactoryType::MonsterAnimation },
+	{ 0xc400, FactoryType::MonsterAnimation },
+	{ 0xc500, FactoryType::MonsterAnimation },
+	{ 0xd000, FactoryType::MonsterAnimation }, // AEAG (Eagle)
+	{ 0xd100, FactoryType::MonsterAnimation },
+	{ 0xd200, FactoryType::MonsterAnimation },
+	{ 0xd300, FactoryType::MonsterAnimation },
+	{ 0xc600, FactoryType::SplitAnimation },
+	{ 0xc700, FactoryType::SplitAnimation },
+	{ 0xc800, FactoryType::SplitAnimation },
+	{ 0xc900, FactoryType::SplitAnimation },
+	{ 0xca00, FactoryType::SplitAnimation },
+	{ 0xe000, FactoryType::IWD },
+	{ 0xe400, FactoryType::IWD },
+	{ 0xe600, FactoryType::IWD }
+};
+
+struct AnimationFinder {
+	AnimationFinder(uint16 id) { fID = id; };
+	bool operator()(const AnimationDescriptor *A, const AnimationDescriptor* B) {
+		return A->animation_id < B->animation_id;
+	}
+	uint16 fID;
+};
 
 /* static */
 AnimationFactory*
 AnimationFactory::GetFactory(uint16 animationID)
 {
-	uint8 highId = animationID >> 8;
-
+	uint8 highID = animationID >> 8;
+	uint8 lowID = animationID & 0xF;
 	std::string baseName = IDTable::AniSndAt(animationID);
-#if 0
+#if 1
 	std::cout << "AnimationFactory::GetFactory(";
 	std::cout << baseName << ", " << std::hex;
-	std::cout << "0x" << animationID << ")" << std::endl;
+	std::cout << "0x" << animationID << ")";
+	std::cout << " (" << (int)highID << ", " << (int)lowID << ")" << std::endl;
 #endif
 	AnimationFactory* factory = NULL;
 	auto i = sAnimationFactory.find(animationID);
 	if (i != sAnimationFactory.end())
 		factory = i->second;
 	else {
-		switch (Core::Get()->Game()) {
-			case game::GAME_BALDURSGATE:
-			case game::GAME_BALDURSGATE2:
-				switch (highId) {
-					case 0x70:
-						factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0x10:
-					case 0x20:
-					case 0x23:
-						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0x40: // SNOM / SNOW 0x4010, 0x4020
-						factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0x50:
-					case 0x51:
-					case 0x52:
-					case 0x60:
-					case 0x61:
-					case 0x62:
-					case 0x63:
-					case 0x64:
-					case 0x65:
-						factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0x74:
-					case 0x7b: // MWLF
-					case 0x7d: // MZOM (Zombie)
-					case 0x7e:
-					case 0x7f:
-					case 0x73:
-					case 0x77:	// MSHD 0x7703
-					case 0x80:
-					case 0x81:
-					case 0x90:
-					case 0xa0:
-					case 0xb0:
-					case 0xc1:
-					case 0xc2:
-					case 0xc3:
-					case 0xc4:
-					case 0xc5:
-					case 0xd0: // AEAG (Eagle)
-					case 0xd1:
-					case 0xd2:
-					case 0xd3:
-						factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-						break;
-					// WRONG
-					case 0xb2: // NBEG 0xb200
-					case 0xb4:
-					case 0xb5:
-					case 0xc6:
-					case 0xc7:
-					case 0xc8:
-					case 0xc9:
-					case 0xca:
-						factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-						break;
-					case 0xe0:
-					case 0xe4:
-					case 0xe6:
-						factory = new IWDAnimationFactory(baseName.c_str(), animationID);
-						break;
-					default:
-						break;
-				}
-				break;
-			default:
-				break;
+		auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
+							[&] (const AnimationDescriptor& entry) {
+								return entry.animation_id == animationID;
+							});
+		if (it != std::end(kAnimationEntries)) {
+			switch (it->animation_type) {
+				case FactoryType::CharacterAnimationBG:
+					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
+					break;
+				case FactoryType::CharacterAnimationBG2:
+					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
+					break;
+				case FactoryType::MonsterAnimation:
+					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
+					break;
+				case FactoryType::SimpleAnimation:
+					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
+					break;
+				case FactoryType::SplitAnimation:
+					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
+					break;
+				case FactoryType::IWD:
+					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
