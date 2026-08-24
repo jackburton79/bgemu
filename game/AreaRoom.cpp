@@ -934,21 +934,16 @@ void
 AreaRoom::_DrawActors()
 {
 	ActorsList visibleActors;
-	ActorsList::iterator a;
-	for (a = fActors.begin();
-			a != fActors.end(); a++) {
-		Actor* actor = *a;
+	for (auto actor : fActors) {
 		if (_IsVisibleOnScreen(actor))
 			visibleActors.push_back(actor);
 	}
 
 	// Sort visible actors by z-order
 	std::sort(visibleActors.begin(), visibleActors.end(), ZOrderSorter());
-	for (a = visibleActors.begin();
-			a != visibleActors.end(); a++) {
-		Actor* actor = *a;
+	for (auto visibleActor : visibleActors) {
 		try {
-			actor->Draw(this);
+			visibleActor->Draw(this);
 		} catch (std::exception& ex) {
 			// TODO: too much spam
 			//std::cerr << Log::Red << ex.what() << Log::Normal << std::endl;
