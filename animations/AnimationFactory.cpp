@@ -97,6 +97,9 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f10, FactoryType::MonsterAnimation }, // MRAK
 	{ 0x7f13, FactoryType::MonsterAnimation }, // MSNK
 	{ 0x7f16, FactoryType::MonsterAnimation }, // AMOO
+	{ 0x7f17, FactoryType::MonsterAnimation }, // ARAB
+	{ 0x7f20, FactoryType::MonsterAnimation }, // AGRO
+	{ 0x7f21, FactoryType::MonsterAnimation }, // APHE
 	{ 0x7f24, FactoryType::MonsterAnimation }, // NPIR
 	{ 0x7f2a, FactoryType::MonsterAnimation }, // NSAI
 	{ 0x7f2c, FactoryType::MonsterAnimation }, // NSOL
