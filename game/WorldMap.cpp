@@ -221,7 +221,6 @@ void
 WorldMap::_UnloadWorldMap()
 {
 	std::cout << "WorldMap::Unload()" << std::endl;
-	assert(fWorldMap != NULL);
 
 	// TODO: here we could have been called by the Window destructor,
 	// so some of these fields could have already been deleted
