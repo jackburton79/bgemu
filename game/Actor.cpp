@@ -255,7 +255,8 @@ Actor::Bitmap() const
 	if (fCurrentAnimation == NULL) {
 		std::string message("Actor::Bitmap() (");
 		message.append(fCRE->Name()).append(") : No current animation!");
-		throw std::runtime_error(message);
+		return nullptr;
+		//throw std::runtime_error(message);
 	}
 
 	return fCurrentAnimation->Bitmap();
