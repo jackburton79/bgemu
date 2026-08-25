@@ -40,7 +40,13 @@ protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
 
-	virtual animation_description GetAnimationDescription(Actor* actor) = 0;
+	animation_description GetAnimationDescription(Actor* actor);
+	animation_description _GetBGMonsterAnimationDescription(Actor* actor);
+	animation_description _GetBGCharacterAnimationDescription(Actor* actor);
+	animation_description _GetBG2CharacterAnimationDescription(Actor* actor);
+	animation_description _GetSimpleAnimationDescription(Actor* actor);
+	animation_description _GetSplitAnimationDescription(Actor* actor);
+	animation_description _GetIWDAnimationDescription(Actor* actor);
 
 	std::string BaseName() const;
 

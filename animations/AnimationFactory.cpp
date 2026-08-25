@@ -8,15 +8,10 @@
 #include "AnimationFactory.h"
 
 #include "Animation.h"
-#include "BGCharachterAnimationFactory.h"
-#include "BG2CharachterAnimationFactory.h"
-#include "BGMonsterAnimationFactory.h"
+#include "CreResource.h"
 #include "Core.h"
-#include "IWDAnimationFactory.h"
 #include "Log.h"
 #include "ResManager.h"
-#include "SimpleAnimationFactory.h"
-#include "SplitAnimationFactory.h"
 
 #include <algorithm>
 #include <cxxabi.h>
@@ -183,39 +178,8 @@ AnimationFactory::GetFactory(uint16 animationID)
 	if (i != sAnimationFactory.end())
 		factory = i->second;
 	else {
-		auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
-							[&] (const AnimationDescriptor entry) {
-								return entry.animation_id == animationID;
-							});
-		if (it != std::end(kAnimationEntries)) {
-			// Seems some animation aren't in the AniSnd file
-			if (baseName == "")
-				baseName = it->base_name;
-			switch (it->animation_type) {
-				case FactoryType::CharacterAnimationBG:
-					factory = new BGCharachterAnimationFactory(baseName.c_str(), animationID);
-					break;
-				case FactoryType::CharacterAnimationBG2:
-					factory = new BG2CharachterAnimationFactory(baseName.c_str(), animationID);
-					break;
-				case FactoryType::MonsterAnimation:
-					factory = new BGMonsterAnimationFactory(baseName.c_str(), animationID);
-					break;
-				case FactoryType::SimpleAnimation:
-					factory = new SimpleAnimationFactory(baseName.c_str(), animationID);
-					break;
-				case FactoryType::SplitAnimation:
-					factory = new SplitAnimationFactory(baseName.c_str(), animationID);
-					break;
-				case FactoryType::IWD:
-					factory = new IWDAnimationFactory(baseName.c_str(), animationID);
-					break;
-				default:
-					break;
-			}
-		}
+		factory = new AnimationFactory(baseName.c_str(), animationID);
 	}
-
 	if (factory != NULL) {
 		factory->Acquire();
 	} else {
@@ -271,10 +235,406 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 }
 
 
+animation_description
+AnimationFactory::GetAnimationDescription(Actor* actor)
+{
+	uint16 animationID = fID;
+	uint8 highID = animationID >> 8;
+	uint8 lowID = animationID & 0xF;
+	std::string baseName = IDTable::AniSndAt(animationID);
+#if 1
+	std::cout << "AnimationFactory::GetAnimationDescription(";
+	std::cout << baseName << ", " << std::hex;
+	std::cout << "0x" << animationID << ")";
+	std::cout << " (0x" << (int)highID << ", 0x" << (int)lowID << ")" << std::endl;
+#endif
+
+	auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
+						[&] (const AnimationDescriptor entry) {
+							return entry.animation_id == animationID;
+						});
+	if (it != std::end(kAnimationEntries)) {
+		// Seems some animation aren't in the AniSnd file
+		if (baseName == "")
+			baseName = it->base_name;
+		switch (it->animation_type) {
+			case FactoryType::CharacterAnimationBG:
+				return _GetBGCharacterAnimationDescription(actor);
+			case FactoryType::CharacterAnimationBG2:
+				return _GetBG2CharacterAnimationDescription(actor);
+			case FactoryType::MonsterAnimation:
+				return _GetBGMonsterAnimationDescription(actor);
+			case FactoryType::SimpleAnimation:
+				return _GetSimpleAnimationDescription(actor);
+			case FactoryType::SplitAnimation:
+				return _GetSplitAnimationDescription(actor);
+			case FactoryType::IWD:
+				return _GetIWDAnimationDescription(actor);
+			default:
+				break;
+		}
+	}
+
+	return animation_description();
+}
+
+
 std::string
 AnimationFactory::BaseName() const
 {
 	return fBaseName;
+}
+
+
+
+animation_description
+AnimationFactory::_GetBGMonsterAnimationDescription(Actor* actor)
+{
+	//std::cout << "BGAnimationFactory" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.mirror = false;
+	description.custom_colors = false;
+
+	// TODO: Improve this
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2) {
+		if (o >= IE::ORIENTATION_EXT_NNE
+				&& uint32(o) <= IE::ORIENTATION_EXT_SSE) {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			o = 16 - o;
+		}
+	} else {
+		if (o >= IE::ORIENTATION_NE && uint32(o) <= IE::ORIENTATION_SE) {
+			// Orientation 5 uses bitmap from orientation 3 mirrored,
+			// 6 uses 2, and 7 uses 1
+			description.mirror = true;
+			o = 8 - o;
+		}
+	}
+	description.sequence_number = o;
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			if (_HasG11(description.bam_name))
+				description.bam_name.append("G11");
+			else
+				description.bam_name.append("G1");
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number += ANIM_STANDING_OFFSET;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("G2");
+			//description.sequence_number = o;
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+			description.bam_name.append("G25");
+			description.sequence_number += 45;
+			break;
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name.append("G26");
+			description.sequence_number += 54;
+			break;
+		default:
+			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			break;
+	}
+	return description;
+}
+
+
+animation_description
+AnimationFactory::_GetBGCharacterAnimationDescription(Actor* actor)
+{
+	//std::cout << "BGAnimationFactory" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.sequence_number = o;
+	description.mirror = false;
+	description.custom_colors = true;
+
+	// Optional weapon id
+	// TODO: improve
+	if (!actor->WeaponAnimation().empty())
+		description.bam_name.append(actor->WeaponAnimation().substr(0, 1));
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			if (_HasW(description.bam_name))
+				description.bam_name.append("W2");
+			else
+				description.bam_name.append("G1");
+			description.sequence_number = o;
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number += ANIM_STANDING_OFFSET;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("A1");
+			description.sequence_number = o;
+			break;
+		default:
+			std::cerr << "BGCharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			break;
+	}
+	if (o >= IE::ORIENTATION_NE
+			&& o <= IE::ORIENTATION_SE) {
+		description.bam_name.append("E");
+	}
+	return description;
+}
+
+
+static
+void
+_GetBG2MirroredAnimation(int& orientation, animation_description& description)
+{
+	description.mirror = true;
+	orientation = 16 - orientation;
+}
+
+
+/* virtual */
+animation_description
+AnimationFactory::_GetBG2CharacterAnimationDescription(Actor* actor)
+{
+	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.mirror = false;
+	description.sequence_number = 0;
+	description.custom_colors = true;
+
+	if (actor->InParty()) {
+		// Charachter animations are specific
+		description.bam_name = "";
+		description.bam_name.append("C");
+
+		// Race
+		description.bam_name.append(_RaceCharacter(actor->CRE()->Race()));
+		// Gender
+		description.bam_name.append(_GenderCharacter(actor->CRE()->Gender()));
+		// Class
+		description.bam_name.append(_ClassCharacter(actor->CRE()->Class()));
+
+		// Armor
+		// TODO: Improve
+		std::string armorAnimation = _ArmorCharacter(actor);
+		//std::cout << armorAnimation << std::endl;
+		// TODO: Correct ? Fighters seems always to have full plate
+		if (description.bam_name[3] == 'F')
+			description.bam_name.append("4");
+		else
+			description.bam_name.append(armorAnimation);
+	} else {
+		description.bam_name = BaseName();
+		description.bam_name.append("1");
+	}
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			if (_HasW(description.bam_name))
+				description.bam_name.append("W2");
+			else
+				description.bam_name.append("G11");
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			if (Core::Get()->HasExtendedOrientations())
+				description.sequence_number += ANIM_STANDING_OFFSET;
+			else
+				description.sequence_number += 8;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("A1");
+			break;
+		case ACT_DIE:
+			if (_HasG15(description.bam_name)) {
+				description.bam_name.append("G15");
+				description.sequence_number += ANIM_DIE_OFFSET;
+			} else
+				description.bam_name.append("G1");
+			break;
+		case ACT_DEAD:
+			// Not a typo, if it has G15 it has also G16
+			if (_HasG15(description.bam_name)) {
+				description.bam_name.append("G16");
+				description.sequence_number += ANIM_DEAD_OFFSET;
+			} else
+				description.bam_name.append("G1");
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+			std::cout << "CAST SPELL (PREPARE): " << BaseName() << std::endl;
+			description.bam_name.append("C1");
+			//description.sequence_number += 9;
+			break;
+		default:
+			std::cerr << "BG2CharachterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			break;
+	}
+	if (Core::Get()->HasExtendedOrientations()) {
+		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
+			_GetBG2MirroredAnimation(o, description);
+	} else {
+		if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
+			if (_HasSeparateEasternOrientations(description.bam_name))
+				description.bam_name.append("E");
+		}
+	}
+	description.sequence_number += o;
+
+#if 0
+	std::cout << description.bam_name << std::endl;
+#endif
+	return description;
+}
+
+
+
+animation_description
+AnimationFactory::_GetSimpleAnimationDescription(Actor* actor)
+{
+	//std::cout << "SimpleAnimationFactory::AnimationFor" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.mirror = false;
+	description.custom_colors = true;
+
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		o = IE::orientation_ext_to_base(o);
+
+	description.sequence_number = uint32(o);
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.sequence_number += 0;
+			break;
+		case ACT_ATTACKING:
+			description.sequence_number += 0;
+			break;
+		case ACT_STANDING:
+			description.sequence_number += 8;
+			break;
+		case ACT_DIE:
+		default:
+			std::cout << "unknown action " << actor->AnimationAction() << std::endl;
+			break;
+	}
+
+	description.bam_name.append("M");
+	if (o >= IE::ORIENTATION_NE
+			&& uint32(o) <= IE::ORIENTATION_SE) {
+		// Orientation 5 uses bitmap from orientation 3 mirrored,
+		// 6 uses 2, and 7 uses 1
+		//description.mirror = true;
+		// TODO: not in BG2. There is a separate file with East-facing animation
+//		/description.bam_name.append("E");
+		//description.sequence_number -= (o - 4) * 2;
+	}
+	return description;
+}
+
+
+/* virtual */
+animation_description
+AnimationFactory::_GetSplitAnimationDescription(Actor* actor)
+{
+	//std::cout << "SplitAnimationFactory::AnimationFor" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.mirror = false;
+	description.custom_colors = true;
+
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		o = IE::orientation_ext_to_base(o);
+
+	description.sequence_number = uint32(o);
+
+	// G1
+	//if (IE::is_orientation_facing_north(o))
+		description.bam_name.append("H");
+	//else
+		//description.bam_name.append("L");
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.bam_name.append("G1");
+			description.sequence_number += 0;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("G1");
+			description.sequence_number += 0;
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("G1");
+			description.sequence_number += 8;
+			break;
+		case ACT_DIE:
+		default:
+			std::cout << "unknown action " << actor->AnimationAction() << std::endl;
+			description.bam_name.append("G1");
+			break;
+	}
+
+	if (o >= IE::ORIENTATION_NE
+			&& uint32(o) <= IE::ORIENTATION_SE) {
+		// Orientation 5 uses bitmap from orientation 3 mirrored,
+		// 6 uses 2, and 7 uses 1
+		//description.mirror = true;
+		// TODO: not in BG2. There is a separate file with East-facing animation
+		description.bam_name.append("E");
+		//description.sequence_number -= (o - 4) * 2;
+	}
+	return description;
+}
+
+
+/* virtual */
+animation_description
+AnimationFactory::_GetIWDAnimationDescription(Actor* actor)
+{
+	//std::cout << "IWDAnimationFactory" << std::endl;
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.mirror = false;
+
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		o = IE::orientation_ext_to_base(o);
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.bam_name.append("WK");
+			description.sequence_number = o;
+			break;
+		case ACT_STANDING:
+			description.bam_name.append("SD");
+			description.sequence_number = o;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name.append("A1");
+			description.sequence_number = o;
+			break;
+		default:
+			std::cerr << "IWDAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
+			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
+			break;
+	}
+	if (o >= IE::ORIENTATION_NE
+			&& o <= IE::ORIENTATION_SE) {
+		description.bam_name.append("E");
+	}
+	return description;
 }
 
 
