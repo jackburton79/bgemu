@@ -14,6 +14,7 @@
 #include "SupportDefs.h"
 #include "Variables.h"
 
+#include <array>
 #include <list>
 #include <string>
 #include <vector>
@@ -27,8 +28,10 @@ enum SCRIPT_LEVEL {
 	SCRIPT_LEVEL_CLASS = 3,
 	SCRIPT_LEVEL_RACE= 4,
 	SCRIPT_LEVEL_GENERAL = 5,
-	SCRIPT_LEVEL_DEFAULT = 6
+	SCRIPT_LEVEL_DEFAULT = 6,
+	SCRIPT_LEVEL_COUNT
 };
+
 
 struct trigger_entry {
 	trigger_entry(const std::string& trigName);
@@ -134,8 +137,11 @@ public:
 	void SetInterruptable(const bool interrupt);
 	bool IsInterruptable() const;
 
-	void AddScript(::Script* script);
+	void AddScript(::Script* script, SCRIPT_LEVEL level);
+	::Script* ScriptAt(SCRIPT_LEVEL level) const;
+	void RemoveScript(SCRIPT_LEVEL level);
 	void ClearScripts();
+
 
 	void Disable();
 
@@ -171,8 +177,7 @@ private:
 	bool fActive;
 	bool fIsInterruptable;
 
-	typedef std::vector< ::Script*> ScriptsList;
-	ScriptsList fScripts;
+	std::array< ::Script*, SCRIPT_LEVEL_COUNT> fScripts;
 	int32 fWaitTime;
 
 	Action* fCurrentAction;

@@ -478,7 +478,7 @@ ActionPlayDead::operator()()
 			SetCompleted();
 			return;
 		}
-		actor->SetInterruptable(false);
+		//actor->SetInterruptable(false);
 		actor->SetAnimationAction(ACT_DEAD);
 	}
 	
@@ -701,7 +701,7 @@ ActionRandomWalk::operator()()
 			actor->SetDestination(destination);
 	}
 	if (actor->Position() == actor->Destination()) {
-		//SetCompleted();
+		SetCompleted();
 	} else {
 		actor->MoveToNextPointInPath(true);
 	}

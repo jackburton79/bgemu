@@ -17,7 +17,7 @@
 #include <sstream>
 
 
-bool Script::sDebug = false;
+bool Script::sDebug = true;
 
 
 Script::Script(std::vector<condition_response*> rootNode)
@@ -830,31 +830,40 @@ Script::_HandleResponseSet(response_set& responseSet)
 {
 	// TODO: Handle the case where the response set is empty
 	int totalChance = 0;
-	size_t numResponses = responseSet.resp.size();
-	for (auto response: responseSet.resp) {
+	for (const auto &response: responseSet.resp) {
 		totalChance += response->probability;
 	}
 
-	// TODO: Use this
-	(void)totalChance;
+	if (totalChance <= 0) {
+		throw std::runtime_error("_HandleResponseSet(): totalChance is 0");
+	}
 
-	// TODO: Fix this and take the probability into account
-	int randomResponse = Core::RandomNumber(0, numResponses - 1);
-	auto actions = responseSet.resp.at(randomResponse)->actions;
+	// Calc a random response
+	const int roll = Core::RandomNumber(0, totalChance - 1);
+	int cumulative = 0;
+	const response_node* selectedResponse = nullptr;
+	for (const response_node* response : responseSet.resp) {
+		cumulative += response->probability;
+		if (roll < cumulative) {
+			selectedResponse = response;
+			break;
+		}
+	}
+
+	const auto actions = selectedResponse->actions;
+	bool foundContinue = false;
 	// More than one action
 	for (auto action : actions) {
 		// When _HandleAction() returns true,
 		// it means it's a CONTINUE() action
-		// since this should be the last action of an action block, we return
-		// TODO: check if it's correct
+		// this is usually the last action of an action block, but we still
+		// check the other action
 		if (_HandleAction(action)) {
-			//std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
-			return true;
+			foundContinue = true;
 		}
 	}
 
-	// false means "don't continue execution"
-	return false;
+	return foundContinue;
 }
 
 

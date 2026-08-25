@@ -115,10 +115,13 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fDisabled(false),
 	fToDestroy(false)
 {
+	fScripts.fill(nullptr);
+
 	if (scriptName != NULL) {
 		::Script* script = Core::ExtractScript(scriptName);
+		// What level is this script ?
 		if (script != NULL)
-			AddScript(script);
+			AddScript(script, SCRIPT_LEVEL_DEFAULT);
 	}
 	trigger_entry trig("OnCreation", this);
 	trig.round = Core::Get()->ScriptRound();
@@ -128,11 +131,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 
 Object::~Object()
 {
-	for (ScriptsList::iterator i = fScripts.begin();
-		i != fScripts.end(); i++) {
-		delete *i;
-	}
-	fScripts.clear();
+	ClearScripts();
 }
 
 
@@ -297,11 +296,11 @@ Object::Update(bool scripts)
 	if (cutscene)
 		scripts = false;
 
-	if (fDisabled)
-		scripts = fDisabled;
+	if (::strcmp(Name(), "GMTOWN02") != 0)
+		return;
 
 	if (scripts) {
-		_HandleScripting(8);
+		_HandleScripting(SCRIPT_LEVEL_COUNT);
 	}
 
 	if (fDisabled)
@@ -416,10 +415,8 @@ void
 Object::ClearActionList()
 {
 	ClearCurrentAction();
-	for (std::list<Action*>::iterator i = fActions.begin();
-									i != fActions.end(); i++) {
-		delete *i;
-	}
+	for (auto action : fActions)
+		delete action;
 	fActions.clear();
 }
 
@@ -436,9 +433,8 @@ Object::AddTrigger(const trigger_entry& entry)
 bool
 Object::HasTrigger(const std::string& trigName) const
 {
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		if (i->trigger_name == trigName)
+	for (const auto& trig : fTriggers) {
+		if (trig.trigger_name == trigName)
 			return true;
 	}
 	return false;
@@ -451,9 +447,8 @@ Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) con
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
 		return false;
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		const trigger_entry &entry = *i;
+
+	for (const auto &entry: fTriggers) {
 		if (entry.trigger_name == trigName) {
 			Object* target = Area()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
@@ -473,8 +468,7 @@ Object::FindTrigger(const std::string& trigName) const
 {
 	// TODO: Since we usually use this for "LastAttacker", "LastSeen", etc.
 	// we start searching from the last item
-	std::list<trigger_entry>::const_reverse_iterator i;
-	for (i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
+	for (auto i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
 		if (i->trigger_name == trigName)
 			return ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(i->target_id);
 	}
@@ -537,22 +531,46 @@ Object::IsInterruptable() const
 
 
 void
-Object::AddScript(::Script* script)
+Object::AddScript(::Script* script, SCRIPT_LEVEL level)
 {
+	assert(level >= 0 && level < SCRIPT_LEVEL_COUNT);
+
+	// Replace whatever was in that slot, if anything (e.g. CHANGEAISCRIPT
+	// swapping the class-level script, or ActionOverride setting/clearing
+	// the override-level one).
+	delete fScripts[level];
+	fScripts[level] = script;
+
 	if (script != NULL)
 		script->SetSender(this);
-	fScripts.push_back(script);
 }
+
+
+::Script*
+Object::ScriptAt(SCRIPT_LEVEL level) const
+{
+	assert(level >= 0 && level < SCRIPT_LEVEL_COUNT);
+	return fScripts[level];
+}
+
+
+void
+Object::RemoveScript(SCRIPT_LEVEL level)
+{
+	assert(level >= 0 && level < SCRIPT_LEVEL_COUNT);
+	delete fScripts[level];
+	fScripts[level] = NULL;
+}
+
 
 
 void
 Object::ClearScripts()
 {
-	for (ScriptsList::iterator i = fScripts.begin();
-		i != fScripts.end(); i++) {
-		delete *i;
+	for (auto*& script : fScripts) {
+		delete script;
+		script = nullptr;
 	}
-	fScripts.clear();
 }
 
 
@@ -643,9 +661,6 @@ Object::_HandleScripting(int32 maxLevel)
 		return;
 	}
 
-	/*if (Core::Get()->CutsceneMode())
-		maxLevel = 1;
-*/
 	if (sDebug) {
 		std::cout << Name() << ": _ExecuteScripts(): run scripts (ticks=" << fTicks;
 		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;
@@ -655,8 +670,6 @@ Object::_HandleScripting(int32 maxLevel)
 	_ExecuteScripts(maxLevel);
 
 	RemoveExpiredTriggers();
-	/*if (true)
-		ClearTriggers();*/
 }
 
 
@@ -709,9 +722,8 @@ Object::_ExecuteAction(Action& action)
 void
 Object::_ApplySpellEffects()
 {
-	for (std::list<SpellEffect*>::iterator i = fSpellEffects.begin();
-			i != fSpellEffects.end(); i++) {
-		if ((*i)->Name() == "WIZARD_DIMENSION_DOOR") {
+	for (const auto &effect : fSpellEffects) {
+		if (effect->Name() == "WIZARD_DIMENSION_DOOR") {
 			// TODO: Just to handle Irenicus teleporting in the initial cutscene
 			Actor* actor = dynamic_cast<Actor*>(this);
 			// TODO: This should teleport to saved location.

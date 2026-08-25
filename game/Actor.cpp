@@ -828,14 +828,14 @@ Actor::CRE() const
 void
 Actor::_HandleScripts()
 {
-	AddScript(Core::ExtractScript(fActor->script_override));
+	AddScript(Core::ExtractScript(fActor->script_override), SCRIPT_LEVEL_OVERRIDE);
 	// What is the area script ?
 	//AddScript(Core::ExtractScript(fActor->script_area));
-	AddScript(Core::ExtractScript(fActor->script_specific));
-	AddScript(Core::ExtractScript(fActor->script_class));
-	AddScript(Core::ExtractScript(fActor->script_race));
-	AddScript(Core::ExtractScript(fActor->script_general));
-	AddScript(Core::ExtractScript(fActor->script_default));
+	AddScript(Core::ExtractScript(fActor->script_specific), SCRIPT_LEVEL_SPECIFICS);
+	AddScript(Core::ExtractScript(fActor->script_class), SCRIPT_LEVEL_CLASS);
+	AddScript(Core::ExtractScript(fActor->script_race), SCRIPT_LEVEL_RACE);
+	AddScript(Core::ExtractScript(fActor->script_general), SCRIPT_LEVEL_GENERAL);
+	AddScript(Core::ExtractScript(fActor->script_default), SCRIPT_LEVEL_DEFAULT);
 }
 
 
@@ -1133,10 +1133,8 @@ Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 	if (debug)
 		std::cout << "IF ";
 
-	for (std::vector<trigger_params*>::iterator i = triggers.begin();
-			i != triggers.end(); i++) {
+	for (auto*& triggerNode : triggers) {
 		int orTrig = 0;
-		trigger_params* triggerNode = *i;
 		if (debug)
 			triggerNode->Print();
 		if (!Script::EvaluateTrigger(this, triggerNode, orTrig))

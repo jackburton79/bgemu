@@ -184,6 +184,7 @@ Tokenizer::ReadToken()
 		if (rest != NULL)
 			aToken.size = std::min((int)(rest - array), aToken.size);
 	} else {
+		assert(aToken.size <= (int)sizeof(aToken.u.string));
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	}

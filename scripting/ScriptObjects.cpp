@@ -294,8 +294,37 @@ response_node::response_node()
 }
 
 
+/* virtual */
+response_node::~response_node()
+{
+	// action_params is refcounted (see action_params::Acquire()/Release()):
+	// an Action instance built from one of these may still be alive and
+	// holding its own reference, so we must not delete it directly here.
+	for (auto* action : actions)
+		action->Release();
+}
+
+
 void
 response_node::Print() const
 {
 	std::cout << "probability: " << probability << std::endl;
+}
+
+
+// response_set
+response_set::~response_set()
+{
+	// response_set is the sole owner of its response_node objects.
+	for (auto* node : resp)
+		delete node;
+}
+
+
+// condition_block
+condition_block::~condition_block()
+{
+	// condition_block is the sole owner of its trigger_params objects.
+	for (auto* trigger : triggers)
+		delete trigger;
 }

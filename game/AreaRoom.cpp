@@ -127,7 +127,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	GUI::Get()->ShowWindow(999);
 
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
-	AddScript(roomScript);
+	AddScript(roomScript, SCRIPT_LEVEL_DEFAULT);
 }
 
 
