@@ -850,6 +850,8 @@ Script::_HandleResponseSet(response_set& responseSet)
 		}
 	}
 	const auto actions = selectedResponse->actions;
+
+	bool foundContinue = false;
 	// More than one action
 	for (auto action : actions) {
 		// When _HandleAction() returns true,
@@ -858,12 +860,12 @@ Script::_HandleResponseSet(response_set& responseSet)
 		// TODO: check if it's correct
 		if (_HandleAction(action)) {
 			//std::cout << "_HandleAction() returned. found continue. script will continue execution" << std::endl;
-			return true;
+			foundContinue = true;
 		}
 	}
 
 	// false means "don't continue execution"
-	return false;
+	return foundContinue;
 }
 
 
