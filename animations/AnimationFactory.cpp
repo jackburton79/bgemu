@@ -260,7 +260,7 @@ AnimationFactory::GetAnimationDescription(Actor* actor)
 	}
 		// Seems some animation aren't in the AniSnd file
 	if (baseName == "")
-		baseName = it->base_name;
+		fBaseName = it->base_name;
 	switch (it->animation_type) {
 		case FactoryType::CharacterBG:
 			return _GetBGCharacterAnimationDescription(actor);
