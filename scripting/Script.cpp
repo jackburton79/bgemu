@@ -849,8 +849,8 @@ Script::_HandleResponseSet(response_set& responseSet)
 			break;
 		}
 	}
-	const auto actions = selectedResponse->actions;
 
+	const auto actions = selectedResponse->actions;
 	bool foundContinue = false;
 	// More than one action
 	for (auto action : actions) {
