@@ -411,7 +411,6 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				if (timer != NULL && timer->Expired()) {
 					std::cout << "YES";
 					// TODO: We should handle this as a trigger (check comment in GameTimer)
-					GameTimer::Remove(stringStream.str().c_str());
 					returnValue = true;
 				} else
 					std::cout << "NO";
