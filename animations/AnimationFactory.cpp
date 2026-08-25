@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <cxxabi.h>
+#include <sstream>
 #include <string>
 
 
@@ -79,6 +80,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6200, "", FactoryType::CharacterBG2 },
 	{ 0x6201, "CEMW", FactoryType::CharacterBG2 },
 	{ 0x6210, "CHFW", FactoryType::CharacterBG2 },
+	{ 0x6211, "CEFW", FactoryType::CharacterBG2 },
 	{ 0x6300, "", FactoryType::CharacterBG2 },
 	{ 0x6301, "CEMB", FactoryType::CharacterBG2 },
 	{ 0x6302, "CDMB", FactoryType::CharacterBG2 },
@@ -251,7 +253,9 @@ AnimationFactory::GetAnimationDescription(Actor* actor)
 						});
 	if (it == std::end(kAnimationEntries)) {
 		std::string error("Animation description not found");
-		error.append(" for ").append(baseName);
+		std::ostringstream s;
+		s << std::hex << animationID;
+		error.append(" for ").append(baseName).append(" (0x").append(s.str()).append(")");
 		throw std::runtime_error(error);
 	}
 		// Seems some animation aren't in the AniSnd file
