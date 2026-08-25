@@ -830,17 +830,26 @@ Script::_HandleResponseSet(response_set& responseSet)
 {
 	// TODO: Handle the case where the response set is empty
 	int totalChance = 0;
-	size_t numResponses = responseSet.resp.size();
-	for (auto response: responseSet.resp) {
+	for (const auto &response: responseSet.resp) {
 		totalChance += response->probability;
 	}
 
-	// TODO: Use this
-	(void)totalChance;
+	if (totalChance <= 0) {
+		throw std::runtime_error("_HandleResponseSet(): totalChance is 0");
+	}
 
-	// TODO: Fix this and take the probability into account
-	int randomResponse = Core::RandomNumber(0, numResponses - 1);
-	auto actions = responseSet.resp.at(randomResponse)->actions;
+	// Calc a random response
+	int roll = Core::RandomNumber(0, totalChance - 1);
+	int cumulative = 0;
+	const response_node* selectedResponse = nullptr;
+	for (const response_node* response : responseSet.resp) {
+		cumulative += response->probability;
+		if (roll < cumulative) {
+			selectedResponse = response;
+			break;
+		}
+	}
+	const auto actions = selectedResponse->actions;
 	// More than one action
 	for (auto action : actions) {
 		// When _HandleAction() returns true,
