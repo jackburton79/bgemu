@@ -117,6 +117,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 {
 	if (scriptName != NULL) {
 		::Script* script = Core::ExtractScript(scriptName);
+		// What level is this script ?
 		if (script != NULL)
 			AddScript(script);
 	}
@@ -128,11 +129,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 
 Object::~Object()
 {
-	for (ScriptsList::iterator i = fScripts.begin();
-		i != fScripts.end(); i++) {
-		delete *i;
-	}
-	fScripts.clear();
+	ClearScripts();
 }
 
 
@@ -548,9 +545,8 @@ Object::AddScript(::Script* script)
 void
 Object::ClearScripts()
 {
-	for (ScriptsList::iterator i = fScripts.begin();
-		i != fScripts.end(); i++) {
-		delete *i;
+	for (auto script : fScripts) {
+		delete script;
 	}
 	fScripts.clear();
 }
