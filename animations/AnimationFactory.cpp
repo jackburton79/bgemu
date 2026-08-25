@@ -126,6 +126,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f2a, "NSAI", FactoryType::Monster },
 	{ 0x7f2c, "NSOL", FactoryType::Monster },
 	{ 0x7f36, "NSHD", FactoryType::Monster },
+	{ 0x7f37, "NIRE", FactoryType::Monster },
 	{ 0x8000, "", FactoryType::Monster },
 	{ 0x8100, "", FactoryType::Monster },
 	{ 0x9000, "", FactoryType::Monster },
