@@ -103,7 +103,9 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7b02, "MWLF", FactoryType::Monster },
 	{ 0x7d00, "MZOM", FactoryType::Monster }, // (Zombie)
 	{ 0x7e00, "", FactoryType::Monster },
+	{ 0x7f03, "MIMP", FactoryType::Monster },
 	{ 0x7f05, "MDJI", FactoryType::Monster },
+	{ 0x7f06, "MDJL", FactoryType::Monster },
 	{ 0x7f08, "MOTY", FactoryType::Monster },
 	{ 0x7f0b, "MGCL", FactoryType::Monster },
 	{ 0x7f0d, "MLIC", FactoryType::Monster },
@@ -114,6 +116,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f18, "ADER", FactoryType::Monster },
 	{ 0x7f20, "AGRO", FactoryType::Monster },
 	{ 0x7f21, "APHE", FactoryType::Monster },
+	{ 0x7f22, "MVAF", FactoryType::Monster },
 	{ 0x7f24, "NPIR", FactoryType::Monster },
 	{ 0x7f2a, "NSAI", FactoryType::Monster },
 	{ 0x7f2c, "NSOL", FactoryType::Monster },
@@ -151,9 +154,10 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xd200, "", FactoryType::Monster },
 	{ 0xd300, "", FactoryType::Monster },
 	{ 0xe000, "", FactoryType::IWD },
-	{ 0xed00, "MYU1", FactoryType::IWD },
 	{ 0xe400, "", FactoryType::IWD },
-	{ 0xe600, "", FactoryType::IWD }
+	{ 0xe600, "", FactoryType::IWD },
+	{ 0xe710, "MNO2", FactoryType::IWD },
+	{ 0xed00, "MYU1", FactoryType::IWD }
 };
 
 
