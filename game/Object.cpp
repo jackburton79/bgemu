@@ -115,6 +115,8 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fDisabled(false),
 	fToDestroy(false)
 {
+	fScripts.fill(nullptr);
+
 	if (scriptName != NULL) {
 		::Script* script = Core::ExtractScript(scriptName);
 		// What level is this script ?
@@ -298,7 +300,7 @@ Object::Update(bool scripts)
 		return;
 
 	if (scripts) {
-		_HandleScripting(SCRIPT_LEVEL_DEFAULT);
+		_HandleScripting(SCRIPT_LEVEL_COUNT);
 	}
 
 	if (fDisabled)
@@ -413,10 +415,8 @@ void
 Object::ClearActionList()
 {
 	ClearCurrentAction();
-	for (std::list<Action*>::iterator i = fActions.begin();
-									i != fActions.end(); i++) {
-		delete *i;
-	}
+	for (auto action : fActions)
+		delete action;
 	fActions.clear();
 }
 
@@ -433,9 +433,8 @@ Object::AddTrigger(const trigger_entry& entry)
 bool
 Object::HasTrigger(const std::string& trigName) const
 {
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		if (i->trigger_name == trigName)
+	for (const auto& trig : fTriggers) {
+		if (trig.trigger_name == trigName)
 			return true;
 	}
 	return false;
@@ -448,9 +447,8 @@ Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) con
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
 		return false;
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		const trigger_entry &entry = *i;
+
+	for (const auto &entry: fTriggers) {
 		if (entry.trigger_name == trigName) {
 			Object* target = Area()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
@@ -470,8 +468,7 @@ Object::FindTrigger(const std::string& trigName) const
 {
 	// TODO: Since we usually use this for "LastAttacker", "LastSeen", etc.
 	// we start searching from the last item
-	std::list<trigger_entry>::const_reverse_iterator i;
-	for (i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
+	for (auto i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
 		if (i->trigger_name == trigName)
 			return ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(i->target_id);
 	}
