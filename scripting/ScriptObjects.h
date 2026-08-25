@@ -80,6 +80,11 @@ private:
 
 struct response_node {
 	response_node();
+	~response_node();
+
+	response_node(const response_node&) = delete;
+	response_node& operator=(const response_node&) = delete;
+
 	void Print() const;
 	int probability;
 	std::vector<action_params*> actions;
@@ -87,15 +92,33 @@ struct response_node {
 
 
 struct response_set {
+	response_set() = default;
+	~response_set();
+
+	response_set(const response_set&) = delete;
+	response_set& operator=(const response_set&) = delete;
+
 	std::vector<response_node*> resp;
 };
 
 
 struct condition_block {
+	condition_block() = default;
+	~condition_block();
+
+	condition_block(const condition_block&) = delete;
+	condition_block& operator=(const condition_block&) = delete;
+
 	std::vector<trigger_params*> triggers;
 };
 
 struct condition_response {
+	condition_response() = default;
+	~condition_response() = default;
+
+	condition_response(const condition_response&) = delete;
+	condition_response& operator=(const condition_response&) = delete;
+
 	condition_block conditions;
 	response_set responseSet;
 };
