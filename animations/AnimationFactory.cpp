@@ -154,11 +154,6 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xe600, "", FactoryType::IWD }
 };
 
-struct AnimationFinder {
-	bool operator()(const AnimationDescriptor *A, const AnimationDescriptor* B) {
-		return A->animation_id == B->animation_id;
-	}
-};
 
 /* static */
 AnimationFactory*
@@ -239,10 +234,10 @@ animation_description
 AnimationFactory::GetAnimationDescription(Actor* actor)
 {
 	uint16 animationID = fID;
+	std::string baseName = IDTable::AniSndAt(animationID);
+#if 0
 	uint8 highID = animationID >> 8;
 	uint8 lowID = animationID & 0xF;
-	std::string baseName = IDTable::AniSndAt(animationID);
-#if 1
 	std::cout << "AnimationFactory::GetAnimationDescription(";
 	std::cout << baseName << ", " << std::hex;
 	std::cout << "0x" << animationID << ")";
@@ -284,7 +279,6 @@ AnimationFactory::BaseName() const
 {
 	return fBaseName;
 }
-
 
 
 animation_description
