@@ -23,9 +23,9 @@ std::unordered_map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactor
 const int kStandingOffset = 10;
 
 enum class FactoryType {
-	CharacterAnimationBG,
-	CharacterAnimationBG2,
-	MonsterAnimation,
+	CharacterBG,
+	CharacterBG2,
+	Monster,
 	SplitAnimation,
 	SimpleAnimation,
 	IWD
@@ -40,99 +40,100 @@ struct AnimationDescriptor {
 
 
 const static AnimationDescriptor kAnimationEntries[] = {
-	{ 0x1000, "", FactoryType::MonsterAnimation },
-	{ 0x2000, "", FactoryType::MonsterAnimation },
-	{ 0x2300, "", FactoryType::MonsterAnimation },
+	{ 0x1000, "", FactoryType::Monster },
+	{ 0x2000, "", FactoryType::Monster },
+	{ 0x2300, "", FactoryType::Monster },
 
 	{ 0x4000, "SNOM", FactoryType::SimpleAnimation },
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
+	{ 0x4100, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
-	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
+	{ 0x4710, "LEFF", FactoryType::SimpleAnimation },
 
-	{ 0x5000, "CHMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x5002, "CDMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x5003, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x5100, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x5102, "CDMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x5110, "CHFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x5113, "CIFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x5200, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x5210, "CHFW", FactoryType::CharacterAnimationBG2 },
-	{ 0x5303, "CIMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6000, "CHMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6002, "CDMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6003, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6004, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6010, "CHFB", FactoryType::CharacterAnimationBG2 }, // CHFB
-	{ 0x6011, "CEFB", FactoryType::CharacterAnimationBG2 }, // CEFB
-	{ 0x6013, "CIFB", FactoryType::CharacterAnimationBG2 }, // CIFB
-	{ 0x6100, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x6101, "CEMB", FactoryType::CharacterAnimationBG2 }, // CEMB
-	{ 0x6102, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6103, "CIMB", FactoryType::CharacterAnimationBG2 }, // CIMB
-	{ 0x6104, "CDMB", FactoryType::CharacterAnimationBG2 }, // CDMB
-	{ 0x6110, "CHFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6111, "CEFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6113, "CIFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6200, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x6201, "CEMW", FactoryType::CharacterAnimationBG2 },
-	{ 0x6210, "CHFW", FactoryType::CharacterAnimationBG2 },
-	{ 0x6300, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x6301, "CEMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6302, "CDMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6303, "CIMB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6310, "CHFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6311, "CEFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6314, "CEFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6315, "CEFB", FactoryType::CharacterAnimationBG2 },
-	{ 0x6400, "", FactoryType::CharacterAnimationBG2 },
-	{ 0x6402, "USAR", FactoryType::CharacterAnimationBG2 },
-	{ 0x6403, "MSKL", FactoryType::CharacterAnimationBG2 },
-	{ 0x6500, "", FactoryType::CharacterAnimationBG2 },
+	{ 0x5000, "CHMB", FactoryType::CharacterBG2 },
+	{ 0x5002, "CDMB", FactoryType::CharacterBG2 },
+	{ 0x5003, "", FactoryType::CharacterBG2 },
+	{ 0x5100, "", FactoryType::CharacterBG2 },
+	{ 0x5102, "CDMB", FactoryType::CharacterBG2 },
+	{ 0x5110, "CHFB", FactoryType::CharacterBG2 },
+	{ 0x5113, "CIFB", FactoryType::CharacterBG2 },
+	{ 0x5200, "", FactoryType::CharacterBG2 },
+	{ 0x5210, "CHFW", FactoryType::CharacterBG2 },
+	{ 0x5303, "CIMB", FactoryType::CharacterBG2 },
+	{ 0x6000, "CHMB", FactoryType::CharacterBG2 },
+	{ 0x6002, "CDMB", FactoryType::CharacterBG2 },
+	{ 0x6003, "CIMB", FactoryType::CharacterBG2 }, // CIMB
+	{ 0x6004, "CDMB", FactoryType::CharacterBG2 }, // CDMB
+	{ 0x6010, "CHFB", FactoryType::CharacterBG2 }, // CHFB
+	{ 0x6011, "CEFB", FactoryType::CharacterBG2 }, // CEFB
+	{ 0x6013, "CIFB", FactoryType::CharacterBG2 }, // CIFB
+	{ 0x6100, "", FactoryType::CharacterBG2 },
+	{ 0x6101, "CEMB", FactoryType::CharacterBG2 }, // CEMB
+	{ 0x6102, "CDMB", FactoryType::CharacterBG2 }, // CDMB
+	{ 0x6103, "CIMB", FactoryType::CharacterBG2 }, // CIMB
+	{ 0x6104, "CDMB", FactoryType::CharacterBG2 }, // CDMB
+	{ 0x6110, "CHFB", FactoryType::CharacterBG2 },
+	{ 0x6111, "CEFB", FactoryType::CharacterBG2 },
+	{ 0x6113, "CIFB", FactoryType::CharacterBG2 },
+	{ 0x6200, "", FactoryType::CharacterBG2 },
+	{ 0x6201, "CEMW", FactoryType::CharacterBG2 },
+	{ 0x6210, "CHFW", FactoryType::CharacterBG2 },
+	{ 0x6300, "", FactoryType::CharacterBG2 },
+	{ 0x6301, "CEMB", FactoryType::CharacterBG2 },
+	{ 0x6302, "CDMB", FactoryType::CharacterBG2 },
+	{ 0x6303, "CIMB", FactoryType::CharacterBG2 },
+	{ 0x6310, "CHFB", FactoryType::CharacterBG2 },
+	{ 0x6311, "CEFB", FactoryType::CharacterBG2 },
+	{ 0x6314, "CEFB", FactoryType::CharacterBG2 },
+	{ 0x6315, "CEFB", FactoryType::CharacterBG2 },
+	{ 0x6400, "", FactoryType::CharacterBG2 },
+	{ 0x6402, "USAR", FactoryType::CharacterBG2 },
+	{ 0x6403, "MSKL", FactoryType::CharacterBG2 },
+	{ 0x6500, "", FactoryType::CharacterBG2 },
 
-	{ 0x7000, "", FactoryType::CharacterAnimationBG },
-	{ 0x7001, "MOGR", FactoryType::MonsterAnimation }, // WRONG
-	{ 0x7300, "", FactoryType::MonsterAnimation },
-	{ 0x7400, "", FactoryType::MonsterAnimation },
-	{ 0x7703, "MSHD", FactoryType::MonsterAnimation },
-	{ 0x7c01, "MTAS", FactoryType::MonsterAnimation },
-	{ 0x7b00, "MWLF", FactoryType::MonsterAnimation },
-	{ 0x7b01, "MWLF", FactoryType::MonsterAnimation },
-	{ 0x7b02, "MWLF", FactoryType::MonsterAnimation },
-	{ 0x7d00, "MZOM", FactoryType::MonsterAnimation }, // (Zombie)
-	{ 0x7e00, "", FactoryType::MonsterAnimation },
-	{ 0x7f05, "MDJI", FactoryType::MonsterAnimation },
-	{ 0x7f08, "MOTY", FactoryType::MonsterAnimation },
-	{ 0x7f0b, "MGCL", FactoryType::MonsterAnimation },
-	{ 0x7f0d, "MLIC", FactoryType::MonsterAnimation },
-	{ 0x7f10, "MRAK", FactoryType::MonsterAnimation },
-	{ 0x7f13, "MSNK", FactoryType::MonsterAnimation },
-	{ 0x7f16, "AMOO", FactoryType::MonsterAnimation },
-	{ 0x7f17, "ARAB", FactoryType::MonsterAnimation },
-	{ 0x7f18, "ADER", FactoryType::MonsterAnimation },
-	{ 0x7f20, "AGRO", FactoryType::MonsterAnimation },
-	{ 0x7f21, "APHE", FactoryType::MonsterAnimation },
-	{ 0x7f24, "NPIR", FactoryType::MonsterAnimation },
-	{ 0x7f2a, "NSAI", FactoryType::MonsterAnimation },
-	{ 0x7f2c, "NSOL", FactoryType::MonsterAnimation },
-	{ 0x7f36, "NSHD", FactoryType::MonsterAnimation },
-	{ 0x8000, "", FactoryType::MonsterAnimation },
-	{ 0x8100, "", FactoryType::MonsterAnimation },
-	{ 0x9000, "", FactoryType::MonsterAnimation },
-	{ 0xa000, "", FactoryType::MonsterAnimation },
-	{ 0xb000, "", FactoryType::MonsterAnimation },
-	{ 0xb100, "AHRS", FactoryType::MonsterAnimation }, // AHRS
+	{ 0x7000, "", FactoryType::CharacterBG },
+	{ 0x7001, "MOGR", FactoryType::Monster }, // WRONG
+	{ 0x7300, "", FactoryType::Monster },
+	{ 0x7400, "", FactoryType::Monster },
+	{ 0x7703, "MSHD", FactoryType::Monster },
+	{ 0x7c01, "MTAS", FactoryType::Monster },
+	{ 0x7b00, "MWLF", FactoryType::Monster },
+	{ 0x7b01, "MWLF", FactoryType::Monster },
+	{ 0x7b02, "MWLF", FactoryType::Monster },
+	{ 0x7d00, "MZOM", FactoryType::Monster }, // (Zombie)
+	{ 0x7e00, "", FactoryType::Monster },
+	{ 0x7f05, "MDJI", FactoryType::Monster },
+	{ 0x7f08, "MOTY", FactoryType::Monster },
+	{ 0x7f0b, "MGCL", FactoryType::Monster },
+	{ 0x7f0d, "MLIC", FactoryType::Monster },
+	{ 0x7f10, "MRAK", FactoryType::Monster },
+	{ 0x7f13, "MSNK", FactoryType::Monster },
+	{ 0x7f16, "AMOO", FactoryType::Monster },
+	{ 0x7f17, "ARAB", FactoryType::Monster },
+	{ 0x7f18, "ADER", FactoryType::Monster },
+	{ 0x7f20, "AGRO", FactoryType::Monster },
+	{ 0x7f21, "APHE", FactoryType::Monster },
+	{ 0x7f24, "NPIR", FactoryType::Monster },
+	{ 0x7f2a, "NSAI", FactoryType::Monster },
+	{ 0x7f2c, "NSOL", FactoryType::Monster },
+	{ 0x7f36, "NSHD", FactoryType::Monster },
+	{ 0x8000, "", FactoryType::Monster },
+	{ 0x8100, "", FactoryType::Monster },
+	{ 0x9000, "", FactoryType::Monster },
+	{ 0xa000, "", FactoryType::Monster },
+	{ 0xb000, "", FactoryType::Monster },
+	{ 0xb100, "AHRS", FactoryType::Monster }, // AHRS
 	{ 0xb200, "NBEG", FactoryType::SplitAnimation }, // NBEG 0xb200
 	{ 0xb400, "", FactoryType::SplitAnimation },
 	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
 	{ 0xb500, "", FactoryType::SplitAnimation },
 	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
-	{ 0xc000, "ABAT", FactoryType::MonsterAnimation },
-	{ 0xc100, "", FactoryType::MonsterAnimation },
-	{ 0xc200, "", FactoryType::MonsterAnimation },
-	{ 0xc300, "", FactoryType::MonsterAnimation },
-	{ 0xc400, "", FactoryType::MonsterAnimation },
-	{ 0xc500, "", FactoryType::MonsterAnimation },
+	{ 0xc000, "ABAT", FactoryType::Monster },
+	{ 0xc100, "", FactoryType::Monster },
+	{ 0xc200, "", FactoryType::Monster },
+	{ 0xc300, "", FactoryType::Monster },
+	{ 0xc400, "", FactoryType::Monster },
+	{ 0xc500, "", FactoryType::Monster },
 	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
 	{ 0xc800, "NFAM", FactoryType::SplitAnimation }, // NBOY
 	{ 0xc600, "NBEG", FactoryType::SplitAnimation }, // NBEG
@@ -144,10 +145,10 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
 	{ 0xca00, "", FactoryType::SplitAnimation },
 	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
-	{ 0xd000, "AEAG", FactoryType::MonsterAnimation }, // AEAG (Eagle)
-	{ 0xd100, "", FactoryType::MonsterAnimation },
-	{ 0xd200, "", FactoryType::MonsterAnimation },
-	{ 0xd300, "", FactoryType::MonsterAnimation },
+	{ 0xd000, "AEAG", FactoryType::Monster }, // AEAG (Eagle)
+	{ 0xd100, "", FactoryType::Monster },
+	{ 0xd200, "", FactoryType::Monster },
+	{ 0xd300, "", FactoryType::Monster },
 	{ 0xe000, "", FactoryType::IWD },
 	{ 0xed00, "MYU1", FactoryType::IWD },
 	{ 0xe400, "", FactoryType::IWD },
@@ -175,12 +176,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 	else {
 		factory = new AnimationFactory(baseName.c_str(), animationID);
 	}
-	if (factory != NULL) {
-		factory->Acquire();
-	} else {
-		std::cerr << Log::Red << "No animation factory " << baseName;
-		std::cerr << " (0x" << std::hex << animationID << ")" << Log::Normal << std::endl;
-	}
+	factory->Acquire();
 	return factory;
 }
 
@@ -248,26 +244,29 @@ AnimationFactory::GetAnimationDescription(Actor* actor)
 						[&] (const AnimationDescriptor entry) {
 							return entry.animation_id == animationID;
 						});
-	if (it != std::end(kAnimationEntries)) {
+	if (it == std::end(kAnimationEntries)) {
+		std::string error("Animation description not found");
+		error.append(" for ").append(baseName);
+		throw std::runtime_error(error);
+	}
 		// Seems some animation aren't in the AniSnd file
-		if (baseName == "")
-			baseName = it->base_name;
-		switch (it->animation_type) {
-			case FactoryType::CharacterAnimationBG:
-				return _GetBGCharacterAnimationDescription(actor);
-			case FactoryType::CharacterAnimationBG2:
-				return _GetBG2CharacterAnimationDescription(actor);
-			case FactoryType::MonsterAnimation:
-				return _GetBGMonsterAnimationDescription(actor);
-			case FactoryType::SimpleAnimation:
-				return _GetSimpleAnimationDescription(actor);
-			case FactoryType::SplitAnimation:
-				return _GetSplitAnimationDescription(actor);
-			case FactoryType::IWD:
-				return _GetIWDAnimationDescription(actor);
-			default:
-				break;
-		}
+	if (baseName == "")
+		baseName = it->base_name;
+	switch (it->animation_type) {
+		case FactoryType::CharacterBG:
+			return _GetBGCharacterAnimationDescription(actor);
+		case FactoryType::CharacterBG2:
+			return _GetBG2CharacterAnimationDescription(actor);
+		case FactoryType::Monster:
+			return _GetBGMonsterAnimationDescription(actor);
+		case FactoryType::SimpleAnimation:
+			return _GetSimpleAnimationDescription(actor);
+		case FactoryType::SplitAnimation:
+			return _GetSplitAnimationDescription(actor);
+		case FactoryType::IWD:
+			return _GetIWDAnimationDescription(actor);
+		default:
+			break;
 	}
 
 	return animation_description();
