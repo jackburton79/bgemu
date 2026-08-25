@@ -28,6 +28,7 @@ enum class FactoryType {
 	Monster,
 	SplitAnimation,
 	SimpleAnimation,
+	StaticAnimation,
 	IWD
 };
 
@@ -48,7 +49,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
 	{ 0x4100, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
-	{ 0x4710, "LEFF", FactoryType::SimpleAnimation },
+	{ 0x4710, "LEFF", FactoryType::StaticAnimation },
 
 	{ 0x5000, "CHMB", FactoryType::CharacterBG2 },
 	{ 0x5002, "CDMB", FactoryType::CharacterBG2 },
@@ -265,6 +266,8 @@ AnimationFactory::GetAnimationDescription(Actor* actor)
 			return _GetSplitAnimationDescription(actor);
 		case FactoryType::IWD:
 			return _GetIWDAnimationDescription(actor);
+		case FactoryType::StaticAnimation:
+			return _GetStaticAnimationDescription(actor);
 		default:
 			break;
 	}
@@ -626,6 +629,49 @@ AnimationFactory::_GetIWDAnimationDescription(Actor* actor)
 	if (o >= IE::ORIENTATION_NE
 			&& o <= IE::ORIENTATION_SE) {
 		description.bam_name.append("E");
+	}
+	return description;
+}
+
+
+animation_description
+AnimationFactory::_GetStaticAnimationDescription(Actor* actor)
+{
+	int o = actor->Orientation();
+	animation_description description;
+	description.bam_name = BaseName();
+	description.mirror = false;
+	description.custom_colors = true;
+
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		o = IE::orientation_ext_to_base(o);
+
+	description.sequence_number = uint32(o);
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.sequence_number += 0;
+			break;
+		case ACT_ATTACKING:
+			description.sequence_number += 0;
+			break;
+		case ACT_STANDING:
+			description.sequence_number += 8;
+			break;
+		case ACT_DIE:
+		default:
+			std::cout << "unknown action " << actor->AnimationAction() << std::endl;
+			break;
+	}
+
+	if (o >= IE::ORIENTATION_NE
+			&& uint32(o) <= IE::ORIENTATION_SE) {
+		// Orientation 5 uses bitmap from orientation 3 mirrored,
+		// 6 uses 2, and 7 uses 1
+		//description.mirror = true;
+		// TODO: not in BG2. There is a separate file with East-facing animation
+//		/description.bam_name.append("E");
+		//description.sequence_number -= (o - 4) * 2;
 	}
 	return description;
 }

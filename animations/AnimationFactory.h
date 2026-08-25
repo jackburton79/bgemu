@@ -47,6 +47,7 @@ protected:
 	animation_description _GetSimpleAnimationDescription(Actor* actor);
 	animation_description _GetSplitAnimationDescription(Actor* actor);
 	animation_description _GetIWDAnimationDescription(Actor* actor);
+	animation_description _GetStaticAnimationDescription(Actor* actor);
 
 	std::string BaseName() const;
 
