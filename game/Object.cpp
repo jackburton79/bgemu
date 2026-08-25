@@ -296,9 +296,9 @@ Object::Update(bool scripts)
 	if (cutscene)
 		scripts = false;
 
-	if (::strcmp(Name(), "GMTOWN02") != 0)
+/*	if (::strcmp(Name(), "GMTOWN02") != 0)
 		return;
-
+*/
 	if (scripts) {
 		_HandleScripting(SCRIPT_LEVEL_COUNT);
 	}
