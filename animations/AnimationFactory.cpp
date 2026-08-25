@@ -48,8 +48,10 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x1000, "", FactoryType::MonsterAnimation },
 	{ 0x2000, "", FactoryType::MonsterAnimation },
 	{ 0x2300, "", FactoryType::MonsterAnimation },
+
 	{ 0x4000, "SNOM", FactoryType::SimpleAnimation },
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
+	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
 
 	{ 0x5000, "CHMB", FactoryType::CharacterAnimationBG2 },
@@ -96,6 +98,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7300, "", FactoryType::MonsterAnimation },
 	{ 0x7400, "", FactoryType::MonsterAnimation },
 	{ 0x7703, "MSHD", FactoryType::MonsterAnimation },
+	{ 0x7c01, "MTAS", FactoryType::MonsterAnimation },
 	{ 0x7b00, "MWLF", FactoryType::MonsterAnimation },
 	{ 0x7b02, "MWLF", FactoryType::MonsterAnimation },
 	{ 0x7d00, "MZOM", FactoryType::MonsterAnimation }, // (Zombie)
