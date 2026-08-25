@@ -96,11 +96,13 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6500, "", FactoryType::CharacterAnimationBG2 },
 
 	{ 0x7000, "", FactoryType::CharacterAnimationBG },
+	{ 0x7001, "MOGR", FactoryType::MonsterAnimation }, // WRONG
 	{ 0x7300, "", FactoryType::MonsterAnimation },
 	{ 0x7400, "", FactoryType::MonsterAnimation },
 	{ 0x7703, "MSHD", FactoryType::MonsterAnimation },
 	{ 0x7c01, "MTAS", FactoryType::MonsterAnimation },
 	{ 0x7b00, "MWLF", FactoryType::MonsterAnimation },
+	{ 0x7b01, "MWLF", FactoryType::MonsterAnimation },
 	{ 0x7b02, "MWLF", FactoryType::MonsterAnimation },
 	{ 0x7d00, "MZOM", FactoryType::MonsterAnimation }, // (Zombie)
 	{ 0x7e00, "", FactoryType::MonsterAnimation },
@@ -130,6 +132,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
 	{ 0xb500, "", FactoryType::SplitAnimation },
 	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
+	{ 0xc000, "ABAT", FactoryType::MonsterAnimation },
 	{ 0xc100, "", FactoryType::MonsterAnimation },
 	{ 0xc200, "", FactoryType::MonsterAnimation },
 	{ 0xc300, "", FactoryType::MonsterAnimation },
