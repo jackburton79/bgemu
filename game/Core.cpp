@@ -378,6 +378,13 @@ Core::Close(Object* actor, Door* door)
 }
 
 
+uint32
+Core::ScriptRound() const
+{
+	return fCurrentRoundNumber;
+}
+
+
 /* static */
 int32
 Core::RandomNumber(int32 start, int32 end)

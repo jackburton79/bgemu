@@ -79,7 +79,8 @@ Outline::Rect() const
 trigger_entry::trigger_entry(const std::string& trigName)
 	:
 	trigger_name(trigName),
-	target_id(-1)
+	target_id(-1),
+	round(0)
 {
 }
 
@@ -87,7 +88,8 @@ trigger_entry::trigger_entry(const std::string& trigName)
 trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 	:
 	trigger_name(trigName),
-	target_id(targetObject->GlobalID())
+	target_id(targetObject->GlobalID()),
+	round(0)
 {
 }
 
@@ -119,6 +121,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 			AddScript(script);
 	}
 	trigger_entry trig("OnCreation", this);
+	trig.round = Core::Get()->ScriptRound();
 	AddTrigger(trig);
 }
 
@@ -242,6 +245,7 @@ void
 Object::Clicked(Object* clicker)
 {
 	trigger_entry entry("Clicked", clicker);
+	entry.round = Core::Get()->ScriptRound();
 	AddTrigger(entry);
 }
 
@@ -501,6 +505,16 @@ Object::PrintTriggers() const
 
 
 void
+Object::RemoveExpiredTriggers()
+{
+	uint32 currentRound = Core::Get()->ScriptRound();
+	fTriggers.remove_if([&] (const trigger_entry& t) {
+							return currentRound > t.round;
+						});
+}
+
+
+void
 Object::ClearTriggers()
 {
 	fTriggers.clear();
@@ -640,8 +654,9 @@ Object::_HandleScripting(int32 maxLevel)
 	fTicksIdle = 0;
 	_ExecuteScripts(maxLevel);
 
-	if (true)
-		ClearTriggers();
+	RemoveExpiredTriggers();
+	/*if (true)
+		ClearTriggers();*/
 }
 
 

@@ -35,6 +35,7 @@ struct trigger_entry {
 	trigger_entry(const std::string& trigName, Object* targetObject);
 	std::string trigger_name;
 	uint16 target_id;
+	uint32 round;
 };
 
 
@@ -127,6 +128,7 @@ public:
 	Object* LastTrigger() const;
 
 	void PrintTriggers() const;
+	void RemoveExpiredTriggers();
 	void ClearTriggers();
 
 	void SetInterruptable(const bool interrupt);
