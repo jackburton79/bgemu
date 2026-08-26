@@ -98,10 +98,12 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6500, "", FactoryType::CharacterBG2 },
 
 	{ 0x7000, "", FactoryType::CharacterBG },
-	{ 0x7001, "MOGR", FactoryType::Monster }, // WRONG
+	{ 0x7001, "MOGR", FactoryType::Monster },
+	{ 0x7202, "MBER", FactoryType::Monster },
 	{ 0x7300, "", FactoryType::Monster },
 	{ 0x7400, "", FactoryType::Monster },
 	{ 0x7703, "MSHD", FactoryType::Monster },
+	{ 0x7a01, "MSPI", FactoryType::Monster },
 	{ 0x7c01, "MTAS", FactoryType::Monster },
 	{ 0x7b00, "MWLF", FactoryType::Monster },
 	{ 0x7b01, "MWLF", FactoryType::Monster },
@@ -113,6 +115,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f06, "MDJL", FactoryType::Monster },
 	{ 0x7f07, "MGLC", FactoryType::Monster },
 	{ 0x7f08, "MOTY", FactoryType::Monster },
+	{ 0x7f0a, "MGCP", FactoryType::Monster },
 	{ 0x7f0b, "MGCL", FactoryType::Monster },
 	{ 0x7f0d, "MLIC", FactoryType::Monster },
 	{ 0x7f10, "MRAK", FactoryType::Monster },
