@@ -36,6 +36,7 @@ WMAPResource::WMAPResource(const res_ref &name)
 
 WMAPResource::~WMAPResource()
 {
+	std::cout << "WMAPResource::~WMAPResource()" << std::endl;
 	gResManager->ReleaseResource(fIcons);
 }
 
@@ -86,14 +87,14 @@ WMAPResource::GetAreaEntry(uint32 index)
 		return NULL;
 
 	area_entry areaEntry;
-    fData->ReadAt(
-    		fWorldMapEntry.areaentries_offset
+	fData->ReadAt(
+			fWorldMapEntry.areaentries_offset
 				+ index * sizeof(area_entry), areaEntry);
-    AreaEntry* entry = new AreaEntry(areaEntry);
-    entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
-    entry->fPosition.x = (int16)areaEntry.x;
-    entry->fPosition.y = (int16)areaEntry.y;
-    return entry;
+	AreaEntry* entry = new AreaEntry(areaEntry);
+	entry->fIcon = fIcons->FrameForCycle(areaEntry.icons_bam_sequence, 0);
+	entry->fPosition.x = (int16)areaEntry.x;
+	entry->fPosition.y = (int16)areaEntry.y;
+	return entry;
 }
 
 
