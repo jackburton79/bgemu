@@ -44,6 +44,7 @@ struct AnimationDescriptor {
 const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x1000, "", FactoryType::Monster },
 	{ 0x2000, "", FactoryType::Monster },
+	{ 0x2200, "MOGM", FactoryType::Monster },
 	{ 0x2300, "", FactoryType::Monster },
 
 	{ 0x4000, "SNOM", FactoryType::SimpleAnimation },
