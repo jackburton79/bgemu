@@ -113,7 +113,7 @@ ResourceManager::~ResourceManager()
 	gResManager->ReleaseResource(sAniSnd);
 	gResManager->ReleaseResource(sAnimate);
 	gResManager->ReleaseResource(sAlignment);
-	//gResManager->ReleaseResource(sDialogs);
+	gResManager->ReleaseResource(sDialogs);
 
 
 	std::cout << kComponentName << "Cached resources...";
@@ -129,7 +129,6 @@ ResourceManager::~ResourceManager()
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
 		//if (fDebugLevel > 0) {
-			std::cout << "resource: " << "0x" << std::hex << (char*)(resource.second) << std::endl;
 			std::cout << "Deleting " << resource.second->Name();
 			std::cout << "(" << strresource(resource.second->Type()) << ")";
 			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
@@ -420,8 +419,11 @@ ResourceManager::ReleaseResource(Resource* resource)
 		std::cout << resource->Name() << ", " << strresource(resource->Type());
 		std::cout << ")";
 		std::cout << ": refcount was " << refCount;*/
+		uint32 key = resource->Key();
 		if (resource->Release()) {
-			fCachedResources[resource->Key()] = nullptr;
+			auto iterator = fCachedResources.find(key);
+			if (iterator != fCachedResources.end())
+				fCachedResources[key] = nullptr;
 			delete resource;
 			//std::cout << " and is now 0. Resource deleted";
 		} /*else
