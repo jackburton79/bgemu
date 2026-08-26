@@ -182,13 +182,14 @@ AnimationFactory::GetFactory(uint16 animationID)
 	std::cout << " (0x" << (int)highID << ", 0x" << (int)lowID << ")" << std::endl;
 #endif
 	AnimationFactory* factory = NULL;
-	auto i = sAnimationFactory.find(animationID);
-	if (i != sAnimationFactory.end())
+	/*auto i = sAnimationFactory.find(animationID);
+	if (i != sAnimationFactory.end()) {
 		factory = i->second;
-	else {
+		factory->Acquire();
+	} else {*/
 		factory = new AnimationFactory(baseName.c_str(), animationID);
-	}
-	factory->Acquire();
+		/*sAnimationFactory[animationID] = factory;*/
+	//}
 	return factory;
 }
 
