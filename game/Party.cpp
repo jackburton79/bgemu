@@ -19,6 +19,9 @@ Party::Party()
 
 Party::~Party()
 {
+	for (auto actor : fActors) {
+		actor->Release();
+	}
 }
 
 
@@ -38,6 +41,7 @@ Party::RemoveActor(Actor* actor)
 	std::vector<Actor*>::iterator i =
 		std::find(fActors.begin(), fActors.end(), actor);
 	if (i != fActors.end()) {
+		(*i)->Release();
 		fActors.erase(i);
 		//(i*)->SetInterruptable(true);
 	}
