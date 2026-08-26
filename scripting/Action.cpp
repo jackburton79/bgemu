@@ -463,7 +463,7 @@ ActionPlayDead::ActionPlayDead(Object* object, action_params* node)
 	:
 	Action(object, node)
 {
-	fDuration = fActionParams->integer1;
+	fDuration = fActionParams->integer1 * AI_UPDATE_FREQ;
 }
 
 
@@ -721,6 +721,7 @@ ActionWait::ActionWait(Object* object, action_params* node)
 void
 ActionWait::operator()()
 {
+	fSender->SetInterruptable(false);
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }
@@ -742,6 +743,7 @@ ActionSmallWait::operator()()
 	//Object* object = Script::FindObject(fObject, fActionParams);
 	//if (object != NULL)
 	//	object->SetWaitTime(fActionParams->integer1);
+	fSender->SetInterruptable(false);
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }
