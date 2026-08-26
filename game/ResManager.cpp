@@ -120,8 +120,6 @@ ResourceManager::~ResourceManager()
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
 			//if (fDebugLevel > 0) {
-		if (resource.second == nullptr)
-			continue;
 		std::cout << "resource: " << resource.second->Name();
 		std::cout << "(" << strresource(resource.second->Type()) << ")";
 		std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
@@ -130,14 +128,13 @@ ResourceManager::~ResourceManager()
 	std::cout << kComponentName << "Deleting cached resources...";
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
-		if (resource.second == nullptr)
-			continue;
 		//if (fDebugLevel > 0) {
 			std::cout << "Deleting " << resource.second->Name();
 			std::cout << "(" << strresource(resource.second->Type()) << ")";
 			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
 		//}
-		ReleaseResource(resource.second);
+		if (resource.second->Release())
+			delete resource.second;
 	}
 
 	delete fKeyDB;
@@ -427,7 +424,7 @@ ResourceManager::ReleaseResource(Resource* resource)
 		if (resource->Release()) {
 			auto iterator = fCachedResources.find(key);
 			if (iterator != fCachedResources.end())
-				fCachedResources[key] = nullptr;
+				fCachedResources.erase(key);
 			delete resource;
 			//std::cout << " and is now 0. Resource deleted";
 		} /*else
