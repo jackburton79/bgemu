@@ -120,6 +120,7 @@ private:
 
 	bool fPaused;
 	bool fCutsceneMode;
+	::Script* fCutsceneScript;
 	bool fDialogMode;
 	Object* fCutsceneActor;
 

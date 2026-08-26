@@ -33,6 +33,7 @@ Core::Core()
 	fCurrentRoundNumber(0),
 	fPaused(false),
 	fCutsceneMode(false),
+	fCutsceneScript(NULL),
 	fDialogMode(false),
 	fCutsceneActor(NULL),
 	fHasExtendedOrientations(false)
@@ -43,6 +44,7 @@ Core::Core()
 
 Core::~Core()
 {
+	delete fCutsceneScript;
 	//std::cout << "Core::~Core() returned" << std::endl;
 }
 
@@ -241,14 +243,18 @@ Core::StartCutscene(const res_ref& scriptName)
 	std::cout << "Core::StartCutscene():" << scriptName.CString() << std::endl;
 	if (Game::Get()->InDialogMode())
 		Game::Get()->TerminateDialog();
-	::Script* script = ExtractScript(scriptName);
-	if (script != NULL) {
-		script->ExecuteCutscene();
 
-		// TODO: We cannot delete the script, since actions are parsing it after we return.
-		// We are leaking the it now
-		//delete script;
+	if (fCutsceneScript != NULL) {
+		// A cutscene was already running: shouldn't normally happen, but
+		// don't leak it if it does.
+		std::cerr << Log::Red << "Core::StartCutscene(): a cutscene script "
+			"is already running, replacing it" << std::endl;
+		delete fCutsceneScript;
 	}
+
+	fCutsceneScript = ExtractScript(scriptName);
+	if (fCutsceneScript != NULL)
+		StartCutsceneMode();
 }
 
 
@@ -356,6 +362,14 @@ Core::UpdateLogic(bool executeScripts)
 	if (!Game::Get()->InDialogMode()) {
 		// AreaRoom::Update() calls Update() for every object
 		fCurrentRoom->Update(executeScripts);
+
+		if (fCutsceneScript != NULL) {
+			if (fCutsceneScript->ExecuteCutscene()) {
+				delete fCutsceneScript;
+				fCutsceneScript = NULL;
+				EndCutsceneMode();
+			}
+		}
 
 		_NewRound();
 	}

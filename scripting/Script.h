@@ -37,7 +37,18 @@ public:
 	static Object*			GetTargetObject(const Object* object, action_params* start);
 
 	void Execute(bool &continuing, bool& action);
-	void ExecuteCutscene();
+
+	// Advances the cutscene script by (at most) one condition_response
+	// block per call: the caller is expected to call this once per round
+	// until it returns true. Unlike Execute() (which rescans the whole
+	// vector from the start every round, for regular AI priority logic),
+	// a cutscene is a strictly ordered sequence of beats: each block runs
+	// at most once, in order, and a block whose condition is not yet true
+	// blocks progress (it's retried next call, not skipped) - this is how
+	// a beat can wait on e.g. ActionListEmpty(...) before letting the next
+	// beat start.
+	// Returns true once every block has been processed.
+	bool ExecuteCutscene();
 
 	Object* Sender();
 	void SetSender(Object* object);
@@ -59,6 +70,16 @@ private:
 
 	std::vector<condition_response*> fConditionResponses;
 	Object* fSender;
+
+	// Index of the next condition_response block ExecuteCutscene() will
+	// process. Only ever moves forward.
+	size_t fCutsceneIndex;
+
+	// Set by _HandleAction() when it processes an ACTIONOVERRIDE(O:Object*)
+	// action; consumed (and cleared) by the very next action in the same
+	// list, which runs against this object instead of the script's normal
+	// sender.
+	Object* fPendingOverrideTarget;
 
 	static bool sDebug;
 };

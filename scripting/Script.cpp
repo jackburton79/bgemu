@@ -23,7 +23,9 @@ bool Script::sDebug = false;
 Script::Script(std::vector<condition_response*> rootNode)
 	:
 	fConditionResponses(rootNode),
-	fSender(NULL)
+	fSender(NULL),
+	fCutsceneIndex(0),
+	fPendingOverrideTarget(NULL)
 {
 }
 
@@ -164,29 +166,48 @@ Script::Execute(bool& continuing, bool& finished)
 }
 
 
-void
+bool
 Script::ExecuteCutscene()
 {
-	for (auto cr: fConditionResponses) {
-		response_set& responseSet = cr->responseSet;
-		if (sDebug)
-			std::cout << "RESPONSE" << std::endl;
+	if (fCutsceneIndex >= fConditionResponses.size())
+		return true;
 
-		Object* sender = NULL;
-		for (auto response: responseSet.resp) {
-			std::vector<action_params*>* actions = &response->actions;
-			if (sender == NULL)
-				sender = GetObject(NULL, actions->at(0)->Second());
+	condition_response* cr = fConditionResponses[fCutsceneIndex];
+
+	if (sDebug)
+		std::cout << "CUTSCENE: block " << fCutsceneIndex << " CONDITION" << std::endl;
+
+	if (!_EvaluateConditionBlock(cr->conditions))
+		return false;
+
+	if (sDebug)
+		std::cout << "CUTSCENE: block " << fCutsceneIndex << " RESPONSE" << std::endl;
+
+	response_set& responseSet = cr->responseSet;
+	Object* sender = NULL;
+	for (auto response: responseSet.resp) {
+		std::vector<action_params*>* actions = &response->actions;
+		if (actions->empty())
+			continue;
+
+		if (sender == NULL) {
+			sender = GetObject(NULL, actions->at(0)->Second());
 			if (sender != NULL) {
 				SetSender(sender);
-				std::cout << "CUTSCENEID: " << sender->Name() << std::endl;
-			}
-			for (auto action: *actions) {
-				std::cout << "SENDER: " << (sender ? sender->Name() : "NONE") << std::endl;
-				_HandleAction(action);
+				if (sDebug)
+					std::cout << "CUTSCENEID: " << sender->Name() << std::endl;
 			}
 		}
+
+		for (auto action: *actions) {
+			if (sDebug)
+				std::cout << "SENDER: " << (fSender ? fSender->Name() : "NONE") << std::endl;
+			_HandleAction(action);
+		}
 	}
+
+	fCutsceneIndex++;
+	return fCutsceneIndex >= fConditionResponses.size();
 }
 
 
@@ -873,11 +894,6 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 {
 	Action* action = NULL;
 	switch (act->id) {
-		case 1:
-		{
-			std::cout << "ActionOverride()" << std::endl;
-			break;
-		}
 		case 3:
 		{
 			/* Attack(O:Target*) */
@@ -1266,12 +1282,35 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 bool
 Script::_HandleAction(action_params* act)
 {
-	Object* sender = Script::GetSenderObject(fSender, act);
+	Object* sender;
+	if (fPendingOverrideTarget != NULL) {
+		// This action is the one immediately following an ACTIONOVERRIDE()
+		// in the same action list: it runs against the object ActionOverride
+		// pointed to, not against the script's normal sender.
+		sender = fPendingOverrideTarget;
+		fPendingOverrideTarget = NULL;
+	} else {
+		sender = Script::GetSenderObject(fSender, act);
+	}
+
 	if (sDebug) {
 		std::cout << "SCRIPT: **** ACTION ****" << std::endl;
 		std::cout << "Sender: " << (sender ? sender->Name() : "") << std::endl;
 		act->Print();
 		std::cout << std::endl;
+	}
+
+	if (act->id == 1) {
+		/* ACTIONOVERRIDE(O:Object*,A:Action*): has no effect of its own.
+		   It redirects the single action that follows it in this same
+		   list to run against `sender` (already resolved above, from this
+		   action's own object param) instead of the script's usual sender. */
+		fPendingOverrideTarget = sender;
+		if (sDebug) {
+			std::cout << "ActionOverride() -> ";
+			std::cout << (sender ? sender->Name() : "NONE") << std::endl;
+		}
+		return false;
 	}
 
 	// TODO: Fix this mess
