@@ -86,8 +86,6 @@ private:
 
 	const char *ResourcesPath() const;
 
-	const KeyResEntry *_GetKeyRes(const res_ref &name, uint16 type) const;
-
 	Resource *_FindResource(const KeyResEntry &entry);
 	Resource *_LoadResource(const KeyResEntry &entry);
 	Resource* _LoadResourceFromOverride(const KeyResEntry& entry);
