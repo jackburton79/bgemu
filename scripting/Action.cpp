@@ -1365,7 +1365,7 @@ ActionDisplayStringHead::operator()()
 			SetCompleted();
 			return;
 		}
-		TLKEntry* tlkEntry = IDTable::GetTLK(fActionParams->integer1);
+		TLKEntry* tlkEntry = IDTable::GetTLKEntry(fActionParams->integer1);
 		actor->SetText(tlkEntry->text);
 		delete tlkEntry;
 	}

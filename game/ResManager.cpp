@@ -681,7 +681,7 @@ std::string
 IDTable::GetDialog(uint32 i)
 {
 	std::string text;
-	TLKEntry* entry = GetTLK(i);
+	TLKEntry* entry = GetTLKEntry(i);
 	if (entry != NULL) {
 		text = entry->text;
 		delete entry;
@@ -691,7 +691,7 @@ IDTable::GetDialog(uint32 i)
 
 
 TLKEntry*
-IDTable::GetTLK(uint32 i)
+IDTable::GetTLKEntry(uint32 i)
 {
 	if (sDialogs == NULL)
 		sDialogs = gResManager->GetTLK(kDialogResource);
