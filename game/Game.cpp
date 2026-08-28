@@ -48,7 +48,7 @@ Game::Game()
 	fDialog(NULL),
 	fParty(NULL),
 	fTempState(NULL),
-	fDelay(40),
+	fDelay(67), // 15 Khz, standard Infinity engine
 	fTestMode(false)
 {
 	fTempState = new Game::TempState;
