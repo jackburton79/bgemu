@@ -5,8 +5,7 @@
  *      Author: Stefano Ceccherini
  */
 
-#ifndef GAMESCRIPT_ACTIONS_H_
-#define GAMESCRIPT_ACTIONS_H_
+#pragma once
 
 #include "ActionState.h"
 #include "IETypes.h"
@@ -47,4 +46,3 @@ bool IsInstantAction(int32 id);
 // every action id not yet migrated to a native ActionRunFunc.
 void RunLegacyAction(Object* sender, action_params* params, action_state& state);
 
-#endif /* GAMESCRIPT_ACTIONS_H_ */
