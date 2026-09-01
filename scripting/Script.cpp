@@ -177,6 +177,11 @@ Script::ExecuteCutscene()
 	if (sDebug)
 		std::cout << "CUTSCENE: block " << fCutsceneIndex << " CONDITION" << std::endl;
 
+	// Unlike the old implementation, we actually check the trigger block.
+	// If it's not satisfied yet, we stay on this same block and retry it
+	// on the next call - this is what lets a beat wait on something (e.g.
+	// ActionListEmpty(previous actor)) before the cutscene moves on,
+	// instead of every beat firing in the same instant.
 	if (!_EvaluateConditionBlock(cr->conditions))
 		return false;
 
@@ -889,6 +894,11 @@ Script::_HandleResponseSet(response_set& responseSet)
 
 
 /* static */
+// NOTE: this is now only reached via RunLegacyAction() (Actions.cpp), for
+// any action id that doesn't yet have a native ActionRunFunc in
+// kActionsTable. Ids that DO have one (see Actions.cpp) are dispatched
+// directly by Object::_ExecuteAction() and never reach here - so their
+// case, if still present below, would be dead code.
 Action*
 Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 {
@@ -938,35 +948,6 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			action = new ActionRunAwayFrom(sender, act);
 			break;
 		}
-		case 30:
-		{
-			// SetGlobal
-			action = new ActionSetGlobal(sender, act);
-			break;
-		}
-		case 36:
-		{
-			/*
-			 * 36 Continue()
-			 * This action instructs the script parser to continue looking
-			 * for actions in the active creatures action list.
-			 * This is mainly included in scripts for efficiency.
-			 * Continue should also be appended to any script blocks added
-			 * to the top of existing scripts, to ensure correct functioning
-			 * of any blocks which include the OnCreation trigger.
-			 * Continue may prevent actions being completed until the script
-			 * parser has finished its execution cycle. Continue() must be
-			 * the last command in an action list to function correctly.
-			 * Use of continue in a script block will cause the parser
-			 * to treater subsequent empty response blocks as though they
-			 * contained a Continue() command - this parsing can be stopped
-			 * by including a NoAction() in the empty response block.
-			 */
-			if (sDebug)
-				std::cout << "CONTINUE!!!!" << std::endl;
-			isContinue = true;
-			break;
-		}
 		case 40:
 		{
 			// 40 PlayDead(I:Time*)
@@ -992,12 +973,6 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 			not saved in save games. The timer is checked with the
 			TimerExpired trigger.*/
 			action = new ActionStartTimer(sender, act);
-			break;
-		}
-		case 63:
-		{
-			/* WAIT(I:TIME*)(63 0x3f) */
-			action = new ActionWait(sender, act);
 			break;
 		}
 		case 83:
@@ -1065,12 +1040,6 @@ Script::GetAction(Object* sender, action_params* act, bool& isContinue)
 		{
 			/* DESTROYSELF() (111 0x6f) */
 			action = new ActionDestroySelf(sender, act);
-			break;
-		}
-		case 113:
-		{
-			// FORCESPELL(O:TARGET,I:SPELL*SPELL)(113, 0x71)
-			action = new ActionForceSpell(sender, act);
 			break;
 		}
 		case 114:
@@ -1327,16 +1296,16 @@ Script::_HandleAction(action_params* act)
 		return false;
 	}
 
-	bool isContinue = false;
-	Action* action = GetAction(sender, act, isContinue);
-	if (action != NULL) {
-#if 0
-		if (action->IsInstant())
-			std::cout << "action " << action->Name() << " is instant" << std::endl;
-#endif
-		assert(sender != NULL);
-		sender->AddAction(action);
+	if (act->id == 36) {
+		/* CONTINUE(): a script-flow marker, not a real action - there's
+		   nothing to queue on any object. */
+		if (sDebug)
+			std::cout << "CONTINUE!!!!" << std::endl;
+		return true;
 	}
 
-	return isContinue;
+	assert(sender != NULL);
+	sender->AddAction(act);
+
+	return false;
 }

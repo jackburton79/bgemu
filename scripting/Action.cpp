@@ -1,5 +1,6 @@
 #include "Action.h"
 
+#include "Actions.h"
 #include "Actor.h"
 #include "Animation.h"
 #include "AreaRoom.h"
@@ -86,12 +87,7 @@ Action::SetCompleted()
 bool
 Action::IsInstant() const
 {
-	IDSResource* instants = gResManager->GetIDS("INSTANT");
-	if (instants == NULL)
-		return false;
-	bool returnValue = instants->StringForID(fActionParams->id) != "";
-	gResManager->ReleaseResource(instants);
-	return returnValue;
+	return IsInstantAction(fActionParams->id);
 }
 
 
@@ -478,7 +474,7 @@ ActionPlayDead::operator()()
 			SetCompleted();
 			return;
 		}
-		//actor->SetInterruptable(false);
+		actor->SetInterruptable(false);
 		actor->SetAnimationAction(ACT_DEAD);
 	}
 	
@@ -701,7 +697,7 @@ ActionRandomWalk::operator()()
 			actor->SetDestination(destination);
 	}
 	if (actor->Position() == actor->Destination()) {
-		SetCompleted();
+		//SetCompleted();
 	} else {
 		actor->MoveToNextPointInPath(true);
 	}
@@ -721,7 +717,6 @@ ActionWait::ActionWait(Object* object, action_params* node)
 void
 ActionWait::operator()()
 {
-	fSender->SetInterruptable(false);
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }
@@ -743,7 +738,6 @@ ActionSmallWait::operator()()
 	//Object* object = Script::FindObject(fObject, fActionParams);
 	//if (object != NULL)
 	//	object->SetWaitTime(fActionParams->integer1);
-	fSender->SetInterruptable(false);
 	if (--fWaitTime <= 0)
 		SetCompleted();
 }

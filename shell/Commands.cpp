@@ -27,6 +27,7 @@
 
 #include "ShellCommand.h"
 
+#if 0
 class ListObjectsCommand : public ShellCommand {
 public:
 	ListObjectsCommand()
@@ -144,7 +145,6 @@ public:
 };
 
 
-#if 0
 class WalkToObjectCommand : public ShellCommand {
 public:
 	WalkToObjectCommand()
@@ -164,7 +164,6 @@ public:
 		player->AddAction(action);
 	}
 };
-#endif
 
 
 class MoveViewPointCommand : public ShellCommand {
@@ -369,7 +368,6 @@ public:
 	}
 };
 
-
 class ExitCommand : public ShellCommand {
 public:
 	ExitCommand()
@@ -414,10 +412,12 @@ public:
 	};
 };
 
+#endif
 
 void
 AddCommands(GameConsole* console)
 {
+#if 0
 	console->AddCommand(new CreateCreatureCommand());
 	console->AddCommand(new CreateVisualEffectCommand());
 	console->AddCommand(new DestroyCreatureCommand());
@@ -432,7 +432,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new WaitTimeCommand());
-#if 0
+
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new DisplayStringCommand());
 #endif

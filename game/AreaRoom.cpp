@@ -334,8 +334,8 @@ AreaRoom::MouseDown(IE::point point)
 		action_params* params = new action_params;
 		strcpy(params->Second()->name, fSelectedActor.Target()->Name());
 		params->where = point;
-		Action* action = new ActionWalkTo(fSelectedActor.Target(), params);
-		fSelectedActor.Target()->AddAction(action);
+		params->id = 23; // MOVETOPOINT
+		fSelectedActor.Target()->AddAction(params);
 		params->Release();
 	}
 }

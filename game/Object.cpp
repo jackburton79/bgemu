@@ -8,6 +8,7 @@
 #include "Object.h"
 
 #include "Action.h"
+#include "Actions.h"
 #include "Animation.h"
 #include "AreaRoom.h"
 #include "BCSResource.h"
@@ -108,7 +109,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fActive(true),
 	fIsInterruptable(true),
 	fWaitTime(0),
-	fCurrentAction(NULL),
+	fCurrentActionParams(NULL),
 	fLastTrigger(NULL),
 	fArea(NULL),
 	fRegion(NULL),
@@ -119,7 +120,6 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 
 	if (scriptName != NULL) {
 		::Script* script = Core::ExtractScript(scriptName);
-		// What level is this script ?
 		if (script != NULL)
 			AddScript(script, SCRIPT_LEVEL_DEFAULT);
 	}
@@ -131,8 +131,12 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 
 Object::~Object()
 {
-	ClearScripts();
+	for (auto* script : fScripts)
+		delete script;
+
+	ClearActionList();
 }
+
 
 
 /* virtual */
@@ -296,9 +300,9 @@ Object::Update(bool scripts)
 	if (cutscene)
 		scripts = false;
 
-/*	if (::strcmp(Name(), "GMTOWN02") != 0)
-		return;
-*/
+	if (fDisabled)
+		scripts = fDisabled;
+
 	if (scripts) {
 		_HandleScripting(SCRIPT_LEVEL_COUNT);
 	}
@@ -327,17 +331,20 @@ Object::IsActive() const
 
 
 void
-Object::AddAction(Action* action)
+Object::AddAction(action_params* params)
 {
 	SetActive(true);
-	if (action->IsInstant() && IsActionListEmpty()) {
+	params->Acquire();
+
+	if (IsInstantAction(params->id) && IsActionListEmpty()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
-		fCurrentAction = action;
-		_ExecuteAction(*action);
+		fCurrentActionParams = params;
+		fActionState = action_state();
+		_ExecuteAction();
 		return;
 	}
 
-	fActions.push_back(action);
+	fActions.push_back(params);
 }
 
 
@@ -349,63 +356,52 @@ Object::ExecuteActions()
 			return;
 	}
 
-#if 0
-	if (fActions.size() > 0) {
-		std::cout << Name() << " action list:" << std::endl;
-		// dump action list
-		for (std::list<Action*>::iterator i = fActions.begin();
-										i != fActions.end(); i++) {
-			std::cout << (*i)->Name() << std::endl;
-		}
-	}
-	if (fCurrentAction != NULL)
-		std::cout << "current action: " << fCurrentAction->Name() << std::endl;
-#endif
 	// TODO: handle uninterruptable action
 
 	 while (true) {
-		if (fCurrentAction == NULL)
+		if (fCurrentActionParams == NULL)
 			PopNextAction();
 
-		if (fCurrentAction == NULL)
+		if (fCurrentActionParams == NULL)
 			break;
 
-		_ExecuteAction(*fCurrentAction);
+		_ExecuteAction();
 
-		// fCurrentAction is not completed, will
+		// fCurrentActionParams is not completed, will
 		// do another execution next time
-		if (fCurrentAction != NULL)
+		if (fCurrentActionParams != NULL)
 			break;
 	}
-
-	//std::cout << Name() << " executed " << count << " actions" << std::endl;
 }
 
 
 bool
 Object::IsActionListEmpty() const
 {
-	return fCurrentAction == NULL && fActions.empty();
+	return fCurrentActionParams == NULL && fActions.empty();
 }
 
 
-Action*
+action_params*
 Object::PopNextAction()
 {
 	if (!fActions.empty()) {
-		fCurrentAction = fActions.front();
+		fCurrentActionParams = fActions.front();
 		fActions.pop_front();
+		fActionState = action_state();
 	}
-	return fCurrentAction;
+	return fCurrentActionParams;
 }
 
 
 void
 Object::ClearCurrentAction()
 {
-	if (fCurrentAction != NULL) {
-		delete fCurrentAction;
-		fCurrentAction = NULL;
+	if (fCurrentActionParams != NULL) {
+		delete fActionState.legacy;
+		fActionState.legacy = NULL;
+		fCurrentActionParams->Release();
+		fCurrentActionParams = NULL;
 	}
 	SetInterruptable(true);
 }
@@ -415,8 +411,8 @@ void
 Object::ClearActionList()
 {
 	ClearCurrentAction();
-	for (auto action : fActions)
-		delete action;
+	for (auto* params : fActions)
+		params->Release();
 	fActions.clear();
 }
 
@@ -433,8 +429,8 @@ Object::AddTrigger(const trigger_entry& entry)
 bool
 Object::HasTrigger(const std::string& trigName) const
 {
-	for (const auto& trig : fTriggers) {
-		if (trig.trigger_name == trigName)
+	for (const auto &trigger : fTriggers) {
+		if (trigger.trigger_name == trigName)
 			return true;
 	}
 	return false;
@@ -447,8 +443,7 @@ Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) con
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
 		return false;
-
-	for (const auto &entry: fTriggers) {
+	for (const auto &entry : fTriggers) {
 		if (entry.trigger_name == trigName) {
 			Object* target = Area()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
@@ -468,7 +463,8 @@ Object::FindTrigger(const std::string& trigName) const
 {
 	// TODO: Since we usually use this for "LastAttacker", "LastSeen", etc.
 	// we start searching from the last item
-	for (auto i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
+	std::list<trigger_entry>::const_reverse_iterator i;
+	for (i = fTriggers.rbegin(); i != fTriggers.rend(); i++) {
 		if (i->trigger_name == trigName)
 			return ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(i->target_id);
 	}
@@ -486,9 +482,7 @@ Object::LastTrigger() const
 void
 Object::PrintTriggers() const
 {
-	std::list<trigger_entry>::const_iterator i;
-	for (i = fTriggers.begin(); i != fTriggers.end(); i++) {
-		const trigger_entry& entry = *i;
+	for (const auto& entry :  fTriggers) {
 		Object* object = Area()->GetObject(entry.target_id);
 		std::cout << Name() << ": " << entry.trigger_name;
 		if (object != NULL)
@@ -563,13 +557,12 @@ Object::RemoveScript(SCRIPT_LEVEL level)
 }
 
 
-
 void
 Object::ClearScripts()
 {
 	for (auto*& script : fScripts) {
 		delete script;
-		script = nullptr;
+		script = NULL;
 	}
 }
 
@@ -661,6 +654,9 @@ Object::_HandleScripting(int32 maxLevel)
 		return;
 	}
 
+	/*if (Core::Get()->CutsceneMode())
+		maxLevel = 1;
+*/
 	if (sDebug) {
 		std::cout << Name() << ": _ExecuteScripts(): run scripts (ticks=" << fTicks;
 		std::cout << ", globalID=" << GlobalID() << ")" << std::endl;
@@ -670,6 +666,8 @@ Object::_HandleScripting(int32 maxLevel)
 	_ExecuteScripts(maxLevel);
 
 	RemoveExpiredTriggers();
+	/*if (true)
+		ClearTriggers();*/
 }
 
 
@@ -679,7 +677,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 	if (!IsInterruptable())
 		return;
 
-	maxLevel = std::min((size_t) (maxLevel), fScripts.size());
+	maxLevel = std::min<int32>(maxLevel, SCRIPT_LEVEL_COUNT);
 	try {
 		bool continuing = false;
 		bool actionDone = false;
@@ -705,15 +703,18 @@ Object::_ExecuteScripts(int32 maxLevel)
 
 
 void
-Object::_ExecuteAction(Action& action)
+Object::_ExecuteAction()
 {
 	SetInterruptable(false);
-	//std::cout << Name() << " executes " << action.Name() << std::endl;
-	action();
+
+	const ActionDescriptor* descriptor = GetActionDescriptor(fCurrentActionParams->id);
+	if (descriptor != NULL && descriptor->run != NULL)
+		descriptor->run(this, fCurrentActionParams, fActionState);
+	else
+		RunLegacyAction(this, fCurrentActionParams, fActionState);
 
 	// if completed, clear
-	if (fCurrentAction != NULL && fCurrentAction->Completed()) {
-		//std::cout << "action " << fCurrentAction->Name() << " was completed. Removing." << std::endl;
+	if (fCurrentActionParams != NULL && fActionState.completed) {
 		ClearCurrentAction();
 	}
 }
@@ -722,8 +723,9 @@ Object::_ExecuteAction(Action& action)
 void
 Object::_ApplySpellEffects()
 {
-	for (const auto &effect : fSpellEffects) {
-		if (effect->Name() == "WIZARD_DIMENSION_DOOR") {
+	for (std::list<SpellEffect*>::iterator i = fSpellEffects.begin();
+			i != fSpellEffects.end(); i++) {
+		if ((*i)->Name() == "WIZARD_DIMENSION_DOOR") {
 			// TODO: Just to handle Irenicus teleporting in the initial cutscene
 			Actor* actor = dynamic_cast<Actor*>(this);
 			// TODO: This should teleport to saved location.
