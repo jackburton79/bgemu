@@ -1,8 +1,6 @@
-#ifndef __SCRIPT_H
-#define __SCRIPT_H
+#pragma once
 
 #include <vector>
-
 
 #include "ScriptObjects.h"
 
@@ -19,7 +17,6 @@ enum block_type {
 	BLOCK_UNKNOWN
 };
 
-class Action;
 class Actor;
 class Object;
 class Script {
@@ -54,7 +51,6 @@ public:
 	void SetSender(Object* object);
 
 	static bool EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrig);
-	static Action* GetAction(Object* sender, action_params* act, bool& isContinue);
 
 	static Object* ResolveIdentifier(const Object* object, object_params* node, const int id);
 	static Object* GetObject(const Object* source, object_params* node);
@@ -84,5 +80,3 @@ private:
 	static bool sDebug;
 };
 
-
-#endif

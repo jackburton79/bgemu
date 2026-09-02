@@ -892,22 +892,6 @@ Script::_HandleResponseSet(response_set& responseSet)
 }
 
 
-/* static */
-Action*
-Script::GetAction(Object* sender, action_params* act, bool& isContinue)
-{
-	// Every action id that used to be constructed by a case in this switch
-	// now has a native ActionRunFunc in Actions.cpp's kActionsTable, and is
-	// dispatched directly by Object::_ExecuteAction() without ever reaching
-	// here (see RunLegacyAction()). This is kept only as the fallback for
-	// any id that has no native run function (currently none) - e.g. one
-	// added to kActionsTable in the future without a run function yet.
-	if (sDebug)
-		std::cout << "SCRIPT: UNIMPLEMENTED ACTION!!!" << std::endl;
-	return NULL;
-}
-
-
 // returns true in case of CONTINUE()
 // false if not
 bool

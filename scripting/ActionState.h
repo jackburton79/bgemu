@@ -4,7 +4,6 @@
 
 #include <string>
 
-class Action;
 
 // Runtime state for whichever action an Object is currently executing.
 //

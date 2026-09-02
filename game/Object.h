@@ -65,7 +65,6 @@ private:
 struct object_params;
 struct trigger_params;
 struct action_params;
-class Action;
 class Actor;
 class AreaRoom;
 class Region;
