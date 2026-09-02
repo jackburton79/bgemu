@@ -1,7 +1,6 @@
 #include "Actor.h"
 
 #include "2DAResource.h"
-#include "Action.h"
 #include "Animation.h"
 #include "AnimationFactory.h"
 #include "AreaRoom.h"
@@ -760,13 +759,24 @@ Actor::ClickedOn(Object* target)
 	// an attack from a dialog start, etc
 
 	if (Door* door = dynamic_cast<Door*>(target)) {
-		action_params* actionParams = new action_params(Name(), door->Name());
-		AddAction(new ActionWalkToObject(this, actionParams));
-		AddAction(new ActionOpenDoor(this, actionParams));
-		actionParams->Release();
+		// Each action gets its own action_params (even though both target
+		// the same door) because dispatch now reads params->id fresh every
+		// tick: sharing one object between two actions queued back-to-back
+		// would corrupt the id of whichever one is still executing once the
+		// second AddAction() call runs.
+		action_params* walkParams = new action_params(Name(), door->Name());
+		walkParams->id = 22; // MOVETOOBJECT
+		AddAction(walkParams);
+		walkParams->Release();
+
+		action_params* openParams = new action_params(Name(), door->Name());
+		openParams->id = 143; // OPENDOOR
+		AddAction(openParams);
+		openParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		action_params* actionParams = new action_params(actor->Name(), Name());
-		AddAction(new ActionDialog(this, actionParams));
+		actionParams->id = 8; // DIALOG
+		AddAction(actionParams);
 		actionParams->Release();
 	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
 		Action* walkTo = new WalkToObject(this, container);
@@ -830,8 +840,8 @@ void
 Actor::_HandleScripts()
 {
 	AddScript(Core::ExtractScript(fActor->script_override), SCRIPT_LEVEL_OVERRIDE);
-	// What is the area script ?
-	//AddScript(Core::ExtractScript(fActor->script_area));
+	// TODO: What is the area script? Wire it up here once resolved:
+	// AddScript(Core::ExtractScript(fActor->script_area), SCRIPT_LEVEL_AREA);
 	AddScript(Core::ExtractScript(fActor->script_specific), SCRIPT_LEVEL_SPECIFICS);
 	AddScript(Core::ExtractScript(fActor->script_class), SCRIPT_LEVEL_CLASS);
 	AddScript(Core::ExtractScript(fActor->script_race), SCRIPT_LEVEL_RACE);

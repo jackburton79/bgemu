@@ -8,6 +8,7 @@
 #ifndef __OBJECT_H
 #define __OBJECT_H
 
+#include "ActionState.h"
 #include "IETypes.h"
 #include "Polygon.h"
 #include "Referenceable.h"
@@ -31,7 +32,6 @@ enum SCRIPT_LEVEL {
 	SCRIPT_LEVEL_DEFAULT = 6,
 	SCRIPT_LEVEL_COUNT
 };
-
 
 struct trigger_entry {
 	trigger_entry(const std::string& trigName);
@@ -64,7 +64,7 @@ private:
 
 struct object_params;
 struct trigger_params;
-class Action;
+struct action_params;
 class Actor;
 class AreaRoom;
 class Region;
@@ -117,10 +117,10 @@ public:
 	void SetActive(bool active);
 	bool IsActive() const;
 
-	void AddAction(Action* action);
+	void AddAction(action_params* params);
 	void ExecuteActions();
 	bool IsActionListEmpty() const;
-	Action* PopNextAction();
+	action_params* PopNextAction();
 	void ClearCurrentAction();
 	void ClearActionList();
 
@@ -142,7 +142,6 @@ public:
 	void RemoveScript(SCRIPT_LEVEL level);
 	void ClearScripts();
 
-
 	void Disable();
 
 	void AddSpellEffect(SpellEffect* effect);
@@ -163,7 +162,7 @@ private:
 	void _UpdateTileCell();
 	void _HandleScripting(int32 maxLevel);
 	void _ExecuteScripts(int32 maxLevel);
-	void _ExecuteAction(Action& action);
+	void _ExecuteAction();
 	void _ApplySpellEffects();
 
 	std::string fName;
@@ -180,8 +179,9 @@ private:
 	std::array< ::Script*, SCRIPT_LEVEL_COUNT> fScripts;
 	int32 fWaitTime;
 
-	Action* fCurrentAction;
-	std::list<Action*> fActions;
+	action_params* fCurrentActionParams;
+	action_state fActionState;
+	std::list<action_params*> fActions;
 	std::list<trigger_entry> fTriggers;
 	Object* fLastTrigger;
 

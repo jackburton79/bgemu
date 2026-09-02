@@ -20,7 +20,6 @@ enum class game {
 
 struct object_params;
 class Actor;
-class Action;
 class Container;
 class DialogHandler;
 class Door;

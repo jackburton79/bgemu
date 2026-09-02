@@ -170,11 +170,7 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 
 		auto actionList = Parser::ActionsFromString(actions);
 		for (auto* params : actionList) {
-			bool canContinue = false;
-
-			Action* action = Script::GetAction(fInitiator, params, canContinue);
-			if (action != nullptr)
-				fInitiator->AddAction(action);
+			fInitiator->AddAction(params);
 		}
 	}
 
