@@ -368,6 +368,7 @@ RunActionWalkToObject(Object* sender, action_params* params, action_state& state
 static void
 RunActionRandomFly(Object* sender, action_params* params, action_state& state)
 {
+	// TODO: We should fly in straight line
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor == NULL)
 		return;
