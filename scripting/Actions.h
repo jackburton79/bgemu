@@ -41,8 +41,3 @@ const ActionDescriptor* GetActionDescriptor(int32 id);
 // (result cached per id - see IsInstant()'s original implementation for why).
 bool IsInstantAction(int32 id);
 
-// Runs action id via the legacy Action subclass hierarchy (Action.h),
-// lazily constructing and caching it in state.legacy across ticks. Used for
-// every action id not yet migrated to a native ActionRunFunc.
-void RunLegacyAction(Object* sender, action_params* params, action_state& state);
-

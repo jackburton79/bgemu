@@ -398,8 +398,6 @@ void
 Object::ClearCurrentAction()
 {
 	if (fCurrentActionParams != NULL) {
-		delete fActionState.legacy;
-		fActionState.legacy = NULL;
 		fCurrentActionParams->Release();
 		fCurrentActionParams = NULL;
 	}
@@ -710,8 +708,6 @@ Object::_ExecuteAction()
 	const ActionDescriptor* descriptor = GetActionDescriptor(fCurrentActionParams->id);
 	if (descriptor != NULL && descriptor->run != NULL)
 		descriptor->run(this, fCurrentActionParams, fActionState);
-	else
-		RunLegacyAction(this, fCurrentActionParams, fActionState);
 
 	// if completed, clear
 	if (fCurrentActionParams != NULL && fActionState.completed) {

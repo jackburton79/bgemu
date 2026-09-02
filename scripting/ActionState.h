@@ -1,5 +1,4 @@
-#ifndef __ACTIONSTATE_H
-#define __ACTIONSTATE_H
+#pragma once
 
 #include "IETypes.h"
 
@@ -30,12 +29,4 @@ struct action_state {
 	IE::point point{};              // destination/offset
 	std::string text;                // DisplayString's text
 
-	// Transitional adapter: for an action id not yet migrated to a native
-	// ActionRunFunc (see Actions.h), RunLegacyAction() lazily builds one of
-	// the old Action subclasses (Action.h) here and keeps it alive across
-	// ticks until it completes. Once every action id has a native
-	// ActionRunFunc, this field and RunLegacyAction() can be removed.
-	Action* legacy = nullptr;
 };
-
-#endif // __ACTIONSTATE_H

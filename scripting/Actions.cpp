@@ -996,35 +996,6 @@ RunActionCreateVisualEffectObject(Object* sender, action_params* params, action_
 }
 
 
-// ---- Transitional adapter for every action id not yet migrated ----
-
-void
-RunLegacyAction(Object* sender, action_params* params, action_state& state)
-{
-	if (state.legacy == NULL) {
-		// id==1 (ACTIONOVERRIDE), id==36 (CONTINUE) and id==127 (CUTSCENEID)
-		// are script-flow markers intercepted in Script::_HandleAction()
-		// before an action is ever queued, so isContinue is always false by
-		// the time GetAction() is reached from here.
-		bool isContinue = false;
-		state.legacy = Script::GetAction(sender, params, isContinue);
-		if (state.legacy == NULL) {
-			// Not implemented by the legacy switch either: nothing to run,
-			// mark it done so the queue moves on instead of stalling.
-			state.completed = true;
-			return;
-		}
-	}
-
-	(*state.legacy)();
-
-	if (state.legacy->Completed()) {
-		delete state.legacy;
-		state.legacy = NULL;
-		state.completed = true;
-	}
-}
-
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
