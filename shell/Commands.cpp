@@ -26,7 +26,7 @@
 
 #include "ShellCommand.h"
 
-#if 0
+
 class ListObjectsCommand : public ShellCommand {
 public:
 	ListObjectsCommand()
@@ -159,8 +159,11 @@ public:
 		Actor* player = Game::Get()->Party()->ActorAt(0);
 		if (player == NULL)
 			return;
-		Action* action = new WalkToObject(player, Core::Get()->GetObject(objectId));
-		player->AddAction(action);
+		action_params* actionParams = new action_params();
+		actionParams->id = 22; // MoveToObject
+		actionParams->integer1 = objectId;
+		player->AddAction(actionParams);
+		actionParams->Release();
 	}
 };
 
@@ -185,9 +188,9 @@ public:
 		action_params* actionParams = new action_params;
 		actionParams->integer1 = speed;
 		actionParams->where = where;
+		actionParams->id = 49; // MoveViewPoint
 		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionMoveViewPoint(room, actionParams);
-		room->AddAction(action);
+		room->AddAction(actionParams);
 		actionParams->Release();
 	}
 };
@@ -214,9 +217,9 @@ public:
 		action_params* actionParams = new action_params;
 		actionParams->integer1 = duration;
 		actionParams->where = where;
+		actionParams->id = 254; // ScreenShake
 		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionScreenShake(room, actionParams);
-		room->AddAction(action);
+		room->AddAction(actionParams);
 		actionParams->Release();
 	}
 };
@@ -242,10 +245,9 @@ public:
 		action_params* actionParams = new action_params;
 		strcpy(actionParams->string1, effectName.c_str());
 		actionParams->where = where;
-
+		actionParams->id = 272;
 		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionCreateVisualEffect(room, actionParams);
-		room->AddAction(action);
+		room->AddAction(actionParams);
 		actionParams->Release();
 	}
 };
@@ -269,9 +271,9 @@ public:
 		action_params* actionParams = new action_params;
 		strcpy(actionParams->string1, params.at(0).value.string);
 		actionParams->where = params.at(1).value.point;
+		actionParams->id = 7; // CreateCreature
 		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionCreateCreature(room, actionParams);
-		room->AddAction(action);
+		room->AddAction(actionParams);
 		actionParams->Release();
 	}
 };
@@ -300,11 +302,8 @@ public:
 
 		if (object != NULL) {
 			action_params* actionParams = new action_params;
-			// TODO: we pass a dummy actionParams because Action::IsInstant()
-			// crashes if actionParams is NULL
-			RoomBase* room = Core::Get()->CurrentRoom();
-			Action* action = new ActionDestroySelf(object, actionParams);
-			room->AddAction(action);
+			actionParams->id = 111; //DestroySelf
+			object->AddAction(actionParams);
 			actionParams->Release();
 		} else
 			std::cout << "object \"" << argv << "\" not found." << std::endl;
@@ -359,10 +358,7 @@ public:
 
 		actionParams->integer1 = duration;
 		actionParams->where = where;
-
-		// TODO: ActionDisplayString needs an int, not a string
-		Action* action = new ActionDisplayString(room, actionParams);
-		room->AddAction(action);
+		room->AddAction(actionParams);
 		actionParams->Release();
 	}
 };
@@ -404,19 +400,15 @@ public:
 
 		action_params* actionParams = new action_params;
 		actionParams->integer1 = enemyAlly;
-		RoomBase* room = Core::Get()->CurrentRoom();
-		Action* action = new ActionSetEnemyAlly(object, actionParams);
-		room->AddAction(action);
+		object->AddAction(actionParams);
 		actionParams->Release();
 	};
 };
 
-#endif
 
 void
 AddCommands(GameConsole* console)
 {
-#if 0
 	console->AddCommand(new CreateCreatureCommand());
 	console->AddCommand(new CreateVisualEffectCommand());
 	console->AddCommand(new DestroyCreatureCommand());
@@ -434,5 +426,4 @@ AddCommands(GameConsole* console)
 
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new DisplayStringCommand());
-#endif
 }
