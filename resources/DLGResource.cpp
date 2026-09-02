@@ -107,7 +107,7 @@ DLGResource::GetStateTrigger(int triggerIndex)
 
 	char triggerData[DATALENGTH];
 	fData->ReadAt(offset, triggerData, length);
-	triggerData[length] = '\0';
+	triggerData[length - 1] = '\0';
 
 	return std::string(triggerData);
 }
@@ -136,7 +136,7 @@ DLGResource::GetAction(int32 index)
 
 	char rawData[DATALENGTH];
 	fData->ReadAt(offset, rawData, length);
-	rawData[length] = '\0';
+	rawData[length - 1] = '\0';
 
 	return std::string(rawData, length);
 }
