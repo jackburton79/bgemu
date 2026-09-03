@@ -135,7 +135,7 @@ Script::Execute(bool& continuing, bool& finished)
 			// Check action list
 			if (fSender != NULL && !fSender->IsActionListEmpty()) {
 				if (!fSender->IsInterruptable()) {
-					std::cout << "action list not empty and not interruptable. Break" << std::endl;
+					std::cout << fSender->Name() << ": action list not empty and not interruptable. Break" << std::endl;
 					finished = true;
 					return;
 				}
