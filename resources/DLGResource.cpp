@@ -100,7 +100,7 @@ DLGResource::GetStateTrigger(int triggerIndex)
 	fData->Read(&length, sizeof(length));
 	fData->Seek(pos, SEEK_SET);
 
-	if (length > DATALENGTH) {
+	if (length >= DATALENGTH) {
 		std::cerr << "trigger length too big" << std::endl;
 		return "";
 	}
@@ -129,7 +129,7 @@ DLGResource::GetAction(int32 index)
 	fData->Read(&length, sizeof(length));
 	fData->Seek(pos, SEEK_SET);
 
-	if (length > DATALENGTH) {
+	if (length >= DATALENGTH) {
 		std::cerr << "action string length too big (" << std::dec << length << ")" << std::endl;
 		return "";
 	}
