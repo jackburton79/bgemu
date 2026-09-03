@@ -646,6 +646,10 @@ Object::_HandleScripting(int32 maxLevel)
 	if (fTicks % 16 != GlobalID() % 16)
 		return;
 
+	if (sDebug)
+	    std::cout << Name() << ": _HandleScripting() running, CutsceneMode="
+	        << Core::Get()->CutsceneMode() << std::endl;
+
 	bool runScripts = (fTicksIdle > 15) || IsActionListEmpty();
 
 	Actor* actor = dynamic_cast<Actor*>(this);

@@ -252,8 +252,10 @@ Core::StartCutscene(const res_ref& scriptName)
 	}
 
 	fCutsceneScript = ExtractScript(scriptName);
-	if (fCutsceneScript != NULL)
+	if (fCutsceneScript != NULL) {
+		fCutsceneActor = NULL;
 		StartCutsceneMode();
+	}
 }
 
 
@@ -365,10 +367,16 @@ Core::UpdateLogic(bool executeScripts)
 		// AreaRoom::Update() calls Update() for every object
 		fCurrentRoom->Update(runScripts);
 
-		if (fCutsceneScript != NULL) {
-			if (fCutsceneScript->ExecuteCutscene()) {
+		if (fCutsceneScript != NULL && fCutsceneScript->ExecuteCutscene()) {
+			// Every block has been *queued* onto its target actor(s) - but
+			// not yet executed.Wait for it to actually be
+			// done before lifting cutscene mode.
+			// TODO: I think we should not do this here, and just wait for the EndCutsceneMode op
+			Object* actor = fCutsceneActor;
+			if (actor == NULL || actor->IsActionListEmpty()) {
 				delete fCutsceneScript;
 				fCutsceneScript = NULL;
+				fCutsceneActor = NULL;
 				EndCutsceneMode();
 			}
 		}
