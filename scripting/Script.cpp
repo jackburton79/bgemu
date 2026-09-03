@@ -123,43 +123,46 @@ Script::Execute(bool& continuing, bool& finished)
 		std::cout << " ***" << std::endl;
 	}
 
-	bool foundContinue = continuing;
-	// TODO: Find correct place
+	// `continuing` (in/out) tells the caller (Object::_ExecuteScripts())
+	// whether to still try lower-priority script levels this round. It
+	// only ever needs to go from false to true - once any block (at this
+	// level or a higher one) has continued, lower levels should get their
+	// chance regardless of what happens afterwards here.
+	//
+	// Whether to move on to the *next* block within *this* script is a
+	// separate question, decided fresh every block by that block's own
+	// response - it must NOT be "stuck" true just because an earlier
+	// block (or a higher script level) already continued once.
 	for (auto cr: fConditionResponses) {
 		if (sDebug)
 			std::cout << "CONDITION" << std::endl;
 		if (!_EvaluateConditionBlock(cr->conditions))
 			continue;
 
-		if (!foundContinue) {
-			// Check action list
-			if (fSender != NULL && !fSender->IsActionListEmpty()) {
-				if (!fSender->IsInterruptable()) {
-					std::cout << fSender->Name() << ": action list not empty and not interruptible";
-					fSender->CurrentAction()->Print();
-					std::cout << std::endl;//. Break" << std::endl;
-					finished = true;
-					return;
-				}
-			}
+		if (!continuing && fSender != NULL && !fSender->IsActionListEmpty()
+				&& !fSender->IsInterruptable()) {
+			std::cout << fSender->Name() << ": action list not empty and not interruptible";
+			fSender->CurrentAction()->Print();
+			std::cout << std::endl;
+			finished = true;
+			return;
 		}
 
 		if (sDebug)
 			std::cout << "RESPONSE" << std::endl;
 
-		response_set& responseSet = cr->responseSet;
-		foundContinue = _HandleResponseSet(responseSet);
-		if (!continuing && !foundContinue) {
+		bool blockContinues = _HandleResponseSet(cr->responseSet);
+		continuing = continuing || blockContinues;
+
+		if (!blockContinues) {
 			finished = true;
-			// An action was executed, restart script
 			if (sDebug) {
 				std::cout << "*** SCRIPT RETURNED " << (fSender ? fSender->Name() : "");
 				std::cout << " ***" << std::endl;
 			}
 			return;
 		}
-		continuing = foundContinue || continuing;
-	};
+	}
 	if (sDebug) {
 		std::cout << "*** SCRIPT END " << (fSender ? fSender->Name() : "");
 		std::cout << " ***" << std::endl;
