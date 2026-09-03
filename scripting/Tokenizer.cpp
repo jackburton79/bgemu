@@ -9,7 +9,6 @@
 
 #include "Stream.h"
 
-#include <cassert>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -153,7 +152,8 @@ Tokenizer::ReadToken()
 	aToken.size = _ReadFullToken(array, startToken);
 	array[aToken.size] = '\0';
 
-	assert(aToken.size > 0);
+	if (aToken.size <= 0)
+		throw std::runtime_error("Tokenizer::ReadToken(): Token size <= 0");
 	switch (array[0]) {
 		case '!':
 			aToken.type = TOKEN_EXCLAMATION_MARK;
@@ -184,7 +184,8 @@ Tokenizer::ReadToken()
 		if (rest != NULL)
 			aToken.size = std::min((int)(rest - array), aToken.size);
 	} else {
-		assert(aToken.size <= (int)sizeof(aToken.u.string));
+		if (size_t(aToken.size) > sizeof(aToken.u.string))
+			throw std::runtime_error("Tokenizer::ReadToken(): token size too large!");
 		memcpy(aToken.u.string, array, aToken.size);
 		aToken.u.string[aToken.size] = '\0';
 	}
