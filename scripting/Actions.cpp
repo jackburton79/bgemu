@@ -48,8 +48,9 @@ RunActionSetGlobal(Object* sender, action_params* params, action_state& state)
 	std::string variableName;
 	Variables::GetNameAndScope(params->string1, variableScope, variableName);
 	if (variableScope.compare("LOCALS") == 0) {
-		if (sender != NULL)
-			sender->SetVariable(variableName.c_str(), params->integer1);
+		Object* object = Script::GetSenderObject(sender, params);
+		if (object != NULL)
+			object->SetVariable(variableName.c_str(), params->integer1);
 	} else {
 		// TODO: Check for AREA variables
 		Core::Get()->Vars().Set(params->string1, params->integer1);
@@ -193,7 +194,14 @@ RunActionUnlock(Object* sender, action_params* params, action_state& state)
 static void
 RunActionDestroySelf(Object* sender, action_params* params, action_state& state)
 {
-	sender->DestroySelf();
+	// Re-resolve at execution time rather than using `sender` (the object
+	// whose queue this happens to run from) directly: this action's real
+	// target may have been created by an earlier action in the same
+	// cutscene block, which hadn't executed yet (only been queued) when
+	// this action's sender was first resolved at queue time.
+	Object* object = Script::GetSenderObject(sender, params);
+	if (object != NULL)
+		object->DestroySelf();
 	state.completed = true;
 }
 
@@ -304,7 +312,9 @@ RunActionPlayDead(Object* sender, action_params* params, action_state& state)
 static void
 RunActionSetInterruptable(Object* sender, action_params* params, action_state& state)
 {
-	sender->SetInterruptable(params->integer1 == 1);
+	Object* object = Script::GetSenderObject(sender, params);
+	if (object != NULL)
+		object->SetInterruptable(params->integer1 == 1);
 	state.completed = true;
 }
 
