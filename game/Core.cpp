@@ -359,8 +359,11 @@ Core::UpdateLogic(bool executeScripts)
 		timer->Rearm();
 	*/
 	if (!Game::Get()->InDialogMode()) {
+		// Cutscene mode suppresses script (re-)evaluation uniformly for
+		// every object in the area
+		bool runScripts = executeScripts && !fCutsceneMode;
 		// AreaRoom::Update() calls Update() for every object
-		fCurrentRoom->Update(executeScripts);
+		fCurrentRoom->Update(runScripts);
 
 		if (fCutsceneScript != NULL) {
 			if (fCutsceneScript->ExecuteCutscene()) {

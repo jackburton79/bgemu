@@ -7,6 +7,7 @@
 
 #include "Object.h"
 
+#include "Actor.h"
 #include "Actions.h"
 #include "Animation.h"
 #include "AreaRoom.h"
@@ -294,12 +295,8 @@ Object::Update(bool scripts)
 	if (sDebug)
 		std::cout << Name() << ": Update(): ticks = " << std::dec << fTicks << std::endl;
 
-	bool cutscene = Core::Get()->CutsceneMode();
-	if (cutscene)
-		scripts = false;
-
 	if (fDisabled)
-		scripts = fDisabled;
+		scripts = false;
 
 	if (scripts) {
 		_HandleScripting(SCRIPT_LEVEL_COUNT);
