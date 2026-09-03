@@ -137,7 +137,6 @@ Object::~Object()
 }
 
 
-
 /* virtual */
 void
 Object::Print() const
@@ -716,11 +715,20 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction()
 {
-	//SetInterruptable(false);
+	SetInterruptable(false);
 
 	const ActionDescriptor* descriptor = GetActionDescriptor(fCurrentActionParams->id);
-	if (descriptor != NULL && descriptor->run != NULL)
+	if (descriptor != NULL && descriptor->run != NULL) {
 		descriptor->run(this, fCurrentActionParams, fActionState);
+	} else {
+		// No implementation for this action id (or the id isn't
+		// even in the table): treat it as a no-op that completes
+		// immediately.
+		std::cerr << Log::Red << Name() << ": no implementation for action id "
+			<< fCurrentActionParams->id << " (" << GetActionName(fCurrentActionParams->id)
+			<< ")" << std::endl;
+		fActionState.completed = true;
+	}
 
 	// if completed, clear
 	if (fCurrentActionParams != NULL && fActionState.completed) {
@@ -732,9 +740,8 @@ Object::_ExecuteAction()
 void
 Object::_ApplySpellEffects()
 {
-	for (std::list<SpellEffect*>::iterator i = fSpellEffects.begin();
-			i != fSpellEffects.end(); i++) {
-		if ((*i)->Name() == "WIZARD_DIMENSION_DOOR") {
+	for (const auto &effect : fSpellEffects) {
+		if (effect->Name() == "WIZARD_DIMENSION_DOOR") {
 			// TODO: Just to handle Irenicus teleporting in the initial cutscene
 			Actor* actor = dynamic_cast<Actor*>(this);
 			// TODO: This should teleport to saved location.

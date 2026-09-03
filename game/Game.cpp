@@ -288,8 +288,10 @@ Game::CreateParty()
 	fParty = new ::Party();
 	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
 		fParty->AddActor(new Actor("AJANTI", point, 0));
-	else
+	else {
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));
+		//fParty->AddActor(new Actor("Imoen", point, 0));
+	}
 }
 
 
