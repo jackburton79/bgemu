@@ -119,9 +119,12 @@ public:
 
 	void AddAction(action_params* params);
 	void ExecuteActions();
+	const action_params* CurrentAction() const;
+	const action_state* CurrentActionState() const;
+	void ClearCurrentAction();
+
 	bool IsActionListEmpty() const;
 	action_params* PopNextAction();
-	void ClearCurrentAction();
 	void ClearActionList();
 
 	void AddTrigger(const trigger_entry& entry);

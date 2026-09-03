@@ -374,6 +374,31 @@ Object::ExecuteActions()
 }
 
 
+const action_params*
+Object::CurrentAction() const
+{
+	return fCurrentActionParams;
+}
+
+
+const action_state*
+Object::CurrentActionState() const
+{
+	return &fActionState;
+}
+
+
+void
+Object::ClearCurrentAction()
+{
+	if (fCurrentActionParams != NULL) {
+		fCurrentActionParams->Release();
+		fCurrentActionParams = NULL;
+	}
+	SetInterruptable(true);
+}
+
+
 bool
 Object::IsActionListEmpty() const
 {
@@ -390,17 +415,6 @@ Object::PopNextAction()
 		fActionState = action_state();
 	}
 	return fCurrentActionParams;
-}
-
-
-void
-Object::ClearCurrentAction()
-{
-	if (fCurrentActionParams != NULL) {
-		fCurrentActionParams->Release();
-		fCurrentActionParams = NULL;
-	}
-	SetInterruptable(true);
 }
 
 
@@ -702,7 +716,7 @@ Object::_ExecuteScripts(int32 maxLevel)
 void
 Object::_ExecuteAction()
 {
-	SetInterruptable(false);
+	//SetInterruptable(false);
 
 	const ActionDescriptor* descriptor = GetActionDescriptor(fCurrentActionParams->id);
 	if (descriptor != NULL && descriptor->run != NULL)
