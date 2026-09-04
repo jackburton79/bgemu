@@ -40,6 +40,9 @@ SPLResource::Load(Archive *archive, uint32 key)
 
 	fData->ReadAt(0x0064, fExtendedHeadersOffset);
 	fData->ReadAt(0x0068, fExtendedHeadersCount);
+	fData->ReadAt(0x006a, fFeatureBlockOffset);
+	fData->ReadAt(0x006e, fCastingFeatureBlockIndex);
+	fData->ReadAt(0x0070, fCastingFeatureBlockCount);
 
 	return true;
 }
@@ -107,6 +110,55 @@ SPLResource::CastingTime() const
 	uint16 castingTime; // in tenth of round
 	fData->ReadAt(fExtendedHeadersOffset + 0x0012, castingTime);
 	return castingTime;
+}
+
+
+std::vector<spl_effect>
+SPLResource::Effects() const
+{
+	// Prefer the first extended header's own feature blocks: this is
+	// where single-ability spells (most innate/special abilities, which
+	// is what ForceSpell()/ForceSpellPoint() force-cast) keep their real
+	// effects. Fall back to the spell's top-level "casting" feature
+	// blocks if there's no extended header, or it carries none.
+	if (fExtendedHeadersCount > 0) {
+		uint16 count;
+		uint16 index;
+		// Extended Header offsets 0x1e (count) and 0x20 (index) - see
+		// IESDP spl_v1.
+		fData->ReadAt(fExtendedHeadersOffset + 0x001e, count);
+		fData->ReadAt(fExtendedHeadersOffset + 0x0020, index);
+		if (count > 0)
+			return _ReadFeatureBlocks(index, count);
+	}
+
+	return _ReadFeatureBlocks(fCastingFeatureBlockIndex, fCastingFeatureBlockCount);
+}
+
+
+std::vector<spl_effect>
+SPLResource::_ReadFeatureBlocks(uint32 index, uint16 count) const
+{
+	const uint32 kFeatureBlockSize = 48;
+
+	std::vector<spl_effect> effects;
+	for (uint16 i = 0; i < count; i++) {
+		uint32 blockOffset = fFeatureBlockOffset + (index + i) * kFeatureBlockSize;
+
+		spl_effect effect;
+		fData->ReadAt(blockOffset + 0x00, effect.opcode);
+		fData->ReadAt(blockOffset + 0x02, effect.targetType);
+		fData->ReadAt(blockOffset + 0x03, effect.power);
+		fData->ReadAt(blockOffset + 0x04, effect.parameter1);
+		fData->ReadAt(blockOffset + 0x08, effect.parameter2);
+		fData->ReadAt(blockOffset + 0x0c, effect.timingMode);
+		fData->ReadAt(blockOffset + 0x0e, effect.duration);
+		fData->ReadAt(blockOffset + 0x14, effect.resource);
+
+		effects.push_back(effect);
+	}
+
+	return effects;
 }
 
 

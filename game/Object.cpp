@@ -741,15 +741,33 @@ Object::_ExecuteAction()
 void
 Object::_ApplySpellEffects()
 {
-	for (const auto &effect : fSpellEffects) {
-		if (effect->Name() == "WIZARD_DIMENSION_DOOR") {
-			// TODO: Just to handle Irenicus teleporting in the initial cutscene
-			Actor* actor = dynamic_cast<Actor*>(this);
-			// TODO: This should teleport to saved location.
-			// if it's not set, it's 0, 0
-			IE::point home = {0, 0};
-			actor->SetPosition(home);
-			break;
+	for (auto i = fSpellEffects.begin(); i != fSpellEffects.end();) {
+		SpellEffect* effect = *i;
+		const EffectDescriptor* descriptor = GetEffectDescriptor(
+				effect->Opcode());
+
+		bool expired;
+		if (descriptor != NULL && descriptor->run != NULL) {
+			expired = descriptor->run(this, *effect);
+		} else {
+			// No native implementation for this opcode: treat it as a
+			// no-op and drop it immediately, instead of leaving it stuck
+			// on the object forever.
+			std::cerr << Log::Red << Name()
+					<< ": no implementation for spell effect opcode "
+					<< effect->Opcode() << Log::Normal << std::endl;
+			expired = true;
+		}
+
+		if (!expired)
+			expired = effect->Tick();
+
+		if (expired) {
+			delete effect;
+			i = fSpellEffects.erase(i);
+		} else {
+			i++;
 		}
 	}
+
 }

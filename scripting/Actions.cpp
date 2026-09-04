@@ -121,8 +121,16 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 		if (target != NULL) {
 			std::cout << "target: " << target->Name() << std::endl;
 			std::cout << "spell name: " << spellName << std::endl;
-			SpellEffect* dummy = new SpellEffect(spellName);
-			target->AddSpellEffect(dummy);
+			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+			if (spellResource != NULL) {
+				for (const spl_effect& effect : spellResource->Effects()) {
+					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
+						effect.parameter1, effect.parameter2, effect.duration,
+						effect.resource.CString()));
+				}
+				gResManager->ReleaseResource(spellResource);
+			}
 		}
 		state.completed = true;
 		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
@@ -249,8 +257,16 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 		if (target != NULL) {
 			std::cout << "target: " << target->Name() << std::endl;
 			std::cout << "spell name: " << spellName << std::endl;
-			SpellEffect* dummy = new SpellEffect(spellName);
-			target->AddSpellEffect(dummy);
+			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+			if (spellResource != NULL) {
+				for (const spl_effect& effect : spellResource->Effects()) {
+					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
+						effect.parameter1, effect.parameter2, effect.duration,
+						effect.resource.CString()));
+				}
+				gResManager->ReleaseResource(spellResource);
+			}
 		}
 		state.completed = true;
 		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
