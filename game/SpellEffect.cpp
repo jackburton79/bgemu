@@ -9,6 +9,7 @@
 
 #include "Actor.h"
 #include "AreaRoom.h"
+#include "Core.h"
 #include "Effect.h"
 #include "Log.h"
 #include "Object.h"
@@ -114,7 +115,10 @@ SpellEffect::Name() const
 
 
 
-// #274 "Teleport to Target"
+// #124 "Spell Effect: Teleport (Dimension Door)" and #274 "Teleport to
+// Target" - same one-shot "move the target elsewhere" effect (IESDP gives
+// them near-identical descriptions, and neither carries a real destination
+// in its parameters), so they share this handler.
 static bool
 RunEffectTeleportToTarget(Object* target, SpellEffect& effect)
 {
@@ -190,8 +194,25 @@ RunEffectPlay3DEffect(Object* target, SpellEffect& effect)
 }
 
 
+// #174 "Spell Effect: Play Sound Effect" - plays the sound named by the
+// effect's resource key (unlike #215, IESDP lists no Target/Type
+// parameters for this one - just the resource). Core::PlaySound() is
+// currently a stub (no audio backend wired up yet), so this is a no-op in
+// practice until that's implemented, but it's the correct hook point.
+static bool
+RunEffectPlaySoundEffect(Object* target, SpellEffect& effect)
+{
+	if (!effect.Resource().empty())
+		Core::Get()->PlaySound(effect.Resource().c_str());
+
+	return true; // one-shot: remove immediately once applied
+}
+
+
 static const EffectDescriptor kEffectsTable[] = {
 	{ 12, "HP: Damage", RunEffectHPDamage },
+	{ 124, "Spell Effect: Teleport (Dimension Door)", RunEffectTeleportToTarget },
+	{ 174, "Spell Effect: Play Sound Effect", RunEffectPlaySoundEffect },
 	{ 215, "Graphics: Play 3D Effect", RunEffectPlay3DEffect },
 	{ 274, "Teleport to Target", RunEffectTeleportToTarget },
 
@@ -204,6 +225,16 @@ static const EffectDescriptor kEffectsTable[] = {
 	{ 38, "State: Silence", NULL },
 	{ 45, "State: Stun", NULL },
 	{ 74, "State: Blindness", NULL },
+
+	// Not implemented: IESDP gives 40 Parameter2 values (0-39), each a
+	// hardcoded BAM to play, but only names them descriptively ("aqua
+	// SHAIR", "blue SHEARTH", ...) rather than by resref. Only value 39
+	// ("Finger of Death") has a literal resref (SPFDEATH), confirmed to
+	// exist in this install's game data; the other 39 would have to be
+	// guessed, and Effect (game/Effect.h) doesn't tolerate a missing
+	// resource. Left unimplemented rather than risk playing the wrong
+	// effect or crashing on one that doesn't exist.
+	{ 141, "Graphics: Lighting Effects", NULL },
 };
 
 
