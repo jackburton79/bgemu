@@ -7,6 +7,7 @@
 
 #include "SpellEffect.h"
 
+#include "Actor.h"
 #include "Object.h"
 
 #include <unordered_map>
@@ -110,15 +111,6 @@ SpellEffect::Name() const
 
 
 // #274 "Teleport to Target"
-// NOTE: this mirrors the *exact same* placeholder behavior the old
-// name-based WIZARD_DIMENSION_DOOR hack had (teleport to the map origin) -
-// it's routed through opcode-based dispatch now instead of a spell-name
-// string match, but the actual destination logic (a real target location -
-// e.g. a saved home point, or wherever "Target" resolves to for this
-// specific opcode) is still a TODO. The exact parameter semantics of
-// opcode #274 aren't confirmed against IESDP directly; this was pieced
-// together from indirect references. Verify against a real .spl dump
-// before trusting parameter1/parameter2 for anything beyond this.
 static bool
 RunEffectTeleportToTarget(Object* target, SpellEffect& effect)
 {
