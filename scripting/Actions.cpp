@@ -303,21 +303,23 @@ RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_st
 static void
 RunActionPlayDead(Object* sender, action_params* params, action_state& state)
 {
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL) {
+		state.completed = true;
+		return;
+	}
+
 	if (!state.initiated) {
-		state.counter = params->integer1 * AI_UPDATE_FREQ;
+		// Unlike Wait() (seconds), PlayDead's Time* is already in AI
+		// updates (see IESDP and SmallWait's identical unit)
+		state.counter = params->integer1;
 		state.initiated = true;
-		Actor* actor = dynamic_cast<Actor*>(sender);
-		if (actor == NULL) {
-			state.completed = true;
-			return;
-		}
 		actor->SetInterruptable(false);
 		actor->SetAnimationAction(ACT_DEAD);
 	}
 
 	if (state.counter-- <= 0) {
 		std::cout << "PlayDead finished" << std::endl;
-		Actor* actor = dynamic_cast<Actor*>(sender);
 		actor->SetAnimationAction(ACT_STANDING);
 		state.completed = true;
 	}

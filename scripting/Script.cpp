@@ -88,12 +88,7 @@ Script::GetSenderObject(const Object* object, action_params* start)
 	if (objectNode == NULL || objectNode->Empty())
 		return const_cast<Object*>(object);
 
-	// Try getting an object from sender. If it fails, return sender
-	// TODO: Not sure if it's correct but seems to work most of the time
-	Object* result = GetObject(object, objectNode);
-	if (result == NULL)
-		return const_cast<Object*>(object);
-	return result;
+	return GetObject(object, objectNode);
 }
 
 
@@ -211,7 +206,7 @@ Script::ExecuteCutscene()
 		for (auto action: *actions) {
 			if (sDebug)
 				std::cout << "SENDER: " << (fSender ? fSender->Name() : "NONE") << std::endl;
-			_HandleAction(action);
+			_HandleAction(action, true);
 		}
 	}
 
@@ -900,10 +895,11 @@ Script::_HandleResponseSet(response_set& responseSet)
 // returns true in case of CONTINUE()
 // false if not
 bool
-Script::_HandleAction(action_params* act)
+Script::_HandleAction(action_params* act, bool pinToCurrentSender)
 {
 	Object* sender;
-	if (fPendingOverrideTarget != NULL) {
+	bool viaOverride = fPendingOverrideTarget != NULL;
+	if (viaOverride) {
 		// This action is the one immediately following an ACTIONOVERRIDE()
 		// in the same action list: it runs against the object ActionOverride
 		// pointed to, not against the script's normal sender.
@@ -940,7 +936,19 @@ Script::_HandleAction(action_params* act)
 		Object* target = Script::GetTargetObject(sender, act);
 		if (target != NULL) {
 			std::cout << "Script::_HandleAction(): CUTSCENEID: " << target->Name() << std::endl;
-			Core::Get()->SetCutsceneActor(target);
+			// Only the *first* CUTSCENEID of the cutscene sets Core's
+			// CutsceneActor - that's the object Core::UpdateLogic() waits
+			// on (empty action list) before lifting cutscene mode, and
+			// the one carrying the actual bulk of the scene (e.g. CSJon
+			// in the BG2 intro). Later blocks' CUTSCENEID (e.g. one per
+			// party member, for a short "look around" reaction) still
+			// switches the *queuing* sender via SetSender() below, but
+			// must not replace CutsceneActor with a party member whose
+			// tiny reaction queue empties out almost immediately - that
+			// would end the cutscene while the real cutscene actor still
+			// has most of the scene queued up.
+			if (Core::Get()->CutsceneActor() == NULL)
+				Core::Get()->SetCutsceneActor(target);
 			SetSender(target);
 			target->SetInterruptable(false);
 		}
@@ -955,8 +963,31 @@ Script::_HandleAction(action_params* act)
 		return true;
 	}
 
-	assert(sender != NULL);
-	sender->AddAction(act);
+	if (!viaOverride && (sender == NULL || pinToCurrentSender)) {
+		// Either the actor named/identified for this action isn't
+		// resolvable *yet* - most commonly because it's created by an
+		// earlier, not-yet-executed action further up in this same list
+		// (e.g. CreateCreature(csgolem) followed later by
+		// MoveToPoint(csgolem)) - or this is a cutscene beat, where
+		// *every* action stays paced by the single actor driving the
+		// beat even when its own object param resolves just fine right
+		// now (e.g. a real party member): see _HandleAction()'s comment
+		// in Script.h. Either way, queue the action on the current
+		// sender: this action's own RunAction* function (RunActionWalkTo(),
+		// RunActionDestroySelf() and most others) re-resolves the real
+		// actor itself via GetSenderObject() at execution time - by then
+		// any earlier action creating it has had a chance to run - and
+		// no-ops if the named actor still isn't there (e.g. a party
+		// member that was never actually in the party). An explicit
+		// ActionOverride() target (viaOverride), on the other hand, is
+		// honored as-is - the script author asked for that actor
+		// specifically, not "whoever is driving this beat".
+		sender = fSender;
+	}
+
+	if (sender != NULL) {
+		sender->AddAction(act);
+	}
 
 	return false;
 }

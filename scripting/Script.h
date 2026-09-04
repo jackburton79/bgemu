@@ -59,7 +59,20 @@ private:
 	bool _EvaluateConditionBlock(condition_block& block);
 
 	bool _HandleResponseSet(response_set& responseSet);
-	bool _HandleAction(action_params* act);
+
+	// pinToCurrentSender (only ever true from ExecuteCutscene()): queue
+	// `act` on fSender - the single actor driving this cutscene beat -
+	// regardless of whether act's own object param names a *different*,
+	// resolvable actor (e.g. a golem created earlier in the same beat).
+	// A cutscene beat is one shared timeline: every action in it, no
+	// matter which actor visibly performs it, must stay paced by the
+	// beat's driving sender, or a named actor that already exists (e.g.
+	// a real party member) would run its part immediately/concurrently
+	// instead of waiting its turn. Each RunAction* still re-resolves the
+	// real performer itself (via GetSenderObject()) once it actually
+	// executes. Normal (non-cutscene) script actions keep queuing on
+	// whichever actor their own object param resolves to.
+	bool _HandleAction(action_params* act, bool pinToCurrentSender = false);
 
 	static Actor* _GetIdentifiers(const Object* source, object_params* node,
 					std::vector<std::string>& identifiersList);
