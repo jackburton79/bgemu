@@ -80,6 +80,12 @@ public:
 	void SetEnemyAlly(int ea);
 	bool IsState(int state) const;
 
+	// Subtracts amount from the current hit points (clamped at 0). Doesn't
+	// deal with death (nothing in the engine currently transitions an
+	// actor to STATE_DEAD from hitpoints reaching 0 - see KILL()/DestroySelf()
+	// for the existing, script-driven death paths).
+	void ApplyDamage(int32 amount);
+
 	bool MatchNode(object_params* node) const;
 
 	Actor* ResolveIdentifier(const int identifier) const;

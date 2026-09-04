@@ -24,6 +24,7 @@
 #include "TileCell.h"
 #include "WedResource.h"
 
+#include <algorithm>
 #include <assert.h>
 
 #include <string>
@@ -638,6 +639,18 @@ void
 Actor::SetEnemyAlly(int ea)
 {
 	CRE()->SetEnemyAlly(ea);
+}
+
+
+void
+Actor::ApplyDamage(int32 amount)
+{
+	if (amount <= 0)
+		return;
+
+	CREResource* cre = CRE();
+	int32 hp = (int32)cre->CurrentHitPoints() - amount;
+	cre->SetCurrentHitPoints((uint16)std::max(hp, 0));
 }
 
 

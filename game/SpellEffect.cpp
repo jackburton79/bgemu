@@ -8,8 +8,10 @@
 #include "SpellEffect.h"
 
 #include "Actor.h"
+#include "Log.h"
 #include "Object.h"
 
+#include <iostream>
 #include <unordered_map>
 
 
@@ -126,7 +128,36 @@ RunEffectTeleportToTarget(Object* target, SpellEffect& effect)
 }
 
 
+// #12 "HP: Damage". Parameter1 is the damage amount; Parameter2 packs a
+// damage type in its high 16 bits and an application mode (0: subtract
+// amount, 1: set to value, 2: set to percentage, 3: reduce by percentage)
+// in its low 16 bits - see IESDP opcode #12. Only mode 0 (plain damage) is
+// implemented, which is what the opening BG2 cutscene's CUTSCENE_DAMAGE_1(B)
+// spells use; other modes are logged and dropped rather than risk applying
+// the wrong amount.
+static bool
+RunEffectHPDamage(Object* target, SpellEffect& effect)
+{
+	Actor* actor = dynamic_cast<Actor*>(target);
+	if (actor == NULL)
+		return true;
+
+	int32 mode = effect.Parameter2() & 0xFFFF;
+	if (mode != 0) {
+		std::cerr << Log::Red << target->Name()
+				<< ": HP: Damage mode " << mode << " not implemented"
+				<< Log::Normal << std::endl;
+		return true;
+	}
+
+	actor->ApplyDamage(effect.Parameter1());
+
+	return true; // one-shot: remove immediately once applied
+}
+
+
 static const EffectDescriptor kEffectsTable[] = {
+	{ 12, "HP: Damage", RunEffectHPDamage },
 	{ 274, "Teleport to Target", RunEffectTeleportToTarget },
 
 	// Not yet implemented - Object::_ApplySpellEffects() will drop these
@@ -134,7 +165,6 @@ static const EffectDescriptor kEffectsTable[] = {
 	// real handler requires knowing the Actor/CRE API for applying HP
 	// damage and state flags (silence/stun/blind/invisible), which hasn't
 	// been reviewed yet.
-	{ 12, "HP: Damage", NULL },
 	{ 20, "State: Invisibility", NULL },
 	{ 38, "State: Silence", NULL },
 	{ 45, "State: Stun", NULL },

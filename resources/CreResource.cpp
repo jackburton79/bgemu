@@ -232,9 +232,16 @@ CREResource::PermanentStatus() const
 uint16
 CREResource::CurrentHitPoints() const
 {
-	uint32 hp;
+	uint16 hp;
 	fData->ReadAt(0x24, hp);
 	return hp;
+}
+
+
+void
+CREResource::SetCurrentHitPoints(uint16 hp)
+{
+	fData->WriteAt(0x24, &hp, sizeof(hp));
 }
 
 
