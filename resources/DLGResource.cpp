@@ -105,11 +105,14 @@ DLGResource::GetStateTrigger(int triggerIndex)
 		return "";
 	}
 
+	// IESDP: state/transition trigger strings in the DLG file are NOT
+	// zero-terminated - `length` is the exact string length, with no
+	// trailing NUL to account for.
 	char triggerData[DATALENGTH];
 	fData->ReadAt(offset, triggerData, length);
-	triggerData[length - 1] = '\0';
+	triggerData[length] = '\0';
 
-	return std::string(triggerData);
+	return std::string(triggerData, length);
 }
 
 
@@ -134,9 +137,10 @@ DLGResource::GetAction(int32 index)
 		return "";
 	}
 
+	// See above
 	char rawData[DATALENGTH];
 	fData->ReadAt(offset, rawData, length);
-	rawData[length - 1] = '\0';
+	rawData[length] = '\0';
 
 	return std::string(rawData, length);
 }
