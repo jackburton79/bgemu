@@ -8,6 +8,8 @@
 #include "SpellEffect.h"
 
 #include "Actor.h"
+#include "AreaRoom.h"
+#include "Effect.h"
 #include "Log.h"
 #include "Object.h"
 
@@ -156,8 +158,41 @@ RunEffectHPDamage(Object* target, SpellEffect& effect)
 }
 
 
+// #215 "Graphics: Play 3D Effect". Parameter2 is the "Effect State":
+// 0 - play on target, not attached; 1 - play on target, attached;
+// 2 - play on point. This engine's Effect class (game/Effect.h) is only
+// ever a one-shot animation at a fixed point - there's no notion of an
+// effect staying "attached" to a moving actor - so states 0 and 1 are
+// both handled the same way: spawn it once at the target's current
+// position, mirroring RunActionCreateVisualEffectObject() in Actions.cpp.
+// State 2 ("on point") would need a target location this SpellEffect
+// doesn't carry (only ever set from ForceSpell()/ForceSpellPoint(), which
+// don't thread one through), so it's logged and dropped instead.
+static bool
+RunEffectPlay3DEffect(Object* target, SpellEffect& effect)
+{
+	Actor* actor = dynamic_cast<Actor*>(target);
+	if (actor == NULL || effect.Resource().empty())
+		return true;
+
+	if (effect.Parameter2() == 2) {
+		std::cerr << Log::Red << target->Name()
+				<< ": Graphics: Play 3D Effect on point not implemented"
+				<< Log::Normal << std::endl;
+		return true;
+	}
+
+	AreaRoom* area = actor->Area();
+	if (area != NULL)
+		area->AddEffect(new ::Effect(effect.Resource().c_str(), actor->Position()));
+
+	return true; // one-shot: remove immediately once applied
+}
+
+
 static const EffectDescriptor kEffectsTable[] = {
 	{ 12, "HP: Damage", RunEffectHPDamage },
+	{ 215, "Graphics: Play 3D Effect", RunEffectPlay3DEffect },
 	{ 274, "Teleport to Target", RunEffectTeleportToTarget },
 
 	// Not yet implemented - Object::_ApplySpellEffects() will drop these
