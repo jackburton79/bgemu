@@ -422,8 +422,10 @@ static void
 RunActionFlyTo(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	if (!state.initiated) {
 		actor->SetDestination(params->where, true);
@@ -442,8 +444,10 @@ static void
 RunActionShout(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	actor->Shout(params->integer1);
 	state.completed = true;
@@ -456,8 +460,10 @@ static void
 RunActionEscapeArea(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	actor->DestroySelf();
 	state.completed = true;
@@ -530,6 +536,7 @@ RunActionOpenDoor(Object* sender, action_params* params, action_state& state)
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor == NULL) {
 		std::cerr << "NULL ACTOR!!!" << std::endl;
+		state.completed = true;
 		return;
 	}
 
@@ -556,6 +563,7 @@ RunActionCloseDoor(Object* sender, action_params* params, action_state& state)
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor == NULL) {
 		std::cerr << "NULL ACTOR!!!" << std::endl;
+		state.completed = true;
 		return;
 	}
 
@@ -608,8 +616,10 @@ static void
 RunActionAttack(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actorSender = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actorSender == NULL)
+	if (actorSender == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(actorSender, params));
 	if (target == NULL) {
@@ -658,8 +668,10 @@ static void
 RunActionRunAwayFrom(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(actor, params));
 	if (target == NULL) {
@@ -1006,7 +1018,17 @@ static void
 RunActionCreateVisualEffectObject(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actorSender = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actorSender == NULL) {
+		state.completed = true;
+		return;
+	}
+
 	Object* target = Script::GetTargetObject(actorSender, params);
+	if (target == NULL) {
+		state.completed = true;
+		return;
+	}
+
 	IE::point point;
 
 	if (target->Type() == Object::ACTOR) {
