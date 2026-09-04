@@ -303,6 +303,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 		throw PathNotFoundException();
 
 	PointList pathPoints = _BuildPath(currentNode);
+	_GetSmoothenPath(pathPoints);
 
 	uint32 length = 0;
 	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
@@ -321,43 +322,7 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 bool
 PathFinder::HasLineOfSight(const IE::point& from, const IE::point& to) const
 {
-	int x0 = from.x;
-	int y0 = from.y;
-
-	int x1 = to.x;
-	int y1 = to.y;
-
-	int dx = std::abs(x1 - x0);
-	int dy = std::abs(y1 - y0);
-
-	int sx = (x0 < x1) ? 1 : -1;
-	int sy = (y0 < y1) ? 1 : -1;
-
-	int err = dx - dy;
-
-	while (true) {
-		IE::point p = { static_cast<int16>(x0), static_cast<int16>(y0) };
-
-		if (!_IsPassable(p))
-			return false;
-
-		if (x0 == x1 && y0 == y1)
-			break;
-
-		int e2 = 2 * err;
-
-		if (e2 > -dy) {
-			err -= dy;
-			x0 += sx;
-		}
-
-		if (e2 < dx) {
-			err += dx;
-			y0 += sy;
-		}
-	}
-
-	return true;
+	return _WalkLine(from, to, NULL);
 }
 
 
@@ -391,7 +356,6 @@ PathFinder::IsCloseEnough(const IE::point& point, const IE::point& goal) const
 		&& (std::abs(point.y - goal.y) <= fStep);
 #endif
 }
-
 
 
 uint32
@@ -555,9 +519,106 @@ PathFinder::_UpdateNodeCost(SearchNode* node, const SearchNode& current, const I
 }
 
 
+bool
+PathFinder::_WalkLine(const IE::point& from, const IE::point& to, PointList* outPoints) const
+{
+	int x0 = from.x;
+	int y0 = from.y;
+
+	int x1 = to.x;
+	int y1 = to.y;
+
+	int dx = std::abs(x1 - x0);
+	int dy = std::abs(y1 - y0);
+
+	int sx = (x0 < x1) ? 1 : -1;
+	int sy = (y0 < y1) ? 1 : -1;
+
+	int err = dx - dy;
+
+	while (true) {
+		IE::point p = { static_cast<int16>(x0), static_cast<int16>(y0) };
+
+		if (!_IsPassable(p))
+			return false;
+
+		if (outPoints != NULL)
+			outPoints->push_back(p);
+
+		if (x0 == x1 && y0 == y1)
+			break;
+
+		int e2 = 2 * err;
+
+		if (e2 > -dy) {
+			err -= dy;
+			x0 += sx;
+		}
+
+		if (e2 < dx) {
+			err += dx;
+			y0 += sy;
+		}
+	}
+
+	return true;
+}
+
+
 void
 PathFinder::_GetSmoothenPath(PointList& path)
 {
+	if (path.size() < 3)
+		return;
+
+	std::vector<IE::point> original(path.begin(), path.end());
+	std::vector<IE::point> result;
+	result.reserve(original.size());
+	result.push_back(original.front());
+
+	size_t anchor = 0;
+	while (anchor < original.size() - 1) {
+		size_t farthest = anchor + 1;
+		PointList line;
+
+		// Find the farthest point reachable from 'anchor' in a straight,
+		// fully passable line. Start from the far end so we grab the
+		// longest straight run first.
+		for (size_t candidate = original.size() - 1; candidate > anchor + 1; candidate--) {
+			PointList tmp;
+			if (_WalkLine(original[anchor], original[candidate], &tmp)) {
+				farthest = candidate;
+				line.swap(tmp);
+				break;
+			}
+		}
+
+		if (farthest == anchor + 1) {
+			// No useful shortcut: keep the next point as-is.
+			result.push_back(original[anchor + 1]);
+			anchor++;
+			continue;
+		}
+
+		// Replace the intermediate points with the same number of points,
+		// resampled along the verified straight line (so they stay passable).
+		std::vector<IE::point> lineVec(line.begin(), line.end());
+		size_t neededInterior = farthest - anchor - 1;
+		size_t lastIdx = lineVec.size() - 1;
+
+		for (size_t k = 1; k <= neededInterior; k++) {
+			double t = (double)k / (double)(neededInterior + 1);
+			size_t idx = (size_t)std::lround(t * (double)lastIdx);
+			if (lastIdx > 1)
+				idx = std::max<size_t>(1, std::min(idx, lastIdx - 1));
+			result.push_back(lineVec[idx]);
+		}
+
+		result.push_back(original[farthest]);
+		anchor = farthest;
+	}
+
+	path.assign(result.begin(), result.end());
 }
 
 

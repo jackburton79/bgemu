@@ -106,7 +106,7 @@ private:
 			NodeSearchContext* nodeList);
 	void _UpdateNodeCost(SearchNode* node, const SearchNode& current,
 			const IE::point& goal, NodeSearchContext& closedNodeList ) const;
-
+	bool _WalkLine(const IE::point& from, const IE::point& to, PointList* outPoints) const;
 	void _GetSmoothenPath(PointList& pointList);
 };
 
