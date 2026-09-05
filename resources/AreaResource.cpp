@@ -118,7 +118,7 @@ ARAResource::CountDoors() const
 IE::door*
 ARAResource::DoorAt(uint32 index)
 {
-	if (index > fNumDoors) {
+	if (index >= fNumDoors) {
 		std::cerr << Log::Red << "ARAResource::DoorAt(): Requested wrong door" << std::endl;
 		return NULL;
 	}
