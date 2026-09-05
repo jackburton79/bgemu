@@ -362,6 +362,7 @@ GUI::ShowAuxWindow(const res_ref& chuName, uint16 windowId)
 			return;
 		}
 		fAuxWindows[key] = window;
+		fAuxWindowSet.insert(window);
 		AddWindow(window);
 	}
 
@@ -407,6 +408,7 @@ GUI::Clear()
 	// The Window objects these pointed to were just deleted above (they
 	// were also in fWindows - see ShowAuxWindow()).
 	fAuxWindows.clear();
+	fAuxWindowSet.clear();
 
 	for (auto& resource : fAuxResources)
 		gResManager->ReleaseResource(resource.second);
@@ -421,7 +423,7 @@ GUI::GetWindow(uint16 id) const
 {
 	std::vector<Window*>::const_iterator i;
 	for (const auto window: fWindows) {
-		if (window->ID() == id)
+		if (window->ID() == id && fAuxWindowSet.find(window) == fAuxWindowSet.end())
 			return window;
 	}
 

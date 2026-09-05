@@ -220,9 +220,23 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_n:
 								ToggleDayNight();
 								break;
-							case SDLK_i:
-								GUI::Get()->ToggleAuxWindow("GUIINV", 0);
+							case SDLK_i: {
+								// Window 2 is the actual inventory panel
+								// (paperdoll + item slots); 0/1 are the
+								// persistent left/right side columns
+								// (portraits, quick items) that flank it -
+								// confirmed against real GUIINV.CHU data
+								// (64+512+64 = 640, the reference width).
+								GUI* windowGui = GUI::Get();
+								bool shown = windowGui->IsAuxWindowShown("GUIINV", 2);
+								for (uint16 windowId : {0, 1, 2})
+									windowGui->HideAuxWindow("GUIINV", windowId);
+								if (!shown) {
+									for (uint16 windowId : {0, 1, 2})
+										windowGui->ShowAuxWindow("GUIINV", windowId);
+								}
 								break;
+							}
 							case SDLK_q:
 								quitting = true;
 								break;

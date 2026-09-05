@@ -118,8 +118,25 @@ CHUIResource::GetWindow(uint16 id)
 				controlIndex < window.num_controls; controlIndex++) {
 			//std::cout << "Control " << controlIndex << ":" << std::endl;
 			IE::control* control = _ReadControl(window, controlIndex);
-			if (control != NULL)
+			if (control == NULL)
+				continue;
+			// A single malformed/unsupported control (e.g. one whose
+			// bitmap/BAM reference doesn't resolve) shouldn't sink the
+			// whole window - log and skip just that control instead.
+			// Read `type` before the call: if the derived Control
+			// subclass's constructor throws after Control's own base
+			// constructor already ran, Control::~Control() (which owns
+			// and frees `control`) still runs as part of unwinding that
+			// partially-constructed object, so `control` is no longer
+			// safe to dereference afterward.
+			const uint8 controlType = control->type;
+			try {
 				newWindow->Add(Control::CreateControl(control));
+			} catch (std::exception& e) {
+				std::cerr << Log::Red << "CHUIResource::GetWindow(): control "
+						<< controlIndex << " (type " << (int)controlType
+						<< ") FAILED: " << e.what() << Log::Normal << std::endl;
+			}
 		}
 	} catch (std::exception& e) {
 		newWindow = NULL;

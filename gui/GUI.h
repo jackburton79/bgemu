@@ -15,6 +15,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -110,6 +111,13 @@ private:
 	std::vector<Window*> fWindows;
 	std::map<res_ref, CHUIResource*> fAuxResources;
 	std::map<std::pair<res_ref, uint16>, Window*> fAuxWindows;
+	// Every Window* also present in fAuxWindows above - lets GetWindow(id)
+	// (and everything built on it: ShowWindow/HideWindow/IsWindowShown/
+	// ToggleWindow) skip aux windows, since their ids are only unique
+	// within their own CHU, not against the main fResource's ids (e.g.
+	// GUIINV's window 0 and GUIW's WINDOW_COMMANDS=0 are unrelated
+	// windows that happen to share an id).
+	std::set<Window*> fAuxWindowSet;
 	Window* fBackWindow;
 	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
