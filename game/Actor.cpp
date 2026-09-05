@@ -658,21 +658,14 @@ Actor::ApplyDamage(int32 amount)
 	if (hp > 0 || IsState(STATE_DEAD)) // already dead, nothing to do
 		return;
 
-	// Transition a living actor to dead - shared by melee (AttackTarget())
-	// and spell damage (SpellEffect.cpp's opcode #12 handler), since both
-	// funnel HP loss through here. OR in STATE_DEAD rather than
-	// overwriting, to preserve any other status bits already set.
 	cre->SetPermanentStatus(cre->PermanentStatus() | STATE_DEAD);
 	SetAnimationAction(ACT_DIE); // auto-chains to ACT_DEAD once it finishes
 
-	// Stop dead in its tracks: drop whatever was queued (mid-walk,
-	// mid-attack, ...) instead of letting it finish. Object::Update()
-	// also skips ExecuteActions() for dead actors going forward, in case
-	// something still tries to queue a new action afterwards.
+	// Drop whatever was queued and clear destination
 	ClearActionList();
+	ClearDestination();
 
-	// Corpses stay in the area - no DestroySelf() here; removal remains
-	// script-driven, same as today.
+	// Corpses stay in the area - no DestroySelf() here
 	const std::string deathVar = cre->DeathVariable();
 	if (!deathVar.empty())
 		SetVariable(deathVar.c_str(), 1);
@@ -825,6 +818,9 @@ Actor::ClickedOn(Object* target)
 		AddAction(openParams);
 		openParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
+		if (actor->IsState(STATE_DEAD))
+			return; // can't start a conversation with a corpse
+
 		action_params* actionParams = new action_params(actor->Name(), Name());
 		actionParams->id = 8; // DIALOG
 		AddAction(actionParams);

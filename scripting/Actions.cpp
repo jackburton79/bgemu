@@ -768,15 +768,20 @@ RunActionDialog(Object* sender, action_params* params, action_state& state)
 	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(object, params));
-	if (target == NULL) {
+	if (target == NULL || target->IsState(STATE_DEAD)) {
+		state.completed = true;
+		return;
+	}
+
+	Actor* speaker = dynamic_cast<Actor*>(object);
+	if (speaker != NULL && speaker->IsState(STATE_DEAD)) {
 		state.completed = true;
 		return;
 	}
 
 	if (!state.initiated) {
-		Actor* actor = dynamic_cast<Actor*>(object);
-		if (actor != NULL)
-			Game::Get()->InitiateDialog(actor, target);
+		if (speaker != NULL)
+			Game::Get()->InitiateDialog(speaker, target);
 		state.initiated = true;
 	}
 	std::cout << "Actor " << object->Name();
