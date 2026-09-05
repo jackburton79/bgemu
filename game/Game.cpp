@@ -48,8 +48,8 @@ Game::Game()
 	fDialog(NULL),
 	fParty(NULL),
 	fTempState(NULL),
-	fDelay(67), // 15 Khz, standard Infinity engine
-	//fDelay(20), // For tests only
+	//fDelay(67), // 15 Khz, standard Infinity engine
+	fDelay(20), // For tests only
 	fTestMode(false)
 {
 	fTempState = new Game::TempState;
@@ -291,7 +291,7 @@ Game::CreateParty()
 		fParty->AddActor(new Actor("AJANTI", point, 0));
 	else {
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));
-		//fParty->AddActor(new Actor("Imoen", point, 0));
+		fParty->AddActor(new Actor("Imoen", point, 0));
 	}
 }
 

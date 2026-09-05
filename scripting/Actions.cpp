@@ -4,6 +4,7 @@
 #include "Animation.h"
 #include "AreaRoom.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
@@ -669,7 +670,20 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 		actorSender->MoveToNextPointInPath(actorSender->IsFlying());
 	} else {
 		actorSender->SetAnimationAction(ACT_ATTACKING);
-		actorSender->AttackTarget(target);
+		// Paced by AttackCooldown() rather than resolving a hit every
+		// single tick: state.counter is already claimed above by
+		// ATTACKREEVALUATE's own reevaluation-period countdown, so the
+		// per-round cooldown lives on the Actor itself instead.
+		if (actorSender->AttackCooldown() > 0) {
+			actorSender->SetAttackCooldown(actorSender->AttackCooldown() - 1);
+		} else {
+			actorSender->AttackTarget(target);
+			uint8 attacksPerRound = actorSender->CRE()->NumberOfAttacks();
+			if (attacksPerRound == 0)
+				attacksPerRound = 1;
+			actorSender->SetAttackCooldown(
+					(AI_UPDATE_FREQ * ROUND_DURATION_SEC) / attacksPerRound);
+		}
 	}
 }
 
