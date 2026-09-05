@@ -144,6 +144,11 @@ ARAResource::AnimationAt(uint32 index)
 Actor*
 ARAResource::GetActorAt(uint16 index)
 {
+	if (index >= fNumActors) {
+		std::cerr << Log::Red << "ARAResource::GetActorAt(): Requested wrong actor" << std::endl;
+		return NULL;
+	}
+
 	// TODO: No need to preload the fActor array.
 	// We can load actor by actor from here.
 	IE::actor& ieActor = fActors[index];
@@ -335,7 +340,7 @@ ARAResource::_LoadDoors()
 		//closedPolygon.Print();
 
 		Polygon openPolygon;
-		for (uint32 c = 0; c < fDoors[i].open_vertex_index; c++) {
+		for (uint16 c = 0; c < fDoors[i].open_vertices_count; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
 			openPolygon.AddPoint(vertex.x, vertex.y);

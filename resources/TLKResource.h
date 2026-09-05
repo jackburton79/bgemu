@@ -28,7 +28,7 @@ public:
 private:
 	virtual ~TLKResource();
 
-	void _ReadString(int32 offset, std::string &text, int32 length);
+	void _ReadString(uint32 offset, std::string &text, uint32 length);
 
 	int32 fNumEntries;
 	uint32 fDataOffset;

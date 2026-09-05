@@ -89,13 +89,15 @@ CHUIResource::GetWindow(uint16 id)
 	try {
 		// TODO: Not really efficient O(n): but shouldn't be critical
 		IE::window window;
+		bool found = false;
 		for (uint32 n = 0; n < fNumWindows; n++) {
 			fData->ReadAt(fWindowsOffset + n * sizeof(window), window);
-			if (window.id == id)
+			if (window.id == id) {
+				found = true;
 				break;
+			}
 		}
-		if (window.id != id) {
-			// window not found
+		if (!found) {
 			return NULL;
 		}
 		Bitmap* background = NULL;
@@ -181,6 +183,12 @@ CHUIResource::_ReadControl(IE::window& window, uint16 controlIndex)
 	fData->ReadAt(fControlTableOffset
 			+ (window.control_offset + controlIndex)
 			* sizeof(controlTable), controlTable);
+
+	if (controlTable.length < sizeof(IE::control)) {
+		std::cerr << Log::Red << "CHUIResource::_ReadControl(): control length too small ("
+				<< controlTable.length << ")" << Log::Normal << std::endl;
+		return NULL;
+	}
 
 	IE::control* control = (IE::control*)new uint8[controlTable.length];
 	fData->ReadAt(controlTable.offset, control, controlTable.length);

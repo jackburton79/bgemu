@@ -52,6 +52,16 @@ DLGResource::GetStateAt(int32 index)
 transition_entry
 DLGResource::GetTransition(int32 index)
 {
+	if (index < 0 || (uint32)index >= fNumTransitions) {
+		std::cerr << "DLGResource::GetTransition(): out of range" << std::endl;
+		// Safe sentinel: no player text/actions/trigger, and END set so
+		// HasNextState() is false - the dialog just ends here instead of
+		// reading an arbitrary offset and jumping to a bogus next state.
+		transition_entry entry = {};
+		entry.flags = DLG_TRANSITION_END;
+		return entry;
+	}
+
 	transition_entry entry;
 	fData->ReadAt(fTransitionsTableOffset + index * sizeof(transition_entry), entry);
 	return entry;

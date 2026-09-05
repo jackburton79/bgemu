@@ -118,6 +118,7 @@ KEYResource::GetFileEntryAt(uint32 index)
 		fData->Read(location);
 		char* name = new char[nameLen + 1];
 		fData->ReadAt(offset, name, nameLen);
+		name[nameLen] = '\0';
 		path_dos_to_unix(name);
 
 		entry = new KeyFileEntry(name, length, location);

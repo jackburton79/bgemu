@@ -88,8 +88,13 @@ TLKResource::EntryAt(int32 index)
 
 
 void
-TLKResource::_ReadString(int32 offset, std::string& text, int32 length)
+TLKResource::_ReadString(uint32 offset, std::string& text, uint32 length)
 {
+	if (length > fData->Size()) {
+		std::cerr << "TLKResource::_ReadString(): length too big (" << length << ")" << std::endl;
+		return;
+	}
+
 	text.resize(length);
 	fData->ReadAt(fDataOffset + offset, &text[0], length);
 	text[length] = '\0';

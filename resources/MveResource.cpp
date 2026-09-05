@@ -413,7 +413,10 @@ MVEResource::ReadAudioData(Stream* stream, uint16 numSamples)
 	SoundEngine::Get()->Lock();
 	try {
 		int numChannels = isStereo ? 2 : 1;
-		numSamples -= numChannels * sizeof(sint16);
+		uint16 predictorBytes = numChannels * sizeof(sint16);
+		if (numSamples < predictorBytes)
+			throw std::runtime_error("MVEResource::ReadAudioData(): numSamples too small");
+		numSamples -= predictorBytes;
 		uint16 audioSize = numSamples / 2;
 		uint8 encodedData[audioSize];
 		stream->Read(encodedData, audioSize);

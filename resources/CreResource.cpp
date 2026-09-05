@@ -384,8 +384,10 @@ CREResource::GetItemAtSlot(uint32 i, IE::item& item) const
 std::string
 CREResource::DeathVariable() const
 {
-	char temp[32];
+	// The file field is NOT guaranteed to be NUL-terminated
+	char temp[33];
 	fData->ReadAt(0x280, temp, 32);
+	temp[32] = '\0';
 	return temp;
 }
 
