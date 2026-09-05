@@ -121,11 +121,26 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 	if (!state.initiated) {
 		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
 		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+		std::string spellResourceName;
+		try {
+			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+		} catch (std::exception& e) {
+			std::cerr << "ForceSpell: invalid spell id " << params->integer1
+					<< ": " << e.what() << std::endl;
+			gResManager->ReleaseResource(spellIDS);
+			state.completed = true;
+			return;
+		}
 		gResManager->ReleaseResource(spellIDS);
 		std::cout << "spell: " << spellName << std::endl;
 
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		if (spellResource == NULL) {
+			std::cerr << "ForceSpell: spell resource \"" << spellResourceName
+					<< "\" (id " << params->integer1 << ") not found" << std::endl;
+			state.completed = true;
+			return;
+		}
 		uint16 castTime = spellResource->CastingTime();
 		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
 		// Round takes ROUND_DURATION_SEC seconds; AI updates AI_UPDATE_FREQ
@@ -262,11 +277,26 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 	if (!state.initiated) {
 		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
 		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+		std::string spellResourceName;
+		try {
+			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+		} catch (std::exception& e) {
+			std::cerr << "ForceSpellPoint: invalid spell id " << params->integer1
+					<< ": " << e.what() << std::endl;
+			gResManager->ReleaseResource(spellIDS);
+			state.completed = true;
+			return;
+		}
 		gResManager->ReleaseResource(spellIDS);
 		std::cout << "spell: " << spellName << std::endl;
 
 		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		if (spellResource == NULL) {
+			std::cerr << "ForceSpellPoint: spell resource \"" << spellResourceName
+					<< "\" (id " << params->integer1 << ") not found" << std::endl;
+			state.completed = true;
+			return;
+		}
 		uint16 castTime = spellResource->CastingTime();
 		state.counter = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
 		std::cout << "casting time:" << state.counter << std::endl;
