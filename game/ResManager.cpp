@@ -119,20 +119,20 @@ ResourceManager::~ResourceManager()
 	std::cout << kComponentName << "Cached resources...";
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
-			//if (fDebugLevel > 0) {
-		std::cout << "resource: " << resource.second->Name();
-		std::cout << "(" << strresource(resource.second->Type()) << ")";
-		std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
-			//}
+		if (fDebugLevel > 0) {
+			std::cout << "resource: " << resource.second->Name();
+			std::cout << "(" << strresource(resource.second->Type()) << ")";
+			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
+		}
 	}
 	std::cout << kComponentName << "Deleting cached resources...";
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
-		//if (fDebugLevel > 0) {
+		if (fDebugLevel > 0) {
 			std::cout << "Deleting " << resource.second->Name();
 			std::cout << "(" << strresource(resource.second->Type()) << ")";
 			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
-		//}
+		}
 		if (resource.second->Release())
 			delete resource.second;
 	}
