@@ -43,7 +43,7 @@ protected:
 	animation_description GetAnimationDescription(Actor* actor);
 	animation_description _GetBGMonsterAnimationDescription(Actor* actor);
 	animation_description _GetBGCharacterAnimationDescription(Actor* actor);
-	animation_description _GetBG2CharacterAnimationDescription(Actor* actor);
+	animation_description _GetCharacterAnimationDescription(Actor* actor);
 	animation_description _GetSimpleAnimationDescription(Actor* actor);
 	animation_description _GetSplitAnimationDescription(Actor* actor);
 	animation_description _GetIWDAnimationDescription(Actor* actor);

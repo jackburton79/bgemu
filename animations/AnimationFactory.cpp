@@ -24,9 +24,9 @@ std::unordered_map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactor
 const int kStandingOffset = 10;
 
 enum class FactoryType {
-	CharacterBG,
-	CharacterBG2,
-	Monster,
+	BGCharacter,
+	Character,
+	BGMonster,
 	SplitAnimation,
 	SimpleAnimation,
 	StaticAnimation,
@@ -42,10 +42,10 @@ struct AnimationDescriptor {
 
 
 const static AnimationDescriptor kAnimationEntries[] = {
-	{ 0x1000, "", FactoryType::Monster },
-	{ 0x2000, "", FactoryType::Monster },
-	{ 0x2200, "MOGM", FactoryType::Monster },
-	{ 0x2300, "", FactoryType::Monster },
+	{ 0x1000, "", FactoryType::BGMonster },
+	{ 0x2000, "", FactoryType::BGMonster },
+	{ 0x2200, "MOGM", FactoryType::BGMonster },
+	{ 0x2300, "", FactoryType::BGMonster },
 
 	{ 0x4000, "SNOM", FactoryType::SimpleAnimation },
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
@@ -53,101 +53,101 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4710, "LEFF", FactoryType::StaticAnimation },
 
-	{ 0x5000, "CHMB", FactoryType::CharacterBG2 },
-	{ 0x5002, "CDMB", FactoryType::CharacterBG2 },
-	{ 0x5003, "", FactoryType::CharacterBG2 },
-	{ 0x5100, "", FactoryType::CharacterBG2 },
-	{ 0x5102, "CDMB", FactoryType::CharacterBG2 },
-	{ 0x5110, "CHFB", FactoryType::CharacterBG2 },
-	{ 0x5113, "CIFB", FactoryType::CharacterBG2 },
-	{ 0x5200, "", FactoryType::CharacterBG2 },
-	{ 0x5202, "CDMW", FactoryType::CharacterBG2 },
-	{ 0x5210, "CHFW", FactoryType::CharacterBG2 },
-	{ 0x5303, "CIMB", FactoryType::CharacterBG2 },
-	{ 0x6000, "CHMB", FactoryType::CharacterBG2 },
-	{ 0x6002, "CDMB", FactoryType::CharacterBG2 },
-	{ 0x6003, "CIMB", FactoryType::CharacterBG2 }, // CIMB
-	{ 0x6004, "CDMB", FactoryType::CharacterBG2 }, // CDMB
-	{ 0x6010, "CHFB", FactoryType::CharacterBG2 }, // CHFB
-	{ 0x6011, "CEFB", FactoryType::CharacterBG2 }, // CEFB
-	{ 0x6013, "CIFB", FactoryType::CharacterBG2 }, // CIFB
-	{ 0x6100, "CHMB", FactoryType::CharacterBG2 },
-	{ 0x6101, "CEMB", FactoryType::CharacterBG2 }, // CEMB
-	{ 0x6102, "CDMB", FactoryType::CharacterBG2 }, // CDMB
-	{ 0x6103, "CIMB", FactoryType::CharacterBG2 }, // CIMB
-	{ 0x6104, "CDMB", FactoryType::CharacterBG2 }, // CDMB
-	{ 0x6110, "CHFB", FactoryType::CharacterBG2 },
-	{ 0x6111, "CEFB", FactoryType::CharacterBG2 },
-	{ 0x6113, "CIFB", FactoryType::CharacterBG2 },
-	{ 0x6200, "", FactoryType::CharacterBG2 },
-	{ 0x6201, "CEMW", FactoryType::CharacterBG2 },
-	{ 0x6210, "CHFW", FactoryType::CharacterBG2 },
-	{ 0x6211, "CEFW", FactoryType::CharacterBG2 },
-	{ 0x6300, "", FactoryType::CharacterBG2 },
-	{ 0x6301, "CEMB", FactoryType::CharacterBG2 },
-	{ 0x6302, "CDMB", FactoryType::CharacterBG2 },
-	{ 0x6303, "CIMB", FactoryType::CharacterBG2 },
-	{ 0x6310, "CHFB", FactoryType::CharacterBG2 },
-	{ 0x6311, "CEFB", FactoryType::CharacterBG2 },
-	{ 0x6314, "CEFB", FactoryType::CharacterBG2 },
-	{ 0x6315, "CEFB", FactoryType::CharacterBG2 },
-	{ 0x6400, "", FactoryType::CharacterBG2 },
-	{ 0x6402, "USAR", FactoryType::CharacterBG2 },
-	{ 0x6403, "MSKL", FactoryType::CharacterBG2 },
-	{ 0x6405, "MDGU", FactoryType::CharacterBG2 },
-	{ 0x6500, "", FactoryType::CharacterBG2 },
+	{ 0x5000, "CHMB", FactoryType::Character },
+	{ 0x5002, "CDMB", FactoryType::Character },
+	{ 0x5003, "", FactoryType::Character },
+	{ 0x5100, "", FactoryType::Character },
+	{ 0x5102, "CDMB", FactoryType::Character },
+	{ 0x5110, "CHFB", FactoryType::Character },
+	{ 0x5113, "CIFB", FactoryType::Character },
+	{ 0x5200, "", FactoryType::Character },
+	{ 0x5202, "CDMW", FactoryType::Character },
+	{ 0x5210, "CHFW", FactoryType::Character },
+	{ 0x5303, "CIMB", FactoryType::Character },
+	{ 0x6000, "CHMB", FactoryType::Character },
+	{ 0x6002, "CDMB", FactoryType::Character },
+	{ 0x6003, "CIMB", FactoryType::Character }, // CIMB
+	{ 0x6004, "CDMB", FactoryType::Character }, // CDMB
+	{ 0x6010, "CHFB", FactoryType::Character }, // CHFB
+	{ 0x6011, "CEFB", FactoryType::Character }, // CEFB
+	{ 0x6013, "CIFB", FactoryType::Character }, // CIFB
+	{ 0x6100, "CHMB", FactoryType::Character },
+	{ 0x6101, "CEMB", FactoryType::Character }, // CEMB
+	{ 0x6102, "CDMB", FactoryType::Character }, // CDMB
+	{ 0x6103, "CIMB", FactoryType::Character }, // CIMB
+	{ 0x6104, "CDMB", FactoryType::Character }, // CDMB
+	{ 0x6110, "CHFB", FactoryType::Character },
+	{ 0x6111, "CEFB", FactoryType::Character },
+	{ 0x6113, "CIFB", FactoryType::Character },
+	{ 0x6200, "", FactoryType::Character },
+	{ 0x6201, "CEMW", FactoryType::Character },
+	{ 0x6210, "CHFW", FactoryType::Character },
+	{ 0x6211, "CEFW", FactoryType::Character },
+	{ 0x6300, "", FactoryType::Character },
+	{ 0x6301, "CEMB", FactoryType::Character },
+	{ 0x6302, "CDMB", FactoryType::Character },
+	{ 0x6303, "CIMB", FactoryType::Character },
+	{ 0x6310, "CHFB", FactoryType::Character },
+	{ 0x6311, "CEFB", FactoryType::Character },
+	{ 0x6314, "CEFB", FactoryType::Character },
+	{ 0x6315, "CEFB", FactoryType::Character },
+	{ 0x6400, "", FactoryType::Character },
+	{ 0x6402, "USAR", FactoryType::Character },
+	{ 0x6403, "MSKL", FactoryType::Character },
+	{ 0x6405, "MDGU", FactoryType::Character },
+	{ 0x6500, "", FactoryType::Character },
 
-	{ 0x7000, "", FactoryType::CharacterBG },
-	{ 0x7001, "MOGR", FactoryType::Monster },
-	{ 0x7202, "MBER", FactoryType::Monster },
-	{ 0x7300, "", FactoryType::Monster },
-	{ 0x7400, "", FactoryType::Monster },
-	{ 0x7703, "MSHD", FactoryType::Monster },
-	{ 0x7a01, "MSPI", FactoryType::Monster },
-	{ 0x7c01, "MTAS", FactoryType::Monster },
-	{ 0x7b00, "MWLF", FactoryType::Monster },
-	{ 0x7b01, "MWLF", FactoryType::Monster },
-	{ 0x7b02, "MWLF", FactoryType::Monster },
-	{ 0x7d00, "MZOM", FactoryType::Monster }, // (Zombie)
-	{ 0x7e00, "", FactoryType::Monster },
-	{ 0x7f03, "MIMP", FactoryType::Monster },
-	{ 0x7f05, "MDJI", FactoryType::Monster },
-	{ 0x7f06, "MDJL", FactoryType::Monster },
-	{ 0x7f07, "MGLC", FactoryType::Monster },
-	{ 0x7f08, "MOTY", FactoryType::Monster },
-	{ 0x7f0a, "MGCP", FactoryType::Monster },
-	{ 0x7f0b, "MGCL", FactoryType::Monster },
-	{ 0x7f0d, "MLIC", FactoryType::Monster },
-	{ 0x7f10, "MRAK", FactoryType::Monster },
-	{ 0x7f13, "MSNK", FactoryType::Monster },
-	{ 0x7f16, "AMOO", FactoryType::Monster },
-	{ 0x7f17, "ARAB", FactoryType::Monster },
-	{ 0x7f18, "ADER", FactoryType::Monster },
-	{ 0x7f20, "AGRO", FactoryType::Monster },
-	{ 0x7f21, "APHE", FactoryType::Monster },
-	{ 0x7f22, "MVAF", FactoryType::Monster },
-	{ 0x7f24, "NPIR", FactoryType::Monster },
-	{ 0x7f2a, "NSAI", FactoryType::Monster },
-	{ 0x7f2c, "NSOL", FactoryType::Monster },
-	{ 0x7f36, "NSHD", FactoryType::Monster },
-	{ 0x7f37, "NIRE", FactoryType::Monster },
-	{ 0x8000, "", FactoryType::Monster },
-	{ 0x8100, "", FactoryType::Monster },
-	{ 0x9000, "", FactoryType::Monster },
-	{ 0xa000, "", FactoryType::Monster },
-	{ 0xb000, "", FactoryType::Monster },
-	{ 0xb100, "AHRS", FactoryType::Monster }, // AHRS
+	{ 0x7000, "", FactoryType::BGCharacter },
+	{ 0x7001, "MOGR", FactoryType::BGMonster },
+	{ 0x7202, "MBER", FactoryType::BGMonster },
+	{ 0x7300, "", FactoryType::BGMonster },
+	{ 0x7400, "", FactoryType::BGMonster },
+	{ 0x7703, "MSHD", FactoryType::BGMonster },
+	{ 0x7a01, "MSPI", FactoryType::BGMonster },
+	{ 0x7c01, "MTAS", FactoryType::BGMonster },
+	{ 0x7b00, "MWLF", FactoryType::BGMonster },
+	{ 0x7b01, "MWLF", FactoryType::BGMonster },
+	{ 0x7b02, "MWLF", FactoryType::BGMonster },
+	{ 0x7d00, "MZOM", FactoryType::BGMonster }, // (Zombie)
+	{ 0x7e00, "", FactoryType::BGMonster },
+	{ 0x7f03, "MIMP", FactoryType::BGMonster },
+	{ 0x7f05, "MDJI", FactoryType::BGMonster },
+	{ 0x7f06, "MDJL", FactoryType::BGMonster },
+	{ 0x7f07, "MGLC", FactoryType::BGMonster },
+	{ 0x7f08, "MOTY", FactoryType::BGMonster },
+	{ 0x7f0a, "MGCP", FactoryType::BGMonster },
+	{ 0x7f0b, "MGCL", FactoryType::BGMonster },
+	{ 0x7f0d, "MLIC", FactoryType::BGMonster },
+	{ 0x7f10, "MRAK", FactoryType::BGMonster },
+	{ 0x7f13, "MSNK", FactoryType::BGMonster },
+	{ 0x7f16, "AMOO", FactoryType::BGMonster },
+	{ 0x7f17, "ARAB", FactoryType::BGMonster },
+	{ 0x7f18, "ADER", FactoryType::BGMonster },
+	{ 0x7f20, "AGRO", FactoryType::BGMonster },
+	{ 0x7f21, "APHE", FactoryType::BGMonster },
+	{ 0x7f22, "MVAF", FactoryType::BGMonster },
+	{ 0x7f24, "NPIR", FactoryType::BGMonster },
+	{ 0x7f2a, "NSAI", FactoryType::BGMonster },
+	{ 0x7f2c, "NSOL", FactoryType::BGMonster },
+	{ 0x7f36, "NSHD", FactoryType::BGMonster },
+	{ 0x7f37, "NIRE", FactoryType::BGMonster },
+	{ 0x8000, "", FactoryType::BGMonster },
+	{ 0x8100, "", FactoryType::BGMonster },
+	{ 0x9000, "", FactoryType::BGMonster },
+	{ 0xa000, "", FactoryType::BGMonster },
+	{ 0xb000, "", FactoryType::BGMonster },
+	{ 0xb100, "AHRS", FactoryType::BGMonster }, // AHRS
 	{ 0xb200, "NBEG", FactoryType::SplitAnimation }, // NBEG 0xb200
 	{ 0xb400, "", FactoryType::SplitAnimation },
 	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
 	{ 0xb500, "", FactoryType::SplitAnimation },
 	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
-	{ 0xc000, "ABAT", FactoryType::Monster },
-	{ 0xc100, "", FactoryType::Monster },
-	{ 0xc200, "", FactoryType::Monster },
-	{ 0xc300, "", FactoryType::Monster },
-	{ 0xc400, "", FactoryType::Monster },
-	{ 0xc500, "", FactoryType::Monster },
+	{ 0xc000, "ABAT", FactoryType::BGMonster },
+	{ 0xc100, "", FactoryType::BGMonster },
+	{ 0xc200, "", FactoryType::BGMonster },
+	{ 0xc300, "", FactoryType::BGMonster },
+	{ 0xc400, "", FactoryType::BGMonster },
+	{ 0xc500, "", FactoryType::BGMonster },
 	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
 	{ 0xc800, "NFAM", FactoryType::SplitAnimation }, // NBOY
 	{ 0xc600, "NBEG", FactoryType::SplitAnimation }, // NBEG
@@ -159,10 +159,10 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
 	{ 0xca00, "", FactoryType::SplitAnimation },
 	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
-	{ 0xd000, "AEAG", FactoryType::Monster }, // AEAG (Eagle)
-	{ 0xd100, "", FactoryType::Monster },
-	{ 0xd200, "", FactoryType::Monster },
-	{ 0xd300, "", FactoryType::Monster },
+	{ 0xd000, "AEAG", FactoryType::BGMonster }, // AEAG (Eagle)
+	{ 0xd100, "", FactoryType::BGMonster },
+	{ 0xd200, "", FactoryType::BGMonster },
+	{ 0xd300, "", FactoryType::BGMonster },
 	{ 0xe000, "", FactoryType::IWD },
 	{ 0xe400, "", FactoryType::IWD },
 	{ 0xe430, "MG04", FactoryType::IWD },
@@ -272,11 +272,11 @@ AnimationFactory::GetAnimationDescription(Actor* actor)
 	if (baseName == "")
 		fBaseName = it->base_name;
 	switch (it->animation_type) {
-		case FactoryType::CharacterBG:
+		case FactoryType::BGCharacter:
 			return _GetBGCharacterAnimationDescription(actor);
-		case FactoryType::CharacterBG2:
-			return _GetBG2CharacterAnimationDescription(actor);
-		case FactoryType::Monster:
+		case FactoryType::Character:
+			return _GetCharacterAnimationDescription(actor);
+		case FactoryType::BGMonster:
 			return _GetBGMonsterAnimationDescription(actor);
 		case FactoryType::SimpleAnimation:
 			return _GetSimpleAnimationDescription(actor);
@@ -403,7 +403,7 @@ AnimationFactory::_GetBGCharacterAnimationDescription(Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name.append("G1");
-			description.sequence_number += ANIM_STANDING_OFFSET;
+			description.sequence_number = o;;
 			break;
 		case ACT_ATTACKING:
 			description.bam_name.append("A1");
@@ -414,9 +414,9 @@ AnimationFactory::_GetBGCharacterAnimationDescription(Actor* actor)
 			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
 			break;
 	}
-	if (o >= IE::ORIENTATION_NE
-			&& o <= IE::ORIENTATION_SE) {
-		description.bam_name.append("E");
+	if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
+		if (_HasSeparateEasternOrientations(description.bam_name))
+			description.bam_name.append("E");
 	}
 	return description;
 }
@@ -433,7 +433,7 @@ _GetBG2MirroredAnimation(int& orientation, animation_description& description)
 
 /* virtual */
 animation_description
-AnimationFactory::_GetBG2CharacterAnimationDescription(Actor* actor)
+AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 {
 	//std::cout << "BG2AnimationFactory::AnimationFor" << std::endl;
 	int o = actor->Orientation();
