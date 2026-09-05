@@ -118,6 +118,19 @@ GameConsole::Update()
 }
 
 
+void
+GameConsole::Draw()
+{
+	// Same lock _UpdateFunction() takes around Update() above - Draw()
+	// (main thread, once per frame) and Update() (background thread,
+	// every 50ms) both touch Console's inherited cursor/buffer state.
+	if (SDL_LockMutex(fLock) == 0) {
+		Console::Draw();
+		SDL_UnlockMutex(fLock);
+	}
+}
+
+
 /* static */
 int
 GameConsole::_UpdateFunction(void *arg)
