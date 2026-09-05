@@ -352,6 +352,22 @@ AnimationFactory::_GetBGMonsterAnimationDescription(Actor* actor)
 			description.bam_name.append("G26");
 			description.sequence_number += 54;
 			break;
+		case ACT_DIE:
+		case ACT_DEAD:
+			// "BG1 monster style" (see IESDP's avatar naming appendix) has
+			// no separate "dead" file the way BG2 characters do (G15 vs
+			// G16) - G15 ("Twitch") is both: played once for the die
+			// animation, then it's meant to freeze on its own last frame.
+			// Mapping ACT_DEAD to the same file/sequence is an approximation:
+			// the generic auto-switch in Actor::UpdateAnimation() actually
+			// restarts G15 from frame 0 and freezes there, not on its true
+			// last frame - close enough to show a dead body immediately
+			// after the die animation, but not a pixel-perfect resting pose.
+			if (_HasG15(description.bam_name))
+				description.bam_name.append("G15");
+			else
+				description.bam_name.append("G1");
+			break;
 		default:
 			std::cerr << "BGMonsterAnimationFactory::GetAnimationDescription(): UNIMPLEMENTED ";
 			std::cerr << BaseName() << ", action " << actor->AnimationAction() << ", orientation " << o << std::endl;
