@@ -191,7 +191,7 @@ Actor::_Init()
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
 
-	if (fCRE->PermanentStatus() == 2048) // STATE_DEAD
+	if (fCRE->PermanentStatus() == STATE_DEAD)
 		SetAnimationAction(ACT_DEAD);
 	else
 		SetAnimationAction(ACT_STANDING);
@@ -655,14 +655,14 @@ Actor::ApplyDamage(int32 amount)
 	int32 hp = (int32)cre->CurrentHitPoints() - amount;
 	cre->SetCurrentHitPoints((uint16)std::max(hp, 0));
 
-	if (hp > 0 || IsState(2048)) // STATE_DEAD: already dead, nothing to do
+	if (hp > 0 || IsState(STATE_DEAD)) // already dead, nothing to do
 		return;
 
 	// Transition a living actor to dead - shared by melee (AttackTarget())
 	// and spell damage (SpellEffect.cpp's opcode #12 handler), since both
 	// funnel HP loss through here. OR in STATE_DEAD rather than
 	// overwriting, to preserve any other status bits already set.
-	cre->SetPermanentStatus(cre->PermanentStatus() | 2048);
+	cre->SetPermanentStatus(cre->PermanentStatus() | STATE_DEAD);
 	SetAnimationAction(ACT_DIE); // auto-chains to ACT_DEAD once it finishes
 
 	// Corpses stay in the area - no DestroySelf() here; removal remains

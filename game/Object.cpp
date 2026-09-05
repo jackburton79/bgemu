@@ -203,7 +203,7 @@ Object::SetArea(AreaRoom* area)
 	// TODO: Not really nice
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->CRE() != NULL) {
-		if (actor->CRE()->PermanentStatus() == 2048) // STATE_DEAD
+		if (actor->CRE()->PermanentStatus() == STATE_DEAD)
 			actor->SetAnimationAction(ACT_DEAD);
 		else
 			actor->SetAnimationAction(ACT_STANDING);
@@ -653,6 +653,9 @@ Object::_HandleScripting(int32 maxLevel)
 	bool runScripts = (fTicksIdle > 15) || IsActionListEmpty();
 
 	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->IsState(STATE_DEAD))
+		return;
+
 	if (!IsInsideVisibleArea()) {
 		if (actor == NULL || !actor->InParty()) {
 			if (fTicks % 60 != 0)

@@ -645,7 +645,7 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(actorSender, params));
-	if (target == NULL || target->IsState(2048)) { // STATE_DEAD
+	if (target == NULL || target->IsState(STATE_DEAD)) {
 		state.completed = true;
 		return;
 	}

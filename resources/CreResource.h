@@ -14,6 +14,13 @@ enum CreatureFlagBits {
 };
 
 
+// PermanentStatus() bits - see STATE.IDS. Only the one bit currently
+// checked/set anywhere in the engine is named here.
+enum CreatureStateBits {
+	STATE_DEAD = 0x800
+};
+
+
 enum Kits {
 	NONE				= 0x00000000,
 	KIT_BARBARIAN		= 0x00004000,
