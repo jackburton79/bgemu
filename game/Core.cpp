@@ -420,6 +420,17 @@ Core::RandomNumber(int32 start, int32 end)
 
 
 /* static */
+int32
+Core::RollDice(int32 count, int32 sides, int32 bonus)
+{
+	int32 total = bonus;
+	for (int32 i = 0; i < count; i++)
+		total += RandomNumber(1, sides);
+	return total;
+}
+
+
+/* static */
 ::Script*
 Core::ExtractScript(const res_ref& resName)
 {

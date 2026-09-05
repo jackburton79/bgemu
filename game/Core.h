@@ -96,6 +96,7 @@ public:
 	uint32 ScriptRound() const;
 
 	static int32 RandomNumber(int32 start, int32 end);
+	static int32 RollDice(int32 count, int32 sides, int32 bonus);
 	static ::Script* ExtractScript(const res_ref& resName);
 
 private:
