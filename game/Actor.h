@@ -67,12 +67,35 @@ public:
 	std::string ArmorAnimation() const;
 	std::string WeaponAnimation() const;
 
-	// Resolves the item in the "weapon 1" quickslot (slot 35 - same slot
+	// Resolves the item in the "weapon 1" quickslot (slot 9 - same slot
 	// ArmorAnimation()/WeaponAnimation() above already look up for their
 	// own purposes). Returns NULL if the slot is empty (caller should
 	// fall back to unarmed/fists). Like any other resource fetched via
 	// ResourceManager, the caller must gResManager->ReleaseResource() it.
 	ITMResource* EquippedWeapon() const;
+
+	// Adds a new item (by resref) to this actor's inventory, in the first
+	// free general-inventory slot (15-34, per SLOTS.IDS). Returns false
+	// (logging why) if the item resource doesn't exist, or if the CRE's
+	// on-disk Items table/inventory slots have no free entry - this
+	// engine doesn't grow a CRE's item table, so this only works while
+	// the creature has spare capacity (most placed creatures do).
+	bool AddItem(const res_ref& itemName, uint16 quantity = 1);
+
+	// Removes one item (by resref, wherever it currently sits - equipped
+	// or not) from this actor's inventory. Returns false if not found.
+	bool RemoveItem(const res_ref& itemName);
+
+	// Moves an already-owned item (by resref) into its default slot for
+	// its ITM type (weapon -> "weapon 1", armor -> armor slot, etc - see
+	// the .cpp for the full mapping). Returns false if the actor doesn't
+	// have the item, or its default slot is already occupied.
+	bool EquipItem(const res_ref& itemName);
+
+	// Moves whatever is in `slot` back to a free general-inventory slot.
+	// Returns false if the slot is empty, or there's no free slot to
+	// move it to.
+	bool UnequipSlot(uint32 slot);
 
 	bool IsEqual(const Actor* object) const;
 

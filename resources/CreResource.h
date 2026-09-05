@@ -4,6 +4,8 @@
 #include "Resource.h"
 #include "SupportDefs.h"
 
+#include <vector>
+
 #define CRE_SIGNATURE "CRE "
 #define CRE_VERSION_1 "V1.0"
 
@@ -102,6 +104,35 @@ struct Resistances {
 };
 
 
+// CRE V1.0 Known Spells entry - see IESDP cre_v1.
+struct cre_known_spell {
+	res_ref spell;
+	uint16 level;	// actual spell level (already +1'd from the on-disk value)
+	uint16 type;	// 0=Priest, 1=Wizard, 2=Innate
+};
+
+
+// CRE V1.0 Memorized Spells Table entry - see IESDP cre_v1.
+struct cre_memorized_spell {
+	res_ref spell;
+	uint32 flags;	// bit0: memorized: bit1: disabled
+};
+
+
+// CRE V1.0 Spell Memorization Info entry - see IESDP cre_v1. How many
+// spells of a given level/type the creature can memorize, and where its
+// currently memorized spells for that level/type live in the memorized
+// spells table.
+struct cre_spell_memorization_info {
+	uint16 level;	// actual spell level (already +1'd from the on-disk value)
+	uint16 numMemorizable;
+	uint16 numMemorizableEffective;
+	uint16 type;	// 0=Priest, 1=Wizard, 2=Innate
+	uint32 firstMemorizedIndex;
+	uint32 memorizedCount;
+};
+
+
 struct BaseAttributes {
 	int8 strength;
 	int8 strength_bonus;
@@ -174,17 +205,50 @@ public:
 	void SetLocalActorEnum(uint16 enumValue);
 
 	bool GetItemAtSlot(uint32 i, IE::item& item) const;
+	// -1 if the slot is empty, else the raw index into the Items table.
+	int32 ItemsIndexAtSlot(uint32 slot) const;
+	// Writes an index into the Items table (or -1 to clear) at the given
+	// slot - see SLOTS.IDS for what each slot number means (e.g. 35 is
+	// the currently-wielded weapon, 15-34 are general inventory).
+	void SetItemAtSlot(uint32 slot, int32 itemsIndex);
+	// Moves whatever Items-table index `fromSlot` holds into `toSlot`
+	// (clearing `fromSlot`), overwriting anything `toSlot` already held.
+	void MoveItemBetweenSlots(uint32 fromSlot, uint32 toSlot);
+	// -1 if no slot in [firstSlot, lastSlot] is empty.
+	int32 FindFreeSlot(uint32 firstSlot, uint32 lastSlot) const;
+	// -1 if the creature isn't carrying an item with this resref.
+	int32 FindItemSlot(const res_ref& itemName) const;
+
+	// -1 if the Items table has no free (empty-resref) entry to reuse -
+	// this engine doesn't grow a CRE's on-disk Items table, so giving an
+	// item to a creature only works while it has spare capacity (which
+	// most placed creatures do, since the original data usually carries
+	// a few extra blank entries).
+	int32 FindFreeItemsEntry() const;
+	void SetItemAtItemsIndex(uint16 index, const IE::item& item);
 
 	res_ref DialogFile() const;
 	std::string DeathVariable() const;
 
+	std::vector<cre_known_spell> KnownSpells() const;
+	std::vector<cre_memorized_spell> MemorizedSpells() const;
+	std::vector<cre_spell_memorization_info> SpellMemorizationInfo() const;
+
 private:
 	virtual ~CREResource();
-	
+
 	void _ReadItemNum(IE::item& ieItem, uint16 offset) const;
-	
+
 	uint32 fItemSlotOffset;
 	uint32 fItemsOffset;
+	uint32 fItemsCount;
+
+	uint32 fKnownSpellsOffset;
+	uint32 fKnownSpellsCount;
+	uint32 fSpellMemoInfoOffset;
+	uint32 fSpellMemoInfoCount;
+	uint32 fMemorizedSpellsOffset;
+	uint32 fMemorizedSpellsCount;
 };
 
 const char *KitToStr(uint32 kit);

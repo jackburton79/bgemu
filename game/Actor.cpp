@@ -708,12 +708,69 @@ Actor::Spawned() const
 }
 
 
+// Slot numbers below are indices into the CRE's own 40-slot item array -
+// NOT SLOTS.IDS values (that table numbers slots differently and is only
+// used by scripts/UI, not by the on-disk array order). Confirmed
+// empirically against a real BG2 companion CRE (ANOMEN10): helm/armor/
+// shield/weapon items landed at indices 0/1/2/9, matching the array order
+// IESDP cre_v1 documents (Helmet, Armor, Shield, Gloves, L.Ring, R.Ring,
+// Amulet, Belt, Boots, Weapon1-4, Quiver1-4, Cloak, QuickItem1-3,
+// Inventory1-16, MagicWeapon, SelectedWeapon, SelectedWeaponAbility).
+static const uint32 kSlotHelmet = 0;
+static const uint32 kSlotArmor = 1;
+static const uint32 kSlotShield = 2;
+static const uint32 kSlotGauntlets = 3;
+static const uint32 kSlotRingLeft = 4;
+static const uint32 kSlotAmulet = 6;
+static const uint32 kSlotBelt = 7;
+static const uint32 kSlotBoots = 8;
+static const uint32 kSlotWeaponFirst = 9;
+static const uint32 kSlotAmmoFirst = 13;
+static const uint32 kSlotAmmoLast = 16;
+static const uint32 kSlotCloak = 17;
+static const uint32 kSlotGeneralFirst = 21;
+static const uint32 kSlotGeneralLast = 36;
+
+
+// Maps an ITM "Item type" (IESDP itm_v1) to the slot it equips into by
+// default. Returns -1 for types that are never equipped (misc, potions,
+// scrolls, food, keys, books) - those only ever live in a general
+// inventory slot.
+static int32
+_DefaultSlotForItemType(uint16 type)
+{
+	switch (type) {
+		case 0x0001: return kSlotAmulet;
+		case 0x0002: return kSlotArmor;
+		case 0x0003: return kSlotBelt;
+		case 0x0004: return kSlotBoots;
+		case 0x0006: return kSlotGauntlets;
+		case 0x0007: return kSlotHelmet;
+		case 0x000a: return kSlotRingLeft;
+		case 0x000c: return kSlotShield;
+		case 0x0005: // Arrows
+		case 0x000e: // Bullets
+			return kSlotAmmoFirst;
+		case 0x0000: // Books/misc
+		case 0x0008: // Keys
+		case 0x0009: // Potions
+		case 0x000b: // Scrolls
+		case 0x000d: // Food
+			return -1;
+		default:
+			// Everything else in the ITM type table is a weapon
+			// (daggers, swords, axes, bows, staves, etc).
+			return kSlotWeaponFirst;
+	}
+}
+
+
 std::string
 Actor::ArmorAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere
 	IE::item armor;
-	if (fCRE->GetItemAtSlot(1, armor)) {
+	if (fCRE->GetItemAtSlot(kSlotArmor, armor)) {
 		ITMResource* itm = gResManager->GetITM(armor.name);
 		if (itm != NULL) {
 			std::string animationString = itm->Animation();
@@ -731,7 +788,7 @@ Actor::WeaponAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere
 	IE::item weapon;
-	if (fCRE->GetItemAtSlot(35, weapon)) {
+	if (fCRE->GetItemAtSlot(kSlotWeaponFirst, weapon)) {
 		ITMResource* itm = gResManager->GetITM(weapon.name);
 		if (itm != NULL) {
 			std::string animationString = itm->Animation();
@@ -750,10 +807,119 @@ Actor::EquippedWeapon() const
 	// TODO: Refactor: items should be loaded elsewhere (same slot lookup
 	// as WeaponAnimation() above)
 	IE::item weapon;
-	if (!fCRE->GetItemAtSlot(35, weapon))
+	if (!fCRE->GetItemAtSlot(kSlotWeaponFirst, weapon))
 		return NULL;
 
 	return gResManager->GetITM(weapon.name);
+}
+
+
+bool
+Actor::AddItem(const res_ref& itemName, uint16 quantity)
+{
+	ITMResource* itm = gResManager->GetITM(itemName);
+	if (itm == NULL) {
+		std::cerr << Name() << ": AddItem(" << itemName.CString()
+				<< "): no such item resource" << std::endl;
+		return false;
+	}
+	gResManager->ReleaseResource(itm);
+
+	int32 itemsIndex = fCRE->FindFreeItemsEntry();
+	if (itemsIndex < 0) {
+		std::cerr << Name() << ": AddItem(" << itemName.CString()
+				<< "): no free Items table entry" << std::endl;
+		return false;
+	}
+
+	int32 slot = fCRE->FindFreeSlot(kSlotGeneralFirst, kSlotGeneralLast);
+	if (slot < 0) {
+		std::cerr << Name() << ": AddItem(" << itemName.CString()
+				<< "): no free inventory slot" << std::endl;
+		return false;
+	}
+
+	IE::item item;
+	item.name = itemName;
+	item.expiration_time = 0;
+	item.expiration_time2 = 0;
+	item.quantity1 = quantity;
+	item.quantity2 = 0;
+	item.quantity3 = 0;
+	item.flags = 1; // Identified
+
+	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
+	fCRE->SetItemAtSlot((uint32)slot, itemsIndex);
+	return true;
+}
+
+
+bool
+Actor::RemoveItem(const res_ref& itemName)
+{
+	int32 slot = fCRE->FindItemSlot(itemName);
+	if (slot < 0)
+		return false;
+
+	// Zero the Items-table entry so FindFreeItemsEntry() can reuse it for
+	// a future AddItem(), then unlink the slot.
+	int32 itemsIndex = fCRE->ItemsIndexAtSlot((uint32)slot);
+	IE::item empty;
+	empty.name = res_ref();
+	empty.expiration_time = 0;
+	empty.expiration_time2 = 0;
+	empty.quantity1 = 0;
+	empty.quantity2 = 0;
+	empty.quantity3 = 0;
+	empty.flags = 0;
+	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, empty);
+	fCRE->SetItemAtSlot((uint32)slot, -1);
+
+	return true;
+}
+
+
+bool
+Actor::EquipItem(const res_ref& itemName)
+{
+	int32 currentSlot = fCRE->FindItemSlot(itemName);
+	if (currentSlot < 0)
+		return false;
+
+	ITMResource* itm = gResManager->GetITM(itemName);
+	if (itm == NULL)
+		return false;
+	int32 targetSlot = _DefaultSlotForItemType(itm->Type());
+	gResManager->ReleaseResource(itm);
+
+	if (targetSlot < 0)
+		return false; // this item type is never equipped
+
+	if ((uint32)targetSlot == (uint32)currentSlot)
+		return true; // already in its default slot
+
+	IE::item occupant;
+	if (fCRE->GetItemAtSlot((uint32)targetSlot, occupant))
+		return false; // target slot busy - swapping is out of scope
+
+	fCRE->MoveItemBetweenSlots((uint32)currentSlot, (uint32)targetSlot);
+	return true;
+}
+
+
+bool
+Actor::UnequipSlot(uint32 slot)
+{
+	IE::item item;
+	if (!fCRE->GetItemAtSlot(slot, item))
+		return false;
+
+	int32 freeSlot = fCRE->FindFreeSlot(kSlotGeneralFirst, kSlotGeneralLast);
+	if (freeSlot < 0)
+		return false;
+
+	fCRE->MoveItemBetweenSlots(slot, (uint32)freeSlot);
+	return true;
 }
 
 

@@ -12,6 +12,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "IDSResource.h"
+#include "ITMResource.h"
 #include "Object.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -830,6 +831,121 @@ RunActionApplyDamage(Object* sender, action_params* params, action_state& state)
 }
 
 
+// CREATEITEM(S:ResRef*,I:Usage1*,I:Usage2*,I:Usage3*) - stateless. Only
+// Usage1 (integer1) is used as a quantity/charge count (Actor::AddItem()
+// doesn't model per-charge-type usage separately); 0 means "1".
+static void
+RunActionCreateItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->AddItem(params->string1, params->integer1 != 0 ? params->integer1 : 1);
+	state.completed = true;
+}
+
+
+// DESTROYITEM(S:ResRef*) - stateless.
+static void
+RunActionDestroyItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->RemoveItem(params->string1);
+	state.completed = true;
+}
+
+
+// DROPITEM(S:Object*,P:Location*) - stateless. Ground-item placement
+// (per IESDP) isn't implemented - there's no "item lying on the ground"
+// object type in this engine - so this only removes the item from the
+// active creature's inventory, matching CREATEITEM/DESTROYITEM's scope.
+static void
+RunActionDropItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->RemoveItem(params->string1);
+	state.completed = true;
+}
+
+
+// GIVEITEM(S:Object*,O:Target*) - stateless. Moves the item from the
+// active creature's inventory to the target's.
+static void
+RunActionGiveItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (actor != NULL && target != NULL && actor->RemoveItem(params->string1))
+		target->AddItem(params->string1);
+	state.completed = true;
+}
+
+
+// GETITEM(S:Object*,O:Target*) - stateless. The inverse of GIVEITEM: the
+// active creature takes the item from the target's inventory.
+static void
+RunActionGetItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (actor != NULL && target != NULL && target->RemoveItem(params->string1))
+		actor->AddItem(params->string1);
+	state.completed = true;
+}
+
+
+// EQUIPITEM(S:Object*) - stateless.
+static void
+RunActionEquipItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->EquipItem(params->string1);
+	state.completed = true;
+}
+
+
+// USEITEMSLOT(O:Target*,I:Slot*) - stateless. Applies the item's first
+// ability's on-hit effects to the target (same effect-application path
+// ForceSpell() uses) and consumes one charge, removing the item once its
+// charges run out. Ability selection (UseItemSlotAbility's 3rd parameter)
+// isn't implemented - always ability 0.
+static void
+RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	Object* target = Script::GetTargetObject(sender, params);
+	if (actor == NULL || target == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	IE::item item;
+	if (actor->CRE()->GetItemAtSlot(params->integer1, item)) {
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm != NULL) {
+			for (const spl_effect& effect : itm->OnHitEffects(0)) {
+				target->AddSpellEffect(new SpellEffect(effect.opcode, actor,
+					effect.parameter1, effect.parameter2, effect.duration,
+					effect.resource.CString()));
+			}
+			gResManager->ReleaseResource(itm);
+		}
+
+		if (item.quantity1 > 1) {
+			item.quantity1--;
+			actor->CRE()->SetItemAtItemsIndex(
+				(uint16)actor->CRE()->ItemsIndexAtSlot(params->integer1), item);
+		} else {
+			actor->RemoveItem(item.name);
+		}
+	}
+
+	state.completed = true;
+}
+
+
 // FADETOCOLOR(P:POINT*,I:BLUE*) - state.counter/extra/step map to the
 // original's fCurrentValue/fTargetValue/fStepValue.
 static void
@@ -1143,12 +1259,12 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 5, "BACKSTAB", NULL },
 		{ 7, "CREATECREATURE", RunActionCreateCreature },
 		{ 8, "DIALOG", RunActionDialog },
-		{ 9, "DROPITEM", NULL },
+		{ 9, "DROPITEM", RunActionDropItem },
 		{ 10, "ENEMY", RunActionSetEnemyAlly },
-		{ 11, "EQUIPITEM", NULL },
+		{ 11, "EQUIPITEM", RunActionEquipItem },
 		{ 13, "FINDTRAPS", NULL },
-		{ 14, "GETITEM", NULL },
-		{ 15, "GIVEITEM", NULL },
+		{ 14, "GETITEM", RunActionGetItem },
+		{ 15, "GIVEITEM", RunActionGiveItem },
 		{ 16, "GIVEORDER", NULL },
 		{ 17, "HELP", NULL },
 		{ 18, "HIDE", NULL },
@@ -1166,7 +1282,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 30, "SETGLOBAL", RunActionSetGlobal },
 		{ 31, "SPELL", NULL },
 		{ 33, "TURN", NULL },
-		{ 34, "USEITEMSLOT", NULL },
+		{ 34, "USEITEMSLOT", RunActionUseItemSlot },
 		{ 36, "CONTINUE", NULL },
 		{ 37, "FOLLOWPATH", NULL },
 		{ 38, "SWING", NULL },
@@ -1207,7 +1323,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 79, "NIDSPECIAL10", NULL },
 		{ 80, "NIDSPECIAL11", NULL },
 		{ 81, "NIDSPECIAL12", NULL },
-		{ 82, "CREATEITEM", NULL },
+		{ 82, "CREATEITEM", RunActionCreateItem },
 		{ 83, "SMALLWAIT", RunActionSmallWait },
 		{ 84, "FACE", RunActionChangeOrientationExt },
 		{ 85, "RANDOMWALK", RunActionRandomWalk },
@@ -1293,7 +1409,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 166, "SETNUMTIMESTALKEDTO", NULL },
 		{ 167, "STARTMOVIE", RunActionPlayMovie },
 		{ 168, "INTERACT", NULL },
-		{ 169, "DESTROYITEM", NULL },
+		{ 169, "DESTROYITEM", RunActionDestroyItem },
 		{ 170, "REVEALAREAONMAP", NULL },
 		{ 171, "GIVEGOLDFORCE", NULL },
 		{ 172, "CHANGETILESTATE", NULL },

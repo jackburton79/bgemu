@@ -12,8 +12,10 @@
 
 #include <vector>
 
-// One "Feature Block" entry (48 bytes in the .spl file) - a single effect
-// carried by the spell. See IESDP spl_v1 for the authoritative layout.
+// One "Feature Block" entry (48 bytes in the .spl/.itm file) - a single
+// effect carried by the spell/item ability. See IESDP spl_v1/itm_v1 for
+// the authoritative layout - both formats share this exact 48-byte
+// structure, so ITMResource reuses this type instead of duplicating it.
 struct spl_effect {
 	int16 opcode;
 	uint8 targetType;
@@ -22,8 +24,22 @@ struct spl_effect {
 	int32 parameter2;
 	uint8 timingMode;
 	uint32 duration;
+	uint8 probability1;
+	uint8 probability2;
 	res_ref resource;
+	int32 diceThrown;
+	int32 diceSides;
+	uint32 savingThrowType;	// bitmask: bit0 Spells, bit1 Breath, bit2 Death, bit3 Wands, bit4 Polymorph
+	int32 savingThrowBonus;
 };
+
+
+// Shared by SPLResource and ITMResource: reads `count` consecutive 48-byte
+// feature blocks starting at the block whose index (not byte offset) is
+// `index`, in the feature-block data segment starting at `baseOffset`.
+std::vector<spl_effect> ReadFeatureBlocks(Stream* data, uint32 baseOffset,
+	uint32 index, uint16 count);
+
 
 class SPLResource : public Resource {
 public:
@@ -43,20 +59,24 @@ public:
 	uint32 DescriptionUnidentifiedRef() const;
 	uint32 DescriptionIdentifiedRef() const;
 
-	uint16 CastingTime() const;
+	// abilityIndex selects which Extended Header (ability) to read; spells
+	// can have more than one (e.g. wands with different charge types).
+	// Defaults to 0 to match every current caller (ForceSpell()/
+	// ForceSpellPoint(), which always force-cast the spell's first/only
+	// relevant ability).
+	uint16 CastingTime(uint16 abilityIndex = 0) const;
 
 	// Effects this spell applies when it hits its target. Prefers the
-	// first extended header's feature blocks (where single-ability spells -
-	// e.g. innate/special abilities force-cast via ForceSpell() - keep
-	// their actual effects); falls back to the spell's top-level "casting"
-	// feature blocks (applied regardless of ability) if there's none.
-	std::vector<spl_effect> Effects() const;
+	// selected extended header's feature blocks (where single-ability
+	// spells - e.g. innate/special abilities force-cast via ForceSpell() -
+	// keep their actual effects); falls back to the spell's top-level
+	// "casting" feature blocks (applied regardless of ability) if there's
+	// none, or if `abilityIndex` is out of range.
+	std::vector<spl_effect> Effects(uint16 abilityIndex = 0) const;
 
 	static std::string GetSpellResourceName(uint16 id);
 
 private:
-	std::vector<spl_effect> _ReadFeatureBlocks(uint32 index, uint16 count) const;
-
 	uint32 fExtendedHeadersOffset;
 	uint16 fExtendedHeadersCount;
 

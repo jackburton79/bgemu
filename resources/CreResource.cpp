@@ -16,7 +16,14 @@ CREResource::CREResource(const res_ref &name)
 	:
 	Resource(name, RES_CRE),
 	fItemSlotOffset(0),
-	fItemsOffset(0)
+	fItemsOffset(0),
+	fItemsCount(0),
+	fKnownSpellsOffset(0),
+	fKnownSpellsCount(0),
+	fSpellMemoInfoOffset(0),
+	fSpellMemoInfoCount(0),
+	fMemorizedSpellsOffset(0),
+	fMemorizedSpellsCount(0)
 {
 }
 
@@ -62,8 +69,15 @@ CREResource::Load(Stream* stream, uint32 position, uint32 size)
 void
 CREResource::Init()
 {
+	fData->ReadAt(0x02a0, fKnownSpellsOffset);
+	fData->ReadAt(0x02a4, fKnownSpellsCount);
+	fData->ReadAt(0x02a8, fSpellMemoInfoOffset);
+	fData->ReadAt(0x02ac, fSpellMemoInfoCount);
+	fData->ReadAt(0x02b0, fMemorizedSpellsOffset);
+	fData->ReadAt(0x02b4, fMemorizedSpellsCount);
 	fData->ReadAt(0x02b8, fItemSlotOffset);
 	fData->ReadAt(0x02bc, fItemsOffset);
+	fData->ReadAt(0x02c0, fItemsCount);
 }
 
 
@@ -434,6 +448,151 @@ CREResource::GetItemAtSlot(uint32 i, IE::item& item) const
 	_ReadItemNum(item, itemOffset);
 
 	return true;
+}
+
+
+int32
+CREResource::ItemsIndexAtSlot(uint32 slot) const
+{
+	if (slot >= kNumItemSlots)
+		throw std::out_of_range("ItemsIndexAtSlot() out of range");
+
+	int16 itemOffset;
+	fData->ReadAt(fItemSlotOffset + slot * sizeof(itemOffset), itemOffset);
+	return itemOffset == -1 ? -1 : (int32)itemOffset;
+}
+
+
+void
+CREResource::SetItemAtSlot(uint32 slot, int32 itemsIndex)
+{
+	if (slot >= kNumItemSlots)
+		throw std::out_of_range("SetItemAtSlot() out of range");
+
+	int16 value = (int16)itemsIndex;
+	fData->WriteAt(fItemSlotOffset + slot * sizeof(value), &value, sizeof(value));
+}
+
+
+void
+CREResource::MoveItemBetweenSlots(uint32 fromSlot, uint32 toSlot)
+{
+	int32 itemsIndex = ItemsIndexAtSlot(fromSlot);
+	SetItemAtSlot(fromSlot, -1);
+	SetItemAtSlot(toSlot, itemsIndex);
+}
+
+
+int32
+CREResource::FindFreeSlot(uint32 firstSlot, uint32 lastSlot) const
+{
+	for (uint32 slot = firstSlot; slot <= lastSlot && slot < kNumItemSlots; slot++) {
+		int16 itemOffset;
+		fData->ReadAt(fItemSlotOffset + slot * sizeof(itemOffset), itemOffset);
+		if (itemOffset == -1)
+			return (int32)slot;
+	}
+	return -1;
+}
+
+
+int32
+CREResource::FindItemSlot(const res_ref& itemName) const
+{
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (GetItemAtSlot(slot, item) && item.name == itemName)
+			return (int32)slot;
+	}
+	return -1;
+}
+
+
+int32
+CREResource::FindFreeItemsEntry() const
+{
+	for (uint32 i = 0; i < fItemsCount; i++) {
+		IE::item item;
+		_ReadItemNum(item, (uint16)i);
+		if (item.name.name[0] == '\0')
+			return (int32)i;
+	}
+	return -1;
+}
+
+
+void
+CREResource::SetItemAtItemsIndex(uint16 index, const IE::item& item)
+{
+	if (index >= fItemsCount)
+		throw std::out_of_range("SetItemAtItemsIndex() out of range");
+
+	const off_t offset = fItemsOffset + index * sizeof(IE::item);
+	fData->WriteAt(offset, &item, sizeof(item));
+}
+
+
+std::vector<cre_known_spell>
+CREResource::KnownSpells() const
+{
+	const uint32 kEntrySize = 12;
+
+	std::vector<cre_known_spell> spells;
+	for (uint32 i = 0; i < fKnownSpellsCount; i++) {
+		uint32 offset = fKnownSpellsOffset + i * kEntrySize;
+
+		cre_known_spell spell;
+		fData->ReadAt(offset + 0x00, spell.spell);
+		fData->ReadAt(offset + 0x08, spell.level);
+		spell.level += 1; // on-disk value is (level - 1)
+		fData->ReadAt(offset + 0x0a, spell.type);
+
+		spells.push_back(spell);
+	}
+	return spells;
+}
+
+
+std::vector<cre_memorized_spell>
+CREResource::MemorizedSpells() const
+{
+	const uint32 kEntrySize = 12;
+
+	std::vector<cre_memorized_spell> spells;
+	for (uint32 i = 0; i < fMemorizedSpellsCount; i++) {
+		uint32 offset = fMemorizedSpellsOffset + i * kEntrySize;
+
+		cre_memorized_spell spell;
+		fData->ReadAt(offset + 0x00, spell.spell);
+		fData->ReadAt(offset + 0x08, spell.flags);
+
+		spells.push_back(spell);
+	}
+	return spells;
+}
+
+
+std::vector<cre_spell_memorization_info>
+CREResource::SpellMemorizationInfo() const
+{
+	const uint32 kEntrySize = 16;
+
+	std::vector<cre_spell_memorization_info> info;
+	for (uint32 i = 0; i < fSpellMemoInfoCount; i++) {
+		uint32 offset = fSpellMemoInfoOffset + i * kEntrySize;
+
+		cre_spell_memorization_info entry;
+		fData->ReadAt(offset + 0x00, entry.level);
+		entry.level += 1; // on-disk value is (level - 1)
+		fData->ReadAt(offset + 0x02, entry.numMemorizable);
+		fData->ReadAt(offset + 0x04, entry.numMemorizableEffective);
+		fData->ReadAt(offset + 0x06, entry.type);
+		fData->ReadAt(offset + 0x08, entry.firstMemorizedIndex);
+		fData->ReadAt(offset + 0x0c, entry.memorizedCount);
+
+		info.push_back(entry);
+	}
+	return info;
 }
 
 

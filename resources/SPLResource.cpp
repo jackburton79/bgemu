@@ -103,57 +103,69 @@ SPLResource::DescriptionIdentifiedRef() const
 
 
 uint16
-SPLResource::CastingTime() const
+SPLResource::CastingTime(uint16 abilityIndex) const
 {
-	// TODO: There could me multiple extended headers
-	// we only check the first
-	uint16 castingTime; // in tenth of round
-	fData->ReadAt(fExtendedHeadersOffset + 0x0012, castingTime);
+	uint16 castingTime = 0; // in tenth of round
+	if (abilityIndex < fExtendedHeadersCount) {
+		const uint32 kExtHeaderSize = 40;
+		fData->ReadAt(fExtendedHeadersOffset + abilityIndex * kExtHeaderSize + 0x0012,
+			castingTime);
+	}
 	return castingTime;
 }
 
 
 std::vector<spl_effect>
-SPLResource::Effects() const
+SPLResource::Effects(uint16 abilityIndex) const
 {
-	// Prefer the first extended header's own feature blocks: this is
+	// Prefer the selected extended header's own feature blocks: this is
 	// where single-ability spells (most innate/special abilities, which
 	// is what ForceSpell()/ForceSpellPoint() force-cast) keep their real
 	// effects. Fall back to the spell's top-level "casting" feature
-	// blocks if there's no extended header, or it carries none.
-	if (fExtendedHeadersCount > 0) {
+	// blocks if there's no such extended header, or it carries none.
+	if (abilityIndex < fExtendedHeadersCount) {
+		const uint32 kExtHeaderSize = 40;
+		const uint32 extHeaderOffset = fExtendedHeadersOffset + abilityIndex * kExtHeaderSize;
+
 		uint16 count;
 		uint16 index;
 		// Extended Header offsets 0x1e (count) and 0x20 (index) - see
 		// IESDP spl_v1.
-		fData->ReadAt(fExtendedHeadersOffset + 0x001e, count);
-		fData->ReadAt(fExtendedHeadersOffset + 0x0020, index);
+		fData->ReadAt(extHeaderOffset + 0x001e, count);
+		fData->ReadAt(extHeaderOffset + 0x0020, index);
 		if (count > 0)
-			return _ReadFeatureBlocks(index, count);
+			return ReadFeatureBlocks(fData, fFeatureBlockOffset, index, count);
 	}
 
-	return _ReadFeatureBlocks(fCastingFeatureBlockIndex, fCastingFeatureBlockCount);
+	return ReadFeatureBlocks(fData, fFeatureBlockOffset, fCastingFeatureBlockIndex,
+		fCastingFeatureBlockCount);
 }
 
 
 std::vector<spl_effect>
-SPLResource::_ReadFeatureBlocks(uint32 index, uint16 count) const
+ReadFeatureBlocks(Stream* data, uint32 baseOffset, uint32 index, uint16 count)
 {
 	const uint32 kFeatureBlockSize = 48;
 
 	std::vector<spl_effect> effects;
 	for (uint16 i = 0; i < count; i++) {
-		uint32 blockOffset = fFeatureBlockOffset + (index + i) * kFeatureBlockSize;
+		uint32 blockOffset = baseOffset + (index + i) * kFeatureBlockSize;
 
 		spl_effect effect;
-		fData->ReadAt(blockOffset + 0x00, effect.opcode);
-		fData->ReadAt(blockOffset + 0x02, effect.targetType);
-		fData->ReadAt(blockOffset + 0x03, effect.power);
-		fData->ReadAt(blockOffset + 0x04, effect.parameter1);
-		fData->ReadAt(blockOffset + 0x08, effect.parameter2);
-		fData->ReadAt(blockOffset + 0x0c, effect.timingMode);
-		fData->ReadAt(blockOffset + 0x0e, effect.duration);
-		fData->ReadAt(blockOffset + 0x14, effect.resource);
+		data->ReadAt(blockOffset + 0x00, effect.opcode);
+		data->ReadAt(blockOffset + 0x02, effect.targetType);
+		data->ReadAt(blockOffset + 0x03, effect.power);
+		data->ReadAt(blockOffset + 0x04, effect.parameter1);
+		data->ReadAt(blockOffset + 0x08, effect.parameter2);
+		data->ReadAt(blockOffset + 0x0c, effect.timingMode);
+		data->ReadAt(blockOffset + 0x0e, effect.duration);
+		data->ReadAt(blockOffset + 0x12, effect.probability1);
+		data->ReadAt(blockOffset + 0x13, effect.probability2);
+		data->ReadAt(blockOffset + 0x14, effect.resource);
+		data->ReadAt(blockOffset + 0x1c, effect.diceThrown);
+		data->ReadAt(blockOffset + 0x20, effect.diceSides);
+		data->ReadAt(blockOffset + 0x24, effect.savingThrowType);
+		data->ReadAt(blockOffset + 0x28, effect.savingThrowBonus);
 
 		effects.push_back(effect);
 	}
