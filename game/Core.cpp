@@ -8,6 +8,7 @@
 #include "GameTimer.h"
 #include "GUI.h"
 #include "Log.h"
+#include "MoviePlayer.h"
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Script.h"
@@ -309,7 +310,8 @@ Core::PlayMovie(const char* name)
 {
 	MVEResource* resource = gResManager->GetMVE(name);
 	if (resource != NULL) {
-		resource->Play();
+		MoviePlayer player;
+		player.Play(resource);
 		gResManager->ReleaseResource(resource);
 	}
 }

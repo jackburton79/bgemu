@@ -1,4 +1,3 @@
-#include "GraphicsEngine.h"
 #include "MovieDecoder.h"
 #include "MveResource.h"
 #include "SoundEngine.h"
@@ -7,8 +6,6 @@
 
 #include <iostream>
 #include <limits.h>
-
-#include <SDL.h>
 
 
 enum chunk_type {
@@ -141,7 +138,8 @@ MVEResource::MVEResource(const res_ref &name)
 	:
 	Resource(name, RES_MVE),
 	fTimer(0),
-	fLastFrameTime(0)
+	fLastFrameTime(0),
+	fFrameReady(false)
 {
 	fDecoder = new MovieDecoder();
 }
@@ -153,70 +151,19 @@ MVEResource::~MVEResource()
 }
 
 
-void
-MVEResource::Play()
+bool
+MVEResource::DecodeNextChunk()
 {
-	char signature[20];
-	fData->Read(signature, 20);
-	signature[18] = '\0';
-	//std::cout << signature << std::endl;
-	int16 magic[3];
-
-	fData->Read(magic);
-	//std::cout << "magic: " << magic[0] << " " << magic[1] << " " << magic[2] << std::endl;
-
-	GraphicsEngine::Get()->SaveCurrentMode();
-
-	fLastFrameTime = Timer::Ticks();
-	bool quitting = false;
-	bool paused = false;
-	SDL_Event event;
-	while (!quitting) {
-		if (!paused) {
-			if (!GetNextChunk())
-				break;
-		}
-		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-				case SDL_KEYDOWN: {
-					switch (event.key.keysym.sym) {
-						case SDLK_q:
-							quitting = true;
-							break;
-						case SDLK_p:
-							paused = !paused;
-							break;
-						default:
-							break;
-					}
-				}
-				break;
-
-				case SDL_QUIT:
-					quitting = true;
-					break;
-				default:
-					break;
-			}
-		}
-		uint32 currentTime = Timer::Ticks();
-		if (fTimer != 0 && !quitting) {
-			uint32 nextFrameTime = fLastFrameTime + fTimer;
-			if (currentTime < nextFrameTime)
-				Timer::Wait(nextFrameTime - currentTime);
-		}
+	// The 20-byte signature + 3-word magic header at the start of the
+	// stream is only ever read once, on the very first call - detected
+	// via the stream still being at position 0.
+	if (fData->Position() == 0) {
+		char signature[20];
+		fData->Read(signature, 20);
+		int16 magic[3];
+		fData->Read(magic);
 	}
 
-	SoundEngine::Get()->DestroyBuffers();
-	std::cout << "MVEResource::Play() returns..." << std::endl;
-
-	GraphicsEngine::Get()->RestorePreviousMode();
-}
-
-
-bool
-MVEResource::GetNextChunk()
-{
 	try {
 		if ((uint32)fData->Position() >= fData->Size())
 			return false;
@@ -234,6 +181,36 @@ MVEResource::GetNextChunk()
 	}
 
 	return true;
+}
+
+
+bool
+MVEResource::ConsumeFrameReady()
+{
+	bool ready = fFrameReady;
+	fFrameReady = false;
+	return ready;
+}
+
+
+Bitmap*
+MVEResource::CurrentFrame() const
+{
+	return fDecoder->CurrentFrame();
+}
+
+
+uint32
+MVEResource::FrameDelay() const
+{
+	return fTimer;
+}
+
+
+uint32
+MVEResource::LastFrameTime() const
+{
+	return fLastFrameTime;
 }
 
 
@@ -334,6 +311,7 @@ MVEResource::ExecuteOpcode(op_stream_header opcode)
 			}
 			fLastFrameTime = Timer::Ticks();
 			fDecoder->BlitBackBuffer();
+			fFrameReady = true;
 			break;
 		case OP_SET_DECODING_MAP:
 		{

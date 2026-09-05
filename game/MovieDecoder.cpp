@@ -223,10 +223,18 @@ MovieDecoder::DecodeDataBlock(Stream *stream, uint32 length)
 void
 MovieDecoder::BlitBackBuffer()
 {
-	GraphicsEngine::Get()->BlitToScreen(fNewFrame, NULL, NULL);
-	GraphicsEngine::Get()->Update();
-
+	// Presenting the frame to the screen is MoviePlayer's job (see
+	// MVEResource::CurrentFrame()/ConsumeFrameReady()) - this just
+	// finishes decoding by making the freshly-decoded buffer the current
+	// one.
 	std::swap(fNewFrame, fCurrentFrame);
+}
+
+
+Bitmap*
+MovieDecoder::CurrentFrame()
+{
+	return fCurrentFrame;
 }
 
 
