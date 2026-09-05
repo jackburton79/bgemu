@@ -122,7 +122,7 @@ GamResource::WriteToFile(const char* path) const
 		buffer.WriteAt(structOffset + 0x08, &creSize, sizeof(creSize));
 		char name[8];
 		memset(name, 0, sizeof(name));
-		strncpy(name, member.info.name.c_str(), sizeof(name));
+		memcpy(name, member.info.name.c_str(), sizeof(name));
 		buffer.WriteAt(structOffset + 0x0c, name, sizeof(name));
 		uint32 orientation = member.info.orientation;
 		buffer.WriteAt(structOffset + 0x14, &orientation, sizeof(orientation));
