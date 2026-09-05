@@ -9,23 +9,29 @@ int
 Graphics::DecodeRLE(const void* source, uint32 outSize, void* dest,
 					uint8 compIndex)
 {
-	uint32 size = 0;
 	uint8* bits = (uint8*) dest;
-	uint8* srcBits = (uint8*) source;
-	while (size++ < outSize) {
+	const uint8* srcBits = (const uint8*) source;
+	uint32 written = 0;
+	while (written < outSize) {
 		uint8 byte = *srcBits++;
 		if (byte == compIndex) {
 			uint16 howMany = (uint8) *srcBits++;
-			size += howMany;
 			howMany++;
+			// Clamp: a corrupted/malicious run length must never write
+			// past the end of the (fixed-size) dest buffer, regardless of
+			// what the compressed data claims.
+			if (howMany > outSize - written)
+				howMany = outSize - written;
 			memset(bits, byte, howMany);
 			bits += howMany;
+			written += howMany;
 		} else {
 			*bits++ = byte;
+			written++;
 		}
 	}
 
-	return outSize;
+	return written;
 }
 
 /* static */
