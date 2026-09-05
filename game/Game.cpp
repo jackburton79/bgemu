@@ -49,7 +49,7 @@ Game::Game()
 	fParty(NULL),
 	fTempState(NULL),
 	//fDelay(67), // 15 Khz, standard Infinity engine
-	fDelay(20), // For tests only
+	fDelay(0), // For tests only
 	fTestMode(false)
 {
 	fTempState = new Game::TempState;
@@ -114,13 +114,14 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			screenRect.h);
 
 	GameConsole* inputConsole = NULL;
-#if 0
 	std::cout << "Setting up console...";
 	std::flush(std::cout);
 	inputConsole = new GameConsole(consoleRect, false);
 	std::cout << "OK!" << std::endl;
-	inputConsole->EnableRedirect();
-#endif
+	// Redirection of stdout into the on-screen console buffer stays
+	// off by default (toggle with 'd' at runtime) - keeping stdout on
+	// the normal stream/terminal is what the headless ASan test
+	// workflow relies on.
 	if (inputConsole != NULL)
 		inputConsole->Initialize();
 	std::cout << "OK!" << std::endl;
@@ -379,13 +380,6 @@ Game::LoadStartingArea()
 		gResManager->ReleaseResource(resource);
 		return;
 	}
-
-	// TODO: Fix this
-	/*if (Core::Get()->Game() == GAME_BALDURSGATE2) {
-		// TODO: Needed for the initial script
-		IE::point startPoint = {20, 20};
-		fParty->AddActor(new Actor("IMOEN", startPoint, 0));
-	}*/
 
 	Core::Get()->LoadArea(startingArea.c_str(), "foo", "");
 	Core::Get()->CurrentRoom()->SetAreaOffsetCenter(viewPosition);
