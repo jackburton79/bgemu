@@ -143,9 +143,15 @@ public:
 	uint32 Experience() const;
 	uint32 ExperienceValue() const;
 	uint32 PermanentStatus() const;
+	void SetPermanentStatus(uint32 status);
 	uint16 CurrentHitPoints() const;
 	void SetCurrentHitPoints(uint16 hp);
 	uint32 Gold() const;
+
+	ArmorClass AC() const;
+	uint8 THAC0() const;
+	uint8 NumberOfAttacks() const;
+	SaveVersus Saves() const;
 	
 	void GetAttributes(BaseAttributes &attributes);
 	

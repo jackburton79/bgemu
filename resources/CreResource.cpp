@@ -229,6 +229,13 @@ CREResource::PermanentStatus() const
 }
 
 
+void
+CREResource::SetPermanentStatus(uint32 status)
+{
+	fData->WriteAt(0x20, &status, sizeof(status));
+}
+
+
 uint16
 CREResource::CurrentHitPoints() const
 {
@@ -242,6 +249,55 @@ void
 CREResource::SetCurrentHitPoints(uint16 hp)
 {
 	fData->WriteAt(0x24, &hp, sizeof(hp));
+}
+
+
+// CRE v1: 0x46 Armor Class (Natural), 0x48 (Effective), 0x4a-0x50 per
+// damage-type modifiers (Crushing/Missile/Piercing/Slashing).
+ArmorClass
+CREResource::AC() const
+{
+	ArmorClass ac;
+	fData->ReadAt(0x46, ac.natural);
+	fData->ReadAt(0x48, ac.effective);
+	fData->ReadAt(0x4a, ac.crushing);
+	fData->ReadAt(0x4c, ac.missile);
+	fData->ReadAt(0x4e, ac.piercing);
+	fData->ReadAt(0x50, ac.slashing);
+	return ac;
+}
+
+
+uint8
+CREResource::THAC0() const
+{
+	uint8 thac0;
+	fData->ReadAt(0x52, thac0);
+	return thac0;
+}
+
+
+uint8
+CREResource::NumberOfAttacks() const
+{
+	uint8 attacks;
+	fData->ReadAt(0x53, attacks);
+	return attacks;
+}
+
+
+// CRE v1: 0x54 Save vs Death, 0x55 Wands, 0x56 Polymorph, 0x57 Breath,
+// 0x58 Spell.
+SaveVersus
+CREResource::Saves() const
+{
+	SaveVersus saves;
+	fData->ReadAt(0x54, saves.death);
+	fData->ReadAt(0x55, saves.wands);
+	fData->ReadAt(0x56, saves.poly);
+	fData->ReadAt(0x57, saves.breath);
+	fData->ReadAt(0x58, saves.spell);
+	return saves;
 }
 
 
