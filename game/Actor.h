@@ -18,6 +18,7 @@ class AreaRoom;
 class Bitmap;
 class BCSResource;
 class CREResource;
+class ITMResource;
 class Path;
 class Region;
 class Script;
@@ -66,6 +67,13 @@ public:
 	std::string ArmorAnimation() const;
 	std::string WeaponAnimation() const;
 
+	// Resolves the item in the "weapon 1" quickslot (slot 35 - same slot
+	// ArmorAnimation()/WeaponAnimation() above already look up for their
+	// own purposes). Returns NULL if the slot is empty (caller should
+	// fall back to unarmed/fists). Like any other resource fetched via
+	// ResourceManager, the caller must gResManager->ReleaseResource() it.
+	ITMResource* EquippedWeapon() const;
+
 	bool IsEqual(const Actor* object) const;
 
 	bool IsEnemyOf(const Actor* object) const;
@@ -80,17 +88,30 @@ public:
 	void SetEnemyAlly(int ea);
 	bool IsState(int state) const;
 
-	// Subtracts amount from the current hit points (clamped at 0). Doesn't
-	// deal with death (nothing in the engine currently transitions an
-	// actor to STATE_DEAD from hitpoints reaching 0 - see KILL()/DestroySelf()
-	// for the existing, script-driven death paths).
+	// Subtracts amount from the current hit points (clamped at 0). If this
+	// brings HP to 0 and the actor isn't already dead, also transitions it
+	// to STATE_DEAD (animation + death variable) - see the .cpp for
+	// details. Used by both melee (AttackTarget()) and spell damage
+	// (SpellEffect.cpp's opcode #12 handler), so death handling only
+	// lives in one place.
 	void ApplyDamage(int32 amount);
 
 	bool MatchNode(object_params* node) const;
 
 	Actor* ResolveIdentifier(const int identifier) const;
 
+	// Resolves one to-hit + damage attack against target right now (see
+	// the .cpp for the formula). Callers are responsible for their own
+	// round pacing - see AttackCooldown()/SetAttackCooldown() below,
+	// used by RunActionAttack() (scripting/Actions.cpp) so this doesn't
+	// fire every single engine tick.
 	void AttackTarget(Actor* object);
+
+	// Ticks remaining before this actor's next attack is allowed to
+	// resolve; sender-side round pacing lives in the caller (see
+	// RunActionAttack()), not in AttackTarget() itself.
+	int32 AttackCooldown() const;
+	void SetAttackCooldown(int32 ticks);
 
 	void IncrementNumTimesTalkedTo();
 	uint32 NumTimesTalkedTo() const;
@@ -144,6 +165,7 @@ private:
 	bool fSelected;
 
 	bool fAttacking;
+	int32 fAttackCooldown;
 
 	Path* fPath;
 	int fSpeed;

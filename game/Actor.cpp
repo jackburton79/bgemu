@@ -45,6 +45,7 @@ Actor::Actor(IE::actor &actor)
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
+	fAttackCooldown(0),
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL)
@@ -68,6 +69,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
+	fAttackCooldown(0),
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL)
@@ -91,6 +93,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fColors(NULL),
 	fFlying(false),
 	fSelected(false),
+	fAttackCooldown(0),
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL),
@@ -651,6 +654,22 @@ Actor::ApplyDamage(int32 amount)
 	CREResource* cre = CRE();
 	int32 hp = (int32)cre->CurrentHitPoints() - amount;
 	cre->SetCurrentHitPoints((uint16)std::max(hp, 0));
+
+	if (hp > 0 || IsState(2048)) // STATE_DEAD: already dead, nothing to do
+		return;
+
+	// Transition a living actor to dead - shared by melee (AttackTarget())
+	// and spell damage (SpellEffect.cpp's opcode #12 handler), since both
+	// funnel HP loss through here. OR in STATE_DEAD rather than
+	// overwriting, to preserve any other status bits already set.
+	cre->SetPermanentStatus(cre->PermanentStatus() | 2048);
+	SetAnimationAction(ACT_DIE); // auto-chains to ACT_DEAD once it finishes
+
+	// Corpses stay in the area - no DestroySelf() here; removal remains
+	// script-driven, same as today.
+	const std::string deathVar = cre->DeathVariable();
+	if (!deathVar.empty())
+		SetVariable(deathVar.c_str(), 1);
 }
 
 
@@ -723,6 +742,19 @@ Actor::WeaponAnimation() const
 	}
 
 	return "";
+}
+
+
+ITMResource*
+Actor::EquippedWeapon() const
+{
+	// TODO: Refactor: items should be loaded elsewhere (same slot lookup
+	// as WeaponAnimation() above)
+	IE::item weapon;
+	if (!fCRE->GetItemAtSlot(35, weapon))
+		return NULL;
+
+	return gResManager->GetITM(weapon.name);
 }
 
 
@@ -863,11 +895,88 @@ Actor::_HandleScripts()
 }
 
 
+// Selects the ArmorClass field matching a weapon's damage type (IESDP
+// itm_v1 offset 0x1c). BG2-specific combo types (6/7/8, e.g. halberds
+// dealing crushing+piercing) and unknown values fall back to `effective`
+// AC rather than guessing which of the two component types applies.
+static int16
+_ArmorClassFor(const ArmorClass& ac, uint16 weaponDamageType)
+{
+	switch (weaponDamageType) {
+		case 1: // Piercing/Magic
+			return ac.piercing;
+		case 2: // Blunt/Crushing
+			return ac.crushing;
+		case 3: // Slashing
+			return ac.slashing;
+		case 4: // Missile
+			return ac.missile;
+		default:
+			return ac.effective;
+	}
+}
+
+
 void
 Actor::AttackTarget(Actor* target)
 {
+	// Without an explicit round stamp this trigger is pruned by
+	// RemoveExpiredTriggers() almost immediately (trigger_entry's round
+	// defaults to 0), unlike every other trigger-posting site - see e.g.
+	// the "OnCreation"/"Clicked" triggers in Object.cpp.
 	trigger_entry triggerEntry("AttackedBy", this);
+	triggerEntry.round = Core::Get()->ScriptRound();
 	target->AddTrigger(triggerEntry);
+
+	itm_ability ability;
+	bool hasAbility = false;
+	ITMResource* weapon = EquippedWeapon();
+	if (weapon != NULL) {
+		hasAbility = weapon->GetAbility(0, ability);
+		gResManager->ReleaseResource(weapon);
+	}
+	if (!hasAbility) {
+		// Unarmed, or the equipped item has no usable ability: there's no
+		// dedicated "fists" ITM resource to load, so fall back to a small
+		// hardcoded unarmed profile instead.
+		ability.attackType = 1; // Melee
+		ability.thac0Bonus = 0;
+		ability.diceSides = 2;
+		ability.diceThrown = 1;
+		ability.damageBonus = 0;
+		ability.damageType = 5; // Fists
+	}
+
+	const ArmorClass targetAC = target->CRE()->AC();
+	const int16 effectiveAC = _ArmorClassFor(targetAC, ability.damageType);
+
+	// Standard THAC0 to-hit: roll needed = attacker's THAC0 (better with
+	// a lower value), minus the weapon's own THAC0 bonus, minus the
+	// target's AC for this damage type (also better/harder to hit when
+	// lower). A natural 20 always hits, a natural 1 always misses.
+	const int32 roll = Core::RollDice(1, 20, 0);
+	const int32 neededRoll = CRE()->THAC0() - ability.thac0Bonus - effectiveAC;
+	const bool hit = roll == 20 || (roll != 1 && roll >= neededRoll);
+	if (!hit)
+		return;
+
+	const int32 damage = Core::RollDice(ability.diceThrown, ability.diceSides,
+			ability.damageBonus);
+	target->ApplyDamage(damage);
+}
+
+
+int32
+Actor::AttackCooldown() const
+{
+	return fAttackCooldown;
+}
+
+
+void
+Actor::SetAttackCooldown(int32 ticks)
+{
+	fAttackCooldown = ticks;
 }
 
 
