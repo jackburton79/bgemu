@@ -51,6 +51,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
 	{ 0x4100, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
+	{ 0x4700, "LEMF", FactoryType::StaticAnimation },
 	{ 0x4710, "LEFF", FactoryType::StaticAnimation },
 
 	{ 0x5000, "CHMB", FactoryType::Character },
@@ -63,6 +64,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x5200, "", FactoryType::Character },
 	{ 0x5202, "CDMW", FactoryType::Character },
 	{ 0x5210, "CHFW", FactoryType::Character },
+	{ 0x5300, "CHMB", FactoryType::Character },
 	{ 0x5303, "CIMB", FactoryType::Character },
 	{ 0x6000, "CHMB", FactoryType::Character },
 	{ 0x6002, "CDMB", FactoryType::Character },
