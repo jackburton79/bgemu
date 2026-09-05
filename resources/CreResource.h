@@ -184,12 +184,18 @@ public:
 	void SetPermanentStatus(uint32 status);
 	uint16 CurrentHitPoints() const;
 	void SetCurrentHitPoints(uint16 hp);
+	uint16 MaxHitPoints() const;
 	uint32 Gold() const;
 
 	ArmorClass AC() const;
 	uint8 THAC0() const;
 	uint8 NumberOfAttacks() const;
 	SaveVersus Saves() const;
+
+	// Highest attained level across this creature's (up to 3, for
+	// dual/multi-class) classes.
+	uint8 Level() const;
+	uint8 Morale() const;
 	
 	void GetAttributes(BaseAttributes &attributes);
 	

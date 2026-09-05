@@ -655,11 +655,21 @@ Actor::ApplyDamage(int32 amount)
 	int32 hp = (int32)cre->CurrentHitPoints() - amount;
 	cre->SetCurrentHitPoints((uint16)std::max(hp, 0));
 
+	// TookDamage() - no target, just records that this happened this round.
+	trigger_entry tookDamage("TookDamage");
+	tookDamage.round = Core::Get()->ScriptRound();
+	AddTrigger(tookDamage);
+
 	if (hp > 0 || IsState(STATE_DEAD)) // already dead, nothing to do
 		return;
 
 	cre->SetPermanentStatus(cre->PermanentStatus() | STATE_DEAD);
 	SetAnimationAction(ACT_DIE); // auto-chains to ACT_DEAD once it finishes
+
+	// Died() - same round-stamped pattern as AttackedBy/TookDamage above.
+	trigger_entry died("Died");
+	died.round = Core::Get()->ScriptRound();
+	AddTrigger(died);
 
 	// Drop whatever was queued and clear destination
 	ClearActionList();
@@ -1127,6 +1137,14 @@ Actor::AttackTarget(Actor* target)
 	const bool hit = roll == 20 || (roll != 1 && roll >= neededRoll);
 	if (!hit)
 		return;
+
+	// Unlike AttackedBy above (posted for any attack attempt, hit or
+	// miss), HitBy(O:Object*,I:DameType*) only fires on an actual hit -
+	// damage-type filtering isn't implemented (see _ArmorClassFor()'s own
+	// scope note), so any damage type matches.
+	trigger_entry hitBy("HitBy", this);
+	hitBy.round = Core::Get()->ScriptRound();
+	target->AddTrigger(hitBy);
 
 	const int32 damage = Core::RollDice(ability.diceThrown, ability.diceSides,
 			ability.damageBonus);

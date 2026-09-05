@@ -6,11 +6,13 @@
 #include "Door.h"
 #include "Game.h"
 #include "GameTimer.h"
+#include "ITMResource.h"
 #include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "Script.h"
+#include "SPLResource.h"
 
 #include <assert.h>
 #include <sstream>
@@ -376,6 +378,88 @@ Script::_EvaluateConditionBlock(condition_block& conditionNode)
 }
 
 
+// Shared by NumCreature/NumCreatureLT/NumCreatureGT/NumCreatureVsParty*:
+// counts actors in the current room matching an object specifier and
+// visible to `viewer` (excluding `viewer` itself).
+static int32
+_CountMatchingActorsInSight(Actor* viewer, object_params* node)
+{
+	if (viewer == NULL || node == NULL)
+		return 0;
+
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (area == NULL)
+		return 0;
+
+	ActorsList actors;
+	area->GetActorsList(actors);
+
+	int32 count = 0;
+	for (Actor* actor : actors) {
+		if (actor != viewer && actor->MatchNode(node) && viewer->CanSee(actor))
+			count++;
+	}
+	return count;
+}
+
+
+// Shared by NumItems/NumItemsGT/NumItemsLT: total quantity of a given
+// item resref across all of `actor`'s inventory slots (stacked entries'
+// quantities are summed).
+static int32
+_CountItemQuantity(Actor* actor, const res_ref& itemName)
+{
+	if (actor == NULL)
+		return 0;
+
+	int32 total = 0;
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (actor->CRE()->GetItemAtSlot(slot, item) && item.name == itemName)
+			total += item.quantity1;
+	}
+	return total;
+}
+
+
+// Shared by CheckStat/CheckStatGT/CheckStatLT. Only the STATS.IDS values
+// commonly checked by real scripts are covered (matching this codebase's
+// existing convention of implementing common cases and logging/skipping
+// the rest rather than guessing) - see docs/.../stats.ids for the full
+// list.
+static int32
+_StatValue(Actor* actor, int32 statID)
+{
+	CREResource* cre = actor->CRE();
+	BaseAttributes attrs;
+	switch (statID) {
+		case 1: return cre->MaxHitPoints();
+		case 2: return cre->AC().effective;
+		case 7: return cre->THAC0();
+		case 8: return cre->NumberOfAttacks();
+		case 9: return cre->Saves().death;
+		case 10: return cre->Saves().wands;
+		case 11: return cre->Saves().poly;
+		case 12: return cre->Saves().breath;
+		case 13: return cre->Saves().spell;
+		case 34: return cre->Level();
+		case 36: cre->GetAttributes(attrs); return attrs.strength;
+		case 38: cre->GetAttributes(attrs); return attrs.intelligence;
+		case 39: cre->GetAttributes(attrs); return attrs.wisdom;
+		case 40: cre->GetAttributes(attrs); return attrs.dexterity;
+		case 41: cre->GetAttributes(attrs); return attrs.constitution;
+		case 42: cre->GetAttributes(attrs); return attrs.charisma;
+		case 44: return (int32)cre->Experience();
+		case 45: return (int32)cre->Gold();
+		case 48: return cre->Reputation();
+		default:
+			std::cerr << actor->Name() << ": CheckStat() stat " << statID
+					<< " not implemented" << std::endl;
+			return 0;
+	}
+}
+
+
 // TODO: move this to Object ?
 /* static*/
 bool
@@ -413,17 +497,12 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 			}
 			case 0x0020:
 			{
-				// HitBy
-				// Returns true on first Script launch, IOW initial area load
-				// TODO: Not sure: if I do that, every actor attacks the player
-				/*if (sender->HasTrigger("OnCreation")) {
-					returnValue = true;
-					break;
-				}*/
-				// TODO:
-				//object_node* object = FindObjectNode(trig);
-				//returnValue = Object::CheckIfNodeInList(object,
-				//		sender->LastScriptRoundResults()->Hitters());
+				/* HitBy(O:Object*,I:DameType*Damages) - damage-type
+				 * filtering isn't implemented (see the "HitBy" trigger
+				 * posted in Actor::AttackTarget()'s hit branch - any
+				 * damage type matches, same simplification as HP:Damage's
+				 * type parameter elsewhere in this codebase). */
+				returnValue = sender->HasTrigger("HitBy", trig);
 				break;
 			}
 			case 0x0022:
@@ -829,6 +908,385 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				// of the script
 				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
 				return actor != NULL && actor->Name() == trig->string1;
+				break;
+			}
+			case 0x004A:
+			{
+				/* Died(O:Object*) - see the round-stamped "Died" trigger
+				 * posted in Actor::ApplyDamage()'s death transition. */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->HasTrigger("Died");
+				break;
+			}
+			case 0x004B:
+			{
+				/* Killed(O:Object*) - approximated as "sender scored a hit
+				 * on this object (HitBy) and it's now dead", since damage
+				 * isn't attributed to a specific attacker anywhere else. */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->IsState(STATE_DEAD) && sender->HasTrigger("HitBy", trig);
+				break;
+			}
+			case 0x0088:
+			{
+				/* PartyMemberDied(O:Object*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->InParty() && actor->HasTrigger("Died");
+				break;
+			}
+			case 0x0091:
+			{
+				/* SpellCast(O:Object*,I:Spell*) - spell id isn't matched,
+				 * see _PostSpellCastTriggers() in Actions.cpp. */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->HasTrigger("SpellCast");
+				break;
+			}
+			case 0x00A1:
+			{
+				/* SpellCastOnMe(O:Caster*,I:Spell*) */
+				returnValue = sender->HasTrigger("SpellCastOnMe", trig);
+				break;
+			}
+			case 0x00A6:
+			{
+				/* SpellCastPriest(O:Object*,I:Spell*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->HasTrigger("SpellCastPriest");
+				break;
+			}
+			case 0x00A7:
+			{
+				/* SpellCastInnate(O:Object*,I:Spell*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->HasTrigger("SpellCastInnate");
+				break;
+			}
+			case 0x00CC:
+			{
+				/* TookDamage() */
+				returnValue = sender->HasTrigger("TookDamage");
+				break;
+			}
+			case 0x4010:
+			{
+				/* HP(O:Object*,I:HitPoints*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->CRE()->CurrentHitPoints() == (uint32)trig->parameter1;
+				break;
+			}
+			case 0x4011:
+			{
+				/* HPGT(O:Object*,I:HitPoints*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->CRE()->CurrentHitPoints() > (uint32)trig->parameter1;
+				break;
+			}
+			case 0x4012:
+			{
+				/* HPLT(O:Object*,I:HitPoints*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->CRE()->CurrentHitPoints() < (uint32)trig->parameter1;
+				break;
+			}
+			case 0x4014:
+			case 0x4015:
+			case 0x4016:
+			{
+				/* Morale(O:Object*,I:Morale*), MoraleGT, MoraleLT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					uint8 morale = actor->CRE()->Morale();
+					if (trig->id == 0x4014)
+						returnValue = morale == trig->parameter1;
+					else if (trig->id == 0x4015)
+						returnValue = morale > trig->parameter1;
+					else
+						returnValue = morale < trig->parameter1;
+				}
+				break;
+			}
+			case 0x4019:
+			{
+				/* REPUTATION(O:OBJECT*,I:REPUTATION*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->CRE()->Reputation() == trig->parameter1;
+				break;
+			}
+			case 0x401A:
+			{
+				/* REPUTATIONGT(O:OBJECT*,I:REPUTATION*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->CRE()->Reputation() > trig->parameter1;
+				break;
+			}
+			case 0x4028:
+			case 0x4029:
+			case 0x402A:
+			{
+				/* NumCreature(O:Object*,I:Number*), NumCreatureLT, NumCreatureGT */
+				Actor* actor = dynamic_cast<Actor*>(sender);
+				int32 count = _CountMatchingActorsInSight(actor, trig->Object());
+				if (trig->id == 0x4028)
+					returnValue = count == trig->parameter1;
+				else if (trig->id == 0x4029)
+					returnValue = count < trig->parameter1;
+				else
+					returnValue = count > trig->parameter1;
+				break;
+			}
+			case 0x402C:
+			case 0x402D:
+			case 0x402E:
+			{
+				/* HPPercent(O:Object*,I:HitPoints*), HPPercentLT, HPPercentGT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					uint16 maxHP = actor->CRE()->MaxHitPoints();
+					int32 percent = maxHP > 0
+						? (int32)actor->CRE()->CurrentHitPoints() * 100 / maxHP : 0;
+					if (trig->id == 0x402C)
+						returnValue = percent == trig->parameter1;
+					else if (trig->id == 0x402D)
+						returnValue = percent < trig->parameter1;
+					else
+						returnValue = percent > trig->parameter1;
+				}
+				break;
+			}
+			case 0x4031:
+			case 0x4032:
+			{
+				/* HaveSpell(I:Spell*), HaveAnySpells() */
+				Actor* actor = dynamic_cast<Actor*>(sender);
+				if (actor == NULL)
+					break;
+				std::string wantedSpell;
+				if (trig->id == 0x4031) {
+					try {
+						wantedSpell = SPLResource::GetSpellResourceName(trig->parameter1);
+					} catch (...) {
+						break;
+					}
+				}
+				for (const cre_memorized_spell& spell : actor->CRE()->MemorizedSpells()) {
+					if ((spell.flags & 1) == 0) // not memorized (just known)
+						continue;
+					if (trig->id == 0x4032 || strcasecmp(spell.spell.CString(), wantedSpell.c_str()) == 0) {
+						returnValue = true;
+						break;
+					}
+				}
+				break;
+			}
+			case 0x4042:
+			{
+				/* PartyHasItem(S:Item*) - see HasItem()'s own IESDP note:
+				 * it's documented identically (party-wide, no O:Object*). */
+				res_ref itemName(trig->string1);
+				::Party* party = Game::Get()->Party();
+				for (uint16 i = 0; i < party->CountActors() && !returnValue; i++)
+					returnValue = party->ActorAt(i)->CRE()->FindItemSlot(itemName) >= 0;
+				break;
+			}
+			case 0x4044:
+			case 0x4045:
+			case 0x4046:
+			{
+				/* CheckStat(O:Object*,I:Value*,I:StatNum*), CheckStatGT, CheckStatLT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					int32 value = _StatValue(actor, trig->parameter2);
+					if (trig->id == 0x4044)
+						returnValue = value == trig->parameter1;
+					else if (trig->id == 0x4045)
+						returnValue = value > trig->parameter1;
+					else
+						returnValue = value < trig->parameter1;
+				}
+				break;
+			}
+			case 0x4061:
+			{
+				/* HasItem(S:Item*) - per IESDP, party-wide (like PartyHasItem). */
+				res_ref itemName(trig->string1);
+				::Party* party = Game::Get()->Party();
+				for (uint16 i = 0; i < party->CountActors() && !returnValue; i++)
+					returnValue = party->ActorAt(i)->CRE()->FindItemSlot(itemName) >= 0;
+				break;
+			}
+			case 0x4064:
+			{
+				/* HasWeaponEquiped(O:Object*) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					ITMResource* weapon = actor->EquippedWeapon();
+					returnValue = weapon != NULL;
+					if (weapon != NULL)
+						gResManager->ReleaseResource(weapon);
+				}
+				break;
+			}
+			case 0x406A:
+			case 0x406B:
+			case 0x406C:
+			{
+				/* NumInParty(I:Number*), NumInPartyGT, NumInPartyLT */
+				int32 count = Game::Get()->Party()->CountActors();
+				if (trig->id == 0x406A)
+					returnValue = count == trig->parameter1;
+				else if (trig->id == 0x406B)
+					returnValue = count > trig->parameter1;
+				else
+					returnValue = count < trig->parameter1;
+				break;
+			}
+			case 0x4077:
+			case 0x4078:
+			case 0x4079:
+			{
+				/* NumItems(S:ResRef*,O:Object*,I:Num*), NumItemsGT, NumItemsLT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					int32 count = _CountItemQuantity(actor, res_ref(trig->string1));
+					if (trig->id == 0x4077)
+						returnValue = count == trig->parameter1;
+					else if (trig->id == 0x4078)
+						returnValue = count > trig->parameter1;
+					else
+						returnValue = count < trig->parameter1;
+				}
+				break;
+			}
+			case 0x407A:
+			case 0x407B:
+			case 0x407C:
+			{
+				/* NumItemsParty(S:ResRef*,I:Num*), NumItemsPartyGT, NumItemsPartyLT */
+				res_ref itemName(trig->string1);
+				::Party* party = Game::Get()->Party();
+				int32 count = 0;
+				for (uint16 i = 0; i < party->CountActors(); i++)
+					count += _CountItemQuantity(party->ActorAt(i), itemName);
+				if (trig->id == 0x407A)
+					returnValue = count == trig->parameter1;
+				else if (trig->id == 0x407B)
+					returnValue = count > trig->parameter1;
+				else
+					returnValue = count < trig->parameter1;
+				break;
+			}
+			case 0x407F:
+			{
+				/* HasItemEquiped(S:ResRef*,O:Object*) - only counts if the
+				 * item sits in an actual equip slot, not general inventory
+				 * (slots 21-36 - see the slot-order comment in Actor.cpp). */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					int32 slot = actor->CRE()->FindItemSlot(res_ref(trig->string1));
+					returnValue = slot >= 0 && (slot < 21 || slot > 36);
+				}
+				break;
+			}
+			case 0x4080:
+			case 0x4081:
+			case 0x4082:
+			{
+				/* NumCreatureVsParty(O:Object*,I:Number*), *LT, *GT - hostile
+				 * creatures matching the spec within weapon range (reusing
+				 * InWeaponRange's approximate range=40) of any party member,
+				 * minus party size. */
+				object_params* objectNode = trig->Object();
+				::Party* party = Game::Get()->Party();
+				AreaRoom* area = dynamic_cast<AreaRoom*>(core->CurrentRoom());
+				int32 hostileCount = 0;
+				if (objectNode != NULL && area != NULL) {
+					ActorsList actors;
+					area->GetActorsList(actors);
+					for (Actor* actor : actors) {
+						if (!actor->MatchNode(objectNode))
+							continue;
+						for (uint16 i = 0; i < party->CountActors(); i++) {
+							Actor* member = party->ActorAt(i);
+							if (actor->IsEnemyOf(member)
+									&& area->Distance(actor, member) <= 40) {
+								hostileCount++;
+								break;
+							}
+						}
+					}
+				}
+				int32 count = hostileCount - (int32)party->CountActors();
+				if (trig->id == 0x4080)
+					returnValue = count == trig->parameter1;
+				else if (trig->id == 0x4081)
+					returnValue = count < trig->parameter1;
+				else
+					returnValue = count > trig->parameter1;
+				break;
+			}
+			case 0x4094:
+			case 0x4095:
+			case 0x4096:
+			{
+				/* Level(O:Object*,I:Level*), LevelGT, LevelLT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					uint8 level = actor->CRE()->Level();
+					if (trig->id == 0x4094)
+						returnValue = level == trig->parameter1;
+					else if (trig->id == 0x4095)
+						returnValue = level > trig->parameter1;
+					else
+						returnValue = level < trig->parameter1;
+				}
+				break;
+			}
+			case 0x40B8:
+			case 0x40B9:
+			case 0x40BA:
+			{
+				/* NumInPartyAlive(I:Number*), *GT, *LT */
+				::Party* party = Game::Get()->Party();
+				int32 count = 0;
+				for (uint16 i = 0; i < party->CountActors(); i++) {
+					if (!party->ActorAt(i)->IsState(STATE_DEAD))
+						count++;
+				}
+				if (trig->id == 0x40B8)
+					returnValue = count == trig->parameter1;
+				else if (trig->id == 0x40B9)
+					returnValue = count > trig->parameter1;
+				else
+					returnValue = count < trig->parameter1;
+				break;
+			}
+			case 0x40C3:
+			case 0x40C4:
+			case 0x40C5:
+			{
+				/* XP(O:Object*,I:XP*), XPGT, XPLT */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL) {
+					uint32 xp = actor->CRE()->Experience();
+					if (trig->id == 0x40C3)
+						returnValue = xp == (uint32)trig->parameter1;
+					else if (trig->id == 0x40C4)
+						returnValue = xp > (uint32)trig->parameter1;
+					else
+						returnValue = xp < (uint32)trig->parameter1;
+				}
 				break;
 			}
 			default:

@@ -75,6 +75,35 @@ RunActionWait(Object* sender, action_params* params, action_state& state)
 }
 
 
+// Posts the SpellCast/SpellCastPriest/SpellCastInnate (on the caster) and
+// SpellCastOnMe (on the target) triggers once a spell's effects have been
+// applied. Spell-id matching isn't implemented - any cast of the right
+// category (priest/innate) matches, the same simplification already
+// documented for the Heard() trigger (Script.cpp) - only whether a cast
+// happened is tracked, not which spell.
+static void
+_PostSpellCastTriggers(Actor* caster, Object* target, const std::string& spellResourceName)
+{
+	trigger_entry cast("SpellCast");
+	cast.round = Core::Get()->ScriptRound();
+	caster->AddTrigger(cast);
+
+	if (spellResourceName.compare(0, 4, "SPPR") == 0) {
+		trigger_entry castPriest("SpellCastPriest");
+		castPriest.round = Core::Get()->ScriptRound();
+		caster->AddTrigger(castPriest);
+	} else if (spellResourceName.compare(0, 4, "SPIN") == 0) {
+		trigger_entry castInnate("SpellCastInnate");
+		castInnate.round = Core::Get()->ScriptRound();
+		caster->AddTrigger(castInnate);
+	}
+
+	trigger_entry castOnMe("SpellCastOnMe", caster);
+	castOnMe.round = Core::Get()->ScriptRound();
+	target->AddTrigger(castOnMe);
+}
+
+
 // FORCESPELL(O:TARGET,I:SPELL*SPELL) - more involved state: resource
 // lookups done once (on first tick), a tick countdown derived from the
 // spell's casting time, and a start timestamp kept only for the diagnostic
@@ -133,6 +162,7 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
+			_PostSpellCastTriggers(actor, target, spellResourceName);
 		}
 		state.completed = true;
 		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
@@ -269,6 +299,7 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
+			_PostSpellCastTriggers(actor, target, spellResourceName);
 		}
 		state.completed = true;
 		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;

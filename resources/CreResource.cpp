@@ -1,6 +1,7 @@
 #include "CreResource.h"
 #include "MemoryStream.h"
 
+#include <algorithm>
 #include <stdlib.h>
 
 
@@ -263,6 +264,35 @@ void
 CREResource::SetCurrentHitPoints(uint16 hp)
 {
 	fData->WriteAt(0x24, &hp, sizeof(hp));
+}
+
+
+uint16
+CREResource::MaxHitPoints() const
+{
+	uint16 hp;
+	fData->ReadAt(0x26, hp);
+	return hp;
+}
+
+
+uint8
+CREResource::Level() const
+{
+	uint8 level1, level2, level3;
+	fData->ReadAt(0x234, level1);
+	fData->ReadAt(0x235, level2);
+	fData->ReadAt(0x236, level3);
+	return std::max(level1, std::max(level2, level3));
+}
+
+
+uint8
+CREResource::Morale() const
+{
+	uint8 morale;
+	fData->ReadAt(0x23f, morale);
+	return morale;
 }
 
 
