@@ -305,6 +305,13 @@ Object::Update(bool scripts)
 	if (fDisabled)
 		return;
 
+	// Dead actors don't act: their action list is cleared once at the
+	// moment of death (Actor::ApplyDamage()), but this also guards
+	// against anything still trying to queue a new action afterwards.
+	Actor* actor = dynamic_cast<Actor*>(this);
+	if (actor != NULL && actor->IsState(STATE_DEAD))
+		return;
+
 	ExecuteActions();
 
 	_ApplySpellEffects();

@@ -665,6 +665,12 @@ Actor::ApplyDamage(int32 amount)
 	cre->SetPermanentStatus(cre->PermanentStatus() | STATE_DEAD);
 	SetAnimationAction(ACT_DIE); // auto-chains to ACT_DEAD once it finishes
 
+	// Stop dead in its tracks: drop whatever was queued (mid-walk,
+	// mid-attack, ...) instead of letting it finish. Object::Update()
+	// also skips ExecuteActions() for dead actors going forward, in case
+	// something still tries to queue a new action afterwards.
+	ClearActionList();
+
 	// Corpses stay in the area - no DestroySelf() here; removal remains
 	// script-driven, same as today.
 	const std::string deathVar = cre->DeathVariable();
