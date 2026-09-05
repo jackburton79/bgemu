@@ -69,3 +69,14 @@ Variables::PrintAll() const
 	}
 }
 
+
+std::vector<std::pair<std::string, int32>>
+Variables::All() const
+{
+	std::vector<std::pair<std::string, int32>> all;
+	all.reserve(fVariables.size());
+	for (const auto& v : fVariables)
+		all.push_back(std::make_pair(v.first, (int32)v.second));
+	return all;
+}
+

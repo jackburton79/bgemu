@@ -67,6 +67,29 @@ CREResource::Load(Stream* stream, uint32 position, uint32 size)
 }
 
 
+uint32
+CREResource::DataSize() const
+{
+	return fData->Size();
+}
+
+
+void
+CREResource::WriteDataTo(Stream* dest, uint32 destOffset) const
+{
+	dest->WriteAt(destOffset, fData->Data(), fData->Size());
+}
+
+
+void
+CREResource::CopyDataFrom(const CREResource* other)
+{
+	MemoryStream temp(other->DataSize());
+	other->WriteDataTo(&temp, 0);
+	Load(&temp, 0, temp.Size());
+}
+
+
 void
 CREResource::Init()
 {

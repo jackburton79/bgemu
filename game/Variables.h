@@ -11,6 +11,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 
 class Variables {
@@ -22,6 +23,10 @@ public:
 
 	void Print(const char* name) const;
 	void PrintAll() const;
+
+	// All (name, value) pairs, for GamResource to persist to a save file.
+	std::vector<std::pair<std::string, int32>> All() const;
+
 private:
 	typedef std::map<std::string, uint32> VariablesMap;
 	VariablesMap fVariables;

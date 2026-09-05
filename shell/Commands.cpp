@@ -602,6 +602,44 @@ public:
 };
 
 
+class SaveGameCommand : public ShellCommand {
+public:
+	SaveGameCommand()
+		: ShellCommand(
+			"Save-Game",
+			{
+				{ PARAMETER_STRING, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		bool ok = Game::Get()->Save(params.at(0).value.string);
+		std::cout << "Save-Game: " << (ok ? "OK" : "FAILED") << std::endl;
+	}
+};
+
+
+class LoadGameCommand : public ShellCommand {
+public:
+	LoadGameCommand()
+		: ShellCommand(
+			"Load-Game",
+			{
+				{ PARAMETER_STRING, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		bool ok = Game::Get()->Load(params.at(0).value.string);
+		std::cout << "Load-Game: " << (ok ? "OK" : "FAILED") << std::endl;
+	}
+};
+
+
 class SetEnemyAllyCommand : public ShellCommand {
 public:
 	SetEnemyAllyCommand()
@@ -659,4 +697,6 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AttackCommand());
 	console->AddCommand(new ForceSpellCommand());
 	console->AddCommand(new RunActionCommand());
+	console->AddCommand(new SaveGameCommand());
+	console->AddCommand(new LoadGameCommand());
 }

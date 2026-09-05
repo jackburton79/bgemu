@@ -14,6 +14,7 @@
 #include "CreResource.h"
 #include "Dialog.h"
 #include "GameConsole.h"
+#include "GamResource.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -141,6 +142,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		else
 			LoadStartingArea();
 	}
+
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
 	bool quitting = false;
@@ -294,6 +296,84 @@ Game::CreateParty()
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));
 		fParty->AddActor(new Actor("Imoen", point, 0));
 	}
+}
+
+
+bool
+Game::Save(const char* name)
+{
+	if (fParty == NULL || fParty->CountActors() == 0) {
+		std::cerr << "Game::Save(): no party to save" << std::endl;
+		return false;
+	}
+
+	RoomBase* room = Core::Get()->CurrentRoom();
+	res_ref areaName(room != NULL ? room->Name() : "");
+
+	GamResource* gam = new GamResource(res_ref("SAVE"));
+	gam->SetCurrentArea(areaName);
+
+	for (uint16 i = 0; i < fParty->CountActors(); i++) {
+		Actor* actor = fParty->ActorAt(i);
+
+		gam_party_member member;
+		member.creName = res_ref(actor->Name());
+		member.name = actor->Name();
+		member.position = actor->Position();
+		member.orientation = (uint16)actor->Orientation();
+		member.areaName = areaName;
+
+		gam->AddPartyMember(member, actor->CRE());
+	}
+
+	gam->SetVariables(Core::Get()->Vars().All());
+
+	bool result = gam->WriteToFile(name);
+	gam->Release();
+	return result;
+}
+
+
+bool
+Game::Load(const char* name)
+{
+	GamResource* gam = new GamResource(res_ref("SAVE"));
+	if (!gam->LoadFromFile(name)) {
+		gam->Release();
+		return false;
+	}
+
+	delete fParty;
+	fParty = new ::Party();
+
+	uint32 count = gam->PartyMemberCount();
+	for (uint32 i = 0; i < count; i++) {
+		gam_party_member member = gam->PartyMemberAt(i);
+
+		// Actor()'s normal constructor fetches the character's original,
+		// unmodified CRE from the game's own files (ResourceManager) -
+		// this reuses all of Actor's existing init logic (animation
+		// factory, etc.) safely. The saved CRE state (inventory,
+		// spellbook, HP, status - everything Phase 1-4 added write
+		// support for) is then applied on top of it.
+		Actor* actor = new Actor(member.creName.CString(), member.position,
+			member.orientation);
+
+		CREResource* savedCre = gam->PartyMemberCRE(i);
+		if (savedCre != NULL) {
+			actor->CRE()->CopyDataFrom(savedCre);
+			gResManager->ReleaseResource(savedCre);
+		}
+
+		fParty->AddActor(actor);
+	}
+
+	for (const auto& variable : gam->Variables())
+		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
+
+	res_ref area = gam->CurrentArea();
+	gam->Release();
+	return Core::Get()->LoadArea(area, "", "");
 }
 
 

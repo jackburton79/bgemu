@@ -274,6 +274,19 @@ RunActionSpell(Object* sender, action_params* params, action_state& state)
 }
 
 
+// SAVEGAME(I:Slot*) - stateless. No save-folder/character-name structure
+// (see IESDP's "save/<slot> - <name>/baldur.gam") is modeled - this
+// engine just writes one file per slot in the working directory.
+static void
+RunActionSaveGame(Object* sender, action_params* params, action_state& state)
+{
+	std::string path = "savegame_slot" + std::to_string(params->integer1) + ".gam";
+	if (!Game::Get()->Save(path.c_str()))
+		std::cerr << "SaveGame: failed to write \"" << path << "\"" << std::endl;
+	state.completed = true;
+}
+
+
 // REST()/RESTPARTY() - stateless. This engine has no rest-movie/time-
 // advancement to wait for (see IESDP: "does not play the rest movie or
 // advance game time"), so both apply their spellbook-restoring effect
@@ -1608,7 +1621,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 187, "STARTMUSIC", NULL },
 		{ 188, "TAKEPARTYITEMALL", NULL },
 		{ 189, "LEAVEAREALUAPANIC", NULL },
-		{ 190, "SAVEGAME", NULL },
+		{ 190, "SAVEGAME", RunActionSaveGame },
 		{ 191, "SPELLNODEC", NULL },
 		{ 192, "SPELLPOINTNODEC", NULL },
 		{ 193, "TAKEPARTYITEMRANGE", NULL },

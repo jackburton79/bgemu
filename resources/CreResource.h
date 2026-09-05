@@ -164,7 +164,20 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 	bool Load(Stream* stream, uint32 position, uint32 size);
-	
+
+	// Raw size of this CRE's own data, and a copy of it into another
+	// stream at the given offset - used by GamResource to embed a party
+	// member's full CRE (including every Fase 1-6 mutation: inventory,
+	// spellbook, HP, status) directly into a save file, matching how
+	// real IE saves store party CRE data (see IESDP gam_v2.0's "Offset/
+	// Size of CRE resource data for this character").
+	uint32 DataSize() const;
+	void WriteDataTo(Stream* dest, uint32 destOffset) const;
+	// The reverse: replaces this CRE's data with a copy of `other`'s -
+	// used by Game::Load() to apply a save's per-character CRE state onto
+	// an Actor's already-constructed (fresh-from-disk) CREResource.
+	void CopyDataFrom(const CREResource* other);
+
 	void Init();
 	
 	uint32 LongNameID() const;
