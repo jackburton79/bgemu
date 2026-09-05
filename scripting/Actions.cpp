@@ -14,6 +14,7 @@
 #include "IDSResource.h"
 #include "ITMResource.h"
 #include "Object.h"
+#include "Party.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "RoomBase.h"
@@ -183,6 +184,119 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 		state.completed = true;
 		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
 	}
+}
+
+
+// SPELL(O:Target*,I:Spell*Spell) - same shape as RunActionForceSpell (cast
+// time countdown, effect application), but per IESDP "the spell must
+// currently be memorised by the caster" - unlike ForceSpell/
+// ForceSpellPoint, which force-cast unconditionally (innate/special
+// abilities, cutscene scripting), this is what real spellcasting scripts
+// use, and it actually spends a spellbook slot (CREResource::
+// ConsumeMemorizedSpell(), restored by REST/RESTPARTY below).
+static void
+RunActionSpell(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(sender);
+	if (actor == NULL) {
+		std::cerr << "Spell: NO sender Actor" << std::endl;
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
+		std::string spellResourceName;
+		try {
+			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+		} catch (std::exception& e) {
+			std::cerr << "Spell: invalid spell id " << params->integer1
+					<< ": " << e.what() << std::endl;
+			gResManager->ReleaseResource(spellIDS);
+			state.completed = true;
+			return;
+		}
+		gResManager->ReleaseResource(spellIDS);
+		std::cout << "spell: " << spellName << std::endl;
+
+		if (!actor->CRE()->ConsumeMemorizedSpell(spellResourceName.c_str())) {
+			std::cerr << actor->Name() << ": Spell: \"" << spellResourceName
+					<< "\" not currently memorized" << std::endl;
+			state.completed = true;
+			return;
+		}
+
+		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		if (spellResource == NULL) {
+			std::cerr << "Spell: spell resource \"" << spellResourceName
+					<< "\" (id " << params->integer1 << ") not found" << std::endl;
+			state.completed = true;
+			return;
+		}
+		uint16 castTime = spellResource->CastingTime();
+		state.counter = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		std::cout << "casting time:" << state.counter << std::endl;
+		gResManager->ReleaseResource(spellResource);
+
+		actor->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
+		state.startTick = Timer::Ticks();
+		state.initiated = true;
+	}
+
+	if (state.counter-- == 0) {
+		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
+		gResManager->ReleaseResource(spellIDS);
+		std::cout << "Spell " << spellName << " finished" << std::endl;
+
+		actor->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
+		Object* target = Script::GetTargetObject(sender, params);
+		if (target == NULL)
+			target = sender;
+		if (target != NULL) {
+			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+			if (spellResource != NULL) {
+				for (const spl_effect& effect : spellResource->Effects()) {
+					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
+						effect.parameter1, effect.parameter2, effect.duration,
+						effect.resource.CString(), effect.savingThrowType,
+						effect.savingThrowBonus));
+				}
+				gResManager->ReleaseResource(spellResource);
+			}
+			_PostSpellCastTriggers(actor, target, spellResourceName);
+		}
+		state.completed = true;
+		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
+	}
+}
+
+
+// REST()/RESTPARTY() - stateless. This engine has no rest-movie/time-
+// advancement to wait for (see IESDP: "does not play the rest movie or
+// advance game time"), so both apply their spellbook-restoring effect
+// immediately; the other real-Rest effects (healing over time, ability
+// restoration) aren't implemented here and are out of scope for Phase 4
+// (spellcasting), like Phase 3's other deferred items.
+static void
+RunActionRest(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->CRE()->RestoreMemorizedSpells();
+	state.completed = true;
+}
+
+
+static void
+RunActionRestParty(Object* sender, action_params* params, action_state& state)
+{
+	::Party* party = Game::Get()->Party();
+	for (uint16 i = 0; i < party->CountActors(); i++)
+		party->ActorAt(i)->CRE()->RestoreMemorizedSpells();
+	state.completed = true;
 }
 
 
@@ -1344,7 +1458,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 28, "REMOVETRAPS", NULL },
 		{ 29, "RUNAWAYFROM", RunActionRunAwayFrom },
 		{ 30, "SETGLOBAL", RunActionSetGlobal },
-		{ 31, "SPELL", NULL },
+		{ 31, "SPELL", RunActionSpell },
 		{ 33, "TURN", NULL },
 		{ 34, "USEITEMSLOT", RunActionUseItemSlot },
 		{ 36, "CONTINUE", NULL },
@@ -1400,7 +1514,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 92, "SELECTWEAPONABILITY", NULL },
 		{ 94, "GROUPATTACK", NULL },
 		{ 95, "SPELLPOINT", NULL },
-		{ 96, "REST", NULL },
+		{ 96, "REST", RunActionRest },
 		{ 97, "USEITEMPOINTSLOT", NULL },
 		{ 98, "ATTACKNOSOUND", NULL },
 		{ 100, "RANDOMFLY", RunActionRandomFly },
@@ -1532,7 +1646,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 227, "CREATECREATUREOBJECTEFFECT", NULL },
 		{ 228, "CREATECREATUREIMPASSABLE", RunActionCreateCreatureImpassable },
 		{ 229, "FACEOBJECT", RunActionFaceObject },
-		{ 230, "RESTPARTY", NULL },
+		{ 230, "RESTPARTY", RunActionRestParty },
 		{ 231, "CREATECREATUREDOOR", NULL },
 		{ 232, "CREATECREATUREOBJECTDOOR", NULL },
 		{ 233, "CREATECREATUREOBJECTOFFSCREEN", NULL },

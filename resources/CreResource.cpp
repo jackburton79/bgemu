@@ -647,6 +647,48 @@ CREResource::MemorizedSpells() const
 }
 
 
+bool
+CREResource::ConsumeMemorizedSpell(const res_ref& spellName)
+{
+	const uint32 kEntrySize = 12;
+
+	for (uint32 i = 0; i < fMemorizedSpellsCount; i++) {
+		uint32 offset = fMemorizedSpellsOffset + i * kEntrySize;
+
+		res_ref spell;
+		fData->ReadAt(offset + 0x00, spell);
+		if (spell != spellName)
+			continue;
+
+		uint32 flags;
+		fData->ReadAt(offset + 0x08, flags);
+		if ((flags & 1) == 0)
+			continue; // known, but not currently memorized/available
+
+		flags &= ~1;
+		fData->WriteAt(offset + 0x08, &flags, sizeof(flags));
+		return true;
+	}
+	return false;
+}
+
+
+void
+CREResource::RestoreMemorizedSpells()
+{
+	const uint32 kEntrySize = 12;
+
+	for (uint32 i = 0; i < fMemorizedSpellsCount; i++) {
+		uint32 offset = fMemorizedSpellsOffset + i * kEntrySize;
+
+		uint32 flags;
+		fData->ReadAt(offset + 0x08, flags);
+		flags |= 1;
+		fData->WriteAt(offset + 0x08, &flags, sizeof(flags));
+	}
+}
+
+
 std::vector<cre_spell_memorization_info>
 CREResource::SpellMemorizationInfo() const
 {

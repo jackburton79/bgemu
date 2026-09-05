@@ -263,6 +263,15 @@ public:
 	std::vector<cre_memorized_spell> MemorizedSpells() const;
 	std::vector<cre_spell_memorization_info> SpellMemorizationInfo() const;
 
+	// Finds the first entry in the Memorized Spells table matching
+	// `spellName` with the "memorized" bit (bit0) still set, clears that
+	// bit (spell "used up" until the next rest) and returns true. False
+	// if the creature has no such spell currently available.
+	bool ConsumeMemorizedSpell(const res_ref& spellName);
+	// Sets the "memorized" bit back on every entry in the Memorized
+	// Spells table - the spellbook part of what a rest does.
+	void RestoreMemorizedSpells();
+
 private:
 	virtual ~CREResource();
 
