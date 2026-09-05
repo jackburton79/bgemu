@@ -158,7 +158,8 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 				for (const spl_effect& effect : spellResource->Effects()) {
 					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
 						effect.parameter1, effect.parameter2, effect.duration,
-						effect.resource.CString()));
+						effect.resource.CString(), effect.savingThrowType,
+						effect.savingThrowBonus));
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
@@ -295,7 +296,8 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 				for (const spl_effect& effect : spellResource->Effects()) {
 					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
 						effect.parameter1, effect.parameter2, effect.duration,
-						effect.resource.CString()));
+						effect.resource.CString(), effect.savingThrowType,
+						effect.savingThrowBonus));
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
@@ -959,7 +961,8 @@ RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
 			for (const spl_effect& effect : itm->OnHitEffects(0)) {
 				target->AddSpellEffect(new SpellEffect(effect.opcode, actor,
 					effect.parameter1, effect.parameter2, effect.duration,
-					effect.resource.CString()));
+					effect.resource.CString(), effect.savingThrowType,
+					effect.savingThrowBonus));
 			}
 			gResManager->ReleaseResource(itm);
 		}

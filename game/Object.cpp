@@ -776,6 +776,8 @@ Object::_ApplySpellEffects()
 			expired = effect->Tick();
 
 		if (expired) {
+			if (descriptor != NULL && descriptor->cleanup != NULL)
+				descriptor->cleanup(this, *effect);
 			delete effect;
 			i = fSpellEffects.erase(i);
 		} else {

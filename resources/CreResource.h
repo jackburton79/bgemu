@@ -16,10 +16,21 @@ enum CreatureFlagBits {
 };
 
 
-// PermanentStatus() bits - see STATE.IDS. Only the one bit currently
-// checked/set anywhere in the engine is named here.
+// PermanentStatus() bits - see STATE.IDS.
 enum CreatureStateBits {
-	STATE_DEAD = 0x800
+	STATE_SLEEPING = 0x00000001,
+	STATE_BERSERK = 0x00000002,
+	STATE_PANIC = 0x00000004,
+	STATE_STUNNED = 0x00000008,
+	STATE_INVISIBLE = 0x00000010,
+	STATE_HELPLESS = 0x00000020,	// used for Hold/Paralyze
+	STATE_DEAD = 0x00000800,
+	STATE_SILENCED = 0x00001000,
+	STATE_POISONED = 0x00004000,
+	STATE_HASTED = 0x00008000,
+	STATE_SLOWED = 0x00010000,
+	STATE_BLIND = 0x00040000,
+	STATE_CONFUSED = 0x80000000
 };
 
 
@@ -191,6 +202,18 @@ public:
 	uint8 THAC0() const;
 	uint8 NumberOfAttacks() const;
 	SaveVersus Saves() const;
+	Resistances DamageResistances() const;
+
+	// Adds delta to the "effective" AC and to any per-type field selected
+	// by typeMask (bit0=Crushing,bit1=Missile,bit2=Piercing,bit3=Slashing
+	// per IESDP opcode #0; 0 = all four types). Symmetric: applying
+	// -delta with the same mask exactly undoes it - used by SpellEffect's
+	// AC-bonus opcode to apply/remove a buff without needing to remember
+	// the pre-buff value separately.
+	void ModifyAC(int16 delta, uint8 typeMask);
+	// Adds delta to THAC0 (lower is better) - same symmetric apply/undo
+	// pattern as ModifyAC().
+	void ModifyTHAC0(int8 delta);
 
 	// Highest attained level across this creature's (up to 3, for
 	// dual/multi-class) classes.

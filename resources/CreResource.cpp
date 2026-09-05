@@ -321,6 +321,51 @@ CREResource::THAC0() const
 }
 
 
+void
+CREResource::ModifyAC(int16 delta, uint8 typeMask)
+{
+	int16 effective;
+	fData->ReadAt(0x48, effective);
+	effective += delta;
+	fData->WriteAt(0x48, &effective, sizeof(effective));
+
+	static const struct { uint8 bit; uint32 offset; } kTypes[] = {
+		{ 1, 0x4a }, // Crushing
+		{ 2, 0x4c }, // Missile
+		{ 4, 0x4e }, // Piercing
+		{ 8, 0x50 }, // Slashing
+	};
+	for (const auto& type : kTypes) {
+		if (typeMask != 0 && (typeMask & type.bit) == 0)
+			continue;
+		int16 value;
+		fData->ReadAt(type.offset, value);
+		value += delta;
+		fData->WriteAt(type.offset, &value, sizeof(value));
+	}
+}
+
+
+void
+CREResource::ModifyTHAC0(int8 delta)
+{
+	int8 thac0;
+	fData->ReadAt(0x52, thac0);
+	thac0 += delta;
+	fData->WriteAt(0x52, &thac0, sizeof(thac0));
+}
+
+
+// CRE v1: 0x59-0x63, one byte each, same field order as struct Resistances.
+Resistances
+CREResource::DamageResistances() const
+{
+	Resistances resist;
+	fData->ReadAt(0x59, resist);
+	return resist;
+}
+
+
 uint8
 CREResource::NumberOfAttacks() const
 {
