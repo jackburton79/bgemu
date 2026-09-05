@@ -24,8 +24,27 @@
 
 
 #include <algorithm>
+#include <cctype>
 
 static GUI* sGUI = NULL;
+
+
+// Only GUIW files are resolution matched
+static bool
+IsResolutionMatchedGUIW(const std::string& name)
+{
+	if (name.size() < 4)
+		return false;
+
+	std::string prefix = name.substr(0, 4);
+	std::transform(prefix.begin(), prefix.end(), prefix.begin(),
+		[](unsigned char c) { return std::toupper(c); });
+	if (prefix != "GUIW")
+		return false;
+
+	return std::all_of(name.begin() + 4, name.end(),
+		[](unsigned char c) { return std::isdigit(c) != 0; });
+}
 
 
 void
@@ -284,8 +303,10 @@ GUI::ShowWindow(uint16 id)
 	Window* window = GetWindow(id);
 	if (window == NULL) {
 		window = fResource->GetWindow(id);
-		if (window != NULL)
+		if (window != NULL) {
+			_CenterWindow(window, fResource->Name());
 			fWindows.push_back(window);
+		}
 	}
 
 	// Sort windows based on id
@@ -367,6 +388,7 @@ GUI::ShowAuxWindow(const res_ref& chuName, uint16 windowId)
 					<< " not found in " << chuName.CString() << Log::Normal << std::endl;
 			return;
 		}
+		_CenterWindow(window, std::string(chuName.CString()));
 		fAuxWindows[key] = window;
 		fAuxWindowSet.insert(window);
 		AddWindow(window);
@@ -519,11 +541,17 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 
 	Control* control = room;
 	if (strcmp(room->Name(), "WORLDMAP") == 0) {
-		upperBorder = control->Position().y + 10;
-		upperBorderLimit = control->Position().y;
-		bottomBorder = control->Height() + control->Position().y - 10;
-		leftBorder += 10;
-		rightBorder -= 10;
+		// control->Position() is window-relative; convert to absolute
+		// screen coordinates to compare against x/y below (screen-space
+		// mouse coordinates) - this used to be a no-op since GUIWMAP's
+		// window always sat at (0,0), but isn't once GUI::_CenterWindow()
+		// can offset it on larger screens.
+		IE::point screenPosition = control->ScreenPosition();
+		upperBorder = screenPosition.y + 10;
+		upperBorderLimit = screenPosition.y;
+		bottomBorder = control->Height() + screenPosition.y - 10;
+		leftBorder = screenPosition.x + 10;
+		rightBorder = screenPosition.x + viewPort.w - 10;
 	} else {
 		leftBorder += 15;
 		rightBorder -= 15;
@@ -731,6 +759,24 @@ GUI::_AddBackgroundWindow()
 {
 	fBackWindow = new BackWindow(fScreenWidth, fScreenHeight);
 	fWindows.push_back(fBackWindow);
+}
+
+
+void
+GUI::_CenterWindow(Window* window, const std::string& chuName) const
+{
+	if (window == NULL || IsResolutionMatchedGUIW(chuName))
+		return;
+
+	const int16 kBaseWidth = 640;
+	const int16 kBaseHeight = 480;
+	const int16 offsetX = ((int16)fScreenWidth - kBaseWidth) / 2;
+	const int16 offsetY = ((int16)fScreenHeight - kBaseHeight) / 2;
+	if (offsetX == 0 && offsetY == 0)
+		return;
+
+	IE::point position = window->Position();
+	window->MoveTo(position.x + offsetX, position.y + offsetY);
 }
 
 

@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef __GUI_H_
-#define __GUI_H_
+#pragma once
 
 #include "GraphicsDefs.h"
 #include "IETypes.h"
@@ -137,10 +136,9 @@ private:
 
 	Window* _WindowAtPoint(IE::point point);
 	void _AddBackgroundWindow();
+	void _CenterWindow(Window* window, const std::string& chuName) const;
 	void _InitCursors();
 	void _DrawStrings();
 	void _DisplayStringCommon(const std::string& text,
 			uint16 x, uint16 y, bool centerString, uint32 time);
 };
-
-#endif /* __GUI_H_ */

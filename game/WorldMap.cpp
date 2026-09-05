@@ -114,7 +114,10 @@ WorldMap::Draw()
 		GFX::rect sourceRect = Control::Frame();
 		ConvertToArea(sourceRect);
 		GFX::rect visibleArea = rect_to_gfx_rect(VisibleMapArea());
+
+		// Control::Frame() is window-relative
 		GFX::rect viewPort = Control::Frame();
+		Window()->ConvertToScreen(viewPort);
 		gfx->BlitToScreen(fWorldMapBitmap, &visibleArea, &viewPort);
 		if (fAreaUnderMouse != NULL) {
 			GFX::rect areaRect = fAreaUnderMouse->Rect();
