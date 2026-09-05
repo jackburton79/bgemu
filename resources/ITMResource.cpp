@@ -60,6 +60,33 @@ ITMResource::DescriptionRef() const
 	return ref;
 }
 
+
+bool
+ITMResource::GetAbility(uint16 index, itm_ability& ability) const
+{
+	uint32 extHeaderOffset;
+	uint16 extHeaderCount;
+	fData->ReadAt(0x0064, extHeaderOffset);
+	fData->ReadAt(0x0068, extHeaderCount);
+
+	if (index >= extHeaderCount)
+		return false;
+
+	const uint32 kAbilitySize = 56;
+	const uint32 offset = extHeaderOffset + index * kAbilitySize;
+
+	fData->ReadAt(offset + 0x00, ability.attackType);
+	fData->ReadAt(offset + 0x0e, ability.range);
+	fData->ReadAt(offset + 0x12, ability.speed);
+	fData->ReadAt(offset + 0x14, ability.thac0Bonus);
+	fData->ReadAt(offset + 0x16, ability.diceSides);
+	fData->ReadAt(offset + 0x18, ability.diceThrown);
+	fData->ReadAt(offset + 0x1a, ability.damageBonus);
+	fData->ReadAt(offset + 0x1c, ability.damageType);
+
+	return true;
+}
+
 /* virtual */
 bool
 ITMResource::Load(Archive *archive, uint32 key)
