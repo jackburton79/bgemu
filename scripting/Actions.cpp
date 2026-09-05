@@ -389,37 +389,46 @@ RunActionWalkToObject(Object* sender, action_params* params, action_state& state
 }
 
 
-// RANDOMFLY() - NOTE: mirrors the original exactly, including that it never
-// completes on its own (the SetCompleted()-equivalent call below is
-// commented out in the source this was ported from - same latent issue
-// already flagged/fixed for RANDOMWALK; worth applying the same fix here).
+// RANDOMFLY() - per IESDP, mirrors RANDOMWALK (gives the appearance of
+// flying by passing over impassable terrain) and completes once the
+// randomly-chosen point is reached, the same as RANDOMWALK below - not
+// "never", which would stall any action queued after it (e.g. IESDP's own
+// RandomWalk() example: "RandomWalk(); Wait(5); RandomWalk();"). Also
+// mirrors RANDOMWALK's `if (!actor->IsWalking())` guard, so a fresh random
+// point isn't rolled every single tick while a walk to the previous one is
+// still in progress.
 static void
 RunActionRandomFly(Object* sender, action_params* params, action_state& state)
 {
 	// TODO: We should fly in straight line
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
-
-	IE::point randomValue = {
-		int16(Core::RandomNumber(-50, 50)),
-		int16(Core::RandomNumber(-50, 50))
-	};
-
-	IE::point destination = actor->Position() + randomValue;
-	if (!PointSufficientlyClose(actor->Position(), destination))
-		actor->SetDestination(destination, true);
-
-	if (actor->Position() == actor->Destination()) {
-		//state.completed = true;
-	} else {
-		actor->MoveToNextPointInPath(true);
 	}
+
+	if (!actor->IsWalking()) {
+		IE::point randomValue = {
+			int16(Core::RandomNumber(-50, 50)),
+			int16(Core::RandomNumber(-50, 50))
+		};
+		IE::point destination = actor->Position() + randomValue;
+		if (!PointSufficientlyClose(actor->Position(), destination))
+			actor->SetDestination(destination, true);
+	}
+
+	if (actor->Position() == actor->Destination())
+		state.completed = true;
+	else
+		actor->MoveToNextPointInPath(true);
 }
 
 
-// FLYTOPOINT(Point, Time) - id 101, not currently present in kActionsTable
-// (added below).
+// FLYTOPOINT(P:Point*, I:time*) - id 101. Per IESDP, "used internally by
+// action 100 (RandomFly); it moves the active creature towards the given
+// point for the specified amount of time" - i.e. it gives up once that
+// time (in AI updates, same unit as SmallWait/PlayDead/RunAwayFrom) elapses,
+// not only on arrival.
 static void
 RunActionFlyTo(Object* sender, action_params* params, action_state& state)
 {
@@ -431,11 +440,14 @@ RunActionFlyTo(Object* sender, action_params* params, action_state& state)
 
 	if (!state.initiated) {
 		actor->SetDestination(params->where, true);
+		state.counter = params->integer1;
 		state.initiated = true;
 	}
 
-	if (actor->Position() == actor->Destination())
+	if (actor->Position() == actor->Destination() || state.counter-- <= 0) {
 		state.completed = true;
+		return;
+	}
 
 	actor->MoveToNextPointInPath(true);
 }
@@ -492,14 +504,18 @@ RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 }
 
 
-// RANDOMWALK() - NOTE: same "never completes on its own" shape as
-// RANDOMFLY above; mirrors the current source.
+// RANDOMWALK() - per IESDP, this completes (like any other action) once
+// the randomly-chosen point is reached; IESDP's own example script queues
+// "RandomWalk(); Wait(5); RandomWalk();" in sequence, which would stall
+// forever after the first call if this never completed.
 static void
 RunActionRandomWalk(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor == NULL)
+	if (actor == NULL) {
+		state.completed = true;
 		return;
+	}
 
 	if (!actor->IsWalking()) {
 		IE::point randomValue = {
@@ -510,11 +526,10 @@ RunActionRandomWalk(Object* sender, action_params* params, action_state& state)
 		if (!PointSufficientlyClose(actor->Position(), destination))
 			actor->SetDestination(destination);
 	}
-	if (actor->Position() == actor->Destination()) {
-		//state.completed = true;
-	} else {
+	if (actor->Position() == actor->Destination())
+		state.completed = true;
+	else
 		actor->MoveToNextPointInPath(true);
-	}
 }
 
 
@@ -663,9 +678,11 @@ PointAway(Actor* actor, Actor* target)
 }
 
 
-// RUNAWAYFROM(O:Creature*,I:Time*) - no persistent state: recomputed every
-// tick (matches the original's own "are we recalculating this every time?"
-// TODO).
+// RUNAWAYFROM(O:Creature*,I:Time*) - per IESDP, flees from the target for
+// the specified time (in AI updates), not just until some fixed distance
+// is reached - the target's own point-away logic below (still a TODO to
+// improve) keeps recomputing every tick, but the action as a whole only
+// completes once the time elapses.
 static void
 RunActionRunAwayFrom(Object* sender, action_params* params, action_state& state)
 {
@@ -681,6 +698,17 @@ RunActionRunAwayFrom(Object* sender, action_params* params, action_state& state)
 		return;
 	}
 
+	if (!state.initiated) {
+		state.counter = params->integer1;
+		state.initiated = true;
+	}
+
+	if (state.counter-- <= 0) {
+		state.completed = true;
+		actor->SetAnimationAction(ACT_STANDING);
+		return;
+	}
+
 	// TODO: Improve implementation
 	if (actor->Area()->Distance(actor, target) < 200) {
 		IE::point point = PointAway(actor, target);
@@ -689,7 +717,6 @@ RunActionRunAwayFrom(Object* sender, action_params* params, action_state& state)
 	}
 
 	if (actor->Position() == actor->Destination()) {
-		state.completed = true;
 		actor->SetAnimationAction(ACT_STANDING);
 	} else {
 		actor->SetAnimationAction(ACT_WALKING);
