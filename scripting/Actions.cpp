@@ -627,8 +627,13 @@ RunActionPlayMovie(Object* sender, action_params* params, action_state& state)
 }
 
 
-// ATTACK(O:Target*) / ATTACKREEVALUATE(O:Target*,I:ReevaluationPeriod*) -
-// no persistent state: target/destination recomputed every tick.
+// ATTACK(O:Target*) - per IESDP, continually attacks the target - it
+// doesn't complete on its own until the target is dead.
+// ATTACKREEVALUATE(O:Target*,I:ReevaluationPeriod*) - same, but only for up
+// to ReevaluationPeriod AI updates (default 15/sec); once that elapses the
+// action completes - even if the target is still alive - so the script
+// re-runs and checks its other conditions, per IESDP. Only id 134 carries
+// a period; plain ATTACK (id 3) has no time limit.
 static void
 RunActionAttack(Object* sender, action_params* params, action_state& state)
 {
@@ -639,9 +644,20 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(actorSender, params));
-	if (target == NULL) {
+	if (target == NULL || target->IsState(2048)) { // STATE_DEAD
 		state.completed = true;
 		return;
+	}
+
+	if (params->id == 134) { // ATTACKREEVALUATE
+		if (!state.initiated) {
+			state.counter = params->integer1;
+			state.initiated = true;
+		}
+		if (state.counter-- <= 0) {
+			state.completed = true;
+			return;
+		}
 	}
 
 	IE::point point = target->NearestPoint(actorSender->Position());
@@ -654,7 +670,6 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 	} else {
 		actorSender->SetAnimationAction(ACT_ATTACKING);
 		actorSender->AttackTarget(target);
-		state.completed = true;
 	}
 }
 
