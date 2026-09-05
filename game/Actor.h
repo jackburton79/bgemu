@@ -119,6 +119,12 @@ public:
 	// lives in one place.
 	void ApplyDamage(int32 amount);
 
+	// Adds `amount` to this creature's total XP (CRE()->Experience()) and,
+	// if the new total crosses one or more XPLEVEL.2DA thresholds for its
+	// class(es), applies the resulting level-up(s) - see the .cpp's
+	// _CheckLevelUp() for what a level-up actually changes.
+	void GainExperience(uint32 amount);
+
 	bool MatchNode(object_params* node) const;
 
 	Actor* ResolveIdentifier(const int identifier) const;
@@ -215,6 +221,8 @@ private:
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 
 	void _UpdateRegions();
+
+	void _CheckLevelUp();
 };
 
 struct ZOrderSorter {

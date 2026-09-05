@@ -21,6 +21,7 @@ static uint16 sScreenWidth = 640;
 static uint16 sScreenHeight = 480;
 static const char *sPath;
 static const char *sResourceName = NULL;
+static const char *sPartyMembers = NULL;
 
 static
 struct option sLongOptions[] = {
@@ -33,6 +34,10 @@ struct option sLongOptions[] = {
 		{ "no-newgame", no_argument, &sNoNewGame, 'N' },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
+		// Comma-separated list of CRE resrefs to start the party with,
+		// overriding Game::CreateParty()'s hardcoded default (e.g.
+		// "-P ANOMEN10,Imoen,Minsc") - see Game::SetStartingPartyMembers().
+		{ "party", required_argument, NULL, 'P' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -51,11 +56,14 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
 				sPath = optarg;
+				break;
+			case 'P':
+				sPartyMembers = optarg;
 				break;
 			case 'd':
 				sResourceName = optarg;
@@ -125,6 +133,19 @@ main(int argc, char **argv)
 		//gResManager->SetDebug(2);
 		Script::SetDebug(true);
 		//Object::SetDebug(true);
+	}
+
+	if (sPartyMembers != NULL) {
+		std::vector<std::string> names;
+		std::string remaining = sPartyMembers;
+		size_t comma;
+		while ((comma = remaining.find(',')) != std::string::npos) {
+			names.push_back(remaining.substr(0, comma));
+			remaining.erase(0, comma + 1);
+		}
+		if (!remaining.empty())
+			names.push_back(remaining);
+		Game::Get()->SetStartingPartyMembers(names);
 	}
 
 	if (!GraphicsEngine::Initialize()) {

@@ -10,6 +10,9 @@
 
 #include "IETypes.h"
 
+#include <string>
+#include <vector>
+
 #define AI_UPDATE_FREQ 15
 #define ROUND_DURATION_SEC 6
 
@@ -46,6 +49,12 @@ public:
 	void SetTestMode(bool value);
 	bool TestMode() const;
 
+	// Overrides CreateParty()'s hardcoded starting party with this list of
+	// CRE resrefs (loaded in order, all at the same default spawn point) -
+	// set from the command line (see bgemu.cpp's --party option). Leaving
+	// this empty keeps CreateParty()'s original hardcoded default.
+	void SetStartingPartyMembers(const std::vector<std::string>& names);
+
 
 private:
 	Game();
@@ -58,6 +67,8 @@ private:
 
 	uint32 fDelay;
 	bool fTestMode;
+
+	std::vector<std::string> fStartingPartyMembers;
 };
 
 #endif /* GAME_H_ */

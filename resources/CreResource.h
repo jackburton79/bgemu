@@ -203,18 +203,23 @@ public:
 	void SetReputation(sint8 rep);
 
 	uint32 Experience() const;
+	void SetExperience(uint32 xp);
 	uint32 ExperienceValue() const;
 	uint32 PermanentStatus() const;
 	void SetPermanentStatus(uint32 status);
 	uint16 CurrentHitPoints() const;
 	void SetCurrentHitPoints(uint16 hp);
 	uint16 MaxHitPoints() const;
+	void SetMaxHitPoints(uint16 hp);
 	uint32 Gold() const;
 
 	ArmorClass AC() const;
 	uint8 THAC0() const;
+	void SetTHAC0(uint8 thac0);
 	uint8 NumberOfAttacks() const;
+	void SetNumberOfAttacks(uint8 attacks);
 	SaveVersus Saves() const;
+	void SetSaves(const SaveVersus& saves);
 	Resistances DamageResistances() const;
 
 	// Adds delta to the "effective" AC and to any per-type field selected
@@ -231,6 +236,13 @@ public:
 	// Highest attained level across this creature's (up to 3, for
 	// dual/multi-class) classes.
 	uint8 Level() const;
+	// Level for a single class slot (0/1/2, mapping to bytes 0x234/0x235/
+	// 0x236) - see Class()'s comment for how a multi-class creature's
+	// class name splits into up to 3 "_"-separated component classes in
+	// this same slot order (e.g. FIGHTER_THIEF: slot 0 is the fighter
+	// level, slot 1 the thief level, slot 2 unused/0).
+	uint8 ClassLevel(uint8 classSlot) const;
+	void SetClassLevel(uint8 classSlot, uint8 level);
 	uint8 Morale() const;
 	
 	void GetAttributes(BaseAttributes &attributes);

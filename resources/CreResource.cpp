@@ -258,6 +258,13 @@ CREResource::Experience() const
 }
 
 
+void
+CREResource::SetExperience(uint32 xp)
+{
+	fData->WriteAt(0x18, &xp, sizeof(xp));
+}
+
+
 uint32
 CREResource::PermanentStatus() const
 {
@@ -299,6 +306,13 @@ CREResource::MaxHitPoints() const
 }
 
 
+void
+CREResource::SetMaxHitPoints(uint16 hp)
+{
+	fData->WriteAt(0x26, &hp, sizeof(hp));
+}
+
+
 uint8
 CREResource::Level() const
 {
@@ -307,6 +321,26 @@ CREResource::Level() const
 	fData->ReadAt(0x235, level2);
 	fData->ReadAt(0x236, level3);
 	return std::max(level1, std::max(level2, level3));
+}
+
+
+uint8
+CREResource::ClassLevel(uint8 classSlot) const
+{
+	if (classSlot >= 3)
+		throw std::out_of_range("ClassLevel() out of range");
+	uint8 level;
+	fData->ReadAt(0x234 + classSlot, level);
+	return level;
+}
+
+
+void
+CREResource::SetClassLevel(uint8 classSlot, uint8 level)
+{
+	if (classSlot >= 3)
+		throw std::out_of_range("SetClassLevel() out of range");
+	fData->WriteAt(0x234 + classSlot, &level, sizeof(level));
 }
 
 
@@ -341,6 +375,13 @@ CREResource::THAC0() const
 	uint8 thac0;
 	fData->ReadAt(0x52, thac0);
 	return thac0;
+}
+
+
+void
+CREResource::SetTHAC0(uint8 thac0)
+{
+	fData->WriteAt(0x52, &thac0, sizeof(thac0));
 }
 
 
@@ -398,6 +439,13 @@ CREResource::NumberOfAttacks() const
 }
 
 
+void
+CREResource::SetNumberOfAttacks(uint8 attacks)
+{
+	fData->WriteAt(0x53, &attacks, sizeof(attacks));
+}
+
+
 // CRE v1: 0x54 Save vs Death, 0x55 Wands, 0x56 Polymorph, 0x57 Breath,
 // 0x58 Spell.
 SaveVersus
@@ -410,6 +458,17 @@ CREResource::Saves() const
 	fData->ReadAt(0x57, saves.breath);
 	fData->ReadAt(0x58, saves.spell);
 	return saves;
+}
+
+
+void
+CREResource::SetSaves(const SaveVersus& saves)
+{
+	fData->WriteAt(0x54, &saves.death, sizeof(saves.death));
+	fData->WriteAt(0x55, &saves.wands, sizeof(saves.wands));
+	fData->WriteAt(0x56, &saves.poly, sizeof(saves.poly));
+	fData->WriteAt(0x57, &saves.breath, sizeof(saves.breath));
+	fData->WriteAt(0x58, &saves.spell, sizeof(saves.spell));
 }
 
 

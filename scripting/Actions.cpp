@@ -313,6 +313,61 @@ RunActionRestParty(Object* sender, action_params* params, action_state& state)
 }
 
 
+// Shared by ADDEXPERIENCEPARTY/ADDEXPERIENCEPARTYGLOBAL - per IESDP,
+// "distributed among all current living party members".
+static void
+_AddExperienceToParty(int32 amount)
+{
+	if (amount <= 0)
+		return;
+
+	::Party* party = Game::Get()->Party();
+	std::vector<Actor*> living;
+	for (uint16 i = 0; i < party->CountActors(); i++) {
+		Actor* actor = party->ActorAt(i);
+		if (!actor->IsState(STATE_DEAD))
+			living.push_back(actor);
+	}
+	if (living.empty())
+		return;
+
+	const uint32 share = (uint32)amount / living.size();
+	for (Actor* actor : living)
+		actor->GainExperience(share);
+}
+
+
+// ADDEXPERIENCEPARTY(I:XP*) - stateless.
+static void
+RunActionAddExperienceParty(Object* sender, action_params* params, action_state& state)
+{
+	_AddExperienceToParty(params->integer1);
+	state.completed = true;
+}
+
+
+// ADDEXPERIENCEPARTYGLOBAL(S:Name*,S:Area*) - the XP amount is read from a
+// global variable instead of a literal; like RunActionSetGlobal(), area
+// scoping isn't modeled by this engine yet, so `Area` is ignored.
+static void
+RunActionAddExperiencePartyGlobal(Object* sender, action_params* params, action_state& state)
+{
+	_AddExperienceToParty(Core::Get()->Vars().Get(params->string1));
+	state.completed = true;
+}
+
+
+// ADDXPOBJECT(O:Object*,I:XP*) - stateless.
+static void
+RunActionAddXPObject(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL && params->integer1 > 0)
+		target->GainExperience(params->integer1);
+	state.completed = true;
+}
+
+
 // CREATECREATURE(S:NewObject*,P:Location*,I:Face*) - stateless.
 // TODO: If point is (-1, -1) we should put the actor near the active
 // creature. Which one is the active creature?
@@ -1595,8 +1650,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 161, "INCREMENTCHAPTER", NULL },
 		{ 162, "REPUTATIONSET", NULL },
 		{ 163, "REPUTATIONINC", NULL },
-		{ 164, "ADDEXPERIENCEPARTY", NULL },
-		{ 165, "ADDEXPERIENCEPARTYGLOBAL", NULL },
+		{ 164, "ADDEXPERIENCEPARTY", RunActionAddExperienceParty },
+		{ 165, "ADDEXPERIENCEPARTYGLOBAL", RunActionAddExperiencePartyGlobal },
 		{ 166, "SETNUMTIMESTALKEDTO", NULL },
 		{ 167, "STARTMOVIE", RunActionPlayMovie },
 		{ 168, "INTERACT", NULL },
@@ -1688,7 +1743,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 256, "CREATEITEMGLOBAL", NULL },
 		{ 257, "PICKUPITEM", NULL },
 		{ 258, "FILLSLOT", NULL },
-		{ 259, "ADDXPOBJECT", NULL },
+		{ 259, "ADDXPOBJECT", RunActionAddXPObject },
 		{ 260, "DESTROYGOLD", NULL },
 		{ 261, "SETHOMELOCATION", NULL },
 		{ 262, "DISPLAYSTRINGNONAME", NULL },

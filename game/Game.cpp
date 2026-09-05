@@ -305,15 +305,32 @@ void
 Game::CreateParty()
 {
 	assert(fParty == NULL);
-	// TODO: This should be filled by the player selection
 	IE::point point = { 20, 20 };
 	fParty = new ::Party();
+
+	if (!fStartingPartyMembers.empty()) {
+		for (const std::string& name : fStartingPartyMembers)
+			fParty->AddActor(new Actor(name.c_str(), point, 0));
+		return;
+	}
+
+	// No -P/--party override given: fall back to the original hardcoded
+	// default party. TODO: a real character-creation flow (race/class/
+	// stats/kit) is still missing - this is only "pick existing CREs to
+	// start with", not "create a character from scratch".
 	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
 		fParty->AddActor(new Actor("AJANTI", point, 0));
 	else {
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));
 		fParty->AddActor(new Actor("Imoen", point, 0));
 	}
+}
+
+
+void
+Game::SetStartingPartyMembers(const std::vector<std::string>& names)
+{
+	fStartingPartyMembers = names;
 }
 
 

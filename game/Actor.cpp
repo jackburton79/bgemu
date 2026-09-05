@@ -692,6 +692,221 @@ Actor::IsState(int state) const
 }
 
 
+void
+Actor::GainExperience(uint32 amount)
+{
+	if (amount == 0)
+		return;
+
+	CREResource* cre = CRE();
+	cre->SetExperience(cre->Experience() + amount);
+	_CheckLevelUp();
+}
+
+
+// Maps a single class name (one "_"-separated component of CRE()->Class()'s
+// CLASS.IDS name, e.g. "FIGHTER" out of "FIGHTER_THIEF") to the 2DA
+// resources that drive its level progression - see IESDP's hpx.2da/
+// thac0.2da/savexxx.2da docs. Classes not listed here (any monster
+// "class", or the race-based save variants for dwarves/gnomes/halflings)
+// simply don't level up through this path.
+struct ClassProgression {
+	const char* name;
+	const char* hpTable;
+	const char* saveTable;
+	bool warrior; // true: HPCONBON's WARRIOR bonus column, else OTHER
+};
+
+static const ClassProgression kClassProgressions[] = {
+	{ "FIGHTER",  "HPWAR",  "SAVEWAR",  true },
+	{ "PALADIN",  "HPWAR",  "SAVEWAR",  true },
+	{ "RANGER",   "HPWAR",  "SAVEWAR",  true },
+	{ "MAGE",     "HPWIZ",  "SAVEWIZ",  false },
+	{ "SORCERER", "HPWIZ",  "SAVEWIZ",  false },
+	{ "CLERIC",   "HPPRS",  "SAVEPRS",  false },
+	{ "DRUID",    "HPPRS",  "SAVEPRS",  false },
+	{ "THIEF",    "HPROG",  "SAVEROG",  false },
+	{ "BARD",     "HPROG",  "SAVEROG",  false },
+	{ "MONK",     "HPMONK", "SAVEMONK", false },
+};
+
+
+static const ClassProgression*
+_ProgressionFor(const std::string& className)
+{
+	for (const ClassProgression& progression : kClassProgressions) {
+		if (className == progression.name)
+			return &progression;
+	}
+	return NULL;
+}
+
+
+// TWODAResource::ValueFor()/IntegerValueFor() throw std::out_of_range for
+// any (row, column) pair the file doesn't actually list (e.g. a level
+// beyond the table's last defined column, or a class name that isn't one
+// of its rows) - it does NOT fall back to the file's declared default
+// value. This wraps every lookup so a missing entry just yields `fallback`
+// instead of crashing the whole engine.
+static int32
+_TableValue(TWODAResource* table, const char* row, const char* column, int32 fallback)
+{
+	if (table == NULL)
+		return fallback;
+	try {
+		return table->IntegerValueFor(row, column);
+	} catch (const std::exception&) {
+		return fallback;
+	}
+}
+
+
+// Applies XP-driven level-up(s) for every "_"-separated class component of
+// this creature's Class() (up to 3, in the same slot order CREResource
+// uses for bytes 0x234/0x235/0x236 - see CREResource::ClassLevel()'s
+// comment). For each component with real progression data (see
+// kClassProgressions above), rolls new hit points for every level gained
+// (HPxxx.2da + HPCONBON.2da) and recomputes THAC0/saving throws as the
+// best (lowest) value among all of this creature's classes at their
+// (possibly just-updated) level - matching how AD&D 2E multi-classing
+// works. NumberOfAttacks() and spellbook memorization slots are not
+// recomputed here - both need extra infrastructure this pass doesn't add
+// (see the Fase 7 plan notes).
+void
+Actor::_CheckLevelUp()
+{
+	CREResource* cre = CRE();
+	const uint32 xp = cre->Experience();
+
+	std::string className = IDTable::ClassAt(cre->Class());
+	std::vector<std::string> classTokens;
+	size_t start = 0;
+	for (size_t i = 0; i <= className.size(); i++) {
+		if (i == className.size() || className[i] == '_') {
+			classTokens.push_back(className.substr(start, i - start));
+			start = i + 1;
+		}
+	}
+	if (classTokens.empty() || classTokens.size() > 3)
+		return; // not a recognizable CLASS.IDS class name
+
+	TWODAResource* xpLevel = gResManager->Get2DA("XPLEVEL");
+	if (xpLevel == NULL)
+		return;
+
+	TWODAResource* hpConBon = gResManager->Get2DA("HPCONBON");
+	TWODAResource* thac0Table = gResManager->Get2DA("THAC0");
+
+	BaseAttributes attributes;
+	cre->GetAttributes(attributes);
+	char conRow[8];
+	snprintf(conRow, sizeof(conRow), "%d", (int)attributes.constitution);
+
+	bool leveledUp = false;
+	uint16 hpGain = 0;
+	uint8 bestThac0 = 255;
+	SaveVersus bestSaves = { 255, 255, 255, 255, 255 };
+
+	for (size_t slot = 0; slot < classTokens.size(); slot++) {
+		const ClassProgression* progression = _ProgressionFor(classTokens[slot]);
+		if (progression == NULL)
+			continue;
+		const char* token = classTokens[slot].c_str();
+
+		const uint8 currentLevel = cre->ClassLevel((uint8)slot);
+		uint8 newLevel = currentLevel;
+		for (uint8 level = currentLevel + 1; level <= 41; level++) {
+			char column[8];
+			snprintf(column, sizeof(column), "%u", level);
+			int32 threshold = _TableValue(xpLevel, token, column, -1);
+			if (threshold < 0 || (uint32)threshold > xp)
+				break;
+			newLevel = level;
+		}
+
+		char levelColumn[8];
+		snprintf(levelColumn, sizeof(levelColumn), "%u", std::max<uint8>(newLevel, 1));
+
+		int32 thac0 = _TableValue(thac0Table, token, levelColumn, -1);
+		if (thac0 >= 0 && (uint8)thac0 < bestThac0)
+			bestThac0 = (uint8)thac0;
+
+		TWODAResource* saveTable = gResManager->Get2DA(progression->saveTable);
+		if (saveTable != NULL) {
+			int32 death = _TableValue(saveTable, "DEATH", levelColumn, -1);
+			int32 wands = _TableValue(saveTable, "WANDS", levelColumn, -1);
+			int32 poly = _TableValue(saveTable, "POLY", levelColumn, -1);
+			int32 breath = _TableValue(saveTable, "BREATH", levelColumn, -1);
+			int32 spell = _TableValue(saveTable, "SPELL", levelColumn, -1);
+			if (death >= 0 && (uint8)death < bestSaves.death)
+				bestSaves.death = (uint8)death;
+			if (wands >= 0 && (uint8)wands < bestSaves.wands)
+				bestSaves.wands = (uint8)wands;
+			if (poly >= 0 && (uint8)poly < bestSaves.poly)
+				bestSaves.poly = (uint8)poly;
+			if (breath >= 0 && (uint8)breath < bestSaves.breath)
+				bestSaves.breath = (uint8)breath;
+			if (spell >= 0 && (uint8)spell < bestSaves.spell)
+				bestSaves.spell = (uint8)spell;
+			gResManager->ReleaseResource(saveTable);
+		}
+
+		if (newLevel <= currentLevel)
+			continue;
+
+		leveledUp = true;
+		cre->SetClassLevel((uint8)slot, newLevel);
+
+		TWODAResource* hpTable = gResManager->Get2DA(progression->hpTable);
+		if (hpTable != NULL) {
+			for (uint8 level = currentLevel + 1; level <= newLevel; level++) {
+				char hpRow[8];
+				snprintf(hpRow, sizeof(hpRow), "%u", level);
+				int32 sides = _TableValue(hpTable, hpRow, "SIDES", 0);
+				int32 rolls = _TableValue(hpTable, hpRow, "ROLLS", 0);
+				int32 modifier = _TableValue(hpTable, hpRow, "MODIFIER", 0);
+				if (sides > 0 && rolls > 0)
+					hpGain += Core::RollDice(rolls, sides, 0);
+				hpGain += modifier;
+				hpGain += _TableValue(hpConBon, conRow,
+					progression->warrior ? "WARRIOR" : "OTHER", 0);
+			}
+			gResManager->ReleaseResource(hpTable);
+		}
+	}
+
+	if (hpConBon != NULL)
+		gResManager->ReleaseResource(hpConBon);
+	if (thac0Table != NULL)
+		gResManager->ReleaseResource(thac0Table);
+	gResManager->ReleaseResource(xpLevel);
+
+	if (!leveledUp)
+		return;
+
+	if (hpGain > 0) {
+		cre->SetMaxHitPoints(cre->MaxHitPoints() + hpGain);
+		cre->SetCurrentHitPoints(cre->CurrentHitPoints() + hpGain);
+	}
+	if (bestThac0 != 255)
+		cre->SetTHAC0(bestThac0);
+	if (bestSaves.death != 255) {
+		SaveVersus saves = cre->Saves();
+		if (bestSaves.death < saves.death)
+			saves.death = bestSaves.death;
+		if (bestSaves.wands < saves.wands)
+			saves.wands = bestSaves.wands;
+		if (bestSaves.poly < saves.poly)
+			saves.poly = bestSaves.poly;
+		if (bestSaves.breath < saves.breath)
+			saves.breath = bestSaves.breath;
+		if (bestSaves.spell < saves.spell)
+			saves.spell = bestSaves.spell;
+		cre->SetSaves(saves);
+	}
+}
+
+
 // Checks if this object matches with the specified object_node.
 // Also keeps wildcards in consideration. Used for triggers.
 bool
