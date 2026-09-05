@@ -803,6 +803,33 @@ RunActionSetEnemyAlly(Object* sender, action_params* params, action_state& state
 }
 
 
+// KILL(O:Object*) - stateless. Routes through Actor::ApplyDamage() so
+// death gets the same HP/animation/DeathVariable transition as combat,
+// instead of duplicating that logic here. Item-dropping (per IESDP) isn't
+// implemented, matching this codebase's lack of any other loot-drop path.
+static void
+RunActionKill(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->ApplyDamage(target->CRE()->CurrentHitPoints());
+	state.completed = true;
+}
+
+
+// APPLYDAMAGE(O:Object*,I:Amount*,I:Type*DMGTYPE) - stateless. Damage
+// type (integer2) is ignored: resistances aren't implemented yet (see
+// Actor::ApplyDamage()).
+static void
+RunActionApplyDamage(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->ApplyDamage(params->integer1);
+	state.completed = true;
+}
+
+
 // FADETOCOLOR(P:POINT*,I:BLUE*) - state.counter/extra/step map to the
 // original's fCurrentValue/fTargetValue/fStepValue.
 static void
@@ -1228,7 +1255,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 128, "ANKHEGEMERGE", NULL },
 		{ 129, "ANKHEGHIDE", NULL },
 		{ 130, "RANDOMTURN", NULL },
-		{ 131, "KILL", NULL },
+		{ 131, "KILL", RunActionKill },
 		{ 132, "VERBALCONSTANT", NULL },
 		{ 133, "CLEARACTIONS", NULL },
 		{ 134, "ATTACKREEVALUATE", RunActionAttack },
@@ -1393,7 +1420,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 295, "CREATECREATURECOPYPOINT", NULL },
 		{ 296, "BATTLESONG", NULL },
 		{ 297, "MOVETOSAVEDLOCATIONN", NULL },
-		{ 298, "APPLYDAMAGE", NULL },
+		{ 298, "APPLYDAMAGE", RunActionApplyDamage },
 		{ 299, "BANTERBLOCKTIME", NULL },
 		{ 300, "BANTERBLOCKFLAG", NULL },
 		{ 301, "AMBIENTACTIVATE", NULL },

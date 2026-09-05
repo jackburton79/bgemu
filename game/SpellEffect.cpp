@@ -10,6 +10,7 @@
 #include "Actor.h"
 #include "AreaRoom.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "Effect.h"
 #include "Log.h"
 #include "Object.h"
@@ -209,8 +210,28 @@ RunEffectPlaySoundEffect(Object* target, SpellEffect& effect)
 }
 
 
+// #238 "Death: Disintegrate". IESDP: kills the target if it matches an
+// IDS Entry/File and hit-dice qualifier (Parameter1/Parameter2). This is
+// what the opening BG2 cutscene uses to kill Irenicus's spy
+// (WIZARD_DISINTEGRATE2_IGNORE_RESISTANCE); the IDS/hit-dice qualifier
+// check is skipped (unconditional kill) to match this codebase's existing
+// no-resistances/no-saves scope for damage and death handling.
+static bool
+RunEffectDisintegrate(Object* target, SpellEffect& effect)
+{
+	Actor* actor = dynamic_cast<Actor*>(target);
+	if (actor == NULL)
+		return true;
+
+	actor->ApplyDamage(actor->CRE()->CurrentHitPoints());
+
+	return true; // one-shot: remove immediately once applied
+}
+
+
 static const EffectDescriptor kEffectsTable[] = {
 	{ 12, "HP: Damage", RunEffectHPDamage },
+	{ 238, "Death: Disintegrate", RunEffectDisintegrate },
 	{ 124, "Spell Effect: Teleport (Dimension Door)", RunEffectTeleportToTarget },
 	{ 174, "Spell Effect: Play Sound Effect", RunEffectPlaySoundEffect },
 	{ 215, "Graphics: Play 3D Effect", RunEffectPlay3DEffect },
