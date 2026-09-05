@@ -16,7 +16,7 @@
 #include <sstream>
 
 
-bool Script::sDebug = true;
+bool Script::sDebug = false;
 
 
 Script::Script(std::vector<condition_response*> rootNode)
