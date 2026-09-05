@@ -143,6 +143,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			LoadStartingArea();
 	}
 
+
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
 	bool quitting = false;
@@ -218,6 +219,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								break;
 							case SDLK_n:
 								ToggleDayNight();
+								break;
+							case SDLK_i:
+								GUI::Get()->ToggleAuxWindow("GUIINV", 0);
 								break;
 							case SDLK_q:
 								quitting = true;

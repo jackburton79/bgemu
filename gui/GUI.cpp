@@ -330,12 +330,87 @@ GUI::ToggleWindow(uint16 id)
 }
 
 
+bool
+GUI::LoadAuxiliary(const res_ref& chuName)
+{
+	if (fAuxResources.find(chuName) != fAuxResources.end())
+		return true; // already loaded
+
+	CHUIResource* resource = gResManager->GetCHUI(chuName);
+	if (resource == NULL)
+		return false;
+
+	fAuxResources[chuName] = resource;
+	return true;
+}
+
+
+void
+GUI::ShowAuxWindow(const res_ref& chuName, uint16 windowId)
+{
+	auto key = std::make_pair(chuName, windowId);
+	auto found = fAuxWindows.find(key);
+	Window* window = found != fAuxWindows.end() ? found->second : NULL;
+
+	if (window == NULL) {
+		if (!LoadAuxiliary(chuName))
+			return;
+		window = fAuxResources[chuName]->GetWindow(windowId);
+		if (window == NULL) {
+			std::cerr << Log::Red << "GUI::ShowAuxWindow(): window " << windowId
+					<< " not found in " << chuName.CString() << Log::Normal << std::endl;
+			return;
+		}
+		fAuxWindows[key] = window;
+		AddWindow(window);
+	}
+
+	window->Show();
+	if (window->Frame().Contains(fCursorPosition.x, fCursorPosition.y))
+		window->MouseMoved(fCursorPosition);
+}
+
+
+void
+GUI::HideAuxWindow(const res_ref& chuName, uint16 windowId)
+{
+	auto found = fAuxWindows.find(std::make_pair(chuName, windowId));
+	if (found != fAuxWindows.end())
+		found->second->Hide();
+}
+
+
+bool
+GUI::IsAuxWindowShown(const res_ref& chuName, uint16 windowId) const
+{
+	auto found = fAuxWindows.find(std::make_pair(chuName, windowId));
+	return found != fAuxWindows.end() && found->second->Shown();
+}
+
+
+void
+GUI::ToggleAuxWindow(const res_ref& chuName, uint16 windowId)
+{
+	if (IsAuxWindowShown(chuName, windowId))
+		HideAuxWindow(chuName, windowId);
+	else
+		ShowAuxWindow(chuName, windowId);
+}
+
+
 void
 GUI::Clear()
 {
 	for (auto window: fWindows)
 		delete window;
 	fWindows.clear();
+	// The Window objects these pointed to were just deleted above (they
+	// were also in fWindows - see ShowAuxWindow()).
+	fAuxWindows.clear();
+
+	for (auto& resource : fAuxResources)
+		gResManager->ReleaseResource(resource.second);
+	fAuxResources.clear();
 
 	_AddBackgroundWindow();
 }

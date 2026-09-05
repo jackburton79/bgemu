@@ -144,6 +144,29 @@ public:
 };
 
 
+class ToggleAuxWindowCommand : public ShellCommand {
+public:
+	ToggleAuxWindowCommand()
+		: ShellCommand(
+			"Toggle-AuxWindow",
+			{
+				{ PARAMETER_STRING, }, // CHU resource name, e.g. GUIINV
+				{ PARAMETER_INT, }     // window id within it
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		res_ref chuName(params.at(0).value.string);
+		uint16 windowID = params.at(1).value.integer;
+		GUI::Get()->ToggleAuxWindow(chuName, windowID);
+		std::cout << "Toggle-AuxWindow: " << chuName.CString() << " window " << windowID
+				<< " shown=" << GUI::Get()->IsAuxWindowShown(chuName, windowID) << std::endl;
+	}
+};
+
+
 class WalkToObjectCommand : public ShellCommand {
 public:
 	WalkToObjectCommand()
@@ -684,6 +707,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new SetEnemyAllyCommand());
 	console->AddCommand(new ShowWindowCommand());
+	console->AddCommand(new ToggleAuxWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new WaitTimeCommand());
 

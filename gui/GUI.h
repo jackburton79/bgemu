@@ -14,7 +14,9 @@
 #include "Window.h"
 
 #include <list>
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Bitmap;
@@ -71,6 +73,23 @@ public:
 
 	void AddWindow(Window* window);
 	Window* GetWindow(uint16 id) const;
+
+	// Auxiliary screens (Inventory, Record, Spellbook, ...): each one
+	// lives in its own CHU resource, separate from the main GUIW/GUIWMAP
+	// resource loaded via Load()/fResource above - GetWindow(id)'s single
+	// flat id lookup isn't safe to reuse here since two different CHU
+	// files can (and typically do) both define e.g. a window id 0.
+	// Windows opened this way still draw/receive mouse events normally
+	// (they're kept in the same fWindows list as everything else) - this
+	// is only a separate (chuName, windowId) -> Window* lookup so
+	// repeated Show calls reuse the same instance instead of rebuilding
+	// it from the CHU every time.
+	bool LoadAuxiliary(const res_ref& chuName);
+	void ShowAuxWindow(const res_ref& chuName, uint16 windowId);
+	void HideAuxWindow(const res_ref& chuName, uint16 windowId);
+	bool IsAuxWindowShown(const res_ref& chuName, uint16 windowId) const;
+	void ToggleAuxWindow(const res_ref& chuName, uint16 windowId);
+
 	TextArea* GetMessagesTextArea();
 	void EnsureShowDialogArea();
 	void ToggleMessageArea();
@@ -89,6 +108,8 @@ public:
 private:
 	CHUIResource* fResource;
 	std::vector<Window*> fWindows;
+	std::map<res_ref, CHUIResource*> fAuxResources;
+	std::map<std::pair<res_ref, uint16>, Window*> fAuxWindows;
 	Window* fBackWindow;
 	Animation* fCursors[NUM_CURSORS];
 	Animation* fCurrentCursor;
