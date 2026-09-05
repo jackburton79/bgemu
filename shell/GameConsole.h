@@ -25,7 +25,6 @@ public:
 	void HandleInput(uint8 key);
 
 	// Hides (not overrides - Console::Draw())
-	void Draw();
 
 	bool HasOutputRedirected() const;
 	void EnableRedirect();
