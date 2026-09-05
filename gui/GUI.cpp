@@ -70,6 +70,12 @@ GUI::~GUI()
 	}
 
 	fWindows.clear();
+	fAuxWindows.clear();
+	fAuxWindowSet.clear();
+
+	for (auto& resource : fAuxResources)
+		gResManager->ReleaseResource(resource.second);
+	fAuxResources.clear();
 
 	fCurrentCursor = NULL;
 
