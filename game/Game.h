@@ -19,6 +19,7 @@
 
 class Actor;
 class DialogHandler;
+class GameConsole;
 class Party;
 class Game {
 public:
@@ -55,6 +56,15 @@ public:
 	// this empty keeps CreateParty()'s original hardcoded default.
 	void SetStartingPartyMembers(const std::vector<std::string>& names);
 
+	// Path to a shell-command test script (see bgemu.cpp's --exec-file
+	// option): one GameConsole command per line, blank lines and lines
+	// starting with '#' ignored, run automatically right after the
+	// starting area/worldmap loads. Meant for unattended/headless test
+	// runs - once the script finishes, the game quits (as if 'q' had
+	// been pressed) rather than entering the normal interactive loop.
+	// Leaving this unset (NULL/empty) runs the game normally.
+	void SetExecFile(const char* path);
+
 
 private:
 	Game();
@@ -69,6 +79,9 @@ private:
 	bool fTestMode;
 
 	std::vector<std::string> fStartingPartyMembers;
+	std::string fExecFile;
+
+	void _RunExecFile(GameConsole* console);
 };
 
 #endif /* GAME_H_ */

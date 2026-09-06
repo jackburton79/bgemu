@@ -25,6 +25,7 @@
 
 
 #include <assert.h>
+#include <fstream>
 #include <stdio.h>
 
 
@@ -127,6 +128,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		inputConsole->Initialize();
 	std::cout << "OK!" << std::endl;
 
+	bool quitting = false;
+
 	if (TestMode()) {
 		GUI::Get()->Load("GUITEST");
 		// Parsing tests
@@ -141,12 +144,16 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			Core::Get()->LoadWorldMap();
 		else
 			LoadStartingArea();
+
+		if (!fExecFile.empty()) {
+			_RunExecFile(inputConsole);
+			quitting = true;
+		}
 	}
 
 
 	std::cout << "Game: Started game loop." << std::endl;
 	SDL_Event event;
-	bool quitting = false;
 
 	int clockTimer = Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
 	int fpsTimer = Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
@@ -331,6 +338,44 @@ void
 Game::SetStartingPartyMembers(const std::vector<std::string>& names)
 {
 	fStartingPartyMembers = names;
+}
+
+
+void
+Game::SetExecFile(const char* path)
+{
+	fExecFile = path != NULL ? path : "";
+}
+
+
+// Runs every non-blank, non-'#'-comment line of fExecFile as a GameConsole
+// command, in order, printing each before running it (so the transcript
+// is self-documenting) - console commands already print their own output
+// to stdout (unredirected by default, see GameConsole's constructor
+// comment), which is exactly what a headless ASan test run captures.
+void
+Game::_RunExecFile(GameConsole* console)
+{
+	std::ifstream file(fExecFile.c_str());
+	if (!file.is_open()) {
+		std::cerr << "Game::_RunExecFile(): cannot open " << fExecFile << std::endl;
+		return;
+	}
+
+	std::cout << "Game: running exec-file " << fExecFile << std::endl;
+	std::string line;
+	while (std::getline(file, line)) {
+		if (!line.empty() && line.back() == '\r')
+			line.pop_back();
+
+		size_t start = line.find_first_not_of(" \t");
+		if (start == std::string::npos || line[start] == '#')
+			continue;
+
+		std::cout << "TestScript> " << line << std::endl;
+		console->ExecuteCommand(line);
+	}
+	std::cout << "Game: exec-file done, quitting" << std::endl;
 }
 
 

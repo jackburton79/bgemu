@@ -24,6 +24,12 @@ public:
 	void ShowHelp();
 	void HandleInput(uint8 key);
 
+	// Runs a full "command arg1 arg2..." line directly, bypassing the
+	// per-keystroke input buffer HandleInput() drives - lets test/debug
+	// code (see Game::_RunExecFile()) invoke any registered ShellCommand
+	// programmatically instead of simulating keyboard input.
+	void ExecuteCommand(const std::string& line);
+
 	// Hides (not overrides - Console::Draw())
 
 	bool HasOutputRedirected() const;

@@ -110,6 +110,13 @@ GameConsole::HandleInput(uint8 c)
 
 
 void
+GameConsole::ExecuteCommand(const std::string& line)
+{
+	_ExecuteCommand(line);
+}
+
+
+void
 GameConsole::Update()
 {
 	// Write stdout to console

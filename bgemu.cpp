@@ -22,6 +22,7 @@ static uint16 sScreenHeight = 480;
 static const char *sPath;
 static const char *sResourceName = NULL;
 static const char *sPartyMembers = NULL;
+static const char *sExecFile = NULL;
 
 static
 struct option sLongOptions[] = {
@@ -38,6 +39,11 @@ struct option sLongOptions[] = {
 		// overriding Game::CreateParty()'s hardcoded default (e.g.
 		// "-P ANOMEN10,Imoen,Minsc") - see Game::SetStartingPartyMembers().
 		{ "party", required_argument, NULL, 'P' },
+		// Path to a test script (one GameConsole command per line, blank
+		// lines and '#' comments ignored) - run automatically right after
+		// the starting area/worldmap loads, then the game quits. See
+		// Game::SetExecFile()/Game::_RunExecFile().
+		{ "exec-file", required_argument, NULL, 'x' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -56,7 +62,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -64,6 +70,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'P':
 				sPartyMembers = optarg;
+				break;
+			case 'x':
+				sExecFile = optarg;
 				break;
 			case 'd':
 				sResourceName = optarg;
@@ -147,6 +156,9 @@ main(int argc, char **argv)
 			names.push_back(remaining);
 		Game::Get()->SetStartingPartyMembers(names);
 	}
+
+	if (sExecFile != NULL)
+		Game::Get()->SetExecFile(sExecFile);
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();
