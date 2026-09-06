@@ -36,6 +36,8 @@ public:
 
 	void LoadStartingArea();
 	void ToggleDayNight();
+	void ToggleInventoryWindow();
+	void ToggleRecordWindow();
 
 	bool Load(const char* name);
 	bool Save(const char* name);
@@ -126,6 +128,11 @@ private:
 	std::map<std::string, bool> fAreaMapVisibility;
 
 	void _RunExecFile(GameConsole* console);
+	void _UpdateInventoryIcons();
+	void _SetSlotIcon(class Window* window, class CREResource* cre,
+		uint32 controlID, uint32 creSlot);
+	void _UpdateInventoryLabels(class Window* window, Actor* actor);
+	void _UpdateRecordLabels();
 };
 
 #endif /* GAME_H_ */

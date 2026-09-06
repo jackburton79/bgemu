@@ -135,6 +135,20 @@ strresource(int type)
 }
 
 
+int
+CountResourceTypes()
+{
+	return sizeof(kResourceTypes) / sizeof(kResourceTypes[0]);
+}
+
+
+int
+ResourceTypeAt(int index)
+{
+	return kResourceTypes[index].type;
+}
+
+
 resource_creation_func
 get_resource_create(int type)
 {

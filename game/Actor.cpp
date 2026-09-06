@@ -978,20 +978,8 @@ Actor::Spawned() const
 // IESDP cre_v1 documents (Helmet, Armor, Shield, Gloves, L.Ring, R.Ring,
 // Amulet, Belt, Boots, Weapon1-4, Quiver1-4, Cloak, QuickItem1-3,
 // Inventory1-16, MagicWeapon, SelectedWeapon, SelectedWeaponAbility).
-static const uint32 kSlotHelmet = 0;
-static const uint32 kSlotArmor = 1;
-static const uint32 kSlotShield = 2;
-static const uint32 kSlotGauntlets = 3;
-static const uint32 kSlotRingLeft = 4;
-static const uint32 kSlotAmulet = 6;
-static const uint32 kSlotBelt = 7;
-static const uint32 kSlotBoots = 8;
-static const uint32 kSlotWeaponFirst = 9;
-static const uint32 kSlotAmmoFirst = 13;
-static const uint32 kSlotAmmoLast = 16;
-static const uint32 kSlotCloak = 17;
-static const uint32 kSlotGeneralFirst = 21;
-static const uint32 kSlotGeneralLast = 36;
+// (kSlot* constants now live in CreResource.h, shared with the inventory
+// GUI, which needs to map its own control IDs to these same slots.)
 
 
 // Maps an ITM "Item type" (IESDP itm_v1) to the slot it equips into by

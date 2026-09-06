@@ -11,6 +11,25 @@
 
 const uint32 kNumItemSlots = 40;
 
+// Item slot indices (index into GetItemAtSlot()/the CRE items table).
+// Moved here from Actor.cpp so non-Actor code (e.g. the inventory GUI)
+// can map its own control IDs to the right CRE slot without duplicating
+// these format constants.
+const uint32 kSlotHelmet = 0;
+const uint32 kSlotArmor = 1;
+const uint32 kSlotShield = 2;
+const uint32 kSlotGauntlets = 3;
+const uint32 kSlotRingLeft = 4;
+const uint32 kSlotAmulet = 6;
+const uint32 kSlotBelt = 7;
+const uint32 kSlotBoots = 8;
+const uint32 kSlotWeaponFirst = 9;
+const uint32 kSlotAmmoFirst = 13;
+const uint32 kSlotAmmoLast = 16;
+const uint32 kSlotCloak = 17;
+const uint32 kSlotGeneralFirst = 21;
+const uint32 kSlotGeneralLast = 36;
+
 enum CreatureFlagBits {
 	CRE_IS_EXPORTABLE = 0x800
 };

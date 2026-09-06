@@ -9,6 +9,8 @@
 
 #include "2DAResource.h"
 #include "Actor.h"
+#include "BamResource.h"
+#include "Button.h"
 #include "ColorRange.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -18,10 +20,13 @@
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "ITMResource.h"
+#include "Label.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "Window.h"
 
 
 #include <algorithm>
@@ -237,23 +242,12 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_n:
 								ToggleDayNight();
 								break;
-							case SDLK_i: {
-								// Window 2 is the actual inventory panel
-								// (paperdoll + item slots); 0/1 are the
-								// persistent left/right side columns
-								// (portraits, quick items) that flank it -
-								// confirmed against real GUIINV.CHU data
-								// (64+512+64 = 640, the reference width).
-								GUI* windowGui = GUI::Get();
-								bool shown = windowGui->IsAuxWindowShown("GUIINV", 2);
-								for (uint16 windowId : {0, 1, 2})
-									windowGui->HideAuxWindow("GUIINV", windowId);
-								if (!shown) {
-									for (uint16 windowId : {0, 1, 2})
-										windowGui->ShowAuxWindow("GUIINV", windowId);
-								}
+							case SDLK_i:
+								ToggleInventoryWindow();
 								break;
-							}
+							case SDLK_r:
+								ToggleRecordWindow();
+								break;
 							case SDLK_q:
 								quitting = true;
 								break;
@@ -362,6 +356,258 @@ void
 Game::SetStartingArea(const char* areaName)
 {
 	fStartingArea = areaName != NULL ? areaName : "";
+}
+
+
+// Shows/hides the Inventory window (GUIINV). Window 2 is the actual
+// inventory panel (paperdoll + item slots); 0/1 are the persistent
+// left/right side columns (portraits, quick items) that flank it -
+// confirmed against real GUIINV.CHU data (64+512+64 = 640, the reference
+// width). Public (rather than folded into the SDLK_i handler) so it can
+// also be driven from the HUD inventory button and from test tooling.
+void
+Game::ToggleInventoryWindow()
+{
+	GUI* windowGui = GUI::Get();
+	bool shown = windowGui->IsAuxWindowShown("GUIINV", 2);
+	for (uint16 windowId : {0, 1, 2})
+		windowGui->HideAuxWindow("GUIINV", windowId);
+	if (!shown) {
+		for (uint16 windowId : {0, 1, 2})
+			windowGui->ShowAuxWindow("GUIINV", windowId);
+		_UpdateInventoryIcons();
+	}
+}
+
+
+// Shows/hides the "General" tab of the character Record window (GUIREC),
+// same 3-window pattern as GUIINV (window 2 is the actual content panel;
+// 0/1 are the same persistent side columns GUIINV also uses - GUIWLSP/
+// GUIWRSP backgrounds confirmed identical via a real GUIREC.CHU dump).
+void
+Game::ToggleRecordWindow()
+{
+	GUI* windowGui = GUI::Get();
+	bool shown = windowGui->IsAuxWindowShown("GUIREC", 2);
+	for (uint16 windowId : {0, 1, 2})
+		windowGui->HideAuxWindow("GUIREC", windowId);
+	if (!shown) {
+		for (uint16 windowId : {0, 1, 2})
+			windowGui->ShowAuxWindow("GUIREC", windowId);
+		_UpdateRecordLabels();
+	}
+}
+
+
+// Populates the inventory-slot buttons in the open GUIINV window 2 with
+// the real item icon (ITM's InventoryIcon(), cycle 0/frame 0 of that BAM -
+// same convention Button's own constructor uses for its CHU-authored
+// bitmaps) for whichever item currently occupies the matching slot in the
+// shown character's CREResource, clearing the icon on empty slots.
+// Simplification: always shows the first party member's inventory (there's
+// no portrait-bar/character-switch UI yet to pick a different one).
+void
+Game::_UpdateInventoryIcons()
+{
+	if (fParty == NULL || fParty->CountActors() == 0)
+		return;
+
+	Actor* actor = fParty->ActorAt(0);
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	Window* window = GUI::Get()->GetAuxWindow("GUIINV", 2);
+	if (window == NULL)
+		return;
+
+	CREResource* cre = actor->CRE();
+
+	// Row-major reading order (top row left->right, then bottom row
+	// left->right) confirmed against a real GUIINV.CHU control dump to
+	// match kSlotGeneralFirst..kSlotGeneralLast (16 slots) in order.
+	static const uint32 kGeneralGridControlIDs[] = {
+		30, 32, 34, 36, 38, 40, 42, 44,
+		31, 33, 35, 37, 39, 41, 43, 45
+	};
+	static const uint32 kGeneralGridCount =
+		sizeof(kGeneralGridControlIDs) / sizeof(kGeneralGridControlIDs[0]);
+	static_assert(kGeneralGridCount == kSlotGeneralLast - kSlotGeneralFirst + 1,
+		"control ID table doesn't match the general slot range");
+	for (uint32 i = 0; i < kGeneralGridCount; i++)
+		_SetSlotIcon(window, cre, kGeneralGridControlIDs[i], kSlotGeneralFirst + i);
+
+	// Helmet/Armor/Shield/Gauntlets (the row above the paperdoll, ids
+	// 11-14) - confirmed empirically, not guessed from position: probing
+	// this row 1:1 against slots 0-3 on ANOMEN10 (a real party member
+	// with real gear already equipped there) rendered a helmet icon, a
+	// chest-armor icon and a shield icon, in that exact order, at ids
+	// 11/12/13 respectively (14/gauntlets was empty on that character,
+	// so unverified but follows the same confirmed sequence).
+	_SetSlotIcon(window, cre, 11, kSlotHelmet);
+	_SetSlotIcon(window, cre, 12, kSlotArmor);
+	_SetSlotIcon(window, cre, 13, kSlotShield);
+	_SetSlotIcon(window, cre, 14, kSlotGauntlets);
+
+	// "Armi rapide" (quick weapons, ids 1-4, under that label per a real
+	// GUIINV.CHU control dump) - matches kSlotWeaponFirst..+3 (Weapon1-4)
+	// by count (4 controls, 4 slots); not individually icon-verified like
+	// the row above (no test character has more than one weapon
+	// equipped), but the count match plus the identical "ascending id ->
+	// ascending slot" pattern already confirmed for the row above make
+	// this a reasonably safe read.
+	_SetSlotIcon(window, cre, 1, kSlotWeaponFirst);
+	_SetSlotIcon(window, cre, 2, kSlotWeaponFirst + 1);
+	_SetSlotIcon(window, cre, 3, kSlotWeaponFirst + 2);
+	_SetSlotIcon(window, cre, 4, kSlotWeaponFirst + 3);
+
+	// "Faretra" (quiver/ammo, ids 15-17, under that label) - only 3
+	// controls for the CRE format's 4 ammo slots (kSlotAmmoFirst..
+	// kSlotAmmoLast); declared deviation, same spirit as the other
+	// "engine doesn't model every UI nuance" simplifications already on
+	// the roadmap - shows the first 3 (13-15), the 4th (16) has no
+	// control to display it in this CHU layout.
+	_SetSlotIcon(window, cre, 15, kSlotAmmoFirst);
+	_SetSlotIcon(window, cre, 16, kSlotAmmoFirst + 1);
+	_SetSlotIcon(window, cre, 17, kSlotAmmoFirst + 2);
+
+	// "Oggetti rapidi" (quick items, ids 5-7, under that label) - CRE
+	// slots 18-20 (QuickItem1-3), per the pre-existing item-order comment
+	// in Actor.cpp (already verified there against a real CRE); count
+	// matches (3 controls, 3 slots).
+	_SetSlotIcon(window, cre, 5, 18);
+	_SetSlotIcon(window, cre, 6, 19);
+	_SetSlotIcon(window, cre, 7, 20);
+
+	// Not mapped yet: rings/amulet/belt/boots/cloak (ids 21-26, CRE slots
+	// 4-8 and 17) - unlike the row above the paperdoll, no test character
+	// available has real items in these slots, so there's no empirical
+	// way (yet) to confirm which control is which without risking a
+	// misleading icon in the wrong slot type. Left for a follow-up pass
+	// (e.g. once a way exists to equip a test item into an arbitrary
+	// slot on a character with a large enough Items table - the default
+	// party members' tables are too small, see Actor::AddItem()'s
+	// existing comment on that limitation).
+
+	_UpdateInventoryLabels(window, actor);
+}
+
+
+// Fills in the two GUIINV labels whose CHU-authored text_ref resolves to
+// a literal "(No text)" TLK placeholder - real BG2 sets these from code,
+// not from static CHU data, same as the item icons above.
+// Only the two confirmed unambiguously (name banner; the AC value inside
+// the shield-shaped badge, id 512 - the badge art itself makes the shield
+// unmistakable) are set here. The two-line label pair next to the second
+// (spiked) badge (id 513/514) is left alone - what it's meant to show
+// isn't clear from the CHU data or the badge art alone, and a wrong
+// guess there would be worse than the placeholder text.
+// Known limitation, not fixed here: the name banner (id 507) is set
+// correctly but doesn't actually render - its CHU-authored font (REALMS)
+// fails to draw any glyph at all in a label this short (confirmed by
+// temporarily forcing a different font onto the same control, which
+// rendered fine); swapping fonts by hand to "fix" the symptom instead of
+// the real cause (some glyph-height/baseline assumption in
+// Font::_CalcGlyphRect()/_LoadGlyphs() that REALMS's unusually tall
+// glyphs violate) was deliberately not done - that function is shared by
+// every text label and the dialogue TextArea, too wide a blast radius to
+// patch blind under this task. Left for a dedicated pass.
+void
+Game::_UpdateInventoryLabels(Window* window, Actor* actor)
+{
+	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(268435507));
+	if (nameLabel != NULL)
+		nameLabel->SetText(actor->LongName());
+
+	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(268435512));
+	if (acLabel != NULL)
+		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+}
+
+
+// Populates the parts of GUIREC's "General" tab (window 2) identified
+// with confidence so far - the 6 ability scores (row-by-row position
+// matching against the already-correctly-localized stat name labels next
+// to them, e.g. "Forza"/STR) and the AC badge (same shield-shaped-badge
+// reasoning as GUIINV's). Not done yet, deliberately (same caution as
+// GUIINV's unmapped equipment slots): the name banner (almost certainly
+// hits the same REALMS font bug as GUIINV, unverified), the class/race/
+// level text block (id 268435470/table around y=452 - "Umano" already
+// shows there for a human character, but it's unclear whether that's a
+// real dynamic display or just this CHU's static per-field default,
+// since no code sets it and a non-human party member wasn't tested), and
+// a second AC-adjacent 2-line badge (id 268435497/498, same "unclear
+// what it's for" situation as GUIINV's second badge).
+void
+Game::_UpdateRecordLabels()
+{
+	if (fParty == NULL || fParty->CountActors() == 0)
+		return;
+
+	Actor* actor = fParty->ActorAt(0);
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	Window* window = GUI::Get()->GetAuxWindow("GUIREC", 2);
+	if (window == NULL)
+		return;
+
+	BaseAttributes attrs;
+	actor->CRE()->GetAttributes(attrs);
+
+	// Row-by-row (top to bottom) against the static "Forza/Destrezza/
+	// Costituzione/Intelligenza/Saggezza/Carisma" name labels beside
+	// them, confirmed via a real GUIREC.CHU control dump (each value
+	// label sits ~10px below its matching name label, same 37px row
+	// spacing for both columns).
+	static const uint32 kStatLabelIDs[] = {
+		268435503, 268435465, 268435466, 268435467, 268435468, 268435469
+	};
+	const int8 statValues[] = {
+		attrs.strength, attrs.dexterity, attrs.constitution,
+		attrs.intelligence, attrs.wisdom, attrs.charisma
+	};
+	for (int i = 0; i < 6; i++) {
+		Label* label = dynamic_cast<Label*>(window->GetControlByID(kStatLabelIDs[i]));
+		if (label == NULL)
+			continue;
+		std::string text = std::to_string(statValues[i]);
+		// Exceptional strength (18/xx) - only meaningful at STR 18.
+		if (i == 0 && statValues[0] == 18 && attrs.strength_bonus > 0)
+			text += "/" + std::to_string(attrs.strength_bonus);
+		label->SetText(text);
+	}
+
+	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(268435496));
+	if (acLabel != NULL)
+		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+}
+
+
+// Looks up controlID's Button in window and sets its icon from whatever
+// item (if any) sits in creSlot of cre - shared by the general-grid loop
+// above and by individual equipment-slot mappings as they get confirmed.
+void
+Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
+	uint32 creSlot)
+{
+	Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
+	if (button == NULL)
+		return;
+
+	IE::item item;
+	Bitmap* icon = NULL;
+	if (cre->GetItemAtSlot(creSlot, item)) {
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm != NULL) {
+			BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
+			if (bam != NULL) {
+				icon = bam->FrameForCycle(0, 0);
+				gResManager->ReleaseResource(bam);
+			}
+			gResManager->ReleaseResource(itm);
+		}
+	}
+	button->SetIcon(icon);
 }
 
 

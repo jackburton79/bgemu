@@ -75,6 +75,7 @@ public:
 	uint32 Weight() const;
 	uint32 Price() const;
 	uint16 StackAmount() const;
+	res_ref InventoryIcon() const { return fHeader.inventory_icon; }
 
 	// Reads the index-th ability (Extended Header). Returns false (and
 	// leaves ability untouched) if the item doesn't have that many.

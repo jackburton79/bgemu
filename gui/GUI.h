@@ -89,6 +89,13 @@ public:
 	void HideAuxWindow(const res_ref& chuName, uint16 windowId);
 	bool IsAuxWindowShown(const res_ref& chuName, uint16 windowId) const;
 	void ToggleAuxWindow(const res_ref& chuName, uint16 windowId);
+	// NULL if that (chuName, windowId) hasn't been shown yet - unlike
+	// GetWindow(id) above, this one does look inside fAuxWindows (by
+	// design GetWindow() excludes aux windows, since their plain numeric
+	// id can collide across different CHU files). Lets callers outside
+	// GUI (e.g. Game, to populate inventory slot icons) reach a specific
+	// aux window's controls.
+	Window* GetAuxWindow(const res_ref& chuName, uint16 windowId) const;
 
 	TextArea* GetMessagesTextArea();
 	void EnsureShowDialogArea();

@@ -49,6 +49,12 @@ const char *strresource(int type);
 const char *res_extension(int type);
 int res_string_to_type(const char* string);
 
+// Enumerates every known resource type (kResourceTypes, private to
+// IETypes.cpp) - used by ResourceManager::GetResource(const char*) to
+// guess a bare resref's type (no ".EXT" given) by trying each one.
+int CountResourceTypes();
+int ResourceTypeAt(int index);
+
 
 bool is_tileset(int16 type);
 

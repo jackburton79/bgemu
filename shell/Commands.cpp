@@ -288,6 +288,36 @@ public:
 };
 
 
+class ToggleInventoryCommand : public ShellCommand {
+public:
+	ToggleInventoryCommand()
+		: ShellCommand("Toggle-Inventory")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Test-only equivalent of the SDLK_i handler - exec-file mode
+		// never runs the real SDL event loop, so there's no other way to
+		// exercise Game::ToggleInventoryWindow() (and the item-icon
+		// population it triggers) from a headless script.
+		Game::Get()->ToggleInventoryWindow();
+		std::cout << "Toggle-Inventory: OK" << std::endl;
+	}
+};
+
+
+class ToggleRecordCommand : public ShellCommand {
+public:
+	ToggleRecordCommand()
+		: ShellCommand("Toggle-Record")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleRecordWindow();
+		std::cout << "Toggle-Record: OK" << std::endl;
+	}
+};
+
+
 class ShakeScreenCommand : public ShellCommand {
 public:
 	ShakeScreenCommand()
@@ -864,6 +894,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleAuxWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
 	console->AddCommand(new ScreenshotCommand());
+	console->AddCommand(new ToggleInventoryCommand());
+	console->AddCommand(new ToggleRecordCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

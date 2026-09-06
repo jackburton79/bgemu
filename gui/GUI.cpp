@@ -417,6 +417,14 @@ GUI::IsAuxWindowShown(const res_ref& chuName, uint16 windowId) const
 }
 
 
+Window*
+GUI::GetAuxWindow(const res_ref& chuName, uint16 windowId) const
+{
+	auto found = fAuxWindows.find(std::make_pair(chuName, windowId));
+	return found != fAuxWindows.end() ? found->second : NULL;
+}
+
+
 void
 GUI::ToggleAuxWindow(const res_ref& chuName, uint16 windowId)
 {

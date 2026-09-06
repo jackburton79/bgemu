@@ -20,6 +20,7 @@ Button::Button(IE::button* button)
 	fSelectedBitmap(NULL),
 	fPressedBitmap(NULL),
 	fUnpressedBitmap(NULL),
+	fIcon(NULL),
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false)
@@ -45,6 +46,19 @@ Button::~Button()
 		fPressedBitmap->Release();
 	if (fUnpressedBitmap != NULL)
 		fUnpressedBitmap->Release();
+	if (fIcon != NULL)
+		fIcon->Release();
+}
+
+
+void
+Button::SetIcon(Bitmap* icon)
+{
+	if (icon == fIcon)
+		return;
+	if (fIcon != NULL)
+		fIcon->Release();
+	fIcon = icon;
 }
 
 
@@ -75,6 +89,21 @@ Button::Draw()
 		GFX::rect destRect = Frame();
 		fWindow->ConvertToScreen(destRect);
 		GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
+	}
+	if (fIcon != NULL) {
+		// Center the icon over the button's own frame (an item icon BAM
+		// isn't necessarily the same size as a 42x42 inventory slot).
+		// Not GFX::rect::CenterIn() - despite the name it centers this
+		// rect's *position* (x/y) within the argument, not this rect
+		// itself as a same-sized box inside it; it has no other caller
+		// in the codebase to have caught that.
+		GFX::rect buttonFrame = Frame();
+		int32 offsetX = ((int32)buttonFrame.w - (int32)fIcon->Width()) / 2;
+		int32 offsetY = ((int32)buttonFrame.h - (int32)fIcon->Height()) / 2;
+		GFX::rect iconRect(buttonFrame.x + offsetX, buttonFrame.y + offsetY,
+			fIcon->Width(), fIcon->Height());
+		fWindow->ConvertToScreen(iconRect);
+		GraphicsEngine::Get()->BlitToScreen(fIcon, NULL, &iconRect);
 	}
 	Control::Draw();
 }

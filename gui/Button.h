@@ -23,11 +23,19 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);
 
+	// Overlay drawn centered on top of the button's own frame, on top of
+	// whatever bitmap Draw() would otherwise use - e.g. an item icon over
+	// an inventory slot's empty-slot background. Takes a reference (like
+	// the CHU-authored bitmaps above); pass NULL to clear it. Not part of
+	// the CHU format itself, so it has no constructor-time equivalent.
+	void SetIcon(Bitmap* icon);
+
 private:
 	Bitmap* fDisabledBitmap;
 	Bitmap* fSelectedBitmap;
 	Bitmap* fPressedBitmap;
 	Bitmap* fUnpressedBitmap;
+	Bitmap* fIcon;
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;
