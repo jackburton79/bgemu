@@ -757,6 +757,20 @@ AreaRoom::IsGUIShown() const
 }
 
 
+bool
+AreaRoom::CanRest() const
+{
+	return fCanRest;
+}
+
+
+void
+AreaRoom::SetCanRest(bool canRest)
+{
+	fCanRest = canRest;
+}
+
+
 void
 AreaRoom::_InitBackMap(const GFX::rect& area)
 {

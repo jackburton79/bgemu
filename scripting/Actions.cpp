@@ -1,5 +1,7 @@
 #include "Actions.h"
 
+#include "2DAResource.h"
+
 #include "Actor.h"
 #include "Animation.h"
 #include "AreaRoom.h"
@@ -401,17 +403,23 @@ RunActionSaveGame(Object* sender, action_params* params, action_state& state)
 }
 
 
-// REST()/RESTPARTY() - stateless. This engine has no rest-movie/time-
-// advancement to wait for (see IESDP: "does not play the rest movie or
-// advance game time"), so both apply their spellbook-restoring effect
-// immediately; the other real-Rest effects (healing over time, ability
+// REST()/RESTPARTY() - stateless. Both now check the current area's
+// AreaRoom::CanRest() (see SETAREARESTFLAG below) and silently do
+// nothing if resting isn't allowed there - matches Fase 10's added
+// SETAREARESTFLAG, though this engine doesn't yet parse the ARE
+// header's own "Rest disabled" bit as the flag's initial value (defaults
+// true everywhere until a script says otherwise). This engine has no
+// rest-movie/time-advancement to wait for (see IESDP: "does not play
+// the rest movie or advance game time"), so both apply their
+// spellbook-restoring effect immediately; the other real-Rest effects
+// (healing over time, ability
 // restoration) aren't implemented here and are out of scope for Phase 4
 // (spellcasting), like Phase 3's other deferred items.
 static void
 RunActionRest(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor != NULL)
+	if (actor != NULL && (actor->Area() == NULL || actor->Area()->CanRest()))
 		actor->CRE()->RestoreMemorizedSpells();
 	state.completed = true;
 }
@@ -420,9 +428,12 @@ RunActionRest(Object* sender, action_params* params, action_state& state)
 static void
 RunActionRestParty(Object* sender, action_params* params, action_state& state)
 {
-	::Party* party = Game::Get()->Party();
-	for (uint16 i = 0; i < party->CountActors(); i++)
-		party->ActorAt(i)->CRE()->RestoreMemorizedSpells();
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (area == NULL || area->CanRest()) {
+		::Party* party = Game::Get()->Party();
+		for (uint16 i = 0; i < party->CountActors(); i++)
+			party->ActorAt(i)->CRE()->RestoreMemorizedSpells();
+	}
 	state.completed = true;
 }
 
@@ -2674,6 +2685,161 @@ RunActionRestorePartyLocations(Object* sender, action_params* params, action_sta
 // both convert the same way (integer1 seconds * AI_UPDATE_FREQ).
 
 
+// ReallyForceSpell(O:Target,I:Spell*Spell) / ReallyForceSpellDead
+// (O:Target,I:Spell*Spell) - alias of FORCESPELL above
+// (RunActionForceSpell). Per IESDP both cast "instantly" and
+// "will not be interrupted" - RunActionForceSpell already doesn't check
+// interruptability, and its casting-time countdown is the only
+// difference from "instant" that isn't modeled; ReallyForceSpellDead's
+// ability to target dead creatures needs nothing extra either, since
+// RunActionForceSpell never checks the target's state to begin with.
+
+
+// TakeItemReplace(S:Give*,S:Take*,O:Object*) - stateless. Removes the
+// "Take" item if present (ignored if not - the "Give" item is created
+// either way, per IESDP) and adds the "Give" item. Doesn't auto-equip
+// the new item, matching IESDP's own note that TakeItemReplace() itself
+// doesn't.
+static void
+RunActionTakeItemReplace(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL) {
+		target->RemoveItem(params->string2);
+		target->AddItem(params->string1);
+	}
+	state.completed = true;
+}
+
+
+// TakeItemListParty(S:ResRef*) / TakeItemListPartyNum(S:ResRef*,I:Num*)
+// - stateless. The 2DA lists one item resref per row (column 0, the
+// simplest reading of "items listed in the specified 2DA file" - IESDP
+// doesn't spell out the column layout further). TakeItemListParty
+// removes every instance of each listed item found anywhere in the
+// party; TakeItemListPartyNum stops after Num instances total across
+// the whole list (not per item - the one IESDP example uses Num=1 with
+// a single-row 2DA, which doesn't disambiguate the two readings).
+// Destructive removal only (no active-creature recipient, unlike
+// TAKEPARTYITEM* in Fase 10 batch 3) - IESDP doesn't mention one either.
+static void
+RunActionTakeItemListParty(Object* sender, action_params* params, action_state& state)
+{
+	TWODAResource* table = gResManager->Get2DA(params->string1);
+	if (table != NULL) {
+		::Party* party = Game::Get()->Party();
+		for (int32 row = 0; row < table->CountRows(); row++) {
+			res_ref itemName = table->ValueAt(row, 0).c_str();
+			for (uint16 i = 0; i < party->CountActors(); i++) {
+				Actor* member = party->ActorAt(i);
+				while (member->RemoveItem(itemName))
+					;
+			}
+		}
+		gResManager->ReleaseResource(table);
+	}
+	state.completed = true;
+}
+
+
+static void
+RunActionTakeItemListPartyNum(Object* sender, action_params* params, action_state& state)
+{
+	TWODAResource* table = gResManager->Get2DA(params->string1);
+	if (table != NULL) {
+		::Party* party = Game::Get()->Party();
+		int32 remaining = params->integer1;
+		for (int32 row = 0; row < table->CountRows() && remaining > 0; row++) {
+			res_ref itemName = table->ValueAt(row, 0).c_str();
+			for (uint16 i = 0; i < party->CountActors() && remaining > 0; i++) {
+				Actor* member = party->ActorAt(i);
+				while (remaining > 0 && member->RemoveItem(itemName))
+					remaining--;
+			}
+		}
+		gResManager->ReleaseResource(table);
+	}
+	state.completed = true;
+}
+
+
+// Calm(O:Object) - stateless. Per IESDP "reverses the effect of the
+// Panic action, and may also remove other effects" - only clears
+// STATE_PANIC (the Horror/Panic state bit Fase 3's SpellEffect opcode
+// 24 already sets/clears); the "other effects" this may also remove
+// aren't specified and aren't modeled.
+static void
+RunActionCalm(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL) {
+		CREResource* cre = target->CRE();
+		cre->SetPermanentStatus(cre->PermanentStatus() & ~(uint32)STATE_PANIC);
+	}
+	state.completed = true;
+}
+
+
+// Ally() - stateless. Sets the active creature's allegiance to ALLY (4,
+// per EA.IDS) - same CREResource::SetEnemyAlly() CHANGEENEMYALLY
+// already uses in Fase 10 batch 3.
+static void
+RunActionAlly(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->CRE()->SetEnemyAlly(4);
+	state.completed = true;
+}
+
+
+// DisplayStringHeadOwner(S:Item*,I:STRREF*) - state: same countdown
+// pattern as DISPLAYSTRINGHEAD above, but the target is whichever
+// current party member holds the item (re-resolved every tick rather
+// than cached across state - simpler, and party composition rarely
+// changes mid-action anyway; same "recompute, don't cache" approach
+// MOVETOOBJECT already uses for its target).
+static void
+RunActionDisplayStringHeadOwner(Object* sender, action_params* params, action_state& state)
+{
+	Actor* owner = NULL;
+	::Party* party = Game::Get()->Party();
+	for (uint16 i = 0; i < party->CountActors() && owner == NULL; i++) {
+		Actor* member = party->ActorAt(i);
+		if (member->CRE()->FindItemSlot(params->string1) >= 0)
+			owner = member;
+	}
+	if (owner == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		state.initiated = true;
+		state.counter = 100; // ?? - same as DISPLAYSTRINGHEAD above
+		TLKEntry* tlkEntry = IDTable::GetTLKEntry(params->integer1);
+		owner->SetText(tlkEntry->text);
+		delete tlkEntry;
+	}
+	if (state.counter-- <= 0) {
+		owner->SetText("");
+		state.completed = true;
+	}
+}
+
+
+// SetAreaRestFlag(I:CanRest*) - stateless. See AreaRoom::SetCanRest()'s
+// header comment and REST()/RESTPARTY() above, which now consult it.
+static void
+RunActionSetAreaRestFlag(Object* sender, action_params* params, action_state& state)
+{
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (area != NULL)
+		area->SetCanRest(params->integer1 != 0);
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2845,7 +3011,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 178, "BREAKINSTANTS", NULL },
 		{ 179, "DIALOGUEINTERRUPT", NULL },
 		{ 180, "MOVETOOBJECTFOLLOW", NULL },
-		{ 181, "REALLYFORCESPELL", NULL },
+		{ 181, "REALLYFORCESPELL", RunActionForceSpell },
 		{ 182, "MAKEUNSELECTABLE", NULL },
 		{ 183, "MULTIPLAYERSYNC", NULL },
 		{ 184, "RUNAWAYFROMNOINTERRUPT", NULL },
@@ -2882,13 +3048,13 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 217, "REMOVEFAMILIAR", NULL },
 		{ 218, "PAUSEGAME", RunActionPauseGame },
 		{ 219, "CHANGEANIMATIONNOEFFECT", NULL },
-		{ 220, "TAKEITEMLISTPARTY", NULL },
+		{ 220, "TAKEITEMLISTPARTY", RunActionTakeItemListParty },
 		{ 221, "SETMORALEAI", NULL },
 		{ 222, "INCMORALEAI", NULL },
 		{ 223, "DESTROYALLEQUIPMENT", RunActionClearInventory },
 		{ 224, "GIVEPARTYALLEQUIPMENT", RunActionGivePartyAllEquipment },
 		{ 225, "MOVEBETWEENAREASEFFECT", RunActionMoveBetweenAreasEffect },
-		{ 226, "TAKEITEMLISTPARTYNUM", NULL },
+		{ 226, "TAKEITEMLISTPARTYNUM", RunActionTakeItemListPartyNum },
 		{ 227, "CREATECREATUREOBJECTEFFECT", RunActionCreateCreatureNearObject },
 		{ 228, "CREATECREATUREIMPASSABLE", RunActionCreateCreatureImpassable },
 		{ 229, "FACEOBJECT", RunActionFaceObject },
@@ -2902,9 +3068,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 237, "RESTOREPARTYLOCATIONS", RunActionRestorePartyLocations },
 		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },
 		{ 239, "MOVETOCENTEROFSCREEN", NULL },
-		{ 240, "REALLYFORCESPELLDEAD", NULL },
-		{ 241, "CALM", NULL },
-		{ 242, "ALLY", NULL },
+		{ 240, "REALLYFORCESPELLDEAD", RunActionForceSpell },
+		{ 241, "CALM", RunActionCalm },
+		{ 242, "ALLY", RunActionAlly },
 		{ 243, "RESTNOSPELLS", RunActionRestParty },
 		{ 244, "SAVELOCATION", RunActionSaveLocation },
 		{ 245, "SAVEOBJECTLOCATION", RunActionSaveObjectLocation },
@@ -2940,7 +3106,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 275, "STARTCOMBATCOUNTER", NULL },
 		{ 276, "ESCAPEAREANOSEE", RunActionEscapeArea },
 		{ 277, "ESCAPEAREAOBJECTMOVE", RunActionEscapeAreaObjectMove },
-		{ 278, "TAKEITEMREPLACE", NULL },
+		{ 278, "TAKEITEMREPLACE", RunActionTakeItemReplace },
 		{ 279, "ADDSPECIALABILITY", NULL },
 		{ 280, "DESTROYALLDESTRUCTABLEEQUIPMENT", RunActionClearInventory },
 		{ 281, "REMOVEPALADINHOOD", NULL },
@@ -2954,7 +3120,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 289, "ADDSUPERKIT", NULL },
 		{ 290, "PLAYDEADINTERRUPTIBLE", NULL },
 		{ 291, "MOVEGLOBALOBJECT", NULL },
-		{ 292, "DISPLAYSTRINGHEADOWNER", NULL },
+		{ 292, "DISPLAYSTRINGHEADOWNER", RunActionDisplayStringHeadOwner },
 		{ 293, "STARTDIALOGOVERRIDE", RunActionStartDialogue },
 		{ 294, "STARTDIALOGOVERRIDEINTERRUPT", RunActionStartDialogueInterrupt },
 		{ 295, "CREATECREATURECOPYPOINT", RunActionCreateCreature },
@@ -2983,7 +3149,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 318, "FORCESPELLRANGE", RunActionForceSpell },
 		{ 319, "FORCESPELLPOINTRANGE", RunActionForceSpellPoint },
 		{ 320, "SETPLAYERSOUND", NULL },
-		{ 321, "SETAREARESTFLAG", NULL },
+		{ 321, "SETAREARESTFLAG", RunActionSetAreaRestFlag },
 		{ 322, "FAKEEFFECTEXPIRYCHECK", NULL },
 		{ 323, "CREATECREATUREIMPASSABLEALLOWOVERLAP", RunActionCreateCreatureImpassable },
 		{ 324, "SETBEENINPARTYFLAGS", NULL },

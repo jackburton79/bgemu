@@ -98,6 +98,13 @@ public:
 	virtual void HideGUI();
 	virtual bool IsGUIShown() const;
 
+	// SETAREARESTFLAG(I:CanRest*) - defaults to true, not initialized
+	// from the ARE header's own "Rest disabled" bit (AREAFLAG.IDS bit 1)
+	// - that flag isn't parsed by this engine yet, so this is purely a
+	// runtime override for now.
+	bool CanRest() const;
+	void SetCanRest(bool canRest);
+
 private:
 	virtual ~AreaRoom();
 	void _DrawConsole();
@@ -178,6 +185,8 @@ private:
 	bool fDrawPolygons;
 	bool fDrawAnimations;
 	bool fShowingConsole;
+
+	bool fCanRest = true;
 };
 
 
