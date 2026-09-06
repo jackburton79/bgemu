@@ -98,10 +98,12 @@ Door::Lock()
 
 
 void
-Door::Unlock()
+Door::Unlock(Object* actor)
 {
-	if (fAreaDoor->flags & IE::DOOR_LOCKED)
+	if (fAreaDoor->flags & IE::DOOR_LOCKED) {
 		fAreaDoor->flags &= ~IE::DOOR_LOCKED;
+		AddTrigger(actor != NULL ? trigger_entry("Unlocked", actor) : trigger_entry("Unlocked"));
+	}
 	std::cout << Name() << ": Unlock()" << std::endl;
 }
 
@@ -149,9 +151,10 @@ Door::SetTrapDetected(bool detected)
 
 
 void
-Door::DisarmTrap()
+Door::DisarmTrap(Object* actor)
 {
 	fAreaDoor->trapped = 0;
+	AddTrigger(actor != NULL ? trigger_entry("Disarmed", actor) : trigger_entry("Disarmed"));
 }
 
 

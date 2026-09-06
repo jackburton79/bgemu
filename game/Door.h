@@ -30,7 +30,11 @@ public:
 	void UpdateSearchMapBlocking();
 
 	void Lock();
-	void Unlock();
+	// `actor`, when given, is who unlocked it - posts an "Unlocked"
+	// trigger naming them (see IESDP: "Unlocked(O:Object*) - returns true
+	// only if this door was unlocked by the specified object"); omit it
+	// for an untargeted trigger.
+	void Unlock(Object* actor = NULL);
 
 	bool IsLocked() const;
 	uint32 LockDifficulty() const;
@@ -39,7 +43,9 @@ public:
 	bool IsTrapped() const;
 	bool IsTrapDetected() const;
 	void SetTrapDetected(bool detected);
-	void DisarmTrap();
+	// `actor`, when given, is who disarmed it - posts a "Disarmed"
+	// trigger naming them, same convention as Unlock() above.
+	void DisarmTrap(Object* actor = NULL);
 	uint16 TrapDetectionDifficulty() const;
 	uint16 TrapRemovalDifficulty() const;
 

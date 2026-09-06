@@ -371,8 +371,28 @@ Game::_RunExecFile(GameConsole* console)
 		size_t start = line.find_first_not_of(" \t");
 		if (start == std::string::npos || line[start] == '#')
 			continue;
+		line = line.substr(start);
 
 		std::cout << "TestScript> " << line << std::endl;
+
+		// A "WAIT-TICKS <n>" line isn't a real console command - it runs
+		// n logic ticks before the next line. Console commands only queue
+		// an action (Object::AddAction()); it runs immediately only if
+		// the game's INSTANT.IDS marks that action id as instant AND the
+		// target's action list was empty - otherwise it just sits queued
+		// until something ticks logic. Not done automatically after every
+		// line: ticking logic also re-runs the current area's own AI
+		// scripts (e.g. an in-progress opening cutscene), which can be
+		// slow/long-running - so opt in explicitly with WAIT-TICKS right
+		// after a command that needs it, rather than paying that cost on
+		// every line.
+		if (line.compare(0, 10, "WAIT-TICKS") == 0) {
+			int ticks = ::atoi(line.c_str() + 10);
+			for (int i = 0; i < ticks; i++)
+				Core::Get()->UpdateLogic(true);
+			continue;
+		}
+
 		console->ExecuteCommand(line);
 	}
 	std::cout << "Game: exec-file done, quitting" << std::endl;

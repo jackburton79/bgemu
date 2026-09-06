@@ -247,6 +247,9 @@ Actor::Print() const
 	std::cout << "Death Variable: " << cre->DeathVariable() << std::endl;
 	std::cout << "Hitpoints:" << cre->CurrentHitPoints() << std::endl;
 	std::cout << "Status flags: " << std::dec << cre->PermanentStatus() << std::endl;
+	std::cout << "Reputation: " << (int)cre->Reputation() << std::endl;
+	std::cout << "Morale: " << (int)cre->Morale() << std::endl;
+	std::cout << "Gold: " << cre->Gold() << std::endl;
 	fActor->Print();
 	std::cout << "*********" << std::endl;
 }

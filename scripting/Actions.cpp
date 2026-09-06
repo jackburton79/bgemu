@@ -483,7 +483,7 @@ RunActionUnlock(Object* sender, action_params* params, action_state& state)
 			&& actor->CRE()->FindItemSlot(door->KeyItem()) >= 0;
 		if (hasKey || (actor != NULL
 				&& _RollSkillCheck(actor->CRE()->OpenLocksSkill(), door->LockDifficulty())))
-			door->Unlock();
+			door->Unlock(actor);
 	}
 	state.completed = true;
 }
@@ -491,16 +491,20 @@ RunActionUnlock(Object* sender, action_params* params, action_state& state)
 
 // PICKLOCK(O:Object*) - stateless. Resolves an Open Locks skill check
 // against the door's lock difficulty - unlike UNLOCK, no key-item
-// shortcut, since this is explicitly a "pick the lock" attempt.
+// shortcut, since this is explicitly a "pick the lock" attempt. Posts
+// PickLockFailed on the door when the roll fails.
 static void
 RunActionPickLock(Object* sender, action_params* params, action_state& state)
 {
 	Object* target = Script::GetTargetObject(sender, params);
 	Door* door = dynamic_cast<Door*>(target);
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (door != NULL && actor != NULL && door->IsLocked()
-			&& _RollSkillCheck(actor->CRE()->OpenLocksSkill(), door->LockDifficulty()))
-		door->Unlock();
+	if (door != NULL && actor != NULL && door->IsLocked()) {
+		if (_RollSkillCheck(actor->CRE()->OpenLocksSkill(), door->LockDifficulty()))
+			door->Unlock(actor);
+		else
+			door->AddTrigger(trigger_entry("PickLockFailed", actor));
+	}
 	state.completed = true;
 }
 
@@ -540,7 +544,7 @@ RunActionRemoveTraps(Object* sender, action_params* params, action_state& state)
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (door != NULL && actor != NULL && door->IsTrapped()
 			&& _RollSkillCheck(actor->CRE()->FindTrapsSkill(), door->TrapRemovalDifficulty()))
-		door->DisarmTrap();
+		door->DisarmTrap(actor);
 	state.completed = true;
 }
 
@@ -561,6 +565,140 @@ RunActionDetectSecretDoor(Object* sender, action_params* params, action_state& s
 	if (door != NULL && actor != NULL && door->IsSecret() && !door->IsDetected()
 			&& _RollSkillCheck(actor->CRE()->FindTrapsSkill(), door->DetectionDifficulty()))
 		door->SetDetected(true);
+	state.completed = true;
+}
+
+
+// CLEARACTIONS(O:Object*) - stateless.
+static void
+RunActionClearActions(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL)
+		target->ClearActionList();
+	state.completed = true;
+}
+
+
+// MORALESET(O:Target*,I:Morale*)/MORALEINC/MORALEDEC - stateless. Morale
+// isn't clamped here (matching this engine's general "store what the data
+// says" approach elsewhere) - nothing yet reads it for AI decisions (see
+// the Fase 10 plan notes on PANIC/TURN/GROUPATTACK still being NULL).
+static void
+RunActionMoraleSet(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetMorale((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionMoraleInc(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL) {
+		int32 morale = (int32)target->CRE()->Morale() + params->integer1;
+		target->CRE()->SetMorale((uint8)std::max(morale, 0));
+	}
+	state.completed = true;
+}
+
+
+static void
+RunActionMoraleDec(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL) {
+		int32 morale = (int32)target->CRE()->Morale() - params->integer1;
+		target->CRE()->SetMorale((uint8)std::max(morale, 0));
+	}
+	state.completed = true;
+}
+
+
+// REPUTATIONSET(I:Reputation*)/REPUTATIONINC - stateless. This engine
+// reads reputation per-actor (CREResource::Reputation(), see the REPUTATION
+// trigger cases in Script.cpp) rather than as one true party-wide stat, so
+// these apply to every current party member to keep that reading
+// consistent regardless of which member a script happens to check.
+static void
+RunActionReputationSet(Object* sender, action_params* params, action_state& state)
+{
+	::Party* party = Game::Get()->Party();
+	for (uint16 i = 0; i < party->CountActors(); i++)
+		party->ActorAt(i)->CRE()->SetReputation((sint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionReputationInc(Object* sender, action_params* params, action_state& state)
+{
+	::Party* party = Game::Get()->Party();
+	for (uint16 i = 0; i < party->CountActors(); i++) {
+		CREResource* cre = party->ActorAt(i)->CRE();
+		cre->SetReputation((sint8)(cre->Reputation() + params->integer1));
+	}
+	state.completed = true;
+}
+
+
+// DESTROYGOLD(I:Gold*) - stateless. Per IESDP, this affects the active
+// creature's own gold stat (not Party Gold) - DestroyGold(0) empties it.
+static void
+RunActionDestroyGold(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		CREResource* cre = actor->CRE();
+		if (params->integer1 <= 0)
+			cre->SetGold(0);
+		else
+			cre->SetGold((uint32)std::max((int64)cre->Gold() - params->integer1, (int64)0));
+	}
+	state.completed = true;
+}
+
+
+// TAKEPARTYGOLD(I:Amount*)/GIVEPARTYGOLD/GIVEGOLDFORCE - stateless. "Party
+// Gold" (distinct from any one creature's own CRE gold stat, see
+// DESTROYGOLD above) isn't tracked as its own concept anywhere in this
+// engine yet - modeled here as a "GOLD" GLOBAL variable, reusing the
+// Variables mechanism SETGLOBAL already relies on, rather than inventing
+// new per-party state. Simplification: GivePartyGold's "creature must
+// have it in its money variable" requirement, and GiveGoldForce's
+// negative-amount-removes-from-the-creature-instead special case, aren't
+// modeled - all three just add/subtract the party's GOLD global directly.
+static const char* const kPartyGoldVariable = "GOLD";
+
+static void
+RunActionTakePartyGold(Object* sender, action_params* params, action_state& state)
+{
+	Variables& vars = Core::Get()->Vars();
+	int32 gold = vars.Get(kPartyGoldVariable) - params->integer1;
+	vars.Set(kPartyGoldVariable, std::max(gold, 0));
+	state.completed = true;
+}
+
+
+static void
+RunActionGivePartyGold(Object* sender, action_params* params, action_state& state)
+{
+	Variables& vars = Core::Get()->Vars();
+	vars.Set(kPartyGoldVariable, vars.Get(kPartyGoldVariable) + params->integer1);
+	state.completed = true;
+}
+
+
+// SETNAME(I:STRREF*) - stateless.
+static void
+RunActionSetName(Object* sender, action_params* params, action_state& state)
+{
+	Object* actor = Script::GetSenderObject(sender, params);
+	if (actor != NULL)
+		actor->SetName(IDTable::GetDialog(params->integer1).c_str());
 	state.completed = true;
 }
 
@@ -1724,9 +1862,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 98, "ATTACKNOSOUND", NULL },
 		{ 100, "RANDOMFLY", RunActionRandomFly },
 		{ 101, "FLYTOPOINT", RunActionFlyTo }, // not in the original IDS table
-		{ 102, "MORALESET", NULL },
-		{ 103, "MORALEINC", NULL },
-		{ 104, "MORALEDEC", NULL },
+		{ 102, "MORALESET", RunActionMoraleSet },
+		{ 103, "MORALEINC", RunActionMoraleInc },
+		{ 104, "MORALEDEC", RunActionMoraleDec },
 		{ 105, "ATTACKONEROUND", NULL },
 		{ 106, "SHOUT", RunActionShout },
 		{ 107, "MOVETOOFFSET", NULL },
@@ -1740,8 +1878,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 114, "FORCESPELLPOINT", RunActionForceSpellPoint },
 		{ 115, "SETGLOBALTIMER", RunActionSetGlobalTimer },
 		{ 116, "TAKEPARTYITEM", NULL },
-		{ 117, "TAKEPARTYGOLD", NULL },
-		{ 118, "GIVEPARTYGOLD", NULL },
+		{ 117, "TAKEPARTYGOLD", RunActionTakePartyGold },
+		{ 118, "GIVEPARTYGOLD", RunActionGivePartyGold },
 		{ 119, "DROPINVENTORY", NULL },
 		{ 120, "STARTCUTSCENE", RunActionStartCutscene },
 		{ 121, "STARTCUTSCENEMODE", RunActionStartCutsceneMode },
@@ -1756,7 +1894,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 130, "RANDOMTURN", NULL },
 		{ 131, "KILL", RunActionKill },
 		{ 132, "VERBALCONSTANT", NULL },
-		{ 133, "CLEARACTIONS", NULL },
+		{ 133, "CLEARACTIONS", RunActionClearActions },
 		{ 134, "ATTACKREEVALUATE", RunActionAttack },
 		{ 135, "LOCKSCROLL", NULL },
 		{ 136, "UNLOCKSCROLL", NULL },
@@ -1785,8 +1923,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 159, "CHANGEALIGNMENT", NULL },
 		{ 160, "APPLYSPELL", NULL },
 		{ 161, "INCREMENTCHAPTER", NULL },
-		{ 162, "REPUTATIONSET", NULL },
-		{ 163, "REPUTATIONINC", NULL },
+		{ 162, "REPUTATIONSET", RunActionReputationSet },
+		{ 163, "REPUTATIONINC", RunActionReputationInc },
 		{ 164, "ADDEXPERIENCEPARTY", RunActionAddExperienceParty },
 		{ 165, "ADDEXPERIENCEPARTYGLOBAL", RunActionAddExperiencePartyGlobal },
 		{ 166, "SETNUMTIMESTALKEDTO", NULL },
@@ -1794,7 +1932,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 168, "INTERACT", NULL },
 		{ 169, "DESTROYITEM", RunActionDestroyItem },
 		{ 170, "REVEALAREAONMAP", NULL },
-		{ 171, "GIVEGOLDFORCE", NULL },
+		{ 171, "GIVEGOLDFORCE", RunActionGivePartyGold },
 		{ 172, "CHANGETILESTATE", NULL },
 		{ 173, "ADDJOURNALENTRY", NULL },
 		{ 174, "EQUIPRANGED", NULL },
@@ -1881,9 +2019,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 257, "PICKUPITEM", NULL },
 		{ 258, "FILLSLOT", NULL },
 		{ 259, "ADDXPOBJECT", RunActionAddXPObject },
-		{ 260, "DESTROYGOLD", NULL },
+		{ 260, "DESTROYGOLD", RunActionDestroyGold },
 		{ 261, "SETHOMELOCATION", NULL },
-		{ 262, "DISPLAYSTRINGNONAME", NULL },
+		{ 262, "DISPLAYSTRINGNONAME", RunActionDisplayMessage },
 		{ 263, "ERASEJOURNALENTRY", NULL },
 		{ 264, "COPYGROUNDPILESTO", NULL },
 		{ 265, "DIALOGFORCEINTERRUPT", NULL },
@@ -1909,7 +2047,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 285, "POLYMORPHCOPYBASE", NULL },
 		{ 286, "HIDEGUI", RunActionHideGUI },
 		{ 287, "UNHIDEGUI", RunActionUnhideGUI },
-		{ 288, "SETNAME", NULL },
+		{ 288, "SETNAME", RunActionSetName },
 		{ 289, "ADDSUPERKIT", NULL },
 		{ 290, "PLAYDEADINTERRUPTIBLE", NULL },
 		{ 291, "MOVEGLOBALOBJECT", NULL },

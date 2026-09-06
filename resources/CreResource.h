@@ -212,6 +212,7 @@ public:
 	uint16 MaxHitPoints() const;
 	void SetMaxHitPoints(uint16 hp);
 	uint32 Gold() const;
+	void SetGold(uint32 gold);
 
 	ArmorClass AC() const;
 	uint8 THAC0() const;
@@ -248,6 +249,7 @@ public:
 	uint8 ClassLevel(uint8 classSlot) const;
 	void SetClassLevel(uint8 classSlot, uint8 level);
 	uint8 Morale() const;
+	void SetMorale(uint8 morale);
 	
 	void GetAttributes(BaseAttributes &attributes);
 	

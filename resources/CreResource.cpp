@@ -371,6 +371,13 @@ CREResource::Morale() const
 }
 
 
+void
+CREResource::SetMorale(uint8 morale)
+{
+	fData->WriteAt(0x23f, &morale, sizeof(morale));
+}
+
+
 // CRE v1: 0x46 Armor Class (Natural), 0x48 (Effective), 0x4a-0x50 per
 // damage-type modifiers (Crushing/Missile/Piercing/Slashing).
 ArmorClass
@@ -505,6 +512,13 @@ CREResource::Gold() const
 	uint32 gold;
 	fData->ReadAt(0x1C, gold);
 	return gold;
+}
+
+
+void
+CREResource::SetGold(uint32 gold)
+{
+	fData->WriteAt(0x1C, &gold, sizeof(gold));
 }
 
 

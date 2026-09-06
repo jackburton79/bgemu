@@ -560,6 +560,30 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				returnValue = sender->HasTrigger("Opened", trig);
 				break;
 			}
+			case 0x0053:
+			{
+				/* CLOSED(O:OBJECT*) (83 0x53) - door scripts only */
+				returnValue = sender->HasTrigger("Closed", trig);
+				break;
+			}
+			case 0x0056:
+			{
+				/* DISARMED(O:OBJECT*) (86 0x56) - trap scripts only */
+				returnValue = sender->HasTrigger("Disarmed", trig);
+				break;
+			}
+			case 0x0057:
+			{
+				/* UNLOCKED(O:OBJECT*) (87 0x57) - door scripts only */
+				returnValue = sender->HasTrigger("Unlocked", trig);
+				break;
+			}
+			case 0x0060:
+			{
+				/* PICKLOCKFAILED(O:OBJECT*) (96 0x60) */
+				returnValue = sender->HasTrigger("PickLockFailed", trig);
+				break;
+			}
 			case 0x0070:
 			{
 				/* 0x0070 Clicked(O:Object*)
