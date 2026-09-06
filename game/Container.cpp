@@ -46,3 +46,22 @@ Container::Outline() const
 	// TODO: Different colors for trapped/nontrapped
 	return ::Outline(Polygon(), color);
 }
+
+
+static const uint32 kContainerDisabled = 0x20;
+
+bool
+Container::IsEnabled() const
+{
+	return (fContainer->flags & kContainerDisabled) == 0;
+}
+
+
+void
+Container::SetEnabled(bool enabled)
+{
+	if (enabled)
+		fContainer->flags &= ~kContainerDisabled;
+	else
+		fContainer->flags |= kContainerDisabled;
+}

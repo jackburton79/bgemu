@@ -74,3 +74,26 @@ Party::HasActor(const Actor* actor) const
 	}
 	return false;
 }
+
+
+void
+Party::StoreLocations()
+{
+	fStoredLocations.clear();
+	for (auto actor : fActors)
+		fStoredLocations.push_back(actor->Position());
+}
+
+
+bool
+Party::RestoreLocations()
+{
+	if (fStoredLocations.empty() || fStoredLocations.size() != fActors.size())
+		return false;
+
+	for (size_t i = 0; i < fActors.size(); i++)
+		fActors[i]->SetPosition(fStoredLocations[i]);
+
+	fStoredLocations.clear();
+	return true;
+}

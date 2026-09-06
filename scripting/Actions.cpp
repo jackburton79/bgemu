@@ -3,6 +3,7 @@
 #include "Actor.h"
 #include "Animation.h"
 #include "AreaRoom.h"
+#include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -2590,6 +2591,89 @@ RunActionRemoveSpell(Object* sender, action_params* params, action_state& state)
 }
 
 
+// ContainerEnable(O:Object,I:Bool*BOOLEAN) - stateless.
+static void
+RunActionContainerEnable(Object* sender, action_params* params, action_state& state)
+{
+	Container* container = dynamic_cast<Container*>(Script::GetTargetObject(sender, params));
+	if (container != NULL)
+		container->SetEnabled(params->integer1 != 0);
+	state.completed = true;
+}
+
+
+// ApplyDamagePercent(O:Object*,I:Amount*,I:Type*DMGTYPE) - stateless.
+// IESDP doesn't spell out exactly what the percentage is relative to -
+// treated as a percentage of the target's max HP, the natural reading
+// for a percent-damage spell/trap effect. Damage type isn't modeled,
+// same as APPLYDAMAGE above (no resistances layer yet - see the Fase 3
+// plan notes on Stat:* opcodes being explicitly deferred).
+static void
+RunActionApplyDamagePercent(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL) {
+		int32 damage = (int32)target->CRE()->MaxHitPoints() * params->integer1 / 100;
+		target->ApplyDamage(damage);
+	}
+	state.completed = true;
+}
+
+
+// EscapeAreaDestroy() / EscapeAreaNoSee() - same run function as
+// ESCAPEAREA/ESCAPEAREAMOVE above (RunActionEscapeArea): removes the
+// active creature via Actor::DestroySelf() - no travel-trigger
+// pathfinding or line-of-sight check modeled, same simplification
+// already established for that pair.
+
+
+// EscapeAreaObjectMove(S:ResRef*,O:Object*,I:X*,I:Y*,I:Face*) -
+// stateless. Removes the TARGET object from the area instead of the
+// active creature - same DestroySelf()-based simplification.
+static void
+RunActionEscapeAreaObjectMove(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->DestroySelf();
+	state.completed = true;
+}
+
+
+// StorePartyLocations() / RestorePartyLocations() - stateless. Kept in
+// memory only (Party::StoreLocations()/RestoreLocations() - see
+// Party.h's header comment); RestorePartyLocations() is a no-op if
+// nothing was stored or the party's membership changed size since.
+static void
+RunActionStorePartyLocations(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->Party()->StoreLocations();
+	state.completed = true;
+}
+
+
+static void
+RunActionRestorePartyLocations(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->Party()->RestoreLocations();
+	state.completed = true;
+}
+
+
+// DestroyAllDestructableEquipment() - alias of DESTROYALLEQUIPMENT
+// above (RunActionClearInventory) - the "only destructible items"
+// filter isn't modeled (this engine doesn't track an item's
+// destructible flag), so it destroys everything, same as its
+// non-selective counterpart.
+
+
+// RealSetGlobalTimer(S:Name*,S:Area*,I:Time*GTimes) - alias of
+// SETGLOBALTIMER above (RunActionSetGlobalTimer) - the "real time" vs
+// "game time" distinction it's meant to carry isn't modeled (this
+// engine doesn't compress/pause time separately from AI ticks), so
+// both convert the same way (integer1 seconds * AI_UPDATE_FREQ).
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2756,7 +2840,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
 		{ 174, "EQUIPRANGED", NULL },
 		{ 175, "SETLEAVEPARTYDIALOGUEFILE", NULL },
-		{ 176, "ESCAPEAREADESTROY", NULL },
+		{ 176, "ESCAPEAREADESTROY", RunActionEscapeArea },
 		{ 177, "TRIGGERACTIVATION", RunActionTriggerActivation },
 		{ 178, "BREAKINSTANTS", NULL },
 		{ 179, "DIALOGUEINTERRUPT", NULL },
@@ -2814,8 +2898,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 233, "CREATECREATUREOBJECTOFFSCREEN", RunActionCreateCreatureNearObject },
 		{ 234, "MOVEGLOBALOBJECTOFFSCREEN", NULL },
 		{ 235, "SETQUESTDONE", RunActionEraseJournalEntry },
-		{ 236, "STOREPARTYLOCATIONS", NULL },
-		{ 237, "RESTOREPARTYLOCATIONS", NULL },
+		{ 236, "STOREPARTYLOCATIONS", RunActionStorePartyLocations },
+		{ 237, "RESTOREPARTYLOCATIONS", RunActionRestorePartyLocations },
 		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },
 		{ 239, "MOVETOCENTEROFSCREEN", NULL },
 		{ 240, "REALLYFORCESPELLDEAD", NULL },
@@ -2831,7 +2915,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 250, "CREATECREATUREOBJECTCOPYEFFECT", RunActionCreateCreatureNearObject },
 		{ 251, "HIDEAREAONMAP", NULL },
 		{ 252, "CREATECREATUREOBJECTOFFSET", RunActionCreateCreatureObjectOffset },
-		{ 253, "CONTAINERENABLE", NULL },
+		{ 253, "CONTAINERENABLE", RunActionContainerEnable },
 		{ 254, "SCREENSHAKE", RunActionScreenShake },
 		{ 255, "ADDGLOBALS", RunActionAddGlobals },
 		{ 256, "CREATEITEMGLOBAL", NULL },
@@ -2846,7 +2930,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 265, "DIALOGFORCEINTERRUPT", RunActionDialogForceInterrupt },
 		{ 266, "STARTDIALOGUEINTERRUPT", RunActionStartDialogueInterrupt },
 		{ 267, "STARTDIALOGNOSETINTERRUPT", RunActionStartDialogueInterrupt },
-		{ 268, "REALSETGLOBALTIMER", NULL },
+		{ 268, "REALSETGLOBALTIMER", RunActionSetGlobalTimer },
 		{ 269, "DISPLAYSTRINGHEAD", RunActionDisplayStringHead },
 		{ 270, "POLYMORPHCOPY", NULL },
 		{ 271, "VERBALCONSTANTHEAD", NULL },
@@ -2854,11 +2938,11 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 273, "CREATEVISUALEFFECTOBJECT", RunActionCreateVisualEffectObject },
 		{ 274, "ADDKIT", RunActionAddKit },
 		{ 275, "STARTCOMBATCOUNTER", NULL },
-		{ 276, "ESCAPEAREANOSEE", NULL },
-		{ 277, "ESCAPEAREAOBJECTMOVE", NULL },
+		{ 276, "ESCAPEAREANOSEE", RunActionEscapeArea },
+		{ 277, "ESCAPEAREAOBJECTMOVE", RunActionEscapeAreaObjectMove },
 		{ 278, "TAKEITEMREPLACE", NULL },
 		{ 279, "ADDSPECIALABILITY", NULL },
-		{ 280, "DESTROYALLDESTRUCTABLEEQUIPMENT", NULL },
+		{ 280, "DESTROYALLDESTRUCTABLEEQUIPMENT", RunActionClearInventory },
 		{ 281, "REMOVEPALADINHOOD", NULL },
 		{ 282, "REMOVERANGERHOOD", NULL },
 		{ 283, "REGAINPALADINHOOD", NULL },
@@ -2884,7 +2968,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 303, "DEATHMATCHPOSITIONGLOBAL", NULL },
 		{ 304, "DEATHMATCHPOSITIONAREA", NULL },
 		{ 305, "DEATHMATCHPOSITIONLOCAL", NULL },
-		{ 306, "APPLYDAMAGEPERCENT", NULL },
+		{ 306, "APPLYDAMAGEPERCENT", RunActionApplyDamagePercent },
 		{ 307, "SG", RunActionSG },
 		{ 308, "ADDMAPNOTE", NULL },
 		{ 309, "DEMOEND", NULL },
