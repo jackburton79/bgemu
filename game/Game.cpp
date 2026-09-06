@@ -51,8 +51,15 @@ Game::Game()
 	fDialog(NULL),
 	fParty(NULL),
 	fTempState(NULL),
-	//fDelay(67), // 15 Khz, standard Infinity engine
-	fDelay(0), // For tests only
+	// 15 Hz, standard Infinity Engine pace (AI_UPDATE_FREQ) - previously
+	// 0 ("for tests only"), which left Core::UpdateLogic() completely
+	// unthrottled (no vsync on the renderer either - see
+	// GraphicsEngine::SetVideoMode()) and decoupled every
+	// AI_UPDATE_FREQ-based countdown (spell casting duration, STARTTIMER,
+	// the day/night cycle) from real elapsed time - found while
+	// reviewing the timer infrastructure against IESDP's documented
+	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
+	fDelay(67),
 	fTestMode(false)
 {
 	fTempState = new Game::TempState;

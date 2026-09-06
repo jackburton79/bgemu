@@ -1830,7 +1830,9 @@ RunActionClearAllActions(Object* sender, action_params* params, action_state& st
 }
 
 
-// SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) - stateless.
+// SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) - stateless. Measured
+// against CINGAME (GameTimer's default TIMER_GLOBAL clock, in AI ticks -
+// see GameTimer.h's header comment on the two-clock model).
 static void
 RunActionSetGlobalTimer(Object* sender, action_params* params, action_state& state)
 {
@@ -1838,6 +1840,23 @@ RunActionSetGlobalTimer(Object* sender, action_params* params, action_state& sta
 	// TODO: We append the timer name to the area name, check if it's okay
 	timerName.append(params->string2).append(params->string1);
 	GameTimer::Add(timerName.c_str(), params->integer1 * AI_UPDATE_FREQ);
+	state.completed = true;
+}
+
+
+// RealSetGlobalTimer(S:Name*,S:Area*,I:Time*GTimes) - stateless.
+// Previously an alias of SETGLOBALTIMER above (Fase 10 batch 7); now
+// that GameTimer models CREAL as a real second-based clock separate
+// from CINGAME (GameTimer::TIMER_REAL, seeded from Timer::Ticks()/
+// SDL_GetTicks() rather than the AI-tick-counted CINGAME), this writes
+// a genuinely distinct timer - integer1 is real seconds directly, no
+// AI_UPDATE_FREQ conversion (CREAL is already in seconds).
+static void
+RunActionRealSetGlobalTimer(Object* sender, action_params* params, action_state& state)
+{
+	std::string timerName;
+	timerName.append(params->string2).append(params->string1);
+	GameTimer::Add(timerName.c_str(), params->integer1, TIMER_REAL);
 	state.completed = true;
 }
 
@@ -2678,11 +2697,6 @@ RunActionRestorePartyLocations(Object* sender, action_params* params, action_sta
 // non-selective counterpart.
 
 
-// RealSetGlobalTimer(S:Name*,S:Area*,I:Time*GTimes) - alias of
-// SETGLOBALTIMER above (RunActionSetGlobalTimer) - the "real time" vs
-// "game time" distinction it's meant to carry isn't modeled (this
-// engine doesn't compress/pause time separately from AI ticks), so
-// both convert the same way (integer1 seconds * AI_UPDATE_FREQ).
 
 
 // ReallyForceSpell(O:Target,I:Spell*Spell) / ReallyForceSpellDead
@@ -3096,7 +3110,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 265, "DIALOGFORCEINTERRUPT", RunActionDialogForceInterrupt },
 		{ 266, "STARTDIALOGUEINTERRUPT", RunActionStartDialogueInterrupt },
 		{ 267, "STARTDIALOGNOSETINTERRUPT", RunActionStartDialogueInterrupt },
-		{ 268, "REALSETGLOBALTIMER", RunActionSetGlobalTimer },
+		{ 268, "REALSETGLOBALTIMER", RunActionRealSetGlobalTimer },
 		{ 269, "DISPLAYSTRINGHEAD", RunActionDisplayStringHead },
 		{ 270, "POLYMORPHCOPY", NULL },
 		{ 271, "VERBALCONSTANTHEAD", NULL },

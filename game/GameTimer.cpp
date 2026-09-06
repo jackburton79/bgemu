@@ -19,10 +19,12 @@
 GameTimer::timer_map GameTimer::sTimers;
 uint32 GameTimer::sGameTime;
 
-GameTimer::GameTimer(uint32 expirationTime)
+GameTimer::GameTimer(uint32 expirationTime, timer_type type)
 	:
-	fExpiration(expirationTime)
+	fExpiration(0),
+	fType(type)
 {
+	SetExpiration(expirationTime);
 }
 
 
@@ -47,30 +49,38 @@ GameTimer::DisposeTimers()
 void
 GameTimer::SetExpiration(uint32 expiration)
 {
-	fExpiration = sGameTime + expiration;
+	uint32 current = fType == TIMER_REAL ? RealTime() : sGameTime;
+	fExpiration = current + expiration;
 }
 
 
 bool
 GameTimer::Expired() const
 {
-	return sGameTime >= fExpiration;
+	uint32 current = fType == TIMER_REAL ? RealTime() : sGameTime;
+	return current >= fExpiration;
 }
 
 
 /* static */
 void
-GameTimer::Add(const char* name, uint32 expirationTime)
+GameTimer::Add(const char* name, uint32 expirationTime, timer_type type)
 {
-	std::string expiration = IDTable::GameTimeAt(expirationTime);
-	std::cout << "Added timer '" << name << "' which expires in ";
-	std::cout << expiration << "(" << std::dec << expirationTime;
-	std::cout << ")" << std::endl;
+	if (type == TIMER_REAL) {
+		std::cout << "Added real-time timer '" << name << "' which expires in ";
+		std::cout << std::dec << expirationTime << " second(s)" << std::endl;
+	} else {
+		std::string expiration = IDTable::GameTimeAt(expirationTime);
+		std::cout << "Added timer '" << name << "' which expires in ";
+		std::cout << expiration << "(" << std::dec << expirationTime;
+		std::cout << ")" << std::endl;
+	}
 	timer_map::iterator i = sTimers.find(name);
-	if (i != sTimers.end())
+	if (i != sTimers.end()) {
+		i->second->fType = type;
 		i->second->SetExpiration(expirationTime);
-	else
-		sTimers[name] = new GameTimer(expirationTime);
+	} else
+		sTimers[name] = new GameTimer(expirationTime, type);
 }
 
 
@@ -103,6 +113,14 @@ uint32
 GameTimer::GameTime()
 {
 	return sGameTime;
+}
+
+
+/* static */
+uint32
+GameTimer::RealTime()
+{
+	return Timer::Ticks() / 1000;
 }
 
 

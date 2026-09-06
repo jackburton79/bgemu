@@ -795,6 +795,29 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				returnValue = timer == NULL || !timer->Expired();
 				break;
 			}
+			case 0x40B6:
+			{
+				/* RealGlobalTimerExpired(S:Name*,S:Area*) (16566 0x40b6) -
+				 * same lookup as GlobalTimerExpired above; whether it's
+				 * measured against CINGAME or CREAL is decided by the
+				 * GameTimer's own stored type (TIMER_GLOBAL vs
+				 * TIMER_REAL, set by SETGLOBALTIMER/REALSETGLOBALTIMER
+				 * respectively - see GameTimer.h). */
+				std::string timerName;
+				timerName.append(trig->string2).append(trig->string1);
+				GameTimer* timer = GameTimer::Get(timerName.c_str());
+				returnValue = timer != NULL && timer->Expired();
+				break;
+			}
+			case 0x40B7:
+			{
+				/* RealGlobalTimerNotExpired(S:Name*,S:Area*) */
+				std::string timerName;
+				timerName.append(trig->string2).append(trig->string1);
+				GameTimer* timer = GameTimer::Get(timerName.c_str());
+				returnValue = timer == NULL || !timer->Expired();
+				break;
+			}
 			case 0x4043:
 			{
 				// InParty
