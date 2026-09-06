@@ -191,11 +191,17 @@ public:
 	void SetEnemyAlly(uint8 ea);
 
 	uint8 General() const;
+	void SetGeneral(uint8 general);
 	uint8 Race() const;
+	void SetRace(uint8 race);
 	uint8 Class() const;
+	void SetClass(uint8 c);
 	uint8 Specific() const;
+	void SetSpecific(uint8 specific);
 	uint8 Gender() const;
+	void SetGender(uint8 gender);
 	uint8 Alignment() const;
+	void SetAlignment(uint8 alignment);
 
 	CREColors Colors();
 

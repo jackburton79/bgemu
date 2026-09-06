@@ -173,12 +173,26 @@ CREResource::General() const
 }
 
 
+void
+CREResource::SetGeneral(uint8 general)
+{
+	fData->WriteAt(0x271, &general, sizeof(general));
+}
+
+
 uint8
 CREResource::Race() const
 {
 	uint8 rac;
 	fData->ReadAt(0x272, rac);
 	return rac;
+}
+
+
+void
+CREResource::SetRace(uint8 race)
+{
+	fData->WriteAt(0x272, &race, sizeof(race));
 }
 
 
@@ -191,12 +205,26 @@ CREResource::Class() const
 }
 
 
+void
+CREResource::SetClass(uint8 c)
+{
+	fData->WriteAt(0x273, &c, sizeof(c));
+}
+
+
 uint8
 CREResource::Specific() const
 {
 	uint8 spec;
 	fData->ReadAt(0x0274, spec);
 	return spec;
+}
+
+
+void
+CREResource::SetSpecific(uint8 specific)
+{
+	fData->WriteAt(0x0274, &specific, sizeof(specific));
 }
 
 
@@ -209,12 +237,26 @@ CREResource::Gender() const
 }
 
 
+void
+CREResource::SetGender(uint8 gender)
+{
+	fData->WriteAt(0x275, &gender, sizeof(gender));
+}
+
+
 uint8
 CREResource::Alignment() const
 {
 	uint8 align;
 	fData->ReadAt(0x27b, align);
 	return align;
+}
+
+
+void
+CREResource::SetAlignment(uint8 alignment)
+{
+	fData->WriteAt(0x27b, &alignment, sizeof(alignment));
 }
 
 

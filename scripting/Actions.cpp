@@ -1771,6 +1771,176 @@ RunActionCreateVisualEffectObject(Object* sender, action_params* params, action_
 }
 
 
+// ChangeGeneral/Race/Class/Specifics/Gender/Alignment(O:Object*,I:Value*)
+// - stateless. Each just writes the corresponding CRE stat byte (same
+// fields the GENERAL/RACE/CLASS/SPECIFICS/GENDER/ALIGNMENT triggers -
+// Actor::IsGeneral() etc. - already compare against), no validation
+// against the *.IDS table (matching this engine's general "store what
+// the script says" approach elsewhere, e.g. MORALESET).
+static void
+RunActionChangeGeneral(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetGeneral((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionChangeRace(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetRace((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionChangeClass(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetClass((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionChangeSpecifics(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetSpecific((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionChangeGender(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetGender((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+static void
+RunActionChangeAlignment(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetAlignment((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+// JoinParty()/LeaveParty() - stateless. Just add/remove the active
+// creature from Game::Party() - Actor::InParty() already reads this
+// list live, so every InParty()-based trigger picks the change up
+// immediately with no extra state to keep in sync. The creature stays
+// in its AreaRoom's actor list either way (still drawn/scripted/moved
+// normally) - only its "is it a party member" status changes.
+// Deviations: JoinParty()'s "if the party is full, show the 'select
+// party members' dialog" isn't modeled (no such GUI screen exists yet -
+// see the Fase 6 plan notes); LeaveParty()'s implicit DropInventory()
+// call isn't either (ground items aren't modeled - same simplification
+// already declared for DROPITEM/GIVEITEM above).
+static void
+RunActionJoinParty(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL && !Game::Get()->Party()->HasActor(actor)) {
+		Game::Get()->Party()->AddActor(actor);
+		actor->ClearActionList();
+	}
+	state.completed = true;
+}
+
+
+static void
+RunActionLeaveParty(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		Game::Get()->Party()->RemoveActor(actor);
+	state.completed = true;
+}
+
+
+// Lock(O:Object*) - stateless. Inverse of Unlock(): the target door
+// becomes locked again (no skill check involved either way - same target
+// resolution Unlock()/PickLock() already use).
+static void
+RunActionLock(Object* sender, action_params* params, action_state& state)
+{
+	Door* door = dynamic_cast<Door*>(Script::GetTargetObject(sender, params));
+	if (door != NULL)
+		door->Lock();
+	state.completed = true;
+}
+
+
+// JumpToPoint(P:Point*) - stateless. Instant teleport, no path/movement -
+// distinct from MoveToPoint (Actions.cpp's RunActionWalkTo), which walks
+// there over time.
+static void
+RunActionJumpToPoint(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		actor->SetPosition(params->where);
+		actor->ClearDestination();
+	}
+	state.completed = true;
+}
+
+
+// PauseGame() - stateless. Core::TogglePause() toggles, so this only
+// flips it when not already paused - PauseGame() must set the paused
+// state, not toggle it (calling it twice must not unpause).
+static void
+RunActionPauseGame(Object* sender, action_params* params, action_state& state)
+{
+	if (!Core::Get()->IsPaused())
+		Core::Get()->TogglePause();
+	state.completed = true;
+}
+
+
+// IncrementChapter(S:ResRef*) - stateless. Per IESDP this also displays a
+// text screen named by the resref parameter - no such GUI screen exists
+// yet (see the Fase 6 plan notes), so only the chapter counter itself
+// (read by scripts as Global("Chapter","GLOBAL",n), per the IESDP example)
+// is modeled, reusing the Variables mechanism the Fase 10 batch 1 GOLD
+// global already relies on.
+static const char* const kChapterVariable = "Chapter";
+
+static void
+RunActionIncrementChapter(Object* sender, action_params* params, action_state& state)
+{
+	Variables& vars = Core::Get()->Vars();
+	vars.Set(kChapterVariable, vars.Get(kChapterVariable) + 1);
+	state.completed = true;
+}
+
+
+// GiveItemCreate(S:ResRef*,O:Object*,I:Usage1*,I:Usage2*,I:Usage3*) -
+// stateless. Same simplification as CREATEITEM (only Usage1/integer1 is
+// used as a quantity), but the item is created on the target object
+// instead of the active creature.
+static void
+RunActionGiveItemCreate(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->AddItem(params->string1, params->integer1 != 0 ? params->integer1 : 1);
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -1789,9 +1959,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 16, "GIVEORDER", NULL },
 		{ 17, "HELP", NULL },
 		{ 18, "HIDE", NULL },
-		{ 19, "JOINPARTY", NULL },
+		{ 19, "JOINPARTY", RunActionJoinParty },
 		{ 20, "LAYHANDS", NULL },
-		{ 21, "LEAVEPARTY", NULL },
+		{ 21, "LEAVEPARTY", RunActionLeaveParty },
 		{ 22, "MOVETOOBJECT", RunActionWalkToObject },
 		{ 23, "MOVETOPOINT", RunActionWalkTo },
 		{ 24, "PANIC", NULL },
@@ -1810,7 +1980,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 39, "RECOIL", NULL },
 		{ 40, "PLAYDEAD", RunActionPlayDead },
 		{ 47, "FORMATION", NULL },
-		{ 48, "JUMPTOPOINT", NULL },
+		{ 48, "JUMPTOPOINT", RunActionJumpToPoint },
 		{ 49, "MOVEVIEWPOINT", RunActionMoveViewPoint },
 		{ 50, "MOVEVIEWOBJECT", NULL },
 		{ 51, "CLICKLBUTTONPOINT", NULL },
@@ -1852,7 +2022,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 87, "PROTECTOBJECT", NULL },
 		{ 88, "LEADER", NULL },
 		{ 89, "FOLLOW", NULL },
-		{ 90, "MOVETOPOINTNORECTICLE", NULL },
+		{ 90, "MOVETOPOINTNORECTICLE", RunActionWalkTo },
 		{ 91, "LEAVEAREA", NULL },
 		{ 92, "SELECTWEAPONABILITY", NULL },
 		{ 94, "GROUPATTACK", NULL },
@@ -1901,7 +2071,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 137, "STARTDIALOGUE", NULL },
 		{ 138, "SETDIALOGUE", NULL },
 		{ 139, "PLAYERDIALOGUE", NULL },
-		{ 140, "GIVEITEMCREATE", NULL },
+		{ 140, "GIVEITEMCREATE", RunActionGiveItemCreate },
 		{ 141, "GIVEPARTYGOLDGLOBAL", NULL },
 		{ 142, "USEDOOR", NULL },
 		{ 143, "OPENDOOR", RunActionOpenDoor },
@@ -1915,14 +2085,14 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 151, "DISPLAYSTRING", RunActionDisplayMessage },
 		{ 152, "CHANGEAITYPE", NULL },
 		{ 153, "CHANGEENEMYALLY", NULL },
-		{ 154, "CHANGEGENERAL", NULL },
-		{ 155, "CHANGERACE", NULL },
-		{ 156, "CHANGECLASS", NULL },
-		{ 157, "CHANGESPECIFICS", NULL },
-		{ 158, "CHANGEGENDER", NULL },
-		{ 159, "CHANGEALIGNMENT", NULL },
+		{ 154, "CHANGEGENERAL", RunActionChangeGeneral },
+		{ 155, "CHANGERACE", RunActionChangeRace },
+		{ 156, "CHANGECLASS", RunActionChangeClass },
+		{ 157, "CHANGESPECIFICS", RunActionChangeSpecifics },
+		{ 158, "CHANGEGENDER", RunActionChangeGender },
+		{ 159, "CHANGEALIGNMENT", RunActionChangeAlignment },
 		{ 160, "APPLYSPELL", NULL },
-		{ 161, "INCREMENTCHAPTER", NULL },
+		{ 161, "INCREMENTCHAPTER", RunActionIncrementChapter },
 		{ 162, "REPUTATIONSET", RunActionReputationSet },
 		{ 163, "REPUTATIONINC", RunActionReputationInc },
 		{ 164, "ADDEXPERIENCEPARTY", RunActionAddExperienceParty },
@@ -1956,7 +2126,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 192, "SPELLPOINTNODEC", NULL },
 		{ 193, "TAKEPARTYITEMRANGE", NULL },
 		{ 194, "CHANGEANIMATION", NULL },
-		{ 195, "LOCK", NULL },
+		{ 195, "LOCK", RunActionLock },
 		{ 196, "UNLOCK", RunActionUnlock },
 		{ 197, "MOVEGLOBAL", NULL },
 		{ 198, "STARTDIALOGNOSET", RunActionDialog },
@@ -1977,7 +2147,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 215, "FOLLOWOBJECTFORMATION", NULL },
 		{ 216, "ADDFAMILIAR", NULL },
 		{ 217, "REMOVEFAMILIAR", NULL },
-		{ 218, "PAUSEGAME", NULL },
+		{ 218, "PAUSEGAME", RunActionPauseGame },
 		{ 219, "CHANGEANIMATIONNOEFFECT", NULL },
 		{ 220, "TAKEITEMLISTPARTY", NULL },
 		{ 221, "SETMORALEAI", NULL },

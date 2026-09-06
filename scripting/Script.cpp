@@ -694,6 +694,14 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				//std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
+			case 0x401D:
+			{
+				/* SPECIFICS(O:Object*,I:Specific*Specific) (16413 0x401d) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = actor->IsSpecific(trig->parameter1);
+				break;
+			}
 			case 0x401E:
 			{
 				/* Time(I:Time*Time)
