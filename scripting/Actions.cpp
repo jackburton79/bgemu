@@ -412,7 +412,26 @@ RunActionTriggerActivation(Object* sender, action_params* params, action_state& 
 }
 
 
-// UNLOCK(O:OBJECT*) - stateless.
+// Percentile thief-skill check against a difficulty rating (both on the
+// 0-100 scale CRE skill bytes and door/container difficulty fields use):
+// rolls d100, succeeds if the roll is <= (skill - difficulty), clamped to
+// a 5% minimum chance so an outmatched attempt is never mathematically
+// impossible. The original engine's exact formula isn't documented; this
+// is a reasonable, deliberately simple approximation (same spirit as this
+// codebase's other undocumented-formula choices, e.g. HP:Damage's
+// discarded modes).
+static bool
+_RollSkillCheck(uint8 skill, uint32 difficulty)
+{
+	int32 chance = std::max((int32)skill - (int32)difficulty, 5);
+	return Core::RollDice(1, 100, 0) <= chance;
+}
+
+
+// UNLOCK(O:OBJECT*) - stateless. Always succeeds if the sender is
+// carrying the door's key item (matching the real game's "keys just
+// work" convention); otherwise resolves an Open Locks skill check against
+// the door's lock difficulty.
 static void
 RunActionUnlock(Object* sender, action_params* params, action_state& state)
 {
@@ -423,7 +442,91 @@ RunActionUnlock(Object* sender, action_params* params, action_state& state)
 		state.completed = true;
 		return;
 	}
-	door->Unlock();
+
+	if (door->IsLocked()) {
+		Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+		bool hasKey = actor != NULL && door->KeyItem().CString()[0] != '\0'
+			&& actor->CRE()->FindItemSlot(door->KeyItem()) >= 0;
+		if (hasKey || (actor != NULL
+				&& _RollSkillCheck(actor->CRE()->OpenLocksSkill(), door->LockDifficulty())))
+			door->Unlock();
+	}
+	state.completed = true;
+}
+
+
+// PICKLOCK(O:Object*) - stateless. Resolves an Open Locks skill check
+// against the door's lock difficulty - unlike UNLOCK, no key-item
+// shortcut, since this is explicitly a "pick the lock" attempt.
+static void
+RunActionPickLock(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	Door* door = dynamic_cast<Door*>(target);
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (door != NULL && actor != NULL && door->IsLocked()
+			&& _RollSkillCheck(actor->CRE()->OpenLocksSkill(), door->LockDifficulty()))
+		door->Unlock();
+	state.completed = true;
+}
+
+
+// FINDTRAPS() - stateless. Real IESDP semantics are a persistent "Detect
+// Traps" modal state that keeps checking every tick (see
+// docs/iesdp-gh-pages/scripting/actions/bg2actions.htm#13); this engine's
+// action model only supports single-shot actions (same simplification
+// already used by REST()), so this resolves a one-time Find Traps skill
+// check against every trapped, not-yet-detected door in the current area
+// instead. Containers aren't scanned - no lock/trap API on Container yet.
+static void
+RunActionFindTraps(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (actor != NULL && room != NULL) {
+		for (Door* door : room->Doors()) {
+			if (door->IsTrapped() && !door->IsTrapDetected()
+					&& _RollSkillCheck(actor->CRE()->FindTrapsSkill(), door->TrapDetectionDifficulty()))
+				door->SetTrapDetected(true);
+		}
+	}
+	state.completed = true;
+}
+
+
+// REMOVETRAPS(O:Trap*) - stateless. Resolves a Find/Disarm Traps skill
+// check against the target's trap-removal difficulty; on success clears
+// its trapped flag. Doesn't require the trap to have been detected first
+// via FINDTRAPS() - a deliberate simplification (see its comment).
+static void
+RunActionRemoveTraps(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	Door* door = dynamic_cast<Door*>(target);
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (door != NULL && actor != NULL && door->IsTrapped()
+			&& _RollSkillCheck(actor->CRE()->FindTrapsSkill(), door->TrapRemovalDifficulty()))
+		door->DisarmTrap();
+	state.completed = true;
+}
+
+
+// DETECTSECRETDOOR(O:Object*) - stateless. Resolves a Find Traps skill
+// check (reused as this engine's general "search" stat, matching 2E's
+// single Find/Remove Traps skill governing perception checks) against the
+// door's secret-door detection difficulty; on success sets its Detected
+// flag. Note: nothing in this engine's rendering/hit-testing layer yet
+// hides undetected secret doors, so this currently has no visible effect
+// until that's added separately.
+static void
+RunActionDetectSecretDoor(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	Door* door = dynamic_cast<Door*>(target);
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (door != NULL && actor != NULL && door->IsSecret() && !door->IsDetected()
+			&& _RollSkillCheck(actor->CRE()->FindTrapsSkill(), door->DetectionDifficulty()))
+		door->SetDetected(true);
 	state.completed = true;
 }
 
@@ -1508,7 +1611,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 9, "DROPITEM", RunActionDropItem },
 		{ 10, "ENEMY", RunActionSetEnemyAlly },
 		{ 11, "EQUIPITEM", RunActionEquipItem },
-		{ 13, "FINDTRAPS", NULL },
+		{ 13, "FINDTRAPS", RunActionFindTraps },
 		{ 14, "GETITEM", RunActionGetItem },
 		{ 15, "GIVEITEM", RunActionGiveItem },
 		{ 16, "GIVEORDER", NULL },
@@ -1523,7 +1626,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 25, "PICKPOCKETS", NULL },
 		{ 26, "PLAYSOUND", NULL },
 		{ 27, "PROTECTPOINT", NULL },
-		{ 28, "REMOVETRAPS", NULL },
+		{ 28, "REMOVETRAPS", RunActionRemoveTraps },
 		{ 29, "RUNAWAYFROM", RunActionRunAwayFrom },
 		{ 30, "SETGLOBAL", RunActionSetGlobal },
 		{ 31, "SPELL", RunActionSpell },
@@ -1631,7 +1734,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 142, "USEDOOR", NULL },
 		{ 143, "OPENDOOR", RunActionOpenDoor },
 		{ 144, "CLOSEDOOR", RunActionCloseDoor },
-		{ 145, "PICKLOCK", NULL },
+		{ 145, "PICKLOCK", RunActionPickLock },
 		{ 146, "POLYMORPH", NULL },
 		{ 147, "REMOVESPELL", NULL },
 		{ 148, "BASHDOOR", NULL },
@@ -1687,7 +1790,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 198, "STARTDIALOGNOSET", RunActionDialog },
 		{ 199, "TEXTSCREEN", NULL },
 		{ 200, "RANDOMWALKCONTINUOUS", NULL },
-		{ 201, "DETECTSECRETDOOR", NULL },
+		{ 201, "DETECTSECRETDOOR", RunActionDetectSecretDoor },
 		{ 202, "FADETOCOLOR", RunActionFadeToColor },
 		{ 203, "FADEFROMCOLOR", RunActionFadeFromColor },
 		{ 204, "TAKEPARTYITEMNUM", NULL },

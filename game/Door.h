@@ -21,8 +21,32 @@ public:
 	void Open(Object* object);
 	void Close(Object* object);
 
+	// Marks this door's currently-active bounding box (OpenBox() when
+	// open, ClosedBox() when closed) as impassable on its area's
+	// SearchMap, and the other one passable. Called automatically by
+	// Open()/Close() on every state change; also called once by
+	// AreaRoom::_InitDoors() right after construction, to apply the
+	// door's initial (map-authored) open/closed state.
+	void UpdateSearchMapBlocking();
+
 	void Lock();
 	void Unlock();
+
+	bool IsLocked() const;
+	uint32 LockDifficulty() const;
+	res_ref KeyItem() const;
+
+	bool IsTrapped() const;
+	bool IsTrapDetected() const;
+	void SetTrapDetected(bool detected);
+	void DisarmTrap();
+	uint16 TrapDetectionDifficulty() const;
+	uint16 TrapRemovalDifficulty() const;
+
+	bool IsSecret() const;
+	bool IsDetected() const;
+	void SetDetected(bool detected);
+	uint32 DetectionDifficulty() const;
 
 	std::vector<uint16> fTilesOpen;
 

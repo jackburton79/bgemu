@@ -314,6 +314,24 @@ CREResource::SetMaxHitPoints(uint16 hp)
 
 
 uint8
+CREResource::OpenLocksSkill() const
+{
+	uint8 skill;
+	fData->ReadAt(0x67, skill);
+	return skill;
+}
+
+
+uint8
+CREResource::FindTrapsSkill() const
+{
+	uint8 skill;
+	fData->ReadAt(0x69, skill);
+	return skill;
+}
+
+
+uint8
 CREResource::Level() const
 {
 	uint8 level1, level2, level3;

@@ -12,6 +12,17 @@
 
 #include <math.h>
 
+
+// Search-map pixel palette indices that mean "not passable" - see
+// SearchMap's constructor (original per-pixel classification) and
+// ClearPoint() (restoring a pixel to its original classification).
+static bool
+_IsPixelPassable(uint8 pixel)
+{
+	return pixel != 0 && pixel != 8 && pixel != 10 && pixel != 12 && pixel != 13;
+}
+
+
 SearchMap::SearchMap(std::string name)
 	:
 	fImage(NULL),
@@ -33,10 +44,7 @@ SearchMap::SearchMap(std::string name)
 		for (int y = 0; y < fHeight; ++y) {
 			for (int x = 0; x < fWidth; ++x) {
 				uint8 state = fModifiedMap->GetPixel(x, y);
-				bool passable = state != 0 && state != 8 && state != 10
-						&& state != 12 && state != 13;
-
-				fPassabilityMap[y * fWidth + x] = passable;
+				fPassabilityMap[y * fWidth + x] = _IsPixelPassable(state);
 			}
 		}
 	}
@@ -76,26 +84,27 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 void
 SearchMap::SetPoint(int32 x, int32 y)
 {
-#if 1
-	return;
-#else
 	x = x / 16;
 	y = y / 12;
+	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
+		return;
+
+	fPassabilityMap[y * fWidth + x] = false;
 	fModifiedMap->PutPixel(x, y, 0);
-#endif
 }
 
 
 void
 SearchMap::ClearPoint(int32 x, int32 y)
 {
-#if 1
-	return;
-#else
 	x = x / 16;
 	y = y / 12;
-	fModifiedMap->PutPixel(x, y, fImage->GetPixel(x, y));
-#endif
+	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
+		return;
+
+	uint8 originalPixel = fImage->GetPixel(x, y);
+	fPassabilityMap[y * fWidth + x] = _IsPixelPassable(originalPixel);
+	fModifiedMap->PutPixel(x, y, originalPixel);
 }
 
 

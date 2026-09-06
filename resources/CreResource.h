@@ -235,6 +235,10 @@ public:
 
 	// Highest attained level across this creature's (up to 3, for
 	// dual/multi-class) classes.
+	// Thief skill percentages (0-100+, see cre_v1.htm offsets 0x67/0x69).
+	uint8 OpenLocksSkill() const;
+	uint8 FindTrapsSkill() const;
+
 	uint8 Level() const;
 	// Level for a single class slot (0/1/2, mapping to bytes 0x234/0x235/
 	// 0x236) - see Class()'s comment for how a multi-class creature's
