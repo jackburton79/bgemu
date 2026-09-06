@@ -2952,6 +2952,112 @@ RunActionDayNight(Object* sender, action_params* params, action_state& state)
 }
 
 
+static bool
+_IsMeleeAttackType(uint8 attackType)
+{
+	return attackType == 1; // itm_ability::attackType: 1 = Melee
+}
+
+
+static bool
+_IsRangedAttackType(uint8 attackType)
+{
+	return attackType == 2 || attackType == 4; // Projectile or Launcher
+}
+
+
+// Shared by EquipMostDamagingMelee/EquipRanged below. IESDP describes
+// both as picking among weapons "available in the quickslots" (BG2's 4
+// pre-equipped, switchable weapon slots) - this engine only has a
+// single weapon slot (kSlotWeaponFirst - see Actor::EquippedWeapon(),
+// which always reads that one slot), so both scan the whole inventory
+// instead and equip the match into that slot via Actor::EquipItem(),
+// same as any other equip action here. Only the primary ability (index
+// 0) of each item is examined, same convention Actor::AttackTarget()
+// already uses to read a weapon's attack. Returns an empty res_ref if
+// nothing matched.
+static res_ref
+_FindBestWeapon(Actor* actor, bool (*matchesType)(uint8), bool compareDamage)
+{
+	res_ref best;
+	int32 bestScore = -1;
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (!actor->CRE()->GetItemAtSlot(slot, item) || item.name.name[0] == '\0')
+			continue;
+
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm == NULL)
+			continue;
+
+		itm_ability ability;
+		bool hasAbility = itm->GetAbility(0, ability);
+		gResManager->ReleaseResource(itm);
+		if (!hasAbility || !matchesType(ability.attackType))
+			continue;
+
+		if (!compareDamage)
+			return item.name;
+
+		// Per IESDP "damage is calculated on the THAC0 bonus and
+		// damage" - combined into one score (average damage roll +
+		// damage bonus + THAC0 bonus, higher is better); special
+		// bonuses vs. creature types/elemental damage aren't checked,
+		// matching IESDP's own note that the real engine doesn't
+		// either.
+		int32 score = ability.diceThrown * (ability.diceSides + 1) / 2
+			+ ability.damageBonus + ability.thac0Bonus;
+		if (score > bestScore) {
+			bestScore = score;
+			best = item.name;
+		}
+	}
+	return best;
+}
+
+
+// EquipMostDamagingMelee() - stateless.
+static void
+RunActionEquipMostDamagingMelee(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		res_ref weapon = _FindBestWeapon(actor, _IsMeleeAttackType, true);
+		if (weapon.name[0] != '\0')
+			actor->EquipItem(weapon);
+	}
+	state.completed = true;
+}
+
+
+// EquipRanged() - stateless. Per IESDP just picks a ranged weapon,
+// no damage comparison (unlike EquipMostDamagingMelee above) - first
+// match wins.
+static void
+RunActionEquipRanged(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		res_ref weapon = _FindBestWeapon(actor, _IsRangedAttackType, false);
+		if (weapon.name[0] != '\0')
+			actor->EquipItem(weapon);
+	}
+	state.completed = true;
+}
+
+
+// RandomTurn() - stateless. Faces a random direction (0-15, BG2's
+// 16-orientation scheme).
+static void
+RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->SetOrientation(Core::RandomNumber(0, 15));
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2975,7 +3081,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 21, "LEAVEPARTY", RunActionLeaveParty },
 		{ 22, "MOVETOOBJECT", RunActionWalkToObject },
 		{ 23, "MOVETOPOINT", RunActionWalkTo },
-		{ 24, "PANIC", NULL },
+		{ 24, "PANIC", RunActionRandomWalk },
 		{ 25, "PICKPOCKETS", NULL },
 		{ 26, "PLAYSOUND", RunActionPlaySound },
 		{ 27, "PROTECTPOINT", NULL },
@@ -3072,7 +3178,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 127, "CUTSCENEID", NULL },
 		{ 128, "ANKHEGEMERGE", NULL },
 		{ 129, "ANKHEGHIDE", NULL },
-		{ 130, "RANDOMTURN", NULL },
+		{ 130, "RANDOMTURN", RunActionRandomTurn },
 		{ 131, "KILL", RunActionKill },
 		{ 132, "VERBALCONSTANT", NULL },
 		{ 133, "CLEARACTIONS", RunActionClearActions },
@@ -3091,7 +3197,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 146, "POLYMORPH", NULL },
 		{ 147, "REMOVESPELL", RunActionRemoveSpell },
 		{ 148, "BASHDOOR", NULL },
-		{ 149, "EQUIPMOSTDAMAGINGMELEE", NULL },
+		{ 149, "EQUIPMOSTDAMAGINGMELEE", RunActionEquipMostDamagingMelee },
 		{ 150, "STARTSTORE", RunActionStartStore },
 		{ 151, "DISPLAYSTRING", RunActionDisplayMessage },
 		{ 152, "CHANGEAITYPE", NULL },
@@ -3116,7 +3222,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 171, "GIVEGOLDFORCE", RunActionGivePartyGold },
 		{ 172, "CHANGETILESTATE", NULL },
 		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
-		{ 174, "EQUIPRANGED", NULL },
+		{ 174, "EQUIPRANGED", RunActionEquipRanged },
 		{ 175, "SETLEAVEPARTYDIALOGUEFILE", NULL },
 		{ 176, "ESCAPEAREADESTROY", RunActionEscapeArea },
 		{ 177, "TRIGGERACTIVATION", RunActionTriggerActivation },
