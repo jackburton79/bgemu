@@ -596,6 +596,24 @@ Game::JournalEntries() const
 }
 
 
+void
+Game::SetAreaMapVisible(const std::string& areaName, bool visible)
+{
+	fAreaMapVisibility[areaName] = visible;
+}
+
+
+bool
+Game::AreaMapVisibleOverride(const std::string& areaName, bool* visible) const
+{
+	auto it = fAreaMapVisibility.find(areaName);
+	if (it == fAreaMapVisibility.end())
+		return false;
+	*visible = it->second;
+	return true;
+}
+
+
 Party*
 Game::Party()
 {

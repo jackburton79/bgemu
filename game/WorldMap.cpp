@@ -4,6 +4,7 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "Core.h"
+#include "Game.h"
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -56,6 +57,9 @@ WorldMap::WorldMap()
 
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry* areaEntry = fAreaEntries.at(i);
+		if (!areaEntry->IsVisible())
+			continue;
+
 		const Bitmap* iconFrame = areaEntry->Icon();
 		IE::point position = areaEntry->Position();
 		GFX::rect iconRect(int16(position.x - iconFrame->Frame().w / 2),
@@ -262,6 +266,15 @@ WorldMap::_LoadAreaEntries()
 {
 	for (uint32 c = 0; c < fWorldMap->CountAreaEntries(); c++) {
 		AreaEntry* areaEntry = fWorldMap->GetAreaEntry(c);
+
+		// A script's REVEALAREAONMAP/HIDEAREAONMAP (Game::
+		// SetAreaMapVisible()) overrides the file's own visibility bit,
+		// same as this engine already does elsewhere for LOCALS-style
+		// runtime overrides of on-disk data.
+		bool visible;
+		if (Game::Get()->AreaMapVisibleOverride(areaEntry->Name().CString(), &visible))
+			areaEntry->SetVisible(visible);
+
 		fAreaEntries.push_back(areaEntry);
 	}
 }

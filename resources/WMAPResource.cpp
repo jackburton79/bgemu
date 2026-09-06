@@ -134,6 +134,39 @@ AreaEntry::LoadingScreenName() const
 }
 
 
+static const uint32 kAreaVisible = 0x1;
+
+uint32
+AreaEntry::Flags() const
+{
+	return fEntry.flags;
+}
+
+
+void
+AreaEntry::SetFlags(uint32 flags)
+{
+	fEntry.flags = flags;
+}
+
+
+bool
+AreaEntry::IsVisible() const
+{
+	return (fEntry.flags & kAreaVisible) != 0;
+}
+
+
+void
+AreaEntry::SetVisible(bool visible)
+{
+	if (visible)
+		fEntry.flags |= kAreaVisible;
+	else
+		fEntry.flags &= ~kAreaVisible;
+}
+
+
 IE::point
 AreaEntry::Position() const
 {

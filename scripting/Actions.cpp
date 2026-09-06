@@ -2854,6 +2854,104 @@ RunActionSetAreaRestFlag(Object* sender, action_params* params, action_state& st
 }
 
 
+// RevealAreaOnMap(S:ResRef*) / HideAreaOnMap(S:ResRef*) - stateless.
+// Overrides the area's own file-driven worldmap visibility bit (see
+// Game::SetAreaMapVisible(), AreaEntry::IsVisible()/SetVisible() in
+// resources/WMAPResource.h, and WorldMap::_LoadAreaEntries(), which
+// applies the override on top of the file's own flag). Only the icon/
+// name display is gated this way - travel isn't (WorldMap::MouseDown()
+// doesn't check any flag before allowing it either), so this doesn't
+// model the "Reachable" bit's actual travel-blocking.
+static void
+RunActionRevealAreaOnMap(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->SetAreaMapVisible(params->string1, true);
+	state.completed = true;
+}
+
+
+static void
+RunActionHideAreaOnMap(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->SetAreaMapVisible(params->string1, false);
+	state.completed = true;
+}
+
+
+// PlayDeadInterruptible(I:Time*) - state: plays the DEAD/SLEEP animation
+// (Animation.h's ACT_DEAD) for integer1 ticks. The "interruptible by a
+// standard PC move command" nuance isn't modeled (this engine's action
+// state machine has no generic way for an external command to cancel an
+// in-progress action) - it just runs for the full duration.
+static void
+RunActionPlayDeadInterruptible(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		actor->SetAnimationAction(ACT_DEAD);
+		state.counter = params->integer1;
+		state.initiated = true;
+	}
+
+	if (state.counter-- <= 0) {
+		actor->SetAnimationAction(ACT_STANDING);
+		state.completed = true;
+	}
+}
+
+
+// MoveToCenterOfScreen(I:NotInterruptableFor*) - state: same walk-to-
+// point pattern as MOVETOPOINT, targeting RoomBase::AreaCenterPoint()
+// (the world-coordinate center of the current viewport - already used
+// for view-centering elsewhere in this engine). The "script conditions
+// not checked for the duration" nuance isn't modeled.
+static void
+RunActionMoveToCenterOfScreen(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		AreaRoom* area = actor->Area();
+		if (area != NULL)
+			actor->SetDestination(area->AreaCenterPoint());
+		state.initiated = true;
+	}
+
+	if (!actor->MoveToNextPointInPath(false))
+		state.completed = true;
+}
+
+
+// DayNight(I:TimeOfDay*Time) - stateless. Per IESDP the time value comes
+// from TIME.IDS, which (per the game's own Time.ids file) is just a
+// plain 0-23 hour-of-day number (e.g. 0=MIDNIGHT, 12=NOON) - advances
+// the clock forward to the next occurrence of that hour, then reloads
+// the area for its day/night WED graphics, same mechanism
+// Game::ToggleDayNight() already uses for its own fixed +12h jump.
+static void
+RunActionDayNight(Object* sender, action_params* params, action_state& state)
+{
+	uint16 targetHour = (uint16)(params->integer1 % 24);
+	uint16 currentHour = GameTimer::HourOfDay();
+	uint16 delta = (targetHour + 24 - currentHour) % 24;
+	GameTimer::AdvanceTime(delta, 0, 0);
+
+	RoomBase* area = Core::Get()->CurrentRoom();
+	if (area != NULL)
+		area->ReloadArea();
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2911,7 +3009,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 63, "WAIT", RunActionWait },
 		{ 64, "UNDOEXPLORE", NULL },
 		{ 65, "EXPLORE", NULL },
-		{ 66, "DAYNIGHT", NULL },
+		{ 66, "DAYNIGHT", RunActionDayNight },
 		{ 67, "WEATHER", NULL },
 		{ 68, "CALLLIGHTNING", NULL },
 		{ 69, "VEQUIP", NULL },
@@ -3014,7 +3112,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 167, "STARTMOVIE", RunActionPlayMovie },
 		{ 168, "INTERACT", NULL },
 		{ 169, "DESTROYITEM", RunActionDestroyItem },
-		{ 170, "REVEALAREAONMAP", NULL },
+		{ 170, "REVEALAREAONMAP", RunActionRevealAreaOnMap },
 		{ 171, "GIVEGOLDFORCE", RunActionGivePartyGold },
 		{ 172, "CHANGETILESTATE", NULL },
 		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
@@ -3081,7 +3179,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 236, "STOREPARTYLOCATIONS", RunActionStorePartyLocations },
 		{ 237, "RESTOREPARTYLOCATIONS", RunActionRestorePartyLocations },
 		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },
-		{ 239, "MOVETOCENTEROFSCREEN", NULL },
+		{ 239, "MOVETOCENTEROFSCREEN", RunActionMoveToCenterOfScreen },
 		{ 240, "REALLYFORCESPELLDEAD", RunActionForceSpell },
 		{ 241, "CALM", RunActionCalm },
 		{ 242, "ALLY", RunActionAlly },
@@ -3093,7 +3191,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 248, "SETTOKENOBJECT", RunActionSetTokenObject },
 		{ 249, "SETGABBER", RunActionSetGabber },
 		{ 250, "CREATECREATUREOBJECTCOPYEFFECT", RunActionCreateCreatureNearObject },
-		{ 251, "HIDEAREAONMAP", NULL },
+		{ 251, "HIDEAREAONMAP", RunActionHideAreaOnMap },
 		{ 252, "CREATECREATUREOBJECTOFFSET", RunActionCreateCreatureObjectOffset },
 		{ 253, "CONTAINERENABLE", RunActionContainerEnable },
 		{ 254, "SCREENSHAKE", RunActionScreenShake },
@@ -3132,7 +3230,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 287, "UNHIDEGUI", RunActionUnhideGUI },
 		{ 288, "SETNAME", RunActionSetName },
 		{ 289, "ADDSUPERKIT", NULL },
-		{ 290, "PLAYDEADINTERRUPTIBLE", NULL },
+		{ 290, "PLAYDEADINTERRUPTIBLE", RunActionPlayDeadInterruptible },
 		{ 291, "MOVEGLOBALOBJECT", NULL },
 		{ 292, "DISPLAYSTRINGHEADOWNER", RunActionDisplayStringHeadOwner },
 		{ 293, "STARTDIALOGOVERRIDE", RunActionStartDialogue },

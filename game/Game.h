@@ -92,6 +92,18 @@ public:
 	void RemoveJournalEntry(uint32 strref);
 	const std::vector<uint32>& JournalEntries() const;
 
+	// REVEALAREAONMAP/HIDEAREAONMAP - kept here rather than on the
+	// AreaEntry/WorldMap objects directly, since WorldMap is recreated
+	// fresh (re-reading the WMAP resource) every time the player opens
+	// the worldmap screen - see Core::LoadWorldMap(). WorldMap::
+	// _LoadAreaEntries() applies this on top of each AreaEntry's own
+	// file-driven visibility bit right after loading it.
+	void SetAreaMapVisible(const std::string& areaName, bool visible);
+	// Returns true and sets *visible if a script overrode this area's
+	// worldmap visibility; false (leaving *visible untouched) if it
+	// should keep the file's own flag.
+	bool AreaMapVisibleOverride(const std::string& areaName, bool* visible) const;
+
 
 private:
 	Game();
@@ -111,6 +123,7 @@ private:
 
 	std::map<std::string, std::string> fTokens;
 	std::vector<uint32> fJournalEntries;
+	std::map<std::string, bool> fAreaMapVisibility;
 
 	void _RunExecFile(GameConsole* console);
 };

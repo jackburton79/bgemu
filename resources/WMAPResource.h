@@ -123,6 +123,17 @@ public:
 	std::string TooltipName() const;
 	res_ref LoadingScreenName() const;
 
+	// area_entry::flags (see wmap_v1.htm): bit 0 "Area visible", bit 1
+	// "visible from adjacent", bit 2 "Reachable", bit 3 "Already
+	// visited". REVEALAREAONMAP/HIDEAREAONMAP only drive IsVisible()/
+	// SetVisible() (bit 0) - travel-gating via "Reachable" isn't
+	// modeled (see WorldMap's own MouseDown(), which doesn't check any
+	// flag before allowing travel either).
+	uint32 Flags() const;
+	void SetFlags(uint32 flags);
+	bool IsVisible() const;
+	void SetVisible(bool visible);
+
 private:
 	friend class WMAPResource;
 

@@ -306,9 +306,14 @@ PathFinder::GeneratePath(const IE::point& start, const IE::point& end)
 	_GetSmoothenPath(pathPoints);
 
 	uint32 length = 0;
-	for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
-		auto prev = std::prev(it);
-		length += Distance(*prev, *it);
+	// Defensive: pathPoints can legitimately be empty (see _BuildPath()'s
+	// comment above) - std::next(pathPoints.begin()) on an empty list is
+	// undefined behavior, not just an empty loop.
+	if (!pathPoints.empty()) {
+		for (auto it = std::next(pathPoints.begin()); it != pathPoints.end(); ++it) {
+			auto prev = std::prev(it);
+			length += Distance(*prev, *it);
+		}
 	}
 
 	fStats.path_nodes = pathPoints.size();
@@ -402,8 +407,16 @@ PathFinder::_BuildPath(SearchNode* goalNode)
 		walkNode = walkNode->parent;
 	}
 
-	// remove the "current" position, it's useless
-	if (!tmpPoints.empty())
+	// remove the "current" position, it's useless - but only when
+	// there's a real path beyond it. If start and goal are the same
+	// point (a legitimate degenerate case - e.g. MOVETOCENTEROFSCREEN
+	// asking to move to a point the actor is already at), this is the
+	// only point, and erasing it would leave a bogus empty path: the
+	// length-computation loop right after this function's caller
+	// (GeneratePath()) does std::next(pathPoints.begin()) unconditionally,
+	// undefined behavior on an empty list - this is what actually
+	// crashed (found via MOVETOCENTEROFSCREEN in Fase 10).
+	if (tmpPoints.size() > 1)
 		tmpPoints.erase(tmpPoints.begin());
 
 	PointList pathPoints;
