@@ -16,6 +16,7 @@
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
+#include "GraphicsEngine.h"
 #include "GUI.h"
 #include "Parsing.h"
 #include "Party.h"
@@ -254,6 +255,35 @@ public:
 		RoomBase* room = Core::Get()->CurrentRoom();
 		room->AddAction(actionParams);
 		actionParams->Release();
+	}
+};
+
+
+// ScreenshotCommand - renders one frame (GUI::Draw(), same call the
+// normal interactive loop makes every frame - see Game::Loop() -
+// exec-file mode never reaches that loop, so nothing gets drawn into
+// GraphicsEngine's software surface otherwise) and dumps it to a BMP
+// file (GraphicsEngine::SaveScreenshot()). Works under SDL_VIDEODRIVER=
+// dummy (used for headless ASan test runs all along - the software
+// surface everything is drawn into is video-driver-independent, only
+// actually presenting it to a real screen isn't) - lets a GUI/visual
+// change be inspected from an exec-file test without a real display.
+class ScreenshotCommand : public ShellCommand {
+public:
+	ScreenshotCommand()
+		: ShellCommand(
+			"Screenshot",
+			{
+				{ PARAMETER_STRING, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		GUI::Get()->Draw();
+		bool ok = GraphicsEngine::Get()->SaveScreenshot(params.at(0).value.string);
+		std::cout << "Screenshot: " << (ok ? "OK" : "FAILED") << std::endl;
 	}
 };
 
@@ -833,6 +863,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ToggleAuxWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
+	console->AddCommand(new ScreenshotCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());
