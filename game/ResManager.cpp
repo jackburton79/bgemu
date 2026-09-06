@@ -20,9 +20,11 @@
 #include "ResManager.h"
 #include "Resource.h"
 #include "SPLResource.h"
+#include "STOResource.h"
 #include "TisResource.h"
 #include "TLKResource.h"
 #include "VVCResource.h"
+#include "WAVResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
 
@@ -374,6 +376,14 @@ ResourceManager::GetSPL(const res_ref& name)
 }
 
 
+STOResource*
+ResourceManager::GetSTO(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_STO);
+	return static_cast<STOResource*>(resource);
+}
+
+
 WEDResource*
 ResourceManager::GetWED(const res_ref& name)
 {
@@ -395,6 +405,14 @@ ResourceManager::GetVVC(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_VVC);
 	return static_cast<VVCResource*>(resource);
+}
+
+
+WAVResource*
+ResourceManager::GetWAV(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_WAV);
+	return static_cast<WAVResource*>(resource);
 }
 
 

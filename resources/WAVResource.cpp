@@ -7,7 +7,11 @@
 
 #include "WAVResource.h"
 
+#include "Log.h"
 #include "Stream.h"
+
+#include <iostream>
+#include <string.h>
 
 // WAVE file header format
 struct wav_header {
@@ -247,6 +251,76 @@ WAVResource::Dump()
 				}
 			}
 		}
-	} 
+	}
+}
+
+
+bool
+WAVResource::DecodePCM(std::vector<uint8>& samples, uint16& channels,
+	uint16& bitsPerSample, uint32& sampleRate)
+{
+	if (!CheckSignature("RIFF")) {
+		// Most likely a WAVC (ACM-compressed) resource - see IESDP's
+		// wavc_v1.htm. No ACM decoder exists in this codebase yet.
+		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
+			<< " isn't a plain RIFF/PCM WAV (likely WAVC/ACM-compressed - "
+			"not supported)" << Log::Normal << std::endl;
+		return false;
+	}
+
+	uint32 fmtChunkLength;
+	fData->ReadAt(0x10, fmtChunkLength);
+	uint16 formatType;
+	fData->ReadAt(0x14, formatType);
+	if (formatType != 1) {
+		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
+			<< " isn't PCM (format type " << formatType << ")" << Log::Normal << std::endl;
+		return false;
+	}
+
+	fData->ReadAt(0x16, channels);
+	fData->ReadAt(0x18, sampleRate);
+	fData->ReadAt(0x22, bitsPerSample);
+
+	// The "fmt " chunk's content can be longer than the 16 bytes read
+	// above (length_of_fmt says exactly how many, e.g. 18 with a trailing
+	// cbSize field), and other chunks (commonly "fact") can sit between
+	// it and "data" - walk chunks until "data" turns up rather than
+	// assuming it's the very next one. RIFF chunks are padded to an even
+	// byte count.
+	uint32 chunkOffset = 0x14 + fmtChunkLength;
+	uint32 dataSize = 0;
+	bool foundData = false;
+	for (int guard = 0; guard < 16 && !foundData; guard++) {
+		char marker[4];
+		if (fData->ReadAt(chunkOffset, marker, sizeof(marker)) != (ssize_t)sizeof(marker))
+			break;
+		uint32 chunkSize;
+		fData->ReadAt(chunkOffset + 4, chunkSize);
+		if (::strncmp(marker, "data", sizeof(marker)) == 0) {
+			dataSize = chunkSize;
+			chunkOffset += 8;
+			foundData = true;
+		} else {
+			chunkOffset += 8 + chunkSize + (chunkSize & 1);
+		}
+	}
+	if (!foundData) {
+		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
+			<< ": no \"data\" chunk found" << Log::Normal << std::endl;
+		return false;
+	}
+	if (dataSize == 0)
+		return true; // legitimately empty (e.g. an unused placeholder sound)
+
+	const size_t previousSize = samples.size();
+	samples.resize(previousSize + dataSize);
+	ssize_t readSize = fData->ReadAt(chunkOffset, samples.data() + previousSize, dataSize);
+	if (readSize != (ssize_t)dataSize) {
+		samples.resize(previousSize);
+		return false;
+	}
+
+	return true;
 }
 

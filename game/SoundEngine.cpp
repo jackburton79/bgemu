@@ -31,6 +31,11 @@ SoundEngine::~SoundEngine()
 	SDL_PauseAudio(1);
 	SDL_CloseAudio();
 	delete fBuffer;
+
+	for (uint8 i = 0; i < kMaxOneShots; i++) {
+		if (fOneShots[i].device != 0)
+			SDL_CloseAudioDevice((SDL_AudioDeviceID)fOneShots[i].device);
+	}
 }
 
 
@@ -255,4 +260,88 @@ SoundBuffer::AvailableData() const
 		return (fBufferLength - fConsumedPos) + fBufferPos;
 
 	return fBufferPos - fConsumedPos;
+}
+
+
+void
+SoundEngine::PlaySample(const uint8* data, uint32 dataSize, uint16 channels,
+	uint16 bitsPerSample, uint32 sampleRate)
+{
+	if (data == NULL || dataSize == 0 || (bitsPerSample != 8 && bitsPerSample != 16))
+		return;
+
+	int slotIndex = -1;
+	for (uint8 i = 0; i < kMaxOneShots; i++) {
+		if (!fOneShots[i].active) {
+			slotIndex = i;
+			break;
+		}
+	}
+	if (slotIndex == -1)
+		slotIndex = 0; // pool full: steal the oldest slot
+
+	OneShotSound& slot = fOneShots[slotIndex];
+
+	const bool needsReopen = slot.device == 0 || slot.channels != channels
+		|| slot.bitsPerSample != bitsPerSample || slot.sampleRate != sampleRate;
+
+	if (needsReopen) {
+		if (slot.device != 0)
+			SDL_CloseAudioDevice((SDL_AudioDeviceID)slot.device);
+
+		SDL_AudioSpec spec;
+		SDL_zero(spec);
+		spec.freq = (int)sampleRate;
+		spec.format = bitsPerSample == 8 ? AUDIO_U8 : AUDIO_S16;
+		spec.channels = (Uint8)channels;
+		spec.samples = 2048;
+		spec.callback = SoundEngine::MixOneShot;
+		spec.userdata = &slot;
+
+		SDL_AudioDeviceID device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+		if (device == 0) {
+			std::cerr << Log::Red << "SoundEngine::PlaySample(): Unable to open audio device: "
+				<< SDL_GetError() << Log::Normal << std::endl;
+			slot.device = 0;
+			return;
+		}
+		slot.device = (uint32)device;
+		slot.channels = channels;
+		slot.bitsPerSample = bitsPerSample;
+		slot.sampleRate = sampleRate;
+	} else {
+		SDL_LockAudioDevice((SDL_AudioDeviceID)slot.device);
+	}
+
+	slot.data.assign(data, data + dataSize);
+	slot.position = 0;
+	slot.active = true;
+
+	if (!needsReopen)
+		SDL_UnlockAudioDevice((SDL_AudioDeviceID)slot.device);
+
+	SDL_PauseAudioDevice((SDL_AudioDeviceID)slot.device, 0);
+}
+
+
+/* static */
+void
+SoundEngine::MixOneShot(void* userData, uint8* stream, int len)
+{
+	OneShotSound* slot = reinterpret_cast<OneShotSound*>(userData);
+	if (!slot->active || slot->position >= slot->data.size()) {
+		slot->active = false;
+		memset(stream, 0, len);
+		return;
+	}
+
+	uint32 remaining = (uint32)slot->data.size() - slot->position;
+	uint32 toCopy = std::min((uint32)len, remaining);
+	memcpy(stream, slot->data.data() + slot->position, toCopy);
+	if ((uint32)len > toCopy)
+		memset(stream + toCopy, 0, len - toCopy);
+
+	slot->position += toCopy;
+	if (slot->position >= slot->data.size())
+		slot->active = false;
 }

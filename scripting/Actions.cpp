@@ -21,6 +21,7 @@
 #include "Script.h"
 #include "SpellEffect.h"
 #include "SPLResource.h"
+#include "STOResource.h"
 #include "Timer.h"
 // TODO: Remove this dependency
 #include "TLKResource.h"
@@ -57,6 +58,39 @@ RunActionSetGlobal(Object* sender, action_params* params, action_state& state)
 	} else {
 		// TODO: Check for AREA variables
 		Core::Get()->Vars().Set(params->string1, params->integer1);
+	}
+	state.completed = true;
+}
+
+
+// PLAYSOUND(S:Sound*) - stateless.
+static void
+RunActionPlaySound(Object* sender, action_params* params, action_state& state)
+{
+	Core::Get()->PlaySound(params->string1);
+	state.completed = true;
+}
+
+
+// STARTSTORE(S:Store*,O:Target*) - stateless. No store GUI exists yet
+// (Fase 9 plan: parsing + this action only, GUI deferred) - resolves and
+// logs the store's real data instead of silently no-op'ing like the
+// previous NULL entry did, so the STOResource parsing path is exercised
+// end-to-end from a real script trigger.
+static void
+RunActionStartStore(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	STOResource* store = gResManager->GetSTO(params->string1);
+	if (store != NULL) {
+		std::cout << "StartStore: " << params->string1 << " opened for "
+			<< (target != NULL ? target->Name() : "(no target)")
+			<< " - type=" << store->Type() << ", " << store->ItemsForSale().size()
+			<< " item(s) for sale" << std::endl;
+		gResManager->ReleaseResource(store);
+	} else {
+		std::cerr << "StartStore: store resource " << params->string1
+			<< " not found" << std::endl;
 	}
 	state.completed = true;
 }
@@ -1624,7 +1658,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 23, "MOVETOPOINT", RunActionWalkTo },
 		{ 24, "PANIC", NULL },
 		{ 25, "PICKPOCKETS", NULL },
-		{ 26, "PLAYSOUND", NULL },
+		{ 26, "PLAYSOUND", RunActionPlaySound },
 		{ 27, "PROTECTPOINT", NULL },
 		{ 28, "REMOVETRAPS", RunActionRemoveTraps },
 		{ 29, "RUNAWAYFROM", RunActionRunAwayFrom },
@@ -1739,7 +1773,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 147, "REMOVESPELL", NULL },
 		{ 148, "BASHDOOR", NULL },
 		{ 149, "EQUIPMOSTDAMAGINGMELEE", NULL },
-		{ 150, "STARTSTORE", NULL },
+		{ 150, "STARTSTORE", RunActionStartStore },
 		{ 151, "DISPLAYSTRING", RunActionDisplayMessage },
 		{ 152, "CHANGEAITYPE", NULL },
 		{ 153, "CHANGEENEMYALLY", NULL },

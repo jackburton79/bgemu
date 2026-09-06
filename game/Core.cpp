@@ -12,7 +12,9 @@
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "SoundEngine.h"
 #include "TextArea.h"
+#include "WAVResource.h"
 #include "Window.h"
 #include "WorldMap.h"
 
@@ -277,7 +279,24 @@ Core::SetCutsceneActor(Object* actor)
 void
 Core::PlaySound(const res_ref& soundRefName)
 {
-	//
+	if (soundRefName.CString()[0] == '\0')
+		return;
+
+	WAVResource* wav = gResManager->GetWAV(soundRefName);
+	if (wav == NULL)
+		return;
+
+	std::vector<uint8> samples;
+	uint16 channels;
+	uint16 bitsPerSample;
+	uint32 sampleRate;
+	if (wav->DecodePCM(samples, channels, bitsPerSample, sampleRate)
+			&& SoundEngine::Get() != NULL) {
+		SoundEngine::Get()->PlaySample(samples.data(), (uint32)samples.size(),
+			channels, bitsPerSample, sampleRate);
+	}
+
+	gResManager->ReleaseResource(wav);
 }
 
 

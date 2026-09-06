@@ -14,6 +14,7 @@
 #include "MveResource.h"
 #include "ResManager.h"
 #include "SPLResource.h"
+#include "STOResource.h"
 #include "TisResource.h"
 #include "VVCResource.h"
 #include "WAVResource.h"
@@ -59,7 +60,7 @@ const static resource_struct kResourceTypes[] = {
 	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", NULL },
 	{ RES_PRO, "PRO", "PRO format (projectile)", NULL },
 	{ RES_SPL, "SPL", "SPL format", &SPLResource::Create },
-	{ RES_STO, "STO", "STORE format", NULL },
+	{ RES_STO, "STO", "STORE format", &STOResource::Create },
 	{ RES_TIS, "TIS", "TIS format", &TISResource::Create },
 	{ RES_VVC, "VVC", "VVC Effect", &VVCResource::Create },
 	{ RES_WAV, "WAV", "WAV format", &WAVResource::Create },
