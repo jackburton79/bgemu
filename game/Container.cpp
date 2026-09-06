@@ -65,3 +65,24 @@ Container::SetEnabled(bool enabled)
 	else
 		fContainer->flags |= kContainerDisabled;
 }
+
+
+uint32
+Container::ItemCount() const
+{
+	return fItems.size();
+}
+
+
+const IE::item&
+Container::ItemAt(uint32 index) const
+{
+	return fItems.at(index);
+}
+
+
+void
+Container::AddContainerItem(const IE::item& item)
+{
+	fItems.push_back(item);
+}

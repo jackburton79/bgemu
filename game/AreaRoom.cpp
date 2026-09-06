@@ -636,6 +636,13 @@ AreaRoom::Doors() const
 }
 
 
+const std::vector<Container*>&
+AreaRoom::Containers() const
+{
+	return fContainers;
+}
+
+
 uint8
 AreaRoom::PointHeight(const IE::point& point) const
 {

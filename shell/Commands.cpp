@@ -9,6 +9,7 @@
 #include "Commands.h"
 
 #include "AreaRoom.h"
+#include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Dialog.h"
@@ -45,6 +46,22 @@ public:
 			std::cout << " (" << std::dec << actor->CRE()->GlobalActorEnum() << ")";
 			std::cout << std::endl;
 		}
+	}
+};
+
+
+// ListContainersCommand - dumps container names in the current area
+// (List-Objects above only covers actors) so container-click tests can
+// find a real target name without guessing.
+class ListContainersCommand : public ShellCommand {
+public:
+	ListContainersCommand()
+		: ShellCommand("List-Containers")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		for (Container* container : ((AreaRoom*)Core::Get()->CurrentRoom())->Containers())
+			std::cout << container->Name() << std::endl;
 	}
 };
 
@@ -208,6 +225,11 @@ public:
 };
 
 
+// ClickObjectCommand - headless equivalent of clicking a world object
+// with the mouse (see AreaRoom::MouseDown(), which resolves the object
+// under the cursor and calls this same Object::ClickedOn() on the
+// clicking actor) - lets exec-file tests exercise click-driven behavior
+// (attack/dialog/door-open routing) without a real screen click.
 class MoveViewPointCommand : public ShellCommand {
 public:
 	MoveViewPointCommand()
@@ -429,6 +451,40 @@ FindActor(const std::string& name)
 		std::cout << "actor \"" << name << "\" not found." << std::endl;
 	return actor;
 }
+
+
+// ClickObjectCommand - headless equivalent of clicking a world object
+// with the mouse (see AreaRoom::MouseDown(), which resolves the object
+// under the cursor and calls this same Object::ClickedOn() on the
+// clicking actor) - lets exec-file tests exercise click-driven behavior
+// (attack/dialog/door-open routing) without a real screen click.
+class ClickObjectCommand : public ShellCommand {
+public:
+	ClickObjectCommand()
+		: ShellCommand(
+			"Click-Object",
+			{
+				{ PARAMETER_STRING, }, // clicking actor
+				{ PARAMETER_STRING, }  // target object name
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		Actor* actor = FindActor(params.at(0).value.string);
+		if (actor == NULL)
+			return;
+
+		std::string targetName = params.at(1).value.string;
+		Object* target = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(targetName.c_str());
+		if (target == NULL) {
+			std::cout << "Click-Object: target \"" << targetName << "\" not found." << std::endl;
+			return;
+		}
+		actor->ClickedOn(target);
+	}
+};
 
 
 class GiveItemCommand : public ShellCommand {
@@ -767,6 +823,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new DisableCreatureCommand());
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
+	console->AddCommand(new ListContainersCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());
@@ -779,6 +836,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());
+	console->AddCommand(new ClickObjectCommand());
 	console->AddCommand(new DisplayStringCommand());
 
 	console->AddCommand(new GiveItemCommand());

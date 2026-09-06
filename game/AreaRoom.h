@@ -81,6 +81,7 @@ public:
 	int Distance(const Object* a, const Object* b) const;
 
 	const std::vector<Door*>& Doors() const;
+	const std::vector<Container*>& Containers() const;
 
 	uint8 PointHeight(const IE::point& point) const;
 	uint8 PointLight(const IE::point& point) const;

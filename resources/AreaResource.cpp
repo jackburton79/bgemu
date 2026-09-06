@@ -235,6 +235,20 @@ ARAResource::GetContainerAt(uint16 index)
 		fData->Read(vertex);
 		polygon.AddPoint(vertex.x, vertex.y);
 	}
+
+	// The container's items live in the area's own shared item list
+	// (0x0078 "Offset to items" - same list containers/piles/etc. all
+	// slice into by index), not inside the container structure itself -
+	// same "index into a shared table" shape as CRE's Items table.
+	uint32 itemsOffset;
+	fData->ReadAt(0x0078, itemsOffset);
+	fData->Seek(itemsOffset + fContainers[index].item_first_index * sizeof(IE::item), SEEK_SET);
+	for (uint32 i = 0; i < fContainers[index].item_count; i++) {
+		IE::item item;
+		fData->Read(item);
+		container->AddContainerItem(item);
+	}
+
 	return container;
 }
 

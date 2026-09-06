@@ -7,6 +7,7 @@
 #include "BackMap.h"
 #include "BamResource.h"
 #include "Bitmap.h"
+#include "Container.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
@@ -1278,16 +1279,43 @@ Actor::ClickedOn(Object* target)
 		openParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		if (actor->IsState(STATE_DEAD))
-			return; // can't start a conversation with a corpse
+			return; // can't start a conversation with (or attack) a corpse
 
-		action_params* actionParams = new action_params(actor->Name(), Name());
-		actionParams->id = 8; // DIALOG
-		AddAction(actionParams);
-		actionParams->Release();
-	} /* else if (Container* container = dynamic_cast<Container*>(target)) {
-		Action* walkTo = new WalkToObject(this, container);
-		AddAction(walkTo);
-	}*/
+		// Same EnemyAlly()-vs-EVILCUTOFF check AreaRoom::_ObjectAtPoint()
+		// already uses to pick the hover cursor (CURSOR_TALK/
+		// CURSOR_ATTACK) - it just wasn't wired into the actual click
+		// yet, so clicking a hostile creature always tried to start a
+		// dialog with it instead of attacking.
+		if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")) {
+			action_params* actionParams = new action_params(actor->Name(), Name());
+			actionParams->id = 8; // DIALOG
+			AddAction(actionParams);
+			actionParams->Release();
+		} else {
+			// Self first, target second - same direction the Door
+			// branch above uses (RunActionAttack() reads the target via
+			// Script::GetTargetObject(), which expects it there), unlike
+			// DIALOG's reversed construction above.
+			action_params* actionParams = new action_params(Name(), actor->Name());
+			actionParams->id = 3; // ATTACK
+			AddAction(actionParams);
+			actionParams->Release();
+		}
+	} else if (Container* container = dynamic_cast<Container*>(target)) {
+		// Same two-action MOVETOOBJECT+"do the thing" queue as the Door
+		// branch above (USECONTAINER logs the contents once reached -
+		// see RunActionUseContainer()'s header comment - no loot GUI
+		// exists yet to actually take anything).
+		action_params* walkParams = new action_params(Name(), container->Name());
+		walkParams->id = 22; // MOVETOOBJECT
+		AddAction(walkParams);
+		walkParams->Release();
+
+		action_params* useParams = new action_params(Name(), container->Name());
+		useParams->id = 112; // USECONTAINER
+		AddAction(useParams);
+		useParams->Release();
+	}
 }
 
 

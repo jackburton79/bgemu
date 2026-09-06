@@ -3058,6 +3058,31 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 }
 
 
+// UseContainer() - stateless. Per IESDP "used by the engine internally"
+// (queued when the player clicks a container - see Actor::ClickedOn(),
+// which now does exactly that, after a MOVETOOBJECT to reach it first).
+// Logs the container's contents (Container::ItemCount()/ItemAt(), read
+// from the area's shared item list - see ARAResource::GetContainerAt())
+// rather than moving them into the party's inventory - no loot GUI
+// exists yet (see the Fase 6 plan notes), and the user explicitly chose
+// "walk there + log" over auto-loot for this pass.
+static void
+RunActionUseContainer(Object* sender, action_params* params, action_state& state)
+{
+	Container* container = dynamic_cast<Container*>(Script::GetTargetObject(sender, params));
+	if (container != NULL) {
+		std::cout << container->Name() << " contains:" << std::endl;
+		if (container->ItemCount() == 0)
+			std::cout << "  (empty)" << std::endl;
+		for (uint32 i = 0; i < container->ItemCount(); i++) {
+			const IE::item& item = container->ItemAt(i);
+			std::cout << "  " << item.name.CString() << " x" << item.quantity1 << std::endl;
+		}
+	}
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -3160,7 +3185,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 109, "INCREMENTGLOBAL", RunActionIncrementGlobal },
 		{ 110, "LEAVEAREALUA", RunActionChangeArea },
 		{ 111, "DESTROYSELF", RunActionDestroySelf },
-		{ 112, "USECONTAINER", NULL },
+		{ 112, "USECONTAINER", RunActionUseContainer },
 		{ 113, "FORCESPELL", RunActionForceSpell },
 		{ 114, "FORCESPELLPOINT", RunActionForceSpellPoint },
 		{ 115, "SETGLOBALTIMER", RunActionSetGlobalTimer },
