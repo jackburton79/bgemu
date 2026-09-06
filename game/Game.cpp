@@ -506,6 +506,20 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 
 	fDialog = new DialogHandler(actor, target, dialogFile);
+	if (fDialog->Resource() == NULL) {
+		// dialogFile doesn't resolve to a real DLG resource (a typo'd/
+		// missing resref, whether from the CRE's own default dialog
+		// file or one just set by SETDIALOGUE/STARTDIALOGUE) - bail out
+		// the same way the empty-dialog-file case above does, instead
+		// of letting DialogHandler::Continue() dereference a NULL
+		// resource (found the hard way: SEGV in DLGResource::GetStateAt()).
+		std::cerr << "InitiateDialog: dialog file \"" << dialogFile
+			<< "\" not found" << std::endl;
+		delete fDialog;
+		fDialog = NULL;
+		return;
+	}
+
 	if (!fDialog->Continue())
 		TerminateDialog();
 }

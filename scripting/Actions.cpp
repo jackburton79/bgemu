@@ -41,6 +41,21 @@ PointSufficientlyClose(const IE::point& pointA, const IE::point& pointB)
 }
 
 
+// A point representing where 'object' is - Actor::Position() for actors,
+// else the top-left of its Frame() (matching Object's generic surface,
+// e.g. a Door/Container - there's no single "position" for those, but
+// their frame's corner is a reasonable stand-in for "create a creature
+// next to this").
+static IE::point
+_ObjectPosition(Object* object)
+{
+	Actor* actor = dynamic_cast<Actor*>(object);
+	if (actor != NULL)
+		return actor->Position();
+	return object->Frame().LeftTop();
+}
+
+
 // ---- Native action implementations (proof of concept: one stateless, one
 // with simple state, one with more involved state + resource access) ----
 
@@ -402,6 +417,27 @@ RunActionAddXPObject(Object* sender, action_params* params, action_state& state)
 }
 
 
+// Actor::Actor() throws if the given resref doesn't resolve to a real
+// CRE resource (a typo'd/missing resref in a script, or a bad test) -
+// every CreateCreature* action below goes through this instead of
+// calling `new Actor()` directly, so a bad resref just fails that one
+// action (logged) instead of taking the whole process down with it (the
+// exception would otherwise propagate uncaught out of
+// Object::_ExecuteAction()/Game::Loop() - found the hard way while
+// testing this batch).
+static Actor*
+_CreateActor(const char* creResRef, const IE::point& point, int face)
+{
+	try {
+		return new Actor(creResRef, point, face);
+	} catch (std::exception& e) {
+		std::cerr << "CreateCreature: failed to create \"" << creResRef
+			<< "\": " << e.what() << std::endl;
+		return NULL;
+	}
+}
+
+
 // CREATECREATURE(S:NewObject*,P:Location*,I:Face*) - stateless.
 // TODO: If point is (-1, -1) we should put the actor near the active
 // creature. Which one is the active creature?
@@ -417,8 +453,9 @@ RunActionCreateCreature(Object* sender, action_params* params, action_state& sta
 			point.y += Core::RandomNumber(-20, 20);
 		}
 	}
-	Actor* actor = new Actor(params->string1, point, params->integer1);
-	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+	Actor* actor = _CreateActor(params->string1, point, params->integer1);
+	if (actor != NULL)
+		((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
 	state.completed = true;
 }
 
@@ -427,10 +464,51 @@ RunActionCreateCreature(Object* sender, action_params* params, action_state& sta
 static void
 RunActionCreateCreatureImpassable(Object* sender, action_params* params, action_state& state)
 {
-	Actor* actor = new Actor(params->string1, params->where, params->integer1);
-	std::cout << "Created actor (IMPASSABLE) " << params->string1 << " on ";
-	std::cout << params->where.x << ", " << params->where.y << std::endl;
-	((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+	Actor* actor = _CreateActor(params->string1, params->where, params->integer1);
+	if (actor != NULL) {
+		std::cout << "Created actor (IMPASSABLE) " << params->string1 << " on ";
+		std::cout << params->where.x << ", " << params->where.y << std::endl;
+		((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+	}
+	state.completed = true;
+}
+
+
+// Shared by CreateCreatureObjectEffect/CreateCreatureObjectDoor/
+// CreateCreatureObjectOffScreen/CreateCreatureObjectCopyEffect
+// (227/232/233/250) - IESDP: all four create a creature next to a
+// target object, facing controlled by Usage1/integer1. None of their
+// extra nuances are modeled: the dimension-door delay+graphic (232/233),
+// off-screen placement (233), the S:Effect* resource (227/250), or
+// copying the active creature's animation (250) - same "create it, skip
+// the cosmetic/timing details" simplification CREATECREATUREIMPASSABLE
+// above already uses for its own overlap-ignoring placement.
+static void
+RunActionCreateCreatureNearObject(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL) {
+		Actor* actor = _CreateActor(params->string1, _ObjectPosition(target), params->integer1);
+		if (actor != NULL)
+			((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+	}
+	state.completed = true;
+}
+
+
+// CreateCreatureObjectOffset(S:ResRef*,O:Object*,P:Offset*) - stateless.
+static void
+RunActionCreateCreatureObjectOffset(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL) {
+		IE::point point = _ObjectPosition(target);
+		point.x += params->where.x;
+		point.y += params->where.y;
+		Actor* actor = _CreateActor(params->string1, point, 0);
+		if (actor != NULL)
+			((AreaRoom*)Core::Get()->CurrentRoom())->AddObject(actor);
+	}
 	state.completed = true;
 }
 
@@ -902,6 +980,32 @@ RunActionWalkTo(Object* sender, action_params* params, action_state& state)
 
 	bool canInterrupt = params->id != 207; // 207 = MOVETOPOINTNOINTERRUPT
 	actor->SetInterruptable(canInterrupt);
+
+	if (!actor->MoveToNextPointInPath(false))
+		state.completed = true;
+}
+
+
+// MoveToOffset(P:Offset*) - state: like MOVETOPOINT above, but the
+// destination is computed once (state.initiated), relative to the
+// active creature's position when the action starts, rather than being
+// an absolute point.
+static void
+RunActionMoveToOffset(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		IE::point destination = actor->Position();
+		destination.x += params->where.x;
+		destination.y += params->where.y;
+		actor->SetDestination(destination);
+		state.initiated = true;
+	}
 
 	if (!actor->MoveToNextPointInPath(false))
 		state.completed = true;
@@ -1998,6 +2102,18 @@ RunActionSG(Object* sender, action_params* params, action_state& state)
 }
 
 
+// AddGlobals(S:Name*,S:Name2*) - stateless. Per IESDP "only works for
+// variables in the GLOBAL scope" - same direct Vars() access as SG()
+// above, no LOCALS scope-string parsing.
+static void
+RunActionAddGlobals(Object* sender, action_params* params, action_state& state)
+{
+	Variables& vars = Core::Get()->Vars();
+	vars.Set(params->string1, vars.Get(params->string1) + vars.Get(params->string2));
+	state.completed = true;
+}
+
+
 // SetNumTimesTalkedTo(I:Num*) - stateless.
 static void
 RunActionSetNumTimesTalkedTo(Object* sender, action_params* params, action_state& state)
@@ -2129,20 +2245,98 @@ RunActionTakePartyItemNum(Object* sender, action_params* params, action_state& s
 }
 
 
-// StartDialogue(S:DialogFile*,O:Target*) - stateless. Per IESDP this also
-// permanently sets the active creature's dialog file to the one given -
-// modeled here via the new CREResource::SetDialogFile() setter. No-op if
-// a dialog is already active (Game::InitiateDialog() asserts on that).
+// Shared by StartDialogue/StartDialogOverride and their "Interrupt"
+// siblings (137/293/266/294) - IESDP describes the Interrupt variants as
+// identical except they're "important enough to interrupt [an]other
+// dialog[] already in action", so instead of the plain variants' no-op
+// guard (Game::InitiateDialog() asserts a dialog isn't already active),
+// they end the current one first via TerminateDialog(). string1 empty
+// (no S:DialogFile* param at all, as for PlayerDialogue/
+// StartDialogNoSetInterrupt below) means "don't override the active
+// creature's existing dialog file" - same as StartDialogue's own
+// no-string1-given case.
 static void
-RunActionStartDialogue(Object* sender, action_params* params, action_state& state)
+_StartDialogue(Object* sender, action_params* params, bool forceInterrupt)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
-	if (actor != NULL && target != NULL && !Game::Get()->InDialogMode()) {
-		if (params->string1[0] != '\0')
-			actor->CRE()->SetDialogFile(params->string1);
-		Game::Get()->InitiateDialog(actor, target);
+	if (actor == NULL || target == NULL)
+		return;
+
+	if (Game::Get()->InDialogMode()) {
+		if (!forceInterrupt)
+			return;
+		Game::Get()->TerminateDialog();
 	}
+
+	if (params->string1[0] != '\0')
+		actor->CRE()->SetDialogFile(params->string1);
+	Game::Get()->InitiateDialog(actor, target);
+}
+
+
+// StartDialogue(S:DialogFile*,O:Target*) / PlayerDialogue(O:Target*) /
+// StartDialogOverride(S:DialogFile*,O:Target*) - same run function for
+// all three (PLAYERDIALOGUE has no S:DialogFile* param, so string1 is
+// naturally empty - "don't override"; STARTDIALOGOVERRIDE's IESDP text
+// is otherwise identical to STARTDIALOGUE's, its "override"/"converse as
+// item" nuance isn't modeled).
+static void
+RunActionStartDialogue(Object* sender, action_params* params, action_state& state)
+{
+	_StartDialogue(sender, params, false);
+	state.completed = true;
+}
+
+
+// StartDialogueInterrupt/StartDialogNoSetInterrupt/
+// StartDialogOverrideInterrupt - same run function for all three, same
+// no-S:DialogFile*-param reasoning as RunActionStartDialogue above for
+// StartDialogNoSetInterrupt.
+static void
+RunActionStartDialogueInterrupt(Object* sender, action_params* params, action_state& state)
+{
+	_StartDialogue(sender, params, true);
+	state.completed = true;
+}
+
+
+// DialogForceInterrupt(O:Object*) - stateless. Same as DIALOG(8) above,
+// but forcibly ends any dialog already in progress first instead of
+// relying on the caller not to queue this while one is active (unlike
+// DIALOG(8), which has no such guard - Game::InitiateDialog() would
+// assert).
+static void
+RunActionDialogForceInterrupt(Object* sender, action_params* params, action_state& state)
+{
+	Actor* speaker = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (speaker == NULL || target == NULL
+			|| speaker->IsState(STATE_DEAD) || target->IsState(STATE_DEAD)) {
+		state.completed = true;
+		return;
+	}
+
+	if (Game::Get()->InDialogMode())
+		Game::Get()->TerminateDialog();
+	Game::Get()->InitiateDialog(speaker, target);
+	state.completed = true;
+}
+
+
+// SetDialogue(S:DialogFile*) - stateless. Only sets the active
+// creature's dialog file (CREResource::SetDialogFile(), same setter
+// StartDialogue uses) - unlike StartDialogue, doesn't start a dialog.
+// Per IESDP, SetDialogue("") clears it - an empty params->string1
+// already does that (CREResource::SetDialogFile() just writes whatever
+// it's given, no "empty means don't touch" special-casing like
+// StartDialogue's string1 check above).
+static void
+RunActionSetDialogue(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->CRE()->SetDialogFile(params->string1);
 	state.completed = true;
 }
 
@@ -2258,7 +2452,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 104, "MORALEDEC", RunActionMoraleDec },
 		{ 105, "ATTACKONEROUND", NULL },
 		{ 106, "SHOUT", RunActionShout },
-		{ 107, "MOVETOOFFSET", NULL },
+		{ 107, "MOVETOOFFSET", RunActionMoveToOffset },
 		{ 108, "ESCAPEAREA", RunActionEscapeArea },
 		{ 108, "ESCAPEAREAMOVE", RunActionEscapeArea },
 		{ 109, "INCREMENTGLOBAL", RunActionIncrementGlobal },
@@ -2290,8 +2484,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 135, "LOCKSCROLL", NULL },
 		{ 136, "UNLOCKSCROLL", NULL },
 		{ 137, "STARTDIALOGUE", RunActionStartDialogue },
-		{ 138, "SETDIALOGUE", NULL },
-		{ 139, "PLAYERDIALOGUE", NULL },
+		{ 138, "SETDIALOGUE", RunActionSetDialogue },
+		{ 139, "PLAYERDIALOGUE", RunActionStartDialogue },
 		{ 140, "GIVEITEMCREATE", RunActionGiveItemCreate },
 		{ 141, "GIVEPARTYGOLDGLOBAL", NULL },
 		{ 142, "USEDOOR", NULL },
@@ -2377,35 +2571,35 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 224, "GIVEPARTYALLEQUIPMENT", RunActionGivePartyAllEquipment },
 		{ 225, "MOVEBETWEENAREASEFFECT", RunActionMoveBetweenAreasEffect },
 		{ 226, "TAKEITEMLISTPARTYNUM", NULL },
-		{ 227, "CREATECREATUREOBJECTEFFECT", NULL },
+		{ 227, "CREATECREATUREOBJECTEFFECT", RunActionCreateCreatureNearObject },
 		{ 228, "CREATECREATUREIMPASSABLE", RunActionCreateCreatureImpassable },
 		{ 229, "FACEOBJECT", RunActionFaceObject },
 		{ 230, "RESTPARTY", RunActionRestParty },
-		{ 231, "CREATECREATUREDOOR", NULL },
-		{ 232, "CREATECREATUREOBJECTDOOR", NULL },
-		{ 233, "CREATECREATUREOBJECTOFFSCREEN", NULL },
+		{ 231, "CREATECREATUREDOOR", RunActionCreateCreature },
+		{ 232, "CREATECREATUREOBJECTDOOR", RunActionCreateCreatureNearObject },
+		{ 233, "CREATECREATUREOBJECTOFFSCREEN", RunActionCreateCreatureNearObject },
 		{ 234, "MOVEGLOBALOBJECTOFFSCREEN", NULL },
 		{ 235, "SETQUESTDONE", NULL },
 		{ 236, "STOREPARTYLOCATIONS", NULL },
 		{ 237, "RESTOREPARTYLOCATIONS", NULL },
-		{ 238, "CREATECREATUREOFFSCREEN", NULL },
+		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },
 		{ 239, "MOVETOCENTEROFSCREEN", NULL },
 		{ 240, "REALLYFORCESPELLDEAD", NULL },
 		{ 241, "CALM", NULL },
 		{ 242, "ALLY", NULL },
-		{ 243, "RESTNOSPELLS", NULL },
+		{ 243, "RESTNOSPELLS", RunActionRestParty },
 		{ 244, "SAVELOCATION", NULL },
 		{ 245, "SAVEOBJECTLOCATION", NULL },
 		{ 246, "CREATECREATUREATLOCATION", NULL },
 		{ 247, "SETTOKEN", NULL },
 		{ 248, "SETTOKENOBJECT", NULL },
 		{ 249, "SETGABBER", NULL },
-		{ 250, "CREATECREATUREOBJECTCOPYEFFECT", NULL },
+		{ 250, "CREATECREATUREOBJECTCOPYEFFECT", RunActionCreateCreatureNearObject },
 		{ 251, "HIDEAREAONMAP", NULL },
-		{ 252, "CREATECREATUREOBJECTOFFSET", NULL },
+		{ 252, "CREATECREATUREOBJECTOFFSET", RunActionCreateCreatureObjectOffset },
 		{ 253, "CONTAINERENABLE", NULL },
 		{ 254, "SCREENSHAKE", RunActionScreenShake },
-		{ 255, "ADDGLOBALS", NULL },
+		{ 255, "ADDGLOBALS", RunActionAddGlobals },
 		{ 256, "CREATEITEMGLOBAL", NULL },
 		{ 257, "PICKUPITEM", NULL },
 		{ 258, "FILLSLOT", NULL },
@@ -2415,9 +2609,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 262, "DISPLAYSTRINGNONAME", RunActionDisplayMessage },
 		{ 263, "ERASEJOURNALENTRY", NULL },
 		{ 264, "COPYGROUNDPILESTO", NULL },
-		{ 265, "DIALOGFORCEINTERRUPT", NULL },
-		{ 266, "STARTDIALOGUEINTERRUPT", NULL },
-		{ 267, "STARTDIALOGNOSETINTERRUPT", NULL },
+		{ 265, "DIALOGFORCEINTERRUPT", RunActionDialogForceInterrupt },
+		{ 266, "STARTDIALOGUEINTERRUPT", RunActionStartDialogueInterrupt },
+		{ 267, "STARTDIALOGNOSETINTERRUPT", RunActionStartDialogueInterrupt },
 		{ 268, "REALSETGLOBALTIMER", NULL },
 		{ 269, "DISPLAYSTRINGHEAD", RunActionDisplayStringHead },
 		{ 270, "POLYMORPHCOPY", NULL },
@@ -2443,9 +2637,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 290, "PLAYDEADINTERRUPTIBLE", NULL },
 		{ 291, "MOVEGLOBALOBJECT", NULL },
 		{ 292, "DISPLAYSTRINGHEADOWNER", NULL },
-		{ 293, "STARTDIALOGOVERRIDE", NULL },
-		{ 294, "STARTDIALOGOVERRIDEINTERRUPT", NULL },
-		{ 295, "CREATECREATURECOPYPOINT", NULL },
+		{ 293, "STARTDIALOGOVERRIDE", RunActionStartDialogue },
+		{ 294, "STARTDIALOGOVERRIDEINTERRUPT", RunActionStartDialogueInterrupt },
+		{ 295, "CREATECREATURECOPYPOINT", RunActionCreateCreature },
 		{ 296, "BATTLESONG", NULL },
 		{ 297, "MOVETOSAVEDLOCATIONN", NULL },
 		{ 298, "APPLYDAMAGE", RunActionApplyDamage },
@@ -2473,7 +2667,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 320, "SETPLAYERSOUND", NULL },
 		{ 321, "SETAREARESTFLAG", NULL },
 		{ 322, "FAKEEFFECTEXPIRYCHECK", NULL },
-		{ 323, "CREATECREATUREIMPASSABLEALLOWOVERLAP", NULL },
+		{ 323, "CREATECREATUREIMPASSABLEALLOWOVERLAP", RunActionCreateCreatureImpassable },
 		{ 324, "SETBEENINPARTYFLAGS", NULL },
 };
 
