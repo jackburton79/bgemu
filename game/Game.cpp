@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <cctype>
 #include <fstream>
 #include <stdio.h>
 
@@ -580,6 +581,56 @@ Game::_UpdateRecordLabels()
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(268435496));
 	if (acLabel != NULL)
 		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+
+	// Class/Race/Level 3-line block (ids 471/472/473, y=322/345/368,
+	// confirmed via a real GUIREC.CHU dump). The CHU's own static default
+	// for the race line ("Umano"/Human) looked plausible at first for a
+	// human test character, but showing a second, non-human party member
+	// (Imoen, a half-elf) still showed "Umano" unchanged - proving it's
+	// just this control's authored default, not real data, and needs to
+	// be set from code like everything else here.
+	// IDTable::RaceAt()/ClassAt() return the raw RACE.IDS/CLASS.IDS
+	// token (e.g. "HALF_ELF", "FIGHTER_CLERIC") - there's no RACE.2DA in
+	// this installation to resolve a localized display string from, so
+	// _TitleCaseIDSName() below just turns "HALF_ELF" into "Half Elf"
+	// (underscores to spaces, title case) rather than show the raw
+	// all-caps token. Not localized to Italian like the rest of this
+	// screen - declared simplification, same spirit as other "real data,
+	// imperfect presentation" deviations already on the roadmap.
+	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(268435471));
+	if (classLabel != NULL)
+		classLabel->SetText(_TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class())));
+
+	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(268435472));
+	if (raceLabel != NULL)
+		raceLabel->SetText(_TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race())));
+
+	Label* levelLabel = dynamic_cast<Label*>(window->GetControlByID(268435473));
+	if (levelLabel != NULL)
+		levelLabel->SetText("Livello " + std::to_string(actor->CRE()->Level()));
+}
+
+
+// "HALF_ELF" -> "Half Elf" - turns a raw *.IDS symbolic name (all caps,
+// underscore-separated) into something readable, absent a 2DA to look up
+// a real localized display string for it.
+std::string
+Game::_TitleCaseIDSName(const std::string& idsName)
+{
+	std::string result = idsName;
+	bool startOfWord = true;
+	for (char& c : result) {
+		if (c == '_') {
+			c = ' ';
+			startOfWord = true;
+		} else if (startOfWord) {
+			c = toupper(c);
+			startOfWord = false;
+		} else {
+			c = tolower(c);
+		}
+	}
+	return result;
 }
 
 

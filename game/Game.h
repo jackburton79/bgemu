@@ -133,6 +133,7 @@ private:
 		uint32 controlID, uint32 creSlot);
 	void _UpdateInventoryLabels(class Window* window, Actor* actor);
 	void _UpdateRecordLabels();
+	std::string _TitleCaseIDSName(const std::string& idsName);
 };
 
 #endif /* GAME_H_ */
