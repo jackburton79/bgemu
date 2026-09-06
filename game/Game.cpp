@@ -140,7 +140,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		} catch (...) {
 			throw std::runtime_error("Error creating player!");
 		}
-		if (noNewGame)
+		if (!fStartingArea.empty())
+			Core::Get()->LoadArea(fStartingArea.c_str(), "", "");
+		else if (noNewGame)
 			Core::Get()->LoadWorldMap();
 		else
 			LoadStartingArea();
@@ -345,6 +347,13 @@ void
 Game::SetExecFile(const char* path)
 {
 	fExecFile = path != NULL ? path : "";
+}
+
+
+void
+Game::SetStartingArea(const char* areaName)
+{
+	fStartingArea = areaName != NULL ? areaName : "";
 }
 
 

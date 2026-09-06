@@ -23,6 +23,7 @@ static const char *sPath;
 static const char *sResourceName = NULL;
 static const char *sPartyMembers = NULL;
 static const char *sExecFile = NULL;
+static const char *sStartingArea = NULL;
 
 static
 struct option sLongOptions[] = {
@@ -44,6 +45,11 @@ struct option sLongOptions[] = {
 		// the starting area/worldmap loads, then the game quits. See
 		// Game::SetExecFile()/Game::_RunExecFile().
 		{ "exec-file", required_argument, NULL, 'x' },
+		// Area resref to load directly on startup, skipping both the
+		// opening cutscene (LoadStartingArea()) and --no-newgame's
+		// worldmap - e.g. "-a AR0602". Takes priority over --no-newgame
+		// if both are given. See Game::SetStartingArea().
+		{ "area", required_argument, NULL, 'a' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -62,7 +68,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -73,6 +79,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'x':
 				sExecFile = optarg;
+				break;
+			case 'a':
+				sStartingArea = optarg;
 				break;
 			case 'd':
 				sResourceName = optarg;
@@ -159,6 +168,9 @@ main(int argc, char **argv)
 
 	if (sExecFile != NULL)
 		Game::Get()->SetExecFile(sExecFile);
+
+	if (sStartingArea != NULL)
+		Game::Get()->SetStartingArea(sStartingArea);
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();

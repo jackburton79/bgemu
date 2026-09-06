@@ -65,6 +65,15 @@ public:
 	// Leaving this unset (NULL/empty) runs the game normally.
 	void SetExecFile(const char* path);
 
+	// Overrides the normal startup flow (opening cutscene via
+	// LoadStartingArea(), or the worldmap with --no-newgame) to load this
+	// area resref directly instead - set from the command line (see
+	// bgemu.cpp's --area option). Takes priority over --no-newgame; both
+	// skip the party-placement/STARTPOS logic LoadStartingArea() does, so
+	// the party spawns wherever the area's own (entranceless) default
+	// position is. Leaving this empty keeps the normal startup flow.
+	void SetStartingArea(const char* areaName);
+
 
 private:
 	Game();
@@ -80,6 +89,7 @@ private:
 
 	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
+	std::string fStartingArea;
 
 	void _RunExecFile(GameConsole* console);
 };
