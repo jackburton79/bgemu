@@ -22,6 +22,7 @@
 #include "GUI.h"
 #include "ITMResource.h"
 #include "Label.h"
+#include "TextArea.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
@@ -608,6 +609,43 @@ Game::_UpdateRecordLabels()
 	Label* levelLabel = dynamic_cast<Label*>(window->GetControlByID(268435473));
 	if (levelLabel != NULL)
 		levelLabel->SetText("Livello " + std::to_string(actor->CRE()->Level()));
+
+	// Saving throws + damage resistances (id 45, a scrollable text_area
+	// with its own scrollbar at id 46, confirmed via a real GUIREC.CHU
+	// dump) - real BG2 lists these as plain scrollable text rather than
+	// individual labels, unlike the rest of this tab. Both structs
+	// (SaveVersus/Resistances) were already fully read by CREResource,
+	// just never displayed anywhere until now.
+	TextArea* statsArea = dynamic_cast<TextArea*>(window->GetControlByID(45));
+	if (statsArea != NULL) {
+		statsArea->ClearText();
+		SaveVersus saves = actor->CRE()->Saves();
+		statsArea->AddText("Tiri Salvezza");
+		statsArea->AddText(("Morte: " + std::to_string(saves.death)).c_str());
+		statsArea->AddText(("Bacchette: " + std::to_string(saves.wands)).c_str());
+		statsArea->AddText(("Polimorfismo: " + std::to_string(saves.poly)).c_str());
+		statsArea->AddText(("Soffio: " + std::to_string(saves.breath)).c_str());
+		statsArea->AddText(("Incantesimi: " + std::to_string(saves.spell)).c_str());
+
+		Resistances res = actor->CRE()->DamageResistances();
+		statsArea->AddText("Resistenze");
+		statsArea->AddText(("Contundente: " + std::to_string(res.crushing) + "%").c_str());
+		statsArea->AddText(("Perforante: " + std::to_string(res.piercing) + "%").c_str());
+		statsArea->AddText(("Tagliente: " + std::to_string(res.slashing) + "%").c_str());
+		statsArea->AddText(("Missili: " + std::to_string(res.missile) + "%").c_str());
+		statsArea->AddText(("Fuoco: " + std::to_string(res.fire) + "%").c_str());
+		statsArea->AddText(("Freddo: " + std::to_string(res.cold) + "%").c_str());
+		statsArea->AddText(("Elettricita: " + std::to_string(res.electricity) + "%").c_str());
+		statsArea->AddText(("Acido: " + std::to_string(res.acid) + "%").c_str());
+		statsArea->AddText(("Magia: " + std::to_string(res.magic) + "%").c_str());
+		statsArea->AddText(("Fuoco magico: " + std::to_string(res.magic_fire) + "%").c_str());
+		statsArea->AddText(("Freddo magico: " + std::to_string(res.magic_cold) + "%").c_str());
+		// AddText() auto-scrolls to the newest line (fine for the
+		// dialogue TextArea it was written for) - scroll back to the
+		// top so Saving Throws, not the tail of Resistances, is what's
+		// visible when the tab first opens.
+		statsArea->ScrollTo(0, 0);
+	}
 }
 
 
