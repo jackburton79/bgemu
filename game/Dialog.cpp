@@ -64,13 +64,16 @@ DialogHandler::ShowPlayerOptions()
 
 		fVisibleTransitions.push_back(index);
 
+		std::string playerText = IDTable::GetDialog(transition.text_player);
+
 		std::ostringstream s;
-		s << optionNumber << "-";
+		s << optionNumber << "-" << playerText;
+		textArea->AddDialogText(s.str().c_str(), optionNumber);
 
-		std::string fullString = s.str();
-		fullString += IDTable::GetDialog(transition.text_player);
-
-		textArea->AddDialogText(fullString.c_str(), optionNumber);
+		// Mirrored to stdout (0-based, matching what Select-DialogOption
+		// expects - see shell/Commands.cpp) so headless/-x test runs can
+		// see and drive the dialog without a GUI/mouse.
+		std::cout << "Response " << (optionNumber - 1) << ": " << playerText << std::endl;
 
 		optionNumber++;
 	}
@@ -159,6 +162,10 @@ DialogHandler::_ShowTriggerText(const dlg_state& state)
 	fullText.append(Actor()->LongName()).append(": ");
 	fullText.append(IDTable::GetDialog(state.text_ref));
 	textArea->AddText(fullText.c_str());
+
+	// Mirrored to stdout for the same headless-testing reason as
+	// ShowPlayerOptions() above.
+	std::cout << fullText << std::endl;
 }
 
 

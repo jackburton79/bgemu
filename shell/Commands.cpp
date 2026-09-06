@@ -11,6 +11,7 @@
 #include "AreaRoom.h"
 #include "Core.h"
 #include "CreResource.h"
+#include "Dialog.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
@@ -663,6 +664,49 @@ public:
 };
 
 
+// SelectDialogOptionCommand - headless equivalent of clicking a line in
+// the dialog TextArea (see TextArea::MouseDown()'s logic, mirrored here
+// exactly): pass a 0-based player-response index while the dialog is
+// waiting for one (see the "Response N:" lines DialogHandler now prints
+// to stdout - see Dialog.cpp), or -1 to just click through NPC text that
+// has no response options ("click to continue"). Terminates the dialog
+// (same as TerminateDialog()) once Continue() reports it has ended.
+class SelectDialogOptionCommand : public ShellCommand {
+public:
+	SelectDialogOptionCommand()
+		: ShellCommand(
+			"Select-DialogOption",
+			{
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		int32 option = params.at(0).value.integer;
+
+		DialogHandler* dialog = Game::Get()->Dialog();
+		if (dialog == NULL) {
+			std::cout << "Select-DialogOption: no active dialog" << std::endl;
+			return;
+		}
+
+		if (dialog->IsWaitingUserChoice()) {
+			if (option < 0) {
+				std::cout << "Select-DialogOption: dialog is waiting for "
+					"a player choice, pass an option index >= 0" << std::endl;
+				return;
+			}
+			dialog->SelectOption(option);
+		}
+
+		if (!dialog->Continue())
+			Game::Get()->TerminateDialog();
+	}
+};
+
+
 class SetEnemyAllyCommand : public ShellCommand {
 public:
 	SetEnemyAllyCommand()
@@ -723,4 +767,5 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new RunActionCommand());
 	console->AddCommand(new SaveGameCommand());
 	console->AddCommand(new LoadGameCommand());
+	console->AddCommand(new SelectDialogOptionCommand());
 }
