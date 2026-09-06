@@ -462,6 +462,29 @@ _RollSkillCheck(uint8 skill, uint32 difficulty)
 }
 
 
+// Moves one item (by resref) from 'from' to 'to'. Actor::RemoveItem() is
+// destructive (it doesn't know whether the item will actually end up
+// anywhere), so a naive RemoveItem()-then-AddItem() sequence silently
+// destroys the item whenever 'to' has no room (no free Items-table entry
+// or general slot - see Actor::AddItem()'s header comment) - discovered
+// via GIVEITEM/GETITEM already having this bug while testing the new
+// TAKEPARTYITEM* actions below, which would otherwise have copied it.
+// Puts the item back on 'from' if the add fails, so a full-inventory
+// recipient just means the transfer doesn't happen, not that the item
+// vanishes.
+static bool
+_TransferItem(Actor* from, Actor* to, const res_ref& itemName)
+{
+	if (!from->RemoveItem(itemName))
+		return false;
+	if (!to->AddItem(itemName)) {
+		from->AddItem(itemName);
+		return false;
+	}
+	return true;
+}
+
+
 // UNLOCK(O:OBJECT*) - stateless. Always succeeds if the sender is
 // carrying the door's key item (matching the real game's "keys just
 // work" convention); otherwise resolves an Open Locks skill check against
@@ -885,8 +908,10 @@ RunActionWalkTo(Object* sender, action_params* params, action_state& state)
 }
 
 
-// MOVETOOBJECT(O:Target*) - no persistent state: the destination is
-// recomputed every tick since the target may be moving.
+// MOVETOOBJECT(O:Target*) / MOVETOOBJECTNOINTERRUPT(O:Target*) - same run
+// function for both ids (mirrors RunActionWalkTo/MOVETOPOINTNOINTERRUPT
+// above); no persistent state otherwise - the destination is recomputed
+// every tick since the target may be moving.
 static void
 RunActionWalkToObject(Object* sender, action_params* params, action_state& state)
 {
@@ -905,6 +930,9 @@ RunActionWalkToObject(Object* sender, action_params* params, action_state& state
 	IE::point destination = target->NearestPoint(actor->Position());
 	if (!PointSufficientlyClose(actor->Position(), destination))
 		actor->SetDestination(destination);
+
+	bool canInterrupt = params->id != 208; // 208 = MOVETOOBJECTNOINTERRUPT
+	actor->SetInterruptable(canInterrupt);
 
 	if (!actor->MoveToNextPointInPath(false))
 		state.completed = true;
@@ -1396,8 +1424,8 @@ RunActionGiveItem(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
-	if (actor != NULL && target != NULL && actor->RemoveItem(params->string1))
-		target->AddItem(params->string1);
+	if (actor != NULL && target != NULL)
+		_TransferItem(actor, target, params->string1);
 	state.completed = true;
 }
 
@@ -1409,8 +1437,8 @@ RunActionGetItem(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
-	if (actor != NULL && target != NULL && target->RemoveItem(params->string1))
-		actor->AddItem(params->string1);
+	if (actor != NULL && target != NULL)
+		_TransferItem(target, actor, params->string1);
 	state.completed = true;
 }
 
@@ -1941,6 +1969,199 @@ RunActionGiveItemCreate(Object* sender, action_params* params, action_state& sta
 }
 
 
+// ChangeEnemyAlly(O:Object*,I:Value*EA) - stateless. CREResource::
+// SetEnemyAlly() already existed (used by the Set-EnemyAlly console
+// command), just wasn't wired to a script action yet.
+static void
+RunActionChangeEnemyAlly(Object* sender, action_params* params, action_state& state)
+{
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target != NULL)
+		target->CRE()->SetEnemyAlly((uint8)params->integer1);
+	state.completed = true;
+}
+
+
+// SG(S:Name*,I:Num*) - stateless. Per IESDP "a shortcut for SetGlobal(),
+// can only set global variables" - unlike SETGLOBAL, there's no scope
+// parameter at all, so this can't reuse RunActionSetGlobal(): that
+// function's GLOBAL-scope branch is fine (it already just forwards
+// params->string1/integer1 to Vars().Set()), but its LOCALS-scope
+// detection (Variables::GetNameAndScope(), which assumes the first 6
+// characters of the string are a scope tag written by SETGLOBAL's own
+// parsing) would misinterpret SG's plain variable name and corrupt it.
+static void
+RunActionSG(Object* sender, action_params* params, action_state& state)
+{
+	Core::Get()->Vars().Set(params->string1, params->integer1);
+	state.completed = true;
+}
+
+
+// SetNumTimesTalkedTo(I:Num*) - stateless.
+static void
+RunActionSetNumTimesTalkedTo(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->SetNumTimesTalkedTo((uint32)params->integer1);
+	state.completed = true;
+}
+
+
+// DropInventory() / DestroyAllEquipment() - same run function for both:
+// under this engine's simplification (no "item lying on the ground"
+// object type - see GIVEITEM/DROPITEM above) they're equivalent, since
+// neither actually places anything anywhere. Real DropInventory() is
+// also called internally by LeaveParty() - not modeled there either, same
+// declared deviation as Fase 10 batch 2's LeaveParty() note.
+static void
+RunActionClearInventory(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->ClearInventory();
+	state.completed = true;
+}
+
+
+// GivePartyAllEquipment() - stateless. Gives every item the active
+// creature owns to the first *other* party member found (IESDP doesn't
+// specify a distribution rule beyond "give to the party" - this engine
+// has no "item lying on the ground"/free-for-all-drop concept, so one
+// concrete recipient is picked rather than splitting across everyone).
+// A no-op if the active creature isn't in a party, or is the only member.
+static void
+RunActionGivePartyAllEquipment(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL && actor->InParty()) {
+		::Party* party = Game::Get()->Party();
+		for (uint16 i = 0; i < party->CountActors(); i++) {
+			Actor* member = party->ActorAt(i);
+			if (member != actor) {
+				actor->GiveAllItemsTo(member);
+				break;
+			}
+		}
+	}
+	state.completed = true;
+}
+
+
+// TakePartyItem(S:Item*) / TakePartyItemRange(S:Item*) - same run
+// function for both (IESDP: TakePartyItemRange "cannot specify a range",
+// making it identical to TakePartyItem - same declared deviation as
+// FORCESPELLRANGE/FORCESPELLPOINTRANGE above). Checks party members in
+// order and takes one item (a whole stack, per Actor::RemoveItem()) from
+// the first one that has it, via _TransferItem() so a full active
+// creature's inventory just means the item stays put, not that it's
+// destroyed.
+static void
+RunActionTakePartyItem(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		::Party* party = Game::Get()->Party();
+		for (uint16 i = 0; i < party->CountActors(); i++) {
+			Actor* member = party->ActorAt(i);
+			if (member != actor && member->CRE()->FindItemSlot(params->string1) >= 0) {
+				_TransferItem(member, actor, params->string1);
+				break;
+			}
+		}
+	}
+	state.completed = true;
+}
+
+
+// TakePartyItemAll(S:Item*) - stateless. Takes every stack of the item
+// from every party member (TakePartyItem above stops at the first
+// member/first stack).
+static void
+RunActionTakePartyItemAll(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		::Party* party = Game::Get()->Party();
+		bool actorFull = false;
+		for (uint16 i = 0; i < party->CountActors() && !actorFull; i++) {
+			Actor* member = party->ActorAt(i);
+			if (member == actor)
+				continue;
+			while (member->CRE()->FindItemSlot(params->string1) >= 0) {
+				if (!_TransferItem(member, actor, params->string1)) {
+					actorFull = true;
+					break;
+				}
+			}
+		}
+	}
+	state.completed = true;
+}
+
+
+// TakePartyItemNum(S:ResRef*,I:Num*) - stateless. Simplification: Num
+// counts occupied item slots taken (each Actor::RemoveItem() call takes
+// one whole stack, same unit Actor::AddItem()/RemoveItem() already use
+// everywhere else in this engine), not individual item charges/quantity.
+static void
+RunActionTakePartyItemNum(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		::Party* party = Game::Get()->Party();
+		int32 remaining = params->integer1;
+		for (uint16 i = 0; i < party->CountActors() && remaining > 0; i++) {
+			Actor* member = party->ActorAt(i);
+			if (member == actor)
+				continue;
+			while (remaining > 0 && member->CRE()->FindItemSlot(params->string1) >= 0) {
+				if (!_TransferItem(member, actor, params->string1)) {
+					remaining = 0; // actor has no room left, stop entirely
+					break;
+				}
+				remaining--;
+			}
+		}
+	}
+	state.completed = true;
+}
+
+
+// StartDialogue(S:DialogFile*,O:Target*) - stateless. Per IESDP this also
+// permanently sets the active creature's dialog file to the one given -
+// modeled here via the new CREResource::SetDialogFile() setter. No-op if
+// a dialog is already active (Game::InitiateDialog() asserts on that).
+static void
+RunActionStartDialogue(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (actor != NULL && target != NULL && !Game::Get()->InDialogMode()) {
+		if (params->string1[0] != '\0')
+			actor->CRE()->SetDialogFile(params->string1);
+		Game::Get()->InitiateDialog(actor, target);
+	}
+	state.completed = true;
+}
+
+
+// AddKit(I:Kit*KIT) - stateless. Per IESDP this also removes abilities
+// granted by any previous kit, and enforces class restrictions on the new
+// one - neither is modeled (this engine has no kit-ability-granting
+// system yet), so this only writes the raw stat, same "store what the
+// script says" approach as the other CHANGE*/stat setters above.
+static void
+RunActionAddKit(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->CRE()->SetKit((uint32)params->integer1);
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2047,10 +2268,10 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 113, "FORCESPELL", RunActionForceSpell },
 		{ 114, "FORCESPELLPOINT", RunActionForceSpellPoint },
 		{ 115, "SETGLOBALTIMER", RunActionSetGlobalTimer },
-		{ 116, "TAKEPARTYITEM", NULL },
+		{ 116, "TAKEPARTYITEM", RunActionTakePartyItem },
 		{ 117, "TAKEPARTYGOLD", RunActionTakePartyGold },
 		{ 118, "GIVEPARTYGOLD", RunActionGivePartyGold },
-		{ 119, "DROPINVENTORY", NULL },
+		{ 119, "DROPINVENTORY", RunActionClearInventory },
 		{ 120, "STARTCUTSCENE", RunActionStartCutscene },
 		{ 121, "STARTCUTSCENEMODE", RunActionStartCutsceneMode },
 		{ 122, "ENDCUTSCENEMODE", RunActionEndCutsceneMode },
@@ -2068,7 +2289,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 134, "ATTACKREEVALUATE", RunActionAttack },
 		{ 135, "LOCKSCROLL", NULL },
 		{ 136, "UNLOCKSCROLL", NULL },
-		{ 137, "STARTDIALOGUE", NULL },
+		{ 137, "STARTDIALOGUE", RunActionStartDialogue },
 		{ 138, "SETDIALOGUE", NULL },
 		{ 139, "PLAYERDIALOGUE", NULL },
 		{ 140, "GIVEITEMCREATE", RunActionGiveItemCreate },
@@ -2084,7 +2305,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 150, "STARTSTORE", RunActionStartStore },
 		{ 151, "DISPLAYSTRING", RunActionDisplayMessage },
 		{ 152, "CHANGEAITYPE", NULL },
-		{ 153, "CHANGEENEMYALLY", NULL },
+		{ 153, "CHANGEENEMYALLY", RunActionChangeEnemyAlly },
 		{ 154, "CHANGEGENERAL", RunActionChangeGeneral },
 		{ 155, "CHANGERACE", RunActionChangeRace },
 		{ 156, "CHANGECLASS", RunActionChangeClass },
@@ -2097,7 +2318,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 163, "REPUTATIONINC", RunActionReputationInc },
 		{ 164, "ADDEXPERIENCEPARTY", RunActionAddExperienceParty },
 		{ 165, "ADDEXPERIENCEPARTYGLOBAL", RunActionAddExperiencePartyGlobal },
-		{ 166, "SETNUMTIMESTALKEDTO", NULL },
+		{ 166, "SETNUMTIMESTALKEDTO", RunActionSetNumTimesTalkedTo },
 		{ 167, "STARTMOVIE", RunActionPlayMovie },
 		{ 168, "INTERACT", NULL },
 		{ 169, "DESTROYITEM", RunActionDestroyItem },
@@ -2119,12 +2340,12 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 185, "SETMASTERAREA", NULL },
 		{ 186, "ENDCREDITS", NULL },
 		{ 187, "STARTMUSIC", NULL },
-		{ 188, "TAKEPARTYITEMALL", NULL },
+		{ 188, "TAKEPARTYITEMALL", RunActionTakePartyItemAll },
 		{ 189, "LEAVEAREALUAPANIC", NULL },
 		{ 190, "SAVEGAME", RunActionSaveGame },
 		{ 191, "SPELLNODEC", NULL },
 		{ 192, "SPELLPOINTNODEC", NULL },
-		{ 193, "TAKEPARTYITEMRANGE", NULL },
+		{ 193, "TAKEPARTYITEMRANGE", RunActionTakePartyItem },
 		{ 194, "CHANGEANIMATION", NULL },
 		{ 195, "LOCK", RunActionLock },
 		{ 196, "UNLOCK", RunActionUnlock },
@@ -2135,9 +2356,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 201, "DETECTSECRETDOOR", RunActionDetectSecretDoor },
 		{ 202, "FADETOCOLOR", RunActionFadeToColor },
 		{ 203, "FADEFROMCOLOR", RunActionFadeFromColor },
-		{ 204, "TAKEPARTYITEMNUM", NULL },
+		{ 204, "TAKEPARTYITEMNUM", RunActionTakePartyItemNum },
 		{ 207, "MOVETOPOINTNOINTERRUPT", RunActionWalkTo },
-		{ 208, "MOVETOOBJECTNOINTERRUPT", NULL },
+		{ 208, "MOVETOOBJECTNOINTERRUPT", RunActionWalkToObject },
 		{ 209, "SPAWNPTACTIVATE", NULL },
 		{ 210, "SPAWNPTDEACTIVATE", NULL },
 		{ 211, "SPAWNPTSPAWN", NULL },
@@ -2152,8 +2373,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 220, "TAKEITEMLISTPARTY", NULL },
 		{ 221, "SETMORALEAI", NULL },
 		{ 222, "INCMORALEAI", NULL },
-		{ 223, "DESTROYALLEQUIPMENT", NULL },
-		{ 224, "GIVEPARTYALLEQUIPMENT", NULL },
+		{ 223, "DESTROYALLEQUIPMENT", RunActionClearInventory },
+		{ 224, "GIVEPARTYALLEQUIPMENT", RunActionGivePartyAllEquipment },
 		{ 225, "MOVEBETWEENAREASEFFECT", RunActionMoveBetweenAreasEffect },
 		{ 226, "TAKEITEMLISTPARTYNUM", NULL },
 		{ 227, "CREATECREATUREOBJECTEFFECT", NULL },
@@ -2203,7 +2424,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 271, "VERBALCONSTANTHEAD", NULL },
 		{ 272, "CREATEVISUALEFFECT", RunActionCreateVisualEffect },
 		{ 273, "CREATEVISUALEFFECTOBJECT", RunActionCreateVisualEffectObject },
-		{ 274, "ADDKIT", NULL },
+		{ 274, "ADDKIT", RunActionAddKit },
 		{ 275, "STARTCOMBATCOUNTER", NULL },
 		{ 276, "ESCAPEAREANOSEE", NULL },
 		{ 277, "ESCAPEAREAOBJECTMOVE", NULL },
@@ -2236,7 +2457,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 304, "DEATHMATCHPOSITIONAREA", NULL },
 		{ 305, "DEATHMATCHPOSITIONLOCAL", NULL },
 		{ 306, "APPLYDAMAGEPERCENT", NULL },
-		{ 307, "SG", NULL },
+		{ 307, "SG", RunActionSG },
 		{ 308, "ADDMAPNOTE", NULL },
 		{ 309, "DEMOEND", NULL },
 		{ 310, "MOVEGLOBALSTO", NULL },
@@ -2247,8 +2468,8 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 315, "SETRESTENCOUNTERPROBABILITYNIGHT", NULL },
 		{ 316, "SOUNDACTIVATE", NULL },
 		{ 317, "PLAYSONG", NULL },
-		{ 318, "FORCESPELLRANGE", NULL },
-		{ 319, "FORCESPELLPOINTRANGE", NULL },
+		{ 318, "FORCESPELLRANGE", RunActionForceSpell },
+		{ 319, "FORCESPELLPOINTRANGE", RunActionForceSpellPoint },
 		{ 320, "SETPLAYERSOUND", NULL },
 		{ 321, "SETAREARESTFLAG", NULL },
 		{ 322, "FAKEEFFECTEXPIRYCHECK", NULL },

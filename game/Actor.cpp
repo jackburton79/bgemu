@@ -1126,6 +1126,31 @@ Actor::RemoveItem(const res_ref& itemName)
 }
 
 
+void
+Actor::ClearInventory()
+{
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (fCRE->GetItemAtSlot(slot, item) && item.name.name[0] != '\0')
+			RemoveItem(item.name);
+	}
+}
+
+
+void
+Actor::GiveAllItemsTo(Actor* target)
+{
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (fCRE->GetItemAtSlot(slot, item) && item.name.name[0] != '\0') {
+			if (!target->AddItem(item.name))
+				continue;
+			RemoveItem(item.name);
+		}
+	}
+}
+
+
 bool
 Actor::EquipItem(const res_ref& itemName)
 {
@@ -1181,6 +1206,13 @@ void
 Actor::IncrementNumTimesTalkedTo()
 {
 	fActor->num_times_talked_to++;
+}
+
+
+void
+Actor::SetNumTimesTalkedTo(uint32 num)
+{
+	fActor->num_times_talked_to = num;
 }
 
 

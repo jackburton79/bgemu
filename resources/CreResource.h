@@ -185,6 +185,7 @@ public:
 
 	uint16 AnimationID() const;
 	uint32 Kit() const;
+	void SetKit(uint32 kit);
 	const char *KitStr();
 
 	uint8 EnemyAlly() const;
@@ -294,6 +295,7 @@ public:
 	void SetItemAtItemsIndex(uint16 index, const IE::item& item);
 
 	res_ref DialogFile() const;
+	void SetDialogFile(const res_ref& dialogFile);
 	std::string DeathVariable() const;
 
 	std::vector<cre_known_spell> KnownSpells() const;

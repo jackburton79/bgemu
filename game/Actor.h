@@ -86,6 +86,20 @@ public:
 	// or not) from this actor's inventory. Returns false if not found.
 	bool RemoveItem(const res_ref& itemName);
 
+	// Removes every item in every inventory slot (equipped or not) - no
+	// "item lying on the ground" object type exists in this engine, so
+	// (unlike the real DropInventory()) nothing is placed anywhere; this
+	// is really a destroy-everything operation. Used by both DROPINVENTORY
+	// and DESTROYALLEQUIPMENT, which are equivalent under this
+	// simplification.
+	void ClearInventory();
+
+	// Moves every item in every inventory slot (equipped or not) to
+	// target's inventory. An item target has no room for (Items table or
+	// general slots full) is skipped and stays with this actor instead of
+	// stopping the whole transfer.
+	void GiveAllItemsTo(Actor* target);
+
 	// Moves an already-owned item (by resref) into its default slot for
 	// its ITM type (weapon -> "weapon 1", armor -> armor slot, etc - see
 	// the .cpp for the full mapping). Returns false if the actor doesn't
@@ -143,6 +157,7 @@ public:
 	void SetAttackCooldown(int32 ticks);
 
 	void IncrementNumTimesTalkedTo();
+	void SetNumTimesTalkedTo(uint32 num);
 	uint32 NumTimesTalkedTo() const;
 
 	virtual void ClickedOn(Object* target);

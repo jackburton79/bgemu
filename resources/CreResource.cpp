@@ -141,6 +141,13 @@ CREResource::Kit() const
 }
 
 
+void
+CREResource::SetKit(uint32 kit)
+{
+	fData->WriteAt(0x244, &kit, sizeof(kit));
+}
+
+
 const char*
 CREResource::KitStr()
 {
@@ -622,6 +629,13 @@ CREResource::DialogFile() const
 	res_ref dialogFile;
 	fData->ReadAt(0x2cc, dialogFile.name, 8);
 	return dialogFile;
+}
+
+
+void
+CREResource::SetDialogFile(const res_ref& dialogFile)
+{
+	fData->WriteAt(0x2cc, dialogFile.name, 8);
 }
 
 
