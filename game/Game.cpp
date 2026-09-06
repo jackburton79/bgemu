@@ -24,6 +24,7 @@
 #include "RoomBase.h"
 
 
+#include <algorithm>
 #include <assert.h>
 #include <fstream>
 #include <stdio.h>
@@ -548,6 +549,43 @@ DialogHandler*
 Game::Dialog()
 {
 	return fDialog;
+}
+
+
+void
+Game::SetToken(const std::string& name, const std::string& value)
+{
+	fTokens[name] = value;
+}
+
+
+const std::map<std::string, std::string>&
+Game::Tokens() const
+{
+	return fTokens;
+}
+
+
+void
+Game::AddJournalEntry(uint32 strref)
+{
+	fJournalEntries.push_back(strref);
+}
+
+
+void
+Game::RemoveJournalEntry(uint32 strref)
+{
+	auto it = std::find(fJournalEntries.begin(), fJournalEntries.end(), strref);
+	if (it != fJournalEntries.end())
+		fJournalEntries.erase(it);
+}
+
+
+const std::vector<uint32>&
+Game::JournalEntries() const
+{
+	return fJournalEntries;
 }
 
 

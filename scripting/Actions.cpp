@@ -56,6 +56,70 @@ _ObjectPosition(Object* object)
 }
 
 
+// Shared by SaveLocation/SaveObjectLocation/MoveToSavedLocation/
+// GivePartyGoldGlobal - these read/write a named variable in either
+// LOCALS (per-object, via Object::SetVariable()/GetVariable(), same as
+// SETGLOBAL's own LOCALS branch) or GLOBAL (Core::Get()->Vars(), same
+// as SG()/ADDGLOBALS() above) scope, chosen by a plain "LOCALS"/"GLOBAL"
+// string parameter - unlike SETGLOBAL's string1, there's no 6-character
+// scope-tag prefix involved here, so a direct case-insensitive compare
+// is enough.
+static int32
+_GetScopedVariable(Object* sender, const char* name, const char* scope)
+{
+	return strcasecmp(scope, "LOCALS") == 0
+		? sender->GetVariable(name) : Core::Get()->Vars().Get(name);
+}
+
+
+static void
+_SetScopedVariable(Object* sender, const char* name, const char* scope, int32 value)
+{
+	if (strcasecmp(scope, "LOCALS") == 0)
+		sender->SetVariable(name, value);
+	else
+		Core::Get()->Vars().Set(name, value);
+}
+
+
+// Point<->int32 packing shared by SaveLocation/SaveObjectLocation/
+// MoveToSavedLocation: IESDP doesn't spell out an exact bit layout for
+// how these actions pack a point into one variable, and nothing outside
+// this engine ever reads them back, so any internally-consistent scheme
+// works - this one just needs to round-trip through our own actions. y
+// fits in 16 bits for any BG2-sized area, keeping x*65536+y well inside
+// int32 range for realistic coordinates.
+static int32
+_PackLocation(const IE::point& point)
+{
+	return (int32)point.x * 65536 + point.y;
+}
+
+
+static IE::point
+_UnpackLocation(int32 value)
+{
+	IE::point point;
+	point.x = (int16)(value / 65536);
+	point.y = (int16)(value % 65536);
+	return point;
+}
+
+
+static void
+_SetSavedLocation(Object* sender, const char* name, const char* scope, const IE::point& point)
+{
+	_SetScopedVariable(sender, name, scope, _PackLocation(point));
+}
+
+
+static IE::point
+_GetSavedLocation(Object* sender, const char* name, const char* scope)
+{
+	return _UnpackLocation(_GetScopedVariable(sender, name, scope));
+}
+
+
 // ---- Native action implementations (proof of concept: one stateless, one
 // with simple state, one with more involved state + resource access) ----
 
@@ -2356,6 +2420,176 @@ RunActionAddKit(Object* sender, action_params* params, action_state& state)
 }
 
 
+// SaveLocation(S:Area*,S:Global*,P:Point*) - stateless. string1 is the
+// scope ("LOCALS"/"GLOBAL", confusingly named "Area" by IESDP here),
+// string2 the variable name - see _SetSavedLocation() above.
+static void
+RunActionSaveLocation(Object* sender, action_params* params, action_state& state)
+{
+	_SetSavedLocation(sender, params->string2, params->string1, params->where);
+	state.completed = true;
+}
+
+
+// SaveObjectLocation(S:Area*,S:Global*,O:Object*) - stateless. Same
+// scope/name parameter order as SaveLocation above.
+static void
+RunActionSaveObjectLocation(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL)
+		_SetSavedLocation(sender, params->string2, params->string1, _ObjectPosition(target));
+	state.completed = true;
+}
+
+
+// MoveToSavedLocation(S:GLOBAL*,S:Area*) / MoveToSavedLocationN - state:
+// same walk-to-point pattern as MOVETOPOINT, but the destination comes
+// from a location previously stored by SaveLocation/SaveObjectLocation.
+// Note the parameter order is reversed from SaveLocation's: here
+// string1 is the variable name, string2 the scope (matches IESDP's own
+// example: MoveToSavedLocationn("DefaultLocation","LOCALS")).
+static void
+RunActionMoveToSavedLocation(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL) {
+		state.completed = true;
+		return;
+	}
+
+	if (!state.initiated) {
+		actor->SetDestination(_GetSavedLocation(actor, params->string1, params->string2));
+		state.initiated = true;
+	}
+
+	if (!actor->MoveToNextPointInPath(false))
+		state.completed = true;
+}
+
+
+// SetHomeLocation(P:Point*) - stateless. Per IESDP "stores a home
+// location into memory for a creature [...] not saved" - stored as a
+// plain point on the Actor itself (Actor::SetHomeLocation()/
+// HomeLocation()); nothing in this engine reads it back yet (no
+// "return home" AI behavior exists), same as when this was first added.
+static void
+RunActionSetHomeLocation(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		actor->SetHomeLocation(params->where);
+	state.completed = true;
+}
+
+
+// AddJournalEntry(I:Entry*,I:Type*JourType) - stateless. Section
+// (Quest/Story/User, from JourType) isn't modeled - see Game::
+// AddJournalEntry()'s header comment - just an ordered list of strrefs.
+static void
+RunActionAddJournalEntry(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->AddJournalEntry((uint32)params->integer1);
+	state.completed = true;
+}
+
+
+// EraseJournalEntry(I:STRREF*) / SetQuestDone(I:STRREF*) - same run
+// function for both: both just remove a strref from the journal (the
+// "regardless of section" / "from the quest section" distinction isn't
+// meaningful here since no sections are modeled - see AddJournalEntry
+// above).
+static void
+RunActionEraseJournalEntry(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->RemoveJournalEntry((uint32)params->integer1);
+	state.completed = true;
+}
+
+
+// SetToken(S:Token*,I:STRREF*) - stateless. Stores the resolved string
+// for the strref as the token's value (Game::SetToken()); consumed by
+// DialogHandler::_FillPlaceHolders(), which now actually gets called
+// (see Dialog.cpp) instead of being dead code.
+static void
+RunActionSetToken(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->SetToken(params->string1, IDTable::GetDialog(params->integer1));
+	state.completed = true;
+}
+
+
+// SetTokenObject(S:Token*,O:Object) - stateless. Same token store as
+// SetToken above, but the value is the target object's name.
+static void
+RunActionSetTokenObject(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL)
+		Game::Get()->SetToken(params->string1, target->Name());
+	state.completed = true;
+}
+
+
+// SetGabber(O:Object) - stateless. Per IESDP "updates various tokens
+// based on the specified object" - this engine only has the one such
+// token (GABBER, the only one seen driving real dialog text so far -
+// "Io sono <GABBER>" in ANOMEN10's own recruitment dialog), so this only
+// sets that.
+static void
+RunActionSetGabber(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target != NULL)
+		Game::Get()->SetToken("GABBER", target->Name());
+	state.completed = true;
+}
+
+
+// GivePartyGoldGlobal(S:Name*,S:Area*) - stateless. Gives the party a
+// gold amount read from a named variable (see _GetScopedVariable()
+// above), deducted from the active creature's own gold stat - reuses
+// the "GOLD" party-wide GLOBAL from Fase 10 batch 1's TAKEPARTYGOLD/
+// GIVEPARTYGOLD/GIVEGOLDFORCE.
+static void
+RunActionGivePartyGoldGlobal(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	int32 amount = _GetScopedVariable(sender, params->string1, params->string2);
+	if (actor != NULL && amount > 0) {
+		CREResource* cre = actor->CRE();
+		cre->SetGold((uint32)std::max((int64)cre->Gold() - amount, (int64)0));
+	}
+	if (amount > 0) {
+		Variables& vars = Core::Get()->Vars();
+		vars.Set(kPartyGoldVariable, vars.Get(kPartyGoldVariable) + amount);
+	}
+	state.completed = true;
+}
+
+
+// RemoveSpell(I:Spell*Spell) - stateless. Removes one memorized instance
+// of the spell from the active creature's spellbook - the same
+// underlying operation RunActionSpell() uses to spend a slot when
+// actually casting (CREResource::ConsumeMemorizedSpell()), just without
+// casting/applying any effect.
+static void
+RunActionRemoveSpell(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL) {
+		try {
+			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+			actor->CRE()->ConsumeMemorizedSpell(spellResourceName.c_str());
+		} catch (std::exception& e) {
+			std::cerr << "RemoveSpell: invalid spell id " << params->integer1
+				<< ": " << e.what() << std::endl;
+		}
+	}
+	state.completed = true;
+}
+
+
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
@@ -2487,13 +2721,13 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 138, "SETDIALOGUE", RunActionSetDialogue },
 		{ 139, "PLAYERDIALOGUE", RunActionStartDialogue },
 		{ 140, "GIVEITEMCREATE", RunActionGiveItemCreate },
-		{ 141, "GIVEPARTYGOLDGLOBAL", NULL },
+		{ 141, "GIVEPARTYGOLDGLOBAL", RunActionGivePartyGoldGlobal },
 		{ 142, "USEDOOR", NULL },
 		{ 143, "OPENDOOR", RunActionOpenDoor },
 		{ 144, "CLOSEDOOR", RunActionCloseDoor },
 		{ 145, "PICKLOCK", RunActionPickLock },
 		{ 146, "POLYMORPH", NULL },
-		{ 147, "REMOVESPELL", NULL },
+		{ 147, "REMOVESPELL", RunActionRemoveSpell },
 		{ 148, "BASHDOOR", NULL },
 		{ 149, "EQUIPMOSTDAMAGINGMELEE", NULL },
 		{ 150, "STARTSTORE", RunActionStartStore },
@@ -2519,7 +2753,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 170, "REVEALAREAONMAP", NULL },
 		{ 171, "GIVEGOLDFORCE", RunActionGivePartyGold },
 		{ 172, "CHANGETILESTATE", NULL },
-		{ 173, "ADDJOURNALENTRY", NULL },
+		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
 		{ 174, "EQUIPRANGED", NULL },
 		{ 175, "SETLEAVEPARTYDIALOGUEFILE", NULL },
 		{ 176, "ESCAPEAREADESTROY", NULL },
@@ -2579,7 +2813,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 232, "CREATECREATUREOBJECTDOOR", RunActionCreateCreatureNearObject },
 		{ 233, "CREATECREATUREOBJECTOFFSCREEN", RunActionCreateCreatureNearObject },
 		{ 234, "MOVEGLOBALOBJECTOFFSCREEN", NULL },
-		{ 235, "SETQUESTDONE", NULL },
+		{ 235, "SETQUESTDONE", RunActionEraseJournalEntry },
 		{ 236, "STOREPARTYLOCATIONS", NULL },
 		{ 237, "RESTOREPARTYLOCATIONS", NULL },
 		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },
@@ -2588,12 +2822,12 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 241, "CALM", NULL },
 		{ 242, "ALLY", NULL },
 		{ 243, "RESTNOSPELLS", RunActionRestParty },
-		{ 244, "SAVELOCATION", NULL },
-		{ 245, "SAVEOBJECTLOCATION", NULL },
+		{ 244, "SAVELOCATION", RunActionSaveLocation },
+		{ 245, "SAVEOBJECTLOCATION", RunActionSaveObjectLocation },
 		{ 246, "CREATECREATUREATLOCATION", NULL },
-		{ 247, "SETTOKEN", NULL },
-		{ 248, "SETTOKENOBJECT", NULL },
-		{ 249, "SETGABBER", NULL },
+		{ 247, "SETTOKEN", RunActionSetToken },
+		{ 248, "SETTOKENOBJECT", RunActionSetTokenObject },
+		{ 249, "SETGABBER", RunActionSetGabber },
 		{ 250, "CREATECREATUREOBJECTCOPYEFFECT", RunActionCreateCreatureNearObject },
 		{ 251, "HIDEAREAONMAP", NULL },
 		{ 252, "CREATECREATUREOBJECTOFFSET", RunActionCreateCreatureObjectOffset },
@@ -2605,9 +2839,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 258, "FILLSLOT", NULL },
 		{ 259, "ADDXPOBJECT", RunActionAddXPObject },
 		{ 260, "DESTROYGOLD", RunActionDestroyGold },
-		{ 261, "SETHOMELOCATION", NULL },
+		{ 261, "SETHOMELOCATION", RunActionSetHomeLocation },
 		{ 262, "DISPLAYSTRINGNONAME", RunActionDisplayMessage },
-		{ 263, "ERASEJOURNALENTRY", NULL },
+		{ 263, "ERASEJOURNALENTRY", RunActionEraseJournalEntry },
 		{ 264, "COPYGROUNDPILESTO", NULL },
 		{ 265, "DIALOGFORCEINTERRUPT", RunActionDialogForceInterrupt },
 		{ 266, "STARTDIALOGUEINTERRUPT", RunActionStartDialogueInterrupt },
@@ -2641,7 +2875,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 294, "STARTDIALOGOVERRIDEINTERRUPT", RunActionStartDialogueInterrupt },
 		{ 295, "CREATECREATURECOPYPOINT", RunActionCreateCreature },
 		{ 296, "BATTLESONG", NULL },
-		{ 297, "MOVETOSAVEDLOCATIONN", NULL },
+		{ 297, "MOVETOSAVEDLOCATIONN", RunActionMoveToSavedLocation },
 		{ 298, "APPLYDAMAGE", RunActionApplyDamage },
 		{ 299, "BANTERBLOCKTIME", NULL },
 		{ 300, "BANTERBLOCKFLAG", NULL },

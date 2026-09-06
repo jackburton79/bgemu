@@ -126,6 +126,22 @@ public:
 };
 
 
+// PrintJournalCommand - dumps Game's minimal in-memory journal (see
+// Game::AddJournalEntry()'s header comment) so ADDJOURNALENTRY/
+// ERASEJOURNALENTRY/SETQUESTDONE are testable headlessly.
+class PrintJournalCommand : public ShellCommand {
+public:
+	PrintJournalCommand()
+		: ShellCommand("Print-Journal")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		for (uint32 strref : Game::Get()->JournalEntries())
+			std::cout << strref << ": " << IDTable::GetDialog(strref) << std::endl;
+	}
+};
+
+
 class ShowWindowCommand : public ShellCommand {
 public:
 	ShowWindowCommand()
@@ -598,9 +614,11 @@ public:
 			{
 				{ PARAMETER_STRING, }, // actor
 				{ PARAMETER_INT, },    // action id
-				{ PARAMETER_STRING, }, // target name (may be empty)
+				{ PARAMETER_STRING, }, // target name (may be empty, "-")
 				{ PARAMETER_INT, },    // integer1
-				{ PARAMETER_STRING, }  // string1 (may be empty)
+				{ PARAMETER_STRING, }, // string1 (may be empty, "-")
+				{ PARAMETER_STRING, }, // string2 (may be empty, "-")
+				{ PARAMETER_POINT, }   // where (x,y - use 0,0 if unused)
 			}
 		)
 	{
@@ -620,6 +638,10 @@ public:
 		std::string string1 = params.at(4).value.string;
 		if (string1 != "-")
 			strcpy(actionParams->string1, string1.c_str());
+		std::string string2 = params.at(5).value.string;
+		if (string2 != "-")
+			strcpy(actionParams->string2, string2.c_str());
+		actionParams->where = params.at(6).value.point;
 		actor->AddAction(actionParams);
 		actionParams->Release();
 	}
@@ -749,6 +771,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());
 	console->AddCommand(new PrintVariablesCommand());
+	console->AddCommand(new PrintJournalCommand());
 	console->AddCommand(new SetEnemyAllyCommand());
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ToggleAuxWindowCommand());

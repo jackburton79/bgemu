@@ -10,6 +10,7 @@
 
 #include "IETypes.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -74,6 +75,23 @@ public:
 	// position is. Leaving this empty keeps the normal startup flow.
 	void SetStartingArea(const char* areaName);
 
+	// Dialog placeholder tokens (SETTOKEN/SETTOKENOBJECT/SETGABBER) -
+	// resolved by DialogHandler::_FillPlaceHolders() alongside the
+	// existing hardcoded <CHARNAME>. Per IESDP, values set this way
+	// aren't persisted to the savegame - this engine doesn't persist
+	// them either, they just live for the current session.
+	void SetToken(const std::string& name, const std::string& value);
+	const std::map<std::string, std::string>& Tokens() const;
+
+	// Minimal in-memory journal (ADDJOURNALENTRY/ERASEJOURNALENTRY/
+	// SETQUESTDONE) - no GUI screen consumes this yet (see the Fase 6
+	// plan notes on Journal never being built), and no section
+	// distinction (Quest/Story/User) is modeled - just an ordered list
+	// of strrefs, closest to the "User" section in spirit.
+	void AddJournalEntry(uint32 strref);
+	void RemoveJournalEntry(uint32 strref);
+	const std::vector<uint32>& JournalEntries() const;
+
 
 private:
 	Game();
@@ -90,6 +108,9 @@ private:
 	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
 	std::string fStartingArea;
+
+	std::map<std::string, std::string> fTokens;
+	std::vector<uint32> fJournalEntries;
 
 	void _RunExecFile(GameConsole* console);
 };

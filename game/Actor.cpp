@@ -397,6 +397,20 @@ Actor::ClearDestination()
 }
 
 
+IE::point
+Actor::HomeLocation() const
+{
+	return fHomeLocation;
+}
+
+
+void
+Actor::SetHomeLocation(const IE::point& position)
+{
+	fHomeLocation = position;
+}
+
+
 void
 Actor::Draw(AreaRoom* room) const
 {

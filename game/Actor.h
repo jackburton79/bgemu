@@ -50,6 +50,12 @@ public:
 	void SetDestination(const IE::point &dest, bool ignoreSearchMap = false);
 	void ClearDestination();
 
+	// SETHOMELOCATION(P:Point*) - not consumed by anything yet (no
+	// "return home" AI behavior exists in this engine), stored for
+	// whenever that's added.
+	IE::point HomeLocation() const;
+	void SetHomeLocation(const IE::point& position);
+
 	void Draw(AreaRoom* room) const;
 
 	IE::point RestrictionDistance() const;
@@ -220,6 +226,8 @@ private:
 
 	int fSelectedRadius;
 	int fSelectedRadiusStep;
+
+	IE::point fHomeLocation = { 0, 0 };
 
 	void _Init();
 	void _HandleScripts();

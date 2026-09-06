@@ -18,6 +18,7 @@
 #include "TextArea.h"
 
 #include <cassert>
+#include <map>
 #include <sstream>
 
 // DialogState
@@ -65,6 +66,7 @@ DialogHandler::ShowPlayerOptions()
 		fVisibleTransitions.push_back(index);
 
 		std::string playerText = IDTable::GetDialog(transition.text_player);
+		_FillPlaceHolders(playerText);
 
 		std::ostringstream s;
 		s << optionNumber << "-" << playerText;
@@ -158,9 +160,12 @@ DialogHandler::_ShowTriggerText(const dlg_state& state)
 		std::cerr << "NULL Text Area!!!" << std::endl;
 		return;
 	}
+	std::string npcText = IDTable::GetDialog(state.text_ref);
+	_FillPlaceHolders(npcText);
+
 	std::string fullText;
 	fullText.append(Actor()->LongName()).append(": ");
-	fullText.append(IDTable::GetDialog(state.text_ref));
+	fullText.append(npcText);
 	textArea->AddText(fullText.c_str());
 
 	// Mirrored to stdout for the same headless-testing reason as
@@ -249,15 +254,37 @@ DialogHandler::Actor()
 }
 
 
+static void
+_ReplaceAll(std::string& text, const std::string& token, const std::string& value)
+{
+	size_t pos = 0;
+	while ((pos = text.find(token, pos)) != std::string::npos) {
+		text.replace(pos, token.length(), value);
+		pos += value.length();
+	}
+}
+
+
+// Was declared and implemented but never actually called until now (so
+// <CHARNAME>/<GABBER> were showing up literally, unsubstituted, in real
+// dialog text - see the Fase 10 plan notes on this batch) - now wired
+// into both _ShowTriggerText() and ShowPlayerOptions() above.
 void
 DialogHandler::_FillPlaceHolders(std::string& text)
 {
-	// TODO: Fill other placeholders
 	std::string playerName = Game::Get()->Party()->ActorAt(0)->Name();
-	std::string charPlaceHolder = "<CHARNAME>";
-	size_t i = text.find(charPlaceHolder);
-	if (i != std::string::npos) {
-		text.replace(i, charPlaceHolder.length(), playerName.c_str());
-	}
+	_ReplaceAll(text, "<CHARNAME>", playerName);
+
+	// <GABBER> is conventionally "whoever is on the other side of this
+	// exchange" - defaults to the dialog target (the party member being
+	// talked to), unless a script already set an explicit "GABBER"
+	// token via SetGabber()/SETGABBER (checked first, since the loop
+	// below would otherwise find nothing left to replace).
+	const std::map<std::string, std::string>& tokens = Game::Get()->Tokens();
+	if (fTarget != NULL && tokens.find("GABBER") == tokens.end())
+		_ReplaceAll(text, "<GABBER>", fTarget->Name());
+
+	for (const auto& token : tokens)
+		_ReplaceAll(text, "<" + token.first + ">", token.second);
 }
 
