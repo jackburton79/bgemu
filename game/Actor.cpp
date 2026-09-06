@@ -361,12 +361,31 @@ Actor::SetDestination(const IE::point& point, bool ignoreSearchMap)
 		func = Actor::PointPassableTrue;
 	else
 		func = AreaRoom::IsPointPassable;
+
+	// The actor's own currently occupied search-map cell is marked
+	// impassable (so other actors don't walk into it) - but the search
+	// is fine-grained (a few pixels per step) and can't cross a whole
+	// blocked cell in one hop, so leaving it blocked here can trap the
+	// actor unable to path away from its own position (how "stuck" this
+	// makes it depends on where exactly it sits within the cell, which
+	// is why it doesn't happen on every move). Clear it for the duration
+	// of the search, then restore it right after - same Clear/Set
+	// bracketing _SetPositionPrivate() already uses for real movement.
+	AreaRoom* room = Area();
+	SearchMap* searchMap = room != NULL ? room->SearchMap() : NULL;
+	if (searchMap != NULL)
+		searchMap->ClearPoint(fActor->position.x, fActor->position.y);
+
 	try {
 		fPath->Set(fActor->position, point, func);
 		destination = fPath->End();
 	} catch (...) {
 		std::cerr << Log::Red << Name() << ": Actor::SetDestination() failed!" << Log::Normal << std::endl;
 	}
+
+	if (searchMap != NULL)
+		searchMap->SetPoint(fActor->position.x, fActor->position.y);
+
 	fActor->destination = destination;
 }
 

@@ -77,6 +77,8 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 {
 	x /= 16;
 	y /= 12;
+	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
+		return false;
 	return fPassabilityMap[y * fWidth + x];
 }
 
