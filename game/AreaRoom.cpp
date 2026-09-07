@@ -1392,7 +1392,23 @@ AreaRoom::_UnloadArea()
 			Core::Get()->SetCutsceneActor(NULL);
 			Core::Get()->EndCutsceneMode();
 		}
-		actor->ClearActionList();
+		// A party member survives this - Release() below only drops the
+		// implicit reference _LoadActors() gave this room, Party still
+		// owns it - and keeps going in the new area, so clearing its
+		// action list here would throw away a legitimate in-progress
+		// action instead of merely one belonging to an actor that's
+		// actually going away. Reproduced: a cutscene queuing a
+		// multi-tick FADEFROMCOLOR on the party leader to fade back in
+		// once the new area loads - ClearActionList() wiped it out
+		// mid-fade (right after its first call, which sets the fade to
+		// fully black), leaving the screen stuck black forever since
+		// nothing else ever finishes raising it back up. Non-party
+		// actors genuinely don't exist anymore once released here, so
+		// they still get cleared (also avoids the "actions keep a
+		// reference to their sender" leak the comment above already
+		// flags, for the actors that really do need it).
+		if (!actor->InParty())
+			actor->ClearActionList();
 		_DetachFromCurrentRegion(actor);
 
 		actor->Release();
