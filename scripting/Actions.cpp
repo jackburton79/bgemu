@@ -2828,7 +2828,7 @@ RunActionDisplayStringHeadOwner(Object* sender, action_params* params, action_st
 
 	if (!state.initiated) {
 		state.initiated = true;
-		state.counter = 100; // ?? - same as DISPLAYSTRINGHEAD above
+		state.counter = 50; // TODO: Should be based on text length - same as DISPLAYSTRINGHEAD above
 		TLKEntry* tlkEntry = IDTable::GetTLKEntry(params->integer1);
 		owner->SetText(tlkEntry->text);
 		delete tlkEntry;
