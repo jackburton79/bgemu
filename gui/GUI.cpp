@@ -709,6 +709,18 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 					case 1:
 						Core::Get()->LoadWorldMap();
 						break;
+					case 3:
+						Game::Get()->ToggleInventoryWindow();
+						break;
+					case 4:
+						Game::Get()->ToggleRecordWindow();
+						break;
+					case 7:
+						Game::Get()->ToggleSaveWindow();
+						break;
+					case 11:
+						Game::Get()->TriggerRest();
+						break;
 					default:
 						std::cout << "window " << std::dec << windowID << ",";
 						std::cout << "control " << controlID << std::endl;

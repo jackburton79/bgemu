@@ -52,6 +52,11 @@ public:
 		uint16 windowID);
 	void ToggleJournalWindow();
 
+	// Queues RESTPARTY(230) on the first party member - same action
+	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
+	// just triggered from the HUD Rest button instead of a script.
+	void TriggerRest();
+
 	bool Load(const char* name);
 	bool Save(const char* name);
 

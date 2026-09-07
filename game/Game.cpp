@@ -428,6 +428,19 @@ Game::ToggleJournalWindow()
 }
 
 
+void
+Game::TriggerRest()
+{
+	if (fParty == NULL || fParty->CountActors() == 0)
+		return;
+
+	action_params* params = new action_params;
+	params->id = 230; // RESTPARTY
+	fParty->ActorAt(0)->AddAction(params);
+	params->Release();
+}
+
+
 // GUIINV.CHU/GUIREC.CHU/GUISAVE.CHU/GUILOAD.CHU control IDs used by the
 // label-population methods below, named rather than left as bare
 // literals at each call site - all identified/confirmed as described in

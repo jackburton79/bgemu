@@ -378,9 +378,16 @@ public:
 		// mouse events, so this is the only way to exercise
 		// GUI::ControlInvoked() (and whatever it routes to) headlessly.
 		const ShellCommandParameters params = ParseParameters(argv);
-		res_ref chuName = params.at(0).value.string;
-		Window* window = GUI::Get()->GetAuxWindow(chuName,
-			(uint16)params.at(1).value.integer);
+		std::string chuNameString = params.at(0).value.string;
+		uint16 windowId = (uint16)params.at(1).value.integer;
+		// "-" (or empty) means the primary GUI resource (e.g. GUIW, the
+		// HUD) rather than an aux screen - GetWindow() is the one that
+		// looks there (GetAuxWindow() deliberately only checks aux
+		// screens, since their plain numeric ids can collide across
+		// different CHU files).
+		Window* window = (chuNameString.empty() || chuNameString == "-")
+			? GUI::Get()->GetWindow(windowId)
+			: GUI::Get()->GetAuxWindow(res_ref(chuNameString.c_str()), windowId);
 		if (window == NULL) {
 			std::cout << "Invoke-Control: window not found" << std::endl;
 			return;
