@@ -52,7 +52,7 @@ STOResource::Load(Archive* archive, uint32 key)
 
 
 uint32
-STOResource::Type() const
+STOResource::StoreType() const
 {
 	uint32 type;
 	fData->ReadAt(0x08, type);

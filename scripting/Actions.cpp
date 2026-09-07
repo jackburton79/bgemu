@@ -167,7 +167,7 @@ RunActionStartStore(Object* sender, action_params* params, action_state& state)
 	if (store != NULL) {
 		std::cout << "StartStore: " << params->string1 << " opened for "
 			<< (target != NULL ? target->Name() : "(no target)")
-			<< " - type=" << store->Type() << ", " << store->ItemsForSale().size()
+			<< " - type=" << store->StoreType() << ", " << store->ItemsForSale().size()
 			<< " item(s) for sale" << std::endl;
 		gResManager->ReleaseResource(store);
 	} else {

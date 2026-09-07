@@ -55,7 +55,7 @@ public:
 
 	virtual bool Load(Archive* archive, uint32 key);
 
-	uint32 Type() const;
+	uint32 StoreType() const;
 	uint32 NameRef() const;
 	uint32 Flags() const;
 	uint32 SellMarkup() const;	// % of base price the store charges
