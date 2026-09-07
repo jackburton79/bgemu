@@ -913,14 +913,7 @@ AreaRoom::_InitSearchMap()
 	fSearchMap = new ::SearchMap(searchMapName);
 	fMapHorizontalRatio = ceilf(float(AreaRect().w) / float(fSearchMap->Width()));
 	fMapVerticalRatio = ceilf(float(AreaRect().h) / float(fSearchMap->Height()));
-	/*std::cout << std::dec;
-	std::cout << "map: w=" << AreaRect().w << ", h=";
-	std::cout << AreaRect().h << std::endl;
-	std::cout << "search map: w=" << fSearchMap->Width() << ", h=";
-	std::cout << fSearchMap->Height() << std::endl;
-	std::cout << "ratio: h=" << fMapHorizontalRatio;
-	std::cout << ", v=" << fMapVerticalRatio << std::endl;
-*/
+
 	std::cout << Log::Green << "Done!" << Log::Normal << std::endl;
 }
 
@@ -1117,7 +1110,6 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	}
 
 	if (Region* region = RegionAtPoint(point)) {
-		//std::cout << region->Name() << std::endl;
 		object = region;
 		cursorIndex = region->CursorIndex();
 	}
@@ -1214,7 +1206,6 @@ AreaRoom::_LoadActors()
 		}
 	}
 
-
 	std::cout << "- Loading other actors:" ;
 	std::cout << std::endl;
 	for (uint16 i = 0; i < fArea->CountActors(); i++) {
@@ -1277,6 +1268,11 @@ AreaRoom::_CleanDestroyedObjects()
 		if (actor->ToBeDestroyed()) {
 			if (actor == Core::Get()->CutsceneActor()) {
 				// TODO: is this correct ?
+				// Clear the dangling reference before releasing the
+				// actor below - same convention Core::UpdateLogic()
+				// already follows at its own EndCutsceneMode() call
+				// site (nils fCutsceneActor first).
+				Core::Get()->SetCutsceneActor(NULL);
 				Core::Get()->EndCutsceneMode();
 				//return;
 			}
@@ -1286,6 +1282,12 @@ AreaRoom::_CleanDestroyedObjects()
 			Core::Get()->UnregisterObject(actor);
 
 			i = fActors.erase(i);
+			// Mirror _UnloadArea()'s cleanup: fActors held an implicit
+			// reference (from construction for a plain actor, or from
+			// the extra Acquire() _LoadActors() takes for party members)
+			// that must be released now that the actor is no longer in
+			// the list
+			actor->Release();
 		} else
 			i++;
 	}
