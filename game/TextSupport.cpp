@@ -211,22 +211,41 @@ Font::_LoadGlyphs(const std::string& fontName)
 }
 
 
+// containerHeight is the *real* available vertical space (the
+// destination bitmap's own height - e.g. a label's authored CHU
+// height, which is usually taller than a single line of text); height
+// is the text's own rendered height (from _PrepareGlyphs), used to
+// work out how much slack there is to justify within. Per chu_v1.htm's
+// Label control docs (bits 5/7 = Top/Bottom, "with no bits set the
+// text is centred horizontally and vertically"): previously neither
+// flag was consulted at all here, so every label/text always rendered
+// as if anchored to destPoint.y regardless of what its CHU data
+// actually asked for - the "vertical alignment looks off in some
+// cases" bug. Combined Top+Bottom isn't documented; Bottom wins here,
+// mirroring the documented Right-wins-over-Left/Center precedence for
+// the horizontal axis just above.
 GFX::rect
 Font::_GetContainerRect(uint16 textWidth,
 						 uint32 flags,
 						 const GFX::point& destPoint,
-						 uint16 width, uint16 height) const
+						 uint16 width, uint16 height,
+						 uint16 containerHeight) const
 {
 	GFX::rect containerRect = { 0, 0, width, height };
 
-	if (flags & IE::LABEL_JUSTIFY_CENTER)
-		containerRect.x = (width - textWidth) / 2;
-	else if (flags & IE::LABEL_JUSTIFY_RIGHT)
+	if (flags & IE::LABEL_JUSTIFY_RIGHT)
 		containerRect.x = width - textWidth;
+	else if (flags & IE::LABEL_JUSTIFY_CENTER)
+		containerRect.x = (width - textWidth) / 2;
 	else
 		containerRect.x = destPoint.x;
 
-	containerRect.y = destPoint.y;
+	if (flags & IE::LABEL_JUSTIFY_BOTTOM)
+		containerRect.y = destPoint.y + containerHeight - height;
+	else if (flags & IE::LABEL_JUSTIFY_TOP)
+		containerRect.y = destPoint.y;
+	else
+		containerRect.y = destPoint.y + (containerHeight - height) / 2;
 
 	return containerRect;
 }
@@ -280,7 +299,8 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// Render glyphs
 	const GFX::rect containerRect = _GetContainerRect(textWidth,
 													  flags, destPoint,
-													  maxWidth, maxHeight);
+													  maxWidth, maxHeight,
+													  bitmap->Height());
 	GFX::rect renderRect = containerRect;
 	for (const auto &glyph : glyphs) {
 		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, renderRect);

@@ -78,7 +78,8 @@ private:
 	GFX::rect _GetContainerRect(uint16 textWidth,
 								 uint32 flags,
 								 const GFX::point& destPoint,
-								 uint16 width, uint16 height) const;
+								 uint16 width, uint16 height,
+								 uint16 containerHeight) const;
 	GFX::rect _CalcGlyphRect(const Glyph& glyph, uint32 flags,
 							   const GFX::rect& containerRect) const;
 
