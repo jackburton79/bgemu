@@ -116,7 +116,12 @@ public:
 
 	void UpdateCursorAndScrolling(int x, int y);
 
-	void ControlInvoked(uint32 controlID, uint16 windowID);
+	// chuName - which CHU resource the clicked window was loaded from
+	// (see Window::OwnerCHU()) - empty for this GUI's own primary
+	// resource (fResource), non-empty for an aux screen (GUIINV,
+	// GUIREC, GUISAVE, ...). Needed because window/control ids aren't
+	// unique across different CHU files, only within one.
+	void ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName);
 
 	void RemoveToolTip(uint32 id);
 

@@ -38,6 +38,18 @@ public:
 	void ToggleDayNight();
 	void ToggleInventoryWindow();
 	void ToggleRecordWindow();
+	// Minimal single-slot Save/Load screens (GUISAVE/GUILOAD) - real BG2
+	// has a full multi-slot browser (portraits, names, dates, delete) in
+	// those same CHU files, not modeled here; only the one slot's name/
+	// status labels and the main confirm button are wired, same spirit
+	// as other "real data, reduced scope" simplifications already on the
+	// roadmap.
+	void ToggleSaveWindow();
+	void ToggleLoadWindow();
+	// GUI::ControlInvoked() routes clicks on GUISAVE/GUILOAD controls
+	// here (Game owns Save()/Load(), GUI doesn't reach into game state).
+	void SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
+		uint16 windowID);
 
 	bool Load(const char* name);
 	bool Save(const char* name);
@@ -150,6 +162,7 @@ private:
 	void _UpdateClassRaceLevelLabels(class Window* window, Actor* actor);
 	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
 	std::string _TitleCaseIDSName(const std::string& idsName);
+	void _UpdateSaveLoadLabels(const res_ref& chuName);
 };
 
 #endif /* GAME_H_ */

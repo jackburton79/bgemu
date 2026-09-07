@@ -251,6 +251,12 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_r:
 								ToggleRecordWindow();
 								break;
+							case SDLK_F5:
+								ToggleSaveWindow();
+								break;
+							case SDLK_F9:
+								ToggleLoadWindow();
+								break;
 							case SDLK_q:
 								quitting = true;
 								break;
@@ -388,9 +394,30 @@ Game::ToggleRecordWindow()
 }
 
 
-// GUIINV.CHU/GUIREC.CHU control IDs used by the label-population methods
-// below, named rather than left as bare literals at each call site - all
-// identified/confirmed as described in those methods' own comments.
+// Shows/hides the (single-slot) Save/Load screen - just window 0, no
+// side columns (it's a standalone full-screen 640x480 CHU, unlike
+// GUIINV/GUIREC's 512-wide content panel flanked by the persistent
+// portrait columns).
+void
+Game::ToggleSaveWindow()
+{
+	if (GUI::Get()->ToggleAuxWindowGroup("GUISAVE", {0}))
+		_UpdateSaveLoadLabels("GUISAVE");
+}
+
+
+void
+Game::ToggleLoadWindow()
+{
+	if (GUI::Get()->ToggleAuxWindowGroup("GUILOAD", {0}))
+		_UpdateSaveLoadLabels("GUILOAD");
+}
+
+
+// GUIINV.CHU/GUIREC.CHU/GUISAVE.CHU/GUILOAD.CHU control IDs used by the
+// label-population methods below, named rather than left as bare
+// literals at each call site - all identified/confirmed as described in
+// those methods' own comments.
 static const uint32 kInvNameLabelID = 268435507;
 static const uint32 kInvACLabelID = 268435512;
 static const uint32 kRecACLabelID = 268435496;
@@ -398,6 +425,18 @@ static const uint32 kRecClassLabelID = 268435471;
 static const uint32 kRecRaceLabelID = 268435472;
 static const uint32 kRecLevelLabelID = 268435473;
 static const uint32 kRecStatsAreaID = 45;
+// GUISAVE.CHU and GUILOAD.CHU share the exact same window 0 layout
+// (confirmed via a real dump of both - same control ids/positions) -
+// only the first of the 4 visible slots is used in this minimal
+// version, plus the main confirm button.
+static const uint32 kSaveSlot1NameLabelID = 268435464;
+static const uint32 kSaveSlot1StatusLabelID = 268435472;
+static const uint32 kSaveConfirmButtonID = 34;
+// Real BG2 numbers save files per slot (see SAVEGAME(190)'s own
+// existing "savegame_slot<N>.gam" convention in RunActionSaveGame(),
+// scripting/Actions.cpp) - this minimal single-slot screen just always
+// uses slot 0.
+static const char* kSaveSlotPath = "savegame_slot0.gam";
 
 
 // Populates the inventory-slot buttons in the open GUIINV window 2 with
@@ -1061,4 +1100,57 @@ bool
 Game::TestMode() const
 {
 	return fTestMode;
+}
+
+
+// Fills in slot 1's name/status labels with whatever's actually on disk
+// at kSaveSlotPath - "Vuoto" (empty) if there's no file there yet,
+// otherwise a generic "available" status. Doesn't parse the GAM file to
+// show its real character/area/date (that's the multi-slot browser's
+// job, not modeled here) - just enough to tell the two states apart.
+void
+Game::_UpdateSaveLoadLabels(const res_ref& chuName)
+{
+	Window* window = GUI::Get()->GetAuxWindow(chuName, 0);
+	if (window == NULL)
+		return;
+
+	std::ifstream file(kSaveSlotPath);
+	bool exists = file.good();
+
+	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSaveSlot1NameLabelID));
+	if (nameLabel != NULL)
+		nameLabel->SetText("Slot 1");
+
+	Label* statusLabel = dynamic_cast<Label*>(window->GetControlByID(kSaveSlot1StatusLabelID));
+	if (statusLabel != NULL)
+		statusLabel->SetText(exists ? "Salvataggio disponibile" : "Vuoto");
+}
+
+
+void
+Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
+	uint16 windowID)
+{
+	if (windowID != 0 || controlID != kSaveConfirmButtonID)
+		return;
+
+	// Copy, not reference: chuName came from the very Window that owns
+	// the button just clicked (see Control::Invoke()) - Load() below
+	// reloads the area (Core::LoadArea()), which rebuilds the whole GUI
+	// from scratch (GUI::Load() calls Clear(), destroying every window,
+	// that one included) - a lingering reference into it would dangle.
+	res_ref chu = chuName;
+	bool isSave = chu == res_ref("GUISAVE");
+	if (isSave) {
+		bool ok = Save(kSaveSlotPath);
+		std::cout << "Save " << kSaveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
+		GUI::Get()->ToggleAuxWindowGroup(chu, {0});
+	} else {
+		bool ok = Load(kSaveSlotPath);
+		std::cout << "Load " << kSaveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
+		// Nothing to close here: Load() already rebuilt the GUI from
+		// scratch (see above), so there's no aux window left open to
+		// hide - trying to would instead freshly reopen a new one.
+	}
 }

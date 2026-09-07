@@ -16,7 +16,7 @@
 // Window
 Window::Window(uint16 id, int16 xPos, int16 yPos,
 		int16 width, int16 height,
-		Bitmap* background)
+		Bitmap* background, const res_ref& ownerCHU)
 	:
 	fID(id),
 	fShown(false),
@@ -24,7 +24,8 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 	fWidth(width),
 	fHeight(height),
 	fLastPulseTime(0),
-	fActiveControl(NULL)
+	fActiveControl(NULL),
+	fOwnerCHU(ownerCHU)
 {
 	fPosition.x = xPos;
 	fPosition.y = yPos;

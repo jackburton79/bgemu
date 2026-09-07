@@ -14,6 +14,7 @@
 #include "CHUIResource.h"
 #include "Control.h"
 #include "Core.h"
+#include "Game.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
 #include "ResManager.h"
@@ -635,13 +636,18 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 
 
 void
-GUI::ControlInvoked(uint32 controlID, uint16 windowID)
+GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
+	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
+		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
+		return;
+	}
+
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
 		return;
 
-	if (fResource->Name().compare("GUIWMAP") == 0) {
+	if (chuName == res_ref("GUIWMAP")) {
 		switch (windowID) {
 			case 0:
 				switch (controlID) {
@@ -696,7 +702,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID)
 				std::cout << "control " << controlID << std::endl;
 				break;
 			}
-	} else if (fResource->Name().find("GUIW") == 0) {
+	} else if (std::string(chuName.CString()).find("GUIW") == 0) {
 		switch (windowID) {
 			case WINDOW_COMMANDS:
 				switch (controlID) {

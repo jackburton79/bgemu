@@ -110,7 +110,7 @@ Control::Pulse()
 void
 Control::Invoke()
 {
-	GUI::Get()->ControlInvoked(ID(), fWindow->ID());
+	GUI::Get()->ControlInvoked(ID(), fWindow->ID(), fWindow->OwnerCHU());
 }
 
 

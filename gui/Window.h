@@ -22,9 +22,16 @@ namespace GFX {
 }
 class Window {
 public:
+	// ownerCHU - the CHU resource this window was loaded from (e.g.
+	// "GUIINV", "GUISAVE") - lets a click on one of its controls
+	// (Control::Invoke() -> GUI::ControlInvoked()) be routed to the
+	// right screen's handling even for aux windows, whose numeric
+	// window/control ids aren't unique across different CHU files.
 	Window(uint16 id, int16 xPos, int16 yPos, int16 width, int16 height,
-			Bitmap* background);
+			Bitmap* background, const res_ref& ownerCHU = res_ref());
 	~Window();
+
+	const res_ref& OwnerCHU() const { return fOwnerCHU; }
 
 	void Draw();
 	void Add(Control* control);
@@ -77,6 +84,7 @@ private:
 	uint16 fHeight;
 	uint32 fLastPulseTime;
 	Control* fActiveControl;
+	res_ref fOwnerCHU;
 };
 
 

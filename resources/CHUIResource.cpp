@@ -110,7 +110,7 @@ CHUIResource::GetWindow(uint16 id)
 		}
 
 		newWindow = new Window(window.id, window.x, window.y,
-						window.w, window.h, background);
+						window.w, window.h, background, res_ref(Name().c_str()));
 
 		//std::cout << "CHUIResource::GetWindow(): Window has ";
 		//std::cout << std::dec << (int)window.num_controls << " controls." << std::endl;

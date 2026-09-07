@@ -10,6 +10,7 @@
 
 #include "AreaRoom.h"
 #include "Container.h"
+#include "Control.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "Dialog.h"
@@ -21,6 +22,7 @@
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
+#include "Window.h"
 
 #include <iostream>
 #include <sstream>
@@ -314,6 +316,69 @@ public:
 	virtual void operator()(const char* argv) {
 		Game::Get()->ToggleRecordWindow();
 		std::cout << "Toggle-Record: OK" << std::endl;
+	}
+};
+
+
+class ToggleSaveCommand : public ShellCommand {
+public:
+	ToggleSaveCommand()
+		: ShellCommand("Toggle-Save")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleSaveWindow();
+		std::cout << "Toggle-Save: OK" << std::endl;
+	}
+};
+
+
+class ToggleLoadCommand : public ShellCommand {
+public:
+	ToggleLoadCommand()
+		: ShellCommand("Toggle-Load")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleLoadWindow();
+		std::cout << "Toggle-Load: OK" << std::endl;
+	}
+};
+
+
+class InvokeControlCommand : public ShellCommand {
+public:
+	InvokeControlCommand()
+		: ShellCommand(
+			"Invoke-Control",
+			{
+				{ PARAMETER_STRING, }, // CHU name (e.g. GUISAVE)
+				{ PARAMETER_INT, },    // window id
+				{ PARAMETER_INT, }     // control id
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Test-only equivalent of clicking a control with the mouse
+		// (Control::MouseUp() -> Invoke()) - exec-file mode has no real
+		// mouse events, so this is the only way to exercise
+		// GUI::ControlInvoked() (and whatever it routes to) headlessly.
+		const ShellCommandParameters params = ParseParameters(argv);
+		res_ref chuName = params.at(0).value.string;
+		Window* window = GUI::Get()->GetAuxWindow(chuName,
+			(uint16)params.at(1).value.integer);
+		if (window == NULL) {
+			std::cout << "Invoke-Control: window not found" << std::endl;
+			return;
+		}
+		Control* control = window->GetControlByID(params.at(2).value.integer);
+		if (control == NULL) {
+			std::cout << "Invoke-Control: control not found" << std::endl;
+			return;
+		}
+		control->Invoke();
+		std::cout << "Invoke-Control: OK" << std::endl;
 	}
 };
 
@@ -896,6 +961,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ScreenshotCommand());
 	console->AddCommand(new ToggleInventoryCommand());
 	console->AddCommand(new ToggleRecordCommand());
+	console->AddCommand(new ToggleSaveCommand());
+	console->AddCommand(new ToggleLoadCommand());
+	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

@@ -140,6 +140,11 @@ void
 Button::MouseUp(IE::point point)
 {
 	Control::MouseUp(point);
-	Invoke();
+	// fPressed cleared *before* Invoke(), not after: a control's action
+	// can synchronously tear down and rebuild the whole GUI (e.g. a
+	// Save/Load button whose click reloads the area, which reloads the
+	// HUD CHU, which clears every window - this Button's own included);
+	// touching `this` after that point would be a use-after-free.
 	fPressed = false;
+	Invoke();
 }
