@@ -115,11 +115,29 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	SetAreaOffsetCenter(point);
 
-	Actor* player = Game::Get()->Party()->ActorAt(0);
-	if (player != NULL) {
-		player->SetPosition(point);
-		SelectActor(player);
+	// Every party member needs a real position in this area, not just
+	// the lead - a member left at whatever position it had in the
+	// *previous* area (only ActorAt(0) was ever repositioned here) can
+	// easily land outside this area's own bounds, which
+	// GraphicsEngine::BlitBitmapWithMask() doesn't defend against (no
+	// clamping against the mask bitmap's own dimensions) - a real,
+	// reproduced SEGV in AreaRoom::_DrawActors() right after entering a
+	// new area via a script-driven area change (LEAVEAREALUA), where a
+	// non-lead party member (e.g. Imoen) still had a stale position from
+	// the area just left. Same entrance point for everyone (no formation
+	// scatter) - simplest fix that guarantees every member starts inside
+	// the new area's bounds; TODO: a small per-member offset would look
+	// more like the real engine's spawn formation.
+	Party* party = Game::Get()->Party();
+	for (uint16 a = 0; a < party->CountActors(); a++) {
+		Actor* member = party->ActorAt(a);
+		if (member != NULL)
+			member->SetPosition(point);
 	}
+
+	Actor* player = party->ActorAt(0);
+	if (player != NULL)
+		SelectActor(player);
 
 	GUI::Get()->ShowWindow(999);
 

@@ -292,6 +292,37 @@ public:
 };
 
 
+// WAIT-TICKS (in an exec-file) only calls Core::UpdateLogic(), never
+// GUI::Draw() - fine for most tests, but useless for reproducing a bug
+// that only shows up on a Draw() that happens to land right on a
+// particular tick (e.g. the very first frame after an area change), since
+// WAIT-TICKS N followed by a single Screenshot draws only once, after
+// all N ticks already ran. Step-Ticks interleaves UpdateLogic()+Draw()
+// per tick, same as the real interactive loop (see Game::Loop()) -
+// draws every single tick in the given range instead of just the last.
+class StepTicksCommand : public ShellCommand {
+public:
+	StepTicksCommand()
+		: ShellCommand(
+			"Step-Ticks",
+			{
+				{ PARAMETER_INT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		int32 ticks = params.at(0).value.integer;
+		for (int32 i = 0; i < ticks; i++) {
+			Core::Get()->UpdateLogic(true);
+			GUI::Get()->Draw();
+		}
+		std::cout << "Step-Ticks: OK (" << ticks << " ticks)" << std::endl;
+	}
+};
+
+
 class ToggleInventoryCommand : public ShellCommand {
 public:
 	ToggleInventoryCommand()
@@ -1193,4 +1224,5 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new SaveGameCommand());
 	console->AddCommand(new LoadGameCommand());
 	console->AddCommand(new SelectDialogOptionCommand());
+	console->AddCommand(new StepTicksCommand());
 }
