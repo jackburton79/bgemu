@@ -320,6 +320,7 @@ Parser::ActionFromString(const std::string& string)
 	} catch (const std::exception& exception) {
 		std::cerr << "Parser::ActionFromString(): got exception " << exception.what() << std::endl;
 		delete params;
+		return nullptr;
 	}
 	//std::cout << "ActionFromString() END" << std::endl;
 	//params->Print();
