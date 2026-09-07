@@ -306,5 +306,20 @@ DialogHandler::_FillPlaceHolders(std::string& text)
 
 	for (const auto& token : tokens)
 		_ReplaceAll(text, "<" + token.first + ">", token.second);
+
+	// TLK strings routinely embed literal CR/LF for paragraph breaks.
+	// Collapsed to a single space so both paths always see one coherent line.
+	std::string collapsed;
+	collapsed.reserve(text.size());
+	bool lastWasSpace = false;
+	for (char c : text) {
+		if (c == '\r' || c == '\n')
+			c = ' ';
+		if (c == ' ' && lastWasSpace)
+			continue;
+		collapsed += c;
+		lastWasSpace = (c == ' ');
+	}
+	text = collapsed;
 }
 
