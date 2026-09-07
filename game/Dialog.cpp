@@ -186,6 +186,16 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 		}
 	}
 
+	// An instant action just queued above (e.g. STARTCUTSCENE, which
+	// real BG1 dialogue actually ends transitions with - Gorion's intro)
+	// can synchronously reach Game::TerminateDialog(), which deletes
+	// this very DialogHandler out from under us (found via a real
+	// use-after-free crash report). Once that's happened there's
+	// nothing left on `this` to safely read below - bail out before
+	// touching fResource/fCurrentState/fStatus.
+	if (!Game::Get()->InDialogMode())
+		return;
+
 	if (!transition.HasNextState()) {
 		fStatus = DialogState::Finished;
 		return;
