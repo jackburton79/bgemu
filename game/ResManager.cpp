@@ -194,12 +194,16 @@ ResourceManager::GetResource(const char* fullName)
 	leaf = leaf.substr(0, leaf.find("."));
 	res_ref name = leaf.c_str();
 
+	auto logError = [&](const std::string& message) {
+		std::cerr << RED(kComponentName) << RED("GetResource(") << RED(fullName)
+			<< RED("): ") << RED(message) << std::endl;
+	};
+
 	int type;
 	try {
 		type = res_string_to_type(fullName);
 	} catch (std::exception& e) {
-		std::cerr << RED(kComponentName) << RED("GetResource(") << RED(fullName)
-			<< RED("): ") << RED(e.what()) << std::endl;
+		logError(e.what());
 		return NULL;
 	}
 
@@ -209,19 +213,19 @@ ResourceManager::GetResource(const char* fullName)
 		// its own header comment) - try every known resource type until
 		// one matches, instead of falling through to GetResource(name,
 		// -1) below: that cast -1 to a uint16 (65535), which never
-		// matches any real type, so the caller always got a "resource
-		// does not exist" error - except that error path itself crashed
-		// (strresource(65535) returns NULL, appended into a std::string
-		// via the RED() logging macro - a NULL-deref, not a clean
-		// error). Found via `-d GUIINV`/`-d SLNG01`, the natural way
-		// this flag has actually been used throughout this project.
+		// matches any real type, so the caller would always get a
+		// "resource does not exist" error instead of a real lookup.
+		// (Originally found via a real crash on `-d GUIINV`/`-d SLNG01`
+		// - strresource(65535) used to return NULL, fed unguarded into
+		// a std::string append a few lines below in the "does not
+		// exist" case; that's now fixed at the source in strresource()
+		// itself, since every other call site had the same exposure.)
 		for (int i = 0; i < CountResourceTypes(); i++) {
 			uint16 candidateType = (uint16)ResourceTypeAt(i);
 			if (ResourceExists(name, candidateType))
 				return GetResource(name, candidateType);
 		}
-		std::cerr << RED(kComponentName) << RED("GetResource(") << RED(fullName)
-			<< RED("): no resource with any known type matches this name") << std::endl;
+		logError("no resource with any known type matches this name");
 		return NULL;
 	}
 

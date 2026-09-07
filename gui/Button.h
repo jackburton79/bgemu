@@ -9,6 +9,7 @@
 #define __BUTTON_H_
 
 #include "Control.h"
+#include "GraphicsDefs.h"
 #include "IETypes.h"
 
 class Bitmap;
@@ -36,6 +37,12 @@ private:
 	Bitmap* fPressedBitmap;
 	Bitmap* fUnpressedBitmap;
 	Bitmap* fIcon;
+	// Icon position/size within the button's own (window-local, not yet
+	// screen-converted) frame - computed once in SetIcon() rather than
+	// every Draw() call, since it only depends on the icon's fixed size
+	// and the button's own (static, CHU-authored) frame, neither of
+	// which change between frames.
+	GFX::rect fIconRect;
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;

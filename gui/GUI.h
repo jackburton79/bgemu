@@ -12,6 +12,7 @@
 #include "Listener.h"
 #include "Window.h"
 
+#include <initializer_list>
 #include <list>
 #include <map>
 #include <set>
@@ -89,6 +90,15 @@ public:
 	void HideAuxWindow(const res_ref& chuName, uint16 windowId);
 	bool IsAuxWindowShown(const res_ref& chuName, uint16 windowId) const;
 	void ToggleAuxWindow(const res_ref& chuName, uint16 windowId);
+	// Show/hide, as a unit, every window of a multi-window aux screen
+	// (e.g. Inventory or Record: a main content panel plus the two
+	// persistent side columns) - shown state is read from windowIds's
+	// first entry and applied to all of them. Returns true if the group
+	// is now shown (false if it just got hidden), so a caller that needs
+	// to populate the content only on open (e.g. with per-character data)
+	// knows when to do so.
+	bool ToggleAuxWindowGroup(const res_ref& chuName,
+		std::initializer_list<uint16> windowIds);
 	// NULL if that (chuName, windowId) hasn't been shown yet - unlike
 	// GetWindow(id) above, this one does look inside fAuxWindows (by
 	// design GetWindow() excludes aux windows, since their plain numeric

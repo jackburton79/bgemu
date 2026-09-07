@@ -59,6 +59,15 @@ Button::SetIcon(Bitmap* icon)
 	if (fIcon != NULL)
 		fIcon->Release();
 	fIcon = icon;
+	if (fIcon != NULL) {
+		// Precompute the icon's centered position within the button's
+		// own (window-local) frame here rather than in Draw() - both
+		// inputs (the icon's fixed size, the button's static CHU-
+		// authored frame) are unchanged between frames, so redoing this
+		// on every single Draw() call would be wasted work.
+		fIconRect = GFX::rect(0, 0, fIcon->Width(), fIcon->Height());
+		fIconRect.CenterIn(Frame());
+	}
 }
 
 
@@ -91,17 +100,10 @@ Button::Draw()
 		GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);
 	}
 	if (fIcon != NULL) {
-		// Center the icon over the button's own frame (an item icon BAM
-		// isn't necessarily the same size as a 42x42 inventory slot).
-		// Not GFX::rect::CenterIn() - despite the name it centers this
-		// rect's *position* (x/y) within the argument, not this rect
-		// itself as a same-sized box inside it; it has no other caller
-		// in the codebase to have caught that.
-		GFX::rect buttonFrame = Frame();
-		int32 offsetX = ((int32)buttonFrame.w - (int32)fIcon->Width()) / 2;
-		int32 offsetY = ((int32)buttonFrame.h - (int32)fIcon->Height()) / 2;
-		GFX::rect iconRect(buttonFrame.x + offsetX, buttonFrame.y + offsetY,
-			fIcon->Width(), fIcon->Height());
+		// fIconRect (an item icon centered over the button's own frame,
+		// e.g. for an inventory slot) was already computed in SetIcon()
+		// - only the screen conversion needs to happen every frame.
+		GFX::rect iconRect = fIconRect;
 		fWindow->ConvertToScreen(iconRect);
 		GraphicsEngine::Get()->BlitToScreen(fIcon, NULL, &iconRect);
 	}

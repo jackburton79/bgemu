@@ -131,7 +131,13 @@ strresource(int type)
 	const struct resource_struct* res = resource_get_from_type(type);
 	if (res != NULL)
 		return res->description.c_str();
-	return NULL;
+	// Was NULL - every one of this function's several call sites in
+	// ResManager.cpp streams or .append()s the result directly with no
+	// NULL check (that's what caused the real crash the -d/
+	// --dump-resource fix above worked around, in just one of them);
+	// a safe placeholder fixes all of them at the source instead of
+	// leaving the rest as latent crashes waiting for an unmatched type.
+	return "Unknown";
 }
 
 

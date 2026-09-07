@@ -435,6 +435,21 @@ GUI::ToggleAuxWindow(const res_ref& chuName, uint16 windowId)
 }
 
 
+bool
+GUI::ToggleAuxWindowGroup(const res_ref& chuName,
+	std::initializer_list<uint16> windowIds)
+{
+	bool shown = IsAuxWindowShown(chuName, *windowIds.begin());
+	for (uint16 windowId : windowIds)
+		HideAuxWindow(chuName, windowId);
+	if (!shown) {
+		for (uint16 windowId : windowIds)
+			ShowAuxWindow(chuName, windowId);
+	}
+	return !shown;
+}
+
+
 void
 GUI::Clear()
 {

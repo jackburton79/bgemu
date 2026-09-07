@@ -35,6 +35,7 @@
 #include <cctype>
 #include <fstream>
 #include <stdio.h>
+#include <utility>
 
 
 static uint32 sFrames = 0;
@@ -370,15 +371,8 @@ Game::SetStartingArea(const char* areaName)
 void
 Game::ToggleInventoryWindow()
 {
-	GUI* windowGui = GUI::Get();
-	bool shown = windowGui->IsAuxWindowShown("GUIINV", 2);
-	for (uint16 windowId : {0, 1, 2})
-		windowGui->HideAuxWindow("GUIINV", windowId);
-	if (!shown) {
-		for (uint16 windowId : {0, 1, 2})
-			windowGui->ShowAuxWindow("GUIINV", windowId);
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1}))
 		_UpdateInventoryIcons();
-	}
 }
 
 
@@ -389,16 +383,21 @@ Game::ToggleInventoryWindow()
 void
 Game::ToggleRecordWindow()
 {
-	GUI* windowGui = GUI::Get();
-	bool shown = windowGui->IsAuxWindowShown("GUIREC", 2);
-	for (uint16 windowId : {0, 1, 2})
-		windowGui->HideAuxWindow("GUIREC", windowId);
-	if (!shown) {
-		for (uint16 windowId : {0, 1, 2})
-			windowGui->ShowAuxWindow("GUIREC", windowId);
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1}))
 		_UpdateRecordLabels();
-	}
 }
+
+
+// GUIINV.CHU/GUIREC.CHU control IDs used by the label-population methods
+// below, named rather than left as bare literals at each call site - all
+// identified/confirmed as described in those methods' own comments.
+static const uint32 kInvNameLabelID = 268435507;
+static const uint32 kInvACLabelID = 268435512;
+static const uint32 kRecACLabelID = 268435496;
+static const uint32 kRecClassLabelID = 268435471;
+static const uint32 kRecRaceLabelID = 268435472;
+static const uint32 kRecLevelLabelID = 268435473;
+static const uint32 kRecStatsAreaID = 45;
 
 
 // Populates the inventory-slot buttons in the open GUIINV window 2 with
@@ -438,47 +437,44 @@ Game::_UpdateInventoryIcons()
 	for (uint32 i = 0; i < kGeneralGridCount; i++)
 		_SetSlotIcon(window, cre, kGeneralGridControlIDs[i], kSlotGeneralFirst + i);
 
-	// Helmet/Armor/Shield/Gauntlets (the row above the paperdoll, ids
-	// 11-14) - confirmed empirically, not guessed from position: probing
-	// this row 1:1 against slots 0-3 on ANOMEN10 (a real party member
-	// with real gear already equipped there) rendered a helmet icon, a
-	// chest-armor icon and a shield icon, in that exact order, at ids
-	// 11/12/13 respectively (14/gauntlets was empty on that character,
-	// so unverified but follows the same confirmed sequence).
-	_SetSlotIcon(window, cre, 11, kSlotHelmet);
-	_SetSlotIcon(window, cre, 12, kSlotArmor);
-	_SetSlotIcon(window, cre, 13, kSlotShield);
-	_SetSlotIcon(window, cre, 14, kSlotGauntlets);
-
-	// "Armi rapide" (quick weapons, ids 1-4, under that label per a real
-	// GUIINV.CHU control dump) - matches kSlotWeaponFirst..+3 (Weapon1-4)
-	// by count (4 controls, 4 slots); not individually icon-verified like
-	// the row above (no test character has more than one weapon
-	// equipped), but the count match plus the identical "ascending id ->
-	// ascending slot" pattern already confirmed for the row above make
-	// this a reasonably safe read.
-	_SetSlotIcon(window, cre, 1, kSlotWeaponFirst);
-	_SetSlotIcon(window, cre, 2, kSlotWeaponFirst + 1);
-	_SetSlotIcon(window, cre, 3, kSlotWeaponFirst + 2);
-	_SetSlotIcon(window, cre, 4, kSlotWeaponFirst + 3);
-
-	// "Faretra" (quiver/ammo, ids 15-17, under that label) - only 3
-	// controls for the CRE format's 4 ammo slots (kSlotAmmoFirst..
-	// kSlotAmmoLast); declared deviation, same spirit as the other
-	// "engine doesn't model every UI nuance" simplifications already on
-	// the roadmap - shows the first 3 (13-15), the 4th (16) has no
-	// control to display it in this CHU layout.
-	_SetSlotIcon(window, cre, 15, kSlotAmmoFirst);
-	_SetSlotIcon(window, cre, 16, kSlotAmmoFirst + 1);
-	_SetSlotIcon(window, cre, 17, kSlotAmmoFirst + 2);
-
-	// "Oggetti rapidi" (quick items, ids 5-7, under that label) - CRE
-	// slots 18-20 (QuickItem1-3), per the pre-existing item-order comment
-	// in Actor.cpp (already verified there against a real CRE); count
-	// matches (3 controls, 3 slots).
-	_SetSlotIcon(window, cre, 5, 18);
-	_SetSlotIcon(window, cre, 6, 19);
-	_SetSlotIcon(window, cre, 7, 20);
+	// Equipment-slot clusters identified so far (control id -> CRE slot),
+	// same table+loop idiom as the general grid above. Rationale for each
+	// group (kept per-group since it differs in confidence/derivation):
+	//
+	// - Helmet/Armor/Shield/Gauntlets (row above the paperdoll, ids
+	//   11-14): confirmed empirically, not guessed from position -
+	//   probing this row 1:1 against slots 0-3 on ANOMEN10 (a real party
+	//   member with real gear already equipped there) rendered a helmet
+	//   icon, a chest-armor icon and a shield icon, in that exact order,
+	//   at ids 11/12/13 respectively (14/gauntlets was empty on that
+	//   character, so unverified but follows the same confirmed
+	//   sequence).
+	// - "Armi rapide" (quick weapons, ids 1-4, under that label per a
+	//   real GUIINV.CHU control dump): matches kSlotWeaponFirst..+3
+	//   (Weapon1-4) by count (4 controls, 4 slots); not individually
+	//   icon-verified like the row above (no test character has more
+	//   than one weapon equipped), but the count match plus the
+	//   identical "ascending id -> ascending slot" pattern already
+	//   confirmed for the row above make this a reasonably safe read.
+	// - "Faretra" (quiver/ammo, ids 15-17, under that label): only 3
+	//   controls for the CRE format's 4 ammo slots (kSlotAmmoFirst..
+	//   kSlotAmmoLast); declared deviation, same spirit as the other
+	//   "engine doesn't model every UI nuance" simplifications already on
+	//   the roadmap - shows the first 3 (13-15), the 4th (16) has no
+	//   control to display it in this CHU layout.
+	// - "Oggetti rapidi" (quick items, ids 5-7, under that label): CRE
+	//   slots 18-20 (QuickItem1-3), per the pre-existing item-order
+	//   comment in Actor.cpp (already verified there against a real
+	//   CRE); count matches (3 controls, 3 slots).
+	struct { uint32 controlID; uint32 creSlot; } const kEquipSlotMap[] = {
+		{ 11, kSlotHelmet }, { 12, kSlotArmor }, { 13, kSlotShield }, { 14, kSlotGauntlets },
+		{ 1, kSlotWeaponFirst }, { 2, kSlotWeaponFirst + 1 },
+		{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
+		{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
+		{ 5, 18 }, { 6, 19 }, { 7, 20 }
+	};
+	for (const auto& mapping : kEquipSlotMap)
+		_SetSlotIcon(window, cre, mapping.controlID, mapping.creSlot);
 
 	// Not mapped yet: rings/amulet/belt/boots/cloak (ids 21-26, CRE slots
 	// 4-8 and 17) - unlike the row above the paperdoll, no test character
@@ -516,11 +512,11 @@ Game::_UpdateInventoryIcons()
 void
 Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 {
-	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(268435507));
+	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kInvNameLabelID));
 	if (nameLabel != NULL)
 		nameLabel->SetText(actor->LongName());
 
-	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(268435512));
+	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
 		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
 }
@@ -553,14 +549,28 @@ Game::_UpdateRecordLabels()
 	if (window == NULL)
 		return;
 
-	BaseAttributes attrs;
-	actor->CRE()->GetAttributes(attrs);
+	_UpdateAbilityScoreLabels(window, actor->CRE());
 
-	// Row-by-row (top to bottom) against the static "Forza/Destrezza/
-	// Costituzione/Intelligenza/Saggezza/Carisma" name labels beside
-	// them, confirmed via a real GUIREC.CHU control dump (each value
-	// label sits ~10px below its matching name label, same 37px row
-	// spacing for both columns).
+	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kRecACLabelID));
+	if (acLabel != NULL)
+		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+
+	_UpdateClassRaceLevelLabels(window, actor);
+	_UpdateSavesAndResistances(window, actor->CRE());
+}
+
+
+// The 6 ability-score value labels, row-by-row (top to bottom) against
+// the static "Forza/Destrezza/Costituzione/Intelligenza/Saggezza/
+// Carisma" name labels beside them, confirmed via a real GUIREC.CHU
+// control dump (each value label sits ~10px below its matching name
+// label, same 37px row spacing for both columns).
+void
+Game::_UpdateAbilityScoreLabels(Window* window, CREResource* cre)
+{
+	BaseAttributes attrs;
+	cre->GetAttributes(attrs);
+
 	static const uint32 kStatLabelIDs[] = {
 		268435503, 268435465, 268435466, 268435467, 268435468, 268435469
 	};
@@ -578,74 +588,93 @@ Game::_UpdateRecordLabels()
 			text += "/" + std::to_string(attrs.strength_bonus);
 		label->SetText(text);
 	}
+}
 
-	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(268435496));
-	if (acLabel != NULL)
-		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
 
-	// Class/Race/Level 3-line block (ids 471/472/473, y=322/345/368,
-	// confirmed via a real GUIREC.CHU dump). The CHU's own static default
-	// for the race line ("Umano"/Human) looked plausible at first for a
-	// human test character, but showing a second, non-human party member
-	// (Imoen, a half-elf) still showed "Umano" unchanged - proving it's
-	// just this control's authored default, not real data, and needs to
-	// be set from code like everything else here.
-	// IDTable::RaceAt()/ClassAt() return the raw RACE.IDS/CLASS.IDS
-	// token (e.g. "HALF_ELF", "FIGHTER_CLERIC") - there's no RACE.2DA in
-	// this installation to resolve a localized display string from, so
-	// _TitleCaseIDSName() below just turns "HALF_ELF" into "Half Elf"
-	// (underscores to spaces, title case) rather than show the raw
-	// all-caps token. Not localized to Italian like the rest of this
-	// screen - declared simplification, same spirit as other "real data,
-	// imperfect presentation" deviations already on the roadmap.
-	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(268435471));
+// Class/Race/Level 3-line block (ids 471/472/473, y=322/345/368,
+// confirmed via a real GUIREC.CHU dump). The CHU's own static default
+// for the race line ("Umano"/Human) looked plausible at first for a
+// human test character, but showing a second, non-human party member
+// (Imoen, a half-elf) still showed "Umano" unchanged - proving it's
+// just this control's authored default, not real data, and needs to
+// be set from code like everything else here.
+// IDTable::RaceAt()/ClassAt() return the raw RACE.IDS/CLASS.IDS
+// token (e.g. "HALF_ELF", "FIGHTER_CLERIC") - there's no RACE.2DA in
+// this installation to resolve a localized display string from, so
+// _TitleCaseIDSName() below just turns "HALF_ELF" into "Half Elf"
+// (underscores to spaces, title case) rather than show the raw
+// all-caps token. Not localized to Italian like the rest of this
+// screen - declared simplification, same spirit as other "real data,
+// imperfect presentation" deviations already on the roadmap.
+void
+Game::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
+{
+	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kRecClassLabelID));
 	if (classLabel != NULL)
 		classLabel->SetText(_TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class())));
 
-	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(268435472));
+	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(kRecRaceLabelID));
 	if (raceLabel != NULL)
 		raceLabel->SetText(_TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race())));
 
-	Label* levelLabel = dynamic_cast<Label*>(window->GetControlByID(268435473));
+	Label* levelLabel = dynamic_cast<Label*>(window->GetControlByID(kRecLevelLabelID));
 	if (levelLabel != NULL)
 		levelLabel->SetText("Livello " + std::to_string(actor->CRE()->Level()));
+}
 
-	// Saving throws + damage resistances (id 45, a scrollable text_area
-	// with its own scrollbar at id 46, confirmed via a real GUIREC.CHU
-	// dump) - real BG2 lists these as plain scrollable text rather than
-	// individual labels, unlike the rest of this tab. Both structs
-	// (SaveVersus/Resistances) were already fully read by CREResource,
-	// just never displayed anywhere until now.
-	TextArea* statsArea = dynamic_cast<TextArea*>(window->GetControlByID(45));
-	if (statsArea != NULL) {
-		statsArea->ClearText();
-		SaveVersus saves = actor->CRE()->Saves();
-		statsArea->AddText("Tiri Salvezza");
-		statsArea->AddText(("Morte: " + std::to_string(saves.death)).c_str());
-		statsArea->AddText(("Bacchette: " + std::to_string(saves.wands)).c_str());
-		statsArea->AddText(("Polimorfismo: " + std::to_string(saves.poly)).c_str());
-		statsArea->AddText(("Soffio: " + std::to_string(saves.breath)).c_str());
-		statsArea->AddText(("Incantesimi: " + std::to_string(saves.spell)).c_str());
 
-		Resistances res = actor->CRE()->DamageResistances();
-		statsArea->AddText("Resistenze");
-		statsArea->AddText(("Contundente: " + std::to_string(res.crushing) + "%").c_str());
-		statsArea->AddText(("Perforante: " + std::to_string(res.piercing) + "%").c_str());
-		statsArea->AddText(("Tagliente: " + std::to_string(res.slashing) + "%").c_str());
-		statsArea->AddText(("Missili: " + std::to_string(res.missile) + "%").c_str());
-		statsArea->AddText(("Fuoco: " + std::to_string(res.fire) + "%").c_str());
-		statsArea->AddText(("Freddo: " + std::to_string(res.cold) + "%").c_str());
-		statsArea->AddText(("Elettricita: " + std::to_string(res.electricity) + "%").c_str());
-		statsArea->AddText(("Acido: " + std::to_string(res.acid) + "%").c_str());
-		statsArea->AddText(("Magia: " + std::to_string(res.magic) + "%").c_str());
-		statsArea->AddText(("Fuoco magico: " + std::to_string(res.magic_fire) + "%").c_str());
-		statsArea->AddText(("Freddo magico: " + std::to_string(res.magic_cold) + "%").c_str());
-		// AddText() auto-scrolls to the newest line (fine for the
-		// dialogue TextArea it was written for) - scroll back to the
-		// top so Saving Throws, not the tail of Resistances, is what's
-		// visible when the tab first opens.
-		statsArea->ScrollTo(0, 0);
+// Saving throws + damage resistances (id 45, a scrollable text_area
+// with its own scrollbar at id 46, confirmed via a real GUIREC.CHU
+// dump) - real BG2 lists these as plain scrollable text rather than
+// individual labels, unlike the rest of this tab. Both structs
+// (SaveVersus/Resistances) were already fully read by CREResource,
+// just never displayed anywhere until now.
+void
+Game::_UpdateSavesAndResistances(Window* window, CREResource* cre)
+{
+	TextArea* statsArea = dynamic_cast<TextArea*>(window->GetControlByID(kRecStatsAreaID));
+	if (statsArea == NULL)
+		return;
+
+	statsArea->ClearText();
+
+	SaveVersus saves = cre->Saves();
+	const std::pair<const char*, uint8> saveLines[] = {
+		{ "Morte", saves.death },
+		{ "Bacchette", saves.wands },
+		{ "Polimorfismo", saves.poly },
+		{ "Soffio", saves.breath },
+		{ "Incantesimi", saves.spell }
+	};
+	statsArea->AddText("Tiri Salvezza");
+	for (const auto& line : saveLines)
+		statsArea->AddText((std::string(line.first) + ": " + std::to_string(line.second)).c_str());
+
+	Resistances res = cre->DamageResistances();
+	const std::pair<const char*, uint8> resistanceLines[] = {
+		{ "Contundente", res.crushing },
+		{ "Perforante", res.piercing },
+		{ "Tagliente", res.slashing },
+		{ "Missili", res.missile },
+		{ "Fuoco", res.fire },
+		{ "Freddo", res.cold },
+		{ "Elettricita", res.electricity },
+		{ "Acido", res.acid },
+		{ "Magia", res.magic },
+		{ "Fuoco magico", res.magic_fire },
+		{ "Freddo magico", res.magic_cold }
+	};
+	statsArea->AddText("Resistenze");
+	for (const auto& line : resistanceLines) {
+		statsArea->AddText(
+			(std::string(line.first) + ": " + std::to_string(line.second) + "%").c_str());
 	}
+
+	// AddText() auto-scrolls to the newest line (fine for the
+	// dialogue TextArea it was written for) - scroll back to the
+	// top so Saving Throws, not the tail of Resistances, is what's
+	// visible when the tab first opens.
+	statsArea->ScrollTo(0, 0);
 }
 
 
