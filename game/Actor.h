@@ -73,6 +73,12 @@ public:
 	std::string ArmorAnimation() const;
 	std::string WeaponAnimation() const;
 
+	// The paperdoll (PLT) resref for this actor's inventory screen - see
+	// AnimationFactory::PaperdollName(). Empty if this actor has no
+	// animation factory (shouldn't normally happen for a fully
+	// initialized Actor).
+	std::string PaperdollName() const;
+
 	// Resolves the item in the "weapon 1" quickslot (slot 9 - same slot
 	// ArmorAnimation()/WeaponAnimation() above already look up for their
 	// own purposes). Returns NULL if the slot is empty (caller should

@@ -30,6 +30,7 @@ class KeyDatabase;
 class MOSResource;
 class MVEResource;
 class KEYResource;
+class PLTResource;
 class SPLResource;
 class STOResource;
 class TISResource;
@@ -66,6 +67,7 @@ public:
 	VVCResource*	GetVVC(const res_ref& name);
 	WAVResource*	GetWAV(const res_ref& name);
 	WMAPResource*	GetWMAP(const res_ref& name);
+	PLTResource*	GetPLT(const res_ref& name);
 	SPLResource*	GetSPL(const res_ref& name);
 	STOResource*	GetSTO(const res_ref& name);
 

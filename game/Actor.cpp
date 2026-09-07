@@ -1035,6 +1035,15 @@ Actor::ArmorAnimation() const
 
 
 std::string
+Actor::PaperdollName() const
+{
+	if (fAnimationFactory == NULL)
+		return "";
+	return fAnimationFactory->PaperdollName(this);
+}
+
+
+std::string
 Actor::WeaponAnimation() const
 {
 	// TODO: Refactor: items should be loaded elsewhere

@@ -23,6 +23,7 @@
 #include "GUI.h"
 #include "ITMResource.h"
 #include "Label.h"
+#include "PLTResource.h"
 #include "TextArea.h"
 #include "Parsing.h"
 #include "Party.h"
@@ -462,6 +463,10 @@ Game::TriggerRest()
 // those methods' own comments.
 static const uint32 kInvNameLabelID = 268435507;
 static const uint32 kInvACLabelID = 268435512;
+// The paperdoll control itself (128x160, CHU-authored to a fixed
+// placeholder bitmap - CIFF4INV, a generic doll unrelated to whichever
+// character's inventory is actually open) - see _UpdatePaperdoll().
+static const uint32 kInvPaperdollID = 50;
 static const uint32 kRecACLabelID = 268435496;
 static const uint32 kRecClassLabelID = 268435471;
 static const uint32 kRecRaceLabelID = 268435472;
@@ -561,6 +566,8 @@ Game::_UpdateInventoryIcons()
 	for (const auto& mapping : kEquipSlotMap)
 		_SetSlotIcon(window, cre, mapping.controlID, mapping.creSlot);
 
+	_UpdatePaperdoll(window, actor);
+
 	// Not mapped yet: rings/amulet/belt/boots/cloak (ids 21-26, CRE slots
 	// 4-8 and 17) - unlike the row above the paperdoll, no test character
 	// available has real items in these slots, so there's no empirical
@@ -572,6 +579,35 @@ Game::_UpdateInventoryIcons()
 	// existing comment on that limitation).
 
 	_UpdateInventoryLabels(window, actor);
+}
+
+
+// Swaps the paperdoll control's fixed CHU-authored placeholder (CIFF4INV,
+// a generic doll unrelated to the shown character) for the real thing:
+// the actual character's own class/race/gender/armor identity (see
+// AnimationFactory::PaperdollName()), rendered from its PLT resource and
+// recolored with their own CRE colors (see PLTResource::Image()). Just
+// the base doll - equipped-item overlays (armor/shield/helmet/weapon
+// layers on top) aren't composited, a declared scope limit (see the
+// roadmap).
+void
+Game::_UpdatePaperdoll(Window* window, Actor* actor)
+{
+	Button* button = dynamic_cast<Button*>(window->GetControlByID(kInvPaperdollID));
+	if (button == NULL)
+		return;
+
+	std::string name = actor->PaperdollName();
+	Bitmap* icon = NULL;
+	PLTResource* plt = gResManager->GetPLT(name.c_str());
+	if (plt != NULL) {
+		icon = plt->Image(actor->CRE()->Colors());
+		gResManager->ReleaseResource(plt);
+	} else {
+		std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
+			<< name << std::endl;
+	}
+	button->SetIcon(icon);
 }
 
 

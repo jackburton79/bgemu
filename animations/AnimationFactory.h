@@ -35,7 +35,17 @@ public:
 	static void ReleaseFactory(AnimationFactory*);
 
 	Animation* AnimationFor(Actor* actor, CREColors* colors = NULL);
-	
+
+	// The paperdoll resref (a PLT, see resources/PLTResource.h) shown on
+	// the inventory screen for this actor - same identity prefix
+	// AnimationFor() builds for a party member's own sprite ("C" + Race
+	// + Gender + Class + Armor, see its own "Character" case below),
+	// with "INV" instead of an action/orientation suffix - see IESDP
+	// avatarnaming.htm's "PLT Files" paragraph. Falls back to this
+	// factory's own fixed BaseName() + "1" for a non-party actor,
+	// mirroring AnimationFor()'s own party/non-party split.
+	std::string PaperdollName(const Actor* actor) const;
+
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	virtual ~AnimationFactory();
@@ -54,7 +64,7 @@ protected:
 	std::string _RaceCharacter(uint8 race) const;
 	std::string _ClassCharacter(uint8 c) const;
 	std::string _GenderCharacter(uint8 gender) const;
-	std::string _ArmorCharacter(Actor* actor) const;
+	std::string _ArmorCharacter(const Actor* actor) const;
 
 	bool _HasG11(const std::string& name) const;
 	bool _HasG15(const std::string& name) const;

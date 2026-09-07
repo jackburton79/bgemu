@@ -246,6 +246,32 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 }
 
 
+std::string
+AnimationFactory::PaperdollName(const Actor* actor) const
+{
+	std::string name;
+	if (actor->InParty()) {
+		name.append("C");
+		name.append(_RaceCharacter(actor->CRE()->Race()));
+		name.append(_GenderCharacter(actor->CRE()->Gender()));
+		name.append(_ClassCharacter(actor->CRE()->Class()));
+		// Same "fighters are always shown in full plate" convention
+		// AnimationFor()'s own Character case above uses for the sprite
+		// itself (see its own TODO) - keeps the two identity prefixes
+		// in sync for a fighter-type multi-class.
+		if (name[3] == 'F')
+			name.append("4");
+		else
+			name.append(_ArmorCharacter(actor));
+	} else {
+		name = BaseName();
+		name.append("1");
+	}
+	name.append("INV");
+	return name;
+}
+
+
 animation_description
 AnimationFactory::GetAnimationDescription(Actor* actor)
 {
@@ -776,7 +802,7 @@ AnimationFactory::_GenderCharacter(uint8 gender) const
 
 
 std::string
-AnimationFactory::_ArmorCharacter(Actor* actor) const
+AnimationFactory::_ArmorCharacter(const Actor* actor) const
 {
 	std::string armor = actor->ArmorAnimation();
 	return armor.substr(0, 1);

@@ -12,6 +12,7 @@
 #include "ITMResource.h"
 #include "MOSResource.h"
 #include "MveResource.h"
+#include "PLTResource.h"
 #include "ResManager.h"
 #include "SPLResource.h"
 #include "STOResource.h"
@@ -57,7 +58,7 @@ const static resource_struct kResourceTypes[] = {
 	{ RES_ITM, "ITM", "Item", &ITMResource::Create },
 	{ RES_MOS, "MOS", "MOS format", &MOSResource::Create },
 	{ RES_MVE, "MVE", "Movie (MVE) format", &MVEResource::Create },
-	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", NULL },
+	{ RES_PLT, "PLT", "Paper Dolls (PLT) format", PLTResource::Create },
 	{ RES_PRO, "PRO", "PRO format (projectile)", NULL },
 	{ RES_SPL, "SPL", "SPL format", &SPLResource::Create },
 	{ RES_STO, "STO", "STORE format", &STOResource::Create },

@@ -17,6 +17,7 @@
 #include "Log.h"
 #include "MOSResource.h"
 #include "MveResource.h"
+#include "PLTResource.h"
 #include "ResManager.h"
 #include "Resource.h"
 #include "SPLResource.h"
@@ -399,6 +400,14 @@ ResourceManager::Get2DA(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_2DA);
 	return static_cast<TWODAResource*>(resource);
+}
+
+
+PLTResource*
+ResourceManager::GetPLT(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_PLT);
+	return static_cast<PLTResource*>(resource);
 }
 
 
