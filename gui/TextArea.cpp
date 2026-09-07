@@ -126,7 +126,13 @@ TextArea::MouseDown(IE::point point)
 					fLines.pop_back();
 				}
 				dialog->SelectOption(selectedIndex);
-				if (!dialog->Continue())
+				// SelectOption() can synchronously terminate the dialog
+				// (e.g. a transition whose actions include
+				// STARTCUTSCENE) - `dialog` may already be a dangling
+				// pointer here. Game::InDialogMode() is safe to check
+				// regardless (never touches `dialog` itself); calling
+				// anything on `dialog` after that would not be.
+				if (Game::Get()->InDialogMode() && !dialog->Continue())
 					Game::Get()->TerminateDialog();
 			}
 		} else

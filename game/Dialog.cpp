@@ -107,6 +107,16 @@ DialogHandler::Continue()
 
 	_AdvanceState();
 
+	// _AdvanceState() can reach a state with no player-choice text at
+	// all, auto-advancing straight into _ExecuteTransition() (see
+	// there) - if that transition's actions include one that
+	// synchronously terminates the dialog (e.g. STARTCUTSCENE), `this`
+	// is deleted before getting back here. Game::InDialogMode() is safe
+	// to call regardless (it only reads a Game member, never `this`);
+	// reading fStatus below would not be.
+	if (!Game::Get()->InDialogMode())
+		return false;
+
 	return fStatus != DialogState::Finished;
 }
 
