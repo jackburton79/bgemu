@@ -50,7 +50,7 @@ all: $(BGEMU)
 deps:
 	make -C libjgame
 
-tests: PathFindTest RandTest
+tests: PathFindTest RandTest BlitMaskBoundsTest
 
 PHONY := $(BGEMU) $(OBJS)
 $(BGEMU):  bgemu.cpp $(OBJS)
@@ -68,6 +68,16 @@ PathFindTest: $(OBJS) tests/PathFindTest.cpp
 RandTest: $(OBJS) tests/RandTest.cpp
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
+
+# Only needs libjgame (GraphicsEngine/Bitmap), not the game objects. Built with
+# AddressSanitizer and the libjgame graphics/support sources compiled in, so the
+# out-of-bounds mask read it guards against is reliably caught if it regresses.
+BLIT_MASK_TEST_SRCS = tests/BlitMaskBoundsTest.cpp \
+	$(wildcard libjgame/graphics/*.cpp) $(wildcard libjgame/support/*.cpp)
+BlitMaskBoundsTest: $(BLIT_MASK_TEST_SRCS)
+	mkdir -p $(OUTDIR)
+	$(CC) -o $(OUTDIR)/$@ $(BLIT_MASK_TEST_SRCS) $(LIBS) $(INC_DIRS) \
+		-Wall `sdl2-config --cflags` -g -O0 -fsanitize=address
 
 PHONY += clean
 clean:
