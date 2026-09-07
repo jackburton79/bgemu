@@ -22,6 +22,7 @@
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
+#include "Script.h"
 #include "Window.h"
 
 #include <iostream>
@@ -625,6 +626,109 @@ FindActor(const std::string& name)
 }
 
 
+// Splits "actor,rest" on the FIRST comma only, returning false if there's
+// no comma at all. Real trigger/action call syntax (e.g.
+// "StartTimer(1,30)") has commas of its own, so ShellCommand's normal
+// ParseParameters() (which splits argv on every comma before assigning
+// declared parameters) mangles anything but a single-parameter trigger/
+// action - found the hard way debugging this exact thing (STARTTIMER's
+// second parameter always came back 0: ParseParameters() had cut
+// "StartTimer(1,30)" into "StartTimer(1" and "30)", silently discarding
+// the second piece, feeding the parser a truncated string that happened
+// to still "parse" without error).
+static bool
+_SplitOnFirstComma(const char* argv, std::string& first, std::string& rest)
+{
+	const char* comma = ::strchr(argv, ',');
+	if (comma == NULL)
+		return false;
+	first.assign(argv, comma - argv);
+	rest.assign(comma + 1);
+	return true;
+}
+
+
+class EvaluateTriggerCommand : public ShellCommand {
+public:
+	EvaluateTriggerCommand()
+		: ShellCommand("Evaluate-Trigger")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// No other way to check a trigger's result directly - every
+		// other trigger-driven test path in this console goes through a
+		// whole dialog/script re-evaluation. Same parsing entry point
+		// DialogHandler::_AdvanceState() already uses for real DLG state
+		// triggers (Parser::TriggerFromString() + Script::EvaluateTrigger()).
+		// Usage: Evaluate-Trigger <actor>,<trigger text, e.g. TimerExpired(1)>
+		std::string actorName, triggerText;
+		if (!_SplitOnFirstComma(argv, actorName, triggerText)) {
+			std::cout << "Evaluate-Trigger: expected <actor>,<trigger text>" << std::endl;
+			return;
+		}
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "Evaluate-Trigger: actor not found" << std::endl;
+			return;
+		}
+
+		trigger_params* trigger = Parser::TriggerFromString(triggerText);
+		if (trigger == NULL) {
+			std::cout << "Evaluate-Trigger: failed to parse trigger" << std::endl;
+			return;
+		}
+
+		int orTrigger = 0;
+		bool result = Script::EvaluateTrigger(actor, trigger, orTrigger);
+		std::cout << "Evaluate-Trigger: " << (result ? "true" : "false") << std::endl;
+		delete trigger;
+	}
+};
+
+
+class QueueActionCommand : public ShellCommand {
+public:
+	QueueActionCommand()
+		: ShellCommand("Queue-Action")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Run-Action's own fixed positional params (integer1/string1/
+		// string2/where) don't cover every action's real signature - e.g.
+		// StartTimer(I:ID*,I:Time*) needs a *second* integer, which
+		// Run-Action has no slot for. This parses real action syntax
+		// instead (Parser::ActionFromString(), same entry point
+		// DialogHandler::_ExecuteTransition() uses for real DLG action
+		// blocks) so any action can be queued regardless of its
+		// parameter shape. See _SplitOnFirstComma() above for why this
+		// takes the raw text instead of going through ParseParameters().
+		// Usage: Queue-Action <actor>,<action text, e.g. StartTimer(1,30)>
+		std::string actorName, actionText;
+		if (!_SplitOnFirstComma(argv, actorName, actionText)) {
+			std::cout << "Queue-Action: expected <actor>,<action text>" << std::endl;
+			return;
+		}
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "Queue-Action: actor not found" << std::endl;
+			return;
+		}
+
+		action_params* action = Parser::ActionFromString(actionText);
+		if (action == NULL) {
+			std::cout << "Queue-Action: failed to parse action" << std::endl;
+			return;
+		}
+
+		actor->AddAction(action);
+		action->Release();
+		std::cout << "Queue-Action: OK" << std::endl;
+	}
+};
+
+
 // ClickObjectCommand - headless equivalent of clicking a world object
 // with the mouse (see AreaRoom::MouseDown(), which resolves the object
 // under the cursor and calls this same Object::ClickedOn() on the
@@ -1009,6 +1113,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleInventoryCommand());
 	console->AddCommand(new ToggleRecordCommand());
 	console->AddCommand(new SelectPartyCommand());
+	console->AddCommand(new EvaluateTriggerCommand());
+	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());

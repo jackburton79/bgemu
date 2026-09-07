@@ -1879,14 +1879,23 @@ RunActionClearAllActions(Object* sender, action_params* params, action_state& st
 
 // SETGLOBALTIMER(S:NAME*,S:AREA*,I:TIME*GTIMES) - stateless. Measured
 // against CINGAME (GameTimer's default TIMER_GLOBAL clock, in AI ticks -
-// see GameTimer.h's header comment on the two-clock model).
+// see GameTimer.h's header comment on the two-clock model). Per IESDP's
+// own timer documentation (appendices/timers.htm - "Time is tracked in
+// ticks... SetGlobalTimer("TINGAME","GLOBAL",3600) - TINGAME will expire
+// after half a day of in-game time"), the Time parameter is already in
+// CINGAME ticks, not seconds - no AI_UPDATE_FREQ conversion needed (that
+// belongs to STARTTIMER below, whose own Time parameter IESDP describes
+// as seconds). Confirmed on real data: GTimes.ids' ONE_DAY is 7200 -
+// exactly double IESDP's "half a day" example (3600) - and multiplying
+// it by AI_UPDATE_FREQ used to land on GTimes.ids' own FIFTEEN_DAYS
+// entry (7200*15=108000), turning a one-day timer into fifteen days.
 static void
 RunActionSetGlobalTimer(Object* sender, action_params* params, action_state& state)
 {
 	std::string timerName;
 	// TODO: We append the timer name to the area name, check if it's okay
 	timerName.append(params->string2).append(params->string1);
-	GameTimer::Add(timerName.c_str(), params->integer1 * AI_UPDATE_FREQ);
+	GameTimer::Add(timerName.c_str(), params->integer1);
 	state.completed = true;
 }
 
