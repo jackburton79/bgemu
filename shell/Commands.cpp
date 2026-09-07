@@ -23,6 +23,7 @@
 #include "Party.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "SearchMap.h"
 #include "Window.h"
 
 #include <iostream>
@@ -729,6 +730,61 @@ public:
 };
 
 
+class ToggleSearchMapCommand : public ShellCommand {
+public:
+	ToggleSearchMapCommand()
+		: ShellCommand("Toggle-SearchMap")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Headless equivalent of the SDLK_s handler - lets a Screenshot
+		// (see ScreenshotCommand) visualize the search map overlay
+		// without a real key event.
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL) {
+			std::cout << "Toggle-SearchMap: no area room" << std::endl;
+			return;
+		}
+		room->ToggleSearchMap();
+		std::cout << "Toggle-SearchMap: OK" << std::endl;
+	}
+};
+
+
+class CheckPassableCommand : public ShellCommand {
+public:
+	CheckPassableCommand()
+		: ShellCommand(
+			"Check-Passable",
+			{
+				{ PARAMETER_POINT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Direct SearchMap query, bypassing pathfinding/movement
+		// entirely - useful to confirm a door (or anything else) is
+		// actually flipping a specific cell's passability, without the
+		// noise of a real walk attempt (area scripts re-evaluating every
+		// WAIT-TICKS tick print plenty of unrelated log lines).
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point point = params.at(0).value.point;
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL || room->SearchMap() == NULL) {
+			std::cout << "Check-Passable: no search map" << std::endl;
+			return;
+		}
+		bool passable = room->SearchMap()->IsPointPassable(point.x, point.y);
+		// std::dec: some earlier, unrelated print in this session's own
+		// command chain leaves cout in hex mode - not this command's bug
+		// to carry forward into its own output.
+		std::cout << std::dec << "Check-Passable (" << point.x << "," << point.y << "): "
+			<< (passable ? "passable" : "BLOCKED") << std::endl;
+	}
+};
+
+
 // ClickObjectCommand - headless equivalent of clicking a world object
 // with the mouse (see AreaRoom::MouseDown(), which resolves the object
 // under the cursor and calls this same Object::ClickedOn() on the
@@ -1115,6 +1171,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new SelectPartyCommand());
 	console->AddCommand(new EvaluateTriggerCommand());
 	console->AddCommand(new QueueActionCommand());
+	console->AddCommand(new CheckPassableCommand());
+	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());

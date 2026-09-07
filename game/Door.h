@@ -9,9 +9,20 @@
 #include <vector>
 
 
+class ARAResource;
 class Door : public Object {
 public:
-	Door(IE::door* areaDoor);
+	// area, when given, lets UpdateSearchMapBlocking() read the door's
+	// real per-state "impeded cell block" data (see IESDP are_v1.htm) -
+	// the exact cells the original map author marked blocked/passable
+	// in each door state, indexed into the area's shared vertex table
+	// (area->VertexAt()) by areaDoor's own open_cell_index/
+	// closed_cell_index fields. Omit it (or pass NULL) to fall back to
+	// the coarser OpenBox()/ClosedBox() bounding-box approximation -
+	// used by callers that don't have an ARAResource at hand (there are
+	// none in this codebase today; kept so Door stays constructible
+	// without one).
+	Door(IE::door* areaDoor, ARAResource* area = NULL);
 
 	res_ref ShortName() const;	
 	
@@ -73,7 +84,8 @@ public:
 
 private:
 	IE::door* fAreaDoor;
-	IE::tiled_object* fTiledObject;	
+	ARAResource* fAreaResource;
+	IE::tiled_object* fTiledObject;
 	Polygon fOpenPolygon;
 	Polygon fClosedPolygon;
 };

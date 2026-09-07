@@ -127,6 +127,15 @@ ARAResource::DoorAt(uint32 index)
 }
 
 
+IE::point
+ARAResource::VertexAt(uint32 index)
+{
+	IE::point vertex = { 0, 0 };
+	fData->ReadAt(fVerticesOffset + index * sizeof(IE::point), vertex);
+	return vertex;
+}
+
+
 uint32
 ARAResource::CountAnimations() const
 {

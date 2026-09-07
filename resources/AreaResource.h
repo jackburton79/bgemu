@@ -24,6 +24,13 @@ public:
 	uint32 CountDoors() const;
 	IE::door *DoorAt(uint32 index);
 
+	// The area's shared vertex table (doors' outline/impeded-cell-block
+	// data, regions, animations, etc. all index into this same table by
+	// a start index + count - see e.g. IE::door's open_cell_index or
+	// resources/AreaResource.cpp's _LoadDoors()). index is an absolute
+	// index into the table, not relative to any one door/region.
+	IE::point VertexAt(uint32 index);
+
 	uint32 CountAnimations() const;
 	IE::animation *AnimationAt(uint32 index);
 

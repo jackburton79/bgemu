@@ -21,6 +21,13 @@ public:
 
 	void SetPoint(int32 x, int32 y);
 	void ClearPoint(int32 x, int32 y);
+	void ForcePassable(int32 x, int32 y);
+
+	// Cell-space variants (already-divided-by-cell-size coordinates) -
+	// see SearchMap.cpp for why these exist separately from the pixel-
+	// space methods above.
+	void SetCellBlocked(int32 cellX, int32 cellY);
+	void SetCellPassable(int32 cellX, int32 cellY);
 
 	Bitmap* Image();
 private:

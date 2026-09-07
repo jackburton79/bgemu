@@ -1,12 +1,14 @@
 #include "Door.h"
 
+#include "AreaResource.h"
 #include "AreaRoom.h"
 #include "SearchMap.h"
 
-Door::Door(IE::door* areaDoor)
+Door::Door(IE::door* areaDoor, ARAResource* area)
 	:
 	Object(areaDoor->name, Object::DOOR, areaDoor->script.CString()),
 	fAreaDoor(areaDoor),
+	fAreaResource(area),
 	fTiledObject(NULL)
 {
 }
@@ -54,16 +56,24 @@ Door::Close(Object* actor)
 }
 
 
-// IESDP documents a per-door "impeded cell block" (open_cell_index/
-// closed_cell_index + counts in IE::door) giving the door's exact
-// search-map-blocking polygon, indexed into the area's shared vertex
-// table - this codebase doesn't parse that table for doors (see
-// resources/AreaResource.cpp's _LoadDoors(), which already reads the
-// open/closed *outline* polygon the same way but never stores the
-// result either). Using OpenBox()/ClosedBox() instead - the door's
-// already-parsed, already-exposed bounding rectangles - is a coarser
-// but much simpler approximation: it blocks/frees a rectangle instead of
-// the door's exact shape.
+// Prefers IESDP's per-door "impeded cell block" (open_cell_index/
+// open_cell_count/closed_cell_index/closed_cell_count in IE::door) -
+// the exact list of search-map cells the original area author marked
+// blocked in each door state, indexed into the area's shared vertex
+// table (fAreaResource->VertexAt(), already in cell units per IESDP:
+// "these entries are x.y coordinates in the area search map"). Falls
+// back to OpenBox()/ClosedBox() - the door's bounding rectangles - when
+// there's no ARAResource to read the real data from, or a door's own
+// impeded-cell lists are empty.
+//
+// The bounding-box fallback is a coarser approximation: OpenBox() and
+// ClosedBox() commonly overlap by a few pixels (both are the door's
+// *sprite* bounding box in each state, not its walkable-gap shape), and
+// in that overlap the "currently blocked" box always wins - found via
+// a real Check-Passable sweep across two different doors in AR0602
+// that neither state actually opened a connected path through. The
+// precise impeded-cell-block data doesn't have this problem: it's an
+// exact cell list per state, not two overlapping rectangles.
 void
 Door::UpdateSearchMapBlocking()
 {
@@ -74,12 +84,31 @@ Door::UpdateSearchMapBlocking()
 	if (searchMap == NULL)
 		return;
 
+	if (fAreaResource != NULL) {
+		uint32 blockedIndex = Opened() ? fAreaDoor->open_cell_index : fAreaDoor->closed_cell_index;
+		uint16 blockedCount = Opened() ? fAreaDoor->open_cell_count : fAreaDoor->closed_cell_count;
+		uint32 passableIndex = Opened() ? fAreaDoor->closed_cell_index : fAreaDoor->open_cell_index;
+		uint16 passableCount = Opened() ? fAreaDoor->closed_cell_count : fAreaDoor->open_cell_count;
+
+		if (blockedCount > 0 || passableCount > 0) {
+			for (uint16 c = 0; c < passableCount; c++) {
+				IE::point cell = fAreaResource->VertexAt(passableIndex + c);
+				searchMap->SetCellPassable(cell.x, cell.y);
+			}
+			for (uint16 c = 0; c < blockedCount; c++) {
+				IE::point cell = fAreaResource->VertexAt(blockedIndex + c);
+				searchMap->SetCellBlocked(cell.x, cell.y);
+			}
+			return;
+		}
+	}
+
 	const IE::rect blocked = Opened() ? OpenBox() : ClosedBox();
 	const IE::rect passable = Opened() ? ClosedBox() : OpenBox();
 
 	for (int32 y = passable.y_min; y <= passable.y_max; y += 12) {
 		for (int32 x = passable.x_min; x <= passable.x_max; x += 16)
-			searchMap->ClearPoint(x, y);
+			searchMap->ForcePassable(x, y);
 	}
 	for (int32 y = blocked.y_min; y <= blocked.y_max; y += 12) {
 		for (int32 x = blocked.x_min; x <= blocked.x_max; x += 16)
@@ -279,4 +308,25 @@ Door::Print() const
 	std::cout << "\tlocked: " << (IsLocked() ? "yes" : "no");
 	std::cout << " (difficulty: " << LockDifficulty() << ")" << std::endl;
 	std::cout << "\ttrapped: " << (IsTrapped() ? "yes" : "no") << std::endl;
+	IE::rect open = OpenBox();
+	IE::rect closed = ClosedBox();
+	std::cout << std::dec;
+	std::cout << "\topen box: (" << open.x_min << "," << open.y_min << ")-("
+		<< open.x_max << "," << open.y_max << ")" << std::endl;
+	std::cout << "\tclosed box: (" << closed.x_min << "," << closed.y_min << ")-("
+		<< closed.x_max << "," << closed.y_max << ")" << std::endl;
+	if (fAreaResource != NULL) {
+		std::cout << "\topen cells (" << fAreaDoor->open_cell_count << "):";
+		for (uint16 c = 0; c < fAreaDoor->open_cell_count; c++) {
+			IE::point cell = fAreaResource->VertexAt(fAreaDoor->open_cell_index + c);
+			std::cout << " (" << cell.x << "," << cell.y << ")";
+		}
+		std::cout << std::endl;
+		std::cout << "\tclosed cells (" << fAreaDoor->closed_cell_count << "):";
+		for (uint16 c = 0; c < fAreaDoor->closed_cell_count; c++) {
+			IE::point cell = fAreaResource->VertexAt(fAreaDoor->closed_cell_index + c);
+			std::cout << " (" << cell.x << "," << cell.y << ")";
+		}
+		std::cout << std::endl;
+	}
 }

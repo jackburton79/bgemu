@@ -86,13 +86,7 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 void
 SearchMap::SetPoint(int32 x, int32 y)
 {
-	x = x / 16;
-	y = y / 12;
-	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
-		return;
-
-	fPassabilityMap[y * fWidth + x] = false;
-	fModifiedMap->PutPixel(x, y, 0);
+	SetCellBlocked(x / 16, y / 12);
 }
 
 
@@ -107,6 +101,57 @@ SearchMap::ClearPoint(int32 x, int32 y)
 	uint8 originalPixel = fImage->GetPixel(x, y);
 	fPassabilityMap[y * fWidth + x] = _IsPixelPassable(originalPixel);
 	fModifiedMap->PutPixel(x, y, originalPixel);
+}
+
+
+// Unlike ClearPoint() (restores whatever the area's own WED search-map
+// bitmap originally had there - correct for actor occupancy, which
+// should fall back to the real underlying terrain once vacated), this
+// unconditionally marks the cell walkable regardless of what's under
+// it. Needed for an open door's own footprint: per IESDP's search-map
+// color table (appendices/search.htm), a doorway's base terrain is
+// authored as "0 - Obstacle" or "10 - Wall" (both impassable) since the
+// door object is meant to override it dynamically - ClearPoint() just
+// puts that same wall/obstacle value straight back, so the "open"
+// side never actually became walkable (found verifying Door::Open()/
+// Close() with Check-Passable: passability was identical before and
+// after opening a real door).
+void
+SearchMap::ForcePassable(int32 x, int32 y)
+{
+	SetCellPassable(x / 16, y / 12);
+}
+
+
+// Cell-space variants of SetPoint()/ForcePassable() above - for callers
+// that already have search-map-native cell coordinates (e.g. a door's
+// "impeded cell block" data, see IESDP are_v1.htm: "these entries are
+// x.y coordinates in the area search map", i.e. already in cell units,
+// not area pixels) and shouldn't have them divided by the cell size a
+// second time.
+void
+SearchMap::SetCellBlocked(int32 cellX, int32 cellY)
+{
+	if (cellX < 0 || cellX >= fWidth || cellY < 0 || cellY >= fHeight)
+		return;
+
+	fPassabilityMap[cellY * fWidth + cellX] = false;
+	fModifiedMap->PutPixel(cellX, cellY, 0);
+}
+
+
+void
+SearchMap::SetCellPassable(int32 cellX, int32 cellY)
+{
+	if (cellX < 0 || cellX >= fWidth || cellY < 0 || cellY >= fHeight)
+		return;
+
+	fPassabilityMap[cellY * fWidth + cellX] = true;
+	// 1 - Sand: an arbitrary but always-passable value (see
+	// appendices/search.htm), just for fModifiedMap's own visual/debug
+	// consistency - fPassabilityMap above is what pathfinding actually
+	// reads.
+	fModifiedMap->PutPixel(cellX, cellY, 1);
 }
 
 

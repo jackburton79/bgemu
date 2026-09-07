@@ -1252,7 +1252,7 @@ AreaRoom::_InitDoors()
 
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
-		Door *door = new Door(fArea->DoorAt(c));
+		Door *door = new Door(fArea->DoorAt(c), fArea);
 		AddObject(door);
 		door->UpdateSearchMapBlocking();
 		fWed->LinkDoorWithTiledObject(door);
