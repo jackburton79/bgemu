@@ -1888,15 +1888,13 @@ RunActionUnhideGUI(Object* sender, action_params* params, action_state& state)
 }
 
 
-// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*) / DISPLAYSTRINGWAIT(...) - same
-// run function for both ids. state.counter mirrors the original's fDuration
-// (hardcoded to 100, marked "??" in the source it was ported from).
+// DISPLAYSTRINGHEAD(O:OBJECT*,I:STRREF*) / DISPLAYSTRINGWAIT(...)
 static void
 RunActionDisplayStringHead(Object* sender, action_params* params, action_state& state)
 {
 	if (!state.initiated) {
 		state.initiated = true;
-		state.counter = 100; // ??
+		state.counter = 50; // TODO: Should be based on text length
 		Object* resolvedSender = Script::GetSenderObject(sender, params);
 		Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(resolvedSender, params));
 		if (actor == NULL) {
