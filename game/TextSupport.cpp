@@ -164,12 +164,33 @@ Font::_LoadGlyphs(const std::string& fontName)
 		return;
 	}
 	fTransparentIndex = fontRes->TransparentIndex();
+	bool haveBaseLine = false;
+	bool haveFallbackBaseLine = false;
+	uint16 fallbackBaseLine = 0;
 	for (uint8 cycleNum = 0; cycleNum < fontRes->CountCycles(); cycleNum++) {
 		char c = cycleNum + 1;
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
-			if (cycleNum == 1) {
-				fBaseLine = bitmap->Height() - 2;//bitmap->Frame().y;
+			// Baseline reference glyph: used to be whatever sits at
+			// character code 2 (cycleNum == 1) regardless of what that
+			// actually is - fine for fonts where it happens to be an
+			// ordinary letter, but real BG2 font BAMs can put anything
+			// there (found the hard way: REALMS's glyph at code 2 is a
+			// 3x37px decorative flourish, nowhere near representative
+			// of the font's real letter height - that pushed every
+			// string rendered in that font off the bottom of any label
+			// shorter than ~37px, e.g. the inventory/record name
+			// banners). 'A' (65) is an ordinary letter in every Latin
+			// font BAM this engine loads, so use that instead; fall
+			// back to the first glyph that loads at all only if a font
+			// genuinely has no 'A' (e.g. a symbols-only font).
+			if (!haveFallbackBaseLine) {
+				fallbackBaseLine = bitmap->Height() - 2;
+				haveFallbackBaseLine = true;
+			}
+			if (c == 'A') {
+				fBaseLine = bitmap->Height() - 2;
+				haveBaseLine = true;
 			}
 #if 0
 			std::cout << "Glyph " << (char)c << "(" << c << ") ascent: " << bitmap->Frame().y;
@@ -184,6 +205,8 @@ Font::_LoadGlyphs(const std::string& fontName)
 			break;
 		}
 	}
+	if (!haveBaseLine)
+		fBaseLine = fallbackBaseLine;
 	gResManager->ReleaseResource(fontRes);
 }
 
