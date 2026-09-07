@@ -274,4 +274,9 @@ Door::Opened() const
 void
 Door::Print() const
 {
+	std::cout << "Door " << Name() << ": " << std::endl;
+	std::cout << "\topen: " << (Opened() ? "yes" : "no") << std::endl;
+	std::cout << "\tlocked: " << (IsLocked() ? "yes" : "no");
+	std::cout << " (difficulty: " << LockDifficulty() << ")" << std::endl;
+	std::cout << "\ttrapped: " << (IsTrapped() ? "yes" : "no") << std::endl;
 }

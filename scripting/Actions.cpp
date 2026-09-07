@@ -1315,6 +1315,41 @@ RunActionOpenDoor(Object* sender, action_params* params, action_state& state)
 }
 
 
+// BASHDOOR(O:OBJECT*) - stateless. IESDP has no documented success
+// formula for this ("attempt to bash the specified door") - reuses
+// _RollSkillCheck() (same "reasonable, deliberately simple
+// approximation" spirit already used for lockpicking/trap checks
+// above) against Strength instead of a thief skill, since bashing is a
+// strength check, not a dexterity one; Strength is 3-25 in this
+// engine's data, so it's scaled up (*4) to sit on the same 0-100 range
+// _RollSkillCheck()/LockDifficulty() expect. On success (or if the
+// door wasn't locked to begin with) it unlocks and opens the door; on
+// failure the door is left exactly as it was, same as a failed
+// PICKLOCK.
+static void
+RunActionBashDoor(Object* sender, action_params* params, action_state& state)
+{
+	Object* target = Script::GetTargetObject(sender, params);
+	Door* door = dynamic_cast<Door*>(target);
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (door != NULL && actor != NULL) {
+		std::cout << "actor " << actor->Name() << " bashes " << door->Name() << std::endl;
+		if (door->IsLocked()) {
+			BaseAttributes attributes;
+			actor->CRE()->GetAttributes(attributes);
+			if (_RollSkillCheck((uint8)(attributes.strength * 4), door->LockDifficulty())) {
+				std::cout << "\tsucceeded" << std::endl;
+				door->Unlock(actor);
+			} else
+				std::cout << "\tfailed" << std::endl;
+		}
+		if (!door->IsLocked() && !door->Opened())
+			door->Open(actor);
+	}
+	state.completed = true;
+}
+
+
 // CLOSEDOOR(O:OBJECT*) - stateless.
 static void
 RunActionCloseDoor(Object* sender, action_params* params, action_state& state)
@@ -3178,16 +3213,24 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 91, "LEAVEAREA", NULL },
 		{ 92, "SELECTWEAPONABILITY", NULL },
 		{ 94, "GROUPATTACK", NULL },
-		{ 95, "SPELLPOINT", NULL },
+		// SPELLPOINT: same shape as SPELL (consumes a memorized slot),
+		// just targeting a point instead of an object - like
+		// FORCESPELLPOINT above, point-targeting isn't modeled
+		// separately from object-targeting, so this is a direct alias.
+		{ 95, "SPELLPOINT", RunActionSpell },
 		{ 96, "REST", RunActionRest },
 		{ 97, "USEITEMPOINTSLOT", NULL },
-		{ 98, "ATTACKNOSOUND", NULL },
+		// AttackNoSound/AttackOneRound: same as ATTACK per IESDP, just
+		// without a battlecry sound / limited to one round - neither
+		// nuance is modeled (no attack sounds, no round-limiting
+		// mechanism), same alias already used for ATTACKREEVALUATE.
+		{ 98, "ATTACKNOSOUND", RunActionAttack },
 		{ 100, "RANDOMFLY", RunActionRandomFly },
 		{ 101, "FLYTOPOINT", RunActionFlyTo }, // not in the original IDS table
 		{ 102, "MORALESET", RunActionMoraleSet },
 		{ 103, "MORALEINC", RunActionMoraleInc },
 		{ 104, "MORALEDEC", RunActionMoraleDec },
-		{ 105, "ATTACKONEROUND", NULL },
+		{ 105, "ATTACKONEROUND", RunActionAttack },
 		{ 106, "SHOUT", RunActionShout },
 		{ 107, "MOVETOOFFSET", RunActionMoveToOffset },
 		{ 108, "ESCAPEAREA", RunActionEscapeArea },
@@ -3231,7 +3274,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 145, "PICKLOCK", RunActionPickLock },
 		{ 146, "POLYMORPH", NULL },
 		{ 147, "REMOVESPELL", RunActionRemoveSpell },
-		{ 148, "BASHDOOR", NULL },
+		{ 148, "BASHDOOR", RunActionBashDoor },
 		{ 149, "EQUIPMOSTDAMAGINGMELEE", RunActionEquipMostDamagingMelee },
 		{ 150, "STARTSTORE", RunActionStartStore },
 		{ 151, "DISPLAYSTRING", RunActionDisplayMessage },
@@ -3274,8 +3317,14 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 188, "TAKEPARTYITEMALL", RunActionTakePartyItemAll },
 		{ 189, "LEAVEAREALUAPANIC", NULL },
 		{ 190, "SAVEGAME", RunActionSaveGame },
-		{ 191, "SPELLNODEC", NULL },
-		{ 192, "SPELLPOINTNODEC", NULL },
+		// SpellNoDec/SpellPointNoDec: cast without spending a memorized
+		// slot - exactly what ForceSpell/ForceSpellPoint already do
+		// (neither checks/consumes the spellbook), so these are direct
+		// aliases; IESDP's own text for 192 ("must currently be
+		// memorised") looks like a documentation slip against the
+		// "NoDec" name shared with 191 - not modeled either way.
+		{ 191, "SPELLNODEC", RunActionForceSpell },
+		{ 192, "SPELLPOINTNODEC", RunActionForceSpellPoint },
 		{ 193, "TAKEPARTYITEMRANGE", RunActionTakePartyItem },
 		{ 194, "CHANGEANIMATION", NULL },
 		{ 195, "LOCK", RunActionLock },
