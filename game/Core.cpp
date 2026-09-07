@@ -38,6 +38,7 @@ Core::Core()
 	fCutsceneScript(NULL),
 	fDialogMode(false),
 	fCutsceneActor(NULL),
+	fPendingAreaChange(false),
 	fHasExtendedOrientations(false)
 {
 	srand(time(NULL));
@@ -174,6 +175,17 @@ Core::LoadArea(const res_ref areaName, std::string longName,
 
 	EnteredArea(fCurrentRoom);
 	return true;
+}
+
+
+void
+Core::RequestAreaChange(const res_ref& areaName, const std::string& longName,
+	const std::string& entranceName)
+{
+	fPendingAreaChange = true;
+	fPendingAreaName = areaName;
+	fPendingLongName = longName;
+	fPendingEntranceName = entranceName;
 }
 
 
@@ -387,6 +399,18 @@ Core::UpdateLogic(bool executeScripts)
 		bool runScripts = executeScripts && !fCutsceneMode;
 		// AreaRoom::Update() calls Update() for every object
 		fCurrentRoom->Update(runScripts);
+
+		// Apply any area change an action requested during the Update()
+		// call just above now that it's actually safe to do so - see
+		// RequestAreaChange()'s own comment. fCurrentRoom (and whatever
+		// it was in the middle of this tick) is gone once this runs, so
+		// skip the rest of this tick's bookkeeping below; it resumes
+		// cleanly against the new area next tick.
+		if (fPendingAreaChange) {
+			fPendingAreaChange = false;
+			LoadArea(fPendingAreaName, fPendingLongName, fPendingEntranceName);
+			return;
+		}
 
 		if (fCutsceneScript != NULL && fCutsceneScript->ExecuteCutscene()) {
 			// Every block has been *queued* onto its target actor(s) - but

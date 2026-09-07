@@ -1365,6 +1365,15 @@ AreaRoom::_UnloadArea()
 		//UnregisterObject(*i);
 		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
 		// and this blocks deletion of said object
+		if (actor == Core::Get()->CutsceneActor()) {
+			// Same dangling-reference guard as _CleanDestroyedObjects()
+			// above (see its own comment) - reachable here too now that
+			// an area change mid-cutscene (see Core::RequestAreaChange())
+			// can unload this area, and thus release this actor, while
+			// it's still Core's fCutsceneActor.
+			Core::Get()->SetCutsceneActor(NULL);
+			Core::Get()->EndCutsceneMode();
+		}
 		actor->ClearActionList();
 		_DetachFromCurrentRegion(actor);
 

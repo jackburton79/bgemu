@@ -56,6 +56,22 @@ public:
 					std::string entranceName);
 	bool LoadWorldMap();
 
+	// Records an area change to apply once it's safe to do so (right
+	// after UpdateLogic()'s AreaRoom::Update() call returns) instead of
+	// loading immediately - LoadArea() destroys the current AreaRoom
+	// (see its own GUI::Clear() call), which is only safe once nothing
+	// on the call stack is still inside one of ITS OWN member functions.
+	// Actions that trigger an area change (LEAVEAREALUA,
+	// MOVEBETWEENAREASEFFECT) run from deep inside AreaRoom::Update()'s
+	// own actor-update loop (Actor::Update() -> ... -> this action) -
+	// calling LoadArea() straight from there was a real, reproduced
+	// heap-use-after-free (AreaRoom::Update()'s "for (actor : fActors)"
+	// loop reading fActors after the AreaRoom that owns it, and that
+	// loop, got destroyed out from under it).
+	void RequestAreaChange(const res_ref& areaName,
+					const std::string& longName,
+					const std::string& entranceName);
+
 	RoomBase* CurrentRoom();
 
 	void EnteredArea(RoomBase* area);
@@ -123,6 +139,11 @@ private:
 	::Script* fCutsceneScript;
 	bool fDialogMode;
 	Object* fCutsceneActor;
+
+	bool fPendingAreaChange;
+	res_ref fPendingAreaName;
+	std::string fPendingLongName;
+	std::string fPendingEntranceName;
 
 	// Engine features
 	bool fHasExtendedOrientations;

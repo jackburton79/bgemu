@@ -999,7 +999,10 @@ RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_st
 				};
 				tempState->actors[params->string1].push_back(pending);
 				actor->Area()->RemoveObject(actor);
-				Core::Get()->LoadArea(params->string1, "", "");
+				// Deferred - see RunActionChangeArea()'s own comment,
+				// same reasoning applies here (also runs from inside
+				// AreaRoom::Update()'s actor loop).
+				Core::Get()->RequestAreaChange(params->string1, "", "");
 			} else {
 				actor->SetPosition(params->where);
 				actor->SetOrientation(params->integer1);
@@ -1238,10 +1241,15 @@ RunActionIncrementGlobal(Object* sender, action_params* params, action_state& st
 
 
 // LEAVEAREALUA(S:Area*,S:Parchment*,P:Point*,I:Face*) - stateless.
+// Deferred via Core::RequestAreaChange() rather than loading immediately -
+// this action runs from inside AreaRoom::Update()'s own actor-update loop
+// (Actor::Update() -> ... -> here), and LoadArea() destroys that same
+// AreaRoom (via GUI::Clear()) - a real, reproduced heap-use-after-free
+// once that loop tried to continue. See RequestAreaChange()'s own comment.
 static void
 RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 {
-	Core::Get()->LoadArea(params->string1, "", "");
+	Core::Get()->RequestAreaChange(params->string1, "", "");
 	state.completed = true;
 }
 
