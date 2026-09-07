@@ -42,11 +42,24 @@ public:
 	bool Load(const char* name);
 	bool Save(const char* name);
 
-	// TODO: we need this to keep track of actor moving between areas
-	// until we have proper support for saving areas data
+	// Hands off a live Actor object between two AreaRoom loads within the
+	// same running session (e.g. a scripted MOVEBETWEENAREASEFFECT) -
+	// not disk persistence, that's GamResource/Save()'s job, and it only
+	// covers party members serialized at the CREResource level (no live
+	// runtime state like active effects or a pending action queue - see
+	// GamResource.h's own header comment). Keyed by destination area
+	// name (res_ref's operator< is case-insensitive, matching resref
+	// conventions) so more than one pending handoff can be in flight at
+	// once without actors from different destinations getting mixed up;
+	// AreaRoom::_LoadActors() drains only its own area's entry.
 	class TempState {
 	public:
-		std::vector<Actor*> actors;
+		struct PendingActor {
+			Actor* actor;
+			IE::point position;
+			uint16 orientation;
+		};
+		std::map<res_ref, std::vector<PendingActor>> actors;
 	};
 	TempState* GetTempState();
 

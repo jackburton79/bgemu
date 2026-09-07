@@ -413,7 +413,25 @@ AreaRoom::AddObject(Object* object)
 void
 AreaRoom::RemoveObject(Object* object)
 {
-	// TODO: Implement ?
+	// Only the case MoveBetweenAreasEffect (see scripting/Actions.cpp)
+	// actually needs: pulling a live Actor out of fActors before handing
+	// it to Game::TempState for another AreaRoom to pick up, so it isn't
+	// also released a second time by this room's own _UnloadArea() (that
+	// unconditionally Release()s everything still in fActors when this
+	// room goes away).
+	switch (object->Type()) {
+		case Object::ACTOR:
+		{
+			Actor* actor = dynamic_cast<Actor*>(object);
+			auto pos = std::find(fActors.begin(), fActors.end(), actor);
+			if (pos != fActors.end())
+				fActors.erase(pos);
+			break;
+		}
+		default:
+			// TODO: Other objects
+			break;
+	}
 }
 
 
@@ -1175,21 +1193,25 @@ AreaRoom::_LoadActors()
 
 	Game::TempState* tempState = Game::Get()->GetTempState();
 	if (tempState != NULL) {
-		std::cout << "- Loading actors from previous room:" ;
-		std::cout << std::endl;
-		while (!tempState->actors.empty()) {
-			Actor* actor = tempState->actors.back();
-			tempState->actors.pop_back();
-			AddObject(actor);
-			actor->Release();
-			std::cout << "\t + ";
-			std::cout << actor->LongName() << "(" << actor->Name() << ")";
-			std::cout << "(id: " << actor->GlobalID() << ")";
+		auto pending = tempState->actors.find(Name());
+		if (pending != tempState->actors.end()) {
+			std::cout << "- Loading actors from previous room:" ;
 			std::cout << std::endl;
-			std::flush(std::cout);
-
+			for (const Game::TempState::PendingActor& entry : pending->second) {
+				Actor* actor = entry.actor;
+				AddObject(actor);
+				actor->SetPosition(entry.position);
+				actor->SetOrientation(entry.orientation);
+				actor->Release();
+				std::cout << "\t + ";
+				std::cout << actor->LongName() << "(" << actor->Name() << ")";
+				std::cout << "(id: " << actor->GlobalID() << ")";
+				std::cout << std::endl;
+				std::flush(std::cout);
+			}
+			tempState->actors.erase(pending);
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	}
 
 

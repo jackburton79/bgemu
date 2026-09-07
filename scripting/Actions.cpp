@@ -976,6 +976,14 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 // MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*) - resolves
 // and completes in a single tick (mirrors the original, which never left
 // state.initiated false for more than one call).
+// The "different area" branch hands the actor to Game::TempState (keyed
+// by destination area, drained by AreaRoom::_LoadActors() once that area
+// loads) and then actually triggers the load via Core::LoadArea() - the
+// missing half of what used to be a "BUG: IMPLEMENT MOVING TO AREAS"
+// stub: the actor got stashed, but nothing ever asked to switch areas,
+// so it just sat in TempState until some unrelated area load happened to
+// pick it up. S:EFFECT* (a transition visual/sound) isn't modeled, same
+// spirit as other cosmetic-only parameters already skipped elsewhere.
 static void
 RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_state& state)
 {
@@ -984,10 +992,14 @@ RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_st
 		Actor* actor = dynamic_cast<Actor*>(sender);
 		if (actor != NULL) {
 			if (::strcasecmp(params->string1, actor->Area()->Name()) != 0) {
-				std::cerr << "BUG: MoveBetweenAreasEffect() IMPLEMENT MOVING TO AREAS" << std::endl;
 				Game::TempState* tempState = Game::Get()->GetTempState();
 				actor->Acquire();
-				tempState->actors.push_back(actor);
+				Game::TempState::PendingActor pending = {
+					actor, params->where, (uint16)params->integer1
+				};
+				tempState->actors[params->string1].push_back(pending);
+				actor->Area()->RemoveObject(actor);
+				Core::Get()->LoadArea(params->string1, "", "");
 			} else {
 				actor->SetPosition(params->where);
 				actor->SetOrientation(params->integer1);
