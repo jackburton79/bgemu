@@ -118,9 +118,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	Actor* player = Game::Get()->Party()->ActorAt(0);
 	if (player != NULL) {
 		player->SetPosition(point);
-		if (!player->IsSelected())
-			player->Select(true);
-		fSelectedActor = player;
+		SelectActor(player);
 	}
 
 	GUI::Get()->ShowWindow(999);
@@ -356,6 +354,29 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 			//GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 		}
 	}
+}
+
+
+void
+AreaRoom::SelectActor(Actor* actor)
+{
+	if (fSelectedActor.Target() == actor)
+		return;
+
+	if (fSelectedActor != NULL)
+		fSelectedActor.Target()->Select(false);
+
+	fSelectedActor = actor;
+
+	if (actor != NULL)
+		actor->Select(true);
+}
+
+
+Actor*
+AreaRoom::SelectedActor() const
+{
+	return fSelectedActor.Target();
 }
 
 
@@ -1313,10 +1334,7 @@ AreaRoom::_UnloadArea()
 		fSavedControl = nullptr;
 	}
 
-	if (fSelectedActor != NULL) {
-		fSelectedActor.Target()->Select(false);
-		fSelectedActor.Unset();
-	}
+	SelectActor(NULL);
 
 	if (fMouseOverObject != NULL)
 		fMouseOverObject.Unset();

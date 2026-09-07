@@ -320,6 +320,33 @@ public:
 };
 
 
+class SelectPartyCommand : public ShellCommand {
+public:
+	SelectPartyCommand()
+		: ShellCommand(
+			"Select-Party",
+			{
+				{ PARAMETER_INT, } // 0-based party member index
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Test-only equivalent of the SDLK_1..6 handlers - exec-file mode
+		// never runs the real SDL event loop, so there's no other way to
+		// exercise Game::SelectPartyMember() from a headless script.
+		const ShellCommandParameters params = ParseParameters(argv);
+		int32 index = params.at(0).value.integer;
+		if (index < 0) {
+			std::cout << "Select-Party: index must be >= 0" << std::endl;
+			return;
+		}
+		Game::Get()->SelectPartyMember((uint16)index);
+		std::cout << "Select-Party: OK" << std::endl;
+	}
+};
+
+
 class ToggleSaveCommand : public ShellCommand {
 public:
 	ToggleSaveCommand()
@@ -981,6 +1008,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ScreenshotCommand());
 	console->AddCommand(new ToggleInventoryCommand());
 	console->AddCommand(new ToggleRecordCommand());
+	console->AddCommand(new SelectPartyCommand());
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());

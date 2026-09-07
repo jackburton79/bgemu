@@ -9,6 +9,7 @@
 
 #include "2DAResource.h"
 #include "Actor.h"
+#include "AreaRoom.h"
 #include "BamResource.h"
 #include "Button.h"
 #include "ColorRange.h"
@@ -270,17 +271,31 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_MINUS:
 								fDelay++;
 								break;
+							// Party member selection (1-6, real BG2's own
+							// number-key convention) - was GUI::ToggleWindow
+							// (1-4) here before, an undocumented debug
+							// leftover never referenced by any of this
+							// session's own work; repurposed since actual
+							// party control is far more valuable for
+							// playtesting and the two aren't reachable at
+							// the same time anyway.
 							case SDLK_1:
-								GUI::Get()->ToggleWindow(1);
+								SelectPartyMember(0);
 								break;
 							case SDLK_2:
-								GUI::Get()->ToggleWindow(2);
+								SelectPartyMember(1);
 								break;
 							case SDLK_3:
-								GUI::Get()->ToggleWindow(3);
+								SelectPartyMember(2);
 								break;
 							case SDLK_4:
-								GUI::Get()->ToggleWindow(4);
+								SelectPartyMember(3);
+								break;
+							case SDLK_5:
+								SelectPartyMember(4);
+								break;
+							case SDLK_6:
+								SelectPartyMember(5);
 								break;
 							case SDLK_SPACE:
 								Core::Get()->TogglePause();
@@ -1110,6 +1125,22 @@ Game::ToggleDayNight()
 	if (area != NULL)
 		area->ReloadArea();
 	// TODO: Update Area
+}
+
+
+void
+Game::SelectPartyMember(uint16 index)
+{
+	if (fParty == NULL || index >= fParty->CountActors())
+		return;
+
+	Actor* member = fParty->ActorAt(index);
+	if (member == NULL)
+		return;
+
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != NULL)
+		room->SelectActor(member);
 }
 
 

@@ -36,6 +36,14 @@ public:
 
 	void LoadStartingArea();
 	void ToggleDayNight();
+
+	// Switches which party member mouse clicks/queued actions control -
+	// real BG2's number-key (1-6)/portrait-click party selection; this
+	// engine only wires the number-key side so far (no portrait bar to
+	// click yet). No-op if index is out of range or the current room
+	// isn't an AreaRoom (e.g. the worldmap screen).
+	void SelectPartyMember(uint16 index);
+
 	void ToggleInventoryWindow();
 	void ToggleRecordWindow();
 	// Minimal single-slot Save/Load screens (GUISAVE/GUILOAD) - real BG2

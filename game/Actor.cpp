@@ -251,6 +251,7 @@ Actor::Print() const
 	std::cout << "Reputation: " << (int)cre->Reputation() << std::endl;
 	std::cout << "Morale: " << (int)cre->Morale() << std::endl;
 	std::cout << "Gold: " << cre->Gold() << std::endl;
+	std::cout << "Selected: " << (IsSelected() ? "yes" : "no") << std::endl;
 	fActor->Print();
 	std::cout << "*********" << std::endl;
 }

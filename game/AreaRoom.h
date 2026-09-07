@@ -49,6 +49,14 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 
+	// Switches which actor mouse clicks/queued commands act on (party-
+	// member selection) - deselects the previous one first, same
+	// Select(true)/Select(false) pairing the constructor and
+	// _UnloadArea() already use. NULL just deselects. A no-op if actor
+	// is already the selected one.
+	void SelectActor(Actor* actor);
+	Actor* SelectedActor() const;
+
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
 	void AddObject(Object* object);
