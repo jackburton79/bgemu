@@ -406,7 +406,23 @@ Core::UpdateLogic(bool executeScripts)
 		// it was in the middle of this tick) is gone once this runs, so
 		// skip the rest of this tick's bookkeeping below; it resumes
 		// cleanly against the new area next tick.
-		if (fPendingAreaChange) {
+		//
+		// Held off, though, while the cutscene's main actor (fCutsceneActor -
+		// see Script::_HandleAction()'s own comment on why it's the *first*
+		// CUTSCENEID target, not whichever actor happened to request the
+		// area change) still has actions of its own queued: one actor's area
+		// change can otherwise fire while a DIFFERENT actor's own cutscene
+		// block is still mid-sequence - e.g. an NPC escorting the party who
+		// queues their own MOVEBETWEENAREASEFFECT (to come along) a few
+		// ticks after the party's own transition already fired. Left in the
+		// old area's fActors, that NPC gets swept up and destroyed by
+		// AreaRoom::_UnloadArea() before their own move ever runs - a real,
+		// reproduced case (Gaelan Bayle, AR0400 -> AR0311) of an escorting
+		// NPC never arriving in the new area. Waiting here isn't a new risk:
+		// it's the same condition EndCutsceneMode() below already waits on.
+		bool cutsceneActorBusy = fCutsceneActor != NULL
+			&& !fCutsceneActor->IsActionListEmpty();
+		if (fPendingAreaChange && !cutsceneActorBusy) {
 			fPendingAreaChange = false;
 			LoadArea(fPendingAreaName, fPendingLongName, fPendingEntranceName);
 			return;
