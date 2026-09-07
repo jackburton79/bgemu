@@ -50,6 +50,7 @@ public:
 	// here (Game owns Save()/Load(), GUI doesn't reach into game state).
 	void SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 		uint16 windowID);
+	void ToggleJournalWindow();
 
 	bool Load(const char* name);
 	bool Save(const char* name);
@@ -163,6 +164,7 @@ private:
 	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
 	std::string _TitleCaseIDSName(const std::string& idsName);
 	void _UpdateSaveLoadLabels(const res_ref& chuName);
+	void _UpdateJournalLabels();
 };
 
 #endif /* GAME_H_ */

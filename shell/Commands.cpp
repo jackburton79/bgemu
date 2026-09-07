@@ -346,6 +346,19 @@ public:
 };
 
 
+class ToggleJournalCommand : public ShellCommand {
+public:
+	ToggleJournalCommand()
+		: ShellCommand("Toggle-Journal")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleJournalWindow();
+		std::cout << "Toggle-Journal: OK" << std::endl;
+	}
+};
+
+
 class InvokeControlCommand : public ShellCommand {
 public:
 	InvokeControlCommand()
@@ -963,6 +976,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleRecordCommand());
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
+	console->AddCommand(new ToggleJournalCommand());
 	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new WaitTimeCommand());
 

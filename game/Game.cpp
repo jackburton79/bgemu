@@ -251,6 +251,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_r:
 								ToggleRecordWindow();
 								break;
+							case SDLK_j:
+								ToggleJournalWindow();
+								break;
 							case SDLK_F5:
 								ToggleSaveWindow();
 								break;
@@ -414,6 +417,17 @@ Game::ToggleLoadWindow()
 }
 
 
+// Shows/hides the Journal window (GUIJRNL), same 3-window pattern as
+// GUIINV/GUIREC (window 2 is the actual content panel; 0/1 the same
+// persistent side columns).
+void
+Game::ToggleJournalWindow()
+{
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIJRNL", {2, 0, 1}))
+		_UpdateJournalLabels();
+}
+
+
 // GUIINV.CHU/GUIREC.CHU/GUISAVE.CHU/GUILOAD.CHU control IDs used by the
 // label-population methods below, named rather than left as bare
 // literals at each call site - all identified/confirmed as described in
@@ -437,6 +451,10 @@ static const uint32 kSaveConfirmButtonID = 34;
 // scripting/Actions.cpp) - this minimal single-slot screen just always
 // uses slot 0.
 static const char* kSaveSlotPath = "savegame_slot0.gam";
+// GUIJRNL.CHU window 2 (confirmed via a real dump): id 1 is the main
+// scrollable entries text_area (with its own scrollbar at id 2, same
+// pairing convention as GUIREC's saves/resistances area).
+static const uint32 kJournalEntriesAreaID = 1;
 
 
 // Populates the inventory-slot buttons in the open GUIINV window 2 with
@@ -1152,5 +1170,32 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 		// Nothing to close here: Load() already rebuilt the GUI from
 		// scratch (see above), so there's no aux window left open to
 		// hide - trying to would instead freshly reopen a new one.
+	}
+}
+
+
+// Fills the journal's main scrollable text_area with every tracked
+// entry (Game::JournalEntries(), already maintained by ADDJOURNALENTRY/
+// ERASEJOURNALENTRY/SETQUESTDONE since Fase 10 - this is the first GUI
+// to actually display it). No Quest/Story/User section split (that
+// distinction isn't modeled - see JournalEntries()'s own comment),
+// just the whole list in insertion order.
+void
+Game::_UpdateJournalLabels()
+{
+	Window* window = GUI::Get()->GetAuxWindow("GUIJRNL", 2);
+	if (window == NULL)
+		return;
+
+	TextArea* entriesArea = dynamic_cast<TextArea*>(window->GetControlByID(kJournalEntriesAreaID));
+	if (entriesArea == NULL)
+		return;
+
+	entriesArea->ClearText();
+	if (fJournalEntries.empty())
+		entriesArea->AddText("Il diario e' vuoto.");
+	else {
+		for (uint32 strref : fJournalEntries)
+			entriesArea->AddText(IDTable::GetDialog(strref).c_str());
 	}
 }
