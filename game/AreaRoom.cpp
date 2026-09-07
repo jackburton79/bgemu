@@ -1279,6 +1279,25 @@ AreaRoom::_InitContainers()
 }
 
 
+// An actor's current region (Actor::fRegion) is only cleared by its own
+// movement, via Actor::_UpdateRegions() calling Region::ActorExited() when
+// the actor's position leaves the region's bounds - there's no equivalent
+// hook for an actor being destroyed while still standing inside one.
+// Without this, the region's fObjectsInside (a raw, unreferenced Actor*
+// list) keeps a dangling pointer to the destroyed actor, which a later
+// Region::ActorEntered()/IsActorInside() call (from some other, still-alive
+// actor walking through) dereferences - a real heap-use-after-free, found
+// via a crash in the BG2 opening cutscene once _CleanDestroyedObjects()
+// below actually started freeing actors (see its own comment).
+static void
+_DetachFromCurrentRegion(Actor* actor)
+{
+	Region* region = actor->CurrentRegion();
+	if (region != NULL)
+		region->ActorExited(actor);
+}
+
+
 void
 AreaRoom::_CleanDestroyedObjects()
 {
@@ -1298,6 +1317,7 @@ AreaRoom::_CleanDestroyedObjects()
 				//return;
 			}
 			std::cout << "Destroy actor " << actor->Name() << std::endl;
+			_DetachFromCurrentRegion(actor);
 			actor->ClearActionList();
 			actor->SetArea(NULL);
 			Core::Get()->UnregisterObject(actor);
@@ -1346,6 +1366,7 @@ AreaRoom::_UnloadArea()
 		// TODO: NOT CORRECT, but if an object has actions, they keep a reference to the object
 		// and this blocks deletion of said object
 		actor->ClearActionList();
+		_DetachFromCurrentRegion(actor);
 
 		actor->Release();
 	}

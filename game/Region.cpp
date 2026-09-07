@@ -154,9 +154,9 @@ void
 Region::ActorExited(Actor* actor)
 {
 	std::cerr << "Actor Exited" << std::endl;
-	for (auto actor : fObjectsInside) {
-		if (actor->GlobalID() == actor->GlobalID()) {
-			fObjectsInside.remove(actor);
+	for (auto object : fObjectsInside) {
+		if (object->GlobalID() == actor->GlobalID()) {
+			fObjectsInside.remove(object);
 			break;
 		}
 	}
