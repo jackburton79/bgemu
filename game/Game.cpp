@@ -578,10 +578,17 @@ Game::_UpdateInventoryIcons()
 	//   comment in Actor.cpp (already verified there against a real
 	//   CRE); count matches (3 controls, 3 slots).
 	struct { uint32 controlID; uint32 creSlot; } const kEquipSlotMap[] = {
-		{ 11, kSlotHelmet }, { 12, kSlotArmor }, { 13, kSlotShield }, { 14, kSlotGauntlets },
-		{ 1, kSlotWeaponFirst }, { 2, kSlotWeaponFirst + 1 },
-		{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
-		{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
+		{ 11, kSlotHelmet },
+		{ 12, kSlotArmor },
+		{ 13, kSlotShield },
+		{ 14, kSlotGauntlets },
+		{ 1, kSlotWeaponFirst },
+		{ 2, kSlotWeaponFirst + 1 },
+		{ 3, kSlotWeaponFirst + 2 },
+		{ 4, kSlotWeaponFirst + 3 },
+		{ 15, kSlotAmmoFirst },
+		{ 16, kSlotAmmoFirst + 1 },
+		{ 17, kSlotAmmoFirst + 2 },
 		{ 5, 18 }, { 6, 19 }, { 7, 20 }
 	};
 	for (const auto& mapping : kEquipSlotMap)
