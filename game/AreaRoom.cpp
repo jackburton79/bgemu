@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "MOSResource.h"
 #include "Party.h"
+#include "PathFind.h"
 #include "Polygon.h"
 #include "Region.h"
 #include "ResManager.h"
@@ -745,6 +746,29 @@ AreaRoom::IsPointPassable(const IE::point& point)
 		return true;
 
 	return room->fSearchMap->IsPointPassable(point.x, point.y);
+}
+
+
+/* static */
+bool
+AreaRoom::PointDoesNotBlockLight(const IE::point& point)
+{
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room == NULL)
+		return true;
+
+	return !room->fSearchMap->BlocksLight(point.x, point.y);
+}
+
+
+bool
+AreaRoom::HasLineOfSight(const IE::point& from, const IE::point& to) const
+{
+	// PathFinder::_WalkLine() (what HasLineOfSight() itself calls) steps
+	// pixel by pixel regardless of the constructor's step argument - it's
+	// only relevant to GeneratePath()'s own A* search, unused here.
+	PathFinder finder(PathFinder::kStep, PointDoesNotBlockLight);
+	return finder.HasLineOfSight(from, to);
 }
 
 

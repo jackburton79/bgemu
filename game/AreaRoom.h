@@ -88,6 +88,15 @@ public:
 
 	int Distance(const Object* a, const Object* b) const;
 
+	// Whether nothing along the straight line between the two points
+	// blocks light (see SearchMap::BlocksLight()) - used by Actor::
+	// CanSee() so See()/creature perception stop seeing through walls.
+	bool HasLineOfSight(const IE::point& from, const IE::point& to) const;
+	// test_function (see PathFind.h) for HasLineOfSight() above - reads
+	// the currently active room the same way IsPointPassable() below
+	// already does (a plain function pointer can't capture `this`).
+	static bool PointDoesNotBlockLight(const IE::point& point);
+
 	const std::vector<Door*>& Doors() const;
 	const std::vector<Container*>& Containers() const;
 

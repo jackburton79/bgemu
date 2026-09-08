@@ -23,6 +23,18 @@ _IsPixelPassable(uint8 pixel)
 }
 
 
+// See BlocksLight()'s own comment - 0 (Obstacle) is the only value
+// IESDP explicitly documents as light-blocking; 10 (Wall) is added too
+// since a wall structurally blocking sight isn't in serious doubt, even
+// though the doc doesn't spell it out the same way it does for 8
+// (Obstacle, explicitly *not* light-blocking).
+static bool
+_BlocksLight(uint8 pixel)
+{
+	return pixel == 0 || pixel == 10;
+}
+
+
 SearchMap::SearchMap(std::string name)
 	:
 	fImage(NULL),
@@ -80,6 +92,17 @@ SearchMap::IsPointPassable(int32 x, int32 y) const
 	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
 		return false;
 	return fPassabilityMap[y * fWidth + x];
+}
+
+
+bool
+SearchMap::BlocksLight(int32 x, int32 y) const
+{
+	x /= 16;
+	y /= 12;
+	if (x < 0 || x >= fWidth || y < 0 || y >= fHeight)
+		return true;
+	return _BlocksLight(fImage->GetPixel(x, y));
 }
 
 

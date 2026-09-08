@@ -1484,8 +1484,9 @@ Actor::CanSee(Object* target)
 	//const IE::point thisPosition = Position();
 	//const IE::point targetPosition = target->Position();
 	// TODO: 200 is an arbitrarily chosen number
-	if (Area()->Distance(this, target) < 200 ) {
-		// TODO: Check if there are obstacles in the way
+	AreaRoom* room = Area();
+	if (room != NULL && room->Distance(this, target) < 200
+			&& room->HasLineOfSight(Position(), target->NearestPoint(Position()))) {
 		trigger_entry entry("LastSeen", target);
 		AddTrigger(entry);
 		return true;

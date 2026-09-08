@@ -816,6 +816,38 @@ public:
 };
 
 
+// CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
+// between two explicit points, same "bypass the noise of a real
+// actor/trigger" rationale as CheckPassableCommand above.
+class CheckLineOfSightCommand : public ShellCommand {
+public:
+	CheckLineOfSightCommand()
+		: ShellCommand(
+			"Check-LineOfSight",
+			{
+				{ PARAMETER_POINT, },
+				{ PARAMETER_POINT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point from = params.at(0).value.point;
+		IE::point to = params.at(1).value.point;
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL) {
+			std::cout << "Check-LineOfSight: no current area" << std::endl;
+			return;
+		}
+		bool visible = room->HasLineOfSight(from, to);
+		std::cout << std::dec << "Check-LineOfSight (" << from.x << "," << from.y
+			<< ")-(" << to.x << "," << to.y << "): "
+			<< (visible ? "clear" : "BLOCKED") << std::endl;
+	}
+};
+
+
 // ClickObjectCommand - headless equivalent of clicking a world object
 // with the mouse (see AreaRoom::MouseDown(), which resolves the object
 // under the cursor and calls this same Object::ClickedOn() on the
@@ -1203,6 +1235,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new EvaluateTriggerCommand());
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
+	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
