@@ -552,14 +552,8 @@ Game::_UpdateInventoryIcons()
 	// same table+loop idiom as the general grid above. Rationale for each
 	// group (kept per-group since it differs in confidence/derivation):
 	//
-	// - Helmet/Armor/Shield/Gauntlets (row above the paperdoll, ids
-	//   11-14): confirmed empirically, not guessed from position -
-	//   probing this row 1:1 against slots 0-3 on ANOMEN10 (a real party
-	//   member with real gear already equipped there) rendered a helmet
-	//   icon, a chest-armor icon and a shield icon, in that exact order,
-	//   at ids 11/12/13 respectively (14/gauntlets was empty on that
-	//   character, so unverified but follows the same confirmed
-	//   sequence).
+	// - Armor/Gauntlets/Helmet/? (row above the paperdoll, ids
+	//   11-14):
 	// - "Armi rapide" (quick weapons, ids 1-4, under that label per a
 	//   real GUIINV.CHU control dump): matches kSlotWeaponFirst..+3
 	//   (Weapon1-4) by count (4 controls, 4 slots); not individually
@@ -578,10 +572,10 @@ Game::_UpdateInventoryIcons()
 	//   comment in Actor.cpp (already verified there against a real
 	//   CRE); count matches (3 controls, 3 slots).
 	struct { uint32 controlID; uint32 creSlot; } const kEquipSlotMap[] = {
-		{ 11, kSlotHelmet },
-		{ 12, kSlotArmor },
-		{ 13, kSlotShield },
-		{ 14, kSlotGauntlets },
+		{ 11, kSlotArmor },
+		{ 12, kSlotGauntlets },
+		{ 13, kSlotHelmet },
+		{ 14, kSlotShield },
 		{ 1, kSlotWeaponFirst },
 		{ 2, kSlotWeaponFirst + 1 },
 		{ 3, kSlotWeaponFirst + 2 },
