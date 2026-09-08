@@ -9,6 +9,7 @@
 
 #include "2DAResource.h"
 #include "Actor.h"
+#include "AreaResource.h"
 #include "AreaRoom.h"
 #include "BamResource.h"
 #include "Button.h"
@@ -73,6 +74,7 @@ Game::Game()
 	fTestMode(false)
 {
 	fTempState = new Game::TempState;
+	fAreaCache = new Game::AreaCache;
 }
 
 
@@ -81,6 +83,25 @@ Game::~Game()
 	TerminateDialog();
 	delete fParty;
 	delete fTempState;
+
+	// Release what's still held onto (areas never revisited before the
+	// process exits) - same convention as everything else this session
+	// is careful to balance, even though it only matters for the ASan
+	// leak report at this specific point (the whole process is about to
+	// go away regardless).
+	for (auto& entry : fAreaCache->areas) {
+		for (Actor* actor : entry.second.actors)
+			actor->Release();
+		gResManager->ReleaseResource(entry.second.area);
+	}
+	delete fAreaCache;
+}
+
+
+Game::AreaCache*
+Game::GetAreaCache()
+{
+	return fAreaCache;
 }
 
 

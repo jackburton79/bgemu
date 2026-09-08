@@ -19,6 +19,7 @@
 
 
 class Actor;
+class ARAResource;
 class DialogHandler;
 class GameConsole;
 class Party;
@@ -89,6 +90,37 @@ public:
 	};
 	TempState* GetTempState();
 
+	// A session-only cache of what an area's own non-party actors and
+	// its ARAResource looked like the last time the party left it - real
+	// BG2 checkpoints a modified copy of the area (in the save folder)
+	// when you leave it, and restores from that on return; this engine
+	// otherwise just discards the whole thing (see AreaRoom::_UnloadArea()),
+	// losing anything that lives in the ARE's own resource data - a
+	// placed actor's IE::actor struct (position, NumTimesTalkedTo,
+	// script names - Actor::fActor points directly into it) and a door's
+	// IE::door struct (open/closed/locked - Door::fAreaDoor likewise) -
+	// as well as anything only tracked on the C++ Actor/CREResource
+	// objects themselves (HP, inventory, ...). Keeping the ARAResource
+	// itself alive (not released) covers the first kind for free (doors
+	// included, even though nothing here is door-specific); keeping the
+	// actors themselves alive (not released) covers the second.
+	// AreaRoom::_UnloadArea() populates one entry per area name (even if
+	// empty - an empty `actors` on a *revisit* correctly means "everyone
+	// here died/left last time", as opposed to a missing entry meaning
+	// "never visited, parse fresh from the resource"); AreaRoom::
+	// _LoadActors()/its constructor consume it. Not persisted anywhere -
+	// gone once the process exits (cleaned up in ~Game(), same as
+	// everything else still live at that point).
+	class AreaCache {
+	public:
+		struct CachedArea {
+			ARAResource* area = nullptr;
+			std::vector<Actor*> actors;
+		};
+		std::map<res_ref, CachedArea> areas;
+	};
+	AreaCache* GetAreaCache();
+
 	void SetTestMode(bool value);
 	bool TestMode() const;
 
@@ -154,6 +186,7 @@ private:
 
 	::Party* fParty;
 	TempState* fTempState;
+	AreaCache* fAreaCache;
 
 	uint32 fDelay;
 	bool fTestMode;

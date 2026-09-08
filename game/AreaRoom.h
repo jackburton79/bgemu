@@ -156,7 +156,12 @@ private:
 	void _InitVariables();
 	void _InitAnimations();
 	void _InitRegions();
-	void _LoadActors();
+	// revisited: true if this area was left (and cached, see Game::
+	// AreaCache) earlier this session - restores its own non-party
+	// actors from that cache instead of parsing fresh ones from fArea,
+	// even when the cached list is empty (everyone there died/left last
+	// time - a fresh parse would wrongly resurrect them).
+	void _LoadActors(bool revisited);
 	void _InitDoors();
 	void _InitContainers();
 

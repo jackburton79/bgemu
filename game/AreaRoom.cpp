@@ -69,7 +69,25 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
 
-	fArea = gResManager->GetARA(Name());
+	// Revisiting an area left earlier this session: reuse its own
+	// ARAResource (kept alive, not released, by _UnloadArea() below)
+	// instead of a fresh parse - see Game::AreaCache's own comment for
+	// why (door/actor-placement state living directly in that resource
+	// would otherwise reset to the file's static defaults every time).
+	Game::AreaCache::CachedArea& cache =
+		Game::Get()->GetAreaCache()->areas[areaName];
+	// Captured before cache.area is (maybe) consumed below - the only
+	// way to tell "never visited, parse fresh" apart from "revisited,
+	// nobody survived" once _LoadActors() looks at cache.actors, since
+	// the map access just above already created an (empty) entry for a
+	// first visit too.
+	const bool revisited = (cache.area != NULL);
+	if (revisited) {
+		fArea = cache.area;
+		cache.area = NULL;
+	} else {
+		fArea = gResManager->GetARA(Name());
+	}
 	if (fArea == NULL)
 		throw std::runtime_error("CANNOT LOAD AREA");
 
@@ -102,7 +120,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	_InitVariables();
 	_InitAnimations();
 	_InitRegions();
-	_LoadActors();
+	_LoadActors(revisited);
 	_InitDoors();
 	_InitContainers();
 	_InitBlitMask();
@@ -1229,7 +1247,7 @@ AreaRoom::_InitRegions()
 
 
 void
-AreaRoom::_LoadActors()
+AreaRoom::_LoadActors(bool revisited)
 {
 	std::cout << "AreaRoom: Loading Actors..." << std::endl;
 
@@ -1271,14 +1289,43 @@ AreaRoom::_LoadActors()
 
 	std::cout << "- Loading other actors:" ;
 	std::cout << std::endl;
-	for (uint16 i = 0; i < fArea->CountActors(); i++) {
-		Actor* actor = fArea->GetActorAt(i);
-		AddObject(actor);
-		std::cout << "\t + ";
-		std::cout << actor->LongName() << "(" << actor->Name() << ")";
-		std::cout << "(id: " << actor->GlobalID() << ")";
-		std::cout << std::endl;
-		std::flush(std::cout);
+	if (revisited) {
+		// Restore exactly who was left here, with their own carried-over
+		// state (position, HP, inventory, NumTimesTalkedTo, ...) - even
+		// an empty list is meaningful (nobody survived last time), so
+		// this must not fall through to the fresh-parse branch below,
+		// which would wrongly resurrect the area's originally-placed
+		// actors. See Game::AreaCache's own comment.
+		Game::AreaCache::CachedArea& cache =
+			Game::Get()->GetAreaCache()->areas[Name()];
+		for (Actor* actor : cache.actors) {
+			AddObject(actor);
+			// No Release() here (unlike the TempState loop above) - the
+			// single reference _UnloadArea() Acquire()'d for the cache is
+			// exactly the one fActors needs now; there was never a second,
+			// temporary one to give back (TempState's extra Acquire() has
+			// to coexist with the source area's own still-in-fActors
+			// reference for a moment, since RemoveObject() deliberately
+			// doesn't release that one - not the case here, where the
+			// cache Acquire() and the old fActors membership's Release()
+			// happen back to back in the very same _UnloadArea() loop).
+			std::cout << "\t + ";
+			std::cout << actor->LongName() << "(" << actor->Name() << ")";
+			std::cout << "(id: " << actor->GlobalID() << ")";
+			std::cout << std::endl;
+			std::flush(std::cout);
+		}
+		cache.actors.clear();
+	} else {
+		for (uint16 i = 0; i < fArea->CountActors(); i++) {
+			Actor* actor = fArea->GetActorAt(i);
+			AddObject(actor);
+			std::cout << "\t + ";
+			std::cout << actor->LongName() << "(" << actor->Name() << ")";
+			std::cout << "(id: " << actor->GlobalID() << ")";
+			std::cout << std::endl;
+			std::flush(std::cout);
+		}
 	}
 	std::cout << std::endl;
 
@@ -1331,12 +1378,26 @@ AreaRoom::_InitContainers()
 // actor walking through) dereferences - a real heap-use-after-free, found
 // via a crash in the BG2 opening cutscene once _CleanDestroyedObjects()
 // below actually started freeing actors (see its own comment).
+//
+// Region::ActorExited() only detaches this actor from *the region's own*
+// list - it doesn't touch the actor's own fRegion, so also clear that
+// here (SetRegion(NULL), same as what _UpdateRegions() itself does right
+// after its own ActorExited() call). Without it, an actor that survives
+// its area unloading (a party member, or now a Game::AreaCache-cached
+// one - see its own comment) keeps pointing at a Region object that's
+// about to be destroyed a few lines below in _UnloadArea() - a second,
+// separate heap-use-after-free, found the same way as the first: an
+// actor cached and restored into AR0602 across a real area round-trip
+// (never having moved again, so Actor::_UpdateRegions() never got a
+// chance to self-correct fRegion) crashed on the area's *next* unload.
 static void
 _DetachFromCurrentRegion(Actor* actor)
 {
 	Region* region = actor->CurrentRegion();
-	if (region != NULL)
+	if (region != NULL) {
 		region->ActorExited(actor);
+		actor->SetRegion(NULL);
+	}
 }
 
 
@@ -1426,13 +1487,25 @@ AreaRoom::_UnloadArea()
 		// once the new area loads - ClearActionList() wiped it out
 		// mid-fade (right after its first call, which sets the fade to
 		// fully black), leaving the screen stuck black forever since
-		// nothing else ever finishes raising it back up. Non-party
-		// actors genuinely don't exist anymore once released here, so
-		// they still get cleared (also avoids the "actions keep a
-		// reference to their sender" leak the comment above already
-		// flags, for the actors that really do need it).
-		if (!actor->InParty())
+		// nothing else ever finishes raising it back up.
+		if (!actor->InParty()) {
 			actor->ClearActionList();
+			// Cache it (see Game::AreaCache's own comment) instead of
+			// just letting Release() below drop it to 0 and destroy it -
+			// this area's own actors (an NPC's dialogue state like
+			// NumTimesTalkedTo, quest globals tied to them, etc.) should
+			// still be there if the party comes back. Unlike a surviving
+			// party member (always immediately re-added to whichever
+			// area loads next, so its own stale Area() pointer here is
+			// never actually read), a cached actor can sit parked for a
+			// long time before this specific area is revisited (if
+			// ever) - nil its Area() so nothing reads a dangling
+			// AreaRoom* in the meantime, same as _CleanDestroyedObjects()
+			// already does for actors that are actually being destroyed.
+			actor->Acquire();
+			actor->SetArea(NULL);
+			Game::Get()->GetAreaCache()->areas[Name()].actors.push_back(actor);
+		}
 		_DetachFromCurrentRegion(actor);
 
 		actor->Release();
@@ -1475,7 +1548,15 @@ AreaRoom::_UnloadArea()
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
-	gResManager->ReleaseResource(fArea);
+	// Kept alive in the cache (see Game::AreaCache's own comment) rather
+	// than released - it owns the IE::door/IE::actor structs Door/Actor
+	// objects alias directly (fAreaDoor/fActor), so a door's open/
+	// closed/locked state (an actor's own state is handled separately,
+	// above) would otherwise reset to the file's static defaults every
+	// time this area is left and re-entered. Ownership transfers as-is
+	// (no extra Acquire()) - this room already held the one reference
+	// GetARA()/the cache handoff gave it.
+	Game::Get()->GetAreaCache()->areas[Name()].area = fArea;
 	fArea = NULL;
 	if (fHeightMap != NULL) {
 		fHeightMap->Release();
