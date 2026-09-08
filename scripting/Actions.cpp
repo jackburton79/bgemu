@@ -298,7 +298,7 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 			_PostSpellCastTriggers(actor, target, spellResourceName);
 		}
 		state.completed = true;
-		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
+		std::cout << "duration:" << std::dec << (Timer::Ticks() - state.startTick) << std::endl;
 	}
 }
 
