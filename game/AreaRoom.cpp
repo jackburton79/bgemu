@@ -38,11 +38,30 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <filesystem>
 #include <iostream>
 #include <limits.h>
 #include <map>
 #include <sstream>
 #include <stdexcept>
+
+
+// Where AreaRoom checkpoints an area's own ARE data (see
+// ARAResource::WriteToFile()'s own comment) every time it's left -
+// relative to the working directory, same convention already used by
+// SAVEGAME's own fixed "savegame_slot0.gam" (see scripting/Actions.cpp's
+// RunActionSaveGame()), not the BG2 install path - this is this engine's
+// own working data, not something to write into a real game installation.
+static const char* kAreaCheckpointDir = "arecache";
+
+
+static std::string
+_AreaCheckpointPath(const char* areaName)
+{
+	std::string path = kAreaCheckpointDir;
+	path.append("/").append(areaName).append(".ARE");
+	return path;
+}
 
 
 AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
@@ -76,17 +95,41 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	// would otherwise reset to the file's static defaults every time).
 	Game::AreaCache::CachedArea& cache =
 		Game::Get()->GetAreaCache()->areas[areaName];
-	// Captured before cache.area is (maybe) consumed below - the only
-	// way to tell "never visited, parse fresh" apart from "revisited,
-	// nobody survived" once _LoadActors() looks at cache.actors, since
-	// the map access just above already created an (empty) entry for a
-	// first visit too.
+	// Captured before cache.area is (maybe) consumed below - controls
+	// which branch _LoadActors() takes (restore cached Actor* objects
+	// verbatim, vs. parse fresh ones from fArea) - true only for this
+	// in-memory hit, never for the on-disk-checkpoint case just below:
+	// a checkpoint file only carries the ARE's own raw actor/door table
+	// bytes (see ARAResource::WriteToFile()), not live C++ Actor objects
+	// (their own HP/inventory/etc.) - so that case still needs a fresh
+	// ARAResource::GetActorAt() parse, just one that now reads back
+	// whatever was checkpointed instead of the pristine on-disk default.
 	const bool revisited = (cache.area != NULL);
 	if (revisited) {
 		fArea = cache.area;
 		cache.area = NULL;
 	} else {
-		fArea = gResManager->GetARA(Name());
+		// No in-memory hit (first load this process run, or after a
+		// restart) - try this area's own on-disk checkpoint (written by
+		// _UnloadArea() below every time it was previously left, see
+		// ARAResource::WriteToFile()'s own comment) before falling back
+		// to the pristine KEY/BIF resource.
+		ARAResource* checkpoint = new ARAResource(areaName);
+		checkpoint->Acquire();
+		if (checkpoint->LoadFromFile(_AreaCheckpointPath(Name()).c_str())) {
+			fArea = checkpoint;
+		} else {
+			// ARAResource's destructor is private (Referenceable-managed,
+			// like every other Resource) and only ResourceManager is a
+			// friend of it - Release() alone (Resource doesn't auto-
+			// delete on its own, see Resource : public Referenceable)
+			// would just leak it. Safe to route through
+			// ReleaseResource() even though this one was never
+			// registered via GetResource() - it just won't find
+			// anything to also erase from the resource cache.
+			gResManager->ReleaseResource(checkpoint);
+			fArea = gResManager->GetARA(Name());
+		}
 	}
 	if (fArea == NULL)
 		throw std::runtime_error("CANNOT LOAD AREA");
@@ -1548,14 +1591,26 @@ AreaRoom::_UnloadArea()
 
 	gResManager->ReleaseResource(fWed);
 	fWed = NULL;
-	// Kept alive in the cache (see Game::AreaCache's own comment) rather
-	// than released - it owns the IE::door/IE::actor structs Door/Actor
-	// objects alias directly (fAreaDoor/fActor), so a door's open/
-	// closed/locked state (an actor's own state is handled separately,
-	// above) would otherwise reset to the file's static defaults every
-	// time this area is left and re-entered. Ownership transfers as-is
-	// (no extra Acquire()) - this room already held the one reference
-	// GetARA()/the cache handoff gave it.
+	// Checkpoint this area's own current state to disk too (not just the
+	// in-memory cache below) - see ARAResource::WriteToFile()'s own
+	// comment for exactly what that captures. create_directories() is
+	// idempotent/cheap - simpler to call every time than to track
+	// whether it's already been done this run.
+	std::error_code checkpointError;
+	std::filesystem::create_directories(kAreaCheckpointDir, checkpointError);
+	if (!fArea->WriteToFile(_AreaCheckpointPath(Name()).c_str())) {
+		std::cerr << "AreaRoom::_UnloadArea(): failed to checkpoint "
+			<< Name() << std::endl;
+	}
+
+	// Kept alive in the in-memory cache too (see Game::AreaCache's own
+	// comment) rather than released - it owns the IE::door/IE::actor
+	// structs Door/Actor objects alias directly (fAreaDoor/fActor), so a
+	// door's open/closed/locked state (an actor's own state is handled
+	// separately, above) would otherwise reset to the file's static
+	// defaults every time this area is left and re-entered. Ownership
+	// transfers as-is (no extra Acquire()) - this room already held the
+	// one reference GetARA()/LoadFromFile()/the cache handoff gave it.
 	Game::Get()->GetAreaCache()->areas[Name()].area = fArea;
 	fArea = NULL;
 	if (fHeightMap != NULL) {

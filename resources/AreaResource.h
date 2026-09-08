@@ -13,6 +13,30 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 
+	// Session-checkpoint persistence (see Game::AreaCache's own comment
+	// for why this exists) - not a KEY/BIF-backed load, a plain file
+	// previously produced by this same WriteToFile(). Shares every table
+	// parser with Load() above (see the private _ParseData()); the only
+	// difference is where fData itself comes from.
+	bool LoadFromFile(const char* path);
+
+	// Writes this area back out, byte-identical to what was loaded
+	// except for the actor and door tables (see their own comment) -
+	// the only two tables anything in this engine actually mutates at
+	// runtime (Actor::fActor/Door::fAreaDoor alias fActors[]/fDoors[]
+	// directly, and every setter writes straight into those in-memory
+	// structs, never through fData). Everything else (variables,
+	// entrances, containers+items, vertices, WED name, area flags, ...)
+	// is copied verbatim from the original file's own bytes - same
+	// offsets, same layout, so no full from-scratch ARE reserializer is
+	// needed. Sections this engine's own Load() never reads at all
+	// (spawn points, ambients, automap notes, rest interruptions, songs,
+	// projectile traps, explored bitmask, tiled objects, embedded CRE
+	// data for ACTOR_CRE_EXTERNAL-unset actors) ride along unread and
+	// unchanged inside that same verbatim copy - nothing here needs to
+	// understand them to preserve them.
+	bool WriteToFile(const char* path) const;
+
 	const res_ref& WedName() const;
 	uint16 Flags() const;
 
@@ -55,6 +79,7 @@ public:
 
 private:
 	virtual ~ARAResource();
+	bool _ParseData();
 	void _LoadActors();
 	void _LoadAnimations();
 	void _LoadDoors();

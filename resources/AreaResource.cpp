@@ -3,12 +3,16 @@
 #include "Actor.h"
 #include "Container.h"
 #include "CreResource.h"
+#include "FileStream.h"
 #include "Log.h"
+#include "MemoryStream.h"
 #include "Region.h"
 #include "ResManager.h"
 #include "Stream.h"
 
+#include <cstring>
 #include <stdexcept>
+#include <vector>
 
 #define AREA_SIGNATURE "AREA"
 #define AREA_VERSION_1 "V1.0"
@@ -60,6 +64,16 @@ ARAResource::Load(Archive* archive, uint32 key)
 	if (!Resource::Load(archive, key))
 		return false;
 
+	return _ParseData();
+}
+
+
+// Shared by Load() above (a real KEY/BIF-backed load) and LoadFromFile()
+// below (a session checkpoint written by WriteToFile()) - both just need
+// fData already pointing at a valid ARE V1.0 buffer before this runs.
+bool
+ARAResource::_ParseData()
+{
 	if (!CheckSignature(AREA_SIGNATURE))
 		return false;
 
@@ -88,6 +102,52 @@ ARAResource::Load(Archive* archive, uint32 key)
 	_LoadRegions();
 	_LoadContainers();
 
+	return true;
+}
+
+
+bool
+ARAResource::LoadFromFile(const char* path)
+{
+	try {
+		FileStream file(path, FileStream::READ_ONLY);
+		delete fData;
+		fData = new MemoryStream(file.Size());
+		file.ReadAt(0, fData->Data(), file.Size());
+	} catch (std::exception& e) {
+		std::cerr << "ARAResource::LoadFromFile(" << path << "): " << e.what() << std::endl;
+		return false;
+	}
+
+	return _ParseData();
+}
+
+
+bool
+ARAResource::WriteToFile(const char* path) const
+{
+	size_t size = fData->Size();
+	std::vector<uint8> buffer(size);
+	fData->ReadAt(0, buffer.data(), size);
+
+	for (uint32 i = 0; i < fNumActors; i++) {
+		size_t offset = fActorsOffset + i * sizeof(IE::actor);
+		if (offset + sizeof(IE::actor) <= size)
+			memcpy(buffer.data() + offset, &fActors[i], sizeof(IE::actor));
+	}
+	for (uint32 i = 0; i < fNumDoors; i++) {
+		size_t offset = fDoorsOffset + i * sizeof(IE::door);
+		if (offset + sizeof(IE::door) <= size)
+			memcpy(buffer.data() + offset, &fDoors[i], sizeof(IE::door));
+	}
+
+	try {
+		FileStream file(path, FileStream::WRITE_ONLY | FileStream::CREATE);
+		file.Write(buffer.data(), buffer.size());
+	} catch (std::exception& e) {
+		std::cerr << "ARAResource::WriteToFile(" << path << "): " << e.what() << std::endl;
+		return false;
+	}
 	return true;
 }
 
