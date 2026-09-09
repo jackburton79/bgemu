@@ -1715,6 +1715,9 @@ void
 Actor::_HandleColors()
 {
 	assert(fColors == NULL);
+	if (!gResManager->ResourceExists("RANDCOLOR", RES_2DA))
+		return;
+
 	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
 	if (randColors != NULL) {
 		CREColors originalColors = CRE()->Colors();
