@@ -1239,7 +1239,8 @@ Game::_UpdateSaveLoadLabels(const res_ref& chuName)
 
 	std::error_code checkpointError;
 	std::filesystem::create_directories(kSavePath, checkpointError);
-	std::ifstream file(kSaveSlotPath);
+	std::string saveSlotPath = std::string(kSavePath) + std::string("/") + std::string(kSaveSlotPath);
+	std::ifstream file(saveSlotPath);
 	bool exists = file.good();
 
 	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSaveSlot1NameLabelID));
@@ -1268,13 +1269,14 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 	std::filesystem::create_directories(kSavePath, checkpointError);
 	res_ref chu = chuName;
 	bool isSave = chu == res_ref("GUISAVE");
+	std::string saveSlotPath = std::string(kSavePath) + std::string("/") + std::string(kSaveSlotPath);
 	if (isSave) {
-		bool ok = Save(kSaveSlotPath);
-		std::cout << "Save " << kSaveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
+		bool ok = Save(saveSlotPath.c_str());
+		std::cout << "Save " << saveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
 		GUI::Get()->ToggleAuxWindowGroup(chu, {0});
 	} else {
-		bool ok = Load(kSaveSlotPath);
-		std::cout << "Load " << kSaveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
+		bool ok = Load(saveSlotPath.c_str());
+		std::cout << "Load " << saveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
 		// Nothing to close here: Load() already rebuilt the GUI from
 		// scratch (see above), so there's no aux window left open to
 		// hide - trying to would instead freshly reopen a new one.
