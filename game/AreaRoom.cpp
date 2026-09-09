@@ -52,7 +52,7 @@
 // SAVEGAME's own fixed "savegame_slot0.gam" (see scripting/Actions.cpp's
 // RunActionSaveGame()), not the BG2 install path - this is this engine's
 // own working data, not something to write into a real game installation.
-static const char* kAreaCheckpointDir = "arecache";
+static const char* kAreaCheckpointDir = "SAVEGAME/arecache";
 
 
 static std::string

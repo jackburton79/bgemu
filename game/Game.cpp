@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <cctype>
+#include <filesystem>
 #include <fstream>
 #include <stdio.h>
 #include <utility>
@@ -504,6 +505,7 @@ static const uint32 kSaveConfirmButtonID = 34;
 // existing "savegame_slot<N>.gam" convention in RunActionSaveGame(),
 // scripting/Actions.cpp) - this minimal single-slot screen just always
 // uses slot 0.
+static const char* kSavePath = "SAVEGAME";
 static const char* kSaveSlotPath = "savegame_slot0.gam";
 // GUIJRNL.CHU window 2 (confirmed via a real dump): id 1 is the main
 // scrollable entries text_area (with its own scrollbar at id 2, same
@@ -1235,6 +1237,8 @@ Game::_UpdateSaveLoadLabels(const res_ref& chuName)
 	if (window == NULL)
 		return;
 
+	std::error_code checkpointError;
+	std::filesystem::create_directories(kSavePath, checkpointError);
 	std::ifstream file(kSaveSlotPath);
 	bool exists = file.good();
 
@@ -1260,6 +1264,8 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 	// reloads the area (Core::LoadArea()), which rebuilds the whole GUI
 	// from scratch (GUI::Load() calls Clear(), destroying every window,
 	// that one included) - a lingering reference into it would dangle.
+	std::error_code checkpointError;
+	std::filesystem::create_directories(kSavePath, checkpointError);
 	res_ref chu = chuName;
 	bool isSave = chu == res_ref("GUISAVE");
 	if (isSave) {
