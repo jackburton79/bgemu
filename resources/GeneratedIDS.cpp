@@ -140,7 +140,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	// rest
 	res->AddValue(0x6400, "UDRZ");	// CGAMEANIMATIONTYPE_DRIZZT
 	res->AddValue(0x6401, "UELM");	// ELMINSTER
-	res->AddValue(0x6402, "USAR");
+	res->AddValue(0x6402, "CMNK");
 	res->AddValue(0x6403, "MSKL");	//CGAMEANIMATIONTYPE_SKELETON
 
 	res->AddValue(0x6404, "USAR");
