@@ -231,10 +231,9 @@ ARAResource::GetActorAt(uint16 index)
 		fData->Read(array);
 		for (int32 i = 0; i < 64; i++)
 			std::cout << array[i] << std::endl;
-
 		//newActor = new Actor(ieActor, cre);
 	}
-
+	ieActor.Print();
 	newActor = new Actor(ieActor);
 	return newActor;
 }
