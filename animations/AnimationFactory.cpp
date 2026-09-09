@@ -96,7 +96,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6314, "CEFB", FactoryType::Character },
 	{ 0x6315, "CEFB", FactoryType::Character },
 	{ 0x6400, "", FactoryType::Character },
-	{ 0x6402, "USAR", FactoryType::Character },
+	{ 0x6402, "CMNK", FactoryType::Character },
 	{ 0x6403, "MSKL", FactoryType::Character },
 	{ 0x6405, "MDGU", FactoryType::Character },
 	{ 0x6500, "CHMM", FactoryType::Character },
