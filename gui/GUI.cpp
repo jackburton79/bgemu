@@ -211,6 +211,15 @@ GUI::Draw()
 
 	_DrawStrings();
 
+	if (Core::Get()->IsPaused()) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		std::string text = "Game paused";
+		Bitmap* bitmap = font->GetRenderedString(text, 0);
+		GFX::rect rect = bitmap->Frame();
+		rect.CenterIn(GraphicsEngine::Get()->ScreenFrame());
+		GraphicsEngine::Get()->BlitToScreen(bitmap, rect.LeftTop());
+		bitmap->Release();
+	}
 	// If GUI is hidden, don't show cursors
 	if (!fShown)
 		return;
