@@ -150,7 +150,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 	fAreaUnderMouse = NULL;
 
 	for (const auto area : fAreaEntries) {
-		if (area->Rect().Contains(point.x, point.y)) {
+		if (area->IsVisible() && area->Rect().Contains(point.x, point.y)) {
 			fAreaUnderMouse = area;
 			break;
 		}
@@ -175,14 +175,12 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 void
 WorldMap::ActorEnteredArea(const Actor* actor)
 {
-	//fActors.push_back(const_cast<Actor*>(actor));
 }
 
 
 void
 WorldMap::ActorExitedArea(const Actor* actor)
 {
-	return;
 }
 
 
