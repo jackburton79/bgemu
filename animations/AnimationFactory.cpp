@@ -41,6 +41,8 @@ struct AnimationDescriptor {
 };
 
 
+// Seems BG1 names are different fot same IDS:
+// TODO: Drop GeneratedIDS and use a similar array, differentiating games
 const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x1000, "", FactoryType::BGMonster },
 	{ 0x2000, "", FactoryType::BGMonster },
@@ -56,8 +58,8 @@ const static AnimationDescriptor kAnimationEntries[] = {
 
 	{ 0x5000, "CHMB", FactoryType::Character },
 	{ 0x5002, "CDMB", FactoryType::Character },
-	{ 0x5003, "", FactoryType::Character },
-	{ 0x5100, "", FactoryType::Character },
+	{ 0x5003, "CIMB", FactoryType::Character },
+	{ 0x5100, "CHMB", FactoryType::Character },
 	{ 0x5102, "CDMB", FactoryType::Character },
 	{ 0x5110, "CHFB", FactoryType::Character },
 	{ 0x5113, "CIFB", FactoryType::Character },
@@ -85,7 +87,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x6201, "CEMW", FactoryType::Character },
 	{ 0x6210, "CHFW", FactoryType::Character },
 	{ 0x6211, "CEFW", FactoryType::Character },
-	{ 0x6300, "", FactoryType::Character },
+	{ 0x6300, "CHMB", FactoryType::Character },
 	{ 0x6301, "CEMB", FactoryType::Character },
 	{ 0x6302, "CDMB", FactoryType::Character },
 	{ 0x6303, "CIMB", FactoryType::Character },
@@ -104,7 +106,7 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7001, "MOGR", FactoryType::BGMonster },
 	{ 0x7202, "MBER", FactoryType::BGMonster },
 	{ 0x7300, "", FactoryType::BGMonster },
-	{ 0x7400, "", FactoryType::BGMonster },
+	{ 0x7400, "MDOG", FactoryType::BGMonster },
 	{ 0x7703, "MSHD", FactoryType::BGMonster },
 	{ 0x7a01, "MSPI", FactoryType::BGMonster },
 	{ 0x7c01, "MTAS", FactoryType::BGMonster },
@@ -136,19 +138,19 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x7f37, "NIRE", FactoryType::BGMonster },
 	{ 0x8000, "", FactoryType::BGMonster },
 	{ 0x8100, "", FactoryType::BGMonster },
-	{ 0x9000, "", FactoryType::BGMonster },
+	{ 0x9000, "MOGR", FactoryType::BGMonster },
 	{ 0xa000, "", FactoryType::BGMonster },
-	{ 0xb000, "", FactoryType::BGMonster },
+	{ 0xb000, "ACOW", FactoryType::BGMonster },
 	{ 0xb100, "AHRS", FactoryType::BGMonster }, // AHRS
 	{ 0xb200, "NBEG", FactoryType::SplitAnimation }, // NBEG 0xb200
-	{ 0xb400, "", FactoryType::SplitAnimation },
+	{ 0xb400, "NFAM", FactoryType::SplitAnimation },
 	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
-	{ 0xb500, "", FactoryType::SplitAnimation },
+	{ 0xb500, "NSIM", FactoryType::SplitAnimation },
 	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
 	{ 0xc000, "ABAT", FactoryType::BGMonster },
-	{ 0xc100, "", FactoryType::BGMonster },
-	{ 0xc200, "", FactoryType::BGMonster },
-	{ 0xc300, "", FactoryType::BGMonster },
+	{ 0xc100, "ACAT", FactoryType::BGMonster },
+	{ 0xc200, "ACHK", FactoryType::BGMonster },
+	{ 0xc300, "ARAT", FactoryType::BGMonster },
 	{ 0xc400, "", FactoryType::BGMonster },
 	{ 0xc500, "", FactoryType::BGMonster },
 	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
@@ -160,10 +162,10 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0xc810, "NFAW", FactoryType::SplitAnimation }, // NFAW
 	{ 0xc900, "NSIM", FactoryType::SplitAnimation }, // NSIM
 	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
-	{ 0xca00, "", FactoryType::SplitAnimation },
+	{ 0xca00, "NNOM", FactoryType::SplitAnimation },
 	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
 	{ 0xd000, "AEAG", FactoryType::BGMonster }, // AEAG (Eagle)
-	{ 0xd100, "", FactoryType::BGMonster },
+	{ 0xd100, "AGUL", FactoryType::BGMonster },
 	{ 0xd200, "", FactoryType::BGMonster },
 	{ 0xd300, "", FactoryType::BGMonster },
 	{ 0xe000, "", FactoryType::IWD },
