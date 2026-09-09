@@ -718,6 +718,9 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 					case 7:
 						Game::Get()->ToggleSaveWindow();
 						break;
+					case 9:
+						Core::Get()->TogglePause();
+						break;
 					case 11:
 						Game::Get()->TriggerRest();
 						break;
