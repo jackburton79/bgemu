@@ -46,7 +46,7 @@ ITMResource::Animation() const
 
 
 uint16
-ITMResource::Type() const
+ITMResource::ItemType() const
 {
 	return fHeader.type;
 }

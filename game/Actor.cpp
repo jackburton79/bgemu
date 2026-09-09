@@ -170,7 +170,7 @@ Actor::_Init()
 			item.Print();
 			ITMResource* itemRes = gResManager->GetITM(item.name);
 			if (itemRes != NULL) {
-				std::cout << "type: " << std::dec << itemRes->Type() << std::endl;
+				std::cout << "type: " << std::dec << itemRes->ItemType() << std::endl;
 				std::cout << IDTable::GetDialog(itemRes->DescriptionRef()) << std::endl;
 				std::cout << "animation: " << itemRes->Animation() << std::endl;
 			}
@@ -1174,7 +1174,7 @@ Actor::EquipItem(const res_ref& itemName)
 	ITMResource* itm = gResManager->GetITM(itemName);
 	if (itm == NULL)
 		return false;
-	int32 targetSlot = _DefaultSlotForItemType(itm->Type());
+	int32 targetSlot = _DefaultSlotForItemType(itm->ItemType());
 	gResManager->ReleaseResource(itm);
 
 	if (targetSlot < 0)

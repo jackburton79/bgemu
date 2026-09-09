@@ -68,7 +68,7 @@ public:
 
 	virtual bool Load(Archive *archive, uint32 key);
 
-	uint16 Type() const;
+	uint16 ItemType() const;
 	std::string Animation() const;
 	uint32 DescriptionRef() const;
 
