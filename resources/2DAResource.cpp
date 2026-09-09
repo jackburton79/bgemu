@@ -45,7 +45,8 @@ TWODAResource::Load(Archive* archive, uint32 key)
 		return false;
 
 	if (IsEncrypted()) {
-		std::cout << Log::Yellow << "2DAResource: " << Name() << ": encrypted resource" << std::endl;
+		std::cout << Log::Yellow << "2DAResource: " << Name() << ": encrypted resource";
+		std::cout  << Log::Normal << std::endl;
 		EncryptedStream *newStream =
 				new EncryptedStream(fData, kEncryptionKey, kEncryptionKeySize);
 		ReplaceData(newStream);
