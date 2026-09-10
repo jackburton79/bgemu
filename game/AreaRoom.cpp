@@ -1660,7 +1660,8 @@ AreaRoom::_GetEntrance(const std::string& entranceName, IE::entrance& outEntranc
 	if (!entranceName.empty()) {
 		for (uint32 e = 0; e < fArea->CountEntrances(); e++) {
 			IE::entrance entrance = fArea->EntranceAt(e);
-			if (entranceName == entrance.name) {
+			// Case insensitive comparison
+			if (strcasecmp(entranceName.c_str(), entrance.name) == 0) {
 				outEntrance = entrance;
 				return true;
 			}
