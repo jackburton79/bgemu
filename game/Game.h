@@ -63,6 +63,12 @@ public:
 	// buttons here - click-to-pick-up, click-to-drop-and-swap between
 	// item slots. See the .cpp.
 	void InventoryControlInvoked(uint32 controlID, uint16 windowID);
+	// Right-click on an inventory slot: examine the item (opens the
+	// GUIINVHI info window), or cancel an in-progress drag.
+	void InventoryControlRightClicked(uint32 controlID, uint16 windowID);
+	// Hover enter/leave on an inventory slot: show/hide the item-name
+	// tooltip next to the cursor.
+	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
 	void ToggleJournalWindow();
 
 	// Queues RESTPARTY(230) on the first party member - same action
@@ -212,6 +218,7 @@ private:
 	void _UpdateInventoryIcons();
 	void _SetSlotIcon(class Window* window, class CREResource* cre,
 		uint32 controlID, uint32 creSlot);
+	void _ShowItemInfo(const res_ref& itemName);
 	void _UpdatePaperdoll(class Window* window, Actor* actor);
 	void _UpdateInventoryLabels(class Window* window, Actor* actor);
 	void _UpdateRecordLabels();

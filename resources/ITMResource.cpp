@@ -55,9 +55,17 @@ ITMResource::ItemType() const
 uint32
 ITMResource::DescriptionRef() const
 {
-	uint32 ref;
-	fData->ReadAt(0x0054, ref);
-	return ref;
+	// 0x54 identified description, 0x50 unidentified. Mundane items
+	// (a plain helmet) commonly carry their text only in the
+	// unidentified slot and leave identified as -1 - this engine has no
+	// identification mechanic anyway, so fall back to whichever is set.
+	uint32 identified;
+	fData->ReadAt(0x0054, identified);
+	if (identified != 0 && identified != 0xffffffff)
+		return identified;
+	uint32 unidentified;
+	fData->ReadAt(0x0050, unidentified);
+	return unidentified;
 }
 
 

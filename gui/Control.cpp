@@ -101,6 +101,14 @@ Control::MouseUp(IE::point point)
 
 
 /* virtual */
+bool
+Control::RightMouseDown(IE::point point)
+{
+	return false;
+}
+
+
+/* virtual */
 void
 Control::Pulse()
 {
@@ -111,6 +119,20 @@ void
 Control::Invoke()
 {
 	GUI::Get()->ControlInvoked(ID(), fWindow->ID(), fWindow->OwnerCHU());
+}
+
+
+void
+Control::InvokeRightClick()
+{
+	GUI::Get()->ControlRightClicked(ID(), fWindow->ID(), fWindow->OwnerCHU());
+}
+
+
+void
+Control::NotifyHovered(bool inside)
+{
+	GUI::Get()->ControlHovered(ID(), fWindow->ID(), fWindow->OwnerCHU(), inside);
 }
 
 

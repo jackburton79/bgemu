@@ -60,6 +60,8 @@ public:
 
 	void MouseDown(IE::point point);
 	void MouseUp(IE::point point);
+	// Returns true if a control under `point` consumed the right click.
+	bool RightMouseDown(IE::point point);
 	void MouseMoved(IE::point point);
 
 	void Pulse();

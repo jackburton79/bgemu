@@ -214,6 +214,17 @@ Window::MouseUp(IE::point point)
 }
 
 
+bool
+Window::RightMouseDown(IE::point point)
+{
+	ConvertFromScreen(point);
+
+	if (Control* control = _ControlAtPoint(point))
+		return control->RightMouseDown(point);
+	return false;
+}
+
+
 void
 Window::MouseMoved(IE::point point)
 {

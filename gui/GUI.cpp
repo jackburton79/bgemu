@@ -66,7 +66,8 @@ GUI::GUI(uint16 width, uint16 height)
 	fLastScrollTime(0),
 	fShown(true),
 	fTooltipBitmap(NULL),
-	fDragBitmap(NULL)
+	fDragBitmap(NULL),
+	fHoverTooltipBitmap(NULL)
 {
 	fCursorPosition.x = 0;
 	fCursorPosition.y = 0;
@@ -102,6 +103,8 @@ GUI::~GUI()
 
 	if (fDragBitmap != NULL)
 		fDragBitmap->Release();
+	if (fHoverTooltipBitmap != NULL)
+		fHoverTooltipBitmap->Release();
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
@@ -235,6 +238,12 @@ GUI::Draw()
 		GraphicsEngine::Get()->BlitToScreen(fDragBitmap, NULL, &rect);
 	}
 
+	if (fHoverTooltipBitmap != NULL && fDragBitmap == NULL) {
+		GFX::rect rect(fCursorPosition.x + 12, fCursorPosition.y + 8,
+			fHoverTooltipBitmap->Width(), fHoverTooltipBitmap->Height());
+		GraphicsEngine::Get()->BlitToScreen(fHoverTooltipBitmap, NULL, &rect);
+	}
+
 	if (fCurrentCursor != NULL) {
 		try {
 			const Bitmap* nextFrame = fCurrentCursor->Bitmap();
@@ -262,6 +271,24 @@ bool
 GUI::IsDraggingItem() const
 {
 	return fDragBitmap != NULL;
+}
+
+
+void
+GUI::SetHoverTooltip(const std::string& text)
+{
+	if (text == fHoverTooltipText)
+		return;
+	fHoverTooltipText = text;
+	if (fHoverTooltipBitmap != NULL) {
+		fHoverTooltipBitmap->Release();
+		fHoverTooltipBitmap = NULL;
+	}
+	if (text.empty())
+		return;
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	if (font != NULL)
+		fHoverTooltipBitmap = font->GetRenderedString(text, 0);
 }
 
 
@@ -303,6 +330,23 @@ GUI::MouseUp(int16 x, int16 y)
 	Window* window = _WindowAtPoint(point);
 	if (window != NULL)
 		window->MouseUp(point);
+}
+
+
+void
+GUI::RightMouseDown(int16 x, int16 y)
+{
+	if (Core::Get()->CutsceneMode())
+		return;
+
+	IE::point point = { x, y };
+	Window* window = _WindowAtPoint(point);
+	if (window != NULL && window->RightMouseDown(point))
+		return;
+
+	// Nothing wanted the right click as such - treat it like a normal
+	// click so the game world's right-click-to-move keeps working.
+	MouseDown(x, y);
 }
 
 
@@ -506,6 +550,7 @@ GUI::Clear()
 
 	// Any in-progress inventory drag belonged to a window just destroyed.
 	SetDragBitmap(NULL);
+	SetHoverTooltip("");
 
 	_AddBackgroundWindow();
 }
@@ -673,6 +718,23 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 		Core::Get()->CurrentRoom()->SetRelativeAreaOffset(scrollByX, scrollByY);
 		fLastScrollTime = ticks;
 	}
+}
+
+
+void
+GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuName)
+{
+	if (chuName == res_ref("GUIINV"))
+		Game::Get()->InventoryControlRightClicked(controlID, windowID);
+}
+
+
+void
+GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
+					bool inside)
+{
+	if (chuName == res_ref("GUIINV"))
+		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
 }
 
 

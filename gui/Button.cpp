@@ -119,11 +119,13 @@ Button::MouseMoved(IE::point point, uint32 transit)
 {
 	Control::MouseMoved(point, transit);
 
-	if (transit == Control::MOUSE_ENTER)
+	if (transit == Control::MOUSE_ENTER) {
 		fSelected = true;
-	else if (transit == Control::MOUSE_EXIT) {
+		NotifyHovered(true);
+	} else if (transit == Control::MOUSE_EXIT) {
 		fSelected = false;
 		fPressed = false;
+		NotifyHovered(false);
 	}
 }
 
@@ -134,6 +136,15 @@ Button::MouseDown(IE::point point)
 {
 	Control::MouseDown(point);
 	fPressed = true;
+}
+
+
+/* virtual */
+bool
+Button::RightMouseDown(IE::point point)
+{
+	InvokeRightClick();
+	return true;
 }
 
 

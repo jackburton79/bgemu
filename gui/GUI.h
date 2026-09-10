@@ -63,6 +63,10 @@ public:
 
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);
+	// Right button pressed: offered to the topmost window's control at
+	// (x,y); if nothing consumes it, falls back to MouseDown() so the
+	// game world's right-click keeps working.
+	void RightMouseDown(int16 x, int16 y);
 	void MouseMoved(int16 x, int16 y);
 
 	void GetCursorPosition(int16& x, int16& y) const;
@@ -122,6 +126,17 @@ public:
 	// GUIREC, GUISAVE, ...). Needed because window/control ids aren't
 	// unique across different CHU files, only within one.
 	void ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName);
+	// Right-click on a control the control itself chose to forward (see
+	// Control::RightMouseDown) - currently inventory-slot Buttons only.
+	void ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuName);
+	// Pointer entered (inside=true) / left a control - drives hover
+	// tooltips.
+	void ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
+						bool inside);
+
+	// Small text shown next to the cursor while hovering something (an
+	// inventory slot's item name). Empty string clears it.
+	void SetHoverTooltip(const std::string& text);
 
 	void RemoveToolTip(uint32 id);
 
@@ -161,6 +176,8 @@ private:
 
 	Bitmap* fTooltipBitmap;
 	Bitmap* fDragBitmap;
+	Bitmap* fHoverTooltipBitmap;
+	std::string fHoverTooltipText;
 
 	GUI(uint16 width, uint16 height);
 	~GUI();

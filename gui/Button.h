@@ -23,6 +23,7 @@ public:
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);
+	virtual bool RightMouseDown(IE::point point);
 
 	// Overlay drawn centered on top of the button's own frame - e.g. an
 	// item icon over an inventory slot's empty-slot background. Takes a

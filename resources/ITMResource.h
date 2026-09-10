@@ -70,6 +70,10 @@ public:
 
 	uint16 ItemType() const;
 	std::string Animation() const;
+	// TLK strref for the item's name / description. This engine has no
+	// identification mechanic, so callers use the identified variants.
+	uint32 IdentifiedNameRef() const { return fHeader.name_identified; }
+	uint32 UnidentifiedNameRef() const { return fHeader.name_unidentified; }
 	uint32 DescriptionRef() const;
 
 	uint32 Weight() const;

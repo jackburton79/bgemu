@@ -463,6 +463,44 @@ public:
 };
 
 
+// Headless equivalent of right-clicking a control (Control::RightMouseDown)
+// - exec-file mode has no real mouse events.
+class RightClickControlCommand : public ShellCommand {
+public:
+	RightClickControlCommand()
+		: ShellCommand(
+			"RightClick-Control",
+			{
+				{ PARAMETER_STRING, }, // CHU name ("-" for the primary GUI)
+				{ PARAMETER_INT, },    // window id
+				{ PARAMETER_INT, }     // control id
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::string chuNameString = params.at(0).value.string;
+		uint16 windowId = (uint16)params.at(1).value.integer;
+		Window* window = (chuNameString.empty() || chuNameString == "-")
+			? GUI::Get()->GetWindow(windowId)
+			: GUI::Get()->GetAuxWindow(res_ref(chuNameString.c_str()), windowId);
+		if (window == NULL) {
+			std::cout << "RightClick-Control: window not found" << std::endl;
+			return;
+		}
+		Control* control = window->GetControlByID(params.at(2).value.integer);
+		if (control == NULL) {
+			std::cout << "RightClick-Control: control not found" << std::endl;
+			return;
+		}
+		IE::point point = { 0, 0 };
+		control->RightMouseDown(point);
+		std::cout << "RightClick-Control: OK" << std::endl;
+	}
+};
+
+
 class ShakeScreenCommand : public ShellCommand {
 public:
 	ShakeScreenCommand()
@@ -1241,6 +1279,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());
 	console->AddCommand(new InvokeControlCommand());
+	console->AddCommand(new RightClickControlCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

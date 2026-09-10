@@ -213,10 +213,17 @@ Game::Loop(bool noNewGame, bool executeScripts)
 					break;
 				}
 				case SDL_MOUSEBUTTONDOWN:
-					gui->MouseDown(event.button.x, event.button.y);
+					if (event.button.button == SDL_BUTTON_RIGHT)
+						gui->RightMouseDown(event.button.x, event.button.y);
+					else
+						gui->MouseDown(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEBUTTONUP:
-					gui->MouseUp(event.button.x, event.button.y);
+					// A right click was delivered on the way down (or fell
+					// back to MouseDown there); no matching MouseUp so a
+					// Button doesn't also fire its normal left-click action.
+					if (event.button.button != SDL_BUTTON_RIGHT)
+						gui->MouseUp(event.button.x, event.button.y);
 					break;
 				case SDL_MOUSEMOTION:
 					gui->MouseMoved(event.motion.x, event.motion.y);
@@ -495,6 +502,20 @@ static const uint32 kInvACLabelID = 268435512;
 // placeholder bitmap - CIFF4INV, a generic doll unrelated to whichever
 // character's inventory is actually open) - see _UpdatePaperdoll().
 static const uint32 kInvPaperdollID = 50;
+// GUIINV window 5 (background GUIINVHI) is BG2's "examine item" popup,
+// opened by right-clicking a slot (confirmed via a real GUIINV.CHU dump):
+// id 268435455 = item title, id 7 = the large item-icon button, id 5 =
+// the scrollable description text_area. Any button in the window closes
+// it (only "Done", id 4, is meaningful here).
+static const uint16 kInvInfoWindowID = 5;
+static const uint32 kInvInfoTitleID = 268435455;
+static const uint32 kInvInfoIconID = 7;
+static const uint32 kInvInfoTextID = 5;
+// Two CHU-authored labels in that window that otherwise show a literal
+// "(No text)" TLK placeholder - blanked rather than left visible (real
+// BG2 fills them from code; their exact purpose isn't confirmed here).
+static const uint32 kInvInfoBlankLabel1ID = 268435456;
+static const uint32 kInvInfoBlankLabel2ID = 268435467;
 static const uint32 kRecACLabelID = 268435496;
 static const uint32 kRecClassLabelID = 268435471;
 static const uint32 kRecRaceLabelID = 268435472;
@@ -574,6 +595,22 @@ _MakeItemIcon(const res_ref& itemName)
 }
 
 
+// Human-readable name for an item: its identified name, else its
+// unidentified name, else the bare resref.
+static std::string
+_ItemDisplayName(ITMResource* itm, const res_ref& itemName)
+{
+	if (itm != NULL) {
+		std::string name = IDTable::GetDialog(itm->IdentifiedNameRef());
+		if (name.empty())
+			name = IDTable::GetDialog(itm->UnidentifiedNameRef());
+		if (!name.empty())
+			return name;
+	}
+	return itemName.CString();
+}
+
+
 // CRE item-slot for a GUIINV control id, or -1 if the control isn't a
 // mapped inventory slot.
 static int32
@@ -629,6 +666,12 @@ Game::_UpdateInventoryIcons()
 void
 Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 {
+	if (windowID == kInvInfoWindowID) {
+		// Any button in the examine popup just closes it.
+		GUI::Get()->HideAuxWindow("GUIINV", kInvInfoWindowID);
+		return;
+	}
+
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0)
 		return;
@@ -654,6 +697,107 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 		_UpdateInventoryIcons();
 	}
 	// else: drop rejected - keep holding the item.
+}
+
+
+// Right-click on a GUIINV window-2 slot: if the player is mid-drag, drop
+// the held item back where it came from (BG2's right-click-cancels); if
+// the slot holds an item, examine it (opens the GUIINVHI popup).
+void
+Game::InventoryControlRightClicked(uint32 controlID, uint16 windowID)
+{
+	if (windowID != 2)
+		return;
+
+	if (GUI::Get()->IsDraggingItem()) {
+		fInvDragSlot = -1;
+		GUI::Get()->SetDragBitmap(NULL);
+		return;
+	}
+
+	int32 slot = _CreSlotForControl(controlID);
+	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
+		return;
+	Actor* actor = fParty->ActorAt(0);
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	IE::item item;
+	if (actor->CRE()->GetItemAtSlot((uint32)slot, item))
+		_ShowItemInfo(item.name);
+}
+
+
+// Populates and shows GUIINV's examine popup (window 5) for an item.
+void
+Game::_ShowItemInfo(const res_ref& itemName)
+{
+	ITMResource* itm = gResManager->GetITM(itemName);
+	if (itm == NULL)
+		return;
+
+	GUI::Get()->ShowAuxWindow("GUIINV", kInvInfoWindowID);
+	Window* window = GUI::Get()->GetAuxWindow("GUIINV", kInvInfoWindowID);
+	if (window == NULL) {
+		gResManager->ReleaseResource(itm);
+		return;
+	}
+
+	Label* title = dynamic_cast<Label*>(window->GetControlByID(kInvInfoTitleID));
+	if (title != NULL)
+		title->SetText(_ItemDisplayName(itm, itemName));
+
+	for (uint32 id : { kInvInfoBlankLabel1ID, kInvInfoBlankLabel2ID }) {
+		Label* label = dynamic_cast<Label*>(window->GetControlByID(id));
+		if (label != NULL)
+			label->SetText("");
+	}
+
+	Button* icon = dynamic_cast<Button*>(window->GetControlByID(kInvInfoIconID));
+	if (icon != NULL)
+		icon->SetIcon(_MakeItemIcon(itemName), true);
+
+	TextArea* description =
+		dynamic_cast<TextArea*>(window->GetControlByID(kInvInfoTextID));
+	if (description != NULL) {
+		description->ClearText();
+		std::string text = IDTable::GetDialog(itm->DescriptionRef());
+		description->AddText(text.empty() ? "(No description)" : text.c_str());
+		description->ScrollTo(0, 0);
+	}
+
+	gResManager->ReleaseResource(itm);
+}
+
+
+// Hover enter/leave on a GUIINV window-2 slot: show the item's name in a
+// tooltip next to the cursor while the pointer is over a filled slot.
+void
+Game::InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside)
+{
+	if (windowID != 2 || !inside) {
+		GUI::Get()->SetHoverTooltip("");
+		return;
+	}
+
+	int32 slot = _CreSlotForControl(controlID);
+	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
+		return;
+	Actor* actor = fParty->ActorAt(0);
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	IE::item item;
+	if (!actor->CRE()->GetItemAtSlot((uint32)slot, item)) {
+		GUI::Get()->SetHoverTooltip("");
+		return;
+	}
+
+	ITMResource* itm = gResManager->GetITM(item.name);
+	std::string name = _ItemDisplayName(itm, item.name);
+	if (itm != NULL)
+		gResManager->ReleaseResource(itm);
+	GUI::Get()->SetHoverTooltip(name);
 }
 
 
