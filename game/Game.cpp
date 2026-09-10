@@ -1322,9 +1322,13 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 
 	IE::item item;
 	Bitmap* icon = NULL;
-	if (cre->GetItemAtSlot(creSlot, item))
+	int count = 0;
+	if (cre->GetItemAtSlot(creSlot, item)) {
 		icon = _MakeItemIcon(item.name);
+		count = item.quantity1;
+	}
 	button->SetIcon(icon);
+	button->SetIconCount(count);
 }
 
 

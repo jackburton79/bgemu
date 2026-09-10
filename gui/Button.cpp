@@ -10,7 +10,10 @@
 #include "GraphicsEngine.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "TextSupport.h"
 #include "Window.h"
+
+#include <string>
 
 
 Button::Button(IE::button* button)
@@ -21,6 +24,7 @@ Button::Button(IE::button* button)
 	fPressedBitmap(NULL),
 	fUnpressedBitmap(NULL),
 	fIcon(NULL),
+	fIconCount(0),
 	fCoverBackground(false),
 	fHighlighted(false),
 	fEnabled(true),
@@ -50,6 +54,13 @@ Button::~Button()
 		fUnpressedBitmap->Release();
 	if (fIcon != NULL)
 		fIcon->Release();
+}
+
+
+void
+Button::SetIconCount(int count)
+{
+	fIconCount = count;
 }
 
 
@@ -116,6 +127,20 @@ Button::Draw()
 		GFX::rect iconRect = fIconRect;
 		fWindow->ConvertToScreen(iconRect);
 		GraphicsEngine::Get()->BlitToScreen(fIcon, NULL, &iconRect);
+
+		if (fIconCount > 1) {
+			const Font* font = FontRoster::GetFont("TOOLFONT");
+			if (font != NULL) {
+				Bitmap* text = font->GetRenderedString(std::to_string(fIconCount), 0);
+				if (text != NULL) {
+					GFX::rect where(iconRect.x + iconRect.w - text->Width(),
+									iconRect.y + iconRect.h - text->Height(),
+									text->Width(), text->Height());
+					GraphicsEngine::Get()->BlitToScreen(text, NULL, &where);
+					text->Release();
+				}
+			}
+		}
 	}
 	if (fHighlighted) {
 		GFX::rect outline = Frame();

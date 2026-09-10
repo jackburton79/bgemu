@@ -34,6 +34,11 @@ public:
 	// just a generic placeholder doll the real PLT fully replaces).
 	void SetIcon(Bitmap* icon, bool coverBackground = false);
 
+	// A small quantity number drawn in the icon's bottom-right corner
+	// (for a stacked inventory item - arrows, potions, gems). 0 or 1
+	// draws nothing.
+	void SetIconCount(int count);
+
 	// Draws a bright outline around the button - used to mark the
 	// currently-selected party member's portrait.
 	void SetHighlighted(bool highlighted);
@@ -50,6 +55,7 @@ private:
 	// and the button's own (static, CHU-authored) frame, neither of
 	// which change between frames.
 	GFX::rect fIconRect;
+	int fIconCount;
 	bool fCoverBackground;
 	bool fHighlighted;
 	bool fEnabled;
