@@ -9,7 +9,6 @@
 #define __ANIMATIONFACTORY_H_
 
 #include <string>
-#include <vector>
 
 #include "IETypes.h"
 
@@ -19,9 +18,9 @@
 
 struct animation_description {
 	std::string bam_name;
-	int sequence_number;
-	bool mirror;
-	bool custom_colors;
+	int sequence_number = 0;
+	bool mirror = false;
+	bool custom_colors = false;
 };
 
 struct CREColors;
@@ -39,38 +38,19 @@ public:
 	Animation* AnimationFor(Actor* actor, CREColors* colors = NULL);
 
 	// The paperdoll resref (a PLT, see resources/PLTResource.h) shown on
-	// the inventory screen for this actor - same identity prefix
-	// AnimationFor() builds for a party member's own sprite ("C" + Race
-	// + Gender + Class + Armor, see its own "Character" case below),
-	// with "INV" instead of an action/orientation suffix - see IESDP
-	// avatarnaming.htm's "PLT Files" paragraph. Falls back to this
-	// factory's own fixed BaseName() + "1" for a non-party actor,
-	// mirroring AnimationFor()'s own party/non-party split.
+	// the inventory screen for this actor - the same "C" + Race + Gender
+	// + Class + Armour identity prefix AnimationFor() builds for a party
+	// member's own sprite, with "INV" instead of an action/orientation
+	// suffix (see avatarnaming.htm's "PLT Files" paragraph). Falls back to
+	// this factory's own base name + "1" for a non-party actor.
 	std::string PaperdollName(const Actor* actor) const;
 
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	~AnimationFactory();
 
+	// Resolves fID to a per-style builder via the .cpp's dispatch table.
 	animation_description GetAnimationDescription(Actor* actor);
-	animation_description _GetBGMonsterAnimationDescription(Actor* actor);
-	animation_description _GetBGCharacterAnimationDescription(Actor* actor);
-	animation_description _GetCharacterAnimationDescription(Actor* actor);
-	animation_description _GetSimpleAnimationDescription(Actor* actor);
-	animation_description _GetSplitAnimationDescription(Actor* actor);
-	animation_description _GetIWDAnimationDescription(Actor* actor);
-	animation_description _GetStaticAnimationDescription(Actor* actor);
-
-	std::string BaseName() const;
-
-	std::string _RaceCharacter(uint8 race) const;
-	std::string _ClassCharacter(uint8 c) const;
-	std::string _GenderCharacter(uint8 gender) const;
-	std::string _ArmorCharacter(const Actor* actor) const;
-
-	// True if the BAM "<name><suffix>" exists (the engine picks between
-	// e.g. G1/G11/W2 variants of a walk cycle by which files ship).
-	bool _HasVariant(const std::string& name, const char* suffix) const;
 
 private:
 	std::string fBaseName;
