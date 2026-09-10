@@ -64,6 +64,15 @@ _AreaCheckpointPath(const char* areaName)
 }
 
 
+/* static */
+void
+AreaRoom::ClearAreaCheckpoints()
+{
+	std::error_code error;
+	std::filesystem::remove_all(kAreaCheckpointDir, error);
+}
+
+
 AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 	:

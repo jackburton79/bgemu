@@ -380,6 +380,17 @@ CREResource::FindTrapsSkill() const
 }
 
 
+uint32
+CREResource::SoundSetStringRef(uint32 soundSlot) const
+{
+	if (soundSlot >= 100)
+		return 0xffffffff;
+	uint32 strRef;
+	fData->ReadAt(0x00a4 + soundSlot * sizeof(strRef), strRef);
+	return strRef;
+}
+
+
 uint8
 CREResource::Level() const
 {

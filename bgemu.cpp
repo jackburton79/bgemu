@@ -1,4 +1,5 @@
 #include "AnimationTester.h"
+#include "AreaRoom.h"
 #include "Core.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
@@ -201,5 +202,9 @@ main(int argc, char **argv)
 	GraphicsEngine::Destroy();
 	SoundEngine::Destroy();
 	Core::Destroy();
+
+	// For now, don't keep area checkpoints across program runs (see the
+	// method's own comment).
+	AreaRoom::ClearAreaCheckpoints();
 	return 0;
 }

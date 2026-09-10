@@ -154,6 +154,33 @@ RunActionPlaySound(Object* sender, action_params* params, action_state& state)
 }
 
 
+// VERBALCONSTANT(O:Object*,I:Constant*Sndslot) - stateless. Plays the
+// target's soundset line for the given SNDSLOT.IDS slot: the slot indexes
+// the target CRE's 100 character strrefs (cre_v1.htm offset 0x00a4), and
+// the TLK entry for that strref carries the sound resref to play.
+static void
+RunActionVerbalConstant(Object* sender, action_params* params, action_state& state)
+{
+	state.completed = true;
+
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (target == NULL || target->CRE() == NULL)
+		return;
+
+	uint32 strRef = target->CRE()->SoundSetStringRef((uint32)params->integer1);
+	if (strRef == 0xffffffff)
+		return;
+
+	TLKEntry* entry = IDTable::GetTLKEntry(strRef);
+	if (entry == NULL)
+		return;
+
+	if (entry->sound_ref.CString()[0] != '\0')
+		Core::Get()->PlaySound(entry->sound_ref);
+	delete entry;
+}
+
+
 // STARTSTORE(S:Store*,O:Target*) - stateless. No store GUI exists yet
 // (Fase 9 plan: parsing + this action only, GUI deferred) - resolves and
 // logs the store's real data instead of silently no-op'ing like the
@@ -3275,7 +3302,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 129, "ANKHEGHIDE", NULL },
 		{ 130, "RANDOMTURN", RunActionRandomTurn },
 		{ 131, "KILL", RunActionKill },
-		{ 132, "VERBALCONSTANT", NULL },
+		{ 132, "VERBALCONSTANT", RunActionVerbalConstant },
 		{ 133, "CLEARACTIONS", RunActionClearActions },
 		{ 134, "ATTACKREEVALUATE", RunActionAttack },
 		{ 135, "LOCKSCROLL", NULL },

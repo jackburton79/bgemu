@@ -266,6 +266,12 @@ public:
 	uint8 OpenLocksSkill() const;
 	uint8 FindTrapsSkill() const;
 
+	// One of the 100 character strrefs at cre_v1.htm offset 0x00a4,
+	// indexed by an SNDSLOT.IDS (BG2) / SOUNDOFF.IDS (BG1) sound slot -
+	// used by the VERBALCONSTANT action to play a soundset line. Returns
+	// 0xffffffff (an invalid strref) for an out-of-range slot.
+	uint32 SoundSetStringRef(uint32 soundSlot) const;
+
 	uint8 Level() const;
 	// Level for a single class slot (0/1/2, mapping to bytes 0x234/0x235/
 	// 0x236) - see Class()'s comment for how a multi-class creature's

@@ -106,6 +106,13 @@ public:
 
 	static bool IsPointPassable(const IE::point& point);
 
+	// Deletes every on-disk area checkpoint written by _UnloadArea()
+	// (see ARAResource::WriteToFile()). Called at program shutdown for
+	// now: there's no new-game-vs-load-game distinction yet, so stale
+	// checkpoints from a previous run would otherwise bleed into a fresh
+	// session.
+	static void ClearAreaCheckpoints();
+
 	void ToggleOverlays();
 	void TogglePolygons();
 	void ToggleAnimations();
