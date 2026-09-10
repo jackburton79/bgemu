@@ -81,7 +81,8 @@ trigger_entry::trigger_entry(const std::string& trigName)
 	:
 	trigger_name(trigName),
 	target_id(-1),
-	round(0)
+	round(0),
+	parameter(0)
 {
 }
 
@@ -90,7 +91,18 @@ trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 	:
 	trigger_name(trigName),
 	target_id(targetObject->GlobalID()),
-	round(0)
+	round(0),
+	parameter(0)
+{
+}
+
+
+trigger_entry::trigger_entry(const std::string& trigName, int32 param)
+	:
+	trigger_name(trigName),
+	target_id(-1),
+	round(0),
+	parameter(param)
 {
 }
 
@@ -445,6 +457,17 @@ Object::HasTrigger(const std::string& trigName) const
 {
 	for (const auto &trigger : fTriggers) {
 		if (trigger.trigger_name == trigName)
+			return true;
+	}
+	return false;
+}
+
+
+bool
+Object::HasTrigger(const std::string& trigName, int32 parameter) const
+{
+	for (const auto& trigger : fTriggers) {
+		if (trigger.trigger_name == trigName && trigger.parameter == parameter)
 			return true;
 	}
 	return false;

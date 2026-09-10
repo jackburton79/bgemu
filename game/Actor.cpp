@@ -1320,9 +1320,10 @@ Actor::ClickedOn(Object* target)
 void
 Actor::Shout(int number)
 {
-	// TODO: Not sure if handling shouts as triggers is correct
-	// Moreover: we need to track the shout number
-	trigger_entry shout("shout");
+	// TODO: Not sure if handling shouts as triggers is correct.
+	// The number rides along as the entry's parameter so a listener's
+	// Heard(O:Object*,I:Number*) can match a specific shout value.
+	trigger_entry shout("shout", number);
 	AddTrigger(shout);
 	// Track who has heard this shout
 	for (int32 a = 0; a < Area()->ActorsCount(); a++) {
