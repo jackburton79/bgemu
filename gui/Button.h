@@ -24,12 +24,14 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseUp(IE::point point);
 
-	// Overlay drawn centered on top of the button's own frame, on top of
-	// whatever bitmap Draw() would otherwise use - e.g. an item icon over
-	// an inventory slot's empty-slot background. Takes a reference (like
-	// the CHU-authored bitmaps above); pass NULL to clear it. Not part of
-	// the CHU format itself, so it has no constructor-time equivalent.
-	void SetIcon(Bitmap* icon);
+	// Overlay drawn centered on top of the button's own frame - e.g. an
+	// item icon over an inventory slot's empty-slot background. Takes a
+	// reference (like the CHU-authored bitmaps above); pass NULL to clear
+	// it. Not part of the CHU format itself, so no constructor-time
+	// equivalent. With coverBackground the button's own frame bitmap is
+	// hidden while the icon is set (for the paperdoll, whose CHU frame is
+	// just a generic placeholder doll the real PLT fully replaces).
+	void SetIcon(Bitmap* icon, bool coverBackground = false);
 
 private:
 	Bitmap* fDisabledBitmap;
@@ -43,6 +45,7 @@ private:
 	// and the button's own (static, CHU-authored) frame, neither of
 	// which change between frames.
 	GFX::rect fIconRect;
+	bool fCoverBackground;
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;

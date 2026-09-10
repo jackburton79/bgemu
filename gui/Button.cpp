@@ -21,6 +21,7 @@ Button::Button(IE::button* button)
 	fPressedBitmap(NULL),
 	fUnpressedBitmap(NULL),
 	fIcon(NULL),
+	fCoverBackground(false),
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false)
@@ -52,8 +53,9 @@ Button::~Button()
 
 
 void
-Button::SetIcon(Bitmap* icon)
+Button::SetIcon(Bitmap* icon, bool coverBackground)
 {
+	fCoverBackground = (icon != NULL) && coverBackground;
 	if (icon == fIcon)
 		return;
 	if (fIcon != NULL)
@@ -94,7 +96,7 @@ Button::Draw()
 	*/
 	else
 		frame = fUnpressedBitmap;
-	if (frame != NULL) {
+	if (frame != NULL && !fCoverBackground) {
 		GFX::rect destRect = Frame();
 		fWindow->ConvertToScreen(destRect);
 		GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);

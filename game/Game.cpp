@@ -690,7 +690,10 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 		std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
 			<< name << std::endl;
 	}
-	button->SetIcon(icon);
+	// coverBackground: the paperdoll control's CHU bitmap is just a
+	// generic placeholder doll (CIFF4INV) - hide it so it can't show
+	// through the real doll's transparent areas.
+	button->SetIcon(icon, true);
 }
 
 
