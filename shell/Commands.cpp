@@ -501,6 +501,29 @@ public:
 };
 
 
+// Headless equivalent of a mouse press-drag-release, in screen pixels:
+// press at (x1,y1), move to (x2,y2), release. Exercises the whole
+// GUI/Window/Control mouse path including capture (e.g. a scrollbar
+// thumb drag).
+class MouseDragCommand : public ShellCommand {
+public:
+	MouseDragCommand()
+		: ShellCommand("Mouse-Drag", { { PARAMETER_POINT, }, { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point from = params.at(0).value.point;
+		IE::point to = params.at(1).value.point;
+		GUI::Get()->MouseDown(from.x, from.y);
+		GUI::Get()->MouseMoved(to.x, to.y);
+		GUI::Get()->MouseUp(to.x, to.y);
+		std::cout << "Mouse-Drag: (" << std::dec << from.x << "," << from.y
+			<< ") -> (" << to.x << "," << to.y << ")" << std::endl;
+	}
+};
+
+
 class ShakeScreenCommand : public ShellCommand {
 public:
 	ShakeScreenCommand()
@@ -1280,6 +1303,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleJournalCommand());
 	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new RightClickControlCommand());
+	console->AddCommand(new MouseDragCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

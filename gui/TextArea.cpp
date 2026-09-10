@@ -212,24 +212,18 @@ TextArea::GetLines(TextLines& lines) const
 void
 TextArea::ScrollBy(int16 /* not implemented */, int16 y)
 {
-	fYOffset += y;
-	if (fYOffset < 0)
-		fYOffset = 0;
-	fChanged = true;
-
-	_UpdateScrollbar(y);
+	ScrollTo(0, fYOffset + y);
 }
 
 
 void
 TextArea::ScrollTo(int16 /* not implemented */, int16 y)
 {
-	fYOffset = y;
-	if (fYOffset < 0)
-		fYOffset = 0;
+	int16 maxOffset = _MaxYOffset();
+	fYOffset = y < 0 ? 0 : (y > maxOffset ? maxOffset : y);
 	fChanged = true;
 
-	_UpdateScrollbar(y);
+	_UpdateScrollbar();
 }
 
 
@@ -248,20 +242,38 @@ TextArea::_AddText(std::string textString, int32 dialogOption)
 		fLines.push_back(newLine);
 	}
 
-	TextLine& lastLine = fLines.back();
-	int16 scrollToOffset = _LineOffset(&lastLine);
-	scrollToOffset -= Height();
-	ScrollTo(0, scrollToOffset);
+	// Follow the newly added text (matches the dialogue box scrolling to
+	// the latest line). ScrollTo() clamps, so this is a no-op until the
+	// content actually overflows.
+	ScrollTo(0, _MaxYOffset());
 
 	fChanged = true;
 }
 
 
 void
-TextArea::_UpdateScrollbar(int16 change)
+TextArea::_UpdateScrollbar()
 {
 	if (fScrollbar != NULL)
-		fScrollbar->UpdateOffset(fYOffset);
+		fScrollbar->SetScrollInfo(fYOffset, _MaxYOffset());
+}
+
+
+int16
+TextArea::_ContentHeight() const
+{
+	int16 height = 0;
+	for (const TextLine& line : fLines)
+		height += line.height + kLineSpacing;
+	return height;
+}
+
+
+int16
+TextArea::_MaxYOffset() const
+{
+	int16 overflow = _ContentHeight() - (int16)Height();
+	return overflow > 0 ? overflow : 0;
 }
 
 
@@ -288,16 +300,3 @@ TextArea::_HitTestLines(IE::point point) const
 }
 
 
-int16
-TextArea::_LineOffset(TextLine* line) const
-{
-	int16 lineOffset = 0;
-	TextLines::const_iterator i;
-	for (i = fLines.begin(); i != fLines.end(); i++) {
-		const TextLine& l = *i;
-		lineOffset += l.height + kLineSpacing;
-		if (&l == line)
-			break;
-	}
-	return lineOffset;
-}

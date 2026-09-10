@@ -102,7 +102,8 @@ GUI::GUI(uint16 width, uint16 height)
 	fShown(true),
 	fTooltipBitmap(NULL),
 	fDragBitmap(NULL),
-	fHoverTooltipBitmap(NULL)
+	fHoverTooltipBitmap(NULL),
+	fCaptureWindow(NULL)
 {
 	fCursorPosition.x = 0;
 	fCursorPosition.y = 0;
@@ -350,8 +351,11 @@ GUI::MouseDown(int16 x, int16 y)
 
 	IE::point point = { x, y };
 	Window* window = _WindowAtPoint(point);
-	if (window != NULL)
+	if (window != NULL) {
 		window->MouseDown(point);
+		if (window->HasMouseCapture())
+			fCaptureWindow = window;
+	}
 }
 
 
@@ -362,7 +366,8 @@ GUI::MouseUp(int16 x, int16 y)
 		return;
 
 	IE::point point = { x, y };
-	Window* window = _WindowAtPoint(point);
+	Window* window = fCaptureWindow != NULL ? fCaptureWindow : _WindowAtPoint(point);
+	fCaptureWindow = NULL;
 	if (window != NULL)
 		window->MouseUp(point);
 }
@@ -394,7 +399,7 @@ GUI::MouseMoved(int16 x, int16 y)
 	IE::point point = { x, y };
 	fCursorPosition = point;
 
-	Window* window = _WindowAtPoint(point);
+	Window* window = fCaptureWindow != NULL ? fCaptureWindow : _WindowAtPoint(point);
 	if (window != NULL)
 		window->MouseMoved(point);
 }
@@ -586,6 +591,7 @@ GUI::Clear()
 	// Any in-progress inventory drag belonged to a window just destroyed.
 	SetDragBitmap(NULL);
 	SetHoverTooltip("");
+	fCaptureWindow = NULL;
 
 	_AddBackgroundWindow();
 }

@@ -64,6 +64,13 @@ public:
 	bool RightMouseDown(IE::point point);
 	void MouseMoved(IE::point point);
 
+	// While a control captures the mouse (set from its MouseDown, e.g. a
+	// scrollbar thumb being dragged), every MouseMoved/MouseUp goes to it
+	// regardless of where the cursor is, until the capture is released
+	// (automatically on MouseUp, or explicitly with NULL).
+	void SetMouseCapture(Control* control);
+	bool HasMouseCapture() const;
+
 	void Pulse();
 
 	void ConvertToScreen(IE::point& point) const;
@@ -86,6 +93,7 @@ private:
 	uint16 fHeight;
 	uint32 fLastPulseTime;
 	Control* fActiveControl;
+	Control* fMouseCapture;
 	res_ref fOwnerCHU;
 };
 

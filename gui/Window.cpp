@@ -25,6 +25,7 @@ Window::Window(uint16 id, int16 xPos, int16 yPos,
 	fHeight(height),
 	fLastPulseTime(0),
 	fActiveControl(NULL),
+	fMouseCapture(NULL),
 	fOwnerCHU(ownerCHU)
 {
 	fPosition.x = xPos;
@@ -182,6 +183,10 @@ Window::ReplaceControl(uint32 id, Control* newControl)
 		if (control == NULL)
 			continue;
 		if (id == control->ID()) {
+			if (fMouseCapture == control)
+				fMouseCapture = NULL;
+			if (fActiveControl == control)
+				fActiveControl = NULL;
 			GFX::rect controlFrame = control->Frame();
 			newControl->InternalControl()->id = id;
 			newControl->SetFrame(controlFrame.x, controlFrame.y, controlFrame.w, controlFrame.h);
@@ -209,8 +214,24 @@ Window::MouseUp(IE::point point)
 {
 	ConvertFromScreen(point);
 
-	if (Control* control = _ControlAtPoint(point))
+	Control* control = fMouseCapture != NULL ? fMouseCapture : _ControlAtPoint(point);
+	fMouseCapture = NULL;
+	if (control != NULL)
 		control->MouseUp(point);
+}
+
+
+void
+Window::SetMouseCapture(Control* control)
+{
+	fMouseCapture = control;
+}
+
+
+bool
+Window::HasMouseCapture() const
+{
+	return fMouseCapture != NULL;
 }
 
 
@@ -229,6 +250,11 @@ void
 Window::MouseMoved(IE::point point)
 {
 	ConvertFromScreen(point);
+
+	if (fMouseCapture != NULL) {
+		fMouseCapture->MouseMoved(point, Control::MOUSE_INSIDE);
+		return;
+	}
 
 	Control* oldActiveControl = fActiveControl;
 	Control* control = _ControlAtPoint(point);

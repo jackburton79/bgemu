@@ -72,9 +72,11 @@ private:
 	Scrollbar* fScrollbar;
 
 	void _AddText(std::string textString, int32 dialogOption);
-	void _UpdateScrollbar(int16 change);
+	void _UpdateScrollbar();
 	const TextLine* _HitTestLines(IE::point point) const;
-	int16 _LineOffset(TextLine* line) const;
+	// Total pixel height of all lines; how far the content can scroll.
+	int16 _ContentHeight() const;
+	int16 _MaxYOffset() const;
 };
 
 #endif /* TEXTAREA_H_ */

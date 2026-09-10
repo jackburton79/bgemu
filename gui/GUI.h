@@ -178,6 +178,10 @@ private:
 	Bitmap* fDragBitmap;
 	Bitmap* fHoverTooltipBitmap;
 	std::string fHoverTooltipText;
+	// Window that grabbed the mouse in its last MouseDown (a control
+	// inside it is being dragged) - MouseMoved/MouseUp go here until the
+	// button is released, so a drag survives the cursor leaving it.
+	Window* fCaptureWindow;
 
 	GUI(uint16 width, uint16 height);
 	~GUI();
