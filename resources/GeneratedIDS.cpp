@@ -43,6 +43,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
 	res->AddValue(0x4400, "LHMC"); //
+	res->AddValue(0x4600, "LDMF"); //
 
 	// Character animations
 	res->AddValue(0x5000, "CHMC");

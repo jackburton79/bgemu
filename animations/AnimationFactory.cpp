@@ -53,6 +53,8 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x4010, "SNOW", FactoryType::SimpleAnimation },
 	{ 0x4100, "SSIM", FactoryType::SimpleAnimation },
 	{ 0x4101, "SSIM", FactoryType::SimpleAnimation },
+	{ 0x4400, "LHMC", FactoryType::StaticAnimation },
+	{ 0x4600, "LDMF", FactoryType::StaticAnimation },
 	{ 0x4700, "LEMF", FactoryType::StaticAnimation },
 	{ 0x4710, "LEFF", FactoryType::StaticAnimation },
 
