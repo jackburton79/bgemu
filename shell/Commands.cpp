@@ -225,7 +225,7 @@ public:
 
 		MemoryStream stream(data.data(), data.size(), false);
 		CREResource* cre = new CREResource("PLAYER1");
-		cre->Acquire();
+		cre->Acquire(); // resources start at refcount 0
 		if (cre->Load(&stream, 0, data.size())) {
 			cre->Init();
 			BaseAttributes attr;

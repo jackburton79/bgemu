@@ -25,6 +25,7 @@ static const char *sResourceName = NULL;
 static const char *sPartyMembers = NULL;
 static const char *sExecFile = NULL;
 static const char *sStartingArea = NULL;
+static const char *sCharacterSpec = NULL;
 
 static
 struct option sLongOptions[] = {
@@ -51,6 +52,12 @@ struct option sLongOptions[] = {
 		// worldmap - e.g. "-a AR0602". Takes priority over --no-newgame
 		// if both are given. See Game::SetStartingArea().
 		{ "area", required_argument, NULL, 'a' },
+		// Path to a character-creation spec file ("field value" lines,
+		// '#' comments): gender/race/class/kit/alignment plus either the
+		// six ability scores or a bare "roll" line. Builds the party
+		// leader from scratch (roadmap Fase 47 / A). See
+		// Game::SetCharacterSpec()/Game::CreateParty().
+		{ "character", required_argument, NULL, 'c' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -69,7 +76,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:c:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -83,6 +90,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'a':
 				sStartingArea = optarg;
+				break;
+			case 'c':
+				sCharacterSpec = optarg;
 				break;
 			case 'd':
 				sResourceName = optarg;
@@ -172,6 +182,9 @@ main(int argc, char **argv)
 
 	if (sStartingArea != NULL)
 		Game::Get()->SetStartingArea(sStartingArea);
+
+	if (sCharacterSpec != NULL)
+		Game::Get()->SetCharacterSpec(sCharacterSpec);
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();

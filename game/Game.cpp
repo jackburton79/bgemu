@@ -41,8 +41,11 @@
 #include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <stdio.h>
 #include <utility>
+
+#include "MemoryStream.h"
 
 
 static uint32 sFrames = 0;
@@ -390,6 +393,9 @@ Game::CreateParty()
 	IE::point point = { 20, 20 };
 	fParty = new ::Party();
 
+	if (!fCharacterSpec.empty() && _CreateCharacterFromSpec(point))
+		return;
+
 	if (!fStartingPartyMembers.empty()) {
 		for (const std::string& name : fStartingPartyMembers)
 			fParty->AddActor(new Actor(name.c_str(), point, 0));
@@ -413,6 +419,95 @@ void
 Game::SetStartingPartyMembers(const std::vector<std::string>& names)
 {
 	fStartingPartyMembers = names;
+}
+
+
+void
+Game::SetCharacterSpec(const char* path)
+{
+	fCharacterSpec = path != NULL ? path : "";
+}
+
+
+bool
+Game::_CreateCharacterFromSpec(const IE::point& position)
+{
+	std::ifstream file(fCharacterSpec);
+	if (!file) {
+		std::cerr << "character spec: cannot open " << fCharacterSpec << std::endl;
+		return false;
+	}
+
+	CharacterBuilder& builder = *fCharBuilder;
+	builder.Reset();
+	bool doRoll = false;
+	static const char* kAbilityNames[] = { "str", "dex", "con", "int", "wis", "chr" };
+
+	std::string line;
+	while (std::getline(file, line)) {
+		size_t hash = line.find('#');
+		if (hash != std::string::npos)
+			line.erase(hash);
+		std::istringstream stream(line);
+		std::string field, value;
+		if (!(stream >> field))
+			continue;
+		stream >> value;
+		for (char& c : field) c = (char)tolower((unsigned char)c);
+
+		if (field == "roll") {
+			doRoll = true;
+		} else if (field == "gender") {
+			builder.SetGender(value);
+		} else if (field == "race") {
+			builder.SetRace(value);
+		} else if (field == "class") {
+			builder.SetClass(value);
+		} else if (field == "kit") {
+			builder.SetKit(value);
+		} else if (field == "alignment") {
+			builder.SetAlignment(value);
+		} else {
+			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
+				if (field == kAbilityNames[i])
+					builder.SetAbility(i, atoi(value.c_str()));
+			}
+		}
+	}
+
+	if (doRoll)
+		builder.RollAbilities();
+
+	std::vector<std::string> problems;
+	if (!builder.IsComplete(problems)) {
+		std::cerr << "character spec: incomplete -" << std::endl;
+		for (const std::string& p : problems)
+			std::cerr << "  " << p << std::endl;
+		return false;
+	}
+
+	std::vector<uint8> creData;
+	if (!builder.BuildCREData(creData))
+		return false;
+
+	MemoryStream stream(creData.data(), creData.size(), false);
+	CREResource* cre = new CREResource(res_ref("PLAYER1"));
+	cre->Acquire(); // resources start at refcount 0
+	if (!cre->Load(&stream, 0, creData.size())) {
+		gResManager->ReleaseResource(cre); // 1 -> 0, deleted
+		return false;
+	}
+	cre->Init();
+	gResManager->InjectResource(res_ref("PLAYER1"), RES_CRE, cre);
+	gResManager->ReleaseResource(cre); // drop our ref; InjectResource holds its own
+
+	fParty->AddActor(new Actor("PLAYER1", position, 0));
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		fParty->AddActor(new Actor("Imoen", position, 0));
+
+	std::cout << "Created character:" << std::endl;
+	builder.Print();
+	return true;
 }
 
 

@@ -184,6 +184,12 @@ public:
 	// position is. Leaving this empty keeps the normal startup flow.
 	void SetStartingArea(const char* areaName);
 
+	// Path to a character-creation spec file. When set, CreateParty()
+	// builds the party leader from it (via CharacterBuilder), injects
+	// the resulting CRE as "PLAYER1", and starts with that + the usual
+	// companion instead of the hardcoded default party.
+	void SetCharacterSpec(const char* path);
+
 	// Dialog placeholder tokens (SETTOKEN/SETTOKENOBJECT/SETGABBER) -
 	// resolved by DialogHandler::_FillPlaceHolders() alongside the
 	// existing hardcoded <CHARNAME>. Per IESDP, values set this way
@@ -231,6 +237,12 @@ private:
 	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
 	std::string fStartingArea;
+	std::string fCharacterSpec;
+
+	// Parses fCharacterSpec into fCharBuilder, builds the CRE, injects it
+	// as "PLAYER1", and adds it (plus the default companion) to fParty.
+	// Returns false (and adds nothing) on any parse/build failure.
+	bool _CreateCharacterFromSpec(const IE::point& position);
 
 	std::map<std::string, std::string> fTokens;
 	std::vector<uint32> fJournalEntries;

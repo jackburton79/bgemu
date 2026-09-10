@@ -128,6 +128,12 @@ ResourceManager::~ResourceManager()
 			std::cout << " (refcount = " << resource.second->RefCount() << ")..." << std::endl;
 		}
 	}
+	for (auto& injected : fInjectedResources) {
+		if (injected.second != NULL && injected.second->Release())
+			delete injected.second;
+	}
+	fInjectedResources.clear();
+
 	std::cout << kComponentName << "Deleting cached resources...";
 	std::cout << std::endl;
 	for (auto resource: fCachedResources) {
@@ -241,6 +247,14 @@ ResourceManager::GetResource(const res_ref &name, uint16 type)
 		std::cerr << Log::Yellow << kComponentName << "GetResource() called with empty name!" << std::endl;
 		std::cerr << Log::Normal;
 		return NULL;
+	}
+
+	{
+		auto it = fInjectedResources.find({ name.CString(), type });
+		if (it != fInjectedResources.end()) {
+			it->second->Acquire();
+			return it->second;
+		}
 	}
 
 	const ref_type id = {name, type};
@@ -473,6 +487,25 @@ ResourceManager::GetCachedResourcesList(StringList& list)
 
 
 void
+ResourceManager::InjectResource(const res_ref& name, uint16 type,
+								Resource* resource)
+{
+	if (resource == NULL)
+		return;
+	const std::pair<std::string, uint16> key(name.CString(), type);
+	auto existing = fInjectedResources.find(key);
+	if (existing != fInjectedResources.end()) {
+		if (existing->second->Release())
+			delete existing->second;
+	}
+	// Resources start at refcount 0 (see Resource's ctor); the map takes
+	// one reference of its own, balanced by the teardown below.
+	resource->Acquire();
+	fInjectedResources[key] = resource;
+}
+
+
+void
 ResourceManager::ReleaseResource(Resource* resource)
 {
 	if (resource != NULL) {
@@ -483,9 +516,14 @@ ResourceManager::ReleaseResource(Resource* resource)
 		std::cout << ": refcount was " << refCount;*/
 		uint32 key = resource->Key();
 		if (resource->Release()) {
+			// Only drop the cache slot if it actually holds *this*
+			// resource - a runtime-built resource (character CRE, a
+			// hand-loaded ARE checkpoint) has key 0 and was never
+			// cached, so a blind erase(0) would evict whatever legit
+			// resource happens to sit at key 0 and orphan it.
 			auto iterator = fCachedResources.find(key);
-			if (iterator != fCachedResources.end())
-				fCachedResources.erase(key);
+			if (iterator != fCachedResources.end() && iterator->second == resource)
+				fCachedResources.erase(iterator);
 			delete resource;
 			//std::cout << " and is now 0. Resource deleted";
 		} /*else

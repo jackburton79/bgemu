@@ -74,6 +74,13 @@ public:
 	Resource *GetResource(const char* fullName);
 	Resource *GetResource(const res_ref &name, uint16 type);
 
+	// Registers a resource built at runtime (not backed by any KEY/BIF
+	// or override file) under (name, type), so later GetResource() /
+	// Get*() calls for that pair return it - used for a created-from-
+	// scratch player CRE. Takes over one reference (Acquire()d here);
+	// replacing an existing injection releases the old one.
+	void InjectResource(const res_ref& name, uint16 type, Resource* resource);
+
 	void GetCachedResourcesList(StringList& list);
 
 	void ReleaseResource(Resource *resource);
@@ -105,6 +112,7 @@ private:
 	KeyDatabase* fKeyDB;
 
 	std::unordered_map<uint32, Resource*> fCachedResources;
+	std::map<std::pair<std::string, uint16>, Resource*> fInjectedResources;
 	std::map<std::string, Archive *> fArchives;
 
 	bool fDebugLevel;
