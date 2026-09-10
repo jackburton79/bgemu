@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 #include "GraphicsDefs.h"
 #include "SupportDefs.h"
@@ -632,6 +633,16 @@ enum cursors {
 };
 
 void check_objects_size();
+
+
+// A loose pile of items dropped on an area's floor. Not a file-format
+// struct (unpacked, holds a std::vector) - a purely runtime thing: see
+// AreaRoom's ground-pile handling and Game::AreaCache (session-only, not
+// written to the area checkpoint or a savegame).
+struct ground_pile {
+	point position = { 0, 0 };
+	std::vector<item> items;
+};
 
 
 }

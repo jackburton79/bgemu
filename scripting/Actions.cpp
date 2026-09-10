@@ -1665,17 +1665,32 @@ RunActionDestroyItem(Object* sender, action_params* params, action_state& state)
 }
 
 
-// DROPITEM(S:Object*,P:Location*) - stateless. Ground-item placement
-// (per IESDP) isn't implemented - there's no "item lying on the ground"
-// object type in this engine - so this only removes the item from the
-// active creature's inventory, matching CREATEITEM/DESTROYITEM's scope.
+// DROPITEM(S:Object*,P:Location*) - stateless. Takes the named item out
+// of the active creature's inventory and leaves it as a loose pile on
+// the area floor (AreaRoom::AddGroundItem()), at the Location parameter
+// or, if none was given, at the creature's own feet. Session-only piles
+// (see IE::ground_pile) - not written to the area checkpoint or a save.
 static void
 RunActionDropItem(Object* sender, action_params* params, action_state& state)
 {
-	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	if (actor != NULL)
-		actor->RemoveItem(params->string1);
 	state.completed = true;
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	int32 slot = actor->CRE()->FindItemSlot(params->string1);
+	if (slot < 0)
+		return;
+
+	IE::item item;
+	if (!actor->TakeItemFromSlot((uint32)slot, item))
+		return;
+
+	IE::point where = params->where;
+	if (where.x == 0 && where.y == 0)
+		where = actor->Position();
+	if (actor->Area() != NULL)
+		actor->Area()->AddGroundItem(item, where);
 }
 
 

@@ -98,6 +98,11 @@ public:
 	// or not) from this actor's inventory. Returns false if not found.
 	bool RemoveItem(const res_ref& itemName);
 
+	// Removes whatever occupies the given CRE item slot, handing back its
+	// full IE::item (name + quantities) in `out`. Returns false for an
+	// empty/invalid slot. Used to drop an item onto the area floor.
+	bool TakeItemFromSlot(uint32 slot, IE::item& out);
+
 	// Removes every item in every inventory slot (equipped or not) - no
 	// "item lying on the ground" object type exists in this engine, so
 	// (unlike the real DropInventory()) nothing is placed anywhere; this
@@ -218,6 +223,8 @@ public:
 
 private:
 	virtual ~Actor();
+
+	void _ClearItemSlot(uint32 slot);
 
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;

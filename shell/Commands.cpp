@@ -71,6 +71,48 @@ public:
 };
 
 
+// ListGroundCommand - dumps the loose item piles on the current area's
+// floor (position + contents), for ground-item drop/pickup tests.
+class ListGroundCommand : public ShellCommand {
+public:
+	ListGroundCommand() : ShellCommand("List-Ground") {}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL)
+			return;
+		const auto& piles = room->GroundPiles();
+		std::cout << piles.size() << " ground pile(s)" << std::endl;
+		for (size_t i = 0; i < piles.size(); i++) {
+			std::cout << "  [" << i << "] (" << std::dec << piles[i].position.x
+				<< "," << piles[i].position.y << "):";
+			for (const IE::item& item : piles[i].items)
+				std::cout << " " << item.name.CString()
+					<< "x" << (item.quantity1 > 0 ? item.quantity1 : 1);
+			std::cout << std::endl;
+		}
+	}
+};
+
+
+// PickUpGroundCommand - the selected party member auto-loots the ground
+// pile at the given index (headless equivalent of clicking it).
+class PickUpGroundCommand : public ShellCommand {
+public:
+	PickUpGroundCommand()
+		: ShellCommand("Pickup-Ground", { { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL)
+			return;
+		room->PickUpGroundPile((size_t)params.at(0).value.integer,
+								room->SelectedActor());
+	}
+};
+
+
 // PrintObjectCommand
 class PrintObjectCommand : public ShellCommand {
 public:
@@ -1299,6 +1341,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new ListContainersCommand());
+	console->AddCommand(new ListGroundCommand());
+	console->AddCommand(new PickUpGroundCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());

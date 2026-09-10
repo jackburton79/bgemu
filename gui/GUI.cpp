@@ -789,6 +789,18 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 
 
 void
+GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 /*windowID*/)
+{
+	// A click that landed on a window but not on any of its controls.
+	// Currently only used to drop a held inventory item onto the floor.
+	// Handlers here MUST NOT tear down windows (this runs mid-dispatch,
+	// same constraint as ControlInvoked()).
+	if (chuName == res_ref("GUIINV"))
+		Game::Get()->DropHeldItemOnGround();
+}
+
+
+void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
 	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {

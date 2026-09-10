@@ -19,6 +19,7 @@
 #include "Graphics.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "ITMResource.h"
 #include "Label.h"
 #include "Log.h"
 #include "MOSResource.h"
@@ -177,6 +178,11 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	_InitContainers();
 	_InitBlitMask();
 
+	// Loose items dropped on this area's floor on an earlier visit this
+	// session (see Game::AreaCache / _UnloadArea()).
+	fGroundPiles = std::move(cache.groundPiles);
+	cache.groundPiles.clear();
+
 	IE::point point = { 0, 0 };
 	IE::entrance entrance;
 	if (_GetEntrance(entranceName, entrance)) {
@@ -315,6 +321,7 @@ AreaRoom::Draw()
 	}
 
 	_DrawActors();
+	_DrawGroundPiles();
 	_DrawEffects();
 
 	if (fDrawPolygons)
@@ -418,6 +425,16 @@ AreaRoom::MouseDown(IE::point point)
 		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(container);
 		}
+	}
+
+	// A loose pile dropped on the floor: the selected party member loots
+	// it. No walk-to-pile yet (declared simplification) - pickup is
+	// immediate on click.
+	int32 pileIndex = _GroundPileAtPoint(point);
+	if (pileIndex >= 0) {
+		if (fSelectedActor != NULL)
+			PickUpGroundPile((size_t)pileIndex, fSelectedActor.Target());
+		return;
 	}
 
 	if (fSelectedActor != NULL) {
@@ -772,6 +789,105 @@ const std::vector<Container*>&
 AreaRoom::Containers() const
 {
 	return fContainers;
+}
+
+
+// Icons of ground piles are small; a pile within this many pixels of a
+// drop point (or click) counts as "the same spot".
+static const int kGroundPileMergeRadius = 24;
+
+
+void
+AreaRoom::AddGroundItem(const IE::item& item, const IE::point& position)
+{
+	for (auto& pile : fGroundPiles) {
+		if (std::abs(pile.position.x - position.x) <= kGroundPileMergeRadius
+			&& std::abs(pile.position.y - position.y) <= kGroundPileMergeRadius) {
+			pile.items.push_back(item);
+			return;
+		}
+	}
+	IE::ground_pile pile;
+	pile.position = position;
+	pile.items.push_back(item);
+	fGroundPiles.push_back(std::move(pile));
+}
+
+
+const std::vector<IE::ground_pile>&
+AreaRoom::GroundPiles() const
+{
+	return fGroundPiles;
+}
+
+
+void
+AreaRoom::SetGroundPiles(std::vector<IE::ground_pile> piles)
+{
+	fGroundPiles = std::move(piles);
+}
+
+
+void
+AreaRoom::PickUpGroundPile(size_t index, Actor* taker)
+{
+	if (index >= fGroundPiles.size() || taker == NULL || taker->CRE() == NULL)
+		return;
+
+	std::vector<IE::item>& items = fGroundPiles[index].items;
+	for (auto it = items.begin(); it != items.end(); ) {
+		if (taker->AddItem(it->name, it->quantity1 > 0 ? it->quantity1 : 1))
+			it = items.erase(it);
+		else
+			++it; // no room - leave it on the ground
+	}
+
+	if (items.empty())
+		fGroundPiles.erase(fGroundPiles.begin() + index);
+}
+
+
+int32
+AreaRoom::_GroundPileAtPoint(const IE::point& areaPoint) const
+{
+	for (size_t i = 0; i < fGroundPiles.size(); i++) {
+		const IE::point& p = fGroundPiles[i].position;
+		if (std::abs(p.x - areaPoint.x) <= kGroundPileMergeRadius
+			&& std::abs(p.y - areaPoint.y) <= kGroundPileMergeRadius)
+			return (int32)i;
+	}
+	return -1;
+}
+
+
+void
+AreaRoom::_DrawGroundPiles()
+{
+	if (fGroundPiles.empty())
+		return;
+
+	for (const auto& pile : fGroundPiles) {
+		if (pile.items.empty())
+			continue;
+		// Draw the top item's ground icon (its inventory icon as a
+		// fallback - some items have no dedicated ground graphic).
+		ITMResource* itm = gResManager->GetITM(pile.items.back().name);
+		if (itm == NULL)
+			continue;
+		res_ref iconRef = itm->GroundIcon();
+		if (iconRef.name[0] == '\0')
+			iconRef = itm->InventoryIcon();
+		BAMResource* bam = gResManager->GetBAM(iconRef);
+		if (bam != NULL) {
+			Bitmap* frame = bam->FrameForCycle(0, 0);
+			if (frame != NULL) {
+				DrawBitmap(frame, pile.position, false);
+				frame->Release();
+			}
+			gResManager->ReleaseResource(bam);
+		}
+		gResManager->ReleaseResource(itm);
+	}
 }
 
 
@@ -1641,6 +1757,11 @@ AreaRoom::_UnloadArea()
 	// one reference GetARA()/LoadFromFile()/the cache handoff gave it.
 	Game::Get()->GetAreaCache()->areas[Name()].area = fArea;
 	fArea = NULL;
+
+	// Loose items dropped on the floor here (see AddGroundItem()) - not
+	// in the ARE resource, so they'd be lost otherwise. Session-only.
+	Game::Get()->GetAreaCache()->areas[Name()].groundPiles = std::move(fGroundPiles);
+	fGroundPiles.clear();
 	if (fHeightMap != NULL) {
 		fHeightMap->Release();
 		fHeightMap = NULL;

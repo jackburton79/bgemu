@@ -103,6 +103,17 @@ public:
 	const std::vector<Door*>& Doors() const;
 	const std::vector<Container*>& Containers() const;
 
+	// Loose items on the floor (dropped from the inventory - see
+	// Game::DropHeldItemOnGround()). Session-only: carried across
+	// leaving/re-entering the area by Game::AreaCache, never written to
+	// disk. Dropping near an existing pile merges into it.
+	void AddGroundItem(const IE::item& item, const IE::point& position);
+	const std::vector<IE::ground_pile>& GroundPiles() const;
+	void SetGroundPiles(std::vector<IE::ground_pile> piles);
+	// Auto-loots the pile at `index` into `taker`'s inventory; whatever
+	// doesn't fit stays behind, an emptied pile is removed.
+	void PickUpGroundPile(size_t index, Actor* taker);
+
 	uint8 PointHeight(const IE::point& point) const;
 	uint8 PointLight(const IE::point& point) const;
 	uint8 PointSearch(const IE::point& point) const;
@@ -160,6 +171,10 @@ private:
 	void _DrawActors();
 
 	Container* _ContainerAtPoint(const IE::point& point) const;
+	// Index into fGroundPiles of the pile whose icon covers `areaPoint`,
+	// or -1. `areaPoint` is in area coordinates.
+	int32 _GroundPileAtPoint(const IE::point& areaPoint) const;
+	void _DrawGroundPiles();
 	Actor* _ActorAtPoint(const IE::point& point) const;
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
 
@@ -202,6 +217,8 @@ private:
 
 	typedef std::vector<Container*> ContainersList;
 	ContainersList fContainers;
+
+	std::vector<IE::ground_pile> fGroundPiles;
 
 	typedef std::vector<Effect*> EffectsList;
 	EffectsList fEffects;

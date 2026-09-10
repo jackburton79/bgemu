@@ -898,6 +898,34 @@ Game::InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside)
 }
 
 
+// Dropping an item: a click on the inventory window that didn't land on
+// any slot, while an item rides the cursor. The held item leaves the
+// shown character's inventory and becomes a loose pile on the area floor
+// at that character's feet (picked back up by clicking it in the world -
+// see AreaRoom::PickUpGroundPile()). No-op (item stays on the cursor) if
+// the current room isn't an explorable area.
+void
+Game::DropHeldItemOnGround()
+{
+	if (!GUI::Get()->IsDraggingItem() || fInvDragSlot < 0)
+		return;
+
+	Actor* actor = _ShownActor();
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (actor == NULL || actor->CRE() == NULL || room == NULL)
+		return;
+
+	IE::item item;
+	if (!actor->TakeItemFromSlot((uint32)fInvDragSlot, item))
+		return;
+
+	room->AddGroundItem(item, actor->Position());
+	fInvDragSlot = -1;
+	GUI::Get()->SetDragBitmap(NULL);
+	_UpdateInventoryIcons();
+}
+
+
 // Swaps the paperdoll control's fixed CHU-authored placeholder (CIFF4INV,
 // a generic doll unrelated to the shown character) for the real thing:
 // the actual character's own class/race/gender/armor identity (see

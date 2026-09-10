@@ -1164,16 +1164,15 @@ Actor::AddItem(const res_ref& itemName, uint16 quantity)
 }
 
 
-bool
-Actor::RemoveItem(const res_ref& itemName)
+// Zeroes the Items-table entry backing `slot` (so FindFreeItemsEntry()
+// can reuse it) and unlinks the slot. Shared by RemoveItem() and
+// TakeItemFromSlot().
+void
+Actor::_ClearItemSlot(uint32 slot)
 {
-	int32 slot = fCRE->FindItemSlot(itemName);
-	if (slot < 0)
-		return false;
-
-	// Zero the Items-table entry so FindFreeItemsEntry() can reuse it for
-	// a future AddItem(), then unlink the slot.
-	int32 itemsIndex = fCRE->ItemsIndexAtSlot((uint32)slot);
+	int32 itemsIndex = fCRE->ItemsIndexAtSlot(slot);
+	if (itemsIndex < 0)
+		return;
 	IE::item empty;
 	empty.name = res_ref();
 	empty.expiration_time = 0;
@@ -1183,8 +1182,37 @@ Actor::RemoveItem(const res_ref& itemName)
 	empty.quantity3 = 0;
 	empty.flags = 0;
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, empty);
-	fCRE->SetItemAtSlot((uint32)slot, -1);
+	fCRE->SetItemAtSlot(slot, -1);
+}
 
+
+bool
+Actor::RemoveItem(const res_ref& itemName)
+{
+	int32 slot = fCRE->FindItemSlot(itemName);
+	if (slot < 0)
+		return false;
+
+	_ClearItemSlot((uint32)slot);
+	return true;
+}
+
+
+// Removes whatever occupies `slot`, handing back its full IE::item (name
+// + quantities) in `out` - used to move an item out of the inventory and
+// onto the ground (Game::DropHeldItemOnGround()). Returns false for an
+// empty/invalid slot.
+bool
+Actor::TakeItemFromSlot(uint32 slot, IE::item& out)
+{
+	if (fCRE == NULL || slot >= kNumItemSlots)
+		return false;
+	if (!fCRE->GetItemAtSlot(slot, out) || out.name.name[0] == '\0')
+		return false;
+
+	_ClearItemSlot(slot);
+	if (slot < kSlotGeneralFirst)
+		InvalidateAnimation(); // an equipment slot changed
 	return true;
 }
 

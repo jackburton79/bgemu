@@ -80,6 +80,7 @@ public:
 	uint32 Price() const;
 	uint16 StackAmount() const;
 	res_ref InventoryIcon() const { return fHeader.inventory_icon; }
+	res_ref GroundIcon() const { return fHeader.ground_icon; }
 
 	// Reads the index-th ability (Extended Header). Returns false (and
 	// leaves ability untouched) if the item doesn't have that many.

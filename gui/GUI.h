@@ -138,6 +138,9 @@ public:
 	// tooltips.
 	void ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 						bool inside);
+	// A click that hit a window but none of its controls (Window::
+	// MouseDown). Used to drop a held inventory item onto the floor.
+	void WindowBackgroundClicked(const res_ref& chuName, uint16 windowID);
 
 	// Small text shown next to the cursor while hovering something (an
 	// inventory slot's item name). Empty string clears it.

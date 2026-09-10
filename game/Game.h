@@ -69,6 +69,10 @@ public:
 	// Hover enter/leave on an inventory slot: show/hide the item-name
 	// tooltip next to the cursor.
 	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
+	// A click on the inventory window background (not a slot) while
+	// dragging an item: drops the held item onto the area floor at the
+	// shown character's feet.
+	void DropHeldItemOnGround();
 	// GUI::ControlInvoked() routes clicks on GUIREC (Record screen)
 	// controls here - currently just the portrait column.
 	void RecordControlInvoked(uint32 controlID, uint16 windowID);
@@ -136,6 +140,8 @@ public:
 		struct CachedArea {
 			ARAResource* area = nullptr;
 			std::vector<Actor*> actors;
+			// Items dropped on the floor while the party was here.
+			std::vector<IE::ground_pile> groundPiles;
 		};
 		std::map<res_ref, CachedArea> areas;
 	};

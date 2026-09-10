@@ -207,6 +207,8 @@ Window::MouseDown(IE::point point)
 
 	if (Control* control = _ControlAtPoint(point))
 		control->MouseDown(point);
+	else
+		GUI::Get()->WindowBackgroundClicked(fOwnerCHU, fID);
 }
 
 
