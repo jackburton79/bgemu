@@ -38,6 +38,14 @@ public:
 	uint32 ItemCount() const;
 	const IE::item& ItemAt(uint32 index) const;
 	void AddContainerItem(const IE::item& item);
+	// Removes the item at `index`, handing it back in `out`. Returns
+	// false for an out-of-range index. Used to loot the container into a
+	// party member's inventory (USECONTAINER).
+	bool TakeItemAt(uint32 index, IE::item& out);
+	// Whole item list - read for the session cache (Game::AreaCache),
+	// written back to restore it on area re-entry.
+	const std::vector<IE::item>& ContainerItems() const;
+	void SetContainerItems(std::vector<IE::item> items);
 
 private:
 	virtual ~Container();

@@ -3177,17 +3177,30 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 static void
 RunActionUseContainer(Object* sender, action_params* params, action_state& state)
 {
+	state.completed = true;
+
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	Container* container = dynamic_cast<Container*>(Script::GetTargetObject(sender, params));
-	if (container != NULL) {
-		std::cout << container->Name() << " contains:" << std::endl;
-		if (container->ItemCount() == 0)
-			std::cout << "  (empty)" << std::endl;
-		for (uint32 i = 0; i < container->ItemCount(); i++) {
-			const IE::item& item = container->ItemAt(i);
-			std::cout << "  " << item.name.CString() << " x" << item.quantity1 << std::endl;
+	if (actor == NULL || actor->CRE() == NULL || container == NULL)
+		return;
+	if (!container->IsEnabled())
+		return;
+
+	// Auto-loot (no loot GUI): take everything that fits into the
+	// creature's inventory, leave the rest in the container. Session-only
+	// - the container's remaining contents are cached across area
+	// re-entry (Game::AreaCache), not written to a savegame.
+	for (uint32 i = 0; i < container->ItemCount(); ) {
+		const IE::item& item = container->ItemAt(i);
+		if (actor->AddItem(item.name, item.quantity1 > 0 ? item.quantity1 : 1)) {
+			IE::item taken;
+			container->TakeItemAt(i, taken);
+			std::cout << actor->Name() << " takes " << taken.name.CString()
+					<< " from " << container->Name() << std::endl;
+		} else {
+			i++; // no room - leave it
 		}
 	}
-	state.completed = true;
 }
 
 

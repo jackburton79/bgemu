@@ -86,3 +86,28 @@ Container::AddContainerItem(const IE::item& item)
 {
 	fItems.push_back(item);
 }
+
+
+bool
+Container::TakeItemAt(uint32 index, IE::item& out)
+{
+	if (index >= fItems.size())
+		return false;
+	out = fItems[index];
+	fItems.erase(fItems.begin() + index);
+	return true;
+}
+
+
+const std::vector<IE::item>&
+Container::ContainerItems() const
+{
+	return fItems;
+}
+
+
+void
+Container::SetContainerItems(std::vector<IE::item> items)
+{
+	fItems = std::move(items);
+}

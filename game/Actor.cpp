@@ -1412,9 +1412,9 @@ Actor::ClickedOn(Object* target)
 		}
 	} else if (Container* container = dynamic_cast<Container*>(target)) {
 		// Same two-action MOVETOOBJECT+"do the thing" queue as the Door
-		// branch above (USECONTAINER logs the contents once reached -
-		// see RunActionUseContainer()'s header comment - no loot GUI
-		// exists yet to actually take anything).
+		// branch above: walk over, then USECONTAINER auto-loots whatever
+		// fits into this creature's inventory (no loot GUI - see
+		// RunActionUseContainer()).
 		action_params* walkParams = new action_params(Name(), container->Name());
 		walkParams->id = 22; // MOVETOOBJECT
 		AddAction(walkParams);

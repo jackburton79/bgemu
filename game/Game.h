@@ -142,6 +142,10 @@ public:
 			std::vector<Actor*> actors;
 			// Items dropped on the floor while the party was here.
 			std::vector<IE::ground_pile> groundPiles;
+			// Each container's remaining contents (keyed by its index in
+			// the area's container list), so a looted chest stays looted
+			// on re-entry.
+			std::map<uint32, std::vector<IE::item>> containerContents;
 		};
 		std::map<res_ref, CachedArea> areas;
 	};

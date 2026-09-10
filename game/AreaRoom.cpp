@@ -1546,9 +1546,19 @@ AreaRoom::_InitContainers()
 	std::cout << "Initializing Containers...";
 	std::flush(std::cout);
 
+	const auto& cachedContents =
+		Game::Get()->GetAreaCache()->areas[Name()].containerContents;
+
 	const uint32 numContainers = fArea->CountContainers();
 	for (uint32 c = 0; c < numContainers; c++) {
 		Container *container = fArea->GetContainerAt(c);
+		// Visited this area earlier this session: restore what was left
+		// in this container (looting isn't written back to the ARE
+		// resource, so GetContainerAt() just re-parsed its original
+		// contents).
+		auto cached = cachedContents.find(c);
+		if (cached != cachedContents.end())
+			container->SetContainerItems(cached->second);
 		AddObject(container);
 	}
 	std::cout << "Done! Found " << numContainers << " containers!" << std::endl;
@@ -1707,9 +1717,16 @@ AreaRoom::_UnloadArea()
 	}
 	fRegions.clear();
 
+	// Remember each container's remaining contents (looting mutates the
+	// C++ Container, never the ARE resource) so a chest emptied this
+	// session stays empty on re-entry - see _InitContainers().
+	auto& cachedContents =
+		Game::Get()->GetAreaCache()->areas[Name()].containerContents;
 	for (uint32 c = 0; c < fContainers.size(); c++) {
-		if (fContainers[c] != NULL)
+		if (fContainers[c] != NULL) {
+			cachedContents[c] = fContainers[c]->ContainerItems();
 			fContainers[c]->Release();
+		}
 	}
 	fContainers.clear();
 
