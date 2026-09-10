@@ -47,6 +47,12 @@ public:
 	const std::string& PortraitSmall() const { return fPortraitSmall; }
 	const std::string& PortraitLarge() const { return fPortraitLarge; }
 
+	// Adds a level-1 arcane spell to the starting spellbook (ignored for
+	// a non-arcane class). false if the resref isn't a real SPL.
+	bool AddSpell(const std::string& resref);
+	// Whether the chosen class casts arcane (memorized) spells.
+	bool IsArcaneCaster() const;
+
 	// Rolls 3d6 for every ability, clamps each into its racial range,
 	// and rerolls the whole set until every class minimum is met (the
 	// original game's roller never hands you an unusable set). Returns
@@ -105,6 +111,7 @@ private:
 	std::string fPortraitSmall;
 	std::string fPortraitLarge;
 	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
+	std::vector<std::string> fSpells;   // level-1 arcane starting spellbook
 };
 
 #endif // CHARACTER_BUILDER_H_

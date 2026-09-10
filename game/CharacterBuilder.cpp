@@ -8,6 +8,7 @@
 #include "Core.h"
 #include "IDSResource.h"
 #include "ResManager.h"
+#include "SPLResource.h"
 
 #include <algorithm>
 #include <cctype>
@@ -83,6 +84,7 @@ CharacterBuilder::Reset()
 	fPortraitLarge.clear();
 	for (int i = 0; i < 7; i++)
 		fColors[i] = -1;
+	fSpells.clear();
 }
 
 
@@ -98,6 +100,36 @@ CharacterBuilder::SetPortraits(const std::string& small, const std::string& larg
 {
 	fPortraitSmall = small.substr(0, 8);
 	fPortraitLarge = large.substr(0, 8);
+}
+
+
+bool
+CharacterBuilder::IsArcaneCaster() const
+{
+	if (fClass.find("MAGE") != std::string::npos)
+		return true;
+	static const char* kArcane[] = {
+		"SORCERER", "BARD", "ABJURER", "CONJURER", "DIVINER", "ENCHANTER",
+		"ILLUSIONIST", "INVOKER", "NECROMANCER", "TRANSMUTER",
+		"BLADE", "JESTER", "SKALD", "WILDMAGE"
+	};
+	for (const char* name : kArcane) {
+		if (strcasecmp(fClass.c_str(), name) == 0)
+			return true;
+	}
+	return false;
+}
+
+
+bool
+CharacterBuilder::AddSpell(const std::string& resref)
+{
+	SPLResource* spl = gResManager->GetSPL(resref.c_str());
+	if (spl == NULL)
+		return false;
+	gResManager->ReleaseResource(spl);
+	fSpells.push_back(resref.substr(0, 8));
+	return true;
 }
 
 
@@ -438,7 +470,22 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	const size_t kHeaderSize = 0x2d4;
 	const size_t kSlotCount = 40;               // BG2 CRE v1
 	const size_t kSlotTableSize = kSlotCount * 2;
-	const size_t kTotal = kHeaderSize + kSlotTableSize;
+
+	// Starting spellbook (arcane, level 1). Known = every spell the
+	// builder was given; memorized = as many as MXSPLWIZ grants a
+	// level-1 caster.
+	const bool caster = IsArcaneCaster() && !fSpells.empty();
+	const size_t knownCount = caster ? fSpells.size() : 0;
+	const size_t level1Slots = caster
+		? (size_t)std::max(1, _TableInt("MXSPLWIZ", "1", "1", 1)) : 0;
+	const size_t memorizedCount = std::min(knownCount, level1Slots);
+	const size_t memoInfoCount = caster ? 1 : 0;
+
+	const size_t knownOffset = kHeaderSize;
+	const size_t memoInfoOffset = knownOffset + knownCount * 12;
+	const size_t memorizedOffset = memoInfoOffset + memoInfoCount * 16;
+	const size_t tailOffset = memorizedOffset + memorizedCount * 12; // effects/items/slots
+	const size_t kTotal = tailOffset + kSlotTableSize;
 
 	out.assign(kTotal, 0);
 
@@ -507,17 +554,43 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU16(out, 0x27e, 0xffff);           // local actor enum (unset)
 	_PutStr(out, 0x280, fName.empty() ? "Player1" : fName, 32); // death variable
 
-	// Every variable section is empty; they all point at the end of the
-	// header, and the item-slot table sits there.
-	_PutU32(out, 0x2a0, (uint32)kHeaderSize); _PutU32(out, 0x2a4, 0); // known spells
-	_PutU32(out, 0x2a8, (uint32)kHeaderSize); _PutU32(out, 0x2ac, 0); // spell memo info
-	_PutU32(out, 0x2b0, (uint32)kHeaderSize); _PutU32(out, 0x2b4, 0); // memorized spells
-	_PutU32(out, 0x2b8, (uint32)kHeaderSize);                         // item slots
-	_PutU32(out, 0x2bc, (uint32)kHeaderSize); _PutU32(out, 0x2c0, 0); // items
-	_PutU32(out, 0x2c4, (uint32)kHeaderSize); _PutU32(out, 0x2c8, 0); // effects
+	// Section offsets. Layout: header | known spells | spell memo info |
+	// memorized spells | (empty effects/items) | item slots.
+	_PutU32(out, 0x2a0, (uint32)knownOffset);    _PutU32(out, 0x2a4, (uint32)knownCount);
+	_PutU32(out, 0x2a8, (uint32)memoInfoOffset); _PutU32(out, 0x2ac, (uint32)memoInfoCount);
+	_PutU32(out, 0x2b0, (uint32)memorizedOffset);_PutU32(out, 0x2b4, (uint32)memorizedCount);
+	_PutU32(out, 0x2b8, (uint32)tailOffset);                                  // item slots
+	_PutU32(out, 0x2bc, (uint32)tailOffset);     _PutU32(out, 0x2c0, 0);      // items
+	_PutU32(out, 0x2c4, (uint32)tailOffset);     _PutU32(out, 0x2c8, 0);      // effects
+
+	// Known spells: resref(8), level(2, 0-indexed on disk = level 1),
+	// type(2, 1 = wizard).
+	for (size_t i = 0; i < knownCount; i++) {
+		size_t o = knownOffset + i * 12;
+		_PutStr(out, o, fSpells[i], 8);
+		_PutU16(out, o + 8, 0); // level 1
+		_PutU16(out, o + 10, 1); // wizard
+	}
+	// Spell memorization info: level(2), numMemorizable(2),
+	// numMemorizableEffective(2), type(2), firstMemorizedIndex(4),
+	// memorizedCount(4).
+	if (memoInfoCount == 1) {
+		_PutU16(out, memoInfoOffset + 0, 0);   // level 1
+		_PutU16(out, memoInfoOffset + 2, (uint16)level1Slots);
+		_PutU16(out, memoInfoOffset + 4, (uint16)level1Slots);
+		_PutU16(out, memoInfoOffset + 6, 1);   // wizard
+		_PutU32(out, memoInfoOffset + 8, 0);   // first memorized index
+		_PutU32(out, memoInfoOffset + 12, (uint32)memorizedCount);
+	}
+	// Memorized spells: resref(8), flags(4, bit0 = memorized/available).
+	for (size_t i = 0; i < memorizedCount; i++) {
+		size_t o = memorizedOffset + i * 12;
+		_PutStr(out, o, fSpells[i], 8);
+		_PutU32(out, o + 8, 1);
+	}
 
 	for (size_t i = 0; i < kSlotCount; i++)
-		_PutU16(out, kHeaderSize + i * 2, 0xffff); // empty slot
+		_PutU16(out, tailOffset + i * 2, 0xffff); // empty slot
 
 	return true;
 }
@@ -547,6 +620,11 @@ CharacterBuilder::Print() const
 	std::cout << "  Total: " << AbilityTotal() << std::endl;
 	if (!fPortraitSmall.empty() || !fPortraitLarge.empty())
 		std::cout << "  Portraits: " << fPortraitSmall << " / " << fPortraitLarge << std::endl;
+	if (!fSpells.empty()) {
+		std::cout << "  Spells:";
+		for (const std::string& s : fSpells) std::cout << " " << s;
+		std::cout << std::endl;
+	}
 
 	std::vector<std::string> problems;
 	if (IsComplete(problems)) {

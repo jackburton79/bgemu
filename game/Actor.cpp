@@ -283,6 +283,20 @@ Actor::Print() const
 	std::cout << "Saves (death/wands/poly/breath/spell): "
 		<< (int)sv.death << "/" << (int)sv.wands << "/" << (int)sv.poly
 		<< "/" << (int)sv.breath << "/" << (int)sv.spell << std::endl;
+	{
+		std::vector<cre_known_spell> known = cre->KnownSpells();
+		std::vector<cre_memorized_spell> memo = cre->MemorizedSpells();
+		if (!known.empty() || !memo.empty()) {
+			std::cout << "Known spells:";
+			for (const cre_known_spell& s : known)
+				std::cout << " " << s.spell.CString();
+			std::cout << std::endl << "Memorized:";
+			for (const cre_memorized_spell& s : memo)
+				std::cout << " " << s.spell.CString()
+					<< ((s.flags & 1) ? "" : "(used)");
+			std::cout << std::endl;
+		}
+	}
 	std::cout << "Status flags: " << std::dec << cre->PermanentStatus() << std::endl;
 	std::cout << "Reputation: " << (int)cre->Reputation() << std::endl;
 	std::cout << "Morale: " << (int)cre->Morale() << std::endl;

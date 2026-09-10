@@ -480,6 +480,9 @@ Game::_CreateCharacterFromSpec(const IE::point& position)
 			builder.SetPortraits(builder.PortraitSmall(), value);
 		} else if (field.rfind("color_", 0) == 0) {
 			builder.SetColor(field.substr(6), atoi(value.c_str()));
+		} else if (field == "spell") {
+			if (!builder.AddSpell(value))
+				std::cerr << "character spec: unknown spell " << value << std::endl;
 		} else {
 			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
 				if (field == kAbilityNames[i])
