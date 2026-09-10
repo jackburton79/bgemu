@@ -523,6 +523,10 @@ static const uint32 kInvInfoTextID = 5;
 // BG2 fills them from code; their exact purpose isn't confirmed here).
 static const uint32 kInvInfoBlankLabel1ID = 268435456;
 static const uint32 kInvInfoBlankLabel2ID = 268435467;
+// GUIREC window 2's top banner - the character name, same role as
+// GUIINV's kInvNameLabelID (confirmed via a real dump: id 268435495 at
+// (3,9) 505x28, the wide centered label at the very top).
+static const uint32 kRecNameLabelID = 268435495;
 static const uint32 kRecACLabelID = 268435496;
 static const uint32 kRecClassLabelID = 268435471;
 static const uint32 kRecRaceLabelID = 268435472;
@@ -992,6 +996,10 @@ Game::_UpdateRecordLabels()
 	Window* window = GUI::Get()->GetAuxWindow("GUIREC", 2);
 	if (window == NULL)
 		return;
+
+	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kRecNameLabelID));
+	if (nameLabel != NULL)
+		nameLabel->SetText(actor->LongName());
 
 	_UpdateAbilityScoreLabels(window, actor->CRE());
 
