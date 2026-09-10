@@ -31,6 +31,19 @@
 #include <string>
 
 
+// Effective perception range, in area pixels. Matches the Infinity
+// Engine's visual range: GemRB computes it as IE_VISUALRANGE (28) *
+// VOODOO_CANSEE_F (16) = 448 for See()/Detect(), and cross-checks with a
+// 28-search-cell radius (28 * 16px) for object matching. There it's a
+// per-actor stat (SetVisualRange, effects); here it's fixed since this
+// engine doesn't track IE_VISUALRANGE. Audible range for Shout()/Heard()
+// is 3/2 of this (GemRB WithinAudibleRange: (3 * IE_VISUALRANGE) / 2).
+// NB: distances here are Manhattan (IE::point_distance), not Euclidean
+// like the original - a known approximation, not addressed in this pass.
+static const int kVisualRange = 448;
+static const int kAudibleRange = kVisualRange * 3 / 2;
+
+
 Actor::Actor(IE::actor &actor)
 	:
 	Object(actor.cre.CString(), Object::ACTOR),
@@ -1320,16 +1333,22 @@ Actor::ClickedOn(Object* target)
 void
 Actor::Shout(int number)
 {
-	// TODO: Not sure if handling shouts as triggers is correct.
-	// The number rides along as the entry's parameter so a listener's
-	// Heard(O:Object*,I:Number*) can match a specific shout value.
-	trigger_entry shout("shout", number);
-	AddTrigger(shout);
-	// Track who has heard this shout
-	for (int32 a = 0; a < Area()->ActorsCount(); a++) {
-		Actor* actor = Area()->ActorAt(a);
-		if (Area()->Distance(actor, this) < 200)
-			actor->AddTrigger(trigger_entry("LastHeardBy", this));
+	// Like the Infinity Engine (GemRB Map::Shout()), audibility is
+	// decided here, at emission time: every actor within earshot gets a
+	// "heard" trigger carrying the shouter and the shout number, plus a
+	// "LastHeardBy" for the LastHeardBy() object identifier. Heard() is
+	// then just a match on that trigger - no second distance check.
+	AreaRoom* room = Area();
+	if (room == NULL)
+		return;
+	for (int32 a = 0; a < room->ActorsCount(); a++) {
+		Actor* listener = room->ActorAt(a);
+		if (listener == NULL || listener == this)
+			continue;
+		if (room->Distance(listener, this) < kAudibleRange) {
+			listener->AddTrigger(trigger_entry("heard", this, number));
+			listener->AddTrigger(trigger_entry("LastHeardBy", this));
+		}
 	}
 }
 
@@ -1484,9 +1503,8 @@ Actor::CanSee(Object* target)
 		return false;
 	//const IE::point thisPosition = Position();
 	//const IE::point targetPosition = target->Position();
-	// TODO: 200 is an arbitrarily chosen number
 	AreaRoom* room = Area();
-	if (room != NULL && room->Distance(this, target) < 200
+	if (room != NULL && room->Distance(this, target) < kVisualRange
 			&& room->HasLineOfSight(Position(), target->NearestPoint(Position()))) {
 		trigger_entry entry("LastSeen", target);
 		AddTrigger(entry);

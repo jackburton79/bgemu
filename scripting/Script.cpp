@@ -528,15 +528,11 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				the trigger will only return true if the corresponding
 				object shouting also has an Enemy-Ally flag of NEUTRAL. */
 
-				Object* shouter = GetTriggerObject(sender, trig);
-				if (shouter != NULL && shouter != sender
-						&& shouter->HasTrigger("shout", trig->parameter1)) {
-					AreaRoom* room = sender->Area();
-					// Same range Actor::Shout() itself uses to decide
-					// who's close enough to have heard it.
-					returnValue = room != NULL
-						&& room->Distance(sender, shouter) < 200;
-				}
+				// Audibility (distance) was already decided when the shout
+				// was emitted (Actor::Shout()); this is just a match on the
+				// resulting "heard" trigger - shouting object + number.
+				int32 shoutNumber = trig->parameter1;
+				returnValue = sender->HasTrigger("heard", trig, &shoutNumber);
 				break;
 			}
 			case 0x0036:

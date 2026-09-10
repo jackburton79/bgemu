@@ -36,11 +36,11 @@ enum SCRIPT_LEVEL {
 struct trigger_entry {
 	trigger_entry(const std::string& trigName);
 	trigger_entry(const std::string& trigName, Object* targetObject);
-	trigger_entry(const std::string& trigName, int32 param);
+	trigger_entry(const std::string& trigName, Object* targetObject, int32 param);
 	std::string trigger_name;
 	uint16 target_id;
 	uint32 round;
-	// Optional integer payload (e.g. the SHOUT number behind a "shout"
+	// Optional integer payload (e.g. the SHOUT number behind a "heard"
 	// entry, so Heard() can match a specific value). 0 when unused.
 	int32 parameter;
 };
@@ -133,11 +133,12 @@ public:
 
 	void AddTrigger(const trigger_entry& entry);
 	bool HasTrigger(const std::string& trigName) const;
-	bool HasTrigger(const std::string& trigName, trigger_params* triggerNode) const;
-	// True if a matching entry also carries this exact integer payload
-	// (see trigger_entry::parameter) - used by Heard() to match a
-	// specific SHOUT number.
-	bool HasTrigger(const std::string& trigName, int32 parameter) const;
+	// Matches a trigger by name and (full object match against the
+	// node's O:Object* param). When parameter is non-NULL the entry's
+	// integer payload (trigger_entry::parameter) must equal *parameter
+	// too - used by Heard() to match a specific SHOUT number.
+	bool HasTrigger(const std::string& trigName, trigger_params* triggerNode,
+					const int32* parameter = NULL) const;
 	Object* FindTrigger(const std::string& trigName) const;
 	Object* LastTrigger() const;
 

@@ -97,10 +97,10 @@ trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject)
 }
 
 
-trigger_entry::trigger_entry(const std::string& trigName, int32 param)
+trigger_entry::trigger_entry(const std::string& trigName, Object* targetObject, int32 param)
 	:
 	trigger_name(trigName),
-	target_id(-1),
+	target_id(targetObject->GlobalID()),
 	round(0),
 	parameter(param)
 {
@@ -464,24 +464,16 @@ Object::HasTrigger(const std::string& trigName) const
 
 
 bool
-Object::HasTrigger(const std::string& trigName, int32 parameter) const
-{
-	for (const auto& trigger : fTriggers) {
-		if (trigger.trigger_name == trigName && trigger.parameter == parameter)
-			return true;
-	}
-	return false;
-}
-
-
-bool
-Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode) const
+Object::HasTrigger(const std::string& trigName, trigger_params* triggerNode,
+					const int32* parameter) const
 {
 	object_params* objectNode = triggerNode->Object();
 	if (objectNode == NULL)
 		return false;
 	for (const auto &entry : fTriggers) {
 		if (entry.trigger_name == trigName) {
+			if (parameter != NULL && entry.parameter != *parameter)
+				continue;
 			Object* target = Area()->GetObject(entry.target_id);
 			Actor* actor = dynamic_cast<Actor*>(target);
 			if (actor != NULL && actor->MatchNode(objectNode)) {
