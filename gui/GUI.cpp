@@ -786,6 +786,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 		return;
 	}
 
+	if (chuName == res_ref("GUIREC")) {
+		Game::Get()->RecordControlInvoked(controlID, windowID);
+		return;
+	}
+
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
 		return;

@@ -12,6 +12,8 @@
 #include "AreaResource.h"
 #include "AreaRoom.h"
 #include "BamResource.h"
+#include "Bitmap.h"
+#include "BmpResource.h"
 #include "Button.h"
 #include "ColorRange.h"
 #include "Core.h"
@@ -73,7 +75,8 @@ Game::Game()
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
 	fTestMode(false),
-	fInvDragSlot(-1)
+	fInvDragSlot(-1),
+	fShownCharacter(0)
 {
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
@@ -431,8 +434,10 @@ Game::ToggleInventoryWindow()
 	fInvDragSlot = -1;
 	GUI::Get()->SetDragBitmap(NULL);
 
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1}))
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1})) {
+		_UpdatePortraitColumn("GUIINV");
 		_UpdateInventoryIcons();
+	}
 }
 
 
@@ -443,8 +448,10 @@ Game::ToggleInventoryWindow()
 void
 Game::ToggleRecordWindow()
 {
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1}))
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1})) {
+		_UpdatePortraitColumn("GUIREC");
 		_UpdateRecordLabels();
+	}
 }
 
 
@@ -624,20 +631,89 @@ _CreSlotForControl(uint32 controlID)
 }
 
 
+Actor*
+Game::_ShownActor() const
+{
+	if (fParty == NULL || fParty->CountActors() == 0)
+		return NULL;
+	uint16 index = fShownCharacter < fParty->CountActors() ? fShownCharacter : 0;
+	return fParty->ActorAt(index);
+}
+
+
+void
+Game::ShowCharacter(uint16 partyIndex)
+{
+	// The portrait column drives the same "which member is current"
+	// state the world selection (number keys 1-6) uses.
+	SelectPartyMember(partyIndex);
+}
+
+
+// Re-populates whichever of the Inventory / Record screens are open for
+// the current fShownCharacter - called after any change of who's shown.
+void
+Game::_RefreshCharacterScreens()
+{
+	if (GUI::Get()->GetAuxWindow("GUIINV", 2) != NULL) {
+		_UpdatePortraitColumn("GUIINV");
+		_UpdateInventoryIcons();
+	}
+	if (GUI::Get()->GetAuxWindow("GUIREC", 2) != NULL) {
+		_UpdatePortraitColumn("GUIREC");
+		_UpdateRecordLabels();
+	}
+}
+
+
+void
+Game::RecordControlInvoked(uint32 controlID, uint16 windowID)
+{
+	// Window 1 is the portrait column (same layout as GUIINV's).
+	if (windowID == 1 && controlID <= 3)
+		ShowCharacter((uint16)controlID);
+}
+
+
+// Fills chuName's window 1 portrait buttons (ids 0..3) with the party's
+// small portraits. coverBackground keeps the CHU frame visible behind.
+void
+Game::_UpdatePortraitColumn(const res_ref& chuName)
+{
+	Window* window = GUI::Get()->GetAuxWindow(chuName, 1);
+	if (window == NULL || fParty == NULL)
+		return;
+
+	for (uint32 i = 0; i < 4; i++) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
+		if (button == NULL)
+			continue;
+		Bitmap* portrait = NULL;
+		Actor* member = i < fParty->CountActors() ? fParty->ActorAt(i) : NULL;
+		if (member != NULL && member->CRE() != NULL) {
+			BMPResource* bmp = gResManager->GetBMP(member->CRE()->SmallPortrait());
+			if (bmp != NULL) {
+				portrait = bmp->Image();
+				gResManager->ReleaseResource(bmp);
+			}
+		}
+		button->SetIcon(portrait, false);
+	}
+}
+
+
 // Populates the inventory-slot buttons in the open GUIINV window 2 with
 // the real item icon (ITM's InventoryIcon(), cycle 0/frame 0 of that BAM -
 // same convention Button's own constructor uses for its CHU-authored
 // bitmaps) for whichever item currently occupies the matching slot in the
 // shown character's CREResource, clearing the icon on empty slots.
-// Simplification: always shows the first party member's inventory (there's
-// no portrait-bar/character-switch UI yet to pick a different one).
 void
 Game::_UpdateInventoryIcons()
 {
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return;
 
-	Actor* actor = fParty->ActorAt(0);
+	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -661,8 +737,8 @@ Game::_UpdateInventoryIcons()
 // next click drops it into the clicked slot, swapping with whatever's
 // there. A rejected drop (incompatible slot, e.g. armor onto a weapon
 // slot) keeps the item on the cursor so the player can try elsewhere;
-// clicking the origin slot again puts it back. Always operates on the
-// first party member, like the rest of this screen.
+// clicking the origin slot again puts it back. Operates on whichever
+// party member the portrait column currently shows (_ShownActor()).
 void
 Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 {
@@ -672,13 +748,18 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 		return;
 	}
 
+	if (windowID == 1 && controlID <= 3) {
+		ShowCharacter((uint16)controlID); // portrait column
+		return;
+	}
+
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0)
 		return;
 
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = fParty->ActorAt(0);
+	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -718,7 +799,7 @@ Game::InventoryControlRightClicked(uint32 controlID, uint16 windowID)
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = fParty->ActorAt(0);
+	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -783,7 +864,7 @@ Game::InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside)
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = fParty->ActorAt(0);
+	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -892,7 +973,7 @@ Game::_UpdateRecordLabels()
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return;
 
-	Actor* actor = fParty->ActorAt(0);
+	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -1395,9 +1476,13 @@ Game::SelectPartyMember(uint16 index)
 	if (member == NULL)
 		return;
 
+	fShownCharacter = index;
+
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (room != NULL)
 		room->SelectActor(member);
+
+	_RefreshCharacterScreens();
 }
 
 

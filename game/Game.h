@@ -69,6 +69,13 @@ public:
 	// Hover enter/leave on an inventory slot: show/hide the item-name
 	// tooltip next to the cursor.
 	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
+	// GUI::ControlInvoked() routes clicks on GUIREC (Record screen)
+	// controls here - currently just the portrait column.
+	void RecordControlInvoked(uint32 controlID, uint16 windowID);
+	// Switches which party member the Inventory / Record screens show
+	// (portrait-column click). Also selects them in the world so the two
+	// stay in sync. No-op for an out-of-range index.
+	void ShowCharacter(uint16 partyIndex);
 	void ToggleJournalWindow();
 
 	// Queues RESTPARTY(230) on the first party member - same action
@@ -214,7 +221,20 @@ private:
 	// (SetDragBitmap); this is the model side.
 	int32 fInvDragSlot;
 
+	// Party index whose sheet the Inventory / Record screens show.
+	uint16 fShownCharacter;
+
 	void _RunExecFile(GameConsole* console);
+	// The party member the Inventory/Record screens currently show (see
+	// fShownCharacter), or NULL if the party is empty / the index is
+	// stale.
+	Actor* _ShownActor() const;
+	// Fills the 4 portrait buttons in an aux screen's window 1 with the
+	// party's small portraits (chuName is "GUIINV" or "GUIREC").
+	void _UpdatePortraitColumn(const res_ref& chuName);
+	// Re-populates the Inventory / Record screens (whichever are open)
+	// after fShownCharacter changes.
+	void _RefreshCharacterScreens();
 	void _UpdateInventoryIcons();
 	void _SetSlotIcon(class Window* window, class CREResource* cre,
 		uint32 controlID, uint32 creSlot);

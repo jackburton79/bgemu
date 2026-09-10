@@ -643,6 +643,24 @@ CREResource::DialogFile() const
 }
 
 
+res_ref
+CREResource::SmallPortrait() const
+{
+	res_ref portrait;
+	fData->ReadAt(0x34, portrait.name, 8);
+	return portrait;
+}
+
+
+res_ref
+CREResource::LargePortrait() const
+{
+	res_ref portrait;
+	fData->ReadAt(0x3c, portrait.name, 8);
+	return portrait;
+}
+
+
 void
 CREResource::SetDialogFile(const res_ref& dialogFile)
 {

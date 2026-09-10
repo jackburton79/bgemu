@@ -321,6 +321,10 @@ public:
 
 	res_ref DialogFile() const;
 	void SetDialogFile(const res_ref& dialogFile);
+
+	// Portrait BMP resrefs (cre_v1.htm 0x34 / 0x3c).
+	res_ref SmallPortrait() const;
+	res_ref LargePortrait() const;
 	std::string DeathVariable() const;
 
 	std::vector<cre_known_spell> KnownSpells() const;
