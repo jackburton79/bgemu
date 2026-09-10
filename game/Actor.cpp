@@ -150,9 +150,7 @@ Actor::_Init()
 		}
 		if (fCRE == NULL)
 			throw std::runtime_error("Actor: CRE file not loaded.");
-#if 1
 		_HandleColors();
-#endif
 	}
 
 	// This only makes sense for actors already created once

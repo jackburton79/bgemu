@@ -72,16 +72,16 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x5303, "CIMB", FactoryType::Character },
 	{ 0x6000, "CHMB", FactoryType::Character },
 	{ 0x6002, "CDMB", FactoryType::Character },
-	{ 0x6003, "CIMB", FactoryType::Character }, // CIMB
-	{ 0x6004, "CDMB", FactoryType::Character }, // CDMB
-	{ 0x6010, "CHFB", FactoryType::Character }, // CHFB
-	{ 0x6011, "CEFB", FactoryType::Character }, // CEFB
-	{ 0x6013, "CIFB", FactoryType::Character }, // CIFB
+	{ 0x6003, "CIMB", FactoryType::Character },
+	{ 0x6004, "CDMB", FactoryType::Character },
+	{ 0x6010, "CHFB", FactoryType::Character },
+	{ 0x6011, "CEFB", FactoryType::Character },
+	{ 0x6013, "CIFB", FactoryType::Character },
 	{ 0x6100, "CHMB", FactoryType::Character },
-	{ 0x6101, "CEMB", FactoryType::Character }, // CEMB
-	{ 0x6102, "CDMB", FactoryType::Character }, // CDMB
-	{ 0x6103, "CIMB", FactoryType::Character }, // CIMB
-	{ 0x6104, "CDMB", FactoryType::Character }, // CDMB
+	{ 0x6101, "CEMB", FactoryType::Character },
+	{ 0x6102, "CDMB", FactoryType::Character },
+	{ 0x6103, "CIMB", FactoryType::Character },
+	{ 0x6104, "CDMB", FactoryType::Character },
 	{ 0x6110, "CHFB", FactoryType::Character },
 	{ 0x6111, "CEFB", FactoryType::Character },
 	{ 0x6113, "CIFB", FactoryType::Character },
@@ -143,29 +143,29 @@ const static AnimationDescriptor kAnimationEntries[] = {
 	{ 0x9000, "MOGR", FactoryType::BGMonster },
 	{ 0xa000, "", FactoryType::BGMonster },
 	{ 0xb000, "ACOW", FactoryType::BGMonster },
-	{ 0xb100, "AHRS", FactoryType::BGMonster }, // AHRS
-	{ 0xb200, "NBEG", FactoryType::SplitAnimation }, // NBEG 0xb200
+	{ 0xb100, "AHRS", FactoryType::BGMonster },
+	{ 0xb200, "NBEG", FactoryType::SplitAnimation },
 	{ 0xb400, "NFAM", FactoryType::SplitAnimation },
-	{ 0xb410, "NFAW", FactoryType::SplitAnimation }, // NFAW
+	{ 0xb410, "NFAW", FactoryType::SplitAnimation },
 	{ 0xb500, "NSIM", FactoryType::SplitAnimation },
-	{ 0xb510, "NSIW", FactoryType::SplitAnimation }, // NSIW
+	{ 0xb510, "NSIW", FactoryType::SplitAnimation },
 	{ 0xc000, "ABAT", FactoryType::BGMonster },
 	{ 0xc100, "ACAT", FactoryType::BGMonster },
 	{ 0xc200, "ACHK", FactoryType::BGMonster },
 	{ 0xc300, "ARAT", FactoryType::BGMonster },
 	{ 0xc400, "", FactoryType::BGMonster },
 	{ 0xc500, "", FactoryType::BGMonster },
-	{ 0xc700, "NBOY", FactoryType::SplitAnimation }, // NBOY
-	{ 0xc800, "NFAM", FactoryType::SplitAnimation }, // NBOY
-	{ 0xc600, "NBEG", FactoryType::SplitAnimation }, // NBEG
-	{ 0xc610, "NPRO", FactoryType::SplitAnimation }, // NPRO
-	{ 0xc710, "NGRL", FactoryType::SplitAnimation }, // NGRL
+	{ 0xc700, "NBOY", FactoryType::SplitAnimation },
+	{ 0xc800, "NFAM", FactoryType::SplitAnimation },
+	{ 0xc600, "NBEG", FactoryType::SplitAnimation },
+	{ 0xc610, "NPRO", FactoryType::SplitAnimation },
+	{ 0xc710, "NGRL", FactoryType::SplitAnimation },
 	{ 0xc800, "", FactoryType::SplitAnimation },
-	{ 0xc810, "NFAW", FactoryType::SplitAnimation }, // NFAW
-	{ 0xc900, "NSIM", FactoryType::SplitAnimation }, // NSIM
-	{ 0xc910, "NSIW", FactoryType::SplitAnimation }, // NSIW
+	{ 0xc810, "NFAW", FactoryType::SplitAnimation },
+	{ 0xc900, "NSIM", FactoryType::SplitAnimation },
+	{ 0xc910, "NSIW", FactoryType::SplitAnimation },
 	{ 0xca00, "NNOM", FactoryType::SplitAnimation },
-	{ 0xca10, "NNOW", FactoryType::SplitAnimation }, // NNOW
+	{ 0xca10, "NNOW", FactoryType::SplitAnimation },
 	{ 0xd000, "AEAG", FactoryType::BGMonster }, // AEAG (Eagle)
 	{ 0xd100, "AGUL", FactoryType::BGMonster },
 	{ 0xd200, "", FactoryType::BGMonster },
