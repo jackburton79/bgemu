@@ -9,11 +9,9 @@
 #define __ANIMATIONFACTORY_H_
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "IETypes.h"
-#include "Referenceable.h"
 
 #define ANIM_STANDING_OFFSET 9
 #define ANIM_DIE_OFFSET 45
@@ -29,9 +27,13 @@ struct animation_description {
 struct CREColors;
 class Actor;
 class Animation;
-class AnimationFactory : public Referenceable {
+class AnimationFactory {
 public:
-	static AnimationFactory* GetFactory(const uint16 id);
+	// Builds the factory for an actor's animation id (anisnd.ids). The
+	// caller owns it - hand it back to ReleaseFactory() when done. Not
+	// shared/cached: the object is trivially cheap (a name + an id), the
+	// expensive part is Animation's own BAM decode.
+	static AnimationFactory* GetFactory(uint16 id);
 	static void ReleaseFactory(AnimationFactory*);
 
 	Animation* AnimationFor(Actor* actor, CREColors* colors = NULL);
@@ -48,7 +50,7 @@ public:
 
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
-	virtual ~AnimationFactory();
+	~AnimationFactory();
 
 	animation_description GetAnimationDescription(Actor* actor);
 	animation_description _GetBGMonsterAnimationDescription(Actor* actor);
@@ -66,12 +68,9 @@ protected:
 	std::string _GenderCharacter(uint8 gender) const;
 	std::string _ArmorCharacter(const Actor* actor) const;
 
-	bool _HasG11(const std::string& name) const;
-	bool _HasG15(const std::string& name) const;
-	bool _HasW(const std::string& name) const;
-	bool _HasSeparateEasternOrientations(const std::string& name) const;
-
-	static std::unordered_map<uint16, AnimationFactory*> sAnimationFactory;
+	// True if the BAM "<name><suffix>" exists (the engine picks between
+	// e.g. G1/G11/W2 variants of a walk cycle by which files ship).
+	bool _HasVariant(const std::string& name, const char* suffix) const;
 
 private:
 	std::string fBaseName;

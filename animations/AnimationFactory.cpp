@@ -14,12 +14,9 @@
 #include "ResManager.h"
 
 #include <algorithm>
-#include <cxxabi.h>
 #include <sstream>
 #include <string>
 
-
-std::unordered_map<uint16, AnimationFactory*> AnimationFactory::sAnimationFactory;
 
 const int kStandingOffset = 10;
 
@@ -183,25 +180,8 @@ const static AnimationDescriptor kAnimationEntries[] = {
 AnimationFactory*
 AnimationFactory::GetFactory(uint16 animationID)
 {
-	uint8 highID = animationID >> 8;
-	uint8 lowID = animationID & 0xF;
 	std::string baseName = IDTable::AniSndAt(animationID);
-#if 1
-	std::cout << "AnimationFactory::GetFactory(";
-	std::cout << baseName << ", " << std::hex;
-	std::cout << "0x" << animationID << ")";
-	std::cout << " (0x" << (int)highID << ", 0x" << (int)lowID << ")" << std::endl;
-#endif
-	AnimationFactory* factory = NULL;
-	/*auto i = sAnimationFactory.find(animationID);
-	if (i != sAnimationFactory.end()) {
-		factory = i->second;
-		factory->Acquire();
-	} else {*/
-		factory = new AnimationFactory(baseName.c_str(), animationID);
-		/*sAnimationFactory[animationID] = factory;*/
-	//}
-	return factory;
+	return new AnimationFactory(baseName.c_str(), animationID);
 }
 
 
@@ -209,10 +189,7 @@ AnimationFactory::GetFactory(uint16 animationID)
 void
 AnimationFactory::ReleaseFactory(AnimationFactory* factory)
 {
-	if (factory->Release()) {
-		sAnimationFactory.erase(factory->fID);
-		delete factory;
-	}
+	delete factory;
 }
 
 
@@ -362,7 +339,7 @@ AnimationFactory::_GetBGMonsterAnimationDescription(Actor* actor)
 	description.sequence_number = o;
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			if (_HasG11(description.bam_name))
+			if (_HasVariant(description.bam_name, "G11"))
 				description.bam_name.append("G11");
 			else
 				description.bam_name.append("G1");
@@ -394,7 +371,7 @@ AnimationFactory::_GetBGMonsterAnimationDescription(Actor* actor)
 			// restarts G15 from frame 0 and freezes there, not on its true
 			// last frame - close enough to show a dead body immediately
 			// after the die animation, but not a pixel-perfect resting pose.
-			if (_HasG15(description.bam_name))
+			if (_HasVariant(description.bam_name, "G15"))
 				description.bam_name.append("G15");
 			else
 				description.bam_name.append("G1");
@@ -426,7 +403,7 @@ AnimationFactory::_GetBGCharacterAnimationDescription(Actor* actor)
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			if (_HasW(description.bam_name))
+			if (_HasVariant(description.bam_name, "W2"))
 				description.bam_name.append("W2");
 			else
 				description.bam_name.append("G1");
@@ -446,7 +423,7 @@ AnimationFactory::_GetBGCharacterAnimationDescription(Actor* actor)
 			break;
 	}
 	if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
-		if (_HasSeparateEasternOrientations(description.bam_name))
+		if (_HasVariant(description.bam_name, "E"))
 			description.bam_name.append("E");
 	}
 	return description;
@@ -462,7 +439,6 @@ _GetBG2MirroredAnimation(int& orientation, animation_description& description)
 }
 
 
-/* virtual */
 animation_description
 AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 {
@@ -501,7 +477,7 @@ AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			if (_HasW(description.bam_name))
+			if (_HasVariant(description.bam_name, "W2"))
 				description.bam_name.append("W2");
 			else
 				description.bam_name.append("G11");
@@ -517,7 +493,7 @@ AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 			description.bam_name.append("A1");
 			break;
 		case ACT_DIE:
-			if (_HasG15(description.bam_name)) {
+			if (_HasVariant(description.bam_name, "G15")) {
 				description.bam_name.append("G15");
 				description.sequence_number += ANIM_DIE_OFFSET;
 			} else
@@ -525,7 +501,7 @@ AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 			break;
 		case ACT_DEAD:
 			// Not a typo, if it has G15 it has also G16
-			if (_HasG15(description.bam_name)) {
+			if (_HasVariant(description.bam_name, "G15")) {
 				description.bam_name.append("G16");
 				description.sequence_number += ANIM_DEAD_OFFSET;
 			} else
@@ -546,7 +522,7 @@ AnimationFactory::_GetCharacterAnimationDescription(Actor* actor)
 			_GetBG2MirroredAnimation(o, description);
 	} else {
 		if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
-			if (_HasSeparateEasternOrientations(description.bam_name))
+			if (_HasVariant(description.bam_name, "E"))
 				description.bam_name.append("E");
 		}
 	}
@@ -605,7 +581,6 @@ AnimationFactory::_GetSimpleAnimationDescription(Actor* actor)
 }
 
 
-/* virtual */
 animation_description
 AnimationFactory::_GetSplitAnimationDescription(Actor* actor)
 {
@@ -660,7 +635,6 @@ AnimationFactory::_GetSplitAnimationDescription(Actor* actor)
 }
 
 
-/* virtual */
 animation_description
 AnimationFactory::_GetIWDAnimationDescription(Actor* actor)
 {
@@ -812,36 +786,7 @@ AnimationFactory::_ArmorCharacter(const Actor* actor) const
 
 
 bool
-AnimationFactory::_HasG11(const std::string& name) const
+AnimationFactory::_HasVariant(const std::string& name, const char* suffix) const
 {
-	std::string walkingBam = name;
-	walkingBam.append("G11");
-	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
-}
-
-
-bool
-AnimationFactory::_HasG15(const std::string& name) const
-{
-	std::string walkingBam = name;
-	walkingBam.append("G15");
-	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
-}
-
-
-bool
-AnimationFactory::_HasW(const std::string& name) const
-{
-	std::string walkingBam = name;
-	walkingBam.append("W2");
-	return gResManager->ResourceExists(walkingBam.c_str(), RES_BAM);
-}
-
-
-bool
-AnimationFactory::_HasSeparateEasternOrientations(const std::string& name) const
-{
-	std::string easternFacing = name;
-	easternFacing.append("E");
-	return gResManager->ResourceExists(easternFacing.c_str(), RES_BAM);
+	return gResManager->ResourceExists((name + suffix).c_str(), RES_BAM);
 }
