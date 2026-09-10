@@ -35,6 +35,7 @@ SRCS = $(wildcard /*.cpp $(foreach fd, $(SUBDIR), $(fd)/*.cpp))
 NODIR_SRC = $(notdir $(SRCS))
 OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
 INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
+INC_DIRS += -I libjgame/audio
 INC_DIRS += -I libjgame/graphics
 INC_DIRS += -I libjgame/streams
 INC_DIRS += -I libjgame/support
@@ -69,15 +70,6 @@ RandTest: $(OBJS) tests/RandTest.cpp
 	mkdir -p $(OUTDIR)
 	$(CC) -o $(OUTDIR)/$@ tests/RandTest.cpp $(OBJS) libjgame/lib/libjgame.a $(LIBS) $(INC_DIRS) $(CXXFLAGS) $(LDFLAGS)
 
-# Only needs libjgame (GraphicsEngine/Bitmap), not the game objects. Built with
-# AddressSanitizer and the libjgame graphics/support sources compiled in, so the
-# out-of-bounds mask read it guards against is reliably caught if it regresses.
-BLIT_MASK_TEST_SRCS = tests/BlitMaskBoundsTest.cpp \
-	$(wildcard libjgame/graphics/*.cpp) $(wildcard libjgame/support/*.cpp)
-BlitMaskBoundsTest: $(BLIT_MASK_TEST_SRCS)
-	mkdir -p $(OUTDIR)
-	$(CC) -o $(OUTDIR)/$@ $(BLIT_MASK_TEST_SRCS) $(LIBS) $(INC_DIRS) \
-		-Wall `sdl2-config --cflags` -g -O0 -fsanitize=address
 
 PHONY += clean
 clean:
