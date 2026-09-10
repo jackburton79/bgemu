@@ -515,11 +515,30 @@ public:
 		const ShellCommandParameters params = ParseParameters(argv);
 		IE::point from = params.at(0).value.point;
 		IE::point to = params.at(1).value.point;
+		GUI::Get()->MouseMoved(from.x, from.y);
 		GUI::Get()->MouseDown(from.x, from.y);
 		GUI::Get()->MouseMoved(to.x, to.y);
 		GUI::Get()->MouseUp(to.x, to.y);
 		std::cout << "Mouse-Drag: (" << std::dec << from.x << "," << from.y
 			<< ") -> (" << to.x << "," << to.y << ")" << std::endl;
+	}
+};
+
+
+// Headless mouse click at a screen pixel: hover there, press, release.
+class MouseClickCommand : public ShellCommand {
+public:
+	MouseClickCommand()
+		: ShellCommand("Mouse-Click", { { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point p = params.at(0).value.point;
+		GUI::Get()->MouseMoved(p.x, p.y);
+		GUI::Get()->MouseDown(p.x, p.y);
+		GUI::Get()->MouseUp(p.x, p.y);
+		std::cout << "Mouse-Click: (" << std::dec << p.x << "," << p.y << ")" << std::endl;
 	}
 };
 
@@ -1304,6 +1323,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new RightClickControlCommand());
 	console->AddCommand(new MouseDragCommand());
+	console->AddCommand(new MouseClickCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

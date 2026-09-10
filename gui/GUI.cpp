@@ -351,11 +351,13 @@ GUI::MouseDown(int16 x, int16 y)
 
 	IE::point point = { x, y };
 	Window* window = _WindowAtPoint(point);
-	if (window != NULL) {
+	if (window != NULL)
 		window->MouseDown(point);
-		if (window->HasMouseCapture())
-			fCaptureWindow = window;
-	}
+	// Don't touch `window` afterwards: dispatching the click can tear the
+	// whole GUI down (e.g. a world-map travel click reloads the area,
+	// which calls GUI::Clear()). A control that wants the mouse captured
+	// tells GUI directly during its MouseDown (Window::SetMouseCapture ->
+	// SetCaptureWindow), and Clear() resets fCaptureWindow.
 }
 
 
@@ -370,6 +372,13 @@ GUI::MouseUp(int16 x, int16 y)
 	fCaptureWindow = NULL;
 	if (window != NULL)
 		window->MouseUp(point);
+}
+
+
+void
+GUI::SetCaptureWindow(Window* window)
+{
+	fCaptureWindow = window;
 }
 
 

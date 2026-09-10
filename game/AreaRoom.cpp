@@ -1397,7 +1397,13 @@ AreaRoom::_InitDoors()
 
 	const uint32 numDoors = fWed->CountDoors();
 	for (uint32 c = 0; c < numDoors; c++) {
-		Door *door = new Door(fArea->DoorAt(c), fArea);
+		// The door count comes from the WED; the door data from the ARE.
+		// A malformed area (e.g. AR0900) can list more doors in the WED
+		// than the ARE actually carries - DoorAt() returns NULL for those.
+		IE::door* areaDoor = fArea->DoorAt(c);
+		if (areaDoor == NULL)
+			continue;
+		Door *door = new Door(areaDoor, fArea);
 		AddObject(door);
 		door->UpdateSearchMapBlocking();
 		fWed->LinkDoorWithTiledObject(door);

@@ -67,6 +67,11 @@ public:
 	// (x,y); if nothing consumes it, falls back to MouseDown() so the
 	// game world's right-click keeps working.
 	void RightMouseDown(int16 x, int16 y);
+
+	// Called by Window::SetMouseCapture so GUI can keep routing
+	// MouseMoved/MouseUp to that window while a control inside it is
+	// being dragged. NULL releases.
+	void SetCaptureWindow(Window* window);
 	void MouseMoved(int16 x, int16 y);
 
 	void GetCursorPosition(int16& x, int16& y) const;

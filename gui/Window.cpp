@@ -8,6 +8,7 @@
 #include "Bitmap.h"
 #include "Control.h"
 #include "GraphicsEngine.h"
+#include "GUI.h"
 #include "RoomBase.h"
 #include "Window.h"
 
@@ -215,7 +216,7 @@ Window::MouseUp(IE::point point)
 	ConvertFromScreen(point);
 
 	Control* control = fMouseCapture != NULL ? fMouseCapture : _ControlAtPoint(point);
-	fMouseCapture = NULL;
+	SetMouseCapture(NULL);
 	if (control != NULL)
 		control->MouseUp(point);
 }
@@ -225,6 +226,7 @@ void
 Window::SetMouseCapture(Control* control)
 {
 	fMouseCapture = control;
+	GUI::Get()->SetCaptureWindow(control != NULL ? this : NULL);
 }
 
 
