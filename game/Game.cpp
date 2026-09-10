@@ -435,7 +435,7 @@ Game::ToggleInventoryWindow()
 	GUI::Get()->SetDragBitmap(NULL);
 
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1})) {
-		_UpdatePortraitColumn("GUIINV");
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
 	}
 }
@@ -449,7 +449,7 @@ void
 Game::ToggleRecordWindow()
 {
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1})) {
-		_UpdatePortraitColumn("GUIREC");
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
 	}
 }
@@ -655,12 +655,13 @@ Game::ShowCharacter(uint16 partyIndex)
 void
 Game::_RefreshCharacterScreens()
 {
+	RefreshHUDPortraits();
 	if (GUI::Get()->GetAuxWindow("GUIINV", 2) != NULL) {
-		_UpdatePortraitColumn("GUIINV");
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
 	}
 	if (GUI::Get()->GetAuxWindow("GUIREC", 2) != NULL) {
-		_UpdatePortraitColumn("GUIREC");
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
 	}
 }
@@ -675,16 +676,17 @@ Game::RecordControlInvoked(uint32 controlID, uint16 windowID)
 }
 
 
-// Fills chuName's window 1 portrait buttons (ids 0..3) with the party's
-// small portraits. coverBackground keeps the CHU frame visible behind.
+// Fills a portrait column's buttons (ids 0..count-1) with the party's
+// small portraits, clearing the rest. Same column layout on the HUD
+// (GUIW window 1, 6 slots) and the Inventory/Record side panel (GUIINV/
+// GUIREC window 1, 4 slots).
 void
-Game::_UpdatePortraitColumn(const res_ref& chuName)
+Game::_UpdatePortraitColumn(Window* window, uint32 count)
 {
-	Window* window = GUI::Get()->GetAuxWindow(chuName, 1);
 	if (window == NULL || fParty == NULL)
 		return;
 
-	for (uint32 i = 0; i < 4; i++) {
+	for (uint32 i = 0; i < count; i++) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
 		if (button == NULL)
 			continue;
@@ -699,6 +701,15 @@ Game::_UpdatePortraitColumn(const res_ref& chuName)
 		}
 		button->SetIcon(portrait, false);
 	}
+}
+
+
+// The HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) - populated on area
+// entry and re-populated whenever who's selected/in the party changes.
+void
+Game::RefreshHUDPortraits()
+{
+	_UpdatePortraitColumn(GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS), 6);
 }
 
 

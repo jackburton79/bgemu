@@ -816,6 +816,10 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 					return;
 				}
 			}
+		} else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
+			// The 6 HUD portrait buttons select that party member.
+			Game::Get()->SelectPartyMember((uint16)controlID);
+			return;
 		} else if ((windowID == WINDOW_MESSAGES && controlID == 2)
 				|| (windowID == WINDOW_MESSAGES_LARGE && controlID == 0)) {
 			ToggleMessageArea();

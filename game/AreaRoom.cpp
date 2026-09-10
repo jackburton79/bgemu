@@ -210,6 +210,10 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	if (player != NULL)
 		SelectActor(player);
 
+	// The HUD (just rebuilt by gui->Load("GUIW") above) needs its
+	// portrait bar filled from the party.
+	Game::Get()->RefreshHUDPortraits();
+
 	GUI::Get()->ShowWindow(999);
 
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());

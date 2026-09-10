@@ -76,6 +76,9 @@ public:
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
 	void ShowCharacter(uint16 partyIndex);
+	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
+	// current party. Call after an area load rebuilds the HUD.
+	void RefreshHUDPortraits();
 	void ToggleJournalWindow();
 
 	// Queues RESTPARTY(230) on the first party member - same action
@@ -229,9 +232,10 @@ private:
 	// fShownCharacter), or NULL if the party is empty / the index is
 	// stale.
 	Actor* _ShownActor() const;
-	// Fills the 4 portrait buttons in an aux screen's window 1 with the
-	// party's small portraits (chuName is "GUIINV" or "GUIREC").
-	void _UpdatePortraitColumn(const res_ref& chuName);
+	// Fills a portrait column (buttons id 0..count-1) with the party's
+	// small portraits - the HUD bar and the Inventory/Record side panel
+	// share this.
+	void _UpdatePortraitColumn(class Window* window, uint32 count);
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();
