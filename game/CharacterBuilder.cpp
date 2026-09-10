@@ -170,11 +170,13 @@ CharacterBuilder::SetAlignment(const std::string& align)
 	if (align.size() == 2) {
 		static const char* kEthical = "LNC";
 		static const char* kMoral = "GNE";
-		std::string upper = align;
-		for (char& c : upper) c = (char)toupper((unsigned char)c);
-		const char* e = strchr(kEthical, upper[0]);
-		const char* m = strchr(kMoral, upper[1]);
-		if (e == NULL || m == NULL)
+		char ec = (char)toupper((unsigned char)align[0]);
+		char mc = (char)toupper((unsigned char)align[1]);
+		if (ec == 'T') ec = 'N'; // "TN" for True Neutral
+		if (mc == 'T') mc = 'N';
+		const char* e = strchr(kEthical, ec);
+		const char* m = strchr(kMoral, mc);
+		if (e == NULL || m == NULL || ec == '\0' || mc == '\0')
 			return false;
 		value = (uint8)(((e - kEthical + 1) << 4) | (m - kMoral + 1));
 	} else {
@@ -412,8 +414,11 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU32(out, 0x1c, 0);           // gold (A6)
 	_PutU32(out, 0x20, 0);           // permanent status
 
-	_PutU16(out, 0x24, 10);          // current HP  (placeholder - A3)
-	_PutU16(out, 0x26, 10);          // maximum HP
+	// HP starts at 0 and THAC0/saves at conservative placeholders: the
+	// engine fills in the real level-1 values from the class tables
+	// (Actor::_Init() runs the level-up path because class level is 0).
+	_PutU16(out, 0x24, 0);           // current HP
+	_PutU16(out, 0x26, 0);           // maximum HP
 	_PutU32(out, 0x28, genderID == 2 ? 0x6010 : 0x6000); // player animation
 
 	// Paperdoll/avatar colours - generic defaults for now (A6 lets the
@@ -425,16 +430,17 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU8(out, 0x44, 10);           // reputation
 	_PutU16(out, 0x46, 10);          // AC natural
 	_PutU16(out, 0x48, 10);          // AC effective
-	_PutU8(out, 0x52, 20);           // THAC0     (placeholder - A3)
-	_PutU8(out, 0x53, 1);            // # attacks (placeholder - A3)
-	for (int i = 0; i < 5; i++) _PutU8(out, 0x54 + i, 16); // saves (A3)
+	_PutU8(out, 0x52, 20);           // THAC0 - engine recomputes from THAC0.2da
+	_PutU8(out, 0x53, 1);            // # attacks
+	for (int i = 0; i < 5; i++) _PutU8(out, 0x54 + i, 20); // saves - engine recomputes
 
-	// Per-class levels: 1 in every component of a multi-class name.
-	int components = 1;
-	for (char c : fClass) if (c == '_') components++;
-	_PutU8(out, 0x234, 1);
-	_PutU8(out, 0x235, components >= 2 ? 1 : 0);
-	_PutU8(out, 0x236, components >= 3 ? 1 : 0);
+	// Class levels stay at 0 so Actor::_Init() runs the level-up path to
+	// derive level-1 HP/THAC0/saves from the class tables. _CheckLevelUp
+	// reads all three per-class slots; a multi-class name just needs the
+	// unused trailing slots to also be 0 (which zeroed init already is).
+	_PutU8(out, 0x234, 0);
+	_PutU8(out, 0x235, 0);
+	_PutU8(out, 0x236, 0);
 
 	_PutU8(out, 0x237, (uint8)genderID);   // sex
 	_PutU8(out, 0x238, (uint8)Ability(STR));

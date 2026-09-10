@@ -200,6 +200,13 @@ Actor::_Init()
 
 	SetActive(true);
 
+	// A freshly created character (CharacterBuilder / Game::CreateParty)
+	// comes in at class level 0 with placeholder HP/THAC0/saves; run the
+	// level-up path once to fill in the real level-1 values from the
+	// class tables. Real placed CREs are already level >= 1 and skip this.
+	if (fCRE != NULL && fCRE->ClassLevel(0) == 0)
+		_CheckLevelUp();
+
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
 
@@ -257,7 +264,15 @@ Actor::Print() const
 	std::cout << " (" << (int)cre->Specific() << ")" << std::endl;
 	std::cout << "Dialog: " << cre->DialogFile() << std::endl;
 	std::cout << "Death Variable: " << cre->DeathVariable() << std::endl;
-	std::cout << "Hitpoints:" << cre->CurrentHitPoints() << std::endl;
+	std::cout << "Hitpoints: " << std::dec << cre->CurrentHitPoints()
+		<< "/" << cre->MaxHitPoints() << std::endl;
+	std::cout << "Levels: " << (int)cre->ClassLevel(0) << "/"
+		<< (int)cre->ClassLevel(1) << "/" << (int)cre->ClassLevel(2) << std::endl;
+	std::cout << "THAC0: " << (int)cre->THAC0() << std::endl;
+	SaveVersus sv = cre->Saves();
+	std::cout << "Saves (death/wands/poly/breath/spell): "
+		<< (int)sv.death << "/" << (int)sv.wands << "/" << (int)sv.poly
+		<< "/" << (int)sv.breath << "/" << (int)sv.spell << std::endl;
 	std::cout << "Status flags: " << std::dec << cre->PermanentStatus() << std::endl;
 	std::cout << "Reputation: " << (int)cre->Reputation() << std::endl;
 	std::cout << "Morale: " << (int)cre->Morale() << std::endl;
@@ -914,8 +929,14 @@ Actor::_CheckLevelUp()
 				int32 sides = _TableValue(hpTable, hpRow, "SIDES", 0);
 				int32 rolls = _TableValue(hpTable, hpRow, "ROLLS", 0);
 				int32 modifier = _TableValue(hpTable, hpRow, "MODIFIER", 0);
-				if (sides > 0 && rolls > 0)
-					hpGain += Core::RollDice(rolls, sides, 0);
+				if (sides > 0 && rolls > 0) {
+					// Level 1 (character creation, currentLevel == 0)
+					// grants maximum hit points, as the original game
+					// does; subsequent levels are rolled.
+					hpGain += (currentLevel == 0)
+						? (uint16)(rolls * sides)
+						: Core::RollDice(rolls, sides, 0);
+				}
 				hpGain += modifier;
 				hpGain += _TableValue(hpConBon, conRow,
 					progression->warrior ? "WARRIOR" : "OTHER", 0);
