@@ -276,6 +276,7 @@ private:
 	// GUIMG/GUIPR grid control id -> the spell resref it currently shows,
 	// plus which of the two CHUs the open spellbook is.
 	std::string fSpellbookCHU;
+	uint16 fSpellbookLevel = 1;
 	std::map<uint32, res_ref> fSpellbookKnown;
 	std::map<uint32, res_ref> fSpellbookMemo;
 	// Re-populates the Inventory / Record screens (whichever are open)

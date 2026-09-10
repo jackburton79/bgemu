@@ -657,6 +657,7 @@ Game::ToggleSpellbookWindow()
 {
 	const char* chu = _UsesDivineSpellbook(_ShownActor()) ? "GUIPR" : "GUIMG";
 	fSpellbookCHU = chu;
+	fSpellbookLevel = 1;
 	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
@@ -683,17 +684,20 @@ Game::_UpdateSpellbookScreen()
 		return;
 	CREResource* cre = actor->CRE();
 
+	const uint16 level = fSpellbookLevel;
+
 	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSpellNameLabelID));
 	if (nameLabel != NULL)
-		nameLabel->SetText(actor->LongName());
+		nameLabel->SetText(actor->LongName() + " - level " + std::to_string(level));
 
+	// Known spells of the current level/type.
 	std::vector<cre_known_spell> known = cre->KnownSpells();
 	size_t k = 0;
 	for (uint32 controlID : kSpellKnownControls) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
 		if (button == NULL)
 			continue;
-		while (k < known.size() && (known[k].type != spellType || known[k].level != 1))
+		while (k < known.size() && (known[k].type != spellType || known[k].level != level))
 			k++;
 		if (k < known.size()) {
 			button->SetIcon(_MakeSpellIcon(known[k].spell), true);
@@ -704,16 +708,29 @@ Game::_UpdateSpellbookScreen()
 		}
 	}
 
+	// Memorized spells of the current level/type - the memo-info rows
+	// point at each level/type's slice of the memorized table.
 	std::vector<cre_memorized_spell> memo = cre->MemorizedSpells();
+	std::vector<cre_spell_memorization_info> info = cre->SpellMemorizationInfo();
+	std::vector<cre_memorized_spell> levelMemo;
+	for (const cre_spell_memorization_info& row : info) {
+		if (row.level != level || row.type != spellType)
+			continue;
+		for (uint32 i = 0; i < row.memorizedCount; i++) {
+			uint32 idx = row.firstMemorizedIndex + i;
+			if (idx < memo.size())
+				levelMemo.push_back(memo[idx]);
+		}
+	}
 	size_t m = 0;
 	for (uint32 controlID : kSpellMemoControls) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
 		if (button == NULL)
 			continue;
-		if (m < memo.size()) {
-			button->SetIcon(_MakeSpellIcon(memo[m].spell), true);
-			if (memo[m].flags & 1)
-				fSpellbookMemo[controlID] = memo[m].spell;
+		if (m < levelMemo.size()) {
+			button->SetIcon(_MakeSpellIcon(levelMemo[m].spell), true);
+			if (levelMemo[m].flags & 1)
+				fSpellbookMemo[controlID] = levelMemo[m].spell;
 			m++;
 		} else {
 			button->SetIcon(NULL);
@@ -731,6 +748,16 @@ Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 	}
 	if (windowID != 2)
 		return;
+
+	// Page arrows: control 1 = previous spell level, control 2 = next.
+	if (controlID == 1 || controlID == 2) {
+		if (controlID == 1 && fSpellbookLevel > 1)
+			fSpellbookLevel--;
+		else if (controlID == 2 && fSpellbookLevel < 9)
+			fSpellbookLevel++;
+		_UpdateSpellbookScreen();
+		return;
+	}
 
 	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
