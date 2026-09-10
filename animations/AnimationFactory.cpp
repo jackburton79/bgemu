@@ -259,14 +259,12 @@ AnimationFactory::PaperdollName(const Actor* actor) const
 		name.append(_RaceCharacter(actor->CRE()->Race()));
 		name.append(_GenderCharacter(actor->CRE()->Gender()));
 		name.append(_ClassCharacter(actor->CRE()->Class()));
-		// Same "fighters are always shown in full plate" convention
-		// AnimationFor()'s own Character case above uses for the sprite
-		// itself (see its own TODO) - keeps the two identity prefixes
-		// in sync for a fighter-type multi-class.
-		if (name[3] == 'F')
-			name.append("4");
-		else
-			name.append(_ArmorCharacter(actor));
+		// The paperdoll's armor digit tracks the actually-equipped armor
+		// (IESDP avatarnaming: "a number representing the armor state") -
+		// unlike the in-world sprite, where AnimationFor() forces
+		// fighters to always show full plate. So no fighter special-case
+		// here: a fighter in chain gets the chain doll.
+		name.append(_ArmorCharacter(actor));
 	} else {
 		name = BaseName();
 		name.append("1");

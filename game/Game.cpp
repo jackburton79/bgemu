@@ -673,8 +673,16 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 		return;
 
 	std::string name = actor->PaperdollName();
-	Bitmap* icon = NULL;
 	PLTResource* plt = gResManager->GetPLT(name.c_str());
+	if (plt == NULL && name.length() >= 5) {
+		// Not every class-letter x armor-digit paperdoll exists in every
+		// install; fall back to the unarmored (digit 1) doll rather than
+		// leaving the paperdoll blank.
+		name[4] = '1';
+		plt = gResManager->GetPLT(name.c_str());
+	}
+
+	Bitmap* icon = NULL;
 	if (plt != NULL) {
 		icon = plt->Image(actor->CRE()->Colors());
 		gResManager->ReleaseResource(plt);
