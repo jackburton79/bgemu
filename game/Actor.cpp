@@ -1029,6 +1029,45 @@ _DefaultSlotForItemType(uint16 type)
 }
 
 
+// Whether an item of this ITM type is allowed to sit in `slot`. General
+// inventory and quick-item slots take anything; the equipment slots each
+// take their own type (weapon slots take any weapon, quiver slots any
+// ammo, both ring slots any ring).
+static bool
+_SlotAcceptsItemType(uint32 slot, uint16 itemType)
+{
+	if (slot >= kSlotGeneralFirst && slot <= kSlotGeneralLast)
+		return true;
+	if (slot >= 18 && slot <= 20) // QuickItem1-3
+		return true;
+	if (slot >= kSlotWeaponFirst && slot < kSlotWeaponFirst + 4)
+		return _DefaultSlotForItemType(itemType) == (int32)kSlotWeaponFirst;
+	if (slot >= kSlotAmmoFirst && slot <= kSlotAmmoLast)
+		return _DefaultSlotForItemType(itemType) == (int32)kSlotAmmoFirst;
+	if (slot == kSlotRingLeft || slot == kSlotRingLeft + 1)
+		return itemType == 0x000a;
+	return _DefaultSlotForItemType(itemType) == (int32)slot;
+}
+
+
+// ITM type of a slot's current occupant, or 0 (a valid "misc" type, but
+// also the harmless fallback) if the slot is empty or the item resource
+// can't be loaded.
+static uint16
+_ItemTypeAtSlot(CREResource* cre, uint32 slot)
+{
+	IE::item item;
+	if (!cre->GetItemAtSlot(slot, item))
+		return 0;
+	ITMResource* itm = gResManager->GetITM(item.name);
+	if (itm == NULL)
+		return 0;
+	uint16 type = itm->ItemType();
+	gResManager->ReleaseResource(itm);
+	return type;
+}
+
+
 std::string
 Actor::ArmorAnimation() const
 {
@@ -1217,6 +1256,39 @@ Actor::UnequipSlot(uint32 slot)
 		return false;
 
 	fCRE->MoveItemBetweenSlots(slot, (uint32)freeSlot);
+	return true;
+}
+
+
+bool
+Actor::MoveItemToSlot(uint32 fromSlot, uint32 toSlot)
+{
+	if (fromSlot == toSlot)
+		return true;
+	if (fromSlot >= kNumItemSlots || toSlot >= kNumItemSlots)
+		return false;
+
+	int32 fromIndex = fCRE->ItemsIndexAtSlot(fromSlot);
+	if (fromIndex < 0)
+		return false;
+
+	if (!_SlotAcceptsItemType(toSlot, _ItemTypeAtSlot(fCRE, fromSlot)))
+		return false;
+
+	int32 toIndex = fCRE->ItemsIndexAtSlot(toSlot);
+	// Swapping: the item currently in toSlot has to be legal back in
+	// fromSlot, otherwise the swap would leave it somewhere it can't go.
+	if (toIndex >= 0
+			&& !_SlotAcceptsItemType(fromSlot, _ItemTypeAtSlot(fCRE, toSlot)))
+		return false;
+
+	fCRE->SetItemAtSlot(toSlot, fromIndex);
+	fCRE->SetItemAtSlot(fromSlot, toIndex); // -1 clears when toSlot was empty
+
+	// An equipment slot (anything before the general grid) changed hands:
+	// the world sprite may need rebuilding (armor/weapon layers).
+	if (fromSlot < kSlotGeneralFirst || toSlot < kSlotGeneralFirst)
+		InvalidateAnimation();
 	return true;
 }
 
@@ -1566,6 +1638,13 @@ Actor::SetAnimationAction(int action)
 				break;
 		}
 	}
+}
+
+
+void
+Actor::InvalidateAnimation()
+{
+	fAnimationValid = false;
 }
 
 

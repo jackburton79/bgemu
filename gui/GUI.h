@@ -125,6 +125,14 @@ public:
 
 	void RemoveToolTip(uint32 id);
 
+	// An item icon that follows the cursor while the player is dragging
+	// an inventory item between slots (see Game::InventoryControlInvoked()).
+	// Takes ownership of the passed reference; NULL clears it. Purely a
+	// render hook - the drag's actual model (which actor, which slot)
+	// lives in Game.
+	void SetDragBitmap(Bitmap* bitmap);
+	bool IsDraggingItem() const;
+
 	static GUI* Get();
 
 private:
@@ -152,6 +160,7 @@ private:
 	bool fShown;
 
 	Bitmap* fTooltipBitmap;
+	Bitmap* fDragBitmap;
 
 	GUI(uint16 width, uint16 height);
 	~GUI();

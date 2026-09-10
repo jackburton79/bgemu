@@ -72,7 +72,8 @@ Game::Game()
 	// reviewing the timer infrastructure against IESDP's documented
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
-	fTestMode(false)
+	fTestMode(false),
+	fInvDragSlot(-1)
 {
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
@@ -418,6 +419,11 @@ Game::SetStartingArea(const char* areaName)
 void
 Game::ToggleInventoryWindow()
 {
+	// A half-finished drag doesn't survive the window closing (or a fresh
+	// open) - drop whatever's on the cursor back where it came from.
+	fInvDragSlot = -1;
+	GUI::Get()->SetDragBitmap(NULL);
+
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1}))
 		_UpdateInventoryIcons();
 }
@@ -513,6 +519,74 @@ static const char* kSaveSlotPath = "savegame_slot0.gam";
 static const uint32 kJournalEntriesAreaID = 1;
 
 
+// GUIINV window 2 slot-control id -> CRE item-slot index. Both the icon
+// refresh (_UpdateInventoryIcons) and the drag/drop click handler
+// (InventoryControlInvoked) walk this one table. How each group was
+// identified:
+//  - general grid (ids 30/32/.../44 then 31/33/.../45): row-major reading
+//    order, confirmed against a real GUIINV.CHU dump to be
+//    kSlotGeneralFirst..Last (16 slots) in order.
+//  - row above the paperdoll (ids 11-14): Armor/Gauntlets/Helmet/Shield,
+//    icon-verified on a real character wearing all four.
+//  - "Armi rapide" (ids 1-4): Weapon1-4, by count + the same ascending
+//    id->ascending slot pattern as the verified row above.
+//  - "Faretra" (ids 15-17): the first 3 of the CRE's 4 ammo slots - this
+//    CHU layout only has 3 controls (declared deviation).
+//  - "Oggetti rapidi" (ids 5-7): QuickItem1-3 (slots 18-20), per the
+//    item-order comment in Actor.cpp.
+// Still unmapped (deliberately, no empirical confirmation yet):
+// rings/amulet/belt/boots/cloak (ids ~21-26).
+struct inv_slot_control { uint32 controlID; uint32 creSlot; };
+static const inv_slot_control kInvSlotControls[] = {
+	{ 30, kSlotGeneralFirst +  0 }, { 32, kSlotGeneralFirst +  1 },
+	{ 34, kSlotGeneralFirst +  2 }, { 36, kSlotGeneralFirst +  3 },
+	{ 38, kSlotGeneralFirst +  4 }, { 40, kSlotGeneralFirst +  5 },
+	{ 42, kSlotGeneralFirst +  6 }, { 44, kSlotGeneralFirst +  7 },
+	{ 31, kSlotGeneralFirst +  8 }, { 33, kSlotGeneralFirst +  9 },
+	{ 35, kSlotGeneralFirst + 10 }, { 37, kSlotGeneralFirst + 11 },
+	{ 39, kSlotGeneralFirst + 12 }, { 41, kSlotGeneralFirst + 13 },
+	{ 43, kSlotGeneralFirst + 14 }, { 45, kSlotGeneralFirst + 15 },
+	{ 11, kSlotArmor }, { 12, kSlotGauntlets }, { 13, kSlotHelmet }, { 14, kSlotShield },
+	{ 1, kSlotWeaponFirst }, { 2, kSlotWeaponFirst + 1 },
+	{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
+	{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
+	{ 5, 18 }, { 6, 19 }, { 7, 20 },
+};
+
+
+// Builds the inventory icon (cycle 0 / frame 0 of the ITM's inventory-icon
+// BAM, same convention Button uses for its own CHU bitmaps) for an item
+// resref. Returns a new reference the caller owns, or NULL.
+static Bitmap*
+_MakeItemIcon(const res_ref& itemName)
+{
+	ITMResource* itm = gResManager->GetITM(itemName);
+	if (itm == NULL)
+		return NULL;
+	Bitmap* icon = NULL;
+	BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
+	if (bam != NULL) {
+		icon = bam->FrameForCycle(0, 0);
+		gResManager->ReleaseResource(bam);
+	}
+	gResManager->ReleaseResource(itm);
+	return icon;
+}
+
+
+// CRE item-slot for a GUIINV control id, or -1 if the control isn't a
+// mapped inventory slot.
+static int32
+_CreSlotForControl(uint32 controlID)
+{
+	for (const auto& entry : kInvSlotControls) {
+		if (entry.controlID == controlID)
+			return (int32)entry.creSlot;
+	}
+	return -1;
+}
+
+
 // Populates the inventory-slot buttons in the open GUIINV window 2 with
 // the real item icon (ITM's InventoryIcon(), cycle 0/frame 0 of that BAM -
 // same convention Button's own constructor uses for its CHU-authored
@@ -536,73 +610,50 @@ Game::_UpdateInventoryIcons()
 
 	CREResource* cre = actor->CRE();
 
-	// Row-major reading order (top row left->right, then bottom row
-	// left->right) confirmed against a real GUIINV.CHU control dump to
-	// match kSlotGeneralFirst..kSlotGeneralLast (16 slots) in order.
-	static const uint32 kGeneralGridControlIDs[] = {
-		30, 32, 34, 36, 38, 40, 42, 44,
-		31, 33, 35, 37, 39, 41, 43, 45
-	};
-	static const uint32 kGeneralGridCount =
-		sizeof(kGeneralGridControlIDs) / sizeof(kGeneralGridControlIDs[0]);
-	static_assert(kGeneralGridCount == kSlotGeneralLast - kSlotGeneralFirst + 1,
-		"control ID table doesn't match the general slot range");
-	for (uint32 i = 0; i < kGeneralGridCount; i++)
-		_SetSlotIcon(window, cre, kGeneralGridControlIDs[i], kSlotGeneralFirst + i);
-
-	// Equipment-slot clusters identified so far (control id -> CRE slot),
-	// same table+loop idiom as the general grid above. Rationale for each
-	// group (kept per-group since it differs in confidence/derivation):
-	//
-	// - Armor/Gauntlets/Helmet/? (row above the paperdoll, ids
-	//   11-14):
-	// - "Armi rapide" (quick weapons, ids 1-4, under that label per a
-	//   real GUIINV.CHU control dump): matches kSlotWeaponFirst..+3
-	//   (Weapon1-4) by count (4 controls, 4 slots); not individually
-	//   icon-verified like the row above (no test character has more
-	//   than one weapon equipped), but the count match plus the
-	//   identical "ascending id -> ascending slot" pattern already
-	//   confirmed for the row above make this a reasonably safe read.
-	// - "Faretra" (quiver/ammo, ids 15-17, under that label): only 3
-	//   controls for the CRE format's 4 ammo slots (kSlotAmmoFirst..
-	//   kSlotAmmoLast); declared deviation, same spirit as the other
-	//   "engine doesn't model every UI nuance" simplifications already on
-	//   the roadmap - shows the first 3 (13-15), the 4th (16) has no
-	//   control to display it in this CHU layout.
-	// - "Oggetti rapidi" (quick items, ids 5-7, under that label): CRE
-	//   slots 18-20 (QuickItem1-3), per the pre-existing item-order
-	//   comment in Actor.cpp (already verified there against a real
-	//   CRE); count matches (3 controls, 3 slots).
-	struct { uint32 controlID; uint32 creSlot; } const kEquipSlotMap[] = {
-		{ 11, kSlotArmor },
-		{ 12, kSlotGauntlets },
-		{ 13, kSlotHelmet },
-		{ 14, kSlotShield },
-		{ 1, kSlotWeaponFirst },
-		{ 2, kSlotWeaponFirst + 1 },
-		{ 3, kSlotWeaponFirst + 2 },
-		{ 4, kSlotWeaponFirst + 3 },
-		{ 15, kSlotAmmoFirst },
-		{ 16, kSlotAmmoFirst + 1 },
-		{ 17, kSlotAmmoFirst + 2 },
-		{ 5, 18 }, { 6, 19 }, { 7, 20 }
-	};
-	for (const auto& mapping : kEquipSlotMap)
-		_SetSlotIcon(window, cre, mapping.controlID, mapping.creSlot);
+	for (const auto& entry : kInvSlotControls)
+		_SetSlotIcon(window, cre, entry.controlID, entry.creSlot);
 
 	_UpdatePaperdoll(window, actor);
-
-	// Not mapped yet: rings/amulet/belt/boots/cloak (ids 21-26, CRE slots
-	// 4-8 and 17) - unlike the row above the paperdoll, no test character
-	// available has real items in these slots, so there's no empirical
-	// way (yet) to confirm which control is which without risking a
-	// misleading icon in the wrong slot type. Left for a follow-up pass
-	// (e.g. once a way exists to equip a test item into an arbitrary
-	// slot on a character with a large enough Items table - the default
-	// party members' tables are too small, see Actor::AddItem()'s
-	// existing comment on that limitation).
-
 	_UpdateInventoryLabels(window, actor);
+}
+
+
+// GUI::ControlInvoked() routes clicks on GUIINV slot buttons here (window
+// 2). Click-to-pick, click-to-place: the first click on a non-empty slot
+// picks the item up (it rides the cursor via GUI::SetDragBitmap()); the
+// next click drops it into the clicked slot, swapping with whatever's
+// there. A rejected drop (incompatible slot, e.g. armor onto a weapon
+// slot) keeps the item on the cursor so the player can try elsewhere;
+// clicking the origin slot again puts it back. Always operates on the
+// first party member, like the rest of this screen.
+void
+Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
+{
+	int32 slot = _CreSlotForControl(controlID);
+	if (slot < 0)
+		return;
+
+	if (fParty == NULL || fParty->CountActors() == 0)
+		return;
+	Actor* actor = fParty->ActorAt(0);
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	if (!GUI::Get()->IsDraggingItem()) {
+		IE::item item;
+		if (!actor->CRE()->GetItemAtSlot((uint32)slot, item))
+			return; // empty slot - nothing to pick up
+		fInvDragSlot = slot;
+		GUI::Get()->SetDragBitmap(_MakeItemIcon(item.name));
+		return;
+	}
+
+	if (actor->MoveItemToSlot((uint32)fInvDragSlot, (uint32)slot)) {
+		fInvDragSlot = -1;
+		GUI::Get()->SetDragBitmap(NULL);
+		_UpdateInventoryIcons();
+	}
+	// else: drop rejected - keep holding the item.
 }
 
 
@@ -859,17 +910,8 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 
 	IE::item item;
 	Bitmap* icon = NULL;
-	if (cre->GetItemAtSlot(creSlot, item)) {
-		ITMResource* itm = gResManager->GetITM(item.name);
-		if (itm != NULL) {
-			BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
-			if (bam != NULL) {
-				icon = bam->FrameForCycle(0, 0);
-				gResManager->ReleaseResource(bam);
-			}
-			gResManager->ReleaseResource(itm);
-		}
-	}
+	if (cre->GetItemAtSlot(creSlot, item))
+		icon = _MakeItemIcon(item.name);
 	button->SetIcon(icon);
 }
 

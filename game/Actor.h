@@ -123,6 +123,17 @@ public:
 	// move it to.
 	bool UnequipSlot(uint32 slot);
 
+	// Moves the item in `fromSlot` into `toSlot` (both are CRE item-array
+	// indices, see CreResource.h's kSlot* constants). If `toSlot` already
+	// holds an item the two are swapped. Fails (returns false, leaving
+	// both slots untouched) if `fromSlot` is empty, or if either item's
+	// ITM type isn't allowed in the slot it would end up in (e.g. armor
+	// into a weapon slot). Recomputes appearance when an equipment slot
+	// is involved. This is the low-level move behind the inventory GUI's
+	// drag/drop; unlike EquipItem() it takes an explicit destination and
+	// can swap.
+	bool MoveItemToSlot(uint32 fromSlot, uint32 toSlot);
+
 	bool IsEqual(const Actor* object) const;
 
 	bool IsEnemyOf(const Actor* object) const;
@@ -192,6 +203,10 @@ public:
 	void SetAnimationAction(int action);
 
 	void UpdateAnimation(bool ignoreBlocks);
+	// Forces the world sprite to be rebuilt on the next UpdateAnimation()
+	// - call after something that changes the actor's look but not its
+	// orientation/action (e.g. equipping armor or a weapon).
+	void InvalidateAnimation();
 	bool MoveToNextPointInPath(bool ignoreBlocks);
 
 	void SetText(const std::string& string);

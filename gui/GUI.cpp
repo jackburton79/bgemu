@@ -65,7 +65,8 @@ GUI::GUI(uint16 width, uint16 height)
 	fScreenHeight(height),
 	fLastScrollTime(0),
 	fShown(true),
-	fTooltipBitmap(NULL)
+	fTooltipBitmap(NULL),
+	fDragBitmap(NULL)
 {
 	fCursorPosition.x = 0;
 	fCursorPosition.y = 0;
@@ -98,6 +99,9 @@ GUI::~GUI()
 	fAuxResources.clear();
 
 	fCurrentCursor = NULL;
+
+	if (fDragBitmap != NULL)
+		fDragBitmap->Release();
 
 	for (size_t i = 0; i < NUM_CURSORS; i++) {
 		delete fCursors[i];
@@ -224,6 +228,13 @@ GUI::Draw()
 	if (!fShown)
 		return;
 
+	if (fDragBitmap != NULL) {
+		GFX::rect rect(fCursorPosition.x - fDragBitmap->Width() / 2,
+			fCursorPosition.y - fDragBitmap->Height() / 2,
+			fDragBitmap->Width(), fDragBitmap->Height());
+		GraphicsEngine::Get()->BlitToScreen(fDragBitmap, NULL, &rect);
+	}
+
 	if (fCurrentCursor != NULL) {
 		try {
 			const Bitmap* nextFrame = fCurrentCursor->Bitmap();
@@ -233,6 +244,24 @@ GUI::Draw()
 			std::cerr << "GUI::Draw(): " << e.what() << std::endl;
 		}
 	}
+}
+
+
+void
+GUI::SetDragBitmap(Bitmap* bitmap)
+{
+	if (bitmap == fDragBitmap)
+		return;
+	if (fDragBitmap != NULL)
+		fDragBitmap->Release();
+	fDragBitmap = bitmap;
+}
+
+
+bool
+GUI::IsDraggingItem() const
+{
+	return fDragBitmap != NULL;
 }
 
 
@@ -475,6 +504,9 @@ GUI::Clear()
 		gResManager->ReleaseResource(resource.second);
 	fAuxResources.clear();
 
+	// Any in-progress inventory drag belonged to a window just destroyed.
+	SetDragBitmap(NULL);
+
 	_AddBackgroundWindow();
 }
 
@@ -649,6 +681,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
 	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
 		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
+		return;
+	}
+
+	if (chuName == res_ref("GUIINV")) {
+		Game::Get()->InventoryControlInvoked(controlID, windowID);
 		return;
 	}
 

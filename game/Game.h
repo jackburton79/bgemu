@@ -59,6 +59,10 @@ public:
 	// here (Game owns Save()/Load(), GUI doesn't reach into game state).
 	void SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 		uint16 windowID);
+	// GUI::ControlInvoked() routes clicks on GUIINV (Inventory) slot
+	// buttons here - click-to-pick-up, click-to-drop-and-swap between
+	// item slots. See the .cpp.
+	void InventoryControlInvoked(uint32 controlID, uint16 windowID);
 	void ToggleJournalWindow();
 
 	// Queues RESTPARTY(230) on the first party member - same action
@@ -198,6 +202,11 @@ private:
 	std::map<std::string, std::string> fTokens;
 	std::vector<uint32> fJournalEntries;
 	std::map<std::string, bool> fAreaMapVisibility;
+
+	// CRE item-slot the player is currently dragging an inventory item
+	// out of (-1 = not dragging). The dragged icon itself lives on GUI
+	// (SetDragBitmap); this is the model side.
+	int32 fInvDragSlot;
 
 	void _RunExecFile(GameConsole* console);
 	void _UpdateInventoryIcons();
