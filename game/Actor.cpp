@@ -1055,6 +1055,7 @@ _DefaultSlotForItemType(uint16 type)
 		case 0x0007: return kSlotHelmet;
 		case 0x000a: return kSlotRingLeft;
 		case 0x000c: return kSlotShield;
+		case 0x0020: return kSlotCloak; // BG2 cloak/robe item type
 		case 0x0005: // Arrows
 		case 0x000e: // Bullets
 			return kSlotAmmoFirst;

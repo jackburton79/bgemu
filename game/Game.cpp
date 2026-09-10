@@ -707,6 +707,10 @@ static const inv_slot_control kInvSlotControls[] = {
 	{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
 	{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
 	{ 5, 18 }, { 6, 19 }, { 7, 20 },
+	// Rings / amulet / belt / boots / cloak (GUIINV window-2 ids 21-26,
+	// mapped by on-screen position - to be confirmed empirically).
+	{ 22, kSlotRingLeft }, { 23, kSlotRingLeft + 1 }, { 25, kSlotAmulet },
+	{ 21, kSlotBelt }, { 24, kSlotBoots }, { 26, kSlotCloak },
 };
 
 
