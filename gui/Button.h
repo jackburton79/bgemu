@@ -34,6 +34,10 @@ public:
 	// just a generic placeholder doll the real PLT fully replaces).
 	void SetIcon(Bitmap* icon, bool coverBackground = false);
 
+	// Draws a bright outline around the button - used to mark the
+	// currently-selected party member's portrait.
+	void SetHighlighted(bool highlighted);
+
 private:
 	Bitmap* fDisabledBitmap;
 	Bitmap* fSelectedBitmap;
@@ -47,6 +51,7 @@ private:
 	// which change between frames.
 	GFX::rect fIconRect;
 	bool fCoverBackground;
+	bool fHighlighted;
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;

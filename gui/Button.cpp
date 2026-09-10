@@ -22,6 +22,7 @@ Button::Button(IE::button* button)
 	fUnpressedBitmap(NULL),
 	fIcon(NULL),
 	fCoverBackground(false),
+	fHighlighted(false),
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false)
@@ -73,6 +74,13 @@ Button::SetIcon(Bitmap* icon, bool coverBackground)
 }
 
 
+void
+Button::SetHighlighted(bool highlighted)
+{
+	fHighlighted = highlighted;
+}
+
+
 /* virtual */
 void
 Button::AttachedToWindow(::Window* window)
@@ -108,6 +116,18 @@ Button::Draw()
 		GFX::rect iconRect = fIconRect;
 		fWindow->ConvertToScreen(iconRect);
 		GraphicsEngine::Get()->BlitToScreen(fIcon, NULL, &iconRect);
+	}
+	if (fHighlighted) {
+		GFX::rect outline = Frame();
+		fWindow->ConvertToScreen(outline);
+		Bitmap* screen = GraphicsEngine::Get()->ScreenBitmap();
+		uint32 color = screen->MapRGBColor(0, 255, 0);
+		screen->StrokeRect(outline, color);
+		outline.x += 1;
+		outline.y += 1;
+		outline.w -= 2;
+		outline.h -= 2;
+		screen->StrokeRect(outline, color);
 	}
 	Control::Draw();
 }

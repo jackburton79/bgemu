@@ -700,6 +700,7 @@ Game::_UpdatePortraitColumn(Window* window, uint32 count)
 			}
 		}
 		button->SetIcon(portrait, false);
+		button->SetHighlighted(member != NULL && i == fShownCharacter);
 	}
 }
 
