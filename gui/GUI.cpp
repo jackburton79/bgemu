@@ -48,6 +48,41 @@ IsResolutionMatchedGUIW(const std::string& name)
 }
 
 
+// GUI::ControlInvoked() dispatch tables. Screens Game owns
+// (GUISAVE/GUILOAD/GUIINV) are delegated straight to it; these two are
+// the handful of controls GUI itself still wires directly.
+
+// World-map scroll-arrow buttons (GUIWMAP window 0): each nudges the map
+// view by a fixed pixel delta.
+static const struct { uint32 controlID; int16 dx; int16 dy; }
+kWorldMapScrollArrows[] = {
+	{  1,   0, -20 }, {  2,   0,  20 },
+	{  8, -20, -20 }, {  9,  20, -20 },
+	{ 10, -20,   0 }, { 12,  20,   0 },
+	{ 13, -20,  20 }, { 14,  20,  20 },
+};
+
+// HUD command-bar buttons (GUIW* window WINDOW_COMMANDS) - ids confirmed
+// by the user while playing (see the Fase 21 plan notes).
+static const struct { uint32 controlID; void (*action)(); }
+kHUDCommandButtons[] = {
+	{  1, [] { Core::Get()->LoadWorldMap(); } },
+	{  3, [] { Game::Get()->ToggleInventoryWindow(); } },
+	{  4, [] { Game::Get()->ToggleRecordWindow(); } },
+	{  7, [] { Game::Get()->ToggleSaveWindow(); } },
+	{  9, [] { Core::Get()->TogglePause(); } },
+	{ 11, [] { Game::Get()->TriggerRest(); } },
+};
+
+
+static void
+_LogUnhandledControl(uint16 windowID, uint32 controlID)
+{
+	std::cout << "GUI: unhandled control " << std::dec << controlID
+		<< " in window " << windowID << std::endl;
+}
+
+
 void
 DeleteStringEntry(void *param)
 {
@@ -756,115 +791,33 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 		return;
 
 	if (chuName == res_ref("GUIWMAP")) {
-		switch (windowID) {
-			case 0:
-				switch (controlID) {
-					case 1:
-					{
-						room->SetRelativeAreaOffset(0, -20);
-						break;
-					}
-					case 2:
-					{
-						room->SetRelativeAreaOffset(0, 20);
-						break;
-					}
-					case 8:
-					{
-						room->SetRelativeAreaOffset(-20, -20);
-						break;
-					}
-					case 9:
-					{
-						room->SetRelativeAreaOffset(20, -20);
-						break;
-					}
-					case 10:
-					{
-						room->SetRelativeAreaOffset(-20, 0);
-						break;
-					}
-					case 12:
-					{
-						room->SetRelativeAreaOffset(20, 0);
-						break;
-					}
-					case 13:
-					{
-						room->SetRelativeAreaOffset(-20, 20);
-						break;
-					}
-					case 14:
-					{
-						room->SetRelativeAreaOffset(20, 20);
-						break;
-					}
-					default:
-						std::cout << "window " << std::dec << windowID << ",";
-						std::cout << "control " << controlID << std::endl;
-						break;
+		if (windowID == 0) {
+			for (const auto& arrow : kWorldMapScrollArrows) {
+				if (arrow.controlID == controlID) {
+					room->SetRelativeAreaOffset(arrow.dx, arrow.dy);
+					return;
 				}
-				break;
-			default:
-				std::cout << "window " << std::dec << windowID << ",";
-				std::cout << "control " << controlID << std::endl;
-				break;
 			}
-	} else if (std::string(chuName.CString()).find("GUIW") == 0) {
-		switch (windowID) {
-			case WINDOW_COMMANDS:
-				switch (controlID) {
-					case 1:
-						Core::Get()->LoadWorldMap();
-						break;
-					case 3:
-						Game::Get()->ToggleInventoryWindow();
-						break;
-					case 4:
-						Game::Get()->ToggleRecordWindow();
-						break;
-					case 7:
-						Game::Get()->ToggleSaveWindow();
-						break;
-					case 9:
-						Core::Get()->TogglePause();
-						break;
-					case 11:
-						Game::Get()->TriggerRest();
-						break;
-					default:
-						std::cout << "window " << std::dec << windowID << ",";
-						std::cout << "control " << controlID << std::endl;
-						break;
-				}
-				break;
-			case WINDOW_MESSAGES:
-				switch (controlID) {
-					case 2:
-						ToggleMessageArea();
-						break;
-					default:
-						std::cout << "window " << std::dec << windowID << ",";
-						std::cout << "control " << controlID << std::endl;
-						break;
-				}
-				break;
-			case WINDOW_MESSAGES_LARGE:
-				switch (controlID) {
-					case 0:
-						ToggleMessageArea();
-						break;
-					default:
-						std::cout << "window " << std::dec << windowID << ",";
-						std::cout << "control " << controlID << std::endl;
-						break;
-				}
-				break;
-			default:
-				std::cout << "window " << std::dec << windowID << ",";
-				std::cout << "control " << controlID << std::endl;
-				break;
 		}
+		_LogUnhandledControl(windowID, controlID);
+		return;
+	}
+
+	if (IsResolutionMatchedGUIW(chuName.CString())) {
+		if (windowID == WINDOW_COMMANDS) {
+			for (const auto& button : kHUDCommandButtons) {
+				if (button.controlID == controlID) {
+					button.action();
+					return;
+				}
+			}
+		} else if ((windowID == WINDOW_MESSAGES && controlID == 2)
+				|| (windowID == WINDOW_MESSAGES_LARGE && controlID == 0)) {
+			ToggleMessageArea();
+			return;
+		}
+		_LogUnhandledControl(windowID, controlID);
+		return;
 	}
 }
 
