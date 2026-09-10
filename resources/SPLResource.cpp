@@ -84,6 +84,15 @@ SPLResource::CastingGraphics() const
 }
 
 
+res_ref
+SPLResource::BookIcon() const
+{
+	res_ref icon;
+	fData->ReadAt(0x3a, icon.name, 8);
+	return icon;
+}
+
+
 uint32
 SPLResource::DescriptionUnidentifiedRef() const
 {

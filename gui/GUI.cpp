@@ -818,6 +818,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 		return;
 	}
 
+	if (chuName == res_ref("GUIMG")) {
+		Game::Get()->SpellbookControlInvoked(controlID, windowID);
+		return;
+	}
+
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
 		return;

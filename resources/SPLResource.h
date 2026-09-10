@@ -56,6 +56,9 @@ public:
 
 	uint16 CastingGraphics() const;
 
+	// Spellbook icon BAM (spl_v1 offset 0x3a).
+	res_ref BookIcon() const;
+
 	uint32 DescriptionUnidentifiedRef() const;
 	uint32 DescriptionIdentifiedRef() const;
 

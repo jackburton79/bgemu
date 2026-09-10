@@ -85,6 +85,10 @@ public:
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();
 	void ToggleJournalWindow();
+	// Mage spellbook (GUIMG), read-only for now: shows the currently
+	// displayed character's known + memorized arcane spells.
+	void ToggleSpellbookWindow();
+	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
@@ -265,6 +269,7 @@ private:
 	// small portraits - the HUD bar and the Inventory/Record side panel
 	// share this.
 	void _UpdatePortraitColumn(class Window* window, uint32 count);
+	void _UpdateSpellbookScreen();
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();

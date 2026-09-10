@@ -13,6 +13,7 @@
 #include "AreaRoom.h"
 #include "CharacterBuilder.h"
 #include "BamResource.h"
+#include "SPLResource.h"
 #include "Bitmap.h"
 #include "BmpResource.h"
 #include "Button.h"
@@ -301,6 +302,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								break;
 							case SDLK_j:
 								ToggleJournalWindow();
+								break;
+							case SDLK_k:
+								ToggleSpellbookWindow();
 								break;
 							case SDLK_F5:
 								ToggleSaveWindow();
@@ -610,6 +614,84 @@ Game::ToggleJournalWindow()
 }
 
 
+static Bitmap* _MakeSpellIcon(const res_ref& spellName); // defined below
+
+// GUIMG window-2 control ids (from the CHU dump): left page = the
+// memorized-spell grid (3-col, ids 3-14), right page = the known-spell
+// grid (4-col, ids 27-38).
+static const uint32 kSpellMemoControls[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
+static const uint32 kSpellKnownControls[] = { 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38 };
+static const uint32 kSpellNameLabelID = 268435455;
+
+
+void
+Game::ToggleSpellbookWindow()
+{
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIMG", {2, 0, 1})) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIMG", 1), 4);
+		_UpdateSpellbookScreen();
+	}
+}
+
+
+// Read-only for now: fills the known/memorized grids with the shown
+// character's arcane spells. Level 1 only (no page navigation yet).
+void
+Game::_UpdateSpellbookScreen()
+{
+	Window* window = GUI::Get()->GetAuxWindow("GUIMG", 2);
+	Actor* actor = _ShownActor();
+	if (window == NULL || actor == NULL || actor->CRE() == NULL)
+		return;
+	CREResource* cre = actor->CRE();
+
+	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSpellNameLabelID));
+	if (nameLabel != NULL)
+		nameLabel->SetText(actor->LongName());
+
+	std::vector<cre_known_spell> known = cre->KnownSpells();
+	size_t k = 0;
+	for (uint32 controlID : kSpellKnownControls) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
+		if (button == NULL)
+			continue;
+		while (k < known.size() && (known[k].type != 1 || known[k].level != 1))
+			k++;
+		if (k < known.size()) {
+			button->SetIcon(_MakeSpellIcon(known[k].spell), true);
+			k++;
+		} else {
+			button->SetIcon(NULL);
+		}
+	}
+
+	std::vector<cre_memorized_spell> memo = cre->MemorizedSpells();
+	size_t m = 0;
+	for (uint32 controlID : kSpellMemoControls) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
+		if (button == NULL)
+			continue;
+		if (m < memo.size()) {
+			button->SetIcon(_MakeSpellIcon(memo[m].spell), true);
+			m++;
+		} else {
+			button->SetIcon(NULL);
+		}
+	}
+}
+
+
+void
+Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
+{
+	if (windowID == 1 && controlID <= 3) {
+		ShowCharacter((uint16)controlID);
+		return;
+	}
+	// Spell clicks (memorize / cast) are a later increment.
+}
+
+
 void
 Game::TriggerRest()
 {
@@ -734,6 +816,25 @@ _MakeItemIcon(const res_ref& itemName)
 }
 
 
+// The spellbook-icon frame for a spell resref (SPL 0x3a -> BAM cycle 0
+// frame 0). Caller owns the returned reference, or NULL.
+static Bitmap*
+_MakeSpellIcon(const res_ref& spellName)
+{
+	SPLResource* spl = gResManager->GetSPL(spellName);
+	if (spl == NULL)
+		return NULL;
+	Bitmap* icon = NULL;
+	BAMResource* bam = gResManager->GetBAM(spl->BookIcon());
+	if (bam != NULL) {
+		icon = bam->FrameForCycle(0, 0);
+		gResManager->ReleaseResource(bam);
+	}
+	gResManager->ReleaseResource(spl);
+	return icon;
+}
+
+
 // Human-readable name for an item: its identified name, else its
 // unidentified name, else the bare resref.
 static std::string
@@ -795,6 +896,10 @@ Game::_RefreshCharacterScreens()
 	if (GUI::Get()->GetAuxWindow("GUIREC", 2) != NULL) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
+	}
+	if (GUI::Get()->GetAuxWindow("GUIMG", 2) != NULL) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIMG", 1), 4);
+		_UpdateSpellbookScreen();
 	}
 }
 

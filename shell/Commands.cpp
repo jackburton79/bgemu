@@ -593,6 +593,15 @@ public:
 	}
 };
 
+class ToggleSpellbookCommand : public ShellCommand {
+public:
+	ToggleSpellbookCommand() : ShellCommand("Toggle-Spellbook") {}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleSpellbookWindow();
+		std::cout << "Toggle-Spellbook: OK" << std::endl;
+	}
+};
+
 
 class InvokeControlCommand : public ShellCommand {
 public:
@@ -1503,6 +1512,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());
+	console->AddCommand(new ToggleSpellbookCommand());
 	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new RightClickControlCommand());
 	console->AddCommand(new MouseDragCommand());
