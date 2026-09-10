@@ -31,6 +31,10 @@ public:
 	Actor(const char* creName, IE::point position, int face);
 
 	std::string LongName() const;
+	// Overwrites the display name (fActor->name) - used by character
+	// creation, where the scripting/lookup name stays "PLAYER1" but the
+	// name shown above the sprite and in the UI is the player's choice.
+	void SetLongName(const char* name);
 
 	virtual void Print() const;
 

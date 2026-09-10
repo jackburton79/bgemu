@@ -135,6 +135,16 @@ Actor::LongName() const
 
 
 void
+Actor::SetLongName(const char* name)
+{
+	if (name == NULL)
+		return;
+	strncpy(fActor->name, name, sizeof(fActor->name) - 1);
+	fActor->name[sizeof(fActor->name) - 1] = '\0';
+}
+
+
+void
 Actor::_Init()
 {
 	if (fCRE == NULL) {

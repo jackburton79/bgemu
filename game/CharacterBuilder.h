@@ -36,6 +36,17 @@ public:
 	bool SetKit(const std::string& kitName);       // KIT.IDS name, "" = none
 	bool SetAlignment(const std::string& align);   // ALIGNMEN.IDS name or 2-letter code
 
+	// Identity / appearance (all optional - sensible defaults otherwise).
+	void SetName(const std::string& name);
+	void SetPortraits(const std::string& small, const std::string& large);
+	// colour: 0..255 palette index (MPAL256), or < 0 to keep the default.
+	// which: one of metal/minor/major/skin/leather/armor/hair.
+	bool SetColor(const std::string& which, int index);
+
+	const std::string& Name() const { return fName; }
+	const std::string& PortraitSmall() const { return fPortraitSmall; }
+	const std::string& PortraitLarge() const { return fPortraitLarge; }
+
 	// Rolls 3d6 for every ability, clamps each into its racial range,
 	// and rerolls the whole set until every class minimum is met (the
 	// original game's roller never hands you an unusable set). Returns
@@ -89,6 +100,11 @@ private:
 	std::string fAlignment;
 	uint8 fAlignmentValue;
 	int fAbilities[kNumAbilities];
+
+	std::string fName;
+	std::string fPortraitSmall;
+	std::string fPortraitLarge;
+	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
 };
 
 #endif // CHARACTER_BUILDER_H_

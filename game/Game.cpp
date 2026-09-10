@@ -467,6 +467,19 @@ Game::_CreateCharacterFromSpec(const IE::point& position)
 			builder.SetKit(value);
 		} else if (field == "alignment") {
 			builder.SetAlignment(value);
+		} else if (field == "name") {
+			// The rest of the line, so names can contain spaces.
+			std::string rest;
+			std::getline(stream, rest);
+			builder.SetName(value + rest);
+		} else if (field == "portrait") {
+			builder.SetPortraits(value + "S", value + "M");
+		} else if (field == "portrait_small") {
+			builder.SetPortraits(value, builder.PortraitLarge());
+		} else if (field == "portrait_large") {
+			builder.SetPortraits(builder.PortraitSmall(), value);
+		} else if (field.rfind("color_", 0) == 0) {
+			builder.SetColor(field.substr(6), atoi(value.c_str()));
 		} else {
 			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
 				if (field == kAbilityNames[i])
@@ -501,7 +514,10 @@ Game::_CreateCharacterFromSpec(const IE::point& position)
 	gResManager->InjectResource(res_ref("PLAYER1"), RES_CRE, cre);
 	gResManager->ReleaseResource(cre); // drop our ref; InjectResource holds its own
 
-	fParty->AddActor(new Actor("PLAYER1", position, 0));
+	Actor* player = new Actor("PLAYER1", position, 0);
+	if (!builder.Name().empty())
+		player->SetLongName(builder.Name().c_str());
+	fParty->AddActor(player);
 	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
 		fParty->AddActor(new Actor("Imoen", position, 0));
 

@@ -78,6 +78,42 @@ CharacterBuilder::Reset()
 	fAlignmentValue = 0;
 	for (int i = 0; i < kNumAbilities; i++)
 		fAbilities[i] = 0;
+	fName.clear();
+	fPortraitSmall.clear();
+	fPortraitLarge.clear();
+	for (int i = 0; i < 7; i++)
+		fColors[i] = -1;
+}
+
+
+void
+CharacterBuilder::SetName(const std::string& name)
+{
+	fName = name.substr(0, 31);
+}
+
+
+void
+CharacterBuilder::SetPortraits(const std::string& small, const std::string& large)
+{
+	fPortraitSmall = small.substr(0, 8);
+	fPortraitLarge = large.substr(0, 8);
+}
+
+
+bool
+CharacterBuilder::SetColor(const std::string& which, int index)
+{
+	static const char* kNames[7] = {
+		"metal", "minor", "major", "skin", "leather", "armor", "hair"
+	};
+	for (int i = 0; i < 7; i++) {
+		if (strcasecmp(which.c_str(), kNames[i]) == 0) {
+			fColors[i] = (index >= 0 && index <= 255) ? index : -1;
+			return true;
+		}
+	}
+	return false;
 }
 
 
@@ -421,11 +457,18 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU16(out, 0x26, 0);           // maximum HP
 	_PutU32(out, 0x28, genderID == 2 ? 0x6010 : 0x6000); // player animation
 
-	// Paperdoll/avatar colours - generic defaults for now (A6 lets the
-	// player pick). Order: metal, minor, major, skin, leather, armor, hair.
-	static const uint8 kColors[7] = { 0x3a, 0x2d, 0x3b, 0x54, 0x5d, 0x60, 0x02 };
-	for (int i = 0; i < 7; i++) _PutU8(out, 0x2c + i, kColors[i]);
+	// Paperdoll/avatar colours. Order: metal, minor, major, skin,
+	// leather, armor, hair - a generic default per slot unless the
+	// builder was given an explicit palette index.
+	static const uint8 kDefaultColors[7] = { 0x3a, 0x2d, 0x3b, 0x54, 0x5d, 0x60, 0x02 };
+	for (int i = 0; i < 7; i++)
+		_PutU8(out, 0x2c + i, fColors[i] >= 0 ? (uint8)fColors[i] : kDefaultColors[i]);
 	_PutU8(out, 0x33, 1);            // EFF structure version (v2, BG2)
+
+	if (!fPortraitSmall.empty())
+		_PutStr(out, 0x34, fPortraitSmall, 8);
+	if (!fPortraitLarge.empty())
+		_PutStr(out, 0x3c, fPortraitLarge, 8);
 
 	_PutU8(out, 0x44, 10);           // reputation
 	_PutU16(out, 0x46, 10);          // AC natural
@@ -462,7 +505,7 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU8(out, 0x27b, fAlignmentValue);
 	_PutU16(out, 0x27c, 0xffff);           // global actor enum (unset)
 	_PutU16(out, 0x27e, 0xffff);           // local actor enum (unset)
-	_PutStr(out, 0x280, "Player1", 32);    // death variable (A6: real name)
+	_PutStr(out, 0x280, fName.empty() ? "Player1" : fName, 32); // death variable
 
 	// Every variable section is empty; they all point at the end of the
 	// header, and the item-slot table sits there.
@@ -484,6 +527,7 @@ void
 CharacterBuilder::Print() const
 {
 	std::cout << "Character:" << std::endl;
+	std::cout << "  Name:      " << (fName.empty() ? "-" : fName) << std::endl;
 	std::cout << "  Gender:    " << (fGender.empty() ? "-" : fGender) << std::endl;
 	std::cout << "  Race:      " << (fRace.empty() ? "-" : fRace) << std::endl;
 	std::cout << "  Class:     " << (fClass.empty() ? "-" : fClass) << std::endl;
@@ -501,6 +545,8 @@ CharacterBuilder::Print() const
 		std::cout << std::endl;
 	}
 	std::cout << "  Total: " << AbilityTotal() << std::endl;
+	if (!fPortraitSmall.empty() || !fPortraitLarge.empty())
+		std::cout << "  Portraits: " << fPortraitSmall << " / " << fPortraitLarge << std::endl;
 
 	std::vector<std::string> problems;
 	if (IsComplete(problems)) {
