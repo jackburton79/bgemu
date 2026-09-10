@@ -361,6 +361,119 @@ CharacterBuilder::IsComplete(std::vector<std::string>& problems) const
 }
 
 
+namespace {
+
+void _PutU8(std::vector<uint8>& b, size_t at, uint8 v) { b[at] = v; }
+void _PutU16(std::vector<uint8>& b, size_t at, uint16 v)
+{
+	b[at] = (uint8)(v & 0xff);
+	b[at + 1] = (uint8)(v >> 8);
+}
+void _PutU32(std::vector<uint8>& b, size_t at, uint32 v)
+{
+	for (int i = 0; i < 4; i++) b[at + i] = (uint8)((v >> (8 * i)) & 0xff);
+}
+void _PutStr(std::vector<uint8>& b, size_t at, const std::string& s, size_t max)
+{
+	for (size_t i = 0; i < max; i++)
+		b[at + i] = (i < s.size()) ? (uint8)s[i] : 0;
+}
+
+} // namespace
+
+
+bool
+CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
+{
+	std::vector<std::string> problems;
+	if (!IsComplete(problems))
+		return false;
+
+	bool ok = false;
+	uint32 raceID = _IDValue("RACE", fRace, ok);
+	if (!ok) return false;
+	uint32 classID = _IDValue("CLASS", fClass, ok);
+	if (!ok) return false;
+	uint32 genderID = _IDValue("GENDER", fGender, ok);
+	if (!ok) return false;
+
+	const size_t kHeaderSize = 0x2d4;
+	const size_t kSlotCount = 40;               // BG2 CRE v1
+	const size_t kSlotTableSize = kSlotCount * 2;
+	const size_t kTotal = kHeaderSize + kSlotTableSize;
+
+	out.assign(kTotal, 0);
+
+	std::memcpy(out.data(), "CRE V1.0", 8);
+	_PutU32(out, 0x08, 0xffffffff);  // long name strref  (A6)
+	_PutU32(out, 0x0c, 0xffffffff);  // short name strref (A6)
+	_PutU32(out, 0x10, 0);           // flags
+	_PutU32(out, 0x18, 0);           // experience
+	_PutU32(out, 0x1c, 0);           // gold (A6)
+	_PutU32(out, 0x20, 0);           // permanent status
+
+	_PutU16(out, 0x24, 10);          // current HP  (placeholder - A3)
+	_PutU16(out, 0x26, 10);          // maximum HP
+	_PutU32(out, 0x28, genderID == 2 ? 0x6010 : 0x6000); // player animation
+
+	// Paperdoll/avatar colours - generic defaults for now (A6 lets the
+	// player pick). Order: metal, minor, major, skin, leather, armor, hair.
+	static const uint8 kColors[7] = { 0x3a, 0x2d, 0x3b, 0x54, 0x5d, 0x60, 0x02 };
+	for (int i = 0; i < 7; i++) _PutU8(out, 0x2c + i, kColors[i]);
+	_PutU8(out, 0x33, 1);            // EFF structure version (v2, BG2)
+
+	_PutU8(out, 0x44, 10);           // reputation
+	_PutU16(out, 0x46, 10);          // AC natural
+	_PutU16(out, 0x48, 10);          // AC effective
+	_PutU8(out, 0x52, 20);           // THAC0     (placeholder - A3)
+	_PutU8(out, 0x53, 1);            // # attacks (placeholder - A3)
+	for (int i = 0; i < 5; i++) _PutU8(out, 0x54 + i, 16); // saves (A3)
+
+	// Per-class levels: 1 in every component of a multi-class name.
+	int components = 1;
+	for (char c : fClass) if (c == '_') components++;
+	_PutU8(out, 0x234, 1);
+	_PutU8(out, 0x235, components >= 2 ? 1 : 0);
+	_PutU8(out, 0x236, components >= 3 ? 1 : 0);
+
+	_PutU8(out, 0x237, (uint8)genderID);   // sex
+	_PutU8(out, 0x238, (uint8)Ability(STR));
+	_PutU8(out, 0x239, 0);                 // exceptional strength (later)
+	_PutU8(out, 0x23a, (uint8)Ability(INT));
+	_PutU8(out, 0x23b, (uint8)Ability(WIS));
+	_PutU8(out, 0x23c, (uint8)Ability(DEX));
+	_PutU8(out, 0x23d, (uint8)Ability(CON));
+	_PutU8(out, 0x23e, (uint8)Ability(CHR));
+	_PutU8(out, 0x23f, 10);                // morale
+	_PutU32(out, 0x244, 0x40000000);       // kit = TRUECLASS (kits: later)
+
+	_PutU8(out, 0x270, 2);                 // EA = PC
+	_PutU8(out, 0x271, 1);                 // general = HUMANOID
+	_PutU8(out, 0x272, (uint8)raceID);
+	_PutU8(out, 0x273, (uint8)classID);
+	_PutU8(out, 0x274, 0);                 // specific = NORMAL
+	_PutU8(out, 0x275, (uint8)genderID);   // gender
+	_PutU8(out, 0x27b, fAlignmentValue);
+	_PutU16(out, 0x27c, 0xffff);           // global actor enum (unset)
+	_PutU16(out, 0x27e, 0xffff);           // local actor enum (unset)
+	_PutStr(out, 0x280, "Player1", 32);    // death variable (A6: real name)
+
+	// Every variable section is empty; they all point at the end of the
+	// header, and the item-slot table sits there.
+	_PutU32(out, 0x2a0, (uint32)kHeaderSize); _PutU32(out, 0x2a4, 0); // known spells
+	_PutU32(out, 0x2a8, (uint32)kHeaderSize); _PutU32(out, 0x2ac, 0); // spell memo info
+	_PutU32(out, 0x2b0, (uint32)kHeaderSize); _PutU32(out, 0x2b4, 0); // memorized spells
+	_PutU32(out, 0x2b8, (uint32)kHeaderSize);                         // item slots
+	_PutU32(out, 0x2bc, (uint32)kHeaderSize); _PutU32(out, 0x2c0, 0); // items
+	_PutU32(out, 0x2c4, (uint32)kHeaderSize); _PutU32(out, 0x2c8, 0); // effects
+
+	for (size_t i = 0; i < kSlotCount; i++)
+		_PutU16(out, kHeaderSize + i * 2, 0xffff); // empty slot
+
+	return true;
+}
+
+
 void
 CharacterBuilder::Print() const
 {

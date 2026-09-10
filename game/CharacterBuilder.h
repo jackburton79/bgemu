@@ -64,6 +64,13 @@ public:
 	// returns true (and leaves `problems` empty) when it is.
 	bool IsComplete(std::vector<std::string>& problems) const;
 
+	// Serializes the current choices into a minimal but valid CRE v1
+	// blob (empty spell/effect/item sections, level 1). false if the
+	// character isn't complete or a required IDS lookup fails.
+	// HP/THAC0/saves/proficiencies/skills/spells are placeholders here -
+	// later sub-phases fill them from the class tables.
+	bool BuildCREData(std::vector<uint8>& out) const;
+
 	void Print() const;
 
 	static const char* AbilityName(int ability);

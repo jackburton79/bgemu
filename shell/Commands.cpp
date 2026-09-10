@@ -27,11 +27,12 @@
 #include "SearchMap.h"
 #include "Window.h"
 
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
 
-
+#include "MemoryStream.h"
 #include "ShellCommand.h"
 
 
@@ -196,6 +197,51 @@ public:
 	CharPrintCommand() : ShellCommand("Char-Print") {}
 	virtual void operator()(const char* argv) {
 		Game::Get()->GetCharacterBuilder().Print();
+	}
+};
+
+// Char-Build [path] - serialize the builder to a CRE v1 blob, optionally
+// write it to `path`, then re-parse it and print the key fields back
+// (round-trip check).
+class CharBuildCommand : public ShellCommand {
+public:
+	CharBuildCommand() : ShellCommand("Char-Build", { { PARAMETER_STRING, } }) {}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::string path = params.at(0).value.string;
+
+		std::vector<uint8> data;
+		if (!Game::Get()->GetCharacterBuilder().BuildCREData(data)) {
+			std::cout << "Char-Build: character not complete" << std::endl;
+			return;
+		}
+		std::cout << "Char-Build: " << data.size() << " bytes" << std::endl;
+
+		if (!path.empty() && path != "-") {
+			std::ofstream file(path, std::ios::binary);
+			file.write((const char*)data.data(), data.size());
+			std::cout << "  written to " << path << std::endl;
+		}
+
+		MemoryStream stream(data.data(), data.size(), false);
+		CREResource* cre = new CREResource("PLAYER1");
+		cre->Acquire();
+		if (cre->Load(&stream, 0, data.size())) {
+			cre->Init();
+			BaseAttributes attr;
+			cre->GetAttributes(attr);
+			std::cout << "  round-trip: race=" << IDTable::RaceAt(cre->Race())
+				<< " class=" << IDTable::ClassAt(cre->Class())
+				<< " align=" << IDTable::AlignmentAt(cre->Alignment())
+				<< " animID=0x" << std::hex << cre->AnimationID() << std::dec
+				<< " maxHP=" << cre->MaxHitPoints() << std::endl;
+			std::cout << "  STR " << (int)attr.strength << " DEX " << (int)attr.dexterity
+				<< " CON " << (int)attr.constitution << " INT " << (int)attr.intelligence
+				<< " WIS " << (int)attr.wisdom << " CHR " << (int)attr.charisma << std::endl;
+		} else {
+			std::cout << "  round-trip FAILED to parse" << std::endl;
+		}
+		gResManager->ReleaseResource(cre);
 	}
 };
 
@@ -1435,6 +1481,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new CharRollCommand());
 	console->AddCommand(new CharAbilityCommand());
 	console->AddCommand(new CharPrintCommand());
+	console->AddCommand(new CharBuildCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());
