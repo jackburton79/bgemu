@@ -1907,7 +1907,11 @@ RunActionEndCutsceneMode(Object* sender, action_params* params, action_state& st
 static void
 RunActionClearAllActions(Object* sender, action_params* params, action_state& state)
 {
-	sender->Area()->ClearAllActions();
+	// Pass `sender` as the actor to spare: IE semantics clear everyone
+	// *else*, so a cutscene beat can queue ClearAllActions() before its
+	// own remaining actions and still have those run.
+	if (sender != NULL && sender->Area() != NULL)
+		sender->Area()->ClearAllActions(sender);
 	state.completed = true;
 }
 

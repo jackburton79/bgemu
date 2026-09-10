@@ -1195,10 +1195,19 @@ AreaRoom::RegionAtPoint(const IE::point& point) const
 
 
 void
-AreaRoom::ClearAllActions()
+AreaRoom::ClearAllActions(Object* keep)
 {
-	for (auto actor : fActors)
-		actor->ClearActionList();
+	// The Infinity Engine's ClearAllActions() clears every *other* actor's
+	// queue, never the caller's own. Cutscene blocks rely on this: a beat
+	// routinely queues ClearAllActions() onto its driving actor *ahead of*
+	// that same actor's remaining actions (BG1's Candlekeep departure,
+	// CH1CUT01, queues MoveToPoint -> ClearAllActions -> DayNight ->
+	// LeaveAreaLUA all onto Player1). Clearing the caller too would drop
+	// the LeaveAreaLUA and strand the protagonist in the old area.
+	for (auto actor : fActors) {
+		if (actor != keep)
+			actor->ClearActionList();
+	}
 }
 
 

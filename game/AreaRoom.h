@@ -81,7 +81,10 @@ public:
 	Actor* GetNearestEnemyOfType(const Actor* object, int ieClass) const;
 	Region* RegionAtPoint(const IE::point& point) const;
 
-	void ClearAllActions();
+	// Stops every actor in the area *except* `keep` (the actor that
+	// invoked ClearAllActions(), if any) - see the .cpp for why the
+	// exception matters.
+	void ClearAllActions(Object* keep = NULL);
 
 	uint32 GetTileCellsForRegion(std::vector<TileCell*>& cells,
 											Region* region);
