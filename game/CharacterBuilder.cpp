@@ -122,6 +122,21 @@ CharacterBuilder::IsArcaneCaster() const
 
 
 bool
+CharacterBuilder::IsDivineCaster() const
+{
+	static const char* kDivine[] = {
+		"CLERIC", "DRUID", "PALADIN", "RANGER", "TALOS", "HELM", "LATHANDER",
+		"TOTEMIC_DRUID", "SHAPESHIFTER", "BEAST_FRIEND"
+	};
+	for (const char* name : kDivine) {
+		if (fClass.find(name) != std::string::npos)
+			return true;
+	}
+	return false;
+}
+
+
+bool
 CharacterBuilder::AddSpell(const std::string& resref)
 {
 	SPLResource* spl = gResManager->GetSPL(resref.c_str());
@@ -471,13 +486,14 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	const size_t kSlotCount = 40;               // BG2 CRE v1
 	const size_t kSlotTableSize = kSlotCount * 2;
 
-	// Starting spellbook (arcane, level 1). Known = every spell the
-	// builder was given; memorized = as many as MXSPLWIZ grants a
-	// level-1 caster.
-	const bool caster = IsArcaneCaster() && !fSpells.empty();
+	// Starting spellbook (level 1). Known = every spell the builder was
+	// given; memorized = as many as the level-1 slot table grants.
+	const bool divine = IsDivineCaster() && !IsArcaneCaster();
+	const bool caster = (IsArcaneCaster() || divine) && !fSpells.empty();
+	const uint16 spellType = divine ? 0 : 1; // 0 priest, 1 wizard
 	const size_t knownCount = caster ? fSpells.size() : 0;
 	const size_t level1Slots = caster
-		? (size_t)std::max(1, _TableInt("MXSPLWIZ", "1", "1", 1)) : 0;
+		? (size_t)std::max(1, _TableInt(divine ? "MXSPLPRS" : "MXSPLWIZ", "1", "1", 1)) : 0;
 	const size_t memorizedCount = std::min(knownCount, level1Slots);
 	const size_t memoInfoCount = caster ? 1 : 0;
 
@@ -569,7 +585,7 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 		size_t o = knownOffset + i * 12;
 		_PutStr(out, o, fSpells[i], 8);
 		_PutU16(out, o + 8, 0); // level 1
-		_PutU16(out, o + 10, 1); // wizard
+		_PutU16(out, o + 10, spellType);
 	}
 	// Spell memorization info: level(2), numMemorizable(2),
 	// numMemorizableEffective(2), type(2), firstMemorizedIndex(4),
@@ -578,7 +594,7 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 		_PutU16(out, memoInfoOffset + 0, 0);   // level 1
 		_PutU16(out, memoInfoOffset + 2, (uint16)level1Slots);
 		_PutU16(out, memoInfoOffset + 4, (uint16)level1Slots);
-		_PutU16(out, memoInfoOffset + 6, 1);   // wizard
+		_PutU16(out, memoInfoOffset + 6, spellType);
 		_PutU32(out, memoInfoOffset + 8, 0);   // first memorized index
 		_PutU32(out, memoInfoOffset + 12, (uint32)memorizedCount);
 	}

@@ -616,19 +616,49 @@ Game::ToggleJournalWindow()
 
 static Bitmap* _MakeSpellIcon(const res_ref& spellName); // defined below
 
-// GUIMG window-2 control ids (from the CHU dump): left page = the
-// memorized-spell grid (3-col, ids 3-14), right page = the known-spell
-// grid (4-col, ids 27-38).
+// GUIMG/GUIPR window-2 control ids (identical layout, from the CHU dump):
+// left page = the memorized-spell grid (3-col, ids 3-14), right page =
+// the known-spell grid (4-col, ids 27-38).
 static const uint32 kSpellMemoControls[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
 static const uint32 kSpellKnownControls[] = { 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38 };
 static const uint32 kSpellNameLabelID = 268435455;
 
 
+// Whether the character casts divine spells (uses GUIPR) rather than
+// arcane (GUIMG) - true for a pure priest/druid/paladin/ranger, or when
+// they've a priest-type known spell.
+static bool
+_UsesDivineSpellbook(Actor* actor)
+{
+	if (actor == NULL || actor->CRE() == NULL)
+		return false;
+	for (const cre_known_spell& s : actor->CRE()->KnownSpells()) {
+		if (s.type == 0)
+			return true;
+		if (s.type == 1)
+			return false;
+	}
+	std::string className = IDTable::ClassAt(actor->CRE()->Class());
+	for (char& c : className) c = (char)toupper((unsigned char)c);
+	static const char* kArcane[] = { "MAGE", "SORCERER", "BARD" };
+	for (const char* name : kArcane)
+		if (className.find(name) != std::string::npos)
+			return false;
+	static const char* kDivine[] = { "CLERIC", "DRUID", "PALADIN", "RANGER" };
+	for (const char* name : kDivine)
+		if (className.find(name) != std::string::npos)
+			return true;
+	return false;
+}
+
+
 void
 Game::ToggleSpellbookWindow()
 {
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIMG", {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIMG", 1), 4);
+	const char* chu = _UsesDivineSpellbook(_ShownActor()) ? "GUIPR" : "GUIMG";
+	fSpellbookCHU = chu;
+	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
 	}
 }
@@ -644,7 +674,10 @@ Game::_UpdateSpellbookScreen()
 	fSpellbookKnown.clear();
 	fSpellbookMemo.clear();
 
-	Window* window = GUI::Get()->GetAuxWindow("GUIMG", 2);
+	if (fSpellbookCHU.empty())
+		return;
+	const uint16 spellType = (fSpellbookCHU == "GUIPR") ? 0 : 1; // 0 priest, 1 wizard
+	Window* window = GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2);
 	Actor* actor = _ShownActor();
 	if (window == NULL || actor == NULL || actor->CRE() == NULL)
 		return;
@@ -660,7 +693,7 @@ Game::_UpdateSpellbookScreen()
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
 		if (button == NULL)
 			continue;
-		while (k < known.size() && (known[k].type != 1 || known[k].level != 1))
+		while (k < known.size() && (known[k].type != spellType || known[k].level != 1))
 			k++;
 		if (k < known.size()) {
 			button->SetIcon(_MakeSpellIcon(known[k].spell), true);
@@ -924,8 +957,9 @@ Game::_RefreshCharacterScreens()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
 	}
-	if (GUI::Get()->GetAuxWindow("GUIMG", 2) != NULL) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIMG", 1), 4);
+	if (!fSpellbookCHU.empty()
+		&& GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2) != NULL) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 1), 4);
 		_UpdateSpellbookScreen();
 	}
 }

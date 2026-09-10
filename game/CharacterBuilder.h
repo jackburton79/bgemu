@@ -50,8 +50,9 @@ public:
 	// Adds a level-1 arcane spell to the starting spellbook (ignored for
 	// a non-arcane class). false if the resref isn't a real SPL.
 	bool AddSpell(const std::string& resref);
-	// Whether the chosen class casts arcane (memorized) spells.
+	// Whether the chosen class casts arcane / divine (memorized) spells.
 	bool IsArcaneCaster() const;
+	bool IsDivineCaster() const;
 
 	// Rolls 3d6 for every ability, clamps each into its racial range,
 	// and rerolls the whole set until every class minimum is met (the
