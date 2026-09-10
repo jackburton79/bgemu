@@ -753,6 +753,37 @@ Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 
 
 void
+Game::SpellbookControlHovered(uint32 controlID, bool inside)
+{
+	if (!inside) {
+		GUI::Get()->SetHoverTooltip("");
+		return;
+	}
+	res_ref spell;
+	auto known = fSpellbookKnown.find(controlID);
+	auto memo = fSpellbookMemo.find(controlID);
+	if (known != fSpellbookKnown.end())
+		spell = known->second;
+	else if (memo != fSpellbookMemo.end())
+		spell = memo->second;
+	else {
+		GUI::Get()->SetHoverTooltip("");
+		return;
+	}
+
+	std::string name = spell.CString();
+	SPLResource* spl = gResManager->GetSPL(spell);
+	if (spl != NULL) {
+		std::string dialog = IDTable::GetDialog(spl->NameIdentifiedRef());
+		if (!dialog.empty())
+			name = dialog;
+		gResManager->ReleaseResource(spl);
+	}
+	GUI::Get()->SetHoverTooltip(name);
+}
+
+
+void
 Game::TriggerRest()
 {
 	if (fParty == NULL || fParty->CountActors() == 0)

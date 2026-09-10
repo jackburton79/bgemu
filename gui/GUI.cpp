@@ -785,6 +785,8 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 {
 	if (chuName == res_ref("GUIINV"))
 		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
+	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
+		Game::Get()->SpellbookControlHovered(controlID, inside);
 }
 
 

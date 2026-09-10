@@ -89,6 +89,9 @@ public:
 	// displayed character's known + memorized arcane spells.
 	void ToggleSpellbookWindow();
 	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
+	// Hover over a spellbook grid icon -> show the spell's name as a
+	// cursor tooltip.
+	void SpellbookControlHovered(uint32 controlID, bool inside);
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
