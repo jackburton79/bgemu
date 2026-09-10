@@ -20,6 +20,7 @@
 
 class Actor;
 class ARAResource;
+class CharacterBuilder;
 class DialogHandler;
 class GameConsole;
 class Party;
@@ -151,6 +152,11 @@ public:
 	};
 	AreaCache* GetAreaCache();
 
+	// Headless character-creation state (roadmap Fase 47). Driven by the
+	// Char-* console commands; A2 will turn a completed one into the
+	// starting-party protagonist.
+	CharacterBuilder& GetCharacterBuilder();
+
 	void SetTestMode(bool value);
 	bool TestMode() const;
 
@@ -217,6 +223,7 @@ private:
 	::Party* fParty;
 	TempState* fTempState;
 	AreaCache* fAreaCache;
+	CharacterBuilder* fCharBuilder;
 
 	uint32 fDelay;
 	bool fTestMode;

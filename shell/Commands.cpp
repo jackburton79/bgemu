@@ -9,6 +9,7 @@
 #include "Commands.h"
 
 #include "AreaRoom.h"
+#include "CharacterBuilder.h"
 #include "Container.h"
 #include "Control.h"
 #include "Core.h"
@@ -114,6 +115,87 @@ public:
 			return;
 		room->PickUpGroundPile((size_t)params.at(0).value.integer,
 								room->SelectedActor());
+	}
+};
+
+
+// Character-creation console commands (roadmap Fase 47 / A). Headless
+// only for now - the GUICG* screens are a later sub-phase.
+static int
+_AbilityIndex(const std::string& name)
+{
+	for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
+		if (strcasecmp(CharacterBuilder::AbilityName(i), name.c_str()) == 0)
+			return i;
+	}
+	return -1;
+}
+
+class CharNewCommand : public ShellCommand {
+public:
+	CharNewCommand() : ShellCommand("Char-New") {}
+	virtual void operator()(const char* argv) {
+		Game::Get()->GetCharacterBuilder().Reset();
+		std::cout << "new character" << std::endl;
+	}
+};
+
+class CharSetCommand : public ShellCommand {
+public:
+	CharSetCommand()
+		: ShellCommand("Char-Set", { { PARAMETER_STRING, }, { PARAMETER_STRING, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::string field = params.at(0).value.string;
+		std::string value = params.at(1).value.string;
+		if (value == "-")
+			value.clear();
+		CharacterBuilder& b = Game::Get()->GetCharacterBuilder();
+		bool ok = false;
+		if (strcasecmp(field.c_str(), "gender") == 0)      ok = b.SetGender(value);
+		else if (strcasecmp(field.c_str(), "race") == 0)   ok = b.SetRace(value);
+		else if (strcasecmp(field.c_str(), "class") == 0)  ok = b.SetClass(value);
+		else if (strcasecmp(field.c_str(), "kit") == 0)    ok = b.SetKit(value);
+		else if (strcasecmp(field.c_str(), "alignment") == 0) ok = b.SetAlignment(value);
+		else { std::cout << "unknown field: " << field << std::endl; return; }
+		std::cout << field << " = " << value << (ok ? " : ok" : " : REJECTED") << std::endl;
+	}
+};
+
+class CharRollCommand : public ShellCommand {
+public:
+	CharRollCommand() : ShellCommand("Char-Roll") {}
+	virtual void operator()(const char* argv) {
+		int total = Game::Get()->GetCharacterBuilder().RollAbilities();
+		if (total == 0)
+			std::cout << "roll failed (set race + class first, or impossible combo)" << std::endl;
+		Game::Get()->GetCharacterBuilder().Print();
+	}
+};
+
+class CharAbilityCommand : public ShellCommand {
+public:
+	CharAbilityCommand()
+		: ShellCommand("Char-Ability", { { PARAMETER_STRING, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		int idx = _AbilityIndex(params.at(0).value.string);
+		if (idx < 0) { std::cout << "unknown ability" << std::endl; return; }
+		bool ok = Game::Get()->GetCharacterBuilder().SetAbility(idx, params.at(1).value.integer);
+		std::cout << params.at(0).value.string << " = " << params.at(1).value.integer
+				<< (ok ? " : ok" : " : REJECTED (out of legal range)") << std::endl;
+	}
+};
+
+class CharPrintCommand : public ShellCommand {
+public:
+	CharPrintCommand() : ShellCommand("Char-Print") {}
+	virtual void operator()(const char* argv) {
+		Game::Get()->GetCharacterBuilder().Print();
 	}
 };
 
@@ -1348,6 +1430,11 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ListContainersCommand());
 	console->AddCommand(new ListGroundCommand());
 	console->AddCommand(new PickUpGroundCommand());
+	console->AddCommand(new CharNewCommand());
+	console->AddCommand(new CharSetCommand());
+	console->AddCommand(new CharRollCommand());
+	console->AddCommand(new CharAbilityCommand());
+	console->AddCommand(new CharPrintCommand());
 	console->AddCommand(new ListResourcesCommand());
 	console->AddCommand(new MoveViewPointCommand());
 	console->AddCommand(new PrintObjectCommand());

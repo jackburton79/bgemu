@@ -11,6 +11,7 @@
 #include "Actor.h"
 #include "AreaResource.h"
 #include "AreaRoom.h"
+#include "CharacterBuilder.h"
 #include "BamResource.h"
 #include "Bitmap.h"
 #include "BmpResource.h"
@@ -80,6 +81,7 @@ Game::Game()
 {
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
+	fCharBuilder = new CharacterBuilder;
 }
 
 
@@ -100,6 +102,7 @@ Game::~Game()
 		gResManager->ReleaseResource(entry.second.area);
 	}
 	delete fAreaCache;
+	delete fCharBuilder;
 }
 
 
@@ -107,6 +110,13 @@ Game::AreaCache*
 Game::GetAreaCache()
 {
 	return fAreaCache;
+}
+
+
+CharacterBuilder&
+Game::GetCharacterBuilder()
+{
+	return *fCharBuilder;
 }
 
 
