@@ -270,6 +270,9 @@ private:
 	// share this.
 	void _UpdatePortraitColumn(class Window* window, uint32 count);
 	void _UpdateSpellbookScreen();
+	// GUIMG grid control id -> the spell resref it currently shows.
+	std::map<uint32, res_ref> fSpellbookKnown;
+	std::map<uint32, res_ref> fSpellbookMemo;
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();

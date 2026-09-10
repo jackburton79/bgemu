@@ -337,6 +337,10 @@ public:
 	// bit (spell "used up" until the next rest) and returns true. False
 	// if the creature has no such spell currently available.
 	bool ConsumeMemorizedSpell(const res_ref& spellName);
+	// Memorizes a known spell into a free (already-cast) memorized slot
+	// of the matching level. false if it isn't known or every slot at
+	// that level is taken.
+	bool MemorizeSpell(const res_ref& spellName);
 	// Sets the "memorized" bit back on every entry in the Memorized
 	// Spells table - the spellbook part of what a rest does.
 	void RestoreMemorizedSpells();

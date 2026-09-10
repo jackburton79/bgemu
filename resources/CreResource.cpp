@@ -940,6 +940,49 @@ CREResource::ConsumeMemorizedSpell(const res_ref& spellName)
 }
 
 
+bool
+CREResource::MemorizeSpell(const res_ref& spellName)
+{
+	const uint32 kEntrySize = 12;
+
+	// The spell must be known; its level decides which memorized slots
+	// it can occupy.
+	uint16 spellLevel = 0;
+	bool knownFound = false;
+	for (const cre_known_spell& known : KnownSpells()) {
+		if (known.spell == spellName) {
+			spellLevel = known.level;
+			knownFound = true;
+			break;
+		}
+	}
+	if (!knownFound)
+		return false;
+
+	// Reuse an already-cast (bit0 clear) memorized slot of the same
+	// level - overwrite its resref and re-arm it. (Growing the memorized
+	// table to add a slot is a later increment.)
+	std::vector<cre_spell_memorization_info> info = SpellMemorizationInfo();
+	for (const cre_spell_memorization_info& row : info) {
+		if (row.level != spellLevel)
+			continue;
+		for (uint32 i = 0; i < row.memorizedCount; i++) {
+			uint32 offset = fMemorizedSpellsOffset
+				+ (row.firstMemorizedIndex + i) * kEntrySize;
+			uint32 flags;
+			fData->ReadAt(offset + 0x08, flags);
+			if (flags & 1)
+				continue; // slot in use
+			fData->WriteAt(offset + 0x00, spellName.name, 8);
+			flags |= 1;
+			fData->WriteAt(offset + 0x08, &flags, sizeof(flags));
+			return true;
+		}
+	}
+	return false; // no free slot at this level
+}
+
+
 void
 CREResource::RestoreMemorizedSpells()
 {

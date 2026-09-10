@@ -634,11 +634,16 @@ Game::ToggleSpellbookWindow()
 }
 
 
-// Read-only for now: fills the known/memorized grids with the shown
-// character's arcane spells. Level 1 only (no page navigation yet).
+// Fills the known/memorized grids with the shown character's arcane
+// spells (level 1 only - no page navigation yet), remembering which
+// spell each grid button shows so SpellbookControlInvoked() can act on
+// a click.
 void
 Game::_UpdateSpellbookScreen()
 {
+	fSpellbookKnown.clear();
+	fSpellbookMemo.clear();
+
 	Window* window = GUI::Get()->GetAuxWindow("GUIMG", 2);
 	Actor* actor = _ShownActor();
 	if (window == NULL || actor == NULL || actor->CRE() == NULL)
@@ -659,6 +664,7 @@ Game::_UpdateSpellbookScreen()
 			k++;
 		if (k < known.size()) {
 			button->SetIcon(_MakeSpellIcon(known[k].spell), true);
+			fSpellbookKnown[controlID] = known[k].spell;
 			k++;
 		} else {
 			button->SetIcon(NULL);
@@ -673,6 +679,8 @@ Game::_UpdateSpellbookScreen()
 			continue;
 		if (m < memo.size()) {
 			button->SetIcon(_MakeSpellIcon(memo[m].spell), true);
+			if (memo[m].flags & 1)
+				fSpellbookMemo[controlID] = memo[m].spell;
 			m++;
 		} else {
 			button->SetIcon(NULL);
@@ -688,7 +696,26 @@ Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 		ShowCharacter((uint16)controlID);
 		return;
 	}
-	// Spell clicks (memorize / cast) are a later increment.
+	if (windowID != 2)
+		return;
+
+	Actor* actor = _ShownActor();
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	// Click a known spell -> memorize it into a free slot; click a
+	// memorized spell -> release it (un-memorize).
+	auto known = fSpellbookKnown.find(controlID);
+	if (known != fSpellbookKnown.end()) {
+		actor->CRE()->MemorizeSpell(known->second);
+		_UpdateSpellbookScreen();
+		return;
+	}
+	auto memo = fSpellbookMemo.find(controlID);
+	if (memo != fSpellbookMemo.end()) {
+		actor->CRE()->ConsumeMemorizedSpell(memo->second);
+		_UpdateSpellbookScreen();
+	}
 }
 
 
