@@ -311,12 +311,13 @@ public:
 	// -1 if the creature isn't carrying an item with this resref.
 	int32 FindItemSlot(const res_ref& itemName) const;
 
-	// -1 if the Items table has no free (empty-resref) entry to reuse -
-	// this engine doesn't grow a CRE's on-disk Items table, so giving an
-	// item to a creature only works while it has spare capacity (which
-	// most placed creatures do, since the original data usually carries
-	// a few extra blank entries).
+	// -1 if the Items table currently has no free (empty-resref) entry to
+	// reuse. Prefer AllocItemsEntry() when you're about to write an item -
+	// it grows the table instead of failing.
 	int32 FindFreeItemsEntry() const;
+	// Index of a usable Items-table entry, growing the table (in fData)
+	// if it's full. Only fails (-1) on allocation failure.
+	int32 AllocItemsEntry();
 	void SetItemAtItemsIndex(uint16 index, const IE::item& item);
 
 	res_ref DialogFile() const;
@@ -344,6 +345,10 @@ private:
 	virtual ~CREResource();
 
 	void _ReadItemNum(IE::item& ieItem, uint16 offset) const;
+	// Inserts `extraEntries` zeroed slots at the end of the Items table,
+	// rebuilding fData and fixing up every section offset in the CRE
+	// header that sat at or after the insertion point.
+	void _GrowItemsTable(uint32 extraEntries);
 
 	uint32 fItemSlotOffset;
 	uint32 fItemsOffset;

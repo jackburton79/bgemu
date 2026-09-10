@@ -2,6 +2,7 @@
 #include "MemoryStream.h"
 
 #include <algorithm>
+#include <cstring>
 #include <stdlib.h>
 
 
@@ -792,6 +793,73 @@ CREResource::FindFreeItemsEntry() const
 			return (int32)i;
 	}
 	return -1;
+}
+
+
+int32
+CREResource::AllocItemsEntry()
+{
+	int32 free = FindFreeItemsEntry();
+	if (free >= 0)
+		return free;
+
+	// Table full: append a batch of blank entries (a few extra so a
+	// looting spree doesn't rebuild the buffer on every item).
+	const uint32 kGrowBy = 8;
+	uint32 firstNew = fItemsCount;
+	_GrowItemsTable(kGrowBy);
+	return (fItemsCount > firstNew) ? (int32)firstNew : -1;
+}
+
+
+void
+CREResource::_GrowItemsTable(uint32 extraEntries)
+{
+	if (extraEntries == 0)
+		return;
+
+	const uint32 entrySize = sizeof(IE::item);
+	const size_t oldSize = fData->Size();
+	const off_t insertAt = (off_t)fItemsOffset + (off_t)fItemsCount * entrySize;
+	const size_t addBytes = (size_t)extraEntries * entrySize;
+
+	if (insertAt < 0 || (size_t)insertAt > oldSize)
+		return; // malformed header - don't touch it
+
+	const size_t newSize = oldSize + addBytes;
+	uint8* buf = new uint8[newSize];
+	std::memset(buf, 0, newSize);
+
+	fData->ReadAt(0, buf, (size_t)insertAt);
+	const size_t tail = oldSize - (size_t)insertAt;
+	if (tail > 0)
+		fData->ReadAt(insertAt, buf + insertAt + addBytes, tail);
+
+	// Every CRE-header section-offset field that pointed at or past the
+	// insertion point shifts by addBytes. The Items offset (0x2bc) is
+	// deliberately left alone - the table grows in place from its end.
+	static const uint32 kOffsetFields[] = {
+		0x02a0, // known spells
+		0x02a8, // spell memorization info
+		0x02b0, // memorized spells
+		0x02b8, // item slots
+		0x02c4, // effects
+	};
+	for (uint32 field : kOffsetFields) {
+		uint32 value;
+		std::memcpy(&value, buf + field, sizeof(value));
+		if ((off_t)value >= insertAt) {
+			value += (uint32)addBytes;
+			std::memcpy(buf + field, &value, sizeof(value));
+		}
+	}
+
+	// Bump the Items count.
+	uint32 newCount = fItemsCount + extraEntries;
+	std::memcpy(buf + 0x02c0, &newCount, sizeof(newCount));
+
+	ReplaceData(new MemoryStream(buf, newSize, true));
+	Init(); // re-read fItems*/fKnownSpells*/... from the patched header
 }
 
 

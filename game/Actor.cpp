@@ -1135,17 +1135,17 @@ Actor::AddItem(const res_ref& itemName, uint16 quantity)
 	}
 	gResManager->ReleaseResource(itm);
 
-	int32 itemsIndex = fCRE->FindFreeItemsEntry();
-	if (itemsIndex < 0) {
-		std::cerr << Name() << ": AddItem(" << itemName.CString()
-				<< "): no free Items table entry" << std::endl;
-		return false;
-	}
-
 	int32 slot = fCRE->FindFreeSlot(kSlotGeneralFirst, kSlotGeneralLast);
 	if (slot < 0) {
 		std::cerr << Name() << ": AddItem(" << itemName.CString()
 				<< "): no free inventory slot" << std::endl;
+		return false;
+	}
+
+	int32 itemsIndex = fCRE->AllocItemsEntry();
+	if (itemsIndex < 0) {
+		std::cerr << Name() << ": AddItem(" << itemName.CString()
+				<< "): no free Items table entry" << std::endl;
 		return false;
 	}
 
