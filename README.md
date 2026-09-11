@@ -8,7 +8,7 @@ An interpreter to run Interplay's Infinity Engine games, like Baldur's Gate 1 an
 
 ![Screenshot](https://raw.github.com/jackburton79/bgemu/master/screenshots/area.png)
 
-Only partially functional. Can load areas, actors, run internal scripts, etc.
+Not yet playable, but already working
 
 To run, you need game files from an infinity engine based game (Baldur's Gate, Baldur's Gate 2, etc) 
 
@@ -37,5 +37,3 @@ To run, you need game files from an infinity engine based game (Baldur's Gate, B
                               Format: "field value" lines with gender/race/class/kit/alignment
                               plus either six ability scores or a "roll" line
 </pre>
-
-In the tests folder there is also a test application for the path finding algorithm (which needs more work)
