@@ -396,8 +396,16 @@ AreaRoom::_HandleClickAt(IE::point point)
 		if (fSelectedActor != NULL)
 			fSelectedActor.Target()->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
-			Core::Get()->LoadArea(region->DestinationArea(), "foo",
-					region->DestinationEntrance());
+			// Walk there instead of transitioning instantly - clicking
+			// anywhere in the region's (often generously sized) polygon
+			// used to change area on the spot, letting the party leave
+			// through an exit whose door was still shut just by clicking
+			// a bit to the side of the door itself. The actual area
+			// change now only happens once a party member's position
+			// genuinely enters the region polygon while walking (see
+			// Actor::_UpdateRegions()), so anything actually blocking the
+			// way there (a closed door, ...) naturally prevents it.
+			_QueueMoveToPoint(point);
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
 			std::string text = IDTable::GetDialog(strRef);
@@ -427,14 +435,22 @@ AreaRoom::_HandleClickAt(IE::point point)
 		return;
 	}
 
-	if (fSelectedActor != NULL) {
-		action_params* params = new action_params;
-		strcpy(params->Second()->name, fSelectedActor.Target()->Name());
-		params->where = point;
-		params->id = 23; // MOVETOPOINT
-		fSelectedActor.Target()->AddAction(params);
-		params->Release();
-	}
+	_QueueMoveToPoint(point);
+}
+
+
+void
+AreaRoom::_QueueMoveToPoint(IE::point point)
+{
+	if (fSelectedActor == NULL)
+		return;
+
+	action_params* params = new action_params;
+	strcpy(params->Second()->name, fSelectedActor.Target()->Name());
+	params->where = point;
+	params->id = 23; // MOVETOPOINT
+	fSelectedActor.Target()->AddAction(params);
+	params->Release();
 }
 
 

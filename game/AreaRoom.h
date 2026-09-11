@@ -183,6 +183,10 @@ private:
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
 	// Shared by MouseDown() and ClickAt() - point already in area coords.
 	void _HandleClickAt(IE::point point);
+	// Queues a MOVETOPOINT for the selected actor towards `point` - the
+	// fallback "walk there" click, and (now) also a travel region click,
+	// no-op if nothing is selected.
+	void _QueueMoveToPoint(IE::point point);
 
 	void _InitVariables();
 	void _InitAnimations();

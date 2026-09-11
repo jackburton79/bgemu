@@ -2033,6 +2033,20 @@ Actor::_UpdateRegions()
 			if (region->Contains(Position())) {
 				fRegion = region;
 				region->ActorEntered(this);
+				// Leaving the area through a travel region: only a party
+				// member's own arrival triggers it (walking a stray
+				// monster/NPC through one shouldn't send the player
+				// somewhere), and only by actually walking in - not by
+				// merely clicking the region, which used to change area
+				// on the spot regardless of anything blocking the way
+				// there (a closed door, ...). RequestAreaChange(), not
+				// LoadArea() directly: this runs from inside
+				// AreaRoom::Update()'s own actor-update loop (see its own
+				// comment on the heap-use-after-free that caused).
+				if (region->Type() == IE::REGION_TYPE_TRAVEL && InParty()) {
+					Core::Get()->RequestAreaChange(region->DestinationArea(),
+						"foo", region->DestinationEntrance());
+				}
 			}
 		}
 	}
