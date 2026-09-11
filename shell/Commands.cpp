@@ -1184,6 +1184,24 @@ public:
 };
 
 
+// Sets the current room's camera offset directly (area coordinates of
+// the viewport's top-left corner) - headless testing has no other way
+// to position the camera precisely (MOVETOCENTEROFSCREEN moves an
+// actor *to* the existing camera center, it doesn't move the camera).
+class SetCameraCommand : public ShellCommand {
+public:
+	SetCameraCommand()
+		: ShellCommand("Set-Camera", { { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point point = params.at(0).value.point;
+		Core::Get()->CurrentRoom()->SetAreaOffset(point);
+	}
+};
+
+
 class GiveItemCommand : public ShellCommand {
 public:
 	GiveItemCommand()
@@ -1561,6 +1579,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new ClickObjectCommand());
 	console->AddCommand(new ClickAreaCommand());
+	console->AddCommand(new SetCameraCommand());
 	console->AddCommand(new DisplayStringCommand());
 
 	console->AddCommand(new GiveItemCommand());
