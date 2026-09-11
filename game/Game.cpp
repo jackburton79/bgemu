@@ -1923,8 +1923,7 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 
 	GUI::Get()->EnsureShowDialogArea();
 
-	trigger_entry triggerEntry("LastTalkedToBy", actor);
-	actor->AddTrigger(triggerEntry);
+	actor->AddTrigger(trigger_entry("LastTalkedToBy", target));
 	std::cout << "initiates dialog with " << actor->LongName() << std::endl;
 	std::cout << "Dialog file: " << dialogFile << std::endl;
 

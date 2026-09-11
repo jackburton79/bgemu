@@ -759,7 +759,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 			{
 				/* NUMBEROFTIMESTALKEDTO(I:NUM*) (16441 0x4039) */
 				Actor* actor = dynamic_cast<Actor*>(sender);
-				if (actor->NumTimesTalkedTo() == (uint32)trig->parameter1)
+				if (actor != nullptr && actor->NumTimesTalkedTo() == (uint32)trig->parameter1)
 					returnValue = true;
 				break;
 			}
@@ -767,7 +767,15 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 			{
 				/* NUMTIMESTALKEDTOGT(I:NUM*)(16442, 0x403a) */
 				Actor* actor = dynamic_cast<Actor*>(sender);
-				if (actor->NumTimesTalkedTo() > (uint32)trig->parameter1)
+				if (actor != nullptr && actor->NumTimesTalkedTo() > (uint32)trig->parameter1)
+					returnValue = true;
+				break;
+			}
+			case 0x403B:
+			{
+				/* NUMTIMESTALKEDTOLT(I:NUM*)(16443, 0x403b) */
+				Actor* actor = dynamic_cast<Actor*>(sender);
+				if (actor != nullptr && actor->NumTimesTalkedTo() < (uint32)trig->parameter1)
 					returnValue = true;
 				break;
 			}
