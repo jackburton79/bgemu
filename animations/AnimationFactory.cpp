@@ -191,7 +191,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0xe430, "MG04", _BuildIWD },
 	{ 0xe600, "",     _BuildIWD },
 	{ 0xe710, "MNO2", _BuildIWD },
-	{ 0xeb10, "",     _BuildIWD }, // MSKA (Skeleton Warrior)
+	{ 0xeb10, "MSKA", _BuildIWD }, // (Skeleton Warrior)
 	{ 0xed00, "MYU1", _BuildIWD },
 };
 
@@ -635,15 +635,6 @@ AnimationFactory::~AnimationFactory()
 Animation*
 AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 {
-	// GetAnimationDescription() throws for an animation id this table
-	// doesn't cover (e.g. a monster type never added here) - this engine's
-	// coverage of BG2's full monster roster is necessarily incomplete, so
-	// that's expected to happen on real data, not just a theoretical edge
-	// case. Left uncaught, this exception has no handler anywhere below
-	// bgemu.cpp's top-level try/catch around the whole game loop - one
-	// actor with an unrecognized animation id used to take the entire
-	// process down instead of just going spriteless. Same catch-and-log
-	// as the BAM-loading try/catch below, now covering both failure modes.
 	try {
 		animation_description description = GetAnimationDescription(actor);
 		IE::point pos;
