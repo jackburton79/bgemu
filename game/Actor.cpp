@@ -43,6 +43,20 @@
 static const int kVisualRange = 448;
 static const int kAudibleRange = kVisualRange * 3 / 2;
 
+// Fallback melee approach distance for NearestPoint() below, when the ARE
+// actor's own "movement restriction distance" is 0 - which in practice is
+// always, since real IESDP data attaches that field to a different, rare
+// per-actor leash/wander setting, not combat range (the real engine derives
+// how close to stand for an attack from both actors' AVATARS.2DA circle
+// size instead, via GemRB's MoveNearerTo() - not modeled here). Without a
+// real fallback, NearestPoint() returns the target's own exact position -
+// which sits inside the target's own occupied search-map cell (actors keep
+// their current cell blocked, see _SetPositionPrivate()), so every
+// attacker's path to it fails outright and it never moves to melee range.
+// Bigger than half a search-map cell (16x12px, see SearchMap.cpp) in
+// either axis is enough to land the point in a different, unblocked cell.
+static const int kMeleeApproachDistance = 16;
+
 
 Actor::Actor(IE::actor &actor)
 	:
@@ -559,7 +573,11 @@ Actor::_DrawCircle(AreaRoom* room) const
 IE::point
 Actor::NearestPoint(const IE::point& start) const
 {
-	const IE::point restriction = RestrictionDistance();
+	IE::point restriction = RestrictionDistance();
+	if (restriction.x == 0)
+		restriction.x = kMeleeApproachDistance;
+	if (restriction.y == 0)
+		restriction.y = kMeleeApproachDistance;
 	IE::point targetPoint = Position();
 	if (start.x < targetPoint.x)
 		targetPoint.x -= restriction.x;
