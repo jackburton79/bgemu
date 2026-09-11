@@ -730,6 +730,24 @@ public:
 };
 
 
+// Hover only, no press/release - for testing hover-only feedback (a
+// tooltip, a highlighted TextArea line) without also triggering
+// whatever a real click at that point would do.
+class MouseMoveCommand : public ShellCommand {
+public:
+	MouseMoveCommand()
+		: ShellCommand("Mouse-Move", { { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point p = params.at(0).value.point;
+		GUI::Get()->MouseMoved(p.x, p.y);
+		std::cout << "Mouse-Move: (" << std::dec << p.x << "," << p.y << ")" << std::endl;
+	}
+};
+
+
 class ShakeScreenCommand : public ShellCommand {
 public:
 	ShakeScreenCommand()
@@ -1520,6 +1538,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new RightClickControlCommand());
 	console->AddCommand(new MouseDragCommand());
 	console->AddCommand(new MouseClickCommand());
+	console->AddCommand(new MouseMoveCommand());
 	console->AddCommand(new WaitTimeCommand());
 
 	console->AddCommand(new WalkToObjectCommand());

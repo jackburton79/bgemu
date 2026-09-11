@@ -85,14 +85,36 @@ TextArea::Draw()
 		const Font* font = FontRoster::GetFont(fontName);
 		fBitmap->Clear(0);
 		uint32 flags = IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_BOTTOM;
-		TextLines::const_iterator i;
-		for (i = fLines.begin(); i != fLines.end(); i++) {
+
+		// A dialog option that word-wraps to more than one TextLine
+		// (_AddText()'s own loop) gives every wrapped line the same
+		// dialog_option - the whole run should highlight together, not
+		// just whichever single line the mouse is hit-testing against
+		// (fSelected itself, see MouseMoved()). Restricted to the
+		// contiguous run fSelected itself sits in, not just any line
+		// anywhere in the scrollback that happens to share the same
+		// dialog_option value: that index is only meaningful within one
+		// dialog turn (1, 2, 3, ...), and fLines keeps the whole
+		// conversation's history - an earlier turn's own "option 1"
+		// would otherwise light up too, just because both are numbered 1.
+		size_t selectedStart = 0, selectedEnd = 0;
+		if (fSelected != NULL) {
+			size_t selectedIndex = (size_t)(fSelected - fLines.data());
+			selectedStart = selectedEnd = selectedIndex;
+			while (selectedStart > 0 && fLines[selectedStart - 1].dialog_option
+					== fSelected->dialog_option)
+				selectedStart--;
+			while (selectedEnd + 1 < fLines.size() && fLines[selectedEnd + 1].dialog_option
+					== fSelected->dialog_option)
+				selectedEnd++;
+		}
+
+		for (size_t lineIndex = 0; lineIndex < fLines.size(); lineIndex++) {
 			int attr = 0;
-			const TextLine& line = *i;
+			const TextLine& line = fLines[lineIndex];
 			GFX::point where = { rect.x, rect.y };
-			if (&line == fSelected) {
+			if (fSelected != NULL && lineIndex >= selectedStart && lineIndex <= selectedEnd)
 				attr |= TEXT_SELECTED;
-			}
 			// TODO: Pass textarea palette
 			// TODO: Should we apply palette to the bitmap ?
 			// somehow it doesn't get the correct palette
