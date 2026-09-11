@@ -51,6 +51,13 @@ public:
 
 	uint32 NameUnidentifiedRef() const;
 	uint32 NameIdentifiedRef() const;
+	// Whichever of the two is actually set (falls back to unidentified -
+	// SPL files commonly carry their real name/description only there,
+	// leaving identified as a sentinel like 0xFFFFFFFF or 9999999; this
+	// engine has no in-play "unidentified spell" state anyway). Prefer
+	// these over the raw pair above for anything user-facing.
+	uint32 DisplayNameRef() const;
+	uint32 DisplayDescriptionRef() const;
 
 	uint32 Flags() const;
 

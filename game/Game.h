@@ -92,6 +92,9 @@ public:
 	// Hover over a spellbook grid icon -> show the spell's name as a
 	// cursor tooltip.
 	void SpellbookControlHovered(uint32 controlID, bool inside);
+	// Right-click a spellbook grid icon -> open the spell-info popup
+	// (GUIMG/GUIPR window 3: name + description).
+	void SpellbookControlRightClicked(uint32 controlID, uint16 windowID);
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
@@ -273,6 +276,7 @@ private:
 	// share this.
 	void _UpdatePortraitColumn(class Window* window, uint32 count);
 	void _UpdateSpellbookScreen();
+	void _ShowSpellInfo(const res_ref& spellName);
 	// GUIMG/GUIPR grid control id -> the spell resref it currently shows,
 	// plus which of the two CHUs the open spellbook is.
 	std::string fSpellbookCHU;

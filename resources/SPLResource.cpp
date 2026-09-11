@@ -66,6 +66,36 @@ SPLResource::NameIdentifiedRef() const
 }
 
 
+static bool
+_IsUnsetStrRef(uint32 value)
+{
+	// SPL identified-name/description fields commonly hold one of these
+	// two sentinels when only the unidentified slot actually carries
+	// text (verified on real BG2 data, e.g. SPWI112/Magic Missile).
+	return value == 0 || value == 0xffffffff || value == 9999999;
+}
+
+
+uint32
+SPLResource::DisplayNameRef() const
+{
+	uint32 identified = NameIdentifiedRef();
+	if (!_IsUnsetStrRef(identified))
+		return identified;
+	return NameUnidentifiedRef();
+}
+
+
+uint32
+SPLResource::DisplayDescriptionRef() const
+{
+	uint32 identified = DescriptionIdentifiedRef();
+	if (!_IsUnsetStrRef(identified))
+		return identified;
+	return DescriptionUnidentifiedRef();
+}
+
+
 uint32
 SPLResource::Flags() const
 {

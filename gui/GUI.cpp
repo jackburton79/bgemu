@@ -776,6 +776,8 @@ GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuNa
 {
 	if (chuName == res_ref("GUIINV"))
 		Game::Get()->InventoryControlRightClicked(controlID, windowID);
+	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
+		Game::Get()->SpellbookControlRightClicked(controlID, windowID);
 }
 
 

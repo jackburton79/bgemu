@@ -750,6 +750,12 @@ Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 		ShowCharacter((uint16)controlID);
 		return;
 	}
+	if (windowID == 3) {
+		// The spell-info popup: any button closes it.
+		if (!fSpellbookCHU.empty())
+			GUI::Get()->HideAuxWindow(fSpellbookCHU.c_str(), 3);
+		return;
+	}
 	if (windowID != 2)
 		return;
 
@@ -805,12 +811,65 @@ Game::SpellbookControlHovered(uint32 controlID, bool inside)
 	std::string name = spell.CString();
 	SPLResource* spl = gResManager->GetSPL(spell);
 	if (spl != NULL) {
-		std::string dialog = IDTable::GetDialog(spl->NameIdentifiedRef());
+		std::string dialog = IDTable::GetDialog(spl->DisplayNameRef());
 		if (!dialog.empty())
 			name = dialog;
 		gResManager->ReleaseResource(spl);
 	}
 	GUI::Get()->SetHoverTooltip(name);
+}
+
+
+void
+Game::SpellbookControlRightClicked(uint32 controlID, uint16 windowID)
+{
+	if (windowID != 2)
+		return;
+	auto known = fSpellbookKnown.find(controlID);
+	if (known != fSpellbookKnown.end()) {
+		_ShowSpellInfo(known->second);
+		return;
+	}
+	auto memo = fSpellbookMemo.find(controlID);
+	if (memo != fSpellbookMemo.end())
+		_ShowSpellInfo(memo->second);
+}
+
+
+// Populates and shows the spellbook's examine popup (GUIMG/GUIPR window
+// 3) for a spell - name + description, same pattern as _ShowItemInfo().
+void
+Game::_ShowSpellInfo(const res_ref& spellName)
+{
+	if (fSpellbookCHU.empty())
+		return;
+
+	SPLResource* spl = gResManager->GetSPL(spellName);
+	if (spl == NULL)
+		return;
+
+	GUI::Get()->ShowAuxWindow(fSpellbookCHU.c_str(), 3);
+	Window* window = GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 3);
+	if (window == NULL) {
+		gResManager->ReleaseResource(spl);
+		return;
+	}
+
+	Label* title = dynamic_cast<Label*>(window->GetControlByID(268435455));
+	if (title != NULL) {
+		std::string name = IDTable::GetDialog(spl->DisplayNameRef());
+		title->SetText(name.empty() ? spellName.CString() : name);
+	}
+
+	TextArea* description = dynamic_cast<TextArea*>(window->GetControlByID(3));
+	if (description != NULL) {
+		description->ClearText();
+		std::string text = IDTable::GetDialog(spl->DisplayDescriptionRef());
+		description->AddText(text.empty() ? "(No description)" : text.c_str());
+		description->ScrollTo(0, 0);
+	}
+
+	gResManager->ReleaseResource(spl);
 }
 
 
