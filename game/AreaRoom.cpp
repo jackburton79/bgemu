@@ -357,23 +357,6 @@ AreaRoom::Draw()
 	GFX::rect screenArea = Control::Frame();
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 
-#if 1
-	// Show mouse position as string
-	const Font* font = FontRoster::GetFont("TOOLFONT");
-	IE::point mousePosition;
-	GUI::Get()->GetCursorPosition(mousePosition.x, mousePosition.y);
-	IE::point areaPosition = mousePosition;
-	ConvertToArea(areaPosition);
-	std::ostringstream text;
-	text << areaPosition.x << ", " << areaPosition.y;
-	::Bitmap* bitmap = font->GetRenderedString(text.str().c_str(), 0);
-	GFX::rect rect = bitmap->Frame();
-	rect.x = mousePosition.x;
-	rect.y = mousePosition.y - 10;
-	gfx->BlitToScreen(bitmap, NULL, &rect);
-	bitmap->Release();
-#endif
-
 	_DrawSearchMap(mapRect);
 }
 
