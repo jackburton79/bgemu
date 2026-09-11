@@ -640,33 +640,44 @@ GUI::GetMessagesTextArea()
 
 
 void
-GUI::EnsureShowDialogArea()
-{
-	if (IsWindowShown(WINDOW_MESSAGES))
-		HideWindow(WINDOW_MESSAGES);
-
-	ShowWindow(WINDOW_MESSAGES_LARGE);
-}
-
-
-void
-GUI::ToggleMessageArea()
+GUI::_SwitchMessageArea(uint16 fromID, uint16 toID)
 {
 	TextArea::TextLines lines;
 	TextArea* currentTextArea = GetMessagesTextArea();
 	if (currentTextArea != NULL)
 		currentTextArea->GetLines(lines);
 
-	if (IsWindowShown(WINDOW_MESSAGES)) {
-		HideWindow(WINDOW_MESSAGES);
-		ShowWindow(WINDOW_MESSAGES_LARGE);
-	} else if (IsWindowShown(WINDOW_MESSAGES_LARGE)) {
-		HideWindow(WINDOW_MESSAGES_LARGE);
-		ShowWindow(WINDOW_MESSAGES);
-	}
+	if (IsWindowShown(fromID))
+		HideWindow(fromID);
+	ShowWindow(toID);
+
 	TextArea* newTextArea = GetMessagesTextArea();
 	if (newTextArea != NULL)
 		newTextArea->SetLines(lines);
+}
+
+
+void
+GUI::EnsureShowDialogArea()
+{
+	_SwitchMessageArea(WINDOW_MESSAGES, WINDOW_MESSAGES_LARGE);
+}
+
+
+void
+GUI::EnsureShowNormalMessageArea()
+{
+	_SwitchMessageArea(WINDOW_MESSAGES_LARGE, WINDOW_MESSAGES);
+}
+
+
+void
+GUI::ToggleMessageArea()
+{
+	if (IsWindowShown(WINDOW_MESSAGES))
+		EnsureShowDialogArea();
+	else if (IsWindowShown(WINDOW_MESSAGES_LARGE))
+		EnsureShowNormalMessageArea();
 }
 
 

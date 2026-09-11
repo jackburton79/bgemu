@@ -1916,12 +1916,7 @@ Game::TerminateDialog()
 	}
 	delete fDialog;
 	fDialog = NULL;
-	GUI* gui = GUI::Get();
-
-	if (gui->IsWindowShown(GUI::WINDOW_MESSAGES_LARGE))
-		gui->HideWindow(GUI::WINDOW_MESSAGES_LARGE);
-
-	gui->ShowWindow(GUI::WINDOW_MESSAGES);
+	GUI::Get()->EnsureShowNormalMessageArea();
 }
 
 

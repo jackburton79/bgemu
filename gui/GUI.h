@@ -118,6 +118,7 @@ public:
 
 	TextArea* GetMessagesTextArea();
 	void EnsureShowDialogArea();
+	void EnsureShowNormalMessageArea();
 	void ToggleMessageArea();
 
 	void SetArrowCursor(uint32 index);
@@ -194,6 +195,7 @@ private:
 	GUI(uint16 width, uint16 height);
 	~GUI();
 
+	void _SwitchMessageArea(uint16 fromID, uint16 toID);
 	Window* _WindowAtPoint(IE::point point);
 	void _AddBackgroundWindow();
 	void _CenterWindow(Window* window, const std::string& chuName) const;
