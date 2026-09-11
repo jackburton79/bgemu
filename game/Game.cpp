@@ -1465,6 +1465,9 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 		if (bam != nullptr) {
 			icon = bam->FrameForCycle(0, 0);
 			gResManager->ReleaseResource(bam);
+		} else {
+			std::cerr << "Game::_UpdatePaperdoll(): no BAM resource named "
+									<< name << std::endl;
 		}
 	} else {
 		PLTResource* plt = gResManager->GetPLT(name.c_str());
