@@ -1482,7 +1482,7 @@ RunActionDisplayMessage(Object* sender, action_params* params, action_state& sta
 	std::cout << "DisplayMessage:: ";
 	std::string dialogText = IDTable::GetDialog(params->integer1);
 	std::cout << dialogText << std::endl;
-	Core::Get()->DisplayMessage(NULL, dialogText.c_str());
+	GUI::Get()->DisplayMessage(NULL, dialogText);
 	state.completed = true;
 }
 

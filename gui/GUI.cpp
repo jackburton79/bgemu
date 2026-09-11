@@ -17,6 +17,7 @@
 #include "Game.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
+#include "Object.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "TextArea.h"
@@ -341,6 +342,28 @@ GUI::DisplayStringCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time)
 {
 	_DisplayStringCommon(text, xCenter, yCenter, true, time);
+}
+
+
+void
+GUI::DisplayMessage(Object* object, const std::string& text)
+{
+	// Floating text over the object's own position.
+	if (object != NULL) {
+		GFX::rect frame = rect_to_gfx_rect(object->Frame());
+		Core::Get()->CurrentRoom()->ConvertFromArea(frame);
+		DisplayStringCentered(text, frame.x, frame.y, 5000);
+	}
+
+	// Write text in the message log TextArea too.
+	TextArea* textArea = GetMessagesTextArea();
+	if (textArea != NULL) {
+		std::string fullText;
+		if (object != NULL)
+			fullText.append(object->Name()).append(": ");
+		fullText.append(text);
+		textArea->AddText(fullText.c_str());
+	}
 }
 
 
@@ -977,6 +1000,13 @@ GUI::_DrawStrings()
 }
 
 
+// Widest a single line is allowed to get before wrapping - a region's
+// info text or a spell's "Text: Display String" effect can be a full
+// sentence (or several), and rendering that as one unbroken line used
+// to run straight off the edge of the screen.
+const static uint16 kMaxMessageLineWidth = 300;
+
+
 void
 GUI::_DisplayStringCommon(const std::string& text,
 			uint16 x, uint16 y, bool centerString, uint32 time)
@@ -986,7 +1016,46 @@ GUI::_DisplayStringCommon(const std::string& text,
 	const Font* font = FontRoster::GetFont("TOOLFONT");
 	// TODO: GetRenderedString always use "true" for palette, while
 	// previous call used "false" here. Check!
-	Bitmap* bitmap = font->GetRenderedString(text, 0);
+
+	// Word-wrap into as many lines as needed to stay under
+	// kMaxMessageLineWidth - same TruncateString() line-breaking
+	// TextArea::_AddText() already uses for dialog text - then stack
+	// each line's own rendered bitmap (GetRenderedString() already
+	// produces one sized/paletted/colorkeyed correctly for a single
+	// line, same call this used to make just once for the whole text)
+	// onto one combined bitmap, tallest-line-first so the combined
+	// bitmap's own colorkey/palette come from real rendered text
+	// rather than being guessed at.
+	std::vector<Bitmap*> lineBitmaps;
+	std::string remaining = text;
+	uint16 combinedWidth = 0;
+	do {
+		std::string line = font->TruncateString(remaining, kMaxMessageLineWidth);
+		lineBitmaps.push_back(font->GetRenderedString(line, 0));
+		combinedWidth = std::max(combinedWidth, lineBitmaps.back()->Width());
+	} while (!remaining.empty());
+
+	Bitmap* bitmap = lineBitmaps[0];
+	if (lineBitmaps.size() > 1) {
+		uint16 combinedHeight = 0;
+		for (Bitmap* lineBitmap : lineBitmaps)
+			combinedHeight += lineBitmap->Height();
+
+		bitmap = new Bitmap(combinedWidth, combinedHeight, 8);
+		bitmap->SetPalette(*GFX::kPaletteYellow);
+		uint32 colorKey = 0;
+		if (lineBitmaps[0]->GetColorKey(colorKey)) {
+			bitmap->SetColorKey(colorKey);
+			bitmap->Clear(colorKey);
+		}
+
+		GFX::point where(0, 0);
+		for (Bitmap* lineBitmap : lineBitmaps) {
+			lineBitmap->BlitTo(bitmap, where);
+			where.y += lineBitmap->Height();
+			lineBitmap->Release();
+		}
+	}
 
 	// Set the position where to  blit the bitmap
 	GFX::rect rect;

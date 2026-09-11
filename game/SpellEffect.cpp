@@ -12,6 +12,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Effect.h"
+#include "GUI.h"
 #include "Log.h"
 #include "Object.h"
 #include "ResManager.h"
@@ -454,7 +455,7 @@ RunEffectDisplayString(Object* target, SpellEffect& effect)
 {
 	std::string text = IDTable::GetDialog((uint32)effect.Parameter1());
 	if (!text.empty())
-		Core::Get()->DisplayMessage(target, text.c_str());
+		GUI::Get()->DisplayMessage(target, text);
 
 	return true; // one-shot: remove immediately once applied
 }

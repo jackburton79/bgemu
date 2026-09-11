@@ -2043,22 +2043,30 @@ Actor::_UpdateRegions()
 				// LoadArea() directly: this runs from inside
 				// AreaRoom::Update()'s own actor-update loop (see its own
 				// comment on the heap-use-after-free that caused).
+				//
+				// `this` is also passed as the actor whose action list
+				// RequestAreaChange() should clear once it's safe to do so
+				// (see its own comment) - the action that walked this
+				// actor here is done, and _UnloadArea() deliberately
+				// leaves a party member's action list alone otherwise
+				// (needed elsewhere for a scripted cutscene transition to
+				// keep an in-progress action, e.g. FADEFROMCOLOR, running
+				// in the new area) - without clearing it, a stale
+				// MOVETOPOINT still holding this area's own coordinates
+				// would resume right after AreaRoom's constructor
+				// repositions every party member to the new entrance,
+				// walking this actor straight off to a bogus spot in the
+				// new area's map. Clearing it here instead, synchronously,
+				// is NOT safe in general: _UpdateRegions() can also run
+				// synchronously from deep inside this very actor's own
+				// action execution (e.g. JUMPTOPOINT's handler calling
+				// SetPosition() directly, itself still reading its own
+				// action_params after this returns) - a real, reproduced
+				// heap-use-after-free (the action_params freed here, out
+				// from under its own still-running handler).
 				if (region->Type() == IE::REGION_TYPE_TRAVEL && InParty()) {
-					// The MOVETOPOINT that walked this actor here has done
-					// its job - clear it (and anything queued behind it)
-					// before the deferred LoadArea() runs. _UnloadArea()
-					// deliberately leaves a party member's action list
-					// alone (see its own comment - a scripted cutscene
-					// transition needs an in-progress action, e.g.
-					// FADEFROMCOLOR, to keep running in the new area), so
-					// without this an old MOVETOPOINT still holding this
-					// area's own coordinates would resume right after
-					// AreaRoom's constructor repositions every party
-					// member to the new entrance, walking this actor
-					// straight off to a bogus spot in the new area's map.
-					ClearActionList();
 					Core::Get()->RequestAreaChange(region->DestinationArea(),
-						"foo", region->DestinationEntrance());
+						"foo", region->DestinationEntrance(), this);
 				}
 			}
 		}

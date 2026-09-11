@@ -68,9 +68,22 @@ public:
 	// heap-use-after-free (AreaRoom::Update()'s "for (actor : fActors)"
 	// loop reading fActors after the AreaRoom that owns it, and that
 	// loop, got destroyed out from under it).
+	// clearActionsFor (optional): also clears that actor's own action
+	// list right before the deferred LoadArea() below runs - for a
+	// caller triggered by the actor's own movement finally arriving
+	// somewhere (see Actor::_UpdateRegions()), where the action that
+	// walked it there is done and letting it (or anything queued
+	// behind it) survive into the new area makes no sense. Deferred to
+	// the same safe point as the area load itself, for the same
+	// reason: RequestAreaChange() can be called from deep inside that
+	// very actor's own action execution (e.g. a teleport action whose
+	// handler still reads its own action_params after this call
+	// returns) - clearing its action list synchronously here would
+	// free that action out from under its own still-running handler.
 	void RequestAreaChange(const res_ref& areaName,
 					const std::string& longName,
-					const std::string& entranceName);
+					const std::string& entranceName,
+					Actor* clearActionsFor = NULL);
 
 	RoomBase* CurrentRoom();
 
@@ -99,9 +112,6 @@ public:
 	Region* RegionAtPoint(const IE::point& point);
 
 	void PlayMovie(const char* name);
-
-	// TODO: Move away from here, don't belong here
-	void DisplayMessage(Object* object, const char* text);
 
 	void UpdateLogic(bool scripts);
 
@@ -144,6 +154,7 @@ private:
 	res_ref fPendingAreaName;
 	std::string fPendingLongName;
 	std::string fPendingEntranceName;
+	Actor* fPendingAreaChangeActor;
 
 	// Engine features
 	bool fHasExtendedOrientations;

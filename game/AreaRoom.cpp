@@ -438,7 +438,7 @@ AreaRoom::_HandleClickAt(IE::point point)
 			int32 strRef = region->InfoTextRef();
 			std::string text = IDTable::GetDialog(strRef);
 			if (strRef >= 0)
-				Core::Get()->DisplayMessage(region, text.c_str());
+				GUI::Get()->DisplayMessage(region, text);
 		}
 		return;
 	}

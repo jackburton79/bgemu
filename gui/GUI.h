@@ -35,6 +35,7 @@ struct string_entry {
 class Animation;
 class BAMResource;
 class CHUIResource;
+class Object;
 class TextArea;
 class GUI : public Listener {
 public:
@@ -60,6 +61,13 @@ public:
 			uint16 x, uint16 y, uint32 time);
 	void DisplayStringCentered(const std::string& text,
 			uint16 xCenter, uint16 yCenter, uint32 time);
+	// Floating text centered over `object` (info-point text, a spell's
+	// "Text: Display String" effect, ...), plus a log line in the
+	// message TextArea (moved here from Core, formerly Core::
+	// DisplayMessage() - it was only ever a thin wrapper around
+	// DisplayStringCentered()/GetMessagesTextArea(), dragging GUI/
+	// TextArea headers into Core.cpp for no other reason).
+	void DisplayMessage(Object* object, const std::string& text);
 
 	void MouseDown(int16 x, int16 y);
 	void MouseUp(int16 x, int16 y);

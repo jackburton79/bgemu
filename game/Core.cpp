@@ -6,16 +6,13 @@
 #include "Door.h"
 #include "Game.h"
 #include "GameTimer.h"
-#include "GUI.h"
 #include "Log.h"
 #include "MoviePlayer.h"
 #include "MveResource.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SoundEngine.h"
-#include "TextArea.h"
 #include "WAVResource.h"
-#include "Window.h"
 #include "WorldMap.h"
 
 #include <limits.h>
@@ -39,6 +36,7 @@ Core::Core()
 	fDialogMode(false),
 	fCutsceneActor(NULL),
 	fPendingAreaChange(false),
+	fPendingAreaChangeActor(NULL),
 	fHasExtendedOrientations(false)
 {
 	srand(time(NULL));
@@ -180,12 +178,13 @@ Core::LoadArea(const res_ref areaName, std::string longName,
 
 void
 Core::RequestAreaChange(const res_ref& areaName, const std::string& longName,
-	const std::string& entranceName)
+	const std::string& entranceName, Actor* clearActionsFor)
 {
 	fPendingAreaChange = true;
 	fPendingAreaName = areaName;
 	fPendingLongName = longName;
 	fPendingEntranceName = entranceName;
+	fPendingAreaChangeActor = clearActionsFor;
 }
 
 
@@ -349,31 +348,6 @@ Core::PlayMovie(const char* name)
 
 
 void
-Core::DisplayMessage(Object* object, const char* text)
-{
-	// TODO: Move away from Core ? this adds too many
-	// dependencies
-
-	// Show text on screen
-	if (object != NULL) {
-		GFX::rect frame = rect_to_gfx_rect(object->Frame());
-		Core::Get()->CurrentRoom()->ConvertFromArea(frame);
-		GUI::Get()->DisplayStringCentered(text, frame.x, frame.y, 5000);
-	}
-
-	// Write text in TextArea
-	TextArea* textArea = GUI::Get()->GetMessagesTextArea();
-	if (textArea != NULL) {
-		std::string fullText;
-		if (object != NULL)
-			fullText.append(object->Name()).append(": ");
-		fullText.append(text);
-		textArea->AddText(fullText.c_str());
-	}
-}
-
-
-void
 Core::UpdateLogic(bool executeScripts)
 {
 	if (fPaused)
@@ -424,6 +398,10 @@ Core::UpdateLogic(bool executeScripts)
 			&& !fCutsceneActor->IsActionListEmpty();
 		if (fPendingAreaChange && !cutsceneActorBusy) {
 			fPendingAreaChange = false;
+			if (fPendingAreaChangeActor != NULL) {
+				fPendingAreaChangeActor->ClearActionList();
+				fPendingAreaChangeActor = NULL;
+			}
 			LoadArea(fPendingAreaName, fPendingLongName, fPendingEntranceName);
 			return;
 		}
