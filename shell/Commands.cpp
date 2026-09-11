@@ -36,6 +36,23 @@
 #include "ShellCommand.h"
 
 
+// Resolves the current room as an AreaRoom*, printing a message and
+// returning NULL if it isn't one (e.g. the worldmap) - shared by every
+// command below that assumes an AreaRoom. A blind C-style cast here used
+// to read garbage/out-of-bounds memory once CurrentRoom() pointed at a
+// WorldMap instead (a WorldMap doesn't share AreaRoom's fActors layout) -
+// found via a real heap-buffer-overflow crash in GetObject()/GetActorsList()
+// right after a wilderness map-edge exit loaded the worldmap.
+static AreaRoom*
+CurrentAreaRoom()
+{
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room == NULL)
+		std::cout << "command not available: current room is not an area." << std::endl;
+	return room;
+}
+
+
 class ListObjectsCommand : public ShellCommand {
 public:
 	ListObjectsCommand()
@@ -44,9 +61,12 @@ public:
 	}
 	virtual ~ListObjectsCommand() {};
 	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
 		ActorsList objects;
 		ActorsList::iterator i;
-		((AreaRoom*)Core::Get()->CurrentRoom())->GetActorsList(objects);
+		room->GetActorsList(objects);
 		for (i = objects.begin(); i != objects.end(); i++) {
 			Actor* actor = *i;
 			std::cout << actor->Name();
@@ -67,7 +87,10 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		for (Container* container : ((AreaRoom*)Core::Get()->CurrentRoom())->Containers()) {
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		for (Container* container : room->Containers()) {
 			IE::rect frame = container->Frame();
 			std::cout << container->Name() << " (" << std::dec
 				<< (frame.x_min + frame.x_max) / 2 << ","
@@ -265,7 +288,10 @@ public:
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
 		std::string name = params.at(0).value.string;
-		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		Object* object = room->GetObject(name.c_str());
 
 		if (object != NULL)
 			object->Print();
@@ -850,7 +876,10 @@ public:
 		// If an id was passed, use it.
 		// otherwise use the passed string (the creature name)
 		std::string name = params.at(0).value.string;
-		object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		object = room->GetObject(name.c_str());
 
 		if (object != NULL) {
 			action_params* actionParams = new action_params;
@@ -877,7 +906,10 @@ public:
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
 		std::string name = params.at(0).value.string;
-		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		Object* object = room->GetObject(name.c_str());
 
 		if (object != NULL) {
 			object->Disable();
@@ -935,7 +967,10 @@ public:
 static Actor*
 FindActor(const std::string& name)
 {
-	Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(name.c_str());
+	AreaRoom* room = CurrentAreaRoom();
+	if (room == NULL)
+		return NULL;
+	Object* object = room->GetObject(name.c_str());
 	Actor* actor = dynamic_cast<Actor*>(object);
 	if (actor == NULL)
 		std::cout << "actor \"" << name << "\" not found." << std::endl;
@@ -1101,6 +1136,30 @@ public:
 };
 
 
+// Direct SearchMap::IsWorldmapExit() query, same spirit as
+// Check-Passable above - a wilderness map's own "open the worldmap
+// here" edge cells (search-map value 14, appendices/search.htm).
+class CheckWorldmapExitCommand : public ShellCommand {
+public:
+	CheckWorldmapExitCommand()
+		: ShellCommand("Check-WorldmapExit", { { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point point = params.at(0).value.point;
+		AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (room == NULL || room->SearchMap() == NULL) {
+			std::cout << "Check-WorldmapExit: no search map" << std::endl;
+			return;
+		}
+		bool isExit = room->SearchMap()->IsWorldmapExit(point.x, point.y);
+		std::cout << std::dec << "Check-WorldmapExit (" << point.x << "," << point.y << "): "
+			<< (isExit ? "YES" : "no") << std::endl;
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -1157,7 +1216,10 @@ public:
 			return;
 
 		std::string targetName = params.at(1).value.string;
-		Object* target = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(targetName.c_str());
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		Object* target = room->GetObject(targetName.c_str());
 		if (target == NULL) {
 			std::cout << "Click-Object: target \"" << targetName << "\" not found." << std::endl;
 			return;
@@ -1179,7 +1241,10 @@ public:
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
 		IE::point point = params.at(0).value.point;
-		((AreaRoom*)Core::Get()->CurrentRoom())->ClickAt(point);
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		room->ClickAt(point);
 	}
 };
 
@@ -1517,7 +1582,10 @@ public:
 		std::string creatureName = params.at(0).value.string;
 		uint16 enemyAlly = params.at(1).value.integer;
 
-		Object* object = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(creatureName.c_str());
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		Object* object = room->GetObject(creatureName.c_str());
 		if (object == NULL)
 			return;
 
@@ -1563,6 +1631,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new EvaluateTriggerCommand());
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
+	console->AddCommand(new CheckWorldmapExitCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());

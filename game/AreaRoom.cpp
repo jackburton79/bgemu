@@ -491,6 +491,13 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 	if (fWed != NULL) {
 		int32 cursor = -1;
 		fMouseOverObject = _ObjectAtPoint(point, cursor);
+		// No concrete object claimed the cursor - check for a wilderness
+		// map-edge "Worldmap exit" cell underneath (see SearchMap::
+		// IsWorldmapExit()'s own comment; unlike travel Regions, there's
+		// no Object here to have already matched in _ObjectAtPoint()).
+		if (cursor == -1 && fSearchMap != NULL
+				&& fSearchMap->IsWorldmapExit(point.x, point.y))
+			cursor = IE::CURSOR_TRAVEL;
 		if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
 		else {

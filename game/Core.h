@@ -85,6 +85,14 @@ public:
 					const std::string& entranceName,
 					Actor* clearActionsFor = NULL);
 
+	// Same deferral as RequestAreaChange() above, same reason: a party
+	// member walking onto a wilderness map's "Worldmap exit" search-map
+	// cell (see SearchMap::IsWorldmapExit()) requests this from
+	// Actor::_UpdateRegions(), itself reachable from deep inside
+	// AreaRoom::Update()'s own actor loop - LoadWorldMap() destroys the
+	// current AreaRoom exactly like LoadArea() does.
+	void RequestWorldMapLoad();
+
 	RoomBase* CurrentRoom();
 
 	void EnteredArea(RoomBase* area);
@@ -155,6 +163,7 @@ private:
 	std::string fPendingLongName;
 	std::string fPendingEntranceName;
 	Actor* fPendingAreaChangeActor;
+	bool fPendingWorldMapLoad;
 
 	// Engine features
 	bool fHasExtendedOrientations;

@@ -31,6 +31,14 @@ public:
 	// here; a closed door won't block sight through its cell.
 	bool BlocksLight(int32 x, int32 y) const;
 
+	// Search-map value 14 ("Worldmap exit", appendices/search.htm) - a
+	// wilderness/outdoor area's own map-edge cells authored to open the
+	// worldmap when a party member walks there, entirely separate from
+	// a Region (there's no polygon object for this at all - it's baked
+	// directly into the search-map bitmap). Reads the original,
+	// never-modified bitmap, same reasoning as BlocksLight().
+	bool IsWorldmapExit(int32 x, int32 y) const;
+
 	void SetPoint(int32 x, int32 y);
 	void ClearPoint(int32 x, int32 y);
 	void ForcePassable(int32 x, int32 y);

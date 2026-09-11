@@ -2071,4 +2071,18 @@ Actor::_UpdateRegions()
 			}
 		}
 	}
+
+	// Wilderness map edge (see SearchMap::IsWorldmapExit()'s own comment)
+	// - entirely separate from the Region-based check above: there's no
+	// Region object here at all, just a search-map cell classification.
+	// Same InParty()-only gating as the travel region case (a stray
+	// monster wandering to the map edge shouldn't open the worldmap).
+	// RequestWorldMapLoad() defers exactly like RequestAreaChange() does,
+	// for the same reason (this runs from inside AreaRoom::Update()'s own
+	// actor loop).
+	if (InParty()) {
+		SearchMap* searchMap = Area()->SearchMap();
+		if (searchMap != NULL && searchMap->IsWorldmapExit(Position().x, Position().y))
+			Core::Get()->RequestWorldMapLoad();
+	}
 }

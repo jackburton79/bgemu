@@ -37,6 +37,7 @@ Core::Core()
 	fCutsceneActor(NULL),
 	fPendingAreaChange(false),
 	fPendingAreaChangeActor(NULL),
+	fPendingWorldMapLoad(false),
 	fHasExtendedOrientations(false)
 {
 	srand(time(NULL));
@@ -185,6 +186,13 @@ Core::RequestAreaChange(const res_ref& areaName, const std::string& longName,
 	fPendingLongName = longName;
 	fPendingEntranceName = entranceName;
 	fPendingAreaChangeActor = clearActionsFor;
+}
+
+
+void
+Core::RequestWorldMapLoad()
+{
+	fPendingWorldMapLoad = true;
 }
 
 
@@ -403,6 +411,12 @@ Core::UpdateLogic(bool executeScripts)
 				fPendingAreaChangeActor = NULL;
 			}
 			LoadArea(fPendingAreaName, fPendingLongName, fPendingEntranceName);
+			return;
+		}
+
+		if (fPendingWorldMapLoad && !cutsceneActorBusy) {
+			fPendingWorldMapLoad = false;
+			LoadWorldMap();
 			return;
 		}
 
