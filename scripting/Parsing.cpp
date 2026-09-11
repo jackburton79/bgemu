@@ -1,5 +1,6 @@
 #include "Parsing.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -175,32 +176,43 @@ Parser::ActionsFromString(const std::string& string)
 }
 
 
+// Parses one "X:Name*IDS" signature token (e.g. "O:Target*", "I:Time*",
+// "I:ScrollSpeed*Scroll") from an ACTION.IDS/TRIGGER.IDS-style function
+// signature. Malformed input (no ':' or no '*', or one immediately after
+// the other) yields a Parameter::UNKNOWN instead of guessing from
+// clamped-but-wrong substring bounds.
 static
 Parameter
 ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 {
 	Parameter parameter;
+	if (string.size() < 2)
+		return parameter;
+
+	size_t colonPos = string.find(':');
+	size_t starPos = string.find('*');
+	if (colonPos == std::string::npos || starPos == std::string::npos
+			|| starPos <= colonPos + 1) {
+		return parameter;
+	}
+
+	parameter.name = string.substr(colonPos + 1, starPos - colonPos - 1);
+	std::string valueIDS = string.substr(starPos + 1);
+
 	std::string typeString = string.substr(0, 2);
-	size_t valueNamePos = string.find(":");
-	size_t IDSNamePos = string.find("*");
-	std::string valueName = string.substr(valueNamePos + 1, IDSNamePos - 2);
-	std::string valueIDS = string.substr(IDSNamePos + 1, std::string::npos);
-	parameter.name = valueName;
 	if (typeString == "O:") {
 		parameter.type = Parameter::OBJECT;
 	} else if (typeString == "S:") {
 		parameter.type = Parameter::STRING;
-		parameter.position = stringPos;
-		stringPos++;
+		parameter.position = stringPos++;
 	} else if (typeString == "I:") {
-		if (valueIDS == "")
+		if (valueIDS.empty())
 			parameter.type = Parameter::INTEGER;
 		else {
 			parameter.type = Parameter::INT_ENUM;
 			parameter.IDtable = valueIDS;
 		}
-		parameter.position = integerPos;
-		integerPos++;
+		parameter.position = integerPos++;
 	} else if (typeString == "P:")
 		parameter.type = Parameter::POINT;
 
@@ -208,14 +220,19 @@ ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 }
 
 
+// Parses an ACTION.IDS/TRIGGER.IDS function signature (e.g.
+// "MoveViewObject(O:Target*,I:ScrollSpeed*Scroll)") into its ordered
+// Parameter list, with S:/I: positions numbered separately and O:
+// positions assigned per the action_params::First()/Second()/Third()
+// convention Script::GetSenderObject()/GetTargetObject() read: a single
+// O: parameter is always the target, landing in Second(); with more than
+// one, they fill First(), Second(), Third() in declaration order.
 static
 std::vector<Parameter>
 GetFunctionParameters(const std::string& functionString)
 {
-	//std::cout << "GetFunctionParameters()" << std::endl;
 	StringStream stream(functionString);
 	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
 
 	std::vector<Parameter> parameters;
 	token functionName = tokenizer.ReadToken();
@@ -224,24 +241,17 @@ GetFunctionParameters(const std::string& functionString)
 			|| parens.type != TOKEN_PARENTHESIS_OPEN)
 		return parameters;
 
-	// TODO: Improve, refactor
 	int stringPos = 1;
 	int integerPos = 1;
 	for (;;) {
 		token t = tokenizer.ReadToken();
-		// closing parenthesis
 		if (t.type == TOKEN_PARENTHESIS_CLOSED)
 			break;
-		else if (t.type == TOKEN_COMMA)
+		if (t.type == TOKEN_COMMA)
 			continue;
-		Parameter parameter = ParameterFromString(t.u.string, stringPos, integerPos);
-		parameters.push_back(parameter);
+		parameters.push_back(ParameterFromString(t.u.string, stringPos, integerPos));
 	}
 
-	// Object parameter slots follow action_params' First()/Second()/Third()
-	// convention (as read by Script::GetSenderObject()/GetTargetObject()):
-	// a single O: parameter is always the target, landing in Second(); with
-	// more than one, they fill First(), Second(), Third() in order.
 	std::vector<size_t> objectIndices;
 	for (size_t i = 0; i < parameters.size(); i++) {
 		if (parameters[i].type == Parameter::OBJECT)
@@ -253,13 +263,6 @@ GetFunctionParameters(const std::string& functionString)
 		for (size_t i = 0; i < objectIndices.size(); i++)
 			parameters[objectIndices[i]].position = i + 1;
 	}
-#if 0
-	std::cout << "found " << parameters.size() << " parameters." << std::endl;
-	std::vector<Parameter>::const_iterator i;
-	for (auto param: parameters) {
-		param.Print();
-	}
-#endif
 	return parameters;
 }
 
@@ -268,14 +271,11 @@ GetFunctionParameters(const std::string& functionString)
 trigger_params*
 Parser::TriggerFromString(const std::string& string)
 {
-	//std::cout << "TriggerFromString()" << std::endl;
 	trigger_params* node = new trigger_params();
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
 	if (!_ExtractTriggerName(tokenizer, node)) {
 		delete node;
-		//node->Release();
 		return NULL;
 	}
 
@@ -294,9 +294,6 @@ Parser::TriggerFromString(const std::string& string)
 		extractor._ExtractNextParameter(node, parameter);
 	}
 
-	//std::cout << "TriggerFromString() END" << std::endl;
-	//node->Print();
-
 	return node;
 }
 
@@ -305,13 +302,10 @@ Parser::TriggerFromString(const std::string& string)
 action_params*
 Parser::ActionFromString(const std::string& string)
 {
-	//std::cerr << "ActionFromString: " << string << std::endl;
 	action_params* params = new action_params();
 	StringStream stream(string);
 	Tokenizer tokenizer(&stream, 0);
-	//tokenizer.SetDebug(true);
 	if (!_ExtractActionName(tokenizer, params)) {
-		//node->Release();
 		delete params;
 		return NULL;
 	}
@@ -338,8 +332,6 @@ Parser::ActionFromString(const std::string& string)
 		delete params;
 		return nullptr;
 	}
-	//std::cout << "ActionFromString() END" << std::endl;
-	//params->Print();
 
 	return params;
 }
@@ -618,6 +610,62 @@ Parser::_ReadActionBlock()
 }
 
 
+// Byte size of every fixed C buffer a parsed token can land in
+// (object_params::name, action_params/trigger_params::string1/2 - see
+// ScriptObjects.h). tokenParam.size can reach this exact value when a
+// token fills its own same-sized buffer with no room left for a NUL
+// (Tokenizer.cpp's strnlen()-based size computation doesn't reserve one) -
+// _CopyBoundedString() below clamps to kFieldSize-1 so the destination is
+// always left NUL-terminated instead of copying past it.
+static const size_t kFieldSize = 48;
+
+
+// Copies a (possibly quoted) string token into a fixed kFieldSize C
+// buffer, truncating rather than overflowing if the token doesn't fit.
+static void
+_CopyBoundedString(char* dest, token& tokenParam)
+{
+	size_t copyLength = std::min((size_t)tokenParam.size, kFieldSize - 1);
+	if (tokenParam.type == TOKEN_QUOTED_STRING)
+		get_unquoted_string(dest, tokenParam.u.string, copyLength);
+	else if (tokenParam.type == TOKEN_STRING) {
+		::memcpy(dest, tokenParam.u.string, copyLength);
+		dest[copyLength] = '\0';
+	}
+}
+
+
+// Fills `dest` from a single already-read O: token - shared by both
+// action_params and trigger_params extraction below, which each resolve
+// which of their own object_params slots `dest` points to (trigger_params
+// has only node->Object(); action_params has First()/Second()/Third(),
+// picked by parameter.position) before calling this.
+static void
+_FillObjectParameter(object_params* dest, token& tokenParam)
+{
+	if (tokenParam.type == TOKEN_QUOTED_STRING)
+		_CopyBoundedString(dest->name, tokenParam);
+	else if (tokenParam.type == TOKEN_STRING)
+		dest->identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
+}
+
+
+// Resolves which of a trigger's/action's two S: string fields
+// `parameter.position` (1-based) refers to - both structs expose
+// string1/string2 as identically-typed public fields, so one template
+// covers both without a shared base class.
+template<typename Params>
+static char*
+_StringFieldAt(Params* params, int position)
+{
+	if (position == 1)
+		return params->string1;
+	if (position == 2)
+		return params->string2;
+	throw std::runtime_error("wrong parameter position");
+}
+
+
 // ParameterExtractor
 ParameterExtractor::ParameterExtractor(Tokenizer& tokenizer)
 	:
@@ -630,22 +678,12 @@ token
 ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 								Parameter& parameter)
 {
-	// TODO: horrible, complex code. Improve, refactor
-	//std::cout << "ExtractNextParameter" << std::endl;
 	token tokenParam = _ReadParameterToken();
 
-	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
 		case Parameter::OBJECT:
-		{
-			object_params objectNode;
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING)
-				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
-			*node->Object() = objectNode;
+			_FillObjectParameter(node->Object(), tokenParam);
 			break;
-		}
 		case Parameter::INTEGER:
 			if (parameter.position == 1)
 				node->parameter1 = tokenParam.u.number;
@@ -662,22 +700,8 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 			break;
 		}
 		case Parameter::STRING:
-		{
-			char* destString = NULL;
-			if (parameter.position == 1)
-				destString = node->string1;
-			else if (parameter.position == 2)
-				destString = node->string2;
-			else
-				throw std::runtime_error("wrong parameter position");
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(destString, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING) {
-				::memcpy(destString, tokenParam.u.string, stringLength);
-				destString[stringLength] = '\0';
-			}
+			_CopyBoundedString(_StringFieldAt(node, parameter.position), tokenParam);
 			break;
-		}
 		default:
 			break;
 	}
@@ -689,11 +713,8 @@ token
 ParameterExtractor::_ExtractNextParameter(::action_params* param,
 								Parameter& parameter)
 {
-	// TODO: horrible, complex code. Improve, refactor
-	//std::cout << "ExtractNextParameter(ACTION)" << std::endl;
 	token tokenParam = _ReadParameterToken();
 
-	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
 	switch (parameter.type) {
 		case Parameter::POINT:
 			param->where.x = tokenParam.u.number;
@@ -701,20 +722,13 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
 		case Parameter::OBJECT:
-		{
-			object_params objectNode;
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING)
-				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
 			if (parameter.position == 1)
-				*param->First() = objectNode;
+				_FillObjectParameter(param->First(), tokenParam);
 			else if (parameter.position == 2)
-				*param->Second() = objectNode;
+				_FillObjectParameter(param->Second(), tokenParam);
 			else if (parameter.position == 3)
-				*param->Third() = objectNode;
+				_FillObjectParameter(param->Third(), tokenParam);
 			break;
-		}
 		case Parameter::INTEGER:
 			if (parameter.position == 1)
 				param->integer1 = tokenParam.u.number;
@@ -735,29 +749,11 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			break;
 		}
 		case Parameter::STRING:
-		{
-			char* destString = NULL;
-			if (parameter.position == 1)
-				destString = param->string1;
-			else if (parameter.position == 2)
-				destString = param->string2;
-			else
-				throw std::runtime_error("wrong parameter position");
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(destString, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING) {
-				::memcpy(destString, tokenParam.u.string, stringLength);
-				destString[stringLength] = '\0';
-			}
+			_CopyBoundedString(_StringFieldAt(param, parameter.position), tokenParam);
 			break;
-		}
 		default:
 			break;
 	}
-
-	//param->Print();
-
-	//std::cout << tokenParam.u.string << std::endl;
 
 	return tokenParam;
 }
