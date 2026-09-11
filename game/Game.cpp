@@ -1456,24 +1456,34 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 	if (button == NULL)
 		return;
 
+	Bitmap* icon = nullptr;
 	std::string name = actor->PaperdollName();
-	PLTResource* plt = gResManager->GetPLT(name.c_str());
-	if (plt == NULL && name.length() >= 5) {
-		// Not every class-letter x armor-digit paperdoll exists in every
-		// install; fall back to the unarmored (digit 1) doll rather than
-		// leaving the paperdoll blank.
-		name[4] = '1';
-		plt = gResManager->GetPLT(name.c_str());
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE) {
+		// Baldur's Gate 1 has paperdolls in BAM resources instead
+		// TODO: it only shows the upper body for now, and in the wrong color, too
+		BAMResource* bam = gResManager->GetBAM(name.c_str());
+		if (bam != nullptr) {
+			icon = bam->FrameForCycle(0, 0);
+			gResManager->ReleaseResource(bam);
+		}
+	} else {
+		PLTResource* plt = gResManager->GetPLT(name.c_str());
+		if (plt == NULL && name.length() >= 5) {
+			// Not every class-letter x armor-digit paperdoll exists in every
+			// install; fall back to the unarmored (digit 1) doll rather than
+			// leaving the paperdoll blank.
+			name[4] = '1';
+			plt = gResManager->GetPLT(name.c_str());
+		}
+		if (plt != NULL) {
+				icon = plt->Image(actor->CRE()->Colors());
+				gResManager->ReleaseResource(plt);
+			} else {
+				std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
+						<< name << std::endl;
+		}
 	}
 
-	Bitmap* icon = NULL;
-	if (plt != NULL) {
-		icon = plt->Image(actor->CRE()->Colors());
-		gResManager->ReleaseResource(plt);
-	} else {
-		std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
-			<< name << std::endl;
-	}
 	// coverBackground: the paperdoll control's CHU bitmap is just a
 	// generic placeholder doll (CIFF4INV) - hide it so it can't show
 	// through the real doll's transparent areas.
