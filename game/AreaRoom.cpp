@@ -201,15 +201,43 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	// reproduced SEGV in AreaRoom::_DrawActors() right after entering a
 	// new area via a script-driven area change (LEAVEAREALUA), where a
 	// non-lead party member (e.g. Imoen) still had a stale position from
-	// the area just left. Same entrance point for everyone (no formation
-	// scatter) - simplest fix that guarantees every member starts inside
-	// the new area's bounds; TODO: a small per-member offset would look
-	// more like the real engine's spawn formation.
+	// the area just left.
+	//
+	// Small per-member spawn offsets (not a real formation scatter, just
+	// enough to land each member on its own search-map cell): the leader
+	// keeps the exact entrance point, everyone else tries a nearby offset
+	// and only falls back to the shared point if that offset isn't
+	// passable. Landing every member on the *identical* cell (the
+	// original, simpler version of this fix) left them stacked on one
+	// shared, single search-map cell - since SearchMap::SetPoint()/
+	// ClearPoint() track "blocked" per cell, not per occupant, an actor
+	// leaving that cell clears it out from under whichever other member
+	// is still standing there, and in a tight passage (e.g. AR0810's own
+	// entry corridor, right past Door0810) that stacking left the
+	// trailing member with no free adjacent cell to path through at all
+	// - reported by the user as movement blocked right after arriving.
+	static const IE::point kSpawnOffsets[] = {
+		{ 0, 0 }, { 16, 12 }, { -16, -12 }, { 16, -12 }, { -16, 12 }, { 32, 0 }
+	};
+	const size_t kSpawnOffsetCount = sizeof(kSpawnOffsets) / sizeof(kSpawnOffsets[0]);
+
 	Party* party = Game::Get()->Party();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor* member = party->ActorAt(a);
-		if (member != NULL)
-			member->SetPosition(point);
+		if (member == NULL)
+			continue;
+
+		IE::point memberPoint = point;
+		if (a > 0 && a < kSpawnOffsetCount) {
+			IE::point offsetPoint = {
+				int16(point.x + kSpawnOffsets[a].x),
+				int16(point.y + kSpawnOffsets[a].y)
+			};
+			if (fSearchMap != NULL
+					&& fSearchMap->IsPointPassable(offsetPoint.x, offsetPoint.y))
+				memberPoint = offsetPoint;
+		}
+		member->SetPosition(memberPoint);
 	}
 
 	Actor* player = party->ActorAt(0);
