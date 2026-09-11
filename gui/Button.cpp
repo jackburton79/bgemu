@@ -32,13 +32,33 @@ Button::Button(IE::button* button)
 	fPressed(false)
 {
 	BAMResource *resource = gResManager->GetBAM(button->image);
-	if (resource != NULL) {
+	if (resource == NULL)
+		return;
+
+	try {
 		fDisabledBitmap = resource->FrameForCycle(button->cycle, button->frame_disabled);
-		fSelectedBitmap = resource->FrameForCycle(button->cycle, button->frame_selected); 
+		fSelectedBitmap = resource->FrameForCycle(button->cycle, button->frame_selected);
 		fPressedBitmap = resource->FrameForCycle(button->cycle, button->frame_pressed);
 		fUnpressedBitmap = resource->FrameForCycle(button->cycle, button->frame_unpressed);
+	} catch (...) {
+		// A bad frame index in this control's own data (rare, but real -
+		// see CHUIResource::GetWindow()'s comment on this exact case)
+		// must not leak whatever FrameForCycle() allocated before
+		// throwing, nor the BAM resource's extra reference below - the
+		// constructor never finishes, so ~Button() never runs to release
+		// them itself.
 		gResManager->ReleaseResource(resource);
+		if (fDisabledBitmap != NULL)
+			fDisabledBitmap->Release();
+		if (fSelectedBitmap != NULL)
+			fSelectedBitmap->Release();
+		if (fPressedBitmap != NULL)
+			fPressedBitmap->Release();
+		if (fUnpressedBitmap != NULL)
+			fUnpressedBitmap->Release();
+		throw;
 	}
+	gResManager->ReleaseResource(resource);
 }
 
 

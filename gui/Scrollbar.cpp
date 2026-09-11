@@ -41,12 +41,26 @@ Scrollbar::Scrollbar(IE::scrollbar* scrollbar)
 	if (fResource == NULL)
 		return;
 	uint16 cycle = scrollbar->cycle;
-	fUpArrow = fResource->FrameForCycle(cycle, scrollbar->arrow_up_unpressed);
-	fUpArrowPressed = fResource->FrameForCycle(cycle, scrollbar->arrow_up_pressed);
-	fDownArrow = fResource->FrameForCycle(cycle, scrollbar->arrow_down_unpressed);
-	fDownArrowPressed = fResource->FrameForCycle(cycle, scrollbar->arrow_down_pressed);
-	fTrough = fResource->FrameForCycle(cycle, scrollbar->trough);
-	fThumb = fResource->FrameForCycle(cycle, scrollbar->slider);
+	try {
+		fUpArrow = fResource->FrameForCycle(cycle, scrollbar->arrow_up_unpressed);
+		fUpArrowPressed = fResource->FrameForCycle(cycle, scrollbar->arrow_up_pressed);
+		fDownArrow = fResource->FrameForCycle(cycle, scrollbar->arrow_down_unpressed);
+		fDownArrowPressed = fResource->FrameForCycle(cycle, scrollbar->arrow_down_pressed);
+		fTrough = fResource->FrameForCycle(cycle, scrollbar->trough);
+		fThumb = fResource->FrameForCycle(cycle, scrollbar->slider);
+	} catch (...) {
+		// Same exception-safety concern as Button::Button() - a bad frame
+		// index must not leak fResource's extra reference or whatever
+		// bitmaps were already extracted, since ~Scrollbar() never runs
+		// for a constructor that didn't finish.
+		for (Bitmap* bitmap : { fUpArrow, fUpArrowPressed, fDownArrow,
+							fDownArrowPressed, fTrough, fThumb }) {
+			if (bitmap != NULL)
+				bitmap->Release();
+		}
+		gResManager->ReleaseResource(fResource);
+		throw;
+	}
 }
 
 

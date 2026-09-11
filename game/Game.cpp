@@ -1800,7 +1800,11 @@ Game::Save(const char* name)
 	gam->SetVariables(Core::Get()->Vars().All());
 
 	bool result = gam->WriteToFile(name);
-	gam->Release();
+	// `gam` is a runtime-built Resource (key 0, never went through
+	// GetResource()/the cache) - plain Release() would leak it, since
+	// nothing else holds a reference to drop it to 0 and Resource's own
+	// destructor is protected (only ResourceManager can call it).
+	gResManager->ReleaseResource(gam);
 	return result;
 }
 
@@ -1810,7 +1814,7 @@ Game::Load(const char* name)
 {
 	GamResource* gam = new GamResource(res_ref("SAVE"));
 	if (!gam->LoadFromFile(name)) {
-		gam->Release();
+		gResManager->ReleaseResource(gam);
 		return false;
 	}
 
@@ -1843,7 +1847,7 @@ Game::Load(const char* name)
 		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
 
 	res_ref area = gam->CurrentArea();
-	gam->Release();
+	gResManager->ReleaseResource(gam);
 	return Core::Get()->LoadArea(area, "", "");
 }
 
