@@ -1119,6 +1119,20 @@ _ItemDisplayName(ITMResource* itm, const res_ref& itemName)
 }
 
 
+// Same as above, resolving the ITM resource itself from the resref -
+// for call sites (inventory drag/drop logging) that only have the
+// resref, not an already-loaded ITMResource*.
+static std::string
+_ItemDisplayName(const res_ref& itemName)
+{
+	ITMResource* itm = gResManager->GetITM(itemName);
+	std::string name = _ItemDisplayName(itm, itemName);
+	if (itm != NULL)
+		gResManager->ReleaseResource(itm);
+	return name;
+}
+
+
 // CRE item-slot for a GUIINV control id, or -1 if the control isn't a
 // mapped inventory slot.
 static int32
@@ -1302,15 +1316,29 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 			return; // empty slot - nothing to pick up
 		fInvDragSlot = slot;
 		GUI::Get()->SetDragBitmap(_MakeItemIcon(item.name));
+		std::cout << actor->Name() << " picks up " << _ItemDisplayName(item.name)
+			<< std::endl;
 		return;
 	}
+
+	// Fetched before MoveItemToSlot() - on a swap, fInvDragSlot no longer
+	// holds this item afterwards (it holds whatever was in `slot`).
+	IE::item draggedItem;
+	actor->CRE()->GetItemAtSlot((uint32)fInvDragSlot, draggedItem);
+	std::string itemName = _ItemDisplayName(draggedItem.name);
 
 	if (actor->MoveItemToSlot((uint32)fInvDragSlot, (uint32)slot)) {
 		fInvDragSlot = -1;
 		GUI::Get()->SetDragBitmap(NULL);
 		_UpdateInventoryIcons();
+		std::cout << actor->Name() << " puts " << itemName << " in slot " << slot
+			<< ((uint32)slot == kSlotWeaponFirst ? " (equipped weapon)" : "")
+			<< std::endl;
+	} else {
+		// Drop rejected (incompatible slot) - keep holding the item.
+		std::cout << actor->Name() << " can't put " << itemName << " there"
+			<< std::endl;
 	}
-	// else: drop rejected - keep holding the item.
 }
 
 
@@ -1738,6 +1766,20 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 	}
 	button->SetIcon(icon);
 	button->SetIconCount(count);
+
+	// The only visible cue that an equip actually took effect, short of
+	// attacking to see the animation change: a highlighted border (same
+	// mechanism already used for the selected party member's portrait)
+	// on whichever weapon-row slot is the one this engine actually
+	// wields (kSlotWeaponFirst - EquippedWeapon()/WeaponAnimation()
+	// always read that one slot; the other 3 "Weapon2-4" quickslots
+	// this CHU shows can hold a spare weapon, but this engine has no
+	// quickslot-switching, so an item sitting there has no effect until
+	// it's moved into this one). Without this, dropping a weapon into a
+	// different quickslot looked identical to a real equip - same icon
+	// update, no way to tell them apart.
+	if (creSlot >= kSlotWeaponFirst && creSlot < kSlotWeaponFirst + 4)
+		button->SetHighlighted(creSlot == kSlotWeaponFirst);
 }
 
 
