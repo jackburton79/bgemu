@@ -208,8 +208,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 
 	std::cout << "Game: Started game loop." << std::endl;
-	int clockTimer = Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
-	int fpsTimer = Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
+	//int clockTimer = Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
+	//int fpsTimer = Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
 
 	SDL_Event event;
 	while (!quitting) {
@@ -366,8 +366,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		Timer::WaitSync(startTicks, fDelay);
 	}
 
-	Timer::RemovePeriodicTimer(clockTimer);
-	Timer::RemovePeriodicTimer(fpsTimer);
+	//Timer::RemovePeriodicTimer(clockTimer);
+	//Timer::RemovePeriodicTimer(fpsTimer);
 
 	delete inputConsole;
 
