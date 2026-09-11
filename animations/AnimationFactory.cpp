@@ -438,9 +438,24 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			description.sequence_number += Core::Get()->HasExtendedOrientations()
 				? ANIM_STANDING_OFFSET : 8;
 			break;
-		case ACT_ATTACKING:
-			description.bam_name += "A1";
+		case ACT_ATTACKING: {
+			// avatarnaming.htm "Character": Action='A' detail digit
+			// 1 (1H) / 2 (2H) overhead swing for melee, or Action='S'
+			// with an empty ("bow") / "x" ("crossbow") suffix for a
+			// ranged weapon - see Actor::EquippedWeaponAnimationType().
+			// Falls back to the melee digit if this character doesn't
+			// actually have a Shooting BAM (not every race/class/armour
+			// combination does).
+			WeaponAnimationType weapon = actor->EquippedWeaponAnimationType();
+			std::string suffix = weapon.isTwoHanded ? "A2" : "A1";
+			if (weapon.isRanged) {
+				std::string shootSuffix = weapon.isCrossbow ? "Sx" : "S";
+				if (_HasBAMVariant(description.bam_name, shootSuffix.c_str()))
+					suffix = shootSuffix;
+			}
+			description.bam_name += suffix;
 			break;
+		}
 		case ACT_DIE:
 			if (_HasBAMVariant(description.bam_name, "G15")) {
 				description.bam_name += "G15";

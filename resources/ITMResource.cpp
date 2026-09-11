@@ -109,6 +109,7 @@ ITMResource::GetAbility(uint16 index, itm_ability& ability) const
 	fData->ReadAt(offset + 0x1c, ability.damageType);
 	fData->ReadAt(offset + 0x1e, ability.featureBlockCount);
 	fData->ReadAt(offset + 0x20, ability.featureBlockIndex);
+	fData->ReadAt(offset + 0x34, ability.crossbowQualifier);
 
 	return true;
 }

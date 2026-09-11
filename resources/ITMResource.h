@@ -58,6 +58,10 @@ struct itm_ability {
 	uint16 damageType;	// 0=None,1=Piercing/Magic,2=Blunt,3=Slashing,4=Missile,5=Fists
 	uint16 featureBlockCount;
 	uint16 featureBlockIndex;
+	// "Crossbow/Bolt qualifier" (0=No, 1=Yes) - for a Launcher ability,
+	// distinguishes a crossbow (avatar-naming "x" suffix) from a bow/sling
+	// (no suffix). Meaningless for non-Launcher abilities.
+	uint16 crossbowQualifier;
 };
 
 
@@ -70,6 +74,9 @@ public:
 
 	uint16 ItemType() const;
 	std::string Animation() const;
+	// Header Flags bit 1 ("Two-handed") - avatar-naming picks the "2H"
+	// attack-animation digit instead of "1H" when set.
+	bool IsTwoHanded() const { return (fHeader.flags & 0x0002) != 0; }
 	// TLK strref for the item's name / description. This engine has no
 	// identification mechanic, so callers use the identified variants.
 	uint32 IdentifiedNameRef() const { return fHeader.name_identified; }

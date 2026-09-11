@@ -12,6 +12,18 @@ const static uint32 kNumAnimations = 8;
 const static uint32 kNumActions = 2;
 
 struct CREColors;
+
+// Weapon handedness/ranged category, used by the "Character" avatar-naming
+// scheme (docs/iesdp-gh-pages/appendices/avatarnaming.htm): Action='A'
+// detail digit 1 (1H) / 2 (2H) for a melee weapon, or Action='S' with an
+// empty ("bow") / "x" ("crossbow") suffix for a ranged one. Unarmed (no
+// weapon equipped) is one-handed melee - every field stays false.
+struct WeaponAnimationType {
+	bool isTwoHanded = false;
+	bool isRanged = false;
+	bool isCrossbow = false;
+};
+
 class Animation;
 class AnimationFactory;
 class AreaRoom;
@@ -86,6 +98,7 @@ public:
 
 	std::string ArmorAnimation() const;
 	std::string WeaponAnimation() const;
+	WeaponAnimationType EquippedWeaponAnimationType() const;
 
 	// The paperdoll (PLT) resref for this actor's inventory screen - see
 	// AnimationFactory::PaperdollName(). Empty if this actor has no

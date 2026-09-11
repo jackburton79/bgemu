@@ -1179,6 +1179,29 @@ Actor::WeaponAnimation() const
 }
 
 
+WeaponAnimationType
+Actor::EquippedWeaponAnimationType() const
+{
+	WeaponAnimationType type;
+	ITMResource* itm = EquippedWeapon();
+	if (itm == NULL)
+		return type; // unarmed - one-handed melee
+
+	itm_ability ability;
+	if (itm->GetAbility(0, ability) && ability.attackType == 4) { // Launcher
+		// A bow/sling/crossbow's own header often carries the "Two-handed"
+		// flag too (lore-accurate), but the Shooting sequence has no 2H
+		// variant - a launcher is one-handed from an animation POV.
+		type.isRanged = true;
+		type.isCrossbow = ability.crossbowQualifier != 0;
+	} else
+		type.isTwoHanded = itm->IsTwoHanded();
+
+	gResManager->ReleaseResource(itm);
+	return type;
+}
+
+
 ITMResource*
 Actor::EquippedWeapon() const
 {
@@ -1334,6 +1357,10 @@ Actor::EquipItem(const res_ref& itemName)
 		return false; // target slot busy - swapping is out of scope
 
 	fCRE->MoveItemBetweenSlots((uint32)currentSlot, (uint32)targetSlot);
+	// An equipment slot changed hands - same reason TakeItemFromSlot()/
+	// MoveItemToSlot() invalidate: the sprite/paperdoll may need
+	// rebuilding (armor/weapon layers).
+	InvalidateAnimation();
 	return true;
 }
 
@@ -1350,6 +1377,7 @@ Actor::UnequipSlot(uint32 slot)
 		return false;
 
 	fCRE->MoveItemBetweenSlots(slot, (uint32)freeSlot);
+	InvalidateAnimation(); // an equipment slot changed
 	return true;
 }
 
