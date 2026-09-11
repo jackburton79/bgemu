@@ -111,12 +111,24 @@ Core::Destroy()
 	Timer::TearDown();
 
 	std::cout << "Core::Destroy()" << std::endl;
-	if (sCore->fCurrentRoom != NULL) {
-		sCore->fCurrentRoom->Release();
-		sCore->fCurrentRoom = NULL;
-	}
+	// Normally already NULL by now - Game::Loop() calls
+	// UnloadCurrentRoom() itself before its own GUI::Destroy() (see
+	// that method's own comment on why the ordering matters). Kept
+	// here too as a safety net for any other caller of Core::Destroy().
+	sCore->UnloadCurrentRoom();
 	ResourceManager::Destroy();
 	delete sCore;
+}
+
+
+void
+Core::UnloadCurrentRoom()
+{
+	if (fCurrentRoom != NULL) {
+		fCurrentRoom->Unload();
+		fCurrentRoom->Release();
+		fCurrentRoom = NULL;
+	}
 }
 
 
@@ -159,14 +171,28 @@ bool
 Core::LoadArea(const res_ref areaName, std::string longName,
 					std::string entranceName)
 {
-	if (fCurrentRoom != NULL) {
-		fCurrentRoom->Unload();
-		fCurrentRoom->Release();
-		fCurrentRoom = NULL;
-	}
+	UnloadCurrentRoom();
 	try {
+		// No Acquire() here: the object already starts at refcount 1
+		// from its own constructor (AutoDeletingReferenceable's
+		// default) - an extra one here was never matched by a second
+		// Release() anywhere (grepped the whole codebase for
+		// CurrentRoom-related Acquire/Release - only this, the mirrored
+		// call in LoadWorldMap(), and UnloadCurrentRoom()'s single
+		// Release() touch it at all). It just permanently pinned every
+		// room's refcount at 1 instead of 0 once replaced, so
+		// AutoDeletingReferenceable::LastReferenceReleased() (which
+		// needs the *previous* count to be exactly 1, i.e. a 1->0
+		// transition) never fired and ~AreaRoom()/~WorldMap() never
+		// ran - confirmed with a real RefCount() print showing 2 right
+		// before the single Release() that was supposed to free the
+		// outgoing room. The room's own explicit Unload() (in
+		// UnloadCurrentRoom(), just above) already does the real
+		// cleanup (actors, doors, resources), which is why this stayed
+		// unnoticed for so long - only the empty C++ shell (and
+		// anything only its own destructor frees, e.g. WorldMap's own
+		// fAreaEntries vector storage) was ever leaking.
 		fCurrentRoom = new AreaRoom(areaName, longName.c_str(), entranceName.c_str());
-		fCurrentRoom->Acquire();
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << e.what() << std::endl;
 		return false;
@@ -200,14 +226,14 @@ bool
 Core::LoadWorldMap()
 {
 	// TODO:
-	if (fCurrentRoom != NULL) {
-		fCurrentRoom->Unload();
-		fCurrentRoom->Release();
-		fCurrentRoom = NULL;
-	}
+	UnloadCurrentRoom();
 	try {
+		// No Acquire() here - see LoadArea()'s own comment: it was
+		// never matched by a second Release(), permanently pinning the
+		// outgoing room's refcount at 1 instead of 0 and leaking the
+		// room object's own shell (confirmed via a real RefCount()
+		// print) every time it got replaced.
 		fCurrentRoom = new WorldMap();
-		fCurrentRoom->Acquire();
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << "Core::LoadWorldMap: " << e.what() << std::endl;
 		return false;

@@ -64,7 +64,6 @@ private:
 
 protected:
 	Control* fSavedControl;
-	int32 fControlID;
 
 	virtual ~RoomBase();
 };

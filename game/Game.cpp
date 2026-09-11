@@ -385,6 +385,19 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	std::cout << "Game: Input loop stopped." << std::endl;
 
+	// Before GUI::Destroy() below tears down every Window: the current
+	// room swaps *itself* into its own window as a Control (AreaRoom's/
+	// WorldMap's own constructors), and needs its destructor - which
+	// undoes that swap - to run while that window still exists. Core::
+	// Destroy() (called later, from main() after this function returns)
+	// used to be the only place that released the last room, which was
+	// too late - GUI::Destroy() right below had already torn down the
+	// window (and, via its own Control cleanup, the still-swapped-in
+	// room) by then, leaving Core::Destroy()'s own Release() call to
+	// land on a dangling fCurrentRoom. See Core::UnloadCurrentRoom()'s
+	// own comment.
+	Core::Get()->UnloadCurrentRoom();
+
 	GUI::Destroy();
 	GameTimer::DisposeTimers();
 }

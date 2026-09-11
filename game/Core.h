@@ -56,6 +56,23 @@ public:
 					std::string entranceName);
 	bool LoadWorldMap();
 
+	// Unloads and releases the current room, same as the cleanup step
+	// LoadArea()/LoadWorldMap() each do for the room they're replacing
+	// (and Destroy() does for the very last one) - factored out so
+	// Game::Loop() can call it explicitly, at shutdown, before GUI::
+	// Destroy() tears down every Window. Matters because a RoomBase
+	// swaps *itself* into its own window as a Control (see AreaRoom's
+	// and WorldMap's own constructors) - Unload() undoes that swap, and
+	// the room's own destructor (triggered by Release() dropping the
+	// refcount to 0) needs to run while that window is still alive to
+	// undo it safely. Doing this only in Destroy(), after Game::Loop()
+	// already called GUI::Destroy() internally, was too late: the
+	// window (and, via its own Control cleanup, the still-swapped-in
+	// room) was already gone, so Destroy()'s own Release() call landed
+	// on a dangling fCurrentRoom - a real SEGV, reproduced by loading
+	// one area from the worldmap and then quitting.
+	void UnloadCurrentRoom();
+
 	// Records an area change to apply once it's safe to do so (right
 	// after UpdateLogic()'s AreaRoom::Update() call returns) instead of
 	// loading immediately - LoadArea() destroys the current AreaRoom

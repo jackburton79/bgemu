@@ -230,9 +230,22 @@ WorldMap::_UnloadWorldMap()
 	// TODO: here we could have been called by the Window destructor,
 	// so some of these fields could have already been deleted
 	if (fSavedControl != nullptr) {
-		if (Window() != nullptr)
-			Window()->ReplaceControl(fControlID, fSavedControl);
-		else
+		if (Window() != nullptr) {
+			// InternalControl()->id, not a separately-tracked id: the
+			// ctor's ReplaceControl(4, this) call (below) already wrote
+			// 4 into it (Window::ReplaceControl() sets the new
+			// control's id to the id being replaced) - same pattern
+			// AreaRoom's own restore already uses correctly. This used
+			// to read a dedicated fControlID member that nothing ever
+			// set to 4 - always still its RoomBase-constructor default
+			// of -1, so this call matched no control, silently doing
+			// nothing: fSavedControl (the real GUIWMAP control this
+			// replaced) was never put back *and* never deleted - a real
+			// leak, reproduced by loading an area from the worldmap and
+			// then quitting (heap-buffer still traced back to this
+			// Button's construction).
+			Window()->ReplaceControl(InternalControl()->id, fSavedControl);
+		} else
 			delete fSavedControl;
 		fSavedControl = nullptr;
 	}

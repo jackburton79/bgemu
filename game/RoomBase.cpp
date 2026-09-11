@@ -16,7 +16,7 @@ RoomBase::RoomBase()
 	InternalControl()->x = InternalControl()->y = InternalControl()->h = InternalControl()->w = 0;
 	InternalControl()->type = 0;
 	InternalControl()->unk = 0;
-	fControlID = InternalControl()->id = -1;
+	InternalControl()->id = -1;
 
 	fAreaOffset.x = fAreaOffset.y = 0;
 }
