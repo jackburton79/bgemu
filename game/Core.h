@@ -1,5 +1,4 @@
-#ifndef __CORE_H
-#define __CORE_H
+#pragma once
 
 #include "Actor.h"
 #include "IETypes.h"
@@ -56,58 +55,16 @@ public:
 					std::string entranceName);
 	bool LoadWorldMap();
 
-	// Unloads and releases the current room, same as the cleanup step
-	// LoadArea()/LoadWorldMap() each do for the room they're replacing
-	// (and Destroy() does for the very last one) - factored out so
-	// Game::Loop() can call it explicitly, at shutdown, before GUI::
-	// Destroy() tears down every Window. Matters because a RoomBase
-	// swaps *itself* into its own window as a Control (see AreaRoom's
-	// and WorldMap's own constructors) - Unload() undoes that swap, and
-	// the room's own destructor (triggered by Release() dropping the
-	// refcount to 0) needs to run while that window is still alive to
-	// undo it safely. Doing this only in Destroy(), after Game::Loop()
-	// already called GUI::Destroy() internally, was too late: the
-	// window (and, via its own Control cleanup, the still-swapped-in
-	// room) was already gone, so Destroy()'s own Release() call landed
-	// on a dangling fCurrentRoom - a real SEGV, reproduced by loading
-	// one area from the worldmap and then quitting.
+	// Unloads and releases the current room
 	void UnloadCurrentRoom();
 
-	// Records an area change to apply once it's safe to do so (right
-	// after UpdateLogic()'s AreaRoom::Update() call returns) instead of
-	// loading immediately - LoadArea() destroys the current AreaRoom
-	// (see its own GUI::Clear() call), which is only safe once nothing
-	// on the call stack is still inside one of ITS OWN member functions.
-	// Actions that trigger an area change (LEAVEAREALUA,
-	// MOVEBETWEENAREASEFFECT) run from deep inside AreaRoom::Update()'s
-	// own actor-update loop (Actor::Update() -> ... -> this action) -
-	// calling LoadArea() straight from there was a real, reproduced
-	// heap-use-after-free (AreaRoom::Update()'s "for (actor : fActors)"
-	// loop reading fActors after the AreaRoom that owns it, and that
-	// loop, got destroyed out from under it).
-	// clearActionsFor (optional): also clears that actor's own action
-	// list right before the deferred LoadArea() below runs - for a
-	// caller triggered by the actor's own movement finally arriving
-	// somewhere (see Actor::_UpdateRegions()), where the action that
-	// walked it there is done and letting it (or anything queued
-	// behind it) survive into the new area makes no sense. Deferred to
-	// the same safe point as the area load itself, for the same
-	// reason: RequestAreaChange() can be called from deep inside that
-	// very actor's own action execution (e.g. a teleport action whose
-	// handler still reads its own action_params after this call
-	// returns) - clearing its action list synchronously here would
-	// free that action out from under its own still-running handler.
+	// Records an area change to apply once it's safe to do so
 	void RequestAreaChange(const res_ref& areaName,
 					const std::string& longName,
 					const std::string& entranceName,
 					Actor* clearActionsFor = NULL);
 
-	// Same deferral as RequestAreaChange() above, same reason: a party
-	// member walking onto a wilderness map's "Worldmap exit" search-map
-	// cell (see SearchMap::IsWorldmapExit()) requests this from
-	// Actor::_UpdateRegions(), itself reachable from deep inside
-	// AreaRoom::Update()'s own actor loop - LoadWorldMap() destroys the
-	// current AreaRoom exactly like LoadArea() does.
+	// Same deferral as RequestAreaChange() above
 	void RequestWorldMapLoad();
 
 	RoomBase* CurrentRoom();
@@ -186,6 +143,3 @@ private:
 	bool fHasExtendedOrientations;
 };
 
-
-
-#endif // __CORE_H

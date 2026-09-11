@@ -47,7 +47,6 @@ Core::Core()
 Core::~Core()
 {
 	delete fCutsceneScript;
-	//std::cout << "Core::~Core() returned" << std::endl;
 }
 
 
@@ -112,9 +111,7 @@ Core::Destroy()
 
 	std::cout << "Core::Destroy()" << std::endl;
 	// Normally already NULL by now - Game::Loop() calls
-	// UnloadCurrentRoom() itself before its own GUI::Destroy() (see
-	// that method's own comment on why the ordering matters). Kept
-	// here too as a safety net for any other caller of Core::Destroy().
+	// UnloadCurrentRoom() itself
 	sCore->UnloadCurrentRoom();
 	ResourceManager::Destroy();
 	delete sCore;
@@ -174,24 +171,7 @@ Core::LoadArea(const res_ref areaName, std::string longName,
 	UnloadCurrentRoom();
 	try {
 		// No Acquire() here: the object already starts at refcount 1
-		// from its own constructor (AutoDeletingReferenceable's
-		// default) - an extra one here was never matched by a second
-		// Release() anywhere (grepped the whole codebase for
-		// CurrentRoom-related Acquire/Release - only this, the mirrored
-		// call in LoadWorldMap(), and UnloadCurrentRoom()'s single
-		// Release() touch it at all). It just permanently pinned every
-		// room's refcount at 1 instead of 0 once replaced, so
-		// AutoDeletingReferenceable::LastReferenceReleased() (which
-		// needs the *previous* count to be exactly 1, i.e. a 1->0
-		// transition) never fired and ~AreaRoom()/~WorldMap() never
-		// ran - confirmed with a real RefCount() print showing 2 right
-		// before the single Release() that was supposed to free the
-		// outgoing room. The room's own explicit Unload() (in
-		// UnloadCurrentRoom(), just above) already does the real
-		// cleanup (actors, doors, resources), which is why this stayed
-		// unnoticed for so long - only the empty C++ shell (and
-		// anything only its own destructor frees, e.g. WorldMap's own
-		// fAreaEntries vector storage) was ever leaking.
+		// from its own constructor
 		fCurrentRoom = new AreaRoom(areaName, longName.c_str(), entranceName.c_str());
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << e.what() << std::endl;
@@ -228,18 +208,13 @@ Core::LoadWorldMap()
 	// TODO:
 	UnloadCurrentRoom();
 	try {
-		// No Acquire() here - see LoadArea()'s own comment: it was
-		// never matched by a second Release(), permanently pinning the
-		// outgoing room's refcount at 1 instead of 0 and leaking the
-		// room object's own shell (confirmed via a real RefCount()
-		// print) every time it got replaced.
+		// No Acquire() here - see LoadArea()'s own comment
 		fCurrentRoom = new WorldMap();
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << "Core::LoadWorldMap: " << e.what() << std::endl;
 		return false;
 	}
 
-	//EnteredArea(fCurrentRoom);
 	return true;
 }
 
@@ -394,13 +369,6 @@ Core::UpdateLogic(bool executeScripts)
 	if (strcmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return;
 
-	/*Timer* timer = Timer::Get("ANIMATIONS");
-	if (timer->Expired())
-		timer->Rearm();
-	timer = Timer::Get("ANIMATEDTILES");
-	if (timer->Expired())
-		timer->Rearm();
-	*/
 	if (!Game::Get()->InDialogMode()) {
 		// Cutscene mode suppresses script (re-)evaluation uniformly for
 		// every object in the area
@@ -409,25 +377,7 @@ Core::UpdateLogic(bool executeScripts)
 		fCurrentRoom->Update(runScripts);
 
 		// Apply any area change an action requested during the Update()
-		// call just above now that it's actually safe to do so - see
-		// RequestAreaChange()'s own comment. fCurrentRoom (and whatever
-		// it was in the middle of this tick) is gone once this runs, so
-		// skip the rest of this tick's bookkeeping below; it resumes
-		// cleanly against the new area next tick.
-		//
-		// Held off, though, while the cutscene's main actor (fCutsceneActor -
-		// see Script::_HandleAction()'s own comment on why it's the *first*
-		// CUTSCENEID target, not whichever actor happened to request the
-		// area change) still has actions of its own queued: one actor's area
-		// change can otherwise fire while a DIFFERENT actor's own cutscene
-		// block is still mid-sequence - e.g. an NPC escorting the party who
-		// queues their own MOVEBETWEENAREASEFFECT (to come along) a few
-		// ticks after the party's own transition already fired. Left in the
-		// old area's fActors, that NPC gets swept up and destroyed by
-		// AreaRoom::_UnloadArea() before their own move ever runs - a real,
-		// reproduced case (Gaelan Bayle, AR0400 -> AR0311) of an escorting
-		// NPC never arriving in the new area. Waiting here isn't a new risk:
-		// it's the same condition EndCutsceneMode() below already waits on.
+		// call just above now that it's actually safe to do so
 		bool cutsceneActorBusy = fCutsceneActor != NULL
 			&& !fCutsceneActor->IsActionListEmpty();
 		if (fPendingAreaChange && !cutsceneActorBusy) {
@@ -527,16 +477,6 @@ Core::ExtractScript(const res_ref& resName)
 
 
 void
-Core::_PrintObjects() const
-{
-/*	for (ActorsList::const_iterator i = fActors.begin();
-											i != fActors.end(); i++) {
-		(*i)->Print();
-	}*/
-}
-
-
-void
 Core::_InitGameTimers()
 {
 	Timer::Set("ANIMATIONS", 100);
@@ -548,5 +488,4 @@ void
 Core::_NewRound()
 {
 	fCurrentRoundNumber++;
-	//std::cout << "******* ROUND " << fCurrentRoundNumber << "********" << std::endl;
 }

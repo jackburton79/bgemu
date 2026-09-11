@@ -1,5 +1,4 @@
-#ifndef __ROOMBASE_H
-#define __ROOMBASE_H
+#pragma once
 
 #include "Control.h"
 #include "GraphicsDefs.h"
@@ -68,5 +67,3 @@ protected:
 	virtual ~RoomBase();
 };
 
-
-#endif // __ROOMBASE_H

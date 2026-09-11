@@ -70,13 +70,8 @@ Game::Game()
 	fDialog(NULL),
 	fParty(NULL),
 	fTempState(NULL),
-	// 15 Hz, standard Infinity Engine pace (AI_UPDATE_FREQ) - previously
-	// 0 ("for tests only"), which left Core::UpdateLogic() completely
-	// unthrottled (no vsync on the renderer either - see
-	// GraphicsEngine::SetVideoMode()) and decoupled every
-	// AI_UPDATE_FREQ-based countdown (spell casting duration, STARTTIMER,
-	// the day/night cycle) from real elapsed time - found while
-	// reviewing the timer infrastructure against IESDP's documented
+	// 15 Hz, standard Infinity Engine pace (AI_UPDATE_FREQ)
+	// IESDP's documented
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
 	fTestMode(false),
@@ -213,11 +208,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 
 	std::cout << "Game: Started game loop." << std::endl;
-	SDL_Event event;
-
 	int clockTimer = Timer::AddPeriodicTimer(8000, DisplayClock, NULL);
 	int fpsTimer = Timer::AddPeriodicTimer(1000, DisplayFrameRate, NULL);
 
+	SDL_Event event;
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
@@ -323,13 +317,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								fDelay++;
 								break;
 							// Party member selection (1-6, real BG2's own
-							// number-key convention) - was GUI::ToggleWindow
-							// (1-4) here before, an undocumented debug
-							// leftover never referenced by any of this
-							// session's own work; repurposed since actual
-							// party control is far more valuable for
-							// playtesting and the two aren't reachable at
-							// the same time anyway.
+							// number-key convention)
 							case SDLK_1:
 								SelectPartyMember(0);
 								break;
@@ -387,15 +375,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	// Before GUI::Destroy() below tears down every Window: the current
 	// room swaps *itself* into its own window as a Control (AreaRoom's/
-	// WorldMap's own constructors), and needs its destructor - which
-	// undoes that swap - to run while that window still exists. Core::
-	// Destroy() (called later, from main() after this function returns)
-	// used to be the only place that released the last room, which was
-	// too late - GUI::Destroy() right below had already torn down the
-	// window (and, via its own Control cleanup, the still-swapped-in
-	// room) by then, leaving Core::Destroy()'s own Release() call to
-	// land on a dangling fCurrentRoom. See Core::UnloadCurrentRoom()'s
-	// own comment.
+	// WorldMap's own constructors)
 	Core::Get()->UnloadCurrentRoom();
 
 	GUI::Destroy();
