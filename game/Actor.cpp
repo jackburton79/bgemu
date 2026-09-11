@@ -2044,6 +2044,19 @@ Actor::_UpdateRegions()
 				// AreaRoom::Update()'s own actor-update loop (see its own
 				// comment on the heap-use-after-free that caused).
 				if (region->Type() == IE::REGION_TYPE_TRAVEL && InParty()) {
+					// The MOVETOPOINT that walked this actor here has done
+					// its job - clear it (and anything queued behind it)
+					// before the deferred LoadArea() runs. _UnloadArea()
+					// deliberately leaves a party member's action list
+					// alone (see its own comment - a scripted cutscene
+					// transition needs an in-progress action, e.g.
+					// FADEFROMCOLOR, to keep running in the new area), so
+					// without this an old MOVETOPOINT still holding this
+					// area's own coordinates would resume right after
+					// AreaRoom's constructor repositions every party
+					// member to the new entrance, walking this actor
+					// straight off to a bogus spot in the new area's map.
+					ClearActionList();
 					Core::Get()->RequestAreaChange(region->DestinationArea(),
 						"foo", region->DestinationEntrance());
 				}
