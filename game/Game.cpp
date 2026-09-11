@@ -1722,6 +1722,13 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 	if (button == NULL)
 		return;
 
+	// Lets a real press-drag-release mouse gesture move an item between
+	// slots in one motion, not just two separate clicks - see Button::
+	// SetDragCapture()'s own comment. Set on every refresh (redundant
+	// after the first, harmless) since this is the one place that walks
+	// every inventory slot control.
+	button->SetDragCapture(true);
+
 	IE::item item;
 	Bitmap* icon = NULL;
 	int count = 0;

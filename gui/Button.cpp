@@ -8,6 +8,7 @@
 #include "BamResource.h"
 #include "Button.h"
 #include "GraphicsEngine.h"
+#include "GUI.h"
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "TextSupport.h"
@@ -29,7 +30,9 @@ Button::Button(IE::button* button)
 	fHighlighted(false),
 	fEnabled(true),
 	fSelected(false),
-	fPressed(false)
+	fPressed(false),
+	fDragCapture(false),
+	fArmedByPress(false)
 {
 	BAMResource *resource = gResManager->GetBAM(button->image);
 	if (resource == NULL)
@@ -109,6 +112,13 @@ void
 Button::SetHighlighted(bool highlighted)
 {
 	fHighlighted = highlighted;
+}
+
+
+void
+Button::SetDragCapture(bool captures)
+{
+	fDragCapture = captures;
 }
 
 
@@ -201,6 +211,20 @@ Button::MouseDown(IE::point point)
 {
 	Control::MouseDown(point);
 	fPressed = true;
+
+	// Drag-capture buttons (inventory slots - see SetDragCapture()'s own
+	// comment) fire their Invoke() here, at press time, instead of
+	// waiting for MouseUp() below - a real press-drag-release gesture
+	// releases over a *different* button, whose own MouseUp() (not
+	// this one) does the resolving; this one needs to have already
+	// picked its item up before that happens. Skipped while a drag is
+	// already in progress (started by an earlier, separate press) so a
+	// plain second click to complete the drop - this engine's other
+	// supported gesture, two separate clicks - isn't mistaken for a new
+	// pickup; that click's own MouseUp() below already handles it.
+	fArmedByPress = fDragCapture && !GUI::Get()->IsDraggingItem();
+	if (fArmedByPress)
+		Invoke();
 }
 
 
@@ -224,5 +248,21 @@ Button::MouseUp(IE::point point)
 	// HUD CHU, which clears every window - this Button's own included);
 	// touching `this` after that point would be a use-after-free.
 	fPressed = false;
+
+	// This exact press already fired Invoke() above (picked an item up)
+	// - if the release is still on this same button (a plain click, no
+	// real drag), invoking again here would immediately drop the item
+	// right back where it came from (MoveItemToSlot(x,x) is a no-op
+	// "success" that clears the drag) and undo the pickup before the
+	// player ever gets to place it. Skip it; the item stays held for
+	// the next click/release. A real drag that moved off this button
+	// before releasing never reaches this at all - Window::MouseUp()
+	// dispatches to whichever button is under the cursor at release,
+	// and that one's own fArmedByPress is false, so its Invoke() below
+	// fires normally and completes the drop.
+	if (fArmedByPress) {
+		fArmedByPress = false;
+		return;
+	}
 	Invoke();
 }

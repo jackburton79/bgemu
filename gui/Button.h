@@ -43,6 +43,14 @@ public:
 	// currently-selected party member's portrait.
 	void SetHighlighted(bool highlighted);
 
+	// Opts this button into "press acts like a click too" - see
+	// MouseDown()/MouseUp()'s own comments. Used only by the inventory's
+	// slot buttons, so a real press-drag-release gesture (not just two
+	// separate clicks) can pick an item up and drop it in one motion;
+	// every other button in the GUI leaves this false and keeps its
+	// existing release-only Invoke() behavior untouched.
+	void SetDragCapture(bool captures);
+
 private:
 	Bitmap* fDisabledBitmap;
 	Bitmap* fSelectedBitmap;
@@ -61,6 +69,8 @@ private:
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;
+	bool fDragCapture;
+	bool fArmedByPress;
 };
 
 #endif /* BUTTON_H_ */
