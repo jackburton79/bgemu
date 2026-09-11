@@ -237,6 +237,22 @@ GetFunctionParameters(const std::string& functionString)
 		Parameter parameter = ParameterFromString(t.u.string, stringPos, integerPos);
 		parameters.push_back(parameter);
 	}
+
+	// Object parameter slots follow action_params' First()/Second()/Third()
+	// convention (as read by Script::GetSenderObject()/GetTargetObject()):
+	// a single O: parameter is always the target, landing in Second(); with
+	// more than one, they fill First(), Second(), Third() in order.
+	std::vector<size_t> objectIndices;
+	for (size_t i = 0; i < parameters.size(); i++) {
+		if (parameters[i].type == Parameter::OBJECT)
+			objectIndices.push_back(i);
+	}
+	if (objectIndices.size() == 1)
+		parameters[objectIndices[0]].position = 2;
+	else {
+		for (size_t i = 0; i < objectIndices.size(); i++)
+			parameters[objectIndices[i]].position = i + 1;
+	}
 #if 0
 	std::cout << "found " << parameters.size() << " parameters." << std::endl;
 	std::vector<Parameter>::const_iterator i;
@@ -684,6 +700,21 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			fTokenizer.ReadToken(); // comma
 			param->where.y = fTokenizer.ReadToken().u.number;
 			break;
+		case Parameter::OBJECT:
+		{
+			object_params objectNode;
+			if (tokenParam.type == TOKEN_QUOTED_STRING)
+				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
+			else if (tokenParam.type == TOKEN_STRING)
+				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
+			if (parameter.position == 1)
+				*param->First() = objectNode;
+			else if (parameter.position == 2)
+				*param->Second() = objectNode;
+			else if (parameter.position == 3)
+				*param->Third() = objectNode;
+			break;
+		}
 		case Parameter::INTEGER:
 			if (parameter.position == 1)
 				param->integer1 = tokenParam.u.number;
