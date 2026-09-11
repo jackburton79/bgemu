@@ -557,6 +557,22 @@ public:
 };
 
 
+// Show-Character <partyIndex> - selects which party member subsequent
+// per-character screens (Inventory/Record/Spellbook) show, headless
+// equivalent of clicking a portrait.
+class ShowCharacterCommand : public ShellCommand {
+public:
+	ShowCharacterCommand()
+		: ShellCommand("Show-Character", { { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		Game::Get()->ShowCharacter((uint16)params.at(0).value.integer);
+	}
+};
+
+
 class ToggleInventoryCommand : public ShellCommand {
 public:
 	ToggleInventoryCommand()
@@ -1698,6 +1714,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new SetCameraCommand());
 	console->AddCommand(new PrintCameraCommand());
 	console->AddCommand(new DisplayStringCommand());
+	console->AddCommand(new ShowCharacterCommand());
 
 	console->AddCommand(new GiveItemCommand());
 	console->AddCommand(new EquipItemCommand());

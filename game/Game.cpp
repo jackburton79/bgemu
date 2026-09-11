@@ -1464,14 +1464,68 @@ Game::DropHeldItemOnGround()
 }
 
 
+// The wearer's body-size letter for WPxxx paperdoll overlay resrefs
+// below - real BG2 keys this off the avatar animation id via a table
+// hardcoded in the executable (no data file for it), so this is a
+// simplification keyed off race instead, covering every playable PC
+// race. Halflings get their own "H" variant (helmets are the one
+// exception - they fall back to the gnome/"S" files - but this codebase
+// doesn't composite helmets).
+static const char*
+_PaperdollSizeCode(const Actor* actor)
+{
+	switch (actor->CRE()->Race()) {
+		case 5: // HALFLING
+			return "H";
+		case 6: // GNOME
+			return "S";
+		default:
+			return "M";
+	}
+}
+
+
+// Composites one equipped item's paperdoll overlay (a "WP" + size +
+// animation-code + suffix BAM, e.g. "WPMS1INV" for a medium character's
+// long sword) onto `canvas`. The frame's own stored center offset is
+// the target position outright (negated, no separate canvas anchor
+// involved) - confirmed against GemRB's AnimationFactory::
+// GetPaperdollImage()/Button::DrawSelf(), which blit every paperdoll
+// layer at the same button-relative point and let each sprite's own
+// stored offset place it.
+static void
+_CompositePaperdollOverlay(Bitmap* canvas, const char* sizeCode,
+		const std::string& animationCode, const char* suffix)
+{
+	if (animationCode.empty())
+		return;
+
+	std::string resRef = std::string("WP") + sizeCode + animationCode + suffix;
+	BAMResource* bam = gResManager->GetBAM(resRef.c_str());
+	if (bam == nullptr)
+		return;
+
+	Bitmap* frame = bam->FrameForCycle(0, 0);
+	if (frame != nullptr) {
+		GFX::rect frameRect = frame->Frame();
+		GFX::point where(-(frameRect.x + frame->Width() / 2),
+				-(frameRect.y + frame->Height() / 2));
+		frame->BlitTo(canvas, where);
+		frame->Release();
+	}
+	gResManager->ReleaseResource(bam);
+}
+
+
 // Swaps the paperdoll control's fixed CHU-authored placeholder (CIFF4INV,
 // a generic doll unrelated to the shown character) for the real thing:
 // the actual character's own class/race/gender/armor identity (see
 // AnimationFactory::PaperdollName()), rendered from its PLT resource and
-// recolored with their own CRE colors (see PLTResource::Image()). Just
-// the base doll - equipped-item overlays (armor/shield/helmet/weapon
-// layers on top) aren't composited, a declared scope limit (see the
-// roadmap).
+// recolored with their own CRE colors (see PLTResource::Image()), with
+// the equipped weapon and shield/off-hand item composited on top (see
+// _CompositePaperdollOverlay()). Helmet/armor overlays aren't - BG2
+// already bakes worn armor into the base doll's own resref, and helmets
+// aren't handled yet.
 void
 Game::_UpdatePaperdoll(Window* window, Actor* actor)
 {
@@ -1507,6 +1561,29 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 			} else {
 				std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
 						<< name << std::endl;
+		}
+
+		if (icon != nullptr) {
+			const char* sizeCode = _PaperdollSizeCode(actor);
+
+			ITMResource* weapon = actor->EquippedWeapon();
+			if (weapon != nullptr) {
+				_CompositePaperdollOverlay(icon, sizeCode, weapon->Animation(), "INV");
+				gResManager->ReleaseResource(weapon);
+			}
+
+			IE::item shieldItem;
+			if (actor->CRE()->GetItemAtSlot(kSlotShield, shieldItem)) {
+				ITMResource* shield = gResManager->GetITM(shieldItem.name);
+				if (shield != nullptr) {
+					// 0x000c: real shield, uses the same "INV" suffix as
+					// the weapon; anything else in this slot is an
+					// off-hand weapon (dual-wielding), which uses "OIN".
+					const char* suffix = shield->ItemType() == 0x000c ? "INV" : "OIN";
+					_CompositePaperdollOverlay(icon, sizeCode, shield->Animation(), suffix);
+					gResManager->ReleaseResource(shield);
+				}
+			}
 		}
 	}
 
