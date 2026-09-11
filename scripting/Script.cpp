@@ -686,7 +686,8 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				 * the specified object which must not be hidden or invisible.
 				 */
 				Actor* actor = dynamic_cast<Actor*>(sender);
-				returnValue = actor->CanSee(GetTriggerObject(sender, trig));
+				if (actor != nullptr)
+					returnValue = actor->CanSee(GetTriggerObject(sender, trig));
 				//std::cout << (returnValue ? "TRUE" : "FALSE") << std::endl;
 				break;
 			}
