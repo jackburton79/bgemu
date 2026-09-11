@@ -4,11 +4,13 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <memory>
 
 #include "Actions.h"
 #include "Core.h"
 #include "IDSResource.h"
 #include "Log.h"
+#include "ParameterHandlers.h"
 #include "ResManager.h"
 #include "StringStream.h"
 #include "Triggers.h"
@@ -49,7 +51,7 @@ private:
 	Tokenizer& fTokenizer;
 
 	token _ReadParameterToken();
-	int _EnumValue(const char* idsName, const char* string);
+	std::unique_ptr<ParameterHandler> _CreateHandler(const Parameter& parameter);
 };
 
 
@@ -610,62 +612,33 @@ ParameterExtractor::ParameterExtractor(Tokenizer& tokenizer)
 }
 
 
+std::unique_ptr<ParameterHandler>
+ParameterExtractor::_CreateHandler(const Parameter& parameter)
+{
+	switch (parameter.type) {
+		case Parameter::OBJECT:
+			return std::make_unique<ObjectParameterHandler>();
+		case Parameter::STRING:
+			return std::make_unique<StringParameterHandler>();
+		case Parameter::INTEGER:
+			return std::make_unique<IntegerParameterHandler>();
+		case Parameter::INT_ENUM:
+			return std::make_unique<IntEnumParameterHandler>(parameter.IDtable);
+		case Parameter::POINT:
+			return std::make_unique<PointParameterHandler>(fTokenizer);
+		default:
+			throw std::runtime_error("Unknown parameter type");
+	}
+}
+
+
 token
 ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 								Parameter& parameter)
 {
-	// TODO: horrible, complex code. Improve, refactor
-	//std::cout << "ExtractNextParameter" << std::endl;
 	token tokenParam = _ReadParameterToken();
-
-	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
-	switch (parameter.type) {
-		case Parameter::OBJECT:
-		{
-			object_params objectNode;
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(objectNode.name, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING)
-				objectNode.identifiers[0] = IDTable::ObjectID(tokenParam.u.string);
-			*node->Object() = objectNode;
-			break;
-		}
-		case Parameter::INTEGER:
-			if (parameter.position == 1)
-				node->parameter1 = tokenParam.u.number;
-			else if (parameter.position == 2)
-				node->parameter2 = tokenParam.u.number;
-			break;
-		case Parameter::INT_ENUM:
-		{
-			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
-			if (parameter.position == 1)
-				node->parameter1 = integerValue;
-			else
-				node->parameter2 = integerValue;
-			break;
-		}
-		case Parameter::STRING:
-		{
-			char* destString = NULL;
-			if (parameter.position == 1)
-				destString = node->string1;
-			else if (parameter.position == 2)
-				destString = node->string2;
-			else
-				throw std::runtime_error("wrong parameter position");
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(destString, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING) {
-				::memcpy(destString, tokenParam.u.string, stringLength);
-				destString[stringLength] = '\0';
-			}
-			break;
-		}
-		default:
-			break;
-	}
-	return tokenParam;
+	auto handler = _CreateHandler(parameter);
+	return handler->ExtractForTrigger(tokenParam, node, parameter.position);
 }
 
 
@@ -673,62 +646,9 @@ token
 ParameterExtractor::_ExtractNextParameter(::action_params* param,
 								Parameter& parameter)
 {
-	// TODO: horrible, complex code. Improve, refactor
-	//std::cout << "ExtractNextParameter(ACTION)" << std::endl;
 	token tokenParam = _ReadParameterToken();
-
-	size_t stringLength = ::strnlen(tokenParam.u.string, sizeof(tokenParam.u.string));
-	switch (parameter.type) {
-		case Parameter::POINT:
-			param->where.x = tokenParam.u.number;
-			fTokenizer.ReadToken(); // comma
-			param->where.y = fTokenizer.ReadToken().u.number;
-			break;
-		case Parameter::INTEGER:
-			if (parameter.position == 1)
-				param->integer1 = tokenParam.u.number;
-			else if (parameter.position == 2)
-				param->integer2 = tokenParam.u.number;
-			else if (parameter.position == 3)
-				param->integer3 = tokenParam.u.number;
-			break;
-		case Parameter::INT_ENUM:
-		{
-			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
-			if (parameter.position == 1)
-				param->integer1 = integerValue;
-			else if (parameter.position == 2)
-				param->integer2 = integerValue;
-			else if (parameter.position == 3)
-				param->integer3 = integerValue;
-			break;
-		}
-		case Parameter::STRING:
-		{
-			char* destString = NULL;
-			if (parameter.position == 1)
-				destString = param->string1;
-			else if (parameter.position == 2)
-				destString = param->string2;
-			else
-				throw std::runtime_error("wrong parameter position");
-			if (tokenParam.type == TOKEN_QUOTED_STRING)
-				get_unquoted_string(destString, tokenParam.u.string, stringLength);
-			else if (tokenParam.type == TOKEN_STRING) {
-				::memcpy(destString, tokenParam.u.string, stringLength);
-				destString[stringLength] = '\0';
-			}
-			break;
-		}
-		default:
-			break;
-	}
-
-	//param->Print();
-
-	//std::cout << tokenParam.u.string << std::endl;
-
-	return tokenParam;
+	auto handler = _CreateHandler(parameter);
+	return handler->ExtractForAction(tokenParam, param, parameter.position);
 }
 
 
@@ -743,18 +663,4 @@ ParameterExtractor::_ReadParameterToken()
 		t = fTokenizer.ReadToken();
 
 	return t;
-}
-
-
-int
-ParameterExtractor::_EnumValue(const char* idsName, const char* tokenString)
-{
-	int value = 0;
-	IDSResource* ids = gResManager->GetIDS(idsName);
-	if (ids != NULL) {
-		value = ids->IDForString(tokenString);
-		gResManager->ReleaseResource(ids);
-	}
-
-	return value;
 }
