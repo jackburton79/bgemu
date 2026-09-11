@@ -3096,6 +3096,62 @@ RunActionMoveToCenterOfScreen(Object* sender, action_params* params, action_stat
 }
 
 
+// MoveViewObject(O:Target*,I:ScrollSpeed*Scroll) - same destination-
+// tracking pattern as MOVEVIEWPOINT right above (state.point/extra),
+// just resolving the target object's position once at the start
+// instead of taking P:Target* directly.
+static void
+RunActionMoveViewObject(Object* sender, action_params* params, action_state& state)
+{
+	if (!state.initiated) {
+		Object* target = Script::GetTargetObject(sender, params);
+		if (target == nullptr) {
+			state.completed = true;
+			return;
+		}
+
+		state.initiated = true;
+		state.point = _ObjectPosition(target);
+		Core::Get()->CurrentRoom()->SanitizeOffsetCenter(state.point);
+		switch (params->integer1) {
+			case 1:
+				state.extra = 10;
+				break;
+			case 2:
+				state.extra = 20;
+				break;
+			case 3:
+				state.extra = 40;
+				break;
+			case 4:
+				state.extra = 80;
+				break;
+			case 0:
+			default:
+				state.extra = 10000;
+				break;
+		}
+	}
+
+	RoomBase* room = Core::Get()->CurrentRoom();
+	IE::point offset = room->AreaCenterPoint();
+	const int16 step = state.extra;
+	if (offset != state.point) {
+		if (offset.x > state.point.x)
+			offset.x = std::max((int16)(offset.x - step), state.point.x);
+		else if (offset.x < state.point.x)
+			offset.x = std::min((int16)(offset.x + step), state.point.x);
+
+		if (offset.y > state.point.y)
+			offset.y = std::max((int16)(offset.y - step), state.point.y);
+		else if (offset.y < state.point.y)
+			offset.y = std::min((int16)(offset.y + step), state.point.y);
+		room->SetAreaOffsetCenter(offset);
+	} else
+		state.completed = true;
+}
+
+
 // DayNight(I:TimeOfDay*Time) - stateless. Per IESDP the time value comes
 // from TIME.IDS, which (per the game's own Time.ids file) is just a
 // plain 0-23 hour-of-day number (e.g. 0=MIDNIGHT, 12=NOON) - advances
@@ -3302,7 +3358,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 47, "FORMATION", NULL },
 		{ 48, "JUMPTOPOINT", RunActionJumpToPoint },
 		{ 49, "MOVEVIEWPOINT", RunActionMoveViewPoint },
-		{ 50, "MOVEVIEWOBJECT", NULL },
+		{ 50, "MOVEVIEWOBJECT", RunActionMoveViewObject },
 		{ 51, "CLICKLBUTTONPOINT", NULL },
 		{ 52, "CLICKLBUTTONOBJECT", NULL },
 		{ 53, "CLICKRBUTTONPOINT", NULL },

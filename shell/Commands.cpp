@@ -1297,6 +1297,22 @@ public:
 };
 
 
+// PrintCameraCommand - reads back the current room's own area offset
+// (Set-Camera's counterpart), for tests that need to confirm a
+// scripted camera move (e.g. MoveViewObject) actually happened.
+class PrintCameraCommand : public ShellCommand {
+public:
+	PrintCameraCommand()
+		: ShellCommand("Print-Camera")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		IE::point point = Core::Get()->CurrentRoom()->AreaOffset();
+		std::cout << "Camera: (" << std::dec << point.x << "," << point.y << ")" << std::endl;
+	}
+};
+
+
 class GiveItemCommand : public ShellCommand {
 public:
 	GiveItemCommand()
@@ -1680,6 +1696,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ClickObjectCommand());
 	console->AddCommand(new ClickAreaCommand());
 	console->AddCommand(new SetCameraCommand());
+	console->AddCommand(new PrintCameraCommand());
 	console->AddCommand(new DisplayStringCommand());
 
 	console->AddCommand(new GiveItemCommand());
