@@ -394,12 +394,6 @@ AreaRoom::MouseDown(IE::point point)
 		return;
 	} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
 		if (fSelectedActor != actor) {
-			//if (fSelectedActor != NULL)
-			//	fSelectedActor->Select(false);
-			//fSelectedActor = actor;
-			//if (fSelectedActor != NULL)
-			//	fSelectedActor->Select(true);
-
 			if (fSelectedActor != NULL)
 				fSelectedActor.Target()->ClickedOn(actor);
 		}
