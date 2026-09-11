@@ -69,6 +69,7 @@ kHUDCommandButtons[] = {
 	{  1, [] { Core::Get()->LoadWorldMap(); } },
 	{  3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{  4, [] { Game::Get()->ToggleRecordWindow(); } },
+	{  5, [] { Game::Get()->ToggleSpellbookWindow(); } },
 	{  7, [] { Game::Get()->ToggleSaveWindow(); } },
 	{  9, [] { Core::Get()->TogglePause(); } },
 	{ 11, [] { Game::Get()->TriggerRest(); } },
@@ -824,6 +825,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR")) {
 		Game::Get()->SpellbookControlInvoked(controlID, windowID);
+		return;
+	}
+
+	if (chuName == res_ref("GUIJRNL")) {
+		Game::Get()->JournalControlInvoked(controlID, windowID);
 		return;
 	}
 

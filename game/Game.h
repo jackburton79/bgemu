@@ -85,6 +85,10 @@ public:
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();
 	void ToggleJournalWindow();
+	// GUI::ControlInvoked() routes clicks on GUIJRNL controls here -
+	// the command bar (window 0) and the portrait column (window 1),
+	// same layout/handling as InventoryControlInvoked/RecordControlInvoked.
+	void JournalControlInvoked(uint32 controlID, uint16 windowID);
 	// Mage spellbook (GUIMG), read-only for now: shows the currently
 	// displayed character's known + memorized arcane spells.
 	void ToggleSpellbookWindow();

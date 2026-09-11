@@ -552,6 +552,70 @@ Game::SetStartingArea(const char* areaName)
 }
 
 
+// The full-screen panels (Inventory/Record/Journal/Spellbook/Save/Load)
+// are mutually exclusive in real BG2 - opening one replaces whichever
+// other one is open, it doesn't layer on top of it. Registry of each
+// one's aux-window group, used by _CloseOtherScreens() below.
+static const struct { const char* chu; uint16 windows[3]; uint8 count; }
+kScreenGroups[] = {
+	{ "GUIINV",  { 2, 0, 1 }, 3 },
+	{ "GUIREC",  { 2, 0, 1 }, 3 },
+	{ "GUIJRNL", { 2, 0, 1 }, 3 },
+	{ "GUIMG",   { 2, 0, 1 }, 3 },
+	{ "GUIPR",   { 2, 0, 1 }, 3 },
+	{ "GUISAVE", { 0 },       1 },
+	{ "GUILOAD", { 0 },       1 },
+};
+
+
+// Hides every registered screen group except `exceptCHU` - called before
+// opening one, so opening a new screen always replaces any other one
+// left open instead of stacking on top of it (harmless/no-op if they're
+// already hidden).
+static void
+_CloseOtherScreens(const char* exceptCHU)
+{
+	for (const auto& group : kScreenGroups) {
+		if (::strcasecmp(group.chu, exceptCHU) == 0)
+			continue;
+		for (uint8 i = 0; i < group.count; i++)
+			GUI::Get()->HideAuxWindow(group.chu, group.windows[i]);
+	}
+}
+
+
+// The left-hand command icon strip (ids 0-8, image GUILSOP) + Rest
+// button (id 9, GUIRSBUT) appear identically - same position, same
+// cycle - in every full-screen panel's own window 0 (GUIINV/GUIREC/
+// GUIJRNL/GUIMG/GUIPR all confirmed via a real CHU dump to share this
+// exact layout), duplicating GUIW's own WINDOW_COMMANDS bar so the
+// player can still switch screens/rest while one of them is open.
+// Reuses the confirmed GUIW mappings (Map/Inventory/Record/Spellbook/
+// Save - see kHUDCommandButtons in gui/GUI.cpp); Rest gets its own
+// entry here since its local id differs from GUIW's (9 vs. 11).
+static const struct { uint32 controlID; void (*action)(); }
+kAuxCommandBarButtons[] = {
+	{ 1, [] { Core::Get()->LoadWorldMap(); } },
+	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
+	{ 4, [] { Game::Get()->ToggleRecordWindow(); } },
+	{ 5, [] { Game::Get()->ToggleSpellbookWindow(); } },
+	{ 7, [] { Game::Get()->ToggleSaveWindow(); } },
+	{ 9, [] { Game::Get()->TriggerRest(); } },
+};
+
+
+static void
+_AuxCommandBarInvoked(uint32 controlID)
+{
+	for (const auto& button : kAuxCommandBarButtons) {
+		if (button.controlID == controlID) {
+			button.action();
+			return;
+		}
+	}
+}
+
+
 // Shows/hides the Inventory window (GUIINV). Window 2 is the actual
 // inventory panel (paperdoll + item slots); 0/1 are the persistent
 // left/right side columns (portraits, quick items) that flank it -
@@ -566,6 +630,7 @@ Game::ToggleInventoryWindow()
 	fInvDragSlot = -1;
 	GUI::Get()->SetDragBitmap(NULL);
 
+	_CloseOtherScreens("GUIINV");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1})) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
@@ -580,6 +645,7 @@ Game::ToggleInventoryWindow()
 void
 Game::ToggleRecordWindow()
 {
+	_CloseOtherScreens("GUIREC");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1})) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
@@ -594,6 +660,7 @@ Game::ToggleRecordWindow()
 void
 Game::ToggleSaveWindow()
 {
+	_CloseOtherScreens("GUISAVE");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUISAVE", {0}))
 		_UpdateSaveLoadLabels("GUISAVE");
 }
@@ -602,6 +669,7 @@ Game::ToggleSaveWindow()
 void
 Game::ToggleLoadWindow()
 {
+	_CloseOtherScreens("GUILOAD");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUILOAD", {0}))
 		_UpdateSaveLoadLabels("GUILOAD");
 }
@@ -613,8 +681,24 @@ Game::ToggleLoadWindow()
 void
 Game::ToggleJournalWindow()
 {
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIJRNL", {2, 0, 1}))
+	_CloseOtherScreens("GUIJRNL");
+	if (GUI::Get()->ToggleAuxWindowGroup("GUIJRNL", {2, 0, 1})) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIJRNL", 1), 4);
 		_UpdateJournalLabels();
+	}
+}
+
+
+void
+Game::JournalControlInvoked(uint32 controlID, uint16 windowID)
+{
+	if (windowID == 0) {
+		_AuxCommandBarInvoked(controlID);
+		return;
+	}
+	// Window 1 is the portrait column (same layout as GUIINV/GUIREC's).
+	if (windowID == 1 && controlID <= 3)
+		ShowCharacter((uint16)controlID);
 }
 
 
@@ -662,6 +746,7 @@ Game::ToggleSpellbookWindow()
 	const char* chu = _UsesDivineSpellbook(_ShownActor()) ? "GUIPR" : "GUIMG";
 	fSpellbookCHU = chu;
 	fSpellbookLevel = 1;
+	_CloseOtherScreens(chu);
 	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
@@ -746,6 +831,8 @@ Game::_UpdateSpellbookScreen()
 void
 Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 {
+	if (windowID == 0)
+		return _AuxCommandBarInvoked(controlID);
 	if (windowID == 1 && controlID <= 3) {
 		ShowCharacter((uint16)controlID);
 		return;
@@ -1089,6 +1176,10 @@ Game::_RefreshCharacterScreens()
 void
 Game::RecordControlInvoked(uint32 controlID, uint16 windowID)
 {
+	if (windowID == 0) {
+		_AuxCommandBarInvoked(controlID);
+		return;
+	}
 	// Window 1 is the portrait column (same layout as GUIINV's).
 	if (windowID == 1 && controlID <= 3)
 		ShowCharacter((uint16)controlID);
@@ -1176,6 +1267,15 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 	if (windowID == kInvInfoWindowID) {
 		// Any button in the examine popup just closes it.
 		GUI::Get()->HideAuxWindow("GUIINV", kInvInfoWindowID);
+		return;
+	}
+
+	if (windowID == 0) {
+		// Navigating away from the Inventory - a half-finished drag
+		// doesn't survive it, same as re-toggling this same window does.
+		fInvDragSlot = -1;
+		GUI::Get()->SetDragBitmap(NULL);
+		_AuxCommandBarInvoked(controlID);
 		return;
 	}
 
