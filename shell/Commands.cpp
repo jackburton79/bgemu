@@ -68,7 +68,10 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		for (Container* container : ((AreaRoom*)Core::Get()->CurrentRoom())->Containers()) {
-			std::cout << container->Name() << ":";
+			IE::rect frame = container->Frame();
+			std::cout << container->Name() << " (" << std::dec
+				<< (frame.x_min + frame.x_max) / 2 << ","
+				<< (frame.y_min + frame.y_max) / 2 << "):";
 			for (const IE::item& item : container->ContainerItems())
 				std::cout << " " << item.name.CString()
 					<< "x" << (item.quantity1 > 0 ? item.quantity1 : 1);

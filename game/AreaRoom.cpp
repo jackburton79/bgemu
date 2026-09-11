@@ -387,38 +387,38 @@ AreaRoom::MouseDown(IE::point point)
 	if (fSelectedActor != NULL)
 		fSelectedActor.Target()->ClearActionList();
 
-	// TODO: Temporary, for testing
-	if (Door* door = dynamic_cast<Door*>(fMouseOverObject.Target())) {
+	// Same detection MouseMoved() uses for the hover cursor/outline, so
+	// what you see under the cursor is always what you click - no
+	// separate, possibly-disagreeing lookup per object type here.
+	int32 cursor = -1;
+	Object* target = _ObjectAtPoint(point, cursor);
+
+	if (Region* region = dynamic_cast<Region*>(target)) {
+		// Regions aren't dispatched through Object::ClickedOn() below -
+		// travel/info are area-level concerns (change area, show a
+		// message), not something the clicked-on object itself does.
 		if (fSelectedActor != NULL)
-			fSelectedActor.Target()->ClickedOn(door);
-		return;
-	} else if (Actor* actor = dynamic_cast<Actor*>(fMouseOverObject.Target())) {
-		if (fSelectedActor != actor) {
-			if (fSelectedActor != NULL)
-				fSelectedActor.Target()->ClickedOn(actor);
-		}
-		return;
-	} else if (Region* region = RegionAtPoint(point)) {
-		// TODO:
-		if (fSelectedActor != NULL) {
 			fSelectedActor.Target()->ClickedOn(region);
-		}
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			Core::Get()->LoadArea(region->DestinationArea(), "foo",
 					region->DestinationEntrance());
-			return;
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
 			std::string text = IDTable::GetDialog(strRef);
 			if (strRef >= 0)
 				Core::Get()->DisplayMessage(region, text.c_str());
-			return;
 		}
-	} else if (Container* container = _ContainerAtPoint(point)) {
-		// TODO:
-		if (fSelectedActor != NULL) {
-			fSelectedActor.Target()->ClickedOn(container);
-		}
+		return;
+	}
+
+	if (target != NULL) {
+		// Actor::ClickedOn() already dispatches on the clicked object's
+		// own type (Door: walk up + open, Actor: dialog or attack,
+		// Container: walk up + auto-loot) - nothing left to special-case
+		// here, other than not attacking/talking to yourself.
+		if (target != fSelectedActor.Target() && fSelectedActor != NULL)
+			fSelectedActor.Target()->ClickedOn(target);
+		return;
 	}
 
 	// A loose pile dropped on the floor: the selected party member loots
@@ -1344,33 +1344,44 @@ AreaRoom::_ActorAtPoint(const IE::point& point) const
 
 
 
+// Whatever's under `point`, in priority order (first match wins - unlike
+// the old version, a later check never silently overrides an earlier
+// one): door, actor, container, then region. Regions go last since
+// they're often large, invisible trigger areas (e.g. a travel strip
+// spanning a whole corridor) that other, more concrete objects can sit
+// on top of - a region should never steal a click/hover from an actor
+// or container standing in it.
 Object*
 AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 {
-	Object* object = NULL;
 	cursorIndex = -1;
 
 	::TileCell* cell = fBackMap->TileAtPoint(point);
 	if (cell == NULL)
-		return object;
+		return NULL;
 
 	if (Door* door = cell->Door()) {
 		if (rect_contains(door->Frame(), point))
 			return door;
-	} else if (Actor *actor = _ActorAtPoint(point)) {
-		object = actor;
-		if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
-			cursorIndex = IE::CURSOR_TALK;
-		else
-			cursorIndex = IE::CURSOR_ATTACK;
+	}
+
+	if (Actor* actor = _ActorAtPoint(point)) {
+		cursorIndex = actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")
+			? IE::CURSOR_TALK : IE::CURSOR_ATTACK;
+		return actor;
+	}
+
+	if (Container* container = _ContainerAtPoint(point)) {
+		cursorIndex = IE::CURSOR_PICKUP;
+		return container;
 	}
 
 	if (Region* region = RegionAtPoint(point)) {
-		object = region;
 		cursorIndex = region->CursorIndex();
+		return region;
 	}
 
-	return object;
+	return NULL;
 }
 
 
