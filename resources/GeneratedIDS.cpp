@@ -204,6 +204,7 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 
 	res->AddValue(0xb500, "NSIM"); // TODO
 	res->AddValue(0xb510, "NSIW"); // TODO
+	res->AddValue(0xb600, "NNOM"); // TODO
 
 	res->AddValue(0xca00, "NNOM");
 	res->AddValue(0xca10, "NNOW");

@@ -153,6 +153,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0xb410, "NFAW", _BuildSplit },
 	{ 0xb500, "NSIM", _BuildSplit },
 	{ 0xb510, "NSIW", _BuildSplit },
+	{ 0xb600, "NNOM", _BuildSplit },
 	{ 0xc000, "ABAT", _BuildBGMonster },
 	{ 0xc100, "ACAT", _BuildBGMonster },
 	{ 0xc200, "ACHK", _BuildBGMonster },
