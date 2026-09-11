@@ -75,6 +75,18 @@ Resource::DumpToFile(const char* fileName)
 }
 
 
+void
+Resource::RawData(std::vector<uint8>& out) const
+{
+	out.clear();
+	if (fData == NULL)
+		return;
+	size_t size = fData->Size();
+	out.resize(size);
+	fData->ReadAt(0, out.data(), size);
+}
+
+
 uint32
 Resource::Key() const
 {

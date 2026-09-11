@@ -1554,6 +1554,13 @@ Actor::CRE() const
 }
 
 
+const IE::actor*
+Actor::AreaActorEntry() const
+{
+	return fActor;
+}
+
+
 void
 Actor::_HandleScripts()
 {

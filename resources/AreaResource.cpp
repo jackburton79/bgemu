@@ -130,16 +130,42 @@ ARAResource::WriteToFile(const char* path) const
 	std::vector<uint8> buffer(size);
 	fData->ReadAt(0, buffer.data(), size);
 
+	// Embedded CRE bytes (if any, see SetEmbeddedCRE()) are appended
+	// after the file's own original bytes, so every other section keeps
+	// the exact offset _ParseData() (and every other reader) already
+	// expects - only each patched actor's own cre_offset/cre_size point
+	// into this new tail.
+	size_t appendOffset = size;
+	std::vector<uint8> appendedData;
+
 	for (uint32 i = 0; i < fNumActors; i++) {
 		size_t offset = fActorsOffset + i * sizeof(IE::actor);
-		if (offset + sizeof(IE::actor) <= size)
-			memcpy(buffer.data() + offset, &fActors[i], sizeof(IE::actor));
+		if (offset + sizeof(IE::actor) > size)
+			continue;
+
+		IE::actor entry = fActors[i];
+		auto pending = fPendingEmbeddedCRE.find((uint16)i);
+		if (pending != fPendingEmbeddedCRE.end() && !pending->second.empty()) {
+			const std::vector<uint8>& creData = pending->second;
+			entry.flags &= ~(uint32)IE::ACTOR_CRE_EXTERNAL;
+			entry.cre_offset = (uint32)appendOffset;
+			entry.cre_size = (uint32)creData.size();
+			appendedData.insert(appendedData.end(), creData.begin(), creData.end());
+			appendOffset += creData.size();
+		}
+		memcpy(buffer.data() + offset, &entry, sizeof(IE::actor));
 	}
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		size_t offset = fDoorsOffset + i * sizeof(IE::door);
 		if (offset + sizeof(IE::door) <= size)
 			memcpy(buffer.data() + offset, &fDoors[i], sizeof(IE::door));
 	}
+	// Consumed - see fPendingEmbeddedCRE's own comment on why this
+	// can't just accumulate across multiple checkpoint writes.
+	fPendingEmbeddedCRE.clear();
+
+	if (!appendedData.empty())
+		buffer.insert(buffer.end(), appendedData.begin(), appendedData.end());
 
 	try {
 		FileStream file(path, FileStream::WRITE_ONLY | FileStream::CREATE);
@@ -149,6 +175,23 @@ ARAResource::WriteToFile(const char* path) const
 		return false;
 	}
 	return true;
+}
+
+
+int32
+ARAResource::IndexOfActorEntry(const IE::actor* entry) const
+{
+	if (entry < fActors || entry >= fActors + fNumActors)
+		return -1;
+	return (int32)(entry - fActors);
+}
+
+
+void
+ARAResource::SetEmbeddedCRE(uint16 index, const std::vector<uint8>& creData)
+{
+	if (index < fNumActors)
+		fPendingEmbeddedCRE[index] = creData;
 }
 
 
@@ -221,21 +264,39 @@ ARAResource::GetActorAt(uint16 index)
 	// TODO: No need to preload the fActor array.
 	// We can load actor by actor from here.
 	IE::actor& ieActor = fActors[index];
-	Actor* newActor = NULL;
-	if ((ieActor.flags & IE::ACTOR_CRE_EXTERNAL) == 0) {
-		//CREResource* cre = new CREResource(ieActor.cre);
-		fData->Seek(fActorsOffset + ieActor.cre_offset
-						+ sizeof(IE::actor) * index, SEEK_SET);
-		char array[64];
-		std::cout << "Embedded CRE (" << ieActor.cre_size << ")" << std::endl;
-		fData->Read(array);
-		for (int32 i = 0; i < 64; i++)
-			std::cout << array[i] << std::endl;
-		//newActor = new Actor(ieActor, cre);
+
+	// CRE-attached flag clear = embedded (see WriteToFile()'s
+	// SetEmbeddedCRE() side, and the IESDP are_v1 comment on this bit) -
+	// this actor's own previously-checkpointed state (HP, inventory,
+	// spellbook, ...), not the pristine KEY/BIF template the Actor(
+	// IE::actor&) constructor below would otherwise load by resref
+	// (ieActor.cre). cre_offset is an absolute offset into this same ARE
+	// resource's data (confirmed against a real IE engine's own ARE
+	// writer - not relative to the actor table or this entry, unlike an
+	// earlier, never-completed attempt at this).
+	CREResource* cre = NULL;
+	if ((ieActor.flags & IE::ACTOR_CRE_EXTERNAL) == 0 && ieActor.cre_size > 0) {
+		try {
+			std::vector<uint8> creData(ieActor.cre_size);
+			fData->ReadAt(ieActor.cre_offset, creData.data(), ieActor.cre_size);
+			MemoryStream stream(creData.data(), creData.size(), false);
+			cre = new CREResource(ieActor.cre);
+			cre->Acquire(); // Resource starts at refcount 0
+			cre->Load(&stream, 0, (uint32)creData.size());
+			cre->Init();
+		} catch (std::exception& e) {
+			std::cerr << Log::Red << "ARAResource::GetActorAt(): failed to load "
+				"embedded CRE for actor " << index << " (" << ieActor.name
+				<< "): " << e.what() << Log::Normal << std::endl;
+			if (cre != NULL) {
+				gResManager->ReleaseResource(cre);
+				cre = NULL;
+			}
+		}
 	}
+
 	ieActor.Print();
-	newActor = new Actor(ieActor);
-	return newActor;
+	return cre != NULL ? new Actor(ieActor, cre) : new Actor(ieActor);
 }
 
 

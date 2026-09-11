@@ -40,6 +40,16 @@ public:
 
 	CREResource *CRE() const;
 
+	// The ARE actor struct this Actor aliases (fActor) - exposed
+	// read-only so ARAResource can recognize which of its own table
+	// entries a given Actor came from (ARAResource::IndexOfActorEntry())
+	// without handing out write access to the struct itself. Not
+	// necessarily one of that area's own entries - an actor spawned at
+	// runtime (CreateCreature* etc.) owns a standalone struct instead
+	// (fOwnsActor), never part of any ARE's own actor table to begin
+	// with; IndexOfActorEntry() bounds-checks and returns -1 for those.
+	const IE::actor* AreaActorEntry() const;
+
 	const ::Bitmap* Bitmap() const;
 	IE::rect Frame() const;
 

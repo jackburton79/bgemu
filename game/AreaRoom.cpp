@@ -1707,6 +1707,26 @@ AreaRoom::_UnloadArea()
 			actor->Acquire();
 			actor->SetArea(NULL);
 			Game::Get()->GetAreaCache()->areas[Name()].actors.push_back(actor);
+
+			// Also register this actor's current CRE bytes (HP,
+			// inventory, spellbook, status, ...) for the on-disk
+			// checkpoint below - the in-memory cache line just above
+			// already covers a same-session revisit (the live Actor/
+			// CREResource objects are reused verbatim), but a process
+			// restart only has whatever WriteToFile() wrote to disk. A
+			// runtime-spawned actor (CreateCreature* etc.) was never
+			// one of this area's own placed actors to begin with, so
+			// there's no ARE actor-table slot to embed it into -
+			// IndexOfActorEntry() returns -1 for those, silently
+			// skipped here (it still gets the in-memory caching above).
+			if (fArea != NULL && actor->CRE() != NULL) {
+				int32 index = fArea->IndexOfActorEntry(actor->AreaActorEntry());
+				if (index >= 0) {
+					std::vector<uint8> creData;
+					actor->CRE()->RawData(creData);
+					fArea->SetEmbeddedCRE((uint16)index, creData);
+				}
+			}
 		}
 		_DetachFromCurrentRegion(actor);
 

@@ -3,6 +3,9 @@
 
 #include "Resource.h"
 
+#include <map>
+#include <vector>
+
 class Actor;
 class Container;
 class Door;
@@ -31,10 +34,16 @@ public:
 	// offsets, same layout, so no full from-scratch ARE reserializer is
 	// needed. Sections this engine's own Load() never reads at all
 	// (spawn points, ambients, automap notes, rest interruptions, songs,
-	// projectile traps, explored bitmask, tiled objects, embedded CRE
-	// data for ACTOR_CRE_EXTERNAL-unset actors) ride along unread and
-	// unchanged inside that same verbatim copy - nothing here needs to
-	// understand them to preserve them.
+	// projectile traps, explored bitmask, tiled objects) ride along
+	// unread and unchanged inside that same verbatim copy - nothing here
+	// needs to understand them to preserve them. The one exception is
+	// embedded CRE data: any actor registered via SetEmbeddedCRE() below
+	// gets its current CRE bytes appended after the file's own original
+	// bytes and its actor-table entry patched (CRE-attached flag
+	// cleared, offset/size pointed at that new tail) to reference it -
+	// this is what lets a non-party actor's HP/inventory/spellbook
+	// survive a process restart, not just staying in this same session's
+	// in-memory AreaCache (see its own comment).
 	bool WriteToFile(const char* path) const;
 
 	const res_ref& WedName() const;
@@ -60,6 +69,21 @@ public:
 
 	uint16 CountActors() const;
 	Actor* GetActorAt(uint16 index);
+
+	// Array index of `entry` within fActors[], or -1 if it doesn't
+	// belong to this area's own actor table (e.g. a party member, or
+	// one spawned at runtime - see Actor::AreaActorEntry()'s comment).
+	int32 IndexOfActorEntry(const IE::actor* entry) const;
+
+	// Registers `creData` (see Resource::RawData()) as the embedded CRE
+	// to write for the actor at `index` on the next WriteToFile() -
+	// AreaRoom::_UnloadArea() calls this, right before checkpointing,
+	// for every still-alive non-party actor so a process restart
+	// doesn't lose their current HP/inventory/spellbook/... the way a
+	// pristine re-parse of the original KEY/BIF CRE would (see
+	// WriteToFile()'s own comment on why the checkpoint otherwise only
+	// covers what already lives directly in the ARE actor/door structs).
+	void SetEmbeddedCRE(uint16 index, const std::vector<uint8>& creData);
 
 	uint16 CountRegions() const;
 	Region* GetRegionAt(uint16 index);
@@ -107,6 +131,13 @@ private:
 	IE::region* fRegions;
 	IE::door* fDoors;
 	IE::container* fContainers;
+
+	// Pending SetEmbeddedCRE() calls, consumed (and cleared) by the next
+	// WriteToFile() - mutable since that's otherwise a const method;
+	// cleared there (not just after use) so an actor that stops being
+	// registered (e.g. destroyed between two checkpoints) doesn't keep
+	// getting re-embedded with stale, pre-destruction data forever.
+	mutable std::map<uint16, std::vector<uint8>> fPendingEmbeddedCRE;
 };
 
 #endif /* __AREARESOURCE_H_ */
