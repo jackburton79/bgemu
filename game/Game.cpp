@@ -1202,8 +1202,10 @@ Game::_UpdatePortraitColumn(Window* window, uint32 count)
 			continue;
 		Bitmap* portrait = NULL;
 		Actor* member = i < fParty->CountActors() ? fParty->ActorAt(i) : NULL;
-		if (member != NULL && member->CRE() != NULL) {
-			BMPResource* bmp = gResManager->GetBMP(member->CRE()->SmallPortrait());
+		res_ref portraitRef = member != NULL && member->CRE() != NULL
+			? member->CRE()->SmallPortrait() : res_ref("");
+		if (portraitRef.CString()[0] != '\0') {
+			BMPResource* bmp = gResManager->GetBMP(portraitRef);
 			if (bmp != NULL) {
 				portrait = bmp->Image();
 				gResManager->ReleaseResource(bmp);

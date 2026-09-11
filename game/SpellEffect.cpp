@@ -14,6 +14,7 @@
 #include "Effect.h"
 #include "Log.h"
 #include "Object.h"
+#include "ResManager.h"
 
 #include <algorithm>
 #include <iostream>
@@ -445,6 +446,20 @@ RunEffectPlaySoundEffect(Object* target, SpellEffect& effect)
 }
 
 
+// #139 "Text: Display String". IESDP: displays the strref given by
+// Parameter1 (Parameter2 is irrelevant) - same text-display mechanism
+// already used for region info text and dialogue.
+static bool
+RunEffectDisplayString(Object* target, SpellEffect& effect)
+{
+	std::string text = IDTable::GetDialog((uint32)effect.Parameter1());
+	if (!text.empty())
+		Core::Get()->DisplayMessage(target, text.c_str());
+
+	return true; // one-shot: remove immediately once applied
+}
+
+
 // #238 "Death: Disintegrate". IESDP: kills the target if it matches an
 // IDS Entry/File and hit-dice qualifier (Parameter1/Parameter2). This is
 // what the opening BG2 cutscene uses to kill Irenicus's spy
@@ -483,6 +498,7 @@ static const EffectDescriptor kEffectsTable[] = {
 	{ 109, "State: Hold", RunEffectHold, CleanupEffectHold },
 	{ 124, "Spell Effect: Teleport (Dimension Door)", RunEffectTeleportToTarget },
 	{ 128, "State: Confusion", RunEffectConfusion, CleanupEffectConfusion },
+	{ 139, "Text: Display String", RunEffectDisplayString },
 	{ 174, "Spell Effect: Play Sound Effect", RunEffectPlaySoundEffect },
 	{ 175, "State: Hold", RunEffectHold, CleanupEffectHold },
 	{ 185, "State: Hold", RunEffectHold, CleanupEffectHold },

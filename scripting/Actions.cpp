@@ -330,6 +330,63 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 }
 
 
+// APPLYSPELL(O:Target*,I:Spell*Spell) - same target/spell resolution and
+// effect application as RunActionForceSpell above, but per IESDP "applied
+// instantly; no casting animation is played" - unlike ForceSpell, there's
+// no casting-time countdown here, it resolves in a single tick. This is
+// what scripted self-buff blocks use right before engaging (e.g. a boss
+// spellcaster's "ApplySpell(Myself,...) x N" opening sequence).
+static void
+RunActionApplySpell(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(sender);
+	if (actor == NULL) {
+		std::cerr << "ApplySpell: NO sender Actor" << std::endl;
+		state.completed = true;
+		return;
+	}
+
+	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+	std::string spellName = spellIDS->StringForID(params->integer1).c_str();
+	std::string spellResourceName;
+	try {
+		spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
+	} catch (std::exception& e) {
+		std::cerr << "ApplySpell: invalid spell id " << params->integer1
+				<< ": " << e.what() << std::endl;
+		gResManager->ReleaseResource(spellIDS);
+		state.completed = true;
+		return;
+	}
+	gResManager->ReleaseResource(spellIDS);
+	std::cout << "spell: " << spellName << std::endl;
+
+	SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+	if (spellResource == NULL) {
+		std::cerr << "ApplySpell: spell resource \"" << spellResourceName
+				<< "\" (id " << params->integer1 << ") not found" << std::endl;
+		state.completed = true;
+		return;
+	}
+
+	Object* target = Script::GetTargetObject(sender, params);
+	if (target == NULL)
+		target = sender;
+	std::cout << "target: " << target->Name() << std::endl;
+
+	for (const spl_effect& effect : spellResource->Effects()) {
+		target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
+			effect.parameter1, effect.parameter2, effect.duration,
+			effect.resource.CString(), effect.savingThrowType,
+			effect.savingThrowBonus));
+	}
+	gResManager->ReleaseResource(spellResource);
+	_PostSpellCastTriggers(actor, target, spellResourceName);
+
+	state.completed = true;
+}
+
+
 // SPELL(O:Target*,I:Spell*Spell) - same shape as RunActionForceSpell (cast
 // time countdown, effect application), but per IESDP "the spell must
 // currently be memorised by the caster" - unlike ForceSpell/
@@ -3362,7 +3419,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 157, "CHANGESPECIFICS", RunActionChangeSpecifics },
 		{ 158, "CHANGEGENDER", RunActionChangeGender },
 		{ 159, "CHANGEALIGNMENT", RunActionChangeAlignment },
-		{ 160, "APPLYSPELL", NULL },
+		{ 160, "APPLYSPELL", RunActionApplySpell },
 		{ 161, "INCREMENTCHAPTER", RunActionIncrementChapter },
 		{ 162, "REPUTATIONSET", RunActionReputationSet },
 		{ 163, "REPUTATIONINC", RunActionReputationInc },
