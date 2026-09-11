@@ -50,6 +50,14 @@ public:
 	// Adds a level-1 arcane spell to the starting spellbook (ignored for
 	// a non-arcane class). false if the resref isn't a real SPL.
 	bool AddSpell(const std::string& resref);
+
+	// Starting thief skill points (0..255) - only the two the engine
+	// currently reads (Door::UpdateSearchMapBlocking()/Actions.cpp Fase
+	// 8): "openlocks" and "findtraps". No point-pool/DEX-bonus
+	// enforcement yet (same declared simplification as the ability
+	// roller's manual SetAbility()) - the caller is trusted not to type
+	// in an absurd value.
+	bool SetThiefSkill(const std::string& which, int value);
 	// Whether the chosen class casts arcane / divine (memorized) spells.
 	bool IsArcaneCaster() const;
 	bool IsDivineCaster() const;
@@ -113,6 +121,8 @@ private:
 	std::string fPortraitLarge;
 	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
 	std::vector<std::string> fSpells;   // level-1 arcane starting spellbook
+	int fOpenLocksSkill = 0;
+	int fFindTrapsSkill = 0;
 };
 
 #endif // CHARACTER_BUILDER_H_

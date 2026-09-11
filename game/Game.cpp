@@ -487,6 +487,10 @@ Game::_CreateCharacterFromSpec(const IE::point& position)
 		} else if (field == "spell") {
 			if (!builder.AddSpell(value))
 				std::cerr << "character spec: unknown spell " << value << std::endl;
+		} else if (field == "skill_openlocks") {
+			builder.SetThiefSkill("openlocks", atoi(value.c_str()));
+		} else if (field == "skill_findtraps") {
+			builder.SetThiefSkill("findtraps", atoi(value.c_str()));
 		} else {
 			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
 				if (field == kAbilityNames[i])

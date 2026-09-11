@@ -85,6 +85,27 @@ CharacterBuilder::Reset()
 	for (int i = 0; i < 7; i++)
 		fColors[i] = -1;
 	fSpells.clear();
+	fOpenLocksSkill = 0;
+	fFindTrapsSkill = 0;
+}
+
+
+bool
+CharacterBuilder::SetThiefSkill(const std::string& which, int value)
+{
+	if (value < 0)
+		value = 0;
+	if (value > 255)
+		value = 255;
+	if (strcasecmp(which.c_str(), "openlocks") == 0) {
+		fOpenLocksSkill = value;
+		return true;
+	}
+	if (strcasecmp(which.c_str(), "findtraps") == 0) {
+		fFindTrapsSkill = value;
+		return true;
+	}
+	return false;
 }
 
 
@@ -539,6 +560,8 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU8(out, 0x52, 20);           // THAC0 - engine recomputes from THAC0.2da
 	_PutU8(out, 0x53, 1);            // # attacks
 	for (int i = 0; i < 5; i++) _PutU8(out, 0x54 + i, 20); // saves - engine recomputes
+	_PutU8(out, 0x67, (uint8)fOpenLocksSkill); // Fase 8: Door lock checks
+	_PutU8(out, 0x69, (uint8)fFindTrapsSkill); // Fase 8: trap find/disarm
 
 	// Class levels stay at 0 so Actor::_Init() runs the level-up path to
 	// derive level-1 HP/THAC0/saves from the class tables. _CheckLevelUp
@@ -640,6 +663,10 @@ CharacterBuilder::Print() const
 		std::cout << "  Spells:";
 		for (const std::string& s : fSpells) std::cout << " " << s;
 		std::cout << std::endl;
+	}
+	if (fOpenLocksSkill > 0 || fFindTrapsSkill > 0) {
+		std::cout << "  Open Locks: " << fOpenLocksSkill
+			<< "  Find Traps: " << fFindTrapsSkill << std::endl;
 	}
 
 	std::vector<std::string> problems;

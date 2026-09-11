@@ -283,6 +283,10 @@ Actor::Print() const
 	std::cout << "Saves (death/wands/poly/breath/spell): "
 		<< (int)sv.death << "/" << (int)sv.wands << "/" << (int)sv.poly
 		<< "/" << (int)sv.breath << "/" << (int)sv.spell << std::endl;
+	if (cre->OpenLocksSkill() > 0 || cre->FindTrapsSkill() > 0) {
+		std::cout << "Open Locks: " << (int)cre->OpenLocksSkill()
+			<< "  Find Traps: " << (int)cre->FindTrapsSkill() << std::endl;
+	}
 	{
 		std::vector<cre_known_spell> known = cre->KnownSpells();
 		std::vector<cre_memorized_spell> memo = cre->MemorizedSpells();
