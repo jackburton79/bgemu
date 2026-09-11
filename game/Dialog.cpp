@@ -193,6 +193,11 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 		auto actionList = Parser::ActionsFromString(actions);
 		for (auto* params : actionList) {
 			fInitiator->AddAction(params);
+			// AddAction() takes its own reference (Acquire()) - this loop
+			// still holds the one ActionFromString() handed it (refcount
+			// starts at 1, see action_params::action_params()), which
+			// must be dropped here or it never reaches 0.
+			params->Release();
 		}
 	}
 
@@ -241,6 +246,11 @@ DialogHandler::_AdvanceState()
 			std::string trigger = fResource->GetStateTrigger(state.trigger);
 			auto triggers = Parser::TriggersFromString(trigger);
 			valid = fInitiator->EvaluateDialogTriggers(triggers);
+			// trigger_params isn't refcounted like action_params - just a
+			// plain heap object EvaluateDialogTriggers() only reads, so
+			// this loop (the only owner) must delete it directly.
+			for (trigger_params* t : triggers)
+				delete t;
 		}
 
 		if (valid) {

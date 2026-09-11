@@ -1757,6 +1757,7 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 			if (fAnimationAutoSwitchOnEnd) {
 				fAnimationAutoSwitchOnEnd = false;
 				fAnimationAction = fNextAnimationAction;
+				delete fCurrentAnimation;
 				fCurrentAnimation = fAnimationFactory->AnimationFor(this, fColors);
 			}
 			if (fAnimationAction != ACT_DEAD) {
