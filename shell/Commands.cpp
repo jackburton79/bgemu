@@ -15,6 +15,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Dialog.h"
+#include "Door.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
@@ -99,6 +100,35 @@ public:
 				std::cout << " " << item.name.CString()
 					<< "x" << (item.quantity1 > 0 ? item.quantity1 : 1);
 			std::cout << std::endl;
+		}
+	}
+};
+
+
+// ListDoorsCommand - dumps door names/geometry/state in the current
+// area, for diagnosing WED/ARE door mismatches (see AreaRoom::
+// _InitDoors()'s own comment on AR0900-style malformed areas).
+class ListDoorsCommand : public ShellCommand {
+public:
+	ListDoorsCommand()
+		: ShellCommand("List-Doors")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		for (Door* door : room->Doors()) {
+			IE::rect openBox = door->OpenBox();
+			IE::rect closedBox = door->ClosedBox();
+			std::cout << door->Name() << " short=" << door->ShortName().CString()
+				<< " opened=" << door->Opened()
+				<< " openBox=(" << std::dec << openBox.x_min << "," << openBox.y_min
+				<< ")-(" << openBox.x_max << "," << openBox.y_max << ")"
+				<< " closedBox=(" << closedBox.x_min << "," << closedBox.y_min
+				<< ")-(" << closedBox.x_max << "," << closedBox.y_max << ")"
+				<< " tiles=" << door->fTilesOpen.size()
+				<< std::endl;
 		}
 	}
 };
@@ -1607,6 +1637,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ExitCommand());
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new ListContainersCommand());
+	console->AddCommand(new ListDoorsCommand());
 	console->AddCommand(new ListGroundCommand());
 	console->AddCommand(new PickUpGroundCommand());
 	console->AddCommand(new CharNewCommand());

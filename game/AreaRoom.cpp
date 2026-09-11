@@ -656,13 +656,32 @@ AreaRoom::RemoveEffect(Effect* effect)
 }
 
 
+// Real IE map data can reuse the same name across different object
+// types - found via a real BG1 area (AR0900) that has a Region named
+// exactly "Door0901", the same name as its door. When that happens the
+// search order below decides which object a name-only lookup actually
+// resolves to, so it isn't arbitrary: it mirrors GemRB's own
+// GetActorObject()/Matching.cpp (the reference reimplementation of the
+// real engine's object resolution) - Door, then Container, then
+// InfoPoint/Region (GemRB's own comment: "containers should have a
+// precedence over infopoints because otherwise AR1512 sanity test
+// quest would fail"), and only then Actor (matched last resort there,
+// via FindPC()/FindNPC()). Doors first also matches this engine's own
+// call sites: OPENDOOR/CLOSEDOOR/UNLOCK etc. always mean "resolve this
+// name as the door", so a same-named Region silently winning instead
+// (the previous, arbitrary actor-first order) broke exactly those
+// actions - confirmed by reproducing AR0900's "NULL DOOR!!!" report.
 Object*
 AreaRoom::GetObject(const char* name) const
 {
-	// TODO: containers, doors, other objects
-	for (const auto &actor : fActors) {
-		if (!strcasecmp(name, actor->Name()))
-			return actor;
+	for (const auto& door : fDoors) {
+		if (!strcasecmp(name, door->Name()))
+			return door;
+	}
+
+	for (const auto& container : fContainers) {
+		if (!strcasecmp(name, container->Name()))
+			return container;
 	}
 
 	for (const auto& region : fRegions) {
@@ -670,15 +689,11 @@ AreaRoom::GetObject(const char* name) const
 			return region;
 	}
 
-	for (const auto& door : fDoors) {
-		if (!strcasecmp(name, door->Name()))
-			return door;
+	for (const auto &actor : fActors) {
+		if (!strcasecmp(name, actor->Name()))
+			return actor;
 	}
 
-	for (const auto& container :  fContainers) {
-		if (!strcasecmp(name, container->Name()))
-			return container;
-	}
 	return NULL;
 }
 
