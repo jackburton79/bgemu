@@ -40,8 +40,19 @@ struct AnimationEntry {
 };
 
 
-// Seems BG1 names are different for same IDS:
-// TODO: Drop GeneratedIDS and use a similar array, differentiating games
+// `base_name` here is only used as a fallback for a non-party actor
+// (AnimationFactory::GetAnimationDescription()) when GeneratedIDS::
+// FillAniSnd()'s BG1 ANISND.IDS substitute doesn't have that animation
+// id - which it mostly does. Checked entry by entry (2026-09): about
+// half of GeneratedIDS's entries duplicate the same name already here
+// and were dropped from it; the rest genuinely differ (this table's
+// base_name is a placeholder never used for party members - see
+// _ClassCharacter()'s switch, which derives the class letter straight
+// from the CRE and only falls back to base_name for an unmapped class)
+// or are BG1-only animation ids (e.g. MAKH/Ankheg) this table doesn't
+// carry at all - merging those without verifying each one against real
+// BG1 data risks silently picking the wrong sprite for non-party
+// actors, so GeneratedIDS keeps them.
 static const AnimationEntry kAnimationEntries[] = {
 	{ 0x1000, "",     _BuildBGMonster },
 	{ 0x2000, "",     _BuildBGMonster },
