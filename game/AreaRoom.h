@@ -48,6 +48,10 @@ public:
 	virtual void Draw();
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
+	// Headless-test entry point (Click-Area console command): same click
+	// dispatch as MouseDown(), but point is already in area coordinates -
+	// skips the screen->area conversion, which needs a real camera/window.
+	void ClickAt(IE::point areaPoint);
 
 	// Switches which actor mouse clicks/queued commands act on (party-
 	// member selection) - deselects the previous one first, same
@@ -177,6 +181,8 @@ private:
 	void _DrawGroundPiles();
 	Actor* _ActorAtPoint(const IE::point& point) const;
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
+	// Shared by MouseDown() and ClickAt() - point already in area coords.
+	void _HandleClickAt(IE::point point);
 
 	void _InitVariables();
 	void _InitAnimations();

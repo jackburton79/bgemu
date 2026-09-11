@@ -366,7 +366,20 @@ AreaRoom::MouseDown(IE::point point)
 {
 	ConvertFromScreen(point);
 	ConvertToArea(point);
+	_HandleClickAt(point);
+}
 
+
+void
+AreaRoom::ClickAt(IE::point areaPoint)
+{
+	_HandleClickAt(areaPoint);
+}
+
+
+void
+AreaRoom::_HandleClickAt(IE::point point)
+{
 	if (fSelectedActor != NULL)
 		fSelectedActor.Target()->ClearActionList();
 

@@ -1167,6 +1167,23 @@ public:
 };
 
 
+// Headless click at an area coordinate (unlike Mouse-Click, no camera/
+// screen conversion needed) - exercises AreaRoom's own click dispatch
+// (travel/info regions, doors, actors, ground piles) directly.
+class ClickAreaCommand : public ShellCommand {
+public:
+	ClickAreaCommand()
+		: ShellCommand("Click-Area", { { PARAMETER_POINT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		IE::point point = params.at(0).value.point;
+		((AreaRoom*)Core::Get()->CurrentRoom())->ClickAt(point);
+	}
+};
+
+
 class GiveItemCommand : public ShellCommand {
 public:
 	GiveItemCommand()
@@ -1543,6 +1560,7 @@ AddCommands(GameConsole* console)
 
 	console->AddCommand(new WalkToObjectCommand());
 	console->AddCommand(new ClickObjectCommand());
+	console->AddCommand(new ClickAreaCommand());
 	console->AddCommand(new DisplayStringCommand());
 
 	console->AddCommand(new GiveItemCommand());
