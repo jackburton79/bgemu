@@ -42,6 +42,8 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
+	res->AddValue(0x4102, "SSIM"); //
+	res->AddValue(0x4110, "SSIW"); //
 	res->AddValue(0x4400, "LHMC"); //
 	res->AddValue(0x4600, "LDMF"); //
 
