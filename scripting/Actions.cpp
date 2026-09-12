@@ -1180,8 +1180,19 @@ RunActionMoveToOffset(Object* sender, action_params* params, action_state& state
 
 // MOVETOOBJECT(O:Target*) / MOVETOOBJECTNOINTERRUPT(O:Target*) - same run
 // function for both ids (mirrors RunActionWalkTo/MOVETOPOINTNOINTERRUPT
-// above); no persistent state otherwise - the destination is recomputed
-// every tick since the target may be moving.
+// above). state.point tracks the destination the current path was last
+// aimed at - SetDestination() only re-runs (a real, potentially
+// expensive A* search - measured ~750ms/35k expanded nodes for a single
+// cross-area call) when that destination has actually moved by more
+// than PointSufficientlyClose()'s threshold, not on every tick
+// regardless. NearestPoint() only shifts with the *caller's* own
+// position when it crosses to the target's other side, so for a normal
+// single-direction approach this reduces to "compute once" just like
+// MOVETOPOINT above; it still re-paths promptly if the target itself
+// walks away, which is what this per-tick recompute was actually for.
+// Recomputing unconditionally on every tick made any long walk (e.g.
+// crossing Candlekeep's courtyard to reach an NPC) take minutes of
+// wall-clock time instead of seconds.
 static void
 RunActionWalkToObject(Object* sender, action_params* params, action_state& state)
 {
@@ -1198,8 +1209,12 @@ RunActionWalkToObject(Object* sender, action_params* params, action_state& state
 	}
 
 	IE::point destination = target->NearestPoint(actor->Position());
-	if (!PointSufficientlyClose(actor->Position(), destination))
-		actor->SetDestination(destination);
+	if (!state.initiated || !PointSufficientlyClose(state.point, destination)) {
+		if (!PointSufficientlyClose(actor->Position(), destination))
+			actor->SetDestination(destination);
+		state.point = destination;
+		state.initiated = true;
+	}
 
 	bool canInterrupt = params->id != 208; // 208 = MOVETOOBJECTNOINTERRUPT
 	actor->SetInterruptable(canInterrupt);
@@ -1544,9 +1559,17 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 		}
 	}
 
+	// Same expensive-recompute-every-tick fix as RunActionWalkToObject()
+	// above: only re-run SetDestination() (a real A* search) when the
+	// target has actually moved far enough for the old path to be
+	// stale, not unconditionally on every tick regardless of distance.
 	IE::point point = target->NearestPoint(actorSender->Position());
-	if (!PointSufficientlyClose(actorSender->Position(), point))
-		actorSender->SetDestination(point);
+	if (!state.flag || !PointSufficientlyClose(state.point, point)) {
+		if (!PointSufficientlyClose(actorSender->Position(), point))
+			actorSender->SetDestination(point);
+		state.point = point;
+		state.flag = true;
+	}
 
 	if (actorSender->Position() != actorSender->Destination()) {
 		actorSender->SetAnimationAction(ACT_WALKING);

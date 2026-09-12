@@ -18,14 +18,18 @@ struct action_state {
 	bool initiated = false;
 	bool completed = false;
 
-	bool flag = false;        // e.g. ActionWalkTo's "interruptable"
+	bool flag = false;        // e.g. ActionWalkTo's "interruptable", Attack's
+	                          // "a path has been computed at least once"
 	int16 step = 0;            // e.g. FadeToColor/FadeFromColor's step
 	int32 counter = 0;          // generic countdown (Wait, SmallWait, PlayDead,
 	                             // ForceSpell duration, ScreenShake, ...)
 	int32 extra = 0;             // secondary value (fade target, scroll speed, ...)
 	uint32 startTick = 0;         // ForceSpell/ForceSpellPoint start timestamp
 	                               // (diagnostics only)
-	IE::point point{};              // destination/offset
+	IE::point point{};              // destination/offset; also WalkToObject/
+	                                 // Attack's last point actually paced to
+	                                 // (re-search only once the live target
+	                                 // has moved away from it)
 	std::string text;                // DisplayString's text
 
 };
