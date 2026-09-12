@@ -462,19 +462,28 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			break;
 		}
 		case ACT_DIE:
-			if (_HasBAMVariant(description.bam_name, "G15")) {
+			if (Core::Get()->HasExtendedOrientations()) {
 				description.bam_name += "G15";
 				description.sequence_number += ANIM_DIE_OFFSET;
-			} else
+			} else {
+				// "BG1 character style" (avatarnaming.htm) has no
+				// separate G15 file - every action lives in G1 itself,
+				// 8 orientation slots per bank; Die is bank 6 (confirmed
+				// against GemRB's CharAnimations::AddMHRSuffix(), the
+				// real handler for this style).
 				description.bam_name += "G1";
+				description.sequence_number += 48;
+			}
 			break;
 		case ACT_DEAD:
-			// If it has G15 it also has G16.
-			if (_HasBAMVariant(description.bam_name, "G15")) {
+			if (Core::Get()->HasExtendedOrientations()) {
 				description.bam_name += "G16";
 				description.sequence_number += ANIM_DEAD_OFFSET;
-			} else
+			} else {
+				// Same file as Die above - the frozen/twitch bank (7).
 				description.bam_name += "G1";
+				description.sequence_number += 56;
+			}
 			break;
 		case ACT_CAST_SPELL_PREPARE:
 			description.bam_name += "C1";
