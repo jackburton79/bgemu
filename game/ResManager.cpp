@@ -901,7 +901,24 @@ IDTable::TriggerName(uint32 i)
 	if (sTriggers == NULL)
 		sTriggers = gResManager->GetIDS("TRIGGER");
 
-	return sTriggers->StringForID(i);
+	std::string name = sTriggers->StringForID(i);
+	if (name.empty()) {
+		// Real vanilla BG1's own TRIGGER.IDS stops at id ~16500 - it's
+		// missing entries for engine-universal triggers introduced (or
+		// just first documented) later, even though the engine itself
+		// handles the same numeric opcode identically in both games
+		// (confirmed: BG1's compiled .bcs data uses OR() by raw opcode
+		// just fine - only *text* parsing of a stored trigger string,
+		// e.g. a DLG state trigger, needs this name-to-signature lookup
+		// at all, so this gap is specific to that path). Patch the
+		// handful of gaps actually hit by real content/tests as they're
+		// found here, rather than only trusting whatever the loaded
+		// game's own IDS file happens to contain - confirmed against
+		// BG2's own real TRIGGER.IDS ("16521 = OR(I:ORCOUNT*)").
+		if (i == 16521)
+			name = "OR(I:ORCOUNT*)";
+	}
+	return name;
 }
 
 
