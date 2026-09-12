@@ -267,6 +267,49 @@ GetFunctionParameters(const std::string& functionString)
 }
 
 
+// Real compiled .bcs data packs Global/GlobalGT/GlobalLT/SetGlobal/
+// IncrementGlobal's two string parameters ("Name" and "Area") into a
+// single string field - Area first, always exactly 6 characters, then
+// the bare name (see Variables::GetNameAndScope()'s own comment) -
+// instead of the independent string1/string2 fields every other
+// two-S:-parameter trigger/action uses. The generic per-parameter
+// extraction above has no way to special-case this: it stores Name into
+// string1 and Area into string2 like anything else. Repack them here
+// into the same combined representation compiled data already carries,
+// so a trigger/action parsed from text (DLG state triggers, DLG-embedded
+// action text, Evaluate-Trigger/Queue-Action) ends up identical to one
+// read from a real .bcs file, instead of Variables::GetScoped()/
+// SetScoped() misreading an unpacked Name as "<6-char bogus scope><rest
+// of the name>".
+static void
+_PackVariableScopeStrings(char* name, char* area)
+{
+	std::string combined(area, strnlen(area, 6));
+	combined.resize(6, ' ');
+	combined += name;
+	strncpy(name, combined.c_str(), 47);
+	name[47] = '\0';
+	area[0] = '\0';
+}
+
+
+static bool
+_TriggerPacksVariableScope(int id)
+{
+	return id == 0x400F  // Global(S:Name*,S:Area*,I:Value*)
+		|| id == 0x4034  // GlobalGT
+		|| id == 0x4035; // GlobalLT
+}
+
+
+static bool
+_ActionPacksVariableScope(int id)
+{
+	return id == 30    // SETGLOBAL(S:NAME*,S:AREA*,I:VALUE*)
+		|| id == 109;  // INCREMENTGLOBAL
+}
+
+
 /* static */
 trigger_params*
 Parser::TriggerFromString(const std::string& string)
@@ -293,6 +336,9 @@ Parser::TriggerFromString(const std::string& string)
 	for (auto parameter: paramTypes) {
 		extractor._ExtractNextParameter(node, parameter);
 	}
+
+	if (_TriggerPacksVariableScope(node->id))
+		_PackVariableScopeStrings(node->string1, node->string2);
 
 	return node;
 }
@@ -332,6 +378,9 @@ Parser::ActionFromString(const std::string& string)
 		delete params;
 		return nullptr;
 	}
+
+	if (_ActionPacksVariableScope(params->id))
+		_PackVariableScopeStrings(params->string1, params->string2);
 
 	return params;
 }

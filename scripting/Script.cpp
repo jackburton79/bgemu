@@ -653,18 +653,7 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				/*0x400F Global(S:Name*,S:Area*,I:Value*)
 				Returns true only if the variable with name 1st parameter
 				of type 2nd parameter has value 3rd parameter.*/
-				std::string variableScope;
-				std::string variableName;
-				Variables::GetNameAndScope(trig->string1, variableScope, variableName);
-				int32 variableValue = 0;
-				if (variableScope.compare("LOCALS") == 0) {
-					variableValue = sender->GetVariable(variableName.c_str());
-				} else {
-					// TODO: Check for AREA variables, currently we
-					// treat AREA variables as global variables
-					variableValue = Core::Get()->Vars().Get(trig->string1);
-				}
-				returnValue = variableValue == trig->parameter1;
+				returnValue = Variables::GetScoped(sender, trig->string1) == trig->parameter1;
 				break;
 			}
 			case 0x4017:
@@ -750,14 +739,14 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				See Global(S:Name*,S:Area*,I:Value*) except the variable
 				must be greater than the value specified to be true.
 				*/
-				returnValue = core->Vars().Get(trig->string1) > trig->parameter1;
+				returnValue = Variables::GetScoped(sender, trig->string1) > trig->parameter1;
 				break;
 			}
 			case 0x4035:
 			{	/*
 				0x4035 GlobalLT(S:Name*,S:Area*,I:Value*)
 				As above except for less than. */
-				returnValue = core->Vars().Get(trig->string1) < trig->parameter1;
+				returnValue = Variables::GetScoped(sender, trig->string1) < trig->parameter1;
 				break;
 			}
 			case 0x4037:

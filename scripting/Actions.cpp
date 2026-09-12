@@ -130,17 +130,8 @@ _GetSavedLocation(Object* sender, const char* name, const char* scope)
 static void
 RunActionSetGlobal(Object* sender, action_params* params, action_state& state)
 {
-	std::string variableScope;
-	std::string variableName;
-	Variables::GetNameAndScope(params->string1, variableScope, variableName);
-	if (variableScope.compare("LOCALS") == 0) {
-		Object* object = Script::GetSenderObject(sender, params);
-		if (object != NULL)
-			object->SetVariable(variableName.c_str(), params->integer1);
-	} else {
-		// TODO: Check for AREA variables
-		Core::Get()->Vars().Set(params->string1, params->integer1);
-	}
+	Variables::SetScoped(Script::GetSenderObject(sender, params), params->string1,
+			params->integer1);
 	state.completed = true;
 }
 
@@ -1317,9 +1308,9 @@ RunActionEscapeArea(Object* sender, action_params* params, action_state& state)
 static void
 RunActionIncrementGlobal(Object* sender, action_params* params, action_state& state)
 {
-	Core* core = Core::Get();
-	int32 value = core->Vars().Get(params->string1);
-	core->Vars().Set(params->string1, value + params->integer1);
+	Object* scopeObject = Script::GetSenderObject(sender, params);
+	int32 value = Variables::GetScoped(scopeObject, params->string1);
+	Variables::SetScoped(scopeObject, params->string1, value + params->integer1);
 	state.completed = true;
 }
 
