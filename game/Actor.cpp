@@ -1983,30 +1983,10 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 bool
 Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 {
-	bool debug = 0;
-#if 1
-	debug = 1;
-#endif
-	if (triggers.size() == 0)
+	if (triggers.empty())
 		return false;
 
-	if (debug)
-		std::cout << "IF ";
-
-	for (auto*& triggerNode : triggers) {
-		int orTrig = 0;
-		if (debug)
-			triggerNode->Print();
-		if (!Script::EvaluateTrigger(this, triggerNode, orTrig))
-			return false;
-		if (debug) {
-			if (orTrig)
-				std::cout << " OR " << std::endl;
-			else
-				std::cout << " AND " << std::endl;
-		}
-	}
-	return true;
+	return Script::EvaluateTriggerList(this, triggers);
 }
 
 

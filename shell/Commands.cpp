@@ -28,6 +28,7 @@
 #include "SearchMap.h"
 #include "Window.h"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -1085,6 +1086,45 @@ public:
 };
 
 
+class EvaluateTriggersCommand : public ShellCommand {
+public:
+	EvaluateTriggersCommand()
+		: ShellCommand("Evaluate-Triggers")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Like Evaluate-Trigger, but for a whole trigger list (AND/OR(N)
+		// sequence, e.g. a DLG state's trigger text) via Script::
+		// EvaluateTriggerList() - the one thing Evaluate-Trigger can't
+		// exercise, since it only ever parses/evaluates a single trigger.
+		// Usage: Evaluate-Triggers <actor>,<trigger1>;<trigger2>;...
+		std::string actorName, triggerText;
+		if (!_SplitOnFirstComma(argv, actorName, triggerText)) {
+			std::cout << "Evaluate-Triggers: expected <actor>,<trigger1>;<trigger2>;..." << std::endl;
+			return;
+		}
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "Evaluate-Triggers: actor not found" << std::endl;
+			return;
+		}
+
+		std::replace(triggerText.begin(), triggerText.end(), ';', '\n');
+		std::vector<trigger_params*> triggers = Parser::TriggersFromString(triggerText);
+		if (triggers.empty()) {
+			std::cout << "Evaluate-Triggers: failed to parse any trigger" << std::endl;
+			return;
+		}
+
+		bool result = Script::EvaluateTriggerList(actor, triggers);
+		std::cout << "Evaluate-Triggers: " << (result ? "true" : "false") << std::endl;
+		for (trigger_params* t : triggers)
+			delete t;
+	}
+};
+
+
 class QueueActionCommand : public ShellCommand {
 public:
 	QueueActionCommand()
@@ -1692,6 +1732,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleRecordCommand());
 	console->AddCommand(new SelectPartyCommand());
 	console->AddCommand(new EvaluateTriggerCommand());
+	console->AddCommand(new EvaluateTriggersCommand());
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
 	console->AddCommand(new CheckWorldmapExitCommand());

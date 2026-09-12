@@ -355,16 +355,31 @@ Script::GetObject(const Object* source, object_params* node)
 bool
 Script::_EvaluateConditionBlock(condition_block& conditionNode)
 {
+	return EvaluateTriggerList(fSender, conditionNode.triggers);
+}
+
+
+// Shared AND/OR evaluation of a trigger list - the same logic real BCS
+// CO blocks and DLG state triggers both use (a DLG state's trigger text
+// parses into the same trigger_params list a CO block's does, OR(N)
+// included). `orTriggers` must persist across the whole list, not be
+// reset per trigger: an OR(N) node sets it to N and every trigger up
+// until it's exhausted is an alternative (the first TRUE one short-
+// circuits the block to TRUE) rather than a mandatory AND term.
+/* static */
+bool
+Script::EvaluateTriggerList(Object* sender, const std::vector<trigger_params*>& triggers)
+{
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;
-	for (auto trig: conditionNode.triggers) {
+	for (auto trig: triggers) {
 		if (orTriggers > 0) {
-			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers);
+			blockEvaluation = EvaluateTrigger(sender, trig, orTriggers);
 			if (blockEvaluation)
 				break;
 			orTriggers--;
 		} else {
-			blockEvaluation = EvaluateTrigger(fSender, trig, orTriggers) && blockEvaluation;
+			blockEvaluation = EvaluateTrigger(sender, trig, orTriggers) && blockEvaluation;
 			if (!blockEvaluation)
 				break;
 		}

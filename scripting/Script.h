@@ -52,6 +52,11 @@ public:
 
 	static bool EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrig);
 
+	// AND/OR evaluation of a whole trigger list (a BCS CO block's
+	// triggers, or a DLG state's parsed trigger text) against `sender` -
+	// see the .cpp comment for the OR(N) semantics.
+	static bool EvaluateTriggerList(Object* sender, const std::vector<trigger_params*>& triggers);
+
 	static Object* ResolveIdentifier(const Object* object, object_params* node, const int id);
 	static Object* GetObject(const Object* source, object_params* node);
 
