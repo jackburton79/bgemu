@@ -48,6 +48,7 @@ public:
 									Parameter& parameter);
 private:
 	Tokenizer& fTokenizer;
+	bool fDone;
 
 	token _ReadParameterToken();
 	int _EnumValue(const char* idsName, const char* string);
@@ -718,7 +719,8 @@ _StringFieldAt(Params* params, int position)
 // ParameterExtractor
 ParameterExtractor::ParameterExtractor(Tokenizer& tokenizer)
 	:
-	fTokenizer(tokenizer)
+	fTokenizer(tokenizer),
+	fDone(false)
 {
 }
 
@@ -727,7 +729,16 @@ token
 ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 								Parameter& parameter)
 {
+	// The TEXT form is free to omit trailing parameters (e.g.
+	// HasItem("DAGG01") against TRIGGER.IDS' HasItem(S:RESREF*,O:OBJECT*)):
+	// once the closing parenthesis has been seen, leave every remaining
+	// declared parameter at its default rather than reading past it.
+	if (fDone)
+		return token();
+
 	token tokenParam = _ReadParameterToken();
+	if (fDone)
+		return tokenParam;
 
 	switch (parameter.type) {
 		case Parameter::OBJECT:
@@ -762,7 +773,12 @@ token
 ParameterExtractor::_ExtractNextParameter(::action_params* param,
 								Parameter& parameter)
 {
+	if (fDone)
+		return token();
+
 	token tokenParam = _ReadParameterToken();
+	if (fDone)
+		return tokenParam;
 
 	switch (parameter.type) {
 		case Parameter::POINT:
@@ -812,8 +828,13 @@ token
 ParameterExtractor::_ReadParameterToken()
 {
 	token t = fTokenizer.ReadToken();
-	if (t.type == TOKEN_PARENTHESIS_CLOSED)
-		throw std::runtime_error("Expecting parameter, got closing parenthesis");
+	if (t.type == TOKEN_PARENTHESIS_CLOSED) {
+		// Put it back so whatever reads the call's closing parenthesis next
+		// (TriggerFromString()/ActionFromString()) still sees it.
+		fTokenizer.RewindToken(t);
+		fDone = true;
+		return t;
+	}
 
 	if (t.type == TOKEN_COMMA)
 		t = fTokenizer.ReadToken();
