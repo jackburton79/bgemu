@@ -900,6 +900,16 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 				|| (windowID == WINDOW_MESSAGES_LARGE && controlID == 0)) {
 			ToggleMessageArea();
 			return;
+		} else if (windowID == WINDOW_MESSAGES && (controlID == 0 || controlID == 1)) {
+			// BG1's small message window scrolls via two dedicated arrow
+			// buttons instead of a real Scrollbar control (unlike BG2,
+			// and unlike BG1's own WINDOW_MESSAGES_LARGE) - same step
+			// size as a Scrollbar arrow click (Scrollbar.cpp's own
+			// kArrowStep).
+			TextArea* textArea = GetMessagesTextArea();
+			if (textArea != NULL)
+				textArea->ScrollBy(0, controlID == 0 ? -16 : 16);
+			return;
 		}
 		_LogUnhandledControl(windowID, controlID);
 		return;
