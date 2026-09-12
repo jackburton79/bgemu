@@ -1362,6 +1362,13 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 	}
 	if (trig->flags != 0)
 		returnValue = !returnValue;
+
+	if (sDebug) {
+		std::cout << "SCRIPT: TRIGGER " << (trig->flags != 0 ? "!" : "")
+			<< IDTable::TriggerName(trig->id) << " -> "
+			<< (returnValue ? "TRUE" : "FALSE") << std::endl;
+	}
+
 	return returnValue;
 }
 
@@ -1391,6 +1398,13 @@ Script::_HandleResponseSet(response_set& responseSet)
 			selectedResponse = response;
 			break;
 		}
+	}
+
+	if (sDebug) {
+		std::cout << "SCRIPT: RESPONSE picked probability " << selectedResponse->probability
+			<< "/" << totalChance << " (roll " << roll << "), "
+			<< selectedResponse->actions.size() << " action(s)"
+			<< (responseSet.resp.size() > 1 ? "" : " [only response]") << std::endl;
 	}
 
 	const auto actions = selectedResponse->actions;
