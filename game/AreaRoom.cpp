@@ -456,7 +456,7 @@ AreaRoom::_HandleClickAt(IE::point point)
 	// A loose pile dropped on the floor: the selected party member loots
 	// it. No walk-to-pile yet (declared simplification) - pickup is
 	// immediate on click.
-	int32 pileIndex = _GroundPileAtPoint(point);
+	int32 pileIndex = GroundPileAtPoint(point);
 	if (pileIndex >= 0) {
 		if (fSelectedActor != NULL)
 			PickUpGroundPile((size_t)pileIndex, fSelectedActor.Target());
@@ -904,7 +904,7 @@ AreaRoom::PickUpGroundPile(size_t index, Actor* taker)
 
 
 int32
-AreaRoom::_GroundPileAtPoint(const IE::point& areaPoint) const
+AreaRoom::GroundPileAtPoint(const IE::point& areaPoint) const
 {
 	for (size_t i = 0; i < fGroundPiles.size(); i++) {
 		const IE::point& p = fGroundPiles[i].position;

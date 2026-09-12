@@ -114,6 +114,12 @@ public:
 	void AddGroundItem(const IE::item& item, const IE::point& position);
 	const std::vector<IE::ground_pile>& GroundPiles() const;
 	void SetGroundPiles(std::vector<IE::ground_pile> piles);
+	// Index into GroundPiles() of the pile whose icon covers `areaPoint`
+	// (world click) or that merges with it (a drop, or - Game::
+	// _UpdateGroundItemSlots() - the GUIINV ground-item row, keyed off
+	// the shown character's own position), or -1. `areaPoint` is in area
+	// coordinates.
+	int32 GroundPileAtPoint(const IE::point& areaPoint) const;
 	// Auto-loots the pile at `index` into `taker`'s inventory; whatever
 	// doesn't fit stays behind, an emptied pile is removed.
 	void PickUpGroundPile(size_t index, Actor* taker);
@@ -171,9 +177,6 @@ private:
 	void _DrawActors();
 
 	Container* _ContainerAtPoint(const IE::point& point) const;
-	// Index into fGroundPiles of the pile whose icon covers `areaPoint`,
-	// or -1. `areaPoint` is in area coordinates.
-	int32 _GroundPileAtPoint(const IE::point& areaPoint) const;
 	void _DrawGroundPiles();
 	Actor* _ActorAtPoint(const IE::point& point) const;
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;

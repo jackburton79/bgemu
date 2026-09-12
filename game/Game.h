@@ -298,6 +298,7 @@ private:
 	void _UpdateInventoryIcons();
 	void _SetSlotIcon(class Window* window, class CREResource* cre,
 		uint32 controlID, uint32 creSlot);
+	void _UpdateGroundItemSlots(class Window* window, Actor* actor);
 	void _ShowItemInfo(const res_ref& itemName);
 	void _UpdatePaperdoll(class Window* window, Actor* actor);
 	void _UpdateInventoryLabels(class Window* window, Actor* actor);

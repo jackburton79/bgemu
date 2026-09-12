@@ -1280,6 +1280,7 @@ Game::_UpdateInventoryIcons()
 
 	_UpdatePaperdoll(window, actor);
 	_UpdateInventoryLabels(window, actor);
+	_UpdateGroundItemSlots(window, actor);
 }
 
 
@@ -1877,6 +1878,44 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 	// update, no way to tell them apart.
 	if (creSlot >= kSlotWeaponFirst && creSlot < kSlotWeaponFirst + 4)
 		button->SetHighlighted(creSlot == kSlotWeaponFirst);
+}
+
+
+// Mirrors whatever's in the ground pile at the shown character's own
+// position into the 5 "ground item" slots (ids 68-72, see
+// _IsGroundItemSlotControl()) - the same pile AreaRoom's world-click
+// handler picks up via GroundPileAtPoint(). Only display: a click there
+// is still handled purely as a drop target (InventoryControlInvoked()),
+// not as its own pickup source - picking a specific item back up still
+// means clicking the pile in the world. No paging if a pile holds more
+// than 5 items (the neighboring scrollbar, control id 66, isn't wired
+// yet) - declared simplification, not expected to matter for piles
+// built up from drops alone.
+void
+Game::_UpdateGroundItemSlots(Window* window, Actor* actor)
+{
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	const std::vector<IE::item>* items = NULL;
+	if (room != NULL) {
+		int32 pileIndex = room->GroundPileAtPoint(actor->Position());
+		if (pileIndex >= 0)
+			items = &room->GroundPiles()[(size_t)pileIndex].items;
+	}
+
+	for (uint32 i = 0; i < 5; i++) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(68 + i));
+		if (button == NULL)
+			continue;
+
+		Bitmap* icon = NULL;
+		int count = 0;
+		if (items != NULL && i < items->size()) {
+			icon = _MakeItemIcon((*items)[i].name);
+			count = (*items)[i].quantity1;
+		}
+		button->SetIcon(icon);
+		button->SetIconCount(count);
+	}
 }
 
 
