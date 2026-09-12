@@ -783,6 +783,28 @@ GUI::SetCursor(uint32 index)
 }
 
 
+enum class scroll_direction {
+	VERTICAL,
+	HORIZONTAL
+};
+
+static bool
+CanScroll(const IE::rect& viewPort, const GFX::rect& frame, scroll_direction d, int16 amount)
+{
+	if (amount < 0) {
+		if (d == scroll_direction::HORIZONTAL)
+			return viewPort.x_min > 0;
+		else
+			return viewPort.y_min > 0;
+	} else {
+		if (d == scroll_direction::VERTICAL)
+			return viewPort.x_max < frame.w;
+		else
+			return viewPort.y_max < frame.h;
+	}
+}
+
+
 void
 GUI::UpdateCursorAndScrolling(int x, int y)
 {
@@ -831,6 +853,13 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 		scrollByY = -kScrollingStep;
 	else if (y >= bottomBorder)
 		scrollByY = kScrollingStep;
+
+	const IE::rect visibleArea = room->VisibleMapArea();
+	if (!CanScroll(visibleArea, room->AreaRect(), scroll_direction::HORIZONTAL, scrollByX))
+		scrollByX = 0;
+
+	if (!CanScroll(visibleArea, room->AreaRect(), scroll_direction::VERTICAL, scrollByY))
+		scrollByY = 0;
 
 	if (scrollByX == 0 && scrollByY == 0)
 		return;
