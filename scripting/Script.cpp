@@ -20,6 +20,16 @@
 
 bool Script::sDebug = false;
 
+// Shared by RandomNum()/RandomNumGT()/RandomNumLT() below - rerolled once
+// per Script::Execute() call (see there) rather than independently per
+// trigger check, so a state list like "RandomNum(5,1) ... RandomNum(5,5)"
+// (the standard "N equally likely greeting variants" idiom) always has
+// exactly one match instead of each check rolling its own dice and
+// possibly matching zero or more than one. Matches GemRB's own
+// RandomNumValue (rerolled once per GameScript::Update() call, its
+// equivalent of one script level's worth of condition-response blocks).
+static int32 sRandomNumValue = 0;
+
 
 Script::Script(std::vector<condition_response*> rootNode)
 	:
@@ -115,6 +125,8 @@ Script::Execute(bool& continuing, bool& finished)
 	// find response_set block
 	// choose response
 	// execute actions
+	sRandomNumValue = Core::RandomNumber(0, 32767);
+
 	if (sDebug) {
 		std::cout << "*** SCRIPT START: " << (fSender ? fSender->Name() : "");
 		std::cout << " ***" << std::endl;
@@ -1178,6 +1190,25 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 						returnValue = value > trig->parameter1;
 					else
 						returnValue = value < trig->parameter1;
+				}
+				break;
+			}
+			case 0x4047:
+			case 0x4048:
+			case 0x4049:
+			{
+				/* RandomNum(I:Range*,I:Value*), RandomNumGT, RandomNumLT -
+				 * see sRandomNumValue's own comment for why this reads a
+				 * value rolled once per Script::Execute() call rather than
+				 * rolling fresh here. */
+				if (trig->parameter1 > 0 && trig->parameter2 > 0) {
+					int32 roll = sRandomNumValue % trig->parameter1;
+					if (trig->id == 0x4047)
+						returnValue = trig->parameter2 - 1 == roll;
+					else if (trig->id == 0x4048)
+						returnValue = trig->parameter2 - 1 < roll;
+					else
+						returnValue = trig->parameter2 - 1 > roll;
 				}
 				break;
 			}
