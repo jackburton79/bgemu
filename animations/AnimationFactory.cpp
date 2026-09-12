@@ -66,9 +66,11 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x4102, "SSIM", _BuildSimple },
 	{ 0x4110, "SSIW", _BuildSimple },
 	{ 0x4400, "LHMC", _BuildStatic },
+	{ 0x4410, "LHFC", _BuildStatic },
 	{ 0x4600, "LDMF", _BuildStatic },
 	{ 0x4700, "LEMF", _BuildStatic },
 	{ 0x4710, "LEFF", _BuildStatic },
+	{ 0x4800, "LIMC", _BuildStatic }, // SLEEPING_MAN_HALFLING
 
 	{ 0x5000, "CHMB", _BuildCharacter },
 	{ 0x5002, "CDMB", _BuildCharacter },
