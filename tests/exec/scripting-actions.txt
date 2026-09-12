@@ -1,0 +1,33 @@
+# Action dispatch regression tests: a small sampler exercising a few
+# common actions, verified through the trigger they should affect (no
+# generic "did this action do the right thing" introspection exists -
+# see this directory's README). Game-agnostic (uses "-" for the party
+# leader, DAGG01 - a basic dagger - confirmed present in both BG1 and
+# BG2's data) - run against both games.
+#
+# Note: PartyHasItem(S:Item*) is used here rather than the single-item
+# HasItem(S:Item*,O:Object*) - the latter's real TRIGGER.IDS signature
+# takes a second (unused, party-wide-in-practice) O:Object* parameter
+# that this engine's text parser doesn't yet tolerate being omitted
+# (see task_286e67ee); PartyHasItem's own signature is single-parameter
+# and does the same thing the HasItem handler actually does anyway.
+
+# CREATEITEM (action id 82): adds to the party leader's inventory.
+Run-Action -,82,-,1,DAGG01,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,PartyHasItem("DAGG01")
+
+# DESTROYITEM (action id 169): removes it again.
+Run-Action -,169,-,0,DAGG01,-,0,0
+Step-Ticks 2
+Assert-Trigger -,false,PartyHasItem("DAGG01")
+
+# EQUIPITEM (action id 11) + HasWeaponEquiped(): equipping a weapon-type
+# item is reflected in the equipped-weapon trigger. Myself is passed
+# explicitly (rather than the empty, default-to-self form) - see the
+# HasItem note above, same parser limitation.
+Run-Action -,82,-,1,DAGG01,-,0,0
+Step-Ticks 2
+Run-Action -,11,-,0,DAGG01,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,HasWeaponEquiped(Myself)

@@ -1,0 +1,48 @@
+# Variable scoping regression tests: GLOBAL cross-opcode key interop,
+# LOCALS isolation, case-insensitivity, DLG-style SetGlobal text
+# parsing. Game-agnostic (uses "-" for the party leader) - run against
+# both BG1 and BG2. See game/Variables.cpp, scripting/Actions.cpp
+# (SETGLOBAL/SG/IncrementGlobal), scripting/Script.cpp (Global family),
+# scripting/Parsing.cpp (_PackVariableScopeStrings).
+
+# SETGLOBAL (action id 30, compiled-.bcs-style prefixed string1) and the
+# Global() trigger agree on the same key.
+Run-Action -,30,-,42,GLOBALBgemuTestVar,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuTestVar","GLOBAL",42)
+
+# SG (action id 307, bare-name string1) writes the SAME GLOBAL key
+# SETGLOBAL does - the cross-opcode key-mismatch bug (fixed 42829b7f).
+Run-Action -,307,-,99,BgemuTestVar,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuTestVar","GLOBAL",99)
+Assert-Trigger -,true,GlobalGT("BgemuTestVar","GLOBAL",50)
+Assert-Trigger -,false,GlobalLT("BgemuTestVar","GLOBAL",50)
+
+# IncrementGlobal (action id 109) reads/writes the same key too.
+Run-Action -,109,-,1,GLOBALBgemuTestVar,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuTestVar","GLOBAL",100)
+
+# LOCALS scope is isolated from GLOBAL (same name, different table).
+Queue-Action -,SetGlobal("BgemuLocalFlag","LOCALS",7)
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuLocalFlag","LOCALS",7)
+Assert-Trigger -,false,Global("BgemuLocalFlag","GLOBAL",7)
+Queue-Action -,IncrementGlobal("BgemuLocalFlag","LOCALS",3)
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuLocalFlag","LOCALS",10)
+
+# Variable names are case-insensitive (IESDP: "the variable name itself
+# is case-insensitive").
+Assert-Trigger -,true,Global("BGEMUTESTVAR","GLOBAL",100)
+Assert-Trigger -,true,Global("bgemutestvar","GLOBAL",100)
+
+# Text-parsed SetGlobal (the path DLG-embedded action text and this
+# console both use) packs Name+Area the same way compiled .bcs data
+# does - regression for the corrupted-name bug (fixed 42829b7f:
+# SetGlobal("TalkedToMadeen","GLOBAL",1) used to store under the
+# mangled key "ToMadeen", not "TalkedToMadeen").
+Queue-Action -,SetGlobal("BgemuTalkedToSomeone","GLOBAL",1)
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuTalkedToSomeone","GLOBAL",1)

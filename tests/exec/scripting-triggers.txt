@@ -1,0 +1,34 @@
+# Trigger evaluation regression tests: AND/OR(N) list semantics,
+# RandomNum's shared-roll idiom. Game-agnostic (uses "-" for the party
+# leader) - run against both BG1 and BG2. See scripting/Script.cpp
+# (Script::EvaluateTriggerList, RandomNum/RandomNumGT/RandomNumLT),
+# game/Actor.cpp (Actor::EvaluateDialogTriggers, which shares the exact
+# same AND/OR logic - see scripting-dialog-or.txt for that path).
+
+# Plain AND: every trigger in the list must pass.
+Assert-Triggers -,true,True();True()
+Assert-Triggers -,false,True();False()
+Assert-Triggers -,false,False();True()
+
+# OR(N): the first TRUE alternative short-circuits the whole block to
+# TRUE, even if an earlier alternative in the group was FALSE - this is
+# the bug fixed in 10862371 (orTrig used to reset every loop iteration
+# instead of persisting, so this always behaved like plain AND and
+# never found the later TRUE alternative).
+Assert-Triggers -,true,OR(2);False();True()
+Assert-Triggers -,true,OR(3);False();False();True()
+Assert-Triggers -,false,OR(2);False();False()
+
+# A mandatory trigger before an OR group still applies normally.
+Assert-Triggers -,true,True();OR(2);False();True()
+Assert-Triggers -,false,False();OR(2);True();True()
+
+# RandomNum(Range,Value): real dialog content leans on "N states, each
+# testing RandomNum(N,1) through RandomNum(N,N)" to pick exactly one of
+# N equally likely branches (a common BG1 greeting-variant idiom). This
+# only works if all N checks share one roll (rerolled once per
+# Script::Execute() call, not independently per check) - the invariant
+# below (at least one of 5 branches true) holds either way today, but
+# would have failed entirely before RandomNum was implemented at all
+# (1267ee80 - every branch was permanently FALSE).
+Assert-Triggers -,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);RandomNum(5,4);RandomNum(5,5)

@@ -1,0 +1,24 @@
+# BG1-specific dialog regressions. Needs the default starting party/area
+# (no -P/-a override): ./bin/BGEmu -p <BG1 path> -D -x tests/exec/bg1-dialog.txt
+
+# RandomNum(Range,Value) was entirely unimplemented (always FALSE),
+# which broke BG1's common "N equally likely greeting lines" dialog
+# idiom outright - fixed 1267ee80. See scripting-triggers.txt for the
+# game-agnostic mechanism test; this is real BG1 content using it
+# (WATCH, a Candlekeep guard in the default starting area). Must run
+# before the area change below - WATCH doesn't exist once AR2700 loads.
+Assert-Triggers WATCH,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);RandomNum(5,4);RandomNum(5,5)
+
+# LEAVEAREALUA (action id 110) used to leave a non-party actor (e.g.
+# Gorion, escorting the party out of Candlekeep in the opening cutscene)
+# behind in the old area's cache instead of carrying it to the new one -
+# fixed af01474a. AJANTI (the default party leader) transfers fine
+# either way (party members are always carried over); GORION (not a
+# party member) is the actual regression target - Assert-Trigger's own
+# "actor not found" failure mode (see its README note) is exactly the
+# symptom this catches, so a bare True() on GORION after the move is
+# enough: it can only evaluate at all if GORION exists in the new area.
+Run-Action GORION,110,-,12,AR2700,TRGORION,3522,3712
+Step-Ticks 5
+Assert-Trigger GORION,true,True()
+Assert-Trigger AJANTI,true,True()
