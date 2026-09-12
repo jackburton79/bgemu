@@ -266,7 +266,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 									break;
 								}
 							case SDLK_h:
-								GUI::Get()->Toggle();
+								ToggleHUD();
 								break;
 							case SDLK_a:
 								if (room != NULL)
