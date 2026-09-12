@@ -1143,6 +1143,23 @@ _CreSlotForControl(uint32 controlID)
 }
 
 
+// GUIINV window 2's 5 "ground item" slot buttons (ids 68-72, confirmed
+// identical in both games' real CHU data) - the actual click target for
+// dropping a held item to the floor: real GemRB GUIScripts
+// (InventoryCommon.OnDragItemGround()) call DropDraggedItem(pc, -2) on
+// exactly these while an item is being dragged. Only that drop side is
+// wired here; the same buttons are also meant to show and pick back up
+// whatever's already on the ground at the character's feet (paged by
+// the neighboring scrollbar, control id 66) - not implemented yet, so
+// they stay visually empty. Ground items are still only picked up by
+// clicking their pile in the game world (AreaRoom::PickUpGroundPile()).
+static bool
+_IsGroundItemSlotControl(uint32 controlID)
+{
+	return controlID >= 68 && controlID <= 72;
+}
+
+
 Actor*
 Game::_ShownActor() const
 {
@@ -1294,6 +1311,12 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 
 	if (windowID == 1 && controlID <= 3) {
 		ShowCharacter((uint16)controlID); // portrait column
+		return;
+	}
+
+	if (windowID == 2 && _IsGroundItemSlotControl(controlID)) {
+		if (GUI::Get()->IsDraggingItem())
+			DropHeldItemOnGround();
 		return;
 	}
 
