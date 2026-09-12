@@ -122,11 +122,11 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x6510, "CHFM", _BuildCharacter },
 
 	{ 0x7000, "",     _BuildBGCharacter },
-	{ 0x7001, "MOGR", _BuildBGMonster },
+	{ 0x7001, "MOGN", _BuildBGMonster }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000
 	{ 0x7202, "MBER", _BuildBGMonster },
 	{ 0x7300, "",     _BuildBGMonster },
 	{ 0x7400, "MDOG", _BuildBGMonster },
-	{ 0x7703, "MSHD", _BuildBGMonster },
+	{ 0x7703, "MGHL", _BuildBGMonster }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found)
 	{ 0x7a01, "MSPI", _BuildBGMonster },
 	{ 0x7c01, "MTAS", _BuildBGMonster },
 	{ 0x7b00, "MWLF", _BuildBGMonster },
