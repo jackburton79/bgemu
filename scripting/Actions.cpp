@@ -1049,12 +1049,18 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 // state.initiated false for more than one call).
 // The "different area" branch hands the actor to Game::TempState (keyed
 // by destination area, drained by AreaRoom::_LoadActors() once that area
-// loads) and then actually triggers the load via Core::LoadArea() - the
-// missing half of what used to be a "BUG: IMPLEMENT MOVING TO AREAS"
-// stub: the actor got stashed, but nothing ever asked to switch areas,
-// so it just sat in TempState until some unrelated area load happened to
-// pick it up. S:EFFECT* (a transition visual/sound) isn't modeled, same
-// spirit as other cosmetic-only parameters already skipped elsewhere.
+// loads). Only a party member's own move also switches the game's current
+// area (Core::RequestAreaChange()) - real content routinely uses this
+// effect on an unrelated NPC just to stash it for whenever its target area
+// happens to load next (e.g. BG2's NewGame cutscene relocating Malaaq to
+// AR0601 well before the player actually gets there); forcing a party-wide
+// area change for that NPC's own move raced the cutscene's own upcoming
+// area transition - a pending change already set here blocked the very
+// next instant action (STARTCUTSCENE) from running via Object::AddAction()'s
+// HasPendingTransition() guard, silently dropping it when this area
+// unloaded before ever executing its own queued actions. S:EFFECT* (a
+// transition visual/sound) isn't modeled, same spirit as other
+// cosmetic-only parameters already skipped elsewhere.
 static void
 RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_state& state)
 {
@@ -1070,10 +1076,12 @@ RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_st
 				};
 				tempState->actors[params->string1].push_back(pending);
 				actor->Area()->RemoveObject(actor);
-				// Deferred - see RunActionChangeArea()'s own comment,
-				// same reasoning applies here (also runs from inside
-				// AreaRoom::Update()'s actor loop).
-				Core::Get()->RequestAreaChange(params->string1, "", "");
+				if (actor->InParty()) {
+					// Deferred - see RunActionChangeArea()'s own comment,
+					// same reasoning applies here (also runs from inside
+					// AreaRoom::Update()'s actor loop).
+					Core::Get()->RequestAreaChange(params->string1, "", "");
+				}
 			} else {
 				actor->SetPosition(params->where);
 				actor->SetOrientation(params->integer1);
