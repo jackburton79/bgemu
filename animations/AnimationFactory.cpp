@@ -67,6 +67,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x4110, "SSIW", _BuildSimple },
 	{ 0x4400, "LHMC", _BuildStatic },
 	{ 0x4410, "LHFC", _BuildStatic },
+	{ 0x4500, "LFAM", _BuildStatic },
 	{ 0x4600, "LDMF", _BuildStatic },
 	{ 0x4700, "LEMF", _BuildStatic },
 	{ 0x4710, "LEFF", _BuildStatic },
