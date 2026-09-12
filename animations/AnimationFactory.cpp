@@ -499,7 +499,10 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			}
 			break;
 		case ACT_CAST_SPELL_PREPARE:
-			description.bam_name += "C1";
+			description.bam_name += "CA";
+			break;
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name += "CA";
 			break;
 		default:
 			_WarnUnimplementedAction("Character", baseName, actor);
