@@ -253,6 +253,13 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 	::cycle newCycle;
 	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
 
+	if (frameIndex >= newCycle.numFrames) {
+		std::cerr << Log::Red << "BAMResource::FrameForCycle(): frame "
+				<< frameIndex << " out of bounds for cycle " << (int)cycleIndex
+				<< " (" << newCycle.numFrames << " frames)!" << Log::Normal << std::endl;
+		return NULL;
+	}
+
 	uint16 index;
 	fData->ReadAt(fFrameLookupOffset
 			+ (newCycle.index + frameIndex) * sizeof(int16), index);
