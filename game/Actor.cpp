@@ -64,6 +64,7 @@ Actor::Actor(IE::actor &actor)
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fWeaponAnimation(NULL),
 	fAnimationAction(ACT_STANDING),
 	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
@@ -88,6 +89,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fActor(&actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fWeaponAnimation(NULL),
 	fAnimationAction(ACT_STANDING),
 	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
@@ -112,6 +114,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fActor(new IE::actor),
 	fAnimationFactory(NULL),
 	fCurrentAnimation(NULL),
+	fWeaponAnimation(NULL),
 	fAnimationAction(ACT_STANDING),
 	fNextAnimationAction(ACT_STANDING),
 	fAnimationValid(false),
@@ -234,6 +237,7 @@ Actor::~Actor()
 	}
 
 	delete fCurrentAnimation;
+	delete fWeaponAnimation;
 	delete fPath;
 }
 
@@ -459,6 +463,8 @@ Actor::Draw(AreaRoom* room) const
 	IE::point actorPosition = Position();
 	actorPosition.y += room->PointHeight(actorPosition) - 8;
 	room->DrawBitmap(Bitmap(), actorPosition, true);
+	if (fWeaponAnimation != NULL)
+		room->DrawBitmap(fWeaponAnimation->Bitmap(), actorPosition, true);
 
 	if (InParty())
 		_DrawActorPath(room);
@@ -1793,9 +1799,12 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 {
 	if (!fAnimationValid) {
 		delete fCurrentAnimation;
+		delete fWeaponAnimation;
 		fCurrentAnimation = NULL;
+		fWeaponAnimation = NULL;
 		if (fAnimationFactory != NULL) {
 			fCurrentAnimation = fAnimationFactory->AnimationFor(this, fColors);
+			fWeaponAnimation = fAnimationFactory->WeaponOverlayFor(this);
 		}
 		fAnimationValid = true;
 	} else if (fCurrentAnimation != NULL) {
@@ -1804,13 +1813,20 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 				fAnimationAutoSwitchOnEnd = false;
 				fAnimationAction = fNextAnimationAction;
 				delete fCurrentAnimation;
+				delete fWeaponAnimation;
 				fCurrentAnimation = fAnimationFactory->AnimationFor(this, fColors);
+				fWeaponAnimation = fAnimationFactory->WeaponOverlayFor(this);
 			}
 			if (fAnimationAction != ACT_DEAD) {
 				fCurrentAnimation->NextFrame();
+				if (fWeaponAnimation != NULL)
+					fWeaponAnimation->NextFrame();
 			}
-		} else
+		} else {
 			fCurrentAnimation->NextFrame();
+			if (fWeaponAnimation != NULL)
+				fWeaponAnimation->NextFrame();
+		}
 		/*if ((fAnimationAction != ACT_DIE && fAnimationAction != ACT_CAST_SPELL_RELEASE)
 				|| !fCurrentAnimation->IsLastFrame())
 			fCurrentAnimation->NextFrame();*/

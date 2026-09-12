@@ -9,6 +9,7 @@
 
 #include "2DAResource.h"
 #include "Actor.h"
+#include "AnimationFactory.h"
 #include "AreaResource.h"
 #include "AreaRoom.h"
 #include "CharacterBuilder.h"
@@ -1499,27 +1500,6 @@ Game::DropHeldItemOnGround()
 }
 
 
-// The wearer's body-size letter for WPxxx paperdoll overlay resrefs
-// below - real BG2 keys this off the avatar animation id via a table
-// hardcoded in the executable (no data file for it), so this is a
-// simplification keyed off race instead, covering every playable PC
-// race. Halflings get their own "H" variant (helmets are the one
-// exception - they fall back to the gnome/"S" files - but this codebase
-// doesn't composite helmets).
-static const char*
-_PaperdollSizeCode(const Actor* actor)
-{
-	switch (actor->CRE()->Race()) {
-		case 5: // HALFLING
-			return "H";
-		case 6: // GNOME
-			return "S";
-		default:
-			return "M";
-	}
-}
-
-
 // Composites one equipped item's paperdoll overlay (a "WP" + size +
 // animation-code + suffix BAM, e.g. "WPMS1INV" for a medium character's
 // long sword) onto `canvas`. The frame's own stored center offset is
@@ -1599,7 +1579,7 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 		}
 
 		if (icon != nullptr) {
-			const char* sizeCode = _PaperdollSizeCode(actor);
+			const char* sizeCode = AnimationFactory::SizeCodeForActor(actor);
 
 			ITMResource* weapon = actor->EquippedWeapon();
 			if (weapon != nullptr) {

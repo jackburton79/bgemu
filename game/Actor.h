@@ -265,6 +265,11 @@ private:
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;
 	Animation* fCurrentAnimation;
+	// Equipped weapon's overlay, drawn on top of fCurrentAnimation at the
+	// same position - NULL whenever the current action doesn't show one
+	// (see AnimationFactory::WeaponOverlayFor()). Rebuilt/advanced in
+	// lockstep with fCurrentAnimation in UpdateAnimation().
+	Animation* fWeaponAnimation;
 	int fAnimationAction;
 	int fNextAnimationAction;
 	bool fAnimationValid;

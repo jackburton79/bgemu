@@ -10,6 +10,7 @@
 #include "Animation.h"
 #include "CreResource.h"
 #include "Core.h"
+#include "ITMResource.h"
 #include "Log.h"
 #include "ResManager.h"
 
@@ -473,6 +474,21 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 					suffix = shootSuffix;
 			}
 			description.bam_name += suffix;
+
+			// The body swing above is weapon-agnostic (avatarnaming.htm
+			// "Character": "Weapon overlays are in separate files") - the
+			// weapon itself, when one is equipped, is a second BAM drawn
+			// on top at the same cycle/orientation (see
+			// AnimationFactory::WeaponOverlayFor()).
+			ITMResource* weaponItem = actor->EquippedWeapon();
+			if (weaponItem != nullptr) {
+				std::string code = weaponItem->Animation();
+				if (!code.empty()) {
+					description.weapon_bam_name = std::string("WP")
+						+ AnimationFactory::SizeCodeForActor(actor) + code + suffix;
+				}
+				gResManager->ReleaseResource(weaponItem);
+			}
 			break;
 		}
 		case ACT_DIE:
@@ -685,6 +701,47 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 		return NULL;
 	} catch (...) {
 		return NULL;
+	}
+}
+
+
+Animation*
+AnimationFactory::WeaponOverlayFor(Actor* actor)
+{
+	try {
+		animation_description description = GetAnimationDescription(actor);
+		if (description.weapon_bam_name.empty())
+			return NULL;
+		IE::point pos;
+		return new Animation(description.weapon_bam_name.c_str(),
+							description.sequence_number, description.mirror,
+							pos, nullptr);
+	} catch (std::exception& exception) {
+		std::cerr << exception.what() << std::endl;
+		return NULL;
+	} catch (...) {
+		return NULL;
+	}
+}
+
+
+/* static */
+const char*
+AnimationFactory::SizeCodeForActor(const Actor* actor)
+{
+	// Real BG2 keys this off the avatar animation id via a table
+	// hardcoded in the executable (no data file for it) - this is a
+	// simplification keyed off race instead, covering every playable PC
+	// race. Halflings get their own "H" variant (helmets are the one
+	// exception - they fall back to the gnome/"S" files - but this
+	// codebase doesn't composite helmets).
+	switch (actor->CRE()->Race()) {
+		case 5: // HALFLING
+			return "H";
+		case 6: // GNOME
+			return "S";
+		default:
+			return "M";
 	}
 }
 
