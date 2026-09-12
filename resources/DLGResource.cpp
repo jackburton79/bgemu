@@ -94,16 +94,20 @@ DLGResource::Load(Archive* archive, uint32 key)
 }
 
 
+// Shared by GetStateTrigger()/GetTransitionTrigger(): both are a
+// (offset, length) lookup table of the same physical shape, just at a
+// different table offset/count - one entry per state trigger, one per
+// transition (response) trigger.
 std::string
-DLGResource::GetStateTrigger(int triggerIndex)
+DLGResource::_GetTriggerText(uint32 tableOffset, uint32 count, int index)
 {
-	if ((size_t)triggerIndex >= fStateTriggersNum) {
-		std::cerr << "DLGResource::GetStateTrigger(): out of range" << std::endl;
+	if ((size_t)index >= count) {
+		std::cerr << "DLGResource::_GetTriggerText(): out of range" << std::endl;
 		return "";
 	}
 
 	const off_t pos = fData->Position();
-	fData->Seek(fStateTriggersTableOffset + triggerIndex * (2 * sizeof(uint32)), SEEK_SET);
+	fData->Seek(tableOffset + index * (2 * sizeof(uint32)), SEEK_SET);
 	uint32 offset;
 	fData->Read(&offset, sizeof(offset));
 	uint32 length;
@@ -123,6 +127,20 @@ DLGResource::GetStateTrigger(int triggerIndex)
 	triggerData[length] = '\0';
 
 	return std::string(triggerData, length);
+}
+
+
+std::string
+DLGResource::GetStateTrigger(int triggerIndex)
+{
+	return _GetTriggerText(fStateTriggersTableOffset, fStateTriggersNum, triggerIndex);
+}
+
+
+std::string
+DLGResource::GetTransitionTrigger(int triggerIndex)
+{
+	return _GetTriggerText(fTransitionTriggersTableOffset, fTransitionTriggersNum, triggerIndex);
 }
 
 

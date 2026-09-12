@@ -56,6 +56,7 @@ public:
 
 	dlg_state GetStateAt(int32 index);
 	std::string GetStateTrigger(int triggerIndex);
+	std::string GetTransitionTrigger(int triggerIndex);
 	transition_entry GetTransition(int32 index);
 
 	std::string GetAction(int32 index);
@@ -66,6 +67,7 @@ private:
 	virtual ~DLGResource();
 
 	void _GetStateAt(int index, dlg_state& state);
+	std::string _GetTriggerText(uint32 tableOffset, uint32 count, int index);
 
 	uint32 fNumStates;
 	uint32 fStateTableOffset;

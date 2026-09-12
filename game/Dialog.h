@@ -50,7 +50,7 @@ private:
 
 	void _AdvanceState();
 	void _ShowCurrentState(const dlg_state& state);
-	bool _TransitionVisible(const transition_entry& transition);
+	bool _TransitionTriggerPasses(const transition_entry& transition);
 	void _BuildTransitions(const dlg_state& state);
 	void _ShowTriggerText(const dlg_state& state);
 	void _ExecuteTransition(const transition_entry& transition);

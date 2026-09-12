@@ -144,10 +144,22 @@ DialogHandler::_ShowCurrentState(const dlg_state& state)
 }
 
 
+// A transition with no trigger of its own is always available; one with
+// DLG_TRANSITION_HAS_TRIGGER is gated exactly like a state trigger (see
+// _AdvanceState()) - same trigger-text format, same AND/OR evaluation,
+// just read from the transition-trigger table instead of the state one.
 bool
-DialogHandler::_TransitionVisible(const transition_entry& transition)
+DialogHandler::_TransitionTriggerPasses(const transition_entry& transition)
 {
-	return transition.HasPlayerText();
+	if (!transition.HasTrigger())
+		return true;
+
+	std::string trigger = fResource->GetTransitionTrigger(transition.index_trigger);
+	auto triggers = Parser::TriggersFromString(trigger);
+	bool valid = Script::EvaluateTriggerList(fInitiator, triggers);
+	for (trigger_params* t : triggers)
+		delete t;
+	return valid;
 }
 
 
@@ -157,7 +169,9 @@ DialogHandler::_BuildTransitions(const dlg_state& state)
 	fTransitions.clear();
 
 	for (int32 i = 0; i < state.transitions_num; ++i) {
-		fTransitions.push_back(fResource->GetTransition(state.transition_first + i));
+		transition_entry transition = fResource->GetTransition(state.transition_first + i);
+		if (_TransitionTriggerPasses(transition))
+			fTransitions.push_back(transition);
 	}
 }
 
