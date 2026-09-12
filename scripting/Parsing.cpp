@@ -496,7 +496,19 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 		return false;
 
 	std::string triggerName = t.u.string;
-	node->id = GetTriggerID(triggerName);
+	// The loaded game's own real TRIGGER.IDS is the authoritative source
+	// (it's what determines the numeric opcode content actually uses,
+	// and can disagree with the hardcoded kTriggersTable fallback below
+	// on spelling - e.g. real BG1 data names id 16441
+	// "NumberOfTimesTalkedTo", not "NumTimesTalkedTo" as phlydi.dlg's
+	// own trigger text uses). kTriggersTable is only consulted for the
+	// genuine gaps real IDS files have (see IDTable::TriggerName()'s own
+	// comment on the same gap, from the opposite id-to-name direction).
+	try {
+		node->id = IDTable::TriggerID(triggerName);
+	} catch (const std::exception&) {
+		node->id = GetTriggerID(triggerName);
+	}
 	if (node->id == -1) {
 		std::cerr << Log::Red << "GetTriggerID: no trigger found" << Log::Normal << std::endl;
 		return false;
@@ -700,6 +712,34 @@ _FillObjectParameter(object_params* dest, token& tokenParam)
 }
 
 
+// An O: parameter's identifier can be written as a niladic "object
+// trigger" function call, e.g. LastTalkedToBy() rather than a bare
+// OBJECT.IDS name - the identifier alone (already handled by
+// _FillObjectParameter, via the same OBJECT.IDS entry) carries the full
+// meaning, so the trailing "()" has to be consumed here instead of being
+// left for the next declared parameter to misread as its own token
+// (which desyncs every parameter after it and crashes further down -
+// e.g. ReactionGT(LastTalkedToBy(),HOSTILE_UPPER) reading the stray "("
+// as its I:*REACTION argument). Parameterized object-trigger functions
+// (e.g. NearestEnemyOf(...)) aren't modeled (object_params has no room
+// for their arguments) - their contents are consumed and discarded
+// rather than left to desync the parameter stream.
+static void
+_SkipObjectFunctionParens(Tokenizer& tokenizer)
+{
+	token next = tokenizer.ReadToken();
+	if (next.type != TOKEN_PARENTHESIS_OPEN) {
+		tokenizer.RewindToken(next);
+		return;
+	}
+
+	token t;
+	do {
+		t = tokenizer.ReadToken();
+	} while (t.type != TOKEN_PARENTHESIS_CLOSED && t.type != TOKEN_END_OF_LINE);
+}
+
+
 // Resolves which of a trigger's/action's two S: string fields
 // `parameter.position` (1-based) refers to - both structs expose
 // string1/string2 as identically-typed public fields, so one template
@@ -743,6 +783,7 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 	switch (parameter.type) {
 		case Parameter::OBJECT:
 			_FillObjectParameter(node->Object(), tokenParam);
+			_SkipObjectFunctionParens(fTokenizer);
 			break;
 		case Parameter::INTEGER:
 			if (parameter.position == 1)
@@ -800,6 +841,7 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 				_FillObjectParameter(param->Second(), tokenParam);
 			else if (parameter.position == 3)
 				_FillObjectParameter(param->Third(), tokenParam);
+			_SkipObjectFunctionParens(fTokenizer);
 			break;
 		case Parameter::INTEGER:
 			if (parameter.position == 1)

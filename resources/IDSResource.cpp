@@ -91,7 +91,16 @@ IDSResource::IDForString(std::string string) const
 {
 	string_map::const_iterator i;
 	for (i = fMap.begin(); i != fMap.end(); i++) {
-		if (::strcasecmp(i->second.c_str(), string.c_str()) == 0)
+		// TRIGGER.IDS/ACTION.IDS store "NAME(signature)" as the whole
+		// value (see StringForID() callers building full function
+		// signatures from it) - match on the bare name before any '(',
+		// which is a no-op for every other IDS file (their values never
+		// contain one).
+		std::string value = i->second;
+		size_t parenPos = value.find('(');
+		if (parenPos != std::string::npos)
+			value.resize(parenPos);
+		if (::strcasecmp(value.c_str(), string.c_str()) == 0)
 			return i->first;
 	}
 

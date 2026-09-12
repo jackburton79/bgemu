@@ -34,9 +34,8 @@ Assert-Triggers -,false,False();OR(2);True();True()
 Assert-Triggers -,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);RandomNum(5,4);RandomNum(5,5)
 
 # INT_ENUM parameters (I:Name*IDSTable signatures, e.g. ReactionGT's
-# I:VALUE*REACTION) must accept a raw integer literal, not just a symbolic
-# name from the referenced IDS file - real DLG content does this (e.g.
-# BG1's nobl6.dlg: "ReactionGT(Myself,50)"). Before the fix this crashed
+# I:VALUE*REACTION) must accept a raw integer literal too, not just a
+# symbolic name from the referenced IDS file. Before the fix this crashed
 # with an uncaught exception ("IDSResource::ValueFor(): no such value"):
 # a TOKEN_NUMBER token's u.string is uninitialized (union with u.number),
 # so the code was feeding IDForString() stack garbage instead of ever
@@ -45,3 +44,22 @@ Assert-Triggers -,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);Random
 # still unimplemented (always FALSE), so this only asserts that parsing
 # a numeric I:*IDSTable argument no longer throws.
 Assert-Trigger -,false,ReactionGT(Myself,999999)
+
+# An O: parameter's object can be written as a niladic "object trigger"
+# function call, e.g. LastTalkedToBy() instead of a bare OBJECT.IDS name -
+# real content does this (BG1's nobl6.dlg: "ReactionGT(LastTalkedToBy(),
+# HOSTILE_UPPER)"). Before the fix the stray "()" desynced every
+# parameter after it, feeding the literal "(" into the next argument's
+# IDForString() lookup and crashing the same way as the case above.
+# Fixed via ParameterExtractor::_SkipObjectFunctionParens().
+Assert-Trigger -,false,ReactionGT(LastTalkedToBy(),HOSTILE_UPPER)
+
+# Trigger TEXT parsing (DLG state triggers, console commands) must resolve
+# names against the loaded game's own real TRIGGER.IDS, not just a
+# hardcoded fallback table - real BG1/BG2 data names id 16441
+# "NumberOfTimesTalkedTo", not "NumTimesTalkedTo" as the hardcoded table
+# alone had it (found via BG1's phlydi.dlg, which uses this exact
+# spelling and used to fail to parse at all - "GetTriggerID: no trigger
+# found"). Fixed in Parser::_ExtractTriggerName (scripting/Parsing.cpp),
+# which now tries IDTable::TriggerID() (the real IDS) first.
+Assert-Trigger -,true,NumberOfTimesTalkedTo(0)
