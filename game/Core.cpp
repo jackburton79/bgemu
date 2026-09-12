@@ -187,6 +187,20 @@ void
 Core::RequestAreaChange(const res_ref& areaName, const std::string& longName,
 	const std::string& entranceName, Actor* clearActionsFor)
 {
+	// A no-op, not a fresh unload/reload of the area everyone (including
+	// the calling actor) is already standing in. Real content routinely
+	// queues one LeaveAreaLUA per possible party slot (1-6) all aimed at
+	// the same destination/entrance - with fewer than 6 actual party
+	// members (e.g. solo at BG1's very start), several of those end up
+	// targeting the same already-transferred actor and would otherwise
+	// unload/reload the just-entered area repeatedly for no reason,
+	// racing the actions still queued behind them (CreateCreature,
+	// StartCutscene) that expect to already be running in it.
+	if (fCurrentRoom != NULL
+			&& ::strcasecmp(fCurrentRoom->Name(), areaName.CString()) == 0) {
+		return;
+	}
+
 	fPendingAreaChange = true;
 	fPendingAreaName = areaName;
 	fPendingLongName = longName;
@@ -199,6 +213,13 @@ void
 Core::RequestWorldMapLoad()
 {
 	fPendingWorldMapLoad = true;
+}
+
+
+bool
+Core::HasPendingTransition() const
+{
+	return fPendingAreaChange || fPendingWorldMapLoad;
 }
 
 

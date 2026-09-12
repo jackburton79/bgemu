@@ -67,6 +67,14 @@ public:
 	// Same deferral as RequestAreaChange() above
 	void RequestWorldMapLoad();
 
+	// True once RequestAreaChange()/RequestWorldMapLoad() has been
+	// called but the actual switch hasn't run yet (still waiting for
+	// UpdateLogic()'s own cutsceneActorBusy gate). Object::
+	// ExecuteActions() checks this to stop popping further queued
+	// actions for the rest of this tick once it's set - see that
+	// call site's own comment for why.
+	bool HasPendingTransition() const;
+
 	RoomBase* CurrentRoom();
 
 	void EnteredArea(RoomBase* area);

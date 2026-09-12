@@ -350,7 +350,19 @@ Object::AddAction(action_params* params)
 	SetActive(true);
 	params->Acquire();
 
-	if (IsInstantAction(params->id) && IsActionListEmpty()) {
+	// Once some earlier instant action in this same synchronous chain
+	// has requested an area/worldmap change (still pending - see
+	// Core::HasPendingTransition()'s own comment), don't execute this
+	// one instantly too: it would still run in the old area/context,
+	// same class of bug as Object::ExecuteActions()'s own per-tick
+	// version of this guard just below - reproduced with BG1's
+	// Candlekeep ambush cutscene queuing CreateCreature(Gorion) and
+	// StartCutscene(Ch1cut02) right after LeaveAreaLua, all as instant
+	// actions dispatched synchronously in one go. Queuing normally here
+	// defers it to next tick's ExecuteActions(), once the new area is
+	// actually current.
+	if (IsInstantAction(params->id) && IsActionListEmpty()
+			&& !Core::Get()->HasPendingTransition()) {
 		//std::cout << "action was instant and we execute it now!" << std::endl;
 		fCurrentActionParams = params;
 		fActionState = action_state();
@@ -384,6 +396,23 @@ Object::ExecuteActions()
 		// fCurrentActionParams is not completed, will
 		// do another execution next time
 		if (fCurrentActionParams != NULL)
+			break;
+
+		// A just-completed instant action (e.g. LEAVEAREALUA) can have
+		// requested an area/worldmap change - Core::UpdateLogic() only
+		// applies it once this whole Update() pass finishes, specifically
+		// so it's not torn down out from under whatever's still mid-loop
+		// here (see RequestAreaChange()'s own comment). But this loop
+		// itself has no such excuse to keep going: any action still
+		// queued behind the one that just requested the switch (e.g. a
+		// cutscene's CreateCreature/StartCutscene right after its own
+		// LeaveAreaLua) would otherwise run immediately, in the same
+		// tick, still in the *old* area - reproduced with BG1's Candlekeep
+		// ambush cutscene, where this silently dropped the newly
+		// (mis-)created Gorion when the old area unloaded a moment later.
+		// Leaving the rest of the queue alone here means it resumes
+		// normally next tick, once the new area is actually current.
+		if (Core::Get()->HasPendingTransition())
 			break;
 	}
 }
