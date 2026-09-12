@@ -32,3 +32,16 @@ Assert-Triggers -,false,False();OR(2);True();True()
 # would have failed entirely before RandomNum was implemented at all
 # (1267ee80 - every branch was permanently FALSE).
 Assert-Triggers -,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);RandomNum(5,4);RandomNum(5,5)
+
+# INT_ENUM parameters (I:Name*IDSTable signatures, e.g. ReactionGT's
+# I:VALUE*REACTION) must accept a raw integer literal, not just a symbolic
+# name from the referenced IDS file - real DLG content does this (e.g.
+# BG1's nobl6.dlg: "ReactionGT(Myself,50)"). Before the fix this crashed
+# with an uncaught exception ("IDSResource::ValueFor(): no such value"):
+# a TOKEN_NUMBER token's u.string is uninitialized (union with u.number),
+# so the code was feeding IDForString() stack garbage instead of ever
+# checking the token was already a number. Fixed in ParameterExtractor::
+# _ExtractNextParameter (scripting/Parsing.cpp) - ReactionGT itself is
+# still unimplemented (always FALSE), so this only asserts that parsing
+# a numeric I:*IDSTable argument no longer throws.
+Assert-Trigger -,false,ReactionGT(Myself,999999)

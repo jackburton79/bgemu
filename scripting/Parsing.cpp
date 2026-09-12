@@ -752,7 +752,14 @@ ParameterExtractor::_ExtractNextParameter(::trigger_params* node,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
+			// A raw integer literal is always valid here too (the *IDSTable
+			// suffix documents a symbolic name option, not a requirement) -
+			// and tokenParam.u is a union, so for a TOKEN_NUMBER token
+			// u.string is uninitialized: looking it up as a symbolic name
+			// would read garbage instead of the number that was parsed.
+			int integerValue = tokenParam.type == TOKEN_NUMBER
+				? tokenParam.u.number
+				: _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
 			if (parameter.position == 1)
 				node->parameter1 = integerValue;
 			else
@@ -804,7 +811,12 @@ ParameterExtractor::_ExtractNextParameter(::action_params* param,
 			break;
 		case Parameter::INT_ENUM:
 		{
-			int integerValue = _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
+			// See the trigger_params overload above: a TOKEN_NUMBER token's
+			// u.string is uninitialized (union with u.number), and a raw
+			// integer literal is valid regardless of the *IDSTable suffix.
+			int integerValue = tokenParam.type == TOKEN_NUMBER
+				? tokenParam.u.number
+				: _EnumValue(parameter.IDtable.c_str(), tokenParam.u.string);
 			if (parameter.position == 1)
 				param->integer1 = integerValue;
 			else if (parameter.position == 2)
