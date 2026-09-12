@@ -41,8 +41,6 @@ public:
 	static bool Initialize(const char* path);
 	static void Destroy();
 
-	bool HasExtendedOrientations() const;
-
 	void TogglePause();
 	bool IsPaused() const;
 
@@ -156,8 +154,5 @@ private:
 	std::string fPendingEntranceName;
 	Actor* fPendingAreaChangeActor;
 	bool fPendingWorldMapLoad;
-
-	// Engine features
-	bool fHasExtendedOrientations;
 };
 

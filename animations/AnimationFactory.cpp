@@ -301,6 +301,19 @@ _BaseOrientation(int o)
 }
 
 
+// "BG1 character style" (avatarnaming.htm) ships a dedicated file for
+// eastern orientations; "BG2/IWD style" generates them by mirroring
+// instead (see _BuildCharacter(), the only remaining caller - every
+// other style/game distinction this project cared about turned out to
+// be about the animation's own file layout, not the actor's actual
+// facing, which is always extended - see Actor::Orientation()).
+static bool
+_GeneratesEasternOrientations()
+{
+	return Core::Get()->Game() != game::GAME_BALDURSGATE;
+}
+
+
 // An extended NE..SE facing (9..15) is drawn as its mirrored western
 // counterpart (5 uses 3, 6 uses 2, 7 uses 1).
 static int
@@ -440,7 +453,7 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			break;
 		case ACT_STANDING:
 			description.bam_name += "G1";
-			description.sequence_number += Core::Get()->HasExtendedOrientations()
+			description.sequence_number += _GeneratesEasternOrientations()
 				? ANIM_STANDING_OFFSET : 8;
 			break;
 		case ACT_ATTACKING: {
@@ -462,7 +475,7 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			break;
 		}
 		case ACT_DIE:
-			if (Core::Get()->HasExtendedOrientations()) {
+			if (_GeneratesEasternOrientations()) {
 				description.bam_name += "G15";
 				description.sequence_number += ANIM_DIE_OFFSET;
 			} else {
@@ -476,7 +489,7 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			}
 			break;
 		case ACT_DEAD:
-			if (Core::Get()->HasExtendedOrientations()) {
+			if (_GeneratesEasternOrientations()) {
 				description.bam_name += "G16";
 				description.sequence_number += ANIM_DEAD_OFFSET;
 			} else {
@@ -493,7 +506,7 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			break;
 	}
 
-	if (Core::Get()->HasExtendedOrientations()) {
+	if (_GeneratesEasternOrientations()) {
 		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
 			o = _MirrorExtendedOrientation(o, description);
 	} else {

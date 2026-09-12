@@ -38,8 +38,7 @@ Core::Core()
 	fCutsceneActor(NULL),
 	fPendingAreaChange(false),
 	fPendingAreaChangeActor(NULL),
-	fPendingWorldMapLoad(false),
-	fHasExtendedOrientations(false)
+	fPendingWorldMapLoad(false)
 {
 	srand(time(NULL));
 }
@@ -86,11 +85,9 @@ Core::Initialize(const char* path)
 	std::flush(std::cout);
 	if (gResManager->ResourceExists("CSJON", RES_CRE)) {
 		sCore->fGame = game::GAME_BALDURSGATE2;
-		sCore->fHasExtendedOrientations = true;
 		std::cout << "Baldur's Gate 2" << std::endl;
 	} else {
 		sCore->fGame = game::GAME_BALDURSGATE;
-		sCore->fHasExtendedOrientations = false;
 		std::cout << "Baldur's Gate" << std::endl;
 	}
 
@@ -127,13 +124,6 @@ Core::UnloadCurrentRoom()
 		fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
-}
-
-
-bool
-Core::HasExtendedOrientations() const
-{
-	return fHasExtendedOrientations;
 }
 
 
