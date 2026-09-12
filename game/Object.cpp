@@ -385,8 +385,17 @@ Object::ExecuteActions()
 	// TODO: handle uninterruptable action
 
 	 while (true) {
-		if (fCurrentActionParams == NULL)
+		if (fCurrentActionParams == NULL) {
+			// Don't even pop the next one once a transition is pending -
+			// same reasoning as the check below, just covering the case
+			// where it was already pending *before* this call started
+			// (e.g. requested by another object entirely on an earlier
+			// tick, with this object's queue still non-empty in the
+			// meantime).
+			if (Core::Get()->HasPendingTransition())
+				break;
 			PopNextAction();
+		}
 
 		if (fCurrentActionParams == NULL)
 			break;
