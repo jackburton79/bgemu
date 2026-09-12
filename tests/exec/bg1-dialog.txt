@@ -9,6 +9,35 @@
 # before the area change below - WATCH doesn't exist once AR2700 loads.
 Assert-Triggers WATCH,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);RandomNum(5,4);RandomNum(5,5)
 
+# AreaRoom::GetObject(name) only matched an actor's own resref - real
+# BG1 content (Ch1cut03.bcs, the Candlekeep ambush) re-targets its
+# CUTSCENEID/StartDialog at "Sarevok" by literal name after
+# CreateCreature("SAREV1", ...) spawns him, which always failed since
+# the resref is "SAREV1", not "Sarevok". Fixed by falling back to the
+# creature's Death Variable (SAREV1.CRE's is literally "Sarevok",
+# distinct from its resref, unlike most CREs) - 011317c0. Placed far
+# from the party (SAREV1 is hostile - anything closer gets AJANTI's
+# own combat AI to auto-queue an ATTACKREEVALUATE against it, which
+# would stall the LeaveAreaLUA test right below).
+Run-Action -,7,-,0,SAREV1,-,4000,3000
+Step-Ticks 2
+Assert-Trigger -,true,Range("Sarevok",9999)
+
+# RequestAreaChange() (LeaveAreaLUA's handler) used to unload/reload
+# the area unconditionally, even when the requested destination was
+# the one everyone was already standing in - real content routinely
+# queues one LeaveAreaLUA per possible party slot (1-6) aimed at the
+# same destination, and with fewer than 6 actual party members several
+# of those retarget an already-transferred actor, needlessly
+# unloading/reloading the area they're already in. SAREV1 (created
+# just above) surviving this is exactly the symptom: actors aren't
+# part of the per-area cache LeaveAreaLUA's ground-item handling
+# piggybacks on, so a real reload would silently drop him - fixed
+# e08b0ac0.
+Run-Action -,110,-,0,AR2600,-,1300,700
+Step-Ticks 5
+Assert-Trigger -,true,Range("Sarevok",9999)
+
 # LEAVEAREALUA (action id 110) used to leave a non-party actor (e.g.
 # Gorion, escorting the party out of Candlekeep in the opening cutscene)
 # behind in the old area's cache instead of carrying it to the new one -
@@ -18,7 +47,18 @@ Assert-Triggers WATCH,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);Ra
 # "actor not found" failure mode (see its README note) is exactly the
 # symptom this catches, so a bare True() on GORION after the move is
 # enough: it can only evaluate at all if GORION exists in the new area.
+#
+# The WATCH creation right after (dispatched from AJANTI, who isn't
+# the one being transferred so stays resolvable, while both actions
+# are instant and queued in the same synchronous chain) mirrors the
+# real ambush cutscene's own LeaveAreaLUA-then-CreateCreature(Gorion)
+# sequence: Object::AddAction()/ExecuteActions() used to let the
+# second instant action run right away, still in the area that's a
+# moment from being unloaded, silently dropping whatever it created -
+# fixed e08b0ac0.
 Run-Action GORION,110,-,12,AR2700,TRGORION,3522,3712
+Run-Action AJANTI,7,-,0,WATCH,-,3550,3730
 Step-Ticks 5
 Assert-Trigger GORION,true,True()
 Assert-Trigger AJANTI,true,True()
+Assert-Trigger WATCH,true,True()
