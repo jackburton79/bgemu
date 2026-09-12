@@ -476,21 +476,26 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 			break;
 		}
 		case ACT_DIE:
-			if (_GeneratesEasternOrientations()) {
+			// A separate G15 file isn't universal even within a single
+			// game (e.g. BG2's own MSKL - a skeleton warrior avatar -
+			// has none), so this is decided by whether the file actually
+			// exists, not by _GeneratesEasternOrientations(). Without
+			// one, every action lives in G1 itself, 8 orientation slots
+			// per bank; Die is bank 6 (confirmed against both a real
+			// no-G15 BAM's own cycle layout and GemRB's
+			// CharAnimations::AddMHRSuffix(), the "BG1 character style"
+			// handler that always works this way).
+			if (_HasBAMVariant(description.bam_name, "G15")) {
 				description.bam_name += "G15";
 				description.sequence_number += ANIM_DIE_OFFSET;
 			} else {
-				// "BG1 character style" (avatarnaming.htm) has no
-				// separate G15 file - every action lives in G1 itself,
-				// 8 orientation slots per bank; Die is bank 6 (confirmed
-				// against GemRB's CharAnimations::AddMHRSuffix(), the
-				// real handler for this style).
 				description.bam_name += "G1";
 				description.sequence_number += 48;
 			}
 			break;
 		case ACT_DEAD:
-			if (_GeneratesEasternOrientations()) {
+			// If it has G15 it also has G16 - same reasoning as Die above.
+			if (_HasBAMVariant(description.bam_name, "G15")) {
 				description.bam_name += "G16";
 				description.sequence_number += ANIM_DEAD_OFFSET;
 			} else {
