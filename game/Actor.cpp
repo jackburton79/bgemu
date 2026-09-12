@@ -174,6 +174,7 @@ Actor::_Init()
 		}
 		if (fCRE == NULL)
 			throw std::runtime_error("Actor: CRE file not loaded.");
+
 		_HandleColors();
 	}
 
@@ -181,9 +182,6 @@ Actor::_Init()
 	if (fCRE->GlobalActorEnum() != uint16(-1))
 		SetGlobalID(fCRE->GlobalActorEnum());
 
-#if 0
-	Print();
-#endif
 	// TODO: Get all scripts ? or just the specific one ?
 
 	fAnimationFactory = AnimationFactory::GetFactory(fCRE->AnimationID());
@@ -196,24 +194,6 @@ Actor::_Init()
 	fActor->script_general = fCRE->GeneralScriptName();
 
 	_HandleScripts();
-
-#if 0
-	//for (uint32 i = 0; i < kNumItemSlots; i++) {
-	uint32 i = 1; // armor slot
-	try {
-			IE::item item = fCRE->ItemAtSlot(i);
-			item.Print();
-			ITMResource* itemRes = gResManager->GetITM(item.name);
-			if (itemRes != NULL) {
-				std::cout << "type: " << std::dec << itemRes->ItemType() << std::endl;
-				std::cout << IDTable::GetDialog(itemRes->DescriptionRef()) << std::endl;
-				std::cout << "animation: " << itemRes->Animation() << std::endl;
-			}
-			gResManager->ReleaseResource(itemRes);
-	} catch (...) {
-	}
-	//}
-#endif
 
 	SetActive(true);
 
@@ -325,7 +305,6 @@ Actor::Bitmap() const
 		std::string message("Actor::Bitmap() (");
 		message.append(fCRE->Name()).append(") : No current animation!");
 		return nullptr;
-		//throw std::runtime_error(message);
 	}
 
 	return fCurrentAnimation->Bitmap();
