@@ -694,6 +694,22 @@ AreaRoom::GetObject(const char* name) const
 			return actor;
 	}
 
+	// A script's object Name() text commonly refers to a creature's
+	// Death Variable instead of its resref - real content leans on this
+	// for a uniquely-scripted NPC whose CRE resref is reused/generic
+	// (e.g. BG1's SAREV1.CRE, whose Death Variable is "Sarevok" - the
+	// literal name BG1's own Ch1cut03.bcs uses to re-target the
+	// ambush's CUTSCENEID/StartDialog at him after CreateCreature).
+	// Checked only after the exact-resref pass above so a real resref
+	// match (the common case) never pays for this extra lookup.
+	for (const auto& actor : fActors) {
+		CREResource* cre = actor->CRE();
+		if (cre != NULL && !cre->DeathVariable().empty()
+				&& !strcasecmp(name, cre->DeathVariable().c_str())) {
+			return actor;
+		}
+	}
+
 	return NULL;
 }
 
