@@ -215,13 +215,6 @@ Actor::_Init()
 	//}
 #endif
 
-	if ((fActor->orientation > IE::ORIENTATION_SE &&
-			Core::Get()->Game() == game::GAME_BALDURSGATE) ||
-			fActor->orientation > IE::ORIENTATION_EXT_SSE) {
-		std::cerr << "Weird orientation " << fActor->orientation << std::endl;
-		fActor->orientation = 0;
-	}
-
 	SetActive(true);
 
 	// A freshly created character (CharacterBuilder / Game::CreateParty)
