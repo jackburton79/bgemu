@@ -1011,9 +1011,22 @@ public:
 // Resolves a script name to an Actor* in the current room, printing a
 // "not found" message and returning NULL if it doesn't exist or isn't an
 // actor. Shared by every command below that takes an actor name.
+// "-" (or empty) means "the current party leader" (Party::ActorAt(0))
+// instead of a named room lookup - lets game-agnostic test scripts
+// (tests/*.txt) reference some valid actor without hardcoding a CRE
+// resref that only exists in one game's default starting party (BG1's
+// is AJANTI, BG2's is ANOMEN10).
 static Actor*
 FindActor(const std::string& name)
 {
+	if (name.empty() || name == "-") {
+		Party* party = Game::Get()->Party();
+		Actor* actor = party != NULL ? party->ActorAt(0) : NULL;
+		if (actor == NULL)
+			std::cout << "no party leader (empty party?)." << std::endl;
+		return actor;
+	}
+
 	AreaRoom* room = CurrentAreaRoom();
 	if (room == NULL)
 		return NULL;
@@ -1082,6 +1095,110 @@ public:
 		bool result = Script::EvaluateTrigger(actor, trigger, orTrigger);
 		std::cout << "Evaluate-Trigger: " << (result ? "true" : "false") << std::endl;
 		delete trigger;
+	}
+};
+
+
+// Assert-Trigger <actor>,<true|false>,<trigger text> - self-checking
+// sibling of Evaluate-Trigger for regression test scripts (tests/*.txt,
+// run headless via --exec-file): prints "ASSERT OK"/"ASSERT FAIL" instead
+// of the bare result, so a test run is verified by grepping its output
+// for "ASSERT FAIL" rather than eyeballing every line.
+class AssertTriggerCommand : public ShellCommand {
+public:
+	AssertTriggerCommand()
+		: ShellCommand("Assert-Trigger")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest;
+		if (!_SplitOnFirstComma(argv, actorName, rest)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>,<trigger text>" << std::endl;
+			return;
+		}
+		std::string expectedText, triggerText;
+		if (!_SplitOnFirstComma(rest.c_str(), expectedText, triggerText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>,<trigger text>" << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: actor not found: " << triggerText << std::endl;
+			return;
+		}
+
+		trigger_params* trigger = Parser::TriggerFromString(triggerText);
+		if (trigger == NULL) {
+			std::cout << "ASSERT FAIL: failed to parse trigger: " << triggerText << std::endl;
+			return;
+		}
+
+		int orTrigger = 0;
+		bool result = Script::EvaluateTrigger(actor, trigger, orTrigger);
+		delete trigger;
+
+		if (result == expected) {
+			std::cout << "ASSERT OK: " << triggerText << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << triggerText << " - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (result ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-Triggers <actor>,<true|false>,<trigger1>;<trigger2>;... -
+// Assert-Trigger's sibling for a whole AND/OR(N) trigger list (see
+// Evaluate-Triggers's own comment).
+class AssertTriggersCommand : public ShellCommand {
+public:
+	AssertTriggersCommand()
+		: ShellCommand("Assert-Triggers")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest;
+		if (!_SplitOnFirstComma(argv, actorName, rest)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>,<trigger1>;<trigger2>;..." << std::endl;
+			return;
+		}
+		std::string expectedText, triggerText;
+		if (!_SplitOnFirstComma(rest.c_str(), expectedText, triggerText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>,<trigger1>;<trigger2>;..." << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: actor not found: " << triggerText << std::endl;
+			return;
+		}
+
+		// Keep the original ";"-joined text for display - the parser
+		// needs "\n"-joined instead (see Evaluate-Triggers's own comment).
+		std::string displayText = triggerText;
+		std::replace(triggerText.begin(), triggerText.end(), ';', '\n');
+		std::vector<trigger_params*> triggers = Parser::TriggersFromString(triggerText);
+		if (triggers.empty()) {
+			std::cout << "ASSERT FAIL: failed to parse any trigger: " << displayText << std::endl;
+			return;
+		}
+
+		bool result = Script::EvaluateTriggerList(actor, triggers);
+		for (trigger_params* t : triggers)
+			delete t;
+
+		if (result == expected) {
+			std::cout << "ASSERT OK: " << displayText << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << displayText << " - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (result ? "true" : "false") << std::endl;
+		}
 	}
 };
 
@@ -1733,6 +1850,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new SelectPartyCommand());
 	console->AddCommand(new EvaluateTriggerCommand());
 	console->AddCommand(new EvaluateTriggersCommand());
+	console->AddCommand(new AssertTriggerCommand());
+	console->AddCommand(new AssertTriggersCommand());
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
 	console->AddCommand(new CheckWorldmapExitCommand());
