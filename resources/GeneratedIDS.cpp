@@ -134,8 +134,6 @@ GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 	res->AddValue(0x6400, "UDRZ");	// CGAMEANIMATIONTYPE_DRIZZT
 	res->AddValue(0x6401, "UELM");	// ELMINSTER
 
-	res->AddValue(0x6404, "USAR");
-
 	res->AddValue(0x7000, "MOGR");	// HALF-OGRE
 
 	res->AddValue(0x7600, "METT"); // ETTERCAP

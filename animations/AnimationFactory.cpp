@@ -115,6 +115,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x6400, "",     _BuildCharacter },
 	{ 0x6402, "CMNK", _BuildCharacter },
 	{ 0x6403, "MSKL", _BuildCharacter },
+	{ 0x6404, "USAR", _BuildCharacter }, // Sarevok
 	{ 0x6405, "MDGU", _BuildCharacter },
 	{ 0x6500, "CHMM", _BuildCharacter },
 	{ 0x6510, "CHFM", _BuildCharacter },
