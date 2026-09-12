@@ -340,6 +340,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 							case SDLK_SPACE:
 								Core::Get()->TogglePause();
 								break;
+							case SDLK_TAB:
+								ToggleHUD();
+								break;
 							default:
 								break;
 						}
@@ -2163,6 +2166,13 @@ Game::ToggleDayNight()
 	if (area != NULL)
 		area->ReloadArea();
 	// TODO: Update Area
+}
+
+
+void
+Game::ToggleHUD()
+{
+	GUI::Get()->ToggleHUD();
 }
 
 

@@ -38,6 +38,10 @@ public:
 
 	void LoadStartingArea();
 	void ToggleDayNight();
+	// Original game's TAB-key HUD toggle (portraits, action menu, message
+	// area) - unlike GUI::Hide()/Show()/Toggle(), the mouse cursor stays
+	// visible.
+	void ToggleHUD();
 
 	// Switches which party member mouse clicks/queued actions control -
 	// real BG2's number-key (1-6)/portrait-click party selection; this
@@ -81,6 +85,7 @@ public:
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
 	void ShowCharacter(uint16 partyIndex);
+
 	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();

@@ -231,14 +231,9 @@ GUI::IsHidden() const
 void
 GUI::Show()
 {
-	// TODO: Save opened window and hide them all
 	if (!fShown) {
 		fShown = true;
-		ShowWindow(GUI::WINDOW_MESSAGES);
-		//ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
-		ShowWindow(GUI::WINDOW_COMMANDS);
-		ShowWindow(GUI::WINDOW_CMDS);
-		ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
+		ShowHUD();
 	}
 }
 
@@ -246,14 +241,9 @@ GUI::Show()
 void
 GUI::Hide()
 {
-	// TODO: Restore any window hidden by Show
 	if (fShown) {
 		fShown = false;
-		HideWindow(GUI::WINDOW_MESSAGES);
-		HideWindow(GUI::WINDOW_MESSAGES_LARGE);
-		HideWindow(GUI::WINDOW_COMMANDS);
-		HideWindow(GUI::WINDOW_CMDS);
-		HideWindow(GUI::WINDOW_PLAYER_SLOTS);
+		HideHUD();
 	}
 }
 
@@ -265,6 +255,47 @@ GUI::Toggle()
 		Show();
 	else
 		Hide();
+}
+
+
+bool
+GUI::IsHUDHidden() const
+{
+	return !IsWindowShown(WINDOW_COMMANDS);
+}
+
+
+void
+GUI::HideHUD()
+{
+	HideWindow(GUI::WINDOW_MESSAGES);
+	HideWindow(GUI::WINDOW_MESSAGES_LARGE);
+	HideWindow(GUI::WINDOW_COMMANDS);
+	HideWindow(GUI::WINDOW_CMDS);
+	HideWindow(GUI::WINDOW_PLAYER_SLOTS);
+}
+
+
+void
+GUI::ShowHUD()
+{
+	// TODO: remember which of WINDOW_MESSAGES/WINDOW_MESSAGES_LARGE was
+	// showing before HideHUD() (ToggleMessageArea() switches between the
+	// two) instead of always restoring the small one.
+	ShowWindow(GUI::WINDOW_MESSAGES);
+	ShowWindow(GUI::WINDOW_COMMANDS);
+	ShowWindow(GUI::WINDOW_CMDS);
+	ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
+}
+
+
+void
+GUI::ToggleHUD()
+{
+	if (IsHUDHidden())
+		ShowHUD();
+	else
+		HideHUD();
 }
 
 

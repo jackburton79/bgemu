@@ -58,6 +58,14 @@ public:
 	void Show();
 	void Toggle();
 
+	// Hides/shows just the HUD windows (portraits, action menu, message
+	// area) - the original game's TAB-key toggle. Unlike Hide()/Show()/
+	// Toggle() above, the mouse cursor stays visible and drawn.
+	bool IsHUDHidden() const;
+	void HideHUD();
+	void ShowHUD();
+	void ToggleHUD();
+
 	void Draw();
 	void DisplayString(const std::string& text,
 			uint16 x, uint16 y, uint32 time);
