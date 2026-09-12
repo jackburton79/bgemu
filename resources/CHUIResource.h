@@ -30,6 +30,7 @@ private:
 	virtual ~CHUIResource();
 	virtual bool Load(Archive *archive, uint32 key);
 
+	// Allocates a IE::control and transfer ownership to caller
 	IE::control* _ReadControl(IE::window& window, uint16 controlIndex);
 	uint32 fNumWindows;
 	uint32 fControlTableOffset;
