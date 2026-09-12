@@ -453,7 +453,8 @@ Actor::SetHomeLocation(const IE::point& position)
 void
 Actor::Draw(AreaRoom* room) const
 {
-	_DrawCircle(room);
+	if (CRE()->PermanentStatus() != ACT_DEAD)
+		_DrawCircle(room);
 
 	IE::point actorPosition = Position();
 	actorPosition.y += room->PointHeight(actorPosition) - 8;
