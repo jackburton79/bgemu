@@ -797,7 +797,7 @@ CanScroll(const IE::rect& viewPort, const GFX::rect& frame, scroll_direction d, 
 		else
 			return viewPort.y_min > 0;
 	} else {
-		if (d == scroll_direction::VERTICAL)
+		if (d == scroll_direction::HORIZONTAL)
 			return viewPort.x_max < frame.w;
 		else
 			return viewPort.y_max < frame.h;
