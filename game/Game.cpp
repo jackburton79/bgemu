@@ -1632,22 +1632,6 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 // Fills in the two GUIINV labels whose CHU-authored text_ref resolves to
 // a literal "(No text)" TLK placeholder - real BG2 sets these from code,
 // not from static CHU data, same as the item icons above.
-// Only the two confirmed unambiguously (name banner; the AC value inside
-// the shield-shaped badge, id 512 - the badge art itself makes the shield
-// unmistakable) are set here. The two-line label pair next to the second
-// (spiked) badge (id 513/514) is left alone - what it's meant to show
-// isn't clear from the CHU data or the badge art alone, and a wrong
-// guess there would be worse than the placeholder text.
-// Known limitation, not fixed here: the name banner (id 507) is set
-// correctly but doesn't actually render - its CHU-authored font (REALMS)
-// fails to draw any glyph at all in a label this short (confirmed by
-// temporarily forcing a different font onto the same control, which
-// rendered fine); swapping fonts by hand to "fix" the symptom instead of
-// the real cause (some glyph-height/baseline assumption in
-// Font::_CalcGlyphRect()/_LoadGlyphs() that REALMS's unusually tall
-// glyphs violate) was deliberately not done - that function is shared by
-// every text label and the dialogue TextArea, too wide a blast radius to
-// patch blind under this task. Left for a dedicated pass.
 void
 Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 {
