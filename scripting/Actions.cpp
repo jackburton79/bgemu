@@ -1315,16 +1315,40 @@ RunActionIncrementGlobal(Object* sender, action_params* params, action_state& st
 }
 
 
-// LEAVEAREALUA(S:Area*,S:Parchment*,P:Point*,I:Face*) - stateless.
+// LEAVEAREALUA(S:Area*,S:Entrance*,P:Point*,I:Face*) - stateless.
 // Deferred via Core::RequestAreaChange() rather than loading immediately -
 // this action runs from inside AreaRoom::Update()'s own actor-update loop
 // (Actor::Update() -> ... -> here), and LoadArea() destroys that same
 // AreaRoom (via GUI::Clear()) - a real, reproduced heap-use-after-free
 // once that loop tried to continue. See RequestAreaChange()'s own comment.
+//
+// Party members are carried over to the new area unconditionally,
+// regardless of which action triggered the change (see AreaRoom::
+// _LoadActors()'s own party loop) - but a non-party actor calling this
+// on itself (e.g. Gorion escorting the party out of Candlekeep in BG1's
+// opening) has no such safety net. Real content calls this individually
+// on every actor that needs to make the trip (confirmed against
+// Ch1cut01.BCS: repeated LEAVEAREALUA calls, one per traveling actor),
+// so it needs the same TempState-based transfer RunActionMoveBetween
+// AreasEffect() already uses for non-party actors - without it, that
+// actor was simply left behind in the old area's AreaCache, gone from
+// both areas' object lookups.
 static void
 RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 {
-	Core::Get()->RequestAreaChange(params->string1, "", "");
+	Actor* actor = dynamic_cast<Actor*>(sender);
+	if (actor != NULL && !actor->InParty()
+			&& ::strcasecmp(params->string1, actor->Area()->Name()) != 0) {
+		Game::TempState* tempState = Game::Get()->GetTempState();
+		actor->Acquire();
+		Game::TempState::PendingActor pending = {
+			actor, params->where, (uint16)params->integer1
+		};
+		tempState->actors[params->string1].push_back(pending);
+		actor->Area()->RemoveObject(actor);
+	}
+
+	Core::Get()->RequestAreaChange(params->string1, "", params->string2);
 	state.completed = true;
 }
 
