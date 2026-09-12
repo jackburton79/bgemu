@@ -99,6 +99,16 @@ public:
 
 	Variables& Vars();
 
+	// Party-wide gold pool - modeled as a "GOLD" GLOBAL variable rather
+	// than dedicated state (see TAKEPARTYGOLD/GIVEPARTYGOLD's own
+	// comment in scripting/Actions.cpp), but funneled through here so
+	// every caller (those actions, gold-item pickup in Actor::AddItem(),
+	// the Inventory screen's gold label) agrees on the same key and the
+	// same never-goes-negative clamp instead of each touching Vars()
+	// directly.
+	int32 PartyGold() const;
+	void AddPartyGold(int32 amount);
+
 	Region* RegionAtPoint(const IE::point& point);
 
 	void PlayMovie(const char* name);

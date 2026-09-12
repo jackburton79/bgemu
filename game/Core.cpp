@@ -15,6 +15,7 @@
 #include "WAVResource.h"
 #include "WorldMap.h"
 
+#include <algorithm>
 #include <limits.h>
 #include <stdlib.h>
 
@@ -256,6 +257,26 @@ Variables&
 Core::Vars()
 {
 	return fVariables;
+}
+
+
+// See this method's own declaration comment for why every party-gold
+// reader/writer goes through here instead of touching Vars() directly.
+static const char* const kPartyGoldVariable = "GOLD";
+
+
+int32
+Core::PartyGold() const
+{
+	return fVariables.Get(kPartyGoldVariable);
+}
+
+
+void
+Core::AddPartyGold(int32 amount)
+{
+	int32 gold = fVariables.Get(kPartyGoldVariable) + amount;
+	fVariables.Set(kPartyGoldVariable, std::max(gold, 0));
 }
 
 

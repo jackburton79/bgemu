@@ -855,6 +855,26 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 					returnValue = object->CRE()->Gender() == trig->parameter1;
 				break;
 			}
+			case 0x404E:
+			{
+				// PARTYGOLD(I:Value*) (16462 0x404e) - see
+				// Core::PartyGold()'s own comment for how the party's
+				// gold pool is modeled.
+				returnValue = Core::Get()->PartyGold() == trig->parameter1;
+				break;
+			}
+			case 0x404F:
+			{
+				// PARTYGOLDGT(I:Value*) (16463 0x404f)
+				returnValue = Core::Get()->PartyGold() > trig->parameter1;
+				break;
+			}
+			case 0x4050:
+			{
+				// PARTYGOLDLT(I:Value*) (16464 0x4050)
+				returnValue = Core::Get()->PartyGold() < trig->parameter1;
+				break;
+			}
 			case 0x4051:
 			{
 				/*

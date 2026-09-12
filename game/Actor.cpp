@@ -1215,9 +1215,22 @@ Actor::EquippedWeapon() const
 }
 
 
+// Real resref both BG1 and BG2 use for a gold-pile item - see this
+// method's own declaration comment. Not something either game's real
+// data exposes as a lookup table (GemRB's own "randitem.2da", which
+// names it too, is a GemRB-authored table, not real IE game data);
+// just a well-known fixed resref in both games' actual MISC07.ITM.
+static const res_ref kGoldItemResRef = "MISC07";
+
+
 bool
 Actor::AddItem(const res_ref& itemName, uint16 quantity)
 {
+	if (itemName == kGoldItemResRef) {
+		Core::Get()->AddPartyGold(quantity);
+		return true;
+	}
+
 	ITMResource* itm = gResManager->GetITM(itemName);
 	if (itm == NULL) {
 		std::cerr << Name() << ": AddItem(" << itemName.CString()

@@ -916,21 +916,17 @@ RunActionDestroyGold(Object* sender, action_params* params, action_state& state)
 
 // TAKEPARTYGOLD(I:Amount*)/GIVEPARTYGOLD/GIVEGOLDFORCE - stateless. "Party
 // Gold" (distinct from any one creature's own CRE gold stat, see
-// DESTROYGOLD above) isn't tracked as its own concept anywhere in this
-// engine yet - modeled here as a "GOLD" GLOBAL variable, reusing the
-// Variables mechanism SETGLOBAL already relies on, rather than inventing
-// new per-party state. Simplification: GivePartyGold's "creature must
-// have it in its money variable" requirement, and GiveGoldForce's
-// negative-amount-removes-from-the-creature-instead special case, aren't
-// modeled - all three just add/subtract the party's GOLD global directly.
-static const char* const kPartyGoldVariable = "GOLD";
-
+// DESTROYGOLD above) is modeled via Core::PartyGold()/AddPartyGold() (a
+// "GOLD" GLOBAL variable under the hood, reusing the Variables mechanism
+// SETGLOBAL already relies on) rather than inventing new per-party state.
+// Simplification: GivePartyGold's "creature must have it in its money
+// variable" requirement, and GiveGoldForce's negative-amount-removes-
+// from-the-creature-instead special case, aren't modeled - all three
+// just add/subtract the party's gold pool directly.
 static void
 RunActionTakePartyGold(Object* sender, action_params* params, action_state& state)
 {
-	Variables& vars = Core::Get()->Vars();
-	int32 gold = vars.Get(kPartyGoldVariable) - params->integer1;
-	vars.Set(kPartyGoldVariable, std::max(gold, 0));
+	Core::Get()->AddPartyGold(-params->integer1);
 	state.completed = true;
 }
 
@@ -938,8 +934,7 @@ RunActionTakePartyGold(Object* sender, action_params* params, action_state& stat
 static void
 RunActionGivePartyGold(Object* sender, action_params* params, action_state& state)
 {
-	Variables& vars = Core::Get()->Vars();
-	vars.Set(kPartyGoldVariable, vars.Get(kPartyGoldVariable) + params->integer1);
+	Core::Get()->AddPartyGold(params->integer1);
 	state.completed = true;
 }
 
@@ -2783,8 +2778,8 @@ RunActionSetGabber(Object* sender, action_params* params, action_state& state)
 // GivePartyGoldGlobal(S:Name*,S:Area*) - stateless. Gives the party a
 // gold amount read from a named variable (see _GetScopedVariable()
 // above), deducted from the active creature's own gold stat - reuses
-// the "GOLD" party-wide GLOBAL from Fase 10 batch 1's TAKEPARTYGOLD/
-// GIVEPARTYGOLD/GIVEGOLDFORCE.
+// the same party-wide gold pool as TAKEPARTYGOLD/GIVEPARTYGOLD/
+// GIVEGOLDFORCE (Core::AddPartyGold()).
 static void
 RunActionGivePartyGoldGlobal(Object* sender, action_params* params, action_state& state)
 {
@@ -2794,10 +2789,8 @@ RunActionGivePartyGoldGlobal(Object* sender, action_params* params, action_state
 		CREResource* cre = actor->CRE();
 		cre->SetGold((uint32)std::max((int64)cre->Gold() - amount, (int64)0));
 	}
-	if (amount > 0) {
-		Variables& vars = Core::Get()->Vars();
-		vars.Set(kPartyGoldVariable, vars.Get(kPartyGoldVariable) + amount);
-	}
+	if (amount > 0)
+		Core::Get()->AddPartyGold(amount);
 	state.completed = true;
 }
 

@@ -31,3 +31,18 @@ Step-Ticks 2
 Run-Action -,11,-,0,DAGG01,-,0,0
 Step-Ticks 2
 Assert-Trigger -,true,HasWeaponEquiped(Myself)
+
+# Reported by the user: picking up/being given gold should credit the
+# party's shared gold pool (PARTYGOLD trigger - I:Value*, id 16462),
+# not sit in a general inventory slot like a regular item. MISC07 is
+# the fixed "Gold Pieces" resref both BG1 and BG2 use for a gold stack
+# (confirmed against real game data; also the resref GemRB's own
+# unhardcoded randitem.2da names for this - not a real IE 2DA lookup
+# in either game's actual data, just a well-known fixed resref) -
+# CREATEITEM's quantity (integer1) is the gp amount. Actor::AddItem()
+# special-cases it in Core::AddPartyGold() instead of the normal
+# add-to-a-slot path.
+Run-Action -,82,-,1,MISC07,-,0,0
+Step-Ticks 2
+Assert-Trigger -,true,PARTYGOLD(1)
+Assert-Trigger -,false,PartyHasItem("MISC07")

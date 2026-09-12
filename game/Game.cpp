@@ -976,6 +976,13 @@ Game::TriggerRest()
 // those methods' own comments.
 static const uint32 kInvNameLabelID = 268435507;
 static const uint32 kInvACLabelID = 268435512;
+// Confirmed against GemRB's own GUIINV.py (bg1/bg2, identical control
+// IDs in both): current/max hit points and the party gold counter -
+// none of the three are CHU-authored static text, all three are set
+// from code every time the window refreshes, same as name/AC above.
+static const uint32 kInvHPCurrentLabelID = 268435513;
+static const uint32 kInvHPMaxLabelID = 268435514;
+static const uint32 kInvGoldLabelID = 268435520;
 // The paperdoll control itself (128x160, CHU-authored to a fixed
 // placeholder bitmap - CIFF4INV, a generic doll unrelated to whichever
 // character's inventory is actually open) - see _UpdatePaperdoll().
@@ -1651,6 +1658,19 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
 		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+
+	Label* hpLabel = dynamic_cast<Label*>(window->GetControlByID(kInvHPCurrentLabelID));
+	if (hpLabel != nullptr)
+		hpLabel->SetText(std::to_string(actor->CRE()->CurrentHitPoints()));
+
+	Label* hpMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kInvHPMaxLabelID));
+	if (hpMaxLabel != nullptr)
+		hpMaxLabel->SetText(std::to_string(actor->CRE()->MaxHitPoints()));
+
+	// Party-wide, not per-actor - see Core::AddPartyGold()'s own comment.
+	Label* goldLabel = dynamic_cast<Label*>(window->GetControlByID(kInvGoldLabelID));
+	if (goldLabel != nullptr)
+		goldLabel->SetText(std::to_string(Core::Get()->PartyGold()));
 }
 
 

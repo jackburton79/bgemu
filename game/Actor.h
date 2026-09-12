@@ -119,6 +119,11 @@ public:
 	// on-disk Items table/inventory slots have no free entry - this
 	// engine doesn't grow a CRE's item table, so this only works while
 	// the creature has spare capacity (most placed creatures do).
+	// Special case: MISC07 ("Gold Pieces", the fixed resref both BG1 and
+	// BG2 use for a gold stack sitting on the ground/in a container -
+	// see Core::AddPartyGold()'s own comment) never touches a slot at
+	// all - it credits the shared party gold pool instead, same as the
+	// real games.
 	bool AddItem(const res_ref& itemName, uint16 quantity = 1);
 
 	// Removes one item (by resref, wherever it currently sits - equipped
