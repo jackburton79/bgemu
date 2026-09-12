@@ -250,7 +250,8 @@ TextArea::ScrollTo(int16 /* not implemented */, int16 y)
 void
 TextArea::_AddText(std::string textString, int32 dialogOption)
 {
-	std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+	IE::text_area* textArea = static_cast<IE::text_area*>(fControl);
+	std::string fontName = textArea->font_bam.CString();
 	const Font* font = FontRoster::GetFont(fontName);
 
 	while (!textString.empty()) {
