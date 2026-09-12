@@ -187,7 +187,7 @@ CHUIResource::Dump()
 						control->Print();
 						break;
 				}
-				delete control;
+				delete[] control;
 			}
 		}
 	}
