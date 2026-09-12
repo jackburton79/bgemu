@@ -53,7 +53,7 @@ TextArea::TextArea(IE::text_area* text)
 	fBitmap = new Bitmap(text->w, text->h, 8);
 #if 1
 	GFX::Color foreground = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
-	//GFX::Color transparent = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
+	//GFX::Color unknown = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GFX::Color background = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
 	GFX::Palette palette(foreground, background);
 #else
@@ -214,9 +214,8 @@ void
 TextArea::SetLines(const TextLines& lines)
 {
 	fLines.clear();
-	TextLines::const_iterator i;
-	for (i = lines.begin(); i != lines.end(); i++)
-		fLines.push_back(*i);
+	for (const auto &line : lines)
+		fLines.push_back(line);
 	fChanged = true;
 }
 
@@ -225,9 +224,8 @@ void
 TextArea::GetLines(TextLines& lines) const
 {
 	lines.clear();
-	TextLines::const_iterator i;
-	for (i = fLines.begin(); i != fLines.end(); i++)
-		lines.push_back(*i);
+	for (const auto &line: fLines)
+		lines.push_back(line);
 }
 
 
@@ -306,9 +304,7 @@ TextArea::_HitTestLines(IE::point point) const
 			(int16)fControl->x,
 			(int16)(fControl->y - fYOffset)
 	};
-	TextLines::const_iterator i;
-	for (i = fLines.begin(); i != fLines.end(); i++) {
-		const TextLine& line = *i;
+	for (const auto& line : fLines) {
 		const IE::rect frame = offset_rect(line.Frame(),
 										   lineOffset.x, lineOffset.y);
 		lineOffset.y += line.height + kLineSpacing;
@@ -320,5 +316,3 @@ TextArea::_HitTestLines(IE::point point) const
 	}
 	return NULL;
 }
-
-
