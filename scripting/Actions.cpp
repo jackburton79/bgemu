@@ -3314,36 +3314,58 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 // UseContainer() - stateless. Per IESDP "used by the engine internally"
 // (queued when the player clicks a container - see Actor::ClickedOn(),
 // which now does exactly that, after a MOVETOOBJECT to reach it first).
-// Logs the container's contents (Container::ItemCount()/ItemAt(), read
-// from the area's shared item list - see ARAResource::GetContainerAt())
-// rather than moving them into the party's inventory - no loot GUI
-// exists yet (see the Fase 6 plan notes), and the user explicitly chose
-// "walk there + log" over auto-loot for this pass.
+// Auto-loot (no loot GUI exists - see the Fase 6 plan notes): takes
+// everything that fits into the creature's inventory, leaves the rest
+// behind. Also accepts a dead Actor as the target (Actor::ClickedOn()
+// queues this same action for looting a corpse), reading from its CRE
+// item slots instead of a Container's item list.
 static void
 RunActionUseContainer(Object* sender, action_params* params, action_state& state)
 {
 	state.completed = true;
 
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
-	Container* container = dynamic_cast<Container*>(Script::GetTargetObject(sender, params));
-	if (actor == NULL || actor->CRE() == NULL || container == NULL)
-		return;
-	if (!container->IsEnabled())
+	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
-	// Auto-loot (no loot GUI): take everything that fits into the
-	// creature's inventory, leave the rest in the container. Session-only
-	// - the container's remaining contents are cached across area
-	// re-entry (Game::AreaCache), not written to a savegame.
-	for (uint32 i = 0; i < container->ItemCount(); ) {
-		const IE::item& item = container->ItemAt(i);
+	Object* target = Script::GetTargetObject(sender, params);
+	if (Container* container = dynamic_cast<Container*>(target)) {
+		if (!container->IsEnabled())
+			return;
+
+		// Session-only - the container's remaining contents are cached
+		// across area re-entry (Game::AreaCache), not written to a
+		// savegame.
+		for (uint32 i = 0; i < container->ItemCount(); ) {
+			const IE::item& item = container->ItemAt(i);
+			if (actor->AddItem(item.name, item.quantity1 > 0 ? item.quantity1 : 1)) {
+				IE::item taken;
+				container->TakeItemAt(i, taken);
+				std::cout << actor->Name() << " takes " << taken.name.CString()
+						<< " from " << container->Name() << std::endl;
+			} else {
+				i++; // no room - leave it
+			}
+		}
+		return;
+	}
+
+	Actor* corpse = dynamic_cast<Actor*>(target);
+	if (corpse == NULL || corpse->CRE() == NULL || !corpse->IsState(STATE_DEAD))
+		return;
+
+	// Unlike Container::TakeItemAt(), a CRE slot doesn't shift when
+	// emptied, so this always advances regardless of whether the item
+	// was taken.
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		IE::item item;
+		if (!corpse->CRE()->GetItemAtSlot(slot, item) || item.name.name[0] == '\0')
+			continue;
 		if (actor->AddItem(item.name, item.quantity1 > 0 ? item.quantity1 : 1)) {
 			IE::item taken;
-			container->TakeItemAt(i, taken);
+			corpse->TakeItemFromSlot(slot, taken);
 			std::cout << actor->Name() << " takes " << taken.name.CString()
-					<< " from " << container->Name() << std::endl;
-		} else {
-			i++; // no room - leave it
+					<< " from " << corpse->Name() << std::endl;
 		}
 	}
 }

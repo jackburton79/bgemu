@@ -1400,8 +1400,9 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	}
 
 	if (Actor* actor = _ActorAtPoint(point)) {
-		cursorIndex = actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")
-			? IE::CURSOR_TALK : IE::CURSOR_ATTACK;
+		cursorIndex = actor->IsState(STATE_DEAD) ? IE::CURSOR_PICKUP
+			: actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")
+				? IE::CURSOR_TALK : IE::CURSOR_ATTACK;
 		return actor;
 	}
 

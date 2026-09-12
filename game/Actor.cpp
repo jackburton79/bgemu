@@ -1465,8 +1465,21 @@ Actor::ClickedOn(Object* target)
 		AddAction(openParams);
 		openParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
-		if (actor->IsState(STATE_DEAD))
-			return; // can't start a conversation with (or attack) a corpse
+		if (actor->IsState(STATE_DEAD)) {
+			// Loot the corpse - same two-action MOVETOOBJECT+USECONTAINER
+			// queue as the Container branch below (RunActionUseContainer()
+			// accepts a dead Actor target too, see its own comment).
+			action_params* walkParams = new action_params(Name(), actor->Name());
+			walkParams->id = 22; // MOVETOOBJECT
+			AddAction(walkParams);
+			walkParams->Release();
+
+			action_params* useParams = new action_params(Name(), actor->Name());
+			useParams->id = 112; // USECONTAINER
+			AddAction(useParams);
+			useParams->Release();
+			return;
+		}
 
 		// Same EnemyAlly()-vs-EVILCUTOFF check AreaRoom::_ObjectAtPoint()
 		// already uses to pick the hover cursor (CURSOR_TALK/
