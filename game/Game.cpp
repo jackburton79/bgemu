@@ -310,11 +310,14 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								quitting = true;
 								break;
 							case SDLK_PLUS:
-								if (--fDelay == 0)
-									fDelay = 1;
+							{
+								fDelay -= 17;
+								if (fDelay <= 0)
+									fDelay = 0;
 								break;
+							}
 							case SDLK_MINUS:
-								fDelay++;
+								fDelay += 17;
 								break;
 							// Party member selection (1-6, real BG2's own
 							// number-key convention)
