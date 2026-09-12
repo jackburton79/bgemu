@@ -604,6 +604,21 @@ public:
 };
 
 
+class ToggleHUDCommand : public ShellCommand {
+public:
+	ToggleHUDCommand()
+		: ShellCommand("Toggle-HUD")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		// Test-only equivalent of the SDLK_TAB handler.
+		Game::Get()->ToggleHUD();
+		std::cout << "Toggle-HUD: "
+			<< (GUI::Get()->IsHUDHidden() ? "hidden" : "shown") << std::endl;
+	}
+};
+
+
 class SelectPartyCommand : public ShellCommand {
 public:
 	SelectPartyCommand()
@@ -1847,6 +1862,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ScreenshotCommand());
 	console->AddCommand(new ToggleInventoryCommand());
 	console->AddCommand(new ToggleRecordCommand());
+	console->AddCommand(new ToggleHUDCommand());
 	console->AddCommand(new SelectPartyCommand());
 	console->AddCommand(new EvaluateTriggerCommand());
 	console->AddCommand(new EvaluateTriggersCommand());

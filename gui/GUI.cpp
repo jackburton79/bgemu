@@ -741,6 +741,13 @@ GUI::_SwitchMessageArea(uint16 fromID, uint16 toID)
 void
 GUI::EnsureShowDialogArea()
 {
+	// A dialog needs the whole HUD back (portraits to pick who's talking,
+	// the response options in the message area itself), regardless of
+	// whether the player had it hidden via ToggleHUD() - real IE dialogs
+	// always show the interface. TerminateDialog() intentionally doesn't
+	// mirror this: ending a dialog leaves the HUD as the player last set
+	// it, it doesn't re-hide it.
+	ShowHUD();
 	_SwitchMessageArea(WINDOW_MESSAGES, WINDOW_MESSAGES_LARGE);
 }
 
