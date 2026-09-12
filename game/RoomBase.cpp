@@ -200,16 +200,6 @@ RoomBase::ToggleSearchMap()
 }
 
 
-void
-RoomBase::ToggleGUI()
-{
-	if (IsGUIShown())
-		HideGUI();
-	else
-		ShowGUI();
-}
-
-
 /* virtual */
 void
 RoomBase::VideoAreaChanged(uint16 width, uint16 height)

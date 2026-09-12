@@ -159,7 +159,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	gui->ShowWindow(uint16(-1));
 	::Window* window = gui->GetWindow(uint16(-1));
 
-	ShowGUI();
+	GUI::Get()->Show();
 
 	if (window != NULL) {
 		fSavedControl = window->ReplaceControl((uint32)-1, this);
@@ -1052,43 +1052,6 @@ AreaRoom::ToggleSearchMap()
 		fSearchMap->Image()->SetAlpha(255, false);
 	else if (fDrawSearchMap == 2)
 		fSearchMap->Image()->SetAlpha(127, true);
-}
-
-
-/* virtual */
-void
-AreaRoom::ShowGUI()
-{
-	GUI* gui = GUI::Get();
-	gui->ShowWindow(GUI::WINDOW_MESSAGES);
-	//gui->ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
-	gui->ShowWindow(GUI::WINDOW_COMMANDS);
-	gui->ShowWindow(GUI::WINDOW_CMDS);
-	gui->ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
-}
-
-
-/* virtual */
-void
-AreaRoom::HideGUI()
-{
-	GUI* gui = GUI::Get();
-	gui->HideWindow(GUI::WINDOW_MESSAGES);
-	gui->HideWindow(GUI::WINDOW_MESSAGES_LARGE);
-	gui->HideWindow(GUI::WINDOW_COMMANDS);
-	gui->HideWindow(GUI::WINDOW_CMDS);
-	gui->HideWindow(GUI::WINDOW_PLAYER_SLOTS);
-}
-
-
-/* virtual */
-bool
-AreaRoom::IsGUIShown() const
-{
-	GUI* gui = GUI::Get();
-	return (gui->IsWindowShown(GUI::WINDOW_MESSAGES)
-			|| gui->IsWindowShown(GUI::WINDOW_MESSAGES_LARGE))
-			&& gui->IsWindowShown(GUI::WINDOW_COMMANDS);
 }
 
 

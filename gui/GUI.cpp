@@ -101,7 +101,7 @@ GUI::GUI(uint16 width, uint16 height)
 	fScreenWidth(width),
 	fScreenHeight(height),
 	fLastScrollTime(0),
-	fShown(true),
+	fShown(false),
 	fTooltipBitmap(NULL),
 	fDragBitmap(NULL),
 	fHoverTooltipBitmap(NULL),
@@ -221,23 +221,50 @@ GUI::Load(const res_ref& name)
 }
 
 
+bool
+GUI::IsHidden() const
+{
+	return !fShown;
+}
+
+
 void
 GUI::Show()
 {
-	fShown = true;
-	RoomBase* room = Core::Get()->CurrentRoom();
-	if (!room->IsGUIShown())
-		room->ShowGUI();
+	// TODO: Save opened window and hide them all
+	if (!fShown) {
+		fShown = true;
+		ShowWindow(GUI::WINDOW_MESSAGES);
+		//ShowWindow(GUI::WINDOW_MESSAGES_LARGE);
+		ShowWindow(GUI::WINDOW_COMMANDS);
+		ShowWindow(GUI::WINDOW_CMDS);
+		ShowWindow(GUI::WINDOW_PLAYER_SLOTS);
+	}
 }
 
 
 void
 GUI::Hide()
 {
-	fShown = false;
-	RoomBase* room = Core::Get()->CurrentRoom();
-	if (room->IsGUIShown())
-		room->HideGUI();
+	// TODO: Restore any window hidden by Show
+	if (fShown) {
+		fShown = false;
+		HideWindow(GUI::WINDOW_MESSAGES);
+		HideWindow(GUI::WINDOW_MESSAGES_LARGE);
+		HideWindow(GUI::WINDOW_COMMANDS);
+		HideWindow(GUI::WINDOW_CMDS);
+		HideWindow(GUI::WINDOW_PLAYER_SLOTS);
+	}
+}
+
+
+void
+GUI::Toggle()
+{
+	if (IsHidden())
+		Show();
+	else
+		Hide();
 }
 
 

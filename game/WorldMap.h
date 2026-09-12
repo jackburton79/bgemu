@@ -31,10 +31,6 @@ public:
 
 	void ToggleConsole();
 
-	virtual void ShowGUI();
-	virtual void HideGUI();
-	virtual bool IsGUIShown() const;
-
 	virtual void Unload();
 	virtual void ReloadArea();
 

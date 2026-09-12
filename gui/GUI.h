@@ -53,8 +53,10 @@ public:
 	bool Load(const res_ref& name);
 	void Clear();
 
+	bool IsHidden() const;
 	void Hide();
 	void Show();
+	void Toggle();
 
 	void Draw();
 	void DisplayString(const std::string& text,

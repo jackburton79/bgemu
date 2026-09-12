@@ -49,11 +49,6 @@ public:
 	virtual void ToggleSearchMap();
 	void ToggleConsole();
 
-	virtual void ShowGUI() = 0;
-	virtual void HideGUI() = 0;
-	virtual bool IsGUIShown() const = 0;
-	void ToggleGUI();
-
 	virtual void ReloadArea() = 0;
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);

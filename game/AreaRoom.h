@@ -137,10 +137,6 @@ public:
 	void ToggleSearchMap();
 	void ToggleConsole();
 
-	virtual void ShowGUI();
-	virtual void HideGUI();
-	virtual bool IsGUIShown() const;
-
 	// SETAREARESTFLAG(I:CanRest*) - defaults to true, not initialized
 	// from the ARE header's own "Rest disabled" bit (AREAFLAG.IDS bit 1)
 	// - that flag isn't parsed by this engine yet, so this is purely a

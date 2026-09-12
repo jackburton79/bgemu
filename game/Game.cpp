@@ -265,10 +265,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 										inputConsole->EnableRedirect();
 									break;
 								}
-							// TODO: Move to GUI class
 							case SDLK_h:
-								if (room != NULL)
-									room->ToggleGUI();
+								GUI::Get()->Toggle();
 								break;
 							case SDLK_a:
 								if (room != NULL)
