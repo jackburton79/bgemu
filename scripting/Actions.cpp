@@ -246,7 +246,8 @@ _PostSpellCastTriggers(Actor* caster, Object* target, const std::string& spellRe
 static void
 RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 {
-	Actor* actor = dynamic_cast<Actor*>(sender);
+	Object* object = Script::GetSenderObject(sender, params);
+	Actor* actor = dynamic_cast<Actor*>(object);
 	if (actor == NULL) {
 		std::cerr << "ForceSpell: NO sender Actor" << std::endl;
 		state.completed = true;
