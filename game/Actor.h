@@ -65,6 +65,10 @@ public:
 	const ::Bitmap* Bitmap() const;
 	IE::rect Frame() const;
 
+	// Always an IE::ORIENTATION_EXT_* (16-way) value, in every game - the
+	// real engine (confirmed against GemRB) never quantizes an actor's
+	// own facing to 8 values; only individual animation cycle banks do,
+	// each in their own way (see animations/AnimationFactory.cpp).
 	int Orientation() const;
 	void SetOrientation(int o);
 	void SetOrientation(const IE::point& toPoint);
@@ -295,7 +299,6 @@ private:
 
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
-	void _SetOrientationExtended(const IE::point& nextPoint);
 	void _DrawActorText(AreaRoom* room) const;
 	void _DrawActorName(AreaRoom* room) const;
 	void _DrawActorPath(AreaRoom* room) const;

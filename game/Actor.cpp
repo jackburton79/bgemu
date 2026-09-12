@@ -400,10 +400,7 @@ void
 Actor::SetOrientation(const IE::point& toPoint)
 {
 	uint32 oldOrientation = fActor->orientation;
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
-		_SetOrientation(toPoint);
-	else
-		_SetOrientationExtended(toPoint);
+	_SetOrientation(toPoint);
 	if (oldOrientation != fActor->orientation)
 		fAnimationValid = false;
 }
@@ -1860,35 +1857,6 @@ Actor::MoveToNextPointInPath(bool ignoreBlocks)
 
 void
 Actor::_SetOrientation(const IE::point& nextPoint)
-{
-	int newOrientation = fActor->orientation;
-	if (nextPoint.x > fActor->position.x) {
-		if (nextPoint.y > fActor->position.y)
-			newOrientation = IE::ORIENTATION_SE;
-		else if (nextPoint.y < fActor->position.y)
-			newOrientation = IE::ORIENTATION_NE;
-		else
-			newOrientation = IE::ORIENTATION_E;
-	} else if (nextPoint.x < fActor->position.x) {
-		if (nextPoint.y > fActor->position.y)
-			newOrientation = IE::ORIENTATION_SW;
-		else if (nextPoint.y < fActor->position.y)
-			newOrientation = IE::ORIENTATION_NW;
-		else
-			newOrientation = IE::ORIENTATION_W;
-	} else {
-		if (nextPoint.y > fActor->position.y)
-			newOrientation = IE::ORIENTATION_S;
-		else if (nextPoint.y < fActor->position.y)
-			newOrientation = IE::ORIENTATION_N;
-	}
-
-	fActor->orientation = newOrientation;
-}
-
-
-void
-Actor::_SetOrientationExtended(const IE::point& nextPoint)
 {
 	int newOrientation = fActor->orientation;
 	if (nextPoint.x > fActor->position.x) {

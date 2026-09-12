@@ -3298,8 +3298,8 @@ RunActionEquipRanged(Object* sender, action_params* params, action_state& state)
 }
 
 
-// RandomTurn() - stateless. Faces a random direction (0-15, BG2's
-// 16-orientation scheme).
+// RandomTurn() - stateless. Faces a random direction (0-15 - see
+// Actor::Orientation()'s own comment on why every game uses that range).
 static void
 RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 {

@@ -186,7 +186,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0xca00, "NNOM", _BuildSplit },
 	{ 0xca10, "NNOW", _BuildSplit },
 	{ 0xd000, "AEAG", _BuildBGMonster }, // AEAG (Eagle)
-	{ 0xd100, "AGUL", _BuildBGMonster },
+	{ 0xd100, "AGUL", _BuildBGMonster }, // Seagull
 	{ 0xd200, "",     _BuildBGMonster },
 	{ 0xd300, "",     _BuildBGMonster },
 	{ 0xe000, "",     _BuildIWD },
@@ -291,14 +291,13 @@ _CharacterIdentityPrefix(const Actor* actor, const std::string& baseName,
 }
 
 
-// BG2 stores only the 8 base facings for most non-character sprites; fold
-// an extended (16-way) orientation back to one of them.
+// Actor::Orientation() is always an extended (16-way) value (see its own
+// declaration comment) - most non-character sprite styles only store the
+// 8 base facings, so fold it back down to one of them.
 static int
 _BaseOrientation(int o)
 {
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
-		return IE::orientation_ext_to_base(o);
-	return o;
+	return IE::orientation_ext_to_base(o);
 }
 
 
@@ -343,13 +342,15 @@ _BuildBGMonster(const std::string& baseName, Actor* actor)
 	animation_description description;
 	description.bam_name = baseName;
 
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE2) {
-		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
-			o = _MirrorExtendedOrientation(o, description);
-	} else if (o >= IE::ORIENTATION_NE && o <= IE::ORIENTATION_SE) {
-		description.mirror = true;
-		o = 8 - o;
-	}
+	// "BG1 monster style" (avatarnaming.htm): every G-file for this
+	// style stores 9 cycles spanning the western half-circle - S, SSW,
+	// SW, ..., N, at extended (16-way) granularity - and mirrors them
+	// for the 7 eastern orientations (confirmed against a real BAM
+	// dump: AGULG1.BAM has cycles 0-8 and 9-17). Actor::Orientation()
+	// is always extended already, so this applies as-is regardless of
+	// game.
+	if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
+		o = _MirrorExtendedOrientation(o, description);
 	description.sequence_number = o;
 
 	switch (actor->AnimationAction()) {
@@ -393,7 +394,7 @@ _BuildBGMonster(const std::string& baseName, Actor* actor)
 static animation_description
 _BuildBGCharacter(const std::string& baseName, Actor* actor)
 {
-	int o = actor->Orientation();
+	int o = _BaseOrientation(actor->Orientation());
 	animation_description description;
 	description.bam_name = baseName;
 	description.sequence_number = o;
@@ -487,6 +488,10 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 		if (o >= IE::ORIENTATION_EXT_NNE && o <= IE::ORIENTATION_EXT_SSE)
 			o = _MirrorExtendedOrientation(o, description);
 	} else {
+		// This game's Character-style content only ships 8 base facings
+		// (+ a dedicated east-facing file) - actor orientation is always
+		// extended (see Actor::Orientation()), so fold it back down.
+		o = IE::orientation_ext_to_base(o);
 		_AppendEasternSuffix(description, o, true);
 	}
 	description.sequence_number += o;
