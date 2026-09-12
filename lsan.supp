@@ -1,0 +1,14 @@
+# LeakSanitizer suppressions for known non-project noise.
+#
+# SDL2 opens a D-Bus session-bus connection at SDL_Init() time (desktop
+# idle-inhibit/power-management integration) - see the call chain under
+# Timer::Initialize() in every leak report below. libdbus deliberately
+# caches this "shared connection" for the process lifetime instead of
+# freeing it, and whether LeakSanitizer sees it as still-reachable or
+# not depends on a timing race with that connection's own background
+# thread teardown relative to when the leak check runs - not on
+# anything this project's code does (confirmed: identical shutdown
+# code path regardless of how the app is quit). Usage: LSAN_OPTIONS=
+# suppressions=lsan.supp ./bin/BGEmu ...
+leak:libdbus-1.so
+leak:libSDL2
