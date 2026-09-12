@@ -1791,6 +1791,12 @@ public:
 				return;
 			}
 			dialog->SelectOption(option);
+			// SelectOption() can synchronously terminate the dialog (e.g.
+			// a transition whose actions include STARTCUTSCENE) - `dialog`
+			// may already be a dangling pointer here. Same hazard (and fix)
+			// as TextArea::MouseDown()'s own dialog-option handling.
+			if (!Game::Get()->InDialogMode())
+				return;
 		}
 
 		if (!dialog->Continue())

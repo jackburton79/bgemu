@@ -1492,6 +1492,21 @@ Actor::ClickedOn(Object* target)
 		// yet, so clicking a hostile creature always tried to start a
 		// dialog with it instead of attacking.
 		if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")) {
+			// Walk over first, same two-action MOVETOOBJECT+interact queue
+			// as the Door/Container branches - RunActionDialog() itself
+			// starts the conversation as soon as it runs, with no
+			// proximity check of its own (see its own TODO comment), so
+			// skipping this walk used to start dialog instantly regardless
+			// of distance. That let a real BG1 DLG state's own See(O:Object*)
+			// trigger (gating content on the speaker actually seeing the
+			// target - e.g. Gorion's Candlekeep ambush warning) evaluate
+			// false and silently fall through to unrelated content, since
+			// the two actors were never actually brought close together.
+			action_params* walkParams = new action_params(Name(), actor->Name());
+			walkParams->id = 22; // MOVETOOBJECT
+			AddAction(walkParams);
+			walkParams->Release();
+
 			action_params* actionParams = new action_params(actor->Name(), Name());
 			actionParams->id = 8; // DIALOG
 			AddAction(actionParams);
