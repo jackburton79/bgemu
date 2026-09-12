@@ -32,6 +32,7 @@ static animation_description _BuildSimple(const std::string&, Actor*);
 static animation_description _BuildSplit(const std::string&, Actor*);
 static animation_description _BuildIWD(const std::string&, Actor*);
 static animation_description _BuildStatic(const std::string&, Actor*);
+static animation_description _BuildMOGR(const std::string&, Actor*);
 
 
 struct AnimationEntry {
@@ -157,7 +158,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x7f37, "NIRE", _BuildBGMonster },
 	{ 0x8000, "",     _BuildBGMonster },
 	{ 0x8100, "",     _BuildBGMonster },
-	{ 0x9000, "MOGR", _BuildBGMonster },
+	{ 0x9000, "MOGR", _BuildMOGR }, // Ogre - avatars.2da TYPE 5 (SIX_FILES_2), GemRB's own comment: "Only one animation uses it: MOGR"
 	{ 0xa000, "",     _BuildBGMonster },
 	{ 0xb000, "ACOW", _BuildBGMonster },
 	{ 0xb100, "AHRS", _BuildBGMonster },
@@ -402,6 +403,57 @@ _BuildBGMonster(const std::string& baseName, Actor* actor)
 			_WarnUnimplementedAction("BGMonster", baseName, actor);
 			break;
 	}
+	return description;
+}
+
+
+// avatars.2da TYPE 5 (SIX_FILES_2) - GemRB's own comment: "Only one
+// animation uses it: MOGR" (the ogre), so this is a dedicated one-off
+// builder rather than a general style. Three files (G1/G2/G3), each
+// bundling several actions at base-8-folded (not mirrored) cycle
+// offsets, with a real dedicated East file for the eastern facings -
+// confirmed against both GemRB's CharAnimations::AddLR3Suffix() and
+// the real MOGRG1/G2/G3(E) BAMs' own cycle counts (24/16/32 = 3/2/4
+// banks of 8).
+static animation_description
+_BuildMOGR(const std::string& baseName, Actor* actor)
+{
+	int o = IE::orientation_ext_to_base(actor->Orientation());
+	animation_description description;
+	description.bam_name = baseName;
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.bam_name += "G1";
+			description.sequence_number = 16 + o;
+			break;
+		case ACT_STANDING:
+			description.bam_name += "G1";
+			description.sequence_number = 8 + o;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name += "G2";
+			description.sequence_number = o;
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name += "G3";
+			description.sequence_number = o;
+			break;
+		case ACT_DIE:
+			description.bam_name += "G3";
+			description.sequence_number = 16 + o;
+			break;
+		case ACT_DEAD:
+			description.bam_name += "G3";
+			description.sequence_number = 24 + o;
+			break;
+		default:
+			_WarnUnimplementedAction("MOGR", baseName, actor);
+			break;
+	}
+
+	_AppendEasternSuffix(description, o, false);
 	return description;
 }
 
