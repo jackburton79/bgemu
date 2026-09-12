@@ -1086,7 +1086,8 @@ bool
 AreaRoom::IsGUIShown() const
 {
 	GUI* gui = GUI::Get();
-	return (gui->IsWindowShown(GUI::WINDOW_MESSAGES) || gui->IsWindowShown(GUI::WINDOW_MESSAGES))
+	return (gui->IsWindowShown(GUI::WINDOW_MESSAGES)
+			|| gui->IsWindowShown(GUI::WINDOW_MESSAGES_LARGE))
 			&& gui->IsWindowShown(GUI::WINDOW_COMMANDS);
 }
 
