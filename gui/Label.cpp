@@ -14,36 +14,44 @@
 #include "Window.h"
 
 
+// LABEL_USE_RGB_COLORS labels carry their own ink/background gradient
+// (color1/color2) instead of using their font's natural baked-in color -
+// confirmed against real GUIINV/GUIREC data (e.g. GUIINV's party-gold
+// label: color1 (255, 230, 130) - a gold/tan tone, exactly what a gold
+// count should look like) and against GemRB's CHUImporter.cpp, which
+// builds its Color from these same 4 bytes in the same R,G,B order (no
+// channel swap - alpha is unused for label ink, GemRB hardcodes it to 0
+// too). Returns false (palette left untouched) when the flag isn't set,
+// so the caller can pass NULL through to RenderString() and fall back to
+// the font's own default appearance.
+static bool
+_BuildLabelPalette(const IE::label* label, GFX::Palette& palette)
+{
+	if (!(label->flags & IE::LABEL_USE_RGB_COLORS))
+		return false;
+
+	const GFX::Color start = { label->color1_r, label->color1_g, label->color1_b, 0 };
+	const GFX::Color end = { label->color2_r, label->color2_g, label->color2_b, 0 };
+	palette = GFX::Palette(start, end);
+	return true;
+}
+
+
 Label::Label(IE::label* label)
 	:
 	Control(label),
 	fBitmap(NULL)
 {
-	int depth = 16;
-	if (label->flags & IE::LABEL_USE_RGB_COLORS)
-		depth = 8;
-
+	// Only an RGB-colored label's own palette can actually stick - it's
+	// the only case rendering onto an 8-bit (indexed) bitmap; a 16-bit
+	// one has no palette to override, so SetPalette() no-ops and the
+	// glyph blit keeps each glyph's own font-native color regardless.
+	int depth = (label->flags & IE::LABEL_USE_RGB_COLORS) ? 8 : 16;
 	fBitmap = new Bitmap(label->w, label->h, depth);
 
-	if (depth == 8) {/*
-		const GFX::Color colorStart = {
-			label->color1_r,
-			label->color1_g,
-			label->color1_b,
-			label->color1_a
-		};
-		const GFX::Color colorEnd = {
-			label->color2_r,
-			label->color2_g,
-			label->color2_b,
-			label->color2_a
-		};
-
-		_SetPalette(colorStart, colorEnd);*/
-
-		// TODO: Should use these colors, but how to build the palette ?
-		fBitmap->SetPalette(*GFX::kPaletteYellow);
-	}
+	GFX::Palette customPalette;
+	const GFX::Palette* renderPalette =
+		_BuildLabelPalette(label, customPalette) ? &customPalette : nullptr;
 
 	std::string fontName = label->font_bam.CString();
 	std::string text = IDTable::GetDialog(label->text_ref);
@@ -53,7 +61,7 @@ Label::Label(IE::label* label)
 	// and crashes. SetText() below already guards against this; the
 	// constructor didn't.
 	if (!text.empty())
-		FontRoster::GetFont(fontName)->RenderString(text, label->flags, fBitmap);
+		FontRoster::GetFont(fontName)->RenderString(text, label->flags, fBitmap, renderPalette);
 }
 
 
@@ -70,7 +78,10 @@ Label::SetText(const std::string& text)
 	fBitmap->Clear(0);
 	if (!text.empty()) {
 		IE::label* label = static_cast<IE::label*>(fControl);
-		FontRoster::GetFont(label->font_bam.CString())->RenderString(text, label->flags, fBitmap);
+		GFX::Palette customPalette;
+		const GFX::Palette* renderPalette =
+			_BuildLabelPalette(label, customPalette) ? &customPalette : nullptr;
+		FontRoster::GetFont(label->font_bam.CString())->RenderString(text, label->flags, fBitmap, renderPalette);
 	}
 }
 

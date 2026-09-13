@@ -31,22 +31,15 @@ Font::Font(const std::string& fontName)
 	fPalette(NULL),
 	fTransparentIndex(0)
 {
+	// fPalette is filled in by _LoadGlyphs() itself, from the first glyph
+	// that loads - every cycle of a font BAM shares the same embedded
+	// palette, so any one of them gives the font's own natural color
+	// (e.g. STONESML's carved-stone tan, NORMAL's white). This used to
+	// be hardcoded to kPaletteYellow unconditionally, forcing every font
+	// to render in flat yellow whenever something (e.g. GetRenderedString(),
+	// always an 8-bit/indexed destination) actually let a palette take
+	// effect - see _RenderString()'s own explanation of when that is.
 	_LoadGlyphs(fName);
-/*
-	const GFX::Color colorStart = {
-		0,
-		0,
-		0,
-		0
-	};
-	const GFX::Color colorEnd = {
-		255,
-		255,
-		255,
-		0
-	};
-	fPalette = new GFX::Palette(colorStart, colorEnd);*/
-	fPalette = new GFX::Palette(*GFX::kPaletteYellow);
 }
 
 
@@ -171,6 +164,10 @@ Font::_LoadGlyphs(const std::string& fontName)
 		char c = cycleNum + 1;
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
 		if (bitmap != NULL) {
+			if (fPalette == NULL) {
+				fPalette = new GFX::Palette();
+				bitmap->GetPalette(*fPalette);
+			}
 			// Baseline reference glyph: used to be whatever sits at
 			// character code 2 (cycleNum == 1) regardless of what that
 			// actually is - fine for fonts where it happens to be an
@@ -290,8 +287,9 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	} else if (fPalette != NULL) {
 		bitmap->SetPalette(*fPalette);
 	} else {
-		// No palette.
-		throw std::runtime_error("Font::RenderString: no palette");
+		// fPalette is set as soon as _LoadGlyphs() loads this font's
+		// first glyph, which `glyphs` being non-empty already guarantees
+		// happened - this is just a defensive fallback, not a real path.
 		GFX::Palette framePalette;
 		firstFrame->GetPalette(framePalette);
 		bitmap->SetPalette(framePalette);
