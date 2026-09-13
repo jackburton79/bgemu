@@ -32,6 +32,7 @@ static animation_description _BuildIWD(const std::string&, Actor*);
 static animation_description _BuildMOGR(const std::string&, Actor*);
 static animation_description _BuildFourFiles(const std::string&, Actor*);
 static animation_description _BuildOneFile(const std::string&, Actor*);
+static animation_description _BuildTwoFiles(const std::string&, Actor*);
 
 
 struct AnimationEntry {
@@ -175,12 +176,13 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0xb500, "NSIM", _BuildSplit },
 	{ 0xb510, "NSIW", _BuildSplit },
 	{ 0xb600, "NNOM", _BuildSplit },
-	{ 0xc000, "ABAT", _BuildBGMonster },
-	{ 0xc100, "ACAT", _BuildBGMonster },
-	{ 0xc200, "ACHK", _BuildBGMonster },
-	{ 0xc300, "ARAT", _BuildBGMonster },
-	{ 0xc400, "",     _BuildBGMonster },
-	{ 0xc500, "",     _BuildBGMonster },
+	// avatars.2da TYPE 3 (TWO_FILES) throughout this block.
+	{ 0xc000, "ABAT", _BuildTwoFiles },
+	{ 0xc100, "ACAT", _BuildTwoFiles },
+	{ 0xc200, "ACHK", _BuildTwoFiles },
+	{ 0xc300, "ARAT", _BuildTwoFiles },
+	{ 0xc400, "ASQU", _BuildTwoFiles },
+	{ 0xc500, "ABAT", _BuildTwoFiles },
 	{ 0xc700, "NBOY", _BuildSplit },
 	{ 0xc800, "NFAM", _BuildSplit },
 	{ 0xc600, "NBEG", _BuildSplit },
@@ -657,6 +659,44 @@ _BuildOneFile(const std::string& baseName, Actor* actor)
 			break;
 	}
 	description.sequence_number = bank * 16 + actor->Orientation();
+	return description;
+}
+
+
+// avatars.2da TYPE 3 (TWO_FILES) - small animals (bat/cat/chicken/rat/
+// squirrel). A single "G1" file, base-8-folded (Orient/2) cycles with
+// a real East file; standing and attacking share one bank (no
+// distinct attack pose for these) - confirmed against GemRB's
+// AddTwoFileSuffix() and a real BAM's cycle count (ABATG1.BAM: 48 = 6
+// banks of 8).
+static animation_description
+_BuildTwoFiles(const std::string& baseName, Actor* actor)
+{
+	int halfOrient = actor->Orientation() / 2;
+	animation_description description;
+	description.bam_name = baseName + "G1";
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.sequence_number = halfOrient;
+			break;
+		case ACT_STANDING:
+		case ACT_ATTACKING:
+			description.sequence_number = 8 + halfOrient;
+			break;
+		case ACT_DIE:
+			description.sequence_number = 32 + halfOrient;
+			break;
+		case ACT_DEAD:
+			description.sequence_number = 40 + halfOrient;
+			break;
+		default:
+			_WarnUnimplementedAction("TwoFiles", baseName, actor);
+			description.sequence_number = 8 + halfOrient;
+			break;
+	}
+
+	_AppendEasternSuffix(description, halfOrient, false);
 	return description;
 }
 
