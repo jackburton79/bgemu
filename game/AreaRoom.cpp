@@ -160,6 +160,8 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	::Window* window = gui->GetWindow(uint16(-1));
 
 	GUI::Get()->Show();
+	if (!Core::Get()->CutsceneMode())
+		GUI::Get()->ShowHUD();
 
 	if (window != NULL) {
 		fSavedControl = window->ReplaceControl((uint32)-1, this);
