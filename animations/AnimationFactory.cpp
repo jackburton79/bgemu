@@ -749,6 +749,12 @@ _BuildSplit(const std::string& baseName, Actor* actor)
 }
 
 
+// avatars.2da TYPE 9 (TWO_FILES_3, "IWD style") - a dedicated file per
+// action ("[NAME][ACTIONCODE][/E]"), each just base-8-folded (Orient/2)
+// cycles with a real East file - this builder's existing WK/SD/A1
+// cases already matched GemRB's AddMMRSuffix() exactly (confirmed
+// against real MGO1* BAMs); added the missing Die/Dead/Cast codes the
+// same function also defines ("de"/"tw"/"sp"/"ca").
 static animation_description
 _BuildIWD(const std::string& baseName, Actor* actor)
 {
@@ -766,6 +772,18 @@ _BuildIWD(const std::string& baseName, Actor* actor)
 			break;
 		case ACT_ATTACKING:
 			description.bam_name += "A1";
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+			description.bam_name += "SP";
+			break;
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name += "CA";
+			break;
+		case ACT_DIE:
+			description.bam_name += "DE";
+			break;
+		case ACT_DEAD:
+			description.bam_name += "TW";
 			break;
 		default:
 			_WarnUnimplementedAction("IWD", baseName, actor);
