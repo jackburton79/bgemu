@@ -1766,8 +1766,6 @@ AreaRoom::_UnloadArea()
 	}
 	fActors.clear();
 
-	Core::Get()->ExitingArea(this);
-
 	for (uint32 c = 0; c < fRegions.size(); c++) {
 		if (fRegions[c] != NULL)
 			fRegions[c]->Release();
