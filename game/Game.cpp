@@ -975,7 +975,8 @@ Game::TriggerRest()
 // label-population methods below, named rather than left as bare
 // literals at each call site - all identified/confirmed as described in
 // those methods' own comments.
-static const uint32 kInvNameLabelID = 268435507;
+static const uint32 kInvNameLabelID = 268435506;
+static const uint32 kInvClassLabelID = 268435522;
 static const uint32 kInvACLabelID = 268435512;
 // Confirmed against GemRB's own GUIINV.py (bg1/bg2, identical control
 // IDs in both): current/max hit points and the party gold counter -
@@ -1002,9 +1003,7 @@ static const uint32 kInvInfoTextID = 5;
 // BG2 fills them from code; their exact purpose isn't confirmed here).
 static const uint32 kInvInfoBlankLabel1ID = 268435456;
 static const uint32 kInvInfoBlankLabel2ID = 268435467;
-// GUIREC window 2's top banner - the character name, same role as
-// GUIINV's kInvNameLabelID (confirmed via a real dump: id 268435495 at
-// (3,9) 505x28, the wide centered label at the very top).
+
 static const uint32 kRecNameLabelID = 268435495;
 static const uint32 kRecACLabelID = 268435496;
 static const uint32 kRecHPCurrentLabelID = 268435497;
@@ -1620,6 +1619,10 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kInvNameLabelID));
 	if (nameLabel != NULL)
 		nameLabel->SetText(actor->LongName());
+
+	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kInvClassLabelID));
+	if (classLabel != NULL)
+		classLabel->SetText(actor->CRE()->KitStr());
 
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
