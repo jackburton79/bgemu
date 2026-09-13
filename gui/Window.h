@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef __WINDOW_H_
-#define __WINDOW_H_
+#pragma once
 
 #include <vector>
 
@@ -97,5 +96,3 @@ private:
 	res_ref fOwnerCHU;
 };
 
-
-#endif /* WINDOW_H_ */

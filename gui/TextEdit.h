@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef TEXTEDIT_H_
-#define TEXTEDIT_H_
+#pragma once
 
 #include "Control.h"
 
@@ -15,5 +14,3 @@ public:
 	TextEdit(IE::text_edit* textEdit);
 	virtual ~TextEdit();
 };
-
-#endif /* TEXTEDIT_H_ */

@@ -5,24 +5,20 @@
  *      Author: stefano
  */
 
-#ifndef __LABEL_H_
-#define __LABEL_H_
+#pragma once
 
 #include "Control.h"
 
-struct Color;
 class Bitmap;
 class Label: public Control {
 public:
 	Label(IE::label* label);
 	virtual ~Label();
 
-	void MouseMoved(IE::point point, uint32 transit);
+	void MouseMoved(IE::point point, uint32 transit) override;
 	void SetText(const std::string& text);
-	virtual void Draw();
+	void Draw() override;
 
 private:
 	Bitmap* fBitmap;
 };
-
-#endif /* __LABEL_H_ */

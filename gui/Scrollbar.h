@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef SCROLLBAR_H_
-#define SCROLLBAR_H_
+#pragma once
 
 #include "Bitmap.h"
 #include "Control.h"
@@ -22,12 +21,12 @@ public:
 	Scrollbar(IE::scrollbar* scrollbar);
 	virtual ~Scrollbar();
 
-	virtual void AttachedToWindow(::Window* window);
-	virtual void Draw();
-	virtual void MouseMoved(IE::point point, uint32 transit);
-	virtual void MouseDown(IE::point point);
-	virtual void MouseUp(IE::point point);
-	virtual void Pulse();
+	void AttachedToWindow(::Window* window) override;
+	void Draw() override;
+	void MouseMoved(IE::point point, uint32 transit) override;
+	void MouseDown(IE::point point) override;
+	void MouseUp(IE::point point) override;
+	void Pulse() override;
 
 	// Called by the linked TextArea whenever its scroll state changes:
 	// the current offset and the maximum offset, both in content pixels.
@@ -60,5 +59,3 @@ private:
 	void _ScrollTo(int32 offset);
 	void _ScrollBy(int32 delta);
 };
-
-#endif /* SCROLLBAR_H_ */

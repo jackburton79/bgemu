@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef SLIDER_H_
-#define SLIDER_H_
+#pragma once
 
 #include "Control.h"
 
@@ -17,15 +16,13 @@ public:
 	Slider(IE::slider* slider);
 	virtual ~Slider();
 
-	virtual void Draw();
-	virtual void MouseDown(IE::point point);
-	virtual void MouseUp(IE::point point);
-	virtual void MouseMoved(IE::point point, uint32 transit);
+	void Draw() override;
+	void MouseDown(IE::point point) override;
+	void MouseUp(IE::point point) override;
+	void MouseMoved(IE::point point, uint32 transit) override;
 
 private:
 	Bitmap* fBackground;
 	BAMResource* fKnobImage;
 	int16 fKnobPosition;
 };
-
-#endif /* SLIDER_H_ */

@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef __BUTTON_H_
-#define __BUTTON_H_
+#pragma once
 
 #include "Control.h"
 #include "GraphicsDefs.h"
@@ -18,12 +17,13 @@ class Button: public Control {
 public:
 	Button(IE::button* button);
 	virtual ~Button();
-	virtual void AttachedToWindow(::Window* window);
-	virtual void Draw();
-	virtual void MouseMoved(IE::point point, uint32 transit);
-	virtual void MouseDown(IE::point point);
-	virtual void MouseUp(IE::point point);
-	virtual bool RightMouseDown(IE::point point);
+
+	void AttachedToWindow(::Window* window) override;
+	void Draw() override;
+	void MouseMoved(IE::point point, uint32 transit) override;
+	void MouseDown(IE::point point) override;
+	void MouseUp(IE::point point) override;
+	bool RightMouseDown(IE::point point) override;
 
 	// Overlay drawn centered on top of the button's own frame - e.g. an
 	// item icon over an inventory slot's empty-slot background. Takes a
@@ -72,5 +72,3 @@ private:
 	bool fDragCapture;
 	bool fArmedByPress;
 };
-
-#endif /* BUTTON_H_ */

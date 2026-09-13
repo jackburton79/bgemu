@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef TEXTAREA_H_
-#define TEXTAREA_H_
+#pragma once
 
 #include "Control.h"
 
@@ -42,9 +41,10 @@ public:
 
 	TextArea(IE::text_area* text);
 	virtual ~TextArea();
-	virtual void Draw();
-	virtual void MouseDown(IE::point point);
-	virtual void MouseMoved(IE::point point, uint32 transit);
+
+	void Draw() override;
+	void MouseDown(IE::point point) override;
+	void MouseMoved(IE::point point, uint32 transit) override;
 
 	void SetScrollbar(Scrollbar* scrollbar);
 
@@ -79,4 +79,3 @@ private:
 	int16 _MaxYOffset() const;
 };
 
-#endif /* TEXTAREA_H_ */
