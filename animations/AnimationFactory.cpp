@@ -624,34 +624,50 @@ _BuildSimple(const std::string& baseName, Actor* actor)
 }
 
 
+// avatars.2da TYPE 18 (FOUR_FILES_3): even orientations live in an "H"
+// file, odd in "L" ("[NAME][H|L]G1[/E]") - confirmed against a real
+// pair's own cycle counts (NBEGHG1.BAM/NBEGLG1.BAM: 48/40 = 6/5 banks
+// of 8, matching GemRB's AddHLSuffix() exactly). Walk always lives in H
+// regardless of orientation parity - it's the first (and only 8-cycle)
+// bank there, which is also why every other H-file stance sits 8 cycles
+// further in than its L-file counterpart.
 static animation_description
 _BuildSplit(const std::string& baseName, Actor* actor)
 {
-	int o = _BaseOrientation(actor->Orientation());
+	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = baseName;
 	description.custom_colors = true;
-	description.sequence_number = o;
 
-	// TODO: the north-facing half should be "L" instead of "H".
-	description.bam_name += "H";
+	bool useH = (o % 2) == 0;
+	int halfOrient = o / 2;
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-		case ACT_ATTACKING:
-			description.bam_name += "G1";
+			useH = true;
+			description.sequence_number = halfOrient;
 			break;
 		case ACT_STANDING:
-			description.bam_name += "G1";
-			description.sequence_number += 8;
+		case ACT_ATTACKING:
+		case ACT_CAST_SPELL_PREPARE:
+		case ACT_CAST_SPELL_RELEASE:
+			description.sequence_number = (useH ? 16 : 8) + halfOrient;
+			break;
+		case ACT_DIE:
+			description.sequence_number = (useH ? 32 : 24) + halfOrient;
+			break;
+		case ACT_DEAD:
+			description.sequence_number = (useH ? 40 : 32) + halfOrient;
 			break;
 		default:
 			_WarnUnimplementedAction("Split", baseName, actor);
-			description.bam_name += "G1";
+			description.sequence_number = (useH ? 16 : 8) + halfOrient;
 			break;
 	}
 
-	_AppendEasternSuffix(description, o, false);
+	description.bam_name += useH ? "H" : "L";
+	description.bam_name += "G1";
+	_AppendEasternSuffix(description, halfOrient, false);
 	return description;
 }
 
