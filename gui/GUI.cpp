@@ -914,6 +914,8 @@ void
 GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 					bool inside)
 {
+	if (inside)
+		std::cout << "hovered: id: " << controlID << ", window: " << windowID << std::endl;
 	if (chuName == res_ref("GUIINV"))
 		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))

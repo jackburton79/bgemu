@@ -17,6 +17,7 @@ public:
 	Label(IE::label* label);
 	virtual ~Label();
 
+	void MouseMoved(IE::point point, uint32 transit);
 	void SetText(const std::string& text);
 	virtual void Draw();
 

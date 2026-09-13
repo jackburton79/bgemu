@@ -68,6 +68,18 @@ Label::SetText(const std::string& text)
 	}
 }
 
+/* virtual */
+void
+Label::MouseMoved(IE::point point, uint32 transit)
+{
+	Control::MouseMoved(point, transit);
+
+	if (transit == Control::MOUSE_ENTER) {
+		NotifyHovered(true);
+	} else if (transit == Control::MOUSE_EXIT) {
+		NotifyHovered(false);
+	}
+}
 
 /* virtual */
 void
