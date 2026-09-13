@@ -99,7 +99,8 @@ public:
 	void JournalControlInvoked(uint32 controlID, uint16 windowID);
 	// Mage spellbook (GUIMG), read-only for now: shows the currently
 	// displayed character's known + memorized arcane spells.
-	void ToggleSpellbookWindow();
+	void ToggleArcaneSpellbookWindow();
+	void ToggleDivineSpellbookWindow();
 	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
 	// Hover over a spellbook grid icon -> show the spell's name as a
 	// cursor tooltip.

@@ -297,7 +297,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								ToggleJournalWindow();
 								break;
 							case SDLK_k:
-								ToggleSpellbookWindow();
+								ToggleArcaneSpellbookWindow();
 								break;
 							case SDLK_F5:
 								ToggleSaveWindow();
@@ -596,7 +596,8 @@ kAuxCommandBarButtons[] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{ 4, [] { Game::Get()->ToggleRecordWindow(); } },
-	{ 5, [] { Game::Get()->ToggleSpellbookWindow(); } },
+	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
+	{ 6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
 	{ 7, [] { Game::Get()->ToggleSaveWindow(); } },
 	{ 9, [] { Game::Get()->TriggerRest(); } },
 };
@@ -715,7 +716,7 @@ static const uint32 kSpellNameLabelID = 268435509;
 // they've a priest-type known spell.
 // TODO: Not correct: there is one button to open the divine spellbook and one
 // to open the arcane spellbook. A character could have both kind of spells
-static bool
+/*static bool
 _UsesDivineSpellbook(Actor* actor)
 {
 	if (actor == NULL || actor->CRE() == NULL)
@@ -738,12 +739,26 @@ _UsesDivineSpellbook(Actor* actor)
 			return true;
 	return false;
 }
+*/
+
+void
+Game::ToggleArcaneSpellbookWindow()
+{
+	const char* chu = "GUIMG";
+	fSpellbookCHU = chu;
+	fSpellbookLevel = 1;
+	_CloseOtherScreens(chu);
+	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
+		_UpdateSpellbookScreen();
+	}
+}
 
 
 void
-Game::ToggleSpellbookWindow()
+Game::ToggleDivineSpellbookWindow()
 {
-	const char* chu = _UsesDivineSpellbook(_ShownActor()) ? "GUIPR" : "GUIMG";
+	const char* chu = "GUIPR";
 	fSpellbookCHU = chu;
 	fSpellbookLevel = 1;
 	_CloseOtherScreens(chu);
