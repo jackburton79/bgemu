@@ -27,12 +27,11 @@ typedef animation_description (*BuildDescriptionFn)(const std::string& baseName,
 
 static animation_description _BuildBGMonster(const std::string&, Actor*);
 static animation_description _BuildCharacter(const std::string&, Actor*);
-static animation_description _BuildSimple(const std::string&, Actor*);
 static animation_description _BuildSplit(const std::string&, Actor*);
 static animation_description _BuildIWD(const std::string&, Actor*);
-static animation_description _BuildStatic(const std::string&, Actor*);
 static animation_description _BuildMOGR(const std::string&, Actor*);
 static animation_description _BuildFourFiles(const std::string&, Actor*);
+static animation_description _BuildOneFile(const std::string&, Actor*);
 
 
 struct AnimationEntry {
@@ -61,19 +60,24 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x2200, "MOGM", _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x2300, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 
-	{ 0x4000, "SNOM", _BuildSimple },
-	{ 0x4010, "SNOW", _BuildSimple },
-	{ 0x4100, "SSIM", _BuildSimple },
-	{ 0x4101, "SSIM", _BuildSimple },
-	{ 0x4102, "SSIM", _BuildSimple },
-	{ 0x4110, "SSIW", _BuildSimple },
-	{ 0x4400, "LHMC", _BuildStatic },
-	{ 0x4410, "LHFC", _BuildStatic },
-	{ 0x4500, "LFAM", _BuildStatic },
-	{ 0x4600, "LDMF", _BuildStatic },
-	{ 0x4700, "LEMF", _BuildStatic },
-	{ 0x4710, "LEFF", _BuildStatic },
-	{ 0x4800, "LIMC", _BuildStatic }, // SLEEPING_MAN_HALFLING
+	// avatars.2da TYPE 1 (ONE_FILE) throughout this block. bgemu's own
+	// base names for the SNOM/SSIM* rows were missing their trailing
+	// variant letter (the real, complete resref - confirmed against
+	// avatars.2da and that resource actually existing); the L-prefixed
+	// ids already had the correct complete name.
+	{ 0x4000, "SNOMC", _BuildOneFile },
+	{ 0x4010, "SNOWC", _BuildOneFile },
+	{ 0x4100, "SSIMC", _BuildOneFile },
+	{ 0x4101, "SSIMS", _BuildOneFile },
+	{ 0x4102, "SSIMM", _BuildOneFile },
+	{ 0x4110, "SSIWC", _BuildOneFile },
+	{ 0x4400, "LHMC", _BuildOneFile },
+	{ 0x4410, "LHFC", _BuildOneFile },
+	{ 0x4500, "LFAM", _BuildOneFile },
+	{ 0x4600, "LDMF", _BuildOneFile },
+	{ 0x4700, "LEMF", _BuildOneFile },
+	{ 0x4710, "LEFF", _BuildOneFile },
+	{ 0x4800, "LIMC", _BuildOneFile }, // SLEEPING_MAN_HALFLING
 
 	{ 0x5000, "CHMB", _BuildCharacter },
 	{ 0x5002, "CDMB", _BuildCharacter },
@@ -619,28 +623,40 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 }
 
 
+// avatars.2da TYPE 1 (ONE_FILE): genuinely native 16-way - no base-8
+// folding, no mirror, no East file, and no resref suffix at all (the
+// table's own base name is already the complete resref). 5 action
+// banks of 16 cycles each (Cycle = bank*16 + Orient), confirmed
+// against GemRB's own one_file[] stance table and a real BAM's cycle
+// count (SNOMC.BAM: 80 = 5*16).
 static animation_description
-_BuildSimple(const std::string& baseName, Actor* actor)
+_BuildOneFile(const std::string& baseName, Actor* actor)
 {
-	int o = _BaseOrientation(actor->Orientation());
 	animation_description description;
 	description.bam_name = baseName;
 	description.custom_colors = true;
-	description.sequence_number = o;
 
+	int bank;
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-		case ACT_ATTACKING:
-			break;
 		case ACT_STANDING:
-			description.sequence_number += 8;
+			bank = 1;
+			break;
+		case ACT_ATTACKING:
+			bank = 2;
+			break;
+		case ACT_DIE:
+			bank = 3;
+			break;
+		case ACT_DEAD:
+			bank = 4;
 			break;
 		default:
-			_WarnUnimplementedAction("Simple", baseName, actor);
+			_WarnUnimplementedAction("OneFile", baseName, actor);
+			bank = 1;
 			break;
 	}
-
-	description.bam_name += "M";
+	description.sequence_number = bank * 16 + actor->Orientation();
 	return description;
 }
 
@@ -716,30 +732,6 @@ _BuildIWD(const std::string& baseName, Actor* actor)
 			break;
 	}
 	_AppendEasternSuffix(description, o, false);
-	return description;
-}
-
-
-static animation_description
-_BuildStatic(const std::string& baseName, Actor* actor)
-{
-	int o = _BaseOrientation(actor->Orientation());
-	animation_description description;
-	description.bam_name = baseName;
-	description.custom_colors = true;
-	description.sequence_number = o;
-
-	switch (actor->AnimationAction()) {
-		case ACT_WALKING:
-		case ACT_ATTACKING:
-			break;
-		case ACT_STANDING:
-			description.sequence_number += 8;
-			break;
-		default:
-			_WarnUnimplementedAction("Static", baseName, actor);
-			break;
-	}
 	return description;
 }
 
