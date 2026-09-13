@@ -707,7 +707,7 @@ static Bitmap* _MakeSpellIcon(const res_ref& spellName); // defined below
 // the known-spell grid (4-col, ids 27-38).
 static const uint32 kSpellMemoControls[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
 static const uint32 kSpellKnownControls[] = { 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38 };
-static const uint32 kSpellNameLabelID = 268435455;
+static const uint32 kSpellNameLabelID = 268435509;
 
 
 // Whether the character casts divine spells (uses GUIPR) rather than
