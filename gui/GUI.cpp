@@ -907,6 +907,10 @@ GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuNa
 		Game::Get()->InventoryControlRightClicked(controlID, windowID);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
 		Game::Get()->SpellbookControlRightClicked(controlID, windowID);
+	else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
+		// The 6 HUD portrait buttons center view to that party member.
+		Game::Get()->CenterViewOnPartyMember((uint16)controlID);
+	}
 }
 
 

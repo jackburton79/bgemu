@@ -2339,20 +2339,37 @@ Game::ToggleHUD()
 void
 Game::SelectPartyMember(uint16 index)
 {
-	if (fParty == NULL || index >= fParty->CountActors())
+	if (fParty == nullptr || index >= fParty->CountActors())
 		return;
 
 	Actor* member = fParty->ActorAt(index);
-	if (member == NULL)
+	if (member == nullptr)
 		return;
 
 	fShownCharacter = index;
 
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	if (room != NULL)
+	if (room != nullptr)
 		room->SelectActor(member);
 
 	_RefreshCharacterScreens();
+}
+
+
+void
+Game::CenterViewOnPartyMember(uint16 index)
+{
+	if (fParty == nullptr || index >= fParty->CountActors())
+		return;
+
+	Actor* member = fParty->ActorAt(index);
+	if (member == nullptr)
+		return;
+
+	const IE::point positon = member->Position();
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != nullptr)
+		room->SetRelativeAreaOffset(positon.x, positon.y);
 }
 
 

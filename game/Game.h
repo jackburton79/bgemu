@@ -50,6 +50,9 @@ public:
 	// isn't an AreaRoom (e.g. the worldmap screen).
 	void SelectPartyMember(uint16 index);
 
+	// Centers view on party member
+	void CenterViewOnPartyMember(uint16 index);
+
 	void ToggleInventoryWindow();
 	void ToggleRecordWindow();
 	// Minimal single-slot Save/Load screens (GUISAVE/GUILOAD) - real BG2
