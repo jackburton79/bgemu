@@ -5,8 +5,7 @@
  *      Author: stefano
  */
 
-#ifndef CONTROL_H_
-#define CONTROL_H_
+#pragma once
 
 #include "IETypes.h"
 
@@ -73,5 +72,3 @@ protected:
 	::Window* fWindow;
 	IE::control* fControl;
 };
-
-#endif /* CONTROL_H_ */
