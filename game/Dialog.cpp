@@ -129,7 +129,6 @@ DialogHandler::_ShowCurrentState(const dlg_state& state)
 	_BuildTransitions(state);
 
 	const int32 numOptions = ShowPlayerOptions();
-
 	if (numOptions == 0) {
 		if (!fTransitions.empty()) {
 			_ExecuteTransition(fTransitions.front());
