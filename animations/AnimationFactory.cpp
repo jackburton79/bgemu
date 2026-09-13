@@ -33,6 +33,8 @@ static animation_description _BuildMOGR(const std::string&, Actor*);
 static animation_description _BuildFourFiles(const std::string&, Actor*);
 static animation_description _BuildOneFile(const std::string&, Actor*);
 static animation_description _BuildTwoFiles(const std::string&, Actor*);
+static animation_description _BuildTwoFiles2(const std::string&, Actor*);
+static animation_description _BuildSixFiles(const std::string&, Actor*);
 
 
 struct AnimationEntry {
@@ -164,9 +166,9 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x8000, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x8100, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x9000, "MOGR", _BuildMOGR }, // Ogre - avatars.2da TYPE 5 (SIX_FILES_2), GemRB's own comment: "Only one animation uses it: MOGR"
-	{ 0xa000, "",     _BuildBGMonster },
-	{ 0xb000, "ACOW", _BuildBGMonster },
-	{ 0xb100, "AHRS", _BuildBGMonster },
+	{ 0xa000, "MWYV", _BuildSixFiles }, // avatars.2da TYPE 8 (SIX_FILES)
+	{ 0xb000, "ACOW", _BuildTwoFiles2 }, // avatars.2da TYPE 10 (TWO_FILES_2)
+	{ 0xb100, "AHRS", _BuildTwoFiles2 }, // avatars.2da TYPE 10 (TWO_FILES_2)
 	{ 0xb200, "NBEG", _BuildSplit },
 	{ 0xb210, "NPRO", _BuildSplit },
 	{ 0xb300, "NBOY", _BuildSplit },
@@ -697,6 +699,102 @@ _BuildTwoFiles(const std::string& baseName, Actor* actor)
 	}
 
 	_AppendEasternSuffix(description, halfOrient, false);
+	return description;
+}
+
+
+// avatars.2da TYPE 10 (TWO_FILES_2, "low res bg1 anim") - cow/horse
+// only. A single "G1"(+E) file split down the middle by orientation
+// (base 0-3 west, 4-7 east - not the usual 5/mirror-of-3 split other
+// types use), base-8-folded (Orient/2) cycles. Walk and stand share
+// one bank here, unlike most other types - confirmed against GemRB's
+// AddLR2Suffix() and real ACOWG1/G1E.BAM cycle counts (40 each = 5
+// banks of 8, only half of each meaningfully used per file).
+static animation_description
+_BuildTwoFiles2(const std::string& baseName, Actor* actor)
+{
+	int halfOrient = actor->Orientation() / 2;
+	animation_description description;
+	description.bam_name = baseName + "G1";
+
+	int bank;
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+		case ACT_STANDING:
+		case ACT_CAST_SPELL_PREPARE:
+		case ACT_CAST_SPELL_RELEASE:
+			bank = 0;
+			break;
+		case ACT_ATTACKING:
+			bank = 8;
+			break;
+		case ACT_DIE:
+			bank = 24;
+			break;
+		case ACT_DEAD:
+			bank = 32;
+			break;
+		default:
+			_WarnUnimplementedAction("TwoFiles2", baseName, actor);
+			bank = 0;
+			break;
+	}
+	description.sequence_number = bank + halfOrient;
+	if (halfOrient >= 4)
+		description.bam_name += "E";
+	return description;
+}
+
+
+// avatars.2da TYPE 8 (SIX_FILES) - the wyvern (0xA000 specifically;
+// the *other* wyvern id, 0x1000, is TYPE 11/FOUR_FRAMES, a multi-part
+// body-compositing scheme this codebase has no machinery for yet - not
+// covered here). Genuinely native 16-way (no folding, no mirror) split
+// across three files: G1 (walk only), G2 (idle/damage/die/twitch banks
+// of 16), G3 (attack variants, banks of 16) - confirmed against
+// GemRB's AddSixSuffix() and real MWYVG1/G2/G3(E) BAMs' cycle counts
+// (16/80/48 = exactly 1/5/3 banks of 16).
+static animation_description
+_BuildSixFiles(const std::string& baseName, Actor* actor)
+{
+	int o = actor->Orientation();
+	animation_description description;
+
+	switch (actor->AnimationAction()) {
+		case ACT_WALKING:
+			description.bam_name = baseName + "G1";
+			description.sequence_number = o;
+			break;
+		case ACT_STANDING:
+			description.bam_name = baseName + "G2";
+			description.sequence_number = 16 + o;
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name = baseName + "G2";
+			description.sequence_number = o;
+			break;
+		case ACT_DIE:
+			description.bam_name = baseName + "G2";
+			description.sequence_number = 48 + o;
+			break;
+		case ACT_DEAD:
+			description.bam_name = baseName + "G2";
+			description.sequence_number = 64 + o;
+			break;
+		case ACT_ATTACKING:
+			description.bam_name = baseName + "G3";
+			description.sequence_number = o;
+			break;
+		default:
+			_WarnUnimplementedAction("SixFiles", baseName, actor);
+			description.bam_name = baseName + "G2";
+			description.sequence_number = 16 + o;
+			break;
+	}
+
+	if (o > 9)
+		description.bam_name += "E";
 	return description;
 }
 
