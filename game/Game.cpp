@@ -1004,13 +1004,13 @@ static const uint32 kInvInfoTextID = 5;
 static const uint32 kInvInfoBlankLabel1ID = 268435456;
 static const uint32 kInvInfoBlankLabel2ID = 268435467;
 
-static const uint32 kRecNameLabelID = 268435495;
+static const uint32 kRecNameLabelID = 268435470;
 static const uint32 kRecACLabelID = 268435496;
 static const uint32 kRecHPCurrentLabelID = 268435497;
 static const uint32 kRecHPMaxLabelID = 268435498;
-static const uint32 kRecClassLabelID = 268435471;
-static const uint32 kRecRaceLabelID = 268435472;
-static const uint32 kRecLevelLabelID = 268435473;
+static const uint32 kRecClassLabelID = 268435504;
+static const uint32 kRecRaceLabelID = 268435471;
+static const uint32 kRecGenderLabelID = 268435473;
 static const uint32 kRecStatsAreaID = 45;
 // GUISAVE.CHU and GUILOAD.CHU share the exact same window 0 layout
 // (confirmed via a real dump of both - same control ids/positions) -
@@ -1622,7 +1622,7 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 
 	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kInvClassLabelID));
 	if (classLabel != NULL)
-		classLabel->SetText(actor->CRE()->KitStr());
+		classLabel->SetText(IDTable::ClassAt(actor->CRE()->Class()));
 
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
@@ -1719,21 +1719,7 @@ Game::_UpdateAbilityScoreLabels(Window* window, CREResource* cre)
 }
 
 
-// Class/Race/Level 3-line block (ids 471/472/473, y=322/345/368,
-// confirmed via a real GUIREC.CHU dump). The CHU's own static default
-// for the race line ("Umano"/Human) looked plausible at first for a
-// human test character, but showing a second, non-human party member
-// (Imoen, a half-elf) still showed "Umano" unchanged - proving it's
-// just this control's authored default, not real data, and needs to
-// be set from code like everything else here.
-// IDTable::RaceAt()/ClassAt() return the raw RACE.IDS/CLASS.IDS
-// token (e.g. "HALF_ELF", "FIGHTER_CLERIC") - there's no RACE.2DA in
-// this installation to resolve a localized display string from, so
-// _TitleCaseIDSName() below just turns "HALF_ELF" into "Half Elf"
-// (underscores to spaces, title case) rather than show the raw
-// all-caps token. Not localized to Italian like the rest of this
-// screen - declared simplification, same spirit as other "real data,
-// imperfect presentation" deviations already on the roadmap.
+// Class/Race/Level 3-line block
 void
 Game::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
 {
@@ -1745,9 +1731,9 @@ Game::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
 	if (raceLabel != NULL)
 		raceLabel->SetText(_TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race())));
 
-	Label* levelLabel = dynamic_cast<Label*>(window->GetControlByID(kRecLevelLabelID));
-	if (levelLabel != NULL)
-		levelLabel->SetText("Livello " + std::to_string(actor->CRE()->Level()));
+	Label* genderLabel = dynamic_cast<Label*>(window->GetControlByID(kRecGenderLabelID));
+	if (genderLabel != NULL)
+		genderLabel->SetText(_TitleCaseIDSName(IDTable::GenderAt(actor->CRE()->Gender())));
 }
 
 
