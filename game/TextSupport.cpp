@@ -274,6 +274,11 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	uint16 textWidth = 0;
 	uint16 maxHeight = 0;
 	_PrepareGlyphs(string, textWidth, maxHeight, &glyphs);
+	// An empty string, or one whose characters all miss this font's
+	// glyph set (see _PrepareGlyphs()'s own "glyph not found" case),
+	// leaves nothing to render.
+	if (glyphs.empty())
+		return;
 
 	const Bitmap* firstFrame = glyphs.back().bitmap;
 

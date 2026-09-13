@@ -987,6 +987,14 @@ static const uint32 kInvACLabelID = 268435512;
 static const uint32 kInvHPCurrentLabelID = 268435513;
 static const uint32 kInvHPMaxLabelID = 268435514;
 static const uint32 kInvGoldLabelID = 268435520;
+// The encumbrance ("bag") icon and its two current/max weight labels.
+// Unlike every other GUIINV label, these two aren't CHU-authored at all -
+// real BG2 creates them at runtime anchored to the bag icon's own rect
+// (see GemRB's GUIINV.py "encumbrance" section) - same approach in
+// _EnsureWeightLabels() below.
+static const uint32 kInvWeightIconID = 67;
+static const uint32 kInvWeightCurrentLabelID = 268435523;
+static const uint32 kInvWeightMaxLabelID = 268435524;
 // The paperdoll control itself (128x160, CHU-authored to a fixed
 // placeholder bitmap - CIFF4INV, a generic doll unrelated to whichever
 // character's inventory is actually open) - see _UpdatePaperdoll().
@@ -1612,6 +1620,107 @@ Game::_UpdatePaperdoll(Window* window, Actor* actor)
 }
 
 
+// Sum of every item the CRE carries (equipped or not - every one of its
+// 40 slots), stack count included for stackable items (e.g. a quiver of
+// 20 arrows counts as 20, not 1) - matches GemRB's Inventory::
+// CalculateWeight().
+static uint32
+_CarriedWeight(CREResource* cre)
+{
+	uint32 weight = 0;
+	for (uint32 i = 0; i < kNumItemSlots; i++) {
+		IE::item item;
+		if (!cre->GetItemAtSlot(i, item))
+			continue;
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm == nullptr)
+			continue;
+		uint32 count = (item.quantity1 != 0 && itm->StackAmount() != 0)
+				? item.quantity1 : 1;
+		weight += itm->Weight() * count;
+		gResManager->ReleaseResource(itm);
+	}
+	return weight;
+}
+
+
+// STR-based carry capacity: STRMOD.2DA's WEIGHT_ALLOWANCE column (row =
+// STR score), plus the exceptional-strength (18/xx) bonus from
+// STRMODEX.2DA (row = the percentile extra) when STR is exactly 18 -
+// same two tables and the same STR==18 special case GemRB's own
+// GetMaxEncumbrance()/GetStrengthBonus() read. Real data still ships
+// both as loadable 2DAs in this install (unlike avatars.2da - see
+// AnimationFactory.cpp's own note on that one).
+static uint32
+_MaxEncumbrance(CREResource* cre)
+{
+	BaseAttributes attrs;
+	cre->GetAttributes(attrs);
+
+	uint32 weight = 0;
+	TWODAResource* strmod = gResManager->Get2DA("STRMOD");
+	if (strmod != nullptr) {
+		weight = (uint32)strmod->IntegerValueAt(attrs.strength, 3);
+		gResManager->ReleaseResource(strmod);
+	}
+	if (attrs.strength == 18 && attrs.strength_bonus > 0) {
+		TWODAResource* strmodex = gResManager->Get2DA("STRMODEX");
+		if (strmodex != nullptr) {
+			weight += (uint32)strmodex->IntegerValueAt(attrs.strength_bonus, 3);
+			gResManager->ReleaseResource(strmodex);
+		}
+	}
+	return weight;
+}
+
+
+// The two weight labels aren't CHU-authored (see kInvWeightCurrentLabelID's
+// own comment) - create them once, the first time this window instance is
+// refreshed, anchored to the bag icon's rect exactly like GemRB's
+// Window.CreateLabel() calls do (top-left for current weight, bottom-right
+// for max). The underlying IE::label struct is heap-allocated the same way
+// CHUIResource::_ReadControl() allocates every other control's, since
+// Control::~Control() unconditionally frees it the same way.
+static void
+_EnsureWeightLabels(Window* window)
+{
+	if (window->GetControlByID(kInvWeightCurrentLabelID) != nullptr)
+		return;
+
+	Control* bagIcon = window->GetControlByID(kInvWeightIconID);
+	if (bagIcon == nullptr)
+		return;
+	GFX::rect rect = bagIcon->Frame();
+
+	static const struct { uint32 id; uint16 y; uint16 flags; } kLabels[] = {
+		{ kInvWeightCurrentLabelID, 0,
+			IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_TOP },
+		{ kInvWeightMaxLabelID, (uint16)(rect.h - 20),
+			IE::LABEL_JUSTIFY_RIGHT | IE::LABEL_JUSTIFY_BOTTOM },
+	};
+	for (const auto& entry : kLabels) {
+		IE::label* label = (IE::label*)new uint8[sizeof(IE::label)];
+		label->id = entry.id;
+		label->x = rect.x;
+		label->y = (sint16)(rect.y + entry.y);
+		label->w = rect.w;
+		label->h = 20;
+		label->type = IE::CONTROL_LABEL;
+		label->unk = 0;
+		label->text_ref = 0xffffffff;
+		// Same font the CHU-authored AC/HP labels next to this one use
+		// (confirmed by dumping their real font_bam - GemRB's own
+		// "NUMBER" is an engine-internal font id, not a real BAM resref).
+		label->font_bam = res_ref("STONESML");
+		label->color1_r = label->color1_g = label->color1_b = 255;
+		label->color1_a = 0;
+		label->color2_r = label->color2_g = label->color2_b = label->color2_a = 0;
+		label->flags = entry.flags;
+		window->Add(new Label(label));
+	}
+}
+
+
 // Fills in the two GUIINV labels whose CHU-authored text_ref resolves to
 // a literal "(No text)" TLK placeholder - real BG2 sets these from code,
 // not from static CHU data, same as the item icons above.
@@ -1642,6 +1751,15 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 	Label* goldLabel = dynamic_cast<Label*>(window->GetControlByID(kInvGoldLabelID));
 	if (goldLabel != nullptr)
 		goldLabel->SetText(std::to_string(Core::Get()->PartyGold()));
+
+	_EnsureWeightLabels(window);
+	Label* weightLabel = dynamic_cast<Label*>(window->GetControlByID(kInvWeightCurrentLabelID));
+	if (weightLabel != nullptr)
+		weightLabel->SetText(std::to_string(_CarriedWeight(actor->CRE())) + ":");
+
+	Label* weightMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID));
+	if (weightMaxLabel != nullptr)
+		weightMaxLabel->SetText(std::to_string(_MaxEncumbrance(actor->CRE())) + ":");
 }
 
 

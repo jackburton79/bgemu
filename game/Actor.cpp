@@ -144,9 +144,19 @@ Actor::Actor(const char* creName, IE::point position, int face)
 }
 
 
+// fActor->name is the ARE/spawn scripting name (a tag, e.g. "Anomen10" -
+// the CRE resref for actors created via CreateCreature/the console, see
+// the Actor(creName, ...) constructor), not a display name. The real
+// display name lives in the CRE's own long-name strref; fall back to the
+// scripting name only when there's no CRE data to read it from.
 std::string
 Actor::LongName() const
 {
+	if (fCRE != NULL) {
+		std::string name = IDTable::GetDialog(fCRE->LongNameID());
+		if (!name.empty())
+			return name;
+	}
 	return fActor->name;
 }
 

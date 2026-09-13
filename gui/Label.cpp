@@ -46,8 +46,14 @@ Label::Label(IE::label* label)
 	}
 
 	std::string fontName = label->font_bam.CString();
-	FontRoster::GetFont(fontName)->RenderString(IDTable::GetDialog(label->text_ref),
-												label->flags, fBitmap);
+	std::string text = IDTable::GetDialog(label->text_ref);
+	// Font::_RenderString() indexes into the glyph list it builds from
+	// `text` unconditionally (glyphs.back()) - an empty string (e.g. a
+	// runtime-created label with no text_ref yet) leaves that list empty
+	// and crashes. SetText() below already guards against this; the
+	// constructor didn't.
+	if (!text.empty())
+		FontRoster::GetFont(fontName)->RenderString(text, label->flags, fBitmap);
 }
 
 
