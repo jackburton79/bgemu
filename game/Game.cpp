@@ -714,8 +714,7 @@ static const uint32 kSpellNameLabelID = 268435509;
 // Whether the character casts divine spells (uses GUIPR) rather than
 // arcane (GUIMG) - true for a pure priest/druid/paladin/ranger, or when
 // they've a priest-type known spell.
-// TODO: Not correct: there is one button to open the divine spellbook and one
-// to open the arcane spellbook. A character could have both kind of spells
+// TODO: maybe not useful anymore
 /*static bool
 _UsesDivineSpellbook(Actor* actor)
 {
