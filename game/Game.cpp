@@ -1886,6 +1886,15 @@ Game::_UpdateSavesAndResistances(Window* window, CREResource* cre)
 
 	statsArea->ClearText();
 
+	// name + level
+	statsArea->AddText((IDTable::ClassAt(cre->Class())
+		+ std::string(": Level ") + std::to_string(cre->Level())).c_str());
+
+	// Experience
+	statsArea->AddText((std::string("Experience: ") + std::to_string(cre->Experience())).c_str());
+
+	// TODO: Next level
+
 	SaveVersus saves = cre->Saves();
 	const std::pair<const char*, uint8> saveLines[] = {
 		{ "Morte", saves.death },
