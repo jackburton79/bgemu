@@ -1837,9 +1837,6 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 			if (fWeaponAnimation != NULL)
 				fWeaponAnimation->NextFrame();
 		}
-		/*if ((fAnimationAction != ACT_DIE && fAnimationAction != ACT_CAST_SPELL_RELEASE)
-				|| !fCurrentAnimation->IsLastFrame())
-			fCurrentAnimation->NextFrame();*/
 	}
 }
 
