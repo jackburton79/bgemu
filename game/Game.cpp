@@ -2366,10 +2366,10 @@ Game::CenterViewOnPartyMember(uint16 index)
 	if (member == nullptr)
 		return;
 
-	const IE::point positon = member->Position();
+	const IE::point position = member->Position();
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (room != nullptr)
-		room->SetRelativeAreaOffset(positon.x, positon.y);
+		room->SetAreaOffsetCenter(position);
 }
 
 
