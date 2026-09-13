@@ -114,6 +114,7 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 {
 	if (fImage == NULL)
 		return;
+
 	assert(fOverlays[0]);
 
 	fImage->Clear(0);
@@ -127,7 +128,7 @@ BackMap::Update(GFX::rect rect, bool allOverlays)
 	lastTileY = std::min(lastTileY, fMapHeight);
 
 	bool advance = true;
-	//bool advance = Timer::Get("ANIMATEDTILES")->Expired();
+
 	GFX::rect tileRect(0, 0, fTileWidth, fTileHeight);
 	for (uint16 y = 0; y < fMapHeight; y++) {
 		tileRect.y = y * fTileHeight - rect.y;
