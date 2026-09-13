@@ -315,7 +315,7 @@ _ReplaceAll(std::string& text, const std::string& token, const std::string& valu
 void
 DialogHandler::_FillPlaceHolders(std::string& text)
 {
-	std::string playerName = Game::Get()->Party()->ActorAt(0)->Name();
+	std::string playerName = Game::Get()->Party()->ActorAt(0)->LongName();
 	_ReplaceAll(text, "<CHARNAME>", playerName);
 
 	// <GABBER> is conventionally "whoever is on the other side of this
