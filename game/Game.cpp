@@ -1007,6 +1007,8 @@ static const uint32 kInvInfoBlankLabel2ID = 268435467;
 // (3,9) 505x28, the wide centered label at the very top).
 static const uint32 kRecNameLabelID = 268435495;
 static const uint32 kRecACLabelID = 268435496;
+static const uint32 kRecHPCurrentLabelID = 268435497;
+static const uint32 kRecHPMaxLabelID = 268435498;
 static const uint32 kRecClassLabelID = 268435471;
 static const uint32 kRecRaceLabelID = 268435472;
 static const uint32 kRecLevelLabelID = 268435473;
@@ -1645,12 +1647,7 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 // reasoning as GUIINV's). Not done yet, deliberately (same caution as
 // GUIINV's unmapped equipment slots): the name banner (almost certainly
 // hits the same REALMS font bug as GUIINV, unverified), the class/race/
-// level text block (id 268435470/table around y=452 - "Umano" already
-// shows there for a human character, but it's unclear whether that's a
-// real dynamic display or just this CHU's static per-field default,
-// since no code sets it and a non-human party member wasn't tested), and
-// a second AC-adjacent 2-line badge (id 268435497/498, same "unclear
-// what it's for" situation as GUIINV's second badge).
+// level text block (id 268435470/table around y=452).
 void
 Game::_UpdateRecordLabels()
 {
@@ -1668,6 +1665,14 @@ Game::_UpdateRecordLabels()
 	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kRecNameLabelID));
 	if (nameLabel != NULL)
 		nameLabel->SetText(actor->LongName());
+
+	Label* hpLabel = dynamic_cast<Label*>(window->GetControlByID(kRecHPCurrentLabelID));
+	if (hpLabel != nullptr)
+		hpLabel->SetText(std::to_string(actor->CRE()->CurrentHitPoints()));
+
+	Label* hpMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kRecHPMaxLabelID));
+	if (hpMaxLabel != nullptr)
+		hpMaxLabel->SetText(std::to_string(actor->CRE()->MaxHitPoints()));
 
 	_UpdateAbilityScoreLabels(window, actor->CRE());
 
