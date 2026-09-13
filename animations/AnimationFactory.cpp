@@ -26,13 +26,13 @@ typedef animation_description (*BuildDescriptionFn)(const std::string& baseName,
 													Actor* actor);
 
 static animation_description _BuildBGMonster(const std::string&, Actor*);
-static animation_description _BuildBGCharacter(const std::string&, Actor*);
 static animation_description _BuildCharacter(const std::string&, Actor*);
 static animation_description _BuildSimple(const std::string&, Actor*);
 static animation_description _BuildSplit(const std::string&, Actor*);
 static animation_description _BuildIWD(const std::string&, Actor*);
 static animation_description _BuildStatic(const std::string&, Actor*);
 static animation_description _BuildMOGR(const std::string&, Actor*);
+static animation_description _BuildFourFiles(const std::string&, Actor*);
 
 
 struct AnimationEntry {
@@ -57,9 +57,9 @@ struct AnimationEntry {
 // actors, so GeneratedIDS keeps them.
 static const AnimationEntry kAnimationEntries[] = {
 	{ 0x1000, "",     _BuildBGMonster },
-	{ 0x2000, "",     _BuildBGMonster },
-	{ 0x2200, "MOGM", _BuildBGMonster },
-	{ 0x2300, "",     _BuildBGMonster },
+	{ 0x2000, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x2200, "MOGM", _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x2300, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 
 	{ 0x4000, "SNOM", _BuildSimple },
 	{ 0x4010, "SNOW", _BuildSimple },
@@ -122,19 +122,19 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x6500, "CHMM", _BuildCharacter },
 	{ 0x6510, "CHFM", _BuildCharacter },
 
-	{ 0x7000, "",     _BuildBGCharacter },
-	{ 0x7001, "MOGN", _BuildBGMonster }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000
-	{ 0x7202, "MBER", _BuildBGMonster },
+	{ 0x7000, "",     _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7001, "MOGN", _BuildFourFiles }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000. avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7202, "MBER", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7300, "",     _BuildBGMonster },
-	{ 0x7400, "MDOG", _BuildBGMonster },
-	{ 0x7703, "MGHL", _BuildBGMonster }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found)
-	{ 0x7a01, "MSPI", _BuildBGMonster },
-	{ 0x7c01, "MTAS", _BuildBGMonster },
-	{ 0x7b00, "MWLF", _BuildBGMonster },
-	{ 0x7b01, "MWLF", _BuildBGMonster },
-	{ 0x7b02, "MWLF", _BuildBGMonster },
-	{ 0x7d00, "MZOM", _BuildBGMonster }, // (Zombie)
-	{ 0x7e00, "",     _BuildBGMonster },
+	{ 0x7400, "MDOG", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7703, "MGHL", _BuildFourFiles }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7a01, "MSPI", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7c01, "MTAS", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b00, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b01, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b02, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7d00, "MZOM", _BuildFourFiles }, // (Zombie) avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7e00, "",     _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7f03, "MIMP", _BuildBGMonster },
 	{ 0x7f05, "MDJI", _BuildBGMonster },
 	{ 0x7f06, "MDJL", _BuildBGMonster },
@@ -156,8 +156,8 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x7f2c, "NSOL", _BuildBGMonster },
 	{ 0x7f36, "NSHD", _BuildBGMonster },
 	{ 0x7f37, "NIRE", _BuildBGMonster },
-	{ 0x8000, "",     _BuildBGMonster },
-	{ 0x8100, "",     _BuildBGMonster },
+	{ 0x8000, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x8100, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x9000, "MOGR", _BuildMOGR }, // Ogre - avatars.2da TYPE 5 (SIX_FILES_2), GemRB's own comment: "Only one animation uses it: MOGR"
 	{ 0xa000, "",     _BuildBGMonster },
 	{ 0xb000, "ACOW", _BuildBGMonster },
@@ -458,34 +458,55 @@ _BuildMOGR(const std::string& baseName, Actor* actor)
 }
 
 
+// avatars.2da TYPE 2 (FOUR_FILES) and TYPE 14 (FOUR_FILES_2) - GemRB's
+// own comment on the latter: "Like FOUR_FILES but with only 16 cycles
+// per frame" (a shorter G2 file - an extra attack-variant bank this
+// engine's action model doesn't need anyway). For every action bgemu
+// actually models, both types share the identical G1/G2 bank layout:
+// base-8-folded (Orient/2) cycles with a real East file rather than a
+// runtime mirror - confirmed against GemRB's AddLRSuffix()/
+// AddLRSuffix2() and real BAMs' own cycle counts (MWLFG1/G2.BAM:
+// 48/24 = 6/3 banks of 8; only the first 2 G2 banks - attack, cast -
+// are ever addressed here).
 static animation_description
-_BuildBGCharacter(const std::string& baseName, Actor* actor)
+_BuildFourFiles(const std::string& baseName, Actor* actor)
 {
-	int o = _BaseOrientation(actor->Orientation());
+	int halfOrient = actor->Orientation() / 2;
 	animation_description description;
 	description.bam_name = baseName;
-	description.sequence_number = o;
-	description.custom_colors = true;
-
-	// Optional weapon id
-	if (!actor->WeaponAnimation().empty())
-		description.bam_name += actor->WeaponAnimation().substr(0, 1);
 
 	switch (actor->AnimationAction()) {
 		case ACT_WALKING:
-			description.bam_name += _HasBAMVariant(description.bam_name, "W2") ? "W2" : "G1";
+			description.bam_name += "G1";
+			description.sequence_number = halfOrient;
 			break;
 		case ACT_STANDING:
 			description.bam_name += "G1";
+			description.sequence_number = 8 + halfOrient;
 			break;
 		case ACT_ATTACKING:
-			description.bam_name += "A1";
+			description.bam_name += "G2";
+			description.sequence_number = halfOrient;
+			break;
+		case ACT_CAST_SPELL_PREPARE:
+		case ACT_CAST_SPELL_RELEASE:
+			description.bam_name += "G2";
+			description.sequence_number = 8 + halfOrient;
+			break;
+		case ACT_DIE:
+			description.bam_name += "G1";
+			description.sequence_number = 32 + halfOrient;
+			break;
+		case ACT_DEAD:
+			description.bam_name += "G1";
+			description.sequence_number = 40 + halfOrient;
 			break;
 		default:
-			_WarnUnimplementedAction("BGCharacter", baseName, actor);
+			_WarnUnimplementedAction("FourFiles", baseName, actor);
 			break;
 	}
-	_AppendEasternSuffix(description, o, true);
+
+	_AppendEasternSuffix(description, halfOrient, false);
 	return description;
 }
 
