@@ -21,6 +21,7 @@ token::token()
 	type(TOKEN_UNKNOWN),
 	size(0)
 {
+	u.string[0] = '\0';
 }
 
 

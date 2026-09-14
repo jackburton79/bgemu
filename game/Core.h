@@ -75,9 +75,6 @@ public:
 
 	RoomBase* CurrentRoom();
 
-	void EnteredArea(RoomBase* area);
-	void ExitingArea(RoomBase* area);
-
 	void ClearAllActions();
 
 	void StartCutsceneMode();

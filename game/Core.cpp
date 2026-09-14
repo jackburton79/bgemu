@@ -169,7 +169,6 @@ Core::LoadArea(const res_ref areaName, std::string longName,
 		return false;
 	}
 
-	EnteredArea(fCurrentRoom);
 	return true;
 }
 
@@ -228,18 +227,6 @@ Core::LoadWorldMap()
 	}
 
 	return true;
-}
-
-
-void
-Core::EnteredArea(RoomBase* area)
-{
-}
-
-
-void
-Core::ExitingArea(RoomBase* area)
-{
 }
 
 

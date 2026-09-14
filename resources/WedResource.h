@@ -1,10 +1,7 @@
-#ifndef __WEDRESOURCE_H
-#define __WEDRESOURCE_H
+#pragma once
 
 #include "Resource.h"
 #include "IETypes.h"
-
-#include <SDL.h>
 
 #include <unordered_map>
 
@@ -77,6 +74,3 @@ private:
 	uint32 fTiledObjectsOffset;
 	uint32 fTiledObjectsTileCellsOffset;
 };
-
-
-#endif

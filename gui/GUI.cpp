@@ -70,7 +70,8 @@ kHUDCommandButtons[] = {
 	{  1, [] { Core::Get()->LoadWorldMap(); } },
 	{  3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{  4, [] { Game::Get()->ToggleRecordWindow(); } },
-	{  5, [] { Game::Get()->ToggleSpellbookWindow(); } },
+	{  5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
+	{  6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
 	{  7, [] { Game::Get()->ToggleSaveWindow(); } },
 	{  9, [] { Core::Get()->TogglePause(); } },
 	{ 11, [] { Game::Get()->TriggerRest(); } },
@@ -907,6 +908,10 @@ GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuNa
 		Game::Get()->InventoryControlRightClicked(controlID, windowID);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
 		Game::Get()->SpellbookControlRightClicked(controlID, windowID);
+	else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
+		// The 6 HUD portrait buttons center view to that party member.
+		Game::Get()->CenterViewOnPartyMember((uint16)controlID);
+	}
 }
 
 

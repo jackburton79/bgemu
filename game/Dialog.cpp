@@ -129,7 +129,6 @@ DialogHandler::_ShowCurrentState(const dlg_state& state)
 	_BuildTransitions(state);
 
 	const int32 numOptions = ShowPlayerOptions();
-
 	if (numOptions == 0) {
 		if (!fTransitions.empty()) {
 			_ExecuteTransition(fTransitions.front());
@@ -316,7 +315,7 @@ _ReplaceAll(std::string& text, const std::string& token, const std::string& valu
 void
 DialogHandler::_FillPlaceHolders(std::string& text)
 {
-	std::string playerName = Game::Get()->Party()->ActorAt(0)->Name();
+	std::string playerName = Game::Get()->Party()->ActorAt(0)->LongName();
 	_ReplaceAll(text, "<CHARNAME>", playerName);
 
 	// <GABBER> is conventionally "whoever is on the other side of this

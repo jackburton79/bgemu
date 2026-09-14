@@ -134,6 +134,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x7202, "MBER", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7300, "",     _BuildBGMonster },
 	{ 0x7400, "MDOG", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7700, "MGHL", _BuildFourFiles }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7703, "MGHL", _BuildFourFiles }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7a01, "MSPI", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7c01, "MTAS", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
@@ -142,11 +143,13 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x7b02, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7d00, "MZOM", _BuildFourFiles }, // (Zombie) avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7e00, "",     _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7f02, "MBEH", _BuildBGMonster },
 	{ 0x7f03, "MIMP", _BuildBGMonster },
 	{ 0x7f05, "MDJI", _BuildBGMonster },
 	{ 0x7f06, "MDJL", _BuildBGMonster },
 	{ 0x7f07, "MGLC", _BuildBGMonster },
 	{ 0x7f08, "MOTY", _BuildBGMonster },
+	{ 0x7f09, "MSAH", _BuildBGMonster },
 	{ 0x7f0a, "MGCP", _BuildBGMonster },
 	{ 0x7f0b, "MGCL", _BuildBGMonster },
 	{ 0x7f0d, "MLIC", _BuildBGMonster },
@@ -158,6 +161,7 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x7f20, "AGRO", _BuildBGMonster },
 	{ 0x7f21, "APHE", _BuildBGMonster },
 	{ 0x7f22, "MVAF", _BuildBGMonster },
+	{ 0x7f23, "MSAT", _BuildBGMonster },
 	{ 0x7f24, "NPIR", _BuildBGMonster },
 	{ 0x7f2a, "NSAI", _BuildBGMonster },
 	{ 0x7f2c, "NSOL", _BuildBGMonster },
@@ -201,11 +205,13 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0xd200, "",     _BuildBGMonster },
 	{ 0xd300, "",     _BuildBGMonster },
 	{ 0xe000, "",     _BuildIWD },
+	{ 0xe010, "METN", _BuildIWD },
 	{ 0xe400, "",     _BuildIWD },
 	{ 0xe430, "MG04", _BuildIWD },
 	{ 0xe600, "",     _BuildIWD },
 	{ 0xe710, "MNO2", _BuildIWD },
 	{ 0xeb10, "MSKA", _BuildIWD }, // (Skeleton Warrior)
+	{ 0xeb20, "MSKB", _BuildIWD },
 	{ 0xed00, "MYU1", _BuildIWD },
 };
 

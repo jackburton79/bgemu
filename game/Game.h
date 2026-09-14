@@ -50,6 +50,9 @@ public:
 	// isn't an AreaRoom (e.g. the worldmap screen).
 	void SelectPartyMember(uint16 index);
 
+	// Centers view on party member
+	void CenterViewOnPartyMember(uint16 index);
+
 	void ToggleInventoryWindow();
 	void ToggleRecordWindow();
 	// Minimal single-slot Save/Load screens (GUISAVE/GUILOAD) - real BG2
@@ -96,7 +99,8 @@ public:
 	void JournalControlInvoked(uint32 controlID, uint16 windowID);
 	// Mage spellbook (GUIMG), read-only for now: shows the currently
 	// displayed character's known + memorized arcane spells.
-	void ToggleSpellbookWindow();
+	void ToggleArcaneSpellbookWindow();
+	void ToggleDivineSpellbookWindow();
 	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
 	// Hover over a spellbook grid icon -> show the spell's name as a
 	// cursor tooltip.
