@@ -31,8 +31,6 @@ public:
 
 	GFX::rect Rect() const;
 
-	void HandleInput(uint8 input);
-
 	void HideCursor();
 	void EraseLine(erase_line_mode mode);
 	void PutChar(char c);
