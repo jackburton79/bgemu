@@ -326,7 +326,11 @@ Script::GetObject(const Object* source, object_params* node)
 		std::cout << (source ? source->Name() : "NULL") << ") ";
 	}
 	Object* result = NULL;
-	if (node->name[0] != '\0') {
+	if (node->globalId != kInvalidGlobalID) {
+		if (sDebug)
+			std::cout << "Specified globalId: " << node->globalId << std::endl;
+		result = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(node->globalId);
+	} else if (node->name[0] != '\0') {
 		if (sDebug)
 			std::cout << "Specified name: " << node->name << std::endl;
 		result = ((AreaRoom*)Core::Get()->CurrentRoom())->GetObject(node->name);

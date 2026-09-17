@@ -1488,11 +1488,13 @@ Actor::ClickedOn(Object* target)
 			// queue as the Container branch below (RunActionUseContainer()
 			// accepts a dead Actor target too, see its own comment).
 			action_params* walkParams = new action_params(Name(), actor->Name());
+			walkParams->Second()->globalId = actor->GlobalID();
 			walkParams->id = 22; // MOVETOOBJECT
 			AddAction(walkParams);
 			walkParams->Release();
 
 			action_params* useParams = new action_params(Name(), actor->Name());
+			useParams->Second()->globalId = actor->GlobalID();
 			useParams->id = 112; // USECONTAINER
 			AddAction(useParams);
 			useParams->Release();
@@ -1516,11 +1518,13 @@ Actor::ClickedOn(Object* target)
 			// false and silently fall through to unrelated content, since
 			// the two actors were never actually brought close together.
 			action_params* walkParams = new action_params(Name(), actor->Name());
+			walkParams->Second()->globalId = actor->GlobalID();
 			walkParams->id = 22; // MOVETOOBJECT
 			AddAction(walkParams);
 			walkParams->Release();
 
 			action_params* actionParams = new action_params(actor->Name(), Name());
+			actionParams->First()->globalId = actor->GlobalID();
 			actionParams->id = 8; // DIALOG
 			AddAction(actionParams);
 			actionParams->Release();
@@ -1530,6 +1534,7 @@ Actor::ClickedOn(Object* target)
 			// Script::GetTargetObject(), which expects it there), unlike
 			// DIALOG's reversed construction above.
 			action_params* actionParams = new action_params(Name(), actor->Name());
+			actionParams->Second()->globalId = actor->GlobalID();
 			actionParams->id = 3; // ATTACK
 			AddAction(actionParams);
 			actionParams->Release();

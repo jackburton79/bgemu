@@ -108,7 +108,8 @@ object_params::object_params()
 	classs(0),
 	specific(0),
 	gender(0),
-	alignment(0)
+	alignment(0),
+	globalId(kInvalidGlobalID)
 {
 	memset(identifiers, 0, sizeof(identifiers));
 	point.x = point.y = -1;
@@ -126,7 +127,8 @@ object_params::object_params(const object_params& other)
 	classs(other.classs),
 	specific(other.specific),
 	gender(other.gender),
-	alignment(other.alignment)
+	alignment(other.alignment),
+	globalId(other.globalId)
 {
 	memcpy(identifiers, other.identifiers, sizeof(identifiers));
 	point = other.point;
@@ -190,6 +192,7 @@ object_params::Empty() const
 			&& identifiers[3] == 0
 			&& identifiers[4] == 0
 			&& name[0] == '\0'
+			&& globalId == kInvalidGlobalID
 			) {
 		return true;
 	}

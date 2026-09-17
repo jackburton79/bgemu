@@ -1,0 +1,57 @@
+# AREA: AR0013
+# Needs the default starting party (no -P override) - run-all.sh loads
+# AR0013 itself (see the AREA directive above and README.md), an empty
+# BG1 house interior with zero actors of its own, so two synthetic
+# CreateCreature spawns are the only actors around: no other NPC's own
+# AI/dialogue can interfere. SLEEPEL (the "Sleeping Elf" CRE) is used
+# instead of a generic townsfolk resref specifically because it never
+# wanders on its own - a resref with idle AI (e.g. FARMER) occasionally
+# rolls an unreachable wander target and logs its own unrelated
+# "SetDestination() failed!", which run-all.sh's crash grep would
+# wrongly blame on this test.
+#
+# Bug: AreaRoom::GetObject(const char*) (what a queued action's target
+# resolves through - see Script::GetTargetObject()) matches by resref,
+# returning whichever actor with that name comes first in the area's
+# own actor list - correct for script-authored object references (real
+# content doesn't duplicate a name it needs to resolve unambiguously),
+# but wrong for a player click: Actor::ClickedOn() used to build the
+# queued action from the clicked object's plain name, so clicking the
+# *second* of two actors sharing a resref still sent the party leader
+# to the *first* one, regardless of which was actually under the
+# cursor. Fixed by tagging the clicked instance's own GlobalID onto the
+# action (object_params::globalId), which AreaRoom::GetObject(uint16)
+# now resolves in preference to the name.
+#
+# SLEEPEL #1 sits close to the party leader's own entrance point
+# (286,186) - the wrong-target failure mode this reproduces - and
+# SLEEPEL #2 (the one actually clicked) is farther off in a different
+# direction. Range("SLEEPEL", 30) always resolves to SLEEPEL #1 (same
+# by-name lookup, intentionally left alone for real script triggers -
+# see the bug description above), so "false" here doubles as "did NOT
+# walk to the wrong one".
+Run-Action -,7,-,0,SLEEPEL,-,350,186
+Step-Ticks 2
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption 0
+Step-Ticks 1
+Click-Area 286,186
+Step-Ticks 1
+Run-Action -,7,-,0,SLEEPEL,-,450,300
+Step-Ticks 2
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption 0
+Step-Ticks 1
+Click-Area 450,300
+Step-Ticks 40
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption -1
+Select-DialogOption 0
+Step-Ticks 10
+
+Assert-Trigger -,false,Range("SLEEPEL",30)

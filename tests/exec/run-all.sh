@@ -27,8 +27,15 @@ run_one() {
 	game_path="$1"
 	file="$2"
 	total=$((total + 1))
+	# A file whose first line is "# AREA: <resref>" needs a specific,
+	# controlled area (e.g. one with no other actors, to keep a synthetic
+	# CreateCreature-based test deterministic) instead of the default
+	# starting area every other test assumes - see README.md.
+	area=$(sed -n '1s/^# AREA: *//p' "$file")
+	area_flag=""
+	[ -n "$area" ] && area_flag="-a $area"
 	output=$(SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy timeout 60 \
-		"$BINARY" -p "$game_path" -D -x "$file" 2>&1)
+		"$BINARY" -p "$game_path" -D $area_flag -x "$file" 2>&1)
 	fails=$(printf '%s\n' "$output" | grep -c "ASSERT FAIL")
 	crashes=$(printf '%s\n' "$output" | grep -Ec "SEGV|AddressSanitizer: (heap|stack|global)|failed!")
 	if [ "$fails" -eq 0 ] && [ "$crashes" -eq 0 ]; then

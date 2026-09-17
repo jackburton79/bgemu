@@ -23,7 +23,23 @@ struct object_params {
 	int identifiers[5];
 	IE::point point;
 	char name[48];
+
+	// Exact object instance to target, bypassing name-based lookup -
+	// set only for actions we construct ourselves from a player click
+	// (see Actor::ClickedOn()), never by real parsed BCS/DLG data (which
+	// only ever carries a name/identifier, per the on-disk format).
+	// AreaRoom::GetObject(const char*) resolves "name" to whichever
+	// actor with that resref comes first in its actor list - correct
+	// for script-authored references (real content doesn't duplicate a
+	// name it cares about resolving unambiguously), but wrong for a
+	// click: two actors sharing a resref made the click always resolve
+	// to one specific one of them, regardless of which was actually
+	// under the cursor. kInvalidGlobalID means "not set", falling back
+	// to the name/identifier lookup exactly as before.
+	uint16 globalId;
 };
+
+const uint16 kInvalidGlobalID = (uint16)-1;
 
 
 struct trigger_params {

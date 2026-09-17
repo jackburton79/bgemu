@@ -41,6 +41,16 @@ Either path may be omitted (`-`) to skip that game's files.
   data - the file's own header comment says which `-p` path it needs
   and what starting state it assumes (default party, default starting
   area - i.e. `./bin/BGEmu -p <path> -D -x <file>` with no other flags).
+- A file testing a *mechanism* (not real content) that still needs real
+  area geometry - e.g. pathfinding to a `CreateCreature`-spawned actor -
+  can't use either game's default starting area: both are populated
+  (Candlekeep's guards react to a spawned hostile; BG2's own start runs
+  straight into a cutscene), which makes a synthetic test non-
+  deterministic. Put `# AREA: <resref>` as the file's first line to load
+  a specific, otherwise-empty area instead (`run-all.sh` reads this and
+  adds `-a <resref>`) - pick one confirmed to have zero actors of its
+  own via `-a <resref> -x /dev/null` and checking "Loading other
+  actors:" is empty.
 - Every new fix to scripting/dialog code is a good candidate for a new
   assertion here (or a new file, for a substantial new mechanism) -
   keeps a fix from silently regressing later. `Assert-Trigger`/
