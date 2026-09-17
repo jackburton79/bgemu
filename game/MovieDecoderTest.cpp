@@ -2,6 +2,7 @@
 #include "MemoryStream.h"
 #include "MovieDecoder.h"
 
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <map>

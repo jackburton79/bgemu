@@ -11,7 +11,29 @@
 #include "Log.h"
 #include "ShellCommand.h"
 
+#include <SDL.h>
+
 #include <string>
+
+struct LockContext {
+	LockContext()
+		:
+		SDLThread(nullptr),
+		SDLLock(nullptr)
+	{
+
+	}
+
+	~LockContext()
+	{
+		SDL_WaitThread(SDLThread, NULL);
+		SDL_DestroyMutex(SDLLock);
+	}
+
+	SDL_Thread* SDLThread;
+	SDL_mutex* SDLLock;
+};
+
 
 struct CommandSorter {
 	bool operator()(ShellCommand* a, ShellCommand* b) const {
@@ -24,21 +46,24 @@ GameConsole::GameConsole(const GFX::rect& rect, bool redirect)
 	:
 	Console(rect),
 	fOldBuf(NULL),
+	fLockContext(nullptr),
 	fOutputRedirected(false),
 	fQuit(false)
 {
 	if (redirect)
 		_EnableOutputRedirect();
-	fLock = SDL_CreateMutex();
-	fThread = SDL_CreateThread(_UpdateFunction, "ConsoleThread", this);
+	fLockContext = new LockContext();
+
+	fLockContext->SDLLock = SDL_CreateMutex();
+	fLockContext->SDLThread = SDL_CreateThread(_UpdateFunction, "ConsoleThread", this);
 }
 
 
 GameConsole::~GameConsole()
 {
 	fQuit = true;
-	SDL_WaitThread(fThread, NULL);
-	SDL_DestroyMutex(fLock);
+
+	delete fLockContext;
 
 	_DisableOutputRedirect();
 
@@ -131,10 +156,10 @@ GameConsole::_UpdateFunction(void *arg)
 {
 	GameConsole* console = reinterpret_cast<GameConsole*>(arg);
 	while (!console->fQuit) {
-		if (SDL_LockMutex(console->fLock) == 0) {
+		if (SDL_LockMutex(console->fLockContext->SDLLock) == 0) {
 			console->Update();
 			SDL_Delay(50);
-			SDL_UnlockMutex(console->fLock);
+			SDL_UnlockMutex(console->fLockContext->SDLLock);
 		}
 	}
 

@@ -29,12 +29,13 @@
 #include "GUI.h"
 #include "ITMResource.h"
 #include "Label.h"
+#include "MemoryStream.h"
 #include "PLTResource.h"
-#include "TextArea.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "TextArea.h"
 #include "Window.h"
 
 
@@ -47,8 +48,7 @@
 #include <stdio.h>
 #include <utility>
 
-#include "MemoryStream.h"
-
+#include <SDL.h>
 
 static uint32 sFrames = 0;
 static uint32 sLastFrame = 0;

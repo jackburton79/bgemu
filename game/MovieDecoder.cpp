@@ -8,6 +8,7 @@
 #include "Stream.h"
 
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 
 #define CALL_MEMBER_FUNCTION(object, ptrToMember)  ((object).*(ptrToMember))

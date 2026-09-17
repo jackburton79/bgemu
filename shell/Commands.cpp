@@ -21,11 +21,13 @@
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "MemoryStream.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SearchMap.h"
+#include "ShellCommand.h"
 #include "Window.h"
 
 #include <algorithm>
@@ -34,9 +36,7 @@
 #include <sstream>
 #include <stdlib.h>
 
-#include "MemoryStream.h"
-#include "ShellCommand.h"
-
+#include <SDL.h>
 
 // Resolves the current room as an AreaRoom*, printing a message and
 // returning NULL if it isn't one (e.g. the worldmap) - shared by every

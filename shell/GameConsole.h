@@ -13,6 +13,7 @@
 #include <list>
 #include <string>
 
+struct LockContext;
 class ShellCommand;
 class GameConsole: public Console {
 public:
@@ -49,8 +50,7 @@ private:
 	static int _UpdateFunction(void *arg);
 
 	std::streambuf* fOldBuf;
-	SDL_Thread* fThread;
-	SDL_mutex* fLock;
+	LockContext* fLockContext;
 	bool fOutputRedirected;
 	bool fQuit;	
 

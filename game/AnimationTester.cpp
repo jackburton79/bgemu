@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+#include <SDL.h>
+
 class AnimationTesterWindow : public Window {
 public:
 	AnimationTesterWindow();
