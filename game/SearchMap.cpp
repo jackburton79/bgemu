@@ -117,6 +117,29 @@ SearchMap::IsWorldmapExit(int32 x, int32 y) const
 }
 
 
+int32
+SearchMap::EdgeDirection(int32 x, int32 y) const
+{
+	x /= 16;
+	y /= 12;
+
+	// See this method's own declaration comment - GemRB's Map::
+	// WhichEdge() does the exact same normalize-by-the-other-axis trick
+	// to test which of the rectangle's four diagonal-split triangles
+	// (x,y) falls into.
+	int32 normalizedX = x * fHeight;
+	int32 normalizedY = y * fWidth;
+	if (normalizedX > normalizedY) {
+		if (fWidth * fHeight > normalizedX + normalizedY)
+			return 0; // North
+		return 1; // East
+	}
+	if (fWidth * fHeight < normalizedX + normalizedY)
+		return 2; // South
+	return 3; // West
+}
+
+
 void
 SearchMap::SetPoint(int32 x, int32 y)
 {

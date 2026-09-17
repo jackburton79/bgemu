@@ -51,7 +51,13 @@ public:
 
 	bool LoadArea(const res_ref areaName, std::string longName,
 					std::string entranceName);
-	bool LoadWorldMap();
+	// direction: the edge the party left the current area through (see
+	// SearchMap::EdgeDirection()'s 0=North/1=East/2=South/3=West
+	// numbering) so WorldMap can reveal that area's AREA_VISIBLE_FROM_
+	// ADJACENT-flagged neighbors on that side; -1 (the default) for a
+	// manual open (HUD button/hotkey) - reveals nothing new, same as
+	// real IE.
+	bool LoadWorldMap(int direction = -1);
 
 	// Closes the world map and makes the area the player opened it from
 	// current again, with its actors/scripts/state exactly as left (see
@@ -74,7 +80,7 @@ public:
 					Actor* clearActionsFor = NULL);
 
 	// Same deferral as RequestAreaChange() above
-	void RequestWorldMapLoad();
+	void RequestWorldMapLoad(int direction = -1);
 
 	// True once RequestAreaChange()/RequestWorldMapLoad() has been
 	// called but the actual switch hasn't run yet (still waiting for
@@ -166,5 +172,6 @@ private:
 	std::string fPendingEntranceName;
 	Actor* fPendingAreaChangeActor;
 	bool fPendingWorldMapLoad;
+	int fPendingWorldMapDirection;
 };
 

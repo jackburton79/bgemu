@@ -1388,6 +1388,44 @@ public:
 };
 
 
+// Assert-AreaMapVisible <areaName>,<true|false> - same self-checking
+// spirit as Assert-Trigger, for Game::AreaMapVisibleOverride() (a
+// script's RevealAreaOnMap()/HideAreaOnMap(), or WorldMap's own leave-
+// through-an-edge reveal - see WorldMap::_RevealAdjacentAreas()) since
+// nothing exposes that as a trigger. Fails if the area was never
+// overridden at all - the area's own file-authored bit alone doesn't
+// prove either RevealAreaOnMap or an edge-reveal actually ran.
+class AssertAreaMapVisibleCommand : public ShellCommand {
+public:
+	AssertAreaMapVisibleCommand()
+		: ShellCommand("Assert-AreaMapVisible")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string areaName, expectedText;
+		if (!_SplitOnFirstComma(argv, areaName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <areaName>,<true|false>" << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		bool visible;
+		if (!Game::Get()->AreaMapVisibleOverride(areaName, &visible)) {
+			std::cout << "ASSERT FAIL: AreaMapVisible(" << areaName
+				<< ") - no override set" << std::endl;
+			return;
+		}
+		if (visible == expected) {
+			std::cout << "ASSERT OK: AreaMapVisible(" << areaName << ")" << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: AreaMapVisible(" << areaName << ") - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (visible ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -1887,6 +1925,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
 	console->AddCommand(new CheckWorldmapExitCommand());
+	console->AddCommand(new AssertAreaMapVisibleCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());

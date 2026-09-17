@@ -99,6 +99,9 @@ public:
 	worldmap_entry WorldMapEntry();
 	uint32 CountAreaEntries() const;
 	AreaEntry* GetAreaEntry(uint32 index);
+	// index: a global index into the arealinkentries table - the range
+	// an AreaEntry::LinkRange() direction gives back, not per-direction.
+	arealink_entry GetAreaLink(uint32 index);
 private:
 	virtual ~WMAPResource();
 	uint32 fCount;
@@ -133,6 +136,13 @@ public:
 	void SetFlags(uint32 flags);
 	bool IsVisible() const;
 	void SetVisible(bool visible);
+
+	// The area_entry::link_index_*/link_count_* pair for one of this
+	// area's four edges - a range of global indices into the WMAPResource
+	// arealink_entry table (see GetAreaLink()). direction: 0=North,
+	// 1=East, 2=South, 3=West, same numbering as SearchMap::
+	// EdgeDirection(); any other value gives back an empty range.
+	void LinkRange(int direction, uint32* outIndex, uint32* outCount) const;
 
 private:
 	friend class WMAPResource;

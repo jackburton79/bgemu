@@ -39,7 +39,8 @@ Core::Core()
 	fCutsceneActor(NULL),
 	fPendingAreaChange(false),
 	fPendingAreaChangeActor(NULL),
-	fPendingWorldMapLoad(false)
+	fPendingWorldMapLoad(false),
+	fPendingWorldMapDirection(-1)
 {
 	srand(time(NULL));
 }
@@ -211,9 +212,10 @@ Core::RequestAreaChange(const res_ref& areaName, const std::string& longName,
 
 
 void
-Core::RequestWorldMapLoad()
+Core::RequestWorldMapLoad(int direction)
 {
 	fPendingWorldMapLoad = true;
+	fPendingWorldMapDirection = direction;
 }
 
 
@@ -225,7 +227,7 @@ Core::HasPendingTransition() const
 
 
 bool
-Core::LoadWorldMap()
+Core::LoadWorldMap(int direction)
 {
 	if (fCurrentRoom != NULL && ::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return true;
@@ -241,12 +243,13 @@ Core::LoadWorldMap()
 	// Window::~Window() would delete the room itself out from under
 	// fPreviousRoom otherwise.
 	RoomBase* previousRoom = fCurrentRoom;
+	res_ref previousAreaName = previousRoom != NULL ? previousRoom->Name() : res_ref();
 	if (previousRoom != NULL)
 		previousRoom->DetachFromWindow();
 
 	try {
 		// No Acquire() here - see LoadArea()'s own comment
-		fCurrentRoom = new WorldMap();
+		fCurrentRoom = new WorldMap(previousAreaName, direction);
 	} catch (std::exception& e) {
 		std::cerr << Log::Red << "Core::LoadWorldMap: " << e.what() << std::endl;
 		return false;
@@ -465,7 +468,9 @@ Core::UpdateLogic(bool executeScripts)
 
 		if (fPendingWorldMapLoad && !cutsceneActorBusy) {
 			fPendingWorldMapLoad = false;
-			LoadWorldMap();
+			int direction = fPendingWorldMapDirection;
+			fPendingWorldMapDirection = -1;
+			LoadWorldMap(direction);
 			return;
 		}
 

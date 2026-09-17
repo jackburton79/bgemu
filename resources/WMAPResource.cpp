@@ -98,6 +98,18 @@ WMAPResource::GetAreaEntry(uint32 index)
 }
 
 
+arealink_entry
+WMAPResource::GetAreaLink(uint32 index)
+{
+	arealink_entry link = {};
+	if (index < fWorldMapEntry.arealinkentries_count) {
+		fData->ReadAt(fWorldMapEntry.arealinkentries_offset
+			+ index * sizeof(arealink_entry), link);
+	}
+	return link;
+}
+
+
 // AreaEntry
 AreaEntry::AreaEntry(const area_entry& entry)
 	:
@@ -164,6 +176,34 @@ AreaEntry::SetVisible(bool visible)
 		fEntry.flags |= kAreaVisible;
 	else
 		fEntry.flags &= ~kAreaVisible;
+}
+
+
+void
+AreaEntry::LinkRange(int direction, uint32* outIndex, uint32* outCount) const
+{
+	switch (direction) {
+		case 0:
+			*outIndex = fEntry.link_index_north;
+			*outCount = fEntry.link_count_north;
+			break;
+		case 1:
+			*outIndex = fEntry.link_index_east;
+			*outCount = fEntry.link_count_east;
+			break;
+		case 2:
+			*outIndex = fEntry.link_index_south;
+			*outCount = fEntry.link_count_south;
+			break;
+		case 3:
+			*outIndex = fEntry.link_index_west;
+			*outCount = fEntry.link_count_west;
+			break;
+		default:
+			*outIndex = 0;
+			*outCount = 0;
+			break;
+	}
 }
 
 

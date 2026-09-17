@@ -21,7 +21,7 @@
 #include <stdexcept>
 
 
-WorldMap::WorldMap()
+WorldMap::WorldMap(const res_ref& previousArea, int direction)
 	:
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
@@ -54,6 +54,7 @@ WorldMap::WorldMap()
 	std::cout << "World map bitmap rect:" << std::endl;
 	fWorldMapBitmap->Frame().Print();
 	_LoadAreaEntries();
+	_RevealAdjacentAreas(previousArea, direction);
 
 	for (uint32 i = 0; i < fWorldMap->CountAreaEntries(); i++) {
 		AreaEntry* areaEntry = fAreaEntries.at(i);
@@ -246,5 +247,55 @@ WorldMap::_LoadAreaEntries()
 			areaEntry->SetVisible(visible);
 
 		fAreaEntries.push_back(areaEntry);
+	}
+}
+
+
+// Real WMP data marks most areas AREA_VISIBLE_FROM_ADJACENT instead of
+// relying on a script's explicit RevealAreaOnMap() call - leaving
+// `previousArea` through its `direction` edge is what's actually
+// supposed to make that side's linked neighbors selectable on the map
+// (see GemRB's WorldMap::UpdateAreaVisibility() for the same real-engine
+// behavior this mirrors), not just areas a script happened to reveal.
+// direction < 0 (a manual open, HUD button/hotkey - see WorldMap's own
+// constructor comment) is a no-op, same as real IE.
+//
+// Persists through Game::SetAreaMapVisible() (the same override
+// REVEALAREAONMAP itself uses) so it survives this WorldMap instance -
+// _LoadAreaEntries() already re-applies it on every future visit - but
+// this instance's own fAreaEntries need updating directly too, since
+// _LoadAreaEntries() already ran before this reveal existed.
+void
+WorldMap::_RevealAdjacentAreas(const res_ref& previousArea, int direction)
+{
+	if (direction < 0)
+		return;
+
+	for (auto entry : fAreaEntries) {
+		if (entry->Name() != previousArea)
+			continue;
+
+		// The area just left is always at least visible now - real
+		// content usually already has this set, but a few areas
+		// (ambush encounters, scripted intro areas) are only ever
+		// entered directly, never clicked from the map first.
+		Game::Get()->SetAreaMapVisible(previousArea.CString(), true);
+		entry->SetVisible(true);
+
+		uint32 linkIndex, linkCount;
+		entry->LinkRange(direction, &linkIndex, &linkCount);
+		for (uint32 i = 0; i < linkCount; i++) {
+			arealink_entry link = fWorldMap->GetAreaLink(linkIndex + i);
+			if (link.destination_index >= fAreaEntries.size())
+				continue;
+
+			AreaEntry* destination = fAreaEntries[link.destination_index];
+			if ((destination->Flags() & AREA_VISIBLE_FROM_ADJACENT) == 0)
+				continue;
+
+			Game::Get()->SetAreaMapVisible(destination->Name().CString(), true);
+			destination->SetVisible(true);
+		}
+		return;
 	}
 }

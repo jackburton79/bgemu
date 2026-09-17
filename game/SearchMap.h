@@ -39,6 +39,16 @@ public:
 	// never-modified bitmap, same reasoning as BlocksLight().
 	bool IsWorldmapExit(int32 x, int32 y) const;
 
+	// Which edge of this area's own rectangle an already-known
+	// "Worldmap exit" point (see IsWorldmapExit()) is closest to: the
+	// rectangle's two diagonals split it into four triangles, one per
+	// edge - same classification real BG uses (GemRB's own
+	// Map::WhichEdge()) to decide which of the area's WMP-linked
+	// neighbors to reveal on the world map. Returns 0=North, 1=East,
+	// 2=South, 3=West - Core::RequestWorldMapLoad()/WorldMap's own
+	// reveal-adjacent-areas logic share this same numbering.
+	int32 EdgeDirection(int32 x, int32 y) const;
+
 	void SetPoint(int32 x, int32 y);
 	void ClearPoint(int32 x, int32 y);
 	void ForcePassable(int32 x, int32 y);

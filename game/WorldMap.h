@@ -18,7 +18,12 @@ class WEDResource;
 class WMAPResource;
 class WorldMap : public RoomBase {
 public:
-	WorldMap();
+	// previousArea/direction: the area/edge the party just left through
+	// (see SearchMap::EdgeDirection()) - used to reveal that area's
+	// AREA_VISIBLE_FROM_ADJACENT-flagged neighbors on that side (see
+	// _RevealAdjacentAreas()). Default (empty name, direction -1) is a
+	// manual open (HUD button/hotkey) - reveals nothing new.
+	WorldMap(const res_ref& previousArea = res_ref(), int direction = -1);
 
 	virtual GFX::rect AreaRect() const;
 
@@ -44,6 +49,7 @@ private:
 	void _UnloadWorldMap();
 
 	void _LoadAreaEntries();
+	void _RevealAdjacentAreas(const res_ref& previousArea, int direction);
 
 	// WorldMap
 	WMAPResource* fWorldMap;

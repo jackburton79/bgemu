@@ -2067,7 +2067,9 @@ Actor::_UpdateRegions()
 	// actor loop).
 	if (InParty()) {
 		SearchMap* searchMap = Area()->SearchMap();
-		if (searchMap != NULL && searchMap->IsWorldmapExit(Position().x, Position().y))
-			Core::Get()->RequestWorldMapLoad();
+		if (searchMap != NULL && searchMap->IsWorldmapExit(Position().x, Position().y)) {
+			int32 direction = searchMap->EdgeDirection(Position().x, Position().y);
+			Core::Get()->RequestWorldMapLoad(direction);
+		}
 	}
 }

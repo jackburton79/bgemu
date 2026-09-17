@@ -1,0 +1,25 @@
+# Leaving an area through one of its own map edges is supposed to
+# reveal that side's AREA_VISIBLE_FROM_ADJACENT-flagged worldmap
+# neighbors (real WMP data marks most areas this way instead of relying
+# on a script's explicit RevealAreaOnMap() call) - the engine already
+# parsed the ARE/WMP area-link table but never consulted it, so leaving
+# via a map edge never made anything new selectable on the world map
+# (see Core::LoadWorldMap()'s direction parameter, SearchMap::
+# EdgeDirection(), WorldMap::_RevealAdjacentAreas()). Needs the default
+# starting party/area (no -P/-a override):
+# ./bin/BGEmu -p <BG1 path> -D -x tests/exec/bg1-worldmap-adjacent-reveal.txt
+
+# AR2800 starts hidden and is flagged AREA_VISIBLE_FROM_ADJACENT off
+# AR2700's own east link (confirmed against real BG1 WORLDMAP.WMP data)
+# - neither has a Game::SetAreaMapVisible() override yet at this point.
+Run-Action -,110,-,0,AR2700,-,1300,700
+Step-Ticks 5
+
+# (5104,1920) is a real "Worldmap exit" search-map cell (value 14) on
+# AR2700's own east edge - confirmed by scanning AR2700SR.BMP.
+Queue-Action -,JumpToPoint(5104,1920)
+Step-Ticks 5
+Step-Ticks 5
+
+Assert-AreaMapVisible AR2700,true
+Assert-AreaMapVisible AR2800,true
