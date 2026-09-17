@@ -260,9 +260,7 @@ Core::LoadWorldMap()
 bool
 Core::ReturnFromWorldMap()
 {
-	if (fCurrentRoom == NULL || fPreviousRoom == NULL)
-		return false;
-	if (::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") != 0)
+	if (!IsWorldMap())
 		return false;
 
 	fCurrentRoom->Unload();
@@ -271,6 +269,17 @@ Core::ReturnFromWorldMap()
 	fPreviousRoom = NULL;
 
 	fCurrentRoom->Resume();
+	return true;
+}
+
+
+bool
+Core::IsWorldMap() const
+{
+	if (fCurrentRoom == NULL || fPreviousRoom == NULL)
+		return false;
+	if (::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") != 0)
+		return false;
 	return true;
 }
 

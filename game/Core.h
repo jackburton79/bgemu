@@ -61,6 +61,9 @@ public:
 	// with no area loaded yet).
 	bool ReturnFromWorldMap();
 
+	// Returns true if we are displaying the world map
+	bool IsWorldMap() const;
+
 	// Unloads and releases the current room
 	void UnloadCurrentRoom();
 

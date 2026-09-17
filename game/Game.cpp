@@ -278,7 +278,10 @@ Game::Loop(bool noNewGame, bool executeScripts)
 									room->TogglePolygons();
 								break;
 							case SDLK_w:
-								Core::Get()->LoadWorldMap();
+								if (Core::Get()->IsWorldMap())
+									Core::Get()->ReturnFromWorldMap();
+								else
+									Core::Get()->LoadWorldMap();
 								break;
 							case SDLK_s:
 								if (room != NULL)
