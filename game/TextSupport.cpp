@@ -278,7 +278,9 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 // Only matters for an indexed (8-bit) destination: blitting an indexed
 // glyph onto a true-colour destination already does a real, correct
 // index-to-RGB conversion via the glyph's own palette, no swap needed.
-// TODO: Check if we are misusing SDL, maybe it can do that
+// TODO: Seems we are misusing SDL: we should never access the color members
+// of SDLPalette (in GraphicsEngine / Bitmap)
+
 static void
 _BlitGlyphIndexed(const Bitmap* glyph, Bitmap* dest, const GFX::rect& destRect)
 {
