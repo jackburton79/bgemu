@@ -506,7 +506,7 @@ Actor::_DrawActorName(AreaRoom* room) const
 	text.append(Name()).append(")");
 	if (!text.empty()) {
 		const Font* font = FontRoster::GetFont("TOOLFONT");
-		::Bitmap* bitmap = font->GetRenderedString(text, 0);
+		::Bitmap* bitmap = font->GetRenderedString(text, 0, GFX::kPaletteYellow);
 		IE::point textPoint = Position();
 		textPoint.y += 30;
 		room->DrawBitmap(bitmap, textPoint, false);
