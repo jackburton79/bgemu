@@ -262,6 +262,54 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 }
 
 
+// SDL_BlitSurface() between two 8-bit (indexed/paletted) surfaces that
+// don't share the same palette contents doesn't do a raw index copy -
+// it colour-matches each source pixel against the destination's own
+// palette instead, which scrambles a glyph's smooth 0-255 brightness/
+// antialiasing ramp into an effectively unrelated set of indices
+// (confirmed by dumping a real glyph's own pixel indices next to the
+// same pixels read back from the destination immediately after the
+// blit - completely different values, not the byte-for-byte copy the
+// rest of this file's "index selects a colour from whichever palette
+// is on the destination" design assumes). A glyph's raw index IS its
+// brightness level for whichever palette the caller put on `dest` (see
+// _RenderString()'s own SetPalette() call just above its render loop) -
+// copy it directly instead of letting SDL "helpfully" recolour it.
+// Only matters for an indexed (8-bit) destination: blitting an indexed
+// glyph onto a true-colour destination already does a real, correct
+// index-to-RGB conversion via the glyph's own palette, no swap needed.
+// TODO: Check if we are misusing SDL, maybe it can do that
+static void
+_BlitGlyphIndexed(const Bitmap* glyph, Bitmap* dest, const GFX::rect& destRect)
+{
+	if (!glyph->Lock())
+		return;
+	if (!dest->Lock()) {
+		glyph->Unlock();
+		return;
+	}
+
+	const uint8* srcPixels = (const uint8*)glyph->Pixels();
+	uint8* destPixels = (uint8*)dest->Pixels();
+	const uint16 srcPitch = glyph->Pitch();
+	const uint16 destPitch = dest->Pitch();
+	for (uint16 y = 0; y < glyph->Height(); y++) {
+		const int32 destY = destRect.y + y;
+		if (destY < 0 || destY >= dest->Height())
+			continue;
+		for (uint16 x = 0; x < glyph->Width(); x++) {
+			const int32 destX = destRect.x + x;
+			if (destX < 0 || destX >= dest->Width())
+				continue;
+			destPixels[destY * destPitch + destX] = srcPixels[y * srcPitch + x];
+		}
+	}
+
+	dest->Unlock();
+	glyph->Unlock();
+}
+
+
 void
 Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 					const GFX::Palette* palette, const GFX::point& destPoint,
@@ -305,9 +353,13 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 													  maxWidth, maxHeight,
 													  bitmap->Height());
 	GFX::rect renderRect = containerRect;
+	const bool destIndexed = bitmap->BitsPerPixel() == 8;
 	for (const auto &glyph : glyphs) {
 		GFX::rect glyphRect = _CalcGlyphRect(glyph, flags, renderRect);
-		GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
+		if (destIndexed)
+			_BlitGlyphIndexed(glyph.bitmap, bitmap, glyphRect);
+		else
+			GraphicsEngine::BlitBitmap(glyph.bitmap, NULL, bitmap, &glyphRect);
 
 		// Advance cursor
 		renderRect.x += glyph.bitmap->Frame().w;
