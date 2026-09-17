@@ -1131,8 +1131,6 @@ GUI::_DisplayStringCommon(const std::string& text,
 	static uint32 sCurrentId = 0;
 
 	const Font* font = FontRoster::GetFont("TOOLFONT");
-	// TODO: GetRenderedString always use "true" for palette, while
-	// previous call used "false" here. Check!
 
 	// Word-wrap into as many lines as needed to stay under
 	// kMaxMessageLineWidth - same TruncateString() line-breaking
@@ -1148,7 +1146,7 @@ GUI::_DisplayStringCommon(const std::string& text,
 	uint16 combinedWidth = 0;
 	do {
 		std::string line = font->TruncateString(remaining, kMaxMessageLineWidth);
-		lineBitmaps.push_back(font->GetRenderedString(line, 0));
+		lineBitmaps.push_back(font->GetRenderedString(line, 0, GFX::kPaletteYellow));
 		combinedWidth = std::max(combinedWidth, lineBitmaps.back()->Width());
 	} while (!remaining.empty());
 
