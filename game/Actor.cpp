@@ -1837,9 +1837,6 @@ Actor::UpdateAnimation(bool ignoreBlocks)
 			if (fWeaponAnimation != NULL)
 				fWeaponAnimation->NextFrame();
 		}
-		/*if ((fAnimationAction != ACT_DIE && fAnimationAction != ACT_CAST_SPELL_RELEASE)
-				|| !fCurrentAnimation->IsLastFrame())
-			fCurrentAnimation->NextFrame();*/
 	}
 }
 
@@ -1950,14 +1947,13 @@ Actor::_SetPositionPrivate(const IE::point& point)
 void
 Actor::_HandleColors()
 {
-	assert(fColors == NULL);
 	if (!gResManager->ResourceExists("RANDCOLR", RES_2DA))
 		return;
 
 	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
 	if (randColors != NULL) {
 		CREColors originalColors = CRE()->Colors();
-		fColors = new CREColors;
+		fColors = new CREColors();
 		fColors->hair = _GetRandomColor(randColors, originalColors.hair);
 		fColors->leather = _GetRandomColor(randColors, originalColors.leather);
 		fColors->armor = _GetRandomColor(randColors, originalColors.armor);
@@ -1975,11 +1971,12 @@ Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 {
 	uint8 num = index;
 	// get column requested index
-	for (int i = 0; i < randColors->CountColumns(); i++) {
-		uint16 value = randColors->IntegerValueAt(0, i);
+	for (int32 column = 0; column < randColors->CountColumns(); column++) {
+		uint32 value = randColors->IntegerValueAt(0, column);
 		if (value == index) {
-			int rndNumber = Core::RandomNumber(1, randColors->CountRows() - 1);
-			num = randColors->IntegerValueAt(rndNumber, i);
+			// First column is the column name, so we start from 1
+			uint32 rndNumber = Core::RandomNumber(1, randColors->CountRows() - 1);
+			num = randColors->IntegerValueAt(rndNumber, column);
 			break;
 		}
 	}

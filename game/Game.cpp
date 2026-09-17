@@ -297,7 +297,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								ToggleJournalWindow();
 								break;
 							case SDLK_k:
-								ToggleSpellbookWindow();
+								ToggleArcaneSpellbookWindow();
 								break;
 							case SDLK_F5:
 								ToggleSaveWindow();
@@ -596,7 +596,8 @@ kAuxCommandBarButtons[] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{ 4, [] { Game::Get()->ToggleRecordWindow(); } },
-	{ 5, [] { Game::Get()->ToggleSpellbookWindow(); } },
+	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
+	{ 6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
 	{ 7, [] { Game::Get()->ToggleSaveWindow(); } },
 	{ 9, [] { Game::Get()->TriggerRest(); } },
 };
@@ -713,9 +714,8 @@ static const uint32 kSpellNameLabelID = 268435509;
 // Whether the character casts divine spells (uses GUIPR) rather than
 // arcane (GUIMG) - true for a pure priest/druid/paladin/ranger, or when
 // they've a priest-type known spell.
-// TODO: Not correct: there is one button to open the divine spellbook and one
-// to open the arcane spellbook. A character could have both kind of spells
-static bool
+// TODO: maybe not useful anymore
+/*static bool
 _UsesDivineSpellbook(Actor* actor)
 {
 	if (actor == NULL || actor->CRE() == NULL)
@@ -738,12 +738,26 @@ _UsesDivineSpellbook(Actor* actor)
 			return true;
 	return false;
 }
+*/
+
+void
+Game::ToggleArcaneSpellbookWindow()
+{
+	const char* chu = "GUIMG";
+	fSpellbookCHU = chu;
+	fSpellbookLevel = 1;
+	_CloseOtherScreens(chu);
+	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
+		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
+		_UpdateSpellbookScreen();
+	}
+}
 
 
 void
-Game::ToggleSpellbookWindow()
+Game::ToggleDivineSpellbookWindow()
 {
-	const char* chu = _UsesDivineSpellbook(_ShownActor()) ? "GUIPR" : "GUIMG";
+	const char* chu = "GUIPR";
 	fSpellbookCHU = chu;
 	fSpellbookLevel = 1;
 	_CloseOtherScreens(chu);
@@ -1872,6 +1886,15 @@ Game::_UpdateSavesAndResistances(Window* window, CREResource* cre)
 
 	statsArea->ClearText();
 
+	// name + level
+	statsArea->AddText((IDTable::ClassAt(cre->Class())
+		+ std::string(": Level ") + std::to_string(cre->Level())).c_str());
+
+	// Experience
+	statsArea->AddText((std::string("Experience: ") + std::to_string(cre->Experience())).c_str());
+
+	// TODO: Next level
+
 	SaveVersus saves = cre->Saves();
 	const std::pair<const char*, uint8> saveLines[] = {
 		{ "Morte", saves.death },
@@ -2339,20 +2362,37 @@ Game::ToggleHUD()
 void
 Game::SelectPartyMember(uint16 index)
 {
-	if (fParty == NULL || index >= fParty->CountActors())
+	if (fParty == nullptr || index >= fParty->CountActors())
 		return;
 
 	Actor* member = fParty->ActorAt(index);
-	if (member == NULL)
+	if (member == nullptr)
 		return;
 
 	fShownCharacter = index;
 
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	if (room != NULL)
+	if (room != nullptr)
 		room->SelectActor(member);
 
 	_RefreshCharacterScreens();
+}
+
+
+void
+Game::CenterViewOnPartyMember(uint16 index)
+{
+	if (fParty == nullptr || index >= fParty->CountActors())
+		return;
+
+	Actor* member = fParty->ActorAt(index);
+	if (member == nullptr)
+		return;
+
+	const IE::point position = member->Position();
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != nullptr)
+		room->SetAreaOffsetCenter(position);
 }
 
 

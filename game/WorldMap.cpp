@@ -29,7 +29,6 @@ WorldMap::WorldMap()
 	fAreaUnderMouse(NULL)
 {
 	GUI* gui = GUI::Get();
-
 	gui->Clear();
 
 	if (!gui->Load("GUIWMAP")) {
@@ -37,6 +36,7 @@ WorldMap::WorldMap()
 	}
 
 	gui->ShowWindow(0);
+	gui->Show();
 
 	SetName("WORLDMAP");
 

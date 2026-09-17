@@ -684,12 +684,22 @@ public:
 	}
 };
 
-class ToggleSpellbookCommand : public ShellCommand {
+class ToggleArcaneSpellbookCommand : public ShellCommand {
 public:
-	ToggleSpellbookCommand() : ShellCommand("Toggle-Spellbook") {}
+	ToggleArcaneSpellbookCommand() : ShellCommand("Toggle-SpellbookArcane") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleSpellbookWindow();
-		std::cout << "Toggle-Spellbook: OK" << std::endl;
+		Game::Get()->ToggleArcaneSpellbookWindow();
+		std::cout << "Toggle-SpellbookArcane: OK" << std::endl;
+	}
+};
+
+
+class ToggleDivineSpellbookCommand : public ShellCommand {
+public:
+	ToggleDivineSpellbookCommand() : ShellCommand("Toggle-SpellbookDivine") {}
+	virtual void operator()(const char* argv) {
+		Game::Get()->ToggleDivineSpellbookWindow();
+		std::cout << "Toggle-SpellbookDivine: OK" << std::endl;
 	}
 };
 
@@ -1882,7 +1892,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ToggleSaveCommand());
 	console->AddCommand(new ToggleLoadCommand());
 	console->AddCommand(new ToggleJournalCommand());
-	console->AddCommand(new ToggleSpellbookCommand());
+	console->AddCommand(new ToggleArcaneSpellbookCommand());
+	console->AddCommand(new ToggleDivineSpellbookCommand());
 	console->AddCommand(new InvokeControlCommand());
 	console->AddCommand(new RightClickControlCommand());
 	console->AddCommand(new MouseDragCommand());

@@ -160,6 +160,8 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	::Window* window = gui->GetWindow(uint16(-1));
 
 	GUI::Get()->Show();
+	if (!Core::Get()->CutsceneMode())
+		GUI::Get()->ShowHUD();
 
 	if (window != NULL) {
 		fSavedControl = window->ReplaceControl((uint32)-1, this);
@@ -437,6 +439,9 @@ AreaRoom::_HandleClickAt(IE::point point)
 		} else if (region->Type() == IE::REGION_TYPE_INFO) {
 			int32 strRef = region->InfoTextRef();
 			std::string text = IDTable::GetDialog(strRef);
+			// TODO: This shows the message at the correct point, but
+			// scrolling the view scrolls also the text message
+			// We could reuse the Actor's text (but we would need to move it to Object instead)
 			if (strRef >= 0)
 				GUI::Get()->DisplayMessage(region, text);
 		}
@@ -657,20 +662,12 @@ AreaRoom::RemoveEffect(Effect* effect)
 
 
 // Real IE map data can reuse the same name across different object
-// types - found via a real BG1 area (AR0900) that has a Region named
-// exactly "Door0901", the same name as its door. When that happens the
-// search order below decides which object a name-only lookup actually
-// resolves to, so it isn't arbitrary: it mirrors GemRB's own
-// GetActorObject()/Matching.cpp (the reference reimplementation of the
-// real engine's object resolution) - Door, then Container, then
-// InfoPoint/Region (GemRB's own comment: "containers should have a
-// precedence over infopoints because otherwise AR1512 sanity test
-// quest would fail"), and only then Actor (matched last resort there,
-// via FindPC()/FindNPC()). Doors first also matches this engine's own
-// call sites: OPENDOOR/CLOSEDOOR/UNLOCK etc. always mean "resolve this
-// name as the door", so a same-named Region silently winning instead
-// (the previous, arbitrary actor-first order) broke exactly those
-// actions - confirmed by reproducing AR0900's "NULL DOOR!!!" report.
+// types.
+// When that happens the search order below decides which object
+// a name-only lookup actually resolves to, so it isn't arbitrary:
+// it mirrors GemRB's own GetActorObject()/Matching.cpp
+// (the reference reimplementation of the real engine's object resolution):
+// Door, then Container, then InfoPoint/Region
 Object*
 AreaRoom::GetObject(const char* name) const
 {
@@ -702,7 +699,7 @@ AreaRoom::GetObject(const char* name) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -711,7 +708,7 @@ AreaRoom::GetObject(uint16 globalEnum) const
 {
 	// TODO: containers, doors, other objects
 	for (const auto& object : fActors) {
-		if (object != NULL && object->GlobalID() == globalEnum)
+		if (object != nullptr && object->GlobalID() == globalEnum)
 			return object;
 	}
 
@@ -1768,8 +1765,6 @@ AreaRoom::_UnloadArea()
 		actor->Release();
 	}
 	fActors.clear();
-
-	Core::Get()->ExitingArea(this);
 
 	for (uint32 c = 0; c < fRegions.size(); c++) {
 		if (fRegions[c] != NULL)

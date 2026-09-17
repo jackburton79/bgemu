@@ -43,7 +43,6 @@ Party::RemoveActor(Actor* actor)
 	if (i != fActors.end()) {
 		(*i)->Release();
 		fActors.erase(i);
-		//(i*)->SetInterruptable(true);
 	}
 }
 
@@ -55,7 +54,7 @@ Party::CountActors() const
 }
 
 
-Actor*
+Actor*	
 Party::ActorAt(uint16 index) const
 {
 	if (index > CountActors() - 1)
