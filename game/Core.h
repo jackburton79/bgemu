@@ -53,6 +53,14 @@ public:
 					std::string entranceName);
 	bool LoadWorldMap();
 
+	// Closes the world map and makes the area the player opened it from
+	// current again, with its actors/scripts/state exactly as left (see
+	// LoadWorldMap()'s own comment - that area was backgrounded, not
+	// unloaded). A no-op (returns false) if the current room isn't the
+	// world map, or there's no such area (e.g. the world map was reached
+	// with no area loaded yet).
+	bool ReturnFromWorldMap();
+
 	// Unloads and releases the current room
 	void UnloadCurrentRoom();
 
@@ -131,6 +139,10 @@ private:
 
 	game fGame;
 	RoomBase* fCurrentRoom;
+	// The area LoadWorldMap() backgrounded (not unloaded) so
+	// ReturnFromWorldMap() can hand it straight back - see both methods'
+	// own comments. NULL except while the world map is fCurrentRoom.
+	RoomBase* fPreviousRoom;
 
 	Variables fVariables;
 

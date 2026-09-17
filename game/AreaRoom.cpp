@@ -94,8 +94,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	fShowingConsole(false)
 {
 	SetName(areaName.CString());
-
-	GraphicsEngine::Get()->SetWindowCaption(Name());
+	fLongName = longName;
 
 	std::cout << "Room::Load(" << areaName.CString() << ")" << std::endl;
 
@@ -147,28 +146,13 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 
 	_InitWed();
 
-	GUI* gui = GUI::Get();
-	gui->Clear();
-
-	if (!gui->Load("GUIW")) {
+	try {
+		_SetupGUI();
+	} catch (...) {
 		// TODO: Delete other loaded stuff
 		gResManager->ReleaseResource(fArea);
 		fArea = NULL;
-		throw std::runtime_error("CANNOT LOAD GUIW");
-	}
-
-	gui->ShowWindow(uint16(-1));
-	::Window* window = gui->GetWindow(uint16(-1));
-
-	GUI::Get()->Show();
-	if (!Core::Get()->CutsceneMode())
-		GUI::Get()->ShowHUD();
-
-	if (window != NULL) {
-		fSavedControl = window->ReplaceControl((uint32)-1, this);
-		Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
-		if (label != NULL)
-			label->SetText(longName);
+		throw;
 	}
 
 	Core::Get()->RegisterObject(this);
@@ -247,12 +231,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	if (player != NULL)
 		SelectActor(player);
 
-	// The HUD (just rebuilt by gui->Load("GUIW") above) needs its
-	// portrait bar filled from the party.
-	Game::Get()->RefreshHUDPortraits();
-
-	GUI::Get()->ShowWindow(999);
-
 	::Script* roomScript = Core::Get()->ExtractScript(fArea->ScriptName());
 	AddScript(roomScript, SCRIPT_LEVEL_DEFAULT);
 }
@@ -261,6 +239,49 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 AreaRoom::~AreaRoom()
 {
 	_UnloadArea();
+}
+
+
+// See this method's own declaration comment (AreaRoom.h) - shared by the
+// constructor and Resume().
+void
+AreaRoom::_SetupGUI()
+{
+	GraphicsEngine::Get()->SetWindowCaption(Name());
+
+	GUI* gui = GUI::Get();
+	gui->Clear();
+
+	if (!gui->Load("GUIW"))
+		throw std::runtime_error("CANNOT LOAD GUIW");
+
+	gui->ShowWindow(uint16(-1));
+	::Window* window = gui->GetWindow(uint16(-1));
+
+	GUI::Get()->Show();
+	if (!Core::Get()->CutsceneMode())
+		GUI::Get()->ShowHUD();
+
+	if (window != NULL) {
+		fSavedControl = window->ReplaceControl((uint32)-1, this);
+		Label* label = dynamic_cast<Label*>(window->GetControlByID(268435459));
+		if (label != NULL)
+			label->SetText(fLongName);
+	}
+
+	// The HUD (just rebuilt by gui->Load("GUIW") above) needs its
+	// portrait bar filled from the party.
+	Game::Get()->RefreshHUDPortraits();
+
+	GUI::Get()->ShowWindow(999);
+}
+
+
+/* virtual */
+void
+AreaRoom::Resume()
+{
+	_SetupGUI();
 }
 
 
@@ -1684,13 +1705,7 @@ AreaRoom::_UnloadArea()
 	if (gfx != NULL)
 		gfx->ScreenBitmap()->Clear(0);
 
-	if (fSavedControl != nullptr) {
-		if (Window() != nullptr)
-			Window()->ReplaceControl(InternalControl()->id, fSavedControl);
-		else
-			delete fSavedControl;
-		fSavedControl = nullptr;
-	}
+	DetachFromWindow();
 
 	SelectActor(NULL);
 

@@ -974,6 +974,12 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (chuName == res_ref("GUIWMAP")) {
 		if (windowID == 0) {
+			// "Done" - closes the map and returns to the area the player
+			// opened it from, unchanged (see Core::ReturnFromWorldMap()).
+			if (controlID == 0) {
+				Core::Get()->ReturnFromWorldMap();
+				return;
+			}
 			for (const auto& arrow : kWorldMapScrollArrows) {
 				if (arrow.controlID == controlID) {
 					room->SetRelativeAreaOffset(arrow.dx, arrow.dy);

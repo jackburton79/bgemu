@@ -34,6 +34,26 @@ RoomBase::Unload()
 }
 
 
+void
+RoomBase::DetachFromWindow()
+{
+	if (fSavedControl != nullptr) {
+		if (Window() != nullptr)
+			Window()->ReplaceControl(InternalControl()->id, fSavedControl);
+		else
+			delete fSavedControl;
+		fSavedControl = nullptr;
+	}
+}
+
+
+/* virtual */
+void
+RoomBase::Resume()
+{
+}
+
+
 /* virtual */
 IE::rect
 RoomBase::Frame() const

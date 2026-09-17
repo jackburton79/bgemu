@@ -38,6 +38,15 @@ public:
 
 	virtual void ReloadArea();
 
+	// Rebuilds the GUIW screen (HUD, portraits, area-name label) and
+	// re-grafts this room into it - see Core::ReturnFromWorldMap(),
+	// the only caller: this area was backgrounded (not unloaded) while
+	// the world map was up, and DetachFromWindow() already pulled it out
+	// of the now-destroyed GUIW window, so there's nothing to rebuild
+	// besides the GUI chrome itself (actors/scripts/etc. were never torn
+	// down).
+	virtual void Resume();
+
 	virtual GFX::rect AreaRect() const;
 
 	::BackMap* BackMap() const;
@@ -201,12 +210,19 @@ private:
 
 	void _UnloadArea();
 
+	// The GUIW rebuild shared by the constructor (first load) and
+	// Resume() (returning from the world map): loads GUIW, grafts this
+	// room into its window as the map viewport, restores the area-name
+	// label from fLongName, and refreshes the HUD portraits.
+	void _SetupGUI();
+
 	bool _IsVisibleOnScreen(const Actor* actor) const;
 
 	bool _GetEntrance(const std::string& entranceName,
 						  IE::entrance& outEntrance) const;
 	WEDResource *fWed;
 	ARAResource *fArea;
+	std::string fLongName;
 
 	::BackMap* fBackMap;
 	Bitmap* fBlitMask;

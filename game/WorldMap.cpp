@@ -207,13 +207,7 @@ WorldMap::_UnloadWorldMap()
 
 	// TODO: here we could have been called by the Window destructor,
 	// so some of these fields could have already been deleted
-	if (fSavedControl != nullptr) {
-		if (Window() != nullptr) {
-			Window()->ReplaceControl(InternalControl()->id, fSavedControl);
-		} else
-			delete fSavedControl;
-		fSavedControl = nullptr;
-	}
+	DetachFromWindow();
 	GraphicsEngine::Get()->ScreenBitmap()->Clear(0);
 
 	for (auto entry : fAreaEntries)

@@ -53,6 +53,22 @@ public:
 
 	virtual void VideoAreaChanged(uint16 width, uint16 height);
 
+	// Undoes the ReplaceControl() a subclass's constructor used to graft
+	// itself into a CHU window (restoring whatever control used to sit
+	// there). Must run before that window is destroyed (e.g. by
+	// GUI::Clear()) - Window::~Window() deletes every control still in
+	// its list, and this room is not heap-owned by the window/GUI.
+	// Both Unload() paths already needed this; Core also calls it
+	// directly when backgrounding a room for the world map without
+	// unloading it (see Core::LoadWorldMap()/ReturnFromWorldMap()).
+	void DetachFromWindow();
+
+	// Rebuilds whatever GUI state Unload()/DetachFromWindow() tore down,
+	// for a room that was backgrounded (not unloaded) and is becoming
+	// the current room again - see Core::ReturnFromWorldMap(). Default
+	// no-op: only AreaRoom is ever backgrounded like this.
+	virtual void Resume();
+
 private:
 	IE::point fAreaOffset;
 

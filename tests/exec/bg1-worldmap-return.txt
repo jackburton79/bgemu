@@ -1,0 +1,22 @@
+# Opening the world map used to permanently discard the area the party
+# was in - there was no way back (Core::LoadWorldMap() unconditionally
+# unloaded fCurrentRoom, and GUIWMAP's "Done" button - control id 0 in
+# window 0 - was never wired up, falling through to
+# GUI::_LogUnhandledControl()). Fixed by backgrounding the area instead
+# of unloading it (Core::fPreviousRoom, restored by
+# Core::ReturnFromWorldMap()) and wiring "Done" to that. Needs the
+# default starting area (no -a override):
+# ./bin/BGEmu -p <BG1 path> -D -x tests/exec/bg1-worldmap-return.txt
+
+Assert-Trigger -,true,AreaCheck("AR2600")
+
+# Opens the world map - HUD command-bar button id 1, window
+# WINDOW_COMMANDS(0) of the main GUIW screen (same control
+# Core::LoadWorldMap() is wired to in gui/GUI.cpp's kHUDCommandButtons).
+Invoke-Control -,0,1
+Assert-Trigger -,false,AreaCheck("AR2600")
+
+# "Done" (GUIWMAP window 0, control id 0) - must return to AR2600
+# instead of leaving the party stranded on the world map.
+Invoke-Control -,0,0
+Assert-Trigger -,true,AreaCheck("AR2600")

@@ -1,0 +1,12 @@
+# See bg1-worldmap-return.txt for the bug this pins (Core::LoadWorldMap()
+# unconditionally unloading the current area, with no way back). Needs
+# the default starting area (no -a override):
+# ./bin/BGEmu -p <BG2 path> -D -x tests/exec/bg2-worldmap-return.txt
+
+Assert-Trigger -,true,AreaCheck("AR0602")
+
+Invoke-Control -,0,1
+Assert-Trigger -,false,AreaCheck("AR0602")
+
+Invoke-Control -,0,0
+Assert-Trigger -,true,AreaCheck("AR0602")

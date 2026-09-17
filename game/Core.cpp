@@ -28,6 +28,7 @@ Core::Core()
 	:
 	fGame(game::GAME_BALDURSGATE2),
 	fCurrentRoom(NULL),
+	fPreviousRoom(NULL),
 	fLastScriptRoundTime(0),
 	fNextObjectNumber(0),
 	fCurrentRoundNumber(0),
@@ -124,6 +125,16 @@ Core::UnloadCurrentRoom()
 		fCurrentRoom->Release();
 		fCurrentRoom = NULL;
 	}
+
+	// Only ever non-NULL while the world map is fCurrentRoom (see
+	// LoadWorldMap()) - unloading the current room at this point means
+	// we're leaving for good (a real area-to-area travel, or quitting),
+	// not returning to it, so there's nothing left to hand back to.
+	if (fPreviousRoom != NULL) {
+		fPreviousRoom->Unload();
+		fPreviousRoom->Release();
+		fPreviousRoom = NULL;
+	}
 }
 
 
@@ -216,8 +227,23 @@ Core::HasPendingTransition() const
 bool
 Core::LoadWorldMap()
 {
-	// TODO:
-	UnloadCurrentRoom();
+	if (fCurrentRoom != NULL && ::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
+		return true;
+
+	// The area we're leaving is backgrounded, not unloaded - it stays
+	// alive exactly as the player left it (actors, scripts, positions)
+	// so ReturnFromWorldMap() can hand it straight back instead of the
+	// reload-from-checkpoint that actually traveling to a *different*
+	// area goes through. Detach it from its own GUI window first: the
+	// WorldMap constructor below calls GUI::Clear(), which deletes every
+	// control still attached to a window, and this room is grafted into
+	// its window as one of those controls (see AreaRoom::_SetupGUI()) -
+	// Window::~Window() would delete the room itself out from under
+	// fPreviousRoom otherwise.
+	RoomBase* previousRoom = fCurrentRoom;
+	if (previousRoom != NULL)
+		previousRoom->DetachFromWindow();
+
 	try {
 		// No Acquire() here - see LoadArea()'s own comment
 		fCurrentRoom = new WorldMap();
@@ -226,6 +252,25 @@ Core::LoadWorldMap()
 		return false;
 	}
 
+	fPreviousRoom = previousRoom;
+	return true;
+}
+
+
+bool
+Core::ReturnFromWorldMap()
+{
+	if (fCurrentRoom == NULL || fPreviousRoom == NULL)
+		return false;
+	if (::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") != 0)
+		return false;
+
+	fCurrentRoom->Unload();
+	fCurrentRoom->Release();
+	fCurrentRoom = fPreviousRoom;
+	fPreviousRoom = NULL;
+
+	fCurrentRoom->Resume();
 	return true;
 }
 

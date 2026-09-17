@@ -917,6 +917,8 @@ IDTable::TriggerName(uint32 i)
 		// BG2's own real TRIGGER.IDS ("16521 = OR(I:ORCOUNT*)").
 		if (i == 16521)
 			name = "OR(I:ORCOUNT*)";
+		else if (i == 16510)
+			name = "AreaCheck(S:ResRef*)";
 	}
 	return name;
 }
