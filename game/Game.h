@@ -313,6 +313,10 @@ private:
 	std::string _TitleCaseIDSName(const std::string& idsName);
 	void _UpdateSaveLoadLabels(const res_ref& chuName);
 	void _UpdateJournalLabels();
+	// Highlights whichever command-bar icon (HUD bar and/or the copy
+	// embedded in the open panel itself) corresponds to the currently
+	// open full-screen panel - see kScreenGroups in Game.cpp.
+	void _UpdateCommandBarToggle();
 };
 
 #endif /* GAME_H_ */

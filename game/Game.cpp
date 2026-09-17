@@ -585,6 +585,61 @@ _CloseOtherScreens(const char* exceptCHU)
 }
 
 
+// Which command-bar control (shared by kHUDCommandButtons in gui/GUI.cpp
+// and kAuxCommandBarButtons below - same ids in both) corresponds to each
+// screen group above, so its icon can be shown "pressed in" while that
+// screen is open. Map/Pause/Rest aren't here - they aren't a persistent
+// open/closed screen. Journal has no confirmed command-bar id yet (see
+// kHUDCommandButtons's own comment), so it's left unhighlighted.
+static const struct { const char* chu; uint32 controlID; }
+kScreenGroupButtons[] = {
+	{ "GUIINV",  3 },
+	{ "GUIREC",  4 },
+	{ "GUIMG",   5 },
+	{ "GUIPR",   6 },
+	{ "GUISAVE", 7 },
+	{ "GUILOAD", 7 },
+};
+
+
+static void
+_SetButtonToggled(Window* window, uint32 controlID, bool toggled)
+{
+	if (window == NULL)
+		return;
+	Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
+	if (button != NULL)
+		button->SetToggled(toggled);
+}
+
+
+// Refreshes the "selected" frame on every command-bar icon (the main HUD
+// bar plus the identical copy embedded in whichever panel is currently
+// open - see kAuxCommandBarButtons's own comment) to match which screen
+// group (if any) is actually open right now. Called after every
+// Toggle*Window() below, since each of those can either open or close its
+// screen.
+void
+Game::_UpdateCommandBarToggle()
+{
+	const char* activeCHU = NULL;
+	for (const auto& group : kScreenGroups) {
+		if (GUI::Get()->IsAuxWindowShown(group.chu, group.windows[0])) {
+			activeCHU = group.chu;
+			break;
+		}
+	}
+
+	Window* hudBar = GUI::Get()->GetWindow(GUI::WINDOW_COMMANDS);
+	Window* auxBar = activeCHU != NULL ? GUI::Get()->GetAuxWindow(activeCHU, 0) : NULL;
+	for (const auto& entry : kScreenGroupButtons) {
+		bool active = activeCHU != NULL && ::strcasecmp(entry.chu, activeCHU) == 0;
+		_SetButtonToggled(hudBar, entry.controlID, active);
+		_SetButtonToggled(auxBar, entry.controlID, active);
+	}
+}
+
+
 // The left-hand command icon strip (ids 0-8, image GUILSOP) + Rest
 // button (id 9, GUIRSBUT) appear identically - same position, same
 // cycle - in every full-screen panel's own window 0 (GUIINV/GUIREC/
@@ -637,6 +692,7 @@ Game::ToggleInventoryWindow()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
 	}
+	_UpdateCommandBarToggle();
 }
 
 
@@ -652,6 +708,7 @@ Game::ToggleRecordWindow()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
 		_UpdateRecordLabels();
 	}
+	_UpdateCommandBarToggle();
 }
 
 
@@ -665,6 +722,7 @@ Game::ToggleSaveWindow()
 	_CloseOtherScreens("GUISAVE");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUISAVE", {0}))
 		_UpdateSaveLoadLabels("GUISAVE");
+	_UpdateCommandBarToggle();
 }
 
 
@@ -674,6 +732,7 @@ Game::ToggleLoadWindow()
 	_CloseOtherScreens("GUILOAD");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUILOAD", {0}))
 		_UpdateSaveLoadLabels("GUILOAD");
+	_UpdateCommandBarToggle();
 }
 
 
@@ -688,6 +747,7 @@ Game::ToggleJournalWindow()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIJRNL", 1), 4);
 		_UpdateJournalLabels();
 	}
+	_UpdateCommandBarToggle();
 }
 
 
@@ -754,6 +814,7 @@ Game::ToggleArcaneSpellbookWindow()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
 	}
+	_UpdateCommandBarToggle();
 }
 
 
@@ -768,6 +829,7 @@ Game::ToggleDivineSpellbookWindow()
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
 	}
+	_UpdateCommandBarToggle();
 }
 
 

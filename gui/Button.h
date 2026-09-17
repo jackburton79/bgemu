@@ -43,6 +43,12 @@ public:
 	// currently-selected party member's portrait.
 	void SetHighlighted(bool highlighted);
 
+	// Draws an amber outline (like SetHighlighted()'s, but a different
+	// color so the two are distinguishable) to persistently mark a
+	// command-bar icon whose window is currently open - unlike fPressed's
+	// transient mouse-down-only state.
+	void SetToggled(bool toggled);
+
 	// Opts this button into "press acts like a click too" - see
 	// MouseDown()/MouseUp()'s own comments. Used only by the inventory's
 	// slot buttons, so a real press-drag-release gesture (not just two
@@ -52,6 +58,8 @@ public:
 	void SetDragCapture(bool captures);
 
 private:
+	void _DrawOutline(uint8 r, uint8 g, uint8 b);
+
 	Bitmap* fDisabledBitmap;
 	Bitmap* fSelectedBitmap;
 	Bitmap* fPressedBitmap;
@@ -69,6 +77,7 @@ private:
 	bool fEnabled;
 	bool fSelected;
 	bool fPressed;
+	bool fToggled;
 	bool fDragCapture;
 	bool fArmedByPress;
 };

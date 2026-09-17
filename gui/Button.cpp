@@ -31,6 +31,7 @@ Button::Button(IE::button* button)
 	fEnabled(true),
 	fSelected(false),
 	fPressed(false),
+	fToggled(false),
 	fDragCapture(false),
 	fArmedByPress(false)
 {
@@ -116,9 +117,32 @@ Button::SetHighlighted(bool highlighted)
 
 
 void
+Button::SetToggled(bool toggled)
+{
+	fToggled = toggled;
+}
+
+
+void
 Button::SetDragCapture(bool captures)
 {
 	fDragCapture = captures;
+}
+
+
+void
+Button::_DrawOutline(uint8 r, uint8 g, uint8 b)
+{
+	GFX::rect outline = Frame();
+	fWindow->ConvertToScreen(outline);
+	Bitmap* screen = GraphicsEngine::Get()->ScreenBitmap();
+	uint32 color = screen->MapRGBColor(r, g, b);
+	screen->StrokeRect(outline, color);
+	outline.x += 1;
+	outline.y += 1;
+	outline.w -= 2;
+	outline.h -= 2;
+	screen->StrokeRect(outline, color);
 }
 
 
@@ -135,14 +159,18 @@ void
 Button::Draw()
 {
 	const Bitmap* frame;
-	// TODO: Seems enabled and selected aren't used
+	// TODO: the CHU-authored "selected" frame (fSelectedBitmap) isn't used
+	// here - for the command-bar icons this ends up wired to (the only
+	// buttons SetToggled() is used for so far), it doesn't hold a distinct
+	// highlighted look at all: it resolves to a valid, in-bounds frame,
+	// but one that's visually identical to a *different* button's own
+	// unpressed frame (confirmed by a real screenshot diff), not a
+	// highlighted variant of this button's own icon. fToggled below draws
+	// an explicit outline instead, same technique as fHighlighted's.
 	if (!fEnabled)
 		frame = fDisabledBitmap;
 	else if (fPressed)
 		frame = fPressedBitmap;
-	/*else if (fSelected)
-		frame = fSelectedBitmap;
-	*/
 	else
 		frame = fUnpressedBitmap;
 	if (frame != NULL && !fCoverBackground) {
@@ -172,18 +200,13 @@ Button::Draw()
 			}
 		}
 	}
-	if (fHighlighted) {
-		GFX::rect outline = Frame();
-		fWindow->ConvertToScreen(outline);
-		Bitmap* screen = GraphicsEngine::Get()->ScreenBitmap();
-		uint32 color = screen->MapRGBColor(0, 255, 0);
-		screen->StrokeRect(outline, color);
-		outline.x += 1;
-		outline.y += 1;
-		outline.w -= 2;
-		outline.h -= 2;
-		screen->StrokeRect(outline, color);
-	}
+	if (fHighlighted)
+		_DrawOutline(0, 255, 0);
+	// Marks a command-bar icon whose window is currently open - same
+	// double-stroke outline as fHighlighted's portrait-selection ring,
+	// just amber instead of green so the two don't look identical.
+	if (fToggled)
+		_DrawOutline(255, 180, 0);
 	Control::Draw();
 }
 
