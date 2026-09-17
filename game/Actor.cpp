@@ -489,7 +489,8 @@ Actor::_DrawActorText(AreaRoom* room) const
 	std::string text = Text();
 	if (!text.empty()) {
 		const Font* font = FontRoster::GetFont("TOOLFONT");
-		::Bitmap* bitmap = font->GetRenderedString(text, 0);
+		// TODO: Change text color based on actor
+		::Bitmap* bitmap = font->GetRenderedString(text, 0, GFX::kPaletteYellow);
 		IE::point textPoint = Position();
 		textPoint.y -= 100;
 		room->DrawBitmap(bitmap, textPoint, false);
