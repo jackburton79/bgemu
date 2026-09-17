@@ -198,6 +198,14 @@ main(int argc, char **argv)
 	if (!SoundEngine::Initialize())
 		std::cerr << RED("Failed to initialize Sound Engine! Continuing anyway...") << std::endl;
 
+	// Guards against a *previous* run's checkpoints (left behind by a
+	// crash or a kill - the exit-time ClearAreaCheckpoints() below never
+	// got a chance to run) bleeding into this one: this is the default,
+	// no-save-loaded checkpoint directory, and Game::Load() below points
+	// AreaRoom at a specific save's own directory before touching any
+	// area, so a loaded save's own checkpoints are never affected by this.
+	AreaRoom::ClearAreaCheckpoints();
+
 	try {
 		if (sTestAnimation) {
 			AnimationTester animTester(sResourceName);

@@ -1,0 +1,48 @@
+# AREA: AR0100
+# Needs the default starting party (no -P override). run-all.sh loads
+# AR0100 itself (see the AREA directive above and README.md) - a real
+# BG1 area with a door (Door0101) whose open/closed state is easy to
+# flip and check without needing to actually walk anywhere (see
+# Run-Action's own OPENDOOR/CLOSEDOOR handling - neither checks the
+# caller's distance from the door).
+#
+# Bug: area state (killed monsters, opened doors, ...) lived in a single
+# global, unversioned on-disk directory (AreaRoom's own checkpoint
+# directory) shared by every save slot and by a fresh, not-yet-saved
+# session alike - loading one save slot could pick up a completely
+# different slot's (or the live session's own unsaved) changes to any
+# area other than the one just loaded, and the area actually being stood
+# in when Save-Game ran was never captured at all (only leaving an area
+# checkpointed it). Fixed by:
+#  - deriving each save's own checkpoint directory from its own file path
+#    (AreaRoom::SetAreaCheckpointDir(), set by both Game::Save() and
+#    Game::Load() before touching any area);
+#  - Game::Save() also snapshotting the current area right away
+#    (AreaRoom::WriteCheckpoint());
+#  - Game::Load() dropping the live session's in-memory area cache
+#    (Game::_ClearAreaCache()) before adopting the loaded save's own
+#    checkpoint directory, so it can't leak into the save being loaded.
+#
+# Sequence: open the door, save to slot A (capturing "open" immediately,
+# without ever leaving the area) - close the door again (simulating
+# further, not-yet-saved play) - save to slot B (capturing "closed",
+# in an entirely different directory from slot A) - load slot A back.
+# The door must come back open: neither the live session's own "closed"
+# state nor slot B's own "closed" checkpoint may leak into slot A.
+Assert-DoorOpened Door0101,false
+
+Run-Action -,143,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,true
+Save-Game /tmp/bgemu-test-save-slot-a.gam
+
+Run-Action -,144,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,false
+Save-Game /tmp/bgemu-test-save-slot-b.gam
+
+Load-Game /tmp/bgemu-test-save-slot-a.gam
+Assert-DoorOpened Door0101,true
+
+Load-Game /tmp/bgemu-test-save-slot-b.gam
+Assert-DoorOpened Door0101,false

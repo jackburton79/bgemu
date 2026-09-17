@@ -267,6 +267,14 @@ private:
 	// Returns false (and adds nothing) on any parse/build failure.
 	bool _CreateCharacterFromSpec(const IE::point& position);
 
+	// Releases every entry in fAreaCache (same balancing act as ~Game()
+	// itself, which used to do this inline) and empties it - shared with
+	// Load(), which must drop the live session's own cached area state
+	// before adopting a save's, or a load would otherwise resurrect
+	// whatever the *current*, unsaved session left behind for any area
+	// not being loaded right now instead of that save's own history.
+	void _ClearAreaCache();
+
 	std::map<std::string, std::string> fTokens;
 	std::vector<uint32> fJournalEntries;
 	std::map<std::string, bool> fAreaMapVisibility;

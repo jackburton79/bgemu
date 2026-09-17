@@ -1426,6 +1426,50 @@ public:
 };
 
 
+// Assert-DoorOpened <doorName>,<true|false> - same self-checking spirit
+// as Assert-Trigger, for a door's open/closed state: real IESDP's
+// Open(O:Door*) trigger (TRIGGER.IDS 82, "OPENED") isn't implemented in
+// this engine's Triggers.cpp yet, so there's no trigger round-trip to
+// assert through. Used to verify area-checkpoint persistence (see
+// AreaRoom::WriteCheckpoint()) across a Save-Game/Load-Game round trip.
+class AssertDoorOpenedCommand : public ShellCommand {
+public:
+	AssertDoorOpenedCommand()
+		: ShellCommand("Assert-DoorOpened")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string doorName, expectedText;
+		if (!_SplitOnFirstComma(argv, doorName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <doorName>,<true|false>" << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL) {
+			std::cout << "ASSERT FAIL: DoorOpened(" << doorName << ") - no current area"
+				<< std::endl;
+			return;
+		}
+		Door* door = dynamic_cast<Door*>(room->GetObject(doorName.c_str()));
+		if (door == NULL) {
+			std::cout << "ASSERT FAIL: DoorOpened(" << doorName << ") - door not found"
+				<< std::endl;
+			return;
+		}
+		bool opened = door->Opened();
+		if (opened == expected) {
+			std::cout << "ASSERT OK: DoorOpened(" << doorName << ")" << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: DoorOpened(" << doorName << ") - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (opened ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -1926,6 +1970,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new CheckPassableCommand());
 	console->AddCommand(new CheckWorldmapExitCommand());
 	console->AddCommand(new AssertAreaMapVisibleCommand());
+	console->AddCommand(new AssertDoorOpenedCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());

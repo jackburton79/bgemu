@@ -139,12 +139,33 @@ public:
 
 	static bool IsPointPassable(const IE::point& point);
 
-	// Deletes every on-disk area checkpoint written by _UnloadArea()
-	// (see ARAResource::WriteToFile()). Called at program shutdown for
-	// now: there's no new-game-vs-load-game distinction yet, so stale
-	// checkpoints from a previous run would otherwise bleed into a fresh
-	// session.
+	// Every on-disk area checkpoint (see _UnloadArea()/WriteCheckpoint())
+	// is written under this directory - Game::Save()/Load() point it at
+	// one derived from the save file's own path before touching any area,
+	// so each save slot's checkpoints stay isolated from every other
+	// slot's and from a fresh, not-yet-saved game's. Defaults to a single
+	// shared directory for any session that never saves/loads (e.g. a
+	// console test script).
+	static void SetAreaCheckpointDir(const std::string& path);
+
+	// Deletes every on-disk area checkpoint in the default, scratch
+	// checkpoint directory (see SetAreaCheckpointDir()'s own comment) -
+	// always that one specifically, never whatever directory a save's own
+	// Load()/Save() may have since redirected to, so an actual save's
+	// checkpoints are never at risk of being swept up by this. Called at
+	// program shutdown so a later, unrelated session never inherits this
+	// one's not-yet-saved scratch checkpoints; also called before
+	// entering the game loop, in case an earlier run crashed before
+	// reaching shutdown.
 	static void ClearAreaCheckpoints();
+
+	// Snapshots this area's own current state to disk right now, without
+	// unloading it - unlike _UnloadArea()'s own checkpoint write (only
+	// reached by actually leaving), this is what lets Game::Save() capture
+	// the area the party is standing in *right now*, which would
+	// otherwise come back pristine on a later load (nothing else writes a
+	// checkpoint for the current, still-loaded area).
+	void WriteCheckpoint();
 
 	void ToggleOverlays();
 	void TogglePolygons();
@@ -209,6 +230,13 @@ private:
 	void _InitContainers();
 
 	void _UnloadArea();
+	// Shared by _UnloadArea() and WriteCheckpoint() - re-embeds one still-
+	// alive actor's current CRE bytes (HP, inventory, spellbook, status)
+	// into fArea's own embedded-CRE table, the only part of a live actor's
+	// state ARAResource::WriteToFile() doesn't already see for free
+	// (position/orientation/door state alias fArea's own structs
+	// directly - see Actor::fActor/Door::fAreaDoor).
+	void _EmbedActorCRE(Actor* actor);
 
 	// The GUIW rebuild shared by the constructor (first load) and
 	// Resume() (returning from the world map): loads GUIW, grafts this

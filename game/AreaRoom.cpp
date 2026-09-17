@@ -54,15 +54,39 @@
 // SAVEGAME's own fixed "savegame_slot0.gam" (see scripting/Actions.cpp's
 // RunActionSaveGame()), not the BG2 install path - this is this engine's
 // own working data, not something to write into a real game installation.
-static const char* kAreaCheckpointDir = "SAVEGAME/arecache";
+// This specific directory is scratch: it's what a session that hasn't
+// loaded or saved a real save file yet writes to, so - unlike a save
+// file's own checkpoint directory (see sAreaCheckpointDir below) - it
+// doesn't correspond to anything a player would expect to persist, and
+// ClearAreaCheckpoints() always targets this one specifically regardless
+// of which directory is currently active.
+static const char* kDefaultAreaCheckpointDir = "SAVEGAME/arecache";
+
+// The directory area checkpoints are actually written to/read from right
+// now - defaults to the scratch directory above, but Game::Save()/Load()
+// point it at one derived from a specific save file's own path before
+// touching any area, so every save slot gets its own isolated set of
+// checkpoints instead of all of them (and a fresh, not-yet-saved game)
+// sharing one directory - previously loading one slot could pick up
+// another slot's (or the live session's own unsaved) area changes, since
+// nothing distinguished which checkpoint belonged to which slot.
+static std::string sAreaCheckpointDir = kDefaultAreaCheckpointDir;
 
 
 static std::string
 _AreaCheckpointPath(const char* areaName)
 {
-	std::string path = kAreaCheckpointDir;
+	std::string path = sAreaCheckpointDir;
 	path.append("/").append(areaName).append(".ARE");
 	return path;
+}
+
+
+/* static */
+void
+AreaRoom::SetAreaCheckpointDir(const std::string& path)
+{
+	sAreaCheckpointDir = path;
 }
 
 
@@ -71,7 +95,7 @@ void
 AreaRoom::ClearAreaCheckpoints()
 {
 	std::error_code error;
-	std::filesystem::remove_all(kAreaCheckpointDir, error);
+	std::filesystem::remove_all(kDefaultAreaCheckpointDir, error);
 }
 
 
@@ -1695,6 +1719,45 @@ AreaRoom::_CleanDestroyedObjects()
 
 
 void
+AreaRoom::_EmbedActorCRE(Actor* actor)
+{
+	// A runtime-spawned actor (CreateCreature* etc.) or a party member was
+	// never one of this area's own placed actors to begin with, so there's
+	// no ARE actor-table slot to embed it into - IndexOfActorEntry()
+	// returns -1 for those, silently skipped (a party member's CRE is the
+	// GAM save's job, not the area checkpoint's).
+	if (fArea == NULL || actor == NULL || actor->CRE() == NULL)
+		return;
+
+	int32 index = fArea->IndexOfActorEntry(actor->AreaActorEntry());
+	if (index < 0)
+		return;
+
+	std::vector<uint8> creData;
+	actor->CRE()->RawData(creData);
+	fArea->SetEmbeddedCRE((uint16)index, creData);
+}
+
+
+void
+AreaRoom::WriteCheckpoint()
+{
+	if (fArea == NULL)
+		return;
+
+	for (Actor* actor : fActors)
+		_EmbedActorCRE(actor);
+
+	std::error_code checkpointError;
+	std::filesystem::create_directories(sAreaCheckpointDir, checkpointError);
+	if (!fArea->WriteToFile(_AreaCheckpointPath(Name()).c_str())) {
+		std::cerr << "AreaRoom::WriteCheckpoint(): failed to checkpoint "
+			<< Name() << std::endl;
+	}
+}
+
+
+void
 AreaRoom::_UnloadArea()
 {
 	std::cout << "AreaRoom::_UnloadArea(" << Name() << ")" << std::endl;
@@ -1761,20 +1824,8 @@ AreaRoom::_UnloadArea()
 			// checkpoint below - the in-memory cache line just above
 			// already covers a same-session revisit (the live Actor/
 			// CREResource objects are reused verbatim), but a process
-			// restart only has whatever WriteToFile() wrote to disk. A
-			// runtime-spawned actor (CreateCreature* etc.) was never
-			// one of this area's own placed actors to begin with, so
-			// there's no ARE actor-table slot to embed it into -
-			// IndexOfActorEntry() returns -1 for those, silently
-			// skipped here (it still gets the in-memory caching above).
-			if (fArea != NULL && actor->CRE() != NULL) {
-				int32 index = fArea->IndexOfActorEntry(actor->AreaActorEntry());
-				if (index >= 0) {
-					std::vector<uint8> creData;
-					actor->CRE()->RawData(creData);
-					fArea->SetEmbeddedCRE((uint16)index, creData);
-				}
-			}
+			// restart only has whatever WriteToFile() wrote to disk.
+			_EmbedActorCRE(actor);
 		}
 		_DetachFromCurrentRegion(actor);
 
@@ -1825,15 +1876,11 @@ AreaRoom::_UnloadArea()
 	fWed = NULL;
 	// Checkpoint this area's own current state to disk too (not just the
 	// in-memory cache below) - see ARAResource::WriteToFile()'s own
-	// comment for exactly what that captures. create_directories() is
-	// idempotent/cheap - simpler to call every time than to track
-	// whether it's already been done this run.
-	std::error_code checkpointError;
-	std::filesystem::create_directories(kAreaCheckpointDir, checkpointError);
-	if (!fArea->WriteToFile(_AreaCheckpointPath(Name()).c_str())) {
-		std::cerr << "AreaRoom::_UnloadArea(): failed to checkpoint "
-			<< Name() << std::endl;
-	}
+	// comment for exactly what that captures. Every actor that needed
+	// embedding was already handled above, in the loop that just cleared
+	// fActors, so WriteCheckpoint()'s own embedding pass here is a no-op -
+	// called anyway for the single file write, rather than duplicating it.
+	WriteCheckpoint();
 
 	// Kept alive in the in-memory cache too (see Game::AreaCache's own
 	// comment) rather than released - it owns the IE::door/IE::actor

@@ -91,18 +91,25 @@ Game::~Game()
 	delete fParty;
 	delete fTempState;
 
-	// Release what's still held onto (areas never revisited before the
-	// process exits) - same convention as everything else this session
-	// is careful to balance, even though it only matters for the ASan
-	// leak report at this specific point (the whole process is about to
-	// go away regardless).
+	// Same convention as everything else this session is careful to
+	// balance, even though it only matters for the ASan leak report at
+	// this specific point (the whole process is about to go away
+	// regardless).
+	_ClearAreaCache();
+	delete fAreaCache;
+	delete fCharBuilder;
+}
+
+
+void
+Game::_ClearAreaCache()
+{
 	for (auto& entry : fAreaCache->areas) {
 		for (Actor* actor : entry.second.actors)
 			actor->Release();
 		gResManager->ReleaseResource(entry.second.area);
 	}
-	delete fAreaCache;
-	delete fCharBuilder;
+	fAreaCache->areas.clear();
 }
 
 
@@ -2164,8 +2171,20 @@ Game::Save(const char* name)
 		return false;
 	}
 
+	// Every save gets its own area-checkpoint directory (see
+	// AreaRoom::SetAreaCheckpointDir()'s own comment) - derived from this
+	// save's own path so distinct slots/paths never collide.
+	AreaRoom::SetAreaCheckpointDir(std::string(name) + ".arecache");
+
 	RoomBase* room = Core::Get()->CurrentRoom();
 	res_ref areaName(room != NULL ? room->Name() : "");
+
+	// Snapshot the area actually being stood in too - _UnloadArea() only
+	// checkpoints an area once it's actually left, so without this a save
+	// made without ever having left the current area since arriving would
+	// come back pristine on a later load.
+	if (AreaRoom* areaRoom = dynamic_cast<AreaRoom*>(room))
+		areaRoom->WriteCheckpoint();
 
 	GamResource* gam = new GamResource(res_ref("SAVE"));
 	gam->SetCurrentArea(areaName);
@@ -2203,6 +2222,18 @@ Game::Load(const char* name)
 		gResManager->ReleaseResource(gam);
 		return false;
 	}
+
+	// Abandon whatever's currently loaded - checkpointed under whichever
+	// directory was active *before* switching below, so this now-
+	// abandoned session's own state doesn't leak into the save being
+	// loaded - before adopting this save's own, isolated checkpoint
+	// directory and dropping this session's in-memory area cache: a load
+	// restores *that save's* world, not whatever the live session still
+	// happens to be holding onto for some other area (see
+	// AreaRoom::SetAreaCheckpointDir()/_ClearAreaCache()'s own comments).
+	Core::Get()->UnloadCurrentRoom();
+	AreaRoom::SetAreaCheckpointDir(std::string(name) + ".arecache");
+	_ClearAreaCache();
 
 	delete fParty;
 	fParty = new ::Party();
