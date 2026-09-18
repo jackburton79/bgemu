@@ -8,6 +8,7 @@
 #include "ShellCommand.h"
 
 #include <cstdlib>
+#include <iostream>
 #include <sstream>
 
 ShellCommand::ShellCommand(const char* command)
@@ -56,16 +57,19 @@ ShellCommand::ParseParameters(const char* argv)
 				break;
 			case PARAMETER_STRING:
 			{
-				// Bounded, not strcpy(): value.string is a fixed
-				// 128-byte buffer (a union member, so it can't just be
-				// a std::string) - an unbounded copy overflows it for
-				// any parameter longer than that (found via a real
-				// crash: a scratchpad screenshot path a few characters
-				// over 128). Truncates instead of overflowing; long
-				// enough for every real use of this console (resrefs,
-				// object names, file paths in practice).
+				// Bounded, not strcpy(): value.string is a fixed-size
+				// buffer (a union member, so it can't just be a
+				// std::string). Truncates instead of overflowing if a
+				// parameter is ever longer than that, and warns since a
+				// silent truncation of e.g. a save path is otherwise
+				// indistinguishable from success.
 				const std::string& value = strings.at(p++);
 				size_t maxLen = sizeof(fParameters[i].value.string) - 1;
+				if (value.size() > maxLen) {
+					std::cerr << "ShellCommand: parameter truncated from "
+						<< value.size() << " to " << maxLen << " characters: "
+						<< value << std::endl;
+				}
 				strncpy(fParameters[i].value.string, value.c_str(), maxLen);
 				fParameters[i].value.string[maxLen] = '\0';
 				break;

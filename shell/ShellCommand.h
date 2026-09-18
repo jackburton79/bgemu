@@ -25,7 +25,7 @@ struct ShellCommandParameter {
 	union {
 		int integer;
 		IE::point point;
-		char string[128];
+		char string[512];
 	} value;
 };
 
