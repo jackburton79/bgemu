@@ -1,0 +1,21 @@
+# AREA: AR0602
+#
+# Regression for RunActionAttack() (scripting/Actions.cpp) getting stuck
+# after its first exchange: it used to gate "close enough to attack" on
+# exact pixel equality between Actor::Position() and Actor::Destination().
+# Position() moves in fSpeed-sized steps and doesn't always land exactly on
+# Destination()'s pixel once the path is exhausted, so the attacker kept
+# retrying a dead, empty path forever and the per-round attack cooldown
+# never resumed after the very first attack - the target would then sit at
+# full HP indefinitely instead of eventually dying. Disable-Creature keeps
+# the spawned monster from fleeing on its own (real, unrelated AI
+# behavior) so the only randomness left is the to-hit/damage rolls.
+# AR0602 (not the default starting area) sidesteps an unrelated, pre-
+# existing pathing error logged every tick by one of Candlekeep's own
+# actors there, which would otherwise be misread as a crash by run-all.sh.
+Create-Creature GIBBER,530,127
+Step-Ticks 5
+Disable-Creature GIBBER
+Attack -,GIBBER
+Step-Ticks 9000
+Assert-Trigger GIBBER,true,StateCheck(Myself,STATE_DEAD)

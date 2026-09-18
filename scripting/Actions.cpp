@@ -1582,10 +1582,25 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 		state.flag = true;
 	}
 
-	if (actorSender->Position() != actorSender->Destination()) {
+	// Arrived once close enough to the approach point, not on exact
+	// pixel equality with Destination(): SetDestination() sets
+	// Destination() to the path's last reachable point, but per-tick
+	// movement steps by fSpeed and can overshoot/undershoot that exact
+	// pixel by a remainder. Position() then never becomes bit-for-bit
+	// equal to Destination() once the path is exhausted, and
+	// MoveToNextPointInPath() is a no-op on an empty path - so the old
+	// exact-equality check got stuck in the walking branch forever,
+	// never reaching (and so never resuming) the attack-cooldown countdown
+	// below after the very first exchange.
+	if (!PointSufficientlyClose(actorSender->Position(), point)) {
 		actorSender->SetAnimationAction(ACT_WALKING);
 		actorSender->MoveToNextPointInPath(actorSender->IsFlying());
 	} else {
+		// Face the target while trading blows - orientation is otherwise
+		// only ever updated by MoveToNextPointInPath() while walking, so
+		// without this a stationary attacker keeps whatever facing it
+		// last had while approaching.
+		actorSender->SetOrientation(target->Position());
 		actorSender->SetAnimationAction(ACT_ATTACKING);
 		// Paced by AttackCooldown() rather than resolving a hit every
 		// single tick: state.counter is already claimed above by
