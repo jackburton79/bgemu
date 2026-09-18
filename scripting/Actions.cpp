@@ -526,22 +526,7 @@ RunActionRestParty(Object* sender, action_params* params, action_state& state)
 static void
 _AddExperienceToParty(int32 amount)
 {
-	if (amount <= 0)
-		return;
-
-	::Party* party = Game::Get()->Party();
-	std::vector<Actor*> living;
-	for (uint16 i = 0; i < party->CountActors(); i++) {
-		Actor* actor = party->ActorAt(i);
-		if (!actor->IsState(STATE_DEAD))
-			living.push_back(actor);
-	}
-	if (living.empty())
-		return;
-
-	const uint32 share = (uint32)amount / living.size();
-	for (Actor* actor : living)
-		actor->GainExperience(share);
+	Game::Get()->Party()->ShareExperience(amount);
 }
 
 

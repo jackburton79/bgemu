@@ -36,6 +36,11 @@ public:
 	void StoreLocations();
 	bool RestoreLocations();
 
+	// Splits `amount` XP evenly among currently living party members -
+	// shared by the scripted ADDEXPERIENCEPARTY/-GLOBAL actions and by
+	// Actor::ApplyDamage()'s automatic on-kill award.
+	void ShareExperience(int32 amount);
+
 	std::vector<Actor* > fActors;
 
 private:

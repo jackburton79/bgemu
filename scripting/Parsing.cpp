@@ -179,9 +179,14 @@ Parser::ActionsFromString(const std::string& string)
 
 // Parses one "X:Name*IDS" signature token (e.g. "O:Target*", "I:Time*",
 // "I:ScrollSpeed*Scroll") from an ACTION.IDS/TRIGGER.IDS-style function
-// signature. Malformed input (no ':' or no '*', or one immediately after
-// the other) yields a Parameter::UNKNOWN instead of guessing from
-// clamped-but-wrong substring bounds.
+// signature. The trailing "*IDS" part is optional - some real signatures
+// (e.g. BG2's own TRIGGER.IDS: "XPGT(O:OBJECT*,I:XP)") carry a plain
+// "I:Name" with no '*' at all for a parameter that has no IDS-table enum;
+// treating that as malformed (as this used to) silently drops the value -
+// XPGT(Myself,999999)'s "999999" was never read into parameter1, always
+// leaving it 0. Only a missing ':' (no way to tell name from type at all)
+// still yields Parameter::UNKNOWN instead of guessing from clamped-but-
+// wrong substring bounds.
 static
 Parameter
 ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
@@ -192,13 +197,15 @@ ParameterFromString(const std::string& string, int& stringPos, int& integerPos)
 
 	size_t colonPos = string.find(':');
 	size_t starPos = string.find('*');
-	if (colonPos == std::string::npos || starPos == std::string::npos
-			|| starPos <= colonPos + 1) {
+	if (colonPos == std::string::npos || (starPos != std::string::npos
+			&& starPos <= colonPos + 1)) {
 		return parameter;
 	}
 
-	parameter.name = string.substr(colonPos + 1, starPos - colonPos - 1);
-	std::string valueIDS = string.substr(starPos + 1);
+	size_t nameEnd = starPos == std::string::npos ? string.size() : starPos;
+	parameter.name = string.substr(colonPos + 1, nameEnd - colonPos - 1);
+	std::string valueIDS = starPos == std::string::npos ? ""
+		: string.substr(starPos + 1);
 
 	std::string typeString = string.substr(0, 2);
 	if (typeString == "O:") {

@@ -1,0 +1,22 @@
+# AREA: AR0602
+#
+# Regression for on-kill XP never being awarded: CREResource::
+# ExperienceValue() (a creature's kill-XP reward, CRE offset 0x14) was
+# parsed but nothing ever called it - Actor::ApplyDamage()'s death
+# handling set STATE_DEAD, posted the Died() trigger, ran the death
+# variable, but never gave the party any XP. Fixed by having
+# ApplyDamage() award the dying creature's ExperienceValue() through the
+# same Party::ShareExperience() the ADDEXPERIENCEPARTY action uses,
+# skipping party members themselves. AJANTI (BG1's default party leader)
+# has a fixed 2263 XP in the real CRE data; GIBBER's CRE carries a 35-XP
+# kill reward, so a successful kill should land AJANTI at exactly 2298.
+# AR0602 (not the default starting area) sidesteps an unrelated, pre-
+# existing pathing error logged every tick by one of Candlekeep's own
+# actors there, which would otherwise be misread as a crash by run-all.sh.
+Assert-Trigger AJANTI,true,XP(Myself,2263)
+Create-Creature GIBBER,530,127
+Step-Ticks 5
+Disable-Creature GIBBER
+Attack -,GIBBER
+Step-Ticks 9000
+Assert-Trigger AJANTI,true,XP(Myself,2298)

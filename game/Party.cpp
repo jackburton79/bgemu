@@ -8,6 +8,7 @@
 #include "Party.h"
 
 #include "Core.h"
+#include "CreResource.h"
 
 #include <algorithm>
 
@@ -95,4 +96,24 @@ Party::RestoreLocations()
 
 	fStoredLocations.clear();
 	return true;
+}
+
+
+void
+Party::ShareExperience(int32 amount)
+{
+	if (amount <= 0)
+		return;
+
+	std::vector<Actor*> living;
+	for (Actor* actor : fActors) {
+		if (!actor->IsState(STATE_DEAD))
+			living.push_back(actor);
+	}
+	if (living.empty())
+		return;
+
+	const uint32 share = (uint32)amount / living.size();
+	for (Actor* actor : living)
+		actor->GainExperience(share);
 }

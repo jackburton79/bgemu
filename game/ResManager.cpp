@@ -919,6 +919,12 @@ IDTable::TriggerName(uint32 i)
 			name = "OR(I:ORCOUNT*)";
 		else if (i == 16510)
 			name = "AreaCheck(S:ResRef*)";
+		else if (i == 16579)
+			name = "XP(O:OBJECT*,I:XP)";
+		else if (i == 16580)
+			name = "XPGT(O:OBJECT*,I:XP)";
+		else if (i == 16581)
+			name = "XPLT(O:OBJECT*,I:XP)";
 	}
 	return name;
 }

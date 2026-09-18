@@ -771,6 +771,18 @@ Actor::ApplyDamage(int32 amount)
 	died.round = Core::Get()->ScriptRound();
 	AddTrigger(died);
 
+	// Award this creature's kill XP (CRE offset 0x14) to the party, same
+	// as the real engine does at the moment of death - not gated on who
+	// actually landed the killing blow (unlike the real engine's more
+	// elaborate IF_GIVEXP bookkeeping), so a monster killed by another
+	// hostile, by a trap, etc. still pays out; deliberately-deferred
+	// approximation until an attacker is threaded through ApplyDamage().
+	if (!InParty()) {
+		uint32 xpValue = cre->ExperienceValue();
+		if (xpValue > 0)
+			Game::Get()->Party()->ShareExperience(xpValue);
+	}
+
 	// Drop whatever was queued and clear destination
 	ClearActionList();
 	ClearDestination();
