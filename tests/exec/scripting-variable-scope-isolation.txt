@@ -1,0 +1,29 @@
+# Game-agnostic (uses "-" for the party leader) - run against both
+# games. See game/Variables.cpp (GetScoped/SetScoped), game/AreaRoom.cpp
+# (_InitVariables/AreaVars), game/Game.cpp (Load()).
+#
+# Bug: GLOBAL and MYAREA-scoped variables shared the same flat
+# underlying map (Core::Vars()), so a MYAREA variable could silently
+# clobber a same-named GLOBAL one. This specifically bit Game::Load():
+# it restores the saved GLOBAL variables into that map, then the
+# freshly-loaded area's own AreaRoom::_InitVariables() populates the
+# area's MYAREA variable table into the very same map right after,
+# potentially stomping the just-restored GLOBAL value. Fixed by giving
+# each AreaRoom its own MYAREA table (AreaRoom::AreaVars()), kept
+# separate from Core::Vars() (GLOBAL).
+#
+# Sequence: set a GLOBAL variable, then a MYAREA variable of the SAME
+# name to a different value - before the fix this single MYAREA write
+# silently overwrote the GLOBAL one (same map, same key), so the very
+# first assert below would already fail. Then round-trip through a real
+# save/load (exercising Game::Load()'s GLOBAL-restore-then-area-reload
+# ordering) and confirm the GLOBAL value is still intact afterward.
+Queue-Action -,SetGlobal("BgemuScopeVar","GLOBAL",42)
+Queue-Action -,SetGlobal("BgemuScopeVar","MYAREA",99)
+Step-Ticks 2
+Assert-Trigger -,true,Global("BgemuScopeVar","GLOBAL",42)
+Assert-Trigger -,true,Global("BgemuScopeVar","MYAREA",99)
+
+Save-Game /tmp/bgemu-test-scope-isolation.gam
+Load-Game /tmp/bgemu-test-scope-isolation.gam
+Assert-Trigger -,true,Global("BgemuScopeVar","GLOBAL",42)

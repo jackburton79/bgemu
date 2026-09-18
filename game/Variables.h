@@ -26,10 +26,11 @@ public:
 	// Reads/writes a "<6-char scope tag><name>" variable - the wire
 	// format SETGLOBAL/Global/GlobalGT/GlobalLT/IncrementGlobal all take
 	// (see GetNameAndScope() above). LOCALS goes to `sender`'s own
-	// per-object variables, keyed by the bare name; everything else
-	// (GLOBAL, MYAREA, an explicit area code - area-scoped variables
-	// aren't split into their own per-area tables yet, a known,
-	// pre-existing simplification) goes to Core::Get()->Vars(), also
+	// per-object variables; MYAREA goes to the currently loaded
+	// AreaRoom's own table (AreaRoom::AreaVars()); everything else
+	// (GLOBAL, or an explicit area code - area-scoped variables aren't
+	// split into their own per-area-code tables yet, a known,
+	// pre-existing simplification) goes to Core::Get()->Vars(). All
 	// keyed by the bare name, matching the convention every other
 	// GLOBAL-writing action (SG, AddGlobals, IncrementChapter, ...)
 	// already uses.
