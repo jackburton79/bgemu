@@ -7,6 +7,7 @@
 
 #include "Variables.h"
 
+#include "AreaRoom.h"
 #include "Core.h"
 #include "Object.h"
 
@@ -74,6 +75,18 @@ Variables::GetNameAndScope(const char* variable, std::string& varScope, std::str
 }
 
 
+// MYAREA resolves to the currently loaded area's own variable table (see
+// AreaRoom::AreaVars()'s own comment) - NULL if none is loaded (e.g. the
+// world map is up), in which case a MYAREA read/write is simply dropped,
+// same as a LOCALS one with no sender.
+static Variables*
+_CurrentAreaVars()
+{
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	return area != NULL ? &area->AreaVars() : NULL;
+}
+
+
 /* static */
 int32
 Variables::GetScoped(Object* sender, const char* prefixedName)
@@ -82,6 +95,10 @@ Variables::GetScoped(Object* sender, const char* prefixedName)
 	GetNameAndScope(prefixedName, scope, name);
 	if (scope.compare("LOCALS") == 0)
 		return sender != NULL ? sender->GetVariable(name.c_str()) : 0;
+	if (scope.compare("MYAREA") == 0) {
+		Variables* areaVars = _CurrentAreaVars();
+		return areaVars != NULL ? areaVars->Get(name.c_str()) : 0;
+	}
 	return Core::Get()->Vars().Get(name.c_str());
 }
 
@@ -95,6 +112,9 @@ Variables::SetScoped(Object* sender, const char* prefixedName, int32 value)
 	if (scope.compare("LOCALS") == 0) {
 		if (sender != NULL)
 			sender->SetVariable(name.c_str(), value);
+	} else if (scope.compare("MYAREA") == 0) {
+		if (Variables* areaVars = _CurrentAreaVars())
+			areaVars->Set(name.c_str(), value);
 	} else {
 		Core::Get()->Vars().Set(name.c_str(), value);
 	}

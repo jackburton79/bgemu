@@ -7,6 +7,7 @@
 #include "IETypes.h"
 #include "Object.h"
 #include "Reference.h"
+#include "Variables.h"
 
 #include <vector>
 
@@ -35,6 +36,12 @@ public:
 
 	WEDResource* WED() const;
 	ARAResource* AREA() const;
+
+	// This area's own MYAREA-scoped variable table (IESDP: "each area can
+	// have its own copy of the variable") - kept separate from Core::Vars()
+	// (GLOBAL) so a MYAREA variable can never collide with a same-named
+	// GLOBAL one. See Variables::GetScoped()/SetScoped().
+	Variables& AreaVars();
 
 	virtual void ReloadArea();
 
@@ -283,6 +290,8 @@ private:
 	ContainersList fContainers;
 
 	std::vector<IE::ground_pile> fGroundPiles;
+
+	Variables fAreaVariables;
 
 	typedef std::vector<Effect*> EffectsList;
 	EffectsList fEffects;
