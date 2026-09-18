@@ -59,3 +59,12 @@ Either path may be omitted (`-`) to skip that game's files.
   + assertion on its effect to test an *action*, since there's no
   generic "did this action do the right thing" introspection beyond
   checking a trigger it should have affected.
+- A bug that only shows up across a real quit-and-relaunch (most
+  save/load correctness - see ResManager.cpp's own comment on
+  `TryEmptyResourceCache()` being disabled, which otherwise papers over
+  exactly this within a single process) can't be a `.txt` exec-file:
+  `run-all.sh` only ever starts BGEmu once per file. Write it as a `.sh`
+  script instead (see `bg1-save-load-cross-restart.sh`) that invokes the
+  binary twice itself and does its own `ASSERT FAIL`/crash grepping in
+  the same PASS/FAIL format - `run-all.sh` picks up `bg1-*.sh`/`bg2-*.sh`
+  alongside the `.txt` files.

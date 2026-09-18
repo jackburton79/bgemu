@@ -52,59 +52,32 @@
 // ARAResource::WriteToFile()'s own comment) every time it's left -
 // relative to the working directory, same convention already used by
 // SAVEGAME's own fixed "savegame_slot0.gam" (see scripting/Actions.cpp's
-// RunActionSaveGame()), not the BG2 install path - this is this engine's
-// own working data, not something to write into a real game installation.
-// This specific directory is scratch: it's what a session that hasn't
-// loaded or saved a real save file yet writes to, so - unlike a save
-// file's own checkpoint directory (see sAreaCheckpointDir below) - it
-// doesn't correspond to anything a player would expect to persist, and
-// ClearAreaCheckpoints() always targets this one specifically regardless
-// of which directory is currently active.
-static const char* kDefaultAreaCheckpointDir = "SAVEGAME/arecache";
-
-// The directory area checkpoints are actually written to/read from right
-// now - defaults to the scratch directory above, but Game::Save()/Load()
-// point it at one derived from a specific save file's own path before
-// touching any area, so every save slot gets its own isolated set of
-// checkpoints instead of all of them (and a fresh, not-yet-saved game)
-// sharing one directory - previously loading one slot could pick up
-// another slot's (or the live session's own unsaved) area changes, since
-// nothing distinguished which checkpoint belonged to which slot.
-static std::string sAreaCheckpointDir = kDefaultAreaCheckpointDir;
-
-// Whether leaving an area should checkpoint it at all - true except for
-// the one deliberate exception Game::Load() needs (see
-// AreaRoom::SetCheckpointOnUnload()'s own comment): discarding whatever
-// unsaved progress the current session has, rather than writing it
-// anywhere, so it can never clobber the very save being loaded (which,
-// if the player is reloading the slot they're already playing in, is
-// exactly the directory this session's checkpoints have been going to
-// all along).
-static bool sCheckpointOnUnload = true;
+// RunActionSaveGame()), not the BG2 install path. A single directory for
+// the session's entire lifetime, regardless of which save (if any) is
+// currently loaded - matching real IE's own single cache directory: 
+// a save's own .SAV archive is extracted into that cache wholesale
+// on load and re-archived from it on save, rather than the cache itself
+// ever being redirected to somewhere save-specific.
+// Game::Save()/Load() copy this directory's contents
+// to/from a specific save's own ".arecache" directory (see their own
+// comments) instead - AreaRoom itself always reads/writes here.
+static const char* kAreaCheckpointDir = "SAVEGAME/current/arecache";
 
 
 static std::string
 _AreaCheckpointPath(const char* areaName)
 {
-	std::string path = sAreaCheckpointDir;
+	std::string path = kAreaCheckpointDir;
 	path.append("/").append(areaName).append(".ARE");
 	return path;
 }
 
 
 /* static */
-void
-AreaRoom::SetAreaCheckpointDir(const std::string& path)
+const char*
+AreaRoom::AreaCheckpointDir()
 {
-	sAreaCheckpointDir = path;
-}
-
-
-/* static */
-void
-AreaRoom::SetCheckpointOnUnload(bool checkpoint)
-{
-	sCheckpointOnUnload = checkpoint;
+	return kAreaCheckpointDir;
 }
 
 
@@ -113,7 +86,7 @@ void
 AreaRoom::ClearAreaCheckpoints()
 {
 	std::error_code error;
-	std::filesystem::remove_all(kDefaultAreaCheckpointDir, error);
+	std::filesystem::remove_all(kAreaCheckpointDir, error);
 }
 
 
@@ -1774,7 +1747,7 @@ AreaRoom::WriteCheckpoint()
 		_EmbedActorCRE(actor);
 
 	std::error_code checkpointError;
-	std::filesystem::create_directories(sAreaCheckpointDir, checkpointError);
+	std::filesystem::create_directories(kAreaCheckpointDir, checkpointError);
 	if (!fArea->WriteToFile(_AreaCheckpointPath(Name()).c_str())) {
 		std::cerr << "AreaRoom::WriteCheckpoint(): failed to checkpoint "
 			<< Name() << std::endl;
@@ -1905,11 +1878,12 @@ AreaRoom::_UnloadArea()
 	// embedding was already handled above, in the loop that just cleared
 	// fActors, so WriteCheckpoint()'s own embedding pass here is a no-op -
 	// called anyway for the single file write, rather than duplicating it.
-	// Skipped when Game::Load() is deliberately discarding this session's
-	// unsaved progress instead (see SetCheckpointOnUnload()'s own
-	// comment).
-	if (sCheckpointOnUnload)
-		WriteCheckpoint();
+	// Always written, even when Game::Load() is about to discard this
+	// session's unsaved progress - Load() wipes and rebuilds the whole
+	// checkpoint directory from the save being loaded right after
+	// (Core::UnloadCurrentRoom()) anyway, so writing here first is
+	// harmless, just about to be overwritten wholesale.
+	WriteCheckpoint();
 
 	// Kept alive in the in-memory cache too (see Game::AreaCache's own
 	// comment) rather than released - it owns the IE::door/IE::actor

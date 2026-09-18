@@ -1,0 +1,28 @@
+# Needs the default starting party (no -P/-a override):
+# ./bin/BGEmu -p <BG1 path> -D -x tests/exec/bg1-save-load-position.txt
+#
+# Bug: Game::Load() built each party member's Actor with the saved
+# position (member.position) as a constructor argument, but the very
+# next step - Core::LoadArea() - builds a fresh AreaRoom, whose
+# constructor always repositions every party member to that area's own
+# entrance point (there's no real entrance name to give it; a load isn't
+# an actual area transition) - see AreaRoom::AreaRoom()'s own per-member
+# spawn loop. That silently overwrote the just-restored saved position
+# every time, landing the party wherever the current area's EntranceAt(0)
+# happens to be instead of where the save said they actually were
+# standing. Fixed by having Game::Load() re-apply each member's saved
+# position (and re-center the camera on the leader) after LoadArea()
+# returns, instead of trusting it to survive AreaRoom's own construction.
+Run-Action -,110,-,0,AR2700,-,1300,700
+Step-Ticks 5
+
+Queue-Action -,JumpToPoint(2500,1500)
+Step-Ticks 10
+
+Assert-Position AJANTI,2500,1500
+
+Save-Game /tmp/bgemu-test-position.gam
+Load-Game /tmp/bgemu-test-position.gam
+Step-Ticks 2
+
+Assert-Position AJANTI,2500,1500

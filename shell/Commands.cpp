@@ -1470,6 +1470,51 @@ public:
 };
 
 
+// Assert-Position <actor>,<x>,<y> - same self-checking spirit as
+// Assert-DoorOpened, for an actor's exact position: no trigger exposes
+// this either (Range(O:Object*,I:Distance*) only compares against
+// another object, not an absolute point). Used to verify a party
+// member's position survives a Save-Game/Load-Game round trip instead
+// of being reset to wherever the loaded area's own entrance point is
+// (see Game::Load()'s own comment on why that used to happen).
+class AssertPositionCommand : public ShellCommand {
+public:
+	AssertPositionCommand()
+		: ShellCommand(
+			"Assert-Position",
+			{
+				{ PARAMETER_STRING, },
+				{ PARAMETER_POINT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::string actorName = params.at(0).value.string;
+		IE::point expected = params.at(1).value.point;
+
+		Actor* actor = FindActor(actorName);
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: Position(" << actorName << ") - actor not found"
+				<< std::endl;
+			return;
+		}
+		IE::point position = actor->Position();
+		if (position.x == expected.x && position.y == expected.y) {
+			std::cout << "ASSERT OK: Position(" << actorName << ")" << std::endl;
+		} else {
+			// std::dec: an earlier command elsewhere may have left cout in
+			// hex mode (it's a sticky stream flag) - always print this in
+			// decimal regardless, matching what the caller passed in.
+			std::cout << std::dec << "ASSERT FAIL: Position(" << actorName << ") - expected ("
+				<< expected.x << "," << expected.y << "), got ("
+				<< position.x << "," << position.y << ")" << std::endl;
+		}
+	}
+};
+
+
 // Assert-JournalHasEntry <strref>,<true|false> - same self-checking
 // spirit as Assert-DoorOpened, for Game::JournalEntries(): no trigger
 // exposes journal content, so this is the only way to assert on it
@@ -2004,6 +2049,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new CheckWorldmapExitCommand());
 	console->AddCommand(new AssertAreaMapVisibleCommand());
 	console->AddCommand(new AssertDoorOpenedCommand());
+	console->AddCommand(new AssertPositionCommand());
 	console->AddCommand(new AssertJournalHasEntryCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());

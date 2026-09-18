@@ -47,15 +47,33 @@ run_one() {
 	fi
 }
 
+# A *.sh file is its own self-contained test (see README.md's own
+# comment on why some regressions - most save/load correctness - need
+# more than one BGEmu invocation, which a plain console exec-file can't
+# do): run it directly (it prints its own PASS/FAIL line) and just fold
+# its exit code into the same tally run_one() above updates.
+run_script() {
+	game_path="$1"
+	file="$2"
+	total=$((total + 1))
+	"$file" "$game_path" || failures=$((failures + 1))
+}
+
 if [ "$BG1_PATH" != "-" ] && [ -n "$BG1_PATH" ]; then
 	for f in "$SCRIPT_DIR"/scripting-*.txt "$SCRIPT_DIR"/bg1-*.txt; do
 		[ -f "$f" ] && run_one "$BG1_PATH" "$f"
+	done
+	for f in "$SCRIPT_DIR"/bg1-*.sh; do
+		[ -x "$f" ] && run_script "$BG1_PATH" "$f"
 	done
 fi
 
 if [ "$BG2_PATH" != "-" ] && [ -n "$BG2_PATH" ]; then
 	for f in "$SCRIPT_DIR"/scripting-*.txt "$SCRIPT_DIR"/bg2-*.txt; do
 		[ -f "$f" ] && run_one "$BG2_PATH" "$f"
+	done
+	for f in "$SCRIPT_DIR"/bg2-*.sh; do
+		[ -x "$f" ] && run_script "$BG2_PATH" "$f"
 	done
 fi
 

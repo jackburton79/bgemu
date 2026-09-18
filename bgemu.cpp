@@ -200,10 +200,11 @@ main(int argc, char **argv)
 
 	// Guards against a *previous* run's checkpoints (left behind by a
 	// crash or a kill - the exit-time ClearAreaCheckpoints() below never
-	// got a chance to run) bleeding into this one: this is the default,
-	// no-save-loaded checkpoint directory, and Game::Load() below points
-	// AreaRoom at a specific save's own directory before touching any
-	// area, so a loaded save's own checkpoints are never affected by this.
+	// got a chance to run) bleeding into this one. A Game::Load() further
+	// into this run restores whatever that save's own archive had into
+	// this same directory before touching any area (see AreaRoom::
+	// AreaCheckpointDir()'s own comment), so this is only ever about a
+	// stale leftover from *before* any load happens this run.
 	AreaRoom::ClearAreaCheckpoints();
 
 	try {

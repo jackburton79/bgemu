@@ -147,34 +147,22 @@ public:
 	static bool IsPointPassable(const IE::point& point);
 
 	// Every on-disk area checkpoint (see _UnloadArea()/WriteCheckpoint())
-	// is written under this directory - Game::Save()/Load() point it at
-	// one derived from the save file's own path before touching any area,
-	// so each save slot's checkpoints stay isolated from every other
-	// slot's and from a fresh, not-yet-saved game's. Defaults to a single
-	// shared directory for any session that never saves/loads (e.g. a
-	// console test script).
-	static void SetAreaCheckpointDir(const std::string& path);
+	// lives under this single directory for the session's entire
+	// lifetime, regardless of which save (if any) is currently loaded -
+	// same idea as real IE's own single cache directory (GemRB's
+	// Interface::CachePath), which a save's own .SAV archive is
+	// extracted into on load and re-archived from on save. Game::Save()/
+	// Load() copy this directory's contents to/from a specific save
+	// file's own ".arecache" directory (see their own comments) instead
+	// of ever pointing AreaRoom itself at a different directory - every
+	// area checkpoint this engine ever writes, for any save or none,
+	// goes through this one path.
+	static const char* AreaCheckpointDir();
 
-	// Whether leaving an area (see _UnloadArea()) writes its checkpoint
-	// at all - true by default. Game::Load() sets this false around the
-	// UnloadCurrentRoom() call it makes to abandon whatever's currently
-	// loaded before adopting the save it's about to read: a real load
-	// discards unsaved progress rather than preserving it anywhere, and
-	// writing it anyway could otherwise clobber the very save being
-	// loaded - if the player is reloading the slot they're already
-	// playing in, SetAreaCheckpointDir() has had this session's own
-	// checkpoints pointed at that exact save's directory all along.
-	static void SetCheckpointOnUnload(bool checkpoint);
-
-	// Deletes every on-disk area checkpoint in the default, scratch
-	// checkpoint directory (see SetAreaCheckpointDir()'s own comment) -
-	// always that one specifically, never whatever directory a save's own
-	// Load()/Save() may have since redirected to, so an actual save's
-	// checkpoints are never at risk of being swept up by this. Called at
-	// program shutdown so a later, unrelated session never inherits this
-	// one's not-yet-saved scratch checkpoints; also called before
-	// entering the game loop, in case an earlier run crashed before
-	// reaching shutdown.
+	// Deletes every on-disk area checkpoint in AreaCheckpointDir().
+	// Called at program shutdown so a later, unrelated session never
+	// inherits this one's checkpoints; also called before entering the
+	// game loop, in case an earlier run crashed before reaching shutdown.
 	static void ClearAreaCheckpoints();
 
 	// Snapshots this area's own current state to disk right now, without

@@ -2184,6 +2184,28 @@ Game::_RunExecFile(GameConsole* console)
 }
 
 
+// Copies every on-disk area checkpoint from one directory to another
+// (creating `to` if needed) - shared by Game::Save() (the live session's
+// single checkpoint directory -> this save's own archive) and Game::
+// Load() (that archive -> the live session's directory), mirroring
+// GemRB's own single-cache-directory approach (see AreaRoom::
+// AreaCheckpointDir()'s own comment) with a plain directory copy instead
+// of a real archive format.
+static void
+_CopyAreaCheckpoints(const std::string& from, const std::string& to)
+{
+	std::error_code error;
+	if (!std::filesystem::exists(from, error))
+		return;
+
+	std::filesystem::create_directories(to, error);
+	std::filesystem::copy(from, to,
+		std::filesystem::copy_options::recursive
+			| std::filesystem::copy_options::overwrite_existing,
+		error);
+}
+
+
 bool
 Game::Save(const char* name)
 {
@@ -2191,11 +2213,6 @@ Game::Save(const char* name)
 		std::cerr << "Game::Save(): no party to save" << std::endl;
 		return false;
 	}
-
-	// Every save gets its own area-checkpoint directory (see
-	// AreaRoom::SetAreaCheckpointDir()'s own comment) - derived from this
-	// save's own path so distinct slots/paths never collide.
-	AreaRoom::SetAreaCheckpointDir(std::string(name) + ".arecache");
 
 	RoomBase* room = Core::Get()->CurrentRoom();
 	res_ref areaName(room != NULL ? room->Name() : "");
@@ -2206,6 +2223,13 @@ Game::Save(const char* name)
 	// come back pristine on a later load.
 	if (AreaRoom* areaRoom = dynamic_cast<AreaRoom*>(room))
 		areaRoom->WriteCheckpoint();
+
+	// Every area checkpointed at any point this session - not just the
+	// current one - lives in AreaRoom's single, session-long checkpoint
+	// directory (see its own comment): copy all of it into this save's
+	// own archive directory, so an area visited and left long before
+	// this save, and never revisited since, is captured too.
+	_CopyAreaCheckpoints(AreaRoom::AreaCheckpointDir(), std::string(name) + ".arecache");
 
 	GamResource* gam = new GamResource(res_ref("SAVE"));
 	gam->SetCurrentArea(areaName);
@@ -2252,27 +2276,32 @@ Game::Load(const char* name)
 		return false;
 	}
 
-	// Abandon whatever's currently loaded - discarding it, not
-	// checkpointing it (see AreaRoom::SetCheckpointOnUnload()'s own
-	// comment: writing it under whichever directory happens to be active
-	// right now could otherwise clobber the very save about to be read
-	// below, e.g. when reloading the slot already being played in) -
-	// before adopting this save's own, isolated checkpoint directory and
-	// dropping this session's in-memory area cache: a load restores
-	// *that save's* world, not whatever the live session still happens
-	// to be holding onto for some other area (see AreaRoom::
-	// SetAreaCheckpointDir()/_ClearAreaCache()'s own comments).
-	AreaRoom::SetCheckpointOnUnload(false);
+	// Abandon whatever's currently loaded - a load restores *that save's*
+	// world, not whatever the live session still happens to be holding
+	// onto (see _ClearAreaCache()'s own comment below). Its own on-unload
+	// checkpoint write still happens (into the live session's single
+	// checkpoint directory, see AreaRoom::AreaCheckpointDir()), but that's
+	// harmless: the wipe-and-restore right below discards it along with
+	// everything else already there, unconditionally.
 	Core::Get()->UnloadCurrentRoom();
-	AreaRoom::SetCheckpointOnUnload(true);
 
-	AreaRoom::SetAreaCheckpointDir(std::string(name) + ".arecache");
+	std::error_code error;
+	std::filesystem::remove_all(AreaRoom::AreaCheckpointDir(), error);
+	_CopyAreaCheckpoints(std::string(name) + ".arecache", AreaRoom::AreaCheckpointDir());
+
+	// The in-memory session cache (live Actor/ARAResource C++ objects
+	// from areas visited earlier this session) is separate from the
+	// on-disk checkpoints just restored above, and isn't reset by
+	// replacing them - drop it too, or a revisited area would resurrect
+	// this abandoned session's own state instead of reading back what
+	// was just restored from disk.
 	_ClearAreaCache();
 
 	delete fParty;
 	fParty = new ::Party();
 
 	uint32 count = gam->PartyMemberCount();
+	std::vector<IE::point> savedPositions;
 	for (uint32 i = 0; i < count; i++) {
 		gam_party_member member = gam->PartyMemberAt(i);
 
@@ -2292,6 +2321,7 @@ Game::Load(const char* name)
 		}
 
 		fParty->AddActor(actor);
+		savedPositions.push_back(member.position);
 	}
 
 	for (const auto& variable : gam->Variables())
@@ -2302,7 +2332,25 @@ Game::Load(const char* name)
 
 	res_ref area = gam->CurrentArea();
 	gResManager->ReleaseResource(gam);
-	return Core::Get()->LoadArea(area, "", "");
+	if (!Core::Get()->LoadArea(area, "", ""))
+		return false;
+
+	// LoadArea() above builds a fresh AreaRoom, which - having no real
+	// entrance name to go on, a load isn't an actual area transition -
+	// parks every party member at that area's own EntranceAt(0) instead
+	// (see AreaRoom::AreaRoom()'s own per-member spawn loop). Put them
+	// back where this save actually had them; each Actor() above already
+	// got its saved position as a constructor argument, but that's long
+	// since been overwritten by the entrance-repositioning above.
+	for (uint16 i = 0; i < fParty->CountActors() && i < savedPositions.size(); i++)
+		fParty->ActorAt(i)->SetPosition(savedPositions[i]);
+
+	if (Actor* leader = fParty->ActorAt(0)) {
+		if (RoomBase* room = Core::Get()->CurrentRoom())
+			room->SetAreaOffsetCenter(leader->Position());
+	}
+
+	return true;
 }
 
 
@@ -2659,10 +2707,10 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 			std::string path = _SaveSlotPath(i);
 			std::error_code error;
 			std::filesystem::remove(path, error);
-			// Its own isolated area-checkpoint directory (see
-			// AreaRoom::SetAreaCheckpointDir()'s own comment) goes with
-			// it - otherwise a later save reusing this same slot path
-			// would inherit whatever this deleted save last left there.
+			// Its own area-checkpoint archive directory (see Game::
+			// Save()'s own comment) goes with it - otherwise a later
+			// save reusing this same slot path would inherit whatever
+			// this deleted save last left there.
 			std::filesystem::remove_all(path + ".arecache", error);
 			_UpdateSaveLoadRows(chu);
 			return;
