@@ -565,16 +565,24 @@ Game::SetStartingArea(const char* areaName)
 // The full-screen panels (Inventory/Record/Journal/Spellbook/Save/Load)
 // are mutually exclusive in real BG2 - opening one replaces whichever
 // other one is open, it doesn't layer on top of it. Registry of each
-// one's aux-window group, used by _CloseOtherScreens() below.
-static const struct { const char* chu; uint16 windows[3]; uint8 count; }
+// one's aux-window group (used by _CloseOtherScreens()) and its matching
+// command-bar control id (used by _UpdateCommandBarToggle() to show that
+// icon "pressed in" while the screen is open - shared with
+// kHUDCommandButtons in gui/GUI.cpp and kAuxCommandBarButtons below, same
+// ids in all three). Map/Pause/Rest aren't here - they aren't a
+// persistent open/closed screen. Journal has no confirmed command-bar id
+// yet (see kHUDCommandButtons's own comment), so it uses
+// kNoCommandBarButton and stays unhighlighted.
+static const uint32 kNoCommandBarButton = (uint32)-1;
+static const struct { const char* chu; uint16 windows[3]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
-	{ "GUIINV",  { 2, 0, 1 }, 3 },
-	{ "GUIREC",  { 2, 0, 1 }, 3 },
-	{ "GUIJRNL", { 2, 0, 1 }, 3 },
-	{ "GUIMG",   { 2, 0, 1 }, 3 },
-	{ "GUIPR",   { 2, 0, 1 }, 3 },
-	{ "GUISAVE", { 0 },       1 },
-	{ "GUILOAD", { 0 },       1 },
+	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
+	{ "GUIREC",  { 2, 0, 1 }, 3, 4 },
+	{ "GUIJRNL", { 2, 0, 1 }, 3, kNoCommandBarButton },
+	{ "GUIMG",   { 2, 0, 1 }, 3, 5 },
+	{ "GUIPR",   { 2, 0, 1 }, 3, 6 },
+	{ "GUISAVE", { 0 },       1, 7 },
+	{ "GUILOAD", { 0 },       1, 7 },
 };
 
 
@@ -588,27 +596,10 @@ _CloseOtherScreens(const char* exceptCHU)
 	for (const auto& group : kScreenGroups) {
 		if (::strcasecmp(group.chu, exceptCHU) == 0)
 			continue;
-		for (uint8 i = 0; i < group.count; i++)
+		for (uint8 i = 0; i < group.windowCount; i++)
 			GUI::Get()->HideAuxWindow(group.chu, group.windows[i]);
 	}
 }
-
-
-// Which command-bar control (shared by kHUDCommandButtons in gui/GUI.cpp
-// and kAuxCommandBarButtons below - same ids in both) corresponds to each
-// screen group above, so its icon can be shown "pressed in" while that
-// screen is open. Map/Pause/Rest aren't here - they aren't a persistent
-// open/closed screen. Journal has no confirmed command-bar id yet (see
-// kHUDCommandButtons's own comment), so it's left unhighlighted.
-static const struct { const char* chu; uint32 controlID; }
-kScreenGroupButtons[] = {
-	{ "GUIINV",  3 },
-	{ "GUIREC",  4 },
-	{ "GUIMG",   5 },
-	{ "GUIPR",   6 },
-	{ "GUISAVE", 7 },
-	{ "GUILOAD", 7 },
-};
 
 
 static void
@@ -641,10 +632,12 @@ Game::_UpdateCommandBarToggle()
 
 	Window* hudBar = GUI::Get()->GetWindow(GUI::WINDOW_COMMANDS);
 	Window* auxBar = activeCHU != NULL ? GUI::Get()->GetAuxWindow(activeCHU, 0) : NULL;
-	for (const auto& entry : kScreenGroupButtons) {
-		bool active = activeCHU != NULL && ::strcasecmp(entry.chu, activeCHU) == 0;
-		_SetButtonToggled(hudBar, entry.controlID, active);
-		_SetButtonToggled(auxBar, entry.controlID, active);
+	for (const auto& group : kScreenGroups) {
+		if (group.commandBarButtonID == kNoCommandBarButton)
+			continue;
+		bool active = activeCHU != NULL && ::strcasecmp(group.chu, activeCHU) == 0;
+		_SetButtonToggled(hudBar, group.commandBarButtonID, active);
+		_SetButtonToggled(auxBar, group.commandBarButtonID, active);
 	}
 }
 
