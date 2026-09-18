@@ -25,6 +25,7 @@ Button::Button(IE::button* button)
 	fPressedBitmap(NULL),
 	fUnpressedBitmap(NULL),
 	fIcon(NULL),
+	fText(NULL),
 	fIconCount(0),
 	fCoverBackground(false),
 	fHighlighted(false),
@@ -78,6 +79,37 @@ Button::~Button()
 		fUnpressedBitmap->Release();
 	if (fIcon != NULL)
 		fIcon->Release();
+	if (fText != NULL)
+		fText->Release();
+}
+
+
+void
+Button::SetText(const std::string& text)
+{
+	if (fText != NULL) {
+		fText->Release();
+		fText = NULL;
+	}
+	if (text.empty())
+		return;
+
+	const Font* font = FontRoster::GetFont("TOOLFONT");
+	if (font == NULL)
+		return;
+
+	fText = font->GetRenderedString(text, 0);
+	if (fText != NULL) {
+		fTextRect = GFX::rect(0, 0, fText->Width(), fText->Height());
+		fTextRect.CenterIn(Frame());
+	}
+}
+
+
+void
+Button::SetEnabled(bool enabled)
+{
+	fEnabled = enabled;
 }
 
 
@@ -200,6 +232,11 @@ Button::Draw()
 			}
 		}
 	}
+	if (fText != NULL) {
+		GFX::rect textRect = fTextRect;
+		fWindow->ConvertToScreen(textRect);
+		GraphicsEngine::Get()->BlitToScreen(fText, NULL, &textRect);
+	}
 	if (fHighlighted)
 		_DrawOutline(0, 255, 0);
 	// Marks a command-bar icon whose window is currently open - same
@@ -232,6 +269,9 @@ Button::MouseMoved(IE::point point, uint32 transit)
 void
 Button::MouseDown(IE::point point)
 {
+	if (!fEnabled)
+		return;
+
 	Control::MouseDown(point);
 	fPressed = true;
 
@@ -255,6 +295,9 @@ Button::MouseDown(IE::point point)
 bool
 Button::RightMouseDown(IE::point point)
 {
+	if (!fEnabled)
+		return false;
+
 	InvokeRightClick();
 	return true;
 }
@@ -264,6 +307,9 @@ Button::RightMouseDown(IE::point point)
 void
 Button::MouseUp(IE::point point)
 {
+	if (!fEnabled)
+		return;
+
 	Control::MouseUp(point);
 	// fPressed cleared *before* Invoke(), not after: a control's action
 	// can synchronously tear down and rebuild the whole GUI (e.g. a

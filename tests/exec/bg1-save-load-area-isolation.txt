@@ -46,3 +46,24 @@ Assert-DoorOpened Door0101,true
 
 Load-Game /tmp/bgemu-test-save-slot-b.gam
 Assert-DoorOpened Door0101,false
+
+# Reloading the *same* slot just saved (not a different one) is its own
+# case: Game::Load() used to checkpoint the live session's own unsaved
+# changes under whatever directory was already active before switching
+# to the target save's - correct when abandoning a *different* slot/a
+# fresh session, but when the slot being reloaded is the one already
+# being played in, that "already active" directory *is* the save about
+# to be read, so the live session's unsaved state clobbered it instead
+# of the intended discard. Fixed by AreaRoom::SetCheckpointOnUnload():
+# Game::Load() now discards the abandoned session's current area outright
+# instead of checkpointing it anywhere.
+Run-Action -,143,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,true
+Save-Game /tmp/bgemu-test-save-slot-b.gam
+
+Run-Action -,144,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,false
+Load-Game /tmp/bgemu-test-save-slot-b.gam
+Assert-DoorOpened Door0101,true

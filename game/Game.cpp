@@ -42,10 +42,12 @@
 #include <algorithm>
 #include <assert.h>
 #include <cctype>
+#include <ctime>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <utility>
 
 #include <SDL.h>
@@ -719,16 +721,15 @@ Game::ToggleRecordWindow()
 }
 
 
-// Shows/hides the (single-slot) Save/Load screen - just window 0, no
-// side columns (it's a standalone full-screen 640x480 CHU, unlike
-// GUIINV/GUIREC's 512-wide content panel flanked by the persistent
-// portrait columns).
+// Shows/hides the Save/Load screen - just window 0, no side columns
+// (it's a standalone full-screen 640x480 CHU, unlike GUIINV/GUIREC's
+// 512-wide content panel flanked by the persistent portrait columns).
 void
 Game::ToggleSaveWindow()
 {
 	_CloseOtherScreens("GUISAVE");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUISAVE", {0}))
-		_UpdateSaveLoadLabels("GUISAVE");
+		_UpdateSaveLoadRows("GUISAVE");
 	_UpdateCommandBarToggle();
 }
 
@@ -738,7 +739,7 @@ Game::ToggleLoadWindow()
 {
 	_CloseOtherScreens("GUILOAD");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUILOAD", {0}))
-		_UpdateSaveLoadLabels("GUILOAD");
+		_UpdateSaveLoadRows("GUILOAD");
 	_UpdateCommandBarToggle();
 }
 
@@ -1108,19 +1109,33 @@ static const uint32 kRecClassLabelID = 268435504;
 static const uint32 kRecRaceLabelID = 268435471;
 static const uint32 kRecGenderLabelID = 268435473;
 static const uint32 kRecStatsAreaID = 45;
-// GUISAVE.CHU and GUILOAD.CHU share the exact same window 0 layout
-// (confirmed via a real dump of both - same control ids/positions) -
-// only the first of the 4 visible slots is used in this minimal
-// version, plus the main confirm button.
-static const uint32 kSaveSlot1NameLabelID = 268435464;
-static const uint32 kSaveSlot1StatusLabelID = 268435472;
-static const uint32 kSaveConfirmButtonID = 34;
+// GUISAVE.CHU and GUILOAD.CHU window 0 share the same control-id layout
+// (confirmed via a real dump of both games' CHUs) - 4 fixed slot rows,
+// each: a name label, a date label, a Save-or-Load button and a Delete
+// button. Ids follow GemRB's own GUISAVE.py ctrl_offset table, which is
+// also how it's known id 34 is Cancel - this code used to wrongly treat
+// it as a shared "confirm" button.
+static const uint32 kSaveSlotCount = 4;
+static const uint32 kSaveSlotNameLabelID[kSaveSlotCount] =
+	{ 268435464, 268435465, 268435466, 268435467 };
+static const uint32 kSaveSlotDateLabelID[kSaveSlotCount] =
+	{ 268435472, 268435473, 268435474, 268435475 };
+static const uint32 kSaveSlotActionButtonID[kSaveSlotCount] = { 26, 27, 28, 29 };
+static const uint32 kSaveSlotDeleteButtonID[kSaveSlotCount] = { 30, 31, 32, 33 };
+static const uint32 kSaveCancelButtonID = 34;
 // Real BG2 numbers save files per slot (see SAVEGAME(190)'s own
 // existing "savegame_slot<N>.gam" convention in RunActionSaveGame(),
-// scripting/Actions.cpp) - this minimal single-slot screen just always
-// uses slot 0.
+// scripting/Actions.cpp, which now writes under this same directory) -
+// this screen just always shows the first kSaveSlotCount of them, with
+// no scrolling past that (see ToggleSaveWindow()'s own comment).
 static const char* kSavePath = "SAVEGAME";
-static const char* kSaveSlotPath = "savegame_slot0.gam";
+
+
+static std::string
+_SaveSlotPath(uint32 index)
+{
+	return std::string(kSavePath) + "/savegame_slot" + std::to_string(index) + ".gam";
+}
 // GUIJRNL.CHU window 2 (confirmed via a real dump): id 1 is the main
 // scrollable entries text_area (with its own scrollbar at id 2, same
 // pairing convention as GUIREC's saves/resistances area).
@@ -2223,15 +2238,20 @@ Game::Load(const char* name)
 		return false;
 	}
 
-	// Abandon whatever's currently loaded - checkpointed under whichever
-	// directory was active *before* switching below, so this now-
-	// abandoned session's own state doesn't leak into the save being
-	// loaded - before adopting this save's own, isolated checkpoint
-	// directory and dropping this session's in-memory area cache: a load
-	// restores *that save's* world, not whatever the live session still
-	// happens to be holding onto for some other area (see
-	// AreaRoom::SetAreaCheckpointDir()/_ClearAreaCache()'s own comments).
+	// Abandon whatever's currently loaded - discarding it, not
+	// checkpointing it (see AreaRoom::SetCheckpointOnUnload()'s own
+	// comment: writing it under whichever directory happens to be active
+	// right now could otherwise clobber the very save about to be read
+	// below, e.g. when reloading the slot already being played in) -
+	// before adopting this save's own, isolated checkpoint directory and
+	// dropping this session's in-memory area cache: a load restores
+	// *that save's* world, not whatever the live session still happens
+	// to be holding onto for some other area (see AreaRoom::
+	// SetAreaCheckpointDir()/_ClearAreaCache()'s own comments).
+	AreaRoom::SetCheckpointOnUnload(false);
 	Core::Get()->UnloadCurrentRoom();
+	AreaRoom::SetCheckpointOnUnload(true);
+
 	AreaRoom::SetAreaCheckpointDir(std::string(name) + ".arecache");
 	_ClearAreaCache();
 
@@ -2513,13 +2533,15 @@ Game::TestMode() const
 }
 
 
-// Fills in slot 1's name/status labels with whatever's actually on disk
-// at kSaveSlotPath - "Vuoto" (empty) if there's no file there yet,
-// otherwise a generic "available" status. Doesn't parse the GAM file to
-// show its real character/area/date (that's the multi-slot browser's
-// job, not modeled here) - just enough to tell the two states apart.
+// Fills in every slot row's name/date labels and Save-or-Load/Delete
+// button state from whatever's actually on disk at _SaveSlotPath(i) -
+// "Vuoto" (empty) if there's no file there yet, otherwise the file's own
+// last-modified time (this engine's own saves don't carry an in-game
+// date of their own to show - see GamResource's header comment - so a
+// real-world timestamp is the closest available substitute, same as
+// what real BG2's own save browser shows for GUISAVE, if not GUILOAD).
 void
-Game::_UpdateSaveLoadLabels(const res_ref& chuName)
+Game::_UpdateSaveLoadRows(const res_ref& chuName)
 {
 	Window* window = GUI::Get()->GetAuxWindow(chuName, 0);
 	if (window == NULL)
@@ -2527,17 +2549,53 @@ Game::_UpdateSaveLoadLabels(const res_ref& chuName)
 
 	std::error_code checkpointError;
 	std::filesystem::create_directories(kSavePath, checkpointError);
-	std::string saveSlotPath = std::string(kSavePath) + std::string("/") + std::string(kSaveSlotPath);
-	std::ifstream file(saveSlotPath);
-	bool exists = file.good();
 
-	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSaveSlot1NameLabelID));
-	if (nameLabel != NULL)
-		nameLabel->SetText("Slot 1");
+	bool isSave = res_ref(chuName) == res_ref("GUISAVE");
 
-	Label* statusLabel = dynamic_cast<Label*>(window->GetControlByID(kSaveSlot1StatusLabelID));
-	if (statusLabel != NULL)
-		statusLabel->SetText(exists ? "Salvataggio disponibile" : "Vuoto");
+	for (uint32 i = 0; i < kSaveSlotCount; i++) {
+		std::string path = _SaveSlotPath(i);
+		struct stat info;
+		bool exists = ::stat(path.c_str(), &info) == 0;
+
+		Label* nameLabel = dynamic_cast<Label*>(
+			window->GetControlByID(kSaveSlotNameLabelID[i]));
+		if (nameLabel != NULL)
+			nameLabel->SetText("Slot " + std::to_string(i + 1));
+
+		Label* dateLabel = dynamic_cast<Label*>(
+			window->GetControlByID(kSaveSlotDateLabelID[i]));
+		if (dateLabel != NULL) {
+			if (exists) {
+				char buffer[64];
+				std::time_t modTime = info.st_mtime;
+				std::strftime(buffer, sizeof(buffer), "%c", std::localtime(&modTime));
+				dateLabel->SetText(buffer);
+			} else {
+				dateLabel->SetText("Vuoto");
+			}
+		}
+
+		Button* actionButton = dynamic_cast<Button*>(
+			window->GetControlByID(kSaveSlotActionButtonID[i]));
+		if (actionButton != NULL) {
+			actionButton->SetText(isSave ? "Salva" : "Carica");
+			// A Save button stays enabled on an empty row too - saving
+			// into one is how a new save gets made; a Load button can't
+			// do anything useful with a slot that doesn't exist yet.
+			actionButton->SetEnabled(isSave || exists);
+		}
+
+		Button* deleteButton = dynamic_cast<Button*>(
+			window->GetControlByID(kSaveSlotDeleteButtonID[i]));
+		if (deleteButton != NULL) {
+			deleteButton->SetText("Elimina");
+			deleteButton->SetEnabled(exists);
+		}
+	}
+
+	Button* cancelButton = dynamic_cast<Button*>(window->GetControlByID(kSaveCancelButtonID));
+	if (cancelButton != NULL)
+		cancelButton->SetText("Annulla");
 }
 
 
@@ -2545,7 +2603,7 @@ void
 Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 	uint16 windowID)
 {
-	if (windowID != 0 || controlID != kSaveConfirmButtonID)
+	if (windowID != 0)
 		return;
 
 	// Copy, not reference: chuName came from the very Window that owns
@@ -2553,21 +2611,45 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 	// reloads the area (Core::LoadArea()), which rebuilds the whole GUI
 	// from scratch (GUI::Load() calls Clear(), destroying every window,
 	// that one included) - a lingering reference into it would dangle.
-	std::error_code checkpointError;
-	std::filesystem::create_directories(kSavePath, checkpointError);
 	res_ref chu = chuName;
-	bool isSave = chu == res_ref("GUISAVE");
-	std::string saveSlotPath = std::string(kSavePath) + std::string("/") + std::string(kSaveSlotPath);
-	if (isSave) {
-		bool ok = Save(saveSlotPath.c_str());
-		std::cout << "Save " << saveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
+
+	if (controlID == kSaveCancelButtonID) {
 		GUI::Get()->ToggleAuxWindowGroup(chu, {0});
-	} else {
-		bool ok = Load(saveSlotPath.c_str());
-		std::cout << "Load " << saveSlotPath << ": " << (ok ? "OK" : "FAILED") << std::endl;
-		// Nothing to close here: Load() already rebuilt the GUI from
-		// scratch (see above), so there's no aux window left open to
-		// hide - trying to would instead freshly reopen a new one.
+		return;
+	}
+
+	bool isSave = chu == res_ref("GUISAVE");
+	for (uint32 i = 0; i < kSaveSlotCount; i++) {
+		if (controlID == kSaveSlotActionButtonID[i]) {
+			std::error_code checkpointError;
+			std::filesystem::create_directories(kSavePath, checkpointError);
+			std::string path = _SaveSlotPath(i);
+			if (isSave) {
+				bool ok = Save(path.c_str());
+				std::cout << "Save " << path << ": " << (ok ? "OK" : "FAILED") << std::endl;
+				_UpdateSaveLoadRows(chu);
+			} else {
+				bool ok = Load(path.c_str());
+				std::cout << "Load " << path << ": " << (ok ? "OK" : "FAILED") << std::endl;
+				// Nothing to refresh here: Load() already rebuilt the GUI
+				// from scratch (see above), so there's no aux window left
+				// open to update - trying to would instead freshly reopen
+				// a new one.
+			}
+			return;
+		}
+		if (controlID == kSaveSlotDeleteButtonID[i]) {
+			std::string path = _SaveSlotPath(i);
+			std::error_code error;
+			std::filesystem::remove(path, error);
+			// Its own isolated area-checkpoint directory (see
+			// AreaRoom::SetAreaCheckpointDir()'s own comment) goes with
+			// it - otherwise a later save reusing this same slot path
+			// would inherit whatever this deleted save last left there.
+			std::filesystem::remove_all(path + ".arecache", error);
+			_UpdateSaveLoadRows(chu);
+			return;
+		}
 	}
 }
 

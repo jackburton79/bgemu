@@ -1,0 +1,25 @@
+# AREA: AR0100
+# Needs the default starting party (no -P override). run-all.sh loads
+# AR0100 itself (see the AREA directive above and README.md) - same door
+# (Door0101) and reasoning as bg1-save-load-area-isolation.txt, but
+# driven through the actual GUISAVE/GUILOAD screens (Invoke-Control
+# simulates a real click - see its own comment in shell/Commands.cpp)
+# instead of the Save-Game/Load-Game console commands directly, so this
+# one exercises Game::SaveOrLoadControlInvoked()'s own control-id
+# handling (slot 1's Save/Load button is id 26, not id 34 - see
+# Game.cpp's kSaveSlotActionButtonID/kSaveCancelButtonID comment) rather
+# than just Game::Save()/Load() themselves.
+Toggle-Save
+Run-Action -,143,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,true
+Invoke-Control GUISAVE,0,26
+Toggle-Save
+
+Run-Action -,144,Door0101,0,-,-,0,0
+Step-Ticks 2
+Assert-DoorOpened Door0101,false
+
+Toggle-Load
+Invoke-Control GUILOAD,0,26
+Assert-DoorOpened Door0101,true

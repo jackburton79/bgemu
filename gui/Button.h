@@ -57,6 +57,20 @@ public:
 	// existing release-only Invoke() behavior untouched.
 	void SetDragCapture(bool captures);
 
+	// A short caption drawn centered on top of the button's own frame -
+	// for a CHU button whose art is a blank, reusable shape (e.g. a
+	// generic dialog button) rather than one with its label baked into
+	// the BAM itself. Pass an empty string to clear it.
+	void SetText(const std::string& text);
+
+	// Draw()/MouseDown()/MouseUp()/RightMouseDown() all respect this -
+	// fEnabled already existed (Draw() has always picked fDisabledBitmap
+	// when it's false) but nothing ever set it to anything but the
+	// constructor's default of true, and a disabled button still fired
+	// its action on click regardless.
+	void SetEnabled(bool enabled);
+	bool Enabled() const { return fEnabled; }
+
 private:
 	void _DrawOutline(uint8 r, uint8 g, uint8 b);
 
@@ -65,6 +79,8 @@ private:
 	Bitmap* fPressedBitmap;
 	Bitmap* fUnpressedBitmap;
 	Bitmap* fIcon;
+	Bitmap* fText;
+	GFX::rect fTextRect;
 	// Icon position/size within the button's own (window-local, not yet
 	// screen-converted) frame - computed once in SetIcon() rather than
 	// every Draw() call, since it only depends on the icon's fixed size

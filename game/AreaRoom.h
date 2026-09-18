@@ -148,6 +148,17 @@ public:
 	// console test script).
 	static void SetAreaCheckpointDir(const std::string& path);
 
+	// Whether leaving an area (see _UnloadArea()) writes its checkpoint
+	// at all - true by default. Game::Load() sets this false around the
+	// UnloadCurrentRoom() call it makes to abandon whatever's currently
+	// loaded before adopting the save it's about to read: a real load
+	// discards unsaved progress rather than preserving it anywhere, and
+	// writing it anyway could otherwise clobber the very save being
+	// loaded - if the player is reloading the slot they're already
+	// playing in, SetAreaCheckpointDir() has had this session's own
+	// checkpoints pointed at that exact save's directory all along.
+	static void SetCheckpointOnUnload(bool checkpoint);
+
 	// Deletes every on-disk area checkpoint in the default, scratch
 	// checkpoint directory (see SetAreaCheckpointDir()'s own comment) -
 	// always that one specifically, never whatever directory a save's own

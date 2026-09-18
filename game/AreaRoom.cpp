@@ -72,6 +72,16 @@ static const char* kDefaultAreaCheckpointDir = "SAVEGAME/arecache";
 // nothing distinguished which checkpoint belonged to which slot.
 static std::string sAreaCheckpointDir = kDefaultAreaCheckpointDir;
 
+// Whether leaving an area should checkpoint it at all - true except for
+// the one deliberate exception Game::Load() needs (see
+// AreaRoom::SetCheckpointOnUnload()'s own comment): discarding whatever
+// unsaved progress the current session has, rather than writing it
+// anywhere, so it can never clobber the very save being loaded (which,
+// if the player is reloading the slot they're already playing in, is
+// exactly the directory this session's checkpoints have been going to
+// all along).
+static bool sCheckpointOnUnload = true;
+
 
 static std::string
 _AreaCheckpointPath(const char* areaName)
@@ -87,6 +97,14 @@ void
 AreaRoom::SetAreaCheckpointDir(const std::string& path)
 {
 	sAreaCheckpointDir = path;
+}
+
+
+/* static */
+void
+AreaRoom::SetCheckpointOnUnload(bool checkpoint)
+{
+	sCheckpointOnUnload = checkpoint;
 }
 
 
@@ -1880,7 +1898,11 @@ AreaRoom::_UnloadArea()
 	// embedding was already handled above, in the loop that just cleared
 	// fActors, so WriteCheckpoint()'s own embedding pass here is a no-op -
 	// called anyway for the single file write, rather than duplicating it.
-	WriteCheckpoint();
+	// Skipped when Game::Load() is deliberately discarding this session's
+	// unsaved progress instead (see SetCheckpointOnUnload()'s own
+	// comment).
+	if (sCheckpointOnUnload)
+		WriteCheckpoint();
 
 	// Kept alive in the in-memory cache too (see Game::AreaCache's own
 	// comment) rather than released - it owns the IE::door/IE::actor

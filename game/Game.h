@@ -55,12 +55,13 @@ public:
 
 	void ToggleInventoryWindow();
 	void ToggleRecordWindow();
-	// Minimal single-slot Save/Load screens (GUISAVE/GUILOAD) - real BG2
-	// has a full multi-slot browser (portraits, names, dates, delete) in
-	// those same CHU files, not modeled here; only the one slot's name/
-	// status labels and the main confirm button are wired, same spirit
-	// as other "real data, reduced scope" simplifications already on the
-	// roadmap.
+	// 4-slot Save/Load screens (GUISAVE/GUILOAD): every real slot row
+	// (name/date labels, Save-or-Load and Delete buttons) is wired, but
+	// real BG2's own scrolling past 4 saves, name-entry popup and per-row
+	// thumbnail/portraits aren't - this engine's saves have no name,
+	// timestamp or preview of their own to show (see GamResource's header
+	// comment), and neither TextEdit nor Scrollbar support what a real
+	// name-entry field or scrolling list needs yet.
 	void ToggleSaveWindow();
 	void ToggleLoadWindow();
 	// GUI::ControlInvoked() routes clicks on GUISAVE/GUILOAD controls
@@ -319,7 +320,12 @@ private:
 	void _UpdateClassRaceLevelLabels(class Window* window, Actor* actor);
 	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
 	std::string _TitleCaseIDSName(const std::string& idsName);
-	void _UpdateSaveLoadLabels(const res_ref& chuName);
+	// Refreshes every slot row's name/date labels and Save-or-Load/Delete
+	// button state (enabled iff that slot's own .gam exists - Delete's
+	// case - or, for a Load screen's own action button, iff it exists at
+	// all; a Save screen's own action button stays enabled on an empty
+	// row too, since saving into one is how a new save is made).
+	void _UpdateSaveLoadRows(const res_ref& chuName);
 	void _UpdateJournalLabels();
 	// Highlights whichever command-bar icon (HUD bar and/or the copy
 	// embedded in the open panel itself) corresponds to the currently
