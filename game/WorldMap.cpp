@@ -52,8 +52,6 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 		throw std::runtime_error("Cannot load World map bitmap");
 	}
 	fWorldMapBitmap = fWorldMapBackground->Image();
-	std::cout << "World map bitmap rect:" << std::endl;
-	fWorldMapBitmap->Frame().Print();
 	_LoadAreaEntries();
 	_RevealAdjacentAreas(previousArea, direction);
 
@@ -88,7 +86,6 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 	::Window* window = gui->GetWindow(0);
 	if (window != NULL) {
 		fSavedControl = window->ReplaceControl(4, this);
-		Control::Frame().Print();
 	}
 
 	// Control::Frame() is only valid from here on (ReplaceControl() above
