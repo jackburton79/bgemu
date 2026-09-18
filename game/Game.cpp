@@ -568,11 +568,11 @@ Game::SetStartingArea(const char* areaName)
 // one's aux-window group (used by _CloseOtherScreens()) and its matching
 // command-bar control id (used by _UpdateCommandBarToggle() to show that
 // icon "pressed in" while the screen is open - shared with
-// kHUDCommandButtons in gui/GUI.cpp and kAuxCommandBarButtons below, same
-// ids in all three). Map/Pause/Rest aren't here - they aren't a
-// persistent open/closed screen. Journal has no confirmed command-bar id
-// yet (see kHUDCommandButtons's own comment), so it uses
-// kNoCommandBarButton and stays unhighlighted.
+// kCommandBarButtons (Game.h), same ids everywhere it's used. Map/Pause/
+// Rest aren't here - they aren't a persistent open/closed screen.
+// kNoCommandBarButton is for a screen group with no confirmed
+// command-bar id at all (none currently need it - every entry below has
+// one).
 static const uint32 kNoCommandBarButton = (uint32)-1;
 static const struct { const char* chu; uint16 windows[3]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
@@ -615,7 +615,7 @@ _SetButtonToggled(Window* window, uint32 controlID, bool toggled)
 
 // Refreshes the "selected" frame on every command-bar icon (the main HUD
 // bar plus the identical copy embedded in whichever panel is currently
-// open - see kAuxCommandBarButtons's own comment) to match which screen
+// open - see kCommandBarButtons' own comment) to match which screen
 // group (if any) is actually open right now. Called after every
 // Toggle*Window() below, since each of those can either open or close its
 // screen.
@@ -642,17 +642,8 @@ Game::_UpdateCommandBarToggle()
 }
 
 
-// The left-hand command icon strip (ids 0-8, image GUILSOP) + Rest
-// button (id 9, GUIRSBUT) appear identically - same position, same
-// cycle - in every full-screen panel's own window 0 (GUIINV/GUIREC/
-// GUIJRNL/GUIMG/GUIPR all confirmed via a real CHU dump to share this
-// exact layout), duplicating GUIW's own WINDOW_COMMANDS bar so the
-// player can still switch screens/rest while one of them is open.
-// Reuses the confirmed GUIW mappings (Map/Inventory/Record/Spellbook/
-// Save - see kHUDCommandButtons in gui/GUI.cpp); Rest gets its own
-// entry here since its local id differs from GUIW's (9 vs. 11).
-static const struct { uint32 controlID; void (*action)(); }
-kAuxCommandBarButtons[] = {
+// Shared with gui/GUI.cpp's own HUD command bar
+const CommandBarButton kCommandBarButtons[9] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
 	{ 2, [] { Game::Get()->ToggleJournalWindow(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
@@ -660,6 +651,21 @@ kAuxCommandBarButtons[] = {
 	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
 	{ 6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
 	{ 7, [] { Game::Get()->ToggleSaveWindow(); } },
+	{ 9, [] { Core::Get()->TogglePause(); } },
+	{ 11, [] { Game::Get()->TriggerRest(); } }
+};
+
+
+// The left-hand command icon strip (ids 0-8, image GUILSOP) + Rest
+// button (id 9, GUIRSBUT) appear identically - same position, same
+// cycle - in every full-screen panel's own window 0 (GUIINV/GUIREC/
+// GUIJRNL/GUIMG/GUIPR all confirmed via a real CHU dump to share this
+// exact layout), duplicating GUIW's own WINDOW_COMMANDS bar so the
+// player can still switch screens/rest while one of them is open. Ids
+// 1-7 come from kCommandBarButtons above; Rest gets its own entry here
+// since its local id differs from GUIW's (9 vs. 11).
+static const struct { uint32 controlID; void (*action)(); }
+kAuxCommandBarButtonsExtra[] = {
 	{ 9, [] { Game::Get()->TriggerRest(); } },
 };
 
@@ -667,7 +673,13 @@ kAuxCommandBarButtons[] = {
 static void
 _AuxCommandBarInvoked(uint32 controlID)
 {
-	for (const auto& button : kAuxCommandBarButtons) {
+	for (const auto& button : kCommandBarButtons) {
+		if (button.controlID == controlID) {
+			button.action();
+			return;
+		}
+	}
+	for (const auto& button : kAuxCommandBarButtonsExtra) {
 		if (button.controlID == controlID) {
 			button.action();
 			return;

@@ -63,20 +63,6 @@ kWorldMapScrollArrows[] = {
 	{ 13, -20,  20 }, { 14,  20,  20 },
 };
 
-// HUD command-bar buttons (GUIW* window WINDOW_COMMANDS) - ids confirmed
-// by the user while playing (see the Fase 21 plan notes).
-static const struct { uint32 controlID; void (*action)(); }
-kHUDCommandButtons[] = {
-	{  1, [] { Core::Get()->LoadWorldMap(); } },
-	{  2, [] { Game::Get()->ToggleJournalWindow(); } },
-	{  3, [] { Game::Get()->ToggleInventoryWindow(); } },
-	{  4, [] { Game::Get()->ToggleRecordWindow(); } },
-	{  5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
-	{  6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
-	{  7, [] { Game::Get()->ToggleSaveWindow(); } },
-	{  9, [] { Core::Get()->TogglePause(); } },
-	{ 11, [] { Game::Get()->TriggerRest(); } },
-};
 
 
 static void
@@ -999,7 +985,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (IsResolutionMatchedGUIW(chuName.CString())) {
 		if (windowID == WINDOW_COMMANDS) {
-			for (const auto& button : kHUDCommandButtons) {
+			for (const auto& button : kCommandBarButtons) {
 				if (button.controlID == controlID) {
 					button.action();
 					return;

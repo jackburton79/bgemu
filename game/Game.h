@@ -5,8 +5,7 @@
  *      Author: Stefano Ceccherini
  */
 
-#ifndef GAME_H_
-#define GAME_H_
+#pragma once
 
 #include "IETypes.h"
 
@@ -24,6 +23,16 @@ class CharacterBuilder;
 class DialogHandler;
 class GameConsole;
 class Party;
+
+// The Map/Journal/Inventory/Record/Spellbook/Save command-bar actions -
+// identical (same control ids) on both the main HUD bar (gui/GUI.cpp's
+// own extra entries) and the copy embedded in every full-screen panel's
+// own window 0 (Game.cpp's own extra entries); each caller adds only
+// its own extras (Pause on the HUD, Rest under a differing id) on top
+// of this shared table.
+struct CommandBarButton { uint32 controlID; void (*action)(); };
+extern const CommandBarButton kCommandBarButtons[9];
+
 class Game {
 public:
 	static Game* Get();
@@ -332,5 +341,3 @@ private:
 	// open full-screen panel - see kScreenGroups in Game.cpp.
 	void _UpdateCommandBarToggle();
 };
-
-#endif /* GAME_H_ */
