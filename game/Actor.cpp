@@ -77,7 +77,8 @@ Actor::Actor(IE::actor &actor)
 	fAttackCooldown(0),
 	fPath(NULL),
 	fSpeed(2),
-	fRegion(NULL)
+	fRegion(NULL),
+	fOnWorldmapExit(false)
 {
 	_Init();
 }
@@ -102,7 +103,8 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fAttackCooldown(0),
 	fPath(NULL),
 	fSpeed(2),
-	fRegion(NULL)
+	fRegion(NULL),
+	fOnWorldmapExit(false)
 {
 	_Init();
 }
@@ -128,6 +130,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL),
+	fOnWorldmapExit(false),
 	fSelectedRadius(20),
 	fSelectedRadiusStep(1)
 {
@@ -2071,11 +2074,25 @@ Actor::_UpdateRegions()
 	// RequestWorldMapLoad() defers exactly like RequestAreaChange() does,
 	// for the same reason (this runs from inside AreaRoom::Update()'s own
 	// actor loop).
+	//
+	// fOnWorldmapExit debounces this the same way fRegion above debounces
+	// travel regions: without it, this fires on *every* tick the party
+	// happens to be standing on such a cell, not just the tick it walks
+	// onto one - harmless while actually walking through (the area
+	// unloads before another tick runs), but a real, reproduced bug the
+	// moment the party is placed back on that same cell without walking
+	// there, e.g. WorldMap::MouseDown()'s own Core::ReturnFromWorldMap()
+	// call when the party left through an edge and then immediately
+	// clicks back to where they already are: the worldmap would reopen
+	// on the very next tick, looking like the click did nothing.
 	if (InParty()) {
 		SearchMap* searchMap = Area()->SearchMap();
-		if (searchMap != NULL && searchMap->IsWorldmapExit(Position().x, Position().y)) {
+		bool onExit = searchMap != NULL
+			&& searchMap->IsWorldmapExit(Position().x, Position().y);
+		if (onExit && !fOnWorldmapExit) {
 			int32 direction = searchMap->EdgeDirection(Position().x, Position().y);
 			Core::Get()->RequestWorldMapLoad(direction);
 		}
+		fOnWorldmapExit = onExit;
 	}
 }

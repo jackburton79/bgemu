@@ -47,7 +47,8 @@ private:
 
 	void _LoadAreaEntries();
 	void _RevealAdjacentAreas(const res_ref& previousArea, int direction);
-	void _CenterOnArea(const res_ref& areaName);
+	AreaEntry* _CenterOnArea(const res_ref& areaName);
+	void _MarkCurrentArea(const AreaEntry* entry);
 
 	// WorldMap
 	WMAPResource* fWorldMap;
@@ -56,6 +57,12 @@ private:
 
 	std::vector<AreaEntry*> fAreaEntries;
 	AreaEntry* fAreaUnderMouse;
+
+	// The area the party is actually in (backgrounded in
+	// Core::fPreviousRoom while this WorldMap is current) - MouseDown()
+	// needs this to tell "travel elsewhere" from "go back to where I
+	// already am" apart.
+	res_ref fCurrentAreaName;
 };
 
 

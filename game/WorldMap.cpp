@@ -26,7 +26,8 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 	fWorldMap(NULL),
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
-	fAreaUnderMouse(NULL)
+	fAreaUnderMouse(NULL),
+	fCurrentAreaName(previousArea)
 {
 	GUI* gui = GUI::Get();
 	gui->Clear();
@@ -95,7 +96,8 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 	// needs it to compute a centered offset - has to run after the icon
 	// draw loop above, not before, even though it's previousArea's
 	// *position* (not anything screen/offset-related) driving it.
-	_CenterOnArea(previousArea);
+	AreaEntry* currentEntry = _CenterOnArea(previousArea);
+	_MarkCurrentArea(currentEntry);
 }
 
 
@@ -144,8 +146,24 @@ WorldMap::Draw()
 void
 WorldMap::MouseDown(IE::point point)
 {
-	if (fAreaUnderMouse != NULL)
-		Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), "");
+	if (fAreaUnderMouse == NULL)
+		return;
+
+	// Clicking the area the party is actually standing in (backgrounded
+	// in Core::fPreviousRoom) used to go through Core::LoadArea() like
+	// any other destination - which unconditionally discards that
+	// backgrounded room (see Core::UnloadCurrentRoom()) and builds a
+	// fresh AreaRoom from scratch instead, at an arbitrary entrance
+	// (WorldMap::MouseDown() passes no entrance name) rather than back
+	// where the party actually was. ReturnFromWorldMap() - the same path
+	// GUIWMAP's "Done" button already uses - is the correct one here: no
+	// real travel is happening, the party never left.
+	if (fAreaUnderMouse->Name() == fCurrentAreaName) {
+		Core::Get()->ReturnFromWorldMap();
+		return;
+	}
+
+	Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), "");
 }
 
 
@@ -296,7 +314,7 @@ WorldMap::_RevealAdjacentAreas(const res_ref& previousArea, int direction)
 }
 
 
-void
+AreaEntry*
 WorldMap::_CenterOnArea(const res_ref& areaName)
 {
 	for (auto entry : fAreaEntries) {
@@ -304,6 +322,24 @@ WorldMap::_CenterOnArea(const res_ref& areaName)
 			continue;
 
 		SetAreaOffsetCenter(entry->Position());
-		return;
+		return entry;
 	}
+	return NULL;
+}
+
+
+// A permanent "you are here" marker (as opposed to the transient hover
+// highlight WorldMap::Draw() already strokes around fAreaUnderMouse) for
+// the area actually backgrounded under this WorldMap - baked directly
+// into fWorldMapBitmap alongside the icons/captions above instead of
+// redrawn every frame, same reasoning as those.
+void
+WorldMap::_MarkCurrentArea(const AreaEntry* entry)
+{
+	if (entry == NULL)
+		return;
+
+	GFX::rect rect = entry->Rect();
+	uint32 color = fWorldMapBitmap->MapRGBColor(0, 255, 0);
+	fWorldMapBitmap->StrokeRect(rect, color);
 }

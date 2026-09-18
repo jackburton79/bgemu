@@ -1,0 +1,73 @@
+# Leaving an area through its own map edge, opening the world map, and
+# then clicking back on the very same area (the one still backgrounded
+# in Core::fPreviousRoom) used to look like nothing happened - or worse,
+# like the world map itself "reloaded". Two separate bugs combined to
+# cause that:
+#
+# 1. WorldMap::MouseDown() routed every click through Core::LoadArea(),
+#    even for the area the party is already standing next to - which
+#    unconditionally discards the backgrounded room and rebuilds a fresh
+#    one via an arbitrary entrance, instead of just resuming the live one
+#    like GUIWMAP's "Done" button already does. Fixed by routing a click
+#    on that same area through Core::ReturnFromWorldMap() instead.
+# 2. Actor::_UpdateRegions()'s own "wilderness map edge" check (see
+#    SearchMap::IsWorldmapExit()) had no debounce at all, unlike the
+#    Region-based travel check right above it (which tracks fRegion):
+#    it re-fired on *every* tick the party happened to be standing on a
+#    worldmap-exit search-map cell, not just the tick it walked onto
+#    one. Harmless while actually walking through (the area unloads
+#    before another tick runs), but once fix #1 above returns the party
+#    to the exact cell they left from without moving them, the very next
+#    tick immediately reopened the world map again - which is what
+#    actually looked like "the world map reloads" instead of returning.
+#    Fixed with a new Actor::fOnWorldmapExit debounce flag, mirroring
+#    fRegion's own transition-only trigger.
+#
+# Needs the default starting party (no -P override; -a is fine since
+# this bypasses the intro via LEAVEAREALUA like
+# bg1-worldmap-adjacent-reveal.txt does):
+# ./bin/BGEmu -p <BG1 path> -D -x tests/exec/bg1-worldmap-return-to-exit-cell.txt
+
+Run-Action -,110,-,0,AR2700,-,1300,700
+Step-Ticks 5
+
+# A MYAREA-scoped variable lives directly on the live AreaRoom instance
+# (AreaRoom::AreaVars(), re-populated from scratch from the .ARE's own
+# checkpoint by *every* new AreaRoom construction - see AreaRoom::
+# _InitVariables()) - it only survives clicking back to AR2700 below if
+# that click actually resumes this same backgrounded instance instead of
+# discarding it for a freshly built one. Reading/writing MYAREA needs a
+# real current AreaRoom (see Variables::_CurrentAreaVars()), so this has
+# to happen now, before the world map replaces it as the current room.
+Queue-Action -,SetGlobal("BgemuReturnFlag","MYAREA",1)
+Assert-Trigger -,true,Global("BgemuReturnFlag","MYAREA",1)
+
+# (5104,1920) is a real "Worldmap exit" search-map cell (value 14) on
+# AR2700's own east edge - confirmed by scanning AR2700SR.BMP (same
+# point bg1-worldmap-adjacent-reveal.txt uses).
+Queue-Action -,JumpToPoint(5104,1920)
+Step-Ticks 5
+Step-Ticks 5
+
+Assert-Trigger -,false,AreaCheck("AR2700")
+
+# AR2700's own icon, on-screen, once the world map centers on it (see
+# WorldMap::_CenterOnArea()) - confirmed against real BG1 WMP data, same
+# as bg1-worldmap-adjacent-reveal.txt's AR2800 click.
+Mouse-Click 190,281
+Step-Ticks 5
+
+Assert-Trigger -,true,AreaCheck("AR2700")
+
+# Proves this actually *returned* to AR2700 instead of reloading it from
+# its own checkpoint (which used to happen every time, entering at an
+# arbitrary entrance instead of back where the party actually was -
+# WorldMap::MouseDown() passes no entrance name at all).
+Assert-Trigger -,true,Global("BgemuReturnFlag","MYAREA",1)
+
+# The regression: without the Actor::fOnWorldmapExit debounce, the party
+# is still standing right on the exit cell, and the very next Update()
+# tick used to bounce straight back to the world map.
+Step-Ticks 20
+
+Assert-Trigger -,true,AreaCheck("AR2700")

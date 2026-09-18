@@ -291,6 +291,12 @@ private:
 
 	Region* fRegion;
 
+	// Debounces Actor::_UpdateRegions()'s own worldmap-exit check the
+	// same way fRegion above debounces travel Regions: without it,
+	// simply standing on a "worldmap exit" search-map cell (not just
+	// freshly walking onto one) re-fires every tick.
+	bool fOnWorldmapExit;
+
 	std::string fText;
 
 	int fSelectedRadius;
