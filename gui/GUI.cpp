@@ -318,7 +318,9 @@ GUI::Draw()
 	if (Core::Get()->IsPaused()) {
 		const Font* font = FontRoster::GetFont("TOOLFONT");
 		std::string text = "Game paused";
-		Bitmap* bitmap = font->GetRenderedString(text, 0);
+		// TOOLFONT needs this gradient supplied explicitly - see its own
+		// comment (game/TextSupport.cpp) for why.
+		Bitmap* bitmap = font->GetRenderedString(text, 0, &ToolfontPalette());
 		GFX::rect rect = bitmap->Frame();
 		rect.CenterIn(GraphicsEngine::Get()->ScreenFrame());
 		GraphicsEngine::Get()->BlitToScreen(bitmap, rect.LeftTop());
@@ -384,8 +386,11 @@ GUI::SetHoverTooltip(const std::string& text)
 	if (text.empty())
 		return;
 	const Font* font = FontRoster::GetFont("TOOLFONT");
-	if (font != NULL)
-		fHoverTooltipBitmap = font->GetRenderedString(text, 0);
+	if (font != NULL) {
+		// TOOLFONT needs this gradient supplied explicitly - see its own
+		// comment (game/TextSupport.cpp) for why.
+		fHoverTooltipBitmap = font->GetRenderedString(text, 0, &ToolfontPalette());
+	}
 }
 
 

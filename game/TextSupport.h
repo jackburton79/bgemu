@@ -30,6 +30,13 @@ enum text_attributes {
 };
 
 
+// The gradient TOOLFONT (and TOOLTIP, same story) needs supplied
+// explicitly whenever it's rendered - see the .cpp for why. Shared/
+// lazily-built rather than a per-call-site local, so every caller gets
+// the exact same color instead of each hand-rolling its own copy.
+const GFX::Palette& ToolfontPalette();
+
+
 class Font {
 public:
 	Font(const std::string& fontName);

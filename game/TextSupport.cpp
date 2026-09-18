@@ -16,6 +16,26 @@
 #include <limits.h>
 
 
+// TOOLFONT's own embedded BAM palette isn't meant to be used as-is - real
+// fonts.2da (BG1 and BG2 agree) flags it NEED_PALETTE=1 with
+// COLOR=0xf0b08000, a tan/orange (matching GemRB's Interface::LoadFonts(),
+// which reads that hex value as consecutive r/g/b/a bytes: 0xf0=240,
+// 0xb0=176, 0x80=128, 0x00=0 - then builds a black-to-that-tan gradient,
+// same shape as this engine's own _BuildLabelPalette() in gui/Label.cpp).
+// Any caller rendering TOOLFONT text without supplying this ends up on
+// _RenderString()'s native-palette fallback instead - whatever arbitrary
+// colors happen to be baked into the font's own raw BAM, which don't form
+// a coherent brightness ramp and render as garbled, noisy-looking text
+// (found via a real screenshot of the Save/Load screen's "Salva"/
+// "Carica" button captions - see gui/Button.cpp's SetText()).
+const GFX::Palette&
+ToolfontPalette()
+{
+	static const GFX::Palette sPalette(GFX::Color{240, 176, 128, 0}, GFX::Color{0, 0, 0, 0});
+	return sPalette;
+}
+
+
 static inline uint32
 cycle_num_for_char(int c)
 {

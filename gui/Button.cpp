@@ -98,7 +98,9 @@ Button::SetText(const std::string& text)
 	if (font == NULL)
 		return;
 
-	fText = font->GetRenderedString(text, 0);
+	// TOOLFONT needs this gradient supplied explicitly - see its own
+	// comment (game/TextSupport.cpp) for why.
+	fText = font->GetRenderedString(text, 0, &ToolfontPalette());
 	if (fText != NULL) {
 		fTextRect = GFX::rect(0, 0, fText->Width(), fText->Height());
 		fTextRect.CenterIn(Frame());
@@ -221,7 +223,10 @@ Button::Draw()
 		if (fIconCount > 1) {
 			const Font* font = FontRoster::GetFont("TOOLFONT");
 			if (font != NULL) {
-				Bitmap* text = font->GetRenderedString(std::to_string(fIconCount), 0);
+				// TOOLFONT needs this gradient supplied explicitly - see
+				// its own comment (game/TextSupport.cpp) for why.
+				Bitmap* text = font->GetRenderedString(std::to_string(fIconCount), 0,
+					&ToolfontPalette());
 				if (text != NULL) {
 					GFX::rect where(iconRect.x + iconRect.w - text->Width(),
 									iconRect.y + iconRect.h - text->Height(),
