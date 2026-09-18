@@ -1,3 +1,4 @@
+#include "2DAResource.h"
 #include "Actor.h"
 #include "AreaResource.h"
 #include "AreaRoom.h"
@@ -491,6 +492,43 @@ _StatValue(Actor* actor, int32 statID)
 }
 
 
+// Shared by ReactionGT/ReactionLT: how friendly `actor` is disposed
+// towards the party, on the same scale REACTION.IDS uses (HOSTILE/
+// INDIFFERENT/FRIENDLY/...).
+// Reputation here is always `actor`'s own CRE reputation
+// rather than a separately tracked party-wide value, because
+// scripting/Actions.cpp's SetReputation keeps every party member's CRE
+// reputation in sync with the party's, the same simplification
+// REPUTATION/REPUTATIONGT/REPUTATIONLT already rely on. This does not add the
+// ranger-vs-racial-enemy reaction penalty (no racial enemy tracking in
+// this codebase yet).
+static int32
+_GetReaction(Actor* actor)
+{
+	BaseAttributes attrs;
+	actor->CRE()->GetAttributes(attrs);
+
+	TWODAResource* rmodrep = gResManager->Get2DA("RMODREP");
+	TWODAResource* rmodchr = gResManager->Get2DA("RMODCHR");
+	if (rmodrep == NULL || rmodchr == NULL)
+		return 0;
+
+	int32 repIndex = actor->CRE()->Reputation() - 1;
+	if (repIndex < 0)
+		repIndex = 0;
+	else if (repIndex >= rmodrep->CountColumns())
+		repIndex = rmodrep->CountColumns() - 1;
+
+	int32 chrIndex = attrs.charisma - 1;
+	if (chrIndex < 0)
+		chrIndex = 0;
+	else if (chrIndex >= rmodchr->CountColumns())
+		chrIndex = rmodchr->CountColumns() - 1;
+
+	return 10 + rmodrep->IntegerValueAt(0, repIndex) + rmodchr->IntegerValueAt(0, chrIndex);
+}
+
+
 // TODO: move this to Object ?
 /* static*/
 bool
@@ -798,6 +836,22 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				Actor* actor = dynamic_cast<Actor*>(sender);
 				if (actor != nullptr && actor->NumTimesTalkedTo() < (uint32)trig->parameter1)
 					returnValue = true;
+				break;
+			}
+			case 0x403D:
+			{
+				/* REACTIONGT(O:Object*,I:Value*Reaction) (16445 0x403d) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = _GetReaction(actor) > trig->parameter1;
+				break;
+			}
+			case 0x403E:
+			{
+				/* REACTIONLT(O:Object*,I:Value*Reaction) (16446 0x403e) */
+				Actor* actor = dynamic_cast<Actor*>(GetTriggerObject(sender, trig));
+				if (actor != NULL)
+					returnValue = _GetReaction(actor) < trig->parameter1;
 				break;
 			}
 			case 0x4040:

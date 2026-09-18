@@ -1,0 +1,10 @@
+# Pins ReactionGT/ReactionLT's real formula (Script.cpp's _GetReaction())
+# against BG2's hardcoded default party leader, ANOMEN10 (Anomen):
+# reaction value found by bisecting ReactionGT against real game data is
+# -9 (see bg1-reaction.txt for the underlying rmodrep/rmodchr formula).
+# Needs: default starting party/area (./bin/BGEmu -p <BG2 path> -D -x
+# this file, no other flags).
+Assert-Trigger -,true,ReactionGT(Myself,-10)
+Assert-Trigger -,false,ReactionGT(Myself,-9)
+Assert-Trigger -,true,ReactionLT(Myself,-8)
+Assert-Trigger -,false,ReactionLT(Myself,-9)

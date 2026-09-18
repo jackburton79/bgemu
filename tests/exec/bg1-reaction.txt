@@ -1,0 +1,12 @@
+# Pins ReactionGT/ReactionLT's real formula (Script.cpp's _GetReaction())
+# against BG1's hardcoded default party leader, AJANTI (Ajantis):
+# charisma 17, reputation 0 (unset this early, before NEWGAME.bcs runs).
+# reaction = 10 + rmodrep[0] (charisma/reputation index clamped to the
+# table's own range - a reputation of 0 clamps to index 0) + rmodchr[16]
+#          = 10 + (-20) + 4 = -6
+# Needs: default starting party/area (./bin/BGEmu -p <BG1 path> -D -x
+# this file, no other flags).
+Assert-Trigger -,true,ReactionGT(Myself,-7)
+Assert-Trigger -,false,ReactionGT(Myself,-6)
+Assert-Trigger -,true,ReactionLT(Myself,-5)
+Assert-Trigger -,false,ReactionLT(Myself,-6)

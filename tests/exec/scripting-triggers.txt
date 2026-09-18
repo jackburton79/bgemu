@@ -40,10 +40,18 @@ Assert-Triggers -,true,OR(5);RandomNum(5,1);RandomNum(5,2);RandomNum(5,3);Random
 # a TOKEN_NUMBER token's u.string is uninitialized (union with u.number),
 # so the code was feeding IDForString() stack garbage instead of ever
 # checking the token was already a number. Fixed in ParameterExtractor::
-# _ExtractNextParameter (scripting/Parsing.cpp) - ReactionGT itself is
-# still unimplemented (always FALSE), so this only asserts that parsing
-# a numeric I:*IDSTable argument no longer throws.
+# _ExtractNextParameter (scripting/Parsing.cpp).
 Assert-Trigger -,false,ReactionGT(Myself,999999)
+
+# ReactionGT/ReactionLT (Script.cpp's _GetReaction(), matching GemRB's
+# GSUtils.cpp GetReaction(): 10 + rmodrep[reputation] + rmodchr[charisma],
+# from RMODREP.2DA/RMODCHR.2DA) - game-agnostic bounds that hold for any
+# default party's actual reaction value, which is pinned per-game in
+# bg1-reaction.txt/bg2-reaction.txt.
+Assert-Trigger -,true,ReactionGT(Myself,-999)
+Assert-Trigger -,false,ReactionGT(Myself,999)
+Assert-Trigger -,true,ReactionLT(Myself,999)
+Assert-Trigger -,false,ReactionLT(Myself,-999)
 
 # An O: parameter's object can be written as a niladic "object trigger"
 # function call, e.g. LastTalkedToBy() instead of a bare OBJECT.IDS name -
