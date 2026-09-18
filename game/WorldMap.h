@@ -31,9 +31,6 @@ public:
 	virtual void MouseDown(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 
-	void ActorEnteredArea(const Actor* actor);
-	void ActorExitedArea(const Actor* actor);
-
 	void ToggleConsole();
 
 	virtual void Unload();
