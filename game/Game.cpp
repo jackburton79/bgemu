@@ -578,7 +578,7 @@ static const struct { const char* chu; uint16 windows[3]; uint8 windowCount; uin
 kScreenGroups[] = {
 	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
 	{ "GUIREC",  { 2, 0, 1 }, 3, 4 },
-	{ "GUIJRNL", { 2, 0, 1 }, 3, kNoCommandBarButton },
+	{ "GUIJRNL", { 2, 0, 1 }, 3, 2 },
 	{ "GUIMG",   { 2, 0, 1 }, 3, 5 },
 	{ "GUIPR",   { 2, 0, 1 }, 3, 6 },
 	{ "GUISAVE", { 0 },       1, 7 },
@@ -654,6 +654,7 @@ Game::_UpdateCommandBarToggle()
 static const struct { uint32 controlID; void (*action)(); }
 kAuxCommandBarButtons[] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
+	{ 2, [] { Game::Get()->ToggleJournalWindow(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{ 4, [] { Game::Get()->ToggleRecordWindow(); } },
 	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },

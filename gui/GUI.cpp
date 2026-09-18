@@ -68,6 +68,7 @@ kWorldMapScrollArrows[] = {
 static const struct { uint32 controlID; void (*action)(); }
 kHUDCommandButtons[] = {
 	{  1, [] { Core::Get()->LoadWorldMap(); } },
+	{  2, [] { Game::Get()->ToggleJournalWindow(); } },
 	{  3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{  4, [] { Game::Get()->ToggleRecordWindow(); } },
 	{  5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
