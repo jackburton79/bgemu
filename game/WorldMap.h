@@ -50,6 +50,7 @@ private:
 
 	void _LoadAreaEntries();
 	void _RevealAdjacentAreas(const res_ref& previousArea, int direction);
+	void _CenterOnArea(const res_ref& areaName);
 
 	// WorldMap
 	WMAPResource* fWorldMap;

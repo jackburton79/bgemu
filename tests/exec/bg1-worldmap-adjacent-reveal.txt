@@ -23,3 +23,18 @@ Step-Ticks 5
 
 Assert-AreaMapVisible AR2700,true
 Assert-AreaMapVisible AR2800,true
+
+# Being "visible" isn't being reachable: WorldMap's fAreaOffset (which
+# slice of the 640x937 bitmap is shown, and - via MouseMoved()'s
+# ConvertToArea() - which slice is click-hittable) stayed at its
+# RoomBase constructor default of (0,0) forever, since nothing centered
+# it on the area the party just left (real IE, and GemRB, do). AR2700/
+# AR2800's icons sit around row 470-550 of the bitmap, well outside the
+# default (0,0)-anchored 640x398 viewport, so both were undrawn *and*
+# unclickable - only an icon that happened to fall in the top ~398 rows
+# ever worked. Fixed by WorldMap::_CenterOnArea(). (310,255) is AR2800's
+# on-screen icon position once the map is centered on AR2700 (190,495) -
+# both confirmed against real BG1 WMP data.
+Mouse-Click 310,255
+Step-Ticks 5
+Assert-Trigger -,true,AreaCheck("AR2800")

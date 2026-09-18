@@ -89,6 +89,13 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 		fSavedControl = window->ReplaceControl(4, this);
 		Control::Frame().Print();
 	}
+
+	// Control::Frame() is only valid from here on (ReplaceControl() above
+	// is what copies the real w/h into it), and SetAreaOffsetCenter()
+	// needs it to compute a centered offset - has to run after the icon
+	// draw loop above, not before, even though it's previousArea's
+	// *position* (not anything screen/offset-related) driving it.
+	_CenterOnArea(previousArea);
 }
 
 
@@ -296,6 +303,35 @@ WorldMap::_RevealAdjacentAreas(const res_ref& previousArea, int direction)
 			Game::Get()->SetAreaMapVisible(destination->Name().CString(), true);
 			destination->SetVisible(true);
 		}
+		return;
+	}
+}
+
+
+// The world map bitmap (e.g. BG1's is 640x937) is taller than the
+// viewport (the control WorldMap replaces, ~640x398 - see
+// WorldMap::Draw()'s own VisibleMapArea()/Control::Frame() split), and
+// RoomBase's fAreaOffset (what actually selects which slice of the
+// bitmap is shown, and - via MouseMoved()'s ConvertToArea() - which
+// slice is clickable) otherwise stays at its constructor default of
+// (0,0): the map always opened scrolled to the bitmap's top-left
+// corner, regardless of where the party actually is. Candlekeep's own
+// area icons sit well below that default viewport (row ~470-550 of
+// 937), so leaving Candlekeep's map edge used to reveal the right
+// neighbor (see _RevealAdjacentAreas()) but never scroll it into view -
+// its icon was invisible and its Rect() unreachable by any click.
+// Centering on `areaName` (the area just left) mirrors real IE and
+// AreaRoom's own SetAreaOffsetCenter() use (see its call in AreaRoom's
+// constructor) for the same reason: whatever the player was just
+// standing next to should be what they see and can click.
+void
+WorldMap::_CenterOnArea(const res_ref& areaName)
+{
+	for (auto entry : fAreaEntries) {
+		if (entry->Name() != areaName)
+			continue;
+
+		SetAreaOffsetCenter(entry->Position());
 		return;
 	}
 }
