@@ -2211,6 +2211,14 @@ Game::Save(const char* name)
 	}
 
 	gam->SetVariables(Core::Get()->Vars().All());
+	gam->SetGameTime(GameTimer::GameTime());
+	gam->SetRealTime(GameTimer::RealTime());
+	gam->SetJournalEntries(fJournalEntries);
+	// Every party member's own reputation byte is kept in sync by
+	// REPUTATIONSET/REPUTATIONINC (scripting/Actions.cpp) - the leader's
+	// is as good as any (see GamResource.h's own comment on why this is
+	// write-only).
+	gam->SetReputation(fParty->ActorAt(0)->CRE()->Reputation());
 
 	bool result = gam->WriteToFile(name);
 	// `gam` is a runtime-built Resource (key 0, never went through
@@ -2275,6 +2283,9 @@ Game::Load(const char* name)
 
 	for (const auto& variable : gam->Variables())
 		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
+
+	GameTimer::SetGameTime(gam->GameTime());
+	fJournalEntries = gam->JournalEntries();
 
 	res_ref area = gam->CurrentArea();
 	gResManager->ReleaseResource(gam);

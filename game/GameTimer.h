@@ -38,6 +38,12 @@ public:
 	static void Remove(const char* name);
 	static GameTimer* Get(const char* string);
 	static uint32 GameTime();
+	// Restores CINGAME (see the class's own comment) to an absolute value
+	// - unlike AdvanceTime() below, which adds to whatever it currently
+	// is. Game::Load() uses this to resume a save's own elapsed game
+	// time instead of continuing to add to this session's, which would
+	// otherwise leave it wherever it happened to be before the load.
+	static void SetGameTime(uint32 seconds);
 
 	// CREAL, in seconds - derived directly from Timer::Ticks()
 	// (SDL_GetTicks(), already real wall-clock milliseconds since the

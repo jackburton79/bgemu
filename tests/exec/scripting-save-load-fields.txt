@@ -1,0 +1,47 @@
+# Game-agnostic (uses "-" for the party leader) - run against both
+# games. Checks the GAM v2.0 fields GamResource::WriteToFile()/Load()
+# added beyond party/CRE/variables: game time, journal entries and
+# party reputation (see GamResource.h's own header comment for the
+# exact scope). Verified indirectly through triggers/asserts already
+# implemented rather than by re-reading the GAM file's raw bytes:
+#  - game time: a GLOBALTIMEREXPIRED timer armed *after* the first
+#    Wait-Time (so its expiration is relative to the clock value that
+#    gets saved) only reads as expired if that clock came back where
+#    it was when saved, not wherever later play left it;
+#  - reputation: the REPUTATION trigger (16409/0x4019), reads straight
+#    from the party leader's own CRE, same as Game::Save() itself does;
+#  - journal: no trigger exposes Game::JournalEntries(), so
+#    Assert-JournalHasEntry (shell/Commands.cpp) reads it directly.
+#
+# Sequence: advance 10 game-hours, add journal entry 99999, set
+# reputation to 16, arm a 5-hour timer (expires at the 15-hour mark),
+# save. Advance 20 more hours (past the timer's expiration, to the
+# 30-hour mark), add a second journal entry, change reputation to 4.
+# Load the save back: time, journal and reputation must all be back to
+# their pre-second-round values, and the timer - checked against the
+# restored 10-hour clock, not the live 30-hour one - must read as not
+# yet expired again.
+Run-Action -,173,-,99999,-,-,0,0
+Run-Action -,162,-,16,-,-,0,0
+Step-Ticks 2
+Wait-Time 10
+Run-Action -,115,-,18000,SAVEFIELDSTEST,GLOBAL,0,0
+Step-Ticks 2
+Assert-JournalHasEntry 99999,true
+Assert-Trigger -,true,REPUTATION(Myself,16)
+Assert-Trigger -,false,GlobalTimerExpired("SAVEFIELDSTEST","GLOBAL")
+Save-Game /tmp/bgemu-test-save-fields.gam
+
+Run-Action -,173,-,55555,-,-,0,0
+Run-Action -,162,-,4,-,-,0,0
+Step-Ticks 2
+Wait-Time 20
+Assert-JournalHasEntry 55555,true
+Assert-Trigger -,true,REPUTATION(Myself,4)
+Assert-Trigger -,true,GlobalTimerExpired("SAVEFIELDSTEST","GLOBAL")
+
+Load-Game /tmp/bgemu-test-save-fields.gam
+Assert-JournalHasEntry 99999,true
+Assert-JournalHasEntry 55555,false
+Assert-Trigger -,true,REPUTATION(Myself,16)
+Assert-Trigger -,false,GlobalTimerExpired("SAVEFIELDSTEST","GLOBAL")

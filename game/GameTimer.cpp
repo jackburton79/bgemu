@@ -117,6 +117,14 @@ GameTimer::GameTime()
 
 
 /* static */
+void
+GameTimer::SetGameTime(uint32 seconds)
+{
+	sGameTime = seconds;
+}
+
+
+/* static */
 uint32
 GameTimer::RealTime()
 {

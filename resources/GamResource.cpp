@@ -18,6 +18,12 @@
 static const uint32 kHeaderSize = 0xB4;
 static const uint32 kNPCStructSize = 0x160;
 static const uint32 kVariableSize = 0x54;
+static const uint32 kJournalEntrySize = 0x0c;
+// "0x0008 4 (dword) Game time (300 units == 1 hour)" - GameTimer's own
+// CINGAME clock (see GameTimer.h) is tracked in plain seconds instead
+// (3600 seconds/hour), hence the /12 and *12 conversions below.
+static const uint32 kGameTimeUnitsPerHour = 300;
+static const uint32 kSecondsPerHour = 3600;
 
 
 /* static */
@@ -64,6 +70,34 @@ GamResource::SetVariables(const std::vector<std::pair<std::string, int32>>& vari
 }
 
 
+void
+GamResource::SetGameTime(uint32 seconds)
+{
+	fPendingGameTime = seconds;
+}
+
+
+void
+GamResource::SetRealTime(uint32 seconds)
+{
+	fPendingRealSeconds = seconds;
+}
+
+
+void
+GamResource::SetJournalEntries(const std::vector<uint32>& strrefs)
+{
+	fPendingJournalEntries = strrefs;
+}
+
+
+void
+GamResource::SetReputation(sint8 reputation)
+{
+	fPendingReputation = reputation;
+}
+
+
 bool
 GamResource::WriteToFile(const char* path) const
 {
@@ -75,7 +109,8 @@ GamResource::WriteToFile(const char* path) const
 		totalCreSize += member.cre->DataSize();
 
 	uint32 variablesOffset = creOffset + totalCreSize;
-	uint32 totalSize = variablesOffset + kVariableSize * fPendingVariables.size();
+	uint32 journalOffset = variablesOffset + kVariableSize * fPendingVariables.size();
+	uint32 totalSize = journalOffset + kJournalEntrySize * fPendingJournalEntries.size();
 
 	MemoryStream buffer(totalSize);
 	// MemoryStream(size) doesn't zero-initialize - every field this
@@ -84,13 +119,15 @@ GamResource::WriteToFile(const char* path) const
 	memset(buffer.Data(), 0, totalSize);
 
 	// Header - see IESDP gam_v2.0. Fields this engine has no matching
-	// concept for (formation, weather, GUI flags, journal, familiar,
-	// stored/pocket-plane locations, party-level reputation/gold pool)
+	// concept for (formation, weather, GUI flags, familiar, stored/
+	// pocket-plane locations, party gold pool)
 	// are left zeroed rather than guessed.
 	buffer.WriteAt(0x00, GAM_SIGNATURE, 4);
 	buffer.WriteAt(0x04, GAM_VERSION_2_0, 4);
-	uint32 zero32 = 0;
-	buffer.WriteAt(0x08, &zero32, sizeof(zero32)); // game time
+	// CINGAME, converted from GameTimer's own seconds to this field's
+	// native "300 units == 1 hour".
+	uint32 gameTimeUnits = fPendingGameTime * kGameTimeUnitsPerHour / kSecondsPerHour;
+	buffer.WriteAt(0x08, &gameTimeUnits, sizeof(gameTimeUnits));
 	uint32 partyCount = (uint32)fPendingMembers.size();
 	buffer.WriteAt(0x1c, &partyCount, sizeof(uint16)); // count excl. protagonist (informational only)
 	buffer.WriteAt(0x20, &npcOffset, sizeof(npcOffset));
@@ -105,7 +142,20 @@ GamResource::WriteToFile(const char* path) const
 	uint32 varCount = (uint32)fPendingVariables.size();
 	buffer.WriteAt(0x3c, &varCount, sizeof(varCount));
 	buffer.WriteAt(0x40, &fPendingArea, sizeof(res_ref)); // Main area
+	uint32 journalCount = (uint32)fPendingJournalEntries.size();
+	buffer.WriteAt(0x4c, &journalCount, sizeof(journalCount));
+	buffer.WriteAt(0x50, &journalOffset, sizeof(journalOffset));
+	// "(*10)" per IESDP - real reputation is always a whole 0-20 number
+	// (see CREResource::Reputation()'s own comment), so this is always a
+	// multiple of 10 in practice, same as real IE's own saves.
+	int32 reputationX10 = (int32)fPendingReputation * 10;
+	buffer.WriteAt(0x54, &reputationX10, sizeof(reputationX10));
 	buffer.WriteAt(0x58, &fPendingArea, sizeof(res_ref)); // Current area
+	// "Game time (real seconds)" - unlike 0x08's CINGAME clock (only
+	// advances via explicit time-skips), this is meant to be real-world
+	// elapsed playtime; see SetRealTime()'s own comment for what this
+	// engine actually has to offer it.
+	buffer.WriteAt(0x74, &fPendingRealSeconds, sizeof(fPendingRealSeconds));
 
 	// NPC structs + embedded CRE data.
 	uint32 currentCreOffset = creOffset;
@@ -153,6 +203,24 @@ GamResource::WriteToFile(const char* path) const
 		int32 value = fPendingVariables[i].second;
 		buffer.WriteAt(varOffset + 0x24, &value, sizeof(value)); // dword value
 		buffer.WriteAt(varOffset + 0x28, &value, sizeof(value)); // int value (same)
+	}
+
+	// Journal entries - strref only (see this file's header comment for
+	// what a real entry also carries that this engine doesn't track).
+	// Section bits/location flag are set as if every entry were a normal
+	// quest note read from dialog.tlk (bit 0 "Quests", location 0xFF
+	// "internal TLK") - real IESDP: "if no bits are set, the entry is a
+	// user-note", which none of Game::fJournalEntries's own entries ever
+	// are (only ADDJOURNALENTRY populates it - see scripting/Actions.cpp).
+	for (uint32 i = 0; i < fPendingJournalEntries.size(); i++) {
+		uint32 entryOffset = journalOffset + i * kJournalEntrySize;
+		buffer.WriteAt(entryOffset + 0x00, &fPendingJournalEntries[i], sizeof(uint32));
+		// 0x04 (time) and 0x09 (read-by-character): left zeroed, not
+		// tracked per entry by this engine.
+		uint8 sectionBits = 0x01; // Quests
+		buffer.WriteAt(entryOffset + 0x0a, &sectionBits, sizeof(sectionBits));
+		uint8 locationFlag = 0xff; // internal TLK
+		buffer.WriteAt(entryOffset + 0x0b, &locationFlag, sizeof(locationFlag));
 	}
 
 	// FileStream's constructor throws on failure (e.g. the save directory
@@ -282,4 +350,30 @@ GamResource::Variables() const
 		variables.push_back(std::make_pair(std::string(name), value));
 	}
 	return variables;
+}
+
+
+uint32
+GamResource::GameTime() const
+{
+	uint32 units;
+	fData->ReadAt(0x08, units);
+	return units * kSecondsPerHour / kGameTimeUnitsPerHour;
+}
+
+
+std::vector<uint32>
+GamResource::JournalEntries() const
+{
+	uint32 offset, count;
+	fData->ReadAt(0x50, offset);
+	fData->ReadAt(0x4c, count);
+
+	std::vector<uint32> entries;
+	for (uint32 i = 0; i < count; i++) {
+		uint32 strref;
+		fData->ReadAt(offset + i * kJournalEntrySize, strref);
+		entries.push_back(strref);
+	}
+	return entries;
 }

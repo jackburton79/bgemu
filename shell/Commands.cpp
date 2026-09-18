@@ -1470,6 +1470,39 @@ public:
 };
 
 
+// Assert-JournalHasEntry <strref>,<true|false> - same self-checking
+// spirit as Assert-DoorOpened, for Game::JournalEntries(): no trigger
+// exposes journal content, so this is the only way to assert on it
+// (used to verify GamResource's journal round trip across Save-Game/
+// Load-Game).
+class AssertJournalHasEntryCommand : public ShellCommand {
+public:
+	AssertJournalHasEntryCommand()
+		: ShellCommand("Assert-JournalHasEntry")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string strrefText, expectedText;
+		if (!_SplitOnFirstComma(argv, strrefText, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <strref>,<true|false>" << std::endl;
+			return;
+		}
+		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		const std::vector<uint32>& entries = Game::Get()->JournalEntries();
+		bool found = std::find(entries.begin(), entries.end(), strref) != entries.end();
+		if (found == expected) {
+			std::cout << "ASSERT OK: JournalHasEntry(" << strref << ")" << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: JournalHasEntry(" << strref << ") - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (found ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -1971,6 +2004,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new CheckWorldmapExitCommand());
 	console->AddCommand(new AssertAreaMapVisibleCommand());
 	console->AddCommand(new AssertDoorOpenedCommand());
+	console->AddCommand(new AssertJournalHasEntryCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());
