@@ -1164,7 +1164,7 @@ static const uint32 kJournalEntriesAreaID = 1;
 //  - "Oggetti rapidi" (ids 5-7): QuickItem1-3 (slots 18-20), per the
 //    item-order comment in Actor.cpp.
 // Still unmapped (deliberately, no empirical confirmation yet):
-// rings/amulet/belt/boots/cloak (ids ~21-26).
+// rings/amulet/belt/boots/shield (ids ~21-26).
 struct inv_slot_control { uint32 controlID; uint32 creSlot; };
 static const inv_slot_control kInvSlotControls[] = {
 	{ 30, kSlotGeneralFirst +  0 }, { 32, kSlotGeneralFirst +  1 },
@@ -1180,7 +1180,7 @@ static const inv_slot_control kInvSlotControls[] = {
 	{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
 	{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
 	{ 5, 18 }, { 6, 19 }, { 7, 20 },
-	// Rings / amulet / belt / boots / cloak (GUIINV window-2 ids 21-26,
+	// Rings / amulet / belt / boots / shield (GUIINV window-2 ids 21-26,
 	// mapped by on-screen position - to be confirmed empirically).
 	{ 22, kSlotRingLeft }, { 23, kSlotRingLeft + 1 }, { 25, kSlotAmulet },
 	{ 21, kSlotBelt }, { 24, kSlotBoots }, { 26, kSlotShield },
