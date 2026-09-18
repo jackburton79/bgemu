@@ -1175,7 +1175,7 @@ static const inv_slot_control kInvSlotControls[] = {
 	{ 35, kSlotGeneralFirst + 10 }, { 37, kSlotGeneralFirst + 11 },
 	{ 39, kSlotGeneralFirst + 12 }, { 41, kSlotGeneralFirst + 13 },
 	{ 43, kSlotGeneralFirst + 14 }, { 45, kSlotGeneralFirst + 15 },
-	{ 11, kSlotArmor }, { 12, kSlotGauntlets }, { 13, kSlotHelmet }, { 14, kSlotShield },
+	{ 11, kSlotArmor }, { 12, kSlotGauntlets }, { 13, kSlotHelmet }, { 14, kSlotCloak },
 	{ 1, kSlotWeaponFirst }, { 2, kSlotWeaponFirst + 1 },
 	{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
 	{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
@@ -1183,7 +1183,7 @@ static const inv_slot_control kInvSlotControls[] = {
 	// Rings / amulet / belt / boots / cloak (GUIINV window-2 ids 21-26,
 	// mapped by on-screen position - to be confirmed empirically).
 	{ 22, kSlotRingLeft }, { 23, kSlotRingLeft + 1 }, { 25, kSlotAmulet },
-	{ 21, kSlotBelt }, { 24, kSlotBoots }, { 26, kSlotCloak },
+	{ 21, kSlotBelt }, { 24, kSlotBoots }, { 26, kSlotShield },
 };
 
 
