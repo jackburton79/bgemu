@@ -6,27 +6,24 @@
 
 #include "ColorRange.h"
 
-#include <assert.h>
 #include <iostream>
 
 #include "BmpResource.h"
 #include "Bitmap.h"
-#include "Core.h"
 #include "ResManager.h"
 
 static std::vector<ColorRange> sColorRanges;
 
+// Use MPALETTE.BMP (12 wide, one row per CRE color-index byte) for
+// per-creature recoloring gradient table
 bool
 InitColorRanges()
 {
-	// Baldur's gate 1 use COLGRAD.BAM instead
-	if (Core::Get()->Game() != game::GAME_BALDURSGATE2)
+	BMPResource* ranges = gResManager->GetBMP("MPALETTE");
+	if (ranges == nullptr)
 		return false;
 
 	std::cout << "InitColorRanges()" << std::endl;
-	BMPResource* ranges = gResManager->GetBMP("RANGES12");
-	if (ranges == nullptr)
-		return false;
 	Bitmap* bitmap = ranges->Image();
 	ColorRange range;
 	for (uint16 y = 0; y < bitmap->Height(); y++) {
@@ -45,10 +42,16 @@ InitColorRanges()
 }
 
 
+// A CRE's color byte is untrusted data (0-255) with no guarantee it
+// falls inside MPALETTE.BMP's own row count
 void
 ApplyRange(GFX::Palette& palette, uint8 start, uint8 rangeIndex)
 {
-	assert(rangeIndex < 147);
+	if (sColorRanges.empty())
+		return;
+	if (rangeIndex >= sColorRanges.size())
+		rangeIndex = 0;
+
 	const ColorRange& range = sColorRanges[rangeIndex];
 
 	for (int i = 0; i < 12; i++)

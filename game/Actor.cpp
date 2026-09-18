@@ -1953,31 +1953,48 @@ Actor::_SetPositionPrivate(const IE::point& point)
 }
 
 
+// Populates fColors from this CRE's own literal color bytes, which
+// AnimationFactory::AnimationFor() then hands to Animation for
+// _ApplyColorMODs() to recolor the BAM's hair/skin/armor/etc. palette
+// ranges with (see Animation.cpp - skipped entirely when fColors is
+// NULL). The real engine only ever substitutes a color byte >=200 
+// (RANDCOLR.2DA's own placeholder convention for "pick one of N alternatives"
+// see randcolr.2da's docs); any other byte is its own literal color index
+// regardless of whether the table exists. RANDCOLR.2DA is BG2/ToB/BGEE-
+// only content that BG1's CRE data never needed (no BG1 creature's
+// color bytes use the >=200 convention), not a prerequisite for
+// coloring to work at all.
 void
 Actor::_HandleColors()
 {
-	if (!gResManager->ResourceExists("RANDCOLR", RES_2DA))
-		return;
+	TWODAResource* randColors = gResManager->ResourceExists("RANDCOLR", RES_2DA)
+			? gResManager->Get2DA("RANDCOLR") : NULL;
 
-	TWODAResource* randColors = gResManager->Get2DA("RANDCOLR");
-	if (randColors != NULL) {
-		CREColors originalColors = CRE()->Colors();
-		fColors = new CREColors();
-		fColors->hair = _GetRandomColor(randColors, originalColors.hair);
-		fColors->leather = _GetRandomColor(randColors, originalColors.leather);
-		fColors->armor = _GetRandomColor(randColors, originalColors.armor);
-		fColors->metal = _GetRandomColor(randColors, originalColors.metal);
-		fColors->major = _GetRandomColor(randColors, originalColors.major);
-		fColors->minor = _GetRandomColor(randColors, originalColors.minor);
-		fColors->skin = _GetRandomColor(randColors, originalColors.skin);
+	CREColors originalColors = CRE()->Colors();
+	fColors = new CREColors();
+	fColors->hair = _GetRandomColor(randColors, originalColors.hair);
+	fColors->leather = _GetRandomColor(randColors, originalColors.leather);
+	fColors->armor = _GetRandomColor(randColors, originalColors.armor);
+	fColors->metal = _GetRandomColor(randColors, originalColors.metal);
+	fColors->major = _GetRandomColor(randColors, originalColors.major);
+	fColors->minor = _GetRandomColor(randColors, originalColors.minor);
+	fColors->skin = _GetRandomColor(randColors, originalColors.skin);
+
+	if (randColors != NULL)
 		gResManager->ReleaseResource(randColors);
-	}
 }
 
 
+// `randColors` is NULL when RANDCOLR.2DA doesn't exist (BG1) - `index`
+// is then always already a real, literal color index (see this method's
+// caller's own comment), so it's returned unchanged, same as when the
+// table exists but `index` just isn't one of its placeholder codes.
 uint8
 Actor::_GetRandomColor(TWODAResource* randColors, uint8 index) const
 {
+	if (randColors == NULL)
+		return index;
+
 	uint8 num = index;
 	// get column requested index
 	for (int32 column = 0; column < randColors->CountColumns(); column++) {
