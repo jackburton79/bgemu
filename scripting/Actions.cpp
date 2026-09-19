@@ -173,27 +173,27 @@ RunActionVerbalConstant(Object* sender, action_params* params, action_state& sta
 }
 
 
-// STARTSTORE(S:Store*,O:Target*) - stateless. No store GUI exists yet
-// (Fase 9 plan: parsing + this action only, GUI deferred) - resolves and
-// logs the store's real data instead of silently no-op'ing like the
-// previous NULL entry did, so the STOResource parsing path is exercised
-// end-to-end from a real script trigger.
+// STARTSTORE(S:Store*,O:Target*) - stateless. Opens the store window (see
+// Game::OpenStoreWindow()) for the target party member - or the party
+// leader if the target isn't one. Stores that window can't show yet
+// (taverns, inns, temples) are just logged.
 static void
 RunActionStartStore(Object* sender, action_params* params, action_state& state)
 {
-	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
-	STOResource* store = gResManager->GetSTO(params->string1);
-	if (store != NULL) {
-		std::cout << "StartStore: " << params->string1 << " opened for "
-			<< (target != NULL ? target->Name() : "(no target)")
-			<< " - type=" << store->StoreType() << ", " << store->ItemsForSale().size()
-			<< " item(s) for sale" << std::endl;
-		gResManager->ReleaseResource(store);
-	} else {
-		std::cerr << "StartStore: store resource " << params->string1
-			<< " not found" << std::endl;
-	}
 	state.completed = true;
+
+	Actor* customer = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (customer == NULL || !customer->InParty()) {
+		Party* party = Game::Get()->Party();
+		customer = party != NULL && party->CountActors() > 0 ? party->ActorAt(0) : NULL;
+	}
+
+	if (!Game::Get()->OpenStoreWindow(customer, params->string1)) {
+		std::cerr << "StartStore: can't open store " << params->string1 << std::endl;
+		return;
+	}
+	std::cout << "StartStore: " << params->string1 << " opened for "
+		<< customer->Name() << std::endl;
 }
 
 

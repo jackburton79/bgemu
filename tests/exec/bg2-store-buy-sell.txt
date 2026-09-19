@@ -1,0 +1,34 @@
+# The store window's Buy/Sell page on BG2's layout (same windows as BG1's,
+# but with different control positions): selling a carried item to the
+# store, then buying the first shelf item back out, moves items, stock and
+# gold together; "Done" closes the window.
+# Needs: default BG2 starting party/area; store SHOP01 (a general store:
+# sells AX1H01 x5, buys daggers). ANOMEN10 carries SLNG01 first, then the
+# DAGG05 given below. Mouse coordinates: shelf slot 0 (109,150), the
+# leader's second carried item (354,196), Buy (227,353), Sell (475,351),
+# Done (500,459). Reputation is set to its usual starting value (the
+# default party's is unset, which prices everything 10x).
+Run-Action -,162,-,10,-,-,0,0
+Run-Action -,82,-,1,DAGG05,-,0,0
+Run-Action -,118,-,1000,-,-,0,0
+Run-Action -,150,-,0,SHOP01,-,0,0
+Step-Ticks 2
+Assert-StoreWindow true
+
+Assert-StoreStock SHOP01,DAGG05,0
+Mouse-Click 354,196
+Assert-StoreStock SHOP01,DAGG05,0
+Assert-Trigger -,true,HasItem("DAGG05",Myself)
+Mouse-Click 475,351
+Assert-StoreStock SHOP01,DAGG05,1
+Assert-Trigger -,false,HasItem("DAGG05",Myself)
+
+Assert-Trigger -,false,HasItem("AX1H01",Myself)
+Mouse-Click 109,150
+Mouse-Click 227,353
+Assert-StoreStock SHOP01,AX1H01,4
+Assert-Trigger -,true,HasItem("AX1H01",Myself)
+Assert-Trigger -,true,PartyGoldLT(1000)
+
+Mouse-Click 500,459
+Assert-StoreWindow false

@@ -193,3 +193,14 @@ ITMResource::Load(Archive *archive, uint32 key)
 
 	return true;
 }
+
+
+uint16
+ITMResource::MaxCharges() const
+{
+	if (fExtHeaderCount == 0)
+		return 0;
+	uint16 charges = 0;
+	fData->ReadAt(fExtHeaderOffset + 0x22, charges);
+	return charges;
+}

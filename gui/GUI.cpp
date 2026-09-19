@@ -917,6 +917,8 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
 		Game::Get()->SpellbookControlHovered(controlID, inside);
+	else if (chuName == res_ref("GUISTORE"))
+		Game::Get()->StoreControlHovered(controlID, windowID, inside);
 	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
 		Game::Get()->ContainerControlHovered(controlID, inside);
 }
@@ -944,6 +946,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (chuName == res_ref("GUIINV")) {
 		Game::Get()->InventoryControlInvoked(controlID, windowID);
+		return;
+	}
+
+	if (chuName == res_ref("GUISTORE")) {
+		Game::Get()->StoreControlInvoked(controlID, windowID);
 		return;
 	}
 

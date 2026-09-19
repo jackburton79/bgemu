@@ -86,6 +86,13 @@ public:
 	uint32 Weight() const;
 	uint32 Price() const;
 	uint16 StackAmount() const;
+	// Raw ITM header flags (bit 0 critical, bit 2 movable/droppable, bit
+	// 10 stolen, ... - see itm_v1.htm).
+	uint32 Flags() const { return fHeader.flags; }
+	// Lore needed to identify the item; 0 means it never needs identifying.
+	uint16 LoreToIdentify() const { return fHeader.lore_to_id; }
+	// First ability's charge count (0 = the item doesn't use charges).
+	uint16 MaxCharges() const;
 	res_ref InventoryIcon() const { return fHeader.inventory_icon; }
 	res_ref GroundIcon() const { return fHeader.ground_icon; }
 

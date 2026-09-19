@@ -60,6 +60,7 @@ public:
 	uint32 Flags() const;
 	uint32 SellMarkup() const;	// % of base price the store charges
 	uint32 BuyMarkup() const;	// % of base price the store pays
+	uint32 Depreciation() const;	// % knocked off per copy the store already holds
 	uint32 Capacity() const;	// 0 = unlimited
 
 	std::vector<sto_item> ItemsForSale() const;

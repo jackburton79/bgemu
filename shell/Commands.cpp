@@ -11,6 +11,7 @@
 #include "AreaRoom.h"
 #include "CharacterBuilder.h"
 #include "Container.h"
+#include "Store.h"
 #include "Control.h"
 #include "Core.h"
 #include "CreResource.h"
@@ -1619,6 +1620,91 @@ public:
 };
 
 
+// Print-Store <resref> - a store's current stock (opened earlier this
+// session): resref, packs in stock (-1 = infinite), pack size.
+class PrintStoreCommand : public ShellCommand {
+public:
+	PrintStoreCommand()
+		: ShellCommand("Print-Store")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Store* store = Game::Get()->LoadedStore(argv);
+		if (store == NULL) {
+			std::cout << "Print-Store: " << argv << " isn't loaded" << std::endl;
+			return;
+		}
+		std::cout << "Store " << argv << " (type " << store->Type() << ", flags 0x"
+			<< std::hex << store->Flags() << std::dec << "):" << std::endl;
+		for (const store_entry& entry : store->Items()) {
+			std::cout << "  " << entry.item.name.CString() << " x" << entry.amount
+				<< " (pack " << entry.item.quantity1 << ")" << std::endl;
+		}
+	}
+};
+
+
+// Assert-StoreWindow <true|false> - whether the store window is open.
+class AssertStoreWindowCommand : public ShellCommand {
+public:
+	AssertStoreWindowCommand()
+		: ShellCommand("Assert-StoreWindow")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		bool expected = strcasecmp(argv, "true") == 0;
+		bool open = Game::Get()->IsStoreWindowOpen();
+		if (open == expected) {
+			std::cout << "ASSERT OK: StoreWindow open == " << (expected ? "true" : "false")
+				<< std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: StoreWindow open - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (open ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-StoreStock <store>,<item resref>,<amount> - how many packs of an
+// item a store (opened earlier this session) currently holds; -1 for an
+// infinite supply, 0 for none.
+class AssertStoreStockCommand : public ShellCommand {
+public:
+	AssertStoreStockCommand()
+		: ShellCommand("Assert-StoreStock")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string storeName, rest, itemName, expectedText;
+		if (!_SplitOnFirstComma(argv, storeName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), itemName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <store>,<item>,<amount>" << std::endl;
+			return;
+		}
+		int32 expected = (int32)::strtol(expectedText.c_str(), NULL, 0);
+
+		Store* store = Game::Get()->LoadedStore(storeName.c_str());
+		if (store == NULL) {
+			std::cout << "ASSERT FAIL: store " << storeName << " isn't loaded" << std::endl;
+			return;
+		}
+		int32 amount = 0;
+		for (const store_entry& entry : store->Items()) {
+			if (strcasecmp(entry.item.name.CString(), itemName.c_str()) == 0)
+				amount = entry.amount;
+		}
+		if (amount == expected) {
+			std::cout << "ASSERT OK: " << storeName << " stocks " << itemName << " x"
+				<< amount << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << storeName << " stocks " << itemName
+				<< " - expected " << expected << ", got " << amount << std::endl;
+		}
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -2124,6 +2210,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertJournalHasEntryCommand());
 	console->AddCommand(new AssertContainerHasItemCommand());
 	console->AddCommand(new AssertLootWindowCommand());
+	console->AddCommand(new PrintStoreCommand());
+	console->AddCommand(new AssertStoreWindowCommand());
+	console->AddCommand(new AssertStoreStockCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());

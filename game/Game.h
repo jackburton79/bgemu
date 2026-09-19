@@ -10,6 +10,7 @@
 #include "IETypes.h"
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -100,6 +101,19 @@ public:
 	static void CloseContainerWindowIfAny();
 	void ContainerControlInvoked(uint32 controlID);
 	void ContainerControlHovered(uint32 controlID, bool inside);
+	// Store window (GUISTORE) - the Buy/Sell page: opened by STARTSTORE for
+	// a party member shopping (`customer`). Items on the shelf on the left,
+	// the shown party member's carried items on the right; a click selects
+	// or deselects an item, "Buy"/"Sell" then carry out the selection.
+	// Returns false if `storeName` isn't a shop this window can show (no
+	// such resource, or a tavern/inn/temple - their pages don't exist yet).
+	bool OpenStoreWindow(Actor* customer, const res_ref& storeName);
+	void CloseStoreWindow();
+	bool IsStoreWindowOpen() const;
+	// A store loaded this session (NULL if never opened) - for tests.
+	class Store* LoadedStore(const char* name) const;
+	void StoreControlInvoked(uint32 controlID, uint16 windowID);
+	void StoreControlHovered(uint32 controlID, uint16 windowID, bool inside);
 	// A click on the inventory window background (not a slot) while
 	// dragging an item: drops the held item onto the area floor at the
 	// shown character's feet.
@@ -316,6 +330,21 @@ private:
 	// CloseContainerWindow() shows back exactly those.
 	std::vector<uint16> fLootHiddenWindows;
 	void _UpdateContainerWindow();
+
+	// Store window state - see OpenStoreWindow(). fStores owns every Store
+	// loaded this session, so a store keeps what was sold to it (and what
+	// was bought out of it) when reopened; not written to savegames.
+	std::map<std::string, class Store*> fStores;
+	class Store* fStore;
+	class Actor* fStoreCustomer;
+	std::set<uint32> fStoreSellSlots;
+	int32 fStoreLeftRow;
+	int32 fStoreRightRow;
+	bool fStoreUnpause;
+	void _UpdateStoreWindow();
+	void _StoreBuySelected();
+	void _StoreSellSelected();
+	void _ClearStores();
 
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;

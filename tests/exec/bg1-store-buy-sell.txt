@@ -1,0 +1,39 @@
+# The store window's Buy/Sell page (GUISTORE) on BG1's layout (window 2 at
+# 64,0, bottom bar at 64,390): STARTSTORE opens it for the party leader;
+# clicking an item only selects it, "Buy"/"Sell" then carry the selection
+# out - moving the item, the store's stock and the party's gold together -
+# and "Done" closes the window.
+# Needs: default BG1 starting party/area, store STO2606 (Candlekeep's
+# general store: sells AX1H01 x5, buys and already holds DAGG01 x10).
+# Mouse coordinates: shelf slot 0 (124,139), the leader's first carried
+# item (371,139), Buy (254,351), Sell (501,351), Done (505,452).
+# The default party's reputation is unset (0, i.e. the 10x price row of
+# REPMODST.2DA) - set the usual starting value so prices are the real ones.
+Run-Action -,162,-,10,-,-,0,0
+Run-Action -,82,-,1,DAGG01,-,0,0
+Run-Action -,118,-,1000,-,-,0,0
+Run-Action -,150,-,0,STO2606,-,0,0
+Step-Ticks 2
+Assert-StoreWindow true
+
+# Selecting only marks the item.
+Mouse-Click 371,139
+Assert-StoreStock STO2606,DAGG01,10
+Assert-Trigger -,true,HasItem("DAGG01",Myself)
+
+# Sell: the dagger leaves the leader and joins the store's stock.
+Mouse-Click 501,351
+Assert-StoreStock STO2606,DAGG01,11
+Assert-Trigger -,false,HasItem("DAGG01",Myself)
+
+# Buy the first shelf item (AX1H01): one fewer in stock, one more carried,
+# and it cost gold.
+Assert-Trigger -,false,HasItem("AX1H01",Myself)
+Mouse-Click 124,139
+Mouse-Click 254,351
+Assert-StoreStock STO2606,AX1H01,4
+Assert-Trigger -,true,HasItem("AX1H01",Myself)
+Assert-Trigger -,true,PartyGoldLT(1000)
+
+Mouse-Click 505,452
+Assert-StoreWindow false

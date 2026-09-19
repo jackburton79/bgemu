@@ -97,6 +97,15 @@ STOResource::BuyMarkup() const
 
 
 uint32
+STOResource::Depreciation() const
+{
+	uint32 rate;
+	fData->ReadAt(0x1c, rate);
+	return rate;
+}
+
+
+uint32
 STOResource::Capacity() const
 {
 	uint16 capacity;
