@@ -51,7 +51,7 @@ private:
 	int16 fCurrentFrame;
 	uint16 fStartFrame;
 	uint16 fLastFrame;
-	bool fHold;
+	bool fHold = false;
 	bool fBlackAsTransparent;
 	bool fMirrored;
 	std::string fName;
