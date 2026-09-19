@@ -13,3 +13,19 @@ Mouse-Click 131,459
 Assert-ActiveWeaponSlot AJANTI,9
 Mouse-Click 173,459
 Assert-ActiveWeaponSlot AJANTI,10
+# Pressing the weapon already in hand asks whom to attack (the sword, first
+# button); the next click on a creature attacks it even though Mercante is
+# friendly - AJANTI kills him for XP - and any click ends the mode.
+Mouse-Click 131,459
+Assert-ActiveWeaponSlot AJANTI,9
+Mouse-Click 131,459
+Assert-TargetMode attack
+Mouse-Click 458,215
+Assert-TargetMode none
+Step-Ticks 6000
+Assert-Trigger AJANTI,true,XPGT(Myself,2263)
+# Talk mode is cancelled by a click on empty ground.
+Mouse-Click 88,456
+Assert-TargetMode talk
+Mouse-Click 300,300
+Assert-TargetMode none

@@ -1725,7 +1725,7 @@ Actor::RestrictionDistance() const
 
 /* virtual */
 void
-Actor::ClickedOn(Object* target)
+Actor::ClickedOn(Object* target, ClickIntent intent)
 {
 	if (target == NULL)
 		return;
@@ -1752,6 +1752,8 @@ Actor::ClickedOn(Object* target)
 		openParams->Release();
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		if (actor->IsState(STATE_DEAD)) {
+			if (intent != CLICK_DEFAULT)
+				return; // nobody to talk to or attack
 			// Loot the corpse - same two-action MOVETOOBJECT+USECONTAINER
 			// queue as the Container branch below (RunActionUseContainer()
 			// accepts a dead Actor target too, see its own comment).
@@ -1774,7 +1776,9 @@ Actor::ClickedOn(Object* target)
 		// CURSOR_ATTACK) - it just wasn't wired into the actual click
 		// yet, so clicking a hostile creature always tried to start a
 		// dialog with it instead of attacking.
-		if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")) {
+		const bool talk = intent == CLICK_TALK || (intent == CLICK_DEFAULT
+			&& actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"));
+		if (talk) {
 			// Walk over first, same two-action MOVETOOBJECT+interact queue
 			// as the Door/Container branches - RunActionDialog() itself
 			// starts the conversation as soon as it runs, with no

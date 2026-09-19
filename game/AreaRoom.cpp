@@ -447,6 +447,23 @@ AreaRoom::ClickAt(IE::point areaPoint)
 void
 AreaRoom::_HandleClickAt(IE::point point)
 {
+	// Talk/Attack picked on the action bar: this click chooses whom (a
+	// living creature other than the selected one) - or, anywhere else,
+	// just cancels the mode.
+	const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
+	if (mode != Game::TARGET_NONE) {
+		Game::Get()->SetTargetMode(Game::TARGET_NONE);
+		int32 unused = -1;
+		Actor* actor = dynamic_cast<Actor*>(_ObjectAtPoint(point, unused));
+		if (fSelectedActor != NULL && actor != NULL && actor != fSelectedActor.Target()
+				&& !actor->IsState(STATE_DEAD)) {
+			fSelectedActor.Target()->ClearActionList();
+			fSelectedActor.Target()->ClickedOn(actor, mode == Game::TARGET_TALK
+				? Actor::CLICK_TALK : Actor::CLICK_ATTACK);
+		}
+		return;
+	}
+
 	if (fSelectedActor != NULL)
 		fSelectedActor.Target()->ClearActionList();
 
@@ -540,7 +557,14 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 		if (cursor == -1 && fSearchMap != NULL
 				&& fSearchMap->IsWorldmapExit(point.x, point.y))
 			cursor = IE::CURSOR_TRAVEL;
-		if (cursor != -1)
+		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
+		Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
+		if (mode != Game::TARGET_NONE) {
+			const bool valid = hovered != NULL && !hovered->IsState(STATE_DEAD)
+				&& hovered != fSelectedActor.Target();
+			GUI::Get()->SetCursor(!valid ? IE::CURSOR_NOWAY
+				: mode == Game::TARGET_TALK ? IE::CURSOR_TALK : IE::CURSOR_ATTACK);
+		} else if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
 		else {
 			GUI::Get()->SetCursor(IE::CURSOR_WALKTO);

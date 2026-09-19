@@ -86,6 +86,7 @@ Game::Game()
 	fLootSource(NULL),
 	fLooter(NULL),
 	fLootLeftRow(0),
+	fTargetMode(TARGET_NONE),
 	fLootRightRow(0),
 	fStore(NULL),
 	fStoreCustomer(NULL),
@@ -1640,7 +1641,11 @@ Game::RefreshActionBar()
 				button->SetIcon(_MakeItemIcon(item.name));
 				button->SetIconCount(item.quantity1);
 			}
-			button->SetHighlighted(filled && (int32)slot == actor->ActiveWeaponSlot());
+			const bool inHand = filled && (int32)slot == actor->ActiveWeaponSlot();
+			button->SetHighlighted(inHand);
+			// Attack mode marks the weapon in hand with a second, inner
+			// outline - drawn as the button being "toggled".
+			button->SetToggled(inHand && fTargetMode == TARGET_ATTACK);
 			button->SetEnabled(filled);
 			continue;
 		}
@@ -1656,9 +1661,21 @@ Game::RefreshActionBar()
 		} else
 			std::copy(kActionArt[action], kActionArt[action] + 4, cycles);
 		button->SetArt(res_ref(guibtbut ? "GUIBTBUT" : "GUIBTACT"), cycles);
-		// Only Stop does anything yet; the rest show their icons greyed out.
-		button->SetEnabled(action == ACT_STOP);
+		// Only Talk and Stop do anything yet; the rest show their icons
+		// greyed out.
+		button->SetEnabled(action == ACT_STOP || action == ACT_TALK);
+		button->SetHighlighted(action == ACT_TALK && fTargetMode == TARGET_TALK);
 	}
+}
+
+
+void
+Game::SetTargetMode(TargetMode mode)
+{
+	if (fTargetMode == mode)
+		return;
+	fTargetMode = mode;
+	RefreshActionBar();
 }
 
 
@@ -1673,9 +1690,19 @@ Game::ActionBarControlInvoked(uint32 controlID)
 	_ActionRowFor(actor, row);
 	const uint32 action = row[controlID];
 	if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4) {
-		actor->SelectWeapon(action - ACT_WEAPON1);
-		RefreshActionBar();
+		// Pressing the weapon already in hand asks whom to attack with it.
+		const int32 slot = kSlotWeaponFirst + (action - ACT_WEAPON1);
+		if (slot == actor->ActiveWeaponSlot()) {
+			SetTargetMode(fTargetMode == TARGET_ATTACK ? TARGET_NONE : TARGET_ATTACK);
+		} else {
+			fTargetMode = TARGET_NONE;
+			actor->SelectWeapon(action - ACT_WEAPON1);
+			RefreshActionBar();
+		}
+	} else if (action == ACT_TALK) {
+		SetTargetMode(fTargetMode == TARGET_TALK ? TARGET_NONE : TARGET_TALK);
 	} else if (action == ACT_STOP) {
+		fTargetMode = TARGET_NONE;
 		actor->ClearActionList();
 	}
 }

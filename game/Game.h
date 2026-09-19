@@ -149,6 +149,13 @@ public:
 	// weapon quickslots working. Call whenever the shown character, their
 	// weapons or the HUD itself change.
 	void RefreshActionBar();
+
+	// What the next click in the area does, chosen from the action bar:
+	// talk to / attack the creature clicked instead of the usual
+	// friend-or-foe guess. One-shot: any click in the area ends it.
+	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK };
+	TargetMode CurrentTargetMode() const { return fTargetMode; }
+	void SetTargetMode(TargetMode mode);
 	// GUI::ControlInvoked() routes clicks on the action bar here.
 	void ActionBarControlInvoked(uint32 controlID);
 	void ToggleJournalWindow();
@@ -359,6 +366,7 @@ private:
 	class Object* fLootSource;
 	Actor* fLooter;
 	int32 fLootLeftRow;
+	TargetMode fTargetMode;
 	int32 fLootRightRow;
 	// HUD windows hidden for as long as the loot window is up, so
 	// CloseContainerWindow() shows back exactly those.

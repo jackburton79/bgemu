@@ -1749,6 +1749,27 @@ public:
 };
 
 
+// Assert-TargetMode <none|talk|attack> - the action bar's pending click mode.
+class AssertTargetModeCommand : public ShellCommand {
+public:
+	AssertTargetModeCommand()
+		: ShellCommand("Assert-TargetMode")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const std::string expected = argv;
+		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
+		const char* actual = mode == Game::TARGET_TALK ? "talk"
+			: mode == Game::TARGET_ATTACK ? "attack" : "none";
+		if (strcasecmp(expected.c_str(), actual) == 0)
+			std::cout << "ASSERT OK: target mode == " << actual << std::endl;
+		else
+			std::cout << "ASSERT FAIL: target mode - expected " << expected
+				<< ", got " << actual << std::endl;
+	}
+};
+
+
 // Assert-ActiveWeaponSlot <actor>,<CRE slot|-1> - which quickslot is in hand.
 class AssertActiveWeaponSlotCommand : public ShellCommand {
 public:
@@ -2389,6 +2410,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new PrintStoreCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());
+	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());
 	console->AddCommand(new AssertStoreWindowCommand());

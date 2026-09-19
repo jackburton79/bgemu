@@ -266,7 +266,12 @@ public:
 	void SetNumTimesTalkedTo(uint32 num);
 	uint32 NumTimesTalkedTo() const;
 
-	virtual void ClickedOn(Object* target);
+	// What a click on an Actor should do when the player picked it
+	// explicitly (the action bar's Talk/Attack modes) rather than leaving
+	// it to the target's allegiance (CLICK_DEFAULT: talk to friends,
+	// attack enemies).
+	enum ClickIntent { CLICK_DEFAULT, CLICK_TALK, CLICK_ATTACK };
+	virtual void ClickedOn(Object* target, ClickIntent intent = CLICK_DEFAULT);
 
 	void Shout(int number);
 
