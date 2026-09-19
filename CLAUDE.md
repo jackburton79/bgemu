@@ -175,6 +175,23 @@ when their area unloads or another screen opens. Console tests use
 `Assert-LootWindow`/`Assert-ContainerHasItem` and
 `Assert-StoreWindow`/`Assert-StoreStock`/`Print-Store`.
 
+### HUD action bar
+
+GUIW window 3 (`GUI::WINDOW_CMDS`, 12 buttons) is filled by
+`Game::RefreshActionBar()` (game/Game.cpp): the shown character's class
+row (GemRB's qslots table, embedded there) with icons from GUIBTACT/
+GUIBTBUT - the numbers in `kActionArt` are *frame indices of cycle 0* of
+those BAMs, as in GemRB's guibtact.2da, and BG1 numbers the quick-slot frames
+per slot while BG2 doesn't (detected from the BAM). Weapon buttons select the
+quickslot (`Actor::SelectWeapon`, the CRE's selected-weapon word); Talk/
+Attack/Cast/Use arm a one-shot `Game::TargetMode` that the next area click
+consumes (`AreaRoom::_HandleClickAt`, `Actor::ClickedOn(target, intent)`);
+Cast/Use show a paged list (`bar_entry`) of memorized spells / magical items;
+quick spells (right click assigns) live in `Actor` and the GAM, quick items are
+the CRE's QuickItem1-3 slots. Refresh it whenever the shown character or their
+inventory changes. Tests that need a memorized spell are shell scripts using
+`-c player.spec` (`bg1-action-bar-*.sh`).
+
 ### Scripting and dialogs
 
 `scripting/Triggers.cpp`/`Actions.cpp` implement BCS trigger/action
@@ -188,7 +205,9 @@ compiled `.bcs` bytecode and the human-readable trigger/action text form
 (used by DLG response text and by console commands) — the two have
 subtly different parameter-passing conventions (e.g. object-function
 syntax like `LastTalkedToBy()`) that have been real bug sources.
-`game/Dialog.cpp` (`DialogHandler`) drives `.dlg` conversations; the DLG
+`game/Dialog.cpp` (`DialogHandler`) drives `.dlg` conversations (a
+conversation opens on the first state *in trigger-index order*, not table
+order - `DLGResource::InitialStates()`); the DLG
 resource parser is `resources/DLGResource.cpp`. `game/Variables.cpp`
 implements the GLOBAL/LOCALS/MYAREA-scoped variable store used by
 `SetGlobal`/`Global`/etc — variable names are case-insensitive and
