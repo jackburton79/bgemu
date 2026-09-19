@@ -1548,6 +1548,77 @@ public:
 };
 
 
+// Assert-ContainerHasItem <container name>,<item resref>,<true|false> -
+// self-checking view of a Container's contents, for the loot window's
+// regression test (nothing else exposes what a container still holds).
+class AssertContainerHasItemCommand : public ShellCommand {
+public:
+	AssertContainerHasItemCommand()
+		: ShellCommand("Assert-ContainerHasItem")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string containerName, rest, itemName, expectedText;
+		if (!_SplitOnFirstComma(argv, containerName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), itemName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <container>,<item>,<true|false>"
+				<< std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+
+		AreaRoom* room = CurrentAreaRoom();
+		Container* target = NULL;
+		if (room != NULL) {
+			for (Container* container : room->Containers()) {
+				if (strcasecmp(container->Name(), containerName.c_str()) == 0) {
+					target = container;
+					break;
+				}
+			}
+		}
+		if (target == NULL) {
+			std::cout << "ASSERT FAIL: no container named " << containerName << std::endl;
+			return;
+		}
+
+		bool found = false;
+		for (const IE::item& item : target->ContainerItems())
+			found = found || strcasecmp(item.name.CString(), itemName.c_str()) == 0;
+		if (found == expected) {
+			std::cout << "ASSERT OK: " << containerName << " has " << itemName
+				<< " == " << (expected ? "true" : "false") << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << containerName << " has " << itemName
+				<< " - expected " << (expected ? "true" : "false") << ", got "
+				<< (found ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-LootWindow <true|false> - whether the loot window is open.
+class AssertLootWindowCommand : public ShellCommand {
+public:
+	AssertLootWindowCommand()
+		: ShellCommand("Assert-LootWindow")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		bool expected = strcasecmp(argv, "true") == 0;
+		bool open = Game::Get()->IsContainerWindowOpen();
+		if (open == expected) {
+			std::cout << "ASSERT OK: LootWindow open == " << (expected ? "true" : "false")
+				<< std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: LootWindow open - expected "
+				<< (expected ? "true" : "false") << ", got "
+				<< (open ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // CheckLineOfSightCommand - direct AreaRoom::HasLineOfSight() query
 // between two explicit points, same "bypass the noise of a real
 // actor/trigger" rationale as CheckPassableCommand above.
@@ -2051,6 +2122,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertDoorOpenedCommand());
 	console->AddCommand(new AssertPositionCommand());
 	console->AddCommand(new AssertJournalHasEntryCommand());
+	console->AddCommand(new AssertContainerHasItemCommand());
+	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new CheckLineOfSightCommand());
 	console->AddCommand(new ToggleSearchMapCommand());
 	console->AddCommand(new ToggleSaveCommand());

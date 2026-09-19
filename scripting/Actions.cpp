@@ -3328,12 +3328,13 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 
 // UseContainer() - stateless. Per IESDP "used by the engine internally"
 // (queued when the player clicks a container - see Actor::ClickedOn(),
-// which now does exactly that, after a MOVETOOBJECT to reach it first).
-// Auto-loot (no loot GUI exists - see the Fase 6 plan notes): takes
-// everything that fits into the creature's inventory, leaves the rest
-// behind. Also accepts a dead Actor as the target (Actor::ClickedOn()
-// queues this same action for looting a corpse), reading from its CRE
-// item slots instead of a Container's item list.
+// which does exactly that, after a MOVETOOBJECT to reach it first). A
+// party member opens the loot window (Game::OpenContainerWindow()) and
+// the player picks what to take; any other creature (a script sending an
+// NPC to a container) has no GUI, so it just takes everything that fits
+// and leaves the rest behind. Also accepts a dead Actor as the target
+// (Actor::ClickedOn() queues this same action for looting a corpse),
+// reading from its CRE item slots instead of a Container's item list.
 static void
 RunActionUseContainer(Object* sender, action_params* params, action_state& state)
 {
@@ -3344,6 +3345,16 @@ RunActionUseContainer(Object* sender, action_params* params, action_state& state
 		return;
 
 	Object* target = Script::GetTargetObject(sender, params);
+	if (actor->InParty()) {
+		Container* container = dynamic_cast<Container*>(target);
+		Actor* corpse = dynamic_cast<Actor*>(target);
+		if ((container != NULL && container->IsEnabled())
+				|| (corpse != NULL && corpse->CRE() != NULL
+					&& corpse->IsState(STATE_DEAD)))
+			Game::Get()->OpenContainerWindow(actor, target);
+		return;
+	}
+
 	if (Container* container = dynamic_cast<Container*>(target)) {
 		if (!container->IsEnabled())
 			return;

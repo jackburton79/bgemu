@@ -1,0 +1,15 @@
+# The loot window on BG1's layout (window 8 at 64,390, unlike BG2's 0,390):
+# clicking a container slot moves that item to the party leader - here the
+# gold pile in Container 3, which must credit the party gold instead of
+# taking up an inventory slot - and Done closes the window.
+# Needs: default BG1 starting party/area (Container 3 holds MISC07x15).
+Assert-Trigger -,true,PartyGoldLT(15)
+Run-Action -,112,Container 3,0,-,-,0,0
+Step-Ticks 2
+Assert-LootWindow true
+Assert-ContainerHasItem Container 3,MISC07,true
+Mouse-Click 180,415
+Assert-ContainerHasItem Container 3,MISC07,false
+Assert-Trigger -,true,PartyGoldGT(14)
+Mouse-Click 560,406
+Assert-LootWindow false

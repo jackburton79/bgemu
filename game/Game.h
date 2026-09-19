@@ -87,6 +87,19 @@ public:
 	// Hover enter/leave on an inventory slot: show/hide the item-name
 	// tooltip next to the cursor.
 	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
+	// Loot window (GUIW window 8, replacing the message area/command bar
+	// at the bottom of the screen while open): `looter` is the party
+	// member using `source`, either a Container or a dead Actor (corpse).
+	// Shows the source's items on the left and the looter's own carried
+	// items on the right; clicking one moves it across. See the .cpp.
+	void OpenContainerWindow(Actor* looter, class Object* source);
+	void CloseContainerWindow();
+	bool IsContainerWindowOpen() const;
+	// Called when an area is being unloaded (the source object dies with
+	// it). Safe to call when no Game exists (shutdown).
+	static void CloseContainerWindowIfAny();
+	void ContainerControlInvoked(uint32 controlID);
+	void ContainerControlHovered(uint32 controlID, bool inside);
 	// A click on the inventory window background (not a slot) while
 	// dragging an item: drops the held item onto the area floor at the
 	// shown character's feet.
@@ -293,6 +306,16 @@ private:
 	// out of (-1 = not dragging). The dragged icon itself lives on GUI
 	// (SetDragBitmap); this is the model side.
 	int32 fInvDragSlot;
+
+	// Loot window state - see OpenContainerWindow().
+	class Object* fLootSource;
+	Actor* fLooter;
+	int32 fLootLeftRow;
+	int32 fLootRightRow;
+	// HUD windows hidden for as long as the loot window is up, so
+	// CloseContainerWindow() shows back exactly those.
+	std::vector<uint16> fLootHiddenWindows;
+	void _UpdateContainerWindow();
 
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;

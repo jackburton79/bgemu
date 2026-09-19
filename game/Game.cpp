@@ -29,6 +29,8 @@
 #include "GUI.h"
 #include "ITMResource.h"
 #include "Label.h"
+#include "Container.h"
+#include "Scrollbar.h"
 #include "MemoryStream.h"
 #include "PLTResource.h"
 #include "Parsing.h"
@@ -79,6 +81,10 @@ Game::Game()
 	fDelay(67),
 	fTestMode(false),
 	fInvDragSlot(-1),
+	fLootSource(NULL),
+	fLooter(NULL),
+	fLootLeftRow(0),
+	fLootRightRow(0),
 	fShownCharacter(0)
 {
 	fTempState = new Game::TempState;
@@ -1197,10 +1203,14 @@ _MakeItemIcon(const res_ref& itemName)
 	if (itm == NULL)
 		return NULL;
 	Bitmap* icon = NULL;
-	BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
-	if (bam != NULL) {
-		icon = bam->FrameForCycle(0, 0);
-		gResManager->ReleaseResource(bam);
+	// Some items (e.g. an unresolved RNDTRE* random-treasure placeholder)
+	// have no inventory icon at all.
+	if (itm->InventoryIcon().name[0] != '\0') {
+		BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
+		if (bam != NULL) {
+			icon = bam->FrameForCycle(0, 0);
+			gResManager->ReleaseResource(bam);
+		}
 	}
 	gResManager->ReleaseResource(itm);
 	return icon;
@@ -1789,12 +1799,12 @@ _MaxEncumbrance(CREResource* cre)
 // CHUIResource::_ReadControl() allocates every other control's, since
 // Control::~Control() unconditionally frees it the same way.
 static void
-_EnsureWeightLabels(Window* window)
+_EnsureWeightLabels(Window* window, uint32 iconID = kInvWeightIconID)
 {
 	if (window->GetControlByID(kInvWeightCurrentLabelID) != nullptr)
 		return;
 
-	Control* bagIcon = window->GetControlByID(kInvWeightIconID);
+	Control* bagIcon = window->GetControlByID(iconID);
 	if (bagIcon == nullptr)
 		return;
 	GFX::rect rect = bagIcon->Frame();
@@ -1867,6 +1877,374 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 	Label* weightMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID));
 	if (weightMaxLabel != nullptr)
 		weightMaxLabel->SetText(std::to_string(_MaxEncumbrance(actor->CRE())) + ":");
+}
+
+
+// GUIW window 8 - the loot window (identical layout in BG1 and BG2, confirmed
+// by dumping both GUIW.CHU): ids 0-5 are the source's item slots (3
+// columns x 2 rows), 10-13 the looter's own carried items (2 columns x 2
+// rows), 52/53 their scrollbars (whole rows), 50 the container-type icon,
+// 51 "Done", 54 the bag icon the encumbrance labels sit on. Ids and behavior
+// follow GemRB's CommonWindow.py OpenContainerWindow().
+static const uint32 kContainerSourceSlots = 6;
+static const uint32 kContainerSourceColumns = 3;
+static const uint32 kContainerOwnFirstID = 10;
+static const uint32 kContainerOwnSlots = 4;
+static const uint32 kContainerOwnColumns = 2;
+static const uint32 kContainerIconID = 50;
+static const uint32 kContainerDoneID = 51;
+static const uint32 kContainerSourceScrollID = 52;
+static const uint32 kContainerOwnScrollID = 53;
+static const uint32 kContainerWeightIconID = 54;
+static const uint32 kContainerGoldLabelID = 268435510;
+
+// Per ARE container type (index = type; GemRB's own shared containr.2da,
+// which real game installs don't ship): open sound, icon BAM, close sound.
+// "" = none.
+struct container_type_info { const char* openSound; const char* icon; const char* closeSound; };
+static const container_type_info kContainerTypes[] = {
+	{ "", "", "" },
+	{ "GAM_12A1", "CONTSACK", "GAM_12A" },	// bag
+	{ "AMB_D05A", "CONTCHST", "AMB_D05B" },	// chest
+	{ "AMB_D05A", "CONTDRWR", "AMB_D05B" },	// drawer
+	{ "AMB_D18", "CONTGRND", "" },			// pile
+	{ "AMB_D08", "CONTTABL", "" },			// table
+	{ "AMB_D07", "CONTSHLF", "" },			// shelf
+	{ "AMB_D07", "CONTALTR", "" },			// altar
+	{ "AMB_D18", "", "" },					// non-visible
+	{ "GAM_06", "CONTBOOK", "GAM_05" },		// spellbook
+	{ "AMB_D08G", "CONTBODY", "" },			// body
+	{ "AMB_D12", "CONTBARL", "AMB_D13" },	// barrel
+	{ "AMB_D05A", "CONTCRAT", "AMB_D05B" },	// crate
+};
+static const uint16 kContainerTypeBody = 10;
+
+
+static const container_type_info&
+_ContainerTypeInfo(Object* source)
+{
+	uint16 type = kContainerTypeBody; // a corpse
+	if (Container* container = dynamic_cast<Container*>(source))
+		type = container->Type();
+	if (type >= sizeof(kContainerTypes) / sizeof(kContainerTypes[0]))
+		type = 0;
+	return kContainerTypes[type];
+}
+
+
+// One item as listed in the loot window, plus where it lives in its
+// owner: an index into a Container's item list, or a CRE item slot.
+struct loot_entry { IE::item item; int32 slot; };
+
+
+// What `source` (a Container, or a dead Actor's CRE slots) currently holds.
+static void
+_CollectSourceEntries(Object* source, std::vector<loot_entry>& entries)
+{
+	if (Container* container = dynamic_cast<Container*>(source)) {
+		for (uint32 i = 0; i < container->ItemCount(); i++)
+			entries.push_back({ container->ItemAt(i), (int32)i });
+	} else if (Actor* corpse = dynamic_cast<Actor*>(source)) {
+		if (corpse->CRE() == NULL)
+			return;
+		for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+			IE::item item;
+			if (corpse->CRE()->GetItemAtSlot(slot, item) && item.name.name[0] != '\0')
+				entries.push_back({ item, (int32)slot });
+		}
+	}
+}
+
+
+// What the looter carries in its general inventory slots (the ones the
+// window's right-hand side lists - equipped gear isn't offered).
+static void
+_CollectOwnEntries(Actor* looter, std::vector<loot_entry>& entries)
+{
+	for (uint32 slot = kSlotGeneralFirst; slot <= kSlotGeneralLast; slot++) {
+		IE::item item;
+		if (looter->CRE()->GetItemAtSlot(slot, item) && item.name.name[0] != '\0')
+			entries.push_back({ item, (int32)slot });
+	}
+}
+
+
+static bool
+_TakeSourceEntry(Object* source, const loot_entry& entry, IE::item& out)
+{
+	if (Container* container = dynamic_cast<Container*>(source))
+		return container->TakeItemAt((uint32)entry.slot, out);
+	if (Actor* corpse = dynamic_cast<Actor*>(source))
+		return corpse->TakeItemFromSlot((uint32)entry.slot, out);
+	return false;
+}
+
+
+static bool
+_AddToSource(Object* source, const IE::item& item)
+{
+	if (Container* container = dynamic_cast<Container*>(source)) {
+		container->AddContainerItem(item);
+		return true;
+	}
+	if (Actor* corpse = dynamic_cast<Actor*>(source))
+		return corpse->AddItem(item);
+	return false;
+}
+
+
+// Loot entry behind a slot button, or NULL. `entries` must outlive the
+// returned pointer.
+static const loot_entry*
+_EntryAt(const std::vector<loot_entry>& entries, int32 row, uint32 columns,
+	uint32 slotIndex)
+{
+	size_t index = (size_t)row * columns + slotIndex;
+	return index < entries.size() ? &entries[index] : NULL;
+}
+
+
+void
+Game::OpenContainerWindow(Actor* looter, Object* source)
+{
+	if (looter == NULL || looter->CRE() == NULL || source == NULL)
+		return;
+	if (IsContainerWindowOpen())
+		CloseContainerWindow();
+
+	GUI* gui = GUI::Get();
+	// The loot window takes over the bottom of the screen: the message
+	// area and the command bar (same as the original).
+	fLootHiddenWindows.clear();
+	for (uint16 id : { (uint16)GUI::WINDOW_CMDS, (uint16)GUI::WINDOW_MESSAGES,
+			(uint16)GUI::WINDOW_MESSAGES_LARGE }) {
+		if (gui->IsWindowShown(id)) {
+			fLootHiddenWindows.push_back(id);
+			gui->HideWindow(id);
+		}
+	}
+
+	fLootSource = source;
+	fLooter = looter;
+	fLootLeftRow = 0;
+	fLootRightRow = 0;
+
+	gui->ShowWindow(GUI::WINDOW_CONTAINER);
+	Window* window = gui->GetWindow(GUI::WINDOW_CONTAINER);
+	if (window == NULL) {
+		CloseContainerWindow();
+		return;
+	}
+
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+			window->GetControlByID(kContainerSourceScrollID))) {
+		scrollbar->SetRowCallback([this](int32 row) {
+			fLootLeftRow = row;
+			_UpdateContainerWindow();
+		});
+	}
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+			window->GetControlByID(kContainerOwnScrollID))) {
+		scrollbar->SetRowCallback([this](int32 row) {
+			fLootRightRow = row;
+			_UpdateContainerWindow();
+		});
+	}
+
+	const container_type_info& info = _ContainerTypeInfo(source);
+	if (Button* icon = dynamic_cast<Button*>(window->GetControlByID(kContainerIconID))) {
+		Bitmap* frame = NULL;
+		if (info.icon[0] != '\0') {
+			if (BAMResource* bam = gResManager->GetBAM(info.icon)) {
+				frame = bam->FrameForCycle(0, 0);
+				gResManager->ReleaseResource(bam);
+			}
+		}
+		icon->SetIcon(frame, true);
+	}
+	if (info.openSound[0] != '\0')
+		Core::Get()->PlaySound(info.openSound);
+
+	_UpdateContainerWindow();
+}
+
+
+void
+Game::CloseContainerWindow()
+{
+	if (!IsContainerWindowOpen())
+		return;
+
+	// No GUI left to restore when this runs during shutdown.
+	if (GUI* gui = GUI::Get()) {
+		const container_type_info& info = _ContainerTypeInfo(fLootSource);
+		gui->HideWindow(GUI::WINDOW_CONTAINER);
+		gui->SetHoverTooltip("");
+		for (uint16 id : fLootHiddenWindows)
+			gui->ShowWindow(id);
+		if (info.closeSound[0] != '\0')
+			Core::Get()->PlaySound(info.closeSound);
+	}
+	fLootHiddenWindows.clear();
+
+	fLootSource = NULL;
+	fLooter = NULL;
+}
+
+
+bool
+Game::IsContainerWindowOpen() const
+{
+	return fLootSource != NULL;
+}
+
+
+/* static */
+void
+Game::CloseContainerWindowIfAny()
+{
+	if (sGame != NULL)
+		sGame->CloseContainerWindow();
+}
+
+
+// Re-populates the loot window from the current contents of the source and
+// of the looter's own inventory (clamping the scroll positions first - a
+// move can leave the list shorter than the row being shown).
+void
+Game::_UpdateContainerWindow()
+{
+	if (!IsContainerWindowOpen())
+		return;
+	Window* window = GUI::Get()->GetWindow(GUI::WINDOW_CONTAINER);
+	if (window == NULL)
+		return;
+
+	std::vector<loot_entry> sourceEntries, ownEntries;
+	_CollectSourceEntries(fLootSource, sourceEntries);
+	_CollectOwnEntries(fLooter, ownEntries);
+
+	// Rows the list scrolls by: everything past the visible slots, in
+	// whole rows.
+	auto maxRow = [](size_t count, uint32 visible, uint32 columns) -> int32 {
+		return count > visible ? (int32)((count - visible + columns - 1) / columns) : 0;
+	};
+	const int32 sourceMaxRow = maxRow(sourceEntries.size(), kContainerSourceSlots,
+		kContainerSourceColumns);
+	const int32 ownMaxRow = maxRow(ownEntries.size(), kContainerOwnSlots,
+		kContainerOwnColumns);
+	fLootLeftRow = std::min(fLootLeftRow, sourceMaxRow);
+	fLootRightRow = std::min(fLootRightRow, ownMaxRow);
+
+	auto fill = [&](uint32 firstID, uint32 slots, uint32 columns, int32 row,
+			const std::vector<loot_entry>& entries) {
+		for (uint32 i = 0; i < slots; i++) {
+			Button* button = dynamic_cast<Button*>(window->GetControlByID(firstID + i));
+			if (button == NULL)
+				continue;
+			const loot_entry* entry = _EntryAt(entries, row, columns, i);
+			button->SetIcon(entry != NULL ? _MakeItemIcon(entry->item.name) : NULL);
+			button->SetIconCount(entry != NULL ? entry->item.quantity1 : 0);
+		}
+	};
+	fill(0, kContainerSourceSlots, kContainerSourceColumns, fLootLeftRow, sourceEntries);
+	fill(kContainerOwnFirstID, kContainerOwnSlots, kContainerOwnColumns, fLootRightRow,
+		ownEntries);
+
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+			window->GetControlByID(kContainerSourceScrollID)))
+		scrollbar->SetScrollInfo(fLootLeftRow, sourceMaxRow);
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+			window->GetControlByID(kContainerOwnScrollID)))
+		scrollbar->SetScrollInfo(fLootRightRow, ownMaxRow);
+
+	if (Label* gold = dynamic_cast<Label*>(window->GetControlByID(kContainerGoldLabelID)))
+		gold->SetText(std::to_string(Core::Get()->PartyGold()));
+	_EnsureWeightLabels(window, kContainerWeightIconID);
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightCurrentLabelID)))
+		label->SetText(std::to_string(_CarriedWeight(fLooter->CRE())) + ":");
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID)))
+		label->SetText(std::to_string(_MaxEncumbrance(fLooter->CRE())) + ":");
+}
+
+
+// Click on a loot window control: a source slot moves that item into the
+// looter's inventory, an own-inventory slot moves it into the source, Done
+// closes.
+void
+Game::ContainerControlInvoked(uint32 controlID)
+{
+	if (!IsContainerWindowOpen())
+		return;
+
+	if (controlID == kContainerDoneID) {
+		CloseContainerWindow();
+		return;
+	}
+
+	if (controlID < kContainerSourceSlots) {
+		std::vector<loot_entry> entries;
+		_CollectSourceEntries(fLootSource, entries);
+		const loot_entry* entry = _EntryAt(entries, fLootLeftRow,
+			kContainerSourceColumns, controlID);
+		if (entry == NULL)
+			return;
+		// Add first, remove only once it fits - a full inventory leaves the
+		// item where it is.
+		if (!fLooter->AddItem(entry->item)) {
+			std::cout << fLooter->Name() << " has no room for "
+				<< _ItemDisplayName(entry->item.name) << std::endl;
+			return;
+		}
+		IE::item taken;
+		_TakeSourceEntry(fLootSource, *entry, taken);
+		std::cout << fLooter->Name() << " takes " << _ItemDisplayName(taken.name)
+			<< std::endl;
+	} else if (controlID >= kContainerOwnFirstID
+			&& controlID < kContainerOwnFirstID + kContainerOwnSlots) {
+		std::vector<loot_entry> entries;
+		_CollectOwnEntries(fLooter, entries);
+		const loot_entry* entry = _EntryAt(entries, fLootRightRow,
+			kContainerOwnColumns, controlID - kContainerOwnFirstID);
+		if (entry == NULL)
+			return;
+		IE::item taken;
+		if (!fLooter->TakeItemFromSlot((uint32)entry->slot, taken))
+			return;
+		if (!_AddToSource(fLootSource, taken)) {
+			fLooter->AddItem(taken); // no room over there - put it back
+			return;
+		}
+		std::cout << fLooter->Name() << " puts " << _ItemDisplayName(taken.name)
+			<< " away" << std::endl;
+	} else {
+		return;
+	}
+
+	_UpdateContainerWindow();
+}
+
+
+void
+Game::ContainerControlHovered(uint32 controlID, bool inside)
+{
+	if (!inside || !IsContainerWindowOpen()) {
+		GUI::Get()->SetHoverTooltip("");
+		return;
+	}
+
+	std::vector<loot_entry> entries;
+	const loot_entry* entry = NULL;
+	if (controlID < kContainerSourceSlots) {
+		_CollectSourceEntries(fLootSource, entries);
+		entry = _EntryAt(entries, fLootLeftRow, kContainerSourceColumns, controlID);
+	} else if (controlID >= kContainerOwnFirstID
+			&& controlID < kContainerOwnFirstID + kContainerOwnSlots) {
+		_CollectOwnEntries(fLooter, entries);
+		entry = _EntryAt(entries, fLootRightRow, kContainerOwnColumns,
+			controlID - kContainerOwnFirstID);
+	}
+	GUI::Get()->SetHoverTooltip(entry != NULL ? _ItemDisplayName(entry->item.name) : "");
 }
 
 

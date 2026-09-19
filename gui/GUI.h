@@ -44,7 +44,8 @@ public:
 		WINDOW_PLAYER_SLOTS = 1,
 		WINDOW_CMDS = 3,
 		WINDOW_MESSAGES = 4,
-		WINDOW_MESSAGES_LARGE = 7
+		WINDOW_MESSAGES_LARGE = 7,
+		WINDOW_CONTAINER = 8
 	};
 
 	static bool Initialize(const uint16 width, const uint16 height);

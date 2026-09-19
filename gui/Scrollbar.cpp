@@ -258,6 +258,8 @@ Scrollbar::MouseUp(IE::point /* point */)
 void
 Scrollbar::Pulse()
 {
+	if (fRowCallback)
+		return;
 	if (fUpPressed)
 		_ScrollBy(-kArrowStep);
 	else if (fDownPressed)
@@ -274,8 +276,23 @@ Scrollbar::SetScrollInfo(int32 offset, int32 range)
 
 
 void
+Scrollbar::SetRowCallback(std::function<void(int32)> callback)
+{
+	fRowCallback = std::move(callback);
+}
+
+
+void
 Scrollbar::_ScrollTo(int32 offset)
 {
+	if (fRowCallback) {
+		offset = std::max<int32>(0, std::min<int32>(offset, fRange));
+		if (offset != fOffset) {
+			fOffset = offset;
+			fRowCallback(offset);
+		}
+		return;
+	}
 	if (TextArea* textArea = _TextArea())
 		textArea->ScrollTo(0, (int16)offset);
 }
@@ -284,6 +301,10 @@ Scrollbar::_ScrollTo(int32 offset)
 void
 Scrollbar::_ScrollBy(int32 delta)
 {
+	if (fRowCallback) {
+		_ScrollTo(fOffset + (delta < 0 ? -1 : 1));
+		return;
+	}
 	if (TextArea* textArea = _TextArea())
 		textArea->ScrollBy(0, (int16)delta);
 }

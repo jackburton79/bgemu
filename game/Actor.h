@@ -129,6 +129,9 @@ public:
 	// all - it credits the shared party gold pool instead, same as the
 	// real games.
 	bool AddItem(const res_ref& itemName, uint16 quantity = 1);
+	// Same, but keeps the whole item as it is (charges, identified flag...)
+	// - for moving an existing item between inventories/containers.
+	bool AddItem(const IE::item& item);
 
 	// Removes one item (by resref, wherever it currently sits - equipped
 	// or not) from this actor's inventory. Returns false if not found.

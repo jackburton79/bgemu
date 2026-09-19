@@ -14,6 +14,8 @@ namespace GFX {
 	class rect;
 }
 
+#include <functional>
+
 class BAMResource;
 class TextArea;
 class Scrollbar: public Control {
@@ -32,6 +34,13 @@ public:
 	// the current offset and the maximum offset, both in content pixels.
 	void SetScrollInfo(int32 offset, int32 range);
 
+	// Row mode, for a scrollbar that pages a list of item slots instead
+	// of driving a TextArea: offset/range (SetScrollInfo()) are whole
+	// rows, each arrow click or trough click steps by exactly one row
+	// (no press-and-hold repeat), and `callback` receives the new row
+	// whenever the user moves it.
+	void SetRowCallback(std::function<void(int32)> callback);
+
 private:
 	BAMResource* fResource;
 	Bitmap* fUpArrow;
@@ -48,6 +57,7 @@ private:
 
 	int32 fOffset;
 	int32 fRange;
+	std::function<void(int32)> fRowCallback;
 
 	// All window-local (pre-screen-conversion).
 	GFX::rect _UpArrowRect() const;

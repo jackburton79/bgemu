@@ -1228,11 +1228,27 @@ static const res_ref kGoldItemResRef = "MISC07";
 bool
 Actor::AddItem(const res_ref& itemName, uint16 quantity)
 {
-	if (itemName == kGoldItemResRef) {
-		Core::Get()->AddPartyGold(quantity);
+	IE::item item;
+	item.name = itemName;
+	item.expiration_time = 0;
+	item.expiration_time2 = 0;
+	item.quantity1 = quantity;
+	item.quantity2 = 0;
+	item.quantity3 = 0;
+	item.flags = 1; // Identified
+	return AddItem(item);
+}
+
+
+bool
+Actor::AddItem(const IE::item& newItem)
+{
+	if (newItem.name == kGoldItemResRef) {
+		Core::Get()->AddPartyGold(newItem.quantity1 > 0 ? newItem.quantity1 : 1);
 		return true;
 	}
 
+	const res_ref& itemName = newItem.name;
 	ITMResource* itm = gResManager->GetITM(itemName);
 	if (itm == NULL) {
 		std::cerr << Name() << ": AddItem(" << itemName.CString()
@@ -1255,14 +1271,9 @@ Actor::AddItem(const res_ref& itemName, uint16 quantity)
 		return false;
 	}
 
-	IE::item item;
-	item.name = itemName;
-	item.expiration_time = 0;
-	item.expiration_time2 = 0;
-	item.quantity1 = quantity;
-	item.quantity2 = 0;
-	item.quantity3 = 0;
-	item.flags = 1; // Identified
+	IE::item item = newItem;
+	if (item.quantity1 == 0)
+		item.quantity1 = 1;
 
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
 	fCRE->SetItemAtSlot((uint32)slot, itemsIndex);

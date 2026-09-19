@@ -50,6 +50,13 @@ Container::Outline() const
 
 static const uint32 kContainerDisabled = 0x20;
 
+uint16
+Container::Type() const
+{
+	return fContainer->type;
+}
+
+
 bool
 Container::IsEnabled() const
 {

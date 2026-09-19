@@ -23,6 +23,10 @@ public:
 
 	const ::Polygon& Polygon() const;
 
+	// ARE container type (1 bag, 2 chest, 3 drawer, 4 pile, ... - see
+	// are_v1.htm): picks the loot window's icon and open/close sounds.
+	uint16 Type() const;
+
 	// CONTAINERENABLE(O:Object,I:Bool*BOOLEAN) - bit 5 of the ARE
 	// container flags ("Disabled" per are_v1.htm), same raw-flags
 	// approach Door already uses for its own lock/trap state.
@@ -32,9 +36,8 @@ public:
 	// The container's own items (its ARE item_first_index/item_count
 	// slice of the area's shared item list - see ARAResource::
 	// GetContainerAt(), which populates this at load time via
-	// AddContainerItem()). Read-only for now: clicking a container logs
-	// its contents but doesn't move them into the party's inventory yet
-	// (no loot GUI exists - see the Fase 6 plan notes).
+	// AddContainerItem()). Moved in and out through the loot window (see
+	// Game::OpenContainerWindow()).
 	uint32 ItemCount() const;
 	const IE::item& ItemAt(uint32 index) const;
 	void AddContainerItem(const IE::item& item);

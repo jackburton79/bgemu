@@ -917,6 +917,8 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
 		Game::Get()->SpellbookControlHovered(controlID, inside);
+	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
+		Game::Get()->ContainerControlHovered(controlID, inside);
 }
 
 
@@ -984,6 +986,10 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 	}
 
 	if (IsResolutionMatchedGUIW(chuName.CString())) {
+		if (windowID == WINDOW_CONTAINER) {
+			Game::Get()->ContainerControlInvoked(controlID);
+			return;
+		}
 		if (windowID == WINDOW_COMMANDS) {
 			for (const auto& button : kCommandBarButtons) {
 				if (button.controlID == controlID) {

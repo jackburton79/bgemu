@@ -121,6 +121,8 @@ Core::Destroy()
 void
 Core::UnloadCurrentRoom()
 {
+	// The loot window points into the room about to go away.
+	Game::CloseContainerWindowIfAny();
 	if (fCurrentRoom != NULL) {
 		fCurrentRoom->Unload();
 		fCurrentRoom->Release();
@@ -231,6 +233,8 @@ Core::LoadWorldMap(int direction)
 {
 	if (fCurrentRoom != NULL && ::strcasecmp(fCurrentRoom->Name(), "WORLDMAP") == 0)
 		return true;
+
+	Game::CloseContainerWindowIfAny();
 
 	// The area we're leaving is backgrounded, not unloaded - it stays
 	// alive exactly as the player left it (actors, scripts, positions)

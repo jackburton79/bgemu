@@ -1,0 +1,38 @@
+# The loot window (GUIW window 8): using a container opens it instead of
+# auto-taking everything; a click on a container slot moves just that item
+# into the party leader's inventory, a click on one of the leader's own
+# slots moves it into the container, the source's scrollbar pages in whole
+# rows, and "Done" closes it.
+# Needs: default BG2 starting party/area (AR0602: Table 2 holds 10 items,
+# more than the 6 slots the window shows; Chest 3 has no SLNG01, the one
+# item ANOMEN10 carries in his general inventory). Mouse coordinates are BG2's 640x480 layout
+# (window 8 at 0,390): source slot ids 0-5 from x=159 (42px apart, 2 rows
+# at y=396/437), own slots from x=388, source scrollbar down arrow near
+# (293,474), Done at (572,410).
+Run-Action -,112,Table 2,0,-,-,0,0
+Step-Ticks 2
+Assert-LootWindow true
+# Nothing was taken just by opening it.
+Assert-ContainerHasItem Table 2,LEAT01,true
+# Slot 1 = the 2nd item (LEAT01).
+Mouse-Click 222,417
+Assert-ContainerHasItem Table 2,LEAT01,false
+Assert-ContainerHasItem Table 2,HAMM01,true
+Assert-Trigger -,true,HasItem("LEAT01",Myself)
+# One row down: slot 0 is now the 4th remaining item (STAF01).
+Mouse-Click 293,474
+Mouse-Click 180,417
+Assert-ContainerHasItem Table 2,STAF01,false
+Assert-ContainerHasItem Table 2,SHLD01,true
+Mouse-Click 572,410
+Assert-LootWindow false
+
+# Putting an item back: ANOMEN10's first own slot holds SLNG01.
+Run-Action -,112,Chest 3,0,-,-,0,0
+Step-Ticks 2
+Assert-LootWindow true
+Assert-ContainerHasItem Chest 3,SLNG01,false
+Mouse-Click 409,417
+Assert-ContainerHasItem Chest 3,SLNG01,true
+Mouse-Click 572,410
+Assert-LootWindow false
