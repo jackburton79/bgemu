@@ -1,0 +1,13 @@
+# AREA: AR0602
+#
+# The action bar's Defend (a paladin's row has it): pressing it asks whom to
+# protect, and the next click on a friendly creature - Mercante - sends
+# AJANTI over to stand by him (NIDSPECIAL4, ProtectObject). AJANTI
+# starts at (496,127) and ends up beside him (Mercante stands at 523,231).
+Step-Ticks 3
+Mouse-Click 257,459
+Assert-TargetMode defend
+Mouse-Click 458,215
+Assert-TargetMode none
+Step-Ticks 200
+Assert-Position AJANTI,506,213

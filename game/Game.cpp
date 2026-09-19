@@ -1599,14 +1599,18 @@ struct bar_entry {
 };
 
 static std::vector<bar_entry>
-_CastableSpells(Actor* actor)
+_CastableSpells(Actor* actor, bool innate = false)
 {
 	std::vector<bar_entry> spells;
 	for (const cre_memorized_spell& memorized : actor->CRE()->MemorizedSpells()) {
 		if ((memorized.flags & 1) == 0)
 			continue;
 		const std::string name = memorized.spell.CString();
-		if (name.compare(0, 4, "SPWI") != 0 && name.compare(0, 4, "SPPR") != 0)
+		// Innate abilities are the SPIN (and class SPCL) ones; the rest are
+		// wizard/priest spells.
+		const bool isInnate = name.compare(0, 4, "SPIN") == 0 || name.compare(0, 4, "SPCL") == 0;
+		if (innate != isInnate || (!innate && name.compare(0, 4, "SPWI") != 0
+				&& name.compare(0, 4, "SPPR") != 0))
 			continue;
 		bool found = false;
 		for (bar_entry& known : spells) {
@@ -1656,7 +1660,7 @@ static const uint16 kArrowRightArt[4] = { 42, 43, 42, 43 };
 
 static void
 _ShowEntryPage(Window* window, const std::vector<bar_entry>& entries,
-	bool spells, uint32 page, bool bg1Layout)
+	uint32 header, bool spells, uint32 page, bool bg1Layout)
 {
 	for (uint32 i = 0; i < kActionButtons; i++) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
@@ -1669,7 +1673,6 @@ _ShowEntryPage(Window* window, const std::vector<bar_entry>& entries,
 
 		uint16 cycles[4];
 		if (i == 0) {
-			const uint32 header = spells ? ACT_CAST : ACT_USE;
 			std::copy(kActionArt[header], kActionArt[header] + 4, cycles);
 			button->SetArt(res_ref("GUIBTACT"), cycles);
 			button->SetEnabled(true);
@@ -1731,15 +1734,17 @@ Game::RefreshActionBar()
 	_ActionRowFor(actor, row);
 
 	if (fActionBarPage != PAGE_ROW) {
-		const bool spells = fActionBarPage == PAGE_SPELLS;
-		const std::vector<bar_entry> entries = spells ? _CastableSpells(actor)
-			: _UsableItems(actor);
+		const bool spells = fActionBarPage != PAGE_ITEMS;
+		const std::vector<bar_entry> entries = spells
+			? _CastableSpells(actor, fActionBarPage == PAGE_INNATES) : _UsableItems(actor);
+		const uint32 header = fActionBarPage == PAGE_SPELLS ? ACT_CAST
+			: fActionBarPage == PAGE_INNATES ? ACT_INNATE : ACT_USE;
 		if (entries.empty()) {
 			fActionBarPage = PAGE_ROW; // nothing left to pick from
 			fAssignQuickSpell = -1;
 		}
 		else
-			_ShowEntryPage(window, entries, spells, fActionBarPageIndex, sBG1Layout == 1);
+			_ShowEntryPage(window, entries, header, spells, fActionBarPageIndex, sBG1Layout == 1);
 		if (fActionBarPage != PAGE_ROW)
 			return;
 	}
@@ -1832,8 +1837,11 @@ Game::RefreshActionBar()
 		// so far; the rest show their icons greyed out.
 		button->SetEnabled(action == ACT_STOP || action == ACT_TALK
 			|| (action == ACT_CAST && !_CastableSpells(actor).empty())
-			|| (action == ACT_USE && !_UsableItems(actor).empty()));
-		button->SetHighlighted(action == ACT_TALK && fTargetMode == TARGET_TALK);
+			|| (action == ACT_USE && !_UsableItems(actor).empty())
+			|| (action == ACT_INNATE && !_CastableSpells(actor, true).empty())
+			|| action == ACT_DEFEND);
+		button->SetHighlighted((action == ACT_TALK && fTargetMode == TARGET_TALK)
+			|| (action == ACT_DEFEND && fTargetMode == TARGET_DEFEND));
 	}
 }
 
@@ -1927,9 +1935,9 @@ Game::ActionBarControlInvoked(uint32 controlID)
 		return;
 
 	if (fActionBarPage != PAGE_ROW) {
-		const bool spells = fActionBarPage == PAGE_SPELLS;
-		const std::vector<bar_entry> entries = spells ? _CastableSpells(actor)
-			: _UsableItems(actor);
+		const bool spells = fActionBarPage != PAGE_ITEMS;
+		const std::vector<bar_entry> entries = spells
+			? _CastableSpells(actor, fActionBarPage == PAGE_INNATES) : _UsableItems(actor);
 		const uint32 prevButton = kActionButtons - 2, nextButton = kActionButtons - 1;
 		if (controlID == 0) {
 			fActionBarPage = PAGE_ROW;
@@ -1972,11 +1980,13 @@ Game::ActionBarControlInvoked(uint32 controlID)
 				_PickBarEntry(actor, entry.name, entry.slot, false);
 		}
 		RefreshActionBar();
-	} else if (action == ACT_CAST || action == ACT_USE) {
-		const bool spells = action == ACT_CAST;
-		if (!(spells ? _CastableSpells(actor) : _UsableItems(actor)).empty()) {
+	} else if (action == ACT_DEFEND) {
+		SetTargetMode(fTargetMode == TARGET_DEFEND ? TARGET_NONE : TARGET_DEFEND);
+	} else if (action == ACT_CAST || action == ACT_USE || action == ACT_INNATE) {
+		const bool items = action == ACT_USE;
+		if (!(items ? _UsableItems(actor) : _CastableSpells(actor, action == ACT_INNATE)).empty()) {
 			fTargetMode = TARGET_NONE;
-			fActionBarPage = spells ? PAGE_SPELLS : PAGE_ITEMS;
+			fActionBarPage = items ? PAGE_ITEMS : action == ACT_INNATE ? PAGE_INNATES : PAGE_SPELLS;
 			fActionBarPageIndex = 0;
 			RefreshActionBar();
 		}

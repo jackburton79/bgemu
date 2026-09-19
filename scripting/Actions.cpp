@@ -3520,7 +3520,9 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 70, "NIDSPECIAL1", NULL },
 		{ 71, "NIDSPECIAL2", NULL },
 		{ 72, "NIDSPECIAL3", NULL },
-		{ 73, "NIDSPECIAL4", NULL },
+		// The action bar's Defend: ProtectObject in GemRB - go and stand by the
+		// protectee. Its follow-and-guard behaviour isn't modeled.
+		{ 73, "NIDSPECIAL4", RunActionWalkToObject },
 		{ 74, "NIDSPECIAL5", NULL },
 		{ 75, "NIDSPECIAL6", NULL },
 		{ 76, "NIDSPECIAL7", NULL },

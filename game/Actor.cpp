@@ -1814,7 +1814,7 @@ Actor::ClickedOn(Object* target, ClickIntent intent)
 	} else if (Actor* actor = dynamic_cast<Actor*>(target)) {
 		if (actor->IsState(STATE_DEAD)) {
 			if (intent != CLICK_DEFAULT)
-				return; // nobody to talk to or attack
+				return; // nobody to talk to, attack or defend
 			// Loot the corpse - same two-action MOVETOOBJECT+USECONTAINER
 			// queue as the Container branch below (RunActionUseContainer()
 			// accepts a dead Actor target too, see its own comment).
@@ -1837,6 +1837,17 @@ Actor::ClickedOn(Object* target, ClickIntent intent)
 		// CURSOR_ATTACK) - it just wasn't wired into the actual click
 		// yet, so clicking a hostile creature always tried to start a
 		// dialog with it instead of attacking.
+		if (intent == CLICK_DEFEND) {
+			// Same walk-to-the-target queue as a dialog approach, with
+			// NIDSPECIAL4 (ProtectObject) as the action.
+			action_params* defendParams = new action_params(Name(), actor->Name());
+			defendParams->Second()->globalId = actor->GlobalID();
+			defendParams->id = 73; // NIDSPECIAL4
+			AddAction(defendParams);
+			defendParams->Release();
+			return;
+		}
+
 		const bool talk = intent == CLICK_TALK || (intent == CLICK_DEFAULT
 			&& actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"));
 		if (talk) {

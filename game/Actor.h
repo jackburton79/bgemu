@@ -281,7 +281,7 @@ public:
 	// explicitly (the action bar's Talk/Attack modes) rather than leaving
 	// it to the target's allegiance (CLICK_DEFAULT: talk to friends,
 	// attack enemies).
-	enum ClickIntent { CLICK_DEFAULT, CLICK_TALK, CLICK_ATTACK };
+	enum ClickIntent { CLICK_DEFAULT, CLICK_TALK, CLICK_ATTACK, CLICK_DEFEND };
 	virtual void ClickedOn(Object* target, ClickIntent intent = CLICK_DEFAULT);
 
 	void Shout(int number);

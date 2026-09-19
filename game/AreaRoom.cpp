@@ -444,6 +444,16 @@ AreaRoom::ClickAt(IE::point areaPoint)
 }
 
 
+// Defend picks a friend to stand by; Talk and Attack take anyone.
+static bool
+_IsValidTarget(Actor* actor, Game::TargetMode mode)
+{
+	if (mode != Game::TARGET_DEFEND)
+		return true;
+	return actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF");
+}
+
+
 void
 AreaRoom::_HandleClickAt(IE::point point)
 {
@@ -461,10 +471,11 @@ AreaRoom::_HandleClickAt(IE::point point)
 			return;
 		}
 		if (fSelectedActor != NULL && actor != NULL && actor != fSelectedActor.Target()
-				&& !actor->IsState(STATE_DEAD)) {
+				&& !actor->IsState(STATE_DEAD) && _IsValidTarget(actor, mode)) {
 			fSelectedActor.Target()->ClearActionList();
 			fSelectedActor.Target()->ClickedOn(actor, mode == Game::TARGET_TALK
-				? Actor::CLICK_TALK : Actor::CLICK_ATTACK);
+				? Actor::CLICK_TALK : mode == Game::TARGET_DEFEND
+				? Actor::CLICK_DEFEND : Actor::CLICK_ATTACK);
 		}
 		return;
 	}
@@ -568,9 +579,10 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 			GUI::Get()->SetCursor(hovered != NULL ? IE::CURSOR_CAST : IE::CURSOR_NOWAY);
 		} else if (mode != Game::TARGET_NONE) {
 			const bool valid = hovered != NULL && !hovered->IsState(STATE_DEAD)
-				&& hovered != fSelectedActor.Target();
+				&& hovered != fSelectedActor.Target() && _IsValidTarget(hovered, mode);
 			GUI::Get()->SetCursor(!valid ? IE::CURSOR_NOWAY
-				: mode == Game::TARGET_TALK ? IE::CURSOR_TALK : IE::CURSOR_ATTACK);
+				: mode == Game::TARGET_TALK ? IE::CURSOR_TALK
+				: mode == Game::TARGET_DEFEND ? IE::CURSOR_DEFEND : IE::CURSOR_ATTACK);
 		} else if (cursor != -1)
 			GUI::Get()->SetCursor(cursor);
 		else {

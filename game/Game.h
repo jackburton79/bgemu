@@ -154,7 +154,7 @@ public:
 	// talk to / attack the creature clicked instead of the usual
 	// friend-or-foe guess. One-shot: any click in the area ends it.
 	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK, TARGET_CAST,
-		TARGET_USE_ITEM };
+		TARGET_USE_ITEM, TARGET_DEFEND };
 	TargetMode CurrentTargetMode() const { return fTargetMode; }
 	void SetTargetMode(TargetMode mode);
 	// Ends TARGET_CAST/TARGET_USE_ITEM: the shown character casts the spell
@@ -377,7 +377,7 @@ private:
 	// What the action bar shows: the class row, or a page listing the
 	// shown character's memorized spells / usable items (paged by
 	// fActionBarPageIndex).
-	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_ITEMS };
+	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_INNATES, PAGE_ITEMS };
 	// Casts `spell` / uses the item in `slot` for `actor`, asking for a
 	// target first unless it only affects its user.
 	void _PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell);
