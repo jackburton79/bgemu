@@ -160,6 +160,21 @@ correct index→RGB blit for free and needs no such step. Fonts flagged
 explicit palette (`ToolfontPalette()`), never rendered with their raw BAM
 colors.
 
+### Loot and store windows
+
+Both are driven by an action, not by clicking a control. USECONTAINER
+(queued when a party member clicks a container or corpse) opens the loot
+window - GUIW window 8, which temporarily hides the message area and
+command bar (`Game::OpenContainerWindow()`); any non-party creature still
+auto-takes everything. STARTSTORE opens GUISTORE's Buy/Sell page
+(`Game::OpenStoreWindow()`, backed by `game/Store.{h,cpp}`, which holds the
+live stock and the GemRB-derived buy/sell rules and pricing). Both pick up
+control ids from GemRB's `CommonWindow.py`/`GUISTORE.py` and use
+`Scrollbar::SetRowCallback()` for their item-list scrollbars; both close
+when their area unloads or another screen opens. Console tests use
+`Assert-LootWindow`/`Assert-ContainerHasItem` and
+`Assert-StoreWindow`/`Assert-StoreStock`/`Print-Store`.
+
 ### Scripting and dialogs
 
 `scripting/Triggers.cpp`/`Actions.cpp` implement BCS trigger/action
