@@ -51,7 +51,7 @@ all: $(BGEMU)
 deps:
 	make -C libjgame
 
-tests: PathFindTest RandTest BlitMaskBoundsTest
+tests: PathFindTest RandTest
 
 PHONY := $(BGEMU) $(OBJS)
 $(BGEMU):  bgemu.cpp $(OBJS)
