@@ -21,6 +21,9 @@
 #include <map>
 #include <sstream>
 
+// "Journal updated" (11359 in both BG1's and BG2's strings table).
+static const uint32 kJournalChangedStrRef = 11359;
+
 // DialogState
 DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref& resourceResRef)
 	:
@@ -197,9 +200,52 @@ DialogHandler::_ShowTriggerText(const dlg_state& state)
 }
 
 
+// A transition with a journal note adds it to the journal (GemRB's
+// DialogHandler::UpdateJournalForTransition()): bits 6/8 of the flags say
+// unsolved/solved quest and, in BG2 - the only game with journal sections -
+// choose the section (both/neither = the plain "info" journal); the entry's
+// group is the flags' upper half. When that changed the journal, the
+// message area says so, followed by the note's first line.
+void
+DialogHandler::_UpdateJournal(const transition_entry& transition)
+{
+	if (!(transition.flags & DLG_TRANSITION_HAS_JOURNAL))
+		return;
+
+	uint8 section = Game::JOURNAL_USER;
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2) {
+		static const uint8 kSections[4] = {
+			Game::JOURNAL_INFO, Game::JOURNAL_QUEST, Game::JOURNAL_DONE, Game::JOURNAL_USER
+		};
+		int index = 0;
+		if (transition.flags & DLG_TRANSITION_JOURNAL_UNSOLVED)
+			index |= 1;
+		if (transition.flags & DLG_TRANSITION_JOURNAL_SOLVED)
+			index |= 2;
+		section = kSections[index];
+	}
+
+	const uint32 strref = (uint32)transition.text_journal;
+	const uint8 group = (uint8)(((uint32)transition.flags >> 16) & 0xff);
+	if (!Game::Get()->AddJournalEntry(strref, section, group))
+		return;
+
+	std::string message = IDTable::GetDialog(kJournalChangedStrRef);
+	std::string note = IDTable::GetDialog(strref);
+	note = note.substr(0, note.find('\n'));
+	if (!note.empty())
+		message += " - " + note;
+	if (TextArea* textArea = GUI::Get()->GetMessagesTextArea())
+		textArea->AddText(message.c_str());
+	std::cout << message << std::endl;
+}
+
+
 void
 DialogHandler::_ExecuteTransition(const transition_entry& transition)
 {
+	_UpdateJournal(transition);
+
 	if (transition.HasActions()) {
 		std::string actions = fResource->GetAction(transition.index_action);
 

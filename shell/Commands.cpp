@@ -387,6 +387,9 @@ public:
 // PrintJournalCommand - dumps Game's minimal in-memory journal (see
 // Game::AddJournalEntry()'s header comment) so ADDJOURNALENTRY/
 // ERASEJOURNALENTRY/SETQUESTDONE are testable headlessly.
+static bool _SplitOnFirstComma(const char* argv, std::string& first, std::string& rest);
+
+
 class PrintJournalCommand : public ShellCommand {
 public:
 	PrintJournalCommand()
@@ -394,8 +397,43 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		for (uint32 strref : Game::Get()->JournalEntries())
-			std::cout << strref << ": " << IDTable::GetDialog(strref) << std::endl;
+		for (const journal_entry& entry : Game::Get()->Journal())
+			std::cout << std::dec << entry.strref << " [section " << (int)entry.section << ", group "
+				<< (int)entry.group << ", chapter " << (int)entry.chapter << "]: "
+				<< IDTable::GetDialog(entry.strref) << std::endl;
+	}
+};
+
+
+// Assert-JournalSection <strref>,<section> - which journal section (1
+// quest, 2 completed, 4 info, 0 user note) an entry is in; -1 if it isn't
+// in the journal at all.
+class AssertJournalSectionCommand : public ShellCommand {
+public:
+	AssertJournalSectionCommand()
+		: ShellCommand("Assert-JournalSection")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string strrefText, expectedText;
+		if (!_SplitOnFirstComma(argv, strrefText, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <strref>,<section>" << std::endl;
+			return;
+		}
+		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
+		int expected = (int)::strtol(expectedText.c_str(), NULL, 0);
+		int section = -1;
+		for (const journal_entry& entry : Game::Get()->Journal()) {
+			if (entry.strref == strref)
+				section = entry.section;
+		}
+		if (section == expected) {
+			std::cout << std::dec << "ASSERT OK: JournalSection(" << strref << ") == " << section
+				<< std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: JournalSection(" << strref << ") - expected "
+				<< expected << ", got " << section << std::endl;
+		}
 	}
 };
 
@@ -1539,9 +1577,9 @@ public:
 		const std::vector<uint32>& entries = Game::Get()->JournalEntries();
 		bool found = std::find(entries.begin(), entries.end(), strref) != entries.end();
 		if (found == expected) {
-			std::cout << "ASSERT OK: JournalHasEntry(" << strref << ")" << std::endl;
+			std::cout << std::dec << "ASSERT OK: JournalHasEntry(" << strref << ")" << std::endl;
 		} else {
-			std::cout << "ASSERT FAIL: JournalHasEntry(" << strref << ") - expected "
+			std::cout << std::dec << "ASSERT FAIL: JournalHasEntry(" << strref << ") - expected "
 				<< (expected ? "true" : "false") << ", got "
 				<< (found ? "true" : "false") << std::endl;
 		}
@@ -2253,6 +2291,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertDoorOpenedCommand());
 	console->AddCommand(new AssertPositionCommand());
 	console->AddCommand(new AssertJournalHasEntryCommand());
+	console->AddCommand(new AssertJournalSectionCommand());
 	console->AddCommand(new AssertContainerHasItemCommand());
 	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new PrintStoreCommand());

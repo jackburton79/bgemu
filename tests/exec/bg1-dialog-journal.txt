@@ -1,0 +1,12 @@
+# A dialog transition that carries a journal note (bit 4 of the DLG
+# transition flags) adds it to the journal when the player picks it:
+# GORION's first answer ("ready to leave now") writes the note that
+# Candlekeep's opening ends with. BG1 has no journal sections.
+# Needs: default BG1 starting party/area (GORION stands at 2689,1761 in AR2600).
+Queue-Action -,JumpToPoint(2620,1760)
+Step-Ticks 2
+Click-Object -,GORION
+Step-Ticks 60
+Assert-JournalHasEntry 16028,false
+Select-DialogOption 0
+Assert-JournalHasEntry 16028,true

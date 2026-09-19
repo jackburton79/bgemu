@@ -85,9 +85,9 @@ GamResource::SetRealTime(uint32 seconds)
 
 
 void
-GamResource::SetJournalEntries(const std::vector<uint32>& strrefs)
+GamResource::SetJournalEntries(const std::vector<gam_journal_entry>& entries)
 {
-	fPendingJournalEntries = strrefs;
+	fPendingJournalEntries = entries;
 }
 
 
@@ -205,22 +205,18 @@ GamResource::WriteToFile(const char* path) const
 		buffer.WriteAt(varOffset + 0x28, &value, sizeof(value)); // int value (same)
 	}
 
-	// Journal entries - strref only (see this file's header comment for
-	// what a real entry also carries that this engine doesn't track).
-	// Section bits/location flag are set as if every entry were a normal
-	// quest note read from dialog.tlk (bit 0 "Quests", location 0xFF
-	// "internal TLK") - real IESDP: "if no bits are set, the entry is a
-	// user-note", which none of Game::fJournalEntries's own entries ever
-	// are (only ADDJOURNALENTRY populates it - see scripting/Actions.cpp).
+	// Journal entries: strref, time (file units, 300 to a game hour),
+	// chapter, section bits and - a GemRB extension in place of the location
+	// flag - the entry's group. 0x09 (read by character) stays zero.
 	for (uint32 i = 0; i < fPendingJournalEntries.size(); i++) {
+		const gam_journal_entry& entry = fPendingJournalEntries[i];
 		uint32 entryOffset = journalOffset + i * kJournalEntrySize;
-		buffer.WriteAt(entryOffset + 0x00, &fPendingJournalEntries[i], sizeof(uint32));
-		// 0x04 (time) and 0x09 (read-by-character): left zeroed, not
-		// tracked per entry by this engine.
-		uint8 sectionBits = 0x01; // Quests
-		buffer.WriteAt(entryOffset + 0x0a, &sectionBits, sizeof(sectionBits));
-		uint8 locationFlag = 0xff; // internal TLK
-		buffer.WriteAt(entryOffset + 0x0b, &locationFlag, sizeof(locationFlag));
+		buffer.WriteAt(entryOffset + 0x00, &entry.strref, sizeof(uint32));
+		uint32 units = entry.time / (kSecondsPerHour / kGameTimeUnitsPerHour);
+		buffer.WriteAt(entryOffset + 0x04, &units, sizeof(units));
+		buffer.WriteAt(entryOffset + 0x08, &entry.chapter, sizeof(uint8));
+		buffer.WriteAt(entryOffset + 0x0a, &entry.section, sizeof(uint8));
+		buffer.WriteAt(entryOffset + 0x0b, &entry.group, sizeof(uint8));
 	}
 
 	// FileStream's constructor throws on failure (e.g. the save directory
@@ -362,18 +358,28 @@ GamResource::GameTime() const
 }
 
 
-std::vector<uint32>
+std::vector<gam_journal_entry>
 GamResource::JournalEntries() const
 {
 	uint32 offset, count;
 	fData->ReadAt(0x50, offset);
 	fData->ReadAt(0x4c, count);
 
-	std::vector<uint32> entries;
+	std::vector<gam_journal_entry> entries;
 	for (uint32 i = 0; i < count; i++) {
-		uint32 strref;
-		fData->ReadAt(offset + i * kJournalEntrySize, strref);
-		entries.push_back(strref);
+		const uint32 entryOffset = offset + i * kJournalEntrySize;
+		gam_journal_entry entry;
+		uint32 units;
+		fData->ReadAt(entryOffset + 0x00, entry.strref);
+		fData->ReadAt(entryOffset + 0x04, units);
+		fData->ReadAt(entryOffset + 0x08, entry.chapter);
+		fData->ReadAt(entryOffset + 0x0a, entry.section);
+		fData->ReadAt(entryOffset + 0x0b, entry.group);
+		entry.time = units * (kSecondsPerHour / kGameTimeUnitsPerHour);
+		// A real save's location byte (0xff = "internal TLK") isn't a group.
+		if (entry.group == 0xff)
+			entry.group = 0;
+		entries.push_back(entry);
 	}
 	return entries;
 }

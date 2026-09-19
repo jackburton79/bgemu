@@ -2728,26 +2728,38 @@ RunActionSetHomeLocation(Object* sender, action_params* params, action_state& st
 }
 
 
-// AddJournalEntry(I:Entry*,I:Type*JourType) - stateless. Section
-// (Quest/Story/User, from JourType) isn't modeled - see Game::
-// AddJournalEntry()'s header comment - just an ordered list of strrefs.
+// AddJournalEntry(I:Entry*,I:Type*JourType) - stateless. The type is the
+// journal section (JOURNAL.IDS: 1 quest, 2 completed quest, 4 info, 0 user
+// note), used as is like GemRB does. See Game::AddJournalEntry() for what
+// adding an entry that's already there does.
 static void
 RunActionAddJournalEntry(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->AddJournalEntry((uint32)params->integer1);
+	Game::Get()->AddJournalEntry((uint32)params->integer1, (uint8)params->integer2,
+		(uint8)params->integer3);
 	state.completed = true;
 }
 
 
-// EraseJournalEntry(I:STRREF*) / SetQuestDone(I:STRREF*) - same run
-// function for both: both just remove a strref from the journal (the
-// "regardless of section" / "from the quest section" distinction isn't
-// meaningful here since no sections are modeled - see AddJournalEntry
-// above).
+// EraseJournalEntry(I:STRREF*) - stateless. Removes the entry, whatever
+// section it's in.
 static void
 RunActionEraseJournalEntry(Object* sender, action_params* params, action_state& state)
 {
 	Game::Get()->RemoveJournalEntry((uint32)params->integer1);
+	state.completed = true;
+}
+
+
+// SetQuestDone(I:STRREF*) - stateless. Moves the entry to the completed
+// quests (removed and added again, as GemRB does, so it's stamped with the
+// time and chapter it was finished in).
+static void
+RunActionSetQuestDone(Object* sender, action_params* params, action_state& state)
+{
+	Game::Get()->RemoveJournalEntry((uint32)params->integer1);
+	Game::Get()->AddJournalEntry((uint32)params->integer1, Game::JOURNAL_DONE,
+		(uint8)params->integer3);
 	state.completed = true;
 }
 
@@ -3634,7 +3646,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 232, "CREATECREATUREOBJECTDOOR", RunActionCreateCreatureNearObject },
 		{ 233, "CREATECREATUREOBJECTOFFSCREEN", RunActionCreateCreatureNearObject },
 		{ 234, "MOVEGLOBALOBJECTOFFSCREEN", NULL },
-		{ 235, "SETQUESTDONE", RunActionEraseJournalEntry },
+		{ 235, "SETQUESTDONE", RunActionSetQuestDone },
 		{ 236, "STOREPARTYLOCATIONS", RunActionStorePartyLocations },
 		{ 237, "RESTOREPARTYLOCATIONS", RunActionRestorePartyLocations },
 		{ 238, "CREATECREATUREOFFSCREEN", RunActionCreateCreature },

@@ -32,6 +32,17 @@ class Party;
 // its own extras (Pause on the HUD, Rest under a differing id) on top
 // of this shared table.
 struct CommandBarButton { uint32 controlID; void (*action)(); };
+
+// One journal entry. `section` is one of Game::journal_section; `time` is in
+// game seconds (GameTimer::GameTime()) at the moment the entry was added or
+// last moved between sections, `chapter` the CHAPTER global then.
+struct journal_entry {
+	uint32 strref;
+	uint8 section;
+	uint8 group;
+	uint8 chapter;
+	uint32 time;
+};
 extern const CommandBarButton kCommandBarButtons[9];
 
 class Game {
@@ -262,14 +273,26 @@ public:
 	void SetToken(const std::string& name, const std::string& value);
 	const std::map<std::string, std::string>& Tokens() const;
 
-	// Minimal in-memory journal (ADDJOURNALENTRY/ERASEJOURNALENTRY/
-	// SETQUESTDONE) - no GUI screen consumes this yet (see the Fase 6
-	// plan notes on Journal never being built), and no section
-	// distinction (Quest/Story/User) is modeled - just an ordered list
-	// of strrefs, closest to the "User" section in spirit.
-	void AddJournalEntry(uint32 strref);
+	// The journal: entries added by ADDJOURNALENTRY, moved/removed by
+	// SETQUESTDONE/ERASEJOURNALENTRY, and by dialog transitions that carry
+	// a journal note (DialogHandler). Semantics follow GemRB's Game::
+	// AddJournalEntry(): an entry is unique per strref - adding one that
+	// exists in the same section changes nothing (returns false), in
+	// another section moves it there (or, finishing a quest that belongs
+	// to a group, replaces the whole group with it).
+	enum journal_section {
+		JOURNAL_USER = 0,
+		JOURNAL_QUEST = 1,
+		JOURNAL_DONE = 2,
+		JOURNAL_INFO = 4
+	};
+	bool AddJournalEntry(uint32 strref, uint8 section, uint8 group = 0);
 	void RemoveJournalEntry(uint32 strref);
-	const std::vector<uint32>& JournalEntries() const;
+	void RemoveJournalGroup(uint8 group);
+	const std::vector<journal_entry>& Journal() const;
+	// Strrefs only, in order - for the console and tests.
+	std::vector<uint32> JournalEntries() const;
+	void SetJournal(const std::vector<journal_entry>& entries);
 
 	// REVEALAREAONMAP/HIDEAREAONMAP - kept here rather than on the
 	// AreaEntry/WorldMap objects directly, since WorldMap is recreated
@@ -317,7 +340,7 @@ private:
 	void _ClearAreaCache();
 
 	std::map<std::string, std::string> fTokens;
-	std::vector<uint32> fJournalEntries;
+	std::vector<journal_entry> fJournal;
 	std::map<std::string, bool> fAreaMapVisibility;
 
 	// CRE item-slot the player is currently dragging an inventory item
@@ -412,6 +435,11 @@ private:
 	// row too, since saving into one is how a new save is made).
 	void _UpdateSaveLoadRows(const res_ref& chuName);
 	void _UpdateJournalLabels();
+	// What the journal screen shows: the chapter, the section (BG2 only) and
+	// whether the entries are listed newest first.
+	int32 fJournalChapter;
+	uint8 fJournalSection;
+	bool fJournalReverse;
 	// Highlights whichever command-bar icon (HUD bar and/or the copy
 	// embedded in the open panel itself) corresponds to the currently
 	// open full-screen panel - see kScreenGroups in Game.cpp.

@@ -1,0 +1,11 @@
+# A dialog transition with a journal note adds it to BG2's journal, in the
+# section its flags give: this one (Anomen's banter with Imoen, first
+# answer) has neither the unsolved nor the solved flag, so it's a plain
+# journal note (section 4). The unsolved/solved flags would put it in
+# section 1 (quests) or 2 (completed quests).
+# Needs: default BG2 starting party/area (Anomen leads, Imoen is in the party).
+Run-Action -,137,Imoen,0,IMOEN,-,0,0
+Step-Ticks 5
+Assert-JournalSection 10041,-1
+Select-DialogOption 0
+Assert-JournalSection 10041,4

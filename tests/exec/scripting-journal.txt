@@ -1,0 +1,10 @@
+# ADDJOURNALENTRY (game-agnostic - it's the only journal action BG1 has):
+# an entry is in the journal once, however often the action runs. (Moving
+# and removing entries - SETQUESTDONE/ERASEJOURNALENTRY - is BG2's, see
+# bg2-journal-sections.txt.)
+Assert-JournalHasEntry 99002,false
+Queue-Action -,AddJournalEntry(99002)
+Step-Ticks 2
+Queue-Action -,AddJournalEntry(99002)
+Step-Ticks 2
+Assert-JournalHasEntry 99002,true

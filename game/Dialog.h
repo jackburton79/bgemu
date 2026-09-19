@@ -54,6 +54,7 @@ private:
 	void _BuildTransitions(const dlg_state& state);
 	void _ShowTriggerText(const dlg_state& state);
 	void _ExecuteTransition(const transition_entry& transition);
+	void _UpdateJournal(const transition_entry& transition);
 
 	transition_entry _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);

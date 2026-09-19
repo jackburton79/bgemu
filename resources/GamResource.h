@@ -5,9 +5,9 @@
  *
  * This engine only models a subset of what a real save actually carries:
  * party composition/position/CRE state, GLOBAL variables, elapsed game
- * time (GameTimer), journal entries (Game::fJournalEntries - strref only,
- * none of a real entry's time/chapter/section/location, which this
- * engine doesn't track per entry) and party reputation (read from the
+ * time (GameTimer), journal entries (Game::fJournal - strref, time,
+ * chapter and section; the group is kept in the location byte, a GemRB
+ * extension) and party reputation (read from the
  * party leader's own CRE - every party member's is kept in sync by
  * REPUTATIONSET/REPUTATIONINC already, see scripting/Actions.cpp - so
  * this is a write-only convenience for external tools inspecting the
@@ -41,6 +41,15 @@ struct gam_party_member {
 	res_ref areaName;
 };
 
+struct gam_journal_entry {
+	uint32 strref;
+	uint32 time;		// game seconds
+	uint8 chapter;
+	uint8 section;		// journal section bits: 1 quest, 2 completed, 4 info
+	uint8 group;
+};
+
+
 class GamResource : public Resource {
 public:
 	GamResource(const res_ref& name);
@@ -59,9 +68,9 @@ public:
 	// process start), so this is an approximation like everything else
 	// undermodeled here, not a real accumulator.
 	void SetRealTime(uint32 seconds);
-	// strrefs only, in display order - see this header's own comment for
-	// why nothing else about a real journal entry is tracked.
-	void SetJournalEntries(const std::vector<uint32>& strrefs);
+	// In display order. `time` is in game seconds here (the file itself
+	// counts 300 units to a game hour, converted on write/read).
+	void SetJournalEntries(const std::vector<gam_journal_entry>& entries);
 	// reputation: plain 0-20 value (CREResource::Reputation()'s own
 	// units) - multiplied by 10 on write to match the header field.
 	void SetReputation(sint8 reputation);
@@ -78,7 +87,7 @@ public:
 	res_ref CurrentArea() const;
 	std::vector<std::pair<std::string, int32>> Variables() const;
 	uint32 GameTime() const;
-	std::vector<uint32> JournalEntries() const;
+	std::vector<gam_journal_entry> JournalEntries() const;
 
 private:
 	virtual ~GamResource();
@@ -90,7 +99,7 @@ private:
 
 	std::vector<_PendingMember> fPendingMembers;
 	std::vector<std::pair<std::string, int32>> fPendingVariables;
-	std::vector<uint32> fPendingJournalEntries;
+	std::vector<gam_journal_entry> fPendingJournalEntries;
 	uint32 fPendingGameTime = 0;
 	uint32 fPendingRealSeconds = 0;
 	sint8 fPendingReputation = 0;

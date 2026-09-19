@@ -1,0 +1,25 @@
+# BG2's journal sections (ADDJOURNALENTRY's second argument is the section
+# as is; BG1's version of the action has no such argument and BG1 has no
+# sections): an entry added again in the same section changes
+# nothing, in another section it moves there; SETQUESTDONE moves it to the
+# completed quests, ERASEJOURNALENTRY removes it.
+Assert-JournalSection 99001,-1
+Queue-Action -,AddJournalEntry(99001,1)
+Step-Ticks 2
+Assert-JournalSection 99001,1
+Queue-Action -,AddJournalEntry(99001,1)
+Step-Ticks 2
+Assert-JournalSection 99001,1
+
+Queue-Action -,AddJournalEntry(99001,4)
+Step-Ticks 2
+Assert-JournalSection 99001,4
+
+Queue-Action -,SetQuestDone(99001)
+Step-Ticks 2
+Assert-JournalSection 99001,2
+
+Queue-Action -,EraseJournalEntry(99001)
+Step-Ticks 2
+Assert-JournalSection 99001,-1
+Assert-JournalHasEntry 99001,false

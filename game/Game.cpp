@@ -97,7 +97,10 @@ Game::Game()
 	fStoreAmountMax(0),
 	fStorePage(0),
 	fStoreIdentifyRow(0),
-	fShownCharacter(0)
+	fShownCharacter(0),
+	fJournalChapter(0),
+	fJournalSection(JOURNAL_QUEST),
+	fJournalReverse(false)
 {
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
@@ -774,6 +777,32 @@ Game::ToggleLoadWindow()
 }
 
 
+// The same window's chapter title area (5), the previous/next chapter
+// buttons (3/4) and - BG2 only - the section tabs (6-9: quests, completed
+// quests, journal, personal notes) and the sort order button (10); ids and
+// captions per GemRB's GUIJRNL.py.
+static const uint32 kJournalChapterTitleID = 5;
+static const uint32 kJournalPrevChapterID = 3;
+static const uint32 kJournalNextChapterID = 4;
+static const uint32 kJournalOrderID = 10;
+static const struct { uint32 controlID; uint8 section; uint32 captionStrRef; }
+kJournalSectionTabs[] = {
+	{ 6, Game::JOURNAL_QUEST, 45485 },
+	{ 7, Game::JOURNAL_DONE, 45486 },
+	{ 8, Game::JOURNAL_INFO, 15333 },
+	{ 9, Game::JOURNAL_USER, 45487 },
+};
+// BG2's window also has a label (right of the chapter title) that shows a
+// literal "<NO TEXT>" placeholder; GemRB leaves its use (a sort-method
+// caption) commented out, so it stays blank.
+static const uint32 kJournalBlankLabelID = 268435466;
+static const uint32 kJournalOrderStrRef = 4627;
+static const uint32 kJournalChapterStrRef = 15873;	// BG2: "Chapter <CurrentChapter>"
+static const uint32 kJournalBG1ChapterFirstStrRef = 16202;	// BG1: one title per chapter
+static const uint32 kJournalDateStrRef = 15980;
+static const uint32 kJournalDayMonthStrRef = 15981;
+
+
 // Shows/hides the Journal window (GUIJRNL), same 3-window pattern as
 // GUIINV/GUIREC (window 2 is the actual content panel; 0/1 the same
 // persistent side columns).
@@ -783,6 +812,18 @@ Game::ToggleJournalWindow()
 	_CloseOtherScreens("GUIJRNL");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIJRNL", {2, 0, 1})) {
 		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIJRNL", 1), 4);
+		// Opens on the current chapter.
+		const int32 chapter = Core::Get()->Vars().Get("CHAPTER");
+		fJournalChapter = chapter > 65535 ? 0 : chapter;
+		Window* window = GUI::Get()->GetAuxWindow("GUIJRNL", 2);
+		if (window != NULL) {
+			for (const auto& tab : kJournalSectionTabs) {
+				if (Button* button = dynamic_cast<Button*>(window->GetControlByID(tab.controlID)))
+					button->SetText(IDTable::GetDialog(tab.captionStrRef));
+			}
+			if (Button* order = dynamic_cast<Button*>(window->GetControlByID(kJournalOrderID)))
+				order->SetText(IDTable::GetDialog(kJournalOrderStrRef));
+		}
 		_UpdateJournalLabels();
 	}
 	_UpdateCommandBarToggle();
@@ -797,8 +838,33 @@ Game::JournalControlInvoked(uint32 controlID, uint16 windowID)
 		return;
 	}
 	// Window 1 is the portrait column (same layout as GUIINV/GUIREC's).
-	if (windowID == 1 && controlID <= 3)
+	if (windowID == 1 && controlID <= 3) {
 		ShowCharacter((uint16)controlID);
+		return;
+	}
+	if (windowID != 2)
+		return;
+
+	const int32 currentChapter = Core::Get()->Vars().Get("CHAPTER");
+	if (controlID == kJournalPrevChapterID) {
+		// Chapters start at 1 in BG2 (unless a game already runs at 0),
+		// at 0 in BG1.
+		const int32 first = Core::Get()->Game() == game::GAME_BALDURSGATE2 && currentChapter > 0
+			? 1 : 0;
+		if (fJournalChapter > first)
+			fJournalChapter--;
+	} else if (controlID == kJournalNextChapterID) {
+		if (fJournalChapter < currentChapter)
+			fJournalChapter++;
+	} else if (controlID == kJournalOrderID) {
+		fJournalReverse = !fJournalReverse;
+	} else {
+		for (const auto& tab : kJournalSectionTabs) {
+			if (tab.controlID == controlID)
+				fJournalSection = tab.section;
+		}
+	}
+	_UpdateJournalLabels();
 }
 
 
@@ -1170,6 +1236,7 @@ _SaveSlotPath(uint32 index)
 // scrollable entries text_area (with its own scrollbar at id 2, same
 // pairing convention as GUIREC's saves/resistances area).
 static const uint32 kJournalEntriesAreaID = 1;
+
 
 
 // GUIINV window 2 slot-control id -> CRE item-slot index. Both the icon
@@ -3551,7 +3618,10 @@ Game::Save(const char* name)
 	gam->SetVariables(Core::Get()->Vars().All());
 	gam->SetGameTime(GameTimer::GameTime());
 	gam->SetRealTime(GameTimer::RealTime());
-	gam->SetJournalEntries(fJournalEntries);
+	std::vector<gam_journal_entry> journal;
+	for (const journal_entry& entry : fJournal)
+		journal.push_back({ entry.strref, entry.time, entry.chapter, entry.section, entry.group });
+	gam->SetJournalEntries(journal);
 	// Every party member's own reputation byte is kept in sync by
 	// REPUTATIONSET/REPUTATIONINC (scripting/Actions.cpp) - the leader's
 	// is as good as any (see GamResource.h's own comment on why this is
@@ -3632,7 +3702,9 @@ Game::Load(const char* name)
 		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
 
 	GameTimer::SetGameTime(gam->GameTime());
-	fJournalEntries = gam->JournalEntries();
+	fJournal.clear();
+	for (const gam_journal_entry& entry : gam->JournalEntries())
+		fJournal.push_back({ entry.strref, entry.section, entry.group, entry.chapter, entry.time });
 
 	res_ref area = gam->CurrentArea();
 	gResManager->ReleaseResource(gam);
@@ -3731,26 +3803,80 @@ Game::Tokens() const
 }
 
 
-void
-Game::AddJournalEntry(uint32 strref)
+bool
+Game::AddJournalEntry(uint32 strref, uint8 section, uint8 group)
 {
-	fJournalEntries.push_back(strref);
+	const uint8 chapter = (uint8)Core::Get()->Vars().Get("CHAPTER");
+
+	for (journal_entry& entry : fJournal) {
+		if (entry.strref != strref)
+			continue;
+		// Already there: nothing to do in the same section.
+		if (entry.section == section)
+			return false;
+		// Finishing a quest of a group replaces the group with this entry.
+		if (section == JOURNAL_DONE && group != 0) {
+			RemoveJournalGroup(group);
+			break;
+		}
+		entry.section = section;
+		entry.group = group;
+		entry.chapter = chapter;
+		entry.time = GameTimer::GameTime();
+		return true;
+	}
+
+	journal_entry entry;
+	entry.strref = strref;
+	entry.section = section;
+	entry.group = group;
+	entry.chapter = chapter;
+	entry.time = GameTimer::GameTime();
+	fJournal.push_back(entry);
+	return true;
 }
 
 
 void
 Game::RemoveJournalEntry(uint32 strref)
 {
-	auto it = std::find(fJournalEntries.begin(), fJournalEntries.end(), strref);
-	if (it != fJournalEntries.end())
-		fJournalEntries.erase(it);
+	auto it = std::find_if(fJournal.begin(), fJournal.end(),
+		[strref](const journal_entry& entry) { return entry.strref == strref; });
+	if (it != fJournal.end())
+		fJournal.erase(it);
 }
 
 
-const std::vector<uint32>&
+void
+Game::RemoveJournalGroup(uint8 group)
+{
+	fJournal.erase(std::remove_if(fJournal.begin(), fJournal.end(),
+		[group](const journal_entry& entry) { return entry.group == group; }),
+		fJournal.end());
+}
+
+
+const std::vector<journal_entry>&
+Game::Journal() const
+{
+	return fJournal;
+}
+
+
+std::vector<uint32>
 Game::JournalEntries() const
 {
-	return fJournalEntries;
+	std::vector<uint32> strrefs;
+	for (const journal_entry& entry : fJournal)
+		strrefs.push_back(entry.strref);
+	return strrefs;
+}
+
+
+void
+Game::SetJournal(const std::vector<journal_entry>& entries)
+{
+	fJournal = entries;
 }
 
 
@@ -4023,12 +4149,89 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 }
 
 
-// Fills the journal's main scrollable text_area with every tracked
-// entry (Game::JournalEntries(), already maintained by ADDJOURNALENTRY/
-// ERASEJOURNALENTRY/SETQUESTDONE since Fase 10 - this is the first GUI
-// to actually display it). No Quest/Story/User section split (that
-// distinction isn't modeled - see JournalEntries()'s own comment),
-// just the whole list in insertion order.
+// Replaces every "<TOKEN>" of `text` with its value.
+static std::string
+_ReplaceTokens(std::string text, const std::map<std::string, std::string>& tokens)
+{
+	for (const auto& token : tokens) {
+		const std::string pattern = "<" + token.first + ">";
+		for (size_t at = text.find(pattern); at != std::string::npos; at = text.find(pattern))
+			text.replace(at, pattern.length(), token.second);
+	}
+	return text;
+}
+
+
+// The date line above a journal entry ("Day 12, 3rd of Kythorn 1369"-style
+// - whatever the game's own string 15980 says), worked out from the
+// entry's game time the way GemRB's GUIJRNL.py does: hours and days since
+// the start, the year and calendar position counted from YEARS.2DA's start
+// values, the month from MONTHS.2DA.
+static std::string
+_JournalDateLine(uint32 gameSeconds)
+{
+	int32 startTime = 0, startYear = 0;
+	if (TWODAResource* years = gResManager->Get2DA("YEARS")) {
+		startTime = years->IntegerValueFor("STARTTIME", "VALUE") / 4500;
+		startYear = years->IntegerValueFor("STARTYEAR", "VALUE");
+		gResManager->ReleaseResource(years);
+	}
+
+	const uint32 hours = gameSeconds / 3600;
+	const uint32 days = hours / 24;
+	int32 dayAndMonth = startTime + (int32)(days % 365);
+
+	std::map<std::string, std::string> tokens;
+	if (TWODAResource* months = gResManager->Get2DA("MONTHS")) {
+		int32 month = 1;
+		for (int32 row = 0; row < months->CountRows(); row++) {
+			const int32 length = months->IntegerValueAt(row, 0);
+			if (dayAndMonth < length) {
+				tokens["DAY"] = std::to_string(dayAndMonth + 1);
+				tokens["MONTHNAME"] = IDTable::GetDialog(months->IntegerValueAt(row, 1));
+				tokens["MONTH"] = std::to_string(month);
+				break;
+			}
+			dayAndMonth -= length;
+			// Single days (festivals) aren't months.
+			if (length != 1)
+				month++;
+		}
+		gResManager->ReleaseResource(months);
+	}
+
+	std::map<std::string, std::string> lineTokens;
+	lineTokens["GAMEDAYS"] = std::to_string(days);	// BG2's name for it...
+	lineTokens["GAMEDAY"] = std::to_string(days);	// ...and BG1's
+	lineTokens["HOUR"] = std::to_string(hours % 24);
+	lineTokens["YEAR"] = std::to_string(startYear + (int32)(days / 365));
+	lineTokens["DAYANDMONTH"] = _ReplaceTokens(IDTable::GetDialog(kJournalDayMonthStrRef), tokens);
+	return _ReplaceTokens(IDTable::GetDialog(kJournalDateStrRef), lineTokens);
+}
+
+
+// One journal note in the text area: its title (first line, BG2 notes have
+// one), the date it was made and the rest. TextArea has no newline
+// handling, so each line is added on its own; an empty one becomes a blank
+// line.
+static void
+_AddJournalText(TextArea* area, const std::string& text)
+{
+	size_t start = 0;
+	while (start <= text.length()) {
+		size_t end = text.find('\n', start);
+		if (end == std::string::npos)
+			end = text.length();
+		std::string line = text.substr(start, end - start);
+		area->AddText(line.empty() ? " " : line.c_str());
+		start = end + 1;
+	}
+}
+
+
+// Fills the journal screen: the chapter's title and, in the text area, the
+// entries made in the shown chapter (in BG2 only those of the shown
+// section), each with the date it was made.
 void
 Game::_UpdateJournalLabels()
 {
@@ -4036,15 +4239,58 @@ Game::_UpdateJournalLabels()
 	if (window == NULL)
 		return;
 
+	const bool hasSections = Core::Get()->Game() == game::GAME_BALDURSGATE2;
+
+	if (TextArea* title = dynamic_cast<TextArea*>(window->GetControlByID(kJournalChapterTitleID))) {
+		title->ClearText();
+		std::string text;
+		if (hasSections) {
+			text = _ReplaceTokens(IDTable::GetDialog(kJournalChapterStrRef),
+				{ { "CurrentChapter", std::to_string(fJournalChapter) } });
+		} else {
+			text = IDTable::GetDialog(kJournalBG1ChapterFirstStrRef + fJournalChapter);
+		}
+		if (!text.empty())
+			title->AddText(text.c_str());
+	}
+	if (hasSections) {
+		if (Label* blank = dynamic_cast<Label*>(window->GetControlByID(kJournalBlankLabelID)))
+			blank->SetText("");
+		for (const auto& tab : kJournalSectionTabs) {
+			if (Button* button = dynamic_cast<Button*>(window->GetControlByID(tab.controlID)))
+				button->SetToggled(tab.section == fJournalSection);
+		}
+	}
+
 	TextArea* entriesArea = dynamic_cast<TextArea*>(window->GetControlByID(kJournalEntriesAreaID));
 	if (entriesArea == NULL)
 		return;
-
 	entriesArea->ClearText();
-	if (fJournalEntries.empty())
-		entriesArea->AddText("Il diario e' vuoto.");
-	else {
-		for (uint32 strref : fJournalEntries)
-			entriesArea->AddText(IDTable::GetDialog(strref).c_str());
+
+	std::vector<const journal_entry*> shown;
+	for (const journal_entry& entry : fJournal) {
+		if (entry.chapter == fJournalChapter && (!hasSections || entry.section == fJournalSection))
+			shown.push_back(&entry);
+	}
+	if (fJournalReverse)
+		std::reverse(shown.begin(), shown.end());
+
+	for (const journal_entry* entry : shown) {
+		std::string text = IDTable::GetDialog(entry->strref);
+		std::string body;
+		if (hasSections) {
+			// A BG2 note is "title\nbody": the date goes between them.
+			size_t split = text.find('\n');
+			_AddJournalText(entriesArea, text.substr(0, split));
+			entriesArea->AddText(_JournalDateLine(entry->time).c_str());
+			if (split != std::string::npos)
+				body = text.substr(split + 1);
+		} else {
+			// BG1 notes have no title: the date, then the text.
+			entriesArea->AddText(_JournalDateLine(entry->time).c_str());
+			body = text;
+		}
+		_AddJournalText(entriesArea, body);
+		entriesArea->AddText(" ");
 	}
 }
