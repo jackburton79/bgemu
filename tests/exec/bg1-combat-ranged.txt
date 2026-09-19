@@ -9,7 +9,7 @@
 # Also covers the phantom items the last two words of the CRE slot table
 # used to show up as (they are the selected weapon, not item slots).
 Run-Action -,82,-,1,BOW01,-,0,0
-Run-Action -,82,-,30,AROW01,-,0,0
+Run-Action -,82,-,80,AROW01,-,0,0
 Run-Action -,11,-,0,BOW01,-,0,0
 Run-Action -,11,-,0,AROW01,-,0,0
 Step-Ticks 3
@@ -28,5 +28,5 @@ Disable-Creature GIBBER
 Attack -,GIBBER
 Step-Ticks 9000
 Assert-Trigger AJANTI,true,XP(Myself,2298)
-Assert-ItemCount AJANTI,AROW01,<30
+Assert-ItemCount AJANTI,AROW01,<80
 Assert-Position AJANTI,496,127

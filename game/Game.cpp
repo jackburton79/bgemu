@@ -1855,23 +1855,7 @@ _CarriedWeight(CREResource* cre)
 static uint32
 _MaxEncumbrance(CREResource* cre)
 {
-	BaseAttributes attrs;
-	cre->GetAttributes(attrs);
-
-	uint32 weight = 0;
-	TWODAResource* strmod = gResManager->Get2DA("STRMOD");
-	if (strmod != nullptr) {
-		weight = (uint32)strmod->IntegerValueAt(attrs.strength, 3);
-		gResManager->ReleaseResource(strmod);
-	}
-	if (attrs.strength == 18 && attrs.strength_bonus > 0) {
-		TWODAResource* strmodex = gResManager->Get2DA("STRMODEX");
-		if (strmodex != nullptr) {
-			weight += (uint32)strmodex->IntegerValueAt(attrs.strength_bonus, 3);
-			gResManager->ReleaseResource(strmodex);
-		}
-	}
-	return weight;
+	return (uint32)Actor::StrengthBonus(cre, 3);
 }
 
 

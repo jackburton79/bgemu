@@ -309,10 +309,7 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
 			if (spellResource != NULL) {
 				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
-						effect.parameter1, effect.parameter2, effect.duration,
-						effect.resource.CString(), effect.savingThrowType,
-						effect.savingThrowBonus));
+					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
@@ -369,10 +366,7 @@ RunActionApplySpell(Object* sender, action_params* params, action_state& state)
 	std::cout << "target: " << target->Name() << std::endl;
 
 	for (const spl_effect& effect : spellResource->Effects()) {
-		target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
-			effect.parameter1, effect.parameter2, effect.duration,
-			effect.resource.CString(), effect.savingThrowType,
-			effect.savingThrowBonus));
+		target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
 	}
 	gResManager->ReleaseResource(spellResource);
 	_PostSpellCastTriggers(actor, target, spellResourceName);
@@ -453,10 +447,7 @@ RunActionSpell(Object* sender, action_params* params, action_state& state)
 			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
 			if (spellResource != NULL) {
 				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
-						effect.parameter1, effect.parameter2, effect.duration,
-						effect.resource.CString(), effect.savingThrowType,
-						effect.savingThrowBonus));
+					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
@@ -1022,10 +1013,7 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
 			if (spellResource != NULL) {
 				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(new SpellEffect(effect.opcode, sender,
-						effect.parameter1, effect.parameter2, effect.duration,
-						effect.resource.CString(), effect.savingThrowType,
-						effect.savingThrowBonus));
+					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
 				}
 				gResManager->ReleaseResource(spellResource);
 			}
@@ -1899,10 +1887,7 @@ RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
 		ITMResource* itm = gResManager->GetITM(item.name);
 		if (itm != NULL) {
 			for (const spl_effect& effect : itm->OnHitEffects(0)) {
-				target->AddSpellEffect(new SpellEffect(effect.opcode, actor,
-					effect.parameter1, effect.parameter2, effect.duration,
-					effect.resource.CString(), effect.savingThrowType,
-					effect.savingThrowBonus));
+				target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, actor));
 			}
 			gResManager->ReleaseResource(itm);
 		}

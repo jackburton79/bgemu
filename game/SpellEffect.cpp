@@ -35,13 +35,42 @@ SpellEffect::SpellEffect(int16 opcode, Object* source, int32 parameter1,
 	fInitiated(false),
 	fResource(resource),
 	fSavingThrowType(savingThrowType),
-	fSavingThrowBonus(savingThrowBonus)
+	fSavingThrowBonus(savingThrowBonus),
+	fDiceThrown(0),
+	fDiceSides(0)
 {
 	// Mirrors Action's own pattern: hold a reference to the source object
 	// for as long as this effect is alive, in case it's destroyed (e.g.
 	// the caster dies) while the effect is still lingering on its target.
 	if (fSource != NULL)
 		fSource->Acquire();
+}
+
+
+/* static */
+SpellEffect*
+SpellEffect::FromFeatureBlock(const spl_effect& block, Object* source)
+{
+	SpellEffect* effect = new SpellEffect(block.opcode, source, block.parameter1,
+		block.parameter2, block.duration, block.resource.CString(),
+		block.savingThrowType, block.savingThrowBonus);
+	effect->fDiceThrown = block.diceThrown;
+	effect->fDiceSides = block.diceSides;
+	return effect;
+}
+
+
+int32
+SpellEffect::DiceThrown() const
+{
+	return fDiceThrown;
+}
+
+
+int32
+SpellEffect::DiceSides() const
+{
+	return fDiceSides;
 }
 
 
@@ -372,13 +401,16 @@ RunEffectTeleportToTarget(Object* target, SpellEffect& effect)
 }
 
 
-// #12 "HP: Damage". Parameter1 is the damage amount; Parameter2 packs a
-// damage type in its high 16 bits and an application mode (0: subtract
-// amount, 1: set to value, 2: set to percentage, 3: reduce by percentage)
-// in its low 16 bits - see IESDP opcode #12. Only mode 0 (plain damage) is
-// implemented, which is what the opening BG2 cutscene's CUTSCENE_DAMAGE_1(B)
-// spells use; other modes are logged and dropped rather than risk applying
-// the wrong amount.
+// #12 "HP: Damage". Damage is the feature block's dice (if any) plus
+// Parameter1 (the flat amount when there are none). Parameter2 packs a
+// damage type in its high 16 bits and an application mode in its low bits
+// - see IESDP opcode #12: 0 subtract the amount, 1 set to value, 2 set to
+// percentage, 3 (as GemRB reads it for BG data) subtract the amount but
+// halve it when the target makes the effect's saving throw, while any
+// other effect that is saved against is negated altogether. Only those
+// two subtracting modes are implemented; the rest are logged and dropped
+// rather than risk applying the wrong amount. Caster-level scaling of the
+// dice isn't modeled.
 static bool
 RunEffectHPDamage(Object* target, SpellEffect& effect)
 {
@@ -386,15 +418,25 @@ RunEffectHPDamage(Object* target, SpellEffect& effect)
 	if (actor == NULL)
 		return true;
 
-	int32 mode = effect.Parameter2() & 0xFFFF;
-	if (mode != 0) {
+	int32 mode = effect.Parameter2() & 3;
+	if (mode == 1 || mode == 2) {
 		std::cerr << Log::Red << target->Name()
 				<< ": HP: Damage mode " << mode << " not implemented"
 				<< Log::Normal << std::endl;
 		return true;
 	}
 
-	actor->ApplyDamage(effect.Parameter1());
+	int32 damage = effect.Parameter1();
+	if (effect.DiceThrown() > 0 && effect.DiceSides() > 0)
+		damage = Core::RollDice(effect.DiceThrown(), effect.DiceSides(), damage);
+
+	if (_RollSave(actor, effect)) {
+		if (mode != 3)
+			return true; // saved: effect negated
+		damage /= 2;
+	}
+
+	actor->ApplyDamage(damage);
 
 	return true; // one-shot: remove immediately once applied
 }

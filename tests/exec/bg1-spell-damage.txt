@@ -1,0 +1,10 @@
+# AREA: AR0602
+#
+# HP: Damage (opcode 12) rolls the feature block's dice: Fireball (SPWI304,
+# spell id 2304 - same id in both games) carries its damage only as 3d6/2d6
+# dice with Parameter1 == 0, which used to inflict nothing at all. The party
+# leader casts it at himself; whatever the dice and his saving throw do, he
+# must lose at least the 3d6 that carries no save (>= 3 HP).
+Run-Action -,113,-,2304,-,-,0,0
+Step-Ticks 300
+Assert-Trigger -,true,HPPercentLT(Myself,100)

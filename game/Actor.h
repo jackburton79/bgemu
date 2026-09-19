@@ -5,6 +5,7 @@
 #include "IETypes.h"
 #include "Object.h"
 #include "ITMResource.h"
+#include "SPLResource.h"
 
 #include <string>
 #include <vector>
@@ -36,6 +37,9 @@ struct attack_profile {
 	// CRE slot whose quantity drops by one per shot (the ammunition, or
 	// the thrown weapon itself); -1 when nothing is spent.
 	int32 spentSlot = -1;
+	// Effects the hit carries besides its damage (a poisoned dagger,
+	// flaming arrows): the weapon's own plus, for a launcher, its ammo's.
+	std::vector<spl_effect> onHitEffects;
 };
 
 class Animation;
@@ -135,6 +139,11 @@ public:
 	// small fists profile. A launcher without ammunition falls back to
 	// fists, as an empty quiver does in the real games.
 	attack_profile AttackProfile() const;
+	// STRMOD.2DA modifier for this creature's strength: column 0 to-hit,
+	// 1 damage, 2 open doors, 3 weight allowance - with the exceptional
+	// strength (18/xx) row added on top, as GemRB reads the two tables.
+	static int32 StrengthBonus(CREResource* cre, int column);
+
 	// Spends one unit of `slot`'s quantity (removing the item when it runs
 	// out). Used for arrows/bolts/bullets and thrown weapons.
 	void ConsumeFromSlot(uint32 slot);

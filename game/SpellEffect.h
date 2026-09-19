@@ -8,6 +8,7 @@
 #pragma once
 
 #include "IETypes.h"
+#include "SPLResource.h"
 
 #include <string>
 
@@ -30,6 +31,9 @@ public:
 		uint32 savingThrowType = 0, int32 savingThrowBonus = 0);
 	~SpellEffect();
 
+	// Builds the effect a feature block describes, cast by `source`.
+	static SpellEffect* FromFeatureBlock(const spl_effect& block, Object* source);
+
 	int16 Opcode() const;
 	Object* Source() const;
 	int32 Parameter1() const;
@@ -42,6 +46,11 @@ public:
 	// resources/SPLResource.h). 0 means "no save allowed".
 	uint32 SavingThrowType() const;
 	int32 SavingThrowBonus() const;
+
+	// The feature block's dice (damage effects roll them on top of
+	// Parameter1). 0 when the effect has none.
+	int32 DiceThrown() const;
+	int32 DiceSides() const;
 
 	// Whether the opcode handler has already run its one-time "apply"
 	// logic (e.g. actually inflicting damage, or setting a state flag) -
@@ -69,6 +78,8 @@ private:
 	std::string fResource;
 	uint32 fSavingThrowType;
 	int32 fSavingThrowBonus;
+	int32 fDiceThrown;
+	int32 fDiceSides;
 };
 
 // Applies/updates one tick of the effect on `target`.

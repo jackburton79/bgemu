@@ -20,6 +20,7 @@
 #include "Region.h"
 #include "ResManager.h"
 #include "SearchMap.h"
+#include "SpellEffect.h"
 #include "Script.h"
 #include "TextSupport.h"
 #include "TileCell.h"
@@ -1326,13 +1327,18 @@ Actor::AttackProfile() const
 	ITMResource* weapon = EquippedWeapon();
 	itm_ability ability;
 	const bool hasAbility = weapon != NULL && weapon->GetAbility(0, ability);
-	if (weapon != NULL)
+	std::vector<spl_effect> weaponEffects;
+	if (weapon != NULL) {
+		if (hasAbility)
+			weaponEffects = weapon->OnHitEffects(0);
 		gResManager->ReleaseResource(weapon);
+	}
 
 	if (!hasAbility)
 		return _UnarmedProfile();
 
 	profile.ability = ability;
+	profile.onHitEffects = weaponEffects;
 	if (ability.attackType == 2) {
 		// Thrown weapon: the stack in the weapon slot is the ammunition.
 		profile.ranged = true;
@@ -1349,6 +1355,10 @@ Actor::AttackProfile() const
 		ITMResource* ammoItm = gResManager->GetITM(ammo.name);
 		itm_ability ammoAbility;
 		const bool ammoOk = ammoItm != NULL && ammoItm->GetAbility(0, ammoAbility);
+		if (ammoOk) {
+			for (const spl_effect& effect : ammoItm->OnHitEffects(0))
+				profile.onHitEffects.push_back(effect);
+		}
 		if (ammoItm != NULL)
 			gResManager->ReleaseResource(ammoItm);
 		if (!ammoOk)
@@ -1363,6 +1373,30 @@ Actor::AttackProfile() const
 		profile.spentSlot = ammoSlot;
 	}
 	return profile;
+}
+
+
+/* static */
+int32
+Actor::StrengthBonus(CREResource* cre, int column)
+{
+	BaseAttributes attrs;
+	cre->GetAttributes(attrs);
+
+	int32 bonus = 0;
+	TWODAResource* strmod = gResManager->Get2DA("STRMOD");
+	if (strmod != NULL) {
+		bonus = strmod->IntegerValueAt(attrs.strength, column);
+		gResManager->ReleaseResource(strmod);
+	}
+	if (attrs.strength == 18 && attrs.strength_bonus > 0) {
+		TWODAResource* strmodex = gResManager->Get2DA("STRMODEX");
+		if (strmodex != NULL) {
+			bonus += strmodex->IntegerValueAt(attrs.strength_bonus, column);
+			gResManager->ReleaseResource(strmodex);
+		}
+	}
+	return bonus;
 }
 
 
@@ -1901,12 +1935,20 @@ Actor::AttackTarget(Actor* target)
 	const ArmorClass targetAC = target->CRE()->AC();
 	const int16 effectiveAC = _ArmorClassFor(targetAC, ability.damageType);
 
+	// Melee (fists included) adds the strength bonuses; a missile attack
+	// gets none - dexterity's missile bonus isn't modeled.
+	const bool melee = !profile.ranged;
+	const int32 strengthToHit = melee ? StrengthBonus(CRE(), 0) : 0;
+	const int32 strengthDamage = melee ? StrengthBonus(CRE(), 1) : 0;
+
 	// Standard THAC0 to-hit: roll needed = attacker's THAC0 (better with
-	// a lower value), minus the weapon's own THAC0 bonus, minus the
-	// target's AC for this damage type (also better/harder to hit when
-	// lower). A natural 20 always hits, a natural 1 always misses.
+	// a lower value), minus the weapon's own THAC0 bonus and the strength
+	// bonus, minus the target's AC for this damage type (also better/
+	// harder to hit when lower). A natural 20 always hits, a natural 1
+	// always misses.
 	const int32 roll = Core::RollDice(1, 20, 0);
-	const int32 neededRoll = CRE()->THAC0() - ability.thac0Bonus - effectiveAC;
+	const int32 neededRoll = CRE()->THAC0() - ability.thac0Bonus
+		- strengthToHit - effectiveAC;
 	const bool hit = roll == 20 || (roll != 1 && roll >= neededRoll);
 	if (!hit)
 		return;
@@ -1919,9 +1961,17 @@ Actor::AttackTarget(Actor* target)
 	hitBy.round = Core::Get()->ScriptRound();
 	target->AddTrigger(hitBy);
 
-	const int32 damage = Core::RollDice(ability.diceThrown, ability.diceSides,
-			ability.damageBonus);
-	target->ApplyDamage(damage);
+	// A natural 20 is a critical hit: double damage. (Per-weapon threat
+	// ranges - some weapons crit on 19-20 - and criticals-immune targets
+	// aren't modeled.)
+	int32 damage = Core::RollDice(ability.diceThrown, ability.diceSides,
+			ability.damageBonus + strengthDamage);
+	if (roll == 20)
+		damage *= 2;
+	target->ApplyDamage(std::max<int32>(damage, 1));
+
+	for (const spl_effect& effect : profile.onHitEffects)
+		target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, this));
 }
 
 
