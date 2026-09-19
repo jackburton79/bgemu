@@ -39,6 +39,7 @@ struct gam_party_member {
 	IE::point position;
 	uint16 orientation;
 	res_ref areaName;
+	res_ref quickSpells[3];	// the action bar's quick spell slots
 };
 
 struct gam_journal_entry {

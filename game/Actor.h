@@ -147,6 +147,11 @@ public:
 	// Queues the SPELL action for a spell this creature has memorized
 	// (resref like "SPWI304") at `target`, replacing what it was doing.
 	void CastSpell(const res_ref& spell, Actor* target);
+	// The three quick spell slots of the action bar (an empty resref means
+	// unassigned) - saved with the party in the GAM.
+	static const uint32 kNumQuickSpells = 3;
+	res_ref QuickSpell(uint32 index) const;
+	void SetQuickSpell(uint32 index, const res_ref& spell);
 	// Queues USEITEMSLOT for the item in `slot` at `target`.
 	void UseItem(uint32 slot, Actor* target);
 
@@ -338,6 +343,7 @@ private:
 
 	bool fAttacking;
 	int32 fAttackCooldown;
+	res_ref fQuickSpells[kNumQuickSpells];
 
 	Path* fPath;
 	int fSpeed;

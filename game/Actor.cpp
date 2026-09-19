@@ -1429,6 +1429,21 @@ Actor::CastSpell(const res_ref& spell, Actor* target)
 }
 
 
+res_ref
+Actor::QuickSpell(uint32 index) const
+{
+	return index < kNumQuickSpells ? fQuickSpells[index] : res_ref();
+}
+
+
+void
+Actor::SetQuickSpell(uint32 index, const res_ref& spell)
+{
+	if (index < kNumQuickSpells)
+		fQuickSpells[index] = spell;
+}
+
+
 void
 Actor::UseItem(uint32 slot, Actor* target)
 {

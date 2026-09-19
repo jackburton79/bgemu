@@ -90,6 +90,7 @@ Game::Game()
 	fActionBarPage(PAGE_ROW),
 	fActionBarPageIndex(0),
 	fPendingItemSlot(-1),
+	fAssignQuickSpell(-1),
 	fLootRightRow(0),
 	fStore(NULL),
 	fStoreCustomer(NULL),
@@ -1492,6 +1493,7 @@ enum ActionCode {
 	ACT_SEARCH = 22, ACT_QSLOT5 = 31, ACT_NONE = 100
 };
 static const uint32 kActionButtons = 12;
+static const uint32 kSlotQuickItemFirst = 18;	// QuickItem1-3 (18-20)
 
 // Art of each action: frames of the first cycle (unpressed, pressed,
 // selected, disabled) of GUIBTACT.BAM - GemRB's guibtact.2da (the games hardcode these numbers),
@@ -1732,8 +1734,10 @@ Game::RefreshActionBar()
 		const bool spells = fActionBarPage == PAGE_SPELLS;
 		const std::vector<bar_entry> entries = spells ? _CastableSpells(actor)
 			: _UsableItems(actor);
-		if (entries.empty())
+		if (entries.empty()) {
 			fActionBarPage = PAGE_ROW; // nothing left to pick from
+			fAssignQuickSpell = -1;
+		}
 		else
 			_ShowEntryPage(window, entries, spells, fActionBarPageIndex, sBG1Layout == 1);
 		if (fActionBarPage != PAGE_ROW)
@@ -1773,6 +1777,43 @@ Game::RefreshActionBar()
 			// outline - drawn as the button being "toggled".
 			button->SetToggled(inHand && fTargetMode == TARGET_ATTACK);
 			button->SetEnabled(filled);
+			continue;
+		}
+
+		const bool quickSpell = action >= ACT_QSPELL1 && action <= ACT_QSPELL3;
+		const bool quickItem = action == ACT_QSLOT1 || action == ACT_QSLOT2
+			|| action == ACT_QSLOT3;
+		if (quickSpell || quickItem) {
+			uint16 frames[4];
+			_GuibtbutCycles(action, sBG1Layout == 1, frames);
+			frames[3] = frames[0];
+			button->SetArt(res_ref("GUIBTBUT"), frames);
+			if (quickSpell) {
+				const res_ref spell = actor->QuickSpell(action - ACT_QSPELL1);
+				int left = 0;
+				for (const bar_entry& entry : _CastableSpells(actor)) {
+					if (entry.name == spell)
+						left = entry.count;
+				}
+				if (spell.CString()[0] != '\0') {
+					button->SetIcon(_MakeSpellIcon(spell), false);
+					button->SetIconCount(left);
+				}
+				// Always enabled: a right click assigns the slot, empty or not.
+				button->SetEnabled(true);
+			} else {
+				const uint32 slot = kSlotQuickItemFirst
+					+ (action == ACT_QSLOT1 ? 0 : action == ACT_QSLOT2 ? 1 : 2);
+				bool usable = false;
+				for (const bar_entry& entry : _UsableItems(actor)) {
+					if ((uint32)entry.slot != slot)
+						continue;
+					usable = true;
+					button->SetIcon(_MakeItemIcon(entry.name), false);
+					button->SetIconCount(entry.count);
+				}
+				button->SetEnabled(usable);
+			}
 			continue;
 		}
 
@@ -1824,6 +1865,61 @@ Game::CastSpellAt(Actor* target)
 
 
 void
+Game::_PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell)
+{
+	uint8 targetType = 0;
+	if (spell) {
+		fPendingSpell = name;
+		fPendingItemSlot = -1;
+		SPLResource* resource = gResManager->GetSPL(name.CString());
+		if (resource != NULL) {
+			targetType = resource->TargetType();
+			gResManager->ReleaseResource(resource);
+		}
+	} else {
+		fPendingSpell = res_ref();
+		fPendingItemSlot = slot;
+		ITMResource* resource = gResManager->GetITM(name);
+		itm_ability ability;
+		if (resource != NULL) {
+			if (resource->GetAbility(0, ability))
+				targetType = ability.targetType;
+			gResManager->ReleaseResource(resource);
+		}
+	}
+	const TargetMode mode = spell ? TARGET_CAST : TARGET_USE_ITEM;
+	// Something that only affects its user needs no target.
+	if (targetType == 0 || targetType == 5 || targetType == 7) {
+		fTargetMode = mode;
+		CastSpellAt(actor);
+	} else {
+		SetTargetMode(mode);
+	}
+}
+
+
+void
+Game::ActionBarControlRightClicked(uint32 controlID)
+{
+	Actor* actor = _ShownActor();
+	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons
+			|| fActionBarPage != PAGE_ROW)
+		return;
+
+	uint8 row[kActionButtons];
+	_ActionRowFor(actor, row);
+	const uint32 action = row[controlID];
+	if (action >= ACT_QSPELL1 && action <= ACT_QSPELL3 && !_CastableSpells(actor).empty()) {
+		fTargetMode = TARGET_NONE;
+		fAssignQuickSpell = action - ACT_QSPELL1;
+		fActionBarPage = PAGE_SPELLS;
+		fActionBarPageIndex = 0;
+		RefreshActionBar();
+	}
+}
+
+
+void
 Game::ActionBarControlInvoked(uint32 controlID)
 {
 	Actor* actor = _ShownActor();
@@ -1837,6 +1933,7 @@ Game::ActionBarControlInvoked(uint32 controlID)
 		const uint32 prevButton = kActionButtons - 2, nextButton = kActionButtons - 1;
 		if (controlID == 0) {
 			fActionBarPage = PAGE_ROW;
+			fAssignQuickSpell = -1;
 		} else if (controlID == prevButton && fActionBarPageIndex > 0) {
 			fActionBarPageIndex--;
 		} else if (controlID == nextButton
@@ -1846,32 +1943,11 @@ Game::ActionBarControlInvoked(uint32 controlID)
 				&& fActionBarPageIndex * kEntriesPerPage + controlID - 1 < entries.size()) {
 			const bar_entry entry = entries[fActionBarPageIndex * kEntriesPerPage + controlID - 1];
 			fActionBarPage = PAGE_ROW;
-			uint8 targetType = 0;
-			if (spells) {
-				fPendingSpell = entry.name;
-				fPendingItemSlot = -1;
-				SPLResource* resource = gResManager->GetSPL(entry.name.CString());
-				if (resource != NULL) {
-					targetType = resource->TargetType();
-					gResManager->ReleaseResource(resource);
-				}
+			if (fAssignQuickSpell >= 0) {
+				actor->SetQuickSpell((uint32)fAssignQuickSpell, entry.name);
+				fAssignQuickSpell = -1;
 			} else {
-				fPendingSpell = res_ref();
-				fPendingItemSlot = entry.slot;
-				ITMResource* resource = gResManager->GetITM(entry.name);
-				itm_ability ability;
-				if (resource != NULL) {
-					if (resource->GetAbility(0, ability))
-						targetType = ability.targetType;
-					gResManager->ReleaseResource(resource);
-				}
-			}
-			// Something that only affects its user needs no target.
-			if (targetType == 0 || targetType == 5 || targetType == 7) {
-				fTargetMode = spells ? TARGET_CAST : TARGET_USE_ITEM;
-				CastSpellAt(actor);
-			} else {
-				SetTargetMode(spells ? TARGET_CAST : TARGET_USE_ITEM);
+				_PickBarEntry(actor, entry.name, entry.slot, spells);
 			}
 		}
 		RefreshActionBar();
@@ -1881,7 +1957,22 @@ Game::ActionBarControlInvoked(uint32 controlID)
 	uint8 row[kActionButtons];
 	_ActionRowFor(actor, row);
 	const uint32 action = row[controlID];
-	if (action == ACT_CAST || action == ACT_USE) {
+	if (action >= ACT_QSPELL1 && action <= ACT_QSPELL3) {
+		const res_ref spell = actor->QuickSpell(action - ACT_QSPELL1);
+		for (const bar_entry& entry : _CastableSpells(actor)) {
+			if (entry.name == spell)
+				_PickBarEntry(actor, spell, -1, true);
+		}
+		RefreshActionBar();
+	} else if (action == ACT_QSLOT1 || action == ACT_QSLOT2 || action == ACT_QSLOT3) {
+		const uint32 slot = kSlotQuickItemFirst
+			+ (action == ACT_QSLOT1 ? 0 : action == ACT_QSLOT2 ? 1 : 2);
+		for (const bar_entry& entry : _UsableItems(actor)) {
+			if ((uint32)entry.slot == slot)
+				_PickBarEntry(actor, entry.name, entry.slot, false);
+		}
+		RefreshActionBar();
+	} else if (action == ACT_CAST || action == ACT_USE) {
 		const bool spells = action == ACT_CAST;
 		if (!(spells ? _CastableSpells(actor) : _UsableItems(actor)).empty()) {
 			fTargetMode = TARGET_NONE;
@@ -4019,6 +4110,8 @@ Game::Save(const char* name)
 		member.position = actor->Position();
 		member.orientation = (uint16)actor->Orientation();
 		member.areaName = areaName;
+		for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
+			member.quickSpells[q] = actor->QuickSpell(q);
 
 		gam->AddPartyMember(member, actor->CRE());
 	}
@@ -4101,6 +4194,9 @@ Game::Load(const char* name)
 			actor->CRE()->CopyDataFrom(savedCre);
 			gResManager->ReleaseResource(savedCre);
 		}
+
+		for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
+			actor->SetQuickSpell(q, member.quickSpells[q]);
 
 		fParty->AddActor(actor);
 		savedPositions.push_back(member.position);
@@ -4390,6 +4486,7 @@ Game::SelectPartyMember(uint16 index)
 
 	fShownCharacter = index;
 	fActionBarPage = PAGE_ROW;
+	fAssignQuickSpell = -1;
 
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (room != nullptr)

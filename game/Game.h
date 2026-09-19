@@ -162,6 +162,9 @@ public:
 	void CastSpellAt(Actor* target);
 	// GUI::ControlInvoked() routes clicks on the action bar here.
 	void ActionBarControlInvoked(uint32 controlID);
+	// A right click on a quick spell button offers the spell page to assign
+	// one to it.
+	void ActionBarControlRightClicked(uint32 controlID);
 	void ToggleJournalWindow();
 	// GUI::ControlInvoked() routes clicks on GUIJRNL controls here -
 	// the command bar (window 0) and the portrait column (window 1),
@@ -375,10 +378,15 @@ private:
 	// shown character's memorized spells / usable items (paged by
 	// fActionBarPageIndex).
 	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_ITEMS };
+	// Casts `spell` / uses the item in `slot` for `actor`, asking for a
+	// target first unless it only affects its user.
+	void _PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell);
 	ActionPage fActionBarPage;
 	uint32 fActionBarPageIndex;
 	// The spell or item slot picked on the bar, waiting for its target.
 	int32 fPendingItemSlot;
+	// Quick spell slot (0-2) the spell page is choosing a spell for, or -1.
+	int32 fAssignQuickSpell;
 	res_ref fPendingSpell;
 	int32 fLootRightRow;
 	// HUD windows hidden for as long as the loot window is up, so

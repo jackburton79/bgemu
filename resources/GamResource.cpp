@@ -181,8 +181,12 @@ GamResource::WriteToFile(const char* path) const
 		uint16 y = (uint16)member.info.position.y;
 		buffer.WriteAt(structOffset + 0x20, &x, sizeof(x));
 		buffer.WriteAt(structOffset + 0x22, &y, sizeof(y));
-		// 0x24 onward (happiness, quick-slots, character stats, voice
-		// set): left zeroed, not modeled by this engine.
+		// Quick spells 1-3 (8-byte resrefs from 0x9c); the rest of 0x24
+		// onward (happiness, quick weapon/item slots, character stats,
+		// voice set) is left zeroed, not modeled by this engine - quick
+		// items are just the CRE's own quick item slots.
+		for (int q = 0; q < 3; q++)
+			buffer.WriteAt(structOffset + 0x9c + q * 8, &member.info.quickSpells[q], sizeof(res_ref));
 
 		member.cre->WriteDataTo(&buffer, currentCreOffset);
 		currentCreOffset += creSize;
@@ -288,6 +292,9 @@ GamResource::PartyMemberAt(uint32 index) const
 	fData->ReadAt(structOffset + 0x22, y);
 	member.position.x = x;
 	member.position.y = y;
+
+	for (int q = 0; q < 3; q++)
+		fData->ReadAt(structOffset + 0x9c + q * 8, member.quickSpells[q]);
 
 	// The 8-byte "Character Name" field doubles as the CRE resref here:
 	// this engine's Actor(creName, position, face) constructor (the only
