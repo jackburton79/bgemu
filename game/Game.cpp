@@ -91,6 +91,9 @@ Game::Game()
 	fStoreLeftRow(0),
 	fStoreRightRow(0),
 	fStoreUnpause(false),
+	fStoreAmountIndex(-1),
+	fStoreAmountValue(0),
+	fStoreAmountMax(0),
 	fShownCharacter(0)
 {
 	fTempState = new Game::TempState;
@@ -1804,6 +1807,35 @@ _MaxEncumbrance(CREResource* cre)
 }
 
 
+// A label that isn't CHU-authored (see kInvWeightCurrentLabelID's own
+// comment), created at runtime in `window`. The underlying IE::label struct
+// is heap-allocated the same way CHUIResource::_ReadControl() allocates
+// every other control's, since Control::~Control() unconditionally frees it
+// the same way. Same font as the CHU-authored AC/HP labels (confirmed by
+// dumping their real font_bam - GemRB's own "NUMBER" is an engine-internal
+// font id, not a real BAM resref).
+static void
+_AddLabel(Window* window, uint32 id, sint16 x, sint16 y, uint16 width,
+	uint16 height, uint16 flags)
+{
+	IE::label* label = (IE::label*)new uint8[sizeof(IE::label)];
+	label->id = id;
+	label->x = x;
+	label->y = y;
+	label->w = width;
+	label->h = height;
+	label->type = IE::CONTROL_LABEL;
+	label->unk = 0;
+	label->text_ref = 0xffffffff;
+	label->font_bam = res_ref("STONESML");
+	label->color1_r = label->color1_g = label->color1_b = 255;
+	label->color1_a = 0;
+	label->color2_r = label->color2_g = label->color2_b = label->color2_a = 0;
+	label->flags = flags;
+	window->Add(new Label(label));
+}
+
+
 // The two weight labels aren't CHU-authored (see kInvWeightCurrentLabelID's
 // own comment) - create them once, the first time this window instance is
 // refreshed, anchored to the bag icon's rect exactly like GemRB's
@@ -1822,32 +1854,10 @@ _EnsureWeightLabels(Window* window, uint32 iconID = kInvWeightIconID)
 		return;
 	GFX::rect rect = bagIcon->Frame();
 
-	static const struct { uint32 id; uint16 y; uint16 flags; } kLabels[] = {
-		{ kInvWeightCurrentLabelID, 0,
-			IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_TOP },
-		{ kInvWeightMaxLabelID, (uint16)(rect.h - 20),
-			IE::LABEL_JUSTIFY_RIGHT | IE::LABEL_JUSTIFY_BOTTOM },
-	};
-	for (const auto& entry : kLabels) {
-		IE::label* label = (IE::label*)new uint8[sizeof(IE::label)];
-		label->id = entry.id;
-		label->x = rect.x;
-		label->y = (sint16)(rect.y + entry.y);
-		label->w = rect.w;
-		label->h = 20;
-		label->type = IE::CONTROL_LABEL;
-		label->unk = 0;
-		label->text_ref = 0xffffffff;
-		// Same font the CHU-authored AC/HP labels next to this one use
-		// (confirmed by dumping their real font_bam - GemRB's own
-		// "NUMBER" is an engine-internal font id, not a real BAM resref).
-		label->font_bam = res_ref("STONESML");
-		label->color1_r = label->color1_g = label->color1_b = 255;
-		label->color1_a = 0;
-		label->color2_r = label->color2_g = label->color2_b = label->color2_a = 0;
-		label->flags = entry.flags;
-		window->Add(new Label(label));
-	}
+	_AddLabel(window, kInvWeightCurrentLabelID, rect.x, rect.y, rect.w, 20,
+		IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_TOP);
+	_AddLabel(window, kInvWeightMaxLabelID, rect.x, (sint16)(rect.y + rect.h - 20),
+		rect.w, 20, IE::LABEL_JUSTIFY_RIGHT | IE::LABEL_JUSTIFY_BOTTOM);
 }
 
 
@@ -2286,6 +2296,22 @@ static const uint32 kStoreOwnScrollID = 12;
 static const uint32 kStoreBagIconID = 44;
 static const uint32 kStoreDoneButtonID = 0;
 static const uint32 kStoreSlots = 4;
+// Window 16, BG2 only: the quantity picker for a shelf item - the item's
+// icon (0), Cancel (1), Done (2), the two arrows (3 raises, 4 lowers - per
+// GemRB's GUISTORE.py) and a text box (6) this engine has no widget for,
+// so the amount is drawn on a label over it instead.
+static const uint16 kStoreAmountWindow = 16;
+static const uint32 kStoreAmountIconID = 0;
+static const uint32 kStoreAmountCancelID = 1;
+static const uint32 kStoreAmountDoneID = 2;
+static const uint32 kStoreAmountRaiseID = 3;
+static const uint32 kStoreAmountLowerID = 4;
+static const uint32 kStoreAmountBoxID = 6;
+static const uint32 kStoreAmountNameLabelID = 268435460;
+static const uint32 kStoreAmountValueLabelID = 268435525;
+static const uint32 kStoreCancelStrRef = 13727;
+// What GemRB caps a picker at for an infinite supply.
+static const uint32 kStoreAmountInfiniteMax = 999;
 // TLK strings: the Buy/Sell button captions, "Done", the name-and-price
 // line template ("<ITEMNAME>" / "<ITEMCOST>" tokens) and the "can't
 // afford it" message.
@@ -2433,6 +2459,7 @@ Game::CloseStoreWindow()
 	if (!IsStoreWindowOpen())
 		return;
 
+	_CloseStoreAmountWindow(false);
 	GUI* gui = GUI::Get();
 	for (uint16 id : { kStoreShopWindow, kStoreBarWindow, (uint16)0, (uint16)1 })
 		gui->HideAuxWindow("GUISTORE", id);
@@ -2692,6 +2719,22 @@ Game::StoreControlInvoked(uint32 controlID, uint16 windowID)
 	if (!IsStoreWindowOpen())
 		return;
 
+	// The picker is modal: nothing else answers while it's up.
+	if (fStoreAmountIndex >= 0) {
+		if (windowID != kStoreAmountWindow)
+			return;
+		if (controlID == kStoreAmountRaiseID)
+			fStoreAmountValue = std::min(fStoreAmountValue + 1, fStoreAmountMax);
+		else if (controlID == kStoreAmountLowerID)
+			fStoreAmountValue = fStoreAmountValue > 0 ? fStoreAmountValue - 1 : 0;
+		else if (controlID == kStoreAmountDoneID)
+			_CloseStoreAmountWindow(true);
+		else if (controlID == kStoreAmountCancelID)
+			_CloseStoreAmountWindow(false);
+		_UpdateStoreAmountWindow();
+		return;
+	}
+
 	if (windowID == kStoreBarWindow) {
 		if (controlID == kStoreDoneButtonID)
 			CloseStoreWindow();
@@ -2737,10 +2780,96 @@ Game::StoreControlInvoked(uint32 controlID, uint16 windowID)
 }
 
 
+bool
+Game::StoreControlDoubleClicked(uint32 controlID, uint16 windowID)
+{
+	if (!IsStoreWindowOpen() || fStoreAmountIndex >= 0 || windowID != kStoreShopWindow
+			|| Core::Get()->Game() != game::GAME_BALDURSGATE2)
+		return false;
+	if (controlID < kStoreShelfFirstID || controlID >= kStoreShelfFirstID + kStoreSlots)
+		return false;
+
+	size_t index = (size_t)fStoreLeftRow + (controlID - kStoreShelfFirstID);
+	std::vector<store_entry>& shelf = fStore->Items();
+	if (index >= shelf.size() || !(fStore->Actions(shelf[index].item, false) & STORE_ACT_BUY))
+		return false;
+	_OpenStoreAmountWindow(index);
+	return true;
+}
+
+
+void
+Game::_OpenStoreAmountWindow(size_t shelfIndex)
+{
+	const store_entry& entry = fStore->Items()[shelfIndex];
+	fStoreAmountIndex = (int32)shelfIndex;
+	fStoreAmountMax = entry.amount < 0 ? kStoreAmountInfiniteMax : (uint32)entry.amount;
+	fStoreAmountValue = std::min(std::max<uint32>(entry.purchased, 1), fStoreAmountMax);
+
+	GUI* gui = GUI::Get();
+	gui->ShowAuxWindow("GUISTORE", kStoreAmountWindow);
+	Window* window = gui->GetAuxWindow("GUISTORE", kStoreAmountWindow);
+	if (window == NULL) {
+		fStoreAmountIndex = -1;
+		return;
+	}
+
+	if (Button* icon = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountIconID)))
+		icon->SetIcon(_MakeItemIcon(entry.item.name));
+	if (Label* name = dynamic_cast<Label*>(window->GetControlByID(kStoreAmountNameLabelID)))
+		name->SetText(_ItemDisplayName(entry.item.name));
+	if (Button* cancel = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountCancelID)))
+		cancel->SetText(IDTable::GetDialog(kStoreCancelStrRef));
+	if (Button* done = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountDoneID)))
+		done->SetText(IDTable::GetDialog(kStoreDoneStrRef));
+	if (Control* box = window->GetControlByID(kStoreAmountBoxID)) {
+		if (window->GetControlByID(kStoreAmountValueLabelID) == NULL) {
+			GFX::rect rect = box->Frame();
+			_AddLabel(window, kStoreAmountValueLabelID, rect.x, rect.y, rect.w, rect.h,
+				IE::LABEL_JUSTIFY_CENTER);
+		}
+	}
+	_UpdateStoreAmountWindow();
+}
+
+
+// Closes the picker; with `apply`, the chosen amount becomes the item's
+// purchase quantity (0 unselects it).
+void
+Game::_CloseStoreAmountWindow(bool apply)
+{
+	if (fStoreAmountIndex < 0)
+		return;
+	if (apply && (size_t)fStoreAmountIndex < fStore->Items().size()) {
+		store_entry& entry = fStore->Items()[fStoreAmountIndex];
+		entry.purchased = fStoreAmountValue;
+		entry.selected = fStoreAmountValue > 0;
+	}
+	fStoreAmountIndex = -1;
+	if (GUI* gui = GUI::Get())
+		gui->HideAuxWindow("GUISTORE", kStoreAmountWindow);
+	_UpdateStoreWindow();
+}
+
+
+void
+Game::_UpdateStoreAmountWindow()
+{
+	if (fStoreAmountIndex < 0)
+		return;
+	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreAmountWindow);
+	if (window == NULL)
+		return;
+	if (Label* value = dynamic_cast<Label*>(window->GetControlByID(kStoreAmountValueLabelID)))
+		value->SetText(std::to_string(fStoreAmountValue));
+}
+
+
 void
 Game::StoreControlHovered(uint32 controlID, uint16 windowID, bool inside)
 {
-	if (!inside || !IsStoreWindowOpen() || windowID != kStoreShopWindow) {
+	if (!inside || !IsStoreWindowOpen() || windowID != kStoreShopWindow
+			|| fStoreAmountIndex >= 0) {
 		GUI::Get()->SetHoverTooltip("");
 		return;
 	}

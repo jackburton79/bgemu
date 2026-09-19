@@ -105,6 +105,11 @@ CHUIResource::GetWindow(uint16 id)
 			MOSResource* mos = gResManager->GetMOS(window.background_mos);
 			if (mos != NULL) {
 				background = mos->Image();
+				// Popups with a rounded or otherwise irregular frame
+				// (e.g. GUIERR2) fill the corners with pure green, the
+				// Infinity Engine's usual "transparent" color.
+				if (background != NULL)
+					background->SetColorKey(0, 255, 0, true);
 				gResManager->ReleaseResource(mos);
 			}
 		}

@@ -1,0 +1,43 @@
+# The store window's quantity picker (BG2 only - BG1's GUISTORE has no such
+# window): a double click on a shelf item opens it, the arrows change the
+# amount (capped at the stock), Done makes it the purchase quantity, and
+# Cancel leaves the selection alone.
+# Needs: default BG2 starting party/area; store SHOP01 (sells AX1H01 x5).
+# Mouse coordinates: shelf slot 0 (109,150), Buy (227,353), and in the
+# picker (window 16 at 141,60): raise (408,265), Done (320,297), Cancel
+# (322,328). Reputation is set to its usual starting value (the default
+# party's is unset, which prices everything 10x).
+Run-Action -,162,-,10,-,-,0,0
+Run-Action -,118,-,1000,-,-,0,0
+Run-Action -,150,-,0,SHOP01,-,0,0
+Step-Ticks 2
+
+# Double click: the first click selects, the second opens the picker; while
+# it's up, clicks on the store behind it do nothing.
+Mouse-Click 109,150
+Mouse-Click 109,150
+Mouse-Click 227,353
+Assert-StoreStock SHOP01,AX1H01,5
+
+# Raise to 3 and confirm, then buy: three axes leave the shelf.
+Mouse-Click 408,265
+Mouse-Click 408,265
+Mouse-Click 320,297
+Mouse-Click 227,353
+Assert-StoreStock SHOP01,AX1H01,2
+
+# The picker never offers more than is in stock: 2 left, raise 5 times,
+# confirm, buy - only 2 go.
+Mouse-Click 109,150
+Mouse-Click 109,150
+Mouse-Click 408,265
+Mouse-Click 408,265
+Mouse-Click 408,265
+Mouse-Click 408,265
+Mouse-Click 408,265
+Mouse-Click 320,297
+Mouse-Click 227,353
+Assert-StoreStock SHOP01,AX1H01,0
+
+Mouse-Click 500,459
+Assert-StoreWindow false

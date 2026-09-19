@@ -200,6 +200,12 @@ private:
 	uint16 fScreenHeight;
 
 	uint32 fLastScrollTime;
+	// The last control clicked, for double-click detection (see
+	// ControlInvoked()).
+	uint32 fLastClickControl;
+	uint16 fLastClickWindow;
+	res_ref fLastClickCHU;
+	uint32 fLastClickTime;
 	bool fShown;
 
 	Bitmap* fTooltipBitmap;

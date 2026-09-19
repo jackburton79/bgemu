@@ -114,6 +114,10 @@ public:
 	class Store* LoadedStore(const char* name) const;
 	void StoreControlInvoked(uint32 controlID, uint16 windowID);
 	void StoreControlHovered(uint32 controlID, uint16 windowID, bool inside);
+	// A double click on a store control (GUI detects it): on a shelf item,
+	// opens the quantity picker (BG2 only - BG1's GUISTORE has none).
+	// Returns whether it was handled.
+	bool StoreControlDoubleClicked(uint32 controlID, uint16 windowID);
 	// A click on the inventory window background (not a slot) while
 	// dragging an item: drops the held item onto the area floor at the
 	// shown character's feet.
@@ -341,6 +345,14 @@ private:
 	int32 fStoreLeftRow;
 	int32 fStoreRightRow;
 	bool fStoreUnpause;
+	// The quantity picker: which shelf item (-1 = closed), the amount
+	// chosen so far and the most that can be picked.
+	int32 fStoreAmountIndex;
+	uint32 fStoreAmountValue;
+	uint32 fStoreAmountMax;
+	void _OpenStoreAmountWindow(size_t shelfIndex);
+	void _CloseStoreAmountWindow(bool apply);
+	void _UpdateStoreAmountWindow();
 	void _UpdateStoreWindow();
 	void _StoreBuySelected();
 	void _StoreSellSelected();

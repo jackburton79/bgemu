@@ -89,6 +89,9 @@ GUI::GUI(uint16 width, uint16 height)
 	fScreenWidth(width),
 	fScreenHeight(height),
 	fLastScrollTime(0),
+	fLastClickControl(0),
+	fLastClickWindow(0),
+	fLastClickTime(0),
 	fShown(false),
 	fTooltipBitmap(NULL),
 	fDragBitmap(NULL),
@@ -601,6 +604,14 @@ GUI::ShowAuxWindow(const res_ref& chuName, uint16 windowId)
 		AddWindow(window);
 	}
 
+	// Newest on top, so a popup shown over a screen (whose windows were
+	// shown earlier, and may have been re-sorted since) gets its clicks.
+	auto position = std::find(fWindows.begin(), fWindows.end(), window);
+	if (position != fWindows.end()) {
+		fWindows.erase(position);
+		fWindows.push_back(window);
+	}
+
 	window->Show();
 	if (window->Frame().Contains(fCursorPosition.x, fCursorPosition.y))
 		window->MouseMoved(fCursorPosition);
@@ -939,6 +950,23 @@ GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 /*windowID*/)
 void
 GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
+	// A second click on the same control shortly after the first is a
+	// double click: offered to the store window (where a double click on a
+	// shelf item opens the quantity picker) instead of being handled as a
+	// plain click again. Anything that doesn't handle it falls through.
+	const uint32 kDoubleClickMs = 400;
+	const uint32 now = Timer::Ticks();
+	const bool doubleClick = fLastClickTime != 0 && controlID == fLastClickControl
+		&& windowID == fLastClickWindow && chuName == fLastClickCHU
+		&& now - fLastClickTime < kDoubleClickMs;
+	fLastClickControl = controlID;
+	fLastClickWindow = windowID;
+	fLastClickCHU = chuName;
+	fLastClickTime = doubleClick ? 0 : (now != 0 ? now : 1);
+	if (doubleClick && chuName == res_ref("GUISTORE")
+			&& Game::Get()->StoreControlDoubleClicked(controlID, windowID))
+		return;
+
 	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
 		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
 		return;
