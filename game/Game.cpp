@@ -87,6 +87,8 @@ Game::Game()
 	fLooter(NULL),
 	fLootLeftRow(0),
 	fTargetMode(TARGET_NONE),
+	fActionBarSpells(false),
+	fActionBarSpellPage(0),
 	fLootRightRow(0),
 	fStore(NULL),
 	fStoreCustomer(NULL),
@@ -1585,6 +1587,87 @@ _ActionRowFor(Actor* actor, uint8 row[kActionButtons])
 }
 
 
+// A spell the actor can cast now: memorized wizard/priest spells, one entry
+// per spell with the number of copies still available.
+struct castable_spell {
+	res_ref spell;
+	int count;
+};
+
+static std::vector<castable_spell>
+_CastableSpells(Actor* actor)
+{
+	std::vector<castable_spell> spells;
+	for (const cre_memorized_spell& memorized : actor->CRE()->MemorizedSpells()) {
+		if ((memorized.flags & 1) == 0)
+			continue;
+		const std::string name = memorized.spell.CString();
+		if (name.compare(0, 4, "SPWI") != 0 && name.compare(0, 4, "SPPR") != 0)
+			continue;
+		bool found = false;
+		for (castable_spell& known : spells) {
+			if (known.spell == memorized.spell) {
+				known.count++;
+				found = true;
+			}
+		}
+		if (!found)
+			spells.push_back({ memorized.spell, 1 });
+	}
+	return spells;
+}
+
+// The spell page: the first button closes it (it wears the Cast icon), then
+// nine spells per page, with previous/next arrows in the last two buttons.
+static const uint32 kSpellsPerPage = 9;
+static const uint16 kArrowLeftArt[4] = { 44, 45, 44, 45 };
+static const uint16 kArrowRightArt[4] = { 42, 43, 42, 43 };
+
+static void
+_ShowSpellPage(Window* window, const std::vector<castable_spell>& spells,
+	uint32 page, bool bg1Layout)
+{
+	for (uint32 i = 0; i < kActionButtons; i++) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
+		if (button == NULL)
+			continue;
+		button->SetIcon(NULL);
+		button->SetIconCount(0);
+		button->SetHighlighted(false);
+		button->SetToggled(false);
+
+		uint16 cycles[4];
+		if (i == 0) {
+			std::copy(kActionArt[ACT_CAST], kActionArt[ACT_CAST] + 4, cycles);
+			button->SetArt(res_ref("GUIBTACT"), cycles);
+			button->SetEnabled(true);
+			button->SetHighlighted(true);
+			continue;
+		}
+		const bool prev = i == kActionButtons - 2 && page > 0;
+		const bool next = i == kActionButtons - 1 && (page + 1) * kSpellsPerPage < spells.size();
+		if (prev || next) {
+			button->SetArt(res_ref("GUIBTACT"), prev ? kArrowLeftArt : kArrowRightArt);
+			button->SetEnabled(true);
+			continue;
+		}
+
+		const size_t index = page * kSpellsPerPage + (i - 1);
+		if (i > kSpellsPerPage || index >= spells.size()) {
+			button->RestoreArt();
+			button->SetEnabled(false);
+			continue;
+		}
+		_GuibtbutCycles(ACT_QSPELL1, bg1Layout, cycles);
+		cycles[3] = cycles[0];
+		button->SetArt(res_ref("GUIBTBUT"), cycles);
+		button->SetIcon(_MakeSpellIcon(spells[index].spell), false);
+		button->SetIconCount(spells[index].count);
+		button->SetEnabled(true);
+	}
+}
+
+
 void
 Game::RefreshActionBar()
 {
@@ -1613,6 +1696,16 @@ Game::RefreshActionBar()
 
 	uint8 row[kActionButtons];
 	_ActionRowFor(actor, row);
+
+	if (fActionBarSpells) {
+		const std::vector<castable_spell> spells = _CastableSpells(actor);
+		if (spells.empty())
+			fActionBarSpells = false; // nothing left to cast
+		else
+			_ShowSpellPage(window, spells, fActionBarSpellPage, sBG1Layout == 1);
+		if (fActionBarSpells)
+			return;
+	}
 
 	for (uint32 i = 0; i < kActionButtons; i++) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
@@ -1661,9 +1754,10 @@ Game::RefreshActionBar()
 		} else
 			std::copy(kActionArt[action], kActionArt[action] + 4, cycles);
 		button->SetArt(res_ref(guibtbut ? "GUIBTBUT" : "GUIBTACT"), cycles);
-		// Only Talk and Stop do anything yet; the rest show their icons
-		// greyed out.
-		button->SetEnabled(action == ACT_STOP || action == ACT_TALK);
+		// Talk, Stop and Cast (when something is memorized) do something
+		// so far; the rest show their icons greyed out.
+		button->SetEnabled(action == ACT_STOP || action == ACT_TALK
+			|| (action == ACT_CAST && !_CastableSpells(actor).empty()));
 		button->SetHighlighted(action == ACT_TALK && fTargetMode == TARGET_TALK);
 	}
 }
@@ -1680,16 +1774,63 @@ Game::SetTargetMode(TargetMode mode)
 
 
 void
+Game::CastSpellAt(Actor* target)
+{
+	Actor* caster = _ShownActor();
+	if (caster != NULL && target != NULL && fPendingSpell.CString()[0] != '\0')
+		caster->CastSpell(fPendingSpell, target);
+	fPendingSpell = res_ref();
+	SetTargetMode(TARGET_NONE);
+}
+
+
+void
 Game::ActionBarControlInvoked(uint32 controlID)
 {
 	Actor* actor = _ShownActor();
 	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons)
 		return;
 
+	if (fActionBarSpells) {
+		const std::vector<castable_spell> spells = _CastableSpells(actor);
+		const uint32 prevButton = kActionButtons - 2, nextButton = kActionButtons - 1;
+		if (controlID == 0) {
+			fActionBarSpells = false;
+		} else if (controlID == prevButton && fActionBarSpellPage > 0) {
+			fActionBarSpellPage--;
+		} else if (controlID == nextButton
+				&& (fActionBarSpellPage + 1) * kSpellsPerPage < spells.size()) {
+			fActionBarSpellPage++;
+		} else if (controlID <= kSpellsPerPage
+				&& fActionBarSpellPage * kSpellsPerPage + controlID - 1 < spells.size()) {
+			const res_ref spell = spells[fActionBarSpellPage * kSpellsPerPage + controlID - 1].spell;
+			fActionBarSpells = false;
+			fPendingSpell = spell;
+			SPLResource* resource = gResManager->GetSPL(spell.CString());
+			const uint8 targetType = resource != NULL ? resource->TargetType() : 0;
+			if (resource != NULL)
+				gResManager->ReleaseResource(resource);
+			// A spell that only affects its caster needs no target.
+			if (targetType == 0 || targetType == 5 || targetType == 7)
+				CastSpellAt(actor);
+			else
+				SetTargetMode(TARGET_CAST);
+		}
+		RefreshActionBar();
+		return;
+	}
+
 	uint8 row[kActionButtons];
 	_ActionRowFor(actor, row);
 	const uint32 action = row[controlID];
-	if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4) {
+	if (action == ACT_CAST) {
+		if (!_CastableSpells(actor).empty()) {
+			fTargetMode = TARGET_NONE;
+			fActionBarSpells = true;
+			fActionBarSpellPage = 0;
+			RefreshActionBar();
+		}
+	} else if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4) {
 		// Pressing the weapon already in hand asks whom to attack with it.
 		const int32 slot = kSlotWeaponFirst + (action - ACT_WEAPON1);
 		if (slot == actor->ActiveWeaponSlot()) {
@@ -4189,6 +4330,7 @@ Game::SelectPartyMember(uint16 index)
 		return;
 
 	fShownCharacter = index;
+	fActionBarSpells = false;
 
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (room != nullptr)

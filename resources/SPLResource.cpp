@@ -141,6 +141,18 @@ SPLResource::DescriptionIdentifiedRef() const
 }
 
 
+uint8
+SPLResource::TargetType(uint16 abilityIndex) const
+{
+	uint8 type = 0;
+	if (abilityIndex < fExtendedHeadersCount) {
+		const uint32 kExtHeaderSize = 40;
+		fData->ReadAt(fExtendedHeadersOffset + abilityIndex * kExtHeaderSize + 0x000c, type);
+	}
+	return type;
+}
+
+
 uint16
 SPLResource::CastingTime(uint16 abilityIndex) const
 {

@@ -75,6 +75,10 @@ public:
 	// ForceSpellPoint(), which always force-cast the spell's first/only
 	// relevant ability).
 	uint16 CastingTime(uint16 abilityIndex = 0) const;
+	// What the ability is aimed at: 1 a living creature, 2 an inventory
+	// item, 3 a dead creature, 4 a point, 5 or 7 the caster itself (0 when
+	// there is no such ability).
+	uint8 TargetType(uint16 abilityIndex = 0) const;
 
 	// Effects this spell applies when it hits its target. Prefers the
 	// selected extended header's feature blocks (where single-ability

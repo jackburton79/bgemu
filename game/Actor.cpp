@@ -1403,6 +1403,33 @@ Actor::StrengthBonus(CREResource* cre, int column)
 
 
 void
+Actor::CastSpell(const res_ref& spell, Actor* target)
+{
+	// SPELL.IDS numbers a resref by its class digit (SPPR 1, SPWI 2, SPIN 3,
+	// SPCL 4) followed by the rest of the name: SPWI304 is 2304.
+	const std::string name = spell.CString();
+	if (target == NULL || name.size() < 5)
+		return;
+	static const char* const kPrefixes[] = { "SPPR", "SPWI", "SPIN", "SPCL" };
+	int digit = 0;
+	for (int i = 0; i < 4; i++) {
+		if (name.compare(0, 4, kPrefixes[i]) == 0)
+			digit = i + 1;
+	}
+	if (digit == 0)
+		return;
+
+	ClearActionList();
+	action_params* params = new action_params(Name(), target->Name());
+	params->Second()->globalId = target->GlobalID();
+	params->id = 31; // SPELL
+	params->integer1 = digit * 1000 + atoi(name.c_str() + 4);
+	AddAction(params);
+	params->Release();
+}
+
+
+void
 Actor::ConsumeFromSlot(uint32 slot)
 {
 	IE::item item;

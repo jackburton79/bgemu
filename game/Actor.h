@@ -144,6 +144,10 @@ public:
 	// strength (18/xx) row added on top, as GemRB reads the two tables.
 	static int32 StrengthBonus(CREResource* cre, int column);
 
+	// Queues the SPELL action for a spell this creature has memorized
+	// (resref like "SPWI304") at `target`, replacing what it was doing.
+	void CastSpell(const res_ref& spell, Actor* target);
+
 	// Spends one unit of `slot`'s quantity (removing the item when it runs
 	// out). Used for arrows/bolts/bullets and thrown weapons.
 	void ConsumeFromSlot(uint32 slot);

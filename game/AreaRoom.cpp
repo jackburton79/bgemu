@@ -455,6 +455,11 @@ AreaRoom::_HandleClickAt(IE::point point)
 		Game::Get()->SetTargetMode(Game::TARGET_NONE);
 		int32 unused = -1;
 		Actor* actor = dynamic_cast<Actor*>(_ObjectAtPoint(point, unused));
+		if (mode == Game::TARGET_CAST) {
+			if (actor != NULL)
+				Game::Get()->CastSpellAt(actor);
+			return;
+		}
 		if (fSelectedActor != NULL && actor != NULL && actor != fSelectedActor.Target()
 				&& !actor->IsState(STATE_DEAD)) {
 			fSelectedActor.Target()->ClearActionList();
@@ -559,7 +564,9 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 			cursor = IE::CURSOR_TRAVEL;
 		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
 		Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
-		if (mode != Game::TARGET_NONE) {
+		if (mode == Game::TARGET_CAST) {
+			GUI::Get()->SetCursor(hovered != NULL ? IE::CURSOR_CAST : IE::CURSOR_NOWAY);
+		} else if (mode != Game::TARGET_NONE) {
 			const bool valid = hovered != NULL && !hovered->IsState(STATE_DEAD)
 				&& hovered != fSelectedActor.Target();
 			GUI::Get()->SetCursor(!valid ? IE::CURSOR_NOWAY

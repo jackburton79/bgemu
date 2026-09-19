@@ -630,6 +630,7 @@ enum cursors {
 	CURSOR_DEFEND2 = 17,
 	CURSOR_TALK = 18,
 	CURSOR_TALK2 = 19,
+	CURSOR_CAST = 20,
 	// Wilderness map-edge "open the worldmap" cursor - see SearchMap::
 	// IsWorldmapExit(). Cross-checked against GemRB's own
 	// ie_cursors.h (IE_CURSOR_TRAVEL = 34), which also confirms this
