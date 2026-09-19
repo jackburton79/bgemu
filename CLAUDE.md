@@ -149,12 +149,16 @@ etc.) and core C++ — GemRB is the most reliable ground truth this project
 uses, and this session confirmed several real bugs (wrong control ID,
 wrong color-channel handling, wrong glyph blit) by diffing behavior
 against it. A `Label`'s font-glyph rendering recolors by *swapping the
-destination bitmap's palette*, not by tinting pixels — an 8-bit
-(indexed) destination needs raw index-preserving blits (see
-`_BlitGlyphIndexed` in `game/TextSupport.cpp`) because `SDL_BlitSurface`
-between two differently-paletted 8-bit surfaces color-matches instead of
-copying indices; a 16-bit destination gets a correct index→RGB blit for
-free and doesn't need this.
+destination bitmap's palette*, not by tinting pixels. With an 8-bit
+(indexed) destination, `SDL_BlitSurface` only copies raw indices when
+source and destination share the same palette contents - otherwise it
+color-matches and scrambles the glyph's brightness ramp - so
+`Font::_RenderString()` (`game/TextSupport.cpp`) copies the destination's
+palette onto each glyph before blitting; a 16-bit destination gets a
+correct index→RGB blit for free and needs no such step. Fonts flagged
+`NEED_PALETTE` in `fonts.2da` (e.g. TOOLFONT) must always be given an
+explicit palette (`ToolfontPalette()`), never rendered with their raw BAM
+colors.
 
 ### Scripting and dialogs
 
