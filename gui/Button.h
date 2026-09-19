@@ -75,6 +75,13 @@ public:
 	// CHU only names one) - for a button whose icon depends on what it's
 	// used for, e.g. the store window's page tabs.
 	void SetCycle(uint16 cycle);
+	// Replaces the button's art with the given frames of another BAM's
+	// first cycle (unpressed, pressed, selected, disabled) - for the
+	// action bar, whose icons aren't authored in the CHU. Returns false
+	// (art unchanged) if the BAM or a frame doesn't exist.
+	bool SetArt(const res_ref& bam, const uint16 frames[4]);
+	// Back to the CHU-authored art (an unused action bar slot).
+	void RestoreArt();
 	// Draws none of the button's own frame art (an unused slot that should
 	// just be empty) - pair it with SetEnabled(false).
 	void SetFrameless(bool frameless);
@@ -95,6 +102,10 @@ private:
 	// and the button's own (static, CHU-authored) frame, neither of
 	// which change between frames.
 	GFX::rect fIconRect;
+	// Part of the icon that fits the button (an icon bigger than its
+	// button is cropped around its center, not drawn over the neighbours).
+	GFX::rect fIconSource;
+	bool fIconCropped;
 	int fIconCount;
 	bool fCoverBackground;
 	bool fHighlighted;

@@ -14,6 +14,7 @@
 #include "TextSupport.h"
 #include "Window.h"
 
+#include <algorithm>
 #include <string>
 
 
@@ -26,6 +27,7 @@ Button::Button(IE::button* button)
 	fUnpressedBitmap(NULL),
 	fIcon(NULL),
 	fText(NULL),
+	fIconCropped(false),
 	fIconCount(0),
 	fCoverBackground(false),
 	fHighlighted(false),
@@ -158,6 +160,46 @@ Button::SetCycle(uint16 cycle)
 }
 
 
+bool
+Button::SetArt(const res_ref& bam, const uint16 framesInCycle[4])
+{
+	BAMResource* resource = gResManager->GetBAM(bam);
+	if (resource == NULL)
+		return false;
+
+	Bitmap* frames[4] = { NULL, NULL, NULL, NULL };
+	try {
+		for (int i = 0; i < 4; i++)
+			frames[i] = resource->FrameForCycle(0, framesInCycle[i]);
+	} catch (...) {
+		for (Bitmap* frame : frames) {
+			if (frame != NULL)
+				frame->Release();
+		}
+		gResManager->ReleaseResource(resource);
+		return false;
+	}
+	gResManager->ReleaseResource(resource);
+
+	// Same slot order as SetCycle(): disabled, selected, pressed, unpressed.
+	Bitmap** slots[4] = { &fUnpressedBitmap, &fPressedBitmap, &fSelectedBitmap,
+		&fDisabledBitmap };
+	for (int i = 0; i < 4; i++) {
+		if (*slots[i] != NULL)
+			(*slots[i])->Release();
+		*slots[i] = frames[i];
+	}
+	return true;
+}
+
+
+void
+Button::RestoreArt()
+{
+	SetCycle(static_cast<const IE::button*>(fControl)->cycle);
+}
+
+
 void
 Button::SetIconCount(int count)
 {
@@ -182,6 +224,14 @@ Button::SetIcon(Bitmap* icon, bool coverBackground)
 		// on every single Draw() call would be wasted work.
 		fIconRect = GFX::rect(0, 0, fIcon->Width(), fIcon->Height());
 		fIconRect.CenterIn(Frame());
+		const GFX::rect frame = Frame();
+		fIconCropped = fIcon->Width() > frame.w || fIcon->Height() > frame.h;
+		if (fIconCropped) {
+			const int w = std::min<int>(fIcon->Width(), frame.w);
+			const int h = std::min<int>(fIcon->Height(), frame.h);
+			fIconSource = GFX::rect((fIcon->Width() - w) / 2, (fIcon->Height() - h) / 2, w, h);
+			fIconRect = GFX::rect(frame.x + (frame.w - w) / 2, frame.y + (frame.h - h) / 2, w, h);
+		}
 	}
 }
 
@@ -261,7 +311,7 @@ Button::Draw()
 		// - only the screen conversion needs to happen every frame.
 		GFX::rect iconRect = fIconRect;
 		fWindow->ConvertToScreen(iconRect);
-		GraphicsEngine::Get()->BlitToScreen(fIcon, NULL, &iconRect);
+		GraphicsEngine::Get()->BlitToScreen(fIcon, fIconCropped ? &fIconSource : NULL, &iconRect);
 
 		if (fIconCount > 1) {
 			const Font* font = FontRoster::GetFont("TOOLFONT");

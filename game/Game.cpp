@@ -1473,6 +1473,211 @@ void
 Game::RefreshHUDPortraits()
 {
 	_UpdatePortraitColumn(GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS), 6);
+	RefreshActionBar();
+}
+
+
+// The action bar's buttons are GemRB's ACT_* codes (ie_action.py), which
+// are also the row numbers of GUIBTACT.2DA.
+enum ActionCode {
+	ACT_STEALTH = 0, ACT_THIEVING = 1, ACT_CAST = 2, ACT_QSPELL1 = 3,
+	ACT_QSPELL2 = 4, ACT_QSPELL3 = 5, ACT_TURN = 6, ACT_TALK = 7,
+	ACT_USE = 8, ACT_QSLOT1 = 9, ACT_QSLOT4 = 10, ACT_QSLOT2 = 11,
+	ACT_QSLOT3 = 12, ACT_INNATE = 13, ACT_DEFEND = 14, ACT_ATTACK = 15,
+	ACT_WEAPON1 = 16, ACT_WEAPON4 = 19, ACT_BARDSONG = 20, ACT_STOP = 21,
+	ACT_SEARCH = 22, ACT_QSLOT5 = 31, ACT_NONE = 100
+};
+static const uint32 kActionButtons = 12;
+
+// Art of each action: frames of the first cycle (unpressed, pressed,
+// selected, disabled) of GUIBTACT.BAM - GemRB's guibtact.2da (the games hardcode these numbers),
+// indexed by ActionCode. The quick spell/item/weapon slots draw from
+// GUIBTBUT.BAM instead, which is only used here for the empty slots.
+static const uint16 kActionArt[][4] = {
+	{ 30, 31, 32, 33 }, { 26, 27, 28, 29 }, { 12, 13, 52, 53 },	// stealth, thieving, cast
+	{ 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3 },			// quick spells
+	{ 8, 9, 10, 11 }, { 4, 5, 6, 7 }, { 18, 19, 56, 57 },		// turn, talk, use item
+	{ 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3 },	// quick items
+	{ 38, 39, 54, 55 }, { 0, 1, 2, 3 }, { 14, 15, 16, 17 },		// innate, defend, attack
+	{ 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, { 0, 1, 2, 3 },	// quick weapons
+	{ 22, 23, 24, 25 }, { 58, 59, 60, 61 }, { 34, 35, 36, 37 },	// bard song, stop, search
+};
+
+// Frames of the guibtbut slots (quick spells 3-5, quick items 9-12, quick
+// weapons 16-19): BG2's are a single empty-slot frame; BG1
+// numbers them per slot.
+static void
+_GuibtbutCycles(uint32 action, bool bg1Layout, uint16 cycles[4])
+{
+	static const uint16 kBG1[][4] = {
+		{ 8, 9, 32, 33 }, { 10, 11, 34, 35 }, { 12, 13, 36, 37 },	// quick spells
+		{ 14, 15, 38, 39 }, { 16, 17, 40, 41 }, { 18, 19, 42, 43 },
+		{ 20, 21, 44, 45 },						// quick items 1, 4, 2, 3
+		{ 0, 1, 24, 25 }, { 2, 3, 26, 27 }, { 4, 5, 28, 29 },
+		{ 6, 7, 30, 31 }						// quick weapons
+	};
+	int index = -1;
+	if (action >= ACT_QSPELL1 && action <= ACT_QSPELL3)
+		index = action - ACT_QSPELL1;
+	else if (action == ACT_QSLOT1)
+		index = 3;
+	else if (action == ACT_QSLOT4)
+		index = 4;
+	else if (action == ACT_QSLOT2)
+		index = 5;
+	else if (action == ACT_QSLOT3)
+		index = 6;
+	else if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4)
+		index = 7 + (action - ACT_WEAPON1);
+	for (int i = 0; i < 4; i++)
+		cycles[i] = (bg1Layout && index >= 0) ? kBG1[index][i] : i;
+}
+
+// The classes' action rows from GemRB's qslots.2da: the first three
+// buttons are always Talk and the first two weapons, then these nine.
+struct class_actions {
+	const char* name;
+	uint8 actions[9];
+};
+static const class_actions kClassActions[] = {
+	{ "MAGE", { 3, 4, 5, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER", { 18, 19, 14, 100, 8, 9, 11, 12, 13 } },
+	{ "CLERIC", { 6, 3, 4, 2, 8, 9, 11, 12, 13 } },
+	{ "THIEF", { 22, 1, 0, 100, 8, 9, 11, 12, 13 } },
+	{ "BARD", { 20, 1, 3, 2, 8, 9, 11, 12, 13 } },
+	{ "PALADIN", { 18, 14, 6, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_MAGE", { 3, 4, 5, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_CLERIC", { 6, 3, 4, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_THIEF", { 18, 22, 1, 0, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_MAGE_THIEF", { 22, 1, 0, 2, 8, 9, 11, 12, 13 } },
+	{ "DRUID", { 3, 4, 5, 2, 8, 9, 11, 12, 13 } },
+	{ "RANGER", { 18, 14, 0, 2, 8, 9, 11, 12, 13 } },
+	{ "MAGE_THIEF", { 22, 1, 0, 2, 8, 9, 11, 12, 13 } },
+	{ "CLERIC_MAGE", { 6, 3, 4, 2, 8, 9, 11, 12, 13 } },
+	{ "CLERIC_THIEF", { 22, 1, 0, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_DRUID", { 3, 4, 5, 2, 8, 9, 11, 12, 13 } },
+	{ "FIGHTER_MAGE_CLERIC", { 6, 3, 4, 2, 8, 9, 11, 12, 13 } },
+	{ "CLERIC_RANGER", { 6, 3, 4, 2, 8, 9, 11, 12, 13 } },
+	{ "SORCERER", { 3, 4, 5, 2, 8, 9, 11, 12, 13 } },
+	{ "MONK", { 18, 14, 22, 0, 8, 9, 11, 12, 13 } },
+};
+// A creature whose class has no row gets this one.
+static const uint8 kDefaultActions[9] = { 3, 4, 5, 2, 8, 9, 11, 12, 13 };
+
+
+static void
+_ActionRowFor(Actor* actor, uint8 row[kActionButtons])
+{
+	const uint8* actions = kDefaultActions;
+	const std::string className = IDTable::ClassAt(actor->CRE()->Class());
+	for (const class_actions& entry : kClassActions) {
+		if (className == entry.name) {
+			actions = entry.actions;
+			break;
+		}
+	}
+	row[0] = ACT_TALK;
+	row[1] = ACT_WEAPON1;
+	row[2] = ACT_WEAPON1 + 1;
+	for (int i = 0; i < 9; i++)
+		row[3 + i] = actions[i];
+}
+
+
+void
+Game::RefreshActionBar()
+{
+	Window* window = GUI::Get()->GetWindow(GUI::WINDOW_CMDS);
+	Actor* actor = _ShownActor();
+	if (window == NULL || actor == NULL || actor->CRE() == NULL)
+		return;
+
+	static int sBG1Layout = -1;
+	if (sBG1Layout < 0) {
+		// Only BG1's GUIBTBUT.BAM has the per-slot frames (up to 45).
+		BAMResource* bam = gResManager->GetBAM(res_ref("GUIBTBUT"));
+		sBG1Layout = 0;
+		if (bam != NULL) {
+			try {
+				Bitmap* frame = bam->FrameForCycle(0, 45);
+				if (frame != NULL) {
+					frame->Release();
+					sBG1Layout = 1;
+				}
+			} catch (...) {
+			}
+			gResManager->ReleaseResource(bam);
+		}
+	}
+
+	uint8 row[kActionButtons];
+	_ActionRowFor(actor, row);
+
+	for (uint32 i = 0; i < kActionButtons; i++) {
+		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
+		if (button == NULL)
+			continue;
+
+		const uint32 action = row[i];
+		button->SetIcon(NULL);
+		button->SetIconCount(0);
+		button->SetHighlighted(false);
+
+		const bool weapon = action >= ACT_WEAPON1 && action <= ACT_WEAPON4;
+		if (action >= sizeof(kActionArt) / sizeof(kActionArt[0])) {
+			button->RestoreArt();
+			button->SetEnabled(false);
+			continue;
+		}
+
+		if (weapon) {
+			// The stone slot the CHU authored, with the item's icon on it.
+			button->RestoreArt();
+			const uint32 slot = kSlotWeaponFirst + (action - ACT_WEAPON1);
+			IE::item item;
+			const bool filled = actor->CRE()->GetItemAtSlot(slot, item);
+			if (filled) {
+				button->SetIcon(_MakeItemIcon(item.name));
+				button->SetIconCount(item.quantity1);
+			}
+			button->SetHighlighted(filled && (int32)slot == actor->ActiveWeaponSlot());
+			button->SetEnabled(filled);
+			continue;
+		}
+
+		uint16 cycles[4];
+		const bool guibtbut = (action >= ACT_QSPELL1 && action <= ACT_QSPELL3)
+			|| (action >= ACT_QSLOT1 && action <= ACT_QSLOT3) || action == ACT_QSLOT4;
+		if (guibtbut) {
+			_GuibtbutCycles(action, sBG1Layout == 1, cycles);
+			// An empty quick slot is just its plain frame - the disabled
+			// one is a highlight, not a greyed-out slot.
+			cycles[3] = cycles[0];
+		} else
+			std::copy(kActionArt[action], kActionArt[action] + 4, cycles);
+		button->SetArt(res_ref(guibtbut ? "GUIBTBUT" : "GUIBTACT"), cycles);
+		// Only Stop does anything yet; the rest show their icons greyed out.
+		button->SetEnabled(action == ACT_STOP);
+	}
+}
+
+
+void
+Game::ActionBarControlInvoked(uint32 controlID)
+{
+	Actor* actor = _ShownActor();
+	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons)
+		return;
+
+	uint8 row[kActionButtons];
+	_ActionRowFor(actor, row);
+	const uint32 action = row[controlID];
+	if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4) {
+		actor->SelectWeapon(action - ACT_WEAPON1);
+		RefreshActionBar();
+	} else if (action == ACT_STOP) {
+		actor->ClearActionList();
+	}
 }
 
 

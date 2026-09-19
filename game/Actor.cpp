@@ -1286,6 +1286,8 @@ Actor::SelectWeapon(int32 index)
 		return false;
 	fCRE->SetSelectedWeaponCode(index < 0 ? (uint16)kSelectedWeaponFists : (uint16)index);
 	InvalidateAnimation(); // the weapon layer changes
+	if (InParty())
+		Game::Get()->RefreshActionBar();
 	return true;
 }
 
@@ -1415,6 +1417,8 @@ Actor::ConsumeFromSlot(uint32 slot)
 	}
 	_ClearItemSlot(slot);
 	InvalidateAnimation();
+	if (InParty())
+		Game::Get()->RefreshActionBar();
 }
 
 
@@ -1545,8 +1549,11 @@ Actor::TakeItemFromSlot(uint32 slot, IE::item& out)
 		return false;
 
 	_ClearItemSlot(slot);
-	if (slot < kSlotGeneralFirst)
+	if (slot < kSlotGeneralFirst) {
 		InvalidateAnimation(); // an equipment slot changed
+		if (InParty())
+			Game::Get()->RefreshActionBar();
+	}
 	return true;
 }
 
@@ -1667,8 +1674,11 @@ Actor::MoveItemToSlot(uint32 fromSlot, uint32 toSlot)
 
 	// An equipment slot (anything before the general grid) changed hands:
 	// the world sprite may need rebuilding (armor/weapon layers).
-	if (fromSlot < kSlotGeneralFirst || toSlot < kSlotGeneralFirst)
+	if (fromSlot < kSlotGeneralFirst || toSlot < kSlotGeneralFirst) {
 		InvalidateAnimation();
+		if (InParty())
+			Game::Get()->RefreshActionBar();
+	}
 	return true;
 }
 

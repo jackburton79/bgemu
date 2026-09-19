@@ -144,6 +144,13 @@ public:
 	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();
+	// Fills the HUD action bar (GUIW's WINDOW_CMDS, 12 buttons) for the
+	// shown party member - the class's row of actions, with the four
+	// weapon quickslots working. Call whenever the shown character, their
+	// weapons or the HUD itself change.
+	void RefreshActionBar();
+	// GUI::ControlInvoked() routes clicks on the action bar here.
+	void ActionBarControlInvoked(uint32 controlID);
 	void ToggleJournalWindow();
 	// GUI::ControlInvoked() routes clicks on GUIJRNL controls here -
 	// the command bar (window 0) and the portrait column (window 1),

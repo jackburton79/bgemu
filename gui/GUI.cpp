@@ -1025,6 +1025,10 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 			Game::Get()->ContainerControlInvoked(controlID);
 			return;
 		}
+		if (windowID == WINDOW_CMDS) {
+			Game::Get()->ActionBarControlInvoked(controlID);
+			return;
+		}
 		if (windowID == WINDOW_COMMANDS) {
 			for (const auto& button : kCommandBarButtons) {
 				if (button.controlID == controlID) {

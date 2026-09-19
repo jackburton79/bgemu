@@ -1,0 +1,15 @@
+# AREA: AR0602
+#
+# The HUD action bar: the party leader (AJANTI, a paladin) gets his class's
+# row of actions, and the weapon buttons - the second and third of the row -
+# select the matching weapon quickslot. With a bow moved into slot 10 and
+# selected, clicking the first weapon button (SW1H01, slot 9) puts the sword
+# back in hand and clicking the second one the bow again.
+Run-Action -,82,-,1,BOW01,-,0,0
+Run-Action -,11,-,0,BOW01,-,0,0
+Step-Ticks 3
+Assert-ActiveWeaponSlot AJANTI,10
+Mouse-Click 131,459
+Assert-ActiveWeaponSlot AJANTI,9
+Mouse-Click 173,459
+Assert-ActiveWeaponSlot AJANTI,10
