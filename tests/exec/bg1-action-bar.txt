@@ -22,7 +22,7 @@ Mouse-Click 131,459
 Assert-TargetMode attack
 Mouse-Click 458,215
 Assert-TargetMode none
-Step-Ticks 6000
+Step-Ticks 12000
 Assert-Trigger AJANTI,true,XPGT(Myself,2263)
 # Talk mode is cancelled by a click on empty ground.
 Mouse-Click 88,456

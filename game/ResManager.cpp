@@ -30,6 +30,7 @@
 #include "WMAPResource.h"
 
 #include <assert.h>
+#include <algorithm>
 #include <iostream>
 #include <limits.h>
 
@@ -198,7 +199,7 @@ Resource*
 ResourceManager::GetResource(const char* fullName)
 {
 	std::string leaf = fullName;
-	leaf = leaf.substr(0, leaf.find("."));
+	leaf.erase(std::min(leaf.find('.'), leaf.size()));
 	res_ref name = leaf.c_str();
 
 	auto logError = [&](const std::string& message) {

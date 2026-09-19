@@ -45,7 +45,7 @@ private:
 	Bitmap *fCurrentFrame;
 	Bitmap *fScratchBuffer;
 
-	GFX::Color fColors[256];
+	GFX::Color fColors[256] = {};
 	GFX::rect fActiveRect;
 	uint16 fVersion;
 

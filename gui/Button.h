@@ -107,6 +107,8 @@ private:
 	GFX::rect fIconSource;
 	bool fIconCropped;
 	int fIconCount;
+	// The rendered quantity number, built when the count changes.
+	Bitmap* fCountBitmap = NULL;
 	bool fCoverBackground;
 	bool fHighlighted;
 	bool fEnabled;

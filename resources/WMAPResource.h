@@ -107,7 +107,7 @@ private:
 	uint32 fCount;
 	uint32 fOffset;
 
-	worldmap_entry fWorldMapEntry;
+	worldmap_entry fWorldMapEntry = {};
 	BAMResource* fIcons;
 };
 
@@ -148,7 +148,7 @@ private:
 	friend class WMAPResource;
 
 	area_entry fEntry;
-	IE::point fPosition;
+	IE::point fPosition = { 0, 0 };
 	Bitmap* fIcon;
 };
 

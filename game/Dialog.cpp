@@ -17,6 +17,7 @@
 #include "Script.h"
 #include "TextArea.h"
 
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <sstream>
@@ -233,7 +234,7 @@ DialogHandler::_UpdateJournal(const transition_entry& transition)
 
 	std::string message = IDTable::GetDialog(kJournalChangedStrRef);
 	std::string note = IDTable::GetDialog(strref);
-	note = note.substr(0, note.find('\n'));
+	note.erase(std::min(note.find('\n'), note.size()));
 	if (!note.empty())
 		message += " - " + note;
 	if (TextArea* textArea = GUI::Get()->GetMessagesTextArea())

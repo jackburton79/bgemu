@@ -128,12 +128,12 @@ public:
 private:
 	virtual ~ITMResource();
 
-	itm_header fHeader;
-	uint32 fExtHeaderOffset;
-	uint16 fExtHeaderCount;
-	uint32 fFeatureBlockOffset;
-	uint16 fEquipFeatureBlockIndex;
-	uint16 fEquipFeatureBlockCount;
+	itm_header fHeader = {};
+	uint32 fExtHeaderOffset = 0;
+	uint16 fExtHeaderCount = 0;
+	uint32 fFeatureBlockOffset = 0;
+	uint16 fEquipFeatureBlockIndex = 0;
+	uint16 fEquipFeatureBlockCount = 0;
 };
 
 #endif /* ITMRESOURCE_H_ */

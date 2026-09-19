@@ -58,7 +58,7 @@ private:
 	PointList fPoints;
 	PointList::iterator fIterator;
 
-	PathFindStats fStats;
+	PathFindStats fStats = {};
 };
 
 
@@ -86,7 +86,7 @@ private:
 	int16 fStep;
 	test_function fTestFunction;
 	bool fCheckNeighbors;
-	mutable PathFindStats fStats;
+	mutable PathFindStats fStats = {};
 
 	static debug_function sDebugFunction;
 

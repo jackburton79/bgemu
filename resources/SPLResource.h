@@ -91,12 +91,12 @@ public:
 	static std::string GetSpellResourceName(uint16 id);
 
 private:
-	uint32 fExtendedHeadersOffset;
-	uint16 fExtendedHeadersCount;
+	uint32 fExtendedHeadersOffset = 0;
+	uint16 fExtendedHeadersCount = 0;
 
-	uint32 fFeatureBlockOffset;
-	uint16 fCastingFeatureBlockIndex;
-	uint16 fCastingFeatureBlockCount;
+	uint32 fFeatureBlockOffset = 0;
+	uint16 fCastingFeatureBlockIndex = 0;
+	uint16 fCastingFeatureBlockCount = 0;
 };
 
 

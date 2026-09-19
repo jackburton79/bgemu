@@ -1128,7 +1128,7 @@ GUI::_CenterWindow(Window* window, const std::string& chuName) const
 void
 GUI::_InitCursors()
 {
-	IE::point pt;
+	IE::point pt = { 0, 0 };
 	try {
 		for (int i = 0; i < 8; i++) {
 			fCursors[i] = new Animation("CURSARW", i, false, pt);

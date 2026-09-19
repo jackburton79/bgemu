@@ -241,49 +241,89 @@ _PostSpellCastTriggers(Actor* caster, Object* target, const std::string& spellRe
 }
 
 
-// FORCESPELL(O:TARGET,I:SPELL*SPELL) - more involved state: resource
-// lookups done once (on first tick), a tick countdown derived from the
-// spell's casting time, and a start timestamp kept only for the diagnostic
-// print at the end (mirrors the original ActionForceSpell::operator()()).
-static void
-RunActionForceSpell(Object* sender, action_params* params, action_state& state)
+// The four spell actions below share their resolution/casting steps.
+struct resolved_spell {
+	std::string name;		// SPELL.IDS name, e.g. WIZARD_MAGIC_MISSILE
+	std::string resource;	// SPL resref, e.g. SPWI112
+};
+
+// Maps a SPELL.IDS number to its name and SPL resref, logging under
+// `action` (and returning false) for an id that names no spell.
+static bool
+_ResolveSpell(const char* action, int32 id, resolved_spell& spell)
 {
-	Object* object = Script::GetSenderObject(sender, params);
+	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
+	spell.name = spellIDS->StringForID(id).c_str();
+	gResManager->ReleaseResource(spellIDS);
+	try {
+		spell.resource = SPLResource::GetSpellResourceName(id);
+	} catch (std::exception& e) {
+		std::cerr << action << ": invalid spell id " << id << ": " << e.what() << std::endl;
+		return false;
+	}
+	return true;
+}
+
+
+// Applies a spell's effects (the ability-0 feature blocks) to `target`,
+// cast by `source`, and posts the cast triggers.
+static void
+_ApplySpell(Actor* caster, Object* source, Object* target, const std::string& resource)
+{
+	SPLResource* spellResource = gResManager->GetSPL(resource.c_str());
+	if (spellResource != NULL) {
+		for (const spl_effect& effect : spellResource->Effects())
+			target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, source));
+		gResManager->ReleaseResource(spellResource);
+	}
+	_PostSpellCastTriggers(caster, target, resource);
+}
+
+
+// SPELL/FORCESPELL/FORCESPELLPOINT: a casting-time countdown (first tick:
+// resolve the spell and start the prepare animation; last tick: release it
+// on the action's target, or on the caster if it has none). With
+// `needsMemorized` the caster must have the spell memorized and spends it
+// (CREResource::ConsumeMemorizedSpell()); the forced variants cast
+// unconditionally. `object` is who casts, resolved by the caller (the
+// script sender or the sender object as is - see the wrappers).
+static void
+_RunSpellCast(const char* action, Object* object, Object* sender, action_params* params,
+	action_state& state, bool needsMemorized)
+{
 	Actor* actor = dynamic_cast<Actor*>(object);
 	if (actor == NULL) {
-		std::cerr << "ForceSpell: NO sender Actor" << std::endl;
+		std::cerr << action << ": NO sender Actor" << std::endl;
 		state.completed = true;
 		return;
 	}
 
+	resolved_spell spell;
 	if (!state.initiated) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		std::string spellResourceName;
-		try {
-			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-		} catch (std::exception& e) {
-			std::cerr << "ForceSpell: invalid spell id " << params->integer1
-					<< ": " << e.what() << std::endl;
-			gResManager->ReleaseResource(spellIDS);
+		if (!_ResolveSpell(action, params->integer1, spell)) {
 			state.completed = true;
 			return;
 		}
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "spell: " << spellName << std::endl;
+		std::cout << "spell: " << spell.name << std::endl;
 
-		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
+		if (needsMemorized && !actor->CRE()->ConsumeMemorizedSpell(spell.resource.c_str())) {
+			std::cerr << actor->Name() << ": " << action << ": \"" << spell.resource
+					<< "\" not currently memorized" << std::endl;
+			state.completed = true;
+			return;
+		}
+
+		SPLResource* spellResource = gResManager->GetSPL(spell.resource.c_str());
 		if (spellResource == NULL) {
-			std::cerr << "ForceSpell: spell resource \"" << spellResourceName
+			std::cerr << action << ": spell resource \"" << spell.resource
 					<< "\" (id " << params->integer1 << ") not found" << std::endl;
 			state.completed = true;
 			return;
 		}
-		uint16 castTime = spellResource->CastingTime();
 		// TODO: Not sure if it's correct. CastingTime is 1/10 of round.
 		// Round takes ROUND_DURATION_SEC seconds; AI updates AI_UPDATE_FREQ
 		// times per second.
-		state.counter = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
+		state.counter = spellResource->CastingTime() * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
 		std::cout << "casting time:" << state.counter << std::endl;
 		gResManager->ReleaseResource(spellResource);
 
@@ -293,10 +333,8 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 	}
 
 	if (state.counter-- == 0) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "Spell " << spellName << " finished" << std::endl;
+		_ResolveSpell(action, params->integer1, spell);
+		std::cout << "Spell " << spell.name << " finished" << std::endl;
 
 		actor->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
 		Object* target = Script::GetTargetObject(sender, params);
@@ -304,20 +342,24 @@ RunActionForceSpell(Object* sender, action_params* params, action_state& state)
 			target = sender;
 		if (target != NULL) {
 			std::cout << "target: " << target->Name() << std::endl;
-			std::cout << "spell name: " << spellName << std::endl;
-			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-			if (spellResource != NULL) {
-				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
-				}
-				gResManager->ReleaseResource(spellResource);
-			}
-			_PostSpellCastTriggers(actor, target, spellResourceName);
+			std::cout << "spell name: " << spell.name << std::endl;
+			_ApplySpell(actor, sender, target, spell.resource);
 		}
 		state.completed = true;
 		std::cout << "duration:" << std::dec << (Timer::Ticks() - state.startTick) << std::endl;
 	}
+}
+
+
+// FORCESPELL(O:TARGET,I:SPELL*SPELL) - more involved state: resource
+// lookups done once (on first tick), a tick countdown derived from the
+// spell's casting time, and a start timestamp kept only for the diagnostic
+// print at the end (mirrors the original ActionForceSpell::operator()()).
+static void
+RunActionForceSpell(Object* sender, action_params* params, action_state& state)
+{
+	_RunSpellCast("ForceSpell", Script::GetSenderObject(sender, params), sender, params,
+		state, false);
 }
 
 
@@ -337,41 +379,17 @@ RunActionApplySpell(Object* sender, action_params* params, action_state& state)
 		return;
 	}
 
-	IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-	std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-	std::string spellResourceName;
-	try {
-		spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-	} catch (std::exception& e) {
-		std::cerr << "ApplySpell: invalid spell id " << params->integer1
-				<< ": " << e.what() << std::endl;
-		gResManager->ReleaseResource(spellIDS);
-		state.completed = true;
+	state.completed = true;
+	resolved_spell spell;
+	if (!_ResolveSpell("ApplySpell", params->integer1, spell))
 		return;
-	}
-	gResManager->ReleaseResource(spellIDS);
-	std::cout << "spell: " << spellName << std::endl;
-
-	SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-	if (spellResource == NULL) {
-		std::cerr << "ApplySpell: spell resource \"" << spellResourceName
-				<< "\" (id " << params->integer1 << ") not found" << std::endl;
-		state.completed = true;
-		return;
-	}
+	std::cout << "spell: " << spell.name << std::endl;
 
 	Object* target = Script::GetTargetObject(sender, params);
 	if (target == NULL)
 		target = sender;
 	std::cout << "target: " << target->Name() << std::endl;
-
-	for (const spl_effect& effect : spellResource->Effects()) {
-		target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
-	}
-	gResManager->ReleaseResource(spellResource);
-	_PostSpellCastTriggers(actor, target, spellResourceName);
-
-	state.completed = true;
+	_ApplySpell(actor, sender, target, spell.resource);
 }
 
 
@@ -385,77 +403,7 @@ RunActionApplySpell(Object* sender, action_params* params, action_state& state)
 static void
 RunActionSpell(Object* sender, action_params* params, action_state& state)
 {
-	Actor* actor = dynamic_cast<Actor*>(sender);
-	if (actor == NULL) {
-		std::cerr << "Spell: NO sender Actor" << std::endl;
-		state.completed = true;
-		return;
-	}
-
-	if (!state.initiated) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		std::string spellResourceName;
-		try {
-			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-		} catch (std::exception& e) {
-			std::cerr << "Spell: invalid spell id " << params->integer1
-					<< ": " << e.what() << std::endl;
-			gResManager->ReleaseResource(spellIDS);
-			state.completed = true;
-			return;
-		}
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "spell: " << spellName << std::endl;
-
-		if (!actor->CRE()->ConsumeMemorizedSpell(spellResourceName.c_str())) {
-			std::cerr << actor->Name() << ": Spell: \"" << spellResourceName
-					<< "\" not currently memorized" << std::endl;
-			state.completed = true;
-			return;
-		}
-
-		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-		if (spellResource == NULL) {
-			std::cerr << "Spell: spell resource \"" << spellResourceName
-					<< "\" (id " << params->integer1 << ") not found" << std::endl;
-			state.completed = true;
-			return;
-		}
-		uint16 castTime = spellResource->CastingTime();
-		state.counter = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
-		std::cout << "casting time:" << state.counter << std::endl;
-		gResManager->ReleaseResource(spellResource);
-
-		actor->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
-		state.startTick = Timer::Ticks();
-		state.initiated = true;
-	}
-
-	if (state.counter-- == 0) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "Spell " << spellName << " finished" << std::endl;
-
-		actor->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
-		Object* target = Script::GetTargetObject(sender, params);
-		if (target == NULL)
-			target = sender;
-		if (target != NULL) {
-			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-			if (spellResource != NULL) {
-				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
-				}
-				gResManager->ReleaseResource(spellResource);
-			}
-			_PostSpellCastTriggers(actor, target, spellResourceName);
-		}
-		state.completed = true;
-		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
-	}
+	_RunSpellCast("Spell", sender, sender, params, state, true);
 }
 
 
@@ -956,72 +904,7 @@ RunActionDestroySelf(Object* sender, action_params* params, action_state& state)
 static void
 RunActionForceSpellPoint(Object* sender, action_params* params, action_state& state)
 {
-	Actor* actor = dynamic_cast<Actor*>(sender);
-	if (actor == NULL) {
-		std::cerr << "ForceSpellPoint: NO sender Actor" << std::endl;
-		state.completed = true;
-		return;
-	}
-
-	if (!state.initiated) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		std::string spellResourceName;
-		try {
-			spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-		} catch (std::exception& e) {
-			std::cerr << "ForceSpellPoint: invalid spell id " << params->integer1
-					<< ": " << e.what() << std::endl;
-			gResManager->ReleaseResource(spellIDS);
-			state.completed = true;
-			return;
-		}
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "spell: " << spellName << std::endl;
-
-		SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-		if (spellResource == NULL) {
-			std::cerr << "ForceSpellPoint: spell resource \"" << spellResourceName
-					<< "\" (id " << params->integer1 << ") not found" << std::endl;
-			state.completed = true;
-			return;
-		}
-		uint16 castTime = spellResource->CastingTime();
-		state.counter = castTime * AI_UPDATE_FREQ * ROUND_DURATION_SEC / 10;
-		std::cout << "casting time:" << state.counter << std::endl;
-		gResManager->ReleaseResource(spellResource);
-
-		actor->SetAnimationAction(ACT_CAST_SPELL_PREPARE);
-		state.startTick = Timer::Ticks();
-		state.initiated = true;
-	}
-
-	if (state.counter-- == 0) {
-		IDSResource* spellIDS = gResManager->GetIDS("SPELL");
-		std::string spellName = spellIDS->StringForID(params->integer1).c_str();
-		gResManager->ReleaseResource(spellIDS);
-		std::cout << "Spell " << spellName << " finished" << std::endl;
-
-		actor->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
-		Object* target = Script::GetTargetObject(sender, params);
-		if (target == NULL)
-			target = sender;
-		if (target != NULL) {
-			std::cout << "target: " << target->Name() << std::endl;
-			std::cout << "spell name: " << spellName << std::endl;
-			std::string spellResourceName = SPLResource::GetSpellResourceName(params->integer1);
-			SPLResource* spellResource = gResManager->GetSPL(spellResourceName.c_str());
-			if (spellResource != NULL) {
-				for (const spl_effect& effect : spellResource->Effects()) {
-					target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, sender));
-				}
-				gResManager->ReleaseResource(spellResource);
-			}
-			_PostSpellCastTriggers(actor, target, spellResourceName);
-		}
-		state.completed = true;
-		std::cout << "duration:" << (Timer::Ticks() - state.startTick) << std::endl;
-	}
+	_RunSpellCast("ForceSpellPoint", sender, sender, params, state, false);
 }
 
 

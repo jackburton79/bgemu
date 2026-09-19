@@ -84,6 +84,8 @@ Button::~Button()
 		fIcon->Release();
 	if (fText != NULL)
 		fText->Release();
+	if (fCountBitmap != NULL)
+		fCountBitmap->Release();
 }
 
 
@@ -203,7 +205,22 @@ Button::RestoreArt()
 void
 Button::SetIconCount(int count)
 {
+	if (count == fIconCount)
+		return;
 	fIconCount = count;
+	if (fCountBitmap != NULL) {
+		fCountBitmap->Release();
+		fCountBitmap = NULL;
+	}
+	if (count > 1) {
+		const Font* font = FontRoster::GetFont("TOOLFONT");
+		if (font != NULL) {
+			// TOOLFONT needs this gradient supplied explicitly - see
+			// its own comment (game/TextSupport.cpp) for why.
+			fCountBitmap = font->GetRenderedString(std::to_string(count), 0,
+				&ToolfontPalette());
+		}
+	}
 }
 
 
@@ -313,21 +330,11 @@ Button::Draw()
 		fWindow->ConvertToScreen(iconRect);
 		GraphicsEngine::Get()->BlitToScreen(fIcon, fIconCropped ? &fIconSource : NULL, &iconRect);
 
-		if (fIconCount > 1) {
-			const Font* font = FontRoster::GetFont("TOOLFONT");
-			if (font != NULL) {
-				// TOOLFONT needs this gradient supplied explicitly - see
-				// its own comment (game/TextSupport.cpp) for why.
-				Bitmap* text = font->GetRenderedString(std::to_string(fIconCount), 0,
-					&ToolfontPalette());
-				if (text != NULL) {
-					GFX::rect where(iconRect.x + iconRect.w - text->Width(),
-									iconRect.y + iconRect.h - text->Height(),
-									text->Width(), text->Height());
-					GraphicsEngine::Get()->BlitToScreen(text, NULL, &where);
-					text->Release();
-				}
-			}
+		if (fCountBitmap != NULL) {
+			GFX::rect where(iconRect.x + iconRect.w - fCountBitmap->Width(),
+							iconRect.y + iconRect.h - fCountBitmap->Height(),
+							fCountBitmap->Width(), fCountBitmap->Height());
+			GraphicsEngine::Get()->BlitToScreen(fCountBitmap, NULL, &where);
 		}
 	}
 	if (fText != NULL) {

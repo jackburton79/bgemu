@@ -72,10 +72,10 @@ public:
 private:
 	virtual ~STOResource();
 
-	uint32 fItemsForSaleOffset;
-	uint32 fItemsForSaleCount;
-	uint32 fItemsPurchasedOffset;
-	uint32 fItemsPurchasedCount;
+	uint32 fItemsForSaleOffset = 0;
+	uint32 fItemsForSaleCount = 0;
+	uint32 fItemsPurchasedOffset = 0;
+	uint32 fItemsPurchasedCount = 0;
 };
 
 #endif // STORESOURCE_H_

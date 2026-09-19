@@ -75,16 +75,16 @@ private:
 	void _GetStateAt(int index, dlg_state& state);
 	std::string _GetTriggerText(uint32 tableOffset, uint32 count, int index);
 
-	uint32 fNumStates;
-	uint32 fStateTableOffset;
-	uint32 fNumTransitions;
-	uint32 fTransitionsTableOffset;
-	uint32 fStateTriggersTableOffset;
-	uint32 fStateTriggersNum;
-	uint32 fTransitionTriggersTableOffset;
-	uint32 fTransitionTriggersNum;
-	uint32 fActionsTableOffset;
-	uint32 fActionsNum;
+	uint32 fNumStates = 0;
+	uint32 fStateTableOffset = 0;
+	uint32 fNumTransitions = 0;
+	uint32 fTransitionsTableOffset = 0;
+	uint32 fStateTriggersTableOffset = 0;
+	uint32 fStateTriggersNum = 0;
+	uint32 fTransitionTriggersTableOffset = 0;
+	uint32 fTransitionTriggersNum = 0;
+	uint32 fActionsTableOffset = 0;
+	uint32 fActionsNum = 0;
 };
 
 #endif /* DLGRESOURCE_H_ */

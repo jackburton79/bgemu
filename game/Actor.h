@@ -371,6 +371,12 @@ private:
 	void _SetOrientation(const IE::point& nextPoint);
 	void _DrawActorText(AreaRoom* room) const;
 	void _DrawActorName(AreaRoom* room) const;
+	// The rendered "Long name (RESREF)" label, rebuilt only when the name it
+	// was built from changes instead of on every frame.
+	mutable ::Bitmap* fNameBitmap = NULL;
+	mutable uint32 fNameBitmapStrRef = 0;
+	mutable std::string fNameBitmapName;
+	mutable std::string fNameBitmapLongName;
 	void _DrawActorPath(AreaRoom* room) const;
 	void _DrawCircle(AreaRoom* room) const;
 	void _HandleColors();

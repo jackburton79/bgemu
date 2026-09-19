@@ -250,6 +250,8 @@ Actor::~Actor()
 		fAnimationFactory = NULL;
 	}
 
+	if (fNameBitmap != NULL)
+		fNameBitmap->Release();
 	delete fCurrentAnimation;
 	delete fWeaponAnimation;
 	delete fPath;
@@ -506,17 +508,25 @@ Actor::_DrawActorText(AreaRoom* room) const
 void
 Actor::_DrawActorName(AreaRoom* room) const
 {
-	std::string text = LongName();
-	text.append(" (");
-	text.append(Name()).append(")");
-	if (!text.empty()) {
+	const uint32 strRef = fCRE != NULL ? fCRE->LongNameID() : 0;
+	if (fNameBitmap == NULL || strRef != fNameBitmapStrRef || fNameBitmapName != Name()
+			|| fNameBitmapLongName != fActor->name) {
+		if (fNameBitmap != NULL)
+			fNameBitmap->Release();
+		fNameBitmap = NULL;
+		std::string text = LongName();
+		text.append(" (");
+		text.append(Name()).append(")");
 		const Font* font = FontRoster::GetFont("TOOLFONT");
-		::Bitmap* bitmap = font->GetRenderedString(text, 0, GFX::kPaletteYellow);
-		IE::point textPoint = Position();
-		textPoint.y += 30;
-		room->DrawBitmap(bitmap, textPoint, false);
-		bitmap->Release();
+		fNameBitmap = font->GetRenderedString(text, 0, GFX::kPaletteYellow);
+		fNameBitmapStrRef = strRef;
+		fNameBitmapName = Name();
+		fNameBitmapLongName = fActor->name;
 	}
+
+	IE::point textPoint = Position();
+	textPoint.y += 30;
+	room->DrawBitmap(fNameBitmap, textPoint, false);
 }
 
 
@@ -1247,8 +1257,7 @@ Actor::ActiveWeaponSlot() const
 	int32 slot = kSlotWeaponFirst;
 	if (code < kNumWeaponSlots) {
 		slot += code;
-	} else if (kSlotWeaponFirst + code >= kSlotAmmoFirst
-			&& kSlotWeaponFirst + code <= kSlotAmmoLast) {
+	} else if (kSlotWeaponFirst + code <= kSlotAmmoLast) {
 		// A launcher is selected through its ammunition: find the bow
 		// that fires it.
 		IE::item ammo;
