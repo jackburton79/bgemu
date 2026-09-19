@@ -124,7 +124,22 @@ Font::TruncateString(std::string& string, uint16 maxWidth, uint16* truncatedWidt
 				*truncatedWidth = newWidth;
 			break;
 		}
-		breakPos = string.rfind(" ", breakPos - 1);
+		size_t space = breakPos > 0 ? string.rfind(" ", breakPos - 1) : std::string::npos;
+		if (space == std::string::npos) {
+			// No space left to break at: the first word alone is wider than
+			// the line (a long word, or a narrow area) - split it where it
+			// fits (at least one character, so the caller always makes
+			// progress) instead of searching for a space forever.
+			size_t length = std::max<size_t>(1, std::min(breakPos, string.length()) - 1);
+			while (length > 1 && StringWidth(string.substr(0, length), NULL) >= maxWidth)
+				length--;
+			line = string.substr(0, length);
+			if (truncatedWidth != NULL)
+				*truncatedWidth = StringWidth(line, NULL);
+			string = string.substr(length);
+			return line;
+		}
+		breakPos = space;
 	}
 	if (breakPos == string.length())
 		string = "";

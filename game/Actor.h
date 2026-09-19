@@ -132,6 +132,8 @@ public:
 	// Same, but keeps the whole item as it is (charges, identified flag...)
 	// - for moving an existing item between inventories/containers.
 	bool AddItem(const IE::item& item);
+	// Marks the item in `slot` as identified. False if the slot is empty.
+	bool IdentifyItemInSlot(uint32 slot);
 
 	// Removes one item (by resref, wherever it currently sits - equipped
 	// or not) from this actor's inventory. Returns false if not found.

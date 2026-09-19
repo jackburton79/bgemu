@@ -114,6 +114,15 @@ STOResource::Capacity() const
 }
 
 
+uint32
+STOResource::IdentifyPrice() const
+{
+	uint32 price;
+	fData->ReadAt(0x40, price);
+	return price;
+}
+
+
 std::vector<sto_item>
 STOResource::ItemsForSale() const
 {

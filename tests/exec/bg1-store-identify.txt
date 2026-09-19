@@ -1,0 +1,28 @@
+# The store window's Identify page on BG1's layout: the bottom bar's
+# second tab switches to it, clicking an unidentified item selects it,
+# "Identify" makes it identified and charges the store's identify price.
+# Needs: default BG1 starting party/area; store STO2606 (offers Identify).
+# Mouse coordinates: Identify tab (264,435), first item slot (124,139),
+# Identify button (192,351), Buy/Sell tab (193,435), Done (505,452).
+Run-Action -,82,-,1,RING05,-,0,0
+Run-Action -,118,-,1000,-,-,0,0
+Run-Action -,150,-,0,STO2606,-,0,0
+Step-Ticks 2
+Assert-StoreWindow true
+Assert-ItemIdentified -,RING05,false
+
+# Going to the page and selecting changes nothing yet.
+Mouse-Click 264,435
+Mouse-Click 124,139
+Assert-ItemIdentified -,RING05,false
+Assert-Trigger -,true,PartyGoldGT(999)
+
+# Identify: the ring is identified and the gold went down.
+Mouse-Click 192,351
+Assert-ItemIdentified -,RING05,true
+Assert-Trigger -,true,PartyGoldLT(1000)
+
+# Back to Buy/Sell and out.
+Mouse-Click 193,435
+Mouse-Click 505,452
+Assert-StoreWindow false

@@ -1,0 +1,24 @@
+# The store window's Identify page on BG2's layout: the bottom bar's
+# second tab switches to it, clicking an unidentified item selects it,
+# "Identify" makes it identified and charges the store's identify price.
+# Needs: default BG2 starting party/area; store SHOP01 (offers Identify).
+# Mouse coordinates: Identify tab (257,433), second item slot (109,198), after his sling,
+# Identify button (227,353), Done (500,459).
+Run-Action -,82,-,1,RING05,-,0,0
+Run-Action -,118,-,1000,-,-,0,0
+Run-Action -,150,-,0,SHOP01,-,0,0
+Step-Ticks 2
+Assert-StoreWindow true
+Assert-ItemIdentified -,RING05,false
+
+Mouse-Click 257,433
+Mouse-Click 109,198
+Assert-ItemIdentified -,RING05,false
+Assert-Trigger -,true,PartyGoldGT(999)
+
+Mouse-Click 227,353
+Assert-ItemIdentified -,RING05,true
+Assert-Trigger -,true,PartyGoldLT(1000)
+
+Mouse-Click 500,459
+Assert-StoreWindow false

@@ -57,6 +57,8 @@ public:
 	uint32 Flags() const { return fFlags; }
 	// Can the party shop here at all (buy and/or sell)?
 	bool IsShop() const;
+	// Gold per item the store identifies.
+	uint32 IdentifyPrice() const { return fIdentifyPrice; }
 
 	std::vector<store_entry>& Items() { return fItems; }
 
@@ -93,6 +95,7 @@ private:
 	uint32 fBuyMarkup;
 	uint32 fDepreciation;
 	uint32 fCapacity;
+	uint32 fIdentifyPrice;
 	std::vector<uint32> fPurchasedCategories;
 	std::vector<store_entry> fItems;
 };

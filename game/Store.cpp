@@ -43,7 +43,8 @@ Store::Store(const res_ref& name)
 	fSellMarkup(100),
 	fBuyMarkup(100),
 	fDepreciation(0),
-	fCapacity(0)
+	fCapacity(0),
+	fIdentifyPrice(0)
 {
 }
 
@@ -64,6 +65,7 @@ Store::Load(const res_ref& name)
 	store->fBuyMarkup = sto->BuyMarkup();
 	store->fDepreciation = sto->Depreciation();
 	store->fCapacity = sto->Capacity();
+	store->fIdentifyPrice = sto->IdentifyPrice();
 	store->fPurchasedCategories = sto->ItemCategoriesPurchased();
 	for (const sto_item& stoItem : sto->ItemsForSale()) {
 		store_entry entry;

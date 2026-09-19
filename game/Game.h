@@ -354,6 +354,18 @@ private:
 	void _CloseStoreAmountWindow(bool apply);
 	void _UpdateStoreAmountWindow();
 	void _UpdateStoreWindow();
+	// The store's page tabs: which page is showing (a store_page), the
+	// action each of the bar's four tab buttons stands for, and the
+	// Identify page's own selection/scroll.
+	int32 fStorePage;
+	std::vector<int32> fStoreTabs;
+	std::set<uint32> fStoreIdentifySlots;
+	int32 fStoreIdentifyRow;
+	void _ShowStorePage(int32 page);
+	void _SetupStoreTabs();
+	void _UpdateStoreShopPage();
+	void _UpdateStoreIdentifyPage();
+	void _StoreIdentifySelected();
 	void _StoreBuySelected();
 	void _StoreSellSelected();
 	void _ClearStores();

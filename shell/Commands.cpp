@@ -1644,6 +1644,50 @@ public:
 };
 
 
+// Assert-ItemIdentified <actor>,<item resref>,<true|false> - whether the
+// first copy of an item in an actor's inventory counts as identified (its
+// own flag, or an item that has no lore to identify - see
+// Store::SlotFlags()).
+class AssertItemIdentifiedCommand : public ShellCommand {
+public:
+	AssertItemIdentifiedCommand()
+		: ShellCommand("Assert-ItemIdentified")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest, itemName, expectedText;
+		if (!_SplitOnFirstComma(argv, actorName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), itemName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<item>,<true|false>" << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+			IE::item item;
+			if (!actor->CRE()->GetItemAtSlot(slot, item)
+					|| strcasecmp(item.name.CString(), itemName.c_str()) != 0)
+				continue;
+			bool identified = (Store::SlotFlags(item) & STORE_ITEM_IDENTIFIED) != 0;
+			if (identified == expected) {
+				std::cout << "ASSERT OK: " << itemName << " identified == "
+					<< (expected ? "true" : "false") << std::endl;
+			} else {
+				std::cout << "ASSERT FAIL: " << itemName << " identified - expected "
+					<< (expected ? "true" : "false") << ", got "
+					<< (identified ? "true" : "false") << std::endl;
+			}
+			return;
+		}
+		std::cout << "ASSERT FAIL: " << actorName << " has no " << itemName << std::endl;
+	}
+};
+
+
 // Assert-StoreWindow <true|false> - whether the store window is open.
 class AssertStoreWindowCommand : public ShellCommand {
 public:
@@ -1936,7 +1980,8 @@ public:
 			IE::item item;
 			if (actor->CRE()->GetItemAtSlot(slot, item)) {
 				std::cout << "  slot " << std::dec << slot << ": " << item.name.CString()
-						<< " x" << item.quantity1 << std::endl;
+						<< " x" << item.quantity1 << " flags 0x" << std::hex << item.flags
+						<< std::dec << std::endl;
 			}
 		}
 	}
@@ -2211,6 +2256,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertContainerHasItemCommand());
 	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new PrintStoreCommand());
+	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new AssertStoreWindowCommand());
 	console->AddCommand(new AssertStoreStockCommand());
 	console->AddCommand(new CheckLineOfSightCommand());

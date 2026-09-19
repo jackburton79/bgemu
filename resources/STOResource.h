@@ -62,6 +62,7 @@ public:
 	uint32 BuyMarkup() const;	// % of base price the store pays
 	uint32 Depreciation() const;	// % knocked off per copy the store already holds
 	uint32 Capacity() const;	// 0 = unlimited
+	uint32 IdentifyPrice() const;	// gold per item the store identifies
 
 	std::vector<sto_item> ItemsForSale() const;
 	// Item category codes (see IESDP sto_v1.htm's "Item category codes"

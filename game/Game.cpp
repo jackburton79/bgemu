@@ -31,6 +31,7 @@
 #include "Label.h"
 #include "Container.h"
 #include "Scrollbar.h"
+#include "STOResource.h"
 #include "Store.h"
 #include "MemoryStream.h"
 #include "PLTResource.h"
@@ -94,6 +95,8 @@ Game::Game()
 	fStoreAmountIndex(-1),
 	fStoreAmountValue(0),
 	fStoreAmountMax(0),
+	fStorePage(0),
+	fStoreIdentifyRow(0),
 	fShownCharacter(0)
 {
 	fTempState = new Game::TempState;
@@ -590,7 +593,7 @@ Game::SetStartingArea(const char* areaName)
 // command-bar id at all (none currently need it - every entry below has
 // one).
 static const uint32 kNoCommandBarButton = (uint32)-1;
-static const struct { const char* chu; uint16 windows[4]; uint8 windowCount; uint32 commandBarButtonID; }
+static const struct { const char* chu; uint16 windows[5]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
 	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
 	{ "GUIREC",  { 2, 0, 1 }, 3, 4 },
@@ -599,7 +602,7 @@ kScreenGroups[] = {
 	{ "GUIPR",   { 2, 0, 1 }, 3, 6 },
 	{ "GUISAVE", { 0 },       1, 7 },
 	{ "GUILOAD", { 0 },       1, 7 },
-	{ "GUISTORE", { 2, 3, 0, 1 }, 4, kNoCommandBarButton },
+	{ "GUISTORE", { 2, 3, 0, 1, 4 }, 5, kNoCommandBarButton },
 };
 
 
@@ -2312,6 +2315,26 @@ static const uint32 kStoreAmountValueLabelID = 268435525;
 static const uint32 kStoreCancelStrRef = 13727;
 // What GemRB caps a picker at for an infinite supply.
 static const uint32 kStoreAmountInfiniteMax = 999;
+// Window 4, the Identify page: the store name (title), gold, customer name,
+// cost-so-far labels, the Identify button (5), a scrollbar (7) for the 4 item
+// slots (8-11) with their name/price labels, and a text area (23) where what
+// identifying revealed is written.
+static const uint16 kStoreIdentifyWindow = 4;
+static const uint32 kStoreIdTitleLabelID = 268435456;
+static const uint32 kStoreIdGoldLabelID = 268435457;
+static const uint32 kStoreIdCostLabelID = 268435459;
+static const uint32 kStoreIdCustomerLabelID = 268435461;
+static const uint32 kStoreIdentifyButtonID = 5;
+static const uint32 kStoreIdScrollID = 7;
+static const uint32 kStoreIdSlotFirstID = 8;
+static const uint32 kStoreIdNameFirstID = 268435468;
+static const uint32 kStoreIdTextAreaID = 23;
+// Store pages, and the action numbers GemRB's GUISTORE.py gives them (the
+// tab buttons' art cycle is the action number).
+enum store_page { STORE_PAGE_SHOP = 0, STORE_PAGE_IDENTIFY = 1 };
+static const int32 kStoreTabNone = -1;
+static const uint32 kStoreTabButtonFirstID = 1;
+static const uint32 kStoreTabCount = 4;
 // TLK strings: the Buy/Sell button captions, "Done", the name-and-price
 // line template ("<ITEMNAME>" / "<ITEMCOST>" tokens) and the "can't
 // afford it" message.
@@ -2320,6 +2343,8 @@ static const uint32 kStoreSellStrRef = 13704;
 static const uint32 kStoreDoneStrRef = 11973;
 static const uint32 kStoreNameAndCostStrRef = 10162;
 static const uint32 kStoreTooCostlyStrRef = 11047;
+static const uint32 kStoreIdentifyStrRef = 14133;
+static const uint32 kStoreIdTooCostlyStrRef = 11050;
 
 
 // "<name>" then "<price>" on the line the game's own template asks for.
@@ -2419,37 +2444,147 @@ Game::OpenStoreWindow(Actor* customer, const res_ref& storeName)
 	}
 
 	GUI* gui = GUI::Get();
-	for (uint16 id : { kStoreShopWindow, kStoreBarWindow, (uint16)0, (uint16)1 })
+	for (uint16 id : { kStoreBarWindow, (uint16)0, (uint16)1 })
 		gui->ShowAuxWindow("GUISTORE", id);
 	_UpdatePortraitColumn(gui->GetAuxWindow("GUISTORE", 1), 6);
-
-	if (Window* window = gui->GetAuxWindow("GUISTORE", kStoreShopWindow)) {
-		if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
-				window->GetControlByID(kStoreShelfScrollID))) {
-			scrollbar->SetRowCallback([this](int32 row) {
-				fStoreLeftRow = row;
-				_UpdateStoreWindow();
-			});
-		}
-		if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
-				window->GetControlByID(kStoreOwnScrollID))) {
-			scrollbar->SetRowCallback([this](int32 row) {
-				fStoreRightRow = row;
-				_UpdateStoreWindow();
-			});
-		}
-		if (Button* buy = dynamic_cast<Button*>(window->GetControlByID(kStoreBuyButtonID)))
-			buy->SetText(IDTable::GetDialog(kStoreBuyStrRef));
-		if (Button* sell = dynamic_cast<Button*>(window->GetControlByID(kStoreSellButtonID)))
-			sell->SetText(IDTable::GetDialog(kStoreSellStrRef));
-	}
 	if (Window* bar = gui->GetAuxWindow("GUISTORE", kStoreBarWindow)) {
 		if (Button* done = dynamic_cast<Button*>(bar->GetControlByID(kStoreDoneButtonID)))
 			done->SetText(IDTable::GetDialog(kStoreDoneStrRef));
 	}
 
-	_UpdateStoreWindow();
+	_SetupStoreTabs();
+	fStorePage = -1;
+	_ShowStorePage(STORE_PAGE_SHOP);
 	return true;
+}
+
+
+// Which pages the tab buttons offer, in order - GemRB's table by store type
+// (GUIScript.cpp's storebuttons): the store's main function first, then the
+// optional ones its flags switch on. Numbers are the action ids the tab
+// art (GUISTBBC.BAM's cycles) is indexed by: 0 buy/sell, 1 identify, 2
+// steal, 3 cure, 4 donate, 5 drink, 6 rent.
+static std::vector<int32>
+_StoreTabsFor(const Store* store)
+{
+	static const int32 kOptional = 0x80;
+	// Store flag bit each action needs (0 = always).
+	static const uint32 kFlagFor[7] = { 0, 4, 8, 32, 16, 64, 128 };
+	static const int32 kTypeTabs[4][7] = {
+		{ 0, 1 | kOptional, 2 | kOptional, 4 | kOptional, 3 | kOptional, 5 | kOptional, 6 | kOptional },
+		{ 5, 0 | kOptional, 1 | kOptional, 2 | kOptional, 4 | kOptional, 3 | kOptional, 6 | kOptional },
+		{ 6, 0 | kOptional, 5 | kOptional, 2 | kOptional, 1 | kOptional, 4 | kOptional, 3 | kOptional },
+		{ 3, 4 | kOptional, 0 | kOptional, 1 | kOptional, 2 | kOptional, 5 | kOptional, 6 | kOptional },
+	};
+	std::vector<int32> tabs;
+	const uint32 type = std::min<uint32>(store->Type(), 3);
+	for (int32 entry : kTypeTabs[type]) {
+		int32 action = entry & ~kOptional;
+		if ((entry & kOptional)
+				&& (kFlagFor[action] == 0 || !(store->Flags() & kFlagFor[action])) && action != 0)
+			continue;
+		// A buy/sell tab needs the store to buy or sell something.
+		if (action == 0 && !(store->Flags() & (STO_CAN_BUY | STO_CAN_SELL)))
+			continue;
+		tabs.push_back(action);
+	}
+	tabs.resize(kStoreTabCount, kStoreTabNone);
+	return tabs;
+}
+
+
+// Lays the four tab buttons of the bottom bar out for this store: each gets
+// the art of its page, pages this window doesn't implement yet are shown
+// disabled, unused slots are blank.
+void
+Game::_SetupStoreTabs()
+{
+	fStoreTabs = _StoreTabsFor(fStore);
+	Window* bar = GUI::Get()->GetAuxWindow("GUISTORE", kStoreBarWindow);
+	if (bar == NULL)
+		return;
+	for (uint32 i = 0; i < kStoreTabCount; i++) {
+		Button* tab = dynamic_cast<Button*>(bar->GetControlByID(kStoreTabButtonFirstID + i));
+		if (tab == NULL)
+			continue;
+		const int32 action = fStoreTabs[i];
+		if (action == kStoreTabNone) {
+			tab->SetFrameless(true);
+			tab->SetEnabled(false);
+			continue;
+		}
+		tab->SetFrameless(false);
+		tab->SetCycle((uint16)action);
+		tab->SetEnabled(action == STORE_PAGE_SHOP || action == STORE_PAGE_IDENTIFY);
+	}
+}
+
+
+// Switches to a page: its window replaces the other's, selections start
+// blank and the tab of the page is marked.
+void
+Game::_ShowStorePage(int32 page)
+{
+	GUI* gui = GUI::Get();
+	if (page == fStorePage || fStore == NULL)
+		return;
+
+	_CloseStoreAmountWindow(false);
+	for (store_entry& entry : fStore->Items()) {
+		entry.selected = false;
+		entry.purchased = 0;
+	}
+	fStoreSellSlots.clear();
+	fStoreIdentifySlots.clear();
+	fStoreIdentifyRow = 0;
+	fStorePage = page;
+
+	gui->HideAuxWindow("GUISTORE", page == STORE_PAGE_SHOP ? kStoreIdentifyWindow : kStoreShopWindow);
+	gui->ShowAuxWindow("GUISTORE", page == STORE_PAGE_SHOP ? kStoreShopWindow : kStoreIdentifyWindow);
+
+	if (page == STORE_PAGE_SHOP) {
+		if (Window* window = gui->GetAuxWindow("GUISTORE", kStoreShopWindow)) {
+			if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+					window->GetControlByID(kStoreShelfScrollID))) {
+				scrollbar->SetRowCallback([this](int32 row) {
+					fStoreLeftRow = row;
+					_UpdateStoreWindow();
+				});
+			}
+			if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+					window->GetControlByID(kStoreOwnScrollID))) {
+				scrollbar->SetRowCallback([this](int32 row) {
+					fStoreRightRow = row;
+					_UpdateStoreWindow();
+				});
+			}
+			if (Button* buy = dynamic_cast<Button*>(window->GetControlByID(kStoreBuyButtonID)))
+				buy->SetText(IDTable::GetDialog(kStoreBuyStrRef));
+			if (Button* sell = dynamic_cast<Button*>(window->GetControlByID(kStoreSellButtonID)))
+				sell->SetText(IDTable::GetDialog(kStoreSellStrRef));
+		}
+	} else if (Window* window = gui->GetAuxWindow("GUISTORE", kStoreIdentifyWindow)) {
+		if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+				window->GetControlByID(kStoreIdScrollID))) {
+			scrollbar->SetRowCallback([this](int32 row) {
+				fStoreIdentifyRow = row;
+				_UpdateStoreWindow();
+			});
+		}
+		if (Button* identify = dynamic_cast<Button*>(
+				window->GetControlByID(kStoreIdentifyButtonID)))
+			identify->SetText(IDTable::GetDialog(kStoreIdentifyStrRef));
+		if (TextArea* text = dynamic_cast<TextArea*>(window->GetControlByID(kStoreIdTextAreaID)))
+			text->ClearText();
+	}
+
+	if (Window* bar = gui->GetAuxWindow("GUISTORE", kStoreBarWindow)) {
+		for (uint32 i = 0; i < kStoreTabCount; i++) {
+			if (Button* tab = dynamic_cast<Button*>(bar->GetControlByID(kStoreTabButtonFirstID + i)))
+				tab->SetToggled(fStoreTabs[i] == page);
+		}
+	}
+	_UpdateStoreWindow();
 }
 
 
@@ -2461,7 +2596,7 @@ Game::CloseStoreWindow()
 
 	_CloseStoreAmountWindow(false);
 	GUI* gui = GUI::Get();
-	for (uint16 id : { kStoreShopWindow, kStoreBarWindow, (uint16)0, (uint16)1 })
+	for (uint16 id : { kStoreShopWindow, kStoreIdentifyWindow, kStoreBarWindow, (uint16)0, (uint16)1 })
 		gui->HideAuxWindow("GUISTORE", id);
 	gui->SetHoverTooltip("");
 	if (fStoreUnpause) {
@@ -2478,6 +2613,8 @@ Game::CloseStoreWindow()
 	fStore = NULL;
 	fStoreCustomer = NULL;
 	fStoreSellSlots.clear();
+	fStoreIdentifySlots.clear();
+	fStorePage = -1;
 }
 
 
@@ -2485,7 +2622,7 @@ bool
 Game::IsStoreWindowOpen() const
 {
 	return GUI::Get() != NULL && fStore != NULL
-		&& GUI::Get()->IsAuxWindowShown("GUISTORE", kStoreShopWindow);
+		&& GUI::Get()->IsAuxWindowShown("GUISTORE", kStoreBarWindow);
 }
 
 
@@ -2514,17 +2651,34 @@ Game::_UpdateStoreWindow()
 {
 	if (!IsStoreWindowOpen())
 		return;
-	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreShopWindow);
 	Actor* customer = _ShownActor();
-	if (window == NULL || customer == NULL || customer->CRE() == NULL)
+	if (customer == NULL || customer->CRE() == NULL)
 		return;
 
 	// Someone else's turn at the counter: their selection starts blank.
 	if (customer != fStoreCustomer) {
 		fStoreCustomer = customer;
 		fStoreSellSlots.clear();
+		fStoreIdentifySlots.clear();
 		fStoreRightRow = 0;
+		fStoreIdentifyRow = 0;
 	}
+
+	if (fStorePage == STORE_PAGE_IDENTIFY)
+		_UpdateStoreIdentifyPage();
+	else
+		_UpdateStoreShopPage();
+}
+
+
+// The Buy/Sell page (window 2).
+void
+Game::_UpdateStoreShopPage()
+{
+	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreShopWindow);
+	Actor* customer = _ShownActor();
+	if (window == NULL || customer == NULL || customer->CRE() == NULL)
+		return;
 
 	std::vector<store_entry>& shelf = fStore->Items();
 	std::vector<loot_entry> own;
@@ -2638,6 +2792,107 @@ Game::_UpdateStoreWindow()
 }
 
 
+// The Identify page (window 4): the shown party member's items, the
+// unidentified ones selectable, at the store's price each.
+void
+Game::_UpdateStoreIdentifyPage()
+{
+	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreIdentifyWindow);
+	Actor* customer = _ShownActor();
+	if (window == NULL || customer == NULL || customer->CRE() == NULL)
+		return;
+
+	std::vector<loot_entry> own;
+	_CollectOwnEntries(customer, own);
+	const int32 maxRow = own.size() > kStoreSlots ? (int32)(own.size() - kStoreSlots) : 0;
+	fStoreIdentifyRow = std::min(fStoreIdentifyRow, maxRow);
+
+	const int32 price = (int32)fStore->IdentifyPrice();
+	int32 selected = 0;
+	for (const loot_entry& entry : own) {
+		if (fStoreIdentifySlots.count((uint32)entry.slot))
+			selected++;
+	}
+
+	auto setLabel = [window](uint32 id, const std::string& text) {
+		if (Label* label = dynamic_cast<Label*>(window->GetControlByID(id)))
+			label->SetText(text);
+	};
+	setLabel(kStoreIdTitleLabelID, _UpperCase(IDTable::GetDialog(fStore->NameRef())));
+	setLabel(kStoreIdCustomerLabelID, customer->LongName());
+	setLabel(kStoreIdGoldLabelID, std::to_string(Core::Get()->PartyGold()));
+	setLabel(kStoreIdCostLabelID, std::to_string(price * selected));
+	if (Button* identify = dynamic_cast<Button*>(window->GetControlByID(kStoreIdentifyButtonID)))
+		identify->SetEnabled(selected > 0);
+
+	for (uint32 i = 0; i < kStoreSlots; i++) {
+		Button* slot = dynamic_cast<Button*>(window->GetControlByID(kStoreIdSlotFirstID + i));
+		const size_t index = (size_t)fStoreIdentifyRow + i;
+		std::string line;
+		if (index < own.size()) {
+			const loot_entry& entry = own[index];
+			const bool identified = (Store::SlotFlags(entry.item) & STORE_ITEM_IDENTIFIED) != 0;
+			if (slot != NULL) {
+				slot->SetIcon(_MakeItemIcon(entry.item.name));
+				slot->SetIconCount(_StoreStackSize(entry.item));
+				slot->SetHighlighted(fStoreIdentifySlots.count((uint32)entry.slot) != 0);
+				slot->SetEnabled(!identified);
+			}
+			line = _StoreItemLine(_StoreItemName(entry.item, identified),
+				identified ? 0 : price);
+		} else if (slot != NULL) {
+			slot->SetIcon(NULL);
+			slot->SetIconCount(0);
+			slot->SetHighlighted(false);
+		}
+		setLabel(kStoreIdNameFirstID + i, line);
+	}
+
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(window->GetControlByID(kStoreIdScrollID)))
+		scrollbar->SetScrollInfo(fStoreIdentifyRow, maxRow);
+	_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
+}
+
+
+void
+Game::_StoreIdentifySelected()
+{
+	Actor* customer = _ShownActor();
+	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreIdentifyWindow);
+	if (customer == NULL || window == NULL || fStore == NULL)
+		return;
+
+	const std::set<uint32> slots = fStoreIdentifySlots;
+	const int32 total = (int32)fStore->IdentifyPrice() * (int32)slots.size();
+	if (total > Core::Get()->PartyGold()) {
+		GUI::Get()->DisplayStringCentered(IDTable::GetDialog(kStoreIdTooCostlyStrRef),
+			320, 200, 4000);
+		return;
+	}
+
+	TextArea* text = dynamic_cast<TextArea*>(window->GetControlByID(kStoreIdTextAreaID));
+	for (uint32 slot : slots) {
+		IE::item item;
+		if (!customer->CRE()->GetItemAtSlot(slot, item) || !customer->IdentifyItemInSlot(slot))
+			continue;
+		std::string name = _StoreItemName(item, true);
+		std::cout << customer->Name() << " has " << name << " identified" << std::endl;
+		// What identifying revealed: the item's real name and description.
+		if (text != NULL) {
+			std::string description;
+			if (ITMResource* itm = gResManager->GetITM(item.name)) {
+				description = IDTable::GetDialog(itm->DescriptionRef());
+				gResManager->ReleaseResource(itm);
+			}
+			text->AddText((name + "\n\n" + description + "\n\n\n").c_str());
+		}
+	}
+	Core::Get()->AddPartyGold(-total);
+	fStoreIdentifySlots.clear();
+	_UpdateStoreWindow();
+}
+
+
 void
 Game::_StoreBuySelected()
 {
@@ -2736,8 +2991,14 @@ Game::StoreControlInvoked(uint32 controlID, uint16 windowID)
 	}
 
 	if (windowID == kStoreBarWindow) {
-		if (controlID == kStoreDoneButtonID)
+		if (controlID == kStoreDoneButtonID) {
 			CloseStoreWindow();
+		} else if (controlID >= kStoreTabButtonFirstID
+				&& controlID < kStoreTabButtonFirstID + kStoreTabCount) {
+			const int32 action = fStoreTabs[controlID - kStoreTabButtonFirstID];
+			if (action == STORE_PAGE_SHOP || action == STORE_PAGE_IDENTIFY)
+				_ShowStorePage(action);
+		}
 		return;
 	}
 	if (windowID == 1) {
@@ -2745,11 +3006,29 @@ Game::StoreControlInvoked(uint32 controlID, uint16 windowID)
 			ShowCharacter((uint16)controlID);
 		return;
 	}
-	if (windowID != kStoreShopWindow)
-		return;
-
 	Actor* customer = _ShownActor();
 	if (customer == NULL)
+		return;
+
+	if (windowID == kStoreIdentifyWindow && fStorePage == STORE_PAGE_IDENTIFY) {
+		if (controlID == kStoreIdentifyButtonID) {
+			_StoreIdentifySelected();
+		} else if (controlID >= kStoreIdSlotFirstID
+				&& controlID < kStoreIdSlotFirstID + kStoreSlots) {
+			std::vector<loot_entry> own;
+			_CollectOwnEntries(customer, own);
+			size_t index = (size_t)fStoreIdentifyRow + (controlID - kStoreIdSlotFirstID);
+			if (index >= own.size()
+					|| !(fStore->Actions(own[index].item, true) & STORE_ACT_IDENTIFY))
+				return;
+			uint32 slot = (uint32)own[index].slot;
+			if (!fStoreIdentifySlots.erase(slot))
+				fStoreIdentifySlots.insert(slot);
+			_UpdateStoreWindow();
+		}
+		return;
+	}
+	if (windowID != kStoreShopWindow || fStorePage != STORE_PAGE_SHOP)
 		return;
 
 	if (controlID == kStoreBuyButtonID) {

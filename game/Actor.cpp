@@ -1235,7 +1235,10 @@ Actor::AddItem(const res_ref& itemName, uint16 quantity)
 	item.quantity1 = quantity;
 	item.quantity2 = 0;
 	item.quantity3 = 0;
-	item.flags = 1; // Identified
+	// No flags: an item that needs identifying starts out unidentified, as
+	// the real engine's CreateItem does (Store::SlotFlags() still treats one
+	// with no lore to identify as identified).
+	item.flags = 0;
 	return AddItem(item);
 }
 
@@ -1277,6 +1280,19 @@ Actor::AddItem(const IE::item& newItem)
 
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
 	fCRE->SetItemAtSlot((uint32)slot, itemsIndex);
+	return true;
+}
+
+
+bool
+Actor::IdentifyItemInSlot(uint32 slot)
+{
+	IE::item item;
+	int32 itemsIndex = fCRE->ItemsIndexAtSlot(slot);
+	if (itemsIndex < 0 || !fCRE->GetItemAtSlot(slot, item))
+		return false;
+	item.flags |= 1; // Identified
+	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
 	return true;
 }
 

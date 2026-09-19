@@ -34,7 +34,8 @@ Button::Button(IE::button* button)
 	fPressed(false),
 	fToggled(false),
 	fDragCapture(false),
-	fArmedByPress(false)
+	fArmedByPress(false),
+	fFrameless(false)
 {
 	BAMResource *resource = gResManager->GetBAM(button->image);
 	if (resource == NULL)
@@ -112,6 +113,48 @@ void
 Button::SetEnabled(bool enabled)
 {
 	fEnabled = enabled;
+}
+
+
+void
+Button::SetFrameless(bool frameless)
+{
+	fFrameless = frameless;
+}
+
+
+void
+Button::SetCycle(uint16 cycle)
+{
+	const IE::button* button = static_cast<const IE::button*>(fControl);
+	BAMResource* resource = gResManager->GetBAM(button->image);
+	if (resource == NULL)
+		return;
+
+	Bitmap* frames[4] = { NULL, NULL, NULL, NULL };
+	try {
+		frames[0] = resource->FrameForCycle(cycle, button->frame_disabled);
+		frames[1] = resource->FrameForCycle(cycle, button->frame_selected);
+		frames[2] = resource->FrameForCycle(cycle, button->frame_pressed);
+		frames[3] = resource->FrameForCycle(cycle, button->frame_unpressed);
+	} catch (...) {
+		// A cycle this BAM doesn't have: keep the current art.
+		for (Bitmap* frame : frames) {
+			if (frame != NULL)
+				frame->Release();
+		}
+		gResManager->ReleaseResource(resource);
+		return;
+	}
+	gResManager->ReleaseResource(resource);
+
+	Bitmap** slots[4] = { &fDisabledBitmap, &fSelectedBitmap, &fPressedBitmap,
+		&fUnpressedBitmap };
+	for (int i = 0; i < 4; i++) {
+		if (*slots[i] != NULL)
+			(*slots[i])->Release();
+		*slots[i] = frames[i];
+	}
 }
 
 
@@ -207,7 +250,7 @@ Button::Draw()
 		frame = fPressedBitmap;
 	else
 		frame = fUnpressedBitmap;
-	if (frame != NULL && !fCoverBackground) {
+	if (frame != NULL && !fCoverBackground && !fFrameless) {
 		GFX::rect destRect = Frame();
 		fWindow->ConvertToScreen(destRect);
 		GraphicsEngine::Get()->BlitToScreen(frame, NULL, &destRect);

@@ -71,6 +71,14 @@ public:
 	void SetEnabled(bool enabled);
 	bool Enabled() const { return fEnabled; }
 
+	// Switches the button's own art to another cycle of the same BAM (the
+	// CHU only names one) - for a button whose icon depends on what it's
+	// used for, e.g. the store window's page tabs.
+	void SetCycle(uint16 cycle);
+	// Draws none of the button's own frame art (an unused slot that should
+	// just be empty) - pair it with SetEnabled(false).
+	void SetFrameless(bool frameless);
+
 private:
 	void _DrawOutline(uint8 r, uint8 g, uint8 b);
 
@@ -96,4 +104,5 @@ private:
 	bool fToggled;
 	bool fDragCapture;
 	bool fArmedByPress;
+	bool fFrameless;
 };
