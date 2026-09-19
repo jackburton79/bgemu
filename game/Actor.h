@@ -147,6 +147,8 @@ public:
 	// Queues the SPELL action for a spell this creature has memorized
 	// (resref like "SPWI304") at `target`, replacing what it was doing.
 	void CastSpell(const res_ref& spell, Actor* target);
+	// Queues USEITEMSLOT for the item in `slot` at `target`.
+	void UseItem(uint32 slot, Actor* target);
 
 	// Spends one unit of `slot`'s quantity (removing the item when it runs
 	// out). Used for arrows/bolts/bullets and thrown weapons.

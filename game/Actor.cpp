@@ -1430,6 +1430,21 @@ Actor::CastSpell(const res_ref& spell, Actor* target)
 
 
 void
+Actor::UseItem(uint32 slot, Actor* target)
+{
+	if (target == NULL)
+		return;
+	ClearActionList();
+	action_params* params = new action_params(Name(), target->Name());
+	params->Second()->globalId = target->GlobalID();
+	params->id = 34; // USEITEMSLOT
+	params->integer1 = (int32)slot;
+	AddAction(params);
+	params->Release();
+}
+
+
+void
 Actor::ConsumeFromSlot(uint32 slot)
 {
 	IE::item item;
@@ -1512,6 +1527,8 @@ Actor::AddItem(const IE::item& newItem)
 
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
 	fCRE->SetItemAtSlot((uint32)slot, itemsIndex);
+	if (InParty())
+		Game::Get()->RefreshActionBar(); // Use may have something to offer now
 	return true;
 }
 
@@ -1548,6 +1565,8 @@ Actor::_ClearItemSlot(uint32 slot)
 	empty.flags = 0;
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, empty);
 	fCRE->SetItemAtSlot(slot, -1);
+	if (InParty())
+		Game::Get()->RefreshActionBar();
 }
 
 

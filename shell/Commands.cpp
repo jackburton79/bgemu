@@ -1749,7 +1749,7 @@ public:
 };
 
 
-// Assert-TargetMode <none|talk|attack|cast> - the action bar's pending click mode.
+// Assert-TargetMode <none|talk|attack|cast|use> - the action bar's pending click mode.
 class AssertTargetModeCommand : public ShellCommand {
 public:
 	AssertTargetModeCommand()
@@ -1761,7 +1761,8 @@ public:
 		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
 		const char* actual = mode == Game::TARGET_TALK ? "talk"
 			: mode == Game::TARGET_ATTACK ? "attack"
-			: mode == Game::TARGET_CAST ? "cast" : "none";
+			: mode == Game::TARGET_CAST ? "cast"
+			: mode == Game::TARGET_USE_ITEM ? "use" : "none";
 		if (strcasecmp(expected.c_str(), actual) == 0)
 			std::cout << "ASSERT OK: target mode == " << actual << std::endl;
 		else

@@ -1882,23 +1882,43 @@ RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
 		return;
 	}
 
+	const uint32 slot = (uint32)params->integer1;
 	IE::item item;
-	if (actor->CRE()->GetItemAtSlot(params->integer1, item)) {
+	if (actor->CRE()->GetItemAtSlot(slot, item)) {
 		ITMResource* itm = gResManager->GetITM(item.name);
+		bool spendsItself = false;
+		bool vanishes = false;
 		if (itm != NULL) {
 			for (const spl_effect& effect : itm->OnHitEffects(0)) {
 				target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, actor));
 			}
+			itm_ability ability;
+			if (itm->GetAbility(0, ability)) {
+				// A stack (potions) or a charged item (wands) is used up
+				// one at a time; an item that has neither is unlimited.
+				spendsItself = itm->StackAmount() > 1 || ability.charges > 0;
+				vanishes = itm->StackAmount() > 1 || ability.depletion == 1
+					|| ability.depletion == 2;
+			}
 			gResManager->ReleaseResource(itm);
 		}
 
-		if (item.quantity1 > 1) {
-			item.quantity1--;
-			actor->CRE()->SetItemAtItemsIndex(
-				(uint16)actor->CRE()->ItemsIndexAtSlot(params->integer1), item);
-		} else {
-			actor->RemoveItem(item.name);
+		if (spendsItself) {
+			if (item.quantity1 > 1) {
+				item.quantity1--;
+				actor->CRE()->SetItemAtItemsIndex(
+					(uint16)actor->CRE()->ItemsIndexAtSlot(slot), item);
+			} else if (vanishes) {
+				IE::item gone;
+				actor->TakeItemFromSlot(slot, gone);
+			} else {
+				item.quantity1 = 0; // an empty wand stays
+				actor->CRE()->SetItemAtItemsIndex(
+					(uint16)actor->CRE()->ItemsIndexAtSlot(slot), item);
+			}
 		}
+		if (actor->InParty())
+			Game::Get()->RefreshActionBar();
 	}
 
 	state.completed = true;

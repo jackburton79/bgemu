@@ -87,8 +87,9 @@ Game::Game()
 	fLooter(NULL),
 	fLootLeftRow(0),
 	fTargetMode(TARGET_NONE),
-	fActionBarSpells(false),
-	fActionBarSpellPage(0),
+	fActionBarPage(PAGE_ROW),
+	fActionBarPageIndex(0),
+	fPendingItemSlot(-1),
 	fLootRightRow(0),
 	fStore(NULL),
 	fStoreCustomer(NULL),
@@ -1587,17 +1588,18 @@ _ActionRowFor(Actor* actor, uint8 row[kActionButtons])
 }
 
 
-// A spell the actor can cast now: memorized wizard/priest spells, one entry
-// per spell with the number of copies still available.
-struct castable_spell {
-	res_ref spell;
+// One entry of an action bar page: a memorized spell (one entry per spell,
+// counting its copies) or a usable item and the inventory slot it sits in.
+struct bar_entry {
+	res_ref name;
+	int32 slot;
 	int count;
 };
 
-static std::vector<castable_spell>
+static std::vector<bar_entry>
 _CastableSpells(Actor* actor)
 {
-	std::vector<castable_spell> spells;
+	std::vector<bar_entry> spells;
 	for (const cre_memorized_spell& memorized : actor->CRE()->MemorizedSpells()) {
 		if ((memorized.flags & 1) == 0)
 			continue;
@@ -1605,27 +1607,54 @@ _CastableSpells(Actor* actor)
 		if (name.compare(0, 4, "SPWI") != 0 && name.compare(0, 4, "SPPR") != 0)
 			continue;
 		bool found = false;
-		for (castable_spell& known : spells) {
-			if (known.spell == memorized.spell) {
+		for (bar_entry& known : spells) {
+			if (known.name == memorized.spell) {
 				known.count++;
 				found = true;
 			}
 		}
 		if (!found)
-			spells.push_back({ memorized.spell, 1 });
+			spells.push_back({ memorized.spell, -1, 1 });
 	}
 	return spells;
 }
 
-// The spell page: the first button closes it (it wears the Cast icon), then
-// nine spells per page, with previous/next arrows in the last two buttons.
-static const uint32 kSpellsPerPage = 9;
+// Items with a magical ability that still has something left to give:
+// potions, scrolls, wands and the like, in the quick item, general and worn
+// slots (weapons and ammunition are used by attacking).
+static std::vector<bar_entry>
+_UsableItems(Actor* actor)
+{
+	std::vector<bar_entry> items;
+	for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+		if ((slot >= kSlotWeaponFirst && slot <= kSlotAmmoLast) || slot >= kSlotGeneralLast + 1)
+			continue;
+		IE::item item;
+		if (!actor->CRE()->GetItemAtSlot(slot, item) || item.name.name[0] == '\0'
+				|| item.quantity1 == 0)
+			continue;
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm == NULL)
+			continue;
+		itm_ability ability;
+		const bool usable = itm->GetAbility(0, ability) && ability.attackType == 3;
+		gResManager->ReleaseResource(itm);
+		if (usable)
+			items.push_back({ item.name, (int32)slot, item.quantity1 });
+	}
+	return items;
+}
+
+// The spell/item page: the first button closes it (it wears the Cast or Use
+// icon), then nine entries per page, with previous/next arrows in the last
+// two buttons.
+static const uint32 kEntriesPerPage = 9;
 static const uint16 kArrowLeftArt[4] = { 44, 45, 44, 45 };
 static const uint16 kArrowRightArt[4] = { 42, 43, 42, 43 };
 
 static void
-_ShowSpellPage(Window* window, const std::vector<castable_spell>& spells,
-	uint32 page, bool bg1Layout)
+_ShowEntryPage(Window* window, const std::vector<bar_entry>& entries,
+	bool spells, uint32 page, bool bg1Layout)
 {
 	for (uint32 i = 0; i < kActionButtons; i++) {
 		Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
@@ -1638,31 +1667,33 @@ _ShowSpellPage(Window* window, const std::vector<castable_spell>& spells,
 
 		uint16 cycles[4];
 		if (i == 0) {
-			std::copy(kActionArt[ACT_CAST], kActionArt[ACT_CAST] + 4, cycles);
+			const uint32 header = spells ? ACT_CAST : ACT_USE;
+			std::copy(kActionArt[header], kActionArt[header] + 4, cycles);
 			button->SetArt(res_ref("GUIBTACT"), cycles);
 			button->SetEnabled(true);
 			button->SetHighlighted(true);
 			continue;
 		}
 		const bool prev = i == kActionButtons - 2 && page > 0;
-		const bool next = i == kActionButtons - 1 && (page + 1) * kSpellsPerPage < spells.size();
+		const bool next = i == kActionButtons - 1 && (page + 1) * kEntriesPerPage < entries.size();
 		if (prev || next) {
 			button->SetArt(res_ref("GUIBTACT"), prev ? kArrowLeftArt : kArrowRightArt);
 			button->SetEnabled(true);
 			continue;
 		}
 
-		const size_t index = page * kSpellsPerPage + (i - 1);
-		if (i > kSpellsPerPage || index >= spells.size()) {
+		const size_t index = page * kEntriesPerPage + (i - 1);
+		if (i > kEntriesPerPage || index >= entries.size()) {
 			button->RestoreArt();
 			button->SetEnabled(false);
 			continue;
 		}
-		_GuibtbutCycles(ACT_QSPELL1, bg1Layout, cycles);
+		_GuibtbutCycles(spells ? ACT_QSPELL1 : ACT_QSLOT1, bg1Layout, cycles);
 		cycles[3] = cycles[0];
 		button->SetArt(res_ref("GUIBTBUT"), cycles);
-		button->SetIcon(_MakeSpellIcon(spells[index].spell), false);
-		button->SetIconCount(spells[index].count);
+		button->SetIcon(spells ? _MakeSpellIcon(entries[index].name)
+			: _MakeItemIcon(entries[index].name), false);
+		button->SetIconCount(entries[index].count);
 		button->SetEnabled(true);
 	}
 }
@@ -1697,13 +1728,15 @@ Game::RefreshActionBar()
 	uint8 row[kActionButtons];
 	_ActionRowFor(actor, row);
 
-	if (fActionBarSpells) {
-		const std::vector<castable_spell> spells = _CastableSpells(actor);
-		if (spells.empty())
-			fActionBarSpells = false; // nothing left to cast
+	if (fActionBarPage != PAGE_ROW) {
+		const bool spells = fActionBarPage == PAGE_SPELLS;
+		const std::vector<bar_entry> entries = spells ? _CastableSpells(actor)
+			: _UsableItems(actor);
+		if (entries.empty())
+			fActionBarPage = PAGE_ROW; // nothing left to pick from
 		else
-			_ShowSpellPage(window, spells, fActionBarSpellPage, sBG1Layout == 1);
-		if (fActionBarSpells)
+			_ShowEntryPage(window, entries, spells, fActionBarPageIndex, sBG1Layout == 1);
+		if (fActionBarPage != PAGE_ROW)
 			return;
 	}
 
@@ -1757,7 +1790,8 @@ Game::RefreshActionBar()
 		// Talk, Stop and Cast (when something is memorized) do something
 		// so far; the rest show their icons greyed out.
 		button->SetEnabled(action == ACT_STOP || action == ACT_TALK
-			|| (action == ACT_CAST && !_CastableSpells(actor).empty()));
+			|| (action == ACT_CAST && !_CastableSpells(actor).empty())
+			|| (action == ACT_USE && !_UsableItems(actor).empty()));
 		button->SetHighlighted(action == ACT_TALK && fTargetMode == TARGET_TALK);
 	}
 }
@@ -1777,9 +1811,14 @@ void
 Game::CastSpellAt(Actor* target)
 {
 	Actor* caster = _ShownActor();
-	if (caster != NULL && target != NULL && fPendingSpell.CString()[0] != '\0')
-		caster->CastSpell(fPendingSpell, target);
+	if (caster != NULL && target != NULL) {
+		if (fTargetMode == TARGET_USE_ITEM || fPendingItemSlot >= 0)
+			caster->UseItem((uint32)fPendingItemSlot, target);
+		else if (fPendingSpell.CString()[0] != '\0')
+			caster->CastSpell(fPendingSpell, target);
+	}
 	fPendingSpell = res_ref();
+	fPendingItemSlot = -1;
 	SetTargetMode(TARGET_NONE);
 }
 
@@ -1791,30 +1830,49 @@ Game::ActionBarControlInvoked(uint32 controlID)
 	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons)
 		return;
 
-	if (fActionBarSpells) {
-		const std::vector<castable_spell> spells = _CastableSpells(actor);
+	if (fActionBarPage != PAGE_ROW) {
+		const bool spells = fActionBarPage == PAGE_SPELLS;
+		const std::vector<bar_entry> entries = spells ? _CastableSpells(actor)
+			: _UsableItems(actor);
 		const uint32 prevButton = kActionButtons - 2, nextButton = kActionButtons - 1;
 		if (controlID == 0) {
-			fActionBarSpells = false;
-		} else if (controlID == prevButton && fActionBarSpellPage > 0) {
-			fActionBarSpellPage--;
+			fActionBarPage = PAGE_ROW;
+		} else if (controlID == prevButton && fActionBarPageIndex > 0) {
+			fActionBarPageIndex--;
 		} else if (controlID == nextButton
-				&& (fActionBarSpellPage + 1) * kSpellsPerPage < spells.size()) {
-			fActionBarSpellPage++;
-		} else if (controlID <= kSpellsPerPage
-				&& fActionBarSpellPage * kSpellsPerPage + controlID - 1 < spells.size()) {
-			const res_ref spell = spells[fActionBarSpellPage * kSpellsPerPage + controlID - 1].spell;
-			fActionBarSpells = false;
-			fPendingSpell = spell;
-			SPLResource* resource = gResManager->GetSPL(spell.CString());
-			const uint8 targetType = resource != NULL ? resource->TargetType() : 0;
-			if (resource != NULL)
-				gResManager->ReleaseResource(resource);
-			// A spell that only affects its caster needs no target.
-			if (targetType == 0 || targetType == 5 || targetType == 7)
+				&& (fActionBarPageIndex + 1) * kEntriesPerPage < entries.size()) {
+			fActionBarPageIndex++;
+		} else if (controlID <= kEntriesPerPage
+				&& fActionBarPageIndex * kEntriesPerPage + controlID - 1 < entries.size()) {
+			const bar_entry entry = entries[fActionBarPageIndex * kEntriesPerPage + controlID - 1];
+			fActionBarPage = PAGE_ROW;
+			uint8 targetType = 0;
+			if (spells) {
+				fPendingSpell = entry.name;
+				fPendingItemSlot = -1;
+				SPLResource* resource = gResManager->GetSPL(entry.name.CString());
+				if (resource != NULL) {
+					targetType = resource->TargetType();
+					gResManager->ReleaseResource(resource);
+				}
+			} else {
+				fPendingSpell = res_ref();
+				fPendingItemSlot = entry.slot;
+				ITMResource* resource = gResManager->GetITM(entry.name);
+				itm_ability ability;
+				if (resource != NULL) {
+					if (resource->GetAbility(0, ability))
+						targetType = ability.targetType;
+					gResManager->ReleaseResource(resource);
+				}
+			}
+			// Something that only affects its user needs no target.
+			if (targetType == 0 || targetType == 5 || targetType == 7) {
+				fTargetMode = spells ? TARGET_CAST : TARGET_USE_ITEM;
 				CastSpellAt(actor);
-			else
-				SetTargetMode(TARGET_CAST);
+			} else {
+				SetTargetMode(spells ? TARGET_CAST : TARGET_USE_ITEM);
+			}
 		}
 		RefreshActionBar();
 		return;
@@ -1823,11 +1881,12 @@ Game::ActionBarControlInvoked(uint32 controlID)
 	uint8 row[kActionButtons];
 	_ActionRowFor(actor, row);
 	const uint32 action = row[controlID];
-	if (action == ACT_CAST) {
-		if (!_CastableSpells(actor).empty()) {
+	if (action == ACT_CAST || action == ACT_USE) {
+		const bool spells = action == ACT_CAST;
+		if (!(spells ? _CastableSpells(actor) : _UsableItems(actor)).empty()) {
 			fTargetMode = TARGET_NONE;
-			fActionBarSpells = true;
-			fActionBarSpellPage = 0;
+			fActionBarPage = spells ? PAGE_SPELLS : PAGE_ITEMS;
+			fActionBarPageIndex = 0;
 			RefreshActionBar();
 		}
 	} else if (action >= ACT_WEAPON1 && action <= ACT_WEAPON4) {
@@ -4330,7 +4389,7 @@ Game::SelectPartyMember(uint16 index)
 		return;
 
 	fShownCharacter = index;
-	fActionBarSpells = false;
+	fActionBarPage = PAGE_ROW;
 
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (room != nullptr)

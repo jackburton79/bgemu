@@ -49,6 +49,12 @@ struct itm_header {
 // One 56-byte "Extended Header" (ability) entry - see IESDP itm_v1.
 struct itm_ability {
 	uint8 attackType;	// 0=None, 1=Melee, 2=Projectile, 3=Magic, 4=Launcher
+	// What the ability is aimed at: 1 a living creature, 2 an inventory
+	// item, 3 a dead creature, 4 a point, 5 or 7 the user itself.
+	uint8 targetType;
+	uint16 charges;
+	// 0 the item stays when spent, 1/2 it is expended, 3 it recharges daily.
+	uint16 depletion;
 	uint16 range;
 	uint8 speed;		// speed factor
 	int16 thac0Bonus;	// signed: cursed items can be negative; 32767 = always hits

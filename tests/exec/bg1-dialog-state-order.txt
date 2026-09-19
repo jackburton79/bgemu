@@ -12,8 +12,8 @@ Step-Ticks 3
 # The first talk is the "please fetch my sword" introduction (NumTimesTalkedTo
 # 0); only from the second one on does he ask for the sword.
 Click-Object -,HULL
-Step-Ticks 40
+Step-Ticks 12
 Assert-Trigger -,true,Global("HelpHull","GLOBAL",0)
 Click-Object -,HULL
-Step-Ticks 40
+Step-Ticks 12
 Assert-Trigger -,true,Global("HelpHull","GLOBAL",1)

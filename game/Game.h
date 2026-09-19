@@ -153,11 +153,12 @@ public:
 	// What the next click in the area does, chosen from the action bar:
 	// talk to / attack the creature clicked instead of the usual
 	// friend-or-foe guess. One-shot: any click in the area ends it.
-	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK, TARGET_CAST };
+	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK, TARGET_CAST,
+		TARGET_USE_ITEM };
 	TargetMode CurrentTargetMode() const { return fTargetMode; }
 	void SetTargetMode(TargetMode mode);
-	// Ends TARGET_CAST: the shown character casts the spell picked from the
-	// action bar at `target`.
+	// Ends TARGET_CAST/TARGET_USE_ITEM: the shown character casts the spell
+	// (or uses the item) picked from the action bar at `target`.
 	void CastSpellAt(Actor* target);
 	// GUI::ControlInvoked() routes clicks on the action bar here.
 	void ActionBarControlInvoked(uint32 controlID);
@@ -370,10 +371,14 @@ private:
 	Actor* fLooter;
 	int32 fLootLeftRow;
 	TargetMode fTargetMode;
-	// The action bar shows the shown character's memorized spells instead
-	// of the class row, `fActionBarSpellPage` pages in.
-	bool fActionBarSpells;
-	uint32 fActionBarSpellPage;
+	// What the action bar shows: the class row, or a page listing the
+	// shown character's memorized spells / usable items (paged by
+	// fActionBarPageIndex).
+	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_ITEMS };
+	ActionPage fActionBarPage;
+	uint32 fActionBarPageIndex;
+	// The spell or item slot picked on the bar, waiting for its target.
+	int32 fPendingItemSlot;
 	res_ref fPendingSpell;
 	int32 fLootRightRow;
 	// HUD windows hidden for as long as the loot window is up, so

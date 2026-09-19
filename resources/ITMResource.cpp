@@ -100,6 +100,7 @@ ITMResource::GetAbility(uint16 index, itm_ability& ability) const
 	const uint32 offset = fExtHeaderOffset + index * kAbilitySize;
 
 	fData->ReadAt(offset + 0x00, ability.attackType);
+	fData->ReadAt(offset + 0x0c, ability.targetType);
 	fData->ReadAt(offset + 0x0e, ability.range);
 	fData->ReadAt(offset + 0x12, ability.speed);
 	fData->ReadAt(offset + 0x14, ability.thac0Bonus);
@@ -109,6 +110,8 @@ ITMResource::GetAbility(uint16 index, itm_ability& ability) const
 	fData->ReadAt(offset + 0x1c, ability.damageType);
 	fData->ReadAt(offset + 0x1e, ability.featureBlockCount);
 	fData->ReadAt(offset + 0x20, ability.featureBlockIndex);
+	fData->ReadAt(offset + 0x22, ability.charges);
+	fData->ReadAt(offset + 0x24, ability.depletion);
 	fData->ReadAt(offset + 0x34, ability.crossbowQualifier);
 
 	uint8 projectileType;
