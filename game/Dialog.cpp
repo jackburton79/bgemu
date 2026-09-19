@@ -31,6 +31,7 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	fInitiator(initiator),
 	fTarget(target),
 	fCurrentState(0),
+	fInitialState(true),
 	fResource(NULL)
 {
 	fResource = gResManager->GetDLG(resourceResRef);
@@ -287,38 +288,53 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 }
 
 
+bool
+DialogHandler::_StateTriggerPasses(const dlg_state& state)
+{
+	if (state.trigger == -1)
+		return true;
+
+	std::string trigger = fResource->GetStateTrigger(state.trigger);
+	auto triggers = Parser::TriggersFromString(trigger);
+	const bool valid = fInitiator->EvaluateDialogTriggers(triggers);
+	// trigger_params isn't refcounted like action_params - just a
+	// plain heap object EvaluateDialogTriggers() only reads, so
+	// this loop (the only owner) must delete it directly.
+	for (trigger_params* t : triggers)
+		delete t;
+	return valid;
+}
+
+
 void
 DialogHandler::_AdvanceState()
 {
-	for (;;) {
-		dlg_state state;
-
-		try {
-			state = fResource->GetStateAt(fCurrentState);
-		} catch (...) {
-			fStatus = DialogState::Finished;
-			return;
+	if (fInitialState) {
+		// The opening state is the first one, in trigger-index order, whose
+		// trigger holds - see DLGResource::InitialStates().
+		fInitialState = false;
+		for (int32 index : fResource->InitialStates()) {
+			dlg_state state = fResource->GetStateAt(index);
+			if (_StateTriggerPasses(state)) {
+				fCurrentState = index;
+				_ShowCurrentState(state);
+				return;
+			}
 		}
-
-		bool valid = true;
-		if (state.trigger != -1) {
-			std::string trigger = fResource->GetStateTrigger(state.trigger);
-			auto triggers = Parser::TriggersFromString(trigger);
-			valid = fInitiator->EvaluateDialogTriggers(triggers);
-			// trigger_params isn't refcounted like action_params - just a
-			// plain heap object EvaluateDialogTriggers() only reads, so
-			// this loop (the only owner) must delete it directly.
-			for (trigger_params* t : triggers)
-				delete t;
-		}
-
-		if (valid) {
-			_ShowCurrentState(state);
-			return;
-		}
-
-		fCurrentState++;
+		fStatus = DialogState::Finished;
+		return;
 	}
+
+	// A transition leads straight to its target state; its trigger is not
+	// consulted (as in GemRB's DialogHandler).
+	dlg_state state;
+	try {
+		state = fResource->GetStateAt(fCurrentState);
+	} catch (...) {
+		fStatus = DialogState::Finished;
+		return;
+	}
+	_ShowCurrentState(state);
 }
 
 

@@ -10,6 +10,8 @@
 
 #include "Resource.h"
 
+#include <vector>
+
 
 struct dlg_state {
 	int32 text_ref;
@@ -56,6 +58,10 @@ public:
 
 	dlg_state GetStateAt(int32 index);
 	std::string GetStateTrigger(int triggerIndex);
+	// The states a conversation may open with, in the order they are tried:
+	// by their state-trigger index (not by position in the state table).
+	// States with no trigger can only be reached through a transition.
+	std::vector<int32> InitialStates();
 	std::string GetTransitionTrigger(int triggerIndex);
 	transition_entry GetTransition(int32 index);
 

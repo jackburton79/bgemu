@@ -43,12 +43,17 @@ private:
 	::Actor* fInitiator;
 	::Actor* fTarget;
 	int32 fCurrentState;
+	// Until the first state is shown: which one opens the conversation is
+	// decided by the states' triggers; afterwards transitions name their
+	// target state outright.
+	bool fInitialState;
 	std::vector<transition_entry> fTransitions;
 	std::vector<size_t> fVisibleTransitions;
 
 	DLGResource* fResource;
 
 	void _AdvanceState();
+	bool _StateTriggerPasses(const dlg_state& state);
 	void _ShowCurrentState(const dlg_state& state);
 	bool _TransitionTriggerPasses(const transition_entry& transition);
 	void _BuildTransitions(const dlg_state& state);

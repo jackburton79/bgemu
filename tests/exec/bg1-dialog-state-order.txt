@@ -1,0 +1,19 @@
+# Which state opens a conversation is decided by the states' trigger
+# INDEX, not their position in the state table (GemRB's Dialog::Order).
+# Hull's DLG lists "Global(HelpHull,0)" (go and get my sword) as state 2,
+# ahead of "ReactionLT(...) & HasItem(SW1H12)" (state 3), but its trigger
+# index is later - so a party carrying the sword must get the "you brought
+# it" state, whose actions set HelpHull to 1, instead of being asked again
+# to fetch it. Needs: default BG1 start (Candlekeep, Hull at 3652,2430).
+Assert-Trigger -,true,Global("HelpHull","GLOBAL",0)
+Run-Action -,82,-,1,SW1H12,-,0,0
+Queue-Action -,JumpToPoint(3610,2425)
+Step-Ticks 3
+# The first talk is the "please fetch my sword" introduction (NumTimesTalkedTo
+# 0); only from the second one on does he ask for the sword.
+Click-Object -,HULL
+Step-Ticks 40
+Assert-Trigger -,true,Global("HelpHull","GLOBAL",0)
+Click-Object -,HULL
+Step-Ticks 40
+Assert-Trigger -,true,Global("HelpHull","GLOBAL",1)

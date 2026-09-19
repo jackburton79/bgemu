@@ -49,6 +49,27 @@ DLGResource::GetStateAt(int32 index)
 }
 
 
+std::vector<int32>
+DLGResource::InitialStates()
+{
+	// Same table GemRB builds (Dialog::Order): state trigger index -> state.
+	std::vector<int32> order(fNumStates, -1);
+	for (uint32 i = 0; i < fNumStates; i++) {
+		dlg_state state;
+		_GetStateAt(i, state);
+		if (state.trigger >= 0 && (uint32)state.trigger < fNumStates)
+			order[state.trigger] = (int32)i;
+	}
+
+	std::vector<int32> states;
+	for (int32 state : order) {
+		if (state >= 0)
+			states.push_back(state);
+	}
+	return states;
+}
+
+
 transition_entry
 DLGResource::GetTransition(int32 index)
 {
