@@ -4,6 +4,7 @@
 #include "Bitmap.h"
 #include "IETypes.h"
 #include "Object.h"
+#include "ITMResource.h"
 
 #include <string>
 #include <vector>
@@ -22,6 +23,19 @@ struct WeaponAnimationType {
 	bool isTwoHanded = false;
 	bool isRanged = false;
 	bool isCrossbow = false;
+};
+
+// What one attack with the weapon in hand looks like: the ability that
+// rolls to hit/damage, whether it is fired from a distance and, if so,
+// which inventory slot pays for each shot. See Actor::AttackProfile().
+struct attack_profile {
+	itm_ability ability;
+	bool ranged = false;
+	// Feet a ranged attack reaches (0 for melee).
+	uint16 rangeFeet = 0;
+	// CRE slot whose quantity drops by one per shot (the ammunition, or
+	// the thrown weapon itself); -1 when nothing is spent.
+	int32 spentSlot = -1;
 };
 
 class Animation;
@@ -110,10 +124,24 @@ public:
 	// initialized Actor).
 	std::string PaperdollName() const;
 
-	// Resolves the item in the "weapon 1" quickslot (slot 9 - same slot
-	// ArmorAnimation()/WeaponAnimation() above already look up for their
-	// own purposes). Returns NULL if the slot is empty (caller should
-	// fall back to unarmed/fists). Like any other resource fetched via
+	// CRE item slot of the weapon in hand - one of the four weapon
+	// quickslots, chosen by the CRE's "selected weapon" word (a launcher
+	// is selected through its ammunition, as the real games store it) -
+	// or -1 when fighting bare-handed (fists selected or slot empty).
+	int32 ActiveWeaponSlot() const;
+	// Selects weapon quickslot `index` (0-3), or -1 for fists.
+	bool SelectWeapon(int32 index);
+	// The attack this actor makes right now: from the active weapon, or a
+	// small fists profile. A launcher without ammunition falls back to
+	// fists, as an empty quiver does in the real games.
+	attack_profile AttackProfile() const;
+	// Spends one unit of `slot`'s quantity (removing the item when it runs
+	// out). Used for arrows/bolts/bullets and thrown weapons.
+	void ConsumeFromSlot(uint32 slot);
+
+	// Resolves the item in the active weapon slot (see ActiveWeaponSlot()).
+	// Returns NULL when fighting bare-handed (caller should fall back to
+	// fists). Like any other resource fetched via
 	// ResourceManager, the caller must gResManager->ReleaseResource() it.
 	ITMResource* EquippedWeapon() const;
 

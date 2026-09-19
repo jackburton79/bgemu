@@ -9,7 +9,10 @@
 #define CRE_SIGNATURE "CRE "
 #define CRE_VERSION_1 "V1.0"
 
-const uint32 kNumItemSlots = 40;
+// Slots that hold items (helmet ... magic weapon). The on-disk table is 40
+// words: the last two are the selected weapon and its ability (see
+// SelectedWeaponCode()), not item slots.
+const uint32 kNumItemSlots = 38;
 
 // Item slot indices (index into GetItemAtSlot()/the CRE items table).
 // Moved here from Actor.cpp so non-Actor code (e.g. the inventory GUI)
@@ -24,6 +27,8 @@ const uint32 kSlotAmulet = 6;
 const uint32 kSlotBelt = 7;
 const uint32 kSlotBoots = 8;
 const uint32 kSlotWeaponFirst = 9;
+const uint32 kNumWeaponSlots = 4;
+const uint32 kSelectedWeaponFists = 1000;
 const uint32 kSlotAmmoFirst = 13;
 const uint32 kSlotAmmoLast = 16;
 const uint32 kSlotCloak = 17;
@@ -299,6 +304,11 @@ public:
 	bool GetItemAtSlot(uint32 i, IE::item& item) const;
 	// -1 if the slot is empty, else the raw index into the Items table.
 	int32 ItemsIndexAtSlot(uint32 slot) const;
+	// The "selected weapon" word stored right after the item slots:
+	// slot code relative to the first weapon slot (0-3 a quick weapon, 4+
+	// a quiver slot for a launcher's ammunition), 1000 for fists.
+	uint16 SelectedWeaponCode() const;
+	void SetSelectedWeaponCode(uint16 code);
 	// Writes an index into the Items table (or -1 to clear) at the given
 	// slot - see SLOTS.IDS for what each slot number means (e.g. 35 is
 	// the currently-wielded weapon, 15-34 are general inventory).

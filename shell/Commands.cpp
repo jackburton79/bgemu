@@ -1726,6 +1726,98 @@ public:
 };
 
 
+// Select-Weapon <actor>,<index> - puts weapon quickslot 0-3 in hand
+// (-1 for fists), as the action bar's weapon buttons will.
+class SelectWeaponCommand : public ShellCommand {
+public:
+	SelectWeaponCommand()
+		: ShellCommand("Select-Weapon")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, indexText;
+		if (!_SplitOnFirstComma(argv, actorName, indexText)) {
+			std::cout << "expected <actor>,<index>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL)
+			return;
+		if (!actor->SelectWeapon(atoi(indexText.c_str())))
+			std::cout << "no such weapon slot " << indexText << std::endl;
+	}
+};
+
+
+// Assert-ActiveWeaponSlot <actor>,<CRE slot|-1> - which quickslot is in hand.
+class AssertActiveWeaponSlotCommand : public ShellCommand {
+public:
+	AssertActiveWeaponSlotCommand()
+		: ShellCommand("Assert-ActiveWeaponSlot")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, slotText;
+		if (!_SplitOnFirstComma(argv, actorName, slotText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<slot>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const int32 expected = atoi(slotText.c_str());
+		const int32 slot = actor->ActiveWeaponSlot();
+		if (slot == expected)
+			std::cout << "ASSERT OK: active weapon slot == " << expected << std::endl;
+		else
+			std::cout << "ASSERT FAIL: active weapon slot - expected " << expected
+				<< ", got " << slot << std::endl;
+	}
+};
+
+
+// Assert-ItemCount <actor>,<item resref>,<n> - total quantity of an item
+// across all of an actor's slots (0 = not carried). "<n" asserts a count
+// strictly below n (for quantities that depend on random rolls).
+class AssertItemCountCommand : public ShellCommand {
+public:
+	AssertItemCountCommand()
+		: ShellCommand("Assert-ItemCount")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest, itemName, countText;
+		if (!_SplitOnFirstComma(argv, actorName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), itemName, countText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<item>,<n>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		int32 total = 0;
+		for (uint32 slot = 0; slot < kNumItemSlots; slot++) {
+			IE::item item;
+			if (actor->CRE()->GetItemAtSlot(slot, item)
+					&& strcasecmp(item.name.CString(), itemName.c_str()) == 0)
+				total += item.quantity1 > 0 ? item.quantity1 : 1;
+		}
+		const bool below = !countText.empty() && countText[0] == '<';
+		const int32 expected = atoi(countText.c_str() + (below ? 1 : 0));
+		if (below ? total < expected : total == expected)
+			std::cout << std::dec << "ASSERT OK: " << itemName << " count " << (below ? "< " : "== ")
+				<< expected << std::endl;
+		else
+			std::cout << std::dec << "ASSERT FAIL: " << itemName << " count - expected "
+				<< (below ? "< " : "") << expected << ", got " << total << std::endl;
+	}
+};
+
+
 // Assert-StoreWindow <true|false> - whether the store window is open.
 class AssertStoreWindowCommand : public ShellCommand {
 public:
@@ -2296,6 +2388,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new PrintStoreCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
+	console->AddCommand(new SelectWeaponCommand());
+	console->AddCommand(new AssertActiveWeaponSlotCommand());
+	console->AddCommand(new AssertItemCountCommand());
 	console->AddCommand(new AssertStoreWindowCommand());
 	console->AddCommand(new AssertStoreStockCommand());
 	console->AddCommand(new CheckLineOfSightCommand());

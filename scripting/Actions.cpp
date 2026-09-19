@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
@@ -1521,6 +1522,36 @@ RunActionPlayMovie(Object* sender, action_params* params, action_state& state)
 	state.completed = true;
 }
 
+// Whether `to` is within `feet` (+1, as the real engine adds) of `from`,
+// measured on the ellipse Feet2Pixels() describes: a foot is 16 pixels
+// horizontally but only 12 vertically.
+static bool
+WithinFeet(const IE::point& from, const IE::point& to, uint16 feet)
+{
+	const float dx = (to.x - from.x) / 16.0f;
+	const float dy = (to.y - from.y) / 12.0f;
+	const float reach = feet + 1;
+	return dx * dx + dy * dy <= reach * reach;
+}
+
+
+// A spot just inside `feet` of `target` on the line from `from`, for a
+// ranged attacker to walk to (the target's own spot may be unreachable).
+static IE::point
+PointWithinFeet(const IE::point& from, const IE::point& target, uint16 feet)
+{
+	const float dx = (from.x - target.x) / 16.0f;
+	const float dy = (from.y - target.y) / 12.0f;
+	const float length = std::sqrt(dx * dx + dy * dy);
+	if (length <= 0.0f)
+		return target;
+	const float scale = feet * 0.9f / length;
+	IE::point point;
+	point.x = target.x + (int16)(dx * scale * 16.0f);
+	point.y = target.y + (int16)(dy * scale * 12.0f);
+	return point;
+}
+
 
 // ATTACK(O:Target*) - per IESDP, continually attacks the target - it
 // doesn't complete on its own until the target is dead.
@@ -1559,13 +1590,24 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 	// above: only re-run SetDestination() (a real A* search) when the
 	// target has actually moved far enough for the old path to be
 	// stale, not unconditionally on every tick regardless of distance.
+	const attack_profile profile = actorSender->AttackProfile();
 	IE::point point = target->NearestPoint(actorSender->Position());
+	// A melee attacker closes in on the target; a ranged one only walks
+	// until the target is within the weapon's reach.
+	const bool inPosition = profile.ranged
+		? WithinFeet(actorSender->Position(), point, profile.rangeFeet)
+		: PointSufficientlyClose(actorSender->Position(), point);
 	if (!state.flag || !PointSufficientlyClose(state.point, point)) {
-		if (!PointSufficientlyClose(actorSender->Position(), point))
-			actorSender->SetDestination(point);
+		if (!inPosition) {
+			actorSender->SetDestination(profile.ranged
+				? PointWithinFeet(actorSender->Position(), point, profile.rangeFeet)
+				: point);
+		}
 		state.point = point;
 		state.flag = true;
 	}
+	if (profile.ranged && inPosition && actorSender->IsWalking())
+		actorSender->SetDestination(actorSender->Position()); // stop here
 
 	// Arrived once close enough to the approach point, not on exact
 	// pixel equality with Destination(): SetDestination() sets
@@ -1577,7 +1619,7 @@ RunActionAttack(Object* sender, action_params* params, action_state& state)
 	// exact-equality check got stuck in the walking branch forever,
 	// never reaching (and so never resuming) the attack-cooldown countdown
 	// below after the very first exchange.
-	if (!PointSufficientlyClose(actorSender->Position(), point)) {
+	if (!inPosition) {
 		actorSender->SetAnimationAction(ACT_WALKING);
 		actorSender->MoveToNextPointInPath(actorSender->IsFlying());
 	} else {

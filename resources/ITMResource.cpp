@@ -111,6 +111,23 @@ ITMResource::GetAbility(uint16 index, itm_ability& ability) const
 	fData->ReadAt(offset + 0x20, ability.featureBlockIndex);
 	fData->ReadAt(offset + 0x34, ability.crossbowQualifier);
 
+	uint8 projectileType;
+	uint16 arrowQualifier, miscQualifier;
+	fData->ReadAt(offset + 0x10, projectileType);
+	fData->ReadAt(offset + 0x32, arrowQualifier);
+	fData->ReadAt(offset + 0x36, miscQualifier);
+	ability.projectileQualifier = (arrowQualifier != 0 ? kProjectileArrow : 0)
+		| (ability.crossbowQualifier != 0 ? kProjectileBolt : 0)
+		| (miscQualifier != 0 ? kProjectileBullet : 0);
+	// Nordom's crossbow (PST) leaves every qualifier blank.
+	if (ability.projectileQualifier == 0 && ability.attackType == 4)
+		ability.projectileQualifier = kProjectileBolt;
+	// Practice arrows in BG1 only set the projectile type byte: 1 arrow,
+	// 2 bolt, 3 bullet.
+	if (ability.projectileQualifier == 0 && ability.attackType == 2
+			&& projectileType >= 1 && projectileType <= 3)
+		ability.projectileQualifier = (uint8)((1 << projectileType) >> 1);
+
 	return true;
 }
 

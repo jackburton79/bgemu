@@ -1,0 +1,32 @@
+# AREA: AR0602
+#
+# Ranged combat: the active weapon is now one of the four weapon quickslots
+# (the CRE's "selected weapon" word), and a bow is fired from where the
+# attacker stands, spending arrows from the quiver, instead of walking into
+# melee range. AJANTI stands at (496,127); the gibberling is 364 pixels away
+# - far beyond melee reach but well inside a bow's range - and is killed for
+# its 35 XP without AJANTI moving.
+# Also covers the phantom items the last two words of the CRE slot table
+# used to show up as (they are the selected weapon, not item slots).
+Run-Action -,82,-,1,BOW01,-,0,0
+Run-Action -,82,-,30,AROW01,-,0,0
+Run-Action -,11,-,0,BOW01,-,0,0
+Run-Action -,11,-,0,AROW01,-,0,0
+Step-Ticks 3
+Assert-ActiveWeaponSlot AJANTI,10
+Assert-ItemCount AJANTI,SW1H01,1
+Select-Weapon AJANTI,-1
+Assert-ActiveWeaponSlot AJANTI,-1
+Select-Weapon AJANTI,0
+Assert-ActiveWeaponSlot AJANTI,9
+Select-Weapon AJANTI,1
+Assert-ActiveWeaponSlot AJANTI,10
+Assert-Trigger AJANTI,true,XP(Myself,2263)
+Create-Creature GIBBER,860,127
+Step-Ticks 5
+Disable-Creature GIBBER
+Attack -,GIBBER
+Step-Ticks 9000
+Assert-Trigger AJANTI,true,XP(Myself,2298)
+Assert-ItemCount AJANTI,AROW01,<30
+Assert-Position AJANTI,496,127

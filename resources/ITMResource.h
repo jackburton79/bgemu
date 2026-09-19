@@ -62,6 +62,17 @@ struct itm_ability {
 	// distinguishes a crossbow (avatar-naming "x" suffix) from a bow/sling
 	// (no suffix). Meaningless for non-Launcher abilities.
 	uint16 crossbowQualifier;
+	// Ammunition this ability fires or is fired with, a bitmask of
+	// kProjectile* (a bow "uses" arrows, an arrow "is" an arrow). Same
+	// derivation as GemRB's ProjectileQualifier, including its fallbacks
+	// for data that leaves every qualifier word blank.
+	uint8 projectileQualifier;
+};
+
+enum ProjectileQualifierBits {
+	kProjectileArrow = 1,
+	kProjectileBolt = 2,
+	kProjectileBullet = 4
 };
 
 

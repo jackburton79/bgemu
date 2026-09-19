@@ -417,7 +417,7 @@ private:
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();
 	void _UpdateInventoryIcons();
-	void _SetSlotIcon(class Window* window, class CREResource* cre,
+	void _SetSlotIcon(class Window* window, Actor* actor,
 		uint32 controlID, uint32 creSlot);
 	void _UpdateGroundItemSlots(class Window* window, Actor* actor);
 	void _ShowItemInfo(const res_ref& itemName);

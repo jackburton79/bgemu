@@ -1,0 +1,18 @@
+# AREA: AR0602
+#
+# A thrown weapon (a dart) is the attacker's own ammunition and has a short
+# reach: AJANTI, 360 pixels from the target, walks only until it is within
+# range (Feet2Pixels ellipse, 16px per foot horizontally), then throws -
+# stopping at (470,127), not in melee reach - and the dart is used up.
+Run-Action -,82,-,1,DART01,-,0,0
+Run-Action -,11,-,0,DART01,-,0,0
+Queue-Action -,JumpToPoint(460,127)
+Step-Ticks 3
+Assert-ActiveWeaponSlot AJANTI,10
+Create-Creature GIBBER,820,127
+Step-Ticks 5
+Disable-Creature GIBBER
+Attack -,GIBBER
+Step-Ticks 200
+Assert-ItemCount AJANTI,DART01,0
+Assert-Position AJANTI,470,127

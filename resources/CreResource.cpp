@@ -713,7 +713,6 @@ CREResource::GetItemAtSlot(uint32 i, IE::item& item) const
 	//std::cout << "item at slot " << std::dec << i;
 	//std::cout << " :" << std::dec << itemOffset << std::endl;
 
-	// TODO: number 38 is a dword instead. Handle that case
 	if ((int16)itemOffset == -1) {
 		// empty
 		return false;
@@ -735,6 +734,22 @@ CREResource::ItemsIndexAtSlot(uint32 slot) const
 	int16 itemOffset;
 	fData->ReadAt(fItemSlotOffset + slot * sizeof(itemOffset), itemOffset);
 	return itemOffset == -1 ? -1 : (int32)itemOffset;
+}
+
+
+uint16
+CREResource::SelectedWeaponCode() const
+{
+	uint16 code;
+	fData->ReadAt(fItemSlotOffset + kNumItemSlots * sizeof(uint16), code);
+	return code;
+}
+
+
+void
+CREResource::SetSelectedWeaponCode(uint16 code)
+{
+	fData->WriteAt(fItemSlotOffset + kNumItemSlots * sizeof(code), &code, sizeof(code));
 }
 
 

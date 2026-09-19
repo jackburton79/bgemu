@@ -1166,19 +1166,17 @@ Actor::PaperdollName() const
 std::string
 Actor::WeaponAnimation() const
 {
-	// TODO: Refactor: items should be loaded elsewhere
-	IE::item weapon;
-	if (fCRE->GetItemAtSlot(kSlotWeaponFirst, weapon)) {
-		ITMResource* itm = gResManager->GetITM(weapon.name);
-		if (itm != NULL) {
-			std::string animationString = itm->Animation();
-			gResManager->ReleaseResource(itm);
-			return animationString;
-		}
-	}
+	ITMResource* itm = EquippedWeapon();
+	if (itm == NULL)
+		return "";
 
-	return "";
+	std::string animationString = itm->Animation();
+	gResManager->ReleaseResource(itm);
+	return animationString;
 }
+
+
+static int32 _FindAmmoSlot(CREResource* cre, uint8 mask);
 
 
 WeaponAnimationType
@@ -1190,7 +1188,8 @@ Actor::EquippedWeaponAnimationType() const
 		return type; // unarmed - one-handed melee
 
 	itm_ability ability;
-	if (itm->GetAbility(0, ability) && ability.attackType == 4) { // Launcher
+	if (itm->GetAbility(0, ability) && ability.attackType == 4
+			&& _FindAmmoSlot(fCRE, ability.projectileQualifier) >= 0) { // Launcher
 		// A bow/sling/crossbow's own header often carries the "Two-handed"
 		// flag too (lore-accurate), but the Shooting sequence has no 2H
 		// variant - a launcher is one-handed from an animation POV.
@@ -1204,16 +1203,184 @@ Actor::EquippedWeaponAnimationType() const
 }
 
 
+// Whether the item in `slot` is a launcher or ammunition carrying one of
+// the projectile qualifier bits in `mask`; `launcher` picks which of the
+// two the slot must be (a bow's ability 0 is attack type 4, an arrow's 2).
+static bool
+_SlotHasProjectile(CREResource* cre, uint32 slot, uint8 mask, bool launcher)
+{
+	IE::item item;
+	if (!cre->GetItemAtSlot(slot, item) || item.name.name[0] == '\0')
+		return false;
+
+	ITMResource* itm = gResManager->GetITM(item.name);
+	if (itm == NULL)
+		return false;
+	itm_ability ability;
+	const bool found = itm->GetAbility(0, ability);
+	gResManager->ReleaseResource(itm);
+	return found && (ability.attackType == 4) == launcher
+		&& (ability.projectileQualifier & mask) != 0;
+}
+
+
+// First quiver slot holding ammunition for a launcher that fires `mask`.
+static int32
+_FindAmmoSlot(CREResource* cre, uint8 mask)
+{
+	for (uint32 slot = kSlotAmmoFirst; slot <= kSlotAmmoLast; slot++) {
+		if (_SlotHasProjectile(cre, slot, mask, false))
+			return (int32)slot;
+	}
+	return -1;
+}
+
+
+int32
+Actor::ActiveWeaponSlot() const
+{
+	const uint16 code = fCRE->SelectedWeaponCode();
+	if (code == kSelectedWeaponFists)
+		return -1;
+
+	int32 slot = kSlotWeaponFirst;
+	if (code < kNumWeaponSlots) {
+		slot += code;
+	} else if (kSlotWeaponFirst + code >= kSlotAmmoFirst
+			&& kSlotWeaponFirst + code <= kSlotAmmoLast) {
+		// A launcher is selected through its ammunition: find the bow
+		// that fires it.
+		IE::item ammo;
+		ITMResource* itm = NULL;
+		if (fCRE->GetItemAtSlot(kSlotWeaponFirst + code, ammo))
+			itm = gResManager->GetITM(ammo.name);
+		itm_ability ability;
+		const bool found = itm != NULL && itm->GetAbility(0, ability);
+		if (itm != NULL)
+			gResManager->ReleaseResource(itm);
+		if (!found)
+			return -1;
+		slot = -1;
+		for (uint32 i = 0; i < kNumWeaponSlots; i++) {
+			if (_SlotHasProjectile(fCRE, kSlotWeaponFirst + i,
+					ability.projectileQualifier, true)) {
+				slot = kSlotWeaponFirst + i;
+				break;
+			}
+		}
+	}
+	// Any other value is not a code the games write: read it as the first
+	// quickslot rather than disarming the creature.
+
+	if (slot < 0 || fCRE->ItemsIndexAtSlot((uint32)slot) < 0)
+		return -1;
+	return slot;
+}
+
+
+bool
+Actor::SelectWeapon(int32 index)
+{
+	if (index >= (int32)kNumWeaponSlots || index < -1)
+		return false;
+	fCRE->SetSelectedWeaponCode(index < 0 ? (uint16)kSelectedWeaponFists : (uint16)index);
+	InvalidateAnimation(); // the weapon layer changes
+	return true;
+}
+
+
 ITMResource*
 Actor::EquippedWeapon() const
 {
-	// TODO: Refactor: items should be loaded elsewhere (same slot lookup
-	// as WeaponAnimation() above)
 	IE::item weapon;
-	if (!fCRE->GetItemAtSlot(kSlotWeaponFirst, weapon))
+	const int32 slot = ActiveWeaponSlot();
+	if (slot < 0 || !fCRE->GetItemAtSlot((uint32)slot, weapon))
 		return NULL;
 
 	return gResManager->GetITM(weapon.name);
+}
+
+
+// Unarmed, or the equipped item has no usable ability: there's no
+// dedicated "fists" ITM resource to load, so fall back to a small
+// hardcoded unarmed profile instead.
+static attack_profile
+_UnarmedProfile()
+{
+	attack_profile profile;
+	profile.ability.attackType = 1; // Melee
+	profile.ability.thac0Bonus = 0;
+	profile.ability.diceSides = 2;
+	profile.ability.diceThrown = 1;
+	profile.ability.damageBonus = 0;
+	profile.ability.damageType = 5; // Fists
+	return profile;
+}
+
+
+attack_profile
+Actor::AttackProfile() const
+{
+	attack_profile profile;
+
+	ITMResource* weapon = EquippedWeapon();
+	itm_ability ability;
+	const bool hasAbility = weapon != NULL && weapon->GetAbility(0, ability);
+	if (weapon != NULL)
+		gResManager->ReleaseResource(weapon);
+
+	if (!hasAbility)
+		return _UnarmedProfile();
+
+	profile.ability = ability;
+	if (ability.attackType == 2) {
+		// Thrown weapon: the stack in the weapon slot is the ammunition.
+		profile.ranged = true;
+		profile.rangeFeet = ability.range;
+		profile.spentSlot = ActiveWeaponSlot();
+	} else if (ability.attackType == 4) {
+		const int32 ammoSlot = _FindAmmoSlot(fCRE, ability.projectileQualifier);
+		if (ammoSlot < 0)
+			return _UnarmedProfile();
+		// The launcher supplies range and its own bonuses; the ammunition
+		// supplies the dice and damage type (same split GemRB makes).
+		IE::item ammo;
+		fCRE->GetItemAtSlot((uint32)ammoSlot, ammo);
+		ITMResource* ammoItm = gResManager->GetITM(ammo.name);
+		itm_ability ammoAbility;
+		const bool ammoOk = ammoItm != NULL && ammoItm->GetAbility(0, ammoAbility);
+		if (ammoItm != NULL)
+			gResManager->ReleaseResource(ammoItm);
+		if (!ammoOk)
+			return _UnarmedProfile();
+		profile.ability.diceSides = ammoAbility.diceSides;
+		profile.ability.diceThrown = ammoAbility.diceThrown;
+		profile.ability.damageType = ammoAbility.damageType;
+		profile.ability.thac0Bonus = ability.thac0Bonus + ammoAbility.thac0Bonus;
+		profile.ability.damageBonus = ability.damageBonus + ammoAbility.damageBonus;
+		profile.ranged = true;
+		profile.rangeFeet = ability.range;
+		profile.spentSlot = ammoSlot;
+	}
+	return profile;
+}
+
+
+void
+Actor::ConsumeFromSlot(uint32 slot)
+{
+	IE::item item;
+	const int32 itemsIndex = fCRE->ItemsIndexAtSlot(slot);
+	if (itemsIndex < 0 || !fCRE->GetItemAtSlot(slot, item))
+		return;
+
+	if (item.quantity1 > 1) {
+		item.quantity1--;
+		fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
+		return;
+	}
+	_ClearItemSlot(slot);
+	InvalidateAnimation();
 }
 
 
@@ -1390,6 +1557,21 @@ Actor::EquipItem(const res_ref& itemName)
 
 	if (targetSlot < 0)
 		return false; // this item type is never equipped
+
+	if ((uint32)targetSlot == kSlotWeaponFirst) {
+		// A weapon is wielded from whichever quickslot it sits in, or from
+		// the first free one it is moved to.
+		int32 weaponSlot = currentSlot;
+		if (weaponSlot < (int32)kSlotWeaponFirst
+				|| weaponSlot >= (int32)(kSlotWeaponFirst + kNumWeaponSlots)) {
+			weaponSlot = fCRE->FindFreeSlot(kSlotWeaponFirst,
+					kSlotWeaponFirst + kNumWeaponSlots - 1);
+			if (weaponSlot < 0)
+				return false; // every quickslot is busy - swapping is out of scope
+			fCRE->MoveItemBetweenSlots((uint32)currentSlot, (uint32)weaponSlot);
+		}
+		return SelectWeapon(weaponSlot - kSlotWeaponFirst);
+	}
 
 	if ((uint32)targetSlot == (uint32)currentSlot)
 		return true; // already in its default slot
@@ -1711,24 +1893,10 @@ Actor::AttackTarget(Actor* target)
 	triggerEntry.round = Core::Get()->ScriptRound();
 	target->AddTrigger(triggerEntry);
 
-	itm_ability ability;
-	bool hasAbility = false;
-	ITMResource* weapon = EquippedWeapon();
-	if (weapon != NULL) {
-		hasAbility = weapon->GetAbility(0, ability);
-		gResManager->ReleaseResource(weapon);
-	}
-	if (!hasAbility) {
-		// Unarmed, or the equipped item has no usable ability: there's no
-		// dedicated "fists" ITM resource to load, so fall back to a small
-		// hardcoded unarmed profile instead.
-		ability.attackType = 1; // Melee
-		ability.thac0Bonus = 0;
-		ability.diceSides = 2;
-		ability.diceThrown = 1;
-		ability.damageBonus = 0;
-		ability.damageType = 5; // Fists
-	}
+	const attack_profile profile = AttackProfile();
+	const itm_ability& ability = profile.ability;
+	if (profile.spentSlot >= 0)
+		ConsumeFromSlot((uint32)profile.spentSlot);
 
 	const ArmorClass targetAC = target->CRE()->AC();
 	const int16 effectiveAC = _ArmorClassFor(targetAC, ability.damageType);

@@ -1495,10 +1495,8 @@ Game::_UpdateInventoryIcons()
 	if (window == NULL)
 		return;
 
-	CREResource* cre = actor->CRE();
-
 	for (const auto& entry : kInvSlotControls)
-		_SetSlotIcon(window, cre, entry.controlID, entry.creSlot);
+		_SetSlotIcon(window, actor, entry.controlID, entry.creSlot);
 
 	_UpdatePaperdoll(window, actor);
 	_UpdateInventoryLabels(window, actor);
@@ -1575,7 +1573,7 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 		GUI::Get()->SetDragBitmap(NULL);
 		_UpdateInventoryIcons();
 		std::cout << actor->Name() << " puts " << itemName << " in slot " << slot
-			<< ((uint32)slot == kSlotWeaponFirst ? " (equipped weapon)" : "")
+			<< (slot == actor->ActiveWeaponSlot() ? " (equipped weapon)" : "")
 			<< std::endl;
 	} else {
 		// Drop rejected (incompatible slot) - keep holding the item.
@@ -3423,9 +3421,10 @@ Game::_TitleCaseIDSName(const std::string& idsName)
 // item (if any) sits in creSlot of cre - shared by the general-grid loop
 // above and by individual equipment-slot mappings as they get confirmed.
 void
-Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
+Game::_SetSlotIcon(Window* window, Actor* actor, uint32 controlID,
 	uint32 creSlot)
 {
+	CREResource* cre = actor->CRE();
 	Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
 	if (button == NULL)
 		return;
@@ -3447,19 +3446,12 @@ Game::_SetSlotIcon(Window* window, CREResource* cre, uint32 controlID,
 	button->SetIcon(icon);
 	button->SetIconCount(count);
 
-	// The only visible cue that an equip actually took effect, short of
-	// attacking to see the animation change: a highlighted border (same
-	// mechanism already used for the selected party member's portrait)
-	// on whichever weapon-row slot is the one this engine actually
-	// wields (kSlotWeaponFirst - EquippedWeapon()/WeaponAnimation()
-	// always read that one slot; the other 3 "Weapon2-4" quickslots
-	// this CHU shows can hold a spare weapon, but this engine has no
-	// quickslot-switching, so an item sitting there has no effect until
-	// it's moved into this one). Without this, dropping a weapon into a
-	// different quickslot looked identical to a real equip - same icon
-	// update, no way to tell them apart.
+	// The only visible cue of which of the four weapon quickslots is in
+	// hand, short of attacking to see the animation change: a highlighted
+	// border (same mechanism already used for the selected party member's
+	// portrait).
 	if (creSlot >= kSlotWeaponFirst && creSlot < kSlotWeaponFirst + 4)
-		button->SetHighlighted(creSlot == kSlotWeaponFirst);
+		button->SetHighlighted((int32)creSlot == actor->ActiveWeaponSlot());
 }
 
 
