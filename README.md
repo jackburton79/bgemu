@@ -19,7 +19,6 @@ To run, you need game files from an infinity engine based game (Baldur's Gate, B
 <pre>
   --list-resources (-l)       List all available resources
   --test (-t)                 Start in test mode
-  --test-animation (-T) ARG   Test animation with specified resource
   --dump-resource (-d) ARG    Dump specified resource to file
   --path (-p) ARG             Path to game data files
   --no-scripts (-n)           Don't run scripts
