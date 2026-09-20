@@ -1,4 +1,3 @@
-#include "AnimationTester.h"
 #include "AreaRoom.h"
 #include "Core.h"
 #include "Game.h"
@@ -16,7 +15,6 @@ static int sNoScripts = 0;
 static int sNoNewGame = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
-static int sTestAnimation = 0;
 static int sDebug = 0;
 static uint16 sScreenWidth = 640;
 static uint16 sScreenHeight = 480;
@@ -31,7 +29,6 @@ static
 struct option sLongOptions[] = {
 		{ "list-resources", no_argument, &sList, 'l' },
 		{ "test", no_argument, NULL, 't' },
-		{ "test-animation", required_argument, NULL, 'T' },
 		{ "dump-resource", required_argument, NULL, 'd' },
 		{ "path", required_argument, NULL, 'p'},
 		{ "no-scripts", no_argument, &sNoScripts, 'n' },
@@ -105,10 +102,6 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 't':
 				sTest = 1;
-				break;
-			case 'T':
-				sTestAnimation = 1;
-				sResourceName = optarg;
 				break;
 			case 'g':
 				ParseScreenGeometry(optarg);
@@ -208,10 +201,6 @@ main(int argc, char **argv)
 	AreaRoom::ClearAreaCheckpoints();
 
 	try {
-		if (sTestAnimation) {
-			AnimationTester animTester(sResourceName);
-			animTester.Loop();
-		} else
 			Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (std::exception &error) {
 		std::cerr << RED(error.what()) << std::endl;
