@@ -1749,6 +1749,28 @@ public:
 };
 
 
+// Assert-ActorHasColors <actor> - the creature's sprite has a color set (an
+// actor without one is drawn with the BAM's raw placeholder palette).
+class AssertActorHasColorsCommand : public ShellCommand {
+public:
+	AssertActorHasColorsCommand()
+		: ShellCommand("Assert-ActorHasColors")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Actor* actor = FindActor(argv);
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << argv << std::endl;
+			return;
+		}
+		if (actor->HasColors())
+			std::cout << "ASSERT OK: " << argv << " has colors" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << argv << " has no colors" << std::endl;
+	}
+};
+
+
 // Assert-TargetMode <none|talk|attack|cast|use|defend> - the action bar's pending click mode.
 class AssertTargetModeCommand : public ShellCommand {
 public:
@@ -2414,6 +2436,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());
 	console->AddCommand(new AssertTargetModeCommand());
+	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());
 	console->AddCommand(new AssertStoreWindowCommand());

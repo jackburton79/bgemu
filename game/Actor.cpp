@@ -191,9 +191,12 @@ Actor::_Init()
 		}
 		if (fCRE == NULL)
 			throw std::runtime_error("Actor: CRE file not loaded.");
-
-		_HandleColors();
 	}
+
+	// Also for an actor handed its CRE (placed in a checkpointed area, or
+	// otherwise built from saved CRE data): without this it kept a NULL
+	// color set and drew the BAM's raw placeholder palette.
+	_HandleColors();
 
 	// This only makes sense for actors already created once
 	if (fCRE->GlobalActorEnum() != uint16(-1))
@@ -2305,6 +2308,14 @@ Actor::_SetPositionPrivate(const IE::point& point)
 }
 
 
+void
+Actor::RefreshColors()
+{
+	_HandleColors();
+	InvalidateAnimation();
+}
+
+
 // Populates fColors from this CRE's own literal color bytes, which
 // AnimationFactory::AnimationFor() then hands to Animation for
 // _ApplyColorMODs() to recolor the BAM's hair/skin/armor/etc. palette
@@ -2319,6 +2330,9 @@ Actor::_SetPositionPrivate(const IE::point& point)
 void
 Actor::_HandleColors()
 {
+	delete fColors;
+	fColors = NULL;
+
 	TWODAResource* randColors = gResManager->ResourceExists("RANDCOLR", RES_2DA)
 			? gResManager->Get2DA("RANDCOLR") : NULL;
 

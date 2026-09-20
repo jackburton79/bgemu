@@ -118,6 +118,11 @@ public:
 
 	bool InParty() const;
 
+	// Recomputes the sprite colors from the CRE's current color bytes - after
+	// the CRE's data was replaced (loading a save).
+	void RefreshColors();
+	bool HasColors() const { return fColors != NULL; }
+
 	std::string ArmorAnimation() const;
 	std::string WeaponAnimation() const;
 	WeaponAnimationType EquippedWeaponAnimationType() const;

@@ -1,0 +1,14 @@
+# AREA: AR0602
+#
+# Loading a save rebuilds the area's creatures from its checkpointed ARE, so
+# their CREs arrive with the actor instead of being fetched by name - and
+# such an actor used to get no sprite color set at all (Actor::_Init() only
+# built one when it loaded the CRE itself), drawing the BAM's raw placeholder
+# palette: bright pink/cyan NPCs after every load. Party members get theirs
+# recomputed from the saved CRE.
+Assert-ActorHasColors DOPMER
+Assert-ActorHasColors AJANTI
+Save-Game /tmp/bgemu-test-colors.gam
+Load-Game /tmp/bgemu-test-colors.gam
+Assert-ActorHasColors DOPMER
+Assert-ActorHasColors AJANTI

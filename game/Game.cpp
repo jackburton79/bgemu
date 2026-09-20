@@ -4202,6 +4202,7 @@ Game::Load(const char* name)
 		CREResource* savedCre = gam->PartyMemberCRE(i);
 		if (savedCre != NULL) {
 			actor->CRE()->CopyDataFrom(savedCre);
+			actor->RefreshColors();
 			gResManager->ReleaseResource(savedCre);
 		}
 
