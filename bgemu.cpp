@@ -141,7 +141,7 @@ main(int argc, char **argv)
 		return 0;
 	}
 
-	if (sResourceName != NULL && !sTestAnimation) {
+	if (sResourceName != NULL) {
 		std::cout << "Dump resource Mode" << std::endl;
 		Resource* resource = gResManager->GetResource(sResourceName);
 		if (resource != NULL)
