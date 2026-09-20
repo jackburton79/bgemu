@@ -30,8 +30,7 @@ public:
 	// reference (like the CHU-authored bitmaps above); pass NULL to clear
 	// it. Not part of the CHU format itself, so no constructor-time
 	// equivalent. With coverBackground the button's own frame bitmap is
-	// hidden while the icon is set (for the paperdoll, whose CHU frame is
-	// just a generic placeholder doll the real PLT fully replaces).
+	// hidden while the icon is set.
 	void SetIcon(Bitmap* icon, bool coverBackground = false);
 
 	// A small quantity number drawn in the icon's bottom-right corner
@@ -63,11 +62,6 @@ public:
 	// the BAM itself. Pass an empty string to clear it.
 	void SetText(const std::string& text);
 
-	// Draw()/MouseDown()/MouseUp()/RightMouseDown() all respect this -
-	// fEnabled already existed (Draw() has always picked fDisabledBitmap
-	// when it's false) but nothing ever set it to anything but the
-	// constructor's default of true, and a disabled button still fired
-	// its action on click regardless.
 	void SetEnabled(bool enabled);
 	bool Enabled() const { return fEnabled; }
 
@@ -76,8 +70,7 @@ public:
 	// used for, e.g. the store window's page tabs.
 	void SetCycle(uint16 cycle);
 	// Replaces the button's art with the given frames of another BAM's
-	// first cycle (unpressed, pressed, selected, disabled) - for the
-	// action bar, whose icons aren't authored in the CHU. Returns false
+	// first cycle (unpressed, pressed, selected, disabled). Returns false
 	// (art unchanged) if the BAM or a frame doesn't exist.
 	bool SetArt(const res_ref& bam, const uint16 frames[4]);
 	// Back to the CHU-authored art (an unused action bar slot).
