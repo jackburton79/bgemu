@@ -328,7 +328,7 @@ GUI::Draw()
 	}
 
 	if (fHoverTooltipBitmap != NULL && fDragBitmap == NULL) {
-		GFX::rect rect(fCursorPosition.x + 12, fCursorPosition.y + 8,
+		GFX::rect rect(fCursorPosition.x + 12, fCursorPosition.y - 15,
 			fHoverTooltipBitmap->Width(), fHoverTooltipBitmap->Height());
 		GraphicsEngine::Get()->BlitToScreen(fHoverTooltipBitmap, NULL, &rect);
 	}
