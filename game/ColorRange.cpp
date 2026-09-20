@@ -23,7 +23,6 @@ InitColorRanges()
 	if (ranges == nullptr)
 		return false;
 
-	std::cout << "InitColorRanges()" << std::endl;
 	Bitmap* bitmap = ranges->Image();
 	ColorRange range;
 	for (uint16 y = 0; y < bitmap->Height(); y++) {
@@ -37,7 +36,6 @@ InitColorRanges()
 
 	gResManager->ReleaseResource(ranges);
 
-	std::cout << "InitColorRanges(): OK" << std::endl;
 	return true;
 }
 
