@@ -1771,6 +1771,27 @@ public:
 };
 
 
+static const char*
+_TargetModeName(Game::TargetMode mode)
+{
+	switch (mode) {
+		case Game::TARGET_TALK:
+			return "talk";
+		case Game::TARGET_ATTACK:
+			return "attack";
+		case Game::TARGET_CAST:
+			return "cast";
+		case Game::TARGET_USE_ITEM:
+			return "use";
+		case Game::TARGET_DEFEND:
+			return "defend";
+		case Game::TARGET_NONE:
+			break;
+	}
+	return "none";
+}
+
+
 // Assert-TargetMode <none|talk|attack|cast|use|defend> - the action bar's pending click mode.
 class AssertTargetModeCommand : public ShellCommand {
 public:
@@ -1781,11 +1802,7 @@ public:
 	virtual void operator()(const char* argv) {
 		const std::string expected = argv;
 		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
-		const char* actual = mode == Game::TARGET_TALK ? "talk"
-			: mode == Game::TARGET_ATTACK ? "attack"
-			: mode == Game::TARGET_CAST ? "cast"
-			: mode == Game::TARGET_USE_ITEM ? "use"
-			: mode == Game::TARGET_DEFEND ? "defend" : "none";
+		const char* actual = _TargetModeName(mode);
 		if (strcasecmp(expected.c_str(), actual) == 0)
 			std::cout << "ASSERT OK: target mode == " << actual << std::endl;
 		else

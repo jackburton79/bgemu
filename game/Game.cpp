@@ -1590,6 +1590,21 @@ _ActionRowFor(Actor* actor, uint8 row[kActionButtons])
 }
 
 
+// CRE slot behind a quick item button (QuickItem1-3).
+static uint32
+_QuickItemSlot(uint32 action)
+{
+	switch (action) {
+		case ACT_QSLOT1:
+			return kSlotQuickItemFirst;
+		case ACT_QSLOT2:
+			return kSlotQuickItemFirst + 1;
+		default:
+			return kSlotQuickItemFirst + 2;
+	}
+}
+
+
 // One entry of an action bar page: a memorized spell (one entry per spell,
 // counting its copies) or a usable item and the inventory slot it sits in.
 struct bar_entry {
@@ -1737,8 +1752,11 @@ Game::RefreshActionBar()
 		const bool spells = fActionBarPage != PAGE_ITEMS;
 		const std::vector<bar_entry> entries = spells
 			? _CastableSpells(actor, fActionBarPage == PAGE_INNATES) : _UsableItems(actor);
-		const uint32 header = fActionBarPage == PAGE_SPELLS ? ACT_CAST
-			: fActionBarPage == PAGE_INNATES ? ACT_INNATE : ACT_USE;
+		uint32 header = ACT_USE;
+		if (fActionBarPage == PAGE_SPELLS)
+			header = ACT_CAST;
+		else if (fActionBarPage == PAGE_INNATES)
+			header = ACT_INNATE;
 		if (entries.empty()) {
 			fActionBarPage = PAGE_ROW; // nothing left to pick from
 			fAssignQuickSpell = -1;
@@ -1807,8 +1825,7 @@ Game::RefreshActionBar()
 				// Always enabled: a right click assigns the slot, empty or not.
 				button->SetEnabled(true);
 			} else {
-				const uint32 slot = kSlotQuickItemFirst
-					+ (action == ACT_QSLOT1 ? 0 : action == ACT_QSLOT2 ? 1 : 2);
+				const uint32 slot = _QuickItemSlot(action);
 				bool usable = false;
 				for (const bar_entry& entry : _UsableItems(actor)) {
 					if ((uint32)entry.slot != slot)
@@ -1973,8 +1990,7 @@ Game::ActionBarControlInvoked(uint32 controlID)
 		}
 		RefreshActionBar();
 	} else if (action == ACT_QSLOT1 || action == ACT_QSLOT2 || action == ACT_QSLOT3) {
-		const uint32 slot = kSlotQuickItemFirst
-			+ (action == ACT_QSLOT1 ? 0 : action == ACT_QSLOT2 ? 1 : 2);
+		const uint32 slot = _QuickItemSlot(action);
 		for (const bar_entry& entry : _UsableItems(actor)) {
 			if ((uint32)entry.slot == slot)
 				_PickBarEntry(actor, entry.name, entry.slot, false);
@@ -1986,7 +2002,12 @@ Game::ActionBarControlInvoked(uint32 controlID)
 		const bool items = action == ACT_USE;
 		if (!(items ? _UsableItems(actor) : _CastableSpells(actor, action == ACT_INNATE)).empty()) {
 			fTargetMode = TARGET_NONE;
-			fActionBarPage = items ? PAGE_ITEMS : action == ACT_INNATE ? PAGE_INNATES : PAGE_SPELLS;
+			if (items)
+				fActionBarPage = PAGE_ITEMS;
+			else if (action == ACT_INNATE)
+				fActionBarPage = PAGE_INNATES;
+			else
+				fActionBarPage = PAGE_SPELLS;
 			fActionBarPageIndex = 0;
 			RefreshActionBar();
 		}

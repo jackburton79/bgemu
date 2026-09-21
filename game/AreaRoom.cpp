@@ -472,10 +472,13 @@ AreaRoom::_HandleClickAt(IE::point point)
 		}
 		if (fSelectedActor != NULL && actor != NULL && actor != fSelectedActor.Target()
 				&& !actor->IsState(STATE_DEAD) && _IsValidTarget(actor, mode)) {
+			Actor::ClickIntent intent = Actor::CLICK_ATTACK;
+			if (mode == Game::TARGET_TALK)
+				intent = Actor::CLICK_TALK;
+			else if (mode == Game::TARGET_DEFEND)
+				intent = Actor::CLICK_DEFEND;
 			fSelectedActor.Target()->ClearActionList();
-			fSelectedActor.Target()->ClickedOn(actor, mode == Game::TARGET_TALK
-				? Actor::CLICK_TALK : mode == Game::TARGET_DEFEND
-				? Actor::CLICK_DEFEND : Actor::CLICK_ATTACK);
+			fSelectedActor.Target()->ClickedOn(actor, intent);
 		}
 		return;
 	}
@@ -557,6 +560,40 @@ AreaRoom::_QueueMoveToPoint(IE::point point)
 }
 
 
+// The cursor to show over `hovered` while the action bar's `mode` waits for
+// a click: the mode's own cursor over a creature it can act on, "no way"
+// anywhere else.
+static int32
+_TargetModeCursor(Game::TargetMode mode, Actor* hovered, Actor* selected)
+{
+	if (hovered == NULL)
+		return IE::CURSOR_NOWAY;
+
+	switch (mode) {
+		case Game::TARGET_CAST:
+		case Game::TARGET_USE_ITEM:
+			// Spells and items may be aimed at anyone, the caster included.
+			return IE::CURSOR_CAST;
+
+		case Game::TARGET_TALK:
+		case Game::TARGET_ATTACK:
+		case Game::TARGET_DEFEND:
+			if (hovered->IsState(STATE_DEAD) || hovered == selected
+					|| !_IsValidTarget(hovered, mode))
+				return IE::CURSOR_NOWAY;
+			if (mode == Game::TARGET_TALK)
+				return IE::CURSOR_TALK;
+			if (mode == Game::TARGET_DEFEND)
+				return IE::CURSOR_DEFEND;
+			return IE::CURSOR_ATTACK;
+
+		case Game::TARGET_NONE:
+			break;
+	}
+	return IE::CURSOR_NOWAY;
+}
+
+
 void
 AreaRoom::MouseMoved(IE::point point, uint32 transit)
 {
@@ -574,20 +611,13 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 				&& fSearchMap->IsWorldmapExit(point.x, point.y))
 			cursor = IE::CURSOR_TRAVEL;
 		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
-		Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
-		if (mode == Game::TARGET_CAST || mode == Game::TARGET_USE_ITEM) {
-			GUI::Get()->SetCursor(hovered != NULL ? IE::CURSOR_CAST : IE::CURSOR_NOWAY);
-		} else if (mode != Game::TARGET_NONE) {
-			const bool valid = hovered != NULL && !hovered->IsState(STATE_DEAD)
-				&& hovered != fSelectedActor.Target() && _IsValidTarget(hovered, mode);
-			GUI::Get()->SetCursor(!valid ? IE::CURSOR_NOWAY
-				: mode == Game::TARGET_TALK ? IE::CURSOR_TALK
-				: mode == Game::TARGET_DEFEND ? IE::CURSOR_DEFEND : IE::CURSOR_ATTACK);
-		} else if (cursor != -1)
+		if (mode != Game::TARGET_NONE) {
+			Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
+			GUI::Get()->SetCursor(_TargetModeCursor(mode, hovered, fSelectedActor.Target()));
+		} else if (cursor != -1) {
 			GUI::Get()->SetCursor(cursor);
-		else {
+		} else {
 			GUI::Get()->SetCursor(IE::CURSOR_WALKTO);
-			//GUI::Get()->SetArrowCursor(IE::CURSOR_HAND);
 		}
 	}
 }
@@ -1477,9 +1507,12 @@ AreaRoom::_ObjectAtPoint(const IE::point& point, int32& cursorIndex) const
 	}
 
 	if (Actor* actor = _ActorAtPoint(point)) {
-		cursorIndex = actor->IsState(STATE_DEAD) ? IE::CURSOR_PICKUP
-			: actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF")
-				? IE::CURSOR_TALK : IE::CURSOR_ATTACK;
+		if (actor->IsState(STATE_DEAD))
+			cursorIndex = IE::CURSOR_PICKUP;
+		else if (actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF"))
+			cursorIndex = IE::CURSOR_TALK;
+		else
+			cursorIndex = IE::CURSOR_ATTACK;
 		return actor;
 	}
 
