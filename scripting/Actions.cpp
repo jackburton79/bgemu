@@ -1198,6 +1198,21 @@ RunActionIncrementGlobal(Object* sender, action_params* params, action_state& st
 }
 
 
+// WEATHER(I:Weather*Weather), MULTIPLAYERSYNC(), LEAVEAREALUAPANIC(S:Area*,
+// S:Entrance*,P:Point*,I:Face*) - accepted and completed at once, without
+// effect:
+// - WEATHER only changes the rain/snow overlay, which isn't modeled;
+// - MULTIPLAYERSYNC waits for the other players of a multiplayer game;
+// - LEAVEAREALUAPANIC (as in GemRB) doesn't move anyone: it only names the
+//   loading screen of the LEAVEAREALUA that follows it in the script (which
+//   does the actual area change - see RunActionChangeArea()).
+static void
+RunActionNoEffect(Object* sender, action_params* params, action_state& state)
+{
+	state.completed = true;
+}
+
+
 // LEAVEAREALUA(S:Area*,S:Entrance*,P:Point*,I:Face*) - stateless.
 // Deferred via Core::RequestAreaChange() rather than loading immediately -
 // this action runs from inside AreaRoom::Update()'s own actor-update loop
@@ -3397,7 +3412,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 64, "UNDOEXPLORE", NULL },
 		{ 65, "EXPLORE", NULL },
 		{ 66, "DAYNIGHT", RunActionDayNight },
-		{ 67, "WEATHER", NULL },
+		{ 67, "WEATHER", RunActionNoEffect },
 		{ 68, "CALLLIGHTNING", NULL },
 		{ 69, "VEQUIP", NULL },
 		{ 70, "NIDSPECIAL1", NULL },
@@ -3522,13 +3537,13 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 180, "MOVETOOBJECTFOLLOW", NULL },
 		{ 181, "REALLYFORCESPELL", RunActionForceSpell },
 		{ 182, "MAKEUNSELECTABLE", NULL },
-		{ 183, "MULTIPLAYERSYNC", NULL },
+		{ 183, "MULTIPLAYERSYNC", RunActionNoEffect },
 		{ 184, "RUNAWAYFROMNOINTERRUPT", NULL },
 		{ 185, "SETMASTERAREA", NULL },
 		{ 186, "ENDCREDITS", NULL },
 		{ 187, "STARTMUSIC", NULL },
 		{ 188, "TAKEPARTYITEMALL", RunActionTakePartyItemAll },
-		{ 189, "LEAVEAREALUAPANIC", NULL },
+		{ 189, "LEAVEAREALUAPANIC", RunActionNoEffect },
 		{ 190, "SAVEGAME", RunActionSaveGame },
 		// SpellNoDec/SpellPointNoDec: cast without spending a memorized
 		// slot - exactly what ForceSpell/ForceSpellPoint already do
