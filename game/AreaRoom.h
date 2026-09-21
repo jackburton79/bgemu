@@ -82,6 +82,10 @@ public:
 	void AddObject(Object* object);
 	void RemoveObject(Object* object); // a globalId version would be nice ?
 
+	// `actor` was one of this area's own placed creatures and now belongs
+	// to the Game (party member, global NPC): the area won't place it again.
+	void ForgetPlacedActor(Actor* actor);
+
 	void AddAnimation(Animation* animation);
 	void RemoveAnimation(Animation* animation);
 

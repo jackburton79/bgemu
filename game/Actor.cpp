@@ -2411,6 +2411,10 @@ Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 void
 Actor::_UpdateRegions()
 {
+	// An actor parked outside any loaded area (a global NPC) has no regions.
+	if (Area() == NULL)
+		return;
+
 	BackMap* backMap = Area()->BackMap();
 	if (backMap == NULL)
 		return;

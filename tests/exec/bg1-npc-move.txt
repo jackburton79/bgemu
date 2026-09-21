@@ -1,0 +1,13 @@
+# AREA: AR2700
+#
+# A global NPC that runs LEAVEAREALUA just changes where it is: it leaves
+# the room it stands in (the party stays), and is at the given point when
+# that area is loaded. Imoen starts in AR2700 (BALDUR.GAM).
+Assert-ActorCount IMOEN1,1
+Run-Action IMOEN1,110,-,4,AR0602,,700,900
+Step-Ticks 10
+Assert-ActorCount IMOEN1,0
+Run-Action -,110,-,4,AR0602,,3522,3712
+Step-Ticks 10
+Assert-ActorCount IMOEN1,1
+Assert-Position IMOEN1,700,900

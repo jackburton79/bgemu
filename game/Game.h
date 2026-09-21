@@ -73,6 +73,19 @@ public:
 	void AddNPC(Actor* actor);
 	void RemoveNPC(Actor* actor);
 
+	// An actor of the current area becomes a global NPC (MAKEGLOBAL): the
+	// area stops placing it, the Game keeps it from now on.
+	void MakeNPC(Actor* actor);
+	// Moves a global NPC to a point of an area, which needn't be loaded:
+	// out of the room it is in if that isn't the destination, into the
+	// current room if it is.
+	void MoveNPC(Actor* npc, const res_ref& area, const IE::point& position,
+		int orientation);
+	// Party membership: a global NPC that joins stops being one, a member
+	// that leaves becomes one (staying where it is).
+	void JoinParty(Actor* actor);
+	void LeaveParty(Actor* actor);
+
 	void LoadStartingArea();
 	void ToggleDayNight();
 	// Original game's TAB-key HUD toggle (portraits, action menu, message

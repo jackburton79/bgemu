@@ -1717,6 +1717,38 @@ private:
 };
 
 
+// Assert-ActorCount <cre name>,<n> - exactly n creatures with that CRE name
+// stand in the current area (catches a creature placed twice).
+class AssertActorCountCommand : public ShellCommand {
+public:
+	AssertActorCountCommand()
+		: ShellCommand("Assert-ActorCount")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string name, countText;
+		AreaRoom* room = CurrentAreaRoom();
+		if (!_SplitOnFirstComma(argv, name, countText) || room == NULL) {
+			std::cout << "ASSERT FAIL: expected <cre name>,<n> in an area" << std::endl;
+			return;
+		}
+		ActorsList actors;
+		room->GetActorsList(actors);
+		int count = 0;
+		for (Actor* actor : actors) {
+			if (strcasecmp(actor->Name(), name.c_str()) == 0)
+				count++;
+		}
+		if (count == atoi(countText.c_str())) {
+			std::cout << "ASSERT OK: ActorCount(" << name << ")" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: ActorCount(" << name << ") - expected "
+				<< countText << ", got " << count << std::endl;
+		}
+	}
+};
+
+
 // Assert-GamNPC <gam>,<cre>,<area>,<x>,<y> - the GAM resource lists <cre>
 // as an out-of-party NPC standing in <area> at that point.
 class AssertGamNPCCommand : public ShellCommand {
@@ -2554,6 +2586,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new PrintStoreCommand());
 	console->AddCommand(new PrintGamCommand());
 	console->AddCommand(new AssertGamNPCCommand());
+	console->AddCommand(new AssertActorCountCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());
 	console->AddCommand(new AssertTargetModeCommand());

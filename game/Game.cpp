@@ -4477,6 +4477,78 @@ Game::_LoadStartingNPCs()
 
 
 void
+Game::MakeNPC(Actor* actor)
+{
+	if (fParty->HasActor(actor) || IsNPC(actor))
+		return;
+
+	if (AreaRoom* room = actor->Area())
+		room->ForgetPlacedActor(actor);
+	actor->Acquire();
+	AddNPC(actor);
+}
+
+
+void
+Game::MoveNPC(Actor* npc, const res_ref& area, const IE::point& position,
+	int orientation)
+{
+	AreaRoom* room = npc->Area();
+	if (room != NULL && strcasecmp(room->Name(), area.CString()) != 0) {
+		room->RemoveObject(npc);
+		npc->SetArea(NULL);
+		// The room's own reference: the list's keeps the NPC alive.
+		npc->Release();
+	}
+
+	npc->SetAreaName(area);
+	npc->SetPosition(position);
+	if (orientation >= 0)
+		npc->SetOrientation(orientation);
+
+	// Moved into the room that is loaded right now, from an area that isn't.
+	if (npc->Area() == NULL) {
+		AreaRoom* current = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+		if (current != NULL && strcasecmp(current->Name(), area.CString()) == 0) {
+			npc->Acquire();
+			current->AddObject(npc);
+			npc->SetPosition(position);
+		}
+	}
+}
+
+
+void
+Game::JoinParty(Actor* actor)
+{
+	if (fParty->HasActor(actor))
+		return;
+
+	// The party's reference is a new one; a global NPC's own goes with
+	// the list entry.
+	actor->Acquire();
+	fParty->AddActor(actor);
+	if (IsNPC(actor)) {
+		RemoveNPC(actor);
+	} else if (AreaRoom* room = actor->Area()) {
+		room->ForgetPlacedActor(actor);
+	}
+}
+
+
+void
+Game::LeaveParty(Actor* actor)
+{
+	if (!fParty->HasActor(actor))
+		return;
+
+	actor->Acquire();
+	fParty->RemoveActor(actor);
+	AddNPC(actor);
+}
+
+
+void
 Game::_ClearNPCs()
 {
 	for (Actor* actor : fNPCs)

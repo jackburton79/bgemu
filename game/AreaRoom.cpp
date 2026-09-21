@@ -701,6 +701,9 @@ AreaRoom::DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool ma
 }
 
 
+static void _DetachFromCurrentRegion(Actor* actor);
+
+
 void
 AreaRoom::AddObject(Object* object)
 {
@@ -745,14 +748,28 @@ AreaRoom::RemoveObject(Object* object)
 		{
 			Actor* actor = dynamic_cast<Actor*>(object);
 			auto pos = std::find(fActors.begin(), fActors.end(), actor);
-			if (pos != fActors.end())
+			if (pos != fActors.end()) {
 				fActors.erase(pos);
+				// Nobody stands here or in one of its regions any more.
+				if (fSearchMap != NULL)
+					fSearchMap->ClearPoint(actor->Position().x, actor->Position().y);
+				_DetachFromCurrentRegion(actor);
+			}
 			break;
 		}
 		default:
 			// TODO: Other objects
 			break;
 	}
+}
+
+
+void
+AreaRoom::ForgetPlacedActor(Actor* actor)
+{
+	const int32 index = fArea->IndexOfActorEntry(actor->AreaActorEntry());
+	if (index >= 0)
+		fArea->RemoveActorEntry((uint16)index);
 }
 
 
@@ -1690,6 +1707,8 @@ AreaRoom::_LoadActors(bool revisited)
 		cache.actors.clear();
 	} else {
 		for (uint16 i = 0; i < fArea->CountActors(); i++) {
+			if (fArea->ActorEntryRemoved(i))
+				continue;
 			Actor* actor = fArea->GetActorAt(i);
 			AddObject(actor);
 			std::cout << "\t + ";

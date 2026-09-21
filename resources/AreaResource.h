@@ -85,6 +85,12 @@ public:
 	// covers what already lives directly in the ARE actor/door structs).
 	void SetEmbeddedCRE(uint16 index, const std::vector<uint8>& creData);
 
+	// The creature at `index` no longer belongs to the area (it joined the
+	// party or became a global NPC, which the Game keeps): the area doesn't
+	// create it again when it is loaded, from a checkpoint file included.
+	void RemoveActorEntry(uint16 index);
+	bool ActorEntryRemoved(uint16 index) const;
+
 	uint16 CountRegions() const;
 	Region* GetRegionAt(uint16 index);
 

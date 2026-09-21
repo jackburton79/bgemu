@@ -187,6 +187,26 @@ ARAResource::IndexOfActorEntry(const IE::actor* entry) const
 }
 
 
+// Kept in the entry's own (otherwise unused) word, so a checkpoint file
+// carries it without a format of its own.
+static const uint16 kActorEntryRemoved = 0x5244;
+
+
+void
+ARAResource::RemoveActorEntry(uint16 index)
+{
+	if (index < fNumActors)
+		fActors[index].unused = kActorEntryRemoved;
+}
+
+
+bool
+ARAResource::ActorEntryRemoved(uint16 index) const
+{
+	return index < fNumActors && fActors[index].unused == kActorEntryRemoved;
+}
+
+
 void
 ARAResource::SetEmbeddedCRE(uint16 index, const std::vector<uint8>& creData)
 {

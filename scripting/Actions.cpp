@@ -931,7 +931,10 @@ RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_st
 	if (!state.initiated) {
 		state.initiated = true;
 		Actor* actor = dynamic_cast<Actor*>(sender);
-		if (actor != NULL) {
+		if (actor != NULL && Game::Get()->IsNPC(actor)) {
+			Game::Get()->MoveNPC(actor, res_ref(params->string1), params->where,
+				params->integer1);
+		} else if (actor != NULL) {
 			if (::strcasecmp(params->string1, actor->Area()->Name()) != 0) {
 				Game::TempState* tempState = Game::Get()->GetTempState();
 				actor->Acquire();
@@ -1252,6 +1255,13 @@ RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 		Game::Get()->GetTempState()->partyPlacements[actor->GlobalID()]
 			= { params->where, params->integer1 };
 		Core::Get()->RequestAreaChange(params->string1, "", "");
+		return;
+	}
+
+	// A global NPC just changes where it is; its area needn't be loaded.
+	if (Game::Get()->IsNPC(actor)) {
+		Game::Get()->MoveNPC(actor, res_ref(params->string1), params->where,
+			params->integer1);
 		return;
 	}
 
@@ -2268,7 +2278,7 @@ RunActionJoinParty(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor != NULL && !Game::Get()->Party()->HasActor(actor)) {
-		Game::Get()->Party()->AddActor(actor);
+		Game::Get()->JoinParty(actor);
 		actor->ClearActionList();
 	}
 	state.completed = true;
@@ -2280,7 +2290,19 @@ RunActionLeaveParty(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor != NULL)
-		Game::Get()->Party()->RemoveActor(actor);
+		Game::Get()->LeaveParty(actor);
+	state.completed = true;
+}
+
+
+// MAKEGLOBAL() - stateless. The creature is added to the GAM file: from
+// now on the Game keeps it (see Game::AddNPC()).
+static void
+RunActionMakeGlobal(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		Game::Get()->MakeNPC(actor);
 	state.completed = true;
 }
 
@@ -3712,6 +3734,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 322, "FAKEEFFECTEXPIRYCHECK", NULL },
 		{ 323, "CREATECREATUREIMPASSABLEALLOWOVERLAP", RunActionCreateCreatureImpassable },
 		{ 324, "SETBEENINPARTYFLAGS", NULL },
+		{ 336, "MAKEGLOBAL", RunActionMakeGlobal },
 };
 
 
