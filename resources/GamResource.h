@@ -5,7 +5,7 @@
  *
  * This engine only models a subset of what a real save actually carries:
  * party composition/position/CRE state, GLOBAL variables, elapsed game
- * time (GameTimer), journal entries (Game::fJournal - strref, time,
+ * time (GameTimer), out-of-party NPCs, journal entries (Game::fJournal - strref, time,
  * chapter and section; the group is kept in the location byte, a GemRB
  * extension) and party reputation (read from the
  * party leader's own CRE - every party member's is kept in sync by
@@ -59,6 +59,9 @@ public:
 	// Building a save (Game::Save() calls these, then WriteToFile()).
 	void SetCurrentArea(const res_ref& areaName);
 	void AddPartyMember(const gam_party_member& member, const CREResource* cre);
+	// Out-of-party NPCs (the GAM's second creature table): same struct
+	// as a party member, kept apart from the party by the file layout.
+	void AddOutOfPartyMember(const gam_party_member& member, const CREResource* cre);
 	void SetVariables(const std::vector<std::pair<std::string, int32>>& variables);
 	// seconds: CINGAME, GameTimer::GameTime()'s own unit - converted to
 	// the header's native "300 units == 1 hour" on write.
@@ -85,6 +88,12 @@ public:
 	// Caller must gResManager->ReleaseResource() it, same as any other
 	// resource fetched via ResourceManager.
 	CREResource* PartyMemberCRE(uint32 index) const;
+	// Same for the out-of-party NPCs (which is all a new game's
+	// BALDUR.GAM carries: the companions and story NPCs and where each
+	// starts out).
+	uint32 OutOfPartyCount() const;
+	gam_party_member OutOfPartyAt(uint32 index) const;
+	CREResource* OutOfPartyCRE(uint32 index) const;
 	res_ref CurrentArea() const;
 	std::vector<std::pair<std::string, int32>> Variables() const;
 	uint32 GameTime() const;
@@ -98,7 +107,11 @@ private:
 		const CREResource* cre;
 	};
 
+	gam_party_member _MemberAt(uint32 structOffset) const;
+	CREResource* _MemberCRE(uint32 structOffset) const;
+
 	std::vector<_PendingMember> fPendingMembers;
+	std::vector<_PendingMember> fPendingNPCs;
 	std::vector<std::pair<std::string, int32>> fPendingVariables;
 	std::vector<gam_journal_entry> fPendingJournalEntries;
 	uint32 fPendingGameTime = 0;

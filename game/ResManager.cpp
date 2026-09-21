@@ -8,6 +8,7 @@
 #include "CreResource.h"
 #include "Core.h"
 #include "DLGResource.h"
+#include "GamResource.h"
 #include "GeneratedIDS.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
@@ -367,6 +368,14 @@ ResourceManager::GetDLG(const res_ref& name)
 {
 	Resource* resource = GetResource(name, RES_DLG);
 	return static_cast<DLGResource*>(resource);
+}
+
+
+GamResource*
+ResourceManager::GetGAM(const res_ref& name)
+{
+	Resource* resource = GetResource(name, RES_GAM);
+	return static_cast<GamResource*>(resource);
 }
 
 

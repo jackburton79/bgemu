@@ -24,6 +24,7 @@ class BMPResource;
 class CHUIResource;
 class CREResource;
 class DLGResource;
+class GamResource;
 class IDSResource;
 class ITMResource;
 class KeyDatabase;
@@ -57,6 +58,7 @@ public:
 	CHUIResource*	GetCHUI(const res_ref& name);
 	CREResource*	GetCRE(const res_ref& name);
 	DLGResource*	GetDLG(const res_ref& name);
+	GamResource*	GetGAM(const res_ref& name);
 	IDSResource*	GetIDS(const res_ref& name);
 	ITMResource*	GetITM(const res_ref& name);
 	TISResource*	GetTIS(const res_ref& name);

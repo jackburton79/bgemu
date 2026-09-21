@@ -18,6 +18,7 @@
 #include "CreResource.h"
 #include "Dialog.h"
 #include "Door.h"
+#include "GamResource.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
@@ -1683,6 +1684,75 @@ public:
 };
 
 
+// Print-Gam <resref> - the party and out-of-party NPC tables of a GAM
+// resource (e.g. BALDUR, a new game's starting state): CRE, area, position.
+class PrintGamCommand : public ShellCommand {
+public:
+	PrintGamCommand()
+		: ShellCommand("Print-Gam")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		GamResource* gam = gResManager->GetGAM(res_ref(argv));
+		if (gam == NULL) {
+			std::cout << "Print-Gam: no GAM " << argv << std::endl;
+			return;
+		}
+		std::cout << std::dec << "Party: " << gam->PartyMemberCount() << std::endl;
+		for (uint32 i = 0; i < gam->PartyMemberCount(); i++)
+			_Print(gam->PartyMemberAt(i));
+		std::cout << "NPCs: " << gam->OutOfPartyCount() << std::endl;
+		for (uint32 i = 0; i < gam->OutOfPartyCount(); i++)
+			_Print(gam->OutOfPartyAt(i));
+		gResManager->ReleaseResource(gam);
+	}
+
+private:
+	static void _Print(const gam_party_member& member) {
+		std::cout << "  " << member.creName.CString() << " "
+			<< member.areaName.CString() << " " << member.position.x
+			<< "," << member.position.y << " face " << member.orientation
+			<< std::endl;
+	}
+};
+
+
+// Assert-GamNPC <gam>,<cre>,<area>,<x>,<y> - the GAM resource lists <cre>
+// as an out-of-party NPC standing in <area> at that point.
+class AssertGamNPCCommand : public ShellCommand {
+public:
+	AssertGamNPCCommand()
+		: ShellCommand("Assert-GamNPC")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::vector<std::string> fields;
+		std::stringstream stream(argv);
+		for (std::string field; std::getline(stream, field, ',');)
+			fields.push_back(field);
+		if (fields.size() != 5) {
+			std::cout << "ASSERT FAIL: expected <gam>,<cre>,<area>,<x>,<y>" << std::endl;
+			return;
+		}
+		GamResource* gam = gResManager->GetGAM(res_ref(fields[0].c_str()));
+		if (gam == NULL) {
+			std::cout << "ASSERT FAIL: no GAM " << fields[0] << std::endl;
+			return;
+		}
+		bool found = false;
+		for (uint32 i = 0; i < gam->OutOfPartyCount() && !found; i++) {
+			gam_party_member member = gam->OutOfPartyAt(i);
+			found = strcasecmp(member.creName.CString(), fields[1].c_str()) == 0
+				&& strcasecmp(member.areaName.CString(), fields[2].c_str()) == 0
+				&& member.position.x == atoi(fields[3].c_str())
+				&& member.position.y == atoi(fields[4].c_str());
+		}
+		gResManager->ReleaseResource(gam);
+		std::cout << (found ? "ASSERT OK: " : "ASSERT FAIL: ") << argv << std::endl;
+	}
+};
+
+
 // Assert-ItemIdentified <actor>,<item resref>,<true|false> - whether the
 // first copy of an item in an actor's inventory counts as identified (its
 // own flag, or an item that has no lore to identify - see
@@ -2482,6 +2552,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertContainerHasItemCommand());
 	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new PrintStoreCommand());
+	console->AddCommand(new PrintGamCommand());
+	console->AddCommand(new AssertGamNPCCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());
 	console->AddCommand(new AssertTargetModeCommand());

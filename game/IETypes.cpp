@@ -8,6 +8,7 @@
 #include "CHUIResource.h"
 #include "CreResource.h"
 #include "DLGResource.h"
+#include "GamResource.h"
 #include "IDSResource.h"
 #include "ITMResource.h"
 #include "MOSResource.h"
@@ -53,7 +54,7 @@ const static resource_struct kResourceTypes[] = {
 	{ RES_CRE, "CRE", "Creature", &CREResource::Create },
 	{ RES_DLG, "DLG", "DLG format", &DLGResource::Create  },
 	{ RES_EFF, "EFF", "EFF Effect", NULL  },
-	{ RES_GAM, "GAM", "GAM format", NULL  },
+	{ RES_GAM, "GAM", "GAM format", &GamResource::Create },
 	{ RES_IDS, "IDS", "IDS format", &IDSResource::Create },
 	{ RES_ITM, "ITM", "Item", &ITMResource::Create },
 	{ RES_MOS, "MOS", "MOS format", &MOSResource::Create },

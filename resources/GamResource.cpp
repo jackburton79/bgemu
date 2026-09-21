@@ -64,6 +64,16 @@ GamResource::AddPartyMember(const gam_party_member& member, const CREResource* c
 
 
 void
+GamResource::AddOutOfPartyMember(const gam_party_member& member, const CREResource* cre)
+{
+	_PendingMember pending;
+	pending.info = member;
+	pending.cre = cre;
+	fPendingNPCs.push_back(pending);
+}
+
+
+void
 GamResource::SetVariables(const std::vector<std::pair<std::string, int32>>& variables)
 {
 	fPendingVariables = variables;
@@ -98,14 +108,55 @@ GamResource::SetReputation(sint8 reputation)
 }
 
 
+// Writes one NPC struct (party member or out-of-party NPC - same layout)
+// and its embedded CRE.
+static void
+write_member(MemoryStream& buffer, uint32 structOffset, uint16 order,
+	uint32 creOffset, const gam_party_member& info, const CREResource* cre)
+{
+	uint32 creSize = cre->DataSize();
+
+	uint16 selection = 0;
+	buffer.WriteAt(structOffset + 0x00, &selection, sizeof(selection));
+	buffer.WriteAt(structOffset + 0x02, &order, sizeof(order));
+	buffer.WriteAt(structOffset + 0x04, &creOffset, sizeof(creOffset));
+	buffer.WriteAt(structOffset + 0x08, &creSize, sizeof(creSize));
+	char name[8];
+	memset(name, 0, sizeof(name));
+	memcpy(name, info.name.c_str(), sizeof(name));
+	buffer.WriteAt(structOffset + 0x0c, name, sizeof(name));
+	uint32 orientation = info.orientation;
+	buffer.WriteAt(structOffset + 0x14, &orientation, sizeof(orientation));
+	buffer.WriteAt(structOffset + 0x18, &info.areaName, sizeof(res_ref));
+	uint16 x = (uint16)info.position.x;
+	uint16 y = (uint16)info.position.y;
+	buffer.WriteAt(structOffset + 0x20, &x, sizeof(x));
+	buffer.WriteAt(structOffset + 0x22, &y, sizeof(y));
+	// Quick spells 1-3 (8-byte resrefs from 0x9c); the rest of 0x24
+	// onward (happiness, quick weapon/item slots, character stats,
+	// voice set) is left zeroed, not modeled by this engine - quick
+	// items are just the CRE's own quick item slots.
+	for (int q = 0; q < 3; q++)
+		buffer.WriteAt(structOffset + 0x9c + q * 8, &info.quickSpells[q], sizeof(res_ref));
+
+	cre->WriteDataTo(&buffer, creOffset);
+}
+
+
 bool
 GamResource::WriteToFile(const char* path) const
 {
-	uint32 npcOffset = kHeaderSize;
-	uint32 creOffset = npcOffset + kNPCStructSize * fPendingMembers.size();
+	const uint32 partyCount = (uint32)fPendingMembers.size();
+	const uint32 npcCount = (uint32)fPendingNPCs.size();
+
+	uint32 partyOffset = kHeaderSize;
+	uint32 npcOffset = partyOffset + kNPCStructSize * partyCount;
+	uint32 creOffset = npcOffset + kNPCStructSize * npcCount;
 
 	uint32 totalCreSize = 0;
 	for (const _PendingMember& member : fPendingMembers)
+		totalCreSize += member.cre->DataSize();
+	for (const _PendingMember& member : fPendingNPCs)
 		totalCreSize += member.cre->DataSize();
 
 	uint32 variablesOffset = creOffset + totalCreSize;
@@ -128,16 +179,14 @@ GamResource::WriteToFile(const char* path) const
 	// native "300 units == 1 hour".
 	uint32 gameTimeUnits = fPendingGameTime * kGameTimeUnitsPerHour / kSecondsPerHour;
 	buffer.WriteAt(0x08, &gameTimeUnits, sizeof(gameTimeUnits));
-	uint32 partyCount = (uint32)fPendingMembers.size();
 	buffer.WriteAt(0x1c, &partyCount, sizeof(uint16)); // count excl. protagonist (informational only)
-	buffer.WriteAt(0x20, &npcOffset, sizeof(npcOffset));
+	buffer.WriteAt(0x20, &partyOffset, sizeof(partyOffset));
 	buffer.WriteAt(0x24, &partyCount, sizeof(partyCount));
 	// 0x28/0x2c party inventory offset/count: no shared party-level
 	// inventory exists in this engine (only per-CRE inventory - see
 	// Actor::AddItem() from Phase 1), left as 0/0.
-	buffer.WriteAt(0x30, &creOffset, sizeof(creOffset)); // non-party NPCs: none, point past party data
-	uint32 zeroCount = 0;
-	buffer.WriteAt(0x34, &zeroCount, sizeof(zeroCount));
+	buffer.WriteAt(0x30, &npcOffset, sizeof(npcOffset)); // out-of-party NPCs
+	buffer.WriteAt(0x34, &npcCount, sizeof(npcCount));
 	buffer.WriteAt(0x38, &variablesOffset, sizeof(variablesOffset));
 	uint32 varCount = (uint32)fPendingVariables.size();
 	buffer.WriteAt(0x3c, &varCount, sizeof(varCount));
@@ -157,39 +206,19 @@ GamResource::WriteToFile(const char* path) const
 	// engine actually has to offer it.
 	buffer.WriteAt(0x74, &fPendingRealSeconds, sizeof(fPendingRealSeconds));
 
-	// NPC structs + embedded CRE data.
+	// NPC structs (party first, then out-of-party) + embedded CRE data.
 	uint32 currentCreOffset = creOffset;
-	for (uint32 i = 0; i < fPendingMembers.size(); i++) {
+	for (uint32 i = 0; i < partyCount; i++) {
 		const _PendingMember& member = fPendingMembers[i];
-		uint32 structOffset = npcOffset + i * kNPCStructSize;
-		uint32 creSize = member.cre->DataSize();
-
-		uint16 selection = 0;
-		buffer.WriteAt(structOffset + 0x00, &selection, sizeof(selection));
-		uint16 order = (uint16)i;
-		buffer.WriteAt(structOffset + 0x02, &order, sizeof(order));
-		buffer.WriteAt(structOffset + 0x04, &currentCreOffset, sizeof(currentCreOffset));
-		buffer.WriteAt(structOffset + 0x08, &creSize, sizeof(creSize));
-		char name[8];
-		memset(name, 0, sizeof(name));
-		memcpy(name, member.info.name.c_str(), sizeof(name));
-		buffer.WriteAt(structOffset + 0x0c, name, sizeof(name));
-		uint32 orientation = member.info.orientation;
-		buffer.WriteAt(structOffset + 0x14, &orientation, sizeof(orientation));
-		buffer.WriteAt(structOffset + 0x18, &member.info.areaName, sizeof(res_ref));
-		uint16 x = (uint16)member.info.position.x;
-		uint16 y = (uint16)member.info.position.y;
-		buffer.WriteAt(structOffset + 0x20, &x, sizeof(x));
-		buffer.WriteAt(structOffset + 0x22, &y, sizeof(y));
-		// Quick spells 1-3 (8-byte resrefs from 0x9c); the rest of 0x24
-		// onward (happiness, quick weapon/item slots, character stats,
-		// voice set) is left zeroed, not modeled by this engine - quick
-		// items are just the CRE's own quick item slots.
-		for (int q = 0; q < 3; q++)
-			buffer.WriteAt(structOffset + 0x9c + q * 8, &member.info.quickSpells[q], sizeof(res_ref));
-
-		member.cre->WriteDataTo(&buffer, currentCreOffset);
-		currentCreOffset += creSize;
+		write_member(buffer, partyOffset + i * kNPCStructSize, (uint16)i,
+			currentCreOffset, member.info, member.cre);
+		currentCreOffset += member.cre->DataSize();
+	}
+	for (uint32 i = 0; i < npcCount; i++) {
+		const _PendingMember& member = fPendingNPCs[i];
+		write_member(buffer, npcOffset + i * kNPCStructSize, 0xffff,
+			currentCreOffset, member.info, member.cre);
+		currentCreOffset += member.cre->DataSize();
 	}
 
 	// GLOBAL variables - only the fields real IE itself reads (name +
@@ -271,10 +300,51 @@ GamResource::PartyMemberCount() const
 gam_party_member
 GamResource::PartyMemberAt(uint32 index) const
 {
-	uint32 npcOffset;
-	fData->ReadAt(0x20, npcOffset);
-	uint32 structOffset = npcOffset + index * kNPCStructSize;
+	uint32 offset;
+	fData->ReadAt(0x20, offset);
+	return _MemberAt(offset + index * kNPCStructSize);
+}
 
+
+CREResource*
+GamResource::PartyMemberCRE(uint32 index) const
+{
+	uint32 offset;
+	fData->ReadAt(0x20, offset);
+	return _MemberCRE(offset + index * kNPCStructSize);
+}
+
+
+uint32
+GamResource::OutOfPartyCount() const
+{
+	uint32 count;
+	fData->ReadAt(0x34, count);
+	return count;
+}
+
+
+gam_party_member
+GamResource::OutOfPartyAt(uint32 index) const
+{
+	uint32 offset;
+	fData->ReadAt(0x30, offset);
+	return _MemberAt(offset + index * kNPCStructSize);
+}
+
+
+CREResource*
+GamResource::OutOfPartyCRE(uint32 index) const
+{
+	uint32 offset;
+	fData->ReadAt(0x30, offset);
+	return _MemberCRE(offset + index * kNPCStructSize);
+}
+
+
+gam_party_member
+GamResource::_MemberAt(uint32 structOffset) const
+{
 	gam_party_member member;
 	char name[9];
 	memset(name, 0, sizeof(name));
@@ -309,17 +379,13 @@ GamResource::PartyMemberAt(uint32 index) const
 
 
 CREResource*
-GamResource::PartyMemberCRE(uint32 index) const
+GamResource::_MemberCRE(uint32 structOffset) const
 {
-	uint32 npcOffset;
-	fData->ReadAt(0x20, npcOffset);
-	uint32 structOffset = npcOffset + index * kNPCStructSize;
-
 	uint32 creOffset, creSize;
 	fData->ReadAt(structOffset + 0x04, creOffset);
 	fData->ReadAt(structOffset + 0x08, creSize);
 
-	gam_party_member member = PartyMemberAt(index);
+	gam_party_member member = _MemberAt(structOffset);
 	CREResource* cre = new CREResource(member.creName);
 	cre->Load(fData, creOffset, creSize);
 	return cre;

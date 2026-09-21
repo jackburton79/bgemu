@@ -1,0 +1,6 @@
+# BALDUR.GAM (a new game's starting state) lists the out-of-party NPCs
+# with the area and point each one starts at.
+Assert-GamNPC BALDUR,IMOEN1,AR2700,3140,3681
+Assert-GamNPC BALDUR,XZAR,AR2700,4581,2694
+Assert-GamNPC BALDUR,KIVAN,AR3200,3652,1472
+Assert-GamNPC BALDUR,CANDER,AR2643,526,879
