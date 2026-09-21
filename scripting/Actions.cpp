@@ -1209,15 +1209,22 @@ RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 }
 
 
-// LEAVEAREALUA(S:Area*,S:Entrance*,P:Point*,I:Face*) and LEAVEAREALUAPANIC -
-// stateless. Per IESDP both change the current area (the Panic variant is
-// what real scripts put in front of the LEAVEAREALUA calls - GemRB only
-// uses it to name the loading screen, but the docs say it moves too).
-// Deferred via Core::RequestAreaChange() rather than loading immediately -
-// this action runs from inside AreaRoom::Update()'s own actor-update loop
-// (Actor::Update() -> ... -> here), and LoadArea() destroys that same
-// AreaRoom (via GUI::Clear()) - a real, reproduced heap-use-after-free
-// once that loop tried to continue. See RequestAreaChange()'s own comment.
+// LEAVEAREALUA(S:Area*,S:Parchment*,P:Point*,I:Face*) and LEAVEAREALUAPANIC -
+// stateless. Per IESDP both move the actor to another area (the Panic
+// variant is what real scripts put in front of the LEAVEAREALUA calls -
+// GemRB only uses it to name the loading screen, but the docs say it moves
+// too). S:Parchment is the loading-screen MOS (e.g. "TRGORION"), not an
+// entrance name; loading screens aren't modeled, so it is ignored.
+//
+// Only a party member's trip changes the game's current area (as in GemRB,
+// where the current area follows the party): it is deferred via
+// Core::RequestAreaChange() rather than loading immediately - this action
+// runs from inside AreaRoom::Update()'s own actor-update loop (Actor::
+// Update() -> ... -> here), and LoadArea() destroys that same AreaRoom (via
+// GUI::Clear()) - a real, reproduced heap-use-after-free once that loop
+// tried to continue. See RequestAreaChange()'s own comment. The party is
+// placed at the destination's first entrance (the point and face aren't
+// applied to party members yet).
 //
 // Party members are carried over to the new area unconditionally,
 // regardless of which action triggered the change (see AreaRoom::
@@ -1229,35 +1236,44 @@ RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 // so it needs the same TempState-based transfer RunActionMoveBetween
 // AreasEffect() already uses for non-party actors - without it, that
 // actor was simply left behind in the old area's AreaCache, gone from
-// both areas' object lookups.
+// both areas' object lookups. Such an actor moves alone: the current area
+// stays where it is.
 static void
 RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 {
+	state.completed = true;
+
 	Actor* actor = dynamic_cast<Actor*>(sender);
-	AreaRoom* area = actor != NULL ? actor->Area() : NULL;
-	if (actor != NULL && !actor->InParty() && area != NULL
-			&& ::strcasecmp(params->string1, area->Name()) != 0) {
-		// The same actor may ask twice for the same trip (a
-		// LEAVEAREALUAPANIC followed by its LEAVEAREALUA): hand it over once.
-		Game::TempState* tempState = Game::Get()->GetTempState();
-		std::vector<Game::TempState::PendingActor>& pendingList
-			= tempState->actors[params->string1];
-		const bool alreadyPending = std::any_of(pendingList.begin(), pendingList.end(),
-			[actor] (const Game::TempState::PendingActor& pending) {
-				return pending.actor == actor;
-			});
-		if (!alreadyPending) {
-			actor->Acquire();
-			Game::TempState::PendingActor pending = {
-				actor, params->where, (uint16)params->integer1
-			};
-			pendingList.push_back(pending);
-			area->RemoveObject(actor);
-		}
+	if (actor == NULL)
+		return; // only creatures leave areas
+
+	if (actor->InParty()) {
+		Core::Get()->RequestAreaChange(params->string1, "", "");
+		return;
 	}
 
-	Core::Get()->RequestAreaChange(params->string1, "", params->string2);
-	state.completed = true;
+	AreaRoom* area = actor->Area();
+	if (area == NULL || ::strcasecmp(params->string1, area->Name()) == 0)
+		return;
+
+	// The same actor may ask twice for the same trip (a LEAVEAREALUAPANIC
+	// followed by its LEAVEAREALUA): hand it over once.
+	Game::TempState* tempState = Game::Get()->GetTempState();
+	std::vector<Game::TempState::PendingActor>& pendingList
+		= tempState->actors[params->string1];
+	const bool alreadyPending = std::any_of(pendingList.begin(), pendingList.end(),
+		[actor] (const Game::TempState::PendingActor& pending) {
+			return pending.actor == actor;
+		});
+	if (alreadyPending)
+		return;
+
+	actor->Acquire();
+	Game::TempState::PendingActor pending = {
+		actor, params->where, (uint16)params->integer1
+	};
+	pendingList.push_back(pending);
+	area->RemoveObject(actor);
 }
 
 
