@@ -2529,10 +2529,36 @@ public:
 			return;
 
 		action_params* actionParams = new action_params;
+		actionParams->id = 153;
 		actionParams->integer1 = enemyAlly;
 		object->AddAction(actionParams);
 		actionParams->Release();
 	};
+};
+
+
+class SetReputationCommand : public ShellCommand {
+public:
+	SetReputationCommand()
+		: ShellCommand(
+			"Set-Reputation",
+			{
+			   { PARAMETER_INT, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		uint16 reputation = params.at(0).value.integer;
+		action_params* actionParams = new action_params;
+		actionParams->id = 153;
+		actionParams->integer1 = reputation;
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			room->AddAction(actionParams);
+		actionParams->Release();
+	}
 };
 
 
@@ -2561,6 +2587,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new PrintVariablesCommand());
 	console->AddCommand(new PrintJournalCommand());
 	console->AddCommand(new SetEnemyAllyCommand());
+	console->AddCommand(new SetReputationCommand());
 	console->AddCommand(new ShowWindowCommand());
 	console->AddCommand(new ToggleAuxWindowCommand());
 	console->AddCommand(new ShakeScreenCommand());
