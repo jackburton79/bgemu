@@ -1198,14 +1198,10 @@ RunActionIncrementGlobal(Object* sender, action_params* params, action_state& st
 }
 
 
-// WEATHER(I:Weather*Weather), MULTIPLAYERSYNC(), LEAVEAREALUAPANIC(S:Area*,
-// S:Entrance*,P:Point*,I:Face*) - accepted and completed at once, without
-// effect:
-// - WEATHER only changes the rain/snow overlay, which isn't modeled;
-// - MULTIPLAYERSYNC waits for the other players of a multiplayer game;
-// - LEAVEAREALUAPANIC (as in GemRB) doesn't move anyone: it only names the
-//   loading screen of the LEAVEAREALUA that follows it in the script (which
-//   does the actual area change - see RunActionChangeArea()).
+// WEATHER(I:Weather*Weather), MULTIPLAYERSYNC() - accepted and completed at
+// once, without effect: WEATHER only changes the rain/snow overlay, which
+// isn't modeled, and MULTIPLAYERSYNC waits for the other players of a
+// multiplayer game.
 static void
 RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 {
@@ -1213,7 +1209,10 @@ RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 }
 
 
-// LEAVEAREALUA(S:Area*,S:Entrance*,P:Point*,I:Face*) - stateless.
+// LEAVEAREALUA(S:Area*,S:Entrance*,P:Point*,I:Face*) and LEAVEAREALUAPANIC -
+// stateless. Per IESDP both change the current area (the Panic variant is
+// what real scripts put in front of the LEAVEAREALUA calls - GemRB only
+// uses it to name the loading screen, but the docs say it moves too).
 // Deferred via Core::RequestAreaChange() rather than loading immediately -
 // this action runs from inside AreaRoom::Update()'s own actor-update loop
 // (Actor::Update() -> ... -> here), and LoadArea() destroys that same
@@ -1235,15 +1234,26 @@ static void
 RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(sender);
-	if (actor != NULL && !actor->InParty()
-			&& ::strcasecmp(params->string1, actor->Area()->Name()) != 0) {
+	AreaRoom* area = actor != NULL ? actor->Area() : NULL;
+	if (actor != NULL && !actor->InParty() && area != NULL
+			&& ::strcasecmp(params->string1, area->Name()) != 0) {
+		// The same actor may ask twice for the same trip (a
+		// LEAVEAREALUAPANIC followed by its LEAVEAREALUA): hand it over once.
 		Game::TempState* tempState = Game::Get()->GetTempState();
-		actor->Acquire();
-		Game::TempState::PendingActor pending = {
-			actor, params->where, (uint16)params->integer1
-		};
-		tempState->actors[params->string1].push_back(pending);
-		actor->Area()->RemoveObject(actor);
+		std::vector<Game::TempState::PendingActor>& pendingList
+			= tempState->actors[params->string1];
+		const bool alreadyPending = std::any_of(pendingList.begin(), pendingList.end(),
+			[actor] (const Game::TempState::PendingActor& pending) {
+				return pending.actor == actor;
+			});
+		if (!alreadyPending) {
+			actor->Acquire();
+			Game::TempState::PendingActor pending = {
+				actor, params->where, (uint16)params->integer1
+			};
+			pendingList.push_back(pending);
+			area->RemoveObject(actor);
+		}
 	}
 
 	Core::Get()->RequestAreaChange(params->string1, "", params->string2);
@@ -3543,7 +3553,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 186, "ENDCREDITS", NULL },
 		{ 187, "STARTMUSIC", NULL },
 		{ 188, "TAKEPARTYITEMALL", RunActionTakePartyItemAll },
-		{ 189, "LEAVEAREALUAPANIC", RunActionNoEffect },
+		{ 189, "LEAVEAREALUAPANIC", RunActionChangeArea },
 		{ 190, "SAVEGAME", RunActionSaveGame },
 		// SpellNoDec/SpellPointNoDec: cast without spending a memorized
 		// slot - exactly what ForceSpell/ForceSpellPoint already do
