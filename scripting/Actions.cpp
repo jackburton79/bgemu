@@ -1222,9 +1222,10 @@ RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 // runs from inside AreaRoom::Update()'s own actor-update loop (Actor::
 // Update() -> ... -> here), and LoadArea() destroys that same AreaRoom (via
 // GUI::Clear()) - a real, reproduced heap-use-after-free once that loop
-// tried to continue. See RequestAreaChange()'s own comment. The party is
-// placed at the destination's first entrance (the point and face aren't
-// applied to party members yet).
+// tried to continue. See RequestAreaChange()'s own comment. Each party
+// member is placed at the point (and face) of its own call when the new area
+// loads (TempState::partyPlacements); one that made no call is placed at the
+// destination's first entrance.
 //
 // Party members are carried over to the new area unconditionally,
 // regardless of which action triggered the change (see AreaRoom::
@@ -1248,6 +1249,8 @@ RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 		return; // only creatures leave areas
 
 	if (actor->InParty()) {
+		Game::Get()->GetTempState()->partyPlacements[actor->GlobalID()]
+			= { params->where, params->integer1 };
 		Core::Get()->RequestAreaChange(params->string1, "", "");
 		return;
 	}

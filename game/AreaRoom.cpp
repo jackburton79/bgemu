@@ -224,10 +224,38 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	const size_t kSpawnOffsetCount = sizeof(kSpawnOffsets) / sizeof(kSpawnOffsets[0]);
 
 	Party* party = Game::Get()->Party();
+	Game::TempState* tempState = Game::Get()->GetTempState();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
 		Actor* member = party->ActorAt(a);
 		if (member == NULL)
 			continue;
+
+		// A member that asked for a spot (LEAVEAREALUA's point and face)
+		// gets exactly that one, not an entrance spawn.
+		auto placement = tempState->partyPlacements.find(member->GlobalID());
+		if (placement != tempState->partyPlacements.end()) {
+			// Real scripts give every member the same point: spread
+			// those that would stack, as the entrance spawn below does.
+			IE::point spot = placement->second.position;
+			for (uint16 b = 0; b < a && a < kSpawnOffsetCount; b++) {
+				if (party->ActorAt(b)->Position() != spot)
+					continue;
+				IE::point offsetPoint = {
+					int16(spot.x + kSpawnOffsets[a].x),
+					int16(spot.y + kSpawnOffsets[a].y)
+				};
+				if (fSearchMap != NULL
+						&& fSearchMap->IsPointPassable(offsetPoint.x, offsetPoint.y))
+					spot = offsetPoint;
+				break;
+			}
+			member->SetPosition(spot);
+			if (placement->second.orientation >= 0)
+				member->SetOrientation(placement->second.orientation);
+			if (a == 0)
+				SetAreaOffsetCenter(spot);
+			continue;
+		}
 
 		IE::point memberPoint = point;
 		if (a > 0 && a < kSpawnOffsetCount) {
@@ -241,6 +269,8 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 		}
 		member->SetPosition(memberPoint);
 	}
+
+	tempState->partyPlacements.clear();
 
 	Actor* player = party->ActorAt(0);
 	if (player != NULL)

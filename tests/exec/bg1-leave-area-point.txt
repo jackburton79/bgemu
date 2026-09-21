@@ -1,0 +1,9 @@
+# AREA: AR0602
+#
+# LEAVEAREALUA(S:Area*,S:Parchment*,P:Point*,I:Face*) places the party member
+# that runs it at the given point in the new area - not on the area's first
+# entrance, which is where party members used to land whatever the script
+# said. AJANTI asks for (3600,3650); AR2700's entrance 0 is elsewhere.
+Run-Action -,110,-,4,AR2700,TRGORION,3600,3650
+Step-Ticks 10
+Assert-Position AJANTI,3600,3650

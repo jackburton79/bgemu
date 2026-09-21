@@ -208,6 +208,15 @@ public:
 			uint16 orientation;
 		};
 		std::map<res_ref, std::vector<PendingActor>> actors;
+
+		// Where a party member asked (LEAVEAREALUA's point and face) to
+		// stand in the area the party is about to enter, by the member's
+		// global id. Consumed - and cleared - by that area's constructor.
+		struct Placement {
+			IE::point position;
+			int orientation;
+		};
+		std::map<uint16, Placement> partyPlacements;
 	};
 	TempState* GetTempState();
 
