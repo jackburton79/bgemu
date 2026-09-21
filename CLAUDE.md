@@ -231,6 +231,16 @@ orientation is always the extended 0–15 range in every game (not 0–7,
 even in BG1) — individual animation builders fold it down where their
 own real convention needs fewer directions.
 
+Creatures outside the party that the game itself tracks (a new game's
+companions and story NPCs from `BALDUR.GAM`, and later whoever leaves the
+party) are **global NPCs**, as in GemRB and the original engine: `Game::fNPCs`
+owns them, each remembers its area and point (`Actor::AreaName()`,
+`Position()`), and `AreaRoom::_LoadActors()` places the ones whose area it is.
+They are not part of any area's cached actors or checkpoint
+(`AreaRoom::_UnloadArea()` skips them) and are saved in the GAM's second
+creature table, not in an area. `Actor::IsPersistent()` = party member or
+global NPC.
+
 ## Working conventions specific to this project
 
 - **Reactive, not roadmap-driven**: the user plays the game, reports a
