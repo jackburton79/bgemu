@@ -84,8 +84,9 @@ public:
 	bool LoadFromFile(const char* path);
 	uint32 PartyMemberCount() const;
 	gam_party_member PartyMemberAt(uint32 index) const;
-	// Loads (constructs) the embedded CRE for the given party member.
-	// Caller must gResManager->ReleaseResource() it, same as any other
+	// Loads (constructs) the embedded CRE for the given party member, or
+	// returns NULL if the file carries none (see OutOfPartyCRE()). Caller
+	// must gResManager->ReleaseResource() it, same as any other
 	// resource fetched via ResourceManager.
 	CREResource* PartyMemberCRE(uint32 index) const;
 	// Same for the out-of-party NPCs (which is all a new game's

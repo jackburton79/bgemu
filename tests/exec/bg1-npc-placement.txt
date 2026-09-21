@@ -1,0 +1,18 @@
+# AREA: AR2700
+#
+# BALDUR.GAM's out-of-party NPCs are the Game's, not their area's: each one
+# shows up in its area at the point the file gives (Imoen, Xzar and Montaron
+# start in AR2700), and stays where it was put when the area is left and
+# entered again - including the spot it was moved to meanwhile.
+Assert-Position IMOEN1,3140,3681
+Assert-Position XZAR,4581,2694
+Assert-Position MONTAR,4514,2705
+Run-Action IMOEN1,48,-,0,,,3300,3500
+Step-Ticks 5
+Assert-Position IMOEN1,3300,3500
+Run-Action -,110,-,4,AR0602,,3522,3712
+Step-Ticks 10
+Run-Action -,110,-,4,AR2700,,3522,3712
+Step-Ticks 10
+Assert-Position IMOEN1,3300,3500
+Assert-Position XZAR,4581,2694

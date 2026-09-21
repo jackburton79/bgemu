@@ -117,6 +117,7 @@ Game::~Game()
 {
 	TerminateDialog();
 	delete fParty;
+	_ClearNPCs();
 	delete fTempState;
 
 	// Same convention as everything else this session is careful to
@@ -230,6 +231,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		} catch (...) {
 			throw std::runtime_error("Error creating player!");
 		}
+		_LoadStartingNPCs();
 		if (!fStartingArea.empty())
 			Core::Get()->LoadArea(fStartingArea.c_str(), "", "");
 		else if (noNewGame)
@@ -4135,17 +4137,11 @@ Game::Save(const char* name)
 	for (uint16 i = 0; i < fParty->CountActors(); i++) {
 		Actor* actor = fParty->ActorAt(i);
 
-		gam_party_member member;
-		member.creName = res_ref(actor->Name());
-		member.name = actor->Name();
-		member.position = actor->Position();
-		member.orientation = (uint16)actor->Orientation();
-		member.areaName = areaName;
-		for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
-			member.quickSpells[q] = actor->QuickSpell(q);
-
-		gam->AddPartyMember(member, actor->CRE());
+		gam->AddPartyMember(_GamMember(actor, areaName), actor->CRE());
 	}
+
+	for (Actor* npc : fNPCs)
+		gam->AddOutOfPartyMember(_GamMember(npc, npc->AreaName()), npc->CRE());
 
 	gam->SetVariables(Core::Get()->Vars().All());
 	gam->SetGameTime(GameTimer::GameTime());
@@ -4206,33 +4202,19 @@ Game::Load(const char* name)
 	delete fParty;
 	fParty = new ::Party();
 
+	_ClearNPCs();
+
 	uint32 count = gam->PartyMemberCount();
 	std::vector<IE::point> savedPositions;
 	for (uint32 i = 0; i < count; i++) {
 		gam_party_member member = gam->PartyMemberAt(i);
 
-		// Actor()'s normal constructor fetches the character's original,
-		// unmodified CRE from the game's own files (ResourceManager) -
-		// this reuses all of Actor's existing init logic (animation
-		// factory, etc.) safely. The saved CRE state (inventory,
-		// spellbook, HP, status - everything Phase 1-4 added write
-		// support for) is then applied on top of it.
-		Actor* actor = new Actor(member.creName.CString(), member.position,
-			member.orientation);
-
-		CREResource* savedCre = gam->PartyMemberCRE(i);
-		if (savedCre != NULL) {
-			actor->CRE()->CopyDataFrom(savedCre);
-			actor->RefreshColors();
-			gResManager->ReleaseResource(savedCre);
-		}
-
-		for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
-			actor->SetQuickSpell(q, member.quickSpells[q]);
-
+		Actor* actor = _RestoreActor(member, gam->PartyMemberCRE(i));
 		fParty->AddActor(actor);
 		savedPositions.push_back(member.position);
 	}
+
+	_LoadNPCs(gam);
 
 	for (const auto& variable : gam->Variables())
 		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
@@ -4441,12 +4423,135 @@ Game::Party()
 }
 
 
+uint16
+Game::CountNPCs() const
+{
+	return fNPCs.size();
+}
+
+
+Actor*
+Game::NPCAt(uint16 index) const
+{
+	return index < fNPCs.size() ? fNPCs[index] : NULL;
+}
+
+
+bool
+Game::IsNPC(const Actor* actor) const
+{
+	return std::find(fNPCs.begin(), fNPCs.end(), actor) != fNPCs.end();
+}
+
+
+void
+Game::AddNPC(Actor* actor)
+{
+	if (actor != NULL)
+		fNPCs.push_back(actor);
+}
+
+
+void
+Game::RemoveNPC(Actor* actor)
+{
+	auto i = std::find(fNPCs.begin(), fNPCs.end(), actor);
+	if (i != fNPCs.end()) {
+		(*i)->Release();
+		fNPCs.erase(i);
+	}
+}
+
+
+void
+Game::_LoadStartingNPCs()
+{
+	// A new game starts from BALDUR.GAM: its out-of-party NPC table says
+	// where every companion and story character begins.
+	GamResource* gam = gResManager->GetGAM(res_ref("BALDUR"));
+	if (gam == NULL)
+		return;
+	_LoadNPCs(gam);
+	gResManager->ReleaseResource(gam);
+}
+
+
+void
+Game::_ClearNPCs()
+{
+	for (Actor* actor : fNPCs)
+		actor->Release();
+	fNPCs.clear();
+}
+
+
+void
+Game::_LoadNPCs(GamResource* gam)
+{
+	for (uint32 i = 0; i < gam->OutOfPartyCount(); i++) {
+		gam_party_member member = gam->OutOfPartyAt(i);
+
+		// Someone already in the party (a -P override or the default
+		// party names the same creatures) can't also be standing
+		// somewhere else.
+		bool inParty = false;
+		for (uint16 p = 0; p < fParty->CountActors(); p++) {
+			if (strcasecmp(fParty->ActorAt(p)->Name(), member.creName.CString()) == 0)
+				inParty = true;
+		}
+		if (inParty)
+			continue;
+
+		Actor* npc = _RestoreActor(member, gam->OutOfPartyCRE(i));
+		npc->SetAreaName(member.areaName);
+		AddNPC(npc);
+	}
+}
+
+
+Actor*
+Game::_RestoreActor(const gam_party_member& member, CREResource* savedCre)
+{
+	// Actor()'s normal constructor fetches the character's original,
+	// unmodified CRE from the game's own files (ResourceManager) - this
+	// reuses all of Actor's existing init logic (animation factory,
+	// etc.) safely. The saved CRE state (inventory, spellbook, HP,
+	// status, ...) is then applied on top of it.
+	Actor* actor = new Actor(member.creName.CString(), member.position,
+		member.orientation);
+
+	if (savedCre != NULL) {
+		actor->CRE()->CopyDataFrom(savedCre);
+		actor->RefreshColors();
+		gResManager->ReleaseResource(savedCre);
+	}
+
+	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
+		actor->SetQuickSpell(q, member.quickSpells[q]);
+
+	return actor;
+}
+
+
+gam_party_member
+Game::_GamMember(Actor* actor, const res_ref& areaName) const
+{
+	gam_party_member member;
+	member.creName = res_ref(actor->Name());
+	member.name = actor->Name();
+	member.position = actor->Position();
+	member.orientation = (uint16)actor->Orientation();
+	member.areaName = areaName;
+	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
+		member.quickSpells[q] = actor->QuickSpell(q);
+	return member;
+}
+
+
 void
 Game::LoadStartingArea()
 {
 	std::cout << "Load Starting Area...";
-	// TODO: it seems we should load the BALDUR.GAM savefile on a new game:
-	// it contains companions position on the game world 
 	TWODAResource* resource = gResManager->Get2DA("STARTARE");
 	if (resource == NULL) {
 		std::cout << "Failed!" << std::endl;

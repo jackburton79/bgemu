@@ -21,8 +21,11 @@
 class Actor;
 class ARAResource;
 class CharacterBuilder;
+class CREResource;
 class DialogHandler;
 class GameConsole;
+class GamResource;
+struct gam_party_member;
 class Party;
 
 // The Map/Journal/Inventory/Record/Spellbook/Save command-bar actions -
@@ -56,6 +59,19 @@ public:
 	DialogHandler* Dialog();
 
 	::Party* Party();
+
+	// Global NPCs: the creatures outside the party that the game itself
+	// keeps track of (a new game's companions and story characters, or
+	// whoever left the party) - unlike an area's other actors they aren't
+	// part of any area's own state: each one just remembers the area and
+	// point it is at (Actor::AreaName(), Position()) and shows up when
+	// that area is loaded. AddNPC() takes over the caller's reference;
+	// RemoveNPC() drops the list's.
+	uint16 CountNPCs() const;
+	Actor* NPCAt(uint16 index) const;
+	bool IsNPC(const Actor* actor) const;
+	void AddNPC(Actor* actor);
+	void RemoveNPC(Actor* actor);
 
 	void LoadStartingArea();
 	void ToggleDayNight();
@@ -344,6 +360,7 @@ private:
 	DialogHandler* fDialog;
 
 	::Party* fParty;
+	std::vector<Actor*> fNPCs;
 	TempState* fTempState;
 	AreaCache* fAreaCache;
 	CharacterBuilder* fCharBuilder;
@@ -368,6 +385,17 @@ private:
 	// whatever the *current*, unsaved session left behind for any area
 	// not being loaded right now instead of that save's own history.
 	void _ClearAreaCache();
+
+	// Fills fNPCs from a GAM's out-of-party table (a new game's BALDUR.GAM
+	// or a save), skipping anyone already in the party.
+	void _LoadNPCs(GamResource* gam);
+	void _ClearNPCs();
+	void _LoadStartingNPCs();
+	// A character as a save (or BALDUR.GAM) describes it: the CRE's own
+	// files, with the saved CRE state (if any - taken over and released
+	// here) on top.
+	Actor* _RestoreActor(const gam_party_member& member, CREResource* savedCre);
+	gam_party_member _GamMember(Actor* actor, const res_ref& areaName) const;
 
 	std::map<std::string, std::string> fTokens;
 	std::vector<journal_entry> fJournal;

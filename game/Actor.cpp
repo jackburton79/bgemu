@@ -1763,6 +1763,27 @@ Actor::InParty() const
 }
 
 
+bool
+Actor::IsPersistent() const
+{
+	return InParty() || Game::Get()->IsNPC(this);
+}
+
+
+res_ref
+Actor::AreaName() const
+{
+	return fAreaName;
+}
+
+
+void
+Actor::SetAreaName(const res_ref& name)
+{
+	fAreaName = name;
+}
+
+
 void
 Actor::IncrementNumTimesTalkedTo()
 {

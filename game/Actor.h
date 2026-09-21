@@ -117,6 +117,15 @@ public:
 	bool Spawned() const;
 
 	bool InParty() const;
+	// A party member or a global NPC (Game::IsNPC()): kept by the Game
+	// itself, not by the area it happens to stand in.
+	bool IsPersistent() const;
+
+	// The area this actor stands in - kept up to date while it is placed
+	// in a room, and remembered when that room goes away. Only meaningful
+	// for a persistent actor, whose area may not be loaded.
+	res_ref AreaName() const;
+	void SetAreaName(const res_ref& name);
 
 	// Recomputes the sprite colors from the CRE's current color bytes - after
 	// the CRE's data was replaced (loading a save).
@@ -360,6 +369,8 @@ private:
 	// simply standing on a "worldmap exit" search-map cell (not just
 	// freshly walking onto one) re-fires every tick.
 	bool fOnWorldmapExit;
+
+	res_ref fAreaName;
 
 	std::string fText;
 

@@ -384,6 +384,10 @@ GamResource::_MemberCRE(uint32 structOffset) const
 	uint32 creOffset, creSize;
 	fData->ReadAt(structOffset + 0x04, creOffset);
 	fData->ReadAt(structOffset + 0x08, creSize);
+	// A creature that has no state of its own yet (BALDUR.GAM's) carries
+	// no CRE: it is just the resource its name refers to.
+	if (creOffset == 0 || creSize == 0)
+		return NULL;
 
 	gam_party_member member = _MemberAt(structOffset);
 	CREResource* cre = new CREResource(member.creName);

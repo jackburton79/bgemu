@@ -710,8 +710,12 @@ AreaRoom::AddObject(Object* object)
 	// TODO: Other objects
 	switch (object->Type()) {
 		case Object::ACTOR:
-			fActors.push_back(dynamic_cast<Actor*>(object));
+		{
+			Actor* actor = dynamic_cast<Actor*>(object);
+			actor->SetAreaName(res_ref(Name()));
+			fActors.push_back(actor);
 			break;
+		}
 		case Object::REGION:
 			fRegions.push_back(dynamic_cast<Region*>(object));
 			break;
@@ -1697,6 +1701,23 @@ AreaRoom::_LoadActors(bool revisited)
 	}
 	std::cout << std::endl;
 
+	// The game's global NPCs whose area this is (a new game's companions
+	// and story characters, whoever left the party here, ...): they are
+	// the Game's, not this area's - see Game::AddNPC().
+	std::cout << "- Loading global NPCs:" << std::endl;
+	Game* game = Game::Get();
+	for (uint16 n = 0; n < game->CountNPCs(); n++) {
+		Actor* npc = game->NPCAt(n);
+		if (strcasecmp(npc->AreaName().CString(), Name()) != 0)
+			continue;
+		npc->Acquire();
+		AddObject(npc);
+		npc->SetPosition(npc->Position());
+		std::cout << "\t + " << npc->LongName() << "(" << npc->Name() << ")"
+			<< "(id: " << npc->GlobalID() << ")" << std::endl;
+	}
+	std::cout << std::endl;
+
 	std::cout << Log::Green << "AreaRoom: done loading actors!" << Log::Normal << std::endl;
 }
 
@@ -1804,6 +1825,9 @@ AreaRoom::_CleanDestroyedObjects()
 				//return;
 			}
 			std::cout << "Destroy actor " << actor->Name() << std::endl;
+			// A destroyed global NPC is gone from the game, not just from
+			// this area (the list's reference goes, this room's below).
+			Game::Get()->RemoveNPC(actor);
 			_DetachFromCurrentRegion(actor);
 			actor->ClearActionList();
 			actor->SetArea(NULL);
@@ -1905,7 +1929,14 @@ AreaRoom::_UnloadArea()
 		// mid-fade (right after its first call, which sets the fade to
 		// fully black), leaving the screen stuck black forever since
 		// nothing else ever finishes raising it back up.
-		if (!actor->InParty()) {
+		if (Game::Get()->IsNPC(actor)) {
+			// A global NPC is the Game's, not this area's: it stays where
+			// it is (AreaName(), Position()) for whenever this area is
+			// loaded again, and isn't part of the area's cached actors or
+			// checkpoint. Nothing runs for it in the meantime.
+			actor->ClearActionList();
+			actor->SetArea(NULL);
+		} else if (!actor->InParty()) {
 			actor->ClearActionList();
 			// Cache it (see Game::AreaCache's own comment) instead of
 			// just letting Release() below drop it to 0 and destroy it -
