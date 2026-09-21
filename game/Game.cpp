@@ -4445,6 +4445,8 @@ void
 Game::LoadStartingArea()
 {
 	std::cout << "Load Starting Area...";
+	// TODO: it seems we should load the BALDUR.GAM savefile on a new game:
+	// it contains companions position on the game world 
 	TWODAResource* resource = gResManager->Get2DA("STARTARE");
 	if (resource == NULL) {
 		std::cout << "Failed!" << std::endl;
