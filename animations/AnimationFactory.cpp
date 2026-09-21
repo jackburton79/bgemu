@@ -41,6 +41,11 @@ struct AnimationEntry {
 	uint16 animation_id;
 	const char* base_name;
 	BuildDescriptionFn build;
+	// The CRE's color bytes recolor the BAM (the generic character-style
+	// sprites). False for a creature drawn with the BAM's own palette
+	// (avatars.2da's PALETTE column, GemRB's bg1 table: Sarevok, skeletons,
+	// most monsters) and for the styles that never take the colors.
+	bool custom_colors;
 };
 
 
@@ -58,161 +63,161 @@ struct AnimationEntry {
 // BG1 data risks silently picking the wrong sprite for non-party
 // actors, so GeneratedIDS keeps them.
 static const AnimationEntry kAnimationEntries[] = {
-	{ 0x1000, "",     _BuildBGMonster },
-	{ 0x2000, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
-	{ 0x2200, "MOGM", _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
-	{ 0x2300, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x1000, "",     _BuildBGMonster, false },
+	{ 0x2000, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x2200, "MOGM", _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x2300, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
 
 	// avatars.2da TYPE 1 (ONE_FILE) throughout this block. bgemu's own
 	// base names for the SNOM/SSIM* rows were missing their trailing
 	// variant letter (the real, complete resref - confirmed against
 	// avatars.2da and that resource actually existing); the L-prefixed
 	// ids already had the correct complete name.
-	{ 0x4000, "SNOMC", _BuildOneFile },
-	{ 0x4010, "SNOWC", _BuildOneFile },
-	{ 0x4100, "SSIMC", _BuildOneFile },
-	{ 0x4101, "SSIMS", _BuildOneFile },
-	{ 0x4102, "SSIMM", _BuildOneFile },
-	{ 0x4110, "SSIWC", _BuildOneFile },
-	{ 0x4400, "LHMC", _BuildOneFile },
-	{ 0x4410, "LHFC", _BuildOneFile },
-	{ 0x4500, "LFAM", _BuildOneFile },
-	{ 0x4600, "LDMF", _BuildOneFile },
-	{ 0x4700, "LEMF", _BuildOneFile },
-	{ 0x4710, "LEFF", _BuildOneFile },
-	{ 0x4800, "LIMC", _BuildOneFile }, // SLEEPING_MAN_HALFLING
+	{ 0x4000, "SNOMC", _BuildOneFile, true },
+	{ 0x4010, "SNOWC", _BuildOneFile, true },
+	{ 0x4100, "SSIMC", _BuildOneFile, true },
+	{ 0x4101, "SSIMS", _BuildOneFile, true },
+	{ 0x4102, "SSIMM", _BuildOneFile, true },
+	{ 0x4110, "SSIWC", _BuildOneFile, true },
+	{ 0x4400, "LHMC", _BuildOneFile, true },
+	{ 0x4410, "LHFC", _BuildOneFile, true },
+	{ 0x4500, "LFAM", _BuildOneFile, true },
+	{ 0x4600, "LDMF", _BuildOneFile, true },
+	{ 0x4700, "LEMF", _BuildOneFile, true },
+	{ 0x4710, "LEFF", _BuildOneFile, true },
+	{ 0x4800, "LIMC", _BuildOneFile, true }, // SLEEPING_MAN_HALFLING
 
-	{ 0x5000, "CHMB", _BuildCharacter },
-	{ 0x5002, "CDMB", _BuildCharacter },
-	{ 0x5003, "CIMB", _BuildCharacter },
-	{ 0x5100, "CHMB", _BuildCharacter },
-	{ 0x5102, "CDMB", _BuildCharacter },
-	{ 0x5110, "CHFB", _BuildCharacter },
-	{ 0x5113, "CIFB", _BuildCharacter },
-	{ 0x5200, "",     _BuildCharacter },
-	{ 0x5202, "CDMW", _BuildCharacter },
-	{ 0x5210, "CHFW", _BuildCharacter },
-	{ 0x5300, "CHMB", _BuildCharacter },
-	{ 0x5303, "CIMB", _BuildCharacter },
-	{ 0x6000, "CHMB", _BuildCharacter },
-	{ 0x6002, "CDMB", _BuildCharacter },
-	{ 0x6003, "CIMB", _BuildCharacter },
-	{ 0x6004, "CDMB", _BuildCharacter },
-	{ 0x6010, "CHFB", _BuildCharacter },
-	{ 0x6011, "CEFB", _BuildCharacter },
-	{ 0x6013, "CIFB", _BuildCharacter },
-	{ 0x6100, "CHMB", _BuildCharacter },
-	{ 0x6101, "CEMB", _BuildCharacter },
-	{ 0x6102, "CDMB", _BuildCharacter },
-	{ 0x6103, "CIMB", _BuildCharacter },
-	{ 0x6104, "CDMB", _BuildCharacter },
-	{ 0x6110, "CHFB", _BuildCharacter },
-	{ 0x6111, "CEFB", _BuildCharacter },
-	{ 0x6113, "CIFB", _BuildCharacter },
-	{ 0x6200, "",     _BuildCharacter },
-	{ 0x6201, "CEMW", _BuildCharacter },
-	{ 0x6210, "CHFW", _BuildCharacter },
-	{ 0x6211, "CEFW", _BuildCharacter },
-	{ 0x6300, "CHMB", _BuildCharacter },
-	{ 0x6301, "CEMB", _BuildCharacter },
-	{ 0x6302, "CDMB", _BuildCharacter },
-	{ 0x6303, "CIMB", _BuildCharacter },
-	{ 0x6310, "CHFB", _BuildCharacter },
-	{ 0x6311, "CEFB", _BuildCharacter },
-	{ 0x6314, "CEFB", _BuildCharacter },
-	{ 0x6315, "CEFB", _BuildCharacter },
-	{ 0x6400, "",     _BuildCharacter },
-	{ 0x6402, "CMNK", _BuildCharacter },
-	{ 0x6403, "MSKL", _BuildCharacter },
-	{ 0x6404, "USAR", _BuildCharacter }, // Sarevok
-	{ 0x6405, "MDGU", _BuildCharacter },
-	{ 0x6500, "CHMM", _BuildCharacter },
-	{ 0x6510, "CHFM", _BuildCharacter },
+	{ 0x5000, "CHMB", _BuildCharacter, true },
+	{ 0x5002, "CDMB", _BuildCharacter, true },
+	{ 0x5003, "CIMB", _BuildCharacter, true },
+	{ 0x5100, "CHMB", _BuildCharacter, true },
+	{ 0x5102, "CDMB", _BuildCharacter, true },
+	{ 0x5110, "CHFB", _BuildCharacter, true },
+	{ 0x5113, "CIFB", _BuildCharacter, true },
+	{ 0x5200, "",     _BuildCharacter, true },
+	{ 0x5202, "CDMW", _BuildCharacter, true },
+	{ 0x5210, "CHFW", _BuildCharacter, true },
+	{ 0x5300, "CHMB", _BuildCharacter, true },
+	{ 0x5303, "CIMB", _BuildCharacter, true },
+	{ 0x6000, "CHMB", _BuildCharacter, true },
+	{ 0x6002, "CDMB", _BuildCharacter, true },
+	{ 0x6003, "CIMB", _BuildCharacter, true },
+	{ 0x6004, "CDMB", _BuildCharacter, true },
+	{ 0x6010, "CHFB", _BuildCharacter, true },
+	{ 0x6011, "CEFB", _BuildCharacter, true },
+	{ 0x6013, "CIFB", _BuildCharacter, true },
+	{ 0x6100, "CHMB", _BuildCharacter, true },
+	{ 0x6101, "CEMB", _BuildCharacter, true },
+	{ 0x6102, "CDMB", _BuildCharacter, true },
+	{ 0x6103, "CIMB", _BuildCharacter, true },
+	{ 0x6104, "CDMB", _BuildCharacter, true },
+	{ 0x6110, "CHFB", _BuildCharacter, true },
+	{ 0x6111, "CEFB", _BuildCharacter, true },
+	{ 0x6113, "CIFB", _BuildCharacter, true },
+	{ 0x6200, "",     _BuildCharacter, true },
+	{ 0x6201, "CEMW", _BuildCharacter, true },
+	{ 0x6210, "CHFW", _BuildCharacter, true },
+	{ 0x6211, "CEFW", _BuildCharacter, true },
+	{ 0x6300, "CHMB", _BuildCharacter, true },
+	{ 0x6301, "CEMB", _BuildCharacter, true },
+	{ 0x6302, "CDMB", _BuildCharacter, true },
+	{ 0x6303, "CIMB", _BuildCharacter, true },
+	{ 0x6310, "CHFB", _BuildCharacter, true },
+	{ 0x6311, "CEFB", _BuildCharacter, true },
+	{ 0x6314, "CEFB", _BuildCharacter, true },
+	{ 0x6315, "CEFB", _BuildCharacter, true },
+	{ 0x6400, "",     _BuildCharacter, true },
+	{ 0x6402, "CMNK", _BuildCharacter, true },
+	{ 0x6403, "MSKL", _BuildCharacter, false },
+	{ 0x6404, "USAR", _BuildCharacter, false }, // Sarevok
+	{ 0x6405, "MDGU", _BuildCharacter, true },
+	{ 0x6500, "CHMM", _BuildCharacter, true },
+	{ 0x6510, "CHFM", _BuildCharacter, true },
 
-	{ 0x7000, "",     _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7001, "MOGN", _BuildFourFiles }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000. avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7202, "MBER", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7300, "",     _BuildBGMonster },
-	{ 0x7400, "MDOG", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7700, "MGHL", _BuildFourFiles }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7703, "MGHL", _BuildFourFiles }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7a01, "MSPI", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7c01, "MTAS", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7b00, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7b01, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7b02, "MWLF", _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7d00, "MZOM", _BuildFourFiles }, // (Zombie) avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7e00, "",     _BuildFourFiles }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7f02, "MBEH", _BuildBGMonster },
-	{ 0x7f03, "MIMP", _BuildBGMonster },
-	{ 0x7f05, "MDJI", _BuildBGMonster },
-	{ 0x7f06, "MDJL", _BuildBGMonster },
-	{ 0x7f07, "MGLC", _BuildBGMonster },
-	{ 0x7f08, "MOTY", _BuildBGMonster },
-	{ 0x7f09, "MSAH", _BuildBGMonster },
-	{ 0x7f0a, "MGCP", _BuildBGMonster },
-	{ 0x7f0b, "MGCL", _BuildBGMonster },
-	{ 0x7f0d, "MLIC", _BuildBGMonster },
-	{ 0x7f10, "MRAK", _BuildBGMonster },
-	{ 0x7f13, "MSNK", _BuildBGMonster },
-	{ 0x7f16, "AMOO", _BuildBGMonster },
-	{ 0x7f17, "ARAB", _BuildBGMonster },
-	{ 0x7f18, "ADER", _BuildBGMonster },
-	{ 0x7f20, "AGRO", _BuildBGMonster },
-	{ 0x7f21, "APHE", _BuildBGMonster },
-	{ 0x7f22, "MVAF", _BuildBGMonster },
-	{ 0x7f23, "MSAT", _BuildBGMonster },
-	{ 0x7f24, "NPIR", _BuildBGMonster },
-	{ 0x7f2a, "NSAI", _BuildBGMonster },
-	{ 0x7f2c, "NSOL", _BuildBGMonster },
-	{ 0x7f36, "NSHD", _BuildBGMonster },
-	{ 0x7f37, "NIRE", _BuildBGMonster },
-	{ 0x8000, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
-	{ 0x8100, "",     _BuildFourFiles }, // avatars.2da TYPE 2 (FOUR_FILES)
-	{ 0x9000, "MOGR", _BuildMOGR }, // Ogre - avatars.2da TYPE 5 (SIX_FILES_2), GemRB's own comment: "Only one animation uses it: MOGR"
-	{ 0xa000, "MWYV", _BuildSixFiles }, // avatars.2da TYPE 8 (SIX_FILES)
-	{ 0xb000, "ACOW", _BuildTwoFiles2 }, // avatars.2da TYPE 10 (TWO_FILES_2)
-	{ 0xb100, "AHRS", _BuildTwoFiles2 }, // avatars.2da TYPE 10 (TWO_FILES_2)
-	{ 0xb200, "NBEG", _BuildSplit },
-	{ 0xb210, "NPRO", _BuildSplit },
-	{ 0xb300, "NBOY", _BuildSplit },
-	{ 0xb310, "NGRL", _BuildSplit },
-	{ 0xb400, "NFAM", _BuildSplit },
-	{ 0xb410, "NFAW", _BuildSplit },
-	{ 0xb500, "NSIM", _BuildSplit },
-	{ 0xb510, "NSIW", _BuildSplit },
-	{ 0xb600, "NNOM", _BuildSplit },
+	{ 0x7000, "",     _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7001, "MOGN", _BuildFourFiles, false }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000. avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7202, "MBER", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7300, "",     _BuildBGMonster, false },
+	{ 0x7400, "MDOG", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7700, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7703, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7a01, "MSPI", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7c01, "MTAS", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b00, "MWLF", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b01, "MWLF", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7b02, "MWLF", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7d00, "MZOM", _BuildFourFiles, false }, // (Zombie) avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7e00, "",     _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7f02, "MBEH", _BuildBGMonster, false },
+	{ 0x7f03, "MIMP", _BuildBGMonster, false },
+	{ 0x7f05, "MDJI", _BuildBGMonster, false },
+	{ 0x7f06, "MDJL", _BuildBGMonster, false },
+	{ 0x7f07, "MGLC", _BuildBGMonster, false },
+	{ 0x7f08, "MOTY", _BuildBGMonster, false },
+	{ 0x7f09, "MSAH", _BuildBGMonster, false },
+	{ 0x7f0a, "MGCP", _BuildBGMonster, false },
+	{ 0x7f0b, "MGCL", _BuildBGMonster, false },
+	{ 0x7f0d, "MLIC", _BuildBGMonster, false },
+	{ 0x7f10, "MRAK", _BuildBGMonster, false },
+	{ 0x7f13, "MSNK", _BuildBGMonster, false },
+	{ 0x7f16, "AMOO", _BuildBGMonster, false },
+	{ 0x7f17, "ARAB", _BuildBGMonster, false },
+	{ 0x7f18, "ADER", _BuildBGMonster, false },
+	{ 0x7f20, "AGRO", _BuildBGMonster, false },
+	{ 0x7f21, "APHE", _BuildBGMonster, false },
+	{ 0x7f22, "MVAF", _BuildBGMonster, false },
+	{ 0x7f23, "MSAT", _BuildBGMonster, false },
+	{ 0x7f24, "NPIR", _BuildBGMonster, false },
+	{ 0x7f2a, "NSAI", _BuildBGMonster, false },
+	{ 0x7f2c, "NSOL", _BuildBGMonster, false },
+	{ 0x7f36, "NSHD", _BuildBGMonster, false },
+	{ 0x7f37, "NIRE", _BuildBGMonster, false },
+	{ 0x8000, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x8100, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x9000, "MOGR", _BuildMOGR, false }, // Ogre - avatars.2da TYPE 5 (SIX_FILES_2), GemRB's own comment: "Only one animation uses it: MOGR"
+	{ 0xa000, "MWYV", _BuildSixFiles, false }, // avatars.2da TYPE 8 (SIX_FILES)
+	{ 0xb000, "ACOW", _BuildTwoFiles2, false }, // avatars.2da TYPE 10 (TWO_FILES_2)
+	{ 0xb100, "AHRS", _BuildTwoFiles2, false }, // avatars.2da TYPE 10 (TWO_FILES_2)
+	{ 0xb200, "NBEG", _BuildSplit, true },
+	{ 0xb210, "NPRO", _BuildSplit, true },
+	{ 0xb300, "NBOY", _BuildSplit, true },
+	{ 0xb310, "NGRL", _BuildSplit, true },
+	{ 0xb400, "NFAM", _BuildSplit, true },
+	{ 0xb410, "NFAW", _BuildSplit, true },
+	{ 0xb500, "NSIM", _BuildSplit, true },
+	{ 0xb510, "NSIW", _BuildSplit, true },
+	{ 0xb600, "NNOM", _BuildSplit, true },
 	// avatars.2da TYPE 3 (TWO_FILES) throughout this block.
-	{ 0xc000, "ABAT", _BuildTwoFiles },
-	{ 0xc100, "ACAT", _BuildTwoFiles },
-	{ 0xc200, "ACHK", _BuildTwoFiles },
-	{ 0xc300, "ARAT", _BuildTwoFiles },
-	{ 0xc400, "ASQU", _BuildTwoFiles },
-	{ 0xc500, "ABAT", _BuildTwoFiles },
-	{ 0xc700, "NBOY", _BuildSplit },
-	{ 0xc800, "NFAM", _BuildSplit },
-	{ 0xc600, "NBEG", _BuildSplit },
-	{ 0xc610, "NPRO", _BuildSplit },
-	{ 0xc710, "NGRL", _BuildSplit },
-	{ 0xc800, "",     _BuildSplit },
-	{ 0xc810, "NFAW", _BuildSplit },
-	{ 0xc900, "NSIM", _BuildSplit },
-	{ 0xc910, "NSIW", _BuildSplit },
-	{ 0xca00, "NNOM", _BuildSplit },
-	{ 0xca10, "NNOW", _BuildSplit },
-	{ 0xd000, "AEAG", _BuildBGMonster }, // AEAG (Eagle)
-	{ 0xd100, "AGUL", _BuildBGMonster }, // Seagull
-	{ 0xd200, "",     _BuildBGMonster },
-	{ 0xd300, "",     _BuildBGMonster },
-	{ 0xe000, "",     _BuildIWD },
-	{ 0xe010, "METN", _BuildIWD },
-	{ 0xe400, "",     _BuildIWD },
-	{ 0xe430, "MG04", _BuildIWD },
-	{ 0xe600, "",     _BuildIWD },
-	{ 0xe710, "MNO2", _BuildIWD },
-	{ 0xeb10, "MSKA", _BuildIWD }, // (Skeleton Warrior)
-	{ 0xeb20, "MSKB", _BuildIWD },
-	{ 0xed00, "MYU1", _BuildIWD },
+	{ 0xc000, "ABAT", _BuildTwoFiles, false },
+	{ 0xc100, "ACAT", _BuildTwoFiles, false },
+	{ 0xc200, "ACHK", _BuildTwoFiles, false },
+	{ 0xc300, "ARAT", _BuildTwoFiles, false },
+	{ 0xc400, "ASQU", _BuildTwoFiles, false },
+	{ 0xc500, "ABAT", _BuildTwoFiles, false },
+	{ 0xc700, "NBOY", _BuildSplit, true },
+	{ 0xc800, "NFAM", _BuildSplit, true },
+	{ 0xc600, "NBEG", _BuildSplit, true },
+	{ 0xc610, "NPRO", _BuildSplit, true },
+	{ 0xc710, "NGRL", _BuildSplit, true },
+	{ 0xc800, "",     _BuildSplit, true },
+	{ 0xc810, "NFAW", _BuildSplit, true },
+	{ 0xc900, "NSIM", _BuildSplit, true },
+	{ 0xc910, "NSIW", _BuildSplit, true },
+	{ 0xca00, "NNOM", _BuildSplit, true },
+	{ 0xca10, "NNOW", _BuildSplit, true },
+	{ 0xd000, "AEAG", _BuildBGMonster, false }, // AEAG (Eagle)
+	{ 0xd100, "AGUL", _BuildBGMonster, false }, // Seagull
+	{ 0xd200, "",     _BuildBGMonster, false },
+	{ 0xd300, "",     _BuildBGMonster, false },
+	{ 0xe000, "",     _BuildIWD, false },
+	{ 0xe010, "METN", _BuildIWD, false },
+	{ 0xe400, "",     _BuildIWD, false },
+	{ 0xe430, "MG04", _BuildIWD, false },
+	{ 0xe600, "",     _BuildIWD, false },
+	{ 0xe710, "MNO2", _BuildIWD, false },
+	{ 0xeb10, "MSKA", _BuildIWD, false }, // (Skeleton Warrior)
+	{ 0xeb20, "MSKB", _BuildIWD, false },
+	{ 0xed00, "MYU1", _BuildIWD, false },
 };
 
 
@@ -530,7 +535,6 @@ _BuildCharacter(const std::string& baseName, Actor* actor)
 {
 	int o = actor->Orientation();
 	animation_description description;
-	description.custom_colors = true;
 
 	description.bam_name = actor->InParty()
 		? _CharacterIdentityPrefix(actor, baseName, true)
@@ -644,7 +648,6 @@ _BuildOneFile(const std::string& baseName, Actor* actor)
 {
 	animation_description description;
 	description.bam_name = baseName;
-	description.custom_colors = true;
 
 	int bank;
 	switch (actor->AnimationAction()) {
@@ -818,7 +821,6 @@ _BuildSplit(const std::string& baseName, Actor* actor)
 	int o = actor->Orientation();
 	animation_description description;
 	description.bam_name = baseName;
-	description.custom_colors = true;
 
 	bool useH = (o % 2) == 0;
 	int halfOrient = o / 2;
@@ -936,9 +938,10 @@ AnimationFactory::AnimationFor(Actor* actor, CREColors* colors)
 	try {
 		animation_description description = GetAnimationDescription(actor);
 		IE::point pos;
+		CREColors* colorsToApply = UsesCustomColors(fID) ? colors : nullptr;
 		return new Animation(description.bam_name.c_str(),
 							description.sequence_number, description.mirror,
-							pos, description.custom_colors ? colors : nullptr);
+							pos, colorsToApply);
 	} catch (std::exception& exception) {
 		std::cerr << exception.what() << std::endl;
 		return NULL;
@@ -1002,14 +1005,31 @@ AnimationFactory::PaperdollName(const Actor* actor) const
 }
 
 
+static const AnimationEntry*
+_FindEntry(uint16 animationID)
+{
+	auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
+						[animationID] (const AnimationEntry& entry) {
+							return entry.animation_id == animationID;
+						});
+	return it == std::end(kAnimationEntries) ? NULL : it;
+}
+
+
+/* static */
+bool
+AnimationFactory::UsesCustomColors(uint16 animationID)
+{
+	const AnimationEntry* entry = _FindEntry(animationID);
+	return entry != NULL && entry->custom_colors;
+}
+
+
 animation_description
 AnimationFactory::GetAnimationDescription(Actor* actor)
 {
-	auto it = std::find_if(std::begin(kAnimationEntries), std::end(kAnimationEntries),
-						[this] (const AnimationEntry& entry) {
-							return entry.animation_id == fID;
-						});
-	if (it == std::end(kAnimationEntries)) {
+	const AnimationEntry* it = _FindEntry(fID);
+	if (it == NULL) {
 		std::ostringstream error;
 		error << "Animation description not found for " << fBaseName
 			<< " (0x" << std::hex << fID << ")";

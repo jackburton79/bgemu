@@ -20,7 +20,6 @@ struct animation_description {
 	std::string bam_name;
 	int sequence_number = 0;
 	bool mirror = false;
-	bool custom_colors = false;
 
 	// Empty when this action has no weapon held up for the current
 	// action (see AnimationFactory::WeaponOverlayFor()) - shares
@@ -42,6 +41,10 @@ public:
 	static void ReleaseFactory(AnimationFactory*);
 
 	Animation* AnimationFor(Actor* actor, CREColors* colors = NULL);
+
+	// Whether the CRE's color bytes recolor the sprite of this animation id
+	// (false: it is drawn with the BAM's own palette).
+	static bool UsesCustomColors(uint16 animationID);
 
 	// The equipped weapon's own overlay animation, drawn on top of
 	// AnimationFor()'s body sprite at the same position - NULL when the

@@ -1,0 +1,12 @@
+# AREA: AR0602
+#
+# Sarevok (animation 0x6404, "USAR") ships his own finished palette: avatars.2da
+# marks it so, and the CRE's color bytes (which name gradients for the
+# generic character BAMs' recolorable ranges) must not be applied - doing so
+# turned his sprite cyan. An ordinary creature (Mercante) is recolored.
+Create-Creature SAREV1,560,127
+Step-Ticks 3
+Disable-Creature SAREV1
+Assert-CustomColors SAREV1,false
+Assert-CustomColors DOPMER,true
+Assert-CustomColors AJANTI,true

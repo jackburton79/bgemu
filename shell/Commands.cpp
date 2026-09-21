@@ -8,6 +8,7 @@
 
 #include "Commands.h"
 
+#include "AnimationFactory.h"
 #include "AreaRoom.h"
 #include "CharacterBuilder.h"
 #include "Container.h"
@@ -1749,6 +1750,37 @@ public:
 };
 
 
+// Assert-CustomColors <actor>,<true|false> - whether the creature's sprite is
+// recolored from its CRE's color bytes (false: drawn with the BAM's own
+// palette).
+class AssertCustomColorsCommand : public ShellCommand {
+public:
+	AssertCustomColorsCommand()
+		: ShellCommand("Assert-CustomColors")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, expectedText;
+		if (!_SplitOnFirstComma(argv, actorName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+		const bool actual = AnimationFactory::UsesCustomColors(actor->CRE()->AnimationID());
+		if (actual == expected)
+			std::cout << "ASSERT OK: " << actorName << " custom colors == " << expectedText << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << actorName << " custom colors - expected "
+				<< expectedText << std::endl;
+	}
+};
+
+
 // Assert-ActorHasColors <actor> - the creature's sprite has a color set (an
 // actor without one is drawn with the BAM's raw placeholder palette).
 class AssertActorHasColorsCommand : public ShellCommand {
@@ -2454,6 +2486,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new SelectWeaponCommand());
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
+	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());
 	console->AddCommand(new AssertStoreWindowCommand());
