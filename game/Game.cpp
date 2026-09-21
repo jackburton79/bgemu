@@ -4444,6 +4444,22 @@ Game::IsNPC(const Actor* actor) const
 }
 
 
+Actor*
+Game::FindNPC(const char* name) const
+{
+	for (Actor* npc : fNPCs) {
+		if (strcasecmp(name, npc->Name()) == 0)
+			return npc;
+		const CREResource* cre = npc->CRE();
+		if (cre != NULL && !cre->DeathVariable().empty()
+				&& strcasecmp(name, cre->DeathVariable().c_str()) == 0) {
+			return npc;
+		}
+	}
+	return NULL;
+}
+
+
 void
 Game::AddNPC(Actor* actor)
 {

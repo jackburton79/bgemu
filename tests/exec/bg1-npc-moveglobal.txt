@@ -1,0 +1,18 @@
+# AREA: AR0602
+#
+# MOVEGLOBAL(S:Area*,O:Object*,P:Point*) moves a creature of the GAM - here
+# Imoen (IMOEN1), who is standing in AR2700 while the party is in AR0602 - to
+# a point of an area without her area being loaded: she isn't in AR0602
+# until she is sent there, and is at the given point once she is.
+Assert-ActorCount IMOEN1,0
+Run-Action -,197,IMOEN1,0,AR0602,-,700,900
+Step-Ticks 10
+Assert-ActorCount IMOEN1,1
+Assert-Position IMOEN1,700,900
+Run-Action -,197,IMOEN1,0,AR2700,-,3100,3600
+Step-Ticks 10
+Assert-ActorCount IMOEN1,0
+Run-Action -,110,-,4,AR2700,,3522,3712
+Step-Ticks 10
+Assert-ActorCount IMOEN1,1
+Assert-Position IMOEN1,3100,3600

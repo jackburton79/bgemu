@@ -908,12 +908,11 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 }
 
 
-// MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*) - resolves
-// and completes in a single tick (mirrors the original, which never left
-// state.initiated false for more than one call).
-// The "different area" branch hands the actor to Game::TempState (keyed
-// by destination area, drained by AreaRoom::_LoadActors() once that area
-// loads). Only a party member's own move also switches the game's current
+// Moves `actor` to a point of `area` (the shared part of MOVEBETWEENAREASEFFECT
+// and MOVEGLOBAL). A global NPC just changes where it is (its area needn't be
+// loaded). Any other actor in a different area is handed to Game::TempState
+// (keyed by destination area, drained by AreaRoom::_LoadActors() once that
+// area loads). Only a party member's own move also switches the game's current
 // area (Core::RequestAreaChange()) - real content routinely uses this
 // effect on an unrelated NPC just to stash it for whenever its target area
 // happens to load next (e.g. BG2's NewGame cutscene relocating Malaaq to
@@ -922,40 +921,66 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 // area transition - a pending change already set here blocked the very
 // next instant action (STARTCUTSCENE) from running via Object::AddAction()'s
 // HasPendingTransition() guard, silently dropping it when this area
-// unloaded before ever executing its own queued actions. S:EFFECT* (a
-// transition visual/sound) isn't modeled, same spirit as other
-// cosmetic-only parameters already skipped elsewhere.
+// unloaded before ever executing its own queued actions.
+static void
+_MoveToArea(Actor* actor, const char* area, const IE::point& where, int face)
+{
+	if (Game::Get()->IsNPC(actor)) {
+		Game::Get()->MoveNPC(actor, res_ref(area), where, face);
+	} else if (::strcasecmp(area, actor->Area()->Name()) != 0) {
+		Game::TempState* tempState = Game::Get()->GetTempState();
+		actor->Acquire();
+		Game::TempState::PendingActor pending = {
+			actor, where, (uint16)(face >= 0 ? face : actor->Orientation())
+		};
+		tempState->actors[area].push_back(pending);
+		actor->Area()->RemoveObject(actor);
+		if (actor->InParty()) {
+			// Deferred - see RunActionChangeArea()'s own comment, same
+			// reasoning applies here (also runs from inside
+			// AreaRoom::Update()'s actor loop).
+			Core::Get()->RequestAreaChange(area, "", "");
+		}
+	} else {
+		actor->SetPosition(where);
+		if (face >= 0)
+			actor->SetOrientation(face);
+	}
+}
+
+
+// MOVEBETWEENAREASEFFECT(S:AREA*,S:EFFECT*,P:LOCATION*,I:FACE*) - resolves
+// and completes in a single tick (mirrors the original, which never left
+// state.initiated false for more than one call). S:EFFECT* (a transition
+// visual/sound) isn't modeled, same spirit as other cosmetic-only
+// parameters already skipped elsewhere.
 static void
 RunActionMoveBetweenAreasEffect(Object* sender, action_params* params, action_state& state)
 {
 	if (!state.initiated) {
 		state.initiated = true;
 		Actor* actor = dynamic_cast<Actor*>(sender);
-		if (actor != NULL && Game::Get()->IsNPC(actor)) {
-			Game::Get()->MoveNPC(actor, res_ref(params->string1), params->where,
-				params->integer1);
-		} else if (actor != NULL) {
-			if (::strcasecmp(params->string1, actor->Area()->Name()) != 0) {
-				Game::TempState* tempState = Game::Get()->GetTempState();
-				actor->Acquire();
-				Game::TempState::PendingActor pending = {
-					actor, params->where, (uint16)params->integer1
-				};
-				tempState->actors[params->string1].push_back(pending);
-				actor->Area()->RemoveObject(actor);
-				if (actor->InParty()) {
-					// Deferred - see RunActionChangeArea()'s own comment,
-					// same reasoning applies here (also runs from inside
-					// AreaRoom::Update()'s actor loop).
-					Core::Get()->RequestAreaChange(params->string1, "", "");
-				}
-			} else {
-				actor->SetPosition(params->where);
-				actor->SetOrientation(params->integer1);
-			}
-		}
+		if (actor != NULL)
+			_MoveToArea(actor, params->string1, params->where, params->integer1);
 		state.completed = true;
 	}
+}
+
+
+// MOVEGLOBAL(S:Area*,O:Object*,P:Point*) - moves the object to a point of
+// the area. The object may be a creature of the GAM (a global NPC, party
+// member) that isn't in the current area at all, so a name that finds no one
+// here is looked up among the Game's NPCs.
+static void
+RunActionMoveGlobal(Object* sender, action_params* params, action_state& state)
+{
+	state.completed = true;
+
+	Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
+	if (actor == NULL)
+		actor = Game::Get()->FindNPC(params->Second()->name);
+	if (actor != NULL)
+		_MoveToArea(actor, params->string1, params->where, -1);
 }
 
 
@@ -3608,7 +3633,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 194, "CHANGEANIMATION", NULL },
 		{ 195, "LOCK", RunActionLock },
 		{ 196, "UNLOCK", RunActionUnlock },
-		{ 197, "MOVEGLOBAL", NULL },
+		{ 197, "MOVEGLOBAL", RunActionMoveGlobal },
 		{ 198, "STARTDIALOGNOSET", RunActionDialog },
 		{ 199, "TEXTSCREEN", NULL },
 		{ 200, "RANDOMWALKCONTINUOUS", NULL },

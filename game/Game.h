@@ -70,6 +70,9 @@ public:
 	uint16 CountNPCs() const;
 	Actor* NPCAt(uint16 index) const;
 	bool IsNPC(const Actor* actor) const;
+	// The NPC a script's object name refers to (its CRE name or death
+	// variable), NULL if none.
+	Actor* FindNPC(const char* name) const;
 	void AddNPC(Actor* actor);
 	void RemoveNPC(Actor* actor);
 
