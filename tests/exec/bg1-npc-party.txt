@@ -1,14 +1,18 @@
 # AREA: AR2700
 #
-# Joining the party takes a global NPC out of the Game's list, leaving it
-# puts it back where it stands: Imoen joins, travels with the party, leaves
-# at a chosen spot in AR0602 and stays there when the party goes away and
-# comes back - and is not in AR2700 any more.
+# Joining the party takes a global NPC out of the Game's list and puts her
+# portrait on the HUD bar, leaving puts her back where she stands (and takes
+# the portrait off): Imoen joins, travels with the party, leaves at a chosen
+# spot in AR0602 and stays there when the party goes away and comes back -
+# and is not in AR2700 any more.
+Assert-PortraitCount 1
 Run-Action IMOEN1,19,-,0,-,-,0,0
+Assert-PortraitCount 2
 Run-Action -,110,-,4,AR0602,,3522,3712
 Step-Ticks 10
 Assert-ActorCount IMOEN1,1
 Run-Action IMOEN1,21,-,0,-,-,0,0
+Assert-PortraitCount 1
 Run-Action IMOEN1,48,-,0,,,900,900
 Step-Ticks 5
 Run-Action -,110,-,4,AR2700,,3522,3712

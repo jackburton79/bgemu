@@ -18,6 +18,7 @@
 #include "CreResource.h"
 #include "Dialog.h"
 #include "Door.h"
+#include "Button.h"
 #include "GamResource.h"
 #include "Game.h"
 #include "GameConsole.h"
@@ -1749,6 +1750,31 @@ public:
 };
 
 
+// Assert-PortraitCount <n> - the HUD's party portrait bar shows n portraits.
+class AssertPortraitCountCommand : public ShellCommand {
+public:
+	AssertPortraitCountCommand()
+		: ShellCommand("Assert-PortraitCount")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Window* window = GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS);
+		int count = 0;
+		for (uint32 i = 0; window != NULL && i < 6; i++) {
+			Button* button = dynamic_cast<Button*>(window->GetControlByID(i));
+			if (button != NULL && button->HasIcon())
+				count++;
+		}
+		if (count == atoi(argv)) {
+			std::cout << "ASSERT OK: PortraitCount" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: PortraitCount - expected " << argv
+				<< ", got " << count << std::endl;
+		}
+	}
+};
+
+
 // Assert-GamNPC <gam>,<cre>,<area>,<x>,<y> - the GAM resource lists <cre>
 // as an out-of-party NPC standing in <area> at that point.
 class AssertGamNPCCommand : public ShellCommand {
@@ -2613,6 +2639,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new PrintStoreCommand());
 	console->AddCommand(new PrintGamCommand());
 	console->AddCommand(new AssertGamNPCCommand());
+	console->AddCommand(new AssertPortraitCountCommand());
 	console->AddCommand(new AssertActorCountCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());

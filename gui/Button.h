@@ -32,6 +32,7 @@ public:
 	// equivalent. With coverBackground the button's own frame bitmap is
 	// hidden while the icon is set.
 	void SetIcon(Bitmap* icon, bool coverBackground = false);
+	bool HasIcon() const { return fIcon != NULL; }
 
 	// A small quantity number drawn in the icon's bottom-right corner
 	// (for a stacked inventory item - arrows, potions, gems). 0 or 1

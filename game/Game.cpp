@@ -4549,6 +4549,7 @@ Game::JoinParty(Actor* actor)
 	} else if (AreaRoom* room = actor->Area()) {
 		room->ForgetPlacedActor(actor);
 	}
+	RefreshHUDPortraits();
 }
 
 
@@ -4561,6 +4562,9 @@ Game::LeaveParty(Actor* actor)
 	actor->Acquire();
 	fParty->RemoveActor(actor);
 	AddNPC(actor);
+	if (fShownCharacter >= fParty->CountActors())
+		fShownCharacter = 0;
+	RefreshHUDPortraits();
 }
 
 
