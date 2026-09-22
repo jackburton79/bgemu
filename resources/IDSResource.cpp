@@ -86,7 +86,7 @@ IDSResource::StringForID(uint32 id) const
 }
 
 
-uint32
+int32
 IDSResource::IDForString(std::string string) const
 {
 	string_map::const_iterator i;
@@ -104,5 +104,5 @@ IDSResource::IDForString(std::string string) const
 			return i->first;
 	}
 
-	throw std::runtime_error("IDSResource::IDForString(): no such value");
+	return -1;
 }

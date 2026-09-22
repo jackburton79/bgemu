@@ -784,7 +784,7 @@ Dialogs()
 
 /* static */
 std::string
-IDTable::GetDialog(uint32 i)
+IDTable::GetDialog(int32 i)
 {
 	std::string text;
 	TLKEntry* entry = GetTLKEntry(i);
@@ -797,7 +797,7 @@ IDTable::GetDialog(uint32 i)
 
 
 TLKEntry*
-IDTable::GetTLKEntry(uint32 i)
+IDTable::GetTLKEntry(int32 i)
 {
 	if (sDialogs == NULL)
 		sDialogs = gResManager->GetTLK(kDialogResource);
@@ -809,7 +809,7 @@ IDTable::GetTLKEntry(uint32 i)
 
 
 std::string
-IDTable::AlignmentAt(uint32 i)
+IDTable::AlignmentAt(int32 i)
 {
 	if (sAlignment == NULL)
 		sAlignment = gResManager->GetIDS("ALIGNMENT");
@@ -819,7 +819,7 @@ IDTable::AlignmentAt(uint32 i)
 
 
 std::string
-IDTable::GeneralAt(uint32 i)
+IDTable::GeneralAt(int32 i)
 {
 	if (sGeneral == NULL)
 		sGeneral = gResManager->GetIDS("GENERAL");
@@ -829,7 +829,7 @@ IDTable::GeneralAt(uint32 i)
 
 
 std::string
-IDTable::AnimationAt(uint32 i)
+IDTable::AnimationAt(int32 i)
 {
 	if (sAnimate == NULL)
 		sAnimate = gResManager->GetIDS("ANIMATE");
@@ -838,7 +838,7 @@ IDTable::AnimationAt(uint32 i)
 
 
 std::string
-IDTable::AniSndAt(uint32 i)
+IDTable::AniSndAt(int32 i)
 {
 	if (sAniSnd == NULL) {
 		sAniSnd = gResManager->GetIDS("ANISND");
@@ -859,17 +859,16 @@ IDTable::AniSndAt(uint32 i)
 
 
 std::string
-IDTable::RaceAt(uint32 i)
+IDTable::RaceAt(int32 i)
 {
 	if (sRaces == NULL)
 		sRaces = gResManager->GetIDS("RACE");
-
 	return sRaces->StringForID(i);
 }
 
 
 std::string
-IDTable::GenderAt(uint32 i)
+IDTable::GenderAt(int32 i)
 {
 	if (sGenders == NULL)
 		sGenders = gResManager->GetIDS("GENDER");
@@ -877,7 +876,7 @@ IDTable::GenderAt(uint32 i)
 }
 
 
-uint32
+int32
 IDTable::GenderID(std::string string)
 {
 	if (sGenders == NULL)
@@ -887,7 +886,7 @@ IDTable::GenderID(std::string string)
 
 
 std::string
-IDTable::ClassAt(uint32 i)
+IDTable::ClassAt(int32 i)
 {
 	if (sClasses == NULL)
 		sClasses = gResManager->GetIDS("CLASS");
@@ -896,7 +895,7 @@ IDTable::ClassAt(uint32 i)
 
 
 std::string
-IDTable::SpecificAt(uint32 i)
+IDTable::SpecificAt(int32 i)
 {
 	if (sSpecifics == NULL)
 		sSpecifics = gResManager->GetIDS("SPECIFIC");
@@ -906,7 +905,7 @@ IDTable::SpecificAt(uint32 i)
 
 
 std::string
-IDTable::TriggerName(uint32 i)
+IDTable::TriggerName(int32 i)
 {
 	if (sTriggers == NULL)
 		sTriggers = gResManager->GetIDS("TRIGGER");
@@ -940,7 +939,7 @@ IDTable::TriggerName(uint32 i)
 }
 
 
-uint32
+int32
 IDTable::TriggerID(std::string name)
 {
 	if (sTriggers == NULL)
@@ -950,7 +949,7 @@ IDTable::TriggerID(std::string name)
 
 
 std::string
-IDTable::ActionName(uint32 i)
+IDTable::ActionName(int32 i)
 {
 	if (sActions == NULL)
 		sActions = gResManager->GetIDS("ACTION");
@@ -958,7 +957,7 @@ IDTable::ActionName(uint32 i)
 }
 
 
-uint32
+int32
 IDTable::ObjectID(std::string string)
 {
 	if (sObjects == NULL)
@@ -968,7 +967,7 @@ IDTable::ObjectID(std::string string)
 
 
 std::string
-IDTable::ObjectAt(uint32 i)
+IDTable::ObjectAt(int32 i)
 {
 	if (sObjects == NULL)
 		sObjects = gResManager->GetIDS("OBJECT");
@@ -977,7 +976,7 @@ IDTable::ObjectAt(uint32 i)
 
 
 std::string
-IDTable::EnemyAllyAt(uint32 i)
+IDTable::EnemyAllyAt(int32 i)
 {
 	if (sEA == NULL)
 		sEA = gResManager->GetIDS("EA");
@@ -985,7 +984,7 @@ IDTable::EnemyAllyAt(uint32 i)
 }
 
 
-uint32
+int32
 IDTable::EnemyAllyValue(std::string string)
 {
 	if (sEA == NULL)
@@ -995,7 +994,7 @@ IDTable::EnemyAllyValue(std::string string)
 
 
 std::string
-IDTable::GameTimeAt(uint32 i)
+IDTable::GameTimeAt(int32 i)
 {
 	if (sGameTimes == NULL)
 		sGameTimes = gResManager->GetIDS("GTIMES");
@@ -1004,7 +1003,7 @@ IDTable::GameTimeAt(uint32 i)
 
 
 std::string
-IDTable::TimeAt(uint32 i)
+IDTable::TimeAt(int32 i)
 {
 	if (sTimes == NULL)
 		sTimes = gResManager->GetIDS("TIME");
@@ -1013,7 +1012,7 @@ IDTable::TimeAt(uint32 i)
 
 
 std::string
-IDTable::TimesOfDayAt(uint32 i)
+IDTable::TimesOfDayAt(int32 i)
 {
 	if (sTimeOfDays == NULL)
 		sTimeOfDays = gResManager->GetIDS("TIMEODAY");

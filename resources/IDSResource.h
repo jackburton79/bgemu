@@ -15,9 +15,9 @@ public:
 	virtual void Dump();
 
 	std::string StringForID(uint32 id) const;
-	uint32 IDForString(std::string string) const;
+	int32 IDForString(std::string string) const;
 
-	typedef std::map<uint32, std::string> string_map;
+	typedef std::map<int32, std::string> string_map;
 
 protected:
 	bool _IsEncrypted();

@@ -126,37 +126,37 @@ TLKResource* Dialogs();
 class TLKEntry;
 class IDTable {
 public:
-	static std::string GetDialog(uint32 i);
-	static TLKEntry* GetTLKEntry(uint32 i);
+	static std::string GetDialog(int32 i);
+	static TLKEntry* GetTLKEntry(int32 i);
 
-	static std::string	RandomColorAt(uint32 i);
-	static std::string	AlignmentAt(uint32 i);
-	static std::string	GeneralAt(uint32 i);
-	static std::string	AnimationAt(uint32 i);
-	static std::string	AniSndAt(uint32 i);
+	static std::string	RandomColorAt(int32 i);
+	static std::string	AlignmentAt(int32 i);
+	static std::string	GeneralAt(int32 i);
+	static std::string	AnimationAt(int32 i);
+	static std::string	AniSndAt(int32 i);
 
-	static std::string	GenderAt(uint32 i);
-	static uint32		GenderID(std::string);
+	static std::string	GenderAt(int32 i);
+	static int32		GenderID(std::string);
 
-	static std::string	RaceAt(uint32 i);
-	static std::string	ClassAt(uint32 i);
-	static std::string	SpecificAt(uint32 i);
+	static std::string	RaceAt(int32 i);
+	static std::string	ClassAt(int32 i);
+	static std::string	SpecificAt(int32 i);
 
-	static std::string	TriggerName(uint32 i);
-	static uint32		TriggerID(std::string name);
+	static std::string	TriggerName(int32 i);
+	static int32		TriggerID(std::string name);
 
-	static std::string 	ActionName(uint32 i);
+	static std::string 	ActionName(int32 i);
 	static std::string	ActionID(std::string name);
 
-	static std::string 	ObjectAt(uint32 i);
-	static uint32 		ObjectID(std::string string);
+	static std::string 	ObjectAt(int32 i);
+	static int32 		ObjectID(std::string string);
 
-	static std::string	EnemyAllyAt(uint32 i);
-	static uint32 		EnemyAllyValue(std::string);
+	static std::string	EnemyAllyAt(int32 i);
+	static int32 		EnemyAllyValue(std::string);
 
-	static std::string 	GameTimeAt(uint32 i);
-	static std::string 	TimeAt(uint32 i);
-	static std::string 	TimesOfDayAt(uint32 i);
+	static std::string 	GameTimeAt(int32 i);
+	static std::string 	TimeAt(int32 i);
+	static std::string 	TimesOfDayAt(int32 i);
 };
 
 

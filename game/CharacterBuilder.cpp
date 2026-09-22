@@ -43,20 +43,13 @@ _TableInt(const char* tableName, const std::string& row, const std::string& colu
 }
 
 
-static uint32
+static int32
 _IDValue(const char* idsName, const std::string& symbol, bool& ok)
 {
-	ok = false;
 	IDSResource* ids = gResManager->GetIDS(idsName);
 	if (ids == NULL)
 		return 0;
-	uint32 value = 0;
-	try {
-		value = ids->IDForString(symbol);
-		ok = true;
-	} catch (const std::exception&) {
-		ok = false;
-	}
+	int32 value = ids->IDForString(symbol);
 	gResManager->ReleaseResource(ids);
 	return value;
 }
