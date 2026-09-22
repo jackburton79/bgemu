@@ -17,6 +17,7 @@
 #include "Game.h"
 #include "GameTimer.h"
 #include "Graphics.h"
+#include "Keyboard.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "ITMResource.h"
@@ -36,8 +37,6 @@
 #include "TisResource.h"
 #include "WedResource.h"
 #include "WMAPResource.h"
-
-#include <SDL.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -537,7 +536,7 @@ AreaRoom::MouseDown(IE::point point)
 	fDragOrigin = point;
 	fDragCurrent = point;
 	fDragging = false;
-	fDragAdditive = (SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0;
+	fDragAdditive = Keyboard::IsShiftPressed();
 	fAwaitingMouseUp = true;
 	if (fWindow != NULL)
 		fWindow->SetMouseCapture(this);
@@ -658,7 +657,7 @@ AreaRoom::_HandleClickAt(IE::point point)
 	// command always supersedes whatever the actor(s) were doing).
 	if (Actor* clickedMember = dynamic_cast<Actor*>(target)) {
 		if (clickedMember->InParty()) {
-			if ((SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
+			if (Keyboard::IsShiftPressed())
 				ToggleSelected(clickedMember);
 			else
 				SelectActor(clickedMember);

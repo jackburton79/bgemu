@@ -20,11 +20,10 @@
 #include "Object.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "Keyboard.h"
 #include "TextArea.h"
 #include "TextSupport.h"
 #include "Timer.h"
-
-#include <SDL.h>
 
 
 #include <algorithm>
@@ -1044,7 +1043,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 			// shift+click instead adds/removes just that one from the map
 			// selection (same convention as shift-clicking their avatar
 			// on the map), leaving the shown character alone.
-			if (SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT))
+			if (Keyboard::IsShiftPressed())
 				Game::Get()->ToggleSelectedPartyMember((uint16)controlID);
 			else
 				Game::Get()->SelectPartyMember((uint16)controlID);
