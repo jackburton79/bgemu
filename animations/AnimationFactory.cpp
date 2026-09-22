@@ -63,8 +63,8 @@ struct AnimationEntry {
 // BG1 data risks silently picking the wrong sprite for non-party
 // actors, so GeneratedIDS keeps them.
 static const AnimationEntry kAnimationEntries[] = {
-	{ 0x1000, "",     _BuildBGMonster, false },
-	{ 0x2000, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
+	{ 0x1000, "MWYV", _BuildBGMonster, false },
+	{ 0x2000, "MSIR", _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x2200, "MOGM", _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
 	{ 0x2300, "",     _BuildFourFiles, false }, // avatars.2da TYPE 2 (FOUR_FILES)
 

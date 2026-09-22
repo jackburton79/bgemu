@@ -28,7 +28,6 @@ GeneratedIDS::CreateIDSResource(const res_ref& name)
 	if (name == "ANISND")
 		FillAniSnd(res);
 
-	//res->WriteToFile("/home/stefano/anisnd.ids");
 	return res;
 }
 
@@ -36,10 +35,6 @@ GeneratedIDS::CreateIDSResource(const res_ref& name)
 void
 GeneratedIDS::FillAniSnd(WriteableIDSResource* res)
 {
-	res->AddValue(0x1000, "MWYV"); // Wyvern
-
-	res->AddValue(0x2000, "MSIR");
-
 	res->AddValue(0x3000, "MAKH"); // Ankheg
 
 	// Character animations
