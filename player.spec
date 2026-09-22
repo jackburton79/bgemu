@@ -7,7 +7,8 @@ gender MALE
 race HALF_ELF
 class FIGHTER_CLERIC
 alignment LG
-portrait AJANTIS 
+portrait_large AJANTISL
+portrait_small AJANTISS
 
 str 17
 dex 14
