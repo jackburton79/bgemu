@@ -34,6 +34,7 @@ Graphics::DecodeRLE(const void* source, uint32 outSize, void* dest,
 	return written;
 }
 
+
 /* static */
 void
 Graphics::ApplyShade(Bitmap* bitmap)
