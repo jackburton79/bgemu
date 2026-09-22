@@ -3635,6 +3635,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 196, "UNLOCK", RunActionUnlock },
 		{ 197, "MOVEGLOBAL", RunActionMoveGlobal },
 		{ 198, "STARTDIALOGNOSET", RunActionDialog },
+		{ 198, "STARTDIALOGUENOSET", RunActionDialog },
 		{ 199, "TEXTSCREEN", NULL },
 		{ 200, "RANDOMWALKCONTINUOUS", NULL },
 		{ 201, "DETECTSECRETDOOR", RunActionDetectSecretDoor },
