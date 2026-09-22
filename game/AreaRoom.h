@@ -63,19 +63,46 @@ public:
 
 	virtual void Draw();
 	virtual void MouseDown(IE::point point);
+	virtual void MouseUp(IE::point point);
 	virtual void MouseMoved(IE::point point, uint32 transit);
 	// Headless-test entry point (Click-Area console command): same click
 	// dispatch as MouseDown(), but point is already in area coordinates -
 	// skips the screen->area conversion, which needs a real camera/window.
 	void ClickAt(IE::point areaPoint);
+	// Headless-test entry point (Drag-Select console command) for the
+	// same rectangle-select MouseUp() does at the end of a real mouse
+	// drag - both points already in area coordinates.
+	void DragSelectAt(IE::point areaStart, IE::point areaEnd, bool additive);
 
 	// Switches which actor mouse clicks/queued commands act on (party-
-	// member selection) - deselects the previous one first, same
-	// Select(true)/Select(false) pairing the constructor and
-	// _UnloadArea() already use. NULL just deselects. A no-op if actor
-	// is already the selected one.
+	// member selection): deselects everyone else, selects just `actor`,
+	// same Select(true)/Select(false) pairing the constructor and
+	// _UnloadArea() already use. NULL just clears the selection. A no-op
+	// if `actor` is already the only one selected.
 	void SelectActor(Actor* actor);
+	// Replaces the whole selection with exactly these actors (drag-rect
+	// select's "replace" mode) - anyone currently selected but not in
+	// `actors` is deselected, everyone in `actors` not already selected
+	// is selected (in the given order). Only party members are ever
+	// added, matching the real engine (an NPC can't be player-selected);
+	// anyone else in `actors` is silently skipped.
+	void SetSelectedActors(const ActorsList& actors);
+	// Adds every party member of `actors` to the current selection
+	// (shift+drag) without touching anyone else's selection state.
+	void AddToSelection(const ActorsList& actors);
+	// Adds `actor` to the selection if it wasn't already selected,
+	// removes it otherwise (shift-click, on the map or on its HUD
+	// portrait) - leaves everyone else's selection untouched. A no-op
+	// for anyone but a party member.
+	void ToggleSelected(Actor* actor);
+	// The "primary" selected actor: the first one still selected, in the
+	// order each was added to the selection - what a single-target
+	// command (dialog, the minimap marker, a console command, ...) acts
+	// on. NULL if nothing is selected.
 	Actor* SelectedActor() const;
+	// Every currently selected actor, in that same primary-first order.
+	void GetSelectedActors(ActorsList& actors) const;
+	uint32 CountSelectedActors() const;
 
 	void DrawBitmap(const Bitmap* bitmap, const IE::point& centerPoint, bool mask);
 
@@ -220,12 +247,17 @@ private:
 	void _DrawGroundPiles();
 	Actor* _ActorAtPoint(const IE::point& point) const;
 	Object* _ObjectAtPoint(const IE::point& point, int32& cursorIndex) const;
-	// Shared by MouseDown() and ClickAt() - point already in area coords.
+	// Shared by MouseUp() and ClickAt() - point already in area coords.
 	void _HandleClickAt(IE::point point);
-	// Queues a MOVETOPOINT for the selected actor towards `point` - the
-	// fallback "walk there" click, and (now) also a travel region click,
-	// no-op if nothing is selected.
+	// Queues a MOVETOPOINT for every selected actor towards `point` (each
+	// spread to its own nearby point, see _SpreadPoint() in the .cpp) -
+	// the fallback "walk there" click, and (now) also a travel region
+	// click. No-op if nothing is selected.
 	void _QueueMoveToPoint(IE::point point);
+	// Shared by MouseUp() and DragSelectAt() - both points already in
+	// area coords.
+	void _FinishDragSelect(const IE::point& areaStart, const IE::point& areaEnd,
+		bool additive);
 
 	void _InitVariables();
 	void _InitAnimations();
@@ -289,7 +321,9 @@ private:
 	EffectsList fEffects;
 
 	ActorsList fActors;
-	Reference<Actor> fSelectedActor;
+	// In selection order (the first entry is SelectedActor(), the
+	// "primary") - see SelectActor()/ToggleSelected()/SetSelectedActors().
+	std::vector<Reference<Actor>> fSelectedActors;
 	Reference<Object> fMouseOverObject;
 
 	int32 fMapHorizontalRatio;
@@ -302,6 +336,29 @@ private:
 	bool fShowingConsole;
 
 	bool fCanRest = true;
+
+	// Drag-select bookkeeping (MouseDown()/MouseMoved()/MouseUp()), both
+	// points in the same control-local space Draw() itself uses for a
+	// screen overlay (see MouseDown()'s own comment) - fDragOrigin is
+	// where the current mouse-button press started, fDragCurrent where
+	// the pointer is now. Dragging only actually starts (fDragging) once
+	// the pointer has moved past a small threshold, so a plain click
+	// (press + release with barely any movement) still reaches
+	// _HandleClickAt() as a normal click instead of always selecting a
+	// near-empty rectangle. fDragAdditive is whether shift was held when
+	// the press started (shift+drag adds to the existing selection
+	// instead of replacing it, same convention as a shift+click).
+	IE::point fDragOrigin = { 0, 0 };
+	IE::point fDragCurrent = { 0, 0 };
+	bool fDragging = false;
+	bool fDragAdditive = false;
+	// Whether MouseUp() still owes a click/drag dispatch for the MouseDown()
+	// that started this gesture - false for a target-mode click, which
+	// MouseDown() already handled immediately and returned from without
+	// capturing the mouse; MouseUp() still gets called right after (the
+	// point still lands on this room), and without this flag would dispatch
+	// _HandleClickAt() a second time for the very same click.
+	bool fAwaitingMouseUp = false;
 };
 
 

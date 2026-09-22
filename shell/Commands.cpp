@@ -1878,6 +1878,125 @@ public:
 };
 
 
+// Select-Actor <name> - replaces the map selection with just this party
+// member (headless equivalent of clicking their avatar or HUD portrait
+// with no modifier).
+class SelectActorCommand : public ShellCommand {
+public:
+	SelectActorCommand()
+		: ShellCommand("Select-Actor")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		Actor* actor = FindActor(argv);
+		if (room != NULL && actor != NULL)
+			room->SelectActor(actor);
+	}
+};
+
+
+// Toggle-Selected <name> - adds/removes this party member from the map
+// selection without touching anyone else's (headless equivalent of a
+// shift-click on their avatar or HUD portrait).
+class ToggleSelectedCommand : public ShellCommand {
+public:
+	ToggleSelectedCommand()
+		: ShellCommand("Toggle-Selected")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		Actor* actor = FindActor(argv);
+		if (room != NULL && actor != NULL)
+			room->ToggleSelected(actor);
+	}
+};
+
+
+// Drag-Select <x1,y1>,<x2,y2>,<true|false> - headless equivalent of a
+// rectangle drag-select on the map (both corners in screen/area coordinates
+// - Click-Area's own convention), the trailing flag matching whether shift
+// was held (adds to the current selection instead of replacing it). Skips
+// the real mouse-drag gesture (MouseDown/MouseMoved/MouseUp with a real
+// modifier key held), which headless testing can't drive - see
+// AreaRoom::DragSelectAt().
+class DragSelectCommand : public ShellCommand {
+public:
+	DragSelectCommand()
+		: ShellCommand(
+			"Drag-Select",
+			{
+				{ PARAMETER_POINT, },
+				{ PARAMETER_POINT, },
+				{ PARAMETER_STRING, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		bool additive = strcasecmp(params.at(2).value.string, "true") == 0;
+		room->DragSelectAt(params.at(0).value.point, params.at(1).value.point, additive);
+	}
+};
+
+
+// Assert-Selected <name>,<true|false> - whether this party member is
+// currently part of the map selection.
+class AssertSelectedCommand : public ShellCommand {
+public:
+	AssertSelectedCommand()
+		: ShellCommand("Assert-Selected")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, expectedText;
+		if (!_SplitOnFirstComma(argv, actorName, expectedText)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<true|false>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+		if (actor->IsSelected() == expected) {
+			std::cout << "ASSERT OK: Selected(" << actorName << ")" << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: Selected(" << actorName << ") - expected "
+				<< expectedText << ", got " << (actor->IsSelected() ? "true" : "false")
+				<< std::endl;
+		}
+	}
+};
+
+
+// Assert-SelectedCount <n> - how many actors are currently in the map
+// selection.
+class AssertSelectedCountCommand : public ShellCommand {
+public:
+	AssertSelectedCountCommand()
+		: ShellCommand("Assert-SelectedCount")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		uint32 count = room != NULL ? room->CountSelectedActors() : 0;
+		if (count == (uint32)atoi(argv)) {
+			std::cout << "ASSERT OK: SelectedCount" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: SelectedCount - expected " << argv
+				<< ", got " << count << std::endl;
+		}
+	}
+};
+
+
 // Assert-CustomColors <actor>,<true|false> - whether the creature's sprite is
 // recolored from its CRE's color bytes (false: drawn with the BAM's own
 // palette).
@@ -2643,6 +2762,11 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertActorCountCommand());
 	console->AddCommand(new AssertItemIdentifiedCommand());
 	console->AddCommand(new SelectWeaponCommand());
+	console->AddCommand(new SelectActorCommand());
+	console->AddCommand(new ToggleSelectedCommand());
+	console->AddCommand(new DragSelectCommand());
+	console->AddCommand(new AssertSelectedCommand());
+	console->AddCommand(new AssertSelectedCountCommand());
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertCustomColorsCommand());

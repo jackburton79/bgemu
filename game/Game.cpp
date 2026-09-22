@@ -4728,6 +4728,22 @@ Game::SelectPartyMember(uint16 index)
 
 
 void
+Game::ToggleSelectedPartyMember(uint16 index)
+{
+	if (fParty == nullptr || index >= fParty->CountActors())
+		return;
+
+	Actor* member = fParty->ActorAt(index);
+	if (member == nullptr)
+		return;
+
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room != nullptr)
+		room->ToggleSelected(member);
+}
+
+
+void
 Game::CenterViewOnPartyMember(uint16 index)
 {
 	if (fParty == nullptr || index >= fParty->CountActors())

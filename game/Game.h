@@ -97,11 +97,17 @@ public:
 	void ToggleHUD();
 
 	// Switches which party member mouse clicks/queued actions control -
-	// real BG2's number-key (1-6)/portrait-click party selection; this
-	// engine only wires the number-key side so far (no portrait bar to
-	// click yet). No-op if index is out of range or the current room
-	// isn't an AreaRoom (e.g. the worldmap screen).
+	// both the number keys (1-6) and a left click on that member's HUD
+	// portrait replace the whole map selection with just them, and become
+	// the shown character (inventory/record/action bar). No-op if index
+	// is out of range or the current room isn't an AreaRoom (e.g. the
+	// worldmap screen).
 	void SelectPartyMember(uint16 index);
+	// Shift-click on a portrait: adds/removes just that member from the
+	// map selection (AreaRoom::ToggleSelected()) without touching the
+	// shown character - same convention as shift-clicking their avatar
+	// on the map.
+	void ToggleSelectedPartyMember(uint16 index);
 
 	// Centers view on party member
 	void CenterViewOnPartyMember(uint16 index);

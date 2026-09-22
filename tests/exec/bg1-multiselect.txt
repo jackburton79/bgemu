@@ -1,0 +1,50 @@
+# AREA: AR0602
+#
+# Multi-selection: replacing the map selection (Select-Actor), adding/
+# removing one member without touching the rest (Toggle-Selected - the
+# headless equivalent of a shift-click on an avatar or HUD portrait), and
+# a drag-select rectangle (Drag-Select - the headless equivalent of a
+# real mouse drag) that either replaces or adds to it. Khalid is spawned
+# and recruited here (rather than relying on the default party, which in
+# BG1 is Ajanti alone) so there are two party members to select between.
+Run-Action -,7,-,0,KHALID,-,520,127
+Step-Ticks 2
+Run-Action KHALID,19,-,0,-,-,0,0
+Step-Ticks 2
+
+Assert-SelectedCount 1
+Assert-Selected AJANTI,true
+
+Toggle-Selected KHALID
+Assert-SelectedCount 2
+Assert-Selected AJANTI,true
+Assert-Selected KHALID,true
+
+Toggle-Selected KHALID
+Assert-SelectedCount 1
+Assert-Selected KHALID,false
+
+Select-Actor KHALID
+Assert-SelectedCount 1
+Assert-Selected AJANTI,false
+Assert-Selected KHALID,true
+
+# A rectangle covering both replaces the selection with both; one over
+# empty ground clears it (SetSelectedActors() with nothing inside).
+Drag-Select 450,80,600,200,false
+Assert-SelectedCount 2
+Drag-Select 2000,2000,2100,2100,false
+Assert-SelectedCount 0
+Drag-Select 450,80,600,200,false
+Assert-SelectedCount 2
+
+# A plain click on empty ground with both selected moves both - not to
+# the identical point (that would leave them fighting over one search-map
+# cell, see AreaRoom.cpp's own kSpawnOffsets comment): a drag-select's
+# order follows the area's own actor list, so Ajanti (already placed when
+# the area loaded) gets the exact point and Khalid (spawned afterwards,
+# later in that list) is spread to a nearby one instead.
+Click-Area 440,150
+Step-Ticks 60
+Assert-Position AJANTI,442,149
+Assert-Position KHALID,458,161

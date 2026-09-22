@@ -37,6 +37,8 @@
 #include "WedResource.h"
 #include "WMAPResource.h"
 
+#include <SDL.h>
+
 #include <algorithm>
 #include <assert.h>
 #include <cmath>
@@ -90,6 +92,40 @@ AreaRoom::ClearAreaCheckpoints()
 }
 
 
+// Small per-member spawn offsets (not a real formation scatter, just enough
+// to land each member of a group on its own search-map cell instead of
+// stacking on one) - shared by the entrance-placement loop below and by
+// _SpreadPoint(), used for a multi-selection group command (see its own
+// comment for why stacking is a real problem, not just cosmetic).
+static const IE::point kSpawnOffsets[] = {
+	{ 0, 0 }, { 16, 12 }, { -16, -12 }, { 16, -12 }, { -16, 12 }, { 32, 0 }
+};
+static const size_t kSpawnOffsetCount = sizeof(kSpawnOffsets) / sizeof(kSpawnOffsets[0]);
+
+
+// A point near `origin` for the `index`-th member of a group command
+// (MOVETOPOINT from a multi-selection click) - tries kSpawnOffsets[index],
+// falls back to `origin` itself if the index is out of the table's range or
+// the offset cell isn't passable. Not a real formation (no shape, no facing,
+// no follow-the-leader while walking) - just enough of one that a handful of
+// members each queuing their own MOVETOPOINT for the same click don't all
+// path onto the identical cell (see the entrance-placement loop above this
+// same table for the SEGV that stacking caused there).
+static IE::point
+_SpreadPoint(const IE::point& origin, uint32 index, ::SearchMap* searchMap)
+{
+	if (index == 0 || index >= kSpawnOffsetCount)
+		return origin;
+	IE::point offsetPoint = {
+		int16(origin.x + kSpawnOffsets[index].x),
+		int16(origin.y + kSpawnOffsets[index].y)
+	};
+	if (searchMap != NULL && searchMap->IsPointPassable(offsetPoint.x, offsetPoint.y))
+		return offsetPoint;
+	return origin;
+}
+
+
 AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 					const char* entranceName)
 	:
@@ -100,7 +136,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	fHeightMap(NULL),
 	fLightMap(NULL),
 	fSearchMap(NULL),
-	fSelectedActor(NULL),
 	fMouseOverObject(NULL),
 	fDrawSearchMap(0),
 	fDrawOverlays(true),
@@ -218,11 +253,6 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 	// entry corridor, right past Door0810) that stacking left the
 	// trailing member with no free adjacent cell to path through at all
 	// - reported by the user as movement blocked right after arriving.
-	static const IE::point kSpawnOffsets[] = {
-		{ 0, 0 }, { 16, 12 }, { -16, -12 }, { 16, -12 }, { -16, 12 }, { 32, 0 }
-	};
-	const size_t kSpawnOffsetCount = sizeof(kSpawnOffsets) / sizeof(kSpawnOffsets[0]);
-
 	Party* party = Game::Get()->Party();
 	Game::TempState* tempState = Game::Get()->GetTempState();
 	for (uint16 a = 0; a < party->CountActors(); a++) {
@@ -441,9 +471,15 @@ AreaRoom::Draw()
 		fBackMap->Image()->Unlock();
 	}
 
-	if (fSelectedActor.Target() != NULL && fSelectedActor.Target()->IsWalking()) {
+	// One destination marker per selected, currently-walking member (not
+	// just the primary) - the most direct on-screen proof a multi-select
+	// group move actually sent everyone somewhere, not just SelectedActor().
+	for (const Reference<Actor>& selected : fSelectedActors) {
+		Actor* actor = selected.Target();
+		if (actor == NULL || !actor->IsWalking())
+			continue;
 		IE::point mapOffset = { mapRect.x, mapRect.y };
-		IE::point destination = fSelectedActor.Target()->Destination() - mapOffset;
+		IE::point destination = actor->Destination() - mapOffset;
 
 		fBackMap->Image()->Lock();
 		uint32 color = fBackMap->Image()->MapRGBColor(0, 255, 0);
@@ -455,12 +491,83 @@ AreaRoom::Draw()
 	gfx->BlitToScreen(fBackMap->Image(), NULL, &screenArea);
 
 	_DrawSearchMap(mapRect);
+
+	// The drag-select rectangle in progress (MouseDown()/MouseMoved()'s own
+	// comment on the coordinate space) - drawn straight onto the screen,
+	// same convention _DrawSearchMap() already uses for its own overlay.
+	if (fDragging) {
+		GFX::rect box(std::min(fDragOrigin.x, fDragCurrent.x),
+			std::min(fDragOrigin.y, fDragCurrent.y),
+			(uint16)std::abs(fDragCurrent.x - fDragOrigin.x),
+			(uint16)std::abs(fDragCurrent.y - fDragOrigin.y));
+		Bitmap* screen = gfx->ScreenBitmap();
+		screen->StrokeRect(box, screen->MapRGBColor(0, 255, 0));
+	}
 }
 
 
 void
 AreaRoom::MouseDown(IE::point point)
 {
+	// A target-mode click (Talk/Attack/Defend/Cast/Use armed from the
+	// action bar) always fires right away - there's nothing to drag-select
+	// while picking a target.
+	if (Game::Get()->CurrentTargetMode() != Game::TARGET_NONE) {
+		IE::point areaPoint = point;
+		ConvertFromScreen(areaPoint);
+		ConvertToArea(areaPoint);
+		_HandleClickAt(areaPoint);
+		// The MouseUp() that follows this same click (no capture set, so
+		// it still reaches us via a fresh hit-test) must not dispatch a
+		// second click for it - see fAwaitingMouseUp's own comment.
+		fAwaitingMouseUp = false;
+		return;
+	}
+
+	// Deferred to MouseUp() (see its own comment) so a plain click and a
+	// drag-select can be told apart. `point` stays in the control-local
+	// space Control::ConvertFromScreen() produces (not converted to area
+	// coordinates yet) - the same space Draw() uses for its own screen
+	// overlays, so the in-progress selection box can be drawn directly
+	// from fDragOrigin/fDragCurrent without any further conversion.
+	// Captured so MouseMoved()/MouseUp() keep reaching this room even if
+	// the drag briefly leaves its frame (same pattern Scrollbar's own
+	// thumb-drag already uses).
+	ConvertFromScreen(point);
+	fDragOrigin = point;
+	fDragCurrent = point;
+	fDragging = false;
+	fDragAdditive = (SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0;
+	fAwaitingMouseUp = true;
+	if (fWindow != NULL)
+		fWindow->SetMouseCapture(this);
+}
+
+
+void
+AreaRoom::MouseUp(IE::point point)
+{
+	if (fWindow != NULL)
+		fWindow->SetMouseCapture(NULL);
+
+	if (!fAwaitingMouseUp)
+		return;
+	fAwaitingMouseUp = false;
+
+	if (fDragging) {
+		ConvertFromScreen(point);
+		fDragCurrent = point;
+
+		IE::point areaStart = fDragOrigin;
+		IE::point areaEnd = fDragCurrent;
+		ConvertToArea(areaStart);
+		ConvertToArea(areaEnd);
+		_FinishDragSelect(areaStart, areaEnd, fDragAdditive);
+		fDragging = false;
+		return;
+	}
+
+	fDragging = false;
 	ConvertFromScreen(point);
 	ConvertToArea(point);
 	_HandleClickAt(point);
@@ -471,6 +578,13 @@ void
 AreaRoom::ClickAt(IE::point areaPoint)
 {
 	_HandleClickAt(areaPoint);
+}
+
+
+void
+AreaRoom::DragSelectAt(IE::point areaStart, IE::point areaEnd, bool additive)
+{
+	_FinishDragSelect(areaStart, areaEnd, additive);
 }
 
 
@@ -487,8 +601,8 @@ _IsValidTarget(Actor* actor, Game::TargetMode mode)
 void
 AreaRoom::_HandleClickAt(IE::point point)
 {
-	// Talk/Attack picked on the action bar: this click chooses whom (a
-	// living creature other than the selected one) - or, anywhere else,
+	// Talk/Attack/Defend picked on the action bar: this click chooses whom
+	// (a living creature other than the one acting) - or, anywhere else,
 	// just cancels the mode.
 	const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
 	if (mode != Game::TARGET_NONE) {
@@ -500,21 +614,36 @@ AreaRoom::_HandleClickAt(IE::point point)
 				Game::Get()->CastSpellAt(actor);
 			return;
 		}
-		if (fSelectedActor != NULL && actor != NULL && actor != fSelectedActor.Target()
-				&& !actor->IsState(STATE_DEAD) && _IsValidTarget(actor, mode)) {
+		if (actor != NULL && !actor->IsState(STATE_DEAD) && _IsValidTarget(actor, mode)) {
 			Actor::ClickIntent intent = Actor::CLICK_ATTACK;
 			if (mode == Game::TARGET_TALK)
 				intent = Actor::CLICK_TALK;
 			else if (mode == Game::TARGET_DEFEND)
 				intent = Actor::CLICK_DEFEND;
-			fSelectedActor.Target()->ClearActionList();
-			fSelectedActor.Target()->ClickedOn(actor, intent);
+
+			if (mode == Game::TARGET_TALK) {
+				// Only one party member can hold a conversation at a time
+				// (Game::InitiateDialog() asserts as much) - the primary
+				// selected member speaks, same as a plain click on a
+				// friendly NPC below.
+				Actor* primary = SelectedActor();
+				if (primary != NULL && primary != actor) {
+					primary->ClearActionList();
+					primary->ClickedOn(actor, intent);
+				}
+			} else {
+				ActorsList selected;
+				GetSelectedActors(selected);
+				for (Actor* member : selected) {
+					if (member == actor)
+						continue;
+					member->ClearActionList();
+					member->ClickedOn(actor, intent);
+				}
+			}
 		}
 		return;
 	}
-
-	if (fSelectedActor != NULL)
-		fSelectedActor.Target()->ClearActionList();
 
 	// Same detection MouseMoved() uses for the hover cursor/outline, so
 	// what you see under the cursor is always what you click - no
@@ -522,12 +651,32 @@ AreaRoom::_HandleClickAt(IE::point point)
 	int32 cursor = -1;
 	Object* target = _ObjectAtPoint(point, cursor);
 
+	// Clicking a party member's own avatar selects them (replacing the
+	// selection), same as clicking their HUD portrait - shift-click
+	// instead adds/removes just that one. Neither touches anyone's
+	// current action queue, unlike every other click below (a new
+	// command always supersedes whatever the actor(s) were doing).
+	if (Actor* clickedMember = dynamic_cast<Actor*>(target)) {
+		if (clickedMember->InParty()) {
+			if ((SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT)) != 0)
+				ToggleSelected(clickedMember);
+			else
+				SelectActor(clickedMember);
+			return;
+		}
+	}
+
+	ActorsList selected;
+	GetSelectedActors(selected);
+	for (Actor* member : selected)
+		member->ClearActionList();
+
 	if (Region* region = dynamic_cast<Region*>(target)) {
 		// Regions aren't dispatched through Object::ClickedOn() below -
 		// travel/info are area-level concerns (change area, show a
 		// message), not something the clicked-on object itself does.
-		if (fSelectedActor != NULL)
-			fSelectedActor.Target()->ClickedOn(region);
+		for (Actor* member : selected)
+			member->ClickedOn(region);
 		if (region->Type() == IE::REGION_TYPE_TRAVEL) {
 			// Walk there instead of transitioning instantly - clicking
 			// anywhere in the region's (often generously sized) polygon
@@ -554,10 +703,26 @@ AreaRoom::_HandleClickAt(IE::point point)
 	if (target != NULL) {
 		// Actor::ClickedOn() already dispatches on the clicked object's
 		// own type (Door: walk up + open, Actor: dialog or attack,
-		// Container: walk up + auto-loot) - nothing left to special-case
-		// here, other than not attacking/talking to yourself.
-		if (target != fSelectedActor.Target() && fSelectedActor != NULL)
-			fSelectedActor.Target()->ClickedOn(target);
+		// Container: walk up + auto-loot). A friendly, living creature
+		// starts a conversation (its own CLICK_DEFAULT rule) - only one
+		// party member can hold one at a time (Game::InitiateDialog()
+		// asserts as much), so only the primary selected member walks up
+		// to it; a hostile creature, a corpse, or a door/container is
+		// safe for the whole selection (attack, loot, or open - none of
+		// those opens a second dialog).
+		Actor* targetActor = dynamic_cast<Actor*>(target);
+		const bool startsDialog = targetActor != NULL && !targetActor->IsState(STATE_DEAD)
+			&& targetActor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF");
+		if (startsDialog) {
+			Actor* primary = SelectedActor();
+			if (primary != NULL && primary != target)
+				primary->ClickedOn(target);
+		} else {
+			for (Actor* member : selected) {
+				if (member != target)
+					member->ClickedOn(target);
+			}
+		}
 		return;
 	}
 
@@ -566,8 +731,8 @@ AreaRoom::_HandleClickAt(IE::point point)
 	// immediate on click.
 	int32 pileIndex = GroundPileAtPoint(point);
 	if (pileIndex >= 0) {
-		if (fSelectedActor != NULL)
-			PickUpGroundPile((size_t)pileIndex, fSelectedActor.Target());
+		if (Actor* primary = SelectedActor())
+			PickUpGroundPile((size_t)pileIndex, primary);
 		return;
 	}
 
@@ -578,15 +743,17 @@ AreaRoom::_HandleClickAt(IE::point point)
 void
 AreaRoom::_QueueMoveToPoint(IE::point point)
 {
-	if (fSelectedActor == NULL)
-		return;
-
-	action_params* params = new action_params;
-	strcpy(params->Second()->name, fSelectedActor.Target()->Name());
-	params->where = point;
-	params->id = 23; // MOVETOPOINT
-	fSelectedActor.Target()->AddAction(params);
-	params->Release();
+	ActorsList selected;
+	GetSelectedActors(selected);
+	for (uint32 i = 0; i < selected.size(); i++) {
+		Actor* member = selected[i];
+		action_params* params = new action_params;
+		strcpy(params->Second()->name, member->Name());
+		params->where = _SpreadPoint(point, i, fSearchMap);
+		params->id = 23; // MOVETOPOINT
+		member->AddAction(params);
+		params->Release();
+	}
 }
 
 
@@ -627,6 +794,22 @@ _TargetModeCursor(Game::TargetMode mode, Actor* hovered, Actor* selected)
 void
 AreaRoom::MouseMoved(IE::point point, uint32 transit)
 {
+	if (fWindow != NULL && fWindow->HasMouseCapture()) {
+		// A drag-select in progress (see MouseDown()'s own comment): only
+		// actually "start" dragging once the pointer has moved a few
+		// pixels, so a plain click (press, tiny jitter, release) still
+		// reaches _HandleClickAt() in MouseUp() as a normal click instead
+		// of always selecting an empty/near-empty rectangle.
+		ConvertFromScreen(point);
+		fDragCurrent = point;
+		static const int32 kDragThreshold = 4;
+		if (!fDragging
+				&& (std::abs(point.x - fDragOrigin.x) > kDragThreshold
+					|| std::abs(point.y - fDragOrigin.y) > kDragThreshold))
+			fDragging = true;
+		return;
+	}
+
 	ConvertFromScreen(point);
 	ConvertToArea(point);
 
@@ -643,7 +826,7 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
 		if (mode != Game::TARGET_NONE) {
 			Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
-			GUI::Get()->SetCursor(_TargetModeCursor(mode, hovered, fSelectedActor.Target()));
+			GUI::Get()->SetCursor(_TargetModeCursor(mode, hovered, SelectedActor()));
 		} else if (cursor != -1) {
 			GUI::Get()->SetCursor(cursor);
 		} else {
@@ -656,23 +839,126 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 void
 AreaRoom::SelectActor(Actor* actor)
 {
-	if (fSelectedActor.Target() == actor)
+	// Only a party member is ever player-selectable, same as every other
+	// entry point into the selection (AddToSelection(), ToggleSelected());
+	// leaves the current selection alone rather than clearing it, since a
+	// caller passing e.g. an NPC's name is a mistake, not a request to
+	// deselect everyone.
+	if (actor != NULL && !actor->InParty())
+		return;
+	if (actor == NULL && fSelectedActors.empty())
+		return;
+	if (fSelectedActors.size() == 1 && fSelectedActors[0].Target() == actor)
 		return;
 
-	if (fSelectedActor != NULL)
-		fSelectedActor.Target()->Select(false);
+	for (const Reference<Actor>& selected : fSelectedActors)
+		selected.Target()->Select(false);
+	fSelectedActors.clear();
 
-	fSelectedActor = actor;
-
-	if (actor != NULL)
+	if (actor != NULL) {
 		actor->Select(true);
+		fSelectedActors.emplace_back(actor);
+	}
+}
+
+
+void
+AreaRoom::AddToSelection(const ActorsList& actors)
+{
+	for (Actor* actor : actors) {
+		if (actor == NULL || !actor->InParty())
+			continue;
+		bool alreadySelected = std::any_of(fSelectedActors.begin(), fSelectedActors.end(),
+			[actor] (const Reference<Actor>& selected) { return selected.Target() == actor; });
+		if (!alreadySelected) {
+			actor->Select(true);
+			fSelectedActors.emplace_back(actor);
+		}
+	}
+}
+
+
+void
+AreaRoom::SetSelectedActors(const ActorsList& actors)
+{
+	for (auto i = fSelectedActors.begin(); i != fSelectedActors.end();) {
+		Actor* selected = i->Target();
+		if (std::find(actors.begin(), actors.end(), selected) == actors.end()) {
+			selected->Select(false);
+			i = fSelectedActors.erase(i);
+		} else {
+			i++;
+		}
+	}
+	AddToSelection(actors);
+}
+
+
+void
+AreaRoom::ToggleSelected(Actor* actor)
+{
+	if (actor == NULL || !actor->InParty())
+		return;
+
+	auto i = std::find_if(fSelectedActors.begin(), fSelectedActors.end(),
+		[actor] (const Reference<Actor>& selected) { return selected.Target() == actor; });
+	if (i != fSelectedActors.end()) {
+		actor->Select(false);
+		fSelectedActors.erase(i);
+	} else {
+		actor->Select(true);
+		fSelectedActors.emplace_back(actor);
+	}
 }
 
 
 Actor*
 AreaRoom::SelectedActor() const
 {
-	return fSelectedActor.Target();
+	return fSelectedActors.empty() ? NULL : fSelectedActors.front().Target();
+}
+
+
+void
+AreaRoom::GetSelectedActors(ActorsList& actors) const
+{
+	actors.clear();
+	for (const Reference<Actor>& selected : fSelectedActors)
+		actors.push_back(selected.Target());
+}
+
+
+uint32
+AreaRoom::CountSelectedActors() const
+{
+	return (uint32)fSelectedActors.size();
+}
+
+
+void
+AreaRoom::_FinishDragSelect(const IE::point& areaStart, const IE::point& areaEnd, bool additive)
+{
+	const int16 left = std::min(areaStart.x, areaEnd.x);
+	const int16 top = std::min(areaStart.y, areaEnd.y);
+	const int16 right = std::max(areaStart.x, areaEnd.x);
+	const int16 bottom = std::max(areaStart.y, areaEnd.y);
+
+	// Only party members are ever player-selectable, same as a plain
+	// click on one (AreaRoom::_HandleClickAt()).
+	ActorsList inRect;
+	for (Actor* actor : fActors) {
+		if (!actor->InParty())
+			continue;
+		IE::point position = actor->Position();
+		if (position.x >= left && position.x <= right
+				&& position.y >= top && position.y <= bottom)
+			inRect.push_back(actor);
+	}
+
+	if (additive)
+		AddToSelection(inRect);
+	else
+		SetSelectedActors(inRect);
 }
 
 
@@ -1472,8 +1758,8 @@ AreaRoom::_DrawSearchMap(const GFX::rect& visibleArea)
 		scaledRect.OffsetBy(destPoint.x, destPoint.y);
 		GraphicsEngine::Get()->ScreenBitmap()->StrokeRect(scaledRect, 200);
 
-		if (fSelectedActor != NULL) {
-			IE::point actorPosition = fSelectedActor.Target()->Position();
+		if (Actor* primary = SelectedActor()) {
+			IE::point actorPosition = primary->Position();
 			actorPosition.x /= fMapHorizontalRatio;
 			actorPosition.y /= fMapVerticalRatio;
 			GFX::rect r (actorPosition.x, actorPosition.y, 5, 5 );

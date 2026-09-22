@@ -24,6 +24,8 @@
 #include "TextSupport.h"
 #include "Timer.h"
 
+#include <SDL.h>
+
 
 #include <algorithm>
 #include <cctype>
@@ -1038,8 +1040,14 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 				}
 			}
 		} else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
-			// The 6 HUD portrait buttons select that party member.
-			Game::Get()->SelectPartyMember((uint16)controlID);
+			// The 6 HUD portrait buttons select that party member;
+			// shift+click instead adds/removes just that one from the map
+			// selection (same convention as shift-clicking their avatar
+			// on the map), leaving the shown character alone.
+			if (SDL_GetModState() & (KMOD_LSHIFT | KMOD_RSHIFT))
+				Game::Get()->ToggleSelectedPartyMember((uint16)controlID);
+			else
+				Game::Get()->SelectPartyMember((uint16)controlID);
 			return;
 		} else if ((windowID == WINDOW_MESSAGES && controlID == 2)
 				|| (windowID == WINDOW_MESSAGES_LARGE && controlID == 0)) {
