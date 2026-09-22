@@ -453,7 +453,6 @@ Game::CreateParty()
 		fParty->AddActor(new Actor("AJANTI", point, 0));
 	else {
 		fParty->AddActor(new Actor("ANOMEN10", point, 0));
-		fParty->AddActor(new Actor("Imoen", point, 0));
 	}
 }
 
@@ -568,8 +567,6 @@ Game::_CreateCharacterFromSpec(const IE::point& position)
 	if (!builder.Name().empty())
 		player->SetLongName(builder.Name().c_str());
 	fParty->AddActor(player);
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
-		fParty->AddActor(new Actor("Imoen", position, 0));
 
 	std::cout << "Created character:" << std::endl;
 	builder.Print();
