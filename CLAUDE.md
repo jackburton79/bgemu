@@ -241,6 +241,24 @@ They are not part of any area's cached actors or checkpoint
 creature table, not in an area. `Actor::IsPersistent()` = party member or
 global NPC.
 
+`AreaRoom` tracks the map selection (who mouse clicks/queued commands act
+on) as `fSelectedActors`, an ordered list rather than a single actor —
+`SelectActor()`/`SetSelectedActors()`/`AddToSelection()`/`ToggleSelected()`
+are the entry points (all restricted to party members), `SelectedActor()`
+still returns the first — the "primary" — for anything that only makes
+sense for one actor (dialog, the console's single-target commands).
+Clicking a party member's own avatar selects them; shift adds/removes just
+that one (map click or HUD portrait, `Game::ToggleSelectedPartyMember()`);
+a drag-rect replaces (or, with shift, adds to) the selection. A group
+command spreads each member to a nearby point (`AreaRoom::_SpreadPoint()`,
+reusing the same `kSpawnOffsets` table entrance placement already needs)
+rather than a real formation — no shape, no follow-the-leader while
+walking, just its starting point. Only one party member can hold a
+dialog at a time (`Game::InitiateDialog()` asserts as much), so Talk and a
+click on a friendly living creature always stay primary-only, even with
+several selected; Attack/Defend and a click on anyone/anything else
+dispatch to the whole selection.
+
 ## Working conventions specific to this project
 
 - **Reactive, not roadmap-driven**: the user plays the game, reports a
