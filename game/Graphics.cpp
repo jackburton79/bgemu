@@ -56,29 +56,3 @@ Graphics::ApplyShade(Bitmap* bitmap)
 	bitmap->SetAlpha(128, true);
 	bitmap->SetPalette(palette);
 }
-
-/*
- static
- bool
- match_color(const SDL_Color& color, const uint8& r, const uint8& g,
- const uint8& b, const uint8& a)
- {
- return color.r == r && color.g == g && color.b == b;
- }
- */
-
-/*
- static int
- IndexOfColor(const SDL_Color *color, const SDL_Palette *palette)
- {
- for (int32 i = 0; i < palette->ncolors; i++) {
- if (color->r == palette->colors[i].r
- && color->g == palette->colors[i].g
- && color->b == palette->colors[i].b) {
- return i;
- }
- }
- return -1;
- }
- */
-
