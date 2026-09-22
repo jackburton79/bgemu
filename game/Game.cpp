@@ -1212,6 +1212,27 @@ static const uint32 kRecClassLabelID = 268435504;
 static const uint32 kRecRaceLabelID = 268435471;
 static const uint32 kRecGenderLabelID = 268435473;
 static const uint32 kRecStatsAreaID = 45;
+// The record screen's own buttons (window 2), confirmed against a real
+// GUIREC.CHU dump of both games and GemRB's GUIREC.py (which sets each
+// one's caption from the same strrefs - the engine's own English text
+// renders in whatever language the loaded TLK actually is). Kit Info is
+// BG2-only (dual-classing and reforming the party exist in both games);
+// control id 2 exists in both games' CHU too but GemRB never gives it a
+// caption or an event either - left alone here as well.
+static const uint32 kRecDualClassButtonID = 0;
+static const uint32 kRecDualClassStrRef = 7174;
+static const uint32 kRecLevelUpButtonID = 37;
+static const uint32 kRecLevelUpStrRef = 7175;
+static const uint32 kRecInformationButtonID = 1;
+static const uint32 kRecInformationStrRef = 11946;
+static const uint32 kRecReformPartyButtonID = 51;
+static const uint32 kRecReformPartyStrRef = 16559;
+static const uint32 kRecCustomizeButtonID = 50;
+static const uint32 kRecCustomizeStrRef = 10645;
+static const uint32 kRecExportButtonID = 36;
+static const uint32 kRecExportStrRef = 13956;
+static const uint32 kRecKitInfoButtonID = 52;
+static const uint32 kRecKitInfoStrRef = 61265;
 // GUISAVE.CHU and GUILOAD.CHU window 0 share the same control-id layout
 // (confirmed via a real dump of both games' CHUs) - 4 fixed slot rows,
 // each: a name label, a date label, a Save-or-Load button and a Delete
@@ -3818,6 +3839,30 @@ Game::_UpdateRecordLabels()
 
 	_UpdateClassRaceLevelLabels(window, actor);
 	_UpdateSavesAndResistances(window, actor->CRE());
+	_UpdateRecordButtons(window);
+}
+
+
+// The row of buttons under the portrait (Dual-Class/Level Up/Information/
+// Reform Party/Customize/Export, plus Kit Info on BG2) - labels only, same
+// as GUIREC.py's own SetText() calls; none of the windows they'd open
+// (dual-classing, leveling up, ...) exist in this engine yet, so they stay
+// unwired (a click is a silent no-op, same as any other unhandled control).
+void
+Game::_UpdateRecordButtons(Window* window)
+{
+	auto setLabel = [window] (uint32 controlID, uint32 strRef) {
+		if (Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID)))
+			button->SetText(IDTable::GetDialog(strRef));
+	};
+	setLabel(kRecDualClassButtonID, kRecDualClassStrRef);
+	setLabel(kRecLevelUpButtonID, kRecLevelUpStrRef);
+	setLabel(kRecInformationButtonID, kRecInformationStrRef);
+	setLabel(kRecReformPartyButtonID, kRecReformPartyStrRef);
+	setLabel(kRecCustomizeButtonID, kRecCustomizeStrRef);
+	setLabel(kRecExportButtonID, kRecExportStrRef);
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
+		setLabel(kRecKitInfoButtonID, kRecKitInfoStrRef);
 }
 
 
