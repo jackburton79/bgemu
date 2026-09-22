@@ -511,13 +511,12 @@ Parser::_ExtractTriggerName(Tokenizer& tokenizer, ::trigger_params* node)
 	// own trigger text uses). kTriggersTable is only consulted for the
 	// genuine gaps real IDS files have (see IDTable::TriggerName()'s own
 	// comment on the same gap, from the opposite id-to-name direction).
-	try {
-		node->id = IDTable::TriggerID(triggerName);
-	} catch (const std::exception&) {
+	node->id = IDTable::TriggerID(triggerName);
+	if (node->id == -1)
 		node->id = GetTriggerID(triggerName);
-	}
 	if (node->id == -1) {
-		std::cerr << Log::Red << "GetTriggerID: no trigger found" << Log::Normal << std::endl;
+		std::cerr << Log::Red << "GetTriggerID: value not found for " << triggerName;
+		std::cerr << Log::Normal << std::endl;
 		return false;
 	}
 	return true;
