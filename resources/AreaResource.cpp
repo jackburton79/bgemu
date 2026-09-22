@@ -315,7 +315,6 @@ ARAResource::GetActorAt(uint16 index)
 		}
 	}
 
-	ieActor.Print();
 	return cre != NULL ? new Actor(ieActor, cre) : new Actor(ieActor);
 }
 
@@ -349,7 +348,6 @@ ARAResource::GetRegionAt(uint16 index)
 		polygon.AddPoint(vertex.x, vertex.y);
 	}
 
-	//fRegions[index].Print();
 	return region;
 }
 
@@ -475,11 +473,9 @@ ARAResource::_LoadActors()
 	fData->Seek(fActorsOffset, SEEK_SET);
 	for (uint32 i = 0; i < fNumActors; i++) {
 		fData->Read(fActors[i]);
-		//fActors[i].Print();
 		if (fActors[i].flags & IE::ACTOR_CRE_EXTERNAL) {
 			char c;
 			fData->ReadAt(fData->Position() + fActors[i].cre_offset, c);
-			//std::cout << "attached data: " << c << std::endl;
 		}
 	}
 }
@@ -493,14 +489,11 @@ ARAResource::_LoadDoors()
 	for (uint32 i = 0; i < fNumDoors; i++) {
 		fData->Read(fDoors[i]);
 		Polygon closedPolygon;
-		std::cout << "Door " << fDoors[i].name << std::endl;
 		for (uint16 c = 0; c < fDoors[i].closed_vertices_count; c++) {
 			IE::point vertex;
 			fData->ReadAt(0x007c + (c + fDoors[i].closed_vertex_index) * sizeof(IE::point), vertex);
 			closedPolygon.AddPoint(vertex.x, vertex.y);
 		}
-
-		//closedPolygon.Print();
 
 		Polygon openPolygon;
 		for (uint16 c = 0; c < fDoors[i].open_vertices_count; c++) {
@@ -508,7 +501,6 @@ ARAResource::_LoadDoors()
 			fData->ReadAt(0x007c + (c + fDoors[i].open_vertex_index) * sizeof(IE::point), vertex);
 			openPolygon.AddPoint(vertex.x, vertex.y);
 		}
-		//openPolygon.Print();
 	}
 }
 
