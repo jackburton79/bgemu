@@ -37,6 +37,7 @@ OBJS = $(addprefix $(DIR_OBJ)/, $(SRCS:cpp=o)) # obj/xxx.o obj/folder/xxx .o
 INC_DIRS = -I./ $(addprefix -I, $(SUBDIR))
 INC_DIRS += -I libjgame/audio
 INC_DIRS += -I libjgame/graphics
+INC_DIRS += -I libjgame/input
 INC_DIRS += -I libjgame/streams
 INC_DIRS += -I libjgame/support
 INC_DIRS += -I libjgame/timers
