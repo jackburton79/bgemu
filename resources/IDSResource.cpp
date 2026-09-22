@@ -104,5 +104,5 @@ IDSResource::IDForString(std::string string) const
 			return i->first;
 	}
 
-	throw std::runtime_error("IDSResource::ValueFor(): no such value");
+	throw std::runtime_error("IDSResource::IDForString(): no such value");
 }
