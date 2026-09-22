@@ -12,8 +12,6 @@
 
 #include <sys/time.h>
 
-#include <SDL.h>
-
 
 // GameTimer
 GameTimer::timer_map GameTimer::sTimers;
@@ -205,16 +203,7 @@ GameTimer::PrintTime()
 void
 GameTimer::UpdateGameTime()
 {
-	//if (sGameTime % 60 == 0)
-	//	PrintTime();
 	sGameTime++;
-
-	// TODO: Check timer expiration, add a trigger and delete
-	// the timer
-	/*std::map<std::string, GameTimer*>::const_iterator i;
-	for (i = sTimers.begin(); i != sTimers.end(); i++) {
-
-	}*/
 }
 
 
@@ -224,6 +213,7 @@ GameTimer::AdvanceTime(uint32 seconds)
 {
 	sGameTime += seconds;
 }
+
 
 /* static */
 void
