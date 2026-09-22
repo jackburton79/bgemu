@@ -2700,7 +2700,7 @@ public:
 		actionParams->id = 153;
 		actionParams->integer1 = reputation;
 		AreaRoom* room = CurrentAreaRoom();
-		if (room == NULL)
+		if (room != NULL)
 			room->AddAction(actionParams);
 		actionParams->Release();
 	}
