@@ -1217,8 +1217,8 @@ static const uint32 kRecStatsAreaID = 45;
 // one's caption from the same strrefs - the engine's own English text
 // renders in whatever language the loaded TLK actually is). Kit Info is
 // BG2-only (dual-classing and reforming the party exist in both games);
-// control id 2 exists in both games' CHU too but GemRB never gives it a
-// caption or an event either - left alone here as well.
+// control id 2, also confirmed against GUIREC.py, isn't an 8th button at
+// all but the large portrait (kRecPortraitButtonID below).
 static const uint32 kRecDualClassButtonID = 0;
 static const uint32 kRecDualClassStrRef = 7174;
 static const uint32 kRecLevelUpButtonID = 37;
@@ -1233,6 +1233,13 @@ static const uint32 kRecExportButtonID = 36;
 static const uint32 kRecExportStrRef = 13956;
 static const uint32 kRecKitInfoButtonID = 52;
 static const uint32 kRecKitInfoStrRef = 61265;
+// The large portrait button (confirmed as such, not a 7th action button,
+// against GemRB's GUIREC.py: "Button = Window.GetControl(2);
+// Button.SetPicture(GemRB.GetPlayerPortrait(pc,0), ...)"). BG2 falls back
+// to the medium placeholder when a character has no portrait of its own,
+// every other game to the large one - both real BMP resources, confirmed
+// present in both installs.
+static const uint32 kRecPortraitButtonID = 2;
 // GUISAVE.CHU and GUILOAD.CHU window 0 share the same control-id layout
 // (confirmed via a real dump of both games' CHUs) - 4 fixed slot rows,
 // each: a name label, a date label, a Save-or-Load button and a Delete
@@ -3840,6 +3847,33 @@ Game::_UpdateRecordLabels()
 	_UpdateClassRaceLevelLabels(window, actor);
 	_UpdateSavesAndResistances(window, actor->CRE());
 	_UpdateRecordButtons(window);
+	_UpdateRecordPortrait(window, actor);
+}
+
+
+// The character's own large portrait (control 2 - see its own comment).
+void
+Game::_UpdateRecordPortrait(Window* window, Actor* actor)
+{
+	Button* button = dynamic_cast<Button*>(window->GetControlByID(kRecPortraitButtonID));
+	if (button == NULL)
+		return;
+
+	res_ref portraitRef = actor->CRE()->LargePortrait();
+	if (portraitRef.CString()[0] == '\0') {
+		portraitRef = Core::Get()->Game() == game::GAME_BALDURSGATE2
+			? res_ref("NOPORTMD") : res_ref("NOPORTLG");
+	}
+
+	Bitmap* portrait = NULL;
+	BMPResource* bmp = gResManager->GetBMP(portraitRef);
+	if (bmp != NULL) {
+		portrait = bmp->Image();
+		gResManager->ReleaseResource(bmp);
+	}
+	// coverBackground: same reasoning as the paperdoll button's own -
+	// the CHU-authored placeholder shouldn't show through/around it.
+	button->SetIcon(portrait, true);
 }
 
 

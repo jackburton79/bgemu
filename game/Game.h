@@ -523,6 +523,7 @@ private:
 	void _UpdateClassRaceLevelLabels(class Window* window, Actor* actor);
 	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
 	void _UpdateRecordButtons(class Window* window);
+	void _UpdateRecordPortrait(class Window* window, Actor* actor);
 	std::string _TitleCaseIDSName(const std::string& idsName);
 	// Refreshes every slot row's name/date labels and Save-or-Load/Delete
 	// button state (enabled iff that slot's own .gam exists - Delete's
