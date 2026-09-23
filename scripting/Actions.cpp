@@ -1377,10 +1377,10 @@ RunActionOpenDoor(Object* sender, action_params* params, action_state& state)
 	}
 
 	std::cout << "actor " << actor->Name() << " opens " << door->Name() << std::endl;
-	if (!door->Opened()) {
+	if (!door->Opened())
 		door->Open(actor);
-		state.completed = true;
-	}
+
+	state.completed = true;
 }
 
 
@@ -3569,6 +3569,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 136, "UNLOCKSCROLL", NULL },
 		{ 137, "STARTDIALOGUE", RunActionStartDialogue },
 		{ 138, "SETDIALOGUE", RunActionSetDialogue },
+		{ 138, "SETDIALOG", RunActionSetDialogue }, // BG2 variant
 		{ 139, "PLAYERDIALOGUE", RunActionStartDialogue },
 		{ 140, "GIVEITEMCREATE", RunActionGiveItemCreate },
 		{ 141, "GIVEPARTYGOLDGLOBAL", RunActionGivePartyGoldGlobal },
