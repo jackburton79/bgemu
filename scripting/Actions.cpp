@@ -1676,14 +1676,20 @@ RunActionDialog(Object* sender, action_params* params, action_state& state)
 		return;
 	}
 
-	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(object, params));
-	if (target == NULL || target->IsState(STATE_DEAD)) {
+	Actor* speaker = dynamic_cast<Actor*>(object);
+	if (speaker != NULL && speaker->IsState(STATE_DEAD)) {
 		state.completed = true;
 		return;
 	}
 
-	Actor* speaker = dynamic_cast<Actor*>(object);
-	if (speaker != NULL && speaker->IsState(STATE_DEAD)) {
+	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(object, params));
+	if (target == nullptr) {
+		// IESDP documentation: if target is invalid, the active creature
+		// will talk with player1
+		target = Game::Get()->Party()->ActorAt(0);
+	}
+
+	if (target == NULL || target->IsState(STATE_DEAD)) {
 		state.completed = true;
 		return;
 	}
