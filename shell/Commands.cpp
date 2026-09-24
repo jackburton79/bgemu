@@ -28,6 +28,7 @@
 #include "MemoryStream.h"
 #include "DLGResource.h"
 #include "Parsing.h"
+#include "JournalScreen.h"
 #include "Party.h"
 #include "RecordScreen.h"
 #include "ScreenManager.h"
@@ -724,7 +725,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleJournalWindow();
+		Game::Get()->Screens().Toggle<JournalScreen>();
 		std::cout << "Toggle-Journal: OK" << std::endl;
 	}
 };

@@ -11,3 +11,15 @@ Toggle-Record
 Assert-ScreenOpen GUIREC,true
 Toggle-Record
 Assert-ScreenOpen GUIREC,false
+
+# The Journal (also a GameScreen) and the Record screen replace each other.
+Toggle-Journal
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Record
+Assert-ScreenOpen GUIJRNL,false
+Assert-ScreenOpen GUIREC,true
+Toggle-Journal
+Assert-ScreenOpen GUIREC,false
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Journal
+Assert-ScreenOpen GUIJRNL,false

@@ -997,11 +997,6 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 		return;
 	}
 
-	if (chuName == res_ref("GUIJRNL")) {
-		Game::Get()->JournalControlInvoked(controlID, windowID);
-		return;
-	}
-
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
 		return;

@@ -221,11 +221,6 @@ public:
 	// A right click on a quick spell button offers the spell page to assign
 	// one to it.
 	void ActionBarControlRightClicked(uint32 controlID);
-	void ToggleJournalWindow();
-	// GUI::ControlInvoked() routes clicks on GUIJRNL controls here -
-	// the command bar (window 0) and the portrait column (window 1),
-	// same layout/handling as InventoryControlInvoked/RecordControlInvoked.
-	void JournalControlInvoked(uint32 controlID, uint16 windowID);
 	// Mage spellbook (GUIMG), read-only for now: shows the currently
 	// displayed character's known + memorized arcane spells.
 	void ToggleArcaneSpellbookWindow();
@@ -544,11 +539,5 @@ private:
 	// all; a Save screen's own action button stays enabled on an empty
 	// row too, since saving into one is how a new save is made).
 	void _UpdateSaveLoadRows(const res_ref& chuName);
-	void _UpdateJournalLabels();
-	// What the journal screen shows: the chapter, the section (BG2 only) and
-	// whether the entries are listed newest first.
-	int32 fJournalChapter;
-	uint8 fJournalSection;
-	bool fJournalReverse;
 	ScreenManager* fScreens;
 };
