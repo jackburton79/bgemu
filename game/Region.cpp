@@ -142,7 +142,6 @@ Region::GetObjects(std::vector<Actor*>& objects)
 void
 Region::ActorEntered(Actor* actor)
 {
-	std::cerr << "Actor Entered" << std::endl;
 	if (!IsActorInside(actor)) {
 		fObjectsInside.push_back(actor);
 		AddTrigger(trigger_entry("Entered", actor));
@@ -153,7 +152,6 @@ Region::ActorEntered(Actor* actor)
 void
 Region::ActorExited(Actor* actor)
 {
-	std::cerr << "Actor Exited" << std::endl;
 	for (auto object : fObjectsInside) {
 		if (object->GlobalID() == actor->GlobalID()) {
 			fObjectsInside.remove(object);
@@ -166,7 +164,7 @@ Region::ActorExited(Actor* actor)
 bool
 Region::IsActorInside(Actor* actor) const
 {
-	for (auto object : fObjectsInside) {
+	for (const auto& object : fObjectsInside) {
 		if (object->GlobalID() == actor->GlobalID())
 			return true;
 	}
@@ -177,7 +175,7 @@ Region::IsActorInside(Actor* actor) const
 bool
 Region::IsActorInside(object_params* actorNode) const
 {
-	for (auto object : fObjectsInside) {
+	for (const auto& object : fObjectsInside) {
 		if (object->MatchNode(actorNode))
 			return true;
 	}
