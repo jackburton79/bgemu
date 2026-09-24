@@ -135,12 +135,12 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x6510, "CHFM", _BuildCharacter, true },
 
 	{ 0x7000, "",     _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7001, "MOGN", _BuildFourFiles, false }, // Ogrillon - confirmed against avatars.2da; bgemu had it confused with the "MOGR" (ogre) prefix used at 0x9000. avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7001, "MOGN", _BuildFourFiles, false }, // Ogrillon - confirmed against avatars.2da;
 	{ 0x7202, "MBER", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7300, "",     _BuildBGMonster, false },
 	{ 0x7400, "MDOG", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7700, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
-	{ 0x7703, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; the old "MSHD" name doesn't even exist as a resource (MSHDG1.BAM: not found). avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7700, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; avatars.2da TYPE 14 (FOUR_FILES_2)
+	{ 0x7703, "MGHL", _BuildFourFiles, false }, // Ghoul - confirmed against avatars.2da; avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7a01, "MSPI", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7c01, "MTAS", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
 	{ 0x7b00, "MWLF", _BuildFourFiles, false }, // avatars.2da TYPE 14 (FOUR_FILES_2)
