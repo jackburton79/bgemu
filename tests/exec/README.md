@@ -54,6 +54,8 @@ Either path may be omitted (`-`) to skip that game's files.
   adds `-a <resref>`) - pick one confirmed to have zero actors of its
   own via `-a <resref> -x /dev/null` and checking "Loading other
   actors:" is empty.
+- `# ARGS: <options>` as the first line adds command-line options (the start menu
+  tests use `# ARGS: -M`, which runs the script while the start menu is up).
 - Every new fix to scripting/dialog code is a good candidate for a new
   assertion here (or a new file, for a substantial new mechanism) -
   keeps a fix from silently regressing later. `Assert-Trigger`/

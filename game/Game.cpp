@@ -52,6 +52,7 @@
 #include "SaveLoadScreen.h"
 #include "ScreenSupport.h"
 #include "SpellbookScreen.h"
+#include "StartScreen.h"
 #include "StoreScreen.h"
 #include "ScreenManager.h"
 #include "TextArea.h"
@@ -99,6 +100,7 @@ Game::Game()
 	fDelay(67),
 	fTestMode(false),
 	fShowIntro(false),
+	fShowStartMenu(false),
 	fJournal(NULL),
 	fLoot(NULL),
 	fBar(NULL),
@@ -120,6 +122,7 @@ Game::Game()
 	fScreens->Add(new SpellbookScreen(*this, false));
 	fScreens->Add(new SpellbookScreen(*this, true));
 	fScreens->Add(new StoreScreen(*this));
+	fScreens->Add(new StartScreen(*this));
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
 	fStartingParty = new StartingParty;
@@ -236,10 +239,23 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		// Parsing tests
 		Parser::Test();
 	} else {
+		bool loadedFromMenu = false;
 		if (fShowIntro && !FrontEnd::PlayIntroMovies())
 			quitting = true;
+		if (!quitting && fShowStartMenu) {
+			switch (FrontEnd::RunStartMenu(*this, inputConsole, fExecFile)) {
+				case FrontEnd::MENU_QUIT:
+					quitting = true;
+					break;
+				case FrontEnd::MENU_LOADED:
+					loadedFromMenu = true;
+					break;
+				default:
+					break;
+			}
+		}
 
-		if (!quitting) {
+		if (!quitting && !loadedFromMenu) {
 			try {
 				assert(fParty == NULL);
 				fParty = fStartingParty->Create();
@@ -449,6 +465,13 @@ void
 Game::SetShowIntro(bool show)
 {
 	fShowIntro = show;
+}
+
+
+void
+Game::SetShowStartMenu(bool show)
+{
+	fShowStartMenu = show;
 }
 
 

@@ -1,0 +1,30 @@
+# ARGS: -M
+#
+# The start menu (START.CHU): Single Player leads to New Game / Load Game / Back;
+# Back goes back to the first page; Exit asks first (Cancel keeps the menu,
+# the confirmation quits). What was chosen is StartScreen::Selected().
+Assert-ScreenOpen START,true
+# The theme plays.
+Assert-Music true
+Assert-StartChoice none
+# Single Player, Back, Single Player again, New Game.
+Invoke-Control START,0,0
+Invoke-Control START,0,3
+Assert-StartChoice none
+Invoke-Control START,0,0
+Invoke-Control START,0,0
+Assert-StartChoice new
+Toggle-StartMenu
+Toggle-StartMenu
+Invoke-Control START,0,0
+Invoke-Control START,0,1
+Assert-StartChoice load
+# Exit: Cancel, then confirm.
+Toggle-StartMenu
+Toggle-StartMenu
+Invoke-Control START,0,3
+Invoke-Control START,3,2
+Assert-StartChoice none
+Invoke-Control START,0,3
+Invoke-Control START,3,1
+Assert-StartChoice quit

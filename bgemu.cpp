@@ -18,6 +18,7 @@ static int sList = 0;
 static int sNoScripts = 0;
 static int sNoNewGame = 0;
 static int sSkipIntro = 0;
+static int sStartMenu = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
 static int sDebug = 0;
@@ -43,6 +44,10 @@ struct option sLongOptions[] = {
 		// something else says what to start with (--exec-file, --area,
 		// --party, --character, --no-newgame, --test).
 		{ "skip-intro", no_argument, &sSkipIntro, 'I' },
+		// Show the start menu first even where a plain run wouldn't (with
+		// --exec-file, the script runs while the menu is up: how the menu is
+		// tested).
+		{ "start-menu", no_argument, &sStartMenu, 'M' },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		// Comma-separated list of CRE resrefs to start the party with,
@@ -88,7 +93,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNIltfT:P:x:a:c:S:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNIMltfT:P:x:a:c:S:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -125,6 +130,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'I':
 				sSkipIntro = 1;
+				break;
+			case 'M':
+				sStartMenu = 1;
 				break;
 			case 'l':
 				sList = 1;
@@ -212,8 +220,10 @@ main(int argc, char **argv)
 	if (sExecFile != NULL)
 		Game::Get()->SetExecFile(sExecFile);
 
-	Game::Get()->SetShowIntro(!sSkipIntro && sExecFile == NULL && sStartingArea == NULL
-		&& sPartyMembers == NULL && sCharacterSpec == NULL && !sNoNewGame && !sTest);
+	const bool plainStart = sExecFile == NULL && sStartingArea == NULL
+		&& sPartyMembers == NULL && sCharacterSpec == NULL && !sNoNewGame && !sTest;
+	Game::Get()->SetShowIntro(!sSkipIntro && plainStart);
+	Game::Get()->SetShowStartMenu(plainStart || sStartMenu);
 
 	if (sStartingArea != NULL)
 		Game::Get()->SetStartingArea(sStartingArea);

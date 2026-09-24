@@ -202,6 +202,8 @@ public:
 	void SetExecFile(const char* path);
 	// Whether Loop() starts with the intro movies (the logos and the introduction).
 	void SetShowIntro(bool show);
+	// Whether Loop() shows the start menu (with --exec-file, the script runs in it).
+	void SetShowStartMenu(bool show);
 
 	// Overrides the normal startup flow (opening cutscene via
 	// LoadStartingArea(), or the worldmap with --no-newgame) to load this
@@ -257,6 +259,7 @@ private:
 
 	std::string fExecFile;
 	bool fShowIntro;
+	bool fShowStartMenu;
 	std::string fStartingArea;
 
 	// Releases every entry in fAreaCache (same balancing act as ~Game()

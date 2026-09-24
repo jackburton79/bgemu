@@ -1,0 +1,28 @@
+# ARGS: -M
+#
+# The same on BG2's start menu (see bg1-start-menu.txt).
+Assert-ScreenOpen START,true
+# The theme plays.
+Assert-Music true
+Assert-StartChoice none
+# Single Player, Back, Single Player again, New Game.
+Invoke-Control START,0,0
+Invoke-Control START,0,3
+Assert-StartChoice none
+Invoke-Control START,0,0
+Invoke-Control START,0,0
+Assert-StartChoice new
+Toggle-StartMenu
+Toggle-StartMenu
+Invoke-Control START,0,0
+Invoke-Control START,0,1
+Assert-StartChoice load
+# Exit: Cancel, then confirm.
+Toggle-StartMenu
+Toggle-StartMenu
+Invoke-Control START,0,3
+Invoke-Control START,3,2
+Assert-StartChoice none
+Invoke-Control START,0,3
+Invoke-Control START,3,1
+Assert-StartChoice quit

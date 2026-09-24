@@ -211,6 +211,16 @@ when their area unloads or another screen opens. Console tests use
 `Assert-LootWindow`/`Assert-ContainerHasItem` and
 `Assert-StoreWindow`/`Assert-StoreStock`/`Print-Store`.
 
+### Start of the game
+
+A plain run (`-p <path>` only) starts with `FrontEnd::PlayIntroMovies()` (the logo
+movies, skippable) and `FrontEnd::RunStartMenu()`: the start menu (`StartScreen`,
+START.CHU: Single Player -> New Game / Load Game; Exit asks first), with the
+game's `Theme.mus` playing. New Game then goes on with `StartingParty` (character
+creation from the GUI is still to do); Load Game opens the load screen and a
+loaded game skips the rest. `-M` shows the menu with `-x` too (the script runs in
+the menu: `tests/exec/*-start-menu.txt`, first line `# ARGS: -M`).
+
 ### Levelling up
 
 Experience only makes a level possible: `Actor::CanLevelUp()` compares it with

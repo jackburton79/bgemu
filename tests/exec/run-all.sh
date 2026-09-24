@@ -40,8 +40,11 @@ run_one() {
 	area=$(sed -n '1s/^# AREA: *//p' "$file")
 	area_flag=""
 	[ -n "$area" ] && area_flag="-a $area"
+	# "# ARGS: <options>" as the first line adds command-line options (e.g. the
+	# start menu tests run with -M).
+	extra_args=$(sed -n '1s/^# ARGS: *//p' "$file")
 	output=$(SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy timeout 60 \
-		"$BINARY" -p "$game_path" -D $area_flag -x "$file" 2>&1)
+		"$BINARY" -p "$game_path" -D $area_flag $extra_args -x "$file" 2>&1)
 	fails=$(printf '%s\n' "$output" | grep -c "ASSERT FAIL")
 	# "SetDestination() failed!" is an order that found no path (a guard's or a
 	# click's walk), not a crash.

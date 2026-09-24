@@ -37,6 +37,7 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "Region.h"
+#include "StartScreen.h"
 #include "PlaylistStream.h"
 #include "MusPlaylist.h"
 #include "SoundEngine.h"
@@ -2768,6 +2769,42 @@ public:
 };
 
 
+// Toggle-StartMenu opens (or closes) the start menu (START.CHU), for tests and
+// screenshots; Assert-StartChoice <none|new|load|quit> checks what was chosen.
+class ToggleStartMenuCommand : public ShellCommand {
+public:
+	ToggleStartMenuCommand()
+		: ShellCommand("Toggle-StartMenu")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		StartScreen* screen = Game::Get()->Screens().Find<StartScreen>();
+		screen->Reset();
+		screen->Toggle();
+		std::cout << "Toggle-StartMenu: OK" << std::endl;
+	}
+};
+
+
+class AssertStartChoiceCommand : public ShellCommand {
+public:
+	AssertStartChoiceCommand()
+		: ShellCommand("Assert-StartChoice")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const StartScreen::Choice choice = Game::Get()->Screens().Find<StartScreen>()->Selected();
+		const std::string expected = argv;
+		const char* names[] = { "none", "new", "load", "quit" };
+		if (expected == names[choice])
+			std::cout << "ASSERT OK: start choice " << expected << std::endl;
+		else
+			std::cout << "ASSERT FAIL: start choice " << names[choice] << ", expected "
+				<< expected << std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3834,6 +3871,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new ToggleStartMenuCommand());
+	console->AddCommand(new AssertStartChoiceCommand());
 	console->AddCommand(new PlayMovieCommand());
 	console->AddCommand(new AssertMovieSkipCommand());
 	console->AddCommand(new PlayMusicFileCommand());
