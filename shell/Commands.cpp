@@ -699,7 +699,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleSaveWindow();
+		Game::Get()->Screens().Toggle("GUISAVE");
 		std::cout << "Toggle-Save: OK" << std::endl;
 	}
 };
@@ -712,7 +712,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleLoadWindow();
+		Game::Get()->Screens().Toggle("GUILOAD");
 		std::cout << "Toggle-Load: OK" << std::endl;
 	}
 };

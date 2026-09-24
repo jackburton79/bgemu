@@ -36,6 +36,10 @@ public:
 			screen->Toggle();
 	}
 
+	// For screens that share a class (Save and Load) and so can't be told
+	// apart by type.
+	void Toggle(const char* chuName);
+
 	// The CHU of the open screen, empty if none is.
 	res_ref OpenCHU() const;
 	void CloseAllExcept(const res_ref& chuName);

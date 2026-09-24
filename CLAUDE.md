@@ -172,8 +172,9 @@ the command-bar icon), `Refresh()` to fill the controls, and the control
 events (`ControlInvoked/RightClicked/Hovered`) that `GUI` hands to the screen
 owning the CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is
 the full-screen panel layout (content window 2, command bar copy 0, portrait
-column 1). `RecordScreen` is the first one ported; the others (Inventory,
-Journal, Spellbook, Save/Load, loot, store, action bar) are still `Game`'s own
+column 1). Ported so far: `RecordScreen`, `JournalScreen`, `SaveLoadScreen`
+(two instances, GUISAVE and GUILOAD: `Screens().Toggle("GUISAVE")`); the
+others (Inventory, Spellbook, loot, store, action bar) are still `Game`'s own
 `Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
 `Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
 

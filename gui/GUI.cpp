@@ -977,11 +977,6 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 	if (Game::Get()->Screens().ControlInvoked(chuName, windowID, controlID))
 		return;
 
-	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
-		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
-		return;
-	}
-
 	if (chuName == res_ref("GUIINV")) {
 		Game::Get()->InventoryControlInvoked(controlID, windowID);
 		return;

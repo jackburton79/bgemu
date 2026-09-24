@@ -36,6 +36,14 @@ ScreenManager::Find(const res_ref& chuName) const
 }
 
 
+void
+ScreenManager::Toggle(const char* chuName)
+{
+	if (GameScreen* screen = Find(res_ref(chuName)))
+		screen->Toggle();
+}
+
+
 res_ref
 ScreenManager::OpenCHU() const
 {

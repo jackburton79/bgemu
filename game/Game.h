@@ -135,19 +135,6 @@ public:
 	void UpdatePortraitColumn(class Window* window, uint32 count);
 
 	void ToggleInventoryWindow();
-	// 4-slot Save/Load screens (GUISAVE/GUILOAD): every real slot row
-	// (name/date labels, Save-or-Load and Delete buttons) is wired, but
-	// real BG2's own scrolling past 4 saves, name-entry popup and per-row
-	// thumbnail/portraits aren't - this engine's saves have no name,
-	// timestamp or preview of their own to show (see GamResource's header
-	// comment), and neither TextEdit nor Scrollbar support what a real
-	// name-entry field or scrolling list needs yet.
-	void ToggleSaveWindow();
-	void ToggleLoadWindow();
-	// GUI::ControlInvoked() routes clicks on GUISAVE/GUILOAD controls
-	// here (Game owns Save()/Load(), GUI doesn't reach into game state).
-	void SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
-		uint16 windowID);
 	// GUI::ControlInvoked() routes clicks on GUIINV (Inventory) slot
 	// buttons here - click-to-pick-up, click-to-drop-and-swap between
 	// item slots. See the .cpp.
@@ -533,11 +520,5 @@ private:
 	void _ShowItemInfo(const res_ref& itemName);
 	void _UpdatePaperdoll(class Window* window, Actor* actor);
 	void _UpdateInventoryLabels(class Window* window, Actor* actor);
-	// Refreshes every slot row's name/date labels and Save-or-Load/Delete
-	// button state (enabled iff that slot's own .gam exists - Delete's
-	// case - or, for a Load screen's own action button, iff it exists at
-	// all; a Save screen's own action button stays enabled on an empty
-	// row too, since saving into one is how a new save is made).
-	void _UpdateSaveLoadRows(const res_ref& chuName);
 	ScreenManager* fScreens;
 };

@@ -23,3 +23,19 @@ Assert-ScreenOpen GUIREC,false
 Assert-ScreenOpen GUIJRNL,true
 Toggle-Journal
 Assert-ScreenOpen GUIJRNL,false
+
+# Save and Load are two instances of one screen class: opening one closes the
+# other, and both replace the Journal.
+Toggle-Save
+Assert-ScreenOpen GUISAVE,true
+Assert-ScreenOpen GUILOAD,false
+Toggle-Load
+Assert-ScreenOpen GUISAVE,false
+Assert-ScreenOpen GUILOAD,true
+Toggle-Journal
+Assert-ScreenOpen GUILOAD,false
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Journal
+Toggle-Save
+Invoke-Control GUISAVE,0,34
+Assert-ScreenOpen GUISAVE,false
