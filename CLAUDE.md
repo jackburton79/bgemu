@@ -174,8 +174,9 @@ owning the CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is
 the full-screen panel layout (content window 2, command bar copy 0, portrait
 column 1). Ported so far: `RecordScreen`, `JournalScreen`, `SaveLoadScreen`
 (two instances, GUISAVE and GUILOAD: `Screens().Toggle("GUISAVE")`),
-`SpellbookScreen` (GUIMG and GUIPR); `ScreenSupport` holds what several share.
-The others (Inventory, loot, store, action bar) are still `Game`'s own
+`SpellbookScreen` (GUIMG and GUIPR), `InventoryScreen`; `ScreenSupport` holds
+what several share (item icons/names, weight labels). The others (loot, store,
+action bar) are still `Game`'s own
 `Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
 `Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
 

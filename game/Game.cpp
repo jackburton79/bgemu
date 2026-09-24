@@ -24,6 +24,7 @@
 #include "Dialog.h"
 #include "GameConsole.h"
 #include "GamResource.h"
+#include "InventoryScreen.h"
 #include "JournalScreen.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
@@ -88,7 +89,6 @@ Game::Game()
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
 	fTestMode(false),
-	fInvDragSlot(-1),
 	fLootSource(NULL),
 	fLooter(NULL),
 	fLootLeftRow(0),
@@ -113,6 +113,7 @@ Game::Game()
 {
 	fScreens = new ScreenManager;
 	fScreens->Add(new RecordScreen(*this));
+	fScreens->Add(new InventoryScreen(*this));
 	fScreens->Add(new JournalScreen(*this));
 	fScreens->Add(new SaveLoadScreen(*this, true));
 	fScreens->Add(new SaveLoadScreen(*this, false));
@@ -341,7 +342,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								ToggleDayNight();
 								break;
 							case SDLK_i:
-								ToggleInventoryWindow();
+								fScreens->Toggle<InventoryScreen>();
 								break;
 							case SDLK_r:
 								fScreens->Toggle<RecordScreen>();
@@ -611,7 +612,6 @@ Game::SetStartingArea(const char* areaName)
 // persistent open/closed screen.
 static const struct { const char* chu; uint16 windows[5]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
-	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
 	{ "GUISTORE", { 2, 3, 0, 1, 4 }, 5, kNoCommandBarButton },
 };
 
@@ -693,7 +693,7 @@ Game::UpdateCommandBarToggle()
 const CommandBarButton kCommandBarButtons[9] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
 	{ 2, [] { Game::Get()->Screens().Toggle<JournalScreen>(); } },
-	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
+	{ 3, [] { Game::Get()->Screens().Toggle<InventoryScreen>(); } },
 	{ 4, [] { Game::Get()->Screens().Toggle<RecordScreen>(); } },
 	{ 5, [] { Game::Get()->Screens().Toggle("GUIMG"); } },
 	{ 6, [] { Game::Get()->Screens().Toggle("GUIPR"); } },
@@ -736,27 +736,6 @@ Game::AuxCommandBarInvoked(uint32 controlID)
 }
 
 
-// Shows/hides the Inventory window (GUIINV). Window 2 is the actual
-// inventory panel (paperdoll + item slots); 0/1 are the persistent
-// left/right side columns (portraits, quick items) that flank it -
-// confirmed against real GUIINV.CHU data (64+512+64 = 640, the reference
-// width). Public (rather than folded into the SDLK_i handler) so it can
-// also be driven from the HUD inventory button and from test tooling.
-void
-Game::ToggleInventoryWindow()
-{
-	// A half-finished drag doesn't survive the window closing (or a fresh
-	// open) - drop whatever's on the cursor back where it came from.
-	fInvDragSlot = -1;
-	GUI::Get()->SetDragBitmap(NULL);
-
-	CloseOtherScreens("GUIINV");
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1})) {
-		UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
-		_UpdateInventoryIcons();
-	}
-	UpdateCommandBarToggle();
-}
 
 
 void
@@ -771,47 +750,6 @@ Game::TriggerRest()
 	params->Release();
 }
 
-
-// GUIINV.CHU/GUIREC.CHU/GUISAVE.CHU/GUILOAD.CHU control IDs used by the
-// label-population methods below, named rather than left as bare
-// literals at each call site - all identified/confirmed as described in
-// those methods' own comments.
-static const uint32 kInvNameLabelID = 268435506;
-static const uint32 kInvClassLabelID = 268435522;
-static const uint32 kInvACLabelID = 268435512;
-// Confirmed against GemRB's own GUIINV.py (bg1/bg2, identical control
-// IDs in both): current/max hit points and the party gold counter -
-// none of the three are CHU-authored static text, all three are set
-// from code every time the window refreshes, same as name/AC above.
-static const uint32 kInvHPCurrentLabelID = 268435513;
-static const uint32 kInvHPMaxLabelID = 268435514;
-static const uint32 kInvGoldLabelID = 268435520;
-// The encumbrance ("bag") icon and its two current/max weight labels.
-// Unlike every other GUIINV label, these two aren't CHU-authored at all -
-// real BG2 creates them at runtime anchored to the bag icon's own rect
-// (see GemRB's GUIINV.py "encumbrance" section) - same approach in
-// _EnsureWeightLabels() below.
-static const uint32 kInvWeightIconID = 67;
-static const uint32 kInvWeightCurrentLabelID = 268435523;
-static const uint32 kInvWeightMaxLabelID = 268435524;
-// The paperdoll control itself (128x160, CHU-authored to a fixed
-// placeholder bitmap - CIFF4INV, a generic doll unrelated to whichever
-// character's inventory is actually open) - see _UpdatePaperdoll().
-static const uint32 kInvPaperdollID = 50;
-// GUIINV window 5 (background GUIINVHI) is BG2's "examine item" popup,
-// opened by right-clicking a slot (confirmed via a real GUIINV.CHU dump):
-// id 268435455 = item title, id 7 = the large item-icon button, id 5 =
-// the scrollable description text_area. Any button in the window closes
-// it (only "Done", id 4, is meaningful here).
-static const uint16 kInvInfoWindowID = 5;
-static const uint32 kInvInfoTitleID = 268435455;
-static const uint32 kInvInfoIconID = 7;
-static const uint32 kInvInfoTextID = 5;
-// Two CHU-authored labels in that window that otherwise show a literal
-// "(No text)" TLK placeholder - blanked rather than left visible (real
-// BG2 fills them from code; their exact purpose isn't confirmed here).
-static const uint32 kInvInfoBlankLabel1ID = 268435456;
-static const uint32 kInvInfoBlankLabel2ID = 268435467;
 
 // Real BG2 numbers save files per slot; every save (the Save/Load screens'
 // and SAVEGAME(190)'s) is Game::SaveSlotPath(index), under
@@ -839,127 +777,6 @@ Game::SaveSlotPath(uint32 index) const
 }
 
 
-// GUIINV window 2 slot-control id -> CRE item-slot index. Both the icon
-// refresh (_UpdateInventoryIcons) and the drag/drop click handler
-// (InventoryControlInvoked) walk this one table. How each group was
-// identified:
-//  - general grid (ids 30/32/.../44 then 31/33/.../45): row-major reading
-//    order, confirmed against a real GUIINV.CHU dump to be
-//    kSlotGeneralFirst..Last (16 slots) in order.
-//  - row above the paperdoll (ids 11-14): Armor/Gauntlets/Helmet/Shield,
-//    icon-verified on a real character wearing all four.
-//  - "Armi rapide" (ids 1-4): Weapon1-4, by count + the same ascending
-//    id->ascending slot pattern as the verified row above.
-//  - "Faretra" (ids 15-17): the first 3 of the CRE's 4 ammo slots - this
-//    CHU layout only has 3 controls (declared deviation).
-//  - "Oggetti rapidi" (ids 5-7): QuickItem1-3 (slots 18-20), per the
-//    item-order comment in Actor.cpp.
-// Still unmapped (deliberately, no empirical confirmation yet):
-// rings/amulet/belt/boots/shield (ids ~21-26).
-struct inv_slot_control { uint32 controlID; uint32 creSlot; };
-static const inv_slot_control kInvSlotControls[] = {
-	{ 30, kSlotGeneralFirst +  0 }, { 32, kSlotGeneralFirst +  1 },
-	{ 34, kSlotGeneralFirst +  2 }, { 36, kSlotGeneralFirst +  3 },
-	{ 38, kSlotGeneralFirst +  4 }, { 40, kSlotGeneralFirst +  5 },
-	{ 42, kSlotGeneralFirst +  6 }, { 44, kSlotGeneralFirst +  7 },
-	{ 31, kSlotGeneralFirst +  8 }, { 33, kSlotGeneralFirst +  9 },
-	{ 35, kSlotGeneralFirst + 10 }, { 37, kSlotGeneralFirst + 11 },
-	{ 39, kSlotGeneralFirst + 12 }, { 41, kSlotGeneralFirst + 13 },
-	{ 43, kSlotGeneralFirst + 14 }, { 45, kSlotGeneralFirst + 15 },
-	{ 11, kSlotArmor }, { 12, kSlotGauntlets }, { 13, kSlotHelmet }, { 14, kSlotCloak },
-	{ 1, kSlotWeaponFirst }, { 2, kSlotWeaponFirst + 1 },
-	{ 3, kSlotWeaponFirst + 2 }, { 4, kSlotWeaponFirst + 3 },
-	{ 15, kSlotAmmoFirst }, { 16, kSlotAmmoFirst + 1 }, { 17, kSlotAmmoFirst + 2 },
-	{ 5, 18 }, { 6, 19 }, { 7, 20 },
-	// Rings / amulet / belt / boots / shield (GUIINV window-2 ids 21-26,
-	// mapped by on-screen position - to be confirmed empirically).
-	{ 22, kSlotRingLeft }, { 23, kSlotRingLeft + 1 }, { 25, kSlotAmulet },
-	{ 21, kSlotBelt }, { 24, kSlotBoots }, { 26, kSlotShield },
-};
-
-
-// Builds the inventory icon (cycle 0 / frame 0 of the ITM's inventory-icon
-// BAM, same convention Button uses for its own CHU bitmaps) for an item
-// resref. Returns a new reference the caller owns, or NULL.
-static Bitmap*
-_MakeItemIcon(const res_ref& itemName)
-{
-	ITMResource* itm = gResManager->GetITM(itemName);
-	if (itm == NULL)
-		return NULL;
-	Bitmap* icon = NULL;
-	// Some items (e.g. an unresolved RNDTRE* random-treasure placeholder)
-	// have no inventory icon at all.
-	if (itm->InventoryIcon().name[0] != '\0') {
-		BAMResource* bam = gResManager->GetBAM(itm->InventoryIcon());
-		if (bam != NULL) {
-			icon = bam->FrameForCycle(0, 0);
-			gResManager->ReleaseResource(bam);
-		}
-	}
-	gResManager->ReleaseResource(itm);
-	return icon;
-}
-
-
-// Human-readable name for an item: its identified name, else its
-// unidentified name, else the bare resref.
-static std::string
-_ItemDisplayName(ITMResource* itm, const res_ref& itemName)
-{
-	if (itm != NULL) {
-		std::string name = IDTable::GetDialog(itm->IdentifiedNameRef());
-		if (name.empty())
-			name = IDTable::GetDialog(itm->UnidentifiedNameRef());
-		if (!name.empty())
-			return name;
-	}
-	return itemName.CString();
-}
-
-
-// Same as above, resolving the ITM resource itself from the resref -
-// for call sites (inventory drag/drop logging) that only have the
-// resref, not an already-loaded ITMResource*.
-static std::string
-_ItemDisplayName(const res_ref& itemName)
-{
-	ITMResource* itm = gResManager->GetITM(itemName);
-	std::string name = _ItemDisplayName(itm, itemName);
-	if (itm != NULL)
-		gResManager->ReleaseResource(itm);
-	return name;
-}
-
-
-// CRE item-slot for a GUIINV control id, or -1 if the control isn't a
-// mapped inventory slot.
-static int32
-_CreSlotForControl(uint32 controlID)
-{
-	for (const auto& entry : kInvSlotControls) {
-		if (entry.controlID == controlID)
-			return (int32)entry.creSlot;
-	}
-	return -1;
-}
-
-
-// GUIINV window 2's 5 "ground item" slot buttons (ids 68-72, confirmed
-// identical in both games' real CHU data) - the actual click target for
-// dropping a held item to the floor: real GemRB GUIScripts
-// (InventoryCommon.OnDragItemGround()) call DropDraggedItem(pc, -2) on
-// exactly these while an item is being dragged. Only that drop side is
-// wired here; the same buttons are also meant to show and pick back up
-// whatever's already on the ground at the character's feet (paged by
-// the neighboring scrollbar, control id 66) - not implemented yet, so
-// they stay visually empty. Ground items are still only picked up by
-// clicking their pile in the game world (AreaRoom::PickUpGroundPile()).
-static bool
-_IsGroundItemSlotControl(uint32 controlID)
-{
-	return controlID >= 68 && controlID <= 72;
-}
 
 
 Actor*
@@ -987,10 +804,6 @@ void
 Game::_RefreshCharacterScreens()
 {
 	RefreshHUDPortraits();
-	if (GUI::Get()->GetAuxWindow("GUIINV", 2) != NULL) {
-		UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
-		_UpdateInventoryIcons();
-	}
 	_UpdateStoreWindow();
 	fScreens->ShownCharacterChanged();
 }
@@ -1267,7 +1080,7 @@ _ShowEntryPage(Window* window, const std::vector<bar_entry>& entries,
 		cycles[3] = cycles[0];
 		button->SetArt(res_ref("GUIBTBUT"), cycles);
 		button->SetIcon(spells ? ScreenSupport::MakeSpellIcon(entries[index].name)
-			: _MakeItemIcon(entries[index].name), false);
+			: ScreenSupport::MakeItemIcon(entries[index].name), false);
 		button->SetIconCount(entries[index].count);
 		button->SetEnabled(true);
 	}
@@ -1346,7 +1159,7 @@ Game::RefreshActionBar()
 			IE::item item;
 			const bool filled = actor->CRE()->GetItemAtSlot(slot, item);
 			if (filled) {
-				button->SetIcon(_MakeItemIcon(item.name));
+				button->SetIcon(ScreenSupport::MakeItemIcon(item.name));
 				button->SetIconCount(item.quantity1);
 			}
 			const bool inHand = filled && (int32)slot == actor->ActiveWeaponSlot();
@@ -1386,7 +1199,7 @@ Game::RefreshActionBar()
 					if ((uint32)entry.slot != slot)
 						continue;
 					usable = true;
-					button->SetIcon(_MakeItemIcon(entry.name), false);
+					button->SetIcon(ScreenSupport::MakeItemIcon(entry.name), false);
 					button->SetIconCount(entry.count);
 				}
 				button->SetEnabled(usable);
@@ -1585,487 +1398,12 @@ Game::ActionBarControlInvoked(uint32 controlID)
 }
 
 
-// Populates the inventory-slot buttons in the open GUIINV window 2 with
-// the real item icon (ITM's InventoryIcon(), cycle 0/frame 0 of that BAM -
-// same convention Button's own constructor uses for its CHU-authored
-// bitmaps) for whichever item currently occupies the matching slot in the
-// shown character's CREResource, clearing the icon on empty slots.
-void
-Game::_UpdateInventoryIcons()
-{
-	if (fParty == NULL || fParty->CountActors() == 0)
-		return;
 
-	Actor* actor = ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
 
-	Window* window = GUI::Get()->GetAuxWindow("GUIINV", 2);
-	if (window == NULL)
-		return;
 
-	for (const auto& entry : kInvSlotControls)
-		_SetSlotIcon(window, actor, entry.controlID, entry.creSlot);
 
-	_UpdatePaperdoll(window, actor);
-	_UpdateInventoryLabels(window, actor);
-	_UpdateGroundItemSlots(window, actor);
-}
 
 
-// GUI::ControlInvoked() routes clicks on GUIINV slot buttons here (window
-// 2). Click-to-pick, click-to-place: the first click on a non-empty slot
-// picks the item up (it rides the cursor via GUI::SetDragBitmap()); the
-// next click drops it into the clicked slot, swapping with whatever's
-// there. A rejected drop (incompatible slot, e.g. armor onto a weapon
-// slot) keeps the item on the cursor so the player can try elsewhere;
-// clicking the origin slot again puts it back. Operates on whichever
-// party member the portrait column currently shows (ShownActor()).
-void
-Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
-{
-	if (windowID == kInvInfoWindowID) {
-		// Any button in the examine popup just closes it.
-		GUI::Get()->HideAuxWindow("GUIINV", kInvInfoWindowID);
-		return;
-	}
-
-	if (windowID == 0) {
-		// Navigating away from the Inventory - a half-finished drag
-		// doesn't survive it, same as re-toggling this same window does.
-		fInvDragSlot = -1;
-		GUI::Get()->SetDragBitmap(NULL);
-		AuxCommandBarInvoked(controlID);
-		return;
-	}
-
-	if (windowID == 1 && controlID <= 3) {
-		ShowCharacter((uint16)controlID); // portrait column
-		return;
-	}
-
-	if (windowID == 2 && _IsGroundItemSlotControl(controlID)) {
-		if (GUI::Get()->IsDraggingItem())
-			DropHeldItemOnGround();
-		return;
-	}
-
-	int32 slot = _CreSlotForControl(controlID);
-	if (slot < 0)
-		return;
-
-	if (fParty == NULL || fParty->CountActors() == 0)
-		return;
-	Actor* actor = ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
-
-	if (!GUI::Get()->IsDraggingItem()) {
-		IE::item item;
-		if (!actor->CRE()->GetItemAtSlot((uint32)slot, item))
-			return; // empty slot - nothing to pick up
-		fInvDragSlot = slot;
-		GUI::Get()->SetDragBitmap(_MakeItemIcon(item.name));
-		std::cout << actor->Name() << " picks up " << _ItemDisplayName(item.name)
-			<< std::endl;
-		return;
-	}
-
-	// Fetched before MoveItemToSlot() - on a swap, fInvDragSlot no longer
-	// holds this item afterwards (it holds whatever was in `slot`).
-	IE::item draggedItem;
-	actor->CRE()->GetItemAtSlot((uint32)fInvDragSlot, draggedItem);
-	std::string itemName = _ItemDisplayName(draggedItem.name);
-
-	if (actor->MoveItemToSlot((uint32)fInvDragSlot, (uint32)slot)) {
-		fInvDragSlot = -1;
-		GUI::Get()->SetDragBitmap(NULL);
-		_UpdateInventoryIcons();
-		std::cout << actor->Name() << " puts " << itemName << " in slot " << slot
-			<< (slot == actor->ActiveWeaponSlot() ? " (equipped weapon)" : "")
-			<< std::endl;
-	} else {
-		// Drop rejected (incompatible slot) - keep holding the item.
-		std::cout << actor->Name() << " can't put " << itemName << " there"
-			<< std::endl;
-	}
-}
-
-
-// Right-click on a GUIINV window-2 slot: if the player is mid-drag, drop
-// the held item back where it came from (BG2's right-click-cancels); if
-// the slot holds an item, examine it (opens the GUIINVHI popup).
-void
-Game::InventoryControlRightClicked(uint32 controlID, uint16 windowID)
-{
-	if (windowID != 2)
-		return;
-
-	if (GUI::Get()->IsDraggingItem()) {
-		fInvDragSlot = -1;
-		GUI::Get()->SetDragBitmap(NULL);
-		return;
-	}
-
-	int32 slot = _CreSlotForControl(controlID);
-	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
-		return;
-	Actor* actor = ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
-
-	IE::item item;
-	if (actor->CRE()->GetItemAtSlot((uint32)slot, item))
-		_ShowItemInfo(item.name);
-}
-
-
-// Populates and shows GUIINV's examine popup (window 5) for an item.
-void
-Game::_ShowItemInfo(const res_ref& itemName)
-{
-	ITMResource* itm = gResManager->GetITM(itemName);
-	if (itm == NULL)
-		return;
-
-	GUI::Get()->ShowAuxWindow("GUIINV", kInvInfoWindowID);
-	Window* window = GUI::Get()->GetAuxWindow("GUIINV", kInvInfoWindowID);
-	if (window == NULL) {
-		gResManager->ReleaseResource(itm);
-		return;
-	}
-
-	Label* title = dynamic_cast<Label*>(window->GetControlByID(kInvInfoTitleID));
-	if (title != NULL)
-		title->SetText(_ItemDisplayName(itm, itemName));
-
-	for (uint32 id : { kInvInfoBlankLabel1ID, kInvInfoBlankLabel2ID }) {
-		Label* label = dynamic_cast<Label*>(window->GetControlByID(id));
-		if (label != NULL)
-			label->SetText("");
-	}
-
-	Button* icon = dynamic_cast<Button*>(window->GetControlByID(kInvInfoIconID));
-	if (icon != NULL)
-		icon->SetIcon(_MakeItemIcon(itemName), true);
-
-	TextArea* description =
-		dynamic_cast<TextArea*>(window->GetControlByID(kInvInfoTextID));
-	if (description != NULL) {
-		description->ClearText();
-		std::string text = IDTable::GetDialog(itm->DescriptionRef());
-		description->AddText(text.empty() ? "(No description)" : text.c_str());
-		description->ScrollTo(0, 0);
-	}
-
-	gResManager->ReleaseResource(itm);
-}
-
-
-// Hover enter/leave on a GUIINV window-2 slot: show the item's name in a
-// tooltip next to the cursor while the pointer is over a filled slot.
-void
-Game::InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside)
-{
-	if (windowID != 2 || !inside) {
-		GUI::Get()->SetHoverTooltip("");
-		return;
-	}
-
-	int32 slot = _CreSlotForControl(controlID);
-	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
-		return;
-	Actor* actor = ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
-
-	IE::item item;
-	if (!actor->CRE()->GetItemAtSlot((uint32)slot, item)) {
-		GUI::Get()->SetHoverTooltip("");
-		return;
-	}
-
-	ITMResource* itm = gResManager->GetITM(item.name);
-	std::string name = _ItemDisplayName(itm, item.name);
-	if (itm != NULL)
-		gResManager->ReleaseResource(itm);
-	GUI::Get()->SetHoverTooltip(name);
-}
-
-
-// Dropping an item: a click on the inventory window that didn't land on
-// any slot, while an item rides the cursor. The held item leaves the
-// shown character's inventory and becomes a loose pile on the area floor
-// at that character's feet (picked back up by clicking it in the world -
-// see AreaRoom::PickUpGroundPile()). No-op (item stays on the cursor) if
-// the current room isn't an explorable area.
-void
-Game::DropHeldItemOnGround()
-{
-	if (!GUI::Get()->IsDraggingItem() || fInvDragSlot < 0)
-		return;
-
-	Actor* actor = ShownActor();
-	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	if (actor == NULL || actor->CRE() == NULL || room == NULL)
-		return;
-
-	IE::item item;
-	if (!actor->TakeItemFromSlot((uint32)fInvDragSlot, item))
-		return;
-
-	room->AddGroundItem(item, actor->Position());
-	fInvDragSlot = -1;
-	GUI::Get()->SetDragBitmap(NULL);
-	_UpdateInventoryIcons();
-}
-
-
-// Composites one equipped item's paperdoll overlay (a "WP" + size +
-// animation-code + suffix BAM, e.g. "WPMS1INV" for a medium character's
-// long sword) onto `canvas`. The frame's own stored center offset is
-// the target position outright (negated, no separate canvas anchor
-// involved) - confirmed against GemRB's AnimationFactory::
-// GetPaperdollImage()/Button::DrawSelf(), which blit every paperdoll
-// layer at the same button-relative point and let each sprite's own
-// stored offset place it.
-static void
-_CompositePaperdollOverlay(Bitmap* canvas, const char* sizeCode,
-		const std::string& animationCode, const char* suffix)
-{
-	if (animationCode.empty())
-		return;
-
-	std::string resRef = std::string("WP") + sizeCode + animationCode + suffix;
-	BAMResource* bam = gResManager->GetBAM(resRef.c_str());
-	if (bam == nullptr)
-		return;
-
-	Bitmap* frame = bam->FrameForCycle(0, 0);
-	if (frame != nullptr) {
-		GFX::rect frameRect = frame->Frame();
-		GFX::point where(-(frameRect.x + frame->Width() / 2),
-				-(frameRect.y + frame->Height() / 2));
-		frame->BlitTo(canvas, where);
-		frame->Release();
-	}
-	gResManager->ReleaseResource(bam);
-}
-
-
-// Swaps the paperdoll control's fixed CHU-authored placeholder (CIFF4INV,
-// a generic doll unrelated to the shown character) for the real thing:
-// the actual character's own class/race/gender/armor identity (see
-// AnimationFactory::PaperdollName()), rendered from its PLT resource and
-// recolored with their own CRE colors (see PLTResource::Image()), with
-// the equipped weapon and shield/off-hand item composited on top (see
-// _CompositePaperdollOverlay()). Helmet/armor overlays aren't - BG2
-// already bakes worn armor into the base doll's own resref, and helmets
-// aren't handled yet.
-void
-Game::_UpdatePaperdoll(Window* window, Actor* actor)
-{
-	Button* button = dynamic_cast<Button*>(window->GetControlByID(kInvPaperdollID));
-	if (button == NULL)
-		return;
-
-	Bitmap* icon = nullptr;
-	std::string name = actor->PaperdollName();
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE) {
-		// Baldur's Gate 1 has paperdolls in BAM resources instead
-		// TODO: it only shows the upper body for now, and in the wrong color, too
-		BAMResource* bam = gResManager->GetBAM(name.c_str());
-		if (bam != nullptr) {
-			icon = bam->FrameForCycle(0, 0);
-			gResManager->ReleaseResource(bam);
-		} else {
-			std::cerr << "Game::_UpdatePaperdoll(): no BAM resource named "
-									<< name << std::endl;
-		}
-	} else {
-		PLTResource* plt = gResManager->GetPLT(name.c_str());
-		if (plt == NULL && name.length() >= 5) {
-			// Not every class-letter x armor-digit paperdoll exists in every
-			// install; fall back to the unarmored (digit 1) doll rather than
-			// leaving the paperdoll blank.
-			name[4] = '1';
-			plt = gResManager->GetPLT(name.c_str());
-		}
-		if (plt != NULL) {
-				icon = plt->Image(actor->CRE()->Colors());
-				gResManager->ReleaseResource(plt);
-			} else {
-				std::cerr << "Game::_UpdatePaperdoll(): no PLT resource named "
-						<< name << std::endl;
-		}
-
-		if (icon != nullptr) {
-			const char* sizeCode = AnimationFactory::SizeCodeForActor(actor);
-
-			ITMResource* weapon = actor->EquippedWeapon();
-			if (weapon != nullptr) {
-				_CompositePaperdollOverlay(icon, sizeCode, weapon->Animation(), "INV");
-				gResManager->ReleaseResource(weapon);
-			}
-
-			IE::item shieldItem;
-			if (actor->CRE()->GetItemAtSlot(kSlotShield, shieldItem)) {
-				ITMResource* shield = gResManager->GetITM(shieldItem.name);
-				if (shield != nullptr) {
-					// 0x000c: real shield, uses the same "INV" suffix as
-					// the weapon; anything else in this slot is an
-					// off-hand weapon (dual-wielding), which uses "OIN".
-					const char* suffix = shield->ItemType() == 0x000c ? "INV" : "OIN";
-					_CompositePaperdollOverlay(icon, sizeCode, shield->Animation(), suffix);
-					gResManager->ReleaseResource(shield);
-				}
-			}
-		}
-	}
-
-	// coverBackground: the paperdoll control's CHU bitmap is just a
-	// generic placeholder doll (CIFF4INV) - hide it so it can't show
-	// through the real doll's transparent areas.
-	button->SetIcon(icon, true);
-}
-
-
-// Sum of every item the CRE carries (equipped or not - every one of its
-// 40 slots), stack count included for stackable items (e.g. a quiver of
-// 20 arrows counts as 20, not 1) - matches GemRB's Inventory::
-// CalculateWeight().
-static uint32
-_CarriedWeight(CREResource* cre)
-{
-	uint32 weight = 0;
-	for (uint32 i = 0; i < kNumItemSlots; i++) {
-		IE::item item;
-		if (!cre->GetItemAtSlot(i, item))
-			continue;
-		ITMResource* itm = gResManager->GetITM(item.name);
-		if (itm == nullptr)
-			continue;
-		uint32 count = (item.quantity1 != 0 && itm->StackAmount() != 0)
-				? item.quantity1 : 1;
-		weight += itm->Weight() * count;
-		gResManager->ReleaseResource(itm);
-	}
-	return weight;
-}
-
-
-// STR-based carry capacity: STRMOD.2DA's WEIGHT_ALLOWANCE column (row =
-// STR score), plus the exceptional-strength (18/xx) bonus from
-// STRMODEX.2DA (row = the percentile extra) when STR is exactly 18 -
-// same two tables and the same STR==18 special case GemRB's own
-// GetMaxEncumbrance()/GetStrengthBonus() read. Real data still ships
-// both as loadable 2DAs in this install (unlike avatars.2da - see
-// AnimationFactory.cpp's own note on that one).
-static uint32
-_MaxEncumbrance(CREResource* cre)
-{
-	return (uint32)Actor::StrengthBonus(cre, 3);
-}
-
-
-// A label that isn't CHU-authored (see kInvWeightCurrentLabelID's own
-// comment), created at runtime in `window`. The underlying IE::label struct
-// is heap-allocated the same way CHUIResource::_ReadControl() allocates
-// every other control's, since Control::~Control() unconditionally frees it
-// the same way. Same font as the CHU-authored AC/HP labels (confirmed by
-// dumping their real font_bam - GemRB's own "NUMBER" is an engine-internal
-// font id, not a real BAM resref).
-static void
-_AddLabel(Window* window, uint32 id, sint16 x, sint16 y, uint16 width,
-	uint16 height, uint16 flags)
-{
-	IE::label* label = (IE::label*)new uint8[sizeof(IE::label)];
-	label->id = id;
-	label->x = x;
-	label->y = y;
-	label->w = width;
-	label->h = height;
-	label->type = IE::CONTROL_LABEL;
-	label->unk = 0;
-	label->text_ref = 0xffffffff;
-	label->font_bam = res_ref("STONESML");
-	label->color1_r = label->color1_g = label->color1_b = 255;
-	label->color1_a = 0;
-	label->color2_r = label->color2_g = label->color2_b = label->color2_a = 0;
-	label->flags = flags;
-	window->Add(new Label(label));
-}
-
-
-// The two weight labels aren't CHU-authored (see kInvWeightCurrentLabelID's
-// own comment) - create them once, the first time this window instance is
-// refreshed, anchored to the bag icon's rect exactly like GemRB's
-// Window.CreateLabel() calls do (top-left for current weight, bottom-right
-// for max). The underlying IE::label struct is heap-allocated the same way
-// CHUIResource::_ReadControl() allocates every other control's, since
-// Control::~Control() unconditionally frees it the same way.
-static void
-_EnsureWeightLabels(Window* window, uint32 iconID = kInvWeightIconID)
-{
-	if (window->GetControlByID(kInvWeightCurrentLabelID) != nullptr)
-		return;
-
-	Control* bagIcon = window->GetControlByID(iconID);
-	if (bagIcon == nullptr)
-		return;
-	GFX::rect rect = bagIcon->Frame();
-
-	_AddLabel(window, kInvWeightCurrentLabelID, rect.x, rect.y, rect.w, 20,
-		IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_TOP);
-	_AddLabel(window, kInvWeightMaxLabelID, rect.x, (sint16)(rect.y + rect.h - 20),
-		rect.w, 20, IE::LABEL_JUSTIFY_RIGHT | IE::LABEL_JUSTIFY_BOTTOM);
-}
-
-
-// Fills in the two GUIINV labels whose CHU-authored text_ref resolves to
-// a literal "(No text)" TLK placeholder - real BG2 sets these from code,
-// not from static CHU data, same as the item icons above.
-void
-Game::_UpdateInventoryLabels(Window* window, Actor* actor)
-{
-	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kInvNameLabelID));
-	if (nameLabel != NULL)
-		nameLabel->SetText(actor->LongName());
-
-	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kInvClassLabelID));
-	if (classLabel != NULL) {
-		// Prefer the localized title (IDTable::ClassName()'s own
-		// comment) over the raw, always-English CLASS.IDS symbol.
-		std::string text = IDTable::ClassName(actor->CRE()->Class());
-		classLabel->SetText(text.empty() ? IDTable::ClassAt(actor->CRE()->Class()) : text);
-	}
-
-	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
-	if (acLabel != NULL)
-		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
-
-	Label* hpLabel = dynamic_cast<Label*>(window->GetControlByID(kInvHPCurrentLabelID));
-	if (hpLabel != nullptr)
-		hpLabel->SetText(std::to_string(actor->CRE()->CurrentHitPoints()));
-
-	Label* hpMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kInvHPMaxLabelID));
-	if (hpMaxLabel != nullptr)
-		hpMaxLabel->SetText(std::to_string(actor->CRE()->MaxHitPoints()));
-
-	// Party-wide, not per-actor - see Core::AddPartyGold()'s own comment.
-	Label* goldLabel = dynamic_cast<Label*>(window->GetControlByID(kInvGoldLabelID));
-	if (goldLabel != nullptr)
-		goldLabel->SetText(std::to_string(Core::Get()->PartyGold()));
-
-	_EnsureWeightLabels(window);
-	Label* weightLabel = dynamic_cast<Label*>(window->GetControlByID(kInvWeightCurrentLabelID));
-	if (weightLabel != nullptr)
-		weightLabel->SetText(std::to_string(_CarriedWeight(actor->CRE())) + ":");
-
-	Label* weightMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID));
-	if (weightMaxLabel != nullptr)
-		weightMaxLabel->SetText(std::to_string(_MaxEncumbrance(actor->CRE())) + ":");
-}
 
 
 // GUIW window 8 - the loot window (identical layout in BG1 and BG2, confirmed
@@ -2331,7 +1669,7 @@ Game::_UpdateContainerWindow()
 			if (button == NULL)
 				continue;
 			const loot_entry* entry = _EntryAt(entries, row, columns, i);
-			button->SetIcon(entry != NULL ? _MakeItemIcon(entry->item.name) : NULL);
+			button->SetIcon(entry != NULL ? ScreenSupport::MakeItemIcon(entry->item.name) : NULL);
 			button->SetIconCount(entry != NULL ? entry->item.quantity1 : 0);
 		}
 	};
@@ -2348,11 +1686,11 @@ Game::_UpdateContainerWindow()
 
 	if (Label* gold = dynamic_cast<Label*>(window->GetControlByID(kContainerGoldLabelID)))
 		gold->SetText(std::to_string(Core::Get()->PartyGold()));
-	_EnsureWeightLabels(window, kContainerWeightIconID);
-	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightCurrentLabelID)))
-		label->SetText(std::to_string(_CarriedWeight(fLooter->CRE())) + ":");
-	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID)))
-		label->SetText(std::to_string(_MaxEncumbrance(fLooter->CRE())) + ":");
+	ScreenSupport::EnsureWeightLabels(window, kContainerWeightIconID);
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(ScreenSupport::kWeightCurrentLabelID)))
+		label->SetText(std::to_string(ScreenSupport::CarriedWeight(fLooter->CRE())) + ":");
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(ScreenSupport::kWeightMaxLabelID)))
+		label->SetText(std::to_string(ScreenSupport::MaxEncumbrance(fLooter->CRE())) + ":");
 }
 
 
@@ -2381,12 +1719,12 @@ Game::ContainerControlInvoked(uint32 controlID)
 		// item where it is.
 		if (!fLooter->AddItem(entry->item)) {
 			std::cout << fLooter->Name() << " has no room for "
-				<< _ItemDisplayName(entry->item.name) << std::endl;
+				<< ScreenSupport::ItemDisplayName(entry->item.name) << std::endl;
 			return;
 		}
 		IE::item taken;
 		_TakeSourceEntry(fLootSource, *entry, taken);
-		std::cout << fLooter->Name() << " takes " << _ItemDisplayName(taken.name)
+		std::cout << fLooter->Name() << " takes " << ScreenSupport::ItemDisplayName(taken.name)
 			<< std::endl;
 	} else if (controlID >= kContainerOwnFirstID
 			&& controlID < kContainerOwnFirstID + kContainerOwnSlots) {
@@ -2403,7 +1741,7 @@ Game::ContainerControlInvoked(uint32 controlID)
 			fLooter->AddItem(taken); // no room over there - put it back
 			return;
 		}
-		std::cout << fLooter->Name() << " puts " << _ItemDisplayName(taken.name)
+		std::cout << fLooter->Name() << " puts " << ScreenSupport::ItemDisplayName(taken.name)
 			<< " away" << std::endl;
 	} else {
 		return;
@@ -2432,7 +1770,7 @@ Game::ContainerControlHovered(uint32 controlID, bool inside)
 		entry = _EntryAt(entries, fLootRightRow, kContainerOwnColumns,
 			controlID - kContainerOwnFirstID);
 	}
-	GUI::Get()->SetHoverTooltip(entry != NULL ? _ItemDisplayName(entry->item.name) : "");
+	GUI::Get()->SetHoverTooltip(entry != NULL ? ScreenSupport::ItemDisplayName(entry->item.name) : "");
 }
 
 
@@ -2891,7 +2229,7 @@ Game::_UpdateStoreShopPage()
 			if (index < shelf.size()) {
 				const store_entry& entry = shelf[index];
 				bool buyable = (fStore->Actions(entry.item, false) & STORE_ACT_BUY) != 0;
-				slot->SetIcon(_MakeItemIcon(entry.item.name));
+				slot->SetIcon(ScreenSupport::MakeItemIcon(entry.item.name));
 				slot->SetIconCount(_StoreStackSize(entry.item));
 				slot->SetHighlighted(entry.selected);
 				slot->SetEnabled(buyable);
@@ -2923,7 +2261,7 @@ Game::_UpdateStoreShopPage()
 			bool sellable = (fStore->Actions(entry.item, true) & STORE_ACT_SELL) != 0;
 			int32 price = identified ? fStore->PriceToSell(entry.item, customer) : 1;
 			if (slot != NULL) {
-				slot->SetIcon(_MakeItemIcon(entry.item.name));
+				slot->SetIcon(ScreenSupport::MakeItemIcon(entry.item.name));
 				slot->SetIconCount(_StoreStackSize(entry.item));
 				slot->SetHighlighted(fStoreSellSlots.count((uint32)entry.slot) != 0);
 				slot->SetEnabled(sellable);
@@ -2944,11 +2282,11 @@ Game::_UpdateStoreShopPage()
 			window->GetControlByID(kStoreOwnScrollID)))
 		scrollbar->SetScrollInfo(fStoreRightRow, maxRow(own.size()));
 
-	_EnsureWeightLabels(window, kStoreBagIconID);
-	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightCurrentLabelID)))
-		label->SetText(std::to_string(_CarriedWeight(customer->CRE())) + ":");
-	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID)))
-		label->SetText(std::to_string(_MaxEncumbrance(customer->CRE())) + ":");
+	ScreenSupport::EnsureWeightLabels(window, kStoreBagIconID);
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(ScreenSupport::kWeightCurrentLabelID)))
+		label->SetText(std::to_string(ScreenSupport::CarriedWeight(customer->CRE())) + ":");
+	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(ScreenSupport::kWeightMaxLabelID)))
+		label->SetText(std::to_string(ScreenSupport::MaxEncumbrance(customer->CRE())) + ":");
 
 	UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
 }
@@ -2995,7 +2333,7 @@ Game::_UpdateStoreIdentifyPage()
 			const loot_entry& entry = own[index];
 			const bool identified = (Store::SlotFlags(entry.item) & STORE_ITEM_IDENTIFIED) != 0;
 			if (slot != NULL) {
-				slot->SetIcon(_MakeItemIcon(entry.item.name));
+				slot->SetIcon(ScreenSupport::MakeItemIcon(entry.item.name));
 				slot->SetIconCount(_StoreStackSize(entry.item));
 				slot->SetHighlighted(fStoreIdentifySlots.count((uint32)entry.slot) != 0);
 				slot->SetEnabled(!identified);
@@ -3084,7 +2422,7 @@ Game::_StoreBuySelected()
 		int32 price = fStore->PriceToBuy(entry, customer) * (int32)entry.purchased;
 		if (price <= 0)
 			price = (int32)entry.purchased;
-		std::string itemName = _ItemDisplayName(entry.item.name);
+		std::string itemName = ScreenSupport::ItemDisplayName(entry.item.name);
 		if (fStore->Buy(i - 1, customer)) {
 			Core::Get()->AddPartyGold(-price);
 			std::cout << customer->Name() << " buys " << itemName << " for "
@@ -3117,7 +2455,7 @@ Game::_StoreSellSelected()
 		}
 		bool identified = (Store::SlotFlags(item) & STORE_ITEM_IDENTIFIED) != 0;
 		int32 price = identified ? fStore->PriceToSell(item, customer) : 1;
-		std::string itemName = _ItemDisplayName(item.name);
+		std::string itemName = ScreenSupport::ItemDisplayName(item.name);
 		IE::item sold;
 		if (!customer->TakeItemFromSlot(slot, sold))
 			continue;
@@ -3256,9 +2594,9 @@ Game::_OpenStoreAmountWindow(size_t shelfIndex)
 	}
 
 	if (Button* icon = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountIconID)))
-		icon->SetIcon(_MakeItemIcon(entry.item.name));
+		icon->SetIcon(ScreenSupport::MakeItemIcon(entry.item.name));
 	if (Label* name = dynamic_cast<Label*>(window->GetControlByID(kStoreAmountNameLabelID)))
-		name->SetText(_ItemDisplayName(entry.item.name));
+		name->SetText(ScreenSupport::ItemDisplayName(entry.item.name));
 	if (Button* cancel = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountCancelID)))
 		cancel->SetText(IDTable::GetDialog(kStoreCancelStrRef));
 	if (Button* done = dynamic_cast<Button*>(window->GetControlByID(kStoreAmountDoneID)))
@@ -3266,7 +2604,7 @@ Game::_OpenStoreAmountWindow(size_t shelfIndex)
 	if (Control* box = window->GetControlByID(kStoreAmountBoxID)) {
 		if (window->GetControlByID(kStoreAmountValueLabelID) == NULL) {
 			GFX::rect rect = box->Frame();
-			_AddLabel(window, kStoreAmountValueLabelID, rect.x, rect.y, rect.w, rect.h,
+			ScreenSupport::AddLabel(window, kStoreAmountValueLabelID, rect.x, rect.y, rect.w, rect.h,
 				IE::LABEL_JUSTIFY_CENTER);
 		}
 	}
@@ -3319,7 +2657,7 @@ Game::StoreControlHovered(uint32 controlID, uint16 windowID, bool inside)
 		size_t index = (size_t)fStoreLeftRow + (controlID - kStoreShelfFirstID);
 		std::vector<store_entry>& shelf = fStore->Items();
 		if (index < shelf.size())
-			name = _ItemDisplayName(shelf[index].item.name);
+			name = ScreenSupport::ItemDisplayName(shelf[index].item.name);
 	} else if (controlID >= kStoreOwnFirstID && controlID < kStoreOwnFirstID + kStoreSlots) {
 		Actor* customer = ShownActor();
 		std::vector<loot_entry> own;
@@ -3327,86 +2665,12 @@ Game::StoreControlHovered(uint32 controlID, uint16 windowID, bool inside)
 			_CollectOwnEntries(customer, own);
 		size_t index = (size_t)fStoreRightRow + (controlID - kStoreOwnFirstID);
 		if (index < own.size())
-			name = _ItemDisplayName(own[index].item.name);
+			name = ScreenSupport::ItemDisplayName(own[index].item.name);
 	}
 	GUI::Get()->SetHoverTooltip(name);
 }
 
 
-// Looks up controlID's Button in window and sets its icon from whatever
-// item (if any) sits in creSlot of cre - shared by the general-grid loop
-// above and by individual equipment-slot mappings as they get confirmed.
-void
-Game::_SetSlotIcon(Window* window, Actor* actor, uint32 controlID,
-	uint32 creSlot)
-{
-	CREResource* cre = actor->CRE();
-	Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
-	if (button == NULL)
-		return;
-
-	// Lets a real press-drag-release mouse gesture move an item between
-	// slots in one motion, not just two separate clicks - see Button::
-	// SetDragCapture()'s own comment. Set on every refresh (redundant
-	// after the first, harmless) since this is the one place that walks
-	// every inventory slot control.
-	button->SetDragCapture(true);
-
-	IE::item item;
-	Bitmap* icon = NULL;
-	int count = 0;
-	if (cre->GetItemAtSlot(creSlot, item)) {
-		icon = _MakeItemIcon(item.name);
-		count = item.quantity1;
-	}
-	button->SetIcon(icon);
-	button->SetIconCount(count);
-
-	// The only visible cue of which of the four weapon quickslots is in
-	// hand, short of attacking to see the animation change: a highlighted
-	// border (same mechanism already used for the selected party member's
-	// portrait).
-	if (creSlot >= kSlotWeaponFirst && creSlot < kSlotWeaponFirst + 4)
-		button->SetHighlighted((int32)creSlot == actor->ActiveWeaponSlot());
-}
-
-
-// Mirrors whatever's in the ground pile at the shown character's own
-// position into the 5 "ground item" slots (ids 68-72, see
-// _IsGroundItemSlotControl()) - the same pile AreaRoom's world-click
-// handler picks up via GroundPileAtPoint(). Only display: a click there
-// is still handled purely as a drop target (InventoryControlInvoked()),
-// not as its own pickup source - picking a specific item back up still
-// means clicking the pile in the world. No paging if a pile holds more
-// than 5 items (the neighboring scrollbar, control id 66, isn't wired
-// yet) - declared simplification, not expected to matter for piles
-// built up from drops alone.
-void
-Game::_UpdateGroundItemSlots(Window* window, Actor* actor)
-{
-	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-	const std::vector<IE::item>* items = NULL;
-	if (room != NULL) {
-		int32 pileIndex = room->GroundPileAtPoint(actor->Position());
-		if (pileIndex >= 0)
-			items = &room->GroundPiles()[(size_t)pileIndex].items;
-	}
-
-	for (uint32 i = 0; i < 5; i++) {
-		Button* button = dynamic_cast<Button*>(window->GetControlByID(68 + i));
-		if (button == NULL)
-			continue;
-
-		Bitmap* icon = NULL;
-		int count = 0;
-		if (items != NULL && i < items->size()) {
-			icon = _MakeItemIcon((*items)[i].name);
-			count = (*items)[i].quantity1;
-		}
-		button->SetIcon(icon);
-		button->SetIconCount(count);
-	}
-}
 
 
 // Runs every non-blank, non-'#'-comment line of fExecFile as a GameConsole

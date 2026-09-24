@@ -99,3 +99,11 @@ ScreenManager::ControlHovered(const res_ref& chuName, uint16 windowID, uint32 co
 	GameScreen* screen = Find(chuName);
 	return screen != nullptr && screen->ControlHovered(windowID, controlID, inside);
 }
+
+
+bool
+ScreenManager::BackgroundClicked(const res_ref& chuName, uint16 windowID) const
+{
+	GameScreen* screen = Find(chuName);
+	return screen != nullptr && screen->BackgroundClicked(windowID);
+}

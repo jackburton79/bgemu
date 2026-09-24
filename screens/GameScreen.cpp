@@ -113,6 +113,14 @@ GameScreen::ControlHovered(uint16 /*windowID*/, uint32 /*controlID*/, bool /*ins
 
 
 /* virtual */
+bool
+GameScreen::BackgroundClicked(uint16 /*windowID*/)
+{
+	return false;
+}
+
+
+/* virtual */
 void
 GameScreen::OnOpen()
 {

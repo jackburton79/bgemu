@@ -50,6 +50,8 @@ public:
 	bool ControlHovered(const res_ref& chuName, uint16 windowID, uint32 controlID,
 		bool inside) const;
 
+	bool BackgroundClicked(const res_ref& chuName, uint16 windowID) const;
+
 private:
 	std::vector<std::unique_ptr<GameScreen>> fScreens;
 };

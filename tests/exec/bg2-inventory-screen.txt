@@ -1,0 +1,25 @@
+# AREA: AR0602
+#
+# The Inventory screen (a GameScreen): click-to-pick then click-to-place moves
+# an item between slots through GUIINV's own controls (control 30 = CRE slot
+# 21, control 32 = slot 22), a right click while holding one puts it back, and
+# closing the screen drops what is held. The party leader (Anomen) starts with
+# a sling in slot 21; the dagger given lands in slot 22.
+Give-Item -,DAGG01,1
+Toggle-Inventory
+Assert-ScreenOpen GUIINV,true
+Assert-ItemAtSlot -,21,slng01
+Assert-ItemAtSlot -,22,DAGG01
+Invoke-Control GUIINV,2,32
+RightClick-Control GUIINV,2,32
+Assert-ItemAtSlot -,22,DAGG01
+Invoke-Control GUIINV,2,32
+Invoke-Control GUIINV,2,30
+Assert-ItemAtSlot -,21,DAGG01
+Assert-ItemAtSlot -,22,slng01
+Invoke-Control GUIINV,2,30
+Toggle-Inventory
+Toggle-Inventory
+Invoke-Control GUIINV,2,32
+Assert-ItemAtSlot -,21,DAGG01
+Assert-ItemAtSlot -,22,slng01

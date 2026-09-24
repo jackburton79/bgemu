@@ -134,17 +134,6 @@ public:
 	// share this.
 	void UpdatePortraitColumn(class Window* window, uint32 count);
 
-	void ToggleInventoryWindow();
-	// GUI::ControlInvoked() routes clicks on GUIINV (Inventory) slot
-	// buttons here - click-to-pick-up, click-to-drop-and-swap between
-	// item slots. See the .cpp.
-	void InventoryControlInvoked(uint32 controlID, uint16 windowID);
-	// Right-click on an inventory slot: examine the item (opens the
-	// GUIINVHI info window), or cancel an in-progress drag.
-	void InventoryControlRightClicked(uint32 controlID, uint16 windowID);
-	// Hover enter/leave on an inventory slot: show/hide the item-name
-	// tooltip next to the cursor.
-	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
 	// Loot window (GUIW window 8, replacing the message area/command bar
 	// at the bottom of the screen while open): `looter` is the party
 	// member using `source`, either a Container or a dead Actor (corpse).
@@ -175,10 +164,6 @@ public:
 	// opens the quantity picker (BG2 only - BG1's GUISTORE has none).
 	// Returns whether it was handled.
 	bool StoreControlDoubleClicked(uint32 controlID, uint16 windowID);
-	// A click on the inventory window background (not a slot) while
-	// dragging an item: drops the held item onto the area floor at the
-	// shown character's feet.
-	void DropHeldItemOnGround();
 	// Switches which party member the Inventory / Record screens show
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
@@ -422,10 +407,6 @@ private:
 	std::vector<journal_entry> fJournal;
 	std::map<std::string, bool> fAreaMapVisibility;
 
-	// CRE item-slot the player is currently dragging an inventory item
-	// out of (-1 = not dragging). The dragged icon itself lives on GUI
-	// (SetDragBitmap); this is the model side.
-	int32 fInvDragSlot;
 
 	// Loot window state - see OpenContainerWindow().
 	class Object* fLootSource;
@@ -494,12 +475,5 @@ private:
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();
-	void _UpdateInventoryIcons();
-	void _SetSlotIcon(class Window* window, Actor* actor,
-		uint32 controlID, uint32 creSlot);
-	void _UpdateGroundItemSlots(class Window* window, Actor* actor);
-	void _ShowItemInfo(const res_ref& itemName);
-	void _UpdatePaperdoll(class Window* window, Actor* actor);
-	void _UpdateInventoryLabels(class Window* window, Actor* actor);
 	ScreenManager* fScreens;
 };

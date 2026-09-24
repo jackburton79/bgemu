@@ -911,9 +911,7 @@ GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuNa
 {
 	if (Game::Get()->Screens().ControlRightClicked(chuName, windowID, controlID))
 		return;
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->InventoryControlRightClicked(controlID, windowID);
-	else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
+	if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
 		// The 6 HUD portrait buttons center view to that party member.
 		Game::Get()->CenterViewOnPartyMember((uint16)controlID);
 	} else if (windowID == WINDOW_CMDS && IsResolutionMatchedGUIW(chuName.CString()))
@@ -929,9 +927,7 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 		std::cout << "hovered: id: " << controlID << ", window: " << windowID << std::endl;
 	if (Game::Get()->Screens().ControlHovered(chuName, windowID, controlID, inside))
 		return;
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
-	else if (chuName == res_ref("GUISTORE"))
+	if (chuName == res_ref("GUISTORE"))
 		Game::Get()->StoreControlHovered(controlID, windowID, inside);
 	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
 		Game::Get()->ContainerControlHovered(controlID, inside);
@@ -939,14 +935,12 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 
 
 void
-GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 /*windowID*/)
+GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 windowID)
 {
 	// A click that landed on a window but not on any of its controls.
-	// Currently only used to drop a held inventory item onto the floor.
 	// Handlers here MUST NOT tear down windows (this runs mid-dispatch,
 	// same constraint as ControlInvoked()).
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->DropHeldItemOnGround();
+	Game::Get()->Screens().BackgroundClicked(chuName, windowID);
 }
 
 
@@ -972,11 +966,6 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (Game::Get()->Screens().ControlInvoked(chuName, windowID, controlID))
 		return;
-
-	if (chuName == res_ref("GUIINV")) {
-		Game::Get()->InventoryControlInvoked(controlID, windowID);
-		return;
-	}
 
 	if (chuName == res_ref("GUISTORE")) {
 		Game::Get()->StoreControlInvoked(controlID, windowID);

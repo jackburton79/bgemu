@@ -28,6 +28,7 @@
 #include "MemoryStream.h"
 #include "DLGResource.h"
 #include "Parsing.h"
+#include "InventoryScreen.h"
 #include "JournalScreen.h"
 #include "Party.h"
 #include "RecordScreen.h"
@@ -631,7 +632,7 @@ public:
 		// never runs the real SDL event loop, so there's no other way to
 		// exercise Game::ToggleInventoryWindow() (and the item-icon
 		// population it triggers) from a headless script.
-		Game::Get()->ToggleInventoryWindow();
+		Game::Get()->Screens().Toggle<InventoryScreen>();
 		std::cout << "Toggle-Inventory: OK" << std::endl;
 	}
 };
@@ -2310,6 +2311,41 @@ public:
 };
 
 
+// Assert-ItemAtSlot <actor>,<slot>,<item> - the CRE item slot holds this item
+// (an empty <item> asserts that the slot is empty).
+class AssertItemAtSlotCommand : public ShellCommand {
+public:
+	AssertItemAtSlotCommand()
+		: ShellCommand("Assert-ItemAtSlot")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest, slotText, itemName;
+		if (!_SplitOnFirstComma(argv, actorName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), slotText, itemName)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<slot>,<item>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const uint32 slot = static_cast<uint32>(atoi(slotText.c_str()));
+		IE::item item;
+		const bool filled = actor->CRE()->GetItemAtSlot(slot, item);
+		const std::string found = filled ? item.name.CString() : "";
+		if (strcasecmp(found.c_str(), itemName.c_str()) == 0) {
+			std::cout << std::dec << "ASSERT OK: slot " << slot << " holds \""
+				<< itemName << "\"" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: slot " << slot << " - expected \""
+				<< itemName << "\", got \"" << found << "\"" << std::endl;
+		}
+	}
+};
+
+
 // Assert-StoreWindow <true|false> - whether the store window is open.
 class AssertStoreWindowCommand : public ShellCommand {
 public:
@@ -2921,6 +2957,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertScreenOpenCommand());
+	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());

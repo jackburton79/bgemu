@@ -44,6 +44,8 @@ public:
 	virtual bool ControlInvoked(uint16 windowID, uint32 controlID);
 	virtual bool ControlRightClicked(uint16 windowID, uint32 controlID);
 	virtual bool ControlHovered(uint16 windowID, uint32 controlID, bool inside);
+	// A click on one of the screen's windows that landed on no control.
+	virtual bool BackgroundClicked(uint16 windowID);
 
 protected:
 	// Called just after the windows are shown, before Refresh(), and just
