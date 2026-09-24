@@ -928,9 +928,7 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 		std::cout << "hovered: id: " << controlID << ", window: " << windowID << std::endl;
 	if (Game::Get()->Screens().ControlHovered(chuName, windowID, controlID, inside))
 		return;
-	if (chuName == res_ref("GUISTORE"))
-		Game::Get()->StoreControlHovered(controlID, windowID, inside);
-	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
+	if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
 		Game::Get()->Loot().ControlHovered(controlID, inside);
 }
 
@@ -961,17 +959,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 	fLastClickWindow = windowID;
 	fLastClickCHU = chuName;
 	fLastClickTime = doubleClick ? 0 : (now != 0 ? now : 1);
-	if (doubleClick && chuName == res_ref("GUISTORE")
-			&& Game::Get()->StoreControlDoubleClicked(controlID, windowID))
+	if (doubleClick && Game::Get()->Screens().ControlDoubleClicked(chuName, windowID, controlID))
 		return;
 
 	if (Game::Get()->Screens().ControlInvoked(chuName, windowID, controlID))
 		return;
-
-	if (chuName == res_ref("GUISTORE")) {
-		Game::Get()->StoreControlInvoked(controlID, windowID);
-		return;
-	}
 
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)

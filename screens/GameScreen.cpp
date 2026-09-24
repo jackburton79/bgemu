@@ -29,7 +29,7 @@ GameScreen::CHUName() const
 bool
 GameScreen::IsOpen() const
 {
-	return GUI::Get()->IsAuxWindowShown(fCHU, fWindows.front());
+	return GUI::Get() != NULL && GUI::Get()->IsAuxWindowShown(fCHU, fWindows.front());
 }
 
 
@@ -107,6 +107,14 @@ GameScreen::ControlRightClicked(uint16 /*windowID*/, uint32 /*controlID*/)
 /* virtual */
 bool
 GameScreen::ControlHovered(uint16 /*windowID*/, uint32 /*controlID*/, bool /*inside*/)
+{
+	return false;
+}
+
+
+/* virtual */
+bool
+GameScreen::ControlDoubleClicked(uint16 /*windowID*/, uint32 /*controlID*/)
 {
 	return false;
 }

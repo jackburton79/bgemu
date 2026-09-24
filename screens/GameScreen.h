@@ -26,7 +26,7 @@ public:
 	virtual ~GameScreen();
 
 	const res_ref& CHUName() const;
-	bool IsOpen() const;
+	virtual bool IsOpen() const;
 	void Open();
 	void Close();
 	void Toggle();
@@ -44,6 +44,7 @@ public:
 	virtual bool ControlInvoked(uint16 windowID, uint32 controlID);
 	virtual bool ControlRightClicked(uint16 windowID, uint32 controlID);
 	virtual bool ControlHovered(uint16 windowID, uint32 controlID, bool inside);
+	virtual bool ControlDoubleClicked(uint16 windowID, uint32 controlID);
 	// A click on one of the screen's windows that landed on no control.
 	virtual bool BackgroundClicked(uint16 windowID);
 

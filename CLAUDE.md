@@ -174,11 +174,11 @@ owning the CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is
 the full-screen panel layout (content window 2, command bar copy 0, portrait
 column 1). Ported so far: `RecordScreen`, `JournalScreen`, `SaveLoadScreen`
 (two instances, GUISAVE and GUILOAD: `Screens().Toggle("GUISAVE")`),
-`SpellbookScreen` (GUIMG and GUIPR), `InventoryScreen`; `ScreenSupport` holds
-what several share (item icons/names, weight labels). The loot window is
+`SpellbookScreen` (GUIMG and GUIPR), `InventoryScreen`, `StoreScreen` (opened
+by STARTSTORE: `Screens().Find<StoreScreen>()->OpenStore()`); `ScreenSupport`
+holds what several share (item icons/names, weight labels). The loot window is
 `LootWindow` (`Game::Loot()`): not a `GameScreen`, since it is window 8 of the
-HUD's own resource, not an auxiliary CHU. The others (store, action bar) are
-still `Game`'s own
+HUD's own resource, not an auxiliary CHU. The action bar is still `Game`'s own
 `Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
 `Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
 
@@ -187,9 +187,9 @@ still `Game`'s own
 Both are driven by an action, not by clicking a control. USECONTAINER
 (queued when a party member clicks a container or corpse) opens the loot
 window - GUIW window 8, which temporarily hides the message area and
-command bar (`Game::OpenContainerWindow()`); any non-party creature still
+command bar (`LootWindow::Open()`); any non-party creature still
 auto-takes everything. STARTSTORE opens GUISTORE's Buy/Sell page
-(`Game::OpenStoreWindow()`, backed by `game/Store.{h,cpp}`, which holds the
+(`StoreScreen::OpenStore()`, backed by `game/Store.{h,cpp}`, which holds the
 live stock and the GemRB-derived buy/sell rules and pricing). Both pick up
 control ids from GemRB's `CommonWindow.py`/`GUISTORE.py` and use
 `Scrollbar::SetRowCallback()` for their item-list scrollbars; both close

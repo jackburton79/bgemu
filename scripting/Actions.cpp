@@ -12,6 +12,8 @@
 #include "Effect.h"
 #include "Game.h"
 #include "LootWindow.h"
+#include "ScreenManager.h"
+#include "StoreScreen.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -176,7 +178,7 @@ RunActionVerbalConstant(Object* sender, action_params* params, action_state& sta
 
 
 // STARTSTORE(S:Store*,O:Target*) - stateless. Opens the store window (see
-// Game::OpenStoreWindow()) for the target party member - or the party
+// StoreScreen::OpenStore()) for the target party member - or the party
 // leader if the target isn't one. Stores that window can't show yet
 // (taverns, inns, temples) are just logged.
 static void
@@ -190,7 +192,7 @@ RunActionStartStore(Object* sender, action_params* params, action_state& state)
 		customer = party != NULL && party->CountActors() > 0 ? party->ActorAt(0) : NULL;
 	}
 
-	if (!Game::Get()->OpenStoreWindow(customer, params->string1)) {
+	if (!Game::Get()->Screens().Find<StoreScreen>()->OpenStore(customer, params->string1)) {
 		std::cerr << "StartStore: can't open store " << params->string1 << std::endl;
 		return;
 	}

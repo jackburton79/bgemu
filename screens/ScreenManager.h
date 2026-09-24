@@ -50,6 +50,7 @@ public:
 	bool ControlHovered(const res_ref& chuName, uint16 windowID, uint32 controlID,
 		bool inside) const;
 
+	bool ControlDoubleClicked(const res_ref& chuName, uint16 windowID, uint32 controlID) const;
 	bool BackgroundClicked(const res_ref& chuName, uint16 windowID) const;
 
 private:

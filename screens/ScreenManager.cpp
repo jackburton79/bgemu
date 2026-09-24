@@ -107,3 +107,12 @@ ScreenManager::BackgroundClicked(const res_ref& chuName, uint16 windowID) const
 	GameScreen* screen = Find(chuName);
 	return screen != nullptr && screen->BackgroundClicked(windowID);
 }
+
+
+bool
+ScreenManager::ControlDoubleClicked(const res_ref& chuName, uint16 windowID,
+	uint32 controlID) const
+{
+	GameScreen* screen = Find(chuName);
+	return screen != nullptr && screen->ControlDoubleClicked(windowID, controlID);
+}

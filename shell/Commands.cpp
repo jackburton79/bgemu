@@ -34,6 +34,7 @@
 #include "Party.h"
 #include "RecordScreen.h"
 #include "ScreenManager.h"
+#include "StoreScreen.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SearchMap.h"
@@ -1710,7 +1711,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Store* store = Game::Get()->LoadedStore(argv);
+		Store* store = Game::Get()->Screens().Find<StoreScreen>()->LoadedStore(argv);
 		if (store == NULL) {
 			std::cout << "Print-Store: " << argv << " isn't loaded" << std::endl;
 			return;
@@ -2356,7 +2357,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		bool expected = strcasecmp(argv, "true") == 0;
-		bool open = Game::Get()->IsStoreWindowOpen();
+		bool open = Game::Get()->Screens().Find<StoreScreen>()->IsOpen();
 		if (open == expected) {
 			std::cout << "ASSERT OK: StoreWindow open == " << (expected ? "true" : "false")
 				<< std::endl;
@@ -2387,7 +2388,7 @@ public:
 		}
 		int32 expected = (int32)::strtol(expectedText.c_str(), NULL, 0);
 
-		Store* store = Game::Get()->LoadedStore(storeName.c_str());
+		Store* store = Game::Get()->Screens().Find<StoreScreen>()->LoadedStore(storeName.c_str());
 		if (store == NULL) {
 			std::cout << "ASSERT FAIL: store " << storeName << " isn't loaded" << std::endl;
 			return;

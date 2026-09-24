@@ -139,27 +139,13 @@ public:
 	// Called when an area is being unloaded (the source object dies with
 	// it). Safe to call when no Game exists (shutdown).
 	static void CloseContainerWindowIfAny();
-	// Store window (GUISTORE) - the Buy/Sell page: opened by STARTSTORE for
-	// a party member shopping (`customer`). Items on the shelf on the left,
-	// the shown party member's carried items on the right; a click selects
-	// or deselects an item, "Buy"/"Sell" then carry out the selection.
-	// Returns false if `storeName` isn't a shop this window can show (no
-	// such resource, or a tavern/inn/temple - their pages don't exist yet).
-	bool OpenStoreWindow(Actor* customer, const res_ref& storeName);
-	void CloseStoreWindow();
-	bool IsStoreWindowOpen() const;
-	// A store loaded this session (NULL if never opened) - for tests.
-	class Store* LoadedStore(const char* name) const;
-	void StoreControlInvoked(uint32 controlID, uint16 windowID);
-	void StoreControlHovered(uint32 controlID, uint16 windowID, bool inside);
-	// A double click on a store control (GUI detects it): on a shelf item,
-	// opens the quantity picker (BG2 only - BG1's GUISTORE has none).
-	// Returns whether it was handled.
-	bool StoreControlDoubleClicked(uint32 controlID, uint16 windowID);
 	// Switches which party member the Inventory / Record screens show
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
 	void ShowCharacter(uint16 partyIndex);
+	// Makes `actor` (if in the party) the character the screens show, without
+	// touching the world selection.
+	void SetShownActor(Actor* actor);
 
 	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
 	// current party. Call after an area load rebuilds the HUD.
@@ -417,40 +403,6 @@ private:
 	int32 fAssignQuickSpell;
 	res_ref fPendingSpell;
 
-	// Store window state - see OpenStoreWindow(). fStores owns every Store
-	// loaded this session, so a store keeps what was sold to it (and what
-	// was bought out of it) when reopened; not written to savegames.
-	std::map<std::string, class Store*> fStores;
-	class Store* fStore;
-	class Actor* fStoreCustomer;
-	std::set<uint32> fStoreSellSlots;
-	int32 fStoreLeftRow;
-	int32 fStoreRightRow;
-	bool fStoreUnpause;
-	// The quantity picker: which shelf item (-1 = closed), the amount
-	// chosen so far and the most that can be picked.
-	int32 fStoreAmountIndex;
-	uint32 fStoreAmountValue;
-	uint32 fStoreAmountMax;
-	void _OpenStoreAmountWindow(size_t shelfIndex);
-	void _CloseStoreAmountWindow(bool apply);
-	void _UpdateStoreAmountWindow();
-	void _UpdateStoreWindow();
-	// The store's page tabs: which page is showing (a store_page), the
-	// action each of the bar's four tab buttons stands for, and the
-	// Identify page's own selection/scroll.
-	int32 fStorePage;
-	std::vector<int32> fStoreTabs;
-	std::set<uint32> fStoreIdentifySlots;
-	int32 fStoreIdentifyRow;
-	void _ShowStorePage(int32 page);
-	void _SetupStoreTabs();
-	void _UpdateStoreShopPage();
-	void _UpdateStoreIdentifyPage();
-	void _StoreIdentifySelected();
-	void _StoreBuySelected();
-	void _StoreSellSelected();
-	void _ClearStores();
 
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;
