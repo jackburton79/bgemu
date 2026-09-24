@@ -818,6 +818,107 @@ IDTable::AlignmentAt(int32 i)
 }
 
 
+// See RaceName()/AlignmentName()/ClassName()'s own comment (ResManager.h)
+// for why these three tables are hardcoded here rather than loaded from a
+// game resource - values and strrefs from GemRB's unhardcoded/bg1(2)/
+// races.2da, aligns.2da and classes.2da, which agree on every row both
+// games share (BG2 adds a few extra races/classes, included below too -
+// harmless on BG1, where a CRE simply never has one of those ids).
+struct id_strref { uint32 id; uint32 strref; };
+
+static const id_strref kRaceNames[] = {
+	{ 1, 7193 },	// Human
+	{ 2, 7194 },	// Elf
+	{ 3, 7197 },	// Half-Elf
+	{ 4, 7182 },	// Dwarf
+	{ 5, 7195 },	// Halfling
+	{ 6, 7196 },	// Gnome
+	{ 7, 53186 },	// Half-Orc (BG2)
+	{ 124, 54775 },	// Illithid (BG2)
+	{ 153, 8332 },	// Tiefling (BG2)
+};
+
+// Keyed by the CRE's own alignment byte (upper nibble ethics, lower
+// nibble morality - e.g. 0x11 = Lawful Good), not a plain 0-8 index.
+static const id_strref kAlignmentNames[] = {
+	{ 0x11, 7186 },	// Lawful Good
+	{ 0x21, 7183 },	// Neutral Good
+	{ 0x31, 7189 },	// Chaotic Good
+	{ 0x12, 7188 },	// Lawful Neutral
+	{ 0x22, 7185 },	// True Neutral
+	{ 0x32, 7191 },	// Chaotic Neutral
+	{ 0x13, 7187 },	// Lawful Evil
+	{ 0x23, 7184 },	// Neutral Evil
+	{ 0x33, 7190 },	// Chaotic Evil
+};
+
+// CAP_REF (the "title" column - what a UI shows, as opposed to NAME_REF)
+// per class/multi-class id. Doesn't cover a kit (e.g. Barbarian, which
+// shares plain Fighter's id 2 - disambiguated only by the kit field,
+// which this table has no notion of) - falls back the same as any other
+// id outside the table.
+static const id_strref kClassNames[] = {
+	{ 1, 1081 },	// Mage
+	{ 2, 1076 },	// Fighter
+	{ 3, 1079 },	// Cleric
+	{ 4, 1082 },	// Thief
+	{ 5, 1083 },	// Bard
+	{ 6, 1078 },	// Paladin
+	{ 7, 1056 },	// Fighter/Mage
+	{ 8, 1053 },	// Fighter/Cleric
+	{ 9, 1052 },	// Fighter/Thief
+	{ 10, 1074 },	// Fighter/Mage/Thief
+	{ 11, 1080 },	// Druid
+	{ 12, 1077 },	// Ranger
+	{ 13, 1057 },	// Mage/Thief
+	{ 14, 1058 },	// Cleric/Mage
+	{ 15, 1065 },	// Cleric/Thief
+	{ 16, 1066 },	// Fighter/Druid
+	{ 17, 1075 },	// Fighter/Mage/Cleric
+	{ 18, 1073 },	// Cleric/Ranger
+	{ 19, 45856 },	// Sorcerer (BG2)
+	{ 20, 45858 },	// Monk (BG2)
+};
+
+template<size_t N> static std::string
+_LookUpStrRef(const id_strref (&table)[N], uint32 id)
+{
+	for (const id_strref& entry : table) {
+		if (entry.id == id)
+			return IDTable::GetDialog(entry.strref);
+	}
+	return std::string();
+}
+
+
+std::string
+IDTable::RaceName(uint32 raceID)
+{
+	return _LookUpStrRef(kRaceNames, raceID);
+}
+
+
+std::string
+IDTable::AlignmentName(uint8 alignmentValue)
+{
+	return _LookUpStrRef(kAlignmentNames, alignmentValue);
+}
+
+
+std::string
+IDTable::ClassName(uint32 classID)
+{
+	std::string name = _LookUpStrRef(kClassNames, classID);
+	// BG2's multi-class titles embed a <FIGHTERTYPE> token, which GemRB's
+	// TLKImporter always resolves to strref 10174 (the fighter's own name).
+	static const std::string kFighterToken = "<FIGHTERTYPE>";
+	const size_t position = name.find(kFighterToken);
+	if (position != std::string::npos)
+		name.replace(position, kFighterToken.size(), GetDialog(10174));
+	return name;
+}
+
+
 std::string
 IDTable::GeneralAt(int32 i)
 {

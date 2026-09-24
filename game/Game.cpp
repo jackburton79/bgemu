@@ -1208,6 +1208,17 @@ static const uint32 kRecHPMaxLabelID = 268435498;
 static const uint32 kRecClassLabelID = 268435504;
 static const uint32 kRecRaceLabelID = 268435471;
 static const uint32 kRecGenderLabelID = 268435473;
+// Alignment (confirmed against GUIREC.py's own 0x10000010) - the CHU's
+// own baked-in default text for this control (a real Label always shows
+// one, see gui/Label.cpp) happened to be a leftover from whatever this
+// control template was cloned from, not alignment; that stale default
+// was never visible in a real game because the real engine always
+// overwrites it here, same as this code now does.
+static const uint32 kRecAlignmentLabelID = 268435472;
+// GemRB's own hardcoded strrefs for this pair (real BG1/BG2 don't ship
+// a 2DA for two values) - GENDER.IDS' MALE id (1) picks the first.
+static const uint32 kRecMaleStrRef = 7198;
+static const uint32 kRecFemaleStrRef = 7199;
 static const uint32 kRecStatsAreaID = 45;
 // The record screen's own buttons (window 2), confirmed against a real
 // GUIREC.CHU dump of both games and GemRB's GUIREC.py (which sets each
@@ -2505,8 +2516,12 @@ Game::_UpdateInventoryLabels(Window* window, Actor* actor)
 		nameLabel->SetText(actor->LongName());
 
 	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kInvClassLabelID));
-	if (classLabel != NULL)
-		classLabel->SetText(IDTable::ClassAt(actor->CRE()->Class()));
+	if (classLabel != NULL) {
+		// Prefer the localized title (IDTable::ClassName()'s own
+		// comment) over the raw, always-English CLASS.IDS symbol.
+		std::string text = IDTable::ClassName(actor->CRE()->Class());
+		classLabel->SetText(text.empty() ? IDTable::ClassAt(actor->CRE()->Class()) : text);
+	}
 
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
@@ -3928,21 +3943,42 @@ Game::_UpdateAbilityScoreLabels(Window* window, CREResource* cre)
 }
 
 
-// Class/Race/Level 3-line block
+// Class/Race/Alignment/Gender block. Prefers the properly localized
+// IDTable::*Name() lookups (see their own comment); an id outside their
+// small hardcoded table (an exotic/modded creature) falls back to the
+// raw, always-English IDS symbol rather than showing nothing.
 void
 Game::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
 {
 	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kRecClassLabelID));
-	if (classLabel != NULL)
-		classLabel->SetText(_TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class())));
+	if (classLabel != NULL) {
+		std::string text = IDTable::ClassName(actor->CRE()->Class());
+		if (text.empty())
+			text = _TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class()));
+		classLabel->SetText(text);
+	}
 
 	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(kRecRaceLabelID));
-	if (raceLabel != NULL)
-		raceLabel->SetText(_TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race())));
+	if (raceLabel != NULL) {
+		std::string text = IDTable::RaceName(actor->CRE()->Race());
+		if (text.empty())
+			text = _TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race()));
+		raceLabel->SetText(text);
+	}
+
+	Label* alignmentLabel = dynamic_cast<Label*>(window->GetControlByID(kRecAlignmentLabelID));
+	if (alignmentLabel != NULL) {
+		std::string text = IDTable::AlignmentName(actor->CRE()->Alignment());
+		if (text.empty())
+			text = _TitleCaseIDSName(IDTable::AlignmentAt(actor->CRE()->Alignment()));
+		alignmentLabel->SetText(text);
+	}
 
 	Label* genderLabel = dynamic_cast<Label*>(window->GetControlByID(kRecGenderLabelID));
-	if (genderLabel != NULL)
-		genderLabel->SetText(_TitleCaseIDSName(IDTable::GenderAt(actor->CRE()->Gender())));
+	if (genderLabel != NULL) {
+		genderLabel->SetText(IDTable::GetDialog(actor->CRE()->Gender() == 1
+			? kRecMaleStrRef : kRecFemaleStrRef));
+	}
 }
 
 

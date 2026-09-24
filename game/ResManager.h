@@ -142,6 +142,25 @@ public:
 	static std::string	ClassAt(int32 i);
 	static std::string	SpecificAt(int32 i);
 
+	// The properly localized (TLK strref) display text for a race/class/
+	// alignment id, unlike RaceAt()/ClassAt()/AlignmentAt() above (which
+	// return the raw, always-English RACE.IDS/CLASS.IDS/ALIGNMENT.IDS
+	// symbol - correct for debug output, wrong for UI). Real BG1/BG2
+	// hardcode this mapping in their own EXE rather than shipping it as
+	// a 2DA, so the table backing these is GemRB's own "unhardcoded"
+	// races.2da/classes.2da/aligns.2da (identical between both games for
+	// every id they share), not a loaded game resource. Empty string for
+	// an id outside that table (an exotic/modded creature) - callers
+	// fall back to the raw IDS-symbol form for those.
+	// ClassName() only covers a single class or a true multi-class (the
+	// CRE's own class byte already names the combined row, e.g.
+	// FIGHTER_CLERIC) - a dual-classed character or a kit (which need
+	// the second, previous class/kit and IE_TITLE1, GemRB's
+	// GetActorClassTitle()) isn't modeled and falls back the same way.
+	static std::string	RaceName(uint32 raceID);
+	static std::string	AlignmentName(uint8 alignmentValue);
+	static std::string	ClassName(uint32 classID);
+
 	static std::string	TriggerName(int32 i);
 	static int32		TriggerID(std::string name);
 
