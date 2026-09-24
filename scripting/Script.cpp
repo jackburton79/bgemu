@@ -912,6 +912,17 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 					returnValue = object->InParty();
 				break;
 			}
+			case 0x4090:
+			{
+				/* InPartySlot(O:Object*,I:Slot*) - the object is the party
+				 * member in that slot (0-5, join order: Player1 is 0). */
+				Party* party = Game::Get()->Party();
+				Object* object = GetTriggerObject(sender, trig);
+				if (party != NULL && object != NULL && trig->parameter1 >= 0
+						&& trig->parameter1 < party->CountActors())
+					returnValue = party->ActorAt(trig->parameter1) == object;
+				break;
+			}
 			case 0x404d:
 			{
 				// GENDER(O:OBJECT*,I:SEX*GENDER)(16461, 0x404d)

@@ -2309,14 +2309,57 @@ RunActionChangeAlignment(Object* sender, action_params* params, action_state& st
 // see the Fase 6 plan notes); LeaveParty()'s implicit DropInventory()
 // call isn't either (ground items aren't modeled - same simplification
 // already declared for DROPITEM/GIVEITEM above).
+// Sets the creature's dialog file to what PDIALOG.2DA lists for it (the row
+// is its scripting name, the Death Variable) in `column`: the dialog it has
+// once it has joined the party (JOIN_DIALOG_FILE) or after it left
+// (POST_DIALOG_FILE). Nothing changes for a creature without a row (or a
+// "***" entry), or a game without the table.
+static void
+_SetPartyDialogFile(Actor* actor, const char* column)
+{
+	if (actor->CRE() == NULL || actor->CRE()->DeathVariable().empty())
+		return;
+	TWODAResource* table = gResManager->Get2DA(res_ref("PDIALOG"));
+	if (table == NULL)
+		return;
+	std::string dialog;
+	for (int32 row = 0; row < table->CountRows(); row++) {
+		if (strcasecmp(table->RowName(row).c_str(), actor->CRE()->DeathVariable().c_str()) != 0)
+			continue;
+		try {
+			dialog = table->ValueFor(table->RowName(row).c_str(), column);
+		} catch (const std::out_of_range&) {
+			// No such column in this game's table.
+		}
+		break;
+	}
+	gResManager->ReleaseResource(table);
+	if (!dialog.empty() && dialog[0] != '*')
+		actor->CRE()->SetDialogFile(res_ref(dialog.c_str()));
+}
+
+
 static void
 RunActionJoinParty(Object* sender, action_params* params, action_state& state)
 {
 	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
 	if (actor != NULL && !Game::Get()->Party()->HasActor(actor)) {
+		_SetPartyDialogFile(actor, "JOIN_DIALOG_FILE");
 		Game::Get()->JoinParty(actor);
 		actor->ClearActionList();
 	}
+	state.completed = true;
+}
+
+
+// SETLEAVEPARTYDIALOGFILE() - the dialog the creature has once it has left
+// the party.
+static void
+RunActionSetLeavePartyDialogFile(Object* sender, action_params* params, action_state& state)
+{
+	Actor* actor = dynamic_cast<Actor*>(Script::GetSenderObject(sender, params));
+	if (actor != NULL)
+		_SetPartyDialogFile(actor, "POST_DIALOG_FILE");
 	state.completed = true;
 }
 
@@ -3618,7 +3661,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
 		{ 174, "EQUIPRANGED", RunActionEquipRanged },
 		{ 175, "SETLEAVEPARTYDIALOGUEFILE", NULL },
-		{ 175, "SETLEAVEPARTYDIALOGFILE", NULL }, // the spelling BG2's own DLGs use
+		{ 175, "SETLEAVEPARTYDIALOGFILE", RunActionSetLeavePartyDialogFile }, // the spelling BG2's own DLGs use
 		{ 176, "ESCAPEAREADESTROY", RunActionEscapeArea },
 		{ 177, "TRIGGERACTIVATION", RunActionTriggerActivation },
 		{ 178, "BREAKINSTANTS", NULL },

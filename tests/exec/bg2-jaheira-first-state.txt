@@ -1,0 +1,9 @@
+# AREA: AR0602
+#
+# Jaheira's own dialog opens, for the party leader, with the state whose
+# trigger is NumTimesTalkedTo(0) InPartySlot(LastTalkedToBy,0): InPartySlot is
+# true for the member of that party slot (0 = the leader) and false for
+# anyone else or an empty slot.
+Assert-Trigger -,true,InPartySlot(Myself,0)
+Assert-Trigger -,false,InPartySlot(Myself,1)
+Assert-Trigger -,false,InPartySlot(Myself,5)

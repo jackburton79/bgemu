@@ -2130,6 +2130,7 @@ AreaRoom::_CleanDestroyedObjects()
 			// A destroyed global NPC is gone from the game, not just from
 			// this area (the list's reference goes, this room's below).
 			Game::Get()->NPCs().Remove(actor);
+			Game::Get()->ForgetActor(actor);
 			_DetachFromCurrentRegion(actor);
 			actor->ClearActionList();
 			actor->SetArea(NULL);

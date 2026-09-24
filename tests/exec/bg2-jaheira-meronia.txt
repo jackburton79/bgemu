@@ -1,0 +1,34 @@
+# AREA: AR0602
+#
+# Meronia's scene with Jaheira (BG2's opening dungeon): a conversation that
+# switches between JAMERONI (Meronia) and JAHEIRAJ (Jaheira in the party) and
+# ends with Jaheira leaving. It used to go wrong three ways:
+# - JoinParty() left Jaheira with her prison dialog, though PDIALOG.2DA gives
+#   JAHEIRAJ, so there was nobody to own a switch to JAHEIRAJ and Meronia
+#   spoke Jaheira's lines;
+# - the actions of the JAHEIRAJ states (her LeaveParty()) ran for Meronia, so
+#   Jaheira stayed in the party and Meronia began the scene over, endlessly;
+# - InPartySlot(LastTalkedToBy,0) was not implemented, which picked the
+#   wrong opening state of Jaheira's own dialog.
+Assert-DialogFile JAHEIR7,JAHEIRA
+Run-Action JAHEIR7,19,-,0,,,0,0
+Step-Ticks 5
+Assert-Trigger -,true,InParty("Jaheira")
+Assert-DialogFile JAHEIR7,JAHEIRAJ
+Create-Creature JAMERONI,3900,2800
+Run-Action JAMERONI,198,JAHEIR7,0,,,0,0
+Step-Ticks 5
+Assert-DialogActive true
+Select-DialogOption 0
+Select-DialogOption 0
+Select-DialogOption 0
+Select-DialogOption 0
+Select-DialogOption 0
+Select-DialogOption 0
+Assert-DialogActive true
+Assert-Trigger -,true,InParty("Jaheira")
+Select-DialogOption 0
+Assert-DialogActive false
+Assert-Trigger -,false,InParty("Jaheira")
+Step-Ticks 600
+Assert-DialogActive false

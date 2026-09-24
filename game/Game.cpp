@@ -597,6 +597,10 @@ Game::InitiateDialog(Actor* actor, Actor* target)
 {
 	assert(fDialog == NULL);
 
+	// One that is leaving the game (EscapeArea) has nothing more to say.
+	if (actor->ToBeDestroyed() || target->ToBeDestroyed())
+		return;
+
 	const res_ref dialogFile = actor->CRE()->DialogFile();
 	if (dialogFile.name[0] == '\0'
 			|| strcasecmp(dialogFile.CString(), "None") == 0) {
@@ -628,6 +632,17 @@ bool
 Game::InDialogMode() const
 {
 	return fDialog != NULL;
+}
+
+
+void
+Game::ForgetActor(Actor* actor)
+{
+	if (fDialog == NULL || !fDialog->Involves(actor))
+		return;
+	delete fDialog;
+	fDialog = NULL;
+	GUI::Get()->EnsureShowNormalMessageArea();
 }
 
 

@@ -36,6 +36,9 @@ public:
 	void InitiateDialog(Actor* actor, Actor* target);
 	bool InDialogMode() const;
 	void TerminateDialog();
+	// A creature is about to be released: a conversation that involves it is
+	// dropped (it can't end the usual way, which touches the creature).
+	void ForgetActor(Actor* actor);
 	DialogHandler* Dialog();
 
 	::Party* Party();

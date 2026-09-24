@@ -123,6 +123,13 @@ TWODAResource::ValueAt(int rowIndex, int columnIndex) const
 }
 
 
+std::string
+TWODAResource::RowName(int rowIndex) const
+{
+	return fRowHeaders.at(rowIndex);
+}
+
+
 int32
 TWODAResource::IntegerValueAt(int rowIndex, int columnIndex) const
 {

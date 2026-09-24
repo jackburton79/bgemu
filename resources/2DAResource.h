@@ -23,6 +23,8 @@ public:
 	std::string ValueFor(const char* row, const char* column = NULL) const;
 	int32 IntegerValueFor(const char* row, const char* column = NULL) const;
 	std::string ValueAt(int rowIndex, int columnIndex) const;
+	// The first cell of a row, the one the rows are named by.
+	std::string RowName(int rowIndex) const;
 	int32 IntegerValueAt(int rowIndex, int columnIndex) const;
 
 	int32 CountRows() const;

@@ -1672,6 +1672,60 @@ public:
 };
 
 
+// Assert-DialogFile <actor>,<resref> - the dialog file the creature talks with.
+class AssertDialogFileCommand : public ShellCommand {
+public:
+	AssertDialogFileCommand()
+		: ShellCommand(
+			"Assert-DialogFile",
+			{
+				{ PARAMETER_STRING, }, // actor
+				{ PARAMETER_STRING, }  // expected dialog resource
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		const std::string expected = params.at(1).value.string;
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const std::string found = actor->CRE()->DialogFile().CString();
+		if (strcasecmp(found.c_str(), expected.c_str()) == 0) {
+			std::cout << "ASSERT OK: " << actorName << " dialog " << found << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << actorName << " dialog - expected " << expected
+				<< ", got " << found << std::endl;
+		}
+	}
+};
+
+
+// Assert-DialogActive <true|false> - whether a conversation is going on.
+class AssertDialogActiveCommand : public ShellCommand {
+public:
+	AssertDialogActiveCommand()
+		: ShellCommand("Assert-DialogActive")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const bool expected = strcasecmp(argv, "true") == 0;
+		const bool active = Game::Get()->InDialogMode();
+		if (active == expected) {
+			std::cout << "ASSERT OK: dialog active == " << (expected ? "true" : "false")
+				<< std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: dialog active - expected " << (expected ? "true" : "false")
+				<< ", got " << (active ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // Assert-Paused <true|false> - whether the game is paused.
 class AssertPausedCommand : public ShellCommand {
 public:
@@ -1836,6 +1890,56 @@ public:
 			std::cout << std::dec << "ASSERT FAIL: PortraitCount - expected " << argv
 				<< ", got " << count << std::endl;
 		}
+	}
+};
+
+
+// Print-Dialog <resref> - a whole dialog: each state with its trigger and
+// text, and under it every transition (player text, trigger, action, and
+// where it leads: END, or a state of this or another dialog).
+class PrintDialogCommand : public ShellCommand {
+public:
+	PrintDialogCommand()
+		: ShellCommand("Print-Dialog")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		DLGResource* dlg = gResManager->GetDLG(res_ref(argv));
+		if (dlg == NULL) {
+			std::cout << "Print-Dialog: no dialog " << argv << std::endl;
+			return;
+		}
+		std::cout << std::dec;
+		for (uint32 i = 0; i < dlg->CountStates(); i++) {
+			dlg_state state = dlg->GetStateAt(i);
+			std::cout << "State " << i;
+			if (state.trigger != -1)
+				std::cout << " [when " << _OneLine(dlg->GetStateTrigger(state.trigger)) << "]";
+			std::cout << ": " << IDTable::GetDialog(state.text_ref) << std::endl;
+			for (int32 t = 0; t < state.transitions_num; t++) {
+				transition_entry transition = dlg->GetTransition(state.transition_first + t);
+				std::cout << "  -> ";
+				if (transition.HasTrigger())
+					std::cout << "[if " << _OneLine(dlg->GetTransitionTrigger(transition.index_trigger)) << "] ";
+				if (transition.HasPlayerText())
+					std::cout << "\"" << IDTable::GetDialog(transition.text_player) << "\" ";
+				if (transition.HasActions())
+					std::cout << "{do " << _OneLine(dlg->GetAction(transition.index_action)) << "} ";
+				if (transition.flags & DLG_TRANSITION_END)
+					std::cout << "END";
+				else
+					std::cout << transition.resource_next_state.CString() << "#"
+						<< transition.index_next_state;
+				std::cout << std::endl;
+			}
+		}
+		gResManager->ReleaseResource(dlg);
+	}
+
+private:
+	static std::string _OneLine(std::string text) {
+		std::replace(text.begin(), text.end(), '\n', ' ');
+		return text;
 	}
 };
 
@@ -2983,7 +3087,10 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertScreenOpenCommand());
+	console->AddCommand(new PrintDialogCommand());
 	console->AddCommand(new AssertPausedCommand());
+	console->AddCommand(new AssertDialogActiveCommand());
+	console->AddCommand(new AssertDialogFileCommand());
 	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());

@@ -7,8 +7,11 @@
 
 #include "Dialog.h"
 
+#include "2DAResource.h"
 #include "Actor.h"
+#include "AreaRoom.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "Game.h"
 #include "GameJournal.h"
 #include "GUI.h"
@@ -31,6 +34,7 @@ DialogHandler::DialogHandler(::Actor* initiator, ::Actor* target, const res_ref&
 	:
 	fStatus(DialogState::Advancing),
 	fInitiator(initiator),
+	fFirstInitiator(initiator),
 	fTarget(target),
 	fCurrentState(0),
 	fInitialState(true),
@@ -279,6 +283,18 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 	}
 
 	if (fResource->Name() != transition.resource_next_state.CString()) {
+		// A state of another dialog file: it is that file's owner who speaks
+		// and whose script the actions run for (the party banter of one
+		// creature is answered by another, for instance).
+		::Actor* owner = _FindDialogOwner(transition.resource_next_state);
+		if (owner == NULL) {
+			std::cerr << "Dialog: can't redirect to " << transition.resource_next_state
+				<< std::endl;
+			fStatus = DialogState::Finished;
+			return;
+		}
+		fInitiator = owner;
+
 		gResManager->ReleaseResource(fResource);
 
 		fResource =	gResManager->GetDLG(transition.resource_next_state);
@@ -287,6 +303,43 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 	fCurrentState = transition.index_next_state;
 
 	fStatus = DialogState::Advancing;
+}
+
+
+// Same search as GemRB's DialogHandler: the creature the conversation started
+// with if it has that dialog, else any creature of the area that does, else -
+// for a banter file - the creature INTERDIA.2DA lists it for.
+::Actor*
+DialogHandler::_FindDialogOwner(const res_ref& dialog) const
+{
+	auto hasDialog = [&dialog](::Actor* actor) {
+		return actor != NULL && actor->CRE() != NULL
+			&& strcasecmp(actor->CRE()->DialogFile().CString(), dialog.CString()) == 0;
+	};
+	if (hasDialog(fFirstInitiator))
+		return fFirstInitiator;
+
+	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (room == NULL)
+		return NULL;
+	for (int32 i = 0; i < room->ActorsCount(); i++) {
+		if (hasDialog(room->ActorAt(i)))
+			return room->ActorAt(i);
+	}
+
+	// A banter file names its creature only through INTERDIA.2DA (row =
+	// scripting name, FILE column = dialog).
+	TWODAResource* table = gResManager->Get2DA(res_ref("INTERDIA"));
+	if (table == NULL)
+		return NULL;
+	::Actor* owner = NULL;
+	for (int32 row = 0; row < table->CountRows() && owner == NULL; row++) {
+		if (strcasecmp(table->ValueAt(row, 0).c_str(), dialog.CString()) != 0)
+			continue;
+		owner = dynamic_cast<::Actor*>(room->GetObject(table->RowName(row).c_str()));
+	}
+	gResManager->ReleaseResource(table);
+	return owner;
 }
 
 
@@ -344,6 +397,13 @@ transition_entry
 DialogHandler::_ReadTransition(int32 num)
 {
 	return fResource->GetTransition(num);
+}
+
+
+bool
+DialogHandler::Involves(const ::Actor* actor) const
+{
+	return actor == fInitiator || actor == fFirstInitiator || actor == fTarget;
 }
 
 

@@ -36,11 +36,16 @@ public:
 	void HandleTransition(transition_entry transition);
 
 	DLGResource* Resource();
+	// Whether the conversation holds on to this creature.
+	bool Involves(const ::Actor* actor) const;
 	::Actor* Actor();
 
 private:
 	DialogState	fStatus;
 	::Actor* fInitiator;
+	// Whose dialog the conversation started with: the first place to look
+	// when a transition switches to another dialog file.
+	::Actor* fFirstInitiator;
 	::Actor* fTarget;
 	int32 fCurrentState;
 	// Until the first state is shown: which one opens the conversation is
@@ -60,6 +65,9 @@ private:
 	void _ShowTriggerText(const dlg_state& state);
 	void _ExecuteTransition(const transition_entry& transition);
 	void _UpdateJournal(const transition_entry& transition);
+	// The creature that owns a dialog file a transition switches to (see the
+	// .cpp), NULL if there is none in the area.
+	::Actor* _FindDialogOwner(const res_ref& dialog) const;
 
 	transition_entry _ReadTransition(int32 num);
 	void _FillPlaceHolders(std::string& text);
