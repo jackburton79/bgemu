@@ -22,6 +22,7 @@
 #include "GamResource.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "StartingParty.h"
 #include "GameJournal.h"
 #include "SavedGame.h"
 #include "GameConsole.h"
@@ -207,7 +208,7 @@ class CharNewCommand : public ShellCommand {
 public:
 	CharNewCommand() : ShellCommand("Char-New") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->GetCharacterBuilder().Reset();
+		Game::Get()->Starting().Builder().Reset();
 		std::cout << "new character" << std::endl;
 	}
 };
@@ -224,7 +225,7 @@ public:
 		std::string value = params.at(1).value.string;
 		if (value == "-")
 			value.clear();
-		CharacterBuilder& b = Game::Get()->GetCharacterBuilder();
+		CharacterBuilder& b = Game::Get()->Starting().Builder();
 		bool ok = false;
 		if (strcasecmp(field.c_str(), "gender") == 0)      ok = b.SetGender(value);
 		else if (strcasecmp(field.c_str(), "race") == 0)   ok = b.SetRace(value);
@@ -240,10 +241,10 @@ class CharRollCommand : public ShellCommand {
 public:
 	CharRollCommand() : ShellCommand("Char-Roll") {}
 	virtual void operator()(const char* argv) {
-		int total = Game::Get()->GetCharacterBuilder().RollAbilities();
+		int total = Game::Get()->Starting().Builder().RollAbilities();
 		if (total == 0)
 			std::cout << "roll failed (set race + class first, or impossible combo)" << std::endl;
-		Game::Get()->GetCharacterBuilder().Print();
+		Game::Get()->Starting().Builder().Print();
 	}
 };
 
@@ -257,7 +258,7 @@ public:
 		const ShellCommandParameters params = ParseParameters(argv);
 		int idx = _AbilityIndex(params.at(0).value.string);
 		if (idx < 0) { std::cout << "unknown ability" << std::endl; return; }
-		bool ok = Game::Get()->GetCharacterBuilder().SetAbility(idx, params.at(1).value.integer);
+		bool ok = Game::Get()->Starting().Builder().SetAbility(idx, params.at(1).value.integer);
 		std::cout << params.at(0).value.string << " = " << params.at(1).value.integer
 				<< (ok ? " : ok" : " : REJECTED (out of legal range)") << std::endl;
 	}
@@ -267,7 +268,7 @@ class CharPrintCommand : public ShellCommand {
 public:
 	CharPrintCommand() : ShellCommand("Char-Print") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->GetCharacterBuilder().Print();
+		Game::Get()->Starting().Builder().Print();
 	}
 };
 
@@ -282,7 +283,7 @@ public:
 		std::string path = params.at(0).value.string;
 
 		std::vector<uint8> data;
-		if (!Game::Get()->GetCharacterBuilder().BuildCREData(data)) {
+		if (!Game::Get()->Starting().Builder().BuildCREData(data)) {
 			std::cout << "Char-Build: character not complete" << std::endl;
 			return;
 		}
@@ -1671,6 +1672,26 @@ public:
 };
 
 
+// Assert-Paused <true|false> - whether the game is paused.
+class AssertPausedCommand : public ShellCommand {
+public:
+	AssertPausedCommand()
+		: ShellCommand("Assert-Paused")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const bool expected = strcasecmp(argv, "true") == 0;
+		const bool paused = Core::Get()->IsPaused();
+		if (paused == expected) {
+			std::cout << "ASSERT OK: paused == " << (expected ? "true" : "false") << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: paused - expected " << (expected ? "true" : "false")
+				<< ", got " << (paused ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
 // Assert-ScreenOpen <CHU> <true|false> - whether a screen ported to
 // GameScreen (see screens/) is open.
 class AssertScreenOpenCommand : public ShellCommand {
@@ -2962,6 +2983,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertScreenOpenCommand());
+	console->AddCommand(new AssertPausedCommand());
 	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());

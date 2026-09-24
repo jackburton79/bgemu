@@ -47,6 +47,7 @@
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "SavedGame.h"
+#include "StartingParty.h"
 #include "SaveLoadScreen.h"
 #include "ScreenSupport.h"
 #include "SpellbookScreen.h"
@@ -119,7 +120,7 @@ Game::Game()
 	fScreens->Add(new StoreScreen(*this));
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
-	fCharBuilder = new CharacterBuilder;
+	fStartingParty = new StartingParty;
 }
 
 
@@ -137,7 +138,7 @@ Game::~Game()
 	// regardless).
 	ClearAreaCache();
 	delete fAreaCache;
-	delete fCharBuilder;
+	delete fStartingParty;
 	delete fScreens;
 	delete fLoot;
 	delete fBar;
@@ -161,13 +162,6 @@ Game::AreaCache*
 Game::GetAreaCache()
 {
 	return fAreaCache;
-}
-
-
-CharacterBuilder&
-Game::GetCharacterBuilder()
-{
-	return *fCharBuilder;
 }
 
 
@@ -241,7 +235,8 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		Parser::Test();
 	} else {
 		try {
-			CreateParty();
+			assert(fParty == NULL);
+			fParty = fStartingParty->Create();
 		} catch (...) {
 			throw std::runtime_error("Error creating player!");
 		}
@@ -254,7 +249,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 			LoadStartingArea();
 
 		if (!fExecFile.empty()) {
-			_RunExecFile(inputConsole);
+			inputConsole->RunFile(fExecFile);
 			quitting = true;
 		}
 	}
@@ -444,151 +439,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 
 void
-Game::CreateParty()
-{
-	assert(fParty == NULL);
-	IE::point point = { 20, 20 };
-	fParty = new ::Party();
-
-	if (!fCharacterSpec.empty() && _CreateCharacterFromSpec(point))
-		return;
-
-	if (!fStartingPartyMembers.empty()) {
-		for (const std::string& name : fStartingPartyMembers)
-			fParty->AddActor(new Actor(name.c_str(), point, 0));
-		return;
-	}
-
-	// No -P/--party override given: fall back to the original hardcoded
-	// default party. TODO: a real character-creation flow (race/class/
-	// stats/kit) is still missing - this is only "pick existing CREs to
-	// start with", not "create a character from scratch".
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE)
-		fParty->AddActor(new Actor("AJANTI", point, 0));
-	else {
-		fParty->AddActor(new Actor("ANOMEN10", point, 0));
-	}
-}
-
-
-void
-Game::SetStartingPartyMembers(const std::vector<std::string>& names)
-{
-	fStartingPartyMembers = names;
-}
-
-
-void
-Game::SetCharacterSpec(const char* path)
-{
-	fCharacterSpec = path != NULL ? path : "";
-}
-
-
-bool
-Game::_CreateCharacterFromSpec(const IE::point& position)
-{
-	std::ifstream file(fCharacterSpec);
-	if (!file) {
-		std::cerr << "character spec: cannot open " << fCharacterSpec << std::endl;
-		return false;
-	}
-
-	CharacterBuilder& builder = *fCharBuilder;
-	builder.Reset();
-	bool doRoll = false;
-	static const char* kAbilityNames[] = { "str", "dex", "con", "int", "wis", "chr" };
-
-	std::string line;
-	while (std::getline(file, line)) {
-		size_t hash = line.find('#');
-		if (hash != std::string::npos)
-			line.erase(hash);
-		std::istringstream stream(line);
-		std::string field, value;
-		if (!(stream >> field))
-			continue;
-		stream >> value;
-		for (char& c : field) c = (char)tolower((unsigned char)c);
-
-		if (field == "roll") {
-			doRoll = true;
-		} else if (field == "gender") {
-			builder.SetGender(value);
-		} else if (field == "race") {
-			builder.SetRace(value);
-		} else if (field == "class") {
-			builder.SetClass(value);
-		} else if (field == "kit") {
-			builder.SetKit(value);
-		} else if (field == "alignment") {
-			builder.SetAlignment(value);
-		} else if (field == "name") {
-			// The rest of the line, so names can contain spaces.
-			std::string rest;
-			std::getline(stream, rest);
-			builder.SetName(value + rest);
-		} else if (field == "portrait") {
-			builder.SetPortraits(value + "S", value + "M");
-		} else if (field == "portrait_small") {
-			builder.SetPortraits(value, builder.PortraitLarge());
-		} else if (field == "portrait_large") {
-			builder.SetPortraits(builder.PortraitSmall(), value);
-		} else if (field.rfind("color_", 0) == 0) {
-			builder.SetColor(field.substr(6), atoi(value.c_str()));
-		} else if (field == "spell") {
-			if (!builder.AddSpell(value))
-				std::cerr << "character spec: unknown spell " << value << std::endl;
-		} else if (field == "skill_openlocks") {
-			builder.SetThiefSkill("openlocks", atoi(value.c_str()));
-		} else if (field == "skill_findtraps") {
-			builder.SetThiefSkill("findtraps", atoi(value.c_str()));
-		} else {
-			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
-				if (field == kAbilityNames[i])
-					builder.SetAbility(i, atoi(value.c_str()));
-			}
-		}
-	}
-
-	if (doRoll)
-		builder.RollAbilities();
-
-	std::vector<std::string> problems;
-	if (!builder.IsComplete(problems)) {
-		std::cerr << "character spec: incomplete -" << std::endl;
-		for (const std::string& p : problems)
-			std::cerr << "  " << p << std::endl;
-		return false;
-	}
-
-	std::vector<uint8> creData;
-	if (!builder.BuildCREData(creData))
-		return false;
-
-	MemoryStream stream(creData.data(), creData.size(), false);
-	CREResource* cre = new CREResource(res_ref("PLAYER1"));
-	cre->Acquire(); // resources start at refcount 0
-	if (!cre->Load(&stream, 0, creData.size())) {
-		gResManager->ReleaseResource(cre); // 1 -> 0, deleted
-		return false;
-	}
-	cre->Init();
-	gResManager->InjectResource(res_ref("PLAYER1"), RES_CRE, cre);
-	gResManager->ReleaseResource(cre); // drop our ref; InjectResource holds its own
-
-	Actor* player = new Actor("PLAYER1", position, 0);
-	if (!builder.Name().empty())
-		player->SetLongName(builder.Name().c_str());
-	fParty->AddActor(player);
-
-	std::cout << "Created character:" << std::endl;
-	builder.Print();
-	return true;
-}
-
-
-void
 Game::SetExecFile(const char* path)
 {
 	fExecFile = path != NULL ? path : "";
@@ -613,6 +463,13 @@ NPCRoster&
 Game::NPCs()
 {
 	return *fNPCs;
+}
+
+
+StartingParty&
+Game::Starting()
+{
+	return *fStartingParty;
 }
 
 
@@ -652,68 +509,6 @@ Game::CloseContainerWindowIfAny()
 {
 	if (sGame != NULL)
 		sGame->fLoot->Close();
-}
-
-
-// Shared with gui/GUI.cpp's own HUD command bar
-const CommandBarButton kCommandBarButtons[9] = {
-	{ 1, [] { Core::Get()->LoadWorldMap(); } },
-	{ 2, [] { Game::Get()->Screens().Toggle<JournalScreen>(); } },
-	{ 3, [] { Game::Get()->Screens().Toggle<InventoryScreen>(); } },
-	{ 4, [] { Game::Get()->Screens().Toggle<RecordScreen>(); } },
-	{ 5, [] { Game::Get()->Screens().Toggle("GUIMG"); } },
-	{ 6, [] { Game::Get()->Screens().Toggle("GUIPR"); } },
-	{ 7, [] { Game::Get()->Screens().Toggle("GUISAVE"); } },
-	{ 9, [] { Core::Get()->TogglePause(); } },
-	{ 11, [] { Game::Get()->TriggerRest(); } }
-};
-
-
-// The left-hand command icon strip (ids 0-8, image GUILSOP) + Rest
-// button (id 9, GUIRSBUT) appear identically - same position, same
-// cycle - in every full-screen panel's own window 0 (GUIINV/GUIREC/
-// GUIJRNL/GUIMG/GUIPR all confirmed via a real CHU dump to share this
-// exact layout), duplicating GUIW's own WINDOW_COMMANDS bar so the
-// player can still switch screens/rest while one of them is open. Ids
-// 1-7 come from kCommandBarButtons above; Rest gets its own entry here
-// since its local id differs from GUIW's (9 vs. 11).
-static const struct { uint32 controlID; void (*action)(); }
-kAuxCommandBarButtonsExtra[] = {
-	{ 9, [] { Game::Get()->TriggerRest(); } },
-};
-
-
-/* static */
-void
-Game::AuxCommandBarInvoked(uint32 controlID)
-{
-	for (const auto& button : kCommandBarButtons) {
-		if (button.controlID == controlID) {
-			button.action();
-			return;
-		}
-	}
-	for (const auto& button : kAuxCommandBarButtonsExtra) {
-		if (button.controlID == controlID) {
-			button.action();
-			return;
-		}
-	}
-}
-
-
-
-
-void
-Game::TriggerRest()
-{
-	if (fParty == NULL || fParty->CountActors() == 0)
-		return;
-
-	action_params* params = new action_params;
-	params->id = 230; // RESTPARTY
-	fParty->ActorAt(0)->AddAction(params);
-	params->Release();
 }
 
 
@@ -794,57 +589,6 @@ Game::RefreshHUDPortraits()
 {
 	UpdatePortraitColumn(GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS), 6);
 	fBar->Refresh();
-}
-
-
-// Runs every non-blank, non-'#'-comment line of fExecFile as a GameConsole
-// command, in order, printing each before running it (so the transcript
-// is self-documenting) - console commands already print their own output
-// to stdout (unredirected by default, see GameConsole's constructor
-// comment), which is exactly what a headless ASan test run captures.
-void
-Game::_RunExecFile(GameConsole* console)
-{
-	std::ifstream file(fExecFile.c_str());
-	if (!file.is_open()) {
-		std::cerr << "Game::_RunExecFile(): cannot open " << fExecFile << std::endl;
-		return;
-	}
-
-	std::cout << "Game: running exec-file " << fExecFile << std::endl;
-	std::string line;
-	while (std::getline(file, line)) {
-		if (!line.empty() && line.back() == '\r')
-			line.pop_back();
-
-		size_t start = line.find_first_not_of(" \t");
-		if (start == std::string::npos || line[start] == '#')
-			continue;
-		line = line.substr(start);
-
-		std::cout << "TestScript> " << line << std::endl;
-
-		// A "WAIT-TICKS <n>" line isn't a real console command - it runs
-		// n logic ticks before the next line. Console commands only queue
-		// an action (Object::AddAction()); it runs immediately only if
-		// the game's INSTANT.IDS marks that action id as instant AND the
-		// target's action list was empty - otherwise it just sits queued
-		// until something ticks logic. Not done automatically after every
-		// line: ticking logic also re-runs the current area's own AI
-		// scripts (e.g. an in-progress opening cutscene), which can be
-		// slow/long-running - so opt in explicitly with WAIT-TICKS right
-		// after a command that needs it, rather than paying that cost on
-		// every line.
-		if (line.compare(0, 10, "WAIT-TICKS") == 0) {
-			int ticks = ::atoi(line.c_str() + 10);
-			for (int i = 0; i < ticks; i++)
-				Core::Get()->UpdateLogic(true);
-			continue;
-		}
-
-		console->ExecuteCommand(line);
-	}
-	std::cout << "Game: exec-file done, quitting" << std::endl;
 }
 
 

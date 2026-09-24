@@ -368,7 +368,7 @@ GamResource::_MemberAt(uint32 structOffset) const
 
 	// The 8-byte "Character Name" field doubles as the CRE resref here:
 	// this engine's Actor(creName, position, face) constructor (the only
-	// one Game::CreateParty()/Load() ever use) sets the object's own name
+	// one StartingParty/SavedGame::Load() ever use) sets the object's own name
 	// to the CRE resref itself (see Actor.cpp), so what was written to
 	// this field on Save() is exactly the resref Load() needs to
 	// construct a matching CREResource below.

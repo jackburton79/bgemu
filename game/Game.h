@@ -29,21 +29,10 @@ class GamResource;
 struct gam_party_member;
 class Party;
 
-// The Map/Journal/Inventory/Record/Spellbook/Save command-bar actions -
-// identical (same control ids) on both the main HUD bar (gui/GUI.cpp's
-// own extra entries) and the copy embedded in every full-screen panel's
-// own window 0 (Game.cpp's own extra entries); each caller adds only
-// its own extras (Pause on the HUD, Rest under a differing id) on top
-// of this shared table.
-struct CommandBarButton { uint32 controlID; void (*action)(); };
-
-extern const CommandBarButton kCommandBarButtons[9];
-
 class Game {
 public:
 	static Game* Get();
 	void Loop(bool noNewGame = false, bool executeScripts = true);
-	void CreateParty();
 	void InitiateDialog(Actor* actor, Actor* target);
 	bool InDialogMode() const;
 	void TerminateDialog();
@@ -89,8 +78,6 @@ public:
 	// The screens that are ported to GameScreen (see screens/); the rest
 	// are still Game's own Toggle*Window() and friends.
 	ScreenManager& Screens();
-	// A click on the command-bar copy embedded in a full-screen panel.
-	static void AuxCommandBarInvoked(uint32 controlID);
 	// The party member the Inventory/Record screens currently show (see
 	// fShownCharacter), or NULL if the party is empty / the index is
 	// stale.
@@ -119,10 +106,6 @@ public:
 	// The HUD action bar (see ActionBar).
 	class ActionBar& Bar();
 
-	// Queues RESTPARTY(230) on the first party member - same action
-	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
-	// just triggered from the HUD Rest button instead of a script.
-	void TriggerRest();
 
 
 	// Hands off a live Actor object between two AreaRoom loads within the
@@ -200,19 +183,11 @@ public:
 	// Replaces the party with a new, empty one (what loading a save does).
 	::Party* ResetParty();
 
-	// Headless character-creation state (roadmap Fase 47). Driven by the
-	// Char-* console commands; A2 will turn a completed one into the
-	// starting-party protagonist.
-	CharacterBuilder& GetCharacterBuilder();
+	// The party a new game starts with (see StartingParty).
+	class StartingParty& Starting();
 
 	void SetTestMode(bool value);
 	bool TestMode() const;
-
-	// Overrides CreateParty()'s hardcoded starting party with this list of
-	// CRE resrefs (loaded in order, all at the same default spawn point) -
-	// set from the command line (see bgemu.cpp's --party option). Leaving
-	// this empty keeps CreateParty()'s original hardcoded default.
-	void SetStartingPartyMembers(const std::vector<std::string>& names);
 
 	// Path to a shell-command test script (see bgemu.cpp's --exec-file
 	// option): one GameConsole command per line, blank lines and lines
@@ -235,12 +210,6 @@ public:
 	// Saving and loading (see SavedGame).
 	class SavedGame& Saves();
 
-
-	// Path to a character-creation spec file. When set, CreateParty()
-	// builds the party leader from it (via CharacterBuilder), injects
-	// the resulting CRE as "PLAYER1", and starts with that + the usual
-	// companion instead of the hardcoded default party.
-	void SetCharacterSpec(const char* path);
 
 	// Dialog placeholder tokens (SETTOKEN/SETTOKENOBJECT/SETGABBER) -
 	// resolved by DialogHandler::_FillPlaceHolders() alongside the
@@ -276,20 +245,13 @@ private:
 	class NPCRoster* fNPCs;
 	TempState* fTempState;
 	AreaCache* fAreaCache;
-	CharacterBuilder* fCharBuilder;
+	class StartingParty* fStartingParty;
 
 	uint32 fDelay;
 	bool fTestMode;
 
-	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
 	std::string fStartingArea;
-	std::string fCharacterSpec;
-
-	// Parses fCharacterSpec into fCharBuilder, builds the CRE, injects it
-	// as "PLAYER1", and adds it (plus the default companion) to fParty.
-	// Returns false (and adds nothing) on any parse/build failure.
-	bool _CreateCharacterFromSpec(const IE::point& position);
 
 	// Releases every entry in fAreaCache (same balancing act as ~Game()
 	// itself, which used to do this inline) and empties it - shared with
@@ -311,7 +273,6 @@ private:
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;
 
-	void _RunExecFile(GameConsole* console);
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();

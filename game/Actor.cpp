@@ -219,7 +219,7 @@ Actor::_Init()
 
 	SetActive(true);
 
-	// A freshly created character (CharacterBuilder / Game::CreateParty)
+	// A freshly created character (CharacterBuilder / StartingParty)
 	// comes in at class level 0 with placeholder HP/THAC0/saves; run the
 	// level-up path once to fill in the real level-1 values from the
 	// class tables. Real placed CREs are already level >= 1 and skip this.

@@ -184,10 +184,12 @@ labels, loot entries).
 Two HUD pieces are not screens, since they live in the HUD's own resource
 (GUIW) and not in an auxiliary CHU: `LootWindow` (window 8, `Game::Loot()`) and
 `ActionBar` (window 3, `Game::Bar()`, which also owns the click target mode
-`ActionBar::TargetMode` that `AreaRoom` consumes). Saving and loading is `SavedGame`
-(`Game::Saves()`: save directory, slot paths, `Save()`/`Load()`), the global
-NPCs are `NPCRoster` (`Game::NPCs()`). `Game` keeps what isn't a screen: the
-game loop, the party (join/leave, making an NPC), dialogs, the journal's data,
+`ActionBar::TargetMode` that `AreaRoom` consumes). Around them: `SavedGame` (`Game::Saves()`: save directory, slot paths,
+`Save()`/`Load()`), `NPCRoster` (`Game::NPCs()`, the global NPCs), `GameJournal`
+(`Game::Journal()`, the notes), `StartingParty` (`Game::Starting()`: default
+party, `--party`, `--character`, the `CharacterBuilder`) and `CommandBar` (the
+HUD bar and its copy in each panel). `Game` keeps the game loop, the party
+(join/leave, making an NPC), dialogs and tokens, the area cache and temp state,
 who the screens show (`ShownActor()`) and the HUD portraits.
 
 ### Loot and store windows

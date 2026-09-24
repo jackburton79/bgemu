@@ -54,3 +54,15 @@ Toggle-Record
 Toggle-SpellbookArcane
 Toggle-SpellbookArcane
 Assert-ScreenOpen GUIMG,false
+
+# The command bar copy inside a panel: control 9 is Rest (it used to pause the
+# game, shadowed by the HUD's Pause entry with the same id), and the HUD's own
+# control 9 is Pause.
+Toggle-Record
+Invoke-Control GUIREC,0,9
+Assert-Paused false
+Toggle-Record
+Invoke-Control -,0,9
+Assert-Paused true
+Invoke-Control -,0,9
+Assert-Paused false
