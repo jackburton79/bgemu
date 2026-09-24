@@ -2836,7 +2836,13 @@ public:
 			if (actor->CRE()->GetItemAtSlot(slot, item)) {
 				std::cout << "  slot " << std::dec << slot << ": " << item.name.CString()
 						<< " x" << item.quantity1 << " flags 0x" << std::hex << item.flags
-						<< std::dec << std::endl;
+						<< std::dec;
+				ITMResource* itm = gResManager->GetITM(item.name);
+				if (itm != NULL) {
+					std::cout << " type " << itm->ItemType();
+					gResManager->ReleaseResource(itm);
+				}
+				std::cout << std::endl;
 			}
 		}
 	}

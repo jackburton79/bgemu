@@ -1,0 +1,43 @@
+#
+# The inventory's equipment controls and what each slot accepts, as in the
+# original: control 14 is the amulet slot, 24 the cloak, 25 the boots (they used
+# to be cloak, boots and amulet), 21 the belt, 15 the quiver, 5 a quick item;
+# a slot takes only its own kind of item (itemtype.2da), the quick item slots
+# potions, scrolls, food, gems and wands but not weapons. Ajantis has nothing
+# in the general slots, so what is given lands in slot 21 (control 30).
+Toggle-Inventory
+Give-Item -,AMUL01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,14
+Assert-ItemAtSlot -,6,AMUL01
+Give-Item -,CLCK01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,24
+Assert-ItemAtSlot -,17,CLCK01
+Give-Item -,BOOT01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,25
+Assert-ItemAtSlot -,8,BOOT01
+Give-Item -,BELT01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,21
+Assert-ItemAtSlot -,7,BELT01
+Give-Item -,BOLT01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,15
+Assert-ItemAtSlot -,13,BOLT01
+Give-Item -,POTN02,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,5
+Assert-ItemAtSlot -,18,POTN02
+
+# A dagger is refused by the amulet slot and by a quick item slot, and stays in
+# hand until put back.
+Give-Item -,DAGG01,1
+Invoke-Control GUIINV,2,30
+Invoke-Control GUIINV,2,14
+Assert-ItemAtSlot -,6,AMUL01
+Invoke-Control GUIINV,2,6
+Assert-ItemAtSlot -,19,
+Invoke-Control GUIINV,2,30
+Assert-ItemAtSlot -,21,DAGG01

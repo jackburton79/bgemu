@@ -1084,58 +1084,110 @@ Actor::Spawned() const
 // GUI, which needs to map its own control IDs to these same slots.)
 
 
-// Maps an ITM "Item type" (IESDP itm_v1) to the slot it equips into by
-// default. Returns -1 for types that are never equipped (misc, potions,
-// scrolls, food, keys, books) - those only ever live in a general
-// inventory slot.
+// Which kinds of equipment slot an ITM "Item type" (IESDP itm_v1) can go
+// into: GemRB's itemtype.2da (its unhardcoded copy of what the games keep in
+// the executable; identical for BG1 and BG2), one bit per column. Every item
+// can also sit in a general inventory slot. A type that isn't listed (keys,
+// coins, bags, books, ...) goes nowhere else.
+enum ItemSlotKind {
+	SLOTKIND_HELMET = 0x001,
+	SLOTKIND_ARMOR = 0x002,
+	SLOTKIND_SHIELD = 0x004,
+	SLOTKIND_GLOVES = 0x008,
+	SLOTKIND_RING = 0x010,
+	SLOTKIND_AMULET = 0x020,
+	SLOTKIND_BELT = 0x040,
+	SLOTKIND_BOOTS = 0x080,
+	SLOTKIND_WEAPON = 0x100,
+	SLOTKIND_QUIVER = 0x200,
+	SLOTKIND_CLOAK = 0x400,
+	SLOTKIND_QUICK = 0x800
+};
+
+static const uint16 kItemTypeSlotKinds[] = {
+	0x800, 0x020, 0x002, 0x040, 0x080, 0x200, 0x008, 0x001,	// misc, amulet, armor, belt, boots, arrow, bracers, helmet
+	0x000, 0x800, 0x010, 0x800, 0x004, 0x800, 0x200,		// key, potion, ring, scroll, shield, food, bullet
+	0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100,	// bow ... dart
+	0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100,	// axe ... polearm (bow 15 - polearm 30)
+	0x200, 0x400, 0x000, 0x800, 0x800, 0x000, 0x000, 0x000	// bolt, cloak, coin, gem, wand, bag, book, familiar
+};
+
+static_assert(sizeof(kItemTypeSlotKinds) / sizeof(kItemTypeSlotKinds[0]) == 39,
+	"itemtype.2da has 39 rows (item types 0-38)");
+
+static uint16
+_SlotKindsForItemType(uint16 type)
+{
+	if (type >= sizeof(kItemTypeSlotKinds) / sizeof(kItemTypeSlotKinds[0]))
+		return 0;
+	return kItemTypeSlotKinds[type];
+}
+
+
+// The kind of item a CRE item slot takes, 0 for the general inventory (which
+// takes anything).
+static uint16
+_SlotKindOfSlot(uint32 slot)
+{
+	switch (slot) {
+		case kSlotHelmet: return SLOTKIND_HELMET;
+		case kSlotArmor: return SLOTKIND_ARMOR;
+		case kSlotShield: return SLOTKIND_SHIELD;
+		case kSlotGauntlets: return SLOTKIND_GLOVES;
+		case kSlotRingLeft:
+		case kSlotRingLeft + 1: return SLOTKIND_RING;
+		case kSlotAmulet: return SLOTKIND_AMULET;
+		case kSlotBelt: return SLOTKIND_BELT;
+		case kSlotBoots: return SLOTKIND_BOOTS;
+		case kSlotCloak: return SLOTKIND_CLOAK;
+		default: break;
+	}
+	if (slot >= kSlotWeaponFirst && slot < kSlotWeaponFirst + kNumWeaponSlots)
+		return SLOTKIND_WEAPON;
+	if (slot >= kSlotAmmoFirst && slot <= kSlotAmmoLast)
+		return SLOTKIND_QUIVER;
+	if (slot >= 18 && slot <= 20) // QuickItem1-3
+		return SLOTKIND_QUICK;
+	return 0;
+}
+
+
+// The equipment slot an item of this ITM type equips into by default, -1 for
+// types that are never equipped (only kept in the general inventory or, for
+// potions, scrolls, wands... a quick item slot).
 static int32
 _DefaultSlotForItemType(uint16 type)
 {
-	switch (type) {
-		case 0x0001: return kSlotAmulet;
-		case 0x0002: return kSlotArmor;
-		case 0x0003: return kSlotBelt;
-		case 0x0004: return kSlotBoots;
-		case 0x0006: return kSlotGauntlets;
-		case 0x0007: return kSlotHelmet;
-		case 0x000a: return kSlotRingLeft;
-		case 0x000c: return kSlotShield;
-		case 0x0020: return kSlotCloak; // BG2 cloak/robe item type
-		case 0x0005: // Arrows
-		case 0x000e: // Bullets
-			return kSlotAmmoFirst;
-		case 0x0000: // Books/misc
-		case 0x0008: // Keys
-		case 0x0009: // Potions
-		case 0x000b: // Scrolls
-		case 0x000d: // Food
-			return -1;
-		default:
-			// Everything else in the ITM type table is a weapon
-			// (daggers, swords, axes, bows, staves, etc).
-			return kSlotWeaponFirst;
-	}
+	const uint16 kinds = _SlotKindsForItemType(type);
+	if (kinds & SLOTKIND_HELMET) return kSlotHelmet;
+	if (kinds & SLOTKIND_ARMOR) return kSlotArmor;
+	if (kinds & SLOTKIND_SHIELD) return kSlotShield;
+	if (kinds & SLOTKIND_GLOVES) return kSlotGauntlets;
+	if (kinds & SLOTKIND_RING) return kSlotRingLeft;
+	if (kinds & SLOTKIND_AMULET) return kSlotAmulet;
+	if (kinds & SLOTKIND_BELT) return kSlotBelt;
+	if (kinds & SLOTKIND_BOOTS) return kSlotBoots;
+	if (kinds & SLOTKIND_WEAPON) return kSlotWeaponFirst;
+	if (kinds & SLOTKIND_QUIVER) return kSlotAmmoFirst;
+	if (kinds & SLOTKIND_CLOAK) return kSlotCloak;
+	return -1;
 }
 
 
 // Whether an item of this ITM type is allowed to sit in `slot`. General
-// inventory and quick-item slots take anything; the equipment slots each
-// take their own type (weapon slots take any weapon, quiver slots any
-// ammo, both ring slots any ring).
+// inventory slots take anything; every other slot takes its own kind of item.
+// The shield slot also holds the off-hand weapon of a dual wielder, except in
+// BG1 (whose slottype.2da has no weapon bit for it).
 static bool
 _SlotAcceptsItemType(uint32 slot, uint16 itemType)
 {
 	if (slot >= kSlotGeneralFirst && slot <= kSlotGeneralLast)
 		return true;
-	if (slot >= 18 && slot <= 20) // QuickItem1-3
-		return true;
-	if (slot >= kSlotWeaponFirst && slot < kSlotWeaponFirst + 4)
-		return _DefaultSlotForItemType(itemType) == (int32)kSlotWeaponFirst;
-	if (slot >= kSlotAmmoFirst && slot <= kSlotAmmoLast)
-		return _DefaultSlotForItemType(itemType) == (int32)kSlotAmmoFirst;
-	if (slot == kSlotRingLeft || slot == kSlotRingLeft + 1)
-		return itemType == 0x000a;
-	return _DefaultSlotForItemType(itemType) == (int32)slot;
+
+	uint16 accepted = _SlotKindOfSlot(slot);
+	if (slot == kSlotShield && Core::Get()->Game() != game::GAME_BALDURSGATE)
+		accepted |= SLOTKIND_WEAPON;
+	return (_SlotKindsForItemType(itemType) & accepted) != 0;
 }
 
 
