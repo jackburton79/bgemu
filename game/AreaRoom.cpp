@@ -1618,6 +1618,11 @@ AreaRoom::_InitLightMap()
 	std::cout << "Initializing light map...";
 	std::flush(std::cout);
 
+	if (fLightMap != NULL) {
+		fLightMap->Release();
+		fLightMap = NULL;
+	}
+
 	std::string lightMapName = fArea->WedName().CString();
 	lightMapName += "LM";
 	BMPResource* resource = gResManager->GetBMP(lightMapName.c_str());
@@ -1636,6 +1641,10 @@ AreaRoom::_InitSearchMap()
 	std::cout << Log::Normal;
 	std::cout << "Initializing search map...";
 	std::flush(std::cout);
+
+	// Also runs again from ReloadArea() (day/night WED swap).
+	delete fSearchMap;
+	fSearchMap = NULL;
 
 	std::string searchMapName = fArea->WedName().CString();
 	searchMapName += "SR";

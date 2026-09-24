@@ -1,0 +1,12 @@
+# AREA: AR2700
+#
+# DAYNIGHT reloads the area's WED and its maps; the search map (and light map)
+# of the first load must not be left behind (a leak at exit), and the actors
+# must still be able to walk on the new one (a walk to 415,3205 ends at 413).
+Run-Action -,66,-,22,,,0,0
+Step-Ticks 5
+Run-Action -,66,-,10,,,0,0
+Step-Ticks 5
+Run-Action -,23,-,0,,,415,3205
+Step-Ticks 200
+Assert-Position -,413,3205
