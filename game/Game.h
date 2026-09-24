@@ -19,6 +19,7 @@
 
 
 class Actor;
+class ScreenManager;
 class ARAResource;
 class CharacterBuilder;
 class CREResource;
@@ -112,113 +113,38 @@ public:
 	// Centers view on party member
 	void CenterViewOnPartyMember(uint16 index);
 
-	void ToggleInventoryWindow();
-	void ToggleRecordWindow();
-	// 4-slot Save/Load screens (GUISAVE/GUILOAD): every real slot row
-	// (name/date labels, Save-or-Load and Delete buttons) is wired, but
-	// real BG2's own scrolling past 4 saves, name-entry popup and per-row
-	// thumbnail/portraits aren't - this engine's saves have no name,
-	// timestamp or preview of their own to show (see GamResource's header
-	// comment), and neither TextEdit nor Scrollbar support what a real
-	// name-entry field or scrolling list needs yet.
-	void ToggleSaveWindow();
-	void ToggleLoadWindow();
-	// GUI::ControlInvoked() routes clicks on GUISAVE/GUILOAD controls
-	// here (Game owns Save()/Load(), GUI doesn't reach into game state).
-	void SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
-		uint16 windowID);
-	// GUI::ControlInvoked() routes clicks on GUIINV (Inventory) slot
-	// buttons here - click-to-pick-up, click-to-drop-and-swap between
-	// item slots. See the .cpp.
-	void InventoryControlInvoked(uint32 controlID, uint16 windowID);
-	// Right-click on an inventory slot: examine the item (opens the
-	// GUIINVHI info window), or cancel an in-progress drag.
-	void InventoryControlRightClicked(uint32 controlID, uint16 windowID);
-	// Hover enter/leave on an inventory slot: show/hide the item-name
-	// tooltip next to the cursor.
-	void InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside);
-	// Loot window (GUIW window 8, replacing the message area/command bar
-	// at the bottom of the screen while open): `looter` is the party
-	// member using `source`, either a Container or a dead Actor (corpse).
-	// Shows the source's items on the left and the looter's own carried
-	// items on the right; clicking one moves it across. See the .cpp.
-	void OpenContainerWindow(Actor* looter, class Object* source);
-	void CloseContainerWindow();
-	bool IsContainerWindowOpen() const;
+	// The screens that are ported to GameScreen (see screens/); the rest
+	// are still Game's own Toggle*Window() and friends.
+	ScreenManager& Screens();
+	// A click on the command-bar copy embedded in a full-screen panel.
+	static void AuxCommandBarInvoked(uint32 controlID);
+	// The party member the Inventory/Record screens currently show (see
+	// fShownCharacter), or NULL if the party is empty / the index is
+	// stale.
+	Actor* ShownActor() const;
+	// Fills a portrait column (buttons id 0..count-1) with the party's
+	// small portraits - the HUD bar and the Inventory/Record side panel
+	// share this.
+	void UpdatePortraitColumn(class Window* window, uint32 count);
+
+	// The loot window (see LootWindow).
+	class LootWindow& Loot();
 	// Called when an area is being unloaded (the source object dies with
 	// it). Safe to call when no Game exists (shutdown).
 	static void CloseContainerWindowIfAny();
-	void ContainerControlInvoked(uint32 controlID);
-	void ContainerControlHovered(uint32 controlID, bool inside);
-	// Store window (GUISTORE) - the Buy/Sell page: opened by STARTSTORE for
-	// a party member shopping (`customer`). Items on the shelf on the left,
-	// the shown party member's carried items on the right; a click selects
-	// or deselects an item, "Buy"/"Sell" then carry out the selection.
-	// Returns false if `storeName` isn't a shop this window can show (no
-	// such resource, or a tavern/inn/temple - their pages don't exist yet).
-	bool OpenStoreWindow(Actor* customer, const res_ref& storeName);
-	void CloseStoreWindow();
-	bool IsStoreWindowOpen() const;
-	// A store loaded this session (NULL if never opened) - for tests.
-	class Store* LoadedStore(const char* name) const;
-	void StoreControlInvoked(uint32 controlID, uint16 windowID);
-	void StoreControlHovered(uint32 controlID, uint16 windowID, bool inside);
-	// A double click on a store control (GUI detects it): on a shelf item,
-	// opens the quantity picker (BG2 only - BG1's GUISTORE has none).
-	// Returns whether it was handled.
-	bool StoreControlDoubleClicked(uint32 controlID, uint16 windowID);
-	// A click on the inventory window background (not a slot) while
-	// dragging an item: drops the held item onto the area floor at the
-	// shown character's feet.
-	void DropHeldItemOnGround();
-	// GUI::ControlInvoked() routes clicks on GUIREC (Record screen)
-	// controls here - currently just the portrait column.
-	void RecordControlInvoked(uint32 controlID, uint16 windowID);
 	// Switches which party member the Inventory / Record screens show
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
 	void ShowCharacter(uint16 partyIndex);
+	// Makes `actor` (if in the party) the character the screens show, without
+	// touching the world selection.
+	void SetShownActor(Actor* actor);
 
 	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();
-	// Fills the HUD action bar (GUIW's WINDOW_CMDS, 12 buttons) for the
-	// shown party member - the class's row of actions, with the four
-	// weapon quickslots working. Call whenever the shown character, their
-	// weapons or the HUD itself change.
-	void RefreshActionBar();
-
-	// What the next click in the area does, chosen from the action bar:
-	// talk to / attack the creature clicked instead of the usual
-	// friend-or-foe guess. One-shot: any click in the area ends it.
-	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK, TARGET_CAST,
-		TARGET_USE_ITEM, TARGET_DEFEND };
-	TargetMode CurrentTargetMode() const { return fTargetMode; }
-	void SetTargetMode(TargetMode mode);
-	// Ends TARGET_CAST/TARGET_USE_ITEM: the shown character casts the spell
-	// (or uses the item) picked from the action bar at `target`.
-	void CastSpellAt(Actor* target);
-	// GUI::ControlInvoked() routes clicks on the action bar here.
-	void ActionBarControlInvoked(uint32 controlID);
-	// A right click on a quick spell button offers the spell page to assign
-	// one to it.
-	void ActionBarControlRightClicked(uint32 controlID);
-	void ToggleJournalWindow();
-	// GUI::ControlInvoked() routes clicks on GUIJRNL controls here -
-	// the command bar (window 0) and the portrait column (window 1),
-	// same layout/handling as InventoryControlInvoked/RecordControlInvoked.
-	void JournalControlInvoked(uint32 controlID, uint16 windowID);
-	// Mage spellbook (GUIMG), read-only for now: shows the currently
-	// displayed character's known + memorized arcane spells.
-	void ToggleArcaneSpellbookWindow();
-	void ToggleDivineSpellbookWindow();
-	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
-	// Hover over a spellbook grid icon -> show the spell's name as a
-	// cursor tooltip.
-	void SpellbookControlHovered(uint32 controlID, bool inside);
-	// Right-click a spellbook grid icon -> open the spell-info popup
-	// (GUIMG/GUIPR window 3: name + description).
-	void SpellbookControlRightClicked(uint32 controlID, uint16 windowID);
+	// The HUD action bar (see ActionBar).
+	class ActionBar& Bar();
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
@@ -433,122 +359,17 @@ private:
 	std::vector<journal_entry> fJournal;
 	std::map<std::string, bool> fAreaMapVisibility;
 
-	// CRE item-slot the player is currently dragging an inventory item
-	// out of (-1 = not dragging). The dragged icon itself lives on GUI
-	// (SetDragBitmap); this is the model side.
-	int32 fInvDragSlot;
 
-	// Loot window state - see OpenContainerWindow().
-	class Object* fLootSource;
-	Actor* fLooter;
-	int32 fLootLeftRow;
-	TargetMode fTargetMode;
-	// What the action bar shows: the class row, or a page listing the
-	// shown character's memorized spells / usable items (paged by
-	// fActionBarPageIndex).
-	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_INNATES, PAGE_ITEMS };
-	// Casts `spell` / uses the item in `slot` for `actor`, asking for a
-	// target first unless it only affects its user.
-	void _PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell);
-	ActionPage fActionBarPage;
-	uint32 fActionBarPageIndex;
-	// The spell or item slot picked on the bar, waiting for its target.
-	int32 fPendingItemSlot;
-	// Quick spell slot (0-2) the spell page is choosing a spell for, or -1.
-	int32 fAssignQuickSpell;
-	res_ref fPendingSpell;
-	int32 fLootRightRow;
-	// HUD windows hidden for as long as the loot window is up, so
-	// CloseContainerWindow() shows back exactly those.
-	std::vector<uint16> fLootHiddenWindows;
-	void _UpdateContainerWindow();
+	class LootWindow* fLoot;
+	class ActionBar* fBar;
 
-	// Store window state - see OpenStoreWindow(). fStores owns every Store
-	// loaded this session, so a store keeps what was sold to it (and what
-	// was bought out of it) when reopened; not written to savegames.
-	std::map<std::string, class Store*> fStores;
-	class Store* fStore;
-	class Actor* fStoreCustomer;
-	std::set<uint32> fStoreSellSlots;
-	int32 fStoreLeftRow;
-	int32 fStoreRightRow;
-	bool fStoreUnpause;
-	// The quantity picker: which shelf item (-1 = closed), the amount
-	// chosen so far and the most that can be picked.
-	int32 fStoreAmountIndex;
-	uint32 fStoreAmountValue;
-	uint32 fStoreAmountMax;
-	void _OpenStoreAmountWindow(size_t shelfIndex);
-	void _CloseStoreAmountWindow(bool apply);
-	void _UpdateStoreAmountWindow();
-	void _UpdateStoreWindow();
-	// The store's page tabs: which page is showing (a store_page), the
-	// action each of the bar's four tab buttons stands for, and the
-	// Identify page's own selection/scroll.
-	int32 fStorePage;
-	std::vector<int32> fStoreTabs;
-	std::set<uint32> fStoreIdentifySlots;
-	int32 fStoreIdentifyRow;
-	void _ShowStorePage(int32 page);
-	void _SetupStoreTabs();
-	void _UpdateStoreShopPage();
-	void _UpdateStoreIdentifyPage();
-	void _StoreIdentifySelected();
-	void _StoreBuySelected();
-	void _StoreSellSelected();
-	void _ClearStores();
 
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;
 
 	void _RunExecFile(GameConsole* console);
-	// The party member the Inventory/Record screens currently show (see
-	// fShownCharacter), or NULL if the party is empty / the index is
-	// stale.
-	Actor* _ShownActor() const;
-	// Fills a portrait column (buttons id 0..count-1) with the party's
-	// small portraits - the HUD bar and the Inventory/Record side panel
-	// share this.
-	void _UpdatePortraitColumn(class Window* window, uint32 count);
-	void _UpdateSpellbookScreen();
-	void _ShowSpellInfo(const res_ref& spellName);
-	// GUIMG/GUIPR grid control id -> the spell resref it currently shows,
-	// plus which of the two CHUs the open spellbook is.
-	std::string fSpellbookCHU;
-	uint16 fSpellbookLevel = 1;
-	std::map<uint32, res_ref> fSpellbookKnown;
-	std::map<uint32, res_ref> fSpellbookMemo;
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();
-	void _UpdateInventoryIcons();
-	void _SetSlotIcon(class Window* window, Actor* actor,
-		uint32 controlID, uint32 creSlot);
-	void _UpdateGroundItemSlots(class Window* window, Actor* actor);
-	void _ShowItemInfo(const res_ref& itemName);
-	void _UpdatePaperdoll(class Window* window, Actor* actor);
-	void _UpdateInventoryLabels(class Window* window, Actor* actor);
-	void _UpdateRecordLabels();
-	void _UpdateAbilityScoreLabels(class Window* window, class CREResource* cre);
-	void _UpdateClassRaceLevelLabels(class Window* window, Actor* actor);
-	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
-	void _UpdateRecordButtons(class Window* window);
-	void _UpdateRecordPortrait(class Window* window, Actor* actor);
-	std::string _TitleCaseIDSName(const std::string& idsName);
-	// Refreshes every slot row's name/date labels and Save-or-Load/Delete
-	// button state (enabled iff that slot's own .gam exists - Delete's
-	// case - or, for a Load screen's own action button, iff it exists at
-	// all; a Save screen's own action button stays enabled on an empty
-	// row too, since saving into one is how a new save is made).
-	void _UpdateSaveLoadRows(const res_ref& chuName);
-	void _UpdateJournalLabels();
-	// What the journal screen shows: the chapter, the section (BG2 only) and
-	// whether the entries are listed newest first.
-	int32 fJournalChapter;
-	uint8 fJournalSection;
-	bool fJournalReverse;
-	// Highlights whichever command-bar icon (HUD bar and/or the copy
-	// embedded in the open panel itself) corresponds to the currently
-	// open full-screen panel - see kScreenGroups in Game.cpp.
-	void _UpdateCommandBarToggle();
+	ScreenManager* fScreens;
 };

@@ -14,6 +14,7 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Effect.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "GameTimer.h"
 #include "Graphics.h"
@@ -506,7 +507,7 @@ AreaRoom::MouseDown(IE::point point)
 	// A target-mode click (Talk/Attack/Defend/Cast/Use armed from the
 	// action bar) always fires right away - there's nothing to drag-select
 	// while picking a target.
-	if (Game::Get()->CurrentTargetMode() != Game::TARGET_NONE) {
+	if (Game::Get()->Bar().CurrentTargetMode() != ActionBar::TARGET_NONE) {
 		IE::point areaPoint = point;
 		ConvertFromScreen(areaPoint);
 		ConvertToArea(areaPoint);
@@ -584,9 +585,9 @@ AreaRoom::DragSelectAt(IE::point areaStart, IE::point areaEnd, bool additive)
 
 // Defend picks a friend to stand by; Talk and Attack take anyone.
 static bool
-_IsValidTarget(Actor* actor, Game::TargetMode mode)
+_IsValidTarget(Actor* actor, ActionBar::TargetMode mode)
 {
-	if (mode != Game::TARGET_DEFEND)
+	if (mode != ActionBar::TARGET_DEFEND)
 		return true;
 	return actor->CRE()->EnemyAlly() < IDTable::EnemyAllyValue("EVILCUTOFF");
 }
@@ -598,24 +599,24 @@ AreaRoom::_HandleClickAt(IE::point point)
 	// Talk/Attack/Defend picked on the action bar: this click chooses whom
 	// (a living creature other than the one acting) - or, anywhere else,
 	// just cancels the mode.
-	const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
-	if (mode != Game::TARGET_NONE) {
-		Game::Get()->SetTargetMode(Game::TARGET_NONE);
+	const ActionBar::TargetMode mode = Game::Get()->Bar().CurrentTargetMode();
+	if (mode != ActionBar::TARGET_NONE) {
+		Game::Get()->Bar().SetTargetMode(ActionBar::TARGET_NONE);
 		int32 unused = -1;
 		Actor* actor = dynamic_cast<Actor*>(_ObjectAtPoint(point, unused));
-		if (mode == Game::TARGET_CAST || mode == Game::TARGET_USE_ITEM) {
+		if (mode == ActionBar::TARGET_CAST || mode == ActionBar::TARGET_USE_ITEM) {
 			if (actor != NULL)
-				Game::Get()->CastSpellAt(actor);
+				Game::Get()->Bar().CastSpellAt(actor);
 			return;
 		}
 		if (actor != NULL && !actor->IsState(STATE_DEAD) && _IsValidTarget(actor, mode)) {
 			Actor::ClickIntent intent = Actor::CLICK_ATTACK;
-			if (mode == Game::TARGET_TALK)
+			if (mode == ActionBar::TARGET_TALK)
 				intent = Actor::CLICK_TALK;
-			else if (mode == Game::TARGET_DEFEND)
+			else if (mode == ActionBar::TARGET_DEFEND)
 				intent = Actor::CLICK_DEFEND;
 
-			if (mode == Game::TARGET_TALK) {
+			if (mode == ActionBar::TARGET_TALK) {
 				// Only one party member can hold a conversation at a time
 				// (Game::InitiateDialog() asserts as much) - the primary
 				// selected member speaks, same as a plain click on a
@@ -755,30 +756,30 @@ AreaRoom::_QueueMoveToPoint(IE::point point)
 // a click: the mode's own cursor over a creature it can act on, "no way"
 // anywhere else.
 static int32
-_TargetModeCursor(Game::TargetMode mode, Actor* hovered, Actor* selected)
+_TargetModeCursor(ActionBar::TargetMode mode, Actor* hovered, Actor* selected)
 {
 	if (hovered == NULL)
 		return IE::CURSOR_NOWAY;
 
 	switch (mode) {
-		case Game::TARGET_CAST:
-		case Game::TARGET_USE_ITEM:
+		case ActionBar::TARGET_CAST:
+		case ActionBar::TARGET_USE_ITEM:
 			// Spells and items may be aimed at anyone, the caster included.
 			return IE::CURSOR_CAST;
 
-		case Game::TARGET_TALK:
-		case Game::TARGET_ATTACK:
-		case Game::TARGET_DEFEND:
+		case ActionBar::TARGET_TALK:
+		case ActionBar::TARGET_ATTACK:
+		case ActionBar::TARGET_DEFEND:
 			if (hovered->IsState(STATE_DEAD) || hovered == selected
 					|| !_IsValidTarget(hovered, mode))
 				return IE::CURSOR_NOWAY;
-			if (mode == Game::TARGET_TALK)
+			if (mode == ActionBar::TARGET_TALK)
 				return IE::CURSOR_TALK;
-			if (mode == Game::TARGET_DEFEND)
+			if (mode == ActionBar::TARGET_DEFEND)
 				return IE::CURSOR_DEFEND;
 			return IE::CURSOR_ATTACK;
 
-		case Game::TARGET_NONE:
+		case ActionBar::TARGET_NONE:
 			break;
 	}
 	return IE::CURSOR_NOWAY;
@@ -817,8 +818,8 @@ AreaRoom::MouseMoved(IE::point point, uint32 transit)
 		if (cursor == -1 && fSearchMap != NULL
 				&& fSearchMap->IsWorldmapExit(point.x, point.y))
 			cursor = IE::CURSOR_TRAVEL;
-		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
-		if (mode != Game::TARGET_NONE) {
+		const ActionBar::TargetMode mode = Game::Get()->Bar().CurrentTargetMode();
+		if (mode != ActionBar::TARGET_NONE) {
 			Actor* hovered = dynamic_cast<Actor*>(fMouseOverObject.Target());
 			GUI::Get()->SetCursor(_TargetModeCursor(mode, hovered, SelectedActor()));
 		} else if (cursor != -1) {

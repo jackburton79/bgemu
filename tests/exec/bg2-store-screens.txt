@@ -1,0 +1,21 @@
+# The store (a GameScreen) and the other screens replace each other: opening
+# the Inventory while shopping closes the store (and lets the game run again),
+# and the store closes the Record screen it finds open. Needs: default BG2
+# starting party/area; store SHOP01.
+Toggle-Record
+Assert-ScreenOpen GUIREC,true
+Run-Action -,150,-,0,SHOP01,-,0,0
+Step-Ticks 2
+Assert-StoreWindow true
+Assert-ScreenOpen GUISTORE,true
+Assert-ScreenOpen GUIREC,false
+Toggle-Inventory
+Assert-StoreWindow false
+Assert-ScreenOpen GUISTORE,false
+Assert-ScreenOpen GUIINV,true
+Run-Action -,150,-,0,SHOP01,-,0,0
+Step-Ticks 2
+Assert-ScreenOpen GUISTORE,true
+Assert-ScreenOpen GUIINV,false
+Invoke-Control GUISTORE,3,0
+Assert-ScreenOpen GUISTORE,false

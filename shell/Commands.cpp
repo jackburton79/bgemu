@@ -20,6 +20,7 @@
 #include "Door.h"
 #include "Button.h"
 #include "GamResource.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
@@ -28,7 +29,13 @@
 #include "MemoryStream.h"
 #include "DLGResource.h"
 #include "Parsing.h"
+#include "InventoryScreen.h"
+#include "JournalScreen.h"
+#include "LootWindow.h"
 #include "Party.h"
+#include "RecordScreen.h"
+#include "ScreenManager.h"
+#include "StoreScreen.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SearchMap.h"
@@ -628,7 +635,7 @@ public:
 		// never runs the real SDL event loop, so there's no other way to
 		// exercise Game::ToggleInventoryWindow() (and the item-icon
 		// population it triggers) from a headless script.
-		Game::Get()->ToggleInventoryWindow();
+		Game::Get()->Screens().Toggle<InventoryScreen>();
 		std::cout << "Toggle-Inventory: OK" << std::endl;
 	}
 };
@@ -641,7 +648,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleRecordWindow();
+		Game::Get()->Screens().Toggle<RecordScreen>();
 		std::cout << "Toggle-Record: OK" << std::endl;
 	}
 };
@@ -696,7 +703,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleSaveWindow();
+		Game::Get()->Screens().Toggle("GUISAVE");
 		std::cout << "Toggle-Save: OK" << std::endl;
 	}
 };
@@ -709,7 +716,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleLoadWindow();
+		Game::Get()->Screens().Toggle("GUILOAD");
 		std::cout << "Toggle-Load: OK" << std::endl;
 	}
 };
@@ -722,7 +729,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleJournalWindow();
+		Game::Get()->Screens().Toggle<JournalScreen>();
 		std::cout << "Toggle-Journal: OK" << std::endl;
 	}
 };
@@ -731,7 +738,7 @@ class ToggleArcaneSpellbookCommand : public ShellCommand {
 public:
 	ToggleArcaneSpellbookCommand() : ShellCommand("Toggle-SpellbookArcane") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleArcaneSpellbookWindow();
+		Game::Get()->Screens().Toggle("GUIMG");
 		std::cout << "Toggle-SpellbookArcane: OK" << std::endl;
 	}
 };
@@ -741,7 +748,7 @@ class ToggleDivineSpellbookCommand : public ShellCommand {
 public:
 	ToggleDivineSpellbookCommand() : ShellCommand("Toggle-SpellbookDivine") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleDivineSpellbookWindow();
+		Game::Get()->Screens().Toggle("GUIPR");
 		std::cout << "Toggle-SpellbookDivine: OK" << std::endl;
 	}
 };
@@ -1649,7 +1656,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		bool expected = strcasecmp(argv, "true") == 0;
-		bool open = Game::Get()->IsContainerWindowOpen();
+		bool open = Game::Get()->Loot().IsOpen();
 		if (open == expected) {
 			std::cout << "ASSERT OK: LootWindow open == " << (expected ? "true" : "false")
 				<< std::endl;
@@ -1657,6 +1664,40 @@ public:
 			std::cout << "ASSERT FAIL: LootWindow open - expected "
 				<< (expected ? "true" : "false") << ", got "
 				<< (open ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-ScreenOpen <CHU> <true|false> - whether a screen ported to
+// GameScreen (see screens/) is open.
+class AssertScreenOpenCommand : public ShellCommand {
+public:
+	AssertScreenOpenCommand()
+		: ShellCommand(
+			"Assert-ScreenOpen",
+			{
+				{ PARAMETER_STRING, }, // CHU name (e.g. GUIREC)
+				{ PARAMETER_STRING, }  // true or false
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string chuName = params.at(0).value.string;
+		const bool expected = strcasecmp(params.at(1).value.string, "true") == 0;
+		GameScreen* screen = Game::Get()->Screens().Find(res_ref(chuName.c_str()));
+		if (screen == NULL) {
+			std::cout << "ASSERT FAIL: no screen " << chuName << std::endl;
+			return;
+		}
+		if (screen->IsOpen() == expected) {
+			std::cout << "ASSERT OK: " << chuName << " open == "
+				<< (expected ? "true" : "false") << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << chuName << " open - expected "
+				<< (expected ? "true" : "false") << std::endl;
 		}
 	}
 };
@@ -1671,7 +1712,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Store* store = Game::Get()->LoadedStore(argv);
+		Store* store = Game::Get()->Screens().Find<StoreScreen>()->LoadedStore(argv);
 		if (store == NULL) {
 			std::cout << "Print-Store: " << argv << " isn't loaded" << std::endl;
 			return;
@@ -2164,20 +2205,20 @@ public:
 
 
 static const char*
-_TargetModeName(Game::TargetMode mode)
+_TargetModeName(ActionBar::TargetMode mode)
 {
 	switch (mode) {
-		case Game::TARGET_TALK:
+		case ActionBar::TARGET_TALK:
 			return "talk";
-		case Game::TARGET_ATTACK:
+		case ActionBar::TARGET_ATTACK:
 			return "attack";
-		case Game::TARGET_CAST:
+		case ActionBar::TARGET_CAST:
 			return "cast";
-		case Game::TARGET_USE_ITEM:
+		case ActionBar::TARGET_USE_ITEM:
 			return "use";
-		case Game::TARGET_DEFEND:
+		case ActionBar::TARGET_DEFEND:
 			return "defend";
-		case Game::TARGET_NONE:
+		case ActionBar::TARGET_NONE:
 			break;
 	}
 	return "none";
@@ -2193,7 +2234,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const std::string expected = argv;
-		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
+		const ActionBar::TargetMode mode = Game::Get()->Bar().CurrentTargetMode();
 		const char* actual = _TargetModeName(mode);
 		if (strcasecmp(expected.c_str(), actual) == 0)
 			std::cout << "ASSERT OK: target mode == " << actual << std::endl;
@@ -2273,6 +2314,41 @@ public:
 };
 
 
+// Assert-ItemAtSlot <actor>,<slot>,<item> - the CRE item slot holds this item
+// (an empty <item> asserts that the slot is empty).
+class AssertItemAtSlotCommand : public ShellCommand {
+public:
+	AssertItemAtSlotCommand()
+		: ShellCommand("Assert-ItemAtSlot")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string actorName, rest, slotText, itemName;
+		if (!_SplitOnFirstComma(argv, actorName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), slotText, itemName)) {
+			std::cout << "ASSERT FAIL: expected <actor>,<slot>,<item>" << std::endl;
+			return;
+		}
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const uint32 slot = static_cast<uint32>(atoi(slotText.c_str()));
+		IE::item item;
+		const bool filled = actor->CRE()->GetItemAtSlot(slot, item);
+		const std::string found = filled ? item.name.CString() : "";
+		if (strcasecmp(found.c_str(), itemName.c_str()) == 0) {
+			std::cout << std::dec << "ASSERT OK: slot " << slot << " holds \""
+				<< itemName << "\"" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT FAIL: slot " << slot << " - expected \""
+				<< itemName << "\", got \"" << found << "\"" << std::endl;
+		}
+	}
+};
+
+
 // Assert-StoreWindow <true|false> - whether the store window is open.
 class AssertStoreWindowCommand : public ShellCommand {
 public:
@@ -2282,7 +2358,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		bool expected = strcasecmp(argv, "true") == 0;
-		bool open = Game::Get()->IsStoreWindowOpen();
+		bool open = Game::Get()->Screens().Find<StoreScreen>()->IsOpen();
 		if (open == expected) {
 			std::cout << "ASSERT OK: StoreWindow open == " << (expected ? "true" : "false")
 				<< std::endl;
@@ -2313,7 +2389,7 @@ public:
 		}
 		int32 expected = (int32)::strtol(expectedText.c_str(), NULL, 0);
 
-		Store* store = Game::Get()->LoadedStore(storeName.c_str());
+		Store* store = Game::Get()->Screens().Find<StoreScreen>()->LoadedStore(storeName.c_str());
 		if (store == NULL) {
 			std::cout << "ASSERT FAIL: store " << storeName << " isn't loaded" << std::endl;
 			return;
@@ -2883,6 +2959,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertSelectedCountCommand());
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
+	console->AddCommand(new AssertScreenOpenCommand());
+	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());

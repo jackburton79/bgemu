@@ -10,7 +10,11 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Effect.h"
+#include "ActionBar.h"
 #include "Game.h"
+#include "LootWindow.h"
+#include "ScreenManager.h"
+#include "StoreScreen.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -175,7 +179,7 @@ RunActionVerbalConstant(Object* sender, action_params* params, action_state& sta
 
 
 // STARTSTORE(S:Store*,O:Target*) - stateless. Opens the store window (see
-// Game::OpenStoreWindow()) for the target party member - or the party
+// StoreScreen::OpenStore()) for the target party member - or the party
 // leader if the target isn't one. Stores that window can't show yet
 // (taverns, inns, temples) are just logged.
 static void
@@ -189,7 +193,7 @@ RunActionStartStore(Object* sender, action_params* params, action_state& state)
 		customer = party != NULL && party->CountActors() > 0 ? party->ActorAt(0) : NULL;
 	}
 
-	if (!Game::Get()->OpenStoreWindow(customer, params->string1)) {
+	if (!Game::Get()->Screens().Find<StoreScreen>()->OpenStore(customer, params->string1)) {
 		std::cerr << "StartStore: can't open store " << params->string1 << std::endl;
 		return;
 	}
@@ -1884,7 +1888,7 @@ RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
 			}
 		}
 		if (actor->InParty())
-			Game::Get()->RefreshActionBar();
+			Game::Get()->Bar().Refresh();
 	}
 
 	state.completed = true;
@@ -3366,7 +3370,7 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 // UseContainer() - stateless. Per IESDP "used by the engine internally"
 // (queued when the player clicks a container - see Actor::ClickedOn(),
 // which does exactly that, after a MOVETOOBJECT to reach it first). A
-// party member opens the loot window (Game::OpenContainerWindow()) and
+// party member opens the loot window (LootWindow::Open()) and
 // the player picks what to take; any other creature (a script sending an
 // NPC to a container) has no GUI, so it just takes everything that fits
 // and leaves the rest behind. Also accepts a dead Actor as the target
@@ -3388,7 +3392,7 @@ RunActionUseContainer(Object* sender, action_params* params, action_state& state
 		if ((container != NULL && container->IsEnabled())
 				|| (corpse != NULL && corpse->CRE() != NULL
 					&& corpse->IsState(STATE_DEAD)))
-			Game::Get()->OpenContainerWindow(actor, target);
+			Game::Get()->Loot().Open(actor, target);
 		return;
 	}
 

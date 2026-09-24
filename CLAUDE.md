@@ -163,14 +163,39 @@ correct index→RGB blit for free and needs no such step. Fonts flagged
 explicit palette (`ToolfontPalette()`), never rendered with their raw BAM
 colors.
 
+### Screens (`screens/`)
+
+The GUI screens live in `GameScreen` subclasses, not in `Game`: one CHU, its
+windows shown/hidden together, `Open()/Close()/Toggle()` (opening closes every
+other screen and refreshes the command-bar icon), `Refresh()` to fill the
+controls, and the control events (`ControlInvoked/RightClicked/Hovered/
+DoubleClicked`, `BackgroundClicked`) that `GUI` hands to the screen owning the
+CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is the
+full-screen panel layout (content window 2, command bar copy 0, portrait
+column 1): `InventoryScreen`, `RecordScreen`, `JournalScreen`,
+`SpellbookScreen` (GUIMG and GUIPR, one instance each). `SaveLoadScreen`
+(GUISAVE and GUILOAD) and `StoreScreen` (GUISTORE, opened by STARTSTORE through
+`Screens().Find<StoreScreen>()->OpenStore()`, pauses the game) derive from
+`GameScreen` directly. Screens that share a class are told apart by CHU:
+`Screens().Toggle("GUISAVE")`. `Assert-ScreenOpen <CHU>,<true|false>` checks
+one. `ScreenSupport` holds what several share (item icons/names, weight
+labels, loot entries).
+
+Two HUD pieces are not screens, since they live in the HUD's own resource
+(GUIW) and not in an auxiliary CHU: `LootWindow` (window 8, `Game::Loot()`) and
+`ActionBar` (window 3, `Game::Bar()`, which also owns the click target mode
+`ActionBar::TargetMode` that `AreaRoom` consumes). `Game` keeps what isn't a
+screen: the game loop, party/NPCs, dialogs, saving and loading, the journal's
+data, who the screens show (`ShownActor()`) and the HUD portraits.
+
 ### Loot and store windows
 
 Both are driven by an action, not by clicking a control. USECONTAINER
 (queued when a party member clicks a container or corpse) opens the loot
 window - GUIW window 8, which temporarily hides the message area and
-command bar (`Game::OpenContainerWindow()`); any non-party creature still
+command bar (`LootWindow::Open()`); any non-party creature still
 auto-takes everything. STARTSTORE opens GUISTORE's Buy/Sell page
-(`Game::OpenStoreWindow()`, backed by `game/Store.{h,cpp}`, which holds the
+(`StoreScreen::OpenStore()`, backed by `game/Store.{h,cpp}`, which holds the
 live stock and the GemRB-derived buy/sell rules and pricing). Both pick up
 control ids from GemRB's `CommonWindow.py`/`GUISTORE.py` and use
 `Scrollbar::SetRowCallback()` for their item-list scrollbars; both close
@@ -181,13 +206,13 @@ when their area unloads or another screen opens. Console tests use
 ### HUD action bar
 
 GUIW window 3 (`GUI::WINDOW_CMDS`, 12 buttons) is filled by
-`Game::RefreshActionBar()` (game/Game.cpp): the shown character's class
+`ActionBar::Refresh()` (screens/ActionBar.cpp, `Game::Bar()`): the shown character's class
 row (GemRB's qslots table, embedded there) with icons from GUIBTACT/
 GUIBTBUT - the numbers in `kActionArt` are *frame indices of cycle 0* of
 those BAMs, as in GemRB's guibtact.2da, and BG1 numbers the quick-slot frames
 per slot while BG2 doesn't (detected from the BAM). Weapon buttons select the
 quickslot (`Actor::SelectWeapon`, the CRE's selected-weapon word); Talk/
-Attack/Cast/Use arm a one-shot `Game::TargetMode` that the next area click
+Attack/Cast/Use arm a one-shot `ActionBar::TargetMode` that the next area click
 consumes (`AreaRoom::_HandleClickAt`, `Actor::ClickedOn(target, intent)`);
 Cast/Use show a paged list (`bar_entry`) of memorized spells / magical items;
 quick spells (right click assigns) live in `Actor` and the GAM, quick items are

@@ -14,7 +14,10 @@
 #include "CHUIResource.h"
 #include "Control.h"
 #include "Core.h"
+#include "ActionBar.h"
 #include "Game.h"
+#include "LootWindow.h"
+#include "ScreenManager.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
 #include "Object.h"
@@ -908,15 +911,13 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 void
 GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->InventoryControlRightClicked(controlID, windowID);
-	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
-		Game::Get()->SpellbookControlRightClicked(controlID, windowID);
-	else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
+	if (Game::Get()->Screens().ControlRightClicked(chuName, windowID, controlID))
+		return;
+	if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
 		// The 6 HUD portrait buttons center view to that party member.
 		Game::Get()->CenterViewOnPartyMember((uint16)controlID);
 	} else if (windowID == WINDOW_CMDS && IsResolutionMatchedGUIW(chuName.CString()))
-		Game::Get()->ActionBarControlRightClicked(controlID);
+		Game::Get()->Bar().ControlRightClicked(controlID);
 }
 
 
@@ -926,26 +927,20 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 {
 	if (inside)
 		std::cout << "hovered: id: " << controlID << ", window: " << windowID << std::endl;
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
-	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
-		Game::Get()->SpellbookControlHovered(controlID, inside);
-	else if (chuName == res_ref("GUISTORE"))
-		Game::Get()->StoreControlHovered(controlID, windowID, inside);
-	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
-		Game::Get()->ContainerControlHovered(controlID, inside);
+	if (Game::Get()->Screens().ControlHovered(chuName, windowID, controlID, inside))
+		return;
+	if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
+		Game::Get()->Loot().ControlHovered(controlID, inside);
 }
 
 
 void
-GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 /*windowID*/)
+GUI::WindowBackgroundClicked(const res_ref& chuName, uint16 windowID)
 {
 	// A click that landed on a window but not on any of its controls.
-	// Currently only used to drop a held inventory item onto the floor.
 	// Handlers here MUST NOT tear down windows (this runs mid-dispatch,
 	// same constraint as ControlInvoked()).
-	if (chuName == res_ref("GUIINV"))
-		Game::Get()->DropHeldItemOnGround();
+	Game::Get()->Screens().BackgroundClicked(chuName, windowID);
 }
 
 
@@ -965,39 +960,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 	fLastClickWindow = windowID;
 	fLastClickCHU = chuName;
 	fLastClickTime = doubleClick ? 0 : (now != 0 ? now : 1);
-	if (doubleClick && chuName == res_ref("GUISTORE")
-			&& Game::Get()->StoreControlDoubleClicked(controlID, windowID))
+	if (doubleClick && Game::Get()->Screens().ControlDoubleClicked(chuName, windowID, controlID))
 		return;
 
-	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
-		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
+	if (Game::Get()->Screens().ControlInvoked(chuName, windowID, controlID))
 		return;
-	}
-
-	if (chuName == res_ref("GUIINV")) {
-		Game::Get()->InventoryControlInvoked(controlID, windowID);
-		return;
-	}
-
-	if (chuName == res_ref("GUISTORE")) {
-		Game::Get()->StoreControlInvoked(controlID, windowID);
-		return;
-	}
-
-	if (chuName == res_ref("GUIREC")) {
-		Game::Get()->RecordControlInvoked(controlID, windowID);
-		return;
-	}
-
-	if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR")) {
-		Game::Get()->SpellbookControlInvoked(controlID, windowID);
-		return;
-	}
-
-	if (chuName == res_ref("GUIJRNL")) {
-		Game::Get()->JournalControlInvoked(controlID, windowID);
-		return;
-	}
 
 	RoomBase* room = Core::Get()->CurrentRoom();
 	if (room == NULL)
@@ -1024,11 +991,11 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (IsResolutionMatchedGUIW(chuName.CString())) {
 		if (windowID == WINDOW_CONTAINER) {
-			Game::Get()->ContainerControlInvoked(controlID);
+			Game::Get()->Loot().ControlInvoked(controlID);
 			return;
 		}
 		if (windowID == WINDOW_CMDS) {
-			Game::Get()->ActionBarControlInvoked(controlID);
+			Game::Get()->Bar().ControlInvoked(controlID);
 			return;
 		}
 		if (windowID == WINDOW_COMMANDS) {

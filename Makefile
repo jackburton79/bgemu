@@ -26,6 +26,7 @@ archives \
 game \
 gui \
 resources \
+screens \
 scripting \
 shell
 

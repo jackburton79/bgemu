@@ -1,0 +1,56 @@
+# The Record screen (a GameScreen) opens and closes with its toggle, and is
+# replaced - not stacked under - another full-screen panel when that one
+# opens (the Inventory still being one of Game's own screens).
+Assert-ScreenOpen GUIREC,false
+Toggle-Record
+Assert-ScreenOpen GUIREC,true
+Toggle-Inventory
+Assert-ScreenOpen GUIREC,false
+Toggle-Inventory
+Toggle-Record
+Assert-ScreenOpen GUIREC,true
+Toggle-Record
+Assert-ScreenOpen GUIREC,false
+
+# The Journal (also a GameScreen) and the Record screen replace each other.
+Toggle-Journal
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Record
+Assert-ScreenOpen GUIJRNL,false
+Assert-ScreenOpen GUIREC,true
+Toggle-Journal
+Assert-ScreenOpen GUIREC,false
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Journal
+Assert-ScreenOpen GUIJRNL,false
+
+# Save and Load are two instances of one screen class: opening one closes the
+# other, and both replace the Journal.
+Toggle-Save
+Assert-ScreenOpen GUISAVE,true
+Assert-ScreenOpen GUILOAD,false
+Toggle-Load
+Assert-ScreenOpen GUISAVE,false
+Assert-ScreenOpen GUILOAD,true
+Toggle-Journal
+Assert-ScreenOpen GUILOAD,false
+Assert-ScreenOpen GUIJRNL,true
+Toggle-Journal
+Toggle-Save
+Invoke-Control GUISAVE,0,34
+Assert-ScreenOpen GUISAVE,false
+
+# The two spellbooks (one class, GUIMG and GUIPR) replace each other and the
+# other panels.
+Toggle-SpellbookArcane
+Assert-ScreenOpen GUIMG,true
+Assert-ScreenOpen GUIPR,false
+Toggle-SpellbookDivine
+Assert-ScreenOpen GUIMG,false
+Assert-ScreenOpen GUIPR,true
+Toggle-Record
+Assert-ScreenOpen GUIPR,false
+Toggle-Record
+Toggle-SpellbookArcane
+Toggle-SpellbookArcane
+Assert-ScreenOpen GUIMG,false

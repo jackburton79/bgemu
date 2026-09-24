@@ -11,6 +11,7 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Door.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "GraphicsEngine.h"
 #include "ITMResource.h"
@@ -1299,7 +1300,7 @@ Actor::SelectWeapon(int32 index)
 	fCRE->SetSelectedWeaponCode(index < 0 ? (uint16)kSelectedWeaponFists : (uint16)index);
 	InvalidateAnimation(); // the weapon layer changes
 	if (InParty())
-		Game::Get()->RefreshActionBar();
+		Game::Get()->Bar().Refresh();
 	return true;
 }
 
@@ -1487,7 +1488,7 @@ Actor::ConsumeFromSlot(uint32 slot)
 	_ClearItemSlot(slot);
 	InvalidateAnimation();
 	if (InParty())
-		Game::Get()->RefreshActionBar();
+		Game::Get()->Bar().Refresh();
 }
 
 
@@ -1555,7 +1556,7 @@ Actor::AddItem(const IE::item& newItem)
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, item);
 	fCRE->SetItemAtSlot((uint32)slot, itemsIndex);
 	if (InParty())
-		Game::Get()->RefreshActionBar(); // Use may have something to offer now
+		Game::Get()->Bar().Refresh(); // Use may have something to offer now
 	return true;
 }
 
@@ -1593,7 +1594,7 @@ Actor::_ClearItemSlot(uint32 slot)
 	fCRE->SetItemAtItemsIndex((uint16)itemsIndex, empty);
 	fCRE->SetItemAtSlot(slot, -1);
 	if (InParty())
-		Game::Get()->RefreshActionBar();
+		Game::Get()->Bar().Refresh();
 }
 
 
@@ -1625,7 +1626,7 @@ Actor::TakeItemFromSlot(uint32 slot, IE::item& out)
 	if (slot < kSlotGeneralFirst) {
 		InvalidateAnimation(); // an equipment slot changed
 		if (InParty())
-			Game::Get()->RefreshActionBar();
+			Game::Get()->Bar().Refresh();
 	}
 	return true;
 }
@@ -1750,7 +1751,7 @@ Actor::MoveItemToSlot(uint32 fromSlot, uint32 toSlot)
 	if (fromSlot < kSlotGeneralFirst || toSlot < kSlotGeneralFirst) {
 		InvalidateAnimation();
 		if (InParty())
-			Game::Get()->RefreshActionBar();
+			Game::Get()->Bar().Refresh();
 	}
 	return true;
 }
