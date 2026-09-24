@@ -9,7 +9,6 @@
 
 #include "GraphicsDefs.h"
 #include "IETypes.h"
-#include "Listener.h"
 #include "Window.h"
 
 #include <initializer_list>
@@ -37,7 +36,7 @@ class BAMResource;
 class CHUIResource;
 class Object;
 class TextArea;
-class GUI : public Listener {
+class GUI {
 public:
 	enum {
 		WINDOW_COMMANDS = 0,
