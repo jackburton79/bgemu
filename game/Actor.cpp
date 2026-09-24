@@ -13,6 +13,7 @@
 #include "Door.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "GUI.h"
 #include "NPCRoster.h"
 #include "GraphicsEngine.h"
 #include "ITMResource.h"
@@ -24,6 +25,7 @@
 #include "SearchMap.h"
 #include "SpellEffect.h"
 #include "Script.h"
+#include "TextArea.h"
 #include "TextSupport.h"
 #include "TileCell.h"
 #include "WedResource.h"
@@ -81,6 +83,7 @@ Actor::Actor(IE::actor &actor)
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL),
+	fLevelUpAnnounced(false),
 	fOnWorldmapExit(false)
 {
 	_Init();
@@ -107,6 +110,7 @@ Actor::Actor(IE::actor &actor, CREResource* cre)
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL),
+	fLevelUpAnnounced(false),
 	fOnWorldmapExit(false)
 {
 	_Init();
@@ -133,6 +137,7 @@ Actor::Actor(const char* creName, IE::point position, int face)
 	fPath(NULL),
 	fSpeed(2),
 	fRegion(NULL),
+	fLevelUpAnnounced(false),
 	fOnWorldmapExit(false),
 	fSelectedRadius(20),
 	fSelectedRadiusStep(1)
@@ -224,7 +229,7 @@ Actor::_Init()
 	// level-up path once to fill in the real level-1 values from the
 	// class tables. Real placed CREs are already level >= 1 and skip this.
 	if (fCRE != NULL && fCRE->ClassLevel(0) == 0)
-		_CheckLevelUp();
+		LevelUp();
 
 	// TODO: Check if it's okay. It's here because it seems it could be uninitialized
 	fActor->destination = fActor->position;
@@ -825,6 +830,11 @@ Actor::IsState(int state) const
 }
 
 
+// Message-log text once a character has the experience to advance (the Level
+// Up button's own label, STR_LEVELUP in GemRB).
+static const int32 kLevelUpStrRef = 17119;
+
+
 void
 Actor::GainExperience(uint32 amount)
 {
@@ -833,7 +843,18 @@ Actor::GainExperience(uint32 amount)
 
 	CREResource* cre = CRE();
 	cre->SetExperience(cre->Experience() + amount);
-	_CheckLevelUp();
+
+	// The level itself is gained by the player (the Record screen's Level Up
+	// button); the game only says once that the experience is enough.
+	if (!fLevelUpAnnounced && CanLevelUp()) {
+		fLevelUpAnnounced = true;
+		if (InParty()) {
+			if (TextArea* messages = GUI::Get()->GetMessagesTextArea()) {
+				messages->AddText((LongName() + ": "
+					+ IDTable::GetDialog(kLevelUpStrRef)).c_str());
+			}
+		}
+	}
 }
 
 
@@ -894,38 +915,164 @@ _TableValue(TWODAResource* table, const char* row, const char* column, int32 fal
 }
 
 
-// Applies XP-driven level-up(s) for every "_"-separated class component of
-// this creature's Class() (up to 3, in the same slot order CREResource
-// uses for bytes 0x234/0x235/0x236 - see CREResource::ClassLevel()'s
-// comment). For each component with real progression data (see
-// kClassProgressions above), rolls new hit points for every level gained
-// (HPxxx.2da + HPCONBON.2da) and recomputes THAC0/saving throws as the
-// best (lowest) value among all of this creature's classes at their
-// (possibly just-updated) level - matching how AD&D 2E multi-classing
-// works. NumberOfAttacks() and spellbook memorization slots are not
-// recomputed here - both need extra infrastructure this pass doesn't add
-// (see the Fase 7 plan notes).
-void
-Actor::_CheckLevelUp()
-{
-	CREResource* cre = CRE();
-	const uint32 xp = cre->Experience();
+// One class of a creature that can gain levels: the "_"-separated components
+// of CLASS.IDS' name for its class ("FIGHTER_MAGE" is two), in the CRE's class
+// level slot order (bytes 0x234/0x235/0x236, see CREResource::ClassLevel()).
+struct LevelingClass {
+	std::string name;
+	const ClassProgression* progression;
+	uint8 slot;
+	uint8 current;	// the level it has
+	uint8 allowed;	// the level its experience gives
+};
 
-	std::string className = IDTable::ClassAt(cre->Class());
-	std::vector<std::string> classTokens;
+
+// The classes of `cre` with real progression data and the level each one's
+// experience reaches (XPLEVEL.2DA). A multiclass character's experience is
+// divided evenly between its classes, as in AD&D 2E. Returns the number of
+// class components (1 for a single class), 0 if the class isn't recognizable.
+static int
+_LevelingClasses(CREResource* cre, TWODAResource* xpLevel,
+	std::vector<LevelingClass>& classes)
+{
+	const std::string className = IDTable::ClassAt(cre->Class());
+	std::vector<std::string> tokens;
 	size_t start = 0;
 	for (size_t i = 0; i <= className.size(); i++) {
 		if (i == className.size() || className[i] == '_') {
-			classTokens.push_back(className.substr(start, i - start));
+			tokens.push_back(className.substr(start, i - start));
 			start = i + 1;
 		}
 	}
-	if (classTokens.empty() || classTokens.size() > 3)
-		return; // not a recognizable CLASS.IDS class name
+	if (tokens.empty() || tokens.size() > 3)
+		return 0; // not a recognizable CLASS.IDS class name
+
+	const uint32 xp = cre->Experience() / (uint32)tokens.size();
+	for (size_t slot = 0; slot < tokens.size(); slot++) {
+		const ClassProgression* progression = _ProgressionFor(tokens[slot]);
+		if (progression == NULL)
+			continue;
+
+		LevelingClass entry = { tokens[slot], progression, (uint8)slot,
+			cre->ClassLevel((uint8)slot), 0 };
+		entry.allowed = entry.current;
+		for (uint8 level = entry.current + 1; level <= 41; level++) {
+			char column[8];
+			snprintf(column, sizeof(column), "%u", level);
+			int32 threshold = _TableValue(xpLevel, entry.name.c_str(), column, -1);
+			if (threshold < 0 || (uint32)threshold > xp)
+				break;
+			entry.allowed = level;
+		}
+		classes.push_back(entry);
+	}
+	return (int)tokens.size();
+}
+
+
+bool
+Actor::CanLevelUp() const
+{
+	TWODAResource* xpLevel = gResManager->Get2DA("XPLEVEL");
+	if (xpLevel == NULL)
+		return false;
+
+	std::vector<LevelingClass> classes;
+	_LevelingClasses(fCRE, xpLevel, classes);
+	gResManager->ReleaseResource(xpLevel);
+
+	for (const LevelingClass& entry : classes) {
+		if (entry.allowed > entry.current)
+			return true;
+	}
+	return false;
+}
+
+
+// The spell class a class casts as, and the MXSPLxxx.2DA table (row = class
+// level, column = spell level) with its memorization slots. Druids use the
+// priest table; classes without a table here cast nothing.
+struct SpellProgression {
+	const char* className;
+	uint16 type;		// 0 = priest, 1 = wizard
+	const char* table;
+	bool wisdomBonus;
+};
+
+static const SpellProgression kSpellProgressions[] = {
+	{ "MAGE",     1, "MXSPLWIZ", false },
+	{ "SORCERER", 1, "MXSPLSRC", false },
+	{ "BARD",     1, "MXSPLBRD", false },
+	{ "CLERIC",   0, "MXSPLPRS", true },
+	{ "DRUID",    0, "MXSPLPRS", true },
+	{ "PALADIN",  0, "MXSPLPAL", true },
+	{ "RANGER",   0, "MXSPLRAN", true },
+};
+
+
+// Sets how many spells of each level `cre` can memorize from a class's slot
+// table at its new level (plus MXSPLWIS.2DA's bonus slots for a wise priest).
+// Which spells fill the slots is up to the spellbook.
+static void
+_UpdateSpellSlots(CREResource* cre, const LevelingClass& entry, uint8 level)
+{
+	const SpellProgression* progression = nullptr;
+	for (const SpellProgression& candidate : kSpellProgressions) {
+		if (entry.name == candidate.className)
+			progression = &candidate;
+	}
+	if (progression == nullptr)
+		return;
+
+	TWODAResource* table = gResManager->Get2DA(progression->table);
+	if (table == NULL)
+		return;
+	TWODAResource* wisdomTable =
+		progression->wisdomBonus ? gResManager->Get2DA("MXSPLWIS") : NULL;
+
+	char levelRow[8];
+	snprintf(levelRow, sizeof(levelRow), "%u", level);
+	BaseAttributes attributes;
+	cre->GetAttributes(attributes);
+	char wisdomRow[8];
+	snprintf(wisdomRow, sizeof(wisdomRow), "%d", (int)attributes.wisdom);
+
+	for (uint16 spellLevel = 1; spellLevel <= 9; spellLevel++) {
+		char column[8];
+		snprintf(column, sizeof(column), "%u", spellLevel);
+		int32 slots = _TableValue(table, levelRow, column, 0);
+		if (slots > 0 && wisdomTable != NULL)
+			slots += _TableValue(wisdomTable, wisdomRow, column, 0);
+		cre->SetSpellSlots(progression->type, spellLevel, (uint16)std::max<int32>(slots, 0));
+	}
+
+	if (wisdomTable != NULL)
+		gResManager->ReleaseResource(wisdomTable);
+	gResManager->ReleaseResource(table);
+}
+
+
+// Gains every level the experience allows, in each class that has progression
+// data: rolls the hit points of each new level (HPxxx.2DA + HPCONBON.2DA; the
+// first level of a new character is the maximum, a multiclass character gets
+// each class's share, at least 1 per class and level), recomputes THAC0 and
+// the saving throws as the best of all its classes at their new levels, and
+// sets the spell slots. NumberOfAttacks() and the proficiency/thief-skill
+// points are not touched (they need their own choices).
+bool
+Actor::LevelUp()
+{
+	CREResource* cre = CRE();
 
 	TWODAResource* xpLevel = gResManager->Get2DA("XPLEVEL");
 	if (xpLevel == NULL)
-		return;
+		return false;
+
+	std::vector<LevelingClass> classes;
+	const int numClasses = _LevelingClasses(cre, xpLevel, classes);
+	gResManager->ReleaseResource(xpLevel);
+	if (numClasses == 0)
+		return false;
 
 	TWODAResource* hpConBon = gResManager->Get2DA("HPCONBON");
 	TWODAResource* thac0Table = gResManager->Get2DA("THAC0");
@@ -940,31 +1087,17 @@ Actor::_CheckLevelUp()
 	uint8 bestThac0 = 255;
 	SaveVersus bestSaves = { 255, 255, 255, 255, 255 };
 
-	for (size_t slot = 0; slot < classTokens.size(); slot++) {
-		const ClassProgression* progression = _ProgressionFor(classTokens[slot]);
-		if (progression == NULL)
-			continue;
-		const char* token = classTokens[slot].c_str();
-
-		const uint8 currentLevel = cre->ClassLevel((uint8)slot);
-		uint8 newLevel = currentLevel;
-		for (uint8 level = currentLevel + 1; level <= 41; level++) {
-			char column[8];
-			snprintf(column, sizeof(column), "%u", level);
-			int32 threshold = _TableValue(xpLevel, token, column, -1);
-			if (threshold < 0 || (uint32)threshold > xp)
-				break;
-			newLevel = level;
-		}
+	for (const LevelingClass& entry : classes) {
+		const char* token = entry.name.c_str();
 
 		char levelColumn[8];
-		snprintf(levelColumn, sizeof(levelColumn), "%u", std::max<uint8>(newLevel, 1));
+		snprintf(levelColumn, sizeof(levelColumn), "%u", std::max<uint8>(entry.allowed, 1));
 
 		int32 thac0 = _TableValue(thac0Table, token, levelColumn, -1);
 		if (thac0 >= 0 && (uint8)thac0 < bestThac0)
 			bestThac0 = (uint8)thac0;
 
-		TWODAResource* saveTable = gResManager->Get2DA(progression->saveTable);
+		TWODAResource* saveTable = gResManager->Get2DA(entry.progression->saveTable);
 		if (saveTable != NULL) {
 			int32 death = _TableValue(saveTable, "DEATH", levelColumn, -1);
 			int32 wands = _TableValue(saveTable, "WANDS", levelColumn, -1);
@@ -984,44 +1117,48 @@ Actor::_CheckLevelUp()
 			gResManager->ReleaseResource(saveTable);
 		}
 
-		if (newLevel <= currentLevel)
+		if (entry.allowed <= entry.current)
 			continue;
 
 		leveledUp = true;
-		cre->SetClassLevel((uint8)slot, newLevel);
+		cre->SetClassLevel(entry.slot, entry.allowed);
 
-		TWODAResource* hpTable = gResManager->Get2DA(progression->hpTable);
+		TWODAResource* hpTable = gResManager->Get2DA(entry.progression->hpTable);
 		if (hpTable != NULL) {
-			for (uint8 level = currentLevel + 1; level <= newLevel; level++) {
+			for (uint8 level = entry.current + 1; level <= entry.allowed; level++) {
 				char hpRow[8];
 				snprintf(hpRow, sizeof(hpRow), "%u", level);
-				int32 sides = _TableValue(hpTable, hpRow, "SIDES", 0);
-				int32 rolls = _TableValue(hpTable, hpRow, "ROLLS", 0);
-				int32 modifier = _TableValue(hpTable, hpRow, "MODIFIER", 0);
+				const int32 sides = _TableValue(hpTable, hpRow, "SIDES", 0);
+				const int32 rolls = _TableValue(hpTable, hpRow, "ROLLS", 0);
+				const int32 modifier = _TableValue(hpTable, hpRow, "MODIFIER", 0);
+
+				int32 gain = modifier;
 				if (sides > 0 && rolls > 0) {
-					// Level 1 (character creation, currentLevel == 0)
-					// grants maximum hit points, as the original game
-					// does; subsequent levels are rolled.
-					hpGain += (currentLevel == 0)
-						? (uint16)(rolls * sides)
+					// The first level of a new character grants the maximum.
+					gain += (entry.current == 0)
+						? rolls * sides
 						: Core::RollDice(rolls, sides, 0);
+					// The constitution bonus only comes with hit dice.
+					gain += _TableValue(hpConBon, conRow,
+						entry.progression->warrior ? "WARRIOR" : "OTHER", 0);
 				}
-				hpGain += modifier;
-				hpGain += _TableValue(hpConBon, conRow,
-					progression->warrior ? "WARRIOR" : "OTHER", 0);
+				// Each class of a multiclass character gives its share.
+				gain = (2 * gain + numClasses) / (2 * numClasses);
+				hpGain += (uint16)std::max<int32>(gain, 1);
 			}
 			gResManager->ReleaseResource(hpTable);
 		}
+
+		_UpdateSpellSlots(cre, entry, entry.allowed);
 	}
 
 	if (hpConBon != NULL)
 		gResManager->ReleaseResource(hpConBon);
 	if (thac0Table != NULL)
 		gResManager->ReleaseResource(thac0Table);
-	gResManager->ReleaseResource(xpLevel);
 
 	if (!leveledUp)
-		return;
+		return false;
 
 	if (hpGain > 0) {
 		cre->SetMaxHitPoints(cre->MaxHitPoints() + hpGain);
@@ -1043,6 +1180,9 @@ Actor::_CheckLevelUp()
 			saves.spell = bestSaves.spell;
 		cre->SetSaves(saves);
 	}
+
+	fLevelUpAnnounced = false;
+	return true;
 }
 
 

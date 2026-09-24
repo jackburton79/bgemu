@@ -2368,6 +2368,137 @@ public:
 };
 
 
+// Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
+// allows a level above the current one (see Actor::CanLevelUp()).
+class AssertCanLevelUpCommand : public ShellCommand {
+public:
+	AssertCanLevelUpCommand()
+		: ShellCommand(
+			"Assert-CanLevelUp",
+			{
+				{ PARAMETER_STRING, },	// actor
+				{ PARAMETER_STRING, }	// expected: true or false
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		const bool expected = std::string(params.at(1).value.string) == "true";
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const bool can = actor->CanLevelUp();
+		if (can == expected)
+			std::cout << "ASSERT OK: " << actorName << " can level up == " << can << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << actorName << " can level up is " << can
+				<< ", expected " << expected << std::endl;
+	}
+};
+
+
+// Level-Up <actor> - the actor gains the levels its experience allows (what
+// the Record screen's Level Up button does for the shown character).
+class LevelUpCommand : public ShellCommand {
+public:
+	LevelUpCommand()
+		: ShellCommand("Level-Up")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Actor* actor = FindActor(argv);
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "Level-Up: no actor " << argv << std::endl;
+			return;
+		}
+		std::cout << "Level-Up: " << (actor->LevelUp() ? "OK" : "nothing to gain") << std::endl;
+	}
+};
+
+
+// Assert-SpellSlots <actor>,<type>,<spellLevel>,<count> - how many spells of
+// this level the actor can memorize (type 0 priest, 1 wizard).
+class AssertSpellSlotsCommand : public ShellCommand {
+public:
+	AssertSpellSlotsCommand()
+		: ShellCommand(
+			"Assert-SpellSlots",
+			{
+				{ PARAMETER_STRING, },	// actor
+				{ PARAMETER_INT, },	// type
+				{ PARAMETER_INT, },	// spell level
+				{ PARAMETER_INT, }	// expected count
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const int32 type = params.at(1).value.integer;
+		const int32 level = params.at(2).value.integer;
+		int32 found = -1;
+		for (const cre_spell_memorization_info& info : actor->CRE()->SpellMemorizationInfo()) {
+			if (info.type == type && info.level == level)
+				found = info.numMemorizable;
+		}
+		if (found == params.at(3).value.integer) {
+			std::cout << "ASSERT OK: " << actorName << " has " << found << " slot(s) of type "
+				<< type << " level " << level << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << actorName << " has " << found << " slot(s) of type "
+				<< type << " level " << level << ", expected " << params.at(3).value.integer
+				<< std::endl;
+		}
+	}
+};
+
+
+// Assert-ClassLevel <actor>,<slot>,<level> - the level in class slot 0-2 (the
+// "_"-separated parts of the class, in order: FIGHTER_THIEF is fighter, thief).
+class AssertClassLevelCommand : public ShellCommand {
+public:
+	AssertClassLevelCommand()
+		: ShellCommand(
+			"Assert-ClassLevel",
+			{
+				{ PARAMETER_STRING, },	// actor
+				{ PARAMETER_INT, },	// slot
+				{ PARAMETER_INT, }	// level
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL || actor->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const int32 slot = params.at(1).value.integer;
+		const int32 level = actor->CRE()->ClassLevel((uint8)slot);
+		if (level == params.at(2).value.integer) {
+			std::cout << "ASSERT OK: " << actorName << " class level " << slot << " == "
+				<< level << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << actorName << " class level " << slot << " is "
+				<< level << ", expected " << params.at(2).value.integer << std::endl;
+		}
+	}
+};
+
+
 // Assert-Sound <resource>,<channels>,<sampleRate> - the sound (a WAV/WAVC
 // resource) decodes to 16-bit-or-8-bit PCM with these parameters and is not
 // silent. Dump-Sound <resource>,<path> writes what it decodes to a RIFF WAV
@@ -3303,6 +3434,10 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new AssertCanLevelUpCommand());
+	console->AddCommand(new AssertClassLevelCommand());
+	console->AddCommand(new LevelUpCommand());
+	console->AddCommand(new AssertSpellSlotsCommand());
 	console->AddCommand(new AssertLastSoundCommand());
 	console->AddCommand(new DumpSoundCommand());
 	console->AddCommand(new AssertCustomColorsCommand());

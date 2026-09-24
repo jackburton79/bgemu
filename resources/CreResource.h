@@ -341,6 +341,9 @@ public:
 	std::vector<cre_known_spell> KnownSpells() const;
 	std::vector<cre_memorized_spell> MemorizedSpells() const;
 	std::vector<cre_spell_memorization_info> SpellMemorizationInfo() const;
+	// Sets how many spells of `spellLevel` (1-9) the creature can memorize as
+	// `type` (0 priest, 1 wizard); false if the CRE has no such entry.
+	bool SetSpellSlots(uint16 type, uint16 spellLevel, uint16 slots);
 
 	// Finds the first entry in the Memorized Spells table matching
 	// `spellName` with the "memorized" bit (bit0) still set, clears that

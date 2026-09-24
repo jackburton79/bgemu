@@ -19,9 +19,10 @@ public:
 
 protected:
 	virtual void RefreshContent();
+	virtual void PanelControlInvoked(uint16 windowID, uint32 controlID);
 
 private:
-	void _UpdateButtons(Window* window);
+	void _UpdateButtons(Window* window, Actor* actor);
 	void _UpdatePortrait(Window* window, Actor* actor);
 	void _UpdateAbilityScoreLabels(Window* window, CREResource* cre);
 	void _UpdateClassRaceLevelLabels(Window* window, Actor* actor);

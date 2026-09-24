@@ -111,8 +111,26 @@ RecordScreen::RefreshContent()
 
 	_UpdateClassRaceLevelLabels(window, actor);
 	_UpdateSavesAndResistances(window, actor->CRE());
-	_UpdateButtons(window);
+	_UpdateButtons(window, actor);
 	_UpdatePortrait(window, actor);
+}
+
+
+// Level Up: the shown character gains the levels its experience allows and the
+// screen shows the new numbers. (The original also opens windows to pick
+// proficiencies, spells and thief skills; the points to spend aren't modeled.)
+/* virtual */
+void
+RecordScreen::PanelControlInvoked(uint16 windowID, uint32 controlID)
+{
+	if (windowID != kContentWindow || controlID != kRecLevelUpButtonID)
+		return;
+
+	Actor* actor = fGame.ShownActor();
+	if (actor == NULL || actor->CRE() == NULL || !actor->LevelUp())
+		return;
+
+	RefreshContent();
 }
 
 
@@ -143,12 +161,13 @@ RecordScreen::_UpdatePortrait(Window* window, Actor* actor)
 
 
 // The row of buttons under the portrait (Dual-Class/Level Up/Information/
-// Reform Party/Customize/Export, plus Kit Info on BG2) - labels only, same
-// as GUIREC.py's own SetText() calls; none of the windows they'd open
-// (dual-classing, leveling up, ...) exist in this engine yet, so they stay
-// unwired (a click is a silent no-op, same as any other unhandled control).
+// Reform Party/Customize/Export, plus Kit Info on BG2): their captions, same
+// as GUIREC.py's own SetText() calls. Only Level Up does anything (enabled
+// while the character's experience allows a level, as in GemRB's GUIREC.py);
+// the windows of the others (dual-classing, ...) don't exist in this engine
+// yet, so a click on them is a silent no-op.
 void
-RecordScreen::_UpdateButtons(Window* window)
+RecordScreen::_UpdateButtons(Window* window, Actor* actor)
 {
 	auto setLabel = [window] (uint32 controlID, uint32 strRef) {
 		if (Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID)))
@@ -156,6 +175,8 @@ RecordScreen::_UpdateButtons(Window* window)
 	};
 	setLabel(kRecDualClassButtonID, kRecDualClassStrRef);
 	setLabel(kRecLevelUpButtonID, kRecLevelUpStrRef);
+	if (Button* levelUp = dynamic_cast<Button*>(window->GetControlByID(kRecLevelUpButtonID)))
+		levelUp->SetEnabled(actor->CanLevelUp());
 	setLabel(kRecInformationButtonID, kRecInformationStrRef);
 	setLabel(kRecReformPartyButtonID, kRecReformPartyStrRef);
 	setLabel(kRecCustomizeButtonID, kRecCustomizeStrRef);

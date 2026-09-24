@@ -207,6 +207,17 @@ when their area unloads or another screen opens. Console tests use
 `Assert-LootWindow`/`Assert-ContainerHasItem` and
 `Assert-StoreWindow`/`Assert-StoreStock`/`Print-Store`.
 
+### Levelling up
+
+Experience only makes a level possible: `Actor::CanLevelUp()` compares it with
+XPLEVEL.2DA (a multiclass character's XP is divided evenly between its classes)
+and the Record screen's Level Up button (enabled by that) calls `Actor::LevelUp()`,
+which gains the levels: HP (HPxxx.2DA + HPCONBON.2DA, split between the classes),
+THAC0, saves, spell slots (MXSPLxxx.2DA + MXSPLWIS.2DA). Not modeled: number of
+attacks, proficiency/thief skill points, the choice windows, dual-classing. New
+characters run `LevelUp()` once from level 0. Console: `Level-Up`,
+`Assert-CanLevelUp`, `Assert-ClassLevel`, `Assert-SpellSlots`.
+
 ### Audio
 
 `SoundEngine` (libjgame) plays raw PCM (a movie ring buffer + a pool of one-shot

@@ -269,11 +269,15 @@ public:
 	// lives in one place.
 	void ApplyDamage(int32 amount);
 
-	// Adds `amount` to this creature's total XP (CRE()->Experience()) and,
-	// if the new total crosses one or more XPLEVEL.2DA thresholds for its
-	// class(es), applies the resulting level-up(s) - see the .cpp's
-	// _CheckLevelUp() for what a level-up actually changes.
+	// Adds `amount` to this creature's total XP (CRE()->Experience()); when
+	// that first makes a level-up possible the message log says so.
 	void GainExperience(uint32 amount);
+	// Whether the experience reaches a level above the current one in some
+	// class (XPLEVEL.2DA), and the level-up itself (the Record screen's Level
+	// Up button): see the .cpp for what it changes. LevelUp() returns false if
+	// there was nothing to gain.
+	bool CanLevelUp() const;
+	bool LevelUp();
 
 	bool MatchNode(object_params* node) const;
 
@@ -368,6 +372,7 @@ private:
 	int fSpeed;
 
 	Region* fRegion;
+	bool fLevelUpAnnounced;
 
 	// Debounces Actor::_UpdateRegions()'s own worldmap-exit check the
 	// same way fRegion above debounces travel Regions: without it,
@@ -405,7 +410,6 @@ private:
 
 	void _UpdateRegions(bool triggerTravel = true);
 
-	void _CheckLevelUp();
 };
 
 struct ZOrderSorter {

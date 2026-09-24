@@ -1038,6 +1038,27 @@ CREResource::SpellMemorizationInfo() const
 }
 
 
+bool
+CREResource::SetSpellSlots(uint16 type, uint16 spellLevel, uint16 slots)
+{
+	const uint32 kEntrySize = 16;
+
+	for (uint32 i = 0; i < fSpellMemoInfoCount; i++) {
+		const uint32 offset = fSpellMemoInfoOffset + i * kEntrySize;
+		uint16 level, entryType;
+		fData->ReadAt(offset + 0x00, level);
+		fData->ReadAt(offset + 0x06, entryType);
+		if ((uint16)(level + 1) != spellLevel || entryType != type)
+			continue;
+
+		fData->WriteAt(offset + 0x02, &slots, sizeof(slots));
+		fData->WriteAt(offset + 0x04, &slots, sizeof(slots));
+		return true;
+	}
+	return false;
+}
+
+
 std::string
 CREResource::DeathVariable() const
 {
