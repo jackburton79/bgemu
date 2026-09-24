@@ -224,8 +224,11 @@ characters run `LevelUp()` once from level 0. Console: `Level-Up`,
 devices); `resources/ACMDecoder.*` decodes Interplay ACM (WAVC resources, bare
 `.acm`), `WAVResource::DecodePCM()` returns PCM for both, and `Core::PlaySound()`
 plays a resref (dialog voice lines, PLAYSOUND, VERBALCONSTANT, effect 174, loot
-window). Music, ambients, soundset lines, footsteps and a real mixer are still
-to do - see `docs/audio-plan.md`. Console: `Assert-Sound`, `Assert-LastSound`,
+window). Music tracks stream through `AudioStream` (libjgame) /
+`SoundEngine::PlayStream()` from `game/ACMStream` (loose `.acm` files, found with
+`FindGameFile()`, which ignores case); the playlists (`.mus`), area music,
+ambients, soundset lines, footsteps and a real mixer are still to do - see
+`docs/audio-plan.md`. Console: `Assert-Sound`, `Assert-LastSound`,
 `Dump-Sound <res>,<file.wav>`.
 
 ### HUD action bar

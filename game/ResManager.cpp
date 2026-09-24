@@ -482,6 +482,13 @@ ResourceManager::GetVVC(const res_ref& name)
 }
 
 
+const char*
+ResourceManager::ResourcesPath() const
+{
+	return fResourcesPath.String();
+}
+
+
 WAVResource*
 ResourceManager::GetWAV(const res_ref& name)
 {

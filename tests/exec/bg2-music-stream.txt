@@ -1,0 +1,25 @@
+# AREA: AR0602
+#
+# The music stream (SoundEngine::PlayStream()): a loose ACM track from music/
+# plays on its own device, its position advances in real time, a new track
+# replaces the one playing, a stop with a fade-out ends it (silently, after
+# the fade), and a track that reaches its end stops by itself. The audio
+# thread runs on the real clock, hence the waits.
+Play-Music-File music/BC1/BC1A1.acm
+Assert-Music true
+Wait-Audio 500
+Assert-MusicPosition 250
+# A second track replaces the first one.
+Play-Music-File music/BC1/BC1J1.acm
+Assert-Music true
+Wait-Audio 300
+Stop-Music 200
+Wait-Audio 700
+Assert-Music false
+# BC1A1 lasts 1.7 s.
+Play-Music-File music/BC1/BC1A1.acm
+Wait-Audio 2400
+Assert-Music false
+# A missing track changes nothing.
+Play-Music-File music/BC1/nothing.acm
+Assert-Music false

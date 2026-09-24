@@ -96,11 +96,12 @@ public:
 	static std::string LightMapName(const char *name);
 	static std::string SearchMapName(const char *name);
 
+	// The game's directory.
+	const char *ResourcesPath() const;
+
 private:
 	ResourceManager(const char* path);
 	~ResourceManager();
-
-	const char *ResourcesPath() const;
 
 	Resource *_FindResource(const KeyResEntry &entry);
 	Resource *_LoadResource(const KeyResEntry &entry);

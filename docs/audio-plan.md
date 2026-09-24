@@ -11,7 +11,16 @@
 - `Core::PlaySound(resref)` = decode + `PlaySample()`. Users so far: the
   PLAYSOUND/VERBALCONSTANT actions, effect 174, loot window open/close, and
   dialogs (the TLK entry of a line names its recording).
-- Tests: `Assert-Sound`, `Assert-LastSound`, `Dump-Sound <res>,<file.wav>`.
+- Music stream (step 1 of the music plan, done): `AudioStream` (libjgame) is a
+  source of streamed PCM; `SoundEngine::PlayStream()/StopStream()` play one on a
+  device of its own (format = the stream's) with a bus volume and a fade in/out,
+  replacing the previous one; `IsStreamPlaying()` turns false when the track
+  ends. `game/ACMStream` streams a loose `.acm` (read into memory, decoded on
+  demand by the audio thread), `game/GameFiles` finds files below the game
+  directory case-insensitively (BG1's `Music/Bc1/Bc1a1.ACM`).
+- Tests: `Assert-Sound`, `Assert-LastSound`, `Dump-Sound <res>,<file.wav>`;
+  `Play-Music-File`, `Stop-Music [fadeMs]`, `Print-Music`, `Assert-Music`,
+  `Assert-MusicPosition`, `Wait-Audio <ms>` (real time), `Dump-Music-File`.
 
 ## Steps, in order
 

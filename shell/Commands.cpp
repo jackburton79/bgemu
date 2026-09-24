@@ -37,6 +37,9 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "Region.h"
+#include "SoundEngine.h"
+#include "GameFiles.h"
+#include "ACMStream.h"
 #include "TLKResource.h"
 #include "WAVResource.h"
 #include "RecordScreen.h"
@@ -49,7 +52,9 @@
 #include "Window.h"
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
+#include <thread>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -2368,6 +2373,168 @@ public:
 };
 
 
+// Music streaming (SoundEngine::PlayStream()): Play-Music-File <path> starts a
+// loose ACM file (a path below the game's directory, case-insensitive, e.g.
+// music/BC1/BC1A1.acm) at full volume, Stop-Music [<fadeMs>] ends it,
+// Print-Music says what is playing and Assert-Music <true|false> checks that
+// something plays. Wait-Audio <ms> waits real time (the audio thread runs on
+// its own clock, not the game's ticks). Dump-Music-File <path>,<out.wav>
+// decodes a track to a WAV file.
+class PlayMusicFileCommand : public ShellCommand {
+public:
+	PlayMusicFileCommand()
+		: ShellCommand("Play-Music-File")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const std::string path = FindGameFile(argv);
+		ACMStream* stream = path.empty() ? NULL : ACMStream::Open(path);
+		if (stream == NULL) {
+			std::cout << "Play-Music-File: can't open " << argv << std::endl;
+			return;
+		}
+		const uint32 duration = stream->DurationMs();
+		const bool ok = SoundEngine::Get() != NULL
+			&& SoundEngine::Get()->PlayStream(stream);
+		std::cout << "Play-Music-File: " << (ok ? "OK" : "FAILED") << " (" << duration
+			<< " ms)" << std::endl;
+	}
+};
+
+
+class StopMusicCommand : public ShellCommand {
+public:
+	StopMusicCommand()
+		: ShellCommand("Stop-Music")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		if (SoundEngine::Get() != NULL)
+			SoundEngine::Get()->StopStream((uint32)atoi(argv));
+		std::cout << "Stop-Music: OK" << std::endl;
+	}
+};
+
+
+class PrintMusicCommand : public ShellCommand {
+public:
+	PrintMusicCommand()
+		: ShellCommand("Print-Music")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		SoundEngine* engine = SoundEngine::Get();
+		if (engine == NULL) {
+			std::cout << "Print-Music: no sound engine" << std::endl;
+			return;
+		}
+		std::cout << "Music: " << (engine->IsStreamPlaying() ? "playing" : "stopped")
+			<< ", " << engine->StreamPositionMs() << " ms, volume "
+			<< engine->StreamVolume() << std::endl;
+	}
+};
+
+
+class AssertMusicCommand : public ShellCommand {
+public:
+	AssertMusicCommand()
+		: ShellCommand("Assert-Music")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		SoundEngine* engine = SoundEngine::Get();
+		const bool playing = engine != NULL && engine->IsStreamPlaying();
+		const bool expected = std::string(argv) == "true";
+		if (playing == expected)
+			std::cout << "ASSERT OK: music playing == " << playing << std::endl;
+		else
+			std::cout << "ASSERT FAIL: music playing is " << playing << ", expected "
+				<< expected << std::endl;
+	}
+};
+
+
+class AssertMusicPositionCommand : public ShellCommand {
+public:
+	AssertMusicPositionCommand()
+		: ShellCommand("Assert-MusicPosition")
+	{
+	}
+	// The stream has played at least this many milliseconds.
+	virtual void operator()(const char* argv) {
+		SoundEngine* engine = SoundEngine::Get();
+		const uint32 position = engine != NULL ? engine->StreamPositionMs() : 0;
+		if (position >= (uint32)atoi(argv))
+			std::cout << "ASSERT OK: music position " << position << " ms" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: music position " << position << " ms, expected at least "
+				<< atoi(argv) << std::endl;
+	}
+};
+
+
+class WaitAudioCommand : public ShellCommand {
+public:
+	WaitAudioCommand()
+		: ShellCommand("Wait-Audio")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(atoi(argv)));
+	}
+};
+
+
+class DumpMusicFileCommand : public ShellCommand {
+public:
+	DumpMusicFileCommand()
+		: ShellCommand(
+			"Dump-Music-File",
+			{
+				{ PARAMETER_STRING, },	// path below the game directory
+				{ PARAMETER_STRING, }	// output path
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string path = FindGameFile(params.at(0).value.string);
+		ACMStream* stream = path.empty() ? NULL : ACMStream::Open(path);
+		if (stream == NULL) {
+			std::cout << "Dump-Music-File: can't open " << params.at(0).value.string << std::endl;
+			return;
+		}
+		std::vector<uint8> pcm;
+		uint8 buffer[4096];
+		for (size_t got; (got = stream->Read(buffer, sizeof(buffer))) > 0; )
+			pcm.insert(pcm.end(), buffer, buffer + got);
+		const uint16 channels = stream->Channels();
+		const uint32 rate = stream->SampleRate();
+		delete stream;
+
+		std::ofstream file(params.at(1).value.string, std::ios::binary);
+		auto put32 = [&] (uint32 v) { file.write(reinterpret_cast<const char*>(&v), 4); };
+		auto put16 = [&] (uint16 v) { file.write(reinterpret_cast<const char*>(&v), 2); };
+		file.write("RIFF", 4);
+		put32(36 + (uint32)pcm.size());
+		file.write("WAVEfmt ", 8);
+		put32(16);
+		put16(1);
+		put16(channels);
+		put32(rate);
+		put32(rate * channels * 2);
+		put16((uint16)(channels * 2));
+		put16(16);
+		file.write("data", 4);
+		put32((uint32)pcm.size());
+		file.write(reinterpret_cast<const char*>(pcm.data()), (std::streamsize)pcm.size());
+		std::cout << std::dec << "Dump-Music-File: " << pcm.size() << " bytes, " << channels
+			<< " channel(s), " << rate << " Hz" << std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3434,6 +3601,13 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new PlayMusicFileCommand());
+	console->AddCommand(new StopMusicCommand());
+	console->AddCommand(new PrintMusicCommand());
+	console->AddCommand(new AssertMusicCommand());
+	console->AddCommand(new AssertMusicPositionCommand());
+	console->AddCommand(new WaitAudioCommand());
+	console->AddCommand(new DumpMusicFileCommand());
 	console->AddCommand(new AssertCanLevelUpCommand());
 	console->AddCommand(new AssertClassLevelCommand());
 	console->AddCommand(new LevelUpCommand());

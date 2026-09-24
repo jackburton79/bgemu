@@ -1,0 +1,10 @@
+#
+# BG1 keeps its music in "Music/" with mixed-case file names (Music/Bc1/Bc1a1.ACM):
+# the track is found whatever the case of the path given, decodes as stereo ACM
+# and plays.
+Play-Music-File music/bc1/BC1A1.acm
+Assert-Music true
+Wait-Audio 400
+Assert-MusicPosition 200
+Stop-Music 0
+Assert-Music false
