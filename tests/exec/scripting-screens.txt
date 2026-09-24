@@ -39,3 +39,18 @@ Toggle-Journal
 Toggle-Save
 Invoke-Control GUISAVE,0,34
 Assert-ScreenOpen GUISAVE,false
+
+# The two spellbooks (one class, GUIMG and GUIPR) replace each other and the
+# other panels.
+Toggle-SpellbookArcane
+Assert-ScreenOpen GUIMG,true
+Assert-ScreenOpen GUIPR,false
+Toggle-SpellbookDivine
+Assert-ScreenOpen GUIMG,false
+Assert-ScreenOpen GUIPR,true
+Toggle-Record
+Assert-ScreenOpen GUIPR,false
+Toggle-Record
+Toggle-SpellbookArcane
+Toggle-SpellbookArcane
+Assert-ScreenOpen GUIMG,false

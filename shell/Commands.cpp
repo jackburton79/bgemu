@@ -734,7 +734,7 @@ class ToggleArcaneSpellbookCommand : public ShellCommand {
 public:
 	ToggleArcaneSpellbookCommand() : ShellCommand("Toggle-SpellbookArcane") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleArcaneSpellbookWindow();
+		Game::Get()->Screens().Toggle("GUIMG");
 		std::cout << "Toggle-SpellbookArcane: OK" << std::endl;
 	}
 };
@@ -744,7 +744,7 @@ class ToggleDivineSpellbookCommand : public ShellCommand {
 public:
 	ToggleDivineSpellbookCommand() : ShellCommand("Toggle-SpellbookDivine") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleDivineSpellbookWindow();
+		Game::Get()->Screens().Toggle("GUIPR");
 		std::cout << "Toggle-SpellbookDivine: OK" << std::endl;
 	}
 };

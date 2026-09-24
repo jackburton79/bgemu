@@ -208,17 +208,6 @@ public:
 	// A right click on a quick spell button offers the spell page to assign
 	// one to it.
 	void ActionBarControlRightClicked(uint32 controlID);
-	// Mage spellbook (GUIMG), read-only for now: shows the currently
-	// displayed character's known + memorized arcane spells.
-	void ToggleArcaneSpellbookWindow();
-	void ToggleDivineSpellbookWindow();
-	void SpellbookControlInvoked(uint32 controlID, uint16 windowID);
-	// Hover over a spellbook grid icon -> show the spell's name as a
-	// cursor tooltip.
-	void SpellbookControlHovered(uint32 controlID, bool inside);
-	// Right-click a spellbook grid icon -> open the spell-info popup
-	// (GUIMG/GUIPR window 3: name + description).
-	void SpellbookControlRightClicked(uint32 controlID, uint16 windowID);
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
@@ -502,14 +491,6 @@ private:
 	uint16 fShownCharacter;
 
 	void _RunExecFile(GameConsole* console);
-	void _UpdateSpellbookScreen();
-	void _ShowSpellInfo(const res_ref& spellName);
-	// GUIMG/GUIPR grid control id -> the spell resref it currently shows,
-	// plus which of the two CHUs the open spellbook is.
-	std::string fSpellbookCHU;
-	uint16 fSpellbookLevel = 1;
-	std::map<uint32, res_ref> fSpellbookKnown;
-	std::map<uint32, res_ref> fSpellbookMemo;
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();

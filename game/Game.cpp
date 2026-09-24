@@ -42,6 +42,8 @@
 #include "ResManager.h"
 #include "RoomBase.h"
 #include "SaveLoadScreen.h"
+#include "ScreenSupport.h"
+#include "SpellbookScreen.h"
 #include "ScreenManager.h"
 #include "TextArea.h"
 #include "Window.h"
@@ -114,6 +116,8 @@ Game::Game()
 	fScreens->Add(new JournalScreen(*this));
 	fScreens->Add(new SaveLoadScreen(*this, true));
 	fScreens->Add(new SaveLoadScreen(*this, false));
+	fScreens->Add(new SpellbookScreen(*this, false));
+	fScreens->Add(new SpellbookScreen(*this, true));
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
 	fCharBuilder = new CharacterBuilder;
@@ -346,7 +350,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								fScreens->Toggle<JournalScreen>();
 								break;
 							case SDLK_k:
-								ToggleArcaneSpellbookWindow();
+								fScreens->Toggle("GUIMG");
 								break;
 							case SDLK_F5:
 								fScreens->Toggle("GUISAVE");
@@ -608,8 +612,6 @@ Game::SetStartingArea(const char* areaName)
 static const struct { const char* chu; uint16 windows[5]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
 	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
-	{ "GUIMG",   { 2, 0, 1 }, 3, 5 },
-	{ "GUIPR",   { 2, 0, 1 }, 3, 6 },
 	{ "GUISTORE", { 2, 3, 0, 1, 4 }, 5, kNoCommandBarButton },
 };
 
@@ -693,8 +695,8 @@ const CommandBarButton kCommandBarButtons[9] = {
 	{ 2, [] { Game::Get()->Screens().Toggle<JournalScreen>(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
 	{ 4, [] { Game::Get()->Screens().Toggle<RecordScreen>(); } },
-	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
-	{ 6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
+	{ 5, [] { Game::Get()->Screens().Toggle("GUIMG"); } },
+	{ 6, [] { Game::Get()->Screens().Toggle("GUIPR"); } },
 	{ 7, [] { Game::Get()->Screens().Toggle("GUISAVE"); } },
 	{ 9, [] { Core::Get()->TogglePause(); } },
 	{ 11, [] { Game::Get()->TriggerRest(); } }
@@ -754,281 +756,6 @@ Game::ToggleInventoryWindow()
 		_UpdateInventoryIcons();
 	}
 	UpdateCommandBarToggle();
-}
-
-
-static Bitmap* _MakeSpellIcon(const res_ref& spellName); // defined below
-
-// GUIMG/GUIPR window-2 control ids (identical layout, from the CHU dump):
-// left page = the memorized-spell grid (3-col, ids 3-14), right page =
-// the known-spell grid (4-col, ids 27-38).
-static const uint32 kSpellMemoControls[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
-static const uint32 kSpellKnownControls[] = { 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38 };
-static const uint32 kSpellNameLabelID = 268435509;
-
-
-// Whether the character casts divine spells (uses GUIPR) rather than
-// arcane (GUIMG) - true for a pure priest/druid/paladin/ranger, or when
-// they've a priest-type known spell.
-// TODO: maybe not useful anymore
-/*static bool
-_UsesDivineSpellbook(Actor* actor)
-{
-	if (actor == NULL || actor->CRE() == NULL)
-		return false;
-	for (const cre_known_spell& s : actor->CRE()->KnownSpells()) {
-		if (s.type == 0)
-			return true;
-		if (s.type == 1)
-			return false;
-	}
-	std::string className = IDTable::ClassAt(actor->CRE()->Class());
-	for (char& c : className) c = (char)toupper((unsigned char)c);
-	static const char* kArcane[] = { "MAGE", "SORCERER", "BARD" };
-	for (const char* name : kArcane)
-		if (className.find(name) != std::string::npos)
-			return false;
-	static const char* kDivine[] = { "CLERIC", "DRUID", "PALADIN", "RANGER" };
-	for (const char* name : kDivine)
-		if (className.find(name) != std::string::npos)
-			return true;
-	return false;
-}
-*/
-
-void
-Game::ToggleArcaneSpellbookWindow()
-{
-	const char* chu = "GUIMG";
-	fSpellbookCHU = chu;
-	fSpellbookLevel = 1;
-	CloseOtherScreens(chu);
-	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
-		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
-		_UpdateSpellbookScreen();
-	}
-	UpdateCommandBarToggle();
-}
-
-
-void
-Game::ToggleDivineSpellbookWindow()
-{
-	const char* chu = "GUIPR";
-	fSpellbookCHU = chu;
-	fSpellbookLevel = 1;
-	CloseOtherScreens(chu);
-	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
-		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
-		_UpdateSpellbookScreen();
-	}
-	UpdateCommandBarToggle();
-}
-
-
-// Fills the known/memorized grids with the shown character's arcane
-// spells (level 1 only - no page navigation yet), remembering which
-// spell each grid button shows so SpellbookControlInvoked() can act on
-// a click.
-void
-Game::_UpdateSpellbookScreen()
-{
-	fSpellbookKnown.clear();
-	fSpellbookMemo.clear();
-
-	if (fSpellbookCHU.empty())
-		return;
-	const uint16 spellType = (fSpellbookCHU == "GUIPR") ? 0 : 1; // 0 priest, 1 wizard
-	Window* window = GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2);
-	Actor* actor = ShownActor();
-	if (window == NULL || actor == NULL || actor->CRE() == NULL)
-		return;
-	CREResource* cre = actor->CRE();
-
-	const uint16 level = fSpellbookLevel;
-
-	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kSpellNameLabelID));
-	if (nameLabel != NULL)
-		nameLabel->SetText(actor->LongName() + " - level " + std::to_string(level));
-
-	// Known spells of the current level/type.
-	std::vector<cre_known_spell> known = cre->KnownSpells();
-	size_t k = 0;
-	for (uint32 controlID : kSpellKnownControls) {
-		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
-		if (button == NULL)
-			continue;
-		while (k < known.size() && (known[k].type != spellType || known[k].level != level))
-			k++;
-		if (k < known.size()) {
-			button->SetIcon(_MakeSpellIcon(known[k].spell), true);
-			fSpellbookKnown[controlID] = known[k].spell;
-			k++;
-		} else {
-			button->SetIcon(NULL);
-		}
-	}
-
-	// Memorized spells of the current level/type - the memo-info rows
-	// point at each level/type's slice of the memorized table.
-	std::vector<cre_memorized_spell> memo = cre->MemorizedSpells();
-	std::vector<cre_spell_memorization_info> info = cre->SpellMemorizationInfo();
-	std::vector<cre_memorized_spell> levelMemo;
-	for (const cre_spell_memorization_info& row : info) {
-		if (row.level != level || row.type != spellType)
-			continue;
-		for (uint32 i = 0; i < row.memorizedCount; i++) {
-			uint32 idx = row.firstMemorizedIndex + i;
-			if (idx < memo.size())
-				levelMemo.push_back(memo[idx]);
-		}
-	}
-	size_t m = 0;
-	for (uint32 controlID : kSpellMemoControls) {
-		Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
-		if (button == NULL)
-			continue;
-		if (m < levelMemo.size()) {
-			button->SetIcon(_MakeSpellIcon(levelMemo[m].spell), true);
-			if (levelMemo[m].flags & 1)
-				fSpellbookMemo[controlID] = levelMemo[m].spell;
-			m++;
-		} else {
-			button->SetIcon(NULL);
-		}
-	}
-}
-
-
-void
-Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
-{
-	if (windowID == 0)
-		return AuxCommandBarInvoked(controlID);
-	if (windowID == 1 && controlID <= 3) {
-		ShowCharacter((uint16)controlID);
-		return;
-	}
-	if (windowID == 3) {
-		// The spell-info popup: any button closes it.
-		if (!fSpellbookCHU.empty())
-			GUI::Get()->HideAuxWindow(fSpellbookCHU.c_str(), 3);
-		return;
-	}
-	if (windowID != 2)
-		return;
-
-	// Page arrows: control 1 = previous spell level, control 2 = next.
-	if (controlID == 1 || controlID == 2) {
-		if (controlID == 1 && fSpellbookLevel > 1)
-			fSpellbookLevel--;
-		else if (controlID == 2 && fSpellbookLevel < 9)
-			fSpellbookLevel++;
-		_UpdateSpellbookScreen();
-		return;
-	}
-
-	Actor* actor = ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
-
-	// Click a known spell -> memorize it into a free slot; click a
-	// memorized spell -> release it (un-memorize).
-	auto known = fSpellbookKnown.find(controlID);
-	if (known != fSpellbookKnown.end()) {
-		actor->CRE()->MemorizeSpell(known->second);
-		_UpdateSpellbookScreen();
-		return;
-	}
-	auto memo = fSpellbookMemo.find(controlID);
-	if (memo != fSpellbookMemo.end()) {
-		actor->CRE()->ConsumeMemorizedSpell(memo->second);
-		_UpdateSpellbookScreen();
-	}
-}
-
-
-void
-Game::SpellbookControlHovered(uint32 controlID, bool inside)
-{
-	if (!inside) {
-		GUI::Get()->SetHoverTooltip("");
-		return;
-	}
-	res_ref spell;
-	auto known = fSpellbookKnown.find(controlID);
-	auto memo = fSpellbookMemo.find(controlID);
-	if (known != fSpellbookKnown.end())
-		spell = known->second;
-	else if (memo != fSpellbookMemo.end())
-		spell = memo->second;
-	else {
-		GUI::Get()->SetHoverTooltip("");
-		return;
-	}
-
-	std::string name = spell.CString();
-	SPLResource* spl = gResManager->GetSPL(spell);
-	if (spl != NULL) {
-		std::string dialog = IDTable::GetDialog(spl->DisplayNameRef());
-		if (!dialog.empty())
-			name = dialog;
-		gResManager->ReleaseResource(spl);
-	}
-	GUI::Get()->SetHoverTooltip(name);
-}
-
-
-void
-Game::SpellbookControlRightClicked(uint32 controlID, uint16 windowID)
-{
-	if (windowID != 2)
-		return;
-	auto known = fSpellbookKnown.find(controlID);
-	if (known != fSpellbookKnown.end()) {
-		_ShowSpellInfo(known->second);
-		return;
-	}
-	auto memo = fSpellbookMemo.find(controlID);
-	if (memo != fSpellbookMemo.end())
-		_ShowSpellInfo(memo->second);
-}
-
-
-// Populates and shows the spellbook's examine popup (GUIMG/GUIPR window
-// 3) for a spell - name + description, same pattern as _ShowItemInfo().
-void
-Game::_ShowSpellInfo(const res_ref& spellName)
-{
-	if (fSpellbookCHU.empty())
-		return;
-
-	SPLResource* spl = gResManager->GetSPL(spellName);
-	if (spl == NULL)
-		return;
-
-	GUI::Get()->ShowAuxWindow(fSpellbookCHU.c_str(), 3);
-	Window* window = GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 3);
-	if (window == NULL) {
-		gResManager->ReleaseResource(spl);
-		return;
-	}
-
-	Label* title = dynamic_cast<Label*>(window->GetControlByID(268435455));
-	if (title != NULL) {
-		std::string name = IDTable::GetDialog(spl->DisplayNameRef());
-		title->SetText(name.empty() ? spellName.CString() : name);
-	}
-
-	TextArea* description = dynamic_cast<TextArea*>(window->GetControlByID(3));
-	if (description != NULL) {
-		description->ClearText();
-		std::string text = IDTable::GetDialog(spl->DisplayDescriptionRef());
-		description->AddText(text.empty() ? "(No description)" : text.c_str());
-		description->ScrollTo(0, 0);
-	}
-
-	gResManager->ReleaseResource(spl);
 }
 
 
@@ -1175,25 +902,6 @@ _MakeItemIcon(const res_ref& itemName)
 }
 
 
-// The spellbook-icon frame for a spell resref (SPL 0x3a -> BAM cycle 0
-// frame 0). Caller owns the returned reference, or NULL.
-static Bitmap*
-_MakeSpellIcon(const res_ref& spellName)
-{
-	SPLResource* spl = gResManager->GetSPL(spellName);
-	if (spl == NULL)
-		return NULL;
-	Bitmap* icon = NULL;
-	BAMResource* bam = gResManager->GetBAM(spl->BookIcon());
-	if (bam != NULL) {
-		icon = bam->FrameForCycle(0, 0);
-		gResManager->ReleaseResource(bam);
-	}
-	gResManager->ReleaseResource(spl);
-	return icon;
-}
-
-
 // Human-readable name for an item: its identified name, else its
 // unidentified name, else the bare resref.
 static std::string
@@ -1285,11 +993,6 @@ Game::_RefreshCharacterScreens()
 	}
 	_UpdateStoreWindow();
 	fScreens->ShownCharacterChanged();
-	if (!fSpellbookCHU.empty()
-		&& GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2) != NULL) {
-		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 1), 4);
-		_UpdateSpellbookScreen();
-	}
 }
 
 
@@ -1563,7 +1266,7 @@ _ShowEntryPage(Window* window, const std::vector<bar_entry>& entries,
 		_GuibtbutCycles(spells ? ACT_QSPELL1 : ACT_QSLOT1, bg1Layout, cycles);
 		cycles[3] = cycles[0];
 		button->SetArt(res_ref("GUIBTBUT"), cycles);
-		button->SetIcon(spells ? _MakeSpellIcon(entries[index].name)
+		button->SetIcon(spells ? ScreenSupport::MakeSpellIcon(entries[index].name)
 			: _MakeItemIcon(entries[index].name), false);
 		button->SetIconCount(entries[index].count);
 		button->SetEnabled(true);
@@ -1671,7 +1374,7 @@ Game::RefreshActionBar()
 						left = entry.count;
 				}
 				if (spell.CString()[0] != '\0') {
-					button->SetIcon(_MakeSpellIcon(spell), false);
+					button->SetIcon(ScreenSupport::MakeSpellIcon(spell), false);
 					button->SetIconCount(left);
 				}
 				// Always enabled: a right click assigns the slot, empty or not.
