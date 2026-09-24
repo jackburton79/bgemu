@@ -2726,6 +2726,48 @@ public:
 };
 
 
+// Play-Movie <name> plays a movie (an MVE resource) like STARTMOVIE.
+// Assert-MovieSkip <name> plays it after an Escape key press was queued and
+// asserts it ends at once (a movie lasts seconds): that a key skips a movie.
+class PlayMovieCommand : public ShellCommand {
+public:
+	PlayMovieCommand()
+		: ShellCommand("Play-Movie")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Core::Get()->PlayMovie(argv);
+		std::cout << "Play-Movie: done" << std::endl;
+	}
+};
+
+
+class AssertMovieSkipCommand : public ShellCommand {
+public:
+	AssertMovieSkipCommand()
+		: ShellCommand("Assert-MovieSkip")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		SDL_Event key;
+		SDL_zero(key);
+		key.type = SDL_KEYDOWN;
+		key.key.keysym.sym = SDLK_ESCAPE;
+		SDL_PushEvent(&key);
+
+		const uint32 start = SDL_GetTicks();
+		Core::Get()->PlayMovie(argv);
+		const uint32 elapsed = SDL_GetTicks() - start;
+		if (elapsed < 2000)
+			std::cout << "ASSERT OK: movie " << argv << " skipped after " << elapsed << " ms"
+				<< std::endl;
+		else
+			std::cout << "ASSERT FAIL: movie " << argv << " played for " << elapsed << " ms"
+				<< std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3792,6 +3834,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new PlayMovieCommand());
+	console->AddCommand(new AssertMovieSkipCommand());
 	console->AddCommand(new PlayMusicFileCommand());
 	console->AddCommand(new PlayPlaylistCommand());
 	console->AddCommand(new EndPlaylistCommand());

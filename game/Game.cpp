@@ -6,6 +6,7 @@
  */
 
 #include "Game.h"
+#include "FrontEnd.h"
 
 #include "2DAResource.h"
 #include "Actor.h"
@@ -97,6 +98,7 @@ Game::Game()
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
 	fTestMode(false),
+	fShowIntro(false),
 	fJournal(NULL),
 	fLoot(NULL),
 	fBar(NULL),
@@ -234,23 +236,28 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		// Parsing tests
 		Parser::Test();
 	} else {
-		try {
-			assert(fParty == NULL);
-			fParty = fStartingParty->Create();
-		} catch (...) {
-			throw std::runtime_error("Error creating player!");
-		}
-		fNPCs->LoadStarting(fParty);
-		if (!fStartingArea.empty())
-			Core::Get()->LoadArea(fStartingArea.c_str(), "", "");
-		else if (noNewGame)
-			Core::Get()->LoadWorldMap();
-		else
-			LoadStartingArea();
-
-		if (!fExecFile.empty()) {
-			inputConsole->RunFile(fExecFile);
+		if (fShowIntro && !FrontEnd::PlayIntroMovies())
 			quitting = true;
+
+		if (!quitting) {
+			try {
+				assert(fParty == NULL);
+				fParty = fStartingParty->Create();
+			} catch (...) {
+				throw std::runtime_error("Error creating player!");
+			}
+			fNPCs->LoadStarting(fParty);
+			if (!fStartingArea.empty())
+				Core::Get()->LoadArea(fStartingArea.c_str(), "", "");
+			else if (noNewGame)
+				Core::Get()->LoadWorldMap();
+			else
+				LoadStartingArea();
+
+			if (!fExecFile.empty()) {
+				inputConsole->RunFile(fExecFile);
+				quitting = true;
+			}
 		}
 	}
 
@@ -435,6 +442,13 @@ Game::Loop(bool noNewGame, bool executeScripts)
 
 	GUI::Destroy();
 	GameTimer::DisposeTimers();
+}
+
+
+void
+Game::SetShowIntro(bool show)
+{
+	fShowIntro = show;
 }
 
 

@@ -23,6 +23,8 @@ To run, you need game files from an infinity engine based game (Baldur's Gate, B
   --path (-p) ARG             Path to game data files
   --no-scripts (-n)           Don't run scripts
   --no-newgame (-N)           Don't start a new game
+  --skip-intro (-I)           Don't play the intro movies (they are also left out with
+                              --exec-file, --area, --party, --character, --no-newgame)
   --debug (-D)                Enable debug mode
   --fullscreen (-f)           Start in fullscreen mode
   -g NNNxNNN                  Select window size (example: -g1024x768)

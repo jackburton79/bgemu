@@ -1,0 +1,5 @@
+#
+# A key press skips a movie (Escape, Space, Return, Q or a click; the intro
+# movies at startup and STARTMOVIE both play through MoviePlayer).
+Assert-MovieSkip BG4LOGO
+Assert-MovieSkip INFELOGO

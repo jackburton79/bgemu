@@ -17,6 +17,7 @@
 static int sList = 0;
 static int sNoScripts = 0;
 static int sNoNewGame = 0;
+static int sSkipIntro = 0;
 static int sFullScreen = 0;
 static int sTest = 0;
 static int sDebug = 0;
@@ -38,6 +39,10 @@ struct option sLongOptions[] = {
 		{ "path", required_argument, NULL, 'p'},
 		{ "no-scripts", no_argument, &sNoScripts, 'n' },
 		{ "no-newgame", no_argument, &sNoNewGame, 'N' },
+		// Start without the intro movies. They are also left out whenever
+		// something else says what to start with (--exec-file, --area,
+		// --party, --character, --no-newgame, --test).
+		{ "skip-intro", no_argument, &sSkipIntro, 'I' },
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		// Comma-separated list of CRE resrefs to start the party with,
@@ -83,7 +88,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:c:S:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNIltfT:P:x:a:c:S:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -109,6 +114,20 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'D':
 				sDebug = 1;
+				break;
+			// The long forms set these through getopt_long()'s flag pointer;
+			// the short ones come back here.
+			case 'n':
+				sNoScripts = 1;
+				break;
+			case 'N':
+				sNoNewGame = 1;
+				break;
+			case 'I':
+				sSkipIntro = 1;
+				break;
+			case 'l':
+				sList = 1;
 				break;
 			case 'f':
 				sFullScreen = 1;
@@ -192,6 +211,9 @@ main(int argc, char **argv)
 
 	if (sExecFile != NULL)
 		Game::Get()->SetExecFile(sExecFile);
+
+	Game::Get()->SetShowIntro(!sSkipIntro && sExecFile == NULL && sStartingArea == NULL
+		&& sPartyMembers == NULL && sCharacterSpec == NULL && !sNoNewGame && !sTest);
 
 	if (sStartingArea != NULL)
 		Game::Get()->SetStartingArea(sStartingArea);

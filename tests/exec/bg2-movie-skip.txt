@@ -1,0 +1,5 @@
+# AREA: AR0602
+#
+# See bg1-movie-skip.txt: BG2's logo movies.
+Assert-MovieSkip BISLOGO
+Assert-MovieSkip WOTC

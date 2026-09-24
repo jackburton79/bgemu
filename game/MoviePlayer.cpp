@@ -28,7 +28,11 @@ MoviePlayer::Play(MVEResource* resource)
 			switch (event.type) {
 				case SDL_KEYDOWN: {
 					switch (event.key.keysym.sym) {
+						// Any of these skips the movie.
 						case SDLK_q:
+						case SDLK_ESCAPE:
+						case SDLK_SPACE:
+						case SDLK_RETURN:
 							quitting = true;
 							break;
 						case SDLK_p:
@@ -40,7 +44,13 @@ MoviePlayer::Play(MVEResource* resource)
 				}
 				break;
 
+				case SDL_MOUSEBUTTONDOWN:
+					quitting = true;
+					break;
+
 				case SDL_QUIT:
+					// Ends the movie and stays in the queue for the game loop.
+					SDL_PushEvent(&event);
 					quitting = true;
 					break;
 				default:
@@ -62,7 +72,8 @@ MoviePlayer::Play(MVEResource* resource)
 		}
 	}
 
-	SoundEngine::Get()->DestroyBuffers();
+	if (SoundEngine::Get() != NULL)
+		SoundEngine::Get()->DestroyBuffers();
 	std::cout << "MoviePlayer::Play() returns..." << std::endl;
 
 	GraphicsEngine::Get()->RestorePreviousMode();

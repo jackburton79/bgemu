@@ -200,6 +200,8 @@ public:
 	// been pressed) rather than entering the normal interactive loop.
 	// Leaving this unset (NULL/empty) runs the game normally.
 	void SetExecFile(const char* path);
+	// Whether Loop() starts with the intro movies (the logos and the introduction).
+	void SetShowIntro(bool show);
 
 	// Overrides the normal startup flow (opening cutscene via
 	// LoadStartingArea(), or the worldmap with --no-newgame) to load this
@@ -254,6 +256,7 @@ private:
 	bool fTestMode;
 
 	std::string fExecFile;
+	bool fShowIntro;
 	std::string fStartingArea;
 
 	// Releases every entry in fAreaCache (same balancing act as ~Game()

@@ -52,6 +52,10 @@ Useful flags for development (see `README.md` for the full list):
 - `-d <RESREF>.<EXT>` — dump a resource (including e.g. a BAM's cycle/
   frame counts, useful for reverse-engineering an animation format)
 - `--no-newgame` (`-N`) — skip the "start a new game" flow entirely
+- `--skip-intro` (`-I`) — a plain run (`-p <path>` only) starts with the intro
+  movies (`FrontEnd::PlayIntroMovies()`: BG1 the four logos and INTRO, BG2 the
+  three logos - GemRB's lists); Escape/Space/Return/Q/a click skips a movie.
+  `-x`, `-a`, `-P`, `-c`, `-N` and `-t` leave them out
 - `-S <dir>` / `BGEMU_SAVE_DIR` — where saves and area checkpoints go
   (`SavedGame::Directory()`); default `<game path>/bgemu-save`, so BG1 and
   BG2 never share saves. `tests/exec/run-all.sh` points it at a temp dir.
