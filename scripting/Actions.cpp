@@ -3487,6 +3487,11 @@ RunActionUseContainer(Object* sender, action_params* params, action_state& state
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
+		// Only handled inside a compiled script (Script::_HandleAction(): the action
+		// that follows it in the list runs for the object it names). Not in the
+		// text form DLGs use, "ActionOverride(O,Action(...))": the parser doesn't
+		// read the nested action, so a dialog's ActionOverride does nothing (BG2's
+		// JAHEIRAJ states use it for ActionOverride("Meronia",EscapeArea())).
 		{ 1, "ACTIONOVERRIDE", NULL },
 		{ 2, "ADDWAYPOINT", NULL },
 		{ 3, "ATTACK", RunActionAttack },
