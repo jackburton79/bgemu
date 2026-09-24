@@ -37,6 +37,8 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "Region.h"
+#include "PlaylistStream.h"
+#include "MusPlaylist.h"
 #include "SoundEngine.h"
 #include "GameFiles.h"
 #include "ACMStream.h"
@@ -53,6 +55,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <thread>
 #include <iostream>
@@ -2535,6 +2538,194 @@ public:
 };
 
 
+// Playlists (.mus files of music/): Play-Playlist <name.mus> streams one from
+// its first entry (PlaylistStream), End-Playlist asks it to end (its current
+// entry's interrupt track plays, then it stops), Print-Playlist <name.mus>
+// lists its entries with their loop and interrupt tracks, Assert-MusicTrack
+// <track> checks which track plays now, Assert-PlaylistNext <name.mus>,<track>,
+// <next> checks the entry the playlist goes to after a track (a loop or the
+// next line), Check-Music [<name.mus>] parses every playlist (or one) and
+// reports the tracks that aren't in music/.
+class PlayPlaylistCommand : public ShellCommand {
+public:
+	PlayPlaylistCommand()
+		: ShellCommand("Play-Playlist")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		MusPlaylist playlist;
+		if (!MusPlaylist::Load(argv, playlist)) {
+			std::cout << "Play-Playlist: can't read " << argv << std::endl;
+			return;
+		}
+		PlaylistStream* stream = new PlaylistStream(playlist);
+		if (!stream->Valid()) {
+			delete stream;
+			std::cout << "Play-Playlist: no track of " << argv << " plays" << std::endl;
+			return;
+		}
+		const bool ok = SoundEngine::Get() != NULL && SoundEngine::Get()->PlayStream(stream);
+		std::cout << "Play-Playlist: " << (ok ? "OK" : "FAILED") << std::endl;
+	}
+};
+
+
+class EndPlaylistCommand : public ShellCommand {
+public:
+	EndPlaylistCommand()
+		: ShellCommand("End-Playlist")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		SoundEngine* engine = SoundEngine::Get();
+		PlaylistStream* stream = engine != NULL
+			? dynamic_cast<PlaylistStream*>(engine->Stream()) : NULL;
+		if (stream == NULL) {
+			std::cout << "End-Playlist: no playlist" << std::endl;
+			return;
+		}
+		stream->RequestEnd();
+		std::cout << "End-Playlist: OK" << std::endl;
+	}
+};
+
+
+class PrintPlaylistCommand : public ShellCommand {
+public:
+	PrintPlaylistCommand()
+		: ShellCommand("Print-Playlist")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		MusPlaylist playlist;
+		if (!MusPlaylist::Load(argv, playlist)) {
+			std::cout << "Print-Playlist: can't read " << argv << std::endl;
+			return;
+		}
+		std::cout << "Playlist " << argv << " (folder " << playlist.Folder() << ", "
+			<< playlist.Count() << " entries):" << std::endl;
+		for (size_t i = 0; i < playlist.Count(); i++) {
+			const MusEntry& entry = playlist.At(i);
+			std::cout << "  " << i << ": " << entry.track;
+			if (!entry.folder.empty())
+				std::cout << " (folder " << entry.folder << ")";
+			if (!entry.loopTrack.empty())
+				std::cout << " loop " << entry.loopFolder << (entry.loopFolder.empty() ? "" : " ")
+					<< entry.loopTrack;
+			if (!entry.end.empty())
+				std::cout << " end " << entry.end;
+			std::cout << " -> " << playlist.Next(i) << std::endl;
+		}
+	}
+};
+
+
+class AssertMusicTrackCommand : public ShellCommand {
+public:
+	AssertMusicTrackCommand()
+		: ShellCommand("Assert-MusicTrack")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		SoundEngine* engine = SoundEngine::Get();
+		PlaylistStream* stream = engine != NULL
+			? dynamic_cast<PlaylistStream*>(engine->Stream()) : NULL;
+		const std::string track = stream != NULL && engine->IsStreamPlaying()
+			? stream->CurrentTrack() : "";
+		if (strcasecmp(track.c_str(), argv) == 0)
+			std::cout << "ASSERT OK: music track " << track << std::endl;
+		else
+			std::cout << "ASSERT FAIL: music track \"" << track << "\", expected \""
+				<< argv << "\"" << std::endl;
+	}
+};
+
+
+class AssertPlaylistNextCommand : public ShellCommand {
+public:
+	AssertPlaylistNextCommand()
+		: ShellCommand(
+			"Assert-PlaylistNext",
+			{
+				{ PARAMETER_STRING, },	// playlist
+				{ PARAMETER_STRING, },	// track
+				{ PARAMETER_STRING, }	// expected next track
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		MusPlaylist playlist;
+		if (!MusPlaylist::Load(params.at(0).value.string, playlist)) {
+			std::cout << "ASSERT FAIL: can't read " << params.at(0).value.string << std::endl;
+			return;
+		}
+		const int from = playlist.IndexOf(params.at(1).value.string);
+		const int next = from >= 0 ? playlist.Next((size_t)from) : -1;
+		const std::string nextTrack = next >= 0 ? playlist.At((size_t)next).track : "";
+		if (strcasecmp(nextTrack.c_str(), params.at(2).value.string) == 0) {
+			std::cout << "ASSERT OK: " << params.at(1).value.string << " -> " << nextTrack
+				<< std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << params.at(1).value.string << " -> \"" << nextTrack
+				<< "\", expected \"" << params.at(2).value.string << "\"" << std::endl;
+		}
+	}
+};
+
+
+class CheckMusicCommand : public ShellCommand {
+public:
+	CheckMusicCommand()
+		: ShellCommand("Check-Music")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::vector<std::string> names;
+		if (argv != NULL && argv[0] != '\0') {
+			names.push_back(argv);
+		} else {
+			const std::string directory = FindGameFile("music");
+			std::error_code error;
+			for (const auto& entry : std::filesystem::directory_iterator(directory, error)) {
+				const std::string name = entry.path().filename().string();
+				if (name.size() > 4 && strcasecmp(name.c_str() + name.size() - 4, ".mus") == 0)
+					names.push_back(name);
+			}
+			std::sort(names.begin(), names.end());
+		}
+
+		int playlists = 0, entries = 0, missing = 0, unreadable = 0;
+		for (const std::string& name : names) {
+			MusPlaylist playlist;
+			if (!MusPlaylist::Load(name, playlist)) {
+				std::cout << "Check-Music: can't read " << name << std::endl;
+				unreadable++;
+				continue;
+			}
+			playlists++;
+			for (size_t i = 0; i < playlist.Count(); i++) {
+				entries++;
+				std::vector<std::string> paths = { playlist.TrackPath(i) };
+				if (!playlist.InterruptPath(i).empty())
+					paths.push_back(playlist.InterruptPath(i));
+				for (const std::string& path : paths) {
+					if (FindGameFile(path).empty()) {
+						std::cout << "Check-Music: " << name << " entry " << i << ": "
+							<< path << " is missing" << std::endl;
+						missing++;
+					}
+				}
+			}
+		}
+		std::cout << std::dec << "Check-Music: " << playlists << " playlists, " << entries
+			<< " entries, " << unreadable << " unreadable, " << missing << " problems"
+			<< std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3602,6 +3793,12 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
 	console->AddCommand(new PlayMusicFileCommand());
+	console->AddCommand(new PlayPlaylistCommand());
+	console->AddCommand(new EndPlaylistCommand());
+	console->AddCommand(new PrintPlaylistCommand());
+	console->AddCommand(new AssertMusicTrackCommand());
+	console->AddCommand(new AssertPlaylistNextCommand());
+	console->AddCommand(new CheckMusicCommand());
 	console->AddCommand(new StopMusicCommand());
 	console->AddCommand(new PrintMusicCommand());
 	console->AddCommand(new AssertMusicCommand());

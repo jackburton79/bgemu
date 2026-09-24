@@ -1,0 +1,12 @@
+#
+# BG1's playlists are the same format ("A1 @TAG ENDA1", 30 entries in BC1.mus),
+# its tracks in Music/ with mixed-case names (Check-Music without a name parses
+# all 34 playlists; Chapter.mus points to a folder that isn't on the install,
+# the only missing track).
+Assert-PlaylistNext BC1.mus,A1,A2
+Assert-PlaylistNext BC1.mus,A3,A4
+Check-Music BC1.mus
+Play-Playlist BC1.mus
+Assert-Music true
+Assert-MusicTrack A1
+Stop-Music 0

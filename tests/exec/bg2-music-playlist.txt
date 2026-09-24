@@ -1,0 +1,31 @@
+# AREA: AR0602
+#
+# .mus playlists (MusPlaylist/PlaylistStream). BC1.mus: ten entries played in
+# order; the last (J1) loops back to B1 instead of A1 ("J1 B1 @TAG ZJ"); every
+# entry has an interrupt track ("@TAG ZA"). Tav1.mus loops to "TAV1 A" (its own
+# second entry) and Blank.mus into another folder (BLANK/BLANKA), all with their
+# tracks on the install (Check-Music, run without a name, lists what the data
+# lacks in the whole music/ directory: 5 tracks in BG2).
+Assert-PlaylistNext BC1.mus,A1,B1
+Assert-PlaylistNext BC1.mus,H1,J1
+Assert-PlaylistNext BC1.mus,J1,B1
+Assert-PlaylistNext Tav1.mus,A,SPC1
+Check-Music BC1.mus
+Check-Music Tav1.mus
+Check-Music Blank.mus
+
+# The stream plays the entries one after the other (A1 lasts 1.7 s), and an end
+# request finishes the entry playing and then plays its interrupt track (ZA).
+Play-Playlist BC1.mus
+Assert-MusicTrack A1
+Wait-Audio 2300
+Assert-MusicTrack B1
+Stop-Music 0
+Play-Playlist BC1.mus
+Wait-Audio 200
+End-Playlist
+Wait-Audio 2000
+Assert-Music true
+Assert-MusicTrack ZA
+Stop-Music 0
+Assert-Music false

@@ -18,6 +18,13 @@
   ends. `game/ACMStream` streams a loose `.acm` (read into memory, decoded on
   demand by the audio thread), `game/GameFiles` finds files below the game
   directory case-insensitively (BG1's `Music/Bc1/Bc1a1.ACM`).
+- Playlists (step 2 of the music plan, done): `game/MusPlaylist` parses a `.mus`
+  (entry = `<track> [<loop>] [@TAG <interrupt>]` or `<track> <folder> <loop>`; a
+  loop into another folder becomes an entry of its own), `Next()` gives the entry
+  after one (its loop, else the next line, wrapping); `game/PlaylistStream` plays
+  it as one AudioStream, endlessly, and `RequestEnd()` finishes the current track,
+  plays its interrupt track and stops. All 34 (BG1) / 64 (BG2) playlists parse;
+  `Check-Music` lists the tracks the data lacks.
 - Tests: `Assert-Sound`, `Assert-LastSound`, `Dump-Sound <res>,<file.wav>`;
   `Play-Music-File`, `Stop-Music [fadeMs]`, `Print-Music`, `Assert-Music`,
   `Assert-MusicPosition`, `Wait-Audio <ms>` (real time), `Dump-Music-File`.
