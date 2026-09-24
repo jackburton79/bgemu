@@ -1683,8 +1683,8 @@ RunActionDialog(Object* sender, action_params* params, action_state& state)
 	}
 
 	Actor* target = dynamic_cast<Actor*>(Script::GetTargetObject(object, params));
-	if (target == nullptr) {
-		// IESDP documentation: if target is invalid, the active creature
+	if (target == nullptr || params->Second()->Empty()) {
+		// IESDP documentation: if target is empty or invalid, the active creature
 		// will talk with player1
 		target = Game::Get()->Party()->ActorAt(0);
 	}
