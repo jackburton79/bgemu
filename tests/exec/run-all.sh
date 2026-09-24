@@ -43,12 +43,14 @@ run_one() {
 	output=$(SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy timeout 60 \
 		"$BINARY" -p "$game_path" -D $area_flag -x "$file" 2>&1)
 	fails=$(printf '%s\n' "$output" | grep -c "ASSERT FAIL")
-	crashes=$(printf '%s\n' "$output" | grep -Ec "SEGV|AddressSanitizer: (heap|stack|global)|failed!")
+	# "SetDestination() failed!" is an order that found no path (a guard's or a
+	# click's walk), not a crash.
+	crashes=$(printf '%s\n' "$output" | grep -v "SetDestination() failed!" | grep -Ec "SEGV|AddressSanitizer: (heap|stack|global)|failed!")
 	if [ "$fails" -eq 0 ] && [ "$crashes" -eq 0 ]; then
 		echo "PASS  $file"
 	else
 		echo "FAIL  $file ($fails assertion failure(s), $crashes crash/error line(s))"
-		printf '%s\n' "$output" | grep -E "ASSERT FAIL|SEGV|AddressSanitizer|failed!" | sed 's/^/      /'
+		printf '%s\n' "$output" | grep -v "SetDestination() failed!" | grep -E "ASSERT FAIL|SEGV|AddressSanitizer|failed!" | sed 's/^/      /'
 		failures=$((failures + 1))
 	fi
 }

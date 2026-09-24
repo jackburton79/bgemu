@@ -371,8 +371,13 @@ Actor::SetPosition(const IE::point& position, bool triggerTravel)
 
 	// This function is only used to move an actor to a point
 	// instantly. So we also need to set its destination to the same
-	// point, otherwise it thinks it's walking.
+	// point, otherwise it thinks it's walking, and drop the path it was
+	// following: its points belong to wherever the actor was (an area it
+	// has just left, when this is an arrival), and the next step would
+	// carry the actor back to them.
 	fActor->destination = position;
+	delete fPath;
+	fPath = NULL;
 }
 
 

@@ -519,22 +519,28 @@ _GetReaction(Actor* actor)
 
 	TWODAResource* rmodrep = gResManager->Get2DA("RMODREP");
 	TWODAResource* rmodchr = gResManager->Get2DA("RMODCHR");
-	if (rmodrep == NULL || rmodchr == NULL)
-		return 0;
+	int32 reaction = 0;
+	if (rmodrep != NULL && rmodchr != NULL) {
+		int32 repIndex = actor->CRE()->Reputation() - 1;
+		if (repIndex < 0)
+			repIndex = 0;
+		else if (repIndex >= rmodrep->CountColumns())
+			repIndex = rmodrep->CountColumns() - 1;
 
-	int32 repIndex = actor->CRE()->Reputation() - 1;
-	if (repIndex < 0)
-		repIndex = 0;
-	else if (repIndex >= rmodrep->CountColumns())
-		repIndex = rmodrep->CountColumns() - 1;
+		int32 chrIndex = attrs.charisma - 1;
+		if (chrIndex < 0)
+			chrIndex = 0;
+		else if (chrIndex >= rmodchr->CountColumns())
+			chrIndex = rmodchr->CountColumns() - 1;
 
-	int32 chrIndex = attrs.charisma - 1;
-	if (chrIndex < 0)
-		chrIndex = 0;
-	else if (chrIndex >= rmodchr->CountColumns())
-		chrIndex = rmodchr->CountColumns() - 1;
-
-	return 10 + rmodrep->IntegerValueAt(0, repIndex) + rmodchr->IntegerValueAt(0, chrIndex);
+		reaction = 10 + rmodrep->IntegerValueAt(0, repIndex)
+			+ rmodchr->IntegerValueAt(0, chrIndex);
+	}
+	if (rmodrep != NULL)
+		gResManager->ReleaseResource(rmodrep);
+	if (rmodchr != NULL)
+		gResManager->ReleaseResource(rmodchr);
+	return reaction;
 }
 
 

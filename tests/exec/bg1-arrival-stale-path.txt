@@ -1,0 +1,16 @@
+#
+# Default start (AR2600). Walking through Door2616 into AR2616 and talking to
+# Winthrop straight away: the leader was still holding the path of
+# the walk in AR2600, and after being placed on the entrance its next step took
+# it back to that path's points (AR2600 coordinates, outside AR2616's map), so
+# it vanished from the area (the walk to Winthrop finds no path from the entrance,
+# which is what left the old one in place). Arriving drops the path.
+Click-Object -,Door2616
+Step-Ticks 300
+Click-Area 1064,526
+Step-Ticks 90
+Assert-Position -,547,494
+Click-Object -,INNKE2
+Step-Ticks 100
+Assert-Position -,547,494
+Assert-DialogActive true
