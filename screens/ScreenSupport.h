@@ -3,7 +3,9 @@
 #include "IETypes.h"
 
 #include <string>
+#include <vector>
 
+class Actor;
 class Bitmap;
 class CREResource;
 class ITMResource;
@@ -33,6 +35,14 @@ Bitmap* MakeItemIcon(const res_ref& itemName);
 // itself, for callers that only have the resref.
 std::string ItemDisplayName(ITMResource* itm, const res_ref& itemName);
 std::string ItemDisplayName(const res_ref& itemName);
+
+// One item as listed in the loot and store windows, plus where it lives in
+// its owner: an index into a Container's item list, or a CRE item slot.
+struct LootEntry { IE::item item; int32 slot; };
+
+// What `looter` carries in its general inventory slots (the ones the loot
+// and store windows list on the right - equipped gear isn't offered).
+void CollectOwnEntries(Actor* looter, std::vector<LootEntry>& entries);
 
 // Sum of every item the CRE carries, and its STR-based carry capacity.
 uint32 CarriedWeight(CREResource* cre);

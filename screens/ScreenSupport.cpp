@@ -173,3 +173,16 @@ ScreenSupport::EnsureWeightLabels(Window* window, uint32 iconID)
 	AddLabel(window, kWeightMaxLabelID, rect.x, (sint16)(rect.y + rect.h - 20),
 		rect.w, 20, IE::LABEL_JUSTIFY_RIGHT | IE::LABEL_JUSTIFY_BOTTOM);
 }
+
+
+// What the looter carries in its general inventory slots (the ones the
+// window's right-hand side lists - equipped gear isn't offered).
+void
+ScreenSupport::CollectOwnEntries(Actor* looter, std::vector<LootEntry>& entries)
+{
+	for (uint32 slot = kSlotGeneralFirst; slot <= kSlotGeneralLast; slot++) {
+		IE::item item;
+		if (looter->CRE()->GetItemAtSlot(slot, item) && item.name.name[0] != '\0')
+			entries.push_back({ item, (int32)slot });
+	}
+}

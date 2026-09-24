@@ -30,6 +30,7 @@
 #include "Parsing.h"
 #include "InventoryScreen.h"
 #include "JournalScreen.h"
+#include "LootWindow.h"
 #include "Party.h"
 #include "RecordScreen.h"
 #include "ScreenManager.h"
@@ -1653,7 +1654,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		bool expected = strcasecmp(argv, "true") == 0;
-		bool open = Game::Get()->IsContainerWindowOpen();
+		bool open = Game::Get()->Loot().IsOpen();
 		if (open == expected) {
 			std::cout << "ASSERT OK: LootWindow open == " << (expected ? "true" : "false")
 				<< std::endl;

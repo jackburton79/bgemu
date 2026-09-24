@@ -134,19 +134,11 @@ public:
 	// share this.
 	void UpdatePortraitColumn(class Window* window, uint32 count);
 
-	// Loot window (GUIW window 8, replacing the message area/command bar
-	// at the bottom of the screen while open): `looter` is the party
-	// member using `source`, either a Container or a dead Actor (corpse).
-	// Shows the source's items on the left and the looter's own carried
-	// items on the right; clicking one moves it across. See the .cpp.
-	void OpenContainerWindow(Actor* looter, class Object* source);
-	void CloseContainerWindow();
-	bool IsContainerWindowOpen() const;
+	// The loot window (see LootWindow).
+	class LootWindow& Loot();
 	// Called when an area is being unloaded (the source object dies with
 	// it). Safe to call when no Game exists (shutdown).
 	static void CloseContainerWindowIfAny();
-	void ContainerControlInvoked(uint32 controlID);
-	void ContainerControlHovered(uint32 controlID, bool inside);
 	// Store window (GUISTORE) - the Buy/Sell page: opened by STARTSTORE for
 	// a party member shopping (`customer`). Items on the shelf on the left,
 	// the shown party member's carried items on the right; a click selects
@@ -408,10 +400,7 @@ private:
 	std::map<std::string, bool> fAreaMapVisibility;
 
 
-	// Loot window state - see OpenContainerWindow().
-	class Object* fLootSource;
-	Actor* fLooter;
-	int32 fLootLeftRow;
+	class LootWindow* fLoot;
 	TargetMode fTargetMode;
 	// What the action bar shows: the class row, or a page listing the
 	// shown character's memorized spells / usable items (paged by
@@ -427,11 +416,6 @@ private:
 	// Quick spell slot (0-2) the spell page is choosing a spell for, or -1.
 	int32 fAssignQuickSpell;
 	res_ref fPendingSpell;
-	int32 fLootRightRow;
-	// HUD windows hidden for as long as the loot window is up, so
-	// CloseContainerWindow() shows back exactly those.
-	std::vector<uint16> fLootHiddenWindows;
-	void _UpdateContainerWindow();
 
 	// Store window state - see OpenStoreWindow(). fStores owns every Store
 	// loaded this session, so a store keeps what was sold to it (and what

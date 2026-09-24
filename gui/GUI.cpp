@@ -15,6 +15,7 @@
 #include "Control.h"
 #include "Core.h"
 #include "Game.h"
+#include "LootWindow.h"
 #include "ScreenManager.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
@@ -930,7 +931,7 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 	if (chuName == res_ref("GUISTORE"))
 		Game::Get()->StoreControlHovered(controlID, windowID, inside);
 	else if (windowID == WINDOW_CONTAINER && IsResolutionMatchedGUIW(chuName.CString()))
-		Game::Get()->ContainerControlHovered(controlID, inside);
+		Game::Get()->Loot().ControlHovered(controlID, inside);
 }
 
 
@@ -997,7 +998,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (IsResolutionMatchedGUIW(chuName.CString())) {
 		if (windowID == WINDOW_CONTAINER) {
-			Game::Get()->ContainerControlInvoked(controlID);
+			Game::Get()->Loot().ControlInvoked(controlID);
 			return;
 		}
 		if (windowID == WINDOW_CMDS) {

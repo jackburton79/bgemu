@@ -175,8 +175,10 @@ the full-screen panel layout (content window 2, command bar copy 0, portrait
 column 1). Ported so far: `RecordScreen`, `JournalScreen`, `SaveLoadScreen`
 (two instances, GUISAVE and GUILOAD: `Screens().Toggle("GUISAVE")`),
 `SpellbookScreen` (GUIMG and GUIPR), `InventoryScreen`; `ScreenSupport` holds
-what several share (item icons/names, weight labels). The others (loot, store,
-action bar) are still `Game`'s own
+what several share (item icons/names, weight labels). The loot window is
+`LootWindow` (`Game::Loot()`): not a `GameScreen`, since it is window 8 of the
+HUD's own resource, not an auxiliary CHU. The others (store, action bar) are
+still `Game`'s own
 `Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
 `Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
 

@@ -37,7 +37,7 @@ public:
 	// slice of the area's shared item list - see ARAResource::
 	// GetContainerAt(), which populates this at load time via
 	// AddContainerItem()). Moved in and out through the loot window (see
-	// Game::OpenContainerWindow()).
+	// LootWindow::Open()).
 	uint32 ItemCount() const;
 	const IE::item& ItemAt(uint32 index) const;
 	void AddContainerItem(const IE::item& item);

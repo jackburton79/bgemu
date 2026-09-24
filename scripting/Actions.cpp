@@ -11,6 +11,7 @@
 #include "Door.h"
 #include "Effect.h"
 #include "Game.h"
+#include "LootWindow.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -3366,7 +3367,7 @@ RunActionRandomTurn(Object* sender, action_params* params, action_state& state)
 // UseContainer() - stateless. Per IESDP "used by the engine internally"
 // (queued when the player clicks a container - see Actor::ClickedOn(),
 // which does exactly that, after a MOVETOOBJECT to reach it first). A
-// party member opens the loot window (Game::OpenContainerWindow()) and
+// party member opens the loot window (LootWindow::Open()) and
 // the player picks what to take; any other creature (a script sending an
 // NPC to a container) has no GUI, so it just takes everything that fits
 // and leaves the rest behind. Also accepts a dead Actor as the target
@@ -3388,7 +3389,7 @@ RunActionUseContainer(Object* sender, action_params* params, action_state& state
 		if ((container != NULL && container->IsEnabled())
 				|| (corpse != NULL && corpse->CRE() != NULL
 					&& corpse->IsState(STATE_DEAD)))
-			Game::Get()->OpenContainerWindow(actor, target);
+			Game::Get()->Loot().Open(actor, target);
 		return;
 	}
 
