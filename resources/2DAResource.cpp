@@ -45,8 +45,6 @@ TWODAResource::Load(Archive* archive, uint32 key)
 		return false;
 
 	if (IsEncrypted()) {
-		std::cout << Log::Yellow << "2DAResource: " << Name() << ": encrypted resource";
-		std::cout  << Log::Normal << std::endl;
 		EncryptedStream *newStream =
 				new EncryptedStream(fData, kEncryptionKey, kEncryptionKeySize);
 		ReplaceData(newStream);
@@ -57,8 +55,6 @@ TWODAResource::Load(Archive* archive, uint32 key)
 
 	if (CheckVersion(TWODA_VERSION_1))
 		fData->Seek(4, SEEK_CUR);
-
-	//fData->Seek(8, SEEK_SET);
 
 	char string[1024];
 	fData->ReadLine(string, sizeof(string));
@@ -172,8 +168,6 @@ TWODAResource::_HandleContentRow(char* string)
 	int i = 0;
 	StringList row;
 	while ((stringValue = ::strtok(NULL, " \t")) != NULL) {
-		//if (strcmp(stringValue, "") == 0)
-		//	continue;
 		row.push_back(stringValue);
 		fMap[std::make_pair(fRowHeaders.back(), fColumnHeaders[i])] = stringValue;
 		i++;
