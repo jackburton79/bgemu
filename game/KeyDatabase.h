@@ -38,6 +38,9 @@ public:
 	int32 CountResources() const;
 	int32 CountBIFs() const;
 
+	// The names of every resource of `type` the KEY lists.
+	std::vector<res_ref> ResourceNames(uint16 type) const;
+
 	void PrintResources(int32 type);
 	void PrintBIFs();
 

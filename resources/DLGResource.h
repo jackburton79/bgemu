@@ -56,6 +56,8 @@ public:
 
 	virtual bool Load(Archive* archive, uint32 key);
 
+	uint32 CountStates() const { return fNumStates; }
+	uint32 CountTransitions() const { return fNumTransitions; }
 	dlg_state GetStateAt(int32 index);
 	std::string GetStateTrigger(int triggerIndex);
 	// The states a conversation may open with, in the order they are tried:

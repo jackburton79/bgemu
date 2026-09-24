@@ -196,6 +196,13 @@ ResourceManager::ResourceExists(const res_ref& ref, uint16 type) const
 }
 
 
+std::vector<res_ref>
+ResourceManager::ResourceNames(uint16 type) const
+{
+	return fKeyDB->ResourceNames(type);
+}
+
+
 Resource*
 ResourceManager::GetResource(const char* fullName)
 {
@@ -1055,6 +1062,15 @@ IDTable::ActionName(int32 i)
 	if (sActions == NULL)
 		sActions = gResManager->GetIDS("ACTION");
 	return sActions->StringForID(i);
+}
+
+
+int32
+IDTable::ActionID(std::string name)
+{
+	if (sActions == NULL)
+		sActions = gResManager->GetIDS("ACTION");
+	return sActions->IDForString(name);
 }
 
 

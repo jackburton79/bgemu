@@ -1,0 +1,13 @@
+# AREA: AR0602
+#
+# Trigger texts real BG2 dialogs carry that used to break the text parser:
+# - See(NearestEnemyOf([PC])): an object filter in brackets made the
+#   tokenizer read a zero-length token and hang forever (dialog SHAPE);
+# - AreaCheckObject(S:RESREF*,O:OBJECT*: BG2's own TRIGGER.IDS lacks the
+#   closing parenthesis of this line, which made every use fail to parse
+#   (dialogs CERND, ...) - both must parse and evaluate (false: nobody
+#   hostile in sight, no such creature here).
+# Check-Dialogs (all of the game's DLGs) is the broad version of this test.
+Assert-Trigger -,false,See(NearestEnemyOf([PC]))
+Assert-Trigger -,true,!See(NearestEnemyOf(Myself))
+Assert-Trigger -,false,AreaCheckObject("AR0602","NOSUCHCRE")

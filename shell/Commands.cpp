@@ -26,6 +26,7 @@
 #include "GraphicsEngine.h"
 #include "GUI.h"
 #include "MemoryStream.h"
+#include "DLGResource.h"
 #include "Parsing.h"
 #include "Party.h"
 #include "ResManager.h"
@@ -1775,6 +1776,81 @@ public:
 };
 
 
+// Check-Dialogs [resref] - parses every state trigger, transition trigger
+// and transition action of every DLG the game ships (or of just <resref>,
+// printing each text before parsing it - what a conversation only does one
+// state at a time, while playing) and reports how many texts were scanned:
+// a trigger/action name the engine doesn't know shows up in the normal
+// "GetTriggerID: value not found for"/"GetActionID: no action found" log
+// lines, all at once instead of scattered through play.
+class CheckDialogsCommand : public ShellCommand {
+public:
+	CheckDialogsCommand()
+		: ShellCommand("Check-Dialogs")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::vector<res_ref> names;
+		const bool single = argv != NULL && argv[0] != '\0';
+		if (single)
+			names.push_back(res_ref(argv));
+		else
+			names = gResManager->ResourceNames(RES_DLG);
+
+		uint32 dialogs = 0, texts = 0;
+		for (const res_ref& name : names) {
+			DLGResource* dlg = gResManager->GetDLG(name);
+			if (dlg == NULL)
+				continue;
+			dialogs++;
+			if (!single)
+				std::cout << "Check-Dialogs: in " << name.CString() << std::endl;
+			for (uint32 i = 0; i < dlg->CountStates(); i++) {
+				dlg_state state = dlg->GetStateAt(i);
+				if (state.trigger == -1)
+					continue;
+				std::string text = dlg->GetStateTrigger(state.trigger);
+				_Show(single, name, "state trigger", text);
+				_Free(Parser::TriggersFromString(text));
+				texts++;
+			}
+			for (uint32 i = 0; i < dlg->CountTransitions(); i++) {
+				transition_entry transition = dlg->GetTransition(i);
+				if (transition.HasTrigger()) {
+					std::string text = dlg->GetTransitionTrigger(transition.index_trigger);
+					_Show(single, name, "transition trigger", text);
+					_Free(Parser::TriggersFromString(text));
+					texts++;
+				}
+				if (transition.HasActions()) {
+					std::string text = dlg->GetAction(transition.index_action);
+					_Show(single, name, "transition action", text);
+					for (action_params* params : Parser::ActionsFromString(text))
+						params->Release();
+					texts++;
+				}
+			}
+			gResManager->ReleaseResource(dlg);
+		}
+		std::cout << std::dec << "Check-Dialogs: " << dialogs << " dialogs, "
+			<< texts << " trigger/action texts" << std::endl;
+	}
+
+private:
+	static void _Show(bool single, const res_ref& name, const char* kind,
+			const std::string& text) {
+		if (single)
+			std::cout << "Check-Dialogs: " << name.CString() << " " << kind
+				<< ": [" << text << "]" << std::endl;
+	}
+
+	static void _Free(const std::vector<trigger_params*>& triggers) {
+		for (trigger_params* trigger : triggers)
+			delete trigger;
+	}
+};
+
+
 // Assert-GamNPC <gam>,<cre>,<area>,<x>,<y> - the GAM resource lists <cre>
 // as an out-of-party NPC standing in <area> at that point.
 class AssertGamNPCCommand : public ShellCommand {
@@ -2757,6 +2833,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertLootWindowCommand());
 	console->AddCommand(new PrintStoreCommand());
 	console->AddCommand(new PrintGamCommand());
+	console->AddCommand(new CheckDialogsCommand());
 	console->AddCommand(new AssertGamNPCCommand());
 	console->AddCommand(new AssertPortraitCountCommand());
 	console->AddCommand(new AssertActorCountCommand());

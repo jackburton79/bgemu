@@ -3613,10 +3613,12 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 173, "ADDJOURNALENTRY", RunActionAddJournalEntry },
 		{ 174, "EQUIPRANGED", RunActionEquipRanged },
 		{ 175, "SETLEAVEPARTYDIALOGUEFILE", NULL },
+		{ 175, "SETLEAVEPARTYDIALOGFILE", NULL }, // the spelling BG2's own DLGs use
 		{ 176, "ESCAPEAREADESTROY", RunActionEscapeArea },
 		{ 177, "TRIGGERACTIVATION", RunActionTriggerActivation },
 		{ 178, "BREAKINSTANTS", NULL },
 		{ 179, "DIALOGUEINTERRUPT", NULL },
+		{ 179, "DIALOGINTERRUPT", NULL }, // the spelling BG2's own DLGs use
 		{ 180, "MOVETOOBJECTFOLLOW", NULL },
 		{ 181, "REALLYFORCESPELL", RunActionForceSpell },
 		{ 182, "MAKEUNSELECTABLE", NULL },
@@ -3733,6 +3735,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 288, "SETNAME", RunActionSetName },
 		{ 289, "ADDSUPERKIT", NULL },
 		{ 290, "PLAYDEADINTERRUPTIBLE", RunActionPlayDeadInterruptible },
+		{ 290, "PLAYDEADINTERRUPTABLE", RunActionPlayDeadInterruptible }, // the spelling BG2's own DLGs use
 		{ 291, "MOVEGLOBALOBJECT", NULL },
 		{ 292, "DISPLAYSTRINGHEADOWNER", RunActionDisplayStringHeadOwner },
 		{ 293, "STARTDIALOGOVERRIDE", RunActionStartDialogue },

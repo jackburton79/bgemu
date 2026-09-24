@@ -252,7 +252,15 @@ GetFunctionParameters(const std::string& functionString)
 	int stringPos = 1;
 	int integerPos = 1;
 	for (;;) {
-		token t = tokenizer.ReadToken();
+		token t;
+		try {
+			t = tokenizer.ReadToken();
+		} catch (const std::exception&) {
+			// A real IDS line can lack its closing parenthesis (BG2's own
+			// TRIGGER.IDS: "AREACHECKOBJECT(S:RESREF*,O:OBJECT*") - the
+			// end of the text ends the signature.
+			break;
+		}
 		if (t.type == TOKEN_PARENTHESIS_CLOSED)
 			break;
 		if (t.type == TOKEN_COMMA)
@@ -333,16 +341,25 @@ Parser::TriggerFromString(const std::string& string)
 	// Opening parenthesis
 	try {
 		token parenthesis = tokenizer.ReadToken();
-		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
+		if (parenthesis.type != TOKEN_PARENTHESIS_OPEN)
+			throw std::runtime_error("expected '(' after the trigger name");
 	} catch (std::exception& e)	{
-		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		std::cerr << Log::Yellow << "Parser::TriggerFromString(" << string << "): "
+			<< e.what() << Log::Normal << std::endl;
 		delete node;
 		return NULL;
 	}
 	ParameterExtractor extractor(tokenizer);
-	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node->id));
-	for (auto parameter: paramTypes) {
-		extractor._ExtractNextParameter(node, parameter);
+	try {
+		std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::TriggerName(node->id));
+		for (auto parameter: paramTypes) {
+			extractor._ExtractNextParameter(node, parameter);
+		}
+	} catch (const std::exception& exception) {
+		std::cerr << "Parser::TriggerFromString(" << string << "): got exception "
+			<< exception.what() << std::endl;
+		delete node;
+		return NULL;
 	}
 
 	if (_TriggerPacksVariableScope(node->id))
@@ -367,22 +384,25 @@ Parser::ActionFromString(const std::string& string)
 	// Opening parenthesis
 	try {
 		token parenthesis = tokenizer.ReadToken();
-		assert(parenthesis.type == TOKEN_PARENTHESIS_OPEN);
+		if (parenthesis.type != TOKEN_PARENTHESIS_OPEN)
+			throw std::runtime_error("expected '(' after the action name");
 	} catch (std::exception& e)	{
-		std::cerr << Log::Yellow << e.what() << Log::Normal << std::endl;
+		std::cerr << Log::Yellow << "Parser::ActionFromString(" << string << "): "
+			<< e.what() << Log::Normal << std::endl;
 		delete params;
 		return NULL;
 	}
 	// TODO: This isn't too reliable: there are cases where an action has two forms
 	// with the same id: one with some parameters and one with other or no parameters
 	ParameterExtractor extractor(tokenizer);
-	std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionName(params->id));
 	try {
+		std::vector<Parameter> paramTypes = GetFunctionParameters(IDTable::ActionName(params->id));
 		for (auto parameter: paramTypes) {
 			extractor._ExtractNextParameter(params, parameter);
 		}
 	} catch (const std::exception& exception) {
-		std::cerr << "Parser::ActionFromString(): got exception " << exception.what() << std::endl;
+		std::cerr << "Parser::ActionFromString(" << string << "): got exception "
+			<< exception.what() << std::endl;
 		delete params;
 		return nullptr;
 	}
@@ -533,7 +553,14 @@ Parser::_ExtractActionName(Tokenizer& tokenizer, ::action_params* param)
 		return false;
 
 	std::string actionName = t.u.string;
-	param->id = GetActionID(actionName);
+	// The loaded game's own ACTION.IDS first, exactly as for triggers
+	// (_ExtractTriggerName()): the hardcoded table only lists what this
+	// engine implements or has met so far, so a real action outside it
+	// would otherwise be dropped as unknown - instead of parsed and left
+	// for the executor to report as unimplemented.
+	param->id = IDTable::ActionID(actionName);
+	if (param->id == -1)
+		param->id = GetActionID(actionName);
 	if (param->id == -1) {
 		std::cerr << Log::Red << "GetActionID: no action found (" << actionName << ")" << Log::Normal << std::endl;
 		return false;
@@ -739,10 +766,17 @@ _SkipObjectFunctionParens(Tokenizer& tokenizer)
 		return;
 	}
 
-	token t;
-	do {
-		t = tokenizer.ReadToken();
-	} while (t.type != TOKEN_PARENTHESIS_CLOSED && t.type != TOKEN_END_OF_LINE);
+	// Nested calls (See(NearestEnemyOf(Myself))) close more than once.
+	int depth = 1;
+	while (depth > 0) {
+		token t = tokenizer.ReadToken();
+		if (t.type == TOKEN_PARENTHESIS_OPEN)
+			depth++;
+		else if (t.type == TOKEN_PARENTHESIS_CLOSED)
+			depth--;
+		else if (t.type == TOKEN_END_OF_LINE)
+			break;
+	}
 }
 
 

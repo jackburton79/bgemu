@@ -103,6 +103,18 @@ KeyDatabase::CountBIFs() const
 }
 
 
+std::vector<res_ref>
+KeyDatabase::ResourceNames(uint16 type) const
+{
+	std::vector<res_ref> names;
+	for (const auto& entry : fResourceMap) {
+		if (entry.second != NULL && entry.second->type == type)
+			names.push_back(entry.second->name);
+	}
+	return names;
+}
+
+
 void
 KeyDatabase::PrintResources(int32 type)
 {

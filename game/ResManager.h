@@ -48,6 +48,7 @@ public:
 	void SetDebug(int level);
 
 	bool ResourceExists(const res_ref& ref, uint16 type) const;
+	std::vector<res_ref> ResourceNames(uint16 type) const;
 
 	KEYResource*	GetKEY(const char *name);
 	TLKResource*	GetTLK(const char *name);
@@ -165,7 +166,7 @@ public:
 	static int32		TriggerID(std::string name);
 
 	static std::string 	ActionName(int32 i);
-	static std::string	ActionID(std::string name);
+	static int32		ActionID(std::string name);
 
 	static std::string 	ObjectAt(int32 i);
 	static int32 		ObjectID(std::string string);

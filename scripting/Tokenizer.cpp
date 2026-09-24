@@ -182,9 +182,16 @@ Tokenizer::ReadToken()
 	if (aToken.type == TOKEN_NUMBER) {
 		char* rest = NULL;
 		aToken.u.number = ::strtol(array, &rest, 0);
-		if (rest != NULL)
+		if (rest == array) {
+			// Not a number at all (e.g. the "[PC]" of an object filter):
+			// keep the whole text as an unknown token, consuming it -
+			// a zero-length token here would never advance the stream.
+			aToken.type = TOKEN_UNKNOWN;
+		} else if (rest != NULL) {
 			aToken.size = std::min((int)(rest - array), aToken.size);
-	} else {
+		}
+	}
+	if (aToken.type != TOKEN_NUMBER) {
 		if (size_t(aToken.size) > sizeof(aToken.u.string))
 			throw std::runtime_error("Tokenizer::ReadToken(): token size too large!");
 		memcpy(aToken.u.string, array, aToken.size);
