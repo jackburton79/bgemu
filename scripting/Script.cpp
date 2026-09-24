@@ -379,28 +379,37 @@ Script::_EvaluateConditionBlock(condition_block& conditionNode)
 // Shared AND/OR evaluation of a trigger list - the same logic real BCS
 // CO blocks and DLG state triggers both use (a DLG state's trigger text
 // parses into the same trigger_params list a CO block's does, OR(N)
-// included). `orTriggers` must persist across the whole list, not be
-// reset per trigger: an OR(N) node sets it to N and every trigger up
-// until it's exhausted is an alternative (the first TRUE one short-
-// circuits the block to TRUE) rather than a mandatory AND term.
+// included). An OR(N) node sets `orTriggers` to N: the next N triggers are
+// alternatives of one term, which is true as soon as one of them is (the
+// rest aren't evaluated) and false if none is; the triggers after them are
+// ordinary AND terms again.
 /* static */
 bool
 Script::EvaluateTriggerList(Object* sender, const std::vector<trigger_params*>& triggers)
 {
 	bool blockEvaluation = true;
 	int32 orTriggers = 0;
+	bool orSatisfied = false;
 	for (auto trig: triggers) {
 		if (orTriggers > 0) {
-			blockEvaluation = EvaluateTrigger(sender, trig, orTriggers);
-			if (blockEvaluation)
+			if (!orSatisfied)
+				orSatisfied = EvaluateTrigger(sender, trig, orTriggers);
+			if (--orTriggers == 0 && !orSatisfied) {
+				blockEvaluation = false;
 				break;
-			orTriggers--;
+			}
 		} else {
-			blockEvaluation = EvaluateTrigger(sender, trig, orTriggers) && blockEvaluation;
-			if (!blockEvaluation)
+			if (!EvaluateTrigger(sender, trig, orTriggers)) {
+				blockEvaluation = false;
 				break;
+			}
+			// An OR node just opened a new group.
+			orSatisfied = false;
 		}
 	}
+	// A list that ends inside an OR group with no alternative true.
+	if (orTriggers > 0 && !orSatisfied)
+		blockEvaluation = false;
 	if (sDebug) {
 		std::cout << "SCRIPT: TRIGGER BLOCK returned ";
 		std::cout << (blockEvaluation ? "TRUE" : "FALSE") << std::endl << std::endl;

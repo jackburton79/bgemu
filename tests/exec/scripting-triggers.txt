@@ -10,8 +10,9 @@ Assert-Triggers -,true,True();True()
 Assert-Triggers -,false,True();False()
 Assert-Triggers -,false,False();True()
 
-# OR(N): the first TRUE alternative short-circuits the whole block to
-# TRUE, even if an earlier alternative in the group was FALSE - this is
+# OR(N): the first TRUE alternative makes the group TRUE (the rest of its
+# alternatives are skipped), even if an earlier alternative in the group was
+# FALSE - this is
 # the bug fixed in 10862371 (orTrig used to reset every loop iteration
 # instead of persisting, so this always behaved like plain AND and
 # never found the later TRUE alternative).
@@ -22,6 +23,16 @@ Assert-Triggers -,false,OR(2);False();False()
 # A mandatory trigger before an OR group still applies normally.
 Assert-Triggers -,true,True();OR(2);False();True()
 Assert-Triggers -,false,False();OR(2);True();True()
+
+# A trigger after an OR group is still an AND term, also when the group was
+# satisfied by its first alternative (JAHEIRA.BCS creates Meronia under
+# "OR(2) ... plus a dozen more terms").
+Assert-Triggers -,false,OR(2);True();False();False()
+Assert-Triggers -,false,OR(2);False();True();False()
+Assert-Triggers -,true,OR(2);True();False();True()
+Assert-Triggers -,false,OR(2);False();False();True()
+Assert-Triggers -,false,OR(2);True();False();OR(2);False();False()
+Assert-Triggers -,true,OR(2);False();True();OR(2);False();True()
 
 # RandomNum(Range,Value): real dialog content leans on "N states, each
 # testing RandomNum(N,1) through RandomNum(N,N)" to pick exactly one of
