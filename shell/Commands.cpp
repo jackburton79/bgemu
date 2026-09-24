@@ -22,6 +22,8 @@
 #include "GamResource.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "GameJournal.h"
+#include "SavedGame.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
@@ -396,7 +398,7 @@ public:
 
 
 // PrintJournalCommand - dumps Game's minimal in-memory journal (see
-// Game::AddJournalEntry()'s header comment) so ADDJOURNALENTRY/
+// GameJournal's header comment) so ADDJOURNALENTRY/
 // ERASEJOURNALENTRY/SETQUESTDONE are testable headlessly.
 static bool _SplitOnFirstComma(const char* argv, std::string& first, std::string& rest);
 
@@ -408,7 +410,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		for (const journal_entry& entry : Game::Get()->Journal())
+		for (const journal_entry& entry : Game::Get()->Journal().Entries())
 			std::cout << std::dec << entry.strref << " [section " << (int)entry.section << ", group "
 				<< (int)entry.group << ", chapter " << (int)entry.chapter << "]: "
 				<< IDTable::GetDialog(entry.strref) << std::endl;
@@ -434,7 +436,7 @@ public:
 		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
 		int expected = (int)::strtol(expectedText.c_str(), NULL, 0);
 		int section = -1;
-		for (const journal_entry& entry : Game::Get()->Journal()) {
+		for (const journal_entry& entry : Game::Get()->Journal().Entries()) {
 			if (entry.strref == strref)
 				section = entry.section;
 		}
@@ -1566,7 +1568,7 @@ public:
 
 
 // Assert-JournalHasEntry <strref>,<true|false> - same self-checking
-// spirit as Assert-DoorOpened, for Game::JournalEntries(): no trigger
+// spirit as Assert-DoorOpened, for GameJournal::Strrefs(): no trigger
 // exposes journal content, so this is the only way to assert on it
 // (used to verify GamResource's journal round trip across Save-Game/
 // Load-Game).
@@ -1585,7 +1587,7 @@ public:
 		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
 		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
 
-		const std::vector<uint32>& entries = Game::Get()->JournalEntries();
+		const std::vector<uint32>& entries = Game::Get()->Journal().Strrefs();
 		bool found = std::find(entries.begin(), entries.end(), strref) != entries.end();
 		if (found == expected) {
 			std::cout << std::dec << "ASSERT OK: JournalHasEntry(" << strref << ")" << std::endl;
@@ -2764,7 +2766,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
-		bool ok = Game::Get()->Save(params.at(0).value.string);
+		bool ok = Game::Get()->Saves().Save(params.at(0).value.string);
 		std::cout << "Save-Game: " << (ok ? "OK" : "FAILED") << std::endl;
 	}
 };
@@ -2783,7 +2785,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
-		bool ok = Game::Get()->Load(params.at(0).value.string);
+		bool ok = Game::Get()->Saves().Load(params.at(0).value.string);
 		std::cout << "Load-Game: " << (ok ? "OK" : "FAILED") << std::endl;
 	}
 };

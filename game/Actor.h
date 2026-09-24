@@ -117,7 +117,7 @@ public:
 	bool Spawned() const;
 
 	bool InParty() const;
-	// A party member or a global NPC (Game::IsNPC()): kept by the Game
+	// A party member or a global NPC (NPCRoster::Contains()): kept by the Game
 	// itself, not by the area it happens to stand in.
 	bool IsPersistent() const;
 

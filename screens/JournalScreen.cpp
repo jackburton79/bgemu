@@ -3,6 +3,7 @@
 #include "Button.h"
 #include "Core.h"
 #include "Game.h"
+#include "GameJournal.h"
 #include "Label.h"
 #include "ResManager.h"
 #include "TextArea.h"
@@ -24,10 +25,10 @@ static const uint32 kJournalNextChapterID = 4;
 static const uint32 kJournalOrderID = 10;
 static const struct { uint32 controlID; uint8 section; uint32 captionStrRef; }
 kJournalSectionTabs[] = {
-	{ 6, Game::JOURNAL_QUEST, 45485 },
-	{ 7, Game::JOURNAL_DONE, 45486 },
-	{ 8, Game::JOURNAL_INFO, 15333 },
-	{ 9, Game::JOURNAL_USER, 45487 },
+	{ 6, GameJournal::SECTION_QUEST, 45485 },
+	{ 7, GameJournal::SECTION_DONE, 45486 },
+	{ 8, GameJournal::SECTION_INFO, 15333 },
+	{ 9, GameJournal::SECTION_USER, 45487 },
 };
 // BG2's window also has a label (right of the chapter title) that shows a
 // literal "<NO TEXT>" placeholder; GemRB leaves its use (a sort-method
@@ -50,7 +51,7 @@ JournalScreen::JournalScreen(Game& game)
 	:
 	PanelScreen(game, "GUIJRNL"),
 	fChapter(0),
-	fSection(Game::JOURNAL_QUEST),
+	fSection(GameJournal::SECTION_QUEST),
 	fReverse(false)
 {
 }
@@ -233,7 +234,7 @@ JournalScreen::RefreshContent()
 	entriesArea->ClearText();
 
 	std::vector<const journal_entry*> shown;
-	for (const journal_entry& entry : fGame.Journal()) {
+	for (const journal_entry& entry : fGame.Journal().Entries()) {
 		if (entry.chapter == fChapter && (!hasSections || entry.section == fSection))
 			shown.push_back(&entry);
 	}

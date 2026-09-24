@@ -28,6 +28,8 @@
 #include "InventoryScreen.h"
 #include "JournalScreen.h"
 #include "LootWindow.h"
+#include "NPCRoster.h"
+#include "GameJournal.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
@@ -44,6 +46,7 @@
 #include "RecordScreen.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "SavedGame.h"
 #include "SaveLoadScreen.h"
 #include "ScreenSupport.h"
 #include "SpellbookScreen.h"
@@ -86,20 +89,26 @@ Game::Game()
 	:
 	fDialog(NULL),
 	fParty(NULL),
+	fNPCs(NULL),
 	fTempState(NULL),
 	// 15 Hz, standard Infinity Engine pace (AI_UPDATE_FREQ)
 	// IESDP's documented
 	// clock model (docs/iesdp-gh-pages/appendices/timers.htm).
 	fDelay(67),
 	fTestMode(false),
+	fJournal(NULL),
 	fLoot(NULL),
 	fBar(NULL),
 	fShownCharacter(0),
-	fScreens(NULL)
+	fScreens(NULL),
+	fSaves(NULL)
 {
+	fNPCs = new NPCRoster;
+	fJournal = new GameJournal;
 	fScreens = new ScreenManager;
 	fLoot = new LootWindow;
 	fBar = new ActionBar(*this);
+	fSaves = new SavedGame(*this);
 	fScreens->Add(new RecordScreen(*this));
 	fScreens->Add(new InventoryScreen(*this));
 	fScreens->Add(new JournalScreen(*this));
@@ -118,24 +127,26 @@ Game::~Game()
 {
 	TerminateDialog();
 	delete fParty;
-	_ClearNPCs();
+	delete fNPCs;
+	delete fJournal;
 	delete fTempState;
 
 	// Same convention as everything else this session is careful to
 	// balance, even though it only matters for the ASan leak report at
 	// this specific point (the whole process is about to go away
 	// regardless).
-	_ClearAreaCache();
+	ClearAreaCache();
 	delete fAreaCache;
 	delete fCharBuilder;
 	delete fScreens;
 	delete fLoot;
 	delete fBar;
+	delete fSaves;
 }
 
 
 void
-Game::_ClearAreaCache()
+Game::ClearAreaCache()
 {
 	for (auto& entry : fAreaCache->areas) {
 		for (Actor* actor : entry.second.actors)
@@ -234,7 +245,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		} catch (...) {
 			throw std::runtime_error("Error creating player!");
 		}
-		_LoadStartingNPCs();
+		fNPCs->LoadStarting(fParty);
 		if (!fStartingArea.empty())
 			Core::Get()->LoadArea(fStartingArea.c_str(), "", "");
 		else if (noNewGame)
@@ -598,6 +609,29 @@ Game::Screens()
 }
 
 
+NPCRoster&
+Game::NPCs()
+{
+	return *fNPCs;
+}
+
+
+SavedGame&
+Game::Saves()
+{
+	return *fSaves;
+}
+
+
+::Party*
+Game::ResetParty()
+{
+	delete fParty;
+	fParty = new ::Party();
+	return fParty;
+}
+
+
 ActionBar&
 Game::Bar()
 {
@@ -681,34 +715,6 @@ Game::TriggerRest()
 	fParty->ActorAt(0)->AddAction(params);
 	params->Release();
 }
-
-
-// Real BG2 numbers save files per slot; every save (the Save/Load screens'
-// and SAVEGAME(190)'s) is Game::SaveSlotPath(index), under
-// Game::SaveDirectory().
-
-
-void
-Game::SetSaveDirectory(const std::string& path)
-{
-	fSaveDirectory = path;
-}
-
-
-const std::string&
-Game::SaveDirectory() const
-{
-	return fSaveDirectory;
-}
-
-
-std::string
-Game::SaveSlotPath(uint32 index) const
-{
-	return fSaveDirectory + "/savegame_slot" + std::to_string(index) + ".gam";
-}
-
-
 
 
 Actor*
@@ -842,170 +848,6 @@ Game::_RunExecFile(GameConsole* console)
 }
 
 
-// Copies every on-disk area checkpoint from one directory to another
-// (creating `to` if needed) - shared by Game::Save() (the live session's
-// single checkpoint directory -> this save's own archive) and Game::
-// Load() (that archive -> the live session's directory), mirroring
-// GemRB's own single-cache-directory approach (see AreaRoom::
-// AreaCheckpointDir()'s own comment) with a plain directory copy instead
-// of a real archive format.
-static void
-_CopyAreaCheckpoints(const std::string& from, const std::string& to)
-{
-	std::error_code error;
-	if (!std::filesystem::exists(from, error))
-		return;
-
-	std::filesystem::create_directories(to, error);
-	std::filesystem::copy(from, to,
-		std::filesystem::copy_options::recursive
-			| std::filesystem::copy_options::overwrite_existing,
-		error);
-}
-
-
-bool
-Game::Save(const char* name)
-{
-	if (fParty == NULL || fParty->CountActors() == 0) {
-		std::cerr << "Game::Save(): no party to save" << std::endl;
-		return false;
-	}
-
-	RoomBase* room = Core::Get()->CurrentRoom();
-	res_ref areaName(room != NULL ? room->Name() : "");
-
-	// Snapshot the area actually being stood in too - _UnloadArea() only
-	// checkpoints an area once it's actually left, so without this a save
-	// made without ever having left the current area since arriving would
-	// come back pristine on a later load.
-	if (AreaRoom* areaRoom = dynamic_cast<AreaRoom*>(room))
-		areaRoom->WriteCheckpoint();
-
-	// Every area checkpointed at any point this session - not just the
-	// current one - lives in AreaRoom's single, session-long checkpoint
-	// directory (see its own comment): copy all of it into this save's
-	// own archive directory, so an area visited and left long before
-	// this save, and never revisited since, is captured too.
-	_CopyAreaCheckpoints(AreaRoom::AreaCheckpointDir(), std::string(name) + ".arecache");
-
-	GamResource* gam = new GamResource(res_ref("SAVE"));
-	gam->SetCurrentArea(areaName);
-
-	for (uint16 i = 0; i < fParty->CountActors(); i++) {
-		Actor* actor = fParty->ActorAt(i);
-
-		gam->AddPartyMember(_GamMember(actor, areaName), actor->CRE());
-	}
-
-	for (Actor* npc : fNPCs)
-		gam->AddOutOfPartyMember(_GamMember(npc, npc->AreaName()), npc->CRE());
-
-	gam->SetVariables(Core::Get()->Vars().All());
-	gam->SetGameTime(GameTimer::GameTime());
-	gam->SetRealTime(GameTimer::RealTime());
-	std::vector<gam_journal_entry> journal;
-	for (const journal_entry& entry : fJournal)
-		journal.push_back({ entry.strref, entry.time, entry.chapter, entry.section, entry.group });
-	gam->SetJournalEntries(journal);
-	// Every party member's own reputation byte is kept in sync by
-	// REPUTATIONSET/REPUTATIONINC (scripting/Actions.cpp) - the leader's
-	// is as good as any (see GamResource.h's own comment on why this is
-	// write-only).
-	gam->SetReputation(fParty->ActorAt(0)->CRE()->Reputation());
-
-	bool result = gam->WriteToFile(name);
-	// `gam` is a runtime-built Resource (key 0, never went through
-	// GetResource()/the cache) - plain Release() would leak it, since
-	// nothing else holds a reference to drop it to 0 and Resource's own
-	// destructor is protected (only ResourceManager can call it).
-	gResManager->ReleaseResource(gam);
-	return result;
-}
-
-
-bool
-Game::Load(const char* name)
-{
-	GamResource* gam = new GamResource(res_ref("SAVE"));
-	if (!gam->LoadFromFile(name)) {
-		gResManager->ReleaseResource(gam);
-		return false;
-	}
-
-	// Abandon whatever's currently loaded - a load restores *that save's*
-	// world, not whatever the live session still happens to be holding
-	// onto (see _ClearAreaCache()'s own comment below). Its own on-unload
-	// checkpoint write still happens (into the live session's single
-	// checkpoint directory, see AreaRoom::AreaCheckpointDir()), but that's
-	// harmless: the wipe-and-restore right below discards it along with
-	// everything else already there, unconditionally.
-	Core::Get()->UnloadCurrentRoom();
-
-	std::error_code error;
-	std::filesystem::remove_all(AreaRoom::AreaCheckpointDir(), error);
-	_CopyAreaCheckpoints(std::string(name) + ".arecache", AreaRoom::AreaCheckpointDir());
-
-	// The in-memory session cache (live Actor/ARAResource C++ objects
-	// from areas visited earlier this session) is separate from the
-	// on-disk checkpoints just restored above, and isn't reset by
-	// replacing them - drop it too, or a revisited area would resurrect
-	// this abandoned session's own state instead of reading back what
-	// was just restored from disk.
-	_ClearAreaCache();
-	// Same for a store's stock: the loaded save's world starts from the
-	// stores' original stock.
-	fScreens->Find<StoreScreen>()->ClearStores();
-
-	delete fParty;
-	fParty = new ::Party();
-
-	_ClearNPCs();
-
-	uint32 count = gam->PartyMemberCount();
-	std::vector<IE::point> savedPositions;
-	for (uint32 i = 0; i < count; i++) {
-		gam_party_member member = gam->PartyMemberAt(i);
-
-		Actor* actor = _RestoreActor(member, gam->PartyMemberCRE(i));
-		fParty->AddActor(actor);
-		savedPositions.push_back(member.position);
-	}
-
-	_LoadNPCs(gam);
-
-	for (const auto& variable : gam->Variables())
-		Core::Get()->Vars().Set(variable.first.c_str(), variable.second);
-
-	GameTimer::SetGameTime(gam->GameTime());
-	fJournal.clear();
-	for (const gam_journal_entry& entry : gam->JournalEntries())
-		fJournal.push_back({ entry.strref, entry.section, entry.group, entry.chapter, entry.time });
-
-	res_ref area = gam->CurrentArea();
-	gResManager->ReleaseResource(gam);
-	if (!Core::Get()->LoadArea(area, "", ""))
-		return false;
-
-	// LoadArea() above builds a fresh AreaRoom, which - having no real
-	// entrance name to go on, a load isn't an actual area transition -
-	// parks every party member at that area's own EntranceAt(0) instead
-	// (see AreaRoom::AreaRoom()'s own per-member spawn loop). Put them
-	// back where this save actually had them; each Actor() above already
-	// got its saved position as a constructor argument, but that's long
-	// since been overwritten by the entrance-repositioning above.
-	for (uint16 i = 0; i < fParty->CountActors() && i < savedPositions.size(); i++)
-		fParty->ActorAt(i)->SetPosition(savedPositions[i]);
-
-	if (Actor* leader = fParty->ActorAt(0)) {
-		if (RoomBase* room = Core::Get()->CurrentRoom())
-			room->SetAreaOffsetCenter(leader->Position());
-	}
-
-	return true;
-}
-
-
 void
 Game::InitiateDialog(Actor* actor, Actor* target)
 {
@@ -1079,80 +921,10 @@ Game::Tokens() const
 }
 
 
-bool
-Game::AddJournalEntry(uint32 strref, uint8 section, uint8 group)
+GameJournal&
+Game::Journal()
 {
-	const uint8 chapter = (uint8)Core::Get()->Vars().Get("CHAPTER");
-
-	for (journal_entry& entry : fJournal) {
-		if (entry.strref != strref)
-			continue;
-		// Already there: nothing to do in the same section.
-		if (entry.section == section)
-			return false;
-		// Finishing a quest of a group replaces the group with this entry.
-		if (section == JOURNAL_DONE && group != 0) {
-			RemoveJournalGroup(group);
-			break;
-		}
-		entry.section = section;
-		entry.group = group;
-		entry.chapter = chapter;
-		entry.time = GameTimer::GameTime();
-		return true;
-	}
-
-	journal_entry entry;
-	entry.strref = strref;
-	entry.section = section;
-	entry.group = group;
-	entry.chapter = chapter;
-	entry.time = GameTimer::GameTime();
-	fJournal.push_back(entry);
-	return true;
-}
-
-
-void
-Game::RemoveJournalEntry(uint32 strref)
-{
-	auto it = std::find_if(fJournal.begin(), fJournal.end(),
-		[strref](const journal_entry& entry) { return entry.strref == strref; });
-	if (it != fJournal.end())
-		fJournal.erase(it);
-}
-
-
-void
-Game::RemoveJournalGroup(uint8 group)
-{
-	fJournal.erase(std::remove_if(fJournal.begin(), fJournal.end(),
-		[group](const journal_entry& entry) { return entry.group == group; }),
-		fJournal.end());
-}
-
-
-const std::vector<journal_entry>&
-Game::Journal() const
-{
-	return fJournal;
-}
-
-
-std::vector<uint32>
-Game::JournalEntries() const
-{
-	std::vector<uint32> strrefs;
-	for (const journal_entry& entry : fJournal)
-		strrefs.push_back(entry.strref);
-	return strrefs;
-}
-
-
-void
-Game::SetJournal(const std::vector<journal_entry>& entries)
-{
-	fJournal = entries;
+	return *fJournal;
 }
 
 
@@ -1181,114 +953,13 @@ Game::Party()
 }
 
 
-uint16
-Game::CountNPCs() const
-{
-	return fNPCs.size();
-}
-
-
-Actor*
-Game::NPCAt(uint16 index) const
-{
-	return index < fNPCs.size() ? fNPCs[index] : NULL;
-}
-
-
-bool
-Game::IsNPC(const Actor* actor) const
-{
-	return std::find(fNPCs.begin(), fNPCs.end(), actor) != fNPCs.end();
-}
-
-
-Actor*
-Game::FindNPC(const char* name) const
-{
-	for (Actor* npc : fNPCs) {
-		if (strcasecmp(name, npc->Name()) == 0)
-			return npc;
-		const CREResource* cre = npc->CRE();
-		if (cre != NULL && !cre->DeathVariable().empty()
-				&& strcasecmp(name, cre->DeathVariable().c_str()) == 0) {
-			return npc;
-		}
-	}
-	return NULL;
-}
-
-
-void
-Game::AddNPC(Actor* actor)
-{
-	if (actor != NULL)
-		fNPCs.push_back(actor);
-}
-
-
-void
-Game::RemoveNPC(Actor* actor)
-{
-	auto i = std::find(fNPCs.begin(), fNPCs.end(), actor);
-	if (i != fNPCs.end()) {
-		(*i)->Release();
-		fNPCs.erase(i);
-	}
-}
-
-
-void
-Game::_LoadStartingNPCs()
-{
-	// A new game starts from BALDUR.GAM: its out-of-party NPC table says
-	// where every companion and story character begins.
-	GamResource* gam = gResManager->GetGAM(res_ref("BALDUR"));
-	if (gam == NULL)
-		return;
-	_LoadNPCs(gam);
-	gResManager->ReleaseResource(gam);
-}
-
-
 void
 Game::MakeNPC(Actor* actor)
 {
-	if (fParty->HasActor(actor) || IsNPC(actor))
+	if (fParty->HasActor(actor) || fNPCs->Contains(actor))
 		return;
 
-	if (AreaRoom* room = actor->Area())
-		room->ForgetPlacedActor(actor);
-	actor->Acquire();
-	AddNPC(actor);
-}
-
-
-void
-Game::MoveNPC(Actor* npc, const res_ref& area, const IE::point& position,
-	int orientation)
-{
-	AreaRoom* room = npc->Area();
-	if (room != NULL && strcasecmp(room->Name(), area.CString()) != 0) {
-		room->RemoveObject(npc);
-		npc->SetArea(NULL);
-		// The room's own reference: the list's keeps the NPC alive.
-		npc->Release();
-	}
-
-	npc->SetAreaName(area);
-	npc->SetPosition(position);
-	if (orientation >= 0)
-		npc->SetOrientation(orientation);
-
-	// Moved into the room that is loaded right now, from an area that isn't.
-	if (npc->Area() == NULL) {
-		AreaRoom* current = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
-		if (current != NULL && strcasecmp(current->Name(), area.CString()) == 0) {
-			npc->Acquire();
-			current->AddObject(npc);
-			npc->SetPosition(position);
-		}
-	}
+	fNPCs->Adopt(actor);
 }
 
 
@@ -1302,8 +973,8 @@ Game::JoinParty(Actor* actor)
 	// the list entry.
 	actor->Acquire();
 	fParty->AddActor(actor);
-	if (IsNPC(actor)) {
-		RemoveNPC(actor);
+	if (fNPCs->Contains(actor)) {
+		fNPCs->Remove(actor);
 	} else if (AreaRoom* room = actor->Area()) {
 		room->ForgetPlacedActor(actor);
 	}
@@ -1319,82 +990,10 @@ Game::LeaveParty(Actor* actor)
 
 	actor->Acquire();
 	fParty->RemoveActor(actor);
-	AddNPC(actor);
+	fNPCs->Add(actor);
 	if (fShownCharacter >= fParty->CountActors())
 		fShownCharacter = 0;
 	RefreshHUDPortraits();
-}
-
-
-void
-Game::_ClearNPCs()
-{
-	for (Actor* actor : fNPCs)
-		actor->Release();
-	fNPCs.clear();
-}
-
-
-void
-Game::_LoadNPCs(GamResource* gam)
-{
-	for (uint32 i = 0; i < gam->OutOfPartyCount(); i++) {
-		gam_party_member member = gam->OutOfPartyAt(i);
-
-		// Someone already in the party (a -P override or the default
-		// party names the same creatures) can't also be standing
-		// somewhere else.
-		bool inParty = false;
-		for (uint16 p = 0; p < fParty->CountActors(); p++) {
-			if (strcasecmp(fParty->ActorAt(p)->Name(), member.creName.CString()) == 0)
-				inParty = true;
-		}
-		if (inParty)
-			continue;
-
-		Actor* npc = _RestoreActor(member, gam->OutOfPartyCRE(i));
-		npc->SetAreaName(member.areaName);
-		AddNPC(npc);
-	}
-}
-
-
-Actor*
-Game::_RestoreActor(const gam_party_member& member, CREResource* savedCre)
-{
-	// Actor()'s normal constructor fetches the character's original,
-	// unmodified CRE from the game's own files (ResourceManager) - this
-	// reuses all of Actor's existing init logic (animation factory,
-	// etc.) safely. The saved CRE state (inventory, spellbook, HP,
-	// status, ...) is then applied on top of it.
-	Actor* actor = new Actor(member.creName.CString(), member.position,
-		member.orientation);
-
-	if (savedCre != NULL) {
-		actor->CRE()->CopyDataFrom(savedCre);
-		actor->RefreshColors();
-		gResManager->ReleaseResource(savedCre);
-	}
-
-	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
-		actor->SetQuickSpell(q, member.quickSpells[q]);
-
-	return actor;
-}
-
-
-gam_party_member
-Game::_GamMember(Actor* actor, const res_ref& areaName) const
-{
-	gam_party_member member;
-	member.creName = res_ref(actor->Name());
-	member.name = actor->Name();
-	member.position = actor->Position();
-	member.orientation = (uint16)actor->Orientation();
-	member.areaName = areaName;
-	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
-		member.quickSpells[q] = actor->QuickSpell(q);
-	return member;
 }
 
 

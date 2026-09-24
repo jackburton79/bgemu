@@ -12,6 +12,9 @@
 #include "Effect.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "GameJournal.h"
+#include "NPCRoster.h"
+#include "SavedGame.h"
 #include "LootWindow.h"
 #include "ScreenManager.h"
 #include "StoreScreen.h"
@@ -413,16 +416,16 @@ RunActionSpell(Object* sender, action_params* params, action_state& state)
 
 // SAVEGAME(I:Slot*) - stateless. No save-folder/character-name structure
 // (see IESDP's "save/<slot> - <name>/baldur.gam") is modeled - this
-// engine just writes one file per slot, at the same Game::SaveSlotPath()
+// engine just writes one file per slot, at the same SavedGame::SlotPath()
 // the GUISAVE/GUILOAD screen uses, so a script-driven save shows up there
 // too instead of the two ending up looking at different files entirely.
 static void
 RunActionSaveGame(Object* sender, action_params* params, action_state& state)
 {
 	std::error_code error;
-	std::filesystem::create_directories(Game::Get()->SaveDirectory(), error);
-	std::string path = Game::Get()->SaveSlotPath(params->integer1);
-	if (!Game::Get()->Save(path.c_str()))
+	std::filesystem::create_directories(Game::Get()->Saves().Directory(), error);
+	std::string path = Game::Get()->Saves().SlotPath(params->integer1);
+	if (!Game::Get()->Saves().Save(path.c_str()))
 		std::cerr << "SaveGame: failed to write \"" << path << "\"" << std::endl;
 	state.completed = true;
 }
@@ -927,8 +930,8 @@ RunActionForceSpellPoint(Object* sender, action_params* params, action_state& st
 static void
 _MoveToArea(Actor* actor, const char* area, const IE::point& where, int face)
 {
-	if (Game::Get()->IsNPC(actor)) {
-		Game::Get()->MoveNPC(actor, res_ref(area), where, face);
+	if (Game::Get()->NPCs().Contains(actor)) {
+		Game::Get()->NPCs().Move(actor, res_ref(area), where, face);
 	} else if (::strcasecmp(area, actor->Area()->Name()) != 0) {
 		Game::TempState* tempState = Game::Get()->GetTempState();
 		actor->Acquire();
@@ -980,7 +983,7 @@ RunActionMoveGlobal(Object* sender, action_params* params, action_state& state)
 
 	Actor* actor = dynamic_cast<Actor*>(Script::GetTargetObject(sender, params));
 	if (actor == NULL)
-		actor = Game::Get()->FindNPC(params->Second()->name);
+		actor = Game::Get()->NPCs().Find(params->Second()->name);
 	if (actor != NULL)
 		_MoveToArea(actor, params->string1, params->where, -1);
 }
@@ -1286,8 +1289,8 @@ RunActionChangeArea(Object* sender, action_params* params, action_state& state)
 	}
 
 	// A global NPC just changes where it is; its area needn't be loaded.
-	if (Game::Get()->IsNPC(actor)) {
-		Game::Get()->MoveNPC(actor, res_ref(params->string1), params->where,
+	if (Game::Get()->NPCs().Contains(actor)) {
+		Game::Get()->NPCs().Move(actor, res_ref(params->string1), params->where,
 			params->integer1);
 		return;
 	}
@@ -2329,7 +2332,7 @@ RunActionLeaveParty(Object* sender, action_params* params, action_state& state)
 
 
 // MAKEGLOBAL() - stateless. The creature is added to the GAM file: from
-// now on the Game keeps it (see Game::AddNPC()).
+// now on the Game keeps it (see NPCRoster).
 static void
 RunActionMakeGlobal(Object* sender, action_params* params, action_state& state)
 {
@@ -2759,12 +2762,12 @@ RunActionSetHomeLocation(Object* sender, action_params* params, action_state& st
 
 // AddJournalEntry(I:Entry*,I:Type*JourType) - stateless. The type is the
 // journal section (JOURNAL.IDS: 1 quest, 2 completed quest, 4 info, 0 user
-// note), used as is like GemRB does. See Game::AddJournalEntry() for what
+// note), used as is like GemRB does. See GameJournal::Add() for what
 // adding an entry that's already there does.
 static void
 RunActionAddJournalEntry(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->AddJournalEntry((uint32)params->integer1, (uint8)params->integer2,
+	Game::Get()->Journal().Add((uint32)params->integer1, (uint8)params->integer2,
 		(uint8)params->integer3);
 	state.completed = true;
 }
@@ -2775,7 +2778,7 @@ RunActionAddJournalEntry(Object* sender, action_params* params, action_state& st
 static void
 RunActionEraseJournalEntry(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->RemoveJournalEntry((uint32)params->integer1);
+	Game::Get()->Journal().Remove((uint32)params->integer1);
 	state.completed = true;
 }
 
@@ -2786,8 +2789,8 @@ RunActionEraseJournalEntry(Object* sender, action_params* params, action_state& 
 static void
 RunActionSetQuestDone(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->RemoveJournalEntry((uint32)params->integer1);
-	Game::Get()->AddJournalEntry((uint32)params->integer1, Game::JOURNAL_DONE,
+	Game::Get()->Journal().Remove((uint32)params->integer1);
+	Game::Get()->Journal().Add((uint32)params->integer1, GameJournal::SECTION_DONE,
 		(uint8)params->integer3);
 	state.completed = true;
 }

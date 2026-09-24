@@ -1,6 +1,7 @@
 #include "AreaRoom.h"
 #include "Core.h"
 #include "Game.h"
+#include "SavedGame.h"
 #include "GraphicsEngine.h"
 #include "Log.h"
 #include "MovieDecoder.h"
@@ -61,7 +62,7 @@ struct option sLongOptions[] = {
 		// Directory for saves and area checkpoints, instead of
 		// "<game path>/bgemu-save" (also settable with the BGEMU_SAVE_DIR
 		// environment variable; this option wins). See
-		// Game::SetSaveDirectory().
+		// SavedGame::SetDirectory().
 		{ "save-dir", required_argument, NULL, 'S' },
 		{ 0, 0, 0, 0 }
 };
@@ -173,7 +174,7 @@ main(int argc, char **argv)
 		saveDirectory = fromEnvironment;
 	else
 		saveDirectory = std::filesystem::path(sPath) / "bgemu-save";
-	Game::Get()->SetSaveDirectory(saveDirectory.string());
+	Game::Get()->Saves().SetDirectory(saveDirectory.string());
 
 	if (sPartyMembers != NULL) {
 		std::vector<std::string> names;

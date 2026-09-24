@@ -13,6 +13,7 @@
 #include "Door.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "NPCRoster.h"
 #include "GraphicsEngine.h"
 #include "ITMResource.h"
 #include "Log.h"
@@ -1767,7 +1768,7 @@ Actor::InParty() const
 bool
 Actor::IsPersistent() const
 {
-	return InParty() || Game::Get()->IsNPC(this);
+	return InParty() || Game::Get()->NPCs().Contains(this);
 }
 
 

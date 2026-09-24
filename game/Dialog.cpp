@@ -10,6 +10,7 @@
 #include "Actor.h"
 #include "Core.h"
 #include "Game.h"
+#include "GameJournal.h"
 #include "GUI.h"
 #include "Parsing.h"
 #include "Party.h"
@@ -214,10 +215,10 @@ DialogHandler::_UpdateJournal(const transition_entry& transition)
 	if (!(transition.flags & DLG_TRANSITION_HAS_JOURNAL))
 		return;
 
-	uint8 section = Game::JOURNAL_USER;
+	uint8 section = GameJournal::SECTION_USER;
 	if (Core::Get()->Game() == game::GAME_BALDURSGATE2) {
 		static const uint8 kSections[4] = {
-			Game::JOURNAL_INFO, Game::JOURNAL_QUEST, Game::JOURNAL_DONE, Game::JOURNAL_USER
+			GameJournal::SECTION_INFO, GameJournal::SECTION_QUEST, GameJournal::SECTION_DONE, GameJournal::SECTION_USER
 		};
 		int index = 0;
 		if (transition.flags & DLG_TRANSITION_JOURNAL_UNSOLVED)
@@ -229,7 +230,7 @@ DialogHandler::_UpdateJournal(const transition_entry& transition)
 
 	const uint32 strref = (uint32)transition.text_journal;
 	const uint8 group = (uint8)(((uint32)transition.flags >> 16) & 0xff);
-	if (!Game::Get()->AddJournalEntry(strref, section, group))
+	if (!Game::Get()->Journal().Add(strref, section, group))
 		return;
 
 	std::string message = IDTable::GetDialog(kJournalChangedStrRef);

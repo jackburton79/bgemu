@@ -2,6 +2,7 @@
 
 #include "Button.h"
 #include "Game.h"
+#include "SavedGame.h"
 #include "Label.h"
 #include "Window.h"
 
@@ -43,7 +44,7 @@ SaveLoadScreen::CommandBarButton() const
 
 
 // Fills in every slot row's name/date labels and Save-or-Load/Delete
-// button state from whatever's actually on disk at SaveSlotPath(i) -
+// button state from whatever's actually on disk at SlotPath(i) -
 // "Vuoto" (empty) if there's no file there yet, otherwise the file's own
 // last-modified time (this engine's own saves don't carry an in-game
 // date of their own to show - see GamResource's header comment - so a
@@ -58,10 +59,10 @@ SaveLoadScreen::Refresh()
 		return;
 
 	std::error_code checkpointError;
-	std::filesystem::create_directories(fGame.SaveDirectory(), checkpointError);
+	std::filesystem::create_directories(fGame.Saves().Directory(), checkpointError);
 
 	for (uint32 i = 0; i < kSaveSlotCount; i++) {
-		std::string path = fGame.SaveSlotPath(i);
+		std::string path = fGame.Saves().SlotPath(i);
 		struct stat info;
 		bool exists = ::stat(path.c_str(), &info) == 0;
 
@@ -126,14 +127,14 @@ SaveLoadScreen::ControlInvoked(uint16 windowID, uint32 controlID)
 	for (uint32 i = 0; i < kSaveSlotCount; i++) {
 		if (controlID == kSaveSlotActionButtonID[i]) {
 			std::error_code checkpointError;
-			std::filesystem::create_directories(fGame.SaveDirectory(), checkpointError);
-			std::string path = fGame.SaveSlotPath(i);
+			std::filesystem::create_directories(fGame.Saves().Directory(), checkpointError);
+			std::string path = fGame.Saves().SlotPath(i);
 			if (fIsSave) {
-				bool ok = fGame.Save(path.c_str());
+				bool ok = fGame.Saves().Save(path.c_str());
 				std::cout << "Save " << path << ": " << (ok ? "OK" : "FAILED") << std::endl;
 				Refresh();
 			} else {
-				bool ok = fGame.Load(path.c_str());
+				bool ok = fGame.Saves().Load(path.c_str());
 				std::cout << "Load " << path << ": " << (ok ? "OK" : "FAILED") << std::endl;
 				// Nothing to refresh here: Load() already rebuilt the GUI
 				// from scratch (see above), so there's no aux window left
@@ -143,7 +144,7 @@ SaveLoadScreen::ControlInvoked(uint16 windowID, uint32 controlID)
 			return true;
 		}
 		if (controlID == kSaveSlotDeleteButtonID[i]) {
-			std::string path = fGame.SaveSlotPath(i);
+			std::string path = fGame.Saves().SlotPath(i);
 			std::error_code error;
 			std::filesystem::remove(path, error);
 			// Its own area-checkpoint archive directory (see Game::
