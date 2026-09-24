@@ -144,6 +144,8 @@ public:
 	// animation factory (shouldn't normally happen for a fully
 	// initialized Actor).
 	std::string PaperdollName() const;
+	// Size letter of its paperdoll overlays, see AnimationFactory::PaperdollSizeCode().
+	std::string PaperdollSizeCode() const;
 
 	// CRE item slot of the weapon in hand - one of the four weapon
 	// quickslots, chosen by the CRE's "selected weapon" word (a launcher

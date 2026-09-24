@@ -1,0 +1,7 @@
+#
+# BG1's paperdoll comes from the animation id's row of pdolls.2da (armor level =
+# column, size letter for the weapon/shield/helmet overlays): Ajantis (chain
+# mail on, a large human male) gets the level 3 doll and the "L" overlays. The
+# doll is a BAM in BG1 (two pictures, upper and lower half), not a PLT.
+Assert-Paperdoll -,CHMF3INV
+Assert-PaperdollSize -,L

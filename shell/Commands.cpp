@@ -2349,11 +2349,50 @@ public:
 		if (name != expected) {
 			std::cout << "ASSERT FAIL: " << actorName << " paperdoll - expected "
 				<< expected << ", got " << name << std::endl;
-		} else if (!gResManager->ResourceExists(name.c_str(), RES_PLT)) {
+		} else if (!gResManager->ResourceExists(name.c_str(),
+				Core::Get()->Game() == game::GAME_BALDURSGATE ? RES_BAM : RES_PLT)) {
 			std::cout << "ASSERT FAIL: " << actorName << " paperdoll " << name
 				<< " does not exist" << std::endl;
 		} else {
 			std::cout << "ASSERT OK: " << actorName << " paperdoll " << name << std::endl;
+		}
+	}
+};
+
+
+// Assert-PaperdollSize <actor>,<letter> - the body-size letter the actor's
+// paperdoll overlays (weapon, shield, helmet) are named with; "-" for a doll
+// that takes none.
+class AssertPaperdollSizeCommand : public ShellCommand {
+public:
+	AssertPaperdollSizeCommand()
+		: ShellCommand(
+			"Assert-PaperdollSize",
+			{
+				{ PARAMETER_STRING, }, // actor
+				{ PARAMETER_STRING, }  // expected letter
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		std::string expected = params.at(1).value.string;
+		if (expected == "-")
+			expected.clear();
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const std::string size = actor->PaperdollSizeCode();
+		if (size != expected) {
+			std::cout << "ASSERT FAIL: " << actorName << " paperdoll size - expected '"
+				<< expected << "', got '" << size << "'" << std::endl;
+		} else {
+			std::cout << "ASSERT OK: " << actorName << " paperdoll size '" << size
+				<< "'" << std::endl;
 		}
 	}
 };
@@ -3122,6 +3161,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertDialogFileCommand());
 	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
+	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());

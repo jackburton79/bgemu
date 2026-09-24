@@ -268,6 +268,29 @@ BAMResource::FrameForCycle(uint8 cycleIndex, uint16 frameIndex)
 }
 
 
+Bitmap*
+BAMResource::SecondPictureForCycle(uint8 cycleIndex)
+{
+	if (cycleIndex >= fNumCycles)
+		return NULL;
+
+	::cycle newCycle;
+	fData->ReadAt(fCyclesOffset + (cycleIndex * sizeof(cycle)), newCycle);
+
+	uint16 first = 0;
+	for (uint16 i = 0; i < newCycle.numFrames; i++) {
+		uint16 index;
+		fData->ReadAt(fFrameLookupOffset
+				+ (newCycle.index + i) * sizeof(int16), index);
+		if (i == 0)
+			first = index;
+		else if (index != first)
+			return _FrameAt(index);
+	}
+	return NULL;
+}
+
+
 uint16
 BAMResource::CountFrames() const
 {

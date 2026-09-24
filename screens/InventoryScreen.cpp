@@ -1,4 +1,5 @@
 #include "InventoryScreen.h"
+#include "ColorRange.h"
 
 #include "Actor.h"
 #include "AnimationFactory.h"
@@ -439,6 +440,101 @@ _CompositePaperdollOverlay(Bitmap* canvas, const char* sizeCode,
 }
 
 
+// Draws one BG1 paperdoll layer (the doll itself, a weapon, a shield or a
+// helmet) onto `canvas`: a BAM whose cycle 0 holds two pictures, the upper and
+// the lower half of the layer, recolored from the character's own colors when
+// `colors` is given. Every picture goes where its own stored center puts it,
+// the lower half 80 pixels further down (as GemRB's
+// AnimationFactory::GetPaperdollImage() does).
+static bool
+_CompositeBG1Layer(Bitmap* canvas, const std::string& resRef, const CREColors* colors)
+{
+	BAMResource* bam = gResManager->GetBAM(resRef.c_str());
+	if (bam == nullptr)
+		return false;
+
+	Bitmap* halves[2] = { bam->FrameForCycle(0, 0), bam->SecondPictureForCycle(0) };
+	gResManager->ReleaseResource(bam);
+
+	for (int half = 0; half < 2; half++) {
+		Bitmap* frame = halves[half];
+		if (frame == nullptr)
+			continue;
+
+		if (colors != nullptr) {
+			GFX::Palette palette;
+			frame->GetPalette(palette);
+			ApplyPaperdollColors(palette, *colors);
+			frame->SetPalette(palette);
+		}
+
+		const GFX::rect frameRect = frame->Frame();
+		GFX::point where(-(frameRect.x + frame->Width() / 2),
+				-(frameRect.y + frame->Height() / 2) + half * 80);
+		frame->BlitTo(canvas, where);
+		frame->Release();
+	}
+	return halves[0] != nullptr;
+}
+
+
+// BG1's paperdoll: the doll BAM, then the weapon, the shield or off-hand item
+// and the helmet on top of it, all recolored with the character's colors, on a
+// canvas as large as the paperdoll button (the pictures' own offsets place
+// them). A doll whose size code is empty takes neither colors nor overlays.
+static Bitmap*
+_BuildBG1Paperdoll(Button* button, Actor* actor, const std::string& name)
+{
+	const GFX::rect frame = button->Frame();
+	Bitmap* canvas = new Bitmap((uint16)frame.w, (uint16)frame.h, 16);
+	canvas->Clear(canvas->MapRGBColor(0, 255, 0));
+	canvas->SetColorKey(0, 255, 0, true);
+
+	const std::string size = actor->PaperdollSizeCode();
+	CREColors colors = actor->CRE()->Colors();
+	const CREColors* layerColors = size.empty() ? nullptr : &colors;
+
+	if (!_CompositeBG1Layer(canvas, name, layerColors)) {
+		std::cerr << "InventoryScreen::_UpdatePaperdoll(): no BAM resource named "
+			<< name << std::endl;
+		canvas->Release();
+		return nullptr;
+	}
+	if (size.empty())
+		return canvas;
+
+	auto overlay = [&] (const std::string& animationCode, const char* suffix) {
+		if (!animationCode.empty())
+			_CompositeBG1Layer(canvas, "WP" + size + animationCode + suffix, layerColors);
+	};
+
+	ITMResource* weapon = actor->EquippedWeapon();
+	if (weapon != nullptr) {
+		overlay(weapon->Animation(), "INV");
+		gResManager->ReleaseResource(weapon);
+	}
+
+	IE::item shieldItem;
+	if (actor->CRE()->GetItemAtSlot(kSlotShield, shieldItem)) {
+		ITMResource* shield = gResManager->GetITM(shieldItem.name);
+		if (shield != nullptr) {
+			overlay(shield->Animation(), shield->ItemType() == 0x000c ? "INV" : "OIN");
+			gResManager->ReleaseResource(shield);
+		}
+	}
+
+	IE::item helmetItem;
+	if (actor->CRE()->GetItemAtSlot(kSlotHelmet, helmetItem)) {
+		ITMResource* helmet = gResManager->GetITM(helmetItem.name);
+		if (helmet != nullptr) {
+			overlay(helmet->Animation(), "INV");
+			gResManager->ReleaseResource(helmet);
+		}
+	}
+	return canvas;
+}
+
+
 // Swaps the paperdoll control's fixed CHU-authored placeholder (CIFF4INV,
 // a generic doll unrelated to the shown character) for the real thing:
 // the actual character's own class/race/gender/armor identity (see
@@ -458,16 +554,7 @@ InventoryScreen::_UpdatePaperdoll(Window* window, Actor* actor)
 	Bitmap* icon = nullptr;
 	std::string name = actor->PaperdollName();
 	if (Core::Get()->Game() == game::GAME_BALDURSGATE) {
-		// Baldur's Gate 1 has paperdolls in BAM resources instead
-		// TODO: it only shows the upper body for now, and in the wrong color, too
-		BAMResource* bam = gResManager->GetBAM(name.c_str());
-		if (bam != nullptr) {
-			icon = bam->FrameForCycle(0, 0);
-			gResManager->ReleaseResource(bam);
-		} else {
-			std::cerr << "InventoryScreen::_UpdatePaperdoll(): no BAM resource named "
-									<< name << std::endl;
-		}
+		icon = _BuildBG1Paperdoll(button, actor, name);
 	} else {
 		PLTResource* plt = gResManager->GetPLT(name.c_str());
 		if (plt == NULL && name.length() >= 5) {

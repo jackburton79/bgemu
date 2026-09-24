@@ -18,6 +18,10 @@ public:
 	virtual void Dump();
 
 	Bitmap* FrameForCycle(uint8 cycleIndex, uint16 frameIndex);
+	// The first frame of the cycle that isn't the same picture as its first one
+	// (NULL if there is none): a BG1 paperdoll BAM holds the upper and the
+	// lower half of the doll as the two pictures of its cycle 0.
+	Bitmap* SecondPictureForCycle(uint8 cycleIndex);
 
 	uint16 CountFrames() const;
 	uint16 CountFrames(uint8 cycleIndex) const;

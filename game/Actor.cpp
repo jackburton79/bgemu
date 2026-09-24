@@ -1176,6 +1176,15 @@ Actor::ArmorAnimation() const
 
 
 std::string
+Actor::PaperdollSizeCode() const
+{
+	if (fAnimationFactory == NULL)
+		return "";
+	return fAnimationFactory->PaperdollSizeCode(this);
+}
+
+
+std::string
 Actor::PaperdollName() const
 {
 	if (fAnimationFactory == NULL)

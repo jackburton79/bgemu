@@ -68,6 +68,11 @@ public:
 	// weapon/shield compositing (Game::_CompositePaperdollOverlay()).
 	static const char* SizeCodeForActor(const Actor* actor);
 
+	// The size letter of this actor's paperdoll overlays: BG1 has it per
+	// animation id (empty for a doll that takes no overlays), otherwise it is
+	// SizeCodeForActor().
+	std::string PaperdollSizeCode(const Actor* actor) const;
+
 protected:
 	AnimationFactory(const char* baseName, const uint16 id);
 	~AnimationFactory();
