@@ -36,6 +36,7 @@
 #include "JournalScreen.h"
 #include "LootWindow.h"
 #include "Party.h"
+#include "Region.h"
 #include "RecordScreen.h"
 #include "ScreenManager.h"
 #include "StoreScreen.h"
@@ -145,6 +146,33 @@ public:
 				<< ")-(" << closedBox.x_max << "," << closedBox.y_max << ")"
 				<< " tiles=" << door->fTilesOpen.size()
 				<< std::endl;
+		}
+	}
+};
+
+
+// ListRegionsCommand - dumps the current area's regions (name, type, frame
+// and, for a travel region, where it leads), to know where to send an actor.
+class ListRegionsCommand : public ShellCommand {
+public:
+	ListRegionsCommand()
+		: ShellCommand("List-Regions")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		AreaRoom* room = CurrentAreaRoom();
+		if (room == NULL)
+			return;
+		for (Region* region : room->Regions()) {
+			IE::rect frame = region->Frame();
+			std::cout << std::dec << region->Name() << " type=" << region->Type()
+				<< " frame=(" << frame.x_min << "," << frame.y_min << ")-("
+				<< frame.x_max << "," << frame.y_max << ")";
+			if (region->Type() == IE::REGION_TYPE_TRAVEL) {
+				std::cout << " -> " << region->DestinationArea().CString()
+					<< " " << region->DestinationEntrance();
+			}
+			std::cout << std::endl;
 		}
 	}
 };
@@ -3034,6 +3062,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new ListObjectsCommand());
 	console->AddCommand(new ListContainersCommand());
 	console->AddCommand(new ListDoorsCommand());
+	console->AddCommand(new ListRegionsCommand());
 	console->AddCommand(new ListGroundCommand());
 	console->AddCommand(new PickUpGroundCommand());
 	console->AddCommand(new CharNewCommand());

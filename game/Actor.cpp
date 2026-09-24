@@ -365,9 +365,9 @@ Actor::Position() const
 
 
 void
-Actor::SetPosition(const IE::point& position)
+Actor::SetPosition(const IE::point& position, bool triggerTravel)
 {
-	_SetPositionPrivate(position);
+	_SetPositionPrivate(position, triggerTravel);
 
 	// This function is only used to move an actor to a point
 	// instantly. So we also need to set its destination to the same
@@ -2314,7 +2314,7 @@ Actor::Text() const
 
 
 void
-Actor::_SetPositionPrivate(const IE::point& point)
+Actor::_SetPositionPrivate(const IE::point& point, bool triggerTravel)
 {
 	AreaRoom* room = Area();
 	if (room != NULL) {
@@ -2327,7 +2327,7 @@ Actor::_SetPositionPrivate(const IE::point& point)
 		room->SearchMap()->SetPoint(fActor->position.x, fActor->position.y);
 	}
 
-	_UpdateRegions();
+	_UpdateRegions(triggerTravel);
 }
 
 
@@ -2411,7 +2411,7 @@ Actor::EvaluateDialogTriggers(std::vector<trigger_params*>& triggers)
 
 
 void
-Actor::_UpdateRegions()
+Actor::_UpdateRegions(bool triggerTravel)
 {
 	// An actor parked outside any loaded area (a global NPC) has no regions.
 	if (Area() == NULL)
@@ -2468,7 +2468,7 @@ Actor::_UpdateRegions()
 				// action_params after this returns) - a real, reproduced
 				// heap-use-after-free (the action_params freed here, out
 				// from under its own still-running handler).
-				if (region->Type() == IE::REGION_TYPE_TRAVEL && InParty()) {
+				if (triggerTravel && region->Type() == IE::REGION_TYPE_TRAVEL && InParty()) {
 					Core::Get()->RequestAreaChange(region->DestinationArea(),
 						"foo", region->DestinationEntrance(), this);
 				}

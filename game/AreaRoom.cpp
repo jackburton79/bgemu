@@ -276,7 +276,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 					spot = offsetPoint;
 				break;
 			}
-			member->SetPosition(spot);
+			member->SetPosition(spot, false);
 			if (placement->second.orientation >= 0)
 				member->SetOrientation(placement->second.orientation);
 			if (a == 0)
@@ -294,7 +294,7 @@ AreaRoom::AreaRoom(const res_ref& areaName, const char* longName,
 					&& fSearchMap->IsPointPassable(offsetPoint.x, offsetPoint.y))
 				memberPoint = offsetPoint;
 		}
-		member->SetPosition(memberPoint);
+		member->SetPosition(memberPoint, false);
 	}
 
 	tempState->partyPlacements.clear();
@@ -1287,6 +1287,13 @@ const std::vector<Door*>&
 AreaRoom::Doors() const
 {
 	return fDoors;
+}
+
+
+const std::vector<Region*>&
+AreaRoom::Regions() const
+{
+	return fRegions;
 }
 
 

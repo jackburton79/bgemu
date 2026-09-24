@@ -1,0 +1,13 @@
+# AREA: AR2600
+#
+# AR2616's entrance from AR2600 lies inside the travel region that leads back
+# to AR2600, and a second party member's spawn offset lands in it too. Being
+# placed on arrival must not take the party through that region (it used to
+# bounce straight back to AR2600 one tick later); only walking in does.
+Create-Creature MINSC,1000,600
+Run-Action MINSC,19,-,0,-,-,0,0
+Run-Action -,48,-,0,,,1064,526
+Step-Ticks 10
+# Still in AR2616: Winthrop is here and the leader stands on the entrance.
+Assert-ActorCount INNKE2,1
+Assert-Position -,547,494

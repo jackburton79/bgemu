@@ -92,7 +92,10 @@ public:
 	void SetOrientation(const IE::point& toPoint);
 
 	IE::point Position() const;
-	void SetPosition(const IE::point& position);
+	// Moves the actor instantly. `triggerTravel` false is for placing a party
+	// member on arrival in an area: standing inside a travel region then
+	// doesn't take the party through it (only walking in does).
+	void SetPosition(const IE::point& position, bool triggerTravel = true);
 
 	IE::point Destination() const;
 	void SetDestination(const IE::point &dest, bool ignoreSearchMap = false);
@@ -381,7 +384,7 @@ private:
 
 	void _Init();
 	void _HandleScripts();
-	void _SetPositionPrivate(const IE::point& point);
+	void _SetPositionPrivate(const IE::point& point, bool triggerTravel = true);
 
 	::Script* _ExtractScript(const res_ref& scriptName);
 	void _SetOrientation(const IE::point& nextPoint);
@@ -398,7 +401,7 @@ private:
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 
-	void _UpdateRegions();
+	void _UpdateRegions(bool triggerTravel = true);
 
 	void _CheckLevelUp();
 };

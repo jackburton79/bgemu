@@ -153,6 +153,7 @@ public:
 	static bool PointDoesNotBlockLight(const IE::point& point);
 
 	const std::vector<Door*>& Doors() const;
+	const std::vector<Region*>& Regions() const;
 	const std::vector<Container*>& Containers() const;
 
 	// Loose items on the floor (dropped from the inventory - see
