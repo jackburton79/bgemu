@@ -116,13 +116,6 @@ public:
 	// The screens that are ported to GameScreen (see screens/); the rest
 	// are still Game's own Toggle*Window() and friends.
 	ScreenManager& Screens();
-	// Hides every other screen, the old ones included - what opening one
-	// does first.
-	void CloseOtherScreens(const char* exceptCHU);
-	// Highlights whichever command-bar icon (HUD bar and/or the copy
-	// embedded in the open panel itself) corresponds to the currently
-	// open full-screen panel.
-	void UpdateCommandBarToggle();
 	// A click on the command-bar copy embedded in a full-screen panel.
 	static void AuxCommandBarInvoked(uint32 controlID);
 	// The party member the Inventory/Record screens currently show (see
@@ -150,27 +143,8 @@ public:
 	// (Re)draws the HUD portrait bar (GUIW's WINDOW_PLAYER_SLOTS) from the
 	// current party. Call after an area load rebuilds the HUD.
 	void RefreshHUDPortraits();
-	// Fills the HUD action bar (GUIW's WINDOW_CMDS, 12 buttons) for the
-	// shown party member - the class's row of actions, with the four
-	// weapon quickslots working. Call whenever the shown character, their
-	// weapons or the HUD itself change.
-	void RefreshActionBar();
-
-	// What the next click in the area does, chosen from the action bar:
-	// talk to / attack the creature clicked instead of the usual
-	// friend-or-foe guess. One-shot: any click in the area ends it.
-	enum TargetMode { TARGET_NONE, TARGET_TALK, TARGET_ATTACK, TARGET_CAST,
-		TARGET_USE_ITEM, TARGET_DEFEND };
-	TargetMode CurrentTargetMode() const { return fTargetMode; }
-	void SetTargetMode(TargetMode mode);
-	// Ends TARGET_CAST/TARGET_USE_ITEM: the shown character casts the spell
-	// (or uses the item) picked from the action bar at `target`.
-	void CastSpellAt(Actor* target);
-	// GUI::ControlInvoked() routes clicks on the action bar here.
-	void ActionBarControlInvoked(uint32 controlID);
-	// A right click on a quick spell button offers the spell page to assign
-	// one to it.
-	void ActionBarControlRightClicked(uint32 controlID);
+	// The HUD action bar (see ActionBar).
+	class ActionBar& Bar();
 
 	// Queues RESTPARTY(230) on the first party member - same action
 	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
@@ -387,21 +361,7 @@ private:
 
 
 	class LootWindow* fLoot;
-	TargetMode fTargetMode;
-	// What the action bar shows: the class row, or a page listing the
-	// shown character's memorized spells / usable items (paged by
-	// fActionBarPageIndex).
-	enum ActionPage { PAGE_ROW, PAGE_SPELLS, PAGE_INNATES, PAGE_ITEMS };
-	// Casts `spell` / uses the item in `slot` for `actor`, asking for a
-	// target first unless it only affects its user.
-	void _PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell);
-	ActionPage fActionBarPage;
-	uint32 fActionBarPageIndex;
-	// The spell or item slot picked on the bar, waiting for its target.
-	int32 fPendingItemSlot;
-	// Quick spell slot (0-2) the spell page is choosing a spell for, or -1.
-	int32 fAssignQuickSpell;
-	res_ref fPendingSpell;
+	class ActionBar* fBar;
 
 
 	// Party index whose sheet the Inventory / Record screens show.

@@ -10,6 +10,7 @@
 #include "CreResource.h"
 #include "Door.h"
 #include "Effect.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "LootWindow.h"
 #include "ScreenManager.h"
@@ -1887,7 +1888,7 @@ RunActionUseItemSlot(Object* sender, action_params* params, action_state& state)
 			}
 		}
 		if (actor->InParty())
-			Game::Get()->RefreshActionBar();
+			Game::Get()->Bar().Refresh();
 	}
 
 	state.completed = true;

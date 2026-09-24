@@ -17,8 +17,8 @@ constexpr uint32 kNoCommandBarButton = static_cast<uint32>(-1);
 // windows themselves, so a screen is "open" exactly when its first window
 // is shown - and closes on its own when GUI::Clear() destroys them.
 //
-// Opening one closes whichever other screen is open (Game::
-// CloseOtherScreens()) and refreshes the command-bar icon that shows the
+// Opening one closes whichever other screen is open (ScreenManager::
+// CloseAllExcept()) and refreshes the command-bar icon that shows the
 // open screen; subclasses fill in the content.
 class GameScreen {
 public:

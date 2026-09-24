@@ -20,6 +20,7 @@
 #include "Door.h"
 #include "Button.h"
 #include "GamResource.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
@@ -2204,20 +2205,20 @@ public:
 
 
 static const char*
-_TargetModeName(Game::TargetMode mode)
+_TargetModeName(ActionBar::TargetMode mode)
 {
 	switch (mode) {
-		case Game::TARGET_TALK:
+		case ActionBar::TARGET_TALK:
 			return "talk";
-		case Game::TARGET_ATTACK:
+		case ActionBar::TARGET_ATTACK:
 			return "attack";
-		case Game::TARGET_CAST:
+		case ActionBar::TARGET_CAST:
 			return "cast";
-		case Game::TARGET_USE_ITEM:
+		case ActionBar::TARGET_USE_ITEM:
 			return "use";
-		case Game::TARGET_DEFEND:
+		case ActionBar::TARGET_DEFEND:
 			return "defend";
-		case Game::TARGET_NONE:
+		case ActionBar::TARGET_NONE:
 			break;
 	}
 	return "none";
@@ -2233,7 +2234,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const std::string expected = argv;
-		const Game::TargetMode mode = Game::Get()->CurrentTargetMode();
+		const ActionBar::TargetMode mode = Game::Get()->Bar().CurrentTargetMode();
 		const char* actual = _TargetModeName(mode);
 		if (strcasecmp(expected.c_str(), actual) == 0)
 			std::cout << "ASSERT OK: target mode == " << actual << std::endl;

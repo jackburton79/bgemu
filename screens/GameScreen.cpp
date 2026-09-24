@@ -1,6 +1,7 @@
 #include "GameScreen.h"
 
 #include "Game.h"
+#include "ScreenManager.h"
 #include "GUI.h"
 
 
@@ -36,7 +37,7 @@ GameScreen::IsOpen() const
 void
 GameScreen::Open()
 {
-	fGame.CloseOtherScreens(fCHU.CString());
+	fGame.Screens().CloseAllExcept(fCHU);
 
 	// Hidden first, then shown in order, so they end up stacked in that
 	// order however they were before.
@@ -47,7 +48,7 @@ GameScreen::Open()
 
 	OnOpen();
 	Refresh();
-	fGame.UpdateCommandBarToggle();
+	fGame.Screens().UpdateCommandBar();
 }
 
 
@@ -58,7 +59,7 @@ GameScreen::Close()
 		GUI::Get()->HideAuxWindow(fCHU, windowID);
 
 	OnClose();
-	fGame.UpdateCommandBarToggle();
+	fGame.Screens().UpdateCommandBar();
 }
 
 

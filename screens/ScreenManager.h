@@ -43,6 +43,10 @@ public:
 	// The CHU of the open screen, empty if none is.
 	res_ref OpenCHU() const;
 	void CloseAllExcept(const res_ref& chuName);
+	// Highlights whichever command-bar icon (HUD bar and/or the copy
+	// embedded in the open panel itself) corresponds to the open screen.
+	// Called after every screen opens or closes.
+	void UpdateCommandBar() const;
 	void ShownCharacterChanged();
 
 	bool ControlInvoked(const res_ref& chuName, uint16 windowID, uint32 controlID) const;

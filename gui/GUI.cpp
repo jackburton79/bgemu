@@ -14,6 +14,7 @@
 #include "CHUIResource.h"
 #include "Control.h"
 #include "Core.h"
+#include "ActionBar.h"
 #include "Game.h"
 #include "LootWindow.h"
 #include "ScreenManager.h"
@@ -916,7 +917,7 @@ GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuNa
 		// The 6 HUD portrait buttons center view to that party member.
 		Game::Get()->CenterViewOnPartyMember((uint16)controlID);
 	} else if (windowID == WINDOW_CMDS && IsResolutionMatchedGUIW(chuName.CString()))
-		Game::Get()->ActionBarControlRightClicked(controlID);
+		Game::Get()->Bar().ControlRightClicked(controlID);
 }
 
 
@@ -994,7 +995,7 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 			return;
 		}
 		if (windowID == WINDOW_CMDS) {
-			Game::Get()->ActionBarControlInvoked(controlID);
+			Game::Get()->Bar().ControlInvoked(controlID);
 			return;
 		}
 		if (windowID == WINDOW_COMMANDS) {

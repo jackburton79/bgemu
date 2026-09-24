@@ -165,22 +165,28 @@ colors.
 
 ### Screens (`screens/`)
 
-The GUI screens are being moved out of `Game` (branch refactor/Game) into
-`GameScreen` subclasses: one CHU, its windows shown/hidden together,
-`Open()/Close()/Toggle()` (opening closes every other screen and refreshes
-the command-bar icon), `Refresh()` to fill the controls, and the control
-events (`ControlInvoked/RightClicked/Hovered`) that `GUI` hands to the screen
-owning the CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is
-the full-screen panel layout (content window 2, command bar copy 0, portrait
-column 1). Ported so far: `RecordScreen`, `JournalScreen`, `SaveLoadScreen`
-(two instances, GUISAVE and GUILOAD: `Screens().Toggle("GUISAVE")`),
-`SpellbookScreen` (GUIMG and GUIPR), `InventoryScreen`, `StoreScreen` (opened
-by STARTSTORE: `Screens().Find<StoreScreen>()->OpenStore()`); `ScreenSupport`
-holds what several share (item icons/names, weight labels). The loot window is
-`LootWindow` (`Game::Loot()`): not a `GameScreen`, since it is window 8 of the
-HUD's own resource, not an auxiliary CHU. The action bar is still `Game`'s own
-`Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
-`Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
+The GUI screens live in `GameScreen` subclasses, not in `Game`: one CHU, its
+windows shown/hidden together, `Open()/Close()/Toggle()` (opening closes every
+other screen and refreshes the command-bar icon), `Refresh()` to fill the
+controls, and the control events (`ControlInvoked/RightClicked/Hovered/
+DoubleClicked`, `BackgroundClicked`) that `GUI` hands to the screen owning the
+CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is the
+full-screen panel layout (content window 2, command bar copy 0, portrait
+column 1): `InventoryScreen`, `RecordScreen`, `JournalScreen`,
+`SpellbookScreen` (GUIMG and GUIPR, one instance each). `SaveLoadScreen`
+(GUISAVE and GUILOAD) and `StoreScreen` (GUISTORE, opened by STARTSTORE through
+`Screens().Find<StoreScreen>()->OpenStore()`, pauses the game) derive from
+`GameScreen` directly. Screens that share a class are told apart by CHU:
+`Screens().Toggle("GUISAVE")`. `Assert-ScreenOpen <CHU>,<true|false>` checks
+one. `ScreenSupport` holds what several share (item icons/names, weight
+labels, loot entries).
+
+Two HUD pieces are not screens, since they live in the HUD's own resource
+(GUIW) and not in an auxiliary CHU: `LootWindow` (window 8, `Game::Loot()`) and
+`ActionBar` (window 3, `Game::Bar()`, which also owns the click target mode
+`ActionBar::TargetMode` that `AreaRoom` consumes). `Game` keeps what isn't a
+screen: the game loop, party/NPCs, dialogs, saving and loading, the journal's
+data, who the screens show (`ShownActor()`) and the HUD portraits.
 
 ### Loot and store windows
 
@@ -200,13 +206,13 @@ when their area unloads or another screen opens. Console tests use
 ### HUD action bar
 
 GUIW window 3 (`GUI::WINDOW_CMDS`, 12 buttons) is filled by
-`Game::RefreshActionBar()` (game/Game.cpp): the shown character's class
+`ActionBar::Refresh()` (screens/ActionBar.cpp, `Game::Bar()`): the shown character's class
 row (GemRB's qslots table, embedded there) with icons from GUIBTACT/
 GUIBTBUT - the numbers in `kActionArt` are *frame indices of cycle 0* of
 those BAMs, as in GemRB's guibtact.2da, and BG1 numbers the quick-slot frames
 per slot while BG2 doesn't (detected from the BAM). Weapon buttons select the
 quickslot (`Actor::SelectWeapon`, the CRE's selected-weapon word); Talk/
-Attack/Cast/Use arm a one-shot `Game::TargetMode` that the next area click
+Attack/Cast/Use arm a one-shot `ActionBar::TargetMode` that the next area click
 consumes (`AreaRoom::_HandleClickAt`, `Actor::ClickedOn(target, intent)`);
 Cast/Use show a paged list (`bar_entry`) of memorized spells / magical items;
 quick spells (right click assigns) live in `Actor` and the GAM, quick items are

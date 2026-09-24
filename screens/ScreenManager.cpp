@@ -1,5 +1,22 @@
 #include "ScreenManager.h"
 
+#include "Button.h"
+#include "GUI.h"
+#include "Window.h"
+
+#include <strings.h>
+
+
+static void
+_SetButtonToggled(Window* window, uint32 controlID, bool toggled)
+{
+	if (window == NULL)
+		return;
+	Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID));
+	if (button != NULL)
+		button->SetToggled(toggled);
+}
+
 
 ScreenManager::ScreenManager()
 {
@@ -61,6 +78,25 @@ ScreenManager::CloseAllExcept(const res_ref& chuName)
 	for (const auto& screen : fScreens) {
 		if (screen->CHUName() != chuName && screen->IsOpen())
 			screen->Close();
+	}
+}
+
+
+void
+ScreenManager::UpdateCommandBar() const
+{
+	const res_ref activeCHU = OpenCHU();
+	const bool anyOpen = activeCHU != res_ref("");
+
+	Window* hudBar = GUI::Get()->GetWindow(GUI::WINDOW_COMMANDS);
+	Window* auxBar = anyOpen ? GUI::Get()->GetAuxWindow(activeCHU, 0) : NULL;
+	for (const auto& screen : fScreens) {
+		const uint32 buttonID = screen->CommandBarButton();
+		if (buttonID == kNoCommandBarButton)
+			continue;
+		const bool active = anyOpen && screen->CHUName() == activeCHU;
+		_SetButtonToggled(hudBar, buttonID, active);
+		_SetButtonToggled(auxBar, buttonID, active);
 	}
 }
 
