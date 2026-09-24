@@ -1,0 +1,13 @@
+# AREA: AR0602
+#
+# BG2's BOOLEAN.IDS has no line terminator after its last entry ("1 TRUE"),
+# and reading it lost the final character: TRUE was stored as "TRU", so
+# OpenState("Cell02",TRUE) - the state trigger of Minsc's dialog after he
+# opens his cell - could never be true and the second conversation ended
+# at once, without a word.
+Assert-Trigger -,true,OpenState("Cell02",FALSE)
+Assert-Trigger -,false,OpenState("Cell02",TRUE)
+Run-Action -,143,Cell02,0,,,0,0
+Step-Ticks 5
+Assert-Trigger -,true,OpenState("Cell02",TRUE)
+Assert-Trigger -,false,OpenState("Cell02",FALSE)
