@@ -117,6 +117,7 @@ Object::Object(const char* name, object_type objectType, const char* scriptName)
 	fGlobalID(-1),
 	fTicks(0),
 	fTicksIdle(0),
+	fScriptTicks(0),
 	fVisible(true),
 	fActive(true),
 	fIsInterruptable(true),
@@ -697,6 +698,20 @@ Object::SetDebug(bool debug)
 }
 
 
+uint32
+Object::ScriptTicks() const
+{
+	return fScriptTicks;
+}
+
+
+uint32
+Object::IdleTicks() const
+{
+	return static_cast<uint32>(fTicksIdle);
+}
+
+
 void
 Object::_HandleScripting(int32 maxLevel)
 {
@@ -715,6 +730,8 @@ Object::_HandleScripting(int32 maxLevel)
 	Actor* actor = dynamic_cast<Actor*>(this);
 	if (actor != NULL && actor->IsState(STATE_DEAD))
 		return;
+
+	fScriptTicks++;
 
 	if (!IsInsideVisibleArea()) {
 		if (actor == NULL || !actor->InParty()) {

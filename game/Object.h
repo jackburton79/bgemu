@@ -128,6 +128,12 @@ public:
 	void ClearCurrentAction();
 
 	bool IsActionListEmpty() const;
+
+	// Script passes this object has had (one per staggered 16-tick slot,
+	// whether or not its scripts actually ran) and how many of the
+	// most recent ones were skipped - what Delay() paces itself with.
+	uint32 ScriptTicks() const;
+	uint32 IdleTicks() const;
 	action_params* PopNextAction();
 	void ClearActionList();
 
@@ -183,6 +189,7 @@ private:
 
 	int32 fTicks;
 	int32 fTicksIdle;
+	uint32 fScriptTicks;
 
 	bool fVisible;
 	bool fActive;

@@ -775,10 +775,17 @@ Script::EvaluateTrigger(Object* sender, trigger_params* trig, int& orTrigger)
 				break;
 			case 0x4027:
 			{
-				//DELAY(I:DELAY*) (16423 0x4027)
-				// TODO: Implement
-
-				returnValue = true;
+				/* DELAY(I:DELAY*) (16423 0x4027)
+				 * True once every Delay script passes (about a second each),
+				 * so the block it's in runs that often instead of on every
+				 * pass. Same test as GemRB: a pass the object skipped
+				 * (fTicksIdle) widens the window so a multiple isn't lost.
+				 */
+				const uint32 delay = static_cast<uint32>(trig->parameter1);
+				if (delay <= 1 || sender == NULL)
+					returnValue = true;
+				else
+					returnValue = (sender->ScriptTicks() % delay) <= sender->IdleTicks();
 				break;
 			}
 			case 0x402b:
