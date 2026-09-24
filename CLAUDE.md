@@ -52,6 +52,9 @@ Useful flags for development (see `README.md` for the full list):
 - `-d <RESREF>.<EXT>` — dump a resource (including e.g. a BAM's cycle/
   frame counts, useful for reverse-engineering an animation format)
 - `--no-newgame` (`-N`) — skip the "start a new game" flow entirely
+- `-S <dir>` / `BGEMU_SAVE_DIR` — where saves and area checkpoints go
+  (`Game::SaveDirectory()`); default `<game path>/bgemu-save`, so BG1 and
+  BG2 never share saves. `tests/exec/run-all.sh` points it at a temp dir.
 
 For headless/CI-style runs, pair with a dummy SDL driver:
 ```bash

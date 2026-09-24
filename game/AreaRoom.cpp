@@ -50,35 +50,30 @@
 
 
 // Where AreaRoom checkpoints an area's own ARE data (see
-// ARAResource::WriteToFile()'s own comment) every time it's left -
-// relative to the working directory, same convention already used by
-// SAVEGAME's own fixed "savegame_slot0.gam" (see scripting/Actions.cpp's
-// RunActionSaveGame()), not the BG2 install path. A single directory for
+// ARAResource::WriteToFile()'s own comment) every time it's left: under
+// Game::SaveDirectory(), next to the saves. A single directory for
 // the session's entire lifetime, regardless of which save (if any) is
-// currently loaded - matching real IE's own single cache directory: 
+// currently loaded - matching real IE's own single cache directory:
 // a save's own .SAV archive is extracted into that cache wholesale
 // on load and re-archived from it on save, rather than the cache itself
 // ever being redirected to somewhere save-specific.
 // Game::Save()/Load() copy this directory's contents
 // to/from a specific save's own ".arecache" directory (see their own
 // comments) instead - AreaRoom itself always reads/writes here.
-static const char* kAreaCheckpointDir = "SAVEGAME/current/arecache";
-
-
 static std::string
 _AreaCheckpointPath(const char* areaName)
 {
-	std::string path = kAreaCheckpointDir;
+	std::string path = AreaRoom::AreaCheckpointDir();
 	path.append("/").append(areaName).append(".ARE");
 	return path;
 }
 
 
 /* static */
-const char*
+std::string
 AreaRoom::AreaCheckpointDir()
 {
-	return kAreaCheckpointDir;
+	return Game::Get()->SaveDirectory() + "/current/arecache";
 }
 
 
@@ -87,7 +82,7 @@ void
 AreaRoom::ClearAreaCheckpoints()
 {
 	std::error_code error;
-	std::filesystem::remove_all(kAreaCheckpointDir, error);
+	std::filesystem::remove_all(AreaCheckpointDir(), error);
 }
 
 
@@ -2181,7 +2176,7 @@ AreaRoom::WriteCheckpoint()
 		_EmbedActorCRE(actor);
 
 	std::error_code checkpointError;
-	std::filesystem::create_directories(kAreaCheckpointDir, checkpointError);
+	std::filesystem::create_directories(AreaCheckpointDir(), checkpointError);
 	if (!fArea->WriteToFile(_AreaCheckpointPath(Name()).c_str())) {
 		std::cerr << "AreaRoom::WriteCheckpoint(): failed to checkpoint "
 			<< Name() << std::endl;

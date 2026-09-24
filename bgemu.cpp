@@ -8,7 +8,9 @@
 #include "Script.h"
 #include "SoundEngine.h"
 
+#include <filesystem>
 #include <getopt.h>
+#include <stdlib.h>
 
 static int sList = 0;
 static int sNoScripts = 0;
@@ -24,6 +26,7 @@ static const char *sPartyMembers = NULL;
 static const char *sExecFile = NULL;
 static const char *sStartingArea = NULL;
 static const char *sCharacterSpec = NULL;
+static const char *sSaveDirectory = NULL;
 
 static
 struct option sLongOptions[] = {
@@ -55,6 +58,11 @@ struct option sLongOptions[] = {
 		// leader from scratch (roadmap Fase 47 / A). See
 		// Game::SetCharacterSpec()/Game::CreateParty().
 		{ "character", required_argument, NULL, 'c' },
+		// Directory for saves and area checkpoints, instead of
+		// "<game path>/bgemu-save" (also settable with the BGEMU_SAVE_DIR
+		// environment variable; this option wins). See
+		// Game::SetSaveDirectory().
+		{ "save-dir", required_argument, NULL, 'S' },
 		{ 0, 0, 0, 0 }
 };
 
@@ -73,7 +81,7 @@ ParseArgs(int argc, char **argv)
 {
 	int optIndex = 0;
 	int c = 0;
-	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:c:",
+	while ((c = getopt_long(argc, argv, "g:p:Dd:nNltfT:P:x:a:c:S:",
 				sLongOptions, &optIndex)) != -1) {
 		switch (c) {
 			case 'p':
@@ -90,6 +98,9 @@ ParseArgs(int argc, char **argv)
 				break;
 			case 'c':
 				sCharacterSpec = optarg;
+				break;
+			case 'S':
+				sSaveDirectory = optarg;
 				break;
 			case 'd':
 				sResourceName = optarg;
@@ -154,6 +165,15 @@ main(int argc, char **argv)
 	if (sDebug) {
 		Script::SetDebug(true);
 	}
+
+	std::filesystem::path saveDirectory;
+	if (sSaveDirectory != NULL)
+		saveDirectory = sSaveDirectory;
+	else if (const char* fromEnvironment = ::getenv("BGEMU_SAVE_DIR"))
+		saveDirectory = fromEnvironment;
+	else
+		saveDirectory = std::filesystem::path(sPath) / "bgemu-save";
+	Game::Get()->SetSaveDirectory(saveDirectory.string());
 
 	if (sPartyMembers != NULL) {
 		std::vector<std::string> names;

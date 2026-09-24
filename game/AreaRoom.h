@@ -9,6 +9,7 @@
 #include "Reference.h"
 #include "Variables.h"
 
+#include <string>
 #include <vector>
 
 typedef std::vector<Actor*> ActorsList;
@@ -188,7 +189,7 @@ public:
 	// of ever pointing AreaRoom itself at a different directory - every
 	// area checkpoint this engine ever writes, for any save or none,
 	// goes through this one path.
-	static const char* AreaCheckpointDir();
+	static std::string AreaCheckpointDir();
 
 	// Deletes every on-disk area checkpoint in AreaCheckpointDir().
 	// Called at program shutdown so a later, unrelated session never

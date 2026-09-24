@@ -35,4 +35,7 @@ To run, you need game files from an infinity engine based game (Baldur's Gate, B
   --character (-c) ARG        Path to character-creation spec file
                               Format: "field value" lines with gender/race/class/kit/alignment
                               plus either six ability scores or a "roll" line
+  --save-dir (-S) ARG         Directory for saves and area checkpoints
+                              Default: "bgemu-save" inside the game path (-p);
+                              the BGEMU_SAVE_DIR environment variable also sets it
 </pre>

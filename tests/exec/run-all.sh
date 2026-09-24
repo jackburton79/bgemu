@@ -20,6 +20,12 @@ if [ ! -x "$BINARY" ]; then
 	exit 1
 fi
 
+# Saves and area checkpoints go to a throwaway directory instead of the
+# game installations' own bgemu-save/ (see BGEMU_SAVE_DIR in README.md).
+BGEMU_SAVE_DIR="$(mktemp -d)"
+export BGEMU_SAVE_DIR
+trap 'rm -rf "$BGEMU_SAVE_DIR"' EXIT
+
 failures=0
 total=0
 

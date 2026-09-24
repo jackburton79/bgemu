@@ -3,8 +3,3 @@
 *.d
 data
 bin
-# This engine's own runtime working data (save files, area checkpoints)
-# - see AreaRoom.cpp's kDefaultAreaCheckpointDir/Game.cpp's kSavePath -
-# never something to write into a real game installation, and populated
-# by both interactive play and the exec-file test scripts.
-SAVEGAME

@@ -17,6 +17,9 @@ SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 ```
 
 No output from the `grep` means every assertion in that file passed.
+A run writes area checkpoints (and any save) to `<install>/bgemu-save/`;
+add `-S /tmp/somewhere` (or set `BGEMU_SAVE_DIR`) to keep the install clean -
+`run-all.sh` does so with a temp directory.
 `run-all.sh` in this directory does this for every file against both
 games in one go:
 

@@ -1262,19 +1262,33 @@ static const uint32 kSaveSlotDateLabelID[kSaveSlotCount] =
 static const uint32 kSaveSlotActionButtonID[kSaveSlotCount] = { 26, 27, 28, 29 };
 static const uint32 kSaveSlotDeleteButtonID[kSaveSlotCount] = { 30, 31, 32, 33 };
 static const uint32 kSaveCancelButtonID = 34;
-// Real BG2 numbers save files per slot (see SAVEGAME(190)'s own
-// existing "savegame_slot<N>.gam" convention in RunActionSaveGame(),
-// scripting/Actions.cpp, which now writes under this same directory) -
-// this screen just always shows the first kSaveSlotCount of them, with
-// no scrolling past that (see ToggleSaveWindow()'s own comment).
-static const char* kSavePath = "SAVEGAME";
+// Real BG2 numbers save files per slot; every save (this screen's and
+// SAVEGAME(190)'s) is Game::SaveSlotPath(index), under Game::SaveDirectory().
+// This screen just always shows the first kSaveSlotCount of them, with no
+// scrolling past that (see ToggleSaveWindow()'s own comment).
 
 
-static std::string
-_SaveSlotPath(uint32 index)
+void
+Game::SetSaveDirectory(const std::string& path)
 {
-	return std::string(kSavePath) + "/savegame_slot" + std::to_string(index) + ".gam";
+	fSaveDirectory = path;
 }
+
+
+const std::string&
+Game::SaveDirectory() const
+{
+	return fSaveDirectory;
+}
+
+
+std::string
+Game::SaveSlotPath(uint32 index) const
+{
+	return fSaveDirectory + "/savegame_slot" + std::to_string(index) + ".gam";
+}
+
+
 // GUIJRNL.CHU window 2 (confirmed via a real dump): id 1 is the main
 // scrollable entries text_area (with its own scrollbar at id 2, same
 // pairing convention as GUIREC's saves/resistances area).
@@ -4894,7 +4908,7 @@ Game::TestMode() const
 
 
 // Fills in every slot row's name/date labels and Save-or-Load/Delete
-// button state from whatever's actually on disk at _SaveSlotPath(i) -
+// button state from whatever's actually on disk at SaveSlotPath(i) -
 // "Vuoto" (empty) if there's no file there yet, otherwise the file's own
 // last-modified time (this engine's own saves don't carry an in-game
 // date of their own to show - see GamResource's header comment - so a
@@ -4908,12 +4922,12 @@ Game::_UpdateSaveLoadRows(const res_ref& chuName)
 		return;
 
 	std::error_code checkpointError;
-	std::filesystem::create_directories(kSavePath, checkpointError);
+	std::filesystem::create_directories(fSaveDirectory, checkpointError);
 
 	bool isSave = res_ref(chuName) == res_ref("GUISAVE");
 
 	for (uint32 i = 0; i < kSaveSlotCount; i++) {
-		std::string path = _SaveSlotPath(i);
+		std::string path = SaveSlotPath(i);
 		struct stat info;
 		bool exists = ::stat(path.c_str(), &info) == 0;
 
@@ -4982,8 +4996,8 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 	for (uint32 i = 0; i < kSaveSlotCount; i++) {
 		if (controlID == kSaveSlotActionButtonID[i]) {
 			std::error_code checkpointError;
-			std::filesystem::create_directories(kSavePath, checkpointError);
-			std::string path = _SaveSlotPath(i);
+			std::filesystem::create_directories(fSaveDirectory, checkpointError);
+			std::string path = SaveSlotPath(i);
 			if (isSave) {
 				bool ok = Save(path.c_str());
 				std::cout << "Save " << path << ": " << (ok ? "OK" : "FAILED") << std::endl;
@@ -4999,7 +5013,7 @@ Game::SaveOrLoadControlInvoked(const res_ref& chuName, uint32 controlID,
 			return;
 		}
 		if (controlID == kSaveSlotDeleteButtonID[i]) {
-			std::string path = _SaveSlotPath(i);
+			std::string path = SaveSlotPath(i);
 			std::error_code error;
 			std::filesystem::remove(path, error);
 			// Its own area-checkpoint archive directory (see Game::

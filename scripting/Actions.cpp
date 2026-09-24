@@ -409,17 +409,15 @@ RunActionSpell(Object* sender, action_params* params, action_state& state)
 
 // SAVEGAME(I:Slot*) - stateless. No save-folder/character-name structure
 // (see IESDP's "save/<slot> - <name>/baldur.gam") is modeled - this
-// engine just writes one file per slot, under the same SAVEGAME/
-// directory and "savegame_slot<N>.gam" naming the GUISAVE/GUILOAD screen
-// itself uses (see Game.cpp's _SaveSlotPath()), so a script-driven save
-// shows up there too instead of the two ending up looking at different
-// files entirely.
+// engine just writes one file per slot, at the same Game::SaveSlotPath()
+// the GUISAVE/GUILOAD screen uses, so a script-driven save shows up there
+// too instead of the two ending up looking at different files entirely.
 static void
 RunActionSaveGame(Object* sender, action_params* params, action_state& state)
 {
 	std::error_code error;
-	std::filesystem::create_directories("SAVEGAME", error);
-	std::string path = "SAVEGAME/savegame_slot" + std::to_string(params->integer1) + ".gam";
+	std::filesystem::create_directories(Game::Get()->SaveDirectory(), error);
+	std::string path = Game::Get()->SaveSlotPath(params->integer1);
 	if (!Game::Get()->Save(path.c_str()))
 		std::cerr << "SaveGame: failed to write \"" << path << "\"" << std::endl;
 	state.completed = true;

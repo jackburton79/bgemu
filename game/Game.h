@@ -327,6 +327,15 @@ public:
 	// position is. Leaving this empty keeps the normal startup flow.
 	void SetStartingArea(const char* areaName);
 
+	// Directory holding everything this engine writes for saving: one
+	// "savegame_slot<N>.gam" (+ ".arecache" directory) per slot and the
+	// session's own area checkpoints ("current/arecache", see
+	// AreaRoom::AreaCheckpointDir()). Set once at startup (bgemu.cpp),
+	// per game installation.
+	void SetSaveDirectory(const std::string& path);
+	const std::string& SaveDirectory() const;
+	std::string SaveSlotPath(uint32 index) const;
+
 	// Path to a character-creation spec file. When set, CreateParty()
 	// builds the party leader from it (via CharacterBuilder), injects
 	// the resulting CRE as "PLAYER1", and starts with that + the usual
@@ -393,6 +402,7 @@ private:
 	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
 	std::string fStartingArea;
+	std::string fSaveDirectory;
 	std::string fCharacterSpec;
 
 	// Parses fCharacterSpec into fCharBuilder, builds the CRE, injects it
