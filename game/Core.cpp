@@ -382,6 +382,7 @@ Core::PlaySound(const res_ref& soundRefName)
 	if (soundRefName.CString()[0] == '\0')
 		return;
 
+	fLastSound = soundRefName.CString();
 	WAVResource* wav = gResManager->GetWAV(soundRefName);
 	if (wav == NULL)
 		return;
@@ -397,6 +398,13 @@ Core::PlaySound(const res_ref& soundRefName)
 	}
 
 	gResManager->ReleaseResource(wav);
+}
+
+
+std::string
+Core::LastSoundPlayed() const
+{
+	return fLastSound;
 }
 
 

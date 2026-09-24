@@ -1,0 +1,8 @@
+#
+# BG1's voice recordings are WAVC: a 28 byte header, then Interplay ACM audio.
+# They decode to 16 bit PCM at the rate the header gives, and are not silence
+# (a wrong decoder yields silence or noise; the test only checks the format
+# and that there is signal).
+Assert-Sound DELSV01,1,22050
+Assert-Sound MULAH05,1,22050
+Assert-Sound CHAPTER6,1,22050

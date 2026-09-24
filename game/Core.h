@@ -108,6 +108,8 @@ public:
 	DialogHandler* Dialog();
 
 	void PlaySound(const res_ref& soundRefName);
+	// The last sound PlaySound() was asked for (played or not), for tests.
+	std::string LastSoundPlayed() const;
 
 	Variables& Vars();
 
@@ -169,6 +171,7 @@ private:
 	bool fPendingAreaChange;
 	res_ref fPendingAreaName;
 	std::string fPendingLongName;
+	std::string fLastSound;
 	std::string fPendingEntranceName;
 	Actor* fPendingAreaChangeActor;
 	bool fPendingWorldMapLoad;

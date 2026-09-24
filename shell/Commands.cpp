@@ -37,6 +37,8 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "Region.h"
+#include "TLKResource.h"
+#include "WAVResource.h"
 #include "RecordScreen.h"
 #include "ScreenManager.h"
 #include "StoreScreen.h"
@@ -1943,7 +1945,13 @@ public:
 			std::cout << "State " << i;
 			if (state.trigger != -1)
 				std::cout << " [when " << _OneLine(dlg->GetStateTrigger(state.trigger)) << "]";
-			std::cout << ": " << IDTable::GetDialog(state.text_ref) << std::endl;
+			std::cout << ": " << IDTable::GetDialog(state.text_ref);
+			if (TLKEntry* entry = IDTable::GetTLKEntry(state.text_ref)) {
+				if (entry->sound_ref.CString()[0] != '\0')
+					std::cout << " <" << entry->sound_ref.CString() << ">";
+				delete entry;
+			}
+			std::cout << std::endl;
 			for (int32 t = 0; t < state.transitions_num; t++) {
 				transition_entry transition = dlg->GetTransition(state.transition_first + t);
 				std::cout << "  -> ";
@@ -2356,6 +2364,132 @@ public:
 		} else {
 			std::cout << "ASSERT OK: " << actorName << " paperdoll " << name << std::endl;
 		}
+	}
+};
+
+
+// Assert-Sound <resource>,<channels>,<sampleRate> - the sound (a WAV/WAVC
+// resource) decodes to 16-bit-or-8-bit PCM with these parameters and is not
+// silent. Dump-Sound <resource>,<path> writes what it decodes to a RIFF WAV
+// file, to listen to it.
+static bool
+_DecodeSound(const std::string& name, std::vector<uint8>& pcm, uint16& channels,
+	uint16& bitsPerSample, uint32& sampleRate)
+{
+	WAVResource* wav = gResManager->GetWAV(name.c_str());
+	if (wav == NULL)
+		return false;
+	const bool ok = wav->DecodePCM(pcm, channels, bitsPerSample, sampleRate);
+	gResManager->ReleaseResource(wav);
+	return ok;
+}
+
+
+class AssertSoundCommand : public ShellCommand {
+public:
+	AssertSoundCommand()
+		: ShellCommand(
+			"Assert-Sound",
+			{
+				{ PARAMETER_STRING, },	// resource
+				{ PARAMETER_INT, },	// channels
+				{ PARAMETER_INT, }	// sample rate
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string name = params.at(0).value.string;
+		std::vector<uint8> pcm;
+		uint16 channels = 0, bits = 0;
+		uint32 rate = 0;
+		if (!_DecodeSound(name, pcm, channels, bits, rate)) {
+			std::cout << "ASSERT FAIL: sound " << name << " doesn't decode" << std::endl;
+			return;
+		}
+		int32 peak = 0;
+		if (bits == 16) {
+			for (size_t i = 0; i + 1 < pcm.size(); i += 2) {
+				int32 sample = (int16)(pcm[i] | (pcm[i + 1] << 8));
+				peak = std::max<int32>(peak, sample < 0 ? -sample : sample);
+			}
+		} else {
+			for (uint8 byte : pcm)
+				peak = std::max<int32>(peak, byte > 128 ? byte - 128 : 128 - byte);
+		}
+		if (channels != (uint16)params.at(1).value.integer
+				|| rate != (uint32)params.at(2).value.integer) {
+			std::cout << std::dec << "ASSERT FAIL: sound " << name << " is " << channels
+				<< " channel(s) at " << rate << " Hz" << std::endl;
+		} else if (pcm.empty() || peak == 0) {
+			std::cout << "ASSERT FAIL: sound " << name << " is silent" << std::endl;
+		} else {
+			std::cout << std::dec << "ASSERT OK: sound " << name << " (" << pcm.size()
+				<< " bytes, peak " << peak << ")" << std::endl;
+		}
+	}
+};
+
+
+// Assert-LastSound <resource> - the last sound the game asked to play (a voiced
+// dialog line, a container's opening, ...), see Core::LastSoundPlayed().
+class AssertLastSoundCommand : public ShellCommand {
+public:
+	AssertLastSoundCommand()
+		: ShellCommand("Assert-LastSound")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const std::string found = Core::Get()->LastSoundPlayed();
+		if (strcasecmp(found.c_str(), argv) == 0)
+			std::cout << "ASSERT OK: last sound " << found << std::endl;
+		else
+			std::cout << "ASSERT FAIL: last sound \"" << found << "\", expected \""
+				<< argv << "\"" << std::endl;
+	}
+};
+
+
+class DumpSoundCommand : public ShellCommand {
+public:
+	DumpSoundCommand()
+		: ShellCommand(
+			"Dump-Sound",
+			{
+				{ PARAMETER_STRING, },	// resource
+				{ PARAMETER_STRING, }	// output path
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::vector<uint8> pcm;
+		uint16 channels = 0, bits = 0;
+		uint32 rate = 0;
+		if (!_DecodeSound(params.at(0).value.string, pcm, channels, bits, rate)) {
+			std::cout << "Dump-Sound: FAILED" << std::endl;
+			return;
+		}
+		std::ofstream file(params.at(1).value.string, std::ios::binary);
+		auto put32 = [&] (uint32 v) { file.write(reinterpret_cast<const char*>(&v), 4); };
+		auto put16 = [&] (uint16 v) { file.write(reinterpret_cast<const char*>(&v), 2); };
+		file.write("RIFF", 4);
+		put32(36 + (uint32)pcm.size());
+		file.write("WAVEfmt ", 8);
+		put32(16);
+		put16(1);
+		put16(channels);
+		put32(rate);
+		put32(rate * channels * bits / 8);
+		put16((uint16)(channels * bits / 8));
+		put16(bits);
+		file.write("data", 4);
+		put32((uint32)pcm.size());
+		file.write(reinterpret_cast<const char*>(pcm.data()), (std::streamsize)pcm.size());
+		std::cout << std::dec << "Dump-Sound: " << pcm.size() << " bytes, " << channels
+			<< " channel(s), " << bits << " bit, " << rate << " Hz" << std::endl;
 	}
 };
 
@@ -3168,6 +3302,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
+	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new AssertLastSoundCommand());
+	console->AddCommand(new DumpSoundCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());

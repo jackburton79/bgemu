@@ -7,6 +7,8 @@
 
 #include "WAVResource.h"
 
+#include "ACMDecoder.h"
+
 #include "Log.h"
 #include "Stream.h"
 
@@ -260,12 +262,9 @@ WAVResource::DecodePCM(std::vector<uint8>& samples, uint16& channels,
 	uint16& bitsPerSample, uint32& sampleRate)
 {
 	if (!CheckSignature("RIFF")) {
-		// Most likely a WAVC (ACM-compressed) resource - see IESDP's
-		// wavc_v1.htm. No ACM decoder exists in this codebase yet.
-		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
-			<< " isn't a plain RIFF/PCM WAV (likely WAVC/ACM-compressed - "
-			"not supported)" << Log::Normal << std::endl;
-		return false;
+		// WAVC (a WAVC header, then ACM) or a bare ACM stream - see IESDP's
+		// wavc_v1.htm.
+		return _DecodeACM(samples, channels, bitsPerSample, sampleRate);
 	}
 
 	uint32 fmtChunkLength;
@@ -324,3 +323,35 @@ WAVResource::DecodePCM(std::vector<uint8>& samples, uint16& channels,
 	return true;
 }
 
+
+
+bool
+WAVResource::_DecodeACM(std::vector<uint8>& samples, uint16& channels,
+	uint16& bitsPerSample, uint32& sampleRate)
+{
+	std::vector<uint8> compressed(fData->Size());
+	if (fData->ReadAt(0, compressed.data(), compressed.size())
+			!= (ssize_t)compressed.size()) {
+		return false;
+	}
+
+	ACMDecoder decoder;
+	if (!decoder.Open(compressed.data(), compressed.size())) {
+		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
+			<< " is neither a RIFF/PCM WAV nor ACM audio" << Log::Normal << std::endl;
+		return false;
+	}
+
+	std::vector<uint8> pcm;
+	if (!decoder.DecodeAll(pcm)) {
+		std::cerr << Log::Yellow << "WAVResource::DecodePCM(): " << Name()
+			<< ": damaged ACM stream" << Log::Normal << std::endl;
+		return false;
+	}
+
+	channels = decoder.Channels();
+	bitsPerSample = 16;
+	sampleRate = decoder.SampleRate();
+	samples.insert(samples.end(), pcm.begin(), pcm.end());
+	return true;
+}

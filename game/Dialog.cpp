@@ -8,6 +8,7 @@
 #include "Dialog.h"
 
 #include "2DAResource.h"
+#include "TLKResource.h"
 #include "Actor.h"
 #include "AreaRoom.h"
 #include "Core.h"
@@ -195,6 +196,12 @@ DialogHandler::_ShowTriggerText(const dlg_state& state)
 	}
 	std::string npcText = IDTable::GetDialog(state.text_ref);
 	_FillPlaceHolders(npcText);
+
+	// Voiced lines: the TLK entry names the recording.
+	if (TLKEntry* entry = IDTable::GetTLKEntry(state.text_ref)) {
+		Core::Get()->PlaySound(entry->sound_ref);
+		delete entry;
+	}
 
 	std::string fullText;
 	fullText.append(Actor()->LongName()).append(": ");

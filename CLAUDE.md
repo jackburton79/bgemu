@@ -207,6 +207,16 @@ when their area unloads or another screen opens. Console tests use
 `Assert-LootWindow`/`Assert-ContainerHasItem` and
 `Assert-StoreWindow`/`Assert-StoreStock`/`Print-Store`.
 
+### Audio
+
+`SoundEngine` (libjgame) plays raw PCM (a movie ring buffer + a pool of one-shot
+devices); `resources/ACMDecoder.*` decodes Interplay ACM (WAVC resources, bare
+`.acm`), `WAVResource::DecodePCM()` returns PCM for both, and `Core::PlaySound()`
+plays a resref (dialog voice lines, PLAYSOUND, VERBALCONSTANT, effect 174, loot
+window). Music, ambients, soundset lines, footsteps and a real mixer are still
+to do - see `docs/audio-plan.md`. Console: `Assert-Sound`, `Assert-LastSound`,
+`Dump-Sound <res>,<file.wav>`.
+
 ### HUD action bar
 
 GUIW window 3 (`GUI::WINDOW_CMDS`, 12 buttons) is filled by

@@ -1,0 +1,11 @@
+# AREA: AR0602
+#
+# A voiced dialog line plays the recording its TLK entry names (Minsc's first
+# words in his cell are MINSC01), and the sound decodes: BG2's voice files are
+# ACM (WAVC) compressed.
+Click-Object -,MINSC
+Step-Ticks 100
+Assert-DialogActive true
+Assert-LastSound MINSC01
+Assert-Sound MINSC01,1,22050
+Assert-Sound ELHAN103,1,22050
