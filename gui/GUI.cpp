@@ -15,6 +15,7 @@
 #include "Control.h"
 #include "Core.h"
 #include "Game.h"
+#include "ScreenManager.h"
 #include "Log.h"
 #include "GraphicsEngine.h"
 #include "Object.h"
@@ -908,6 +909,8 @@ GUI::UpdateCursorAndScrolling(int x, int y)
 void
 GUI::ControlRightClicked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 {
+	if (Game::Get()->Screens().ControlRightClicked(chuName, windowID, controlID))
+		return;
 	if (chuName == res_ref("GUIINV"))
 		Game::Get()->InventoryControlRightClicked(controlID, windowID);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
@@ -926,6 +929,8 @@ GUI::ControlHovered(uint32 controlID, uint16 windowID, const res_ref& chuName,
 {
 	if (inside)
 		std::cout << "hovered: id: " << controlID << ", window: " << windowID << std::endl;
+	if (Game::Get()->Screens().ControlHovered(chuName, windowID, controlID, inside))
+		return;
 	if (chuName == res_ref("GUIINV"))
 		Game::Get()->InventoryControlHovered(controlID, windowID, inside);
 	else if (chuName == res_ref("GUIMG") || chuName == res_ref("GUIPR"))
@@ -969,6 +974,9 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 			&& Game::Get()->StoreControlDoubleClicked(controlID, windowID))
 		return;
 
+	if (Game::Get()->Screens().ControlInvoked(chuName, windowID, controlID))
+		return;
+
 	if (chuName == res_ref("GUISAVE") || chuName == res_ref("GUILOAD")) {
 		Game::Get()->SaveOrLoadControlInvoked(chuName, controlID, windowID);
 		return;
@@ -981,11 +989,6 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 
 	if (chuName == res_ref("GUISTORE")) {
 		Game::Get()->StoreControlInvoked(controlID, windowID);
-		return;
-	}
-
-	if (chuName == res_ref("GUIREC")) {
-		Game::Get()->RecordControlInvoked(controlID, windowID);
 		return;
 	}
 

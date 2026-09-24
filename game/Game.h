@@ -19,6 +19,7 @@
 
 
 class Actor;
+class ScreenManager;
 class ARAResource;
 class CharacterBuilder;
 class CREResource;
@@ -112,8 +113,28 @@ public:
 	// Centers view on party member
 	void CenterViewOnPartyMember(uint16 index);
 
+	// The screens that are ported to GameScreen (see screens/); the rest
+	// are still Game's own Toggle*Window() and friends.
+	ScreenManager& Screens();
+	// Hides every other screen, the old ones included - what opening one
+	// does first.
+	void CloseOtherScreens(const char* exceptCHU);
+	// Highlights whichever command-bar icon (HUD bar and/or the copy
+	// embedded in the open panel itself) corresponds to the currently
+	// open full-screen panel.
+	void UpdateCommandBarToggle();
+	// A click on the command-bar copy embedded in a full-screen panel.
+	static void AuxCommandBarInvoked(uint32 controlID);
+	// The party member the Inventory/Record screens currently show (see
+	// fShownCharacter), or NULL if the party is empty / the index is
+	// stale.
+	Actor* ShownActor() const;
+	// Fills a portrait column (buttons id 0..count-1) with the party's
+	// small portraits - the HUD bar and the Inventory/Record side panel
+	// share this.
+	void UpdatePortraitColumn(class Window* window, uint32 count);
+
 	void ToggleInventoryWindow();
-	void ToggleRecordWindow();
 	// 4-slot Save/Load screens (GUISAVE/GUILOAD): every real slot row
 	// (name/date labels, Save-or-Load and Delete buttons) is wired, but
 	// real BG2's own scrolling past 4 saves, name-entry popup and per-row
@@ -171,9 +192,6 @@ public:
 	// dragging an item: drops the held item onto the area floor at the
 	// shown character's feet.
 	void DropHeldItemOnGround();
-	// GUI::ControlInvoked() routes clicks on GUIREC (Record screen)
-	// controls here - currently just the portrait column.
-	void RecordControlInvoked(uint32 controlID, uint16 windowID);
 	// Switches which party member the Inventory / Record screens show
 	// (portrait-column click). Also selects them in the world so the two
 	// stay in sync. No-op for an out-of-range index.
@@ -502,14 +520,6 @@ private:
 	uint16 fShownCharacter;
 
 	void _RunExecFile(GameConsole* console);
-	// The party member the Inventory/Record screens currently show (see
-	// fShownCharacter), or NULL if the party is empty / the index is
-	// stale.
-	Actor* _ShownActor() const;
-	// Fills a portrait column (buttons id 0..count-1) with the party's
-	// small portraits - the HUD bar and the Inventory/Record side panel
-	// share this.
-	void _UpdatePortraitColumn(class Window* window, uint32 count);
 	void _UpdateSpellbookScreen();
 	void _ShowSpellInfo(const res_ref& spellName);
 	// GUIMG/GUIPR grid control id -> the spell resref it currently shows,
@@ -528,13 +538,6 @@ private:
 	void _ShowItemInfo(const res_ref& itemName);
 	void _UpdatePaperdoll(class Window* window, Actor* actor);
 	void _UpdateInventoryLabels(class Window* window, Actor* actor);
-	void _UpdateRecordLabels();
-	void _UpdateAbilityScoreLabels(class Window* window, class CREResource* cre);
-	void _UpdateClassRaceLevelLabels(class Window* window, Actor* actor);
-	void _UpdateSavesAndResistances(class Window* window, class CREResource* cre);
-	void _UpdateRecordButtons(class Window* window);
-	void _UpdateRecordPortrait(class Window* window, Actor* actor);
-	std::string _TitleCaseIDSName(const std::string& idsName);
 	// Refreshes every slot row's name/date labels and Save-or-Load/Delete
 	// button state (enabled iff that slot's own .gam exists - Delete's
 	// case - or, for a Load screen's own action button, iff it exists at
@@ -547,8 +550,5 @@ private:
 	int32 fJournalChapter;
 	uint8 fJournalSection;
 	bool fJournalReverse;
-	// Highlights whichever command-bar icon (HUD bar and/or the copy
-	// embedded in the open panel itself) corresponds to the currently
-	// open full-screen panel - see kScreenGroups in Game.cpp.
-	void _UpdateCommandBarToggle();
+	ScreenManager* fScreens;
 };

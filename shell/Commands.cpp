@@ -29,6 +29,8 @@
 #include "DLGResource.h"
 #include "Parsing.h"
 #include "Party.h"
+#include "RecordScreen.h"
+#include "ScreenManager.h"
 #include "ResManager.h"
 #include "Script.h"
 #include "SearchMap.h"
@@ -641,7 +643,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		Game::Get()->ToggleRecordWindow();
+		Game::Get()->Screens().Toggle<RecordScreen>();
 		std::cout << "Toggle-Record: OK" << std::endl;
 	}
 };
@@ -1657,6 +1659,40 @@ public:
 			std::cout << "ASSERT FAIL: LootWindow open - expected "
 				<< (expected ? "true" : "false") << ", got "
 				<< (open ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-ScreenOpen <CHU> <true|false> - whether a screen ported to
+// GameScreen (see screens/) is open.
+class AssertScreenOpenCommand : public ShellCommand {
+public:
+	AssertScreenOpenCommand()
+		: ShellCommand(
+			"Assert-ScreenOpen",
+			{
+				{ PARAMETER_STRING, }, // CHU name (e.g. GUIREC)
+				{ PARAMETER_STRING, }  // true or false
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string chuName = params.at(0).value.string;
+		const bool expected = strcasecmp(params.at(1).value.string, "true") == 0;
+		GameScreen* screen = Game::Get()->Screens().Find(res_ref(chuName.c_str()));
+		if (screen == NULL) {
+			std::cout << "ASSERT FAIL: no screen " << chuName << std::endl;
+			return;
+		}
+		if (screen->IsOpen() == expected) {
+			std::cout << "ASSERT OK: " << chuName << " open == "
+				<< (expected ? "true" : "false") << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: " << chuName << " open - expected "
+				<< (expected ? "true" : "false") << std::endl;
 		}
 	}
 };
@@ -2883,6 +2919,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertSelectedCountCommand());
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
+	console->AddCommand(new AssertScreenOpenCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());

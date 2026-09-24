@@ -1,0 +1,15 @@
+# AREA: AR0602
+#
+# A click on a portrait of the Record screen's own column shows that
+# character (and selects them in the world). Khalid is recruited so there
+# is a second member (the default BG1 party is Ajanti alone).
+Run-Action -,7,-,0,KHALID,-,520,127
+Step-Ticks 2
+Run-Action KHALID,19,-,0,-,-,0,0
+Step-Ticks 2
+Toggle-Record
+Assert-Selected AJANTI,true
+Invoke-Control GUIREC,1,1
+Assert-Selected AJANTI,false
+Assert-Selected KHALID,true
+Assert-ScreenOpen GUIREC,true

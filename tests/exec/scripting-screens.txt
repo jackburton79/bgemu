@@ -1,0 +1,13 @@
+# The Record screen (a GameScreen) opens and closes with its toggle, and is
+# replaced - not stacked under - another full-screen panel when that one
+# opens (the Inventory still being one of Game's own screens).
+Assert-ScreenOpen GUIREC,false
+Toggle-Record
+Assert-ScreenOpen GUIREC,true
+Toggle-Inventory
+Assert-ScreenOpen GUIREC,false
+Toggle-Inventory
+Toggle-Record
+Assert-ScreenOpen GUIREC,true
+Toggle-Record
+Assert-ScreenOpen GUIREC,false

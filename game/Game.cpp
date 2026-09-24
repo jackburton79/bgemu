@@ -37,8 +37,10 @@
 #include "PLTResource.h"
 #include "Parsing.h"
 #include "Party.h"
+#include "RecordScreen.h"
 #include "ResManager.h"
 #include "RoomBase.h"
+#include "ScreenManager.h"
 #include "TextArea.h"
 #include "Window.h"
 
@@ -105,8 +107,11 @@ Game::Game()
 	fShownCharacter(0),
 	fJournalChapter(0),
 	fJournalSection(JOURNAL_QUEST),
-	fJournalReverse(false)
+	fJournalReverse(false),
+	fScreens(NULL)
 {
+	fScreens = new ScreenManager;
+	fScreens->Add(new RecordScreen(*this));
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
 	fCharBuilder = new CharacterBuilder;
@@ -128,6 +133,7 @@ Game::~Game()
 	_ClearStores();
 	delete fAreaCache;
 	delete fCharBuilder;
+	delete fScreens;
 }
 
 
@@ -332,7 +338,7 @@ Game::Loop(bool noNewGame, bool executeScripts)
 								ToggleInventoryWindow();
 								break;
 							case SDLK_r:
-								ToggleRecordWindow();
+								fScreens->Toggle<RecordScreen>();
 								break;
 							case SDLK_j:
 								ToggleJournalWindow();
@@ -591,19 +597,15 @@ Game::SetStartingArea(const char* areaName)
 // The full-screen panels (Inventory/Record/Journal/Spellbook/Save/Load)
 // are mutually exclusive in real BG2 - opening one replaces whichever
 // other one is open, it doesn't layer on top of it. Registry of each
-// one's aux-window group (used by _CloseOtherScreens()) and its matching
-// command-bar control id (used by _UpdateCommandBarToggle() to show that
-// icon "pressed in" while the screen is open - shared with
-// kCommandBarButtons (Game.h), same ids everywhere it's used. Map/Pause/
-// Rest aren't here - they aren't a persistent open/closed screen.
-// kNoCommandBarButton is for a screen group with no confirmed
-// command-bar id at all (none currently need it - every entry below has
-// one).
-static const uint32 kNoCommandBarButton = (uint32)-1;
+// not yet ported (see screens/) one's aux-window group (used by
+// CloseOtherScreens()) and its matching command-bar control id (used by
+// UpdateCommandBarToggle() to show that icon "pressed in" while the
+// screen is open - shared with kCommandBarButtons (Game.h), same ids
+// everywhere it's used. Map/Pause/Rest aren't here - they aren't a
+// persistent open/closed screen.
 static const struct { const char* chu; uint16 windows[5]; uint8 windowCount; uint32 commandBarButtonID; }
 kScreenGroups[] = {
 	{ "GUIINV",  { 2, 0, 1 }, 3, 3 },
-	{ "GUIREC",  { 2, 0, 1 }, 3, 4 },
 	{ "GUIJRNL", { 2, 0, 1 }, 3, 2 },
 	{ "GUIMG",   { 2, 0, 1 }, 3, 5 },
 	{ "GUIPR",   { 2, 0, 1 }, 3, 6 },
@@ -613,12 +615,11 @@ kScreenGroups[] = {
 };
 
 
-// Hides every registered screen group except `exceptCHU` - called before
-// opening one, so opening a new screen always replaces any other one
-// left open instead of stacking on top of it (harmless/no-op if they're
-// already hidden).
-static void
-_CloseOtherScreens(const char* exceptCHU)
+// Hides every screen except `exceptCHU` - called before opening one, so
+// opening a new screen always replaces any other one left open instead of
+// stacking on top of it (harmless/no-op if they're already hidden).
+void
+Game::CloseOtherScreens(const char* exceptCHU)
 {
 	// Not just hidden: the store also holds the game paused while open.
 	if (::strcasecmp(exceptCHU, "GUISTORE") != 0)
@@ -630,6 +631,14 @@ _CloseOtherScreens(const char* exceptCHU)
 		for (uint8 i = 0; i < group.windowCount; i++)
 			GUI::Get()->HideAuxWindow(group.chu, group.windows[i]);
 	}
+	fScreens->CloseAllExcept(res_ref(exceptCHU));
+}
+
+
+ScreenManager&
+Game::Screens()
+{
+	return *fScreens;
 }
 
 
@@ -647,29 +656,35 @@ _SetButtonToggled(Window* window, uint32 controlID, bool toggled)
 // Refreshes the "selected" frame on every command-bar icon (the main HUD
 // bar plus the identical copy embedded in whichever panel is currently
 // open - see kCommandBarButtons' own comment) to match which screen
-// group (if any) is actually open right now. Called after every
-// Toggle*Window() below, since each of those can either open or close its
-// screen.
+// group (if any) is actually open right now. Called after every screen
+// opens or closes.
 void
-Game::_UpdateCommandBarToggle()
+Game::UpdateCommandBarToggle()
 {
-	const char* activeCHU = NULL;
-	for (const auto& group : kScreenGroups) {
-		if (GUI::Get()->IsAuxWindowShown(group.chu, group.windows[0])) {
-			activeCHU = group.chu;
-			break;
+	std::string activeCHU = fScreens->OpenCHU().CString();
+	if (activeCHU.empty()) {
+		for (const auto& group : kScreenGroups) {
+			if (GUI::Get()->IsAuxWindowShown(group.chu, group.windows[0])) {
+				activeCHU = group.chu;
+				break;
+			}
 		}
 	}
 
 	Window* hudBar = GUI::Get()->GetWindow(GUI::WINDOW_COMMANDS);
-	Window* auxBar = activeCHU != NULL ? GUI::Get()->GetAuxWindow(activeCHU, 0) : NULL;
-	for (const auto& group : kScreenGroups) {
-		if (group.commandBarButtonID == kNoCommandBarButton)
-			continue;
-		bool active = activeCHU != NULL && ::strcasecmp(group.chu, activeCHU) == 0;
-		_SetButtonToggled(hudBar, group.commandBarButtonID, active);
-		_SetButtonToggled(auxBar, group.commandBarButtonID, active);
-	}
+	Window* auxBar = !activeCHU.empty()
+		? GUI::Get()->GetAuxWindow(activeCHU.c_str(), 0) : NULL;
+	auto setToggled = [&] (const char* chu, uint32 buttonID) {
+		if (buttonID == kNoCommandBarButton)
+			return;
+		bool active = ::strcasecmp(chu, activeCHU.c_str()) == 0;
+		_SetButtonToggled(hudBar, buttonID, active);
+		_SetButtonToggled(auxBar, buttonID, active);
+	};
+	for (const auto& group : kScreenGroups)
+		setToggled(group.chu, group.commandBarButtonID);
+	for (const auto& screen : fScreens->Screens())
+		setToggled(screen->CHUName().CString(), screen->CommandBarButton());
 }
 
 
@@ -678,7 +693,7 @@ const CommandBarButton kCommandBarButtons[9] = {
 	{ 1, [] { Core::Get()->LoadWorldMap(); } },
 	{ 2, [] { Game::Get()->ToggleJournalWindow(); } },
 	{ 3, [] { Game::Get()->ToggleInventoryWindow(); } },
-	{ 4, [] { Game::Get()->ToggleRecordWindow(); } },
+	{ 4, [] { Game::Get()->Screens().Toggle<RecordScreen>(); } },
 	{ 5, [] { Game::Get()->ToggleArcaneSpellbookWindow(); } },
 	{ 6, [] { Game::Get()->ToggleDivineSpellbookWindow(); } },
 	{ 7, [] { Game::Get()->ToggleSaveWindow(); } },
@@ -701,8 +716,9 @@ kAuxCommandBarButtonsExtra[] = {
 };
 
 
-static void
-_AuxCommandBarInvoked(uint32 controlID)
+/* static */
+void
+Game::AuxCommandBarInvoked(uint32 controlID)
 {
 	for (const auto& button : kCommandBarButtons) {
 		if (button.controlID == controlID) {
@@ -733,28 +749,12 @@ Game::ToggleInventoryWindow()
 	fInvDragSlot = -1;
 	GUI::Get()->SetDragBitmap(NULL);
 
-	_CloseOtherScreens("GUIINV");
+	CloseOtherScreens("GUIINV");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIINV", {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
 	}
-	_UpdateCommandBarToggle();
-}
-
-
-// Shows/hides the "General" tab of the character Record window (GUIREC),
-// same 3-window pattern as GUIINV (window 2 is the actual content panel;
-// 0/1 are the same persistent side columns GUIINV also uses - GUIWLSP/
-// GUIWRSP backgrounds confirmed identical via a real GUIREC.CHU dump).
-void
-Game::ToggleRecordWindow()
-{
-	_CloseOtherScreens("GUIREC");
-	if (GUI::Get()->ToggleAuxWindowGroup("GUIREC", {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
-		_UpdateRecordLabels();
-	}
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
@@ -764,20 +764,20 @@ Game::ToggleRecordWindow()
 void
 Game::ToggleSaveWindow()
 {
-	_CloseOtherScreens("GUISAVE");
+	CloseOtherScreens("GUISAVE");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUISAVE", {0}))
 		_UpdateSaveLoadRows("GUISAVE");
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
 void
 Game::ToggleLoadWindow()
 {
-	_CloseOtherScreens("GUILOAD");
+	CloseOtherScreens("GUILOAD");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUILOAD", {0}))
 		_UpdateSaveLoadRows("GUILOAD");
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
@@ -813,9 +813,9 @@ static const uint32 kJournalDayMonthStrRef = 15981;
 void
 Game::ToggleJournalWindow()
 {
-	_CloseOtherScreens("GUIJRNL");
+	CloseOtherScreens("GUIJRNL");
 	if (GUI::Get()->ToggleAuxWindowGroup("GUIJRNL", {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIJRNL", 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIJRNL", 1), 4);
 		// Opens on the current chapter.
 		const int32 chapter = Core::Get()->Vars().Get("CHAPTER");
 		fJournalChapter = chapter > 65535 ? 0 : chapter;
@@ -830,7 +830,7 @@ Game::ToggleJournalWindow()
 		}
 		_UpdateJournalLabels();
 	}
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
@@ -838,7 +838,7 @@ void
 Game::JournalControlInvoked(uint32 controlID, uint16 windowID)
 {
 	if (windowID == 0) {
-		_AuxCommandBarInvoked(controlID);
+		AuxCommandBarInvoked(controlID);
 		return;
 	}
 	// Window 1 is the portrait column (same layout as GUIINV/GUIREC's).
@@ -917,12 +917,12 @@ Game::ToggleArcaneSpellbookWindow()
 	const char* chu = "GUIMG";
 	fSpellbookCHU = chu;
 	fSpellbookLevel = 1;
-	_CloseOtherScreens(chu);
+	CloseOtherScreens(chu);
 	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
 	}
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
@@ -932,12 +932,12 @@ Game::ToggleDivineSpellbookWindow()
 	const char* chu = "GUIPR";
 	fSpellbookCHU = chu;
 	fSpellbookLevel = 1;
-	_CloseOtherScreens(chu);
+	CloseOtherScreens(chu);
 	if (GUI::Get()->ToggleAuxWindowGroup(chu, {2, 0, 1})) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(chu, 1), 4);
 		_UpdateSpellbookScreen();
 	}
-	_UpdateCommandBarToggle();
+	UpdateCommandBarToggle();
 }
 
 
@@ -955,7 +955,7 @@ Game::_UpdateSpellbookScreen()
 		return;
 	const uint16 spellType = (fSpellbookCHU == "GUIPR") ? 0 : 1; // 0 priest, 1 wizard
 	Window* window = GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2);
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (window == NULL || actor == NULL || actor->CRE() == NULL)
 		return;
 	CREResource* cre = actor->CRE();
@@ -1019,7 +1019,7 @@ void
 Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 {
 	if (windowID == 0)
-		return _AuxCommandBarInvoked(controlID);
+		return AuxCommandBarInvoked(controlID);
 	if (windowID == 1 && controlID <= 3) {
 		ShowCharacter((uint16)controlID);
 		return;
@@ -1043,7 +1043,7 @@ Game::SpellbookControlInvoked(uint32 controlID, uint16 windowID)
 		return;
 	}
 
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -1201,53 +1201,6 @@ static const uint32 kInvInfoTextID = 5;
 static const uint32 kInvInfoBlankLabel1ID = 268435456;
 static const uint32 kInvInfoBlankLabel2ID = 268435467;
 
-static const uint32 kRecNameLabelID = 268435470;
-static const uint32 kRecACLabelID = 268435496;
-static const uint32 kRecHPCurrentLabelID = 268435497;
-static const uint32 kRecHPMaxLabelID = 268435498;
-static const uint32 kRecClassLabelID = 268435504;
-static const uint32 kRecRaceLabelID = 268435471;
-static const uint32 kRecGenderLabelID = 268435473;
-// Alignment (confirmed against GUIREC.py's own 0x10000010) - the CHU's
-// own baked-in default text for this control (a real Label always shows
-// one, see gui/Label.cpp) happened to be a leftover from whatever this
-// control template was cloned from, not alignment; that stale default
-// was never visible in a real game because the real engine always
-// overwrites it here, same as this code now does.
-static const uint32 kRecAlignmentLabelID = 268435472;
-// GemRB's own hardcoded strrefs for this pair (real BG1/BG2 don't ship
-// a 2DA for two values) - GENDER.IDS' MALE id (1) picks the first.
-static const uint32 kRecMaleStrRef = 7198;
-static const uint32 kRecFemaleStrRef = 7199;
-static const uint32 kRecStatsAreaID = 45;
-// The record screen's own buttons (window 2), confirmed against a real
-// GUIREC.CHU dump of both games and GemRB's GUIREC.py (which sets each
-// one's caption from the same strrefs - the engine's own English text
-// renders in whatever language the loaded TLK actually is). Kit Info is
-// BG2-only (dual-classing and reforming the party exist in both games);
-// control id 2, also confirmed against GUIREC.py, isn't an 8th button at
-// all but the large portrait (kRecPortraitButtonID below).
-static const uint32 kRecDualClassButtonID = 0;
-static const uint32 kRecDualClassStrRef = 7174;
-static const uint32 kRecLevelUpButtonID = 37;
-static const uint32 kRecLevelUpStrRef = 7175;
-static const uint32 kRecInformationButtonID = 1;
-static const uint32 kRecInformationStrRef = 11946;
-static const uint32 kRecReformPartyButtonID = 51;
-static const uint32 kRecReformPartyStrRef = 16559;
-static const uint32 kRecCustomizeButtonID = 50;
-static const uint32 kRecCustomizeStrRef = 10645;
-static const uint32 kRecExportButtonID = 36;
-static const uint32 kRecExportStrRef = 13956;
-static const uint32 kRecKitInfoButtonID = 52;
-static const uint32 kRecKitInfoStrRef = 61265;
-// The large portrait button (confirmed as such, not a 7th action button,
-// against GemRB's GUIREC.py: "Button = Window.GetControl(2);
-// Button.SetPicture(GemRB.GetPlayerPortrait(pc,0), ...)"). BG2 falls back
-// to the medium placeholder when a character has no portrait of its own,
-// every other game to the large one - both real BMP resources, confirmed
-// present in both installs.
-static const uint32 kRecPortraitButtonID = 2;
 // GUISAVE.CHU and GUILOAD.CHU window 0 share the same control-id layout
 // (confirmed via a real dump of both games' CHUs) - 4 fixed slot rows,
 // each: a name label, a date label, a Save-or-Load button and a Delete
@@ -1439,7 +1392,7 @@ _IsGroundItemSlotControl(uint32 controlID)
 
 
 Actor*
-Game::_ShownActor() const
+Game::ShownActor() const
 {
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return NULL;
@@ -1457,39 +1410,23 @@ Game::ShowCharacter(uint16 partyIndex)
 }
 
 
-// Re-populates whichever of the Inventory / Record screens are open for
+// Re-populates whichever of the character screens are open for
 // the current fShownCharacter - called after any change of who's shown.
 void
 Game::_RefreshCharacterScreens()
 {
 	RefreshHUDPortraits();
 	if (GUI::Get()->GetAuxWindow("GUIINV", 2) != NULL) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIINV", 1), 4);
 		_UpdateInventoryIcons();
 	}
 	_UpdateStoreWindow();
-	if (GUI::Get()->GetAuxWindow("GUIREC", 2) != NULL) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUIREC", 1), 4);
-		_UpdateRecordLabels();
-	}
+	fScreens->ShownCharacterChanged();
 	if (!fSpellbookCHU.empty()
 		&& GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 2) != NULL) {
-		_UpdatePortraitColumn(GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 1), 4);
+		UpdatePortraitColumn(GUI::Get()->GetAuxWindow(fSpellbookCHU.c_str(), 1), 4);
 		_UpdateSpellbookScreen();
 	}
-}
-
-
-void
-Game::RecordControlInvoked(uint32 controlID, uint16 windowID)
-{
-	if (windowID == 0) {
-		_AuxCommandBarInvoked(controlID);
-		return;
-	}
-	// Window 1 is the portrait column (same layout as GUIINV's).
-	if (windowID == 1 && controlID <= 3)
-		ShowCharacter((uint16)controlID);
 }
 
 
@@ -1498,7 +1435,7 @@ Game::RecordControlInvoked(uint32 controlID, uint16 windowID)
 // (GUIW window 1, 6 slots) and the Inventory/Record side panel (GUIINV/
 // GUIREC window 1, 4 slots).
 void
-Game::_UpdatePortraitColumn(Window* window, uint32 count)
+Game::UpdatePortraitColumn(Window* window, uint32 count)
 {
 	if (window == NULL || fParty == NULL)
 		return;
@@ -1529,7 +1466,7 @@ Game::_UpdatePortraitColumn(Window* window, uint32 count)
 void
 Game::RefreshHUDPortraits()
 {
-	_UpdatePortraitColumn(GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS), 6);
+	UpdatePortraitColumn(GUI::Get()->GetWindow(GUI::WINDOW_PLAYER_SLOTS), 6);
 	RefreshActionBar();
 }
 
@@ -1775,7 +1712,7 @@ void
 Game::RefreshActionBar()
 {
 	Window* window = GUI::Get()->GetWindow(GUI::WINDOW_CMDS);
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (window == NULL || actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -1928,7 +1865,7 @@ Game::SetTargetMode(TargetMode mode)
 void
 Game::CastSpellAt(Actor* target)
 {
-	Actor* caster = _ShownActor();
+	Actor* caster = ShownActor();
 	if (caster != NULL && target != NULL) {
 		if (fTargetMode == TARGET_USE_ITEM || fPendingItemSlot >= 0)
 			caster->UseItem((uint32)fPendingItemSlot, target);
@@ -1978,7 +1915,7 @@ Game::_PickBarEntry(Actor* actor, const res_ref& name, int32 slot, bool spell)
 void
 Game::ActionBarControlRightClicked(uint32 controlID)
 {
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons
 			|| fActionBarPage != PAGE_ROW)
 		return;
@@ -1999,7 +1936,7 @@ Game::ActionBarControlRightClicked(uint32 controlID)
 void
 Game::ActionBarControlInvoked(uint32 controlID)
 {
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL || controlID >= kActionButtons)
 		return;
 
@@ -2093,7 +2030,7 @@ Game::_UpdateInventoryIcons()
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return;
 
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -2117,7 +2054,7 @@ Game::_UpdateInventoryIcons()
 // there. A rejected drop (incompatible slot, e.g. armor onto a weapon
 // slot) keeps the item on the cursor so the player can try elsewhere;
 // clicking the origin slot again puts it back. Operates on whichever
-// party member the portrait column currently shows (_ShownActor()).
+// party member the portrait column currently shows (ShownActor()).
 void
 Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 {
@@ -2132,7 +2069,7 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 		// doesn't survive it, same as re-toggling this same window does.
 		fInvDragSlot = -1;
 		GUI::Get()->SetDragBitmap(NULL);
-		_AuxCommandBarInvoked(controlID);
+		AuxCommandBarInvoked(controlID);
 		return;
 	}
 
@@ -2153,7 +2090,7 @@ Game::InventoryControlInvoked(uint32 controlID, uint16 windowID)
 
 	if (fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -2207,7 +2144,7 @@ Game::InventoryControlRightClicked(uint32 controlID, uint16 windowID)
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -2272,7 +2209,7 @@ Game::InventoryControlHovered(uint32 controlID, uint16 windowID, bool inside)
 	int32 slot = _CreSlotForControl(controlID);
 	if (slot < 0 || fParty == NULL || fParty->CountActors() == 0)
 		return;
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	if (actor == NULL || actor->CRE() == NULL)
 		return;
 
@@ -2302,7 +2239,7 @@ Game::DropHeldItemOnGround()
 	if (!GUI::Get()->IsDraggingItem() || fInvDragSlot < 0)
 		return;
 
-	Actor* actor = _ShownActor();
+	Actor* actor = ShownActor();
 	AreaRoom* room = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
 	if (actor == NULL || actor->CRE() == NULL || room == NULL)
 		return;
@@ -3078,7 +3015,7 @@ Game::OpenStoreWindow(Actor* customer, const res_ref& storeName)
 		return false;
 
 	CloseContainerWindow();
-	_CloseOtherScreens("GUISTORE");
+	CloseOtherScreens("GUISTORE");
 
 	fStore = found->second;
 	fStoreCustomer = NULL;
@@ -3105,7 +3042,7 @@ Game::OpenStoreWindow(Actor* customer, const res_ref& storeName)
 	GUI* gui = GUI::Get();
 	for (uint16 id : { kStoreBarWindow, (uint16)0, (uint16)1 })
 		gui->ShowAuxWindow("GUISTORE", id);
-	_UpdatePortraitColumn(gui->GetAuxWindow("GUISTORE", 1), 6);
+	UpdatePortraitColumn(gui->GetAuxWindow("GUISTORE", 1), 6);
 	if (Window* bar = gui->GetAuxWindow("GUISTORE", kStoreBarWindow)) {
 		if (Button* done = dynamic_cast<Button*>(bar->GetControlByID(kStoreDoneButtonID)))
 			done->SetText(IDTable::GetDialog(kStoreDoneStrRef));
@@ -3310,7 +3247,7 @@ Game::_UpdateStoreWindow()
 {
 	if (!IsStoreWindowOpen())
 		return;
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (customer == NULL || customer->CRE() == NULL)
 		return;
 
@@ -3335,7 +3272,7 @@ void
 Game::_UpdateStoreShopPage()
 {
 	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreShopWindow);
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (window == NULL || customer == NULL || customer->CRE() == NULL)
 		return;
 
@@ -3447,7 +3384,7 @@ Game::_UpdateStoreShopPage()
 	if (Label* label = dynamic_cast<Label*>(window->GetControlByID(kInvWeightMaxLabelID)))
 		label->SetText(std::to_string(_MaxEncumbrance(customer->CRE())) + ":");
 
-	_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
+	UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
 }
 
 
@@ -3457,7 +3394,7 @@ void
 Game::_UpdateStoreIdentifyPage()
 {
 	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreIdentifyWindow);
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (window == NULL || customer == NULL || customer->CRE() == NULL)
 		return;
 
@@ -3509,14 +3446,14 @@ Game::_UpdateStoreIdentifyPage()
 
 	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(window->GetControlByID(kStoreIdScrollID)))
 		scrollbar->SetScrollInfo(fStoreIdentifyRow, maxRow);
-	_UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
+	UpdatePortraitColumn(GUI::Get()->GetAuxWindow("GUISTORE", 1), 6);
 }
 
 
 void
 Game::_StoreIdentifySelected()
 {
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	Window* window = GUI::Get()->GetAuxWindow("GUISTORE", kStoreIdentifyWindow);
 	if (customer == NULL || window == NULL || fStore == NULL)
 		return;
@@ -3555,7 +3492,7 @@ Game::_StoreIdentifySelected()
 void
 Game::_StoreBuySelected()
 {
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (customer == NULL || fStore == NULL)
 		return;
 
@@ -3598,7 +3535,7 @@ Game::_StoreBuySelected()
 void
 Game::_StoreSellSelected()
 {
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (customer == NULL || fStore == NULL)
 		return;
 
@@ -3665,7 +3602,7 @@ Game::StoreControlInvoked(uint32 controlID, uint16 windowID)
 			ShowCharacter((uint16)controlID);
 		return;
 	}
-	Actor* customer = _ShownActor();
+	Actor* customer = ShownActor();
 	if (customer == NULL)
 		return;
 
@@ -3818,7 +3755,7 @@ Game::StoreControlHovered(uint32 controlID, uint16 windowID, bool inside)
 		if (index < shelf.size())
 			name = _ItemDisplayName(shelf[index].item.name);
 	} else if (controlID >= kStoreOwnFirstID && controlID < kStoreOwnFirstID + kStoreSlots) {
-		Actor* customer = _ShownActor();
+		Actor* customer = ShownActor();
 		std::vector<loot_entry> own;
 		if (customer != NULL)
 			_CollectOwnEntries(customer, own);
@@ -3827,259 +3764,6 @@ Game::StoreControlHovered(uint32 controlID, uint16 windowID, bool inside)
 			name = _ItemDisplayName(own[index].item.name);
 	}
 	GUI::Get()->SetHoverTooltip(name);
-}
-
-
-// Populates the parts of GUIREC's "General" tab (window 2) identified
-// with confidence so far - the 6 ability scores (row-by-row position
-// matching against the already-correctly-localized stat name labels next
-// to them, e.g. "Forza"/STR) and the AC badge (same shield-shaped-badge
-// reasoning as GUIINV's). Not done yet, deliberately (same caution as
-// GUIINV's unmapped equipment slots): the name banner (almost certainly
-// hits the same REALMS font bug as GUIINV, unverified), the class/race/
-// level text block (id 268435470/table around y=452).
-void
-Game::_UpdateRecordLabels()
-{
-	if (fParty == NULL || fParty->CountActors() == 0)
-		return;
-
-	Actor* actor = _ShownActor();
-	if (actor == NULL || actor->CRE() == NULL)
-		return;
-
-	Window* window = GUI::Get()->GetAuxWindow("GUIREC", 2);
-	if (window == NULL)
-		return;
-
-	Label* nameLabel = dynamic_cast<Label*>(window->GetControlByID(kRecNameLabelID));
-	if (nameLabel != NULL)
-		nameLabel->SetText(actor->LongName());
-
-	Label* hpLabel = dynamic_cast<Label*>(window->GetControlByID(kRecHPCurrentLabelID));
-	if (hpLabel != nullptr)
-		hpLabel->SetText(std::to_string(actor->CRE()->CurrentHitPoints()));
-
-	Label* hpMaxLabel = dynamic_cast<Label*>(window->GetControlByID(kRecHPMaxLabelID));
-	if (hpMaxLabel != nullptr)
-		hpMaxLabel->SetText(std::to_string(actor->CRE()->MaxHitPoints()));
-
-	_UpdateAbilityScoreLabels(window, actor->CRE());
-
-	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kRecACLabelID));
-	if (acLabel != NULL)
-		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
-
-	_UpdateClassRaceLevelLabels(window, actor);
-	_UpdateSavesAndResistances(window, actor->CRE());
-	_UpdateRecordButtons(window);
-	_UpdateRecordPortrait(window, actor);
-}
-
-
-// The character's own large portrait (control 2 - see its own comment).
-void
-Game::_UpdateRecordPortrait(Window* window, Actor* actor)
-{
-	Button* button = dynamic_cast<Button*>(window->GetControlByID(kRecPortraitButtonID));
-	if (button == NULL)
-		return;
-
-	res_ref portraitRef = actor->CRE()->LargePortrait();
-	if (portraitRef.CString()[0] == '\0') {
-		portraitRef = Core::Get()->Game() == game::GAME_BALDURSGATE2
-			? res_ref("NOPORTMD") : res_ref("NOPORTLG");
-	}
-
-	Bitmap* portrait = NULL;
-	BMPResource* bmp = gResManager->GetBMP(portraitRef);
-	if (bmp != NULL) {
-		portrait = bmp->Image();
-		gResManager->ReleaseResource(bmp);
-	}
-	// coverBackground: same reasoning as the paperdoll button's own -
-	// the CHU-authored placeholder shouldn't show through/around it.
-	button->SetIcon(portrait, true);
-}
-
-
-// The row of buttons under the portrait (Dual-Class/Level Up/Information/
-// Reform Party/Customize/Export, plus Kit Info on BG2) - labels only, same
-// as GUIREC.py's own SetText() calls; none of the windows they'd open
-// (dual-classing, leveling up, ...) exist in this engine yet, so they stay
-// unwired (a click is a silent no-op, same as any other unhandled control).
-void
-Game::_UpdateRecordButtons(Window* window)
-{
-	auto setLabel = [window] (uint32 controlID, uint32 strRef) {
-		if (Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID)))
-			button->SetText(IDTable::GetDialog(strRef));
-	};
-	setLabel(kRecDualClassButtonID, kRecDualClassStrRef);
-	setLabel(kRecLevelUpButtonID, kRecLevelUpStrRef);
-	setLabel(kRecInformationButtonID, kRecInformationStrRef);
-	setLabel(kRecReformPartyButtonID, kRecReformPartyStrRef);
-	setLabel(kRecCustomizeButtonID, kRecCustomizeStrRef);
-	setLabel(kRecExportButtonID, kRecExportStrRef);
-	if (Core::Get()->Game() == game::GAME_BALDURSGATE2)
-		setLabel(kRecKitInfoButtonID, kRecKitInfoStrRef);
-}
-
-
-// The 6 ability-score value labels, row-by-row (top to bottom) against
-// the static "Forza/Destrezza/Costituzione/Intelligenza/Saggezza/
-// Carisma" name labels beside them, confirmed via a real GUIREC.CHU
-// control dump (each value label sits ~10px below its matching name
-// label, same 37px row spacing for both columns).
-void
-Game::_UpdateAbilityScoreLabels(Window* window, CREResource* cre)
-{
-	BaseAttributes attrs;
-	cre->GetAttributes(attrs);
-
-	static const uint32 kStatLabelIDs[] = {
-		268435503, 268435465, 268435466, 268435467, 268435468, 268435469
-	};
-	const int8 statValues[] = {
-		attrs.strength, attrs.dexterity, attrs.constitution,
-		attrs.intelligence, attrs.wisdom, attrs.charisma
-	};
-	for (int i = 0; i < 6; i++) {
-		Label* label = dynamic_cast<Label*>(window->GetControlByID(kStatLabelIDs[i]));
-		if (label == NULL)
-			continue;
-		std::string text = std::to_string(statValues[i]);
-		// Exceptional strength (18/xx) - only meaningful at STR 18.
-		if (i == 0 && statValues[0] == 18 && attrs.strength_bonus > 0)
-			text += "/" + std::to_string(attrs.strength_bonus);
-		label->SetText(text);
-	}
-}
-
-
-// Class/Race/Alignment/Gender block. Prefers the properly localized
-// IDTable::*Name() lookups (see their own comment); an id outside their
-// small hardcoded table (an exotic/modded creature) falls back to the
-// raw, always-English IDS symbol rather than showing nothing.
-void
-Game::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
-{
-	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kRecClassLabelID));
-	if (classLabel != NULL) {
-		std::string text = IDTable::ClassName(actor->CRE()->Class());
-		if (text.empty())
-			text = _TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class()));
-		classLabel->SetText(text);
-	}
-
-	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(kRecRaceLabelID));
-	if (raceLabel != NULL) {
-		std::string text = IDTable::RaceName(actor->CRE()->Race());
-		if (text.empty())
-			text = _TitleCaseIDSName(IDTable::RaceAt(actor->CRE()->Race()));
-		raceLabel->SetText(text);
-	}
-
-	Label* alignmentLabel = dynamic_cast<Label*>(window->GetControlByID(kRecAlignmentLabelID));
-	if (alignmentLabel != NULL) {
-		std::string text = IDTable::AlignmentName(actor->CRE()->Alignment());
-		if (text.empty())
-			text = _TitleCaseIDSName(IDTable::AlignmentAt(actor->CRE()->Alignment()));
-		alignmentLabel->SetText(text);
-	}
-
-	Label* genderLabel = dynamic_cast<Label*>(window->GetControlByID(kRecGenderLabelID));
-	if (genderLabel != NULL) {
-		genderLabel->SetText(IDTable::GetDialog(actor->CRE()->Gender() == 1
-			? kRecMaleStrRef : kRecFemaleStrRef));
-	}
-}
-
-
-// Saving throws + damage resistances (id 45, a scrollable text_area
-// with its own scrollbar at id 46, confirmed via a real GUIREC.CHU
-// dump) - real BG2 lists these as plain scrollable text rather than
-// individual labels, unlike the rest of this tab. Both structs
-// (SaveVersus/Resistances) were already fully read by CREResource,
-// just never displayed anywhere until now.
-void
-Game::_UpdateSavesAndResistances(Window* window, CREResource* cre)
-{
-	TextArea* statsArea = dynamic_cast<TextArea*>(window->GetControlByID(kRecStatsAreaID));
-	if (statsArea == NULL)
-		return;
-
-	statsArea->ClearText();
-
-	// name + level
-	statsArea->AddText((IDTable::ClassAt(cre->Class())
-		+ std::string(": Level ") + std::to_string(cre->Level())).c_str());
-
-	// Experience
-	statsArea->AddText((std::string("Experience: ") + std::to_string(cre->Experience())).c_str());
-
-	// TODO: Next level
-
-	SaveVersus saves = cre->Saves();
-	const std::pair<const char*, uint8> saveLines[] = {
-		{ "Morte", saves.death },
-		{ "Bacchette", saves.wands },
-		{ "Polimorfismo", saves.poly },
-		{ "Soffio", saves.breath },
-		{ "Incantesimi", saves.spell }
-	};
-	statsArea->AddText("Tiri Salvezza");
-	for (const auto& line : saveLines)
-		statsArea->AddText((std::string(line.first) + ": " + std::to_string(line.second)).c_str());
-
-	Resistances res = cre->DamageResistances();
-	const std::pair<const char*, uint8> resistanceLines[] = {
-		{ "Contundente", res.crushing },
-		{ "Perforante", res.piercing },
-		{ "Tagliente", res.slashing },
-		{ "Missili", res.missile },
-		{ "Fuoco", res.fire },
-		{ "Freddo", res.cold },
-		{ "Elettricita", res.electricity },
-		{ "Acido", res.acid },
-		{ "Magia", res.magic },
-		{ "Fuoco magico", res.magic_fire },
-		{ "Freddo magico", res.magic_cold }
-	};
-	statsArea->AddText("Resistenze");
-	for (const auto& line : resistanceLines) {
-		statsArea->AddText(
-			(std::string(line.first) + ": " + std::to_string(line.second) + "%").c_str());
-	}
-
-	// AddText() auto-scrolls to the newest line (fine for the
-	// dialogue TextArea it was written for) - scroll back to the
-	// top so Saving Throws, not the tail of Resistances, is what's
-	// visible when the tab first opens.
-	statsArea->ScrollTo(0, 0);
-}
-
-
-// "HALF_ELF" -> "Half Elf" - turns a raw *.IDS symbolic name (all caps,
-// underscore-separated) into something readable, absent a 2DA to look up
-// a real localized display string for it.
-std::string
-Game::_TitleCaseIDSName(const std::string& idsName)
-{
-	std::string result = idsName;
-	bool startOfWord = true;
-	for (char& c : result) {
-		if (c == '_') {
-			c = ' ';
-			startOfWord = true;
-		} else if (startOfWord) {
-			c = toupper(c);
-			startOfWord = false;
-		} else {
-			c = tolower(c);
-		}
-	}
-	return result;
 }
 
 

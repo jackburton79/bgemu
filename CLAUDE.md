@@ -163,6 +163,20 @@ correct index→RGB blit for free and needs no such step. Fonts flagged
 explicit palette (`ToolfontPalette()`), never rendered with their raw BAM
 colors.
 
+### Screens (`screens/`)
+
+The GUI screens are being moved out of `Game` (branch refactor/Game) into
+`GameScreen` subclasses: one CHU, its windows shown/hidden together,
+`Open()/Close()/Toggle()` (opening closes every other screen and refreshes
+the command-bar icon), `Refresh()` to fill the controls, and the control
+events (`ControlInvoked/RightClicked/Hovered`) that `GUI` hands to the screen
+owning the CHU through `ScreenManager` (`Game::Screens()`). `PanelScreen` is
+the full-screen panel layout (content window 2, command bar copy 0, portrait
+column 1). `RecordScreen` is the first one ported; the others (Inventory,
+Journal, Spellbook, Save/Load, loot, store, action bar) are still `Game`'s own
+`Toggle*Window()` etc. and use `kScreenGroups` in `Game.cpp` until moved.
+`Assert-ScreenOpen <CHU>,<true|false>` checks a ported screen.
+
 ### Loot and store windows
 
 Both are driven by an action, not by clicking a control. USECONTAINER
