@@ -53,7 +53,7 @@ Useful flags for development (see `README.md` for the full list):
   frame counts, useful for reverse-engineering an animation format)
 - `--no-newgame` (`-N`) — skip the "start a new game" flow entirely
 - `-S <dir>` / `BGEMU_SAVE_DIR` — where saves and area checkpoints go
-  (`Game::SaveDirectory()`); default `<game path>/bgemu-save`, so BG1 and
+  (`SavedGame::Directory()`); default `<game path>/bgemu-save`, so BG1 and
   BG2 never share saves. `tests/exec/run-all.sh` points it at a temp dir.
 
 For headless/CI-style runs, pair with a dummy SDL driver:
@@ -184,9 +184,13 @@ labels, loot entries).
 Two HUD pieces are not screens, since they live in the HUD's own resource
 (GUIW) and not in an auxiliary CHU: `LootWindow` (window 8, `Game::Loot()`) and
 `ActionBar` (window 3, `Game::Bar()`, which also owns the click target mode
-`ActionBar::TargetMode` that `AreaRoom` consumes). `Game` keeps what isn't a
-screen: the game loop, party/NPCs, dialogs, saving and loading, the journal's
-data, who the screens show (`ShownActor()`) and the HUD portraits.
+`ActionBar::TargetMode` that `AreaRoom` consumes). Around them: `SavedGame` (`Game::Saves()`: save directory, slot paths,
+`Save()`/`Load()`), `NPCRoster` (`Game::NPCs()`, the global NPCs), `GameJournal`
+(`Game::Journal()`, the notes), `StartingParty` (`Game::Starting()`: default
+party, `--party`, `--character`, the `CharacterBuilder`) and `CommandBar` (the
+HUD bar and its copy in each panel). `Game` keeps the game loop, the party
+(join/leave, making an NPC), dialogs and tokens, the area cache and temp state,
+who the screens show (`ShownActor()`) and the HUD portraits.
 
 ### Loot and store windows
 
@@ -261,7 +265,7 @@ own real convention needs fewer directions.
 
 Creatures outside the party that the game itself tracks (a new game's
 companions and story NPCs from `BALDUR.GAM`, and later whoever leaves the
-party) are **global NPCs**, as in GemRB and the original engine: `Game::fNPCs`
+party) are **global NPCs**, as in GemRB and the original engine: `NPCRoster` (`Game::NPCs()`)
 owns them, each remembers its area and point (`Actor::AreaName()`,
 `Position()`), and `AreaRoom::_LoadActors()` places the ones whose area it is.
 They are not part of any area's cached actors or checkpoint

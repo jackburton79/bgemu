@@ -29,31 +29,10 @@ class GamResource;
 struct gam_party_member;
 class Party;
 
-// The Map/Journal/Inventory/Record/Spellbook/Save command-bar actions -
-// identical (same control ids) on both the main HUD bar (gui/GUI.cpp's
-// own extra entries) and the copy embedded in every full-screen panel's
-// own window 0 (Game.cpp's own extra entries); each caller adds only
-// its own extras (Pause on the HUD, Rest under a differing id) on top
-// of this shared table.
-struct CommandBarButton { uint32 controlID; void (*action)(); };
-
-// One journal entry. `section` is one of Game::journal_section; `time` is in
-// game seconds (GameTimer::GameTime()) at the moment the entry was added or
-// last moved between sections, `chapter` the CHAPTER global then.
-struct journal_entry {
-	uint32 strref;
-	uint8 section;
-	uint8 group;
-	uint8 chapter;
-	uint32 time;
-};
-extern const CommandBarButton kCommandBarButtons[9];
-
 class Game {
 public:
 	static Game* Get();
 	void Loop(bool noNewGame = false, bool executeScripts = true);
-	void CreateParty();
 	void InitiateDialog(Actor* actor, Actor* target);
 	bool InDialogMode() const;
 	void TerminateDialog();
@@ -61,30 +40,13 @@ public:
 
 	::Party* Party();
 
-	// Global NPCs: the creatures outside the party that the game itself
-	// keeps track of (a new game's companions and story characters, or
-	// whoever left the party) - unlike an area's other actors they aren't
-	// part of any area's own state: each one just remembers the area and
-	// point it is at (Actor::AreaName(), Position()) and shows up when
-	// that area is loaded. AddNPC() takes over the caller's reference;
-	// RemoveNPC() drops the list's.
-	uint16 CountNPCs() const;
-	Actor* NPCAt(uint16 index) const;
-	bool IsNPC(const Actor* actor) const;
-	// The NPC a script's object name refers to (its CRE name or death
-	// variable), NULL if none.
-	Actor* FindNPC(const char* name) const;
-	void AddNPC(Actor* actor);
-	void RemoveNPC(Actor* actor);
+	// The global NPCs (see NPCRoster).
+	class NPCRoster& NPCs();
 
 	// An actor of the current area becomes a global NPC (MAKEGLOBAL): the
-	// area stops placing it, the Game keeps it from now on.
+	// area stops placing it, the roster keeps it from now on (unless it is
+	// in the party, or already one).
 	void MakeNPC(Actor* actor);
-	// Moves a global NPC to a point of an area, which needn't be loaded:
-	// out of the room it is in if that isn't the destination, into the
-	// current room if it is.
-	void MoveNPC(Actor* npc, const res_ref& area, const IE::point& position,
-		int orientation);
 	// Party membership: a global NPC that joins stops being one, a member
 	// that leaves becomes one (staying where it is).
 	void JoinParty(Actor* actor);
@@ -116,8 +78,6 @@ public:
 	// The screens that are ported to GameScreen (see screens/); the rest
 	// are still Game's own Toggle*Window() and friends.
 	ScreenManager& Screens();
-	// A click on the command-bar copy embedded in a full-screen panel.
-	static void AuxCommandBarInvoked(uint32 controlID);
 	// The party member the Inventory/Record screens currently show (see
 	// fShownCharacter), or NULL if the party is empty / the index is
 	// stale.
@@ -146,13 +106,7 @@ public:
 	// The HUD action bar (see ActionBar).
 	class ActionBar& Bar();
 
-	// Queues RESTPARTY(230) on the first party member - same action
-	// SETAREARESTFLAG/RunActionRestParty already implement (Fase 4/10),
-	// just triggered from the HUD Rest button instead of a script.
-	void TriggerRest();
 
-	bool Load(const char* name);
-	bool Save(const char* name);
 
 	// Hands off a live Actor object between two AreaRoom loads within the
 	// same running session (e.g. a scripted MOVEBETWEENAREASEFFECT) -
@@ -220,20 +174,20 @@ public:
 		std::map<res_ref, CachedArea> areas;
 	};
 	AreaCache* GetAreaCache();
+	// Releases every entry in the area cache (same balancing act as ~Game()
+	// itself) and empties it - a load must drop the live session's own
+	// cached area state before adopting a save's, or it would resurrect
+	// whatever the *current*, unsaved session left behind for any area not
+	// being loaded right now instead of that save's own history.
+	void ClearAreaCache();
+	// Replaces the party with a new, empty one (what loading a save does).
+	::Party* ResetParty();
 
-	// Headless character-creation state (roadmap Fase 47). Driven by the
-	// Char-* console commands; A2 will turn a completed one into the
-	// starting-party protagonist.
-	CharacterBuilder& GetCharacterBuilder();
+	// The party a new game starts with (see StartingParty).
+	class StartingParty& Starting();
 
 	void SetTestMode(bool value);
 	bool TestMode() const;
-
-	// Overrides CreateParty()'s hardcoded starting party with this list of
-	// CRE resrefs (loaded in order, all at the same default spawn point) -
-	// set from the command line (see bgemu.cpp's --party option). Leaving
-	// this empty keeps CreateParty()'s original hardcoded default.
-	void SetStartingPartyMembers(const std::vector<std::string>& names);
 
 	// Path to a shell-command test script (see bgemu.cpp's --exec-file
 	// option): one GameConsole command per line, blank lines and lines
@@ -253,20 +207,9 @@ public:
 	// position is. Leaving this empty keeps the normal startup flow.
 	void SetStartingArea(const char* areaName);
 
-	// Directory holding everything this engine writes for saving: one
-	// "savegame_slot<N>.gam" (+ ".arecache" directory) per slot and the
-	// session's own area checkpoints ("current/arecache", see
-	// AreaRoom::AreaCheckpointDir()). Set once at startup (bgemu.cpp),
-	// per game installation.
-	void SetSaveDirectory(const std::string& path);
-	const std::string& SaveDirectory() const;
-	std::string SaveSlotPath(uint32 index) const;
+	// Saving and loading (see SavedGame).
+	class SavedGame& Saves();
 
-	// Path to a character-creation spec file. When set, CreateParty()
-	// builds the party leader from it (via CharacterBuilder), injects
-	// the resulting CRE as "PLAYER1", and starts with that + the usual
-	// companion instead of the hardcoded default party.
-	void SetCharacterSpec(const char* path);
 
 	// Dialog placeholder tokens (SETTOKEN/SETTOKENOBJECT/SETGABBER) -
 	// resolved by DialogHandler::_FillPlaceHolders() alongside the
@@ -276,26 +219,8 @@ public:
 	void SetToken(const std::string& name, const std::string& value);
 	const std::map<std::string, std::string>& Tokens() const;
 
-	// The journal: entries added by ADDJOURNALENTRY, moved/removed by
-	// SETQUESTDONE/ERASEJOURNALENTRY, and by dialog transitions that carry
-	// a journal note (DialogHandler). Semantics follow GemRB's Game::
-	// AddJournalEntry(): an entry is unique per strref - adding one that
-	// exists in the same section changes nothing (returns false), in
-	// another section moves it there (or, finishing a quest that belongs
-	// to a group, replaces the whole group with it).
-	enum journal_section {
-		JOURNAL_USER = 0,
-		JOURNAL_QUEST = 1,
-		JOURNAL_DONE = 2,
-		JOURNAL_INFO = 4
-	};
-	bool AddJournalEntry(uint32 strref, uint8 section, uint8 group = 0);
-	void RemoveJournalEntry(uint32 strref);
-	void RemoveJournalGroup(uint8 group);
-	const std::vector<journal_entry>& Journal() const;
-	// Strrefs only, in order - for the console and tests.
-	std::vector<uint32> JournalEntries() const;
-	void SetJournal(const std::vector<journal_entry>& entries);
+	// The journal's notes (see GameJournal).
+	class GameJournal& Journal();
 
 	// REVEALAREAONMAP/HIDEAREAONMAP - kept here rather than on the
 	// AreaEntry/WorldMap objects directly, since WorldMap is recreated
@@ -317,24 +242,16 @@ private:
 	DialogHandler* fDialog;
 
 	::Party* fParty;
-	std::vector<Actor*> fNPCs;
+	class NPCRoster* fNPCs;
 	TempState* fTempState;
 	AreaCache* fAreaCache;
-	CharacterBuilder* fCharBuilder;
+	class StartingParty* fStartingParty;
 
 	uint32 fDelay;
 	bool fTestMode;
 
-	std::vector<std::string> fStartingPartyMembers;
 	std::string fExecFile;
 	std::string fStartingArea;
-	std::string fSaveDirectory;
-	std::string fCharacterSpec;
-
-	// Parses fCharacterSpec into fCharBuilder, builds the CRE, injects it
-	// as "PLAYER1", and adds it (plus the default companion) to fParty.
-	// Returns false (and adds nothing) on any parse/build failure.
-	bool _CreateCharacterFromSpec(const IE::point& position);
 
 	// Releases every entry in fAreaCache (same balancing act as ~Game()
 	// itself, which used to do this inline) and empties it - shared with
@@ -342,21 +259,10 @@ private:
 	// before adopting a save's, or a load would otherwise resurrect
 	// whatever the *current*, unsaved session left behind for any area
 	// not being loaded right now instead of that save's own history.
-	void _ClearAreaCache();
 
-	// Fills fNPCs from a GAM's out-of-party table (a new game's BALDUR.GAM
-	// or a save), skipping anyone already in the party.
-	void _LoadNPCs(GamResource* gam);
-	void _ClearNPCs();
-	void _LoadStartingNPCs();
-	// A character as a save (or BALDUR.GAM) describes it: the CRE's own
-	// files, with the saved CRE state (if any - taken over and released
-	// here) on top.
-	Actor* _RestoreActor(const gam_party_member& member, CREResource* savedCre);
-	gam_party_member _GamMember(Actor* actor, const res_ref& areaName) const;
 
 	std::map<std::string, std::string> fTokens;
-	std::vector<journal_entry> fJournal;
+	class GameJournal* fJournal;
 	std::map<std::string, bool> fAreaMapVisibility;
 
 
@@ -367,9 +273,9 @@ private:
 	// Party index whose sheet the Inventory / Record screens show.
 	uint16 fShownCharacter;
 
-	void _RunExecFile(GameConsole* console);
 	// Re-populates the Inventory / Record screens (whichever are open)
 	// after fShownCharacter changes.
 	void _RefreshCharacterScreens();
 	ScreenManager* fScreens;
+	class SavedGame* fSaves;
 };

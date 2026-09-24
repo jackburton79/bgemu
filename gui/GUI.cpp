@@ -15,6 +15,7 @@
 #include "Control.h"
 #include "Core.h"
 #include "ActionBar.h"
+#include "CommandBar.h"
 #include "Game.h"
 #include "LootWindow.h"
 #include "ScreenManager.h"
@@ -999,12 +1000,8 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 			return;
 		}
 		if (windowID == WINDOW_COMMANDS) {
-			for (const auto& button : kCommandBarButtons) {
-				if (button.controlID == controlID) {
-					button.action();
-					return;
-				}
-			}
+			if (CommandBar::InvokeOnHUD(controlID))
+				return;
 		} else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
 			// The 6 HUD portrait buttons select that party member;
 			// shift+click instead adds/removes just that one from the map

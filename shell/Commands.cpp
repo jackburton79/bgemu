@@ -22,6 +22,9 @@
 #include "GamResource.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "StartingParty.h"
+#include "GameJournal.h"
+#include "SavedGame.h"
 #include "GameConsole.h"
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
@@ -205,7 +208,7 @@ class CharNewCommand : public ShellCommand {
 public:
 	CharNewCommand() : ShellCommand("Char-New") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->GetCharacterBuilder().Reset();
+		Game::Get()->Starting().Builder().Reset();
 		std::cout << "new character" << std::endl;
 	}
 };
@@ -222,7 +225,7 @@ public:
 		std::string value = params.at(1).value.string;
 		if (value == "-")
 			value.clear();
-		CharacterBuilder& b = Game::Get()->GetCharacterBuilder();
+		CharacterBuilder& b = Game::Get()->Starting().Builder();
 		bool ok = false;
 		if (strcasecmp(field.c_str(), "gender") == 0)      ok = b.SetGender(value);
 		else if (strcasecmp(field.c_str(), "race") == 0)   ok = b.SetRace(value);
@@ -238,10 +241,10 @@ class CharRollCommand : public ShellCommand {
 public:
 	CharRollCommand() : ShellCommand("Char-Roll") {}
 	virtual void operator()(const char* argv) {
-		int total = Game::Get()->GetCharacterBuilder().RollAbilities();
+		int total = Game::Get()->Starting().Builder().RollAbilities();
 		if (total == 0)
 			std::cout << "roll failed (set race + class first, or impossible combo)" << std::endl;
-		Game::Get()->GetCharacterBuilder().Print();
+		Game::Get()->Starting().Builder().Print();
 	}
 };
 
@@ -255,7 +258,7 @@ public:
 		const ShellCommandParameters params = ParseParameters(argv);
 		int idx = _AbilityIndex(params.at(0).value.string);
 		if (idx < 0) { std::cout << "unknown ability" << std::endl; return; }
-		bool ok = Game::Get()->GetCharacterBuilder().SetAbility(idx, params.at(1).value.integer);
+		bool ok = Game::Get()->Starting().Builder().SetAbility(idx, params.at(1).value.integer);
 		std::cout << params.at(0).value.string << " = " << params.at(1).value.integer
 				<< (ok ? " : ok" : " : REJECTED (out of legal range)") << std::endl;
 	}
@@ -265,7 +268,7 @@ class CharPrintCommand : public ShellCommand {
 public:
 	CharPrintCommand() : ShellCommand("Char-Print") {}
 	virtual void operator()(const char* argv) {
-		Game::Get()->GetCharacterBuilder().Print();
+		Game::Get()->Starting().Builder().Print();
 	}
 };
 
@@ -280,7 +283,7 @@ public:
 		std::string path = params.at(0).value.string;
 
 		std::vector<uint8> data;
-		if (!Game::Get()->GetCharacterBuilder().BuildCREData(data)) {
+		if (!Game::Get()->Starting().Builder().BuildCREData(data)) {
 			std::cout << "Char-Build: character not complete" << std::endl;
 			return;
 		}
@@ -396,7 +399,7 @@ public:
 
 
 // PrintJournalCommand - dumps Game's minimal in-memory journal (see
-// Game::AddJournalEntry()'s header comment) so ADDJOURNALENTRY/
+// GameJournal's header comment) so ADDJOURNALENTRY/
 // ERASEJOURNALENTRY/SETQUESTDONE are testable headlessly.
 static bool _SplitOnFirstComma(const char* argv, std::string& first, std::string& rest);
 
@@ -408,7 +411,7 @@ public:
 	{
 	}
 	virtual void operator()(const char* argv) {
-		for (const journal_entry& entry : Game::Get()->Journal())
+		for (const journal_entry& entry : Game::Get()->Journal().Entries())
 			std::cout << std::dec << entry.strref << " [section " << (int)entry.section << ", group "
 				<< (int)entry.group << ", chapter " << (int)entry.chapter << "]: "
 				<< IDTable::GetDialog(entry.strref) << std::endl;
@@ -434,7 +437,7 @@ public:
 		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
 		int expected = (int)::strtol(expectedText.c_str(), NULL, 0);
 		int section = -1;
-		for (const journal_entry& entry : Game::Get()->Journal()) {
+		for (const journal_entry& entry : Game::Get()->Journal().Entries()) {
 			if (entry.strref == strref)
 				section = entry.section;
 		}
@@ -1566,7 +1569,7 @@ public:
 
 
 // Assert-JournalHasEntry <strref>,<true|false> - same self-checking
-// spirit as Assert-DoorOpened, for Game::JournalEntries(): no trigger
+// spirit as Assert-DoorOpened, for GameJournal::Strrefs(): no trigger
 // exposes journal content, so this is the only way to assert on it
 // (used to verify GamResource's journal round trip across Save-Game/
 // Load-Game).
@@ -1585,7 +1588,7 @@ public:
 		uint32 strref = ::strtoul(strrefText.c_str(), NULL, 0);
 		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
 
-		const std::vector<uint32>& entries = Game::Get()->JournalEntries();
+		const std::vector<uint32>& entries = Game::Get()->Journal().Strrefs();
 		bool found = std::find(entries.begin(), entries.end(), strref) != entries.end();
 		if (found == expected) {
 			std::cout << std::dec << "ASSERT OK: JournalHasEntry(" << strref << ")" << std::endl;
@@ -1664,6 +1667,26 @@ public:
 			std::cout << "ASSERT FAIL: LootWindow open - expected "
 				<< (expected ? "true" : "false") << ", got "
 				<< (open ? "true" : "false") << std::endl;
+		}
+	}
+};
+
+
+// Assert-Paused <true|false> - whether the game is paused.
+class AssertPausedCommand : public ShellCommand {
+public:
+	AssertPausedCommand()
+		: ShellCommand("Assert-Paused")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const bool expected = strcasecmp(argv, "true") == 0;
+		const bool paused = Core::Get()->IsPaused();
+		if (paused == expected) {
+			std::cout << "ASSERT OK: paused == " << (expected ? "true" : "false") << std::endl;
+		} else {
+			std::cout << "ASSERT FAIL: paused - expected " << (expected ? "true" : "false")
+				<< ", got " << (paused ? "true" : "false") << std::endl;
 		}
 	}
 };
@@ -2764,7 +2787,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
-		bool ok = Game::Get()->Save(params.at(0).value.string);
+		bool ok = Game::Get()->Saves().Save(params.at(0).value.string);
 		std::cout << "Save-Game: " << (ok ? "OK" : "FAILED") << std::endl;
 	}
 };
@@ -2783,7 +2806,7 @@ public:
 	}
 	virtual void operator()(const char* argv) {
 		const ShellCommandParameters params = ParseParameters(argv);
-		bool ok = Game::Get()->Load(params.at(0).value.string);
+		bool ok = Game::Get()->Saves().Load(params.at(0).value.string);
 		std::cout << "Load-Game: " << (ok ? "OK" : "FAILED") << std::endl;
 	}
 };
@@ -2960,6 +2983,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
 	console->AddCommand(new AssertScreenOpenCommand());
+	console->AddCommand(new AssertPausedCommand());
 	console->AddCommand(new AssertItemAtSlotCommand());
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());

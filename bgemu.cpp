@@ -1,6 +1,8 @@
 #include "AreaRoom.h"
 #include "Core.h"
 #include "Game.h"
+#include "StartingParty.h"
+#include "SavedGame.h"
 #include "GraphicsEngine.h"
 #include "Log.h"
 #include "MovieDecoder.h"
@@ -39,13 +41,13 @@ struct option sLongOptions[] = {
 		{ "debug", no_argument, &sDebug, 'D' },
 		{ "fullscreen", no_argument, &sFullScreen, 'f' },
 		// Comma-separated list of CRE resrefs to start the party with,
-		// overriding Game::CreateParty()'s hardcoded default (e.g.
-		// "-P ANOMEN10,Imoen,Minsc") - see Game::SetStartingPartyMembers().
+		// overriding StartingParty's hardcoded default (e.g.
+		// "-P ANOMEN10,Imoen,Minsc") - see StartingParty::SetMembers().
 		{ "party", required_argument, NULL, 'P' },
 		// Path to a test script (one GameConsole command per line, blank
 		// lines and '#' comments ignored) - run automatically right after
 		// the starting area/worldmap loads, then the game quits. See
-		// Game::SetExecFile()/Game::_RunExecFile().
+		// Game::SetExecFile()/GameConsole::RunFile().
 		{ "exec-file", required_argument, NULL, 'x' },
 		// Area resref to load directly on startup, skipping both the
 		// opening cutscene (LoadStartingArea()) and --no-newgame's
@@ -56,12 +58,12 @@ struct option sLongOptions[] = {
 		// '#' comments): gender/race/class/kit/alignment plus either the
 		// six ability scores or a bare "roll" line. Builds the party
 		// leader from scratch (roadmap Fase 47 / A). See
-		// Game::SetCharacterSpec()/Game::CreateParty().
+		// StartingParty::SetCharacterSpec().
 		{ "character", required_argument, NULL, 'c' },
 		// Directory for saves and area checkpoints, instead of
 		// "<game path>/bgemu-save" (also settable with the BGEMU_SAVE_DIR
 		// environment variable; this option wins). See
-		// Game::SetSaveDirectory().
+		// SavedGame::SetDirectory().
 		{ "save-dir", required_argument, NULL, 'S' },
 		{ 0, 0, 0, 0 }
 };
@@ -173,7 +175,7 @@ main(int argc, char **argv)
 		saveDirectory = fromEnvironment;
 	else
 		saveDirectory = std::filesystem::path(sPath) / "bgemu-save";
-	Game::Get()->SetSaveDirectory(saveDirectory.string());
+	Game::Get()->Saves().SetDirectory(saveDirectory.string());
 
 	if (sPartyMembers != NULL) {
 		std::vector<std::string> names;
@@ -185,7 +187,7 @@ main(int argc, char **argv)
 		}
 		if (!remaining.empty())
 			names.push_back(remaining);
-		Game::Get()->SetStartingPartyMembers(names);
+		Game::Get()->Starting().SetMembers(names);
 	}
 
 	if (sExecFile != NULL)
@@ -195,7 +197,7 @@ main(int argc, char **argv)
 		Game::Get()->SetStartingArea(sStartingArea);
 
 	if (sCharacterSpec != NULL)
-		Game::Get()->SetCharacterSpec(sCharacterSpec);
+		Game::Get()->Starting().SetCharacterSpec(sCharacterSpec);
 
 	if (!GraphicsEngine::Initialize()) {
 		Core::Destroy();

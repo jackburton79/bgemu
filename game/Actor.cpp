@@ -13,6 +13,7 @@
 #include "Door.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "NPCRoster.h"
 #include "GraphicsEngine.h"
 #include "ITMResource.h"
 #include "Log.h"
@@ -218,7 +219,7 @@ Actor::_Init()
 
 	SetActive(true);
 
-	// A freshly created character (CharacterBuilder / Game::CreateParty)
+	// A freshly created character (CharacterBuilder / StartingParty)
 	// comes in at class level 0 with placeholder HP/THAC0/saves; run the
 	// level-up path once to fill in the real level-1 values from the
 	// class tables. Real placed CREs are already level >= 1 and skip this.
@@ -1767,7 +1768,7 @@ Actor::InParty() const
 bool
 Actor::IsPersistent() const
 {
-	return InParty() || Game::Get()->IsNPC(this);
+	return InParty() || Game::Get()->NPCs().Contains(this);
 }
 
 

@@ -1,5 +1,6 @@
 #include "PanelScreen.h"
 
+#include "CommandBar.h"
 #include "Game.h"
 
 
@@ -24,7 +25,7 @@ bool
 PanelScreen::ControlInvoked(uint16 windowID, uint32 controlID)
 {
 	if (windowID == kCommandBarWindow)
-		Game::AuxCommandBarInvoked(controlID);
+		CommandBar::InvokeInPanel(controlID);
 	else if (windowID == kPortraitWindow) {
 		if (controlID < kPortraitCount)
 			fGame.ShowCharacter(static_cast<uint16>(controlID));

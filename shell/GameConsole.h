@@ -27,9 +27,11 @@ public:
 
 	// Runs a full "command arg1 arg2..." line directly, bypassing the
 	// per-keystroke input buffer HandleInput() drives - lets test/debug
-	// code (see Game::_RunExecFile()) invoke any registered ShellCommand
+	// code (see RunFile()) invoke any registered ShellCommand
 	// programmatically instead of simulating keyboard input.
 	void ExecuteCommand(const std::string& line);
+	// Runs every line of a script file as a command (see the .cpp).
+	void RunFile(const std::string& path);
 
 	// Hides (not overrides - Console::Draw())
 

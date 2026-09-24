@@ -16,6 +16,8 @@
 #include "Effect.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "NPCRoster.h"
+#include "SavedGame.h"
 #include "GameTimer.h"
 #include "Graphics.h"
 #include "Keyboard.h"
@@ -52,7 +54,7 @@
 
 // Where AreaRoom checkpoints an area's own ARE data (see
 // ARAResource::WriteToFile()'s own comment) every time it's left: under
-// Game::SaveDirectory(), next to the saves. A single directory for
+// SavedGame::Directory(), next to the saves. A single directory for
 // the session's entire lifetime, regardless of which save (if any) is
 // currently loaded - matching real IE's own single cache directory:
 // a save's own .SAV archive is extracted into that cache wholesale
@@ -74,7 +76,7 @@ _AreaCheckpointPath(const char* areaName)
 std::string
 AreaRoom::AreaCheckpointDir()
 {
-	return Game::Get()->SaveDirectory() + "/current/arecache";
+	return Game::Get()->Saves().Directory() + "/current/arecache";
 }
 
 
@@ -2003,11 +2005,11 @@ AreaRoom::_LoadActors(bool revisited)
 
 	// The game's global NPCs whose area this is (a new game's companions
 	// and story characters, whoever left the party here, ...): they are
-	// the Game's, not this area's - see Game::AddNPC().
+	// the Game's, not this area's - see NPCRoster.
 	std::cout << "- Loading global NPCs:" << std::endl;
 	Game* game = Game::Get();
-	for (uint16 n = 0; n < game->CountNPCs(); n++) {
-		Actor* npc = game->NPCAt(n);
+	for (uint16 n = 0; n < game->NPCs().Count(); n++) {
+		Actor* npc = game->NPCs().At(n);
 		if (strcasecmp(npc->AreaName().CString(), Name()) != 0)
 			continue;
 		npc->Acquire();
@@ -2127,7 +2129,7 @@ AreaRoom::_CleanDestroyedObjects()
 			std::cout << "Destroy actor " << actor->Name() << std::endl;
 			// A destroyed global NPC is gone from the game, not just from
 			// this area (the list's reference goes, this room's below).
-			Game::Get()->RemoveNPC(actor);
+			Game::Get()->NPCs().Remove(actor);
 			_DetachFromCurrentRegion(actor);
 			actor->ClearActionList();
 			actor->SetArea(NULL);
@@ -2229,7 +2231,7 @@ AreaRoom::_UnloadArea()
 		// mid-fade (right after its first call, which sets the fade to
 		// fully black), leaving the screen stuck black forever since
 		// nothing else ever finishes raising it back up.
-		if (Game::Get()->IsNPC(actor)) {
+		if (Game::Get()->NPCs().Contains(actor)) {
 			// A global NPC is the Game's, not this area's: it stays where
 			// it is (AreaName(), Position()) for whenever this area is
 			// loaded again, and isn't part of the area's cached actors or
