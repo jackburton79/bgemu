@@ -1,0 +1,7 @@
+# AREA: AR0602
+#
+# BG2's paperdoll comes from the animation id's row of pdolls.2da (armor
+# level = column), not from race/gender/class letters: Imoen (animation
+# 0x6310, mage/thief) used to look for CHFB1INV - a class letter taken from
+# the animation's base name - which doesn't exist, leaving the placeholder.
+Assert-Paperdoll IMOEN10,CHFT1INV

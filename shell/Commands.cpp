@@ -2126,6 +2126,43 @@ public:
 };
 
 
+// Assert-Paperdoll <actor>,<resource> - the paperdoll shown for the creature
+// is this resource (and it exists).
+class AssertPaperdollCommand : public ShellCommand {
+public:
+	AssertPaperdollCommand()
+		: ShellCommand(
+			"Assert-Paperdoll",
+			{
+				{ PARAMETER_STRING, }, // actor
+				{ PARAMETER_STRING, }  // expected paperdoll resource
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const std::string actorName = params.at(0).value.string;
+		const std::string expected = params.at(1).value.string;
+		Actor* actor = FindActor(actorName.c_str());
+		if (actor == NULL) {
+			std::cout << "ASSERT FAIL: no actor " << actorName << std::endl;
+			return;
+		}
+		const std::string name = actor->PaperdollName();
+		if (name != expected) {
+			std::cout << "ASSERT FAIL: " << actorName << " paperdoll - expected "
+				<< expected << ", got " << name << std::endl;
+		} else if (!gResManager->ResourceExists(name.c_str(), RES_PLT)) {
+			std::cout << "ASSERT FAIL: " << actorName << " paperdoll " << name
+				<< " does not exist" << std::endl;
+		} else {
+			std::cout << "ASSERT OK: " << actorName << " paperdoll " << name << std::endl;
+		}
+	}
+};
+
+
 static const char*
 _TargetModeName(Game::TargetMode mode)
 {
@@ -2846,6 +2883,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertSelectedCountCommand());
 	console->AddCommand(new AssertTargetModeCommand());
 	console->AddCommand(new AssertActorHasColorsCommand());
+	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
 	console->AddCommand(new AssertItemCountCommand());

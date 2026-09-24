@@ -992,9 +992,146 @@ AnimationFactory::SizeCodeForActor(const Actor* actor)
 }
 
 
+// Paperdoll resource per animation id and armor level 1-4, from GemRB's
+// unhardcoded BG2 pdolls.2da (the original game keeps this table in its
+// executable). Level 3/4 of several rows reuse another class' doll: not every
+// class x armor combination has a PLT of its own.
+struct PaperdollEntry {
+	uint16 animation_id;
+	const char* names[4];
+};
+
+static const PaperdollEntry kPaperdolls[] = {
+	{ 0x5000, { "CHMC1INV", "CHMC2INV", "CHMC3INV", "CHMC4INV" } },
+	{ 0x5001, { "CEMC1INV", "CEMC2INV", "CEMC3INV", "CEMC4INV" } },
+	{ 0x5002, { "CDMC1INV", "CDMC2INV", "CDMC3INV", "CDMC4INV" } },
+	{ 0x5003, { "CIMC1INV", "CIMC2INV", "CIMC3INV", "CIMC4INV" } },
+	{ 0x5010, { "CHFC1INV", "CHMC2INV", "CHMC3INV", "CHMC4INV" } },
+	{ 0x5011, { "CEFC1INV", "CEMC2INV", "CEMC3INV", "CEMC4INV" } },
+	{ 0x5012, { "CDMC1INV", "CDMC2INV", "CDMC3INV", "CDMC4INV" } },
+	{ 0x5013, { "CIFC1INV", "CIMC2INV", "CIMC3INV", "CIMC4INV" } },
+	{ 0x5100, { "CHMF1INV", "CHMF2INV", "CHMF3INV", "CHMC4INV" } },
+	{ 0x5101, { "CEMF1INV", "CEMF2INV", "CEMF3INV", "CEMC4INV" } },
+	{ 0x5102, { "CDMF1INV", "CDMF2INV", "CDMF3INV", "CDMC4INV" } },
+	{ 0x5103, { "CIMF1INV", "CIMF2INV", "CIMF3INV", "CIMC4INV" } },
+	{ 0x5110, { "CHFF1INV", "CHFF2INV", "CHMF3INV", "CHMC4INV" } },
+	{ 0x5111, { "CEFF1INV", "CEFF2INV", "CEMF3INV", "CEMC4INV" } },
+	{ 0x5112, { "CDMF1INV", "CDMF2INV", "CDMF3INV", "CDMC4INV" } },
+	{ 0x5113, { "CIFF1INV", "CIFF2INV", "CIMF3INV", "CIMC4INV" } },
+	{ 0x5200, { "CHMW1INV", "CHMW2INV", "CHMW3INV", "CHMW4INV" } },
+	{ 0x5201, { "CEMW1INV", "CEMW2INV", "CEMW3INV", "CEMW4INV" } },
+	{ 0x5202, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x5203, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x5210, { "CHFW1INV", "CHMW2INV", "CHMW3INV", "CHMW4INV" } },
+	{ 0x5211, { "CEFW1INV", "CEMW2INV", "CEMW3INV", "CEMW4INV" } },
+	{ 0x5212, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x5213, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x5300, { "CHMT1INV", "CHMT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x5301, { "CEMT1INV", "CEMT2INV", "CEMF3INV", "CEMF4INV" } },
+	{ 0x5302, { "CDMT1INV", "CDMT2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x5303, { "CIMT1INV", "CIMT2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x5310, { "CHFT1INV", "CHMT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x5311, { "CEFT1INV", "CEMT2INV", "CEMF3INV", "CEMF4INV" } },
+	{ 0x5312, { "CDMT1INV", "CDMT2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x5313, { "CIFT1INV", "CIMT2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x6000, { "CHMC1INV", "CHMC2INV", "CHMC3INV", "CHMC4INV" } },
+	{ 0x6001, { "CEMC1INV", "CEMC2INV", "CEMC3INV", "CEMC4INV" } },
+	{ 0x6002, { "CDMC1INV", "CDMC2INV", "CDMC3INV", "CDMC4INV" } },
+	{ 0x6003, { "CIMC1INV", "CIMC2INV", "CIMC3INV", "CIMC4INV" } },
+	{ 0x6004, { "CIMC1INV", "CIMC2INV", "CIMC3INV", "CIMC4INV" } },
+	{ 0x6005, { "COMC1INV", "COMC2INV", "COMC3INV", "COMC4INV" } },
+	{ 0x6010, { "CHFC1INV", "CHFC2INV", "CHFC3INV", "CHFC4INV" } },
+	{ 0x6011, { "CEFC1INV", "CEFC2INV", "CEFC3INV", "CEFC4INV" } },
+	{ 0x6012, { "CDMC1INV", "CDMC2INV", "CDMC3INV", "CDMC4INV" } },
+	{ 0x6013, { "CIFC1INV", "CIFC2INV", "CIFC3INV", "CIFC4INV" } },
+	{ 0x6014, { "CIFC1INV", "CIFC2INV", "CIFC3INV", "CIFC4INV" } },
+	{ 0x6015, { "COFC1INV", "COFC2INV", "COFC3INV", "COFC4INV" } },
+	{ 0x6100, { "CHMF1INV", "CHMF2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x6101, { "CEMF1INV", "CEMF2INV", "CEMF3INV", "CEMF4INV" } },
+	{ 0x6102, { "CDMF1INV", "CDMF2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x6103, { "CIMF1INV", "CIMF2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x6104, { "CIMF1INV", "CIMF2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x6105, { "COMF1INV", "COMF2INV", "COMF3INV", "COMF4INV" } },
+	{ 0x6110, { "CHFF1INV", "CHFF2INV", "CHFF3INV", "CHFF4INV" } },
+	{ 0x6111, { "CEFF1INV", "CEFF2INV", "CEFF3INV", "CEFF4INV" } },
+	{ 0x6112, { "CDMF1INV", "CDMF2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x6113, { "CIFF1INV", "CIFF2INV", "CIFF3INV", "CIFF4INV" } },
+	{ 0x6114, { "CIFF1INV", "CIFF2INV", "CIFF3INV", "CIFF4INV" } },
+	{ 0x6115, { "COFF1INV", "COFF2INV", "COFF3INV", "COFF4INV" } },
+	{ 0x6200, { "CHMW1INV", "CHMW2INV", "CHMW3INV", "CHMW4INV" } },
+	{ 0x6201, { "CEMW1INV", "CEMW2INV", "CEMW3INV", "CEMW4INV" } },
+	{ 0x6202, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x6203, { "CDMW1INV", "CDMW2INV", "CDMW3INV", "CDMW4INV" } },
+	{ 0x6204, { "CGMW1INV", "CGMW2INV", "CGMW3INV", "CGMW4INV" } },
+	{ 0x6205, { "COMW1INV", "COMW2INV", "COMW3INV", "COMW4INV" } },
+	{ 0x6210, { "CHFW1INV", "CHFW2INV", "CHFW3INV", "CHFW4INV" } },
+	{ 0x6211, { "CEFW1INV", "CEFW2INV", "CEFW3INV", "CEFW4INV" } },
+	{ 0x6212, { "CIFT1INV", "CIFT2INV", "CIFT3INV", "CIFT4INV" } },
+	{ 0x6213, { "CIFT1INV", "CIFT2INV", "CIFT3INV", "CIFT4INV" } },
+	{ 0x6214, { "CIFT1INV", "CIFT2INV", "CIFT3INV", "CIFT4INV" } },
+	{ 0x6215, { "COFW1INV", "COFW2INV", "COFW3INV", "COFW4INV" } },
+	{ 0x6300, { "CHMT1INV", "CHMT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x6301, { "CEMT1INV", "CEMT2INV", "CEMF3INV", "CEMF4INV" } },
+	{ 0x6302, { "CDMT1INV", "CDMT2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x6303, { "CIMT1INV", "CIMT2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x6304, { "CIMT1INV", "CIMT2INV", "CIMF3INV", "CIMF4INV" } },
+	{ 0x6305, { "COMT1INV", "COMT2INV", "COMF3INV", "COMF4INV" } },
+	{ 0x6310, { "CHFT1INV", "CHFT2INV", "CHFF3INV", "CHFF4INV" } },
+	{ 0x6311, { "CEFT1INV", "CEFT2INV", "CEFF3INV", "CEFF4INV" } },
+	{ 0x6312, { "CDMT1INV", "CDMT2INV", "CDMF3INV", "CDMF4INV" } },
+	{ 0x6313, { "CIFT1INV", "CIFT2INV", "CIFF3INV", "CIFF4INV" } },
+	{ 0x6314, { "CIFT1INV", "CIFT2INV", "CIFF3INV", "CIFF4INV" } },
+	{ 0x6315, { "COFT1INV", "COFT2INV", "COFT3INV", "COFT4INV" } },
+	{ 0x6402, { "CMNKINV", "CHMT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x6500, { "CHMM1INV", "CHMT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x6510, { "CHFM1INV", "CHFT2INV", "CHMF3INV", "CHMF4INV" } },
+	{ 0x7200, { "MBER0INV", "MBER0INV", "MBER0INV", "MBER0INV" } },
+	{ 0x7201, { "MBER1INV", "MBER1INV", "MBER1INV", "MBER1INV" } },
+	{ 0x7300, { "MEAEINV", "MEAEINV", "MEAEINV", "MEAEINV" } },
+	{ 0x7310, { "MFIEINV", "MFIEINV", "MFIEINV", "MFIEINV" } },
+	{ 0x7311, { "MFIEINV", "MFIEINV", "MFIEINV", "MFIEINV" } },
+	{ 0x7900, { "MSLI2INV", "MSLI2INV", "MSLI2INV", "MSLI2INV" } },
+	{ 0x7902, { "MSLI2INV", "MSLI2INV", "MSLI2INV", "MSLI2INV" } },
+	{ 0x7A00, { "MWYVINV", "MWYVINV", "MWYVINV", "MWYVINV" } },
+	{ 0x7A03, { "MSPI3INV", "MSPI3INV", "MSPI3INV", "MSPI3INV" } },
+	{ 0x7B00, { "MWLF0INV", "MWLF0INV", "MWLF0INV", "MWLF0INV" } },
+	{ 0x7B03, { "MWLF0INV", "MWLF0INV", "MWLF0INV", "MWLF0INV" } },
+	{ 0x7E00, { "MGWEINV", "MGWEINV", "MGWEINV", "MGWEINV" } },
+	{ 0x7E01, { "MGWEINV", "MGWEINV", "MGWEINV", "MGWEINV" } },
+	{ 0x7F00, { "MTROINV", "MTROINV", "MTROINV", "MTROINV" } },
+	{ 0x7F01, { "MMININV", "MMININV", "MMININV", "MMININV" } },
+	{ 0x7F04, { "MIGOINV", "MIGOINV", "MIGOINV", "MIGOINV" } },
+	{ 0x7F32, { "MSLYINV", "MSLYINV", "MSLYINV", "MSLYINV" } },
+	{ 0x8000, { "MGNLINV", "MGNLINV", "MGNLINV", "MGNLINV" } },
+	{ 0x9000, { "MOGRINV", "MOGRINV", "MOGRINV", "MOGRINV" } },
+	{ 0xC300, { "ARATINV", "ARATINV", "ARATINV", "ARATINV" } },
+	{ 0xC400, { "ASQUINV", "ASQUINV", "ASQUINV", "ASQUINV" } },
+	{ 0xE900, { "MSALINV", "MSALINV", "MSALINV", "MSALINV" } },
+};
+
+// Armor level 0-3 of the paperdoll: the first character of the worn armor's
+// animation code, "1" (no armor) when it isn't a digit 1-4.
+static int
+_PaperdollLevel(const Actor* actor)
+{
+	const std::string armor = actor->ArmorAnimation();
+	if (!armor.empty() && armor[0] >= '1' && armor[0] <= '4')
+		return armor[0] - '1';
+	return 0;
+}
+
+
 std::string
 AnimationFactory::PaperdollName(const Actor* actor) const
 {
+	// BG1's paperdolls are BAMs named after the animation, not in this table.
+	if (Core::Get()->Game() != game::GAME_BALDURSGATE) {
+		for (const PaperdollEntry& entry : kPaperdolls) {
+			if (entry.animation_id == fID)
+				return entry.names[_PaperdollLevel(actor)];
+		}
+	}
+
 	std::string name;
 	if (actor->InParty())
 		name = _CharacterIdentityPrefix(actor, fBaseName, false);
