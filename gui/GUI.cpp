@@ -726,8 +726,7 @@ GUI::GetMessagesTextArea()
 	} else {
 		window = GUI::Get()->GetWindow(GUI::WINDOW_MESSAGES_LARGE);
 		if (window != NULL && window->Shown()) {
-			textArea = dynamic_cast<TextArea*>(
-					window->GetControlByID(1));
+			textArea = dynamic_cast<TextArea*>(window->GetControlByID(1));
 		}
 	}
 	return textArea;
@@ -1211,5 +1210,5 @@ GUI::_DisplayStringCommon(const std::string& text,
 	fTooltipList.push_back(entry);
 
 	long id = sCurrentId++;
-	Timer::AddOneShotTimer(time, DeleteStringEntry, (void*)id);
+	Timer::AddOneShotTimer(time, DeleteStringEntry, reinterpret_cast<void*>(id));
 }

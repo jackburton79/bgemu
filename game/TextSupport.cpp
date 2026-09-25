@@ -207,12 +207,7 @@ Font::_LoadGlyphs(const std::string& fontName)
 			// character code 2 (cycleNum == 1) regardless of what that
 			// actually is - fine for fonts where it happens to be an
 			// ordinary letter, but real BG2 font BAMs can put anything
-			// there (found the hard way: REALMS's glyph at code 2 is a
-			// 3x37px decorative flourish, nowhere near representative
-			// of the font's real letter height - that pushed every
-			// string rendered in that font off the bottom of any label
-			// shorter than ~37px, e.g. the inventory/record name
-			// banners). 'A' (65) is an ordinary letter in every Latin
+			// there. 'A' (65) is an ordinary letter in every Latin
 			// font BAM this engine loads, so use that instead; fall
 			// back to the first glyph that loads at all only if a font
 			// genuinely has no 'A' (e.g. a symbols-only font).
@@ -249,11 +244,8 @@ Font::_LoadGlyphs(const std::string& fontName)
 // is the text's own rendered height (from _PrepareGlyphs), used to
 // work out how much slack there is to justify within. Per chu_v1.htm's
 // Label control docs (bits 5/7 = Top/Bottom, "with no bits set the
-// text is centred horizontally and vertically"): previously neither
-// flag was consulted at all here, so every label/text always rendered
-// as if anchored to destPoint.y regardless of what its CHU data
-// actually asked for - the "vertical alignment looks off in some
-// cases" bug. Combined Top+Bottom isn't documented; Bottom wins here,
+// text is centred horizontally and vertically").
+// Combined Top+Bottom isn't documented; Bottom wins here,
 // mirroring the documented Right-wins-over-Left/Center precedence for
 // the horizontal axis just above.
 GFX::rect
@@ -345,18 +337,12 @@ Font::_RenderString(const std::string& string, uint32 flags, Bitmap* bitmap,
 	// contents - otherwise it colour-matches each source pixel against
 	// the destination's palette instead, which scrambles a glyph's
 	// smooth 0-255 brightness/antialiasing ramp into an unrelated set
-	// of indices (confirmed by dumping a real glyph's own pixel indices
-	// next to the same pixels read back from the destination right
-	// after the blit: completely different values). Since every glyph
-	// bitmap is 8-bit too, copying the destination's palette onto the
-	// glyph before blitting it makes the two match, which is enough to
-	// put SDL on its raw-copy path - re-verified the same way (indices
-	// now identical on both sides). Cheap: glyph bitmaps are small and
-	// already own an SDL_Palette to overwrite; no manual pixel loop
-	// needed and SDL's own clipping still applies. Only matters for an
-	// indexed destination - blitting an indexed glyph onto a true-colour
-	// (16-bit) one already does a real index-to-RGB conversion via the
-	// glyph's own palette, so nothing to swap there.
+	// of indices. Since every glyph bitmap is 8-bit too, copying the
+	// destination's palette onto the glyph before blitting it makes the
+	// two match, which is enough to put SDL on its raw-copy path.
+	// Only matters for an indexed destination - blitting an indexed glyph
+	// onto a true-colour (16-bit) one already does a real index-to-RGB
+	// conversion via the glyph's own palette, so nothing to swap there.
 	const bool destIndexed = bitmap->BitsPerPixel() == 8;
 	GFX::Palette destPalette;
 	if (destIndexed)
