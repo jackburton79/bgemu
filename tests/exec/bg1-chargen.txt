@@ -96,6 +96,7 @@ Assert-CharGen skills
 # Proficiencies: a cleric has 2 points, may use blunt, spiked and missile weapons
 # and a star each at the start; a sword is refused, Done waits for the points.
 Invoke-Control GUICG,0,5
+Assert-Spells priest,10,0
 Assert-CharGenPoints 2
 Invoke-Control GUICG,9,11
 Assert-Proficiency LARGE_SWORD,0
@@ -286,3 +287,45 @@ Invoke-Control GUICG,9,10
 Invoke-Control GUICG,15,10
 Assert-CharGen skills
 
+# A mage learns two spells of the first level and memorizes one of them before the
+# proficiencies: Done waits for the picks, the memorizing shows only what was learned.
+Begin-CharGen
+Invoke-Control GUICG,0,0
+Invoke-Control GUICG,1,2
+Invoke-Control GUICG,1,0
+Invoke-Control GUICG,11,0
+Invoke-Control GUICG,0,1
+Invoke-Control GUICG,8,2
+Invoke-Control GUICG,8,0
+Invoke-Control GUICG,0,2
+Invoke-Control GUICG,2,7
+Invoke-Control GUICG,2,0
+Invoke-Control GUICG,0,3
+Invoke-Control GUICG,3,7
+Invoke-Control GUICG,3,0
+Invoke-Control GUICG,0,4
+Invoke-Control GUICG,4,0
+Invoke-Control GUICG,0,5
+Assert-CharGenPoints 2
+Invoke-Control GUICG,7,0
+Assert-CharGenPoints 2
+Invoke-Control GUICG,7,2
+Invoke-Control GUICG,7,3
+Invoke-Control GUICG,7,4
+Assert-CharGenPoints 0
+Invoke-Control GUICG,7,3
+Assert-CharGenPoints 1
+Invoke-Control GUICG,7,0
+Assert-CharGenPoints 1
+Invoke-Control GUICG,7,3
+Invoke-Control GUICG,7,0
+Assert-Spells mage,2,0
+Assert-CharGenPoints 1
+Invoke-Control GUICG,7,3
+Assert-CharGenPoints 0
+Invoke-Control GUICG,7,0
+Assert-Spells mage,2,1
+Assert-CharGenPoints 1
+Invoke-Control GUICG,9,13
+Invoke-Control GUICG,9,0
+Assert-CharGen accept

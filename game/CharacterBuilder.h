@@ -47,9 +47,25 @@ public:
 	const std::string& PortraitSmall() const { return fPortraitSmall; }
 	const std::string& PortraitLarge() const { return fPortraitLarge; }
 
-	// Adds a level-1 arcane spell to the starting spellbook (ignored for
-	// a non-arcane class). false if the resref isn't a real SPL.
+	// The starting spellbook (level 1): a spell of a character spec is known and,
+	// as far as the slots go, memorized; the creation window learns and memorizes
+	// a mage's own choices, and a cleric's spells all. false if the resref isn't a
+	// real SPL. A book only gets written for a class that has that kind of magic.
 	bool AddSpell(const std::string& resref);
+	bool LearnSpell(const std::string& resref, bool memorized);
+	void ClearSpells();
+	struct spell_choice {
+		std::string resref;
+		bool learnable;
+	};
+	std::vector<spell_choice> MageSpellChoices() const;
+	int MageSpellsToLearn() const;
+	int MageSpellsToMemorize() const;
+	void LearnDivineSpells();
+	bool IsSpellKnown(const std::string& resref) const;
+	// The resrefs of the mage's (or the priest's) starting spells.
+	std::vector<std::string> KnownSpells(bool divine) const;
+	int MemorizedSpellCount(bool divine) const;
 
 	// Thief skills (pick pockets, open locks, find traps, stealth: the order of
 	// CharGenData::Skills()): the points given to each, as the CRE keeps them - the
@@ -161,7 +177,12 @@ private:
 	std::string fPortraitSmall;
 	std::string fPortraitLarge;
 	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
-	std::vector<std::string> fSpells;   // level-1 arcane starting spellbook
+	struct spell_entry {
+		std::string resref;
+		bool divine;
+		bool memorized;
+	};
+	std::vector<spell_entry> fSpells;   // the level-1 starting spellbook
 	int fThiefSkills[kNumThiefSkills] = {};
 	int fRacialEnemy = 0;
 };

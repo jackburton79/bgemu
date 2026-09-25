@@ -3044,6 +3044,31 @@ public:
 };
 
 
+// Assert-Spells <mage|priest>,<known>,<memorized> - the spells the builder has in
+// the book of that kind.
+class AssertSpellsCommand : public ShellCommand {
+public:
+	AssertSpellsCommand()
+		: ShellCommand("Assert-Spells",
+			{ { PARAMETER_STRING, }, { PARAMETER_INT, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const bool divine = strcasecmp(params.at(0).value.string, "priest") == 0;
+		CharacterBuilder& builder = Game::Get()->Starting().Builder();
+		const int known = (int)builder.KnownSpells(divine).size();
+		const int memorized = builder.MemorizedSpellCount(divine);
+		if (known == params.at(1).value.integer && memorized == params.at(2).value.integer)
+			std::cout << "ASSERT OK: " << known << " known, " << memorized << " memorized" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << known << " known, " << memorized
+				<< " memorized, expected " << params.at(1).value.integer << ", "
+				<< params.at(2).value.integer << std::endl;
+	}
+};
+
+
 // Assert-RacialEnemy <n> - the RACE.IDS value of the builder's racial enemy (0: none).
 class AssertRacialEnemyCommand : public ShellCommand {
 public:
@@ -4227,6 +4252,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertAbilityCommand());
 	console->AddCommand(new AssertProficiencyCommand());
 	console->AddCommand(new AssertThiefSkillCommand());
+	console->AddCommand(new AssertSpellsCommand());
 	console->AddCommand(new AssertRacialEnemyCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());

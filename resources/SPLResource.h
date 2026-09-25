@@ -60,6 +60,13 @@ public:
 	uint32 DisplayDescriptionRef() const;
 
 	uint32 Flags() const;
+	// 0 special, 1 wizard, 2 cleric (priest), 3 psionic, 4 innate, 5 bardsong.
+	uint16 SpellType() const;
+	// Who can't learn it: bits 0-5 alignments of priests, 6-13 the schools of
+	// specialist mages, 14 generalists (wild magic), 30 clerics and paladins, 31
+	// druids and rangers.
+	uint32 ExclusionFlags() const;
+	uint32 SpellLevel() const;
 
 	uint16 CastingGraphics() const;
 

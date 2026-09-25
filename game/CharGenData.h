@@ -37,6 +37,9 @@ struct CharGenAlignment {
 	uint32 descRef;
 	uint32 capRef;
 	const char* code;	// "L_G"...
+	// The bits of a spell's exclusion flags this alignment can't have: a priest
+	// of this alignment can't learn a spell that excludes any of them.
+	uint32 usability;
 };
 
 struct CharGenPortrait {

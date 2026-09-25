@@ -37,6 +37,8 @@ public:
 	int PointsLeft() const {
 		if (fOpenWindow == kProficienciesWindow)
 			return fProficiencyPoints;
+		if (fOpenWindow == kSpellsWindow)
+			return fSpellPoints;
 		return fOpenWindow == kSkillsWindow ? fSkillPoints : fPointsLeft;
 	}
 
@@ -55,6 +57,7 @@ private:
 	static const uint16 kAlignmentWindow = 3;
 	static const uint16 kAbilitiesWindow = 4;
 	static const uint16 kSkillsWindow = 6;
+	static const uint16 kSpellsWindow = 7;
 	static const uint16 kRacialEnemyWindow = 15;
 	static const uint16 kProficienciesWindow = 9;
 	static const uint16 kRaceWindow = 8;
@@ -88,9 +91,9 @@ private:
 	bool _HandleChoice(uint16 windowID, uint32 controlID);
 	void _ShowPortraitPicture();
 	void _SelectPortrait(int step);
-	// The skills stage: a run of windows (racial enemy, thief skills, proficiencies so far) one after the
+	// The skills stage: a run of windows (racial enemy, mage spells, thief skills, proficiencies) one after the
 	// other, Done going on to the next and Back to the one before.
-	enum SkillPage { PAGE_RACIAL_ENEMY, PAGE_THIEF_SKILLS, PAGE_PROFICIENCIES };
+	enum SkillPage { PAGE_RACIAL_ENEMY, PAGE_MAGE_SPELLS, PAGE_THIEF_SKILLS, PAGE_PROFICIENCIES };
 	void _ShowSkills();
 	void _ShowSkillPage();
 	void _NextSkillPage();
@@ -98,6 +101,10 @@ private:
 	void _ShowRacialEnemy();
 	void _ShowRacialEnemyList();
 	void _ChooseRacialEnemy(int row);
+	void _ShowMageSpells();
+	void _ShowSpellList();
+	void _PickSpell(int slot);
+	void _FinishSpellPhase();
 	void _ShowThiefSkills();
 	void _MoveThiefSkill(int skill, int step);
 	void _DescribeThiefSkill(int skill);
@@ -139,6 +146,16 @@ private:
 	int fProficiencyPoints;
 	int fSkillPoints;
 	int fEnemy;			// index in CharGenData::HatedRaces(), -1 none
+	// The mage spells window: first the spells to learn are picked from the level-1
+	// list, then the one to memorize from those.
+	struct SpellChoice {
+		std::string resref;
+		bool learnable;	// false: the class or the alignment can't have it
+		bool picked;
+	};
+	std::vector<SpellChoice> fSpellChoices;
+	bool fMemorizing;
+	int fSpellPoints;
 	int fEnemyRow;			// the first one the list shows
 	int fOpenWindow;		// the choice window shown over the overview, -1 none
 };

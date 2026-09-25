@@ -9,6 +9,8 @@
 #include "GUI.h"
 #include "Label.h"
 #include "Scrollbar.h"
+#include "ScreenSupport.h"
+#include "SPLResource.h"
 #include "ResManager.h"
 #include "StartingParty.h"
 #include "TextArea.h"
@@ -113,6 +115,17 @@ static const int kEnemyRows = 6;
 static const uint32 kEnemyPromptStrRef = 17256;
 static const uint32 kEnemyLabelStrRef = 15982;
 
+// The spells window: Back and Done, a title, the label with the points to give,
+// 24 buttons (six a row) for the spells, and the text area.
+static const uint32 kSpellsBack = 29, kSpellsText = 27;
+static const uint32 kSpellsFirst = 2;
+static const int kSpellButtons = 24;
+static const uint32 kSpellsTitleLabel = 0x10000000;
+static const uint32 kSpellsPointsLabel = 0x1000001b;
+static const uint32 kSpellsLearnStrRef = 17250, kSpellsMemorizeStrRef = 17253;
+static const uint32 kSpellsLearnTitleStrRef = 10345, kSpellsMemorizeTitleStrRef = 17189;
+static const uint32 kMageSpellsLabelStrRef = 11027, kPriestSpellsLabelStrRef = 11028;
+
 // The thief skills window: Back, the text area, a line for each of the four skills
 // with the button that adds a point and the one that takes it off, a button over
 // the name that shows what the skill is, the label with the points still to give
@@ -204,6 +217,8 @@ CharGenScreen::CharGenScreen(Game& game)
 	fProficiencyPoints(0),
 	fSkillPoints(0),
 	fEnemy(-1),
+	fMemorizing(false),
+	fSpellPoints(0),
 	fEnemyRow(0),
 	fOpenWindow(-1)
 {
@@ -374,6 +389,22 @@ CharGenScreen::_RefreshOverview()
 				for (int i = 0; i < kNumAbilities; i++) {
 					text->AddText(_SummaryLine(kAbilityCapStrRefs[i],
 						_AbilityText(i)).c_str());
+				}
+			}
+			if (fStep == STEP_ACCEPT) {
+				// The spells the character knows, the mage's and the priest's.
+				for (bool divine : { false, true }) {
+					std::string names;
+					for (const std::string& spell : _Builder().KnownSpells(divine)) {
+						if (SPLResource* spl = gResManager->GetSPL(res_ref(spell.c_str()))) {
+							names += "\n" + IDTable::GetDialog(spl->DisplayNameRef());
+							gResManager->ReleaseResource(spl);
+						}
+					}
+					if (!names.empty()) {
+						text->AddText((IDTable::GetDialog(divine ? kPriestSpellsLabelStrRef
+							: kMageSpellsLabelStrRef) + names).c_str());
+					}
 				}
 			}
 			if (fStep == STEP_ACCEPT && fEnemy >= 0 && _Builder().HasRacialEnemy()) {
@@ -838,9 +869,15 @@ CharGenScreen::_RecallAbilities()
 void
 CharGenScreen::_ShowSkills()
 {
+	// A cleric or a druid knows the priest spells of the first level from the start.
+	_Builder().ClearSpells();
+	_Builder().LearnDivineSpells();
+
 	fSkillPages.clear();
 	if (_Builder().HasRacialEnemy())
 		fSkillPages.push_back(PAGE_RACIAL_ENEMY);
+	if (_Builder().MageSpellsToLearn() > 0)
+		fSkillPages.push_back(PAGE_MAGE_SPELLS);
 	if (_Builder().ThiefSkillPoints() > 0)
 		fSkillPages.push_back(PAGE_THIEF_SKILLS);
 	fSkillPages.push_back(PAGE_PROFICIENCIES);
@@ -855,6 +892,9 @@ CharGenScreen::_ShowSkillPage()
 	switch (fSkillPages[fSkillPage]) {
 		case PAGE_RACIAL_ENEMY:
 			_ShowRacialEnemy();
+			break;
+		case PAGE_MAGE_SPELLS:
+			_ShowMageSpells();
 			break;
 		case PAGE_THIEF_SKILLS:
 			_ShowThiefSkills();
@@ -957,6 +997,156 @@ CharGenScreen::_ChooseRacialEnemy(int row)
 	fEnemy = entry;
 	_SetDescription(kRacialEnemyWindow, kEnemyText, races[entry].helpRef);
 	_ShowRacialEnemyList();
+}
+
+
+// The spells window of a mage: the level-1 wizard spells its alignment allows,
+// the ones to learn picked among them, then the one to memorize among those.
+void
+CharGenScreen::_ShowMageSpells()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kSpellsWindow);
+	fOpenWindow = kSpellsWindow;
+
+	CharacterBuilder& builder = _Builder();
+	_ChoiceWindowButtons(this, _Button(kSpellsWindow, kDoneControl),
+		_Button(kSpellsWindow, kSpellsBack));
+	builder.ClearSpells();
+	builder.LearnDivineSpells();
+
+	fSpellChoices.clear();
+	for (const CharacterBuilder::spell_choice& choice : builder.MageSpellChoices())
+		fSpellChoices.push_back({ choice.resref, choice.learnable, false });
+	fMemorizing = false;
+	fSpellPoints = builder.MageSpellsToLearn();
+	_ShowSpellList();
+}
+
+
+// The buttons, from the choices (in the memorizing phase only the ones learned),
+// with the picked ones latched and the points left.
+void
+CharGenScreen::_ShowSpellList()
+{
+	if (Label* title = _Label(kSpellsWindow, kSpellsTitleLabel)) {
+		// Learning: "spells of level <SPELLLEVEL>", the first level.
+		std::string text = IDTable::GetDialog(fMemorizing ? kSpellsMemorizeTitleStrRef
+			: kSpellsLearnTitleStrRef);
+		const size_t at = text.find("<SPELLLEVEL>");
+		if (at != std::string::npos)
+			text.replace(at, strlen("<SPELLLEVEL>"), "1");
+		title->SetText(text);
+	}
+	if (Label* points = _Label(kSpellsWindow, kSpellsPointsLabel))
+		points->SetText(std::to_string(fSpellPoints));
+
+	// The learned spells, when memorizing: which of them are shown is stored as the
+	// slot's spell.
+	std::vector<size_t> shown;
+	for (size_t i = 0; i < fSpellChoices.size(); i++) {
+		if (!fMemorizing || _Builder().IsSpellKnown(fSpellChoices[i].resref))
+			shown.push_back(i);
+	}
+	for (int slot = 0; slot < kSpellButtons; slot++) {
+		Button* button = _Button(kSpellsWindow, kSpellsFirst + (uint32)slot);
+		if (button == NULL)
+			continue;
+		if ((size_t)slot >= shown.size()) {
+			button->SetIcon(NULL);
+			button->SetEnabled(false);
+			button->SetFrameless(true);
+			button->SetLatched(false);
+			continue;
+		}
+		const SpellChoice& choice = fSpellChoices[shown[(size_t)slot]];
+		button->SetFrameless(false);
+		button->SetIcon(ScreenSupport::MakeSpellIcon(res_ref(choice.resref.c_str())));
+		button->SetEnabled(choice.learnable);
+		button->SetLatched(choice.picked);
+	}
+
+	std::string text = IDTable::GetDialog(fMemorizing ? kSpellsMemorizeStrRef
+		: kSpellsLearnStrRef);
+	const size_t at = text.find("<number>");
+	if (at != std::string::npos)
+		text.replace(at, strlen("<number>"), std::to_string(fSpellPoints));
+	if (TextArea* area = _TextArea(kSpellsWindow, kSpellsText)) {
+		area->ClearText();
+		area->AddText(text.c_str());
+		area->ScrollTo(0, 0);
+	}
+	if (Button* done = _Button(kSpellsWindow, kDoneControl))
+		done->SetEnabled(fSpellPoints == 0);
+}
+
+
+// A spell clicked: what it is, and it is picked (or not, if the points are gone).
+void
+CharGenScreen::_PickSpell(int slot)
+{
+	std::vector<size_t> shown;
+	for (size_t i = 0; i < fSpellChoices.size(); i++) {
+		if (!fMemorizing || _Builder().IsSpellKnown(fSpellChoices[i].resref))
+			shown.push_back(i);
+	}
+	if (slot < 0 || (size_t)slot >= shown.size())
+		return;
+	SpellChoice& choice = fSpellChoices[shown[(size_t)slot]];
+	if (SPLResource* spell = gResManager->GetSPL(res_ref(choice.resref.c_str()))) {
+		if (TextArea* area = _TextArea(kSpellsWindow, kSpellsText)) {
+			area->ClearText();
+			area->AddText(IDTable::GetDialog(spell->DisplayDescriptionRef()).c_str());
+			area->ScrollTo(0, 0);
+		}
+		gResManager->ReleaseResource(spell);
+	}
+	if (!choice.learnable)
+		return;
+	if (choice.picked) {
+		choice.picked = false;
+		fSpellPoints++;
+	} else if (fSpellPoints > 0) {
+		choice.picked = true;
+		fSpellPoints--;
+	}
+	// The description stays; the buttons and the points are drawn again.
+	if (Label* points = _Label(kSpellsWindow, kSpellsPointsLabel))
+		points->SetText(std::to_string(fSpellPoints));
+	for (int i = 0; i < kSpellButtons && (size_t)i < shown.size(); i++) {
+		if (Button* button = _Button(kSpellsWindow, kSpellsFirst + (uint32)i))
+			button->SetLatched(fSpellChoices[shown[(size_t)i]].picked);
+	}
+	if (Button* done = _Button(kSpellsWindow, kDoneControl))
+		done->SetEnabled(fSpellPoints == 0);
+}
+
+
+// Done: the picked spells are learned; then (for the mage) the one to memorize is
+// picked among them, and after that the window is done.
+void
+CharGenScreen::_FinishSpellPhase()
+{
+	CharacterBuilder& builder = _Builder();
+	if (!fMemorizing) {
+		for (SpellChoice& choice : fSpellChoices) {
+			if (choice.picked)
+				builder.LearnSpell(choice.resref, false);
+			choice.picked = false;
+		}
+		fMemorizing = true;
+		fSpellPoints = builder.MageSpellsToMemorize();
+		if (fSpellPoints > 0) {
+			_ShowSpellList();
+			return;
+		}
+	} else {
+		for (const SpellChoice& choice : fSpellChoices) {
+			if (choice.picked)
+				builder.LearnSpell(choice.resref, true);
+		}
+	}
+	_NextSkillPage();
 }
 
 
@@ -1295,8 +1485,8 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		return true;
 	}
 
-	if (windowID == kRacialEnemyWindow || windowID == kSkillsWindow
-			|| windowID == kProficienciesWindow)
+	if (windowID == kSpellsWindow || windowID == kRacialEnemyWindow
+			|| windowID == kSkillsWindow || windowID == kProficienciesWindow)
 		return _HandleSkillWindow(windowID, controlID);
 
 	if (windowID == kAbilitiesWindow) {
@@ -1333,6 +1523,17 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 bool
 CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 {
+	if (windowID == kSpellsWindow) {
+		if (controlID >= kSpellsFirst && controlID < kSpellsFirst + (uint32)kSpellButtons) {
+			_PickSpell((int)(controlID - kSpellsFirst));
+		} else if (controlID == kDoneControl) {
+			_FinishSpellPhase();
+		} else if (controlID == kSpellsBack) {
+			_Builder().ClearSpells();
+			_Builder().LearnDivineSpells();
+			_PreviousSkillPage();
+		}
+	}
 	if (windowID == kRacialEnemyWindow) {
 		if (controlID >= kEnemyFirst && controlID < kEnemyFirst + (uint32)kEnemyRows) {
 			_ChooseRacialEnemy((int)(controlID - kEnemyFirst));

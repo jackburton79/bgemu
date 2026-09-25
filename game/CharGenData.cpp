@@ -52,15 +52,15 @@ static const CharGenHatedRace kHatedRaces[] = {
 };
 
 static const CharGenAlignment kAlignments[] = {
-	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G" },
-	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G" },
-	{ "CHAOTIC_GOOD", 7189, 9609, 1108, "C_G" },
-	{ "LAWFUL_NEUTRAL", 7188, 9604, 1104, "L_N" },
-	{ "TRUE_NEUTRAL", 7185, 9608, 1106, "N_N" },
-	{ "CHAOTIC_NEUTRAL", 7191, 9610, 1109, "C_N" },
-	{ "LAWFUL_EVIL", 7187, 9605, 1103, "L_E" },
-	{ "NEUTRAL_EVIL", 7184, 9607, 1107, "N_E" },
-	{ "CHAOTIC_EVIL", 7190, 9611, 1110, "C_E" },
+	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G", 0x14 },
+	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G", 0x24 },
+	{ "CHAOTIC_GOOD", 7189, 9609, 1108, "C_G", 0x05 },
+	{ "LAWFUL_NEUTRAL", 7188, 9604, 1104, "L_N", 0x18 },
+	{ "TRUE_NEUTRAL", 7185, 9608, 1106, "N_N", 0x28 },
+	{ "CHAOTIC_NEUTRAL", 7191, 9610, 1109, "C_N", 0x09 },
+	{ "LAWFUL_EVIL", 7187, 9605, 1103, "L_E", 0x12 },
+	{ "NEUTRAL_EVIL", 7184, 9607, 1107, "N_E", 0x22 },
+	{ "CHAOTIC_EVIL", 7190, 9611, 1110, "C_E", 0x03 },
 };
 
 // allowed: HUMAN ELF HALF_ELF DWARF HALFLING GNOME (0 no, 1 yes, 2 yes, illusionist).

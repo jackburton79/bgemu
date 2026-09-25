@@ -106,6 +106,33 @@ SPLResource::Flags() const
 
 
 uint16
+SPLResource::SpellType() const
+{
+	uint16 type;
+	fData->ReadAt(0x1c, type);
+	return type;
+}
+
+
+uint32
+SPLResource::ExclusionFlags() const
+{
+	uint32 flags;
+	fData->ReadAt(0x1e, flags);
+	return flags;
+}
+
+
+uint32
+SPLResource::SpellLevel() const
+{
+	uint32 level;
+	fData->ReadAt(0x34, level);
+	return level;
+}
+
+
+uint16
 SPLResource::CastingGraphics() const
 {
 	uint16 id;

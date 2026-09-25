@@ -230,15 +230,141 @@ CharacterBuilder::IsDivineCaster() const
 }
 
 
+// A spell of a character spec: known, and memorized as far as the slots go.
 bool
 CharacterBuilder::AddSpell(const std::string& resref)
+{
+	return LearnSpell(resref, true);
+}
+
+
+// Puts a spell in the starting spellbook of its kind (SPL type 2 is a priest's,
+// the others are wizard's).
+bool
+CharacterBuilder::LearnSpell(const std::string& resref, bool memorized)
 {
 	SPLResource* spl = gResManager->GetSPL(resref.c_str());
 	if (spl == NULL)
 		return false;
+	const bool divine = spl->SpellType() == 2;
 	gResManager->ReleaseResource(spl);
-	fSpells.push_back(resref.substr(0, 8));
+	for (spell_entry& entry : fSpells) {
+		if (entry.resref == resref.substr(0, 8)) {
+			entry.memorized = memorized;
+			return true;
+		}
+	}
+	fSpells.push_back({ resref.substr(0, 8), divine, memorized });
 	return true;
+}
+
+
+bool
+CharacterBuilder::IsSpellKnown(const std::string& resref) const
+{
+	for (const spell_entry& entry : fSpells) {
+		if (entry.resref == resref.substr(0, 8))
+			return true;
+	}
+	return false;
+}
+
+
+std::vector<std::string>
+CharacterBuilder::KnownSpells(bool divine) const
+{
+	std::vector<std::string> spells;
+	for (const spell_entry& entry : fSpells) {
+		if (entry.divine == divine)
+			spells.push_back(entry.resref);
+	}
+	return spells;
+}
+
+
+int
+CharacterBuilder::MemorizedSpellCount(bool divine) const
+{
+	int count = 0;
+	for (const spell_entry& entry : fSpells)
+		count += entry.divine == divine && entry.memorized ? 1 : 0;
+	return count;
+}
+
+
+void
+CharacterBuilder::ClearSpells()
+{
+	fSpells.clear();
+}
+
+
+// The level-1 wizard spells (SPWI1xx) the class's mage can take, each with
+// whether it may learn it: not the ones that exclude its alignment (or, for a
+// generalist, wild magic).
+std::vector<CharacterBuilder::spell_choice>
+CharacterBuilder::MageSpellChoices() const
+{
+	std::vector<spell_choice> choices;
+	if (!_ClassHas(fClass, "MAGE"))
+		return choices;
+	const CharGenAlignment* alignment = CharGenData::FindAlignment(fAlignment.c_str());
+	const uint32 unusable = 0x4000 | (alignment != NULL ? alignment->usability : 0);
+	for (int i = 1; i < 100; i++) {
+		char name[16];
+		snprintf(name, sizeof(name), "SPWI1%02d", i);
+		SPLResource* spl = gResManager->GetSPL(name);
+		if (spl == NULL)
+			continue;
+		choices.push_back({ name, (spl->ExclusionFlags() & unusable) == 0 });
+		gResManager->ReleaseResource(spl);
+	}
+	return choices;
+}
+
+
+// The spells a new mage learns and memorizes (SPLWIZKN.2DA's first level, and
+// MXSPLWIZ.2DA's).
+int
+CharacterBuilder::MageSpellsToLearn() const
+{
+	return _ClassHas(fClass, "MAGE") ? 2 : 0;
+}
+
+
+int
+CharacterBuilder::MageSpellsToMemorize() const
+{
+	return _ClassHas(fClass, "MAGE") ? std::max(_TableInt("MXSPLWIZ", "1", "1", 0), 0) : 0;
+}
+
+
+// A cleric (or druid) knows every level-1 priest spell its alignment allows.
+void
+CharacterBuilder::LearnDivineSpells()
+{
+	const bool cleric = _ClassHas(fClass, "CLERIC");
+	const bool druid = _ClassHas(fClass, "DRUID");
+	if (!cleric && !druid)
+		return;
+	const CharGenAlignment* alignment = CharGenData::FindAlignment(fAlignment.c_str());
+	const uint32 unusable = alignment != NULL ? alignment->usability : 0;
+	for (int i = 1; i < 100; i++) {
+		char name[16];
+		snprintf(name, sizeof(name), "SPPR1%02d", i);
+		SPLResource* spl = gResManager->GetSPL(name);
+		if (spl == NULL)
+			continue;
+		// Bit 30 keeps the spell from clerics and paladins, bit 31 from druids and
+		// rangers.
+		const uint32 flags = spl->ExclusionFlags();
+		const bool usable = (flags & unusable) == 0
+			&& !(cleric && !druid && (flags & 0x40000000))
+			&& !(druid && !cleric && (flags & 0x80000000));
+		gResManager->ReleaseResource(spl);
+		if (usable)
+			LearnSpell(name, false);
+	}
 }
 
 
@@ -664,16 +790,33 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	const size_t kSlotCount = 40;               // BG2 CRE v1
 	const size_t kSlotTableSize = kSlotCount * 2;
 
-	// Starting spellbook (level 1). Known = every spell the builder was
-	// given; memorized = as many as the level-1 slot table grants.
-	const bool divine = IsDivineCaster() && !IsArcaneCaster();
-	const bool caster = (IsArcaneCaster() || divine) && !fSpells.empty();
-	const uint16 spellType = divine ? 0 : 1; // 0 priest, 1 wizard
-	const size_t knownCount = caster ? fSpells.size() : 0;
-	const size_t level1Slots = caster
-		? (size_t)std::max(1, _TableInt(divine ? "MXSPLPRS" : "MXSPLWIZ", "1", "1", 1)) : 0;
-	const size_t memorizedCount = std::min(knownCount, level1Slots);
-	const size_t memoInfoCount = caster ? 1 : 0;
+	// Starting spellbook (level 1), a book for each kind of magic the class has:
+	// known = the spells the builder was given for it; memorized = those marked
+	// so, as many as the level-1 slot table grants.
+	struct spell_book {
+		bool divine;
+		bool present;
+		size_t slots = 0;
+		std::vector<const spell_entry*> known;
+		std::vector<const spell_entry*> memorized;
+	} books[2] = { { false, IsArcaneCaster() }, { true, IsDivineCaster() } };
+	size_t knownCount = 0, memorizedCount = 0, memoInfoCount = 0;
+	for (spell_book& book : books) {
+		if (!book.present)
+			continue;
+		memoInfoCount++;
+		book.slots = (size_t)std::max(_TableInt(book.divine ? "MXSPLPRS"
+			: (_ClassHas(fClass, "MAGE") ? "MXSPLWIZ" : "MXSPLBRD"), "1", "1", 0), 0);
+		for (const spell_entry& entry : fSpells) {
+			if (entry.divine != book.divine)
+				continue;
+			book.known.push_back(&entry);
+			if (entry.memorized && book.memorized.size() < book.slots)
+				book.memorized.push_back(&entry);
+		}
+		knownCount += book.known.size();
+		memorizedCount += book.memorized.size();
+	}
 
 	const size_t knownOffset = kHeaderSize;
 	const size_t memoInfoOffset = knownOffset + knownCount * 12;
@@ -772,29 +915,34 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU32(out, 0x2c4, (uint32)tailOffset);     _PutU32(out, 0x2c8, 0);      // effects
 
 	// Known spells: resref(8), level(2, 0-indexed on disk = level 1),
-	// type(2, 1 = wizard).
-	for (size_t i = 0; i < knownCount; i++) {
-		size_t o = knownOffset + i * 12;
-		_PutStr(out, o, fSpells[i], 8);
-		_PutU16(out, o + 8, 0); // level 1
-		_PutU16(out, o + 10, spellType);
-	}
+	// type(2, 0 = priest, 1 = wizard).
 	// Spell memorization info: level(2), numMemorizable(2),
 	// numMemorizableEffective(2), type(2), firstMemorizedIndex(4),
 	// memorizedCount(4).
-	if (memoInfoCount == 1) {
-		_PutU16(out, memoInfoOffset + 0, 0);   // level 1
-		_PutU16(out, memoInfoOffset + 2, (uint16)level1Slots);
-		_PutU16(out, memoInfoOffset + 4, (uint16)level1Slots);
-		_PutU16(out, memoInfoOffset + 6, spellType);
-		_PutU32(out, memoInfoOffset + 8, 0);   // first memorized index
-		_PutU32(out, memoInfoOffset + 12, (uint32)memorizedCount);
-	}
 	// Memorized spells: resref(8), flags(4, bit0 = memorized/available).
-	for (size_t i = 0; i < memorizedCount; i++) {
-		size_t o = memorizedOffset + i * 12;
-		_PutStr(out, o, fSpells[i], 8);
-		_PutU32(out, o + 8, 1);
+	size_t knownAt = 0, infoAt = 0, memorizedAt = 0;
+	for (const spell_book& book : books) {
+		if (!book.present)
+			continue;
+		const uint16 spellType = book.divine ? 0 : 1;
+		for (const spell_entry* entry : book.known) {
+			const size_t o = knownOffset + knownAt++ * 12;
+			_PutStr(out, o, entry->resref, 8);
+			_PutU16(out, o + 8, 0); // level 1
+			_PutU16(out, o + 10, spellType);
+		}
+		const size_t info = memoInfoOffset + infoAt++ * 16;
+		_PutU16(out, info + 0, 0);   // level 1
+		_PutU16(out, info + 2, (uint16)book.slots);
+		_PutU16(out, info + 4, (uint16)book.slots);
+		_PutU16(out, info + 6, spellType);
+		_PutU32(out, info + 8, (uint32)memorizedAt);   // first memorized index
+		_PutU32(out, info + 12, (uint32)book.memorized.size());
+		for (const spell_entry* entry : book.memorized) {
+			const size_t o = memorizedOffset + memorizedAt++ * 12;
+			_PutStr(out, o, entry->resref, 8);
+			_PutU32(out, o + 8, 1);
+		}
 	}
 
 	for (size_t i = 0; i < kSlotCount; i++)
@@ -842,7 +990,8 @@ CharacterBuilder::Print() const
 		std::cout << "  Portraits: " << fPortraitSmall << " / " << fPortraitLarge << std::endl;
 	if (!fSpells.empty()) {
 		std::cout << "  Spells:";
-		for (const std::string& s : fSpells) std::cout << " " << s;
+		for (const spell_entry& s : fSpells)
+			std::cout << " " << s.resref << (s.memorized ? "*" : "");
 		std::cout << std::endl;
 	}
 	if (ThiefSkillPointsSpent() > 0) {
