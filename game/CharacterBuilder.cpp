@@ -398,6 +398,8 @@ CharacterBuilder::MageSpellChoices() const
 	for (int i = 1; i < 100; i++) {
 		char name[16];
 		snprintf(name, sizeof(name), "SPWI1%02d", i);
+		if (!gResManager->ResourceExists(name, RES_SPL))
+			continue;
 		SPLResource* spl = gResManager->GetSPL(name);
 		if (spl == NULL)
 			continue;
@@ -437,6 +439,8 @@ CharacterBuilder::LearnDivineSpells()
 	for (int i = 1; i < 100; i++) {
 		char name[16];
 		snprintf(name, sizeof(name), "SPPR1%02d", i);
+		if (!gResManager->ResourceExists(name, RES_SPL))
+			continue;
 		SPLResource* spl = gResManager->GetSPL(name);
 		if (spl == NULL)
 			continue;
