@@ -57,7 +57,16 @@ struct CharGenSkill {
 	uint32 creOffset;	// the byte of the CRE header that holds it
 };
 
+struct CharGenHatedRace {
+	const char* name;
+	uint32 nameRef;
+	uint8 id;		// RACE.IDS, what the CRE keeps
+	uint32 helpRef;
+};
+
 namespace CharGenData {
+	// The creatures a ranger may take as its racial enemy.
+	const CharGenHatedRace* HatedRaces(size_t& count);
 	// The thief skills in the order of the window: pick pockets, open locks, find
 	// traps, stealth.
 	const CharGenSkill* Skills(size_t& count);

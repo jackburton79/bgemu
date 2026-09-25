@@ -55,6 +55,7 @@ private:
 	static const uint16 kAlignmentWindow = 3;
 	static const uint16 kAbilitiesWindow = 4;
 	static const uint16 kSkillsWindow = 6;
+	static const uint16 kRacialEnemyWindow = 15;
 	static const uint16 kProficienciesWindow = 9;
 	static const uint16 kRaceWindow = 8;
 	static const uint16 kMultiClassWindow = 10;
@@ -87,13 +88,16 @@ private:
 	bool _HandleChoice(uint16 windowID, uint32 controlID);
 	void _ShowPortraitPicture();
 	void _SelectPortrait(int step);
-	// The skills stage: a run of windows (thief skills, proficiencies so far) one after the
+	// The skills stage: a run of windows (racial enemy, thief skills, proficiencies so far) one after the
 	// other, Done going on to the next and Back to the one before.
-	enum SkillPage { PAGE_THIEF_SKILLS, PAGE_PROFICIENCIES };
+	enum SkillPage { PAGE_RACIAL_ENEMY, PAGE_THIEF_SKILLS, PAGE_PROFICIENCIES };
 	void _ShowSkills();
 	void _ShowSkillPage();
 	void _NextSkillPage();
 	void _PreviousSkillPage();
+	void _ShowRacialEnemy();
+	void _ShowRacialEnemyList();
+	void _ChooseRacialEnemy(int row);
 	void _ShowThiefSkills();
 	void _MoveThiefSkill(int skill, int step);
 	void _DescribeThiefSkill(int skill);
@@ -134,5 +138,7 @@ private:
 	size_t fSkillPage;
 	int fProficiencyPoints;
 	int fSkillPoints;
+	int fEnemy;			// index in CharGenData::HatedRaces(), -1 none
+	int fEnemyRow;			// the first one the list shows
 	int fOpenWindow;		// the choice window shown over the overview, -1 none
 };

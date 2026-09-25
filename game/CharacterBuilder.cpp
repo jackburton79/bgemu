@@ -45,6 +45,23 @@ _TableInt(const char* tableName, const std::string& row, const std::string& colu
 }
 
 
+// True if the class name (a multiclass is its classes joined by "_") has `word`.
+static bool
+_ClassHas(const std::string& className, const char* word)
+{
+	size_t start = 0;
+	while (start <= className.size()) {
+		size_t end = className.find('_', start);
+		if (end == std::string::npos)
+			end = className.size();
+		if (className.compare(start, end - start, word) == 0)
+			return true;
+		start = end + 1;
+	}
+	return false;
+}
+
+
 static int32
 _IDValue(const char* idsName, const std::string& symbol, bool& ok)
 {
@@ -86,6 +103,7 @@ CharacterBuilder::Reset()
 		fColors[i] = -1;
 	fSpells.clear();
 	std::fill(fThiefSkills, fThiefSkills + kNumThiefSkills, 0);
+	fRacialEnemy = 0;
 }
 
 
@@ -127,16 +145,14 @@ CharacterBuilder::ThiefSkill(int skill) const
 int
 CharacterBuilder::ThiefSkillPoints() const
 {
-	size_t start = 0;
-	while (start <= fClass.size()) {
-		size_t end = fClass.find('_', start);
-		if (end == std::string::npos)
-			end = fClass.size();
-		if (fClass.compare(start, end - start, "THIEF") == 0)
-			return 40;
-		start = end + 1;
-	}
-	return 0;
+	return _ClassHas(fClass, "THIEF") ? 40 : 0;
+}
+
+
+bool
+CharacterBuilder::HasRacialEnemy() const
+{
+	return _ClassHas(fClass, "RANGER");
 }
 
 
@@ -514,17 +530,8 @@ CharacterBuilder::ProficienciesSpent() const
 bool
 CharacterBuilder::HasExceptionalStrength() const
 {
-	size_t start = 0;
-	while (start <= fClass.size()) {
-		size_t end = fClass.find('_', start);
-		if (end == std::string::npos)
-			end = fClass.size();
-		const std::string part = fClass.substr(start, end - start);
-		if (part == "FIGHTER" || part == "RANGER" || part == "PALADIN")
-			return true;
-		start = end + 1;
-	}
-	return false;
+	return _ClassHas(fClass, "FIGHTER") || _ClassHas(fClass, "RANGER")
+		|| _ClassHas(fClass, "PALADIN");
 }
 
 
@@ -704,6 +711,7 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	if (!fPortraitLarge.empty())
 		_PutStr(out, 0x3c, fPortraitLarge, 8);
 
+	_PutU8(out, 0x241, (uint8)fRacialEnemy);
 	_PutU8(out, 0x44, 10);           // reputation
 	_PutU16(out, 0x46, 10);          // AC natural
 	_PutU16(out, 0x48, 10);          // AC effective

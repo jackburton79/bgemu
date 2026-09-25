@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "GUI.h"
 #include "Label.h"
+#include "Scrollbar.h"
 #include "ResManager.h"
 #include "StartingParty.h"
 #include "TextArea.h"
@@ -104,6 +105,14 @@ static const uint32 kAbilityDescStrRefs[6] = { 9582, 9584, 9583, 9585, 9586, 958
 static const uint32 kAbilityCapStrRefs[6] = { 1145, 1151, 1178, 1179, 1180, 1181 };
 static const int kNumAbilities = 6;
 
+// The racial enemy window: a scrollbar, six buttons for the list (its art is
+// the CHU's), the text area, Back and Done.
+static const uint32 kEnemyScroll = 1, kEnemyText = 8, kEnemyBack = 10, kEnemyDone = 11;
+static const uint32 kEnemyFirst = 2;
+static const int kEnemyRows = 6;
+static const uint32 kEnemyPromptStrRef = 17256;
+static const uint32 kEnemyLabelStrRef = 15982;
+
 // The thief skills window: Back, the text area, a line for each of the four skills
 // with the button that adds a point and the one that takes it off, a button over
 // the name that shows what the skill is, the label with the points still to give
@@ -194,6 +203,8 @@ CharGenScreen::CharGenScreen(Game& game)
 	fSkillPage(0),
 	fProficiencyPoints(0),
 	fSkillPoints(0),
+	fEnemy(-1),
+	fEnemyRow(0),
 	fOpenWindow(-1)
 {
 	std::fill(fStoredAbilities, fStoredAbilities + kNumAbilities, 0);
@@ -364,6 +375,11 @@ CharGenScreen::_RefreshOverview()
 					text->AddText(_SummaryLine(kAbilityCapStrRefs[i],
 						_AbilityText(i)).c_str());
 				}
+			}
+			if (fStep == STEP_ACCEPT && fEnemy >= 0 && _Builder().HasRacialEnemy()) {
+				const CharGenHatedRace* races = CharGenData::HatedRaces(count);
+				text->AddText(_SummaryLine(kEnemyLabelStrRef,
+					IDTable::GetDialog(races[fEnemy].nameRef)).c_str());
 			}
 			if (fStep == STEP_ACCEPT && _Builder().ThiefSkillPoints() > 0) {
 				text->AddText(IDTable::GetDialog(kSkillsLabelStrRef).c_str());
@@ -823,6 +839,8 @@ void
 CharGenScreen::_ShowSkills()
 {
 	fSkillPages.clear();
+	if (_Builder().HasRacialEnemy())
+		fSkillPages.push_back(PAGE_RACIAL_ENEMY);
 	if (_Builder().ThiefSkillPoints() > 0)
 		fSkillPages.push_back(PAGE_THIEF_SKILLS);
 	fSkillPages.push_back(PAGE_PROFICIENCIES);
@@ -835,6 +853,9 @@ void
 CharGenScreen::_ShowSkillPage()
 {
 	switch (fSkillPages[fSkillPage]) {
+		case PAGE_RACIAL_ENEMY:
+			_ShowRacialEnemy();
+			break;
 		case PAGE_THIEF_SKILLS:
 			_ShowThiefSkills();
 			break;
@@ -871,6 +892,71 @@ CharGenScreen::_PreviousSkillPage()
 	}
 	_CloseChoice();
 	_RefreshOverview();
+}
+
+
+// The racial enemy window: a list of the creatures a ranger fights best, six
+// of them in view, scrolled with the bar; one is chosen and Done takes it.
+void
+CharGenScreen::_ShowRacialEnemy()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kRacialEnemyWindow);
+	fOpenWindow = kRacialEnemyWindow;
+
+	_ChoiceWindowButtons(this, _Button(kRacialEnemyWindow, kEnemyDone),
+		_Button(kRacialEnemyWindow, kEnemyBack));
+	_SetDescription(kRacialEnemyWindow, kEnemyText, kEnemyPromptStrRef);
+
+	fEnemy = -1;
+	fEnemyRow = 0;
+	size_t count = 0;
+	CharGenData::HatedRaces(count);
+	if (Scrollbar* scrollbar = dynamic_cast<Scrollbar*>(
+			_Window(kRacialEnemyWindow)->GetControlByID(kEnemyScroll))) {
+		scrollbar->SetRowCallback([this](int32 row) {
+			fEnemyRow = row;
+			_ShowRacialEnemyList();
+		});
+		scrollbar->SetScrollInfo(0, (int32)count - kEnemyRows);
+	}
+	_ShowRacialEnemyList();
+}
+
+
+// The six lines of the list from the row on, the chosen one latched.
+void
+CharGenScreen::_ShowRacialEnemyList()
+{
+	size_t count = 0;
+	const CharGenHatedRace* races = CharGenData::HatedRaces(count);
+	for (int i = 0; i < kEnemyRows; i++) {
+		Button* button = _Button(kRacialEnemyWindow, kEnemyFirst + (uint32)i);
+		if (button == NULL)
+			continue;
+		const int entry = fEnemyRow + i;
+		const bool exists = entry >= 0 && (size_t)entry < count;
+		button->SetText(exists ? IDTable::GetDialog(races[entry].nameRef) : "");
+		button->SetEnabled(exists);
+		button->SetLatched(exists && entry == fEnemy);
+	}
+	if (Button* done = _Button(kRacialEnemyWindow, kEnemyDone))
+		done->SetEnabled(fEnemy >= 0);
+}
+
+
+// One of the six lines chosen: its text, and Done can go on.
+void
+CharGenScreen::_ChooseRacialEnemy(int row)
+{
+	size_t count = 0;
+	const CharGenHatedRace* races = CharGenData::HatedRaces(count);
+	const int entry = fEnemyRow + row;
+	if (entry < 0 || (size_t)entry >= count)
+		return;
+	fEnemy = entry;
+	_SetDescription(kRacialEnemyWindow, kEnemyText, races[entry].helpRef);
+	_ShowRacialEnemyList();
 }
 
 
@@ -1209,7 +1295,8 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		return true;
 	}
 
-	if (windowID == kSkillsWindow || windowID == kProficienciesWindow)
+	if (windowID == kRacialEnemyWindow || windowID == kSkillsWindow
+			|| windowID == kProficienciesWindow)
 		return _HandleSkillWindow(windowID, controlID);
 
 	if (windowID == kAbilitiesWindow) {
@@ -1246,6 +1333,17 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 bool
 CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 {
+	if (windowID == kRacialEnemyWindow) {
+		if (controlID >= kEnemyFirst && controlID < kEnemyFirst + (uint32)kEnemyRows) {
+			_ChooseRacialEnemy((int)(controlID - kEnemyFirst));
+		} else if (controlID == kEnemyDone && fEnemy >= 0) {
+			size_t count = 0;
+			_Builder().SetRacialEnemy(CharGenData::HatedRaces(count)[fEnemy].id);
+			_NextSkillPage();
+		} else if (controlID == kEnemyBack) {
+			_PreviousSkillPage();
+		}
+	}
 	if (windowID == kSkillsWindow) {
 		const int lines = CharacterBuilder::kNumThiefSkills;
 		if (controlID >= kSkillPlusFirst && controlID < kSkillPlusFirst + (uint32)(2 * lines)) {

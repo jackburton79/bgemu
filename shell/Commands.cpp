@@ -3044,6 +3044,25 @@ public:
 };
 
 
+// Assert-RacialEnemy <n> - the RACE.IDS value of the builder's racial enemy (0: none).
+class AssertRacialEnemyCommand : public ShellCommand {
+public:
+	AssertRacialEnemyCommand()
+		: ShellCommand("Assert-RacialEnemy", { { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const int race = Game::Get()->Starting().Builder().RacialEnemy();
+		if (race == params.at(0).value.integer)
+			std::cout << "ASSERT OK: racial enemy " << race << std::endl;
+		else
+			std::cout << "ASSERT FAIL: racial enemy is " << race << ", expected "
+				<< params.at(0).value.integer << std::endl;
+	}
+};
+
+
 // Assert-ThiefSkill <pickpockets|openlocks|findtraps|stealth>,<points> - the points
 // the builder gives a thief skill (without the race's and Dexterity's share).
 class AssertThiefSkillCommand : public ShellCommand {
@@ -4208,6 +4227,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertAbilityCommand());
 	console->AddCommand(new AssertProficiencyCommand());
 	console->AddCommand(new AssertThiefSkillCommand());
+	console->AddCommand(new AssertRacialEnemyCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());

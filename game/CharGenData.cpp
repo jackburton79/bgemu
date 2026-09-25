@@ -37,6 +37,20 @@ static const CharGenSkill kSkills[] = {
 	{ "STEALTH", 9461, 9600, 0x68 },
 };
 
+// haterace.2da of GemRB's unhardcoded BG1 tables.
+static const CharGenHatedRace kHatedRaces[] = {
+	{ "CRAWLER", 15940, 104, 15988 },
+	{ "ETTERCAP", 15939, 107, 15990 },
+	{ "GHOUL", 15946, 108, 15991 },
+	{ "GIBBERLING", 15931, 109, 15994 },
+	{ "GNOLL", 15932, 110, 15995 },
+	{ "HOBGOBLIN", 15930, 111, 15996 },
+	{ "KOBOLD", 15929, 112, 15997 },
+	{ "OGRE", 15933, 113, 15998 },
+	{ "SKELETON", 15937, 115, 15999 },
+	{ "SPIDER", 15941, 116, 16000 },
+};
+
 static const CharGenAlignment kAlignments[] = {
 	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G" },
 	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G" },
@@ -130,6 +144,14 @@ Alignments(size_t& count)
 {
 	count = sizeof(kAlignments) / sizeof(kAlignments[0]);
 	return kAlignments;
+}
+
+
+const CharGenHatedRace*
+HatedRaces(size_t& count)
+{
+	count = sizeof(kHatedRaces) / sizeof(kHatedRaces[0]);
+	return kHatedRaces;
 }
 
 

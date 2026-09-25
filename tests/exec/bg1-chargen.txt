@@ -256,3 +256,33 @@ Assert-CharGenPoints 0
 Invoke-Control GUICG,9,0
 Assert-CharGen accept
 Assert-Proficiency MISSILE,1
+
+# A ranger picks a racial enemy first (Done waits for the choice), then the
+# proficiencies; Back from those returns to the enemy.
+Begin-CharGen
+Invoke-Control GUICG,0,0
+Invoke-Control GUICG,1,2
+Invoke-Control GUICG,1,0
+Invoke-Control GUICG,11,0
+Invoke-Control GUICG,0,1
+Invoke-Control GUICG,8,2
+Invoke-Control GUICG,8,0
+Invoke-Control GUICG,0,2
+Invoke-Control GUICG,2,3
+Invoke-Control GUICG,2,0
+Invoke-Control GUICG,0,3
+Invoke-Control GUICG,3,2
+Invoke-Control GUICG,3,0
+Invoke-Control GUICG,0,4
+Invoke-Control GUICG,4,0
+Invoke-Control GUICG,0,5
+Invoke-Control GUICG,15,11
+Assert-RacialEnemy 0
+Invoke-Control GUICG,15,4
+Invoke-Control GUICG,15,11
+Assert-RacialEnemy 108
+Assert-CharGenPoints 4
+Invoke-Control GUICG,9,10
+Invoke-Control GUICG,15,10
+Assert-CharGen skills
+

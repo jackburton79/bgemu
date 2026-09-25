@@ -66,6 +66,12 @@ public:
 	int ThiefSkillPointsSpent() const;
 	// What the race and the Dexterity add to (or take from) the skill.
 	int ThiefSkillBonus(int skill) const;
+	// A ranger's racial enemy (RACE.IDS value, 0 none): rangers alone, alone or in
+	// a multiclass, have one.
+	bool HasRacialEnemy() const;
+	int RacialEnemy() const { return fRacialEnemy; }
+	void SetRacialEnemy(int race) { fRacialEnemy = race; }
+
 	// Whether the chosen class casts arcane / divine (memorized) spells.
 	bool IsArcaneCaster() const;
 	bool IsDivineCaster() const;
@@ -157,6 +163,7 @@ private:
 	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
 	std::vector<std::string> fSpells;   // level-1 arcane starting spellbook
 	int fThiefSkills[kNumThiefSkills] = {};
+	int fRacialEnemy = 0;
 };
 
 #endif // CHARACTER_BUILDER_H_
