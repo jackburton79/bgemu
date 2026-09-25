@@ -82,6 +82,11 @@ public:
 	int ThiefSkillPointsSpent() const;
 	// What the race and the Dexterity add to (or take from) the skill.
 	int ThiefSkillBonus(int skill) const;
+	// Takes back what a stage of the creation gave (going back a stage).
+	void ClearAbilities();
+	void ClearSkills();	// proficiencies, thief skills, racial enemy, spells
+	void ClearColors();
+
 	// What a new character starts the game with (reputation, gold, quarterstaff,
 	// biography) - set by the creation's last step; a character spec has its own.
 	void ApplyStartingKit();

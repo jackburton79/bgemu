@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "GUI.h"
 #include "Label.h"
+#include "TextEdit.h"
 #include "Scrollbar.h"
 #include "ScreenSupport.h"
 #include "SPLResource.h"
@@ -60,9 +61,9 @@ static const stage_button kStageButtons[] = {
 	{ 4, 11960 }, { 5, 17372 }, { 6, 11961 }, { 7, 11963 }, { 8, 11962 }
 };
 
-// The overview's button of each stage (the order of Step): the appearance and
-// name buttons (6, 7) aren't stages yet.
-static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 5, 8 };
+// The overview's button of each stage (the order of Step): the appearance button
+// (6) isn't a stage yet.
+static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 5, 7, 8 };
 
 // The stage an overview button opens, -1 for one that isn't a stage yet.
 static int
@@ -125,6 +126,9 @@ static const uint32 kSpellsPointsLabel = 0x1000001b;
 static const uint32 kSpellsLearnStrRef = 17250, kSpellsMemorizeStrRef = 17253;
 static const uint32 kSpellsLearnTitleStrRef = 10345, kSpellsMemorizeTitleStrRef = 17189;
 static const uint32 kMageSpellsLabelStrRef = 11027, kPriestSpellsLabelStrRef = 11028;
+
+// The name window: Back, Done and the text field.
+static const uint32 kNameBack = 3, kNameField = 2;
 
 // The thief skills window: Back, the text area, a line for each of the four skills
 // with the button that adds a point and the one that takes it off, a button over
@@ -308,7 +312,7 @@ const char*
 CharGenScreen::StepName() const
 {
 	static const char* kNames[] = { "gender", "race", "class", "alignment", "abilities",
-		"skills", "accept" };
+		"skills", "name", "accept" };
 	return kNames[fStep];
 }
 
@@ -391,6 +395,8 @@ CharGenScreen::_RefreshOverview()
 						_AbilityText(i)).c_str());
 				}
 			}
+			if (fStep == STEP_ACCEPT && !_Builder().Name().empty())
+				text->AddText(_Builder().Name().c_str());
 			if (fStep == STEP_ACCEPT) {
 				// The spells the character knows, the mage's and the priest's.
 				for (bool divine : { false, true }) {
@@ -460,6 +466,9 @@ CharGenScreen::_OpenStage(Step step)
 		case STEP_SKILLS:
 			_ShowSkills();
 			break;
+		case STEP_NAME:
+			_ShowName();
+			break;
 		case STEP_ACCEPT:
 			_Finish();
 			break;
@@ -470,6 +479,7 @@ CharGenScreen::_OpenStage(Step step)
 void
 CharGenScreen::_CloseChoice()
 {
+	GUI::Get()->SetTextFocus(NULL);
 	if (fOpenWindow >= 0)
 		GUI::Get()->HideAuxWindow(CHUName(), (uint16)fOpenWindow);
 	fOpenWindow = -1;
@@ -915,7 +925,7 @@ CharGenScreen::_NextSkillPage()
 		_ShowSkillPage();
 		return;
 	}
-	fStep = STEP_ACCEPT;
+	fStep = STEP_NAME;
 	_CloseChoice();
 	_RefreshOverview();
 }
@@ -1302,6 +1312,32 @@ CharGenScreen::_MoveProficiency(int proficiency, int step)
 }
 
 
+// The name window: a text field, Done once something is typed (Return does it).
+void
+CharGenScreen::_ShowName()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kNameWindow);
+	fOpenWindow = kNameWindow;
+
+	_ChoiceWindowButtons(this, _Button(kNameWindow, kDoneControl), _Button(kNameWindow, kNameBack));
+	TextEdit* field = dynamic_cast<TextEdit*>(_Window(kNameWindow)->GetControlByID(kNameField));
+	if (field == NULL)
+		return;
+	auto changed = [this, field] () {
+		if (Button* done = _Button(kNameWindow, kDoneControl))
+			done->SetEnabled(!field->Text().empty());
+	};
+	field->SetChangeCallback(changed);
+	field->SetEnterCallback([this, field] () {
+		if (!field->Text().empty())
+			ControlInvoked(kNameWindow, kDoneControl);
+	});
+	field->SetText(_Builder().Name() == "Player" ? "" : _Builder().Name());
+	GUI::Get()->SetTextFocus(field);
+}
+
+
 // Back from the overview: to the previous stage, its choice forgotten (and
 // everything after it).
 void
@@ -1311,12 +1347,25 @@ CharGenScreen::_StepBack()
 		return;
 	fStep = (Step)((int)fStep - 1);
 
-	// The abilities stay unless it is they that are undone.
+	// The stages from the abilities on take back only their own choice; the ones
+	// before start over from the builder's beginning.
 	CharacterBuilder& builder = _Builder();
-	int abilities[kNumAbilities];
-	for (int i = 0; i < kNumAbilities; i++)
-		abilities[i] = builder.Ability(i);
-	const int strengthExtra = builder.StrengthExtra();
+	switch (fStep) {
+		case STEP_NAME:
+			builder.SetName("");
+			_RefreshOverview();
+			return;
+		case STEP_SKILLS:
+			builder.ClearSkills();
+			_RefreshOverview();
+			return;
+		case STEP_ABILITIES:
+			builder.ClearAbilities();
+			_RefreshOverview();
+			return;
+		default:
+			break;
+	}
 	builder.Reset();
 	if (fStep <= STEP_ALIGNMENT)
 		fAlignment = -1;
@@ -1344,11 +1393,6 @@ CharGenScreen::_StepBack()
 		builder.SetClass(CharGenData::Classes(count)[fClass].name);
 	if (fAlignment >= 0)
 		builder.SetAlignment(CharGenData::Alignments(count)[fAlignment].name);
-	if (fStep >= STEP_SKILLS) {
-		for (int i = 0; i < kNumAbilities; i++)
-			builder.SetAbility(i, abilities[i]);
-		builder.SetStrengthExtra(strengthExtra);
-	}
 	_RefreshOverview();
 }
 
@@ -1359,10 +1403,6 @@ void
 CharGenScreen::_Finish()
 {
 	CharacterBuilder& builder = _Builder();
-	// The name is asked for by a later stage.
-	if (builder.Name().empty())
-		builder.SetName("Player");
-
 	if (fPortrait >= 0) {
 		size_t count = 0;
 		const CharGenPortrait& portrait = CharGenData::Portraits(count)[fPortrait];
@@ -1493,6 +1533,22 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 			_RefreshOverview();
 		} else if (controlID == kAlignmentBack) {
 			fAlignment = -1;
+			_CloseChoice();
+			_RefreshOverview();
+		}
+		return true;
+	}
+
+	if (windowID == kNameWindow) {
+		if (controlID == kDoneControl) {
+			TextEdit* field = dynamic_cast<TextEdit*>(_Window(kNameWindow)->GetControlByID(kNameField));
+			if (field != NULL && !field->Text().empty()) {
+				builder.SetName(field->Text());
+				fStep = STEP_ACCEPT;
+				_CloseChoice();
+				_RefreshOverview();
+			}
+		} else if (controlID == kNameBack) {
 			_CloseChoice();
 			_RefreshOverview();
 		}

@@ -103,7 +103,7 @@ FrontEnd::_PollEvents()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
-		if (DispatchMouseEvent(GUI::Get(), event))
+		if (DispatchMouseEvent(GUI::Get(), event) || DispatchKeyEvent(GUI::Get(), event))
 			continue;
 		if (event.type == SDL_QUIT)
 			return false;

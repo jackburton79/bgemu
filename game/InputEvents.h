@@ -15,3 +15,8 @@ class GUI;
 // GUI; a right button goes down as a right click and its release is dropped, so
 // a button doesn't also fire its left click. Returns false for any other event.
 bool DispatchMouseEvent(GUI* gui, const SDL_Event& event);
+
+// Hands typed text (SDL_TEXTINPUT), Backspace and Return to the text field that
+// has the focus (GUI::TextFocus()). Returns false if the event is another or no
+// field has the focus.
+bool DispatchKeyEvent(GUI* gui, const SDL_Event& event);

@@ -36,6 +36,7 @@ class BAMResource;
 class CHUIResource;
 class Object;
 class TextArea;
+class TextEdit;
 class GUI {
 public:
 	enum {
@@ -67,6 +68,11 @@ public:
 	void ToggleHUD();
 
 	void Draw();
+
+	// The text field typed text goes to (NULL: none). A TextEdit takes the focus
+	// when clicked and gives it up when it is destroyed.
+	void SetTextFocus(TextEdit* edit);
+	TextEdit* TextFocus() const { return fTextFocus; }
 	void DisplayString(const std::string& text,
 			uint16 x, uint16 y, uint32 time);
 	void DisplayStringCentered(const std::string& text,
@@ -187,6 +193,7 @@ private:
 	CHUIResource* fResource;
 	std::vector<Window*> fWindows;
 	std::map<res_ref, CHUIResource*> fAuxResources;
+	TextEdit* fTextFocus = NULL;
 	std::map<std::pair<res_ref, uint16>, Window*> fAuxWindows;
 	// Every Window* also present in fAuxWindows above - lets GetWindow(id)
 	// (and everything built on it: ShowWindow/HideWindow/IsWindowShown/

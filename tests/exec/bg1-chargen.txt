@@ -116,7 +116,7 @@ Invoke-Control GUICG,9,19
 Invoke-Control GUICG,9,21
 Assert-CharGenPoints 0
 Invoke-Control GUICG,9,0
-Assert-CharGen accept
+Assert-CharGen name
 # Back from the overview undoes the proficiencies, not the abilities.
 Invoke-Control GUICG,0,11
 Assert-CharGen skills
@@ -126,7 +126,29 @@ Invoke-Control GUICG,0,5
 Invoke-Control GUICG,9,19
 Invoke-Control GUICG,9,21
 Invoke-Control GUICG,9,0
+Assert-CharGen name
+# The name: Done waits for something typed, Backspace takes a letter back, Return is
+# Done; Back from the overview undoes the name, and only that.
+Invoke-Control GUICG,0,7
+Invoke-Control GUICG,5,0
+Assert-CharGen name
+Type-Text Ayla
+Type-Key Backspace
+Type-Text x
+Invoke-Control GUICG,5,3
+Assert-CharGen name
+Invoke-Control GUICG,0,7
+Type-Text Ayla
+Type-Key Return
 Assert-CharGen accept
+Assert-CharGenName Ayla
+Invoke-Control GUICG,0,11
+Assert-CharGen name
+Assert-CharGenName -
+Assert-Proficiency BLUNT,1
+Invoke-Control GUICG,0,7
+Type-Text Ayla
+Type-Key Return
 # Accept completes the character: the reputation of a neutral good, the gold of a
 # cleric (3d6 x 10) and the quarterstaff.
 Invoke-Control GUICG,0,8
@@ -257,7 +279,7 @@ Invoke-Control GUICG,9,25
 Invoke-Control GUICG,9,15
 Assert-CharGenPoints 0
 Invoke-Control GUICG,9,0
-Assert-CharGen accept
+Assert-CharGen name
 Assert-Proficiency MISSILE,1
 
 # A ranger picks a racial enemy first (Done waits for the choice), then the
@@ -330,4 +352,4 @@ Assert-Spells mage,2,1
 Assert-CharGenPoints 1
 Invoke-Control GUICG,9,13
 Invoke-Control GUICG,9,0
-Assert-CharGen accept
+Assert-CharGen name

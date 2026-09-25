@@ -40,6 +40,7 @@
 #include "MveResource.h"
 #include "CharGenData.h"
 #include "CharGenScreen.h"
+#include "TextEdit.h"
 #include "Region.h"
 #include "StartScreen.h"
 #include "PlaylistStream.h"
@@ -3044,6 +3045,66 @@ public:
 };
 
 
+// Type-Text <text> types into the text field that has the focus; Type-Key
+// <Backspace|Return> presses that key there (what the keyboard does in a real run).
+class TypeTextCommand : public ShellCommand {
+public:
+	TypeTextCommand() : ShellCommand("Type-Text", { { PARAMETER_STRING, } }) {}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		TextEdit* edit = GUI::Get()->TextFocus();
+		if (edit == NULL) {
+			std::cout << "Type-Text: no text field has the focus" << std::endl;
+			return;
+		}
+		edit->InsertText(params.at(0).value.string);
+		std::cout << "Type-Text: OK" << std::endl;
+	}
+};
+
+
+class TypeKeyCommand : public ShellCommand {
+public:
+	TypeKeyCommand() : ShellCommand("Type-Key", { { PARAMETER_STRING, } }) {}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		TextEdit* edit = GUI::Get()->TextFocus();
+		if (edit == NULL) {
+			std::cout << "Type-Key: no text field has the focus" << std::endl;
+			return;
+		}
+		if (strcasecmp(params.at(0).value.string, "Backspace") == 0)
+			edit->Backspace();
+		else if (strcasecmp(params.at(0).value.string, "Return") == 0)
+			edit->Enter();
+		else {
+			std::cout << "Type-Key: unknown key" << std::endl;
+			return;
+		}
+		std::cout << "Type-Key: OK" << std::endl;
+	}
+};
+
+
+// Assert-CharGenName <name> - the name the builder holds ("-": none).
+class AssertCharGenNameCommand : public ShellCommand {
+public:
+	AssertCharGenNameCommand() : ShellCommand("Assert-CharGenName", { { PARAMETER_STRING, } }) {}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		std::string expected = params.at(0).value.string;
+		if (expected == "-")
+			expected.clear();
+		const std::string& name = Game::Get()->Starting().Builder().Name();
+		if (name == expected)
+			std::cout << "ASSERT OK: name \"" << name << "\"" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: name is \"" << name << "\", expected \"" << expected
+				<< "\"" << std::endl;
+	}
+};
+
+
 // Assert-StartingKit <reputation>,<min gold>,<max gold> - what the character
 // creation's finish gave the builder: the reputation of the alignment, the gold
 // of the class (rolled: within the range) and the quarterstaff.
@@ -4281,6 +4342,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertThiefSkillCommand());
 	console->AddCommand(new AssertSpellsCommand());
 	console->AddCommand(new AssertStartingKitCommand());
+	console->AddCommand(new TypeTextCommand());
+	console->AddCommand(new TypeKeyCommand());
+	console->AddCommand(new AssertCharGenNameCommand());
 	console->AddCommand(new AssertRacialEnemyCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());

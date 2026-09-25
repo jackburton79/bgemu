@@ -161,6 +161,31 @@ CharacterBuilder::HasRacialEnemy() const
 }
 
 
+void
+CharacterBuilder::ClearAbilities()
+{
+	std::fill(fAbilities, fAbilities + kNumAbilities, 0);
+	fStrengthExtra = 0;
+}
+
+
+void
+CharacterBuilder::ClearSkills()
+{
+	std::fill(fProficiencies, fProficiencies + kNumProficiencies, 0);
+	std::fill(fThiefSkills, fThiefSkills + kNumThiefSkills, 0);
+	fRacialEnemy = 0;
+	fSpells.clear();
+}
+
+
+void
+CharacterBuilder::ClearColors()
+{
+	std::fill(fColors, fColors + 7, -1);
+}
+
+
 // What a new character starts the game with, as GemRB's character creation
 // finishes: the reputation of its alignment (REPSTART.2DA), the gold of its class
 // (STRTGOLD.2DA, rolled), a quarterstaff and the standard biography.

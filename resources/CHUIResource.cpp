@@ -7,6 +7,8 @@
 
 #include "CHUIResource.h"
 
+#include <algorithm>
+
 #include "Bitmap.h"
 #include "Control.h"
 #include "Log.h"
@@ -213,7 +215,10 @@ CHUIResource::_ReadControl(IE::window& window, uint16 controlIndex)
 		return NULL;
 	}
 
-	IE::control* control = (IE::control*)new uint8[controlTable.length];
+	// A control's record can be shorter than its struct (BG1's text edit stops
+	// before the maximum length): the rest reads as zero.
+	const size_t kMinimumSize = 256;
+	IE::control* control = (IE::control*)new uint8[std::max<size_t>(controlTable.length, kMinimumSize)]();
 	fData->ReadAt(controlTable.offset, control, controlTable.length);
 
 	return control;

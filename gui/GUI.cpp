@@ -301,6 +301,17 @@ GUI::ToggleHUD()
 
 
 void
+GUI::SetTextFocus(TextEdit* edit)
+{
+	fTextFocus = edit;
+	if (edit != NULL)
+		Keyboard::StartTextInput();
+	else
+		Keyboard::StopTextInput();
+}
+
+
+void
 GUI::Draw()
 {
 	// TODO: is there a better place ?
