@@ -1,6 +1,7 @@
 #include "StartingParty.h"
 
 #include "Actor.h"
+#include "CharGenData.h"
 #include "Core.h"
 #include "CreResource.h"
 #include "MemoryStream.h"
@@ -8,6 +9,7 @@
 #include "ResManager.h"
 
 #include <fstream>
+#include <strings.h>
 #include <iostream>
 #include <sstream>
 

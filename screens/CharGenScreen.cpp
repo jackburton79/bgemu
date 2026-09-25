@@ -34,6 +34,7 @@ static const uint32 kStartStrRef = 16575;	// the overview's text at the start
 static const uint32 kMultiClassButtonStrRef = 11993;
 static const uint32 kSpecialistButtonStrRef = 11994;
 static const uint32 kGeneralistStrRef = 18039;	// MAGESCH.2DA's generalist
+static const uint32 kFighterTypeStrRef = 10174;	// what <FIGHTERTYPE> stands for
 // The summary's labels.
 static const uint32 kGenderLabelStrRef = 12135;
 static const uint32 kRaceLabelStrRef = 1048;
@@ -56,9 +57,9 @@ static const stage_button kStageButtons[] = {
 	{ 4, 11960 }, { 5, 17372 }, { 6, 11961 }, { 7, 11963 }, { 8, 11962 }
 };
 
-// The overview's button of each stage (the order of Step): the skills,
-// appearance and name buttons (5, 6, 7) aren't stages yet.
-static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 8 };
+// The overview's button of each stage (the order of Step): the appearance and
+// name buttons (6, 7) aren't stages yet.
+static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 5, 8 };
 
 // The stage an overview button opens, -1 for one that isn't a stage yet.
 static int
@@ -103,6 +104,20 @@ static const uint32 kAbilityDescStrRefs[6] = { 9582, 9584, 9583, 9585, 9586, 958
 static const uint32 kAbilityCapStrRefs[6] = { 1145, 1151, 1178, 1179, 1180, 1181 };
 static const int kNumAbilities = 6;
 
+// The proficiencies window: Back, the text area, a line for each of the eight
+// weapons with the button that adds a star, the one that takes it off, five stars
+// and a button over the name that shows what the weapon is; the label with the
+// points left and the ones with the names.
+static const uint32 kProficienciesBack = 77, kProficienciesText = 68;
+static const uint32 kProficiencyPlusFirst = 11;		// then minus, +2 a line
+static const uint32 kProficiencyStarFirst = 27;		// five a line
+static const uint32 kProficiencyInfoFirst = 69;
+static const uint32 kProficiencyPointsLabel = 0x10000009;
+static const uint32 kProficiencyNameLabelFirst = 0x10000001;
+static const int kMaxStars = 5;
+static const uint32 kProficienciesPromptStrRef = 9588;
+static const uint32 kProficienciesLabelStrRef = 9466;
+
 
 static std::vector<int>
 _ClassesOfKind(bool multi)
@@ -118,17 +133,22 @@ _ClassesOfKind(bool multi)
 }
 
 
-// The text of a strref with the mage's school filled in: the class names of a
-// mage read "<MAGESCHOOL>" (a specialist's school; the generalist here, which is
-// the only mage the creation makes yet).
+// The text of a strref with the class tokens filled in: a mage's name reads
+// "<MAGESCHOOL>" (a specialist's school; the generalist here, which is the only
+// mage the creation makes yet) and a fighter's "<FIGHTERTYPE>" (the plain
+// fighter, as GemRB's TLK importer has it).
 static std::string
 _ClassText(uint32 strRef)
 {
 	std::string text = IDTable::GetDialog(strRef);
-	const std::string token = "<MAGESCHOOL>";
-	const size_t at = text.find(token);
-	if (at != std::string::npos)
-		text.replace(at, token.size(), IDTable::GetDialog(kGeneralistStrRef));
+	const std::pair<const char*, uint32> tokens[] = {
+		{ "<MAGESCHOOL>", kGeneralistStrRef }, { "<FIGHTERTYPE>", kFighterTypeStrRef }
+	};
+	for (const auto& token : tokens) {
+		const size_t at = text.find(token.first);
+		if (at != std::string::npos)
+			text.replace(at, strlen(token.first), IDTable::GetDialog(token.second));
+	}
 	return text;
 }
 
@@ -158,6 +178,8 @@ CharGenScreen::CharGenScreen(Game& game)
 	fPointsLeft(0),
 	fStoredPoints(0),
 	fStoredExtra(0),
+	fSkillPage(0),
+	fProficiencyPoints(0),
 	fOpenWindow(-1)
 {
 	std::fill(fStoredAbilities, fStoredAbilities + kNumAbilities, 0);
@@ -246,7 +268,7 @@ const char*
 CharGenScreen::StepName() const
 {
 	static const char* kNames[] = { "gender", "race", "class", "alignment", "abilities",
-		"accept" };
+		"skills", "accept" };
 	return kNames[fStep];
 }
 
@@ -323,10 +345,21 @@ CharGenScreen::_RefreshOverview()
 				text->AddText(_SummaryLine(kAlignmentLabelStrRef,
 					IDTable::GetDialog(aligns[fAlignment].capRef)).c_str());
 			}
-			if (fStep == STEP_ACCEPT) {
+			if (fStep >= STEP_SKILLS) {
 				for (int i = 0; i < kNumAbilities; i++) {
 					text->AddText(_SummaryLine(kAbilityCapStrRefs[i],
 						_AbilityText(i)).c_str());
+				}
+			}
+			if (fStep == STEP_ACCEPT && _Builder().ProficienciesSpent() > 0) {
+				text->AddText(IDTable::GetDialog(kProficienciesLabelStrRef).c_str());
+				const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+				for (size_t i = 0; i < count; i++) {
+					const int stars = _Builder().Proficiency((int)i);
+					if (stars > 0) {
+						text->AddText((IDTable::GetDialog(profs[i].nameRef) + " "
+							+ std::string((size_t)stars, '+')).c_str());
+					}
 				}
 			}
 		}
@@ -353,6 +386,9 @@ CharGenScreen::_OpenStage(Step step)
 			break;
 		case STEP_ABILITIES:
 			_ShowAbilities();
+			break;
+		case STEP_SKILLS:
+			_ShowSkills();
 			break;
 		case STEP_ACCEPT:
 			_Finish();
@@ -746,6 +782,137 @@ CharGenScreen::_RecallAbilities()
 }
 
 
+// The skills stage: the windows the class has, one after the other.
+void
+CharGenScreen::_ShowSkills()
+{
+	fSkillPages.clear();
+	fSkillPages.push_back(PAGE_PROFICIENCIES);
+	fSkillPage = 0;
+	_ShowSkillPage();
+}
+
+
+void
+CharGenScreen::_ShowSkillPage()
+{
+	switch (fSkillPages[fSkillPage]) {
+		case PAGE_PROFICIENCIES:
+			_ShowProficiencies();
+			break;
+	}
+}
+
+
+// Done: the next window of the stage, or the end of it.
+void
+CharGenScreen::_NextSkillPage()
+{
+	if (fSkillPage + 1 < fSkillPages.size()) {
+		fSkillPage++;
+		_ShowSkillPage();
+		return;
+	}
+	fStep = STEP_ACCEPT;
+	_CloseChoice();
+	_RefreshOverview();
+}
+
+
+// Back: the window before, or the overview from the first.
+void
+CharGenScreen::_PreviousSkillPage()
+{
+	if (fSkillPage > 0) {
+		fSkillPage--;
+		_ShowSkillPage();
+		return;
+	}
+	_CloseChoice();
+	_RefreshOverview();
+}
+
+
+// The proficiencies window: the class's points to give to the weapons it may
+// use, up to the stars it can have at the start; Done once none is left.
+void
+CharGenScreen::_ShowProficiencies()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kProficienciesWindow);
+	fOpenWindow = kProficienciesWindow;
+
+	_ChoiceWindowButtons(this, _Button(kProficienciesWindow, kDoneControl),
+		_Button(kProficienciesWindow, kProficienciesBack));
+	_SetDescription(kProficienciesWindow, kProficienciesText, kProficienciesPromptStrRef);
+
+	CharacterBuilder& builder = _Builder();
+	for (int i = 0; i < CharacterBuilder::kNumProficiencies; i++)
+		builder.SetProficiency(i, 0);
+	fProficiencyPoints = builder.ProficiencyPoints();
+
+	size_t count = 0;
+	const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+	for (size_t i = 0; i < count; i++) {
+		if (Label* name = _Label(kProficienciesWindow, kProficiencyNameLabelFirst + (uint32)i))
+			name->SetText(IDTable::GetDialog(profs[i].nameRef));
+	}
+	_ShowProficiencyValues();
+}
+
+
+// The points left, the stars of each weapon, and which weapons can be changed.
+void
+CharGenScreen::_ShowProficiencyValues()
+{
+	const CharacterBuilder& builder = _Builder();
+	if (Label* points = _Label(kProficienciesWindow, kProficiencyPointsLabel))
+		points->SetText(std::to_string(fProficiencyPoints));
+	for (int i = 0; i < CharacterBuilder::kNumProficiencies; i++) {
+		// A weapon the class can't use has no buttons.
+		const bool usable = builder.ProficiencyLimit(i) > 0;
+		for (uint32 button = 0; button < 2; button++) {
+			if (Button* arrow = _Button(kProficienciesWindow,
+					kProficiencyPlusFirst + (uint32)i * 2 + button)) {
+				arrow->SetEnabled(usable);
+				arrow->SetFrameless(!usable);
+			}
+		}
+		for (int star = 0; star < kMaxStars; star++) {
+			if (Button* mark = _Button(kProficienciesWindow,
+					kProficiencyStarFirst + (uint32)(i * kMaxStars + star)))
+				mark->SetFrameless(star >= builder.Proficiency(i));
+		}
+	}
+	if (Button* done = _Button(kProficienciesWindow, kDoneControl))
+		done->SetEnabled(fProficiencyPoints == 0);
+}
+
+
+void
+CharGenScreen::_DescribeProficiency(int proficiency)
+{
+	size_t count = 0;
+	const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+	_SetDescription(kProficienciesWindow, kProficienciesText, profs[proficiency].descRef);
+}
+
+
+// One star more (`step` +1, from the points left) or less (-1) for a weapon.
+void
+CharGenScreen::_MoveProficiency(int proficiency, int step)
+{
+	CharacterBuilder& builder = _Builder();
+	_DescribeProficiency(proficiency);
+	if (step > 0 && fProficiencyPoints == 0)
+		return;
+	if (!builder.SetProficiency(proficiency, builder.Proficiency(proficiency) + step))
+		return;
+	fProficiencyPoints -= step;
+	_ShowProficiencyValues();
+}
+
+
 // Back from the overview: to the previous stage, its choice forgotten (and
 // everything after it).
 void
@@ -755,7 +922,12 @@ CharGenScreen::_StepBack()
 		return;
 	fStep = (Step)((int)fStep - 1);
 
+	// The abilities stay unless it is they that are undone.
 	CharacterBuilder& builder = _Builder();
+	int abilities[kNumAbilities];
+	for (int i = 0; i < kNumAbilities; i++)
+		abilities[i] = builder.Ability(i);
+	const int strengthExtra = builder.StrengthExtra();
 	builder.Reset();
 	if (fStep <= STEP_ALIGNMENT)
 		fAlignment = -1;
@@ -783,6 +955,11 @@ CharGenScreen::_StepBack()
 		builder.SetClass(CharGenData::Classes(count)[fClass].name);
 	if (fAlignment >= 0)
 		builder.SetAlignment(CharGenData::Alignments(count)[fAlignment].name);
+	if (fStep >= STEP_SKILLS) {
+		for (int i = 0; i < kNumAbilities; i++)
+			builder.SetAbility(i, abilities[i]);
+		builder.SetStrengthExtra(strengthExtra);
+	}
 	_RefreshOverview();
 }
 
@@ -919,6 +1096,9 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		return true;
 	}
 
+	if (windowID == kProficienciesWindow)
+		return _HandleSkillWindow(windowID, controlID);
+
 	if (windowID == kAbilitiesWindow) {
 		if (controlID >= kAbilitiesSelectFirst
 				&& controlID < kAbilitiesSelectFirst + kNumAbilities) {
@@ -936,7 +1116,7 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		} else if (controlID == kAbilitiesRecall) {
 			_RecallAbilities();
 		} else if (controlID == kDoneControl) {
-			fStep = STEP_ACCEPT;
+			fStep = STEP_SKILLS;
 			_CloseChoice();
 			_RefreshOverview();
 		} else if (controlID == kAbilitiesBack) {
@@ -946,6 +1126,29 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		return true;
 	}
 	return false;
+}
+
+
+// Events of the windows of the skills stage.
+bool
+CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
+{
+	if (windowID == kProficienciesWindow) {
+		const int lines = CharacterBuilder::kNumProficiencies;
+		if (controlID >= kProficiencyPlusFirst
+				&& controlID < kProficiencyPlusFirst + (uint32)(2 * lines)) {
+			const uint32 arrow = controlID - kProficiencyPlusFirst;
+			_MoveProficiency((int)(arrow / 2), arrow % 2 == 0 ? 1 : -1);
+		} else if (controlID >= kProficiencyInfoFirst
+				&& controlID < kProficiencyInfoFirst + (uint32)lines) {
+			_DescribeProficiency((int)(controlID - kProficiencyInfoFirst));
+		} else if (controlID == kDoneControl) {
+			_NextSkillPage();
+		} else if (controlID == kProficienciesBack) {
+			_PreviousSkillPage();
+		}
+	}
+	return true;
 }
 
 

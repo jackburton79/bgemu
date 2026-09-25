@@ -15,10 +15,10 @@ class Window;
 // Character creation (GUICG.CHU): an overview window (window 0) that lists the
 // stages, with the summary of what was chosen, and one window per choice shown
 // over it: gender, portrait, race, class (and multiclass), alignment,
-// abilities. Each stage is the button of the overview that is due; a choice
+// abilities, skills. Each stage is the button of the overview that is due; a choice
 // window has its own Done and Back. The choices go into the game's
-// CharacterBuilder. Skills, appearance and name (the stages after these) aren't
-// there yet: once the abilities are set, Accept finishes with the defaults.
+// CharacterBuilder. Appearance and name (the stages after these) aren't there yet:
+// once the skills are set, Accept finishes with the defaults.
 // Specialist mages (the Specialist button) and the custom portrait aren't done
 // either. BG1's windows only.
 class CharGenScreen : public GameScreen {
@@ -30,17 +30,20 @@ public:
 	// Starts creating a character from nothing.
 	void Begin();
 	Outcome Result() const;
-	// The stage due (gender, race, class, alignment, abilities, accept), for tests.
+	// The stage due (gender, race, class, alignment, abilities, skills, accept), for tests.
 	const char* StepName() const;
-	// Points taken off an ability and not yet given to another, for tests.
-	int PointsLeft() const { return fPointsLeft; }
+	// The points still to give in the window that is open (moved between the
+	// abilities, or the weapon proficiencies'), for tests.
+	int PointsLeft() const {
+		return fOpenWindow == kProficienciesWindow ? fProficiencyPoints : fPointsLeft;
+	}
 
 	virtual void Refresh();
 	virtual bool ControlInvoked(uint16 windowID, uint32 controlID);
 
 private:
 	enum Step {
-		STEP_GENDER, STEP_RACE, STEP_CLASS, STEP_ALIGNMENT, STEP_ABILITIES, STEP_ACCEPT
+		STEP_GENDER, STEP_RACE, STEP_CLASS, STEP_ALIGNMENT, STEP_ABILITIES, STEP_SKILLS, STEP_ACCEPT
 	};
 
 	// GUICG.CHU's windows.
@@ -49,6 +52,7 @@ private:
 	static const uint16 kClassWindow = 2;
 	static const uint16 kAlignmentWindow = 3;
 	static const uint16 kAbilitiesWindow = 4;
+	static const uint16 kProficienciesWindow = 9;
 	static const uint16 kRaceWindow = 8;
 	static const uint16 kMultiClassWindow = 10;
 	static const uint16 kPortraitWindow = 11;
@@ -79,6 +83,18 @@ private:
 	bool _HandleChoice(uint16 windowID, uint32 controlID);
 	void _ShowPortraitPicture();
 	void _SelectPortrait(int step);
+	// The skills stage: a run of windows (proficiencies so far) one after the
+	// other, Done going on to the next and Back to the one before.
+	enum SkillPage { PAGE_PROFICIENCIES };
+	void _ShowSkills();
+	void _ShowSkillPage();
+	void _NextSkillPage();
+	void _PreviousSkillPage();
+	void _ShowProficiencies();
+	void _MoveProficiency(int proficiency, int step);
+	void _DescribeProficiency(int proficiency);
+	void _ShowProficiencyValues();
+	bool _HandleSkillWindow(uint16 windowID, uint32 controlID);
 	// The abilities window: the roll, the points moved between the scores.
 	void _RollAbilities();
 	void _MovePoint(int ability, int step);
@@ -104,5 +120,10 @@ private:
 	int fStoredAbilities[6];
 	int fStoredPoints;
 	int fStoredExtra;
+	// The skills stage: its windows in order, the one shown, and the proficiency
+	// points still to give.
+	std::vector<SkillPage> fSkillPages;
+	size_t fSkillPage;
+	int fProficiencyPoints;
 	int fOpenWindow;		// the choice window shown over the overview, -1 none
 };

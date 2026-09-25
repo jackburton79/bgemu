@@ -17,6 +17,18 @@ static const CharGenRace kRaces[] = {
 	{ "DWARF", 7182, 9551, 1100 },
 };
 
+// weapprof.2da of GemRB's unhardcoded BG1 tables.
+static const CharGenProficiency kProficiencies[] = {
+	{ "LARGE_SWORD", 8668, 9589 },
+	{ "SMALL_SWORD", 8732, 9590 },
+	{ "BOW", 8733, 9591 },
+	{ "SPEAR", 8734, 9592 },
+	{ "BLUNT", 9400, 9593 },
+	{ "SPIKED", 9401, 9594 },
+	{ "AXE", 9402, 9595 },
+	{ "MISSILE", 9403, 9596 },
+};
+
 static const CharGenAlignment kAlignments[] = {
 	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G" },
 	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G" },
@@ -110,6 +122,14 @@ Alignments(size_t& count)
 {
 	count = sizeof(kAlignments) / sizeof(kAlignments[0]);
 	return kAlignments;
+}
+
+
+const CharGenProficiency*
+Proficiencies(size_t& count)
+{
+	count = sizeof(kProficiencies) / sizeof(kProficiencies[0]);
+	return kProficiencies;
 }
 
 

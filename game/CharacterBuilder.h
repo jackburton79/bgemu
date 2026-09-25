@@ -92,6 +92,20 @@ public:
 	const std::string& Class() const { return fClass; }
 	const std::string& Kit() const { return fKit; }
 	const std::string& Alignment() const { return fAlignment; }
+	// Weapon proficiencies (BG1: the eight of CharGenData::Proficiencies(), 0..5
+	// stars each). The points to give at the start come from PROFS.2DA, the weapons
+	// the class may take from CLASWEAP.2DA and the stars one weapon takes at the
+	// start from PROFSMAX.2DA.
+	static const int kNumProficiencies = 8;
+	int ProficiencyPoints() const;
+	// The stars this weapon can have now (0: the class can't use it).
+	int ProficiencyLimit(int proficiency) const;
+	int Proficiency(int proficiency) const;
+	// false if outside [0, ProficiencyLimit()].
+	bool SetProficiency(int proficiency, int stars);
+	// The stars already given.
+	int ProficienciesSpent() const;
+
 	// Whether the chosen class (if any) allows this alignment (ALIGNMEN.IDS name).
 	bool IsAlignmentAllowed(const std::string& alignment) const;
 	// ALIGNMEN.IDS numeric value (0x11..0x33), 0 if unset.
@@ -127,6 +141,7 @@ private:
 	uint8 fAlignmentValue;
 	int fAbilities[kNumAbilities];
 	int fStrengthExtra = 0;
+	int fProficiencies[kNumProficiencies] = {};
 
 	std::string fName;
 	std::string fPortraitSmall;

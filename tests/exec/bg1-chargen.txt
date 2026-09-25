@@ -5,8 +5,8 @@
 # are chosen in windows shown over it, a choice the race or class doesn't allow
 # is refused, Back goes back a stage, Cancel ends the creation. The choices go
 # into the character builder; the abilities are rolled in their own window (the
-# arrows move points, Store/Recall keep a roll); Accept (skills and the rest
-# are still to come, so defaults) completes it.
+# arrows move points, Store/Recall keep a roll), then the weapon proficiencies;
+# Accept (the rest is still to come, so defaults) completes it.
 Begin-CharGen
 Assert-CharGen gender
 Assert-Builder -,-,-,-
@@ -85,13 +85,46 @@ Assert-Ability DEX,12,12
 Invoke-Control GUICG,4,2
 Assert-CharGenPoints 0
 Invoke-Control GUICG,4,0
-Assert-CharGen accept
+Assert-CharGen skills
 # Back from the overview undoes the abilities, not the alignment.
 Invoke-Control GUICG,0,11
 Assert-CharGen abilities
 Assert-Builder FEMALE,ELF,CLERIC,NEUTRAL_GOOD
 Invoke-Control GUICG,0,4
 Invoke-Control GUICG,4,0
+Assert-CharGen skills
+# Proficiencies: a cleric has 2 points, may use blunt, spiked and missile weapons
+# and a star each at the start; a sword is refused, Done waits for the points.
+Invoke-Control GUICG,0,5
+Assert-CharGenPoints 2
+Invoke-Control GUICG,9,11
+Assert-Proficiency LARGE_SWORD,0
+Assert-CharGenPoints 2
+Invoke-Control GUICG,9,19
+Assert-Proficiency BLUNT,1
+Assert-CharGenPoints 1
+Invoke-Control GUICG,9,19
+Assert-Proficiency BLUNT,1
+Assert-CharGenPoints 1
+Invoke-Control GUICG,9,0
+Assert-CharGen skills
+Invoke-Control GUICG,9,20
+Assert-Proficiency BLUNT,0
+Assert-CharGenPoints 2
+Invoke-Control GUICG,9,19
+Invoke-Control GUICG,9,21
+Assert-CharGenPoints 0
+Invoke-Control GUICG,9,0
+Assert-CharGen accept
+# Back from the overview undoes the proficiencies, not the abilities.
+Invoke-Control GUICG,0,11
+Assert-CharGen skills
+Assert-Proficiency BLUNT,0
+Assert-Ability STR,3,18
+Invoke-Control GUICG,0,5
+Invoke-Control GUICG,9,19
+Invoke-Control GUICG,9,21
+Invoke-Control GUICG,9,0
 Assert-CharGen accept
 # Accept completes the character.
 Invoke-Control GUICG,0,8

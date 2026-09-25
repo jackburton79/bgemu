@@ -44,7 +44,15 @@ struct CharGenPortrait {
 	int gender;		// 1 male, 2 female
 };
 
+struct CharGenProficiency {
+	const char* name;	// weapprof.2da's row, CLASWEAP's column
+	uint32 nameRef;
+	uint32 descRef;
+};
+
 namespace CharGenData {
+	// The weapon proficiencies in the order of their CRE bytes (0x6e on).
+	const CharGenProficiency* Proficiencies(size_t& count);
 	const CharGenRace* Races(size_t& count);
 	const CharGenClass* Classes(size_t& count);
 	const CharGenAlignment* Alignments(size_t& count);

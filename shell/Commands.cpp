@@ -38,6 +38,7 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "MveResource.h"
+#include "CharGenData.h"
 #include "CharGenScreen.h"
 #include "Region.h"
 #include "StartScreen.h"
@@ -2994,8 +2995,9 @@ public:
 };
 
 
-// Assert-CharGenPoints <n> - the points taken off an ability in the abilities
-// window and not given to another yet.
+// Assert-CharGenPoints <n> - the points still to give in the open window of the
+// character creation: taken off an ability and not given to another yet, or the
+// weapon proficiencies'.
 class AssertCharGenPointsCommand : public ShellCommand {
 public:
 	AssertCharGenPointsCommand()
@@ -3010,6 +3012,34 @@ public:
 		else
 			std::cout << "ASSERT FAIL: " << points << " points left, expected "
 				<< params.at(0).value.integer << std::endl;
+	}
+};
+
+
+// Assert-Proficiency <weapon>,<stars> - the stars the builder gives a weapon
+// (LARGE_SWORD, SMALL_SWORD, BOW, SPEAR, BLUNT, SPIKED, AXE, MISSILE).
+class AssertProficiencyCommand : public ShellCommand {
+public:
+	AssertProficiencyCommand()
+		: ShellCommand("Assert-Proficiency", { { PARAMETER_STRING, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		size_t count = 0;
+		const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+		for (size_t i = 0; i < count; i++) {
+			if (strcasecmp(profs[i].name, params.at(0).value.string) != 0)
+				continue;
+			const int stars = Game::Get()->Starting().Builder().Proficiency((int)i);
+			if (stars == params.at(1).value.integer)
+				std::cout << "ASSERT OK: " << profs[i].name << " has " << stars << " stars" << std::endl;
+			else
+				std::cout << "ASSERT FAIL: " << profs[i].name << " has " << stars
+					<< " stars, expected " << params.at(1).value.integer << std::endl;
+			return;
+		}
+		std::cout << "ASSERT FAIL: unknown proficiency " << params.at(0).value.string << std::endl;
 	}
 };
 
@@ -4149,6 +4179,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertCharGenPointsCommand());
 	console->AddCommand(new AssertLabelTextCommand());
 	console->AddCommand(new AssertAbilityCommand());
+	console->AddCommand(new AssertProficiencyCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());

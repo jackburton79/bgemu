@@ -4,6 +4,8 @@
 
 #include "CharacterBuilder.h"
 
+#include "CharGenData.h"
+
 #include "2DAResource.h"
 #include "Core.h"
 #include "IDSResource.h"
@@ -76,6 +78,7 @@ CharacterBuilder::Reset()
 	for (int i = 0; i < kNumAbilities; i++)
 		fAbilities[i] = 0;
 	fStrengthExtra = 0;
+	std::fill(fProficiencies, fProficiencies + kNumProficiencies, 0);
 	fName.clear();
 	fPortraitSmall.clear();
 	fPortraitLarge.clear();
@@ -234,6 +237,8 @@ CharacterBuilder::SetClass(const std::string& className)
 	if (!ok)
 		return false;
 	fClass = className;
+	// What the proficiencies allow depends on the class.
+	std::fill(fProficiencies, fProficiencies + kNumProficiencies, 0);
 	// A class change can invalidate the current alignment.
 	if (fAlignmentValue != 0
 		&& !_AlignmentAllowedForClass(fClass, fAlignmentValue)) {
@@ -391,6 +396,60 @@ CharacterBuilder::AbilityMax(int ability) const
 	if (ability < 0 || ability >= kNumAbilities)
 		return 18;
 	return std::min(std::min(18, _RacialMaximum(ability)) + AbilityAdjustment(ability), 25);
+}
+
+
+int
+CharacterBuilder::ProficiencyPoints() const
+{
+	if (fClass.empty())
+		return 0;
+	int allowed = 0;
+	for (int i = 0; i < kNumProficiencies; i++)
+		allowed += ProficiencyLimit(i) > 0 ? 1 : 0;
+	return std::min(_TableInt("PROFS", fClass, "FIRST_LEVEL", 0), allowed);
+}
+
+
+int
+CharacterBuilder::ProficiencyLimit(int proficiency) const
+{
+	if (fClass.empty() || proficiency < 0 || proficiency >= kNumProficiencies)
+		return 0;
+	size_t count = 0;
+	const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+	if (_TableInt("CLASWEAP", fClass, profs[proficiency].name, 0) <= 0)
+		return 0;
+	return std::min(_TableInt("PROFSMAX", fClass, "FIRST_LEVEL", 1), 5);
+}
+
+
+int
+CharacterBuilder::Proficiency(int proficiency) const
+{
+	if (proficiency < 0 || proficiency >= kNumProficiencies)
+		return 0;
+	return fProficiencies[proficiency];
+}
+
+
+bool
+CharacterBuilder::SetProficiency(int proficiency, int stars)
+{
+	if (stars < 0 || stars > ProficiencyLimit(proficiency))
+		return false;
+	fProficiencies[proficiency] = stars;
+	return true;
+}
+
+
+int
+CharacterBuilder::ProficienciesSpent() const
+{
+	int spent = 0;
+	for (int i = 0; i < kNumProficiencies; i++)
+		spent += fProficiencies[i];
+	return spent;
 }
 
 
@@ -594,6 +653,12 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU8(out, 0x52, 20);           // THAC0 - engine recomputes from THAC0.2da
 	_PutU8(out, 0x53, 1);            // # attacks
 	for (int i = 0; i < 5; i++) _PutU8(out, 0x54 + i, 20); // saves - engine recomputes
+	// BG1 keeps the weapon proficiencies in the header, from 0x6e (BG2 has them
+	// as effects, which the character creation doesn't make yet).
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE) {
+		for (int i = 0; i < kNumProficiencies; i++)
+			_PutU8(out, 0x6e + i, (uint8)fProficiencies[i]);
+	}
 	_PutU8(out, 0x67, (uint8)fOpenLocksSkill); // Fase 8: Door lock checks
 	_PutU8(out, 0x69, (uint8)fFindTrapsSkill); // Fase 8: trap find/disarm
 
@@ -694,6 +759,16 @@ CharacterBuilder::Print() const
 		std::cout << std::endl;
 	}
 	std::cout << "  Total: " << AbilityTotal() << std::endl;
+	if (ProficienciesSpent() > 0) {
+		size_t count = 0;
+		const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+		std::cout << "  Proficiencies:";
+		for (int i = 0; i < kNumProficiencies; i++) {
+			if (fProficiencies[i] > 0)
+				std::cout << " " << profs[i].name << "=" << fProficiencies[i];
+		}
+		std::cout << std::endl;
+	}
 	if (!fPortraitSmall.empty() || !fPortraitLarge.empty())
 		std::cout << "  Portraits: " << fPortraitSmall << " / " << fPortraitLarge << std::endl;
 	if (!fSpells.empty()) {
