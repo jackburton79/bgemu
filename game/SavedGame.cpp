@@ -218,6 +218,12 @@ SavedGame::Load(const char* name)
 Actor*
 SavedGame::RestoreActor(const gam_party_member& member, CREResource* savedCre)
 {
+	// A character made in character creation ("PLAYER1") has no CRE among the
+	// game's files - it was only ever injected into the running game, so a game
+	// started afresh doesn't know it. Its saved CRE takes that place.
+	if (savedCre != NULL && !gResManager->ResourceExists(member.creName, RES_CRE))
+		gResManager->InjectResource(member.creName, RES_CRE, savedCre);
+
 	// Actor()'s normal constructor fetches the character's original,
 	// unmodified CRE from the game's own files (ResourceManager) - this
 	// reuses all of Actor's existing init logic (animation factory,
