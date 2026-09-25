@@ -223,9 +223,12 @@ through `DispatchMouseEvent()` (`game/InputEvents.*`), the same call as
 `Game::Loop`'s. New Game (in BG1) goes through `CharGenScreen` (GUICG.CHU, data
 in `game/CharGenData` - GemRB's unhardcoded tables; stages so far gender,
 portrait, race, class incl. multiclass, alignment, abilities (3d5+3 roll with the
-racial adjustment, arrows moving points, Store/Recall, 18/xx for warriors); then
-Accept with the defaults; specialist mages, skills, appearance, name still to do;
-BG2 keeps the default party) into `StartingParty` (`UseBuilder`); Load Game opens the
+racial adjustment, arrows moving points, Store/Recall, 18/xx for warriors), then the
+skills stage - a run of windows the class has: racial enemy (rangers), mage spells (learn
+two, memorize one), thief skills, weapon proficiencies; a cleric or druid learns its
+level-1 priest spells by itself; then Accept with the defaults; specialist mages,
+appearance, name and the finish (gold, reputation, starting staff) still to do; BG2
+keeps the default party) into `StartingParty` (`UseBuilder`); Load Game opens the
 load screen and a loaded game skips the rest. `-M` shows the menu with `-x` too
 (the script runs in the menu: `tests/exec/*-start-menu.txt`, first line
 `# ARGS: -M`).
