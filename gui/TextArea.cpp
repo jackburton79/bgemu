@@ -51,15 +51,13 @@ TextArea::TextArea(IE::text_area* text)
 	fScrollbar(NULL)
 {
 	fBitmap = new Bitmap(text->w, text->h, 8);
-#if 1
+
 	GFX::Color foreground = { text->color1_r, text->color1_g, text->color1_b, text->color1_a };
 	//GFX::Color unknown = { text->color2_r, text->color2_g, text->color2_b, text->color2_a };
 	GFX::Color background = { text->color3_r, text->color3_g, text->color3_b, text->color3_a };
 	GFX::Palette palette(foreground, background);
-#else
-	GFX::Palette palette(*GFX::kPaletteYellow);
-#endif
 	GFX::Color transparent = palette.colors[0];
+
 	fBitmap->SetPalette(palette);
 	fBitmap->SetColorKey(transparent.r, transparent.g, transparent.b, true);
 }
@@ -81,7 +79,7 @@ TextArea::Draw()
 	fWindow->ConvertToScreen(destRect);
 	if (fChanged) {
 		GFX::rect rect(0, -fYOffset, fBitmap->Width(), fBitmap->Height());
-		std::string fontName = ((IE::text_area*)fControl)->font_bam.CString();
+		std::string fontName = static_cast<IE::text_area*>(fControl)->font_bam.CString();
 		const Font* font = FontRoster::GetFont(fontName);
 		fBitmap->Clear(0);
 		uint32 flags = IE::LABEL_JUSTIFY_LEFT | IE::LABEL_JUSTIFY_BOTTOM;
@@ -90,13 +88,7 @@ TextArea::Draw()
 		// (_AddText()'s own loop) gives every wrapped line the same
 		// dialog_option - the whole run should highlight together, not
 		// just whichever single line the mouse is hit-testing against
-		// (fSelected itself, see MouseMoved()). Restricted to the
-		// contiguous run fSelected itself sits in, not just any line
-		// anywhere in the scrollback that happens to share the same
-		// dialog_option value: that index is only meaningful within one
-		// dialog turn (1, 2, 3, ...), and fLines keeps the whole
-		// conversation's history - an earlier turn's own "option 1"
-		// would otherwise light up too, just because both are numbered 1.
+		// (fSelected itself, see MouseMoved()).
 		size_t selectedStart = 0, selectedEnd = 0;
 		if (fSelected != NULL) {
 			size_t selectedIndex = (size_t)(fSelected - fLines.data());
@@ -109,16 +101,17 @@ TextArea::Draw()
 				selectedEnd++;
 		}
 
+		GFX::Palette palette;
 		for (size_t lineIndex = 0; lineIndex < fLines.size(); lineIndex++) {
 			int attr = 0;
 			const TextLine& line = fLines[lineIndex];
 			GFX::point where = { rect.x, rect.y };
 			if (fSelected != NULL && lineIndex >= selectedStart && lineIndex <= selectedEnd)
 				attr |= TEXT_SELECTED;
-			// TODO: Pass textarea palette
-			// TODO: Should we apply palette to the bitmap ?
-			// somehow it doesn't get the correct palette
-			Bitmap* tmpBitmap = font->GetRenderedString(line.text, flags | attr, GFX::kPaletteRed);
+
+			// Both surfaces are 8 bit, needs to have same palette
+			fBitmap->GetPalette(palette);
+			Bitmap* tmpBitmap = font->GetRenderedString(line.text, flags | attr, &palette);
 			tmpBitmap->BlitTo(fBitmap, where);
 			tmpBitmap->Release();
 			rect.y += line.height + kLineSpacing;
