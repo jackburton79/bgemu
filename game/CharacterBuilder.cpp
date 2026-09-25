@@ -75,6 +75,7 @@ CharacterBuilder::Reset()
 	fAlignmentValue = 0;
 	for (int i = 0; i < kNumAbilities; i++)
 		fAbilities[i] = 0;
+	fStrengthExtra = 0;
 	fName.clear();
 	fPortraitSmall.clear();
 	fPortraitLarge.clear();
@@ -217,9 +218,8 @@ CharacterBuilder::SetRace(const std::string& race)
 	// (IsComplete()/Print() flag it).
 	for (int i = 0; i < kNumAbilities; i++) {
 		if (fAbilities[i] != 0) {
-			fAbilities[i] = std::min(std::max(fAbilities[i], _RacialMinimum(i)),
-									_RacialMaximum(i));
-			fAbilities[i] = std::min(fAbilities[i], 18);
+			fAbilities[i] = std::min(std::max(fAbilities[i],
+				std::max(_RacialMinimum(i) + AbilityAdjustment(i), 1)), AbilityMax(i));
 		}
 	}
 	return true;
@@ -365,11 +365,23 @@ CharacterBuilder::_RacialMaximum(int ability) const
 
 
 int
+CharacterBuilder::AbilityAdjustment(int ability) const
+{
+	if (fRace.empty() || ability < 0 || ability >= kNumAbilities)
+		return 0;
+	return _TableInt("ABRACEAD", fRace, std::string("MOD_") + kAbilitySuffix[ability], 0);
+}
+
+
+// The scores are final ones, racial adjustment included, as the character
+// creation shows them (a dwarf's Constitution runs 12..19).
+int
 CharacterBuilder::AbilityMin(int ability) const
 {
 	if (ability < 0 || ability >= kNumAbilities)
 		return 3;
-	return std::max(_RacialMinimum(ability), _ClassMinimum(ability));
+	return std::max(std::max(_RacialMinimum(ability), _ClassMinimum(ability))
+		+ AbilityAdjustment(ability), 1);
 }
 
 
@@ -378,35 +390,50 @@ CharacterBuilder::AbilityMax(int ability) const
 {
 	if (ability < 0 || ability >= kNumAbilities)
 		return 18;
-	return std::min(18, _RacialMaximum(ability));
+	return std::min(std::min(18, _RacialMaximum(ability)) + AbilityAdjustment(ability), 25);
 }
 
 
+// The classes that fight at full warrior level may roll an 18/xx strength.
+bool
+CharacterBuilder::HasExceptionalStrength() const
+{
+	size_t start = 0;
+	while (start <= fClass.size()) {
+		size_t end = fClass.find('_', start);
+		if (end == std::string::npos)
+			end = fClass.size();
+		const std::string part = fClass.substr(start, end - start);
+		if (part == "FIGHTER" || part == "RANGER" || part == "PALADIN")
+			return true;
+		start = end + 1;
+	}
+	return false;
+}
+
+
+void
+CharacterBuilder::SetStrengthExtra(int value)
+{
+	fStrengthExtra = std::min(std::max(value, 0), 100);
+}
+
+
+// BG1's roll, as GemRB has it: 3d5 + 3 plus the racial adjustment, held within
+// the limits of the race and class (so a class minimum is met by raising the
+// score, not by rolling again).
 int
 CharacterBuilder::RollAbilities()
 {
 	if (fRace.empty() || fClass.empty())
 		return 0;
 
-	const int kMaxAttempts = 100000;
-	for (int attempt = 0; attempt < kMaxAttempts; attempt++) {
-		int rolled[kNumAbilities];
-		bool allMet = true;
-		for (int i = 0; i < kNumAbilities; i++) {
-			int v = Core::RollDice(3, 6, 0);
-			v = std::min(std::max(v, _RacialMinimum(i)), _RacialMaximum(i));
-			v = std::min(v, 18);
-			rolled[i] = v;
-			if (v < _ClassMinimum(i))
-				allMet = false;
-		}
-		if (allMet) {
-			for (int i = 0; i < kNumAbilities; i++)
-				fAbilities[i] = rolled[i];
-			return AbilityTotal();
-		}
+	for (int i = 0; i < kNumAbilities; i++) {
+		const int rolled = Core::RollDice(3, 5, 3 + AbilityAdjustment(i));
+		fAbilities[i] = std::min(std::max(rolled, AbilityMin(i)), AbilityMax(i));
 	}
-	return 0; // impossible race/class combination
+	fStrengthExtra = HasExceptionalStrength() ? Core::RollDice(1, 100, 0) : 0;
+	return AbilityTotal();
 }
 
 
@@ -580,7 +607,8 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 
 	_PutU8(out, 0x237, (uint8)genderID);   // sex
 	_PutU8(out, 0x238, (uint8)Ability(STR));
-	_PutU8(out, 0x239, 0);                 // exceptional strength (later)
+	_PutU8(out, 0x239, (uint8)(Ability(STR) == 18 && HasExceptionalStrength()
+		? fStrengthExtra : 0));         // exceptional strength
 	_PutU8(out, 0x23a, (uint8)Ability(INT));
 	_PutU8(out, 0x23b, (uint8)Ability(WIS));
 	_PutU8(out, 0x23c, (uint8)Ability(DEX));
@@ -658,6 +686,8 @@ CharacterBuilder::Print() const
 
 	for (int i = 0; i < kNumAbilities; i++) {
 		std::cout << "  " << kAbilitySuffix[i] << ": " << fAbilities[i];
+		if (i == 0 && fAbilities[0] == 18 && HasExceptionalStrength())
+			std::cout << "/" << fStrengthExtra;
 		if (!fRace.empty() && !fClass.empty()) {
 			std::cout << "  [" << AbilityMin(i) << ".." << AbilityMax(i) << "]";
 		}

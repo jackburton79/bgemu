@@ -284,7 +284,7 @@ public:
 	virtual void operator()(const char* argv) {
 		int total = Game::Get()->Starting().Builder().RollAbilities();
 		if (total == 0)
-			std::cout << "roll failed (set race + class first, or impossible combo)" << std::endl;
+			std::cout << "roll failed (set race + class first)" << std::endl;
 		Game::Get()->Starting().Builder().Print();
 	}
 };
@@ -2926,7 +2926,7 @@ public:
 
 // Begin-CharGen starts the character creation (GUICG.CHU) in the current run;
 // Assert-CharGen <step|done|cancelled> checks the stage due (gender, race, class,
-// alignment, accept) or how it ended.
+// alignment, abilities, accept) or how it ended.
 class BeginCharGenCommand : public ShellCommand {
 public:
 	BeginCharGenCommand()
@@ -2958,6 +2958,53 @@ public:
 		else
 			std::cout << "ASSERT FAIL: character creation is at " << state << ", expected "
 				<< argv << std::endl;
+	}
+};
+
+
+// Assert-CharGenPoints <n> - the points taken off an ability in the abilities
+// window and not given to another yet.
+class AssertCharGenPointsCommand : public ShellCommand {
+public:
+	AssertCharGenPointsCommand()
+		: ShellCommand("Assert-CharGenPoints", { { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const int points = Game::Get()->Screens().Find<CharGenScreen>()->PointsLeft();
+		if (points == params.at(0).value.integer)
+			std::cout << "ASSERT OK: " << points << " points left" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << points << " points left, expected "
+				<< params.at(0).value.integer << std::endl;
+	}
+};
+
+
+// Assert-Ability <STR|DEX|CON|INT|WIS|CHR>,<min>,<max> - the builder's ability
+// score is in [min, max] (both the same: exactly that).
+class AssertAbilityCommand : public ShellCommand {
+public:
+	AssertAbilityCommand()
+		: ShellCommand("Assert-Ability",
+			{ { PARAMETER_STRING, }, { PARAMETER_INT, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const int index = _AbilityIndex(params.at(0).value.string);
+		if (index < 0) {
+			std::cout << "ASSERT FAIL: unknown ability " << params.at(0).value.string << std::endl;
+			return;
+		}
+		const int value = Game::Get()->Starting().Builder().Ability(index);
+		if (value >= params.at(1).value.integer && value <= params.at(2).value.integer)
+			std::cout << "ASSERT OK: " << params.at(0).value.string << " is " << value << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << params.at(0).value.string << " is " << value
+				<< ", expected " << params.at(1).value.integer << ".."
+				<< params.at(2).value.integer << std::endl;
 	}
 };
 
@@ -4067,6 +4114,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new BeginCharGenCommand());
 	console->AddCommand(new AssertCharGenCommand());
 	console->AddCommand(new AssertBuilderCommand());
+	console->AddCommand(new AssertCharGenPointsCommand());
+	console->AddCommand(new AssertAbilityCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());

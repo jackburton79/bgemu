@@ -7,12 +7,15 @@
 #include "CharacterBuilder.h"
 #include "Game.h"
 #include "GUI.h"
+#include "Label.h"
 #include "ResManager.h"
 #include "StartingParty.h"
 #include "TextArea.h"
 #include "Window.h"
 
 #include <algorithm>
+#include <cstdio>
+#include <cstring>
 
 // Strrefs of the captions and texts, as GemRB's GUICG scripts set them (the
 // strrefs of the loaded TLK, so in its language).
@@ -53,6 +56,22 @@ static const stage_button kStageButtons[] = {
 	{ 4, 11960 }, { 5, 17372 }, { 6, 11961 }, { 7, 11963 }, { 8, 11962 }
 };
 
+// The overview's button of each stage (the order of Step): the skills,
+// appearance and name buttons (5, 6, 7) aren't stages yet.
+static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 8 };
+
+// The stage an overview button opens, -1 for one that isn't a stage yet.
+static int
+_StepOfButton(uint32 controlID)
+{
+	for (size_t i = 0; i < sizeof(kStepButton) / sizeof(kStepButton[0]); i++) {
+		if (kStepButton[i] == controlID)
+			return (int)i;
+	}
+	return -1;
+}
+
+
 // The controls every choice window has (Done is 0 in all of them); the others
 // differ per window.
 static const uint32 kDoneControl = 0;
@@ -64,6 +83,25 @@ static const uint32 kMultiBack = 14, kMultiText = 12, kMultiFirst = 2;
 static const uint32 kAlignmentBack = 13, kAlignmentText = 11, kAlignmentFirst = 2;
 static const uint32 kPortraitPicture = 1, kPortraitLeft = 2, kPortraitRight = 3;
 static const uint32 kPortraitBack = 5, kPortraitCustom = 6;
+// The abilities window: Reroll, Store and Recall, the text of the ability
+// picked, a button (the name) and two arrows for each of the six, and the labels
+// with the points left, the scores and the names.
+static const uint32 kAbilitiesBack = 36, kAbilitiesText = 29;
+static const uint32 kAbilitiesReroll = 2, kAbilitiesStore = 37, kAbilitiesRecall = 38;
+static const uint32 kAbilitiesSelectFirst = 30, kAbilitiesArrowFirst = 16;
+static const uint32 kAbilitiesPointsLabel = 0x10000002;
+static const uint32 kAbilitiesValueLabelFirst = 0x10000003;
+static const uint32 kAbilitiesNameLabelFirst = 0x10000009;
+static const uint32 kRerollStrRef = 11982, kStoreStrRef = 17373, kRecallStrRef = 17374;
+static const uint32 kAbilitiesPromptStrRef = 17247;
+// ability.2da of GemRB's unhardcoded tables: the name and the description of
+// each ability (Strength, Dexterity, Constitution, Intelligence, Wisdom,
+// Charisma), whose text has the range in <MINIMUM> and <MAXIMUM>.
+static const uint32 kAbilityNameStrRefs[6] = { 11975, 11977, 11978, 11979, 11980, 11981 };
+static const uint32 kAbilityDescStrRefs[6] = { 9582, 9584, 9583, 9585, 9586, 9587 };
+// The names as the summary writes them (the table's CAP_REF).
+static const uint32 kAbilityCapStrRefs[6] = { 1145, 1151, 1178, 1179, 1180, 1181 };
+static const int kNumAbilities = 6;
 
 
 static std::vector<int>
@@ -117,8 +155,12 @@ CharGenScreen::CharGenScreen(Game& game)
 	fClass(-1),
 	fAlignment(-1),
 	fPortrait(-1),
+	fPointsLeft(0),
+	fStoredPoints(0),
+	fStoredExtra(0),
 	fOpenWindow(-1)
 {
+	std::fill(fStoredAbilities, fStoredAbilities + kNumAbilities, 0);
 }
 
 
@@ -141,6 +183,14 @@ CharGenScreen::_Button(uint16 windowID, uint32 controlID) const
 {
 	Window* window = _Window(windowID);
 	return window != NULL ? dynamic_cast<Button*>(window->GetControlByID(controlID)) : NULL;
+}
+
+
+Label*
+CharGenScreen::_Label(uint16 windowID, uint32 controlID) const
+{
+	Window* window = _Window(windowID);
+	return window != NULL ? dynamic_cast<Label*>(window->GetControlByID(controlID)) : NULL;
 }
 
 
@@ -195,7 +245,8 @@ CharGenScreen::Result() const
 const char*
 CharGenScreen::StepName() const
 {
-	static const char* kNames[] = { "gender", "race", "class", "alignment", "accept" };
+	static const char* kNames[] = { "gender", "race", "class", "alignment", "abilities",
+		"accept" };
 	return kNames[fStep];
 }
 
@@ -226,8 +277,7 @@ CharGenScreen::_RefreshOverview()
 		if (button == NULL)
 			continue;
 		button->SetText(IDTable::GetDialog(kStageButtons[i].strRef));
-		// Abilities to name (between the alignment and Accept) aren't there yet.
-		button->SetEnabled((int)i == (int)fStep + (fStep == STEP_ACCEPT ? 4 : 0));
+		button->SetEnabled(_StepOfButton(kStageButtons[i].control) == (int)fStep);
 	}
 	_SetText(kOverviewWindow, kOverviewImport, kImportStrRef);
 	if (Button* import = _Button(kOverviewWindow, kOverviewImport))
@@ -273,6 +323,12 @@ CharGenScreen::_RefreshOverview()
 				text->AddText(_SummaryLine(kAlignmentLabelStrRef,
 					IDTable::GetDialog(aligns[fAlignment].capRef)).c_str());
 			}
+			if (fStep == STEP_ACCEPT) {
+				for (int i = 0; i < kNumAbilities; i++) {
+					text->AddText(_SummaryLine(kAbilityCapStrRefs[i],
+						_AbilityText(i)).c_str());
+				}
+			}
 		}
 		text->ScrollTo(0, 0);
 	}
@@ -294,6 +350,9 @@ CharGenScreen::_OpenStage(Step step)
 			break;
 		case STEP_ALIGNMENT:
 			_ShowAlignment();
+			break;
+		case STEP_ABILITIES:
+			_ShowAbilities();
 			break;
 		case STEP_ACCEPT:
 			_Finish();
@@ -559,6 +618,134 @@ CharGenScreen::_ShowAlignment()
 }
 
 
+// The abilities window: rolls the scores (Reroll does it again), the arrows move
+// a point from a score to another, Store keeps the roll and Recall brings it back.
+void
+CharGenScreen::_ShowAbilities()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kAbilitiesWindow);
+	fOpenWindow = kAbilitiesWindow;
+
+	_ChoiceWindowButtons(this, _Button(kAbilitiesWindow, kDoneControl),
+		_Button(kAbilitiesWindow, kAbilitiesBack));
+	if (Button* done = _Button(kAbilitiesWindow, kDoneControl))
+		done->SetEnabled(true);
+	_SetText(kAbilitiesWindow, kAbilitiesReroll, kRerollStrRef);
+	_SetText(kAbilitiesWindow, kAbilitiesStore, kStoreStrRef);
+	_SetText(kAbilitiesWindow, kAbilitiesRecall, kRecallStrRef);
+	for (int i = 0; i < kNumAbilities; i++) {
+		if (Label* name = _Label(kAbilitiesWindow, kAbilitiesNameLabelFirst + (uint32)i))
+			name->SetText(IDTable::GetDialog(kAbilityNameStrRefs[i]));
+	}
+	_SetDescription(kAbilitiesWindow, kAbilitiesText, kAbilitiesPromptStrRef);
+
+	// The first roll is kept, so Recall has something to bring back.
+	_RollAbilities();
+	_StoreAbilities();
+}
+
+
+void
+CharGenScreen::_RollAbilities()
+{
+	_Builder().RollAbilities();
+	fPointsLeft = 0;
+	_ShowAbilityValues();
+}
+
+
+// The score as it is written: 18/xx for a warrior's exceptional strength.
+std::string
+CharGenScreen::_AbilityText(int ability) const
+{
+	const CharacterBuilder& builder = _Builder();
+	std::string text = std::to_string(builder.Ability(ability));
+	if (ability == 0 && builder.Ability(0) == 18 && builder.HasExceptionalStrength()) {
+		char extra[8];
+		snprintf(extra, sizeof(extra), "/%02d", builder.StrengthExtra());
+		text += extra;
+	}
+	return text;
+}
+
+
+void
+CharGenScreen::_ShowAbilityValues()
+{
+	if (Label* points = _Label(kAbilitiesWindow, kAbilitiesPointsLabel))
+		points->SetText(std::to_string(fPointsLeft));
+	for (int i = 0; i < kNumAbilities; i++) {
+		if (Label* value = _Label(kAbilitiesWindow, kAbilitiesValueLabelFirst + (uint32)i))
+			value->SetText(_AbilityText(i));
+	}
+}
+
+
+// The text of the ability picked, with the range its race and class allow.
+void
+CharGenScreen::_DescribeAbility(int ability)
+{
+	const CharacterBuilder& builder = _Builder();
+	std::string text = IDTable::GetDialog(kAbilityDescStrRefs[ability]);
+	const std::pair<const char*, int> tokens[] = {
+		{ "<MINIMUM>", builder.AbilityMin(ability) },
+		{ "<MAXIMUM>", builder.AbilityMax(ability) }
+	};
+	for (const auto& token : tokens) {
+		const std::string value = std::to_string(token.second);
+		for (size_t at = text.find(token.first); at != std::string::npos;
+				at = text.find(token.first, at + value.size()))
+			text.replace(at, strlen(token.first), value);
+	}
+	if (TextArea* area = _TextArea(kAbilitiesWindow, kAbilitiesText)) {
+		area->ClearText();
+		area->AddText(text.c_str());
+		area->ScrollTo(0, 0);
+	}
+}
+
+
+// One point off (`step` -1, which frees it) or on (+1, which spends a free one)
+// a score, within what the race and class allow.
+void
+CharGenScreen::_MovePoint(int ability, int step)
+{
+	CharacterBuilder& builder = _Builder();
+	_DescribeAbility(ability);
+	const int value = builder.Ability(ability);
+	if (step < 0 ? value <= builder.AbilityMin(ability)
+			: fPointsLeft == 0 || value >= builder.AbilityMax(ability))
+		return;
+	builder.SetAbility(ability, value + step);
+	fPointsLeft -= step;
+	_ShowAbilityValues();
+}
+
+
+void
+CharGenScreen::_StoreAbilities()
+{
+	const CharacterBuilder& builder = _Builder();
+	for (int i = 0; i < kNumAbilities; i++)
+		fStoredAbilities[i] = builder.Ability(i);
+	fStoredPoints = fPointsLeft;
+	fStoredExtra = builder.StrengthExtra();
+}
+
+
+void
+CharGenScreen::_RecallAbilities()
+{
+	CharacterBuilder& builder = _Builder();
+	for (int i = 0; i < kNumAbilities; i++)
+		builder.SetAbility(i, fStoredAbilities[i]);
+	builder.SetStrengthExtra(fStoredExtra);
+	fPointsLeft = fStoredPoints;
+	_ShowAbilityValues();
+}
+
+
 // Back from the overview: to the previous stage, its choice forgotten (and
 // everything after it).
 void
@@ -594,18 +781,18 @@ CharGenScreen::_StepBack()
 		builder.SetRace(CharGenData::Races(count)[fRace].name);
 	if (fClass >= 0)
 		builder.SetClass(CharGenData::Classes(count)[fClass].name);
+	if (fAlignment >= 0)
+		builder.SetAlignment(CharGenData::Alignments(count)[fAlignment].name);
 	_RefreshOverview();
 }
 
 
-// Accept: what the stages after the alignment would have asked is the default
-// for now (abilities rolled, the portrait's own colors, no name).
+// Accept: what the stages after the abilities would have asked is the default
+// for now (the portrait's own colors, no name).
 void
 CharGenScreen::_Finish()
 {
 	CharacterBuilder& builder = _Builder();
-	if (builder.RollAbilities() == 0)
-		return;
 	// The name is asked for by a later stage.
 	if (builder.Name().empty())
 		builder.SetName("Player");
@@ -721,11 +908,38 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 				done->SetEnabled(true);
 		} else if (controlID == kDoneControl && fAlignment >= 0) {
 			builder.SetAlignment(aligns[fAlignment].name);
-			fStep = STEP_ACCEPT;
+			fStep = STEP_ABILITIES;
 			_CloseChoice();
 			_RefreshOverview();
 		} else if (controlID == kAlignmentBack) {
 			fAlignment = -1;
+			_CloseChoice();
+			_RefreshOverview();
+		}
+		return true;
+	}
+
+	if (windowID == kAbilitiesWindow) {
+		if (controlID >= kAbilitiesSelectFirst
+				&& controlID < kAbilitiesSelectFirst + kNumAbilities) {
+			_DescribeAbility((int)(controlID - kAbilitiesSelectFirst));
+		} else if (controlID >= kAbilitiesArrowFirst
+				&& controlID < kAbilitiesArrowFirst + 2 * kNumAbilities) {
+			// Two arrows a score: the first (the left one) adds a point, the
+			// second takes one off, as GemRB's GUICG4 has them.
+			const uint32 arrow = controlID - kAbilitiesArrowFirst;
+			_MovePoint((int)(arrow / 2), arrow % 2 == 0 ? 1 : -1);
+		} else if (controlID == kAbilitiesReroll) {
+			_RollAbilities();
+		} else if (controlID == kAbilitiesStore) {
+			_StoreAbilities();
+		} else if (controlID == kAbilitiesRecall) {
+			_RecallAbilities();
+		} else if (controlID == kDoneControl) {
+			fStep = STEP_ACCEPT;
+			_CloseChoice();
+			_RefreshOverview();
+		} else if (controlID == kAbilitiesBack) {
 			_CloseChoice();
 			_RefreshOverview();
 		}
@@ -759,7 +973,7 @@ CharGenScreen::ControlInvoked(uint16 windowID, uint32 controlID)
 			if (kStageButtons[i].control != controlID)
 				continue;
 			// Only the button of the stage due does anything.
-			if ((int)i == (int)fStep + (fStep == STEP_ACCEPT ? 4 : 0))
+			if (_StepOfButton(controlID) == (int)fStep)
 				_OpenStage(fStep);
 			break;
 		}

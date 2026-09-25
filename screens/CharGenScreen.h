@@ -7,19 +7,20 @@
 
 class Button;
 class CharacterBuilder;
+class Label;
 class TextArea;
 class Window;
 
 
 // Character creation (GUICG.CHU): an overview window (window 0) that lists the
 // stages, with the summary of what was chosen, and one window per choice shown
-// over it: gender, portrait, race, class (and multiclass), alignment. Each
-// stage is the button of the overview that is due; a choice window has its own
-// Done and Back. The choices go into the game's CharacterBuilder. Abilities,
-// skills, appearance and name (the stages after these) aren't there yet: once
-// the alignment is chosen, Accept finishes with rolled abilities and the
-// defaults. Specialist mages (the Specialist button) and the custom portrait
-// aren't done either. BG1's windows only.
+// over it: gender, portrait, race, class (and multiclass), alignment,
+// abilities. Each stage is the button of the overview that is due; a choice
+// window has its own Done and Back. The choices go into the game's
+// CharacterBuilder. Skills, appearance and name (the stages after these) aren't
+// there yet: once the abilities are set, Accept finishes with the defaults.
+// Specialist mages (the Specialist button) and the custom portrait aren't done
+// either. BG1's windows only.
 class CharGenScreen : public GameScreen {
 public:
 	enum Outcome { OUTCOME_NONE, OUTCOME_DONE, OUTCOME_CANCELLED };
@@ -29,15 +30,17 @@ public:
 	// Starts creating a character from nothing.
 	void Begin();
 	Outcome Result() const;
-	// The stage due (gender, race, class, alignment, accept), for tests.
+	// The stage due (gender, race, class, alignment, abilities, accept), for tests.
 	const char* StepName() const;
+	// Points taken off an ability and not yet given to another, for tests.
+	int PointsLeft() const { return fPointsLeft; }
 
 	virtual void Refresh();
 	virtual bool ControlInvoked(uint16 windowID, uint32 controlID);
 
 private:
 	enum Step {
-		STEP_GENDER, STEP_RACE, STEP_CLASS, STEP_ALIGNMENT, STEP_ACCEPT
+		STEP_GENDER, STEP_RACE, STEP_CLASS, STEP_ALIGNMENT, STEP_ABILITIES, STEP_ACCEPT
 	};
 
 	// GUICG.CHU's windows.
@@ -45,6 +48,7 @@ private:
 	static const uint16 kGenderWindow = 1;
 	static const uint16 kClassWindow = 2;
 	static const uint16 kAlignmentWindow = 3;
+	static const uint16 kAbilitiesWindow = 4;
 	static const uint16 kRaceWindow = 8;
 	static const uint16 kMultiClassWindow = 10;
 	static const uint16 kPortraitWindow = 11;
@@ -52,6 +56,7 @@ private:
 	CharacterBuilder& _Builder() const;
 	Window* _Window(uint16 windowID) const;
 	Button* _Button(uint16 windowID, uint32 controlID) const;
+	Label* _Label(uint16 windowID, uint32 controlID) const;
 	TextArea* _TextArea(uint16 windowID, uint32 controlID) const;
 	void _SetText(uint16 windowID, uint32 controlID, uint32 strRef);
 	void _SetDescription(uint16 windowID, uint32 controlID, uint32 strRef);
@@ -68,11 +73,20 @@ private:
 	void _ShowClass();
 	void _ShowMultiClass();
 	void _ShowAlignment();
+	void _ShowAbilities();
 	// Marks button `chosen` of `first`..`first + count - 1` as the selected one.
 	void _Latch(uint16 windowID, uint32 first, size_t count, int chosen);
 	bool _HandleChoice(uint16 windowID, uint32 controlID);
 	void _ShowPortraitPicture();
 	void _SelectPortrait(int step);
+	// The abilities window: the roll, the points moved between the scores.
+	void _RollAbilities();
+	void _MovePoint(int ability, int step);
+	void _StoreAbilities();
+	void _RecallAbilities();
+	void _ShowAbilityValues();
+	void _DescribeAbility(int ability);
+	std::string _AbilityText(int ability) const;
 	std::string _SummaryLine(uint32 labelRef, const std::string& value) const;
 	void _Finish();
 
@@ -84,5 +98,11 @@ private:
 	int fClass;			// index in CharGenData::Classes(), -1 none
 	int fAlignment;			// index in CharGenData::Alignments(), -1 none
 	int fPortrait;			// index in CharGenData::Portraits(), -1 none
+	// The abilities window: points taken off a score and not given to another,
+	// and the roll kept by Store (with its own points, and the 18/xx).
+	int fPointsLeft;
+	int fStoredAbilities[6];
+	int fStoredPoints;
+	int fStoredExtra;
 	int fOpenWindow;		// the choice window shown over the overview, -1 none
 };

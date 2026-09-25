@@ -222,9 +222,10 @@ with its own loop, sharing `_PollEvents()`/`_ShowFrame()`; the mouse events go
 through `DispatchMouseEvent()` (`game/InputEvents.*`), the same call as
 `Game::Loop`'s. New Game (in BG1) goes through `CharGenScreen` (GUICG.CHU, data
 in `game/CharGenData` - GemRB's unhardcoded tables; stages so far gender,
-portrait, race, class incl. multiclass, alignment, then Accept with abilities
-rolled; specialist mages, abilities, skills, appearance, name still to do; BG2
-keeps the default party) into `StartingParty` (`UseBuilder`); Load Game opens the
+portrait, race, class incl. multiclass, alignment, abilities (3d5+3 roll with the
+racial adjustment, arrows moving points, Store/Recall, 18/xx for warriors); then
+Accept with the defaults; specialist mages, skills, appearance, name still to do;
+BG2 keeps the default party) into `StartingParty` (`UseBuilder`); Load Game opens the
 load screen and a loaded game skips the rest. `-M` shows the menu with `-x` too
 (the script runs in the menu: `tests/exec/*-start-menu.txt`, first line
 `# ARGS: -M`).

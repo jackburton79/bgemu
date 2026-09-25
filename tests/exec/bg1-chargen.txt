@@ -4,8 +4,9 @@
 # one due works; gender, portrait, race, class (also multiclass) and alignment
 # are chosen in windows shown over it, a choice the race or class doesn't allow
 # is refused, Back goes back a stage, Cancel ends the creation. The choices go
-# into the character builder; Accept (abilities, skills and the rest are still
-# to come, so rolled and defaults) completes it.
+# into the character builder; the abilities are rolled in their own window (the
+# arrows move points, Store/Recall keep a roll); Accept (skills and the rest
+# are still to come, so defaults) completes it.
 Begin-CharGen
 Assert-CharGen gender
 Assert-Builder -,-,-,-
@@ -39,7 +40,7 @@ Assert-Builder FEMALE,ELF,CLERIC,-
 Invoke-Control GUICG,0,3
 Invoke-Control GUICG,3,3
 Invoke-Control GUICG,3,0
-Assert-CharGen accept
+Assert-CharGen abilities
 Assert-Builder FEMALE,ELF,CLERIC,NEUTRAL_GOOD
 # Back from the overview undoes the alignment.
 Invoke-Control GUICG,0,11
@@ -48,6 +49,49 @@ Assert-Builder FEMALE,ELF,CLERIC,-
 Invoke-Control GUICG,0,3
 Invoke-Control GUICG,3,3
 Invoke-Control GUICG,3,0
+Assert-CharGen abilities
+# Abilities: rolled on opening, inside what an elf cleric may have (Dexterity
+# and Constitution carry the elf's +1/-1, Wisdom the cleric's 9).
+Invoke-Control GUICG,0,4
+Assert-Ability STR,3,18
+Assert-Ability DEX,7,19
+Assert-Ability CON,6,17
+Assert-Ability WIS,9,18
+Assert-CharGenPoints 0
+# Known scores: a point taken off Strength goes to Dexterity; none is free to
+# add otherwise; a score can't go below its minimum.
+Char-Ability STR,12
+Char-Ability DEX,12
+Char-Ability CON,12
+Char-Ability INT,12
+Char-Ability WIS,9
+Char-Ability CHR,12
+Invoke-Control GUICG,4,37
+Invoke-Control GUICG,4,17
+Assert-Ability STR,11,11
+Assert-CharGenPoints 1
+Invoke-Control GUICG,4,18
+Assert-Ability DEX,13,13
+Assert-CharGenPoints 0
+Invoke-Control GUICG,4,18
+Assert-Ability DEX,13,13
+Invoke-Control GUICG,4,25
+Assert-Ability WIS,9,9
+Assert-CharGenPoints 0
+# Recall brings back what Store kept (the 12s and the 9).
+Invoke-Control GUICG,4,38
+Assert-Ability STR,12,12
+Assert-Ability DEX,12,12
+Invoke-Control GUICG,4,2
+Assert-CharGenPoints 0
+Invoke-Control GUICG,4,0
+Assert-CharGen accept
+# Back from the overview undoes the abilities, not the alignment.
+Invoke-Control GUICG,0,11
+Assert-CharGen abilities
+Assert-Builder FEMALE,ELF,CLERIC,NEUTRAL_GOOD
+Invoke-Control GUICG,0,4
+Invoke-Control GUICG,4,0
 Assert-CharGen accept
 # Accept completes the character.
 Invoke-Control GUICG,0,8

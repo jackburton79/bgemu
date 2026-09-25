@@ -62,10 +62,10 @@ public:
 	bool IsArcaneCaster() const;
 	bool IsDivineCaster() const;
 
-	// Rolls 3d6 for every ability, clamps each into its racial range,
-	// and rerolls the whole set until every class minimum is met (the
-	// original game's roller never hands you an unusable set). Returns
-	// the sum, or 0 if no valid set turned up (impossible combo).
+	// Rolls every ability (3d5 + 3 + the racial adjustment, as BG1's character
+	// creation does), held within [AbilityMin, AbilityMax] - the class
+	// minimums are met by raising a low roll - and the 18/xx roll of a
+	// warrior. Returns the sum, or 0 without a race and a class.
 	int RollAbilities();
 
 	// Sets one ability to an explicit value; false if it's outside
@@ -74,9 +74,18 @@ public:
 
 	int Ability(int ability) const;
 	int AbilityTotal() const;
-	// Lowest / highest legal value for this ability given race + class.
+	// Lowest / highest legal value for this ability given race + class; both
+	// are final scores, with the racial adjustment (ABRACEAD) in.
 	int AbilityMin(int ability) const;
 	int AbilityMax(int ability) const;
+	// What the race adds to (or takes from) the ability: an elf's Dexterity +1.
+	int AbilityAdjustment(int ability) const;
+	// Whether the class may have an exceptional (18/xx) strength: a fighter,
+	// ranger or paladin, alone or in a multiclass.
+	bool HasExceptionalStrength() const;
+	// The xx of an 18/xx strength (1..100); it only counts at strength 18.
+	int StrengthExtra() const { return fStrengthExtra; }
+	void SetStrengthExtra(int value);
 
 	const std::string& Gender() const { return fGender; }
 	const std::string& Race() const { return fRace; }
@@ -117,6 +126,7 @@ private:
 	std::string fAlignment;
 	uint8 fAlignmentValue;
 	int fAbilities[kNumAbilities];
+	int fStrengthExtra = 0;
 
 	std::string fName;
 	std::string fPortraitSmall;
