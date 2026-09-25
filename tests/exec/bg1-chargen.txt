@@ -127,9 +127,11 @@ Invoke-Control GUICG,9,19
 Invoke-Control GUICG,9,21
 Invoke-Control GUICG,9,0
 Assert-CharGen accept
-# Accept completes the character.
+# Accept completes the character: the reputation of a neutral good, the gold of a
+# cleric (3d6 x 10) and the quarterstaff.
 Invoke-Control GUICG,0,8
 Assert-CharGen done
+Assert-StartingKit 11,30,180
 
 # A human can't be a multiclass (the button is off, and a class chosen in its
 # window isn't taken).

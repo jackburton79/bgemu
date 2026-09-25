@@ -8,6 +8,7 @@
 
 #include "2DAResource.h"
 #include "Core.h"
+#include "CreResource.h"
 #include "IDSResource.h"
 #include "ResManager.h"
 #include "SPLResource.h"
@@ -104,6 +105,10 @@ CharacterBuilder::Reset()
 	fSpells.clear();
 	std::fill(fThiefSkills, fThiefSkills + kNumThiefSkills, 0);
 	fRacialEnemy = 0;
+	fReputation = 10;
+	fGold = 0;
+	fBiography = 0;
+	fStartingStaff = false;
 }
 
 
@@ -153,6 +158,26 @@ bool
 CharacterBuilder::HasRacialEnemy() const
 {
 	return _ClassHas(fClass, "RANGER");
+}
+
+
+// What a new character starts the game with, as GemRB's character creation
+// finishes: the reputation of its alignment (REPSTART.2DA), the gold of its class
+// (STRTGOLD.2DA, rolled), a quarterstaff and the standard biography.
+void
+CharacterBuilder::ApplyStartingKit()
+{
+	const CharGenAlignment* alignment = CharGenData::FindAlignment(fAlignment.c_str());
+	if (alignment != NULL)
+		fReputation = (uint8)_TableInt("REPSTART", alignment->code, "VALUE", 10);
+	fGold = 0;
+	if (!fClass.empty()) {
+		fGold = Core::RollDice(_TableInt("STRTGOLD", fClass, "ROLLS", 0),
+			_TableInt("STRTGOLD", fClass, "SIDES", 0), _TableInt("STRTGOLD", fClass, "MODIFIER", 0))
+			* _TableInt("STRTGOLD", fClass, "MULTIPLIER", 1);
+	}
+	fStartingStaff = true;
+	fBiography = 11863;
 }
 
 
@@ -821,8 +846,13 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	const size_t knownOffset = kHeaderSize;
 	const size_t memoInfoOffset = knownOffset + knownCount * 12;
 	const size_t memorizedOffset = memoInfoOffset + memoInfoCount * 16;
+	// The starting items (item struct: resref 8, expiration 2, quantities 3 x 2,
+	// flags 4), then the slot table.
+	const size_t kItemSize = 20;
+	const size_t itemCount = fStartingStaff ? 1 : 0;
 	const size_t tailOffset = memorizedOffset + memorizedCount * 12; // effects/items/slots
-	const size_t kTotal = tailOffset + kSlotTableSize;
+	const size_t slotOffset = tailOffset + itemCount * kItemSize;
+	const size_t kTotal = slotOffset + kSlotTableSize;
 
 	out.assign(kTotal, 0);
 
@@ -831,7 +861,6 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU32(out, 0x0c, 0xffffffff);  // short name strref (A6)
 	_PutU32(out, 0x10, 0);           // flags
 	_PutU32(out, 0x18, 0);           // experience
-	_PutU32(out, 0x1c, 0);           // gold (A6)
 	_PutU32(out, 0x20, 0);           // permanent status
 
 	// HP starts at 0 and THAC0/saves at conservative placeholders: the
@@ -855,7 +884,8 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 		_PutStr(out, 0x3c, fPortraitLarge, 8);
 
 	_PutU8(out, 0x241, (uint8)fRacialEnemy);
-	_PutU8(out, 0x44, 10);           // reputation
+	_PutU32(out, 0x1c, 0);           // gold (the party's, see Gold())
+	_PutU8(out, 0x44, fReputation);  // reputation
 	_PutU16(out, 0x46, 10);          // AC natural
 	_PutU16(out, 0x48, 10);          // AC effective
 	_PutU8(out, 0x52, 20);           // THAC0 - engine recomputes from THAC0.2da
@@ -910,8 +940,8 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	_PutU32(out, 0x2a0, (uint32)knownOffset);    _PutU32(out, 0x2a4, (uint32)knownCount);
 	_PutU32(out, 0x2a8, (uint32)memoInfoOffset); _PutU32(out, 0x2ac, (uint32)memoInfoCount);
 	_PutU32(out, 0x2b0, (uint32)memorizedOffset);_PutU32(out, 0x2b4, (uint32)memorizedCount);
-	_PutU32(out, 0x2b8, (uint32)tailOffset);                                  // item slots
-	_PutU32(out, 0x2bc, (uint32)tailOffset);     _PutU32(out, 0x2c0, 0);      // items
+	_PutU32(out, 0x2b8, (uint32)slotOffset);                                  // item slots
+	_PutU32(out, 0x2bc, (uint32)tailOffset);     _PutU32(out, 0x2c0, (uint32)itemCount); // items
 	_PutU32(out, 0x2c4, (uint32)tailOffset);     _PutU32(out, 0x2c8, 0);      // effects
 
 	// Known spells: resref(8), level(2, 0-indexed on disk = level 1),
@@ -946,7 +976,20 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	}
 
 	for (size_t i = 0; i < kSlotCount; i++)
-		_PutU16(out, tailOffset + i * 2, 0xffff); // empty slot
+		_PutU16(out, slotOffset + i * 2, 0xffff); // empty slot
+	if (fStartingStaff) {
+		// A quarterstaff in the first weapon slot, selected; the last two words of
+		// the table are the selected weapon and its ability.
+		_PutStr(out, tailOffset, "STAF01", 8);
+		_PutU16(out, tailOffset + 10, 1);	// quantity
+		_PutU16(out, slotOffset + kSlotWeaponFirst * 2, 0);
+		_PutU16(out, slotOffset + kNumItemSlots * 2, 0);
+		_PutU16(out, slotOffset + (kNumItemSlots + 1) * 2, 0);
+	}
+	// The biography the record screen shows is a string of the character's sound
+	// set (slot 74).
+	if (fBiography != 0)
+		_PutU32(out, 0xa4 + 74 * 4, fBiography);
 
 	return true;
 }

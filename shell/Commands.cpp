@@ -3044,6 +3044,33 @@ public:
 };
 
 
+// Assert-StartingKit <reputation>,<min gold>,<max gold> - what the character
+// creation's finish gave the builder: the reputation of the alignment, the gold
+// of the class (rolled: within the range) and the quarterstaff.
+class AssertStartingKitCommand : public ShellCommand {
+public:
+	AssertStartingKitCommand()
+		: ShellCommand("Assert-StartingKit",
+			{ { PARAMETER_INT, }, { PARAMETER_INT, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		CharacterBuilder& builder = Game::Get()->Starting().Builder();
+		const bool ok = builder.Reputation() == params.at(0).value.integer
+			&& builder.Gold() >= params.at(1).value.integer
+			&& builder.Gold() <= params.at(2).value.integer && builder.HasStartingStaff();
+		if (ok)
+			std::cout << "ASSERT OK: reputation " << builder.Reputation() << ", gold "
+				<< builder.Gold() << ", quarterstaff" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: reputation " << builder.Reputation() << ", gold "
+				<< builder.Gold() << ", quarterstaff " << builder.HasStartingStaff()
+				<< ", expected " << argv << std::endl;
+	}
+};
+
+
 // Assert-Spells <mage|priest>,<known>,<memorized> - the spells the builder has in
 // the book of that kind.
 class AssertSpellsCommand : public ShellCommand {
@@ -4253,6 +4280,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertProficiencyCommand());
 	console->AddCommand(new AssertThiefSkillCommand());
 	console->AddCommand(new AssertSpellsCommand());
+	console->AddCommand(new AssertStartingKitCommand());
 	console->AddCommand(new AssertRacialEnemyCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());

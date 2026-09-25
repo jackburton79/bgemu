@@ -82,6 +82,14 @@ public:
 	int ThiefSkillPointsSpent() const;
 	// What the race and the Dexterity add to (or take from) the skill.
 	int ThiefSkillBonus(int skill) const;
+	// What a new character starts the game with (reputation, gold, quarterstaff,
+	// biography) - set by the creation's last step; a character spec has its own.
+	void ApplyStartingKit();
+	// The gold to give the party (0 unless ApplyStartingKit() was called).
+	int Gold() const { return fGold; }
+	int Reputation() const { return fReputation; }
+	bool HasStartingStaff() const { return fStartingStaff; }
+
 	// A ranger's racial enemy (RACE.IDS value, 0 none): rangers alone, alone or in
 	// a multiclass, have one.
 	bool HasRacialEnemy() const;
@@ -185,6 +193,10 @@ private:
 	std::vector<spell_entry> fSpells;   // the level-1 starting spellbook
 	int fThiefSkills[kNumThiefSkills] = {};
 	int fRacialEnemy = 0;
+	uint8 fReputation = 10;
+	int fGold = 0;
+	uint32 fBiography = 0;
+	bool fStartingStaff = false;
 };
 
 #endif // CHARACTER_BUILDER_H_

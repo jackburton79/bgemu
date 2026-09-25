@@ -1,0 +1,10 @@
+# ARGS: -c tests/exec/chargen-kit.spec
+#
+# The finish of the character creation (ApplyStartingKit()): the character has a
+# quarterstaff in its first weapon slot and selected, the party the class's gold
+# (5d4 x 10 for a fighter: 50-200) and the reputation is a lawful good's (12).
+Assert-ItemCount PLAYER1,STAF01,1
+Assert-ActiveWeaponSlot PLAYER1,9
+Assert-Trigger -,true,PartyGoldGT(49)
+Assert-Trigger -,true,PartyGoldLT(201)
+Assert-Trigger -,true,Reputation(Myself,12)

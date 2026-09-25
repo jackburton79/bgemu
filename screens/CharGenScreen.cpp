@@ -1353,8 +1353,8 @@ CharGenScreen::_StepBack()
 }
 
 
-// Accept: what the stages after the abilities would have asked is the default
-// for now (the portrait's own colors, no name).
+// Accept: what the stages after the skills would have asked is the default for
+// now (no name); the colors are the portrait's, then the finish of the creation.
 void
 CharGenScreen::_Finish()
 {
@@ -1362,6 +1362,20 @@ CharGenScreen::_Finish()
 	// The name is asked for by a later stage.
 	if (builder.Name().empty())
 		builder.SetName("Player");
+
+	if (fPortrait >= 0) {
+		size_t count = 0;
+		const CharGenPortrait& portrait = CharGenData::Portraits(count)[fPortrait];
+		builder.SetColor("hair", portrait.hair);
+		builder.SetColor("skin", portrait.skin);
+		builder.SetColor("major", portrait.major);
+		builder.SetColor("minor", portrait.minor);
+	}
+	// The metal, leather and armor colors of a new character.
+	builder.SetColor("metal", 0x1b);
+	builder.SetColor("leather", 0x16);
+	builder.SetColor("armor", 0x17);
+	builder.ApplyStartingKit();
 
 	std::vector<std::string> problems;
 	if (!builder.IsComplete(problems))

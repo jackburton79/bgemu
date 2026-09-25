@@ -84,6 +84,7 @@ StartingParty::_CreateFromSpec(::Party* party, const IE::point& position)
 	CharacterBuilder& builder = fBuilder;
 	builder.Reset();
 	bool doRoll = false;
+	bool doStartingKit = false;
 	static const char* kAbilityNames[] = { "str", "dex", "con", "int", "wis", "chr" };
 
 	std::string line;
@@ -100,6 +101,9 @@ StartingParty::_CreateFromSpec(::Party* party, const IE::point& position)
 
 		if (field == "roll") {
 			doRoll = true;
+		} else if (field == "startingkit") {
+			// The finish of the character creation: gold, quarterstaff...
+			doStartingKit = true;
 		} else if (field == "gender") {
 			builder.SetGender(value);
 		} else if (field == "race") {
@@ -159,6 +163,8 @@ StartingParty::_CreateFromSpec(::Party* party, const IE::point& position)
 
 	if (doRoll)
 		builder.RollAbilities();
+	if (doStartingKit)
+		builder.ApplyStartingKit();
 
 	return _CreatePlayer(party, position);
 }
@@ -195,6 +201,10 @@ StartingParty::_CreatePlayer(::Party* party, const IE::point& position)
 	if (!builder.Name().empty())
 		player->SetLongName(builder.Name().c_str());
 	party->AddActor(player);
+
+	// The gold the character starts with is the party's.
+	if (builder.Gold() > 0)
+		Core::Get()->AddPartyGold(builder.Gold());
 
 	std::cout << "Created character:" << std::endl;
 	builder.Print();

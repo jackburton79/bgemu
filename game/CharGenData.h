@@ -45,6 +45,8 @@ struct CharGenAlignment {
 struct CharGenPortrait {
 	const char* name;	// the portraits' common part: <name>G (chargen), L, S
 	int gender;		// 1 male, 2 female
+	// The character's colors when this portrait is chosen (indexes of COLGRAD).
+	uint8 hair, skin, major, minor;
 };
 
 struct CharGenProficiency {
@@ -68,6 +70,10 @@ struct CharGenHatedRace {
 };
 
 namespace CharGenData {
+	// The colors the appearance window offers for hair, skin, major and minor
+	// (clowncol.2da): the COLGRAD indexes of that kind, in order.
+	enum ColorKind { COLOR_HAIR, COLOR_SKIN, COLOR_MAJOR, COLOR_MINOR };
+	const uint8* Colors(ColorKind kind, size_t& count);
 	// The creatures a ranger may take as its racial enemy.
 	const CharGenHatedRace* HatedRaces(size_t& count);
 	// The thief skills in the order of the window: pick pockets, open locks, find

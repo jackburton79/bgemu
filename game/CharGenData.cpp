@@ -51,6 +51,12 @@ static const CharGenHatedRace kHatedRaces[] = {
 	{ "SPIDER", 15941, 116, 16000 },
 };
 
+// clowncol.2da of GemRB's unhardcoded BG1 tables.
+static const uint8 kHairColors[] = { 0, 1, 2, 3, 4, 5, 6, 7, 79, 80, 81, 82, 110, 111 };
+static const uint8 kSkinColors[] = { 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 83, 84, 85, 86, 87, 88, 89, 90, 105, 106, 107, 108, 109, 112, 113, 114 };
+static const uint8 kMajorColors[] = { 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 };
+static const uint8 kMinorColors[] = { 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 };
+
 static const CharGenAlignment kAlignments[] = {
 	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G", 0x14 },
 	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G", 0x24 },
@@ -86,38 +92,38 @@ static const CharGenClass kClasses[] = {
 };
 
 static const CharGenPortrait kPortraits[] = {
-	{ "AJANTIS", 1 },
-	{ "CORAN", 1 },
-	{ "EDWIN", 1 },
-	{ "ELDOTH", 1 },
-	{ "GARRICK", 1 },
-	{ "GENDWRF", 1 },
-	{ "GENMELF", 1 },
-	{ "GENMHLF", 1 },
-	{ "KAGAIN", 1 },
-	{ "KHALID", 1 },
-	{ "KIVAN", 1 },
-	{ "MAN1", 1 },
-	{ "MAN2", 1 },
-	{ "MINSC", 1 },
-	{ "MONTAR", 1 },
-	{ "QUAYLE", 1 },
-	{ "TIAX", 1 },
-	{ "XAN", 1 },
-	{ "XZAR", 1 },
-	{ "YESLICK", 1 },
-	{ "ALORA", 2 },
-	{ "BRANWE", 2 },
-	{ "DYNAHEI", 2 },
-	{ "FALDORN", 2 },
-	{ "IMOEN", 2 },
-	{ "JAHEIRA", 2 },
-	{ "SAFANA", 2 },
-	{ "SHARTEL", 2 },
-	{ "SKIE", 2 },
-	{ "VICONIA", 2 },
-	{ "WOMAN1", 2 },
-	{ "WOMAN2", 2 },
+	{ "AJANTIS", 1, 3, 3, 3, 3 },
+	{ "CORAN", 1, 2, 12, 45, 55 },
+	{ "EDWIN", 1, 91, 12, 47, 41 },
+	{ "ELDOTH", 1, 0, 12, 41, 36 },
+	{ "GARRICK", 1, 0, 12, 41, 50 },
+	{ "GENDWRF", 1, 4, 85, 39, 49 },
+	{ "GENMELF", 1, 91, 10, 21, 60 },
+	{ "GENMHLF", 1, 0, 85, 40, 50 },
+	{ "KAGAIN", 1, 6, 85, 39, 49 },
+	{ "KHALID", 1, 4, 12, 48, 41 },
+	{ "KIVAN", 1, 1, 84, 37, 39 },
+	{ "MAN1", 1, 6, 84, 52, 46 },
+	{ "MAN2", 1, 2, 12, 37, 45 },
+	{ "MINSC", 1, 110, 84, 60, 58 },
+	{ "MONTAR", 1, 91, 10, 21, 60 },
+	{ "QUAYLE", 1, 110, 8, 45, 66 },
+	{ "TIAX", 1, 91, 12, 47, 46 },
+	{ "XAN", 1, 0, 12, 45, 64 },
+	{ "XZAR", 1, 91, 84, 54, 66 },
+	{ "YESLICK", 1, 92, 85, 39, 42 },
+	{ "ALORA", 2, 4, 12, 60, 45 },
+	{ "BRANWE", 2, 3, 12, 37, 41 },
+	{ "DYNAHEI", 2, 2, 12, 60, 46 },
+	{ "FALDORN", 2, 91, 84, 54, 65 },
+	{ "IMOEN", 2, 4, 13, 45, 61 },
+	{ "JAHEIRA", 2, 92, 12, 41, 65 },
+	{ "SAFANA", 2, 4, 12, 60, 60 },
+	{ "SHARTEL", 2, 4, 84, 66, 21 },
+	{ "SKIE", 2, 0, 12, 66, 45 },
+	{ "VICONIA", 2, 79, 83, 54, 60 },
+	{ "WOMAN1", 2, 3, 84, 61, 46 },
+	{ "WOMAN2", 2, 0, 84, 45, 58 },
 };
 
 
@@ -144,6 +150,27 @@ Alignments(size_t& count)
 {
 	count = sizeof(kAlignments) / sizeof(kAlignments[0]);
 	return kAlignments;
+}
+
+
+const uint8*
+Colors(ColorKind kind, size_t& count)
+{
+	switch (kind) {
+		case COLOR_HAIR:
+			count = sizeof(kHairColors);
+			return kHairColors;
+		case COLOR_SKIN:
+			count = sizeof(kSkinColors);
+			return kSkinColors;
+		case COLOR_MAJOR:
+			count = sizeof(kMajorColors);
+			return kMajorColors;
+		case COLOR_MINOR:
+			break;
+	}
+	count = sizeof(kMinorColors);
+	return kMinorColors;
 }
 
 
