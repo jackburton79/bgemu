@@ -33,9 +33,11 @@ public:
 	// The stage due (gender, race, class, alignment, abilities, skills, accept), for tests.
 	const char* StepName() const;
 	// The points still to give in the window that is open (moved between the
-	// abilities, or the weapon proficiencies'), for tests.
+	// abilities, or the thief skills' or weapon proficiencies'), for tests.
 	int PointsLeft() const {
-		return fOpenWindow == kProficienciesWindow ? fProficiencyPoints : fPointsLeft;
+		if (fOpenWindow == kProficienciesWindow)
+			return fProficiencyPoints;
+		return fOpenWindow == kSkillsWindow ? fSkillPoints : fPointsLeft;
 	}
 
 	virtual void Refresh();
@@ -52,6 +54,7 @@ private:
 	static const uint16 kClassWindow = 2;
 	static const uint16 kAlignmentWindow = 3;
 	static const uint16 kAbilitiesWindow = 4;
+	static const uint16 kSkillsWindow = 6;
 	static const uint16 kProficienciesWindow = 9;
 	static const uint16 kRaceWindow = 8;
 	static const uint16 kMultiClassWindow = 10;
@@ -71,6 +74,7 @@ private:
 	void _StepBack();
 
 	// The choice windows.
+	void _MakeHotSpots(uint16 windowID, uint32 first, size_t count);
 	void _ShowGender();
 	void _ShowPortrait();
 	void _ShowRace();
@@ -83,13 +87,17 @@ private:
 	bool _HandleChoice(uint16 windowID, uint32 controlID);
 	void _ShowPortraitPicture();
 	void _SelectPortrait(int step);
-	// The skills stage: a run of windows (proficiencies so far) one after the
+	// The skills stage: a run of windows (thief skills, proficiencies so far) one after the
 	// other, Done going on to the next and Back to the one before.
-	enum SkillPage { PAGE_PROFICIENCIES };
+	enum SkillPage { PAGE_THIEF_SKILLS, PAGE_PROFICIENCIES };
 	void _ShowSkills();
 	void _ShowSkillPage();
 	void _NextSkillPage();
 	void _PreviousSkillPage();
+	void _ShowThiefSkills();
+	void _MoveThiefSkill(int skill, int step);
+	void _DescribeThiefSkill(int skill);
+	void _ShowThiefSkillValues();
 	void _ShowProficiencies();
 	void _MoveProficiency(int proficiency, int step);
 	void _DescribeProficiency(int proficiency);
@@ -121,9 +129,10 @@ private:
 	int fStoredPoints;
 	int fStoredExtra;
 	// The skills stage: its windows in order, the one shown, and the proficiency
-	// points still to give.
+	// and thief skill points still to give.
 	std::vector<SkillPage> fSkillPages;
 	size_t fSkillPage;
 	int fProficiencyPoints;
+	int fSkillPoints;
 	int fOpenWindow;		// the choice window shown over the overview, -1 none
 };

@@ -85,27 +85,84 @@ CharacterBuilder::Reset()
 	for (int i = 0; i < 7; i++)
 		fColors[i] = -1;
 	fSpells.clear();
-	fOpenLocksSkill = 0;
-	fFindTrapsSkill = 0;
+	std::fill(fThiefSkills, fThiefSkills + kNumThiefSkills, 0);
 }
 
 
 bool
 CharacterBuilder::SetThiefSkill(const std::string& which, int value)
 {
-	if (value < 0)
-		value = 0;
-	if (value > 255)
-		value = 255;
-	if (strcasecmp(which.c_str(), "openlocks") == 0) {
-		fOpenLocksSkill = value;
-		return true;
-	}
-	if (strcasecmp(which.c_str(), "findtraps") == 0) {
-		fFindTrapsSkill = value;
-		return true;
+	static const char* kNames[kNumThiefSkills] = { "pickpockets", "openlocks", "findtraps", "stealth" };
+	for (int i = 0; i < kNumThiefSkills; i++) {
+		if (strcasecmp(which.c_str(), kNames[i]) == 0)
+			return SetThiefSkill(i, value);
 	}
 	return false;
+}
+
+
+// A thief skill is a byte; the caller (the creation window, or a character spec
+// file) is trusted with the points to give.
+bool
+CharacterBuilder::SetThiefSkill(int skill, int points)
+{
+	if (skill < 0 || skill >= kNumThiefSkills)
+		return false;
+	fThiefSkills[skill] = std::min(std::max(points, 0), 255);
+	return true;
+}
+
+
+int
+CharacterBuilder::ThiefSkill(int skill) const
+{
+	if (skill < 0 || skill >= kNumThiefSkills)
+		return 0;
+	return fThiefSkills[skill];
+}
+
+
+// skills.2da gives 40 points at the first level to the classes that are thieves
+// (alone or in a multiclass).
+int
+CharacterBuilder::ThiefSkillPoints() const
+{
+	size_t start = 0;
+	while (start <= fClass.size()) {
+		size_t end = fClass.find('_', start);
+		if (end == std::string::npos)
+			end = fClass.size();
+		if (fClass.compare(start, end - start, "THIEF") == 0)
+			return 40;
+		start = end + 1;
+	}
+	return 0;
+}
+
+
+int
+CharacterBuilder::ThiefSkillPointsSpent() const
+{
+	int spent = 0;
+	for (int i = 0; i < kNumThiefSkills; i++)
+		spent += fThiefSkills[i];
+	return spent;
+}
+
+
+int
+CharacterBuilder::ThiefSkillBonus(int skill) const
+{
+	size_t count = 0;
+	const CharGenSkill* skills = CharGenData::Skills(count);
+	if (skill < 0 || (size_t)skill >= count)
+		return 0;
+	int bonus = fRace.empty() ? 0 : _TableInt("SKILLRAC", fRace, skills[skill].name, 0);
+	// SKILLDEX's rows run from Dexterity 9 up; a lower one has the first row's.
+	if (fAbilities[1] != 0)
+		bonus += _TableInt("SKILLDEX", std::to_string(std::max(fAbilities[1], 9)),
+			skills[skill].name, 0);
+	return bonus;
 }
 
 
@@ -659,8 +716,12 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 		for (int i = 0; i < kNumProficiencies; i++)
 			_PutU8(out, 0x6e + i, (uint8)fProficiencies[i]);
 	}
-	_PutU8(out, 0x67, (uint8)fOpenLocksSkill); // Fase 8: Door lock checks
-	_PutU8(out, 0x69, (uint8)fFindTrapsSkill); // Fase 8: trap find/disarm
+	{
+		size_t skillCount = 0;
+		const CharGenSkill* skills = CharGenData::Skills(skillCount);
+		for (size_t i = 0; i < skillCount; i++)
+			_PutU8(out, skills[i].creOffset, (uint8)fThiefSkills[i]);
+	}
 
 	// Class levels stay at 0 so Actor::_Init() runs the level-up path to
 	// derive level-1 HP/THAC0/saves from the class tables. _CheckLevelUp
@@ -776,9 +837,13 @@ CharacterBuilder::Print() const
 		for (const std::string& s : fSpells) std::cout << " " << s;
 		std::cout << std::endl;
 	}
-	if (fOpenLocksSkill > 0 || fFindTrapsSkill > 0) {
-		std::cout << "  Open Locks: " << fOpenLocksSkill
-			<< "  Find Traps: " << fFindTrapsSkill << std::endl;
+	if (ThiefSkillPointsSpent() > 0) {
+		size_t count = 0;
+		const CharGenSkill* skills = CharGenData::Skills(count);
+		std::cout << "  Thief skills:";
+		for (size_t i = 0; i < count; i++)
+			std::cout << " " << skills[i].name << "=" << fThiefSkills[i];
+		std::cout << std::endl;
 	}
 
 	std::vector<std::string> problems;

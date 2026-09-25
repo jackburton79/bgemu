@@ -2997,7 +2997,7 @@ public:
 
 // Assert-CharGenPoints <n> - the points still to give in the open window of the
 // character creation: taken off an ability and not given to another yet, or the
-// weapon proficiencies'.
+// thief skills' or weapon proficiencies'.
 class AssertCharGenPointsCommand : public ShellCommand {
 public:
 	AssertCharGenPointsCommand()
@@ -3040,6 +3040,33 @@ public:
 			return;
 		}
 		std::cout << "ASSERT FAIL: unknown proficiency " << params.at(0).value.string << std::endl;
+	}
+};
+
+
+// Assert-ThiefSkill <pickpockets|openlocks|findtraps|stealth>,<points> - the points
+// the builder gives a thief skill (without the race's and Dexterity's share).
+class AssertThiefSkillCommand : public ShellCommand {
+public:
+	AssertThiefSkillCommand()
+		: ShellCommand("Assert-ThiefSkill", { { PARAMETER_STRING, }, { PARAMETER_INT, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		static const char* kNames[] = { "pickpockets", "openlocks", "findtraps", "stealth" };
+		for (int i = 0; i < 4; i++) {
+			if (strcasecmp(kNames[i], params.at(0).value.string) != 0)
+				continue;
+			const int points = Game::Get()->Starting().Builder().ThiefSkill(i);
+			if (points == params.at(1).value.integer)
+				std::cout << "ASSERT OK: " << kNames[i] << " has " << points << " points" << std::endl;
+			else
+				std::cout << "ASSERT FAIL: " << kNames[i] << " has " << points
+					<< " points, expected " << params.at(1).value.integer << std::endl;
+			return;
+		}
+		std::cout << "ASSERT FAIL: unknown skill " << params.at(0).value.string << std::endl;
 	}
 };
 
@@ -4180,6 +4207,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertLabelTextCommand());
 	console->AddCommand(new AssertAbilityCommand());
 	console->AddCommand(new AssertProficiencyCommand());
+	console->AddCommand(new AssertThiefSkillCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());

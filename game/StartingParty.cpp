@@ -126,10 +126,29 @@ StartingParty::_CreateFromSpec(::Party* party, const IE::point& position)
 		} else if (field == "spell") {
 			if (!builder.AddSpell(value))
 				std::cerr << "character spec: unknown spell " << value << std::endl;
-		} else if (field == "skill_openlocks") {
-			builder.SetThiefSkill("openlocks", atoi(value.c_str()));
-		} else if (field == "skill_findtraps") {
-			builder.SetThiefSkill("findtraps", atoi(value.c_str()));
+		} else if (field == "strextra") {
+			builder.SetStrengthExtra(atoi(value.c_str()));
+		} else if (field == "prof") {
+			// prof <WEAPON> <stars>, e.g. "prof LARGE_SWORD 2".
+			int stars = 0;
+			stream >> stars;
+			size_t count = 0;
+			const CharGenProficiency* profs = CharGenData::Proficiencies(count);
+			bool found = false;
+			for (size_t i = 0; i < count; i++) {
+				if (strcasecmp(profs[i].name, value.c_str()) != 0)
+					continue;
+				found = true;
+				if (!builder.SetProficiency((int)i, stars))
+					std::cerr << "character spec: " << value << " can't have "
+						<< stars << " stars" << std::endl;
+			}
+			if (!found)
+				std::cerr << "character spec: unknown proficiency " << value << std::endl;
+		} else if (field.rfind("skill_", 0) == 0) {
+			// skill_pickpockets, skill_openlocks, skill_findtraps, skill_stealth
+			if (!builder.SetThiefSkill(field.substr(6), atoi(value.c_str())))
+				std::cerr << "character spec: unknown skill " << field << std::endl;
 		} else {
 			for (int i = 0; i < CharacterBuilder::kNumAbilities; i++) {
 				if (field == kAbilityNames[i])

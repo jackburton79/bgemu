@@ -50,7 +50,17 @@ struct CharGenProficiency {
 	uint32 descRef;
 };
 
+struct CharGenSkill {
+	const char* name;	// skills.2da's row, SKILLRAC / SKILLDEX's column
+	uint32 capRef;		// how it is named in the window and the summary
+	uint32 descRef;
+	uint32 creOffset;	// the byte of the CRE header that holds it
+};
+
 namespace CharGenData {
+	// The thief skills in the order of the window: pick pockets, open locks, find
+	// traps, stealth.
+	const CharGenSkill* Skills(size_t& count);
 	// The weapon proficiencies in the order of their CRE bytes (0x6e on).
 	const CharGenProficiency* Proficiencies(size_t& count);
 	const CharGenRace* Races(size_t& count);

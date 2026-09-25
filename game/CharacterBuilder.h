@@ -51,13 +51,21 @@ public:
 	// a non-arcane class). false if the resref isn't a real SPL.
 	bool AddSpell(const std::string& resref);
 
-	// Starting thief skill points (0..255) - only the two the engine
-	// currently reads (Door::UpdateSearchMapBlocking()/Actions.cpp Fase
-	// 8): "openlocks" and "findtraps". No point-pool/DEX-bonus
-	// enforcement yet (same declared simplification as the ability
-	// roller's manual SetAbility()) - the caller is trusted not to type
-	// in an absurd value.
+	// Thief skills (pick pockets, open locks, find traps, stealth: the order of
+	// CharGenData::Skills()): the points given to each, as the CRE keeps them - the
+	// racial (SKILLRAC) and Dexterity (SKILLDEX) adjustments are not in them, see
+	// ThiefSkillBonus(). By name ("pickpockets", "openlocks", "findtraps",
+	// "stealth") for a character spec.
+	static const int kNumThiefSkills = 4;
 	bool SetThiefSkill(const std::string& which, int value);
+	bool SetThiefSkill(int skill, int points);
+	int ThiefSkill(int skill) const;
+	// The points the class gives at the start (skills.2da's FIRST_LEVEL for the
+	// thief classes, 0 for the others).
+	int ThiefSkillPoints() const;
+	int ThiefSkillPointsSpent() const;
+	// What the race and the Dexterity add to (or take from) the skill.
+	int ThiefSkillBonus(int skill) const;
 	// Whether the chosen class casts arcane / divine (memorized) spells.
 	bool IsArcaneCaster() const;
 	bool IsDivineCaster() const;
@@ -148,8 +156,7 @@ private:
 	std::string fPortraitLarge;
 	int fColors[7];    // metal, minor, major, skin, leather, armor, hair; -1 = default
 	std::vector<std::string> fSpells;   // level-1 arcane starting spellbook
-	int fOpenLocksSkill = 0;
-	int fFindTrapsSkill = 0;
+	int fThiefSkills[kNumThiefSkills] = {};
 };
 
 #endif // CHARACTER_BUILDER_H_

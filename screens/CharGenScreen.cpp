@@ -104,6 +104,19 @@ static const uint32 kAbilityDescStrRefs[6] = { 9582, 9584, 9583, 9585, 9586, 958
 static const uint32 kAbilityCapStrRefs[6] = { 1145, 1151, 1178, 1179, 1180, 1181 };
 static const int kNumAbilities = 6;
 
+// The thief skills window: Back, the text area, a line for each of the four skills
+// with the button that adds a point and the one that takes it off, a button over
+// the name that shows what the skill is, the label with the points still to give
+// and the ones with the points of each skill and its name.
+static const uint32 kSkillsBack = 25, kSkillsText = 19;
+static const uint32 kSkillPlusFirst = 11;		// then minus, +2 a line
+static const uint32 kSkillInfoFirst = 21;
+static const uint32 kSkillPointsLabel = 0x10000005;
+static const uint32 kSkillValueLabelFirst = 0x10000001;
+static const uint32 kSkillNameLabelFirst = 0x10000006;
+static const uint32 kSkillsPromptStrRef = 17248;
+static const uint32 kSkillsLabelStrRef = 8442;
+
 // The proficiencies window: Back, the text area, a line for each of the eight
 // weapons with the button that adds a star, the one that takes it off, five stars
 // and a button over the name that shows what the weapon is; the label with the
@@ -180,6 +193,7 @@ CharGenScreen::CharGenScreen(Game& game)
 	fStoredExtra(0),
 	fSkillPage(0),
 	fProficiencyPoints(0),
+	fSkillPoints(0),
 	fOpenWindow(-1)
 {
 	std::fill(fStoredAbilities, fStoredAbilities + kNumAbilities, 0);
@@ -351,6 +365,15 @@ CharGenScreen::_RefreshOverview()
 						_AbilityText(i)).c_str());
 				}
 			}
+			if (fStep == STEP_ACCEPT && _Builder().ThiefSkillPoints() > 0) {
+				text->AddText(IDTable::GetDialog(kSkillsLabelStrRef).c_str());
+				const CharGenSkill* skills = CharGenData::Skills(count);
+				const CharacterBuilder& builder = _Builder();
+				for (int i = 0; i < CharacterBuilder::kNumThiefSkills; i++) {
+					text->AddText(_SummaryLine(skills[i].capRef, std::to_string(
+						std::max(builder.ThiefSkill(i) + builder.ThiefSkillBonus(i), 0))).c_str());
+				}
+			}
 			if (fStep == STEP_ACCEPT && _Builder().ProficienciesSpent() > 0) {
 				text->AddText(IDTable::GetDialog(kProficienciesLabelStrRef).c_str());
 				const CharGenProficiency* profs = CharGenData::Proficiencies(count);
@@ -414,6 +437,18 @@ CharGenScreen::_Latch(uint16 windowID, uint32 first, size_t count, int chosen)
 	for (size_t i = 0; i < count; i++) {
 		if (Button* button = _Button(windowID, first + (uint32)i))
 			button->SetLatched((int)i == chosen);
+	}
+}
+
+
+// The buttons laid over the names of a list (to show what each is) have a
+// stone slab for a frame that would hide the name; only their click counts.
+void
+CharGenScreen::_MakeHotSpots(uint16 windowID, uint32 first, size_t count)
+{
+	for (size_t i = 0; i < count; i++) {
+		if (Button* button = _Button(windowID, first + (uint32)i))
+			button->SetFrameless(true);
 	}
 }
 
@@ -675,6 +710,7 @@ CharGenScreen::_ShowAbilities()
 			name->SetText(IDTable::GetDialog(kAbilityNameStrRefs[i]));
 	}
 	_SetDescription(kAbilitiesWindow, kAbilitiesText, kAbilitiesPromptStrRef);
+	_MakeHotSpots(kAbilitiesWindow, kAbilitiesSelectFirst, kNumAbilities);
 
 	// The first roll is kept, so Recall has something to bring back.
 	_RollAbilities();
@@ -787,6 +823,8 @@ void
 CharGenScreen::_ShowSkills()
 {
 	fSkillPages.clear();
+	if (_Builder().ThiefSkillPoints() > 0)
+		fSkillPages.push_back(PAGE_THIEF_SKILLS);
 	fSkillPages.push_back(PAGE_PROFICIENCIES);
 	fSkillPage = 0;
 	_ShowSkillPage();
@@ -797,6 +835,9 @@ void
 CharGenScreen::_ShowSkillPage()
 {
 	switch (fSkillPages[fSkillPage]) {
+		case PAGE_THIEF_SKILLS:
+			_ShowThiefSkills();
+			break;
 		case PAGE_PROFICIENCIES:
 			_ShowProficiencies();
 			break;
@@ -833,6 +874,77 @@ CharGenScreen::_PreviousSkillPage()
 }
 
 
+// The thief skills window: the points of the class to give to the four skills,
+// which show with what the race and the Dexterity add; Done once none is left.
+void
+CharGenScreen::_ShowThiefSkills()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kSkillsWindow);
+	fOpenWindow = kSkillsWindow;
+
+	_ChoiceWindowButtons(this, _Button(kSkillsWindow, kDoneControl),
+		_Button(kSkillsWindow, kSkillsBack));
+	_SetDescription(kSkillsWindow, kSkillsText, kSkillsPromptStrRef);
+	_MakeHotSpots(kSkillsWindow, kSkillInfoFirst, CharacterBuilder::kNumThiefSkills);
+
+	CharacterBuilder& builder = _Builder();
+	for (int i = 0; i < CharacterBuilder::kNumThiefSkills; i++)
+		builder.SetThiefSkill(i, 0);
+	fSkillPoints = builder.ThiefSkillPoints();
+
+	size_t count = 0;
+	const CharGenSkill* skills = CharGenData::Skills(count);
+	for (size_t i = 0; i < count; i++) {
+		if (Label* name = _Label(kSkillsWindow, kSkillNameLabelFirst + (uint32)i))
+			name->SetText(IDTable::GetDialog(skills[i].capRef));
+	}
+	_ShowThiefSkillValues();
+}
+
+
+void
+CharGenScreen::_ShowThiefSkillValues()
+{
+	const CharacterBuilder& builder = _Builder();
+	if (Label* points = _Label(kSkillsWindow, kSkillPointsLabel))
+		points->SetText(std::to_string(fSkillPoints));
+	for (int i = 0; i < CharacterBuilder::kNumThiefSkills; i++) {
+		// What the character has: the points and the race's and the Dexterity's share.
+		if (Label* value = _Label(kSkillsWindow, kSkillValueLabelFirst + (uint32)i)) {
+			value->SetText(std::to_string(
+				std::max(builder.ThiefSkill(i) + builder.ThiefSkillBonus(i), 0)));
+		}
+	}
+	if (Button* done = _Button(kSkillsWindow, kDoneControl))
+		done->SetEnabled(fSkillPoints == 0);
+}
+
+
+void
+CharGenScreen::_DescribeThiefSkill(int skill)
+{
+	size_t count = 0;
+	const CharGenSkill* skills = CharGenData::Skills(count);
+	_SetDescription(kSkillsWindow, kSkillsText, skills[skill].descRef);
+}
+
+
+// One point more (`step` +1, from the points left) or less (-1) for a skill.
+void
+CharGenScreen::_MoveThiefSkill(int skill, int step)
+{
+	CharacterBuilder& builder = _Builder();
+	_DescribeThiefSkill(skill);
+	const int points = builder.ThiefSkill(skill);
+	if (step > 0 ? fSkillPoints == 0 || points >= 250 : points == 0)
+		return;
+	builder.SetThiefSkill(skill, points + step);
+	fSkillPoints -= step;
+	_ShowThiefSkillValues();
+}
+
+
 // The proficiencies window: the class's points to give to the weapons it may
 // use, up to the stars it can have at the start; Done once none is left.
 void
@@ -845,6 +957,7 @@ CharGenScreen::_ShowProficiencies()
 	_ChoiceWindowButtons(this, _Button(kProficienciesWindow, kDoneControl),
 		_Button(kProficienciesWindow, kProficienciesBack));
 	_SetDescription(kProficienciesWindow, kProficienciesText, kProficienciesPromptStrRef);
+	_MakeHotSpots(kProficienciesWindow, kProficiencyInfoFirst, CharacterBuilder::kNumProficiencies);
 
 	CharacterBuilder& builder = _Builder();
 	for (int i = 0; i < CharacterBuilder::kNumProficiencies; i++)
@@ -1096,7 +1209,7 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		return true;
 	}
 
-	if (windowID == kProficienciesWindow)
+	if (windowID == kSkillsWindow || windowID == kProficienciesWindow)
 		return _HandleSkillWindow(windowID, controlID);
 
 	if (windowID == kAbilitiesWindow) {
@@ -1133,6 +1246,19 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 bool
 CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 {
+	if (windowID == kSkillsWindow) {
+		const int lines = CharacterBuilder::kNumThiefSkills;
+		if (controlID >= kSkillPlusFirst && controlID < kSkillPlusFirst + (uint32)(2 * lines)) {
+			const uint32 arrow = controlID - kSkillPlusFirst;
+			_MoveThiefSkill((int)(arrow / 2), arrow % 2 == 0 ? 1 : -1);
+		} else if (controlID >= kSkillInfoFirst && controlID < kSkillInfoFirst + (uint32)lines) {
+			_DescribeThiefSkill((int)(controlID - kSkillInfoFirst));
+		} else if (controlID == kDoneControl) {
+			_NextSkillPage();
+		} else if (controlID == kSkillsBack) {
+			_PreviousSkillPage();
+		}
+	}
 	if (windowID == kProficienciesWindow) {
 		const int lines = CharacterBuilder::kNumProficiencies;
 		if (controlID >= kProficiencyPlusFirst

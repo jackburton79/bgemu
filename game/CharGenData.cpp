@@ -29,6 +29,14 @@ static const CharGenProficiency kProficiencies[] = {
 	{ "MISSILE", 9403, 9596 },
 };
 
+// skills.2da of GemRB's unhardcoded BG1 tables (the CRE bytes: IESDP's cre_v1).
+static const CharGenSkill kSkills[] = {
+	{ "PICK_POCKETS", 9463, 9597, 0x6a },
+	{ "OPEN_LOCKS", 9460, 9598, 0x67 },
+	{ "FIND_TRAPS", 9462, 9599, 0x69 },
+	{ "STEALTH", 9461, 9600, 0x68 },
+};
+
 static const CharGenAlignment kAlignments[] = {
 	{ "LAWFUL_GOOD", 7186, 9603, 1102, "L_G" },
 	{ "NEUTRAL_GOOD", 7183, 9606, 1105, "N_G" },
@@ -122,6 +130,14 @@ Alignments(size_t& count)
 {
 	count = sizeof(kAlignments) / sizeof(kAlignments[0]);
 	return kAlignments;
+}
+
+
+const CharGenSkill*
+Skills(size_t& count)
+{
+	count = sizeof(kSkills) / sizeof(kSkills[0]);
+	return kSkills;
 }
 
 
