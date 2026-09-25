@@ -226,9 +226,13 @@ portrait, race, class incl. multiclass, alignment, abilities (3d5+3 roll with th
 racial adjustment, arrows moving points, Store/Recall, 18/xx for warriors), then the
 skills stage - a run of windows the class has: racial enemy (rangers), mage spells (learn
 two, memorize one), thief skills, weapon proficiencies; a cleric or druid learns its
-level-1 priest spells by itself; then Accept with the defaults; specialist mages,
-appearance, name and the finish (gold, reputation, starting staff) still to do; BG2
-keeps the default party) into `StartingParty` (`UseBuilder`); Load Game opens the
+level-1 priest spells by itself; then the appearance (window 13/14: the paperdoll of
+the character's animation, recolored, and the color picker) and the name (a `TextEdit`,
+which takes typed text through `GUI::TextFocus()` and `DispatchKeyEvent()`); Accept
+finishes with `CharacterBuilder::ApplyStartingKit()` (reputation, gold, quarterstaff,
+biography); specialist mages, kits and the voice window still to do; BG2 keeps the
+default party). A created character's animation (`CharacterBuilder::AnimationID()`) and
+its BAM names follow race, class and gender as GemRB's avatars.2da has them into `StartingParty` (`UseBuilder`); Load Game opens the
 load screen and a loaded game skips the rest. `-M` shows the menu with `-x` too
 (the script runs in the menu: `tests/exec/*-start-menu.txt`, first line
 `# ARGS: -M`).
