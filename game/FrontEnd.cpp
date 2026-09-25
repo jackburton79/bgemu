@@ -9,6 +9,7 @@
 #include "GameConsole.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "InputEvents.h"
 #include "MusPlaylist.h"
 #include "PlaylistStream.h"
 #include "SoundEngine.h"
@@ -37,9 +38,44 @@ _IntroMovies()
 }
 
 
-/* static */
-bool
-FrontEnd::PlayIntroMovies()
+FrontEnd::FrontEnd(Game& game, GameConsole* console, const std::string& execFile,
+	bool playIntro)
+	:
+	fGame(game),
+	fConsole(console),
+	fExecFile(execFile),
+	fPlayIntro(playIntro),
+	fResult(QUIT)
+{
+}
+
+
+FrontEnd::Result
+FrontEnd::Run()
+{
+	Step step = fPlayIntro ? STEP_INTRO : STEP_MENU;
+	while (step != STEP_DONE) {
+		switch (step) {
+			case STEP_INTRO:
+				step = _PlayIntroMovies();
+				break;
+			case STEP_MENU:
+				step = _RunStartMenu();
+				break;
+			default:
+				step = STEP_DONE;
+				break;
+		}
+	}
+	return fResult;
+}
+
+
+// The logo movies and the introduction of the game being run, in the order the
+// original plays them; a movie the installation doesn't have is left out.
+// Closing the window during one ends the run.
+FrontEnd::Step
+FrontEnd::_PlayIntroMovies()
 {
 	for (const char* name : _IntroMovies()) {
 		if (!gResManager->ResourceExists(name, RES_MVE)) {
@@ -48,12 +84,36 @@ FrontEnd::PlayIntroMovies()
 		}
 		Core::Get()->PlayMovie(name);
 
-		// The window was closed during the movie: the player put the event
-		// back for the game loop.
-		if (SDL_HasEvent(SDL_QUIT))
+		// MoviePlayer put the event back for whoever polls next.
+		if (SDL_HasEvent(SDL_QUIT)) {
+			fResult = QUIT;
+			return STEP_DONE;
+		}
+	}
+	return STEP_MENU;
+}
+
+
+bool
+FrontEnd::_PollEvents()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event) != 0) {
+		if (DispatchMouseEvent(GUI::Get(), event))
+			continue;
+		if (event.type == SDL_QUIT)
 			return false;
 	}
 	return true;
+}
+
+
+void
+FrontEnd::_ShowFrame()
+{
+	GUI::Get()->Draw();
+	GraphicsEngine::Get()->Update();
+	SDL_Delay(16);
 }
 
 
@@ -76,74 +136,54 @@ _StartThemeMusic()
 }
 
 
-/* static */
-FrontEnd::MenuResult
-FrontEnd::RunStartMenu(Game& game, GameConsole* console, const std::string& execFile)
+// The start menu (StartScreen) with the game's theme music, until something is
+// chosen. Load Game opens the load screen from here: a game loaded by it ends
+// the step as LOADED, cancelling it comes back to the menu.
+FrontEnd::Step
+FrontEnd::_RunStartMenu()
 {
 	GUI* gui = GUI::Get();
 	// Sets up what every screen needs (the cursors); the menu itself is an
 	// auxiliary window like every other screen.
 	gui->Load("START");
 
-	StartScreen* start = game.Screens().Find<StartScreen>();
-	GameScreen* load = game.Screens().Find("GUILOAD");
+	StartScreen* start = fGame.Screens().Find<StartScreen>();
+	GameScreen* load = fGame.Screens().Find("GUILOAD");
 	start->Reset();
 	start->Open();
 	_StartThemeMusic();
 
-	if (console != NULL && !execFile.empty()) {
-		console->RunFile(execFile);
+	fResult = QUIT;
+	if (fConsole != NULL && !fExecFile.empty()) {
+		fConsole->RunFile(fExecFile);
 		gui->Draw();
 		GraphicsEngine::Get()->Update();
 		if (SoundEngine::Get() != NULL)
 			SoundEngine::Get()->StopStream(0);
 		start->Close();
-		return MENU_QUIT;
+		return STEP_DONE;
 	}
 
-	MenuResult result = MENU_QUIT;
 	bool running = true;
 	bool loading = false;
 	while (running) {
-		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0) {
-			switch (event.type) {
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_RIGHT)
-						gui->RightMouseDown(event.button.x, event.button.y);
-					else
-						gui->MouseDown(event.button.x, event.button.y);
-					break;
-				case SDL_MOUSEBUTTONUP:
-					if (event.button.button != SDL_BUTTON_RIGHT)
-						gui->MouseUp(event.button.x, event.button.y);
-					break;
-				case SDL_MOUSEMOTION:
-					gui->MouseMoved(event.motion.x, event.motion.y);
-					break;
-				case SDL_QUIT:
-					running = false;
-					break;
-				default:
-					break;
-			}
-		}
+		if (!_PollEvents())
+			break;
 
 		// A game was loaded by the load screen: the area is up, the menu's
 		// windows are gone.
 		if (loading && Core::Get()->CurrentRoom() != NULL) {
-			result = MENU_LOADED;
+			fResult = LOADED;
 			break;
 		}
 
 		if (!loading) {
 			switch (start->Selected()) {
 				case StartScreen::CHOICE_NEW_GAME:
-					result = MENU_NEW_GAME;
+					fResult = NEW_GAME;
 					running = false;
 					break;
 				case StartScreen::CHOICE_QUIT:
-					result = MENU_QUIT;
 					running = false;
 					break;
 				case StartScreen::CHOICE_LOAD_GAME:
@@ -163,17 +203,13 @@ FrontEnd::RunStartMenu(Game& game, GameConsole* console, const std::string& exec
 			start->Open();
 		}
 
-		if (!running)
-			break;
-
-		gui->Draw();
-		GraphicsEngine::Get()->Update();
-		SDL_Delay(16);
+		if (running)
+			_ShowFrame();
 	}
 
 	if (SoundEngine::Get() != NULL)
-		SoundEngine::Get()->StopStream(result == MENU_LOADED ? 0 : 500);
-	if (result != MENU_LOADED)
+		SoundEngine::Get()->StopStream(fResult == LOADED ? 0 : 500);
+	if (fResult != LOADED)
 		start->Close();
-	return result;
+	return STEP_DONE;
 }

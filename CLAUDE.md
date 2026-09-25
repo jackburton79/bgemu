@@ -213,13 +213,18 @@ when their area unloads or another screen opens. Console tests use
 
 ### Start of the game
 
-A plain run (`-p <path>` only) starts with `FrontEnd::PlayIntroMovies()` (the logo
-movies, skippable) and `FrontEnd::RunStartMenu()`: the start menu (`StartScreen`,
-START.CHU: Single Player -> New Game / Load Game; Exit asks first), with the
-game's `Theme.mus` playing. New Game then goes on with `StartingParty` (character
-creation from the GUI is still to do); Load Game opens the load screen and a
-loaded game skips the rest. `-M` shows the menu with `-x` too (the script runs in
-the menu: `tests/exec/*-start-menu.txt`, first line `# ARGS: -M`).
+A plain run (`-p <path>` only) goes through a `FrontEnd` first (`game/FrontEnd.*`,
+run from `Game::Loop`): an object that runs its steps in order - the intro
+movies (the logos, skippable), then the start menu (`StartScreen`, START.CHU:
+Single Player -> New Game / Load Game; Exit asks first) with the game's
+`Theme.mus` - and ends as `NEW_GAME`, `LOADED` or `QUIT`. Each step is a method
+with its own loop, sharing `_PollEvents()`/`_ShowFrame()`; the mouse events go
+through `DispatchMouseEvent()` (`game/InputEvents.*`), the same call as
+`Game::Loop`'s. New Game then goes on with `StartingParty` (character creation
+from the GUI is to do, as the next step of the front end); Load Game opens the
+load screen and a loaded game skips the rest. `-M` shows the menu with `-x` too
+(the script runs in the menu: `tests/exec/*-start-menu.txt`, first line
+`# ARGS: -M`).
 
 ### Levelling up
 

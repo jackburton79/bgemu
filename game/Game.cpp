@@ -7,6 +7,7 @@
 
 #include "Game.h"
 #include "FrontEnd.h"
+#include "InputEvents.h"
 
 #include "2DAResource.h"
 #include "Actor.h"
@@ -240,14 +241,13 @@ Game::Loop(bool noNewGame, bool executeScripts)
 		Parser::Test();
 	} else {
 		bool loadedFromMenu = false;
-		if (fShowIntro && !FrontEnd::PlayIntroMovies())
-			quitting = true;
-		if (!quitting && fShowStartMenu) {
-			switch (FrontEnd::RunStartMenu(*this, inputConsole, fExecFile)) {
-				case FrontEnd::MENU_QUIT:
+		if (fShowIntro || fShowStartMenu) {
+			FrontEnd frontEnd(*this, inputConsole, fExecFile, fShowIntro);
+			switch (frontEnd.Run()) {
+				case FrontEnd::QUIT:
 					quitting = true;
 					break;
-				case FrontEnd::MENU_LOADED:
+				case FrontEnd::LOADED:
 					loadedFromMenu = true;
 					break;
 				default:
@@ -286,6 +286,9 @@ Game::Loop(bool noNewGame, bool executeScripts)
 	while (!quitting) {
 		uint32 startTicks = Timer::Ticks();
 		while (SDL_PollEvent(&event) != 0) {
+			if (DispatchMouseEvent(gui, event))
+				continue;
+
 			RoomBase* room = Core::Get()->CurrentRoom();
 			switch (event.type) {
 				case SDL_USEREVENT: {
@@ -294,22 +297,6 @@ Game::Loop(bool noNewGame, bool executeScripts)
 					event_func(event.user.data2);
 					break;
 				}
-				case SDL_MOUSEBUTTONDOWN:
-					if (event.button.button == SDL_BUTTON_RIGHT)
-						gui->RightMouseDown(event.button.x, event.button.y);
-					else
-						gui->MouseDown(event.button.x, event.button.y);
-					break;
-				case SDL_MOUSEBUTTONUP:
-					// A right click was delivered on the way down (or fell
-					// back to MouseDown there); no matching MouseUp so a
-					// Button doesn't also fire its normal left-click action.
-					if (event.button.button != SDL_BUTTON_RIGHT)
-						gui->MouseUp(event.button.x, event.button.y);
-					break;
-				case SDL_MOUSEMOTION:
-					gui->MouseMoved(event.motion.x, event.motion.y);
-					break;
 				case SDL_KEYDOWN: {
 					if (event.key.keysym.sym == SDLK_ESCAPE) {
 						if (inputConsole != NULL)
