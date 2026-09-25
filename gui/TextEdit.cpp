@@ -43,9 +43,9 @@ TextEdit::TextEdit(IE::text_edit* textEdit)
 TextEdit::~TextEdit()
 {
 	GUI* gui = GUI::Get();
-	if (gui != NULL && gui->TextFocus() == this)
-		gui->SetTextFocus(NULL);
-	if (fBitmap != NULL)
+	if (gui != nullptr && gui->TextFocus() == this)
+		gui->SetTextFocus(nullptr);
+	if (fBitmap != nullptr)
 		fBitmap->Release();
 }
 
@@ -61,7 +61,7 @@ TextEdit::Draw()
 
 	GFX::rect destRect = Frame();
 	fWindow->ConvertToScreen(destRect);
-	GraphicsEngine::Get()->BlitToScreen(fBitmap, NULL, &destRect);
+	GraphicsEngine::Get()->BlitToScreen(fBitmap, nullptr, &destRect);
 }
 
 
@@ -70,7 +70,7 @@ void
 TextEdit::DetachedFromWindow(::Window* window)
 {
 	if (GUI::Get()->TextFocus() == this)
-		GUI::Get()->SetTextFocus(NULL);
+		GUI::Get()->SetTextFocus(nullptr);
 	Control::DetachedFromWindow(window);
 }
 

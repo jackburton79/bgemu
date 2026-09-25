@@ -74,7 +74,7 @@ _StepOfButton(uint32 controlID)
 {
 	for (size_t i = 0; i < sizeof(kStepButton) / sizeof(kStepButton[0]); i++) {
 		if (kStepButton[i] == controlID)
-			return (int)i;
+			return static_cast<int>(i);
 	}
 	return -1;
 }
@@ -182,7 +182,7 @@ _ClassesOfKind(bool multi)
 	std::vector<int> found;
 	for (size_t i = 0; i < count; i++) {
 		if (classes[i].multi == multi)
-			found.push_back((int)i);
+			found.push_back(static_cast<int>(i));
 	}
 	return found;
 }
@@ -212,8 +212,8 @@ static Bitmap*
 _LoadImage(const std::string& name)
 {
 	BMPResource* bmp = gResManager->GetBMP(res_ref(name.c_str()));
-	if (bmp == NULL)
-		return NULL;
+	if (bmp == nullptr)
+		return nullptr;
 	Bitmap* image = bmp->Image();
 	gResManager->ReleaseResource(bmp);
 	return image;
@@ -265,7 +265,7 @@ Button*
 CharGenScreen::_Button(uint16 windowID, uint32 controlID) const
 {
 	Window* window = _Window(windowID);
-	return window != NULL ? dynamic_cast<Button*>(window->GetControlByID(controlID)) : NULL;
+	return window != nullptr ? dynamic_cast<Button*>(window->GetControlByID(controlID)) : nullptr;
 }
 
 
@@ -273,7 +273,7 @@ Label*
 CharGenScreen::_Label(uint16 windowID, uint32 controlID) const
 {
 	Window* window = _Window(windowID);
-	return window != NULL ? dynamic_cast<Label*>(window->GetControlByID(controlID)) : NULL;
+	return window != nullptr ? dynamic_cast<Label*>(window->GetControlByID(controlID)) : nullptr;
 }
 
 
@@ -281,7 +281,7 @@ TextArea*
 CharGenScreen::_TextArea(uint16 windowID, uint32 controlID) const
 {
 	Window* window = _Window(windowID);
-	return window != NULL ? dynamic_cast<TextArea*>(window->GetControlByID(controlID)) : NULL;
+	return window != nullptr ? dynamic_cast<TextArea*>(window->GetControlByID(controlID)) : nullptr;
 }
 
 
@@ -357,10 +357,10 @@ CharGenScreen::_RefreshOverview()
 {
 	for (size_t i = 0; i < sizeof(kStageButtons) / sizeof(kStageButtons[0]); i++) {
 		Button* button = _Button(kOverviewWindow, kStageButtons[i].control);
-		if (button == NULL)
+		if (button == nullptr)
 			continue;
 		button->SetText(IDTable::GetDialog(kStageButtons[i].strRef));
-		button->SetEnabled(_StepOfButton(kStageButtons[i].control) == (int)fStep);
+		button->SetEnabled(_StepOfButton(kStageButtons[i].control) == static_cast<int>(fStep));
 	}
 	_SetText(kOverviewWindow, kOverviewImport, kImportStrRef);
 	if (Button* import = _Button(kOverviewWindow, kOverviewImport))
@@ -370,13 +370,13 @@ CharGenScreen::_RefreshOverview()
 		back->SetEnabled(fStep != STEP_GENDER);
 
 	if (Button* portrait = _Button(kOverviewWindow, kOverviewPortrait)) {
-		Bitmap* image = NULL;
+		Bitmap* image = nullptr;
 		if (fPortrait >= 0) {
 			size_t count = 0;
 			const CharGenPortrait* portraits = CharGenData::Portraits(count);
 			image = _LoadImage(std::string(portraits[fPortrait].name) + "L");
 		}
-		if (image == NULL)
+		if (image == nullptr)
 			image = _LoadImage("NOPORTLG");
 		portrait->SetIcon(image, true);
 	}
@@ -448,10 +448,10 @@ CharGenScreen::_RefreshOverview()
 				text->AddText(IDTable::GetDialog(kProficienciesLabelStrRef).c_str());
 				const CharGenProficiency* profs = CharGenData::Proficiencies(count);
 				for (size_t i = 0; i < count; i++) {
-					const int stars = _Builder().Proficiency((int)i);
+					const int stars = _Builder().Proficiency(static_cast<int>(i));
 					if (stars > 0) {
 						text->AddText((IDTable::GetDialog(profs[i].nameRef) + " "
-							+ std::string((size_t)stars, '+')).c_str());
+							+ std::string(static_cast<size_t>(stars), '+')).c_str());
 					}
 				}
 			}
@@ -499,9 +499,9 @@ CharGenScreen::_OpenStage(Step step)
 void
 CharGenScreen::_CloseChoice()
 {
-	GUI::Get()->SetTextFocus(NULL);
+	GUI::Get()->SetTextFocus(nullptr);
 	if (fOpenWindow >= 0)
-		GUI::Get()->HideAuxWindow(CHUName(), (uint16)fOpenWindow);
+		GUI::Get()->HideAuxWindow(CHUName(), static_cast<uint16>(fOpenWindow));
 	fOpenWindow = -1;
 }
 
@@ -512,8 +512,8 @@ void
 CharGenScreen::_Latch(uint16 windowID, uint32 first, size_t count, int chosen)
 {
 	for (size_t i = 0; i < count; i++) {
-		if (Button* button = _Button(windowID, first + (uint32)i))
-			button->SetLatched((int)i == chosen);
+		if (Button* button = _Button(windowID, first + static_cast<uint32>(i)))
+			button->SetLatched(static_cast<int>(i) == chosen);
 	}
 }
 
@@ -524,7 +524,7 @@ void
 CharGenScreen::_MakeHotSpots(uint16 windowID, uint32 first, size_t count)
 {
 	for (size_t i = 0; i < count; i++) {
-		if (Button* button = _Button(windowID, first + (uint32)i))
+		if (Button* button = _Button(windowID, first + static_cast<uint32>(i)))
 			button->SetFrameless(true);
 	}
 }
@@ -534,11 +534,11 @@ CharGenScreen::_MakeHotSpots(uint16 windowID, uint32 first, size_t count)
 static void
 _ChoiceWindowButtons(CharGenScreen* /*screen*/, Button* done, Button* back)
 {
-	if (done != NULL) {
+	if (done != nullptr) {
 		done->SetText(IDTable::GetDialog(kDoneStrRef));
 		done->SetEnabled(false);
 	}
-	if (back != NULL)
+	if (back != nullptr)
 		back->SetText(IDTable::GetDialog(kBackStrRef));
 }
 
@@ -597,7 +597,7 @@ CharGenScreen::_SelectPortrait(int step)
 	const CharGenPortrait* portraits = CharGenData::Portraits(count);
 	int index = fPortrait;
 	for (size_t tried = 0; tried < count; tried++) {
-		index = (index + step + (int)count) % (int)count;
+		index = (index + step + static_cast<int>(count)) % static_cast<int>(count);
 		if (portraits[index].gender == fGender) {
 			fPortrait = index;
 			break;
@@ -611,7 +611,7 @@ void
 CharGenScreen::_ShowPortraitPicture()
 {
 	Button* picture = _Button(kPortraitWindow, kPortraitPicture);
-	if (picture == NULL || fPortrait < 0)
+	if (picture == nullptr || fPortrait < 0)
 		return;
 	size_t count = 0;
 	const CharGenPortrait* portraits = CharGenData::Portraits(count);
@@ -631,7 +631,7 @@ CharGenScreen::_ShowRace()
 	size_t count = 0;
 	const CharGenRace* races = CharGenData::Races(count);
 	for (size_t i = 0; i < count; i++) {
-		if (Button* button = _Button(kRaceWindow, kRaceFirst + (uint32)i)) {
+		if (Button* button = _Button(kRaceWindow, kRaceFirst + static_cast<uint32>(i))) {
 			button->SetText(IDTable::GetDialog(races[i].nameRef));
 			button->SetEnabled(true);
 		}
@@ -664,8 +664,8 @@ CharGenScreen::_ShowClass()
 
 	const std::vector<int> singles = _ClassesOfKind(false);
 	for (size_t i = 0; i < singles.size(); i++) {
-		Button* button = _Button(kClassWindow, kClassFirst + (uint32)i);
-		if (button == NULL)
+		Button* button = _Button(kClassWindow, kClassFirst + static_cast<uint32>(i));
+		if (button == nullptr)
 			continue;
 		const CharGenClass& entry = classes[singles[i]];
 		button->SetText(_ClassText(entry.nameRef));
@@ -675,7 +675,7 @@ CharGenScreen::_ShowClass()
 	}
 	_Latch(kClassWindow, kClassFirst, singles.size(),
 		(int)(std::find(singles.begin(), singles.end(), fClass) - singles.begin())
-			% (int)std::max<size_t>(singles.size() + 1, 1));
+			% static_cast<int>(std::max<size_t>(singles.size() + 1, 1)));
 
 	// Multi Class: on if the race may be any of them.
 	bool anyMulti = false;
@@ -718,8 +718,8 @@ CharGenScreen::_ShowMultiClass()
 
 	const std::vector<int> multis = _ClassesOfKind(true);
 	for (size_t i = 0; i < multis.size(); i++) {
-		Button* button = _Button(kMultiClassWindow, kMultiFirst + (uint32)i);
-		if (button == NULL)
+		Button* button = _Button(kMultiClassWindow, kMultiFirst + static_cast<uint32>(i));
+		if (button == nullptr)
 			continue;
 		const CharGenClass& entry = classes[multis[i]];
 		button->SetText(_ClassText(entry.nameRef));
@@ -727,7 +727,7 @@ CharGenScreen::_ShowMultiClass()
 	}
 	_Latch(kMultiClassWindow, kMultiFirst, multis.size(),
 		(int)(std::find(multis.begin(), multis.end(), fClass) - multis.begin())
-			% (int)std::max<size_t>(multis.size() + 1, 1));
+			% static_cast<int>(std::max<size_t>(multis.size() + 1, 1)));
 	if (fClass >= 0 && classes[fClass].multi) {
 		_SetDescription(kMultiClassWindow, kMultiText, classes[fClass].descRef);
 		if (Button* done = _Button(kMultiClassWindow, kDoneControl))
@@ -750,7 +750,7 @@ CharGenScreen::_ShowAlignment()
 	size_t count = 0;
 	const CharGenAlignment* aligns = CharGenData::Alignments(count);
 	for (size_t i = 0; i < count; i++) {
-		if (Button* button = _Button(kAlignmentWindow, kAlignmentFirst + (uint32)i)) {
+		if (Button* button = _Button(kAlignmentWindow, kAlignmentFirst + static_cast<uint32>(i))) {
 			button->SetText(IDTable::GetDialog(aligns[i].nameRef));
 			// What the class allows (ALIGNMNT.2DA).
 			button->SetEnabled(_Builder().IsAlignmentAllowed(aligns[i].name));
@@ -783,7 +783,7 @@ CharGenScreen::_ShowAbilities()
 	_SetText(kAbilitiesWindow, kAbilitiesStore, kStoreStrRef);
 	_SetText(kAbilitiesWindow, kAbilitiesRecall, kRecallStrRef);
 	for (int i = 0; i < kNumAbilities; i++) {
-		if (Label* name = _Label(kAbilitiesWindow, kAbilitiesNameLabelFirst + (uint32)i))
+		if (Label* name = _Label(kAbilitiesWindow, kAbilitiesNameLabelFirst + static_cast<uint32>(i)))
 			name->SetText(IDTable::GetDialog(kAbilityNameStrRefs[i]));
 	}
 	_SetDescription(kAbilitiesWindow, kAbilitiesText, kAbilitiesPromptStrRef);
@@ -825,7 +825,7 @@ CharGenScreen::_ShowAbilityValues()
 	if (Label* points = _Label(kAbilitiesWindow, kAbilitiesPointsLabel))
 		points->SetText(std::to_string(fPointsLeft));
 	for (int i = 0; i < kNumAbilities; i++) {
-		if (Label* value = _Label(kAbilitiesWindow, kAbilitiesValueLabelFirst + (uint32)i))
+		if (Label* value = _Label(kAbilitiesWindow, kAbilitiesValueLabelFirst + static_cast<uint32>(i)))
 			value->SetText(_AbilityText(i));
 	}
 }
@@ -988,7 +988,7 @@ CharGenScreen::_ShowRacialEnemy()
 			fEnemyRow = row;
 			_ShowRacialEnemyList();
 		});
-		scrollbar->SetScrollInfo(0, (int32)count - kEnemyRows);
+		scrollbar->SetScrollInfo(0, static_cast<int32>(count) - kEnemyRows);
 	}
 	_ShowRacialEnemyList();
 }
@@ -1001,11 +1001,11 @@ CharGenScreen::_ShowRacialEnemyList()
 	size_t count = 0;
 	const CharGenHatedRace* races = CharGenData::HatedRaces(count);
 	for (int i = 0; i < kEnemyRows; i++) {
-		Button* button = _Button(kRacialEnemyWindow, kEnemyFirst + (uint32)i);
-		if (button == NULL)
+		Button* button = _Button(kRacialEnemyWindow, kEnemyFirst + static_cast<uint32>(i));
+		if (button == nullptr)
 			continue;
 		const int entry = fEnemyRow + i;
-		const bool exists = entry >= 0 && (size_t)entry < count;
+		const bool exists = entry >= 0 && static_cast<size_t>(entry) < count;
 		button->SetText(exists ? IDTable::GetDialog(races[entry].nameRef) : "");
 		button->SetEnabled(exists);
 		button->SetLatched(exists && entry == fEnemy);
@@ -1022,7 +1022,7 @@ CharGenScreen::_ChooseRacialEnemy(int row)
 	size_t count = 0;
 	const CharGenHatedRace* races = CharGenData::HatedRaces(count);
 	const int entry = fEnemyRow + row;
-	if (entry < 0 || (size_t)entry >= count)
+	if (entry < 0 || static_cast<size_t>(entry) >= count)
 		return;
 	fEnemy = entry;
 	_SetDescription(kRacialEnemyWindow, kEnemyText, races[entry].helpRef);
@@ -1079,17 +1079,17 @@ CharGenScreen::_ShowSpellList()
 			shown.push_back(i);
 	}
 	for (int slot = 0; slot < kSpellButtons; slot++) {
-		Button* button = _Button(kSpellsWindow, kSpellsFirst + (uint32)slot);
-		if (button == NULL)
+		Button* button = _Button(kSpellsWindow, kSpellsFirst + static_cast<uint32>(slot));
+		if (button == nullptr)
 			continue;
-		if ((size_t)slot >= shown.size()) {
-			button->SetIcon(NULL);
+		if (static_cast<size_t>(slot) >= shown.size()) {
+			button->SetIcon(nullptr);
 			button->SetEnabled(false);
 			button->SetFrameless(true);
 			button->SetLatched(false);
 			continue;
 		}
-		const SpellChoice& choice = fSpellChoices[shown[(size_t)slot]];
+		const SpellChoice& choice = fSpellChoices[shown[static_cast<size_t>(slot)]];
 		button->SetFrameless(false);
 		button->SetIcon(ScreenSupport::MakeSpellIcon(res_ref(choice.resref.c_str())));
 		button->SetEnabled(choice.learnable);
@@ -1120,9 +1120,9 @@ CharGenScreen::_PickSpell(int slot)
 		if (!fMemorizing || _Builder().IsSpellKnown(fSpellChoices[i].resref))
 			shown.push_back(i);
 	}
-	if (slot < 0 || (size_t)slot >= shown.size())
+	if (slot < 0 || static_cast<size_t>(slot) >= shown.size())
 		return;
-	SpellChoice& choice = fSpellChoices[shown[(size_t)slot]];
+	SpellChoice& choice = fSpellChoices[shown[static_cast<size_t>(slot)]];
 	if (SPLResource* spell = gResManager->GetSPL(res_ref(choice.resref.c_str()))) {
 		if (TextArea* area = _TextArea(kSpellsWindow, kSpellsText)) {
 			area->ClearText();
@@ -1143,9 +1143,9 @@ CharGenScreen::_PickSpell(int slot)
 	// The description stays; the buttons and the points are drawn again.
 	if (Label* points = _Label(kSpellsWindow, kSpellsPointsLabel))
 		points->SetText(std::to_string(fSpellPoints));
-	for (int i = 0; i < kSpellButtons && (size_t)i < shown.size(); i++) {
-		if (Button* button = _Button(kSpellsWindow, kSpellsFirst + (uint32)i))
-			button->SetLatched(fSpellChoices[shown[(size_t)i]].picked);
+	for (int i = 0; i < kSpellButtons && static_cast<size_t>(i) < shown.size(); i++) {
+		if (Button* button = _Button(kSpellsWindow, kSpellsFirst + static_cast<uint32>(i)))
+			button->SetLatched(fSpellChoices[shown[static_cast<size_t>(i)]].picked);
 	}
 	if (Button* done = _Button(kSpellsWindow, kDoneControl))
 		done->SetEnabled(fSpellPoints == 0);
@@ -1202,7 +1202,7 @@ CharGenScreen::_ShowThiefSkills()
 	size_t count = 0;
 	const CharGenSkill* skills = CharGenData::Skills(count);
 	for (size_t i = 0; i < count; i++) {
-		if (Label* name = _Label(kSkillsWindow, kSkillNameLabelFirst + (uint32)i))
+		if (Label* name = _Label(kSkillsWindow, kSkillNameLabelFirst + static_cast<uint32>(i)))
 			name->SetText(IDTable::GetDialog(skills[i].capRef));
 	}
 	_ShowThiefSkillValues();
@@ -1217,7 +1217,7 @@ CharGenScreen::_ShowThiefSkillValues()
 		points->SetText(std::to_string(fSkillPoints));
 	for (int i = 0; i < CharacterBuilder::kNumThiefSkills; i++) {
 		// What the character has: the points and the race's and the Dexterity's share.
-		if (Label* value = _Label(kSkillsWindow, kSkillValueLabelFirst + (uint32)i)) {
+		if (Label* value = _Label(kSkillsWindow, kSkillValueLabelFirst + static_cast<uint32>(i))) {
 			value->SetText(std::to_string(
 				std::max(builder.ThiefSkill(i) + builder.ThiefSkillBonus(i), 0)));
 		}
@@ -1273,7 +1273,7 @@ CharGenScreen::_ShowProficiencies()
 	size_t count = 0;
 	const CharGenProficiency* profs = CharGenData::Proficiencies(count);
 	for (size_t i = 0; i < count; i++) {
-		if (Label* name = _Label(kProficienciesWindow, kProficiencyNameLabelFirst + (uint32)i))
+		if (Label* name = _Label(kProficienciesWindow, kProficiencyNameLabelFirst + static_cast<uint32>(i)))
 			name->SetText(IDTable::GetDialog(profs[i].nameRef));
 	}
 	_ShowProficiencyValues();
@@ -1292,7 +1292,7 @@ CharGenScreen::_ShowProficiencyValues()
 		const bool usable = builder.ProficiencyLimit(i) > 0;
 		for (uint32 button = 0; button < 2; button++) {
 			if (Button* arrow = _Button(kProficienciesWindow,
-					kProficiencyPlusFirst + (uint32)i * 2 + button)) {
+					kProficiencyPlusFirst + static_cast<uint32>(i) * 2 + button)) {
 				arrow->SetEnabled(usable);
 				arrow->SetFrameless(!usable);
 			}
@@ -1368,8 +1368,8 @@ static Bitmap*
 _ColorSwatch(BAMResource* gradients, uint8 cycle, uint8 color)
 {
 	Bitmap* swatch = gradients->FrameForCycle(cycle, 0);
-	if (swatch == NULL)
-		return NULL;
+	if (swatch == nullptr)
+		return nullptr;
 	GFX::Palette palette;
 	swatch->GetPalette(palette);
 	ApplyRange(palette, 4, color);
@@ -1383,25 +1383,25 @@ void
 CharGenScreen::_ShowColorSwatches()
 {
 	BAMResource* gradients = gResManager->GetBAM("COLGRAD");
-	for (int i = 0; i < kColorKinds && gradients != NULL; i++) {
-		if (Button* button = _Button(kColorsWindow, kColorsFirst + (uint32)i)) {
+	for (int i = 0; i < kColorKinds && gradients != nullptr; i++) {
+		if (Button* button = _Button(kColorsWindow, kColorsFirst + static_cast<uint32>(i))) {
 			button->SetIcon(_ColorSwatch(gradients, 0, fColors[i]), true);
 		}
 	}
-	if (gradients != NULL)
+	if (gradients != nullptr)
 		gResManager->ReleaseResource(gradients);
 
 	// The doll of the character's animation (race, class and gender), recolored.
 	Button* doll = _Button(kColorsWindow, kColorsDoll);
-	if (doll == NULL)
+	if (doll == nullptr)
 		return;
 	std::string name, sizeCode;
-	Bitmap* image = NULL;
+	Bitmap* image = nullptr;
 	if (AnimationFactory::PaperdollForAnimationBG1(_Builder().AnimationID(), name, sizeCode)) {
 		CREColors colors = { kMetalColor, fColors[3], fColors[2], fColors[1], kLeatherColor,
 			kArmorColor, fColors[0] };
 		const GFX::rect frame = doll->Frame();
-		image = ScreenSupport::BuildBG1PaperdollBase((uint16)frame.w, (uint16)frame.h, name,
+		image = ScreenSupport::BuildBG1PaperdollBase(static_cast<uint16>(frame.w), static_cast<uint16>(frame.h), name,
 			sizeCode, colors);
 	}
 	doll->SetIcon(image, true);
@@ -1419,16 +1419,16 @@ CharGenScreen::_PickColor(int kind)
 	const uint8* colors = CharGenData::Colors(kColorKindOf[kind], count);
 	BAMResource* gradients = gResManager->GetBAM("COLGRAD");
 	for (int i = 0; i < kPickerButtons; i++) {
-		Button* button = _Button(kColorPickerWindow, (uint32)i);
-		if (button == NULL)
+		Button* button = _Button(kColorPickerWindow, static_cast<uint32>(i));
+		if (button == nullptr)
 			continue;
-		const bool exists = (size_t)i < count && gradients != NULL;
+		const bool exists = static_cast<size_t>(i) < count && gradients != nullptr;
 		button->SetEnabled(exists);
 		button->SetFrameless(!exists);
-		button->SetIcon(exists ? _ColorSwatch(gradients, 2, colors[i]) : NULL, true);
+		button->SetIcon(exists ? _ColorSwatch(gradients, 2, colors[i]) : nullptr, true);
 		button->SetLatched(exists && colors[i] == fColors[kind]);
 	}
-	if (gradients != NULL)
+	if (gradients != nullptr)
 		gResManager->ReleaseResource(gradients);
 }
 
@@ -1439,7 +1439,7 @@ CharGenScreen::_ChooseColor(int index)
 {
 	size_t count = 0;
 	const uint8* colors = CharGenData::Colors(kColorKindOf[fPicking], count);
-	if (fPicking >= 0 && index >= 0 && (size_t)index < count)
+	if (fPicking >= 0 && index >= 0 && static_cast<size_t>(index) < count)
 		fColors[fPicking] = colors[index];
 	fPicking = -1;
 	GUI::Get()->HideAuxWindow(CHUName(), kColorPickerWindow);
@@ -1457,7 +1457,7 @@ CharGenScreen::_ShowName()
 
 	_ChoiceWindowButtons(this, _Button(kNameWindow, kDoneControl), _Button(kNameWindow, kNameBack));
 	TextEdit* field = dynamic_cast<TextEdit*>(_Window(kNameWindow)->GetControlByID(kNameField));
-	if (field == NULL)
+	if (field == nullptr)
 		return;
 	auto changed = [this, field] () {
 		if (Button* done = _Button(kNameWindow, kDoneControl))
@@ -1480,7 +1480,7 @@ CharGenScreen::_StepBack()
 {
 	if (fStep == STEP_GENDER)
 		return;
-	fStep = (Step)((int)fStep - 1);
+	fStep = (Step)(static_cast<int>(fStep) - 1);
 
 	// The stages from the abilities on take back only their own choice; the ones
 	// before start over from the builder's beginning.
@@ -1672,13 +1672,13 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 	}
 
 	if (windowID == kColorPickerWindow) {
-		if (controlID < (uint32)kPickerButtons)
-			_ChooseColor((int)controlID);
+		if (controlID < static_cast<uint32>(kPickerButtons))
+			_ChooseColor(static_cast<int>(controlID));
 		return true;
 	}
 
 	if (windowID == kColorsWindow) {
-		if (controlID >= kColorsFirst && controlID < kColorsFirst + (uint32)kColorKinds) {
+		if (controlID >= kColorsFirst && controlID < kColorsFirst + static_cast<uint32>(kColorKinds)) {
 			_PickColor((int)(controlID - kColorsFirst));
 		} else if (controlID == kDoneControl) {
 			builder.SetColor("hair", fColors[0]);
@@ -1700,7 +1700,7 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 	if (windowID == kNameWindow) {
 		if (controlID == kDoneControl) {
 			TextEdit* field = dynamic_cast<TextEdit*>(_Window(kNameWindow)->GetControlByID(kNameField));
-			if (field != NULL && !field->Text().empty()) {
+			if (field != nullptr && !field->Text().empty()) {
 				builder.SetName(field->Text());
 				fStep = STEP_ACCEPT;
 				_CloseChoice();
@@ -1752,7 +1752,7 @@ bool
 CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 {
 	if (windowID == kSpellsWindow) {
-		if (controlID >= kSpellsFirst && controlID < kSpellsFirst + (uint32)kSpellButtons) {
+		if (controlID >= kSpellsFirst && controlID < kSpellsFirst + static_cast<uint32>(kSpellButtons)) {
 			_PickSpell((int)(controlID - kSpellsFirst));
 		} else if (controlID == kDoneControl) {
 			_FinishSpellPhase();
@@ -1763,7 +1763,7 @@ CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 		}
 	}
 	if (windowID == kRacialEnemyWindow) {
-		if (controlID >= kEnemyFirst && controlID < kEnemyFirst + (uint32)kEnemyRows) {
+		if (controlID >= kEnemyFirst && controlID < kEnemyFirst + static_cast<uint32>(kEnemyRows)) {
 			_ChooseRacialEnemy((int)(controlID - kEnemyFirst));
 		} else if (controlID == kEnemyDone && fEnemy >= 0) {
 			size_t count = 0;
@@ -1778,7 +1778,7 @@ CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 		if (controlID >= kSkillPlusFirst && controlID < kSkillPlusFirst + (uint32)(2 * lines)) {
 			const uint32 arrow = controlID - kSkillPlusFirst;
 			_MoveThiefSkill((int)(arrow / 2), arrow % 2 == 0 ? 1 : -1);
-		} else if (controlID >= kSkillInfoFirst && controlID < kSkillInfoFirst + (uint32)lines) {
+		} else if (controlID >= kSkillInfoFirst && controlID < kSkillInfoFirst + static_cast<uint32>(lines)) {
 			_DescribeThiefSkill((int)(controlID - kSkillInfoFirst));
 		} else if (controlID == kDoneControl) {
 			_NextSkillPage();
@@ -1793,7 +1793,7 @@ CharGenScreen::_HandleSkillWindow(uint16 windowID, uint32 controlID)
 			const uint32 arrow = controlID - kProficiencyPlusFirst;
 			_MoveProficiency((int)(arrow / 2), arrow % 2 == 0 ? 1 : -1);
 		} else if (controlID >= kProficiencyInfoFirst
-				&& controlID < kProficiencyInfoFirst + (uint32)lines) {
+				&& controlID < kProficiencyInfoFirst + static_cast<uint32>(lines)) {
 			_DescribeProficiency((int)(controlID - kProficiencyInfoFirst));
 		} else if (controlID == kDoneControl) {
 			_NextSkillPage();
@@ -1829,7 +1829,7 @@ CharGenScreen::ControlInvoked(uint16 windowID, uint32 controlID)
 			if (kStageButtons[i].control != controlID)
 				continue;
 			// Only the button of the stage due does anything.
-			if (_StepOfButton(controlID) == (int)fStep)
+			if (_StepOfButton(controlID) == static_cast<int>(fStep))
 				_OpenStage(fStep);
 			break;
 		}
