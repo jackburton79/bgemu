@@ -221,8 +221,13 @@ SavedGame::RestoreActor(const gam_party_member& member, CREResource* savedCre)
 	// A character made in character creation ("PLAYER1") has no CRE among the
 	// game's files - it was only ever injected into the running game, so a game
 	// started afresh doesn't know it. Its saved CRE takes that place.
-	if (savedCre != NULL && !gResManager->ResourceExists(member.creName, RES_CRE))
-		gResManager->InjectResource(member.creName, RES_CRE, savedCre);
+	// The CRE from the GAM has no reference yet; ours is released below, the
+	// resource manager keeps its own if it holds the CRE.
+	if (savedCre != nullptr) {
+		savedCre->Acquire();
+		if (!gResManager->ResourceExists(member.creName, RES_CRE))
+			gResManager->InjectResource(member.creName, RES_CRE, savedCre);
+	}
 
 	// Actor()'s normal constructor fetches the character's original,
 	// unmodified CRE from the game's own files (ResourceManager) - this
@@ -232,8 +237,10 @@ SavedGame::RestoreActor(const gam_party_member& member, CREResource* savedCre)
 	Actor* actor = new Actor(member.creName.CString(), member.position,
 		member.orientation);
 
-	if (savedCre != NULL) {
-		actor->CRE()->CopyDataFrom(savedCre);
+	if (savedCre != nullptr) {
+		// A created character's CRE is the injected one itself.
+		if (actor->CRE() != savedCre)
+			actor->CRE()->CopyDataFrom(savedCre);
 		actor->RefreshColors();
 		gResManager->ReleaseResource(savedCre);
 	}

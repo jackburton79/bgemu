@@ -2,7 +2,8 @@
 # A character made in character creation ("PLAYER1") only exists as a CRE
 # injected into the running game; a save of it loaded by another run of the
 # game (which has no such CRE) used to fail with "PLAYER1 ... does not exist"
-# and end the program. The other save/load tests save and load in one run,
+# and end the program, and the injected CRE was freed while the resource manager
+# still held it (a use-after-free at exit). The other save/load tests save and load in one run,
 # where PLAYER1 is still there.
 #
 # Usage: tests/exec/bg1-created-character-load.sh <BG1 path>
@@ -40,10 +41,11 @@ rm -rf "$SAVE_SCRIPT" "$LOAD_SCRIPT" "$SAVE_PATH" "$SAVE_PATH.arecache"
 
 fails=$(printf '%s\n' "$output" | grep -c "ASSERT FAIL")
 oks=$(printf '%s\n' "$output" | grep -c "ASSERT OK")
-if [ "$fails" -eq 0 ] && [ "$oks" -eq 2 ]; then
+crashes=$(printf '%s\n' "$output" | grep -c "AddressSanitizer")
+if [ "$fails" -eq 0 ] && [ "$oks" -eq 2 ] && [ "$crashes" -eq 0 ]; then
 	echo "PASS  $0"
 	exit 0
 fi
-echo "FAIL  $0 ($fails assertion failure(s), $oks ok)"
-printf '%s\n' "$output" | grep -a "ASSERT\|Load-Game\|does not exist"
+echo "FAIL  $0 ($fails assertion failure(s), $oks ok, $crashes sanitizer report(s))"
+printf '%s\n' "$output" | grep -a "ASSERT\|Load-Game\|does not exist\|AddressSanitizer"
 exit 1
