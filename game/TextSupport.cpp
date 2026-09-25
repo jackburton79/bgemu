@@ -36,6 +36,25 @@ ToolfontPalette()
 }
 
 
+// A glyph's origin is on the baseline: its frame's center is how far the top of the
+// glyph is above it.
+static inline int
+_GlyphAscent(const Bitmap* glyph)
+{
+	return glyph->Frame().y + glyph->Height() / 2;
+}
+
+
+// The letters (ASCII and Latin-1) set the baseline; the punctuation and the control
+// glyphs of a font can reach anywhere.
+static inline bool
+_IsLetterCode(char code)
+{
+	const uint8 c = static_cast<uint8>(code);
+	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c >= 0xc0;
+}
+
+
 static inline uint32
 cycle_num_for_char(int c)
 {
@@ -192,9 +211,6 @@ Font::_LoadGlyphs(const std::string& fontName)
 		return;
 	}
 	fTransparentIndex = fontRes->TransparentIndex();
-	bool haveBaseLine = false;
-	bool haveFallbackBaseLine = false;
-	uint16 fallbackBaseLine = 0;
 	for (uint8 cycleNum = 0; cycleNum < fontRes->CountCycles(); cycleNum++) {
 		char c = cycleNum + 1;
 		Bitmap* bitmap = fontRes->FrameForCycle(cycleNum, 0);
@@ -203,22 +219,9 @@ Font::_LoadGlyphs(const std::string& fontName)
 				fPalette = new GFX::Palette();
 				bitmap->GetPalette(*fPalette);
 			}
-			// Baseline reference glyph: used to be whatever sits at
-			// character code 2 (cycleNum == 1) regardless of what that
-			// actually is - fine for fonts where it happens to be an
-			// ordinary letter, but real BG2 font BAMs can put anything
-			// there. 'A' (65) is an ordinary letter in every Latin
-			// font BAM this engine loads, so use that instead; fall
-			// back to the first glyph that loads at all only if a font
-			// genuinely has no 'A' (e.g. a symbols-only font).
-			if (!haveFallbackBaseLine) {
-				fallbackBaseLine = bitmap->Height() - 2;
-				haveFallbackBaseLine = true;
-			}
-			if (c == 'A') {
-				fBaseLine = bitmap->Height() - 2;
-				haveBaseLine = true;
-			}
+			// The ascent is the highest a letter reaches above the baseline.
+			if (_IsLetterCode(c))
+				fBaseLine = std::max<int>(fBaseLine, _GlyphAscent(bitmap));
 #if 0
 			std::cout << "Glyph " << (char)c << "(" << c << ") ascent: " << bitmap->Frame().y;
 			std::cout << ", height: " << bitmap->Frame().h << std::endl;
@@ -232,8 +235,8 @@ Font::_LoadGlyphs(const std::string& fontName)
 			break;
 		}
 	}
-	if (!haveBaseLine)
-		fBaseLine = fallbackBaseLine;
+	if (fBaseLine == 0 && !fGlyphs.empty())
+		fBaseLine = _GlyphAscent(fGlyphs.begin()->second.bitmap);
 	gResManager->ReleaseResource(fontRes);
 }
 
@@ -281,7 +284,7 @@ Font::_CalcGlyphRect(const Glyph& glyph, uint32 flags,
 {
 	GFX::rect rect;
 	rect.x = containerRect.x;
-	rect.y = containerRect.y + fBaseLine - glyph.bitmap->Frame().y;
+	rect.y = containerRect.y + fBaseLine - _GlyphAscent(glyph.bitmap);
 	rect.w = glyph.bitmap->Width();
 	rect.h = glyph.bitmap->Height();
 
@@ -374,7 +377,8 @@ Font::_PrepareGlyphs(const std::string& string, uint16& width, uint16& height,
 		}
 		Glyph newGlyph = g->second;
 		width += newGlyph.bitmap->Width();
-		uint16 fontHeight = newGlyph.bitmap->Height() + fBaseLine - newGlyph.bitmap->Frame().y;
+		const int bottom = fBaseLine - _GlyphAscent(newGlyph.bitmap) + newGlyph.bitmap->Height();
+		const uint16 fontHeight = static_cast<uint16>(std::max(bottom, 0));
 		height = std::max(fontHeight, height);
 		if (glyphs != NULL)
 			glyphs->push_back(newGlyph);
