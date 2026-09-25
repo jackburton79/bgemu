@@ -100,12 +100,15 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x5300, "CHMB", _BuildCharacter, true },
 	{ 0x5303, "CIMB", _BuildCharacter, true },
 	{ 0x6000, "CHMB", _BuildCharacter, true },
+	{ 0x6001, "CEMB", _BuildCharacter, true },
 	{ 0x6002, "CDMB", _BuildCharacter, true },
 	{ 0x6003, "CIMB", _BuildCharacter, true },
 	{ 0x6004, "CDMB", _BuildCharacter, true },
 	{ 0x6010, "CHFB", _BuildCharacter, true },
 	{ 0x6011, "CEFB", _BuildCharacter, true },
+	{ 0x6012, "CDMB", _BuildCharacter, true },
 	{ 0x6013, "CIFB", _BuildCharacter, true },
+	{ 0x6014, "CIFB", _BuildCharacter, true },
 	{ 0x6100, "CHMB", _BuildCharacter, true },
 	{ 0x6101, "CEMB", _BuildCharacter, true },
 	{ 0x6102, "CDMB", _BuildCharacter, true },
@@ -113,17 +116,28 @@ static const AnimationEntry kAnimationEntries[] = {
 	{ 0x6104, "CDMB", _BuildCharacter, true },
 	{ 0x6110, "CHFB", _BuildCharacter, true },
 	{ 0x6111, "CEFB", _BuildCharacter, true },
+	{ 0x6112, "CDMB", _BuildCharacter, true },
 	{ 0x6113, "CIFB", _BuildCharacter, true },
+	{ 0x6114, "CIFB", _BuildCharacter, true },
 	{ 0x6200, "",     _BuildCharacter, true },
 	{ 0x6201, "CEMW", _BuildCharacter, true },
+	{ 0x6202, "CDMW", _BuildCharacter, true },
+	{ 0x6203, "CDMW", _BuildCharacter, true },
+	{ 0x6204, "CDMW", _BuildCharacter, true },
 	{ 0x6210, "CHFW", _BuildCharacter, true },
 	{ 0x6211, "CEFW", _BuildCharacter, true },
+	{ 0x6212, "CDMW", _BuildCharacter, true },
+	{ 0x6213, "CDMW", _BuildCharacter, true },
+	{ 0x6214, "CDMW", _BuildCharacter, true },
 	{ 0x6300, "CHMB", _BuildCharacter, true },
 	{ 0x6301, "CEMB", _BuildCharacter, true },
 	{ 0x6302, "CDMB", _BuildCharacter, true },
 	{ 0x6303, "CIMB", _BuildCharacter, true },
+	{ 0x6304, "CDMB", _BuildCharacter, true },
 	{ 0x6310, "CHFB", _BuildCharacter, true },
 	{ 0x6311, "CEFB", _BuildCharacter, true },
+	{ 0x6312, "CDMB", _BuildCharacter, true },
+	{ 0x6313, "CIFB", _BuildCharacter, true },
 	{ 0x6314, "CEFB", _BuildCharacter, true },
 	{ 0x6315, "CEFB", _BuildCharacter, true },
 	{ 0x6400, "",     _BuildCharacter, true },
@@ -297,6 +311,65 @@ _HasBAMVariant(const std::string& name, const char* suffix)
 // forcePlateForFighters: the in-world sprite shows every fighter-type in
 // full plate (a long-standing quirk, see AnimationFor()); the paperdoll
 // does not - it tracks the actually-worn armour.
+// BG1's player avatars (avatars.2da of GemRB's unhardcoded tables, 0x6000-0x6315):
+// the race, gender and class part of their BAM names. Not every race and gender has
+// its own art (a dwarf woman has a man's), which the names here already account for.
+struct PlayerAvatarBG1 {
+	uint16 animation_id;
+	const char* prefix;
+};
+
+static const PlayerAvatarBG1 kPlayerAvatarsBG1[] = {
+	{ 0x6000, "CHMC" },
+	{ 0x6001, "CEMC" },
+	{ 0x6002, "CDMC" },
+	{ 0x6003, "CIMC" },
+	{ 0x6004, "CDMC" },
+	{ 0x6005, "CHMC" },
+	{ 0x6010, "CHFC" },
+	{ 0x6011, "CEFC" },
+	{ 0x6012, "CDMC" },
+	{ 0x6013, "CIFC" },
+	{ 0x6014, "CIFC" },
+	{ 0x6015, "CHFC" },
+	{ 0x6100, "CHMF" },
+	{ 0x6101, "CEMF" },
+	{ 0x6102, "CDMF" },
+	{ 0x6103, "CIMF" },
+	{ 0x6104, "CDMF" },
+	{ 0x6105, "CHMF" },
+	{ 0x6110, "CHFF" },
+	{ 0x6111, "CEFF" },
+	{ 0x6112, "CDMF" },
+	{ 0x6113, "CIFF" },
+	{ 0x6114, "CIFF" },
+	{ 0x6115, "CHFF" },
+	{ 0x6200, "CHMW" },
+	{ 0x6201, "CEMW" },
+	{ 0x6202, "CDMW" },
+	{ 0x6203, "CDMW" },
+	{ 0x6204, "CDMW" },
+	{ 0x6205, "CHMW" },
+	{ 0x6210, "CHFW" },
+	{ 0x6211, "CEFW" },
+	{ 0x6212, "CDMW" },
+	{ 0x6213, "CDMW" },
+	{ 0x6214, "CDMW" },
+	{ 0x6215, "CHFW" },
+	{ 0x6300, "CHMT" },
+	{ 0x6301, "CEMT" },
+	{ 0x6302, "CDMT" },
+	{ 0x6303, "CIMT" },
+	{ 0x6304, "CDMT" },
+	{ 0x6305, "CHMT" },
+	{ 0x6310, "CHFT" },
+	{ 0x6311, "CEFT" },
+	{ 0x6312, "CDMT" },
+	{ 0x6313, "CIFT" },
+	{ 0x6314, "CIFT" },
+	{ 0x6315, "CHFT" },
+};
+
 static std::string
 _CharacterIdentityPrefix(const Actor* actor, const std::string& baseName,
 						bool forcePlateForFighters)
@@ -305,6 +378,12 @@ _CharacterIdentityPrefix(const Actor* actor, const std::string& baseName,
 	name += _RaceCharacter(actor->CRE()->Race());
 	name += _GenderCharacter(actor->CRE()->Gender());
 	name += _ClassCharacter(actor->CRE()->Class(), baseName);
+	if (Core::Get()->Game() == game::GAME_BALDURSGATE) {
+		for (const PlayerAvatarBG1& avatar : kPlayerAvatarsBG1) {
+			if (avatar.animation_id == actor->CRE()->AnimationID())
+				name = avatar.prefix;
+		}
+	}
 	if (forcePlateForFighters && name[3] == 'F')
 		name += "4";
 	else
@@ -1249,6 +1328,20 @@ AnimationFactory::PaperdollName(const Actor* actor) const
 		name = fBaseName + "1";
 	name += "INV";
 	return name;
+}
+
+
+/* static */
+bool
+AnimationFactory::PaperdollForAnimationBG1(uint16 animationID, std::string& name,
+	std::string& sizeCode)
+{
+	const PaperdollEntryBG1* entry = _FindPaperdollBG1(animationID);
+	if (entry == nullptr)
+		return false;
+	name = entry->names[0];
+	sizeCode = entry->size == '*' ? std::string() : std::string(1, entry->size);
+	return true;
 }
 
 

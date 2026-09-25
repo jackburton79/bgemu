@@ -116,7 +116,7 @@ Invoke-Control GUICG,9,19
 Invoke-Control GUICG,9,21
 Assert-CharGenPoints 0
 Invoke-Control GUICG,9,0
-Assert-CharGen name
+Assert-CharGen appearance
 # Back from the overview undoes the proficiencies, not the abilities.
 Invoke-Control GUICG,0,11
 Assert-CharGen skills
@@ -126,7 +126,23 @@ Invoke-Control GUICG,0,5
 Invoke-Control GUICG,9,19
 Invoke-Control GUICG,9,21
 Invoke-Control GUICG,9,0
+Assert-CharGen appearance
+# The appearance: Done takes the colors; a color of the picker replaces the one of
+# its button (hair: the fourth of its row, 3); Back from the overview takes them back.
+Invoke-Control GUICG,0,6
+Assert-Color hair,-1
+Invoke-Control GUICG,13,2
+Invoke-Control GUICG,14,3
+Invoke-Control GUICG,13,0
 Assert-CharGen name
+Assert-Color hair,3
+Invoke-Control GUICG,0,11
+Assert-CharGen appearance
+Assert-Color hair,-1
+Invoke-Control GUICG,0,6
+Invoke-Control GUICG,13,0
+Assert-CharGen name
+
 # The name: Done waits for something typed, Backspace takes a letter back, Return is
 # Done; Back from the overview undoes the name, and only that.
 Invoke-Control GUICG,0,7
@@ -279,7 +295,7 @@ Invoke-Control GUICG,9,25
 Invoke-Control GUICG,9,15
 Assert-CharGenPoints 0
 Invoke-Control GUICG,9,0
-Assert-CharGen name
+Assert-CharGen appearance
 Assert-Proficiency MISSILE,1
 
 # A ranger picks a racial enemy first (Done waits for the choice), then the
@@ -352,4 +368,4 @@ Assert-Spells mage,2,1
 Assert-CharGenPoints 1
 Invoke-Control GUICG,9,13
 Invoke-Control GUICG,9,0
-Assert-CharGen name
+Assert-CharGen appearance

@@ -5,8 +5,12 @@
 #include "Button.h"
 #include "CharGenData.h"
 #include "CharacterBuilder.h"
+#include "ColorRange.h"
+#include "CreResource.h"
 #include "Game.h"
 #include "GUI.h"
+#include "AnimationFactory.h"
+#include "BamResource.h"
 #include "Label.h"
 #include "TextEdit.h"
 #include "Scrollbar.h"
@@ -61,9 +65,8 @@ static const stage_button kStageButtons[] = {
 	{ 4, 11960 }, { 5, 17372 }, { 6, 11961 }, { 7, 11963 }, { 8, 11962 }
 };
 
-// The overview's button of each stage (the order of Step): the appearance button
-// (6) isn't a stage yet.
-static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 5, 7, 8 };
+// The overview's button of each stage (the order of Step).
+static const uint32 kStepButton[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 // The stage an overview button opens, -1 for one that isn't a stage yet.
 static int
@@ -126,6 +129,19 @@ static const uint32 kSpellsPointsLabel = 0x1000001b;
 static const uint32 kSpellsLearnStrRef = 17250, kSpellsMemorizeStrRef = 17253;
 static const uint32 kSpellsLearnTitleStrRef = 10345, kSpellsMemorizeTitleStrRef = 17189;
 static const uint32 kMageSpellsLabelStrRef = 11027, kPriestSpellsLabelStrRef = 11028;
+
+// The appearance window: Back, the paperdoll, a button for each of the colors (hair,
+// skin, major and minor, in that order from 2) and the picker over it, with a
+// button for each of the colors it offers.
+static const uint32 kColorsBack = 13, kColorsDoll = 1, kColorsFirst = 2;
+static const int kColorKinds = 4;
+static const int kPickerButtons = 34;
+static const CharGenData::ColorKind kColorKindOf[kColorKinds] = {
+	CharGenData::COLOR_HAIR, CharGenData::COLOR_SKIN, CharGenData::COLOR_MAJOR,
+	CharGenData::COLOR_MINOR
+};
+// What a new character's armor, leather and metal look like.
+static const uint8 kMetalColor = 0x1b, kLeatherColor = 0x16, kArmorColor = 0x17;
 
 // The name window: Back, Done and the text field.
 static const uint32 kNameBack = 3, kNameField = 2;
@@ -220,6 +236,7 @@ CharGenScreen::CharGenScreen(Game& game)
 	fSkillPage(0),
 	fProficiencyPoints(0),
 	fSkillPoints(0),
+	fPicking(-1),
 	fEnemy(-1),
 	fMemorizing(false),
 	fSpellPoints(0),
@@ -312,7 +329,7 @@ const char*
 CharGenScreen::StepName() const
 {
 	static const char* kNames[] = { "gender", "race", "class", "alignment", "abilities",
-		"skills", "name", "accept" };
+		"skills", "appearance", "name", "accept" };
 	return kNames[fStep];
 }
 
@@ -465,6 +482,9 @@ CharGenScreen::_OpenStage(Step step)
 			break;
 		case STEP_SKILLS:
 			_ShowSkills();
+			break;
+		case STEP_APPEARANCE:
+			_ShowColors();
 			break;
 		case STEP_NAME:
 			_ShowName();
@@ -925,7 +945,7 @@ CharGenScreen::_NextSkillPage()
 		_ShowSkillPage();
 		return;
 	}
-	fStep = STEP_NAME;
+	fStep = STEP_APPEARANCE;
 	_CloseChoice();
 	_RefreshOverview();
 }
@@ -1312,6 +1332,121 @@ CharGenScreen::_MoveProficiency(int proficiency, int step)
 }
 
 
+// The appearance window: the paperdoll with the colors of the portrait, which
+// the four buttons change (each opens the picker with the colors of its kind).
+void
+CharGenScreen::_ShowColors()
+{
+	_CloseChoice();
+	GUI::Get()->ShowAuxWindow(CHUName(), kColorsWindow);
+	fOpenWindow = kColorsWindow;
+	GUI::Get()->HideAuxWindow(CHUName(), kColorPickerWindow);
+	fPicking = -1;
+
+	_ChoiceWindowButtons(this, _Button(kColorsWindow, kDoneControl),
+		_Button(kColorsWindow, kColorsBack));
+	if (Button* done = _Button(kColorsWindow, kDoneControl))
+		done->SetEnabled(true);
+
+	// The portrait's colors, as GemRB's GUICG13 takes them: pictures.2da's MAJOR
+	// column is the character's minor color and the MINOR column its major.
+	size_t count = 0;
+	if (fPortrait >= 0) {
+		const CharGenPortrait& portrait = CharGenData::Portraits(count)[fPortrait];
+		fColors[0] = portrait.hair;
+		fColors[1] = portrait.skin;
+		fColors[2] = portrait.minor;
+		fColors[3] = portrait.major;
+	}
+	_ShowColorSwatches();
+}
+
+
+// A swatch of a color: COLGRAD's picture of the cycle with the gradient of the
+// color (MPALETTE.BMP's row) in the palette, from entry 4 as GemRB puts it.
+static Bitmap*
+_ColorSwatch(BAMResource* gradients, uint8 cycle, uint8 color)
+{
+	Bitmap* swatch = gradients->FrameForCycle(cycle, 0);
+	if (swatch == NULL)
+		return NULL;
+	GFX::Palette palette;
+	swatch->GetPalette(palette);
+	ApplyRange(palette, 4, color);
+	swatch->SetPalette(palette);
+	return swatch;
+}
+
+
+// A swatch (COLGRAD's frame of the color) on each color button, and the doll.
+void
+CharGenScreen::_ShowColorSwatches()
+{
+	BAMResource* gradients = gResManager->GetBAM("COLGRAD");
+	for (int i = 0; i < kColorKinds && gradients != NULL; i++) {
+		if (Button* button = _Button(kColorsWindow, kColorsFirst + (uint32)i)) {
+			button->SetIcon(_ColorSwatch(gradients, 0, fColors[i]), true);
+		}
+	}
+	if (gradients != NULL)
+		gResManager->ReleaseResource(gradients);
+
+	// The doll of the character's animation (race, class and gender), recolored.
+	Button* doll = _Button(kColorsWindow, kColorsDoll);
+	if (doll == NULL)
+		return;
+	std::string name, sizeCode;
+	Bitmap* image = NULL;
+	if (AnimationFactory::PaperdollForAnimationBG1(_Builder().AnimationID(), name, sizeCode)) {
+		CREColors colors = { kMetalColor, fColors[3], fColors[2], fColors[1], kLeatherColor,
+			kArmorColor, fColors[0] };
+		const GFX::rect frame = doll->Frame();
+		image = ScreenSupport::BuildBG1PaperdollBase((uint16)frame.w, (uint16)frame.h, name,
+			sizeCode, colors);
+	}
+	doll->SetIcon(image, true);
+}
+
+
+// A color button pressed: the picker opens with the colors of its kind.
+void
+CharGenScreen::_PickColor(int kind)
+{
+	fPicking = kind;
+	GUI::Get()->ShowAuxWindow(CHUName(), kColorPickerWindow);
+
+	size_t count = 0;
+	const uint8* colors = CharGenData::Colors(kColorKindOf[kind], count);
+	BAMResource* gradients = gResManager->GetBAM("COLGRAD");
+	for (int i = 0; i < kPickerButtons; i++) {
+		Button* button = _Button(kColorPickerWindow, (uint32)i);
+		if (button == NULL)
+			continue;
+		const bool exists = (size_t)i < count && gradients != NULL;
+		button->SetEnabled(exists);
+		button->SetFrameless(!exists);
+		button->SetIcon(exists ? _ColorSwatch(gradients, 2, colors[i]) : NULL, true);
+		button->SetLatched(exists && colors[i] == fColors[kind]);
+	}
+	if (gradients != NULL)
+		gResManager->ReleaseResource(gradients);
+}
+
+
+// A color of the picker chosen: it goes on the button and the doll.
+void
+CharGenScreen::_ChooseColor(int index)
+{
+	size_t count = 0;
+	const uint8* colors = CharGenData::Colors(kColorKindOf[fPicking], count);
+	if (fPicking >= 0 && index >= 0 && (size_t)index < count)
+		fColors[fPicking] = colors[index];
+	fPicking = -1;
+	GUI::Get()->HideAuxWindow(CHUName(), kColorPickerWindow);
+	_ShowColorSwatches();
+}
+
+
 // The name window: a text field, Done once something is typed (Return does it).
 void
 CharGenScreen::_ShowName()
@@ -1353,6 +1488,10 @@ CharGenScreen::_StepBack()
 	switch (fStep) {
 		case STEP_NAME:
 			builder.SetName("");
+			_RefreshOverview();
+			return;
+		case STEP_APPEARANCE:
+			builder.ClearColors();
 			_RefreshOverview();
 			return;
 		case STEP_SKILLS:
@@ -1397,24 +1536,17 @@ CharGenScreen::_StepBack()
 }
 
 
-// Accept: what the stages after the skills would have asked is the default for
-// now (no name); the colors are the portrait's, then the finish of the creation.
+// Accept: the finish of the creation: the colors of the armor, the reputation, the
+// gold and the rest (ApplyStartingKit()).
 void
 CharGenScreen::_Finish()
 {
 	CharacterBuilder& builder = _Builder();
-	if (fPortrait >= 0) {
-		size_t count = 0;
-		const CharGenPortrait& portrait = CharGenData::Portraits(count)[fPortrait];
-		builder.SetColor("hair", portrait.hair);
-		builder.SetColor("skin", portrait.skin);
-		builder.SetColor("major", portrait.major);
-		builder.SetColor("minor", portrait.minor);
-	}
-	// The metal, leather and armor colors of a new character.
-	builder.SetColor("metal", 0x1b);
-	builder.SetColor("leather", 0x16);
-	builder.SetColor("armor", 0x17);
+	// The metal, leather and armor colors of a new character (the others were set
+	// in the appearance window).
+	builder.SetColor("metal", kMetalColor);
+	builder.SetColor("leather", kLeatherColor);
+	builder.SetColor("armor", kArmorColor);
 	builder.ApplyStartingKit();
 
 	std::vector<std::string> problems;
@@ -1534,6 +1666,32 @@ CharGenScreen::_HandleChoice(uint16 windowID, uint32 controlID)
 		} else if (controlID == kAlignmentBack) {
 			fAlignment = -1;
 			_CloseChoice();
+			_RefreshOverview();
+		}
+		return true;
+	}
+
+	if (windowID == kColorPickerWindow) {
+		if (controlID < (uint32)kPickerButtons)
+			_ChooseColor((int)controlID);
+		return true;
+	}
+
+	if (windowID == kColorsWindow) {
+		if (controlID >= kColorsFirst && controlID < kColorsFirst + (uint32)kColorKinds) {
+			_PickColor((int)(controlID - kColorsFirst));
+		} else if (controlID == kDoneControl) {
+			builder.SetColor("hair", fColors[0]);
+			builder.SetColor("skin", fColors[1]);
+			builder.SetColor("major", fColors[2]);
+			builder.SetColor("minor", fColors[3]);
+			fStep = STEP_NAME;
+			_CloseChoice();
+			GUI::Get()->HideAuxWindow(CHUName(), kColorPickerWindow);
+			_RefreshOverview();
+		} else if (controlID == kColorsBack) {
+			_CloseChoice();
+			GUI::Get()->HideAuxWindow(CHUName(), kColorPickerWindow);
 			_RefreshOverview();
 		}
 		return true;

@@ -3105,6 +3105,23 @@ public:
 };
 
 
+// Assert-Color <metal|minor|major|skin|leather|armor|hair>,<n> - the color the
+// builder holds (-1: the default).
+class AssertColorCommand : public ShellCommand {
+public:
+	AssertColorCommand() : ShellCommand("Assert-Color", { { PARAMETER_STRING, }, { PARAMETER_INT, } }) {}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		const int color = Game::Get()->Starting().Builder().Color(params.at(0).value.string);
+		if (color == params.at(1).value.integer)
+			std::cout << "ASSERT OK: " << params.at(0).value.string << " color " << color << std::endl;
+		else
+			std::cout << "ASSERT FAIL: " << params.at(0).value.string << " color is " << color
+				<< ", expected " << params.at(1).value.integer << std::endl;
+	}
+};
+
+
 // Assert-StartingKit <reputation>,<min gold>,<max gold> - what the character
 // creation's finish gave the builder: the reputation of the alignment, the gold
 // of the class (rolled: within the range) and the quarterstaff.
@@ -4342,6 +4359,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertThiefSkillCommand());
 	console->AddCommand(new AssertSpellsCommand());
 	console->AddCommand(new AssertStartingKitCommand());
+	console->AddCommand(new AssertColorCommand());
 	console->AddCommand(new TypeTextCommand());
 	console->AddCommand(new TypeKeyCommand());
 	console->AddCommand(new AssertCharGenNameCommand());

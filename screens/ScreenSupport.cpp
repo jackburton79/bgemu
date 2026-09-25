@@ -6,6 +6,7 @@
 #include "SPLResource.h"
 
 #include "Actor.h"
+#include "ColorRange.h"
 #include "CreResource.h"
 #include "ITMResource.h"
 #include "Label.h"
@@ -185,4 +186,57 @@ ScreenSupport::CollectOwnEntries(Actor* looter, std::vector<LootEntry>& entries)
 		if (looter->CRE()->GetItemAtSlot(slot, item) && item.name.name[0] != '\0')
 			entries.push_back({ item, (int32)slot });
 	}
+}
+
+
+// Draws one BG1 paperdoll layer (the doll itself, a weapon, a shield or a
+// helmet) onto `canvas`: a BAM whose cycle 0 holds two pictures, the upper and
+// the lower half of the layer, recolored from the character's own colors when
+// `colors` is given. Every picture goes where its own stored center puts it,
+// the lower half 80 pixels further down (as GemRB's
+// AnimationFactory::GetPaperdollImage() does).
+bool
+ScreenSupport::CompositeBG1Layer(Bitmap* canvas, const std::string& resRef, const CREColors* colors)
+{
+	BAMResource* bam = gResManager->GetBAM(resRef.c_str());
+	if (bam == nullptr)
+		return false;
+
+	Bitmap* halves[2] = { bam->FrameForCycle(0, 0), bam->SecondPictureForCycle(0) };
+	gResManager->ReleaseResource(bam);
+
+	for (int half = 0; half < 2; half++) {
+		Bitmap* frame = halves[half];
+		if (frame == nullptr)
+			continue;
+
+		if (colors != nullptr) {
+			GFX::Palette palette;
+			frame->GetPalette(palette);
+			ApplyPaperdollColors(palette, *colors);
+			frame->SetPalette(palette);
+		}
+
+		const GFX::rect frameRect = frame->Frame();
+		GFX::point where(-(frameRect.x + frame->Width() / 2),
+				-(frameRect.y + frame->Height() / 2) + half * 80);
+		frame->BlitTo(canvas, where);
+		frame->Release();
+	}
+	return halves[0] != nullptr;
+}
+
+
+Bitmap*
+ScreenSupport::BuildBG1PaperdollBase(uint16 width, uint16 height, const std::string& name,
+	const std::string& sizeCode, const CREColors& colors)
+{
+	Bitmap* canvas = new Bitmap(width, height, 16);
+	canvas->Clear(canvas->MapRGBColor(0, 255, 0));
+	canvas->SetColorKey(0, 255, 0, true);
+	if (!CompositeBG1Layer(canvas, name, sizeCode.empty() ? nullptr : &colors)) {
+		canvas->Release();
+		return nullptr;
+	}
+	return canvas;
 }

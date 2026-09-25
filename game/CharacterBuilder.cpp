@@ -161,6 +161,41 @@ CharacterBuilder::HasRacialEnemy() const
 }
 
 
+// The player animation of the character (GemRB's BGCommon.RefreshPDoll): 0x6000
+// plus a part for the race (avprefr.2da), one for the class (avprefc.2da) and one
+// for the gender (avprefg.2da); the tables are GemRB's.
+uint16
+CharacterBuilder::AnimationID() const
+{
+	uint16 id = 0x6000;
+	static const struct { const char* race; uint16 part; } kRaces[] = {
+		{ "HUMAN", 0 }, { "ELF", 1 }, { "HALF_ELF", 1 }, { "DWARF", 2 },
+		{ "HALFLING", 3 }, { "GNOME", 4 }
+	};
+	for (const auto& race : kRaces) {
+		if (fRace == race.race)
+			id += race.part;
+	}
+	static const struct { const char* name; uint16 part; } kClasses[] = {
+		{ "MAGE", 0x200 }, { "FIGHTER", 0x100 }, { "CLERIC", 0 }, { "THIEF", 0x300 },
+		{ "BARD", 0x300 }, { "PALADIN", 0x100 }, { "FIGHTER_MAGE", 0x100 },
+		{ "FIGHTER_CLERIC", 0x100 }, { "FIGHTER_THIEF", 0x100 },
+		{ "FIGHTER_MAGE_THIEF", 0x100 }, { "DRUID", 0 }, { "RANGER", 0x100 },
+		{ "MAGE_THIEF", 0x300 }, { "CLERIC_MAGE", 0 }, { "CLERIC_THIEF", 0 },
+		{ "FIGHTER_DRUID", 0x100 }, { "FIGHTER_MAGE_CLERIC", 0x100 }, { "CLERIC_RANGER", 0 }
+	};
+	uint16 classPart = 0;
+	for (const auto& entry : kClasses) {
+		if (fClass == entry.name)
+			classPart = entry.part;
+	}
+	id += classPart;
+	if (fGender == "FEMALE")
+		id += 0x10;
+	return id;
+}
+
+
 void
 CharacterBuilder::ClearAbilities()
 {
@@ -431,6 +466,18 @@ CharacterBuilder::SetColor(const std::string& which, int index)
 		}
 	}
 	return false;
+}
+
+
+int
+CharacterBuilder::Color(const std::string& which) const
+{
+	static const char* kNames[7] = { "metal", "minor", "major", "skin", "leather", "armor", "hair" };
+	for (int i = 0; i < 7; i++) {
+		if (strcasecmp(which.c_str(), kNames[i]) == 0)
+			return fColors[i];
+	}
+	return -1;
 }
 
 
@@ -893,7 +940,7 @@ CharacterBuilder::BuildCREData(std::vector<uint8>& out) const
 	// (Actor::_Init() runs the level-up path because class level is 0).
 	_PutU16(out, 0x24, 0);           // current HP
 	_PutU16(out, 0x26, 0);           // maximum HP
-	_PutU32(out, 0x28, genderID == 2 ? 0x6010 : 0x6000); // player animation
+	_PutU32(out, 0x28, AnimationID());   // player animation
 
 	// Paperdoll/avatar colours. Order: metal, minor, major, skin,
 	// leather, armor, hair - a generic default per slot unless the

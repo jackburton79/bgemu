@@ -1,0 +1,9 @@
+# ARGS: -c tests/exec/chargen-gnome.spec
+#
+# A created character's animation comes from its race, class and gender (the builder's
+# AnimationID(), as GemRB's avprefr/avprefc/avprefg): a gnome woman cleric is 0x6014,
+# drawn with the halfling woman's BAMs (a dwarf or gnome woman has no art of her own);
+# her paperdoll is that animation's.
+Step-Ticks 5
+Assert-Paperdoll PLAYER1,CIFC1INV
+Toggle-Inventory

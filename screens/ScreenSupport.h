@@ -8,6 +8,7 @@
 class Actor;
 class Bitmap;
 class CREResource;
+struct CREColors;
 class ITMResource;
 class Window;
 
@@ -54,6 +55,18 @@ void AddLabel(Window* window, uint32 id, sint16 x, sint16 y, uint16 width,
 
 // Creates the two weight labels once, anchored to the bag icon.
 void EnsureWeightLabels(Window* window, uint32 iconID = kWeightIconID);
+
+// Draws one BG1 paperdoll layer (the doll itself, a weapon, a shield or a helmet)
+// onto `canvas`: a BAM whose cycle 0 holds two pictures, the upper and the lower
+// half of the layer, recolored from the character's own colors when `colors` is
+// given. Every picture goes where its own stored center puts it, the lower half
+// 80 pixels further down (as GemRB's AnimationFactory::GetPaperdollImage() does).
+bool CompositeBG1Layer(Bitmap* canvas, const std::string& resRef, const CREColors* colors);
+
+// A canvas of the given size with the bare BG1 doll on it, recolored (a doll whose
+// size code is empty takes no colors); NULL if there is no such BAM.
+Bitmap* BuildBG1PaperdollBase(uint16 width, uint16 height, const std::string& name,
+	const std::string& sizeCode, const CREColors& colors);
 
 // The spellbook-icon frame for a spell resref (SPL 0x3a -> BAM cycle 0
 // frame 0). Caller owns the returned reference, or NULL.

@@ -43,6 +43,10 @@ public:
 	// which: one of metal/minor/major/skin/leather/armor/hair.
 	bool SetColor(const std::string& which, int index);
 
+	// The color set for `which` (metal, minor, major, skin, leather, armor, hair), -1
+	// for the default.
+	int Color(const std::string& which) const;
+
 	const std::string& Name() const { return fName; }
 	const std::string& PortraitSmall() const { return fPortraitSmall; }
 	const std::string& PortraitLarge() const { return fPortraitLarge; }
@@ -82,6 +86,10 @@ public:
 	int ThiefSkillPointsSpent() const;
 	// What the race and the Dexterity add to (or take from) the skill.
 	int ThiefSkillBonus(int skill) const;
+	// The animation the character is drawn with (and its paperdoll): race, class and
+	// gender decide it.
+	uint16 AnimationID() const;
+
 	// Takes back what a stage of the creation gave (going back a stage).
 	void ClearAbilities();
 	void ClearSkills();	// proficiencies, thief skills, racial enemy, spells

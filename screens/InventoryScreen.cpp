@@ -435,44 +435,6 @@ _CompositePaperdollOverlay(Bitmap* canvas, const char* sizeCode,
 }
 
 
-// Draws one BG1 paperdoll layer (the doll itself, a weapon, a shield or a
-// helmet) onto `canvas`: a BAM whose cycle 0 holds two pictures, the upper and
-// the lower half of the layer, recolored from the character's own colors when
-// `colors` is given. Every picture goes where its own stored center puts it,
-// the lower half 80 pixels further down (as GemRB's
-// AnimationFactory::GetPaperdollImage() does).
-static bool
-_CompositeBG1Layer(Bitmap* canvas, const std::string& resRef, const CREColors* colors)
-{
-	BAMResource* bam = gResManager->GetBAM(resRef.c_str());
-	if (bam == nullptr)
-		return false;
-
-	Bitmap* halves[2] = { bam->FrameForCycle(0, 0), bam->SecondPictureForCycle(0) };
-	gResManager->ReleaseResource(bam);
-
-	for (int half = 0; half < 2; half++) {
-		Bitmap* frame = halves[half];
-		if (frame == nullptr)
-			continue;
-
-		if (colors != nullptr) {
-			GFX::Palette palette;
-			frame->GetPalette(palette);
-			ApplyPaperdollColors(palette, *colors);
-			frame->SetPalette(palette);
-		}
-
-		const GFX::rect frameRect = frame->Frame();
-		GFX::point where(-(frameRect.x + frame->Width() / 2),
-				-(frameRect.y + frame->Height() / 2) + half * 80);
-		frame->BlitTo(canvas, where);
-		frame->Release();
-	}
-	return halves[0] != nullptr;
-}
-
-
 // BG1's paperdoll: the doll BAM, then the weapon, the shield or off-hand item
 // and the helmet on top of it, all recolored with the character's colors, on a
 // canvas as large as the paperdoll button (the pictures' own offsets place
@@ -489,7 +451,7 @@ _BuildBG1Paperdoll(Button* button, Actor* actor, const std::string& name)
 	CREColors colors = actor->CRE()->Colors();
 	const CREColors* layerColors = size.empty() ? nullptr : &colors;
 
-	if (!_CompositeBG1Layer(canvas, name, layerColors)) {
+	if (!ScreenSupport::CompositeBG1Layer(canvas, name, layerColors)) {
 		std::cerr << "InventoryScreen::_UpdatePaperdoll(): no BAM resource named "
 			<< name << std::endl;
 		canvas->Release();
@@ -500,7 +462,7 @@ _BuildBG1Paperdoll(Button* button, Actor* actor, const std::string& name)
 
 	auto overlay = [&] (const std::string& animationCode, const char* suffix) {
 		if (!animationCode.empty())
-			_CompositeBG1Layer(canvas, "WP" + size + animationCode + suffix, layerColors);
+			ScreenSupport::CompositeBG1Layer(canvas, "WP" + size + animationCode + suffix, layerColors);
 	};
 
 	ITMResource* weapon = actor->EquippedWeapon();

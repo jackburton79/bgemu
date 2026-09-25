@@ -61,6 +61,10 @@ public:
 	// suffix (see avatarnaming.htm's "PLT Files" paragraph). Falls back to
 	// this factory's own base name + "1" for a non-party actor.
 	std::string PaperdollName(const Actor* actor) const;
+	// BG1's paperdoll of an animation (unarmored) and its size code, for a
+	// character that isn't an Actor yet; false if there is none.
+	static bool PaperdollForAnimationBG1(uint16 animationID, std::string& name,
+		std::string& sizeCode);
 
 	// The wearer's body-size letter ("H"/"S"/"M") used by every "WP" +
 	// size + animation-code (+ suffix) overlay resref - both the
