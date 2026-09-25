@@ -133,6 +133,18 @@ MovieDecoder::AllocateBuffer(uint16 width, uint16 height, uint16 version, bool t
 	fNewFrame = new Bitmap(width, height, 8);
 	fCurrentFrame = new Bitmap(width, height, 8);
 
+	// A palette entry the stream never sets is black: an 8 bit surface starts
+	// with a white palette, which showed wherever a block still held the
+	// buffer's initial index 0 (a block "unchanged" since before the first
+	// pictures).
+	for (int i = 0; i < 256; i++) {
+		fColors[i].r = fColors[i].g = fColors[i].b = 0;
+		fColors[i].a = 0;
+	}
+	fNewFrame->SetColors(fColors, 0, 256);
+	fCurrentFrame->SetColors(fColors, 0, 256);
+	fScratchBuffer->SetColors(fColors, 0, 256);
+
 	fVersion = version;
 
 	fMapSize = ((width * height) / (8 * 8)) / 2;
@@ -394,7 +406,7 @@ MovieDecoder::Opcode7(Stream* stream, uint8* pixels, GFX::rect* blitRect)
 	uint8 p0 = stream->ReadByte();
 	uint8 p1 = stream->ReadByte();
 	BitStreamAdapter bs(stream);
-	if (p0 < p1) {
+	if (p0 <= p1) {
 		for (int32 c = 0; c < 64; c++)
 			*pixels++ = bs.ReadBit() ? p1 : p0;
 	} else {

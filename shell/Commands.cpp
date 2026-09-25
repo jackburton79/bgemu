@@ -36,6 +36,7 @@
 #include "JournalScreen.h"
 #include "LootWindow.h"
 #include "Party.h"
+#include "MveResource.h"
 #include "Region.h"
 #include "StartScreen.h"
 #include "PlaylistStream.h"
@@ -2824,6 +2825,104 @@ public:
 };
 
 
+// Dump-Movie-Frame <movie>,<n>,<path> - decodes a movie up to its n-th frame
+// (1-based) and saves that frame as a BMP: to look at what the decoder makes of it.
+class DumpMovieFrameCommand : public ShellCommand {
+public:
+	DumpMovieFrameCommand()
+		: ShellCommand(
+			"Dump-Movie-Frame",
+			{
+				{ PARAMETER_STRING, },	// movie
+				{ PARAMETER_INT, },	// frame number
+				{ PARAMETER_STRING, }	// output path
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		MVEResource* movie = gResManager->GetMVE(params.at(0).value.string);
+		if (movie == NULL) {
+			std::cout << "Dump-Movie-Frame: no movie " << params.at(0).value.string << std::endl;
+			return;
+		}
+		int32 frames = 0;
+		const int32 wanted = params.at(1).value.integer;
+		bool saved = false;
+		while (movie->DecodeNextChunk()) {
+			if (movie->ConsumeFrameReady() && ++frames == wanted) {
+				movie->CurrentFrame()->Save(params.at(2).value.string);
+				saved = true;
+				break;
+			}
+		}
+		gResManager->ReleaseResource(movie);
+		std::cout << "Dump-Movie-Frame: " << (saved ? "OK" : "the movie has fewer frames")
+			<< " (" << frames << " frames)" << std::endl;
+	}
+};
+
+
+// Assert-MovieWhite <movie>,<n>,<maxPercent> - the n-th frame of the movie has
+// at most this share of (nearly) white pixels: how a decoding fault shows, as
+// blocks still holding a palette index nothing ever set.
+class AssertMovieWhiteCommand : public ShellCommand {
+public:
+	AssertMovieWhiteCommand()
+		: ShellCommand(
+			"Assert-MovieWhite",
+			{
+				{ PARAMETER_STRING, },	// movie
+				{ PARAMETER_INT, },	// frame number
+				{ PARAMETER_INT, }	// most white pixels, percent
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		MVEResource* movie = gResManager->GetMVE(params.at(0).value.string);
+		if (movie == NULL) {
+			std::cout << "ASSERT FAIL: no movie " << params.at(0).value.string << std::endl;
+			return;
+		}
+		int32 frames = 0;
+		int64 white = -1, total = 0;
+		while (movie->DecodeNextChunk()) {
+			if (movie->ConsumeFrameReady() && ++frames == params.at(1).value.integer) {
+				Bitmap* frame = movie->CurrentFrame();
+				white = 0;
+				total = (int64)frame->Width() * frame->Height();
+				for (int y = 0; y < frame->Height(); y++) {
+					for (int x = 0; x < frame->Width(); x++) {
+						uint8 r, g, b;
+						frame->GetRGBColor(frame->GetPixel(x, y), r, g, b);
+						if (r >= 248 && g >= 248 && b >= 248)
+							white++;
+					}
+				}
+				break;
+			}
+		}
+		gResManager->ReleaseResource(movie);
+		if (white < 0) {
+			std::cout << "ASSERT FAIL: the movie has fewer than " << params.at(1).value.integer
+				<< " frames" << std::endl;
+			return;
+		}
+		const int64 percent = white * 100 / total;
+		if (percent <= params.at(2).value.integer)
+			std::cout << "ASSERT OK: movie frame " << params.at(1).value.integer << " is "
+				<< percent << "% white" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: movie frame " << params.at(1).value.integer << " is "
+				<< percent << "% white, at most " << params.at(2).value.integer << " expected"
+				<< std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3890,6 +3989,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new DumpMovieFrameCommand());
+	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());
 	console->AddCommand(new AssertStartChoiceCommand());
 	console->AddCommand(new AssertCursorCommand());

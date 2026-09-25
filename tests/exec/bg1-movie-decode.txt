@@ -1,0 +1,8 @@
+#
+# The intro movie decodes cleanly: a block "unchanged since two frames ago"
+# that still held the buffer's initial index 0 showed the 8 bit surface's
+# default palette entry, white, as noisy white areas (frames 100 and 180 had
+# a fifth of the picture white). The first quote and the cemetery are dark.
+Assert-MovieWhite INTRO,100,2
+Assert-MovieWhite INTRO,180,2
+Assert-MovieWhite INTRO,200,2
