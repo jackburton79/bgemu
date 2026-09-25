@@ -1,0 +1,90 @@
+# ARGS: -M
+#
+# Character creation (GUICG.CHU): the overview lists the stages and only the
+# one due works; gender, portrait, race, class (also multiclass) and alignment
+# are chosen in windows shown over it, a choice the race or class doesn't allow
+# is refused, Back goes back a stage, Cancel ends the creation. The choices go
+# into the character builder; Accept (abilities, skills and the rest are still
+# to come, so rolled and defaults) completes it.
+Begin-CharGen
+Assert-CharGen gender
+Assert-Builder -,-,-,-
+# A stage that isn't due does nothing.
+Invoke-Control GUICG,0,1
+Assert-CharGen gender
+Invoke-Control GUICG,0,0
+Invoke-Control GUICG,1,3
+Invoke-Control GUICG,1,0
+# The portrait window: the arrows go round the female portraits.
+Invoke-Control GUICG,11,3
+Invoke-Control GUICG,11,2
+Invoke-Control GUICG,11,0
+Assert-CharGen race
+Assert-Builder FEMALE,-,-,-
+# Race: elf; class: a paladin is not for an elf, a cleric is.
+Invoke-Control GUICG,0,1
+Invoke-Control GUICG,8,3
+Invoke-Control GUICG,8,0
+Assert-CharGen class
+Assert-Builder FEMALE,ELF,-,-
+Invoke-Control GUICG,0,2
+Invoke-Control GUICG,2,4
+Invoke-Control GUICG,2,0
+Assert-CharGen class
+Invoke-Control GUICG,2,5
+Invoke-Control GUICG,2,0
+Assert-CharGen alignment
+Assert-Builder FEMALE,ELF,CLERIC,-
+# Alignment: neutral good.
+Invoke-Control GUICG,0,3
+Invoke-Control GUICG,3,3
+Invoke-Control GUICG,3,0
+Assert-CharGen accept
+Assert-Builder FEMALE,ELF,CLERIC,NEUTRAL_GOOD
+# Back from the overview undoes the alignment.
+Invoke-Control GUICG,0,11
+Assert-CharGen alignment
+Assert-Builder FEMALE,ELF,CLERIC,-
+Invoke-Control GUICG,0,3
+Invoke-Control GUICG,3,3
+Invoke-Control GUICG,3,0
+Assert-CharGen accept
+# Accept completes the character.
+Invoke-Control GUICG,0,8
+Assert-CharGen done
+
+# A human can't be a multiclass (the button is off, and a class chosen in its
+# window isn't taken).
+Begin-CharGen
+Invoke-Control GUICG,0,0
+Invoke-Control GUICG,1,2
+Invoke-Control GUICG,1,0
+Invoke-Control GUICG,11,0
+Invoke-Control GUICG,0,1
+Invoke-Control GUICG,8,2
+Invoke-Control GUICG,8,0
+Invoke-Control GUICG,0,2
+Invoke-Control GUICG,2,10
+Invoke-Control GUICG,10,0
+Assert-CharGen class
+
+# A male elf fighter/mage.
+Begin-CharGen
+Invoke-Control GUICG,0,0
+Invoke-Control GUICG,1,2
+Invoke-Control GUICG,1,0
+Invoke-Control GUICG,11,0
+Invoke-Control GUICG,0,1
+Invoke-Control GUICG,8,3
+Invoke-Control GUICG,8,0
+Invoke-Control GUICG,0,2
+Invoke-Control GUICG,2,10
+Invoke-Control GUICG,10,4
+Invoke-Control GUICG,10,0
+Assert-CharGen alignment
+Assert-Builder MALE,ELF,FIGHTER_MAGE,-
+
+# Cancel ends the creation.
+Begin-CharGen
+Invoke-Control GUICG,0,15
+Assert-CharGen cancelled

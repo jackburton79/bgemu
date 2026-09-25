@@ -53,6 +53,7 @@
 #include "SaveLoadScreen.h"
 #include "ScreenSupport.h"
 #include "SpellbookScreen.h"
+#include "CharGenScreen.h"
 #include "StartScreen.h"
 #include "StoreScreen.h"
 #include "ScreenManager.h"
@@ -124,6 +125,7 @@ Game::Game()
 	fScreens->Add(new SpellbookScreen(*this, true));
 	fScreens->Add(new StoreScreen(*this));
 	fScreens->Add(new StartScreen(*this));
+	fScreens->Add(new CharGenScreen(*this));
 	fTempState = new Game::TempState;
 	fAreaCache = new Game::AreaCache;
 	fStartingParty = new StartingParty;

@@ -25,6 +25,10 @@ public:
 	// as "PLAYER1", and starts with that instead of the default party.
 	void SetCharacterSpec(const char* path);
 
+	// Create() starts with the character the builder holds (made in character
+	// creation), once it is complete, instead of the default party.
+	void UseBuilder(bool use);
+
 	// A new party; the caller owns it.
 	::Party* Create();
 
@@ -37,8 +41,12 @@ private:
 	// "PLAYER1", and adds it to `party`. Returns false (and adds nothing) on
 	// any parse/build failure.
 	bool _CreateFromSpec(::Party* party, const IE::point& position);
+	// Builds the CRE from the builder's choices, injects it as "PLAYER1" and
+	// adds the character to `party`; false if the builder isn't complete.
+	bool _CreatePlayer(::Party* party, const IE::point& position);
 
 	std::vector<std::string> fMembers;
 	std::string fCharacterSpec;
 	CharacterBuilder fBuilder;
+	bool fUseBuilder = false;
 };

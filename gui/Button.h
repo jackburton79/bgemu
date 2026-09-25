@@ -64,6 +64,10 @@ public:
 	void SetText(const std::string& text);
 
 	void SetEnabled(bool enabled);
+	// A latched button (one of a group of choices) stays drawn in its selected
+	// look: the CHU's selected frame, or the pressed one if it has none.
+	void SetLatched(bool latched);
+	bool Latched() const { return fLatched; }
 	bool Enabled() const { return fEnabled; }
 
 	// Switches the button's own art to another cycle of the same BAM (the
@@ -109,6 +113,7 @@ private:
 	bool fSelected;
 	bool fPressed;
 	bool fToggled;
+	bool fLatched = false;
 	bool fDragCapture;
 	bool fArmedByPress;
 	bool fFrameless;

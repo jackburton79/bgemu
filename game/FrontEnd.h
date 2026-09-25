@@ -4,8 +4,8 @@
  * What comes before a game, as a sequence of steps run in order until the
  * player has a game to play: the intro movies (the logos and the
  * introduction), then the start menu, from which the player starts a new game,
- * loads a saved one or leaves. (The character creation will be the step after
- * "New Game".) Each step is a method with its own loop; they share the frame
+ * loads a saved one or leaves; a new game (in BG1) goes through the character
+ * creation. Each step is a method with its own loop; they share the frame
  * and event handling below, and the game's own loop uses the same mouse
  * dispatch (InputEvents.h).
  */
@@ -35,11 +35,12 @@ public:
 	Result Run();
 
 private:
-	enum Step { STEP_INTRO, STEP_MENU, STEP_DONE };
+	enum Step { STEP_INTRO, STEP_MENU, STEP_CHARGEN, STEP_DONE };
 
 	// Steps: each returns what to do next (or sets fResult and ends the run).
 	Step _PlayIntroMovies();
 	Step _RunStartMenu();
+	Step _RunCharacterCreation();
 
 	// One turn of a step's loop: hands the pending events to the GUI (false if
 	// the window was closed) and shows the frame.

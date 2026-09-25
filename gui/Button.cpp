@@ -114,6 +114,13 @@ Button::SetText(const std::string& text)
 
 
 void
+Button::SetLatched(bool latched)
+{
+	fLatched = latched;
+}
+
+
+void
 Button::SetEnabled(bool enabled)
 {
 	fEnabled = enabled;
@@ -315,6 +322,8 @@ Button::Draw()
 		frame = fDisabledBitmap;
 	else if (fPressed)
 		frame = fPressedBitmap;
+	else if (fLatched)
+		frame = fSelectedBitmap != NULL ? fSelectedBitmap : fPressedBitmap;
 	else
 		frame = fUnpressedBitmap;
 	if (frame != NULL && !fCoverBackground && !fFrameless) {

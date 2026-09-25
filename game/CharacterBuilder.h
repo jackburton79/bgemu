@@ -83,6 +83,8 @@ public:
 	const std::string& Class() const { return fClass; }
 	const std::string& Kit() const { return fKit; }
 	const std::string& Alignment() const { return fAlignment; }
+	// Whether the chosen class (if any) allows this alignment (ALIGNMEN.IDS name).
+	bool IsAlignmentAllowed(const std::string& alignment) const;
 	// ALIGNMEN.IDS numeric value (0x11..0x33), 0 if unset.
 	uint8 AlignmentValue() const { return fAlignmentValue; }
 

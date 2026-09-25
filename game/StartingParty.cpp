@@ -26,6 +26,13 @@ StartingParty::SetCharacterSpec(const char* path)
 }
 
 
+void
+StartingParty::UseBuilder(bool use)
+{
+	fUseBuilder = use;
+}
+
+
 CharacterBuilder&
 StartingParty::Builder()
 {
@@ -38,6 +45,9 @@ StartingParty::Create()
 {
 	IE::point point = { 20, 20 };
 	::Party* party = new ::Party();
+
+	if (fUseBuilder && _CreatePlayer(party, point))
+		return party;
 
 	if (!fCharacterSpec.empty() && _CreateFromSpec(party, point))
 		return party;
@@ -129,6 +139,14 @@ StartingParty::_CreateFromSpec(::Party* party, const IE::point& position)
 	if (doRoll)
 		builder.RollAbilities();
 
+	return _CreatePlayer(party, position);
+}
+
+
+bool
+StartingParty::_CreatePlayer(::Party* party, const IE::point& position)
+{
+	CharacterBuilder& builder = fBuilder;
 	std::vector<std::string> problems;
 	if (!builder.IsComplete(problems)) {
 		std::cerr << "character spec: incomplete -" << std::endl;

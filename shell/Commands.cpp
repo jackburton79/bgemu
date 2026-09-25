@@ -37,6 +37,7 @@
 #include "LootWindow.h"
 #include "Party.h"
 #include "MveResource.h"
+#include "CharGenScreen.h"
 #include "Region.h"
 #include "StartScreen.h"
 #include "PlaylistStream.h"
@@ -2923,6 +2924,80 @@ public:
 };
 
 
+// Begin-CharGen starts the character creation (GUICG.CHU) in the current run;
+// Assert-CharGen <step|done|cancelled> checks the stage due (gender, race, class,
+// alignment, accept) or how it ended.
+class BeginCharGenCommand : public ShellCommand {
+public:
+	BeginCharGenCommand()
+		: ShellCommand("Begin-CharGen")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		Game::Get()->Screens().Find<CharGenScreen>()->Begin();
+		std::cout << "Begin-CharGen: OK" << std::endl;
+	}
+};
+
+
+class AssertCharGenCommand : public ShellCommand {
+public:
+	AssertCharGenCommand()
+		: ShellCommand("Assert-CharGen")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		CharGenScreen* screen = Game::Get()->Screens().Find<CharGenScreen>();
+		std::string state = screen->StepName();
+		if (screen->Result() == CharGenScreen::OUTCOME_DONE)
+			state = "done";
+		else if (screen->Result() == CharGenScreen::OUTCOME_CANCELLED)
+			state = "cancelled";
+		if (state == argv)
+			std::cout << "ASSERT OK: character creation " << state << std::endl;
+		else
+			std::cout << "ASSERT FAIL: character creation is at " << state << ", expected "
+				<< argv << std::endl;
+	}
+};
+
+
+// Assert-Builder <gender>,<race>,<class>,<alignment> - what the character
+// builder holds now (an empty field asserts nothing was chosen).
+class AssertBuilderCommand : public ShellCommand {
+public:
+	AssertBuilderCommand()
+		: ShellCommand(
+			"Assert-Builder",
+			{
+				{ PARAMETER_STRING, }, { PARAMETER_STRING, },
+				{ PARAMETER_STRING, }, { PARAMETER_STRING, }
+			}
+		)
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		CharacterBuilder& builder = Game::Get()->Starting().Builder();
+		const std::string found[4] = { builder.Gender(), builder.Race(), builder.Class(),
+			builder.Alignment() };
+		bool ok = true;
+		for (int i = 0; i < 4; i++) {
+			std::string expected = params.at(i).value.string;
+			if (expected == "-")
+				expected.clear();
+			ok = ok && strcasecmp(found[i].c_str(), expected.c_str()) == 0;
+		}
+		if (ok)
+			std::cout << "ASSERT OK: builder " << found[0] << "," << found[1] << ","
+				<< found[2] << "," << found[3] << std::endl;
+		else
+			std::cout << "ASSERT FAIL: builder is " << found[0] << "," << found[1] << ","
+				<< found[2] << "," << found[3] << " - expected " << argv << std::endl;
+	}
+};
+
+
 // Assert-CanLevelUp <actor>,<true|false> - whether the actor's experience
 // allows a level above the current one (see Actor::CanLevelUp()).
 class AssertCanLevelUpCommand : public ShellCommand {
@@ -3989,6 +4064,9 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertPaperdollCommand());
 	console->AddCommand(new AssertPaperdollSizeCommand());
 	console->AddCommand(new AssertSoundCommand());
+	console->AddCommand(new BeginCharGenCommand());
+	console->AddCommand(new AssertCharGenCommand());
+	console->AddCommand(new AssertBuilderCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());
 	console->AddCommand(new ToggleStartMenuCommand());

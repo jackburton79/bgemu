@@ -262,6 +262,17 @@ CharacterBuilder::SetKit(const std::string& kitName)
 
 
 bool
+CharacterBuilder::IsAlignmentAllowed(const std::string& alignment) const
+{
+	if (fClass.empty())
+		return true;
+	bool ok = false;
+	const uint8 value = (uint8)_IDValue("ALIGNMEN", alignment, ok);
+	return ok && _AlignmentAllowedForClass(fClass, value);
+}
+
+
+bool
 CharacterBuilder::SetAlignment(const std::string& align)
 {
 	// Accept an ALIGNMEN.IDS symbol ("CHAOTIC_GOOD") or a 2-letter code

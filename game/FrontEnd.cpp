@@ -5,6 +5,7 @@
 #include "FrontEnd.h"
 
 #include "Core.h"
+#include "CharGenScreen.h"
 #include "Game.h"
 #include "GameConsole.h"
 #include "GraphicsEngine.h"
@@ -61,6 +62,9 @@ FrontEnd::Run()
 				break;
 			case STEP_MENU:
 				step = _RunStartMenu();
+				break;
+			case STEP_CHARGEN:
+				step = _RunCharacterCreation();
 				break;
 			default:
 				step = STEP_DONE;
@@ -221,6 +225,38 @@ FrontEnd::_RunStartMenu()
 		SoundEngine::Get()->StopStream(fResult == LOADED ? 0 : 500);
 	if (fResult != LOADED)
 		start->Close();
+	// The character creation of a new game, where the game has one.
+	if (fResult == NEW_GAME && Core::Get()->Game() == game::GAME_BALDURSGATE)
+		return STEP_CHARGEN;
 	GUI::Get()->SetCursorVisible(false);
+	return STEP_DONE;
+}
+
+
+// The character creation (CharGenScreen) until it is accepted (NEW_GAME, with the
+// character in the game's builder) or cancelled (back to the menu).
+FrontEnd::Step
+FrontEnd::_RunCharacterCreation()
+{
+	GUI* gui = GUI::Get();
+	gui->SetCursorVisible(true);
+
+	CharGenScreen* creation = fGame.Screens().Find<CharGenScreen>();
+	creation->Begin();
+	while (creation->Result() == CharGenScreen::OUTCOME_NONE) {
+		if (!_PollEvents()) {
+			fResult = QUIT;
+			gui->SetCursorVisible(false);
+			return STEP_DONE;
+		}
+		_ShowFrame();
+	}
+
+	const bool done = creation->Result() == CharGenScreen::OUTCOME_DONE;
+	creation->Close();
+	if (!done)
+		return STEP_MENU;
+	fResult = NEW_GAME;
+	gui->SetCursorVisible(false);
 	return STEP_DONE;
 }
