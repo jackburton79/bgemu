@@ -2263,8 +2263,9 @@ Actor::AttackTarget(Actor* target)
 		ConsumeFromSlot((uint32)profile.spentSlot);
 	// The weapon in hand, fists excepted, counts among the favourites (a
 	// count of attacks, not of the time it was held as the GAM's field says).
+	const int32 weaponSlot = ActiveWeaponSlot();
 	IE::item weaponItem;
-	if (InParty() && CRE()->GetItemAtSlot((uint32)ActiveWeaponSlot(), weaponItem))
+	if (InParty() && weaponSlot >= 0 && CRE()->GetItemAtSlot((uint32)weaponSlot, weaponItem))
 		fStats.RegisterWeapon(weaponItem.name);
 
 	const ArmorClass targetAC = target->CRE()->AC();
