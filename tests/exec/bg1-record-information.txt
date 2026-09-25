@@ -1,0 +1,38 @@
+# AREA: AR0602
+#
+# The Information button of the Record screen opens a window with the
+# character's statistics: the kills of the chapter and of the game (XP and
+# number, and their share of the party's), the favourite weapon. A kill by the
+# character's own blow counts for them (AJANTI kills a GIBBER worth 35 XP); the
+# statistics survive a save and a load; Biography opens over the window and
+# Done closes each; closing the sheet closes them too.
+Create-Creature GIBBER,530,127
+Step-Ticks 5
+Disable-Creature GIBBER
+Attack -,GIBBER
+Step-Ticks 9000
+Assert-Trigger AJANTI,true,XP(Myself,2298)
+Toggle-Record
+Invoke-Control GUIREC,2,1
+Screenshot /tmp/bgemu-info1.bmp
+# Chapter XP and kills, then their share of the party's; then the whole game's.
+Assert-LabelText GUIREC,4,268435473,35
+Assert-LabelText GUIREC,4,268435474,1
+Assert-LabelText GUIREC,4,268435471,100%
+Assert-LabelText GUIREC,4,268435472,100%
+Assert-LabelText GUIREC,4,268435477,35
+Assert-LabelText GUIREC,4,268435478,1
+Assert-LabelText GUIREC,4,268435475,100%
+Assert-LabelText GUIREC,4,268435476,100%
+# Biography over the window, then back.
+Invoke-Control GUIREC,4,26
+Invoke-Control GUIREC,12,2
+Invoke-Control GUIREC,4,24
+Assert-ScreenOpen GUIREC,true
+# The statistics come back from a save.
+Save-Game /tmp/bgemu-test-info.gam
+Load-Game /tmp/bgemu-test-info.gam
+Toggle-Record
+Invoke-Control GUIREC,2,1
+Assert-LabelText GUIREC,4,268435477,35
+Assert-LabelText GUIREC,4,268435478,1

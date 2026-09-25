@@ -344,6 +344,8 @@ _RunSpellCast(const char* action, Object* object, Object* sender, action_params*
 		std::cout << "Spell " << spell.name << " finished" << std::endl;
 
 		actor->SetAnimationAction(ACT_CAST_SPELL_RELEASE);
+		if (actor->InParty())
+			actor->Stats().RegisterSpell(res_ref(spell.resource.c_str()));
 		Object* target = Script::GetTargetObject(sender, params);
 		if (target == NULL)
 			target = sender;
@@ -2439,6 +2441,11 @@ RunActionIncrementChapter(Object* sender, action_params* params, action_state& s
 {
 	Variables& vars = Core::Get()->Vars();
 	vars.Set(kChapterVariable, vars.Get(kChapterVariable) + 1);
+	// The kills of a chapter count from its start.
+	if (::Party* party = Game::Get()->Party()) {
+		for (uint16 i = 0; i < party->CountActors(); i++)
+			party->ActorAt(i)->Stats().StartChapter();
+	}
 	state.completed = true;
 }
 

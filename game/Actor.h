@@ -4,6 +4,7 @@
 #include "Bitmap.h"
 #include "IETypes.h"
 #include "Object.h"
+#include "PCStats.h"
 #include "ITMResource.h"
 #include "SPLResource.h"
 
@@ -266,8 +267,13 @@ public:
 	// to STATE_DEAD (animation + death variable) - see the .cpp for
 	// details. Used by both melee (AttackTarget()) and spell damage
 	// (SpellEffect.cpp's opcode #12 handler), so death handling only
-	// lives in one place.
-	void ApplyDamage(int32 amount);
+	// lives in one place. `killer`, if the blow kills and it is a party member,
+	// gets the kill in its statistics.
+	void ApplyDamage(int32 amount, Actor* killer = nullptr);
+
+	// What the Information window shows (only a party member has any).
+	PCStats& Stats() { return fStats; }
+	const PCStats& Stats() const { return fStats; }
 
 	// Adds `amount` to this creature's total XP (CRE()->Experience()); when
 	// that first makes a level-up possible the message log says so.
@@ -405,6 +411,7 @@ private:
 	mutable std::string fNameBitmapLongName;
 	void _DrawActorPath(AreaRoom* room) const;
 	void _DrawCircle(AreaRoom* room) const;
+	PCStats fStats;
 	void _HandleColors();
 	uint8 _GetRandomColor(TWODAResource* resource, uint8 index) const;
 

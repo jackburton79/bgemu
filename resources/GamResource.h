@@ -17,13 +17,14 @@
  * header/NPC-struct layout, so a real IE tool could parse it), but every
  * field this engine has no matching concept for (formation, weather, GUI
  * flags, familiar info, stored/pocket-plane locations, per-character
- * quick-slots/stats/voice set) is written as zero rather than guessed -
+ * quick-slots/voice set) is written as zero rather than guessed -
  * see WriteToFile()'s implementation for the exact list.
  */
 
 #ifndef GAMRESOURCE_H_
 #define GAMRESOURCE_H_
 
+#include "PCStats.h"
 #include "Resource.h"
 
 #include <string>
@@ -40,6 +41,7 @@ struct gam_party_member {
 	uint16 orientation;
 	res_ref areaName;
 	res_ref quickSpells[3];	// the action bar's quick spell slots
+	PCStats stats;		// the character's kills and favourites
 };
 
 struct gam_journal_entry {

@@ -758,6 +758,7 @@ Game::JoinParty(Actor* actor)
 	// the list entry.
 	actor->Acquire();
 	fParty->AddActor(actor);
+	actor->Stats().joinTime = GameTimer::GameTime();
 	if (fNPCs->Contains(actor)) {
 		fNPCs->Remove(actor);
 	} else if (AreaRoom* room = actor->Area()) {

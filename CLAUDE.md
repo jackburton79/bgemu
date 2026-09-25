@@ -241,6 +241,18 @@ attacks, proficiency/thief skill points, the choice windows, dual-classing. New
 characters run `LevelUp()` once from level 0. Console: `Level-Up`,
 `Assert-CanLevelUp`, `Assert-ClassLevel`, `Assert-SpellSlots`.
 
+### Character statistics
+
+`PCStats` (`game/PCStats.*`, `Actor::Stats()`) is what the Record screen's Information
+button shows (`RecordScreen`, GUIREC windows 4 and 12 with the Biography): the kills of
+the chapter and of the game with their XP, the most powerful creature killed, the
+favourite spell and weapon (four slots, counts, as the GAM has them) and the game time
+the character joined. A kill counts for whoever lands the blow
+(`Actor::ApplyDamage(amount, killer)`; melee and the HP-damage spell effect pass it),
+spells count when the SPELL action finishes, weapons per attack, `IncrementChapter`
+restarts the chapter's kills, `Game::JoinParty` sets the join time. The block is saved in
+the GAM's character stats (0xe4 of each party struct). Console: `Assert-LabelText`.
+
 ### Audio
 
 `SoundEngine` (libjgame) plays raw PCM (a movie ring buffer + a pool of one-shot

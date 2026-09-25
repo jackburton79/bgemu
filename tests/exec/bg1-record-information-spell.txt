@@ -1,0 +1,12 @@
+# ARGS: -c player.spec
+#
+# The favourite spell of the Information window (Record screen): after the
+# character casts Cure Light Wounds (memorized from player.spec) it is the one
+# named there; the weapon (none in hand) and the kills stay empty.
+Run-Action -,31,-,1103,-,-,0,0
+Step-Ticks 300
+Toggle-Record
+Invoke-Control GUIREC,2,1
+Assert-LabelText GUIREC,4,268435463,*
+Assert-LabelText GUIREC,4,268435464,-
+Assert-LabelText GUIREC,4,268435462,*

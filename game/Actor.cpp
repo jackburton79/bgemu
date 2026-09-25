@@ -772,7 +772,7 @@ Actor::SetEnemyAlly(int ea)
 
 
 void
-Actor::ApplyDamage(int32 amount)
+Actor::ApplyDamage(int32 amount, Actor* killer)
 {
 	if (amount <= 0)
 		return;
@@ -802,9 +802,12 @@ Actor::ApplyDamage(int32 amount)
 	// actually landed the killing blow (unlike the real engine's more
 	// elaborate IF_GIVEXP bookkeeping), so a monster killed by another
 	// hostile, by a trap, etc. still pays out; deliberately-deferred
-	// approximation until an attacker is threaded through ApplyDamage().
+	// approximation. The kill itself counts for whoever landed the blow, if
+	// that is a party member.
 	if (!InParty()) {
 		uint32 xpValue = cre->ExperienceValue();
+		if (killer != nullptr && killer->InParty())
+			killer->Stats().NotifyKill(xpValue, cre->LongNameID());
 		if (xpValue > 0)
 			Game::Get()->Party()->ShareExperience(xpValue);
 	}
@@ -2258,6 +2261,11 @@ Actor::AttackTarget(Actor* target)
 	const itm_ability& ability = profile.ability;
 	if (profile.spentSlot >= 0)
 		ConsumeFromSlot((uint32)profile.spentSlot);
+	// The weapon in hand, fists excepted, counts among the favourites (a
+	// count of attacks, not of the time it was held as the GAM's field says).
+	IE::item weaponItem;
+	if (InParty() && CRE()->GetItemAtSlot((uint32)ActiveWeaponSlot(), weaponItem))
+		fStats.RegisterWeapon(weaponItem.name);
 
 	const ArmorClass targetAC = target->CRE()->AC();
 	const int16 effectiveAC = _ArmorClassFor(targetAC, ability.damageType);
@@ -2295,7 +2303,7 @@ Actor::AttackTarget(Actor* target)
 			ability.damageBonus + strengthDamage);
 	if (roll == 20)
 		damage *= 2;
-	target->ApplyDamage(std::max<int32>(damage, 1));
+	target->ApplyDamage(std::max<int32>(damage, 1), this);
 
 	for (const spl_effect& effect : profile.onHitEffects)
 		target->AddSpellEffect(SpellEffect::FromFeatureBlock(effect, this));

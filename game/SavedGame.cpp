@@ -240,6 +240,7 @@ SavedGame::RestoreActor(const gam_party_member& member, CREResource* savedCre)
 
 	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
 		actor->SetQuickSpell(q, member.quickSpells[q]);
+	actor->Stats() = member.stats;
 
 	return actor;
 }
@@ -256,5 +257,6 @@ SavedGame::MemberFor(Actor* actor, const res_ref& areaName)
 	member.areaName = areaName;
 	for (uint32 q = 0; q < Actor::kNumQuickSpells; q++)
 		member.quickSpells[q] = actor->QuickSpell(q);
+	member.stats = actor->Stats();
 	return member;
 }

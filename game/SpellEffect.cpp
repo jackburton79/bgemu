@@ -436,7 +436,7 @@ RunEffectHPDamage(Object* target, SpellEffect& effect)
 		damage /= 2;
 	}
 
-	actor->ApplyDamage(damage);
+	actor->ApplyDamage(damage, dynamic_cast<Actor*>(effect.Source()));
 
 	return true; // one-shot: remove immediately once applied
 }

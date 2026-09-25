@@ -108,6 +108,32 @@ GamResource::SetReputation(sint8 reputation)
 }
 
 
+// The character stats block of an NPC struct (116 bytes at 0xe4): times count
+// 1/15 seconds in the file, game seconds here.
+static const uint32 kStatsOffset = 0xe4;
+static const uint32 kTicksPerSecond = 15;
+
+static void
+write_stats(MemoryStream& buffer, uint32 structOffset, const PCStats& stats)
+{
+	const uint32 base = structOffset + kStatsOffset;
+	const uint32 joined = stats.joinTime * kTicksPerSecond;
+	buffer.WriteAt(base + 0x00, &stats.bestKilledName, sizeof(uint32));
+	buffer.WriteAt(base + 0x04, &stats.bestKilledXP, sizeof(uint32));
+	buffer.WriteAt(base + 0x0c, &joined, sizeof(joined));
+	buffer.WriteAt(base + 0x14, &stats.chapterXP, sizeof(uint32));
+	buffer.WriteAt(base + 0x18, &stats.chapterKills, sizeof(uint32));
+	buffer.WriteAt(base + 0x1c, &stats.totalXP, sizeof(uint32));
+	buffer.WriteAt(base + 0x20, &stats.totalKills, sizeof(uint32));
+	for (int i = 0; i < PCStats::kFavourites; i++) {
+		buffer.WriteAt(base + 0x24 + i * 8, &stats.spells[i], sizeof(res_ref));
+		buffer.WriteAt(base + 0x44 + i * 2, &stats.spellCounts[i], sizeof(uint16));
+		buffer.WriteAt(base + 0x4c + i * 8, &stats.weapons[i], sizeof(res_ref));
+		buffer.WriteAt(base + 0x6c + i * 2, &stats.weaponCounts[i], sizeof(uint16));
+	}
+}
+
+
 // Writes one NPC struct (party member or out-of-party NPC - same layout)
 // and its embedded CRE.
 static void
@@ -133,11 +159,11 @@ write_member(MemoryStream& buffer, uint32 structOffset, uint16 order,
 	buffer.WriteAt(structOffset + 0x20, &x, sizeof(x));
 	buffer.WriteAt(structOffset + 0x22, &y, sizeof(y));
 	// Quick spells 1-3 (8-byte resrefs from 0x9c); the rest of 0x24
-	// onward (happiness, quick weapon/item slots, character stats,
-	// voice set) is left zeroed, not modeled by this engine - quick
+	// onward (happiness, quick weapon/item slots, voice set) is left zeroed, not modeled by this engine - quick
 	// items are just the CRE's own quick item slots.
 	for (int q = 0; q < 3; q++)
 		buffer.WriteAt(structOffset + 0x9c + q * 8, &info.quickSpells[q], sizeof(res_ref));
+	write_stats(buffer, structOffset, info.stats);
 
 	cre->WriteDataTo(&buffer, creOffset);
 }
@@ -365,6 +391,24 @@ GamResource::_MemberAt(uint32 structOffset) const
 
 	for (int q = 0; q < 3; q++)
 		fData->ReadAt(structOffset + 0x9c + q * 8, member.quickSpells[q]);
+
+	PCStats& stats = member.stats;
+	const uint32 base = structOffset + kStatsOffset;
+	uint32 joined;
+	fData->ReadAt(base + 0x00, stats.bestKilledName);
+	fData->ReadAt(base + 0x04, stats.bestKilledXP);
+	fData->ReadAt(base + 0x0c, joined);
+	stats.joinTime = joined / kTicksPerSecond;
+	fData->ReadAt(base + 0x14, stats.chapterXP);
+	fData->ReadAt(base + 0x18, stats.chapterKills);
+	fData->ReadAt(base + 0x1c, stats.totalXP);
+	fData->ReadAt(base + 0x20, stats.totalKills);
+	for (int i = 0; i < PCStats::kFavourites; i++) {
+		fData->ReadAt(base + 0x24 + i * 8, stats.spells[i]);
+		fData->ReadAt(base + 0x44 + i * 2, stats.spellCounts[i]);
+		fData->ReadAt(base + 0x4c + i * 8, stats.weapons[i]);
+		fData->ReadAt(base + 0x6c + i * 2, stats.weaponCounts[i]);
+	}
 
 	// The 8-byte "Character Name" field doubles as the CRE resref here:
 	// this engine's Actor(creName, position, face) constructor (the only

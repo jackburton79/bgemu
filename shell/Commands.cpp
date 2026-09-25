@@ -29,6 +29,7 @@
 #include "GameTimer.h"
 #include "GraphicsEngine.h"
 #include "GUI.h"
+#include "Label.h"
 #include "MemoryStream.h"
 #include "DLGResource.h"
 #include "Parsing.h"
@@ -2962,6 +2963,37 @@ public:
 };
 
 
+// Assert-LabelText <CHU>,<window>,<control>,<text> - the text of a label of an
+// aux window ("-" as the text: an empty one, "*": any that isn't).
+class AssertLabelTextCommand : public ShellCommand {
+public:
+	AssertLabelTextCommand()
+		: ShellCommand("Assert-LabelText",
+			{ { PARAMETER_STRING, }, { PARAMETER_INT, }, { PARAMETER_INT, }, { PARAMETER_STRING, } })
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const ShellCommandParameters params = ParseParameters(argv);
+		Window* window = GUI::Get()->GetAuxWindow(res_ref(params.at(0).value.string),
+			(uint16)params.at(1).value.integer);
+		Label* label = window != NULL
+			? dynamic_cast<Label*>(window->GetControlByID(params.at(2).value.integer)) : NULL;
+		if (label == NULL) {
+			std::cout << "ASSERT FAIL: label not found: " << argv << std::endl;
+			return;
+		}
+		std::string expected = params.at(3).value.string;
+		if (expected == "-")
+			expected.clear();
+		if (expected == "*" ? !label->Text().empty() : label->Text() == expected)
+			std::cout << "ASSERT OK: label \"" << label->Text() << "\"" << std::endl;
+		else
+			std::cout << "ASSERT FAIL: label is \"" << label->Text() << "\", expected \""
+				<< expected << "\"" << std::endl;
+	}
+};
+
+
 // Assert-CharGenPoints <n> - the points taken off an ability in the abilities
 // window and not given to another yet.
 class AssertCharGenPointsCommand : public ShellCommand {
@@ -4115,6 +4147,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertCharGenCommand());
 	console->AddCommand(new AssertBuilderCommand());
 	console->AddCommand(new AssertCharGenPointsCommand());
+	console->AddCommand(new AssertLabelTextCommand());
 	console->AddCommand(new AssertAbilityCommand());
 	console->AddCommand(new DumpMovieFrameCommand());
 	console->AddCommand(new AssertMovieWhiteCommand());

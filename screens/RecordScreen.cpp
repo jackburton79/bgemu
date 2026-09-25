@@ -7,12 +7,19 @@
 #include "Core.h"
 #include "CreResource.h"
 #include "Game.h"
+#include "GUI.h"
+#include "GameTimer.h"
 #include "Label.h"
+#include "Party.h"
 #include "ResManager.h"
+#include "ScreenSupport.h"
+#include "SPLResource.h"
 #include "TextArea.h"
 #include "Window.h"
 
 #include <ctype.h>
+#include <algorithm>
+#include <cstring>
 
 static const uint32 kRecNameLabelID = 268435470;
 static const uint32 kRecACLabelID = 268435496;
@@ -61,6 +68,45 @@ static const uint32 kRecKitInfoStrRef = 61265;
 // every other game to the large one - both real BMP resources, confirmed
 // present in both installs.
 static const uint32 kRecPortraitButtonID = 2;
+
+// The Information window (window 4, the same in both games; ids as GemRB's
+// GUIREC.py has them): Done and Biography, and the labels that get the name, the
+// class, the most powerful vanquished, the time in the party, the favourite spell
+// and weapon, and the kills of the chapter and of the game (the share of the
+// party's XP and kills, then the XP and the number).
+static const uint32 kInfoDoneButtonID = 24;
+static const uint32 kInfoBiographyButtonID = 26;
+static const uint32 kInfoDoneStrRef = 11973;
+static const uint32 kInfoBiographyStrRef = 18003;
+static const uint32 kInfoNameLabelID = 0x10000000;
+static const uint32 kInfoClassLabelID = 0x10000018;
+static const uint32 kInfoBestKilledLabelID = 0x10000005;
+static const uint32 kInfoTimeLabelID = 0x10000006;
+static const uint32 kInfoSpellLabelID = 0x10000007;
+static const uint32 kInfoWeaponLabelID = 0x10000008;
+static const uint32 kInfoChapterXPShareLabelID = 0x1000000f;
+static const uint32 kInfoChapterKillsShareLabelID = 0x10000010;
+static const uint32 kInfoChapterXPLabelID = 0x10000011;
+static const uint32 kInfoChapterKillsLabelID = 0x10000012;
+static const uint32 kInfoTotalXPShareLabelID = 0x10000013;
+static const uint32 kInfoTotalKillsShareLabelID = 0x10000014;
+static const uint32 kInfoTotalXPLabelID = 0x10000015;
+static const uint32 kInfoTotalKillsLabelID = 0x10000016;
+// Time in the party: "<GAMEDAYS> days and <HOUR> hours" (only the hours when
+// it is less than a day), each with a singular for one.
+static const uint32 kInfoDaysStrRef = 10697;
+static const uint32 kInfoDayStrRef = 10698;
+static const uint32 kInfoAndStrRef = 10699;
+static const uint32 kInfoHoursStrRef = 10700;
+static const uint32 kInfoHourStrRef = 10701;
+// A game day is 7200 game seconds, an hour 300.
+static const uint32 kSecondsPerDay = 7200;
+static const uint32 kSecondsPerHour = 300;
+// The biography window: its text area and Done, and the CRE's string slot that
+// holds the biography.
+static const uint32 kBiographyTextID = 0;
+static const uint32 kBiographyDoneButtonID = 2;
+static const uint32 kBiographySoundSlot = 74;
 
 RecordScreen::RecordScreen(Game& game)
 	:
@@ -123,7 +169,26 @@ RecordScreen::RefreshContent()
 void
 RecordScreen::PanelControlInvoked(uint16 windowID, uint32 controlID)
 {
-	if (windowID != kContentWindow || controlID != kRecLevelUpButtonID)
+	if (windowID == kInfoWindow) {
+		if (controlID == kInfoDoneButtonID)
+			_CloseInformation();
+		else if (controlID == kInfoBiographyButtonID)
+			_OpenBiography();
+		return;
+	}
+	if (windowID == kBiographyWindow) {
+		if (controlID == kBiographyDoneButtonID)
+			_CloseBiography();
+		return;
+	}
+	if (windowID != kContentWindow)
+		return;
+
+	if (controlID == kRecInformationButtonID) {
+		_OpenInformation();
+		return;
+	}
+	if (controlID != kRecLevelUpButtonID)
 		return;
 
 	Actor* actor = fGame.ShownActor();
@@ -131,6 +196,194 @@ RecordScreen::PanelControlInvoked(uint16 windowID, uint32 controlID)
 		return;
 
 	RefreshContent();
+}
+
+
+// The sheet of another character: the window that is open follows.
+/* virtual */
+void
+RecordScreen::OnShownCharacterChanged()
+{
+	if (GUI::Get()->IsAuxWindowShown(CHUName(), kInfoWindow))
+		_RefreshInformation();
+	if (GUI::Get()->IsAuxWindowShown(CHUName(), kBiographyWindow)) {
+		_CloseBiography();
+		_OpenBiography();
+	}
+}
+
+
+// The windows the sheet opened go with it.
+/* virtual */
+void
+RecordScreen::OnClose()
+{
+	_CloseBiography();
+	_CloseInformation();
+}
+
+
+void
+RecordScreen::_OpenInformation()
+{
+	GUI::Get()->ShowAuxWindow(CHUName(), kInfoWindow);
+	if (Window* window = GetWindow(kInfoWindow)) {
+		auto caption = [window] (uint32 controlID, uint32 strRef) {
+			if (Button* button = dynamic_cast<Button*>(window->GetControlByID(controlID)))
+				button->SetText(IDTable::GetDialog(strRef));
+		};
+		caption(kInfoDoneButtonID, kInfoDoneStrRef);
+		caption(kInfoBiographyButtonID, kInfoBiographyStrRef);
+	}
+	_RefreshInformation();
+}
+
+
+void
+RecordScreen::_CloseInformation()
+{
+	_CloseBiography();
+	GUI::Get()->HideAuxWindow(CHUName(), kInfoWindow);
+}
+
+
+// The class as the sheet writes it.
+std::string
+RecordScreen::_ClassTitle(Actor* actor) const
+{
+	std::string text = IDTable::ClassName(actor->CRE()->Class());
+	if (text.empty())
+		text = _TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class()));
+	return text;
+}
+
+
+// A share of `part` in `total`, as a percentage.
+static std::string
+_Percentage(uint32 part, uint32 total)
+{
+	return std::to_string(total != 0 ? (uint64)part * 100 / total : 0) + "%";
+}
+
+
+// "<days> days and <hours> hours" of the game time the character has been in the
+// party (only the hours under a day).
+static std::string
+_TimeInParty(uint32 joinTime)
+{
+	const uint32 now = GameTimer::GameTime();
+	const uint32 seconds = now > joinTime ? now - joinTime : 0;
+	const uint32 days = seconds / kSecondsPerDay;
+	const uint32 hours = (seconds % kSecondsPerDay) / kSecondsPerHour;
+
+	std::string text;
+	if (days != 0) {
+		text = IDTable::GetDialog(days == 1 ? kInfoDayStrRef : kInfoDaysStrRef)
+			+ " " + IDTable::GetDialog(kInfoAndStrRef) + " ";
+	}
+	text += IDTable::GetDialog(hours == 1 ? kInfoHourStrRef : kInfoHoursStrRef);
+
+	const std::pair<const char*, uint32> tokens[] = {
+		{ "<GAMEDAYS>", days }, { "<HOUR>", hours }
+	};
+	for (const auto& token : tokens) {
+		const std::string value = std::to_string(token.second);
+		for (size_t at = text.find(token.first); at != std::string::npos;
+				at = text.find(token.first, at + value.size()))
+			text.replace(at, strlen(token.first), value);
+	}
+	return text;
+}
+
+
+// The statistics of the shown character: what it killed, the time in the party,
+// the favourite spell and weapon, and its share of the party's kills.
+void
+RecordScreen::_RefreshInformation()
+{
+	Actor* actor = fGame.ShownActor();
+	Window* window = GetWindow(kInfoWindow);
+	if (actor == NULL || actor->CRE() == NULL || window == NULL)
+		return;
+
+	auto setLabel = [window] (uint32 controlID, const std::string& text) {
+		if (Label* label = dynamic_cast<Label*>(window->GetControlByID(controlID)))
+			label->SetText(text);
+	};
+
+	const PCStats& stats = actor->Stats();
+	setLabel(kInfoNameLabelID, actor->LongName());
+	setLabel(kInfoClassLabelID, _ClassTitle(actor));
+	setLabel(kInfoBestKilledLabelID, stats.bestKilledName != PCStats::kNoName
+		? IDTable::GetDialog(stats.bestKilledName) : "");
+	setLabel(kInfoTimeLabelID, _TimeInParty(stats.joinTime));
+
+	std::string spellName;
+	const res_ref favouriteSpell = stats.FavouriteSpell();
+	if (favouriteSpell.CString()[0] != '\0') {
+		if (SPLResource* spell = gResManager->GetSPL(favouriteSpell)) {
+			spellName = IDTable::GetDialog(spell->DisplayNameRef());
+			gResManager->ReleaseResource(spell);
+		}
+	}
+	setLabel(kInfoSpellLabelID, spellName);
+
+	std::string weaponName;
+	const res_ref favouriteWeapon = stats.FavouriteWeapon();
+	if (favouriteWeapon.CString()[0] != '\0')
+		weaponName = ScreenSupport::ItemDisplayName(favouriteWeapon);
+	setLabel(kInfoWeaponLabelID, weaponName);
+
+	uint32 partyChapterXP = 0, partyChapterKills = 0, partyTotalXP = 0, partyTotalKills = 0;
+	if (::Party* party = fGame.Party()) {
+		for (uint16 i = 0; i < party->CountActors(); i++) {
+			const PCStats& member = party->ActorAt(i)->Stats();
+			partyChapterXP += member.chapterXP;
+			partyChapterKills += member.chapterKills;
+			partyTotalXP += member.totalXP;
+			partyTotalKills += member.totalKills;
+		}
+	}
+	setLabel(kInfoChapterXPShareLabelID, _Percentage(stats.chapterXP, partyChapterXP));
+	setLabel(kInfoChapterKillsShareLabelID, _Percentage(stats.chapterKills, partyChapterKills));
+	setLabel(kInfoChapterXPLabelID, std::to_string(stats.chapterXP));
+	setLabel(kInfoChapterKillsLabelID, std::to_string(stats.chapterKills));
+	setLabel(kInfoTotalXPShareLabelID, _Percentage(stats.totalXP, partyTotalXP));
+	setLabel(kInfoTotalKillsShareLabelID, _Percentage(stats.totalKills, partyTotalKills));
+	setLabel(kInfoTotalXPLabelID, std::to_string(stats.totalXP));
+	setLabel(kInfoTotalKillsLabelID, std::to_string(stats.totalKills));
+}
+
+
+// The biography of the shown character: the string its CRE holds in slot 74.
+void
+RecordScreen::_OpenBiography()
+{
+	Actor* actor = fGame.ShownActor();
+	if (actor == NULL || actor->CRE() == NULL)
+		return;
+
+	GUI::Get()->ShowAuxWindow(CHUName(), kBiographyWindow);
+	Window* window = GetWindow(kBiographyWindow);
+	if (window == NULL)
+		return;
+
+	if (Button* done = dynamic_cast<Button*>(window->GetControlByID(kBiographyDoneButtonID)))
+		done->SetText(IDTable::GetDialog(kInfoDoneStrRef));
+	if (TextArea* text = dynamic_cast<TextArea*>(window->GetControlByID(kBiographyTextID))) {
+		text->ClearText();
+		const uint32 strRef = actor->CRE()->SoundSetStringRef(kBiographySoundSlot);
+		if (strRef != 0xffffffff)
+			text->AddText(IDTable::GetDialog(strRef).c_str());
+		text->ScrollTo(0, 0);
+	}
+}
+
+
+void
+RecordScreen::_CloseBiography()
+{
+	GUI::Get()->HideAuxWindow(CHUName(), kBiographyWindow);
 }
 
 
@@ -225,12 +478,8 @@ void
 RecordScreen::_UpdateClassRaceLevelLabels(Window* window, Actor* actor)
 {
 	Label* classLabel = dynamic_cast<Label*>(window->GetControlByID(kRecClassLabelID));
-	if (classLabel != NULL) {
-		std::string text = IDTable::ClassName(actor->CRE()->Class());
-		if (text.empty())
-			text = _TitleCaseIDSName(IDTable::ClassAt(actor->CRE()->Class()));
-		classLabel->SetText(text);
-	}
+	if (classLabel != NULL)
+		classLabel->SetText(_ClassTitle(actor));
 
 	Label* raceLabel = dynamic_cast<Label*>(window->GetControlByID(kRecRaceLabelID));
 	if (raceLabel != NULL) {

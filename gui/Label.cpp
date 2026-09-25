@@ -75,6 +75,7 @@ Label::~Label()
 void
 Label::SetText(const std::string& text)
 {
+	fText = text;
 	fBitmap->Clear(0);
 	if (!text.empty()) {
 		IE::label* label = static_cast<IE::label*>(fControl);
