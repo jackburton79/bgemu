@@ -4,8 +4,9 @@
 # Back goes back to the first page; Exit asks first (Cancel keeps the menu,
 # the confirmation quits). What was chosen is StartScreen::Selected().
 Assert-ScreenOpen START,true
-# The theme plays.
+# The theme plays and the cursor is drawn (no area is there to choose one).
 Assert-Music true
+Assert-Cursor true
 Assert-StartChoice none
 # Single Player, Back, Single Player again, New Game.
 Invoke-Control START,0,0

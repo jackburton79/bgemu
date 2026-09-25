@@ -139,6 +139,12 @@ public:
 	void EnsureShowNormalMessageArea();
 	void ToggleMessageArea();
 
+	// Whether a cursor is drawn: one is chosen and the GUI shows it.
+	bool HasCursor() const;
+	// Draws the cursor (and the drag/tooltip bitmaps) even while the GUI itself is
+	// hidden, i.e. before an area has shown it: for a screen with no area, like the
+	// start menu.
+	void SetCursorVisible(bool visible);
 	void SetArrowCursor(uint32 index);
 	void SetCursor(uint32 index);
 
@@ -206,6 +212,7 @@ private:
 	res_ref fLastClickCHU;
 	uint32 fLastClickTime;
 	bool fShown;
+	bool fCursorVisible;
 
 	Bitmap* fTooltipBitmap;
 	Bitmap* fDragBitmap;

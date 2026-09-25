@@ -2786,6 +2786,25 @@ public:
 };
 
 
+// Assert-Cursor <true|false> - whether the GUI draws a cursor.
+class AssertCursorCommand : public ShellCommand {
+public:
+	AssertCursorCommand()
+		: ShellCommand("Assert-Cursor")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		const bool shown = GUI::Get()->HasCursor();
+		const bool expected = std::string(argv) == "true";
+		if (shown == expected)
+			std::cout << "ASSERT OK: cursor shown == " << shown << std::endl;
+		else
+			std::cout << "ASSERT FAIL: cursor shown is " << shown << ", expected " << expected
+				<< std::endl;
+	}
+};
+
+
 class AssertStartChoiceCommand : public ShellCommand {
 public:
 	AssertStartChoiceCommand()
@@ -3873,6 +3892,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new AssertSoundCommand());
 	console->AddCommand(new ToggleStartMenuCommand());
 	console->AddCommand(new AssertStartChoiceCommand());
+	console->AddCommand(new AssertCursorCommand());
 	console->AddCommand(new PlayMovieCommand());
 	console->AddCommand(new AssertMovieSkipCommand());
 	console->AddCommand(new PlayMusicFileCommand());

@@ -2,8 +2,9 @@
 #
 # The same on BG2's start menu (see bg1-start-menu.txt).
 Assert-ScreenOpen START,true
-# The theme plays.
+# The theme plays and the cursor is drawn (no area is there to choose one).
 Assert-Music true
+Assert-Cursor true
 Assert-StartChoice none
 # Single Player, Back, Single Player again, New Game.
 Invoke-Control START,0,0

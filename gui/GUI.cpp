@@ -98,6 +98,7 @@ GUI::GUI(uint16 width, uint16 height)
 	fLastClickWindow(0),
 	fLastClickTime(0),
 	fShown(false),
+	fCursorVisible(false),
 	fTooltipBitmap(NULL),
 	fDragBitmap(NULL),
 	fHoverTooltipBitmap(NULL),
@@ -207,6 +208,10 @@ GUI::Load(const res_ref& name)
 		Clear();
 
 		fResource = gResManager->GetCHUI(guiResource);
+		// Clear() dropped the cursor: until something picks another one (the
+		// area, on hover) it is the arrow - a screen without an area, like the
+		// start menu, has nobody else to.
+		fCurrentCursor = fCursors[0];
 	} catch (std::exception& e) {
 		std::cout << Log::Red << e.what() << std::endl;
 		return false;
@@ -322,7 +327,7 @@ GUI::Draw()
 		bitmap->Release();
 	}
 	// If GUI is hidden, don't show cursors
-	if (!fShown)
+	if (!fShown && !fCursorVisible)
 		return;
 
 	if (fDragBitmap != NULL) {
@@ -775,6 +780,20 @@ GUI::ToggleMessageArea()
 		EnsureShowDialogArea();
 	else if (IsWindowShown(WINDOW_MESSAGES_LARGE))
 		EnsureShowNormalMessageArea();
+}
+
+
+void
+GUI::SetCursorVisible(bool visible)
+{
+	fCursorVisible = visible;
+}
+
+
+bool
+GUI::HasCursor() const
+{
+	return fCurrentCursor != NULL && (fShown || fCursorVisible);
 }
 
 

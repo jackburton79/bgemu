@@ -147,6 +147,15 @@ FrontEnd::_RunStartMenu()
 	// auxiliary window like every other screen.
 	gui->Load("START");
 
+	// No area is there to show the GUI, and with it the cursor.
+	gui->SetCursorVisible(true);
+
+	// The pointer is already somewhere: draw the cursor there, not in the corner
+	// until the first movement.
+	int pointerX = 0, pointerY = 0;
+	SDL_GetMouseState(&pointerX, &pointerY);
+	gui->MouseMoved(pointerX, pointerY);
+
 	StartScreen* start = fGame.Screens().Find<StartScreen>();
 	GameScreen* load = fGame.Screens().Find("GUILOAD");
 	start->Reset();
@@ -161,6 +170,7 @@ FrontEnd::_RunStartMenu()
 		if (SoundEngine::Get() != NULL)
 			SoundEngine::Get()->StopStream(0);
 		start->Close();
+		gui->SetCursorVisible(false);
 		return STEP_DONE;
 	}
 
@@ -211,5 +221,6 @@ FrontEnd::_RunStartMenu()
 		SoundEngine::Get()->StopStream(fResult == LOADED ? 0 : 500);
 	if (fResult != LOADED)
 		start->Close();
+	GUI::Get()->SetCursorVisible(false);
 	return STEP_DONE;
 }
