@@ -255,7 +255,7 @@ main(int argc, char **argv)
 	AreaRoom::ClearAreaCheckpoints();
 
 	try {
-			Game::Get()->Loop(sNoNewGame, !sNoScripts);
+		Game::Get()->Loop(sNoNewGame, !sNoScripts);
 	} catch (std::exception &error) {
 		std::cerr << RED(error.what()) << std::endl;
 	} catch (...) {
