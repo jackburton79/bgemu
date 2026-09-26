@@ -16,7 +16,9 @@
 #include "TisResource.h"
 #include "WMAPResource.h"
 
+#include <algorithm>
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 
@@ -27,7 +29,8 @@ WorldMap::WorldMap(const res_ref& previousArea, int direction)
 	fWorldMapBackground(NULL),
 	fWorldMapBitmap(NULL),
 	fAreaUnderMouse(NULL),
-	fCurrentAreaName(previousArea)
+	fCurrentAreaName(previousArea),
+	fDirection(direction)
 {
 	GUI* gui = GUI::Get();
 	gui->Clear();
@@ -160,7 +163,37 @@ WorldMap::MouseDown(IE::point point)
 		return;
 	}
 
-	Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), "");
+	Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(),
+		_EntranceTo(fAreaUnderMouse));
+}
+
+
+// The entrance of `destination` the current area's link to it names, the
+// edge the party left through first; empty if there is no such link.
+std::string
+WorldMap::_EntranceTo(const AreaEntry* destination) const
+{
+	const auto found = std::find(fAreaEntries.begin(), fAreaEntries.end(), destination);
+	const AreaEntry* current = nullptr;
+	for (const AreaEntry* entry : fAreaEntries) {
+		if (entry->Name() == fCurrentAreaName)
+			current = entry;
+	}
+	if (current == nullptr || found == fAreaEntries.end())
+		return "";
+
+	const uint32 destinationIndex = static_cast<uint32>(found - fAreaEntries.begin());
+	for (int i = 0; i < 4; i++) {
+		const int direction = fDirection >= 0 ? (fDirection + i) % 4 : i;
+		uint32 linkIndex, linkCount;
+		current->LinkRange(direction, &linkIndex, &linkCount);
+		for (uint32 l = 0; l < linkCount; l++) {
+			const arealink_entry link = fWorldMap->GetAreaLink(linkIndex + l);
+			if (link.destination_index == destinationIndex)
+				return std::string(link.entry_point, strnlen(link.entry_point, sizeof(link.entry_point)));
+		}
+	}
+	return "";
 }
 
 

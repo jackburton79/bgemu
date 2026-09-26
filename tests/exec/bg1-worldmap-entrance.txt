@@ -1,0 +1,14 @@
+# Travelling from the world map lands the party at the entrance the current
+# area's link to the destination names (the WMP link's entry point), not at
+# the destination's first entrance: leaving AR2700 by its east edge and picking
+# AR2800 used to put the party at AR2800's entrance 0, at the top of the map,
+# instead of on its west side.
+Run-Action -,110,-,0,AR2700,-,1300,700
+Step-Ticks 5
+Queue-Action -,JumpToPoint(5104,1920)
+Step-Ticks 5
+Step-Ticks 5
+Mouse-Click 310,255
+Step-Ticks 5
+Assert-Trigger -,true,AreaCheck("AR2800")
+Assert-Position -,103,1762

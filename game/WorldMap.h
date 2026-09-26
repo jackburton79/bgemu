@@ -48,6 +48,7 @@ private:
 	void _LoadAreaEntries();
 	void _RevealAdjacentAreas(const res_ref& previousArea, int direction);
 	AreaEntry* _CenterOnArea(const res_ref& areaName);
+	std::string _EntranceTo(const AreaEntry* destination) const;
 	void _MarkCurrentArea(const AreaEntry* entry);
 
 	// WorldMap
@@ -63,6 +64,8 @@ private:
 	// needs this to tell "travel elsewhere" from "go back to where I
 	// already am" apart.
 	res_ref fCurrentAreaName;
+	// The edge the party left through (-1: none).
+	int fDirection;
 };
 
 

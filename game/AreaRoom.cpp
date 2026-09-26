@@ -2391,22 +2391,25 @@ AreaRoom::_IsVisibleOnScreen(const Actor* actor) const
 bool
 AreaRoom::_GetEntrance(const std::string& entranceName, IE::entrance& outEntrance) const
 {
-	if (!entranceName.empty()) {
-		for (uint32 e = 0; e < fArea->CountEntrances(); e++) {
-			IE::entrance entrance = fArea->EntranceAt(e);
-			// Case insensitive comparison
-			if (strcasecmp(entranceName.c_str(), entrance.name) == 0) {
-				outEntrance = entrance;
-				return true;
-			}
-		}
-	} else {
-		try {
-			outEntrance = fArea->EntranceAt(0);
+	for (uint32 e = 0; !entranceName.empty() && e < fArea->CountEntrances(); e++) {
+		IE::entrance entrance = fArea->EntranceAt(e);
+		// Case insensitive comparison
+		if (strcasecmp(entranceName.c_str(), entrance.name) == 0) {
+			outEntrance = entrance;
 			return true;
-		} catch (std::out_of_range& ex) {
-			std::cerr << Log::Red << "_GetEntrance: no entrance at 0" << std::endl;
 		}
+	}
+
+	// No name, or none the area has: the first entrance.
+	if (!entranceName.empty()) {
+		std::cerr << Log::Red << "_GetEntrance: no entrance named " << entranceName
+			<< Log::Normal << std::endl;
+	}
+	try {
+		outEntrance = fArea->EntranceAt(0);
+		return true;
+	} catch (std::out_of_range& ex) {
+		std::cerr << Log::Red << "_GetEntrance: no entrance at 0" << Log::Normal << std::endl;
 	}
 	return false;
 }
