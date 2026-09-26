@@ -1,0 +1,13 @@
+# The world map's changed area flags (a revealed area, a visited one) are part
+# of the save: a load gives back the flags of the save, not those the session
+# had been left with.
+Assert-AreaMapVisible AR4000,false
+Queue-Action -,RevealAreaOnMap("AR4000")
+Step-Ticks 5
+Save-Game /tmp/bgemu-test-mapflags.gam
+Queue-Action -,RevealAreaOnMap("AR4100")
+Step-Ticks 5
+Assert-AreaMapVisible AR4100,true
+Load-Game /tmp/bgemu-test-mapflags.gam
+Assert-AreaMapVisible AR4000,true
+Assert-AreaMapVisible AR4100,false

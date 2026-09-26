@@ -12,6 +12,7 @@
 #include "Effect.h"
 #include "ActionBar.h"
 #include "Game.h"
+#include "WMAPResource.h"
 #include "GameJournal.h"
 #include "NPCRoster.h"
 #include "SavedGame.h"
@@ -3160,18 +3161,14 @@ RunActionSetAreaRestFlag(Object* sender, action_params* params, action_state& st
 }
 
 
-// RevealAreaOnMap(S:ResRef*) / HideAreaOnMap(S:ResRef*) - stateless.
-// Overrides the area's own file-driven worldmap visibility bit (see
-// Game::SetAreaMapVisible(), AreaEntry::IsVisible()/SetVisible() in
-// resources/WMAPResource.h, and WorldMap::_LoadAreaEntries(), which
-// applies the override on top of the file's own flag). Only the icon/
-// name display is gated this way - travel isn't (WorldMap::MouseDown()
-// doesn't check any flag before allowing it either), so this doesn't
-// model the "Reachable" bit's actual travel-blocking.
+// RevealAreaOnMap(S:ResRef*) / HideAreaOnMap(S:ResRef*) - stateless. Show or
+// hide the area on the world map (Game::ChangeAreaMapFlags()); "visible from
+// adjacent" goes with it, as in GemRB, or the area couldn't be reached from
+// where the map lets one start.
 static void
 RunActionRevealAreaOnMap(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->SetAreaMapVisible(params->string1, true);
+	Game::Get()->ChangeAreaMapFlags(params->string1, AREA_VISIBLE | AREA_VISIBLE_FROM_ADJACENT, 0);
 	state.completed = true;
 }
 
@@ -3179,7 +3176,7 @@ RunActionRevealAreaOnMap(Object* sender, action_params* params, action_state& st
 static void
 RunActionHideAreaOnMap(Object* sender, action_params* params, action_state& state)
 {
-	Game::Get()->SetAreaMapVisible(params->string1, false);
+	Game::Get()->ChangeAreaMapFlags(params->string1, 0, AREA_VISIBLE | AREA_VISIBLE_FROM_ADJACENT);
 	state.completed = true;
 }
 

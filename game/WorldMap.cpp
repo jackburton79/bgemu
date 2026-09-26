@@ -163,37 +163,83 @@ WorldMap::MouseDown(IE::point point)
 		return;
 	}
 
-	Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(),
-		_EntranceTo(fAreaUnderMouse));
+	// Travel only along the links from the area left through an edge (a manual
+	// open has no such area), the way GemRB finds the path.
+	arealink_entry link;
+	if (!_FindTravelLink(fAreaUnderMouse, link))
+		return;
+
+	const std::string entrance(link.entry_point, strnlen(link.entry_point, sizeof(link.entry_point)));
+	Core::Get()->LoadArea(fAreaUnderMouse->Name(), fAreaUnderMouse->LongName(), entrance);
 }
 
 
-// The entrance of `destination` the current area's link to it names, the
-// edge the party left through first; empty if there is no such link.
-std::string
-WorldMap::_EntranceTo(const AreaEntry* destination) const
+// An area the map lets the party go to: visible and reachable.
+bool
+WorldMap::_IsWalkable(const AreaEntry* area) const
 {
-	const auto found = std::find(fAreaEntries.begin(), fAreaEntries.end(), destination);
-	const AreaEntry* current = nullptr;
-	for (const AreaEntry* entry : fAreaEntries) {
-		if (entry->Name() == fCurrentAreaName)
-			current = entry;
-	}
-	if (current == nullptr || found == fAreaEntries.end())
-		return "";
+	const uint32 kWalkable = AREA_VISIBLE | AREA_REACHABLE;
+	return (area->Flags() & kWalkable) == kWalkable;
+}
 
-	const uint32 destinationIndex = static_cast<uint32>(found - fAreaEntries.begin());
-	for (int i = 0; i < 4; i++) {
-		const int direction = fDirection >= 0 ? (fDirection + i) % 4 : i;
-		uint32 linkIndex, linkCount;
-		current->LinkRange(direction, &linkIndex, &linkCount);
-		for (uint32 l = 0; l < linkCount; l++) {
-			const arealink_entry link = fWorldMap->GetAreaLink(linkIndex + l);
-			if (link.destination_index == destinationIndex)
-				return std::string(link.entry_point, strnlen(link.entry_point, sizeof(link.entry_point)));
+
+// The last link of the cheapest path from the area left to `destination`,
+// through walkable areas by the links of all four edges, and so the entrance
+// to arrive at. False if there is no path.
+bool
+WorldMap::_FindTravelLink(const AreaEntry* destination, arealink_entry& lastLink) const
+{
+	if (fDirection < 0)
+		return false;
+
+	const size_t count = fAreaEntries.size();
+	size_t start = count;
+	size_t target = count;
+	for (size_t i = 0; i < count; i++) {
+		if (fAreaEntries[i]->Name() == fCurrentAreaName)
+			start = i;
+		if (fAreaEntries[i] == destination)
+			target = i;
+	}
+	if (start == count || target == count)
+		return false;
+
+	const uint32 kUnreached = 0xffffffff;
+	std::vector<uint32> distance(count, kUnreached);
+	std::vector<bool> done(count, false);
+	std::vector<arealink_entry> via(count);
+	distance[start] = 0;
+	while (true) {
+		size_t current = count;
+		for (size_t i = 0; i < count; i++) {
+			if (!done[i] && distance[i] != kUnreached
+					&& (current == count || distance[i] < distance[current]))
+				current = i;
+		}
+		if (current == count)
+			break;
+		done[current] = true;
+
+		for (int direction = 0; direction < 4; direction++) {
+			uint32 linkIndex, linkCount;
+			fAreaEntries[current]->LinkRange(direction, &linkIndex, &linkCount);
+			for (uint32 l = 0; l < linkCount; l++) {
+				const arealink_entry link = fWorldMap->GetAreaLink(linkIndex + l);
+				if (link.destination_index >= count || !_IsWalkable(fAreaEntries[link.destination_index]))
+					continue;
+				const uint32 total = distance[current] + link.travel_time * 4;
+				if (total < distance[link.destination_index]) {
+					distance[link.destination_index] = total;
+					via[link.destination_index] = link;
+				}
+			}
 		}
 	}
-	return "";
+
+	if (distance[target] == kUnreached || target == start)
+		return false;
+	lastLink = via[target];
+	return true;
 }
 
 
@@ -206,7 +252,7 @@ WorldMap::MouseMoved(IE::point point, uint32 transit)
 	fAreaUnderMouse = NULL;
 
 	for (const auto area : fAreaEntries) {
-		if (area->IsVisible() && area->Rect().Contains(point.x, point.y)) {
+		if (_IsWalkable(area) && area->Rect().Contains(point.x, point.y)) {
 			fAreaUnderMouse = area;
 			break;
 		}
@@ -281,49 +327,31 @@ WorldMap::_LoadAreaEntries()
 	for (uint32 c = 0; c < fWorldMap->CountAreaEntries(); c++) {
 		AreaEntry* areaEntry = fWorldMap->GetAreaEntry(c);
 
-		// A script's REVEALAREAONMAP/HIDEAREAONMAP (Game::
-		// SetAreaMapVisible()) overrides the file's own visibility bit,
-		// same as this engine already does elsewhere for LOCALS-style
-		// runtime overrides of on-disk data.
-		bool visible;
-		if (Game::Get()->AreaMapVisibleOverride(areaEntry->Name().CString(), &visible))
-			areaEntry->SetVisible(visible);
+		areaEntry->SetFlags(Game::Get()->ApplyAreaMapFlags(areaEntry->Name().CString(),
+			areaEntry->Flags()));
 
 		fAreaEntries.push_back(areaEntry);
 	}
 }
 
 
-// Real WMP data marks most areas AREA_VISIBLE_FROM_ADJACENT instead of
-// relying on a script's explicit RevealAreaOnMap() call - leaving
-// `previousArea` through its `direction` edge is what's actually
-// supposed to make that side's linked neighbors selectable on the map
-// (see GemRB's WorldMap::UpdateAreaVisibility() for the same real-engine
-// behavior this mirrors), not just areas a script happened to reveal.
-// direction < 0 (a manual open, HUD button/hotkey - see WorldMap's own
-// constructor comment) is a no-op, same as real IE.
-//
-// Persists through Game::SetAreaMapVisible() (the same override
-// REVEALAREAONMAP itself uses) so it survives this WorldMap instance -
-// _LoadAreaEntries() already re-applies it on every future visit - but
-// this instance's own fAreaEntries need updating directly too, since
-// _LoadAreaEntries() already ran before this reveal existed.
+// The area just left is visited, visible and reachable, and leaving it
+// through an edge (`direction`, -1 for a manual open) makes the neighbors on
+// that side that are AREA_VISIBLE_FROM_ADJACENT visible and reachable, as
+// GemRB's WorldMap::UpdateAreaVisibility() does. Kept in Game so it survives
+// this WorldMap; this instance's entries are updated too, since
+// _LoadAreaEntries() already ran.
 void
 WorldMap::_RevealAdjacentAreas(const res_ref& previousArea, int direction)
 {
-	if (direction < 0)
-		return;
-
+	const uint32 kVisibleReachable = AREA_VISIBLE | AREA_REACHABLE;
 	for (auto entry : fAreaEntries) {
 		if (entry->Name() != previousArea)
 			continue;
 
-		// The area just left is always at least visible now - real
-		// content usually already has this set, but a few areas
-		// (ambush encounters, scripted intro areas) are only ever
-		// entered directly, never clicked from the map first.
-		Game::Get()->SetAreaMapVisible(previousArea.CString(), true);
-		entry->SetVisible(true);
+		Game::Get()->ChangeAreaMapFlags(previousArea.CString(),
+			kVisibleReachable | AREA_VISITED, 0);
+		entry->SetFlags(entry->Flags() | kVisibleReachable | AREA_VISITED);
 
 		uint32 linkIndex, linkCount;
 		entry->LinkRange(direction, &linkIndex, &linkCount);
@@ -336,8 +364,8 @@ WorldMap::_RevealAdjacentAreas(const res_ref& previousArea, int direction)
 			if ((destination->Flags() & AREA_VISIBLE_FROM_ADJACENT) == 0)
 				continue;
 
-			Game::Get()->SetAreaMapVisible(destination->Name().CString(), true);
-			destination->SetVisible(true);
+			Game::Get()->ChangeAreaMapFlags(destination->Name().CString(), kVisibleReachable, 0);
+			destination->SetFlags(destination->Flags() | kVisibleReachable);
 		}
 		return;
 	}

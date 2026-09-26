@@ -1,0 +1,34 @@
+# The world map only lets the party go to areas that are visible and
+# reachable, along the links from the area left (GemRB's WMP_ENTRY_WALKABLE
+# and WorldMap::CalculateDistances()). BG1's file has AR3300 visible but not
+# reachable, and AR2800 neither until AR2700 is left through its east edge:
+# clicking AR3300 then does nothing (the map stays), AR2800 is the way on.
+# A map opened by hand (no edge left) never travels.
+Assert-AreaMapVisible AR3300,true
+Assert-AreaMapReachable AR3300,false
+Assert-AreaMapReachable AR2800,false
+
+# Opened by the HUD button: the click on AR2800's spot and "Done" do
+# not change area.
+Invoke-Control -,0,1
+Mouse-Click 310,255
+Step-Ticks 5
+Invoke-Control -,0,0
+Assert-Trigger -,true,AreaCheck("AR2600")
+
+Run-Action -,110,-,0,AR2700,-,1300,700
+Step-Ticks 5
+Queue-Action -,JumpToPoint(5104,1920)
+Step-Ticks 5
+Step-Ticks 5
+Assert-AreaMapReachable AR2700,true
+Assert-AreaMapReachable AR2800,true
+Assert-AreaMapReachable AR3300,false
+
+# AR3300's icon (328,334 on screen): nothing happens and the map stays open.
+Mouse-Click 328,334
+Step-Ticks 5
+Assert-Trigger -,false,AreaCheck("AR3300")
+Mouse-Click 310,255
+Step-Ticks 5
+Assert-Trigger -,true,AreaCheck("AR2800")

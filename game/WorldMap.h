@@ -6,6 +6,7 @@
 #include "Bitmap.h"
 #include "IETypes.h"
 #include "Object.h"
+#include "WMAPResource.h"
 
 #include <vector>
 
@@ -48,7 +49,8 @@ private:
 	void _LoadAreaEntries();
 	void _RevealAdjacentAreas(const res_ref& previousArea, int direction);
 	AreaEntry* _CenterOnArea(const res_ref& areaName);
-	std::string _EntranceTo(const AreaEntry* destination) const;
+	bool _IsWalkable(const AreaEntry* area) const;
+	bool _FindTravelLink(const AreaEntry* destination, arealink_entry& lastLink) const;
 	void _MarkCurrentArea(const AreaEntry* entry);
 
 	// WorldMap

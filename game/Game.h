@@ -231,17 +231,18 @@ public:
 	// The journal's notes (see GameJournal).
 	class GameJournal& Journal();
 
-	// REVEALAREAONMAP/HIDEAREAONMAP - kept here rather than on the
-	// AreaEntry/WorldMap objects directly, since WorldMap is recreated
-	// fresh (re-reading the WMAP resource) every time the player opens
-	// the worldmap screen - see Core::LoadWorldMap(). WorldMap::
-	// _LoadAreaEntries() applies this on top of each AreaEntry's own
-	// file-driven visibility bit right after loading it.
-	void SetAreaMapVisible(const std::string& areaName, bool visible);
-	// Returns true and sets *visible if a script overrode this area's
-	// worldmap visibility; false (leaving *visible untouched) if it
-	// should keep the file's own flag.
-	bool AreaMapVisibleOverride(const std::string& areaName, bool* visible) const;
+	// The world map's area flags (area_flags in WMAPResource.h) a game changed
+	// from the file's: kept here since WorldMap is built afresh, from the WMAP
+	// file, each time it opens. Set by REVEALAREAONMAP/HIDEAREAONMAP, by
+	// visiting an area and by leaving it through an edge; saved with the game.
+	void ChangeAreaMapFlags(const std::string& areaName, uint32 setBits, uint32 clearBits);
+	// The file's flags with the changes made to them.
+	uint32 ApplyAreaMapFlags(const std::string& areaName, uint32 fileFlags) const;
+	// The current flags of an area, read through the WMAP file.
+	uint32 AreaMapFlags(const std::string& areaName) const;
+	bool SaveAreaMapFlags(const std::string& path) const;
+	// Missing or unreadable file: no changes.
+	void LoadAreaMapFlags(const std::string& path);
 
 
 private:
@@ -274,7 +275,11 @@ private:
 
 	std::map<std::string, std::string> fTokens;
 	class GameJournal* fJournal;
-	std::map<std::string, bool> fAreaMapVisibility;
+	struct AreaMapChange {
+		uint32 set;
+		uint32 clear;
+	};
+	std::map<std::string, AreaMapChange> fAreaMapChanges;
 
 
 	class LootWindow* fLoot;

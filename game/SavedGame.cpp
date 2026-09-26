@@ -94,6 +94,7 @@ SavedGame::Save(const char* name)
 	// directory (see its own comment): copy all of it into this save's
 	// own archive directory, so an area visited and left long before
 	// this save, and never revisited since, is captured too.
+	fGame.SaveAreaMapFlags(AreaRoom::AreaCheckpointDir() + "/worldmap.txt");
 	_CopyAreaCheckpoints(AreaRoom::AreaCheckpointDir(), std::string(name) + ".arecache");
 
 	GamResource* gam = new GamResource(res_ref("SAVE"));
@@ -154,6 +155,7 @@ SavedGame::Load(const char* name)
 	std::error_code error;
 	std::filesystem::remove_all(AreaRoom::AreaCheckpointDir(), error);
 	_CopyAreaCheckpoints(std::string(name) + ".arecache", AreaRoom::AreaCheckpointDir());
+	fGame.LoadAreaMapFlags(AreaRoom::AreaCheckpointDir() + "/worldmap.txt");
 
 	// The in-memory session cache (live Actor/ARAResource C++ objects
 	// from areas visited earlier this session) is separate from the

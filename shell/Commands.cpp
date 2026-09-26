@@ -55,6 +55,7 @@
 #include "StoreScreen.h"
 #include "ResManager.h"
 #include "Script.h"
+#include "WMAPResource.h"
 #include "SearchMap.h"
 #include "ShellCommand.h"
 #include "Window.h"
@@ -1484,17 +1485,15 @@ public:
 };
 
 
-// Assert-AreaMapVisible <areaName>,<true|false> - same self-checking
-// spirit as Assert-Trigger, for Game::AreaMapVisibleOverride() (a
-// script's RevealAreaOnMap()/HideAreaOnMap(), or WorldMap's own leave-
-// through-an-edge reveal - see WorldMap::_RevealAdjacentAreas()) since
-// nothing exposes that as a trigger. Fails if the area was never
-// overridden at all - the area's own file-authored bit alone doesn't
-// prove either RevealAreaOnMap or an edge-reveal actually ran.
-class AssertAreaMapVisibleCommand : public ShellCommand {
+// Assert-AreaMapVisible / Assert-AreaMapReachable <areaName>,<true|false> -
+// an area's world map flags (Game::AreaMapFlags()), changed by a script's
+// RevealAreaOnMap()/HideAreaOnMap(), by visiting an area or by leaving one
+// through an edge (WorldMap::_RevealAdjacentAreas()); nothing exposes them as
+// a trigger.
+class AssertAreaMapFlagCommand : public ShellCommand {
 public:
-	AssertAreaMapVisibleCommand()
-		: ShellCommand("Assert-AreaMapVisible")
+	AssertAreaMapFlagCommand(const char* name, uint32 flag)
+		: ShellCommand(name), fName(name), fFlag(flag)
 	{
 	}
 	virtual void operator()(const char* argv) {
@@ -1503,22 +1502,19 @@ public:
 			std::cout << "ASSERT FAIL: expected <areaName>,<true|false>" << std::endl;
 			return;
 		}
-		bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
-
-		bool visible;
-		if (!Game::Get()->AreaMapVisibleOverride(areaName, &visible)) {
-			std::cout << "ASSERT FAIL: AreaMapVisible(" << areaName
-				<< ") - no override set" << std::endl;
-			return;
-		}
-		if (visible == expected) {
-			std::cout << "ASSERT OK: AreaMapVisible(" << areaName << ")" << std::endl;
+		const bool expected = strcasecmp(expectedText.c_str(), "true") == 0;
+		const bool actual = (Game::Get()->AreaMapFlags(areaName) & fFlag) != 0;
+		if (actual == expected) {
+			std::cout << "ASSERT OK: " << fName << "(" << areaName << ")" << std::endl;
 		} else {
-			std::cout << "ASSERT FAIL: AreaMapVisible(" << areaName << ") - expected "
+			std::cout << "ASSERT FAIL: " << fName << "(" << areaName << ") - expected "
 				<< (expected ? "true" : "false") << ", got "
-				<< (visible ? "true" : "false") << std::endl;
+				<< (actual ? "true" : "false") << std::endl;
 		}
 	}
+private:
+	std::string fName;
+	uint32 fFlag;
 };
 
 
@@ -4351,7 +4347,8 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new QueueActionCommand());
 	console->AddCommand(new CheckPassableCommand());
 	console->AddCommand(new CheckWorldmapExitCommand());
-	console->AddCommand(new AssertAreaMapVisibleCommand());
+	console->AddCommand(new AssertAreaMapFlagCommand("Assert-AreaMapVisible", AREA_VISIBLE));
+	console->AddCommand(new AssertAreaMapFlagCommand("Assert-AreaMapReachable", AREA_REACHABLE));
 	console->AddCommand(new AssertDoorOpenedCommand());
 	console->AddCommand(new AssertPositionCommand());
 	console->AddCommand(new AssertJournalHasEntryCommand());

@@ -45,6 +45,7 @@
 #include "PLTResource.h"
 #include "Parsing.h"
 #include "Party.h"
+#include "WMAPResource.h"
 #include "RecordScreen.h"
 #include "ResManager.h"
 #include "RoomBase.h"
@@ -714,20 +715,62 @@ Game::Journal()
 
 
 void
-Game::SetAreaMapVisible(const std::string& areaName, bool visible)
+Game::ChangeAreaMapFlags(const std::string& areaName, uint32 setBits, uint32 clearBits)
 {
-	fAreaMapVisibility[areaName] = visible;
+	AreaMapChange& change = fAreaMapChanges.emplace(areaName, AreaMapChange { 0, 0 }).first->second;
+	change.set = (change.set | setBits) & ~clearBits;
+	change.clear = (change.clear | clearBits) & ~setBits;
+}
+
+
+uint32
+Game::ApplyAreaMapFlags(const std::string& areaName, uint32 fileFlags) const
+{
+	auto it = fAreaMapChanges.find(areaName);
+	if (it == fAreaMapChanges.end())
+		return fileFlags;
+	return (fileFlags | it->second.set) & ~it->second.clear;
+}
+
+
+uint32
+Game::AreaMapFlags(const std::string& areaName) const
+{
+	uint32 flags = 0;
+	if (WMAPResource* worldMap = gResManager->GetWMAP("WORLDMAP")) {
+		for (uint32 i = 0; i < worldMap->CountAreaEntries(); i++) {
+			AreaEntry* entry = worldMap->GetAreaEntry(i);
+			if (strcasecmp(entry->Name().CString(), areaName.c_str()) == 0)
+				flags = entry->Flags();
+			delete entry;
+		}
+		gResManager->ReleaseResource(worldMap);
+	}
+	return ApplyAreaMapFlags(areaName, flags);
 }
 
 
 bool
-Game::AreaMapVisibleOverride(const std::string& areaName, bool* visible) const
+Game::SaveAreaMapFlags(const std::string& path) const
 {
-	auto it = fAreaMapVisibility.find(areaName);
-	if (it == fAreaMapVisibility.end())
-		return false;
-	*visible = it->second;
-	return true;
+	std::error_code error;
+	std::filesystem::create_directories(std::filesystem::path(path).parent_path(), error);
+	std::ofstream file(path);
+	for (const auto& change : fAreaMapChanges)
+		file << change.first << ' ' << change.second.set << ' ' << change.second.clear << '\n';
+	return file.good();
+}
+
+
+void
+Game::LoadAreaMapFlags(const std::string& path)
+{
+	fAreaMapChanges.clear();
+	std::ifstream file(path);
+	std::string areaName;
+	AreaMapChange change;
+	while (file >> areaName >> change.set >> change.clear)
+		fAreaMapChanges[areaName] = change;
 }
 
 
