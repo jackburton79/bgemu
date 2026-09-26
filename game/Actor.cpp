@@ -1625,6 +1625,23 @@ Actor::StrengthBonus(CREResource* cre, int column)
 }
 
 
+/* static */
+int32
+Actor::DexterityArmorClass(CREResource* cre)
+{
+	BaseAttributes attrs;
+	cre->GetAttributes(attrs);
+
+	int32 bonus = 0;
+	TWODAResource* dexmod = gResManager->Get2DA("DEXMOD");
+	if (dexmod != nullptr) {
+		bonus = dexmod->IntegerValueAt(attrs.dexterity, 2);
+		gResManager->ReleaseResource(dexmod);
+	}
+	return bonus;
+}
+
+
 void
 Actor::CastSpell(const res_ref& spell, Actor* target)
 {
@@ -2254,7 +2271,7 @@ Actor::ArmorClass(uint16 damageType) const
 
 	const ::ArmorClass cre = fCRE->AC();
 	int16 base = cre.effective;
-	int16 bonus = 0;
+	int16 bonus = DexterityArmorClass(fCRE);
 	if (typeMask & 1)
 		bonus += cre.crushing;
 	if (typeMask & 2)

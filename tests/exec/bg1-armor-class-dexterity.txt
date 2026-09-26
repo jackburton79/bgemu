@@ -1,0 +1,7 @@
+# AREA: AR2700
+#
+# Dexterity counts in the AC (DEXMOD.2DA's AC column, negative is better):
+# Imoen has DEX 18 (-4) and wears nothing, so her CRE's AC 10 stands at 6;
+# Ajantis's DEX gives nothing, chain mail and shield leave him at 4.
+Assert-Trigger IMOEN1,true,CheckStat(Myself,6,ARMORCLASS)
+Assert-Trigger AJANTI,true,CheckStat(Myself,4,ARMORCLASS)

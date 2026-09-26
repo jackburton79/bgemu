@@ -163,6 +163,8 @@ public:
 	// 1 damage, 2 open doors, 3 weight allowance - with the exceptional
 	// strength (18/xx) row added on top, as GemRB reads the two tables.
 	static int32 StrengthBonus(CREResource* cre, int column);
+	// DEXMOD.2DA's AC column: added to the AC, so negative is better.
+	static int32 DexterityArmorClass(CREResource* cre);
 
 	// Queues the SPELL action for a spell this creature has memorized
 	// (resref like "SPWI304") at `target`, replacing what it was doing.
@@ -297,8 +299,8 @@ public:
 	void AttackTarget(Actor* object);
 
 	// Armor class against a weapon damage type (ITM offset 0x1c; 0 = none in
-	// particular): the CRE's AC and modifiers plus what the worn items give.
-	// Lower is better. Weapons in hand aren't counted.
+	// particular): the CRE's AC and modifiers plus dexterity and what the worn
+	// items give. Lower is better; weapons in hand aren't counted.
 	int16 ArmorClass(uint16 damageType = 0) const;
 
 	// The d20 roll this actor needs to hit target with the weapon in hand.
