@@ -111,6 +111,7 @@ GamResource::SetReputation(sint8 reputation)
 // The character stats block of an NPC struct (116 bytes at 0xe4): times count
 // 1/15 seconds in the file, game seconds here.
 static const uint32 kStatsOffset = 0xe4;
+static const uint32 kTalkCountOffset = 0xe0;
 static const uint32 kTicksPerSecond = 15;
 
 static void
@@ -163,6 +164,7 @@ write_member(MemoryStream& buffer, uint32 structOffset, uint16 order,
 	// items are just the CRE's own quick item slots.
 	for (int q = 0; q < 3; q++)
 		buffer.WriteAt(structOffset + 0x9c + q * 8, &info.quickSpells[q], sizeof(res_ref));
+	buffer.WriteAt(structOffset + kTalkCountOffset, &info.talkCount, sizeof(uint32));
 	write_stats(buffer, structOffset, info.stats);
 
 	cre->WriteDataTo(&buffer, creOffset);
@@ -392,6 +394,7 @@ GamResource::_MemberAt(uint32 structOffset) const
 	for (int q = 0; q < 3; q++)
 		fData->ReadAt(structOffset + 0x9c + q * 8, member.quickSpells[q]);
 
+	fData->ReadAt(structOffset + kTalkCountOffset, member.talkCount);
 	PCStats& stats = member.stats;
 	const uint32 base = structOffset + kStatsOffset;
 	uint32 joined;

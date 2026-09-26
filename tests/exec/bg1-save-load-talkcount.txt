@@ -1,0 +1,15 @@
+# AREA: AR2700
+#
+# NumTimesTalkedTo is saved with each creature of the GAM (0xe0 of its
+# struct), the party's and the global NPCs'. It wasn't, so a companion that
+# had joined after a dialog started it again after every load: Imoen's INITDLG
+# script starts IMOEN2 while NumberOfTimesTalkedTo(0) holds.
+Run-Action IMOEN1,166,-,3,,,0,0
+Run-Action -,166,-,2,,,0,0
+Run-Action XZAR,166,-,5,,,0,0
+Step-Ticks 5
+Save-Game /tmp/bgemu-test-talkcount.gam
+Load-Game /tmp/bgemu-test-talkcount.gam
+Assert-Trigger IMOEN1,true,NumberOfTimesTalkedTo(3)
+Assert-Trigger -,true,NumberOfTimesTalkedTo(2)
+Assert-Trigger XZAR,true,NumberOfTimesTalkedTo(5)

@@ -42,6 +42,7 @@ struct gam_party_member {
 	res_ref areaName;
 	res_ref quickSpells[3];	// the action bar's quick spell slots
 	PCStats stats;		// the character's kills and favourites
+	uint32 talkCount = 0;	// NumTimesTalkedTo
 };
 
 struct gam_journal_entry {
