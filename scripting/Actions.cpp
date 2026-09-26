@@ -1233,10 +1233,10 @@ RunActionIncrementGlobal(Object* sender, action_params* params, action_state& st
 }
 
 
-// WEATHER(I:Weather*Weather), MULTIPLAYERSYNC() - accepted and completed at
-// once, without effect: WEATHER only changes the rain/snow overlay, which
-// isn't modeled, and MULTIPLAYERSYNC waits for the other players of a
-// multiplayer game.
+// WEATHER(I:Weather*Weather), MULTIPLAYERSYNC(), MAKEUNSELECTABLE(I:Time) -
+// accepted and completed at once, without effect: WEATHER only changes the
+// rain/snow overlay, which isn't modeled, MULTIPLAYERSYNC waits for the other
+// players of a multiplayer game and only party members can be selected here.
 static void
 RunActionNoEffect(Object* sender, action_params* params, action_state& state)
 {
@@ -3494,11 +3494,8 @@ RunActionUseContainer(Object* sender, action_params* params, action_state& state
 
 static const ActionDescriptor kActionsTable[] = {
 		{ 0, "NOACTION", NULL },
-		// Only handled inside a compiled script (Script::_HandleAction(): the action
-		// that follows it in the list runs for the object it names). Not in the
-		// text form DLGs use, "ActionOverride(O,Action(...))": the parser doesn't
-		// read the nested action, so a dialog's ActionOverride does nothing (BG2's
-		// JAHEIRAJ states use it for ActionOverride("Meronia",EscapeArea())).
+		// Handled where the list is run (Script::_HandleAction(), and the dialog's
+		// transition actions): the action after it runs for the object it names.
 		{ 1, "ACTIONOVERRIDE", NULL },
 		{ 2, "ADDWAYPOINT", NULL },
 		{ 3, "ATTACK", RunActionAttack },
@@ -3681,7 +3678,7 @@ static const ActionDescriptor kActionsTable[] = {
 		{ 179, "DIALOGINTERRUPT", NULL }, // the spelling BG2's own DLGs use
 		{ 180, "MOVETOOBJECTFOLLOW", NULL },
 		{ 181, "REALLYFORCESPELL", RunActionForceSpell },
-		{ 182, "MAKEUNSELECTABLE", NULL },
+		{ 182, "MAKEUNSELECTABLE", RunActionNoEffect },
 		{ 183, "MULTIPLAYERSYNC", RunActionNoEffect },
 		{ 184, "RUNAWAYFROMNOINTERRUPT", NULL },
 		{ 185, "SETMASTERAREA", NULL },

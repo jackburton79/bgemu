@@ -263,15 +263,7 @@ DialogHandler::_ExecuteTransition(const transition_entry& transition)
 	if (transition.HasActions()) {
 		std::string actions = fResource->GetAction(transition.index_action);
 
-		auto actionList = Parser::ActionsFromString(actions);
-		for (auto* params : actionList) {
-			fInitiator->AddAction(params);
-			// AddAction() takes its own reference (Acquire()) - this loop
-			// still holds the one ActionFromString() handed it (refcount
-			// starts at 1, see action_params::action_params()), which
-			// must be dropped here or it never reaches 0.
-			params->Release();
-		}
+		Script::QueueActions(fInitiator, Parser::ActionsFromString(actions));
 	}
 
 	// An instant action just queued above (e.g. STARTCUTSCENE, which

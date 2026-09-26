@@ -156,6 +156,35 @@ Parser::TriggersFromString(const std::string& string)
 }
 
 
+// The action inside `ActionOverride(<object>,<action>)`: what follows the
+// first top-level comma, up to the call's closing parenthesis.
+static std::string
+_OverriddenActionText(const std::string& text)
+{
+	const size_t open = text.find('(');
+	if (open == std::string::npos)
+		return "";
+
+	int depth = 0;
+	bool quoted = false;
+	size_t start = std::string::npos;
+	for (size_t i = open + 1; i < text.size(); i++) {
+		const char c = text[i];
+		if (c == '"')
+			quoted = !quoted;
+		if (quoted)
+			continue;
+		if (c == '(' || c == '[')
+			depth++;
+		else if ((c == ')' || c == ']') && depth-- == 0)
+			return start == std::string::npos ? "" : text.substr(start, i - start);
+		else if (c == ',' && depth == 0 && start == std::string::npos)
+			start = i + 1;
+	}
+	return "";
+}
+
+
 /* static */
 std::vector<action_params*>
 Parser::ActionsFromString(const std::string& string)
@@ -167,6 +196,13 @@ Parser::ActionsFromString(const std::string& string)
 			action_params* actionParam = ActionFromString(localString);
 			if (actionParam != NULL)
 				actionList.push_back(actionParam);
+			// ActionOverride(<object>,<action>) becomes ACTIONOVERRIDE with the
+			// object, then the action, as a compiled script has them.
+			if (actionParam != NULL && actionParam->id == 1) {
+				action_params* overridden = ActionFromString(_OverriddenActionText(localString));
+				if (overridden != NULL)
+					actionList.push_back(overridden);
+			}
 			size_t endLine = localString.find('\n');
 			if (endLine == localString.length() || endLine == std::string::npos)
 				break;

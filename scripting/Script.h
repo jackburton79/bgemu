@@ -33,6 +33,10 @@ public:
 	static Object*			GetSenderObject(const Object* object, action_params* start);
 	static Object*			GetTargetObject(const Object* object, action_params* start);
 
+	// Queues parsed action text on `initiator`, an ACTIONOVERRIDE sending the
+	// action after it to the object it names. Releases the actions.
+	static void				QueueActions(Object* initiator, const std::vector<action_params*>& actions);
+
 	void Execute(bool &continuing, bool& action);
 
 	// Advances the cutscene script by (at most) one condition_response

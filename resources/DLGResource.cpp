@@ -13,7 +13,8 @@
 #define DLG_SIGNATURE "DLG "
 #define DLG_VERSION_1 "V1.0"
 
-#define DATALENGTH 128
+// Longest trigger/action text read; real files stay well under it.
+static const uint32 kMaxTextLength = 4096;
 
 
 /* static */
@@ -135,19 +136,18 @@ DLGResource::_GetTriggerText(uint32 tableOffset, uint32 count, int index)
 	fData->Read(&length, sizeof(length));
 	fData->Seek(pos, SEEK_SET);
 
-	if (length >= DATALENGTH) {
-		std::cerr << "trigger length too big" << std::endl;
+	if (length >= kMaxTextLength) {
+		std::cerr << "trigger length too big (" << std::dec << length << ")" << std::endl;
 		return "";
 	}
 
 	// IESDP: state/transition trigger strings in the DLG file are NOT
 	// zero-terminated - `length` is the exact string length, with no
 	// trailing NUL to account for.
-	char triggerData[DATALENGTH];
-	fData->ReadAt(offset, triggerData, length);
-	triggerData[length] = '\0';
-
-	return std::string(triggerData, length);
+	std::string text(length, '\0');
+	if (length > 0)
+		fData->ReadAt(offset, &text[0], length);
+	return text;
 }
 
 
@@ -181,17 +181,16 @@ DLGResource::GetAction(int32 index)
 	fData->Read(&length, sizeof(length));
 	fData->Seek(pos, SEEK_SET);
 
-	if (length >= DATALENGTH) {
+	if (length >= kMaxTextLength) {
 		std::cerr << "action string length too big (" << std::dec << length << ")" << std::endl;
 		return "";
 	}
 
 	// See above
-	char rawData[DATALENGTH];
-	fData->ReadAt(offset, rawData, length);
-	rawData[length] = '\0';
-
-	return std::string(rawData, length);
+	std::string text(length, '\0');
+	if (length > 0)
+		fData->ReadAt(offset, &text[0], length);
+	return text;
 }
 
 

@@ -1,0 +1,12 @@
+# AREA: AR2301
+#
+# The text form of ActionOverride (what DLG action blocks use, e.g. the
+# Khalid/Jaheira dialog's ActionOverride("Khalid",JoinParty())) queues the
+# nested action on the object it names: the parser gives ACTIONOVERRIDE and
+# the action separately and Script::QueueActions() sends the second to that
+# object. Only Jaheira joined after that dialog before.
+Assert-Trigger KHALID,false,InParty(Myself)
+Queue-Action JAHEIR,ActionOverride("Khalid",JoinParty())
+Step-Ticks 20
+Assert-Trigger KHALID,true,InParty(Myself)
+Assert-Trigger JAHEIR,false,InParty(Myself)

@@ -1393,14 +1393,13 @@ public:
 			return;
 		}
 
-		action_params* action = Parser::ActionFromString(actionText);
-		if (action == NULL) {
+		const std::vector<action_params*> actions = Parser::ActionsFromString(actionText);
+		if (actions.empty()) {
 			std::cout << "Queue-Action: failed to parse action" << std::endl;
 			return;
 		}
 
-		actor->AddAction(action);
-		action->Release();
+		Script::QueueActions(actor, actions);
 		std::cout << "Queue-Action: OK" << std::endl;
 	}
 };

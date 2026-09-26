@@ -117,6 +117,25 @@ Script::GetTargetObject(const Object* object, action_params* start)
 
 
 void
+Script::QueueActions(Object* initiator, const std::vector<action_params*>& actions)
+{
+	Object* runner = initiator;
+	for (action_params* params : actions) {
+		if (params->id == 1) {
+			runner = GetTargetObject(initiator, params);
+		} else {
+			if (runner != nullptr)
+				runner->AddAction(params);
+			runner = initiator;
+		}
+		// AddAction() takes its own reference; this drops the one the parser
+		// handed over (refcount starts at 1, see action_params::action_params()).
+		params->Release();
+	}
+}
+
+
+void
 Script::Execute(bool& continuing, bool& finished)
 {
 	// for each CR block
