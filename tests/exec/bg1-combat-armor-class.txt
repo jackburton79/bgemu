@@ -1,0 +1,14 @@
+# AREA: AR0602
+#
+# Regression for the to-hit roll using a creature's per-damage-type AC
+# modifiers (CRE 0x4a-0x50, 0 for nearly everyone) as if they were its whole
+# AC: a RAT2 (AC 20) was then hit as AC 0, so Ajantis (THAC0 19, +1 strength)
+# needed an 18 instead of hitting it whatever he
+# rolls, and the rats of AR2606 hardly ever died.
+Create-Creature RAT2,530,127
+Step-Ticks 5
+Assert-ToHit -,RAT2,-2
+Disable-Creature RAT2
+Attack -,RAT2
+Step-Ticks 3000
+Assert-Trigger RAT2,true,StateCheck(Myself,STATE_DEAD)

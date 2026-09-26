@@ -474,10 +474,13 @@ CREResource::SetTHAC0(uint8 thac0)
 void
 CREResource::ModifyAC(int16 delta, uint8 typeMask)
 {
-	int16 effective;
-	fData->ReadAt(0x48, effective);
-	effective += delta;
-	fData->WriteAt(0x48, &effective, sizeof(effective));
+	if (typeMask == 0) {
+		int16 effective;
+		fData->ReadAt(0x48, effective);
+		effective += delta;
+		fData->WriteAt(0x48, &effective, sizeof(effective));
+		return;
+	}
 
 	static const struct { uint8 bit; uint32 offset; } kTypes[] = {
 		{ 1, 0x4a }, // Crushing
@@ -486,7 +489,7 @@ CREResource::ModifyAC(int16 delta, uint8 typeMask)
 		{ 8, 0x50 }, // Slashing
 	};
 	for (const auto& type : kTypes) {
-		if (typeMask != 0 && (typeMask & type.bit) == 0)
+		if ((typeMask & type.bit) == 0)
 			continue;
 		int16 value;
 		fData->ReadAt(type.offset, value);

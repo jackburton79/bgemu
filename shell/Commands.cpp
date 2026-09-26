@@ -3648,6 +3648,40 @@ public:
 };
 
 
+// Assert-ToHit <attacker>,<target>,<n> - the d20 roll the attacker needs to
+// hit the target with the weapon in hand.
+class AssertToHitCommand : public ShellCommand {
+public:
+	AssertToHitCommand()
+		: ShellCommand("Assert-ToHit")
+	{
+	}
+	virtual void operator()(const char* argv) {
+		std::string attackerName, rest, targetName, neededText;
+		if (!_SplitOnFirstComma(argv, attackerName, rest)
+				|| !_SplitOnFirstComma(rest.c_str(), targetName, neededText)) {
+			std::cout << "ASSERT FAIL: expected <attacker>,<target>,<n>" << std::endl;
+			return;
+		}
+		Actor* attacker = FindActor(attackerName.c_str());
+		Actor* target = FindActor(targetName.c_str());
+		if (attacker == NULL || attacker->CRE() == NULL
+				|| target == NULL || target->CRE() == NULL) {
+			std::cout << "ASSERT FAIL: no attacker " << attackerName
+				<< " or target " << targetName << std::endl;
+			return;
+		}
+		const int32 expected = atoi(neededText.c_str());
+		const int32 needed = attacker->ToHitRoll(target);
+		if (needed == expected)
+			std::cout << "ASSERT OK: to-hit roll == " << expected << std::endl;
+		else
+			std::cout << "ASSERT FAIL: to-hit roll - expected " << expected
+				<< ", got " << needed << std::endl;
+	}
+};
+
+
 // Assert-ItemCount <actor>,<item resref>,<n> - total quantity of an item
 // across all of an actor's slots (0 = not carried). "<n" asserts a count
 // strictly below n (for quantities that depend on random rolls).
@@ -4392,6 +4426,7 @@ AddCommands(GameConsole* console)
 	console->AddCommand(new DumpSoundCommand());
 	console->AddCommand(new AssertCustomColorsCommand());
 	console->AddCommand(new AssertActiveWeaponSlotCommand());
+	console->AddCommand(new AssertToHitCommand());
 	console->AddCommand(new AssertItemCountCommand());
 	console->AddCommand(new AssertStoreWindowCommand());
 	console->AddCommand(new AssertStoreStockCommand());

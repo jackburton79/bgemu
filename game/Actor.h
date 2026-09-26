@@ -296,6 +296,9 @@ public:
 	// fire every single engine tick.
 	void AttackTarget(Actor* object);
 
+	// The d20 roll this actor needs to hit target with the weapon in hand.
+	int32 ToHitRoll(Actor* target) const;
+
 	// Ticks remaining before this actor's next attack is allowed to
 	// resolve; sender-side round pacing lives in the caller (see
 	// RunActionAttack()), not in AttackTarget() itself.
@@ -348,6 +351,7 @@ private:
 	virtual ~Actor();
 
 	void _ClearItemSlot(uint32 slot);
+	int32 _ToHitRoll(const attack_profile& profile, Actor* target) const;
 
 	IE::actor *fActor;
 	AnimationFactory* fAnimationFactory;

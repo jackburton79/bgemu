@@ -254,12 +254,9 @@ public:
 	void SetSaves(const SaveVersus& saves);
 	Resistances DamageResistances() const;
 
-	// Adds delta to the "effective" AC and to any per-type field selected
-	// by typeMask (bit0=Crushing,bit1=Missile,bit2=Piercing,bit3=Slashing
-	// per IESDP opcode #0; 0 = all four types). Symmetric: applying
-	// -delta with the same mask exactly undoes it - used by SpellEffect's
-	// AC-bonus opcode to apply/remove a buff without needing to remember
-	// the pre-buff value separately.
+	// Adds delta to the effective AC (typeMask 0) or to the modifiers of the
+	// damage types in typeMask (bit0=Crushing, bit1=Missile, bit2=Piercing,
+	// bit3=Slashing, IESDP opcode #0). Applying -delta undoes it.
 	void ModifyAC(int16 delta, uint8 typeMask);
 	// Adds delta to THAC0 (lower is better) - same symmetric apply/undo
 	// pattern as ModifyAC().

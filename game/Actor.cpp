@@ -2224,25 +2224,44 @@ Actor::_HandleScripts()
 }
 
 
-// Selects the ArmorClass field matching a weapon's damage type (IESDP
-// itm_v1 offset 0x1c). BG2-specific combo types (6/7/8, e.g. halberds
-// dealing crushing+piercing) and unknown values fall back to `effective`
-// AC rather than guessing which of the two component types applies.
+// The AC a weapon of the given damage type (ITM offset 0x1c) faces: the
+// effective AC plus the modifier for that type. Combo types (BG2 6/7/8)
+// and unknown values get no type modifier.
 static int16
 _ArmorClassFor(const ArmorClass& ac, uint16 weaponDamageType)
 {
 	switch (weaponDamageType) {
 		case 1: // Piercing/Magic
-			return ac.piercing;
+			return ac.effective + ac.piercing;
 		case 2: // Blunt/Crushing
-			return ac.crushing;
+			return ac.effective + ac.crushing;
 		case 3: // Slashing
-			return ac.slashing;
+			return ac.effective + ac.slashing;
 		case 4: // Missile
-			return ac.missile;
+			return ac.effective + ac.missile;
 		default:
 			return ac.effective;
 	}
+}
+
+
+// Standard THAC0 to-hit: the attacker's THAC0 (lower is better) minus the
+// weapon's THAC0 bonus and the strength bonus (melee only, fists included;
+// dexterity's missile bonus isn't modeled), minus the target's AC against the
+// weapon's damage type.
+int32
+Actor::_ToHitRoll(const attack_profile& profile, Actor* target) const
+{
+	const int32 strengthToHit = profile.ranged ? 0 : StrengthBonus(CRE(), 0);
+	const int16 targetAC = _ArmorClassFor(target->CRE()->AC(), profile.ability.damageType);
+	return CRE()->THAC0() - profile.ability.thac0Bonus - strengthToHit - targetAC;
+}
+
+
+int32
+Actor::ToHitRoll(Actor* target) const
+{
+	return _ToHitRoll(AttackProfile(), target);
 }
 
 
@@ -2268,24 +2287,12 @@ Actor::AttackTarget(Actor* target)
 	if (InParty() && weaponSlot >= 0 && CRE()->GetItemAtSlot((uint32)weaponSlot, weaponItem))
 		fStats.RegisterWeapon(weaponItem.name);
 
-	const ArmorClass targetAC = target->CRE()->AC();
-	const int16 effectiveAC = _ArmorClassFor(targetAC, ability.damageType);
-
-	// Melee (fists included) adds the strength bonuses; a missile attack
-	// gets none - dexterity's missile bonus isn't modeled.
 	const bool melee = !profile.ranged;
-	const int32 strengthToHit = melee ? StrengthBonus(CRE(), 0) : 0;
 	const int32 strengthDamage = melee ? StrengthBonus(CRE(), 1) : 0;
 
-	// Standard THAC0 to-hit: roll needed = attacker's THAC0 (better with
-	// a lower value), minus the weapon's own THAC0 bonus and the strength
-	// bonus, minus the target's AC for this damage type (also better/
-	// harder to hit when lower). A natural 20 always hits, a natural 1
-	// always misses.
+	// A natural 20 always hits, a natural 1 always misses.
 	const int32 roll = Core::RollDice(1, 20, 0);
-	const int32 neededRoll = CRE()->THAC0() - ability.thac0Bonus
-		- strengthToHit - effectiveAC;
-	const bool hit = roll == 20 || (roll != 1 && roll >= neededRoll);
+	const bool hit = roll == 20 || (roll != 1 && roll >= _ToHitRoll(profile, target));
 	if (!hit)
 		return;
 
