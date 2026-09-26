@@ -1031,15 +1031,20 @@ GUI::ControlInvoked(uint32 controlID, uint16 windowID, const res_ref& chuName)
 		if (windowID == WINDOW_COMMANDS) {
 			if (CommandBar::InvokeOnHUD(controlID))
 				return;
-		} else if (windowID == WINDOW_PLAYER_SLOTS && controlID <= 5) {
-			// The 6 HUD portrait buttons select that party member;
-			// shift+click instead adds/removes just that one from the map
-			// selection (same convention as shift-clicking their avatar
-			// on the map), leaving the shown character alone.
-			if (Keyboard::IsShiftPressed())
-				Game::Get()->ToggleSelectedPartyMember((uint16)controlID);
-			else
-				Game::Get()->SelectPartyMember((uint16)controlID);
+		} else if (windowID == WINDOW_PLAYER_SLOTS) {
+			if (controlID <= 5) {
+				// The 6 HUD portrait buttons select that party member;
+				// shift+click instead adds/removes just that one from the map
+				// selection (same convention as shift-clicking their avatar
+				// on the map), leaving the shown character alone.
+				if (Keyboard::IsShiftPressed())
+					Game::Get()->ToggleSelectedPartyMember((uint16)controlID);
+				else
+					Game::Get()->SelectPartyMember((uint16)controlID);
+			} else if (controlID == 6) {
+				// Select all party members
+				Game::Get()->SelectAllPartyMembers();
+			}
 			return;
 		} else if ((windowID == WINDOW_MESSAGES && controlID == 2)
 				|| (windowID == WINDOW_MESSAGES_LARGE && controlID == 0)) {

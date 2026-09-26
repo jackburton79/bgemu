@@ -69,6 +69,8 @@ public:
 	// is out of range or the current room isn't an AreaRoom (e.g. the
 	// worldmap screen).
 	void SelectPartyMember(uint16 index);
+
+	void SelectAllPartyMembers();
 	// Shift-click on a portrait: adds/removes just that member from the
 	// map selection (AreaRoom::ToggleSelected()) without touching the
 	// shown character - same convention as shift-clicking their avatar

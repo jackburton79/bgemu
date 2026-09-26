@@ -849,6 +849,22 @@ Game::ToggleHUD()
 
 
 void
+Game::SelectAllPartyMembers()
+{
+	if (fParty == nullptr)
+		return;
+
+	ActorsList list;
+	for (int32 i = 0; i < fParty->CountActors(); i++) {
+		list.push_back(fParty->ActorAt(i));
+	}
+	AreaRoom* area = dynamic_cast<AreaRoom*>(Core::Get()->CurrentRoom());
+	if (area != nullptr)
+		area->AddToSelection(list);
+}
+
+
+void
 Game::SelectPartyMember(uint16 index)
 {
 	if (fParty == nullptr || index >= fParty->CountActors())
