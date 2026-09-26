@@ -580,7 +580,7 @@ InventoryScreen::_UpdateLabels(Window* window, Actor* actor)
 
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kInvACLabelID));
 	if (acLabel != NULL)
-		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+		acLabel->SetText(std::to_string(actor->ArmorClass()));
 
 	Label* hpLabel = dynamic_cast<Label*>(window->GetControlByID(kInvHPCurrentLabelID));
 	if (hpLabel != nullptr)

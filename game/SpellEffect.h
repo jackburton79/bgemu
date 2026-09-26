@@ -58,6 +58,10 @@ public:
 	bool Initiated() const;
 	void SetInitiated();
 
+	// What the handler applied, for its cleanup to undo exactly.
+	int32 Applied() const;
+	void SetApplied(int32 applied);
+
 	// Decrements the remaining duration by one tick. Returns true once it
 	// reaches zero (the effect should be removed). Permanent effects
 	// (duration == 0 at construction) always return false here; it's up
@@ -75,6 +79,7 @@ private:
 	uint32 fDuration;
 	bool fPermanent;
 	bool fInitiated;
+	int32 fApplied;
 	std::string fResource;
 	uint32 fSavingThrowType;
 	int32 fSavingThrowBonus;

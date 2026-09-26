@@ -33,6 +33,7 @@ SpellEffect::SpellEffect(int16 opcode, Object* source, int32 parameter1,
 	fDuration(duration),
 	fPermanent(duration == 0),
 	fInitiated(false),
+	fApplied(0),
 	fResource(resource),
 	fSavingThrowType(savingThrowType),
 	fSavingThrowBonus(savingThrowBonus),
@@ -127,6 +128,20 @@ int32
 SpellEffect::SavingThrowBonus() const
 {
 	return fSavingThrowBonus;
+}
+
+
+int32
+SpellEffect::Applied() const
+{
+	return fApplied;
+}
+
+
+void
+SpellEffect::SetApplied(int32 applied)
+{
+	fApplied = applied;
 }
 
 
@@ -302,32 +317,26 @@ RunEffectInstantDeath(Object* target, SpellEffect& effect)
 }
 
 
-// #0 "Stat: AC vs. Damage Type Modifier". Parameter1 is the AC delta
-// (negative improves AC, matching AD&D 2e convention), Parameter2 is a
-// type bitmask (0=all, 1=Crushing, 2=Missile, 4=Piercing, 8=Slashing).
-// The "16 = Base AC setting" special case isn't implemented (logged and
-// dropped, like HP:Damage's unsupported modes) - it would need to know
-// the pre-effect AC to restore on cleanup, which this delta-based
-// apply/undo doesn't track.
+// #0 "Stat: AC vs. Damage Type Modifier". A positive Parameter1 improves the
+// AC; Parameter2 is a type bitmask (0=all, 1=Crushing, 2=Missile, 4=Piercing,
+// 8=Slashing) or 16 to bring the base AC down to Parameter1.
 static bool
 RunEffectACBonus(Object* target, SpellEffect& effect)
 {
 	Actor* actor = dynamic_cast<Actor*>(target);
-	if (actor == NULL)
+	if (actor == nullptr)
 		return true;
-
-	if (effect.Parameter2() == 16) {
-		std::cerr << Log::Red << target->Name()
-				<< ": Stat: AC Modifier \"Base AC setting\" not implemented"
-				<< Log::Normal << std::endl;
-		return true;
-	}
 
 	if (!effect.Initiated()) {
 		effect.SetInitiated();
 		if (_RollSave(actor, effect))
 			return true;
-		actor->CRE()->ModifyAC((int16)effect.Parameter1(), (uint8)effect.Parameter2());
+		int32 improvement = effect.Parameter1();
+		if (effect.Parameter2() == 16)
+			improvement = std::max<int32>(0, actor->ArmorClass() - improvement);
+		effect.SetApplied(improvement);
+		actor->CRE()->ModifyAC(static_cast<int16>(improvement),
+			effect.Parameter2() == 16 ? 0 : static_cast<uint8>(effect.Parameter2()));
 	}
 
 	return false;
@@ -338,9 +347,10 @@ static void
 CleanupEffectACBonus(Object* target, SpellEffect& effect)
 {
 	Actor* actor = dynamic_cast<Actor*>(target);
-	if (actor == NULL)
+	if (actor == nullptr)
 		return;
-	actor->CRE()->ModifyAC(-(int16)effect.Parameter1(), (uint8)effect.Parameter2());
+	actor->CRE()->ModifyAC(-static_cast<int16>(effect.Applied()),
+		effect.Parameter2() == 16 ? 0 : static_cast<uint8>(effect.Parameter2()));
 }
 
 

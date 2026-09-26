@@ -1,0 +1,16 @@
+# AREA: AR0602
+#
+# The AC a creature shows and is hit against: worn items count (opcode #0
+# while equipped: chain mail sets the base AC to 5, the shield improves it by
+# 1, so Ajantis with his CRE's AC 10 stands at 4), and a spell's AC effect
+# improves the AC with a positive Parameter1 and sets the base AC with
+# Parameter2 16 (Shield: base 4 for its duration, then back to 20).
+Assert-Trigger AJANTI,true,CheckStat(Myself,4,ARMORCLASS)
+Create-Creature RAT2,530,127
+Step-Ticks 5
+Assert-Trigger RAT2,true,CheckStat(Myself,20,ARMORCLASS)
+Run-Action RAT2,113,-,2114,-,-,0,0
+Step-Ticks 60
+Assert-Trigger RAT2,true,CheckStat(Myself,4,ARMORCLASS)
+Step-Ticks 3000
+Assert-Trigger RAT2,true,CheckStat(Myself,20,ARMORCLASS)

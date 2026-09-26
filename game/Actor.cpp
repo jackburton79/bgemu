@@ -2224,24 +2224,68 @@ Actor::_HandleScripts()
 }
 
 
-// The AC a weapon of the given damage type (ITM offset 0x1c) faces: the
-// effective AC plus the modifier for that type. Combo types (BG2 6/7/8)
-// and unknown values get no type modifier.
-static int16
-_ArmorClassFor(const ArmorClass& ac, uint16 weaponDamageType)
+// Bit of the CRE's AC modifiers (ModifyAC, opcode #0's Parameter2) a weapon
+// damage type (ITM offset 0x1c) is checked against; 0 for the others.
+static uint8
+_ArmorClassTypeMask(uint16 weaponDamageType)
 {
 	switch (weaponDamageType) {
 		case 1: // Piercing/Magic
-			return ac.effective + ac.piercing;
+			return 4;
 		case 2: // Blunt/Crushing
-			return ac.effective + ac.crushing;
+			return 1;
 		case 3: // Slashing
-			return ac.effective + ac.slashing;
+			return 8;
 		case 4: // Missile
-			return ac.effective + ac.missile;
+			return 2;
 		default:
-			return ac.effective;
+			return 0;
 	}
+}
+
+
+int16
+Actor::ArmorClass(uint16 damageType) const
+{
+	static const uint32 kWornSlots[] = { kSlotHelmet, kSlotArmor, kSlotShield,
+		kSlotGauntlets, kSlotRingLeft, kSlotRingLeft + 1, kSlotAmulet, kSlotBelt,
+		kSlotBoots, kSlotCloak };
+	const uint8 typeMask = _ArmorClassTypeMask(damageType);
+
+	const ::ArmorClass cre = fCRE->AC();
+	int16 base = cre.effective;
+	int16 bonus = 0;
+	if (typeMask & 1)
+		bonus += cre.crushing;
+	if (typeMask & 2)
+		bonus += cre.missile;
+	if (typeMask & 4)
+		bonus += cre.piercing;
+	if (typeMask & 8)
+		bonus += cre.slashing;
+
+	// Opcode #0 while worn: Parameter2 16 sets the base AC (the lowest wins),
+	// 0 improves all of it and a bitmask improves those damage types; a
+	// positive Parameter1 improves the AC.
+	for (uint32 slot : kWornSlots) {
+		IE::item item;
+		if (!fCRE->GetItemAtSlot(slot, item) || item.name.name[0] == '\0')
+			continue;
+		ITMResource* itm = gResManager->GetITM(item.name);
+		if (itm == nullptr)
+			continue;
+		for (const spl_effect& effect : itm->EquippingEffects()) {
+			if (effect.opcode != 0)
+				continue;
+			const int16 value = static_cast<int16>(effect.parameter1);
+			if (effect.parameter2 == 16)
+				base = std::min(base, value);
+			else if (effect.parameter2 == 0 || (effect.parameter2 & typeMask) != 0)
+				bonus -= value;
+		}
+		gResManager->ReleaseResource(itm);
+	}
+	return base + bonus;
 }
 
 
@@ -2253,7 +2297,7 @@ int32
 Actor::_ToHitRoll(const attack_profile& profile, Actor* target) const
 {
 	const int32 strengthToHit = profile.ranged ? 0 : StrengthBonus(CRE(), 0);
-	const int16 targetAC = _ArmorClassFor(target->CRE()->AC(), profile.ability.damageType);
+	const int16 targetAC = target->ArmorClass(profile.ability.damageType);
 	return CRE()->THAC0() - profile.ability.thac0Bonus - strengthToHit - targetAC;
 }
 
@@ -2298,8 +2342,7 @@ Actor::AttackTarget(Actor* target)
 
 	// Unlike AttackedBy above (posted for any attack attempt, hit or
 	// miss), HitBy(O:Object*,I:DameType*) only fires on an actual hit -
-	// damage-type filtering isn't implemented (see _ArmorClassFor()'s own
-	// scope note), so any damage type matches.
+	// damage-type filtering isn't implemented, so any damage type matches.
 	trigger_entry hitBy("HitBy", this);
 	hitBy.round = Core::Get()->ScriptRound();
 	target->AddTrigger(hitBy);

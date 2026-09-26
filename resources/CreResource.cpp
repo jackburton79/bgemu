@@ -472,12 +472,12 @@ CREResource::SetTHAC0(uint8 thac0)
 
 
 void
-CREResource::ModifyAC(int16 delta, uint8 typeMask)
+CREResource::ModifyAC(int16 improvement, uint8 typeMask)
 {
 	if (typeMask == 0) {
 		int16 effective;
 		fData->ReadAt(0x48, effective);
-		effective += delta;
+		effective -= improvement;
 		fData->WriteAt(0x48, &effective, sizeof(effective));
 		return;
 	}
@@ -493,7 +493,7 @@ CREResource::ModifyAC(int16 delta, uint8 typeMask)
 			continue;
 		int16 value;
 		fData->ReadAt(type.offset, value);
-		value += delta;
+		value -= improvement;
 		fData->WriteAt(type.offset, &value, sizeof(value));
 	}
 }

@@ -254,10 +254,10 @@ public:
 	void SetSaves(const SaveVersus& saves);
 	Resistances DamageResistances() const;
 
-	// Adds delta to the effective AC (typeMask 0) or to the modifiers of the
-	// damage types in typeMask (bit0=Crushing, bit1=Missile, bit2=Piercing,
-	// bit3=Slashing, IESDP opcode #0). Applying -delta undoes it.
-	void ModifyAC(int16 delta, uint8 typeMask);
+	// Improves (lowers, positive values) the effective AC (typeMask 0) or the
+	// modifiers of the damage types in typeMask (bit0=Crushing, bit1=Missile,
+	// bit2=Piercing, bit3=Slashing, IESDP opcode #0). -improvement undoes it.
+	void ModifyAC(int16 improvement, uint8 typeMask);
 	// Adds delta to THAC0 (lower is better) - same symmetric apply/undo
 	// pattern as ModifyAC().
 	void ModifyTHAC0(int8 delta);

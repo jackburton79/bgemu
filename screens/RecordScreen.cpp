@@ -153,7 +153,7 @@ RecordScreen::RefreshContent()
 
 	Label* acLabel = dynamic_cast<Label*>(window->GetControlByID(kRecACLabelID));
 	if (acLabel != NULL)
-		acLabel->SetText(std::to_string(actor->CRE()->AC().effective));
+		acLabel->SetText(std::to_string(actor->ArmorClass()));
 
 	_UpdateClassRaceLevelLabels(window, actor);
 	_UpdateSavesAndResistances(window, actor->CRE());

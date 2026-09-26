@@ -475,7 +475,7 @@ _StatValue(Actor* actor, int32 statID)
 	BaseAttributes attrs;
 	switch (statID) {
 		case 1: return cre->MaxHitPoints();
-		case 2: return cre->AC().effective;
+		case 2: return actor->ArmorClass();
 		case 7: return cre->THAC0();
 		case 8: return cre->NumberOfAttacks();
 		case 9: return cre->Saves().death;

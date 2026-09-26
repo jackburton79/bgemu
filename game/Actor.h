@@ -296,6 +296,11 @@ public:
 	// fire every single engine tick.
 	void AttackTarget(Actor* object);
 
+	// Armor class against a weapon damage type (ITM offset 0x1c; 0 = none in
+	// particular): the CRE's AC and modifiers plus what the worn items give.
+	// Lower is better. Weapons in hand aren't counted.
+	int16 ArmorClass(uint16 damageType = 0) const;
+
 	// The d20 roll this actor needs to hit target with the weapon in hand.
 	int32 ToHitRoll(Actor* target) const;
 
